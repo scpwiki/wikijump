@@ -2,6 +2,19 @@ const chk = require("chalk")
 
 const LEFT_LENGTH = 10
 
+/*
+ * This script's `formatLogs` function reformats and recolorizes
+ * `docker-compose` logging. This is a regex abomination, but it
+ * ultimately makes the CLI output much more readable. If this
+ * starts breaking something important, feel free to disable/delete
+ * this script.
+ */
+
+/**
+ * Formats logs emitted on `stdout` by `docker-compose log`.
+ *
+ * @param {Buffer} data
+ */
 function formatLogs(data) {
   const logs = parseLogs(data)
 
