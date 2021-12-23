@@ -31,8 +31,6 @@ services:
       dockerfile: install/local/dev/nginx/Dockerfile
     ports:
       - "80:80"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     depends_on:
       - php-fpm
 
@@ -50,8 +48,6 @@ services:
       interval: 60s
       timeout: 2s
       retries: 3
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     depends_on:
       database:
         condition: service_healthy
