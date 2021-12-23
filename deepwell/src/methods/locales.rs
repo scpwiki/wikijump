@@ -22,6 +22,20 @@ use super::prelude::*;
 use fluent::FluentArgs;
 use unic_langid::LanguageIdentifier;
 
+pub async fn message_head(req: ApiRequest) -> ApiResponse {
+    let locale_str = req.param("locale")?;
+    let message_key = req.param("message_key")?;
+
+    let locale = LanguageIdentifier::from_bytes(locale_str.as_bytes())?;
+
+    let result = req.state().localizations.has_message(&locale, message_key);
+    if result {
+        Ok(Response::new(StatusCode::NoContent))
+    } else {
+        Ok(Response::new(StatusCode::NotFound))
+    }
+}
+
 pub async fn message_get(req: ApiRequest) -> ApiResponse {
     let locale_str = req.param("locale")?;
     let message_key = req.param("message_key")?;
