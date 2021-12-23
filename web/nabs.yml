@@ -59,9 +59,10 @@ serve-sudo:
 
 # -- TESTING
 
-test: wtr --playwright
+test: vitest --run
+test:watch: vitest --watch
 
-cover: wtr --playwright --coverage
+cover: c8 vitest
 
 # -- VALIDATION
 

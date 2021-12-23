@@ -1,6 +1,11 @@
-import { assert } from "@esm-bundle/chai"
+import fs from "fs/promises"
+import { assert, describe, it } from "vitest"
 import * as lib from "../src/index"
 import type { IPageInfo } from "../vendor/ftml"
+
+const wasm = await fs.readFile("modules/ftml-wasm/vendor/ftml_bg.wasm")
+
+await lib.init(wasm)
 
 const jsons = import.meta.globEager("/../ftml/test/*.json")
 const htmls = import.meta.globEager("/../ftml/test/*.html?raw")
@@ -20,8 +25,6 @@ const PAGE_INFO: IPageInfo = {
   title: ""
 }
 
-lib.init()
-
 describe("ftml-tests", () => {
   for (const path in jsons) {
     const name = path
@@ -35,8 +38,7 @@ describe("ftml-tests", () => {
     const html = htmls[path.replace(/\.json$/, ".html")]?.default
     const txt = txts[path.replace(/\.json$/, ".txt")]?.default
 
-    it(name, async () => {
-      await lib.loading
+    it(name, () => {
       if (html || txt) {
         const info = { ...PAGE_INFO, title: name, page: `page-${name}` }
 

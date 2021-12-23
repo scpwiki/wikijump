@@ -24,18 +24,9 @@ const SVELTE_OPTIONS = {
     if (warning.code === "unused-export-let") return
     if (handler) handler(warning)
   },
+  hot: !process.env.VITEST,
   experimental: {
     generateMissingPreprocessorSourcemaps: true
-  }
-}
-
-const SVELTE_TEST_OPTIONS = {
-  ...SVELTE_OPTIONS,
-  emitCss: false,
-  compilerOptions: {
-    enableSourcemap: true,
-    immutable: true,
-    cssHash: () => "svelte"
   }
 }
 
@@ -51,21 +42,6 @@ const PHP_CONFIG = {
   "commands": []
 }
 
-// because esbuild rips out comments, esbuild will not preserve
-// the comments we need for ignoring lines
-// however, it does preserve legal comments, /*! or //!
-// but c8 doesn't recognize those!
-// so we have to transform those back into normal comments
-// before we let c8 parse them
-const RollupFixLegalCommentsPlugin = {
-  transform(code, id) {
-    // use two spaces so we don't change the length of the document
-    code = code.replaceAll("/*! c8", "/*  c8")
-    // null map informs rollup to preserve the current sourcemap
-    return { code, map: null }
-  }
-}
-
 // TODO: optimize imported FTL files by removing blank lines and comments
 /** Handles importing of Fluent FTL files. */
 const PluginFTL = transformerPlugin("ftl", /\.ftl$/, src => jsonStringify(src))
@@ -76,6 +52,7 @@ const PluginTOML = transformerPlugin("toml", /\.toml$/, src => {
   return jsonStringify(obj)
 })
 
+/** Handles importing of YAML files. */
 const PluginYAML = transformerPlugin("yaml", /\.ya?ml$/, src => {
   const obj = yaml.load(src)
   if (!obj || typeof obj !== "object") throw new Error("Invalid YAML provided.")
@@ -133,45 +110,22 @@ const BaseConfig = () => ({
     exclude: modules
   },
 
-  plugins: [PluginFTL, PluginTOML, PluginYAML, svelte(SVELTE_OPTIONS)]
-})
+  plugins: [PluginFTL, PluginTOML, PluginYAML, svelte(SVELTE_OPTIONS)],
 
-/** @returns {import("vite").UserConfig} */
-const TestConfig = () => ({
-  ...BaseConfig(),
+  // Vitest
 
-  publicDir: false,
-  root: ROOT,
-
-  server: {
-    middlewareMode: "ssr",
-    hmr: false,
-    fs: { strict: false }
-  },
-
-  build: {
-    assetsDir: "./",
-    sourcemap: "inline",
-    target: "esnext",
-    minify: false,
-    brotliSize: false,
-    cssCodeSplit: false,
-    rollupOptions: {
-      plugins: [RollupFixLegalCommentsPlugin],
-      treeshake: false
+  test: {
+    root: ROOT,
+    environment: "happy-dom",
+    include: ["./modules/**/tests/**/*.{js,ts}"],
+    setupFiles: ["./scripts/test-setup.js"],
+    deps: {
+      inline: ["threads", "observable-fns"]
     }
-  },
-
-  optimizeDeps: {
-    entries: "modules/*/{tests,src}/**/*.{svelte,js,jsx,ts,tsx}",
-    include: ["@esm-bundle/chai", "@testing-library/svelte"],
-    exclude: modules
-  },
-
-  plugins: [PluginFTL, PluginTOML, PluginYAML, svelte(SVELTE_TEST_OPTIONS)]
+  }
 })
 
-module.exports = { PHP_CONFIG, BaseConfig, TestConfig }
+module.exports = { PHP_CONFIG, BaseConfig }
 
 // internal utility functions
 

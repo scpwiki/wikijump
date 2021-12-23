@@ -1,4 +1,4 @@
-import { assert } from "@esm-bundle/chai"
+import { assert, describe, it } from "vitest"
 import { LifecycleElement } from "../src/svelte/svelte-lifecycle-element"
 
 // testing the other adapters might not really be possible, at least in this module

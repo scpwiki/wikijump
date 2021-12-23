@@ -1,4 +1,4 @@
-import { expect } from "@esm-bundle/chai"
+import { describe, expect, it } from "vitest"
 import * as lib from "../src/index"
 
 describe("@wikijump/prism", () => {
