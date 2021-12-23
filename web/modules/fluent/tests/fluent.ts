@@ -24,7 +24,7 @@ const de_map: FluentImportMap = {
 }
 
 const fr_map: FluentImportMap = {
-  "fr-CA": () => Promise.resolve("oui = yes")
+  "fr": () => Promise.resolve("oui = yes")
 }
 
 const component = new lib.FluentComponent("resource", en_de_map)
