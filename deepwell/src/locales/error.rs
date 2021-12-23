@@ -49,7 +49,7 @@ pub fn fluent_load_err<T: Debug>(item: T) -> LocalizationLoadError {
 }
 
 #[derive(ThisError, Debug)]
-pub enum LocalizationFetchError {
+pub enum LocalizationTranslateError {
     #[error("No messages are available for this locale")]
     NoLocale,
 

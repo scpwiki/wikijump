@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::error::{fluent_load_err, LocalizationFetchError, LocalizationLoadError};
+use super::error::{fluent_load_err, LocalizationTranslateError, LocalizationLoadError};
 use async_std::fs;
 use async_std::path::{Path, PathBuf};
 use async_std::prelude::*;
@@ -117,11 +117,11 @@ impl Localizations {
         &self,
         locale: &LanguageIdentifier,
         key: &str,
-    ) -> Result<FluentMessage, LocalizationFetchError> {
+    ) -> Result<FluentMessage, LocalizationTranslateError> {
         match self.bundles.get(locale) {
-            None => Err(LocalizationFetchError::NoLocale),
+            None => Err(LocalizationTranslateError::NoLocale),
             Some(bundle) => match bundle.get_message(key) {
-                None => Err(LocalizationFetchError::NoMessage),
+                None => Err(LocalizationTranslateError::NoMessage),
                 Some(message) => Ok(message),
             },
         }
@@ -131,7 +131,7 @@ impl Localizations {
         &'bundle self,
         message: &FluentMessage,
         args: &FluentArgs,
-    ) -> Result<Cow<'bundle, str>, LocalizationFetchError> {
+    ) -> Result<Cow<'bundle, str>, LocalizationTranslateError> {
         todo!()
     }
 }
