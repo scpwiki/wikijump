@@ -65,10 +65,6 @@ impl Localizations {
         bundles: &mut HashMap<LanguageIdentifier, FluentBundle>,
         directory: &Path,
     ) -> Result<(), LocalizationLoadError> {
-        let component = directory
-            .file_name()
-            .expect("No base name in component path");
-
         let mut entries = fs::read_dir(directory).await?;
 
         while let Some(result) = entries.next().await {
