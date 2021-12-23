@@ -22,8 +22,9 @@ use super::error::{fluent_load_err, LocalizationFetchError, LocalizationLoadErro
 use async_std::fs;
 use async_std::path::{Path, PathBuf};
 use async_std::prelude::*;
-use fluent::{bundle, FluentMessage, FluentResource};
+use fluent::{bundle, FluentArgs, FluentMessage, FluentResource};
 use intl_memoizer::concurrent::IntlLangMemoizer;
+use std::borrow::Cow;
 use std::collections::HashMap;
 use std::fmt::{self, Debug};
 use unic_langid::LanguageIdentifier;
@@ -118,12 +119,20 @@ impl Localizations {
         key: &str,
     ) -> Result<FluentMessage, LocalizationFetchError> {
         match self.bundles.get(locale) {
-            Some(bundle) => match bundle.get_message(key) {
-                Some(message) => Ok(message),
-                None => Err(LocalizationFetchError::NoMessage),
-            },
             None => Err(LocalizationFetchError::NoLocale),
+            Some(bundle) => match bundle.get_message(key) {
+                None => Err(LocalizationFetchError::NoMessage),
+                Some(message) => Ok(message),
+            },
         }
+    }
+
+    pub fn translate<'bundle>(
+        &'bundle self,
+        message: &FluentMessage,
+        args: &FluentArgs,
+    ) -> Result<Cow<'bundle, str>, LocalizationFetchError> {
+        todo!()
     }
 }
 

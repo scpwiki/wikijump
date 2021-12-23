@@ -55,4 +55,7 @@ pub enum LocalizationFetchError {
 
     #[error("Message key not found for this locale")]
     NoMessage,
+
+    #[error("Message key was found, but has no value")]
+    NoMessageValue,
 }
