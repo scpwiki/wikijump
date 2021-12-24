@@ -37,7 +37,7 @@ importers:
       prettier-plugin-svelte: ^2.5.1
       pretty-ms: ^7.0.1
       query-string: 6.14.1
-      rollup: ^2.61.1
+      rollup: ^2.62.0
       sass: ^1.45.1
       stylelint: ^14.2.0
       stylelint-config-recess-order: ^3.0.0
@@ -47,7 +47,7 @@ importers:
       svelte-preprocess: ^4.10.1
       typescript: ^4.5.4
       vite: ^2.7.6
-      vitest: ^0.0.109
+      vitest: ^0.0.113
     dependencies:
       '@ltd/j-toml': 1.24.0
       '@sveltejs/vite-plugin-svelte': 1.0.0-next.32_c5786cc14f71a02050f9fbb452af9e76
@@ -59,7 +59,7 @@ importers:
       laravel-vite: 0.0.23
       npm-run-all: 4.1.5
       query-string: 6.14.1
-      rollup: 2.61.1
+      rollup: 2.62.0
       sass: 1.45.1
       svelte: 3.44.3
       svelte-preprocess: 4.10.1_9a6c3a25b38bf77ee3876e00bde108a7
@@ -93,7 +93,7 @@ importers:
       stylelint-config-recess-order: 3.0.0_stylelint@14.2.0
       stylelint-order: 5.0.0_stylelint@14.2.0
       stylelint-scss: 4.1.0_stylelint@14.2.0
-      vitest: 0.0.109_12e716a96443584645c3db502ee087fe
+      vitest: 0.0.113_12e716a96443584645c3db502ee087fe
 
   modules/api:
     specifiers:
@@ -6262,8 +6262,8 @@ packages:
       glob: 7.2.0
     dev: true
 
-  /rollup/2.61.1:
-    resolution: {integrity: sha512-BbTXlEvB8d+XFbK/7E5doIcRtxWPRiqr0eb5vQ0+2paMM04Ye4PZY5nHOQef2ix24l/L0SpLd5hwcH15QHPdvA==}
+  /rollup/2.62.0:
+    resolution: {integrity: sha512-cJEQq2gwB0GWMD3rYImefQTSjrPYaC6s4J9pYqnstVLJ1CHa/aZNVkD4Epuvg4iLeMA4KRiq7UM7awKK6j7jcw==}
     engines: {node: '>=10.0.0'}
     hasBin: true
     optionalDependencies:
@@ -7061,8 +7061,8 @@ packages:
     dev: false
     optional: true
 
-  /tinypool/0.0.5:
-    resolution: {integrity: sha512-5fUjvd0Dcr2a4b3gSAtg58cE0bDX9tc4zsRWEVGxhHUSN1DhITtRK9myC9wFzaZ+a/pP3bJaGIHXBqlrj6XgZg==}
+  /tinypool/0.0.6:
+    resolution: {integrity: sha512-E9vY6eq/Q7fUlSt69cY3y7qXNbVOFaxP+lAEDMKMObLrmO0MmEdUPyjOMgepoMDw/ps/sazl7WIQglnUrunnLg==}
     engines: {node: '>=14.0.0'}
     dev: true
 
@@ -7357,14 +7357,14 @@ packages:
       esbuild: 0.13.15
       postcss: 8.4.5
       resolve: 1.20.0
-      rollup: 2.61.1
+      rollup: 2.62.0
       sass: 1.45.1
     optionalDependencies:
       fsevents: 2.3.2
     dev: false
 
-  /vitest/0.0.109_12e716a96443584645c3db502ee087fe:
-    resolution: {integrity: sha512-OC0WNQCOEkKljQf6o4FVlPELvubPw1WiprkALqWwE+kwH7f7u8AKwxI2NefP8d0EgfHuOU5TnRhjsE69TeFdaQ==}
+  /vitest/0.0.113_12e716a96443584645c3db502ee087fe:
+    resolution: {integrity: sha512-GRIZqFEkR0uGddoSp9uyevkS6GEMRZtIX1laCvsnsnrz3tAKR/RTLPjXBqXhFZwjueUDRyJEwD4KGD+1KXOsgw==}
     engines: {node: '>=14.14.0'}
     hasBin: true
     peerDependencies:
@@ -7386,7 +7386,7 @@ packages:
       chai: 4.3.4
       happy-dom: 2.25.1
       local-pkg: 0.4.0
-      tinypool: 0.0.5
+      tinypool: 0.0.6
       tinyspy: 0.2.6
       vite: 2.7.6_sass@1.45.1
     dev: true
