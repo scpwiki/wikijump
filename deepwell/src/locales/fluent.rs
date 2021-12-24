@@ -142,7 +142,7 @@ impl Localizations {
             None => Err(LocalizationTranslateError::NoMessageValue),
             Some(pattern) => {
                 let mut errors = vec![];
-                let output = bundle.format_pattern(&pattern, Some(args), &mut errors);
+                let output = bundle.format_pattern(pattern, Some(args), &mut errors);
 
                 if !errors.is_empty() {
                     tide::log::warn!(

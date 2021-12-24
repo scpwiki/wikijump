@@ -49,6 +49,7 @@ pub fn fluent_load_err<T: Debug>(item: T) -> LocalizationLoadError {
 }
 
 #[derive(ThisError, Debug)]
+#[allow(clippy::enum_variant_names)]
 pub enum LocalizationTranslateError {
     #[error("No messages are available for this locale")]
     NoLocale,
