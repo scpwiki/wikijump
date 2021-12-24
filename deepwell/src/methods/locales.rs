@@ -42,7 +42,7 @@ pub async fn message_post(mut req: ApiRequest) -> ApiResponse {
     let message_key = req.param("message_key")?;
 
     let locale = LanguageIdentifier::from_bytes(locale_str.as_bytes())?;
-    let arguments = input.to_fluent_args();
+    let arguments = input.into_fluent_args();
 
     let result = req
         .state()

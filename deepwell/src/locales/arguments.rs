@@ -29,8 +29,14 @@ pub struct MessageArguments<'a> {
 }
 
 impl<'a> MessageArguments<'a> {
-    pub fn to_fluent_args(&self) -> FluentArgs {
-        todo!()
+    pub fn into_fluent_args(self) -> FluentArgs<'a> {
+        let mut args = FluentArgs::new();
+
+        for (name, value) in self.inner {
+            args.set(name, value);
+        }
+
+        args
     }
 }
 
