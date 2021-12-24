@@ -80,7 +80,7 @@ impl Localizations {
 
             // Get locale from filename
             let locale_name = path
-                .file_name()
+                .file_stem()
                 .expect("No base name in locale path")
                 .to_str()
                 .expect("Path is not valid UTF-8");
