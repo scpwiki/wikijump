@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Wikijump\Services\DEEPWELL;
+namespace Wikijump\Services\Deepwell;
 
 use Carbon\Carbon;
 use GuzzleHttp\Client;
