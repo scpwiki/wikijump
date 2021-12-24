@@ -1,4 +1,4 @@
-const chk = require("chalk")
+const pc = require("picocolors")
 
 const LEFT_LENGTH = 10
 
@@ -25,20 +25,20 @@ function formatLogs(data) {
 
     prefix = prefix.replace(name, colorName(name))
 
-    let line = `${prefix}${chk.gray("│")} `
+    let line = `${prefix}${pc.gray("│")} `
 
-    if (time) line += `${chk.dim(`[${time}]`)} `
+    if (time) line += `${pc.dim(`[${time}]`)} `
 
     if (level) {
       // prettier-ignore
       switch (level.toLowerCase()) {
-        case "info":    line += chk.bold(chk.greenBright(level)) ; break
-        case "notice":  line += chk.bold(chk.greenBright(level)) ; break
-        case "warn":    line += chk.bold(chk.yellow(level))      ; break
-        case "warning": line += chk.bold(chk.yellow(level))      ; break
-        case "error":   line += chk.bold(chk.red(level))         ; break
-        case "debug":   line += chk.bold(chk.blue(level))        ; break
-        default:        line += chk.bold(chk.gray(level))        ; break
+        case "info":    line += pc.bold(pc.green(level))  ; break
+        case "notice":  line += pc.bold(pc.green(level))  ; break
+        case "warn":    line += pc.bold(pc.yellow(level)) ; break
+        case "warning": line += pc.bold(pc.yellow(level)) ; break
+        case "error":   line += pc.bold(pc.red(level))    ; break
+        case "debug":   line += pc.bold(pc.blue(level))   ; break
+        default:        line += pc.bold(pc.gray(level))   ; break
       }
       line += " "
     }
@@ -46,10 +46,10 @@ function formatLogs(data) {
     if (message && level) {
       // prettier-ignore
       switch (level.toLowerCase()) {
-        case "warn":    line += chk.yellow(message) ; break
-        case "warning": line += chk.yellow(message) ; break
-        case "error":   line += chk.red(message)    ; break
-        default:        line += message             ; break
+        case "warn":    line += pc.yellow(message) ; break
+        case "warning": line += pc.yellow(message) ; break
+        case "error":   line += pc.red(message)    ; break
+        default:        line += message            ; break
       }
     } else {
       line += message
@@ -58,7 +58,7 @@ function formatLogs(data) {
     if (followup) {
       line += "\n"
       line += followup
-        .map(line => `${prefix}${chk.gray("╎")}     ${chk.green(line)}`)
+        .map(line => `${prefix}${pc.gray("╎")}     ${pc.green(line)}`)
         .join("\n")
     }
 
@@ -134,11 +134,11 @@ function parseLine(line) {
 function colorName(name) {
   // prettier-ignore
   switch (name) {
-    case "nginx":    return chk.blueBright(name)
-    case "php-fpm":  return chk.blue(name)
-    case "api":      return chk.cyan(name)
-    case "cache" :   return chk.yellow(name)
-    case "database": return chk.magenta(name)
+    case "nginx":    return pc.white(name)
+    case "php-fpm":  return pc.blue(name)
+    case "api":      return pc.cyan(name)
+    case "cache" :   return pc.yellow(name)
+    case "database": return pc.magenta(name)
   }
 
   return name

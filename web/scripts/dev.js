@@ -4,7 +4,7 @@ const readline = require("readline")
 const formatMS = require("pretty-ms")
 const { formatLogs } = require("./pretty-docker-logs")
 const {
-  chalk,
+  pc,
   error,
   info,
   infoline,
@@ -96,7 +96,7 @@ async function startVite() {
     return process.exit()
   }
 
-  console.log(`${chalk.green("Vite started")} (${chalk.blueBright(vite.config.mode)})`)
+  console.log(`${pc.green("Vite started")} (${pc.blue(vite.config.mode)})`)
   vite.printUrls()
 }
 
