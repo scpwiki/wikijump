@@ -19,16 +19,69 @@
  */
 
 use super::prelude::*;
+use crate::locales::MessageArguments;
+use ref_map::*;
+use unic_langid::LanguageIdentifier;
 
-pub async fn message_get(req: ApiRequest) -> ApiResponse {
-    let locale = req.param("locale")?;
+pub async fn locale_head(req: ApiRequest) -> ApiResponse {
+    locale_get(req).await?;
+    Ok(Response::new(StatusCode::NoContent))
+}
+
+#[derive(Serialize, Debug)]
+struct LocaleOutput<'a> {
+    language: &'a str,
+    script: Option<&'a str>,
+    region: Option<&'a str>,
+    variants: Vec<String>,
+}
+
+pub async fn locale_get(req: ApiRequest) -> ApiResponse {
+    let locale_str = req.param("locale")?.as_bytes();
+
+    let locale = LanguageIdentifier::from_bytes(locale_str)
+        .map_err(|error| TideError::new(StatusCode::BadRequest, error))?;
+
+    let output = LocaleOutput {
+        language: locale.language.as_str(),
+        script: locale.script.ref_map(|s| s.as_str()),
+        region: locale.region.ref_map(|s| s.as_str()),
+        variants: locale.variants().map(|v| v.as_str().into()).collect(),
+    };
+
+    let body = Body::from_json(&output)?;
+    Ok(body.into())
+}
+
+pub async fn message_head(req: ApiRequest) -> ApiResponse {
+    let locale_str = req.param("locale")?;
     let message_key = req.param("message_key")?;
 
-    let message = req
+    let locale = LanguageIdentifier::from_bytes(locale_str.as_bytes())?;
+
+    let result = req.state().localizations.has_message(&locale, message_key);
+    if result {
+        Ok(Response::new(StatusCode::NoContent))
+    } else {
+        Ok(Response::new(StatusCode::NotFound))
+    }
+}
+
+pub async fn message_post(mut req: ApiRequest) -> ApiResponse {
+    let input: MessageArguments = req.body_json().await?;
+    let locale_str = req.param("locale")?;
+    let message_key = req.param("message_key")?;
+
+    let locale = LanguageIdentifier::from_bytes(locale_str.as_bytes())?;
+    let arguments = input.into_fluent_args();
+
+    let result = req
         .state()
         .localizations
-        .translate(locale, message_key)
-        .into();
+        .translate(&locale, message_key, &arguments);
 
-    Ok(message)
+    match result {
+        Ok(message) => Ok(message.into()),
+        Err(error) => Err(ServiceError::from(error).into_tide_error()),
+    }
 }

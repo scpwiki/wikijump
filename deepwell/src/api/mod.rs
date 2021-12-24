@@ -56,7 +56,7 @@ pub async fn build_server(config: Config) -> Result<ApiServer> {
 
     // Load localization data
     tide::log::info!("Loading localization data");
-    let localizations = Localizations::open(&config.localization_path)?;
+    let localizations = Localizations::open(&config.localization_path).await?;
 
     // Create server state
     let state = Arc::new(ServerState {

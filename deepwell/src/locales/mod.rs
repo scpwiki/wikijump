@@ -1,5 +1,5 @@
 /*
- * methods/mod.rs
+ * locales/mod.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -18,19 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod prelude {
-    pub use crate::api::{ApiRequest, ApiResponse};
-    pub use crate::services::{
-        Error as ServiceError, PostTransactionToApiResponse, RequestFetchService,
-    };
-    pub use crate::web::{utils::error_response, HttpUnwrap, ItemReference};
-    pub use chrono::prelude::*;
-    pub use sea_orm::ConnectionTrait;
-    pub use std::convert::TryFrom;
-    pub use tide::{Body, Error as TideError, Request, Response, StatusCode};
-}
+mod arguments;
+mod error;
+mod fluent;
 
-pub mod locales;
-pub mod misc;
-pub mod page;
-pub mod user;
+pub use self::arguments::{MessageArguments, MessageValue};
+pub use self::error::*;
+pub use self::fluent::Localizations;

@@ -26,15 +26,30 @@ use std::net::SocketAddr;
 use std::num::NonZeroU32;
 use std::path::PathBuf;
 use std::process;
+use tide::log::LevelFilter;
 
 const MIN_SECRET_LENGTH: usize = 64;
 
 #[derive(Debug, Clone)]
 pub struct Config {
     /// Whether the logger should be enabled or not.
+    /// Also enables colorful backtraces.
     ///
     /// Can be set using environment variable `ENABLE_LOGGER`.
     pub logger: bool,
+
+    /// What log level to use during execution.
+    ///
+    /// One of:
+    /// * `off`
+    /// * `error`
+    /// * `warn`
+    /// * `info`
+    /// * `debug`
+    /// * `trace`
+    ///
+    /// Can be set using environment variable `LOGGER_LEVEL`.
+    pub logger_level: LevelFilter,
 
     /// The address the server will be hosted on.
     ///
@@ -73,10 +88,11 @@ impl Default for Config {
     fn default() -> Self {
         Config {
             logger: true,
+            logger_level: LevelFilter::Info,
             address: "[::]:2747".parse().unwrap(),
             database_url: str!("postgres://localhost"),
             run_migrations: true,
-            localization_path: PathBuf::from("../locales/out"),
+            localization_path: PathBuf::from("../locales"),
             rate_limit_per_minute: NonZeroU32::new(20).unwrap(),
             rate_limit_secret: String::new(),
         }
@@ -94,6 +110,16 @@ fn read_env(config: &mut Config) {
         } else {
             eprintln!("ENABLE_LOGGER variable is not a valid boolean value");
             process::exit(1);
+        }
+    }
+
+    if let Ok(value) = env::var("LOGGER_LEVEL") {
+        match get_log_level(&value) {
+            Some(level) => config.logger_level = level,
+            None => {
+                eprintln!("LOGGER_LEVEL variable does not have a valid logging level");
+                process::exit(1);
+            }
         }
     }
 
@@ -172,6 +198,15 @@ fn parse_args(config: &mut Config) {
                 .help("Disable logging output."),
         )
         .arg(
+            Arg::with_name("log-level")
+                .short("l")
+                .long("log")
+                .long("log-level")
+                .takes_value(true)
+                .value_name("level")
+                .help("What logging level to use."),
+        )
+        .arg(
             Arg::with_name("host")
                 .short("h")
                 .long("host")
@@ -227,6 +262,16 @@ fn parse_args(config: &mut Config) {
     // Parse arguments and modify config
     if matches.is_present("disable-log") {
         config.logger = false;
+    }
+
+    if let Some(value) = matches.value_of("log-level") {
+        match get_log_level(value) {
+            Some(level) => config.logger_level = level,
+            None => {
+                eprintln!("Invalid logging level: {}", value);
+                process::exit(1);
+            }
+        }
     }
 
     if let Some(value) = matches.value_of("host") {
@@ -310,4 +355,27 @@ impl Config {
             bool_str(!self.rate_limit_secret.is_empty()),
         );
     }
+}
+
+fn get_log_level(value: &str) -> Option<LevelFilter> {
+    const LEVELS: [(&str, LevelFilter); 10] = [
+        ("off", LevelFilter::Off),
+        ("err", LevelFilter::Error),
+        ("error", LevelFilter::Error),
+        ("warn", LevelFilter::Warn),
+        ("warning", LevelFilter::Warn),
+        ("info", LevelFilter::Info),
+        ("information", LevelFilter::Info),
+        ("debug", LevelFilter::Debug),
+        ("trace", LevelFilter::Trace),
+        ("all", LevelFilter::Trace),
+    ];
+
+    for &(name, level) in &LEVELS {
+        if value.eq_ignore_ascii_case(name) {
+            return Some(level);
+        }
+    }
+
+    None
 }

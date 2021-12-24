@@ -53,9 +53,11 @@ async fn main() -> Result<()> {
     let socket_address = config.address;
 
     if config.logger {
-        tide::log::start();
+        tide::log::with_level(config.logger_level);
         tide::log::info!("Loaded server configuration:");
         config.log();
+
+        color_backtrace::install();
     }
 
     if config.run_migrations {
