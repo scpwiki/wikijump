@@ -29,6 +29,27 @@ final class DeepwellService
         ]);
     }
 
+    // Localization
+    public function parseLocale(string $locale): ?object
+    {
+        $resp = $this->client->get("locale/$locale");
+        if ($resp->getStatusCode() === 400) {
+            return null;
+        }
+
+        return self::readJson($resp);
+    }
+
+    public function translate(string $locale, string $key, array $values = []): ?string
+    {
+        $resp = $this->client->post("message/$locale/$key", ['json' => $values]);
+        if ($resp->getStatusCode() !== 200) {
+            return null;
+        }
+
+        return (string) $resp->getBody();
+    }
+
     // User
     public function getUserById(int $id): ?object
     {
