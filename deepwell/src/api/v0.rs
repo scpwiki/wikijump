@@ -40,7 +40,7 @@ pub fn build(mut app: ApiServer) -> ApiServer {
     // Localization
     app.at("/message/:locale/:message_key")
         .head(message_head)
-        .get(message_get);
+        .post(message_post);
 
     // User
     app.at("/user").post(user_create);

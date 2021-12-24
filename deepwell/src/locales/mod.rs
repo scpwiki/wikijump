@@ -18,8 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod arguments;
 mod error;
 mod fluent;
 
+pub use self::arguments::{MessageArguments, MessageValue};
 pub use self::error::*;
 pub use self::fluent::Localizations;

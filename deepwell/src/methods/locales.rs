@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use fluent::FluentArgs;
+use crate::locales::MessageArguments;
 use unic_langid::LanguageIdentifier;
 
 pub async fn message_head(req: ApiRequest) -> ApiResponse {
@@ -36,12 +36,13 @@ pub async fn message_head(req: ApiRequest) -> ApiResponse {
     }
 }
 
-pub async fn message_get(req: ApiRequest) -> ApiResponse {
+pub async fn message_post(mut req: ApiRequest) -> ApiResponse {
+    let input: MessageArguments = req.body_json().await?;
     let locale_str = req.param("locale")?;
     let message_key = req.param("message_key")?;
 
     let locale = LanguageIdentifier::from_bytes(locale_str.as_bytes())?;
-    let arguments = FluentArgs::new();
+    let arguments = input.to_fluent_args();
 
     let result = req
         .state()
