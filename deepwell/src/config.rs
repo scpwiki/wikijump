@@ -32,6 +32,7 @@ const MIN_SECRET_LENGTH: usize = 64;
 #[derive(Debug, Clone)]
 pub struct Config {
     /// Whether the logger should be enabled or not.
+    /// Also enables colorful backtraces.
     ///
     /// Can be set using environment variable `ENABLE_LOGGER`.
     pub logger: bool,

@@ -18,6 +18,7 @@ anyhow = "1"
 async-std = { version = "1", features = ["attributes"] }
 chrono = { version = "0.4", features = ["serde"] }
 clap = "2"
+color-backtrace = "0.5"
 dotenv = "0.15"
 fluent = "0.16"
 governor = "0.3"

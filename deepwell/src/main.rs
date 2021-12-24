@@ -56,6 +56,8 @@ async fn main() -> Result<()> {
         tide::log::start();
         tide::log::info!("Loaded server configuration:");
         config.log();
+
+        color_backtrace::install();
     }
 
     if config.run_migrations {
