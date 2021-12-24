@@ -20,7 +20,36 @@
 
 use super::prelude::*;
 use crate::locales::MessageArguments;
+use ref_map::*;
 use unic_langid::LanguageIdentifier;
+
+pub async fn locale_head(req: ApiRequest) -> ApiResponse {
+    locale_get(req).await?;
+    Ok(Response::new(StatusCode::NoContent))
+}
+
+#[derive(Serialize, Debug)]
+struct LocaleOutput<'a> {
+    language: &'a str,
+    script: Option<&'a str>,
+    region: Option<&'a str>,
+    variants: Vec<String>,
+}
+
+pub async fn locale_get(req: ApiRequest) -> ApiResponse {
+    let locale_str = req.param("locale")?;
+
+    let locale = LanguageIdentifier::from_bytes(locale_str.as_bytes())?;
+    let output = LocaleOutput {
+        language: locale.language.as_str(),
+        script: locale.script.ref_map(|s| s.as_str()),
+        region: locale.region.ref_map(|s| s.as_str()),
+        variants: locale.variants().map(|v| v.as_str().into()).collect(),
+    };
+
+    let body = Body::from_json(&output)?;
+    Ok(body.into())
+}
 
 pub async fn message_head(req: ApiRequest) -> ApiResponse {
     let locale_str = req.param("locale")?;
