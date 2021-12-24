@@ -38,6 +38,8 @@ impl Localizations {
     pub async fn open<P: Into<PathBuf>>(
         directory: P,
     ) -> Result<Self, LocalizationLoadError> {
+        tide::log::debug!("Reading Fluent localization directory...");
+
         let directory = {
             let mut path = directory.into();
             path.push("fluent");
@@ -65,6 +67,7 @@ impl Localizations {
         bundles: &mut HashMap<LanguageIdentifier, FluentBundle>,
         directory: &Path,
     ) -> Result<(), LocalizationLoadError> {
+        tide::log::debug!("Reading component at {}", directory.display());
         let mut entries = fs::read_dir(directory).await?;
 
         while let Some(result) = entries.next().await {
@@ -80,10 +83,10 @@ impl Localizations {
                 .file_name()
                 .expect("No base name in locale path")
                 .to_str()
-                .expect("Path is not valid UTF-8")
-                .as_bytes();
+                .expect("Path is not valid UTF-8");
 
-            let locale = LanguageIdentifier::from_bytes(locale_name)?;
+            tide::log::debug!("Loading locale {}", locale_name);
+            let locale = LanguageIdentifier::from_bytes(locale_name.as_bytes())?;
 
             // Read and parse localization strings
             let source = fs::read_to_string(&path).await?;
