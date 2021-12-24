@@ -145,7 +145,7 @@ impl Localizations {
         tide::log::info!(
             "Fetching translation for locale {}, message key {}",
             locale,
-            key
+            key,
         );
 
         match self.bundles.get(locale) {
