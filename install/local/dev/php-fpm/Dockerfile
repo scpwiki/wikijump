@@ -121,7 +121,7 @@ RUN /src/setup-misc.sh
 COPY ./install/files/php-fpm/run.sh /app/run.sh
 
 # Cleanup
-RUN rm -rf /src /usr/bin/composer
+# Don't remove composer for the local container
 
 # We'll need to change the owner of the public directory,
 # so that the user www-data can write to it.
