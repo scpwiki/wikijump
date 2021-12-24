@@ -37,9 +37,10 @@ struct LocaleOutput<'a> {
 }
 
 pub async fn locale_get(req: ApiRequest) -> ApiResponse {
-    let locale_str = req.param("locale")?;
+    let locale_str = req.param("locale")?.as_bytes();
 
-    let locale = LanguageIdentifier::from_bytes(locale_str.as_bytes())?;
+    let locale = LanguageIdentifier::from_bytes(locale_str)
+        .map_err(|error| TideError::new(StatusCode::BadRequest, error))?;
     let output = LocaleOutput {
         language: locale.language.as_str(),
         script: locale.script.ref_map(|s| s.as_str()),

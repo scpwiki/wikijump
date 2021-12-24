@@ -27,7 +27,7 @@ mod prelude {
     pub use chrono::prelude::*;
     pub use sea_orm::ConnectionTrait;
     pub use std::convert::TryFrom;
-    pub use tide::{Body, Request, Response, StatusCode};
+    pub use tide::{Body, Error as TideError, Request, Response, StatusCode};
 }
 
 pub mod locales;
