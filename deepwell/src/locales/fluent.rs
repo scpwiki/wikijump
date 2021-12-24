@@ -104,6 +104,20 @@ impl Localizations {
         Ok(())
     }
 
+    /// Parses a message key to split the path from the attribute, if present.
+    ///
+    /// Fluent does not permit multiple periods in a message key, having multiple
+    /// is a logical error.
+    pub fn parse_selector<'a>(key: &'a str) -> (&'a str, Option<&'a str>) {
+        match key.find('.') {
+            None => (key, None),
+            Some(idx) => {
+                let (path, attribute) = key.split_at(idx);
+                (path, Some(attribute))
+            }
+        }
+    }
+
     pub fn has_message(&self, locale: &LanguageIdentifier, key: &str) -> bool {
         self.bundles
             .get(locale)
