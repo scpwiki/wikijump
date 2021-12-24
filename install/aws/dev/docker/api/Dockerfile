@@ -7,7 +7,6 @@ FROM rust:latest AS rust
 # Copy source
 RUN mkdir /src
 COPY ./deepwell /src/deepwell
-COPY ./locales /opt/locales
 WORKDIR /src/deepwell
 
 # Build deepwell server
@@ -24,6 +23,7 @@ ENV LOCALIZATION_PATH="/opt/locales"
 
 RUN apk add --no-cache curl
 COPY --from=rust /src/deepwell/target/release/deepwell /usr/local/bin/deepwell
+COPY ./locales/fluent /opt/locales/fluent
 
 USER daemon
 CMD ["/usr/local/bin/deepwell"]
