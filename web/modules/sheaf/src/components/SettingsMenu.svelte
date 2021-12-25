@@ -63,10 +63,10 @@
 
   .sheaf-settings-menu-sep {
     display: flex;
+    column-gap: 0.5rem;
     align-items: center;
     justify-content: space-between;
     margin-top: 0.75rem;
-    column-gap: 0.5rem;
 
     &:first-child {
       margin-top: 0;
@@ -74,16 +74,16 @@
   }
 
   .sheaf-settings-menu-title {
+    font-family: var(--font-display);
     font-size: 0.875rem;
     font-weight: bold;
-    font-family: var(--font-display);
     color: var(--col-text-subtle);
   }
 
   .sheaf-settings-menu-sep-line {
-    height: 0.175rem;
-    border-radius: 0.5rem;
-    background-color: var(--col-border);
     flex-grow: 1;
+    height: 0.175rem;
+    background-color: var(--col-border);
+    border-radius: 0.5rem;
   }
 </style>
