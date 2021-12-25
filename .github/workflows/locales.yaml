@@ -1,0 +1,65 @@
+name: '[l10n] Localization'
+
+on:
+  push:
+    paths:
+      - 'locales/fluent/**'
+      - 'locales/validator/**'
+      - '.github/workflows/locales.yaml'
+
+jobs:
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Rust Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Cargo Cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            locales/validator/target
+          key: ${{ runner.os }}-locales-default-${{ hashFiles('locales/validator/**/Cargo.toml') }}
+
+      - name: Run Check
+        run: cd locales/validator && cargo run
+
+  clippy_lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: -D warnings
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Rust Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          override: true
+          components: rustfmt, clippy
+
+      - name: Cargo Cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            locales/validator/target
+          key: ${{ runner.os }}-locales-lint-${{ hashFiles('locales/validator/**/Cargo.toml') }}
+
+      - name: Rustfmt
+        run: cd ftml && cargo fmt --all -- --check
+
+      - name: Clippy
+        run: cd ftml && cargo clippy
