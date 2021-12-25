@@ -18,7 +18,7 @@ The `fluent` folder contains many subfolders. Each folder represents a "componen
 
 Components have `.ftl` files named after a locale, so for example a component may have a `en.ftl` file, a `de.ftl` file, and so on. To add translations for a locale, you simply need to add a new `.ftl` file with that locale's language tag. You [may need to look up what these language codes are](https://unicode-org.github.io/icu/userguide/locale/), as they're often not what you expect.
 
-When adding new translations, you need to use the `en.ftl` file as your basis, or else the message keys won't match. It's recommended you copy the `en.ftl` file, rename it, and then change the strings to match the locale.
+When adding new translations, you need to use the `en.ftl` file as your basis, or else the message keys won't match. It's recommended you copy the `en.ftl` file, rename it, and then change the strings to match the locale. A build check will verify that your files are in compliance in this respect.
 
 You don't need to do anything but add a new `.ftl` file when translating. The backend and frontend automatically figure out what they need to do from the file structure of the `fluent` folder.
 
