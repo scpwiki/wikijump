@@ -73,12 +73,19 @@ impl Catalog {
         }
     }
 
-    pub fn print_locales(&self) {
+    pub fn print_summary(&self) {
         println!();
         println!("Found locales:");
 
         for locale in self.locales.keys() {
             println!("* {}", locale);
+        }
+
+        println!();
+        println!("Found terms:");
+
+        for term in &self.terms {
+            println!("* {}", term);
         }
     }
 
