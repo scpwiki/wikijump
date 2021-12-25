@@ -18,6 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use fluent_bundle::FluentResource;
+use fluent_syntax::ast;
 use std::collections::HashMap;
 use std::path::Path;
 use std::{fs, process};
@@ -38,10 +40,10 @@ pub fn run<P: AsRef<Path>>(directory: P) {
     let mut return_code = 0;
 
     macro_rules! fail {
-        ($(arg:tt)*) => {{
+        ($($arg:tt)*) => {{
             return_code = 1;
             eprint!("!! ");
-            eprintln!($(arg)*);
+            eprintln!($($arg)*);
         }};
     }
 
@@ -50,7 +52,8 @@ pub fn run<P: AsRef<Path>>(directory: P) {
     print_real_path(directory);
 
     // Walk through all the component directories
-    for entry in fs::read_dir(directory).expect("Unable to read localization directory") {
+    for result in fs::read_dir(directory).expect("Unable to read localization directory") {
+        let entry = result.expect("Unable to read directory entry");
         let path = entry.path();
         if !path.is_dir() {
             fail!("Found non-directory in localizations: {}", path.display());
@@ -58,18 +61,19 @@ pub fn run<P: AsRef<Path>>(directory: P) {
         }
 
         // Walk through all the locales for a component
-        print_real_path(path);
-        for entry in fs::read_dir(path).expect("Unable to read component directory") {
+        print_real_path(&path);
+        for result in fs::read_dir(path).expect("Unable to read component directory") {
+            let entry = result.expect("Unable to read directory entry");
             let path = entry.path();
             if !path.is_file() {
                 fail!("Found non-file in component directory: {}", path.display());
                 continue;
             }
 
+            // Ensure file is Fluent (*.ftl)
             match path.extension() {
                 Some(ext) => {
                     let ext = ext.to_str().expect("Path is not valid UTF-8");
-
                     if !ext.eq_ignore_ascii_case("ftl") {
                         fail!(
                             "Found file with non-Fluent file extension: {} ({})",
@@ -84,6 +88,7 @@ pub fn run<P: AsRef<Path>>(directory: P) {
                 }
             }
 
+            // Ensure locale is valid
             let locale_name = path
                 .file_stem()
                 .expect("No base name in locale path")
@@ -93,8 +98,34 @@ pub fn run<P: AsRef<Path>>(directory: P) {
             let locale: LanguageIdentifier = match locale_name.parse() {
                 Ok(locale) => locale,
                 Err(error) => {
-                    fail!("Directory name is not a valid locale: {}", locale_name);
-                    fail!("Error: {}", error);
+                    fail!(
+                        "Directory name ({}) is not a valid locale: {}",
+                        locale_name,
+                        error,
+                    );
+                    continue;
+                }
+            };
+
+            // Read and parse Fluent file
+            let source = match fs::read_to_string(&path) {
+                Ok(source) => source,
+                Err(error) => {
+                    fail!("Unable to read Fluent file {}: {}", path.display(), error);
+                    continue;
+                }
+            };
+
+            let resource = match FluentResource::try_new(source) {
+                Ok(resource) => resource,
+                Err((_, errors)) => {
+                    eprintln!("Fluent file source:\n-----\n{}\n-----\n", source);
+                    fail!("Unable to parse Fluent source:");
+
+                    for (i, error) in errors.iter().enumerate() {
+                        eprintln!("{}. {}", i + 1, error);
+                    }
+
                     continue;
                 }
             };

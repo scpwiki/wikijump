@@ -14,5 +14,6 @@ edition = "2021" # this is *not* the same as the current year
 rust-version = "1.56.0"
 
 [dependencies]
-fluent = "0.16"
+fluent-bundle = "0.15"
+fluent-syntax = "0.11"
 unic-langid = { version = "0.9", features = ["macros"] }
