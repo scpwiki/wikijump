@@ -43,3 +43,7 @@ pub async fn version(_: ApiRequest) -> ApiResponse {
 pub async fn full_version(_: ApiRequest) -> ApiResponse {
     Ok(info::FULL_VERSION_WITH_NAME.as_str().into())
 }
+
+pub async fn ratelimit_exempt(req: ApiRequest) -> ApiResponse {
+    todo!()
+}
