@@ -32,6 +32,7 @@ extern crate serde;
 #[macro_use]
 extern crate str_macro;
 
+mod actions;
 mod api;
 mod config;
 mod database;
@@ -44,14 +45,16 @@ mod types;
 mod utils;
 mod web;
 
-use self::config::Config;
+use self::config::{Config, SpecialAction};
 use anyhow::Result;
 
 #[async_std::main]
 async fn main() -> Result<()> {
+    // Load the configuration so we can set up
     let config = Config::load();
     let socket_address = config.address;
 
+    // Configure the logger
     if config.logger {
         tide::log::with_level(config.logger_level);
         tide::log::info!("Loaded server configuration:");
@@ -60,11 +63,28 @@ async fn main() -> Result<()> {
         color_backtrace::install();
     }
 
+    // Run a special action, if that's desired
+    if let Some(action) = config.action {
+        tide::log::info!(
+            "Not running server, performing special action: {:?}",
+            action,
+        );
+
+        match action {
+            SpecialAction::ValidateLocalization => {
+                actions::validate_localization(&config).await;
+            }
+        }
+
+        return Ok(());
+    }
+
+    // Run migrations, if enabled
     if config.run_migrations {
-        // Run migrations, if enabled
         database::migrate(&config.database_url).await?;
     }
 
+    // Build server and run
     let app = api::build_server(config).await?;
 
     tide::log::info!("Built server. Listening...");

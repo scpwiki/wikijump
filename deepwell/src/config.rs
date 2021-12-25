@@ -351,6 +351,7 @@ impl Config {
             }
         }
 
+        tide::log::info!("Configuration details:");
         tide::log::info!("Serving on {}", self.address);
         tide::log::info!("Migrations: {}", bool_str(self.run_migrations));
         tide::log::info!("Localization path: {}", self.localization_path.display());
