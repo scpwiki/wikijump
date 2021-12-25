@@ -46,3 +46,10 @@ $ cargo test
 ```
 
 Add `-- --nocapture` to the end if you want to see test output.
+
+### Development
+
+```sh
+$ cargo fmt     # Ensure code is formatted
+$ cargo clippy  # Check code for lints
+```
