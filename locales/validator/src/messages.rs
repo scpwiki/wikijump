@@ -54,6 +54,11 @@ impl Catalog {
             messages.add(key, usages);
         }
     }
+
+    #[must_use]
+    pub fn valid(&self) -> bool {
+        todo!()
+    }
 }
 
 #[derive(Debug, Default, Clone)]
