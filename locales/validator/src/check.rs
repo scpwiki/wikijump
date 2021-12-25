@@ -137,7 +137,10 @@ pub fn run<P: AsRef<Path>>(directory: P) {
     catalog.check(&mut return_code);
 
     // Exit with result
-    if return_code != 0 {
+    if return_code == 0 {
+        println!();
+        println!("Everything looks in order.");
+    } else {
         eprintln!();
         eprintln!("Some validation issues found! See above.");
     }
