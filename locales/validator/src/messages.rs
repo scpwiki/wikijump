@@ -150,7 +150,7 @@ impl Catalog {
                 }
 
                 for variable in &usages.variables {
-                    if !primary_usages.variables.contains(&variable) {
+                    if !primary_usages.variables.contains(variable) {
                         fail!("Variable reference not found in parent: {}", variable);
                     }
                 }
