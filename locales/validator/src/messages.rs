@@ -34,19 +34,24 @@ const PRIMARY_LOCALE: LanguageIdentifier = langid!("en");
 
 #[derive(Debug, Default, Clone)]
 pub struct Catalog {
-    primary: Messages,
     locales: HashMap<LanguageIdentifier, Messages>,
 }
 
 impl Catalog {
-    pub fn add_message(&mut self, locale: &LanguageIdentifier, message: &ast::Message<&str>) {
+    pub fn add_message(&mut self, locale: LanguageIdentifier, message: &ast::Message<&str>) {
+        let mut messages = self.locales.entry(locale).or_default();
         let base_key = message.id.name;
 
-        if let Some(ast::Pattern { ref elements }) = message.value {
-            let mut usages = MessageUsages::default();
-            usages.add_elements(elements);
+        if let Some(ast::Pattern { elements }) = &message.value {
+            let key = str!(base_key);
+            let usages = MessageUsages::from_elements(elements);
+            messages.add(key, usages);
+        }
 
-            todo!();
+        for ast::Attribute { id, value } in &message.attributes {
+            let key = format!("{}.{}", base_key, id.name);
+            let usages = MessageUsages::from_elements(&value.elements);
+            messages.add(key, usages);
         }
     }
 }
@@ -54,6 +59,19 @@ impl Catalog {
 #[derive(Debug, Default, Clone)]
 pub struct Messages {
     messages: HashMap<String, MessageUsages>,
+}
+
+impl Messages {
+    pub fn add(&mut self, key: String, usages: MessageUsages) {
+        if self.messages.contains_key(&key) {
+            // We do check/panic instead of insert()
+            // because the key is gone once we insert,
+            // so we can't use it in our message without cloning.
+            panic!("Duplicate message key: {}", key);
+        }
+
+        self.messages.insert(key, usages);
+    }
 }
 
 #[derive(Debug, Default, Clone)]
@@ -65,6 +83,12 @@ pub struct MessageUsages {
 }
 
 impl MessageUsages {
+    pub fn from_elements(elements: &[ast::PatternElement<&str>]) -> Self {
+        let mut usages = Self::default();
+        usages.add_elements(elements);
+        usages
+    }
+
     pub fn add_elements(&mut self, elements: &[ast::PatternElement<&str>]) {
         use ast::PatternElement::*;
 
