@@ -1,5 +1,5 @@
 /*
- * main.rs
+ * check.rs
  *
  * wikijump-locales-validator - Validate Wikijump's Fluent localization files
  * Copyright (C) 2021 Wikijump Team
@@ -18,11 +18,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#[macro_use]
-extern crate unic_langid;
+use std::fs;
+use std::path::Path;
+use unic_langid::LanguageIdentifier;
 
-mod check;
+/// The "primary" locale, to compare other locales against.
+///
+/// This is defined as one which is always complete, containing
+/// every message key used by the application.
+///
+/// Thus, we can compare all other locales to it, ensuring they
+/// are equal or subsets, raising errors on any new message keys,
+/// as they are either typos or removed keys.
+const PRIMARY_LOCALE: LanguageIdentifier = langid!("en");
 
-fn main() {
-    check::run("../locales");
+pub fn run<P: AsRef<Path>>(directory: P) {
+    let directory = directory.as_ref();
+
+    todo!();
 }
