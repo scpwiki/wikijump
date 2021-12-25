@@ -59,4 +59,7 @@ pub enum LocalizationTranslateError {
 
     #[error("Message key was found, but has no value")]
     NoMessageValue,
+
+    #[error("Message key was found, but does not have this attribute")]
+    NoMessageAttribute,
 }
