@@ -89,7 +89,6 @@ pub fn run<P: AsRef<Path>>(directory: P) {
                 .expect("No base name in locale path")
                 .to_str()
                 .expect("Path is not valid UTF-8");
-
             println!("++ {}", locale_name);
 
             let locale: LanguageIdentifier = match locale_name.parse() {
