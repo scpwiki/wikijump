@@ -82,9 +82,6 @@ pub struct Config {
     ///
     /// Set using environment variable `RATE_LIMIT_SECRET`.
     pub rate_limit_secret: String,
-
-    /// Instead of running the server, instead peform this special action and quit.
-    pub action: Option<SpecialAction>,
 }
 
 impl Default for Config {
@@ -98,7 +95,6 @@ impl Default for Config {
             localization_path: PathBuf::from("../locales"),
             rate_limit_per_minute: NonZeroU32::new(20).unwrap(),
             rate_limit_secret: String::new(),
-            action: None,
         }
     }
 }
@@ -261,11 +257,6 @@ fn parse_args(config: &mut Config) {
                 .value_name("count")
                 .help("How many requests are allowed per IP address per minute."),
         )
-        .arg(
-            Arg::with_name("action-validate-localization")
-                .long("validate-localization-files")
-                .help("Validate all localization files, then quit."),
-        )
         .get_matches();
 
     // Parse arguments and modify config
@@ -326,11 +317,6 @@ fn parse_args(config: &mut Config) {
             }
         }
     }
-
-    // Actions
-    if matches.is_present("action-validate-localization") {
-        config.action = Some(SpecialAction::ValidateLocalization);
-    }
 }
 
 impl Config {
@@ -370,11 +356,6 @@ impl Config {
             bool_str(!self.rate_limit_secret.is_empty()),
         );
     }
-}
-
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub enum SpecialAction {
-    ValidateLocalization,
 }
 
 fn get_log_level(value: &str) -> Option<LevelFilter> {

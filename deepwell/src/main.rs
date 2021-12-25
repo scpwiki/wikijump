@@ -32,7 +32,6 @@ extern crate serde;
 #[macro_use]
 extern crate str_macro;
 
-mod actions;
 mod api;
 mod config;
 mod database;
@@ -45,7 +44,7 @@ mod types;
 mod utils;
 mod web;
 
-use self::config::{Config, SpecialAction};
+use self::config::Config;
 use anyhow::Result;
 
 #[async_std::main]
@@ -61,22 +60,6 @@ async fn main() -> Result<()> {
         config.log();
 
         color_backtrace::install();
-    }
-
-    // Run a special action, if that's desired
-    if let Some(action) = config.action {
-        tide::log::info!(
-            "Not running server, performing special action: {:?}",
-            action,
-        );
-
-        match action {
-            SpecialAction::ValidateLocalization => {
-                actions::validate_localization(&config).await;
-            }
-        }
-
-        return Ok(());
     }
 
     // Run migrations, if enabled
