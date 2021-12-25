@@ -1,50 +1,50 @@
 const readline = require("readline")
 const { execSync, spawn } = require("child_process")
-const chalk = require("chalk")
+const pc = require("picocolors")
 
 function linebreak() {
   console.log("")
 }
 
 function separator() {
-  console.log(chalk.gray("─────────────────────────"))
+  console.log(pc.gray("─────────────────────────"))
 }
 
 function section(title, breakBefore = false, breakAfter = breakBefore) {
   if (breakBefore) linebreak()
   const dashes = Math.round((24 - (title.length + 2)) / 2)
   const chrs = "─".repeat(dashes)
-  console.log(chalk.blueBright(`${chrs} ${title} ${chrs}`))
+  console.log(pc.blue(`${chrs} ${title} ${chrs}`))
   if (breakAfter) linebreak()
 }
 
 function info(...msgs) {
   const msg = msgs.join("\n")
-  console.log(chalk.green(msg))
+  console.log(pc.green(msg))
 }
 
 function infoline(...msgs) {
   linebreak()
   const msg = msgs.join("\n")
-  console.log(chalk.green(msg))
+  console.log(pc.green(msg))
   linebreak()
 }
 
 function look(...msgs) {
   const msg = msgs.join("\n")
-  console.log(chalk.magentaBright(msg))
+  console.log(pc.magenta(msg))
 }
 
 function warn(...msgs) {
   const msg = msgs.join("\n")
-  console.warn(chalk.yellow("──────── WARNING ────────"))
-  console.warn(chalk.yellow(msg))
+  console.warn(pc.yellow("──────── WARNING ────────"))
+  console.warn(pc.yellow(msg))
 }
 
 function error(...msgs) {
   const msg = msgs.join("\n")
-  console.warn(chalk.redBright("───────── ERROR ─────────"))
-  console.warn(chalk.redBright(msg))
+  console.warn(pc.red("───────── ERROR ─────────"))
+  console.warn(pc.red(msg))
 }
 
 function cmd(command) {
@@ -67,7 +67,7 @@ function question(question) {
       output: process.stdout
     })
 
-    rl.question(chalk.magentaBright(question), answer => {
+    rl.question(pc.magenta(question), answer => {
       // breaks using readline for anything else
       // so we'll just leave the interface alone (technically a memory leak)
       // rl.close()
@@ -84,7 +84,7 @@ function answerYesOrNo(answer, def = false) {
 }
 
 module.exports = {
-  chalk,
+  pc,
   linebreak,
   separator,
   section,
