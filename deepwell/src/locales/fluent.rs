@@ -133,15 +133,11 @@ impl Localizations {
             .unwrap_or(false)
     }
 
-    pub fn get_message<F, T>(
+    fn get_message(
         &self,
         locale: &LanguageIdentifier,
         key: &str,
-        f: F,
-    ) -> Result<T, LocalizationTranslateError>
-    where
-        F: FnOnce(&FluentBundle, FluentMessage) -> Result<T, LocalizationTranslateError>,
-    {
+    ) -> Result<(&FluentBundle, FluentMessage), LocalizationTranslateError> {
         tide::log::info!(
             "Fetching translation for locale {}, message key {}",
             locale,
@@ -151,8 +147,8 @@ impl Localizations {
         match self.bundles.get(locale) {
             None => Err(LocalizationTranslateError::NoLocale),
             Some(bundle) => match bundle.get_message(key) {
+                Some(message) => Ok((bundle, message)),
                 None => Err(LocalizationTranslateError::NoMessage),
-                Some(message) => f(bundle, message),
             },
         }
     }
@@ -163,35 +159,47 @@ impl Localizations {
         key: &str,
         args: &FluentArgs,
     ) -> Result<String, LocalizationTranslateError> {
-        self.get_message(locale, key, |bundle, message| match message.value() {
-            None => Err(LocalizationTranslateError::NoMessageValue),
-            Some(pattern) => {
-                let mut errors = vec![];
-                let output = bundle.format_pattern(pattern, Some(args), &mut errors);
+        // Get appropriate message and bundle
+        let (path, attribute) = Self::parse_selector(key);
+        let (bundle, message) = self.get_message(locale, path)?;
 
-                if !errors.is_empty() {
-                    tide::log::warn!(
-                        "Errors formatting message for locale {}, message key {}",
-                        locale,
-                        key,
-                    );
+        // Get pattern from message
+        let pattern = match attribute {
+            Some(attribute) => match message.get_attribute(attribute) {
+                Some(attrib) => attrib.value(),
+                None => return Err(LocalizationTranslateError::NoMessageAttribute),
+            },
+            None => match message.value() {
+                Some(pattern) => pattern,
+                None => return Err(LocalizationTranslateError::NoMessageValue),
+            },
+        };
 
-                    for (key, value) in args.iter() {
-                        tide::log::warn!(
-                            "Passed formatting argument: {} -> {:?}",
-                            key,
-                            value,
-                        );
-                    }
+        // Format using pattern
+        let mut errors = vec![];
+        let output = bundle.format_pattern(pattern, Some(args), &mut errors);
 
-                    for error in errors {
-                        tide::log::warn!("Message formatting error: {}", error);
-                    }
-                }
+        // Log any errors
+        if !errors.is_empty() {
+            tide::log::warn!(
+                "Errors formatting message for locale {}, message key {}",
+                locale,
+                key,
+            );
 
-                Ok(str!(output))
+            for (key, value) in args.iter() {
+                tide::log::warn!("Passed formatting argument: {} -> {:?}", key, value);
             }
-        })
+
+            for error in errors {
+                tide::log::warn!("Message formatting error: {}", error);
+            }
+        }
+
+        // Done
+        //
+        // Passing as owned to avoid complicated FluentBundle lifetimes.
+        Ok(str!(output))
     }
 }
 
