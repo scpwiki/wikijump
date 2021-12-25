@@ -136,11 +136,6 @@ pub fn run<P: AsRef<Path>>(directory: P) {
     catalog.print_locales();
     catalog.check(&mut return_code);
 
-    // Dump full catalog for debugging
-    println!();
-    println!("All message data:");
-    println!("{:#?}", catalog);
-
     // Exit with result
     if return_code != 0 {
         eprintln!();
