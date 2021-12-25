@@ -29,7 +29,7 @@ SET row_security = off;
 --
 -- The first 'public' is the schema,
 -- the second 'PUBLIC' means "all users".
-REVOKE CREATE ON SCHEMA public FROM PUBLIC;
+REVOKE CREATE ON SCHEMA public FROM PUBLIC, wikijump_ro;
 
 -- Then we give all permissions to wikijump so it can do things.
 GRANT ALL ON SCHEMA public TO wikijump;
@@ -37,6 +37,6 @@ GRANT ALL ON SCHEMA public TO wikijump;
 -- Revoke all permissions, except SELECT.
 -- Also grant SELECT on any future tables that are made.
 REVOKE ALL ON SCHEMA public FROM wikijump_ro;
-GRANT SELECT ON ALL TABLES IN SCHEMA publici TO wikijump_ro;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO wikijump_ro;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public
     GRANT SELECT ON TABLES TO wikijump_ro;
