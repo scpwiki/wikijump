@@ -16,7 +16,7 @@ There is a singular exception to this, which is the `cmftml` folder. More inform
 
 The `fluent` folder contains many subfolders. Each folder represents a "component", or chunk of related translation strings. For example, the `notification-bell` component holds strings related to the small bell that informs the user when they have new notifications.
 
-Components have `.ftl` files named after a locale, so for example a component may have a `en.ftl` file, a `de.ftl` file, and so on. To add translations for a locale, you simply need to add a new `.ftl` file with that locale's language tag. You may need to look up what these language codes are, as they're often not what you expect.
+Components have `.ftl` files named after a locale, so for example a component may have a `en.ftl` file, a `de.ftl` file, and so on. To add translations for a locale, you simply need to add a new `.ftl` file with that locale's language tag. You [may need to look up what these language codes are](https://unicode-org.github.io/icu/userguide/locale/), as they're often not what you expect.
 
 When adding new translations, you need to use the `en.ftl` file as your basis, or else the message keys won't match. It's recommended you copy the `en.ftl` file, rename it, and then change the strings to match the locale.
 
