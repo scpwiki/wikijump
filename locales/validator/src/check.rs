@@ -144,7 +144,9 @@ pub fn run<P: AsRef<Path>>(directory: P) {
     catalog.check(&mut return_code);
 
     // Dump full catalog for debugging
-    println!("All message data:\n{:#?}", catalog);
+    println!();
+    println!("All message data:");
+    println!("{:#?}", catalog);
 
     // Exit with result
     if return_code != 0 {
