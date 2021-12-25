@@ -108,7 +108,7 @@ impl Localizations {
     ///
     /// Fluent does not permit multiple periods in a message key, having multiple
     /// is a logical error.
-    pub fn parse_selector<'a>(key: &'a str) -> (&'a str, Option<&'a str>) {
+    pub fn parse_selector(key: &str) -> (&str, Option<&str>) {
         match key.find('.') {
             None => (key, None),
             Some(idx) => {
