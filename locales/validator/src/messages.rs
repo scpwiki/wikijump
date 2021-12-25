@@ -89,10 +89,10 @@ impl Catalog {
         }
     }
 
-    pub fn check(&self, return_code: &mut u8) {
+    pub fn check(&self, success: &mut bool) {
         macro_rules! fail {
             ($($arg:tt)*) => {{
-                *return_code = 1;
+                *success = false;
                 eprint!("!! ");
                 eprintln!($($arg)*);
             }};

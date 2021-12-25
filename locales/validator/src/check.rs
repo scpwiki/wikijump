@@ -27,11 +27,11 @@ use unic_langid::LanguageIdentifier;
 
 pub fn run<P: AsRef<Path>>(directory: P) {
     let directory = directory.as_ref();
-    let mut return_code = 0;
+    let mut success = true;
 
     macro_rules! fail {
         ($($arg:tt)*) => {{
-            return_code = 1;
+            success = false;
             eprint!("!! ");
             eprintln!($($arg)*);
         }};
@@ -134,16 +134,16 @@ pub fn run<P: AsRef<Path>>(directory: P) {
 
     // Built catalog, check for validity
     catalog.print_summary();
-    catalog.check(&mut return_code);
+    catalog.check(&mut success);
 
     // Exit with result
-    if return_code == 0 {
+    if success {
         println!();
         println!("Everything looks in order.");
+        process::exit(0);
     } else {
         eprintln!();
         eprintln!("Some validation issues found! See above.");
+        process::exit(1);
     }
-
-    process::exit(i32::from(return_code));
 }
