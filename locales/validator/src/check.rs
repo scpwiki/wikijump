@@ -119,22 +119,14 @@ pub fn run<P: AsRef<Path>>(directory: P) {
             };
 
             // Traverse resource, add keys to mapping
-            let mut has_resource_comment = false;
             for entry in resource.entries() {
                 match entry {
                     ast::Entry::Message(message) => catalog.add_message(locale.clone(), message),
-                    ast::Entry::ResourceComment(_) => {
-                        has_resource_comment = true;
-                    }
                     ast::Entry::Junk { content } => {
                         fail!("Fluent file contains unknown data: {}", content);
                     }
                     _ => (),
                 }
-            }
-
-            if !has_resource_comment {
-                fail!("No resource comments found in {}", path.display());
             }
         }
     }
