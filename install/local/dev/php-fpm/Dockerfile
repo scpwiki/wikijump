@@ -81,25 +81,6 @@ RUN cargo build \
 RUN cargo install --locked --version 1.3.2 mrml-cli
 
 #
-# Localizations
-#
-
-FROM python:3.9-slim AS locales
-
-# Copy source
-RUN mkdir /src
-COPY ./locales /src/locales
-WORKDIR /src/locales
-
-# Install dependencies
-RUN apt update && \
-    apt install -y gettext
-RUN pip3 install --upgrade -r requirements.txt
-
-# Build localization files
-RUN python3 -m messages .
-
-#
 # Final image
 #
 
@@ -110,7 +91,6 @@ EXPOSE 9000
 COPY --from=rust /src/ftml/target/release/ftml.h /usr/local/include/ftml.h
 COPY --from=rust /src/ftml/target/release/libftml.so /usr/local/lib/libftml.so
 COPY --from=rust /usr/local/cargo/bin/mrml /usr/local/bin/mrml
-COPY --from=locales /src/locales/out/ /var/www/wikijump/web/public/files--built/locales
 
 # PHP configuration preparation
 RUN php artisan key:generate

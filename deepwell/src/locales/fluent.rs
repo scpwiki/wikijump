@@ -53,11 +53,6 @@ impl Localizations {
         while let Some(result) = entries.next().await {
             let entry = result?;
             let path = entry.path();
-            if !entry.metadata().await?.is_dir() {
-                tide::log::debug!("Skipping non-directory path {}", path.display());
-                continue;
-            }
-
             Self::load_component(&mut bundles, &path).await?;
         }
 
@@ -74,10 +69,6 @@ impl Localizations {
         while let Some(result) = entries.next().await {
             let entry = result?;
             let path = entry.path();
-            if !entry.metadata().await?.is_file() {
-                tide::log::debug!("Skipping non-directory path {}", path.display());
-                continue;
-            }
 
             // Get locale from filename
             let locale_name = path
@@ -87,7 +78,7 @@ impl Localizations {
                 .expect("Path is not valid UTF-8");
 
             tide::log::debug!("Loading locale {}", locale_name);
-            let locale = LanguageIdentifier::from_bytes(locale_name.as_bytes())?;
+            let locale: LanguageIdentifier = locale_name.parse()?;
 
             // Read and parse localization strings
             let source = fs::read_to_string(&path).await?;

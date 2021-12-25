@@ -39,13 +39,9 @@ final class DeepwellService
     }
 
     // Localization
-    public function parseLocale(string $locale): ?object
+    public function parseLocale(string $locale): object
     {
         $resp = $this->client->get("locale/$locale");
-        if ($resp->getStatusCode() === 400) {
-            return null;
-        }
-
         return self::readJson($resp);
     }
 

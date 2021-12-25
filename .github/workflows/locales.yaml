@@ -3,82 +3,63 @@ name: '[l10n] Localization'
 on:
   push:
     paths:
-      - 'locales/*.yaml'
-      - 'locales/messages/**'
+      - 'locales/fluent/**'
+      - 'locales/validator/**'
       - '.github/workflows/locales.yaml'
 
 jobs:
-  build:
-    name: Build
+  check:
+    name: Check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Python 3.9
-        uses: actions/setup-python@v2
+      - name: Rust Toolchain
+        uses: actions-rs/toolchain@v1
         with:
-          python-version: 3.9
+          toolchain: stable
 
-      - name: System Dependencies
-        run: sudo apt install gettext
-
-      - name: Pip Cache
+      - name: Cargo Cache
         uses: actions/cache@v2
         with:
           path: |
-            ~/.cache/pip
-          key: ${{ runner.os }}-locale-build-${{ hashFiles('locales/requirements.txt') }}
+            ~/.cargo/registry
+            ~/.cargo/git
+            locales/validator/target
+          key: ${{ runner.os }}-locales-default-${{ hashFiles('locales/validator/**/Cargo.toml') }}
 
-      - name: Dependencies
-        run: |
-          cd locales
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+      - name: Run Check
+        run: cd locales/validator && cargo run
 
-      - name: Build
-        run: |
-          cd locales
-          python -m messages .
-
-      - name: Upload
-        uses: actions/upload-artifact@v2
-        with:
-          name: locales
-          path: locales/out
-
-  lint:
+  clippy_lint:
     name: Lint
     runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: -D warnings
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Python 3.9
-        uses: actions/setup-python@v2
+      - name: Rust Toolchain
+        uses: actions-rs/toolchain@v1
         with:
-          python-version: 3.9
+          profile: minimal
+          toolchain: nightly
+          override: true
+          components: rustfmt, clippy
 
-      - name: Pip Cache
+      - name: Cargo Cache
         uses: actions/cache@v2
         with:
           path: |
-            ~/.cache/pip
-          key: ${{ runner.os }}-locale-lint-${{ hashFiles('locales/requirements.txt') }}
+            ~/.cargo/registry
+            ~/.cargo/git
+            locales/validator/target
+          key: ${{ runner.os }}-locales-lint-${{ hashFiles('locales/validator/**/Cargo.toml') }}
 
-      - name: Dependencies
-        run: |
-          cd locales
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+      - name: Rustfmt
+        run: cd ftml && cargo fmt --all -- --check
 
-      - name: Build
-        run: |
-          cd locales
-
-          # Formatting check
-          black --check messages
-
-          # Linting
-          pylint messages
+      - name: Clippy
+        run: cd ftml && cargo clippy

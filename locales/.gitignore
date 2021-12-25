@@ -1,7 +1,0 @@
-# Generated
-out/
-
-# Python Artifacts
-__pycache__/
-*.py[cod]
-*$py.class
