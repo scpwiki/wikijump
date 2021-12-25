@@ -89,12 +89,16 @@ impl Catalog {
         }
     }
 
-    pub fn check(&self, success: &mut bool) {
+    #[must_use]
+    pub fn check(&self) -> bool {
+        let mut success = true;
+
         macro_rules! fail {
             ($($arg:tt)*) => {{
-                *success = false;
+                success = false;
                 eprint!("!! ");
                 eprintln!($($arg)*);
+                success
             }};
         }
 
@@ -107,8 +111,7 @@ impl Catalog {
         let primary = match self.locales.get(&PRIMARY_LOCALE) {
             Some(messages) => messages,
             None => {
-                fail!("No messages found for primary locale");
-                return;
+                return fail!("No messages found for primary locale");
             }
         };
 
@@ -149,6 +152,8 @@ impl Catalog {
                 }
             }
         }
+
+        success
     }
 }
 

@@ -134,7 +134,7 @@ pub fn run<P: AsRef<Path>>(directory: P) {
 
     // Built catalog, check for validity
     catalog.print_summary();
-    catalog.check(&mut success);
+    success &= catalog.check();
 
     // Exit with result
     if success {
