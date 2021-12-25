@@ -28,7 +28,7 @@ final class DeepwellService
     {
         $this->client = new Client([
             'base_uri' => 'http://api:2747/api/v0/',
-            'timeout' => 1.0,
+            'timeout' => 0.5,
             'headers' => [
                 'User-Agent' => 'wikijump-php',
                 'X-Exempt-RateLimit' => GlobalProperties::$API_RATELIMIT_BYPASS,
