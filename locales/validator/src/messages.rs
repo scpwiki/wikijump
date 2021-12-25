@@ -60,6 +60,15 @@ impl Catalog {
         }
     }
 
+    pub fn print_locales(&self) {
+        println!();
+        println!("Found locales:");
+
+        for locale in self.locales.keys() {
+            println!("* {}", locale);
+        }
+    }
+
     pub fn check(&self, return_code: &mut u8) {
         macro_rules! fail {
             ($($arg:tt)*) => {{

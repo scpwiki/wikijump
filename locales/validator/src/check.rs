@@ -140,6 +140,7 @@ pub fn run<P: AsRef<Path>>(directory: P) {
     }
 
     // Built catalog, check for validity
+    catalog.print_locales();
     catalog.check(&mut return_code);
 
     // Exit with result
