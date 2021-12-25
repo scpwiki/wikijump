@@ -125,7 +125,6 @@ impl Catalog {
                     Some(usages) => usages,
                     None => {
                         fail!("Message key not found in parent: {}", key);
-                        eprintln!("Usage data: {:#?}", usages);
                         continue;
                     }
                 };
