@@ -115,6 +115,10 @@ impl Catalog {
             }
         };
 
+        if self.locales.len() == 1 {
+            println!("+ (no locales to heck)");
+        }
+
         for (locale, messages) in self
             .locales
             .iter()

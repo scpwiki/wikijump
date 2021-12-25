@@ -54,7 +54,7 @@ pub fn run<P: AsRef<Path>>(directory: P) {
             .expect("No base name for path")
             .to_str()
             .expect("Path is not valid UTF-8");
-        println!("+  Reading {}", component);
+        println!("+ Reading {}", component);
 
         // Walk through all the locales for a component
         for result in fs::read_dir(path).expect("Unable to read component directory") {
