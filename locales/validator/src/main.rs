@@ -28,5 +28,5 @@ mod check;
 mod messages;
 
 fn main() {
-    check::run("../locales");
+    check::run("../fluent");
 }
