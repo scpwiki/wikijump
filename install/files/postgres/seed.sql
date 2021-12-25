@@ -22,20 +22,10 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
--- Since permissions are additive, and by default
--- everyone in public can create tables, we have
--- to revoke it from everyone so we can create a
--- read-only user.
---
--- The first 'public' is the schema,
--- the second 'PUBLIC' means "all users".
-REVOKE CREATE ON SCHEMA public FROM PUBLIC, wikijump_ro;
+REVOKE CREATE ON SCHEMA public FROM PUBLIC;
 
--- Then we give all permissions to wikijump so it can do things.
 GRANT ALL ON SCHEMA public TO wikijump;
 
--- Revoke all permissions, except SELECT.
--- Also grant SELECT on any future tables that are made.
 REVOKE ALL ON SCHEMA public FROM wikijump_ro;
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO wikijump_ro;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public
