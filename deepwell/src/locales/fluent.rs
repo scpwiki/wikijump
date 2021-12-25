@@ -112,7 +112,8 @@ impl Localizations {
         match key.find('.') {
             None => (key, None),
             Some(idx) => {
-                let (path, attribute) = key.split_at(idx);
+                let (path, rest) = key.split_at(idx);
+                let attribute = &rest[1..]; // This is safe because '.' is one byte
                 (path, Some(attribute))
             }
         }
