@@ -81,7 +81,7 @@ pub async fn message_post(mut req: ApiRequest) -> ApiResponse {
         .translate(&locale, message_key, &arguments);
 
     match result {
-        Ok(message) => Ok(message.into()),
+        Ok(message) => Ok(message.as_ref().into()),
         Err(error) => Err(ServiceError::from(error).into_tide_error()),
     }
 }
