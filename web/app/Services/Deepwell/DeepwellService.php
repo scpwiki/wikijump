@@ -1,10 +1,13 @@
 <?php
 declare(strict_types=1);
 
-namespace Wikijump\Services\DEEPWELL;
+namespace Wikijump\Services\Deepwell;
 
 use Carbon\Carbon;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
+use Illuminate\Support\Facades\Log;
+use Wikidot\Utils\GlobalProperties;
 
 final class DeepwellService
 {
@@ -25,8 +28,46 @@ final class DeepwellService
     {
         $this->client = new Client([
             'base_uri' => 'http://api:2747/api/v0/',
-            'timeout' => 1.0,
+            'timeout' => 0.5,
+            'headers' => [
+                'User-Agent' => 'wikijump-php',
+                'X-Exempt-RateLimit' => GlobalProperties::$API_RATELIMIT_BYPASS,
+            ],
         ]);
+
+        $this->checkRatelimitExempt();
+    }
+
+    // Localization
+    public function parseLocale(string $locale): ?object
+    {
+        $resp = $this->client->get("locale/$locale");
+        if ($resp->getStatusCode() === 400) {
+            return null;
+        }
+
+        return self::readJson($resp);
+    }
+
+    public function translate(string $locale, string $key, array $values = []): ?string
+    {
+        try {
+            $resp = $this->client->post("message/$locale/$key", [
+                'body' => json_encode($values, JSON_FORCE_OBJECT),
+            ]);
+
+            return (string) $resp->getBody();
+        } catch (ClientException $exception) {
+            // TOOO remove this and have it just throw, after we've removed all the old Wikidot strings
+
+            if ($exception->getCode() === 404) {
+                Log::warning("Error retrieving translation: {$exception->getMessage()}");
+                return null;
+            }
+
+            // For other errors, re-throw, since it's not an "expected" error
+            throw $exception;
+        }
     }
 
     // User
@@ -75,6 +116,11 @@ final class DeepwellService
     {
         $method = $full ? 'version/full' : 'version';
         return (string) $this->client->get($method)->getBody();
+    }
+
+    public function checkRatelimitExempt(): void
+    {
+        $this->client->get('ratelimit-exempt');
     }
 
     // Helper functions

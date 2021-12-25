@@ -37,6 +37,9 @@ class GlobalProperties
     public static $DATABASE_PASSWORD;
     public static $DATABASE_NAME;
 
+    // api settings
+    public static $API_RATELIMIT_BYPASS;
+
     // search settings
     public static $SEARCH_LUCENE_INDEX;
     public static $SEARCH_LUCENE_QUEUE;
@@ -183,6 +186,9 @@ class GlobalProperties
         self::$DATABASE_NAME            = $_ENV["WIKIJUMP_DATABASE_NAME"] ?? self::fromIni("db", "database", "postgres");        // no default!
         self::$DATABASE_SERVER          = $_ENV["WIKIJUMP_DATABASE_SERVER"] ?? self::fromIni("db", "host", "127.0.0.1");
         self::$DATABASE_PORT            = $_ENV["WIKIJUMP_DATABASE_PORT"] ?? self::fromIni("db", "port", "5432");
+
+        // api settings
+        self::$API_RATELIMIT_BYPASS     = $_ENV["WIKIJUMP_API_RATELIMIT_BYPASS"] ?? self::fromIni("api", "bypass_secret", "");
 
         // search settings
         self::$SEARCH_LUCENE_INDEX      = $_ENV["WIKIJUMP_SEARCH_LUCENE_INDEX"] ?? self::fromIni("search", "lucene_index", WIKIJUMP_ROOT . "/tmp/lucene_index");

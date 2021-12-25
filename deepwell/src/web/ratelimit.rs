@@ -68,31 +68,15 @@ impl Middleware<ApiServerState> for GovernorMiddleware {
         req: Request<ApiServerState>,
         next: Next<'_, ApiServerState>,
     ) -> tide::Result {
-        macro_rules! secret {
-            () => {
-                req.state().config.rate_limit_secret
-            };
-        }
-
         macro_rules! next {
             () => {
                 next.run(req).await
             };
         }
 
-        // If the secret is empty, then exemption is disabled
-        if !secret!().is_empty() {
-            // Check for privileged exemption
-            if let Some(values) = req.header("X-Exempt-RateLimit") {
-                if let Some(value) = values.get(0) {
-                    if value.as_str() == secret!() {
-                        tide::log::debug!("Skipping rate-limit due to exemption");
-                        return Ok(next!());
-                    }
-                }
-
-                tide::log::warn!("Invalid X-Exempt-RateLimit header found! {:?}", values);
-            }
+        // Check if the requester is exempt from the rate-limit
+        if is_ratelimit_exempt(&req) {
+            return Ok(next!());
         }
 
         // Get IP address
@@ -136,4 +120,27 @@ impl Middleware<ApiServerState> for GovernorMiddleware {
             }
         }
     }
+}
+
+pub fn is_ratelimit_exempt(req: &Request<ApiServerState>) -> bool {
+    let expected_secret = &req.state().config.rate_limit_secret;
+
+    // If the secret is empty, then exemption is disabled
+    if expected_secret.is_empty() {
+        return false;
+    }
+
+    // Check for privileged exemption
+    if let Some(values) = req.header("X-Exempt-RateLimit") {
+        if let Some(value) = values.get(0) {
+            if value.as_str() == expected_secret {
+                tide::log::debug!("Skipping rate-limit due to exemption");
+                return true;
+            }
+        }
+
+        tide::log::warn!("Invalid X-Exempt-RateLimit header found! {:?}", values);
+    }
+
+    false
 }
