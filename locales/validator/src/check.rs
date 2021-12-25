@@ -38,7 +38,7 @@ pub fn run<P: AsRef<Path>>(directory: P) {
     }
 
     let mut catalog = Catalog::default();
-    print_real_path(directory);
+    println!("Reading all Fluent files...");
 
     // Walk through all the component directories
     for result in fs::read_dir(directory).expect("Unable to read localization directory") {
@@ -50,7 +50,6 @@ pub fn run<P: AsRef<Path>>(directory: P) {
         }
 
         // Walk through all the locales for a component
-        print_real_path(&path);
         for result in fs::read_dir(path).expect("Unable to read component directory") {
             let entry = result.expect("Unable to read directory entry");
             let path = entry.path();
@@ -145,9 +144,4 @@ pub fn run<P: AsRef<Path>>(directory: P) {
 
     // Exit with result
     process::exit(i32::from(return_code));
-}
-
-fn print_real_path(path: &Path) {
-    let real_path = path.canonicalize().expect("Unable to canonicalize path");
-    println!("Reading through {}...", real_path.display());
 }

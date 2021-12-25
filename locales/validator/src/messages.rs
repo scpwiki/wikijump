@@ -20,6 +20,7 @@
 
 use fluent_syntax::ast;
 use std::collections::HashMap;
+use std::ops::Deref;
 use unic_langid::LanguageIdentifier;
 
 /// The "primary" locale, to compare other locales against.
@@ -31,6 +32,10 @@ use unic_langid::LanguageIdentifier;
 /// are equal or subsets, raising errors on any new message keys,
 /// as they are either typos or removed keys.
 const PRIMARY_LOCALE: LanguageIdentifier = langid!("en");
+
+/// A list of all Fluent functions made available by DEEPWELL.
+/// Any outside this list will be considered invalid.
+const VALID_FLUENT_FUNCTIONS: [&str; 0] = [];
 
 #[derive(Debug, Default, Clone)]
 pub struct Catalog {
@@ -64,33 +69,78 @@ impl Catalog {
             }};
         }
 
+        println!();
+        println!(
+            "Running checks, comparing to primary locale {}...",
+            PRIMARY_LOCALE,
+        );
+
         let primary = match self.locales.get(&PRIMARY_LOCALE) {
             Some(messages) => messages,
             None => {
-                fail!("No data found for primary locale: {}", PRIMARY_LOCALE);
+                fail!("No messages found for primary locale");
                 return;
             }
         };
 
-        todo!()
+        for (locale, messages) in self
+            .locales
+            .iter()
+            .filter(|(locale, _)| *locale != &PRIMARY_LOCALE)
+        {
+            println!("+ Checking locale {}", locale);
+
+            for (key, usages) in messages.iter() {
+                // Ensure all paths match ones in the primary
+                let primary_usages = match primary.get(key) {
+                    Some(usages) => usages,
+                    None => {
+                        fail!("Message key not found in parent: {}", key);
+                        eprintln!("Usage data: {:#?}", usages);
+                        continue;
+                    }
+                };
+
+                // Check usage information
+                for function in &usages.functions {
+                    if !VALID_FLUENT_FUNCTIONS.contains(&function.as_str()) {
+                        fail!("Invalid Fluent function {}", function);
+                    }
+                }
+
+                for variable in &usages.variables {
+                    if !primary_usages.variables.contains(&variable) {
+                        fail!("Variable reference not found in parent: {}", variable);
+                    }
+                }
+            }
+        }
     }
 }
 
 #[derive(Debug, Default, Clone)]
 pub struct Messages {
-    messages: HashMap<String, MessageUsages>,
+    inner: HashMap<String, MessageUsages>,
 }
 
 impl Messages {
     pub fn add(&mut self, key: String, usages: MessageUsages) {
-        if self.messages.contains_key(&key) {
+        if self.inner.contains_key(&key) {
             // We do check/panic instead of insert()
             // because the key is gone once we insert,
             // so we can't use it in our message without cloning.
             panic!("Duplicate message key: {}", key);
         }
 
-        self.messages.insert(key, usages);
+        self.inner.insert(key, usages);
+    }
+}
+
+impl Deref for Messages {
+    type Target = HashMap<String, MessageUsages>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.inner
     }
 }
 
