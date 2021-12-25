@@ -136,6 +136,12 @@ impl Catalog {
                     }
                 }
 
+                for term in &usages.terms {
+                    if !self.terms.contains(term) {
+                        fail!("Nonexistent term referenced: {}", term);
+                    }
+                }
+
                 for variable in &usages.variables {
                     if !primary_usages.variables.contains(&variable) {
                         fail!("Variable reference not found in parent: {}", variable);
