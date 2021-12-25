@@ -49,6 +49,13 @@ pub fn run<P: AsRef<Path>>(directory: P) {
             continue;
         }
 
+        let component = path
+            .file_name()
+            .expect("No base name for path")
+            .to_str()
+            .expect("Path is not valid UTF-8");
+        println!("+  Reading {}", component);
+
         // Walk through all the locales for a component
         for result in fs::read_dir(path).expect("Unable to read component directory") {
             let entry = result.expect("Unable to read directory entry");
@@ -82,6 +89,8 @@ pub fn run<P: AsRef<Path>>(directory: P) {
                 .expect("No base name in locale path")
                 .to_str()
                 .expect("Path is not valid UTF-8");
+
+            println!("++ {}", locale_name);
 
             let locale: LanguageIdentifier = match locale_name.parse() {
                 Ok(locale) => locale,
