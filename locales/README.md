@@ -24,7 +24,7 @@ You don't need to do anything but add a new `.ftl` file when translating. The ba
 
 ### How this gets used
 
-If you're a contributor who came to this repository to help with translations, you may be unfamiliar with how these files actually get used. In general, it looks something like this:
+If you're a contributor who wishes to help with translations, you may be unfamiliar with how these files actually get used. In general, it looks something like this:
 
 ```ftl
 forgot-password = Forgot Password
