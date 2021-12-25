@@ -123,20 +123,7 @@ pub fn run<P: AsRef<Path>>(directory: P) {
             let mut has_resource_comment = false;
             for entry in resource.entries() {
                 match entry {
-                    ast::Entry::Message(message) => {
-                        let base_key = message.id.name;
-
-                        if let Some(ast::Pattern { ref elements }) = message.value {
-                            for element in elements {
-                                match element {
-                                    ast::PatternElement::TextElement { .. } => (),
-                                    ast::PatternElement::Placeable { expression } => {
-                                        todo!()
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    ast::Entry::Message(message) => catalog.add_message(&locale, message),
                     ast::Entry::ResourceComment(_) => {
                         has_resource_comment = true;
                     }

@@ -16,4 +16,5 @@ rust-version = "1.56.0"
 [dependencies]
 fluent-bundle = "0.15"
 fluent-syntax = "0.11"
+str-macro = "1"
 unic-langid = { version = "0.9", features = ["macros"] }

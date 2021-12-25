@@ -19,6 +19,9 @@
  */
 
 #[macro_use]
+extern crate str_macro;
+
+#[macro_use]
 extern crate unic_langid;
 
 mod check;

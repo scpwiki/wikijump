@@ -99,6 +99,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1ecab6c735a6bb4139c0caafd0cc3635748bbb3acf4550e8138122099251f309"
 
 [[package]]
+name = "str-macro"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9b7514866270741c7b03dd36e2c68f71cf064b230e8217c81bbd4d619d564864"
+
+[[package]]
 name = "syn"
 version = "1.0.83"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -199,5 +205,6 @@ version = "0.0.1"
 dependencies = [
  "fluent-bundle",
  "fluent-syntax",
+ "str-macro",
  "unic-langid",
 ]
