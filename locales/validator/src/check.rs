@@ -147,5 +147,10 @@ pub fn run<P: AsRef<Path>>(directory: P) {
     println!("All message data:\n{:#?}", catalog);
 
     // Exit with result
+    if return_code != 0 {
+        eprintln!();
+        eprintln!("Some validation issues found! See above.");
+    }
+
     process::exit(i32::from(return_code));
 }
