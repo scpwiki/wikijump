@@ -22,6 +22,7 @@
 extern crate unic_langid;
 
 mod check;
+mod messages;
 
 fn main() {
     check::run("../locales");

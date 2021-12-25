@@ -18,22 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::messages::Catalog;
 use fluent_bundle::FluentResource;
 use fluent_syntax::ast;
-use std::collections::HashMap;
 use std::path::Path;
 use std::{fs, process};
 use unic_langid::LanguageIdentifier;
-
-/// The "primary" locale, to compare other locales against.
-///
-/// This is defined as one which is always complete, containing
-/// every message key used by the application.
-///
-/// Thus, we can compare all other locales to it, ensuring they
-/// are equal or subsets, raising errors on any new message keys,
-/// as they are either typos or removed keys.
-const PRIMARY_LOCALE: LanguageIdentifier = langid!("en");
 
 pub fn run<P: AsRef<Path>>(directory: P) {
     let directory = directory.as_ref();
@@ -47,8 +37,7 @@ pub fn run<P: AsRef<Path>>(directory: P) {
         }};
     }
 
-    let mut components = Vec::new();
-    let mut locales = HashMap::new();
+    let mut catalog = Catalog::default();
     print_real_path(directory);
 
     // Walk through all the component directories
@@ -116,7 +105,7 @@ pub fn run<P: AsRef<Path>>(directory: P) {
                 }
             };
 
-            let resource = match FluentResource::try_new(source) {
+            let resource = match FluentResource::try_new(source.clone()) {
                 Ok(resource) => resource,
                 Err((_, errors)) => {
                     eprintln!("Fluent file source:\n-----\n{}\n-----\n", source);
@@ -129,6 +118,38 @@ pub fn run<P: AsRef<Path>>(directory: P) {
                     continue;
                 }
             };
+
+            // Traverse resource, add keys to mapping
+            let mut has_resource_comment = false;
+            for entry in resource.entries() {
+                match entry {
+                    ast::Entry::Message(message) => {
+                        let base_key = message.id.name;
+
+                        if let Some(ast::Pattern { ref elements }) = message.value {
+                            for element in elements {
+                                match element {
+                                    ast::PatternElement::TextElement { .. } => (),
+                                    ast::PatternElement::Placeable { expression } => {
+                                        todo!()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    ast::Entry::ResourceComment(_) => {
+                        has_resource_comment = true;
+                    }
+                    ast::Entry::Junk { content } => {
+                        fail!("Fluent file contains unknown data: {}", content);
+                    }
+                    _ => (),
+                }
+            }
+
+            if !has_resource_comment {
+                fail!("No resource comments found in {}", path.display());
+            }
 
             todo!();
         }
