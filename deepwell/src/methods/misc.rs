@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use crate::info;
+use crate::web::ratelimit::is_ratelimit_exempt;
 use sea_orm::{ConnectionTrait, DatabaseBackend, Statement};
 
 pub async fn ping(req: ApiRequest) -> ApiResponse {
@@ -45,5 +46,9 @@ pub async fn full_version(_: ApiRequest) -> ApiResponse {
 }
 
 pub async fn ratelimit_exempt(req: ApiRequest) -> ApiResponse {
-    todo!()
+    if is_ratelimit_exempt(&req) {
+        Ok(Response::new(StatusCode::NoContent))
+    } else {
+        Ok(Response::new(StatusCode::Forbidden))
+    }
 }
