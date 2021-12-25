@@ -5,6 +5,8 @@ namespace Wikijump\Services\Deepwell;
 
 use Carbon\Carbon;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
+use Illuminate\Support\Facades\Log;
 
 final class DeepwellService
 {
@@ -42,15 +44,23 @@ final class DeepwellService
 
     public function translate(string $locale, string $key, array $values = []): ?string
     {
-        $resp = $this->client->post("message/$locale/$key", [
-            'body' => json_encode($values, JSON_FORCE_OBJECT),
-        ]);
+        try {
+            $resp = $this->client->post("message/$locale/$key", [
+                'body' => json_encode($values, JSON_FORCE_OBJECT),
+            ]);
 
-        if ($resp->getStatusCode() !== 200) {
-            return null;
+            return (string) $resp->getBody();
+        } catch (ClientException $exception) {
+            // TOOO remove this and have it just throw, after we've removed all the old Wikidot strings
+
+            if ($exception->getCode() === 404) {
+                Log::warning("Error retrieving translation: {$exception->getMessage()}");
+                return null;
+            }
+
+            // For other errors, re-throw, since it's not an "expected" error
+            throw $exception;
         }
-
-        return (string) $resp->getBody();
     }
 
     // User
