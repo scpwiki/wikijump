@@ -10,7 +10,7 @@ This folder contains the localization files needed by the various Wikijump proje
 
 Wikijump universally uses [Project Fluent](https://projectfluent.org/) for localization. This is the same system Firefox uses. All Fluent (`.ftl`) files can be found in the `fluent` folder.
 
-There is a singular exception to this, which is the `cmftml` folder. More information can be found in that folder's `README`.
+There is a singular exception to this, which is the `cmftml` folder. More information can be found in [that folder's `README`](https://github.com/scpwiki/wikijump/tree/develop/locales/cmftml)..
 
 ### How this works
 
