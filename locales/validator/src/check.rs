@@ -122,6 +122,7 @@ pub fn run<P: AsRef<Path>>(directory: P) {
             for entry in resource.entries() {
                 match entry {
                     ast::Entry::Message(message) => catalog.add_message(locale.clone(), message),
+                    ast::Entry::Term(term) => catalog.add_term(term),
                     ast::Entry::Junk { content } => {
                         fail!("Fluent file contains unknown data: {}", content);
                     }

@@ -19,7 +19,7 @@
  */
 
 use fluent_syntax::ast;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::ops::Deref;
 use unic_langid::LanguageIdentifier;
 
@@ -40,6 +40,7 @@ const VALID_FLUENT_FUNCTIONS: [&str; 0] = [];
 #[derive(Debug, Default, Clone)]
 pub struct Catalog {
     locales: HashMap<LanguageIdentifier, Messages>,
+    terms: HashSet<String>,
 }
 
 impl Catalog {
@@ -57,6 +58,18 @@ impl Catalog {
             let key = format!("{}.{}", base_key, id.name);
             let usages = MessageUsages::from_elements(&value.elements);
             messages.add(key, usages);
+        }
+    }
+
+    pub fn add_term(&mut self, term: &ast::Term<&str>) {
+        let base_key = term.id.name;
+
+        // There is always a value, so no if let.
+        self.terms.insert(str!(base_key));
+
+        for ast::Attribute { id, .. } in &term.attributes {
+            let key = format!("{}.{}", base_key, id.name);
+            self.terms.insert(key);
         }
     }
 
