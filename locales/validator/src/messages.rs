@@ -39,8 +39,8 @@ pub struct Catalog {
 
 impl Catalog {
     pub fn add_message(&mut self, locale: LanguageIdentifier, message: &ast::Message<&str>) {
-        let mut messages = self.locales.entry(locale).or_default();
         let base_key = message.id.name;
+        let messages = self.locales.entry(locale).or_default();
 
         if let Some(ast::Pattern { elements }) = &message.value {
             let key = str!(base_key);
@@ -55,7 +55,23 @@ impl Catalog {
         }
     }
 
-    pub fn check(&self, return_code: &mut u8) -> bool {
+    pub fn check(&self, return_code: &mut u8) {
+        macro_rules! fail {
+            ($($arg:tt)*) => {{
+                *return_code = 1;
+                eprint!("!! ");
+                eprintln!($($arg)*);
+            }};
+        }
+
+        let primary = match self.locales.get(&PRIMARY_LOCALE) {
+            Some(messages) => messages,
+            None => {
+                fail!("No data found for primary locale: {}", PRIMARY_LOCALE);
+                return;
+            }
+        };
+
         todo!()
     }
 }
