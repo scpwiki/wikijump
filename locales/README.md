@@ -2,68 +2,38 @@
 
 This folder contains the localization files needed by the various Wikijump projects.
 
-> ### IMPORTANT:
->
-> The configuration file format to be used for locales has not been decided yet. It will be either YAML or TOML. For right now, YAML is being used.
->
-> Despite this, it is safe to make translations, as it is relatively simple to convert between YAML and TOML and any work done won't be wasted.
-
 ### Relevant Documentation:
 
-- [ICU Syntax](https://formatjs.io/docs/core-concepts/icu-syntax/)
+- [Fluent Syntax](https://projectfluent.org/fluent/guide/)
 
-### File Naming
+### Background
 
-Locale file names have a specific format. A locale will start with the basic language tag, e.g. `en` for English. Then, optionally, it may be followed by a region code, e.g. `_US` (`en_US`). You might have to look up what these language codes and region identifiers are, as they're often not what you expect.
+Wikijump universally uses [Project Fluent](https://projectfluent.org/) for localization. This is the same system Firefox uses. All Fluent (`.ftl`) files can be found in the `fluent` folder.
 
-Locale files with a region code will _inherit any missing translations from the base language_. That means if a translation string doesn't exist for `en-us`, the `en` locale file will be searched next. What that means is that you _do not need to copy the entire file for region-specific locales_. Instead, just change the translations that you need to, and leave the rest alone. Using English as an example, the `en-us` file would handle using the word "color" different from `en-gb`, which would use "colour" instead.
+There is a singular exception to this, which is the `cmftml` folder. More information can be found in [that folder's `README`](https://github.com/scpwiki/wikijump/tree/develop/locales/cmftml)..
 
-### Key Names
+### How this works
 
-For the sake of consistency, the following rules are followed when naming keys:
+The `fluent` folder contains many subfolders. Each folder represents a "component", or chunk of related translation strings. For example, the `notification-bell` component holds strings related to the small bell that informs the user when they have new notifications.
 
-- Namespaces, objects, groups, categories, etc, whatever you may call them, are _lowercased_.
-- Otherwise, key names are _UPPERCASED_.
-- Words are separated with _snake_case_.
+Components have `.ftl` files named after a locale, so for example a component may have a `en.ftl` file, a `de.ftl` file, and so on. To add translations for a locale, you simply need to add a new `.ftl` file with that locale's language tag. You [may need to look up what these language codes are](https://unicode-org.github.io/icu/userguide/locale/), as they're often not what you expect.
 
-That will look like this:
+When adding new translations, you need to use the `en.ftl` file as your basis, or else the message keys won't match. It's recommended you copy the `en.ftl` file, rename it, and then change the strings to match the locale. A build check will verify that your files are in compliance in this respect.
 
-```yaml
-namespace:
-  KEY_NAME: Translation string!
+You don't need to do anything but add a new `.ftl` file when translating. The backend and frontend automatically figure out what they need to do from the file structure of the `fluent` folder.
 
-other_namespace:
-  deeply_nested:
-    OTHER_KEY_NAME: Another translation string!
-```
+### How this gets used
 
-If you're a contributor who came to this repository to help with translations, you may be unfamiliar with how these configuration files actually get used. In general, it looks something like this:
+If you're a contributor who wishes to help with translations, you may be unfamiliar with how these files actually get used. In general, it looks something like this:
 
-```yaml
-login:
-  buttons:
-    FORGOT_PASSWORD: Forgot your password? Click here.
+```ftl
+forgot-password = Forgot Password
+  .question = Forgot your password?
 ```
 
 ```svelte
 <!-- Starts the "forgot password" process -->
 <button>
-  <span>{$t("login.buttons.FORGOT_PASSWORD")}</span>
+  <span>{$t("forgot-password.question")}</span>
 </button>
 ```
-
-### Building
-In order to take the source YAML files and create `.po` and `.mo` files from them, you need to run the localizations build. This requires Python 3.8+
-
-Setup:
-```sh
-$ pip3 install --upgrade -r requirements.txt
-$ pip3 install --upgrade -r requirements-dev.txt  # If you plan on developing this service
-```
-
-Building:
-```sh
-$ python3 -m messages .
-```
-
-Built artifact files will be placed in the `out` directory.
