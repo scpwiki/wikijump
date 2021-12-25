@@ -24,6 +24,7 @@ use async_std::path::{Path, PathBuf};
 use async_std::prelude::*;
 use fluent::{bundle, FluentArgs, FluentMessage, FluentResource};
 use intl_memoizer::concurrent::IntlLangMemoizer;
+use std::borrow::Cow;
 use std::collections::HashMap;
 use std::fmt::{self, Debug};
 use unic_langid::LanguageIdentifier;
@@ -148,12 +149,12 @@ impl Localizations {
         }
     }
 
-    pub fn translate(
-        &self,
+    pub fn translate<'a>(
+        &'a self,
         locale: &LanguageIdentifier,
         key: &str,
-        args: &FluentArgs,
-    ) -> Result<String, LocalizationTranslateError> {
+        args: &'a FluentArgs<'a>,
+    ) -> Result<Cow<'a, str>, LocalizationTranslateError> {
         // Get appropriate message and bundle
         let (path, attribute) = Self::parse_selector(key);
         let (bundle, message) = self.get_message(locale, path)?;
@@ -199,9 +200,7 @@ impl Localizations {
         }
 
         // Done
-        //
-        // Passing as owned to avoid complicated FluentBundle lifetimes.
-        Ok(str!(output))
+        Ok(output)
     }
 }
 
