@@ -34,6 +34,8 @@ final class DeepwellService
                 'X-Exempt-RateLimit' => GlobalProperties::$API_RATELIMIT_BYPASS,
             ],
         ]);
+
+        $this->checkRatelimitExempt();
     }
 
     // Localization
@@ -114,6 +116,11 @@ final class DeepwellService
     {
         $method = $full ? 'version/full' : 'version';
         return (string) $this->client->get($method)->getBody();
+    }
+
+    public function checkRatelimitExempt(): void
+    {
+        $this->client->get('ratelimit-exempt');
     }
 
     // Helper functions
