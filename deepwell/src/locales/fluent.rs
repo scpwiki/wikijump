@@ -138,12 +138,6 @@ impl Localizations {
         locale: &LanguageIdentifier,
         key: &str,
     ) -> Result<(&FluentBundle, FluentMessage), LocalizationTranslateError> {
-        tide::log::info!(
-            "Fetching translation for locale {}, message key {}",
-            locale,
-            key,
-        );
-
         match self.bundles.get(locale) {
             None => Err(LocalizationTranslateError::NoLocale),
             Some(bundle) => match bundle.get_message(key) {
@@ -162,6 +156,13 @@ impl Localizations {
         // Get appropriate message and bundle
         let (path, attribute) = Self::parse_selector(key);
         let (bundle, message) = self.get_message(locale, path)?;
+
+        tide::log::info!(
+            "Translating for locale {}, message path {}, attribute {}",
+            locale,
+            path,
+            attribute.unwrap_or("<none>"),
+        );
 
         // Get pattern from message
         let pattern = match attribute {
