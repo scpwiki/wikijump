@@ -1,0 +1,18 @@
+[package]
+name = "wikijump-locales-validator"
+description = "Validate Wikijump's Fluent localizatoin files"
+repository = "https://github.com/scpwiki/wikijump/tree/develop/locales/validator"
+readme = "README.md"
+license = "AGPL-3.0-or-later"
+keywords = ["wikijump", "localization"]
+categories = []
+exclude = [".gitignore"]
+
+version = "0.0.1"
+authors = ["Ammon Smith <ammon.i.smith@gmail.com>"]
+edition = "2021" # this is *not* the same as the current year
+rust-version = "1.56.0"
+
+[dependencies]
+fluent = "0.16"
+unic-langid = { version = "0.9", features = ["macros"] }
