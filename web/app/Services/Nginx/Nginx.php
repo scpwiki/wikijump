@@ -49,7 +49,9 @@ final class Nginx
         } catch (Exception $err) {
             Log::error("Could not fetch asset contents: {$url}");
             Log::error($err->getMessage());
-            Log::notice("(Note: If the instance is still starting up, this error can likely be ignored)");
+            Log::notice(
+                '(Note: If the instance is still starting up, this error can likely be ignored)',
+            );
             return null;
         }
     }
