@@ -55,8 +55,7 @@ impl Catalog {
         }
     }
 
-    #[must_use]
-    pub fn valid(&self) -> bool {
+    pub fn check(&self, return_code: &mut u8) -> bool {
         todo!()
     }
 }

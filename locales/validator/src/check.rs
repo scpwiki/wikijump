@@ -137,12 +137,14 @@ pub fn run<P: AsRef<Path>>(directory: P) {
             if !has_resource_comment {
                 fail!("No resource comments found in {}", path.display());
             }
-
-            todo!();
         }
     }
 
-    process::exit(return_code);
+    // Built catalog, check for validity
+    catalog.check(&mut return_code);
+
+    // Exit with result
+    process::exit(i32::from(return_code));
 }
 
 fn print_real_path(path: &Path) {
