@@ -6,6 +6,7 @@ on:
       - "web/**"
       - "ftml/test/*"
       - ".github/workflows/client.yaml"
+      - ".github/codecov.yml"
 
 jobs:
   validate:
