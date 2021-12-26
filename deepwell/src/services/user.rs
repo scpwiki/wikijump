@@ -1,5 +1,5 @@
 /*
- * services/user/mod.rs
+ * services/user.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
