@@ -5,9 +5,8 @@
   import FTML from "@wikijump/ftml-wasm-worker"
   import morphdom from "morphdom"
   import { createAnimQueued, createMutatingLock, perfy, toFragment } from "@wikijump/util"
-  import Card from "./Card.svelte"
+  import { Card, Spinny } from "@wikijump/components"
   import { anim } from "@wikijump/components/lib"
-  import Spinny from "./Spinny.svelte"
   import Locale, { unit } from "@wikijump/fluent"
 
   const t = Locale.makeComponentFormatter("wikitext")
