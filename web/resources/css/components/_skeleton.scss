@@ -1,0 +1,62 @@
+wj-skeleton-block {
+  display: block;
+  width: 100%;
+  cursor: progress;
+}
+
+wj-skeleton-inline {
+  display: inline-block;
+  width: 100%;
+  cursor: progress;
+}
+
+// credit to Carbon Design System (IBM) for how this wokrs
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--col-background-dim);
+
+  &.is-block {
+    display: block;
+    border-radius: 0.5em;
+  }
+
+  &.is-line {
+    display: inline-block;
+    width: 100%;
+    border-radius: 0.25em;
+  }
+
+  &:hover,
+  &:focus,
+  &:active {
+    border: none;
+    outline: none;
+  }
+
+  &.is-block::before,
+  &.is-line::before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    content: "";
+    background: var(--col-border);
+
+    @include tolerates-motion {
+      will-change: transform;
+      animation: 2000ms cubic-bezier(0.645, 0.045, 0.355, 1) 0s infinite skeleton-wave;
+    }
+  }
+}
+
+@keyframes skeleton-wave {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(calc(100%));
+  }
+}
