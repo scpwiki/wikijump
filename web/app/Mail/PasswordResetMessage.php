@@ -19,11 +19,11 @@ class PasswordResetMessage extends MJMLMessage
     {
         parent::__construct();
 
-        $this->subject(__('email.reset_password.SUBJECT'))
-            ->greeting(__('email.reset_password.GREETING'))
-            ->line(__('email.reset_password.INTRO'))
-            ->action(__('email.reset_password.ACTION'), $url)
-            ->line(__('email.reset_password.EXPIRES', ['count' => $expires]))
-            ->line(__('email.reset_password.OUTRO'));
+        $this->subject(__('emails-reset-password.subject'))
+            ->greeting(__('emails-reset-password.greeting'))
+            ->line(__('emails-reset-password.intro'))
+            ->action(__('emails-reset-password.action'), $url)
+            ->line(__('emails-reset-password.expires', ['count' => $expires]))
+            ->line(__('emails-reset-password.outro'));
     }
 }
