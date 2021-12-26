@@ -157,7 +157,7 @@
 </div>
 
 <style lang="scss">
-  @import "../../../resources/css/abstracts";
+  @import "../../../../resources/css/abstracts";
 
   .wikitext-loading-panel {
     position: absolute;
