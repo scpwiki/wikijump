@@ -116,7 +116,8 @@ const BaseConfig = () => ({
 
   test: {
     root: ROOT,
-    environment: "happy-dom",
+    isolate: false,
+    environment: "jsdom",
     include: ["./modules/**/tests/**/*.{js,ts}"],
     setupFiles: ["./scripts/test-setup.js"],
     deps: {

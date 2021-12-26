@@ -9,6 +9,7 @@ on:
       - 'ftml/src/**'
       - 'ftml/test/*'
       - '.github/workflows/ftml.yaml'
+      - '.github/codecov.yml'
 
 jobs:
   library_build_and_test:
