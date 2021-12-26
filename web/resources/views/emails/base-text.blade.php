@@ -14,7 +14,7 @@
 
 -------------------------------------------------------------------------------
 
-{{ __('email.SUBSCRIBED') }}
-{{ __('email.UNSUBSCRIBE_TEXT') }}
+{{ __('emails-subscribed') }}
+{{ __('emails-unsubscribe.text') }}
 {!! $unsubscribe_url !!}
 @endif

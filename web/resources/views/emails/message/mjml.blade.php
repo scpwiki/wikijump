@@ -93,7 +93,7 @@
         <mj-section background-color="#fff">
             <mj-column>
                 <mj-text align="center" font-size="10px">
-                    {{ __('email.SUBCOPY', ['action' => $actionText]) }}
+                    {{ __('emails-unsubscribe.copy', ['action' => $actionText]) }}
                     <br />
                     <br />
                     <a href="{!! $actionUrl !!}">

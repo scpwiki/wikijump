@@ -75,11 +75,11 @@
             <mj-section padding-top="0">
                 <mj-column>
                     <mj-text align="center" font-size="10px" line-height="12px">
-                        {{ __('email.SUBSCRIBED') }}
+                        {{ __('emails-subscribed') }}
                         <br />
                         <br />
                         <a href="{{ $unsubscribe_url }}">
-                            {{ __('email.UNSUBSCRIBE') }}
+                            {{ __('emails-unsubscribe') }}
                         </a>
                     </mj-text>
                 </mj-column>
