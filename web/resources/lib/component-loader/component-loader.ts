@@ -1,5 +1,6 @@
 import { addElement } from "@wikijump/dom"
 import { detach, insert, noop, type SvelteComponent } from "svelte/internal"
+import { SkeletonBlockElement, SkeletonInlineElement } from "../elements/skeleton"
 import ComponentManager, { type ComponentName } from "./component-manager"
 
 /**
@@ -43,8 +44,57 @@ export class ComponentLoaderElement extends HTMLElement {
     }
   }
 
+  private parseSkeletonAttribute():
+    | { type: "block"; height: string; width: string }
+    | { type: "inline"; lines: string; height: string }
+    | null {
+    const attr = this.getAttribute("skeleton")
+
+    if (attr === null) return null
+
+    const [type, arg1, arg2] = attr.split(":")
+
+    if (type === "block") {
+      return { type: "block", height: arg1 ?? "auto", width: arg2 ?? "auto" }
+    } else if (type === "inline") {
+      return { type: "inline", lines: arg1 ?? "auto", height: arg2 ?? "1em" }
+    }
+
+    return null
+  }
+
+  private mountSkeleton() {
+    const opts = this.parseSkeletonAttribute()
+
+    if (!opts) return null
+
+    if (opts.type === "block") {
+      const element = new SkeletonBlockElement()
+      element.setAttribute("height", opts.height)
+      element.setAttribute("width", opts.width)
+      this.appendChild(element)
+      return element
+    } else {
+      const element = new SkeletonInlineElement()
+      element.setAttribute("lines", opts.lines)
+      element.setAttribute("height", opts.height)
+      this.appendChild(element)
+      return element
+    }
+  }
+
   /** Begins the loading and rendering of the named component. */
   private async loadComponent() {
+    // TODO: this is a bit messy (holding the inner HTML in a string)
+    let pendingHTML: string | null = null
+    let skeletonElement: HTMLElement | null = null
+
+    if (this.hasAttribute("skeleton")) {
+      pendingHTML = this.innerHTML
+      this.innerHTML = ""
+      skeletonElement = this.mountSkeleton()
+    }
+
     // this will error if we load a bad component, so
     // we don't need to do any error handling here
     const component = await ComponentManager.load(this.load!)
@@ -55,6 +105,13 @@ export class ComponentLoaderElement extends HTMLElement {
 
     const attributeNames = new Set(this.getAttributeNames())
     attributeNames.delete("load")
+    attributeNames.delete("skeleton")
+
+    // dismount the skeleton if it was mounted
+    if (skeletonElement) {
+      this.removeChild(skeletonElement)
+      this.innerHTML = pendingHTML!
+    }
 
     // now we need to handle slotted content
     // this is going to be using WITCHCRAFT
