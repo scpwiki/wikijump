@@ -8,6 +8,7 @@ mkdir -p \
 	bootstrap \
 	conf \
 	logs \
+	public/files--built \
 	storage/framework/cache \
 	storage/framework/sessions \
 	storage/framework/views \
@@ -24,6 +25,7 @@ chown -R www-data:www-data \
 	bootstrap/ \
 	conf/ \
 	logs/ \
+	public/ \
 	storage/ \
 	tmp/ \
 	vendor/
