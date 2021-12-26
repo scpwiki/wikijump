@@ -27,3 +27,9 @@ flags:
     carryforward: true
     paths:
       - ftml/
+
+  # api server
+  deepwell:
+    carryforward: true
+    paths:
+      - deepwell/
