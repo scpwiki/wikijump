@@ -40,7 +40,7 @@
 
             @includeWhen(isset($sidebar_content), 'next.components.sidebar')
 
-            <main id="main" aria-label="{{ __('frame.aria.MAIN') }}">
+            <main id="main" aria-label="{{ __('main-content') }}">
                 @yield('content')
             </main>
 
@@ -51,7 +51,7 @@
 
             @include('next.components.header')
 
-            <main id="main" aria-label="{{ __('frame.aria.MAIN') }}">
+            <main id="main" aria-label="{{ __('main-content') }}">
                 @yield('content')
             </main>
 
