@@ -8,7 +8,9 @@ ARG FILES_DOMAIN="wjfiles.test"
 ARG PGDATA="/var/lib/postgresql/data"
 
 # Install dependencies
-RUN apk add --no-cache musl-locales
+RUN apk add --no-cache \
+    postgresql-contrib \
+    musl-locales
 
 # Copy sources
 COPY ./install/files/postgres /src
