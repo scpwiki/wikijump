@@ -36,7 +36,7 @@
                 <mj-image width="400px"
                           src="{{ $HTTP_SCHEMA }}://{{ $URL_HOST }}/files--static/media/logo.png"
                           href="{{$HTTP_SCHEMA}}://{{$URL_HOST}}"
-                          alt="{{ __('email.GOTO_SITE') }}"
+                          alt="{{ __('goto-service') }}"
                 />
                 <mj-divider border-width="2px"
                             border-color="#eee"
