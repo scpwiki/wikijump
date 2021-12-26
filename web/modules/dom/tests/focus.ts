@@ -89,7 +89,7 @@ describe("@wikijump/dom - focus", () => {
   describe("FocusObserver", () => {
     it("calls on focus", () => {
       let called = false
-      const fo = new lib.FocusObserver(div, { focus: () => void (called = true) })
+      const fo = new lib.FocusObserver(div, { focus: () => (called = true) })
       btn("start").focus()
       expect(called).toBe(true)
       fo.destroy()
@@ -97,7 +97,7 @@ describe("@wikijump/dom - focus", () => {
 
     it("calls on blur", () => {
       let called = false
-      const fo = new lib.FocusObserver(div, { blur: () => void (called = true) })
+      const fo = new lib.FocusObserver(div, { blur: () => (called = true) })
       btn("start").focus()
       btn("start").blur()
       expect(called).toBe(true)
@@ -106,7 +106,7 @@ describe("@wikijump/dom - focus", () => {
 
     it("does not call with refocus", () => {
       let count = 0
-      const fo = new lib.FocusObserver(div, { focus: () => void (count += 1) })
+      const fo = new lib.FocusObserver(div, { focus: () => (count += 1) })
       btn("start").focus()
       expect(count).toBe(1)
       btn("end").focus()
@@ -120,11 +120,11 @@ describe("@wikijump/dom - focus", () => {
     it("updates", () => {
       let called1 = false
       let called2 = false
-      const fo = new lib.FocusObserver(div, { focus: () => void (called1 = true) })
+      const fo = new lib.FocusObserver(div, { focus: () => (called1 = true) })
       btn("start").focus()
       expect(called1).toBe(true)
       btn("start").blur()
-      fo.update({ focus: () => void (called2 = true) })
+      fo.update({ focus: () => (called2 = true) })
       btn("end").focus()
       expect(called2).toBe(true)
       fo.destroy()
