@@ -275,13 +275,8 @@ importers:
       '@wikijump/api': workspace:*
       '@wikijump/dom': workspace:*
       '@wikijump/fluent': workspace:*
-      '@wikijump/ftml-components': workspace:*
-      '@wikijump/ftml-wasm': workspace:*
-      '@wikijump/ftml-wasm-worker': workspace:*
-      '@wikijump/prism': workspace:*
       '@wikijump/util': workspace:*
       dialog-polyfill: ^0.5.6
-      morphdom: ^2.6.1
       svelte: ^3.44.3
       tippy.js: ^6.3.7
     dependencies:
@@ -290,13 +285,8 @@ importers:
       '@wikijump/api': link:../api
       '@wikijump/dom': link:../dom
       '@wikijump/fluent': link:../fluent
-      '@wikijump/ftml-components': link:../ftml-components
-      '@wikijump/ftml-wasm': link:../ftml-wasm
-      '@wikijump/ftml-wasm-worker': link:../ftml-wasm-worker
-      '@wikijump/prism': link:../prism
       '@wikijump/util': link:../util
       dialog-polyfill: 0.5.6
-      morphdom: 2.6.1
       svelte: 3.44.3
       tippy.js: 6.3.7
 

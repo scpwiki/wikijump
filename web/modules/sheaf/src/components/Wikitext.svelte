@@ -6,7 +6,7 @@
   import morphdom from "morphdom"
   import { createAnimQueued, createMutatingLock, perfy, toFragment } from "@wikijump/util"
   import Card from "./Card.svelte"
-  import { anim } from "./lib/animation"
+  import { anim } from "@wikijump/components/lib"
   import Spinny from "./Spinny.svelte"
   import Locale, { unit } from "@wikijump/fluent"
 
