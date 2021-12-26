@@ -26,6 +26,8 @@ services:
       retries: 6
 
   nginx:
+    extra_hosts:
+    - "host.docker.internal:host-gateway"
     build:
       context: ../../..
       dockerfile: install/local/dev/nginx/Dockerfile
@@ -54,6 +56,8 @@ services:
         condition: service_healthy
 
   php-fpm:
+    extra_hosts:
+    - "host.docker.internal:host-gateway"
     build:
       context: ../../..
       dockerfile: install/local/dev/php-fpm/Dockerfile
