@@ -38,9 +38,9 @@
   function statusErrorMessage(status: number) {
     // prettier-ignore
     switch(status) {
-      case 403: return t("api-error.email-taken")
-      case 500: return t("api-error.internal")
-      default:  return t("api-error.register-failed")
+      case 403: return t("error-api.email-taken")
+      case 500: return t("error-api.internal")
+      default:  return t("error-api.register-failed")
     }
   }
 

@@ -28,9 +28,9 @@
   function statusErrorMessage(status: number) {
     // prettier-ignore
     switch(status) {
-      case 409: return t("api-error.already-logged-in")
-      case 500: return t("api-error.internal")
-      default:  return t("api-error.login-failed")
+      case 409: return t("error-api.already-logged-in")
+      case 500: return t("error-api.internal")
+      default:  return t("error-api.login-failed")
     }
   }
 

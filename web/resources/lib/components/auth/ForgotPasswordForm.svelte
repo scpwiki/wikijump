@@ -19,9 +19,9 @@
   function statusErrorMessage(status: number) {
     // prettier-ignore
     switch(status) {
-      case 403: return $t("api-error.unknown-email")
-      case 409: return $t("api-error.already-logged-in")
-      default:  return $t("api-error.internal")
+      case 403: return $t("error-api.unknown-email")
+      case 409: return $t("error-api.already-logged-in")
+      default:  return $t("error-api.internal")
     }
   }
 
