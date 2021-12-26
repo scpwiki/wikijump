@@ -20,7 +20,7 @@ emails-reset-password =
     request for your account. Click the button below to reset your password.
   .action = Reset Password
   .expires = This password reset link will expire in { $count ->
-    [1] = 1 minute.
-    *[other] = { $count } minutes.
+    [1] 1 minute.
+    *[other] { $count } minutes.
   }
   .outro = If you did not request a password reset, no further action is required.
