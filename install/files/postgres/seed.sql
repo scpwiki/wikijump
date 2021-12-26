@@ -1,5 +1,7 @@
 SET default_transaction_read_only = off;
 
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 CREATE ROLE wikijump
     WITH INHERIT NOSUPERUSER CREATEDB LOGIN REPLICATION NOBYPASSRLS PASSWORD 'wikijump';
 
