@@ -45,7 +45,7 @@
           window.location.href = goto === true ? "/" : goto || "/"
         }
       } catch {
-        error = t("api-error.internal")
+        error = t("error-api.internal")
       }
       busy = false
     } else {

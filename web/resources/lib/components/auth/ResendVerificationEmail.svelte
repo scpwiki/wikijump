@@ -22,7 +22,7 @@
       if (err instanceof Response) {
         // you can't get to this page without being logged in and unverified
         // so probably any error is internal
-        error = $t("api-error.internal")
+        error = $t("error-api.internal")
       } else {
         throw err
       }

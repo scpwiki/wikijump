@@ -24,8 +24,8 @@
   function statusErrorMessage(status: number) {
     // prettier-ignore
     switch(status) {
-      case 500: return t("api-error.internal")
-      default:  return t("api-error.password-confirm-failed")
+      case 500: return t("error-api.internal")
+      default:  return t("error-api.password-confirm-failed")
     }
   }
 
