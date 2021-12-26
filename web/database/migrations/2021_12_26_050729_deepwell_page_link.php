@@ -15,9 +15,9 @@ class DeepwellPageLink extends Migration
     public function up()
     {
         // This hands ownership of these tables to DEEPWELL
-        Schema::drop('page_external_link');
-        Schema::drop('page_inclusion');
         Schema::drop('page_link');
+        Schema::drop('page_connection');
+        Schema::drop('page_connection_missing');
 
         DB::statement("
             CREATE TABLE page_link (
@@ -79,9 +79,9 @@ class DeepwellPageLink extends Migration
      */
     public function down()
     {
-        Schema::drop('page_external_link');
-        Schema::drop('page_inclusion');
         Schema::drop('page_link');
+        Schema::drop('page_connection');
+        Schema::drop('page_connection_missing');
 
         Schema::create('page_link', function (Blueprint $table) {
             $table->id();
