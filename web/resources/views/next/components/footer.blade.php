@@ -6,7 +6,7 @@
         $license (see `config/licenses.php` and `App/Services/License`)
  --}}
 
-<footer id="footer" aria-label="{{ __('frame.aria.FOOTER') }}">
+<footer id="footer" aria-label="{{ __('footer') }}">
     <div id="footer_main">
         <div id="footer_services">
             @if ($SERVICE_NAME != "")
