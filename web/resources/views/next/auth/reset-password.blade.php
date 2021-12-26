@@ -4,12 +4,12 @@
 --}}
 
 @extends('next.auth.auth', [
-    'title' => __('auth.password_recovery.RESET_PASSWORD'),
+    'title' => __('reset-password'),
 ])
 
 @section('content')
     <h1 id="auth_title">
-        {{ __('auth.password_recovery.RESET_PASSWORD') }}
+        {{ __('reset-password') }}
     </h1>
 
     <wj-component-loader load="ResetPasswordForm" goto="{{ route('login') }}">

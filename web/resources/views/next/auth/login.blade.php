@@ -4,7 +4,7 @@
 --}}
 
 @extends('next.auth.auth', [
-    'title' => __('auth.LOGIN')
+    'title' => __('login')
 ])
 
 @section('content')
@@ -12,6 +12,6 @@
     </wj-component-loader>
 
     <a id="auth_create_account" href="{{ route("register") }}">
-        {{ __("auth.CREATE_ACCOUNT") }}
+        {{ __("create-account") }}
     </a>
 @endsection

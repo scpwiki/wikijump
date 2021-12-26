@@ -12,7 +12,7 @@
         <meta name="referrer" content="no-referrer">
         <meta name="csrf-token" content="{{ csrf_token() }}" />
 
-        <title>{{ __('auth.verify_email.VERIFY_EMAIL') }}</title>
+        <title>{{ __('wiki-auth-verify-email-link') }}</title>
 
         @inline('resources/css/pages/verify-email-link.scss')
         @inline('resources/lib/verify-email-link.ts')
@@ -21,21 +21,21 @@
     </head>
     <body>
         <div id="verify_waiting">
-            <h1>{{ __('auth.verify_email_link.WAITING') }}</h1>
+            <h1>{{ __('wiki-auth-verify-email-link.waiting') }}</h1>
         </div>
 
         <div id="verify_please_interact" style="display: none;">
             <div id="verify_robot">🤖</div>
-            <h1>{{ __('auth.verify_email_link.PLEASE_INTERACT') }}</h1>
-            <p>{{ __('auth.verify_email_link.INSTRUCTIONS') }}</p>
+            <h1>{{ __('wiki-auth-verify-email-link.please-interact') }}</h1>
+            <p>{{ __('wiki-auth-verify-email-link.instructions') }}</p>
         </div>
 
         <div id="verify_success" style="display: none;">
-            <h1>{{ __('auth.verify_email_link.SUCCESS') }}</h1>
+            <h1>{{ __('wiki-auth-verify-email-link.success') }}</h1>
         </div>
 
         <div id="verify_failure" style="display: none;">
-            <h1>{{ __('auth.errors.INTERNAL_ERROR') }}</h1>
+            <h1>{{ __('error-api.internal') }}</h1>
         </div>
     </body>
 </html>
