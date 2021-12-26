@@ -40,7 +40,7 @@ export class CodeElement extends HTMLElement {
     for (const name of classes) {
       // this will always be ASCII lowercased,
       // so we can just use a simple check
-      if (name.startsWith("wj-language-")) return name.substr(12)
+      if (name.startsWith("wj-language-")) return name.substring(12)
     }
     return null
   }
