@@ -1,6 +1,6 @@
 import { addElement } from "@wikijump/dom"
 import { detach, insert, noop, type SvelteComponent } from "svelte/internal"
-import { SkeletonBlockElement, SkeletonInlineElement } from "../elements/skeleton"
+import Skeleton from "../components/Skeleton.svelte"
 import ComponentManager, { type ComponentName } from "./component-manager"
 
 /**
@@ -46,7 +46,7 @@ export class ComponentLoaderElement extends HTMLElement {
 
   private parseSkeletonAttribute():
     | { type: "block"; height: string; width: string }
-    | { type: "inline"; lines: string; height: string }
+    | { type: "inline"; lines: number; height: string }
     | null {
     const attr = this.getAttribute("skeleton")
 
@@ -57,7 +57,7 @@ export class ComponentLoaderElement extends HTMLElement {
     if (type === "block") {
       return { type: "block", height: arg1 ?? "auto", width: arg2 ?? "auto" }
     } else if (type === "inline") {
-      return { type: "inline", lines: arg1 ?? "auto", height: arg2 ?? "1em" }
+      return { type: "inline", lines: parseInt(arg1 ?? "1", 10), height: arg2 ?? "1em" }
     }
 
     return null
@@ -69,16 +69,12 @@ export class ComponentLoaderElement extends HTMLElement {
     if (!opts) return null
 
     if (opts.type === "block") {
-      const element = new SkeletonBlockElement()
-      element.setAttribute("height", opts.height)
-      element.setAttribute("width", opts.width)
-      this.appendChild(element)
+      const { type, height, width } = opts
+      const element = new Skeleton({ target: this, props: { type, height, width } })
       return element
     } else {
-      const element = new SkeletonInlineElement()
-      element.setAttribute("lines", opts.lines)
-      element.setAttribute("height", opts.height)
-      this.appendChild(element)
+      const { type, lines, height } = opts
+      const element = new Skeleton({ target: this, props: { type, lines, height } })
       return element
     }
   }
@@ -87,12 +83,12 @@ export class ComponentLoaderElement extends HTMLElement {
   private async loadComponent() {
     // TODO: this is a bit messy (holding the inner HTML in a string)
     let pendingHTML: string | null = null
-    let skeletonElement: HTMLElement | null = null
+    let skeleton: SvelteComponent | null = null
 
     if (this.hasAttribute("skeleton")) {
       pendingHTML = this.innerHTML
       this.innerHTML = ""
-      skeletonElement = this.mountSkeleton()
+      skeleton = this.mountSkeleton()
     }
 
     // this will error if we load a bad component, so
@@ -108,8 +104,8 @@ export class ComponentLoaderElement extends HTMLElement {
     attributeNames.delete("skeleton")
 
     // dismount the skeleton if it was mounted
-    if (skeletonElement) {
-      this.removeChild(skeletonElement)
+    if (skeleton) {
+      skeleton.$destroy()
       this.innerHTML = pendingHTML!
     }
 

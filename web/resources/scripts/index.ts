@@ -1,7 +1,9 @@
 // organize-imports-ignore
-import "@wikijump/ftml-components"
-import "@wikijump/fluent"
-import "../lib/elements/skeleton"
+
+// Import base elements
+import "../lib/component-loader/component-loader"
 import "../lib/elements/nav-dropdown"
 import "../lib/elements/sidebar"
-import "../lib/component-loader/component-loader"
+
+// Import FTML components to enable interactivity
+import "@wikijump/ftml-components"
