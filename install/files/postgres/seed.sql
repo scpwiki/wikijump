@@ -1,10 +1,12 @@
 SET default_transaction_read_only = off;
 
-CREATE ROLE wikijump;
-ALTER ROLE wikijump WITH INHERIT CREATEDB LOGIN REPLICATION NOBYPASSRLS PASSWORD 'wikijump';
+CREATE ROLE wikijump
+    WITH INHERIT NOSUPERUSER CREATEDB LOGIN REPLICATION NOBYPASSRLS PASSWORD 'wikijump';
+
+CREATE ROLE wikijump_ro
+    WITH INHERIT NOSUPERUSER NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS PASSWORD 'wikijump_ro';
 
 CREATE DATABASE wikijump ENCODING = 'UTF8' LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8';
-
 ALTER DATABASE wikijump OWNER TO wikijump;
 
 \connect wikijump
@@ -20,4 +22,11 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
+REVOKE CREATE ON SCHEMA public FROM PUBLIC;
+
 GRANT ALL ON SCHEMA public TO wikijump;
+
+REVOKE ALL ON SCHEMA public FROM wikijump_ro;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO wikijump_ro;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+    GRANT SELECT ON TABLES TO wikijump_ro;
