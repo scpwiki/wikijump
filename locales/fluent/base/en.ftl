@@ -21,6 +21,7 @@ about = About
 account = Account
 breadcrumbs = Breadcrumbs
 close = Close
+docs = Docs
 download = Download
 editor = Editor
 footer = Page Footer

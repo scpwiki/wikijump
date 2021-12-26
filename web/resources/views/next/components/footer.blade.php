@@ -6,37 +6,37 @@
         $license (see `config/licenses.php` and `App/Services/License`)
  --}}
 
-<footer id="footer" aria-label="{{ __('frame.aria.FOOTER') }}">
+<footer id="footer" aria-label="{{ __('footer') }}">
     <div id="footer_main">
         <div id="footer_services">
             @if ($SERVICE_NAME != "")
                 <a class="footer-services-partof"
                     href="{{$HTTP_SCHEMA}}://{{$URL_HOST}}"
                 >
-                    {{ __('frame.footer.PART_OF', ['name' => $SERVICE_NAME]) }}
+                    {{ __('footer-part-of', ['name' => $SERVICE_NAME]) }}
                 </a>
                 <span class="footer-services-sep">&#8212;</span>
             @endif
             <a class="footer-services-poweredby"
                 href="https://github.com/scpwiki/wikijump"
             >
-                {{ __('frame.footer.POWERED_BY', ['name' => 'Wikijump']) }}
+                {{ __('footer-powered-by') }}
             </a>
             <span class="footer-services-sep">&#8212;</span>
-            <a href="{{ route("terms") }}">{{ __('frame.footer.TERMS') }}</a>
-            <a href="{{ route("privacy") }}">{{ __('frame.footer.PRIVACY') }}</a>
-            <a href="{{ route("docs") }}">{{ __('frame.footer.DOCS') }}</a>
-            <a href="{{ route("security") }}">{{ __('frame.footer.SECURITY') }}</a>
+            <a href="{{ route("terms") }}">{{ __('terms') }}</a>
+            <a href="{{ route("privacy") }}">{{ __('privacy') }}</a>
+            <a href="{{ route("docs") }}">{{ __('docs') }}</a>
+            <a href="{{ route("security") }}">{{ __('security') }}</a>
         </div>
 
         <div id="footer_actions">
             <a href="https://scuttle.atlassian.net/servicedesk/customer/portal/2">
-                {{ __('frame.footer.REPORT_BUG') }}
+                {{ __('footer-menu.report-bug') }}
             </a>
             @if (empty($plain) || !$plain)
                 {{-- TODO: Flag as objectionable functionality  --}}
                 <a href="{{ route("report-flag") }}">
-                    {{ __('frame.footer.REPORT_FLAG') }}
+                    {{ __('footer-menu.report-flag') }}
                 </a>
             @endif
         </div>
@@ -44,12 +44,12 @@
 
     @if (empty($plain) || !$plain)
         @isset($license)
-            <div id="footer_license" aria-label="{{ __('frame.aria.LICENSE') }}">
+            <div id="footer_license" aria-label="{{ __('license') }}">
                 <a href="{{ $license->url() }}">
                     @if ($license->unless())
-                        {{ __('frame.LICENSE_UNLESS', ['license' => $license->name()]) }}
+                        {{ __('footer-license-unless', ['license' => $license->name()]) }}
                     @else
-                        {{  __('frame.LICENSE', ['license' => $license->name()]) }}
+                        {{  __('footer-license', ['license' => $license->name()]) }}
                     @endif
                 </a>
             </div>

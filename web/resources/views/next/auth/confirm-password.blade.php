@@ -4,18 +4,18 @@
 --}}
 
 @extends('next.auth.auth', [
-    'title' => __('auth.CONFIRM_PASSWORD')
+    'title' => __('confirm-password')
 ])
 
 @section('content')
     <h1 id="auth_title">
-        {{ __('auth.CONFIRM_PASSWORD') }}
+        {{ __('confirm-password') }}
     </h1>
 
     <wj-component-loader load="ConfirmPasswordForm" back="{{ previousUrl() }}">
     </wj-component-loader>
 
     <a id="auth_forgot_password" href="{{ route("password.request") }}">
-        {{ __("auth.FORGOT_PASSWORD") }}
+        {{ __("forgot-password.question") }}
     </a>
 @endsection

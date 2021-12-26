@@ -20,7 +20,7 @@
 {{-- TODO: Page search widget --}}
 {{-- TODO: Locale selector--}}
 {{-- TODO: Dark/light mode selector --}}
-<nav id="navbar" aria-label="{{ __('frame.aria.NAVIGATION') }}">
+<nav id="navbar" aria-label="{{ __('navigation') }}">
     @includeWhen(isset($sidebar_content), 'next.components.sidebar-button')
 
     @includeWhen(isset($navbar_items), 'next.components.navbar-elements', [

@@ -7,9 +7,9 @@
         $header_subtitle
  --}}
 
-<header id="header" aria-label="{{ __('frame.aria.HEADER') }}">
+<header id="header" aria-label="{{ __('header') }}">
     @if (isset($header_img_url) || isset($header_title))
-        <a id="header_logo" href="/" title="{{ __('frame.GOTO_HOME_PAGE') }}">
+        <a id="header_logo" href="/" title="{{ __('goto-home') }}">
             @isset($header_img_url)
                 <img id="header_logo_img"
                       src="{{ $header_img_url }}"

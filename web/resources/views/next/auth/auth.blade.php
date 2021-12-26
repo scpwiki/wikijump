@@ -19,7 +19,7 @@
 @section('app')
     <div id="app_auth">
         <div id="auth_panel" class="light">
-            <a href="/" title="{{ __('frame.GOTO_HOME_PAGE') }}">
+            <a href="/" title="{{ __('goto-home') }}">
                 <img src="/files--static/media/logo.min.svg">
             </a>
             <hr>
@@ -28,11 +28,10 @@
 
             {{-- gets placed _outside_ of the panel via styling --}}
             <div id="auth_links">
-                {{-- TODO: link to actual pages --}}
-                <a href="/terms">{{ __('frame.footer.TERMS') }}</a>
-                <a href="/privacy">{{ __('frame.footer.PRIVACY') }}</a>
-                <a href="/docs">{{ __('frame.footer.DOCS') }}</a>
-                <a href="/security">{{ __('frame.footer.SECURITY') }}</a>
+                <a href="{{ route("terms") }}">{{ __('terms') }}</a>
+                <a href="{{ route("privacy") }}">{{ __('privacy') }}</a>
+                <a href="{{ route("docs") }}">{{ __('docs') }}</a>
+                <a href="{{ route("security") }}">{{ __('security') }}</a>
             </div>
         </div>
     </div>

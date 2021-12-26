@@ -4,13 +4,13 @@
 --}}
 
 @extends('next.auth.auth', [
-    'title' => __('auth.verify_email.VERIFY_EMAIL')
+    'title' => __('wiki-auth-verify-email')
 ])
 
 
 @section('content')
     <p id="auth_verify_email">
-        {{ __('auth.verify_email.INTRO') }}
+        {{ __('wiki-auth-verify-email.intro') }}
     </p>
     <br />
 

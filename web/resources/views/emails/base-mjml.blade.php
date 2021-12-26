@@ -36,7 +36,7 @@
                 <mj-image width="400px"
                           src="{{ $HTTP_SCHEMA }}://{{ $URL_HOST }}/files--static/media/logo.png"
                           href="{{$HTTP_SCHEMA}}://{{$URL_HOST}}"
-                          alt="{{ __('email.GOTO_SITE') }}"
+                          alt="{{ __('goto-service') }}"
                 />
                 <mj-divider border-width="2px"
                             border-color="#eee"
@@ -75,11 +75,11 @@
             <mj-section padding-top="0">
                 <mj-column>
                     <mj-text align="center" font-size="10px" line-height="12px">
-                        {{ __('email.SUBSCRIBED') }}
+                        {{ __('emails-subscribed') }}
                         <br />
                         <br />
                         <a href="{{ $unsubscribe_url }}">
-                            {{ __('email.UNSUBSCRIBE') }}
+                            {{ __('emails-unsubscribe') }}
                         </a>
                     </mj-text>
                 </mj-column>

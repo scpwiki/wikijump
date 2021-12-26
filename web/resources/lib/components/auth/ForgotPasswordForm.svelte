@@ -73,7 +73,7 @@
   <FormError {error} />
 {:else}
   <div class="password-recovery-email-sent">
-    <p>{$t("#-password-recovery.email-sent")}</p>
+    <p>{$t("password-recovery.email-sent")}</p>
   </div>
 {/if}
 
