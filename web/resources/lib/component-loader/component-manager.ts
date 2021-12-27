@@ -11,6 +11,7 @@ const COMPONENT_MAP = {
   "RegisterForm":            imp(() => import("../components/auth/RegisterForm.svelte")),
   "ResendVerificationEmail": imp(() => import("../components/auth/ResendVerificationEmail.svelte")),
   "ResetPasswordForm":       imp(() => import("../components/auth/ResetPasswordForm.svelte")),
+  "Search":                  imp(() => import("../components/Search.svelte")),
 } as const
 
 /** Valid component names. */

@@ -20,6 +20,7 @@ goto-service = Go to { -service-name }
 about = About
 account = Account
 breadcrumbs = Breadcrumbs
+clear = clear
 close = Close
 docs = Docs
 download = Download
@@ -45,6 +46,9 @@ sidebar = Sidebar
 tags = Tags
 terms = Terms
 upload = Upload
+
+search = Search
+  .placeholder = Search...
 
 ## Generic Authentication
 

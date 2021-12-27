@@ -1,6 +1,9 @@
 :root {
   /// Height of the navigation bar.
-  --layout-navbar-height: 2.25rem;
+  --layout-navbar-height: 2.75rem;
+
+  /// Maximum width of the navbar's search field.
+  --layout-navbar-search-width: 16rem;
 
   /// Height of the page header.
   --layout-header-height: 8rem;

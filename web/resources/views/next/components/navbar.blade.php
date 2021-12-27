@@ -26,6 +26,9 @@
         'next.components.sidebar-button'
     )
 
+    <wj-component-loader ld-load="Search" ld-skeleton="block">
+    </wj-component-loader>
+
     @includeWhen(isset($navbar_items), 'next.components.navbar-elements', [
         'items' => $navbar_items,
     ])

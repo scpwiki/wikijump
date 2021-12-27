@@ -5,10 +5,11 @@
 -->
 <script lang="ts">
   import { createEventDispatcher } from "svelte"
-  import { tip } from "./lib/tippy"
-  import Icon from "./Icon.svelte"
   import { keyHandle, whileHeld } from "@wikijump/dom"
   import { format as t } from "@wikijump/fluent"
+  import { tip } from "./lib/tippy"
+  import Icon from "./Icon.svelte"
+  import Button from "./Button.svelte"
 
   const dispatch = createEventDispatcher()
 
@@ -21,6 +22,9 @@
   /** If true, the input must be filled or else it will display as invalid. */
   export let required = false
 
+  /** If true, a button will be displayed to clear the input. */
+  export let clearable = false
+
   /** Extra info provided below the input. */
   export let info = ""
 
@@ -32,9 +36,15 @@
 
   /** If true, borders will be removed. */
   export let noborder = false
+
+  /** If true, validation indicators won't be shown. */
+  export let novalidate = false
+
+  /** If true, the input will be as wide as possible. */
+  export let wide = false
 </script>
 
-<div class="textinput">
+<div class="textinput" class:is-wide={wide}>
   <label>
     {#if label}
       <div role="presentation">
@@ -57,6 +67,7 @@
       }}
       class="textinput-input"
       class:is-noborder={noborder}
+      class:is-novalidate={novalidate}
       {...$$restProps}
     />
 
@@ -75,6 +86,16 @@
       >
         <Icon i={icon} size="1.25em" />
       </span>
+    {:else if clearable && value}
+      <span class="textinput-icon is-clearable">
+        <Button
+          i="wj-close"
+          size="1.25em"
+          on:click={() => (value = "")}
+          baseline
+          compact
+        />
+      </span>
     {:else}
       <span class="textinput-icon" aria-hidden="true">
         <Icon i={icon} size="1.25em" />
@@ -91,7 +112,11 @@
   @import "../../../resources/css/abstracts";
 
   .textinput {
-    margin: 0.25rem 0;
+    margin: 0.25em 0;
+
+    &.is-wide {
+      width: 100%;
+    }
 
     > label {
       position: relative;
@@ -145,27 +170,33 @@
       outline: none;
     }
 
-    &:valid:not(:placeholder-shown) {
-      border-left-color: var(--col-success);
-      border-radius: 0.125em 0.25em 0.25em 0.125em;
-      box-shadow: inset 0.25em 0 0 -0.1em var(--col-success);
-    }
+    &:not(.is-novalidate) {
+      &:valid:not(:placeholder-shown) {
+        border-left-color: var(--col-success);
+        border-radius: 0.125em 0.25em 0.25em 0.125em;
+        box-shadow: inset 0.25em 0 0 -0.1em var(--col-success);
+      }
 
-    &:invalid:not(:placeholder-shown) {
-      border-left-color: var(--col-danger);
-      border-radius: 0.125em 0.25em 0.25em 0.125em;
-      box-shadow: inset 0.25em 0 0 -0.1em var(--col-danger);
+      &:invalid:not(:placeholder-shown) {
+        border-left-color: var(--col-danger);
+        border-radius: 0.125em 0.25em 0.25em 0.125em;
+        box-shadow: inset 0.25em 0 0 -0.1em var(--col-danger);
+      }
     }
 
     &:disabled,
     &:not(:placeholder-shown) {
-      + .textinput-icon:not(.is-password) {
+      + .textinput-icon:not(.is-password):not(.is-clearable) {
         opacity: 0;
       }
 
       + .textinput-icon.is-password {
         opacity: 1;
       }
+    }
+
+    &::-webkit-search-cancel-button {
+      display: none;
     }
   }
 
@@ -185,7 +216,8 @@
       transition: color 100ms, opacity 100ms;
     }
 
-    &.is-password {
+    &.is-password,
+    &.is-clearable {
       pointer-events: all;
       cursor: pointer;
 

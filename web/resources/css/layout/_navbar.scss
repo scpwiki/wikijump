@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   height: var(--layout-navbar-height);
-  padding: 0 3vw;
+  padding: 0 2rem;
   color: var(--col-text);
   background: var(--col-dark-background);
   box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.25);
@@ -47,6 +47,22 @@
     &:active {
       color: var(--col-hint);
     }
+  }
+}
+
+#navbar > wj-component-loader[ld-load="Search"] {
+  display: flex;
+  align-items: center;
+  width: var(--layout-navbar-search-width);
+  height: 100%;
+  margin-right: 2rem;
+  font-size: 0.875rem;
+
+  @include media("<=small") {
+    flex-grow: 1;
+    width: auto;
+    margin: 0 1rem;
+    font-size: 1rem;
   }
 }
 
