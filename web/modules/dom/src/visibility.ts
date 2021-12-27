@@ -33,6 +33,9 @@ export class DisplayObserver {
     this.opts = opts
     this.observer = new ResizeObserver(this.handler.bind(this))
     this.observer.observe(target)
+
+    // fixes edge case - 0 size element is already invisible
+    if (!this.visible) this.handler()
   }
 
   /** True if the target element is visible. */
@@ -54,13 +57,15 @@ export class DisplayObserver {
 
     // in order for this ResizeObserver trick to work,
     // the element being observed needs to have a minimum size.
-    // so we'll set it to 1px wide when it's hidden, which will
+    // so we'll set it to 1px when it's hidden, which will
     // trigger a resize event when the element is shown again.
 
     if (state) {
+      this.target.style.minHeight = ""
       this.target.style.minWidth = ""
       this.opts.visible?.()
     } else {
+      this.target.style.minHeight = "1px"
       this.target.style.minWidth = "1px"
       this.opts.hidden?.()
     }

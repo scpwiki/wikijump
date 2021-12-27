@@ -7,7 +7,7 @@
         $header_subtitle
  --}}
 
-<header id="header" aria-label="{{ __('header') }}">
+<header id="header" class="dark" aria-label="{{ __('header') }}">
     @if (isset($header_img_url) || isset($header_title))
         <a id="header_logo" href="/" title="{{ __('goto-home') }}">
             @isset($header_img_url)
@@ -25,6 +25,7 @@
         </a>
     @endif
 
+    {{-- only gets displayed on large screens --}}
     <wj-component-loader ld-load="ClientStatus">
     </wj-component-loader>
 </header>

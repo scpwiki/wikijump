@@ -4,7 +4,7 @@
   align-items: center;
   height: var(--layout-navbar-height);
   padding: 0 3vw;
-  color: var(--col-dark-text);
+  color: var(--col-text);
   background: var(--col-dark-background);
   box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.25);
 
@@ -34,9 +34,9 @@
     width: 1.75rem;
     height: 1.75rem;
     padding-right: 0.25rem;
-    color: var(--col-dark-text);
+    color: var(--col-text);
     cursor: pointer;
-    border-right: solid 0.125rem var(--col-dark-border);
+    border-right: solid 0.125rem var(--col-border);
 
     @include tolerates-motion {
       transition: color 75ms;
@@ -76,5 +76,17 @@
     > li:last-child {
       margin-right: 1rem;
     }
+  }
+}
+
+#navbar > wj-component-loader[ld-load="ClientStatus"] {
+  flex-shrink: 0;
+  justify-self: flex-end;
+  padding-left: 0.5rem;
+  margin-right: 0.5rem;
+  border-left: solid 0.125rem var(--col-border);
+
+  @include media(">=normal") {
+    display: none;
   }
 }
