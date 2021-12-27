@@ -27,14 +27,12 @@
       {t("login")}
     </Button>
 
-    {#if $matchBreakpoint(">=normal")}
-      <div class="client-status-sep" />
+    <div class="client-status-sep" />
 
-      <Button baseline compact on:click={() => AuthModal.toggle(true)}>
-        <Icon i="ic:round-person-add" size="1.25rem" />
-        {t("create-account")}
-      </Button>
-    {/if}
+    <Button baseline compact on:click={() => AuthModal.toggle(true)}>
+      <Icon i="ic:round-person-add" size="1.25rem" />
+      {t("create-account")}
+    </Button>
   </div>
 {:else if $identity}
   <div class="client-status is-authed" class:has-background={background}>

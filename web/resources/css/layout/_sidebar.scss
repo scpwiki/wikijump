@@ -32,6 +32,35 @@
   }
 }
 
+.wj-sidebar-nav-elements {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  list-style: none;
+
+  > li {
+    height: 100%;
+    padding-bottom: 0.75rem;
+    margin-bottom: 0.75rem;
+    border-bottom: solid 0.075rem var(--col-border);
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  @include media(">=normal") {
+    display: none;
+  }
+}
+
+.wj-sidebar-nav-hr {
+  margin: 0.5rem 0;
+  @include media(">=normal") {
+    display: none;
+  }
+}
+
 #sidebar_sticky {
   position: sticky;
   top: 0;

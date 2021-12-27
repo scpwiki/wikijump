@@ -19,10 +19,6 @@
       }
     }
   }
-
-  @include media("<=small") {
-    position: static;
-  }
 }
 
 .wj-navbar-link > a,
@@ -54,7 +50,6 @@
   margin-left: 0.25em;
   vertical-align: baseline;
   opacity: 0.75;
-  --wj-downarrow-color: currentColor;
 }
 
 .wj-navbar-dropdown-links {
@@ -78,17 +73,6 @@
     + li {
       border-top: solid 0.075rem var(--col-border);
     }
-  }
-
-  @include media("<=small") {
-    top: var(--layout-navbar-height);
-    right: 0;
-    left: 0;
-    min-width: auto;
-    border-right: none;
-    border-left: none;
-    border-radius: 0;
-    @include shadow(4, 2);
   }
 }
 

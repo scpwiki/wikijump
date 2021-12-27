@@ -21,7 +21,10 @@
 {{-- TODO: Locale selector--}}
 {{-- TODO: Dark/light mode selector --}}
 <nav id="navbar" class="dark" aria-label="{{ __('navigation') }}">
-    @includeWhen(isset($sidebar_content), 'next.components.sidebar-button')
+    @includeWhen(
+        isset($sidebar_content) || isset($navbar_items),
+        'next.components.sidebar-button'
+    )
 
     @includeWhen(isset($navbar_items), 'next.components.navbar-elements', [
         'items' => $navbar_items,

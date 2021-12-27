@@ -38,7 +38,10 @@
 
             @include('next.components.navbar')
 
-            @includeWhen(isset($sidebar_content), 'next.components.sidebar')
+            @includeWhen(
+                isset($sidebar_content) || isset($navbar_items),
+                'next.components.sidebar'
+            )
 
             <main id="main" aria-label="{{ __('main-content') }}">
                 @yield('content')
