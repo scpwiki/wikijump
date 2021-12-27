@@ -21,6 +21,7 @@
 mod links;
 
 use super::prelude::*;
+use crate::models::page::{self, Entity as Page, Model as PageModel};
 use wikidot_normalize::normalize;
 
 // Helper structs
@@ -56,5 +57,34 @@ impl<'txn> PageService<'txn> {
         let _todo = (txn, input);
 
         todo!()
+    }
+
+    pub async fn get_optional(
+        &self,
+        reference: ItemReference<'_>,
+    ) -> Result<Option<PageModel>> {
+        let txn = self.0.transaction();
+        let page = match reference {
+            ItemReference::Id(id) => Page::find_by_id(id).one(txn).await?,
+            ItemReference::Slug(slug) => {
+                Page::find()
+                    .filter(
+                        Condition::all()
+                            .add(page::Column::UnixName.eq(slug)) // TODO rename
+                            // TODO: re-add .add(page::Column::DeletedAt.is_null()),
+                    )
+                    .one(txn)
+                    .await?
+            }
+        };
+
+        Ok(page)
+    }
+
+    pub async fn get(&self, reference: ItemReference<'_>) -> Result<PageModel> {
+        match self.get_optional(reference).await? {
+            Some(page) => Ok(page),
+            None => Err(Error::NotFound),
+        }
     }
 }

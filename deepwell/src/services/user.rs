@@ -147,10 +147,14 @@ impl<'txn> UserService<'txn> {
         // Check for conflicts
         let result = User::find()
             .filter(
-                Condition::any()
-                    .add(users::Column::Username.eq(input.username.as_str()))
-                    .add(users::Column::Email.eq(input.email.as_str()))
-                    .add(users::Column::Slug.eq(slug.as_str())),
+                Condition::all()
+                    .add(
+                        Condition::any()
+                            .add(users::Column::Username.eq(input.username.as_str()))
+                            .add(users::Column::Email.eq(input.email.as_str()))
+                            .add(users::Column::Slug.eq(slug.as_str())),
+                    )
+                    .add(users::Column::DeletedAt.is_null()),
             )
             .one(txn)
             .await?;
@@ -197,7 +201,11 @@ impl<'txn> UserService<'txn> {
             ItemReference::Id(id) => User::find_by_id(id).one(txn).await?,
             ItemReference::Slug(slug) => {
                 User::find()
-                    .filter(users::Column::Slug.eq(slug))
+                    .filter(
+                        Condition::all()
+                            .add(users::Column::Slug.eq(slug))
+                            .add(users::Column::DeletedAt.is_null()),
+                    )
                     .one(txn)
                     .await?
             }

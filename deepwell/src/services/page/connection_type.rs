@@ -1,5 +1,5 @@
 /*
- * services/page/links.rs
+ * services/page/connection_type.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -18,20 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::BaseService;
-use ftml::data::{Backlinks, PageRef};
-use std::collections::HashMap;
-
-pub async fn update_links(
-    base: &BaseService<'_>,
-    site_id: i64,
-    backlinks: &Backlinks<'_>,
-) {
-    let mut connections = HashMap::new();
-    let mut connections_missing = HashMap::new();
-    let mut external_links = HashMap::new();
-
-    for included_page in backlinks.included_pages {
-        todo!()
-    }
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
+pub enum ConnectionType {
+    IncludeMessy,
+    IncludeElements,
+    Component,
+    Link,
+    Redirect,
 }

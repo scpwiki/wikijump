@@ -65,11 +65,13 @@ pub trait RequestFetchService {
 }
 
 impl RequestFetchService for ApiRequest {
+    // Getters
     #[inline]
     fn database(&self) -> &DatabaseConnection {
         &self.state().database
     }
 
+    // Service builders
     #[inline]
     fn page<'txn>(&self, txn: &'txn DatabaseTransaction) -> PageService<'txn> {
         PageService(BaseService::new(self, txn))
