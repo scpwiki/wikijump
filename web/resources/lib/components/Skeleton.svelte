@@ -14,6 +14,7 @@
   class="skeleton-container {theme !== 'auto' ? theme : ''}"
   class:is-block={type === "block"}
   class:is-inline={type === "inline"}
+  class:is-spinner={type === "spinner"}
 >
   {#if type === "block"}
     <div class="skeleton is-block" style="width: {width}; height: {height};" />
@@ -51,6 +52,12 @@
 
     &.is-inline {
       display: inline-block;
+    }
+
+    &.is-spinner {
+      display: block;
+      // delay spinner from showing up immmediately
+      animation: skeleton-fade-in 200ms 0.5s backwards linear;
     }
   }
 
@@ -127,6 +134,15 @@
     .skeleton-spinner-arc {
       animation: skeleton-spinner-dash 3s ease-in-out alternate infinite;
       will-change: stroke-dasharray;
+    }
+  }
+
+  @keyframes skeleton-fade-in {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
     }
   }
 
