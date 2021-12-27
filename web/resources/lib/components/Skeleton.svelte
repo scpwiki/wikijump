@@ -72,7 +72,7 @@
 
     &.is-spinner {
       display: block;
-      border-radius: 1em;
+      background: none;
     }
 
     &:hover,
@@ -83,8 +83,7 @@
     }
 
     &.is-block::before,
-    &.is-line::before,
-    &.is-spinner::before {
+    &.is-line::before {
       position: absolute;
       top: 0;
       left: 0;
@@ -108,7 +107,7 @@
   }
 
   .skeleton-spinner-circle {
-    opacity: 0.25;
+    opacity: 0.5;
     stroke: var(--col-border);
   }
 
@@ -145,7 +144,7 @@
       stroke-dasharray: 10, 90;
     }
     100% {
-      stroke-dasharray: 50, 90;
+      stroke-dasharray: 60, 90;
     }
   }
 

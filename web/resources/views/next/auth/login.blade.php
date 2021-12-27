@@ -10,7 +10,7 @@
 @section('content')
     <wj-component-loader
         load="LoginForm"
-        skeleton="spinner:10rem"
+        skeleton="spinner:12rem"
         back="{{ previousUrl() }}"
     >
     </wj-component-loader>
