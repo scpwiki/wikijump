@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use std::convert::TryFrom;
 use strum_macros::EnumIter;
 
 #[derive(EnumIter, Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -42,6 +43,21 @@ impl ConnectionType {
     }
 }
 
+impl TryFrom<&'_ str> for ConnectionType {
+    type Error = ();
+
+    fn try_from(value: &'_ str) -> Result<ConnectionType, ()> {
+        match value {
+            "include-messy" => Ok(ConnectionType::IncludeMessy),
+            "include-elements" => Ok(ConnectionType::IncludeElements),
+            "component" => Ok(ConnectionType::Component),
+            "link" => Ok(ConnectionType::Link),
+            "redirect" => Ok(ConnectionType::Redirect),
+            _ => Err(()),
+        }
+    }
+}
+
 /// Ensure `ConnectionType::name()` produces the same output as serde.
 #[test]
 fn name_serde() {
@@ -55,7 +71,14 @@ fn name_serde() {
         assert_eq!(
             &serde_name,
             variant.name(),
-            "Serde name does not match variant name"
+            "Serde name does not match variant name",
+        );
+
+        let converted = serde_name.try_into();
+        assert_eq!(
+            Ok(variant),
+            converted,
+            "Converted item does not match variant",
         );
     }
 }
