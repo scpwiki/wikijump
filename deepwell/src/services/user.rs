@@ -182,7 +182,7 @@ impl<'txn> UserService<'txn> {
             bio: Set(None),
             about_page: Set(None),
             avatar_path: Set(None),
-            created_at: Set(Some(now())),
+            created_at: Set(Some(now_naive())),
             updated_at: Set(None),
             deleted_at: Set(None),
             ..Default::default()
@@ -250,7 +250,12 @@ impl<'txn> UserService<'txn> {
         }
 
         if let ProvidedValue::Set(email_verified) = input.email_verified {
-            let value = if email_verified { Some(now()) } else { None };
+            let value = if email_verified {
+                Some(now_naive())
+            } else {
+                None
+            };
+
             user.email_verified_at = Set(value);
         }
 
@@ -309,7 +314,7 @@ impl<'txn> UserService<'txn> {
         }
 
         // Set update flag
-        user.updated_at = Set(Some(now()));
+        user.updated_at = Set(Some(now_naive()));
 
         // Update and return
         user.update(txn).await?;
@@ -322,8 +327,8 @@ impl<'txn> UserService<'txn> {
         let mut user: users::ActiveModel = model.clone().into();
 
         // Set deletion flag
-        user.updated_at = Set(Some(now()));
-        user.deleted_at = Set(Some(now()));
+        user.updated_at = Set(Some(now_naive()));
+        user.deleted_at = Set(Some(now_naive()));
 
         // Update and return
         user.update(txn).await?;

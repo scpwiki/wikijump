@@ -29,7 +29,7 @@ use crate::models::page_connection_missing::{
 use crate::models::page_link::{self, Entity as PageLink, Model as PageLinkModel};
 use crate::web::ConnectionType;
 use ftml::data::{Backlinks, PageRef};
-use sea_orm::DatabaseTransaction;
+use sea_orm::{DatabaseTransaction, Set};
 use std::collections::HashMap;
 
 pub async fn update_links(
@@ -111,7 +111,20 @@ async fn update_connections(
     from_page_id: i64,
     counts: &HashMap<(i64, ConnectionType), i32>,
 ) -> Result<()> {
-    todo!()
+    for (&(to_page_id, connection_type), count) in counts {
+        let connection = page_connection::ActiveModel {
+            from_page_id: Set(from_page_id),
+            to_page_id: Set(to_page_id),
+            connection_type: Set(str!(connection_type.name())),
+            created_at: Set(now()),
+            count: Set(*count),
+            ..Default::default()
+        };
+
+        todo!();
+    }
+
+    Ok(())
 }
 
 async fn update_connections_missing(
