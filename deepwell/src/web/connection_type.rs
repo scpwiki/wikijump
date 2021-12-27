@@ -18,7 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+use strum_macros::EnumIter;
+
+#[derive(EnumIter, Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub enum ConnectionType {
     IncludeMessy,
@@ -37,5 +39,23 @@ impl ConnectionType {
             ConnectionType::Link => "link",
             ConnectionType::Redirect => "redirect",
         }
+    }
+}
+
+/// Ensure `ConnectionType::name()` produces the same output as serde.
+#[test]
+fn name_serde() {
+    use strum::IntoEnumIterator;
+
+    for variant in ConnectionType::iter() {
+        let output = serde_json::to_string(&variant).expect("Unable to serialize JSON");
+        let serde_name: String =
+            serde_json::from_str(&output).expect("Unable to deserialize JSON");
+
+        assert_eq!(
+            &serde_name,
+            variant.name(),
+            "Serde name does not match variant name"
+        );
     }
 }

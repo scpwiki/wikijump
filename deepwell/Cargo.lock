@@ -873,6 +873,8 @@ dependencies = [
  "sha2 0.10.0",
  "sqlx",
  "str-macro",
+ "strum",
+ "strum_macros",
  "thiserror",
  "tide",
  "unic-langid",
