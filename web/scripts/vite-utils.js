@@ -123,7 +123,7 @@ const BaseConfig = () => ({
     },
     coverage: {
       all: true,
-      reporters: ["text", "lcovonly"],
+      reporter: ["text", "lcovonly"],
       include: ["modules/**/*.{ts,svelte}"],
       exclude: [
         "**/node_modules/**",
