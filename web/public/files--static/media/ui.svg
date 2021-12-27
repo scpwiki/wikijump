@@ -59,14 +59,12 @@
     #wj-hamburger
       (currentColor)
 
-    credit to: heroicons-solid:menu (MIT)
-    https://icon-sets.iconify.design/heroicons-solid/menu/
+    credit to: heroicons-outline:menu (MIT)
+    https://icon-sets.iconify.design/heroicons-outline/menu/
     -->
-    <symbol id="wj-hamburger" viewbox="0 0 20 20">
-      <g fill="currentColor" fill-rule="evenodd" clip-rule="evenodd">
-        <path d="M3 5a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1z" />
-        <path d="M3 10a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1z" />
-        <path d="M3 15a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1z" />
+    <symbol id="wj-hamburger" viewbox="0 0 24 24">
+      <g stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 6h16M4 12h16M4 18h16" />
       </g>
     </symbol>
 
