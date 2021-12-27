@@ -3,10 +3,13 @@
   import { format as t } from "@wikijump/fluent"
   import { focusGroup } from "@wikijump/dom"
   import { Sprite, Button, Card, DetailsMenu } from "@wikijump/components"
-  import { toast } from "@wikijump/components/lib"
+  import { toast, matchBreakpoint } from "@wikijump/components/lib"
   import UserInfo from "../UserInfo.svelte"
   import NotificationBell from "./NotificationBell.svelte"
   import { AuthModal } from "../auth/auth-modal"
+
+  /** If true, the status will be rendered with a background. */
+  export let background = true
 
   async function logout() {
     if (!$authed) return
@@ -18,7 +21,7 @@
 <!-- TODO: persist auth state across page -->
 
 {#if !$authed}
-  <div class="account-control dark">
+  <div class="account-control" class:has-background={background}>
     <Button baseline compact on:click={() => AuthModal.toggle(true)}>
       {t("login")}
     </Button>
@@ -30,14 +33,14 @@
     </Button>
   </div>
 {:else if $identity}
-  <div class="account-control dark is-authed">
+  <div class="account-control is-authed" class:has-background={background}>
     <NotificationBell />
 
     <div class="account-control-sep" />
 
     <DetailsMenu placement="bottom-end" hoverable let:open>
       <Button slot="button" tabindex="-1" active={open} baseline compact>
-        <UserInfo nolink />
+        <UserInfo nolink nousername={$matchBreakpoint("<=small")} />
         <Sprite i="wj-downarrow" size="0.55rem" margin="0 0 0 0.15rem" />
       </Button>
 
@@ -93,13 +96,16 @@
     display: flex;
     align-items: center;
     justify-content: space-evenly;
-    padding: 0.325rem 0.625rem;
     font-size: 0.925rem;
-    background: var(--col-background);
-    border: 0.075rem solid var(--col-border);
-    border-radius: 0.325rem;
     animation: account-control-reveal 100ms backwards ease-out;
-    @include shadow(4);
+
+    &.has-background {
+      padding: 0.325rem 0.625rem;
+      background: var(--col-background);
+      border: 0.075rem solid var(--col-border);
+      border-radius: 0.325rem;
+      @include shadow(4);
+    }
   }
 
   .account-control-sep {
