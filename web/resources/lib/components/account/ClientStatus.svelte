@@ -21,22 +21,22 @@
 <!-- TODO: persist auth state across page -->
 
 {#if !$authed}
-  <div class="account-control" class:has-background={background}>
+  <div class="client-status" class:has-background={background}>
     <Button baseline compact on:click={() => AuthModal.toggle(true)}>
       {t("login")}
     </Button>
 
-    <div class="account-control-sep" />
+    <div class="client-status-sep" />
 
     <Button baseline compact on:click={() => AuthModal.toggle(true)}>
       {t("create-account")}
     </Button>
   </div>
 {:else if $identity}
-  <div class="account-control is-authed" class:has-background={background}>
+  <div class="client-status is-authed" class:has-background={background}>
     <NotificationBell />
 
-    <div class="account-control-sep" />
+    <div class="client-status-sep" />
 
     <DetailsMenu placement="bottom-end" hoverable let:open>
       <Button slot="button" tabindex="-1" active={open} baseline compact>
@@ -45,7 +45,7 @@
       </Button>
 
       <Card>
-        <div class="account-control-menu" use:focusGroup={"vertical"}>
+        <div class="client-status-menu" use:focusGroup={"vertical"}>
           <!-- TODO: proper links -->
           <Button href={route("account")} tabindex="-1" baseline compact>
             {t("account")}
@@ -83,7 +83,7 @@
 <style lang="scss">
   @import "../../../css/abstracts";
 
-  @keyframes account-control-reveal {
+  @keyframes client-status-reveal {
     0% {
       opacity: 0;
     }
@@ -92,12 +92,12 @@
     }
   }
 
-  .account-control {
+  .client-status {
     display: flex;
     align-items: center;
     justify-content: space-evenly;
     font-size: 0.925rem;
-    animation: account-control-reveal 100ms backwards ease-out;
+    animation: client-status-reveal 100ms backwards ease-out;
 
     &.has-background {
       padding: 0.325rem 0.625rem;
@@ -108,14 +108,14 @@
     }
   }
 
-  .account-control-sep {
+  .client-status-sep {
     width: 0.075rem;
     height: 0.75rem;
     margin: 0 0.5rem;
     background: var(--col-border);
   }
 
-  .account-control-menu {
+  .client-status-menu {
     display: flex;
     flex-direction: column;
     min-width: 7rem;
