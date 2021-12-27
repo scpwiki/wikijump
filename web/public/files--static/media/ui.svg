@@ -23,10 +23,10 @@
     </symbol>
 
     <!--
-    #wj-clipboard-copy
+    #wj-clipboard
       (currentColor)
     -->
-    <symbol id="wj-clipboard-copy" viewbox="0 0 24 24">
+    <symbol id="wj-clipboard" viewbox="0 0 24 24">
       <g fill="none" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke="currentColor">
         <path d="M16 4h2a2 2 0 0 1 2 2v4M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
         <rect x="8" y="2" width="8" height="3" rx="0" ry="1" />

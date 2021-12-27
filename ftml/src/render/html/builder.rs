@@ -83,21 +83,24 @@ where
         }
     }
 
-    /// Creates an inline `<svg>` pointing to another source.
-    ///
-    /// This is a helper method to add the following to the HTML:
-    /// ```raw
-    /// <svg viewbox="viewbox-passed-in">
-    ///   <use href="url-passed-in"></use>
-    /// </svg>
-    /// ```
-    pub fn svg_use(self, href: &'t str, viewbox: &'t str) {
+    /// Creates an inline `<svg>` using the `ui.svg` spritesheet.
+    pub fn sprite(self, id: &'t str) {
+        let viewbox = match id {
+            "wj-karma" => "0 0 64 114",
+            _ => "0 0 24 24",
+        };
+
+        let class = format!("wj-sprite wj-sprite-{}", id);
+
+        let href = format!("/files--static/media/ui.svg#{}", id);
+
         self.tag("svg")
-            .attr(attr!("viewBox" => viewbox))
+            .attr(attr!(
+                "class" => &class,
+                "viewBox" => viewbox,
+            ))
             .contents(|ctx| {
-                ctx.html() //
-                    .tag("use")
-                    .attr(attr!("href" => href));
+                ctx.html().tag("use").attr(attr!("href" => &href));
             });
     }
 

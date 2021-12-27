@@ -55,10 +55,7 @@ pub fn render_user(log: &Logger, ctx: &mut HtmlContext, name: &str, show_avatar:
                                     "data-karma" => &info.user_karma.to_string(),
                                 ))
                                 .contents(|ctx| {
-                                    ctx.html().svg_use(
-                                        "/files--static/media/ui.svg#wj-karma",
-                                        "0 0 64 114",
-                                    );
+                                    ctx.html().sprite("wj-karma");
                                 });
 
                             ctx.html().img().attr(attr!(
@@ -89,10 +86,7 @@ pub fn render_user(log: &Logger, ctx: &mut HtmlContext, name: &str, show_avatar:
                                     "data-karma" => "0",
                                 ))
                                 .contents(|ctx| {
-                                    ctx.html().svg_use(
-                                        "/files--static/media/ui.svg#wj-karma",
-                                        "0 0 64 114",
-                                    );
+                                    ctx.html().sprite("wj-karma");
                                 });
 
                             ctx.html().img().attr(attr!(
