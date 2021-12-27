@@ -20,10 +20,13 @@
 
 use super::super::prelude::*;
 use super::PageService;
+use crate::web::ConnectionType;
 use ftml::data::{Backlinks, PageRef};
+use sea_orm::DatabaseTransaction;
 use std::collections::HashMap;
 
 pub async fn update_links(
+    txn: &DatabaseTransaction,
     page: &PageService<'_>,
     site_id: i64,
     page_id: i64,
@@ -33,28 +36,60 @@ pub async fn update_links(
     let mut connections_missing = HashMap::new();
     let mut external_links = HashMap::new();
 
-    for PageRef { site, page: slug } in &backlinks.included_pages {
-        let included_from_site_id = match site {
-            None => site_id,
-            Some(site) => {
-                // TODO: get site ID from SiteService
-                1
+    macro_rules! update_connections {
+        ($page_ref:expr, $connection_type:expr) => {{
+            let PageRef {
+                site: site_slug,
+                page: page_slug,
+            } = $page_ref;
+
+            let from_site_id = match site_slug {
+                None => site_id,
+                Some(slug) => {
+                    // TODO: get site ID from SiteService
+                    1
+                }
+            };
+
+            match page
+                .get_optional(from_site_id, ItemReference::Slug(page_slug))
+                .await?
+            {
+                Some(from_page) => {
+                    let entry = connections
+                        .entry((from_page.page_id, $connection_type))
+                        .or_insert(0);
+
+                    *entry += 1;
+                }
+                None => {
+                    let entry = connections_missing
+                        .entry((page_slug.as_ref(), $connection_type))
+                        .or_insert(0);
+
+                    *entry += 1;
+                }
             }
-        };
-
-        let exists = page
-            .exists(included_from_site_id, ItemReference::Slug(slug))
-            .await?;
-
-        let count_map = if exists {
-            connections
-        } else {
-            connections_missing
-        };
-
-        *count_map.entry(page_id).or_insert(0) += 1;
+        }};
     }
 
+    // Get include stats (old, so include-messy)
+    for include in &backlinks.included_pages {
+        update_connections!(include, ConnectionType::IncludeMessy);
+    }
+
+    // Get internal page link stats
+    for link in &backlinks.internal_links {
+        update_connections!(link, ConnectionType::Link);
+    }
+
+    // Gather external URL link stats
+    for url in &backlinks.external_links {
+        let entry = external_links.entry(url).or_insert(0);
+        *entry += 1;
+    }
+
+    // Update records
     todo!();
 
     Ok(())

@@ -1,5 +1,5 @@
 /*
- * services/page/connection_type.rs
+ * web/connection_type.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub enum ConnectionType {
     IncludeMessy,
