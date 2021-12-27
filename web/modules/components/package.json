@@ -17,13 +17,8 @@
     "@wikijump/api": "workspace:*",
     "@wikijump/dom": "workspace:*",
     "@wikijump/fluent": "workspace:*",
-    "@wikijump/ftml-components": "workspace:*",
-    "@wikijump/ftml-wasm": "workspace:*",
-    "@wikijump/ftml-wasm-worker": "workspace:*",
-    "@wikijump/prism": "workspace:*",
     "@wikijump/util": "workspace:*",
     "dialog-polyfill": "^0.5.6",
-    "morphdom": "^2.6.1",
     "svelte": "^3.44.3",
     "tippy.js": "^6.3.7"
   }

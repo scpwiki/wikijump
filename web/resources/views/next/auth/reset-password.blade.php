@@ -12,6 +12,10 @@
         {{ __('reset-password') }}
     </h1>
 
-    <wj-component-loader load="ResetPasswordForm" goto="{{ route('login') }}">
+    <wj-component-loader
+        load="ResetPasswordForm"
+        skeleton="spinner:6rem"
+        goto="{{ route('login') }}"
+    >
     </wj-component-loader>
 @endsection

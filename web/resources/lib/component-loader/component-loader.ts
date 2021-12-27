@@ -1,5 +1,6 @@
 import { addElement } from "@wikijump/dom"
 import { detach, insert, noop, type SvelteComponent } from "svelte/internal"
+import Skeleton from "../components/Skeleton.svelte"
 import ComponentManager, { type ComponentName } from "./component-manager"
 
 /**
@@ -43,8 +44,61 @@ export class ComponentLoaderElement extends HTMLElement {
     }
   }
 
+  /**
+   * Parses the `skeleton` attribute that may be set on the element. This
+   * attribute has the form of `type:height?:width?`. If the `type` is
+   * `inline`, then it is instead of the form `type:lines?:height?`.
+   */
+  private parseSkeletonAttribute():
+    | { type: "block" | "spinner"; height: string; width: string }
+    | { type: "inline"; lines: number; height: string }
+    | null {
+    const attr = this.getAttribute("skeleton")
+
+    if (attr === null) return null
+
+    const [type, arg1, arg2] = attr.split(":")
+
+    if (type === "block" || type === "spinner") {
+      return { type, height: arg1 ?? "2rem", width: arg2 ?? "100%" }
+    } else if (type === "inline") {
+      return { type, lines: parseInt(arg1 ?? "1", 10), height: arg2 ?? "1em" }
+    }
+
+    return null
+  }
+
+  /** Mounts a skeleton to the loader element, and returns it. */
+  private mountSkeleton() {
+    const opts = this.parseSkeletonAttribute()
+
+    if (!opts) return null
+
+    if (opts.type === "block" || opts.type === "spinner") {
+      const { type, height, width } = opts
+      const element = new Skeleton({ target: this, props: { type, height, width } })
+      return element
+    } else if (opts.type === "inline") {
+      const { type, lines, height } = opts
+      const element = new Skeleton({ target: this, props: { type, lines, height } })
+      return element
+    }
+
+    return null
+  }
+
   /** Begins the loading and rendering of the named component. */
   private async loadComponent() {
+    // TODO: this is a bit messy (holding the inner HTML in a string)
+    let pendingHTML: string | null = null
+    let skeleton: Skeleton | null = null
+
+    if (this.hasAttribute("skeleton")) {
+      pendingHTML = this.innerHTML
+      this.innerHTML = ""
+      skeleton = this.mountSkeleton()
+    }
+
     // this will error if we load a bad component, so
     // we don't need to do any error handling here
     const component = await ComponentManager.load(this.load!)
@@ -55,6 +109,13 @@ export class ComponentLoaderElement extends HTMLElement {
 
     const attributeNames = new Set(this.getAttributeNames())
     attributeNames.delete("load")
+    attributeNames.delete("skeleton")
+
+    // dismount the skeleton if it was mounted
+    if (skeleton) {
+      skeleton.$destroy()
+      this.innerHTML = pendingHTML!
+    }
 
     // now we need to handle slotted content
     // this is going to be using WITCHCRAFT

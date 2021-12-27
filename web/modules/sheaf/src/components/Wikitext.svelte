@@ -5,9 +5,8 @@
   import FTML from "@wikijump/ftml-wasm-worker"
   import morphdom from "morphdom"
   import { createAnimQueued, createMutatingLock, perfy, toFragment } from "@wikijump/util"
-  import Card from "./Card.svelte"
-  import { anim } from "./lib/animation"
-  import Spinny from "./Spinny.svelte"
+  import { Card, Spinny } from "@wikijump/components"
+  import { anim } from "@wikijump/components/lib"
   import Locale, { unit } from "@wikijump/fluent"
 
   const t = Locale.makeComponentFormatter("wikitext")
@@ -157,7 +156,7 @@
 </div>
 
 <style lang="scss">
-  @import "../../../resources/css/abstracts";
+  @import "../../../../resources/css/abstracts";
 
   .wikitext-loading-panel {
     position: absolute;

@@ -12,7 +12,11 @@
         {{ __('confirm-password') }}
     </h1>
 
-    <wj-component-loader load="ConfirmPasswordForm" back="{{ previousUrl() }}">
+    <wj-component-loader
+        load="ConfirmPasswordForm"
+        skeleton="spinner:6rem"
+        back="{{ previousUrl() }}"
+    >
     </wj-component-loader>
 
     <a id="auth_forgot_password" href="{{ route("password.request") }}">

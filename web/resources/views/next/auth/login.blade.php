@@ -8,7 +8,11 @@
 ])
 
 @section('content')
-    <wj-component-loader load="LoginForm" back="{{ previousUrl() }}">
+    <wj-component-loader
+        load="LoginForm"
+        skeleton="spinner:12rem"
+        back="{{ previousUrl() }}"
+    >
     </wj-component-loader>
 
     <a id="auth_create_account" href="{{ route("register") }}">
