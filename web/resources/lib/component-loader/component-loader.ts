@@ -77,13 +77,15 @@ export class ComponentLoaderElement extends HTMLElement {
       const element = new Skeleton({ target: this, props: { type, lines, height } })
       return element
     }
+
+    return null
   }
 
   /** Begins the loading and rendering of the named component. */
   private async loadComponent() {
     // TODO: this is a bit messy (holding the inner HTML in a string)
     let pendingHTML: string | null = null
-    let skeleton: SvelteComponent | null = null
+    let skeleton: Skeleton | null = null
 
     if (this.hasAttribute("skeleton")) {
       pendingHTML = this.innerHTML
