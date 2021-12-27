@@ -25,6 +25,6 @@
         </a>
     @endif
 
-    <wj-component-loader load="ClientStatus">
+    <wj-component-loader ld-load="ClientStatus">
     </wj-component-loader>
 </header>

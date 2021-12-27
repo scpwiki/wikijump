@@ -13,8 +13,8 @@
     </h1>
 
     <wj-component-loader
-        load="ConfirmPasswordForm"
-        skeleton="spinner:6rem"
+        ld-load="ConfirmPasswordForm"
+        ld-skeleton="spinner:6rem"
         back="{{ previousUrl() }}"
     >
     </wj-component-loader>

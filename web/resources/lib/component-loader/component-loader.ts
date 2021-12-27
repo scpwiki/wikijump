@@ -28,19 +28,19 @@ export class ComponentLoaderElement extends HTMLElement {
 
   /** The name of the component that will be rendered. */
   get load(): ComponentName | null {
-    return this.getAttribute("load") as any
+    return this.getAttribute("ld-load") as any
   }
 
   /** Sets the name of the component to be rendered. */
   set load(name: ComponentName | null) {
     if (name === null) {
-      this.removeAttribute("load")
+      this.removeAttribute("ld-load")
     } else {
       if (!name) throw new Error("Component name is required")
       if (!ComponentManager.isComponent(name)) {
         throw new Error(`${name} is not a component`)
       }
-      this.setAttribute("load", name)
+      this.setAttribute("ld-load", name)
     }
   }
 
@@ -53,7 +53,7 @@ export class ComponentLoaderElement extends HTMLElement {
     | { type: "block" | "spinner"; height: string; width: string }
     | { type: "inline"; lines: number; height: string }
     | null {
-    const attr = this.getAttribute("skeleton")
+    const attr = this.getAttribute("ld-skeleton")
 
     if (attr === null) return null
 
@@ -93,7 +93,7 @@ export class ComponentLoaderElement extends HTMLElement {
     let pendingHTML: string | null = null
     let skeleton: Skeleton | null = null
 
-    if (this.hasAttribute("skeleton")) {
+    if (this.hasAttribute("ld-skeleton")) {
       pendingHTML = this.innerHTML
       this.innerHTML = ""
       skeleton = this.mountSkeleton()
@@ -108,8 +108,8 @@ export class ComponentLoaderElement extends HTMLElement {
     if (!this.isConnected) return
 
     const attributeNames = new Set(this.getAttributeNames())
-    attributeNames.delete("load")
-    attributeNames.delete("skeleton")
+    attributeNames.delete("ld-load")
+    attributeNames.delete("ld-skeleton")
 
     // dismount the skeleton if it was mounted
     if (skeleton) {
@@ -196,7 +196,7 @@ export class ComponentLoaderElement extends HTMLElement {
   // HTML callbacks
 
   connectedCallback() {
-    if (!this.getAttribute("load")) {
+    if (!this.getAttribute("ld-load")) {
       throw new Error("Component name is required")
     }
 
