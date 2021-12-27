@@ -11,6 +11,7 @@
     | "wj-clipboard-success"
     | "wj-downarrow"
     | "wj-hamburger"
+    | "wj-close"
 
   /** General size of the sprite. `1em` should be close to a character in size. */
   export let size = "1em"
@@ -21,11 +22,8 @@
   let viewBox = ""
   // prettier-ignore
   switch (i) {
-    case "wj-karma":             viewBox = "0 0 64 114" ; break;
-    case "wj-clipboard-copy":    viewBox = "0 0 24 24"  ; break;
-    case "wj-clipboard-success": viewBox = "0 0 24 24"  ; break;
-    case "wj-downarrow":         viewBox = "0 0 26 18"  ; break;
-    case "wj-hamburger":         viewBox = "0 0 20 20"  ; break;
+    case "wj-karma": viewBox = "0 0 64 114" ; break;
+    default:         viewBox = "0 0 24 24"  ; break;
   }
 </script>
 
