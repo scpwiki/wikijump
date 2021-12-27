@@ -47,8 +47,6 @@ export class DisplayObserver {
 
     if (state === this.last) return
 
-    console.log(state)
-
     this.last = state
 
     if (state) this.opts.visible?.()
