@@ -1,7 +1,7 @@
 <script lang="ts">
-  export let type: "block" | "inline" = "block"
+  export let type: "block" | "inline" | "spinner" = "block"
 
-  export let height = type === "block" ? "auto" : "1em"
+  export let height = type === "inline" ? "1em" : "2rem"
 
   export let width = "100%"
 
@@ -21,6 +21,19 @@
     {#each Array(lines).fill(0) as _}
       <div class="skeleton is-line" style="width: {width}; height: {height};" />
     {/each}
+  {:else if type === "spinner"}
+    <div class="skeleton is-spinner" style="width: {width}; height: {height};">
+      <svg
+        class="skeleton-spinner"
+        viewBox="-15 -15 30 30"
+        height="75%"
+        width="75%"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <circle r="13" class="skeleton-spinner-circle" fill="none" stroke-width="2" />
+        <circle r="13" class="skeleton-spinner-arc" fill="none" stroke-width="2" />
+      </svg>
+    </div>
   {/if}
 </div>
 
@@ -57,6 +70,11 @@
       border-radius: 0.25em;
     }
 
+    &.is-spinner {
+      display: block;
+      border-radius: 1em;
+    }
+
     &:hover,
     &:focus,
     &:active {
@@ -65,7 +83,8 @@
     }
 
     &.is-block::before,
-    &.is-line::before {
+    &.is-line::before,
+    &.is-spinner::before {
       position: absolute;
       top: 0;
       left: 0;
@@ -78,6 +97,55 @@
         will-change: transform;
         animation: 2000ms cubic-bezier(0.645, 0.045, 0.355, 1) 0s infinite skeleton-wave;
       }
+    }
+  }
+
+  .skeleton-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .skeleton-spinner-circle {
+    opacity: 0.25;
+    stroke: var(--col-border);
+  }
+
+  .skeleton-spinner-arc {
+    stroke: var(--col-hint);
+    stroke-dasharray: 30, 90;
+    stroke-dashoffset: 0;
+    stroke-linecap: round;
+  }
+
+  @include tolerates-motion {
+    .skeleton-spinner {
+      animation: skeleton-spinner-rotate 1s linear infinite;
+      will-change: transform;
+    }
+
+    .skeleton-spinner-arc {
+      animation: skeleton-spinner-dash 3s ease-in-out alternate infinite;
+      will-change: stroke-dasharray;
+    }
+  }
+
+  @keyframes skeleton-spinner-rotate {
+    0% {
+      transform: translate(-50%, -50%) rotate(0deg);
+    }
+    100% {
+      transform: translate(-50%, -50%) rotate(360deg);
+    }
+  }
+
+  @keyframes skeleton-spinner-dash {
+    0% {
+      stroke-dasharray: 10, 90;
+    }
+    100% {
+      stroke-dasharray: 50, 90;
     }
   }
 

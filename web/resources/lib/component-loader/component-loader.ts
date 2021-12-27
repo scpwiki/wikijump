@@ -45,7 +45,7 @@ export class ComponentLoaderElement extends HTMLElement {
   }
 
   private parseSkeletonAttribute():
-    | { type: "block"; height: string; width: string }
+    | { type: "block" | "spinner"; height: string; width: string }
     | { type: "inline"; lines: number; height: string }
     | null {
     const attr = this.getAttribute("skeleton")
@@ -54,10 +54,10 @@ export class ComponentLoaderElement extends HTMLElement {
 
     const [type, arg1, arg2] = attr.split(":")
 
-    if (type === "block") {
-      return { type: "block", height: arg1 ?? "auto", width: arg2 ?? "auto" }
+    if (type === "block" || type === "spinner") {
+      return { type, height: arg1 ?? "2rem", width: arg2 ?? "100%" }
     } else if (type === "inline") {
-      return { type: "inline", lines: parseInt(arg1 ?? "1", 10), height: arg2 ?? "1em" }
+      return { type, lines: parseInt(arg1 ?? "1", 10), height: arg2 ?? "1em" }
     }
 
     return null
@@ -68,11 +68,11 @@ export class ComponentLoaderElement extends HTMLElement {
 
     if (!opts) return null
 
-    if (opts.type === "block") {
+    if (opts.type === "block" || opts.type === "spinner") {
       const { type, height, width } = opts
       const element = new Skeleton({ target: this, props: { type, height, width } })
       return element
-    } else {
+    } else if (opts.type === "inline") {
       const { type, lines, height } = opts
       const element = new Skeleton({ target: this, props: { type, lines, height } })
       return element
