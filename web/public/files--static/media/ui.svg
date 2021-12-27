@@ -52,7 +52,7 @@
       (currentColor)
     -->
     <symbol id="wj-downarrow" viewbox="0 0 24 24">
-      <path fill="currentColor" d="M8.71 11.71l2.59 2.59c.39.39 1.02.39 1.41 0l2.59-2.59c.63-.63.18-1.71-.71-1.71H9.41c-.89 0-1.33 1.08-.7 1.71z" />
+      <path d="m 3 5 c -1 0 -3 1 -2 3 l 9 10 a 2.625 2.625 90 0 0 4 0 l 9 -10 c 1 -2 -1 -3 -2 -3 z" fill="currentColor" />
     </symbol>
 
     <!--
