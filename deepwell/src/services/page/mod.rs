@@ -59,30 +59,49 @@ impl<'txn> PageService<'txn> {
         todo!()
     }
 
+    #[inline]
+    pub async fn exists(
+        &self,
+        site_id: i64,
+        reference: ItemReference<'_>,
+    ) -> Result<bool> {
+        self.get_optional(site_id, reference)
+            .await
+            .map(|page| page.is_some())
+    }
+
     pub async fn get_optional(
         &self,
+        site_id: i64,
         reference: ItemReference<'_>,
     ) -> Result<Option<PageModel>> {
         let txn = self.0.transaction();
-        let page = match reference {
-            ItemReference::Id(id) => Page::find_by_id(id).one(txn).await?,
-            ItemReference::Slug(slug) => {
-                Page::find()
-                    .filter(
-                        Condition::all()
-                            .add(page::Column::UnixName.eq(slug)) // TODO rename
-                            // TODO: re-add .add(page::Column::DeletedAt.is_null()),
-                    )
-                    .one(txn)
-                    .await?
-            }
+        let page = {
+            let condition = match reference {
+                ItemReference::Id(id) => page::Column::PageId.eq(id),
+                ItemReference::Slug(slug) => page::Column::UnixName.eq(slug), // TODO rename to Slug
+            };
+
+            Page::find()
+                .filter(
+                    Condition::all()
+                        .add(condition)
+                        .add(page::Column::SiteId.eq(site_id)),
+                    // TODO: re-add .add(page::Column::DeletedAt.is_null()),
+                )
+                .one(txn)
+                .await?
         };
 
         Ok(page)
     }
 
-    pub async fn get(&self, reference: ItemReference<'_>) -> Result<PageModel> {
-        match self.get_optional(reference).await? {
+    pub async fn get(
+        &self,
+        site_id: i64,
+        reference: ItemReference<'_>,
+    ) -> Result<PageModel> {
+        match self.get_optional(site_id, reference).await? {
             Some(page) => Ok(page),
             None => Err(Error::NotFound),
         }

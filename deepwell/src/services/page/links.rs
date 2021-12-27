@@ -18,20 +18,44 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::BaseService;
+use super::super::prelude::*;
+use super::PageService;
 use ftml::data::{Backlinks, PageRef};
 use std::collections::HashMap;
 
 pub async fn update_links(
-    base: &BaseService<'_>,
+    page: &PageService<'_>,
     site_id: i64,
+    page_id: i64,
     backlinks: &Backlinks<'_>,
-) {
+) -> Result<()> {
     let mut connections = HashMap::new();
     let mut connections_missing = HashMap::new();
     let mut external_links = HashMap::new();
 
-    for included_page in backlinks.included_pages {
-        todo!()
+    for PageRef { site, page: slug } in &backlinks.included_pages {
+        let included_from_site_id = match site {
+            None => site_id,
+            Some(site) => {
+                // TODO: get site ID from SiteService
+                1
+            }
+        };
+
+        let exists = page
+            .exists(included_from_site_id, ItemReference::Slug(slug))
+            .await?;
+
+        let count_map = if exists {
+            connections
+        } else {
+            connections_missing
+        };
+
+        *count_map.entry(page_id).or_insert(0) += 1;
     }
+
+    todo!();
+
+    Ok(())
 }

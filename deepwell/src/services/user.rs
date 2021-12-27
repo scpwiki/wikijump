@@ -192,6 +192,13 @@ impl<'txn> UserService<'txn> {
         Ok(CreateUserOutput { user_id, slug })
     }
 
+    #[inline]
+    pub async fn exists(&self, reference: ItemReference<'_>) -> Result<bool> {
+        self.get_optional(reference)
+            .await
+            .map(|user| user.is_some())
+    }
+
     pub async fn get_optional(
         &self,
         reference: ItemReference<'_>,

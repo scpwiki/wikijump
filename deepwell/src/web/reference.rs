@@ -28,6 +28,20 @@ pub enum ItemReference<'a> {
     Slug(&'a str),
 }
 
+impl From<i64> for ItemReference<'static> {
+    #[inline]
+    fn from(id: i64) -> ItemReference<'static> {
+        ItemReference::Id(id)
+    }
+}
+
+impl<'a> From<&'a str> for ItemReference<'a> {
+    #[inline]
+    fn from(slug: &'a str) -> ItemReference<'a> {
+        ItemReference::Slug(slug)
+    }
+}
+
 impl<'a> TryFrom<&'a ApiRequest> for ItemReference<'a> {
     type Error = Error;
 
