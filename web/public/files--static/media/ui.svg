@@ -51,8 +51,8 @@
     #wj-downarrow
       (currentColor)
     -->
-    <symbol id="wj-downarrow" viewbox="0 0 26 18">
-      <path d="m 1 1 l 24 0 l -12 16 z" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke="currentColor" fill="currentColor" />
+    <symbol id="wj-downarrow" viewbox="0 0 24 24">
+      <path fill="currentColor" d="M8.71 11.71l2.59 2.59c.39.39 1.02.39 1.41 0l2.59-2.59c.63-.63.18-1.71-.71-1.71H9.41c-.89 0-1.33 1.08-.7 1.71z" />
     </symbol>
 
     <!--
@@ -68,6 +68,17 @@
         <path d="M3 10a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1z" />
         <path d="M3 15a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1z" />
       </g>
+    </symbol>
+
+    <!--
+    #wj-close
+      (currentColor)
+
+    credit to: eva:close-fill (MIT)
+    https://icon-sets.iconify.design/eva/close-fill/
+    -->
+    <symbol id="wj-close" viewbox="0 0 24 24">
+      <path fill="currentColor" d="M13.41 12l4.3-4.29a1 1 0 1 0-1.42-1.42L12 10.59l-4.29-4.3a1 1 0 0 0-1.42 1.42l4.3 4.29l-4.3 4.29a1 1 0 0 0 0 1.42a1 1 0 0 0 1.42 0l4.29-4.3l4.29 4.3a1 1 0 0 0 1.42 0a1 1 0 0 0 0-1.42z" />
     </symbol>
   </defs>
 </svg>
