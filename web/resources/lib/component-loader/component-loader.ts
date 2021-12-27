@@ -44,6 +44,11 @@ export class ComponentLoaderElement extends HTMLElement {
     }
   }
 
+  /**
+   * Parses the `skeleton` attribute that may be set on the element. This
+   * attribute has the form of `type:height?:width?`. If the `type` is
+   * `inline`, then it is instead of the form `type:lines?:height?`.
+   */
   private parseSkeletonAttribute():
     | { type: "block" | "spinner"; height: string; width: string }
     | { type: "inline"; lines: number; height: string }
@@ -63,6 +68,7 @@ export class ComponentLoaderElement extends HTMLElement {
     return null
   }
 
+  /** Mounts a skeleton to the loader element, and returns it. */
   private mountSkeleton() {
     const opts = this.parseSkeletonAttribute()
 
