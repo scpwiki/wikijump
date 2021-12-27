@@ -20,11 +20,41 @@
 
 mod links;
 
-// TODO
-#[allow(unused_imports)]
 use super::prelude::*;
+use wikidot_normalize::normalize;
+
+// Helper structs
+
+#[derive(Deserialize, Debug)]
+pub struct CreatePage {
+    site_id: i64,
+    category_id: i64,
+    slug: String,
+    vote_type: (), // TODO
+    revision_comments: String,
+}
+
+#[derive(Serialize, Debug)]
+pub struct CreatePageOutput {
+    page_id: i64,
+    slug: String,
+}
+
+// Service
 
 #[derive(Debug)]
 pub struct PageService<'txn>(pub BaseService<'txn>);
 
-// TODO
+impl<'txn> PageService<'txn> {
+    pub async fn create(&self, mut input: CreatePage) -> Result<CreatePageOutput> {
+        let txn = self.0.transaction();
+        normalize(&mut input.slug);
+
+        // Check for conflicts
+        // TODO
+
+        let _todo = (txn, input);
+
+        todo!()
+    }
+}
