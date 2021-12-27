@@ -54,15 +54,15 @@
     transform: translate(-50%, -50%);
   }
 
-  > .wj-sprite-wj-clipboard-success {
+  > .sprite-wj-clipboard-success {
     display: none;
   }
 
   &.wj-code-copy-success {
-    .wj-sprite-wj-clipboard {
+    .sprite-wj-clipboard {
       display: none;
     }
-    .wj-sprite-wj-clipboard-success {
+    .sprite-wj-clipboard-success {
       display: block;
     }
   }
