@@ -115,7 +115,6 @@ const BaseConfig = () => ({
 
   test: {
     root: ROOT,
-    isolate: false,
     environment: "jsdom",
     include: ["./modules/**/tests/**/*.{js,ts}"],
     setupFiles: ["./scripts/test-setup.js"],
