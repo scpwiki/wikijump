@@ -20,6 +20,13 @@
 
 use super::super::prelude::*;
 use super::PageService;
+use crate::models::page_connection::{
+    self, Entity as PageConnection, Model as PageConnectionModel,
+};
+use crate::models::page_connection_missing::{
+    self, Entity as PageConnectionMissing, Model as PageConnectionMissingModel,
+};
+use crate::models::page_link::{self, Entity as PageLink, Model as PageLinkModel};
 use crate::web::ConnectionType;
 use ftml::data::{Backlinks, PageRef};
 use sea_orm::DatabaseTransaction;
@@ -43,7 +50,7 @@ pub async fn update_links(
                 page: page_slug,
             } = $page_ref;
 
-            let from_site_id = match site_slug {
+            let to_site_id = match site_slug {
                 None => site_id,
                 Some(slug) => {
                     // TODO: get site ID from SiteService
@@ -52,12 +59,12 @@ pub async fn update_links(
             };
 
             match page
-                .get_optional(from_site_id, ItemReference::Slug(page_slug))
+                .get_optional(to_site_id, ItemReference::Slug(page_slug))
                 .await?
             {
-                Some(from_page) => {
+                Some(to_page) => {
                     let entry = connections
-                        .entry((from_page.page_id, $connection_type))
+                        .entry((to_page.page_id, $connection_type))
                         .or_insert(0);
 
                     *entry += 1;
@@ -85,12 +92,40 @@ pub async fn update_links(
 
     // Gather external URL link stats
     for url in &backlinks.external_links {
-        let entry = external_links.entry(url).or_insert(0);
+        let entry = external_links.entry(url.as_ref()).or_insert(0);
         *entry += 1;
     }
 
     // Update records
-    todo!();
+    try_join!(
+        update_connections(txn, page_id, &connections),
+        update_connections_missing(txn, page_id, &connections_missing),
+        update_external_links(txn, page_id, &external_links),
+    )?;
 
     Ok(())
+}
+
+async fn update_connections(
+    txn: &DatabaseTransaction,
+    from_page_id: i64,
+    counts: &HashMap<(i64, ConnectionType), i32>,
+) -> Result<()> {
+    todo!()
+}
+
+async fn update_connections_missing(
+    txn: &DatabaseTransaction,
+    from_page_id: i64,
+    counts: &HashMap<(&str, ConnectionType), i32>,
+) -> Result<()> {
+    todo!()
+}
+
+async fn update_external_links(
+    txn: &DatabaseTransaction,
+    from_page_id: i64,
+    counts: &HashMap<&str, i32>,
+) -> Result<()> {
+    todo!()
 }

@@ -24,6 +24,9 @@
 //! A web server to expose Wikijump operations via a versioned REST API.
 
 #[macro_use]
+extern crate futures;
+
+#[macro_use]
 extern crate lazy_static;
 
 #[macro_use]

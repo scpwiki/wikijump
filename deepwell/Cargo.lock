@@ -860,6 +860,7 @@ dependencies = [
  "dotenv",
  "fluent",
  "ftml",
+ "futures",
  "governor",
  "hostname",
  "indexmap",
