@@ -1,12 +1,20 @@
 <script lang="ts">
+  /** Type of skeleton to display. */
   export let type: "block" | "inline" | "spinner" = "block"
 
+  /**
+   * Height of the skeleton. If the skeleton is inline, this sets the
+   * height of each individual line.
+   */
   export let height = type === "inline" ? "1em" : "2rem"
 
+  /** The width of the skeleton. */
   export let width = "100%"
 
+  /** If the skeleton is inline, this sets the number of lines to display. */
   export let lines = 1
 
+  /** The theme of the skeleton. Defaults to `"auto"`. */
   export let theme: "auto" | "dark" | "light" = "auto"
 </script>
 
@@ -106,6 +114,8 @@
     }
   }
 
+  // spinner
+
   .skeleton-spinner {
     position: absolute;
     top: 50%;
@@ -137,39 +147,29 @@
     }
   }
 
+  // animations
+
+  // prettier-ignore
   @keyframes skeleton-fade-in {
-    0% {
-      opacity: 0;
-    }
-    100% {
-      opacity: 1;
-    }
+    0%   { opacity: 0; }
+    100% { opacity: 1; }
   }
 
+  // prettier-ignore
   @keyframes skeleton-spinner-rotate {
-    0% {
-      transform: translate(-50%, -50%) rotate(0deg);
-    }
-    100% {
-      transform: translate(-50%, -50%) rotate(360deg);
-    }
+    0%   { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
   }
 
+  // prettier-ignore
   @keyframes skeleton-spinner-dash {
-    0% {
-      stroke-dasharray: 10, 90;
-    }
-    100% {
-      stroke-dasharray: 60, 90;
-    }
+    0%   { stroke-dasharray: 10, 90; }
+    100% { stroke-dasharray: 60, 90; }
   }
 
+  // prettier-ignore
   @keyframes skeleton-wave {
-    0% {
-      transform: translateX(-100%);
-    }
-    100% {
-      transform: translateX(calc(100%));
-    }
+    0%   { transform: translateX(-100%); }
+    100% { transform: translateX(calc(100%)); }
   }
 </style>
