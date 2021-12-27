@@ -61,7 +61,6 @@ const PluginYAML = transformerPlugin("yaml", /\.ya?ml$/, src => {
 
 function manualChunks(id) {
   if (id.includes("node_modules/ziggy")) return "ziggy"
-  if (id.includes("node_modules/svelte/store")) return "svelte-store"
   if (id.includes("node_modules/svelte")) return "svelte"
   if (id.includes("vendor/prism.js")) return "prism"
   if (id.includes("modules/codemirror/cm.ts")) return "codemirror"
@@ -122,6 +121,18 @@ const BaseConfig = () => ({
     setupFiles: ["./scripts/test-setup.js"],
     deps: {
       inline: ["threads", "observable-fns"]
+    },
+    coverage: {
+      all: true,
+      reporters: ["text", "lcovonly"],
+      include: ["modules/**/*.{ts,svelte}"],
+      exclude: [
+        "**/node_modules/**",
+        "**/vendor/**",
+        "**/dist/**",
+        "**/tests/**",
+        "**/*.d.ts"
+      ]
     }
   }
 })
