@@ -5,13 +5,7 @@
   import { asset } from "@wikijump/api"
 
   /** Sprite to use. */
-  export let i:
-    | "wj-karma"
-    | "wj-clipboard-copy"
-    | "wj-clipboard-success"
-    | "wj-downarrow"
-    | "wj-hamburger"
-    | "wj-close"
+  export let i: string
 
   /** General size of the sprite. `1em` should be close to a character in size. */
   export let size = "1em"

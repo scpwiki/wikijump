@@ -6,6 +6,7 @@
 <script lang="ts">
   import { tip as tippy } from "./lib/tippy"
   import Icon from "./Icon.svelte"
+  import Sprite from "./Sprite.svelte"
 
   /**
    * If provided, the button will be displayed as an icon instead. This
@@ -70,7 +71,13 @@
     class:is-sharp={sharp}
     {...$$restProps}
   >
-    {#if i}<Icon {i} size="1em" />{:else}<slot />{/if}
+    {#if i?.startsWith("wj-")}
+      <Sprite {i} />
+    {:else if i}
+      <Icon {i} size="1em" />
+    {:else}
+      <slot />
+    {/if}
   </a>
 {:else}
   <button
@@ -91,7 +98,13 @@
     class:is-sharp={sharp}
     {...$$restProps}
   >
-    {#if i}<Icon {i} size="1em" />{:else}<slot />{/if}
+    {#if i?.startsWith("wj-")}
+      <Sprite {i} />
+    {:else if i}
+      <Icon {i} size="1em" />
+    {:else}
+      <slot />
+    {/if}
   </button>
 {/if}
 

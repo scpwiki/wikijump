@@ -26,7 +26,7 @@
 
 <div class="codemirror-panel">
   <div class="close-panel">
-    <Button i="ion:close" size="1.5rem" tip="Close Panel" baseline on:click={unmount} />
+    <Button i="wj-close" size="1.5rem" tip="Close Panel" baseline on:click={unmount} />
   </div>
   <span>FTML Performance:</span>
   {#each ftmlPerfs as perf}

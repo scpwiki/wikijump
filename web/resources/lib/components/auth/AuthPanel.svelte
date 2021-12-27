@@ -45,13 +45,7 @@
   <!-- placed down here so that it's the last thing that gets focused on -->
   {#if closeDialog}
     <div class="account-panel-close-dialog">
-      <Button
-        i="ion:close"
-        tip={t("close")}
-        size="1rem"
-        baseline
-        on:click={closeDialog}
-      />
+      <Button i="wj-close" tip={t("close")} size="1rem" baseline on:click={closeDialog} />
     </div>
   {/if}
 </div>
