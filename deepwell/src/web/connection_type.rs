@@ -27,3 +27,15 @@ pub enum ConnectionType {
     Link,
     Redirect,
 }
+
+impl ConnectionType {
+    pub fn name(self) -> &'static str {
+        match self {
+            ConnectionType::IncludeMessy => "include-messy",
+            ConnectionType::IncludeElements => "include-elements",
+            ConnectionType::Component => "component",
+            ConnectionType::Link => "link",
+            ConnectionType::Redirect => "redirect",
+        }
+    }
+}
