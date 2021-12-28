@@ -1,7 +1,7 @@
 <script lang="ts">
   import WikijumpAPI from "@wikijump/api"
-  import Locale from "@wikijump/fluent"
   import { Button } from "@wikijump/components"
+  import Locale from "@wikijump/fluent"
   import FormError from "./FormError.svelte"
 
   const t = Locale.makeComponentFormatter("wiki-auth")

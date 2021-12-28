@@ -4,8 +4,8 @@
   use this component for any sort of button (except links).
 -->
 <script lang="ts">
-  import { tip as tippy } from "./lib/tippy"
   import Icon from "./Icon.svelte"
+  import { tip as tippy } from "./lib/tippy"
   import Sprite from "./Sprite.svelte"
 
   /**

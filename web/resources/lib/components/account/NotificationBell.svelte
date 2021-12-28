@@ -1,7 +1,7 @@
 <script lang="ts">
-  import WikijumpAPI, { route, authed } from "@wikijump/api"
-  import Locale from "@wikijump/fluent"
+  import WikijumpAPI, { authed, route } from "@wikijump/api"
   import { Button } from "@wikijump/components"
+  import Locale from "@wikijump/fluent"
 
   const t = Locale.makeComponentFormatter("notification-bell")
 

@@ -2,10 +2,10 @@
   @component Versatile inline or overlay based spinner.
 -->
 <script lang="ts">
+  import Locale from "@wikijump/fluent"
   import { createID, sleep } from "@wikijump/util"
   import Icon from "./Icon.svelte"
   import { anim } from "./lib/animation"
-  import Locale from "@wikijump/fluent"
 
   const t = Locale.makeComponentFormatter("spinny")
 

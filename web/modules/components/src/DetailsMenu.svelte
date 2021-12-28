@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { keyHandle, getFoci, onHover } from "@wikijump/dom"
   import type { Placement } from "@popperjs/core"
+  import { getFoci, keyHandle, onHover } from "@wikijump/dom"
   import { popover } from "./lib/popper"
   import { guard } from "./lib/use-guard"
 

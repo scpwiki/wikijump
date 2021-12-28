@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { DEFAULT_TIPPY_OPTS, parseTipOpts } from "./lib/tippy"
-  import tippy, { createSingleton } from "tippy.js"
-  import type { Props, Instance, CreateSingletonProps } from "tippy.js"
   import { onDestroy } from "svelte"
+  import type { CreateSingletonProps, Instance, Props } from "tippy.js"
+  import tippy, { createSingleton } from "tippy.js"
+  import { DEFAULT_TIPPY_OPTS, parseTipOpts } from "./lib/tippy"
 
   const DEFAULT_SINGLETON_PROPS: Partial<CreateSingletonProps> = {
     ...DEFAULT_TIPPY_OPTS

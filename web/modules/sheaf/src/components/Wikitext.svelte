@@ -2,12 +2,12 @@
   @component Generic wikitext container.
 -->
 <script lang="ts">
-  import FTML from "@wikijump/ftml-wasm-worker"
-  import morphdom from "morphdom"
-  import { createAnimQueued, createMutatingLock, perfy, toFragment } from "@wikijump/util"
   import { Card, Spinny } from "@wikijump/components"
   import { anim } from "@wikijump/components/lib"
   import Locale, { unit } from "@wikijump/fluent"
+  import FTML from "@wikijump/ftml-wasm-worker"
+  import { createAnimQueued, createMutatingLock, perfy, toFragment } from "@wikijump/util"
+  import morphdom from "morphdom"
 
   const t = Locale.makeComponentFormatter("wikitext")
 

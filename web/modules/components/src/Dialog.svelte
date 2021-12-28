@@ -4,9 +4,9 @@
   Uses `dialogPolyfill` to ensure dialogs work across all browsers.
 -->
 <script lang="ts">
-  import { createEventDispatcher, onMount, SvelteComponent } from "svelte"
-  import dialogPolyfill from "dialog-polyfill"
   import { scrollElement } from "@wikijump/dom"
+  import dialogPolyfill from "dialog-polyfill"
+  import { createEventDispatcher, onMount, SvelteComponent } from "svelte"
 
   // the additional methods are what it is in the spec and fulfilled by the polyfill
   let dialog: HTMLElement & { showModal: () => void; close: () => void; show: () => void }

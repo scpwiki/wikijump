@@ -3,8 +3,8 @@
 -->
 <script lang="ts">
   // load iconify along with this component
-  import Iconify from "@iconify/iconify"
   import type { IconifyIcon } from "@iconify/iconify"
+  import Iconify from "@iconify/iconify"
 
   /** Icon to display. Uses Iconify's format. */
   export let i = ""

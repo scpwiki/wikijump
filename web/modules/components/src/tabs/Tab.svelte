@@ -12,11 +12,11 @@
   ```
 -->
 <script lang="ts">
-  import { getContext } from "svelte"
   import { createID } from "@wikijump/util"
-  import { portal } from "../lib/portal"
-  import Button from "../Button.svelte"
+  import { getContext } from "svelte"
   import type { Writable } from "svelte/store"
+  import Button from "../Button.svelte"
+  import { portal } from "../lib/portal"
 
   const id = createID()
 

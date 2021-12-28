@@ -1,10 +1,10 @@
 <script lang="ts">
   import WikijumpAPI from "@wikijump/api"
-  import { format as t } from "@wikijump/fluent"
-  import { TextInput, Button } from "@wikijump/components"
-  import { createEventDispatcher } from "svelte"
+  import { Button, TextInput } from "@wikijump/components"
   import { inputsValid } from "@wikijump/dom"
+  import { format as t } from "@wikijump/fluent"
   import { escapeRegExp } from "@wikijump/util"
+  import { createEventDispatcher } from "svelte"
   import FormError from "./FormError.svelte"
 
   /**

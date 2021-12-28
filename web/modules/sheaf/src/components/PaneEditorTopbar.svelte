@@ -2,12 +2,12 @@
   @component Sheaf Editor: Editor Pane Topbar.
 -->
 <script lang="ts">
+  import { Content } from "@wikijump/cm-lang-ftml"
+  import { Button } from "@wikijump/components"
+  import Locale, { number, unit } from "@wikijump/fluent"
+  import { throttle } from "@wikijump/util"
   import { getContext } from "svelte"
   import type { SheafContext } from "../context"
-  import { Button } from "@wikijump/components"
-  import { throttle } from "@wikijump/util"
-  import Locale, { number, unit } from "@wikijump/fluent"
-  import { Content } from "@wikijump/cm-lang-ftml"
   import SettingsMenu from "./SettingsMenu.svelte"
 
   const t = Locale.makeComponentFormatter("sheaf")

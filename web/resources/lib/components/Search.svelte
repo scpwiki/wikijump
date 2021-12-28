@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { format as t } from "@wikijump/fluent"
   import { TextInput } from "@wikijump/components"
+  import { format as t } from "@wikijump/fluent"
   import { createEventDispatcher } from "svelte"
 
   const dispatch = createEventDispatcher()

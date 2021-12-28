@@ -1,12 +1,12 @@
 <script lang="ts">
-  import WikijumpAPI, { route, authed, identity } from "@wikijump/api"
-  import { format as t } from "@wikijump/fluent"
+  import WikijumpAPI, { authed, identity, route } from "@wikijump/api"
+  import { Button, Card, DetailsMenu, Icon, Sprite } from "@wikijump/components"
+  import { matchBreakpoint, toast } from "@wikijump/components/lib"
   import { focusGroup } from "@wikijump/dom"
-  import { Icon, Sprite, Button, Card, DetailsMenu } from "@wikijump/components"
-  import { toast, matchBreakpoint } from "@wikijump/components/lib"
+  import { format as t } from "@wikijump/fluent"
+  import { AuthModal } from "../auth/auth-modal"
   import UserInfo from "../UserInfo.svelte"
   import NotificationBell from "./NotificationBell.svelte"
-  import { AuthModal } from "../auth/auth-modal"
 
   /** If true, the status will be rendered with a background. */
   export let background = true

@@ -14,8 +14,8 @@
 <script lang="ts">
   import { focusGroup } from "@wikijump/dom"
   import { onMount, setContext } from "svelte"
-  import { writable } from "svelte/store"
   import type { Writable } from "svelte/store"
+  import { writable } from "svelte/store"
 
   export let conditional = false
   export let noborder = false

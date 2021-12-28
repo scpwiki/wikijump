@@ -2,11 +2,11 @@
   @component Toasts handler/renderer. Needs to be inserted in the `#toasts` div.
 -->
 <script lang="ts">
-  import { toasts } from "./lib/toasts"
-  import { anim } from "./lib/animation"
+  import { format as t } from "@wikijump/fluent"
   import Button from "./Button.svelte"
   import Icon from "./Icon.svelte"
-  import { format as t } from "@wikijump/fluent"
+  import { anim } from "./lib/animation"
+  import { toasts } from "./lib/toasts"
 
   $: listToasts = Array.from($toasts)
 
