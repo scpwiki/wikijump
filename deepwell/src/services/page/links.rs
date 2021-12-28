@@ -98,7 +98,7 @@ pub async fn update_links(
 
     // Gather external URL link stats
     for url in &backlinks.external_links {
-        let entry = external_links.entry(url.as_ref()).or_insert(0);
+        let entry = external_links.entry(str!(url)).or_insert(0);
         *entry += 1;
     }
 
@@ -228,7 +228,50 @@ async fn update_connections_missing(
 async fn update_external_links(
     txn: &DatabaseTransaction,
     from_page_id: i64,
-    counts: &mut HashMap<&str, i32>,
+    counts: &mut HashMap<String, i32>,
 ) -> Result<()> {
-    todo!()
+    // Get existing links
+    let mut link_chunks = PageLink::find()
+        .filter(page_link::Column::PageId.eq(from_page_id))
+        .order_by_asc(page_link::Column::CreatedAt)
+        .paginate(txn, 100);
+
+    // Update and delete connections
+    while let Some(links) = link_chunks.fetch_and_next().await? {
+        for link in links {
+            match counts.remove(&link.url) {
+                // Link exists, count is the same. Do nothing.
+                Some(count) if link.count == count => (),
+
+                // Link exists, update count.
+                Some(count) => {
+                    let mut model: page_link::ActiveModel = link.into();
+                    model.count = Set(count);
+                    model.updated_at = Set(Some(now()));
+                    model.update(txn).await?;
+                }
+
+                // Link existed, but has no further counts. Remove it.
+                None => {
+                    let model: page_link::ActiveModel = link.into();
+                    model.delete(txn).await?;
+                }
+            }
+        }
+    }
+
+    // Insert new links
+    let mut to_insert = Vec::new();
+    for (ref url, count) in counts {
+        to_insert.push(page_link::ActiveModel {
+            page_id: Set(from_page_id),
+            url: Set(str!(url)),
+            created_at: Set(now()),
+            updated_at: Set(None),
+            count: Set(*count),
+        });
+    }
+    PageLink::insert_many(to_insert).exec(txn).await?;
+
+    Ok(())
 }
