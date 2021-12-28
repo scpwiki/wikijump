@@ -151,17 +151,20 @@ async fn update_connections(
     }
 
     // Insert new connections
-    let mut to_insert = Vec::new();
-    for (&(to_page_id, connection_type), count) in counts {
-        to_insert.push(page_connection::ActiveModel {
-            from_page_id: Set(from_page_id),
-            to_page_id: Set(to_page_id),
-            connection_type: Set(str!(connection_type.name())),
-            created_at: Set(now()),
-            updated_at: Set(None),
-            count: Set(*count),
-        });
-    }
+    let to_insert = counts
+        .iter()
+        .map(
+            |(&(to_page_id, connection_type), count)| page_connection::ActiveModel {
+                from_page_id: Set(from_page_id),
+                to_page_id: Set(to_page_id),
+                connection_type: Set(str!(connection_type.name())),
+                created_at: Set(now()),
+                updated_at: Set(None),
+                count: Set(*count),
+            },
+        )
+        .collect::<Vec<_>>();
+
     PageConnection::insert_many(to_insert).exec(txn).await?;
 
     Ok(())
@@ -207,17 +210,20 @@ async fn update_connections_missing(
     }
 
     // Insert new connections
-    let mut to_insert = Vec::new();
-    for (&(ref to_page_slug, connection_type), count) in counts {
-        to_insert.push(page_connection_missing::ActiveModel {
-            from_page_id: Set(from_page_id),
-            to_page_slug: Set(str!(to_page_slug)),
-            connection_type: Set(str!(connection_type.name())),
-            created_at: Set(now()),
-            updated_at: Set(None),
-            count: Set(*count),
-        });
-    }
+    let to_insert = counts
+        .iter()
+        .map(|(&(ref to_page_slug, connection_type), count)| {
+            page_connection_missing::ActiveModel {
+                from_page_id: Set(from_page_id),
+                to_page_slug: Set(str!(to_page_slug)),
+                connection_type: Set(str!(connection_type.name())),
+                created_at: Set(now()),
+                updated_at: Set(None),
+                count: Set(*count),
+            }
+        })
+        .collect::<Vec<_>>();
+
     PageConnectionMissing::insert_many(to_insert)
         .exec(txn)
         .await?;
@@ -261,16 +267,16 @@ async fn update_external_links(
     }
 
     // Insert new links
-    let mut to_insert = Vec::new();
-    for (ref url, count) in counts {
-        to_insert.push(page_link::ActiveModel {
+    let to_insert = counts
+        .iter()
+        .map(|(ref url, count)| page_link::ActiveModel {
             page_id: Set(from_page_id),
             url: Set(str!(url)),
             created_at: Set(now()),
             updated_at: Set(None),
             count: Set(*count),
-        });
-    }
+        })
+        .collect::<Vec<_>>();
     PageLink::insert_many(to_insert).exec(txn).await?;
 
     Ok(())
