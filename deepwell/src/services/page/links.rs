@@ -32,6 +32,12 @@ use ftml::data::{Backlinks, PageRef};
 use sea_orm::{DatabaseTransaction, Set};
 use std::collections::HashMap;
 
+macro_rules! parse_connection_type {
+    ($connection:expr) => {
+        ConnectionType::try_from($connection.connection_type.as_str())?
+    };
+}
+
 pub async fn update_links(
     txn: &DatabaseTransaction,
     page: &PageService<'_>,
@@ -43,7 +49,7 @@ pub async fn update_links(
     let mut connections_missing = HashMap::new();
     let mut external_links = HashMap::new();
 
-    macro_rules! update_connections {
+    macro_rules! count_connections {
         ($page_ref:expr, $connection_type:expr) => {{
             let PageRef {
                 site: site_slug,
@@ -71,7 +77,7 @@ pub async fn update_links(
                 }
                 None => {
                     let entry = connections_missing
-                        .entry((page_slug.as_ref(), $connection_type))
+                        .entry((str!(page_slug), $connection_type))
                         .or_insert(0);
 
                     *entry += 1;
@@ -82,12 +88,12 @@ pub async fn update_links(
 
     // Get include stats (old, so include-messy)
     for include in &backlinks.included_pages {
-        update_connections!(include, ConnectionType::IncludeMessy);
+        count_connections!(include, ConnectionType::IncludeMessy);
     }
 
     // Get internal page link stats
     for link in &backlinks.internal_links {
-        update_connections!(link, ConnectionType::Link);
+        count_connections!(link, ConnectionType::Link);
     }
 
     // Gather external URL link stats
@@ -121,8 +127,7 @@ async fn update_connections(
     while let Some(connections) = connection_chunks.fetch_and_next().await? {
         for connection in connections {
             let to_page_id = connection.to_page_id;
-            let connection_type =
-                ConnectionType::try_from(connection.connection_type.as_str())?;
+            let connection_type = parse_connection_type!(connection);
 
             match counts.remove(&(to_page_id, connection_type)) {
                 // Connection exists, count is the same. Do nothing.
@@ -130,15 +135,21 @@ async fn update_connections(
 
                 // Connection exists, update count.
                 Some(count) => {
-                    let mut connection: page_connection::ActiveModel = connection.into();
-                    connection.count = Set(count);
-                    connection.update(txn).await?;
+                    let mut model: page_connection::ActiveModel = connection.into();
+                    model.count = Set(count);
+                    model.update(txn).await?;
                 }
 
                 // Connection existed, but has no further counts. Remove it.
                 None => {
-                    let connection: page_connection::ActiveModel = connection.into();
-                    connection.delete(txn).await?;
+                    page_connection::ActiveModel {
+                        from_page_id: Set(from_page_id),
+                        to_page_id: Set(to_page_id),
+                        connection_type: Set(str!(connection_type.name())),
+                        ..Default::default()
+                    }
+                    .delete(txn)
+                    .await?;
                 }
             }
         }
@@ -164,9 +175,69 @@ async fn update_connections(
 async fn update_connections_missing(
     txn: &DatabaseTransaction,
     from_page_id: i64,
-    counts: &mut HashMap<(&str, ConnectionType), i32>,
+    counts: &mut HashMap<(String, ConnectionType), i32>,
 ) -> Result<()> {
-    todo!()
+    // Get existing connections
+    let mut connection_chunks = PageConnectionMissing::find()
+        .filter(page_connection_missing::Column::FromPageId.eq(from_page_id))
+        .order_by_asc(page_connection_missing::Column::CreatedAt)
+        .paginate(txn, 100);
+
+    // Update and delete connections
+    while let Some(connections) = connection_chunks.fetch_and_next().await? {
+        for connection in connections {
+            let to_page_slug = connection.to_page_slug.clone();
+            let connection_type = parse_connection_type!(connection);
+
+            match counts.remove(&(to_page_slug.clone(), connection_type)) {
+                // Connection exists, count is the same. Do nothing.
+                Some(count) if connection.count == count => (),
+
+                // Connection exists, update count.
+                Some(count) => {
+                    page_connection_missing::ActiveModel {
+                        from_page_id: Set(from_page_id),
+                        to_page_slug: Set(to_page_slug),
+                        connection_type: Set(str!(connection_type.name())),
+                        count: Set(count),
+                        ..Default::default()
+                    }
+                    .update(txn)
+                    .await?;
+                }
+
+                // Connection existed, but has no further counts. Remove it.
+                None => {
+                    page_connection_missing::ActiveModel {
+                        from_page_id: Set(from_page_id),
+                        to_page_slug: Set(str!(to_page_slug)),
+                        connection_type: Set(str!(connection_type.name())),
+                        ..Default::default()
+                    }
+                    .delete(txn)
+                    .await?;
+                }
+            }
+        }
+    }
+
+    // Insert new connections
+    let mut to_insert = Vec::new();
+    for (&(ref to_page_slug, connection_type), count) in counts {
+        to_insert.push(page_connection_missing::ActiveModel {
+            from_page_id: Set(from_page_id),
+            to_page_slug: Set(str!(to_page_slug)),
+            connection_type: Set(str!(connection_type.name())),
+            created_at: Set(now()),
+            edited_at: Set(None),
+            count: Set(*count),
+        });
+    }
+    PageConnectionMissing::insert_many(to_insert)
+        .exec(txn)
+        .await?;
+
+    Ok(())
 }
 
 async fn update_external_links(
