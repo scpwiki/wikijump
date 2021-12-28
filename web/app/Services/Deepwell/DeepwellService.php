@@ -48,7 +48,7 @@ final class DeepwellService
     public function translate(string $locale, string $key, array $values = []): ?string
     {
         try {
-            $resp = $this->client->post("message/$locale/$key", [
+            $resp = $this->client->put("message/$locale/$key", [
                 'body' => json_encode($values, JSON_FORCE_OBJECT),
             ]);
 

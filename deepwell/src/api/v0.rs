@@ -44,6 +44,7 @@ pub fn build(mut app: ApiServer) -> ApiServer {
     app.at("/message/:locale/:message_key")
         .head(message_head)
         .get(message_post)
+        .put(message_post)
         .post(message_post);
 
     // User
