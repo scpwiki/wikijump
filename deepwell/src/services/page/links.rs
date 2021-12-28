@@ -142,14 +142,8 @@ async fn update_connections(
 
                 // Connection existed, but has no further counts. Remove it.
                 None => {
-                    page_connection::ActiveModel {
-                        from_page_id: Set(from_page_id),
-                        to_page_id: Set(to_page_id),
-                        connection_type: Set(str!(connection_type.name())),
-                        ..Default::default()
-                    }
-                    .delete(txn)
-                    .await?;
+                    let model: page_connection::ActiveModel = connection.into();
+                    model.delete(txn).await?;
                 }
             }
         }
@@ -195,27 +189,16 @@ async fn update_connections_missing(
 
                 // Connection exists, update count.
                 Some(count) => {
-                    page_connection_missing::ActiveModel {
-                        from_page_id: Set(from_page_id),
-                        to_page_slug: Set(to_page_slug),
-                        connection_type: Set(str!(connection_type.name())),
-                        count: Set(count),
-                        ..Default::default()
-                    }
-                    .update(txn)
-                    .await?;
+                    let mut model: page_connection_missing::ActiveModel =
+                        connection.into();
+                    model.count = Set(count);
+                    model.update(txn).await?;
                 }
 
                 // Connection existed, but has no further counts. Remove it.
                 None => {
-                    page_connection_missing::ActiveModel {
-                        from_page_id: Set(from_page_id),
-                        to_page_slug: Set(str!(to_page_slug)),
-                        connection_type: Set(str!(connection_type.name())),
-                        ..Default::default()
-                    }
-                    .delete(txn)
-                    .await?;
+                    let model: page_connection_missing::ActiveModel = connection.into();
+                    model.delete(txn).await?;
                 }
             }
         }
