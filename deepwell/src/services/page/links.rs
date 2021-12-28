@@ -37,13 +37,9 @@
 
 use super::super::prelude::*;
 use super::PageService;
-use crate::models::page_connection::{
-    self, Entity as PageConnection, Model as PageConnectionModel,
-};
-use crate::models::page_connection_missing::{
-    self, Entity as PageConnectionMissing, Model as PageConnectionMissingModel,
-};
-use crate::models::page_link::{self, Entity as PageLink, Model as PageLinkModel};
+use crate::models::page_connection::{self, Entity as PageConnection};
+use crate::models::page_connection_missing::{self, Entity as PageConnectionMissing};
+use crate::models::page_link::{self, Entity as PageLink};
 use crate::web::ConnectionType;
 use ftml::data::{Backlinks, PageRef};
 use sea_orm::{DatabaseTransaction, Set};
