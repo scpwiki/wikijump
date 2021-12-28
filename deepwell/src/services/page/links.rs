@@ -98,9 +98,9 @@ pub async fn update_links(
 
     // Update records
     try_join!(
-        update_connections(txn, page_id, &connections),
-        update_connections_missing(txn, page_id, &connections_missing),
-        update_external_links(txn, page_id, &external_links),
+        update_connections(txn, page_id, &mut connections),
+        update_connections_missing(txn, page_id, &mut connections_missing),
+        update_external_links(txn, page_id, &mut external_links),
     )?;
 
     Ok(())
@@ -109,20 +109,54 @@ pub async fn update_links(
 async fn update_connections(
     txn: &DatabaseTransaction,
     from_page_id: i64,
-    counts: &HashMap<(i64, ConnectionType), i32>,
+    counts: &mut HashMap<(i64, ConnectionType), i32>,
 ) -> Result<()> {
+    // Get existing connections
+    let mut connection_chunks = PageConnection::find()
+        .filter(page_connection::Column::FromPageId.eq(from_page_id))
+        .order_by_asc(page_connection::Column::CreatedAt)
+        .paginate(txn, 100);
+
+    // Update and delete connections
+    while let Some(connections) = connection_chunks.fetch_and_next().await? {
+        for connection in connections {
+            let to_page_id = connection.to_page_id;
+            let connection_type =
+                ConnectionType::try_from(connection.connection_type.as_str())?;
+
+            match counts.remove(&(to_page_id, connection_type)) {
+                // Connection exists, count is the same. Do nothing.
+                Some(count) if connection.count == count => (),
+
+                // Connection exists, update count.
+                Some(count) => {
+                    let mut connection: page_connection::ActiveModel = connection.into();
+                    connection.count = Set(count);
+                    connection.update(txn).await?;
+                }
+
+                // Connection existed, but has no further counts. Remove it.
+                None => {
+                    let connection: page_connection::ActiveModel = connection.into();
+                    connection.delete(txn).await?;
+                }
+            }
+        }
+    }
+
+    // Insert new connections
+    let mut to_insert = Vec::new();
     for (&(to_page_id, connection_type), count) in counts {
-        let connection = page_connection::ActiveModel {
+        to_insert.push(page_connection::ActiveModel {
             from_page_id: Set(from_page_id),
             to_page_id: Set(to_page_id),
             connection_type: Set(str!(connection_type.name())),
             created_at: Set(now()),
+            edited_at: Set(None),
             count: Set(*count),
-            ..Default::default()
-        };
-
-        todo!();
+        });
     }
+    PageConnection::insert_many(to_insert).exec(txn).await?;
 
     Ok(())
 }
@@ -130,7 +164,7 @@ async fn update_connections(
 async fn update_connections_missing(
     txn: &DatabaseTransaction,
     from_page_id: i64,
-    counts: &HashMap<(&str, ConnectionType), i32>,
+    counts: &mut HashMap<(&str, ConnectionType), i32>,
 ) -> Result<()> {
     todo!()
 }
@@ -138,7 +172,7 @@ async fn update_connections_missing(
 async fn update_external_links(
     txn: &DatabaseTransaction,
     from_page_id: i64,
-    counts: &HashMap<&str, i32>,
+    counts: &mut HashMap<&str, i32>,
 ) -> Result<()> {
     todo!()
 }

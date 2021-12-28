@@ -43,6 +43,9 @@ pub enum Error {
     #[error("Web server error: HTTP {}", .0.status() as u16)]
     Web(TideError),
 
+    #[error("Invalid enum serialization value")]
+    InvalidEnumValue,
+
     #[error("The request conflicts with data already present")]
     Conflict,
 
@@ -59,6 +62,9 @@ impl Error {
             }
             Error::Localization(inner) => TideError::new(StatusCode::NotFound, inner),
             Error::Web(inner) => inner,
+            Error::InvalidEnumValue => {
+                TideError::from_str(StatusCode::InternalServerError, "")
+            }
             Error::Conflict => TideError::from_str(StatusCode::Conflict, ""),
             Error::NotFound => TideError::from_str(StatusCode::NotFound, ""),
         }
