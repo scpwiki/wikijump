@@ -137,6 +137,7 @@ async fn update_connections(
                 Some(count) => {
                     let mut model: page_connection::ActiveModel = connection.into();
                     model.count = Set(count);
+                    model.updated_at = Set(Some(now()));
                     model.update(txn).await?;
                 }
 
@@ -157,7 +158,7 @@ async fn update_connections(
             to_page_id: Set(to_page_id),
             connection_type: Set(str!(connection_type.name())),
             created_at: Set(now()),
-            edited_at: Set(None),
+            updated_at: Set(None),
             count: Set(*count),
         });
     }
@@ -192,6 +193,7 @@ async fn update_connections_missing(
                     let mut model: page_connection_missing::ActiveModel =
                         connection.into();
                     model.count = Set(count);
+                    model.updated_at = Set(Some(now()));
                     model.update(txn).await?;
                 }
 
@@ -212,7 +214,7 @@ async fn update_connections_missing(
             to_page_slug: Set(str!(to_page_slug)),
             connection_type: Set(str!(connection_type.name())),
             created_at: Set(now()),
-            edited_at: Set(None),
+            updated_at: Set(None),
             count: Set(*count),
         });
     }
