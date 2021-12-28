@@ -71,7 +71,7 @@ pub async fn update_links(
 
             let to_site_id = match site_slug {
                 None => site_id,
-                Some(slug) => {
+                Some(_slug) => {
                     // TODO: get site ID from SiteService
                     1
                 }
