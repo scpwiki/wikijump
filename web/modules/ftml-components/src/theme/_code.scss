@@ -30,4 +30,20 @@
   @include hover {
     background-color: rgba(0, 0, 0, 0.05);
   }
+
+  .sprite-wj-clipboard {
+    opacity: 0.375;
+    transition: color 0.125s ease-in-out, opacity 0.125s ease-in-out;
+
+    @include hover {
+      color: #07a;
+      opacity: 1;
+    }
+  }
+
+  // always show the success icon as being "active"
+  .sprite-wj-clipboard-success {
+    color: #07a;
+    opacity: 1;
+  }
 }

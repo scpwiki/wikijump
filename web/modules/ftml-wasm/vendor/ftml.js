@@ -661,7 +661,7 @@ export class WikitextSettings {
     * @returns {WikitextSettings}
     */
     copy() {
-        var ret = wasm.wikitextsettings_copy(this.ptr);
+        var ret = wasm.htmloutput_copy(this.ptr);
         return WikitextSettings.__wrap(ret);
     }
     /**
@@ -737,11 +737,11 @@ async function init(input) {
         var ret = JSON.parse(getStringFromWasm0(arg0, arg1));
         return addHeapObject(ret);
     };
-    imports.wbg.__wbg_randomFillSync_64cc7d048f228ca8 = function() { return handleError(function (arg0, arg1, arg2) {
-        getObject(arg0).randomFillSync(getArrayU8FromWasm0(arg1, arg2));
-    }, arguments) };
     imports.wbg.__wbg_getRandomValues_98117e9a7e993920 = function() { return handleError(function (arg0, arg1) {
         getObject(arg0).getRandomValues(getObject(arg1));
+    }, arguments) };
+    imports.wbg.__wbg_randomFillSync_64cc7d048f228ca8 = function() { return handleError(function (arg0, arg1, arg2) {
+        getObject(arg0).randomFillSync(getArrayU8FromWasm0(arg1, arg2));
     }, arguments) };
     imports.wbg.__wbg_process_2f24d6544ea7b200 = function(arg0) {
         var ret = getObject(arg0).process;

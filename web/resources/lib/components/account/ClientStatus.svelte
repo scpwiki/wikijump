@@ -2,11 +2,14 @@
   import WikijumpAPI, { route, authed, identity } from "@wikijump/api"
   import { format as t } from "@wikijump/fluent"
   import { focusGroup } from "@wikijump/dom"
-  import { Sprite, Button, Card, DetailsMenu } from "@wikijump/components"
-  import { toast } from "@wikijump/components/lib"
+  import { Icon, Sprite, Button, Card, DetailsMenu } from "@wikijump/components"
+  import { toast, matchBreakpoint } from "@wikijump/components/lib"
   import UserInfo from "../UserInfo.svelte"
   import NotificationBell from "./NotificationBell.svelte"
   import { AuthModal } from "../auth/auth-modal"
+
+  /** If true, the status will be rendered with a background. */
+  export let background = true
 
   async function logout() {
     if (!$authed) return
@@ -18,31 +21,33 @@
 <!-- TODO: persist auth state across page -->
 
 {#if !$authed}
-  <div class="account-control dark">
+  <div class="client-status" class:has-background={background}>
     <Button baseline compact on:click={() => AuthModal.toggle(true)}>
+      <Icon i="ic:round-login" size="1.25rem" />
       {t("login")}
     </Button>
 
-    <div class="account-control-sep" />
+    <div class="client-status-sep" />
 
     <Button baseline compact on:click={() => AuthModal.toggle(true)}>
+      <Icon i="ic:round-person-add" size="1.25rem" />
       {t("create-account")}
     </Button>
   </div>
 {:else if $identity}
-  <div class="account-control dark is-authed">
+  <div class="client-status is-authed" class:has-background={background}>
     <NotificationBell />
 
-    <div class="account-control-sep" />
+    <div class="client-status-sep" />
 
     <DetailsMenu placement="bottom-end" hoverable let:open>
       <Button slot="button" tabindex="-1" active={open} baseline compact>
-        <UserInfo nolink />
+        <UserInfo nolink nousername={$matchBreakpoint("<=small")} />
         <Sprite i="wj-downarrow" size="0.55rem" margin="0 0 0 0.15rem" />
       </Button>
 
       <Card>
-        <div class="account-control-menu" use:focusGroup={"vertical"}>
+        <div class="client-status-menu" use:focusGroup={"vertical"}>
           <!-- TODO: proper links -->
           <Button href={route("account")} tabindex="-1" baseline compact>
             {t("account")}
@@ -80,7 +85,7 @@
 <style lang="scss">
   @import "../../../css/abstracts";
 
-  @keyframes account-control-reveal {
+  @keyframes client-status-reveal {
     0% {
       opacity: 0;
     }
@@ -89,27 +94,35 @@
     }
   }
 
-  .account-control {
+  .client-status {
     display: flex;
     align-items: center;
     justify-content: space-evenly;
-    padding: 0.325rem 0.625rem;
     font-size: 0.925rem;
-    background: var(--col-background);
-    border: 0.075rem solid var(--col-border);
-    border-radius: 0.325rem;
-    animation: account-control-reveal 100ms backwards ease-out;
-    @include shadow(4);
+    animation: client-status-reveal 100ms backwards ease-out;
+    white-space: nowrap;
+
+    &.has-background {
+      padding: 0.325rem 0.625rem;
+      background: var(--col-background);
+      border: 0.075rem solid var(--col-border);
+      border-radius: 0.325rem;
+      @include shadow(4);
+    }
   }
 
-  .account-control-sep {
+  .client-status-sep {
     width: 0.075rem;
     height: 0.75rem;
     margin: 0 0.5rem;
     background: var(--col-border);
+
+    @include media("<=small") {
+      margin: 0 0.25rem;
+    }
   }
 
-  .account-control-menu {
+  .client-status-menu {
     display: flex;
     flex-direction: column;
     min-width: 7rem;

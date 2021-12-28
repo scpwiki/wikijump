@@ -2,5 +2,5 @@
                    aria-label="{{ __('reveal-sidebar') }}"
                    aria-controls="sidebar"
 >
-    @include('next.components.ui-svg', ['sprite' => 'wj-hamburger'])
+    @include('next.components.sprite', ['sprite' => 'wj-hamburger'])
 </wj-sidebar-button>

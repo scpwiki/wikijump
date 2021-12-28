@@ -47,12 +47,24 @@
         minmax(0, var(--layout-body-max-width))
         minmax(var(--layout-body-side-gap), 1fr);
     }
+
+    #sidebar {
+      @include media(">=normal");
+    }
   }
 
   &.has-license {
     --layout-total-footer-height: calc(
       var(--layout-footer-height) + var(--layout-license-height)
     );
+  }
+
+  // we might still have the sidebar element due to
+  // it being needed for mobile
+  @include media(">=normal") {
+    &:not(.has-sidebar) #sidebar {
+      display: none;
+    }
   }
 }
 

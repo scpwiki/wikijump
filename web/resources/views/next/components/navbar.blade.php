@@ -20,10 +20,20 @@
 {{-- TODO: Page search widget --}}
 {{-- TODO: Locale selector--}}
 {{-- TODO: Dark/light mode selector --}}
-<nav id="navbar" aria-label="{{ __('navigation') }}">
-    @includeWhen(isset($sidebar_content), 'next.components.sidebar-button')
+<nav id="navbar" class="dark" aria-label="{{ __('navigation') }}">
+    @includeWhen(
+        isset($sidebar_content) || isset($navbar_items),
+        'next.components.sidebar-button'
+    )
+
+    <wj-component-loader ld-load="Search" ld-skeleton="block">
+    </wj-component-loader>
 
     @includeWhen(isset($navbar_items), 'next.components.navbar-elements', [
         'items' => $navbar_items,
     ])
+
+    {{-- only gets displayed on small screens --}}
+    <wj-component-loader ld-load="ClientStatus" background="false">
+    </wj-component-loader>
 </nav>

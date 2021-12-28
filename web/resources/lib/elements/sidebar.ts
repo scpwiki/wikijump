@@ -196,17 +196,36 @@ export class SidebarButtonElement extends BaseButton {
   }
 }
 
+/** Simple button that closes the sidebar when clicked. */
+export class SidebarCloseButtonElement extends BaseButton {
+  static tag = "wj-sidebar-close-button"
+
+  constructor() {
+    super()
+    tip(this)
+  }
+
+  whenClicked() {
+    const sidebar = document.querySelector("#sidebar") as SidebarElement
+    if (!sidebar) throw new Error("No sidebar element found")
+    if (sidebar.open) sidebar.close()
+  }
+}
+
 declare global {
   interface HTMLElementTagNameMap {
     "wj-sidebar": SidebarElement
     "wj-sidebar-button": SidebarButtonElement
+    "wj-sidebar-close-button": SidebarCloseButtonElement
   }
 
   interface Window {
     SidebarElement: typeof SidebarElement
     SidebarButtonElement: typeof SidebarButtonElement
+    SidebarCloseButtonElement: typeof SidebarCloseButtonElement
   }
 }
 
 addElement(SidebarElement, "SidebarElement")
 addElement(SidebarButtonElement, "SidebarButtonElement")
+addElement(SidebarCloseButtonElement, "SidebarCloseButtonElement")

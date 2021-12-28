@@ -9,8 +9,8 @@
 
 @section('content')
     <wj-component-loader
-        load="RegisterForm"
-        skeleton="spinner:12rem"
+        ld-load="RegisterForm"
+        ld-skeleton="spinner:12rem"
         goto="{{ route("verification.notice") }}"
     >
     </wj-component-loader>

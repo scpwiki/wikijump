@@ -14,6 +14,6 @@
     </p>
     <br />
 
-    <wj-component-loader load="ResendVerificationEmail" skeleton="spinner:6rem">
+    <wj-component-loader ld-load="ResendVerificationEmail" ld-skeleton="spinner:6rem">
     </wj-component-loader>
 @endsection

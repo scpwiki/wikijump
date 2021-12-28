@@ -85,11 +85,18 @@ pub fn render_code(
                     );
 
                     // Copy to clipboard button
-                    ctx.html().element("wj-code-copy").attr(attr!(
-                        "type" => "button",
-                        "class" => "wj-code-copy",
-                        "title" => button_title,
-                    ));
+                    ctx.html()
+                        .element("wj-code-copy")
+                        .attr(attr!(
+                            "type" => "button",
+                            "class" => "wj-code-copy",
+                            "title" => button_title,
+                        ))
+                        .contents(|ctx| {
+                            ctx.html().sprite("wj-clipboard");
+                            // Hidden normally, shown when clicked
+                            ctx.html().sprite("wj-clipboard-success");
+                        });
 
                     // Span showing name of language
                     ctx.html()

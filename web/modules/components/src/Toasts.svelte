@@ -60,7 +60,7 @@
         {toast.message}
         <span class="toast-remove">
           <Button
-            i="ion:close"
+            i="wj-close"
             size="1.5rem"
             tip={t("close")}
             baseline

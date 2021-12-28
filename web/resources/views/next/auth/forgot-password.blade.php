@@ -12,6 +12,6 @@
         {{ __('forgot-password') }}
     </h1>
 
-    <wj-component-loader load="ForgotPasswordForm" skeleton="spinner:6rem">
+    <wj-component-loader ld-load="ForgotPasswordForm" ld-skeleton="spinner:6rem">
     </wj-component-loader>
 @endsection

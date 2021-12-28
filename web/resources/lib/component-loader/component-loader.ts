@@ -1,4 +1,4 @@
-import { addElement } from "@wikijump/dom"
+import { addElement, DisplayObserver } from "@wikijump/dom"
 import { detach, insert, noop, type SvelteComponent } from "svelte/internal"
 import Skeleton from "../components/Skeleton.svelte"
 import ComponentManager, { type ComponentName } from "./component-manager"
@@ -9,6 +9,12 @@ import ComponentManager, { type ComponentName } from "./component-manager"
  */
 export class ComponentLoaderElement extends HTMLElement {
   static tag = "wj-component-loader"
+
+  /** Observer used for checking if the loader is being displayed in the DOM or not. */
+  private declare observer: DisplayObserver
+
+  /** The original HTML of the element. */
+  html: string | null = null
 
   /** True if the component has already been rendered. */
   rendered = false
@@ -26,22 +32,17 @@ export class ComponentLoaderElement extends HTMLElement {
    */
   component: null | SvelteComponent = null
 
-  /** The name of the component that will be rendered. */
-  get load(): ComponentName | null {
-    return this.getAttribute("load") as any
+  constructor() {
+    super()
+    this.observer = new DisplayObserver(this, {
+      visible: () => this.render(),
+      hidden: () => this.destroy()
+    })
   }
 
-  /** Sets the name of the component to be rendered. */
-  set load(name: ComponentName | null) {
-    if (name === null) {
-      this.removeAttribute("load")
-    } else {
-      if (!name) throw new Error("Component name is required")
-      if (!ComponentManager.isComponent(name)) {
-        throw new Error(`${name} is not a component`)
-      }
-      this.setAttribute("load", name)
-    }
+  /** The name of the component that will be rendered. */
+  get load(): ComponentName | null {
+    return this.getAttribute("ld-load") as any
   }
 
   /**
@@ -53,7 +54,7 @@ export class ComponentLoaderElement extends HTMLElement {
     | { type: "block" | "spinner"; height: string; width: string }
     | { type: "inline"; lines: number; height: string }
     | null {
-    const attr = this.getAttribute("skeleton")
+    const attr = this.getAttribute("ld-skeleton")
 
     if (attr === null) return null
 
@@ -89,12 +90,13 @@ export class ComponentLoaderElement extends HTMLElement {
 
   /** Begins the loading and rendering of the named component. */
   private async loadComponent() {
-    // TODO: this is a bit messy (holding the inner HTML in a string)
-    let pendingHTML: string | null = null
+    // set this here to prevent race conditions,
+    // even though it's a bit early
+    this.rendered = true
+
     let skeleton: Skeleton | null = null
 
-    if (this.hasAttribute("skeleton")) {
-      pendingHTML = this.innerHTML
+    if (this.hasAttribute("ld-skeleton")) {
       this.innerHTML = ""
       skeleton = this.mountSkeleton()
     }
@@ -108,13 +110,18 @@ export class ComponentLoaderElement extends HTMLElement {
     if (!this.isConnected) return
 
     const attributeNames = new Set(this.getAttributeNames())
-    attributeNames.delete("load")
-    attributeNames.delete("skeleton")
+
+    // get rid of our attributes
+    attributeNames.delete("ld-load")
+    attributeNames.delete("ld-skeleton")
+
+    // style is weird, let's not pass it on
+    attributeNames.delete("style")
 
     // dismount the skeleton if it was mounted
     if (skeleton) {
       skeleton.$destroy()
-      this.innerHTML = pendingHTML!
+      this.innerHTML = this.html!
     }
 
     // now we need to handle slotted content
@@ -189,29 +196,46 @@ export class ComponentLoaderElement extends HTMLElement {
 
       this.component = rendered
     }
-
-    this.rendered = true
   }
 
-  // HTML callbacks
+  /** Renders the named component. */
+  private render() {
+    if (this.rendered) return
 
-  connectedCallback() {
-    if (!this.getAttribute("load")) {
+    if (!this.getAttribute("ld-load")) {
       throw new Error("Component name is required")
     }
 
     this.loadComponent()
   }
 
-  disconnectedCallback() {
+  /** Destroys the previously rendered component. */
+  private destroy() {
     if (this.rendered && this.type === "svelte" && this.component) {
       // prettier-ignore
       try { this.component.$destroy() } catch {}
+    } else if (this.rendered && this.type === "html") {
+      this.innerHTML = ""
     }
 
     this.rendered = false
     this.type = null
     this.component = null
+  }
+
+  // -- LIFECYCLE
+
+  connectedCallback() {
+    // when connected, make sure our innerHTML is always
+    // what it was when we first mounted
+    if (this.html) this.innerHTML = this.html
+    else this.html = this.innerHTML
+
+    if (this.observer.visible) this.render()
+  }
+
+  disconnectedCallback() {
+    if (this.rendered) this.destroy()
   }
 }
 

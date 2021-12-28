@@ -19,10 +19,6 @@
       }
     }
   }
-
-  @include media("<=small") {
-    position: static;
-  }
 }
 
 .wj-navbar-link > a,
@@ -54,7 +50,6 @@
   margin-left: 0.25em;
   vertical-align: baseline;
   opacity: 0.75;
-  --wj-downarrow-color: currentColor;
 }
 
 .wj-navbar-dropdown-links {
@@ -65,8 +60,8 @@
   min-width: 120%;
   padding: 0.25rem 0.5rem;
   list-style: none;
-  background: var(--col-con-background);
-  border: solid 0.075rem var(--col-con-border);
+  background: var(--col-background);
+  border: solid 0.075rem var(--col-border);
   border-top: solid 0.125rem var(--col-hint);
   border-radius: 0.125rem 0.125rem 0.25rem 0.25rem;
   contain: content;
@@ -76,19 +71,8 @@
     text-align: center;
 
     + li {
-      border-top: solid 0.075rem var(--col-con-border);
+      border-top: solid 0.075rem var(--col-border);
     }
-  }
-
-  @include media("<=small") {
-    top: var(--layout-navbar-height);
-    right: 0;
-    left: 0;
-    min-width: auto;
-    border-right: none;
-    border-left: none;
-    border-radius: 0;
-    @include shadow(4, 2);
   }
 }
 
@@ -96,7 +80,7 @@
   display: inline-block;
   min-width: 100%;
   font-size: 0.825rem;
-  color: var(--col-con-text);
+  color: var(--col-text);
   white-space: nowrap;
 
   @include tolerates-motion {

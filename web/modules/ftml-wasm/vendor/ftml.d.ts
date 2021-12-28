@@ -61,24 +61,6 @@ export interface IParseWarning {
 
 
 
-export interface IWikitextSettings {
-    mode: WikitextMode;
-    enable_page_syntax: boolean;
-    use_true_ids: boolean;
-    allow_local_paths: boolean;
-}
-
-export type WikitextMode =
-    | 'page'
-    | 'draft'
-    | 'forum-post'
-    | 'direct-message'
-    | 'list'
-
-
-
-
-
 export interface IHtmlOutput {
     body: string;
     style: string;
@@ -96,6 +78,24 @@ export interface IBacklinks {
     internal_links: string[];
     external_links: string[];
 }
+
+
+
+
+
+export interface IWikitextSettings {
+    mode: WikitextMode;
+    enable_page_syntax: boolean;
+    use_true_ids: boolean;
+    allow_local_paths: boolean;
+}
+
+export type WikitextMode =
+    | 'page'
+    | 'draft'
+    | 'forum-post'
+    | 'direct-message'
+    | 'list'
 
 
 
@@ -294,10 +294,6 @@ export interface InitOutput {
   readonly parse: (a: number, b: number, c: number) => number;
   readonly syntaxtree_copy: (a: number) => number;
   readonly preprocess: (a: number, b: number, c: number) => void;
-  readonly __wbg_wikitextsettings_free: (a: number) => void;
-  readonly wikitextsettings_copy: (a: number) => number;
-  readonly wikitextsettings_new: (a: number) => number;
-  readonly wikitextsettings_from_mode: (a: number, b: number) => number;
   readonly __wbg_htmloutput_free: (a: number) => void;
   readonly htmloutput_copy: (a: number) => number;
   readonly htmloutput_body: (a: number, b: number) => void;
@@ -306,6 +302,10 @@ export interface InitOutput {
   readonly htmloutput_backlinks: (a: number) => number;
   readonly render_html: (a: number, b: number, c: number) => number;
   readonly render_text: (a: number, b: number, c: number, d: number) => void;
+  readonly __wbg_wikitextsettings_free: (a: number) => void;
+  readonly wikitextsettings_new: (a: number) => number;
+  readonly wikitextsettings_from_mode: (a: number, b: number) => number;
+  readonly wikitextsettings_copy: (a: number) => number;
   readonly __wbg_pageinfo_free: (a: number) => void;
   readonly pageinfo_copy: (a: number) => number;
   readonly pageinfo_new: (a: number) => number;

@@ -3,8 +3,8 @@
   display: flex;
   align-items: center;
   height: var(--layout-navbar-height);
-  padding: 0 3vw;
-  color: var(--col-dark-text);
+  padding: 0 2rem;
+  color: var(--col-text);
   background: var(--col-dark-background);
   box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.25);
 
@@ -33,10 +33,8 @@
     flex-shrink: 0;
     width: 1.75rem;
     height: 1.75rem;
-    padding-right: 0.25rem;
-    color: var(--col-dark-text);
+    color: var(--col-text);
     cursor: pointer;
-    border-right: solid 0.125rem var(--col-dark-border);
 
     @include tolerates-motion {
       transition: color 75ms;
@@ -52,6 +50,22 @@
   }
 }
 
+#navbar > wj-component-loader[ld-load="Search"] {
+  display: flex;
+  align-items: center;
+  width: var(--layout-navbar-search-width);
+  height: 100%;
+  margin-right: 2rem;
+  font-size: 0.875rem;
+
+  @include media("<=small") {
+    flex-grow: 1;
+    width: auto;
+    margin: 0 1rem;
+    font-size: 1rem;
+  }
+}
+
 .wj-navbar-elements {
   display: flex;
   gap: 1.5rem;
@@ -64,17 +78,17 @@
   }
 
   @include media("<=small") {
-    flex-grow: 1;
-    overflow-x: auto;
-    overflow-y: visible;
-    @include hide-scrollbars;
+    display: none;
+  }
+}
 
-    > li:first-child {
-      margin-left: 0.5rem;
-    }
+#navbar > wj-component-loader[ld-load="ClientStatus"] {
+  flex-shrink: 0;
+  justify-self: flex-end;
+  margin-right: 0.5rem;
+  margin-left: auto;
 
-    > li:last-child {
-      margin-right: 1rem;
-    }
+  @include media(">=normal") {
+    display: none;
   }
 }
