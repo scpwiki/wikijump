@@ -35,8 +35,7 @@
 //! types, and tables make it hard to modularize. Instead, the logic is hopefully
 //! clear enough to be acceptable when repeated over a few slightly distinct cases.
 
-use super::super::prelude::*;
-use super::PageService;
+use super::{super::prelude::*, PageService};
 use crate::models::page_connection::{self, Entity as PageConnection};
 use crate::models::page_connection_missing::{self, Entity as PageConnectionMissing};
 use crate::models::page_link::{self, Entity as PageLink};
