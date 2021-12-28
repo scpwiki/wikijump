@@ -44,11 +44,14 @@ pub struct CreatePageOutput {
 // Service
 
 #[derive(Debug)]
-pub struct PageService<'txn>(pub BaseService<'txn>);
+pub struct PageService;
 
-impl<'txn> PageService<'txn> {
-    pub async fn create(&self, mut input: CreatePage) -> Result<CreatePageOutput> {
-        let txn = self.0.transaction();
+impl PageService {
+    pub async fn create(
+        ctx: &ServiceContext<'_>,
+        mut input: CreatePage,
+    ) -> Result<CreatePageOutput> {
+        let txn = ctx.transaction();
         normalize(&mut input.slug);
 
         // Check for conflicts
@@ -60,18 +63,22 @@ impl<'txn> PageService<'txn> {
     }
 
     #[inline]
-    pub async fn exists(&self, site_id: i64, reference: Reference<'_>) -> Result<bool> {
-        self.get_optional(site_id, reference)
+    pub async fn exists(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        reference: Reference<'_>,
+    ) -> Result<bool> {
+        Self::get_optional(ctx, site_id, reference)
             .await
             .map(|page| page.is_some())
     }
 
     pub async fn get_optional(
-        &self,
+        ctx: &ServiceContext<'_>,
         site_id: i64,
         reference: Reference<'_>,
     ) -> Result<Option<PageModel>> {
-        let txn = self.0.transaction();
+        let txn = ctx.transaction();
         let page = {
             let condition = match reference {
                 Reference::Id(id) => page::Column::PageId.eq(id),
@@ -92,8 +99,12 @@ impl<'txn> PageService<'txn> {
         Ok(page)
     }
 
-    pub async fn get(&self, site_id: i64, reference: Reference<'_>) -> Result<PageModel> {
-        match self.get_optional(site_id, reference).await? {
+    pub async fn get(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        reference: Reference<'_>,
+    ) -> Result<PageModel> {
+        match Self::get_optional(ctx, site_id, reference).await? {
             Some(page) => Ok(page),
             None => Err(Error::NotFound),
         }

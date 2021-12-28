@@ -32,7 +32,7 @@
 //! an error.
 
 mod prelude {
-    pub use super::base::BaseService;
+    pub use super::context::ServiceContext;
     pub use super::error::*;
     pub use crate::utils::{now, now_naive};
     pub use crate::web::{Reference, ProvidedValue};
@@ -42,43 +42,28 @@ mod prelude {
     };
 }
 
-mod base;
+mod context;
 mod error;
 
 pub mod page;
 pub mod user;
 
-use self::base::BaseService;
-use self::page::PageService;
-use self::user::UserService;
 use crate::api::ApiRequest;
-use sea_orm::{DatabaseConnection, DatabaseTransaction};
+use sea_orm::DatabaseConnection;
 
+pub use self::context::ServiceContext;
 pub use self::error::*;
+pub use self::page::PageService;
+pub use self::user::UserService;
 
 /// Extension trait to retrieve service objects from an `ApiRequest`.
 pub trait RequestFetchService {
     fn database(&self) -> &DatabaseConnection;
-
-    fn page<'txn>(&self, txn: &'txn DatabaseTransaction) -> PageService<'txn>;
-    fn user<'txn>(&self, txn: &'txn DatabaseTransaction) -> UserService<'txn>;
 }
 
 impl RequestFetchService for ApiRequest {
-    // Getters
     #[inline]
     fn database(&self) -> &DatabaseConnection {
         &self.state().database
-    }
-
-    // Service builders
-    #[inline]
-    fn page<'txn>(&self, txn: &'txn DatabaseTransaction) -> PageService<'txn> {
-        PageService(BaseService::new(self, txn))
-    }
-
-    #[inline]
-    fn user<'txn>(&self, txn: &'txn DatabaseTransaction) -> UserService<'txn> {
-        UserService(BaseService::new(self, txn))
     }
 }

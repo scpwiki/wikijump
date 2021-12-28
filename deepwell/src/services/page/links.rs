@@ -42,7 +42,6 @@ use crate::models::page_connection_missing::{self, Entity as PageConnectionMissi
 use crate::models::page_link::{self, Entity as PageLink};
 use crate::web::ConnectionType;
 use ftml::data::{Backlinks, PageRef};
-use sea_orm::{DatabaseTransaction, Set};
 use std::collections::HashMap;
 
 macro_rules! parse_connection_type {
@@ -52,8 +51,7 @@ macro_rules! parse_connection_type {
 }
 
 pub async fn update_links(
-    txn: &DatabaseTransaction,
-    page: &PageService<'_>,
+    ctx: &ServiceContext<'_>,
     site_id: i64,
     page_id: i64,
     backlinks: &Backlinks<'_>,
@@ -63,7 +61,7 @@ pub async fn update_links(
     let mut external_links = HashMap::new();
 
     macro_rules! count_connections {
-        ($page_ref:expr, $connection_type:expr) => {{
+        ($ctx:expr, $page_ref:expr, $connection_type:expr) => {{
             let PageRef {
                 site: site_slug,
                 page: page_slug,
@@ -77,10 +75,10 @@ pub async fn update_links(
                 }
             };
 
-            match page
-                .get_optional(to_site_id, Reference::Slug(page_slug))
-                .await?
-            {
+            let page =
+                PageService::get_optional($ctx, to_site_id, Reference::Slug(page_slug))
+                    .await?;
+            match page {
                 Some(to_page) => {
                     let entry = connections
                         .entry((to_page.page_id, $connection_type))
@@ -101,12 +99,12 @@ pub async fn update_links(
 
     // Get include stats (old, so include-messy)
     for include in &backlinks.included_pages {
-        count_connections!(include, ConnectionType::IncludeMessy);
+        count_connections!(ctx, include, ConnectionType::IncludeMessy);
     }
 
     // Get internal page link stats
     for link in &backlinks.internal_links {
-        count_connections!(link, ConnectionType::Link);
+        count_connections!(ctx, link, ConnectionType::Link);
     }
 
     // Gather external URL link stats
@@ -117,19 +115,21 @@ pub async fn update_links(
 
     // Update records
     try_join!(
-        update_connections(txn, page_id, &mut connections),
-        update_connections_missing(txn, page_id, &mut connections_missing),
-        update_external_links(txn, page_id, &mut external_links),
+        update_connections(ctx, page_id, &mut connections),
+        update_connections_missing(ctx, page_id, &mut connections_missing),
+        update_external_links(ctx, page_id, &mut external_links),
     )?;
 
     Ok(())
 }
 
 async fn update_connections(
-    txn: &DatabaseTransaction,
+    ctx: &ServiceContext<'_>,
     from_page_id: i64,
     counts: &mut HashMap<(i64, ConnectionType), i32>,
 ) -> Result<()> {
+    let txn = ctx.transaction();
+
     // Get existing connections
     let mut connection_chunks = PageConnection::find()
         .filter(page_connection::Column::FromPageId.eq(from_page_id))
@@ -184,10 +184,12 @@ async fn update_connections(
 }
 
 async fn update_connections_missing(
-    txn: &DatabaseTransaction,
+    ctx: &ServiceContext<'_>,
     from_page_id: i64,
     counts: &mut HashMap<(String, ConnectionType), i32>,
 ) -> Result<()> {
+    let txn = ctx.transaction();
+
     // Get existing connections
     let mut connection_chunks = PageConnectionMissing::find()
         .filter(page_connection_missing::Column::FromPageId.eq(from_page_id))
@@ -245,10 +247,12 @@ async fn update_connections_missing(
 }
 
 async fn update_external_links(
-    txn: &DatabaseTransaction,
+    ctx: &ServiceContext<'_>,
     from_page_id: i64,
     counts: &mut HashMap<String, i32>,
 ) -> Result<()> {
+    let txn = ctx.transaction();
+
     // Get existing links
     let mut link_chunks = PageLink::find()
         .filter(page_link::Column::PageId.eq(from_page_id))

@@ -137,11 +137,14 @@ impl From<&UserModel> for UserProfileOutput {
 // Service
 
 #[derive(Debug)]
-pub struct UserService<'txn>(pub BaseService<'txn>);
+pub struct UserService;
 
-impl<'txn> UserService<'txn> {
-    pub async fn create(&self, input: CreateUser) -> Result<CreateUserOutput> {
-        let txn = self.0.transaction();
+impl UserService {
+    pub async fn create(
+        ctx: &ServiceContext<'_>,
+        input: CreateUser,
+    ) -> Result<CreateUserOutput> {
+        let txn = ctx.transaction();
         let slug = get_user_slug(&input.username);
 
         // Check for conflicts
@@ -193,17 +196,20 @@ impl<'txn> UserService<'txn> {
     }
 
     #[inline]
-    pub async fn exists(&self, reference: Reference<'_>) -> Result<bool> {
-        self.get_optional(reference)
+    pub async fn exists(
+        ctx: &ServiceContext<'_>,
+        reference: Reference<'_>,
+    ) -> Result<bool> {
+        Self::get_optional(ctx, reference)
             .await
             .map(|user| user.is_some())
     }
 
     pub async fn get_optional(
-        &self,
+        ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
     ) -> Result<Option<UserModel>> {
-        let txn = self.0.transaction();
+        let txn = ctx.transaction();
         let user = match reference {
             Reference::Id(id) => User::find_by_id(id).one(txn).await?,
             Reference::Slug(slug) => {
@@ -221,20 +227,23 @@ impl<'txn> UserService<'txn> {
         Ok(user)
     }
 
-    pub async fn get(&self, reference: Reference<'_>) -> Result<UserModel> {
-        match self.get_optional(reference).await? {
+    pub async fn get(
+        ctx: &ServiceContext<'_>,
+        reference: Reference<'_>,
+    ) -> Result<UserModel> {
+        match Self::get_optional(ctx, reference).await? {
             Some(user) => Ok(user),
             None => Err(Error::NotFound),
         }
     }
 
     pub async fn update(
-        &self,
+        ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
         input: UpdateUser,
     ) -> Result<UserModel> {
-        let txn = self.0.transaction();
-        let model = self.get(reference).await?;
+        let txn = ctx.transaction();
+        let model = Self::get(ctx, reference).await?;
         let mut user: users::ActiveModel = model.clone().into();
 
         // Add each field
@@ -321,9 +330,12 @@ impl<'txn> UserService<'txn> {
         Ok(model)
     }
 
-    pub async fn delete(&self, reference: Reference<'_>) -> Result<UserModel> {
-        let txn = self.0.transaction();
-        let model = self.get(reference).await?;
+    pub async fn delete(
+        ctx: &ServiceContext<'_>,
+        reference: Reference<'_>,
+    ) -> Result<UserModel> {
+        let txn = ctx.transaction();
+        let model = Self::get(ctx, reference).await?;
         let mut user: users::ActiveModel = model.clone().into();
 
         // Set deletion flag

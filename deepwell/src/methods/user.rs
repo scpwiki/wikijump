@@ -27,17 +27,22 @@ use crate::web::{UserDetails, UserDetailsQuery};
 
 pub async fn user_create(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
     let input: CreateUser = req.body_json().await?;
-    let output = req.user(&txn).create(input).await.to_api()?;
+    let output = UserService::create(&ctx, input).await.to_api()?;
     let body = Body::from_json(&output)?;
     txn.commit().await?;
+
     Ok(body.into())
 }
 
 pub async fn user_get(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
     let reference = Reference::try_from(&req)?;
-    let user = req.user(&txn).get(reference).await.to_api()?;
+    let user = UserService::get(&ctx, reference).await.to_api()?;
     txn.commit().await?;
     let UserDetailsQuery { detail } = req.query()?;
     build_user_response(&user, detail, StatusCode::Ok)
@@ -45,9 +50,11 @@ pub async fn user_get(req: ApiRequest) -> ApiResponse {
 
 pub async fn user_put(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
     let input: UpdateUser = req.body_json().await?;
     let reference = Reference::try_from(&req)?;
-    let user = req.user(&txn).update(reference, input).await.to_api()?;
+    let user = UserService::update(&ctx, reference, input).await.to_api()?;
     txn.commit().await?;
     let UserDetailsQuery { detail } = req.query()?;
     build_user_response(&user, detail, StatusCode::Created)
@@ -55,8 +62,10 @@ pub async fn user_put(mut req: ApiRequest) -> ApiResponse {
 
 pub async fn user_delete(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
     let reference = Reference::try_from(&req)?;
-    let user = req.user(&txn).delete(reference).await.to_api()?;
+    let user = UserService::delete(&ctx, reference).await.to_api()?;
     txn.commit().await?;
     let UserDetailsQuery { detail } = req.query()?;
     build_user_response(&user, detail, StatusCode::Ok)
