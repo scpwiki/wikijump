@@ -91,7 +91,6 @@ where
         };
 
         let class = format!("wj-sprite sprite-{}", id);
-
         let href = format!("/files--static/media/ui.svg#{}", id);
 
         self.tag("svg")
