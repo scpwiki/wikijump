@@ -23,29 +23,29 @@ use std::convert::TryFrom;
 use tide::{Error, StatusCode};
 
 #[derive(Debug, Copy, Clone)]
-pub enum ItemReference<'a> {
+pub enum Reference<'a> {
     Id(i64),
     Slug(&'a str),
 }
 
-impl From<i64> for ItemReference<'static> {
+impl From<i64> for Reference<'static> {
     #[inline]
-    fn from(id: i64) -> ItemReference<'static> {
-        ItemReference::Id(id)
+    fn from(id: i64) -> Reference<'static> {
+        Reference::Id(id)
     }
 }
 
-impl<'a> From<&'a str> for ItemReference<'a> {
+impl<'a> From<&'a str> for Reference<'a> {
     #[inline]
-    fn from(slug: &'a str) -> ItemReference<'a> {
-        ItemReference::Slug(slug)
+    fn from(slug: &'a str) -> Reference<'a> {
+        Reference::Slug(slug)
     }
 }
 
-impl<'a> TryFrom<&'a ApiRequest> for ItemReference<'a> {
+impl<'a> TryFrom<&'a ApiRequest> for Reference<'a> {
     type Error = Error;
 
-    fn try_from(req: &'a ApiRequest) -> Result<ItemReference<'a>, Error> {
+    fn try_from(req: &'a ApiRequest) -> Result<Reference<'a>, Error> {
         let value_type = req.param("type")?;
         let value = req.param("id_or_slug")?;
 
@@ -53,13 +53,13 @@ impl<'a> TryFrom<&'a ApiRequest> for ItemReference<'a> {
             "slug" => {
                 tide::log::debug!("Reference via slug, {}", value);
 
-                Ok(ItemReference::Slug(value))
+                Ok(Reference::Slug(value))
             }
             "id" => {
                 tide::log::debug!("Reference via ID, {}", value);
 
                 let id = value.parse()?;
-                Ok(ItemReference::Id(id))
+                Ok(Reference::Id(id))
             }
             _ => Err(Error::from_str(
                 StatusCode::BadRequest,

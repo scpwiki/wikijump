@@ -36,7 +36,7 @@ pub async fn user_create(mut req: ApiRequest) -> ApiResponse {
 
 pub async fn user_get(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let reference = ItemReference::try_from(&req)?;
+    let reference = Reference::try_from(&req)?;
     let user = req.user(&txn).get(reference).await.to_api()?;
     txn.commit().await?;
     let UserDetailsQuery { detail } = req.query()?;
@@ -46,7 +46,7 @@ pub async fn user_get(req: ApiRequest) -> ApiResponse {
 pub async fn user_put(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let input: UpdateUser = req.body_json().await?;
-    let reference = ItemReference::try_from(&req)?;
+    let reference = Reference::try_from(&req)?;
     let user = req.user(&txn).update(reference, input).await.to_api()?;
     txn.commit().await?;
     let UserDetailsQuery { detail } = req.query()?;
@@ -55,7 +55,7 @@ pub async fn user_put(mut req: ApiRequest) -> ApiResponse {
 
 pub async fn user_delete(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let reference = ItemReference::try_from(&req)?;
+    let reference = Reference::try_from(&req)?;
     let user = req.user(&txn).delete(reference).await.to_api()?;
     txn.commit().await?;
     let UserDetailsQuery { detail } = req.query()?;

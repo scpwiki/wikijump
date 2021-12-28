@@ -78,7 +78,7 @@ pub async fn update_links(
             };
 
             match page
-                .get_optional(to_site_id, ItemReference::Slug(page_slug))
+                .get_optional(to_site_id, Reference::Slug(page_slug))
                 .await?
             {
                 Some(to_page) => {

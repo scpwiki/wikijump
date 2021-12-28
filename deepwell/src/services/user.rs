@@ -193,7 +193,7 @@ impl<'txn> UserService<'txn> {
     }
 
     #[inline]
-    pub async fn exists(&self, reference: ItemReference<'_>) -> Result<bool> {
+    pub async fn exists(&self, reference: Reference<'_>) -> Result<bool> {
         self.get_optional(reference)
             .await
             .map(|user| user.is_some())
@@ -201,12 +201,12 @@ impl<'txn> UserService<'txn> {
 
     pub async fn get_optional(
         &self,
-        reference: ItemReference<'_>,
+        reference: Reference<'_>,
     ) -> Result<Option<UserModel>> {
         let txn = self.0.transaction();
         let user = match reference {
-            ItemReference::Id(id) => User::find_by_id(id).one(txn).await?,
-            ItemReference::Slug(slug) => {
+            Reference::Id(id) => User::find_by_id(id).one(txn).await?,
+            Reference::Slug(slug) => {
                 User::find()
                     .filter(
                         Condition::all()
@@ -221,7 +221,7 @@ impl<'txn> UserService<'txn> {
         Ok(user)
     }
 
-    pub async fn get(&self, reference: ItemReference<'_>) -> Result<UserModel> {
+    pub async fn get(&self, reference: Reference<'_>) -> Result<UserModel> {
         match self.get_optional(reference).await? {
             Some(user) => Ok(user),
             None => Err(Error::NotFound),
@@ -230,7 +230,7 @@ impl<'txn> UserService<'txn> {
 
     pub async fn update(
         &self,
-        reference: ItemReference<'_>,
+        reference: Reference<'_>,
         input: UpdateUser,
     ) -> Result<UserModel> {
         let txn = self.0.transaction();
@@ -321,7 +321,7 @@ impl<'txn> UserService<'txn> {
         Ok(model)
     }
 
-    pub async fn delete(&self, reference: ItemReference<'_>) -> Result<UserModel> {
+    pub async fn delete(&self, reference: Reference<'_>) -> Result<UserModel> {
         let txn = self.0.transaction();
         let model = self.get(reference).await?;
         let mut user: users::ActiveModel = model.clone().into();

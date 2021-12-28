@@ -60,11 +60,7 @@ impl<'txn> PageService<'txn> {
     }
 
     #[inline]
-    pub async fn exists(
-        &self,
-        site_id: i64,
-        reference: ItemReference<'_>,
-    ) -> Result<bool> {
+    pub async fn exists(&self, site_id: i64, reference: Reference<'_>) -> Result<bool> {
         self.get_optional(site_id, reference)
             .await
             .map(|page| page.is_some())
@@ -73,13 +69,13 @@ impl<'txn> PageService<'txn> {
     pub async fn get_optional(
         &self,
         site_id: i64,
-        reference: ItemReference<'_>,
+        reference: Reference<'_>,
     ) -> Result<Option<PageModel>> {
         let txn = self.0.transaction();
         let page = {
             let condition = match reference {
-                ItemReference::Id(id) => page::Column::PageId.eq(id),
-                ItemReference::Slug(slug) => page::Column::UnixName.eq(slug), // TODO rename to Slug
+                Reference::Id(id) => page::Column::PageId.eq(id),
+                Reference::Slug(slug) => page::Column::UnixName.eq(slug), // TODO rename to Slug
             };
 
             Page::find()
@@ -96,11 +92,7 @@ impl<'txn> PageService<'txn> {
         Ok(page)
     }
 
-    pub async fn get(
-        &self,
-        site_id: i64,
-        reference: ItemReference<'_>,
-    ) -> Result<PageModel> {
+    pub async fn get(&self, site_id: i64, reference: Reference<'_>) -> Result<PageModel> {
         match self.get_optional(site_id, reference).await? {
             Some(page) => Ok(page),
             None => Err(Error::NotFound),
