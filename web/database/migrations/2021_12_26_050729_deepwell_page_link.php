@@ -24,7 +24,7 @@ class DeepwellPageLink extends Migration
                 page_id BIGINT,
                 url TEXT,
                 created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-                edited_at TIMESTAMP WITH TIME ZONE,
+                updated_at TIMESTAMP WITH TIME ZONE,
                 count INT NOT NULL CHECK (count > 0),
 
                 PRIMARY KEY (page_id, url)
@@ -44,7 +44,7 @@ class DeepwellPageLink extends Migration
                         'redirect'
                     ])),
                 created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-                edited_at TIMESTAMP WITH TIME ZONE,
+                updated_at TIMESTAMP WITH TIME ZONE,
                 count INT NOT NULL CHECK (count > 0),
 
                 PRIMARY KEY (from_page_id, to_page_id, connection_type)
@@ -64,7 +64,7 @@ class DeepwellPageLink extends Migration
                         'redirect'
                     ])),
                 created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-                edited_at TIMESTAMP WITH TIME ZONE,
+                updated_at TIMESTAMP WITH TIME ZONE,
                 count INT NOT NULL CHECK (count > 0),
 
                 PRIMARY KEY (from_page_id, to_page_slug, connection_type)
