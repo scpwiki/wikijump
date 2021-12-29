@@ -86,6 +86,14 @@ const BaseConfig = () => ({
     dedupe: ["svelte", "svelte/store", "svelte/internal"]
   },
 
+  assetsInclude: [
+    // Hunspell
+    "**/*.aff",
+    "**/*.dic",
+    // Misc.
+    "**/*.ftml"
+  ],
+
   clearScreen: false,
 
   css: {
