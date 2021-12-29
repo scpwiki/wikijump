@@ -38,7 +38,7 @@ mod prelude {
     pub use crate::web::{Reference, ProvidedValue};
     pub use sea_orm::{
         ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, EntityTrait,
-        PaginatorTrait, QueryFilter, QueryOrder, Set,
+        PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, Set,
     };
 }
 

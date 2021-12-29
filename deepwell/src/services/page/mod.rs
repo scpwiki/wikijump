@@ -20,8 +20,10 @@
 
 mod links;
 
+use self::links::update_links;
 use super::prelude::*;
 use crate::models::page::{self, Entity as Page, Model as PageModel};
+use ftml::data::Backlinks;
 use wikidot_normalize::normalize;
 
 // Helper structs
@@ -108,5 +110,41 @@ impl PageService {
             Some(page) => Ok(page),
             None => Err(Error::NotFound),
         }
+    }
+
+    pub async fn delete(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        reference: Reference<'_>,
+    ) -> Result<PageModel> {
+        let txn = ctx.transaction();
+        let model = Self::get(ctx, site_id, reference).await?;
+        let page: page::ActiveModel = model.clone().into();
+
+        /*
+        TODO: soft deletion
+
+        // Set deletion flag
+        page.deleted_at = Set(Some(now()));
+
+        // Update and return
+        page.update(txn).await?;
+        */
+
+        page.delete(txn).await?;
+        Ok(model)
+    }
+
+    // TEMP
+    // will be part of creating a revision
+    pub async fn update_links(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        reference: Reference<'_>,
+        backlinks: &Backlinks<'_>,
+    ) -> Result<()> {
+        let page = Self::get(ctx, site_id, reference).await?;
+
+        update_links(ctx, site_id, page.page_id, backlinks).await
     }
 }

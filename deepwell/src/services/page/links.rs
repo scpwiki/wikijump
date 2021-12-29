@@ -293,6 +293,7 @@ async fn update_external_links(
             count: Set(*count),
         })
         .collect::<Vec<_>>();
+
     PageLink::insert_many(to_insert).exec(txn).await?;
 
     Ok(())

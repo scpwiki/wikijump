@@ -37,6 +37,21 @@ pub async fn user_create(mut req: ApiRequest) -> ApiResponse {
     Ok(body.into())
 }
 
+pub async fn user_head(req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    let reference = Reference::try_from(&req)?;
+    let exists = UserService::exists(&ctx, reference).await.to_api()?;
+    txn.commit().await?;
+
+    if exists {
+        Ok(Response::new(StatusCode::NoContent))
+    } else {
+        Ok(Response::new(StatusCode::NotFound))
+    }
+}
+
 pub async fn user_get(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);

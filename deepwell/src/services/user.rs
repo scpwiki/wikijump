@@ -339,7 +339,6 @@ impl UserService {
         let mut user: users::ActiveModel = model.clone().into();
 
         // Set deletion flag
-        user.updated_at = Set(Some(now_naive()));
         user.deleted_at = Set(Some(now_naive()));
 
         // Update and return
