@@ -37,12 +37,18 @@
 
 use super::{super::prelude::*, PageService};
 use crate::models::page::Model as PageModel;
-use crate::models::page_connection::{self, Entity as PageConnection};
-use crate::models::page_connection_missing::{self, Entity as PageConnectionMissing};
-use crate::models::page_link::{self, Entity as PageLink};
+use crate::models::page_connection::{
+    self, Entity as PageConnection, Model as PageConnectionModel,
+};
+use crate::models::page_connection_missing::{
+    self, Entity as PageConnectionMissing, Model as PageConnectionMissingModel,
+};
+use crate::models::page_link::{self, Entity as PageLink, Model as PageLinkModel};
 use crate::web::ConnectionType;
 use ftml::data::{Backlinks, PageRef};
 use std::collections::HashMap;
+
+// Helper macros
 
 macro_rules! parse_connection_type {
     ($connection:expr) => {
@@ -50,7 +56,33 @@ macro_rules! parse_connection_type {
     };
 }
 
+// Helper structs
+
+#[derive(Serialize, Debug)]
+pub struct GetLinksFromOutput {
+    present: Vec<PageConnectionModel>,
+    absent: Vec<PageConnectionMissingModel>,
+    external: Vec<PageLinkModel>,
+}
+
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "kebab-case")]
+pub enum GetLinksToOutput {
+    Present(Vec<PageConnectionModel>),
+    Absent(Vec<PageConnectionMissingModel>),
+}
+
+// Service
+
 impl PageService {
+    pub async fn get_links_from(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        reference: Reference<'_>,
+    ) -> Result<GetLinksFromOutput> {
+        todo!()
+    }
+
     // TEMP
     // will be part of creating a revision
     pub async fn update_links(
@@ -129,6 +161,8 @@ impl PageService {
         Ok(())
     }
 }
+
+// Update link helpers
 
 async fn update_connections(
     ctx: &ServiceContext<'_>,

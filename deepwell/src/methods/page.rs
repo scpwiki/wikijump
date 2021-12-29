@@ -84,7 +84,7 @@ pub async fn page_delete(req: ApiRequest) -> ApiResponse {
     build_page_response(&page, StatusCode::Ok)
 }
 
-pub async fn page_links_get(req: ApiRequest) -> ApiResponse {
+pub async fn page_links_from_get(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
     todo!();
