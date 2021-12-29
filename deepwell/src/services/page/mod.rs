@@ -84,7 +84,12 @@ impl PageService {
         let page = {
             let condition = match reference {
                 Reference::Id(id) => page::Column::PageId.eq(id),
-                Reference::Slug(slug) => page::Column::UnixName.eq(slug), // TODO rename to Slug
+                Reference::Slug(slug) => {
+                    // Trim off _default category if present
+                    let slug = slug.strip_prefix("_default:").unwrap_or(slug);
+
+                    page::Column::UnixName.eq(slug) // TODO rename to Slug
+                }
             };
 
             Page::find()
