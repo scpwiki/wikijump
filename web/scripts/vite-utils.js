@@ -20,13 +20,18 @@ const modules = fs
   .filter(dir => !dir.startsWith("_"))
   .map(dir => `@wikijump/${dir}`)
 
+/** @type import("@sveltejs/vite-plugin-svelte").Options */
 const SVELTE_OPTIONS = {
   ...baseSvelteConfig,
   onwarn: (warning, handler) => {
-    if (warning.code === "unused-export-let") return
-    if (handler) handler(warning)
+    // prettier-ignore
+    switch (warning.code) {
+      case "a11y-missing-alt": return
+      case "unused-export-let": return
+      default: return handler(warning)
+    }
   },
-  hot: !process.env.VITEST,
+  hot: !process.env.VITEST && process.env.NODE_ENV !== "production",
   experimental: {
     generateMissingPreprocessorSourcemaps: true
   }
