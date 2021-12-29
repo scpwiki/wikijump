@@ -87,7 +87,14 @@ pub async fn page_delete(req: ApiRequest) -> ApiResponse {
 pub async fn page_links_from_get(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
-    todo!();
+
+    let site_id = req.param("site_id")?.parse()?;
+    let reference = Reference::try_from(&req)?;
+    let output = PageService::get_links_from(&ctx, site_id, reference).await?;
+    let body = Body::from_json(&output)?;
+    txn.commit().await?;
+
+    Ok(body.into())
 }
 
 // TODO: remove separate endpoint, make part of revision changes

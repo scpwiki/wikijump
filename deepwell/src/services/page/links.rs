@@ -80,8 +80,34 @@ impl PageService {
         site_id: i64,
         reference: Reference<'_>,
     ) -> Result<GetLinksFromOutput> {
-        todo!()
+        let txn = ctx.transaction();
+        let PageModel { page_id, .. } = Self::get(ctx, site_id, reference).await?;
+
+        let (present, absent, external) = try_join!(
+            PageConnection::find()
+                .filter(page_connection::Column::FromPageId.eq(page_id))
+                .all(txn),
+            PageConnectionMissing::find()
+                .filter(page_connection_missing::Column::FromPageId.eq(page_id))
+                .all(txn),
+            PageLink::find()
+                .filter(page_link::Column::PageId.eq(page_id))
+                .all(txn),
+        )?;
+
+        Ok(GetLinksFromOutput {
+            present,
+            absent,
+            external,
+        })
     }
+
+    // TODO: add a method for getting links *to* a page
+    // this is significantly more complicated, because the target site
+    // may or may not exist, and if the site does exist, the page may not
+    //
+    // this might be worth making a separate methods/endpoints due to the
+    // complexity of inputs
 
     // TEMP
     // will be part of creating a revision
