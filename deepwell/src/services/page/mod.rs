@@ -22,7 +22,6 @@ mod links;
 
 use super::prelude::*;
 use crate::models::page::{self, Entity as Page, Model as PageModel};
-use ftml::data::Backlinks;
 use wikidot_normalize::normalize;
 
 // Helper structs
