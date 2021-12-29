@@ -84,6 +84,12 @@ pub async fn page_delete(req: ApiRequest) -> ApiResponse {
     build_page_response(&page, StatusCode::Ok)
 }
 
+pub async fn page_links_get(req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+    todo!();
+}
+
 // TODO: remove separate endpoint, make part of revision changes
 pub async fn page_links_put(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;

@@ -55,6 +55,9 @@ pub fn build(mut app: ApiServer) -> ApiServer {
         .get(page_get)
         .delete(page_delete);
 
+    app.at("/page/:site_id/:directed_type/:id_or_slug/links")
+        .put(page_links_get);
+
     // TEMP
     app.at("/page/:site_id/:type/:id_or_slug/links")
         .put(page_links_put);
