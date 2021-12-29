@@ -1,6 +1,6 @@
 const vite = require("vite")
 const path = require("path")
-const fs = require("fs-extra")
+const fs = require("fs/promises")
 const { linebreak, separator, info, warn, error } = require("./pretty-logs.js")
 const { BaseConfig } = require("./vite-utils.js")
 
@@ -146,7 +146,7 @@ json.homepage = `https://github.com/scpwiki/wikijump/tree/develop/web/modules/${
 // build module, finally
 ;(async () => {
   // have to clear folder because Vite won't do it due to the outDir workaround
-  if (await fs.pathExists(`${DIR}/dist`)) await fs.remove(`${DIR}/dist`)
+  if (await exists(`${DIR}/dist`)) await fs.rm(`${DIR}/dist`, { recursive: true })
 
   // have to build twice, due to Vite bug
   // Vite doesn't separate the CJS and ESM builds from each other
@@ -184,8 +184,17 @@ json.homepage = `https://github.com/scpwiki/wikijump/tree/develop/web/modules/${
 })()
 
 async function copy(from, to) {
-  if (await fs.pathExists(from)) {
+  if (await exists(from)) {
     await fs.copy(from, to)
+  }
+}
+
+async function exists(path) {
+  try {
+    await fs.access(path)
+    return true
+  } catch (err) {
+    return false
   }
 }
 
