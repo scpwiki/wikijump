@@ -70,6 +70,12 @@ impl<'a> TryFrom<&'a ApiRequest> for Reference<'a> {
 }
 
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum Direction {
+    From,
+    To,
+}
+
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum DirectedReference<'a> {
     From(Reference<'a>),
     To(Reference<'a>),
@@ -89,7 +95,7 @@ impl<'a> TryFrom<&'a ApiRequest> for DirectedReference<'a> {
     type Error = Error;
 
     fn try_from(req: &'a ApiRequest) -> Result<DirectedReference<'a>, Error> {
-        let value_type = req.param("type")?;
+        let value_type = req.param("directed_type")?;
         let value = req.param("id_or_slug")?;
 
         match value_type {
