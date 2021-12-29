@@ -59,6 +59,11 @@ pub fn build(mut app: ApiServer) -> ApiServer {
     app.at("/page/:site_id/:type/:id_or_slug/links")
         .put(page_links_put);
 
+    // Page -- invalid routes
+    // Catching if people forget site_id
+    app.at("/page").all(page_invalid);
+    app.at("/page/:type/:id_or_slug").all(page_invalid);
+
     // User
     app.at("/user").post(user_create);
     app.at("/user/:type/:id_or_slug")
