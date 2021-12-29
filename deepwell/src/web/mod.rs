@@ -29,6 +29,6 @@ pub mod utils;
 
 pub use self::connection_type::ConnectionType;
 pub use self::provided_value::ProvidedValue;
-pub use self::reference::{DirectedReference, Reference};
+pub use self::reference::{DirectedReference, Direction, Reference};
 pub use self::unwrap::HttpUnwrap;
 pub use self::user_details::{UserDetails, UserDetailsQuery};

@@ -76,55 +76,46 @@ pub enum Direction {
 }
 
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub enum DirectedReference<'a> {
-    From(Reference<'a>),
-    To(Reference<'a>),
-}
-
-impl<'a> DirectedReference<'a> {
-    #[inline]
-    pub fn inner(&self) -> &Reference<'a> {
-        match self {
-            DirectedReference::From(reference) => reference,
-            DirectedReference::To(reference) => reference,
-        }
-    }
+pub struct DirectedReference<'a> {
+    pub direction: Direction,
+    pub reference: Reference<'a>,
 }
 
 impl<'a> TryFrom<&'a ApiRequest> for DirectedReference<'a> {
     type Error = Error;
 
     fn try_from(req: &'a ApiRequest) -> Result<DirectedReference<'a>, Error> {
+        #[derive(Debug)]
+        enum Kind {
+            Id,
+            Slug,
+        }
+
         let value_type = req.param("directed_type")?;
         let value = req.param("id_or_slug")?;
 
-        match value_type {
-            "from-slug" => {
-                tide::log::debug!("From reference via slug, {}", value);
-
-                Ok(DirectedReference::From(Reference::Slug(value)))
-            }
-            "to-slug" => {
-                tide::log::debug!("To reference via slug, {}", value);
-
-                Ok(DirectedReference::To(Reference::Slug(value)))
-            }
-            "from-id" => {
-                tide::log::debug!("From reference via ID, {}", value);
-
-                let id = value.parse()?;
-                Ok(DirectedReference::From(Reference::Id(id)))
-            }
-            "to-id" => {
-                tide::log::debug!("To reference via ID, {}", value);
-
-                let id = value.parse()?;
-                Ok(DirectedReference::To(Reference::Id(id)))
-            }
-            _ => Err(Error::from_str(
+        let (direction, kind) = match value_type {
+            "from-id" => (Direction::From, Kind::Id),
+            "to-id" => (Direction::To, Kind::Id),
+            "from-slug" => (Direction::From, Kind::Slug),
+            "to-slug" => (Direction::To, Kind::Slug),
+            _ => return Err(Error::from_str(
                 StatusCode::BadRequest,
                 "May only specify object as 'from-id', 'from-slug', 'to-id', or 'to-slug'",
             )),
-        }
+        };
+
+        let reference = match kind {
+            Kind::Slug => Reference::Slug(value),
+            Kind::Id => {
+                let id = value.parse()?;
+                Reference::Id(id)
+            }
+        };
+
+        Ok(DirectedReference {
+            direction,
+            reference,
+        })
     }
 }
