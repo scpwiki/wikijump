@@ -99,8 +99,8 @@
     align-items: center;
     justify-content: space-evenly;
     font-size: 0.925rem;
-    animation: client-status-reveal 100ms backwards ease-out;
     white-space: nowrap;
+    animation: client-status-reveal 100ms backwards ease-out;
 
     &.has-background {
       padding: 0.325rem 0.625rem;
