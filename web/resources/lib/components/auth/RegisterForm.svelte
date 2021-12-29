@@ -3,10 +3,10 @@
 -->
 <script lang="ts">
   import WikijumpAPI from "@wikijump/api"
-  import { format as t } from "@wikijump/fluent"
   import { Button, TextInput } from "@wikijump/components"
-  import { escapeRegExp } from "@wikijump/util"
   import { inputsValid } from "@wikijump/dom"
+  import { format as t } from "@wikijump/fluent"
+  import { escapeRegExp } from "@wikijump/util"
   import { createEventDispatcher } from "svelte"
   import FormError from "./FormError.svelte"
 

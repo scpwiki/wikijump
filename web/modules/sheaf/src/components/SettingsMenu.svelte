@@ -1,8 +1,8 @@
 <script lang="ts">
+  import { Button, Card, DetailsMenu, Toggle } from "@wikijump/components"
+  import Locale from "@wikijump/fluent"
   import { getContext } from "svelte"
   import type { SheafContext } from "../context"
-  import { Button, DetailsMenu, Card, Toggle } from "@wikijump/components"
-  import Locale from "@wikijump/fluent"
 
   const t = Locale.makeComponentFormatter("sheaf")
 

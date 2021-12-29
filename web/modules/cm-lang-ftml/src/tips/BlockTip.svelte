@@ -3,9 +3,9 @@
 -->
 <script lang="ts">
   import type { EditorSvelteComponentProps } from "@wikijump/codemirror"
-  import * as Prism from "@wikijump/prism"
-  import Locale from "@wikijump/fluent"
   import { Icon, TippySingleton } from "@wikijump/components"
+  import Locale from "@wikijump/fluent"
+  import * as Prism from "@wikijump/prism"
   import type { BlockData } from "../data/block"
 
   export let block: BlockData

@@ -2,20 +2,20 @@
   @component CodeMirror instance that displays code, like a `<code>` block.
 -->
 <script lang="ts">
-  import {
-    EditorState,
-    Compartment,
-    EditorView,
-    LanguageDescription,
-    drawSelection
-  } from "@wikijump/codemirror/cm"
-  import type { Extension } from "@wikijump/codemirror/cm"
-  import { IndentHack, defaultLanguages, languageList } from "@wikijump/codemirror"
-  import { onDestroy, onMount } from "svelte"
-  import { createIdleQueued, createMutatingLock } from "@wikijump/util"
-  import { Spinny } from "@wikijump/components"
-  import { confinement } from "../extensions/theme"
   import { ftmlLanguages } from "@wikijump/cm-lang-ftml"
+  import { defaultLanguages, IndentHack, languageList } from "@wikijump/codemirror"
+  import type { Extension } from "@wikijump/codemirror/cm"
+  import {
+    Compartment,
+    drawSelection,
+    EditorState,
+    EditorView,
+    LanguageDescription
+  } from "@wikijump/codemirror/cm"
+  import { Spinny } from "@wikijump/components"
+  import { createIdleQueued, createMutatingLock } from "@wikijump/util"
+  import { onDestroy, onMount } from "svelte"
+  import { confinement } from "../extensions/theme"
 
   /** Contents of the code block. Can be a promise that resolves to a string. */
   export let content: Promisable<string>

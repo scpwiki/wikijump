@@ -3,8 +3,8 @@
 -->
 <script lang="ts">
   import { FTMLLanguage } from "@wikijump/cm-lang-ftml"
-  import { Button } from "@wikijump/components"
   import type { EditorSveltePanelProps } from "@wikijump/codemirror"
+  import { Button } from "@wikijump/components"
   import { unit } from "@wikijump/fluent"
 
   export let view: EditorSveltePanelProps["view"]

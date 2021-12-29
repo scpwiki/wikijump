@@ -2,12 +2,12 @@
   @component Tooltip/menu for a misspelling, along with suggestions for said misspelling.
 -->
 <script lang="ts">
-  import { TippySingleton, Spinny } from "@wikijump/components"
+  import type { EditorSvelteComponentProps } from "@wikijump/codemirror"
+  import { Spinny, TippySingleton } from "@wikijump/components"
   import { anim } from "@wikijump/components/lib"
   import { focusGroup } from "@wikijump/dom"
   import Locale from "@wikijump/fluent"
   import espells from "./espells"
-  import type { EditorSvelteComponentProps } from "@wikijump/codemirror"
   import type { FlaggedWord } from "./types"
 
   const t = Locale.makeComponentFormatter("spellcheck")

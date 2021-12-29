@@ -4,6 +4,8 @@ const { svelte } = require("@sveltejs/vite-plugin-svelte")
 const toml = require("@ltd/j-toml")
 const yaml = require("js-yaml")
 const baseSvelteConfig = require("../svelte.config.cjs")
+const mergeQueries = require("postcss-merge-queries")
+const autoprefixer = require("autoprefixer")
 
 const ROOT = path.resolve(__dirname, "../")
 
@@ -87,6 +89,9 @@ const BaseConfig = () => ({
   clearScreen: false,
 
   css: {
+    postcss: {
+      plugins: [autoprefixer(), mergeQueries({ sort: true })]
+    },
     preprocessorOptions: {
       scss: { sourceMap: true }
     }

@@ -2,7 +2,7 @@
   @component Tabbed account login, registration panel.
 -->
 <script lang="ts">
-  import { Button, Tabview, Tab } from "@wikijump/components"
+  import { Button, Tab, Tabview } from "@wikijump/components"
   import { toast } from "@wikijump/components/lib"
   import { format as t } from "@wikijump/fluent"
   import LoginForm from "./LoginForm.svelte"

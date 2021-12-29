@@ -2,20 +2,20 @@
   @component Wikijump's primary page editor.
 -->
 <script lang="ts">
+  import { FTMLLanguage } from "@wikijump/cm-lang-ftml"
   import { EditorSveltePanel } from "@wikijump/codemirror"
-  import { SheafCore } from "../core"
-  import type { SheafBindings } from "../extensions/bindings"
+  import { matchBreakpoint } from "@wikijump/components/lib"
+  import { PreferenceHandler } from "@wikijump/util"
   import { setContext } from "svelte"
   import type { Readable } from "svelte/store"
-  import { PreferenceHandler } from "@wikijump/util"
-  import { matchBreakpoint } from "@wikijump/components/lib"
   import type { SheafContext } from "../context"
   import { getDefaultSheafSettings } from "../context"
+  import { SheafCore } from "../core"
+  import type { SheafBindings } from "../extensions/bindings"
   import PaneEditor from "./PaneEditor.svelte"
   import PaneEditorTopbar from "./PaneEditorTopbar.svelte"
   import PanePreview from "./PanePreview.svelte"
   import SheafPanel from "./SheafPanel.svelte"
-  import { FTMLLanguage } from "@wikijump/cm-lang-ftml"
 
   /** Height of the editor's container. */
   export let height = "100%"

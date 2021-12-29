@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { Sheaf } from "@wikijump/sheaf"
   import { asset } from "@wikijump/api"
+  import { Sheaf } from "@wikijump/sheaf"
   import { onMount } from "svelte"
 
   let ready = false

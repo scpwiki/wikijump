@@ -4,12 +4,12 @@
   Automatically handles password revealing if the field's type is set to `password`.
 -->
 <script lang="ts">
-  import { createEventDispatcher } from "svelte"
   import { keyHandle, whileHeld } from "@wikijump/dom"
   import { format as t } from "@wikijump/fluent"
-  import { tip } from "./lib/tippy"
-  import Icon from "./Icon.svelte"
+  import { createEventDispatcher } from "svelte"
   import Button from "./Button.svelte"
+  import Icon from "./Icon.svelte"
+  import { tip } from "./lib/tippy"
 
   const dispatch = createEventDispatcher()
 

@@ -2,13 +2,13 @@
   @component Sheaf Editor: Preview Pane.
 -->
 <script lang="ts">
+  import { printTree } from "@wikijump/codemirror"
   import { Tab, Tabview } from "@wikijump/components"
+  import Locale from "@wikijump/fluent"
   import { getContext } from "svelte"
-  import CodeDisplay from "./CodeDisplay.svelte"
   import type { SheafContext } from "../context"
   import { RenderHandler } from "../render-handler"
-  import Locale from "@wikijump/fluent"
-  import { printTree } from "@wikijump/codemirror"
+  import CodeDisplay from "./CodeDisplay.svelte"
   import Wikitext from "./Wikitext.svelte"
 
   const t = Locale.makeComponentFormatter("sheaf")

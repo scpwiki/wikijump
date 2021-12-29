@@ -1,3 +1,4 @@
 packages:
   - "modules/*"
   - "resources"
+  - "web"

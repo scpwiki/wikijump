@@ -6,7 +6,7 @@ build:
     - run-p build:legacy build:vite
     - pnpm build:local
 
-  legacy: node scripts/build-legacy.js build
+  legacy: cd web && pnpm build
   vite: vite build
   local: pnpm compose build
 
@@ -16,7 +16,7 @@ build-sudo:
     - run-p build-sudo:legacy build-sudo:vite
     - pnpm build-sudo:local
 
-  legacy: node scripts/build-legacy.js build
+  legacy: cd web && pnpm build
   vite: vite build
   local: pnpm compose-sudo build
 

@@ -132,7 +132,8 @@ async function buildContainers() {
     `Took: ${formatMS(performance.now() - start)}`
   )
 
-  cmd("node scripts/build-legacy.js build")
+  info("Building legacy frontend...")
+  cmd("pnpm -s build:legacy")
 }
 
 async function startContainers() {
