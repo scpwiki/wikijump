@@ -2,6 +2,7 @@
 
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "page")]
@@ -24,8 +25,7 @@ pub struct Model {
     pub owner_user_id: Option<i32>,
     pub blocked: bool,
     pub rate: i32,
-    #[sea_orm(column_type = "Custom(\"jsonb\".to_owned())")]
-    pub tags: String,
+    pub tags: Value,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
