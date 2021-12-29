@@ -33,8 +33,6 @@
 </section>
 
 <style global lang="scss">
-  @import "../../../resources/css/abstracts";
-
   .card {
     max-width: 90vw;
     padding: 0.75rem 1rem;

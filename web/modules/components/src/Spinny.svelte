@@ -114,8 +114,6 @@
 </div>
 
 <style global lang="scss">
-  @import "../../../resources/css/abstracts";
-
   .spinny {
     position: absolute;
     z-index: $z-above;

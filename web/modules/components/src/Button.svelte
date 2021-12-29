@@ -109,8 +109,6 @@
 {/if}
 
 <style global lang="scss">
-  @import "../../../resources/css/abstracts";
-
   .button {
     display: inline-flex;
     gap: 0.5ch;

@@ -73,8 +73,6 @@
 </ul>
 
 <style global lang="scss">
-  @import "../../../resources/css/abstracts";
-
   .toasts {
     position: absolute;
     right: 0;

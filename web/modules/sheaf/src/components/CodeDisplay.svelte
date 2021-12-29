@@ -85,8 +85,6 @@
 </div>
 
 <style global lang="scss">
-  @import "../../../../resources/css/abstracts";
-
   .code-display-container {
     position: relative;
     height: 100%;

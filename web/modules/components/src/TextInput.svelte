@@ -109,8 +109,6 @@
 </div>
 
 <style global lang="scss">
-  @import "../../../resources/css/abstracts";
-
   .textinput {
     margin: 0.25em 0;
 

@@ -51,8 +51,6 @@
 </div>
 
 <style global lang="scss">
-  @import "../../../css/abstracts";
-
   .account-panel {
     width: 30rem;
     max-width: 90vw;

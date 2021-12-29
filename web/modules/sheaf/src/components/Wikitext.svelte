@@ -156,8 +156,6 @@
 </div>
 
 <style global lang="scss">
-  @import "../../../../resources/css/abstracts";
-
   .wikitext-loading-panel {
     position: absolute;
     top: 1rem;

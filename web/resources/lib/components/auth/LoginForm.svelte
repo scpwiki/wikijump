@@ -102,8 +102,6 @@
 </div>
 
 <style global lang="scss">
-  @import "../../../css/abstracts";
-
   .login-form form {
     display: flex;
     flex-direction: column;

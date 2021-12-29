@@ -105,8 +105,6 @@
 </div>
 
 <style global lang="scss">
-  @import "../../../../resources/css/abstracts";
-
   .sheaf-pane-editor-topbar {
     position: relative;
     z-index: $z-above;

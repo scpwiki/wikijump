@@ -47,8 +47,6 @@
 </div>
 
 <style global lang="scss">
-  @import "../../../resources/css/abstracts";
-
   .skeleton-container {
     position: relative;
     width: 100%;
