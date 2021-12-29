@@ -32,7 +32,7 @@
   <div class="card-actions" role="presentation"><slot name="actions" /></div>
 </section>
 
-<style lang="scss">
+<style global lang="scss">
   @import "../../../resources/css/abstracts";
 
   .card {

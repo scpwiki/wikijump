@@ -101,7 +101,7 @@
   </div>
 </div>
 
-<style lang="scss">
+<style global lang="scss">
   @import "../../../css/abstracts";
 
   .login-form form {

@@ -82,7 +82,7 @@
   </div>
 {/if}
 
-<style lang="scss">
+<style global lang="scss">
   @import "../../../css/abstracts";
 
   @keyframes client-status-reveal {

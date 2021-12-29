@@ -113,7 +113,7 @@
   {/if}
 </div>
 
-<style lang="scss">
+<style global lang="scss">
   @import "../../../resources/css/abstracts";
 
   .spinny {

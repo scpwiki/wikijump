@@ -76,7 +76,7 @@
   <FormError {error} />
 </div>
 
-<style lang="scss">
+<style global lang="scss">
   .confirm-form-submit {
     margin-top: 1rem;
   }

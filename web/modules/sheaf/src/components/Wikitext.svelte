@@ -155,7 +155,7 @@
   <div bind:this={element} class="wikitext-body wikitext" />
 </div>
 
-<style lang="scss">
+<style global lang="scss">
   @import "../../../../resources/css/abstracts";
 
   .wikitext-loading-panel {

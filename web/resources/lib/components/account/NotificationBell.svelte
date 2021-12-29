@@ -56,7 +56,7 @@
   {/if}
 </span>
 
-<style lang="scss">
+<style global lang="scss">
   .notification-bell {
     position: relative;
     display: inline-block;

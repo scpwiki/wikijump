@@ -75,7 +75,7 @@
   </div>
 </div>
 
-<style lang="scss">
+<style global lang="scss">
   .sheaf-container {
     display: flex;
     flex-direction: column;

@@ -72,7 +72,7 @@
   {/each}
 </ul>
 
-<style lang="scss">
+<style global lang="scss">
   @import "../../../resources/css/abstracts";
 
   .toasts {

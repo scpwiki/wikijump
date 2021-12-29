@@ -54,7 +54,7 @@
   </Card>
 </DetailsMenu>
 
-<style lang="scss">
+<style global lang="scss">
   .sheaf-settings-menu {
     display: flex;
     flex-direction: column;

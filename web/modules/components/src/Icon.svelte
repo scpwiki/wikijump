@@ -44,7 +44,7 @@
   {@html icon?.body ?? ""}
 </svg>
 
-<style lang="scss">
+<style global lang="scss">
   svg {
     vertical-align: middle;
     transform: rotate(360deg);

@@ -72,7 +72,7 @@
   {#if selected || !conditional}<slot />{/if}
 </div>
 
-<style lang="scss">
+<style global lang="scss">
   @import "../../../../resources/css/abstracts";
 
   .tab-button {

@@ -61,7 +61,7 @@
   </div>
 </div>
 
-<style lang="scss">
+<style global lang="scss">
   .tabs {
     width: 100%;
 

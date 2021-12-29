@@ -50,7 +50,7 @@
   {/if}
 </div>
 
-<style lang="scss">
+<style global lang="scss">
   @import "../../../css/abstracts";
 
   .account-panel {

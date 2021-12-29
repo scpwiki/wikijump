@@ -18,7 +18,7 @@
   <div class="sheaf-editor-view" bind:this={editorElement} />
 </div>
 
-<style lang="scss">
+<style global lang="scss">
   .sheaf-editor-container {
     grid-area: "editor";
   }

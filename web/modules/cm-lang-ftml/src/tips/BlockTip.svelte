@@ -143,7 +143,7 @@
   </div>
 </div>
 
-<style lang="scss">
+<style global lang="scss">
   .cm-ftml-block-tip {
     color: var(--col-text);
     background: none;
