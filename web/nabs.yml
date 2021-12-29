@@ -45,17 +45,8 @@ dev-sudo: node scripts/dev.js sudo
 
 # -- SERVE
 
-serve:
-  - export DOCKER_BUILDKIT=1
-  - cd ../install/local/dev
-  - docker-compose -p wikijump -f docker-compose.yaml build
-  - docker-compose -p wikijump -f docker-compose.yaml up
-
-serve-sudo:
-  - export DOCKER_BUILDKIT=1
-  - cd ../install/local/dev
-  - sudo -E docker-compose -p wikijump -f docker-compose.yaml build
-  - sudo -E docker-compose -p wikijump -f docker-compose.yaml up
+serve: node scripts/dev.js serve
+serve-sude: node scripts/dev.js sudo serve
 
 # -- TESTING
 

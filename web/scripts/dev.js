@@ -21,6 +21,7 @@ const DIR = path.resolve(__dirname, "../")
 process.chdir(DIR)
 
 const args = process.argv.slice(2)
+const isServe = args.includes("serve")
 const isSudo = args.includes("sudo")
 
 const { createServer } = require("vite")
@@ -41,9 +42,11 @@ async function startup() {
 
   section("STARTUP", false, true)
 
-  await startVite()
+  if (!isServe) {
+    await startVite()
 
-  linebreak()
+    linebreak()
+  }
 
   await startContainers()
 
@@ -68,9 +71,11 @@ async function shutdown() {
 
   section("SHUTDOWN", true)
 
-  await stopVite()
+  if (!isServe) {
+    await stopVite()
 
-  linebreak()
+    linebreak()
+  }
 
   await stopContainers()
 
