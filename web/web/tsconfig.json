@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.json",
+  "exclude": ["**/node_modules/**", "**/tests/**"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["files--common/*"]
+    }
+  }
+}

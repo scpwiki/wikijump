@@ -17,6 +17,7 @@
     "@wikijump/ftml-components",
     "@wikijump/prism",
     "@wikijump/sheaf",
-    "@wikijump/frontend"
+    "@wikijump/frontend",
+    "@wikijump/legacy-frontend"
   ]
 }

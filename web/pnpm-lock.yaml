@@ -13,8 +13,6 @@ importers:
       '@typescript-eslint/parser': ^5.8.1
       '@typescript-eslint/typescript-estree': ^5.8.1
       c8: ^7.10.0
-      compress-tag: ^2.0.1
-      csstype: ^3.0.10
       diff-match-patch: ^1.0.5
       esbuild: ^0.14.9
       eslint: ^8.5.0
@@ -36,7 +34,6 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       prettier-plugin-svelte: ^2.5.1
       pretty-ms: ^7.0.1
-      query-string: 6.14.1
       rollup: ^2.62.0
       sass: ^1.45.1
       stylelint: ^14.2.0
@@ -51,8 +48,6 @@ importers:
     dependencies:
       '@ltd/j-toml': 1.24.0
       '@sveltejs/vite-plugin-svelte': 1.0.0-next.32_8ac38f5883bc92d861726da87091c8f5
-      compress-tag: 2.0.1
-      csstype: 3.0.10
       diff-match-patch: 1.0.5
       esbuild: 0.14.9
       js-yaml: 4.1.0
@@ -61,7 +56,6 @@ importers:
       postcss: 8.4.5
       postcss-html: 1.3.0
       postcss-scss: 4.0.2_postcss@8.4.5
-      query-string: 6.14.1
       rollup: 2.62.0
       sass: 1.45.1
       svelte: 3.44.3
@@ -404,6 +398,16 @@ importers:
       '@wikijump/util': link:../modules/util
       include-media: 1.4.10
       svelte: 3.44.3
+
+  web:
+    specifiers:
+      compress-tag: ^2.0.1
+      csstype: ^3.0.10
+      query-string: 6.14.1
+    dependencies:
+      compress-tag: 2.0.1
+      csstype: 3.0.10
+      query-string: 6.14.1
 
 packages:
 

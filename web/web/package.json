@@ -1,0 +1,20 @@
+{
+  "name": "@wikijump/legacy-frontend",
+  "license": "agpl-3.0-or-later",
+  "description": "Legacy Wikidot frontend.",
+  "version": "0.0.0",
+  "keywords": [
+    "wikijump"
+  ],
+  "private": true,
+  "scripts": {
+    "build": "esbuild files--common/javascript/index.ts --outfile=files--common/dist/bundle.js --bundle --minify --target=es6 --format=iife --platform=browser --sourcemap"
+  },
+  "type": "module",
+  "main": "files--common/javascript/index.ts",
+  "dependencies": {
+    "compress-tag": "^2.0.1",
+    "csstype": "^3.0.10",
+    "query-string": "6.14.1"
+  }
+}
