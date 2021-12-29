@@ -1,6 +1,9 @@
 <script lang="ts">
-  import type { UserIdentity } from "@wikijump/api"
-  import WikijumpAPI, { identity as currentIdentity, route } from "@wikijump/api"
+  import WikijumpAPI, {
+    identity as currentIdentity,
+    route,
+    type UserIdentity
+  } from "@wikijump/api"
   import { Sprite } from "@wikijump/components"
 
   export let user: null | string | number = null

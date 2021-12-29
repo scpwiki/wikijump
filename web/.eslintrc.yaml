@@ -1,16 +1,16 @@
 root: true
 
-extends: ["./.eslint.svelte.cjs"]
-
 ignorePatterns:
   - "**/node_modules/**"
   - "**/dist/**"
   - "**/vendor/**"
   - "web/**"
 
+extends:
+  - "plugin:@ota-meshi/svelte/base"
+
 plugins:
   - "@typescript-eslint"
-  - svelte3
   - regexp
   - tsdoc
 
@@ -50,6 +50,7 @@ rules:
   operator-assignment: warn
   prefer-exponentiation-operator: warn
   curly: [warn, multi-line]
+
   regexp/no-empty-alternative: warn
   regexp/no-empty-lookarounds-assertion: warn
   regexp/no-escape-backspace: warn
@@ -73,7 +74,9 @@ rules:
   regexp/sort-flags: warn
   regexp/unicode-escape: warn
   regexp/match-any: [warn, allows: ["[^]"]]
+
   tsdoc/syntax: error
+
   "@typescript-eslint/space-infix-ops": [warn, int32Hint: true]
   "@typescript-eslint/ban-types": error
   "@typescript-eslint/no-misused-new": error
@@ -97,6 +100,18 @@ rules:
   "@typescript-eslint/no-confusing-non-null-assertion": warn
   "@typescript-eslint/class-literal-property-style": [warn, fields]
 
+
+  "@ota-meshi/svelte/no-dupe-else-if-blocks": error
+  "@ota-meshi/svelte/no-dynamic-slot-name": error
+  "@ota-meshi/svelte/no-not-function-handler": error
+  "@ota-meshi/svelte/no-object-in-text-mustaches": error
+  "@ota-meshi/svelte/valid-compile": warn
+  "@ota-meshi/svelte/no-target-blank": warn
+  "@ota-meshi/svelte/no-unused-svelte-ignore": error
+  "@ota-meshi/svelte/shorthand-attribute": warn
+  "@ota-meshi/svelte/spaced-html-comment": warn
+
+
 overrides:
   # JavaScript (Node)
   - files: ["*.js", "*.cjs"]
@@ -116,3 +131,9 @@ overrides:
   # TypeScript (Browser)
   - files: ["*.d.ts", "*.ts", "*.tsx"]
     env: { browser: true, es2021: true }
+
+  # Svelte (Browser)
+  - files: ["*.svelte"]
+    env: { browser: true, es2021: true }
+    parser: "svelte-eslint-parser"
+    parserOptions: { parser: "@typescript-eslint/parser" }
