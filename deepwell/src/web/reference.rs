@@ -75,6 +75,16 @@ pub enum DirectedReference<'a> {
     To(Reference<'a>),
 }
 
+impl<'a> DirectedReference<'a> {
+    #[inline]
+    pub fn inner(&self) -> &Reference<'a> {
+        match self {
+            DirectedReference::From(reference) => reference,
+            DirectedReference::To(reference) => reference,
+        }
+    }
+}
+
 impl<'a> TryFrom<&'a ApiRequest> for DirectedReference<'a> {
     type Error = Error;
 
