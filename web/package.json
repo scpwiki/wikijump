@@ -45,8 +45,8 @@
   ],
   "dependencies": {
     "@ltd/j-toml": "^1.24.0",
-    "@sveltejs/vite-plugin-svelte": "1.0.0-next.32",
-    "autoprefixer": "^10.4.0",
+    "@sveltejs/vite-plugin-svelte": "1.0.0-next.33",
+    "autoprefixer": "^10.4.1",
     "diff-match-patch": "^1.0.5",
     "esbuild": "^0.14.9",
     "js-yaml": "^4.1.0",
@@ -89,7 +89,7 @@
     "stylelint-config-recess-order": "^3.0.0",
     "stylelint-order": "^5.0.0",
     "stylelint-scss": "^4.1.0",
-    "vitest": "^0.0.118"
+    "vitest": "^0.0.122"
   },
   "engineStrict": true,
   "engines": {
