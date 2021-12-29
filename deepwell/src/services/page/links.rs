@@ -36,6 +36,7 @@
 //! clear enough to be acceptable when repeated over a few slightly distinct cases.
 
 use super::{super::prelude::*, PageService};
+use crate::models::page::{self, Model as PageModel};
 use crate::models::page_connection::{self, Entity as PageConnection};
 use crate::models::page_connection_missing::{self, Entity as PageConnectionMissing};
 use crate::models::page_link::{self, Entity as PageLink};
@@ -49,77 +50,84 @@ macro_rules! parse_connection_type {
     };
 }
 
-pub async fn update_links(
-    ctx: &ServiceContext<'_>,
-    site_id: i64,
-    page_id: i64,
-    backlinks: &Backlinks<'_>,
-) -> Result<()> {
-    let mut connections = HashMap::new();
-    let mut connections_missing = HashMap::new();
-    let mut external_links = HashMap::new();
+impl PageService {
+    // TEMP
+    // will be part of creating a revision
+    pub async fn update_links(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        reference: Reference<'_>,
+        backlinks: &Backlinks<'_>,
+    ) -> Result<()> {
+        let PageModel { page_id, .. } = Self::get(ctx, site_id, reference).await?;
 
-    macro_rules! count_connections {
-        ($ctx:expr, $page_ref:expr, $connection_type:expr) => {{
-            let PageRef {
-                site: site_slug,
-                page: page_slug,
-            } = $page_ref;
+        let mut connections = HashMap::new();
+        let mut connections_missing = HashMap::new();
+        let mut external_links = HashMap::new();
 
-            let to_site_id = match site_slug {
-                None => site_id,
-                Some(_slug) => {
-                    // TODO: get site ID from SiteService
-                    1
+        macro_rules! count_connections {
+            ($ctx:expr, $page_ref:expr, $connection_type:expr) => {{
+                let PageRef {
+                    site: site_slug,
+                    page: page_slug,
+                } = $page_ref;
+
+                let to_site_id = match site_slug {
+                    None => site_id,
+                    Some(_slug) => {
+                        // TODO: get site ID from SiteService
+                        1
+                    }
+                };
+
+                let page =
+                    Self::get_optional($ctx, to_site_id, Reference::Slug(page_slug))
+                        .await?;
+
+                match page {
+                    Some(to_page) => {
+                        let entry = connections
+                            .entry((to_page.page_id, $connection_type))
+                            .or_insert(0);
+
+                        *entry += 1;
+                    }
+                    None => {
+                        let entry = connections_missing
+                            .entry((str!(page_slug), $connection_type))
+                            .or_insert(0);
+
+                        *entry += 1;
+                    }
                 }
-            };
+            }};
+        }
 
-            let page =
-                PageService::get_optional($ctx, to_site_id, Reference::Slug(page_slug))
-                    .await?;
-            match page {
-                Some(to_page) => {
-                    let entry = connections
-                        .entry((to_page.page_id, $connection_type))
-                        .or_insert(0);
+        // Get include stats (old, so include-messy)
+        for include in &backlinks.included_pages {
+            count_connections!(ctx, include, ConnectionType::IncludeMessy);
+        }
 
-                    *entry += 1;
-                }
-                None => {
-                    let entry = connections_missing
-                        .entry((str!(page_slug), $connection_type))
-                        .or_insert(0);
+        // Get internal page link stats
+        for link in &backlinks.internal_links {
+            count_connections!(ctx, link, ConnectionType::Link);
+        }
 
-                    *entry += 1;
-                }
-            }
-        }};
+        // Gather external URL link stats
+        for url in &backlinks.external_links {
+            let entry = external_links.entry(str!(url)).or_insert(0);
+            *entry += 1;
+        }
+
+        // Update records
+        try_join!(
+            update_connections(ctx, page_id, &mut connections),
+            update_connections_missing(ctx, page_id, &mut connections_missing),
+            update_external_links(ctx, page_id, &mut external_links),
+        )?;
+
+        Ok(())
     }
-
-    // Get include stats (old, so include-messy)
-    for include in &backlinks.included_pages {
-        count_connections!(ctx, include, ConnectionType::IncludeMessy);
-    }
-
-    // Get internal page link stats
-    for link in &backlinks.internal_links {
-        count_connections!(ctx, link, ConnectionType::Link);
-    }
-
-    // Gather external URL link stats
-    for url in &backlinks.external_links {
-        let entry = external_links.entry(str!(url)).or_insert(0);
-        *entry += 1;
-    }
-
-    // Update records
-    try_join!(
-        update_connections(ctx, page_id, &mut connections),
-        update_connections_missing(ctx, page_id, &mut connections_missing),
-        update_external_links(ctx, page_id, &mut external_links),
-    )?;
-
-    Ok(())
 }
 
 async fn update_connections(

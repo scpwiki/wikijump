@@ -20,7 +20,6 @@
 
 mod links;
 
-use self::links::update_links;
 use super::prelude::*;
 use crate::models::page::{self, Entity as Page, Model as PageModel};
 use ftml::data::Backlinks;
@@ -138,18 +137,5 @@ impl PageService {
 
         page.delete(txn).await?;
         Ok(model)
-    }
-
-    // TEMP
-    // will be part of creating a revision
-    pub async fn update_links(
-        ctx: &ServiceContext<'_>,
-        site_id: i64,
-        reference: Reference<'_>,
-        backlinks: &Backlinks<'_>,
-    ) -> Result<()> {
-        let page = Self::get(ctx, site_id, reference).await?;
-
-        update_links(ctx, site_id, page.page_id, backlinks).await
     }
 }
