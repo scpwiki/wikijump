@@ -30,7 +30,7 @@
     "modules:publish": "node scripts/publish-all.js",
     "modules:version": "changeset version",
     "serve": "node scripts/dev.js serve",
-    "serve-sude": "node scripts/dev.js sudo serve",
+    "serve-sudo": "node scripts/dev.js sudo serve",
     "test": "vitest --run",
     "test:watch": "vitest --watch",
     "typecheck": "tsc",

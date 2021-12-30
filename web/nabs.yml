@@ -46,7 +46,7 @@ dev-sudo: node scripts/dev.js sudo
 # -- SERVE
 
 serve: node scripts/dev.js serve
-serve-sude: node scripts/dev.js sudo serve
+serve-sudo: node scripts/dev.js sudo serve
 
 # -- TESTING
 
