@@ -32,9 +32,7 @@
   <div class="card-actions" role="presentation"><slot name="actions" /></div>
 </section>
 
-<style lang="scss">
-  @import "../../../resources/css/abstracts";
-
+<style global lang="scss">
   .card {
     max-width: 90vw;
     padding: 0.75rem 1rem;

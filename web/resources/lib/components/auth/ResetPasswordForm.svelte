@@ -94,7 +94,7 @@
   </div>
 </div>
 
-<style lang="scss">
+<style global lang="scss">
   .reset-password-form > form {
     display: flex;
     flex-direction: column;

@@ -46,9 +46,7 @@
   {/if}
 </div>
 
-<style lang="scss">
-  @import "../../../resources/css/abstracts";
-
+<style global lang="scss">
   .skeleton-container {
     position: relative;
     width: 100%;

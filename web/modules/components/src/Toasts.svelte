@@ -72,9 +72,7 @@
   {/each}
 </ul>
 
-<style lang="scss">
-  @import "../../../resources/css/abstracts";
-
+<style global lang="scss">
   .toasts {
     position: absolute;
     right: 0;

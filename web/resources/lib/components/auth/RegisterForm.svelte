@@ -140,7 +140,7 @@
   </div>
 </div>
 
-<style lang="scss">
+<style global lang="scss">
   .register-form > form {
     display: flex;
     flex-direction: column;

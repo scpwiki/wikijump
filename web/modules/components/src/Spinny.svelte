@@ -113,9 +113,7 @@
   {/if}
 </div>
 
-<style lang="scss">
-  @import "../../../resources/css/abstracts";
-
+<style global lang="scss">
   .spinny {
     position: absolute;
     z-index: $z-above;

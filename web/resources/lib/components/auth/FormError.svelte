@@ -13,7 +13,7 @@
   </div>
 {/if}
 
-<style lang="scss">
+<style global lang="scss">
   .form-error {
     margin: 0.5rem 0;
     font-size: 0.75rem;

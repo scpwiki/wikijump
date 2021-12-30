@@ -1,4 +1,4 @@
-/** Modules for correctly typing imported files. */
+// Compiled to JSON
 
 declare module "*.toml" {
   const json: JSONObject
@@ -13,4 +13,16 @@ declare module "*.yaml" {
 declare module "*.yml" {
   const json: JSONObject
   export default json
+}
+
+// Hunspell (urls)
+
+declare module "*.aff" {
+  const url: string
+  export default url
+}
+
+declare module "*.dic" {
+  const url: string
+  export default url
 }

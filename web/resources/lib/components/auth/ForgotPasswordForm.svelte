@@ -77,7 +77,7 @@
   </div>
 {/if}
 
-<style lang="scss">
+<style global lang="scss">
   .password-recovery-form-submit {
     margin-top: 1rem;
   }

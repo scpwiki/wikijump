@@ -26,7 +26,7 @@
   <div class="wikitext cm-ftml-module-tip-info" />
 </div>
 
-<style lang="scss">
+<style global lang="scss">
   .cm-ftml-module-tip {
     color: var(--col-text);
     background: none;

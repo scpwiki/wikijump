@@ -32,7 +32,7 @@
   />
 </div>
 
-<style lang="scss">
+<style global lang="scss">
   .search {
     width: 100%;
   }

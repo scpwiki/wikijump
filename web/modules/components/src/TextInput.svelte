@@ -108,9 +108,7 @@
   {/if}
 </div>
 
-<style lang="scss">
-  @import "../../../resources/css/abstracts";
-
+<style global lang="scss">
   .textinput {
     margin: 0.25em 0;
 

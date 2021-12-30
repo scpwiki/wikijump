@@ -34,7 +34,7 @@
   {/each}
 </div>
 
-<style lang="scss">
+<style global lang="scss">
   .codemirror-panel {
     display: flex;
     align-items: center;

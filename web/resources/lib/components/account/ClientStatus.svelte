@@ -82,9 +82,7 @@
   </div>
 {/if}
 
-<style lang="scss">
-  @import "../../../css/abstracts";
-
+<style global lang="scss">
   @keyframes client-status-reveal {
     0% {
       opacity: 0;

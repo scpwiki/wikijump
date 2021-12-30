@@ -32,7 +32,7 @@
 
 <div class="intersection-point" bind:this={intersectionElement} role="presentation" />
 
-<style>
+<style global lang="scss">
   .intersection-point {
     width: 100%;
     height: 0;

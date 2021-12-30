@@ -65,7 +65,7 @@
   </Tabview>
 </div>
 
-<style lang="scss">
+<style global lang="scss">
   .sheaf-preview-container {
     height: 100%;
   }

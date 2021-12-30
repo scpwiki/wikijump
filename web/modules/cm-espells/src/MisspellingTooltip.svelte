@@ -107,7 +107,7 @@
   </pre>
 </div>
 
-<style lang="scss">
+<style global lang="scss">
   .cm-spellcheck-tip {
     padding: 0.25rem 0.5rem;
   }

@@ -86,9 +86,7 @@
   </div>
 </details>
 
-<style lang="scss">
-  @import "../../../resources/css/abstracts";
-
+<style global lang="scss">
   @keyframes reveal {
     from {
       opacity: 0;

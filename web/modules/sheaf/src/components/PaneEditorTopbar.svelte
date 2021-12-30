@@ -104,9 +104,7 @@
   {/if}
 </div>
 
-<style lang="scss">
-  @import "../../../../resources/css/abstracts";
-
+<style global lang="scss">
   .sheaf-pane-editor-topbar {
     position: relative;
     z-index: $z-above;

@@ -4,13 +4,13 @@
 <script lang="ts">
   import { ftmlLanguages } from "@wikijump/cm-lang-ftml"
   import { defaultLanguages, IndentHack, languageList } from "@wikijump/codemirror"
-  import type { Extension } from "@wikijump/codemirror/cm"
   import {
     Compartment,
     drawSelection,
     EditorState,
     EditorView,
-    LanguageDescription
+    LanguageDescription,
+    type Extension
   } from "@wikijump/codemirror/cm"
   import { Spinny } from "@wikijump/components"
   import { createIdleQueued, createMutatingLock } from "@wikijump/util"
@@ -84,9 +84,7 @@
   {#if !view}<Spinny />{/if}
 </div>
 
-<style lang="scss">
-  @import "../../../../resources/css/abstracts";
-
+<style global lang="scss">
   .code-display-container {
     position: relative;
     height: 100%;

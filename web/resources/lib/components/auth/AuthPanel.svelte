@@ -50,9 +50,7 @@
   {/if}
 </div>
 
-<style lang="scss">
-  @import "../../../css/abstracts";
-
+<style global lang="scss">
   .account-panel {
     width: 30rem;
     max-width: 90vw;

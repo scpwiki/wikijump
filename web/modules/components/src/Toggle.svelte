@@ -55,9 +55,7 @@
   </span>
 </label>
 
-<style lang="scss">
-  @import "../../../resources/css/abstracts";
-
+<style global lang="scss">
   .toggleinput {
     position: relative;
     cursor: pointer;

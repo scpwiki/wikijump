@@ -14,8 +14,7 @@
 <script lang="ts">
   import { focusGroup } from "@wikijump/dom"
   import { onMount, setContext } from "svelte"
-  import type { Writable } from "svelte/store"
-  import { writable } from "svelte/store"
+  import { writable, type Writable } from "svelte/store"
 
   export let conditional = false
   export let noborder = false
@@ -61,7 +60,7 @@
   </div>
 </div>
 
-<style lang="scss">
+<style global lang="scss">
   .tabs {
     width: 100%;
 
