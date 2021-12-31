@@ -123,17 +123,15 @@ class Text_Wiki_Render_Xhtml_Wikilink extends Text_Wiki_Render {
        		$text = str_replace(' ', '&nbsp;', $text);
        	}
 
+        if($this->wiki->vars['internalLinks'] === null){
+            $this->wiki->vars['internalLinks'] = [];
+        }
+        $this->wiki->vars['internalLinks'][$page] = $page;
+
         // does the page exist?
         if ($exists) {
 
             // PAGE EXISTS.
-			// store it in the array
-
-			$wiki = $this->wiki;
-			if($wiki->vars['internalLinksExist'] == null){
-				$wiki->vars['internalLinksExist'] = array();
-			}
-			$wiki->vars['internalLinksExist'][$exists]=$exists;
 
             // link to the page view, but we have to build
             // the HREF.  we support both the old form where
@@ -154,11 +152,6 @@ class Text_Wiki_Render_Xhtml_Wikilink extends Text_Wiki_Render {
             $output = "<a$css href=\"$href\">$text</a>";
 
         } else {
-        		$wiki = $this->wiki;
-			if($wiki->vars['internalLinksNotExist'] == null){
-				$wiki->vars['internalLinksNotExist'] = array();
-			}
-			$wiki->vars['internalLinksNotExist'][$page] = $page;
 
             // link to a create-page url, but only if new_url is set
             $href = $this->getConf('new_url', null);

@@ -9,14 +9,6 @@ use Wikijump\Services\Wikitext\HtmlUtilities;
 
 class WikiTransformation
 {
-    /**
-     * The array stores all internal links within a page.
-     * Each element is an array (page_id, page_unix_name)
-     */
-    public static $internalLinksExist;
-    public static $externalLinks;
-    public static $internalLinksNotExist;
-
     private $page;
 
     public $wiki;
@@ -24,10 +16,6 @@ class WikiTransformation
     public function __construct($initialize = true)
     {
         if ($initialize) {
-            self::$internalLinksExist = array();
-            self::$internalLinksNotExist = array();
-            self::$externalLinks = array();
-
             // initialize Wiki engine with default values
             $wiki = new Text_Wiki();
             $viewUrl = '/%s';
