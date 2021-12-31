@@ -113,6 +113,11 @@ pub async fn page_links_put(mut req: ApiRequest) -> ApiResponse {
     Ok(Response::new(StatusCode::NoContent))
 }
 
+// TODO: remove separate endpoint, make part of revision changes
+pub async fn page_links_missing_put(mut req: ApiRequest) -> ApiResponse {
+    todo!()
+}
+
 // TODO: include current revision data too
 fn build_page_response(page: &PageModel, status: StatusCode) -> ApiResponse {
     let body = Body::from_json(page)?;

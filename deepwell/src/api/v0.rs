@@ -59,6 +59,9 @@ pub fn build(mut app: ApiServer) -> ApiServer {
         .get(page_links_from_get)
         .put(page_links_put); // TEMP
 
+    app.at("/page/:site_id/:slug/links-missing")
+        .put(page_links_missing_put); // TEMP
+
     // Page -- invalid routes
     // Catching if people forget site_id
     app.at("/page").all(page_invalid);
