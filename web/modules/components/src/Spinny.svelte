@@ -13,14 +13,19 @@
 
   /** Sets the styling so that the spinner can be displayed inline along with text. */
   export let inline = false
+
   /** CSS `top` offset. */
   export let top = inline ? "0" : "50%"
+
   /** CSS `left` offset. */
   export let left = inline ? "0" : "50%"
+
   /** Sets the width of non-inline spinners, otherwise sets font-size. */
   export let size = inline ? "1em" : "120px"
+
   /** Sets a delay until the spinner appears. Only works for non-inline spinners. */
   export let wait = 300
+
   /** Sets the icon for inline spinners. */
   export let status: Status = "active"
   /**
@@ -66,33 +71,33 @@
   {...$$restProps}
 >
   <!-- A11y label - is invisible to everything but screen readers -->
-  <!-- svelte-ignore a11y-label-has-associated-control -->
   <label class="spinny-label" {id}>{label}</label>
 
   <div class="spinny-symbol" aria-hidden="true">
     {#if status === "active"}
       {#if !inline}
         {#await sleep(wait) then _}
-          <svg
-            class="spinny-spinner"
+          <div
             transition:anim={{
-              duration: 500,
+              duration: 1000,
+              easing: "circInOut",
               css: t => `transform: scale(${t}); opacity: ${t ** 2};`
             }}
-            viewBox="0 -50 120 70"
-            xmlns="http://www.w3.org/2000/svg"
-            style={cssText}
           >
-            <g>
-              <circle cx="15" cy="-15" r="15" class="spinny-circle1" />
-              <circle cx="60" cy="-15" r="15" class="spinny-circle2" />
-              <circle cx="105" cy="-15" r="15" class="spinny-circle3" />
-            </g>
-          </svg>
+            <svg
+              class="spinny-block"
+              viewBox="-15 -15 30 30"
+              xmlns="http://www.w3.org/2000/svg"
+              style={cssText}
+            >
+              <circle r="13" class="spinny-block-circle" fill="none" stroke-width="2" />
+              <circle r="13" class="spinny-block-arc" fill="none" stroke-width="2" />
+            </svg>
+          </div>
         {/await}
       {:else}
         <svg
-          class="spinny-spinner"
+          class="spinny-inline"
           viewBox="-3 -3 42 42"
           xmlns="http://www.w3.org/2000/svg"
           style={cssText}
@@ -166,9 +171,41 @@
     stroke: var(--col-hint);
   }
 
+  .spinny-block-circle {
+    opacity: 0.5;
+    stroke: var(--col-border);
+  }
+
+  .spinny-block-arc {
+    stroke: var(--col-hint);
+    stroke-dasharray: 30, 90;
+    stroke-dashoffset: 0;
+    stroke-linecap: round;
+  }
+
+  @include tolerates-motion {
+    .spinny-inline {
+      animation: spinny-inline-rotate 1s linear infinite;
+    }
+
+    .spinny-inline-arc {
+      transform-origin: top;
+      transform-box: fill-box;
+      animation: spinny-inline-spin 0.75s 0s infinite linear;
+    }
+
+    .spinny-block {
+      animation: spinny-block-rotate 1s linear infinite;
+    }
+
+    .spinny-block-arc {
+      animation: spinny-block-dash 3s ease-in-out alternate infinite;
+    }
+  }
+
   @include reduced-motion {
     // Don't show large spinners at all with reduced motion
-    .spinny:not(.is-inline) .spinny-spinner {
+    .spinny-block {
       display: none;
     }
     // Solid, fixed circle with reduced motion
@@ -180,38 +217,29 @@
     }
   }
 
-  @include tolerates-motion {
-    .spinny-circle1 {
-      animation: spinny-wave 0.3s -0.9s infinite alternate ease-in-out;
-    }
-    .spinny-circle2 {
-      animation: spinny-wave 0.3s -0.8s infinite alternate ease-in-out;
-    }
-    .spinny-circle3 {
-      animation: spinny-wave 0.3s -0.7s infinite alternate ease-in-out;
-    }
-    .spinny-inline-arc {
-      transform-origin: top;
-      transform-box: fill-box;
-      animation: spinny-inline-spin 0.75s 0s infinite linear;
-    }
+  // animations
+
+  // prettier-ignore
+  @keyframes skeleton-fade-in {
+    0%   { opacity: 0; }
+    100% { opacity: 1; }
   }
 
-  @keyframes spinny-inline-spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
+  // prettier-ignore
+  @keyframes spinny-block-rotate {
+    0%   { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
   }
 
-  @keyframes spinny-wave {
-    0% {
-      transform: translateY(15px);
-    }
-    100% {
-      transform: translateY(-15px);
-    }
+  // prettier-ignore
+  @keyframes spinny-block-dash {
+    0%   { stroke-dasharray: 10, 90; }
+    100% { stroke-dasharray: 60, 90; }
+  }
+
+  // prettier-ignore
+  @keyframes spinny-inline-rotate {
+    0%   { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
   }
 </style>
