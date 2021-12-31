@@ -37,6 +37,11 @@ export enum ReferenceTypes {
 export type Slug = string
 
 /**
+ * @example https://wikijump.com/files--static/media/default-avatar.png
+ */
+export type AvatarURL = string
+
+/**
  * @example mywiki
  */
 export type SiteName = string
@@ -1169,7 +1174,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * @description Registers an account. Does not automatically login. Email validation will be required.
+   * @description Registers an account. Email validation will be required.
    *
    * @tags account
    * @name AccountRegister
@@ -1436,16 +1441,17 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * @description Gets the client's avatar.
+   * @description Gets the client's avatar. This won't return the avatar directly, but rather return the URL for it.
    *
-   * @tags user, not-json
+   * @tags user
    * @name UserClientGetAvatar
    * @request GET:/user/avatar
    */
   userClientGetAvatar = (params: RequestParams = {}) =>
-    this.request<FileData | null, void>({
+    this.request<{ avatar: AvatarURL }, void>({
       path: `/user/avatar`,
       method: "GET",
+      format: "json",
       ...params
     })
 
@@ -1542,9 +1548,9 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * @description Gets a user's avatar.
+   * @description Gets a user's avatar. This won't return the avatar directly, but rather return the URL for it.
    *
-   * @tags user, not-json
+   * @tags user
    * @name UserGetAvatar
    * @request GET:/user/{path_type}/{path}/avatar
    */
@@ -1553,9 +1559,10 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     path: Username | Reference,
     params: RequestParams = {}
   ) =>
-    this.request<FileData | null, void>({
+    this.request<{ avatar: AvatarURL }, void>({
       path: `/user/${pathType}/${path}/avatar`,
       method: "GET",
+      format: "json",
       ...params
     })
 

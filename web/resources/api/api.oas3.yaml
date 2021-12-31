@@ -569,16 +569,18 @@ paths:
 
   /user/avatar:
     get:
-      description: Gets the client's avatar.
-      tags: [user, not-json]
+      description: Gets the client's avatar. This won't return the avatar directly, but rather return the URL for it.
+      tags: [user]
       operationId: userClientGetAvatar
       responses:
         200:
           description: OK
-          content: { application/octet-stream: {
-            example: FFD8FFDB00430006040506050406060506070706...,
-            schema: { allOf: [$ref: '#/components/schemas/FileData'], nullable: true }
-          }}
+          content: { application/json: { schema: { type: object,
+            required: [avatar],
+            properties: {
+              avatar: { $ref: '#/components/schemas/AvatarURL' }
+            }
+          }}}
         401: { description: Missing or invalid authentication credentials. }
         404: { description: Not Found }
         500: { description: Unexpected Error }
@@ -666,16 +668,18 @@ paths:
     - $ref: '#/components/parameters/UserPath'
 
     get:
-      description: Gets a user's avatar.
-      tags: [user, not-json]
+      description: Gets a user's avatar. This won't return the avatar directly, but rather return the URL for it.
+      tags: [user]
       operationId: userGetAvatar
       responses:
         200:
           description: OK
-          content: { application/octet-stream: {
-            example: FFD8FFDB00430006040506050406060506070706...,
-            schema: { allOf: [$ref: '#/components/schemas/FileData'], nullable: true }
-          }}
+          content: { application/json: { schema: { type: object,
+            required: [avatar],
+            properties: {
+              avatar: { $ref: '#/components/schemas/AvatarURL' }
+            }
+          }}}
         404: { description: Not Found }
         500: { description: Unexpected Error }
 
@@ -2803,6 +2807,11 @@ components:
       type: string
       format: slug
       example: 'category:page'
+
+    AvatarURL:
+      title: Avatar URL
+      type: string
+      example: https://wikijump.com/files--static/media/default-avatar.png
 
     SiteName:
       title: Site Name
