@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Wikijump\Http\Controllers\AccountController;
 use Wikijump\Http\Controllers\AuthController;
+use Wikijump\Http\Controllers\UserController;
 
 // -- QUERY
 // TODO: queryRequest
@@ -48,13 +49,13 @@ Route::post('/account/start-recovery', [AccountController::class, 'startRecovery
 // these can be implemented!
 // TODO: userClientGet
 // TODO: userClientUpdateProfile
-// TODO: userClientGetAvatar
+Route::get('/user/avatar', [UserController::class, 'clientGetAvatar']);
 // TODO: userClientSetAvatar
 // TODO: userClientRemoveAvatar
 // TODO: userClientGetBlocked
 // TODO: userGet
 // TODO: userResetProfile
-// TODO: userGetAvatar
+Route::get('/user/{path_type}/{path}/avatar', [UserController::class, 'getAvatar']);
 // TODO: userRemoveAvatar
 // TODO: userGetBlocked
 // TODO: userUpdateBlocked
