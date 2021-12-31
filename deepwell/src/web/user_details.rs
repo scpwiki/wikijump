@@ -1,5 +1,5 @@
 /*
- * web/mod.rs
+ * web/user_details.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -18,13 +18,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod reference;
-mod unwrap;
-mod user_details;
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
+pub enum UserDetails {
+    /// Basic level of information needed to describe a user.
+    ///
+    /// Associated with the struct `UserIdentityOutput`.
+    Identity,
 
-pub mod ratelimit;
-pub mod utils;
+    /// Describes a user in an intermediate amount of detail.
+    ///
+    /// Associated with the struct `UserInfoOutput`.
+    Info,
 
-pub use self::reference::ItemReference;
-pub use self::unwrap::HttpUnwrap;
-pub use self::user_details::UserDetails;
+    /// Fully describes a user and their associated data.
+    ///
+    /// Associated with the struct `UserProfileOutput`.
+    Profile,
+}
+
+impl Default for UserDetails {
+    #[inline]
+    fn default() -> Self {
+        UserDetails::Identity
+    }
+}
