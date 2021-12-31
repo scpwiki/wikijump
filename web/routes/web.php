@@ -149,6 +149,12 @@ Route::view('--/security', 'next.test.page-test')->name('security');
 Route::view('--/privacy', 'next.test.page-test')->name('privacy');
 Route::view('--/report-flag', 'next.test.page-test')->name('report-flag');
 
+// Dashboard
+Route::view('/--/dashboard/{path?}', 'next.wiki.dashboard')
+    ->where('path', '.*')
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
+
 if (GlobalProperties::$FEATURE_FRONTEND === 'next') {
     // Legacy special routes
     Route::any('/{special}:{path}', [OzoneController::class, 'handle'])

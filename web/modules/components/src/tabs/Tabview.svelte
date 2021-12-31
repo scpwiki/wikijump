@@ -83,7 +83,7 @@
         position: relative;
         height: 100%;
 
-        > :global(.tab-panel) {
+        > .tab-panel {
           height: 100%;
         }
       }
@@ -100,7 +100,7 @@
         padding-top: 0;
       }
 
-      .tab-buttons > :global(.tab-button) {
+      .tab-buttons > .tab-button {
         flex-grow: 0.05;
       }
     }

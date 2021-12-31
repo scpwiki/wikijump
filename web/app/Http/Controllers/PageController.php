@@ -77,7 +77,6 @@ class PageController extends Controller
             'social_title' => $social_title,
             'social_type' => 'article',
 
-            'header_img_url' => '/files--static/media/logo-outline.min.svg',
             'sidebar_content' => $sidebar_content,
 
             'page_content' => $page_content,

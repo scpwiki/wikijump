@@ -15,6 +15,10 @@ goto-home = Go to home page
 
 goto-service = Go to { -service-name }
 
+base-title = {$title} | { -service-name }
+
+navigated-to = Navigated to { $path }
+
 ## Generic
 
 about = About
@@ -22,6 +26,7 @@ account = Account
 breadcrumbs = Breadcrumbs
 clear = clear
 close = Close
+dashboard = Dashboard
 docs = Docs
 download = Download
 editor = Editor

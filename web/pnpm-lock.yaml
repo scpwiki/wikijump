@@ -396,6 +396,7 @@ importers:
       '@wikijump/util': workspace:*
       include-media: ^1.4.10
       svelte: ^3.44.3
+      tinro: ^0.6.10
     dependencies:
       '@wikijump/api': link:../modules/api
       '@wikijump/components': link:../modules/components
@@ -406,6 +407,7 @@ importers:
       '@wikijump/util': link:../modules/util
       include-media: 1.4.10
       svelte: 3.44.3
+      tinro: 0.6.10
 
   web:
     specifiers:
@@ -7276,6 +7278,10 @@ packages:
   /through/2.3.8:
     resolution: {integrity: sha1-DdTJ/6q8NXlgsbckEV1+Doai4fU=}
     dev: true
+
+  /tinro/0.6.10:
+    resolution: {integrity: sha512-bWWiHwj3rlEaqfcltBkIbEkHOG6sECkCHxCnD/TUWHyoNEDDOfhY3sinf75HPcWnNVnreBOFJJQd3IEqEJfHGg==}
+    dev: false
 
   /tiny-worker/2.3.0:
     resolution: {integrity: sha512-pJ70wq5EAqTAEl9IkGzA+fN0836rycEuz2Cn6yeZ6FRzlVS5IDOkFHpIoEsksPRQV34GDqXm65+OlnZqUSyK2g==}
