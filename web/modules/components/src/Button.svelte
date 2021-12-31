@@ -115,17 +115,20 @@
     align-items: center;
     padding: 0.25rem 1rem;
     font-size: 1rem;
-    color: var(--col-subtle);
+    color: var(--col-text-subtle);
     text-align: center;
     vertical-align: middle;
     background: var(--col-border);
     border-radius: 0.25rem;
     transition: background 0.125s, color 0.125s, filter 0.125s;
+    cursor: pointer;
+    user-select: none;
     @include shadow(2);
 
     &.is-disabled {
       color: var(--col-lightgray) !important;
       filter: grayscale(50%);
+      cursor: not-allowed;
       @include shadow(0);
     }
 
@@ -142,6 +145,11 @@
     &.is-primary {
       color: var(--col-white);
       background: var(--col-hint);
+
+      &.is-baseline {
+        color: var(--col-text-subtle);
+        background: none;
+      }
     }
 
     &.is-baseline {
@@ -213,14 +221,20 @@
       background: var(--col-border);
       filter: brightness(90%);
 
-      &.is-primary {
-        color: var(--col-white);
-        background: var(--col-hint);
-      }
-
       &.is-baseline,
       &.is-floating {
         background: none;
+      }
+
+      &.is-primary {
+        color: var(--col-white);
+        background: var(--col-hint);
+
+        &.is-baseline {
+          color: var(--col-white);
+          background: var(--col-hint);
+          filter: none;
+        }
       }
 
       &.is-floating.is-icon {

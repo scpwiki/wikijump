@@ -2,9 +2,10 @@
   import Locale from "@wikijump/fluent"
   import { Route, router } from "tinro"
   import RouteAnnouncer from "../RouteAnnouncer.svelte"
-  import TransitionRoute from "../TransitionRoute.svelte"
   import DashboardLink from "./DashboardLink.svelte"
   import DashboardPanel from "./DashboardPanel.svelte"
+  import ProfilePanel from "./panels/ProfilePanel.svelte"
+  import SettingsPanel from "./panels/SettingsPanel.svelte"
   import { dashboardRoute } from "./util"
 
   const t = Locale.makeComponentFormatter("dashboard")
@@ -27,39 +28,70 @@
 <div class="dashboard">
   <RouteAnnouncer />
 
-  <div class="dashboard-tabs">
-    <ul class="dashboard-links">
-      <DashboardLink path="profile">{$t("profile")}</DashboardLink>
-      <DashboardLink path="settings">{$t("settings")}</DashboardLink>
-    </ul>
-  </div>
+  <ul class="dashboard-links">
+    <DashboardLink path="profile">{$t("profile")}</DashboardLink>
+
+    <DashboardLink
+      path="messages"
+      subpaths={[
+        { path: "inbox", title: $t("inbox") },
+        { path: "sent", title: $t("sent") },
+        { path: "invitations", title: $t("invitations") },
+        { path: "applications", title: $t("applications") }
+      ]}
+    >
+      {$t("messages")}
+    </DashboardLink>
+
+    <DashboardLink
+      path="settings"
+      subpaths={[
+        { path: "profile", title: $t("profile") },
+        { path: "account", title: $t("account") },
+        { path: "about", title: $t("about") },
+        { path: "messages", title: $t("messages") }
+      ]}
+    >
+      {$t("settings")}
+    </DashboardLink>
+  </ul>
 
   <div class="dashboard-panels">
-    <TransitionRoute>
-      <Route path={dashboardRoute("*")} firstmatch>
-        <Route fallback redirect={dashboardRoute("profile")} />
+    <Route path={dashboardRoute("*")} firstmatch>
+      <Route fallback redirect={dashboardRoute("profile")} />
 
-        <DashboardPanel path="/profile" title={$t("profile")}>
-          <h1>Profile</h1>
-          <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque euismod,
-            urna eu tincidunt consectetur, nisi nunc ultricies nisi, eget consectetur nunc
-            nisi vitae nunc.
-          </p>
-        </DashboardPanel>
+      <DashboardPanel path="/profile/*" title={$t("profile")}>
+        <ProfilePanel />
+      </DashboardPanel>
 
-        <DashboardPanel path="/settings" title={$t("settings")}>
-          <h1>Settings</h1>
-          <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque euismod,
-            urna eu tincidunt consectetur, nisi nunc ultricies nisi, eget consectetur nunc
-            nisi vitae nunc.
-          </p>
-        </DashboardPanel>
-      </Route>
-    </TransitionRoute>
+      <DashboardPanel path="/settings/*" title={$t("settings")}>
+        <SettingsPanel />
+      </DashboardPanel>
+    </Route>
   </div>
 </div>
 
 <style global lang="scss">
+  #main > wj-component-loader[ld-load="Dashboard"] {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .dashboard {
+    display: flex;
+    min-height: 100%;
+    contain: layout;
+  }
+
+  .dashboard-links {
+    display: flex;
+    flex-direction: column;
+    row-gap: 0.5rem;
+    min-width: 16rem;
+    padding-right: 1rem;
+    margin-right: 2rem;
+    list-style: none;
+    border-right: solid 0.125rem var(--col-border);
+  }
 </style>

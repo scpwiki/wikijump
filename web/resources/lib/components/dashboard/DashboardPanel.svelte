@@ -9,7 +9,7 @@
   export let title = ""
   export let fallback = false
 
-  $: if (title && dashboardRoute(path) === $router.path) {
+  $: if (title && $router.path.startsWith(dashboardRoute(path))) {
     document.title = t("base-title", { title })
   }
 </script>

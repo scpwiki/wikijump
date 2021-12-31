@@ -56,3 +56,10 @@ export function anim(
     css: cb
   }
 }
+
+/** Animation that "unfolds" (or folds) an element via its `max-height`. */
+export function unfold(node: Element, opts: Omit<AnimOpts, "css">) {
+  const height = node.getBoundingClientRect().height
+  const css = (t: number) => `max-height: ${t * height}px`
+  return anim(node, { ...opts, css })
+}
