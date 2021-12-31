@@ -8,6 +8,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\Log;
 use Wikidot\Utils\GlobalProperties;
+use Wikijump\Services\Wikitext\Backlinks;
 
 final class DeepwellService
 {
@@ -64,6 +65,38 @@ final class DeepwellService
             // For other errors, re-throw, since it's not an "expected" error
             throw $exception;
         }
+    }
+
+    // Page
+    public function getLinks(int $site_id, int $page_id): array
+    {
+        $resp = $this->client->get("page/$site_id/id/$page_id/links");
+        return self::readJson($resp);
+    }
+
+    // TEMP!
+    public function updateLinks(int $site_id, int $page_id, Backlinks $backlinks): void
+    {
+        $this->client->put("page/$site_id/id/$page_id/links", [
+            'json' => self::backlinksToJson($backlinks),
+        ]);
+    }
+
+    // TEMP!
+    public function updateLinksMissing(int $site_id, string $page_slug, Backlinks $backlinks): void
+    {
+        $this->client->put("page/$site_id/$page_slug/links-missing", [
+            'json' => self::backlinksToJson($backlinks),
+        ]);
+    }
+
+    private static function backlinksToJson(Backlinks $backlinks): array
+    {
+        return [
+            'included_pages' => $backlinks->inclusions,
+            'internal_links' => $backlinks->internal_links,
+            'external_links' => $backlinks->external_links,
+        ];
     }
 
     // User
