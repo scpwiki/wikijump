@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Wikijump\Http\Controllers;
 
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Log;
 use Wikijump\Models\User;
 
 /**
@@ -33,7 +36,7 @@ class UserController extends Controller
 
         $user = null;
 
-        if ($path_type === 'slug') {
+        if ($path_type === 'name') {
             $user = User::where('slug', $path)->first();
         } elseif ($path_type === 'id') {
             $user = User::find($path);
@@ -43,13 +46,13 @@ class UserController extends Controller
             return new Response('', 404);
         }
 
-        $avatar = $user->getAvatar();
+        $avatar = $user->avatar();
 
         if ($avatar === null) {
-            return new Response(self::DEFAULT_AVATAR_URL, 200);
+            return new Response(['avatar' => self::DEFAULT_AVATAR_URL], 200);
         }
 
-        return new Response($avatar, 200);
+        return new Response(['avatar' => $avatar], 200);
     }
 
     public function clientGetAvatar(): Response
@@ -61,12 +64,14 @@ class UserController extends Controller
         /** @var User */
         $user = $this->guard->user();
 
-        $avatar = $user->getAvatar();
+        $avatar = $user->avatar();
 
         if ($avatar === null) {
-            return new Response(self::DEFAULT_AVATAR_URL, 200);
+            return new Response(['avatar' => self::DEFAULT_AVATAR_URL] . 200);
         }
 
-        return new Response($avatar, 200);
+        Log::debug($avatar);
+
+        return new Response(['avatar' => $avatar], 200);
     }
 }

@@ -202,8 +202,7 @@ class User extends Authenticatable
             '&color=' .
             $colors[$scheme]['t'] .
             '&background=' .
-            $colors[$scheme]['b'] .
-            '&rounded=true';
+            $colors[$scheme]['b'];
     }
 
     /** Returns the filesystem for avatar images. */
