@@ -54,6 +54,7 @@ class DeepwellPageLink extends Migration
         DB::statement("
             CREATE TABLE page_connection_missing (
                 from_page_id BIGINT,
+                to_site_id BIGINT,
                 to_page_slug TEXT,
                 connection_type TEXT
                     CHECK (connection_type = ANY(ARRAY[
