@@ -3,7 +3,7 @@
   import { Route, router } from "tinro"
   import { fade } from "svelte/transition"
   import * as Easings from "svelte/easing"
-  import { dashboardRoute } from "./util"
+  import { dashboardRoute } from "./Dashboard.svelte"
 
   export let path = ""
   export let title = ""

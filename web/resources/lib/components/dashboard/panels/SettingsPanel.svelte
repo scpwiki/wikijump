@@ -3,7 +3,7 @@
   import { Spinny } from "@wikijump/components"
   import { Route } from "tinro"
   import DashboardPanel from "../DashboardPanel.svelte"
-  import { dashboardRoute } from "../util"
+  import { dashboardRoute } from "../Dashboard.svelte"
 
   interface Settings {
     profile: UserProfile
@@ -22,17 +22,15 @@
 {#await getData()}
   <Spinny />
 {:then data}
-  <Route>
-    <Route fallback redirect={dashboardRoute("settings/account")} />
+  <Route fallback redirect={dashboardRoute("settings/account")} />
 
-    <DashboardPanel path="/profile" />
+  <DashboardPanel path="/profile" />
 
-    <DashboardPanel path="/account">
-      <pre><code>{JSON.stringify(data, null, 2)}</code></pre>
-    </DashboardPanel>
+  <DashboardPanel path="/account">
+    <pre><code>{JSON.stringify(data, null, 2)}</code></pre>
+  </DashboardPanel>
 
-    <DashboardPanel path="/about" />
-  </Route>
+  <DashboardPanel path="/about" />
 {/await}
 
 <style global lang="scss">

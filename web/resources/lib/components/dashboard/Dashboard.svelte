@@ -1,12 +1,25 @@
+<script lang="ts" context="module">
+  import { route } from "@wikijump/api"
+
+  /**
+   * Returns a dashboard route.
+   *
+   * @param path - The subpath.
+   */
+  export function dashboardRoute(path = "") {
+    if (path.startsWith("/")) path = path.substring(1)
+    return route("dashboard", { path })
+  }
+</script>
+
 <script lang="ts">
   import Locale from "@wikijump/fluent"
-  import { Route, router } from "tinro"
+  import { Route } from "tinro"
   import RouteAnnouncer from "../RouteAnnouncer.svelte"
   import DashboardLink from "./DashboardLink.svelte"
   import DashboardPanel from "./DashboardPanel.svelte"
   import ProfilePanel from "./panels/ProfilePanel.svelte"
   import SettingsPanel from "./panels/SettingsPanel.svelte"
-  import { dashboardRoute } from "./util"
 
   const t = Locale.makeComponentFormatter("dashboard")
 

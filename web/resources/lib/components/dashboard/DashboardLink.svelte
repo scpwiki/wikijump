@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Button, Sprite } from "@wikijump/components"
   import { router } from "tinro"
-  import { dashboardRoute } from "./util"
+  import { dashboardRoute } from "./Dashboard.svelte"
   import { unfold } from "@wikijump/components/lib"
 
   export let path = ""
