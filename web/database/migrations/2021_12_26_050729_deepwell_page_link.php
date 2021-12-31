@@ -21,7 +21,7 @@ class DeepwellPageLink extends Migration
 
         DB::statement("
             CREATE TABLE page_link (
-                page_id BIGINT,
+                page_id BIGINT REFERENCES page(page_id),
                 url TEXT,
                 created_at TIMESTAMP WITH TIME ZONE NOT NULL,
                 updated_at TIMESTAMP WITH TIME ZONE,
@@ -33,8 +33,8 @@ class DeepwellPageLink extends Migration
 
         DB::statement("
             CREATE TABLE page_connection (
-                from_page_id BIGINT,
-                to_page_id BIGINT,
+                from_page_id BIGINT REFERENCES page(page_id),
+                to_page_id BIGINT REFERENCES page(page_id),
                 connection_type TEXT
                     CHECK (connection_type = ANY(ARRAY[
                         'include-messy',
@@ -53,8 +53,8 @@ class DeepwellPageLink extends Migration
 
         DB::statement("
             CREATE TABLE page_connection_missing (
-                from_page_id BIGINT,
-                to_site_id BIGINT,
+                from_page_id BIGINT REFERENCES page(page_id),
+                to_site_id BIGINT REFERENCES page(page_id),
                 to_page_slug TEXT,
                 connection_type TEXT
                     CHECK (connection_type = ANY(ARRAY[
