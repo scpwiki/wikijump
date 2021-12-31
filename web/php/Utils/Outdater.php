@@ -51,35 +51,40 @@ final class Outdater
         switch ($eventType) {
             case 'new_page':
                 $this->recompilePage($page);
-                $this->fixInLinks($page);
-                $this->fixOutLinks($page);
-                $this->fixInclusions($page);
+                $this->updateLinks($page);
                 $this->recompileIncludedByPage($page);
                 $this->outdatePageCache($page);
                 $this->handleNavigationElement($page);
                 $this->handleTemplateChange($page);
                 break;
             case 'source_changed':
+                // NOTE: outgoing links only need to be updated
                 $this->recompilePage($page);
                 $this->outdatePageCache($page);
-                $this->fixOutLinks($page);
-                $this->fixInclusions($page);
+                $this->updateLinks($page);
                 $this->recompileIncludedByPage($page);
                 $this->handleNavigationElement($page);
                 $this->handleTemplateChange($page);
                 break;
             case 'title_changed':
+                // NOTE: incoming links only need to be updated
+                $this->recompilePage($page);
+                $this->outdatePageCache($page);
+                $this->updateLinks($page);
+                $this->outdateDescendantsCache($page);
+                $this->outdatePageTagsCache($page);
+                break;
             case 'tag_change':
                 $this->recompilePage($page);
                 $this->outdatePageCache($page);
                 $this->outdateDescendantsCache($page);
-                $this->fixInLinks($page); // if dynamical link text = page title
                 $this->outdatePageTagsCache($page);
                 break;
             case 'rename':
+                // NOTE: incoming links only need to be updated
                 $this->recompilePage($page);
-                $this->fixInLinks($page);
-                $this->fixInLinks($old_slug);
+                $this->updateLinks($page);
+                $this->updateLinksMissing($old_slug);
                 $this->recompileIncludedByPage($page);
                 $this->recompileIncludedBySlug($old_slug);
                 $this->outdateDescendantsCache($page);
@@ -97,7 +102,8 @@ final class Outdater
                 // So instead we pass in the slug to calls that want a string,
                 // and the page when that information would be helpful.
 
-                $this->fixInLinks($page->getUnixName());
+                // NOTE: incoming links only need to be updated
+                $this->updateLinksMissing($page->getUnixName());
                 $this->recompileIncludedByPage($page);
                 $this->outdatePageTagsCache($page->getUnixName());
                 $this->outdatePageCache($page->getUnixName());
@@ -204,56 +210,14 @@ final class Outdater
         $this->link_stats = $result->link_stats;
     }
 
-    /**
-     * Recompile pages which point to this page (either real or wanted).
-     *
-     * @param $page Page|string The page to check incoming links for.
-     */
-    private function fixInLinks($page)
+    private function updateLinks(Page $page): void
     {
-        if (is_string($page)) {
-            // Wanted page, doesn't exist
-            $this->fixInLinksAbsent($page);
-        } else {
-            // Real page, exists
-            $this->fixInLinksPresent($page);
-        }
+        // TODO deepwell
     }
 
-    private function fixInLinksPresent(Page $page)
+    private function updateLinksMissing(string $slug): void
     {
-        $links = PageConnection::where('from_page_id', $page->getPageId());
-        foreach ($links as $link) {
-            $page = PagePeer::instance()->selectByPrimaryKey($link->from_page_id);
-            $outdater = new Outdater($this->recurrenceLevel);
-            $outdater->pageEvent('source_changed', $page);
-        }
-    }
-
-    private function fixInLinksAbsent(string $page_name)
-    {
-        $links = PageConnectionMissing::where('from_page_name', $page_name);
-        foreach ($links as $link) {
-            $page = PagePeer::instance()->selectByPrimaryKey($link->from_page_id);
-            $outdater = new Outdater($this->recurrenceLevel);
-            $outdater->pageEvent('source_changed', $page);
-        }
-    }
-
-    /**
-     * Update the list of links that originate from this page.
-     */
-    private function fixOutLinks(Page $page): void
-    {
-        // TODO
-    }
-
-    /**
-     * Update the list of pages that include this one.
-     */
-    private function fixInclusions(Page $page): void
-    {
-        // TODO
+        // TODO deepwell
     }
 
     private function recompileIncludedByPage(Page $page): void
@@ -520,8 +484,7 @@ final class Outdater
         foreach ($pages as $page) {
             $this->recompilePage($page);
             $this->outdatePageCache($page);
-            $this->fixOutLinks($page);
-            $this->fixInclusions($page);
+            $this->updateLinks($page);
         }
 
         $GLOBALS['site']=$site0;
@@ -538,8 +501,7 @@ final class Outdater
         foreach ($pages as $page) {
             $this->recompilePage($page);
             $this->outdatePageCache($page);
-            $this->fixOutLinks($page);
-            $this->fixInclusions($page);
+            $this->updateLinks($page);
         }
 
         $GLOBALS['site']=$site0;
