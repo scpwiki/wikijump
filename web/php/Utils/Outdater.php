@@ -16,6 +16,7 @@ use Wikijump\Models\PageConnectionMissing;
 use Wikijump\Models\PageConnectionType;
 use Wikijump\Models\PageContents;
 use Wikijump\Models\PageLink;
+use Wikijump\Services\Wikitext\Backlinks;
 use Wikijump\Services\Wikitext\LegacyTemplateAssembler;
 use Wikijump\Services\Wikitext\PageInfo;
 use Wikijump\Services\Wikitext\ParseRenderMode;
@@ -25,6 +26,7 @@ final class Outdater
 {
     private static Outdater $instance;
     private array $vars = [];
+    private Backlinks $link_stats;
     private int $recurrenceLevel = 0;
 
     public static function instance()
@@ -199,13 +201,7 @@ final class Outdater
         $contents->compiled_html = $result->body;
         $contents->generator = $wt->version();
         $contents->save();
-
-        // TODO just save as $this->link_stats
-        $this->vars['internal_links_present'] = $result->link_stats->internal_links_present;
-        $this->vars['internal_links_absent'] = $result->link_stats->internal_links_absent;
-        $this->vars['inclusions_present'] = $result->link_stats->inclusions_present;
-        $this->vars['inclusions_absent'] = $result->link_stats->inclusions_absent;
-        $this->vars['external_links'] = $result->link_stats->external_links;
+        $this->link_stats = $result->link_stats;
     }
 
     /**
