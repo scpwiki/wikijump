@@ -18,8 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
-#[serde(rename_all = "kebab-case")]
+#[derive(
+    Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq,
+)]
+#[serde(rename_all = "camelCase")]
 pub enum UserDetails {
     /// Basic level of information needed to describe a user.
     ///

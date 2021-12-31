@@ -21,7 +21,8 @@
 use super::prelude::*;
 use crate::models::users::{self, Entity as User, Model as UserModel};
 use crate::utils::replace_in_place;
-use chrono::NaiveDate;
+use chrono::{NaiveDate, NaiveDateTime};
+use std::collections::HashMap;
 use wikidot_normalize::normalize;
 
 // Helper structs
@@ -59,6 +60,41 @@ pub struct UpdateUser {
     bio: Maybe<Option<String>>,
     about_page: Maybe<Option<String>>,
     avatar_path: Maybe<Option<String>>,
+}
+
+#[derive(Serialize, Debug)]
+pub struct UserIdentityOutput {
+    id: i64,
+    username: String,
+    tinyavatar: Option<String>, // TODO
+    karma: u8,
+    role: String,
+}
+
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct UserInfoOutput {
+    #[serde(flatten)]
+    identity: UserIdentityOutput,
+
+    about: String,
+    avatar: Option<String>, // TODO
+    signature: Option<String>,
+    since: Option<NaiveDateTime>,
+    last_active: Option<NaiveDateTime>,
+    blocked: bool,
+}
+
+#[derive(Serialize, Debug)]
+pub struct UserProfileOutput {
+    #[serde(flatten)]
+    info: UserInfoOutput,
+
+    realname: String,
+    pronouns: Option<String>,
+    birthday: Option<NaiveDate>,
+    location: Option<String>,
+    links: HashMap<String, String>,
 }
 
 // Service
