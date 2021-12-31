@@ -153,6 +153,25 @@ class WikijumpAPIInstance extends Api<void> {
   }
 
   /**
+   * Executes an API request and catches any errors by returning `null`.
+   * This can be used when the result of a request is easily discarded.
+   *
+   * @param method - The API method to call.
+   * @param args - The arguments to pass to the method.
+   */
+  async try<
+    M extends keyof FilterFor<Api<void>, AnyFunction>,
+    F extends AnyFunction = FilterFor<Api<void>, AnyFunction>[M]
+  >(method: M, ...args: Parameters<F>): Promise<null | Awaited<ReturnType<F>>> {
+    try {
+      // @ts-ignore - TS can't quite figure this one out
+      return await this[method](...args)
+    } catch {
+      return null
+    }
+  }
+
+  /**
    * Attempts to return the given query parameter from the current URL.
    *
    * @param name - The name of the query parameter to return.
