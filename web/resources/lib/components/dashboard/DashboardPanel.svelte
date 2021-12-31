@@ -21,4 +21,7 @@
 </Route>
 
 <style global lang="scss">
+  .dashboard-panel {
+    width: 100%;
+  }
 </style>

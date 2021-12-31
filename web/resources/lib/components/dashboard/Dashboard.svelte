@@ -106,5 +106,10 @@
     margin-right: 2rem;
     list-style: none;
     border-right: solid 0.125rem var(--col-border);
+    flex-shrink: 0;
+  }
+
+  .dashboard-panels {
+    flex-grow: 1;
   }
 </style>
