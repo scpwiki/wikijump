@@ -64,9 +64,9 @@
   }
 
   .dashboard-subpaths-container {
-    transform-origin: top;
     margin-top: 0.5rem;
     overflow: hidden;
+    transform-origin: top;
     will-change: max-height;
   }
 

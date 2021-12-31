@@ -118,17 +118,17 @@
     color: var(--col-text-subtle);
     text-align: center;
     vertical-align: middle;
+    cursor: pointer;
+    user-select: none;
     background: var(--col-border);
     border-radius: 0.25rem;
     transition: background 0.125s, color 0.125s, filter 0.125s;
-    cursor: pointer;
-    user-select: none;
     @include shadow(2);
 
     &.is-disabled {
       color: var(--col-lightgray) !important;
-      filter: grayscale(50%);
       cursor: not-allowed;
+      filter: grayscale(50%);
       @include shadow(0);
     }
 
