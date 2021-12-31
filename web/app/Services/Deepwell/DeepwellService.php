@@ -75,7 +75,7 @@ final class DeepwellService
     }
 
     // TEMP!
-    public function updateLinks(int $site_id, int $page_id, Backlinks $backlinks): void
+    public function updateLinks(string $site_id, string $page_id, Backlinks $backlinks): void
     {
         $this->client->put("page/$site_id/id/$page_id/links", [
             'json' => self::backlinksToJson($backlinks),
@@ -83,7 +83,7 @@ final class DeepwellService
     }
 
     // TEMP!
-    public function updateLinksMissing(int $site_id, string $page_slug, Backlinks $backlinks): void
+    public function updateLinksMissing(string $site_id, string $page_slug, Backlinks $backlinks): void
     {
         $this->client->put("page/$site_id/$page_slug/links-missing", [
             'json' => self::backlinksToJson($backlinks),

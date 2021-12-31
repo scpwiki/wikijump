@@ -16,6 +16,7 @@ use Wikijump\Models\PageConnectionMissing;
 use Wikijump\Models\PageConnectionType;
 use Wikijump\Models\PageContents;
 use Wikijump\Models\PageLink;
+use Wikijump\Services\Deepwell\DeepwellService;
 use Wikijump\Services\Wikitext\Backlinks;
 use Wikijump\Services\Wikitext\LegacyTemplateAssembler;
 use Wikijump\Services\Wikitext\PageInfo;
@@ -84,7 +85,7 @@ final class Outdater
                 // NOTE: incoming links only need to be updated
                 $this->recompilePage($page);
                 $this->updateLinks($page);
-                $this->updateLinksMissing($old_slug);
+                $this->updateLinksMissing($page->getSiteId(), $old_slug);
                 $this->recompileIncludedByPage($page);
                 $this->recompileIncludedBySlug($old_slug);
                 $this->outdateDescendantsCache($page);
@@ -103,7 +104,7 @@ final class Outdater
                 // and the page when that information would be helpful.
 
                 // NOTE: incoming links only need to be updated
-                $this->updateLinksMissing($page->getUnixName());
+                $this->updateLinksMissing($page->getSiteId(), $page->getUnixName());
                 $this->recompileIncludedByPage($page);
                 $this->outdatePageTagsCache($page->getUnixName());
                 $this->outdatePageCache($page->getUnixName());
@@ -212,12 +213,12 @@ final class Outdater
 
     private function updateLinks(Page $page): void
     {
-        // TODO deepwell
+        DeepwellService::getInstance()->updateLinks($page->getSiteId(), $page->getPageId(), $this->link_stats);
     }
 
-    private function updateLinksMissing(string $slug): void
+    private function updateLinksMissing(string $site_id, string $page_slug): void
     {
-        // TODO deepwell
+        DeepwellService::getInstance()->updateLinksMissing($site_id, $page_slug, $this->link_stats);
     }
 
     private function recompileIncludedByPage(Page $page): void
