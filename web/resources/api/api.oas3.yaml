@@ -194,11 +194,11 @@ paths:
       security:
       - QueryAPIAccess: []
       responses:
-        200: { description: OK }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   # -- UTIL
 
@@ -217,10 +217,10 @@ paths:
             required: [type],
             properties: { type: { $ref: '#/components/schemas/ReferenceTypes' } }
           }}}
-        400: { description: Bad Request }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        400: { $ref: '#/components/responses/BadRequest' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   # -- AUTH
 
@@ -243,7 +243,7 @@ paths:
         200: { $ref: '#/components/responses/RegeneratedSession' }
         400: { description: Invalid email or password. }
         409: { description: Already logged in. }
-        500: { description: Unexpected Error }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /auth/confirm:
     post:
@@ -259,9 +259,9 @@ paths:
           }
         }}}
       responses:
-        200: { description: OK }
+        200: { $ref: '#/components/responses/OK' }
         400: { description: Invalid password. }
-        500: { description: Unexpected Error }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /auth/logout:
     delete:
@@ -271,9 +271,9 @@ paths:
       security:
       - AccountSession: []
       responses:
-        default: { description: OK }
+        default: { $ref: '#/components/responses/OK' }
         401:     { description: Not logged in. }
-        500:     { description: Unexpected Error }
+        500:     { $ref: '#/components/responses/UnexpectedError' }
 
   /auth/check:
     post:
@@ -290,7 +290,7 @@ paths:
               authed:       { type: boolean }
             }
           }}}
-        500: { description: Unexpected Error }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /auth/refresh:
     post:
@@ -301,9 +301,9 @@ paths:
       - AccountSession: []
       responses:
         200: { $ref: '#/components/responses/RegeneratedSession' }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   # -- ACCOUNT
 
@@ -326,7 +326,7 @@ paths:
         202: { $ref: '#/components/responses/RegeneratedSession' }
         403: { description: Email or username already in use. }
         409: { description: Already logged in. }
-        500: { description: Unexpected Error }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /account/send-verification-email:
     post:
@@ -336,11 +336,11 @@ paths:
       security:
       - AccountSession: []
       responses:
-        202: { description: Accepted }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
+        202: { $ref: '#/components/responses/Accepted' }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
         403: { description: Email has already been verified. }
-        500: { description: Unexpected Error }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /account/request-deletion:
     post:
@@ -352,9 +352,9 @@ paths:
       security:
       - AccountSession: []
       responses:
-        202: { description: Accepted }
-        401: { description: Missing or invalid authentication credentials. }
-        500: { description: Unexpected Error }
+        202: { $ref: '#/components/responses/Accepted' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /account/start-recovery:
     post:
@@ -370,10 +370,10 @@ paths:
           }
         }}}
       responses:
-        202: { description: Accepted }
+        202: { $ref: '#/components/responses/Accepted' }
         403: { description: Email isn't in use. }
         409: { description: Already logged in. }
-        500: { description: Unexpected Error }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /account/email:
     get:
@@ -391,8 +391,8 @@ paths:
               email: { $ref: '#/components/schemas/Email' }
             }
           }}}
-        401: { description: Missing or invalid authentication credentials. }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     put:
       description: >
@@ -413,10 +413,10 @@ paths:
           }
         }}}
       responses:
-        202: { description: Accepted }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
-        500: { description: Unexpected Error }
+        202: { $ref: '#/components/responses/Accepted' }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /account/password:
     put:
@@ -435,10 +435,10 @@ paths:
           }
         }}}
       responses:
-        200: { description: OK }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /account/username:
     get:
@@ -456,8 +456,8 @@ paths:
               username: { $ref: '#/components/schemas/Username' }
             }
           }}}
-        401: { description: Missing or invalid authentication credentials. }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     put:
       description: Updates the current username.
@@ -474,10 +474,10 @@ paths:
           }
         }}}
       responses:
-        200: { description: OK }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /account/settings:
     get:
@@ -490,8 +490,8 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/AccountSettings' }}}
-        401: { description: Missing or invalid authentication credentials. }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     patch:
       description: Update (patch) the client's user details.
@@ -503,10 +503,10 @@ paths:
         required: true
         content: { application/json: { schema: { $ref: '#/components/schemas/AccountSettingsPatch' }}}
       responses:
-        200: { description: OK }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   # -- NOTIFICATION
 
@@ -521,8 +521,8 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/NotificationList' }}}
-        401: { description: Missing or invalid authentication credentials. }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     delete:
       description: Dismisses all of the client's notifications.
@@ -531,9 +531,9 @@ paths:
       security:
       - AccountSession: []
       responses:
-        200: { description: OK }
-        401: { description: Missing or invalid authentication credentials. }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   # -- USER
 
@@ -549,8 +549,8 @@ paths:
       - AccountSession: []
       responses:
         200: { $ref: '#/components/responses/UserGet' }
-        401: { description: Missing or invalid authentication credentials. }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     patch:
       description: Update (patch) the client's user details.
@@ -562,10 +562,10 @@ paths:
         required: true
         content: { application/json: { schema: { $ref: '#/components/schemas/UserProfilePatch' }}}
       responses:
-        200: { description: OK }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /user/avatar:
     get:
@@ -581,9 +581,9 @@ paths:
               avatar: { $ref: '#/components/schemas/AvatarURL' }
             }
           }}}
-        401: { description: Missing or invalid authentication credentials. }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     put:
       description: Sets the client's avatar.
@@ -597,10 +597,10 @@ paths:
       }}}
       responses:
         201: { description: Created }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        500: { description: Unexpected Error }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     delete:
       description: Removes the client's avatar.
@@ -609,10 +609,10 @@ paths:
       security:
       - AccountSession: []
       responses:
-        200: { description: OK }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /user/blocked:
     get:
@@ -625,9 +625,9 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/UserBlockedList' }}}
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
 
   /user/{path_type}/{path}:
@@ -644,8 +644,8 @@ paths:
       - $ref: '#/components/parameters/UserDetailsType'
       responses:
         200: { $ref: '#/components/responses/UserGet' }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     delete:
       description: |
@@ -657,10 +657,10 @@ paths:
       security:
       - AccountSession: []
       responses:
-        200: { description: OK }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /user/{path_type}/{path}/avatar:
     parameters:
@@ -680,8 +680,8 @@ paths:
               avatar: { $ref: '#/components/schemas/AvatarURL' }
             }
           }}}
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     delete:
       description: |
@@ -693,10 +693,10 @@ paths:
       security:
       - AccountSession: []
       responses:
-        200: { description: OK }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /user/{path_type}/{path}/block:
     parameters:
@@ -716,8 +716,8 @@ paths:
             required: [blocked],
             properties: { blocked: { type: boolean } }
           }}}
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     put:
       description: Updates whether or not the client has a user blocked.
@@ -732,11 +732,11 @@ paths:
           properties: { blocked: { type: boolean } }
         }}}
       responses:
-        200: { description: OK }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
 
   # -- MEMBERSHIP
@@ -752,8 +752,8 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/MembershipList' }}}
-        401: { description: Missing or invalid authentication credentials. }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /membership/applications:
     get:
@@ -766,8 +766,8 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/ApplicationSendList' }}}
-        401: { description: Missing or invalid authentication credentials. }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /membership/invites:
     get:
@@ -780,8 +780,8 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/InviteList' }}}
-        401: { description: Missing or invalid authentication credentials. }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /membership/site/{site}:
     parameters:
@@ -800,9 +800,9 @@ paths:
             nullable: true,
             allOf: [$ref: '#/components/schemas/Membership']
           }}}
-        401: { description: Missing or invalid authentication credentials. }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     post:
       description: Requests to join a site (application).
@@ -815,11 +815,11 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/ApplicationSend' }}}
       responses:
         201: { description: Created }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     delete:
       description: Leaves a site.
@@ -828,9 +828,9 @@ paths:
       security:
       - AccountSession: []
       responses:
-        200: { description: OK }
-        401: { description: Missing or invalid authentication credentials. }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /member/{path_type}/{path}/membership:
     parameters:
@@ -845,9 +845,9 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/MembershipList' }}}
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /member/{path_type}/{path}/membership/{site}:
     parameters:
@@ -866,9 +866,9 @@ paths:
             nullable: true,
             allOf: [$ref: '#/components/schemas/Membership']
           }}}
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /member/{path_type}/{path}/role:
     parameters:
@@ -883,9 +883,9 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/MembershipRole' }}}
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     post:
       description: Sets the role of a user.
@@ -897,12 +897,12 @@ paths:
         required: true
         content: { application/json: { schema: { $ref: '#/components/schemas/MembershipRole' }}}
       responses:
-        200: { description: OK }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /member/{path_type}/{path}/invite:
     parameters:
@@ -920,11 +920,11 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/InviteSend' }}}
       responses:
         201: { description: Created }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   # -- PAGE
 
@@ -947,10 +947,10 @@ paths:
         }}}
       responses:
         201: { description: Created }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
         403: { description: The requested path cannot be used. }
-        500: { description: Unexpected Error }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /page/{path_type}/{path}:
     parameters:
@@ -966,8 +966,8 @@ paths:
       - $ref: '#/components/parameters/Avatars'
       responses:
         200: { $ref: '#/components/responses/PageGet' }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     patch:
       description: Updates a page.
@@ -984,12 +984,12 @@ paths:
           }
         }}}
       responses:
-        200: { description: OK }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     delete:
       description: Deletes a page.
@@ -998,11 +998,11 @@ paths:
       security:
       - AccountSession: []
       responses:
-        200: { description: OK }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /page/id/{path}/restore:
     parameters:
@@ -1026,10 +1026,10 @@ paths:
         }}}
       responses:
         201: { description: Created }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /page/{path_type}/{path}/rename:
     parameters:
@@ -1049,12 +1049,12 @@ paths:
           properties: { slug: { $ref: '#/components/schemas/Slug' }}
         }}}
       responses:
-        200: { description: OK }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
+        200: { $ref: '#/components/responses/OK' }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
         403: { description: The requested path cannot be used. }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   # -- REVISION
 
@@ -1074,8 +1074,8 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/RevisionHistory' }}}
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /page/{path_type}/{path}/revision/{revision}:
     parameters:
@@ -1092,8 +1092,8 @@ paths:
       - $ref: '#/components/parameters/Avatars'
       responses:
         200: { $ref: '#/components/responses/PageGet' }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     patch:
       description: Updates the metadata of a revision.
@@ -1110,11 +1110,11 @@ paths:
           }
         }}}
       responses:
-        200: { description: OK }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     post:
       description: Resets a page to a past revision.
@@ -1123,11 +1123,11 @@ paths:
       security:
       - AccountSession: []
       responses:
-        200: { description: OK }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   # -- TAG
 
@@ -1147,8 +1147,8 @@ paths:
             required: [tags],
             properties: { tags: { $ref: '#/components/schemas/TagList' }}
           }}}
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     put:
       description: Updates the tags of a page.
@@ -1163,12 +1163,12 @@ paths:
           properties: { tags: { $ref: '#/components/schemas/TagList' }}
         }}}
       responses:
-        200: { description: OK }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   # -- VOTE
 
@@ -1185,8 +1185,8 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/Score' }}}
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /page/{path_type}/{path}/voters:
     parameters:
@@ -1204,8 +1204,8 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/VoterList' }}}
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /page/{path_type}/{path}/vote:
     parameters:
@@ -1225,9 +1225,9 @@ paths:
             required: [vote],
             properties: { vote: { allOf: [$ref: '#/components/schemas/CastVote'], nullable: true }}
           }}}
-        401: { description: Missing or invalid authentication credentials. }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     put:
       description: Updates/sets the client's voting state on a page.
@@ -1242,12 +1242,12 @@ paths:
           properties: { vote: { $ref: '#/components/schemas/CastVote' }}
         }}}
       responses:
-        200: { description: OK }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
+        200: { $ref: '#/components/responses/OK' }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
         403: { description: Page has scoring disabled. }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     delete:
       description: Removes the client's voting state on a page.
@@ -1256,10 +1256,10 @@ paths:
       security:
       - AccountSession: []
       responses:
-        200: { description: OK }
-        401: { description: Missing or invalid authentication credentials. }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   # -- FILE
 
@@ -1281,8 +1281,8 @@ paths:
             required: [files],
             properties: { files: { type: array, items: { $ref: '#/components/schemas/FileMetadata' }}}
           }}}
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     post:
       description: Adds a new file to a page.
@@ -1293,10 +1293,10 @@ paths:
       requestBody: { content: { multipart/form-data: { schema: { $ref: '#/components/schemas/FileUpload' }}}}
       responses:
         201: { description: Created }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /file:
     get:
@@ -1316,7 +1316,7 @@ paths:
             allOf: [$ref: '#/components/schemas/Paginated'],
             properties: { files: { type: array, items: { $ref: '#/components/schemas/FileMetadata' }}}
           }}}
-        500: { description: Unexpected Error }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     post:
       description: Adds a new file to a site instance.
@@ -1330,9 +1330,9 @@ paths:
       }}}
       responses:
         201: { description: Created }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /file/{id}:
     parameters:
@@ -1349,8 +1349,8 @@ paths:
             example: FFD8FFDB00430006040506050406060506070706...,
             schema: { $ref: '#/components/schemas/FileData' }
           }}
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     delete:
       description: Deletes a file.
@@ -1359,11 +1359,11 @@ paths:
       security:
       - AccountSession: []
       responses:
-        200: { description: OK }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /file/metadata:
 
@@ -1375,8 +1375,8 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/FileSiteMetadata' }}}
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
 
   /file/{id}/metadata:
@@ -1392,8 +1392,8 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/FileMetadata' }}}
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   # -- REPORT
 
@@ -1414,10 +1414,10 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/ReportList' }}}
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     post:
       description: Reports a user.
@@ -1428,10 +1428,10 @@ paths:
       requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/ReportSend' }}}}
       responses:
         201: { description: Created }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /page/{path_type}/{path}/report:
     parameters:
@@ -1450,10 +1450,10 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/ReportList' }}}
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     post:
       description: Reports a page.
@@ -1464,10 +1464,10 @@ paths:
       requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/ReportSend' }}}}
       responses:
         201: { description: Created }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /report/{id}:
     parameters:
@@ -1485,10 +1485,10 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/Report' }}}
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   # -- ABUSE
 
@@ -1508,10 +1508,10 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/ReportList' }}}
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     post:
       description: Reports a site.
@@ -1522,10 +1522,10 @@ paths:
       requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/ReportSend' }}}}
       responses:
         201: { description: Created }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /user/{path_type}/{path}/abuse:
     parameters:
@@ -1547,10 +1547,10 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/ReportList' }}}
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     post:
       description: Reports a user.
@@ -1561,10 +1561,10 @@ paths:
       requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/ReportSend' }}}}
       responses:
         201: { description: Created }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /page/{path_type}/{path}/abuse:
     parameters:
@@ -1586,10 +1586,10 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/ReportList' }}}
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     post:
       description: Reports a page.
@@ -1600,10 +1600,10 @@ paths:
       requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/ReportSend' }}}}
       responses:
         201: { description: Created }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /abuse/{id}:
     parameters:
@@ -1624,10 +1624,10 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/Report' }}}
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   # -- MESSAGE
 
@@ -1650,10 +1650,10 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/MessageList' }}}
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /message/{id}:
     parameters:
@@ -1672,10 +1672,10 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/Message' }}}
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     patch:
       description: Updates the metadata of a message, such as read or unread.
@@ -1692,11 +1692,11 @@ paths:
           }
         }}}
       responses:
-        200: { description: OK }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     delete:
       description: Deletes a message.
@@ -1705,11 +1705,11 @@ paths:
       security:
       - AccountSession: []
       responses:
-        200: { description: OK }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /user/{path_type}/{path}/message:
     parameters:
@@ -1727,11 +1727,11 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/MessageSend' }}}
       responses:
         201: { description: Created }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   # -- FORUM
 
@@ -1747,7 +1747,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/Forum' }}}
-        500: { description: Unexpected Error }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /forum/group:
     parameters:
@@ -1761,7 +1761,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/ForumGroupList' }}}
-        500: { description: Unexpected Error }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /forum/group/{id}:
     parameters:
@@ -1777,8 +1777,8 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/ForumGroup' }}}
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     patch:
       description: Updates a group.
@@ -1796,12 +1796,12 @@ paths:
           }
         }}}
       responses:
-        200: { description: OK }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     post:
       description: Creates a new category inside of a group.
@@ -1819,11 +1819,11 @@ paths:
         }}}
       responses:
         201: { description: Created }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     delete:
       description: Deletes a group.
@@ -1832,11 +1832,11 @@ paths:
       security:
       - AccountSession: []
       responses:
-        200: { description: OK }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /forum/group/{id}/categories:
     parameters:
@@ -1852,8 +1852,8 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/ForumCategoryList' }}}
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /forum/category:
     parameters:
@@ -1867,7 +1867,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/ForumCategoryList' }}}
-        500: { description: Unexpected Error }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /forum/category/{id}:
     parameters:
@@ -1883,8 +1883,8 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/ForumCategory' }}}
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     patch:
       description: Updates a category.
@@ -1901,12 +1901,12 @@ paths:
           }
         }}}
       responses:
-        200: { description: OK }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     post:
       description: Creates a new thread inside of a category.
@@ -1924,11 +1924,11 @@ paths:
         }}}
       responses:
         201: { description: Created }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     delete:
       description: Deletes a category.
@@ -1937,11 +1937,11 @@ paths:
       security:
       - AccountSession: []
       responses:
-        200: { description: OK }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /forum/category/{id}/threads:
     parameters:
@@ -1958,7 +1958,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/ForumThreadList' }}}
-        500: { description: Unexpected Error }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /forum/thread/{id}:
     parameters:
@@ -1974,8 +1974,8 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/ForumThread' }}}
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     patch:
       description: Updates a thread.
@@ -1994,12 +1994,12 @@ paths:
           }
         }}}
       responses:
-        200: { description: OK }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     post:
       description: Creates a new post inside of a thread.
@@ -2017,11 +2017,11 @@ paths:
         }}}
       responses:
         201: { description: Created }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     delete:
       description: Deletes a thread.
@@ -2032,11 +2032,11 @@ paths:
       security:
       - AccountSession: []
       responses:
-        200: { description: OK }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /forum/thread/{id}/posts:
     parameters:
@@ -2055,7 +2055,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/ForumPostList' }}}
-        500: { description: Unexpected Error }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /forum/post/{id}:
     parameters:
@@ -2073,8 +2073,8 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/ForumPost' }}}
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     patch:
       description: Updates a post.
@@ -2091,12 +2091,12 @@ paths:
           }
         }}}
       responses:
-        200: { description: OK }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     post:
       description: Replies to a post with another post.
@@ -2114,11 +2114,11 @@ paths:
         }}}
       responses:
         201: { description: Created }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     delete:
       description: Deletes a post.
@@ -2129,11 +2129,11 @@ paths:
       security:
       - AccountSession: []
       responses:
-        200: { description: OK }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /forum/post/{id}/replies:
     parameters:
@@ -2152,7 +2152,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/ForumPostList' }}}
-        500: { description: Unexpected Error }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /forum/post/{id}/revision:
     parameters:
@@ -2169,8 +2169,8 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/RevisionHistory' }}}
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /forum/post/{id}/revision/{revision}:
     parameters:
@@ -2188,8 +2188,8 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/ForumPost' }}}
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     patch:
       description: Updates the metadata of a revision.
@@ -2206,12 +2206,12 @@ paths:
           }
         }}}
       responses:
-        200: { description: OK }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     post:
       description: Resets a forum post to a past revision.
@@ -2220,11 +2220,11 @@ paths:
       security:
       - AccountSession: []
       responses:
-        200: { description: OK }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   # -- MODERATION
 
@@ -2246,12 +2246,12 @@ paths:
       security:
       - AccountSession: []
       responses:
-        200: { description: OK }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /moderation/banned:
     get:
@@ -2281,11 +2281,11 @@ paths:
               }
             }
           }}}
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /user/{path_type}/{path}/ban:
     parameters:
@@ -2309,10 +2309,10 @@ paths:
               reason: { type: string }
             }
           }}}
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     put:
       description: Bans a user. Providing `null` for `until` describes a perma-ban.
@@ -2330,12 +2330,12 @@ paths:
       security:
       - AccountSession: []
       responses:
-        200: { description: OK }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     delete:
       description: Unbans a user, if they were banned to begin with.
@@ -2344,11 +2344,11 @@ paths:
       security:
       - AccountSession: []
       responses:
-        200: { description: OK }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   # -- CATEGORY
 
@@ -2361,7 +2361,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/CategoryList' }}}
-        500: { description: Unexpected Error }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /category/default:
     get:
@@ -2372,7 +2372,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/CategoryDefault' }}}
-        500: { description: Unexpected Error }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     patch:
       description: Update (patch) the default category.
@@ -2384,11 +2384,11 @@ paths:
         required: true
         content: { application/json: { schema: { $ref: '#/components/schemas/CategoryDefaultPatch' }}}
       responses:
-        200: { description: OK }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /category/id/{id}:
     parameters:
@@ -2402,8 +2402,8 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/Category' }}}
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     patch:
       description: Update (patch) a category.
@@ -2415,12 +2415,12 @@ paths:
         required: true
         content: { application/json: { schema: { $ref: '#/components/schemas/CategoryPatch' }}}
       responses:
-        200: { description: OK }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   # -- SITE
 
@@ -2435,9 +2435,9 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/SiteSettings' }}}
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     patch:
       description: Update (patch) the site's settings.
@@ -2449,11 +2449,11 @@ paths:
         required: true
         content: { application/json: { schema: { $ref: '#/components/schemas/SiteSettingsPatch' }}}
       responses:
-        200: { description: OK }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /site/application:
     parameters:
@@ -2470,9 +2470,9 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/ApplicationList' }}}
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /site/application/{id}:
     parameters:
@@ -2488,10 +2488,10 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/Application' }}}
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     post:
       description: Accepts an application.
@@ -2500,11 +2500,11 @@ paths:
       security:
       - AccountSession: []
       responses:
-        200: { description: OK }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     delete:
       description: Rejects an application.
@@ -2513,11 +2513,11 @@ paths:
       security:
       - AccountSession: []
       responses:
-        200: { description: OK }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        404: { description: Not Found }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        404: { $ref: '#/components/responses/NotFound' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /site/backup:
     get:
@@ -2533,9 +2533,9 @@ paths:
             example: FFD8FFDB00430006040506050406060506070706...,
             schema: { $ref: '#/components/schemas/FileData' }
           }}
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /site/create:
     post:
@@ -2549,10 +2549,10 @@ paths:
       - AccountSession: []
       responses:
         201: { description: Created }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        500: { description: Unexpected Error }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /site/request-deletion:
     post:
@@ -2564,10 +2564,10 @@ paths:
       security:
       - AccountSession: []
       responses:
-        202: { description: Accepted }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        500: { description: Unexpected Error }
+        202: { $ref: '#/components/responses/Accepted' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /site/notification:
     get:
@@ -2580,9 +2580,9 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/NotificationList' }}}
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        500: { description: Unexpected Error }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
     delete:
       description: Dismisses all of the site's notifications.
@@ -2591,10 +2591,10 @@ paths:
       security:
       - AccountSession: []
       responses:
-        200: { description: OK }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        500: { description: Unexpected Error }
+        200: { $ref: '#/components/responses/OK' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /site/newsletter:
     post:
@@ -2608,10 +2608,10 @@ paths:
       - AccountSession: []
       responses:
         201: { description: Created }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        500: { description: Unexpected Error }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /site/transfer:
     post:
@@ -2624,11 +2624,11 @@ paths:
       security:
       - AccountSession: []
       responses:
-        202: { description: Accepted }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        500: { description: Unexpected Error }
+        202: { $ref: '#/components/responses/Accepted' }
+        400: { $ref: '#/components/responses/BadRequest' }
+        401: { $ref: '#/components/responses/Unauthorized' }
+        403: { $ref: '#/components/responses/Forbidden' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
 components:
 
@@ -2737,6 +2737,20 @@ components:
       schema: { type: boolean, default: true }
 
   responses:
+
+    # Generic Responses
+
+    OK:              { description: OK }               # 200
+    Created:         { description: Created }          # 201
+    Accepted:        { description: Accepted }         # 202
+    BadRequest:      { description: Bad Request }      # 400
+    Unauthorized:    { description: Unauthorized }     # 401
+    Forbidden:       { description: Forbidden }        # 403
+    NotFound:        { description: NotFound }         # 404
+    Conflict:        { description: Conflict }         # 409
+    UnexpectedError: { description: Unexpected Error } # 500
+
+    # Normal Responses
 
     RegeneratedSession:
       description: OK
