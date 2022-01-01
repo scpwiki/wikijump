@@ -204,7 +204,7 @@ paths:
 
   /util/resolveid/{id}:
     parameters:
-    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+    - $ref: '#/components/parameters/ID'
 
     get:
       description: Resolves an ID and returns what type of object it refers to.
@@ -213,10 +213,7 @@ paths:
       responses:
         200:
           description: OK
-          content: { application/json: { schema: { type: object,
-            required: [type],
-            properties: { type: { $ref: '#/components/schemas/ReferenceTypes' } }
-          }}}
+          content: { application/json: { schema: { $ref: '#/components/schemas/ReferenceTypesObject' }}}
         400: { $ref: '#/components/responses/BadRequest' }
         403: { $ref: '#/components/responses/Forbidden' }
         404: { $ref: '#/components/responses/NotFound' }
@@ -231,14 +228,7 @@ paths:
       operationId: authLogin
       requestBody:
         required: true
-        content: { application/json: { schema: { type: object,
-          required: [login, password],
-          properties: {
-            login:    { $ref: '#/components/schemas/LoginSpecifier' },
-            password: { type: string, format: password  },
-            remember: { type: boolean }
-          }
-        }}}
+        content: { application/json: { schema: { $ref: '#/components/schemas/LoginOptions' }}}
       responses:
         200: { $ref: '#/components/responses/RegeneratedSession' }
         400: { description: Invalid email or password. }
@@ -252,12 +242,7 @@ paths:
       operationId: authConfirm
       requestBody:
         required: true
-        content: { application/json: { schema: { type: object,
-          required: [password],
-          properties: {
-            password: { type: string, format: password },
-          }
-        }}}
+        content: { application/json: { schema: { $ref: '#/components/schemas/PasswordObject' }}}
       responses:
         200: { $ref: '#/components/responses/OK' }
         400: { description: Invalid password. }
@@ -283,13 +268,7 @@ paths:
       responses:
         200:
           description: OK
-          content: { application/json: { schema: { type: object,
-            required: [sessionValid, authed],
-            properties: {
-              sessionValid: { type: boolean },
-              authed:       { type: boolean }
-            }
-          }}}
+          content: { application/json: { schema: { $ref: '#/components/schemas/SessionState' }}}
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /auth/refresh:
@@ -314,14 +293,7 @@ paths:
       operationId: accountRegister
       requestBody:
         required: true
-        content: { application/json: { schema: { type: object,
-          required: [username, email, password],
-          properties: {
-            username: { $ref: '#/components/schemas/Username' },
-            email:    { $ref: '#/components/schemas/Email' },
-            password: { type: string, format: password }
-          }
-        }}}
+        content: { application/json: { schema: { $ref: '#/components/schemas/RegisterOptions' }}}
       responses:
         202: { $ref: '#/components/responses/RegeneratedSession' }
         403: { description: Email or username already in use. }
@@ -363,12 +335,7 @@ paths:
       operationId: accountStartRecovery
       requestBody:
         required: true
-        content: { application/json: { schema: { type: object,
-          required: [email],
-          properties: {
-            email: { $ref: '#/components/schemas/Email' }
-          }
-        }}}
+        content: { application/json: { schema: { $ref: '#/components/schemas/EmailObject' }}}
       responses:
         202: { $ref: '#/components/responses/Accepted' }
         403: { description: Email isn't in use. }
@@ -385,12 +352,7 @@ paths:
       responses:
         200:
           description: OK
-          content: { application/json: { schema: { type: object,
-            required: [email],
-            properties: {
-              email: { $ref: '#/components/schemas/Email' }
-            }
-          }}}
+          content: { application/json: { schema: { $ref: '#/components/schemas/EmailObject' }}}
         401: { $ref: '#/components/responses/Unauthorized' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
@@ -405,13 +367,8 @@ paths:
       - AccountSession: []
       requestBody:
         required: true
-        content: { application/json: { schema: { type: object,
-          required: [oldEmail, newEmail],
-          properties: {
-            oldEmail: { $ref: '#/components/schemas/Email' },
-            newEmail: { $ref: '#/components/schemas/Email' }
-          }
-        }}}
+        content: { application/json: { schema: { $ref: '#/components/schemas/UpdateEmail' }}}
+
       responses:
         202: { $ref: '#/components/responses/Accepted' }
         400: { $ref: '#/components/responses/BadRequest' }
@@ -427,13 +384,8 @@ paths:
       - AccountSession: []
       requestBody:
         required: true
-        content: { application/json: { schema: { type: object,
-          required: [oldPassword, newPassword],
-          properties: {
-            oldPassword: { type: string, format: password },
-            newPassword: { type: string, format: password }
-          }
-        }}}
+        content: { application/json: { schema: { $ref: '#/components/schemas/UpdatePassword' }}}
+
       responses:
         200: { $ref: '#/components/responses/OK' }
         400: { $ref: '#/components/responses/BadRequest' }
@@ -450,12 +402,8 @@ paths:
       responses:
         200:
           description: OK
-          content: { application/json: { schema: { type: object,
-            required: [username],
-            properties: {
-              username: { $ref: '#/components/schemas/Username' }
-            }
-          }}}
+          content: { application/json: { schema: { $ref: '#/components/schemas/UsernameObject' }}}
+
         401: { $ref: '#/components/responses/Unauthorized' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
@@ -467,12 +415,8 @@ paths:
       - AccountSession: []
       requestBody:
         required: true
-        content: { application/json: { schema: { type: object,
-          required: [username],
-          properties: {
-            username: { $ref: '#/components/schemas/Username' }
-          }
-        }}}
+        content: { application/json: { schema: { $ref: '#/components/schemas/UsernameObject' }}}
+
       responses:
         200: { $ref: '#/components/responses/OK' }
         400: { $ref: '#/components/responses/BadRequest' }
@@ -575,12 +519,7 @@ paths:
       responses:
         200:
           description: OK
-          content: { application/json: { schema: { type: object,
-            required: [avatar],
-            properties: {
-              avatar: { $ref: '#/components/schemas/AvatarURL' }
-            }
-          }}}
+          content: { application/json: { schema: { $ref: '#/components/schemas/AvatarURLObject' }}}
         401: { $ref: '#/components/responses/Unauthorized' }
         404: { $ref: '#/components/responses/NotFound' }
         500: { $ref: '#/components/responses/UnexpectedError' }
@@ -596,7 +535,7 @@ paths:
         schema: { $ref: '#/components/schemas/FileData' }
       }}}
       responses:
-        201: { description: Created }
+        201: { $ref: '#/components/responses/Created' }
         400: { $ref: '#/components/responses/BadRequest' }
         401: { $ref: '#/components/responses/Unauthorized' }
         403: { $ref: '#/components/responses/Forbidden' }
@@ -674,12 +613,8 @@ paths:
       responses:
         200:
           description: OK
-          content: { application/json: { schema: { type: object,
-            required: [avatar],
-            properties: {
-              avatar: { $ref: '#/components/schemas/AvatarURL' }
-            }
-          }}}
+          content: { application/json: { schema: { $ref: '#/components/schemas/AvatarURLObject' }}}
+
         404: { $ref: '#/components/responses/NotFound' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
@@ -712,10 +647,7 @@ paths:
       responses:
         200:
           description: OK
-          content: { application/json: { schema: {
-            required: [blocked],
-            properties: { blocked: { type: boolean } }
-          }}}
+          content: { application/json: { schema: { $ref: '#/components/schemas/UserBlocked' }}}
         404: { $ref: '#/components/responses/NotFound' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
@@ -727,10 +659,7 @@ paths:
       - AccountSession: []
       requestBody:
         required: true
-        content: { application/json: { schema: {
-          required: [blocked],
-          properties: { blocked: { type: boolean } }
-        }}}
+        content: { application/json: { schema: { $ref: '#/components/schemas/UserBlocked' }}}
       responses:
         200: { $ref: '#/components/responses/OK' }
         400: { $ref: '#/components/responses/BadRequest' }
@@ -785,7 +714,7 @@ paths:
 
   /membership/site/{site}:
     parameters:
-    - { name: site, in: path, required: true, schema: { type: string }}
+    - $ref: '#/components/paramters/Site'
 
     get:
       description: Gets the client membership status for a site.
@@ -796,10 +725,7 @@ paths:
       responses:
         200:
           description: OK
-          content: { application/json: { schema: {
-            nullable: true,
-            allOf: [$ref: '#/components/schemas/Membership']
-          }}}
+          content: { application/json: { schema: { $ref: '#/components/schemas/MembershipStatus' }}}
         401: { $ref: '#/components/responses/Unauthorized' }
         404: { $ref: '#/components/responses/NotFound' }
         500: { $ref: '#/components/responses/UnexpectedError' }
@@ -814,7 +740,7 @@ paths:
         required: true
         content: { application/json: { schema: { $ref: '#/components/schemas/ApplicationSend' }}}
       responses:
-        201: { description: Created }
+        201: { $ref: '#/components/responses/Created' }
         400: { $ref: '#/components/responses/BadRequest' }
         401: { $ref: '#/components/responses/Unauthorized' }
         403: { $ref: '#/components/responses/Forbidden' }
@@ -851,7 +777,7 @@ paths:
 
   /member/{path_type}/{path}/membership/{site}:
     parameters:
-    - { name: site, in: path, required: true, schema: { type: string }}
+    - $ref: '#/components/parameters/Site'
     - $ref: '#/components/parameters/UserPathType'
     - $ref: '#/components/parameters/UserPath'
 
@@ -862,10 +788,8 @@ paths:
       responses:
         200:
           description: OK
-          content: { application/json: { schema: {
-            nullable: true,
-            allOf: [$ref: '#/components/schemas/Membership']
-          }}}
+          content: { application/json: { schema: { $ref: '#/components/schemas/MembershipStatus' }}}
+
         403: { $ref: '#/components/responses/Forbidden' }
         404: { $ref: '#/components/responses/NotFound' }
         500: { $ref: '#/components/responses/UnexpectedError' }
@@ -919,7 +843,7 @@ paths:
         required: true
         content: { application/json: { schema: { $ref: '#/components/schemas/InviteSend' }}}
       responses:
-        201: { description: Created }
+        201: { $ref: '#/components/responses/Created' }
         400: { $ref: '#/components/responses/BadRequest' }
         401: { $ref: '#/components/responses/Unauthorized' }
         403: { $ref: '#/components/responses/Forbidden' }
@@ -937,16 +861,9 @@ paths:
       - AccountSession: []
       requestBody:
         required: true
-        content: { application/json: { schema: { type: object,
-          required: [slug],
-          properties: {
-            slug:     { $ref: '#/components/schemas/Slug' },
-            title:    { type: string },
-            wikitext: { $ref: '#/components/schemas/Wikitext' }
-          }
-        }}}
+        content: { application/json: { schema: { $ref: '#/components/schemas/PageCreateOptions' }}}
       responses:
-        201: { description: Created }
+        201: { $ref: '#/components/responses/Created' }
         400: { $ref: '#/components/responses/BadRequest' }
         401: { $ref: '#/components/responses/Unauthorized' }
         403: { description: The requested path cannot be used. }
@@ -977,12 +894,7 @@ paths:
       - AccountSession: []
       requestBody:
         required: true
-        content: { application/json: { schema: { type: object,
-          properties: {
-            title:    { type: string },
-            wikitext: { $ref: '#/components/schemas/Wikitext' }
-          }
-        }}}
+        content: { application/json: { schema: { $ref: '#/components/schemas/PagePatch' }}}
       responses:
         200: { $ref: '#/components/responses/OK' }
         400: { $ref: '#/components/responses/BadRequest' }
@@ -1004,13 +916,9 @@ paths:
         404: { $ref: '#/components/responses/NotFound' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
-  /page/id/{path}/restore:
+  /page/id/{id}/restore:
     parameters:
-    - description: Specifies the ID to be used to identify a page.
-      name: path
-      in: path
-      required: true
-      schema: { title: id, $ref: '#/components/schemas/Reference' }
+    - $ref: '#/components/parameters/ID'
 
     post:
       description: Restores a previously deleted page.
@@ -1020,12 +928,9 @@ paths:
       - AccountSession: []
       requestBody:
         required: true
-        content: { application/json: { schema: { type: object,
-          required: [slug],
-          properties: { slug: { $ref: '#/components/schemas/Slug' }}
-        }}}
+        content: { application/json: { schema: { $ref: '#/components/schemas/SlugObject' }}}
       responses:
-        201: { description: Created }
+        201: { $ref: '#/components/responses/Created' }
         401: { $ref: '#/components/responses/Unauthorized' }
         403: { $ref: '#/components/responses/Forbidden' }
         404: { $ref: '#/components/responses/NotFound' }
@@ -1044,10 +949,7 @@ paths:
       - AccountSession: []
       requestBody:
         required: true
-        content: { application/json: { schema: { type: object,
-          required: [slug],
-          properties: { slug: { $ref: '#/components/schemas/Slug' }}
-        }}}
+        content: { application/json: { schema: { $ref: '#/components/schemas/SlugObject' }}}
       responses:
         200: { $ref: '#/components/responses/OK' }
         400: { $ref: '#/components/responses/BadRequest' }
@@ -1081,7 +983,7 @@ paths:
     parameters:
     - $ref: '#/components/parameters/PagePathType'
     - $ref: '#/components/parameters/PagePath'
-    - { name: revision, in: path, required: true, schema: { type: integer }}
+    - $ref: '#/components/parameters/Revision'
 
     get:
       description: Gets the page corresponding to a revision.
@@ -1103,12 +1005,7 @@ paths:
       - AccountSession: []
       requestBody:
         required: true
-        content: { application/json: { schema: { type: object,
-          properties: {
-            hidden:  { type: boolean },
-            message: { type: string }
-          }
-        }}}
+        content: { application/json: { schema: { $ref: '#/components/schemas/RevisionPatch' }}}
       responses:
         200: { $ref: '#/components/responses/OK' }
         401: { $ref: '#/components/responses/Unauthorized' }
@@ -1143,10 +1040,7 @@ paths:
       responses:
         200:
           description: OK
-          content: { application/json: { schema: { type: object,
-            required: [tags],
-            properties: { tags: { $ref: '#/components/schemas/TagList' }}
-          }}}
+          content: { application/json: { schema: { $ref: '#/components/schemas/TagListObject' }}}
         404: { $ref: '#/components/responses/NotFound' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
@@ -1158,10 +1052,7 @@ paths:
       - AccountSession: []
       requestBody:
         required: true
-        content: { application/json: { schema: { type: object,
-          required: [tags],
-          properties: { tags: { $ref: '#/components/schemas/TagList' }}
-        }}}
+        content: { application/json: { schema: { $ref: '#/components/schemas/TagListObject' }}}
       responses:
         200: { $ref: '#/components/responses/OK' }
         400: { $ref: '#/components/responses/BadRequest' }
@@ -1221,10 +1112,7 @@ paths:
       responses:
         200:
           description: OK
-          content: { application/json: { schema: { type: object,
-            required: [vote],
-            properties: { vote: { allOf: [$ref: '#/components/schemas/CastVote'], nullable: true }}
-          }}}
+          content: { application/json: { schema: { $ref: '#/components/schemas/CastVoteStatus' }}}
         401: { $ref: '#/components/responses/Unauthorized' }
         404: { $ref: '#/components/responses/NotFound' }
         500: { $ref: '#/components/responses/UnexpectedError' }
@@ -1237,10 +1125,7 @@ paths:
       - AccountSession: []
       requestBody:
         required: true
-        content: { application/json: { schema: { type: object,
-          required: [vote],
-          properties: { vote: { $ref: '#/components/schemas/CastVote' }}
-        }}}
+        content: { application/json: { schema: { $ref: '#/components/schemas/CastVoteObject' }}}
       responses:
         200: { $ref: '#/components/responses/OK' }
         400: { $ref: '#/components/responses/BadRequest' }
@@ -1270,17 +1155,14 @@ paths:
 
     get:
       description: Gets metadata on all files attached to a page.
-      tags: [file, avatars]
+      tags: [file, paginated, avatars]
       operationId: filePageGetMetadata
       parameters:
       - $ref: '#/components/parameters/Avatars'
       responses:
         200:
           description: OK
-          content: { application/json: { schema: { type: object,
-            required: [files],
-            properties: { files: { type: array, items: { $ref: '#/components/schemas/FileMetadata' }}}
-          }}}
+          content: { application/json: { schema: { $ref: '#/components/schemas/FileMetadataList' }}}
         404: { $ref: '#/components/responses/NotFound' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
@@ -1292,7 +1174,7 @@ paths:
       - AccountSession: []
       requestBody: { content: { multipart/form-data: { schema: { $ref: '#/components/schemas/FileUpload' }}}}
       responses:
-        201: { description: Created }
+        201: { $ref: '#/components/responses/Created' }
         401: { $ref: '#/components/responses/Unauthorized' }
         403: { $ref: '#/components/responses/Forbidden' }
         404: { $ref: '#/components/responses/NotFound' }
@@ -1311,11 +1193,7 @@ paths:
       responses:
         200:
           description: OK
-          content: { application/json: { schema: { type: object,
-            required: [files],
-            allOf: [$ref: '#/components/schemas/Paginated'],
-            properties: { files: { type: array, items: { $ref: '#/components/schemas/FileMetadata' }}}
-          }}}
+          content: { application/json: { schema: { $ref: '#/components/schemas/FileMetadataList' }}}
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     post:
@@ -1329,14 +1207,14 @@ paths:
         schema: { $ref: '#/components/schemas/FileUpload' }
       }}}
       responses:
-        201: { description: Created }
+        201: { $ref: '#/components/responses/Created' }
         401: { $ref: '#/components/responses/Unauthorized' }
         403: { $ref: '#/components/responses/Forbidden' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /file/{id}:
     parameters:
-    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+    - $ref: '#/components/parameters/ID'
 
     get:
       description: Gets a file.
@@ -1381,7 +1259,7 @@ paths:
 
   /file/{id}/metadata:
     parameters:
-    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+    - $ref: '#/components/parameters/ID'
     - $ref: '#/components/parameters/Avatars'
 
     get:
@@ -1427,7 +1305,7 @@ paths:
       - AccountSession: []
       requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/ReportSend' }}}}
       responses:
-        201: { description: Created }
+        201: { $ref: '#/components/responses/Created' }
         401: { $ref: '#/components/responses/Unauthorized' }
         403: { $ref: '#/components/responses/Forbidden' }
         404: { $ref: '#/components/responses/NotFound' }
@@ -1463,7 +1341,7 @@ paths:
       - AccountSession: []
       requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/ReportSend' }}}}
       responses:
-        201: { description: Created }
+        201: { $ref: '#/components/responses/Created' }
         401: { $ref: '#/components/responses/Unauthorized' }
         403: { $ref: '#/components/responses/Forbidden' }
         404: { $ref: '#/components/responses/NotFound' }
@@ -1471,7 +1349,7 @@ paths:
 
   /report/{id}:
     parameters:
-    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+    - $ref: '#/components/parameters/ID'
 
     get:
       description: Gets a report.
@@ -1521,7 +1399,7 @@ paths:
       - AccountSession: []
       requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/ReportSend' }}}}
       responses:
-        201: { description: Created }
+        201: { $ref: '#/components/responses/Created' }
         401: { $ref: '#/components/responses/Unauthorized' }
         403: { $ref: '#/components/responses/Forbidden' }
         404: { $ref: '#/components/responses/NotFound' }
@@ -1560,7 +1438,7 @@ paths:
       - AccountSession: []
       requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/ReportSend' }}}}
       responses:
-        201: { description: Created }
+        201: { $ref: '#/components/responses/Created' }
         401: { $ref: '#/components/responses/Unauthorized' }
         403: { $ref: '#/components/responses/Forbidden' }
         404: { $ref: '#/components/responses/NotFound' }
@@ -1599,7 +1477,7 @@ paths:
       - AccountSession: []
       requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/ReportSend' }}}}
       responses:
-        201: { description: Created }
+        201: { $ref: '#/components/responses/Created' }
         401: { $ref: '#/components/responses/Unauthorized' }
         403: { $ref: '#/components/responses/Forbidden' }
         404: { $ref: '#/components/responses/NotFound' }
@@ -1607,7 +1485,8 @@ paths:
 
   /abuse/{id}:
     parameters:
-    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+    - $ref: '#/components/parameters/ID'
+
 
     get:
       description: |
@@ -1657,7 +1536,7 @@ paths:
 
   /message/{id}:
     parameters:
-    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+    - $ref: '#/components/parameters/ID'
 
     get:
       description: Gets a message.
@@ -1685,12 +1564,7 @@ paths:
       - AccountSession: []
       requestBody:
         required: true
-        content: { application/json: { schema: { type: object,
-          properties: {
-            read:     { type: boolean },
-            archived: { type: boolean }
-          }
-        }}}
+        content: { application/json: { schema: { $ref: '#/components/schemas/MessagePatch' }}}
       responses:
         200: { $ref: '#/components/responses/OK' }
         401: { $ref: '#/components/responses/Unauthorized' }
@@ -1726,7 +1600,7 @@ paths:
         required: true
         content: { application/json: { schema: { $ref: '#/components/schemas/MessageSend' }}}
       responses:
-        201: { description: Created }
+        201: { $ref: '#/components/responses/Created' }
         400: { $ref: '#/components/responses/BadRequest' }
         401: { $ref: '#/components/responses/Unauthorized' }
         403: { $ref: '#/components/responses/Forbidden' }
@@ -1765,7 +1639,7 @@ paths:
 
   /forum/group/{id}:
     parameters:
-    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+    - $ref: '#/components/parameters/ID'
 
     get:
       description: Gets a group.
@@ -1788,13 +1662,7 @@ paths:
       - AccountSession: []
       requestBody:
         required: true
-        content: { application/json: { schema: { type: object,
-          properties: {
-            title:   { type: string },
-            summary: { type: string },
-            order:   { type: array, uniqueItems: true, items: { $ref: '#/components/schemas/Reference' } }
-          }
-        }}}
+        content: { application/json: { schema: { $ref: '#/components/schemas/ForumGroupPatch' }}}
       responses:
         200: { $ref: '#/components/responses/OK' }
         400: { $ref: '#/components/responses/BadRequest' }
@@ -1811,14 +1679,9 @@ paths:
       - AccountSession: []
       requestBody:
         required: true
-        content: { application/json: { schema: { type: object,
-          properties: {
-            title:   { type: string },
-            summary: { type: string }
-          }
-        }}}
+        content: { application/json: { schema: { $ref: '#/components/schemas/ForumCategoryCreate' }}}
       responses:
-        201: { description: Created }
+        201: { $ref: '#/components/responses/Created' }
         400: { $ref: '#/components/responses/BadRequest' }
         401: { $ref: '#/components/responses/Unauthorized' }
         403: { $ref: '#/components/responses/Forbidden' }
@@ -1840,7 +1703,7 @@ paths:
 
   /forum/group/{id}/categories:
     parameters:
-    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+    - $ref: '#/components/parameters/ID'
 
     get:
       description: Gets the categories of a group.
@@ -1871,7 +1734,7 @@ paths:
 
   /forum/category/{id}:
     parameters:
-    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+    - $ref: '#/components/parameters/ID'
 
     get:
       description: Gets a category.
@@ -1894,12 +1757,7 @@ paths:
       - AccountSession: []
       requestBody:
         required: true
-        content: { application/json: { schema: { type: object,
-          properties: {
-            title:   { type: string },
-            summary: { type: string }
-          }
-        }}}
+        content: { application/json: { schema: { $ref: '#/components/schemas/ForumCategoryPatch' }}}
       responses:
         200: { $ref: '#/components/responses/OK' }
         400: { $ref: '#/components/responses/BadRequest' }
@@ -1916,14 +1774,9 @@ paths:
       - AccountSession: []
       requestBody:
         required: true
-        content: { application/json: { schema: { type: object,
-          properties: {
-            title:   { type: string },
-            summary: { type: string }
-          }
-        }}}
+        content: { application/json: { schema: { $ref: '#/components/schemas/ForumThreadCreate' }}}
       responses:
-        201: { description: Created }
+        201: { $ref: '#/components/responses/Created' }
         400: { $ref: '#/components/responses/BadRequest' }
         401: { $ref: '#/components/responses/Unauthorized' }
         403: { $ref: '#/components/responses/Forbidden' }
@@ -1945,7 +1798,7 @@ paths:
 
   /forum/category/{id}/threads:
     parameters:
-    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+    - $ref: '#/components/parameters/ID'
     - $ref: '#/components/parameters/Cursor'
     - $ref: '#/components/parameters/Limit'
     - $ref: '#/components/parameters/Avatars'
@@ -1962,7 +1815,7 @@ paths:
 
   /forum/thread/{id}:
     parameters:
-    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+    - $ref: '#/components/parameters/ID'
 
     get:
       description: Gets a thread.
@@ -1985,14 +1838,7 @@ paths:
       - AccountSession: []
       requestBody:
         required: true
-        content: { application/json: { schema: { type: object,
-          properties: {
-            title:    { type: string },
-            summary:  { type: string },
-            stickied: { type: boolean },
-            locked:   { type: boolean }
-          }
-        }}}
+        content: { application/json: { schema: { $ref: '#/components/schemas/ForumThreadPatch' }}}
       responses:
         200: { $ref: '#/components/responses/OK' }
         400: { $ref: '#/components/responses/BadRequest' }
@@ -2009,14 +1855,9 @@ paths:
       - AccountSession: []
       requestBody:
         required: true
-        content: { application/json: { schema: { type: object,
-          properties: {
-            title:    { type: string },
-            wikitext: { $ref: '#/components/schemas/Wikitext' }
-          }
-        }}}
+        content: { application/json: { schema: { $ref: '#/components/schemas/ForumPostCreate' }}}
       responses:
-        201: { description: Created }
+        201: { $ref: '#/components/responses/Created' }
         400: { $ref: '#/components/responses/BadRequest' }
         401: { $ref: '#/components/responses/Unauthorized' }
         403: { $ref: '#/components/responses/Forbidden' }
@@ -2040,7 +1881,7 @@ paths:
 
   /forum/thread/{id}/posts:
     parameters:
-    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+    - $ref: '#/components/parameters/ID'
     - $ref: '#/components/parameters/Cursor'
     - $ref: '#/components/parameters/Limit'
     - $ref: '#/components/parameters/ForumPostDetail'
@@ -2059,7 +1900,7 @@ paths:
 
   /forum/post/{id}:
     parameters:
-    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+    - $ref: '#/components/parameters/ID'
 
     get:
       description: Gets a post.
@@ -2084,12 +1925,7 @@ paths:
       - AccountSession: []
       requestBody:
         required: true
-        content: { application/json: { schema: { type: object,
-          properties: {
-            title:    { type: string },
-            wikitext: { $ref: '#/components/schemas/Wikitext' }
-          }
-        }}}
+        content: { application/json: { schema: { $ref: '#/components/schemas/ForumPostPatch' }}}
       responses:
         200: { $ref: '#/components/responses/OK' }
         400: { $ref: '#/components/responses/BadRequest' }
@@ -2106,14 +1942,9 @@ paths:
       - AccountSession: []
       requestBody:
         required: true
-        content: { application/json: { schema: { type: object,
-          properties: {
-            title:    { type: string },
-            wikitext: { $ref: '#/components/schemas/Wikitext' }
-          }
-        }}}
+        content: { application/json: { schema: { $ref: '#/components/schemas/ForumPostCreate' }}}
       responses:
-        201: { description: Created }
+        201: { $ref: '#/components/responses/Created' }
         400: { $ref: '#/components/responses/BadRequest' }
         401: { $ref: '#/components/responses/Unauthorized' }
         403: { $ref: '#/components/responses/Forbidden' }
@@ -2137,7 +1968,7 @@ paths:
 
   /forum/post/{id}/replies:
     parameters:
-    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+    - $ref: '#/components/parameters/ID'
     - $ref: '#/components/parameters/Cursor'
     - $ref: '#/components/parameters/Limit'
     - $ref: '#/components/parameters/ForumPostDetail'
@@ -2156,7 +1987,7 @@ paths:
 
   /forum/post/{id}/revision:
     parameters:
-    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+    - $ref: '#/components/parameters/ID'
     - $ref: '#/components/parameters/Cursor'
     - $ref: '#/components/parameters/Limit'
     - $ref: '#/components/parameters/Avatars'
@@ -2174,8 +2005,8 @@ paths:
 
   /forum/post/{id}/revision/{revision}:
     parameters:
-    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
-    - { name: revision, in: path, required: true, schema: { type: integer }}
+    - $ref: '#/components/parameters/ID'
+    - $ref: '#/components/parameters/Revision'
 
     get:
       description: Gets the post corresponding to a revision.
@@ -2199,12 +2030,7 @@ paths:
       - AccountSession: []
       requestBody:
         required: true
-        content: { application/json: { schema: { type: object,
-          properties: {
-            hidden:  { type: boolean },
-            message: { type: string }
-          }
-        }}}
+        content: { application/json: { schema: { $ref: '#/components/schemas/RevisionPatch' }}}
       responses:
         200: { $ref: '#/components/responses/OK' }
         400: { $ref: '#/components/responses/BadRequest' }
@@ -2239,10 +2065,7 @@ paths:
       operationId: moderationKick
       requestBody:
         required: true
-        content: { application/json: { schema: { type: object,
-          required: [reason],
-          properties: { reason: { type: string } }
-        }}}
+        content: { application/json: { schema: { $ref: '#/components/schemas/UserKick' }}}
       security:
       - AccountSession: []
       responses:
@@ -2256,31 +2079,14 @@ paths:
   /moderation/banned:
     get:
       description: Gets the list of users banned from a site.
-      tags: [moderation]
+      tags: [moderation, paginated]
       operationId: moderationBanGetList
       security:
       - AccountSession: []
       responses:
         200:
           description: OK
-          content: { application/json: { schema: { type: object,
-            required: [banned],
-            properties: {
-              banned: {
-                type: array,
-                uniqueItems: true,
-                items: {
-                  type: object,
-                  required: [user, until, reason],
-                  properties: {
-                    user:   { $ref: '#/components/schemas/UserIdentity' },
-                    until:  { type: string, format: date-time, nullable: true },
-                    reason: { type: string }
-                  }
-                }
-              }
-            }
-          }}}
+          content: { application/json: { schema: { $ref: '#/components/schemas/UserBannedList' }}}
         400: { $ref: '#/components/responses/BadRequest' }
         401: { $ref: '#/components/responses/Unauthorized' }
         403: { $ref: '#/components/responses/Forbidden' }
@@ -2301,14 +2107,7 @@ paths:
       responses:
         200:
           description: OK
-          content: { application/json: { schema: { type: object,
-            required: [banned, until, reason],
-            properties: {
-              banned: { type: boolean },
-              until:  { type: string, format: date-time, nullable: true },
-              reason: { type: string }
-            }
-          }}}
+          content: { application/json: { schema: { $ref: '#/components/schemas/UserBanned' }}}
         401: { $ref: '#/components/responses/Unauthorized' }
         403: { $ref: '#/components/responses/Forbidden' }
         404: { $ref: '#/components/responses/NotFound' }
@@ -2320,13 +2119,7 @@ paths:
       operationId: moderationBan
       requestBody:
         required: true
-        content: { application/json: { schema: { type: object,
-          required: [until, reason],
-          properties: {
-            until:  { type: string, format: date-time, nullable: true },
-            reason: { type: string }
-          }
-        }}}
+        content: { application/json: { schema: { $ref: '#/components/schemas/UserBan' }}}
       security:
       - AccountSession: []
       responses:
@@ -2392,7 +2185,7 @@ paths:
 
   /category/id/{id}:
     parameters:
-    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+    - $ref: '#/components/parameters/ID'
 
     get:
       description: Gets a category.
@@ -2476,7 +2269,7 @@ paths:
 
   /site/application/{id}:
     parameters:
-    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+    - $ref: '#/components/parameters/ID'
 
     get:
       description: Gets an application.
@@ -2548,7 +2341,7 @@ paths:
       security:
       - AccountSession: []
       responses:
-        201: { description: Created }
+        201: { $ref: '#/components/responses/Created' }
         400: { $ref: '#/components/responses/BadRequest' }
         401: { $ref: '#/components/responses/Unauthorized' }
         403: { $ref: '#/components/responses/Forbidden' }
@@ -2607,7 +2400,7 @@ paths:
       security:
       - AccountSession: []
       responses:
-        201: { description: Created }
+        201: { $ref: '#/components/responses/Created' }
         400: { $ref: '#/components/responses/BadRequest' }
         401: { $ref: '#/components/responses/Unauthorized' }
         403: { $ref: '#/components/responses/Forbidden' }
@@ -2633,6 +2426,20 @@ paths:
 components:
 
   parameters:
+
+    ID:
+      description: An integer which points to a resource.
+      name: id
+      in: path
+      required: true
+      schema: { $ref: '#/components/schemas/Reference' }
+
+    Site:
+      description: The name of a site.
+      name: site
+      in: path
+      required: true,
+      schema: { type: string }
 
     Limit:
       description: Specifies how many entries a paginated response should return in a single page.
@@ -2685,7 +2492,7 @@ components:
       name: path_type
       in: path
       required: true
-      schema: { type: string, enum: [id, name] }
+      schema: { type: string, enum: [id, slug] }
 
     UserPath:
       description: Specifies the ID or name to be used to identify a user.
@@ -2736,6 +2543,13 @@ components:
       in: query
       schema: { type: boolean, default: true }
 
+    Revision:
+      description: Specifies a particular revision.
+      name: revision
+      in: path
+      required: true
+      schema: { $ref: '#/components/schemas/Reference' }
+
   responses:
 
     # Generic Responses
@@ -2754,10 +2568,7 @@ components:
 
     RegeneratedSession:
       description: OK
-      content: { application/json: { schema: { type: object,
-        required: [csrf],
-        properties: { csrf: { type: string } }
-      }}}
+      content: { application/json: { schema: { $ref: '#/components/schemas/CSRF' }}}
       headers:
         Set-Cookie:
           description: >
@@ -2777,12 +2588,39 @@ components:
       description: OK
       content: { application/json: { schema: { oneOf: [
         $ref: '#/components/schemas/Page',
-        $ref: '#/components/schemas/WikitextObj',
-        $ref: '#/components/schemas/HTMLObj',
+        $ref: '#/components/schemas/WikitextObject',
+        $ref: '#/components/schemas/HTMLObject',
         $ref: '#/components/schemas/FTMLSyntaxTree'
       ]}}}
 
   schemas:
+
+    # -- ERRORS
+
+    # TODO: implement these
+
+    ErrorEnumLogin:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+          enum:
+          - BAD_SYNTAX
+          - INVALID_SPECIFIER
+          - INVALID_PASSWORD
+
+    ErrorEnumRegister:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+          enum:
+          - BAD_SYNTAX
+          - EMAIL_ALREADY_IN_USE
+          - USERNAME_ALREADY_IN_USE
+          - BAD_PASSWORD
 
     # -- BASIC
 
@@ -2813,6 +2651,12 @@ components:
       - forum-thread
       - forum-post
 
+    ReferenceTypesObject:
+      type: object
+      required: [type]
+      properties:
+        type: { $ref: '#/components/schemas/ReferenceTypes' }
+
     Slug:
       description: >
         Describes a page _slug_, a string consisting of an optional category and name.
@@ -2822,10 +2666,22 @@ components:
       format: slug
       example: 'category:page'
 
+    SlugObject:
+      type: object
+      required: [slug]
+      properties:
+        slug: { $ref: '#/components/schemas/Slug' }
+
     AvatarURL:
       title: Avatar URL
       type: string
       example: https://wikijump.com/files--static/media/default-avatar.png
+
+    AvatarURLObject:
+      type: object
+      required: [avatar]
+      properties:
+        avatar: { $ref: '#/components/schemas/AvatarURL' }
 
     SiteName:
       title: Site Name
@@ -2837,10 +2693,33 @@ components:
       type: string
       example: ExampleUsername
 
+    UsernameObject:
+      type: object
+      required: [username]
+      properties:
+        username: { $ref: '#/components/schemas/Username' }
+
     Email:
       title: Email
       type: string
       format: email
+
+    EmailObject:
+      type: object
+      required: [email]
+      properties:
+        email: { $ref: '#/components/schemas/Email' }
+
+    Password:
+      title: Password
+      type: string
+      format: password
+
+    PasswordObject:
+      type: object
+      required: [password]
+      properties:
+        password: { $ref: '#/components/schemas/Password' }
 
     Reference:
       title: Reference
@@ -2869,11 +2748,21 @@ components:
       format: ftml
       example: '[[div]]/some wikitext/[[/div]]'
 
+    WikitextObject:
+      type: object
+      required: [wikitext]
+      properties: { wikitext: { $ref: '#/components/schemas/Wikitext' }}
+
     HTML:
       description: A chunk of text in HTML format.
       type: string
       format: html
       example: '<div><i>some html</i></div>'
+
+    HTMLObject:
+      type: object
+      required: [html]
+      properties: { html: { $ref: '#/components/schemas/HTML' } }
 
 
     # -- QUERY
@@ -2885,7 +2774,50 @@ components:
       - { $ref: '#/components/schemas/Email' }
       - { $ref: '#/components/schemas/Username' }
 
+    LoginOptions:
+      type: object
+      required: [login, password]
+      properties:
+        login:    { $ref: '#/components/schemas/LoginSpecifier' }
+        password: { $ref: '#/components/schemas/Password'  }
+        remember: { type: boolean }
+
+    CSRF:
+      type: object
+      required: [csrf]
+      properties:
+        csrf: { type: string }
+
+    SessionState:
+      type: object
+      required: [sessionValid, authed]
+      properties:
+        sessionValid: { type: boolean }
+        authed:       { type: boolean }
+
     # -- ACCOUNT
+
+    UpdateEmail:
+      type: object
+      required: [oldEmail, newEmail]
+      properties:
+        oldEmail: { $ref: '#/components/schemas/Email' }
+        newEmail: { $ref: '#/components/schemas/Email' }
+
+    UpdatePassword:
+      type: object
+      required: [oldPassword, newPassword]
+      properties:
+        oldPassword: { $ref: '#/components/schemas/Password' }
+        newPassword: { $ref: '#/components/schemas/Password' }
+
+    RegisterOptions:
+      type: object
+      required: [username, email, password]
+      properties:
+        username: { $ref: '#/components/schemas/Username' }
+        email:    { $ref: '#/components/schemas/Email' }
+        password: { $ref: '#/components/schemas/Password' }
 
     AccountSettings:
       description: Private account settings that can govern some of Wikijump's behavior.
@@ -3003,6 +2935,43 @@ components:
           uniqueItems: true
           items: { $ref: '#/components/schemas/UserIdentity' }
 
+    UserBlocked:
+      type: object
+      required: [blocked]
+      properties:
+        blocked: { type: boolean }
+
+    UserKick:
+      type: object
+      required: [reason]
+      properties:
+        reason: { type: string }
+
+    UserBan:
+      type: object
+      required: [until, reason]
+      properties:
+        until:  { type: string, format: date-time, nullable: true }
+        reason: { type: string }
+
+    UserBanned:
+      type: object
+      required: [user, when, until, reason]
+      properties:
+        user:   { $ref: '#/components/schemas/UserIdentity' }
+        when:   { type: string, format: date-time }
+        until:  { type: string, format: date-time, nullable: true }
+        reason: { type: string }
+
+    UserBannedList:
+      type: object
+      allOf: [$ref: '#/components/schemas/Paginated']
+      required: [banned]
+      properties:
+        type: array
+        uniqueItems: true
+        items: { $ref: '#/components/schemas/UserBanned' }
+
     # -- MEMBERSHIP
 
     Membership:
@@ -3011,6 +2980,14 @@ components:
       properties:
         site: { $ref: '#/components/schemas/SiteName' }
         role: { $ref: '#/components/schemas/UserRole' }
+
+    MembershipStatus:
+      type: object
+      required: [status]
+      properties:
+        status:
+          nullable: true
+          allOf: [$ref: '#/components/schemas/Membership']
 
     MembershipList:
       type: object
@@ -3101,15 +3078,13 @@ components:
       format: ftmltree
       additionalProperties: true
 
-    WikitextObj:
+    PageCreateOptions:
       type: object
-      required: [wikitext]
-      properties: { wikitext: { $ref: '#/components/schemas/Wikitext' }}
-
-    HTMLObj:
-      type: object
-      required: [html]
-      properties: { html: { $ref: '#/components/schemas/HTML' } }
+      required: [slug]
+      properties:
+        slug:     { $ref: '#/components/schemas/Slug' }
+        title:    { type: string }
+        wikitext: { $ref: '#/components/schemas/Wikitext' }
 
     Page:
       type: object
@@ -3135,6 +3110,12 @@ components:
         html:     { $ref: '#/components/schemas/HTML' }
         wikitext: { $ref: '#/components/schemas/Wikitext' }
 
+    PagePatch:
+      type: object
+      properties:
+        title:    { type: string }
+        wikitext: { $ref: '#/components/schemas/Wikitext' }
+
     # -- REVISION
 
     Revision:
@@ -3153,6 +3134,12 @@ components:
             type: string
             enum: [created, content, file, title, revert, tag, slug]
 
+    RevisionPatch:
+      type: object
+      properties:
+        hidden:  { type: boolean }
+        message: { type: string }
+
     RevisionHistory:
       type: object
       allOf: [$ref: '#/components/schemas/Paginated']
@@ -3167,6 +3154,12 @@ components:
       type: array
       uniqueItems: true
       items: { type: string }
+
+    TagListObject:
+      type: object
+      required: [tags]
+      properties:
+        tags: { $ref: '#/components/schemas/TagList' }
 
     # -- VOTE
 
@@ -3186,6 +3179,20 @@ components:
       oneOf:
       - $ref: '#/components/schemas/CastVotePlusMinus'
       - $ref: '#/components/schemas/CastVoteStar'
+
+    CastVoteObject:
+      type: object
+      required: [vote]
+      properties:
+        vote: { $ref: '#/components/schemas/CastVote' }
+
+    CastVoteStatus:
+      type: object
+      required: [vote]
+      properties:
+        vote:
+          allOf: ['#/components/schemas/CastVote']
+          nullable: true
 
     Score:
       description: |
@@ -3296,6 +3303,15 @@ components:
         uploaded: { type: string, format: date-time }
         url:      { type: string, format: url }
 
+    FileMetadataList:
+      type: object
+      required: [files]
+      allOf: [$ref: '#/components/schemas/Paginated']
+      properties:
+        files:
+          type: array
+          items: { $ref: '#/components/schemas/FileMetadata' }
+
     FileSiteMetadata:
       type: object
       required: [max, used, count, available]
@@ -3357,8 +3373,7 @@ components:
 
     MessageList:
       type: object
-      allOf:
-      - $ref: '#/components/schemas/Paginated'
+      allOf: [$ref: '#/components/schemas/Paginated']
       required: [messages]
       properties:
         messages:
@@ -3372,6 +3387,12 @@ components:
       properties:
         subject:  { type: string }
         wikitext: { $ref: '#/components/schemas/Wikitext' }
+
+    MessagePatch:
+      type: object
+      properties:
+        read:     { type: boolean }
+        archived: { type: boolean }
 
     #-- FORUM
 
@@ -3409,6 +3430,16 @@ components:
           uniqueItems: true
           items: { $ref: '#/components/schemas/ForumCategory' }
 
+    ForumGroupPatch:
+      type: object
+      properties:
+        title:   { type: string }
+        summary: { type: string }
+        order:
+          type: array
+          uniqueItems: true
+          items: { $ref: '#/components/schemas/Reference' }
+
     ForumCategory:
       type: object
       required: [id, group, title, summary, threadCount, postCount, last]
@@ -3429,6 +3460,19 @@ components:
             createThreads: { type: array, items: { type: string, enum: [guest, registered, member] } }
             edit:          { type: array, items: { type: string, enum: [guest, registered, member, author] } }
 
+    ForumCategoryCreate:
+      type: object
+      required: [title]
+      properties:
+        title:   { type: string }
+        summary: { type: string }
+
+    ForumCategoryPatch:
+      type: object
+      properties:
+        title:   { type: string }
+        summary: { type: string }
+
     ForumThread:
       type: object
       required: [id, category, group, title, stickied, locked, postCount, created, last]
@@ -3442,6 +3486,23 @@ components:
         postCount: { type: integer }
         created:   { $ref: '#/components/schemas/ForumCreationContext' }
         last:      { $ref: '#/components/schemas/ForumCreationContext' }
+
+    ForumThreadCreate:
+      type: object
+      required: [title]
+      properties:
+        title:    { type: string }
+        summary:  { type: string }
+        stickied: { type: boolean }
+        locked:   { type: boolean }
+
+    ForumThreadPatch:
+      type: object
+      properties:
+        title:    { type: string }
+        summary:  { type: string }
+        stickied: { type: boolean }
+        locked:   { type: boolean }
 
     ForumPost:
       type: object
@@ -3459,6 +3520,19 @@ components:
         html:      { $ref: '#/components/schemas/HTML' }
         wikitext:  { $ref: '#/components/schemas/Wikitext' }
         replies:   { $ref: '#/components/schemas/ForumPostList' }
+
+    ForumPostCreate:
+      type: object
+      required: [title, wikitext]
+      properties:
+        title:    { type: string }
+        wikitext: { $ref: '#/components/schemas/Wikitext' }
+
+    ForumPostPatch:
+      type: object
+      properties:
+        title:    { type: sting }
+        wikitext: { $ref: '#/components/schemas/Wikitext' }
 
     ForumGroupList:
       type: object
