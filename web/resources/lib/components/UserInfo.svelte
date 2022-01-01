@@ -24,7 +24,7 @@
     if (user === null) identity = $currentIdentity
     // fetch user from API
     else {
-      const type = typeof user === "number" ? "id" : "name"
+      const type = typeof user === "number" ? "id" : "slug"
       WikijumpAPI.userGet(type, user, { avatars: !noavatar }).then(data => {
         identity = data
       })

@@ -2968,9 +2968,10 @@ components:
       allOf: [$ref: '#/components/schemas/Paginated']
       required: [banned]
       properties:
-        type: array
-        uniqueItems: true
-        items: { $ref: '#/components/schemas/UserBanned' }
+        banned:
+          type: array
+          uniqueItems: true
+          items: { $ref: '#/components/schemas/UserBanned' }
 
     # -- MEMBERSHIP
 
@@ -3531,7 +3532,7 @@ components:
     ForumPostPatch:
       type: object
       properties:
-        title:    { type: sting }
+        title:    { type: string }
         wikitext: { $ref: '#/components/schemas/Wikitext' }
 
     ForumGroupList:

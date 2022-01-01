@@ -9,7 +9,7 @@
   $: request = user
     ? typeof user === "number"
       ? WikijumpAPI.try("userGetAvatar", "id", user)
-      : WikijumpAPI.try("userGetAvatar", "name", user)
+      : WikijumpAPI.try("userGetAvatar", "slug", user)
     : WikijumpAPI.try("userClientGetAvatar")
 </script>
 

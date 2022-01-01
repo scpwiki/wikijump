@@ -9,6 +9,18 @@
  * ---------------------------------------------------------------
  */
 
+export interface ErrorEnumLogin {
+  error: "BAD_SYNTAX" | "INVALID_SPECIFIER" | "INVALID_PASSWORD"
+}
+
+export interface ErrorEnumRegister {
+  error:
+    | "BAD_SYNTAX"
+    | "EMAIL_ALREADY_IN_USE"
+    | "USERNAME_ALREADY_IN_USE"
+    | "BAD_PASSWORD"
+}
+
 /**
  * Describes the pagination property present with all paginated responses.
  */
@@ -29,6 +41,10 @@ export enum ReferenceTypes {
   ForumPost = "forum-post"
 }
 
+export interface ReferenceTypesObject {
+  type: ReferenceTypes
+}
+
 /**
  * Describes a page _slug_, a string consisting of an optional category and name. It is formatted as `category:name` if a category is included. If a category is not included, it is simply `name`.
  * @format slug
@@ -36,10 +52,22 @@ export enum ReferenceTypes {
  */
 export type Slug = string
 
+export interface SlugObject {
+  /**
+   * Describes a page _slug_, a string consisting of an optional category and name. It is formatted as `category:name` if a category is included. If a category is not included, it is simply `name`.
+   *
+   */
+  slug: Slug
+}
+
 /**
  * @example https://wikijump.com/files--static/media/default-avatar.png
  */
 export type AvatarURL = string
+
+export interface AvatarURLObject {
+  avatar: AvatarURL
+}
 
 /**
  * @example mywiki
@@ -51,10 +79,27 @@ export type SiteName = string
  */
 export type Username = string
 
+export interface UsernameObject {
+  username: Username
+}
+
 /**
  * @format email
  */
 export type Email = string
+
+export interface EmailObject {
+  email: Email
+}
+
+/**
+ * @format password
+ */
+export type Password = string
+
+export interface PasswordObject {
+  password: Password
+}
 
 /**
  * An integer that uniquely points to a resource.
@@ -83,6 +128,11 @@ export type Base64 = string
  */
 export type Wikitext = string
 
+export interface WikitextObject {
+  /** A chunk of text in FTML format. */
+  wikitext: Wikitext
+}
+
 /**
  * A chunk of text in HTML format.
  * @format html
@@ -90,7 +140,43 @@ export type Wikitext = string
  */
 export type HTML = string
 
+export interface HTMLObject {
+  /** A chunk of text in HTML format. */
+  html: HTML
+}
+
 export type LoginSpecifier = Email | Username
+
+export interface LoginOptions {
+  login: LoginSpecifier
+  password: Password
+  remember?: boolean
+}
+
+export interface CSRF {
+  csrf: string
+}
+
+export interface SessionState {
+  sessionValid: boolean
+  authed: boolean
+}
+
+export interface UpdateEmail {
+  oldEmail: Email
+  newEmail: Email
+}
+
+export interface UpdatePassword {
+  oldPassword: Password
+  newPassword: Password
+}
+
+export interface RegisterOptions {
+  username: Username
+  email: Email
+  password: Password
+}
 
 /**
  * Private account settings that can govern some of Wikijump's behavior.
@@ -203,11 +289,43 @@ export interface UserBlockedList {
   users: UserIdentity[]
 }
 
+export interface UserBlocked {
+  blocked: boolean
+}
+
+export interface UserKick {
+  reason: string
+}
+
+export interface UserBan {
+  /** @format date-time */
+  until: string | null
+  reason: string
+}
+
+export interface UserBanned {
+  /** Basic level of information needed to describe a user. */
+  user: UserIdentity
+
+  /** @format date-time */
+  when: string
+
+  /** @format date-time */
+  until: string | null
+  reason: string
+}
+
+export type UserBannedList = Paginated & { banned: UserBanned[] }
+
 export interface Membership {
   site: SiteName
 
   /** Describes a user's administrative role and membership status. */
   role: UserRole
+}
+
+export interface MembershipStatus {
+  status: Membership | null
 }
 
 export interface MembershipList {
@@ -265,14 +383,16 @@ export interface InviteSend {
  */
 export type FTMLSyntaxTree = Record<string, any>
 
-export interface WikitextObj {
-  /** A chunk of text in FTML format. */
-  wikitext: Wikitext
-}
+export interface PageCreateOptions {
+  /**
+   * Describes a page _slug_, a string consisting of an optional category and name. It is formatted as `category:name` if a category is included. If a category is not included, it is simply `name`.
+   *
+   */
+  slug: Slug
+  title?: string
 
-export interface HTMLObj {
-  /** A chunk of text in HTML format. */
-  html: HTML
+  /** A chunk of text in FTML format. */
+  wikitext?: Wikitext
 }
 
 export interface Page {
@@ -313,6 +433,13 @@ export interface Page {
   wikitext?: Wikitext
 }
 
+export interface PagePatch {
+  title?: string
+
+  /** A chunk of text in FTML format. */
+  wikitext?: Wikitext
+}
+
 export interface Revision {
   revision: number
 
@@ -326,9 +453,18 @@ export interface Revision {
   flags: ("created" | "content" | "file" | "title" | "revert" | "tag" | "slug")[]
 }
 
+export interface RevisionPatch {
+  hidden?: boolean
+  message?: string
+}
+
 export type RevisionHistory = Paginated & { revisions: number; history: Revision[] }
 
 export type TagList = string[]
+
+export interface TagListObject {
+  tags: TagList
+}
 
 export type CastVotePlus = 0 | 1
 
@@ -337,6 +473,14 @@ export type CastVotePlusMinus = -1 | 0 | 1
 export type CastVoteStar = 1 | 2 | 3 | 4 | 5
 
 export type CastVote = CastVotePlusMinus | CastVoteStar
+
+export interface CastVoteObject {
+  vote: CastVote
+}
+
+export interface CastVoteStatus {
+  vote: null
+}
 
 /**
 * Describes the score/rating of a page.
@@ -398,6 +542,8 @@ export interface FileMetadata {
   /** @format url */
   url: string
 }
+
+export type FileMetadataList = Paginated & { files: FileMetadata[] }
 
 export interface FileSiteMetadata {
   max: number
@@ -463,6 +609,11 @@ export interface MessageSend {
   wikitext?: Wikitext
 }
 
+export interface MessagePatch {
+  read?: boolean
+  archived?: boolean
+}
+
 export enum ForumSortingTypes {
   Newest = "newest",
   Oldset = "oldset"
@@ -490,6 +641,12 @@ export interface ForumGroup {
   categories: ForumCategory[]
 }
 
+export interface ForumGroupPatch {
+  title?: string
+  summary?: string
+  order?: Reference[]
+}
+
 export interface ForumCategory {
   /** An integer that uniquely points to a resource. */
   id: Reference
@@ -508,6 +665,16 @@ export interface ForumCategory {
   }
 }
 
+export interface ForumCategoryCreate {
+  title: string
+  summary?: string
+}
+
+export interface ForumCategoryPatch {
+  title?: string
+  summary?: string
+}
+
 export interface ForumThread {
   /** An integer that uniquely points to a resource. */
   id: Reference
@@ -523,6 +690,20 @@ export interface ForumThread {
   postCount: number
   created: ForumCreationContext
   last: ForumCreationContext
+}
+
+export interface ForumThreadCreate {
+  title: string
+  summary?: string
+  stickied?: boolean
+  locked?: boolean
+}
+
+export interface ForumThreadPatch {
+  title?: string
+  summary?: string
+  stickied?: boolean
+  locked?: boolean
 }
 
 export interface ForumPost {
@@ -548,6 +729,20 @@ export interface ForumPost {
   /** A chunk of text in FTML format. */
   wikitext?: Wikitext
   replies?: ForumPostList
+}
+
+export interface ForumPostCreate {
+  title: string
+
+  /** A chunk of text in FTML format. */
+  wikitext: Wikitext
+}
+
+export interface ForumPostPatch {
+  title?: string
+
+  /** A chunk of text in FTML format. */
+  wikitext?: Wikitext
 }
 
 export interface ForumGroupList {
@@ -1084,7 +1279,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @request GET:/util/resolveid/{id}
    */
   utilResolveId = (id: Reference, params: RequestParams = {}) =>
-    this.request<{ type: ReferenceTypes }, void>({
+    this.request<ReferenceTypesObject, void>({
       path: `/util/resolveid/${id}`,
       method: "GET",
       format: "json",
@@ -1098,11 +1293,8 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @name AuthLogin
    * @request POST:/auth/login
    */
-  authLogin = (
-    data: { login: LoginSpecifier; password: string; remember?: boolean },
-    params: RequestParams = {}
-  ) =>
-    this.request<{ csrf: string }, void>({
+  authLogin = (data: LoginOptions, params: RequestParams = {}) =>
+    this.request<CSRF, void>({
       path: `/auth/login`,
       method: "POST",
       body: data,
@@ -1117,7 +1309,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @name AuthConfirm
    * @request POST:/auth/confirm
    */
-  authConfirm = (data: { password: string }, params: RequestParams = {}) =>
+  authConfirm = (data: PasswordObject, params: RequestParams = {}) =>
     this.request<void, void>({
       path: `/auth/confirm`,
       method: "POST",
@@ -1135,7 +1327,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @secure
    */
   authLogout = (params: RequestParams = {}) =>
-    this.request<any, void>({
+    this.request<void, void>({
       path: `/auth/logout`,
       method: "DELETE",
       secure: true,
@@ -1150,7 +1342,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @request POST:/auth/check
    */
   authCheck = (params: RequestParams = {}) =>
-    this.request<{ sessionValid: boolean; authed: boolean }, void>({
+    this.request<SessionState, void>({
       path: `/auth/check`,
       method: "POST",
       format: "json",
@@ -1166,7 +1358,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @secure
    */
   authRefresh = (params: RequestParams = {}) =>
-    this.request<{ csrf: string }, void>({
+    this.request<CSRF, void>({
       path: `/auth/refresh`,
       method: "POST",
       secure: true,
@@ -1180,11 +1372,8 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @name AccountRegister
    * @request POST:/account/register
    */
-  accountRegister = (
-    data: { username: Username; email: Email; password: string },
-    params: RequestParams = {}
-  ) =>
-    this.request<{ csrf: string }, void>({
+  accountRegister = (data: RegisterOptions, params: RequestParams = {}) =>
+    this.request<CSRF, void>({
       path: `/account/register`,
       method: "POST",
       body: data,
@@ -1231,7 +1420,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @name AccountStartRecovery
    * @request POST:/account/start-recovery
    */
-  accountStartRecovery = (data: { email: Email }, params: RequestParams = {}) =>
+  accountStartRecovery = (data: EmailObject, params: RequestParams = {}) =>
     this.request<void, void>({
       path: `/account/start-recovery`,
       method: "POST",
@@ -1249,7 +1438,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @secure
    */
   accountGetEmail = (params: RequestParams = {}) =>
-    this.request<{ email: Email }, void>({
+    this.request<EmailObject, void>({
       path: `/account/email`,
       method: "GET",
       secure: true,
@@ -1265,10 +1454,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @request PUT:/account/email
    * @secure
    */
-  accountUpdateEmail = (
-    data: { oldEmail: Email; newEmail: Email },
-    params: RequestParams = {}
-  ) =>
+  accountUpdateEmail = (data: UpdateEmail, params: RequestParams = {}) =>
     this.request<void, void>({
       path: `/account/email`,
       method: "PUT",
@@ -1286,10 +1472,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @request PUT:/account/password
    * @secure
    */
-  accountUpdatePassword = (
-    data: { oldPassword: string; newPassword: string },
-    params: RequestParams = {}
-  ) =>
+  accountUpdatePassword = (data: UpdatePassword, params: RequestParams = {}) =>
     this.request<void, void>({
       path: `/account/password`,
       method: "PUT",
@@ -1308,7 +1491,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @secure
    */
   accountGetUsername = (params: RequestParams = {}) =>
-    this.request<{ username: Username }, void>({
+    this.request<UsernameObject, void>({
       path: `/account/username`,
       method: "GET",
       secure: true,
@@ -1324,7 +1507,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @request PUT:/account/username
    * @secure
    */
-  accountUpdateUsername = (data: { username: Username }, params: RequestParams = {}) =>
+  accountUpdateUsername = (data: UsernameObject, params: RequestParams = {}) =>
     this.request<void, void>({
       path: `/account/username`,
       method: "PUT",
@@ -1448,7 +1631,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @request GET:/user/avatar
    */
   userClientGetAvatar = (params: RequestParams = {}) =>
-    this.request<{ avatar: AvatarURL }, void>({
+    this.request<AvatarURLObject, void>({
       path: `/user/avatar`,
       method: "GET",
       format: "json",
@@ -1513,7 +1696,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @request GET:/user/{path_type}/{path}
    */
   userGet = (
-    pathType: "id" | "name",
+    pathType: "id" | "slug",
     path: Username | Reference,
     query?: { avatars?: boolean; detail?: "identity" | "info" | "profile" },
     params: RequestParams = {}
@@ -1534,7 +1717,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @secure
    */
   userResetProfile = (
-    pathType: "id" | "name",
+    pathType: "id" | "slug",
     path: Username | Reference,
     query?: { avatars?: boolean },
     params: RequestParams = {}
@@ -1555,11 +1738,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @request GET:/user/{path_type}/{path}/avatar
    */
   userGetAvatar = (
-    pathType: "id" | "name",
+    pathType: "id" | "slug",
     path: Username | Reference,
     params: RequestParams = {}
   ) =>
-    this.request<{ avatar: AvatarURL }, void>({
+    this.request<AvatarURLObject, void>({
       path: `/user/${pathType}/${path}/avatar`,
       method: "GET",
       format: "json",
@@ -1575,7 +1758,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @secure
    */
   userRemoveAvatar = (
-    pathType: "id" | "name",
+    pathType: "id" | "slug",
     path: Username | Reference,
     params: RequestParams = {}
   ) =>
@@ -1595,11 +1778,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @secure
    */
   userGetBlocked = (
-    pathType: "id" | "name",
+    pathType: "id" | "slug",
     path: Username | Reference,
     params: RequestParams = {}
   ) =>
-    this.request<{ blocked: boolean }, void>({
+    this.request<UserBlocked, void>({
       path: `/user/${pathType}/${path}/block`,
       method: "GET",
       secure: true,
@@ -1616,9 +1799,9 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @secure
    */
   userUpdateBlocked = (
-    pathType: "id" | "name",
+    pathType: "id" | "slug",
     path: Username | Reference,
-    data: { blocked: boolean },
+    data: UserBlocked,
     params: RequestParams = {}
   ) =>
     this.request<void, void>({
@@ -1690,7 +1873,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @secure
    */
   membershipSiteGet = (site: string, params: RequestParams = {}) =>
-    this.request<Membership | null, void>({
+    this.request<MembershipStatus, void>({
       path: `/membership/site/${site}`,
       method: "GET",
       secure: true,
@@ -1744,7 +1927,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @request GET:/member/{path_type}/{path}/membership
    */
   membershipUserGetList = (
-    pathType: "id" | "name",
+    pathType: "id" | "slug",
     path: Username | Reference,
     params: RequestParams = {}
   ) =>
@@ -1764,11 +1947,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    */
   membershipUserSiteGet = (
     site: string,
-    pathType: "id" | "name",
+    pathType: "id" | "slug",
     path: Username | Reference,
     params: RequestParams = {}
   ) =>
-    this.request<Membership | null, void>({
+    this.request<MembershipStatus, void>({
       path: `/member/${pathType}/${path}/membership/${site}`,
       method: "GET",
       format: "json",
@@ -1783,7 +1966,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @request GET:/member/{path_type}/{path}/role
    */
   membershipUserGetRole = (
-    pathType: "id" | "name",
+    pathType: "id" | "slug",
     path: Username | Reference,
     params: RequestParams = {}
   ) =>
@@ -1803,7 +1986,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @secure
    */
   membershipUserSetRole = (
-    pathType: "id" | "name",
+    pathType: "id" | "slug",
     path: Username | Reference,
     data: MembershipRole,
     params: RequestParams = {}
@@ -1826,7 +2009,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @secure
    */
   membershipUserInvite = (
-    pathType: "id" | "name",
+    pathType: "id" | "slug",
     path: Username | Reference,
     data: InviteSend,
     params: RequestParams = {}
@@ -1848,10 +2031,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @request POST:/page
    * @secure
    */
-  pageCreate = (
-    data: { slug: Slug; title?: string; wikitext?: Wikitext },
-    params: RequestParams = {}
-  ) =>
+  pageCreate = (data: PageCreateOptions, params: RequestParams = {}) =>
     this.request<void, void>({
       path: `/page`,
       method: "POST",
@@ -1884,7 +2064,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     },
     params: RequestParams = {}
   ) =>
-    this.request<Page | WikitextObj | HTMLObj | FTMLSyntaxTree, void>({
+    this.request<Page | WikitextObject | HTMLObject | FTMLSyntaxTree, void>({
       path: `/page/${pathType}/${path}`,
       method: "GET",
       query: query,
@@ -1902,7 +2082,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
   pageUpdate = (
     pathType: "id" | "slug",
     path: Slug | Reference,
-    data: { title?: string; wikitext?: Wikitext },
+    data: PagePatch,
     params: RequestParams = {}
   ) =>
     this.request<void, void>({
@@ -1939,12 +2119,12 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    *
    * @tags page
    * @name PageRestore
-   * @request POST:/page/id/{path}/restore
+   * @request POST:/page/id/{id}/restore
    * @secure
    */
-  pageRestore = (path: Reference, data: { slug: Slug }, params: RequestParams = {}) =>
+  pageRestore = (id: Reference, data: SlugObject, params: RequestParams = {}) =>
     this.request<void, void>({
-      path: `/page/id/${path}/restore`,
+      path: `/page/id/${id}/restore`,
       method: "POST",
       body: data,
       secure: true,
@@ -1963,7 +2143,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
   pageRename = (
     pathType: "id" | "slug",
     path: Slug | Reference,
-    data: { slug: Slug },
+    data: SlugObject,
     params: RequestParams = {}
   ) =>
     this.request<void, void>({
@@ -2006,7 +2186,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
   revisionGet = (
     pathType: "id" | "slug",
     path: Slug | Reference,
-    revision: number,
+    revision: Reference,
     query?: {
       type?:
         | "all"
@@ -2020,7 +2200,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     },
     params: RequestParams = {}
   ) =>
-    this.request<Page | WikitextObj | HTMLObj | FTMLSyntaxTree, void>({
+    this.request<Page | WikitextObject | HTMLObject | FTMLSyntaxTree, void>({
       path: `/page/${pathType}/${path}/revision/${revision}`,
       method: "GET",
       query: query,
@@ -2038,8 +2218,8 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
   revisionUpdateMetadata = (
     pathType: "id" | "slug",
     path: Slug | Reference,
-    revision: number,
-    data: { hidden?: boolean; message?: string },
+    revision: Reference,
+    data: RevisionPatch,
     params: RequestParams = {}
   ) =>
     this.request<void, void>({
@@ -2062,7 +2242,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
   revisionResetToRevision = (
     pathType: "id" | "slug",
     path: Slug | Reference,
-    revision: number,
+    revision: Reference,
     params: RequestParams = {}
   ) =>
     this.request<void, void>({
@@ -2084,7 +2264,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     path: Slug | Reference,
     params: RequestParams = {}
   ) =>
-    this.request<{ tags: TagList }, void>({
+    this.request<TagListObject, void>({
       path: `/page/${pathType}/${path}/tags`,
       method: "GET",
       format: "json",
@@ -2102,7 +2282,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
   tagPageUpdate = (
     pathType: "id" | "slug",
     path: Slug | Reference,
-    data: { tags: TagList },
+    data: TagListObject,
     params: RequestParams = {}
   ) =>
     this.request<void, void>({
@@ -2167,7 +2347,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     path: Slug | Reference,
     params: RequestParams = {}
   ) =>
-    this.request<{ vote: CastVote | null }, void>({
+    this.request<CastVoteStatus, void>({
       path: `/page/${pathType}/${path}/vote`,
       method: "GET",
       secure: true,
@@ -2186,7 +2366,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
   votePageUpdateVote = (
     pathType: "id" | "slug",
     path: Slug | Reference,
-    data: { vote: CastVote },
+    data: CastVoteObject,
     params: RequestParams = {}
   ) =>
     this.request<void, void>({
@@ -2221,7 +2401,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
   /**
    * @description Gets metadata on all files attached to a page.
    *
-   * @tags file, avatars
+   * @tags file, paginated, avatars
    * @name FilePageGetMetadata
    * @request GET:/page/{path_type}/{path}/file
    */
@@ -2231,7 +2411,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     query?: { avatars?: boolean },
     params: RequestParams = {}
   ) =>
-    this.request<{ files: FileMetadata[] }, void>({
+    this.request<FileMetadataList, void>({
       path: `/page/${pathType}/${path}/file`,
       method: "GET",
       query: query,
@@ -2270,7 +2450,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @request GET:/file
    */
   fileSiteGetMetadata = (query?: { avatars?: boolean }, params: RequestParams = {}) =>
-    this.request<Paginated & { files: FileMetadata[] }, void>({
+    this.request<FileMetadataList, void>({
       path: `/file`,
       method: "GET",
       query: query,
@@ -2370,7 +2550,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @secure
    */
   reportUserGet = (
-    pathType: "id" | "name",
+    pathType: "id" | "slug",
     path: Username | Reference,
     query?: { avatars?: boolean },
     params: RequestParams = {}
@@ -2393,7 +2573,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @secure
    */
   reportUserSend = (
-    pathType: "id" | "name",
+    pathType: "id" | "slug",
     path: Username | Reference,
     data: ReportSend,
     params: RequestParams = {}
@@ -2520,7 +2700,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @secure
    */
   abuseUserGet = (
-    pathType: "id" | "name",
+    pathType: "id" | "slug",
     path: Username | Reference,
     query?: { avatars?: boolean },
     params: RequestParams = {}
@@ -2543,7 +2723,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @secure
    */
   abuseUserSend = (
-    pathType: "id" | "name",
+    pathType: "id" | "slug",
     path: Username | Reference,
     data: ReportSend,
     params: RequestParams = {}
@@ -2678,11 +2858,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @request PATCH:/message/{id}
    * @secure
    */
-  messageUpdate = (
-    id: Reference,
-    data: { read?: boolean; archived?: boolean },
-    params: RequestParams = {}
-  ) =>
+  messageUpdate = (id: Reference, data: MessagePatch, params: RequestParams = {}) =>
     this.request<void, void>({
       path: `/message/${id}`,
       method: "PATCH",
@@ -2717,7 +2893,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @secure
    */
   messageSend = (
-    pathType: "id" | "name",
+    pathType: "id" | "slug",
     path: Username | Reference,
     data: MessageSend,
     params: RequestParams = {}
@@ -2791,11 +2967,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @request PATCH:/forum/group/{id}
    * @secure
    */
-  forumGroupUpdate = (
-    id: Reference,
-    data: { title?: string; summary?: string; order?: Reference[] },
-    params: RequestParams = {}
-  ) =>
+  forumGroupUpdate = (id: Reference, data: ForumGroupPatch, params: RequestParams = {}) =>
     this.request<void, void>({
       path: `/forum/group/${id}`,
       method: "PATCH",
@@ -2815,7 +2987,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    */
   forumGroupAddCategory = (
     id: Reference,
-    data: { title?: string; summary?: string },
+    data: ForumCategoryCreate,
     params: RequestParams = {}
   ) =>
     this.request<void, void>({
@@ -2909,7 +3081,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    */
   forumCategoryUpdate = (
     id: Reference,
-    data: { title?: string; summary?: string },
+    data: ForumCategoryPatch,
     params: RequestParams = {}
   ) =>
     this.request<void, void>({
@@ -2931,7 +3103,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    */
   forumCategoryAddThread = (
     id: Reference,
-    data: { title?: string; summary?: string },
+    data: ForumThreadCreate,
     params: RequestParams = {}
   ) =>
     this.request<void, void>({
@@ -3009,7 +3181,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    */
   forumThreadUpdate = (
     id: Reference,
-    data: { title?: string; summary?: string; stickied?: boolean; locked?: boolean },
+    data: ForumThreadPatch,
     params: RequestParams = {}
   ) =>
     this.request<void, void>({
@@ -3031,7 +3203,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    */
   forumThreadAddPost = (
     id: Reference,
-    data: { title?: string; wikitext?: Wikitext },
+    data: ForumPostCreate,
     params: RequestParams = {}
   ) =>
     this.request<void, void>({
@@ -3122,11 +3294,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @request PATCH:/forum/post/{id}
    * @secure
    */
-  forumPostUpdate = (
-    id: Reference,
-    data: { title?: string; wikitext?: Wikitext },
-    params: RequestParams = {}
-  ) =>
+  forumPostUpdate = (id: Reference, data: ForumPostPatch, params: RequestParams = {}) =>
     this.request<void, void>({
       path: `/forum/post/${id}`,
       method: "PATCH",
@@ -3144,11 +3312,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @request POST:/forum/post/{id}
    * @secure
    */
-  forumPostReply = (
-    id: Reference,
-    data: { title?: string; wikitext?: Wikitext },
-    params: RequestParams = {}
-  ) =>
+  forumPostReply = (id: Reference, data: ForumPostCreate, params: RequestParams = {}) =>
     this.request<void, void>({
       path: `/forum/post/${id}`,
       method: "POST",
@@ -3234,7 +3398,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    */
   forumPostRevisionGet = (
     id: Reference,
-    revision: number,
+    revision: Reference,
     query?: { avatars?: boolean; detail?: "none" | "metadata" | "with-html" | "full" },
     params: RequestParams = {}
   ) =>
@@ -3256,8 +3420,8 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    */
   forumPostRevisionUpdateMetadata = (
     id: Reference,
-    revision: number,
-    data: { hidden?: boolean; message?: string },
+    revision: Reference,
+    data: RevisionPatch,
     params: RequestParams = {}
   ) =>
     this.request<void, void>({
@@ -3279,7 +3443,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    */
   forumPostResetToRevision = (
     id: Reference,
-    revision: number,
+    revision: Reference,
     params: RequestParams = {}
   ) =>
     this.request<void, void>({
@@ -3298,9 +3462,9 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @secure
    */
   moderationKick = (
-    pathType: "id" | "name",
+    pathType: "id" | "slug",
     path: Username | Reference,
-    data: { reason: string },
+    data: UserKick,
     params: RequestParams = {}
   ) =>
     this.request<void, void>({
@@ -3315,16 +3479,13 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
   /**
    * @description Gets the list of users banned from a site.
    *
-   * @tags moderation
+   * @tags moderation, paginated
    * @name ModerationBanGetList
    * @request GET:/moderation/banned
    * @secure
    */
   moderationBanGetList = (params: RequestParams = {}) =>
-    this.request<
-      { banned: { user: UserIdentity; until: string | null; reason: string }[] },
-      void
-    >({
+    this.request<UserBannedList, void>({
       path: `/moderation/banned`,
       method: "GET",
       secure: true,
@@ -3341,11 +3502,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @secure
    */
   moderationBanGet = (
-    pathType: "id" | "name",
+    pathType: "id" | "slug",
     path: Username | Reference,
     params: RequestParams = {}
   ) =>
-    this.request<{ banned: boolean; until: string | null; reason: string }, void>({
+    this.request<UserBanned, void>({
       path: `/user/${pathType}/${path}/ban`,
       method: "GET",
       secure: true,
@@ -3362,9 +3523,9 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @secure
    */
   moderationBan = (
-    pathType: "id" | "name",
+    pathType: "id" | "slug",
     path: Username | Reference,
-    data: { until: string | null; reason: string },
+    data: UserBan,
     params: RequestParams = {}
   ) =>
     this.request<void, void>({
@@ -3385,7 +3546,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @secure
    */
   moderationUnban = (
-    pathType: "id" | "name",
+    pathType: "id" | "slug",
     path: Username | Reference,
     params: RequestParams = {}
   ) =>
