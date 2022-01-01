@@ -103,8 +103,8 @@ impl UserInfoOutput {
             about: user.about_page.clone(),
             avatar: user.avatar_path.clone(),
             signature: None, // TODO
-            since: user.created_at.clone(),
-            last_active: user.updated_at.clone(),
+            since: user.created_at,
+            last_active: user.updated_at,
         }
     }
 }
@@ -127,7 +127,7 @@ impl UserProfileOutput {
             info: UserInfoOutput::from(user),
             realname: user.real_name.clone(),
             pronouns: user.pronouns.clone(),
-            birthday: user.dob.clone(),
+            birthday: user.dob,
             location: None,        // TODO
             links: HashMap::new(), // TODO
         }
