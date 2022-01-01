@@ -45,3 +45,8 @@ impl Default for UserDetails {
         UserDetails::Identity
     }
 }
+
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
+pub struct UserDetailsQuery {
+    pub detail: UserDetails,
+}

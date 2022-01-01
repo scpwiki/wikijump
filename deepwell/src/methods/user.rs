@@ -20,7 +20,8 @@
 
 use super::prelude::*;
 use crate::models::users::Model as UserModel;
-use crate::services::user::{CreateUser, UpdateUser};
+use crate::services::user::{CreateUser, UpdateUser, UserIdentityOutput, UserInfoOutput, UserProfileOutput};
+use crate::web::{UserDetails, UserDetailsQuery};
 
 pub async fn user_create(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
@@ -36,7 +37,8 @@ pub async fn user_get(req: ApiRequest) -> ApiResponse {
     let reference = ItemReference::try_from(&req)?;
     let user = req.user(&txn).get(reference).await.to_api()?;
     txn.commit().await?;
-    build_user_response(&user, StatusCode::Ok)
+    let query: UserDetailsQuery = req.query().unwrap_or_default();
+    build_user_response(&user, query.detail, StatusCode::Ok)
 }
 
 pub async fn user_put(mut req: ApiRequest) -> ApiResponse {
@@ -45,7 +47,7 @@ pub async fn user_put(mut req: ApiRequest) -> ApiResponse {
     let reference = ItemReference::try_from(&req)?;
     let user = req.user(&txn).update(reference, input).await.to_api()?;
     txn.commit().await?;
-    build_user_response(&user, StatusCode::Created)
+    build_user_response(&user, UserDetails::default(), StatusCode::Created)
 }
 
 pub async fn user_delete(req: ApiRequest) -> ApiResponse {
@@ -53,16 +55,16 @@ pub async fn user_delete(req: ApiRequest) -> ApiResponse {
     let reference = ItemReference::try_from(&req)?;
     let user = req.user(&txn).delete(reference).await.to_api()?;
     txn.commit().await?;
-    build_user_response(&user, StatusCode::Ok)
+    build_user_response(&user, UserDetails::default(), StatusCode::Ok)
 }
 
-fn build_user_response(user: &UserModel, status: StatusCode) -> ApiResponse {
-    // This includes fields like the password hash.
-    //
-    // For now this is fine, but depending on what
-    // we want the usage of the API to be, we may
-    // want to filter out fields.
-    let body = Body::from_json(user)?;
+fn build_user_response(user: &UserModel, user_detail: UserDetails, status: StatusCode) -> ApiResponse {
+    // TODO: allow dumping the entire user model (internal API only)
+    let body = match user_detail {
+        UserDetails::Identity => Body::from_json(&UserIdentityOutput::from(user))?,
+        UserDetails::Info => Body::from_json(&UserInfoOutput::from(user))?,
+        UserDetails::Profile => Body::from_json(&UserProfileOutput::from(user))?,
+    };
     let response = Response::builder(status).body(body).into();
     Ok(response)
 }

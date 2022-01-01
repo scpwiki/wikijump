@@ -71,18 +71,42 @@ pub struct UserIdentityOutput {
     role: String,
 }
 
+impl UserIdentityOutput {
+    pub fn from(user: &UserModel) -> Self {
+        Self {
+            id: user.id,
+            username: user.username.clone(),
+            tinyavatar: None, // TODO
+            karma: user.karma_level as u8,
+            role: String::new(), // TODO
+        }
+    }
+}
+
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct UserInfoOutput {
     #[serde(flatten)]
     identity: UserIdentityOutput,
 
-    about: String,
+    about: Option<String>,
     avatar: Option<String>, // TODO
     signature: Option<String>,
     since: Option<NaiveDateTime>,
     last_active: Option<NaiveDateTime>,
-    blocked: bool,
+}
+
+impl UserInfoOutput {
+    pub fn from(user: &UserModel) -> Self {
+        Self {
+            identity: UserIdentityOutput::from(user),
+            about: user.about_page.clone(),
+            avatar: user.avatar_path.clone(),
+            signature: None, // TODO
+            since: user.created_at.clone(),
+            last_active: user.updated_at.clone(),
+        }
+    }
 }
 
 #[derive(Serialize, Debug)]
@@ -90,11 +114,24 @@ pub struct UserProfileOutput {
     #[serde(flatten)]
     info: UserInfoOutput,
 
-    realname: String,
+    realname: Option<String>,
     pronouns: Option<String>,
     birthday: Option<NaiveDate>,
     location: Option<String>,
     links: HashMap<String, String>,
+}
+
+impl UserProfileOutput {
+    pub fn from(user: &UserModel) -> Self {
+        Self {
+            info: UserInfoOutput::from(user),
+            realname: user.real_name.clone(),
+            pronouns: user.pronouns.clone(),
+            birthday: user.dob.clone(),
+            location: None, // TODO
+            links: HashMap::new(), // TODO
+        }
+    }
 }
 
 // Service

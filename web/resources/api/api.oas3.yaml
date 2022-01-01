@@ -2884,14 +2884,13 @@ components:
       description: Describes a user in an intermediate amount of detail.
       type: object
       allOf: [$ref: '#/components/schemas/UserIdentity']
-      required: [about, avatar, signature, since, lastActive, blocked]
+      required: [about, avatar, signature, since, lastActive]
       properties:
-        about:      { type: string }
+        about:      { type: string, nullable: true }
         avatar:     { type: string, format: url, example: /users/1234/avatar, nullable: true }
         signature:  { allOf: [$ref: '#/components/schemas/HTML'], nullable: true }
         since:      { type: string, format: date-time }
         lastActive: { type: string, format: date-time }
-        blocked:    { type: boolean }
 
     UserProfile:
       description: Fully describes a user and their personalization preferences.
@@ -2899,7 +2898,7 @@ components:
       allOf: [$ref: '#/components/schemas/UserInfo']
       required: [realname, pronouns, birthday, location, links]
       properties:
-        realname:  { type: string }
+        realname:  { type: string,               nullable: true }
         pronouns:  { type: string,               nullable: true }
         birthday:  { type: string, format: date, nullable: true }
         location:  { type: string,               nullable: true }
