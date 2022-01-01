@@ -20,10 +20,10 @@
 <style global lang="scss">
   .dashboard-profile-header {
     display: flex;
-    align-items: flex-end;
     column-gap: 1rem;
-    margin-bottom: 2rem;
+    align-items: flex-end;
     padding-bottom: 1rem;
+    margin-bottom: 2rem;
     border-bottom: solid 0.125rem var(--col-border);
   }
 </style>

@@ -20,7 +20,9 @@
 
 use super::prelude::*;
 use crate::models::users::Model as UserModel;
-use crate::services::user::{CreateUser, UpdateUser, UserIdentityOutput, UserInfoOutput, UserProfileOutput};
+use crate::services::user::{
+    CreateUser, UpdateUser, UserIdentityOutput, UserInfoOutput, UserProfileOutput,
+};
 use crate::web::{UserDetails, UserDetailsQuery};
 
 pub async fn user_create(mut req: ApiRequest) -> ApiResponse {
@@ -58,7 +60,11 @@ pub async fn user_delete(req: ApiRequest) -> ApiResponse {
     build_user_response(&user, UserDetails::default(), StatusCode::Ok)
 }
 
-fn build_user_response(user: &UserModel, user_detail: UserDetails, status: StatusCode) -> ApiResponse {
+fn build_user_response(
+    user: &UserModel,
+    user_detail: UserDetails,
+    status: StatusCode,
+) -> ApiResponse {
     // TODO: allow dumping the entire user model (internal API only)
     let body = match user_detail {
         UserDetails::Identity => Body::from_json(&UserIdentityOutput::from(user))?,

@@ -100,13 +100,13 @@
   .dashboard-links {
     display: flex;
     flex-direction: column;
+    flex-shrink: 0;
     row-gap: 0.5rem;
     min-width: 16rem;
     padding-right: 1rem;
     margin-right: 2rem;
     list-style: none;
     border-right: solid 0.125rem var(--col-border);
-    flex-shrink: 0;
   }
 
   .dashboard-panels {

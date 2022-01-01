@@ -128,7 +128,7 @@ impl UserProfileOutput {
             realname: user.real_name.clone(),
             pronouns: user.pronouns.clone(),
             birthday: user.dob.clone(),
-            location: None, // TODO
+            location: None,        // TODO
             links: HashMap::new(), // TODO
         }
     }

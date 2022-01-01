@@ -29,10 +29,10 @@
 <style global lang="scss">
   .avatar {
     overflow: hidden;
-    border: solid 0.125rem var(--col-black);
-    border-radius: 10%;
     // set background so that if the image doesn't load right away,
     // it'll still look like a placeholder
     background: var(--col-background-dim);
+    border: solid 0.125rem var(--col-black);
+    border-radius: 10%;
   }
 </style>

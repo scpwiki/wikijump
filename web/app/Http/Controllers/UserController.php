@@ -7,9 +7,7 @@ namespace Wikijump\Http\Controllers;
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Log;
 use Wikijump\Models\User;
-use Wikijump\Services\Deepwell\DeepwellService;
 
 /**
  * Controller for interacting with the user model.
@@ -17,8 +15,6 @@ use Wikijump\Services\Deepwell\DeepwellService;
  */
 class UserController extends Controller
 {
-    const DEFAULT_AVATAR_URL = '/files--static/media/default-avatar.png';
-
     /** Guard used to handle authentication. */
     private StatefulGuard $guard;
 
@@ -49,10 +45,6 @@ class UserController extends Controller
 
         $avatar = $user->avatar();
 
-        if ($avatar === null) {
-            return new Response(['avatar' => self::DEFAULT_AVATAR_URL], 200);
-        }
-
         return new Response(['avatar' => $avatar], 200);
     }
 
@@ -66,10 +58,6 @@ class UserController extends Controller
         $user = $this->guard->user();
 
         $avatar = $user->avatar();
-
-        if ($avatar === null) {
-            return new Response(['avatar' => self::DEFAULT_AVATAR_URL] . 200);
-        }
 
         return new Response(['avatar' => $avatar], 200);
     }
