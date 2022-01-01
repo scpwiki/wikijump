@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use Wikijump\Models\User;
+use Wikijump\Services\Deepwell\DeepwellService;
 
 /**
  * Controller for interacting with the user model.
@@ -69,8 +70,6 @@ class UserController extends Controller
         if ($avatar === null) {
             return new Response(['avatar' => self::DEFAULT_AVATAR_URL] . 200);
         }
-
-        Log::debug($avatar);
 
         return new Response(['avatar' => $avatar], 200);
     }
