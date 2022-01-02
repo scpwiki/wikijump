@@ -37,8 +37,8 @@ Route::get('/account/email', [AccountController::class, 'getEmail']);
 // TODO: accountUpdatePassword
 // TODO: accountGetUsername
 // TODO: accountUpdateUsername
-// TODO: accountGetSettings
-// TODO: accountUpdateSettings
+Route::get('/account/settings', [AccountController::class, 'getSettings']);
+Route::patch('/account/settings', [AccountController::class, 'updateSettings']);
 
 // -- NOTIFICATION
 // these can be implemented!

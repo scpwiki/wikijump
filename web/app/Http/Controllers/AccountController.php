@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Wikijump\Http\Controllers;
 
+use Exception;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Http\Request;
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Wikidot\Utils\WDStringUtils;
 use Wikijump\Models\User;
+use Wikijump\Services\Deepwell\DeepwellService;
 use Wikijump\Services\Users\UserValidation;
 
 /**
@@ -170,6 +172,99 @@ class AccountController extends Controller
         $client->sendEmailVerificationNotification();
 
         return new Response('', 202);
+    }
+
+    /**
+     * Gets the current account settings.
+     * Endpoint: `GET:/account/settings` | `accountGetSettings`
+     */
+    public function getSettings(): Response
+    {
+        $client = $this->resolveClient();
+
+        if (!$client) {
+            return new Response('', 401);
+        }
+
+        $accepts_invites = (bool) $client->get('receive_invitations');
+        $language = (string) $client->language ?? '';
+        $allow_messages = (string) $client->get('receive_pm');
+
+        // this is a complete guess
+        // values for `receive_pm` are:
+        // - 'a'  (assumption: 'registered')
+        // - 'mf' (assumption: 'co-members' & contacts)
+        // - 'f'  (assumption: contacts)
+        // - 'n'  (assumption: 'nobody')
+        // we don't handle contacts, so we just assume 'co-members'
+
+        // prettier-ignore
+        switch ($allow_messages) {
+            case 'a':  $allow_messages = 'registered'; break;
+            case 'mf': $allow_messages = 'co-members'; break;
+            case 'f':  $allow_messages = 'co-members'; break;
+            case 'n':  $allow_messages = 'nobody';     break;
+        }
+
+        $settings = [
+            'acceptsInvites' => $accepts_invites,
+            'language' => $language,
+            'allowMessages' => $allow_messages,
+        ];
+
+        return new Response($settings, 200);
+    }
+
+    /**
+     * Update (patch) the client's user details.
+     * Endpoint: `POST:/account/settings` | `accountUpdateSettings`
+     */
+    public function updateSettings(Request $request): Response
+    {
+        $client = $this->resolveClient();
+
+        if (!$client) {
+            return new Response('', 401);
+        }
+
+        if ($request->has('language')) {
+            $language = (string) $request->input('language');
+            try {
+                // we'll update via deepwell because it can properly handle
+                // language code validation
+                DeepwellService::getInstance()->setUser($client->id, [
+                    'language' => $language,
+                ]);
+            } catch (Exception $e) {
+                // we'll presume a bad language code was given
+                return new Response('', 400);
+            }
+        }
+
+        if ($request->has('acceptsInvites')) {
+            $accepts_invites = (bool) $request->input('acceptsInvites');
+            $client->set(['receive_invitations' => $accepts_invites]);
+        }
+
+        if ($request->has('allowMessages')) {
+            $allow_messages = (string) $request->input('allowMessages');
+            // parse based on our previous guesses
+            // prettier-ignore
+            switch ($allow_messages) {
+                case 'registered':  $allow_messages = 'a';  break;
+                case 'co-members':  $allow_messages = 'mf'; break;
+                case 'nobody':      $allow_messages = 'n';  break;
+                default:            $allow_messages = null; break;
+            }
+
+            if (!$allow_messages) {
+                return new Response('', 400);
+            }
+
+            $client->set(['receive_pm' => $allow_messages]);
+        }
+
+        return new Response('', 200);
     }
 
     /**
