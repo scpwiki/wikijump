@@ -29,7 +29,7 @@ You will need Docker installed and running:
   <thead><tr><th>Ubuntu / Ubuntu VM</th><th>Windows via WSL2</th></tr></thead>
   <tbody valign="top"><tr>
     <td>
-      <p><pre># apt install docker</pre></p>
+      <p><pre># apt install docker.io</pre></p>
       <p>Start the Docker daemon in another terminal, and leave it running in the background:</p>
       <p><pre>$ dockerd</pre></p>
     </td>
