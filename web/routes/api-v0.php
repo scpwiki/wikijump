@@ -47,13 +47,13 @@ Route::post('/account/start-recovery', [AccountController::class, 'startRecovery
 
 // -- USER
 // these can be implemented!
-// TODO: userClientGet
+Route::get('/user', [UserController::class, 'clientGet']);
 // TODO: userClientUpdateProfile
 Route::get('/user/avatar', [UserController::class, 'clientGetAvatar']);
 // TODO: userClientSetAvatar
 // TODO: userClientRemoveAvatar
 // TODO: userClientGetBlocked
-// TODO: userGet
+Route::get('/user/{path_type}/{path}', [UserController::class, 'get']);
 // TODO: userResetProfile
 Route::get('/user/{path_type}/{path}/avatar', [UserController::class, 'getAvatar']);
 // TODO: userRemoveAvatar
