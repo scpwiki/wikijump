@@ -29,6 +29,9 @@
   /** If given, the button will act as a link. */
   export let href = ""
 
+  /** If true, the button will submit forms. */
+  export let submit = false
+
   // -- STYLE
 
   /** Makes the button as wide as possible. */
@@ -81,7 +84,7 @@
   </a>
 {:else}
   <button
-    type="button"
+    type={submit ? "submit" : "button"}
     {disabled}
     on:click
     use:tippy={tip}
