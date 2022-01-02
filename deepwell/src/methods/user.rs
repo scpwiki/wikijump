@@ -49,7 +49,8 @@ pub async fn user_put(mut req: ApiRequest) -> ApiResponse {
     let reference = ItemReference::try_from(&req)?;
     let user = req.user(&txn).update(reference, input).await.to_api()?;
     txn.commit().await?;
-    build_user_response(&user, UserDetails::default(), StatusCode::Created)
+    let UserDetailsQuery { detail } = req.query()?;
+    build_user_response(&user, detail, StatusCode::Created)
 }
 
 pub async fn user_delete(req: ApiRequest) -> ApiResponse {
@@ -57,7 +58,8 @@ pub async fn user_delete(req: ApiRequest) -> ApiResponse {
     let reference = ItemReference::try_from(&req)?;
     let user = req.user(&txn).delete(reference).await.to_api()?;
     txn.commit().await?;
-    build_user_response(&user, UserDetails::default(), StatusCode::Ok)
+    let UserDetailsQuery { detail } = req.query()?;
+    build_user_response(&user, detail, StatusCode::Ok)
 }
 
 fn build_user_response(
