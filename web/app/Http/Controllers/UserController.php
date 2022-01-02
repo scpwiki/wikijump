@@ -36,7 +36,7 @@ class UserController extends Controller
         if ($path_type === 'slug') {
             $user = User::where('slug', $path)->first();
         } elseif ($path_type === 'id') {
-            $user = User::find($path);
+            $user = User::find((int) $path);
         }
 
         if ($user === null) {
