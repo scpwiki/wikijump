@@ -71,8 +71,8 @@ pub struct UserIdentityOutput {
     role: String,
 }
 
-impl UserIdentityOutput {
-    pub fn from(user: &UserModel) -> Self {
+impl From<&UserModel> for UserIdentityOutput {
+    fn from(user: &UserModel) -> Self {
         Self {
             id: user.id,
             username: user.username.clone(),
@@ -96,8 +96,8 @@ pub struct UserInfoOutput {
     last_active: Option<NaiveDateTime>,
 }
 
-impl UserInfoOutput {
-    pub fn from(user: &UserModel) -> Self {
+impl From<&UserModel> for UserInfoOutput {
+    fn from(user: &UserModel) -> Self {
         Self {
             identity: UserIdentityOutput::from(user),
             about: user.about_page.clone(),
@@ -121,8 +121,8 @@ pub struct UserProfileOutput {
     links: HashMap<String, String>,
 }
 
-impl UserProfileOutput {
-    pub fn from(user: &UserModel) -> Self {
+impl From<&UserModel> for UserProfileOutput {
+    fn from(user: &UserModel) -> Self {
         Self {
             info: UserInfoOutput::from(user),
             realname: user.real_name.clone(),
