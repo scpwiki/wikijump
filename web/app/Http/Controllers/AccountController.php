@@ -268,6 +268,21 @@ class AccountController extends Controller
     }
 
     /**
+     * Gets the current username.
+     * Endpoint: `GET:/account/username` | `accountGetUsername`
+     */
+    public function getUsername(): Response
+    {
+        $client = $this->resolveClient();
+
+        if (!$client) {
+            return new Response('', 401);
+        }
+
+        return new Response(['username' => $client->username], 200);
+    }
+
+    /**
      * Handles updating a password during password recovery.
      * Not part of the "proper" API.
      */

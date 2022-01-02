@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Wikijump\Models\User;
 use Wikijump\Services\Deepwell\DeepwellService;
+use Wikijump\Services\Users\UserValidation;
 
 /**
  * Controller for interacting with the user model.
@@ -175,6 +176,48 @@ class UserController extends Controller
         }
 
         return new Response(['avatar' => $client->avatar()], 200);
+    }
+
+    /**
+     * Sets the client's avatar.
+     * API: `PUT:/user/avatar` | `userSetClientAvatar`
+     */
+    public function clientSetAvatar(Request $request): Response
+    {
+        $client = $this->resolveClient();
+
+        if (!$client) {
+            return new Response('', 401);
+        }
+
+        // note: isn't documented that the file name is "avatar",
+        // but it has to be named something specific to work I think
+        $avatar = $request->file('avatar');
+
+        if (!UserValidation::isValidAvatar($avatar)) {
+            return new Response('', 400);
+        }
+
+        $client->updateAvatar($avatar);
+
+        return new Response('', 200);
+    }
+
+    /**
+     * Removes the client's avatar.
+     * API: `DELETE:/user/avatar` | `userClientRemoveAvatar`
+     */
+    public function clientRemoveAvatar(): Response
+    {
+        $client = $this->resolveClient();
+
+        if (!$client) {
+            return new Response('', 401);
+        }
+
+        $client->deleteAvatar();
+
+        return new Response('', 200);
     }
 
     // -- USER
