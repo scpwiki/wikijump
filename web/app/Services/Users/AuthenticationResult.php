@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Wikijump\Services\Authentication;
+namespace Wikijump\Services\Users;
 
 use InvalidArgumentException;
 use LogicException;

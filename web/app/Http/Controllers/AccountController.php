@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Wikidot\Utils\WDStringUtils;
 use Wikijump\Models\User;
-use Wikijump\Services\UserValidation\UserValidation;
+use Wikijump\Services\Users\UserValidation;
 
 /**
  * Controller for handling account related requests.

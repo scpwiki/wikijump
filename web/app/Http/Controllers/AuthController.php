@@ -7,8 +7,8 @@ namespace Wikijump\Http\Controllers;
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
-use Wikijump\Services\Authentication\Authentication;
-use Wikijump\Services\Authentication\AuthenticationError;
+use Wikijump\Services\Users\Authentication;
+use Wikijump\Services\Users\AuthenticationError;
 
 /**
  * Controller for authenticating users.
