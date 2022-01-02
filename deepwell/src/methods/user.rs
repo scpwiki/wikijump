@@ -39,8 +39,8 @@ pub async fn user_get(req: ApiRequest) -> ApiResponse {
     let reference = ItemReference::try_from(&req)?;
     let user = req.user(&txn).get(reference).await.to_api()?;
     txn.commit().await?;
-    let query: UserDetailsQuery = req.query().unwrap_or_default();
-    build_user_response(&user, query.detail, StatusCode::Ok)
+    let UserDetailsQuery { detail } = req.query()?;
+    build_user_response(&user, detail, StatusCode::Ok)
 }
 
 pub async fn user_put(mut req: ApiRequest) -> ApiResponse {
