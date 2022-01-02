@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Wikijump\Http\Controllers;
 
+use Exception;
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -88,6 +89,27 @@ class UserController extends Controller
         return $this->data($request, $user);
     }
 
+    private static function addFromRename(
+        array &$target,
+        array &$source,
+        string $from,
+        string $to
+    ): void {
+        if (isset($source[$from])) {
+            $target[$to] = $source[$from];
+        }
+    }
+
+    private static function addFromRenameAll(
+        array &$target,
+        array &$source,
+        array $from_to
+    ): void {
+        foreach ($from_to as $from => $to) {
+            self::addFromRename($target, $source, $from, $to);
+        }
+    }
+
     // -- CLIENT
 
     /**
@@ -103,6 +125,40 @@ class UserController extends Controller
         }
 
         return new Response(json_encode($obj), 200);
+    }
+
+    /**
+     * Update (patch) the client's user details.
+     * API: `PATCH:/user` | `userClientUpdateProfile`
+     */
+    public function clientUpdateProfile(Request $request): Response
+    {
+        $client = $this->resolveClient();
+
+        if (!$client) {
+            return new Response('', 401);
+        }
+
+        // TODO: signature, location, links
+        $patch = $request->only(['about', 'realname', 'pronouns', 'birthday']);
+
+        // we're gonna build this object up and send it to Deepwell
+        $data = [];
+
+        self::addFromRenameAll($data, $patch, [
+            'about' => 'bio',
+            'realname' => 'real_name',
+            'pronouns' => 'pronouns',
+            'birthday' => 'dob',
+        ]);
+
+        try {
+            DeepwellService::getInstance()->setUser($client->id, $data);
+        } catch (Exception $e) {
+            return new Response('', 400);
+        }
+
+        return new Response('', 200);
     }
 
     /**

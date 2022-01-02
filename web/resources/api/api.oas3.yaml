@@ -2913,13 +2913,15 @@ components:
       description: Partial object that is used to update a user's profile.
       type: object
       properties:
-        about:     { type: string }
-        signature: { $ref: '#/components/schemas/Wikitext' }
-        gender:    { type: string }
-        birthday:  { type: string, format: date }
-        location:  { type: string }
+        about:     { type: string,                          nullable: true }
+        signature: { $ref: '#/components/schemas/Wikitext', nullable: true }
+        realname:  { type: string,                          nullable: true }
+        pronouns:  { type: string,                          nullable: true }
+        birthday:  { type: string, format: date,            nullable: true }
+        location:  { type: string,                          nullable: true }
         links:
           type: object
+          nullable: true
           uniqueItems: true
           additionalProperties:
             type: string

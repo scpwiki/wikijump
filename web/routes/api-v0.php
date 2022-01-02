@@ -48,7 +48,7 @@ Route::patch('/account/settings', [AccountController::class, 'updateSettings']);
 // -- USER
 // these can be implemented!
 Route::get('/user', [UserController::class, 'clientGet']);
-// TODO: userClientUpdateProfile
+Route::patch('/user', [UserController::class, 'clientUpdateProfile']);
 Route::get('/user/avatar', [UserController::class, 'clientGetAvatar']);
 // TODO: userClientSetAvatar
 // TODO: userClientRemoveAvatar
