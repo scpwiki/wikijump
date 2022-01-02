@@ -67,24 +67,30 @@ final class DeepwellService
     }
 
     // User
-    public function getUserById(int $id): ?object
+    public function getUserById(int $id, string $detail = 'identity'): ?object
     {
-        $resp = $this->client->get("user/id/$id");
+        $resp = $this->client->get("user/id/$id", [
+            'query' => ['detail' => $detail],
+        ]);
+
         if ($resp->getStatusCode() === 404) {
             return null;
         }
 
-        return self::parseUser($resp);
+        return $this->parseUser($resp);
     }
 
-    public function getUserBySlug(string $slug): ?object
+    public function getUserBySlug(string $slug, string $detail = 'string'): ?object
     {
-        $resp = $this->client->get("user/slug/$slug");
+        $resp = $this->client->get("user/id/$slug", [
+            'query' => ['detail' => $detail],
+        ]);
+
         if ($resp->getStatusCode() === 404) {
             return null;
         }
 
-        return self::parseUser($resp);
+        return $this->parseUser($resp);
     }
 
     public function setUser(int $id, array $fields): void
@@ -95,10 +101,17 @@ final class DeepwellService
     private function parseUser($resp): object
     {
         $user = self::readJson($resp);
-        $user->email_verified_at = self::nullableDate($user->email_verified_at);
-        $user->created_at = self::nullableDate($user->created_at);
-        $user->updated_at = self::nullableDate($user->updated_at);
-        $user->deleted_at = self::nullableDate($user->deleted_at);
+
+        self::convertDateProperties($user, [
+            'since',
+            'lastActive',
+            'birthday',
+            'email_verified_at',
+            'created_at',
+            'updated_at',
+            'deleted_at',
+        ]);
+
         return $user;
     }
 
@@ -125,6 +138,20 @@ final class DeepwellService
     {
         $json = (string) $resp->getBody();
         return json_decode($json);
+    }
+
+    /**
+     * Converts properties in an object to nullable dates, for each property that exists.
+     * @param object $obj The object to convert the properties in.
+     * @param array $properties The properties to convert.
+     */
+    private static function convertDateProperties(object $obj, array $properties): void
+    {
+        foreach ($properties as $property) {
+            if (property_exists($obj, $property)) {
+                $obj->$property = self::nullableDate($obj->$property);
+            }
+        }
     }
 
     /**

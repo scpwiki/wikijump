@@ -50,7 +50,7 @@
 
     {{-- Browser Metadata --}}
     {{-- TODO: make this use site name, not $SERVICE_NAME --}}
-    <title>{{ isset($title) ? "$title | $SERVICE_NAME" : $SERVICE_NAME }}</title>
+    <title>{{ isset($title) ? __("base-title", ['title' => $title]) : $SERVICE_NAME }}</title>
     @isset($robots)
         <meta name="robots" content="{{ $robots }}">
     @endisset

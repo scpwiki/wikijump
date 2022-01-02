@@ -20,9 +20,11 @@
 
 mod reference;
 mod unwrap;
+mod user_details;
 
 pub mod ratelimit;
 pub mod utils;
 
 pub use self::reference::ItemReference;
 pub use self::unwrap::HttpUnwrap;
+pub use self::user_details::{UserDetails, UserDetailsQuery};

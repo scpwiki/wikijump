@@ -1,86 +1,64 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Wikijump\Http\Controllers;
 
+use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Wikijump\Models\User;
 
+/**
+ * Controller for interacting with the user model.
+ * API: `/users`
+ */
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return Response
-     */
-    public function index(): Response
-    {
-        //
-    }
+    /** Guard used to handle authentication. */
+    private StatefulGuard $guard;
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return Response
+     * @param StatefulGuard $guard
      */
-    public function create(): Response
+    public function __construct(StatefulGuard $guard)
     {
-        //
+        $this->guard = $guard;
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param Request $request
-     * @return Response
-     */
-    public function store(Request $request): Response
+    public function getAvatar(Request $request): Response
     {
-        //
+        $path_type = $request->input('path_type');
+        $path = $request->input('path');
+
+        $user = null;
+
+        if ($path_type === 'slug') {
+            $user = User::where('slug', $path)->first();
+        } elseif ($path_type === 'id') {
+            $user = User::find((int) $path);
+        }
+
+        if ($user === null) {
+            return new Response('', 404);
+        }
+
+        $avatar = $user->avatar();
+
+        return new Response(['avatar' => $avatar], 200);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param User $user
-     * @return Response
-     */
-    public function show(User $user): Response
+    public function clientGetAvatar(): Response
     {
-        //
-    }
+        if (!$this->guard->check()) {
+            return new Response('', 401);
+        }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param User $user
-     * @return Response
-     */
-    public function edit(User $user): Response
-    {
-        //
-    }
+        /** @var User */
+        $user = $this->guard->user();
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param Request $request
-     * @param User $user
-     * @return Response
-     */
-    public function update(Request $request, User $user): Response
-    {
-        //
-    }
+        $avatar = $user->avatar();
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param User $user
-     * @return Response
-     */
-    public function destroy(User $user): Response
-    {
-        //
+        return new Response(['avatar' => $avatar], 200);
     }
 }

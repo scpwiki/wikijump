@@ -21,7 +21,8 @@
 use super::prelude::*;
 use crate::models::users::{self, Entity as User, Model as UserModel};
 use crate::utils::replace_in_place;
-use chrono::NaiveDate;
+use chrono::{NaiveDate, NaiveDateTime};
+use std::collections::HashMap;
 use wikidot_normalize::normalize;
 
 // Helper structs
@@ -59,6 +60,78 @@ pub struct UpdateUser {
     bio: Maybe<Option<String>>,
     about_page: Maybe<Option<String>>,
     avatar_path: Maybe<Option<String>>,
+}
+
+#[derive(Serialize, Debug)]
+pub struct UserIdentityOutput {
+    id: i64,
+    username: String,
+    tinyavatar: Option<String>, // TODO
+    karma: u8,
+    role: String,
+}
+
+impl From<&UserModel> for UserIdentityOutput {
+    fn from(user: &UserModel) -> Self {
+        Self {
+            id: user.id,
+            username: user.username.clone(),
+            tinyavatar: None, // TODO
+            karma: user.karma_level as u8,
+            role: String::new(), // TODO
+        }
+    }
+}
+
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct UserInfoOutput {
+    #[serde(flatten)]
+    identity: UserIdentityOutput,
+
+    about: Option<String>,
+    avatar: Option<String>, // TODO
+    signature: Option<String>,
+    since: Option<NaiveDateTime>,
+    last_active: Option<NaiveDateTime>,
+}
+
+impl From<&UserModel> for UserInfoOutput {
+    fn from(user: &UserModel) -> Self {
+        Self {
+            identity: UserIdentityOutput::from(user),
+            about: user.about_page.clone(),
+            avatar: user.avatar_path.clone(),
+            signature: None, // TODO
+            since: user.created_at,
+            last_active: user.updated_at,
+        }
+    }
+}
+
+#[derive(Serialize, Debug)]
+pub struct UserProfileOutput {
+    #[serde(flatten)]
+    info: UserInfoOutput,
+
+    realname: Option<String>,
+    pronouns: Option<String>,
+    birthday: Option<NaiveDate>,
+    location: Option<String>,
+    links: HashMap<String, String>,
+}
+
+impl From<&UserModel> for UserProfileOutput {
+    fn from(user: &UserModel) -> Self {
+        Self {
+            info: UserInfoOutput::from(user),
+            realname: user.real_name.clone(),
+            pronouns: user.pronouns.clone(),
+            birthday: user.dob,
+            location: None,        // TODO
+            links: HashMap::new(), // TODO
+        }
+    }
 }
 
 // Service

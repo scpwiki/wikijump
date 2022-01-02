@@ -16,6 +16,9 @@
 
   /** The theme of the skeleton. Defaults to `"auto"`. */
   export let theme: "auto" | "dark" | "light" = "auto"
+
+  /** If true, the skeleton will fill its container. */
+  export let fill = false
 </script>
 
 <div
@@ -23,15 +26,24 @@
   class:is-block={type === "block"}
   class:is-inline={type === "inline"}
   class:is-spinner={type === "spinner"}
+  class:is-fill={fill}
 >
   {#if type === "block"}
-    <div class="skeleton is-block" style="width: {width}; height: {height};" />
+    <div
+      class="skeleton is-block"
+      class:is-fill={fill}
+      style="width: {width}; height: {height};"
+    />
   {:else if type === "inline"}
     {#each Array(lines).fill(0) as _}
       <div class="skeleton is-line" style="width: {width}; height: {height};" />
     {/each}
   {:else if type === "spinner"}
-    <div class="skeleton is-spinner" style="width: {width}; height: {height};">
+    <div
+      class="skeleton is-spinner"
+      class:is-fill={fill}
+      style="width: {width}; height: {height};"
+    >
       <svg
         class="skeleton-spinner"
         viewBox="-15 -15 30 30"
@@ -65,6 +77,11 @@
       // delay spinner from showing up immmediately
       animation: skeleton-fade-in 200ms 0.5s backwards linear;
     }
+
+    &.is-fill {
+      width: 100%;
+      height: 100%;
+    }
   }
 
   .skeleton {
@@ -86,6 +103,12 @@
     &.is-spinner {
       display: block;
       background: none;
+    }
+
+    &.is-fill {
+      width: 100% !important;
+      height: 100% !important;
+      border-radius: 0;
     }
 
     &:hover,

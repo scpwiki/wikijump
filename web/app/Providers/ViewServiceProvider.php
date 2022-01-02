@@ -12,6 +12,7 @@ use Wikijump\Mail\PasswordResetMessage;
 use Wikijump\Mail\VerifyEmailMessage;
 use Wikijump\View\Composers\BaseComposer;
 use Wikijump\View\Composers\EmailBaseComposer;
+use Wikijump\View\Composers\FrameComposer;
 use Wikijump\View\Composers\PageMockedComposer;
 use Wikijump\View\Directives\InlineDirective;
 use Wikijump\View\Directives\PreloadDirective;
@@ -37,6 +38,7 @@ class ViewServiceProvider extends ServiceProvider
         // Register Composers
 
         View::composer('next.base', BaseComposer::class);
+        View::composer('next.frame', FrameComposer::class);
         View::composer('emails.base-mjml', EmailBaseComposer::class);
         View::composer('emails.base-text', EmailBaseComposer::class);
         View::composer('next.test.page-test', PageMockedComposer::class);

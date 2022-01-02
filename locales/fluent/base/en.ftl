@@ -15,13 +15,19 @@ goto-home = Go to home page
 
 goto-service = Go to { -service-name }
 
+base-title = {$title} | { -service-name }
+
+navigated-to = Navigated to { $path }
+
 ## Generic
 
 about = About
 account = Account
+applications = Applications
 breadcrumbs = Breadcrumbs
 clear = clear
 close = Close
+dashboard = Dashboard
 docs = Docs
 download = Download
 editor = Editor
@@ -29,6 +35,8 @@ footer = Page Footer
 general = General
 header = Page Header
 help = Help
+inbox = Inbox
+invitations = Invitations
 license = License
 load = Load
 main-content = Main Content
@@ -41,6 +49,8 @@ publish = Publish
 reveal-sidebar = Reveal Sidebar
 save = Save
 security = Security
+send = Send
+sent = Sent
 settings = Settings
 sidebar = Sidebar
 tags = Tags
