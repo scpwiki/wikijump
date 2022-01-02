@@ -67,10 +67,11 @@ final class DeepwellService
     }
 
     // User
-    public function getUserById(int $id, ?string $detail = null): ?object
+    public function getUserById(int $id, string $detail = 'identity'): ?object
     {
-        $query = $detail ? "?detail=$detail" : '';
-        $resp = $this->client->get("user/id/$id$query");
+        $resp = $this->client->get("user/id/$id", [
+            'query' => ['detail' => $detail],
+        ]);
 
         if ($resp->getStatusCode() === 404) {
             return null;
@@ -79,10 +80,11 @@ final class DeepwellService
         return $this->parseUser($resp);
     }
 
-    public function getUserBySlug(string $slug, ?string $detail = null): ?object
+    public function getUserBySlug(string $slug, string $detail = 'string'): ?object
     {
-        $query = $detail ? "?detail=$detail" : '';
-        $resp = $this->client->get("user/slug/$slug$query");
+        $resp = $this->client->get("user/id/$slug", [
+            'query' => ['detail' => $detail],
+        ]);
 
         if ($resp->getStatusCode() === 404) {
             return null;
