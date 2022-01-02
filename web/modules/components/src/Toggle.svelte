@@ -4,6 +4,9 @@
 <script lang="ts">
   import { keyHandle } from "@wikijump/dom"
 
+  /** Assigns a name to the input. */
+  export let name = ""
+
   /** Type of "toggle" to use. Only has a visual effect. */
   export let type: "slider" | "checkbox" = "slider"
 
@@ -22,6 +25,7 @@
 
 <label class="toggleinput" class:is-toggled={toggled} class:is-wide={wide}>
   <input
+    {name}
     class="toggleinput-input"
     type="checkbox"
     bind:checked={toggled}
