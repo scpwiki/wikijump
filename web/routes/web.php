@@ -150,7 +150,7 @@ Route::view('--/privacy', 'next.test.page-test')->name('privacy');
 Route::view('--/report-flag', 'next.test.page-test')->name('report-flag');
 
 // Dashboard
-Route::view('/--/dashboard/{path?}', 'next.wiki.dashboard')
+Route::view('--/dashboard/{path?}', 'next.wiki.dashboard')
     ->where('path', '.*')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
