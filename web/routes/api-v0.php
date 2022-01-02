@@ -32,7 +32,7 @@ Route::post('/account/send-verification-email', [
 ]);
 // TODO: accountRequestDeletion
 Route::post('/account/start-recovery', [AccountController::class, 'startRecovery']);
-// TODO: accountGetEmail
+Route::get('/account/email', [AccountController::class, 'getEmail']);
 // TODO: accountUpdateEmail
 // TODO: accountUpdatePassword
 // TODO: accountGetUsername

@@ -32,6 +32,15 @@ class AccountController extends Controller
         $this->guard = $guard;
     }
 
+    private function resolveClient(): ?User
+    {
+        if (!$this->guard->check()) {
+            return null;
+        }
+
+        return $this->guard->user();
+    }
+
     /**
      * Registers an account. Email validation will be required.
      * Endpoint: `POST:/account/register` | `accountRegister`
@@ -87,36 +96,6 @@ class AccountController extends Controller
     }
 
     /**
-     * Sends a verification email to the account's address.
-     * Endpoint: `POST:/account/send-verification-email` | `accountSendVerificationEmail`
-     */
-    public function sendVerificationEmail(): Response
-    {
-        // check if user isn't logged in
-        if (!$this->guard->check()) {
-            return new Response('', 401);
-        }
-
-        /** @var \Wikijump\Models\User */
-        $user = $this->guard->user();
-
-        // unlikely edge case: account doesn't have an email address
-        if (!$user->email) {
-            return new Response('', 400);
-        }
-
-        // check if email has already been verified
-        if ($user->hasVerifiedEmail()) {
-            return new Response('', 403);
-        }
-
-        // send verification email
-        $user->sendEmailVerificationNotification();
-
-        return new Response('', 202);
-    }
-
-    /**
      * Starts password recovery.
      * Endpoint: `POST:/account/start-recovery` | `accountStartRecovery`
      */
@@ -148,6 +127,49 @@ class AccountController extends Controller
             default:
                 return new Response('', 500);
         }
+    }
+
+    /**
+     * Gets the current email address.
+     * Endpoint: `GET:/account/email` | `accountGetEmail`
+     */
+    public function getEmail(): Response
+    {
+        $client = $this->resolveClient();
+
+        if (!$client) {
+            return new Response('', 401);
+        }
+
+        return new Response(['email' => $client->email], 200);
+    }
+
+    /**
+     * Sends a verification email to the account's address.
+     * Endpoint: `POST:/account/send-verification-email` | `accountSendVerificationEmail`
+     */
+    public function sendVerificationEmail(): Response
+    {
+        $client = $this->resolveClient();
+
+        if (!$client) {
+            return new Response('', 401);
+        }
+
+        // unlikely edge case: account doesn't have an email address
+        if (!$client->email) {
+            return new Response('', 400);
+        }
+
+        // check if email has already been verified
+        if ($client->hasVerifiedEmail()) {
+            return new Response('', 403);
+        }
+
+        // send verification email
+        $client->sendEmailVerificationNotification();
+
+        return new Response('', 202);
     }
 
     /**
