@@ -1,11 +1,7 @@
 <script lang="ts">
-  import { keyHandle } from "@wikijump/dom"
   import { format as t } from "@wikijump/fluent"
-  import { createEventDispatcher } from "svelte"
   import Icon from "./Icon.svelte"
   import { tip } from "./lib/tippy"
-
-  const dispatch = createEventDispatcher()
 
   /** Assigns a name to the input. */
   export let name = ""
@@ -42,11 +38,6 @@
     <textarea
       {name}
       bind:value
-      use:keyHandle={{
-        key: "Enter",
-        preventDefault: true,
-        do: () => dispatch("enter")
-      }}
       class="textbox-textarea"
       {required}
       maxLength={max || null}
