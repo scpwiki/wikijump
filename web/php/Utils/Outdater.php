@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Wikidot\Utils;
 
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
