@@ -2,7 +2,6 @@ import { readable, type Subscriber } from "svelte/store"
 import {
   Api,
   ContentType,
-  type RequestParams,
   type UserIdentity,
   type UserInfo,
   type UserProfile
@@ -33,16 +32,7 @@ class WikijumpAPIInstance extends Api<void> {
       // this gets ran on every request,
       // so this is more for setting up an API request
       // than just handling security
-      securityWorker: () => {
-        const csrf = this._CSRF ?? getCSRFMeta()
-        const xsrf = getCSRFCookie()
-        const securityHeaders = xsrf
-          ? { "X-CSRF-TOKEN": csrf, "X-XSRF-TOKEN": xsrf }
-          : { "X-CSRF-TOKEN": csrf }
-        return {
-          headers: securityHeaders
-        } as RequestParams
-      }
+      securityWorker: () => ({ headers: this.getSecurityHeaders() })
     })
 
     this._hijackAuthMethods()
@@ -176,6 +166,19 @@ class WikijumpAPIInstance extends Api<void> {
     } catch {
       return null
     }
+  }
+
+  /** Gets the current security headers. */
+  getSecurityHeaders():
+    | { "X-CSRF-TOKEN": string }
+    | { "X-CSRF-TOKEN": string; "X-XSRF-TOKEN": string } {
+    const csrf = this._CSRF ?? getCSRFMeta()
+    const xsrf = getCSRFCookie()
+    const securityHeaders = xsrf
+      ? { "X-CSRF-TOKEN": csrf, "X-XSRF-TOKEN": xsrf }
+      : { "X-CSRF-TOKEN": csrf }
+
+    return securityHeaders
   }
 
   /**

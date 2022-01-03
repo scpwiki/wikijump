@@ -1,10 +1,12 @@
 <script lang="ts">
   import WikijumpAPI from "@wikijump/api"
-  import { format as t } from "@wikijump/fluent"
+  import Locale from "@wikijump/fluent"
   import { Spinny } from "@wikijump/components"
   import Error from "./Error.svelte"
   import { fade } from "svelte/transition"
   import UserAvatar from "./UserAvatar.svelte"
+
+  const t = Locale.makeComponentFormatter("user-profile")
 
   export let user: number | string = ""
 
@@ -36,10 +38,40 @@
           </wj-body>
         </div>
       {/if}
+      <!-- TODO: stats panel -->
+      <!-- TODO: less boring styling -->
+      <div class="user-profile-info">
+        <dl>
+          {#if profile.realname}
+            <dt>{$t("#-info.name")}</dt>
+            <dd>{profile.realname}</dd>
+          {/if}
+
+          {#if profile.pronouns}
+            <dt>{$t("#-info.pronouns")}</dt>
+            <dd>{profile.pronouns}</dd>
+          {/if}
+
+          {#if profile.birthday}
+            <dt>{$t("#-info.birthday")}</dt>
+            <dd>{Locale.date(profile.birthday, { dateStyle: "long" })}</dd>
+          {/if}
+
+          {#if profile.location}
+            <dt>{$t("#-info.location")}</dt>
+            <dd>{profile.location}</dd>
+          {/if}
+
+          {#if profile.since}
+            <dt>{$t("#-info.since")}</dt>
+            <dd>{Locale.date(profile.since, { dateStyle: "long" })}</dd>
+          {/if}
+        </dl>
+      </div>
     </div>
   {:else}
     <Error>
-      <p>{t("error-404.user")}</p>
+      <p>{$t("error-404.user")}</p>
     </Error>
   {/if}
 {/await}
@@ -63,6 +95,25 @@
         font-size: 0.825rem;
         color: var(--col-text-subtle);
       }
+    }
+  }
+
+  .user-profile-info {
+    margin-top: 2rem;
+
+    dl {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      width: max-content;
+      font-size: 0.825rem;
+    }
+
+    dt {
+      font-weight: bold;
+    }
+
+    dd {
+      color: var(--col-text-subtle);
     }
   }
 </style>

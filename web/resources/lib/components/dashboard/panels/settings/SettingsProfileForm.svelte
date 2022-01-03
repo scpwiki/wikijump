@@ -4,6 +4,7 @@
   import { Form, TextBox, TextInput, Button } from "@wikijump/components"
   import type { Settings } from "../SettingsPanel.svelte"
   import { toast } from "@wikijump/components/lib"
+  import SettingsAvatar from "./SettingsAvatar.svelte"
 
   export let data: Settings
 
@@ -37,6 +38,10 @@
 </script>
 
 <div class="dashboard-settings-profile">
+  <div class="dashboard-settings-profile-avatar">
+    <SettingsAvatar />
+  </div>
+
   <Form {onsubmit} let:busy let:error>
     <div class="dashboard-settings-profile-inputs">
       <TextInput
@@ -106,6 +111,7 @@
 
 <style global lang="scss">
   .dashboard-settings-profile {
+    position: relative;
     max-width: 30rem;
   }
 

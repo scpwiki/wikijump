@@ -11,6 +11,11 @@
   "type": "module",
   "main": "scripts/index.ts",
   "dependencies": {
+    "@uppy/core": "^2.1.4",
+    "@uppy/dashboard": "^2.1.3",
+    "@uppy/image-editor": "^1.1.0",
+    "@uppy/svelte": "^1.0.7",
+    "@uppy/xhr-upload": "^2.0.7",
     "@wikijump/api": "workspace:*",
     "@wikijump/components": "workspace:*",
     "@wikijump/dom": "workspace:*",
