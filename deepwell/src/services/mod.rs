@@ -35,7 +35,7 @@ mod prelude {
     pub use super::context::ServiceContext;
     pub use super::error::*;
     pub use crate::utils::{now, now_naive};
-    pub use crate::web::{Reference, ProvidedValue};
+    pub use crate::web::{ProvidedValue, Reference};
     pub use sea_orm::{
         ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, EntityTrait,
         PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, Set,
