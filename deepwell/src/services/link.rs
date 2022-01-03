@@ -173,55 +173,32 @@ impl LinkService {
         let mut connections_missing = HashMap::new();
         let mut external_links = HashMap::new();
 
-        macro_rules! count_connections {
-            ($ctx:expr, $page_ref:expr, $connection_type:expr) => {{
-                let PageRef {
-                    site: site_slug,
-                    page: page_slug,
-                } = $page_ref;
-
-                let to_site_id = match site_slug {
-                    None => site_id,
-                    Some(_slug) => {
-                        // TODO: get site ID from SiteService
-                        1
-                    }
-                };
-
-                let page = PageService::get_optional(
-                    $ctx,
-                    to_site_id,
-                    Reference::Slug(page_slug),
-                )
-                .await?;
-
-                match page {
-                    Some(to_page) => {
-                        let entry = connections
-                            .entry((to_page.page_id, $connection_type))
-                            .or_insert(0);
-
-                        *entry += 1;
-                    }
-                    None => {
-                        let entry = connections_missing
-                            .entry((to_site_id, str!(page_slug), $connection_type))
-                            .or_insert(0);
-
-                        *entry += 1;
-                    }
-                }
-            }};
-        }
-
         // Get include stats (old, so include-messy)
         for include in &backlinks.included_pages {
-            count_connections!(ctx, include, ConnectionType::IncludeMessy);
+            count_connections(
+                ctx,
+                site_id,
+                include,
+                ConnectionType::IncludeMessy,
+                &mut connections,
+                &mut connections_missing,
+                &mut external_links,
+            )
+            .await?;
         }
 
         // Get internal page link stats
         for link in &backlinks.internal_links {
-            count_connections!(ctx, link, ConnectionType::Link);
+            count_connections(
+                ctx,
+                site_id,
+                link,
+                ConnectionType::Link,
+                &mut connections,
+                &mut connections_missing,
+                &mut external_links,
+            )
+            .await?;
         }
 
         // Gather external URL link stats
@@ -248,6 +225,12 @@ impl LinkService {
         page_slug: &str,
         backlinks: &Backlinks<'_>,
     ) -> Result<()> {
+        /*
+        let mut connections = HashMap::new();
+        let mut connections_missing = HashMap::new();
+        let mut external_links = HashMap::new();
+        */
+
         todo!()
     }
 }
@@ -431,6 +414,49 @@ async fn update_external_links(
         .collect::<Vec<_>>();
 
     PageLink::insert_many(to_insert).exec(txn).await?;
+
+    Ok(())
+}
+
+async fn count_connections(
+    ctx: &ServiceContext<'_>,
+    site_id: i64,
+    PageRef {
+        site: site_slug,
+        page: page_slug,
+    }: &PageRef<'_>,
+    connection_type: ConnectionType,
+    connections: &mut HashMap<(i64, ConnectionType), i32>,
+    connections_missing: &mut HashMap<(i64, String, ConnectionType), i32>,
+    external_links: &mut HashMap<String, i32>,
+) -> Result<()> {
+    let to_site_id = match site_slug {
+        None => site_id,
+        Some(_slug) => {
+            // TODO: get site ID from SiteService
+            1
+        }
+    };
+
+    let page =
+        PageService::get_optional(ctx, to_site_id, Reference::Slug(page_slug)).await?;
+
+    match page {
+        Some(to_page) => {
+            let entry = connections
+                .entry((to_page.page_id, connection_type))
+                .or_insert(0);
+
+            *entry += 1;
+        }
+        None => {
+            let entry = connections_missing
+                .entry((to_site_id, str!(page_slug), connection_type))
+                .or_insert(0);
+
+            *entry += 1;
+        }
+    }
 
     Ok(())
 }
