@@ -6,7 +6,7 @@ This document will explain how to set up Wikijump on your machine for local deve
 
 The `install` folder has everything you need to run a local Wikijump install either in a container or on metal or a VM.
 
-The recommended way to install Wikijump is via Docker, utilizing pnpm. Docker is a way of containerizing, or in the case of Windows or Mac, also virtualizing, Linux images. It lets you easily create and destroy different Wikijump builds, and it also acts like a sandbox to protect the rest of your system from dependency pollution.
+The recommended way to install Wikijump is via Docker, utilizing pnpm. Docker is a way of containerizing, or in the case of Windows or Mac, also virtualizing, Linux images. It lets you easily create and destroy different Wikijump builds, and it also acts like a sandbox to protect the rest of your system from dependency pollution. PNPM is an alternate package manager for NodeJS.
 
 > ### For Windows:
 >
@@ -39,7 +39,7 @@ You will need some utilites and programs to get started. You will to install the
 
 - [Docker](https://www.docker.com/get-started) (see above)
 - [Docker Compose](https://docs.docker.com/compose/)
-- [Node (and NPM, which comes with it), v15 or greater](https://nodejs.org/en/)
+- [NodeJS (and NPM, which comes with it), v15 or greater](https://nodejs.org/en/)
 - [PNPM v6](https://pnpm.io/installation)
 
 Node, NPM, and PNPM are well-behaved on Windows and Linux, and the difference in usage between operating systems is negligable.
