@@ -29,6 +29,8 @@
 #[serde(untagged)]
 pub enum ProvidedValue<T> {
     Set(T),
+
+    #[serde(skip)]
     Unset,
 }
 
