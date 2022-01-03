@@ -32,7 +32,6 @@
         easing: "circInOut"
       }}
     >
-      <hr class="dashboard-link-hr" />
       <ul class="dashboard-subpaths">
         {#each subpaths as { path: subpath, title } (subpath)}
           <li class="dashboard-subpath">
@@ -68,10 +67,6 @@
     overflow: hidden;
     transform-origin: top;
     will-change: max-height;
-  }
-
-  .dashboard-link-hr {
-    margin-bottom: 0.25rem;
   }
 
   .dashboard-subpaths {
