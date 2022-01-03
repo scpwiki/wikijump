@@ -134,7 +134,7 @@ impl LinkService {
         let connections = PageConnectionMissing::find()
             .filter(
                 Condition::all()
-                    .add(page_connection_missing::Column::ToPageSiteId.eq(site_id))
+                    .add(page_connection_missing::Column::ToSiteId.eq(site_id))
                     .add(page_connection_missing::Column::ToPageSlug.eq(page_slug)),
             )
             .all(txn)
@@ -191,7 +191,7 @@ impl LinkService {
                     }
                     None => {
                         let entry = connections_missing
-                            .entry((str!(page_slug), $connection_type))
+                            .entry((to_site_id, str!(page_slug), $connection_type))
                             .or_insert(0);
 
                         *entry += 1;
@@ -292,7 +292,7 @@ async fn update_connections(
 async fn update_connections_missing(
     ctx: &ServiceContext<'_>,
     from_page_id: i64,
-    counts: &mut HashMap<(String, ConnectionType), i32>,
+    counts: &mut HashMap<(i64, String, ConnectionType), i32>,
 ) -> Result<()> {
     let txn = ctx.transaction();
 
@@ -305,10 +305,11 @@ async fn update_connections_missing(
     // Update and delete connections
     while let Some(connections) = connection_chunks.fetch_and_next().await? {
         for connection in connections {
+            let to_site_id = connection.to_site_id;
             let to_page_slug = connection.to_page_slug.clone();
             let connection_type = parse_connection_type!(connection);
 
-            match counts.remove(&(to_page_slug.clone(), connection_type)) {
+            match counts.remove(&(to_site_id, to_page_slug.clone(), connection_type)) {
                 // Connection exists, count is the same. Do nothing.
                 Some(count) if connection.count == count => (),
 
@@ -333,16 +334,19 @@ async fn update_connections_missing(
     // Insert new connections
     let to_insert = counts
         .iter()
-        .map(|(&(ref to_page_slug, connection_type), count)| {
-            page_connection_missing::ActiveModel {
-                from_page_id: Set(from_page_id),
-                to_page_slug: Set(str!(to_page_slug)),
-                connection_type: Set(str!(connection_type.name())),
-                created_at: Set(now()),
-                updated_at: Set(None),
-                count: Set(*count),
-            }
-        })
+        .map(
+            |(&(to_site_id, ref to_page_slug, connection_type), count)| {
+                page_connection_missing::ActiveModel {
+                    from_page_id: Set(from_page_id),
+                    to_site_id: Set(to_site_id),
+                    to_page_slug: Set(str!(to_page_slug)),
+                    connection_type: Set(str!(connection_type.name())),
+                    created_at: Set(now()),
+                    updated_at: Set(None),
+                    count: Set(*count),
+                }
+            },
+        )
         .collect::<Vec<_>>();
 
     PageConnectionMissing::insert_many(to_insert)
