@@ -153,6 +153,14 @@ class UserController extends Controller
             'birthday' => 'dob',
         ]);
 
+        if (isset($data['bio'])) {
+            // we're going to escape this for now,
+            // but we should probably consider this as Wikitext
+            // and have it get compiled on Deepwell's end
+            // TODO: should we be paranoid about other strings?
+            $data['bio'] = htmlspecialchars($data['bio']);
+        }
+
         try {
             DeepwellService::getInstance()->setUser($client->id, $data);
         } catch (Exception $e) {
