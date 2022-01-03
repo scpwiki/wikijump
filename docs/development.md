@@ -24,7 +24,7 @@ You will need [Docker](https://www.docker.com/) installed and running:
     <td>
       <p><pre># apt install docker.io</pre></p>
       <p>Start the Docker daemon via systemd or whatever your service manager is.</p>
-      <p><pre>$ dockerd</pre></p>
+      <p><pre>$ sudo systemctl enable --now docker.service</pre></p>
     </td>
     <td>
       <p>Install <a href="https://docs.docker.com/docker-for-windows/install-windows-home">Docker Desktop</a>, which you'll be using as the Docker daemon, and leave it running in the background.</p>
