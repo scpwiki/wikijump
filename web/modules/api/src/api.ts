@@ -1,5 +1,12 @@
 import { readable, type Subscriber } from "svelte/store"
-import { Api, ContentType, type RequestParams, type UserIdentity } from "../vendor/api"
+import {
+  Api,
+  ContentType,
+  type RequestParams,
+  type UserIdentity,
+  type UserInfo,
+  type UserProfile
+} from "../vendor/api"
 
 const API_PATH = "/api--v0"
 
@@ -196,6 +203,36 @@ class WikijumpAPIInstance extends Api<void> {
    */
   subdomainURL(subdomain: string) {
     return `${window.location.protocol}//${subdomain}.${window.location.host}/${API_PATH}`
+  }
+
+  /**
+   * Gets a user via their ID or slug. If the user is not found, returns `null`.
+   *
+   * @param user - The user to get.
+   * @param detail - The detail level to get.
+   */
+  async getUser(user: number | string): Promise<null | UserIdentity>
+  async getUser(user: number | string, detail: "identity"): Promise<null | UserIdentity>
+  async getUser(user: number | string, detail: "info"): Promise<null | UserInfo>
+  async getUser(user: number | string, detail: "profile"): Promise<null | UserProfile>
+  async getUser(
+    user: number | string,
+    detail: "identity" | "info" | "profile" = "identity"
+  ) {
+    return this.try("userGet", typeof user === "number" ? "id" : "slug", user, { detail })
+  }
+
+  /**
+   * Gets the current user's identity. If the user is not logged in, returns `null`.
+   *
+   * @param detail - The detail level to get.
+   */
+  async getClient(): Promise<null | UserIdentity>
+  async getClient(detail: "identity"): Promise<null | UserIdentity>
+  async getClient(detail: "info"): Promise<null | UserInfo>
+  async getClient(detail: "profile"): Promise<null | UserProfile>
+  async getClient(detail: "identity" | "info" | "profile" = "identity") {
+    return this.try("userClientGet", { detail })
   }
 }
 
