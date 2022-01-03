@@ -128,7 +128,7 @@ $ ntpd -d -q -n -p 0.pool.ntp.org
 
 ## Deployment via Docker manually
 
-If you wish to build and run your Docker containers manually, consult the commands utilized in `web/nabs.yaml` for the various `pnpm` deployment commands. In essence, you will want to build each container for the environment you're targeting, and then launch them. If you're deploying locally (e.g. for development), you can use the `docker-compose.yaml` to run all the containers using Docker Compose, which provides benefits such as volume mapping. This way, directories in your local repository are mapped into the container, allowing any changes to them to immediately appear to the container.
+If you wish to build and run your Docker containers manually, consult the commands utilized in `web/nabs.yml` for the various `pnpm` deployment commands. In essence, you will want to build each container for the environment you're targeting, and then launch them. If you're deploying locally (e.g. for development), you can use the `docker-compose.yaml` to run all the containers using Docker Compose, which provides benefits such as volume mapping. This way, directories in your local repository are mapped into the container, allowing any changes to them to immediately appear to the container.
 
 It's useful to keep track of existing Docker images and containers, and destroy them when you no longer need them, so you don't waste space rebuilding the same image over and over. If you are using Docker Desktop, you can manage containers and images from the GUI. Otherwise, on command line:
 
