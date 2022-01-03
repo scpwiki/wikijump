@@ -8,7 +8,8 @@ use serde::{Deserialize, Serialize};
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
     pub from_page_id: i64,
-    pub to_site_id: Option<i64>,
+    #[sea_orm(primary_key, auto_increment = false)]
+    pub to_site_id: i64,
     #[sea_orm(primary_key, auto_increment = false, column_type = "Text")]
     pub to_page_slug: String,
     #[sea_orm(primary_key, auto_increment = false, column_type = "Text")]
