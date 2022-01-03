@@ -4,7 +4,7 @@
 
   export let user: number | string = ""
 
-  export let size = "5rem"
+  export let size = "1em"
 
   $: request = user
     ? typeof user === "number"
