@@ -1,6 +1,3 @@
-<!--
-  @component Login form.
--->
 <script lang="ts">
   import WikijumpAPI from "@wikijump/api"
   import { Form, Button, TextInput } from "@wikijump/components"
