@@ -19,7 +19,7 @@ final class LicenseMapping
         $licensesData = config('licenses.raw');
         foreach ($licensesData as &$licenseData) {
             $license = new License($licenseData);
-            array_push(self::$ordered, $license);
+            self::$ordered[] = $license;
             self::$mapping[$license->id()] = $license;
         }
         self::$initialized = true;
