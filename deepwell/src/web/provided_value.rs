@@ -1,5 +1,5 @@
 /*
- * web/mod.rs
+ * web/provided_value.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -18,15 +18,23 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod provided_value;
-mod reference;
-mod unwrap;
-mod user_details;
+/// Denotes that a field is optional in a struct.
+///
+/// This is meant to be used when doing `UPDATE` operations,
+/// since excluding the field entirely is different from setting
+/// it to null (`None`).
+///
+/// The `Unset` variant can only be constructed if the field is absent.
+#[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq)]
+#[serde(untagged)]
+pub enum ProvidedValue<T> {
+    Set(T),
+    Unset,
+}
 
-pub mod ratelimit;
-pub mod utils;
-
-pub use self::provided_value::ProvidedValue;
-pub use self::reference::ItemReference;
-pub use self::unwrap::HttpUnwrap;
-pub use self::user_details::{UserDetails, UserDetailsQuery};
+impl<T> Default for ProvidedValue<T> {
+    #[inline]
+    fn default() -> Self {
+        ProvidedValue::Unset
+    }
+}
