@@ -15,7 +15,7 @@ goto-home = Go to home page
 
 goto-service = Go to { -service-name }
 
-base-title = {$title} | { -service-name }
+base-title = { $title } | { -service-name }
 
 navigated-to = Navigated to { $path }
 
@@ -97,6 +97,11 @@ remember-me = Remember me
 create-account = Create Account
 
 field-required = This field is required
+
+characters-left = { $count ->
+  [1] 1 character left
+  *[other] { $count } characters left
+}
 
 hold-to-show-password = Hold to show password
 

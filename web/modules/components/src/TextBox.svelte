@@ -19,6 +19,9 @@
   /** If true, the input must be filled or else it will display as invalid. */
   export let required = false
 
+  /** Maximum characters for the input. */
+  export let max = 0
+
   /** If true, the input will be as wide as possible. */
   export let wide = false
 </script>
@@ -46,9 +49,16 @@
       }}
       class="textbox-textarea"
       {required}
+      maxLength={max || null}
       {...$$restProps}
     />
   </label>
+
+  {#if max}
+    <div class="textbox-count">
+      {t("characters-left", { count: Math.max(0, max - value.length) })}
+    </div>
+  {/if}
 </div>
 
 <style global lang="scss">
@@ -71,9 +81,8 @@
     color: var(--col-text-subtle);
   }
 
-  .textbox-info {
+  .textbox-count {
     padding-left: 0.25em;
-    margin-top: 0.25em;
     font-size: 0.75em;
     line-height: 1.4;
     color: var(--col-text-subtle);
