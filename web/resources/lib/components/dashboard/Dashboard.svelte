@@ -16,9 +16,9 @@
   import Locale from "@wikijump/fluent"
   import { Route } from "tinro"
   import RouteAnnouncer from "../RouteAnnouncer.svelte"
+  import UserProfile from "../UserProfile.svelte"
   import DashboardLink from "./DashboardLink.svelte"
   import DashboardPanel from "./DashboardPanel.svelte"
-  import ProfilePanel from "./panels/ProfilePanel.svelte"
   import SettingsPanel from "./panels/SettingsPanel.svelte"
 
   const t = Locale.makeComponentFormatter("dashboard")
@@ -74,8 +74,10 @@
       <Route fallback redirect={dashboardRoute("profile")} />
 
       <DashboardPanel path="/profile/*" title={$t("profile")}>
-        <ProfilePanel />
+        <UserProfile />
       </DashboardPanel>
+
+      <DashboardPanel path="/messages/*" title={$t("messages")} />
 
       <DashboardPanel path="/settings/*" title={$t("settings")}>
         <SettingsPanel />
