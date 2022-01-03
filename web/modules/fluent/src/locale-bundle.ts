@@ -239,6 +239,18 @@ export class Locale {
     })
     return formatter.format(n)
   }
+
+  /**
+   * Formats a timestamp, date string, or `Date`.
+   *
+   * @param date - The date to format.
+   * @param opts - Options for formatting.
+   */
+  date(date: number | string | Date, opts?: Intl.DateTimeFormatOptions) {
+    if (!(date instanceof Date)) date = new Date(date)
+    const formatter = new Intl.DateTimeFormat(this.supported, opts)
+    return formatter.format(date)
+  }
 }
 
 export type FluentData = Record<string, FluentVariable>
