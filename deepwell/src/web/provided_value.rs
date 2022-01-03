@@ -1,5 +1,5 @@
 /*
- * types.rs
+ * web/provided_value.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -22,8 +22,21 @@
 ///
 /// This is meant to be used when doing `UPDATE` operations,
 /// since excluding the field entirely is different from setting
-/// it to null (`None`), and `Option<Option<T>>` is an unwieldy type.
+/// it to null (`None`).
 ///
-/// The type alias differentiates between the core type and the part
-/// that is not required.
-pub type Maybe<T> = Option<T>;
+/// The `Unset` variant can only be constructed if the field is absent.
+#[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq)]
+#[serde(untagged)]
+pub enum ProvidedValue<T> {
+    Set(T),
+
+    #[serde(skip)]
+    Unset,
+}
+
+impl<T> Default for ProvidedValue<T> {
+    #[inline]
+    fn default() -> Self {
+        ProvidedValue::Unset
+    }
+}

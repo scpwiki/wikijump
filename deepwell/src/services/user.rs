@@ -44,22 +44,22 @@ pub struct CreateUserOutput {
 #[derive(Deserialize, Debug, Default)]
 #[serde(default)]
 pub struct UpdateUser {
-    username: Maybe<String>,
-    email: Maybe<String>,
-    email_verified: Maybe<bool>,
-    password: Maybe<String>,
-    multi_factor_secret: Maybe<Option<String>>,
-    multi_factor_recovery_codes: Maybe<Option<String>>,
-    remember_token: Maybe<Option<String>>,
-    language: Maybe<Option<String>>,
-    karma_points: Maybe<i32>,
-    karma_level: Maybe<i16>,
-    real_name: Maybe<Option<String>>,
-    pronouns: Maybe<Option<String>>,
-    dob: Maybe<Option<NaiveDate>>,
-    bio: Maybe<Option<String>>,
-    about_page: Maybe<Option<String>>,
-    avatar_path: Maybe<Option<String>>,
+    username: ProvidedValue<String>,
+    email: ProvidedValue<String>,
+    email_verified: ProvidedValue<bool>,
+    password: ProvidedValue<String>,
+    multi_factor_secret: ProvidedValue<Option<String>>,
+    multi_factor_recovery_codes: ProvidedValue<Option<String>>,
+    remember_token: ProvidedValue<Option<String>>,
+    language: ProvidedValue<Option<String>>,
+    karma_points: ProvidedValue<i32>,
+    karma_level: ProvidedValue<i16>,
+    real_name: ProvidedValue<Option<String>>,
+    pronouns: ProvidedValue<Option<String>>,
+    dob: ProvidedValue<Option<NaiveDate>>,
+    bio: ProvidedValue<Option<String>>,
+    about_page: ProvidedValue<Option<String>>,
+    avatar_path: ProvidedValue<Option<String>>,
 }
 
 #[derive(Serialize, Debug)]
@@ -223,71 +223,73 @@ impl<'txn> UserService<'txn> {
         let mut user: users::ActiveModel = model.clone().into();
 
         // Add each field
-        if let Some(username) = input.username {
+        if let ProvidedValue::Set(username) = input.username {
             let slug = get_user_slug(&username);
             user.username = Set(username);
             user.username_changes = Set(user.username_changes.unwrap() + 1);
             user.slug = Set(slug);
         }
 
-        if let Some(email) = input.email {
+        if let ProvidedValue::Set(email) = input.email {
             user.email = Set(email);
         }
 
-        if let Some(email_verified) = input.email_verified {
+        if let ProvidedValue::Set(email_verified) = input.email_verified {
             let value = if email_verified { Some(now()) } else { None };
             user.email_verified_at = Set(value);
         }
 
-        if let Some(password) = input.password {
+        if let ProvidedValue::Set(password) = input.password {
             user.password = Set(password);
         }
 
-        if let Some(multi_factor_secret) = input.multi_factor_secret {
+        if let ProvidedValue::Set(multi_factor_secret) = input.multi_factor_secret {
             user.multi_factor_secret = Set(multi_factor_secret);
         }
 
-        if let Some(multi_factor_recovery_codes) = input.multi_factor_recovery_codes {
+        if let ProvidedValue::Set(multi_factor_recovery_codes) =
+            input.multi_factor_recovery_codes
+        {
             user.multi_factor_recovery_codes = Set(multi_factor_recovery_codes);
         }
 
-        if let Some(remember_token) = input.remember_token {
+        if let ProvidedValue::Set(remember_token) = input.remember_token {
             user.remember_token = Set(remember_token);
         }
 
-        if let Some(language) = input.language {
+        if let ProvidedValue::Set(language) = input.language {
             user.language = Set(language);
         }
 
-        if let Some(karma_points) = input.karma_points {
+        if let ProvidedValue::Set(karma_points) = input.karma_points {
             user.karma_points = Set(karma_points);
         }
 
-        if let Some(karma_level) = input.karma_level {
+        if let ProvidedValue::Set(karma_level) = input.karma_level {
             user.karma_level = Set(karma_level);
         }
 
-        if let Some(real_name) = input.real_name {
+        if let ProvidedValue::Set(real_name) = input.real_name {
             user.real_name = Set(real_name);
         }
 
-        if let Some(pronouns) = input.pronouns {
+        if let ProvidedValue::Set(pronouns) = input.pronouns {
             user.pronouns = Set(pronouns);
         }
 
-        if let Some(dob) = input.dob {
+        if let ProvidedValue::Set(dob) = input.dob {
             user.dob = Set(dob);
         }
 
-        if let Some(bio) = input.bio {
+        if let ProvidedValue::Set(bio) = input.bio {
             user.bio = Set(bio);
         }
 
-        if let Some(about_page) = input.about_page {
+        if let ProvidedValue::Set(about_page) = input.about_page {
             user.about_page = Set(about_page);
         }
 
-        if let Some(avatar_path) = input.avatar_path {
+        if let ProvidedValue::Set(avatar_path) = input.avatar_path {
             user.avatar_path = Set(avatar_path);
         }
 
