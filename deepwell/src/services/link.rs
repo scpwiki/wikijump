@@ -239,6 +239,17 @@ impl LinkService {
 
         Ok(())
     }
+
+    // TEMP
+    // will be part of creating a revision
+    pub async fn update_missing(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_slug: &str,
+        backlinks: &Backlinks<'_>,
+    ) -> Result<()> {
+        todo!()
+    }
 }
 
 // Update link helpers

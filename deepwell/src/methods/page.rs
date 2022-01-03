@@ -79,6 +79,7 @@ pub async fn page_delete(req: ApiRequest) -> ApiResponse {
     let page = PageService::delete(&ctx, site_id, reference)
         .await
         .to_api()?;
+
     txn.commit().await?;
 
     build_page_response(&page, StatusCode::Ok)
@@ -93,6 +94,7 @@ pub async fn page_links_from_get(req: ApiRequest) -> ApiResponse {
     let output = LinkService::get_from(&ctx, site_id, reference)
         .await
         .to_api()?;
+
     let body = Body::from_json(&output)?;
     txn.commit().await?;
 
@@ -108,6 +110,7 @@ pub async fn page_links_to_get(req: ApiRequest) -> ApiResponse {
     let output = LinkService::get_to(&ctx, site_id, reference)
         .await
         .to_api()?;
+
     let body = Body::from_json(&output)?;
     txn.commit().await?;
 
@@ -123,6 +126,7 @@ pub async fn page_links_to_missing_get(req: ApiRequest) -> ApiResponse {
     let output = LinkService::get_to_missing(&ctx, site_id, page_slug)
         .await
         .to_api()?;
+
     let body = Body::from_json(&output)?;
     txn.commit().await?;
 
@@ -148,7 +152,19 @@ pub async fn page_links_put(mut req: ApiRequest) -> ApiResponse {
 
 // TODO: remove separate endpoint, make part of revision changes
 pub async fn page_links_missing_put(mut req: ApiRequest) -> ApiResponse {
-    todo!()
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+    let backlinks: Backlinks = req.body_json().await?;
+
+    let site_id = req.param("site_id")?.parse()?;
+    let slug = req.param("slug")?;
+    LinkService::update_missing(&ctx, site_id, slug, &backlinks)
+        .await
+        .to_api()?;
+
+    txn.commit().await?;
+
+    Ok(Response::new(StatusCode::NoContent))
 }
 
 // TODO: include current revision data too
