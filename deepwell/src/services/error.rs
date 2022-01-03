@@ -49,6 +49,9 @@ pub enum Error {
     #[error("The request conflicts with data already present")]
     Conflict,
 
+    #[error("The requested data exists, when it was expected to be missing")]
+    Exists,
+
     #[error("The requested data was not found")]
     NotFound,
 }
@@ -65,7 +68,9 @@ impl Error {
             Error::InvalidEnumValue => {
                 TideError::from_str(StatusCode::InternalServerError, "")
             }
-            Error::Conflict => TideError::from_str(StatusCode::Conflict, ""),
+            Error::Exists | Error::Conflict => {
+                TideError::from_str(StatusCode::Conflict, "")
+            }
             Error::NotFound => TideError::from_str(StatusCode::NotFound, ""),
         }
     }
