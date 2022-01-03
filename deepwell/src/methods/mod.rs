@@ -21,7 +21,7 @@
 mod prelude {
     pub use crate::api::{ApiRequest, ApiResponse};
     pub use crate::services::{
-        Error as ServiceError, PageService, PostTransactionToApiResponse,
+        Error as ServiceError, LinkService, PageService, PostTransactionToApiResponse,
         RequestFetchService, ServiceContext, UserService,
     };
     pub use crate::web::{utils::error_response, HttpUnwrap, Reference};

@@ -1,5 +1,5 @@
 /*
- * services/page/mod.rs
+ * services/page.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -17,8 +17,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
-mod links;
 
 use super::prelude::*;
 use crate::models::page::{self, Entity as Page, Model as PageModel};

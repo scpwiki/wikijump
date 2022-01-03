@@ -90,7 +90,7 @@ pub async fn page_links_from_get(req: ApiRequest) -> ApiResponse {
 
     let site_id = req.param("site_id")?.parse()?;
     let reference = Reference::try_from(&req)?;
-    let output = PageService::get_links_from(&ctx, site_id, reference).await?;
+    let output = LinkService::get_from(&ctx, site_id, reference).await?;
     let body = Body::from_json(&output)?;
     txn.commit().await?;
 
@@ -105,9 +105,10 @@ pub async fn page_links_put(mut req: ApiRequest) -> ApiResponse {
 
     let site_id = req.param("site_id")?.parse()?;
     let reference = Reference::try_from(&req)?;
-    PageService::update_links(&ctx, site_id, reference, &backlinks)
+    LinkService::update(&ctx, site_id, reference, &backlinks)
         .await
         .to_api()?;
+
     txn.commit().await?;
 
     Ok(Response::new(StatusCode::NoContent))

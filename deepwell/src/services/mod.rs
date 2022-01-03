@@ -45,6 +45,7 @@ mod prelude {
 mod context;
 mod error;
 
+pub mod link;
 pub mod page;
 pub mod user;
 
@@ -53,6 +54,7 @@ use sea_orm::DatabaseConnection;
 
 pub use self::context::ServiceContext;
 pub use self::error::*;
+pub use self::link::LinkService;
 pub use self::page::PageService;
 pub use self::user::UserService;
 

@@ -1,5 +1,5 @@
 /*
- * services/page/links.rs
+ * services/link.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! This helper module updates the various kinds of backlinks supported in Wikijump.
+//! This service updates the various kinds of backlinks supported in Wikijump.
 //!
 //! This includes "page connections" (a generic term for a relation between pages,
 //! such as includes, links, redirects, etc), which can either be present or missing,
@@ -35,7 +35,7 @@
 //! types, and tables make it hard to modularize. Instead, the logic is hopefully
 //! clear enough to be acceptable when repeated over a few slightly distinct cases.
 
-use super::{super::prelude::*, PageService};
+use super::{prelude::*, PageService};
 use crate::models::page::Model as PageModel;
 use crate::models::page_connection::{
     self, Entity as PageConnection, Model as PageConnectionModel,
@@ -66,22 +66,28 @@ pub struct GetLinksFromOutput {
 }
 
 #[derive(Serialize, Debug)]
-#[serde(rename_all = "kebab-case")]
-pub enum GetLinksToOutput {
-    Present(Vec<PageConnectionModel>),
-    Absent(Vec<PageConnectionMissingModel>),
+pub struct GetLinksToOutput {
+    connections: Vec<PageConnectionModel>,
+}
+
+#[derive(Serialize, Debug)]
+pub struct GetLinksToMissingOutput {
+    connections: Vec<PageConnectionMissingModel>,
 }
 
 // Service
 
-impl PageService {
-    pub async fn get_links_from(
+#[derive(Debug)]
+pub struct LinkService;
+
+impl LinkService {
+    pub async fn get_from(
         ctx: &ServiceContext<'_>,
         site_id: i64,
         reference: Reference<'_>,
     ) -> Result<GetLinksFromOutput> {
         let txn = ctx.transaction();
-        let PageModel { page_id, .. } = Self::get(ctx, site_id, reference).await?;
+        let PageModel { page_id, .. } = PageService::get(ctx, site_id, reference).await?;
 
         let (present, absent, external) = try_join!(
             PageConnection::find()
@@ -102,22 +108,52 @@ impl PageService {
         })
     }
 
-    // TODO: add a method for getting links *to* a page
-    // this is significantly more complicated, because the target site
-    // may or may not exist, and if the site does exist, the page may not
-    //
-    // this might be worth making a separate methods/endpoints due to the
-    // complexity of inputs
+    pub async fn get_to(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        reference: Reference<'_>,
+    ) -> Result<GetLinksToOutput> {
+        let txn = ctx.transaction();
+        let PageModel { page_id, .. } = PageService::get(ctx, site_id, reference).await?;
+
+        let connections = PageConnection::find()
+            .filter(page_connection::Column::ToPageId.eq(page_id))
+            .all(txn)
+            .await?;
+
+        Ok(GetLinksToOutput { connections })
+    }
+
+    pub async fn get_to_missing(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_slug: &str,
+    ) -> Result<GetLinksToMissingOutput> {
+        let txn = ctx.transaction();
+
+        let connections = PageConnectionMissing::find()
+            .filter(
+                Condition::all()
+                    .add(page_connection_missing::Column::ToPageSiteId.eq(site_id))
+                    .add(page_connection_missing::Column::ToPageSlug.eq(page_slug)),
+            )
+            .all(txn)
+            .await?;
+
+        Ok(GetLinksToMissingOutput { connections })
+    }
+
+    // TODO: add a method for getting external links
 
     // TEMP
     // will be part of creating a revision
-    pub async fn update_links(
+    pub async fn update(
         ctx: &ServiceContext<'_>,
         site_id: i64,
         reference: Reference<'_>,
         backlinks: &Backlinks<'_>,
     ) -> Result<()> {
-        let PageModel { page_id, .. } = Self::get(ctx, site_id, reference).await?;
+        let PageModel { page_id, .. } = PageService::get(ctx, site_id, reference).await?;
 
         let mut connections = HashMap::new();
         let mut connections_missing = HashMap::new();
@@ -138,9 +174,12 @@ impl PageService {
                     }
                 };
 
-                let page =
-                    Self::get_optional($ctx, to_site_id, Reference::Slug(page_slug))
-                        .await?;
+                let page = PageService::get_optional(
+                    $ctx,
+                    to_site_id,
+                    Reference::Slug(page_slug),
+                )
+                .await?;
 
                 match page {
                     Some(to_page) => {
