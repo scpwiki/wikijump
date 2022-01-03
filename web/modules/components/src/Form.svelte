@@ -119,6 +119,9 @@
           case "file":     values[name] = input.files;         break
           default:         values[name] = input.value;         break
         }
+
+        // empty values should be represented as null
+        if (values[name] === "") values[name] = null
       } else if (input instanceof HTMLTextAreaElement) {
         values[name] = input.value
       }
