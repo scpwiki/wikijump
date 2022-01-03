@@ -72,6 +72,7 @@
       class="textinput-input"
       class:is-noborder={noborder}
       class:is-novalidate={novalidate}
+      {required}
       {...$$restProps}
     />
 
