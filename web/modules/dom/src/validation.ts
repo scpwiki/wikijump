@@ -20,9 +20,9 @@ export function inputsValid(
     if (input instanceof HTMLButtonElement) continue
     if (
       !input ||
-      !input.validity.valid ||
-      input.value.length === 0 ||
       input.disabled ||
+      !input.validity.valid ||
+      (input.required && input.value.length === 0) ||
       (input as any).readOnly
     ) {
       return false
