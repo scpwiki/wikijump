@@ -31,10 +31,6 @@ class Backlinks
         $internal_links = $wiki->vars['internalLinks'] ?? [];
         $external_links = $wiki->vars['externalLinks'] ?? [];
 
-        return new Backlinks(
-            $inclusions,
-            $internal_links,
-            $external_links,
-        );
+        return new Backlinks($inclusions, $internal_links, $external_links);
     }
 }

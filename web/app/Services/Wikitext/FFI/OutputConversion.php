@@ -135,11 +135,7 @@ final class OutputConversion
             fn(FFI\CData $data) => FFI::string($data),
         );
 
-        return new Backlinks(
-            $inclusions,
-            $internal_links,
-            $external_links,
-        );
+        return new Backlinks($inclusions, $internal_links, $external_links);
     }
 
     private static function makePageRef(FFI\CData $data): PageRef

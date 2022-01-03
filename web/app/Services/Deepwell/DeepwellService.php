@@ -74,29 +74,42 @@ final class DeepwellService
         return self::readJson($resp);
     }
 
-    public function getLinksTo(int $site_id, int $page_id): array
+    /**
+     * @param string|int $site_id
+     * @param string|int $page_id
+     */
+    public function getLinksTo($site_id, $page_id): array
     {
         $resp = $this->client->get("page/$site_id/id/$page_id/links/to");
         return self::readJson($resp);
     }
 
-    public function getLinksToMissing(int $site_id, string $page_slug): array
+    /**
+     * @param string|int $site_id
+     */
+    public function getLinksToMissing($site_id, string $page_slug): array
     {
         $resp = $this->client->get("page/$site_id/slug/$page_slug/links/to/missing");
         return self::readJson($resp);
     }
 
     // TEMP!
-    public function updateLinks(string $site_id, string $page_id, Backlinks $backlinks): void
-    {
+    public function updateLinks(
+        string $site_id,
+        string $page_id,
+        Backlinks $backlinks
+    ): void {
         $this->client->put("page/$site_id/id/$page_id/links", [
             'json' => self::backlinksToJson($backlinks),
         ]);
     }
 
     // TEMP!
-    public function updateLinksMissing(string $site_id, string $page_slug, Backlinks $backlinks): void
-    {
+    public function updateLinksMissing(
+        string $site_id,
+        string $page_slug,
+        Backlinks $backlinks
+    ): void {
         $this->client->put("page/$site_id/$page_slug/links/missing", [
             'json' => self::backlinksToJson($backlinks),
         ]);

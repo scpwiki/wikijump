@@ -223,26 +223,17 @@ final class Outdater
 
     private function recompileIncludedByPage(Page $page): void
     {
-        PageConnection::where([
-            'to_page_id' => $page->getPageId(),
-            'to_site_id' => $page->getSiteId(),
-            'connection_type' => PageConnectionType::INCLUDE_MESSY,
-        ])->chunk(100, function ($connections) {
-            $this->recompiledIncludedPagesBatch($connections);
-        });
+        $connections = DeepwellService::getInstance()->getLinksTo($page->getSiteId(), $page->getPageId());
+        $this->recompiledIncludedPagesInternal($connections);
     }
 
-    private function recompileIncludedBySlug(string $slug): void
+    private function recompileIncludedBySlug(string $site_id, string $slug): void
     {
-        PageConnectionMissing::where([
-            'to_page_name' => $slug,
-            'connection_type' => PageConnectionType::INCLUDE_MESSY,
-        ])->chunk(100, function ($connections) {
-            $this->recompiledIncludedPagesBatch($connections);
-        });
+        $connections = DeepwellService::getInstance()->getLinksToMissing($site_id, $slug);
+        $this->recompiledIncludedPagesInternal($connections);
     }
 
-    private function recompiledIncludedPagesBatch($connections): void
+    private function recompiledIncludedPagesInternal($connections): void
     {
         foreach ($connections as $connection) {
             $page = PagePeer::getInstance()->selectByPrimaryKey($connection->from_page_id);
