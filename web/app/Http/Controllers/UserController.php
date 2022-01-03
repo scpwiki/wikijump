@@ -96,7 +96,7 @@ class UserController extends Controller
         string $from,
         string $to
     ): void {
-        if (isset($source[$from])) {
+        if (array_key_exists($from, $source)) {
             $target[$to] = $source[$from];
         }
     }
