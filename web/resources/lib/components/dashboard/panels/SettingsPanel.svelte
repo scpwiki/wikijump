@@ -1,9 +1,22 @@
+<script lang="ts" context="module">
+  export interface Settings {
+    profile: UserProfile
+    account: AccountSettings
+    email: string
+  }
+</script>
+
 <script lang="ts">
   import API, { type AccountSettings, type UserProfile } from "@wikijump/api"
+  import Locale from "@wikijump/fluent"
   import { Spinny } from "@wikijump/components"
   import { Route } from "tinro"
   import DashboardPanel from "../DashboardPanel.svelte"
   import { dashboardRoute } from "../Dashboard.svelte"
+  import DashboardPanelHeader from "../DashboardPanelHeader.svelte"
+  import SettingsProfileForm from "./settings/SettingsProfileForm.svelte"
+
+  const t = Locale.makeComponentFormatter("dashboard")
 
   interface Settings {
     profile: UserProfile
@@ -24,7 +37,10 @@
 {:then data}
   <Route fallback redirect={dashboardRoute("settings/account")} />
 
-  <DashboardPanel path="/profile" />
+  <DashboardPanel path="/profile">
+    <DashboardPanelHeader>{$t("#-profile")}</DashboardPanelHeader>
+    <SettingsProfileForm {data} />
+  </DashboardPanel>
 
   <DashboardPanel path="/account">
     <pre><code>{JSON.stringify(data, null, 2)}</code></pre>
@@ -34,4 +50,13 @@
 {/await}
 
 <style global lang="scss">
+  .dashboard-settings-profile {
+    max-width: 30rem;
+  }
+
+  .dashboard-settings-profile-inputs {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+  }
 </style>

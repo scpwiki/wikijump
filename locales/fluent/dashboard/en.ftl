@@ -1,0 +1,9 @@
+dashboard-profile = Public Profile
+  .name = Name
+  .pronouns = Pronouns
+  .birthday = Birthday
+  .location = Location
+  .about = About
+  .signature = Signature
+  .save = Save Changes
+  .toast = Your changes have been saved.
