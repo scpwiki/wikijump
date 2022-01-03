@@ -524,7 +524,7 @@ paths:
         404: { $ref: '#/components/responses/NotFound' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
-    put:
+    post:
       description: Sets the client's avatar.
       tags: [user, not-json]
       operationId: userClientSetAvatar

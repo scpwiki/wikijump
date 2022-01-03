@@ -120,7 +120,7 @@ return [
     'contact_request_limit' => 25,
 
     /** The filesystem driver avatars should use. */
-    'avatar_disk' => 's3',
+    'avatar_disk' => env('APP_ENV') === 'local' ? 'public' : 's3',
 
     /**
      * Social media links that appear in the footer of emails.

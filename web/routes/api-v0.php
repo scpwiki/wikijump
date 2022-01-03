@@ -50,7 +50,7 @@ Route::patch('/account/settings', [AccountController::class, 'updateSettings']);
 Route::get('/user', [UserController::class, 'clientGet']);
 Route::patch('/user', [UserController::class, 'clientUpdateProfile']);
 Route::get('/user/avatar', [UserController::class, 'clientGetAvatar']);
-Route::put('user/avatar', [UserController::class, 'clientSetAvatar']);
+Route::post('user/avatar', [UserController::class, 'clientSetAvatar']);
 Route::delete('/user/avatar', [UserController::class, 'clientRemoveAvatar']);
 // TODO: userClientGetBlocked
 Route::get('/user/{path_type}/{path}', [UserController::class, 'get']);

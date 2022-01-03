@@ -2,7 +2,7 @@ APP_NAME=Wikijump
 APP_ENV=%%APP_ENV%%
 APP_KEY=
 APP_DEBUG=true
-APP_URL=https://www.wikijump.dev/wikijump--next
+APP_URL=https://www.wikijump.dev
 ASSET_URL=https://www.wikijump.dev
 
 LOG_CHANNEL=stderr
