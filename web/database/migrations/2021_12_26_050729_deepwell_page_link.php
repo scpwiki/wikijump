@@ -68,7 +68,7 @@ class DeepwellPageLink extends Migration
                 updated_at TIMESTAMP WITH TIME ZONE,
                 count INT NOT NULL CHECK (count > 0),
 
-                PRIMARY KEY (from_page_id, to_page_slug, connection_type)
+                PRIMARY KEY (from_page_id, to_site_id, to_page_slug, connection_type)
             )
         ");
     }
