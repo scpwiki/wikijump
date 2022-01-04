@@ -87,12 +87,6 @@ final class FtmlFfi
         Wikitext\PageInfo $page_info,
         Wikitext\WikitextSettings $settings
     ): HtmlOutput {
-        $site_id = self::getSiteId($page_info->site);
-        if ($site_id === null) {
-            // No site for current context! Return an error.
-            throw new Exception('Current site not found: ' . $page_info->site);
-        }
-
         // Convert objects
         $c_page_info = new PageInfo($page_info);
         $c_settings = new WikitextSettings($settings);
@@ -107,7 +101,7 @@ final class FtmlFfi
         );
 
         // Convert result back to PHP
-        return OutputConversion::makeHtmlOutput($site_id, $output);
+        return OutputConversion::makeHtmlOutput($output);
     }
 
     public static function renderText(
@@ -240,15 +234,6 @@ final class FtmlFfi
         FFI::memcpy($buffer, $value, $length);
         $buffer[$length] = 0;
         return $buffer;
-    }
-
-    public static function getSiteId(string $site): ?string
-    {
-        $c = new Criteria();
-        $c->add('unix_name', $site);
-        $c->add('site.deleted', false);
-        $site = SitePeer::instance()->selectOne($c);
-        return $site ? $site->getSiteId() : null;
     }
 
     /**

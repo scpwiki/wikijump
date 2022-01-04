@@ -55,13 +55,13 @@ final class OutputConversion
     }
 
     // HtmlOutput
-    public static function makeHtmlOutput(string $site_id, FFI\CData $data): HtmlOutput
+    public static function makeHtmlOutput(FFI\CData $data): HtmlOutput
     {
         $body = FFI::string($data->body);
         $styles = self::makeStylesArray($data->styles_list, $data->styles_len);
         $meta = self::makeHtmlMetaArray($data->meta_list, $data->meta_len);
         $warnings = self::makeParseWarningArray($data->warning_list, $data->warning_len);
-        $backlinks = self::makeBacklinks($site_id, $data->backlinks);
+        $backlinks = self::makeBacklinks($data->backlinks);
 
         // Free original C data
         FtmlFfi::freeHtmlOutput($data);
