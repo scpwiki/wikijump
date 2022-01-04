@@ -172,7 +172,6 @@ class WikiPageAction extends SmartyAction
 
                     $lock->setDateStarted(new ODate());
                     $lock->setDateLastAccessed(new ODate());
-                    $lock->setMode("page");
 
                     $conflictLocks = $lock->getConflicts();
                     if ($conflictLocks == null) {
