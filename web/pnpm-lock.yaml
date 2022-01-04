@@ -390,7 +390,6 @@ importers:
       '@uppy/core': ^2.1.4
       '@uppy/dashboard': ^2.1.3
       '@uppy/image-editor': ^1.1.0
-      '@uppy/svelte': ^1.0.7
       '@uppy/xhr-upload': ^2.0.7
       '@wikijump/api': workspace:*
       '@wikijump/components': workspace:*
@@ -406,7 +405,6 @@ importers:
       '@uppy/core': 2.1.4
       '@uppy/dashboard': 2.1.3_@uppy+core@2.1.4
       '@uppy/image-editor': 1.1.0_@uppy+core@2.1.4
-      '@uppy/svelte': 1.0.7_@uppy+core@2.1.4+svelte@3.44.3
       '@uppy/xhr-upload': 2.0.7_@uppy+core@2.1.4
       '@wikijump/api': link:../modules/api
       '@wikijump/components': link:../modules/components
@@ -1856,16 +1854,6 @@ packages:
       preact: 10.6.4
     dev: false
 
-  /@uppy/drag-drop/2.0.5_@uppy+core@2.1.4:
-    resolution: {integrity: sha512-it3bdo8SPEhP50O29XLYj3vZyHR7xuHZR8U8mWs22U6OASEuA6G3ulTkO0vtp4t59QNdZkXLdPRrxa337ehkRg==}
-    peerDependencies:
-      '@uppy/core': ^2.1.3
-    dependencies:
-      '@uppy/core': 2.1.4
-      '@uppy/utils': 4.0.4
-      preact: 10.6.4
-    dev: false
-
   /@uppy/image-editor/1.1.0_@uppy+core@2.1.4:
     resolution: {integrity: sha512-fCfCPVGwxt/OjvrCk3n5JvbZm/qgHREBQ2QAWAtSSv8WASz+PYbJzeupysjVSa4uLo/DzcdbfHxWWCCiOhC3ag==}
     peerDependencies:
@@ -1881,16 +1869,6 @@ packages:
     resolution: {integrity: sha512-XBiTo+NYUMkG3RnwFXmQTnwOcTaBMzMqSTTZZ1/1NndxP1TmpmqonuQQIHlegHUHhF5T+GVAle2rMe+c8iSlsA==}
     peerDependencies:
       '@uppy/core': ^2.1.3
-    dependencies:
-      '@uppy/core': 2.1.4
-      '@uppy/utils': 4.0.4
-      preact: 10.6.4
-    dev: false
-
-  /@uppy/progress-bar/2.0.4_@uppy+core@2.1.4:
-    resolution: {integrity: sha512-W0ATXPP6Ufhb3B0hPPDlO3VVknohpkOA/o/LFVdkOIpq3+mKxkb1+/Nlt3uTa6gxO57O1D6+Kg+l9WKIqpyTbg==}
-    peerDependencies:
-      '@uppy/core': ^2.0.0
     dependencies:
       '@uppy/core': 2.1.4
       '@uppy/utils': 4.0.4
@@ -1923,20 +1901,6 @@ packages:
 
   /@uppy/store-default/2.0.3:
     resolution: {integrity: sha512-2BGlN1sW0cFv4rOqTK8dfSg579S984N1HxCJxLFqeW9nWD6zd/O8Omyd85tbxGQ+FLZLTmLOm/feD0YeCBMahg==}
-    dev: false
-
-  /@uppy/svelte/1.0.7_@uppy+core@2.1.4+svelte@3.44.3:
-    resolution: {integrity: sha512-9OwYqSEYkjQBVYyMEoV7tsGCfzldxFCR0noUyGR0fbrx3nXpLf22Thc7ONRFSvGEDmOY3RTlhmokhCtgC7v/LQ==}
-    peerDependencies:
-      '@uppy/core': ^2.1.4
-      svelte: ^3.0.0
-    dependencies:
-      '@uppy/core': 2.1.4
-      '@uppy/dashboard': 2.1.3_@uppy+core@2.1.4
-      '@uppy/drag-drop': 2.0.5_@uppy+core@2.1.4
-      '@uppy/progress-bar': 2.0.4_@uppy+core@2.1.4
-      '@uppy/status-bar': 2.1.2_@uppy+core@2.1.4
-      svelte: 3.44.3
     dev: false
 
   /@uppy/thumbnail-generator/2.0.6_@uppy+core@2.1.4:
@@ -2209,7 +2173,7 @@ packages:
   /axios/0.24.0:
     resolution: {integrity: sha512-Q6cWsys88HoPgAaFAVUb0WpPk0O8iTeisR9IMqy9G8AbO4NlpVknrnQS03zzF9PGAWgO3cgletO3VjV/P7VztA==}
     dependencies:
-      follow-redirects: 1.14.4
+      follow-redirects: 1.14.4_debug@4.3.3
     transitivePeerDependencies:
       - debug
     dev: true
@@ -4467,7 +4431,7 @@ packages:
     engines: {node: '>=8.0.0'}
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.14.4
+      follow-redirects: 1.14.4_debug@4.3.3
       requires-port: 1.0.0
     transitivePeerDependencies:
       - debug

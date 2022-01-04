@@ -10,7 +10,7 @@
   "scripts": {
     "generate-api": "swagger-typescript-api -p ../../../web/resources/api/api.oas3.yaml -o ./vendor --name api.ts --unwrap-response-data  --module-name-index -1 --clean-output --patch",
     "mock-start": "mockoon-cli start --data ./mockoon/mockoon-api.json --name \"Wikijump\"",
-    "mock-stop": "mockoon-cli stop 0"
+    "mock-stop": "mockoon-cli stop \"all\""
   },
   "type": "module",
   "main": "src/index.ts",
