@@ -15,6 +15,7 @@
   import { dashboardRoute } from "../Dashboard.svelte"
   import DashboardPanelHeader from "../DashboardPanelHeader.svelte"
   import SettingsProfileForm from "./settings/SettingsProfileForm.svelte"
+  import SettingsAccountForm from "./settings/SettingsAccountForm.svelte"
 
   const t = Locale.makeComponentFormatter("dashboard")
 
@@ -43,10 +44,9 @@
   </DashboardPanel>
 
   <DashboardPanel path="/account">
-    <pre><code>{JSON.stringify(data, null, 2)}</code></pre>
+    <DashboardPanelHeader>{$t("#-account")}</DashboardPanelHeader>
+    <SettingsAccountForm {data} />
   </DashboardPanel>
-
-  <DashboardPanel path="/messages" />
 {/await}
 
 <style global lang="scss">

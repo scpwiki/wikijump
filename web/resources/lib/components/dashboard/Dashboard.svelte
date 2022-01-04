@@ -64,8 +64,7 @@
       path="settings"
       subpaths={[
         { path: "profile", title: $t("profile") },
-        { path: "account", title: $t("account") },
-        { path: "messages", title: $t("messages") }
+        { path: "account", title: $t("account") }
       ]}
     >
       {$t("settings")}

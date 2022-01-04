@@ -8,6 +8,8 @@ export const LOCALE_COMPONENTS = new Map<string, FluentComponent>()
 
 export const LOCALE_CMFTML_DOCUMENTATION = new Map<string, () => Promise<any>>()
 
+export const LOCALE_LIST = new Set<string>()
+
 const filenameRegex = /[^\/]+\.(ftl|yaml)$/
 const componentRegex = /[^\/]+(?=\/[^\/]+\.(ftl|yaml)$)/
 const localeRegex = /.+(?=\.(ftl|yaml)$)/
@@ -51,6 +53,8 @@ function makeDirectory(
     const locale = filename ? localeRegex.exec(filename)?.[0] : null
 
     if (!filename || !component || !locale) continue
+
+    LOCALE_LIST.add(locale)
 
     // looks wacky but we're just getting the existing map,
     // and if there isn't one we make a new object for it and set it
