@@ -20,8 +20,10 @@
     uppy = new Uppy({
       allowMultipleUploads: false,
       restrictions: {
+        maxFileSize: 1024000, // 1024 kb
         maxNumberOfFiles: 1,
-        minNumberOfFiles: 1
+        minNumberOfFiles: 1,
+        allowedFileTypes: [".jpg", ".jpeg", ".png", ".webp"]
       }
     })
       .use(Dashboard, {
