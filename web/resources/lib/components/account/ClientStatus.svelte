@@ -49,15 +49,34 @@
       <Card>
         <div class="client-status-menu" use:focusGroup={"vertical"}>
           <!-- TODO: proper links -->
-          <Button href={route("account")} tabindex="-1" baseline compact>
-            {t("account")}
+          <Button href={route("dashboard")} tabindex="-1" baseline compact>
+            {t("dashboard")}
           </Button>
 
-          <Button href={route("account.profile")} tabindex="-1" baseline compact>
+          <Button
+            href={route("dashboard", { path: "profile" })}
+            tabindex="-1"
+            baseline
+            compact
+          >
             {t("profile")}
           </Button>
 
-          <Button href={route("account.messages")} tabindex="-1" baseline compact>
+          <Button
+            href={route("dashboard", { path: "notifications" })}
+            tabindex="-1"
+            baseline
+            compact
+          >
+            {t("notifications")}
+          </Button>
+
+          <Button
+            href={route("dashboard", { path: "messages" })}
+            tabindex="-1"
+            baseline
+            compact
+          >
             {t("messages")}
           </Button>
 
@@ -67,7 +86,12 @@
             {t("help")}
           </Button>
 
-          <Button href={route("account.settings")} tabindex="-1" baseline compact>
+          <Button
+            href={route("dashboard", { path: "settings/profile" })}
+            tabindex="-1"
+            baseline
+            compact
+          >
             {t("settings")}
           </Button>
 
