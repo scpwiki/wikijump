@@ -44,6 +44,8 @@
   <ul class="dashboard-links">
     <DashboardLink path="profile">{$t("profile")}</DashboardLink>
 
+    <DashboardLink path="notifications">{$t("notifications")}</DashboardLink>
+
     <DashboardLink
       path="messages"
       subpaths={[
@@ -76,6 +78,9 @@
       <DashboardPanel path="/profile/*" title={$t("profile")}>
         <UserProfile />
       </DashboardPanel>
+
+      <!-- TODO: notifications -->
+      <DashboardPanel path="/notifications/*" title={$t("notifications")} />
 
       <!-- TODO: messages/inbox -->
       <DashboardPanel path="/messages/*" title={$t("messages")} />

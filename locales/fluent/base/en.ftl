@@ -45,6 +45,7 @@ load = Load
 main-content = Main Content
 messages = Messages
 navigation = Navigation
+notifications = Notifications
 preview = Preview
 privacy = Privacy
 profile = Profile
