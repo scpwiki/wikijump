@@ -77,6 +77,7 @@
         <UserProfile />
       </DashboardPanel>
 
+      <!-- TODO: messages/inbox -->
       <DashboardPanel path="/messages/*" title={$t("messages")} />
 
       <DashboardPanel path="/settings/*" title={$t("settings")}>
