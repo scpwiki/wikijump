@@ -35,7 +35,7 @@
 {#await getData()}
   <Spinny />
 {:then data}
-  <Route fallback redirect={dashboardRoute("settings/account")} />
+  <Route path="/" redirect={dashboardRoute("settings/profile")} />
 
   <DashboardPanel path="/profile">
     <DashboardPanelHeader>{$t("#-profile")}</DashboardPanelHeader>
@@ -46,7 +46,7 @@
     <pre><code>{JSON.stringify(data, null, 2)}</code></pre>
   </DashboardPanel>
 
-  <DashboardPanel path="/about" />
+  <DashboardPanel path="/messages" />
 {/await}
 
 <style global lang="scss">

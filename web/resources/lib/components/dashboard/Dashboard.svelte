@@ -1,6 +1,8 @@
 <script lang="ts" context="module">
   import { route } from "@wikijump/api"
 
+  const DASHBOARD_ROUTE = route("dashboard")
+
   /**
    * Returns a dashboard route.
    *
@@ -8,7 +10,7 @@
    */
   export function dashboardRoute(path = "") {
     if (path.startsWith("/")) path = path.substring(1)
-    return route("dashboard", { path })
+    return `${DASHBOARD_ROUTE}/${path}`
   }
 </script>
 
@@ -63,7 +65,6 @@
       subpaths={[
         { path: "profile", title: $t("profile") },
         { path: "account", title: $t("account") },
-        { path: "about", title: $t("about") },
         { path: "messages", title: $t("messages") }
       ]}
     >
@@ -75,7 +76,7 @@
     <Route path={dashboardRoute("*")} firstmatch>
       <Route fallback redirect={dashboardRoute("profile")} />
 
-      <DashboardPanel path="/profile/*" title={$t("profile")}>
+      <DashboardPanel path="/profile" title={$t("profile")}>
         <UserProfile />
       </DashboardPanel>
 

@@ -87,7 +87,7 @@
           </Button>
 
           <Button
-            href={route("dashboard", { path: "settings/profile" })}
+            href={route("dashboard", { path: "settings" })}
             tabindex="-1"
             baseline
             compact
