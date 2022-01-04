@@ -104,6 +104,10 @@
     display: flex;
     min-height: 100%;
     contain: layout;
+
+    @include media("<=small") {
+      flex-direction: column;
+    }
   }
 
   .dashboard-links {
@@ -116,9 +120,22 @@
     margin-right: 2rem;
     list-style: none;
     border-right: solid 0.125rem var(--col-border);
+
+    @include media("<=small") {
+      padding-right: 0;
+      padding-bottom: 1rem;
+      margin-right: 0;
+      margin-bottom: 2rem;
+      border-right: none;
+      border-bottom: solid 0.125rem var(--col-border);
+    }
   }
 
   .dashboard-panels {
     flex-grow: 1;
+
+    @include media("<=small") {
+      padding: 0 1rem;
+    }
   }
 </style>

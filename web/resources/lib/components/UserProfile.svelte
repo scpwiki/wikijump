@@ -103,7 +103,8 @@
 
     dl {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: auto auto;
+      grid-column-gap: 1rem;
       width: max-content;
       font-size: 0.825rem;
     }
