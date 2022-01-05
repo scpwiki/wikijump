@@ -9,6 +9,9 @@ RUN mkdir /src
 COPY ./deepwell /src/deepwell
 WORKDIR /src/deepwell
 
+# Cache rust dependencies
+RUN cargo vendor
+
 # Build deepwell server
 RUN cargo build --release
 
