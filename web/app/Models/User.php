@@ -153,7 +153,9 @@ class User extends Authenticatable
     {
         $this->deleteAvatar();
 
-        $stored = $image->storePublicly('avatars', ['disk' => $this->avatarFilesystem()]);
+        $stored = $image->storePublicly('avatars', [
+            'disk' => config('wikijump.avatar_disk'),
+        ]);
 
         if ($stored) {
             $this->avatar_path = $stored;

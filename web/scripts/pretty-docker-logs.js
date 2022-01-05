@@ -88,6 +88,7 @@ function parseLine(line) {
   let level = ""
 
   if (name.endsWith("_1")) name = name.slice(0, -2)
+  if (name.endsWith("-1")) name = name.slice(0, -2)
 
   if (log.startsWith("{") && log.endsWith("}")) {
     try {

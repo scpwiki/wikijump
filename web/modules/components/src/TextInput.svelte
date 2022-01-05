@@ -13,6 +13,9 @@
 
   const dispatch = createEventDispatcher()
 
+  /** Assigns a name to the input. */
+  export let name = ""
+
   /** The label describing the input. */
   export let label = ""
 
@@ -58,6 +61,7 @@
     {/if}
 
     <input
+      {name}
       bind:this={input}
       bind:value
       use:keyHandle={{
@@ -68,6 +72,7 @@
       class="textinput-input"
       class:is-noborder={noborder}
       class:is-novalidate={novalidate}
+      {required}
       {...$$restProps}
     />
 

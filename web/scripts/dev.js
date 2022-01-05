@@ -2,7 +2,7 @@ const path = require("path")
 const { performance } = require("perf_hooks")
 const readline = require("readline")
 const formatMS = require("pretty-ms")
-const { formatLogs } = require("./pretty-docker-logs")
+const { formatLogs: formatDockerLogs } = require("./pretty-docker-logs")
 const {
   pc,
   error,
@@ -46,14 +46,15 @@ async function startup() {
     await startVite()
 
     linebreak()
+
+    await startMockoon()
+
+    linebreak()
   }
 
   await startContainers()
 
-  infoline(
-    "Development servers started.",
-    "Don't forget that you can also start a Mockoon server to mock unimplemented API paths."
-  )
+  infoline("Development servers started.")
 
   section("RUNNING", false, true)
 
@@ -72,7 +73,11 @@ async function shutdown() {
   section("SHUTDOWN", true)
 
   if (!isServe) {
+    info("Stopping non-container servers...")
+    separator()
+
     await stopVite()
+    await stopMockoon()
 
     linebreak()
   }
@@ -84,7 +89,7 @@ async function shutdown() {
 
 // -- VITE LIFECYCLE
 
-let vite
+let vite = null
 let viteStopping = false
 
 async function startVite() {
@@ -116,6 +121,22 @@ async function stopVite() {
   vite = null
 
   info("Vite stopped.")
+}
+
+// -- MOCKOON LIFECYCLE
+
+let mockoonStarted = false
+
+async function startMockoon() {
+  if (mockoonStarted) return
+  cmd("cd modules/api && pnpm -s mock-start")
+  mockoonStarted = true
+}
+
+async function stopMockoon() {
+  if (!mockoonStarted) return
+  cmd("cd modules/api && pnpm -s mock-stop")
+  mockoonStarted = false
 }
 
 // -- CONTAINER LIFECYCLE
@@ -166,7 +187,7 @@ async function stopContainers() {
 async function logContainers() {
   if (containerLogger) return
   containerLogger = compose("logs -f --tail 10 --no-color", true)
-  containerLogger.stdout.on("data", data => console.log(formatLogs(data)))
+  containerLogger.stdout.on("data", data => console.log(formatDockerLogs(data)))
 }
 
 function compose(args, asShell) {

@@ -45,8 +45,7 @@ export function format(selector: string, data?: FluentData, fallback?: string) {
  * @param opts - Options for formatting.
  */
 export function number(n: number, opts?: Intl.NumberFormatOptions) {
-  const formatter = new Intl.NumberFormat(defaultLocale.supported, opts)
-  return formatter.format(n)
+  return defaultLocale.number(n, opts)
 }
 
 /**
@@ -57,12 +56,17 @@ export function number(n: number, opts?: Intl.NumberFormatOptions) {
  * @param opts - Options for formatting.
  */
 export function unit(n: number, unit: UnitString, opts?: UnitFormatOptions) {
-  const formatter = new Intl.NumberFormat(defaultLocale.supported, {
-    style: "unit",
-    unit,
-    ...opts
-  })
-  return formatter.format(n)
+  return defaultLocale.unit(n, unit, opts)
+}
+
+/**
+ * Formats a timestamp, date string, or `Date`.
+ *
+ * @param date - The date to format.
+ * @param opts - Options for formatting.
+ */
+export function date(date: number | string | Date, opts?: Intl.DateTimeFormatOptions) {
+  return defaultLocale.date(date, opts)
 }
 
 // top level await shenanigans

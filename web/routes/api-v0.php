@@ -32,13 +32,13 @@ Route::post('/account/send-verification-email', [
 ]);
 // TODO: accountRequestDeletion
 Route::post('/account/start-recovery', [AccountController::class, 'startRecovery']);
-// TODO: accountGetEmail
+Route::get('/account/email', [AccountController::class, 'getEmail']);
 // TODO: accountUpdateEmail
 // TODO: accountUpdatePassword
-// TODO: accountGetUsername
+Route::get('/account/username', [AccountController::class, 'getUsername']);
 // TODO: accountUpdateUsername
-// TODO: accountGetSettings
-// TODO: accountUpdateSettings
+Route::get('/account/settings', [AccountController::class, 'getSettings']);
+Route::patch('/account/settings', [AccountController::class, 'updateSettings']);
 
 // -- NOTIFICATION
 // these can be implemented!
@@ -47,13 +47,13 @@ Route::post('/account/start-recovery', [AccountController::class, 'startRecovery
 
 // -- USER
 // these can be implemented!
-// TODO: userClientGet
-// TODO: userClientUpdateProfile
+Route::get('/user', [UserController::class, 'clientGet']);
+Route::patch('/user', [UserController::class, 'clientUpdateProfile']);
 Route::get('/user/avatar', [UserController::class, 'clientGetAvatar']);
-// TODO: userClientSetAvatar
-// TODO: userClientRemoveAvatar
+Route::post('user/avatar', [UserController::class, 'clientSetAvatar']);
+Route::delete('/user/avatar', [UserController::class, 'clientRemoveAvatar']);
 // TODO: userClientGetBlocked
-// TODO: userGet
+Route::get('/user/{path_type}/{path}', [UserController::class, 'get']);
 // TODO: userResetProfile
 Route::get('/user/{path_type}/{path}/avatar', [UserController::class, 'getAvatar']);
 // TODO: userRemoveAvatar

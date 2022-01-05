@@ -15,7 +15,7 @@ goto-home = Go to home page
 
 goto-service = Go to { -service-name }
 
-base-title = {$title} | { -service-name }
+base-title = { $title } | { -service-name }
 
 navigated-to = Navigated to { $path }
 
@@ -24,12 +24,15 @@ navigated-to = Navigated to { $path }
 about = About
 account = Account
 applications = Applications
+avatar = Avatar
 breadcrumbs = Breadcrumbs
+change = Change
 clear = clear
 close = Close
 dashboard = Dashboard
 docs = Docs
 download = Download
+edit = Edit
 editor = Editor
 footer = Page Footer
 general = General
@@ -42,6 +45,7 @@ load = Load
 main-content = Main Content
 messages = Messages
 navigation = Navigation
+notifications = Notifications
 preview = Preview
 privacy = Privacy
 profile = Profile
@@ -97,6 +101,11 @@ remember-me = Remember me
 create-account = Create Account
 
 field-required = This field is required
+
+characters-left = { $count ->
+  [1] 1 character left
+  *[other] { $count } characters left
+}
 
 hold-to-show-password = Hold to show password
 

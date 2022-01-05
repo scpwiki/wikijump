@@ -3,8 +3,7 @@
 -->
 <script lang="ts">
   import WikijumpAPI from "@wikijump/api"
-  import { Button, TextInput } from "@wikijump/components"
-  import { inputsValid } from "@wikijump/dom"
+  import { Form, Button, TextInput } from "@wikijump/components"
   import { format as t } from "@wikijump/fluent"
   import { escapeRegExp } from "@wikijump/util"
   import { createEventDispatcher } from "svelte"
@@ -24,61 +23,43 @@
   // TODO: captcha
   // TODO: hidden form field to bait spambots
 
-  let busy = false
+  async function onsubmit(values: {
+    email: string
+    username: string
+    password: string
+    passwordConfirm: string
+  }) {
+    const { email, username, password } = values
+    await WikijumpAPI.accountRegister({ email, username, password })
 
-  let inputEmail: HTMLInputElement
-  let inputUsername: HTMLInputElement
-  let inputPassword: HTMLInputElement
-  let inputPasswordConfirm: HTMLInputElement
+    dispatch("register")
 
-  let error = ""
+    if (goto !== null) {
+      window.location.href = goto === true ? "/" : goto || "/"
+    }
+  }
+
+  function onerror(err: unknown) {
+    if (err instanceof Response) {
+      // prettier-ignore
+      switch(err.status) {
+        case 403: return t("error-api.email-taken")
+        case 500: return t("error-api.internal")
+        default:  return t("error-api.register-failed")
+      }
+    } else {
+      throw err
+    }
+  }
 
   let password = ""
-
-  function statusErrorMessage(status: number) {
-    // prettier-ignore
-    switch(status) {
-      case 403: return t("error-api.email-taken")
-      case 500: return t("error-api.internal")
-      default:  return t("error-api.register-failed")
-    }
-  }
-
-  async function register() {
-    if (inputsValid(inputEmail, inputUsername, inputPassword, inputPasswordConfirm)) {
-      busy = true
-      error = ""
-
-      try {
-        const email = inputEmail.value
-        const username = inputUsername.value
-        const password = inputPassword.value
-
-        await WikijumpAPI.accountRegister({ email, username, password })
-
-        dispatch("register")
-
-        if (goto !== null) {
-          window.location.href = goto === true ? "/" : goto || "/"
-        }
-      } catch (err) {
-        // handle HTTP errors, rethrow on script errors
-        if (err instanceof Response) error = statusErrorMessage(err.status)
-        else throw err
-      }
-
-      busy = false
-    } else {
-      error = t("form-error.missing-fields")
-    }
-  }
 </script>
 
 <div class="register-form">
-  <form>
+  <Form {onsubmit} {onerror} let:busy let:error let:submit let:focusnext>
     <TextInput
-      bind:input={inputEmail}
-      on:enter={() => inputUsername.focus()}
+      name="email"
+      on:enter={focusnext}
       icon="ic:round-alternate-email"
       label={t("email")}
       placeholder={t("email.placeholder")}
@@ -91,8 +72,8 @@
     />
 
     <TextInput
-      bind:input={inputUsername}
-      on:enter={() => inputPassword.focus()}
+      name="username"
+      on:enter={focusnext}
       label={t("username")}
       placeholder={t("username.placeholder")}
       info={t("username.info")}
@@ -103,9 +84,9 @@
     />
 
     <TextInput
-      bind:input={inputPassword}
+      name="password"
       bind:value={password}
-      on:enter={() => inputPasswordConfirm.focus()}
+      on:enter={focusnext}
       icon="fluent:key-24-regular"
       label={t("password")}
       type="password"
@@ -117,8 +98,8 @@
     />
 
     <TextInput
-      bind:input={inputPasswordConfirm}
-      on:enter={() => register()}
+      name="passwordConfirm"
+      on:enter={submit}
       icon="fluent:key-24-regular"
       label={t("confirm-password")}
       type="password"
@@ -129,15 +110,15 @@
       autocomplete="new-password"
       minLength="1"
     />
-  </form>
 
-  <FormError {error} />
+    <div class="register-form-submit">
+      <Button submit disabled={busy} wide primary>
+        {t("register")}
+      </Button>
+    </div>
 
-  <div class="register-form-submit">
-    <Button on:click={register} disabled={busy} wide primary>
-      {t("register")}
-    </Button>
-  </div>
+    <FormError {error} />
+  </Form>
 </div>
 
 <style global lang="scss">

@@ -4,9 +4,8 @@
 <script lang="ts">
   import WikijumpAPI, { route } from "@wikijump/api"
   import { format as t } from "@wikijump/fluent"
-  import { Button, TextInput, Toggle } from "@wikijump/components"
+  import { Form, Button, TextInput, Toggle } from "@wikijump/components"
   import { createEventDispatcher } from "svelte"
-  import { inputsValid } from "@wikijump/dom"
   import FormError from "./FormError.svelte"
 
   /**
@@ -17,52 +16,40 @@
 
   const dispatch = createEventDispatcher()
 
-  let busy = false
+  async function onsubmit(values: {
+    login: string
+    password: string
+    remember: boolean
+  }) {
+    const { login, password, remember } = values
+    await WikijumpAPI.authLogin({ login, password, remember })
 
-  let inputLogin: HTMLInputElement
-  let inputPassword: HTMLInputElement
-  let remember = false
+    dispatch("login")
 
-  let error = ""
-
-  function statusErrorMessage(status: number) {
-    // prettier-ignore
-    switch(status) {
-      case 409: return t("error-api.already-logged-in")
-      case 500: return t("error-api.internal")
-      default:  return t("error-api.login-failed")
+    if (back !== null) {
+      window.location.href = back === true ? "/" : back || "/"
     }
   }
 
-  async function login() {
-    if (inputsValid(inputLogin, inputPassword)) {
-      busy = true
-      try {
-        const login = inputLogin.value
-        const password = inputPassword.value
-        await WikijumpAPI.authLogin({ login, password, remember })
-        dispatch("login")
-
-        if (back !== null) {
-          window.location.href = back === true ? "/" : back || "/"
-        }
-      } catch (err) {
-        // handle HTTP errors, rethrow on script errors
-        if (err instanceof Response) error = statusErrorMessage(err.status)
-        else throw err
+  function onerror(err: unknown) {
+    if (err instanceof Response) {
+      // prettier-ignore
+      switch(err.status) {
+        case 409: return t("error-api.already-logged-in")
+        case 500: return t("error-api.internal")
+        default:  return t("error-api.login-failed")
       }
-      busy = false
     } else {
-      error = t("form-error.missing-fields")
+      throw err
     }
   }
 </script>
 
 <div class="login-form">
-  <form>
+  <Form {onsubmit} {onerror} let:busy let:error let:submit let:focusnext>
     <TextInput
-      bind:input={inputLogin}
-      on:enter={() => inputPassword.focus()}
+      name="login"
+      on:enter={focusnext}
       label={t("specifier")}
       placeholder={t("specifier.placeholder")}
       required
@@ -72,8 +59,8 @@
     />
 
     <TextInput
-      bind:input={inputPassword}
-      on:enter={() => login()}
+      name="password"
+      on:enter={submit}
       icon="fluent:key-24-regular"
       label={t("password")}
       type="password"
@@ -83,22 +70,22 @@
       autocomplete="current-password"
       minLength="1"
     />
-  </form>
 
-  <div class="login-form-options">
-    <Toggle bind:toggled={remember}>{t("remember-me")}</Toggle>
-    <a class="login-form-forgot" href={route("password.request")}>
-      {t("forgot-password.question")}
-    </a>
-  </div>
+    <div class="login-form-options">
+      <Toggle name="remember">{t("remember-me")}</Toggle>
+      <a class="login-form-forgot" href={route("password.request")}>
+        {t("forgot-password.question")}
+      </a>
+    </div>
 
-  <FormError {error} />
+    <div class="login-form-submit">
+      <Button submit disabled={busy} wide primary>
+        {t("login")}
+      </Button>
+    </div>
 
-  <div class="login-form-submit">
-    <Button on:click={login} disabled={busy} wide primary>
-      {t("login")}
-    </Button>
-  </div>
+    <FormError {error} />
+  </Form>
 </div>
 
 <style global lang="scss">

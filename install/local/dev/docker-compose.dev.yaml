@@ -53,3 +53,7 @@ services:
         source: ../../../web/public/files--static
         target: /var/www/wikijump/web/public/files--static
         read_only: true
+      - type: bind
+        source: ../../../web/storage
+        target: /var/www/wikijump/web/storage
+        read_only: true

@@ -100,7 +100,7 @@ impl From<&UserModel> for UserInfoOutput {
     fn from(user: &UserModel) -> Self {
         Self {
             identity: UserIdentityOutput::from(user),
-            about: user.about_page.clone(),
+            about: user.bio.clone(),
             avatar: user.avatar_path.clone(),
             signature: None, // TODO
             since: user.created_at,

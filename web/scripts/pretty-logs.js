@@ -47,8 +47,8 @@ function error(...msgs) {
   console.warn(pc.red(msg))
 }
 
-function cmd(command) {
-  execSync(command, { stdio: "inherit" })
+function cmd(command, pipe = true) {
+  execSync(command, pipe ? { stdio: "inherit" } : {})
 }
 
 function shell(command, pipe = true) {

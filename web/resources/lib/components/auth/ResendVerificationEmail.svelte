@@ -1,46 +1,32 @@
 <script lang="ts">
   import WikijumpAPI from "@wikijump/api"
-  import { Button } from "@wikijump/components"
+  import { Form, Button } from "@wikijump/components"
   import Locale from "@wikijump/fluent"
   import FormError from "./FormError.svelte"
 
   const t = Locale.makeComponentFormatter("wiki-auth")
 
-  let busy = false
-  let resent = false
-  let error = ""
+  async function onsubmit() {
+    await WikijumpAPI.accountSendVerificationEmail()
+  }
 
-  async function resend() {
-    busy = true
-    error = ""
-
-    try {
-      await WikijumpAPI.accountSendVerificationEmail()
-      resent = true
-    } catch (err) {
-      resent = false
-      if (err instanceof Response) {
-        // you can't get to this page without being logged in and unverified
-        // so probably any error is internal
-        error = $t("error-api.internal")
-      } else {
-        throw err
-      }
-    }
-
-    busy = false
+  function onerror(err: unknown) {
+    if (err instanceof Response) return $t("error-api.internal")
+    else throw err
   }
 </script>
 
-<Button on:click={resend} disabled={busy} wide primary>
-  {$t("#-verify-email.resend-email")}
-</Button>
+<Form {onsubmit} {onerror} let:busy let:fired let:error>
+  <Button submit disabled={busy} wide primary>
+    {$t("#-verify-email.resend-email")}
+  </Button>
 
-{#if resent && !busy}
-  <p class="verify-email-resent">{$t("#-verify-email.email-sent")}</p>
-{/if}
+  {#if fired && !busy}
+    <p class="verify-email-resent">{$t("#-verify-email.email-sent")}</p>
+  {/if}
 
-<FormError {error} />
+  <FormError {error} />
+</Form>
 
 <style global lang="scss">
   .verify-email-resent {

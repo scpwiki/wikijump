@@ -250,19 +250,18 @@ export interface UserIdentity {
  * Describes a user in an intermediate amount of detail.
  */
 export type UserInfo = UserIdentity & {
-  about: string
+  about: string | null
   avatar: string | null
   signature: HTML | null
   since: string
   lastActive: string
-  blocked: boolean
 }
 
 /**
  * Fully describes a user and their personalization preferences.
  */
 export type UserProfile = UserInfo & {
-  realname: string
+  realname: string | null
   pronouns: string | null
   birthday: string | null
   location: string | null
@@ -273,15 +272,16 @@ export type UserProfile = UserInfo & {
  * Partial object that is used to update a user's profile.
  */
 export interface UserProfilePatch {
-  about?: string
+  about?: string | null
 
   /** A chunk of text in FTML format. */
-  signature?: Wikitext
-  gender?: string
+  signature?: Wikitext | null
+  realname?: string | null
+  pronouns?: string | null
 
   /** @format date */
-  birthday?: string
-  location?: string
+  birthday?: string | null
+  location?: string | null
   links?: Record<string, string>
 }
 

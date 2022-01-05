@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Wikijump\Services\UserValidation;
+namespace Wikijump\Services\Users;
 
 use Wikijump\Models\User;
 use Illuminate\Contracts\Validation\Rule as RuleContract;

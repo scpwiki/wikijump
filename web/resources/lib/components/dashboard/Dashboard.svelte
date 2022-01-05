@@ -1,6 +1,8 @@
 <script lang="ts" context="module">
   import { route } from "@wikijump/api"
 
+  const DASHBOARD_ROUTE = route("dashboard")
+
   /**
    * Returns a dashboard route.
    *
@@ -8,7 +10,7 @@
    */
   export function dashboardRoute(path = "") {
     if (path.startsWith("/")) path = path.substring(1)
-    return route("dashboard", { path })
+    return `${DASHBOARD_ROUTE}/${path}`
   }
 </script>
 
@@ -16,9 +18,9 @@
   import Locale from "@wikijump/fluent"
   import { Route } from "tinro"
   import RouteAnnouncer from "../RouteAnnouncer.svelte"
+  import UserProfile from "../UserProfile.svelte"
   import DashboardLink from "./DashboardLink.svelte"
   import DashboardPanel from "./DashboardPanel.svelte"
-  import ProfilePanel from "./panels/ProfilePanel.svelte"
   import SettingsPanel from "./panels/SettingsPanel.svelte"
 
   const t = Locale.makeComponentFormatter("dashboard")
@@ -44,6 +46,8 @@
   <ul class="dashboard-links">
     <DashboardLink path="profile">{$t("profile")}</DashboardLink>
 
+    <DashboardLink path="notifications">{$t("notifications")}</DashboardLink>
+
     <DashboardLink
       path="messages"
       subpaths={[
@@ -60,9 +64,7 @@
       path="settings"
       subpaths={[
         { path: "profile", title: $t("profile") },
-        { path: "account", title: $t("account") },
-        { path: "about", title: $t("about") },
-        { path: "messages", title: $t("messages") }
+        { path: "account", title: $t("account") }
       ]}
     >
       {$t("settings")}
@@ -73,9 +75,15 @@
     <Route path={dashboardRoute("*")} firstmatch>
       <Route fallback redirect={dashboardRoute("profile")} />
 
-      <DashboardPanel path="/profile/*" title={$t("profile")}>
-        <ProfilePanel />
+      <DashboardPanel path="/profile" title={$t("profile")}>
+        <UserProfile />
       </DashboardPanel>
+
+      <!-- TODO: notifications -->
+      <DashboardPanel path="/notifications/*" title={$t("notifications")} />
+
+      <!-- TODO: messages/inbox -->
+      <DashboardPanel path="/messages/*" title={$t("messages")} />
 
       <DashboardPanel path="/settings/*" title={$t("settings")}>
         <SettingsPanel />
@@ -95,6 +103,10 @@
     display: flex;
     min-height: 100%;
     contain: layout;
+
+    @include media("<=small") {
+      flex-direction: column;
+    }
   }
 
   .dashboard-links {
@@ -107,9 +119,22 @@
     margin-right: 2rem;
     list-style: none;
     border-right: solid 0.125rem var(--col-border);
+
+    @include media("<=small") {
+      padding-right: 0;
+      padding-bottom: 1rem;
+      margin-right: 0;
+      margin-bottom: 2rem;
+      border-right: none;
+      border-bottom: solid 0.125rem var(--col-border);
+    }
   }
 
   .dashboard-panels {
     flex-grow: 1;
+
+    @include media("<=small") {
+      padding: 0 1rem;
+    }
   }
 </style>

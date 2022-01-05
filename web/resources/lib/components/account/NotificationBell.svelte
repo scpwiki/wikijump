@@ -39,7 +39,7 @@
     i="octicon:bell-16"
     size="1em"
     baseline
-    href={route("account.notifications")}
+    href={route("dashboard", { path: "notifications" })}
     tip={hasNotifications ? $t("#-status.unread") : $t("#-status.read")}
   />
   {#if hasNotifications}
