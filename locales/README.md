@@ -37,3 +37,7 @@ forgot-password = Forgot Password
   <span>{$t("forgot-password.question")}</span>
 </button>
 ```
+
+### Validation
+
+The [Rust program in the `validator` directory](https://github.com/scpwiki/wikijump/tree/develop/locales/validator) is modelled after how the DEEPWELL API service reads these locale files, and performs several checks. This is automatically run as [part of CI](https://github.com/scpwiki/wikijump/blob/develop/.github/workflows/locales.yaml), to automatically catch several different kinds of errors before changes are merged.
