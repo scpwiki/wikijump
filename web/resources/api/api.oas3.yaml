@@ -714,7 +714,7 @@ paths:
 
   /membership/site/{site}:
     parameters:
-    - $ref: '#/components/paramters/Site'
+    - $ref: '#/components/parameters/Site'
 
     get:
       description: Gets the client membership status for a site.
@@ -2438,7 +2438,7 @@ components:
       description: The name of a site.
       name: site
       in: path
-      required: true,
+      required: true
       schema: { type: string }
 
     Limit:
@@ -3193,7 +3193,8 @@ components:
       required: [vote]
       properties:
         vote:
-          allOf: ['#/components/schemas/CastVote']
+          allOf: 
+            - $ref: '#/components/schemas/CastVote'
           nullable: true
 
     Score:
