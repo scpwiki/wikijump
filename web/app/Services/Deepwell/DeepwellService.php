@@ -117,10 +117,11 @@ final class DeepwellService
 
     private static function backlinksToJson(Backlinks $backlinks): array
     {
+        // TODO in ftml, this struct uses kebab-case
         return [
-            'included_pages' => $backlinks->inclusions,
-            'internal_links' => $backlinks->internal_links,
-            'external_links' => $backlinks->external_links,
+            'included-pages' => $backlinks->inclusions,
+            'internal-links' => $backlinks->internal_links,
+            'external-links' => $backlinks->external_links,
         ];
     }
 
