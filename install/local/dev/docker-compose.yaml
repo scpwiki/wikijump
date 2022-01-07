@@ -14,13 +14,17 @@ services:
     build:
       context: ../../..
       dockerfile: install/local/dev/postgres/Dockerfile
-      args:
-        FILES_DOMAIN: 'wjfiles.localhost'
+    environment:
+      - "POSTGRES_DB=wikijump"
+      - "POSTGRES_USER=wikijump"
+      - "POSTGRES_PASSWORD=wikijump"
+      - "POSTGRES_HOST_AUTH_METHOD=md5"
+      - "POSTGRES_INITDB_ARGS=--locale en_US.UTF-8"
     ports:
       - "5432:5432"
     restart: always
     healthcheck:
-      test: ["CMD", "pg_isready", "-d", "wikijump"]
+      test: ["CMD", "wikijump-health-check"]
       interval: 10s
       timeout: 5s
       retries: 6
