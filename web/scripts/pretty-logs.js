@@ -1,9 +1,12 @@
 const readline = require("readline")
-const { exec, execSync, spawn } = require("child_process")
-const { promisify } = require("util")
+const { execSync, spawn } = require("child_process")
 const pc = require("picocolors")
 
-const execAsync = promisify(exec)
+// technically never gets cleared, but it's not a big deal
+// if our CLI spawns so many processes that it becomes a problem
+// I'll be impressed
+/** @type Set<import("child_process").ChildProcessWithoutNullStreams> */
+const processes = new Set()
 
 function linebreak() {
   console.log("")
@@ -51,20 +54,31 @@ function error(...msgs) {
 }
 
 function cmd(command, pipe = true) {
-  execSync(command, pipe ? { stdio: "inherit" } : {})
+  return execSync(command, pipe ? { stdio: "inherit" } : {})
 }
 
+/** @returns {Promise<Buffer>} */
 function cmdAsync(command, pipe = true) {
-  return execAsync(command, pipe ? { stdio: "inherit" } : {})
+  return new Promise(resolve => {
+    const child = spawn(command, { shell: true, stdio: pipe ? "inherit" : undefined })
+    processes.add(child)
+    child.on("close", () => resolve(child.stdout))
+  })
 }
 
 function shell(command, pipe = true) {
-  const child = spawn(command, { shell: true })
-  if (pipe) {
-    child.stdout.pipe(process.stdout)
-    child.stderr.pipe(process.stderr)
-  }
+  const child = spawn(command, { shell: true, stdio: pipe ? "inherit" : undefined })
+  processes.add(child)
   return child
+}
+
+/** @returns {Promise<import("child_process").ChildProcess>} */
+function shellAsync(command, pipe = true) {
+  return new Promise(resolve => {
+    const child = spawn(command, { shell: true, stdio: pipe ? "inherit" : undefined })
+    processes.add(child)
+    child.on("spawn", () => resolve(child))
+  })
 }
 
 function question(question) {
@@ -92,6 +106,7 @@ function answerYesOrNo(answer, def = false) {
 
 module.exports = {
   pc,
+  processes,
   linebreak,
   separator,
   section,
@@ -103,6 +118,7 @@ module.exports = {
   cmd,
   cmdAsync,
   shell,
+  shellAsync,
   question,
   answerYesOrNo
 }
