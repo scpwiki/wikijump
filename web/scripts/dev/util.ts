@@ -44,7 +44,7 @@ export async function starting<T>(name: string, promise: Promise<T>) {
     progress.break(`Starting ${name} ... ${pc.green("done")}`)
     return result
   } catch (error) {
-    progress.break(`Starting ${name} ... ${pc.red("failed")}}}`)
+    progress.break(`Starting ${name} ... ${pc.red("failed")}`)
     throw error
   }
 }
@@ -56,7 +56,7 @@ export async function closing<T>(name: string, promise: Promise<T>) {
     progress.break(`Stopping ${name} ... ${pc.green("done")}`)
     return result
   } catch (error) {
-    progress.break(`Stopping ${name} ... ${pc.red("failed")}}}`)
+    progress.break(`Stopping ${name} ... ${pc.red("failed")}`)
     throw error
   }
 }
