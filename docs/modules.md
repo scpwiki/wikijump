@@ -69,4 +69,4 @@ To publish modules, run this command:
 $ pnpm modules:publish
 ```
 
-This will start the publishing process for any modules whose version is higher than what is currently in the NPM registry. Make sure you are absolutely positive you want to take this step, and make sure you've ran `pnpm modules:version`.
+This will start the publishing process for any modules whose version is higher than what is currently in the NPM registry. **Make sure you are absolutely positive you want to take this step**, and make sure you've ran `pnpm modules:version`.
