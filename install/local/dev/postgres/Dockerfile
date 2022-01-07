@@ -20,14 +20,6 @@ WORKDIR /src
 RUN adduser -S wikijump
 
 # Setup database
-USER postgres
-RUN initdb -D ${PGDATA} -A trust --locale=en_US.UTF-8
-
-# Install postgres auth configuration
-RUN install -D -m644 /src/pg_hba.conf "${PGDATA}/pg_hba.conf"
-
-# Seed database
-USER root
 RUN /src/setup.sh
 
 # Clean up
