@@ -17,17 +17,17 @@ export class Containers {
     if (this.stopped) return
     this.stopped = true
     this.logger?.kill()
-    compose("stop")
+    await compose("stop")
   }
 
   async startLogging() {
-    this.logger = compose("logs -f --tail 10 --no-color", true)
+    this.logger = await compose("logs -f --tail 10 --no-color", true)
     this.logger.stdout.on("data", data => console.log(formatLogs(data)))
     this.logger.stderr.on("data", data => console.log(formatLogs(data)))
   }
 
-  static build() {
-    if (isSudo) pnpm("build-sudo:local")
-    else pnpm("build:local")
+  static async build() {
+    if (isSudo) await pnpm("build-sudo:local")
+    else await pnpm("build:local")
   }
 }

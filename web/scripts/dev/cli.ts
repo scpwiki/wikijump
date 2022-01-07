@@ -50,7 +50,7 @@ export class DevCLI {
     if (!isBuild) {
       await dev.startup()
       await dev.hijackTerminal()
-      dev.containers.startLogging()
+      await dev.containers.startLogging()
     }
 
     return dev
@@ -83,13 +83,13 @@ export class DevCLI {
     const start = performance.now()
 
     info("Building legacy frontend first...")
-    pnpm("build:legacy")
+    await pnpm("build:legacy")
 
     linebreak()
 
     info("Building containers...")
     separator()
-    Containers.build()
+    await Containers.build()
 
     infoline(
       "Finished building containers.",
@@ -111,7 +111,7 @@ export class DevCLI {
 
     info("Started:")
     if (this.vite) this.vite.instance.printUrls()
-    console.log(`  > Mockoon:   ${pc.cyan(`http://localhost:${pc.bold("3500")}`)}`)
+    console.log(`  > Mockoon:  ${pc.cyan(`http://localhost:${pc.bold("3500")}`)}`)
 
     linebreak()
 

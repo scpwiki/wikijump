@@ -1,6 +1,9 @@
 const readline = require("readline")
-const { execSync, spawn } = require("child_process")
+const { exec, execSync, spawn } = require("child_process")
+const { promisify } = require("util")
 const pc = require("picocolors")
+
+const execAsync = promisify(exec)
 
 function linebreak() {
   console.log("")
@@ -51,6 +54,10 @@ function cmd(command, pipe = true) {
   execSync(command, pipe ? { stdio: "inherit" } : {})
 }
 
+function cmdAsync(command, pipe = true) {
+  return execAsync(command, pipe ? { stdio: "inherit" } : {})
+}
+
 function shell(command, pipe = true) {
   const child = spawn(command, { shell: true })
   if (pipe) {
@@ -94,6 +101,7 @@ module.exports = {
   warn,
   error,
   cmd,
+  cmdAsync,
   shell,
   question,
   answerYesOrNo
