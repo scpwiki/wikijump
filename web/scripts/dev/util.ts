@@ -9,8 +9,8 @@ export const isBuild = args.includes("build")
 export const isClean = args.includes("clean")
 
 export async function pnpm(args: string, pipe = true, cd?: string) {
-  if (cd) await cmd(`cd ${cd} && pnpm -s ${args}`, pipe)
-  else await cmd(`pnpm -s ${args}`, pipe)
+  if (cd) return await cmd(`cd ${cd} && pnpm -s ${args}`, pipe)
+  else return await cmd(`pnpm -s ${args}`, pipe)
 }
 
 export async function compose(args: string): Promise<Buffer>

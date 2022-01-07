@@ -9,7 +9,9 @@ export class Mockoon {
 
   static async create() {
     const mockoon = new Mockoon()
-    await pnpm("mock-start", false, "scripts/dev")
+    if (!(await mockoon.isRunning())) {
+      await pnpm("mock-start", false, "scripts/dev")
+    }
     return mockoon
   }
 
@@ -17,5 +19,14 @@ export class Mockoon {
     if (this.stopped) return
     this.stopped = true
     await pnpm("mock-stop", false, "scripts/dev")
+  }
+
+  async isRunning() {
+    try {
+      const out = await pnpm("pnpm mockoon-cli list", false, "scripts/dev")
+      return !out.toString().includes("No process is running")
+    } catch {
+      return false
+    }
   }
 }

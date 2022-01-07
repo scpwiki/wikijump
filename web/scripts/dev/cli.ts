@@ -20,8 +20,6 @@ import { closing, isBuild, isClean, isServe, pnpm, starting } from "./util"
 import { Vite } from "./vite"
 
 // TODO: add shortcut for rebuilding a container, and then restarting it
-// TODO: check for Mockoon and Vite already running
-// TODO: check for if the containers are already running
 
 export class DevCLI {
   declare vite?: Vite
