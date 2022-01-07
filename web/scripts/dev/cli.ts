@@ -96,7 +96,7 @@ export class DevCLI {
 
         await dev.containers.startLogging()
 
-        const close = dev.close.bind(this)
+        const close = dev.close.bind(dev)
         process.once("beforeExit", close)
         process.once("SIGINT", close)
         process.once("SIGTERM", close)
