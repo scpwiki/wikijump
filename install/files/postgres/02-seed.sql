@@ -3,8 +3,6 @@ SET default_transaction_read_only = off;
 CREATE ROLE wikijump_ro
     WITH INHERIT NOSUPERUSER NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS PASSWORD 'wikijump_ro';
 
-ALTER DATABASE wikijump WITH ENCODING = 'UTF8' LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8';
-
 \connect wikijump
 
 SET statement_timeout = 0;
@@ -27,4 +25,4 @@ GRANT SELECT ON ALL TABLES IN SCHEMA public TO wikijump_ro;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public
     GRANT SELECT ON TABLES TO wikijump_ro;
 
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
+CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
