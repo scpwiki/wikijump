@@ -18,6 +18,7 @@
     "@wikijump/prism",
     "@wikijump/sheaf",
     "@wikijump/frontend",
-    "@wikijump/legacy-frontend"
+    "@wikijump/legacy-frontend",
+    "@wikijump/dev-cli"
   ]
 }

@@ -1,4 +1,5 @@
 packages:
+  - "scripts/dev"
   - "modules/*"
   - "resources"
   - "web"

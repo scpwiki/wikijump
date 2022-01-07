@@ -8,14 +8,11 @@
   ],
   "private": true,
   "scripts": {
-    "generate-api": "swagger-typescript-api -p ../../../web/resources/api/api.oas3.yaml -o ./vendor --name api.ts --unwrap-response-data  --module-name-index -1 --clean-output --patch",
-    "mock-start": "mockoon-cli start --data ./mockoon/mockoon-api.json --name \"Wikijump\"",
-    "mock-stop": "mockoon-cli stop \"all\""
+    "generate-api": "swagger-typescript-api -p ../../../web/resources/api/api.oas3.yaml -o ./vendor --name api.ts --unwrap-response-data  --module-name-index -1 --clean-output --patch"
   },
   "type": "module",
   "main": "src/index.ts",
   "devDependencies": {
-    "@mockoon/cli": "^1.5.0",
     "swagger-typescript-api": "^9.3.1"
   },
   "dependencies": {
