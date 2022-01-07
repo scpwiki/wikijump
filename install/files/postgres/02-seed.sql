@@ -3,7 +3,7 @@ SET default_transaction_read_only = off;
 CREATE ROLE wikijump_ro
     WITH INHERIT NOSUPERUSER NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS PASSWORD 'wikijump_ro';
 
-ALTER DATABASE ENCODING = 'UTF8' LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8';
+ALTER DATABASE wikijump WITH ENCODING = 'UTF8' LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8';
 
 \connect wikijump
 
