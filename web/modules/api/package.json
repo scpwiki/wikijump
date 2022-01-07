@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@wikijump/util": "workspace:*",
-    "svelte": "^3.44.3",
+    "svelte": "^3.45.0",
     "ziggy-js": "^1.4.2"
   }
 }

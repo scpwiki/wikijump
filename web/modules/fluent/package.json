@@ -13,6 +13,6 @@
   "dependencies": {
     "@fluent/bundle": "^0.17.1",
     "@wikijump/util": "workspace:*",
-    "svelte": "^3.44.3"
+    "svelte": "^3.45.0"
   }
 }
