@@ -36,9 +36,9 @@ host    all             all             172.16.0.0/12           scram-sha-256
 # "local" is for Unix domain socket connections only
 local   all             all                                     peer
 # IPv4 local connections:
-host    all             all             127.0.0.1/32            md5
+host    all             all             127.0.0.1/32            scram-sha-256
 # IPv6 local connections:
-host    all             all             ::1/128                 md5
+host    all             all             ::1/128                 scram-sha-256
 
 # Allow replication connections from localhost, by a user with the
 # replication privilege.
