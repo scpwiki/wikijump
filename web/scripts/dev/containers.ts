@@ -34,8 +34,8 @@ export class Containers {
 
   async stoplogging() {
     if (!this.logger) return
-    this.logger.stdout?.removeListener("data", this.log)
-    this.logger.stderr?.removeListener("data", this.log)
+    this.logger.stdout?.off("data", this.log)
+    this.logger.stderr?.off("data", this.log)
     this.logger.kill("SIGINT")
     this.logger = undefined
   }
