@@ -33,20 +33,41 @@ export class DevCLI {
     if (this.stopped) return
     this.stopped = true
 
-    section("CLEAN", true)
-
-    // try to stop anything that might be running
+    // try to stop anything that might still be running
     for (const proc of processes) {
-      if (!proc.killed) proc.kill("SIGINT")
+      if (!proc.killed) {
+        // we're gonna _REALLY_ try to kill it
+        // `docker-compose` in particular is a pain
+        proc.kill("SIGINT")
+        proc.kill("SIGKILL")
+      }
     }
 
-    info("Cleaning up services...")
-    separator()
-    await closing("Vite   ", Vite.clean())
-    await closing("Mockoon", Mockoon.clean())
-    await Containers.clean()
+    // gonna wait a second if we're still starting up
+    if (this.starting) {
+      this.starting = false
+      await new Promise(resolve => setTimeout(resolve, 500))
+      linebreak()
+      warn("Aborting startup!")
+      linebreak()
+    }
 
-    infoline("Cleanup complete.")
+    const viteIsRunning = await Vite.isRunning()
+    const mockoonIsRunning = await Mockoon.isRunning()
+    const containersIsRunning = await Containers.isRunning()
+
+    if (viteIsRunning || mockoonIsRunning || containersIsRunning) {
+      info("Cleaning up services...")
+      separator()
+      if (viteIsRunning) await closing("Vite   ", Vite.clean())
+      if (mockoonIsRunning) await closing("Mockoon", Mockoon.clean())
+      if (containersIsRunning) await Containers.clean()
+
+      infoline("Cleanup complete.")
+    } else {
+      info("Nothing to clean up.")
+      linebreak()
+    }
   }
 
   static async create() {
@@ -70,6 +91,9 @@ export class DevCLI {
 
         await dev.hijackTerminal()
         await dev.startup()
+
+        if (dev.stopped) return dev
+
         await dev.containers.startLogging()
 
         const close = dev.close.bind(this)
@@ -177,10 +201,6 @@ export class DevCLI {
         }
         // aborting startup
         else if (this.starting) {
-          linebreak()
-          linebreak()
-          warn("Aborting startup!")
-          this.starting = false
           await this.clean()
           process.exit(0)
         }

@@ -1,3 +1,4 @@
+import { cmdAsync } from "../pretty-logs"
 import { pnpm } from "./util"
 
 export class Mockoon {
@@ -9,7 +10,7 @@ export class Mockoon {
 
   static async create() {
     const mockoon = new Mockoon()
-    if (!(await mockoon.isRunning())) {
+    if (!(await Mockoon.isRunning())) {
       await pnpm("mock-start", false, "scripts/dev")
     }
     return mockoon
@@ -21,10 +22,12 @@ export class Mockoon {
     await pnpm("mock-stop", false, "scripts/dev")
   }
 
-  async isRunning() {
+  static async isRunning() {
     try {
-      const out = await pnpm("pnpm mockoon-cli list", false, "scripts/dev")
-      return !out.toString().includes("No process is running")
+      // have to use `cmdAsync`instead of `pnpm` because the `-s` flag
+      // acts bizarre when running a cli tool rather than a script
+      const out = await cmdAsync(`cd "scripts/dev" && pnpm mockoon-cli list`, false)
+      return !out.includes("No process is running")
     } catch {
       return false
     }

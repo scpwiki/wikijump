@@ -27,7 +27,7 @@ export class Containers {
 
   async startLogging() {
     if (this.stopped || this.logger) return
-    this.logger = await compose("logs -f --tail 10 --no-color", true)
+    this.logger = await compose("logs -f --tail 10 --no-color", true, false)
     this.logger.stdout?.on("data", this.log)
     this.logger.stderr?.on("data", this.log)
   }
@@ -46,5 +46,15 @@ export class Containers {
 
   static async build() {
     await compose("build")
+  }
+
+  static async services() {
+    const out = await compose("ps --services", false, false)
+    return out.toString().split("\n")
+  }
+
+  static async isRunning() {
+    const out = await compose("top", false, false)
+    return out.length !== 0
   }
 }

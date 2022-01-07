@@ -1,5 +1,6 @@
 import { createServer, type ViteDevServer } from "vite"
 import { error } from "../pretty-logs"
+import { isBuild, isClean, isServe } from "./util"
 
 export class Vite {
   declare instance: ViteDevServer
@@ -7,7 +8,7 @@ export class Vite {
   stopped = false
 
   static async clean() {
-    // TODO: hunt down Vite if it's somehow running?
+    // TODO: somehow check if Vite is running?
   }
 
   static async create() {
@@ -31,5 +32,10 @@ export class Vite {
     if (this.stopped) return
     this.stopped = true
     await this.instance.close()
+  }
+
+  static async isRunning() {
+    // TODO: check if Vite is running for real
+    return (isBuild || isServe || isClean) === false
   }
 }

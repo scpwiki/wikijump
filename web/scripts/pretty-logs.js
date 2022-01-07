@@ -8,8 +8,8 @@ const pc = require("picocolors")
 /** @type Set<import("child_process").ChildProcessWithoutNullStreams> */
 const processes = new Set()
 
-function linebreak() {
-  console.log("")
+function linebreak(count = 1) {
+  for (let i = 0; i < count; i++) console.log("")
 }
 
 function separator() {
@@ -57,12 +57,14 @@ function cmd(command, pipe = true) {
   return execSync(command, pipe ? { stdio: "inherit" } : {})
 }
 
-/** @returns {Promise<Buffer>} */
+/** @returns {Promise<string>} */
 function cmdAsync(command, pipe = true) {
   return new Promise(resolve => {
     const child = spawn(command, { shell: true, stdio: pipe ? "inherit" : undefined })
     processes.add(child)
-    child.on("close", () => resolve(child.stdout))
+    let output = ""
+    child.stdout?.on("data", data => (output += data.toString()))
+    child.on("close", () => resolve(output))
   })
 }
 
