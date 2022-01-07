@@ -3,16 +3,8 @@ set -eux
 
 export PGDATA=/var/lib/postgresql/data
 
-# Install health check script
-cat > "$PGDATA/wikijump-health-check.sh" <<EOF
-#!/bin/sh
-sudo -u wikijump pg_isready -d wikijump
-EOF
-
-chmod +x "$PGDATA/wikijump-health-check.sh"
-
 # Install pg_hba.conf file
-cat > "$PGDATA/pg_hba.conf" <<EOF
+cat > "${PGDATA}/pg_hba.conf" <<EOF
 # PostgreSQL Client Authentication Configuration File
 # ===================================================
 #

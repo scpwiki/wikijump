@@ -15,5 +15,6 @@ RUN apk add --no-cache \
     postgresql-contrib \
     sudo
 
-# Install entrypoint files
-COPY ./install/files/postgres /docker-entrypoint-initdb.d
+# Install files
+COPY ./install/files/postgres/init /docker-entrypoint-initdb.d
+COPY ./install/files/postgres/health-check.sh /bin/wikijump-health-check
