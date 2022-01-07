@@ -15,7 +15,6 @@ services:
       context: ../../..
       dockerfile: install/local/dev/postgres/Dockerfile
     environment:
-      - "FILES_DOMAIN=wjfiles.localhost"
       - "POSTGRES_DB=wikijump"
       - "POSTGRES_USER=wikijump"
       - "POSTGRES_PASSWORD=wikijump"

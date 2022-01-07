@@ -53,6 +53,3 @@ host    wikijump        wikijump_ro     0.0.0.0/0               scram-sha-245
 host    wikijump        wikijump        ::/0                    scram-sha-245
 host    wikijump        wikijump_ro     ::/0                    scram-sha-245
 EOF
-
-# Prepare seed file
-sed -i "s/FILEDOMAIN/${FILES_DOMAIN}/g" /docker-entrypoint-initdb.d/02-seed.sql
