@@ -1,3 +1,8 @@
+#!/bin/bash
+set -eux
+
+# Install pg_hba.conf file
+cat > /var/lib/postgresql/data/pg_hba.conf <<EOF
 # PostgreSQL Client Authentication Configuration File
 # ===================================================
 #
@@ -39,11 +44,15 @@ host    all             all             ::1/128                 md5
 # Allow replication connections from localhost, by a user with the
 # replication privilege.
 local   replication     all                                     peer
-host    replication     all             127.0.0.1/32            md5
-host    replication     all             ::1/128                 md5
+host    replication     all             127.0.0.1/32            scram-sha-256
+host    replication     all             ::1/128                 scram-sha-256
 
 # Allow wikijump to connect from a container
-host    wikijump        wikijump        0.0.0.0/0               md5
-host    wikijump        wikijump_ro     0.0.0.0/0               md5
-host    wikijump        wikijump        ::/0                    md5
-host    wikijump        wikijump_ro     ::/0                    md5
+host    wikijump        wikijump        0.0.0.0/0               scram-sha-245
+host    wikijump        wikijump_ro     0.0.0.0/0               scram-sha-245
+host    wikijump        wikijump        ::/0                    scram-sha-245
+host    wikijump        wikijump_ro     ::/0                    scram-sha-245
+EOF
+
+# Prepare seed file
+sed -i "s/FILEDOMAIN/${FILES_DOMAIN}/g" /docker-entrypoint-initdb.d/02-seed.sql

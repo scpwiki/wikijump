@@ -5,27 +5,14 @@ EXPOSE 5432
 # Build variables
 ARG ENVIRONMENT="prod"
 ARG FILES_DOMAIN="wjfiles.test"
-ARG PGDATA="/var/lib/postgresql/data"
+
+# Create system user
+RUN adduser -S wikijump
 
 # Install dependencies
 RUN apk add --no-cache \
     postgresql-contrib \
     musl-locales
 
-# Copy sources
-COPY ./install/files/postgres /src
-WORKDIR /src
-
-# Create system user
-RUN adduser -S wikijump
-
-# Setup database
-RUN /src/setup.sh
-
-# Clean up
-WORKDIR /etc/postgresql
-RUN rm -rf /src
-
-# Main process
-USER postgres
-CMD ["postgres"]
+# Install entrypoint files
+COPY ./install/files/postgres /docker-entrypoint-initdb.d
