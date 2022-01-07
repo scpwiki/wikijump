@@ -12,81 +12,49 @@
 
 ### Relevant Documentation
 
+- [Docker Compose](https://docs.docker.com/compose/)
+- [Laravel](https://laravel.com/docs/8.x/)
+- [Blade templates](https://laravel.com/docs/8.x/blade)
 - [PNPM](https://pnpm.io/)
-- [Mocha](https://mochajs.org)
 - [Vite](https://vitejs.dev/)
+- [Vitest](https://github.com/vitest-dev/vitest)
 
 ### Getting Started
 
-You will need a recent version of Node, specifically v15 or higher. The repo may work on older versions of Node but this hasn't been tested. You will also need PNPM, as noted above.
-
-To get setup, run this command:
-
-```
-$ pnpm install
-```
-
-This will have PNPM install all the needed dependencies, even for workspace packages.
-
-### Building
-
-To build the monorepo, run this command:
-
-```
-$ pnpm build
-```
-
-This will build all packages for which a build process has been setup. Most packages within the repo don't actually have a build step - this is because packages are usually intended to be consumed by something like a website bundler, and it would be mostly pointless to build the package if it would be built by the website bundler anyways.
-
-> Packages in the repo tend to be designed for direct consumption by Vite - and thus use Vite's extra language features, such as URL imports. This makes them directly incompatible with being used in another environment, without some sort of Vite-based build step.
-
-### Packaging
-
-To "package" a module, run this command:
-
-```
-$ pnpm modules:pack -- module-name
-```
-
-This will "package" the module `module-name`. What this does is that it starts a special build process on that module, which will yield a publishable NPM package in the modules `dist` folder. Any important changes that would've needed to been made to the module and its `package.json` are handled automatically. You won't normally need to call this command, as the package publishing step does this for you. However, it's useful to make sure that the package can actually build.
-
-### Versioning
-
-There are two commands for versioning:
-
-```
-$ pnpm changeset
-$ pnpm modules:version
-```
-
-`changset` starts the Changesets wizard for adding new changelogs for a package. Follow what the wizard says. Changesets will handle version bumping and changelogs for you.
-
-`modules:version` bumps all the versions via the changelogs Changesets has updated.
-
-### Publishing
-
-To publish modules, run this command:
-
-```
-$ pnpm modules:publish
-```
-
-This will start the publishing process for any modules whose version is higher than what is currently in the NPM registry. Make sure you are absolutely positive you want to take this step, and make sure you've ran `pnpm modules:version`.
+See [`development.md`](../docs/development.md)
 
 ### Development
 
-See the [`frontend-development`](../docs/frontend-development.md) docs.
+To run the development CLI, do:
+```
+$ pnpm dev
+```
+
+There are extra arguments you can provide:
+```
+sudo  : runs `docker-compose` commands with `sudo`
+build : builds the containers, but doesn't launch anything
+serve : launches the server, but doesn't launch Vite
+clean : cleans up any running services
+```
+
+### Modules
+
+Modules can be found in the [`modules`](./modules) folder. See [`modules.md`](../docs/modules.md).
+
 
 ### Testing
 
 Running tests is simple:
 
 ```
-$ pnpm test
-# pnpm cover
+$ pnpm test        # run tests
+$ pnpm test:watch  # rerun tests whenever a file changes
+$ pnpm test:ui     # open Vitest UI
+$ pnpm cover       # run tests, get coverage report
 ```
 
-All tests are ran in a browser, compiled by Vite. Liberal use of Vite's file import features, such as import globs, is recommended when making tests.
+Tests are ran in Node via Vitest. Liberal use of Vite's file import features, such as import globs, is recommended when making tests.
 
 At the end of a code coverage test, a report will be emitted. This coverage report should only contain source TypeScript and Svelte files - if it reports coverage for something that isn't one of those two, something has gone wrong. If it reports nothing, that also means something has gone wrong.
 
@@ -98,14 +66,7 @@ At the end of a code coverage test, a report will be emitted. This coverage repo
 > /* c8 ignore next */
 > ```
 >
-> You need to do the following instead:
->
-> ```js
-> /*! c8 ignore next */
-> // note the exclamation point
-> ```
->
-> This is for technical reasons - build tools don't preserve normal comments but will preserve legal comments. These comments are automatically transformed by the test builder back into normal comments - but you need to mark them as "important" using that exclamation point.
+> you simply can't. This is due to the current limitations of Vitest.
 
 ### Linting, Validation
 
@@ -136,7 +97,3 @@ pnpm validate
 
 Commands are just NPM scripts, defined in `nabs.yml` and then compiled to
 `package.json` with `pnpm nabs`.
-
-### Modules
-
-See [`modules.md`](../docs/modules.md).
