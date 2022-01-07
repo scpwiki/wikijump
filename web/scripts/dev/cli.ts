@@ -3,17 +3,20 @@ import formatMS from "pretty-ms"
 import readline from "readline"
 import {
   answerYesOrNo,
+  error,
   info,
   infoline,
   linebreak,
   pc,
+  processes,
   question,
   section,
-  separator
+  separator,
+  warn
 } from "../pretty-logs"
 import { Containers } from "./containers"
 import { Mockoon } from "./mockoon"
-import { closing, isBuild, isServe, pnpm, starting } from "./util"
+import { closing, isBuild, isClean, isServe, pnpm, starting } from "./util"
 import { Vite } from "./vite"
 
 // TODO: add shortcut for rebuilding a container, and then restarting it
@@ -26,20 +29,36 @@ export class DevCLI {
   declare containers: Containers
 
   stopped = false
+  starting = false
 
-  constructor() {
-    const close = this.close.bind(this)
-    // make very sure we stop the damn server
-    process.once("beforeExit", close)
-    process.once("SIGINT", close)
-    process.once("SIGTERM", close)
-    process.once("SIGHUP", close)
+  async clean() {
+    if (this.stopped) return
+    this.stopped = true
+
+    section("CLEAN", true)
+
+    // try to stop anything that might be running
+    for (const proc of processes) {
+      if (!proc.killed) proc.kill("SIGINT")
+    }
+
+    info("Cleaning up services...")
+    separator()
+    await closing("Vite   ", Vite.clean())
+    await closing("Mockoon", Mockoon.clean())
+    await Containers.clean()
+
+    infoline("Cleanup complete.")
   }
 
   static async create() {
     const dev = new DevCLI()
 
-    linebreak()
+    // skip everything if we're cleaning
+    if (isClean) {
+      await dev.clean()
+      return dev
+    }
 
     const doBuild =
       isBuild ||
@@ -48,9 +67,30 @@ export class DevCLI {
     if (doBuild) await dev.build()
 
     if (!isBuild) {
-      await dev.startup()
-      await dev.hijackTerminal()
-      await dev.containers.startLogging()
+      try {
+        dev.starting = true
+
+        await dev.hijackTerminal()
+        await dev.startup()
+        await dev.containers.startLogging()
+
+        const close = dev.close.bind(this)
+        process.once("beforeExit", close)
+        process.once("SIGINT", close)
+        process.once("SIGTERM", close)
+        process.once("SIGHUP", close)
+
+        dev.starting = false
+      } catch (err) {
+        // clean up if the startup failed
+        console.error(err)
+        if (!dev.stopped) {
+          linebreak()
+          error("Failed to start! Closing anything that may have started...")
+          await dev.clean()
+          process.exit(1)
+        }
+      }
     }
 
     return dev
@@ -60,30 +100,27 @@ export class DevCLI {
     if (this.stopped) return
     this.stopped = true
 
-    section("SHUTDOWN", true)
+    if (this.vite || this.mockoon || this.containers) {
+      section("SHUTDOWN", true)
 
-    info("Stopping non-container services...")
-    separator()
+      info("Stopping services...")
+      separator()
 
-    if (this.vite) await closing("Vite   ", this.vite.close())
-    await closing("Mockoon", this.mockoon.close())
+      if (this.vite) await closing("Vite   ", this.vite.close())
+      if (this.mockoon) await closing("Mockoon", this.mockoon.close())
+      if (this.containers) await this.containers.close()
 
-    linebreak()
-
-    info("Stopping containers...")
-    separator()
-    await this.containers.close()
-
-    infoline("Shutdown complete.")
+      infoline("Shutdown complete.")
+    }
   }
 
   private async build() {
-    section("BUILD", true)
+    section("BUILD", !isBuild, true)
 
     const start = performance.now()
 
     info("Building legacy frontend first...")
-    await pnpm("build:legacy")
+    await pnpm("build", true, "web")
 
     linebreak()
 
@@ -91,35 +128,37 @@ export class DevCLI {
     separator()
     await Containers.build()
 
-    infoline(
+    linebreak()
+
+    info(
       "Finished building containers.",
-      `Took: ${formatMS(performance.now() - start)}`
+      `Took: ${pc.cyan(formatMS(performance.now() - start))}`
     )
   }
 
   private async startup() {
     section("STARTUP", true)
 
-    info("Starting non-container services...")
+    info("Starting services...")
     separator()
 
     if (!isServe) this.vite = await starting("Vite   ", Vite.create())
-
+    if (this.stopped) return
     this.mockoon = await starting("Mockoon", Mockoon.create())
-
-    linebreak()
-
-    info("Started:")
-    if (this.vite) this.vite.instance.printUrls()
-    console.log(`  > Mockoon:  ${pc.cyan(`http://localhost:${pc.bold("3500")}`)}`)
-
-    linebreak()
-
-    info("Starting containers...")
-    separator()
+    if (this.stopped) return
     this.containers = await Containers.create()
+    if (this.stopped) return
 
-    infoline("Development servers started.")
+    linebreak()
+    info("Development services started.")
+    if (this.vite) {
+      console.log(` > Vite:     ${pc.cyan(`http://localhost:${pc.bold("3000")}`)}`)
+    }
+    console.log(` > Mockoon:  ${pc.cyan(`http://localhost:${pc.bold("3500")}`)}`)
+    console.log(` > Postgres: ${pc.cyan(`http://localhost:${pc.bold("5432")}`)}`)
+    console.log(` > Deepwell: ${pc.cyan(`http://localhost:${pc.bold("2747")}`)}`)
+    console.log(` > Wikijump: ${pc.cyan(`http://www.wikijump.localhost`)}`)
+    linebreak()
   }
 
   private async hijackTerminal() {
@@ -135,10 +174,23 @@ export class DevCLI {
         // and will try to exit the process again
         if (this.stopped) {
           process.stdin.setRawMode(false)
-        } else {
-          await this.close()
+          error("Ctrl+C pressed twice! Exiting...")
+          process.exit(1)
         }
-        process.exit(0)
+        // aborting startup
+        else if (this.starting) {
+          linebreak()
+          linebreak()
+          warn("Aborting startup!")
+          this.starting = false
+          await this.clean()
+          process.exit(0)
+        }
+        // gracefully close
+        else {
+          await this.close()
+          process.exit(0)
+        }
       }
     })
   }

@@ -6,6 +6,10 @@ export class Vite {
 
   stopped = false
 
+  static async clean() {
+    // TODO: hunt down Vite if it's somehow running?
+  }
+
   static async create() {
     const server = await createServer({ base: "/files--dev/" })
     await server.listen()
