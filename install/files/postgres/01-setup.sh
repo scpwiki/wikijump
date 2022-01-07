@@ -1,8 +1,18 @@
 #!/bin/bash
 set -eux
 
+export PGDATA=/var/lib/postgresql/data
+
+# Install health check script
+cat > "$PGDATA/wikijump-health-check.sh" <<EOF
+#!/bin/sh
+sudo -u wikijump pg_isready -d wikijump
+EOF
+
+chmod +x "$PGDATA/wikijump-health-check.sh"
+
 # Install pg_hba.conf file
-cat > /var/lib/postgresql/data/pg_hba.conf <<EOF
+cat > "$PGDATA/pg_hba.conf" <<EOF
 # PostgreSQL Client Authentication Configuration File
 # ===================================================
 #
@@ -36,9 +46,9 @@ host    all             all             172.16.0.0/12           scram-sha-256
 # "local" is for Unix domain socket connections only
 local   all             all                                     peer
 # IPv4 local connections:
-host    all             all             127.0.0.1/32            scram-sha-256
+host    all             all             127.0.0.1/32            trust
 # IPv6 local connections:
-host    all             all             ::1/128                 scram-sha-256
+host    all             all             ::1/128                 trust
 
 # Allow replication connections from localhost, by a user with the
 # replication privilege.

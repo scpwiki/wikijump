@@ -11,8 +11,9 @@ RUN adduser -S wikijump
 
 # Install dependencies
 RUN apk add --no-cache \
+    musl-locales \
     postgresql-contrib \
-    musl-locales
+    sudo
 
 # Install entrypoint files
 COPY ./install/files/postgres /docker-entrypoint-initdb.d
