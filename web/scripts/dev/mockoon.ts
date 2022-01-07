@@ -24,7 +24,7 @@ export class Mockoon {
 
   static async isRunning() {
     try {
-      // have to use `cmdAsync`instead of `pnpm` because the `-s` flag
+      // have to use `cmdAsync` instead of `pnpm` because the `-s` flag
       // acts bizarre when running a cli tool rather than a script
       const out = await cmdAsync(`cd "scripts/dev" && pnpm mockoon-cli list`, false)
       return !out.includes("No process is running")
