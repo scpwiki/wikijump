@@ -23,8 +23,8 @@ import { Vite } from "./vite"
 
 export class DevCLI {
   declare vite?: Vite
-  declare mockoon: Mockoon
-  declare containers: Containers
+  declare mockoon?: Mockoon
+  declare containers?: Containers
 
   stopped = false
   starting = false
@@ -94,7 +94,7 @@ export class DevCLI {
 
         if (dev.stopped) return dev
 
-        await dev.containers.startLogging()
+        await dev.containers?.startLogging()
 
         const close = dev.close.bind(dev)
         process.once("beforeExit", close)
