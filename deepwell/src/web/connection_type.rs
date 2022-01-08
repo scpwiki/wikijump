@@ -75,7 +75,7 @@ fn name_serde() {
             "Serde name does not match variant name",
         );
 
-        let converted = serde_name.try_into();
+        let converted = serde_name.as_str().try_into();
         assert_eq!(
             Ok(variant),
             converted,
