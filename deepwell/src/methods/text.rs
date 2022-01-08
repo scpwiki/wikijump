@@ -37,12 +37,33 @@ pub async fn text_get(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    todo!()
+    let hash = read_hash(&req)?;
+    let contents = TextService::get(&ctx, &hash).await?;
+    let body = Body::from_string(contents);
+    txn.commit().await?;
+
+    Ok(body.into())
 }
 
 pub async fn text_head(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    todo!()
+    let hash = read_hash(&req)?;
+    let exists = TextService::exists(&ctx, &hash).await.to_api()?;
+    txn.commit().await?;
+
+    if exists {
+        Ok(Response::new(StatusCode::NoContent))
+    } else {
+        Ok(Response::new(StatusCode::NotFound))
+    }
+}
+
+fn read_hash(req: &ApiRequest) -> Result<Vec<u8>, TideError> {
+    let hash_hex = req.param("hash")?;
+    let hash = hex::decode(hash_hex)
+        .map_err(|error| TideError::new(StatusCode::UnprocessableEntity, error))?;
+
+    Ok(hash)
 }
