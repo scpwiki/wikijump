@@ -182,7 +182,6 @@ impl LinkService {
                 ConnectionType::IncludeMessy,
                 &mut connections,
                 &mut connections_missing,
-                &mut external_links,
             )
             .await?;
         }
@@ -196,7 +195,6 @@ impl LinkService {
                 ConnectionType::Link,
                 &mut connections,
                 &mut connections_missing,
-                &mut external_links,
             )
             .await?;
         }
@@ -428,7 +426,6 @@ async fn count_connections(
     connection_type: ConnectionType,
     connections: &mut HashMap<(i64, ConnectionType), i32>,
     connections_missing: &mut HashMap<(i64, String, ConnectionType), i32>,
-    external_links: &mut HashMap<String, i32>,
 ) -> Result<()> {
     let to_site_id = match site_slug {
         None => site_id,
