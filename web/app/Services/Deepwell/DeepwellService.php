@@ -8,6 +8,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\Log;
 use Wikidot\Utils\GlobalProperties;
+use Wikijump\Services\Wikitext\Backlinks;
 
 final class DeepwellService
 {
@@ -48,7 +49,7 @@ final class DeepwellService
     public function translate(string $locale, string $key, array $values = []): ?string
     {
         try {
-            $resp = $this->client->post("message/$locale/$key", [
+            $resp = $this->client->get("message/$locale/$key", [
                 'body' => json_encode($values, JSON_FORCE_OBJECT),
             ]);
 
@@ -64,6 +65,64 @@ final class DeepwellService
             // For other errors, re-throw, since it's not an "expected" error
             throw $exception;
         }
+    }
+
+    // Page
+    public function getLinksFrom(int $site_id, int $page_id): array
+    {
+        $resp = $this->client->get("page/$site_id/id/$page_id/links/from");
+        return self::readJson($resp);
+    }
+
+    /**
+     * @param string|int $site_id
+     * @param string|int $page_id
+     */
+    public function getLinksTo($site_id, $page_id): array
+    {
+        $resp = $this->client->get("page/$site_id/id/$page_id/links/to");
+        return self::readJson($resp);
+    }
+
+    /**
+     * @param string|int $site_id
+     */
+    public function getLinksToMissing($site_id, string $page_slug): array
+    {
+        $resp = $this->client->get("page/$site_id/slug/$page_slug/links/to/missing");
+        return self::readJson($resp);
+    }
+
+    // TEMP!
+    public function updateLinks(
+        string $site_id,
+        string $page_id,
+        Backlinks $backlinks
+    ): void {
+        $this->client->put("page/$site_id/id/$page_id/links", [
+            'json' => self::backlinksToJson($backlinks),
+        ]);
+    }
+
+    // TEMP!
+    public function updateLinksMissing(
+        string $site_id,
+        string $page_slug,
+        Backlinks $backlinks
+    ): void {
+        $this->client->put("page/$site_id/$page_slug/links/missing", [
+            'json' => self::backlinksToJson($backlinks),
+        ]);
+    }
+
+    private static function backlinksToJson(Backlinks $backlinks): array
+    {
+        // TODO in ftml, this struct uses kebab-case
+        return [
+            'included-pages' => $backlinks->inclusions,
+            'internal-links' => $backlinks->internal_links,
+            'external-links' => $backlinks->external_links,
+        ];
     }
 
     // User

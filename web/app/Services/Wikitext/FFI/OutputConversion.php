@@ -55,13 +55,13 @@ final class OutputConversion
     }
 
     // HtmlOutput
-    public static function makeHtmlOutput(string $site_id, FFI\CData $data): HtmlOutput
+    public static function makeHtmlOutput(FFI\CData $data): HtmlOutput
     {
         $body = FFI::string($data->body);
         $styles = self::makeStylesArray($data->styles_list, $data->styles_len);
         $meta = self::makeHtmlMetaArray($data->meta_list, $data->meta_len);
         $warnings = self::makeParseWarningArray($data->warning_list, $data->warning_len);
-        $backlinks = self::makeBacklinks($site_id, $data->backlinks);
+        $backlinks = self::makeBacklinks($data->backlinks);
 
         // Free original C data
         FtmlFfi::freeHtmlOutput($data);
@@ -115,23 +115,19 @@ final class OutputConversion
     }
 
     // Backlinks
-    public static function makeBacklinks(string $site_id, FFI\CData $data): Backlinks
+    public static function makeBacklinks(FFI\CData $data): Backlinks
     {
-        $inclusions = self::splitLinks(
+        $inclusions = FtmlFfi::pointerToList(
             $data->included_pages_list,
             $data->included_pages_len,
-            $site_id,
+            fn(FFI\CData $data) => self::makePageRef($data),
         );
-        $inclusions_present = $inclusions['present'];
-        $inclusions_absent = $inclusions['absent'];
 
-        $internal_links = self::splitLinks(
+        $internal_links = FtmlFfi::pointerToList(
             $data->internal_links_list,
             $data->internal_links_len,
-            $site_id,
+            fn(FFI\CData $data) => self::makePageRef($data),
         );
-        $internal_links_present = $internal_links['present'];
-        $internal_links_absent = $internal_links['absent'];
 
         $external_links = FtmlFfi::pointerToList(
             $data->external_links_list,
@@ -139,13 +135,7 @@ final class OutputConversion
             fn(FFI\CData $data) => FFI::string($data),
         );
 
-        return new Backlinks(
-            $inclusions_present,
-            $inclusions_absent,
-            $internal_links_present,
-            $internal_links_absent,
-            $external_links,
-        );
+        return new Backlinks($inclusions, $internal_links, $external_links);
     }
 
     private static function makePageRef(FFI\CData $data): PageRef
@@ -154,53 +144,5 @@ final class OutputConversion
         $page = FFI::string($data->page);
 
         return new PageRef($site, $page);
-    }
-
-    private static function splitLinks(
-        ?FFI\CData $pointer,
-        int $length,
-        string $site_id
-    ): array {
-        $present = [];
-        $absent = [];
-
-        if ($pointer === null) {
-            assert(
-                $length === 0,
-                'Pointer received was null but length reported is non-zero',
-            );
-        }
-
-        // Convert items, placing in the appropriate list
-        for ($i = 0; $i < $length; $i++) {
-            $page_ref = self::makePageRef($pointer[$i]);
-            $pageId = self::getPageId($site_id, $page_ref);
-
-            if ($pageId === null) {
-                array_push($absent, $page_ref->pathRepr());
-            } else {
-                array_push($present, $pageId);
-            }
-        }
-
-        return [
-            'present' => $present,
-            'absent' => $absent,
-        ];
-    }
-
-    private static function getPageId(string $site_id, PageRef $page_ref): ?string
-    {
-        if ($page_ref->site !== null) {
-            $site_id = FtmlFfi::getSiteId($page_ref->site);
-            if ($site_id === null) {
-                // Site not found, the page obviously doesn't exist
-                return null;
-            }
-        }
-
-        // Find the page based on the contextual site ID
-        $page = PagePeer::instance()->selectByName($site_id, $page_ref->page);
-        return $page ? $page->getPageId() : null;
     }
 }

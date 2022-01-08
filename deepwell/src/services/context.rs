@@ -1,5 +1,5 @@
 /*
- * services/base.rs
+ * services/context.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -22,23 +22,29 @@ use crate::api::{ApiRequest, ApiServerState};
 use sea_orm::DatabaseTransaction;
 use std::sync::Arc;
 
-/// The base service, with common data and helpers for other services.
 #[derive(Debug)]
-pub struct BaseService<'txn> {
-    _state: ApiServerState,
+pub struct ServiceContext<'txn> {
+    state: ApiServerState,
     transaction: &'txn DatabaseTransaction,
 }
 
-impl<'txn> BaseService<'txn> {
+impl<'txn> ServiceContext<'txn> {
     pub fn new(req: &ApiRequest, transaction: &'txn DatabaseTransaction) -> Self {
-        BaseService {
-            _state: Arc::clone(req.state()),
+        ServiceContext {
+            state: Arc::clone(req.state()),
             transaction,
         }
     }
 
+    // Getters
     #[inline]
-    pub fn transaction(&self) -> &DatabaseTransaction {
+    #[allow(dead_code)] // temp
+    pub fn state(&self) -> &ApiServerState {
+        &self.state
+    }
+
+    #[inline]
+    pub fn transaction(&self) -> &'txn DatabaseTransaction {
         self.transaction
     }
 }

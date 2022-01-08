@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use chrono::{NaiveDateTime, Utc};
+use chrono::{DateTime, FixedOffset, NaiveDateTime, Utc};
 
 pub fn replace_in_place(string: &mut String, pattern: &str, replacement: &str) {
     while let Some(index) = string.find(pattern) {
@@ -28,7 +28,16 @@ pub fn replace_in_place(string: &mut String, pattern: &str, replacement: &str) {
     }
 }
 
+lazy_static! {
+    pub static ref UTC: FixedOffset = FixedOffset::east(0);
+}
+
 #[inline]
-pub fn now() -> NaiveDateTime {
+pub fn now_naive() -> NaiveDateTime {
     Utc::now().naive_utc()
+}
+
+#[inline]
+pub fn now() -> DateTime<FixedOffset> {
+    Utc::now().with_timezone(&*UTC)
 }

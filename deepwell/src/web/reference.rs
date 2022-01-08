@@ -22,35 +22,55 @@ use crate::api::ApiRequest;
 use std::convert::TryFrom;
 use tide::{Error, StatusCode};
 
-#[derive(Debug, Copy, Clone)]
-pub enum ItemReference<'a> {
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum Reference<'a> {
     Id(i64),
     Slug(&'a str),
 }
 
-impl<'a> TryFrom<&'a ApiRequest> for ItemReference<'a> {
-    type Error = Error;
-
-    fn try_from(req: &'a ApiRequest) -> Result<ItemReference<'a>, Error> {
-        let value_type = req.param("type")?;
-        let value = req.param("id_or_slug")?;
-
+impl<'a> Reference<'a> {
+    pub fn try_from_fields(value_type: &str, value: &'a str) -> Result<Self, Error> {
         match value_type {
             "slug" => {
                 tide::log::debug!("Reference via slug, {}", value);
 
-                Ok(ItemReference::Slug(value))
+                Ok(Reference::Slug(value))
             }
             "id" => {
                 tide::log::debug!("Reference via ID, {}", value);
 
                 let id = value.parse()?;
-                Ok(ItemReference::Id(id))
+                Ok(Reference::Id(id))
             }
             _ => Err(Error::from_str(
                 StatusCode::BadRequest,
                 "May only specify object by 'id' or 'slug'",
             )),
         }
+    }
+}
+
+impl From<i64> for Reference<'static> {
+    #[inline]
+    fn from(id: i64) -> Reference<'static> {
+        Reference::Id(id)
+    }
+}
+
+impl<'a> From<&'a str> for Reference<'a> {
+    #[inline]
+    fn from(slug: &'a str) -> Reference<'a> {
+        Reference::Slug(slug)
+    }
+}
+
+impl<'a> TryFrom<&'a ApiRequest> for Reference<'a> {
+    type Error = Error;
+
+    fn try_from(req: &'a ApiRequest) -> Result<Reference<'a>, Error> {
+        let value_type = req.param("type")?;
+        let value = req.param("id_or_slug")?;
+
+        Reference::try_from_fields(value_type, value)
     }
 }

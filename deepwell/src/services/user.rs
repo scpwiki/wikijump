@@ -1,5 +1,5 @@
 /*
- * services/user/mod.rs
+ * services/user.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -137,20 +137,27 @@ impl From<&UserModel> for UserProfileOutput {
 // Service
 
 #[derive(Debug)]
-pub struct UserService<'txn>(pub BaseService<'txn>);
+pub struct UserService;
 
-impl<'txn> UserService<'txn> {
-    pub async fn create(&self, input: CreateUser) -> Result<CreateUserOutput> {
-        let txn = self.0.transaction();
+impl UserService {
+    pub async fn create(
+        ctx: &ServiceContext<'_>,
+        input: CreateUser,
+    ) -> Result<CreateUserOutput> {
+        let txn = ctx.transaction();
         let slug = get_user_slug(&input.username);
 
         // Check for conflicts
         let result = User::find()
             .filter(
-                Condition::any()
-                    .add(users::Column::Username.eq(input.username.as_str()))
-                    .add(users::Column::Email.eq(input.email.as_str()))
-                    .add(users::Column::Slug.eq(slug.as_str())),
+                Condition::all()
+                    .add(
+                        Condition::any()
+                            .add(users::Column::Username.eq(input.username.as_str()))
+                            .add(users::Column::Email.eq(input.email.as_str()))
+                            .add(users::Column::Slug.eq(slug.as_str())),
+                    )
+                    .add(users::Column::DeletedAt.is_null()),
             )
             .one(txn)
             .await?;
@@ -178,7 +185,7 @@ impl<'txn> UserService<'txn> {
             bio: Set(None),
             about_page: Set(None),
             avatar_path: Set(None),
-            created_at: Set(Some(now())),
+            created_at: Set(Some(now_naive())),
             updated_at: Set(None),
             deleted_at: Set(None),
             ..Default::default()
@@ -188,16 +195,30 @@ impl<'txn> UserService<'txn> {
         Ok(CreateUserOutput { user_id, slug })
     }
 
+    #[inline]
+    pub async fn exists(
+        ctx: &ServiceContext<'_>,
+        reference: Reference<'_>,
+    ) -> Result<bool> {
+        Self::get_optional(ctx, reference)
+            .await
+            .map(|user| user.is_some())
+    }
+
     pub async fn get_optional(
-        &self,
-        reference: ItemReference<'_>,
+        ctx: &ServiceContext<'_>,
+        reference: Reference<'_>,
     ) -> Result<Option<UserModel>> {
-        let txn = self.0.transaction();
+        let txn = ctx.transaction();
         let user = match reference {
-            ItemReference::Id(id) => User::find_by_id(id).one(txn).await?,
-            ItemReference::Slug(slug) => {
+            Reference::Id(id) => User::find_by_id(id).one(txn).await?,
+            Reference::Slug(slug) => {
                 User::find()
-                    .filter(users::Column::Slug.eq(slug))
+                    .filter(
+                        Condition::all()
+                            .add(users::Column::Slug.eq(slug))
+                            .add(users::Column::DeletedAt.is_null()),
+                    )
                     .one(txn)
                     .await?
             }
@@ -206,20 +227,23 @@ impl<'txn> UserService<'txn> {
         Ok(user)
     }
 
-    pub async fn get(&self, reference: ItemReference<'_>) -> Result<UserModel> {
-        match self.get_optional(reference).await? {
+    pub async fn get(
+        ctx: &ServiceContext<'_>,
+        reference: Reference<'_>,
+    ) -> Result<UserModel> {
+        match Self::get_optional(ctx, reference).await? {
             Some(user) => Ok(user),
             None => Err(Error::NotFound),
         }
     }
 
     pub async fn update(
-        &self,
-        reference: ItemReference<'_>,
+        ctx: &ServiceContext<'_>,
+        reference: Reference<'_>,
         input: UpdateUser,
     ) -> Result<UserModel> {
-        let txn = self.0.transaction();
-        let model = self.get(reference).await?;
+        let txn = ctx.transaction();
+        let model = Self::get(ctx, reference).await?;
         let mut user: users::ActiveModel = model.clone().into();
 
         // Add each field
@@ -235,7 +259,12 @@ impl<'txn> UserService<'txn> {
         }
 
         if let ProvidedValue::Set(email_verified) = input.email_verified {
-            let value = if email_verified { Some(now()) } else { None };
+            let value = if email_verified {
+                Some(now_naive())
+            } else {
+                None
+            };
+
             user.email_verified_at = Set(value);
         }
 
@@ -294,21 +323,23 @@ impl<'txn> UserService<'txn> {
         }
 
         // Set update flag
-        user.updated_at = Set(Some(now()));
+        user.updated_at = Set(Some(now_naive()));
 
         // Update and return
         user.update(txn).await?;
         Ok(model)
     }
 
-    pub async fn delete(&self, reference: ItemReference<'_>) -> Result<UserModel> {
-        let txn = self.0.transaction();
-        let model = self.get(reference).await?;
+    pub async fn delete(
+        ctx: &ServiceContext<'_>,
+        reference: Reference<'_>,
+    ) -> Result<UserModel> {
+        let txn = ctx.transaction();
+        let model = Self::get(ctx, reference).await?;
         let mut user: users::ActiveModel = model.clone().into();
 
         // Set deletion flag
-        user.updated_at = Set(Some(now()));
-        user.deleted_at = Set(Some(now()));
+        user.deleted_at = Set(Some(now_naive()));
 
         // Update and return
         user.update(txn).await?;

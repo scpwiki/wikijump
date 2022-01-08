@@ -60,6 +60,9 @@ RUN mkdir /src
 COPY ./ftml /src/ftml
 WORKDIR /src/ftml
 
+# Download dependencies for caching
+RUN cargo vendor
+
 # Build ftml-ffi without logging
 RUN cargo build \
     --release \

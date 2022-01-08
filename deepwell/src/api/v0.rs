@@ -25,6 +25,7 @@
 use crate::api::ApiServer;
 use crate::methods::locales::*;
 use crate::methods::misc::*;
+use crate::methods::page::*;
 use crate::methods::user::*;
 use crate::web::utils::error_response;
 use tide::StatusCode;
@@ -44,11 +45,41 @@ pub fn build(mut app: ApiServer) -> ApiServer {
     app.at("/message/:locale/:message_key")
         .head(message_head)
         .get(message_post)
+        .put(message_post)
         .post(message_post);
+
+    // Page
+    app.at("/page/:site_id").post(page_create);
+    app.at("/page/:site_id/:type/:id_or_slug")
+        .head(page_head)
+        .get(page_get)
+        .delete(page_delete);
+
+    app.at("/page/:site_id/:type/:id_or_slug/links")
+        .put(page_links_put); // TEMP
+
+    app.at("/page/:site_id/:slug/links/missing")
+        .put(page_links_missing_put); // TEMP
+
+    app.at("/page/:site_id/:type/:id_or_slug/links/from")
+        .get(page_links_from_get);
+
+    app.at("/page/:site_id/:type/:id_or_slug/links/to")
+        .get(page_links_to_get);
+
+    app.at("/page/:site_id/slug/:page_slug/links/to/missing")
+        .get(page_links_to_missing_get);
+
+    // Page -- invalid routes
+    app.at("/page").all(page_invalid);
+    app.at("/page/:type/:id_or_slug").all(page_invalid);
+    app.at("/page/:site_id/id/:page_slug/links/to/missing")
+        .all(page_invalid);
 
     // User
     app.at("/user").post(user_create);
     app.at("/user/:type/:id_or_slug")
+        .head(user_head)
         .get(user_get)
         .put(user_put)
         .delete(user_delete);

@@ -94,27 +94,18 @@ class Text_Wiki_Parse_Include extends Text_Wiki_Parse {
      	$site = $runData->getTemp("site");
 
     		$page = PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
+            if ($this->wiki->vars['inclusions'] === null) {
+                $this->wiki->vars['inclusions'] = [];
+            }
+            $this->wiki->vars['inclusions'][$pageName] = $pageName;
 
 			if($page == null){
 				$pageNameHtml = htmlspecialchars($pageName);
 				$message = sprintf(_('Included page "%s" does not exist ([/%s/edit/true create it now])'), $pageNameHtml, $pageNameHtml);
 				$output = "\n\n".'[[div class="error-block"]]'."\n".$message."\n".'[[/div]]'."\n\n";
-
-        		$wiki = $this->wiki;
-        		if($wiki->vars['inclusionsNotExist'] == null){
-					$wiki->vars['inclusionsNotExist'] = array();
-				}
-				$wiki->vars['inclusionsNotExist'][$pageName] = $pageName;
     		}else {
 
     			$output = $page->getSource();
-
-    			// prepare entry...
-    			$wiki = $this->wiki;
-    			if($wiki->vars['inclusions'] == null){
-					$wiki->vars['inclusions'] = array();
-				}
-				$wiki->vars['inclusions'][$page->getPageId()] = $page->getPageId();
 
     			// preprocess the output too!!!
     			// missed a few rules so far... TODO!!!

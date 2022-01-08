@@ -108,7 +108,6 @@ class PageEditModule extends SmartyModule
 
                 $lock->setDateStarted(new ODate());
                 $lock->setDateLastAccessed(new ODate());
-                $lock->setMode("page");
 
                 if ($pl->getParameterValue("force_lock") != null) {
                     $lock->deleteConflicts();
