@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::services::text::HASH_LENGTH;
 
 pub async fn text_put(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
@@ -64,6 +65,10 @@ fn read_hash(req: &ApiRequest) -> Result<Vec<u8>, TideError> {
     let hash_hex = req.param("hash")?;
     let hash = hex::decode(hash_hex)
         .map_err(|error| TideError::new(StatusCode::UnprocessableEntity, error))?;
+
+    if hash.len() != HASH_LENGTH {
+        return Err(TideError::from_str(StatusCode::UnprocessableEntity, ""));
+    }
 
     Ok(hash)
 }

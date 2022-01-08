@@ -28,6 +28,14 @@ use super::prelude::*;
 use crate::models::text::{self, Entity as Text};
 use sha2::{Digest, Sha512};
 
+/// The expected length of a hash digest.
+///
+/// This is the output length for SHA-512 in bytes.
+pub const HASH_LENGTH: usize = 64;
+
+/// The array type for a hash digest.
+pub type Hash = [u8; 64];
+
 #[derive(Debug)]
 pub struct TextService;
 
@@ -36,7 +44,7 @@ impl TextService {
         ctx: &ServiceContext<'_>,
         hash: &[u8],
     ) -> Result<Option<String>> {
-        debug_assert_eq!(hash.len(), 64);
+        debug_assert_eq!(hash.len(), HASH_LENGTH);
 
         let txn = ctx.transaction();
         let contents = Text::find()
@@ -62,10 +70,10 @@ impl TextService {
             .map(|text| text.is_some())
     }
 
-    pub async fn create(ctx: &ServiceContext<'_>, contents: String) -> Result<[u8; 64]> {
+    pub async fn create(ctx: &ServiceContext<'_>, contents: String) -> Result<Hash> {
         let txn = ctx.transaction();
 
-        let hash: [u8; 64] = {
+        let hash: Hash = {
             // Perform hash
             let mut hasher = Sha512::new();
             hasher.update(contents.as_bytes());
