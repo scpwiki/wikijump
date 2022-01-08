@@ -39,7 +39,7 @@ pub async fn text_get(req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let hash = read_hash(&req)?;
-    let contents = TextService::get(&ctx, &hash).await?;
+    let contents = TextService::get(&ctx, &hash).await.to_api()?;
     let body = Body::from_string(contents);
     txn.commit().await?;
 
