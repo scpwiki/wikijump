@@ -47,6 +47,7 @@ mod error;
 
 pub mod link;
 pub mod page;
+pub mod text;
 pub mod user;
 
 use crate::api::ApiRequest;
@@ -56,6 +57,7 @@ pub use self::context::ServiceContext;
 pub use self::error::*;
 pub use self::link::LinkService;
 pub use self::page::PageService;
+pub use self::text::TextService;
 pub use self::user::UserService;
 
 /// Extension trait to retrieve service objects from an `ApiRequest`.

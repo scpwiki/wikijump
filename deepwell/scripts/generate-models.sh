@@ -27,6 +27,7 @@ tables=(
 	settings
 	site
 	site_settings
+	text
 	user_block
 	user_messages
 	users
