@@ -25,7 +25,7 @@
 //! identified by its hash.
 
 use super::prelude::*;
-use crate::models::text::{self, Entity as Text, Model as TextModel};
+use crate::models::text::{self, Entity as Text};
 use sha2::{Digest, Sha512};
 
 #[derive(Debug)]
@@ -38,7 +38,14 @@ impl TextService {
     ) -> Result<Option<String>> {
         debug_assert_eq!(hash.len(), 64);
 
-        todo!()
+        let txn = ctx.transaction();
+        let contents = Text::find()
+            .filter(text::Column::Hash.eq(hash))
+            .one(txn)
+            .await?
+            .map(|model| model.contents);
+
+        Ok(contents)
     }
 
     pub async fn get(ctx: &ServiceContext<'_>, hash: &[u8]) -> Result<String> {
