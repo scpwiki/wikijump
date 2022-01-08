@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 
 function addString(string $value): string
 {
-    $hash = hash('sha512', $value);
+    $hash = hash('sha512', $value, true);
     $entry = DB::table('strings')
         ->where('hash', $hash)
         ->first();
@@ -38,16 +38,16 @@ class DeepwellPageContents extends Migration
             -- No unique constraint because that creates a separate index,
             -- which will impact performance. Instead we add a CHECK constraint.
             CREATE TABLE strings (
-                hash CHAR(128) PRIMARY KEY,
+                hash BYTEA PRIMARY KEY,
                 contents TEXT NOT NULL,
 
-                CHECK (hash = encode(digest(contents, 'sha512'), 'hex'))
+                CHECK (hash = digest(contents, 'sha512'))
             )
         ");
 
         Schema::table('page_revision', function (Blueprint $table) {
-            $table->text('wikitext_hash')->references('hash')->on('strings')->nullable();
-            $table->text('compiled_hash')->references('hash')->on('strings')->nullable();
+            $table->binary('wikitext_hash')->references('hash')->on('strings')->nullable();
+            $table->binary('compiled_hash')->references('hash')->on('strings')->nullable();
             $table->text('compiled_generator')->nullable();
         });
 
@@ -72,8 +72,8 @@ class DeepwellPageContents extends Migration
 
         // Remove temporary non-null status
         Schema::table('page_revision', function (Blueprint $table) {
-            $table->text('wikitext_hash')->nullable(false)->change();
-            $table->text('compiled_hash')->nullable(false)->change();
+            $table->binary('wikitext_hash')->nullable(false)->change();
+            $table->binary('compiled_hash')->nullable(false)->change();
             $table->text('compiled_generator')->nullable(false)->change();
         });
 
