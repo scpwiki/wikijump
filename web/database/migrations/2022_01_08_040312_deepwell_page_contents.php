@@ -7,16 +7,20 @@ use Illuminate\Support\Facades\Schema;
 
 function addString(string $value): string
 {
-    $hash = hash('sha512', $value, true);
-    $entry = DB::table('strings')
-        ->where('hash', $hash)
-        ->first();
+    // Convert to hex because Eloquent doesn't know how to do binary
+    $hash = hash('sha512', $value);
 
-    if (!$entry) {
-        DB::table('strings')->insert([
-            'hash' => $hash,
-            'contents' => $value,
-        ]);
+    $entries = DB::select("
+        SELECT hash FROM text
+        WHERE hash = decode(?, 'hex')
+        LIMIT 1
+    ", [$hash]);
+
+    if (empty($entries)) {
+        DB::insert(
+            "INSERT INTO text (hash, contents) VALUES (decode(?, 'hex'), ?)",
+            [$hash, $value],
+        );
     }
 
     return $hash;
@@ -37,7 +41,7 @@ class DeepwellPageContents extends Migration
         DB::statement("
             -- No unique constraint because that creates a separate index,
             -- which will impact performance. Instead we add a CHECK constraint.
-            CREATE TABLE strings (
+            CREATE TABLE text (
                 hash BYTEA PRIMARY KEY,
                 contents TEXT NOT NULL,
 
@@ -46,8 +50,8 @@ class DeepwellPageContents extends Migration
         ");
 
         Schema::table('page_revision', function (Blueprint $table) {
-            $table->binary('wikitext_hash')->references('hash')->on('strings')->nullable();
-            $table->binary('compiled_hash')->references('hash')->on('strings')->nullable();
+            $table->binary('wikitext_hash')->references('hash')->on('text')->nullable();
+            $table->binary('compiled_hash')->references('hash')->on('text')->nullable();
             $table->text('compiled_generator')->nullable();
         });
 
@@ -61,13 +65,15 @@ class DeepwellPageContents extends Migration
             $wikitext_hash = addString($contents->wikitext);
             $compiled_hash = addString($contents->compiled_html);
 
-            DB::table('page_revision')
-                ->where('revision_id', $contents->revision_id)
-                ->update([
-                    'wikitext_hash' => $wikitext_hash,
-                    'compiled_hash' => $compiled_hash,
-                    'compiled_generator' => $contents->generator,
-                ]);
+            DB::update("
+                UPDATE page_revision
+                SET
+                    wikitext_hash = decode(?, 'hex'),
+                    compiled_hash = decode(?, 'hex'),
+                    compiled_generator = ?
+                WHERE
+                    revision_id = ?
+            ", [$wikitext_hash, $compiled_hash, $contents->generator, $contents->revision_id]);
         }
 
         // Remove temporary non-null status
