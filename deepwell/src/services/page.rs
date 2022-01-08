@@ -26,11 +26,11 @@ use wikidot_normalize::normalize;
 
 #[derive(Deserialize, Debug)]
 pub struct CreatePage {
-    site_id: i64,
-    category_id: i64,
+    _site_id: i64,
+    _category_id: i64,
     slug: String,
-    vote_type: (), // TODO
-    revision_comments: String,
+    _vote_type: (), // TODO
+    _revision_comments: String,
 }
 
 #[derive(Serialize, Debug)]
