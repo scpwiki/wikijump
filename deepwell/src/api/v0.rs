@@ -26,6 +26,7 @@ use crate::api::ApiServer;
 use crate::methods::locales::*;
 use crate::methods::misc::*;
 use crate::methods::page::*;
+use crate::methods::text::*;
 use crate::methods::user::*;
 use crate::web::utils::error_response;
 use tide::StatusCode;
@@ -75,6 +76,11 @@ pub fn build(mut app: ApiServer) -> ApiServer {
     app.at("/page/:type/:id_or_slug").all(page_invalid);
     app.at("/page/:site_id/id/:page_slug/links/to/missing")
         .all(page_invalid);
+
+    // Text
+    // TEMP
+    app.at("/text").put(text_put);
+    app.at("/text/:hash").get(text_get).head(text_head);
 
     // User
     app.at("/user").post(user_create);

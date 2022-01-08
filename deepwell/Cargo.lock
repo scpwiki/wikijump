@@ -862,6 +862,7 @@ dependencies = [
  "ftml",
  "futures",
  "governor",
+ "hex",
  "hostname",
  "indexmap",
  "intl-memoizer",

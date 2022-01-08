@@ -1,5 +1,5 @@
 /*
- * methods/mod.rs
+ * methods/text.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -18,21 +18,31 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod prelude {
-    pub use crate::api::{ApiRequest, ApiResponse};
-    pub use crate::services::{
-        Error as ServiceError, LinkService, PageService, PostTransactionToApiResponse,
-        RequestFetchService, ServiceContext, TextService, UserService,
-    };
-    pub use crate::web::{utils::error_response, HttpUnwrap, Reference};
-    pub use chrono::prelude::*;
-    pub use sea_orm::ConnectionTrait;
-    pub use std::convert::TryFrom;
-    pub use tide::{Body, Error as TideError, Request, Response, StatusCode};
+use super::prelude::*;
+
+pub async fn text_put(mut req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    let contents = req.body_string().await?;
+    let hash = TextService::create(&ctx, contents).await.to_api()?;
+    let hash_hex = hex::encode(hash);
+    let body = Body::from_string(hash_hex);
+    txn.commit().await?;
+
+    Ok(body.into())
 }
 
-pub mod locales;
-pub mod misc;
-pub mod page;
-pub mod text;
-pub mod user;
+pub async fn text_get(req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    todo!()
+}
+
+pub async fn text_head(req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    todo!()
+}

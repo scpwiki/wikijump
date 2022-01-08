@@ -62,7 +62,7 @@ impl TextService {
             .map(|text| text.is_some())
     }
 
-    pub async fn put(ctx: &ServiceContext<'_>, contents: &str) -> Result<[u8; 64]> {
+    pub async fn create(ctx: &ServiceContext<'_>, contents: String) -> Result<[u8; 64]> {
         let txn = ctx.transaction();
 
         let hash: [u8; 64] = {
@@ -80,7 +80,7 @@ impl TextService {
         if !Self::exists(ctx, &hash).await? {
             let model = text::ActiveModel {
                 hash: Set(hash.to_vec()),
-                contents: Set(str!(contents)),
+                contents: Set(contents),
             };
 
             Text::insert(model).exec(txn).await?;
