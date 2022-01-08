@@ -125,6 +125,28 @@ final class DeepwellService
         ];
     }
 
+    // Text
+    // TEMP!
+    public function getText(string $hex_hash): ?string
+    {
+        $resp = $this->client->get("text/$hex_hash");
+
+        if ($resp->getStatusCode() === 404) {
+            return null;
+        }
+
+        return (string) $resp->getBody();
+    }
+
+    public function writeText(string $contents): string
+    {
+        $resp = $this->client->put("text", [
+            'body' => $contents,
+        ]);
+
+        return (string) $resp->getBody();
+    }
+
     // User
     public function getUserById(int $id, string $detail = 'identity'): ?object
     {
