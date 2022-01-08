@@ -23,17 +23,18 @@ pub struct Model {
     pub user_string: Option<String>,
     pub comments: Option<String>,
     pub site_id: Option<i32>,
+    pub wikitext_hash: Vec<u8>,
+    pub compiled_hash: Vec<u8>,
+    #[sea_orm(column_type = "Text")]
+    pub compiled_generator: String,
 }
 
-#[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {
-    #[sea_orm(has_many = "super::page_contents::Entity")]
-    PageContents,
-}
+#[derive(Copy, Clone, Debug, EnumIter)]
+pub enum Relation {}
 
-impl Related<super::page_contents::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::PageContents.def()
+impl RelationTrait for Relation {
+    fn def(&self) -> RelationDef {
+        panic!("No RelationDef")
     }
 }
 
