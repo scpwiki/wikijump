@@ -1,28 +1,3 @@
-# -- BUILD
-
-build:
-  $depend: []
-  $action:
-    - run-p build:legacy build:vite
-    - pnpm build:local
-
-  legacy: cd web && pnpm build
-  vite: vite build
-  local: pnpm compose build
-
-build-sudo:
-  $depend: []
-  $action:
-    - run-p build-sudo:legacy build-sudo:vite
-    - pnpm build-sudo:local
-
-  legacy: cd web && pnpm build
-  vite: vite build
-  local: pnpm compose-sudo build
-
-# Special build command specifically for containers
-build-container: run-p build:legacy build:vite
-
 # -- MODULE VERSIONING AND PUBLISHING
 
 # Adds a new changeset to the monorepo
@@ -40,18 +15,19 @@ modules:publish: node scripts/publish-all.js
 
 # -- DEV
 
-dev: node scripts/dev.js
-dev-sudo: node scripts/dev.js sudo
-
-# -- SERVE
-
-serve: node scripts/dev.js serve
-serve-sudo: node scripts/dev.js sudo serve
+# Development tool for Wikijump.
+# Keywords you can use:
+# - sudo  : runs `docker-compose` commands with `sudo`
+# - build : builds the containers, but doesn't launch anything
+# - serve : launches the server, but doesn't launch Vite
+# - clean : cleans up any running services
+dev: esr scripts/dev.js
 
 # -- TESTING
 
 test: vitest --run
 test:watch: vitest --watch
+test:ui: vitest --watch --ui
 
 cover: vitest --coverage --run
 
@@ -76,6 +52,11 @@ typecheck: tsc
 validate: run-p -lns lint typecheck
 
 # -- DOCKER UTILITY
+
+# Special build command specifically for containers
+build-container:
+  - vite build
+  - cd web && pnpm -s build
 
 # Use this like:
 # $ pnpm compose up

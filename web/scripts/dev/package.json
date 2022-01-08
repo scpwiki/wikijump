@@ -1,0 +1,16 @@
+{
+  "name": "@wikijump/dev-cli",
+  "license": "agpl-3.0-or-later",
+  "description": "Local development CLI for Wikijump",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "mock-start": "mockoon-cli start --data ./mockoon-data/mockoon-api.json --name \"Wikijump\"",
+    "mock-stop": "mockoon-cli stop \"all\""
+  },
+  "main": "./cli.ts",
+  "devDependencies": {
+    "@mockoon/cli": "^1.5.0",
+    "pretty-ms": "^7.0.1"
+  }
+}

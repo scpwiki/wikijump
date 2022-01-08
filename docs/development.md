@@ -64,13 +64,13 @@ $ pnpm install
 
 ## Building
 
-You can now finally build the JS/TS codebase and Docker images using the following command:
+You can now finally build the Docker images using the following command:
 
 ```sh
-$ pnpm build
+$ pnpm dev build
 ```
 
-This will first build the JS/TS codebase, which probably won't take very long at all, and then will build the Docker containers. _This might take a surprisingly long time_. Thankfully, Docker's build step is _heavily_ cached. It won't take this long again (unless of course you need to change one of those early steps).
+_This might take a surprisingly long time_. Thankfully, Docker's build step is _heavily_ cached. It won't take this long again (unless of course you need to change one of those early steps).
 
 ## Development
 
@@ -80,16 +80,16 @@ You can run development mode using the following:
 $ pnpm dev
 ```
 
-This command will run everything in watch mode, and start the Docker containers. However, it will first ask you if you want to build the containers, as in what `pnpm build` does. This is asked because building may take a long time.
+This command will run everything in watch mode, and start the Docker containers. However, it will first ask you if you want to build the containers, as in what `pnpm dev build` does. This is asked because building may take a long time.
 
 Once everything has started, you can connect to `http://www.wikijump.localhost/`. Changes you make to the codebase should automatically be applied to the containers, as your machine's filesystem has been "bound" to the containers' filesystem. This is one-way, so a container can't modify your filesystem.
 
-You can just kill the terminal (`CTRL + C` usually) when you want to stop the server. (If you're on Windows, you may want to _hold_ `CTRL + C` to bypass annoying `Terminate batch job?` prompts, and if you do so, make sure to wait for the Docker containers to exit before restarting the development mode.)
+You can just kill the terminal (`CTRL + C` usually) when you want to stop the server.
 
-If for some reason the containers aren't shutting down, you can run the following:
+If for some reason development resources aren't shutting down correctly, you can run the following:
 
 ```sh
-$ pnpm compose stop
+$ pnpm dev clean
 ```
 
 If you want to entirely _reset_ the containers, as their data is otherwise persistent even across restarts, you can run the following:
@@ -98,11 +98,14 @@ If you want to entirely _reset_ the containers, as their data is otherwise persi
 $ pnpm compose down
 ```
 
-You can also manually bring them up without the JS/TS development mode using `pnpm compose up`, but there isn't much point to this for frontend work.
+You can also bring containers up without the JS/TS development mode.
+```
+$ pnpm dev serve
+```
 
 ## Using `sudo`
 
-If your environment requires docker commands be run using `sudo`, the normal `pnpm dev`, `pnpm build`, and `pnpm compose` commands will fail. You can use the `-sudo` variants of these commands, e.g. `pnpm dev-sudo`.
+If your environment requires docker commands be run using `sudo`, the normal `pnpm dev` and `pnpm compose` commands will fail. You can use the `sudo` variants of these commands, `pnpm dev sudo` and `pnpm compose-sudo`.
 
 ## Entering the container
 
@@ -119,7 +122,7 @@ One reason you may need to enter the container is to manually adjust the Wikijum
 ## Clock Drift
 
 If you enable multi-factor authentication on a local container you may find that
-the clock drift is too great for TOTP codes to work. In docker-compose (`wsl -d docker-compose`) 
+the clock drift is too great for TOTP codes to work. In docker-compose (`wsl -d docker-compose`)
 you can enter this command to sync your time up:
 
 ```
@@ -146,3 +149,4 @@ $ docker rmi [ID]      # Remove the image with this ID
 - [Blade templates](https://laravel.com/docs/8.x/blade)
 - [PNPM](https://pnpm.io/)
 - [Vite](https://vitejs.dev/)
+- [Vitest](https://github.com/vitest-dev/vitest)

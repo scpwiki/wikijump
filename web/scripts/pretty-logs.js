@@ -2,8 +2,14 @@ const readline = require("readline")
 const { execSync, spawn } = require("child_process")
 const pc = require("picocolors")
 
-function linebreak() {
-  console.log("")
+// technically never gets cleared, but it's not a big deal
+// if our CLI spawns so many processes that it becomes a problem
+// I'll be impressed
+/** @type Set<import("child_process").ChildProcessWithoutNullStreams> */
+const processes = new Set()
+
+function linebreak(count = 1) {
+  for (let i = 0; i < count; i++) console.log("")
 }
 
 function separator() {
@@ -48,16 +54,33 @@ function error(...msgs) {
 }
 
 function cmd(command, pipe = true) {
-  execSync(command, pipe ? { stdio: "inherit" } : {})
+  return execSync(command, pipe ? { stdio: "inherit" } : {})
+}
+
+/** @returns {Promise<string>} */
+function cmdAsync(command, pipe = true) {
+  return new Promise(resolve => {
+    const child = spawn(command, { shell: true, stdio: pipe ? "inherit" : undefined })
+    processes.add(child)
+    let output = ""
+    child.stdout?.on("data", data => (output += data.toString()))
+    child.on("close", () => resolve(output))
+  })
 }
 
 function shell(command, pipe = true) {
-  const child = spawn(command, { shell: true })
-  if (pipe) {
-    child.stdout.pipe(process.stdout)
-    child.stderr.pipe(process.stderr)
-  }
+  const child = spawn(command, { shell: true, stdio: pipe ? "inherit" : undefined })
+  processes.add(child)
   return child
+}
+
+/** @returns {Promise<import("child_process").ChildProcess>} */
+function shellAsync(command, pipe = true) {
+  return new Promise(resolve => {
+    const child = spawn(command, { shell: true, stdio: pipe ? "inherit" : undefined })
+    processes.add(child)
+    child.on("spawn", () => resolve(child))
+  })
 }
 
 function question(question) {
@@ -85,6 +108,7 @@ function answerYesOrNo(answer, def = false) {
 
 module.exports = {
   pc,
+  processes,
   linebreak,
   separator,
   section,
@@ -94,7 +118,9 @@ module.exports = {
   warn,
   error,
   cmd,
+  cmdAsync,
   shell,
+  shellAsync,
   question,
   answerYesOrNo
 }
