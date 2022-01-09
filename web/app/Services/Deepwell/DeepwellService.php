@@ -140,7 +140,7 @@ final class DeepwellService
 
     public function writeText(string $contents): string
     {
-        $resp = $this->client->put("text", [
+        $resp = $this->client->put('text', [
             'body' => $contents,
         ]);
 
