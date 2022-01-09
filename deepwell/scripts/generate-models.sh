@@ -18,7 +18,6 @@ tables=(
 	page
 	page_connection
 	page_connection_missing
-	page_contents
 	page_edit_lock
 	page_link
 	page_metadata
