@@ -2,9 +2,6 @@
 
 namespace Wikidot\DB;
 
-
-
-
 use Ozone\Framework\Database\BaseDBObject;
 
 /**
@@ -18,14 +15,8 @@ class PageRevisionBase extends BaseDBObject
         $this->tableName='page_revision';
         $this->peerName = 'Wikidot\\DB\\PageRevisionPeer';
         $this->primaryKeyName = 'revision_id';
-        $this->fieldNames = array( 'revision_id' ,  'page_id' ,  'site_id' ,  'metadata_id' ,  'flags' ,  'flag_text' ,  'flag_title' ,  'flag_file' ,  'flag_rename' ,  'flag_meta' ,  'flag_new' ,   'revision_number' ,  'date_last_edited' ,  'user_id' ,  'user_string' ,  'comments' );
-
-        //$this->fieldDefaultValues=
+        $this->fieldNames = ['revision_id' ,  'page_id' ,  'site_id' ,  'metadata_id' ,  'flags' ,  'flag_text' ,  'flag_title' ,  'flag_file' ,  'flag_rename' ,  'flag_meta' ,  'flag_new' ,   'revision_number' ,  'date_last_edited' ,  'user_id' ,  'user_string' ,  'comments', 'wikitext_hash', 'compiled_hash', 'compiled_generator'];
     }
-
-
-
-
 
 
     public function getRevisionId()
@@ -207,5 +198,40 @@ class PageRevisionBase extends BaseDBObject
     public function setComments($v1, $raw = false)
     {
         $this->setFieldValue('comments', $v1, $raw);
+    }
+
+
+    // NOTE: returns binary data
+    public function getWikitextHash(): string
+    {
+        return $this->getFieldValue('wikitext_hash');
+    }
+
+    public function setWikitextHash($v1, $raw = false): void
+    {
+        $this->setFieldValue('wikitext_hash', $v1, $raw);
+    }
+
+
+    // NOTE: returns binary data
+    public function getCompiledHash(): string
+    {
+        return $this->getFieldValue('compiled_hash');
+    }
+
+    public function setCompiledHash($v1, $raw = false): void
+    {
+        $this->setFieldValue('compiled_hash', $v1, $raw);
+    }
+
+
+    public function getCompiledGenerator(): string
+    {
+        return $this->getFieldValue('compiled_generator');
+    }
+
+    public function setCompiledGenerator($v1, $raw = false): void
+    {
+        $this->setFieldValue('compiled_generator', $v1, $raw);
     }
 }
