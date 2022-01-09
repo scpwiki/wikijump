@@ -50,9 +50,12 @@ class DeepwellPageContents extends Migration
         ");
 
         Schema::table('page_revision', function (Blueprint $table) {
-            $table->binary('wikitext_hash')->references('hash')->on('text')->nullable();
-            $table->binary('compiled_hash')->references('hash')->on('text')->nullable();
+            $table->binary('wikitext_hash')->nullable();
+            $table->binary('compiled_hash')->nullable();
             $table->text('compiled_generator')->nullable();
+
+            $table->foreign('wikitext_hash')->references('hash')->on('text');
+            $table->foreign('compiled_hash')->references('hash')->on('text');
         });
 
         // Migrate existing sources
