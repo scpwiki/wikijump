@@ -10,8 +10,8 @@ use Wikidot\DB\Page;
 use Wikidot\DB\PagePeer;
 use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\SitePeer;
-use Wikijump\Models\PageContents;
 use Wikijump\Services\Deepwell\DeepwellService;
+use Wikijump\Services\Deepwell\PageService;
 use Wikijump\Services\Wikitext\Backlinks;
 use Wikijump\Services\Wikitext\LegacyTemplateAssembler;
 use Wikijump\Services\Wikitext\PageInfo;
@@ -179,8 +179,8 @@ final class Outdater
     private function recompilePage(Page $page): void
     {
         // compiled content not up to date. recompile!
-        $contents = PageContents::getLatestFull($page->getPageId());
-        $wikitext = $contents->wikitext;
+        $contents = PageService::getLatestContents($page->getPageId(), ['wikitext']);
+        $wikitext = $contents['wikitext'];
 
         /* Find out if the category is using any templates. */
         if (!preg_match('/(:|^)_/', $page->getUnixName())) {
