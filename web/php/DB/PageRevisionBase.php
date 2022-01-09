@@ -201,27 +201,29 @@ class PageRevisionBase extends BaseDBObject
     }
 
 
-    // NOTE: returns binary data
+    // NOTE: returns hex
     public function getWikitextHash(): string
     {
-        return $this->getFieldValue('wikitext_hash');
+        return bin2hex($this->getFieldValue('wikitext_hash'));
     }
 
+    // NOTE: expects hex
     public function setWikitextHash($v1, $raw = false): void
     {
-        $this->setFieldValue('wikitext_hash', $v1, $raw);
+        $this->setFieldValue('wikitext_hash', hex2bin($v1), $raw);
     }
 
 
-    // NOTE: returns binary data
+    // NOTE: returns hex
     public function getCompiledHash(): string
     {
-        return $this->getFieldValue('compiled_hash');
+        return bin2hex($this->getFieldValue('compiled_hash'));
     }
 
+    // NOTE: expects hex
     public function setCompiledHash($v1, $raw = false): void
     {
-        $this->setFieldValue('compiled_hash', $v1, $raw);
+        $this->setFieldValue('compiled_hash', hex2bin($v1), $raw);
     }
 
 
