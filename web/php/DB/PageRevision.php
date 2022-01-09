@@ -5,8 +5,8 @@ namespace Wikidot\DB;
 
 use Illuminate\Support\Facades\Cache;
 use Exception;
-use Wikijump\Models\PageContents;
 use Wikijump\Models\User;
+use Wikijump\Services\Deepwell\DeepwellService;
 
 /**
  * Object Model Class.
@@ -14,10 +14,9 @@ use Wikijump\Models\User;
  */
 class PageRevision extends PageRevisionBase
 {
-
     public function getSourceText(): string
     {
-        return PageContents::where('revision_id', $this->getRevisionId())->wikitext;
+        return DeepwellService::getInstance()->getText($this->getWikitextHash());
     }
 
     public function resetFlags(): void

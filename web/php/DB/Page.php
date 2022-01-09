@@ -3,8 +3,8 @@
 namespace Wikidot\DB;
 
 use Ozone\Framework\Database\Criteria;
-use Wikijump\Models\PageContents;
 use Wikijump\Models\User;
+use Wikijump\Services\Deepwell\PageService;
 
 /**
  * Object Model Class.
@@ -19,14 +19,18 @@ class Page extends PageBase
         return $this->getCurrentRevision()->getMetadata();
     }
 
+    // TODO: remove
     public function getSource(): string
     {
-        return PageContents::getLatestWikitext($this->getPageId())->wikitext;
+        $contents = PageService::getLatestContents($this->getPageId(), ['wikitext']);
+        return $contents['wikitext'];
     }
 
+    // TODO: remove
     public function getCompiled(): string
     {
-        return PageContents::getLatestCompiledHtml($this->getPageId())->compiled_html;
+        $contents = PageService::getLatestContents($this->getPageId(), ['compiled_html']);
+        return $contents['compiled_html'];
     }
 
     public function getCurrentRevision()
