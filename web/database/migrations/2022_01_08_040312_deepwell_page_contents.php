@@ -76,6 +76,9 @@ class DeepwellPageContents extends Migration
             ", [$wikitext_hash, $compiled_hash, $contents->generator, $contents->revision_id]);
         }
 
+        // Ensure there is an entry for the empty string
+        addString('');
+
         // Remove temporary non-null status
         Schema::table('page_revision', function (Blueprint $table) {
             $table->binary('wikitext_hash')->nullable(false)->change();
