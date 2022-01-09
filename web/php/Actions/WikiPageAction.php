@@ -28,7 +28,6 @@ use Wikidot\DB\PageRevisionPeer;
 use Wikidot\DB\PageMetadataPeer;
 use Wikidot\DB\ModeratorPeer;
 use Wikidot\DB\AdminPeer;
-use Wikijump\Models\PageContents;
 use Wikijump\Models\TagSettings;
 use Wikijump\Models\User;
 use Wikijump\Services\Deepwell\DeepwellService;
@@ -433,7 +432,14 @@ class WikiPageAction extends SmartyAction
                 $page->setLastEditUserString($userString);
             }
 
+            $source_hash = DeepwellService::getInstance()->addText($source);
+
             $pageRevision->setComments($comments);
+            $pageRevision->setWikitextHash($source_hash);
+            // HACK: We need to insert now but Outdater runs later,
+            // so for now we have the hash for an empty string
+            $pageRevision->setCompiledHash('cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e');
+            $pageRevision->setCompiledGenerator('');
             $pageRevision->save();
             $page->setRevisionId($pageRevision->getRevisionId());
 
@@ -445,14 +451,6 @@ class WikiPageAction extends SmartyAction
             $page->setRevisionNumber($pageRevision->getRevisionNumber());
             $page->save();
             $db->commit();
-
-            // After db commit so the page revision actually exists
-            PageContents::create([
-                'revision_id' => $pageRevision->getRevisionId(),
-                'wikitext' => $source,
-                'compiled_html' => '', // This is set by the Outdater later
-                'generator' => '',
-            ]);
 
             // OUTDATING PARTY!!!
             $outdater = new Outdater();
@@ -1143,6 +1141,10 @@ class WikiPageAction extends SmartyAction
         }
 
         $revision->setRevisionNumber($revision->getRevisionNumber() + 1);
+        $revision->setWikitextHash($toRevision->getWikitextHash());
+        $revision->setCompiledHash($toRevision->getCompiledHash());
+        $revision->setCompiledGenerator($toRevision->getCompiledGenerator());
+
         $now = new ODate();
         $revision->setDateLastEdited($now);
 
@@ -1162,14 +1164,6 @@ class WikiPageAction extends SmartyAction
         }
         // index page
         $db->commit();
-
-        // After db commit so the page revision actually exists
-        PageContents::create([
-            'revision_id' => $revision->getRevisionId(),
-            'wikitext' => $toRevision->getSourceText(),
-            'compiled_html' => '', // Set by the Outdater, below
-            'generator' => '',
-        ]);
 
         if (GlobalProperties::$UI_SLEEP) {
             sleep(1);
