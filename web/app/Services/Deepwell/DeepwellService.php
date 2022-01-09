@@ -127,14 +127,9 @@ final class DeepwellService
 
     // Text
     // TEMP!
-    public function getText(string $hex_hash): ?string
+    public function getText(string $hex_hash): string
     {
         $resp = $this->client->get("text/$hex_hash");
-
-        if ($resp->getStatusCode() === 404) {
-            return null;
-        }
-
         return (string) $resp->getBody();
     }
 
@@ -161,15 +156,11 @@ final class DeepwellService
         return $this->parseUser($resp);
     }
 
-    public function getUserBySlug(string $slug, string $detail = 'string'): ?object
+    public function getUserBySlug(string $slug, string $detail = 'string'): object
     {
         $resp = $this->client->get("user/id/$slug", [
             'query' => ['detail' => $detail],
         ]);
-
-        if ($resp->getStatusCode() === 404) {
-            return null;
-        }
 
         return $this->parseUser($resp);
     }
