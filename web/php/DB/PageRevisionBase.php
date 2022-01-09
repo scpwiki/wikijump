@@ -204,7 +204,7 @@ class PageRevisionBase extends BaseDBObject
     // NOTE: returns hex
     public function getWikitextHash(): string
     {
-        return bin2hex($this->getFieldValue('wikitext_hash'));
+        return substr($this->getFieldValue('wikitext_hash'), 2);
     }
 
     // NOTE: expects hex
@@ -217,7 +217,7 @@ class PageRevisionBase extends BaseDBObject
     // NOTE: returns hex
     public function getCompiledHash(): string
     {
-        return bin2hex($this->getFieldValue('compiled_hash'));
+        return substr($this->getFieldValue('compiled_hash'), 2);
     }
 
     // NOTE: expects hex
