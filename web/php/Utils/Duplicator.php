@@ -17,7 +17,7 @@ use Wikidot\DB\FilePeer;
 use Wikidot\DB\PageMetadata;
 use Wikidot\DB\PageRevision;
 use Wikidot\DB\Page;
-use Wikijump\Models\PageContents;
+use Wikijump\Services\Deepwell\PageService;
 
 class Duplicator
 {
@@ -297,16 +297,10 @@ class Duplicator
         $nrev->setFlagNew(true);
         $nrev->setDateLastEdited($now);
         $nrev->setUserId($owner->id);
+        $nrev->setWikitextHash($rev->getWikitextHash());
+        $nrev->setCompiledHash($rev->getCompiledHash());
+        $nrev->setCompiledGenerator($rev->getCompiledGenerator());
         $nrev->obtainPK();
-
-        // create new page object based on the existing page
-        $contents = PageContents::getLatestFull($page->getPageId());
-        PageContents::create([
-            'revision_id' => $nrev->getRevisionId(),
-            'wikitext' => $contents->wikitext,
-            'compiled_html' => $contents->compiled_html,
-            'generator' => $contents->generator,
-        ]);
 
         $npage = new Page();
         $npage->setSiteId($nsite->getSiteId());
@@ -428,22 +422,17 @@ class Duplicator
                 }
                 $nmeta->save();
 
+                $rev = PageService::getLatestRevision($page->getPageId());
                 $nrev = new PageRevision();
                 $nrev->setSiteId($nsite->getSiteId());
                 $nrev->setMetadataId($nmeta->getMetadataId());
                 $nrev->setFlagNew(true);
                 $nrev->setDateLastEdited($now);
                 $nrev->setUserId($owner->getUserId());
+                $nrev->setWikitextHash($rev->getWikitextHash());
+                $nrev->setCompiledHash($rev->getCompiledHash());
+                $nrev->setCompiledGenerator($rev->getCompiledGenerator());
                 $nrev->obtainPK();
-
-                // create new page object based on the existing page
-                $contents = PageContents::getLatestFull($page->getPageId());
-                PageContents::create([
-                    'revision_id' => $nrev->getRevisionId(),
-                    'wikitext' => $contents->wikitext,
-                    'compiled_html' => $contents->compiled_html,
-                    'generator' => $contents->generator,
-                ]);
 
                 $npage = new Page();
                 $npage->setSiteId($nsite->getSiteId());
