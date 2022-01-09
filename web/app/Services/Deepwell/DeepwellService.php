@@ -138,7 +138,7 @@ final class DeepwellService
         return (string) $resp->getBody();
     }
 
-    public function writeText(string $contents): string
+    public function addText(string $contents): string
     {
         $resp = $this->client->put('text', [
             'body' => $contents,
