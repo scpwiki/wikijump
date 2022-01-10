@@ -1,12 +1,7 @@
 <?php
+declare(strict_types=1);
 
 namespace Wikidot\DB;
-
-
-
-
-
-
 
 /**
  * Object Model Class.
@@ -14,5 +9,4 @@ namespace Wikidot\DB;
  */
 class PageRevisionPeer extends PageRevisionPeerBase
 {
-
 }

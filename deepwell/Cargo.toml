@@ -24,6 +24,7 @@ fluent = "0.16"
 ftml = "1.12"
 futures = { version = "0.3", features = ["async-await"], default-features = false }
 governor = "0.3"
+hex = "0.4"
 hostname = "0.3"
 indexmap = "=1.6.2"  # Pinning to avoid cyclic dependency issue, see https://stackoverflow.com/questions/68399961, not actually used
 intl-memoizer = "0.5"

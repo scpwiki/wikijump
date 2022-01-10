@@ -125,6 +125,23 @@ final class DeepwellService
         ];
     }
 
+    // Text
+    // TEMP!
+    public function getText(string $hex_hash): string
+    {
+        $resp = $this->client->get("text/$hex_hash");
+        return (string) $resp->getBody();
+    }
+
+    public function addText(string $contents): string
+    {
+        $resp = $this->client->put('text', [
+            'body' => $contents,
+        ]);
+
+        return (string) $resp->getBody();
+    }
+
     // User
     public function getUserById(int $id, string $detail = 'identity'): ?object
     {
@@ -139,15 +156,11 @@ final class DeepwellService
         return $this->parseUser($resp);
     }
 
-    public function getUserBySlug(string $slug, string $detail = 'string'): ?object
+    public function getUserBySlug(string $slug, string $detail = 'string'): object
     {
         $resp = $this->client->get("user/id/$slug", [
             'query' => ['detail' => $detail],
         ]);
-
-        if ($resp->getStatusCode() === 404) {
-            return null;
-        }
 
         return $this->parseUser($resp);
     }

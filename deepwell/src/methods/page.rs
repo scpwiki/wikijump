@@ -33,7 +33,7 @@ pub async fn page_create(mut req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let input: CreatePage = req.body_json().await?;
-    let output = PageService::create(&ctx, input).await?;
+    let output = PageService::create(&ctx, input).await.to_api()?;
     let body = Body::from_json(&output)?;
     txn.commit().await?;
 

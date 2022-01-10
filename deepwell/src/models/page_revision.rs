@@ -23,18 +23,30 @@ pub struct Model {
     pub user_string: Option<String>,
     pub comments: Option<String>,
     pub site_id: Option<i32>,
+    pub wikitext_hash: Vec<u8>,
+    pub compiled_hash: Vec<u8>,
+    #[sea_orm(column_type = "Text")]
+    pub compiled_generator: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
-    #[sea_orm(has_many = "super::page_contents::Entity")]
-    PageContents,
-}
-
-impl Related<super::page_contents::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::PageContents.def()
-    }
+    #[sea_orm(
+        belongs_to = "super::text::Entity",
+        from = "Column::CompiledHash",
+        to = "super::text::Column::Hash",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    Text2,
+    #[sea_orm(
+        belongs_to = "super::text::Entity",
+        from = "Column::WikitextHash",
+        to = "super::text::Column::Hash",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    Text1,
 }
 
 impl ActiveModelBehavior for ActiveModel {}
