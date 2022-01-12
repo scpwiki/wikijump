@@ -16,6 +16,7 @@ import {
 } from "../pretty-logs"
 import { Containers } from "./containers"
 import { Mockoon } from "./mockoon"
+import { Terminal } from "./terminal"
 import { closing, isBuild, isClean, isServe, pnpm, starting } from "./util"
 import { Vite } from "./vite"
 
@@ -25,6 +26,7 @@ export class DevCLI {
   declare vite?: Vite
   declare mockoon?: Mockoon
   declare containers?: Containers
+  declare terminal?: Terminal
 
   stopped = false
   starting = false
@@ -32,6 +34,10 @@ export class DevCLI {
   async clean() {
     if (this.stopped) return
     this.stopped = true
+
+    await this.containers?.stopLogging()
+
+    this.terminal?.close()
 
     // try to stop anything that might still be running
     for (const proc of processes) {
@@ -122,7 +128,11 @@ export class DevCLI {
     if (this.stopped) return
     this.stopped = true
 
+    this.terminal?.close()
+
     if (this.vite || this.mockoon || this.containers) {
+      await this.containers?.stopLogging()
+
       section("SHUTDOWN", true)
 
       info("Stopping services...")
@@ -173,20 +183,104 @@ export class DevCLI {
 
     linebreak()
     info("Development services started.")
-    if (this.vite) {
-      console.log(` > Vite:     ${pc.cyan(`http://localhost:${pc.bold("3000")}`)}`)
-    }
-    console.log(` > Mockoon:  ${pc.cyan(`http://localhost:${pc.bold("3500")}`)}`)
-    console.log(` > Postgres: ${pc.cyan(`http://localhost:${pc.bold("5432")}`)}`)
-    console.log(` > Deepwell: ${pc.cyan(`http://localhost:${pc.bold("2747")}`)}`)
-    console.log(` > Wikijump: ${pc.cyan(`http://www.wikijump.localhost`)}`)
+    this.printURLs()
     linebreak()
+  }
+
+  private printURLs() {
+    if (this.vite) {
+      console.log(`  Vite:     ${pc.cyan(`http://localhost:${pc.bold("3000")}`)}`)
+    }
+    if (this.mockoon) {
+      console.log(`  Mockoon:  ${pc.cyan(`http://localhost:${pc.bold("3500")}`)}`)
+    }
+    if (this.containers) {
+      console.log(`  Postgres: ${pc.cyan(`http://localhost:${pc.bold("5432")}`)}`)
+      console.log(`  Deepwell: ${pc.cyan(`http://localhost:${pc.bold("2747")}`)}`)
+      console.log(`  Wikijump: ${pc.cyan(`http://www.wikijump.localhost`)}`)
+    }
   }
 
   private async hijackTerminal() {
     if (process.stdin.isTTY) {
       readline.emitKeypressEvents(process.stdin)
       process.stdin.setRawMode(true)
+
+      this.terminal = new Terminal()
+
+      this.terminal.addCommand("vite", async action => {
+        if (action === "stop") {
+          if (this.vite) await closing("Vite", this.vite.close())
+          this.vite = undefined
+        } else if (action === "start") {
+          if (this.vite) await closing("Vite", this.vite.close())
+          this.vite = await starting("Vite", Vite.create())
+        } else {
+          info("Please specify an action:")
+          console.log("  stop")
+          console.log("  start")
+        }
+      })
+
+      this.terminal.addCommand("mockoon", async action => {
+        if (action === "stop") {
+          if (this.mockoon) await closing("Mockoon", this.mockoon.close())
+          this.mockoon = undefined
+        } else if (action === "start") {
+          if (this.mockoon) await closing("Mockoon", this.mockoon.close())
+          this.mockoon = await starting("Mockoon", Mockoon.create())
+        } else {
+          info("Please specify an action:")
+          console.log("  stop")
+          console.log("  start")
+        }
+      })
+
+      this.terminal.addCommand("urls", () => {
+        info("URLs:")
+        this.printURLs()
+      })
+
+      this.terminal.addCommand("quit", async () => {
+        await this.close()
+        process.exit(0)
+      })
+
+      this.terminal.addCommand("containers", async () => {
+        const services = await Containers.services()
+        info("Containers:")
+        services.forEach(service => console.log(`  ${service}`))
+      })
+
+      this.terminal.addCommand("restart", async service => {
+        const services = await Containers.services()
+        if (!service || !services.includes(service)) {
+          info("Please specify a container to restart:")
+          services.forEach(service => console.log(`  ${service}`))
+        } else {
+          await this.containers?.stopLogging()
+          linebreak()
+          await this.containers?.restartService(service)
+          linebreak()
+          await this.containers?.startLogging()
+        }
+      })
+
+      this.terminal.addCommand("rebuild", async service => {
+        const services = await Containers.services()
+        if (!service || !services.includes(service)) {
+          info("Please specify a container to rebuild:")
+          services.forEach(service => console.log(`  ${service}`))
+        } else {
+          await this.containers?.stopLogging()
+          linebreak()
+          await this.containers?.buildService(service)
+          linebreak()
+          await this.containers?.restartService(service)
+          linebreak()
+          await this.containers?.startLogging()
+        }
+      })
     }
 
     process.stdin.on("keypress", async (_str, key) => {

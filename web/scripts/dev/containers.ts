@@ -21,7 +21,7 @@ export class Containers {
   async close() {
     if (this.stopped) return
     this.stopped = true
-    await this.stoplogging()
+    await this.stopLogging()
     await compose("stop")
   }
 
@@ -32,7 +32,7 @@ export class Containers {
     this.logger.stderr?.on("data", this.log)
   }
 
-  async stoplogging() {
+  async stopLogging() {
     if (!this.logger) return
     this.logger.stdout?.off("data", this.log)
     this.logger.stderr?.off("data", this.log)
@@ -50,11 +50,19 @@ export class Containers {
 
   static async services() {
     const out = await compose("ps --services", false, false)
-    return out.toString().split("\n")
+    return out.split("\n").filter(Boolean).sort()
   }
 
   static async isRunning() {
     const out = await compose("top", false, false)
     return out.length !== 0
+  }
+
+  async buildService(service: string) {
+    await compose(`build ${service}`)
+  }
+
+  async restartService(service: string) {
+    await compose(`restart ${service}`)
   }
 }
