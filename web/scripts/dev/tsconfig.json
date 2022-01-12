@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "composite": true,
     "lib": ["ESNext"]
   },
   "extends": "../../tsconfig.json",
