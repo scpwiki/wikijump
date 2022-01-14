@@ -8,6 +8,11 @@ const pc = require("picocolors")
 /** @type Set<import("child_process").ChildProcessWithoutNullStreams> */
 const processes = new Set()
 
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+})
+
 function linebreak(count = 1) {
   for (let i = 0; i < count; i++) console.log("")
 }
@@ -84,19 +89,7 @@ function shellAsync(command, pipe = true) {
 }
 
 function question(question) {
-  return new Promise((resolve, reject) => {
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout
-    })
-
-    rl.question(pc.magenta(question), answer => {
-      // breaks using readline for anything else
-      // so we'll just leave the interface alone (technically a memory leak)
-      // rl.close()
-      resolve(answer)
-    })
-  })
+  return new Promise(resolve => rl.question(pc.magenta(question), resolve))
 }
 
 function answerYesOrNo(answer, def = false) {
@@ -109,6 +102,7 @@ function answerYesOrNo(answer, def = false) {
 module.exports = {
   pc,
   processes,
+  rl,
   linebreak,
   separator,
   section,
