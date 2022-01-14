@@ -66,7 +66,7 @@ class TextWikiBackend extends WikitextBackend
 
     public function version(): string
     {
-        return 'Text_Wiki 0.0.1';
+        return 'Text_Wiki (legacy)';
     }
 
     // Helper methods
