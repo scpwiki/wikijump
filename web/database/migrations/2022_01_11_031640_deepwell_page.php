@@ -165,7 +165,9 @@ class DeepwellPage extends Migration
 
             $max_page_id = max($max_page_id, $page->page_id);
         }
-        DB::statement('ALTER SEQUENCE page_page_id START WITH ?', [$max_page_id]);
+        // NOTE: statement() doesn't allow parameters.
+        // Since this is just a migration with a known-safe value, I'm just doing this
+        DB::statement("ALTER SEQUENCE page_page_id_seq START WITH $max_page_id");
 
         $page_revisions = DB::table('page_revision_old')
             ->select(
@@ -233,7 +235,7 @@ class DeepwellPage extends Migration
 
             $max_revision_id = max($max_revision_id, $revision->revision_id);
         }
-        DB::statement('ALTER SEQUENCE page_revision_revision_id START WITH ?', [$max_revision_id]);
+        DB::statement("ALTER SEQUENCE page_revision_revision_id_seq START WITH $max_revision_id");
 
         // Fix foreign keys
         DB::statement('ALTER TABLE file DROP CONSTRAINT file_page_id_foreign');
