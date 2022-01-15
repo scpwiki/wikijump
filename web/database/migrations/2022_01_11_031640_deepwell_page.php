@@ -227,9 +227,11 @@ class DeepwellPage extends Migration
                 $revision->user_id,
                 $revision->wikitext_hash,
                 $revision->compiled_hash,
+                now(),
                 $revision->compiled_generator,
                 $revision->comments,
                 $metadata->title,
+                $metadata->unix_name,
                 $page->tags,
             ]);
 
