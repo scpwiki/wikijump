@@ -27,9 +27,9 @@ class DeepwellPage extends Migration
     {
         // This hands ownership of the primary page tables to DEEPWELL
 
-        Schema::name('page', 'page_old');
-        Schema::name('page_revision', 'page_revision_old');
-        Schema::name('page_metadata', 'page_metadata_old');
+        Schema::rename('page', 'page_old');
+        Schema::rename('page_revision', 'page_revision_old');
+        Schema::rename('page_metadata', 'page_metadata_old');
 
         DB::statement("
             CREATE TABLE page (
