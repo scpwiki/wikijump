@@ -16,6 +16,14 @@ function find(array $array, string $field, $value)
     throw new Error("Cannot find item in array where field $field has value $value");
 }
 
+// Eloquent doesn't format arrays for Postgres
+// See https://github.com/laravel/framework/issues/27616
+function format_postgres_array(string $items_json): string
+{
+    $items = json_decode($items_json);
+    return '{' . substr(json_encode($items), 1, -1) . '}';
+}
+
 class DeepwellPage extends Migration
 {
     /**
@@ -232,7 +240,7 @@ class DeepwellPage extends Migration
                 $revision->comments,
                 $metadata->title,
                 $metadata->unix_name,
-                $page->tags,
+                format_postgres_array($page->tags),
             ]);
 
             $max_revision_id = max($max_revision_id, $revision->revision_id);
