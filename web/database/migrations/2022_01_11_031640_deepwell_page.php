@@ -179,6 +179,7 @@ class DeepwellPage extends Migration
 
         $page_revisions = DB::table('page_revision_old')
             ->select(
+                'revision_id',
                 'page_id',
                 'metadata_id',
                 'revision_number',
@@ -199,7 +200,6 @@ class DeepwellPage extends Migration
                 'parent_page_id',
                 'title',
                 'unix_name',
-                'owner_user_id',
             )
             ->get()
             ->toArray();
@@ -208,6 +208,22 @@ class DeepwellPage extends Migration
         foreach ($page_revisions as $revision) {
             $metadata = find($metadata_list, 'metadata_id', $revision->metadata_id);
             $page = find($pages, 'metadata_id', $revision->metadata_id);
+
+            // Title is null if that revision doesn't change it
+            // iterate through them until you find the previous title as set
+            //
+            // Also setting to default null because some revisions don't have a previous title...
+            // Wikidot's default nullability drives me nuts
+            $revision_title = '';
+
+            for ($num = $revision->revision_number; $num >= 0; $num--) {
+                $old_revision = find($page_revisions, 'revision_number', $num);
+                $old_metadata = find($metadata_list, 'metadata_id', $old_revision->metadata_id);
+                if ($old_metadata->title) {
+                    $revision_title = $old_metadata->title;
+                    break;
+                }
+            }
 
             DB::insert('
                 INSERT INTO page_revision (
@@ -238,7 +254,7 @@ class DeepwellPage extends Migration
                 now(),
                 $revision->compiled_generator,
                 $revision->comments,
-                $metadata->title,
+                $revision_title,
                 $metadata->unix_name,
                 format_postgres_array($page->tags),
             ]);
