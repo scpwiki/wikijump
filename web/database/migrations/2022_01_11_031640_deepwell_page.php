@@ -35,10 +35,24 @@ class DeepwellPage extends Migration
     {
         // This hands ownership of the primary page tables to DEEPWELL
 
-        Schema::rename('page', 'page_old');
-        Schema::rename('page_revision', 'page_revision_old');
-        Schema::rename('page_metadata', 'page_metadata_old');
+        // Remove old foreign keys
+        DB::statement('ALTER TABLE file DROP CONSTRAINT file_page_id_foreign');
+        DB::statement('ALTER TABLE forum_thread DROP CONSTRAINT forum_thread_page_id_foreign');
+        DB::statement('ALTER TABLE front_forum_feed DROP CONSTRAINT front_forum_feed_page_id_foreign');
+        DB::statement('ALTER TABLE page_connection DROP CONSTRAINT page_connection_from_page_id_fkey');
+        DB::statement('ALTER TABLE page_connection DROP CONSTRAINT page_connection_to_page_id_fkey');
+        DB::statement('ALTER TABLE page_connection_missing DROP CONSTRAINT page_connection_missing_from_page_id_fkey');
+        DB::statement('ALTER TABLE page_link DROP CONSTRAINT page_link_page_id_fkey');
+        DB::statement('ALTER TABLE page_edit_lock DROP CONSTRAINT page_edit_lock_page_id_foreign');
+        DB::statement('ALTER TABLE page_rate_vote DROP CONSTRAINT page_rate_vote_page_id_foreign');
+        DB::statement('ALTER TABLE watched_page DROP CONSTRAINT watched_page_page_id_foreign');
 
+        // Drop old tables
+        Schema::drop('page');
+        Schema::drop('page_revision');
+        Schema::drop('page_metadata');
+
+        // Create new tables
         DB::statement("
             CREATE TABLE page (
                 page_id BIGSERIAL PRIMARY KEY,
@@ -128,153 +142,7 @@ class DeepwellPage extends Migration
             )
         ");
 
-        // Migrate page data
-        $pages = DB::table('page_old')
-            ->select(
-                'page_id',
-                'site_id',
-                'category_id',
-                'parent_page_id',
-                'revision_id',
-                'metadata_id',
-                'revision_number',
-                'title',
-                'unix_name',
-                'date_created',
-                'date_last_edited',
-                'thread_id',
-                'blocked',
-                'tags',
-            )
-            ->get()
-            ->toArray();
-
-        $max_page_id = 0;
-        foreach ($pages as $page) {
-            DB::insert('
-                INSERT INTO page (
-                    page_id,
-                    created_at,
-                    updated_at,
-                    site_id,
-                    page_category_id,
-                    slug,
-                    discussion_thread_id
-                ) VALUES (?, ?, ?, ?, ?, ?, ?)
-            ', [
-                $page->page_id,
-                $page->date_created,
-                $page->date_last_edited,
-                $page->site_id,
-                $page->category_id,
-                $page->unix_name,
-                $page->thread_id,
-            ]);
-
-            $max_page_id = max($max_page_id, $page->page_id);
-        }
-        // NOTE: statement() doesn't allow parameters.
-        // Since this is just a migration with a known-safe value, I'm just doing this
-        DB::statement("ALTER SEQUENCE page_page_id_seq START WITH $max_page_id");
-
-        $page_revisions = DB::table('page_revision_old')
-            ->select(
-                'revision_id',
-                'page_id',
-                'metadata_id',
-                'revision_number',
-                'date_last_edited',
-                'user_id',
-                'comments',
-                'site_id',
-                'wikitext_hash',
-                'compiled_hash',
-                'compiled_generator',
-            )
-            ->get()
-            ->toArray();
-
-        $metadata_list = DB::table('page_metadata_old')
-            ->select(
-                'metadata_id',
-                'parent_page_id',
-                'title',
-                'unix_name',
-            )
-            ->get()
-            ->toArray();
-
-        $max_revision_id = 0;
-        foreach ($page_revisions as $revision) {
-            $metadata = find($metadata_list, 'metadata_id', $revision->metadata_id);
-            $page = find($pages, 'metadata_id', $revision->metadata_id);
-
-            // Title is null if that revision doesn't change it
-            // iterate through them until you find the previous title as set
-            //
-            // Also setting to default null because some revisions don't have a previous title...
-            // Wikidot's default nullability drives me nuts
-            $revision_title = '';
-
-            for ($num = $revision->revision_number; $num >= 0; $num--) {
-                $old_revision = find($page_revisions, 'revision_number', $num);
-                $old_metadata = find($metadata_list, 'metadata_id', $old_revision->metadata_id);
-                if ($old_metadata->title) {
-                    $revision_title = $old_metadata->title;
-                    break;
-                }
-            }
-
-            DB::insert('
-                INSERT INTO page_revision (
-                    revision_id,
-                    created_at,
-                    revision_number,
-                    page_id,
-                    site_id,
-                    user_id,
-                    wikitext_hash,
-                    compiled_hash,
-                    compiled_at,
-                    compiled_generator,
-                    comments,
-                    title,
-                    slug,
-                    tags
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ', [
-                $revision->revision_id,
-                $revision->date_last_edited,
-                $revision->revision_number,
-                $revision->page_id,
-                $revision->site_id,
-                $revision->user_id,
-                $revision->wikitext_hash,
-                $revision->compiled_hash,
-                now(),
-                $revision->compiled_generator,
-                $revision->comments,
-                $revision_title,
-                $metadata->unix_name,
-                format_postgres_array($page->tags),
-            ]);
-
-            $max_revision_id = max($max_revision_id, $revision->revision_id);
-        }
-        DB::statement("ALTER SEQUENCE page_revision_revision_id_seq START WITH $max_revision_id");
-
-        // Fix foreign keys
-        DB::statement('ALTER TABLE file DROP CONSTRAINT file_page_id_foreign');
-        DB::statement('ALTER TABLE forum_thread DROP CONSTRAINT forum_thread_page_id_foreign');
-        DB::statement('ALTER TABLE front_forum_feed DROP CONSTRAINT front_forum_feed_page_id_foreign');
-        DB::statement('ALTER TABLE page_connection DROP CONSTRAINT page_connection_from_page_id_fkey');
-        DB::statement('ALTER TABLE page_connection DROP CONSTRAINT page_connection_to_page_id_fkey');
-        DB::statement('ALTER TABLE page_connection_missing DROP CONSTRAINT page_connection_missing_from_page_id_fkey');
-        DB::statement('ALTER TABLE page_link DROP CONSTRAINT page_link_page_id_fkey');
-        DB::statement('ALTER TABLE page_edit_lock DROP CONSTRAINT page_edit_lock_page_id_foreign');
-        DB::statement('ALTER TABLE page_rate_vote DROP CONSTRAINT page_rate_vote_page_id_foreign');
-        DB::statement('ALTER TABLE watched_page DROP CONSTRAINT watched_page_page_id_foreign');
-
+        // Add new foreign keys
         DB::statement('ALTER TABLE file ADD FOREIGN KEY page_id REFERENCES page(page_id)');
         DB::statement('ALTER TABLE forum_thread ADD FOREIGN KEY page_id REFERENCES page(page_id)');
         DB::statement('ALTER TABLE front_forum_feed ADD FOREIGN KEY page_id REFERENCES page(page_id)');
@@ -285,11 +153,6 @@ class DeepwellPage extends Migration
         DB::statement('ALTER TABLE page_edit_lock ADD FOREIGN KEY page_id REFERENCES page(page_id)');
         DB::statement('ALTER TABLE page_rate_vote ADD FOREIGN KEY page_id REFERENCES page(page_id)');
         DB::statement('ALTER TABLE watched_page ADD FOREIGN KEY page_id REFERENCES page(page_id)');
-
-        // Drop old tables
-        Schema::drop('page_old');
-        Schema::drop('page_revision_old');
-        Schema::drop('page_metadata_old');
     }
 
     /**
@@ -299,6 +162,58 @@ class DeepwellPage extends Migration
      */
     public function down()
     {
-        // This is going to be a lot of boilerplate to do, so I'm going to skip it
+        Schema::create('page', function (Blueprint $table) {
+            $table->id('page_id')->startingValue(53);
+            $table->unsignedInteger('site_id')->nullable()->index();
+            $table->unsignedInteger('category_id')->nullable()->index();
+            $table->unsignedInteger('parent_page_id')->nullable()->index();
+            $table->unsignedInteger('revision_id')->nullable()->index();
+            $table->unsignedInteger('source_id')->nullable();
+            $table->unsignedInteger('metadata_id')->nullable();
+            $table->unsignedInteger('revision_number')->default(0);
+            $table->string('title', 256)->nullable();
+            $table->string('unix_name', 256)->nullable()->index();
+            $table->timestamp('date_created')->nullable();
+            $table->timestamp('date_last_edited')->nullable();
+            $table->unsignedInteger('last_edit_user_id')->nullable();
+            $table->string('last_edit_user_string', 80)->nullable();
+            $table->unsignedInteger('thread_id')->nullable();
+            $table->unsignedInteger('owner_user_id')->nullable();
+            $table->boolean('blocked')->default(false);
+            $table->integer('rate')->default(0);
+
+            $table->unique(['site_id', 'unix_name']);
+        });
+
+        Schema::create('page_revision', function (Blueprint $table) {
+            $table->id('revision_id')->startingValue(64);
+            $table->unsignedInteger('page_id')->nullable()->index();
+            $table->unsignedInteger('source_id')->nullable();
+            $table->unsignedInteger('metadata_id')->nullable();
+            $table->string('flags', 100)->nullable();
+            $table->boolean('flag_text')->default(false);
+            $table->boolean('flag_title')->default(false);
+            $table->boolean('flag_file')->default(false);
+            $table->boolean('flag_rename')->default(false);
+            $table->boolean('flag_meta')->default(false);
+            $table->boolean('flag_new')->default(false);
+            $table->unsignedInteger('since_full_source')->nullable();
+            $table->boolean('diff_source')->default(false);
+            $table->unsignedInteger('revision_number')->nullable();
+            $table->timestamp('date_last_edited')->nullable();
+            $table->unsignedInteger('user_id')->nullable()->index();
+            $table->string('user_string', 80)->nullable();
+            $table->string('comments', 200000)->nullable();
+            $table->boolean('flag_new_site')->default(false);
+            $table->unsignedInteger('site_id')->nullable()->index();
+        });
+
+        Schema::create('page_metadata', function (Blueprint $table) {
+            $table->id('metadata_id')->startingValue(57);
+            $table->unsignedInteger('parent_page_id')->nullable();
+            $table->string('title', 256)->nullable();
+            $table->string('unix_name', 80)->nullable();
+            $table->unsignedInteger('owner_user_id')->nullable();
+        });
     }
 }
