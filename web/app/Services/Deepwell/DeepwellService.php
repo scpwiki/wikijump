@@ -6,6 +6,7 @@ namespace Wikijump\Services\Deepwell;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Facades\Log;
 use Wikidot\Utils\GlobalProperties;
 use Wikijump\Services\Wikitext\Backlinks;
@@ -143,26 +144,26 @@ final class DeepwellService
     }
 
     // User
-    public function getUserById(int $id, string $detail = 'identity'): ?object
+    public function getUserById(int $id, string $detail = 'identity'): ?User
     {
-        $resp = $this->client->get("user/id/$id", [
-            'query' => ['detail' => $detail],
-        ]);
+        return self::fetchOrNull(function () use ($id, $detail) {
+            $resp = $this->client->get("user/id/$id", [
+                'query' => ['detail' => $detail],
+            ]);
 
-        if ($resp->getStatusCode() === 404) {
-            return null;
-        }
-
-        return $this->parseUser($resp);
+            return $this->parseUser($resp);
+        }, "No user found with ID $id");
     }
 
-    public function getUserBySlug(string $slug, string $detail = 'string'): object
+    public function getUserBySlug(string $slug, string $detail = 'string'): ?User
     {
-        $resp = $this->client->get("user/id/$slug", [
-            'query' => ['detail' => $detail],
-        ]);
+        return self::fetchOrNull(function () use ($slug, $detail) {
+            $resp = $this->client->get("user/id/$slug", [
+                'query' => ['detail' => $detail],
+            ]);
 
-        return $this->parseUser($resp);
+            return $this->parseUser($resp, $detail);
+        }, "No user found with slug $slug");
     }
 
     public function setUser(int $id, array $fields): void
@@ -170,7 +171,7 @@ final class DeepwellService
         $this->client->put("user/id/$id", ['json' => $fields]);
     }
 
-    private function parseUser($resp): object
+    private function parseUser($resp, string $detail): User
     {
         $user = self::readJson($resp);
 
@@ -184,7 +185,7 @@ final class DeepwellService
             'deleted_at',
         ]);
 
-        return $user;
+        return new User($user, $detail);
     }
 
     // Miscellaneous
@@ -235,5 +236,29 @@ final class DeepwellService
     private static function nullableDate(?string $value): ?Carbon
     {
         return $value ? new Carbon($value) : null;
+    }
+
+    /**
+     * Runs the given closure.
+     * If it succeeds, pass the result on.
+     * If it yields HTTP 404, then return null.
+     *
+     * @param callable $fn The closure to run.
+     * @param ?string $warning The message to log if the item is not found. Doesn't log if null.
+     * @return ?mixed
+     */
+    private static function fetchOrNull(callable $fn, ?string $warning = null)
+    {
+        try {
+            return $fn();
+        } catch (ClientException $exception) {
+            if ($exception->getCode() === 404) {
+                Log::warning($warning);
+                return null;
+            }
+
+            // For other errors, re-throw, since it's not an "expected" error
+            throw $exception;
+        }
     }
 }

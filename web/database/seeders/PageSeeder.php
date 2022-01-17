@@ -968,17 +968,20 @@ EOF
         // Convert to hex because Eloquent doesn't know how to do binary
         $hash = hash('sha512', $value);
 
-        $entries = DB::select("
+        $entries = DB::select(
+            "
             SELECT hash FROM text
             WHERE hash = decode(?, 'hex')
             LIMIT 1
-        ", [$hash]);
+        ",
+            [$hash],
+        );
 
         if (empty($entries)) {
-            DB::insert(
-                "INSERT INTO text (hash, contents) VALUES (decode(?, 'hex'), ?)",
-                [$hash, $value],
-            );
+            DB::insert("INSERT INTO text (hash, contents) VALUES (decode(?, 'hex'), ?)", [
+                $hash,
+                $value,
+            ]);
         }
 
         return $hash;
