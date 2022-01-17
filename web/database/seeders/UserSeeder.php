@@ -27,7 +27,7 @@ class UserSeeder extends Seeder
         DB::table('users')->insert([
             [
                 // ID 1
-                'username' => 'admin',
+                'username' => 'Administrator',
                 'unix_name' => WDStringUtils::toUnixName('admin'),
                 'password' => Hash::make(env('ADMIN_INITIAL_PASSWORD', 'admin1')),
                 'email' => 'admin@wikijump',
@@ -62,7 +62,7 @@ class UserSeeder extends Seeder
         if (env('APP_ENV') != 'production') {
             DB::table('users')->insert([
                 // ID 4 if not in prod
-                'username' => 'user',
+                'username' => 'User',
                 'unix_name' => WDStringUtils::toUnixName('user'),
                 'password' => Hash::make('user1'),
                 'email' => 'user@wikijump.dev',
