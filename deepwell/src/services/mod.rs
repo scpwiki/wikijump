@@ -49,6 +49,7 @@ pub mod link;
 pub mod page;
 pub mod render;
 pub mod revision;
+pub mod site;
 pub mod text;
 pub mod user;
 
@@ -61,6 +62,7 @@ pub use self::link::LinkService;
 pub use self::page::PageService;
 pub use self::render::RenderService;
 pub use self::revision::RevisionService;
+pub use self::site::SiteService;
 pub use self::text::TextService;
 pub use self::user::UserService;
 
