@@ -21,7 +21,7 @@ clap = "2"
 color-backtrace = "0.5"
 dotenv = "0.15"
 fluent = "0.16"
-ftml = "1.12"
+ftml = { version = "1.12", features = ["mathml"] }
 futures = { version = "0.3", features = ["async-await"], default-features = false }
 governor = "0.3"
 hex = "0.4"
