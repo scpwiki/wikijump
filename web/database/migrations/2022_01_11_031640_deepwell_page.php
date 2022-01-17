@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+use Database\Seeders\UserSeeder;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -147,6 +148,11 @@ class DeepwellPage extends Migration
         DB::statement('ALTER TABLE page_edit_lock ADD CONSTRAINT page_edit_lock_page_id_fkey FOREIGN KEY (page_id) REFERENCES page(page_id)');
         DB::statement('ALTER TABLE page_rate_vote ADD CONSTRAINT page_rate_vote_page_id_fkey FOREIGN KEY (page_id) REFERENCES page(page_id)');
         DB::statement('ALTER TABLE watched_page ADD CONSTRAINT watched_page_page_id_fkey FOREIGN KEY (page_id) REFERENCES page(page_id)');
+
+        // Seed initial pages
+        Artisan::call('db:seed', [
+            '--class' => PageSeeder::class,
+        ]);
     }
 
     /**
