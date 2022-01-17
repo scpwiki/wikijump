@@ -13,9 +13,9 @@ function join_arr() {
 # incompatible with SeaORM.
 
 tables=(
-	category
 	file
 	page
+	page_category
 	page_connection
 	page_connection_missing
 	page_edit_lock

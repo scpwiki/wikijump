@@ -892,6 +892,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2 0.10.1",
+ "slog",
  "sqlx",
  "str-macro",
  "strum",

@@ -50,7 +50,9 @@ pub fn build(mut app: ApiServer) -> ApiServer {
         .post(message_post);
 
     // Page
-    app.at("/page/direct/:page_id").get(page_get_direct).head(page_head_direct);
+    app.at("/page/direct/:page_id")
+        .get(page_get_direct)
+        .head(page_head_direct);
 
     app.at("/page/:site_id").post(page_create);
     app.at("/page/:site_id/:type/:id_or_slug")

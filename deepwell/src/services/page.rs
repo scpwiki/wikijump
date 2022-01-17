@@ -114,17 +114,13 @@ impl PageService {
     }
 
     #[inline]
-    pub async fn exists_direct(
-        ctx: &ServiceContext<'_>,
-        page_id: i64,
-    ) -> Result<bool> {
-        Self::get_direct_optional(ctx, page_id).await.map(|page| page.is_some())
+    pub async fn exists_direct(ctx: &ServiceContext<'_>, page_id: i64) -> Result<bool> {
+        Self::get_direct_optional(ctx, page_id)
+            .await
+            .map(|page| page.is_some())
     }
 
-    pub async fn get_direct(
-        ctx: &ServiceContext<'_>,
-        page_id: i64,
-    ) -> Result<PageModel> {
+    pub async fn get_direct(ctx: &ServiceContext<'_>, page_id: i64) -> Result<PageModel> {
         match Self::get_direct_optional(ctx, page_id).await? {
             Some(page) => Ok(page),
             None => Err(Error::NotFound),
