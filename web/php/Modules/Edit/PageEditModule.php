@@ -175,7 +175,7 @@ class PageEditModule extends SmartyModule
 
         $pageSource = $page->getSource();
         $runData->contextAdd("source", $pageSource);
-        $runData->contextAdd("title", $page->getTitleRaw());
+        $runData->contextAdd("title", $page->getTitle());
         $runData->contextAdd("pageId", $page->getPageId());
 
         $runData->ajaxResponseAdd("timeLeft", 15*60);

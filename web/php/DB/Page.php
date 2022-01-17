@@ -12,8 +12,6 @@ use Wikijump\Services\Deepwell\PageService;
  */
 class Page extends PageBase
 {
-    protected static $_titleTemplate = [];
-
     public function getMetadata()
     {
         return $this->getCurrentRevision()->getMetadata();
@@ -104,48 +102,5 @@ class Page extends PageBase
     public function getTags()
     {
         return PagePeer::getTags($this->getPageId());
-    }
-
-    public function getTitle()
-    {
-        $categoryId = $this->getCategoryId();
-        if ($categoryId) {
-            if (!array_key_exists($categoryId, self::$_titleTemplate)) {
-                /* Check for template. */
-                $c = new Criteria();
-                $templateUnixName = '_titletemplate';
-                if ($this->getCategoryName() != '_default') {
-                    $templateUnixName = $this->getCategoryName() . ':' . $templateUnixName;
-                }
-
-                $c->add('unix_name', $templateUnixName);
-                $c->add('site_id', $this->getSiteId());
-                $templatePage = PagePeer::instance()->selectOne($c);
-                if ($templatePage) {
-                    $templateSource = $templatePage->getSource();
-                    if (strlen($templateSource) > 0 && strlen($templateSource) < 200 && !strpos($templateSource, "\n")) {
-                        self::$_titleTemplate[$categoryId] = $templateSource;
-                    } else {
-                        self::$_titleTemplate[$categoryId] = false;
-                    }
-                } else {
-                    self::$_titleTemplate[$categoryId] = false;
-                }
-            }
-            $titleTemplate = self::$_titleTemplate[$categoryId];
-            if ($titleTemplate) {
-                /* Process the template. */
-                $b = $titleTemplate;
-                $b = str_replace('%%page_unix_name%%', preg_replace('/^[a-z0-9]+:/', '', $this->getUnixName()), $b);
-                $b = str_replace('%%title%%', parent::getTitle(), $b);
-                return $b;
-            }
-        }
-        return parent::getTitle();
-    }
-
-    public function getTitleRaw()
-    {
-        return parent::getTitle();
     }
 }
