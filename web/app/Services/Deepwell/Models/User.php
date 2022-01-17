@@ -11,7 +11,7 @@ class User extends DeepwellModel
     // Fields and constructor
     private string $detail;
     private int $id;
-    public string $username;
+    private string $username;
     private string $tiny_avatar;
     private int $karma;
     public ?UserInfo $info;
@@ -59,6 +59,11 @@ class User extends DeepwellModel
     public function id(): int
     {
         return $this->id;
+    }
+
+    public function username(): string
+    {
+        return $this->username;
     }
 
     public function tiny_avatar(): string
