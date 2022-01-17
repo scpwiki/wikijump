@@ -203,8 +203,7 @@ class WikiScreen extends Screen
                 $topBar = $category->getTopPage();
                 if ($topBar !== null) {
                     $topBarCompiled = $topBar->getCompiled();
-                    $ccc =  $topBarCompiled->getText();
-                    $ccc = preg_replace('/id="[^"]*"/', '', $ccc);
+                    $ccc = preg_replace('/id="[^"]*"/', '', $topBarCompiled);
                     $runData->contextAdd("topBarContent", $ccc);
                 }
             }

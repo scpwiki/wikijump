@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikidot\Modules\List;
+namespace Wikidot\Modules\XList;
 
 
 require_once(WIKIJUMP_ROOT . '/php/Modules/List/NextPageModule.php');

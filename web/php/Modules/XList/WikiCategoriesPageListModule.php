@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikidot\Modules\List;
+namespace Wikidot\Modules\XList;
 
 use Ozone\Framework\Database\Criteria;
 use Wikidot\DB\PagePeer;

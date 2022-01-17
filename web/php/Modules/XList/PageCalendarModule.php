@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikidot\Modules\List;
+namespace Wikidot\Modules\XList;
 
 
 use Illuminate\Support\Facades\Cache;
