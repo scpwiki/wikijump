@@ -17,20 +17,20 @@ rust-version = "1.56.0"
 anyhow = "1"
 async-std = { version = "1", features = ["attributes"] }
 chrono = { version = "0.4", features = ["serde"] }
-clap = "2"
+clap = "3"
 color-backtrace = "0.5"
 dotenv = "0.15"
 fluent = "0.16"
 ftml = { version = "1.12", features = ["mathml"] }
 futures = { version = "0.3", features = ["async-await"], default-features = false }
-governor = "0.3"
+governor = "0.4"
 hex = "0.4"
 hostname = "0.3"
 indexmap = "=1.6.2"  # Pinning to avoid cyclic dependency issue, see https://stackoverflow.com/questions/68399961, not actually used. See also https://github.com/tkaitchuck/aHash/issues/95
 intl-memoizer = "0.5"
 lazy_static = "1"
 ref-map = "0.1"
-sea-orm = { version = "0.4", features = ["sqlx-postgres", "runtime-async-std-rustls", "macros"], default-features = false }
+sea-orm = { version = "0.5", features = ["sqlx-postgres", "runtime-async-std-rustls", "macros"], default-features = false }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sha2 = "0.10"
