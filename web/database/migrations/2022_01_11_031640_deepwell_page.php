@@ -29,11 +29,23 @@ class DeepwellPage extends Migration
         DB::statement('ALTER TABLE watched_page DROP CONSTRAINT watched_page_page_id_foreign');
 
         // Drop old tables
+        Schema::drop('category');
         Schema::drop('page');
         Schema::drop('page_revision');
         Schema::drop('page_metadata');
 
         // Create new tables
+        DB::statement("
+            CREATE TABLE page_category (
+                created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+                updated_at TIMESTAMP WITH TIME ZONE,
+                site_id BIGINT NOT NULL REFERENCES site(site_id),
+                slug TEXT NOT NULL,
+
+                UNIQUE (site_id, slug)
+            )
+        ");
+
         DB::statement("
             CREATE TABLE page (
                 page_id BIGSERIAL PRIMARY KEY,
@@ -41,7 +53,7 @@ class DeepwellPage extends Migration
                 updated_at TIMESTAMP WITH TIME ZONE,
                 deleted_at TIMESTAMP WITH TIME ZONE,
                 site_id BIGINT NOT NULL REFERENCES site(site_id),
-                page_category_id BIGINT NOT NULL REFERENCES category(category_id),
+                page_category_id BIGINT NOT NULL REFERENCES page_category(category_id),
                 slug TEXT NOT NULL,
                 discussion_thread_id BIGINT REFERENCES forum_thread(thread_id),
 
