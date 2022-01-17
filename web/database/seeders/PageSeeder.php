@@ -460,9 +460,9 @@ EOF
 
 + All wikis
 
-* [[[platform:activity | Recent activity]]]
-* [[[platform:sites | All wikis]]]
-* [[[platform:search | Search]]]
+* [[[:www:platform:activity | Recent activity]]]
+* [[[:www:platform:sites | All wikis]]]
+* [[[:www:platform:search | Search]]]
 
 + This wiki
 
@@ -470,7 +470,6 @@ EOF
 * [[[system:members | Site members]]]
 
 * [[[system: Recent changes]]]
-* [[[system: List all pages]]]
 * [[[system: Page Tags]]]
 
 * [[[admin:manage|Site Manager]]]
@@ -484,7 +483,7 @@ EOF
 
         // prettier-ignore
         $nav_side_compiled_hash = $this->addString(<<<EOF
-<ul><li><a href="/start">Welcome page</a></li></ul><ul><li><a href="/what-is-a-wiki">What is a Wiki?</a></li><li><a href="/how-to-edit-pages">How to edit pages?</a></li><li><a href="/new-site">Get a new wiki!</a></li></ul><h1><span>All wikis</span></h1><ul><li><a href="/system-all:activity">Recent activity</a></li><li class=""><a href="/system-all:all-sites">All wikis</a></li><li class=""><a href="/system-all:sites-by-tags">Wikis by tags</a></li><li class=""><a href="/system-all:search">Search</a></li></ul><h1><span>This wiki</span></h1><ul><li class=""><a href="/system:join">How to join this site?</a></li><li><a href="/system:members">Site members</a></li></ul><ul><li><a href="/system:recent-changes">Recent changes</a></li><li><a href="/system:list-all-pages">List all pages</a></li><li><a href="/system:page-tags-list">Page Tags</a></li></ul><ul><li><a href="/admin:manage">Site Manager</a></li></ul><h2><span>Page tags</span></h2>
+<ul><li><a href="/start">Welcome page</a></li></ul><ul><li><a href="/what-is-a-wiki">What is a Wiki?</a></li><li><a href="/how-to-edit-pages">How to edit pages?</a></li><li><a href="/new-site">Get a new wiki!</a></li></ul><h1><span>All wikis</span></h1><ul><li><a href="/platform:activity">Recent activity</a></li><li class=""><a href="/platform:all-sites">All wikis</a></li><li class=""><a href="/platform:sites-by-tags">Wikis by tags</a></li><li class=""><a href="/platform:search">Search</a></li></ul><h1><span>This wiki</span></h1><ul><li class=""><a href="/system:join">How to join this site?</a></li><li><a href="/system:members">Site members</a></li></ul><ul><li><a href="/system:recent-changes">Recent changes</a></li><li><a href="/system:page-tags-list">Page Tags</a></li></ul><ul><li><a href="/admin:manage">Site Manager</a></li></ul><h2><span>Page tags</span></h2>
 <style>
 @import url(/common--modules/css/Wiki/PagesTagCloud/PagesTagCloudModule.css);
 
@@ -882,6 +881,86 @@ EOF
             $admin_manage_wikitext_hash,
             $admin_manage_compiled_hash,
         );
+
+        // Add links and connections
+        $this->addExternalLinks(
+            1, // www start
+            [
+                'https://github.com/scpwiki/wikijump/pulls' => 1,
+                'https://github.com/scpwiki/wikijump' => 1,
+                'https://github.com/scpwiki/wikijump/tree/legacy' => 1,
+                'https://scuttle.atlassian.net/browse/WJ' => 2,
+                'https://scuttle.atlassian.net/wiki/spaces/WD/overview' => 1,
+                'https://creativecommons.org/licenses/by-sa/4.0/' => 1,
+                'https://www.wikidot.com/' => 1,
+                'https://wikijump.org' => 1,
+                'https://scpwiki.com/forum/c-3335628/general-information' => 1,
+                'https://scpwiki.com/forum/c-3335630/feature-requests' => 1,
+            ],
+        );
+        $this->addExternalLinks(
+            12, // template-en start
+            [
+                'https://creativecommons.org/licenses/by-sa/4.0/' => 1,
+                'https://www.wikidot.com/' => 1,
+                'https://wikijump.org' => 1,
+                'https://scpwiki.com/forum/c-3335628/general-information' => 1,
+                'https://scpwiki.com/forum/c-3335630/feature-requests' => 1,
+            ],
+        );
+        $this->addExternalLinks(
+            3, // www nav:top
+            [
+                'https://wikijump.org',
+            ],
+        );
+        $this->addExternalLinks(
+            14, // www nav:top
+            [
+                'https://wikijump.org',
+            ],
+        );
+
+        // NOTE: format is [from_page_id, to_page_id, count]
+
+        DB::table('page_connection')->insert([
+            // www start
+            [1, 11, 2] // admin:manage
+            [1, 2, 1], // nav:side
+            [1, 3, 1], // nav:top
+
+            // template start
+            [12, 19, 2], // admin:manage
+            [12, 13, 1], // nav:side
+            [12, 14, 1], // nav:top
+
+            // both system:join
+            [7, 11, 1], // admin:manage
+            [15, 11, 1],
+
+            // both nav:side
+            [2, 1, 1], // start
+            [2, 4, 1], // platform:activity
+            [2, 5, 1], // platform:sites
+            [2, 6, 1], // platform:search
+            [2, 7, 1], // system:join
+            [2, 8, 1], // system:members
+            [2, 9, 1], // system:recent-changes
+            [2, 10, 1], // system:page-tags
+            [2, 11, 1], // admin:manage
+            [2, 2, 1], // self
+
+            [13, 12, 1] // start
+            [13, 4, 1], // platform:activity
+            [13, 5, 1], // platform:sites
+            [13, 6, 1], // platform:search
+            [13, 15, 1], // system:join
+            [13, 16, 1], // system:members
+            [13, 17, 1], // system:recent-changes
+            [13, 18, 1], // system:page-tags
+            [13, 19, 1], // admin:manage
+            [13, 13, 1], // self
+        ]);
     }
 
     private function addString(string $value): string
@@ -957,5 +1036,40 @@ EOF
                 $slug,
             ],
         );
+    }
+
+    private function addExternalLinks(int $page_id, array $urls): void
+    {
+        $rows = [];
+
+        foreach ($urls as $url => $count) {
+            $rows[] = [
+                'page_id' => $page_id,
+                'url' => $url,
+                'created_at' => self::TIMESTAMP,
+                'count' => $count,
+            ];
+        }
+
+        DB::table('page_link')->insert($rows);
+    }
+
+    private function addInternalLinks(array $connections): void
+    {
+        $rows = [];
+
+        foreach ($connections as $connection) {
+            [$from_page_id, $to_page_id, $count] = $connection;
+
+            $rows[] = [
+                'from_page_id' => $from_page_id,
+                'to_page_id' => $to_page_id,
+                'connection_type' => 'link',
+                'created_at' => self::TIMESTAMP,
+                'count' => $count,
+            ];
+        }
+
+        DB::table('page_connection')->insert($rows);
     }
 }
