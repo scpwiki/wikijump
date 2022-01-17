@@ -723,7 +723,28 @@ EOF
             ],
         ]);
 
-        // TODO
+        // Main site (www)
+        $this->addRevision(1, 1, 'start', 'Welcome to your new Wikijump instance!', $www_start_wikitext_hash, $www_start_compiled_hash);
+        $this->addRevision(2, 1, 'side', 'Sidebar', $nav_side_wikitext_hash, $nav_side_compiled_hash);
+        $this->addRevision(3, 1, 'top', 'Topbar', $nav_top_wikitext_hash, $nav_top_compiled_hash);
+        $this->addRevision(4, 1, 'activity', 'Wikijump: Activity across all sites', $platform_activity_wikitext_hash, $platform_activity_compiled_hash);
+        $this->addRevision(5, 1, 'sites', 'Wikijump: List of all sites', $platform_sites_wikitext_hash, $platform_sites_compiled_hash);
+        $this->addRevision(6, 1, 'search', 'Wikijump: Search all sites', $platform_search_wikitext_hash, $platform_search_compiled_hash);
+        $this->addRevision(7, 1, 'join', 'Join this site', $system_join_wikitext_hash, $system_join_compiled_hash);
+        $this->addRevision(8, 1, 'members', 'Site Members', $system_members_wikitext_hash, $system_members_compiled_hash);
+        $this->addRevision(9, 1, 'recent-changes', 'Recent Changes', $system_recent_changes_wikitext_hash, $system_recent_changes_compiled_hash);
+        $this->addRevision(10, 1, 'page-tags', 'Page Tags', $system_page_tags_wikitext_hash, $system_page_tags_compiled_hash);
+        $this->addRevision(11, 1, 'manage', 'Site Manager', $admin_manage_wikitext_hash, $admin_manage_compiled_hash);
+
+        // Template site (template-en)
+        $this->addRevision(12, 2, 'start', "You've just created a new Wikijump wiki!", $system_join_wikitext_hash, $system_join_compiled_hash);
+        $this->addRevision(13, 2, 'side', 'Sidebar', $nav_side_wikitext_hash, $nav_side_compiled_hash);
+        $this->addRevision(14, 2, 'top', 'Topbar', $nav_top_wikitext_hash, $nav_top_compiled_hash);
+        $this->addRevision(15, 2, 'join', 'Join this site', $system_join_wikitext_hash, $system_join_compiled_hash);
+        $this->addRevision(16, 2, 'members', 'Site Members', $system_members_wikitext_hash, $system_members_compiled_hash);
+        $this->addRevision(17, 2, 'recent-changes', 'Recent Changes', $system_recent_changes_wikitext_hash, $system_recent_changes_compiled_hash);
+        $this->addRevision(18, 2, 'page-tags', 'Page Tags', $system_page_tags_wikitext_hash, $system_page_tags_compiled_hash);
+        $this->addRevision(19, 2, 'manage', 'Site Manager', $admin_manage_wikitext_hash, $admin_manage_compiled_hash);
     }
 
     private function addString(string $value): string
@@ -740,10 +761,11 @@ EOF
     private function addRevision(
         int $page_id,
         int $site_id,
+        string $title,
+        string $slug,
         string $wikitext_hash,
         string $compiled_hash,
-        string $title,
-        string $slug
+        int $revision_number = 0
     ): void {
         DB::insert(
             "INSERT INTO page_revision (
@@ -775,7 +797,7 @@ EOF
             )",
             [
                 TIMESTAMP,
-                0,
+                $revision_number,
                 $page_id,
                 $site_id,
                 $wikitext_hash,
