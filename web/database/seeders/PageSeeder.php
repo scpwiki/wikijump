@@ -3,17 +3,6 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-function addString(string $value): string
-{
-    // Convert to hex because Eloquent doesn't know how to do binary
-    $hash = hash('sha512', $value);
-
-    DB::insert(
-        "INSERT INTO text (hash, contents) VALUES (decode(?, 'hex'), ?)",
-        [$hash, $value],
-    );
-}
-
 /**
  * Seeder of page-related tables.
  * @package Database\Seeders
@@ -31,7 +20,8 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        $www_start_wikitext_hash = addString(<<<EOF
+        // prettier-ignore
+        $www_start_wikitext_hash = $this->addString(<<<EOF
 Congratulations, you have successfully deployed an instance of Wikijump!
 
 ++ Developer Information
@@ -67,7 +57,8 @@ Wikijump is a fork of [*https://www.wikidot.com/ Wikidot]. More information abou
 EOF
         );
 
-        $www_start_compiled_hash = addString(<<<EOF
+        // prettier-ignore
+        $www_start_compiled_hash = $this->addString(<<<EOF
 p>Congratulations, you have successfully deployed an instance of Wikijump!</p>
 <h2 id="toc0"><span>Developer Information</span></h2>
 <p>Ensure your <a href="https://github.com/scpwiki/wikijump/pulls" target="_blank">pull request</a> has the issue in the title, and describes the changes you make. The issue should link to the PR and be in the appropriate state for your work.</p>
@@ -100,7 +91,8 @@ p>Congratulations, you have successfully deployed an instance of Wikijump!</p>
 EOF
         );
 
-        $template_start_wikitext_hash = addString(<<<EOF
+        // prettier-ignore
+        $template_start_wikitext_hash = $this->addString(<<<EOF
 This is the template site for this instance, or a newly-created site based on the template.
 
 ++ Site Information
@@ -125,7 +117,8 @@ Wikijump is a fork of [*https://www.wikidot.com/ Wikidot]. More information abou
 EOF
         );
 
-        $template_start_compiled_hash = addString(<<<EOF
+        // prettier-ignore
+        $template_start_compiled_hash = $this->addString(<<<EOF
 <p>This is the template site for this instance, or a newly-created site based on the template.</p>
 <h2 id="toc0"><span>Site Information</span></h2>
 <ul>
@@ -149,7 +142,8 @@ EOF
 EOF
         );
 
-        $platform_activity_wikitext_hash = addString(<<<EOF
+        // prettier-ignore
+        $platform_activity_wikitext_hash = $this->addString(<<<EOF
 [[table]]
 [[row]]
 [[cell style="width: 45%; padding-right: 2%; border-right: 1px solid #999; vertical-align: top;"]]
@@ -176,7 +170,8 @@ EOF
 EOF
         );
 
-        $platform_activity_compiled_hash = addString(<<<EOF
+        // prettier-ignore
+        $platform_activity_compiled_hash = $this->addString(<<<EOF
 <table>
 <tbody><tr>
 <td style="width: 45%; padding-right: 2%; border-right: 1px solid #999; vertical-align: top;">
@@ -198,20 +193,23 @@ EOF
 EOF
         );
 
-        $platform_sites_wikitext_hash = addString(<<<EOF
+        // prettier-ignore
+        $platform_sites_wikitext_hash = $this->addString(<<<EOF
 Below is the list of public site hosted on this instance:
 
 [[module ListAllWikis]]
 EOF
         );
 
-        $platform_sites_compiled_hash = addString(<<<EOF
+        // prettier-ignore
+        $platform_sites_compiled_hash = $this->addString(<<<EOF
 <p>Below is the list of public site hosted on this instance:</p>
 <div class="error-block">[[module <em>ListAllWikis</em>]] No such module, please <a href="http://www.wikidot.com/doc:modules" target="_blank">check available modules</a> and fix this page.</div>
 EOF
         );
 
-        $platform_search_wikitext_hash = addString(<<<EOF
+        // prettier-ignore
+        $platform_search_wikitext_hash = $this->addString(<<<EOF
 [[=]]
 + Search all Wikis
 
@@ -233,7 +231,8 @@ To look for someone, please enter:
 EOF
         );
 
-        $platform_search_compiled_hash = addString(<<<EOF
+        // prettier-ignore
+        $platform_search_compiled_hash = $this->addString(<<<EOF
 <div style="text-align: center;">
 <h1 id="toc0"><span>Search all Wikis</span></h1>
 <p>Perform a search through all public and visible wikis.</p>
@@ -294,7 +293,8 @@ Search query:
 EOF
         );
 
-        $system_join_wikitext_hash = addString(<<<EOF
+        // prettier-ignore
+        $system_join_wikitext_hash = $this->addString(<<<EOF
 [[note]]
 Please change this page according to your policy (configure first using [[[admin:manage|Site Manager]]]) and remove this note.
 [[/note]]
@@ -315,7 +315,8 @@ Or, if you already know a "secret password", go for it!
 EOF
         );
 
-        $system_join_compiled_hash = addString(<<<EOF
+        // prettier-ignore
+        $system_join_compiled_hash = $this->addString(<<<EOF
 <div class="wiki-note">
 <p>Please change this page according to your policy (configure first using <a href="/admin:manage">Site Manager</a>) and remove this note.</p>
 </div>
@@ -363,8 +364,8 @@ Membership via password is not enabled for this site.
 EOF
         );
 
-
-        $system_members_wikitext_hash = addString(<<<EOF
+        // prettier-ignore
+        $system_members_wikitext_hash = $this->addString(<<<EOF
 + Members:
 
 [[module Members]]
@@ -379,7 +380,8 @@ EOF
 EOF
         );
 
-        $system_members_compiled_hash = addString(<<<EOF
+        // prettier-ignore
+        $system_members_compiled_hash = $this->addString(<<<EOF
 <h1 id="toc0"><span>Members:</span></h1>
 <style>
 @import url(/common--modules/css/Wiki/PagesTagCloud/PagesTagCloudModule.css);
@@ -412,37 +414,44 @@ No users.
 EOF
         );
 
-        $system_recent_changes_wikitext_hash = addString(<<<EOF
+        // prettier-ignore
+        $system_recent_changes_wikitext_hash = $this->addString(<<<EOF
 [[module SiteChanges]]
 EOF
         );
 
-        $system_recent_changes_compiled_hash = addString(<<<EOF
+        // prettier-ignore
+        $system_recent_changes_compiled_hash = $this->addString(<<<EOF
 Needs recompile: SiteChanges
 EOF
         );
 
-        $system_page_tags_wikitext_hash = addString(<<<EOF
+        // prettier-ignore
+        $system_page_tags_wikitext_hash = $this->addString(<<<EOF
 [[module TagCloud]]
 EOF
         );
 
-        $system_page_tags_compiled_hash = addString(<<<EOF
+        // prettier-ignore
+        $system_page_tags_compiled_hash = $this->addString(<<<EOF
 It seems you have no tags attached to pages. To attach a tag simply click on the tags button at the bottom of any page.
 EOF
         );
 
-        $admin_manage_wikitext_hash = addString(<<<EOF
+        // prettier-ignore
+        $admin_manage_wikitext_hash = $this->addString(<<<EOF
 [[module Redirect destination="_admin"]]
 EOF
         );
 
-        $admin_manage_compiled_hash = addString(<<<EOF
+        // prettier-ignore
+        $admin_manage_compiled_hash = $this->addString(<<<EOF
 Site Manager here
 EOF
         );
 
-        $nav_side_wikitext_hash = addString(<<<EOF
+        // prettier-ignore
+        $nav_side_wikitext_hash = $this->addString(<<<EOF
 * [[[start | Homepage]]]
 
 + All wikis
@@ -469,7 +478,8 @@ EOF
 EOF
         );
 
-        $nav_side_compiled_hash = addString(<<<EOF
+        // prettier-ignore
+        $nav_side_compiled_hash = $this->addString(<<<EOF
 <ul><li><a href="/start">Welcome page</a></li></ul><ul><li><a href="/what-is-a-wiki">What is a Wiki?</a></li><li><a href="/how-to-edit-pages">How to edit pages?</a></li><li><a href="/new-site">Get a new wiki!</a></li></ul><h1><span>All wikis</span></h1><ul><li><a href="/system-all:activity">Recent activity</a></li><li class=""><a href="/system-all:all-sites">All wikis</a></li><li class=""><a href="/system-all:sites-by-tags">Wikis by tags</a></li><li class=""><a href="/system-all:search">Search</a></li></ul><h1><span>This wiki</span></h1><ul><li class=""><a href="/system:join">How to join this site?</a></li><li><a href="/system:members">Site members</a></li></ul><ul><li><a href="/system:recent-changes">Recent changes</a></li><li><a href="/system:list-all-pages">List all pages</a></li><li><a href="/system:page-tags-list">Page Tags</a></li></ul><ul><li><a href="/admin:manage">Site Manager</a></li></ul><h2><span>Page tags</span></h2>
 <style>
 @import url(/common--modules/css/Wiki/PagesTagCloud/PagesTagCloudModule.css);
@@ -496,12 +506,14 @@ button at the bottom of any page.
 EOF
         );
 
-        $nav_top_wikitext_hash = addString(<<<EOF
+        // prettier-ignore
+        $nav_top_wikitext_hash = $this->addString(<<<EOF
 * [https://wikijump.org Wikijump Blog]
 EOF
         );
 
-        $nav_top_compiled_hash = addString(<<<EOF
+        // prettier-ignore
+        $nav_top_compiled_hash = $this->addString(<<<EOF
 <ul>
 <li><a href="https://wikijump.com">Wikijump Blog</a></li>
 </ul>
@@ -577,7 +589,7 @@ EOF
             [
                 'created_at' => TIMESTAMP,
                 'site_id' => 1,
-                'page_category_id' => 1
+                'page_category_id' => 1,
                 'slug' => 'start',
             ],
             // ID: 2
@@ -710,5 +722,70 @@ EOF
                 'slug' => 'manage',
             ],
         ]);
+
+        // TODO
+    }
+
+    private function addString(string $value): string
+    {
+        // Convert to hex because Eloquent doesn't know how to do binary
+        $hash = hash('sha512', $value);
+
+        DB::insert("INSERT INTO text (hash, contents) VALUES (decode(?, 'hex'), ?)", [
+            $hash,
+            $value,
+        ]);
+    }
+
+    private function addRevision(
+        int $page_id,
+        int $site_id,
+        string $wikitext_hash,
+        string $compiled_hash,
+        string $title,
+        string $slug
+    ): void {
+        DB::insert(
+            "INSERT INTO page_revision (
+                created_at,
+                revision_number,
+                page_id,
+                site_id,
+                user_id,
+                wikitext_hash,
+                compiled_hash,
+                compiled_at,
+                compiled_generator,
+                comments,
+                title,
+                slug
+            ) VALUES (
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                decode(?, 'hex'),
+                decode(?, 'hex'),
+                ?,
+                ?,
+                ?,
+                ?,
+                ?
+            )",
+            [
+                TIMESTAMP,
+                0,
+                $page_id,
+                $site_id,
+                $wikitext_hash,
+                $compiled_hash,
+                TIMESTAMP,
+                'Text_Wiki (seed)',
+                '',
+                $title,
+                $slug,
+            ],
+        );
     }
 }
