@@ -1043,6 +1043,12 @@ EOF
         $rows = [];
 
         foreach ($urls as $url => $count) {
+            // If this happens, the structure of the array is incorrect
+            // For instance, they may have forgotten the count value.
+            if (!is_string($url) || !is_integer($count)) {
+                throw new Error("Invalid external link data: url $url, count: $count");
+            }
+
             $rows[] = [
                 'page_id' => $page_id,
                 'url' => $url,
