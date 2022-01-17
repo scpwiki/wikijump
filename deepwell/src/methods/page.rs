@@ -70,6 +70,32 @@ pub async fn page_get(req: ApiRequest) -> ApiResponse {
     build_page_response(&page, StatusCode::Ok)
 }
 
+pub async fn page_head_direct(req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    let page_id = req.param("page_id")?.parse()?;
+    let exists = PageService::exists_direct(&ctx, page_id).await.to_api()?;
+    txn.commit().await?;
+
+    if exists {
+        Ok(Response::new(StatusCode::NoContent))
+    } else {
+        Ok(Response::new(StatusCode::NotFound))
+    }
+}
+
+pub async fn page_get_direct(req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    let page_id = req.param("page_id")?.parse()?;
+    let page = PageService::get_direct(&ctx, page_id).await.to_api()?;
+    txn.commit().await?;
+
+    build_page_response(&page, StatusCode::Ok)
+}
+
 pub async fn page_delete(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);

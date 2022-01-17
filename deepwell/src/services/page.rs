@@ -71,6 +71,17 @@ impl PageService {
             .map(|page| page.is_some())
     }
 
+    pub async fn get(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        reference: Reference<'_>,
+    ) -> Result<PageModel> {
+        match Self::get_optional(ctx, site_id, reference).await? {
+            Some(page) => Ok(page),
+            None => Err(Error::NotFound),
+        }
+    }
+
     pub async fn get_optional(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -102,15 +113,31 @@ impl PageService {
         Ok(page)
     }
 
-    pub async fn get(
+    #[inline]
+    pub async fn exists_direct(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        reference: Reference<'_>,
+        page_id: i64,
+    ) -> Result<bool> {
+        Self::get_direct_optional(ctx, page_id).await.map(|page| page.is_some())
+    }
+
+    pub async fn get_direct(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
     ) -> Result<PageModel> {
-        match Self::get_optional(ctx, site_id, reference).await? {
+        match Self::get_direct_optional(ctx, page_id).await? {
             Some(page) => Ok(page),
             None => Err(Error::NotFound),
         }
+    }
+
+    pub async fn get_direct_optional(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
+    ) -> Result<Option<PageModel>> {
+        let txn = ctx.transaction();
+        let page = Page::find_by_id(page_id).one(txn).await?;
+        Ok(page)
     }
 
     pub async fn delete(
