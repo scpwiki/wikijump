@@ -95,7 +95,7 @@ impl PageService {
                     // Trim off _default category if present
                     let slug = slug.strip_prefix("_default:").unwrap_or(slug);
 
-                    page::Column::UnixName.eq(slug) // TODO rename to Slug
+                    page::Column::Slug.eq(slug)
                 }
             };
 
@@ -103,8 +103,8 @@ impl PageService {
                 .filter(
                     Condition::all()
                         .add(condition)
-                        .add(page::Column::SiteId.eq(site_id)),
-                    // TODO: re-add .add(page::Column::DeletedAt.is_null()),
+                        .add(page::Column::SiteId.eq(site_id))
+                        .add(page::Column::DeletedAt.is_null()),
                 )
                 .one(txn)
                 .await?

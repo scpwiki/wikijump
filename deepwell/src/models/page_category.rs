@@ -4,31 +4,35 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
-#[sea_orm(table_name = "page_edit_lock")]
+#[sea_orm(table_name = "page_category")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub lock_id: i64,
-    pub page_id: Option<i32>,
-    pub page_unix_name: Option<String>,
-    pub user_id: Option<i32>,
-    pub user_string: Option<String>,
-    pub session_id: Option<String>,
-    pub date_started: Option<DateTime>,
-    pub date_last_accessed: Option<DateTime>,
-    pub secret: Option<String>,
-    pub site_id: Option<i32>,
+    pub category_id: i64,
+    pub created_at: DateTimeWithTimeZone,
+    pub updated_at: Option<DateTimeWithTimeZone>,
+    pub site_id: i64,
+    #[sea_orm(column_type = "Text")]
+    pub slug: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
     #[sea_orm(
-        belongs_to = "super::page::Entity",
-        from = "Column::PageId",
-        to = "super::page::Column::PageId",
+        belongs_to = "super::site::Entity",
+        from = "Column::SiteId",
+        to = "super::site::Column::SiteId",
         on_update = "NoAction",
         on_delete = "NoAction"
     )]
+    Site,
+    #[sea_orm(has_many = "super::page::Entity")]
     Page,
+}
+
+impl Related<super::site::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Site.def()
+    }
 }
 
 impl Related<super::page::Entity> for Entity {

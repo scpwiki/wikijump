@@ -14,6 +14,10 @@ function join_arr() {
 
 tables=(
 	file
+	forum_category
+	forum_group
+	forum_post
+	forum_thread
 	page
 	page_category
 	page_connection

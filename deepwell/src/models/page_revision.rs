@@ -8,29 +8,44 @@ use serde::{Deserialize, Serialize};
 pub struct Model {
     #[sea_orm(primary_key)]
     pub revision_id: i64,
-    pub page_id: Option<i32>,
-    pub metadata_id: Option<i32>,
-    pub flags: Option<String>,
-    pub flag_text: bool,
-    pub flag_title: bool,
-    pub flag_file: bool,
-    pub flag_rename: bool,
-    pub flag_meta: bool,
-    pub flag_new: bool,
-    pub revision_number: Option<i32>,
-    pub date_last_edited: Option<DateTime>,
-    pub user_id: Option<i32>,
-    pub user_string: Option<String>,
-    pub comments: Option<String>,
-    pub site_id: Option<i32>,
+    pub created_at: DateTimeWithTimeZone,
+    pub revision_number: i32,
+    pub page_id: i64,
+    pub site_id: i64,
+    pub user_id: i64,
     pub wikitext_hash: Vec<u8>,
-    pub compiled_hash: Vec<u8>,
+    pub compiled_hash: Option<Vec<u8>>,
+    pub compiled_at: Option<DateTimeWithTimeZone>,
+    #[sea_orm(column_type = "Text", nullable)]
+    pub compiled_generator: Option<String>,
     #[sea_orm(column_type = "Text")]
-    pub compiled_generator: String,
+    pub comments: String,
+    pub comments_edited_at: Option<DateTimeWithTimeZone>,
+    pub comments_edited_by: Option<i64>,
+    #[sea_orm(column_type = "Custom(\"array\".to_owned())")]
+    pub hidden: String,
+    #[sea_orm(column_type = "Text")]
+    pub title: String,
+    #[sea_orm(column_type = "Text", nullable)]
+    pub alt_title: Option<String>,
+    #[sea_orm(column_type = "Text")]
+    pub slug: String,
+    #[sea_orm(column_type = "Custom(\"array\".to_owned())")]
+    pub tags: String,
+    #[sea_orm(column_type = "Custom(\"jsonb\".to_owned())")]
+    pub metadata: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
+    #[sea_orm(
+        belongs_to = "super::users::Entity",
+        from = "Column::CommentsEditedBy",
+        to = "super::users::Column::Id",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    Users2,
     #[sea_orm(
         belongs_to = "super::text::Entity",
         from = "Column::CompiledHash",
@@ -40,6 +55,30 @@ pub enum Relation {
     )]
     Text2,
     #[sea_orm(
+        belongs_to = "super::page::Entity",
+        from = "Column::PageId",
+        to = "super::page::Column::PageId",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    Page,
+    #[sea_orm(
+        belongs_to = "super::site::Entity",
+        from = "Column::SiteId",
+        to = "super::site::Column::SiteId",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    Site,
+    #[sea_orm(
+        belongs_to = "super::users::Entity",
+        from = "Column::UserId",
+        to = "super::users::Column::Id",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    Users1,
+    #[sea_orm(
         belongs_to = "super::text::Entity",
         from = "Column::WikitextHash",
         to = "super::text::Column::Hash",
@@ -47,6 +86,18 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     Text1,
+}
+
+impl Related<super::page::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Page.def()
+    }
+}
+
+impl Related<super::site::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Site.def()
+    }
 }
 
 impl ActiveModelBehavior for ActiveModel {}

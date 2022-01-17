@@ -28,8 +28,8 @@ pub enum Relation {
         belongs_to = "super::page::Entity",
         from = "Column::PageId",
         to = "super::page::Column::PageId",
-        on_update = "Cascade",
-        on_delete = "Cascade"
+        on_update = "NoAction",
+        on_delete = "NoAction"
     )]
     Page,
     #[sea_orm(

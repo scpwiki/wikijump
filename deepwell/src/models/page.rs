@@ -2,48 +2,46 @@
 
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "page")]
 pub struct Model {
     #[sea_orm(primary_key)]
     pub page_id: i64,
-    pub site_id: Option<i32>,
-    pub category_id: Option<i32>,
-    pub parent_page_id: Option<i32>,
-    pub revision_id: Option<i32>,
-    pub metadata_id: Option<i32>,
-    pub revision_number: i32,
-    pub title: Option<String>,
-    pub unix_name: Option<String>,
-    pub date_created: Option<DateTime>,
-    pub date_last_edited: Option<DateTime>,
-    pub last_edit_user_id: Option<i32>,
-    pub last_edit_user_string: Option<String>,
-    pub thread_id: Option<i32>,
-    pub owner_user_id: Option<i32>,
-    pub blocked: bool,
-    pub rate: i32,
-    pub tags: Value,
+    pub created_at: DateTimeWithTimeZone,
+    pub updated_at: Option<DateTimeWithTimeZone>,
+    pub deleted_at: Option<DateTimeWithTimeZone>,
+    pub site_id: i64,
+    pub page_category_id: i64,
+    #[sea_orm(column_type = "Text")]
+    pub slug: String,
+    pub discussion_thread_id: Option<i64>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
     #[sea_orm(
-        belongs_to = "Entity",
-        from = "Column::ParentPageId",
-        to = "Column::PageId",
-        on_update = "Cascade",
-        on_delete = "SetNull"
+        belongs_to = "super::forum_thread::Entity",
+        from = "Column::DiscussionThreadId",
+        to = "super::forum_thread::Column::ThreadId",
+        on_update = "NoAction",
+        on_delete = "NoAction"
     )]
-    SelfRef,
+    ForumThread,
+    #[sea_orm(
+        belongs_to = "super::page_category::Entity",
+        from = "Column::PageCategoryId",
+        to = "super::page_category::Column::CategoryId",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    PageCategory,
     #[sea_orm(
         belongs_to = "super::site::Entity",
         from = "Column::SiteId",
         to = "super::site::Column::SiteId",
-        on_update = "Cascade",
-        on_delete = "Cascade"
+        on_update = "NoAction",
+        on_delete = "NoAction"
     )]
     Site,
     #[sea_orm(has_many = "super::file::Entity")]
@@ -54,6 +52,22 @@ pub enum Relation {
     PageRateVote,
     #[sea_orm(has_many = "super::page_link::Entity")]
     PageLink,
+    #[sea_orm(has_many = "super::page_connection_missing::Entity")]
+    PageConnectionMissing,
+    #[sea_orm(has_many = "super::page_revision::Entity")]
+    PageRevision,
+}
+
+impl Related<super::forum_thread::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::ForumThread.def()
+    }
+}
+
+impl Related<super::page_category::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::PageCategory.def()
+    }
 }
 
 impl Related<super::site::Entity> for Entity {
@@ -83,6 +97,18 @@ impl Related<super::page_rate_vote::Entity> for Entity {
 impl Related<super::page_link::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::PageLink.def()
+    }
+}
+
+impl Related<super::page_connection_missing::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::PageConnectionMissing.def()
+    }
+}
+
+impl Related<super::page_revision::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::PageRevision.def()
     }
 }
 

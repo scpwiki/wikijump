@@ -4,29 +4,15 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
-#[sea_orm(table_name = "category")]
+#[sea_orm(table_name = "forum_group")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub category_id: i64,
-    pub site_id: Option<i32>,
+    pub group_id: i64,
     pub name: Option<String>,
-    pub theme_default: bool,
-    pub theme_id: Option<i32>,
-    pub permissions_default: bool,
-    pub permissions: Option<String>,
-    pub nav_default: bool,
-    pub top_bar_page_name: Option<String>,
-    pub side_bar_page_name: Option<String>,
-    pub template_id: Option<i32>,
-    pub per_page_discussion: Option<bool>,
-    pub per_page_discussion_default: bool,
-    pub rating: Option<String>,
-    pub category_template_id: Option<i32>,
-    pub theme_external_url: Option<String>,
-    pub autonumerate: bool,
-    pub page_title_template: Option<String>,
-    pub license_id: String,
-    pub license_inherits: bool,
+    pub description: Option<String>,
+    pub sort_index: i32,
+    pub site_id: Option<i32>,
+    pub visible: bool,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -39,11 +25,19 @@ pub enum Relation {
         on_delete = "Cascade"
     )]
     Site,
+    #[sea_orm(has_many = "super::forum_category::Entity")]
+    ForumCategory,
 }
 
 impl Related<super::site::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Site.def()
+    }
+}
+
+impl Related<super::forum_category::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::ForumCategory.def()
     }
 }
 
