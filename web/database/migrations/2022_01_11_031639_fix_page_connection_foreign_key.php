@@ -15,7 +15,7 @@ class FixPageConnectionForeignKey extends Migration
     public function up()
     {
         DB::statement('ALTER TABLE page_connection_missing DROP CONSTRAINT page_connection_missing_to_site_id_fkey');
-        DB::statement('ALTER TABLE page_connection_missing ADD FOREIGN KEY to_site_id REFERENCES site(site_id)');
+        DB::statement('ALTER TABLE page_connection_missing ADD CONSTRAINT page_connection_missing_to_site_id_fkey FOREIGN KEY (to_site_id) REFERENCES site(site_id)');
     }
 
     /**
@@ -26,6 +26,6 @@ class FixPageConnectionForeignKey extends Migration
     public function down()
     {
         DB::statement('ALTER TABLE page_connection_missing DROP CONSTRAINT page_connection_missing_to_site_id_fkey');
-        DB::statement('ALTER TABLE page_connection_missing ADD FOREIGN KEY to_site_id REFERENCES page(page_id)');
+        DB::statement('ALTER TABLE page_connection_missing ADD CONSTRAINT page_connection_missing_to_site_id_fkey FOREIGN KEY (to_site_id) REFERENCES page(page_id)');
     }
 }

@@ -143,16 +143,16 @@ class DeepwellPage extends Migration
         ");
 
         // Add new foreign keys
-        DB::statement('ALTER TABLE file ADD FOREIGN KEY page_id REFERENCES page(page_id)');
-        DB::statement('ALTER TABLE forum_thread ADD FOREIGN KEY page_id REFERENCES page(page_id)');
-        DB::statement('ALTER TABLE front_forum_feed ADD FOREIGN KEY page_id REFERENCES page(page_id)');
-        DB::statement('ALTER TABLE page_connection ADD FOREIGN KEY from_page_id REFERENCES page(page_id)');
-        DB::statement('ALTER TABLE page_connection ADD FOREIGN KEY to_page_id REFERENCES page(page_id)');
-        DB::statement('ALTER TABLE page_connection_missing ADD FOREIGN KEY from_page_id REFERENCES page(page_id)');
-        DB::statement('ALTER TABLE page_link ADD FOREIGN KEY page_id REFERENCES page(page_id)');
-        DB::statement('ALTER TABLE page_edit_lock ADD FOREIGN KEY page_id REFERENCES page(page_id)');
-        DB::statement('ALTER TABLE page_rate_vote ADD FOREIGN KEY page_id REFERENCES page(page_id)');
-        DB::statement('ALTER TABLE watched_page ADD FOREIGN KEY page_id REFERENCES page(page_id)');
+        DB::statement('ALTER TABLE file ADD CONSTRAINT file_page_id_fkey FOREIGN KEY (page_id) REFERENCES page(page_id)');
+        DB::statement('ALTER TABLE forum_thread ADD CONSTRAINT forum_thread_page_id_fkey FOREIGN KEY (page_id) REFERENCES page(page_id)');
+        DB::statement('ALTER TABLE front_forum_feed ADD CONSTRAINT front_forum_feed_page_id_fkey FOREIGN KEY (page_id) REFERENCES page(page_id)');
+        DB::statement('ALTER TABLE page_connection ADD CONSTRAINT page_connection_from_page_id_fkey FOREIGN KEY (from_page_id) REFERENCES page(page_id)');
+        DB::statement('ALTER TABLE page_connection ADD CONSTRAINT page_connection_to_page_id_fkey FOREIGN KEY (to_page_id) REFERENCES page(page_id)');
+        DB::statement('ALTER TABLE page_connection_missing ADD CONSTRAINT page_connection_missing_from_page_id_fkey FOREIGN KEY (from_page_id) REFERENCES page(page_id)');
+        DB::statement('ALTER TABLE page_link ADD CONSTRAINT page_link_page_id_fkey FOREIGN KEY (page_id) REFERENCES page(page_id)');
+        DB::statement('ALTER TABLE page_edit_lock ADD CONSTRAINT page_edit_lock_page_id_fkey FOREIGN KEY (page_id) REFERENCES page(page_id)');
+        DB::statement('ALTER TABLE page_rate_vote ADD CONSTRAINT page_rate_vote_page_id_fkey FOREIGN KEY (page_id) REFERENCES page(page_id)');
+        DB::statement('ALTER TABLE watched_page ADD CONSTRAINT watched_page_page_id_fkey FOREIGN KEY (page_id) REFERENCES page(page_id)');
     }
 
     /**
