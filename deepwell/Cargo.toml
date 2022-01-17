@@ -26,7 +26,7 @@ futures = { version = "0.3", features = ["async-await"], default-features = fals
 governor = "0.3"
 hex = "0.4"
 hostname = "0.3"
-indexmap = "=1.6.2"  # Pinning to avoid cyclic dependency issue, see https://stackoverflow.com/questions/68399961, not actually used
+indexmap = "=1.6.2"  # Pinning to avoid cyclic dependency issue, see https://stackoverflow.com/questions/68399961, not actually used. See also https://github.com/tkaitchuck/aHash/issues/95
 intl-memoizer = "0.5"
 lazy_static = "1"
 ref-map = "0.1"
