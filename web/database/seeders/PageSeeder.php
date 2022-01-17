@@ -911,21 +911,21 @@ EOF
         $this->addExternalLinks(
             3, // www nav:top
             [
-                'https://wikijump.org',
+                'https://wikijump.org' => 1,
             ],
         );
         $this->addExternalLinks(
             14, // www nav:top
             [
-                'https://wikijump.org',
+                'https://wikijump.org' => 1,
             ],
         );
 
         // NOTE: format is [from_page_id, to_page_id, count]
 
-        DB::table('page_connection')->insert([
+        $this->addInternalLinks([
             // www start
-            [1, 11, 2] // admin:manage
+            [1, 11, 2], // admin:manage
             [1, 2, 1], // nav:side
             [1, 3, 1], // nav:top
 
@@ -950,7 +950,7 @@ EOF
             [2, 11, 1], // admin:manage
             [2, 2, 1], // self
 
-            [13, 12, 1] // start
+            [13, 12, 1], // start
             [13, 4, 1], // platform:activity
             [13, 5, 1], // platform:sites
             [13, 6, 1], // platform:search

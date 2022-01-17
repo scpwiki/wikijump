@@ -43,7 +43,6 @@ INSERT INTO public.category (category_id, site_id, name, theme_default, theme_id
 
 INSERT INTO public.forum_settings (site_id, permissions, per_page_discussion, max_nest_level) VALUES (2, 't:m;p:m;e:o;s:', false, 2);
 
-
 INSERT INTO public.profile (user_id, real_name, pronouns, birthday_day, birthday_month, birthday_year, about, location, website, im_icq, im_jabber, change_screen_name_count) VALUES (1, NULL, NULL, NULL, NULL, NULL, 'Wikidot administrator.', NULL, NULL, NULL, NULL, 0);
 
 INSERT INTO public.site (site_id, name, subtitle, unix_name, description, language, date_created, custom_domain, visible, default_page, private, deleted) VALUES (1, 'Wikijump', 'Fighting Ozone Pollution', 'www', 'Wikijump host site', 'en', NULL, NULL, true, 'start', false, false);
