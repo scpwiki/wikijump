@@ -908,8 +908,8 @@ EOF
     private function addRevision(
         int $page_id,
         int $site_id,
-        string $title,
         string $slug,
+        string $title,
         string $wikitext_hash,
         string $compiled_hash,
         int $revision_number = 0
