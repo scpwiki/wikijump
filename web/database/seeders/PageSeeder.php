@@ -890,19 +890,19 @@ EOF
         $hash = hash('sha512', $value);
 
         $entries = DB::select("
-        SELECT hash FROM text
-        WHERE hash = decode(?, 'hex')
-        LIMIT 1
-    ", [$hash]);
+            SELECT hash FROM text
+            WHERE hash = decode(?, 'hex')
+            LIMIT 1
+        ", [$hash]);
 
-    if (empty($entries)) {
-        DB::insert(
-            "INSERT INTO text (hash, contents) VALUES (decode(?, 'hex'), ?)",
-            [$hash, $value],
-        );
-    }
+        if (empty($entries)) {
+            DB::insert(
+                "INSERT INTO text (hash, contents) VALUES (decode(?, 'hex'), ?)",
+                [$hash, $value],
+            );
+        }
 
-    return $hash;
+        return $hash;
     }
 
     private function addRevision(
