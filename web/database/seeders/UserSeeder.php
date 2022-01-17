@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace Database\Seeders;
@@ -23,7 +22,7 @@ class UserSeeder extends Seeder
      * @return void
      * @throws Exception
      */
-    public function run()
+    public function run(): void
     {
         DB::table('users')->insert([
             [
