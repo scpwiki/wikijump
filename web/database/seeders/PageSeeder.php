@@ -3,11 +3,15 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+
 /**
  * Seeder of page-related tables.
  * @package Database\Seeders
  */
-class UserSeeder extends Seeder
+class PageSeeder extends Seeder
 {
     const TIMESTAMP = 'Fri Jan 18 15:32:15 2019 -0700';
 
@@ -525,37 +529,37 @@ EOF
 
             // ID: 1
             [
-                'created_at' => TIMESTAMP,
+                'created_at' => self::TIMESTAMP,
                 'site_id' => 1,
                 'slug' => '_default',
             ],
             // ID: 2
             [
-                'created_at' => TIMESTAMP,
+                'created_at' => self::TIMESTAMP,
                 'site_id' => 1,
                 'slug' => 'admin',
             ],
             // ID: 3
             [
-                'created_at' => TIMESTAMP,
+                'created_at' => self::TIMESTAMP,
                 'site_id' => 1,
                 'slug' => 'nav',
             ],
             // ID: 4
             [
-                'created_at' => TIMESTAMP,
+                'created_at' => self::TIMESTAMP,
                 'site_id' => 1,
                 'slug' => 'platform',
             ],
             // ID: 5
             [
-                'created_at' => TIMESTAMP,
+                'created_at' => self::TIMESTAMP,
                 'site_id' => 1,
                 'slug' => 'system',
             ],
             // ID: 6
             [
-                'created_at' => TIMESTAMP,
+                'created_at' => self::TIMESTAMP,
                 'site_id' => 2,
                 'slug' => '_default',
             ],
@@ -564,19 +568,19 @@ EOF
 
             // ID: 7
             [
-                'created_at' => TIMESTAMP,
+                'created_at' => self::TIMESTAMP,
                 'site_id' => 2,
                 'slug' => 'admin',
             ],
             // ID: 8
             [
-                'created_at' => TIMESTAMP,
+                'created_at' => self::TIMESTAMP,
                 'site_id' => 2,
                 'slug' => 'nav',
             ],
             // ID: 9
             [
-                'created_at' => TIMESTAMP,
+                'created_at' => self::TIMESTAMP,
                 'site_id' => 2,
                 'slug' => 'system',
             ],
@@ -587,77 +591,77 @@ EOF
 
             // ID: 1
             [
-                'created_at' => TIMESTAMP,
+                'created_at' => self::TIMESTAMP,
                 'site_id' => 1,
                 'page_category_id' => 1,
                 'slug' => 'start',
             ],
             // ID: 2
             [
-                'created_at' => TIMESTAMP,
+                'created_at' => self::TIMESTAMP,
                 'site_id' => 1,
                 'page_category_id' => 3,
                 'slug' => 'side',
             ],
             // ID: 3
             [
-                'created_at' => TIMESTAMP,
+                'created_at' => self::TIMESTAMP,
                 'site_id' => 1,
                 'page_category_id' => 3,
                 'slug' => 'top',
             ],
             // ID: 4
             [
-                'created_at' => TIMESTAMP,
+                'created_at' => self::TIMESTAMP,
                 'site_id' => 1,
                 'page_category_id' => 4,
                 'slug' => 'activity',
             ],
             // ID: 5
             [
-                'created_at' => TIMESTAMP,
+                'created_at' => self::TIMESTAMP,
                 'site_id' => 1,
                 'page_category_id' => 4,
                 'slug' => 'sites',
             ],
             // ID: 6
             [
-                'created_at' => TIMESTAMP,
+                'created_at' => self::TIMESTAMP,
                 'site_id' => 1,
                 'page_category_id' => 4,
                 'slug' => 'search',
             ],
             // ID: 7
             [
-                'created_at' => TIMESTAMP,
+                'created_at' => self::TIMESTAMP,
                 'site_id' => 1,
                 'page_category_id' => 5,
                 'slug' => 'join',
             ],
             // ID: 8
             [
-                'created_at' => TIMESTAMP,
+                'created_at' => self::TIMESTAMP,
                 'site_id' => 1,
                 'page_category_id' => 5,
                 'slug' => 'members',
             ],
             // ID: 9
             [
-                'created_at' => TIMESTAMP,
+                'created_at' => self::TIMESTAMP,
                 'site_id' => 1,
                 'page_category_id' => 5,
                 'slug' => 'recent-changes',
             ],
             // ID: 10
             [
-                'created_at' => TIMESTAMP,
+                'created_at' => self::TIMESTAMP,
                 'site_id' => 1,
                 'page_category_id' => 5,
                 'slug' => 'page-tags',
             ],
             // ID: 11
             [
-                'created_at' => TIMESTAMP,
+                'created_at' => self::TIMESTAMP,
                 'site_id' => 1,
                 'page_category_id' => 2,
                 'slug' => 'manage',
@@ -667,57 +671,57 @@ EOF
 
             // ID: 12
             [
-                'created_at' => TIMESTAMP,
-                'site_id' => 1,
+                'created_at' => self::TIMESTAMP,
+                'site_id' => 2,
                 'page_category_id' => 6,
                 'slug' => 'start',
             ],
             // ID: 13
             [
-                'created_at' => TIMESTAMP,
-                'site_id' => 1,
+                'created_at' => self::TIMESTAMP,
+                'site_id' => 2,
                 'page_category_id' => 8,
                 'slug' => 'side',
             ],
             // ID: 14
             [
-                'created_at' => TIMESTAMP,
-                'site_id' => 1,
+                'created_at' => self::TIMESTAMP,
+                'site_id' => 2,
                 'page_category_id' => 8,
                 'slug' => 'top',
             ],
             // ID: 15
             [
-                'created_at' => TIMESTAMP,
-                'site_id' => 1,
+                'created_at' => self::TIMESTAMP,
+                'site_id' => 2,
                 'page_category_id' => 9,
                 'slug' => 'join',
             ],
             // ID: 16
             [
-                'created_at' => TIMESTAMP,
-                'site_id' => 1,
+                'created_at' => self::TIMESTAMP,
+                'site_id' => 2,
                 'page_category_id' => 9,
                 'slug' => 'members',
             ],
             // ID: 17
             [
-                'created_at' => TIMESTAMP,
-                'site_id' => 1,
+                'created_at' => self::TIMESTAMP,
+                'site_id' => 2,
                 'page_category_id' => 9,
                 'slug' => 'recent-changes',
             ],
             // ID: 18
             [
-                'created_at' => TIMESTAMP,
-                'site_id' => 1,
+                'created_at' => self::TIMESTAMP,
+                'site_id' => 2,
                 'page_category_id' => 9,
                 'slug' => 'page-tags',
             ],
             // ID: 19
             [
-                'created_at' => TIMESTAMP,
-                'site_id' => 1,
+                'created_at' => self::TIMESTAMP,
+                'site_id' => 2,
                 'page_category_id' => 7,
                 'slug' => 'manage',
             ],
@@ -885,10 +889,20 @@ EOF
         // Convert to hex because Eloquent doesn't know how to do binary
         $hash = hash('sha512', $value);
 
-        DB::insert("INSERT INTO text (hash, contents) VALUES (decode(?, 'hex'), ?)", [
-            $hash,
-            $value,
-        ]);
+        $entries = DB::select("
+        SELECT hash FROM text
+        WHERE hash = decode(?, 'hex')
+        LIMIT 1
+    ", [$hash]);
+
+    if (empty($entries)) {
+        DB::insert(
+            "INSERT INTO text (hash, contents) VALUES (decode(?, 'hex'), ?)",
+            [$hash, $value],
+        );
+    }
+
+    return $hash;
     }
 
     private function addRevision(
@@ -929,13 +943,14 @@ EOF
                 ?
             )",
             [
-                TIMESTAMP,
+                self::TIMESTAMP,
                 $revision_number,
                 $page_id,
                 $site_id,
+                2,
                 $wikitext_hash,
                 $compiled_hash,
-                TIMESTAMP,
+                self::TIMESTAMP,
                 'Text_Wiki (seed)',
                 '',
                 $title,
