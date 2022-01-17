@@ -69,6 +69,22 @@ final class DeepwellService
     }
 
     // Page
+    public function getPageById(int $site_id, int $page_id): ?Page
+    {
+        return self::fetchOrNull(function () use ($site_id, $page_id) {
+            $resp = $this->client->get("page/$site_id/id/$page_id");
+            return $this->parsePage($resp);
+        }, "No page found in site ID $site_id with page ID $page_id");
+    }
+
+    public function getPageBySlug(int $site_id, string $page_slug): ?Page
+    {
+        return self::fetchOrNull(function () use ($site_id, $page_slug) {
+            $resp = $this->client->get("page/$site_id/slug/$page_slug");
+            return $this->parsePage($resp);
+        }, "No page found in site ID $site_id with slug '$page_slug'");
+    }
+
     public function getLinksFrom(int $site_id, int $page_id): array
     {
         $resp = $this->client->get("page/$site_id/id/$page_id/links/from");
@@ -169,6 +185,13 @@ final class DeepwellService
     public function setUser(int $id, array $fields): void
     {
         $this->client->put("user/id/$id", ['json' => $fields]);
+    }
+
+    private function parsePage($resp): Page
+    {
+        $page = self::readJson($resp);
+        self::convertDateProperties($page, ['created_at', 'updated_at', 'deleted_at']);
+        return new Page($page);
     }
 
     private function parseUser($resp, string $detail): User

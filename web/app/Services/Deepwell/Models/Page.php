@@ -31,14 +31,31 @@ class Page extends DeepwellModel
     }
 
     // Fetch methods
-    public static function findId(int $page_id): ?Page
+    public static function findId(int $site_id, int $page_id): ?Page
     {
-        return DeepwellService::getInstance()->getPageById($page_id);
+        return DeepwellService::getInstance()->getPageById($site_id, $page_id);
     }
 
-    public static function findSlug(string $page_slug): ?User
+    public static function findSlug(int $site_id, string $page_slug): ?User
     {
-        return DeepwellService::getInstance()->getpageBySlug($page_slug);
+        return DeepwellService::getInstance()->getPageBySlug($site_id, $page_slug);
+    }
+
+    /**
+     * Returns the page with the given ID.
+     *
+     * This method is *not* preferred over findId(),
+     * because the site ID check helps ensure security.
+     * The idea is to avoid an attacker, if they know the
+     * ID of a hidden page, smuggles it into a request and
+     * has the backend retrieve it for them.
+     *
+     * @param int $page_id The ID of the Page to find
+     * @return ?Page The page if found, or null
+     */
+    public static function findIdOnly(int $page_id): ?Page
+    {
+        throw new Exception('DEEPWELL getPageByIdOnly not implemented yet');
     }
 
     // Getters
