@@ -31,6 +31,7 @@ use anyhow::Result;
 use sea_orm::DatabaseConnection;
 use std::sync::Arc;
 
+mod internal;
 mod v0;
 mod v1;
 
@@ -77,6 +78,7 @@ pub async fn build_server(config: Config) -> Result<ApiServer> {
         .with(GovernorMiddleware::per_minute(rate_limit))
         .nest({
             let mut api = new!();
+            api.at("/internal").nest(internal::build(new!()));
             api.at("/v0").nest(v0::build(new!()));
             api.at("/v1").nest(v1::build(new!()));
             api
