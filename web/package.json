@@ -80,7 +80,7 @@
     "stylelint-order": "^5.0.0",
     "stylelint-scss": "^4.1.0",
     "svelte-eslint-parser": "^0.9.2",
-    "vitest": "^0.0.139"
+    "vitest": "^0.1.20"
   },
   "engineStrict": true,
   "engines": {
