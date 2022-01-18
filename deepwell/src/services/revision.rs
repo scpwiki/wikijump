@@ -19,14 +19,15 @@
  */
 
 use super::prelude::*;
+use crate::models::page_revision::{
+    self, Entity as PageRevision, Model as PageRevisionModel,
+};
 
 // Helper structs
 // TODO
 
 #[derive(Deserialize, Debug)]
 pub struct CreateRevisionInput {
-    _page_id: i64,
-    _site_id: i64,
     _user_id: i64,
     _comments: String,
 
@@ -66,6 +67,8 @@ pub struct RevisionService;
 impl RevisionService {
     pub async fn create(
         ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
         input: CreateRevisionInput,
     ) -> Result<Option<CreateRevisionOutput>> {
         let _todo = (ctx, input);
@@ -73,6 +76,71 @@ impl RevisionService {
         todo!()
     }
 
-    // TODO: add revision type
-    pub async fn get_latest(_ctx: &ServiceContext<'_>, _page_id: i64, _site_id: i64) {}
+    pub async fn get_latest(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+    ) -> Result<PageRevisionModel> {
+        // NOTE: There is no optional variant of this method,
+        //       since all extant pages must have at least one revision.
+
+        let txn = ctx.transaction();
+        let revision = PageRevision::find()
+            .filter(
+                Condition::all()
+                    .add(page_revision::Column::PageId.eq(page_id))
+                    .add(page_revision::Column::SiteId.eq(site_id)),
+            )
+            .order_by_desc(page_revision::Column::RevisionNumber)
+            .one(txn)
+            .await?
+            .ok_or(Error::NotFound)?;
+
+        Ok(revision)
+    }
+
+    pub async fn get_optional(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+        revision_number: i32,
+    ) -> Result<Option<PageRevisionModel>> {
+        let txn = ctx.transaction();
+        let revision = PageRevision::find()
+            .filter(
+                Condition::all()
+                    .add(page_revision::Column::PageId.eq(page_id))
+                    .add(page_revision::Column::SiteId.eq(site_id))
+                    .add(page_revision::Column::RevisionNumber.eq(revision_number)),
+            )
+            .one(txn)
+            .await?;
+
+        Ok(revision)
+    }
+
+    #[inline]
+    pub async fn exists(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+        revision_number: i32,
+    ) -> Result<bool> {
+        Self::get_optional(ctx, site_id, page_id, revision_number)
+            .await
+            .map(|revision| revision.is_some())
+    }
+
+    #[inline]
+    pub async fn get(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+        revision_number: i32,
+    ) -> Result<PageRevisionModel> {
+        match Self::get_optional(ctx, site_id, page_id, revision_number).await? {
+            Some(revision) => Ok(revision),
+            None => Err(Error::NotFound),
+        }
+    }
 }

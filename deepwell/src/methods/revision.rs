@@ -19,26 +19,75 @@
  */
 
 use super::prelude::*;
+use crate::models::page_revision::Model as PageRevisionModel;
+use crate::services::revision::CreateRevisionInput;
 
-pub async fn page_revision_create(req: ApiRequest) -> ApiResponse {
+pub async fn page_revision_create(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    todo!()
+    let input: CreateRevisionInput = req.body_json().await?;
+    let site_id = req.param("site_id")?.parse()?;
+    let reference = Reference::try_from(&req)?;
+    let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
+    let output = RevisionService::create(&ctx, site_id, page.page_id, input)
+        .await
+        .to_api()?;
+    let body = Body::from_json(&output)?;
+    txn.commit().await?;
+
+    Ok(body.into())
+}
+
+pub async fn page_revision_latest(req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    let site_id = req.param("site_id")?.parse()?;
+    let reference = Reference::try_from(&req)?;
+    let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
+    let revision = RevisionService::get_latest(&ctx, site_id, page.page_id)
+        .await
+        .to_api()?;
+    txn.commit().await?;
+
+    build_revision_response(&revision, StatusCode::Ok)
 }
 
 pub async fn page_revision_head(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    todo!()
+    let site_id = req.param("site_id")?.parse()?;
+    let revision_number = req.param("revision_number")?.parse()?;
+    let reference = Reference::try_from(&req)?;
+    let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
+    let exists = RevisionService::exists(&ctx, site_id, page.page_id, revision_number)
+        .await
+        .to_api()?;
+    txn.commit().await?;
+
+    if exists {
+        Ok(Response::new(StatusCode::NoContent))
+    } else {
+        Ok(Response::new(StatusCode::NotFound))
+    }
 }
 
 pub async fn page_revision_get(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    todo!()
+    let site_id = req.param("site_id")?.parse()?;
+    let revision_number = req.param("revision_number")?.parse()?;
+    let reference = Reference::try_from(&req)?;
+    let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
+    let revision = RevisionService::get(&ctx, site_id, page.page_id, revision_number)
+        .await
+        .to_api()?;
+    txn.commit().await?;
+
+    build_revision_response(&revision, StatusCode::Ok)
 }
 
 pub async fn page_revision_edit(req: ApiRequest) -> ApiResponse {
@@ -46,4 +95,23 @@ pub async fn page_revision_edit(req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     todo!()
+}
+
+// TODO: get list of revisions before/after a spec, max limit 100, default 10
+// app.at("/page/:site_id/:type/:id_or_slug/revision/:revision_num/:direction")
+pub async fn page_revision_range_get(req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    todo!()
+}
+
+// TODO: filter out hidden fields
+fn build_revision_response(
+    revision: &PageRevisionModel,
+    status: StatusCode,
+) -> ApiResponse {
+    let body = Body::from_json(revision)?;
+    let response = Response::builder(status).body(body).into();
+    Ok(response)
 }

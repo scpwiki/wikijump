@@ -62,10 +62,16 @@ pub fn build(mut app: ApiServer) -> ApiServer {
         .post(page_revision_create)
         .delete(page_delete);
 
-    app.at("/page/:site_id/:type/:id_or_slug/revision/:revision_num")
+    app.at("/page/:site_id/:type/:id_or_slug/revision")
+        .get(page_revision_latest);
+
+    app.at("/page/:site_id/:type/:id_or_slug/revision/:revision_number")
         .head(page_revision_head)
         .get(page_revision_get)
         .put(page_revision_edit);
+
+    app.at("/page/:site_id/:type/:id_or_slug/revision/:revision_number/:direction")
+        .get(page_revision_range_get);
 
     app.at("/page/:site_id/:type/:id_or_slug/links")
         .put(page_links_put); // TEMP
