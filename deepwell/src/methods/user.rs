@@ -44,12 +44,7 @@ pub async fn user_head(req: ApiRequest) -> ApiResponse {
     let reference = Reference::try_from(&req)?;
     let exists = UserService::exists(&ctx, reference).await.to_api()?;
     txn.commit().await?;
-
-    if exists {
-        Ok(Response::new(StatusCode::NoContent))
-    } else {
-        Ok(Response::new(StatusCode::NotFound))
-    }
+    exists_status(exists)
 }
 
 pub async fn user_get(req: ApiRequest) -> ApiResponse {

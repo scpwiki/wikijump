@@ -77,12 +77,7 @@ pub async fn page_head_direct(req: ApiRequest) -> ApiResponse {
     let page_id = req.param("page_id")?.parse()?;
     let exists = PageService::exists_direct(&ctx, page_id).await.to_api()?;
     txn.commit().await?;
-
-    if exists {
-        Ok(Response::new(StatusCode::NoContent))
-    } else {
-        Ok(Response::new(StatusCode::NotFound))
-    }
+    exists_status(exists)
 }
 
 pub async fn page_get_direct(req: ApiRequest) -> ApiResponse {

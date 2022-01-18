@@ -30,6 +30,14 @@ mod prelude {
     pub use sea_orm::ConnectionTrait;
     pub use std::convert::TryFrom;
     pub use tide::{Body, Error as TideError, Request, Response, StatusCode};
+
+    pub fn exists_status(exists: bool) -> ApiResponse {
+        if exists {
+            Ok(Response::new(StatusCode::NoContent))
+        } else {
+            Ok(Response::new(StatusCode::NotFound))
+        }
+    }
 }
 
 pub mod locales;
