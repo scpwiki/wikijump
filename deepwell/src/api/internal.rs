@@ -26,6 +26,7 @@ use crate::api::ApiServer;
 use crate::methods::locales::*;
 use crate::methods::misc::*;
 use crate::methods::page::*;
+use crate::methods::revision::*;
 use crate::methods::text::*;
 use crate::methods::user::*;
 use crate::web::utils::error_response;
@@ -58,7 +59,13 @@ pub fn build(mut app: ApiServer) -> ApiServer {
     app.at("/page/:site_id/:type/:id_or_slug")
         .head(page_head)
         .get(page_get)
+        .post(page_revision_create)
         .delete(page_delete);
+
+    app.at("/page/:site_id/:type/:id_or_slug/revision/:revision_num")
+        .head(page_revision_head)
+        .get(page_revision_get)
+        .put(page_revision_edit);
 
     app.at("/page/:site_id/:type/:id_or_slug/links")
         .put(page_links_put); // TEMP

@@ -1,5 +1,5 @@
 /*
- * methods/mod.rs
+ * methods/revision.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -18,23 +18,32 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod prelude {
-    pub use crate::api::{ApiRequest, ApiResponse};
-    pub use crate::services::{
-        Error as ServiceError, LinkService, PageService, PostTransactionToApiResponse,
-        RenderService, RequestFetchService, RevisionService, ServiceContext, SiteService,
-        TextService, UserService,
-    };
-    pub use crate::web::{utils::error_response, HttpUnwrap, Reference};
-    pub use chrono::prelude::*;
-    pub use sea_orm::ConnectionTrait;
-    pub use std::convert::TryFrom;
-    pub use tide::{Body, Error as TideError, Request, Response, StatusCode};
+use super::prelude::*;
+
+pub async fn page_revision_create(req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    todo!()
 }
 
-pub mod locales;
-pub mod misc;
-pub mod page;
-pub mod revision;
-pub mod text;
-pub mod user;
+pub async fn page_revision_head(req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    todo!()
+}
+
+pub async fn page_revision_get(req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    todo!()
+}
+
+pub async fn page_revision_edit(req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    todo!()
+}
