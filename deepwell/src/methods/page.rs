@@ -20,8 +20,15 @@
 
 use super::prelude::*;
 use crate::models::page::Model as PageModel;
+use crate::models::page_revision::Model as PageRevisionModel;
 use crate::services::page::CreatePage;
 use ftml::data::Backlinks;
+
+#[derive(Serialize, Debug)]
+struct PageOutput<'a> {
+    page: &'a PageModel,
+    revision: &'a PageRevisionModel,
+}
 
 pub async fn page_invalid(req: ApiRequest) -> ApiResponse {
     tide::log::warn!("Received invalid /page path: {}", req.url());
@@ -33,7 +40,8 @@ pub async fn page_create(mut req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let input: CreatePage = req.body_json().await?;
-    let output = PageService::create(&ctx, input).await.to_api()?;
+    let site_id = req.param("site_id")?.parse()?;
+    let output = PageService::create(&ctx, site_id, input).await.to_api()?;
     let body = Body::from_json(&output)?;
     txn.commit().await?;
 
@@ -65,9 +73,12 @@ pub async fn page_get(req: ApiRequest) -> ApiResponse {
     let site_id = req.param("site_id")?.parse()?;
     let reference = Reference::try_from(&req)?;
     let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
+    let revision = RevisionService::get_latest(&ctx, site_id, page.page_id)
+        .await
+        .to_api()?;
     txn.commit().await?;
 
-    build_page_response(&page, StatusCode::Ok)
+    build_page_response(&page, &revision, StatusCode::Ok)
 }
 
 pub async fn page_head_direct(req: ApiRequest) -> ApiResponse {
@@ -86,9 +97,12 @@ pub async fn page_get_direct(req: ApiRequest) -> ApiResponse {
 
     let page_id = req.param("page_id")?.parse()?;
     let page = PageService::get_direct(&ctx, page_id).await.to_api()?;
+    let revision = RevisionService::get_latest(&ctx, page.site_id, page.page_id)
+        .await
+        .to_api()?;
     txn.commit().await?;
 
-    build_page_response(&page, StatusCode::Ok)
+    build_page_response(&page, &revision, StatusCode::Ok)
 }
 
 pub async fn page_delete(req: ApiRequest) -> ApiResponse {
@@ -187,9 +201,12 @@ pub async fn page_links_missing_put(mut req: ApiRequest) -> ApiResponse {
     Ok(Response::new(StatusCode::NoContent))
 }
 
-// TODO: include current revision data too
-fn build_page_response(page: &PageModel, status: StatusCode) -> ApiResponse {
-    let body = Body::from_json(page)?;
+fn build_page_response(
+    page: &PageModel,
+    revision: &PageRevisionModel,
+    status: StatusCode,
+) -> ApiResponse {
+    let body = Body::from_json(&PageOutput { page, revision })?;
     let response = Response::builder(status).body(body).into();
     Ok(response)
 }

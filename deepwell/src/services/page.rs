@@ -20,13 +20,13 @@
 
 use super::prelude::*;
 use crate::models::page::{self, Entity as Page, Model as PageModel};
+use crate::services::revision::CreateRevisionBody;
 use wikidot_normalize::normalize;
 
 // Helper structs
 
 #[derive(Deserialize, Debug)]
 pub struct CreatePage {
-    _site_id: i64,
     _category_id: i64,
     slug: String,
     _vote_type: (), // TODO
@@ -37,6 +37,19 @@ pub struct CreatePage {
 pub struct CreatePageOutput {
     page_id: i64,
     slug: String,
+    revision_id: i64,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct EditPage {
+    #[serde(flatten)]
+    body: CreateRevisionBody,
+}
+
+#[derive(Serialize, Debug)]
+pub struct EditPageOutput {
+    revision_id: i64,
+    revision_number: i64,
 }
 
 // Service
@@ -47,6 +60,7 @@ pub struct PageService;
 impl PageService {
     pub async fn create(
         ctx: &ServiceContext<'_>,
+        site_id: i64,
         mut input: CreatePage,
     ) -> Result<CreatePageOutput> {
         let txn = ctx.transaction();
@@ -55,9 +69,40 @@ impl PageService {
         // Check for conflicts
         // TODO
 
-        let _todo = (txn, input);
+        let _todo = (txn, site_id, input);
 
         todo!()
+    }
+
+    pub async fn edit(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        reference: Reference<'_>,
+        mut input: EditPage,
+    ) -> Result<Option<EditPageOutput>> {
+        let txn = ctx.transaction();
+
+        // TODO
+        let _todo = (txn, site_id, reference, input);
+
+        todo!()
+    }
+
+    pub async fn delete(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        reference: Reference<'_>,
+    ) -> Result<()> {
+        let txn = ctx.transaction();
+        let page = Self::get(ctx, site_id, reference).await?;
+        let mut model: page::ActiveModel = page.into();
+
+        // Set deletion flag
+        model.deleted_at = Set(Some(now()));
+
+        // Update and return
+        model.update(txn).await?;
+        Ok(())
     }
 
     #[inline]
@@ -134,22 +179,5 @@ impl PageService {
         let txn = ctx.transaction();
         let page = Page::find_by_id(page_id).one(txn).await?;
         Ok(page)
-    }
-
-    pub async fn delete(
-        ctx: &ServiceContext<'_>,
-        site_id: i64,
-        reference: Reference<'_>,
-    ) -> Result<()> {
-        let txn = ctx.transaction();
-        let page = Self::get(ctx, site_id, reference).await?;
-        let mut model: page::ActiveModel = page.into();
-
-        // Set deletion flag
-        model.deleted_at = Set(Some(now()));
-
-        // Update and return
-        model.update(txn).await?;
-        Ok(())
     }
 }

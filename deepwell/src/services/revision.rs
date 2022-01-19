@@ -24,32 +24,25 @@ use crate::models::page_revision::{
 };
 
 // Helper structs
-// TODO
 
 #[derive(Deserialize, Debug)]
-pub struct CreateRevisionInput {
+pub struct CreateRevision {
     _user_id: i64,
     _comments: String,
 
-    #[serde(default)]
+    #[serde(flatten)]
+    _body: CreateRevisionBody,
+}
+
+#[derive(Deserialize, Debug, Default)]
+#[serde(default)]
+pub struct CreateRevisionBody {
     _wikitext: ProvidedValue<String>,
-
-    #[serde(default)]
     _hidden: ProvidedValue<Vec<String>>,
-
-    #[serde(default)]
     _title: ProvidedValue<String>,
-
-    #[serde(default)]
     _alt_title: ProvidedValue<Option<String>>,
-
-    #[serde(default)]
     _slug: ProvidedValue<String>,
-
-    #[serde(default)]
     _tags: ProvidedValue<Vec<String>>,
-
-    #[serde(default)]
     _metadata: ProvidedValue<serde_json::Value>,
 }
 
@@ -69,7 +62,7 @@ impl RevisionService {
         ctx: &ServiceContext<'_>,
         site_id: i64,
         page_id: i64,
-        input: CreateRevisionInput,
+        input: CreateRevision,
     ) -> Result<Option<CreateRevisionOutput>> {
         let _todo = (ctx, input);
 
