@@ -1,5 +1,5 @@
 /*
- * services/site.rs
+ * services/site/service.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -20,11 +20,6 @@
 
 use super::prelude::*;
 use crate::models::site::{self, Entity as Site, Model as SiteModel};
-
-// Helper structs
-// TODO
-
-// Service
 
 #[derive(Debug)]
 pub struct SiteService;
