@@ -34,6 +34,16 @@ pub enum ProvidedValue<T> {
     Unset,
 }
 
+impl<T> ProvidedValue<T> {
+    #[inline]
+    pub fn is_set(&self) -> bool {
+        match self {
+            ProvidedValue::Set(_) => true,
+            ProvidedValue::Unset => false,
+        }
+    }
+}
+
 impl<T> Default for ProvidedValue<T> {
     #[inline]
     fn default() -> Self {
