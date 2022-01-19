@@ -96,8 +96,8 @@ COPY --from=rust /src/ftml/target/release/libftml.so /usr/local/lib/libftml.so
 COPY --from=rust /usr/local/cargo/bin/mrml /usr/local/bin/mrml
 
 # PHP configuration preparation
-RUN php artisan key:generate
-RUN php artisan config:cache
+# Don't cache config for local
+RUN /src/setup-key.sh
 RUN /src/setup-misc.sh
 
 # Install runner
