@@ -33,6 +33,7 @@ pub async fn page_revision_create(mut req: ApiRequest) -> ApiResponse {
     let output = RevisionService::create(&ctx, site_id, page.page_id, input, todo!())
         .await
         .to_api()?;
+
     let body = Body::from_json(&output)?;
     txn.commit().await?;
 
@@ -49,8 +50,8 @@ pub async fn page_revision_latest(req: ApiRequest) -> ApiResponse {
     let revision = RevisionService::get_latest(&ctx, site_id, page.page_id)
         .await
         .to_api()?;
-    txn.commit().await?;
 
+    txn.commit().await?;
     build_revision_response(&revision, StatusCode::Ok)
 }
 
@@ -81,8 +82,8 @@ pub async fn page_revision_get(req: ApiRequest) -> ApiResponse {
     let revision = RevisionService::get(&ctx, site_id, page.page_id, revision_number)
         .await
         .to_api()?;
-    txn.commit().await?;
 
+    txn.commit().await?;
     build_revision_response(&revision, StatusCode::Ok)
 }
 
