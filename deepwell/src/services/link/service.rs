@@ -1,5 +1,5 @@
 /*
- * services/link.rs
+ * services/link/service.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -18,24 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! This service updates the various kinds of backlinks supported in Wikijump.
-//!
-//! This includes "page connections" (a generic term for a relation between pages,
-//! such as includes, links, redirects, etc), which can either be present or missing,
-//! as well as external links, which are string URLs.
-//!
-//! Whenever a page is updated, a list of its backlinks is gathered by the parser,
-//! which is then presented here for processing. A diff is needed:
-//! * Any links no longer present are deleted.
-//! * Any links not previously present are inesrted.
-//! * Any links present but changed in quantity are updated.
-//! * Else, the link is up-to-date and left alone.
-//!
-//! While the logic here is similar for each case, the slight differences in keys,
-//! types, and tables make it hard to modularize. Instead, the logic is hopefully
-//! clear enough to be acceptable when repeated over a few slightly distinct cases.
-
-use super::{prelude::*, PageService};
+use super::prelude::*;
 use crate::models::page::Model as PageModel;
 use crate::models::page_connection::{
     self, Entity as PageConnection, Model as PageConnectionModel,
@@ -44,38 +27,9 @@ use crate::models::page_connection_missing::{
     self, Entity as PageConnectionMissing, Model as PageConnectionMissingModel,
 };
 use crate::models::page_link::{self, Entity as PageLink, Model as PageLinkModel};
-use crate::web::ConnectionType;
+use crate::services::page::PageService;
 use ftml::data::{Backlinks, PageRef};
 use std::collections::HashMap;
-
-// Helper macros
-
-macro_rules! parse_connection_type {
-    ($connection:expr) => {
-        ConnectionType::try_from($connection.connection_type.as_str())?
-    };
-}
-
-// Helper structs
-
-#[derive(Serialize, Debug)]
-pub struct GetLinksFromOutput {
-    present: Vec<PageConnectionModel>,
-    absent: Vec<PageConnectionMissingModel>,
-    external: Vec<PageLinkModel>,
-}
-
-#[derive(Serialize, Debug)]
-pub struct GetLinksToOutput {
-    connections: Vec<PageConnectionModel>,
-}
-
-#[derive(Serialize, Debug)]
-pub struct GetLinksToMissingOutput {
-    connections: Vec<PageConnectionMissingModel>,
-}
-
-// Service
 
 #[derive(Debug)]
 pub struct LinkService;
