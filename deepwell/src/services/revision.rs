@@ -93,6 +93,13 @@ impl RevisionService {
         todo!()
     }
 
+    /// Modifies an existing revision.
+    ///
+    /// Normally you should think of revisions as being immutable
+    /// entries in an append-only log. This however is not always
+    /// true, staff of a site are able to make some classes of
+    /// changes to revisions, such as overriding an offensive
+    /// commit message or hiding sensitive or improper data.
     pub async fn update(
         ctx: &ServiceContext<'_>,
         revision_id: i64,
