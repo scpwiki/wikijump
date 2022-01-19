@@ -600,70 +600,70 @@ EOF
                 'created_at' => self::TIMESTAMP,
                 'site_id' => 1,
                 'page_category_id' => 3,
-                'slug' => 'side',
+                'slug' => 'nav:side',
             ],
             // ID: 3
             [
                 'created_at' => self::TIMESTAMP,
                 'site_id' => 1,
                 'page_category_id' => 3,
-                'slug' => 'top',
+                'slug' => 'nav:top',
             ],
             // ID: 4
             [
                 'created_at' => self::TIMESTAMP,
                 'site_id' => 1,
                 'page_category_id' => 4,
-                'slug' => 'activity',
+                'slug' => 'platform:activity',
             ],
             // ID: 5
             [
                 'created_at' => self::TIMESTAMP,
                 'site_id' => 1,
                 'page_category_id' => 4,
-                'slug' => 'sites',
+                'slug' => 'platform:sites',
             ],
             // ID: 6
             [
                 'created_at' => self::TIMESTAMP,
                 'site_id' => 1,
                 'page_category_id' => 4,
-                'slug' => 'search',
+                'slug' => 'platform:search',
             ],
             // ID: 7
             [
                 'created_at' => self::TIMESTAMP,
                 'site_id' => 1,
                 'page_category_id' => 5,
-                'slug' => 'join',
+                'slug' => 'system:join',
             ],
             // ID: 8
             [
                 'created_at' => self::TIMESTAMP,
                 'site_id' => 1,
                 'page_category_id' => 5,
-                'slug' => 'members',
+                'slug' => 'system:members',
             ],
             // ID: 9
             [
                 'created_at' => self::TIMESTAMP,
                 'site_id' => 1,
                 'page_category_id' => 5,
-                'slug' => 'recent-changes',
+                'slug' => 'system:recent-changes',
             ],
             // ID: 10
             [
                 'created_at' => self::TIMESTAMP,
                 'site_id' => 1,
                 'page_category_id' => 5,
-                'slug' => 'page-tags',
+                'slug' => 'system:page-tags',
             ],
             // ID: 11
             [
                 'created_at' => self::TIMESTAMP,
                 'site_id' => 1,
                 'page_category_id' => 2,
-                'slug' => 'manage',
+                'slug' => 'admin:manage',
             ],
 
             // Template site (template-en)
@@ -680,49 +680,49 @@ EOF
                 'created_at' => self::TIMESTAMP,
                 'site_id' => 2,
                 'page_category_id' => 8,
-                'slug' => 'side',
+                'slug' => 'nav:side',
             ],
             // ID: 14
             [
                 'created_at' => self::TIMESTAMP,
                 'site_id' => 2,
                 'page_category_id' => 8,
-                'slug' => 'top',
+                'slug' => 'nav:top',
             ],
             // ID: 15
             [
                 'created_at' => self::TIMESTAMP,
                 'site_id' => 2,
                 'page_category_id' => 9,
-                'slug' => 'join',
+                'slug' => 'system:join',
             ],
             // ID: 16
             [
                 'created_at' => self::TIMESTAMP,
                 'site_id' => 2,
                 'page_category_id' => 9,
-                'slug' => 'members',
+                'slug' => 'system:members',
             ],
             // ID: 17
             [
                 'created_at' => self::TIMESTAMP,
                 'site_id' => 2,
                 'page_category_id' => 9,
-                'slug' => 'recent-changes',
+                'slug' => 'system:recent-changes',
             ],
             // ID: 18
             [
                 'created_at' => self::TIMESTAMP,
                 'site_id' => 2,
                 'page_category_id' => 9,
-                'slug' => 'page-tags',
+                'slug' => 'system:page-tags',
             ],
             // ID: 19
             [
                 'created_at' => self::TIMESTAMP,
                 'site_id' => 2,
                 'page_category_id' => 7,
-                'slug' => 'manage',
+                'slug' => 'admin:manage',
             ],
         ]);
 
@@ -738,7 +738,7 @@ EOF
         $this->addRevision(
             2,
             1,
-            'side',
+            'nav:side',
             'Sidebar',
             $nav_side_wikitext_hash,
             $nav_side_compiled_hash,
@@ -746,7 +746,7 @@ EOF
         $this->addRevision(
             3,
             1,
-            'top',
+            'nav:top',
             'Topbar',
             $nav_top_wikitext_hash,
             $nav_top_compiled_hash,
@@ -754,7 +754,7 @@ EOF
         $this->addRevision(
             4,
             1,
-            'activity',
+            'platform:activity',
             'Wikijump: Activity across all sites',
             $platform_activity_wikitext_hash,
             $platform_activity_compiled_hash,
@@ -762,7 +762,7 @@ EOF
         $this->addRevision(
             5,
             1,
-            'sites',
+            'platform:sites',
             'Wikijump: List of all sites',
             $platform_sites_wikitext_hash,
             $platform_sites_compiled_hash,
@@ -770,7 +770,7 @@ EOF
         $this->addRevision(
             6,
             1,
-            'search',
+            'platform:search',
             'Wikijump: Search all sites',
             $platform_search_wikitext_hash,
             $platform_search_compiled_hash,
@@ -778,7 +778,7 @@ EOF
         $this->addRevision(
             7,
             1,
-            'join',
+            'system:join',
             'Join this site',
             $system_join_wikitext_hash,
             $system_join_compiled_hash,
@@ -786,7 +786,7 @@ EOF
         $this->addRevision(
             8,
             1,
-            'members',
+            'system:members',
             'Site Members',
             $system_members_wikitext_hash,
             $system_members_compiled_hash,
@@ -794,7 +794,7 @@ EOF
         $this->addRevision(
             9,
             1,
-            'recent-changes',
+            'system:recent-changes',
             'Recent Changes',
             $system_recent_changes_wikitext_hash,
             $system_recent_changes_compiled_hash,
@@ -802,7 +802,7 @@ EOF
         $this->addRevision(
             10,
             1,
-            'page-tags',
+            'system:page-tags',
             'Page Tags',
             $system_page_tags_wikitext_hash,
             $system_page_tags_compiled_hash,
@@ -810,7 +810,7 @@ EOF
         $this->addRevision(
             11,
             1,
-            'manage',
+            'admin:manage',
             'Site Manager',
             $admin_manage_wikitext_hash,
             $admin_manage_compiled_hash,
@@ -828,7 +828,7 @@ EOF
         $this->addRevision(
             13,
             2,
-            'side',
+            'nav:side',
             'Sidebar',
             $nav_side_wikitext_hash,
             $nav_side_compiled_hash,
@@ -836,7 +836,7 @@ EOF
         $this->addRevision(
             14,
             2,
-            'top',
+            'nav:top',
             'Topbar',
             $nav_top_wikitext_hash,
             $nav_top_compiled_hash,
@@ -844,7 +844,7 @@ EOF
         $this->addRevision(
             15,
             2,
-            'join',
+            'system:join',
             'Join this site',
             $system_join_wikitext_hash,
             $system_join_compiled_hash,
@@ -852,7 +852,7 @@ EOF
         $this->addRevision(
             16,
             2,
-            'members',
+            'system:members',
             'Site Members',
             $system_members_wikitext_hash,
             $system_members_compiled_hash,
@@ -860,7 +860,7 @@ EOF
         $this->addRevision(
             17,
             2,
-            'recent-changes',
+            'system:recent-changes',
             'Recent Changes',
             $system_recent_changes_wikitext_hash,
             $system_recent_changes_compiled_hash,
@@ -868,7 +868,7 @@ EOF
         $this->addRevision(
             18,
             2,
-            'page-tags',
+            'system:page-tags',
             'Page Tags',
             $system_page_tags_wikitext_hash,
             $system_page_tags_compiled_hash,
@@ -876,7 +876,7 @@ EOF
         $this->addRevision(
             19,
             2,
-            'manage',
+            'admin:manage',
             'Site Manager',
             $admin_manage_wikitext_hash,
             $admin_manage_compiled_hash,
