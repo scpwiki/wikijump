@@ -1,5 +1,5 @@
 /*
- * services/user.rs
+ * services/user/service.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -21,120 +21,7 @@
 use super::prelude::*;
 use crate::models::users::{self, Entity as User, Model as UserModel};
 use crate::utils::replace_in_place;
-use chrono::{NaiveDate, NaiveDateTime};
-use std::collections::HashMap;
 use wikidot_normalize::normalize;
-
-// Helper structs
-
-#[derive(Deserialize, Debug)]
-pub struct CreateUser {
-    username: String,
-    email: String,
-    password: String,
-    language: Option<String>,
-}
-
-#[derive(Serialize, Debug)]
-pub struct CreateUserOutput {
-    user_id: i64,
-    slug: String,
-}
-
-#[derive(Deserialize, Debug, Default)]
-#[serde(default)]
-pub struct UpdateUser {
-    username: ProvidedValue<String>,
-    email: ProvidedValue<String>,
-    email_verified: ProvidedValue<bool>,
-    password: ProvidedValue<String>,
-    multi_factor_secret: ProvidedValue<Option<String>>,
-    multi_factor_recovery_codes: ProvidedValue<Option<String>>,
-    remember_token: ProvidedValue<Option<String>>,
-    language: ProvidedValue<Option<String>>,
-    karma_points: ProvidedValue<i32>,
-    karma_level: ProvidedValue<i16>,
-    real_name: ProvidedValue<Option<String>>,
-    pronouns: ProvidedValue<Option<String>>,
-    dob: ProvidedValue<Option<NaiveDate>>,
-    bio: ProvidedValue<Option<String>>,
-    about_page: ProvidedValue<Option<String>>,
-    avatar_path: ProvidedValue<Option<String>>,
-}
-
-#[derive(Serialize, Debug)]
-pub struct UserIdentityOutput {
-    id: i64,
-    username: String,
-    tinyavatar: Option<String>, // TODO
-    karma: u8,
-    role: String,
-}
-
-impl From<&UserModel> for UserIdentityOutput {
-    fn from(user: &UserModel) -> Self {
-        Self {
-            id: user.id,
-            username: user.username.clone(),
-            tinyavatar: None, // TODO
-            karma: user.karma_level as u8,
-            role: String::new(), // TODO
-        }
-    }
-}
-
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct UserInfoOutput {
-    #[serde(flatten)]
-    identity: UserIdentityOutput,
-
-    about: Option<String>,
-    avatar: Option<String>, // TODO
-    signature: Option<String>,
-    since: Option<NaiveDateTime>,
-    last_active: Option<NaiveDateTime>,
-}
-
-impl From<&UserModel> for UserInfoOutput {
-    fn from(user: &UserModel) -> Self {
-        Self {
-            identity: UserIdentityOutput::from(user),
-            about: user.bio.clone(),
-            avatar: user.avatar_path.clone(),
-            signature: None, // TODO
-            since: user.created_at,
-            last_active: user.updated_at,
-        }
-    }
-}
-
-#[derive(Serialize, Debug)]
-pub struct UserProfileOutput {
-    #[serde(flatten)]
-    info: UserInfoOutput,
-
-    realname: Option<String>,
-    pronouns: Option<String>,
-    birthday: Option<NaiveDate>,
-    location: Option<String>,
-    links: HashMap<String, String>,
-}
-
-impl From<&UserModel> for UserProfileOutput {
-    fn from(user: &UserModel) -> Self {
-        Self {
-            info: UserInfoOutput::from(user),
-            realname: user.real_name.clone(),
-            pronouns: user.pronouns.clone(),
-            birthday: user.dob,
-            location: None,        // TODO
-            links: HashMap::new(), // TODO
-        }
-    }
-}
-
-// Service
 
 #[derive(Debug)]
 pub struct UserService;
