@@ -48,7 +48,7 @@ pub struct CreateRevisionBody {
 
 impl CreateRevisionBody {
     #[inline]
-    pub fn has_changes(&self) -> bool {
+    pub fn any_set(&self) -> bool {
         self.wikitext.is_set()
             || self.hidden.is_set()
             || self.title.is_set()
@@ -85,7 +85,9 @@ impl RevisionService {
         input: CreateRevision,
         previous: Option<&PageRevisionModel>,
     ) -> Result<Option<CreateRevisionOutput>> {
-        let _revision_number = match previous {
+        // Get the number for the new revision
+        let revision_number = match previous {
+            None => 0,
             Some(revision) => {
                 // Check for basic consistency
                 assert_eq!(
@@ -98,14 +100,17 @@ impl RevisionService {
                 );
 
                 // Check to see if any fields have changed
-                let has_changes = input.body.has_changes();
+                if !input.body.any_set() {
+                    tide::log::info!("No changes from previous revision, returning");
+                    return Ok(None);
+                }
 
-                revision.revision_number
+                // Can proceed, increment from previous
+                revision.revision_number + 1
             }
-            None => 0,
         };
 
-        let _todo = (ctx, input);
+        let _todo = (ctx, revision_number, input);
 
         // TODO: consult Outdater.php
 
