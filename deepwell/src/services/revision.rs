@@ -66,7 +66,18 @@ impl RevisionService {
         previous: Option<&PageRevisionModel>,
     ) -> Result<Option<CreateRevisionOutput>> {
         let _revision_number = match previous {
-            Some(revision) => revision.revision_number,
+            Some(revision) => {
+                assert_eq!(
+                    revision.site_id, site_id,
+                    "Previous revision has an inconsistent site ID",
+                );
+                assert_eq!(
+                    revision.page_id, page_id,
+                    "Previous revision has an inconsistent page ID",
+                );
+
+                revision.revision_number
+            }
             None => 0,
         };
 
