@@ -62,6 +62,21 @@ pub struct EditPageOutput {
     revision_number: i32,
 }
 
+impl From<CreateRevisionOutput> for EditPageOutput {
+    #[inline]
+    fn from(
+        CreateRevisionOutput {
+            revision_id,
+            revision_number,
+        }: CreateRevisionOutput,
+    ) -> EditPageOutput {
+        EditPageOutput {
+            revision_id,
+            revision_number,
+        }
+    }
+}
+
 // Service
 
 #[derive(Debug)]
@@ -208,15 +223,7 @@ impl PageService {
         }
 
         // Build and return
-        Ok(revision_output.map(
-            |CreateRevisionOutput {
-                 revision_id,
-                 revision_number,
-             }| EditPageOutput {
-                revision_id,
-                revision_number,
-            },
-        ))
+        Ok(revision_output.map(|data| data.into()))
     }
 
     pub async fn rename(
