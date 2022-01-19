@@ -1,5 +1,5 @@
 /*
- * services/revision.rs
+ * services/revision/service.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -23,44 +23,6 @@ use crate::models::page_revision::{
     self, Entity as PageRevision, Model as PageRevisionModel,
 };
 use crate::services::TextService;
-
-// Helper structs
-
-#[derive(Deserialize, Debug)]
-pub struct CreateRevision {
-    pub user_id: i64,
-    pub comments: String,
-
-    #[serde(flatten)]
-    pub body: CreateRevisionBody,
-}
-
-#[derive(Deserialize, Debug, Default)]
-#[serde(default)]
-pub struct CreateRevisionBody {
-    pub wikitext: ProvidedValue<String>,
-    pub hidden: ProvidedValue<Vec<String>>,
-    pub title: ProvidedValue<String>,
-    pub alt_title: ProvidedValue<Option<String>>,
-    pub slug: ProvidedValue<String>,
-    pub tags: ProvidedValue<Vec<String>>,
-    pub metadata: ProvidedValue<serde_json::Value>,
-}
-
-#[derive(Serialize, Debug)]
-pub struct CreateRevisionOutput {
-    pub revision_id: i64,
-    pub revision_number: i32,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct UpdateRevision {
-    pub comments: ProvidedValue<String>,
-    pub hidden: ProvidedValue<Vec<String>>,
-    pub edited_by: i64,
-}
-
-// Service
 
 #[derive(Debug)]
 pub struct RevisionService;
@@ -98,9 +60,9 @@ impl RevisionService {
         input: CreateRevision,
         previous: Option<&PageRevisionModel>,
     ) -> Result<Option<CreateRevisionOutput>> {
-        // Get the number for the new revision
-        let revision_number = match previous {
-            None => 0,
+        // Get the new revision number and the change tasks to process
+        let (tasks, revision_number) = match previous {
+            None => (RevisionTasks::created_page(), 0),
             Some(revision) => {
                 // Check for basic consistency
                 assert_eq!(
@@ -113,13 +75,14 @@ impl RevisionService {
                 );
 
                 // Check to see if any fields have changed
-                if !Self::has_changes(&revision, &input.body) {
+                let tasks = RevisionTasks::determine(&revision, &input.body);
+                if tasks.is_empty() {
                     tide::log::info!("No changes from previous revision, returning");
                     return Ok(None);
                 }
 
                 // Can proceed, increment from previous
-                revision.revision_number + 1
+                (tasks, revision.revision_number + 1)
             }
         };
 
@@ -128,42 +91,6 @@ impl RevisionService {
         // TODO: consult Outdater.php
 
         todo!()
-    }
-
-    fn has_changes(revision: &PageRevisionModel, changes: &CreateRevisionBody) -> bool {
-        if let ProvidedValue::Set(ref wikitext) = changes.wikitext {
-            if revision.wikitext_hash.as_slice() != TextService::hash(wikitext).as_slice()
-            {
-                return true;
-            }
-        }
-
-        // TODO check hidden
-
-        if let ProvidedValue::Set(ref title) = changes.title {
-            if &revision.title != title {
-                return true;
-            }
-        }
-
-        if let ProvidedValue::Set(ref alt_title) = changes.alt_title {
-            if &revision.alt_title != alt_title {
-                return true;
-            }
-        }
-
-        if let ProvidedValue::Set(ref slug) = changes.slug {
-            if &revision.slug != slug {
-                return true;
-            }
-        }
-
-        // TODO check tags
-
-        // TODO check metadata
-
-        // No changes, or all fields unset
-        false
     }
 
     /// Modifies an existing revision.
