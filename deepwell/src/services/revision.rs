@@ -46,6 +46,19 @@ pub struct CreateRevisionBody {
     pub metadata: ProvidedValue<serde_json::Value>,
 }
 
+impl CreateRevisionBody {
+    #[inline]
+    pub fn has_changes(&self) -> bool {
+        self.wikitext.is_set()
+            || self.hidden.is_set()
+            || self.title.is_set()
+            || self.alt_title.is_set()
+            || self.slug.is_set()
+            || self.tags.is_set()
+            || self.metadata.is_set()
+    }
+}
+
 #[derive(Serialize, Debug)]
 pub struct CreateRevisionOutput {
     pub revision_id: i64,
@@ -74,6 +87,7 @@ impl RevisionService {
     ) -> Result<Option<CreateRevisionOutput>> {
         let _revision_number = match previous {
             Some(revision) => {
+                // Check for basic consistency
                 assert_eq!(
                     revision.site_id, site_id,
                     "Previous revision has an inconsistent site ID",
@@ -82,6 +96,9 @@ impl RevisionService {
                     revision.page_id, page_id,
                     "Previous revision has an inconsistent page ID",
                 );
+
+                // Check to see if any fields have changed
+                let has_changes = input.body.has_changes();
 
                 revision.revision_number
             }
