@@ -22,6 +22,7 @@ use super::prelude::*;
 use crate::models::page_revision::{
     self, Entity as PageRevision, Model as PageRevisionModel,
 };
+use crate::services::TextService;
 
 // Helper structs
 
@@ -44,19 +45,6 @@ pub struct CreateRevisionBody {
     pub slug: ProvidedValue<String>,
     pub tags: ProvidedValue<Vec<String>>,
     pub metadata: ProvidedValue<serde_json::Value>,
-}
-
-impl CreateRevisionBody {
-    #[inline]
-    pub fn any_set(&self) -> bool {
-        self.wikitext.is_set()
-            || self.hidden.is_set()
-            || self.title.is_set()
-            || self.alt_title.is_set()
-            || self.slug.is_set()
-            || self.tags.is_set()
-            || self.metadata.is_set()
-    }
 }
 
 #[derive(Serialize, Debug)]
@@ -125,7 +113,7 @@ impl RevisionService {
                 );
 
                 // Check to see if any fields have changed
-                if !input.body.any_set() {
+                if !Self::has_changes(&revision, &input.body) {
                     tide::log::info!("No changes from previous revision, returning");
                     return Ok(None);
                 }
@@ -140,6 +128,42 @@ impl RevisionService {
         // TODO: consult Outdater.php
 
         todo!()
+    }
+
+    fn has_changes(revision: &PageRevisionModel, changes: &CreateRevisionBody) -> bool {
+        if let ProvidedValue::Set(ref wikitext) = changes.wikitext {
+            if revision.wikitext_hash.as_slice() != TextService::hash(wikitext).as_slice()
+            {
+                return true;
+            }
+        }
+
+        // TODO check hidden
+
+        if let ProvidedValue::Set(ref title) = changes.title {
+            if &revision.title != title {
+                return true;
+            }
+        }
+
+        if let ProvidedValue::Set(ref alt_title) = changes.alt_title {
+            if &revision.alt_title != alt_title {
+                return true;
+            }
+        }
+
+        if let ProvidedValue::Set(ref slug) = changes.slug {
+            if &revision.slug != slug {
+                return true;
+            }
+        }
+
+        // TODO check tags
+
+        // TODO check metadata
+
+        // No changes, or all fields unset
+        false
     }
 
     /// Modifies an existing revision.

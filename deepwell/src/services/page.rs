@@ -20,10 +20,10 @@
 
 use super::prelude::*;
 use crate::models::page::{self, Entity as Page, Model as PageModel};
-use crate::services::category::CategoryService;
 use crate::services::revision::{
-    CreateRevision, CreateRevisionBody, CreateRevisionOutput, RevisionService,
+    CreateRevision, CreateRevisionBody, CreateRevisionOutput,
 };
+use crate::services::{CategoryService, RevisionService};
 use wikidot_normalize::normalize;
 
 // Helper structs
