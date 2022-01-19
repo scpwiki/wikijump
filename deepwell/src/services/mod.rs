@@ -45,6 +45,7 @@ mod prelude {
 mod context;
 mod error;
 
+pub mod category;
 pub mod link;
 pub mod page;
 pub mod render;
@@ -56,6 +57,7 @@ pub mod user;
 use crate::api::ApiRequest;
 use sea_orm::DatabaseConnection;
 
+pub use self::category::CategoryService;
 pub use self::context::ServiceContext;
 pub use self::error::*;
 pub use self::link::LinkService;
