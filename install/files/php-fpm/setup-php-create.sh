@@ -5,7 +5,7 @@ mkdir -p /var/www/wikijump/web
 cd /var/www/wikijump/web
 
 mkdir -p \
-	bootstrap/cache \
+	bootstrap \
 	conf \
 	logs \
 	public/files--built \
