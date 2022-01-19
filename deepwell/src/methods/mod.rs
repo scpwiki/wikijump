@@ -18,6 +18,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+//! Definitions of methods invoked by different
+//!
+//! This module contains functions defining various routes used by the web server,
+//! so that they can be referred to and reused by name.
+//!
+//! The module should not contain any core business logic of its own, but should
+//! be simple wrappers around the various service methods exposed by structures
+//! in the `services` module.
+
 mod prelude {
     pub use crate::api::{ApiRequest, ApiResponse};
     pub use crate::services::{

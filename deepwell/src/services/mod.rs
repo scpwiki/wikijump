@@ -25,11 +25,14 @@
 //! This may be CRUD, or small operations which should be composed
 //! into larger ones.
 //!
-//! As such, _all methods here are not contained in transactions,_
+//! As such, **all methods here are _not_ contained in transactions,**
 //! the expectation is that the caller will use transactions when needed.
 //! For methods which make multiple calls, they will assert that they
 //! are currently in a transaction, if you are not then they will raise
 //! an error.
+//!
+//! These methods are called as component operations either by other
+//! services or by route implementations found in the `methods` module.
 
 mod prelude {
     pub use super::context::ServiceContext;

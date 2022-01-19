@@ -22,6 +22,9 @@
 //!
 //! No top-level routes should exist, any methods should be available under its respective API
 //! version prefix to avoid future issues with backwards compatibility.
+//!
+//! This module should only contain definitions for the web server such as its routes, and
+//! not any of the implementations themselves. Those should be in the `methods` module.
 
 use crate::config::Config;
 use crate::database;
