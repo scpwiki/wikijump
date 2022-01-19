@@ -140,22 +140,16 @@ impl PageService {
         ctx: &ServiceContext<'_>,
         site_id: i64,
         reference: Reference<'_>,
-    ) -> Result<PageModel> {
+    ) -> Result<()> {
         let txn = ctx.transaction();
-        let model = Self::get(ctx, site_id, reference).await?;
-        let page: page::ActiveModel = model.clone().into();
-
-        /*
-        TODO: soft deletion
+        let page = Self::get(ctx, site_id, reference).await?;
+        let mut model: page::ActiveModel = page.into();
 
         // Set deletion flag
-        page.deleted_at = Set(Some(now()));
+        model.deleted_at = Set(Some(now()));
 
         // Update and return
-        page.update(txn).await?;
-        */
-
-        page.delete(txn).await?;
-        Ok(model)
+        model.update(txn).await?;
+        Ok(())
     }
 }

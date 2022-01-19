@@ -97,13 +97,12 @@ pub async fn page_delete(req: ApiRequest) -> ApiResponse {
 
     let site_id = req.param("site_id")?.parse()?;
     let reference = Reference::try_from(&req)?;
-    let page = PageService::delete(&ctx, site_id, reference)
+    PageService::delete(&ctx, site_id, reference)
         .await
         .to_api()?;
 
     txn.commit().await?;
-
-    build_page_response(&page, StatusCode::Ok)
+    Ok(Response::new(StatusCode::NoContent))
 }
 
 pub async fn page_links_from_get(req: ApiRequest) -> ApiResponse {
