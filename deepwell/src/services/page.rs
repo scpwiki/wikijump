@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use crate::models::page::{self, Entity as Page, Model as PageModel};
+use crate::services::category::CategoryService;
 use crate::services::revision::{
     CreateRevision, CreateRevisionBody, CreateRevisionOutput, RevisionService,
 };
@@ -96,13 +97,12 @@ impl PageService {
         } = input;
 
         // Create category if not already present
-        // TODO CategoryService for get_category(slug)
-        let page_category_id = 0;
+        let category = CategoryService::get_or_create(ctx, site_id, &slug).await?;
 
         // Insert page
         let model = page::ActiveModel {
             site_id: Set(site_id),
-            page_category_id: Set(page_category_id),
+            page_category_id: Set(category.category_id),
             slug: Set(slug.clone()),
             ..Default::default()
         };
