@@ -20,17 +20,21 @@
 
 use super::prelude::*;
 use crate::models::page::{self, Entity as Page, Model as PageModel};
-use crate::services::revision::CreateRevisionBody;
+use crate::services::revision::{
+    CreateRevision, CreateRevisionBody, CreateRevisionOutput, RevisionService,
+};
 use wikidot_normalize::normalize;
 
 // Helper structs
 
 #[derive(Deserialize, Debug)]
 pub struct CreatePage {
-    _category_id: i64,
+    wikitext: String,
+    title: String,
+    alt_title: Option<String>,
     slug: String,
-    _vote_type: (), // TODO
-    _revision_comments: String,
+    revision_comments: String,
+    user_id: i64,
 }
 
 #[derive(Serialize, Debug)]
@@ -81,10 +85,67 @@ impl PageService {
             return Err(Error::Conflict);
         }
 
-        // TODO
-        let _todo = (txn, site_id, input);
+        // Destruct input, prepare to insert
+        let CreatePage {
+            wikitext,
+            title,
+            alt_title,
+            slug,
+            revision_comments: comments,
+            user_id,
+        } = input;
 
-        todo!()
+        // Create category if not already present
+        // TODO CategoryService for get_category(slug)
+        let page_category_id = 0;
+
+        // Insert page
+        let model = page::ActiveModel {
+            site_id: Set(site_id),
+            page_category_id: Set(page_category_id),
+            slug: Set(slug.clone()),
+            ..Default::default()
+        };
+        let page = model.insert(txn).await?;
+
+        // Commit first revision
+        let revision_input = CreateRevision {
+            user_id,
+            comments,
+            body: CreateRevisionBody {
+                wikitext: ProvidedValue::Set(wikitext),
+                title: ProvidedValue::Set(title),
+                alt_title: ProvidedValue::Set(alt_title),
+                slug: ProvidedValue::Set(slug.clone()),
+                ..Default::default()
+            },
+        };
+
+        let revision_id = match RevisionService::create(
+            ctx,
+            site_id,
+            page.page_id,
+            revision_input,
+            None,
+        )
+        .await?
+        {
+            None => panic!("No revision created, but page is new"),
+            Some(CreateRevisionOutput {
+                revision_id,
+                revision_number,
+            }) => {
+                assert_eq!(revision_number, 0, "Created revision has a nonzero number");
+                revision_id
+            }
+        };
+
+        // Build and return
+        Ok(CreatePageOutput {
+            page_id: page.page_id,
+            slug,
+            revision_id,
+        })
     }
 
     pub async fn edit(
@@ -193,5 +254,22 @@ impl PageService {
         let txn = ctx.transaction();
         let page = Page::find_by_id(page_id).one(txn).await?;
         Ok(page)
+    }
+}
+
+/// Retrieves the category portion of a normalized slug.
+///
+/// This finds the first `:` in the full slug and returns everything
+/// up to that as the category slug.
+///
+/// Normal slugs do not have an explicit `_default`, so they
+/// should lack a `:` entirely.
+fn get_category(slug: &str) -> &str {
+    match slug.find(':') {
+        None => "_default",
+        Some(idx) => {
+            let (category, page) = slug.split_at(idx);
+            category
+        }
     }
 }

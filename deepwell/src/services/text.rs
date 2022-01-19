@@ -44,7 +44,7 @@ impl TextService {
         ctx: &ServiceContext<'_>,
         hash: &[u8],
     ) -> Result<Option<String>> {
-        debug_assert_eq!(hash.len(), HASH_LENGTH);
+        assert_eq!(hash.len(), HASH_LENGTH);
 
         let txn = ctx.transaction();
         let contents = Text::find()

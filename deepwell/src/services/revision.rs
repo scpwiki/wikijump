@@ -27,36 +27,36 @@ use crate::models::page_revision::{
 
 #[derive(Deserialize, Debug)]
 pub struct CreateRevision {
-    _user_id: i64,
-    _comments: String,
+    pub user_id: i64,
+    pub comments: String,
 
     #[serde(flatten)]
-    _body: CreateRevisionBody,
+    pub body: CreateRevisionBody,
 }
 
 #[derive(Deserialize, Debug, Default)]
 #[serde(default)]
 pub struct CreateRevisionBody {
-    _wikitext: ProvidedValue<String>,
-    _hidden: ProvidedValue<Vec<String>>,
-    _title: ProvidedValue<String>,
-    _alt_title: ProvidedValue<Option<String>>,
-    _slug: ProvidedValue<String>,
-    _tags: ProvidedValue<Vec<String>>,
-    _metadata: ProvidedValue<serde_json::Value>,
+    pub wikitext: ProvidedValue<String>,
+    pub hidden: ProvidedValue<Vec<String>>,
+    pub title: ProvidedValue<String>,
+    pub alt_title: ProvidedValue<Option<String>>,
+    pub slug: ProvidedValue<String>,
+    pub tags: ProvidedValue<Vec<String>>,
+    pub metadata: ProvidedValue<serde_json::Value>,
 }
 
 #[derive(Serialize, Debug)]
 pub struct CreateRevisionOutput {
-    revision_id: i64,
-    revision_number: i32,
+    pub revision_id: i64,
+    pub revision_number: i32,
 }
 
 #[derive(Deserialize, Debug)]
 pub struct UpdateRevision {
-    comments: ProvidedValue<String>,
-    hidden: ProvidedValue<Vec<String>>,
-    edited_by: i64,
+    pub comments: ProvidedValue<String>,
+    pub hidden: ProvidedValue<Vec<String>>,
+    pub edited_by: i64,
 }
 
 // Service

@@ -57,13 +57,9 @@ pub async fn page_head(req: ApiRequest) -> ApiResponse {
     let exists = PageService::exists(&ctx, site_id, reference)
         .await
         .to_api()?;
-    txn.commit().await?;
 
-    if exists {
-        Ok(Response::new(StatusCode::NoContent))
-    } else {
-        Ok(Response::new(StatusCode::NotFound))
-    }
+    txn.commit().await?;
+    exists_status(exists)
 }
 
 pub async fn page_get(req: ApiRequest) -> ApiResponse {
@@ -76,8 +72,8 @@ pub async fn page_get(req: ApiRequest) -> ApiResponse {
     let revision = RevisionService::get_latest(&ctx, site_id, page.page_id)
         .await
         .to_api()?;
-    txn.commit().await?;
 
+    txn.commit().await?;
     build_page_response(&page, &revision, StatusCode::Ok)
 }
 
