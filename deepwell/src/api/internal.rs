@@ -59,7 +59,7 @@ pub fn build(mut app: ApiServer) -> ApiServer {
     app.at("/page/:site_id/:type/:id_or_slug")
         .head(page_head)
         .get(page_get)
-        .post(page_revision_create)
+        .post(page_edit)
         .delete(page_delete);
 
     app.at("/page/:site_id/:type/:id_or_slug/revision")
@@ -68,7 +68,7 @@ pub fn build(mut app: ApiServer) -> ApiServer {
     app.at("/page/:site_id/:type/:id_or_slug/revision/:revision_number")
         .head(page_revision_head)
         .get(page_revision_get)
-        .put(page_revision_edit);
+        .put(page_revision_put);
 
     app.at("/page/:site_id/:type/:id_or_slug/revision/:revision_number/:direction")
         .get(page_revision_range_get);

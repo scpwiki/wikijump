@@ -241,7 +241,7 @@ impl UserService {
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
         input: UpdateUser,
-    ) -> Result<UserModel> {
+    ) -> Result<()> {
         let txn = ctx.transaction();
         let model = Self::get(ctx, reference).await?;
         let mut user: users::ActiveModel = model.clone().into();
@@ -323,11 +323,12 @@ impl UserService {
         }
 
         // Set update flag
+        // TODO update to add TZ
         user.updated_at = Set(Some(now_naive()));
 
         // Update and return
         user.update(txn).await?;
-        Ok(model)
+        Ok(())
     }
 
     pub async fn delete(
@@ -339,6 +340,7 @@ impl UserService {
         let mut user: users::ActiveModel = model.clone().into();
 
         // Set deletion flag
+        // TODO update to add TZ
         user.deleted_at = Set(Some(now_naive()));
 
         // Update and return

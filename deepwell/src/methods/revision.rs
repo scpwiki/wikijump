@@ -20,25 +20,7 @@
 
 use super::prelude::*;
 use crate::models::page_revision::Model as PageRevisionModel;
-use crate::services::revision::CreateRevision;
-
-pub async fn page_revision_create(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let input: CreateRevision = req.body_json().await?;
-    let site_id = req.param("site_id")?.parse()?;
-    let reference = Reference::try_from(&req)?;
-    let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
-    let output = RevisionService::create(&ctx, site_id, page.page_id, input, todo!())
-        .await
-        .to_api()?;
-
-    let body = Body::from_json(&output)?;
-    txn.commit().await?;
-
-    Ok(body.into())
-}
+use crate::services::revision::{CreateRevision, UpdateRevision};
 
 pub async fn page_revision_latest(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
@@ -87,11 +69,25 @@ pub async fn page_revision_get(req: ApiRequest) -> ApiResponse {
     build_revision_response(&revision, StatusCode::Ok)
 }
 
-pub async fn page_revision_edit(req: ApiRequest) -> ApiResponse {
+pub async fn page_revision_put(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    todo!()
+    let input: UpdateRevision = req.body_json().await?;
+    let site_id = req.param("site_id")?.parse()?;
+    let revision_number = req.param("revision_number")?.parse()?;
+    let reference = Reference::try_from(&req)?;
+    let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
+    let revision = RevisionService::get(&ctx, site_id, page.page_id, revision_number)
+        .await
+        .to_api()?;
+
+    RevisionService::update(&ctx, revision.revision_id, input)
+        .await
+        .to_api()?;
+
+    txn.commit().await?;
+    build_revision_response(&revision, StatusCode::Ok)
 }
 
 // TODO: get list of revisions before/after a spec, max limit 100, default 10

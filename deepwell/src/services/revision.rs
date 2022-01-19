@@ -52,6 +52,13 @@ pub struct CreateRevisionOutput {
     revision_number: i32,
 }
 
+#[derive(Deserialize, Debug)]
+pub struct UpdateRevision {
+    comments: ProvidedValue<String>,
+    hidden: ProvidedValue<Vec<String>>,
+    edited_by: i64,
+}
+
 // Service
 
 #[derive(Debug)]
@@ -84,6 +91,34 @@ impl RevisionService {
         let _todo = (ctx, input);
 
         todo!()
+    }
+
+    pub async fn update(
+        ctx: &ServiceContext<'_>,
+        revision_id: i64,
+        input: UpdateRevision,
+    ) -> Result<()> {
+        let txn = ctx.transaction();
+        let mut revision = page_revision::ActiveModel {
+            revision_id: Set(revision_id),
+            ..Default::default()
+        };
+
+        if let ProvidedValue::Set(comments) = input.comments {
+            revision.comments = Set(comments);
+            revision.comments_edited_at = Set(Some(now()));
+            revision.comments_edited_by = Set(Some(input.edited_by));
+        }
+
+        // TODO add hidden edited_at and edited_by
+        if let ProvidedValue::Set(hidden) = input.hidden {
+            // TODO fix array conversion
+            revision.hidden = Set(format!("{:#?}", hidden));
+        }
+
+        // Update and return
+        revision.update(txn).await?;
+        Ok(())
     }
 
     pub async fn get_latest(

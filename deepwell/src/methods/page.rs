@@ -105,6 +105,13 @@ pub async fn page_get_direct(req: ApiRequest) -> ApiResponse {
     build_page_response(&page, &revision, StatusCode::Ok)
 }
 
+pub async fn page_edit(req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    todo!()
+}
+
 pub async fn page_delete(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);

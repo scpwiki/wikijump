@@ -34,7 +34,8 @@ pub async fn user_create(mut req: ApiRequest) -> ApiResponse {
     let body = Body::from_json(&output)?;
     txn.commit().await?;
 
-    Ok(body.into())
+    let response = Response::builder(StatusCode::Created).body(body).into();
+    Ok(response)
 }
 
 pub async fn user_head(req: ApiRequest) -> ApiResponse {
@@ -66,8 +67,7 @@ pub async fn user_put(mut req: ApiRequest) -> ApiResponse {
     let reference = Reference::try_from(&req)?;
     let user = UserService::update(&ctx, reference, input).await.to_api()?;
     txn.commit().await?;
-    let UserDetailsQuery { detail } = req.query()?;
-    build_user_response(&user, detail, StatusCode::Created)
+    Ok(Response::new(StatusCode::NoContent))
 }
 
 pub async fn user_delete(req: ApiRequest) -> ApiResponse {
