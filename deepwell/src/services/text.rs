@@ -72,18 +72,7 @@ impl TextService {
 
     pub async fn create(ctx: &ServiceContext<'_>, contents: String) -> Result<Hash> {
         let txn = ctx.transaction();
-
-        let hash: Hash = {
-            // Perform hash
-            let mut hasher = Sha512::new();
-            hasher.update(contents.as_bytes());
-            let result = hasher.finalize();
-
-            // Copy data into regular Rust array
-            let mut bytes = [0; 64];
-            bytes.copy_from_slice(&result);
-            bytes
-        };
+        let hash = Self::hash(&contents);
 
         if !Self::exists(ctx, &hash).await? {
             let model = text::ActiveModel {
@@ -95,5 +84,17 @@ impl TextService {
         }
 
         Ok(hash)
+    }
+
+    pub fn hash(contents: &str) -> Hash {
+        // Perform hash
+        let mut hasher = Sha512::new();
+        hasher.update(contents.as_bytes());
+        let result = hasher.finalize();
+
+        // Copy data into regular Rust array
+        let mut bytes = [0; 64];
+        bytes.copy_from_slice(&result);
+        bytes
     }
 }
