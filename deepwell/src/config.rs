@@ -191,15 +191,15 @@ fn parse_args(config: &mut Config) {
         .long_version(info::FULL_VERSION.as_str())
         .about(info::PKG_DESCRIPTION)
         .arg(
-            Arg::with_name("disable-log")
-                .short("q")
+            Arg::new("disable-log")
+                .short('q')
                 .long("quiet")
                 .long("disable-log")
                 .help("Disable logging output."),
         )
         .arg(
-            Arg::with_name("log-level")
-                .short("l")
+            Arg::new("log-level")
+                .short('l')
                 .long("log")
                 .long("log-level")
                 .takes_value(true)
@@ -207,8 +207,8 @@ fn parse_args(config: &mut Config) {
                 .help("What logging level to use."),
         )
         .arg(
-            Arg::with_name("host")
-                .short("h")
+            Arg::new("host")
+                .short('h')
                 .long("host")
                 .long("hostname")
                 .takes_value(true)
@@ -216,16 +216,16 @@ fn parse_args(config: &mut Config) {
                 .help("What host to listen on."),
         )
         .arg(
-            Arg::with_name("port")
-                .short("p")
+            Arg::new("port")
+                .short('p')
                 .long("port")
                 .takes_value(true)
                 .value_name("port")
                 .help("What port to listen on."),
         )
         .arg(
-            Arg::with_name("database-url")
-                .short("d")
+            Arg::new("database-url")
+                .short('d')
                 .long("db")
                 .long("database")
                 .takes_value(true)
@@ -233,8 +233,8 @@ fn parse_args(config: &mut Config) {
                 .help("The URL of the PostgreSQL database to connect to."),
         )
         .arg(
-            Arg::with_name("run-migrations")
-                .short("M")
+            Arg::new("run-migrations")
+                .short('M')
                 .long("migrate")
                 .long("run-migrations")
                 .takes_value(true)
@@ -242,16 +242,16 @@ fn parse_args(config: &mut Config) {
                 .help("Whether to run migrations on server startup."),
         )
         .arg(
-            Arg::with_name("localization-path")
-                .short("L")
+            Arg::new("localization-path")
+                .short('L')
                 .long("localizations")
                 .takes_value(true)
                 .value_name("path")
                 .help("The path to read translation files from."),
         )
         .arg(
-            Arg::with_name("ratelimit-min")
-                .short("r")
+            Arg::new("ratelimit-min")
+                .short('r')
                 .long("requests-per-minute")
                 .takes_value(true)
                 .value_name("count")

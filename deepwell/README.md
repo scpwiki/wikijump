@@ -31,7 +31,7 @@ $ scripts/generate-models.sh
 
 ### Compilation
 
-This executable targets the latest stable Rust. At time of writing, that is `1.57.0`.
+This executable targets the latest stable Rust. At time of writing, that is `1.58.0`.
 
 ```sh
 $ cargo build --release
