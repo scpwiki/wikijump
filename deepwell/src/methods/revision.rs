@@ -30,7 +30,7 @@ pub async fn page_revision_create(mut req: ApiRequest) -> ApiResponse {
     let site_id = req.param("site_id")?.parse()?;
     let reference = Reference::try_from(&req)?;
     let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
-    let output = RevisionService::create(&ctx, site_id, page.page_id, input)
+    let output = RevisionService::create(&ctx, site_id, page.page_id, input, todo!())
         .await
         .to_api()?;
     let body = Body::from_json(&output)?;

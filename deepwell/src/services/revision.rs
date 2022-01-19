@@ -63,7 +63,13 @@ impl RevisionService {
         site_id: i64,
         page_id: i64,
         input: CreateRevision,
+        previous: Option<&PageRevisionModel>,
     ) -> Result<Option<CreateRevisionOutput>> {
+        let _revision_number = match previous {
+            Some(revision) => revision.revision_number,
+            None => 0,
+        };
+
         let _todo = (ctx, input);
 
         todo!()
