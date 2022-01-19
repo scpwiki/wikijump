@@ -1,5 +1,5 @@
 /*
- * services/page.rs
+ * services/page/service.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -25,59 +25,6 @@ use crate::services::revision::{
 };
 use crate::services::{CategoryService, RevisionService};
 use wikidot_normalize::normalize;
-
-// Helper structs
-
-#[derive(Deserialize, Debug)]
-pub struct CreatePage {
-    wikitext: String,
-    title: String,
-    alt_title: Option<String>,
-    slug: String,
-    revision_comments: String,
-    user_id: i64,
-}
-
-#[derive(Serialize, Debug)]
-pub struct CreatePageOutput {
-    page_id: i64,
-    slug: String,
-    revision_id: i64,
-}
-
-#[derive(Deserialize, Debug, Default)]
-#[serde(default)]
-pub struct EditPage {
-    wikitext: ProvidedValue<String>,
-    title: ProvidedValue<String>,
-    alt_title: ProvidedValue<Option<String>>,
-    tags: ProvidedValue<Vec<String>>,
-    revision_comments: String,
-    user_id: i64,
-}
-
-#[derive(Serialize, Debug)]
-pub struct EditPageOutput {
-    revision_id: i64,
-    revision_number: i32,
-}
-
-impl From<CreateRevisionOutput> for EditPageOutput {
-    #[inline]
-    fn from(
-        CreateRevisionOutput {
-            revision_id,
-            revision_number,
-        }: CreateRevisionOutput,
-    ) -> EditPageOutput {
-        EditPageOutput {
-            revision_id,
-            revision_number,
-        }
-    }
-}
-
-// Service
 
 #[derive(Debug)]
 pub struct PageService;
