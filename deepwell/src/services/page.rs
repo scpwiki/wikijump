@@ -45,16 +45,21 @@ pub struct CreatePageOutput {
     revision_id: i64,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Default)]
+#[serde(default)]
 pub struct EditPage {
-    #[serde(flatten)]
-    body: CreateRevisionBody,
+    wikitext: ProvidedValue<String>,
+    title: ProvidedValue<String>,
+    alt_title: ProvidedValue<Option<String>>,
+    tags: ProvidedValue<Vec<String>>,
+    revision_comments: String,
+    user_id: i64,
 }
 
 #[derive(Serialize, Debug)]
 pub struct EditPageOutput {
     revision_id: i64,
-    revision_number: i64,
+    revision_number: i32,
 }
 
 // Service
@@ -66,17 +71,24 @@ impl PageService {
     pub async fn create(
         ctx: &ServiceContext<'_>,
         site_id: i64,
-        mut input: CreatePage,
+        CreatePage {
+            wikitext,
+            title,
+            alt_title,
+            mut slug,
+            revision_comments: comments,
+            user_id,
+        }: CreatePage,
     ) -> Result<CreatePageOutput> {
         let txn = ctx.transaction();
-        normalize(&mut input.slug);
+        normalize(&mut slug);
 
         // Check for conflicts
         let result = Page::find()
             .filter(
                 Condition::all()
                     .add(page::Column::SiteId.eq(site_id))
-                    .add(page::Column::Slug.eq(input.slug.as_str()))
+                    .add(page::Column::Slug.eq(slug.as_str()))
                     .add(page::Column::DeletedAt.is_null()),
             )
             .one(txn)
@@ -85,16 +97,6 @@ impl PageService {
         if result.is_some() {
             return Err(Error::Conflict);
         }
-
-        // Destruct input, prepare to insert
-        let CreatePage {
-            wikitext,
-            title,
-            alt_title,
-            slug,
-            revision_comments: comments,
-            user_id,
-        } = input;
 
         // Create category if not already present
         let category = CategoryService::get_or_create(ctx, site_id, &slug).await?;
@@ -152,14 +154,69 @@ impl PageService {
         ctx: &ServiceContext<'_>,
         site_id: i64,
         reference: Reference<'_>,
-        mut input: EditPage,
+        EditPage {
+            wikitext,
+            title,
+            alt_title,
+            tags,
+            revision_comments: comments,
+            user_id,
+        }: EditPage,
     ) -> Result<Option<EditPageOutput>> {
         let txn = ctx.transaction();
         let page = Self::get(ctx, site_id, reference).await?;
 
-        // TODO
-        let _todo = (txn, page, input);
-        todo!()
+        // Get latest revision
+        let last_revision =
+            RevisionService::get_latest(ctx, site_id, page.page_id).await?;
+
+        // Create new revision
+        //
+        // A response of None means no revision was created
+        // because none of the data actually changed.
+
+        let revision_input = CreateRevision {
+            user_id,
+            comments,
+            body: CreateRevisionBody {
+                wikitext,
+                title,
+                alt_title,
+                tags,
+                ..Default::default()
+            },
+        };
+
+        let revision_output = RevisionService::create(
+            ctx,
+            site_id,
+            page.page_id,
+            revision_input,
+            Some(&last_revision),
+        )
+        .await?;
+
+        // Only mark the page as updated if a revision was committed
+        if revision_output.is_some() {
+            let model = page::ActiveModel {
+                page_id: Set(page.page_id),
+                updated_at: Set(Some(now())),
+                ..Default::default()
+            };
+
+            model.update(txn).await?;
+        }
+
+        // Build and return
+        Ok(revision_output.map(
+            |CreateRevisionOutput {
+                 revision_id,
+                 revision_number,
+             }| EditPageOutput {
+                revision_id,
+                revision_number,
+            },
+        ))
     }
 
     pub async fn rename(

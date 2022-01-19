@@ -248,6 +248,9 @@ impl UserService {
 
         // Add each field
         if let ProvidedValue::Set(username) = input.username {
+            // TODO: add old alias
+            // TODO: check for conflicts
+
             let slug = get_user_slug(&username);
             user.username = Set(username);
             user.username_changes = Set(user.username_changes.unwrap() + 1);
