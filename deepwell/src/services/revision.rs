@@ -78,6 +78,31 @@ pub struct UpdateRevision {
 pub struct RevisionService;
 
 impl RevisionService {
+    /// Creates a new revision.
+    ///
+    /// For the given page, look at the changes to make. If there are none,
+    /// or they are all equivalent to the previous revision's, then no
+    /// revision is committed and `Ok(None)` is returned.
+    ///
+    /// If there are changes, then the new revision is created and all the
+    /// appropriate updating is done. For instance, recompiling the page
+    /// or updating backlinks.
+    ///
+    /// For page renames, this does not explicitly check if the target slug
+    /// already exists. If so, the database will fail with a uniqueness error.
+    /// This is checked in `PageService::rename()`, where renames should be done from.
+    ///
+    /// The revision number is subject to an invariant:
+    /// * For a new page, then the value must be `0` (this corresponds with a `previous` of `None`).
+    /// * For an existing page, then the value must be precisely one greater than the previous
+    ///   revision's number. No holes are permitted in the revision count, for some maximum
+    ///   revision number `n`, there must be revisions for each revision number from `0` to `n`
+    ///   inclusive.
+    ///
+    /// This is enforced by requiring the previous revision be passed in during creation.
+    ///
+    /// # Panics
+    /// If the given previous revision is for a different page or site, this method will panic.
     pub async fn create(
         ctx: &ServiceContext<'_>,
         site_id: i64,
