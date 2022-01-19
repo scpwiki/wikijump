@@ -159,7 +159,15 @@ impl PageService {
 
         // TODO
         let _todo = (txn, page, input);
+        todo!()
+    }
 
+    pub async fn rename(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        reference: Reference<'_>,
+        new_slug: &str,
+    ) -> Result<()> {
         todo!()
     }
 
