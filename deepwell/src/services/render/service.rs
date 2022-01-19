@@ -1,5 +1,5 @@
 /*
- * services/render.rs
+ * services/render/service.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -20,29 +20,6 @@
 
 use super::prelude::*;
 use crate::services::TextService;
-use ftml::{
-    self,
-    data::PageInfo,
-    info::VERSION,
-    parsing::ParseWarning,
-    render::html::{HtmlOutput, HtmlRender},
-    render::Render,
-    settings::WikitextSettings,
-};
-
-// Helper structs
-// TODO
-
-#[derive(Serialize, Debug)]
-pub struct RenderOutput {
-    #[serde(flatten)]
-    html_output: HtmlOutput,
-    warnings: Vec<ParseWarning>,
-    compiled_hash: String,
-    compiled_generator: String,
-}
-
-// Service
 
 #[derive(Debug)]
 pub struct RenderService;
