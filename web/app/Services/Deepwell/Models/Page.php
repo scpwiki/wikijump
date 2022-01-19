@@ -85,5 +85,8 @@ class Page extends DeepwellModel
     }
 
     // Instance methods
-    // TODO
+    public function getLastRevision(): PageRevision
+    {
+        // TODO
+    }
 }
