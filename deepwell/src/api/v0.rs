@@ -38,35 +38,7 @@ pub fn build(mut app: ApiServer) -> ApiServer {
     app.at("/teapot")
         .get(|_| async { error_response(StatusCode::ImATeapot, "🫖") });
 
-    // Page
-    app.at("/page/:site_id").post(page_create);
-    app.at("/page/:site_id/:type/:id_or_slug")
-        .head(page_head)
-        .get(page_get)
-        .delete(page_delete);
-
-    app.at("/page/:site_id/:type/:id_or_slug/links/from")
-        .get(page_links_from_get);
-
-    app.at("/page/:site_id/:type/:id_or_slug/links/to")
-        .get(page_links_to_get);
-
-    app.at("/page/:site_id/slug/:page_slug/links/to/missing")
-        .get(page_links_to_missing_get);
-
-    // Page -- invalid routes
-    app.at("/page").all(page_invalid);
-    app.at("/page/:type/:id_or_slug").all(page_invalid);
-    app.at("/page/:site_id/id/:page_slug/links/to/missing")
-        .all(page_invalid);
-
-    // User
-    app.at("/user").post(user_create);
-    app.at("/user/:type/:id_or_slug")
-        .head(user_head)
-        .get(user_get)
-        .put(user_put)
-        .delete(user_delete);
+    // TODO
 
     app
 }
