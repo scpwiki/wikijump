@@ -67,8 +67,21 @@ impl PageService {
         normalize(&mut input.slug);
 
         // Check for conflicts
-        // TODO
+        let result = Page::find()
+            .filter(
+                Condition::all()
+                    .add(page::Column::SiteId.eq(site_id))
+                    .add(page::Column::Slug.eq(input.slug.as_str()))
+                    .add(page::Column::DeletedAt.is_null()),
+            )
+            .one(txn)
+            .await?;
 
+        if result.is_some() {
+            return Err(Error::Conflict);
+        }
+
+        // TODO
         let _todo = (txn, site_id, input);
 
         todo!()
@@ -81,9 +94,10 @@ impl PageService {
         mut input: EditPage,
     ) -> Result<Option<EditPageOutput>> {
         let txn = ctx.transaction();
+        let page = Self::get(ctx, site_id, reference).await?;
 
         // TODO
-        let _todo = (txn, site_id, reference, input);
+        let _todo = (txn, page, input);
 
         todo!()
     }
