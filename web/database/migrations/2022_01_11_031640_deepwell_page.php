@@ -72,9 +72,9 @@ class DeepwellPage extends Migration
                 site_id BIGINT NOT NULL REFERENCES site(site_id),
                 user_id BIGINT NOT NULL REFERENCES users(id),
                 wikitext_hash BYTEA NOT NULL REFERENCES text(hash),
-                compiled_hash BYTEA REFERENCES text(hash),
-                compiled_at TIMESTAMP WITH TIME ZONE,
-                compiled_generator TEXT,
+                compiled_hash BYTEA NOT NULL REFERENCES text(hash),
+                compiled_at TIMESTAMP WITH TIME ZONE NOT NULL,
+                compiled_generator TEXT NOT NULL,
                 comments TEXT NOT NULL,
                 comments_edited_at TIMESTAMP WITH TIME ZONE,
                 comments_edited_by BIGINT REFERENCES users(id),
@@ -84,10 +84,6 @@ class DeepwellPage extends Migration
                 slug TEXT NOT NULL,
                 tags TEXT[] NOT NULL DEFAULT '{}', -- Should be sorted and deduplicated before insertion
                 metadata JSONB NOT NULL DEFAULT '{}', -- Customizable metadata. Currently unused.
-
-                -- Ensure all compiled fields are null, or all are non-null
-                CHECK ((compiled_hash IS NULL) = (compiled_at IS NULL)),
-                CHECK ((compiled_at IS NULL) = (compiled_generator IS NULL)),
 
                 -- Ensure both comments_edited fields are null, or both are non-null
                 CHECK ((comments_edited_at IS NULL) = (comments_edited_by IS NULL)),
