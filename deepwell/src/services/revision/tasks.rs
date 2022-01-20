@@ -26,70 +26,128 @@ use crate::web::ProvidedValue;
 /// A representation of the updating tasks to do for a revision.
 #[derive(Debug, Copy, Clone)]
 pub struct RevisionTasks {
-    wikitext: bool,
+    render: bool,
     links_incoming: bool,
     links_outgoing: bool,
-    title: bool,
-    slug: bool,
+    rename: bool,
+    rerender_included: bool,
+    process_navigation: bool,
+    process_templates: bool,
 }
 
 impl RevisionTasks {
     #[inline]
     pub fn created_page() -> Self {
         RevisionTasks {
-            wikitext: true,
+            render: true,
             links_incoming: true,
             links_outgoing: true,
-            title: true,
-            slug: true,
+            rename: false,
+            rerender_included: true,
+            process_navigation: true,
+            process_templates: true,
         }
     }
 
     pub fn determine(revision: &PageRevisionModel, changes: &CreateRevisionBody) -> Self {
         let mut tasks = RevisionTasks {
-            wikitext: false,
+            render: false,
             links_incoming: false,
             links_outgoing: false,
-            title: false,
-            slug: false,
+            rename: false,
+            rerender_included: false,
+            process_navigation: false,
+            process_templates: false,
         };
 
         if let ProvidedValue::Set(ref wikitext) = changes.wikitext {
             if revision.wikitext_hash.as_slice() != TextService::hash(wikitext).as_slice()
             {
-                tasks.wikitext = true;
+                tasks.render = true;
+                tasks.links_incoming = true;
+                tasks.links_outgoing = true;
+                tasks.rerender_included = true;
+                tasks.process_navigation = true;
+                tasks.process_templates = true;
             }
         }
 
-        // TODO check hidden
+        // Don't need to check changes.hidden
 
         if let ProvidedValue::Set(ref title) = changes.title {
             if &revision.title != title {
-                tasks.title = true;
+                tasks.render = true;
+                tasks.links_incoming = true;
+                tasks.links_outgoing = true;
             }
         }
 
         if let ProvidedValue::Set(ref alt_title) = changes.alt_title {
             if &revision.alt_title != alt_title {
-                tasks.title = true;
+                tasks.render = true;
+                tasks.links_incoming = true;
+                tasks.links_outgoing = true;
             }
         }
 
         if let ProvidedValue::Set(ref slug) = changes.slug {
             if &revision.slug != slug {
-                tasks.slug = true;
+                tasks.render = true;
+                tasks.links_incoming = true;
+                tasks.rename = true;
+                tasks.rerender_included = true;
+                tasks.process_navigation = true;
+                tasks.process_templates = true;
             }
         }
 
-        // TODO check tags
+        if let ProvidedValue::Set(ref _tags) = changes.tags {
+            // TODO check tags
+            if false {
+                tasks.render = true;
+            }
+        }
 
-        // TODO check metadata
+        if let ProvidedValue::Set(ref _metadata) = changes.metadata {
+            // TODO check metadata
+            if false {
+                tasks.render = true;
+            }
+        }
 
         tasks
     }
 
     #[inline]
     pub fn is_empty(self) -> bool {
-        !self.wikitext && !self.title && !self.slug
+        !self.render
+            && !self.links_incoming
+            && !self.links_outgoing
+            && !self.rename
+            && !self.rerender_included
+            && !self.process_navigation
+            && !self.process_templates
     }
 }
+
+/*
+ * TODO: Tasks for other page changes:
+ *
+ * page delete:
+ * - links_incoming
+ * - rerender_included
+ * - process_navigation
+ * - process_templates
+ * - outdate page cache
+ *
+ * page parent change:
+ * - outdate page cache
+ *
+ * page file change:
+ * - render
+ * - rerender_included
+ * - outdate page cache
+ *
+ * page vote:
+ * - outdate page cache
+ */
