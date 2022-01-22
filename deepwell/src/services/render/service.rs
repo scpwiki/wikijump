@@ -38,8 +38,8 @@ impl RenderService {
         // TODO include
         ftml::preprocess(ctx.slog(), &mut wikitext);
         let tokens = ftml::tokenize(ctx.slog(), &wikitext);
-        let (tree, warnings) =
-            ftml::parse(ctx.slog(), &tokens, page_info, settings).into();
+        let result = ftml::parse(ctx.slog(), &tokens, page_info, settings);
+        let (tree, warnings) = result.into();
         let html_output = HtmlRender.render(ctx.slog(), &tree, page_info, settings);
 
         // Insert compiled HTML into text table
