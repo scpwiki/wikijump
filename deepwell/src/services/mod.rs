@@ -41,7 +41,8 @@ mod prelude {
     pub use crate::web::{ProvidedValue, Reference};
     pub use sea_orm::{
         ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, EntityTrait, JoinType,
-        PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, RelationTrait, Set,
+        ModelTrait, PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, RelationTrait,
+        Set,
     };
 }
 
@@ -49,6 +50,7 @@ mod context;
 mod error;
 
 pub mod category;
+pub mod job;
 pub mod link;
 pub mod page;
 pub mod render;
