@@ -46,8 +46,7 @@ impl SiteService {
                 Site::find()
                     .filter(
                         Condition::all()
-                            // TODO: rename after migration
-                            .add(site::Column::UnixName.eq(slug))
+                            .add(site::Column::Slug.eq(slug))
                             .add(site::Column::Deleted.eq(false)),
                     )
                     .one(txn)
