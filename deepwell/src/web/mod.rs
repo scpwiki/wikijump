@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod category;
 mod connection_type;
 mod provided_value;
 mod reference;
@@ -27,6 +28,7 @@ mod user_details;
 pub mod ratelimit;
 pub mod utils;
 
+pub use self::category::*;
 pub use self::connection_type::ConnectionType;
 pub use self::provided_value::ProvidedValue;
 pub use self::reference::Reference;

@@ -34,15 +34,6 @@ pub enum ProvidedValue<T> {
     Unset,
 }
 
-impl<T> Option<T> {
-    pub fn expect(self, message: &str) -> T {
-        match self {
-            ProvidedValue::Set(value) => value,
-            ProvidedValue::Unset => panic!("{}", message),
-        }
-    }
-}
-
 impl<T> From<ProvidedValue<T>> for Option<T> {
     #[inline]
     fn from(value: ProvidedValue<T>) -> Option<T> {

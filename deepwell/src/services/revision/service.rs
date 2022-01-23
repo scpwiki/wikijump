@@ -22,7 +22,12 @@ use super::prelude::*;
 use crate::models::page_revision::{
     self, Entity as PageRevision, Model as PageRevisionModel,
 };
-use crate::services::TextService;
+use crate::services::text::Hash;
+use crate::services::{RenderService, SiteService, TextService};
+use crate::web::split_category;
+use ftml::data::PageInfo;
+use ftml::settings::{WikitextMode, WikitextSettings};
+use std::borrow::Cow;
 
 #[derive(Debug)]
 pub struct RevisionService;
@@ -53,42 +58,127 @@ impl RevisionService {
     ///
     /// # Panics
     /// If the given previous revision is for a different page or site, this method will panic.
+    ///
+    /// If `previous` is `None` but the `input` parameter lacks any fields, this method will panic.
     pub async fn create(
         ctx: &ServiceContext<'_>,
         site_id: i64,
         page_id: i64,
         input: CreateRevision,
-        previous: Option<&PageRevisionModel>,
+        previous: PageRevisionModel,
     ) -> Result<Option<CreateRevisionOutput>> {
+        let txn = ctx.transaction();
+
         // Get the new revision number and the change tasks to process
-        let (tasks, revision_number) = match previous {
-            None => (RevisionTasks::created_page(), 0),
-            Some(revision) => {
-                // Check for basic consistency
-                assert_eq!(
-                    revision.site_id, site_id,
-                    "Previous revision has an inconsistent site ID",
-                );
-                assert_eq!(
-                    revision.page_id, page_id,
-                    "Previous revision has an inconsistent page ID",
-                );
+        let (tasks, revision_number) = {
+            // Check for basic consistency
+            assert_eq!(
+                previous.site_id, site_id,
+                "Previous revision has an inconsistent site ID",
+            );
+            assert_eq!(
+                previous.page_id, page_id,
+                "Previous revision has an inconsistent page ID",
+            );
 
-                // Check to see if any fields have changed
-                let tasks = RevisionTasks::determine(&revision, &input.body);
-                if tasks.is_empty() {
-                    tide::log::info!("No changes from previous revision, returning");
-                    return Ok(None);
-                }
-
-                // Can proceed, increment from previous
-                (tasks, revision.revision_number + 1)
+            // Check to see if any fields have changed
+            let tasks = RevisionTasks::determine(&previous, &input.body);
+            if tasks.is_empty() {
+                tide::log::info!("No changes from previous revision, returning");
+                return Ok(None);
             }
+
+            // Can proceed, increment from previous
+            (tasks, previous.revision_number + 1)
         };
 
+        // Get the site we're adding the page to
+        let site = SiteService::get(ctx, Reference::from(site_id)).await?;
+
+        /*
+        if tasks.render {
+            let settings = WikitextSettings::from_mode(WikitextMode::Page);
+            let (category, page) = split_category(&slug);
+            let page_info = PageInfo {
+                page: Cow::Borrowed(page),
+                category: category.map(Cow::Borrowed),
+                site: Cow::Borrowed(&site.unix_name.unwrap()), // TODO fix name, no nullability
+                title: Cow::Borrowed(&title),
+                alt_title: alt_title.map(Cow::Borrowed),
+                rating: 0.0, // TODO
+                tags: tags.iter().map(|s| Cow::Borrowed(&s)).collect(),
+                language: Cow::Borrowed(&site.language),
+            };
+
+            let RenderOutput {
+                html_output,
+                warnings,
+                compiled_hash,
+                compiled_generator,
+            } = RenderService::render(ctx, wikitext, &page_info, &settings).await?;
+        }
+        */
+
         let _todo = (ctx, revision_number, input);
+        todo!();
 
         // TODO: consult Outdater.php
+
+        /*
+        // Finally, insert the new revision into the table
+        let model = page_revision::ActiveModel {
+            revision_number: Set(revision_number),
+            page_id: Set(page_id),
+            site_id: Set(site_id),
+            user_id: Set(user_id),
+            wikitext_hash: Set(wikitext_hash),
+            compiled_hash: Set(compiled_hash),
+            compiled_at: Set(compiled_at),
+            compiled_generator: Set(compiled_generator),
+            hidden: Set(hidden),
+            title: Set(title),
+            alt_title: Set(alt_title),
+            slug: Set(slug),
+            // tags: Set(tags), TODO array
+            // metadata: Set(metadata), TODO json
+            ..Default::default()
+        };
+
+        let PageRevisionModel { revision_id, .. } = model.insert(txn).await?;
+        Ok(Some(CreateRevisionOutput {
+            revision_id,
+            revision_number,
+        }))
+        */
+    }
+
+    /// Creates the first revision for a newly-inserted page.
+    ///
+    /// The first revision of a page is special.
+    /// A revision change cannot be missing any fields (since there is
+    /// not a previous revision to take prior data from), and always
+    /// inserts, since it's not possible for it to be an empty revision
+    /// (since there's no prior revision for it to be equal to).
+    pub async fn create_first(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+        CreateFirstRevision {
+            user_id,
+            comments,
+            body:
+                CreateRevisionBodyPresent {
+                    wikitext,
+                    hidden,
+                    title,
+                    alt_title,
+                    slug,
+                    tags,
+                    metadata,
+                },
+        }: CreateFirstRevision,
+    ) -> Result<CreateFirstRevisionOutput> {
+        let txn = ctx.transaction();
 
         todo!()
     }

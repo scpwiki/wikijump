@@ -21,9 +21,11 @@
 use super::prelude::*;
 use crate::models::page::{self, Entity as Page, Model as PageModel};
 use crate::services::revision::{
-    CreateRevision, CreateRevisionBody, CreateRevisionOutput,
+    CreateFirstRevision, CreateFirstRevisionOutput, CreateRevision, CreateRevisionBody,
+    CreateRevisionBodyPresent, CreateRevisionOutput,
 };
 use crate::services::{CategoryService, RevisionService};
+use crate::web::trim_default;
 use wikidot_normalize::normalize;
 
 #[derive(Debug)]
@@ -73,36 +75,23 @@ impl PageService {
         let page = model.insert(txn).await?;
 
         // Commit first revision
-        let revision_input = CreateRevision {
+        let revision_input = CreateFirstRevision {
             user_id,
             comments,
-            body: CreateRevisionBody {
-                wikitext: ProvidedValue::Set(wikitext),
-                title: ProvidedValue::Set(title),
-                alt_title: ProvidedValue::Set(alt_title),
-                slug: ProvidedValue::Set(slug.clone()),
-                ..Default::default()
+            body: CreateRevisionBodyPresent {
+                wikitext,
+                title,
+                alt_title,
+                slug: slug.clone(),
+                hidden: Vec::new(),
+                tags: Vec::new(),
+                metadata: serde_json::json!({}),
             },
         };
 
-        let revision_id = match RevisionService::create(
-            ctx,
-            site_id,
-            page.page_id,
-            revision_input,
-            None,
-        )
-        .await?
-        {
-            None => panic!("No revision created, but page is new"),
-            Some(CreateRevisionOutput {
-                revision_id,
-                revision_number,
-            }) => {
-                assert_eq!(revision_number, 0, "Created revision has a nonzero number");
-                revision_id
-            }
-        };
+        let CreateFirstRevisionOutput { revision_id } =
+            RevisionService::create_first(ctx, site_id, page.page_id, revision_input)
+                .await?;
 
         // Build and return
         Ok(CreatePageOutput {
@@ -154,7 +143,7 @@ impl PageService {
             site_id,
             page.page_id,
             revision_input,
-            Some(&last_revision),
+            last_revision,
         )
         .await?;
 
@@ -232,9 +221,7 @@ impl PageService {
                 Reference::Id(id) => page::Column::PageId.eq(id),
                 Reference::Slug(slug) => {
                     // Trim off _default category if present
-                    let slug = slug.strip_prefix("_default:").unwrap_or(slug);
-
-                    page::Column::Slug.eq(slug)
+                    page::Column::Slug.eq(trim_default(slug))
                 }
             };
 
@@ -273,22 +260,5 @@ impl PageService {
         let txn = ctx.transaction();
         let page = Page::find_by_id(page_id).one(txn).await?;
         Ok(page)
-    }
-}
-
-/// Retrieves the category portion of a normalized slug.
-///
-/// This finds the first `:` in the full slug and returns everything
-/// up to that as the category slug.
-///
-/// Normal slugs do not have an explicit `_default`, so they
-/// should lack a `:` entirely.
-fn get_category(slug: &str) -> &str {
-    match slug.find(':') {
-        None => "_default",
-        Some(idx) => {
-            let (category, page) = slug.split_at(idx);
-            category
-        }
     }
 }

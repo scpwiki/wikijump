@@ -41,10 +41,35 @@ pub struct CreateRevisionBody {
     pub metadata: ProvidedValue<serde_json::Value>,
 }
 
+#[derive(Deserialize, Debug)]
+pub struct CreateFirstRevision {
+    pub user_id: i64,
+    pub comments: String,
+
+    #[serde(flatten)]
+    pub body: CreateRevisionBodyPresent,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct CreateRevisionBodyPresent {
+    pub wikitext: String,
+    pub hidden: Vec<String>,
+    pub title: String,
+    pub alt_title: Option<String>,
+    pub slug: String,
+    pub tags: Vec<String>,
+    pub metadata: serde_json::Value,
+}
+
 #[derive(Serialize, Debug)]
 pub struct CreateRevisionOutput {
     pub revision_id: i64,
     pub revision_number: i32,
+}
+
+#[derive(Serialize, Debug)]
+pub struct CreateFirstRevisionOutput {
+    pub revision_id: i64,
 }
 
 #[derive(Deserialize, Debug)]

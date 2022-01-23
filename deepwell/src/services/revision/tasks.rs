@@ -24,31 +24,18 @@ use crate::services::TextService;
 use crate::web::ProvidedValue;
 
 /// A representation of the updating tasks to do for a revision.
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct RevisionTasks {
-    render: bool,
-    links_incoming: bool,
-    links_outgoing: bool,
-    rename: bool,
-    rerender_included: bool,
-    process_navigation: bool,
-    process_templates: bool,
+    pub render: bool,
+    pub links_incoming: bool,
+    pub links_outgoing: bool,
+    pub rename: bool,
+    pub rerender_included: bool,
+    pub process_navigation: bool,
+    pub process_templates: bool,
 }
 
 impl RevisionTasks {
-    #[inline]
-    pub fn created_page() -> Self {
-        RevisionTasks {
-            render: true,
-            links_incoming: true,
-            links_outgoing: true,
-            rename: false,
-            rerender_included: true,
-            process_navigation: true,
-            process_templates: true,
-        }
-    }
-
     pub fn determine(revision: &PageRevisionModel, changes: &CreateRevisionBody) -> Self {
         let mut tasks = RevisionTasks {
             render: false,
