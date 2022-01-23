@@ -18,6 +18,7 @@ tables=(
 	forum_group
 	forum_post
 	forum_thread
+	job
 	page
 	page_category
 	page_connection
