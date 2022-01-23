@@ -10,8 +10,8 @@ pub struct Model {
     pub site_id: i64,
     pub name: Option<String>,
     pub subtitle: Option<String>,
-    #[sea_orm(unique)]
-    pub unix_name: Option<String>,
+    #[sea_orm(column_type = "Text", unique)]
+    pub slug: String,
     pub description: Option<String>,
     pub language: String,
     pub date_created: Option<DateTime>,
