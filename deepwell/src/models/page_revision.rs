@@ -14,10 +14,10 @@ pub struct Model {
     pub site_id: i64,
     pub user_id: i64,
     pub wikitext_hash: Vec<u8>,
-    pub compiled_hash: Option<Vec<u8>>,
-    pub compiled_at: Option<DateTimeWithTimeZone>,
-    #[sea_orm(column_type = "Text", nullable)]
-    pub compiled_generator: Option<String>,
+    pub compiled_hash: Vec<u8>,
+    pub compiled_at: DateTimeWithTimeZone,
+    #[sea_orm(column_type = "Text")]
+    pub compiled_generator: String,
     #[sea_orm(column_type = "Text")]
     pub comments: String,
     pub comments_edited_at: Option<DateTimeWithTimeZone>,
