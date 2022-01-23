@@ -1,5 +1,5 @@
 /*
- * services/job.rs
+ * services/job/service.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -25,17 +25,11 @@
 
 use super::prelude::*;
 use crate::models::job::{self, Entity as Job, Model as JobModel};
+use std::borrow::Cow;
 
 #[derive(Debug)]
 pub struct JobService;
 
-// Local helper structs
-#[derive(Serialize, Debug)]
-struct RerenderJobData<'a> {
-    page_ids: &'a [i64],
-}
-
-// Service
 impl JobService {
     // Job processing
     pub async fn get_batch(ctx: &ServiceContext<'_>) -> Result<Vec<JobModel>> {
@@ -87,7 +81,10 @@ impl JobService {
         ctx: &ServiceContext<'_>,
         page_ids: &[i64],
     ) -> Result<()> {
-        let data = RerenderJobData { page_ids };
+        let data = RerenderJobData {
+            page_ids: Cow::Borrowed(page_ids),
+        };
+
         todo!()
     }
 }
