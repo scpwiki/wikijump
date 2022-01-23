@@ -26,8 +26,8 @@ use crate::services::render::RenderOutput;
 use crate::services::text::Hash;
 use crate::services::{RenderService, SiteService, TextService};
 use crate::web::split_category;
-use ftml::data::PageInfo;
 use ftml::settings::{WikitextMode, WikitextSettings};
+use ftml::{data::PageInfo, render::html::HtmlOutput};
 use ref_map::*;
 use std::borrow::Cow;
 
@@ -215,7 +215,13 @@ impl RevisionService {
         };
 
         let RenderOutput {
-            html_output,
+            html_output:
+                HtmlOutput {
+                    body: html_body,
+                    styles: html_styles,
+                    meta: html_meta,
+                    backlinks,
+                },
             warnings,
             compiled_hash,
             compiled_generator,
