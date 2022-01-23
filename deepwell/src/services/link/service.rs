@@ -161,7 +161,6 @@ impl LinkService {
     }
 
     // TEMP
-    // will be part of creating a revision
     pub async fn update(
         ctx: &ServiceContext<'_>,
         site_id: i64,

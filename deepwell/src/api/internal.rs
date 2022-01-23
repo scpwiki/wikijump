@@ -73,12 +73,6 @@ pub fn build(mut app: ApiServer) -> ApiServer {
     app.at("/page/:site_id/:type/:id_or_slug/revision/:revision_number/:direction")
         .get(page_revision_range_get);
 
-    app.at("/page/:site_id/:type/:id_or_slug/links")
-        .put(page_links_put); // TEMP
-
-    app.at("/page/:site_id/:slug/links/missing")
-        .put(page_links_missing_put); // TEMP
-
     app.at("/page/:site_id/:type/:id_or_slug/links/from")
         .get(page_links_from_get);
 

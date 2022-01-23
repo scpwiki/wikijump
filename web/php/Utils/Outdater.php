@@ -208,12 +208,12 @@ final class Outdater
 
     private function updateLinks(Page $page): void
     {
-        DeepwellService::getInstance()->updateLinks($page->getSiteId(), $page->getPageId(), $this->link_stats);
+        Log::error('This temporary call (updateLinks) has been removed!');
     }
 
     private function updateLinksMissing(string $site_id, string $page_slug): void
     {
-        DeepwellService::getInstance()->updateLinksMissing($site_id, $page_slug, $this->link_stats);
+        Log::error('This temporary call (updateLinksMissing) has been removed!');
     }
 
     private function recompileIncludedByPage(Page $page): void

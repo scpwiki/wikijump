@@ -110,28 +110,6 @@ final class DeepwellService
         return self::readJson($resp);
     }
 
-    // TEMP!
-    public function updateLinks(
-        string $site_id,
-        string $page_id,
-        Backlinks $backlinks
-    ): void {
-        $this->client->put("page/$site_id/id/$page_id/links", [
-            'json' => self::backlinksToJson($backlinks),
-        ]);
-    }
-
-    // TEMP!
-    public function updateLinksMissing(
-        string $site_id,
-        string $page_slug,
-        Backlinks $backlinks
-    ): void {
-        $this->client->put("page/$site_id/$page_slug/links/missing", [
-            'json' => self::backlinksToJson($backlinks),
-        ]);
-    }
-
     private static function backlinksToJson(Backlinks $backlinks): array
     {
         // TODO in ftml, this struct uses kebab-case

@@ -199,40 +199,6 @@ pub async fn page_links_external_to(req: ApiRequest) -> ApiResponse {
     Ok(body.into())
 }
 
-// TODO: remove separate endpoint, make part of revision changes
-pub async fn page_links_put(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-    let backlinks: Backlinks = req.body_json().await?;
-
-    let site_id = req.param("site_id")?.parse()?;
-    let reference = Reference::try_from(&req)?;
-    LinkService::update(&ctx, site_id, reference, &backlinks)
-        .await
-        .to_api()?;
-
-    txn.commit().await?;
-
-    Ok(Response::new(StatusCode::NoContent))
-}
-
-// TODO: remove separate endpoint, make part of revision changes
-pub async fn page_links_missing_put(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-    let backlinks: Backlinks = req.body_json().await?;
-
-    let site_id = req.param("site_id")?.parse()?;
-    let slug = req.param("slug")?;
-    LinkService::update_missing(&ctx, site_id, slug, &backlinks)
-        .await
-        .to_api()?;
-
-    txn.commit().await?;
-
-    Ok(Response::new(StatusCode::NoContent))
-}
-
 fn build_page_response(
     page: &PageModel,
     revision: &PageRevisionModel,
