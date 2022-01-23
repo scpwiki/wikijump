@@ -37,11 +37,9 @@ pub struct LinkService;
 impl LinkService {
     pub async fn get_from(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        reference: Reference<'_>,
+        page_id: i64,
     ) -> Result<GetLinksFromOutput> {
         let txn = ctx.transaction();
-        let PageModel { page_id, .. } = PageService::get(ctx, site_id, reference).await?;
 
         let (present, absent, external) = try_join!(
             PageConnection::find()
@@ -64,11 +62,9 @@ impl LinkService {
 
     pub async fn get_to(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        reference: Reference<'_>,
+        page_id: i64,
     ) -> Result<GetLinksToOutput> {
         let txn = ctx.transaction();
-        let PageModel { page_id, .. } = PageService::get(ctx, site_id, reference).await?;
 
         let connections = PageConnection::find()
             .filter(page_connection::Column::ToPageId.eq(page_id))

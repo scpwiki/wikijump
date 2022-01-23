@@ -128,7 +128,8 @@ pub async fn page_links_from_get(req: ApiRequest) -> ApiResponse {
 
     let site_id = req.param("site_id")?.parse()?;
     let reference = Reference::try_from(&req)?;
-    let output = LinkService::get_from(&ctx, site_id, reference)
+    let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
+    let output = LinkService::get_from(&ctx, page.page_id)
         .await
         .to_api()?;
 
@@ -144,7 +145,8 @@ pub async fn page_links_to_get(req: ApiRequest) -> ApiResponse {
 
     let site_id = req.param("site_id")?.parse()?;
     let reference = Reference::try_from(&req)?;
-    let output = LinkService::get_to(&ctx, site_id, reference)
+    let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
+    let output = LinkService::get_to(&ctx, page.page_id)
         .await
         .to_api()?;
 
