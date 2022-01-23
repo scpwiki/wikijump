@@ -25,6 +25,7 @@
 
 use super::prelude::*;
 use crate::models::job::{self, Entity as Job, Model as JobModel};
+use serde::Serialize;
 use std::borrow::Cow;
 
 #[derive(Debug)]
@@ -66,6 +67,7 @@ impl JobService {
         Ok(())
     }
 
+    #[inline]
     pub async fn mark_retry(ctx: &ServiceContext<'_>, job_id: i32) -> Result<()> {
         Self::mark_claimed(ctx, job_id, true).await
     }
@@ -77,14 +79,31 @@ impl JobService {
     }
 
     // Enqueueing
+    async fn enqueue<T: Serialize>(
+        ctx: &ServiceContext<'_>,
+        job_type: &'static str,
+        data: T,
+    ) -> Result<()> {
+        let txn = ctx.transaction();
+        let json_data = serde_json::to_value(data)?;
+        let job = job::ActiveModel {
+            job_type: Set(str!(job_type)),
+            job_data: Set(json_data),
+            ..Default::default()
+        };
+
+        job.insert(txn).await?;
+        Ok(())
+    }
+
     pub async fn enqueue_rerender_pages(
         ctx: &ServiceContext<'_>,
         page_ids: &[i64],
     ) -> Result<()> {
-        let data = RerenderJobData {
+        let data = RerenderPagesJobData {
             page_ids: Cow::Borrowed(page_ids),
         };
 
-        todo!()
+        Self::enqueue(ctx, JOB_TYPE_RERENDER_PAGES, data).await
     }
 }

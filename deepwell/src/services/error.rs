@@ -40,6 +40,9 @@ pub enum Error {
     #[error("Localization error: {0}")]
     Localization(#[from] LocalizationTranslateError),
 
+    #[error("Serialization error: {0}")]
+    Serde(#[from] serde_json::Error),
+
     #[error("Web server error: HTTP {}", .0.status() as u16)]
     Web(TideError),
 
@@ -64,6 +67,7 @@ impl Error {
                 TideError::new(StatusCode::InternalServerError, inner)
             }
             Error::Localization(inner) => TideError::new(StatusCode::NotFound, inner),
+            Error::Serde(inner) => TideError::new(StatusCode::InternalServerError, inner),
             Error::Web(inner) => inner,
             Error::InvalidEnumValue => {
                 TideError::from_str(StatusCode::InternalServerError, "")
