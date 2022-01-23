@@ -5,6 +5,7 @@ pub use super::forum_category::Entity as ForumCategory;
 pub use super::forum_group::Entity as ForumGroup;
 pub use super::forum_post::Entity as ForumPost;
 pub use super::forum_thread::Entity as ForumThread;
+pub use super::job::Entity as Job;
 pub use super::page::Entity as Page;
 pub use super::page_category::Entity as PageCategory;
 pub use super::page_connection::Entity as PageConnection;

@@ -7,6 +7,7 @@ pub mod forum_category;
 pub mod forum_group;
 pub mod forum_post;
 pub mod forum_thread;
+pub mod job;
 pub mod page;
 pub mod page_category;
 pub mod page_connection;
