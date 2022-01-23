@@ -89,15 +89,18 @@ impl PageService {
             },
         };
 
-        let CreateFirstRevisionOutput { revision_id } =
-            RevisionService::create_first(ctx, site_id, page.page_id, revision_input)
-                .await?;
+        let CreateFirstRevisionOutput {
+            revision_id,
+            parser_warnings,
+        } = RevisionService::create_first(ctx, site_id, page.page_id, revision_input)
+            .await?;
 
         // Build and return
         Ok(CreatePageOutput {
             page_id: page.page_id,
             slug,
             revision_id,
+            parser_warnings,
         })
     }
 

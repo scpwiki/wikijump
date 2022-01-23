@@ -22,12 +22,26 @@ use super::prelude::*;
 use crate::models::page_revision::{
     self, Entity as PageRevision, Model as PageRevisionModel,
 };
+use crate::services::render::RenderOutput;
 use crate::services::text::Hash;
 use crate::services::{RenderService, SiteService, TextService};
 use crate::web::split_category;
 use ftml::data::PageInfo;
 use ftml::settings::{WikitextMode, WikitextSettings};
+use ref_map::*;
 use std::borrow::Cow;
+
+macro_rules! cow {
+    ($s:expr) => {
+        Cow::Borrowed($s.as_ref())
+    };
+}
+
+macro_rules! cow_opt {
+    ($s:expr) => {
+        $s.ref_map(|s| cow!(s))
+    };
+}
 
 #[derive(Debug)]
 pub struct RevisionService;
@@ -180,7 +194,57 @@ impl RevisionService {
     ) -> Result<CreateFirstRevisionOutput> {
         let txn = ctx.transaction();
 
-        todo!()
+        // Get site for page
+        let site = SiteService::get(ctx, Reference::from(site_id)).await?;
+
+        // Add wikitext
+        let wikitext_hash = TextService::create(ctx, wikitext.clone()).await?;
+
+        // Render first revision
+        let settings = WikitextSettings::from_mode(WikitextMode::Page);
+        let (category, page) = split_category(&slug);
+        let page_info = PageInfo {
+            page: cow!(page),
+            category: cow_opt!(category),
+            site: cow!(&site.slug),
+            title: cow!(&title),
+            alt_title: cow_opt!(alt_title),
+            rating: 0.0, // TODO
+            tags: tags.iter().map(|s| cow!(s)).collect(),
+            language: cow!(&site.language),
+        };
+
+        let RenderOutput {
+            html_output,
+            warnings,
+            compiled_hash,
+            compiled_generator,
+        } = RenderService::render(ctx, wikitext, &page_info, &settings).await?;
+
+        // Insert the new revision into the table
+        let model = page_revision::ActiveModel {
+            revision_number: Set(0),
+            page_id: Set(page_id),
+            site_id: Set(site_id),
+            user_id: Set(user_id),
+            wikitext_hash: Set(wikitext_hash.to_vec()),
+            compiled_hash: Set(compiled_hash.to_vec()),
+            compiled_at: Set(now()),
+            compiled_generator: Set(compiled_generator),
+            hidden: Set(str!("{}")), // TODO array
+            title: Set(title),
+            alt_title: Set(alt_title),
+            slug: Set(slug),
+            tags: Set(str!("{}")),     // TODO array
+            metadata: Set(str!("{}")), // TODO json
+            ..Default::default()
+        };
+
+        let PageRevisionModel { revision_id, .. } = model.insert(txn).await?;
+        Ok(CreateFirstRevisionOutput {
+            revision_id,
+            parser_warnings: warnings,
+        })
     }
 
     /// Modifies an existing revision.

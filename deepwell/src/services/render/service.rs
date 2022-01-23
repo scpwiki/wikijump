@@ -43,8 +43,7 @@ impl RenderService {
         let html_output = HtmlRender.render(ctx.slog(), &tree, page_info, settings);
 
         // Insert compiled HTML into text table
-        let hash = TextService::create(ctx, html_output.body.clone()).await?;
-        let compiled_hash = hex::encode(hash);
+        let compiled_hash = TextService::create(ctx, html_output.body.clone()).await?;
 
         // Build and return
         Ok(RenderOutput {

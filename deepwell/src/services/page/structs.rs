@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use crate::services::revision::CreateRevisionOutput;
+use ftml::parsing::ParseWarning;
 
 #[derive(Deserialize, Debug)]
 pub struct CreatePage {
@@ -36,6 +37,7 @@ pub struct CreatePageOutput {
     pub page_id: i64,
     pub slug: String,
     pub revision_id: i64,
+    pub parser_warnings: Vec<ParseWarning>,
 }
 
 #[derive(Deserialize, Debug, Default)]
@@ -53,6 +55,7 @@ pub struct EditPage {
 pub struct EditPageOutput {
     revision_id: i64,
     revision_number: i32,
+    parser_warnings: Vec<ParseWarning>,
 }
 
 impl From<CreateRevisionOutput> for EditPageOutput {
@@ -61,11 +64,13 @@ impl From<CreateRevisionOutput> for EditPageOutput {
         CreateRevisionOutput {
             revision_id,
             revision_number,
+            parser_warnings,
         }: CreateRevisionOutput,
     ) -> EditPageOutput {
         EditPageOutput {
             revision_id,
             revision_number,
+            parser_warnings,
         }
     }
 }

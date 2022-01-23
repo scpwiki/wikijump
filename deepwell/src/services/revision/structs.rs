@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use ftml::parsing::ParseWarning;
 
 #[derive(Deserialize, Debug)]
 pub struct CreateRevision {
@@ -65,11 +66,13 @@ pub struct CreateRevisionBodyPresent {
 pub struct CreateRevisionOutput {
     pub revision_id: i64,
     pub revision_number: i32,
+    pub parser_warnings: Vec<ParseWarning>,
 }
 
 #[derive(Serialize, Debug)]
 pub struct CreateFirstRevisionOutput {
     pub revision_id: i64,
+    pub parser_warnings: Vec<ParseWarning>,
 }
 
 #[derive(Deserialize, Debug)]
