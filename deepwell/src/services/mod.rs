@@ -40,8 +40,8 @@ mod prelude {
     pub use crate::utils::{now, now_naive};
     pub use crate::web::{ProvidedValue, Reference};
     pub use sea_orm::{
-        ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, EntityTrait,
-        PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, Set,
+        ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, EntityTrait, JoinType,
+        PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, RelationTrait, Set,
     };
 }
 

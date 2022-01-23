@@ -21,6 +21,7 @@
 use crate::models::page_connection::Model as PageConnectionModel;
 use crate::models::page_connection_missing::Model as PageConnectionMissingModel;
 use crate::models::page_link::Model as PageLinkModel;
+use sea_orm::entity::prelude::DateTimeWithTimeZone;
 
 #[derive(Serialize, Debug)]
 pub struct GetLinksFromOutput {
@@ -46,5 +47,13 @@ pub struct GetLinksExternalFromOutput {
 
 #[derive(Serialize, Debug)]
 pub struct GetLinksExternalToOutput {
-    pub links: Vec<PageLinkModel>,
+    pub links: Vec<ToExternalLink>,
+}
+
+#[derive(Serialize, Debug)]
+pub struct ToExternalLink {
+    pub created_at: DateTimeWithTimeZone,
+    pub updated_at: Option<DateTimeWithTimeZone>,
+    pub page_id: i64,
+    pub count: i32,
 }

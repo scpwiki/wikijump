@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::models::page::Model as PageModel;
+use crate::models::page::{self, Model as PageModel};
 use crate::models::page_connection::{
     self, Entity as PageConnection, Model as PageConnectionModel,
 };
@@ -128,10 +128,34 @@ impl LinkService {
     ) -> Result<GetLinksExternalToOutput> {
         let txn = ctx.transaction();
 
+        // Perform join so we don't leak data from other sites.
         let links = PageLink::find()
-            .filter(page_link::Column::Url.eq(url))
+            .join(JoinType::InnerJoin, page_link::Relation::Page.def())
+            .filter(
+                Condition::all()
+                    .add(page_link::Column::Url.eq(url))
+                    .add(page::Column::SiteId.eq(site_id)),
+            )
             .all(txn)
-            .await?;
+            .await?
+            .into_iter()
+            .map(
+                // Filter out unneeded fields, notably 'url'
+                // which is the same for all fields.
+                |PageLinkModel {
+                     created_at,
+                     updated_at,
+                     page_id,
+                     count,
+                     ..
+                 }| ToExternalLink {
+                    created_at,
+                    updated_at,
+                    page_id,
+                    count,
+                },
+            )
+            .collect();
 
         Ok(GetLinksExternalToOutput { links })
     }
