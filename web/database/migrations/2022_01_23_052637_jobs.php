@@ -21,6 +21,7 @@ class Jobs extends Migration
             CREATE TABLE job (
                 job_id SERIAL PRIMARY KEY,
                 job_type TEXT NOT NULL,
+                is_claimed BOOL NOT NULL DEFAULT false,
                 job_data JSON NOT NULL
             )
         ");

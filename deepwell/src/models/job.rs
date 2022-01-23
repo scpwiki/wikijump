@@ -10,6 +10,7 @@ pub struct Model {
     pub job_id: i32,
     #[sea_orm(column_type = "Text")]
     pub job_type: String,
+    pub is_claimed: bool,
     pub job_data: Json,
 }
 
