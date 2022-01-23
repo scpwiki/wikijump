@@ -25,7 +25,6 @@ use crate::services::TextService;
 pub struct RenderService;
 
 impl RenderService {
-    // TODO
     pub async fn render(
         ctx: &ServiceContext<'_>,
         mut wikitext: String,
@@ -52,5 +51,23 @@ impl RenderService {
             compiled_hash,
             compiled_generator,
         })
+    }
+
+    pub async fn process_navigation(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
+        category_slug: Option<&str>,
+        page_slug: &str,
+    ) -> Result<()> {
+        todo!()
+    }
+
+    pub async fn process_templates(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
+        category_slug: Option<&str>,
+        page_slug: &str,
+    ) -> Result<()> {
+        todo!()
     }
 }

@@ -202,10 +202,10 @@ impl RevisionService {
 
         // Render first revision
         let settings = WikitextSettings::from_mode(WikitextMode::Page);
-        let (category, page) = split_category(&slug);
+        let (category_slug, page_slug) = split_category(&slug);
         let page_info = PageInfo {
-            page: cow!(page),
-            category: cow_opt!(category),
+            page: cow!(page_slug),
+            category: cow_opt!(category_slug),
             site: cow!(&site.slug),
             title: cow!(&title),
             alt_title: cow_opt!(alt_title),
@@ -230,11 +230,11 @@ impl RevisionService {
         // Update backlinks
         // TODO
 
-        // Process navigation changes, if any
-        // TODO
-
-        // Process template changes, if any
-        // TODO
+        // Process navigation and template changes, if any
+        try_join!(
+            RenderService::process_navigation(ctx, page_id, category_slug, page_slug),
+            RenderService::process_templates(ctx, page_id, category_slug, page_slug),
+        )?;
 
         // Insert the new revision into the table
         let model = page_revision::ActiveModel {
