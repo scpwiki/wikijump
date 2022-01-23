@@ -221,6 +221,15 @@ impl RevisionService {
             compiled_generator,
         } = RenderService::render(ctx, wikitext, &page_info, &settings).await?;
 
+        // Update backlinks
+        // TODO
+
+        // Process navigation changes, if any
+        // TODO
+
+        // Process template changes, if any
+        // TODO
+
         // Insert the new revision into the table
         let model = page_revision::ActiveModel {
             revision_number: Set(0),

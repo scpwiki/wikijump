@@ -24,7 +24,7 @@ use crate::services::TextService;
 use crate::web::ProvidedValue;
 
 /// A representation of the updating tasks to do for a revision.
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Default)]
 pub struct RevisionTasks {
     pub render: bool,
     pub links_incoming: bool,
@@ -37,15 +37,7 @@ pub struct RevisionTasks {
 
 impl RevisionTasks {
     pub fn determine(revision: &PageRevisionModel, changes: &CreateRevisionBody) -> Self {
-        let mut tasks = RevisionTasks {
-            render: false,
-            links_incoming: false,
-            links_outgoing: false,
-            rename: false,
-            rerender_included: false,
-            process_navigation: false,
-            process_templates: false,
-        };
+        let mut tasks = RevisionTasks::default();
 
         if let ProvidedValue::Set(ref wikitext) = changes.wikitext {
             if revision.wikitext_hash.as_slice() != TextService::hash(wikitext).as_slice()
