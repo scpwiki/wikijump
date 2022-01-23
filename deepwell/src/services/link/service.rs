@@ -107,7 +107,34 @@ impl LinkService {
         Ok(GetLinksToMissingOutput { connections })
     }
 
-    // TODO: add a method for getting external links
+    pub async fn get_external_from(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
+    ) -> Result<GetLinksExternalFromOutput> {
+        let txn = ctx.transaction();
+
+        let links = PageLink::find()
+            .filter(page_link::Column::PageId.eq(page_id))
+            .all(txn)
+            .await?;
+
+        Ok(GetLinksExternalFromOutput { links })
+    }
+
+    pub async fn get_external_to(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        url: &str,
+    ) -> Result<GetLinksExternalToOutput> {
+        let txn = ctx.transaction();
+
+        let links = PageLink::find()
+            .filter(page_link::Column::Url.eq(url))
+            .all(txn)
+            .await?;
+
+        Ok(GetLinksExternalToOutput { links })
+    }
 
     // TEMP
     // will be part of creating a revision

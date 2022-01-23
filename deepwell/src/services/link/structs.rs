@@ -38,3 +38,13 @@ pub struct GetLinksToOutput {
 pub struct GetLinksToMissingOutput {
     pub connections: Vec<PageConnectionMissingModel>,
 }
+
+#[derive(Serialize, Debug)]
+pub struct GetLinksExternalFromOutput {
+    pub links: Vec<PageLinkModel>,
+}
+
+#[derive(Serialize, Debug)]
+pub struct GetLinksExternalToOutput {
+    pub links: Vec<PageLinkModel>,
+}
