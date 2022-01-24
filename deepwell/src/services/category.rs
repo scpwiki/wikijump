@@ -53,14 +53,19 @@ impl CategoryService {
     pub async fn get_optional(
         ctx: &ServiceContext<'_>,
         site_id: i64,
-        slug: &str,
+        reference: Reference<'_>,
     ) -> Result<Option<PageCategoryModel>> {
         let txn = ctx.transaction();
+        let condition = match reference {
+            Reference::Id(id) => page_category::Column::CategoryId.eq(id),
+            Reference::Slug(slug) => page_category::Column::Slug.eq(slug),
+        };
+
         let category = PageCategory::find()
             .filter(
                 Condition::all()
                     .add(page_category::Column::SiteId.eq(site_id))
-                    .add(page_category::Column::Slug.eq(slug)),
+                    .add(condition),
             )
             .one(txn)
             .await?;
@@ -68,15 +73,27 @@ impl CategoryService {
         Ok(category)
     }
 
+    pub async fn get(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        reference: Reference<'_>,
+    ) -> Result<PageCategoryModel> {
+        match Self::get_optional(ctx, site_id, reference).await? {
+            Some(category) => Ok(category),
+            None => Err(Error::NotFound),
+        }
+    }
+
     pub async fn get_or_create(
         ctx: &ServiceContext<'_>,
         site_id: i64,
         slug: &str,
     ) -> Result<PageCategoryModel> {
-        let category = match Self::get_optional(ctx, site_id, slug).await? {
-            Some(category) => category,
-            None => Self::create(ctx, site_id, slug).await?,
-        };
+        let category =
+            match Self::get_optional(ctx, site_id, Reference::from(slug)).await? {
+                Some(category) => category,
+                None => Self::create(ctx, site_id, slug).await?,
+            };
 
         Ok(category)
     }
