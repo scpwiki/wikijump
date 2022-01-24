@@ -19,7 +19,8 @@
  */
 
 use super::prelude::*;
-use crate::services::TextService;
+use crate::models::page::Model as PageModel;
+use crate::services::{JobService, PageService, TextService};
 
 #[derive(Debug)]
 pub struct RenderService;
@@ -59,7 +60,19 @@ impl RenderService {
         category_slug: Option<&str>,
         page_slug: &str,
     ) -> Result<()> {
-        if matches!((category_slug, page_slug), (Some("nav"), "side" | "top")) {}
+        if matches!((category_slug, page_slug), (Some("nav"), "side" | "top")) {
+            // If a navigation page has been updated,
+            // we need to recompile everything on that site.
+
+            let page_ids: Vec<i64> =
+                PageService::get_all(ctx, site_id, None, Some(false))
+                    .await?
+                    .into_iter()
+                    .map(|PageModel { page_id, .. }| page_id)
+                    .collect();
+
+            JobService::enqueue_rerender_pages(ctx, &page_ids).await?;
+        }
 
         Ok(())
     }
@@ -71,7 +84,23 @@ impl RenderService {
         page_slug: &str,
     ) -> Result<()> {
         let category_slug = category_slug.unwrap_or("_default");
-        if page_slug == "_template" {}
+        if page_slug == "_template" {
+            // If a template page has been updated,
+            // we need to recompile everything in that category.
+
+            let page_ids: Vec<i64> = PageService::get_all(
+                ctx,
+                site_id,
+                Some(category_slug.into()),
+                Some(false),
+            )
+            .await?
+            .into_iter()
+            .map(|PageModel { page_id, .. }| page_id)
+            .collect();
+
+            JobService::enqueue_rerender_pages(ctx, &page_ids).await?;
+        }
 
         Ok(())
     }

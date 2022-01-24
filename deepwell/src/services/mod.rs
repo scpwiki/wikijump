@@ -65,6 +65,7 @@ use sea_orm::DatabaseConnection;
 pub use self::category::CategoryService;
 pub use self::context::ServiceContext;
 pub use self::error::*;
+pub use self::job::JobService;
 pub use self::link::LinkService;
 pub use self::page::PageService;
 pub use self::render::RenderService;
