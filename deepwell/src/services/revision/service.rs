@@ -232,8 +232,8 @@ impl RevisionService {
 
         // Process navigation and template changes, if any
         try_join!(
-            RenderService::process_navigation(ctx, page_id, category_slug, page_slug),
-            RenderService::process_templates(ctx, page_id, category_slug, page_slug),
+            RenderService::process_navigation(ctx, site_id, category_slug, page_slug),
+            RenderService::process_templates(ctx, site_id, category_slug, page_slug),
         )?;
 
         // Insert the new revision into the table

@@ -55,19 +55,24 @@ impl RenderService {
 
     pub async fn process_navigation(
         ctx: &ServiceContext<'_>,
-        page_id: i64,
+        site_id: i64,
         category_slug: Option<&str>,
         page_slug: &str,
     ) -> Result<()> {
-        todo!()
+        if matches!((category_slug, page_slug), (Some("nav"), "side" | "top")) {}
+
+        Ok(())
     }
 
     pub async fn process_templates(
         ctx: &ServiceContext<'_>,
-        page_id: i64,
+        site_id: i64,
         category_slug: Option<&str>,
         page_slug: &str,
     ) -> Result<()> {
-        todo!()
+        let category_slug = category_slug.unwrap_or("_default");
+        if page_slug == "_template" {}
+
+        Ok(())
     }
 }

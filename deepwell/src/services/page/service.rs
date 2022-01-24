@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use crate::models::page::{self, Entity as Page, Model as PageModel};
+use crate::models::page_category::Model as PageCategoryModel;
 use crate::services::revision::{
     CreateFirstRevision, CreateFirstRevisionOutput, CreateRevision, CreateRevisionBody,
     CreateRevisionBodyPresent, CreateRevisionOutput,
@@ -263,5 +264,53 @@ impl PageService {
         let txn = ctx.transaction();
         let page = Page::find_by_id(page_id).one(txn).await?;
         Ok(page)
+    }
+
+    /// Get all pages in a site, with potential conditions.
+    ///
+    /// The `category` argument:
+    /// * If it is `Some(_)`, then it specifies a reference to the category
+    ///   to select from.
+    /// * If it is `None`, then all pages on the site are selected.
+    ///
+    /// The `deleted` argument:
+    /// * If it is `Some(true)`, then it only returns pages which have been deleted.
+    /// * If it is `Some(false)`, then it only returns pages which are extant.
+    /// * If it is `None`, then it all pages regardless of deletion status are selected.
+    pub async fn get_all(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        category: Option<Reference<'_>>,
+        deleted: Option<bool>,
+    ) -> Result<Vec<PageModel>> {
+        let txn = ctx.transaction();
+
+        let category_condition = match category {
+            None => None,
+            Some(category_reference) => {
+                let PageCategoryModel { category_id, .. } =
+                    CategoryService::get(ctx, site_id, category_reference).await?;
+
+                Some(page::Column::PageCategoryId.eq(category_id))
+            }
+        };
+
+        let deleted_condition = match deleted {
+            Some(true) => Some(page::Column::DeletedAt.is_not_null()),
+            Some(false) => Some(page::Column::DeletedAt.is_null()),
+            None => None,
+        };
+
+        let pages = Page::find()
+            .filter(
+                Condition::all()
+                    .add(page::Column::SiteId.eq(site_id))
+                    .add_option(category_condition)
+                    .add_option(deleted_condition),
+            )
+            .all(txn)
+            .await?;
+
+        Ok(pages)
     }
 }
