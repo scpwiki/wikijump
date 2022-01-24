@@ -60,10 +60,9 @@ impl RenderService {
         category_slug: Option<&str>,
         page_slug: &str,
     ) -> Result<()> {
+        // If a navigation page has been updated,
+        // we need to recompile everything on that site.
         if matches!((category_slug, page_slug), (Some("nav"), "side" | "top")) {
-            // If a navigation page has been updated,
-            // we need to recompile everything on that site.
-
             let page_ids: Vec<i64> =
                 PageService::get_all(ctx, site_id, None, Some(false))
                     .await?
@@ -84,10 +83,10 @@ impl RenderService {
         page_slug: &str,
     ) -> Result<()> {
         let category_slug = category_slug.unwrap_or("_default");
-        if page_slug == "_template" {
-            // If a template page has been updated,
-            // we need to recompile everything in that category.
 
+        // If a template page has been updated,
+        // we need to recompile everything in that category.
+        if page_slug == "_template" {
             let page_ids: Vec<i64> = PageService::get_all(
                 ctx,
                 site_id,
