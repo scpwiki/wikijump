@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::includer::PageIncluder;
 use super::prelude::*;
 use crate::services::TextService;
 use tokio::time::timeout;
