@@ -184,6 +184,13 @@ impl RevisionService {
         }
 
         if tasks.rename {
+            // TODO consult Outdater.php
+            //      for the new location:
+            //      - update backlinks
+            //      - rerender included
+            //      - process navigation
+            //      - process templates
+
             todo!();
         }
 
