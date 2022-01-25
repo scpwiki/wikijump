@@ -88,7 +88,7 @@ impl RevisionService {
         let txn = ctx.transaction();
 
         // Get the new revision number and the change tasks to process
-        let (tasks, revision_number) = {
+        let (mut tasks, revision_number) = {
             // Check for basic consistency
             assert_eq!(
                 previous.site_id, site_id,
@@ -139,7 +139,9 @@ impl RevisionService {
             ProvidedValue::Unset => TextService::get(ctx, &wikitext_hash).await?,
         };
 
-        // Run tasks based on changes
+        // Run tasks based on changes:
+        // See RevisionTasks struct for more information.
+
         if tasks.render {
             let render_input = RenderPageInfo {
                 slug: &slug,
@@ -159,13 +161,40 @@ impl RevisionService {
             )
             .await?;
 
+            // Update fields
             parser_warnings = Some(render_output.warnings);
             replace_hash(&mut compiled_hash, &render_output.compiled_hash);
             compiled_generator = render_output.compiled_generator;
             compiled_at = now();
+
+            // Set to false, we've already updated links
+            tasks.links_incoming = false;
+            tasks.links_outgoing = false;
         }
 
-        // TODO: consult Outdater.php
+        if tasks.links_incoming {
+            todo!();
+        }
+
+        if tasks.links_outgoing {
+            todo!();
+        }
+
+        if tasks.rename {
+            todo!();
+        }
+
+        if tasks.rerender_included {
+            todo!();
+        }
+
+        if tasks.process_navigation {
+            todo!();
+        }
+
+        if tasks.process_templates {
+            todo!();
+        }
 
         // Insert the new revision into the table
         let model = page_revision::ActiveModel {
