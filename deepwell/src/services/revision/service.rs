@@ -126,6 +126,9 @@ impl RevisionService {
             ..
         } = previous;
 
+        // Get slug strings for the current/old location
+        let (category_slug, page_slug) = split_category_name(&slug);
+
         // Get wikitext
         let wikitext = match body.wikitext {
             // Insert new wikitext and update hash
@@ -189,11 +192,13 @@ impl RevisionService {
         }
 
         if tasks.process_navigation {
-            todo!();
+            RenderService::process_navigation(ctx, site_id, category_slug, page_slug)
+                .await?;
         }
 
         if tasks.process_templates {
-            todo!();
+            RenderService::process_templates(ctx, site_id, category_slug, page_slug)
+                .await?;
         }
 
         // Insert the new revision into the table
