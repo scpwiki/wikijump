@@ -436,3 +436,10 @@ struct RenderPageInfo<'a> {
     rating: f32,
     tags: &'a [String],
 }
+
+#[inline]
+fn replace_hash(dest: &mut Vec<u8>, src: &[u8]) {
+    debug_assert_eq!(dest.len(), src.len(), "Lengths of hash buffers are not equal");
+
+    dest.as_mut_slice().copy_from_slice(src);
+}
