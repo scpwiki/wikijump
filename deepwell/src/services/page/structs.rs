@@ -55,7 +55,7 @@ pub struct EditPage {
 pub struct EditPageOutput {
     revision_id: i64,
     revision_number: i32,
-    parser_warnings: Vec<ParseWarning>,
+    parser_warnings: Option<Vec<ParseWarning>>,
 }
 
 impl From<CreateRevisionOutput> for EditPageOutput {

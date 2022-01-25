@@ -78,7 +78,11 @@ impl RevisionService {
         ctx: &ServiceContext<'_>,
         site_id: i64,
         page_id: i64,
-        input: CreateRevision,
+        CreateRevision {
+            user_id,
+            comments,
+            body,
+        }: CreateRevision,
         previous: PageRevisionModel,
     ) -> Result<Option<CreateRevisionOutput>> {
         let txn = ctx.transaction();
@@ -96,7 +100,7 @@ impl RevisionService {
             );
 
             // Check to see if any fields have changed
-            let tasks = RevisionTasks::determine(&previous, &input.body);
+            let tasks = RevisionTasks::determine(&previous, &body);
             if tasks.is_empty() {
                 tide::log::info!("No changes from previous revision, returning");
                 return Ok(None);
@@ -106,40 +110,30 @@ impl RevisionService {
             (tasks, previous.revision_number + 1)
         };
 
-        // Get the site we're adding the page to
-        let site = SiteService::get(ctx, Reference::from(site_id)).await?;
+        // Fields to create in the revision
+        let mut parser_warnings = None;
+        let PageRevisionModel {
+            mut wikitext_hash,
+            mut compiled_hash,
+            mut compiled_at,
+            mut compiled_generator,
+            hidden,
+            mut title,
+            mut alt_title,
+            mut slug,
+            tags,
+            metadata,
+            ..
+        } = previous;
 
-        /*
+        // Run tasks based on changes
         if tasks.render {
-            let settings = WikitextSettings::from_mode(WikitextMode::Page);
-            let (category, page) = split_category(&slug);
-            let page_info = PageInfo {
-                page: Cow::Borrowed(page),
-                category: category.map(Cow::Borrowed),
-                site: Cow::Borrowed(&site.unix_name.unwrap()), // TODO fix name, no nullability
-                title: Cow::Borrowed(&title),
-                alt_title: alt_title.map(Cow::Borrowed),
-                rating: 0.0, // TODO
-                tags: tags.iter().map(|s| Cow::Borrowed(&s)).collect(),
-                language: Cow::Borrowed(&site.language),
-            };
-
-            let RenderOutput {
-                html_output,
-                warnings,
-                compiled_hash,
-                compiled_generator,
-            } = RenderService::render(ctx, wikitext, &page_info, &settings).await?;
+            todo!();
         }
-        */
-
-        let _todo = (ctx, revision_number, input);
-        todo!();
 
         // TODO: consult Outdater.php
 
-        /*
-        // Finally, insert the new revision into the table
+        // Insert the new revision into the table
         let model = page_revision::ActiveModel {
             revision_number: Set(revision_number),
             page_id: Set(page_id),
@@ -153,8 +147,8 @@ impl RevisionService {
             title: Set(title),
             alt_title: Set(alt_title),
             slug: Set(slug),
-            // tags: Set(tags), TODO array
-            // metadata: Set(metadata), TODO json
+            tags: Set(tags),
+            metadata: Set(metadata),
             ..Default::default()
         };
 
@@ -162,8 +156,8 @@ impl RevisionService {
         Ok(Some(CreateRevisionOutput {
             revision_id,
             revision_number,
+            parser_warnings,
         }))
-        */
     }
 
     /// Creates the first revision for a newly-inserted page.

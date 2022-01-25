@@ -66,7 +66,7 @@ pub struct CreateRevisionBodyPresent {
 pub struct CreateRevisionOutput {
     pub revision_id: i64,
     pub revision_number: i32,
-    pub parser_warnings: Vec<ParseWarning>,
+    pub parser_warnings: Option<Vec<ParseWarning>>,
 }
 
 #[derive(Serialize, Debug)]
