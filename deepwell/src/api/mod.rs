@@ -29,6 +29,7 @@
 use crate::config::Config;
 use crate::database;
 use crate::locales::Localizations;
+use crate::services::JobService;
 use crate::web::ratelimit::GovernorMiddleware;
 use anyhow::Result;
 use sea_orm::DatabaseConnection;
@@ -74,6 +75,9 @@ pub async fn build_server(config: Config) -> Result<ApiServer> {
             tide::Server::with_state(Arc::clone(&state))
         };
     }
+
+    // Start background job worker
+    JobService::launch_worker(&state);
 
     // Create server and add routes
     let mut app = new!();
