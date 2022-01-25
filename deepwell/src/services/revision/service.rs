@@ -126,9 +126,43 @@ impl RevisionService {
             ..
         } = previous;
 
+        // Get wikitext
+        let wikitext = match body.wikitext {
+            // Insert new wikitext and update hash
+            ProvidedValue::Set(wikitext) => {
+                let new_hash = TextService::create(ctx, wikitext.clone()).await?;
+                replace_hash(&mut wikitext_hash, &new_hash);
+                wikitext
+            }
+
+            // Use previous revision's wikitext
+            ProvidedValue::Unset => TextService::get(ctx, &wikitext_hash).await?,
+        };
+
         // Run tasks based on changes
         if tasks.render {
-            todo!();
+            let render_input = RenderPageInfo {
+                slug: &slug,
+                title: &title,
+                alt_title: alt_title.ref_map(|s| s.as_str()),
+                rating: 0.0, // TODO
+                tags: &[],   // TODO
+            };
+
+            // Run renderer and related tasks
+            let render_output = Self::render_and_update_links(
+                ctx,
+                site_id,
+                page_id,
+                wikitext,
+                render_input,
+            )
+            .await?;
+
+            parser_warnings = Some(render_output.warnings);
+            replace_hash(&mut compiled_hash, &render_output.compiled_hash);
+            compiled_generator = render_output.compiled_generator;
+            compiled_at = now();
         }
 
         // TODO: consult Outdater.php
@@ -247,6 +281,11 @@ impl RevisionService {
         })
     }
 
+    /// Helper method for performing rendering for a revision.
+    ///
+    /// Makes all the changes associated with rendering, such as
+    /// committing the new wikitext, calling ftml, and updating
+    /// backlinks.
     async fn render_and_update_links(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -439,7 +478,11 @@ struct RenderPageInfo<'a> {
 
 #[inline]
 fn replace_hash(dest: &mut Vec<u8>, src: &[u8]) {
-    debug_assert_eq!(dest.len(), src.len(), "Lengths of hash buffers are not equal");
+    debug_assert_eq!(
+        dest.len(),
+        src.len(),
+        "Lengths of hash buffers are not equal",
+    );
 
     dest.as_mut_slice().copy_from_slice(src);
 }
