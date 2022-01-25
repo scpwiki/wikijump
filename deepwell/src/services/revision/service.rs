@@ -25,7 +25,7 @@ use crate::models::page_revision::{
 use crate::services::render::RenderOutput;
 use crate::services::text::Hash;
 use crate::services::{RenderService, SiteService, TextService};
-use crate::web::split_category;
+use crate::web::{split_category, split_category_name};
 use ftml::settings::{WikitextMode, WikitextSettings};
 use ftml::{data::PageInfo, render::html::HtmlOutput};
 use ref_map::*;
@@ -194,24 +194,16 @@ impl RevisionService {
     ) -> Result<CreateFirstRevisionOutput> {
         let txn = ctx.transaction();
 
-        // Get site for page
-        let site = SiteService::get(ctx, Reference::from(site_id)).await?;
-
         // Add wikitext
         let wikitext_hash = TextService::create(ctx, wikitext.clone()).await?;
 
         // Render first revision
-        let settings = WikitextSettings::from_mode(WikitextMode::Page);
-        let (category_slug, page_slug) = split_category(&slug);
-        let page_info = PageInfo {
-            page: cow!(page_slug),
-            category: cow_opt!(category_slug),
-            site: cow!(&site.slug),
-            title: cow!(&title),
-            alt_title: cow_opt!(alt_title),
+        let render_input = RenderPageInfo {
+            slug: &slug,
+            title: &title,
+            alt_title: alt_title.ref_map(|s| s.as_str()),
             rating: 0.0, // TODO
-            tags: tags.iter().map(|s| cow!(s)).collect(),
-            language: cow!(&site.language),
+            tags: &tags,
         };
 
         let RenderOutput {
@@ -225,12 +217,11 @@ impl RevisionService {
             warnings,
             compiled_hash,
             compiled_generator,
-        } = RenderService::render(ctx, wikitext, &page_info, &settings).await?;
-
-        // Update backlinks
-        // TODO
+        } = Self::render_and_update_links(ctx, site_id, page_id, wikitext, render_input)
+            .await?;
 
         // Process navigation and template changes, if any
+        let (category_slug, page_slug) = split_category_name(&slug);
         try_join!(
             RenderService::process_navigation(ctx, site_id, category_slug, page_slug),
             RenderService::process_templates(ctx, site_id, category_slug, page_slug),
@@ -260,6 +251,83 @@ impl RevisionService {
             revision_id,
             parser_warnings: warnings,
         })
+    }
+
+    async fn render_and_update_links(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+        wikitext: String,
+        RenderPageInfo {
+            slug,
+            title,
+            alt_title,
+            rating,
+            tags,
+        }: RenderPageInfo<'_>,
+    ) -> Result<RenderOutput> {
+        // Get site
+        let site = SiteService::get(ctx, Reference::from(site_id)).await?;
+
+        // Set up parse context
+        let settings = WikitextSettings::from_mode(WikitextMode::Page);
+        let (category_slug, page_slug) = split_category(&slug);
+        let page_info = PageInfo {
+            page: cow!(page_slug),
+            category: cow_opt!(category_slug),
+            site: cow!(&site.slug),
+            title: cow!(title),
+            alt_title: cow_opt!(alt_title),
+            rating: 0.0, // TODO
+            tags: tags.iter().map(|s| cow!(s)).collect(),
+            language: cow!(&site.language),
+        };
+
+        // Parse and render
+        let output = RenderService::render(ctx, wikitext, &page_info, &settings).await?;
+
+        // Update backlinks
+        // TODO
+
+        Ok(output)
+    }
+
+    /// Re-renders a page.
+    ///
+    /// This fetches the latest revision for a page, and re-renders it.
+    pub async fn rerender(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+    ) -> Result<()> {
+        let txn = ctx.transaction();
+        let revision = Self::get_latest(ctx, site_id, page_id).await?;
+        let wikitext = TextService::get(ctx, &revision.wikitext_hash).await?;
+
+        let render_input = RenderPageInfo {
+            slug: &revision.slug,
+            title: &revision.title,
+            alt_title: revision.alt_title.ref_map(|s| s.as_str()),
+            rating: 0.0, // TODO
+            tags: &[],   // TODO
+        };
+
+        let RenderOutput {
+            compiled_hash,
+            compiled_generator,
+            ..
+        } = Self::render_and_update_links(ctx, site_id, page_id, wikitext, render_input)
+            .await?;
+
+        let model = page_revision::ActiveModel {
+            revision_id: Set(revision.revision_id),
+            compiled_hash: Set(compiled_hash.to_vec()),
+            compiled_generator: Set(compiled_generator),
+            ..Default::default()
+        };
+
+        model.update(txn).await?;
+        Ok(())
     }
 
     /// Modifies an existing revision.
@@ -364,4 +432,13 @@ impl RevisionService {
             None => Err(Error::NotFound),
         }
     }
+}
+
+#[derive(Debug)]
+struct RenderPageInfo<'a> {
+    slug: &'a str,
+    title: &'a str,
+    alt_title: Option<&'a str>,
+    rating: f32,
+    tags: &'a [String],
 }

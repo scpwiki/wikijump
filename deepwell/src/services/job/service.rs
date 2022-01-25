@@ -24,40 +24,48 @@
 //! queue we can reference instead of this.
 
 use super::prelude::*;
+use crate::api::ApiServerState;
 use crate::models::job::{self, Entity as Job, Model as JobModel};
+use crate::services::{RevisionService, TextService};
+use async_std::task;
+use sea_orm::DatabaseTransaction;
 use serde::Serialize;
 use std::borrow::Cow;
+use std::sync::Arc;
+use std::time::Duration;
+use void::Void;
 
 #[derive(Debug)]
 pub struct JobService;
 
 impl JobService {
-    // Job processing
-    pub async fn get_batch(ctx: &ServiceContext<'_>) -> Result<Vec<JobModel>> {
-        const BATCH_SIZE: u64 = 8;
-        let txn = ctx.transaction();
+    // Job worker
+    pub fn launch_worker(state: &ApiServerState) {
+        let state = Arc::clone(state);
+        task::spawn(async move { JobWorker::main_loop(state).await });
+    }
 
-        // Fetch next batch of jobs
-        let jobs = Job::find()
+    // Job processing
+    async fn get_job(txn: &DatabaseTransaction) -> Result<Option<JobModel>> {
+        let job = Job::find()
+            .filter(job::Column::IsClaimed.eq(false))
             .order_by_asc(job::Column::JobId)
-            .limit(8)
-            .all(txn)
+            .one(txn)
             .await?;
 
-        // Mark as claimed
-        for job in &jobs {
-            Self::mark_claimed(ctx, job.job_id, true).await?;
+        if let Some(ref job) = job {
+            // Mark as claimed
+            Self::mark_claimed(txn, job.job_id, true).await?;
         }
 
-        Ok(jobs)
+        Ok(job)
     }
 
     async fn mark_claimed(
-        ctx: &ServiceContext<'_>,
+        txn: &DatabaseTransaction,
         job_id: i32,
         value: bool,
     ) -> Result<()> {
-        let txn = ctx.transaction();
         let job = job::ActiveModel {
             job_id: Set(job_id),
             is_claimed: Set(value),
@@ -67,12 +75,7 @@ impl JobService {
         Ok(())
     }
 
-    #[inline]
-    pub async fn mark_retry(ctx: &ServiceContext<'_>, job_id: i32) -> Result<()> {
-        Self::mark_claimed(ctx, job_id, true).await
-    }
-
-    pub async fn mark_complete(ctx: &ServiceContext<'_>, job: JobModel) -> Result<()> {
+    async fn mark_complete(ctx: &ServiceContext<'_>, job: JobModel) -> Result<()> {
         let txn = ctx.transaction();
         job.delete(txn).await?;
         Ok(())
@@ -98,12 +101,85 @@ impl JobService {
 
     pub async fn enqueue_rerender_pages(
         ctx: &ServiceContext<'_>,
-        page_ids: &[i64],
+        ids: Vec<RerenderPage>,
     ) -> Result<()> {
-        let data = RerenderPagesJobData {
-            page_ids: Cow::Borrowed(page_ids),
-        };
-
+        let data = RerenderPagesJobData { ids };
         Self::enqueue(ctx, JOB_TYPE_RERENDER_PAGES, data).await
+    }
+}
+
+#[derive(Debug)]
+struct JobWorker(ApiServerState);
+
+impl JobWorker {
+    // Main worker functions
+    pub async fn main_loop(state: ApiServerState) -> Void {
+        const JOB_DELAY: Duration = Duration::from_millis(10);
+        tide::log::info!("Launching job worker");
+
+        loop {
+            let worker = JobWorker(Arc::clone(&state));
+            task::spawn(async move {
+                worker.process().await;
+            });
+            task::sleep(JOB_DELAY).await;
+        }
+    }
+
+    async fn process(&self) {
+        tide::log::info!("Processing job batch");
+
+        match self.process_inner().await {
+            Ok(_) => tide::log::debug!("Finished batch, sleeping for a bit"),
+            Err(error) => tide::log::error!("Error processing batch: {}", error),
+        }
+    }
+
+    async fn process_inner(&self) -> Result<()> {
+        let txn = self.0.database.begin().await?;
+
+        // Get next job to do
+        if let Some(job) = JobService::get_job(&txn).await? {
+            // Process based on job type
+            match job.job_type.as_str() {
+                JOB_TYPE_RERENDER_PAGES => {
+                    let data = serde_json::from_value(job.job_data)?;
+                    self.process_rerender_pages(&txn, data).await?;
+                }
+                _ => panic!("Invalid job type: {}", job.job_type),
+            }
+        }
+
+        txn.commit().await?;
+        Ok(())
+    }
+
+    // Job implementations
+    async fn process_rerender_pages(
+        &self,
+        txn: &DatabaseTransaction,
+        job: RerenderPagesJobData,
+    ) -> Result<()> {
+        let ctx = self.make_context(txn);
+
+        for RerenderPage { site_id, page_id } in job.ids {
+            tide::log::debug!(
+                "Rerendering page: (site ID {}, page ID {})",
+                site_id,
+                page_id
+            );
+            RevisionService::rerender(&ctx, site_id, page_id).await?;
+        }
+
+        Ok(())
+    }
+
+    // Helpers
+    #[inline]
+    fn make_context<'txn>(
+        &self,
+        transaction: &'txn DatabaseTransaction,
+    ) -> ServiceContext<'txn> {
+        ServiceContext::from_raw(&self.0, transaction)
     }
 }

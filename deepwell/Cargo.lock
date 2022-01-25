@@ -900,6 +900,7 @@ dependencies = [
  "thiserror",
  "tide",
  "unic-langid",
+ "void",
  "wikidot-normalize",
 ]
 

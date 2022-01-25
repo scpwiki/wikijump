@@ -30,9 +30,17 @@ pub struct ServiceContext<'txn> {
 }
 
 impl<'txn> ServiceContext<'txn> {
+    #[inline]
     pub fn new(req: &ApiRequest, transaction: &'txn DatabaseTransaction) -> Self {
+        Self::from_raw(req.state(), transaction)
+    }
+
+    pub fn from_raw(
+        state: &ApiServerState,
+        transaction: &'txn DatabaseTransaction,
+    ) -> Self {
         ServiceContext {
-            state: Arc::clone(req.state()),
+            state: Arc::clone(state),
             // TODO: hook slog into tide's logger
             slog: slog::Logger::root(slog::Discard, slog::o!()),
             transaction,

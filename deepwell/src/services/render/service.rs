@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use crate::models::page::Model as PageModel;
+use crate::services::job::RerenderPage;
 use crate::services::{JobService, PageService, TextService};
 
 #[derive(Debug)]
@@ -54,23 +55,27 @@ impl RenderService {
         })
     }
 
+    // Asynchronous tasks
     pub async fn process_navigation(
         ctx: &ServiceContext<'_>,
         site_id: i64,
-        category_slug: Option<&str>,
+        category_slug: &str,
         page_slug: &str,
     ) -> Result<()> {
         // If a navigation page has been updated,
         // we need to recompile everything on that site.
-        if matches!((category_slug, page_slug), (Some("nav"), "side" | "top")) {
-            let page_ids: Vec<i64> =
-                PageService::get_all(ctx, site_id, None, Some(false))
-                    .await?
-                    .into_iter()
-                    .map(|PageModel { page_id, .. }| page_id)
-                    .collect();
+        if matches!((category_slug, page_slug), ("nav", "side" | "top")) {
+            let ids = PageService::get_all(ctx, site_id, None, Some(false))
+                .await?
+                .into_iter()
+                .map(
+                    |PageModel {
+                         page_id, site_id, ..
+                     }| RerenderPage { page_id, site_id },
+                )
+                .collect::<Vec<_>>();
 
-            JobService::enqueue_rerender_pages(ctx, &page_ids).await?;
+            JobService::enqueue_rerender_pages(ctx, ids).await?;
         }
 
         Ok(())
@@ -79,15 +84,13 @@ impl RenderService {
     pub async fn process_templates(
         ctx: &ServiceContext<'_>,
         site_id: i64,
-        category_slug: Option<&str>,
+        category_slug: &str,
         page_slug: &str,
     ) -> Result<()> {
-        let category_slug = category_slug.unwrap_or("_default");
-
         // If a template page has been updated,
         // we need to recompile everything in that category.
         if page_slug == "_template" {
-            let page_ids: Vec<i64> = PageService::get_all(
+            let ids = PageService::get_all(
                 ctx,
                 site_id,
                 Some(category_slug.into()),
@@ -95,10 +98,14 @@ impl RenderService {
             )
             .await?
             .into_iter()
-            .map(|PageModel { page_id, .. }| page_id)
-            .collect();
+            .map(
+                |PageModel {
+                     page_id, site_id, ..
+                 }| RerenderPage { page_id, site_id },
+            )
+            .collect::<Vec<_>>();
 
-            JobService::enqueue_rerender_pages(ctx, &page_ids).await?;
+            JobService::enqueue_rerender_pages(ctx, ids).await?;
         }
 
         Ok(())

@@ -23,7 +23,7 @@
 /// This finds the first `:` in the full slug and returns everything
 /// up to that as the category slug.
 ///
-/// Normal slugs do not have an explicit `_default`, so they
+/// Normalized slugs do not have an explicit `_default`, so they
 /// should lack a `:` entirely.
 pub fn split_category(slug: &str) -> (Option<&str>, &str) {
     match slug.find(':') {
@@ -33,6 +33,16 @@ pub fn split_category(slug: &str) -> (Option<&str>, &str) {
             (Some(category), page)
         }
     }
+}
+
+/// Splits a normalized slug into the category and page portions.
+///
+/// If the category would be `None`, then an`explicit `_default`
+/// is returned.
+#[inline]
+pub fn split_category_name(slug: &str) -> (&str, &str) {
+    let (category, slug) = split_category(slug);
+    (category.unwrap_or("_default"), slug)
 }
 
 /// Retrieves the category portion of a slug, if it exists.

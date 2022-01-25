@@ -42,6 +42,7 @@ strum_macros = "0.23"
 thiserror = "1"
 tide = "0.16"
 unic-langid = "0.9"
+void = "1"
 wikidot-normalize = "0.9"
 
 [build-dependencies]

@@ -23,6 +23,12 @@ use std::borrow::Cow;
 pub const JOB_TYPE_RERENDER_PAGES: &str = "rerender_pages";
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct RerenderPagesJobData<'a> {
-    pub page_ids: Cow<'a, [i64]>,
+pub struct RerenderPage {
+    pub site_id: i64,
+    pub page_id: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct RerenderPagesJobData {
+    pub ids: Vec<RerenderPage>,
 }
