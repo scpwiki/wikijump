@@ -114,7 +114,7 @@ struct JobWorker(ApiServerState);
 impl JobWorker {
     // Main worker functions
     pub async fn main_loop(state: ApiServerState) -> Void {
-        const JOB_DELAY: Duration = Duration::from_secs(10);
+        const JOB_DELAY: Duration = Duration::from_secs(30);
         tide::log::info!("Launching job worker");
 
         loop {
