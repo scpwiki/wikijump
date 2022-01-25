@@ -97,4 +97,24 @@ impl TextService {
         bytes.copy_from_slice(&result);
         bytes
     }
+
+    /// Searches for any text rows which are unused.
+    ///
+    /// This is rare, but can happen when text is invalidated,
+    /// such as rerendering pages.
+    pub async fn prune(ctx: &ServiceContext<'_>) -> Result<()> {
+        todo!();
+
+        // Postgres Query:
+        //
+        // SELECT hash
+        // FROM text
+        // WHERE hash NOT IN (
+        //     SELECT wikitext_hash AS hash
+        //     FROM page_revision
+        //     UNION
+        //     SELECT compiled_hash AS hash
+        //     FROM page_revision
+        // )
+    }
 }
