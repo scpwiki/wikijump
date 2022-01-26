@@ -58,6 +58,12 @@ pub struct EditPageOutput {
     parser_warnings: Option<Vec<ParseWarning>>,
 }
 
+#[derive(Deserialize, Debug)]
+pub struct DeletePage {
+    pub revision_comments: String,
+    pub user_id: i64,
+}
+
 impl From<CreateRevisionOutput> for EditPageOutput {
     #[inline]
     fn from(

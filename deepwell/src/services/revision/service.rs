@@ -342,6 +342,32 @@ impl RevisionService {
         })
     }
 
+    /// Creates a revision marking a page as deleted.
+    ///
+    /// This revision is called a "tombstone" in that
+    /// its only purpose is to mark that the page has been deleted.
+    ///
+    /// This method is actually generic, and permits undeleting pages
+    /// as well, by setting `deleted` to `false`.
+    pub async fn create_tombstone(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+        user_id: i64,
+        comments: String,
+        deleted: bool,
+    ) -> Result<CreateRevisionOutput> {
+        // TODO modify metadata field to add 'deleted: true'
+
+        // TODO run deletion outdater procdures:
+        //      - rerender included pages
+        //      - update incoming links
+        //      - process nav pages
+        //      - process template pages
+
+        todo!()
+    }
+
     /// Helper method for performing rendering for a revision.
     ///
     /// Makes all the changes associated with rendering, such as

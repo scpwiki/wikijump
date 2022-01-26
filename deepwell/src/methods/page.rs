@@ -21,7 +21,7 @@
 use super::prelude::*;
 use crate::models::page::Model as PageModel;
 use crate::models::page_revision::Model as PageRevisionModel;
-use crate::services::page::{CreatePage, EditPage};
+use crate::services::page::{CreatePage, DeletePage, EditPage};
 
 #[derive(Serialize, Debug)]
 struct PageOutput<'a> {
@@ -111,23 +111,25 @@ pub async fn page_edit(mut req: ApiRequest) -> ApiResponse {
         .await
         .to_api()?;
 
-    let body = Body::from_json(&output)?;
     txn.commit().await?;
+    let body = Body::from_json(&output)?;
     Ok(body.into())
 }
 
-pub async fn page_delete(req: ApiRequest) -> ApiResponse {
+pub async fn page_delete(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
+    let input: DeletePage = req.body_json().await?;
     let site_id = req.param("site_id")?.parse()?;
     let reference = Reference::try_from(&req)?;
-    PageService::delete(&ctx, site_id, reference)
+    let output = PageService::delete(&ctx, site_id, reference, input)
         .await
         .to_api()?;
 
     txn.commit().await?;
-    Ok(Response::new(StatusCode::NoContent))
+    let body = Body::from_json(&output)?;
+    Ok(body.into())
 }
 
 pub async fn page_links_from_get(req: ApiRequest) -> ApiResponse {
