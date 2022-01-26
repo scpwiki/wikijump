@@ -112,13 +112,6 @@ impl RevisionTasks {
 /*
  * TODO: Tasks for other page changes:
  *
- * page delete:
- * - links_incoming
- * - rerender_included
- * - process_navigation
- * - process_templates
- * - outdate page cache
- *
  * page parent change:
  * - outdate page cache
  *
