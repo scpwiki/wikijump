@@ -20,8 +20,6 @@ pub struct Model {
     pub compiled_generator: String,
     #[sea_orm(column_type = "Text")]
     pub comments: String,
-    pub comments_edited_at: Option<DateTimeWithTimeZone>,
-    pub comments_edited_by: Option<i64>,
     #[sea_orm(column_type = "Custom(\"array\".to_owned())")]
     pub hidden: String,
     #[sea_orm(column_type = "Text")]
@@ -32,20 +30,12 @@ pub struct Model {
     pub slug: String,
     #[sea_orm(column_type = "Custom(\"array\".to_owned())")]
     pub tags: String,
-    #[sea_orm(column_type = "Custom(\"jsonb\".to_owned())")]
-    pub metadata: String,
+    #[sea_orm(column_type = "JsonBinary")]
+    pub metadata: serde_json::Value,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
-    #[sea_orm(
-        belongs_to = "super::users::Entity",
-        from = "Column::CommentsEditedBy",
-        to = "super::users::Column::Id",
-        on_update = "NoAction",
-        on_delete = "NoAction"
-    )]
-    Users2,
     #[sea_orm(
         belongs_to = "super::text::Entity",
         from = "Column::CompiledHash",
@@ -77,7 +67,7 @@ pub enum Relation {
         on_update = "NoAction",
         on_delete = "NoAction"
     )]
-    Users1,
+    Users,
     #[sea_orm(
         belongs_to = "super::text::Entity",
         from = "Column::WikitextHash",

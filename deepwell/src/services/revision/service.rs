@@ -340,8 +340,8 @@ impl RevisionService {
             title: Set(title),
             alt_title: Set(alt_title),
             slug: Set(slug),
-            tags: Set(str!("{}")),     // TODO array
-            metadata: Set(str!("{}")), // TODO json
+            tags: Set(str!("{}")),                // TODO array
+            metadata: Set(serde_json::json!({})), // TODO json
             ..Default::default()
         };
 
@@ -510,34 +510,23 @@ impl RevisionService {
     ///
     /// Normally you should think of revisions as being immutable
     /// entries in an append-only log. This however is not always
-    /// true, staff of a site are able to make some classes of
-    /// changes to revisions, such as overriding an offensive
-    /// commit message or hiding sensitive or improper data.
+    /// true. In addition to `rerender()`, staff are able to change
+    /// the `hidden` column, causing some fields of the revision to be hidden,
+    /// for instance, if it contains spam, abuse, or harassment.
     pub async fn update(
         ctx: &ServiceContext<'_>,
         revision_id: i64,
-        input: UpdateRevision,
+        UpdateRevision { user_id, hidden }: UpdateRevision,
     ) -> Result<()> {
         let txn = ctx.transaction();
-        let mut revision = page_revision::ActiveModel {
+        let model = page_revision::ActiveModel {
             revision_id: Set(revision_id),
+            hidden: Set(format!("{:?}", hidden)), // TODO fix arrays
             ..Default::default()
         };
 
-        if let ProvidedValue::Set(comments) = input.comments {
-            revision.comments = Set(comments);
-            revision.comments_edited_at = Set(Some(now()));
-            revision.comments_edited_by = Set(Some(input.edited_by));
-        }
-
-        // TODO add hidden edited_at and edited_by
-        if let ProvidedValue::Set(hidden) = input.hidden {
-            // TODO fix array conversion
-            revision.hidden = Set(format!("{:#?}", hidden));
-        }
-
         // Update and return
-        revision.update(txn).await?;
+        model.update(txn).await?;
         Ok(())
     }
 

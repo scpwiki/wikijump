@@ -76,17 +76,12 @@ class DeepwellPage extends Migration
                 compiled_at TIMESTAMP WITH TIME ZONE NOT NULL,
                 compiled_generator TEXT NOT NULL,
                 comments TEXT NOT NULL,
-                comments_edited_at TIMESTAMP WITH TIME ZONE,
-                comments_edited_by BIGINT REFERENCES users(id),
                 hidden TEXT[] NOT NULL DEFAULT '{}', -- List of fields to be hidden/suppressed
                 title TEXT NOT NULL,
                 alt_title TEXT,
                 slug TEXT NOT NULL,
                 tags TEXT[] NOT NULL DEFAULT '{}', -- Should be sorted and deduplicated before insertion
                 metadata JSONB NOT NULL DEFAULT '{}', -- Customizable metadata. Currently unused.
-
-                -- Ensure both comments_edited fields are null, or both are non-null
-                CHECK ((comments_edited_at IS NULL) = (comments_edited_by IS NULL)),
 
                 UNIQUE (page_id, site_id, revision_number)
             )

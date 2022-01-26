@@ -77,7 +77,6 @@ pub struct CreateFirstRevisionOutput {
 
 #[derive(Deserialize, Debug)]
 pub struct UpdateRevision {
-    pub comments: ProvidedValue<String>,
-    pub hidden: ProvidedValue<Vec<String>>,
-    pub edited_by: i64,
+    pub user_id: i64,
+    pub hidden: Vec<String>,
 }
