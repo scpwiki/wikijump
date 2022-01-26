@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::models::page_revision::Model as PageRevisionModel;
-use crate::services::revision::{CreateRevision, UpdateRevision};
+use crate::services::revision::UpdateRevision;
 
 pub async fn page_revision_latest(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;

@@ -21,7 +21,7 @@
 use super::prelude::*;
 use crate::models::page::Model as PageModel;
 use crate::models::page_revision::Model as PageRevisionModel;
-use crate::services::page::CreatePage;
+use crate::services::page::{CreatePage, EditPage};
 
 #[derive(Serialize, Debug)]
 struct PageOutput<'a> {
@@ -100,11 +100,20 @@ pub async fn page_get(req: ApiRequest) -> ApiResponse {
     build_page_response(&page, &revision, StatusCode::Ok)
 }
 
-pub async fn page_edit(req: ApiRequest) -> ApiResponse {
+pub async fn page_edit(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    todo!()
+    let input: EditPage = req.body_json().await?;
+    let site_id = req.param("site_id")?.parse()?;
+    let reference = Reference::try_from(&req)?;
+    let output = PageService::edit(&ctx, site_id, reference, input)
+        .await
+        .to_api()?;
+
+    let body = Body::from_json(&output)?;
+    txn.commit().await?;
+    Ok(body.into())
 }
 
 pub async fn page_delete(req: ApiRequest) -> ApiResponse {
