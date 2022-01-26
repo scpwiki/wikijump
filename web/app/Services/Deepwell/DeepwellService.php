@@ -29,7 +29,7 @@ final class DeepwellService
     private function __construct()
     {
         $this->client = new Client([
-            'base_uri' => 'http://api:2747/api/internal/',
+            'base_uri' => 'http://api:2747/api/vI/',
             'timeout' => 0.5,
             'headers' => [
                 'User-Agent' => 'wikijump-php',
