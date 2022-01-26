@@ -53,5 +53,6 @@ pub mod locales;
 pub mod misc;
 pub mod page;
 pub mod revision;
+pub mod site;
 pub mod text;
 pub mod user;

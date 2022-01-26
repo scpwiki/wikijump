@@ -27,6 +27,7 @@ use crate::methods::locales::*;
 use crate::methods::misc::*;
 use crate::methods::page::*;
 use crate::methods::revision::*;
+use crate::methods::site::*;
 use crate::methods::text::*;
 use crate::methods::user::*;
 use crate::web::utils::error_response;
@@ -49,6 +50,12 @@ pub fn build(mut app: ApiServer) -> ApiServer {
         .get(message_post)
         .put(message_post)
         .post(message_post);
+
+    // Site
+    app.at("/site").post(site_create);
+    app.at("/site/:type/:id_or_slug")
+        .head(site_head)
+        .get(site_get);
 
     // Page
     app.at("/page/direct/:page_id")
