@@ -21,7 +21,7 @@
 use super::prelude::*;
 use crate::models::page::Model as PageModel;
 use crate::models::page_revision::Model as PageRevisionModel;
-use crate::services::page::{CreatePage, DeletePage, EditPage};
+use crate::services::page::{CreatePage, DeletePage, EditPage, UndeletePage};
 
 #[derive(Serialize, Debug)]
 struct PageOutput<'a> {
@@ -124,6 +124,22 @@ pub async fn page_delete(mut req: ApiRequest) -> ApiResponse {
     let site_id = req.param("site_id")?.parse()?;
     let reference = Reference::try_from(&req)?;
     let output = PageService::delete(&ctx, site_id, reference, input)
+        .await
+        .to_api()?;
+
+    txn.commit().await?;
+    let body = Body::from_json(&output)?;
+    Ok(body.into())
+}
+
+pub async fn page_undelete(mut req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    let input: UndeletePage = req.body_json().await?;
+    let site_id = req.param("site_id")?.parse()?;
+    let page_id = req.param("page_id")?.parse()?;
+    let output = PageService::undelete(&ctx, site_id, page_id, input)
         .await
         .to_api()?;
 
