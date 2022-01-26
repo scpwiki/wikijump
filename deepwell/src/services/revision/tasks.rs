@@ -112,14 +112,8 @@ impl RevisionTasks {
 /*
  * TODO: Tasks for other page changes:
  *
- * page parent change:
- * - outdate page cache
- *
  * page file change:
  * - render
  * - rerender_included
- * - outdate page cache
- *
- * page vote:
  * - outdate page cache
  */
