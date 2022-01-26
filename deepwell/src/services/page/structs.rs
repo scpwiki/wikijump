@@ -64,6 +64,13 @@ pub struct DeletePage {
     pub user_id: i64,
 }
 
+#[derive(Serialize, Debug)]
+pub struct DeletePageOutput {
+    page_id: i64,
+    revision_id: i64,
+    revision_number: i32,
+}
+
 impl From<CreateRevisionOutput> for EditPageOutput {
     #[inline]
     fn from(
@@ -77,6 +84,31 @@ impl From<CreateRevisionOutput> for EditPageOutput {
             revision_id,
             revision_number,
             parser_warnings,
+        }
+    }
+}
+
+impl From<(CreateRevisionOutput, i64)> for DeletePageOutput {
+    #[inline]
+    fn from(
+        (
+            CreateRevisionOutput {
+                revision_id,
+                revision_number,
+                parser_warnings,
+            },
+            page_id,
+        ): (CreateRevisionOutput, i64),
+    ) -> DeletePageOutput {
+        debug_assert!(
+            parser_warnings.is_none(),
+            "Parser warnings from deleted page revision",
+        );
+
+        DeletePageOutput {
+            page_id,
+            revision_id,
+            revision_number,
         }
     }
 }

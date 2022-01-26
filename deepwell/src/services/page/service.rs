@@ -180,16 +180,16 @@ impl PageService {
         site_id: i64,
         reference: Reference<'_>,
         input: DeletePage,
-    ) -> Result<CreateRevisionOutput> {
+    ) -> Result<DeletePageOutput> {
         let txn = ctx.transaction();
-        let page = Self::get(ctx, site_id, reference).await?;
+        let PageModel { page_id, .. } = Self::get(ctx, site_id, reference).await?;
 
         // Create tombstone revision
         // This also updates backlinks, includes, etc
         let output = RevisionService::create_tombstone(
             ctx,
             site_id,
-            page.page_id,
+            page_id,
             input.user_id,
             input.revision_comments,
             true,
@@ -197,12 +197,15 @@ impl PageService {
         .await?;
 
         // Set deletion flag
-        let mut model: page::ActiveModel = page.into();
-        model.deleted_at = Set(Some(now()));
+        let model = page::ActiveModel {
+            page_id: Set(page_id),
+            deleted_at: Set(Some(now())),
+            ..Default::default()
+        };
 
         // Update and return
         model.update(txn).await?;
-        Ok(output)
+        Ok((output, page_id).into())
     }
 
     #[inline]
