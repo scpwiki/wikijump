@@ -64,6 +64,13 @@ pub struct DeletePage {
     pub user_id: i64,
 }
 
+#[derive(Deserialize, Debug)]
+pub struct UndeletePage {
+    pub revision_comments: String,
+    pub user_id: i64,
+    pub slug: Option<String>,
+}
+
 #[derive(Serialize, Debug)]
 pub struct DeletePageOutput {
     page_id: i64,

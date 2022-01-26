@@ -192,7 +192,6 @@ impl PageService {
             page_id,
             input.user_id,
             input.revision_comments,
-            true,
         )
         .await?;
 
@@ -212,10 +211,11 @@ impl PageService {
         ctx: &ServiceContext<'_>,
         site_id: i64,
         page_id: i64,
-        input: DeletePage,
+        input: UndeletePage,
     ) -> Result<UndeletePageOutput> {
         let txn = ctx.transaction();
         let page = Self::get_direct(ctx, page_id).await?;
+        let slug = input.slug.unwrap_or(page.slug);
 
         // Do page checks:
         // - Site is correct
@@ -236,7 +236,7 @@ impl PageService {
             .filter(
                 Condition::all()
                     .add(page::Column::SiteId.eq(site_id))
-                    .add(page::Column::Slug.eq(page.slug.as_str()))
+                    .add(page::Column::Slug.eq(slug.as_str()))
                     .add(page::Column::DeletedAt.is_null()),
             )
             .one(txn)
@@ -246,15 +246,15 @@ impl PageService {
             return Err(Error::Conflict);
         }
 
-        // Create tombstone revision
+        // Create resurrection revision
         // This also updates backlinks, includes, etc.
-        let output = RevisionService::create_tombstone(
+        let output = RevisionService::create_resurrection(
             ctx,
             site_id,
             page_id,
             input.user_id,
             input.revision_comments,
-            false,
+            slug.clone(),
         )
         .await?;
 
@@ -267,7 +267,7 @@ impl PageService {
 
         // Update and return
         model.update(txn).await?;
-        Ok((output, page.slug).into())
+        Ok((output, slug).into())
     }
 
     #[inline]
