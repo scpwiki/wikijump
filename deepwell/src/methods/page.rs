@@ -34,6 +34,30 @@ pub async fn page_invalid(req: ApiRequest) -> ApiResponse {
     Ok(Response::new(StatusCode::BadRequest))
 }
 
+pub async fn page_head_direct(req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    let page_id = req.param("page_id")?.parse()?;
+    let exists = PageService::exists_direct(&ctx, page_id).await.to_api()?;
+    txn.commit().await?;
+    exists_status(exists)
+}
+
+pub async fn page_get_direct(req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    let page_id = req.param("page_id")?.parse()?;
+    let page = PageService::get_direct(&ctx, page_id).await.to_api()?;
+    let revision = RevisionService::get_latest(&ctx, page.site_id, page.page_id)
+        .await
+        .to_api()?;
+    txn.commit().await?;
+
+    build_page_response(&page, &revision, StatusCode::Ok)
+}
+
 pub async fn page_create(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
@@ -73,30 +97,6 @@ pub async fn page_get(req: ApiRequest) -> ApiResponse {
         .to_api()?;
 
     txn.commit().await?;
-    build_page_response(&page, &revision, StatusCode::Ok)
-}
-
-pub async fn page_head_direct(req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let page_id = req.param("page_id")?.parse()?;
-    let exists = PageService::exists_direct(&ctx, page_id).await.to_api()?;
-    txn.commit().await?;
-    exists_status(exists)
-}
-
-pub async fn page_get_direct(req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let page_id = req.param("page_id")?.parse()?;
-    let page = PageService::get_direct(&ctx, page_id).await.to_api()?;
-    let revision = RevisionService::get_latest(&ctx, page.site_id, page.page_id)
-        .await
-        .to_api()?;
-    txn.commit().await?;
-
     build_page_response(&page, &revision, StatusCode::Ok)
 }
 
