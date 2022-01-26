@@ -208,6 +208,68 @@ impl PageService {
         Ok((output, page_id).into())
     }
 
+    pub async fn undelete(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+        input: DeletePage,
+    ) -> Result<UndeletePageOutput> {
+        let txn = ctx.transaction();
+        let page = Self::get_direct(ctx, page_id).await?;
+
+        // Do page checks:
+        // - Site is correct
+        // - Page is deleted
+        // - Slug doesn't already exist
+
+        if page.site_id != site_id {
+            tide::log::warn!("Page's site ID and passed site ID do not match");
+            return Err(Error::NotFound);
+        }
+
+        if page.deleted_at.is_none() {
+            tide::log::warn!("Page requested to be undeleted is not currently deleted");
+            return Err(Error::Conflict);
+        }
+
+        let result = Page::find()
+            .filter(
+                Condition::all()
+                    .add(page::Column::SiteId.eq(site_id))
+                    .add(page::Column::Slug.eq(page.slug.as_str()))
+                    .add(page::Column::DeletedAt.is_null()),
+            )
+            .one(txn)
+            .await?;
+
+        if result.is_some() {
+            return Err(Error::Conflict);
+        }
+
+        // Create tombstone revision
+        // This also updates backlinks, includes, etc.
+        let output = RevisionService::create_tombstone(
+            ctx,
+            site_id,
+            page_id,
+            input.user_id,
+            input.revision_comments,
+            false,
+        )
+        .await?;
+
+        // Set deletion flag
+        let model = page::ActiveModel {
+            page_id: Set(page_id),
+            deleted_at: Set(None),
+            ..Default::default()
+        };
+
+        // Update and return
+        model.update(txn).await?;
+        Ok((output, page.slug).into())
+    }
+
     #[inline]
     pub async fn exists(
         ctx: &ServiceContext<'_>,

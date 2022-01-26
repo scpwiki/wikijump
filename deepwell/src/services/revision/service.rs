@@ -364,6 +364,13 @@ impl RevisionService {
         //      - update incoming links
         //      - process nav pages
         //      - process template pages
+        //
+        //      or for undeletion:
+        //      - rerender included pages
+        //      - update incoming links
+        //      - update outgoing links
+        //      - process nav pages
+        //      - process template pages
 
         todo!()
     }
