@@ -126,7 +126,28 @@ impl RevisionService {
             ..
         } = previous;
 
-        // Get slug strings for the current/old location
+        // Update fields from input
+        if let ProvidedValue::Set(new_title) = body.title {
+            title = new_title;
+        }
+
+        if let ProvidedValue::Set(new_alt_title) = body.alt_title {
+            alt_title = new_alt_title;
+        }
+
+        if let ProvidedValue::Set(new_slug) = body.slug {
+            slug = new_slug;
+        }
+
+        if let ProvidedValue::Set(_new_tags) = body.tags {
+            // TODO update tags
+        }
+
+        if let ProvidedValue::Set(_new_metadata) = body.metadata {
+            // TODO update metadata
+        }
+
+        // Get slug strings for the new location
         let (category_slug, page_slug) = split_category_name(&slug);
 
         // Get wikitext
