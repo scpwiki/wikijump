@@ -22,7 +22,6 @@ use super::prelude::*;
 use crate::models::page::Model as PageModel;
 use crate::models::page_revision::Model as PageRevisionModel;
 use crate::services::page::CreatePage;
-use ftml::data::Backlinks;
 
 #[derive(Serialize, Debug)]
 struct PageOutput<'a> {

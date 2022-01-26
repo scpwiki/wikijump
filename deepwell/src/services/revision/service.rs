@@ -23,7 +23,6 @@ use crate::models::page_revision::{
     self, Entity as PageRevision, Model as PageRevisionModel,
 };
 use crate::services::render::RenderOutput;
-use crate::services::text::Hash;
 use crate::services::{RenderService, SiteService, TextService};
 use crate::web::{split_category, split_category_name};
 use ftml::settings::{WikitextMode, WikitextSettings};

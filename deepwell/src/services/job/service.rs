@@ -26,11 +26,10 @@
 use super::prelude::*;
 use crate::api::ApiServerState;
 use crate::models::job::{self, Entity as Job, Model as JobModel};
-use crate::services::{RevisionService, TextService};
+use crate::services::RevisionService;
 use async_std::task;
 use sea_orm::DatabaseTransaction;
 use serde::Serialize;
-use std::borrow::Cow;
 use std::sync::Arc;
 use std::time::Duration;
 use void::Void;

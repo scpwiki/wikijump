@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::borrow::Cow;
-
 pub const JOB_TYPE_RERENDER_PAGES: &str = "rerender_pages";
 
 #[derive(Serialize, Deserialize, Debug)]

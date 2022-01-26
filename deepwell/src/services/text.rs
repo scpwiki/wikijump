@@ -102,6 +102,7 @@ impl TextService {
     ///
     /// This is rare, but can happen when text is invalidated,
     /// such as rerendering pages.
+    #[allow(dead_code)]
     pub async fn prune(ctx: &ServiceContext<'_>) -> Result<()> {
         todo!();
 

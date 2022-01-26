@@ -24,8 +24,6 @@
 
 use crate::api::ApiServer;
 use crate::methods::misc::*;
-use crate::methods::page::*;
-use crate::methods::user::*;
 use crate::web::utils::error_response;
 use tide::StatusCode;
 
