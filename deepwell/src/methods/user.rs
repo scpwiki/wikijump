@@ -52,10 +52,10 @@ pub async fn user_get(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
+    let UserDetailsQuery { detail } = req.query()?;
     let reference = Reference::try_from(&req)?;
     let user = UserService::get(&ctx, reference).await.to_api()?;
     txn.commit().await?;
-    let UserDetailsQuery { detail } = req.query()?;
     build_user_response(&user, detail, StatusCode::Ok)
 }
 
@@ -74,10 +74,10 @@ pub async fn user_delete(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
+    let UserDetailsQuery { detail } = req.query()?;
     let reference = Reference::try_from(&req)?;
     let user = UserService::delete(&ctx, reference).await.to_api()?;
     txn.commit().await?;
-    let UserDetailsQuery { detail } = req.query()?;
     build_user_response(&user, detail, StatusCode::Ok)
 }
 
