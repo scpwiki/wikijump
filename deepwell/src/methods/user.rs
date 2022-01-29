@@ -65,7 +65,7 @@ pub async fn user_put(mut req: ApiRequest) -> ApiResponse {
 
     let input: UpdateUser = req.body_json().await?;
     let reference = Reference::try_from(&req)?;
-    let user = UserService::update(&ctx, reference, input).await.to_api()?;
+    UserService::update(&ctx, reference, input).await.to_api()?;
     txn.commit().await?;
     Ok(Response::new(StatusCode::NoContent))
 }
