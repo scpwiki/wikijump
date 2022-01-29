@@ -44,6 +44,18 @@ macro_rules! cow_opt {
     };
 }
 
+macro_rules! conditional_future {
+    ($conditional:expr, $future:expr $(,)?) => {
+        async move {
+            if $conditional {
+                $future.await
+            } else {
+                Ok(())
+            }
+        }
+    };
+}
+
 #[derive(Debug)]
 pub struct RevisionService;
 
@@ -211,23 +223,33 @@ impl RevisionService {
             todo!();
         }
 
-        if tasks.rerender_incoming_links {
-            OutdateService::outdate_incoming_links(ctx, site_id, page_id).await?;
-        }
-
-        if tasks.rerender_included_pages {
-            OutdateService::outdate_included_pages(ctx, site_id, page_id).await?;
-        }
-
-        if tasks.render_navigation {
-            OutdateService::outdate_navigation(ctx, site_id, category_slug, page_slug)
-                .await?;
-        }
-
-        if tasks.render_templates {
-            OutdateService::outdate_templates(ctx, site_id, category_slug, page_slug)
-                .await?;
-        }
+        // Run all outdating tasks in parallel.
+        //
+        // This macro runs the given method (second value) if the condition (first value)
+        // is true, otherwise does nothing.
+        try_join!(
+            conditional_future!(
+                tasks.rerender_incoming_links,
+                OutdateService::outdate_incoming_links(ctx, site_id, page_id),
+            ),
+            conditional_future!(
+                tasks.rerender_included_pages,
+                OutdateService::outdate_included_pages(ctx, site_id, page_id),
+            ),
+            conditional_future!(
+                tasks.render_navigation,
+                OutdateService::outdate_navigation(
+                    ctx,
+                    site_id,
+                    category_slug,
+                    page_slug,
+                ),
+            ),
+            conditional_future!(
+                tasks.render_templates,
+                OutdateService::outdate_templates(ctx, site_id, category_slug, page_slug),
+            ),
+        )?;
 
         // Insert the new revision into the table
         let model = page_revision::ActiveModel {
