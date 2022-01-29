@@ -44,7 +44,6 @@ impl RevisionTasks {
             {
                 tasks.render = true;
                 tasks.update_links = true;
-                tasks.rerender_incoming_links = true;
                 tasks.rerender_included_pages = true;
                 tasks.rerender_navigation = true;
                 tasks.rerender_templates = true;
