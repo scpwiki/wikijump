@@ -160,33 +160,13 @@ impl LinkService {
         Ok(GetLinksExternalToOutput { links })
     }
 
-    // TODO
-    pub async fn update_incoming(
-        ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
-    ) -> Result<()> {
-        todo!()
-    }
-
-    // TODO
-    pub async fn update_outgoing(
-        ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
-    ) -> Result<()> {
-        todo!()
-    }
-
     // TEMP
     pub async fn update(
         ctx: &ServiceContext<'_>,
         site_id: i64,
-        reference: Reference<'_>,
+        page_id: i64,
         backlinks: &Backlinks<'_>,
     ) -> Result<()> {
-        let PageModel { page_id, .. } = PageService::get(ctx, site_id, reference).await?;
-
         let mut connections = HashMap::new();
         let mut connections_missing = HashMap::new();
         let mut external_links = HashMap::new();

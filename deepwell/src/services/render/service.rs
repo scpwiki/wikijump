@@ -19,9 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::models::page::Model as PageModel;
-use crate::services::job::RerenderPage;
-use crate::services::{JobService, PageService, TextService};
+use crate::services::TextService;
 
 #[derive(Debug)]
 pub struct RenderService;
@@ -53,61 +51,5 @@ impl RenderService {
             compiled_hash,
             compiled_generator,
         })
-    }
-
-    // Asynchronous tasks
-    pub async fn process_navigation(
-        ctx: &ServiceContext<'_>,
-        site_id: i64,
-        category_slug: &str,
-        page_slug: &str,
-    ) -> Result<()> {
-        // If a navigation page has been updated,
-        // we need to recompile everything on that site.
-        if matches!((category_slug, page_slug), ("nav", "side" | "top")) {
-            let ids = PageService::get_all(ctx, site_id, None, Some(false))
-                .await?
-                .into_iter()
-                .map(
-                    |PageModel {
-                         page_id, site_id, ..
-                     }| RerenderPage { page_id, site_id },
-                )
-                .collect::<Vec<_>>();
-
-            JobService::enqueue_rerender_pages(ctx, ids).await?;
-        }
-
-        Ok(())
-    }
-
-    pub async fn process_templates(
-        ctx: &ServiceContext<'_>,
-        site_id: i64,
-        category_slug: &str,
-        page_slug: &str,
-    ) -> Result<()> {
-        // If a template page has been updated,
-        // we need to recompile everything in that category.
-        if page_slug == "_template" {
-            let ids = PageService::get_all(
-                ctx,
-                site_id,
-                Some(category_slug.into()),
-                Some(false),
-            )
-            .await?
-            .into_iter()
-            .map(
-                |PageModel {
-                     page_id, site_id, ..
-                 }| RerenderPage { page_id, site_id },
-            )
-            .collect::<Vec<_>>();
-
-            JobService::enqueue_rerender_pages(ctx, ids).await?;
-        }
-
-        Ok(())
     }
 }

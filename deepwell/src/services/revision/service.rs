@@ -23,7 +23,9 @@ use crate::models::page_revision::{
     self, Entity as PageRevision, Model as PageRevisionModel,
 };
 use crate::services::render::RenderOutput;
-use crate::services::{LinkService, RenderService, SiteService, TextService};
+use crate::services::{
+    LinkService, OutdateService, RenderService, SiteService, TextService,
+};
 use crate::web::{split_category, split_category_name};
 use ftml::settings::{WikitextMode, WikitextSettings};
 use ftml::{data::PageInfo, render::html::HtmlOutput};
@@ -181,8 +183,6 @@ impl RevisionService {
                 page_id,
                 wikitext,
                 render_input,
-                tasks.links_incoming,
-                tasks.links_outgoing,
             )
             .await?;
 
@@ -193,15 +193,10 @@ impl RevisionService {
             compiled_at = now();
 
             // Set to false, we've already updated links
-            tasks.links_incoming = false;
-            tasks.links_outgoing = false;
+            tasks.update_links = false;
         }
 
-        if tasks.links_incoming {
-            todo!();
-        }
-
-        if tasks.links_outgoing {
+        if tasks.update_links {
             todo!();
         }
 
@@ -216,17 +211,21 @@ impl RevisionService {
             todo!();
         }
 
+        if tasks.rerender_links_incoming {
+            todo!();
+        }
+
         if tasks.rerender_included {
             todo!();
         }
 
         if tasks.process_navigation {
-            RenderService::process_navigation(ctx, site_id, category_slug, page_slug)
+            OutdateService::outdate_navigation(ctx, site_id, category_slug, page_slug)
                 .await?;
         }
 
         if tasks.process_templates {
-            RenderService::process_templates(ctx, site_id, category_slug, page_slug)
+            OutdateService::outdate_templates(ctx, site_id, category_slug, page_slug)
                 .await?;
         }
 
@@ -308,22 +307,14 @@ impl RevisionService {
             warnings,
             compiled_hash,
             compiled_generator,
-        } = Self::render_and_update_links(
-            ctx,
-            site_id,
-            page_id,
-            wikitext,
-            render_input,
-            true,
-            true,
-        )
-        .await?;
+        } = Self::render_and_update_links(ctx, site_id, page_id, wikitext, render_input)
+            .await?;
 
         // Process navigation and template changes, if any
         let (category_slug, page_slug) = split_category_name(&slug);
         try_join!(
-            RenderService::process_navigation(ctx, site_id, category_slug, page_slug),
-            RenderService::process_templates(ctx, site_id, category_slug, page_slug),
+            OutdateService::outdate_navigation(ctx, site_id, category_slug, page_slug),
+            OutdateService::outdate_templates(ctx, site_id, category_slug, page_slug),
         )?;
 
         // Insert the new revision into the table
@@ -416,8 +407,6 @@ impl RevisionService {
             rating,
             tags,
         }: RenderPageInfo<'_>,
-        update_incoming: bool,
-        update_outgoing: bool,
     ) -> Result<RenderOutput> {
         // Get site
         let site = SiteService::get(ctx, Reference::from(site_id)).await?;
@@ -439,22 +428,18 @@ impl RevisionService {
         // Parse and render
         let output = RenderService::render(ctx, wikitext, &page_info, &settings).await?;
 
-        // Update backlinks
+        // Update backlinks and outdate derivatives
         try_join!(
-            async move {
-                if update_incoming {
-                    LinkService::update_incoming(ctx, site_id, page_id).await
-                } else {
-                    Ok(())
-                }
-            },
-            async move {
-                if update_outgoing {
-                    LinkService::update_outgoing(ctx, site_id, page_id).await
-                } else {
-                    Ok(())
-                }
-            },
+            LinkService::update(ctx, site_id, page_id, &output.html_output.backlinks),
+            OutdateService::outdate_incoming_links(ctx, site_id, page_id),
+        )?;
+
+        // Requires the backlinks are committed first.
+        // Incoming links aren't blocked by this because those come from
+        // their respective pages, and are already set and will not change here.
+        try_join!(
+            OutdateService::outdate_outgoing_links(ctx, site_id, page_id),
+            OutdateService::outdate_included_pages(ctx, site_id, page_id),
         )?;
 
         Ok(output)
@@ -484,16 +469,8 @@ impl RevisionService {
             compiled_hash,
             compiled_generator,
             ..
-        } = Self::render_and_update_links(
-            ctx,
-            site_id,
-            page_id,
-            wikitext,
-            render_input,
-            false,
-            true,
-        )
-        .await?;
+        } = Self::render_and_update_links(ctx, site_id, page_id, wikitext, render_input)
+            .await?;
 
         let model = page_revision::ActiveModel {
             revision_id: Set(revision.revision_id),

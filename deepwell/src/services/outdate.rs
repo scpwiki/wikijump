@@ -19,11 +19,16 @@
  */
 
 use super::prelude::*;
+use crate::services::PageService;
 
 #[derive(Debug)]
 pub struct OutdateService;
 
 impl OutdateService {
+    pub async fn outdate(_ctx: &ServiceContext<'_>, _ids: &[(i64, i64)]) -> Result<()> {
+        todo!()
+    }
+
     pub async fn outdate_incoming_links(
         _ctx: &ServiceContext<'_>,
         _site_id: i64,
@@ -46,5 +51,52 @@ impl OutdateService {
         _page_id: i64,
     ) -> Result<()> {
         todo!()
+    }
+
+    pub async fn outdate_navigation(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        category_slug: &str,
+        page_slug: &str,
+    ) -> Result<()> {
+        // If a navigation page has been updated,
+        // we need to recompile everything on that site.
+        if matches!((category_slug, page_slug), ("nav", "side" | "top")) {
+            let ids = PageService::get_all(ctx, site_id, None, Some(false))
+                .await?
+                .into_iter()
+                .map(|model| (model.site_id, model.page_id))
+                .collect::<Vec<_>>();
+
+            Self::outdate(ctx, &ids).await?;
+        }
+
+        Ok(())
+    }
+
+    pub async fn outdate_templates(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        category_slug: &str,
+        page_slug: &str,
+    ) -> Result<()> {
+        // If a template page has been updated,
+        // we need to recompile everything in that category.
+        if page_slug == "_template" {
+            let ids = PageService::get_all(
+                ctx,
+                site_id,
+                Some(category_slug.into()),
+                Some(false),
+            )
+            .await?
+            .into_iter()
+            .map(|model| (model.site_id, model.page_id))
+            .collect::<Vec<_>>();
+
+            Self::outdate(ctx, &ids).await?;
+        }
+
+        Ok(())
     }
 }

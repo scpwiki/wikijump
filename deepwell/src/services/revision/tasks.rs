@@ -27,9 +27,9 @@ use crate::web::ProvidedValue;
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Default)]
 pub struct RevisionTasks {
     pub render: bool,
-    pub links_incoming: bool,
-    pub links_outgoing: bool,
+    pub update_links: bool,
     pub rename: bool,
+    pub rerender_links_incoming: bool,
     pub rerender_included: bool,
     pub process_navigation: bool,
     pub process_templates: bool,
@@ -43,8 +43,8 @@ impl RevisionTasks {
             if revision.wikitext_hash.as_slice() != TextService::hash(wikitext).as_slice()
             {
                 tasks.render = true;
-                tasks.links_incoming = true;
-                tasks.links_outgoing = true;
+                tasks.update_links = true;
+                tasks.rerender_links_incoming = true;
                 tasks.rerender_included = true;
                 tasks.process_navigation = true;
                 tasks.process_templates = true;
@@ -56,24 +56,24 @@ impl RevisionTasks {
         if let ProvidedValue::Set(ref title) = changes.title {
             if &revision.title != title {
                 tasks.render = true;
-                tasks.links_incoming = true;
-                tasks.links_outgoing = true;
+                tasks.update_links = true;
+                tasks.rerender_links_incoming = true;
             }
         }
 
         if let ProvidedValue::Set(ref alt_title) = changes.alt_title {
             if &revision.alt_title != alt_title {
                 tasks.render = true;
-                tasks.links_incoming = true;
-                tasks.links_outgoing = true;
+                tasks.update_links = true;
+                tasks.rerender_links_incoming = true;
             }
         }
 
         if let ProvidedValue::Set(ref slug) = changes.slug {
             if &revision.slug != slug {
                 tasks.render = true;
-                tasks.links_incoming = true;
                 tasks.rename = true;
+                tasks.rerender_links_incoming = true;
                 tasks.rerender_included = true;
                 tasks.process_navigation = true;
                 tasks.process_templates = true;
@@ -100,9 +100,9 @@ impl RevisionTasks {
     #[inline]
     pub fn is_empty(self) -> bool {
         !self.render
-            && !self.links_incoming
-            && !self.links_outgoing
             && !self.rename
+            && !self.update_links
+            && !self.rerender_links_incoming
             && !self.rerender_included
             && !self.process_navigation
             && !self.process_templates

@@ -50,7 +50,6 @@ mod context;
 mod error;
 
 pub mod category;
-pub mod job;
 pub mod link;
 pub mod outdate;
 pub mod page;
@@ -67,7 +66,6 @@ use sea_orm::DatabaseConnection;
 pub use self::category::CategoryService;
 pub use self::context::ServiceContext;
 pub use self::error::*;
-pub use self::job::JobService;
 pub use self::link::LinkService;
 pub use self::outdate::OutdateService;
 pub use self::page::PageService;
