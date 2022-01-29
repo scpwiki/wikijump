@@ -219,12 +219,12 @@ impl RevisionService {
             todo!();
         }
 
-        if tasks.process_navigation {
+        if tasks.render_navigation {
             OutdateService::outdate_navigation(ctx, site_id, category_slug, page_slug)
                 .await?;
         }
 
-        if tasks.process_templates {
+        if tasks.render_templates {
             OutdateService::outdate_templates(ctx, site_id, category_slug, page_slug)
                 .await?;
         }
