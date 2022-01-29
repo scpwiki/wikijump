@@ -211,12 +211,12 @@ impl RevisionService {
             todo!();
         }
 
-        if tasks.rerender_links_incoming {
-            todo!();
+        if tasks.rerender_incoming_links {
+            OutdateService::outdate_incoming_links(ctx, site_id, page_id).await?;
         }
 
-        if tasks.rerender_included {
-            todo!();
+        if tasks.rerender_included_pages {
+            OutdateService::outdate_included_pages(ctx, site_id, page_id).await?;
         }
 
         if tasks.render_navigation {
