@@ -261,6 +261,7 @@ impl RevisionService {
             compiled_hash: Set(compiled_hash),
             compiled_at: Set(compiled_at),
             compiled_generator: Set(compiled_generator),
+            comments: Set(comments),
             hidden: Set(hidden),
             title: Set(title),
             alt_title: Set(alt_title),
