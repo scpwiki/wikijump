@@ -214,7 +214,6 @@ impl LinkService {
     }
 
     // TEMP
-    // will be part of creating a revision
     pub async fn update_missing(
         _ctx: &ServiceContext<'_>,
         _site_id: i64,
