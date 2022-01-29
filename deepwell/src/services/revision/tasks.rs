@@ -31,8 +31,8 @@ pub struct RevisionTasks {
     pub rename: bool,
     pub rerender_incoming_links: bool,
     pub rerender_included_pages: bool,
-    pub render_navigation: bool,
-    pub render_templates: bool,
+    pub rerender_navigation: bool,
+    pub rerender_templates: bool,
 }
 
 impl RevisionTasks {
@@ -46,8 +46,8 @@ impl RevisionTasks {
                 tasks.update_links = true;
                 tasks.rerender_incoming_links = true;
                 tasks.rerender_included_pages = true;
-                tasks.render_navigation = true;
-                tasks.render_templates = true;
+                tasks.rerender_navigation = true;
+                tasks.rerender_templates = true;
             }
         }
 
@@ -75,8 +75,8 @@ impl RevisionTasks {
                 tasks.rename = true;
                 tasks.rerender_incoming_links = true;
                 tasks.rerender_included_pages = true;
-                tasks.render_navigation = true;
-                tasks.render_templates = true;
+                tasks.rerender_navigation = true;
+                tasks.rerender_templates = true;
             }
         }
 
@@ -86,8 +86,8 @@ impl RevisionTasks {
                 tasks.render = true;
                 tasks.update_links = true;
                 tasks.rerender_included_pages = true;
-                tasks.render_navigation = true;
-                tasks.render_templates = true;
+                tasks.rerender_navigation = true;
+                tasks.rerender_templates = true;
             }
         }
 
@@ -108,8 +108,8 @@ impl RevisionTasks {
             && !self.update_links
             && !self.rerender_incoming_links
             && !self.rerender_included_pages
-            && !self.render_navigation
-            && !self.render_templates
+            && !self.rerender_navigation
+            && !self.rerender_templates
     }
 }
 

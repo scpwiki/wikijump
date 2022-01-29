@@ -237,7 +237,7 @@ impl RevisionService {
                 OutdateService::outdate_included_pages(ctx, site_id, page_id),
             ),
             conditional_future!(
-                tasks.render_navigation,
+                tasks.rerender_navigation,
                 OutdateService::outdate_navigation(
                     ctx,
                     site_id,
@@ -246,7 +246,7 @@ impl RevisionService {
                 ),
             ),
             conditional_future!(
-                tasks.render_templates,
+                tasks.rerender_templates,
                 OutdateService::outdate_templates(ctx, site_id, category_slug, page_slug),
             ),
         )?;
