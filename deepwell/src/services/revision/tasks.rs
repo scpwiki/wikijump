@@ -84,6 +84,10 @@ impl RevisionTasks {
             // TODO check tags
             if false {
                 tasks.render = true;
+                tasks.update_links = true;
+                tasks.rerender_included = true;
+                tasks.process_navigation = true;
+                tasks.process_templates = true;
             }
         }
 
