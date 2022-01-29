@@ -332,13 +332,6 @@ impl RevisionService {
         } = Self::render_and_update_links(ctx, site_id, page_id, wikitext, render_input)
             .await?;
 
-        // Process navigation and template changes, if any
-        let (category_slug, page_slug) = split_category_name(&slug);
-        try_join!(
-            OutdateService::outdate_navigation(ctx, site_id, category_slug, page_slug),
-            OutdateService::outdate_templates(ctx, site_id, category_slug, page_slug),
-        )?;
-
         // Insert the new revision into the table
         let model = page_revision::ActiveModel {
             revision_number: Set(0),
@@ -379,8 +372,8 @@ impl RevisionService {
         // TODO modify metadata field to add 'deleted: true'
 
         // TODO run deletion outdater procdures:
+        //      - rerender incoming links
         //      - rerender included pages
-        //      - update incoming links
         //      - process nav pages
         //      - process template pages
 
@@ -403,8 +396,8 @@ impl RevisionService {
         // TODO modify metadata field to add 'deleted: true'
 
         // TODO run undeletion outdater procdures:
+        //      - rerender incoming links
         //      - rerender included pages
-        //      - update incoming links
         //      - update outgoing links
         //      - process nav pages
         //      - process template pages
@@ -436,6 +429,7 @@ impl RevisionService {
         // Set up parse context
         let settings = WikitextSettings::from_mode(WikitextMode::Page);
         let (category_slug, page_slug) = split_category(&slug);
+        let category_slug_default = category_slug.unwrap_or("_default");
         let page_info = PageInfo {
             page: cow!(page_slug),
             category: cow_opt!(category_slug),
@@ -450,18 +444,29 @@ impl RevisionService {
         // Parse and render
         let output = RenderService::render(ctx, wikitext, &page_info, &settings).await?;
 
-        // Update backlinks and outdate derivatives
-        try_join!(
-            LinkService::update(ctx, site_id, page_id, &output.html_output.backlinks),
-            OutdateService::outdate_incoming_links(ctx, site_id, page_id),
-        )?;
+        // Update backlinks
+        LinkService::update(ctx, site_id, page_id, &output.html_output.backlinks).await?;
 
-        // Requires the backlinks are committed first.
-        // Incoming links aren't blocked by this because those come from
-        // their respective pages, and are already set and will not change here.
+        // Now, outdate descendents
+        //
+        // Incoming links aren't technically blocked by updating backlinks,
+        // but are grouped here regardless.
         try_join!(
+            OutdateService::outdate_incoming_links(ctx, site_id, page_id),
             OutdateService::outdate_outgoing_links(ctx, site_id, page_id),
             OutdateService::outdate_included_pages(ctx, site_id, page_id),
+            OutdateService::outdate_navigation(
+                ctx,
+                site_id,
+                category_slug_default,
+                page_slug,
+            ),
+            OutdateService::outdate_templates(
+                ctx,
+                site_id,
+                category_slug_default,
+                page_slug,
+            ),
         )?;
 
         Ok(output)
