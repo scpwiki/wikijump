@@ -19,14 +19,37 @@
  */
 
 use super::prelude::*;
-use crate::services::PageService;
+use crate::models::page_revision::{self, Entity as PageRevision};
+use crate::services::{PageService, RevisionService};
+use sea_orm::sea_query::expr::Expr;
 
 #[derive(Debug)]
 pub struct OutdateService;
 
 impl OutdateService {
-    pub async fn outdate(_ctx: &ServiceContext<'_>, _ids: &[(i64, i64)]) -> Result<()> {
-        todo!()
+    /// Marks a series of page revisions as outdated.
+    ///
+    /// Finds the most recent revision for each of the given `(site_id, page_id)`
+    /// pairs passed in.
+    pub async fn outdate<I>(ctx: &ServiceContext<'_>, ids: I) -> Result<()>
+    where
+        I: IntoIterator<Item = (i64, i64)>,
+    {
+        let txn = ctx.transaction();
+        let mut revision_ids = vec![];
+
+        for (site_id, page_id) in ids {
+            let revision = RevisionService::get_latest(ctx, site_id, page_id).await?;
+            revision_ids.push(revision.revision_id);
+        }
+
+        PageRevision::update_many()
+            .col_expr(page_revision::Column::CompiledOutdated, Expr::value(true))
+            .filter(page_revision::Column::RevisionId.is_in(revision_ids))
+            .exec(txn)
+            .await?;
+
+        Ok(())
     }
 
     pub async fn outdate_incoming_links(
@@ -68,7 +91,7 @@ impl OutdateService {
                 .map(|model| (model.site_id, model.page_id))
                 .collect::<Vec<_>>();
 
-            Self::outdate(ctx, &ids).await?;
+            Self::outdate(ctx, ids).await?;
         }
 
         Ok(())
@@ -94,7 +117,7 @@ impl OutdateService {
             .map(|model| (model.site_id, model.page_id))
             .collect::<Vec<_>>();
 
-            Self::outdate(ctx, &ids).await?;
+            Self::outdate(ctx, ids).await?;
         }
 
         Ok(())
