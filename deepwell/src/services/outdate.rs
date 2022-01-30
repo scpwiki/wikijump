@@ -92,11 +92,28 @@ impl OutdateService {
     }
 
     pub async fn outdate_outgoing_links(
-        _ctx: &ServiceContext<'_>,
-        _site_id: i64,
-        _page_id: i64,
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
     ) -> Result<()> {
-        todo!()
+        const CONNECTION_TYPES: &[ConnectionType] = &[
+            ConnectionType::IncludeMessy,
+            ConnectionType::IncludeElements,
+            ConnectionType::Component,
+            ConnectionType::Link,
+        ];
+
+        let result =
+            LinkService::get_connections_from(ctx, page_id, Some(CONNECTION_TYPES))
+                .await?;
+
+        let ids = result
+            .present
+            .iter()
+            .map(|connection| (site_id, connection.to_page_id))
+            .collect::<Vec<_>>();
+
+        Self::outdate(ctx, ids).await
     }
 
     pub async fn outdate_navigation(
