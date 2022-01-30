@@ -597,7 +597,7 @@ impl RevisionService {
         //       since all extant pages must have at least one revision.
 
         let txn = ctx.transaction();
-        let revision = PageRevision::find()
+        let mut revision = PageRevision::find()
             .filter(
                 Condition::all()
                     .add(page_revision::Column::PageId.eq(page_id))
@@ -608,6 +608,7 @@ impl RevisionService {
             .await?
             .ok_or(Error::NotFound)?;
 
+        Self::rerender_if_needed(ctx, &mut revision).await?;
         Ok(revision)
     }
 
@@ -627,6 +628,10 @@ impl RevisionService {
             )
             .one(txn)
             .await?;
+
+        if let Some(mut revision) = revision {
+            Self::rerender_if_needed(ctx, &mut revision).await?;
+        }
 
         Ok(revision)
     }
