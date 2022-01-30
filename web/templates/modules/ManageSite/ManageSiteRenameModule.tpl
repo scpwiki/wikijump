@@ -1,7 +1,7 @@
 <h1>Change base URL (rename)</h1>
 
 <p>
-	Current base URL address of this site is: <strong>{$site->getUnixName()}</strong>.{$URL_DOMAIN}. If you want to change it (i.e. the part before
+	Current base URL address of this site is: <strong>{$site->getSlug()}</strong>.{$URL_DOMAIN}. If you want to change it (i.e. the part before
 	the ".{$URL_DOMAIN}" domain, please use the following form.
 </p>
 <p>
@@ -23,7 +23,7 @@
 					Website base URL:
 				</td>
 				<td>
-					<input type="text" class="text" size="20" id="sm-rename-site-unixname" style="text-align: right" value="{$site->getUnixName()}"/>.{$URL_DOMAIN}
+					<input type="text" class="text" size="20" id="sm-rename-site-unixname" style="text-align: right" value="{$site->getSlug()}"/>.{$URL_DOMAIN}
 				</td>
 			</tr>
 		</table>

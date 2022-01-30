@@ -39,11 +39,11 @@ class ForumCommentsListModule extends SmartyModule
         $parmHash = md5(serialize($pl->asArray()));
 
         if ($pageId !== null) {
-            $key = 'pagecomments_v_pageid..'.$site->getUnixName().'..'.$pageId.'..'.$parmHash;
+            $key = 'pagecomments_v_pageid..'.$site->getSlug().'..'.$pageId.'..'.$parmHash;
         } else {
-            $key = 'pagecomments_v_pagename..'.$site->getUnixName().'..'.$pageName.'..'.$parmHash;
+            $key = 'pagecomments_v_pagename..'.$site->getSlug().'..'.$pageName.'..'.$parmHash;
         }
-        $akey = 'forumall_lc..'.$site->getUnixName();
+        $akey = 'forumall_lc..'.$site->getSlug();
 
         $uri = GlobalProperties::$MODULES_JS_URL.'/forum/ForumViewThreadModule.js';
         $this->extraJs[] = $uri;
@@ -54,7 +54,7 @@ class ForumCommentsListModule extends SmartyModule
             // check the times
             $cacheTimestamp = $struct['timestamp'];
             $threadId = $struct['threadId'];
-            $tkey = 'forumthread_lc..'.$site->getUnixName().'..'.$threadId; // last change timestamp
+            $tkey = 'forumthread_lc..'.$site->getSlug().'..'.$threadId; // last change timestamp
             $changeTimestamp = Cache::get($tkey);
             if ($changeTimestamp && $changeTimestamp <= $cacheTimestamp && $allForumTimestamp && $allForumTimestamp <= $cacheTimestamp) {
                 $runData->ajaxResponseAdd("threadId", $threadId);
@@ -72,13 +72,13 @@ class ForumCommentsListModule extends SmartyModule
         $struct['threadId']=$this->threadId;
 
         if (!$changeTimestamp) {
-            $tkey = 'forumthread_lc..'.$site->getUnixName().'..'.$this->threadId; // last change timestamp
+            $tkey = 'forumthread_lc..'.$site->getSlug().'..'.$this->threadId; // last change timestamp
             $changeTimestamp = Cache::get($tkey);
         }
 
         Cache::put($key, $struct, 864000);
         if (!$changeTimestamp) {
-            $tkey = 'forumthread_lc..'.$site->getUnixName().'..'.$this->threadId;
+            $tkey = 'forumthread_lc..'.$site->getSlug().'..'.$this->threadId;
             $changeTimestamp = $now;
             Cache::put($tkey, $changeTimestamp, 864000);
         }

@@ -16,7 +16,7 @@ class Site extends SiteBase
     public function getDomain()
     {
         if ($this->getCustomDomain() == null || $this->getCustomDomain() == "") {
-            return $this->getUnixName() . "." . GlobalProperties::$URL_DOMAIN;
+            return $this->getSlug() . "." . GlobalProperties::$URL_DOMAIN;
         } else {
             return $this->getCustomDomain();
         }
@@ -44,7 +44,7 @@ class Site extends SiteBase
 
     public function save()
     {
-        $key = 'site..' . $this->getUnixName();
+        $key = 'site..' . $this->getSlug();
         Cache::forget($key);
         $key = 'site_cd..' . $this->getCustomDomain();
         Cache::forget($key);
@@ -53,10 +53,10 @@ class Site extends SiteBase
 
     public function getLocalFilesPath()
     {
-        return WIKIJUMP_ROOT . '/web/files--sites/'.$this->getUnixName();
+        return WIKIJUMP_ROOT . '/web/files--sites/'.$this->getSlug();
 
         /* optional hashing */
-        $un = $this->getUnixName();
+        $un = $this->getSlug();
         $p = substr($un, 0, 1) . '/' . substr($un, 0, 2) . '/' . $un;
 
         return WIKIJUMP_ROOT . '/web/files--sites/' . $p;

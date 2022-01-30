@@ -26,9 +26,9 @@ class PageCommentsFeed extends FeedScreen
 
         $parmHash = md5(serialize($pl->asArray()));
 
-        $key = 'pagecommentsfeed_f..'.$site->getUnixName().'..'.$pageId.'..'.$parmHash;
+        $key = 'pagecommentsfeed_f..'.$site->getSlug().'..'.$pageId.'..'.$parmHash;
 
-        $akey = 'forumall_lc..'.$site->getUnixName();
+        $akey = 'forumall_lc..'.$site->getSlug();
 
         $struct = Cache::get($key);
         $allForumTimestamp = Cache::get($akey);
@@ -36,7 +36,7 @@ class PageCommentsFeed extends FeedScreen
             // check the times
             $cacheTimestamp = $struct['timestamp'];
             $threadId = $struct['threadId'];
-            $tkey = 'forumthread_lc..'.$site->getUnixName().'..'.$threadId; // last change timestamp
+            $tkey = 'forumthread_lc..'.$site->getSlug().'..'.$threadId; // last change timestamp
             $changeTimestamp = Cache::get($tkey);
             if ($changeTimestamp && $changeTimestamp <= $cacheTimestamp && $allForumTimestamp && $allForumTimestamp <= $cacheTimestamp) {
                 $runData->ajaxResponseAdd("threadId", $threadId);
@@ -54,13 +54,13 @@ class PageCommentsFeed extends FeedScreen
         $struct['threadId']=$this->threadId;
 
         if (!$changeTimestamp) {
-            $tkey = 'forumthread_lc..'.$site->getUnixName().'..'.$this->threadId; // last change timestamp
+            $tkey = 'forumthread_lc..'.$site->getSlug().'..'.$this->threadId; // last change timestamp
             $changeTimestamp = Cache::get($tkey);
         }
 
         Cache::put($key, $struct, 1000);
         if (!$changeTimestamp) {
-            $tkey = 'forumthread_lc..'.$site->getUnixName().'..'.$this->threadId;
+            $tkey = 'forumthread_lc..'.$site->getSlug().'..'.$this->threadId;
             $changeTimestamp = $now;
             Cache::put($tkey, $changeTimestamp, 1000);
         }

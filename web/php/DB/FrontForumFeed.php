@@ -19,7 +19,7 @@ class FrontForumFeed extends FrontForumFeedBase
         $this->setParmhash(crc32($this->getTitle()." ".$this->getCategories()));
         $page = PagePeer::instance()->selectByPrimaryKey($this->getPageId());
         $site = $GLOBALS['site'];
-        $fkey = "frontforumfeedobject..".$site->getUnixName().'..'.$page->getUnixName().'..'.$this->getLabel();
+        $fkey = "frontforumfeedobject..".$site->getSlug().'..'.$page->getUnixName().'..'.$this->getLabel();
         Cache::forget($fkey);
         parent::save();
     }

@@ -488,9 +488,9 @@ class WikiPageAction extends SmartyAction
 
         // move files too
         $oldDir = WIKIJUMP_ROOT."/web/files--sites/".
-            $site->getUnixName()."/files/".$oldName;
+            $site->getSlug()."/files/".$oldName;
         $newDir =  WIKIJUMP_ROOT."/web/files--sites/".
-            $site->getUnixName()."/files/".$newName;
+            $site->getSlug()."/files/".$newName;
 
         if (file_exists($oldDir)) {
             if (rename($oldDir, $newDir) == false) {
@@ -499,9 +499,9 @@ class WikiPageAction extends SmartyAction
         }
 
         $oldRDir = WIKIJUMP_ROOT."/web/files--sites/".
-                $site->getUnixName()."/resized-images/".$oldName;
+                $site->getSlug()."/resized-images/".$oldName;
         $newRDir = WIKIJUMP_ROOT."/web/files--sites/".
-                $site->getUnixName()."/resized-images/".$newName;
+                $site->getSlug()."/resized-images/".$newName;
 
         if (file_exists($oldRDir)) {
             if (rename($oldRDir, $newRDir) == false) {

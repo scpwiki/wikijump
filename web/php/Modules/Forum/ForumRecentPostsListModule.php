@@ -20,9 +20,9 @@ class ForumRecentPostsListModule extends SmartyModule
         $pl = $runData->getParameterList();
         $parmHash = md5(serialize($pl->asArray()));
 
-        $key = 'forumrecentposts_v..'.$site->getUnixName().'..'.$parmHash;
-        $tkey = 'forumstart_lc..'.$site->getUnixName(); // last change timestamp
-        $akey = 'forumall_lc..'.$site->getUnixName();
+        $key = 'forumrecentposts_v..'.$site->getSlug().'..'.$parmHash;
+        $tkey = 'forumstart_lc..'.$site->getSlug(); // last change timestamp
+        $akey = 'forumall_lc..'.$site->getSlug();
 
         $struct = Cache::get($key);
         $changeTimestamp = Cache::get($tkey);

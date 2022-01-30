@@ -24,9 +24,9 @@ class ForumThreadPostsFeed extends FeedScreen
 
         $parmHash = md5(serialize($pl->asArray()));
 
-        $key = 'forumthreadposts_f..'.$site->getUnixName().'..'.$threadId.'..'.$parmHash;
-        $tkey = 'forumthread_lc..'.$site->getUnixName().'..'.$threadId; // last change timestamp
-        $akey = 'forumall_lc..'.$site->getUnixName();
+        $key = 'forumthreadposts_f..'.$site->getSlug().'..'.$threadId.'..'.$parmHash;
+        $tkey = 'forumthread_lc..'.$site->getSlug().'..'.$threadId; // last change timestamp
+        $akey = 'forumall_lc..'.$site->getSlug();
 
         $struct = Cache::get($key);
         $cacheTimestamp = $struct['timestamp'];

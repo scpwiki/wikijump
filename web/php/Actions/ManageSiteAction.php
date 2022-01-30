@@ -226,7 +226,7 @@ class ManageSiteAction extends SmartyAction
         }
 
         // handle code now
-        $dir = WIKIJUMP_ROOT."/web/files--sites/".$site->getUnixName()."/theme/".$unixName;
+        $dir = WIKIJUMP_ROOT."/web/files--sites/".$site->getSlug()."/theme/".$unixName;
         mkdirfull($dir);
         file_put_contents($dir."/style.css", $code);
 
@@ -617,7 +617,7 @@ class ManageSiteAction extends SmartyAction
             }
             if ($domain != '') {
                 symlink(
-                    WIKIJUMP_ROOT.'/web/files--sites/'.$site->getUnixName(),
+                    WIKIJUMP_ROOT.'/web/files--sites/'.$site->getSlug(),
                     $cdLinkDir.$domain
                 );
             }
@@ -875,7 +875,7 @@ class ManageSiteAction extends SmartyAction
 
         $db = Database::connection();
         $db->begin();
-        $oldUnixName = $site->getUnixName();
+        $oldUnixName = $site->getSlug();
         $site->setDeleted(true);
 
         // remove some data.
@@ -890,7 +890,7 @@ class ManageSiteAction extends SmartyAction
         // now clear cache!
 
         $keys = array();
-        $keys[] = 'site..'.$site->getUnixName();
+        $keys[] = 'site..'.$site->getSlug();
         $keys[] = 'site_cd..'.$site->getCustomDomain();
 
         foreach ($keys as $k) {
@@ -902,14 +902,14 @@ class ManageSiteAction extends SmartyAction
         $outdater->siteEvent('sitewide_change', $site);
 
         // change site name!!!
-        $site->setUnixName($site->getUnixName().'..del..'.time());
+        $site->setSlug($site->getSlug().'..del..'.time());
 
         $site->save();
 
         // remove custom domain link
 
         // rename the files
-        @rename(WIKIJUMP_ROOT.'/web/files--sites/'.$oldUnixName, WIKIJUMP_ROOT.'/web/files--sites/'.$site->getUnixName());
+        @rename(WIKIJUMP_ROOT.'/web/files--sites/'.$oldUnixName, WIKIJUMP_ROOT.'/web/files--sites/'.$site->getSlug());
         // delete custom domain link
 
         if ($site->getCustomDomain()) {
@@ -944,11 +944,11 @@ class ManageSiteAction extends SmartyAction
 
         $db = Database::connection();
         $db->begin();
-        $oldUnixName = $site->getUnixName();
+        $oldUnixName = $site->getSlug();
 
     // validate unix name
         $errors = array();
-        if ($unixName == $site->getUnixName()) {
+        if ($unixName == $site->getSlug()) {
             $errors['unixname'] = _('The new and current addresses are the same.');
         } elseif ($unixName === null || strlen($unixName)<3 || strlen(WDStringUtils::toUnixName($unixName))<3) {
             $errors['unixname'] = _("Web address must be present and should be at least 3 characters long.");
@@ -972,7 +972,7 @@ class ManageSiteAction extends SmartyAction
 
             // check if the domain is not taken.
             $c = new Criteria();
-            $c->add("unix_name", $unixName);
+            $c->add("slug", $unixName);
             $ss = SitePeer::instance()->selectOne($c);
             if ($ss) {
                 $errors['unixname'] = _('Sorry, this web address is already used by another site.');
@@ -990,7 +990,7 @@ class ManageSiteAction extends SmartyAction
         // now clear cache!
 
         $keys = array();
-        $keys[] = 'site..'.$site->getUnixName();
+        $keys[] = 'site..'.$site->getSlug();
         $keys[] = 'site_cd..'.$site->getCustomDomain();
 
         foreach ($keys as $k) {
@@ -1002,25 +1002,25 @@ class ManageSiteAction extends SmartyAction
         $outdater->siteEvent('sitewide_change', $site);
 
         // change site name!!!
-        $site->setUnixName($unixName);
+        $site->setSlug($unixName);
 
         $site->save();
 
         // remove custom domain link
 
         // rename the files
-        @rename(WIKIJUMP_ROOT.'/web/files--sites/'.$oldUnixName, WIKIJUMP_ROOT.'/web/files--sites/'.$site->getUnixName());
+        @rename(WIKIJUMP_ROOT.'/web/files--sites/'.$oldUnixName, WIKIJUMP_ROOT.'/web/files--sites/'.$site->getSlug());
         // delete custom domain link
 
         if ($site->getCustomDomain()) {
             @unlink(WIKIJUMP_ROOT.'/web/custom--domains/'.$site->getCustomDomain());
             symlink(
-                WIKIJUMP_ROOT.'/web/files--sites/'.$site->getUnixName(),
+                WIKIJUMP_ROOT.'/web/files--sites/'.$site->getSlug(),
                 WIKIJUMP_ROOT.'/web/custom--domains/'.$site->getCustomDomain()
             );
         }
         $db->commit();
 
-        $runData->ajaxResponseAdd("unixName", $site->getUnixName());
+        $runData->ajaxResponseAdd("unixName", $site->getSlug());
     }
 }

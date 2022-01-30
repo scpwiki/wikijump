@@ -26,7 +26,7 @@ class File extends FileBase
         $page = PagePeer::instance()->selectByPrimaryKey($this->getPageId());
         $site = SitePeer::instance()->selectByPrimaryKey($this->getSiteId());
         return WIKIJUMP_ROOT."/web/files--sites/".
-            $site->getUnixName()."/files/".$page->getUnixName().'/'.$this->getFilename();
+            $site->getSlug()."/files/".$page->getUnixName().'/'.$this->getFilename();
     }
 
     public function getResizedDir()
@@ -34,7 +34,7 @@ class File extends FileBase
         $page = PagePeer::instance()->selectByPrimaryKey($this->getPageId());
         $site = SitePeer::instance()->selectByPrimaryKey($this->getSiteId());
         return WIKIJUMP_ROOT."/web/files--sites/".
-                        $site->getUnixName()."/resized-images/".$page->getUnixName().
+                        $site->getSlug()."/resized-images/".$page->getUnixName().
                         '/'.$this->getFilename();
     }
 

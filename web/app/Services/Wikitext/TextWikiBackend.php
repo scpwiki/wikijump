@@ -73,7 +73,7 @@ class TextWikiBackend extends WikitextBackend
     private static function getSite(string $site_slug): Site
     {
         $c = new Criteria();
-        $c->add('unix_name', $site_slug);
+        $c->add('slug', $site_slug);
         return SitePeer::instance()->selectOne($c);
     }
 

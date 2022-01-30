@@ -42,7 +42,7 @@ class PageInfo
     {
         $page_slug = $page->getUnixName();
         $category_slug = $page->getCategoryName();
-        $site_slug = $page->getSite()->getUnixName();
+        $site_slug = $page->getSite()->getSlug();
         $title = $page->getTitle();
         $alt_title = null;
         $tags = $page->getTags();

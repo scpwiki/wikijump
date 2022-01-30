@@ -39,7 +39,7 @@ class Text_Wiki_Render_Xhtml_Module extends Text_Wiki_Render {
 
     function token($options) {
         $moduleName = $options['moduleName'];
-        $siteName = $GLOBALS['site']->getUnixName();
+        $siteName = $GLOBALS['site']->getSlug();
         // check if the site is allowed to use this module
 	$mm = ModuleManager::instance();
         if ($mm->canWikiUseModule($siteName, $moduleName) == false) {

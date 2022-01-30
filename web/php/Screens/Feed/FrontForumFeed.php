@@ -26,7 +26,7 @@ class FrontForumFeed extends FeedScreen
         $pageName = $pl->getParameterValue('page');
         $label = $pl->getParameterValue('label');
 
-        $key = 'frontforumfeed..'.$site->getUnixName().'..'.$pageName.'..'.$label;
+        $key = 'frontforumfeed..'.$site->getSlug().'..'.$pageName.'..'.$label;
 
         $valid = true;
 
@@ -36,7 +36,7 @@ class FrontForumFeed extends FeedScreen
         }
         $cacheTimestamp = $struct['timestamp'];
 
-        $fkey = 'frontforumfeedobject..' .$site->getUnixName().'..'.$pageName.'..'.$label;
+        $fkey = 'frontforumfeedobject..' .$site->getSlug().'..'.$pageName.'..'.$label;
         $feed = Cache::get($fkey);
 
         if (!$feed) {
@@ -59,7 +59,7 @@ class FrontForumFeed extends FeedScreen
         $cats = preg_split('/[,;] ?/', $categoryIds);
 
         foreach ($cats as $cat) {
-            $tkey = 'forumcategory_lc..'.$site->getUnixName().'..'.$cat; // last change timestamp
+            $tkey = 'forumcategory_lc..'.$site->getSlug().'..'.$cat; // last change timestamp
             $changeTimestamp = Cache::get($tkey);
             if ($changeTimestamp && $cacheTimestamp && $changeTimestamp <= $cacheTimestamp) {
                 //cache valid
@@ -72,7 +72,7 @@ class FrontForumFeed extends FeedScreen
                 }
             }
         }
-        $akey = 'forumall_lc..'.$site->getUnixName();
+        $akey = 'forumall_lc..'.$site->getSlug();
         $allForumTimestamp = Cache::get($akey);
         if ($allForumTimestamp &&  $cacheTimestamp && $changeTimestamp <= $cacheTimestamp) {
             //cache valid

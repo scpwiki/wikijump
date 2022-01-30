@@ -61,7 +61,7 @@ class PagesTagCloudModule extends SmartyModule
             $categoryName = '*';
         }
 
-        $key = 'pagetagcloud_v..' . $site->getUnixName() . '..' . $categoryName . '..' . $parmHash;
+        $key = 'pagetagcloud_v..' . $site->getSlug() . '..' . $categoryName . '..' . $parmHash;
 
         $struct =Cache::get($key);
         if (!$struct) {
@@ -77,7 +77,7 @@ class PagesTagCloudModule extends SmartyModule
 
         if ($categoryName != '*') {
             foreach ($cats as $cat) {
-                $tkey = 'pagecategory_lc..' . $site->getUnixName() . '..' . $cat; // last change timestamp
+                $tkey = 'pagecategory_lc..' . $site->getSlug() . '..' . $cat; // last change timestamp
                 $changeTimestamp = Cache::get($tkey);
                 if ($changeTimestamp && $cacheTimestamp && $changeTimestamp <= $cacheTimestamp) {    //cache valid
                 } else {
@@ -90,7 +90,7 @@ class PagesTagCloudModule extends SmartyModule
                 }
             }
         } else {
-            $akey = 'pageall_lc..' . $site->getUnixName();
+            $akey = 'pageall_lc..' . $site->getSlug();
             $allPagesTimestamp = Cache::get($akey);
             if ($allPagesTimestamp && $cacheTimestamp && $allPagesTimestamp <= $cacheTimestamp) {    //cache valid
             } else {

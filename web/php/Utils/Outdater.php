@@ -273,7 +273,7 @@ final class Outdater
             $pageName = $page->getUnixName();
         }
 
-        $key = 'url..'.$site->getUnixName() . '.' . GlobalProperties::$URL_DOMAIN . '/'.$pageName;
+        $key = 'url..'.$site->getSlug() . '.' . GlobalProperties::$URL_DOMAIN . '/'.$pageName;
         $cd = $site->getCustomDomain();
         if ($cd !== null && $cd !=='') {
             $key = 'url..'.$cd.'/'.$pageName;
@@ -282,7 +282,7 @@ final class Outdater
 
         // check if default landing page
         if ($site->getDefaultPage() == $pageName) {
-            $key = 'url..'.$site->getUnixName(). '.' . GlobalProperties::$URL_DOMAIN;
+            $key = 'url..'.$site->getSlug(). '.' . GlobalProperties::$URL_DOMAIN;
             if ($cd !== null && $cd !=='') {
                 $key = 'url..'.$cd;
                 Cache::forget($key);
@@ -290,7 +290,7 @@ final class Outdater
         }
 
         Cache::forget($key);
-        $key = 'page..'.$site->getUnixName().'..'.$pageName;
+        $key = 'page..'.$site->getSlug().'..'.$pageName;
         Cache::forget($key);
 
         /* Touch the catefory "last change" timestamp. */
@@ -301,10 +301,10 @@ final class Outdater
         } else {
             $categoryName = "_default";
         }
-        $ckey = 'pagecategory_lc..'.$site->getUnixName().'..'.$categoryName;
+        $ckey = 'pagecategory_lc..'.$site->getSlug().'..'.$categoryName;
         Cache::put($ckey, $now, 10000);
 
-        $ckey = 'pageall_lc..'.$site->getUnixName();
+        $ckey = 'pageall_lc..'.$site->getSlug();
         Cache::put($ckey, $now, 10000);
         /*
          * Outdate code blocks.
@@ -357,7 +357,7 @@ final class Outdater
         }
 
         // the above is not necesarily necessary. try the below code:
-        $aKey = 'category_lc..'.$site->getUnixName().'..'.$category->getName();
+        $aKey = 'category_lc..'.$site->getSlug().'..'.$category->getName();
         $now = time();
         Cache::put($aKey, $now, 7200);
         $key = 'category..'.$site->getSiteId().'..'.$category->getName();
@@ -398,7 +398,7 @@ final class Outdater
         $now = time();
         while ($row = $r->nextRow()) {
             $name = $row['name'];
-            $aKey = 'category_lc..'.$site->getUnixName().'..'.$name;
+            $aKey = 'category_lc..'.$site->getSlug().'..'.$name;
             Cache::put($aKey, $now, 7200);
         }
     }
@@ -410,17 +410,17 @@ final class Outdater
         $site = $GLOBALS['site'];
 
         // outdate forum thread
-        $tkey = 'forumthread_lc..'.$site->getUnixName().'..'.$post->getThreadId();
+        $tkey = 'forumthread_lc..'.$site->getSlug().'..'.$post->getThreadId();
         Cache::put($tkey, $now, 1000);
 
         // outdate forum category
         $thread = $post->getForumThread();
-        $tkey = 'forumcategory_lc..'.$site->getUnixName().'..'.$thread->getCategoryId();
+        $tkey = 'forumcategory_lc..'.$site->getSlug().'..'.$thread->getCategoryId();
         Cache::put($tkey, $now, 1000);
 
         // outdate whole forum (affects the main view)
 
-        $tkey = 'forumstart_lc..'.$site->getUnixName();
+        $tkey = 'forumstart_lc..'.$site->getSlug();
         Cache::put($tkey, $now, 1000);
 
         // check if forum not related to any page (page discussion)
@@ -437,15 +437,15 @@ final class Outdater
         $site = $GLOBALS['site'];
 
         // outdate forum thread
-        $tkey = 'forumthread_lc..'.$site->getUnixName().'..'.$thread->getThreadId();
+        $tkey = 'forumthread_lc..'.$site->getSlug().'..'.$thread->getThreadId();
         Cache::put($tkey, $now, 1000);
 
         // outdate forum category
-        $tkey = 'forumcategory_lc..'.$site->getUnixName().'..'.$thread->getCategoryId();
+        $tkey = 'forumcategory_lc..'.$site->getSlug().'..'.$thread->getCategoryId();
         Cache::put($tkey, $now, 1000);
 
         // outdate whole forum (affects the main view)
-        $tkey = 'forumstart_lc..'.$site->getUnixName();
+        $tkey = 'forumstart_lc..'.$site->getSlug();
         Cache::put($tkey, $now, 1000);
     }
 
@@ -455,7 +455,7 @@ final class Outdater
         $now = time();
         $site = $GLOBALS['site'];
 
-        $key = 'forumall_lc..'.$site->getUnixName();
+        $key = 'forumall_lc..'.$site->getSlug();
         Cache::put($key, $now, 3600);
     }
 
@@ -521,7 +521,7 @@ final class Outdater
         $key = "sitesettings..".$site->getSiteId();
         Cache::forget($key);
 
-        $key = 'site..'.$site->getUnixName();
+        $key = 'site..'.$site->getSlug();
         Cache::forget($key);
 
         $key = 'site_cd..'.$site->getCustomDomain();

@@ -78,7 +78,7 @@ class NewSiteAction extends SmartyAction
 
             // check if the domain is not taken.
             $c = new Criteria();
-            $c->add("unix_name", $unixName);
+            $c->add("slug", $unixName);
             $ss = SitePeer::instance()->selectOne($c);
             if ($ss) {
                 $errors['unixname'] = _('Sorry, this web address is already used by another site.');
@@ -120,7 +120,7 @@ class NewSiteAction extends SmartyAction
         $site = new Site();
         $site->setName($name);
         $site->setSubtitle($tagline);
-        $site->setUnixName($unixName);
+        $site->setSlug($unixName);
         $site->setLanguage($templateSite->getLanguage());
         $site->setDateCreated(new ODate());
 
@@ -128,7 +128,7 @@ class NewSiteAction extends SmartyAction
 
         if ($private) {
             // change file flag too
-            $flagDir = WIKIJUMP_ROOT.'/web/files--sites/'.$site->getUnixName().'/flags';
+            $flagDir = WIKIJUMP_ROOT.'/web/files--sites/'.$site->getSlug().'/flags';
             $flagFile = $flagDir.'/private';
             mkdirfull($flagDir); //just to make sure
 

@@ -75,7 +75,7 @@ class WikiScreen extends Screen
             ) {
             // try to get content from the memorycache server
 
-            $mcKey = 'page..'.$site->getUnixName().'..'.$wikiPage;
+            $mcKey = 'page..'.$site->getSlug().'..'.$wikiPage;
 
             if (strpos($wikiPage, ":") != false) {
                 $tmp0 = explode(':', $wikiPage);
@@ -83,7 +83,7 @@ class WikiScreen extends Screen
             } else {
                 $categoryName = "_default";
             }
-            $aKey = 'category_lc..'.$site->getUnixName().'..'.$categoryName;
+            $aKey = 'category_lc..'.$site->getSlug().'..'.$categoryName;
             $changeTime = Cache::get($aKey);
             $cachedPage = Cache::get($mcKey);
             if ($cachedPage !== false && $changeTime && $changeTime <= $cachedPage['timestamp']) {

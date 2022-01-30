@@ -43,7 +43,7 @@ class UploadedFileFlowController extends WikidotController
     {
 
         $proto = ($_SERVER['HTTPS']) ? 'https' : 'http';
-        $host = $site->getUnixName() . "." . $domain;
+        $host = $site->getSlug() . "." . $domain;
 
         $url = "${proto}://${host}/local--${file}";
 
@@ -290,7 +290,7 @@ class UploadedFileFlowController extends WikidotController
                 $user = $runData->getUser();
 
                 if ($this->userAllowed($user, $site, $file)) {
-                    $siteFilesDomain = $site->getUnixName() . "." . GlobalProperties::$URL_UPLOAD_DOMAIN;
+                    $siteFilesDomain = $site->getSlug() . "." . GlobalProperties::$URL_UPLOAD_DOMAIN;
 
                     $skey = $runData->generateSessionDomainHash($siteFilesDomain);
                     $user_id = $user->id;

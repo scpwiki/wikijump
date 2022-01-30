@@ -26,9 +26,9 @@ class ForumViewCategoryModule extends SmartyModule
 
         $parmHash = md5(serialize($pl->asArray()));
 
-        $key = 'forumcategory_v..'.$site->getUnixName().'..'.$categoryId.'..'.$parmHash;
-        $tkey = 'forumcategory_lc..'.$site->getUnixName().'..'.$categoryId; // last change timestamp
-        $akey = 'forumall_lc..'.$site->getUnixName();
+        $key = 'forumcategory_v..'.$site->getSlug().'..'.$categoryId.'..'.$parmHash;
+        $tkey = 'forumcategory_lc..'.$site->getSlug().'..'.$categoryId; // last change timestamp
+        $akey = 'forumall_lc..'.$site->getSlug();
 
         $struct = Cache::get($key);
         $cacheTimestamp = $struct['timestamp'];

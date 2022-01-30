@@ -23,7 +23,7 @@ class PagesFeed extends FeedScreen
         $categoryName = $pl->getParameterValue("category");
         $parmHash = md5(serialize($pl->asArray()));
 
-        $key = 'listpagesfeed_v..'.$site->getUnixName().'..'.$categoryName.'..'.$parmHash;
+        $key = 'listpagesfeed_v..'.$site->getSlug().'..'.$categoryName.'..'.$parmHash;
 
         $valid = true;
 
@@ -38,7 +38,7 @@ class PagesFeed extends FeedScreen
         $cats = preg_split('/[,;\s]+?/', $categoryName);
 
         foreach ($cats as $cat) {
-            $tkey = 'pagecategory_lc..'.$site->getUnixName().'..'.$cat; // last change timestamp
+            $tkey = 'pagecategory_lc..'.$site->getSlug().'..'.$cat; // last change timestamp
             $changeTimestamp = Cache::get($tkey);
             if ($changeTimestamp && $cacheTimestamp && $changeTimestamp <= $cacheTimestamp) {
                 //cache valid
@@ -53,7 +53,7 @@ class PagesFeed extends FeedScreen
         }
 
         if (count($cats) == 0) {
-            $akey = 'pageall_lc..'.$site->getUnixName();
+            $akey = 'pageall_lc..'.$site->getSlug();
             $allPagesTimestamp = Cache::get($akey);
             if ($allPagesTimestamp && $cacheTimestamp && $allPagesTimestamp <= $cacheTimestamp) {
                 //cache valid

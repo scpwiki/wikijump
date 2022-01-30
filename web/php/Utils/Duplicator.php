@@ -40,7 +40,7 @@ class Duplicator
         $nsite->setNew(true);
         $nsite->setSiteId(null);
 
-        $nsite->setUnixName($siteProperties['unixname']);
+        $nsite->setSlug($siteProperties['unixname']);
         if (isset($siteProperties['name'])) {
             $nsite->setName($siteProperties['name']);
         }
@@ -170,8 +170,8 @@ class Duplicator
         }
 
         /* Copy ALL files from the filesystem. */
-        $srcDir = WIKIJUMP_ROOT."/web/files--sites/".$site->getUnixName();
-        $destDir = WIKIJUMP_ROOT."/web/files--sites/".$nsite->getUnixName();
+        $srcDir = WIKIJUMP_ROOT."/web/files--sites/".$site->getSlug();
+        $destDir = WIKIJUMP_ROOT."/web/files--sites/".$nsite->getSlug();
 
         $cmd = 'cp -r '. escapeshellarg($srcDir) . ' ' . escapeshellarg($destDir);
         exec($cmd);
@@ -282,7 +282,7 @@ class Duplicator
         $meta = $page->getMetadata();
         $nmeta = new PageMetadata();
         $nmeta->setTitle($meta->getTitle());
-        $nmeta->setUnixName($newUnixName);
+        $nmeta->setSlug($newUnixName);
         if ($owner) {
             $nmeta->setOwnerUserId($owner->id);
         } else {

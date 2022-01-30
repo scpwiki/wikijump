@@ -38,7 +38,7 @@ class AccountDeletedSitesModule extends AccountBaseModule
             $un = $s->getUnixName();
             $un = explode('..del..', $un);
             $un = $un[0];
-            $sites[$s->getSiteId()]['unix_name'] = $un;
+            $sites[$s->getSiteId()]['slug'] = $un;
         }
 
         $json = new JSONService(SERVICES_JSON_LOOSE_TYPE);
