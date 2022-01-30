@@ -18,15 +18,8 @@ class SiteBase extends BaseDBObject
         $this->tableName='site';
         $this->peerName = 'Wikidot\\DB\\SitePeer';
         $this->primaryKeyName = 'site_id';
-        $this->fieldNames = array( 'site_id' ,  'name' ,  'subtitle' ,  'unix_name' ,  'description' ,  'language' ,  'date_created' ,  'custom_domain' ,  'default_page' ,  'visible' ,  'private' ,  'deleted' );
-
-        //$this->fieldDefaultValues=
+        $this->fieldNames = array( 'site_id' ,  'name' ,  'subtitle' ,  'slug' ,  'description' ,  'language' ,  'date_created' ,  'custom_domain' ,  'default_page' ,  'visible' ,  'private' ,  'deleted' );
     }
-
-
-
-
-
 
     public function getSiteId()
     {
@@ -61,14 +54,14 @@ class SiteBase extends BaseDBObject
     }
 
 
-    public function getUnixName()
+    public function getSlug()
     {
-        return $this->getFieldValue('unix_name');
+        return $this->getFieldValue('slug');
     }
 
-    public function setUnixName($v1, $raw = false)
+    public function setSlug($v1, $raw = false)
     {
-        $this->setFieldValue('unix_name', $v1, $raw);
+        $this->setFieldValue('slug', $v1, $raw);
     }
 
 
