@@ -494,7 +494,7 @@ async fn count_connections(
     connections_missing: &mut HashMap<(i64, String, ConnectionType), i32>,
 ) -> Result<()> {
     let to_site_id = match site_slug {
-        Some(slug) => SiteService::get(ctx, Reference::Slug(&slug)).await?.site_id,
+        Some(slug) => SiteService::get(ctx, Reference::Slug(slug)).await?.site_id,
         None => site_id,
     };
 

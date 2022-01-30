@@ -477,7 +477,7 @@ impl RevisionService {
 
         // Set up parse context
         let settings = WikitextSettings::from_mode(WikitextMode::Page);
-        let (category_slug, page_slug) = split_category(&slug);
+        let (category_slug, page_slug) = split_category(slug);
         let category_slug_default = category_slug.unwrap_or("_default");
         let page_info = PageInfo {
             page: cow!(page_slug),

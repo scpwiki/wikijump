@@ -231,7 +231,7 @@ pub async fn page_links_external_to(req: ApiRequest) -> ApiResponse {
 
     let site_id = req.param("site_id")?.parse()?;
     let url = req.param("url")?;
-    let output = LinkService::get_external_to(&ctx, site_id, &url)
+    let output = LinkService::get_external_to(&ctx, site_id, url)
         .await
         .to_api()?;
 
