@@ -263,7 +263,13 @@ If possible, add to this log in the same commit in which the code is removed.
 * Why it was removed: It was frequently used, and with the removal of section editing, it made sense to simplify page edit code by removing it as well.
 
 ## PHP, JS: Page Edit Locks
-* WHere it was: Multiple files, see pull request
+* Where it was: Multiple files, see pull request
 * Relevant Issues: [WJ-747](https://scuttle.atlassian.net/browse/WJ-747)
 * What it did: Implemented Wikidot's method of page edit locks.
 * Why it was removed: As part of using our new editor, Sheaf, we will have a fundamentally different structure for managing locks. The schema for page tables is currently being refactored, so we are simplifying things by just removing it now.
+
+## PHP: Quick Modules
+* Where it was: [web/php/QuickModules](https://github.com/scpwiki/wikijump/tree/6abd64da68245120201798d83c7af4bc3f9e4928/web/php/QuickModules)
+* Relevant Issues: [WJ-245](https://scuttle.atlassian.net/browse/WJ-245)
+* What it did: Allow for "quick" querying, such as for autocomplete in text boxes.
+* Why it was removed: Poorly implemented, not performant, and exposed potential security issues through poor sanitization and ratelimiting.
