@@ -187,6 +187,7 @@ impl RevisionService {
             };
 
             // Run renderer and related tasks
+            // TODO: use html_output
             let render_output = Self::render_and_update_links(
                 ctx,
                 site_id,
@@ -287,12 +288,12 @@ impl RevisionService {
             body:
                 CreateRevisionBodyPresent {
                     wikitext,
-                    hidden,
+                    hidden: _, // TODO
                     title,
                     alt_title,
                     slug,
                     tags,
-                    metadata,
+                    metadata: _, // TODO
                 },
         }: CreateFirstRevision,
     ) -> Result<CreateFirstRevisionOutput> {
@@ -311,13 +312,8 @@ impl RevisionService {
         };
 
         let RenderOutput {
-            html_output:
-                HtmlOutput {
-                    body: html_body,
-                    styles: html_styles,
-                    meta: html_meta,
-                    backlinks,
-                },
+            // TODO: use html_output
+            html_output: _,
             warnings,
             compiled_hash,
             compiled_generator,
@@ -334,6 +330,7 @@ impl RevisionService {
             compiled_hash: Set(compiled_hash.to_vec()),
             compiled_at: Set(now()),
             compiled_generator: Set(compiled_generator),
+            comments: Set(comments),
             hidden: Set(str!("{}")), // TODO array
             title: Set(title),
             alt_title: Set(alt_title),
@@ -355,11 +352,11 @@ impl RevisionService {
     /// This revision is called a "tombstone" in that
     /// its only purpose is to mark that the page has been deleted.
     pub async fn create_tombstone(
-        ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
-        user_id: i64,
-        comments: String,
+        _ctx: &ServiceContext<'_>,
+        _site_id: i64,
+        _page_id: i64,
+        _user_id: i64,
+        _comments: String,
     ) -> Result<CreateRevisionOutput> {
         // TODO modify metadata field to add 'deleted: true'
 
@@ -378,12 +375,12 @@ impl RevisionService {
     /// a revision whose only purpose is to mark that the page
     /// has been undeleted.
     pub async fn create_resurrection(
-        ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
-        user_id: i64,
-        slug: String,
-        comments: String,
+        _ctx: &ServiceContext<'_>,
+        _site_id: i64,
+        _page_id: i64,
+        _user_id: i64,
+        _slug: String,
+        _comments: String,
     ) -> Result<CreateRevisionOutput> {
         // TODO modify metadata field to add 'deleted: true'
 
@@ -428,7 +425,7 @@ impl RevisionService {
             site: cow!(&site.slug),
             title: cow!(title),
             alt_title: cow_opt!(alt_title),
-            rating: 0.0, // TODO
+            rating,
             tags: tags.iter().map(|s| cow!(s)).collect(),
             language: cow!(&site.language),
         };
