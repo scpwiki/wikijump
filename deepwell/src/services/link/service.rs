@@ -28,6 +28,10 @@ use crate::web::ConnectionType;
 use ftml::data::{Backlinks, PageRef};
 use std::collections::HashMap;
 
+/// Forms an optional `Condition` from a list of connection types.
+///
+/// This is used to allow filtering connection queries by what
+/// type(s) of connections are desired.
 macro_rules! make_contype_condition {
     ($table_name:ident, $connection_types:expr $(,)?) => {
         // Layer 1: Option<&[ConnectionType]>
