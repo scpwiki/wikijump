@@ -132,6 +132,20 @@ pub async fn page_delete(mut req: ApiRequest) -> ApiResponse {
     Ok(body.into())
 }
 
+pub async fn page_rerender(req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    let site_id = req.param("site_id")?.parse()?;
+    let page_id = req.param("page_id")?.parse()?;
+    RevisionService::rerender(&ctx, site_id, page_id)
+        .await
+        .to_api()?;
+
+    txn.commit().await?;
+    Ok(Response::new(StatusCode::NoContent))
+}
+
 pub async fn page_undelete(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);

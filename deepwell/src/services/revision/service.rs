@@ -481,6 +481,7 @@ impl RevisionService {
             tags: &[],   // TODO
         };
 
+        // TODO use html_output
         let RenderOutput {
             compiled_hash,
             compiled_generator,

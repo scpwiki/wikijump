@@ -69,6 +69,9 @@ pub fn build(mut app: ApiServer) -> ApiServer {
         .post(page_edit)
         .delete(page_delete);
 
+    app.at("/page/:site_id/:page_id/rerender")
+        .post(page_rerender);
+
     app.at("/page/:site_id/:page_id/undelete")
         .post(page_undelete);
 
