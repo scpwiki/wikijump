@@ -85,8 +85,6 @@ impl RevisionService {
     ///
     /// # Panics
     /// If the given previous revision is for a different page or site, this method will panic.
-    ///
-    /// If `previous` is `None` but the `input` parameter lacks any fields, this method will panic.
     pub async fn create(
         ctx: &ServiceContext<'_>,
         site_id: i64,
