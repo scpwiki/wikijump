@@ -393,6 +393,58 @@ impl RevisionService {
         todo!()
     }
 
+    /// Helper method for all revision calls.
+    ///
+    /// Revisions are lazily rerendered, so if a revision
+    /// is marked as out-of-date, then it is only re-rendered
+    /// when that revision is fetched.
+    ///
+    /// This method checks if the revision needs updating,
+    /// and if so, updates it then.
+    async fn rerender_if_needed(
+        ctx: &ServiceContext<'_>,
+        mut revision: PageRevisionModel,
+    ) -> Result<PageRevisionModel> {
+        if revision.compiled_outdated {
+            let txn = ctx.transaction();
+
+            // Re-render revision
+            let wikitext = TextService::get(ctx, &revision.wikitext_hash).await?;
+            let input = RenderPageInfo {
+                slug: &revision.slug,
+                title: &revision.title,
+                alt_title: revision.alt_title.ref_map(|s| s.as_str()),
+                rating: 0.0, // TODO
+                tags: &[],   // TODO
+            };
+
+            // TODO use html_output
+            let RenderOutput {
+                compiled_hash,
+                compiled_generator,
+                ..
+            } = Self::render_and_update_links(
+                ctx,
+                revision.site_id,
+                revision.page_id,
+                wikitext,
+                input,
+            )
+            .await?;
+
+            // Update compiled data for revision in database
+            let mut model: page_revision::ActiveModel = revision.into();
+            model.compiled_hash = Set(compiled_hash.to_vec());
+            model.compiled_generator = Set(compiled_generator);
+            model.compiled_at = Set(now());
+            model.compiled_outdated = Set(false);
+
+            revision = model.update(txn).await?;
+        }
+
+        Ok(revision)
+    }
+
     /// Helper method for performing rendering for a revision.
     ///
     /// Makes all the changes associated with rendering, such as
@@ -492,6 +544,7 @@ impl RevisionService {
             revision_id: Set(revision.revision_id),
             compiled_hash: Set(compiled_hash.to_vec()),
             compiled_generator: Set(compiled_generator),
+            compiled_outdated: Set(false),
             ..Default::default()
         };
 
