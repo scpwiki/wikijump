@@ -231,12 +231,13 @@ impl LinkService {
         let mut connections_missing = HashMap::new();
         let mut external_links = HashMap::new();
 
-        // Get include stats (old, so include-messy)
+        // Get include stats
         for include in &backlinks.included_pages {
             count_connections(
                 ctx,
                 site_id,
                 include,
+                // TODO: update Backlinks so that it also tracks other kinds of includes and components
                 ConnectionType::IncludeMessy,
                 &mut connections,
                 &mut connections_missing,
