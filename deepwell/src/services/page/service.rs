@@ -23,7 +23,7 @@ use crate::models::page::{self, Entity as Page, Model as PageModel};
 use crate::models::page_category::Model as PageCategoryModel;
 use crate::services::revision::{
     CreateFirstRevision, CreateFirstRevisionOutput, CreateRevision, CreateRevisionBody,
-    CreateRevisionBodyPresent, CreateRevisionOutput,
+    CreateRevisionBodyPresent,
 };
 use crate::services::{CategoryService, RevisionService};
 use crate::web::trim_default;
@@ -166,11 +166,13 @@ impl PageService {
         Ok(revision_output.map(|data| data.into()))
     }
 
+    // TODO
+    #[allow(dead_code)]
     pub async fn rename(
-        ctx: &ServiceContext<'_>,
-        site_id: i64,
-        reference: Reference<'_>,
-        new_slug: &str,
+        _ctx: &ServiceContext<'_>,
+        _site_id: i64,
+        _reference: Reference<'_>,
+        _new_slug: &str,
     ) -> Result<()> {
         todo!()
     }

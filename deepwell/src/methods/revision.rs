@@ -94,7 +94,7 @@ pub async fn page_revision_put(mut req: ApiRequest) -> ApiResponse {
 // app.at("/page/:site_id/:type/:id_or_slug/revision/:revision_num/:direction")
 pub async fn page_revision_range_get(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let _ctx = ServiceContext::new(&req, &txn);
 
     todo!()
 }

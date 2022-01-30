@@ -47,12 +47,14 @@ pub fn split_category_name(slug: &str) -> (&str, &str) {
 
 /// Retrieves the category portion of a slug, if it exists.
 #[inline]
+#[allow(dead_code)] // TEMP
 pub fn get_category(slug: &str) -> Option<&str> {
     split_category(slug).0
 }
 
 /// Retrieves the category name for a slug.
 #[inline]
+#[allow(dead_code)] // TEMP
 pub fn get_category_name(slug: &str) -> &str {
     get_category(slug).unwrap_or("_default")
 }

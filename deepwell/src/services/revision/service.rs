@@ -27,8 +27,8 @@ use crate::services::{
     LinkService, OutdateService, RenderService, SiteService, TextService,
 };
 use crate::web::{split_category, split_category_name};
+use ftml::data::PageInfo;
 use ftml::settings::{WikitextMode, WikitextSettings};
-use ftml::{data::PageInfo, render::html::HtmlOutput};
 use ref_map::*;
 use std::borrow::Cow;
 
@@ -512,6 +512,9 @@ impl RevisionService {
         revision_id: i64,
         UpdateRevision { user_id, hidden }: UpdateRevision,
     ) -> Result<()> {
+        // TODO: record revision edit in audit log
+        let _ = user_id;
+
         let txn = ctx.transaction();
         let model = page_revision::ActiveModel {
             revision_id: Set(revision_id),

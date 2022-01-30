@@ -21,7 +21,7 @@
 use super::prelude::*;
 use crate::models::site::Model as SiteModel;
 
-pub async fn site_create(req: ApiRequest) -> ApiResponse {
+pub async fn site_create(_req: ApiRequest) -> ApiResponse {
     // TODO when we get to site table refactoring
 
     todo!()

@@ -270,6 +270,8 @@ impl LinkService {
     }
 
     // TEMP
+    // TODO see https://github.com/scpwiki/wikijump/blob/c43e8ef3fc8759356c7eac0e0af61bd1a68dff25/php/utils/Outdater.php#L238
+    #[allow(dead_code)]
     pub async fn update_missing(
         _ctx: &ServiceContext<'_>,
         _site_id: i64,
