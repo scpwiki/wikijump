@@ -22,6 +22,7 @@ use super::prelude::*;
 use ftml::parsing::ParseWarning;
 
 #[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct CreateRevision {
     pub user_id: i64,
     pub comments: String,
@@ -31,7 +32,7 @@ pub struct CreateRevision {
 }
 
 #[derive(Deserialize, Debug, Default)]
-#[serde(default)]
+#[serde(rename_all = "camelCase", default)]
 pub struct CreateRevisionBody {
     pub wikitext: ProvidedValue<String>,
     pub title: ProvidedValue<String>,
@@ -42,6 +43,7 @@ pub struct CreateRevisionBody {
 }
 
 #[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct CreateFirstRevision {
     pub user_id: i64,
     pub comments: String,
@@ -51,6 +53,7 @@ pub struct CreateFirstRevision {
 }
 
 #[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct CreateRevisionBodyPresent {
     pub wikitext: String,
     pub title: String,
@@ -61,6 +64,7 @@ pub struct CreateRevisionBodyPresent {
 }
 
 #[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct CreateRevisionOutput {
     pub revision_id: i64,
     pub revision_number: i32,
@@ -68,12 +72,14 @@ pub struct CreateRevisionOutput {
 }
 
 #[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct CreateFirstRevisionOutput {
     pub revision_id: i64,
     pub parser_warnings: Vec<ParseWarning>,
 }
 
 #[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct UpdateRevision {
     pub user_id: i64,
     pub hidden: Vec<String>,

@@ -24,6 +24,7 @@ use crate::models::page_link::Model as PageLinkModel;
 use sea_orm::entity::prelude::DateTimeWithTimeZone;
 
 #[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct GetLinksFromOutput {
     pub present: Vec<PageConnectionModel>,
     pub absent: Vec<PageConnectionMissingModel>,
@@ -31,32 +32,38 @@ pub struct GetLinksFromOutput {
 }
 
 #[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct GetLinksToOutput {
     pub connections: Vec<PageConnectionModel>,
 }
 
 #[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct GetLinksToMissingOutput {
     pub connections: Vec<PageConnectionMissingModel>,
 }
 
 #[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct GetConnectionsFromOutput {
     pub present: Vec<PageConnectionModel>,
     pub absent: Vec<PageConnectionMissingModel>,
 }
 
 #[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct GetLinksExternalFromOutput {
     pub links: Vec<PageLinkModel>,
 }
 
 #[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct GetLinksExternalToOutput {
     pub links: Vec<ToExternalLink>,
 }
 
 #[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct ToExternalLink {
     pub created_at: DateTimeWithTimeZone,
     pub updated_at: Option<DateTimeWithTimeZone>,

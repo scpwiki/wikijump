@@ -23,6 +23,7 @@ use crate::services::revision::CreateRevisionOutput;
 use ftml::parsing::ParseWarning;
 
 #[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct CreatePage {
     pub wikitext: String,
     pub title: String,
@@ -33,6 +34,7 @@ pub struct CreatePage {
 }
 
 #[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct CreatePageOutput {
     pub page_id: i64,
     pub slug: String,
@@ -41,7 +43,7 @@ pub struct CreatePageOutput {
 }
 
 #[derive(Deserialize, Debug, Default)]
-#[serde(default)]
+#[serde(rename_all = "camelCase", default)]
 pub struct EditPage {
     pub wikitext: ProvidedValue<String>,
     pub title: ProvidedValue<String>,
@@ -52,6 +54,7 @@ pub struct EditPage {
 }
 
 #[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct EditPageOutput {
     revision_id: i64,
     revision_number: i32,
@@ -59,12 +62,14 @@ pub struct EditPageOutput {
 }
 
 #[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct DeletePage {
     pub revision_comments: String,
     pub user_id: i64,
 }
 
 #[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct UndeletePage {
     pub revision_comments: String,
     pub user_id: i64,
@@ -72,6 +77,7 @@ pub struct UndeletePage {
 }
 
 #[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct DeletePageOutput {
     page_id: i64,
     revision_id: i64,
@@ -79,6 +85,7 @@ pub struct DeletePageOutput {
 }
 
 #[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct UndeletePageOutput {
     slug: String,
     revision_id: i64,

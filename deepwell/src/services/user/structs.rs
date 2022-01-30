@@ -24,6 +24,7 @@ use chrono::{NaiveDate, NaiveDateTime};
 use std::collections::HashMap;
 
 #[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct CreateUser {
     pub username: String,
     pub email: String,
@@ -32,13 +33,14 @@ pub struct CreateUser {
 }
 
 #[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct CreateUserOutput {
     pub user_id: i64,
     pub slug: String,
 }
 
 #[derive(Deserialize, Debug, Default)]
-#[serde(default)]
+#[serde(rename_all = "camelCase", default)]
 pub struct UpdateUser {
     pub username: ProvidedValue<String>,
     pub email: ProvidedValue<String>,
@@ -59,6 +61,7 @@ pub struct UpdateUser {
 }
 
 #[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct UserIdentityOutput {
     id: i64,
     username: String,
@@ -106,6 +109,7 @@ impl From<&UserModel> for UserInfoOutput {
 }
 
 #[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct UserProfileOutput {
     #[serde(flatten)]
     info: UserInfoOutput,
