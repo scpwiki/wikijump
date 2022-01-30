@@ -619,7 +619,7 @@ impl RevisionService {
         revision_number: i32,
     ) -> Result<Option<PageRevisionModel>> {
         let txn = ctx.transaction();
-        let revision = PageRevision::find()
+        let mut revision = PageRevision::find()
             .filter(
                 Condition::all()
                     .add(page_revision::Column::PageId.eq(page_id))
@@ -629,8 +629,8 @@ impl RevisionService {
             .one(txn)
             .await?;
 
-        if let Some(mut revision) = revision {
-            Self::rerender_if_needed(ctx, &mut revision).await?;
+        if let Some(ref mut revision) = revision {
+            Self::rerender_if_needed(ctx, revision).await?;
         }
 
         Ok(revision)
