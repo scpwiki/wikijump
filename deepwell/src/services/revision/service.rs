@@ -403,8 +403,8 @@ impl RevisionService {
     /// and if so, updates it then.
     async fn rerender_if_needed(
         ctx: &ServiceContext<'_>,
-        mut revision: PageRevisionModel,
-    ) -> Result<PageRevisionModel> {
+        revision: &mut PageRevisionModel,
+    ) -> Result<()> {
         if revision.compiled_outdated {
             let txn = ctx.transaction();
 
@@ -433,13 +433,16 @@ impl RevisionService {
             .await?;
 
             // Update compiled data for revision in database
-            let mut model: page_revision::ActiveModel = revision.into();
-            model.compiled_hash = Set(compiled_hash.to_vec());
-            model.compiled_generator = Set(compiled_generator);
-            model.compiled_at = Set(now());
-            model.compiled_outdated = Set(false);
+            let model = page_revision::ActiveModel {
+                revision_id: Set(revision.revision_id),
+                compiled_hash: Set(compiled_hash.to_vec()),
+                compiled_generator: Set(compiled_generator),
+                compiled_at: Set(now()),
+                compiled_outdated: Set(false),
+                ..Default::default()
+            };
 
-            revision = model.update(txn).await?;
+            *revision = model.update(txn).await?;
         }
 
         // At this point, the revision should never be outdated
@@ -448,7 +451,7 @@ impl RevisionService {
             "Revision is outdated after rerender",
         );
 
-        Ok(revision)
+        Ok(())
     }
 
     /// Helper method for performing rendering for a revision.
