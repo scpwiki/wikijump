@@ -288,7 +288,6 @@ impl RevisionService {
             body:
                 CreateRevisionBodyPresent {
                     wikitext,
-                    hidden: _, // TODO
                     title,
                     alt_title,
                     slug,

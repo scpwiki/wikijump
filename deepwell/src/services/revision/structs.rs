@@ -34,7 +34,6 @@ pub struct CreateRevision {
 #[serde(default)]
 pub struct CreateRevisionBody {
     pub wikitext: ProvidedValue<String>,
-    pub hidden: ProvidedValue<Vec<String>>,
     pub title: ProvidedValue<String>,
     pub alt_title: ProvidedValue<Option<String>>,
     pub slug: ProvidedValue<String>,
@@ -54,7 +53,6 @@ pub struct CreateFirstRevision {
 #[derive(Deserialize, Debug)]
 pub struct CreateRevisionBodyPresent {
     pub wikitext: String,
-    pub hidden: Vec<String>,
     pub title: String,
     pub alt_title: Option<String>,
     pub slug: String,

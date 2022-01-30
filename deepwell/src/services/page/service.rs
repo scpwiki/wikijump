@@ -84,7 +84,6 @@ impl PageService {
                 title,
                 alt_title,
                 slug: slug.clone(),
-                hidden: Vec::new(),
                 tags: Vec::new(),
                 metadata: serde_json::json!({}),
             },
