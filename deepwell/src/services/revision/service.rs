@@ -161,7 +161,7 @@ impl RevisionService {
         // Get slug strings for the new location
         let (category_slug, page_slug) = split_category_name(&slug);
 
-        // Get wikitext
+        // Get wikitext, set wikitext hash
         let wikitext = match body.wikitext {
             // Insert new wikitext and update hash
             ProvidedValue::Set(wikitext) => {
