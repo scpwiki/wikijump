@@ -101,7 +101,7 @@ impl RevisionService {
         let txn = ctx.transaction();
 
         // Get the new revision number and the change tasks to process
-        let (mut tasks, revision_number) = {
+        let (tasks, revision_number) = {
             // Check for basic consistency
             assert_eq!(
                 previous.site_id, site_id,
@@ -179,7 +179,7 @@ impl RevisionService {
         // Run tasks based on changes:
         // See RevisionTasks struct for more information.
 
-        if tasks.render {
+        if tasks.render_and_update_links {
             let render_input = RenderPageInfo {
                 slug: &slug,
                 title: &title,
@@ -203,13 +203,6 @@ impl RevisionService {
             replace_hash(&mut compiled_hash, &render_output.compiled_hash);
             compiled_generator = render_output.compiled_generator;
             compiled_at = now();
-
-            // Set to false, we've already updated links
-            tasks.update_links = false;
-        }
-
-        if tasks.update_links {
-            todo!();
         }
 
         if tasks.rename {

@@ -26,8 +26,7 @@ use crate::web::ProvidedValue;
 /// A representation of the updating tasks to do for a revision.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Default)]
 pub struct RevisionTasks {
-    pub render: bool,
-    pub update_links: bool,
+    pub render_and_update_links: bool,
     pub rename: bool,
     pub rerender_incoming_links: bool,
     pub rerender_included_pages: bool,
@@ -42,8 +41,7 @@ impl RevisionTasks {
         if let ProvidedValue::Set(ref wikitext) = changes.wikitext {
             if revision.wikitext_hash.as_slice() != TextService::hash(wikitext).as_slice()
             {
-                tasks.render = true;
-                tasks.update_links = true;
+                tasks.render_and_update_links = true;
                 tasks.rerender_included_pages = true;
                 tasks.rerender_navigation = true;
                 tasks.rerender_templates = true;
@@ -54,23 +52,21 @@ impl RevisionTasks {
 
         if let ProvidedValue::Set(ref title) = changes.title {
             if &revision.title != title {
-                tasks.render = true;
-                tasks.update_links = true;
+                tasks.render_and_update_links = true;
                 tasks.rerender_incoming_links = true;
             }
         }
 
         if let ProvidedValue::Set(ref alt_title) = changes.alt_title {
             if &revision.alt_title != alt_title {
-                tasks.render = true;
-                tasks.update_links = true;
+                tasks.render_and_update_links = true;
                 tasks.rerender_incoming_links = true;
             }
         }
 
         if let ProvidedValue::Set(ref slug) = changes.slug {
             if &revision.slug != slug {
-                tasks.render = true;
+                tasks.render_and_update_links = true;
                 tasks.rename = true;
                 tasks.rerender_incoming_links = true;
                 tasks.rerender_included_pages = true;
@@ -82,8 +78,7 @@ impl RevisionTasks {
         if let ProvidedValue::Set(ref _tags) = changes.tags {
             // TODO check tags
             if false {
-                tasks.render = true;
-                tasks.update_links = true;
+                tasks.render_and_update_links = true;
                 tasks.rerender_included_pages = true;
                 tasks.rerender_navigation = true;
                 tasks.rerender_templates = true;
@@ -93,7 +88,7 @@ impl RevisionTasks {
         if let ProvidedValue::Set(ref _metadata) = changes.metadata {
             // TODO check metadata
             if false {
-                tasks.render = true;
+                tasks.render_and_update_links = true;
             }
         }
 
@@ -102,9 +97,8 @@ impl RevisionTasks {
 
     #[inline]
     pub fn is_empty(self) -> bool {
-        !self.render
+        !self.render_and_update_links
             && !self.rename
-            && !self.update_links
             && !self.rerender_incoming_links
             && !self.rerender_included_pages
             && !self.rerender_navigation
