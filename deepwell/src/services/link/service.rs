@@ -19,17 +19,27 @@
  */
 
 use super::prelude::*;
-use crate::models::page::{self, Model as PageModel};
-use crate::models::page_connection::{
-    self, Entity as PageConnection, Model as PageConnectionModel,
-};
-use crate::models::page_connection_missing::{
-    self, Entity as PageConnectionMissing, Model as PageConnectionMissingModel,
-};
+use crate::models::page;
+use crate::models::page_connection::{self, Entity as PageConnection};
+use crate::models::page_connection_missing::{self, Entity as PageConnectionMissing};
 use crate::models::page_link::{self, Entity as PageLink, Model as PageLinkModel};
 use crate::services::page::PageService;
+use crate::web::ConnectionType;
 use ftml::data::{Backlinks, PageRef};
 use std::collections::HashMap;
+
+macro_rules! make_contype_condition {
+    ($table_name:ident, $connection_types:expr $(,)?) => {
+        // Layer 1: Option<&[ConnectionType]>
+        $connection_types.map(|connection_types| {
+            // Layer 2: &[ConnectionType]
+            $table_name::Column::ConnectionType.is_in(
+                // Layer 3: ConnectionType::name
+                connection_types.iter().map(|ctype| ctype.name()),
+            )
+        })
+    };
+}
 
 #[derive(Debug)]
 pub struct LinkService;
@@ -60,14 +70,46 @@ impl LinkService {
         })
     }
 
+    pub async fn get_connections_from(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
+        connection_types: Option<&[ConnectionType]>,
+    ) -> Result<GetConnectionsFromOutput> {
+        let txn = ctx.transaction();
+
+        let (present, absent) = try_join!(
+            PageConnection::find()
+                .filter(
+                    Condition::all()
+                        .add(page_connection::Column::FromPageId.eq(page_id))
+                        .add_option(make_contype_condition!(page_connection, connection_types)),
+                )
+                .all(txn),
+            PageConnectionMissing::find()
+                .filter(
+                    Condition::all()
+                        .add(page_connection_missing::Column::FromPageId.eq(page_id))
+                        .add_option(make_contype_condition!(page_connection_missing, connection_types)),
+                )
+                .all(txn),
+        )?;
+
+        Ok(GetConnectionsFromOutput { present, absent })
+    }
+
     pub async fn get_to(
         ctx: &ServiceContext<'_>,
         page_id: i64,
+        connection_types: Option<&[ConnectionType]>,
     ) -> Result<GetLinksToOutput> {
         let txn = ctx.transaction();
 
         let connections = PageConnection::find()
-            .filter(page_connection::Column::ToPageId.eq(page_id))
+            .filter(
+                Condition::all()
+                    .add(page_connection::Column::ToPageId.eq(page_id))
+                    .add_option(make_contype_condition!(page_connection, connection_types)),
+            )
             .all(txn)
             .await?;
 
@@ -78,6 +120,7 @@ impl LinkService {
         ctx: &ServiceContext<'_>,
         site_id: i64,
         page_slug: &str,
+        connection_types: Option<&[ConnectionType]>,
     ) -> Result<GetLinksToMissingOutput> {
         let txn = ctx.transaction();
 
@@ -99,7 +142,8 @@ impl LinkService {
             .filter(
                 Condition::all()
                     .add(page_connection_missing::Column::ToSiteId.eq(site_id))
-                    .add(page_connection_missing::Column::ToPageSlug.eq(page_slug)),
+                    .add(page_connection_missing::Column::ToPageSlug.eq(page_slug))
+                    .add_option(make_contype_condition!(page_connection_missing, connection_types)),
             )
             .all(txn)
             .await?;

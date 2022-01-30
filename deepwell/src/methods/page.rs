@@ -169,7 +169,7 @@ pub async fn page_links_to_get(req: ApiRequest) -> ApiResponse {
     let site_id = req.param("site_id")?.parse()?;
     let reference = Reference::try_from(&req)?;
     let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
-    let output = LinkService::get_to(&ctx, page.page_id).await.to_api()?;
+    let output = LinkService::get_to(&ctx, page.page_id, None).await.to_api()?;
     let body = Body::from_json(&output)?;
     txn.commit().await?;
 
@@ -182,7 +182,7 @@ pub async fn page_links_to_missing_get(req: ApiRequest) -> ApiResponse {
 
     let site_id = req.param("site_id")?.parse()?;
     let page_slug = req.param("page_slug")?;
-    let output = LinkService::get_to_missing(&ctx, site_id, page_slug)
+    let output = LinkService::get_to_missing(&ctx, site_id, page_slug, None)
         .await
         .to_api()?;
 

@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::models::page_revision::{self, Entity as PageRevision};
-use crate::services::{PageService, RevisionService};
+use crate::services::{LinkService, PageService, RevisionService};
 use sea_orm::sea_query::expr::Expr;
 
 #[derive(Debug)]
