@@ -75,6 +75,7 @@ class DeepwellPage extends Migration
                 compiled_hash BYTEA NOT NULL REFERENCES text(hash),
                 compiled_at TIMESTAMP WITH TIME ZONE NOT NULL,
                 compiled_generator TEXT NOT NULL,
+                compiled_outdated BOOLEAN NOT NULL DEFAULT false,
                 comments TEXT NOT NULL,
                 hidden TEXT[] NOT NULL DEFAULT '{}', -- List of fields to be hidden/suppressed
                 title TEXT NOT NULL,

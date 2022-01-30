@@ -18,6 +18,7 @@ pub struct Model {
     pub compiled_at: DateTimeWithTimeZone,
     #[sea_orm(column_type = "Text")]
     pub compiled_generator: String,
+    pub compiled_outdated: bool,
     #[sea_orm(column_type = "Text")]
     pub comments: String,
     #[sea_orm(column_type = "Custom(\"array\".to_owned())")]
@@ -30,8 +31,7 @@ pub struct Model {
     pub slug: String,
     #[sea_orm(column_type = "Custom(\"array\".to_owned())")]
     pub tags: String,
-    #[sea_orm(column_type = "JsonBinary")]
-    pub metadata: serde_json::Value,
+    pub metadata: Json,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -87,6 +87,12 @@ impl Related<super::page::Entity> for Entity {
 impl Related<super::site::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Site.def()
+    }
+}
+
+impl Related<super::users::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Users.def()
     }
 }
 
