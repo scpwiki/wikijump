@@ -349,7 +349,9 @@ async fn update_connections(
         )
         .collect::<Vec<_>>();
 
-    PageConnection::insert_many(to_insert).exec(txn).await?;
+    if !to_insert.is_empty() {
+        PageConnection::insert_many(to_insert).exec(txn).await?;
+    }
 
     Ok(())
 }
@@ -414,9 +416,11 @@ async fn update_connections_missing(
         )
         .collect::<Vec<_>>();
 
-    PageConnectionMissing::insert_many(to_insert)
-        .exec(txn)
-        .await?;
+    if !to_insert.is_empty() {
+        PageConnectionMissing::insert_many(to_insert)
+            .exec(txn)
+            .await?;
+    }
 
     Ok(())
 }
@@ -470,7 +474,9 @@ async fn update_external_links(
         })
         .collect::<Vec<_>>();
 
-    PageLink::insert_many(to_insert).exec(txn).await?;
+    if !to_insert.is_empty() {
+        PageLink::insert_many(to_insert).exec(txn).await?;
+    }
 
     Ok(())
 }
