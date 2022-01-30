@@ -40,7 +40,9 @@ impl OutdateService {
         let mut revision_ids = vec![];
 
         for (site_id, page_id) in ids {
-            let revision = RevisionService::get_latest(ctx, site_id, page_id).await?;
+            // We use the raw variant here because we don't want to re-render anything.
+            // We're about to mark it as outdated, so any rendering effort is wasted.
+            let revision = RevisionService::get_latest_raw(ctx, site_id, page_id).await?;
             revision_ids.push(revision.revision_id);
         }
 

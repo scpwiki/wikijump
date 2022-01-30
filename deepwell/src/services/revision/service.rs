@@ -588,16 +588,17 @@ impl RevisionService {
         Ok(())
     }
 
-    pub async fn get_latest(
+    /// The same as `get_latest()`, but it does *not* rerender.
+    ///
+    /// This is necessary in some cases to avoid loops, recursion,
+    /// or if the revision is about to be outdated again anyways.
+    pub async fn get_latest_raw(
         ctx: &ServiceContext<'_>,
         site_id: i64,
         page_id: i64,
     ) -> Result<PageRevisionModel> {
-        // NOTE: There is no optional variant of this method,
-        //       since all extant pages must have at least one revision.
-
         let txn = ctx.transaction();
-        let mut revision = PageRevision::find()
+        let revision = PageRevision::find()
             .filter(
                 Condition::all()
                     .add(page_revision::Column::PageId.eq(page_id))
@@ -608,6 +609,20 @@ impl RevisionService {
             .await?
             .ok_or(Error::NotFound)?;
 
+        Ok(revision)
+    }
+
+    /// Gets the latest revision associated with the given page.
+    /// That is, the "current version".
+    pub async fn get_latest(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+    ) -> Result<PageRevisionModel> {
+        // NOTE: There is no optional variant of this method,
+        //       since all extant pages must have at least one revision.
+
+        let mut revision = Self::get_latest_raw(ctx, site_id, page_id).await?;
         Self::rerender_if_needed(ctx, &mut revision).await?;
         Ok(revision)
     }
