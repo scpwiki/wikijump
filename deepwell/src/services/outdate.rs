@@ -96,12 +96,7 @@ impl OutdateService {
         site_id: i64,
         page_id: i64,
     ) -> Result<()> {
-        const CONNECTION_TYPES: &[ConnectionType] = &[
-            ConnectionType::IncludeMessy,
-            ConnectionType::IncludeElements,
-            ConnectionType::Component,
-            ConnectionType::Link,
-        ];
+        const CONNECTION_TYPES: &[ConnectionType] = &[ConnectionType::Link];
 
         let result =
             LinkService::get_connections_from(ctx, page_id, Some(CONNECTION_TYPES))
