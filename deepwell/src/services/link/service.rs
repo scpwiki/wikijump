@@ -82,14 +82,20 @@ impl LinkService {
                 .filter(
                     Condition::all()
                         .add(page_connection::Column::FromPageId.eq(page_id))
-                        .add_option(make_contype_condition!(page_connection, connection_types)),
+                        .add_option(make_contype_condition!(
+                            page_connection,
+                            connection_types,
+                        )),
                 )
                 .all(txn),
             PageConnectionMissing::find()
                 .filter(
                     Condition::all()
                         .add(page_connection_missing::Column::FromPageId.eq(page_id))
-                        .add_option(make_contype_condition!(page_connection_missing, connection_types)),
+                        .add_option(make_contype_condition!(
+                            page_connection_missing,
+                            connection_types,
+                        )),
                 )
                 .all(txn),
         )?;
@@ -108,7 +114,10 @@ impl LinkService {
             .filter(
                 Condition::all()
                     .add(page_connection::Column::ToPageId.eq(page_id))
-                    .add_option(make_contype_condition!(page_connection, connection_types)),
+                    .add_option(make_contype_condition!(
+                        page_connection,
+                        connection_types,
+                    )),
             )
             .all(txn)
             .await?;
@@ -143,7 +152,10 @@ impl LinkService {
                 Condition::all()
                     .add(page_connection_missing::Column::ToSiteId.eq(site_id))
                     .add(page_connection_missing::Column::ToPageSlug.eq(page_slug))
-                    .add_option(make_contype_condition!(page_connection_missing, connection_types)),
+                    .add_option(make_contype_condition!(
+                        page_connection_missing,
+                        connection_types
+                    )),
             )
             .all(txn)
             .await?;

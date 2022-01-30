@@ -21,6 +21,7 @@
 use super::prelude::*;
 use crate::models::page_revision::{self, Entity as PageRevision};
 use crate::services::{LinkService, PageService, RevisionService};
+use crate::web::ConnectionType;
 use sea_orm::sea_query::expr::Expr;
 
 #[derive(Debug)]
@@ -53,22 +54,44 @@ impl OutdateService {
     }
 
     pub async fn outdate_incoming_links(
-        _ctx: &ServiceContext<'_>,
-        _site_id: i64,
-        _page_id: i64,
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
     ) -> Result<()> {
-        todo!()
-    }
+        const CONNECTION_TYPES: &[ConnectionType] = &[ConnectionType::Link];
 
-    pub async fn outdate_outgoing_links(
-        _ctx: &ServiceContext<'_>,
-        _site_id: i64,
-        _page_id: i64,
-    ) -> Result<()> {
-        todo!()
+        let result = LinkService::get_to(ctx, page_id, Some(CONNECTION_TYPES)).await?;
+        let ids = result
+            .connections
+            .iter()
+            .map(|connection| (site_id, connection.from_page_id))
+            .collect::<Vec<_>>();
+
+        Self::outdate(ctx, ids).await
     }
 
     pub async fn outdate_included_pages(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+    ) -> Result<()> {
+        const CONNECTION_TYPES: &[ConnectionType] = &[
+            ConnectionType::IncludeMessy,
+            ConnectionType::IncludeElements,
+            ConnectionType::Component,
+        ];
+
+        let result = LinkService::get_to(ctx, page_id, Some(CONNECTION_TYPES)).await?;
+        let ids = result
+            .connections
+            .iter()
+            .map(|connection| (site_id, connection.from_page_id))
+            .collect::<Vec<_>>();
+
+        Self::outdate(ctx, ids).await
+    }
+
+    pub async fn outdate_outgoing_links(
         _ctx: &ServiceContext<'_>,
         _site_id: i64,
         _page_id: i64,
