@@ -442,6 +442,12 @@ impl RevisionService {
             revision = model.update(txn).await?;
         }
 
+        // At this point, the revision should never be outdated
+        assert!(
+            !revision.compiled_outdated,
+            "Revision is outdated after rerender",
+        );
+
         Ok(revision)
     }
 
