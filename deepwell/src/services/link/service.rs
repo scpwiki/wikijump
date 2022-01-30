@@ -23,7 +23,7 @@ use crate::models::page;
 use crate::models::page_connection::{self, Entity as PageConnection};
 use crate::models::page_connection_missing::{self, Entity as PageConnectionMissing};
 use crate::models::page_link::{self, Entity as PageLink, Model as PageLinkModel};
-use crate::services::page::PageService;
+use crate::services::{PageService, SiteService};
 use crate::web::ConnectionType;
 use ftml::data::{Backlinks, PageRef};
 use std::collections::HashMap;
@@ -494,11 +494,8 @@ async fn count_connections(
     connections_missing: &mut HashMap<(i64, String, ConnectionType), i32>,
 ) -> Result<()> {
     let to_site_id = match site_slug {
+        Some(slug) => SiteService::get(ctx, Reference::Slug(&slug)).await?.site_id,
         None => site_id,
-        Some(_slug) => {
-            // TODO: get site ID from SiteService
-            1
-        }
     };
 
     let page =
