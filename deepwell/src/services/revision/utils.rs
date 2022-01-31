@@ -50,3 +50,46 @@ pub fn string_list_equals_json<S: AsRef<str>>(json: &JsonValue, list: &[S]) -> b
 
     true
 }
+
+#[test]
+fn json_list() {
+    macro_rules! check {
+        ($list:expr, $json:expr $(,)?) => {
+            assert_eq!(
+                string_list_to_json($list),
+                $json,
+                "Expected JSON (left) doesn't match actual (right)",
+            );
+        };
+    }
+
+    check!(vec![], serde_json::json!([]));
+    check!(
+        vec![str!("apple"), str!("banana"), str!("cherry")],
+        serde_json::json!(["apple", "banana", "cherry"]),
+    );
+}
+
+#[test]
+fn json_equals() {
+    macro_rules! check {
+        ($list:expr, $json:expr, $equals:expr $(,)?) => {
+            let list: &[&str] = $list;
+
+            assert_eq!(
+                string_list_equals_json(&$json, list),
+                $equals,
+                "Expected JSON and list to be {}",
+                if $equals { "equals" } else { "not equals" },
+            );
+        };
+    }
+
+    check!(&[], serde_json::json!([]), true);
+    check!(&[], serde_json::json!(["a"]), false);
+    check!(&["a"], serde_json::json!([]), false);
+    check!(&["a"], serde_json::json!(["a"]), true);
+    check!(&["a"], serde_json::json!(["b"]), false);
+    check!(&["a", "b", "c"], serde_json::json!(["a", "b", "c"]), true);
+    check!(&["a", "b", "c"], serde_json::json!(["b", "b", "c"]), false);
+}
