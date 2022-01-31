@@ -8259,24 +8259,24 @@
         },
         {
             "name": "tightenco/ziggy",
-            "version": "v1.4.2",
+            "version": "v1.4.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tighten/ziggy.git",
-                "reference": "620c135281062b9f6b53a75b07f99a4339267277"
+                "reference": "ffeff44dba822cf45cd2239691526d67b76c3323"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tighten/ziggy/zipball/620c135281062b9f6b53a75b07f99a4339267277",
-                "reference": "620c135281062b9f6b53a75b07f99a4339267277",
+                "url": "https://api.github.com/repos/tighten/ziggy/zipball/ffeff44dba822cf45cd2239691526d67b76c3323",
+                "reference": "ffeff44dba822cf45cd2239691526d67b76c3323",
                 "shasum": ""
             },
             "require": {
                 "laravel/framework": ">=5.4@dev"
             },
             "require-dev": {
-                "orchestra/testbench": "^6.0",
-                "phpunit/phpunit": "^9.2"
+                "orchestra/testbench": "^3.0 || ^4.0 || ^5.0 || ^6.0 || ^7.0",
+                "phpunit/phpunit": "^6.0 || ^7.0 || ^8.0 || ^9.0"
             },
             "type": "library",
             "extra": {
@@ -8319,9 +8319,9 @@
             ],
             "support": {
                 "issues": "https://github.com/tighten/ziggy/issues",
-                "source": "https://github.com/tighten/ziggy/tree/v1.4.2"
+                "source": "https://github.com/tighten/ziggy/tree/v1.4.3"
             },
-            "time": "2021-10-01T13:55:26+00:00"
+            "time": "2022-01-28T14:48:33+00:00"
         },
         {
             "name": "tijsverkoyen/css-to-inline-styles",
