@@ -47,20 +47,10 @@ pub struct CreateRevisionBody {
 pub struct CreateFirstRevision {
     pub user_id: i64,
     pub comments: String,
-
-    #[serde(flatten)]
-    pub body: CreateRevisionBodyPresent,
-}
-
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct CreateRevisionBodyPresent {
     pub wikitext: String,
     pub title: String,
     pub alt_title: Option<String>,
     pub slug: String,
-    pub tags: Vec<String>,
-    pub metadata: serde_json::Value,
 }
 
 #[derive(Serialize, Debug)]

@@ -132,8 +132,8 @@ impl RevisionService {
             mut title,
             mut alt_title,
             mut slug,
-            tags,
-            metadata,
+            mut tags,
+            mut metadata,
             ..
         } = previous;
 
@@ -150,12 +150,12 @@ impl RevisionService {
             slug = new_slug;
         }
 
-        if let ProvidedValue::Set(_new_tags) = body.tags {
-            // TODO update tags
+        if let ProvidedValue::Set(new_tags) = body.tags {
+            tags = string_list_to_json(new_tags);
         }
 
-        if let ProvidedValue::Set(_new_metadata) = body.metadata {
-            // TODO update metadata
+        if let ProvidedValue::Set(new_metadata) = body.metadata {
+            metadata = new_metadata
         }
 
         // Get slug strings for the new location
@@ -285,15 +285,10 @@ impl RevisionService {
         CreateFirstRevision {
             user_id,
             comments,
-            body:
-                CreateRevisionBodyPresent {
-                    wikitext,
-                    title,
-                    alt_title,
-                    slug,
-                    tags,
-                    metadata: _, // TODO
-                },
+            wikitext,
+            title,
+            alt_title,
+            slug,
         }: CreateFirstRevision,
     ) -> Result<CreateFirstRevisionOutput> {
         let txn = ctx.transaction();
@@ -307,7 +302,7 @@ impl RevisionService {
             title: &title,
             alt_title: alt_title.ref_map(|s| s.as_str()),
             rating: 0.0, // TODO
-            tags: &tags,
+            tags: &[],
         };
 
         let RenderOutput {
@@ -330,12 +325,12 @@ impl RevisionService {
             compiled_at: Set(now()),
             compiled_generator: Set(compiled_generator),
             comments: Set(comments),
-            hidden: Set(str!("{}")), // TODO array
+            hidden: Set(serde_json::json!([])),
             title: Set(title),
             alt_title: Set(alt_title),
             slug: Set(slug),
-            tags: Set(str!("{}")),                // TODO array
-            metadata: Set(serde_json::json!({})), // TODO json
+            tags: Set(serde_json::json!([])),
+            metadata: Set(serde_json::json!({})),
             ..Default::default()
         };
 
@@ -579,7 +574,7 @@ impl RevisionService {
         let txn = ctx.transaction();
         let model = page_revision::ActiveModel {
             revision_id: Set(revision_id),
-            hidden: Set(format!("{:?}", hidden)), // TODO fix arrays
+            hidden: Set(string_list_to_json(hidden)),
             ..Default::default()
         };
 

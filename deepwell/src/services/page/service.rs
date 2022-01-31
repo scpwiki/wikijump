@@ -23,7 +23,6 @@ use crate::models::page::{self, Entity as Page, Model as PageModel};
 use crate::models::page_category::Model as PageCategoryModel;
 use crate::services::revision::{
     CreateFirstRevision, CreateFirstRevisionOutput, CreateRevision, CreateRevisionBody,
-    CreateRevisionBodyPresent,
 };
 use crate::services::{CategoryService, RevisionService};
 use crate::web::trim_default;
@@ -79,14 +78,10 @@ impl PageService {
         let revision_input = CreateFirstRevision {
             user_id,
             comments,
-            body: CreateRevisionBodyPresent {
-                wikitext,
-                title,
-                alt_title,
-                slug: slug.clone(),
-                tags: Vec::new(),
-                metadata: serde_json::json!({}),
-            },
+            wikitext,
+            title,
+            alt_title,
+            slug: slug.clone(),
         };
 
         let CreateFirstRevisionOutput {

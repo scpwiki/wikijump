@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::structs::CreateRevisionBody;
+use super::prelude::*;
 use crate::models::page_revision::Model as PageRevisionModel;
 use crate::services::TextService;
 use crate::web::ProvidedValue;
@@ -75,9 +75,8 @@ impl RevisionTasks {
             }
         }
 
-        if let ProvidedValue::Set(ref _tags) = changes.tags {
-            // TODO check tags
-            if false {
+        if let ProvidedValue::Set(ref tags) = changes.tags {
+            if string_list_equals_json(&revision.tags, tags) {
                 tasks.render_and_update_links = true;
                 tasks.rerender_included_pages = true;
                 tasks.rerender_navigation = true;
