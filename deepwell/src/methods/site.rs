@@ -32,6 +32,8 @@ pub async fn site_head(req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let reference = Reference::try_from(&req)?;
+    tide::log::info!("Checking existence of site {:?}", reference);
+
     let exists = SiteService::exists(&ctx, reference).await.to_api()?;
     txn.commit().await?;
     exists_status(exists)
@@ -42,6 +44,8 @@ pub async fn site_get(req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let reference = Reference::try_from(&req)?;
+    tide::log::info!("Getting site {:?}", reference);
+
     let site = SiteService::get(&ctx, reference).await.to_api()?;
     build_site_response(&site, StatusCode::Ok)
 }

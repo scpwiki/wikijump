@@ -24,6 +24,8 @@ use crate::web::ratelimit::is_ratelimit_exempt;
 use sea_orm::{ConnectionTrait, DatabaseBackend, Statement};
 
 pub async fn ping(req: ApiRequest) -> ApiResponse {
+    tide::log::info!("Ping request");
+
     // Ensure the database is connected
     req.state()
         .database
@@ -38,17 +40,21 @@ pub async fn ping(req: ApiRequest) -> ApiResponse {
 }
 
 pub async fn version(_: ApiRequest) -> ApiResponse {
+    tide::log::info!("Getting DEEPWELL version");
     Ok(info::VERSION_WITH_NAME.as_str().into())
 }
 
 pub async fn full_version(_: ApiRequest) -> ApiResponse {
+    tide::log::info!("Getting DEEPWELL version (full)");
     Ok(info::FULL_VERSION_WITH_NAME.as_str().into())
 }
 
 pub async fn ratelimit_exempt(req: ApiRequest) -> ApiResponse {
     if is_ratelimit_exempt(&req) {
+        tide::log::info!("Requesting user is rate-limit exempt");
         Ok(Response::new(StatusCode::NoContent))
     } else {
+        tide::log::warn!("Requesting user is not rate-limit exempt");
         Ok(Response::new(StatusCode::Forbidden))
     }
 }

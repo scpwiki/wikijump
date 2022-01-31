@@ -39,6 +39,17 @@ pub enum UserDetails {
     Profile,
 }
 
+impl UserDetails {
+    #[inline]
+    pub fn name(self) -> &'static str {
+        match self {
+            UserDetails::Identity => "identity",
+            UserDetails::Info => "info",
+            UserDetails::Profile => "profile",
+        }
+    }
+}
+
 impl Default for UserDetails {
     #[inline]
     fn default() -> Self {

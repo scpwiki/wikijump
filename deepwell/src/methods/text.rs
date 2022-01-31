@@ -26,6 +26,8 @@ pub async fn text_put(mut req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let contents = req.body_string().await?;
+    tide::log::info!("Inserting new stored text (bytes {})", contents.len());
+
     let hash = TextService::create(&ctx, contents).await.to_api()?;
     let hash_hex = hex::encode(hash);
     let body = Body::from_string(hash_hex);
@@ -38,6 +40,7 @@ pub async fn text_get(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
+    tide::log::info!("Getting stored text");
     let hash = read_hash(&req)?;
     let contents = TextService::get(&ctx, &hash).await.to_api()?;
     let body = Body::from_string(contents);
@@ -50,6 +53,7 @@ pub async fn text_head(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
+    tide::log::info!("Checking existence of stored text");
     let hash = read_hash(&req)?;
     let exists = TextService::exists(&ctx, &hash).await.to_api()?;
     txn.commit().await?;
@@ -63,6 +67,8 @@ pub async fn text_head(req: ApiRequest) -> ApiResponse {
 
 fn read_hash(req: &ApiRequest) -> Result<Vec<u8>, TideError> {
     let hash_hex = req.param("hash")?;
+    tide::log::debug!("Text hash: {}", hash_hex);
+
     let hash = hex::decode(hash_hex)
         .map_err(|error| TideError::new(StatusCode::UnprocessableEntity, error))?;
 

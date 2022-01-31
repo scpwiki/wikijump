@@ -29,6 +29,7 @@ pub async fn user_create(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
+    tide::log::info!("Creating new user");
     let input: CreateUser = req.body_json().await?;
     let output = UserService::create(&ctx, input).await.to_api()?;
     let body = Body::from_json(&output)?;
@@ -43,6 +44,8 @@ pub async fn user_head(req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let reference = Reference::try_from(&req)?;
+    tide::log::info!("Checking eixstence of user {:?}", reference);
+
     let exists = UserService::exists(&ctx, reference).await.to_api()?;
     txn.commit().await?;
     exists_status(exists)
@@ -54,6 +57,8 @@ pub async fn user_get(req: ApiRequest) -> ApiResponse {
 
     let UserDetailsQuery { detail } = req.query()?;
     let reference = Reference::try_from(&req)?;
+    tide::log::info!("Getting user {:?} (details {})", reference, detail.name());
+
     let user = UserService::get(&ctx, reference).await.to_api()?;
     txn.commit().await?;
     build_user_response(&user, detail, StatusCode::Ok)
@@ -65,7 +70,10 @@ pub async fn user_put(mut req: ApiRequest) -> ApiResponse {
 
     let input: UpdateUser = req.body_json().await?;
     let reference = Reference::try_from(&req)?;
+    tide::log::info!("Editing user {:?}", reference);
+
     UserService::update(&ctx, reference, input).await.to_api()?;
+
     txn.commit().await?;
     Ok(Response::new(StatusCode::NoContent))
 }
@@ -76,6 +84,8 @@ pub async fn user_delete(req: ApiRequest) -> ApiResponse {
 
     let UserDetailsQuery { detail } = req.query()?;
     let reference = Reference::try_from(&req)?;
+    tide::log::info!("Deleting user {:?} (details {})", reference, detail.name());
+
     let user = UserService::delete(&ctx, reference).await.to_api()?;
     txn.commit().await?;
     build_user_response(&user, detail, StatusCode::Ok)

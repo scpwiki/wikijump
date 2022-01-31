@@ -28,6 +28,12 @@ pub async fn page_revision_latest(req: ApiRequest) -> ApiResponse {
 
     let site_id = req.param("site_id")?.parse()?;
     let reference = Reference::try_from(&req)?;
+    tide::log::info!(
+        "Getting latest revision for page {:?} in site ID {}",
+        reference,
+        site_id,
+    );
+
     let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
     let revision = RevisionService::get_latest(&ctx, site_id, page.page_id)
         .await
@@ -44,6 +50,13 @@ pub async fn page_revision_head(req: ApiRequest) -> ApiResponse {
     let site_id = req.param("site_id")?.parse()?;
     let revision_number = req.param("revision_number")?.parse()?;
     let reference = Reference::try_from(&req)?;
+    tide::log::info!(
+        "Checking existence of revision {} for page {:?} in site ID {}",
+        revision_number,
+        reference,
+        site_id,
+    );
+
     let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
     let exists = RevisionService::exists(&ctx, site_id, page.page_id, revision_number)
         .await
@@ -60,6 +73,13 @@ pub async fn page_revision_get(req: ApiRequest) -> ApiResponse {
     let site_id = req.param("site_id")?.parse()?;
     let revision_number = req.param("revision_number")?.parse()?;
     let reference = Reference::try_from(&req)?;
+    tide::log::info!(
+        "Getting revision {} for page {:?} in site ID {}",
+        revision_number,
+        reference,
+        site_id,
+    );
+
     let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
     let revision = RevisionService::get(&ctx, site_id, page.page_id, revision_number)
         .await
@@ -77,6 +97,13 @@ pub async fn page_revision_put(mut req: ApiRequest) -> ApiResponse {
     let site_id = req.param("site_id")?.parse()?;
     let revision_number = req.param("revision_number")?.parse()?;
     let reference = Reference::try_from(&req)?;
+    tide::log::info!(
+        "Editing revision {} for page {:?} in site ID {}",
+        revision_number,
+        reference,
+        site_id,
+    );
+
     let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
     let revision = RevisionService::get(&ctx, site_id, page.page_id, revision_number)
         .await
