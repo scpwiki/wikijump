@@ -6,7 +6,7 @@ namespace Wikijump\Services\Deepwell;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
 use Wikidot\Utils\GlobalProperties;
 use Wikijump\Services\Wikitext\Backlinks;
@@ -94,6 +94,7 @@ final class DeepwellService
     /**
      * @param string|int $site_id
      * @param string|int $page_id
+     * @throws GuzzleException
      */
     public function getLinksTo($site_id, $page_id): array
     {
@@ -103,6 +104,7 @@ final class DeepwellService
 
     /**
      * @param string|int $site_id
+     * @throws GuzzleException
      */
     public function getLinksToMissing($site_id, string $page_slug): array
     {
