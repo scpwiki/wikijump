@@ -76,7 +76,7 @@ impl RevisionTasks {
         }
 
         if let ProvidedValue::Set(ref tags) = changes.tags {
-            if string_list_equals_json(&revision.tags, tags) {
+            if !string_list_equals_json(&revision.tags, tags) {
                 tasks.render_and_update_links = true;
                 tasks.rerender_included_pages = true;
                 tasks.rerender_navigation = true;
