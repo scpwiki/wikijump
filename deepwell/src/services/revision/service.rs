@@ -379,7 +379,7 @@ impl RevisionService {
         _slug: String,
         _comments: String,
     ) -> Result<CreateRevisionOutput> {
-        // TODO modify metadata field to add 'deleted: true'
+        // TODO modify metadata field to add 'deleted: false'
 
         // TODO run undeletion outdater procdures:
         //      - rerender incoming links
