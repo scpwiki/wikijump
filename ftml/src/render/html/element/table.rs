@@ -50,11 +50,7 @@ pub fn render_table(log: &Logger, ctx: &mut HtmlContext, table: &Table) {
 
                                 if cell.column_span > value_one {
                                     column_span_buf.clear();
-                                    str_write!(
-                                        &mut column_span_buf,
-                                        "{}",
-                                        cell.column_span
-                                    );
+                                    str_write!(column_span_buf, "{}", cell.column_span);
                                 }
 
                                 ctx.html()

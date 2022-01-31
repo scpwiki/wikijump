@@ -125,7 +125,7 @@ fn process_pairs<'t>(
         // ]]
 
         var_reference.clear();
-        str_write!(&mut var_reference, "{{${}}}", key);
+        str_write!(var_reference, "{{${}}}", key);
 
         if !arguments.contains_key(key) && value != var_reference {
             let key = Cow::Borrowed(key);

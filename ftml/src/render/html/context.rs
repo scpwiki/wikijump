@@ -118,7 +118,7 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
                     let mut value = str!(info.title);
 
                     if let Some(ref alt_title) = info.alt_title {
-                        write!(&mut value, " - {}", alt_title).unwrap();
+                        write!(value, " - {}", alt_title).unwrap();
                     }
 
                     value
