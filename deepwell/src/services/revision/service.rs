@@ -408,12 +408,15 @@ impl RevisionService {
 
             // Re-render revision
             let wikitext = TextService::get(ctx, &revision.wikitext_hash).await?;
+            // This is necessary until we are able to replace the
+            // 'tags' column with TEXT[] instead of JSON.
+            let temp_tags = json_to_string_list(&revision.tags);
             let input = RenderPageInfo {
                 slug: &revision.slug,
                 title: &revision.title,
                 alt_title: revision.alt_title.ref_map(|s| s.as_str()),
                 rating: 0.0, // TODO
-                tags: &[],   // TODO
+                tags: &temp_tags,
             };
 
             // TODO use html_output
@@ -531,12 +534,15 @@ impl RevisionService {
         let revision = Self::get_latest(ctx, site_id, page_id).await?;
         let wikitext = TextService::get(ctx, &revision.wikitext_hash).await?;
 
+        // This is necessary until we are able to replace the
+        // 'tags' column with TEXT[] instead of JSON.
+        let temp_tags = json_to_string_list(&revision.tags);
         let render_input = RenderPageInfo {
             slug: &revision.slug,
             title: &revision.title,
             alt_title: revision.alt_title.ref_map(|s| s.as_str()),
             rating: 0.0, // TODO
-            tags: &[],   // TODO
+            tags: &temp_tags,
         };
 
         // TODO use html_output
