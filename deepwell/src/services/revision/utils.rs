@@ -18,6 +18,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+//! `RevisionService` utilities module.
+//!
+//! This module contains helper functions to convert between `serde_json`'s
+//! `Value` type and lists of strings. This is a workaround until SeaORM
+//! adds full support for PostgreSQL's `ARRAY` type, which we use for a few
+//! different columns.
+//!
+//! See also https://github.com/SeaQL/sea-orm/discussions/487
+
 use serde_json::Value as JsonValue;
 
 #[inline]
