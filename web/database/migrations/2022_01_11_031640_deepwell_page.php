@@ -63,6 +63,8 @@ class DeepwellPage extends Migration
             )
         ");
 
+        // NOTE: We want to make 'hidden' and 'tags' arrays, but for now SeaORM doesn't support that,
+        //       so we're using JSON until it does, at which time we will make a migration.
         DB::statement("
             CREATE TABLE page_revision (
                 revision_id BIGSERIAL PRIMARY KEY,
@@ -77,11 +79,11 @@ class DeepwellPage extends Migration
                 compiled_generator TEXT NOT NULL,
                 compiled_outdated BOOLEAN NOT NULL DEFAULT false,
                 comments TEXT NOT NULL,
-                hidden TEXT[] NOT NULL DEFAULT '{}', -- List of fields to be hidden/suppressed
+                hidden JSON NOT NULL DEFAULT '{}', -- List of fields to be hidden/suppressed
                 title TEXT NOT NULL,
                 alt_title TEXT,
                 slug TEXT NOT NULL,
-                tags TEXT[] NOT NULL DEFAULT '{}', -- Should be sorted and deduplicated before insertion
+                tags JSON NOT NULL DEFAULT '{}', -- Should be sorted and deduplicated before insertion
                 metadata JSONB NOT NULL DEFAULT '{}', -- Customizable metadata. Currently unused.
 
                 UNIQUE (page_id, site_id, revision_number)

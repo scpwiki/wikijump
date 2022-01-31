@@ -21,16 +21,14 @@ pub struct Model {
     pub compiled_outdated: bool,
     #[sea_orm(column_type = "Text")]
     pub comments: String,
-    #[sea_orm(column_type = "Custom(\"array\".to_owned())")]
-    pub hidden: String,
+    pub hidden: Json,
     #[sea_orm(column_type = "Text")]
     pub title: String,
     #[sea_orm(column_type = "Text", nullable)]
     pub alt_title: Option<String>,
     #[sea_orm(column_type = "Text")]
     pub slug: String,
-    #[sea_orm(column_type = "Custom(\"array\".to_owned())")]
-    pub tags: String,
+    pub tags: Json,
     pub metadata: Json,
 }
 
