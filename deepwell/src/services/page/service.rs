@@ -266,6 +266,42 @@ impl PageService {
         Ok((output, slug).into())
     }
 
+    /// Resets a page to be the same as it was in a previous revision.
+    ///
+    /// It changes the page to have the exact state it had in a previous
+    /// revision, regardless of any changes since.
+    ///
+    /// This is equivalent to Wikidot's concept of a "revert".
+    #[allow(dead_code)]
+    pub async fn reset(
+        _ctx: &ServiceContext<'_>,
+        _site_id: i64,
+        _page_id: i64,
+        _revision_number: i32,
+    ) -> Result<EditPageOutput> {
+        todo!()
+    }
+
+    /// Undoes a past revision, applying the inverse of its changes.
+    ///
+    /// It looks at the changes made in that revision, and does the
+    /// inverse there specifically. It is contextual, and preserves
+    /// all other changes made since.
+    ///
+    /// However, this can cause it to conflict, which will occur if
+    /// the reversed changes interfere with other changes made since.
+    ///
+    /// This is equivalent to git's concept of a "revert".
+    #[allow(dead_code)]
+    pub async fn undo(
+        _ctx: &ServiceContext<'_>,
+        _site_id: i64,
+        _page_id: i64,
+        _revision_number: i32,
+    ) -> Result<EditPageOutput> {
+        todo!()
+    }
+
     #[inline]
     pub async fn exists(
         ctx: &ServiceContext<'_>,
