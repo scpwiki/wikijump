@@ -49,6 +49,9 @@ pub enum Error {
     #[error("Invalid enum serialization value")]
     InvalidEnumValue,
 
+    #[error("The request is in some way malformed or incorrect")]
+    BadRequest,
+
     #[error("The request conflicts with data already present")]
     Conflict,
 
@@ -72,6 +75,7 @@ impl Error {
             Error::InvalidEnumValue => {
                 TideError::from_str(StatusCode::InternalServerError, "")
             }
+            Error::BadRequest => TideError::from_str(StatusCode::BadRequest, ""),
             Error::Exists | Error::Conflict => {
                 TideError::from_str(StatusCode::Conflict, "")
             }

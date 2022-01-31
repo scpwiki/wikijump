@@ -225,7 +225,7 @@ impl PageService {
 
         if page.deleted_at.is_none() {
             tide::log::warn!("Page requested to be undeleted is not currently deleted");
-            return Err(Error::Conflict);
+            return Err(Error::BadRequest);
         }
 
         let result = Page::find()

@@ -305,7 +305,7 @@ impl RevisionService {
             title: &title,
             alt_title: alt_title.ref_map(|s| s.as_str()),
             rating: 0.0, // TODO
-            tags: &[], // Initial revision always has empty tags
+            tags: &[],   // Initial revision always has empty tags
         };
 
         let RenderOutput {
