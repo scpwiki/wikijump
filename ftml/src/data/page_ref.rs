@@ -122,7 +122,7 @@ impl<'t> PageRef<'t> {
         }
 
         let site = self.site.ref_map(|value| owned!(value));
-        let page = owned!(&self.page);
+        let page = owned!(self.page);
 
         PageRef { site, page }
     }
