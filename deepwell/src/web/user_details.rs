@@ -18,8 +18,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::services::Error as ServiceError;
+use strum_macros::EnumIter;
+
 #[derive(
-    Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq,
+    EnumIter,
+    Serialize,
+    Deserialize,
+    Debug,
+    Copy,
+    Clone,
+    Hash,
+    PartialOrd,
+    Ord,
+    PartialEq,
+    Eq,
 )]
 #[serde(rename_all = "camelCase")]
 pub enum UserDetails {
@@ -50,6 +63,19 @@ impl UserDetails {
     }
 }
 
+impl TryFrom<&'_ str> for UserDetails {
+    type Error = ServiceError;
+
+    fn try_from(value: &'_ str) -> Result<UserDetails, ServiceError> {
+        match value {
+            "identity" => Ok(UserDetails::Identity),
+            "info" => Ok(UserDetails::Info),
+            "profile" => Ok(UserDetails::Profile),
+            _ => Err(ServiceError::InvalidEnumValue),
+        }
+    }
+}
+
 impl Default for UserDetails {
     #[inline]
     fn default() -> Self {
@@ -61,4 +87,29 @@ impl Default for UserDetails {
 pub struct UserDetailsQuery {
     #[serde(default)]
     pub detail: UserDetails,
+}
+
+/// Ensure `UserDetails::name()` produces the same output as serde.
+#[test]
+fn name_serde() {
+    use strum::IntoEnumIterator;
+
+    for variant in UserDetails::iter() {
+        let output = serde_json::to_string(&variant).expect("Unable to serialize JSON");
+        let serde_name: String =
+            serde_json::from_str(&output).expect("Unable to deserialize JSON");
+
+        assert_eq!(
+            &serde_name,
+            variant.name(),
+            "Serde name does not match variant name",
+        );
+
+        let converted: UserDetails = serde_name
+            .as_str()
+            .try_into()
+            .expect("Could not convert item");
+
+        assert_eq!(converted, variant, "Converted item does not match variant");
+    }
 }
