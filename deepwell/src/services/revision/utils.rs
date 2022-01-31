@@ -25,7 +25,15 @@ pub fn string_list_to_json(list: Vec<String>) -> JsonValue {
     JsonValue::Array(list.into_iter().map(JsonValue::String).collect())
 }
 
-#[inline]
+pub fn json_to_string_list(json: &JsonValue) -> Vec<String> {
+    let slice = match json {
+        JsonValue::Array(slice) => slice,
+        _ => panic!("JSON value not a list"),
+    };
+
+    slice.iter().map(|s| str!(s)).collect()
+}
+
 pub fn string_list_equals_json<S: AsRef<str>>(json: &JsonValue, list: &[S]) -> bool {
     let slice = match json {
         JsonValue::Array(ref slice) => slice,

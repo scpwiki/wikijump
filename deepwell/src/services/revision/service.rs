@@ -178,12 +178,15 @@ impl RevisionService {
         // See RevisionTasks struct for more information.
 
         if tasks.render_and_update_links {
+            // This is necessary until we are able to replace the
+            // 'tags' column with TEXT[] instead of JSON.
+            let temp_tags = json_to_string_list(&tags);
             let render_input = RenderPageInfo {
                 slug: &slug,
                 title: &title,
                 alt_title: alt_title.ref_map(|s| s.as_str()),
                 rating: 0.0, // TODO
-                tags: &[],   // TODO
+                tags: &temp_tags,
             };
 
             // Run renderer and related tasks
@@ -302,7 +305,7 @@ impl RevisionService {
             title: &title,
             alt_title: alt_title.ref_map(|s| s.as_str()),
             rating: 0.0, // TODO
-            tags: &[],
+            tags: &[], // Initial revision always has empty tags
         };
 
         let RenderOutput {
