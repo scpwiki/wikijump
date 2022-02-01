@@ -158,9 +158,10 @@ final class DeepwellService
 
     public function getLatestPageRevision(int $site_id, int $page_id): object
     {
-        return self::parsePageRevision(
-            $this->client->get("page/$site_id/id/$page_id/revision"),
-        );
+        return self::fetchOrNull(function () use ($site_id, $page_id) {
+            $resp = $this->client->get("page/$site_id/id/$page_id/revision");
+            return self::parsePageRevision($resp);
+        }, "No page revisions found for page ID $page_id in site ID $site_id");
     }
 
     public function getPageRevision(

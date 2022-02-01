@@ -58,9 +58,28 @@ class PageRevision extends DeepwellModel
         );
     }
 
+    // Helper methods
     private static function byteArrayToHex(array $bytes): string
     {
         return bin2hex(join(array_map('chr', $bytes)));
+    }
+
+    // Fetch methods
+    public static function findLatest(int $site_id, int $page_id): ?PageRevision
+    {
+        return DeepwellService::getInstance()->getLatestPageRevision($site_id, $page_id);
+    }
+
+    public static function findNumber(
+        int $site_id,
+        int $page_id,
+        int $revision_number
+    ): ?PageRevision {
+        return DeepwellService::getInstance()->getPageRevision(
+            $site_id,
+            $page_id,
+            $revision_number,
+        );
     }
 
     // Getters
