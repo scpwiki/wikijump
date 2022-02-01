@@ -85,8 +85,13 @@ final class DeepwellService
         }, "No page found in site ID $site_id with slug '$page_slug'");
     }
 
-    public function editPage(int $site_id, int $page_id, int $user_id, string $comments, array $changes): void
-    {
+    public function editPage(
+        int $site_id,
+        int $page_id,
+        int $user_id,
+        string $comments,
+        array $changes
+    ): void {
         $change_fields = [
             'wikitext' => null,
             'title' => null,
@@ -109,8 +114,12 @@ final class DeepwellService
         $this->client->post("page/$site_id/id/$page_id", ['json' => $body]);
     }
 
-    public function deletePage(int $site_id, int $page_id, int $user_id, string $comments): void
-    {
+    public function deletePage(
+        int $site_id,
+        int $page_id,
+        int $user_id,
+        string $comments
+    ): void {
         $this->client->delete("page/$site_id/id/$page_id", [
             'json' => [
                 'revisionComments' => $comments,
@@ -119,8 +128,12 @@ final class DeepwellService
         ]);
     }
 
-    public function undeletePage(int $site_id, int $page_id, int $user_id, string $comments): void
-    {
+    public function undeletePage(
+        int $site_id,
+        int $page_id,
+        int $user_id,
+        string $comments
+    ): void {
         $this->client->post("page/$site_id/$page_id", [
             'json' => [
                 'revisionComments' => $comments,
@@ -129,8 +142,12 @@ final class DeepwellService
         ]);
     }
 
-    public function rerenderPage(int $site_id, int $page_id, int $user_id, string $comments): void
-    {
+    public function rerenderPage(
+        int $site_id,
+        int $page_id,
+        int $user_id,
+        string $comments
+    ): void {
         $this->client->post("page/$site_id/$page_id", [
             'json' => [
                 'revisionComments' => $comments,
@@ -141,15 +158,37 @@ final class DeepwellService
 
     public function getLatestPageRevision(int $site_id, int $page_id): object
     {
-        return self::readJson($this->client->get("page/$site_id/id/$page_id/revision"));
+        return self::parsePageRevision(
+            $this->client->get("page/$site_id/id/$page_id/revision"),
+        );
     }
 
-    public function getPageRevision(int $site_id, int $page_id, int $revision_number): ?object
-    {
+    public function getPageRevision(
+        int $site_id,
+        int $page_id,
+        int $revision_number
+    ): ?object {
         return self::fetchOrNull(function () use ($site_id, $page_id, $revision_number) {
-            $resp = $this->client->get("page/$site_id/id/$page_id/revision/$revision_number");
-            return self::readJson($resp);
+            $resp = $this->client->get(
+                "page/$site_id/id/$page_id/revision/$revision_number",
+            );
+            return self::parsePageRevision($resp);
         }, "No page revision $revision_number found for page ID $page_id in site ID $site_id");
+    }
+
+    public function setPageRevision(
+        int $site_id,
+        int $page_id,
+        int $revision_number,
+        int $user_id,
+        array $hidden
+    ): void {
+        $this->client->put("page/$site_id/id/$page_id/revision/$revision_number", [
+            'json' => [
+                'userId' => $user_id,
+                'hidden' => $hidden,
+            ],
+        ]);
     }
 
     public function getLinksFrom(int $site_id, int $page_id): array
@@ -237,8 +276,15 @@ final class DeepwellService
     private function parsePage($resp): Page
     {
         $page = self::readJson($resp);
-        self::convertDateProperties($page, ['created_at', 'updated_at', 'deleted_at']);
+        self::convertDateProperties($page, ['createdAt', 'updatedAt', 'deletedAt']);
         return new Page($page);
+    }
+
+    private function parsePageRevision($resp): PageRevision
+    {
+        $revision = self::readJson($resp);
+        self::convertDateProperties($revision, ['createdAt', 'compiledAt']);
+        return new PageRevision($revision);
     }
 
     private function parseUser($resp, string $detail): User
