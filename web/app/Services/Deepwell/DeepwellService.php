@@ -139,6 +139,19 @@ final class DeepwellService
         ]);
     }
 
+    public function getLatestPageRevision(int $site_id, int $page_id): object
+    {
+        return self::readJson($this->client->get("page/$site_id/id/$page_id/revision"));
+    }
+
+    public function getPageRevision(int $site_id, int $page_id, int $revision_number): ?object
+    {
+        return self::fetchOrNull(function () use ($site_id, $page_id, $revision_number) {
+            $resp = $this->client->get("page/$site_id/id/$page_id/revision/$revision_number");
+            return self::readJson($resp);
+        }, "No page revision $revision_number found for page ID $page_id in site ID $site_id");
+    }
+
     public function getLinksFrom(int $site_id, int $page_id): array
     {
         $resp = $this->client->get("page/$site_id/id/$page_id/links/from");
