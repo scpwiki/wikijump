@@ -112,6 +112,23 @@ class DeepwellPage extends Migration
                     \"metadata\"
                 }'),
 
+                -- Ensure first revision reports all changes
+                --
+                -- This is implemented  by seeing if it's a superset or equal to all valid values.
+                -- Since we already check if it's a subset or equal, this is the same as
+                -- strict equivalence, but without regard for ordering.
+                CHECK (
+                    revision_number != 0 ||
+                    json_array_to_text_array(changes) @> '{
+                        \"wikitext\",
+                        \"title\",
+                        \"alt_title\",
+                        \"slug\",
+                        \"tags\",
+                        \"metadata\"
+                    }'
+                )
+
                 -- Ensure array is not empty
                 CHECK (json_array_to_text_array(changes) != '{}'),
 
