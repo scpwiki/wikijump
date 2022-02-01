@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Hash;
 class PageSeeder extends Seeder
 {
     const TIMESTAMP = 'Fri Jan 18 15:32:15 2019 -0700';
+    const ALL_CHANGES = ['wikitext', 'title', 'alt_title', 'slug', 'tags', 'metadata'];
 
     /**
      * Run the database seeds.
@@ -902,6 +903,7 @@ EOF
                 page_id,
                 site_id,
                 user_id,
+                changes,
                 wikitext_hash,
                 compiled_hash,
                 compiled_at,
@@ -915,6 +917,7 @@ EOF
                 ?,
                 ?,
                 ?,
+                ?
                 decode(?, 'hex'),
                 decode(?, 'hex'),
                 ?,
@@ -929,6 +932,7 @@ EOF
                 $page_id,
                 $site_id,
                 2,
+                self::ALL_CHANGES,
                 $wikitext_hash,
                 $compiled_hash,
                 self::TIMESTAMP,
