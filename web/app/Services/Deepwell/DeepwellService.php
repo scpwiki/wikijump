@@ -85,6 +85,60 @@ final class DeepwellService
         }, "No page found in site ID $site_id with slug '$page_slug'");
     }
 
+    public function editPage(int $site_id, int $page_id, int $user_id, string $comments, array $changes): void
+    {
+        $change_fields = [
+            'wikitext' => null,
+            'title' => null,
+            'alt_title' => 'altTitle',
+            'tags' => null,
+        ];
+
+        $body = [
+            'revisionComments' => $comments,
+            'userId' => $user_id,
+        ];
+
+        foreach ($change_fields as $php_name => $json_name) {
+            $json_name ??= $php_name;
+            if (array_key_exists($php_name, $changes)) {
+                $body[$json_name] = $changes[$php_name];
+            }
+        }
+
+        $this->client->post("page/$site_id/id/$page_id", ['json' => $body]);
+    }
+
+    public function deletePage(int $site_id, int $page_id, int $user_id, string $comments): void
+    {
+        $this->client->delete("page/$site_id/id/$page_id", [
+            'json' => [
+                'revisionComments' => $comments,
+                'userId' => $user_id,
+            ],
+        ]);
+    }
+
+    public function undeletePage(int $site_id, int $page_id, int $user_id, string $comments): void
+    {
+        $this->client->post("page/$site_id/$page_id", [
+            'json' => [
+                'revisionComments' => $comments,
+                'userId' => $user_id,
+            ],
+        ]);
+    }
+
+    public function rerenderPage(int $site_id, int $page_id, int $user_id, string $comments): void
+    {
+        $this->client->post("page/$site_id/$page_id", [
+            'json' => [
+                'revisionComments' => $comments,
+                'userId' => $user_id,
+            ],
+        ]);
+    }
+
     public function getLinksFrom(int $site_id, int $page_id): array
     {
         $resp = $this->client->get("page/$site_id/id/$page_id/links/from");
