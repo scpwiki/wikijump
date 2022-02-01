@@ -14,7 +14,9 @@ use Illuminate\Support\Facades\Hash;
 class PageSeeder extends Seeder
 {
     const TIMESTAMP = 'Fri Jan 18 15:32:15 2019 -0700';
-    const ALL_CHANGES = ['wikitext', 'title', 'alt_title', 'slug', 'tags', 'metadata'];
+
+    // Because it's temporarily JSON, not TEXT[] yet
+    const ALL_CHANGES = '["wikitext", "title", "alt_title", "slug", "tags", "metadata"]';
 
     /**
      * Run the database seeds.
@@ -917,7 +919,7 @@ EOF
                 ?,
                 ?,
                 ?,
-                ?
+                ?,
                 decode(?, 'hex'),
                 decode(?, 'hex'),
                 ?,

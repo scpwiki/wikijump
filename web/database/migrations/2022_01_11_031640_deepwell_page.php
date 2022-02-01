@@ -118,7 +118,7 @@ class DeepwellPage extends Migration
                 -- Since we already check if it's a subset or equal, this is the same as
                 -- strict equivalence, but without regard for ordering.
                 CHECK (
-                    revision_number != 0 ||
+                    revision_number != 0 OR
                     json_array_to_text_array(changes) @> '{
                         \"wikitext\",
                         \"title\",
@@ -127,7 +127,7 @@ class DeepwellPage extends Migration
                         \"tags\",
                         \"metadata\"
                     }'
-                )
+                ),
 
                 -- Ensure array is not empty
                 CHECK (json_array_to_text_array(changes) != '{}'),
