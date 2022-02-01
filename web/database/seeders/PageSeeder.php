@@ -585,149 +585,9 @@ EOF
             ],
         ]);
 
-        DB::table('page')->insert([
-            // Main site (www)
-
-            // ID: 1
-            [
-                'created_at' => self::TIMESTAMP,
-                'site_id' => 1,
-                'page_category_id' => 1,
-                'slug' => 'start',
-            ],
-            // ID: 2
-            [
-                'created_at' => self::TIMESTAMP,
-                'site_id' => 1,
-                'page_category_id' => 3,
-                'slug' => 'nav:side',
-            ],
-            // ID: 3
-            [
-                'created_at' => self::TIMESTAMP,
-                'site_id' => 1,
-                'page_category_id' => 3,
-                'slug' => 'nav:top',
-            ],
-            // ID: 4
-            [
-                'created_at' => self::TIMESTAMP,
-                'site_id' => 1,
-                'page_category_id' => 4,
-                'slug' => 'platform:activity',
-            ],
-            // ID: 5
-            [
-                'created_at' => self::TIMESTAMP,
-                'site_id' => 1,
-                'page_category_id' => 4,
-                'slug' => 'platform:sites',
-            ],
-            // ID: 6
-            [
-                'created_at' => self::TIMESTAMP,
-                'site_id' => 1,
-                'page_category_id' => 4,
-                'slug' => 'platform:search',
-            ],
-            // ID: 7
-            [
-                'created_at' => self::TIMESTAMP,
-                'site_id' => 1,
-                'page_category_id' => 5,
-                'slug' => 'system:join',
-            ],
-            // ID: 8
-            [
-                'created_at' => self::TIMESTAMP,
-                'site_id' => 1,
-                'page_category_id' => 5,
-                'slug' => 'system:members',
-            ],
-            // ID: 9
-            [
-                'created_at' => self::TIMESTAMP,
-                'site_id' => 1,
-                'page_category_id' => 5,
-                'slug' => 'system:recent-changes',
-            ],
-            // ID: 10
-            [
-                'created_at' => self::TIMESTAMP,
-                'site_id' => 1,
-                'page_category_id' => 5,
-                'slug' => 'system:page-tags',
-            ],
-            // ID: 11
-            [
-                'created_at' => self::TIMESTAMP,
-                'site_id' => 1,
-                'page_category_id' => 2,
-                'slug' => 'admin:manage',
-            ],
-
-            // Template site (template-en)
-
-            // ID: 12
-            [
-                'created_at' => self::TIMESTAMP,
-                'site_id' => 2,
-                'page_category_id' => 6,
-                'slug' => 'start',
-            ],
-            // ID: 13
-            [
-                'created_at' => self::TIMESTAMP,
-                'site_id' => 2,
-                'page_category_id' => 8,
-                'slug' => 'nav:side',
-            ],
-            // ID: 14
-            [
-                'created_at' => self::TIMESTAMP,
-                'site_id' => 2,
-                'page_category_id' => 8,
-                'slug' => 'nav:top',
-            ],
-            // ID: 15
-            [
-                'created_at' => self::TIMESTAMP,
-                'site_id' => 2,
-                'page_category_id' => 9,
-                'slug' => 'system:join',
-            ],
-            // ID: 16
-            [
-                'created_at' => self::TIMESTAMP,
-                'site_id' => 2,
-                'page_category_id' => 9,
-                'slug' => 'system:members',
-            ],
-            // ID: 17
-            [
-                'created_at' => self::TIMESTAMP,
-                'site_id' => 2,
-                'page_category_id' => 9,
-                'slug' => 'system:recent-changes',
-            ],
-            // ID: 18
-            [
-                'created_at' => self::TIMESTAMP,
-                'site_id' => 2,
-                'page_category_id' => 9,
-                'slug' => 'system:page-tags',
-            ],
-            // ID: 19
-            [
-                'created_at' => self::TIMESTAMP,
-                'site_id' => 2,
-                'page_category_id' => 7,
-                'slug' => 'admin:manage',
-            ],
-        ]);
-
         // Main site (www)
-        $this->addRevision(
+        $this->addPage(
+            1,
             1,
             1,
             'start',
@@ -735,15 +595,17 @@ EOF
             $www_start_wikitext_hash,
             $www_start_compiled_hash,
         );
-        $this->addRevision(
+        $this->addPage(
             2,
+            3,
             1,
             'nav:side',
             'Sidebar',
             $nav_side_wikitext_hash,
             $nav_side_compiled_hash,
         );
-        $this->addRevision(
+        $this->addPage(
+            3,
             3,
             1,
             'nav:top',
@@ -751,7 +613,8 @@ EOF
             $nav_top_wikitext_hash,
             $nav_top_compiled_hash,
         );
-        $this->addRevision(
+        $this->addPage(
+            4,
             4,
             1,
             'platform:activity',
@@ -759,56 +622,63 @@ EOF
             $platform_activity_wikitext_hash,
             $platform_activity_compiled_hash,
         );
-        $this->addRevision(
+        $this->addPage(
             5,
+            4,
             1,
             'platform:sites',
             'Wikijump: List of all sites',
             $platform_sites_wikitext_hash,
             $platform_sites_compiled_hash,
         );
-        $this->addRevision(
+        $this->addPage(
             6,
+            4,
             1,
             'platform:search',
             'Wikijump: Search all sites',
             $platform_search_wikitext_hash,
             $platform_search_compiled_hash,
         );
-        $this->addRevision(
+        $this->addPage(
             7,
+            5,
             1,
             'system:join',
             'Join this site',
             $system_join_wikitext_hash,
             $system_join_compiled_hash,
         );
-        $this->addRevision(
+        $this->addPage(
             8,
+            5,
             1,
             'system:members',
             'Site Members',
             $system_members_wikitext_hash,
             $system_members_compiled_hash,
         );
-        $this->addRevision(
+        $this->addPage(
             9,
+            5,
             1,
             'system:recent-changes',
             'Recent Changes',
             $system_recent_changes_wikitext_hash,
             $system_recent_changes_compiled_hash,
         );
-        $this->addRevision(
+        $this->addPage(
             10,
+            5,
             1,
             'system:page-tags',
             'Page Tags',
             $system_page_tags_wikitext_hash,
             $system_page_tags_compiled_hash,
         );
-        $this->addRevision(
+        $this->addPage(
             11,
+            2,
             1,
             'admin:manage',
             'Site Manager',
@@ -817,64 +687,72 @@ EOF
         );
 
         // Template site (template-en)
-        $this->addRevision(
+        $this->addPage(
             12,
+            6,
             2,
             'start',
             "You've just created a new Wikijump wiki!",
             $system_join_wikitext_hash,
             $system_join_compiled_hash,
         );
-        $this->addRevision(
+        $this->addPage(
             13,
+            8,
             2,
             'nav:side',
             'Sidebar',
             $nav_side_wikitext_hash,
             $nav_side_compiled_hash,
         );
-        $this->addRevision(
+        $this->addPage(
             14,
+            8,
             2,
             'nav:top',
             'Topbar',
             $nav_top_wikitext_hash,
             $nav_top_compiled_hash,
         );
-        $this->addRevision(
+        $this->addPage(
             15,
+            9,
             2,
             'system:join',
             'Join this site',
             $system_join_wikitext_hash,
             $system_join_compiled_hash,
         );
-        $this->addRevision(
+        $this->addPage(
             16,
+            9,
             2,
             'system:members',
             'Site Members',
             $system_members_wikitext_hash,
             $system_members_compiled_hash,
         );
-        $this->addRevision(
+        $this->addPage(
             17,
+            9,
             2,
             'system:recent-changes',
             'Recent Changes',
             $system_recent_changes_wikitext_hash,
             $system_recent_changes_compiled_hash,
         );
-        $this->addRevision(
+        $this->addPage(
             18,
+            9,
             2,
             'system:page-tags',
             'Page Tags',
             $system_page_tags_wikitext_hash,
             $system_page_tags_compiled_hash,
         );
-        $this->addRevision(
+        $this->addPage(
             19,
+            7,
             2,
             'admin:manage',
             'Site Manager',
@@ -987,8 +865,9 @@ EOF
         return $hash;
     }
 
-    private function addRevision(
+    private function addPage(
         int $page_id,
+        int $category_id,
         int $site_id,
         string $slug,
         string $title,
@@ -996,6 +875,26 @@ EOF
         string $compiled_hash,
         int $revision_number = 0
     ): void {
+        // NOTE: Assumes the $page_id passed in is the
+        //       next one generated when inserting into page.
+
+        // Add page
+        DB::insert(
+            "INSERT INTO page (
+                created_at,
+                site_id,
+                page_category_id,
+                slug
+            ) VALUES (
+                ?,
+                ?,
+                ?,
+                ?
+            )",
+            [self::TIMESTAMP, $site_id, $category_id, $slug],
+        );
+
+        // Add revision
         DB::insert(
             "INSERT INTO page_revision (
                 created_at,
