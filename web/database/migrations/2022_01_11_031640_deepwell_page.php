@@ -17,6 +17,18 @@ class DeepwellPage extends Migration
     {
         // This hands ownership of the primary page tables to DEEPWELL
 
+        // Add helper function
+        DB::statement("
+            CREATE OR REPLACE FUNCTION json_array_to_text_array(_js json)
+                RETURNS TEXT[]
+                LANGUAGE SQL
+                IMMUTABLE
+                PARALLEL
+                SAFE
+            AS
+                'SELECT array(SELECT json_array_elements_text(_js))'
+        ");
+
         // Remove old foreign keys
         DB::statement('ALTER TABLE file DROP CONSTRAINT file_page_id_foreign');
         DB::statement('ALTER TABLE forum_thread DROP CONSTRAINT forum_thread_page_id_foreign');
@@ -63,8 +75,9 @@ class DeepwellPage extends Migration
             )
         ");
 
-        // NOTE: We want to make 'hidden' and 'tags' arrays, but for now SeaORM doesn't support that,
-        //       so we're using JSON until it does, at which time we will make a migration.
+        // NOTE: We want to make 'changes', 'hidden' and 'tags' arrays,
+        //        but for now SeaORM doesn't support that, so we're
+        //        using JSON until it does, at which time we will make a migration.
         DB::statement("
             CREATE TABLE page_revision (
                 revision_id BIGSERIAL PRIMARY KEY,
@@ -73,6 +86,7 @@ class DeepwellPage extends Migration
                 page_id BIGINT NOT NULL REFERENCES page(page_id),
                 site_id BIGINT NOT NULL REFERENCES site(site_id),
                 user_id BIGINT NOT NULL REFERENCES users(id),
+                changes JSON NOT NULL, -- List of changes in this revision
                 wikitext_hash BYTEA NOT NULL REFERENCES text(hash),
                 compiled_hash BYTEA NOT NULL REFERENCES text(hash),
                 compiled_at TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -86,6 +100,22 @@ class DeepwellPage extends Migration
                 tags JSON NOT NULL DEFAULT '{}', -- Should be sorted and deduplicated before insertion
                 metadata JSONB NOT NULL DEFAULT '{}', -- Customizable metadata. Currently unused.
 
+                -- NOTE: json_array_to_text_array() is needed while we're still on JSON
+
+                -- Ensure array only contains valid values
+                CHECK (json_array_to_text_array(changes) <@ '{
+                    \"wikitext\",
+                    \"title\",
+                    \"alt_title\",
+                    \"slug\",
+                    \"tags\",
+                    \"metadata\"
+                }'),
+
+                -- Ensure array is not empty
+                CHECK (json_array_to_text_array(changes) != '{}'),
+
+                -- For logical consistency, and adding an index
                 UNIQUE (page_id, site_id, revision_number)
             )
         ");
