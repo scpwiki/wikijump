@@ -5,17 +5,14 @@ namespace Wikidot\Modules\Edit;
 
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
-use Ozone\Framework\ODate;
 use Wikidot\DB\PagePeer;
 use Wikidot\DB\CategoryPeer;
-use Wikidot\DB\PageEditLock;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDEditUtils;
 use Wikidot\Utils\WDPermissionManager;
 use Wikidot\Utils\WDStringUtils;
 use Wikidot\Form;
 use Wikidot\Form\Renderer;
-use Wikidot\DB\PageEditLockPeer;
 
 use Ozone\Framework\SmartyModule;
 
@@ -61,11 +58,6 @@ class PageEditModule extends SmartyModule
             if ($page != null) {
                 // page exists!!! error!
                 throw new ProcessException(_("The page you want to create already exists. Please refresh the page in your browser to see it."));
-            /*  $runData->ajaxResponseAdd("pageExists", true);
-                $runData->ajaxResponseAdd("locked", true); //well, it is somehow locked...
-                $runData->setModuleTemplate("Edit/NewPageExistsWinModule");
-                $db->commit();
-                return; */
             }
 
             // extract category name
@@ -95,48 +87,9 @@ class PageEditModule extends SmartyModule
 
             // now check for permissions!!!
             WDPermissionManager::instance()->hasPagePermission('create', $user, $category);
-            $autoincrement = false;
-            if (preg_match(';^([a-z0-9]+:)?'.self::$AUTOINCREMENT_PAGE.'$;', $unixName)) {
-                $autoincrement = true;
-            }
-            if (!$autoincrement) {
-                $lock = new PageEditLock();
-                $lock->setPageUnixName($unixName);
-                $lock->setSiteId($site->getSiteId());
-                $lock->setUserId($runData->getUserId());
-                $lock->setUserString($runData->getSession()->getIpAddress());
-
-                $lock->setDateStarted(new ODate());
-                $lock->setDateLastAccessed(new ODate());
-
-                if ($pl->getParameterValue("force_lock") != null) {
-                    $lock->deleteConflicts();
-                } else {
-                    // check for conflicts
-                    $conflicts = $lock->getConflicts();
-                    if ($conflicts != null) {
-                        $runData->ajaxResponseAdd("locked", true);
-                        $runData->setModuleTemplate("Edit/NewPageLockedWinModule");
-                        $runData->contextAdd("locks", $conflicts);
-                        return;
-                    }
-                }
-
-                $secret = md5(time().rand(1000, 9999));
-                $lock->setSecret($secret);
-                $lock->setSessionId($runData->getSession()->getSessionId());
-                $lock->save();
-                $runData->ajaxResponseAdd('lock_id', $lock->getLockId());
-                $runData->ajaxResponseAdd('lock_secret', $secret);
-            } else {
-                $runData->contextAdd('disableLocks', true);
-                $runData->ajaxResponseAdd('disableLocks', true);
-            }
             $runData->contextAdd("title", $suggestedTitle);
 
-
             /* Select available templates, but only if the category does not have a live template. */
-
             $templatePage = $category->getTemplatePage();
 
             if ($templatePage && $form = Form::fromSource($templatePage->getSource())) {
@@ -210,45 +163,10 @@ class PageEditModule extends SmartyModule
             $runData->contextAdd("form", new Renderer($form));
         }
 
-        // if we have not returned yet it means that the lock does not exist or is expired
         // if session is not started - start it!
         $runData->sessionStart();
-        // create new page lock
-        $lock = new PageEditLock();
-        $lock->setPageId($page->getPageId());
-        $lock->setPageUnixName($page->getUnixName());
-        $lock->setSiteId($site->getSiteId());
-        $lock->setUserId($runData->getUserId());
-        $lock->setUserString($runData->getSession()->getIpAddress());
 
-        $lock->setDateStarted(new ODate());
-        $lock->setDateLastAccessed(new ODate());
-
-        // delete outdated...
-        PageEditLockPeer::instance()->deleteOutdated($pageId);
         // check for conflicts
-
-        if ($pl->getParameterValue("force_lock") != null) {
-            $lock->deleteConflicts();
-        } else {
-            $blocklocks = $lock->getConflicts();
-            if ($blocklocks != null) {
-                // conflicting locks exist.
-                $runData->setModuleTemplate("Edit/LockExistsWinModule");
-                $runData->ajaxResponseAdd("locked", true);
-                $runData->contextAdd("locks", $blocklocks);
-                return;
-            }
-        }
-
-        $secret = md5(time().rand(1000, 9999));
-        $lock->setSecret($secret);
-        $lock->setSessionId($runData->getSession()->getSessionId());
-        $lock->save();
-
-        $runData->ajaxResponseAdd('lock_id', $lock->getLockId());
-        $runData->ajaxResponseAdd('lock_secret', $secret);
-        // also put current page revision in case one wants to regain lock after expired.
 
         $runData->ajaxResponseAdd('page_revision_id', $page->getRevisionId());
 

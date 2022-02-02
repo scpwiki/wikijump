@@ -17,10 +17,8 @@ use Wikidot\Utils\WDPermissionException;
 use Wikidot\Utils\WDPermissionManager;
 use Wikidot\Utils\WDStringUtils;
 use Wikidot\Yaml;
-use Wikidot\DB\PageEditLockPeer;
 use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\PagePeer;
-use Wikidot\DB\PageEditLock;
 use Wikidot\DB\Page;
 use Wikidot\DB\PageRevision;
 use Wikidot\DB\PageMetadata;
@@ -72,9 +70,6 @@ class WikiPageAction extends SmartyAction
         $unixName = $pl->getParameterValue("wiki_page");
         $unixName = WDStringUtils::toUnixName($unixName); // purify! (for sure)
 
-        $lockId = $pl->getParameterValue("lock_id");
-        $lockSecret = $pl->getParameterValue("lock_secret");
-
         $site = $runData->getTemp("site");
 
         // validate input first
@@ -82,7 +77,6 @@ class WikiPageAction extends SmartyAction
         $db = Database::connection();
         $db->begin();
 
-        // remove old locks.
         if (strlen($title) > 128) {
             throw new ProcessException(_("Title of the page should not be longer than 128 characters."), "title_too_long");
         }
@@ -101,9 +95,6 @@ class WikiPageAction extends SmartyAction
         if ($pageId === null || $pageId === '') {
             if (preg_match(';^([a-z0-9]+:)?'.self::$AUTOINCREMENT_PAGE.'$;', $unixName)) {
                 $autoincrement = true;
-            }
-            if (!$autoincrement) {
-                PageEditLockPeer::instance()->deleteOutdatedByPageName($site->getSiteId(), $unixName);
             }
             // a page should be created!
 
@@ -138,68 +129,6 @@ class WikiPageAction extends SmartyAction
             // first look at permissions!
 
             WDPermissionManager::instance()->hasPagePermission('create', $runData->getUser(), $category);
-
-            // check the locks!
-            // check if the lock still exists.
-            if (!$autoincrement) {
-                $c = new Criteria();
-                $c->add("lock_id", $lockId);
-                $c->add("secret", $lockSecret);
-
-                $lock = PageEditLockPeer::instance()->selectOne($c);
-                if ($lock == null) {
-                    $page = PagePeer::instance()->selectByName($site->getSiteId(), $unixName);
-                    if ($page != null) {
-                        // page exists!!! error!
-                        $runData->ajaxResponseAdd("noLockError", "other_locks");
-                        $runData->ajaxResponseAdd("pageExists", true);
-                        $runData->ajaxResponseAdd("locked", true); //well, it is somehow locked...
-                        $runData->setModuleTemplate("Edit/NewPageExistsWinModule");
-                        $runData->contextAdd("nonrecoverable", true);
-                        $runData->ajaxResponseAdd("nonrecoverable", true);
-                        $db->commit();
-                        return;
-                    }
-
-                    // check if we can TRANSPARENTLY recreate the lock IF there is no
-                    // conflicting lock and the revision_id has not changed.
-                    $lock = new PageEditLock();
-
-                    $lock->setPageUnixName($unixName);
-                    $lock->setSiteId($site->getSiteId());
-                    $lock->setUserId($runData->getUserId());
-                    $lock->setUserString($runData->getSession()->getIpAddress());
-
-                    $lock->setDateStarted(new ODate());
-                    $lock->setDateLastAccessed(new ODate());
-
-                    $conflictLocks = $lock->getConflicts();
-                    if ($conflictLocks == null) {
-                        // safely recreate lock
-                        $secret = md5(time().rand(1000, 9999));
-                        $lock->setSecret($secret);
-                        $lock->setSessionId($runData->getSession()->getSessionId());
-                        $lock->save();
-                        $lockId = $lock->getLockId();
-
-                        // send back new lock information
-                        $runData->ajaxResponseAdd("lockRecreated", true);
-                        $runData->ajaxResponseAdd("lockId", $lockId);
-                        $runData->ajaxResponseAdd("lockSecret", $secret);
-                        $runData->ajaxResponseAdd('timeLeft', 60*15);
-                    } else {
-                        $runData->ajaxResponseAdd("noLockError", "other_locks");
-                        $runData->setModuleTemplate("Edit/LockInterceptedWinModule");
-                        $runData->contextAdd("locks", $conflictLocks);
-                        $db->commit();
-                        return;
-                    }
-                } else {
-                    $lock->setDateLastAccessed(new ODate());
-                    $lock->save();
-                    $runData->ajaxResponseAdd('timeLeft', 60*15);
-                }
-            }
 
             /* Change unixName to integer. */
             if ($autoincrement) {
@@ -279,17 +208,8 @@ class WikiPageAction extends SmartyAction
 
             $outdater = new Outdater();
             $outdater->pageEvent("new_page", $page);
-
-            // index page
-            if (!$autoincrement) {
-                $c = new Criteria();
-                $c->add("lock_id", $lockId);
-                PageEditLockPeer::instance()->delete($c);
-            }
         } else {
             // THE PAGE ALREADY EXISTS
-
-            PageEditLockPeer::instance()->deleteOutdated($pageId);
 
             $c = new Criteria();
             $c->add("page_id", $pageId);
@@ -303,67 +223,6 @@ class WikiPageAction extends SmartyAction
             // check permissions
             $category = $page->getCategory();
             WDPermissionManager::instance()->hasPagePermission('edit', $runData->getUser(), $category, $page);
-
-            // check if the lock still exists.
-            $c = new Criteria();
-            $c->add("lock_id", $lockId);
-            $c->add("secret", $lockSecret);
-
-            $lock = PageEditLockPeer::instance()->selectOne($c);
-            if ($lock == null) {
-                // no lock!!! not good.
-                if ($page->getRevisionId() != $pl->getParameterValue("revision_id")) {
-                    // this is nonrecoverable.
-                    // author should stop editing now!!!
-                    $runData->ajaxResponseAdd("noLockError", "page_changed");
-                    $runData->setModuleTemplate("Edit/LockInterceptedWinModule");
-                    $runData->contextAdd("nonrecoverable", true);
-                    $runData->ajaxResponseAdd("nonrecoverable", true);
-                    $db->commit();
-                    return;
-                }
-
-                // check if we can TRANSPARENTLY recreate the lock IF there is no
-                // conflicting lock and the revision_id has not changed.
-                $lock = new PageEditLock();
-                $lock->setPageId($page->getPageId());
-                $lock->setPageUnixName($page->getUnixName());
-                $lock->setSiteId($site->getSiteId());
-                $lock->setUserId($runData->getUserId());
-                $lock->setUserString($runData->getSession()->getIpAddress());
-
-                $lock->setDateStarted(new ODate());
-                $lock->setDateLastAccessed(new ODate());
-                $conflictLocks = $lock->getConflicts();
-                if ($conflictLocks == null) {
-                    // safely recreate lock
-                    $secret = md5(time().rand(1000, 9999));
-                    $lock->setSecret($secret);
-                    $lock->setSessionId($runData->getSession()->getSessionId());
-                    $lock->save();
-                    $lockId = $lock->getLockId();
-                    // send back new lock information
-                    $runData->ajaxResponseAdd("lockRecreated", true);
-                    $runData->ajaxResponseAdd("lockId", $lockId);
-                    $runData->ajaxResponseAdd("lockSecret", $secret);
-                    $runData->ajaxResponseAdd('timeLeft', 60*15);
-                } else {
-                    $runData->ajaxResponseAdd("noLockError", "other_locks");
-                    $runData->setModuleTemplate("Edit/LockInterceptedWinModule");
-                    $runData->contextAdd("locks", $conflictLocks);
-                    $db->commit();
-                    return;
-                }
-            } else {
-                $lock->setDateLastAccessed(new ODate());
-                $lock->save();
-                $runData->ajaxResponseAdd('timeLeft', 60*15);
-
-                // here is a good place to check conditions for
-                // "save & continue" which when first called
-                // creates new revision, but the subsequent calls
-                // do not.
-            }
 
             // check if source or metadata has changed. if neither is changed - do nothing
 
@@ -394,9 +253,6 @@ class WikiPageAction extends SmartyAction
             // and act accordingly to the situation
 
             if ($sourceChanged == false && $metadataChanged == false) {
-                $c = new Criteria();
-                $c->add("lock_id", $lockId);
-                PageEditLockPeer::instance()->delete($c);
                 $db->commit();
                 return;
             }
@@ -461,238 +317,6 @@ class WikiPageAction extends SmartyAction
                 $outdater->pageEvent("title_changed", $page);
             }
         }
-
-        // remove lock too?
-        if (!$pl->getParameterValue("and_continue") && !$autoincrement) {
-            $c = new Criteria();
-            $c->add("lock_id", $lockId);
-            PageEditLockPeer::instance()->delete($c);
-            $runData->ajaxResponseAdd("revisionId", $pageRevision->getRevisionId());
-        }
-    }
-
-    /**
-     * Simply removes page edit lock from a page.
-     */
-    public function removePageEditLockEvent($runData)
-    {
-        $pl = $runData->getParameterList();
-        $lockId =  $pl->getParameterValue("lock_id");
-        $secret = $pl->getParameterValue("lock_secret");
-        $c = new Criteria();
-        $c->add("lock_id", $lockId);
-        $c->add("secret", $secret);
-
-        PageEditLockPeer::instance()->delete($c);
-    }
-
-    public function updateLockEvent($runData)
-    {
-        $pl = $runData->getParameterList();
-        $pageId = $pl->getParameterValue("page_id");
-
-        $unixName = $pl->getParameterValue("wiki_page");
-        $unixName = WDStringUtils::toUnixName($unixName); // purify! (for sure)
-
-        $lockId = $pl->getParameterValue("lock_id");
-        $lockSecret = $pl->getParameterValue("lock_secret");
-
-        $site = $runData->getTemp("site");
-        $sinceLastInput = $pl->getParameterValue("since_last_input");
-        if ($sinceLastInput == null) {
-            $sinceLastInput = 0;
-        }
-
-        $db = Database::connection();
-        $db->begin();
-
-        if ($pageId!= null) {
-            PageEditLockPeer::instance()->deleteOutdated($pageId);
-            $c = new Criteria();
-            $c->add("page_id", $pageId);
-            $c->setForUpdate(true);
-            $page = PagePeer::instance()->selectOne($c);
-            if ($page == null) {
-                throw new ProcessException(_("Cannot find the page."). "no_page");
-            }
-        } else {
-            PageEditLockPeer::instance()->deleteOutdatedByPageName($site->getSiteId(), $unixName);
-        }
-
-        // delete outdated locks...
-
-        // check if the lock still exists.
-        $c = new Criteria();
-        $c->add("lock_id", $lockId);
-        $c->add("secret", $lockSecret);
-
-        $lock = PageEditLockPeer::instance()->selectOne($c);
-        $dateLastAccessed = new ODate();
-        $timeLeft = 15*60 - $sinceLastInput;
-        $dateLastAccessed->subtractSeconds($sinceLastInput);
-        if ($lock!=null) {
-            // just update
-
-            $lock->setDateLastAccessed($dateLastAccessed);
-            $lock->save();
-            $runData->ajaxResponseAdd('timeLeft', $timeLeft);
-        } else {
-            // no lock!!! not good.
-            if ($page != null && $page->getRevisionId() != $pl->getParameterValue("revision_id")) {
-                // this is nonrecoverable.
-                // author should stop editing now!!!
-                $runData->ajaxResponseAdd("noLockError", "page_changed");
-                $runData->setModuleTemplate("Edit/LockInterceptedWinModule");
-                $runData->contextAdd("nonrecoverable", true);
-                $runData->ajaxResponseAdd("nonrecoverable", true);
-            } elseif ($page == null && PagePeer::instance()->selectByName($site->getSiteId(), $unixName) != null) {
-                // page exists!
-                $runData->ajaxResponseAdd("noLockError", "page_exists");
-                $runData->ajaxResponseAdd("nonrecoverable", true);
-                $runData->setModuleTemplate("Edit/NewPageExistsWinModule");
-            } else {
-                // ok, see if there are conflicts and is it possible to
-                // recreate the lock.
-                $lock = new PageEditLock();
-                if ($page != null) {
-                    $lock->setPageId($page->getPageId());
-                    $lock->setPageUnixName($page->getUnixName());
-                } else {
-                    $lock->setPageUnixName($unixName);
-                }
-                $lock->setSiteId($site->getSiteId());
-                $lock->setUserId($runData->getUserId());
-                $lock->setUserString($runData->getSession()->getIpAddress());
-
-                $lock->setDateStarted($dateLastAccessed);
-                $lock->setDateLastAccessed($dateLastAccessed);
-                $conflictLocks = $lock->getConflicts();
-                if ($conflictLocks == null) {
-                    // safely recreate lock
-                    $secret = md5(time().rand(1000, 9999));
-                    $lock->setSecret($secret);
-                    $lock->setSessionId($runData->getSession()->getSessionId());
-                    $lock->save();
-                    $lockId = $lock->getLockId();
-                    // send back new lock information
-                    $runData->ajaxResponseAdd("lockRecreated", true);
-                    $runData->ajaxResponseAdd("lockId", $lockId);
-                    $runData->ajaxResponseAdd("lockSecret", $secret);
-                    $runData->ajaxResponseAdd('timeLeft', $timeLeft);
-                } else {
-                    $runData->ajaxResponseAdd("noLockError", "other_locks");
-                    $runData->setModuleTemplate("Edit/LockInterceptedWinModule");
-                    $runData->contextAdd("locks", $conflictLocks);
-                }
-            }
-        }
-
-        $db->commit();
-    }
-
-    public function forceLockInterceptEvent($runData)
-    {
-        $pl = $runData->getParameterList();
-        $pageId = $pl->getParameterValue("page_id");
-
-        $unixName = $pl->getParameterValue("wiki_page");
-        $unixName = WDStringUtils::toUnixName($unixName); // purify! (for sure)
-
-        $site = $runData->getTemp("site");
-
-        $db = Database::connection();
-        $db->begin();
-
-        if ($pageId !== null) {
-            $c = new Criteria();
-            $c->add("page_id", $pageId);
-            $c->setForUpdate(true);
-            $page = PagePeer::instance()->selectOne($c);
-            if ($page === null) {
-                throw new ProcessException(_("Cannot find the page."). "no_page");
-            }
-        } else {
-            $page = null;
-        }
-
-        if ($page !== null && $page->getRevisionId() != $pl->getParameterValue("revision_id")) {
-            $runData->setModuleTemplate("Edit/LockPageChangedWinModule");
-            $runData->ajaxResponseAdd("nonrecoverable", true);
-            return;
-        }
-
-        if ($page === null && PagePeer::instance()->selectByName($site->getSiteId(), $unixName) != null) {
-            $runData->ajaxResponseAdd("noLockError", "page_exists");
-            $runData->ajaxResponseAdd("nonrecoverable", true);
-            $runData->setModuleTemplate("Edit/NewPageExistsWinModule");
-        }
-
-        // delete outdated locks...
-        if ($page !== null) {
-            PageEditLockPeer::instance()->deleteOutdated($pageId);
-        } else {
-            PageEditLockPeer::instance()->deleteOutdatedByPageName($site->getSiteId(), $unixName);
-        }
-
-        $lock = new PageEditLock();
-        if ($page != null) {
-            $lock->setPageId($page->getPageId());
-            $lock->setPageUnixName($page->getUnixName());
-        } else {
-            $lock->setPageUnixName($unixName);
-        }
-        $lock->setSiteId($site->getSiteId());
-
-        $lock->setUserId($runData->getUserId());
-        $lock->setUserString($runData->getSession()->getIpAddress());
-
-        $lock->setDateStarted(new ODate());
-        $lock->setDateLastAccessed(new ODate());
-        $secret = md5(time().rand(1000, 9999));
-        $lock->setSecret($secret);
-        $lock->setSessionId($runData->getSession()->getSessionId());
-
-        $lock->deleteConflicts();
-        $lock->save();
-
-        $db->commit();
-
-        $runData->ajaxResponseAdd('lock_id', $lock->getLockId());
-        $runData->ajaxResponseAdd('lock_secret', $secret);
-        $runData->ajaxResponseAdd('timeLeft', 60*15);
-    }
-
-    public function recreateExpiredLockEvent($runData)
-    {
-        // it should be basicly the same as updateLockEvent.
-        $pl = $runData->getParameterList();
-        // make sure the lock is deleted!!!
-        $lockId = $pl->getParameterValue("lock_id");
-        $lockSecret = $pl->getParameterValue("lock_secret");
-        $c = new Criteria();
-        $c->add("lock_id", $lockId);
-        $c->add("secret", $lockSecret);
-        PageEditLockPeer::instance()->delete($c);
-
-        $this->updateLockEvent($runData);
-
-        // means page has changed...
-        if ($runData->contextGet("nonrecoverable") == true) {
-            $runData->setModuleTemplate("Edit/LockPageChangedWinModule");
-            $runData->ajaxResponseAdd("nonrecoverable", true);
-            $runData->ajaxResponseAdd("pageChanged", true);
-            return;
-        }
-
-        // means there are conflicting locks
-        if ($runData->getModuleTemplate() == "Edit/LockInterceptedWinModule") {
-            $runData->setModuleTemplate("Edit/LockExpiredConflictWinModule");
-            $runData->ajaxResponseAdd("conflicts", true);
-            return;
-        }
-
-        // if nothing - the lock has been successfuly recreated.
-        $runData->ajaxResponseAdd('timeLeft', 60*15);
     }
 
     public function renamePageEvent($runData)
@@ -740,26 +364,6 @@ class WikiPageAction extends SmartyAction
         $oldName = $page->getUnixName();
 
         // check if new page exists!
-
-        // check for locks first
-        PageEditLockPeer::instance()->deleteOutdated($pageId);
-
-        $c = new Criteria();
-        $c->add("page_id", $page->getPageId());
-
-        if ($pl->getParameterValue("force") === "yes") {
-            PageEditLockPeer::instance()->delete($c);
-        }
-
-        $locks = PageEditLockPeer::instance()->select($c);
-
-        if (count($locks)>0) {
-            $runData->ajaxResponseAdd("locks", true);
-            $runData->contextAdd("locks", $locks);
-            $runData->setModuleTemplate("Rename/PageLockedWin");
-            $db->rollback();
-            return;
-        }
 
         // success so far...
 
@@ -1070,26 +674,6 @@ class WikiPageAction extends SmartyAction
         $currentRevision = $page->getCurrentRevision();
 
         $currentMeta = $currentRevision->getMetadata();
-
-        // check for locks first
-        PageEditLockPeer::instance()->deleteOutdated($pageId);
-
-        $c = new Criteria();
-        $c->add("page_id", $page->getPageId());
-
-        if ($pl->getParameterValue("force") === "yes") {
-            PageEditLockPeer::instance()->delete($c);
-        }
-
-        $locks = PageEditLockPeer::instance()->select($c);
-
-        if (count($locks) > 0) {
-            $runData->ajaxResponseAdd("locks", true);
-            $runData->contextAdd("locks", $locks);
-            $runData->setModuleTemplate("History/RevertPageLockedWin");
-            $db->rollback();
-            return;
-        }
 
         // success so far...
 

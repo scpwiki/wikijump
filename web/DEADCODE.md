@@ -261,3 +261,9 @@ If possible, add to this log in the same commit in which the code is removed.
 * Relevant Issues: [WJ-938](https://scuttle.atlassian.net/browse/WJ-938)
 * What it did: Allowed editing by adding contents to the end of a page.
 * Why it was removed: It was frequently used, and with the removal of section editing, it made sense to simplify page edit code by removing it as well.
+
+## PHP, JS: Page Edit Locks
+* WHere it was: Multiple files, see pull request
+* Relevant Issues: [WJ-747](https://scuttle.atlassian.net/browse/WJ-747)
+* What it did: Implemented Wikidot's method of page edit locks.
+* Why it was removed: As part of using our new editor, Sheaf, we will have a fundamentally different structure for managing locks. The schema for page tables is currently being refactored, so we are simplifying things by just removing it now.
