@@ -156,6 +156,7 @@ $ chown -R www-data:www-data /var/www/wikijump/web/storage
 ```
 
 The error should be resolved.
+
 ## Relevant Documentation
 
 - [Docker Compose](https://docs.docker.com/compose/)
