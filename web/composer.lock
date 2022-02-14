@@ -1543,12 +1543,12 @@
                 }
             },
             "autoload": {
-                "psr-4": {
-                    "GuzzleHttp\\": "src/"
-                },
                 "files": [
                     "src/functions_include.php"
-                ]
+                ],
+                "psr-4": {
+                    "GuzzleHttp\\": "src/"
+                }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -1824,16 +1824,16 @@
         },
         {
             "name": "innocenzi/laravel-vite",
-            "version": "0.1.23",
+            "version": "0.1.27",
             "source": {
                 "type": "git",
                 "url": "https://github.com/innocenzi/laravel-vite.git",
-                "reference": "86af082e5e6b800feff4f609646bdd27c7f733ad"
+                "reference": "50bc07018bd6a2b6c88e074c62bfb0909275f327"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/innocenzi/laravel-vite/zipball/86af082e5e6b800feff4f609646bdd27c7f733ad",
-                "reference": "86af082e5e6b800feff4f609646bdd27c7f733ad",
+                "url": "https://api.github.com/repos/innocenzi/laravel-vite/zipball/50bc07018bd6a2b6c88e074c62bfb0909275f327",
+                "reference": "50bc07018bd6a2b6c88e074c62bfb0909275f327",
                 "shasum": ""
             },
             "require": {
@@ -1889,7 +1889,7 @@
             ],
             "support": {
                 "issues": "https://github.com/innocenzi/laravel-vite/issues",
-                "source": "https://github.com/innocenzi/laravel-vite/tree/0.1.23"
+                "source": "https://github.com/innocenzi/laravel-vite/tree/0.1.27"
             },
             "funding": [
                 {
@@ -1897,7 +1897,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-01-17T14:02:38+00:00"
+            "time": "2022-01-31T14:50:39+00:00"
         },
         {
             "name": "laravel/framework",
