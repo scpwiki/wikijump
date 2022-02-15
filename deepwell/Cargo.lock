@@ -847,6 +847,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "cuid"
+version = "1.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d2a2891c056384f8461606f2579208164d67475fb17a0f442ac8d5981d3c2807"
+dependencies = [
+ "hostname",
+ "lazy_static",
+ "rand 0.8.4",
+]
+
+[[package]]
 name = "dashmap"
 version = "4.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -866,6 +877,7 @@ dependencies = [
  "chrono",
  "clap 3.0.13",
  "color-backtrace",
+ "cuid",
  "dotenv",
  "fluent",
  "ftml",

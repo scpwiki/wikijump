@@ -19,6 +19,7 @@ async-std = { version = "1", features = ["attributes"] }
 chrono = { version = "0.4", features = ["serde"] }
 clap = "3"
 color-backtrace = "0.5"
+cuid = "1"
 dotenv = "0.15"
 fluent = "0.16"
 ftml = { version = "1.12", features = ["log", "mathml"] }
