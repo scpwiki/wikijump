@@ -10,7 +10,7 @@
   },
   "main": "./cli.ts",
   "devDependencies": {
-    "@mockoon/cli": "^1.5.0",
+    "@mockoon/cli": "^1.5.1",
     "pretty-ms": "^7.0.1"
   }
 }

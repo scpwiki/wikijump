@@ -11,9 +11,9 @@
   "type": "module",
   "main": "scripts/index.ts",
   "dependencies": {
-    "@uppy/core": "^2.1.4",
-    "@uppy/dashboard": "^2.1.3",
-    "@uppy/image-editor": "^1.1.0",
+    "@uppy/core": "^2.1.5",
+    "@uppy/dashboard": "^2.1.4",
+    "@uppy/image-editor": "^1.1.1",
     "@uppy/xhr-upload": "^2.0.7",
     "@wikijump/api": "workspace:*",
     "@wikijump/components": "workspace:*",
@@ -23,7 +23,7 @@
     "@wikijump/sheaf": "workspace:*",
     "@wikijump/util": "workspace:*",
     "include-media": "^1.4.10",
-    "svelte": "^3.45.0",
-    "tinro": "^0.6.10"
+    "svelte": "^3.46.4",
+    "tinro": "^0.6.12"
   }
 }
