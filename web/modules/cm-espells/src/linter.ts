@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { EditorView, ViewPlugin, ViewUpdate } from "@wikijump/codemirror/cm"
 import { timeout, Timeout } from "@wikijump/util"
-import espells from "./espells"
+import espells from "./espells/interface"
 import { Spellcheck } from "./extension"
 import { getLocale } from "./locales"
 import { visibleWords } from "./tokenizer"

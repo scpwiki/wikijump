@@ -114,6 +114,7 @@ importers:
     specifiers:
       '@lezer/common': ^0.15.11
       '@wikijump/codemirror': workspace:*
+      '@wikijump/comlink': workspace:*
       '@wikijump/components': workspace:*
       '@wikijump/dom': workspace:*
       '@wikijump/fluent': workspace:*
@@ -145,6 +146,7 @@ importers:
     dependencies:
       '@lezer/common': 0.15.11
       '@wikijump/codemirror': link:../codemirror
+      '@wikijump/comlink': link:../comlink
       '@wikijump/components': link:../components
       '@wikijump/dom': link:../dom
       '@wikijump/fluent': link:../fluent
@@ -187,7 +189,7 @@ importers:
       '@wikijump/prism': workspace:*
       '@wikijump/threads-worker-module': workspace:*
       '@wikijump/util': workspace:*
-      cm-tarnation: link:../../../../cm-tarnation
+      cm-tarnation: ^0.1.1
       svelte: ^3.46.4
     dependencies:
       '@lezer/common': 0.15.11
@@ -201,7 +203,7 @@ importers:
       '@wikijump/prism': link:../prism
       '@wikijump/threads-worker-module': link:../threads-worker-module
       '@wikijump/util': link:../util
-      cm-tarnation: link:../../../../cm-tarnation
+      cm-tarnation: 0.1.1
       svelte: 3.46.4
 
   modules/codemirror:
@@ -265,6 +267,12 @@ importers:
       '@wikijump/threads-worker-module': link:../threads-worker-module
       '@wikijump/util': link:../util
       svelte: 3.46.4
+
+  modules/comlink:
+    specifiers:
+      comlink: ^4.3.1
+    dependencies:
+      comlink: 4.3.1
 
   modules/components:
     specifiers:
@@ -397,7 +405,6 @@ importers:
       '@wikijump/sheaf': workspace:*
       '@wikijump/util': workspace:*
       include-media: ^1.4.10
-      module-workers-polyfill: ^0.3.2
       svelte: ^3.46.4
       tinro: ^0.6.12
     dependencies:
@@ -413,7 +420,6 @@ importers:
       '@wikijump/sheaf': link:../modules/sheaf
       '@wikijump/util': link:../modules/util
       include-media: 1.4.10
-      module-workers-polyfill: 0.3.2
       svelte: 3.46.4
       tinro: 0.6.12
 
@@ -2571,6 +2577,16 @@ packages:
     engines: {node: '>=0.8'}
     dev: true
 
+  /cm-tarnation/0.1.1:
+    resolution: {integrity: sha512-pp/sO6oQNZsCmnNii2+8F+hJ+hgnd6K5SAuzicoELCg4A4V/2TtQJ2M/KbpavLa0h1PsHHmuq0FCyzf7sfJoqA==}
+    dependencies:
+      '@codemirror/highlight': 0.19.7
+      '@codemirror/language': 0.19.7
+      '@codemirror/state': 0.19.9
+      '@lezer/common': 0.15.11
+      '@lezer/lr': 0.15.8
+    dev: false
+
   /color-convert/1.9.3:
     resolution: {integrity: sha512-QfAUtd+vFdAtFQcC8CCyYt1fYWxSqAiK2cSD6zDB8N3cpsEBAvRxp9zOGg6G/SHHJYAT88/az/IuDGALsNVbGg==}
     dependencies:
@@ -2619,6 +2635,10 @@ packages:
     dependencies:
       delayed-stream: 1.0.0
     dev: true
+
+  /comlink/4.3.1:
+    resolution: {integrity: sha512-+YbhUdNrpBZggBAHWcgQMLPLH1KDF3wJpeqrCKieWQ8RL7atmgsgTQko1XEBK6PsecfopWNntopJ+ByYG1lRaA==}
+    dev: false
 
   /commander/2.15.1:
     resolution: {integrity: sha512-VlfT9F3V0v+jr4yxPc5gg9s62/fIVWsd2Bk2iD435um1NlGMYdVCq+MjcXnhYq2icNOizHr1kK+5TI6H0Hy0ag==}
@@ -5225,10 +5245,6 @@ packages:
   /module-details-from-path/1.0.3:
     resolution: {integrity: sha1-EUyUlnPiqKNenTV4hSeqN7Z52is=}
     dev: true
-
-  /module-workers-polyfill/0.3.2:
-    resolution: {integrity: sha512-zcEMj8vUGYu1Tc5s2GK84MBzRSweec/Ef6F7phRF8QlTfTf2upFNsR3W0lDhvN2E6o1TTXbFIYynD0rQSlynPw==}
-    dev: false
 
   /moment-timezone/0.5.34:
     resolution: {integrity: sha512-3zAEHh2hKUs3EXLESx/wsgw6IQdusOT8Bxm3D9UrHPQR7zlMmzwybC8zHEM1tQ4LJwP7fcxrWr8tuBg05fFCbg==}

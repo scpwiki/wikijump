@@ -13,6 +13,7 @@
   "dependencies": {
     "@lezer/common": "^0.15.11",
     "@wikijump/codemirror": "workspace:*",
+    "@wikijump/comlink": "workspace:*",
     "@wikijump/components": "workspace:*",
     "@wikijump/dom": "workspace:*",
     "@wikijump/fluent": "workspace:*",
