@@ -125,21 +125,16 @@
   </div>
 
   {#if block.docs}
-    <pre class="code cm-ftml-block-tip-example">
-      <code>{@html Prism.highlight(block.docs.example, "ftml")}</code>
-    </pre>
+    <pre class="code cm-ftml-block-tip-example"><code
+        >{@html Prism.highlight(block.docs.example, "ftml")}</code
+      ></pre>
   {/if}
 
   <hr />
 
   <div class="cm-ftml-block-tip-emit">
-    <pre class="code cm-ftml-block-tip-emit-info">
-    <code>{@html ftmlString}</code>
-  </pre>
-
-    <pre class="code cm-ftml-block-tip-emit-info">
-    <code>{@html codeString}</code>
-  </pre>
+    <pre class="code cm-ftml-block-tip-emit-info"><code>{@html ftmlString}</code></pre>
+    <pre class="code cm-ftml-block-tip-emit-info"><code>{@html codeString}</code></pre>
   </div>
 </div>
 

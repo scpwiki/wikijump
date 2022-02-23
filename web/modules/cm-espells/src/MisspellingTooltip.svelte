@@ -7,7 +7,7 @@
   import { anim } from "@wikijump/components/lib"
   import { focusGroup } from "@wikijump/dom"
   import Locale from "@wikijump/fluent"
-  import espells from "./espells"
+  import espells from "./espells/interface"
   import type { FlaggedWord } from "./types"
 
   const t = Locale.makeComponentFormatter("spellcheck")
@@ -102,9 +102,9 @@
 
   <hr />
 
-  <pre class="code cm-spellcheck-tip-source">
-      <code>{$t("#-source", { slice: word.word, from: word.from, to: word.to })}</code>
-  </pre>
+  <pre class="code cm-spellcheck-tip-source"><code
+      >{$t("#-source", { slice: word.word, from: word.from, to: word.to })}</code
+    ></pre>
 </div>
 
 <style global lang="scss">
