@@ -49,7 +49,7 @@
     "rollup": "^2.68.0",
     "sass": "^1.49.8",
     "svelte": "^3.46.4",
-    "svelte-preprocess": "^4.10.3",
+    "svelte-preprocess": "^4.10.4",
     "typescript": "^4.5.5",
     "typescript-svelte-plugin": "^0.3.0",
     "vite": "^2.8.4"
@@ -74,12 +74,12 @@
     "prettier-plugin-jsdoc": "^0.3.30",
     "prettier-plugin-organize-imports": "^2.3.4",
     "prettier-plugin-svelte": "^2.6.0",
-    "stylelint": "^14.5.2",
+    "stylelint": "^14.5.3",
     "stylelint-config-recess-order": "^3.0.0",
     "stylelint-order": "^5.0.0",
     "stylelint-scss": "^4.1.0",
     "svelte-eslint-parser": "^0.15.0",
-    "vitest": "^0.5.3"
+    "vitest": "^0.5.4"
   },
   "engineStrict": true,
   "engines": {
