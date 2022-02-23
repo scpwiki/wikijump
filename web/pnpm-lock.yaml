@@ -333,11 +333,13 @@ importers:
 
   modules/ftml-wasm-worker:
     specifiers:
+      '@wikijump/comlink': workspace:*
       '@wikijump/ftml-wasm': workspace:*
       '@wikijump/threads-worker-module': workspace:*
       '@wikijump/util': workspace:*
       threads: ^1.7.0
     dependencies:
+      '@wikijump/comlink': link:../comlink
       '@wikijump/ftml-wasm': link:../ftml-wasm
       '@wikijump/threads-worker-module': link:../threads-worker-module
       '@wikijump/util': link:../util
