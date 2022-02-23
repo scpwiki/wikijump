@@ -88,7 +88,36 @@ const BaseConfig = () => ({
       { find: "@", replacement: `${ROOT}/resources` },
       { find: "@root", replacement: path.resolve(ROOT, "../") }
     ],
-    dedupe: ["svelte", "svelte/store", "svelte/internal"]
+    dedupe: [
+      "svelte",
+      "svelte/store",
+      "svelte/internal",
+      "@codemirror/autocomplete",
+      "@codemirror/closebrackets",
+      "@codemirror/commands",
+      "@codemirror/comment",
+      "@codemirror/fold",
+      "@codemirror/gutter",
+      "@codemirror/highlight",
+      "@codemirror/history",
+      "@codemirror/lang-css",
+      "@codemirror/lang-html",
+      "@codemirror/language",
+      "@codemirror/language-data",
+      "@codemirror/legacy-modes",
+      "@codemirror/lint",
+      "@codemirror/matchbrackets",
+      "@codemirror/panel",
+      "@codemirror/rangeset",
+      "@codemirror/rectangular-selection",
+      "@codemirror/search",
+      "@codemirror/state",
+      "@codemirror/text",
+      "@codemirror/tooltip",
+      "@codemirror/view",
+      "@lezer/common",
+      "@lezer/lr"
+    ]
   },
 
   assetsInclude: [
@@ -108,6 +137,10 @@ const BaseConfig = () => ({
     preprocessorOptions: {
       scss: { sourceMap: true }
     }
+  },
+
+  worker: {
+    format: "es"
   },
 
   build: {
