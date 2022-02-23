@@ -12,6 +12,6 @@
   "main": "src/index.ts",
   "dependencies": {
     "@popperjs/core": "^2.11.2",
-    "svelte": "^3.45.0"
+    "svelte": "^3.46.4"
   }
 }

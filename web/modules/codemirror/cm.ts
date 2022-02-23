@@ -241,7 +241,6 @@ export {
   openSearchPanel,
   replaceAll,
   replaceNext,
-  searchConfig,
   searchKeymap,
   selectMatches,
   selectNextOccurrence,
