@@ -1,0 +1,16 @@
+{
+  "name": "@wikijump/comlink",
+  "license": "agpl-3.0-or-later",
+  "description": "Comlink wrapper for Wikijump.",
+  "version": "0.0.0",
+  "keywords": [
+    "wikijump"
+  ],
+  "private": true,
+  "scripts": {},
+  "type": "module",
+  "main": "src/index.ts",
+  "dependencies": {
+    "comlink": "^4.3.1"
+  }
+}
