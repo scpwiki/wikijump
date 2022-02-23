@@ -140,7 +140,12 @@ const BaseConfig = () => ({
   },
 
   worker: {
-    format: "es"
+    format: "iife",
+    rollupOptions: {
+      output: {
+        inlineDynamicImports: true
+      }
+    }
   },
 
   build: {
