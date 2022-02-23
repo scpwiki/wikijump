@@ -47,7 +47,7 @@ serde_json = "1"
 serde_repr = "0.1"
 slog = { version = "2.7", optional = true }
 str-macro = "1"
-strum = "0.23"
+strum = "0.24"
 strum_macros = "0.23"
 tinyvec = "1"
 unicase = "2"
