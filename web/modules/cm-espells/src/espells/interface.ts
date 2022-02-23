@@ -1,4 +1,4 @@
-import { Comlink, type Remote, type RemoteObject } from "@wikijump/comlink"
+import { bindMethods, Comlink, type Remote, type RemoteObject } from "@wikijump/comlink"
 import Locale from "@wikijump/fluent"
 import { dedupe, Pref } from "@wikijump/util"
 import type { Espells } from "espells"
@@ -32,7 +32,6 @@ export class EspellsWorker implements RemoteObject<Espells> {
     if (this.loading) await this.loading
     this.locale = localeLanguage(locale)
     this.loading = this.init()
-    console.log("help")
     await this.loading
   }
 
@@ -56,13 +55,15 @@ export class EspellsWorker implements RemoteObject<Espells> {
 
       this.worker = await new workerClass({ aff, dic })
 
-      this.add = this.bind(this.worker.add)
-      this.addDictionary = this.bind(this.worker.addDictionary)
-      this.data = this.bind(this.worker.data)
-      this.lookup = this.bind(this.worker.lookup)
-      this.remove = this.bind(this.worker.remove)
-      this.stems = this.bind(this.worker.stems)
-      this.suggest = this.bind(this.worker.suggest)
+      bindMethods({
+        target: this,
+        worker: this.worker,
+        methods: ["add", "addDictionary", "data", "lookup", "remove", "stems", "suggest"],
+        check: async () => {
+          await this.loading
+          if (this.disabled) throw new Error("No worker!")
+        }
+      })
 
       // add local dictionary to spellchecker once it has started
       for (const word of this.getLocalDictionary()) {
@@ -72,18 +73,6 @@ export class EspellsWorker implements RemoteObject<Espells> {
       console.warn("Locale given to spellchecker has no resources available for it.")
       this.disabled = true
     }
-  }
-
-  private bind<T extends (...args: any[]) => any>(method: T): Remote<T> {
-    if (!this.worker || this.disabled) throw new Error("No worker!")
-
-    const bound = method.bind(this.worker)
-
-    return (async (...args: Parameters<T>): Promise<Awaited<ReturnType<T>>> => {
-      if (this.disabled) throw new Error("No worker!")
-      await this.loading
-      return await bound(...args)
-    }) as Remote<T>
   }
 
   async check(words: Word[], caseSensitive?: boolean): Promise<FlaggedWord[]> {

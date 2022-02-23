@@ -3,6 +3,27 @@ import * as Comlink from "comlink"
 const decoder = new TextDecoder()
 const encoder = new TextEncoder()
 
+export interface MethodBindngOptions {
+  target: any
+  worker: any
+  methods: string[]
+  check?: () => Promisable<boolean | void>
+}
+
+/** Helper for binding methods from a worker to another object. */
+export function bindMethods({ target, worker, methods, check }: MethodBindngOptions) {
+  for (const method of methods) {
+    target[method] = async (...args: any[]) => {
+      if (check) {
+        const value = await check()
+        if (typeof value === "boolean" && !value) return
+      }
+      const result = await worker[method](...args)
+      return result
+    }
+  }
+}
+
 /** Convert a string or generic buffer into an `ArrayBuffer` that can be transferred. */
 export function encode(buffer: string | ArrayBufferLike | ArrayBufferView) {
   if (typeof buffer === "string") return encoder.encode(buffer).buffer
@@ -44,41 +65,41 @@ export { Comlink }
 
 // set up the transfer handlers
 
-// we're going to setup a special one for fast serializing strings
-Comlink.transferHandlers.set("string", {
-  canHandle(value: unknown): value is string {
-    // let's not bother with small strings
-    return typeof value === "string" && value.length > 512
-  },
+// // we're going to setup a special one for fast serializing strings
+// Comlink.transferHandlers.set("string", {
+//   canHandle(value: unknown): value is string {
+//     // let's not bother with small strings
+//     return typeof value === "string" && value.length > 512
+//   },
 
-  serialize(value: string) {
-    const encoded = encode(value)
-    return [encoded, [encoded]]
-  },
+//   serialize(value: string) {
+//     const encoded = encode(value)
+//     return [encoded, [encoded]]
+//   },
 
-  deserialize(value: [ArrayBuffer, Transferable[]]) {
-    return decode(value[0])
-  }
-})
+//   deserialize(value: [ArrayBuffer, Transferable[]]) {
+//     return decode(value[0])
+//   }
+// })
 
-// and another one which handles arrays of strings
-Comlink.transferHandlers.set("string[]", {
-  canHandle(value: unknown): value is string[] {
-    if (!Array.isArray(value)) return false
-    let hasLargeString = false
-    for (const item of value) {
-      if (typeof item !== "string") return false
-      if (item.length > 512) hasLargeString = true
-    }
-    return hasLargeString
-  },
+// // and another one which handles arrays of strings
+// Comlink.transferHandlers.set("string[]", {
+//   canHandle(value: unknown): value is string[] {
+//     if (!Array.isArray(value)) return false
+//     let hasLargeString = false
+//     for (const item of value) {
+//       if (typeof item !== "string") return false
+//       if (item.length > 512) hasLargeString = true
+//     }
+//     return hasLargeString
+//   },
 
-  serialize(value: string[]) {
-    const encoded = value.map(encode)
-    return [encoded, [...encoded]]
-  },
+//   serialize(value: string[]) {
+//     const encoded = value.map(encode)
+//     return [encoded, [...encoded]]
+//   },
 
-  deserialize(value: [ArrayBuffer[], Transferable[]]) {
-    return value[0].map(decode)
-  }
-})
+//   deserialize(value: [ArrayBuffer[], Transferable[]]) {
+//     return value[0].map(decode)
+//   }
+// })
