@@ -342,6 +342,9 @@ importers:
   modules/prism:
     specifiers:
       '@types/prismjs': ^1.26.0
+      '@wikijump/comlink': workspace:*
+    dependencies:
+      '@wikijump/comlink': link:../comlink
     devDependencies:
       '@types/prismjs': 1.26.0
 
