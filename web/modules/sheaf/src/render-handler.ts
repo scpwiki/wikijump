@@ -32,7 +32,7 @@ export class RenderHandler {
    */
   @Memoize()
   async result(format = false) {
-    const result = await FTML.renderHTML(this.src)
+    const result = await FTML.renderHTML(this.src, undefined, "draft")
     if (format) result.html = await FTML.formatHTML(result.html)
     return result
   }
