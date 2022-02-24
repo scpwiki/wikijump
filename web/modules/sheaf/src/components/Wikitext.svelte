@@ -104,7 +104,36 @@
       morphdom(element, fragment, {
         childrenOnly: true,
         onBeforeElUpdated: function (fromEl, toEl) {
+          // massive performance improvement for lots of code blocks
+          if (fromEl.tagName === "WJ-CODE" && toEl.tagName === "WJ-CODE") {
+            // make sure the language didn't change
+            if (fromEl.className !== toEl.className) return true
+
+            const fromCode = fromEl.querySelector("code")
+            const toCode = toEl.querySelector("code")
+
+            if (!fromCode || !toCode) return true
+            if (fromCode.innerText === toCode.innerText) return false
+
+            return true
+          }
+
+          // similar optimization for wj-math blocks
+          if (
+            fromEl.classList.contains("wj-math") &&
+            toEl.classList.contains("wj-math")
+          ) {
+            const fromSource = fromEl.querySelector(".wj-math-source")
+            const toSource = toEl.querySelector(".wj-math-source")
+
+            if (!fromSource || !toSource) return true
+            if (fromSource.isEqualNode(toSource)) return false
+
+            return true
+          }
+
           if (fromEl.isEqualNode(toEl)) return false
+
           return true
         }
       })
