@@ -72,7 +72,8 @@ export class SheafCore {
   }
 
   private update(update: ViewUpdate) {
-    if (!update.docChanged && !update.selectionSet) return
+    // if (!update.docChanged && !update.selectionSet) return
+    if (!update.docChanged) return
     this.state = this.state.extend()
     this.store.set(this.state)
   }
