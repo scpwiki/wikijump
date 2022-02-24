@@ -197,8 +197,22 @@ export function sleep(ms: number): Promise<void> {
  * Creates and returns a promise that resolves when an invokation of
  * `requestAnimationFrame()` fires its callback.
  */
-export function animationFrame(): Promise<number> {
-  return new Promise(resolve => requestAnimationFrame(resolve))
+export function animationFrame(): Promise<void>
+export function animationFrame<T>(fn: () => T): Promise<T>
+export function animationFrame(fn?: () => any): Promise<void> {
+  // simple delay
+  if (!fn) return new Promise(resolve => requestAnimationFrame(() => resolve()))
+  // callback based
+  return new Promise(resolve =>
+    requestAnimationFrame(() => {
+      const result = fn()
+      if (result instanceof Promise) {
+        result.then(res => resolve(res))
+      } else {
+        resolve(result)
+      }
+    })
+  )
 }
 
 // Credit: https://gist.github.com/beaucharman/e46b8e4d03ef30480d7f4db5a78498ca
