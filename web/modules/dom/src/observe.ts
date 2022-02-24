@@ -33,10 +33,15 @@ export function pauseObservation(
   const async = method.constructor.name === "AsyncFunction"
 
   if (async) {
+    // counts how many instances of the function are running to prevent races
+    let runCount = 0
+
     descriptor.value = async function (this: typeof target, ...args: any[]) {
       this.observer.disconnect()
+      runCount++
       const result = await method.apply(this, args)
-      this.observer.observe(this, OBSERVER_CONFIG)
+      runCount--
+      if (!runCount) this.observer.observe(this, OBSERVER_CONFIG)
       return result
     }
   } else {
