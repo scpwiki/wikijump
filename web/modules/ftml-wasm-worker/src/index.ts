@@ -1,5 +1,6 @@
 import { bindMethods, Comlink, type Remote, type RemoteObject } from "@wikijump/comlink"
 import type { FTMLModule } from "./worker"
+import FTMLRemoteWorker from "./worker?worker"
 
 export type {
   Backlinks,
@@ -33,13 +34,7 @@ export class FTMLWorker implements RemoteObject<FTMLModule> {
   declare worker: RemoteFTML
 
   constructor() {
-    this.init()
-  }
-
-  private async init() {
-    this.worker = Comlink.wrap<FTMLModule>(
-      new (await import("./worker?worker")).default()
-    )
+    this.worker = Comlink.wrap<FTMLModule>(new FTMLRemoteWorker())
 
     bindMethods({
       target: this,
