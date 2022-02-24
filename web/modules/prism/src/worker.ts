@@ -1,13 +1,17 @@
-import { bindMethods, Comlink, type RemoteObject } from "@wikijump/comlink"
+import { Comlink } from "@wikijump/comlink"
 import type PrismType from "prismjs"
 import "../vendor/prism"
-import type { PrismModule } from "./worker"
-import createWorker from "./worker?worker"
+import { prismBase } from "../vendor/prism-langs"
+import { prismSvelte } from "../vendor/prism-svelte"
+import { prismFTML } from "./ftml"
 
-// Re-export a reference to Prism so that there is actually a half-decent
-// way of accessing it
 /** Reference to the Prism syntax highlighter. */
 export const Prism: typeof PrismType = globalThis.Prism
+
+// add languages
+prismBase(Prism)
+prismSvelte(Prism)
+prismFTML(Prism)
 
 // set prism class prefix
 // https://prismjs.com/plugins/custom-class/
@@ -18,18 +22,12 @@ const encode: (src: string) => string = Prism.util.encode as any
 
 const RAW_LANGS = ["raw", "text", "none", ""]
 
-// asynchronously import languages to prevent the large prism JS file
-// from blocking the page from rendering
-// only the base library is synchronously imported and everything else is
-// asynchronously imported
-// prettier-ignore
-async function importLanguages() {
-  ;(await import("../vendor/prism-langs")).prismBase(Prism)
-  ;(await import("../vendor/prism-svelte")).prismSvelte(Prism)
-  ;(await import("./ftml")).prismFTML(Prism)
+/** Returns the list of languages (and their aliases) supported by Prism. */
+export function getLanguages() {
+  return Object.keys(Prism.languages).filter(
+    lang => typeof Prism.languages[lang] !== "function"
+  )
 }
-
-export const languagesReady = importLanguages()
 
 /**
  * Highlights a string of code and returns HTML, given a specified
@@ -55,25 +53,8 @@ export function highlight(code: string, lang: string) {
   return encode(code)
 }
 
-type PrismRemote = RemoteObject<PrismModule>
+const module = { getLanguages, highlight }
 
-export class PrismWorker implements PrismRemote {
-  private declare worker: PrismRemote
+export type PrismModule = typeof module
 
-  declare getLanguages: PrismRemote["getLanguages"]
-  declare highlight: PrismRemote["highlight"]
-
-  constructor() {
-    this.worker = Comlink.wrap<PrismModule>(new createWorker())
-
-    bindMethods({
-      target: this,
-      worker: this.worker,
-      methods: ["getLanguages", "highlight"]
-    })
-  }
-}
-
-const Prism2 = new PrismWorker()
-
-export default Prism2
+Comlink.expose(module)
