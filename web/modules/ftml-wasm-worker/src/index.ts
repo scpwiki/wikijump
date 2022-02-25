@@ -1,4 +1,10 @@
-import { bindMethods, Comlink, type Remote, type RemoteObject } from "@wikijump/comlink"
+import {
+  bindMethods,
+  Comlink,
+  releaseRemote,
+  type Remote,
+  type RemoteObject
+} from "@wikijump/comlink"
 import type { FTMLModule } from "./worker"
 import FTMLRemoteWorker from "./worker?worker"
 
@@ -59,6 +65,11 @@ export class FTMLWorker implements RemoteObject<FTMLModule> {
         await this.worker.waitUntilReady()
       }
     })
+  }
+
+  /** Terminates the worker. */
+  terminate() {
+    releaseRemote(this.worker)
   }
 }
 
