@@ -36,7 +36,7 @@ mod prelude {
     };
     pub use crate::web::{utils::error_response, HttpUnwrap, Reference};
     pub use chrono::prelude::*;
-    pub use sea_orm::ConnectionTrait;
+    pub use sea_orm::{ConnectionTrait, TransactionTrait};
     pub use std::convert::TryFrom;
     pub use tide::{Body, Error as TideError, Request, Response, StatusCode};
 

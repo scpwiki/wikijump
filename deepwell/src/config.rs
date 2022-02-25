@@ -19,7 +19,7 @@
  */
 
 use crate::info;
-use clap::{App, Arg};
+use clap::{Arg, Command};
 use dotenv::dotenv;
 use std::env;
 use std::net::SocketAddr;
@@ -185,7 +185,7 @@ fn read_env(config: &mut Config) {
 }
 
 fn parse_args(config: &mut Config) {
-    let matches = App::new("DEEPWELL")
+    let matches = Command::new("DEEPWELL")
         .author(info::PKG_AUTHORS)
         .version(info::VERSION.as_str())
         .long_version(info::FULL_VERSION.as_str())
