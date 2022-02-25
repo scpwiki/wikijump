@@ -47,6 +47,15 @@ export function transferBuffer(raw: string | ArrayBufferLike | ArrayBufferView) 
   return Comlink.transfer(encoded, [encoded])
 }
 
+/**
+ * Releases a remote proxy. This is required to prevent memory leaks.
+ *
+ * @param remote - The proxy to release.
+ */
+export function releaseRemote<T>(remote: Comlink.Remote<T>) {
+  if (remote[Comlink.releaseProxy]) remote[Comlink.releaseProxy]()
+}
+
 export const transfer = Comlink.transfer
 
 export type {
