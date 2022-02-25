@@ -514,3 +514,26 @@ export async function url(imp: Promise<any>) {
 export function dedupe<T extends any[]>(arr: T, ...insert: T) {
   return [...new Set([...arr, ...insert])] as T
 }
+
+/**
+ * Simple helper for creating lazy singletons. Use the `.get()` method to
+ * get the current instance. If `.get()` is being called for the first
+ * time, the instance will be constructed using a factory function.
+ */
+export class LazySingleton<T> {
+  /** The singleton instance. */
+  private instance?: T
+
+  /** @param factory - The factory function to use to construct the instance. */
+  constructor(private factory: () => T) {}
+
+  /** Gets the current instance. */
+  get() {
+    return !this.instance ? (this.instance = this.factory()) : this.instance
+  }
+
+  /** Is `true` if the instance has ever been contructed. */
+  get loaded() {
+    return Boolean(this.instance)
+  }
+}
