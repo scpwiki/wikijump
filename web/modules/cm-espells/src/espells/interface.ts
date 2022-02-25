@@ -1,11 +1,22 @@
-import { bindMethods, Comlink, type Remote, type RemoteObject } from "@wikijump/comlink"
+import {
+  bindMethods,
+  Comlink,
+  releaseRemote,
+  type Remote,
+  type RemoteObject
+} from "@wikijump/comlink"
 import Locale from "@wikijump/fluent"
-import { dedupe, Pref } from "@wikijump/util"
+import { dedupe, LazySingleton, Pref } from "@wikijump/util"
 import type { Espells } from "espells"
 import DICTIONARIES from "../dicts"
 import type { FlaggedWord, Word } from "../types"
+import RemoteWorker from "./worker?worker"
 
 type RemoteEspells = Remote<Espells>
+
+const RemoteClassSingleton = new LazySingleton(() =>
+  Comlink.wrap<typeof Espells>(new RemoteWorker())
+)
 
 export class EspellsWorker implements RemoteObject<Espells> {
   declare locale: string
@@ -14,7 +25,7 @@ export class EspellsWorker implements RemoteObject<Espells> {
 
   declare loading: Promise<void>
 
-  private declare worker: RemoteEspells
+  private declare worker: RemoteEspells | null
 
   declare add: RemoteEspells["add"]
   declare addDictionary: RemoteEspells["addDictionary"]
@@ -30,17 +41,16 @@ export class EspellsWorker implements RemoteObject<Espells> {
 
   async set(locale: string) {
     if (this.loading) await this.loading
+    let oldWorker: RemoteEspells | null = null
+    if (this.worker) oldWorker = this.worker
     this.locale = localeLanguage(locale)
     this.loading = this.init()
     await this.loading
+    if (oldWorker) releaseRemote(oldWorker)
   }
 
   private async init() {
     if (DICTIONARIES.hasOwnProperty(this.locale)) {
-      const workerClass = Comlink.wrap<typeof Espells>(
-        new (await import("./worker?worker")).default()
-      )
-
       const { aff: affURL, dic: dicURL } = await DICTIONARIES[this.locale]()
 
       // we can't use the static fromURL method on Espells because of Comlink limitations
@@ -53,7 +63,7 @@ export class EspellsWorker implements RemoteObject<Espells> {
           )
         : await fetch(dicURL).then(res => res.text())
 
-      this.worker = await new workerClass({ aff, dic })
+      this.worker = await new (RemoteClassSingleton.get())({ aff, dic })
 
       bindMethods({
         target: this,
@@ -79,7 +89,7 @@ export class EspellsWorker implements RemoteObject<Espells> {
     await this.loading
     const flagged: FlaggedWord[] = []
     for (const word of words) {
-      const info = await this.worker.lookup(word.word, caseSensitive)
+      const info = await this.worker!.lookup(word.word, caseSensitive)
       flagged.push({
         ...word,
         info
@@ -103,7 +113,7 @@ export class EspellsWorker implements RemoteObject<Espells> {
     if (typeof words === "string") words = [words]
     this.setLocalDictionary(dedupe(this.getLocalDictionary(), ...words))
     for (const word of words) {
-      await this.worker.add(word)
+      await this.worker!.add(word)
     }
   }
 
@@ -119,7 +129,7 @@ export class EspellsWorker implements RemoteObject<Espells> {
       this.getLocalDictionary().filter(word => !words.includes(word))
     )
     for (const word of words) {
-      await this.worker.remove(word)
+      await this.worker!.remove(word)
     }
   }
 
