@@ -31,15 +31,15 @@ indexmap = "=1.6.2"  # Pinning to avoid cyclic dependency issue, see https://sta
 intl-memoizer = "0.5"
 lazy_static = "1"
 ref-map = "0.1"
-sea-orm = { version = "0.5", features = ["sqlx-postgres", "runtime-async-std-rustls", "macros"], default-features = false }
+sea-orm = { version = "0.6", features = ["sqlx-postgres", "runtime-async-std-rustls", "macros"], default-features = false }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sha2 = "0.10"
 slog = "2.7"
 sqlx = "0.5"
 str-macro = "1"
-strum = "0.23"
-strum_macros = "0.23"
+strum = "0.24"
+strum_macros = "0.24"
 thiserror = "1"
 tide = "0.16"
 unic-langid = "0.9"
