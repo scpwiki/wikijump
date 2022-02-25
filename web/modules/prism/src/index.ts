@@ -1,4 +1,10 @@
-import { bindMethods, Comlink, type RemoteObject } from "@wikijump/comlink"
+import {
+  bindMethods,
+  Comlink,
+  releaseRemote,
+  type Remote,
+  type RemoteObject
+} from "@wikijump/comlink"
 import type PrismType from "prismjs"
 import "../vendor/prism"
 import type { PrismModule } from "./worker"
@@ -55,9 +61,9 @@ export function highlight(code: string, lang: string) {
   return encode(code)
 }
 
-type PrismRemote = RemoteObject<PrismModule>
+type PrismRemote = Remote<PrismModule>
 
-export class PrismWorker implements PrismRemote {
+export class PrismWorker implements RemoteObject<PrismModule> {
   private declare worker: PrismRemote
 
   declare getLanguages: PrismRemote["getLanguages"]
@@ -71,6 +77,11 @@ export class PrismWorker implements PrismRemote {
       worker: this.worker,
       methods: ["getLanguages", "highlight"]
     })
+  }
+
+  /** Terminates the worker. */
+  terminate() {
+    releaseRemote(this.worker)
   }
 }
 
