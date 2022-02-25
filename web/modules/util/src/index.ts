@@ -1,3 +1,6 @@
+// smart idle callback polyfill
+import "../vendor/request-idle-callback-polyfill.js"
+
 export * from "./decorators"
 export * from "./html"
 export * from "./pref"
@@ -196,6 +199,10 @@ export function sleep(ms: number): Promise<void> {
 /**
  * Creates and returns a promise that resolves when an invokation of
  * `requestAnimationFrame()` fires its callback.
+ *
+ * @param fn - An optional function to invoke and to resolve the promise
+ *   with its return value. If the function returns a promise, that promise
+ *   will be waited on as well.
  */
 export function animationFrame(): Promise<void>
 export function animationFrame<T>(fn: () => T): Promise<T>
@@ -358,37 +365,27 @@ export function createAnimQueued<T extends AnyFunction>(fn: T) {
   }
 }
 
-const HAS_IDLE_CALLBACK = "requestIdleCallback" in globalThis
-
 /** Safely calls `requestIdleCallback` in an awaitable `Promise`. */
-// bad coverage as requestIdleCallback isn't always available
-/*! c8 ignore next */
-export function idleCallback<T extends AnyFunction<any>>(
-  cb: T,
-  timeout = 100
-): Promise<ReturnType<T>> {
-  if (!HAS_IDLE_CALLBACK) {
-    return new Promise(resolve => setTimeout(() => resolve(cb()), timeout))
-  } else {
-    return new Promise(resolve =>
-      // @ts-ignore
-      requestIdleCallback(() => resolve(cb()), { timeout })
+export function idleCallback<T>(fn: () => T, timeout = 1000): Promise<T> {
+  return new Promise<T>(resolve => {
+    requestIdleCallback(
+      () => {
+        const result = fn()
+        if (result instanceof Promise) result.then(resolve)
+        else resolve(result)
+      },
+      { timeout }
     )
-  }
+  })
 }
 
 /**
  * See `createAnimQueued` for a description of how this function works. The
- * only difference is that this function uses `requestIdleCallback`
- * instead. If `requestIdleCallback` isn't available, it will use
- * `createAnimQueued` instead.
+ * only difference is that this function uses `requestIdleCallback` instead.
  *
  * @see {@link createAnimQueued}
  */
-// bad coverage as requestIdleCallback isn't always available
-/*! c8 ignore next */
 export function createIdleQueued<T extends AnyFunction>(fn: T, timeout = 100) {
-  if (!HAS_IDLE_CALLBACK) return createAnimQueued(fn)
   let queued: boolean
   let useArgs: any[] = []
   return (...args: Parameters<T>): void => {
