@@ -1,11 +1,4 @@
-import {
-  bindMethods,
-  Comlink,
-  releaseRemote,
-  type Remote,
-  type RemoteObject
-} from "@wikijump/comlink"
-import type { FTMLModule } from "./worker"
+import { AbstractWorkerBase } from "@wikijump/comlink"
 import FTMLRemoteWorker from "./worker?worker"
 
 export type {
@@ -19,57 +12,28 @@ export type {
 } from "@wikijump/ftml-wasm"
 export * from "./fragment"
 
-type RemoteFTML = Remote<FTMLModule>
-
-export class FTMLWorker implements RemoteObject<FTMLModule> {
-  declare makeInfo: RemoteFTML["makeInfo"]
-  declare version: RemoteFTML["version"]
-  declare preprocess: RemoteFTML["preprocess"]
-  declare tokenize: RemoteFTML["tokenize"]
-  declare parse: RemoteFTML["parse"]
-  declare renderHTML: RemoteFTML["renderHTML"]
-  declare detailRenderHTML: RemoteFTML["detailRenderHTML"]
-  declare renderText: RemoteFTML["renderText"]
-  declare detailRenderText: RemoteFTML["detailRenderText"]
-  declare warnings: RemoteFTML["warnings"]
-  declare getUTF16IndexMap: RemoteFTML["getUTF16IndexMap"]
-  declare inspectTokens: RemoteFTML["inspectTokens"]
-  declare formatHTML: RemoteFTML["formatHTML"]
-  declare waitUntilReady: RemoteFTML["waitUntilReady"]
-
-  declare worker: RemoteFTML
-
-  constructor() {
-    this.worker = Comlink.wrap<FTMLModule>(new FTMLRemoteWorker())
-
-    bindMethods({
-      target: this,
-      worker: this.worker,
-      methods: [
-        "makeInfo",
-        "version",
-        "preprocess",
-        "tokenize",
-        "parse",
-        "renderHTML",
-        "detailRenderHTML",
-        "renderText",
-        "detailRenderText",
-        "warnings",
-        "getUTF16IndexMap",
-        "inspectTokens",
-        "formatHTML",
-        "waitUntilReady"
-      ],
-      check: async () => {
-        await this.worker.waitUntilReady()
-      }
-    })
+export class FTMLWorker extends AbstractWorkerBase.of([
+  "detailRenderHTML",
+  "detailRenderText",
+  "formatHTML",
+  "getUTF16IndexMap",
+  "inspectTokens",
+  "makeInfo",
+  "parse",
+  "preprocess",
+  "renderHTML",
+  "renderText",
+  "tokenize",
+  "version",
+  "waitUntilReady",
+  "warnings"
+]) {
+  protected createWorker() {
+    return new FTMLRemoteWorker()
   }
 
-  /** Terminates the worker. */
-  terminate() {
-    releaseRemote(this.worker)
+  async methodCondition() {
+    await this.worker!.waitUntilReady()
   }
 }
 

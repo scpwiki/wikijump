@@ -1,10 +1,4 @@
-import {
-  bindMethods,
-  Comlink,
-  releaseRemote,
-  type Remote,
-  type RemoteObject
-} from "@wikijump/comlink"
+import { AbstractWorkerBase } from "@wikijump/comlink"
 import type PrismType from "prismjs"
 import "../vendor/prism"
 import type { PrismModule } from "./worker"
@@ -61,32 +55,14 @@ export function highlight(code: string, lang: string) {
   return encode(code)
 }
 
-type PrismRemote = Remote<PrismModule>
-
-/** A web-workerized version of the Prism syntax highlighter. */
-export class PrismWorker implements RemoteObject<PrismModule> {
-  /** Internal remote Comlink worker. */
-  private declare worker: PrismRemote
-
-  declare getLanguages: PrismRemote["getLanguages"]
-  declare highlight: PrismRemote["highlight"]
-  declare manual: PrismRemote["manual"]
-  declare disableWorkerMessageHandler: PrismRemote["disableWorkerMessageHandler"]
-
-  /** Constructs a new `PrismWorker`. */
-  constructor() {
-    this.worker = Comlink.wrap<PrismModule>(new PrismRemoteWorker())
-
-    bindMethods({
-      target: this,
-      worker: this.worker,
-      methods: ["getLanguages", "highlight", "manual", "disableWorkerMessageHandler"]
-    })
-  }
-
-  /** Terminates the worker. */
-  terminate() {
-    releaseRemote(this.worker)
+export class PrismWorker extends AbstractWorkerBase.of<PrismModule>([
+  "disableWorkerMessageHandler",
+  "getLanguages",
+  "highlight",
+  "manual"
+]) {
+  createWorker() {
+    return new PrismRemoteWorker()
   }
 }
 

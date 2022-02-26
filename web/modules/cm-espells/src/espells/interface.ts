@@ -1,10 +1,4 @@
-import {
-  bindMethods,
-  Comlink,
-  releaseRemote,
-  type Remote,
-  type RemoteObject
-} from "@wikijump/comlink"
+import { AbstractWorkerBase, Comlink } from "@wikijump/comlink"
 import Locale from "@wikijump/fluent"
 import { dedupe, LazySingleton, Pref } from "@wikijump/util"
 import type { Espells } from "espells"
@@ -12,44 +6,32 @@ import DICTIONARIES from "../dicts"
 import type { FlaggedWord, Word } from "../types"
 import RemoteWorker from "./worker?worker"
 
-type RemoteEspells = Remote<Espells>
-
 const RemoteClassSingleton = new LazySingleton(() =>
   Comlink.wrap<typeof Espells>(new RemoteWorker())
 )
 
-export class EspellsWorker implements RemoteObject<Espells> {
+export class EspellsWorker extends AbstractWorkerBase.of<Espells>([
+  "add",
+  "addDictionary",
+  "data",
+  "lookup",
+  "remove",
+  "stems",
+  "suggest"
+]) {
   declare locale: string
 
-  declare disabled: boolean
-
-  declare loading: Promise<void>
-
-  private declare worker: RemoteEspells | null
-
-  declare add: RemoteEspells["add"]
-  declare addDictionary: RemoteEspells["addDictionary"]
-  declare data: RemoteEspells["data"]
-  declare lookup: RemoteEspells["lookup"]
-  declare remove: RemoteEspells["remove"]
-  declare stems: RemoteEspells["stems"]
-  declare suggest: RemoteEspells["suggest"]
-
   constructor(locale = "en") {
+    super()
     this.set(locale)
   }
 
   async set(locale: string) {
-    if (this.loading) await this.loading
-    let oldWorker: RemoteEspells | null = null
-    if (this.worker) oldWorker = this.worker
     this.locale = localeLanguage(locale)
-    this.loading = this.init()
-    await this.loading
-    if (oldWorker) releaseRemote(oldWorker)
+    if (this.loaded) await this.start(true)
   }
 
-  private async init() {
+  protected async createWorker() {
     if (DICTIONARIES.hasOwnProperty(this.locale)) {
       const { aff: affURL, dic: dicURL } = await DICTIONARIES[this.locale]()
 
@@ -63,30 +45,25 @@ export class EspellsWorker implements RemoteObject<Espells> {
           )
         : await fetch(dicURL).then(res => res.text())
 
-      this.worker = await new (RemoteClassSingleton.get())({ aff, dic })
-
-      bindMethods({
-        target: this,
-        worker: this.worker,
-        methods: ["add", "addDictionary", "data", "lookup", "remove", "stems", "suggest"],
-        check: async () => {
-          await this.loading
-          if (this.disabled) throw new Error("No worker!")
-        }
-      })
+      const espells = await new (RemoteClassSingleton.get())({ aff, dic })
 
       // add local dictionary to spellchecker once it has started
       for (const word of this.getLocalDictionary()) {
-        await this.worker.add(word)
+        await espells.add(word)
       }
-    } else {
-      console.warn("Locale given to spellchecker has no resources available for it.")
-      this.disabled = true
+
+      return espells
     }
+
+    console.warn("Locale given to spellchecker has no resources available for it.")
+
+    return false
   }
 
   async check(words: Word[], caseSensitive?: boolean): Promise<FlaggedWord[]> {
-    await this.loading
+    if (this.starting) await this.starting
+    if (!this.worker) await this.start()
+
     const flagged: FlaggedWord[] = []
     for (const word of words) {
       const info = await this.worker!.lookup(word.word, caseSensitive)
@@ -109,7 +86,7 @@ export class EspellsWorker implements RemoteObject<Espells> {
    * @param words - The word(s) to add.
    */
   async addToLocalDictionary(words: string | string[]) {
-    if (this.disabled) return
+    if (!this.loaded) return
     if (typeof words === "string") words = [words]
     this.setLocalDictionary(dedupe(this.getLocalDictionary(), ...words))
     for (const word of words) {
@@ -123,7 +100,7 @@ export class EspellsWorker implements RemoteObject<Espells> {
    * @param words - The word(s) to remove.
    */
   async removeFromLocalDictionary(words: string | string[]) {
-    if (this.disabled) return
+    if (!this.loaded) return
     if (typeof words === "string") words = [words]
     this.setLocalDictionary(
       this.getLocalDictionary().filter(word => !words.includes(word))
