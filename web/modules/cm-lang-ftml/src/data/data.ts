@@ -1,7 +1,7 @@
 import blocksTOML from "@root/ftml/conf/blocks.toml"
 import modulesTOML from "@root/ftml/conf/modules.toml"
 import Locale, { LOCALE_CMFTML_DOCUMENTATION } from "@wikijump/fluent"
-import { Prism } from "@wikijump/prism"
+import Prism from "@wikijump/prism"
 import { BlockData, ModuleData } from "./block"
 import type { BlockConfiguration, DocumentationData, ModuleConfiguration } from "./types"
 
@@ -52,12 +52,12 @@ for (const name in Modules) {
 // languages can be highlighted. this is slower, but
 // the getter won't be called very often so it should be fine.
 try {
+  let prismLanguages: string[] = []
+
+  Prism.getLanguages().then(languages => (prismLanguages = languages))
+
   const typeArgument = BlockMap.get("code")?.arguments?.get("type")
   Object.defineProperty(typeArgument, "enumCompletions", {
-    get: () => {
-      return Object.entries(Prism.languages)
-        .filter(([, prop]) => typeof prop !== "function")
-        .map(([name]) => ({ label: name, type: "enum" }))
-    }
+    get: () => prismLanguages.map(name => ({ label: name, type: "enum" }))
   })
 } catch {}

@@ -5,7 +5,7 @@
   import type { EditorSvelteComponentProps } from "@wikijump/codemirror"
   import { Icon, TippySingleton } from "@wikijump/components"
   import Locale from "@wikijump/fluent"
-  import * as Prism from "@wikijump/prism"
+  import Prism from "@wikijump/prism"
   import type { BlockData } from "../data/block"
 
   export let block: BlockData
@@ -22,8 +22,6 @@
         : `<${block.outputTag}>`
       : `type: ${block.outputType}`
 
-  codeString = Prism.highlight(codeString, block.outputType === "html" ? "html" : "log")
-
   // looks messy but this just assembles a reasonable looking block string
   let ftmlString = `[[${block.name}${
     block.head === "map"
@@ -35,7 +33,11 @@
       : ""
   }]]`
 
-  ftmlString = Prism.highlight(ftmlString, "ftml")
+  Prism.highlight(codeString, block.outputType === "html" ? "html" : "log").then(
+    code => (codeString = code)
+  )
+
+  Prism.highlight(ftmlString, "ftml").then(code => (ftmlString = code))
 </script>
 
 <div class="cm-ftml-block-tip">
