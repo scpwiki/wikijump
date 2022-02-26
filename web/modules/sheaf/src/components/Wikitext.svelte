@@ -13,7 +13,7 @@
     perfy,
     toFragment
   } from "@wikijump/util"
-  import morphdom from "morphdom"
+  import micromorph from "micromorph"
 
   const t = Locale.makeComponentFormatter("wikitext")
 
@@ -54,9 +54,6 @@
   /** Shows render performance information if true. */
   export let debug = false
 
-  /** Prevents the rendering of elements which may cause a network request. */
-  export let offline = false
-
   let element: HTMLElement
   let stylesheets: string[] = []
   let rendering = false
@@ -94,60 +91,22 @@
     })
   })
 
-  // TODO: Security audit of this - how much should we trust FTML output right now?
-
   const update = createAnimQueued(({ html, styles }: Rendered) => {
     if (!element) return
-
-    // there are better ways to do this, but this is mostly just a development tool
-    // this prevents the console from getting spammed with
-    // crossorigin or missing link errors
-    if (offline) {
-      html = html.replaceAll(
-        /<(img|iframe)[^]+?>/g,
-        "<div>Offline Replacement Element</div>"
-      )
-    }
 
     const fragment = toFragment(html)
 
     if (morph) {
-      morphdom(element, fragment, {
-        childrenOnly: true,
-        onBeforeElUpdated: function (fromEl, toEl) {
-          // massive performance improvement for lots of code blocks
-          if (fromEl.tagName === "WJ-CODE" && toEl.tagName === "WJ-CODE") {
-            // make sure the language didn't change
-            if (fromEl.className !== toEl.className) return true
+      const oldBody = element.querySelector("wj-body")
+      const newBody = fragment.querySelector("wj-body")
 
-            const fromCode = fromEl.querySelector("code")
-            const toCode = toEl.querySelector("code")
+      if (!newBody || !oldBody) {
+        element.innerText = ""
+        element.appendChild(fragment)
+        return
+      }
 
-            if (!fromCode || !toCode) return true
-            if (fromCode.innerText === toCode.innerText) return false
-
-            return true
-          }
-
-          // similar optimization for wj-math blocks
-          if (
-            fromEl.classList.contains("wj-math") &&
-            toEl.classList.contains("wj-math")
-          ) {
-            const fromSource = fromEl.querySelector(".wj-math-source")
-            const toSource = toEl.querySelector(".wj-math-source")
-
-            if (!fromSource || !toSource) return true
-            if (fromSource.isEqualNode(toSource)) return false
-
-            return true
-          }
-
-          if (fromEl.isEqualNode(toEl)) return false
-
-          return true
-        }
-      })
+      micromorph(oldBody, newBody)
     } else {
       element.innerText = ""
       element.append(fragment)
@@ -157,6 +116,7 @@
     stylesheets = styles.map(
       (style, idx) => `\n/* stylesheet ${idx + 1} */\n\n${style}\n`
     )
+
     rendering = false
   })
 

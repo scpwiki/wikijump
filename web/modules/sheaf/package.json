@@ -19,7 +19,7 @@
     "@wikijump/fluent": "workspace:*",
     "@wikijump/ftml-wasm-worker": "workspace:*",
     "@wikijump/util": "workspace:*",
-    "morphdom": "^2.6.1",
+    "micromorph": "^0.0.5",
     "svelte": "^3.46.4",
     "typescript-memoize": "^1.1.0"
   }

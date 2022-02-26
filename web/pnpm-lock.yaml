@@ -356,7 +356,7 @@ importers:
       '@wikijump/fluent': workspace:*
       '@wikijump/ftml-wasm-worker': workspace:*
       '@wikijump/util': workspace:*
-      morphdom: ^2.6.1
+      micromorph: ^0.0.5
       svelte: ^3.46.4
       typescript-memoize: ^1.1.0
     dependencies:
@@ -368,7 +368,7 @@ importers:
       '@wikijump/fluent': link:../fluent
       '@wikijump/ftml-wasm-worker': link:../ftml-wasm-worker
       '@wikijump/util': link:../util
-      morphdom: 2.6.1
+      micromorph: 0.0.5
       svelte: 3.46.4
       typescript-memoize: 1.1.0
 
@@ -5139,6 +5139,10 @@ packages:
       picomatch: 2.3.1
     dev: true
 
+  /micromorph/0.0.5:
+    resolution: {integrity: sha512-PWIphjZJGb5LvI+07EK//T3+wbllPXMGEzbjOC/d48YxtelFMi/7jbZJUKmh+Rq8ts/HpyIXjOj6MJuM6Ipb8A==}
+    dev: false
+
   /mime-db/1.51.0:
     resolution: {integrity: sha512-5y8A56jg7XVQx2mbv1lu49NR4dokRnhZYTtL+KGfaa27uq4pSTXkwQkFJl4pkRMyNFz/EtYDSkiiEHx3F7UN6g==}
     engines: {node: '>= 0.6'}
@@ -5234,10 +5238,6 @@ packages:
   /moment/2.29.1:
     resolution: {integrity: sha512-kHmoybcPV8Sqy59DwNDY3Jefr64lK/by/da0ViFcuA4DH0vQg5Q6Ze5VimxkfQNSC+Mls/Kx53s7TjP1RhFEDQ==}
     dev: true
-
-  /morphdom/2.6.1:
-    resolution: {integrity: sha512-Y8YRbAEP3eKykroIBWrjcfMw7mmwJfjhqdpSvoqinu8Y702nAwikpXcNFDiIkyvfCLxLM9Wu95RZqo4a9jFBaA==}
-    dev: false
 
   /ms/2.0.0:
     resolution: {integrity: sha1-VgiurfwAvmwpAd9fmGF4jeDVl8g=}
