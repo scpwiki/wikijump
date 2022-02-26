@@ -181,11 +181,11 @@ importers:
       '@types/prismjs': ^1.26.0
       '@wikijump/cm-espells': workspace:*
       '@wikijump/codemirror': workspace:*
+      '@wikijump/comlink': workspace:*
       '@wikijump/components': workspace:*
       '@wikijump/fluent': workspace:*
       '@wikijump/ftml-wasm-worker': workspace:*
       '@wikijump/prism': workspace:*
-      '@wikijump/threads-worker-module': workspace:*
       '@wikijump/util': workspace:*
       cm-tarnation: ^0.1.1
       svelte: ^3.46.4
@@ -195,11 +195,11 @@ importers:
       '@types/prismjs': 1.26.0
       '@wikijump/cm-espells': link:../cm-espells
       '@wikijump/codemirror': link:../codemirror
+      '@wikijump/comlink': link:../comlink
       '@wikijump/components': link:../components
       '@wikijump/fluent': link:../fluent
       '@wikijump/ftml-wasm-worker': link:../ftml-wasm-worker
       '@wikijump/prism': link:../prism
-      '@wikijump/threads-worker-module': link:../threads-worker-module
       '@wikijump/util': link:../util
       cm-tarnation: 0.1.1
       svelte: 3.46.4
