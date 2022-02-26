@@ -3,27 +3,6 @@ import * as Comlink from "comlink"
 const decoder = new TextDecoder()
 const encoder = new TextEncoder()
 
-export interface MethodBindngOptions {
-  target: any
-  worker: any
-  methods: string[]
-  check?: () => Promisable<boolean | void>
-}
-
-/** Helper for binding methods from a worker to another object. */
-export function bindMethods({ target, worker, methods, check }: MethodBindngOptions) {
-  for (const method of methods) {
-    target[method] = async (...args: any[]) => {
-      if (check) {
-        const value = await check()
-        if (typeof value === "boolean" && !value) return
-      }
-      const result = await worker[method](...args)
-      return result
-    }
-  }
-}
-
 /** Convert a string or generic buffer into an `ArrayBuffer` that can be transferred. */
 export function encode(buffer: string | ArrayBufferLike | ArrayBufferView) {
   if (typeof buffer === "string") return encoder.encode(buffer).buffer
