@@ -537,3 +537,48 @@ export class LazySingleton<T> {
     return Boolean(this.instance)
   }
 }
+
+// adapted from: https://stackoverflow.com/a/34920444
+// this, as far as I can tell, is basically the fastest way to do this.
+// there is a simpler method involving `TextEncoder`, but for large strings
+// that method is slower than this. It also has to allocate a new buffer
+// every time, which is a waste of memory.
+
+/**
+ * Gets the byte length of a string.
+ *
+ * @param str - The string to get the byte length of.
+ */
+export function byteLength(str: string) {
+  // assuming the String is UCS-2(aka UTF-16) encoded
+  let len = 0
+
+  for (let i = 0; i < str.length; i++) {
+    let high = str.charCodeAt(i)
+
+    // [0x0000, 0x007F]
+    if (high < 0x0080) len += 1
+    // [0x0080, 0x07FF]
+    else if (high < 0x0800) len += 2
+    // [0x0800, 0xD7FF]
+    else if (high < 0xd800) len += 3
+    // [0xD800, 0xDBFF]
+    else if (high < 0xdc00) {
+      let low = str.charCodeAt(++i)
+      if (i < str.length && low >= 0xdc00 && low <= 0xdfff) {
+        // followed by [0xDC00, 0xDFFF]
+        len += 4
+      } else {
+        throw new Error("malformed UTF-16 string")
+      }
+    }
+    // [0xDC00, 0xDFFF]
+    else if (high < 0xe000) {
+      throw new Error("malformed UTF-16 string")
+    }
+    // [0xE000, 0xFFFF]
+    else len += 3
+  }
+
+  return len
+}
