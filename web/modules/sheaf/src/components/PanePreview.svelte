@@ -76,5 +76,6 @@
     padding: 1rem;
     padding-bottom: 10rem;
     overflow-y: auto;
+    contain: strict;
   }
 </style>

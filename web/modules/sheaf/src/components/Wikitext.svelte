@@ -6,7 +6,13 @@
   import { anim } from "@wikijump/components/lib"
   import Locale, { unit } from "@wikijump/fluent"
   import FTML from "@wikijump/ftml-wasm-worker"
-  import { createAnimQueued, createMutatingLock, perfy, toFragment } from "@wikijump/util"
+  import {
+    createAnimQueued,
+    createMutatingLock,
+    idleCallback,
+    perfy,
+    toFragment
+  } from "@wikijump/util"
   import morphdom from "morphdom"
 
   const t = Locale.makeComponentFormatter("wikitext")
@@ -72,21 +78,25 @@
   const render = createMutatingLock(async (wikitext: WikitextInput) => {
     const displayIndicatorTimeout = setTimeout(() => (rendering = true), 100)
     const measure = perfy()
+
     if (typeof wikitext === "function") wikitext = wikitext()
     wikitext = await wikitext
-    const result: Rendered = wikitext
-      ? typeof wikitext !== "string"
-        ? wikitext
-        : await FTML.renderHTML(wikitext)
-      : { html: "", styles: [""] }
-    perfRender = measure()
-    clearTimeout(displayIndicatorTimeout)
-    return result
+
+    return await idleCallback(async () => {
+      const result: Rendered = wikitext
+        ? typeof wikitext !== "string"
+          ? wikitext
+          : await FTML.renderHTML(wikitext)
+        : { html: "", styles: [""] }
+      perfRender = measure()
+      clearTimeout(displayIndicatorTimeout)
+      return result
+    })
   })
 
   // TODO: Security audit of this - how much should we trust FTML output right now?
 
-  const update = createAnimQueued(async ({ html, styles }: Rendered) => {
+  const update = createAnimQueued(({ html, styles }: Rendered) => {
     if (!element) return
 
     // there are better ways to do this, but this is mostly just a development tool
@@ -100,6 +110,7 @@
     }
 
     const fragment = toFragment(html)
+
     if (morph) {
       morphdom(element, fragment, {
         childrenOnly: true,
