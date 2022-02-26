@@ -77,7 +77,6 @@ export class CodeElement extends HTMLElement {
         this.language = language
         this.content = content
         this.html = await Prism.highlight(content, language!)
-        console.log(this.html)
       }
 
       await animationFrame(() => (element.innerHTML = this.html!))
