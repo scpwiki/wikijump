@@ -29,7 +29,7 @@
     <Tab>
       <span slot="button">{$t("#-preview.result")}</span>
       <div class="sheaf-preview">
-        <Wikitext morph {debug} wikitext={render.result.bind(render)} />
+        <Wikitext morph contain {debug} wikitext={render.result.bind(render)} />
       </div>
     </Tab>
 
@@ -73,9 +73,5 @@
   .sheaf-preview {
     width: 100%;
     height: 100%;
-    padding: 1rem;
-    padding-bottom: 10rem;
-    overflow-y: auto;
-    contain: strict;
   }
 </style>

@@ -7,7 +7,7 @@
   import Locale, { unit } from "@wikijump/fluent"
   import FTML from "@wikijump/ftml-wasm-worker"
   import {
-    createAnimQueued,
+    animationFrame,
     createMutatingLock,
     idleCallback,
     perfy,
@@ -54,6 +54,12 @@
   /** Shows render performance information if true. */
   export let debug = false
 
+  /**
+   * If true, the wikitext container will fill its parent and have the
+   * rendered wikitext scroll inside of it.
+   */
+  export let contain = false
+
   let element: HTMLElement
   let stylesheets: string[] = []
   let rendering = false
@@ -73,7 +79,7 @@
   }
 
   const render = createMutatingLock(async (wikitext: WikitextInput) => {
-    const displayIndicatorTimeout = setTimeout(() => (rendering = true), 100)
+    const displayIndicatorTimeout = setTimeout(() => (rendering = true), 500)
     const measure = perfy()
 
     if (typeof wikitext === "function") wikitext = wikitext()
@@ -91,31 +97,35 @@
     })
   })
 
-  const update = createAnimQueued(({ html, styles }: Rendered) => {
+  const update = createMutatingLock(async ({ html, styles }: Rendered) => {
     if (!element) return
 
-    const fragment = toFragment(html)
+    const fragment = await idleCallback(() => toFragment(html))
 
-    if (morph) {
-      const oldBody = element.querySelector("wj-body")
-      const newBody = fragment.querySelector("wj-body")
+    await animationFrame(() => {
+      if (morph) {
+        const oldBody = element.querySelector("wj-body")
+        const newBody = fragment.querySelector("wj-body")
 
-      if (!newBody || !oldBody) {
+        if (!newBody || !oldBody) {
+          element.innerText = ""
+          element.appendChild(fragment)
+          return
+        }
+
+        micromorph(oldBody, newBody)
+      } else {
         element.innerText = ""
         element.appendChild(fragment)
-        return
       }
+    })
 
-      micromorph(oldBody, newBody)
-    } else {
-      element.innerText = ""
-      element.append(fragment)
-    }
-
-    // prepend style with a index comment so that each style string is unique
-    stylesheets = styles.map(
-      (style, idx) => `\n/* stylesheet ${idx + 1} */\n\n${style}\n`
-    )
+    await animationFrame(() => {
+      // prepend style with a index comment so that each style string is unique
+      stylesheets = styles.map(
+        (style, idx) => `\n/* stylesheet ${idx + 1} */\n\n${style}\n`
+      )
+    })
 
     rendering = false
   })
@@ -133,7 +143,7 @@
   {/each}
 </svelte:head>
 
-<div class="wikitext-container">
+<div class="wikitext-container" class:is-contained={contain}>
   {#if rendering}
     <div
       class="wikitext-loading-panel"
@@ -173,6 +183,19 @@
     top: 1rem;
     right: 1rem;
     z-index: $z-above;
+  }
+
+  .wikitext-container.is-contained {
+    contain: strict;
+    height: 100%;
+
+    .wikitext-body {
+      max-height: 100%;
+      padding: 0 1rem;
+      padding-bottom: 10rem;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
   }
 
   @include tolerates-motion {

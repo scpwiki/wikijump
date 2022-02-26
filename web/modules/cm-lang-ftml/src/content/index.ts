@@ -4,7 +4,7 @@ import RemoteContentWorker from "./worker?worker"
 
 export class ContentWorker extends AbstractWorkerBase.of<ContentModule>([
   "extractContent",
-  "stats"
+  "words"
 ]) {
   protected createWorker() {
     return new RemoteContentWorker()

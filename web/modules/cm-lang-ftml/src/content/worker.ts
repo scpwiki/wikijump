@@ -11,7 +11,7 @@ prismFTML(Prism)
 
 const module = {
   /**
-   * Extracts the actual "content" of Wikitext using the Prism grammar as a
+   * Extracts the actual "content" of wikitext using the Prism grammar as a
    * parser. Replaces all other markup with spaces in order to preserve a
    * mapping between the emitted string and the original document.
    *
@@ -28,11 +28,15 @@ const module = {
     return output
   },
 
-  stats(str: string) {
+  /**
+   * Gets the word count of a string of wikitext. Uses the Prism grammar as a parser.
+   *
+   * @param str - The wikitext to extract the content out of.
+   */
+  words(str: string) {
     const content = this.extractContent(str)
     const words = content.trim().split(/\s+/).length
-    const bytes = encode(str).byteLength
-    return { words, bytes }
+    return words
   }
 }
 
