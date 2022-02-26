@@ -36,7 +36,6 @@
     "@codemirror/view": "^0.19.45",
     "@lezer/common": "^0.15.11",
     "@lezer/lr": "^0.15.8",
-    "@wikijump/threads-worker-module": "workspace:*",
     "@wikijump/components": "workspace:*",
     "@wikijump/util": "workspace:*",
     "svelte": "^3.46.4"

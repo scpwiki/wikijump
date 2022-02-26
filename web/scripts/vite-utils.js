@@ -174,9 +174,6 @@ const BaseConfig = () => ({
     environment: "jsdom",
     include: ["./modules/**/tests/**/*.{js,ts}"],
     setupFiles: ["./scripts/test-setup.js"],
-    deps: {
-      inline: ["threads", "observable-fns"]
-    },
     coverage: {
       all: true,
       reporter: ["text", "lcovonly"],
