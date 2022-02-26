@@ -145,16 +145,22 @@ impl PageService {
         )
         .await?;
 
-        // Only mark the page as updated if a revision was committed
-        if revision_output.is_some() {
-            let model = page::ActiveModel {
-                page_id: Set(page.page_id),
-                updated_at: Set(Some(now())),
-                ..Default::default()
-            };
-
-            model.update(txn).await?;
+        // If no changes occurred, we should still rerender the page since it was "edited".
+        if revision_output.is_none() {
+            // TODO force rerender of revision
         }
+
+        // Set page updated_at column.
+        //
+        // Previously this was conditional on whether a revision was actually created.
+        // But since this rerenders regardless, we need to update the page row.
+        let model = page::ActiveModel {
+            page_id: Set(page.page_id),
+            updated_at: Set(Some(now())),
+            ..Default::default()
+        };
+
+        model.update(txn).await?;
 
         // Build and return
         Ok(revision_output.map(|data| data.into()))
