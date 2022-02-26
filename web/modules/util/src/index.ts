@@ -425,7 +425,7 @@ export function mod(a: number, n: number) {
  * @param sub - The replacement/substitute string.
  */
 export function replaceRange(str: string, from: number, to: number, sub: string) {
-  return str.substr(0, from) + sub + str.substr(to)
+  return str.substring(0, from) + sub + str.substring(to)
 }
 
 /**
