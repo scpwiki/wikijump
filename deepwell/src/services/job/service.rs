@@ -49,17 +49,13 @@ pub struct JobService;
 
 impl JobService {
     #[inline]
-    fn queue_job(ctx: &ServiceContext<'_>, job: Job) {
+    fn queue_job(job: Job) {
         source!().send(job).expect("Job channel has disconnected");
     }
 
-    pub fn queue_rerender_pages(
-        ctx: &ServiceContext<'_>,
-        site_and_page_ids: &[(i64, i64)],
-    ) {
-        for &(site_id, page_id) in site_and_page_ids {
-            Self::queue_job(ctx, Job::RerenderPageId { site_id, page_id });
-        }
+    #[inline]
+    pub fn queue_rerender_page(site_id: i64, page_id: i64) {
+        Self::queue_job(Job::RerenderPageId { site_id, page_id });
     }
 }
 

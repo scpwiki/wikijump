@@ -18,7 +18,6 @@ pub struct Model {
     pub compiled_at: DateTimeWithTimeZone,
     #[sea_orm(column_type = "Text")]
     pub compiled_generator: String,
-    pub compiled_outdated: bool,
     #[sea_orm(column_type = "Text")]
     pub comments: String,
     pub hidden: Json,

@@ -391,70 +391,6 @@ impl RevisionService {
         todo!()
     }
 
-    /// Helper method for all revision calls.
-    ///
-    /// Revisions are lazily rerendered, so if a revision
-    /// is marked as out-of-date, then it is only re-rendered
-    /// when that revision is fetched.
-    ///
-    /// This method checks if the revision needs updating,
-    /// and if so, updates it then.
-    async fn rerender_if_needed(
-        ctx: &ServiceContext<'_>,
-        revision: &mut PageRevisionModel,
-    ) -> Result<()> {
-        if revision.compiled_outdated {
-            let txn = ctx.transaction();
-
-            // Re-render revision
-            let wikitext = TextService::get(ctx, &revision.wikitext_hash).await?;
-            // This is necessary until we are able to replace the
-            // 'tags' column with TEXT[] instead of JSON.
-            let temp_tags = json_to_string_list(&revision.tags);
-            let input = RenderPageInfo {
-                slug: &revision.slug,
-                title: &revision.title,
-                alt_title: revision.alt_title.ref_map(|s| s.as_str()),
-                rating: 0.0, // TODO
-                tags: &temp_tags,
-            };
-
-            // TODO use html_output
-            let RenderOutput {
-                compiled_hash,
-                compiled_generator,
-                ..
-            } = Self::render_and_update_links(
-                ctx,
-                revision.site_id,
-                revision.page_id,
-                wikitext,
-                input,
-            )
-            .await?;
-
-            // Update compiled data for revision in database
-            let model = page_revision::ActiveModel {
-                revision_id: Set(revision.revision_id),
-                compiled_hash: Set(compiled_hash.to_vec()),
-                compiled_generator: Set(compiled_generator),
-                compiled_at: Set(now()),
-                compiled_outdated: Set(false),
-                ..Default::default()
-            };
-
-            *revision = model.update(txn).await?;
-        }
-
-        // At this point, the revision should never be outdated
-        assert!(
-            !revision.compiled_outdated,
-            "Revision is outdated after rerender",
-        );
-
-        Ok(())
-    }
-
     /// Helper method for performing rendering for a revision.
     ///
     /// Makes all the changes associated with rendering, such as
@@ -557,7 +493,6 @@ impl RevisionService {
             revision_id: Set(revision.revision_id),
             compiled_hash: Set(compiled_hash.to_vec()),
             compiled_generator: Set(compiled_generator),
-            compiled_outdated: Set(false),
             ..Default::default()
         };
 
@@ -592,15 +527,14 @@ impl RevisionService {
         Ok(())
     }
 
-    /// The same as `get_latest()`, but it does *not* rerender.
-    ///
-    /// This is necessary in some cases to avoid loops, recursion,
-    /// or if the revision is about to be outdated again anyways.
-    pub async fn get_latest_raw(
+    pub async fn get_latest(
         ctx: &ServiceContext<'_>,
         site_id: i64,
         page_id: i64,
     ) -> Result<PageRevisionModel> {
+        // NOTE: There is no optional variant of this method,
+        //       since all extant pages must have at least one revision.
+
         let txn = ctx.transaction();
         let revision = PageRevision::find()
             .filter(
@@ -616,21 +550,6 @@ impl RevisionService {
         Ok(revision)
     }
 
-    /// Gets the latest revision associated with the given page.
-    /// That is, the "current version".
-    pub async fn get_latest(
-        ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
-    ) -> Result<PageRevisionModel> {
-        // NOTE: There is no optional variant of this method,
-        //       since all extant pages must have at least one revision.
-
-        let mut revision = Self::get_latest_raw(ctx, site_id, page_id).await?;
-        Self::rerender_if_needed(ctx, &mut revision).await?;
-        Ok(revision)
-    }
-
     pub async fn get_optional(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -638,7 +557,7 @@ impl RevisionService {
         revision_number: i32,
     ) -> Result<Option<PageRevisionModel>> {
         let txn = ctx.transaction();
-        let mut revision = PageRevision::find()
+        let revision = PageRevision::find()
             .filter(
                 Condition::all()
                     .add(page_revision::Column::PageId.eq(page_id))
@@ -647,10 +566,6 @@ impl RevisionService {
             )
             .one(txn)
             .await?;
-
-        if let Some(ref mut revision) = revision {
-            Self::rerender_if_needed(ctx, revision).await?;
-        }
 
         Ok(revision)
     }

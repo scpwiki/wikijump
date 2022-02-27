@@ -21,7 +21,6 @@ class PageRevision extends DeepwellModel
     public string $compiled_html;
     public Carbon $compiled_at;
     public string $compiled_generator;
-    public bool $compiled_outdated;
     public string $comments;
     public array $hidden;
     public string $title;
@@ -42,7 +41,6 @@ class PageRevision extends DeepwellModel
         $this->compiled_html_hash = self::byteArrayToHex($raw_revision->compiledHash);
         $this->compiled_at = $raw_revision->compiledAt;
         $this->compiled_generator = $raw_revision->compiledGenerator;
-        $this->compiled_outdated = $raw_revision->compiledOutdated;
         $this->comments = $raw_revision->comments;
         $this->hidden = $raw_revision->hidden;
         $this->title = $raw_revision->title;

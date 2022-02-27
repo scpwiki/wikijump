@@ -19,10 +19,8 @@
  */
 
 use super::prelude::*;
-use crate::models::page_revision::{self, Entity as PageRevision};
-use crate::services::{LinkService, PageService, RevisionService};
+use crate::services::{JobService, LinkService, PageService};
 use crate::web::ConnectionType;
-use sea_orm::sea_query::expr::Expr;
 
 #[derive(Debug)]
 pub struct OutdateService;
@@ -32,27 +30,10 @@ impl OutdateService {
     ///
     /// Finds the most recent revision for each of the given `(site_id, page_id)`
     /// pairs passed in.
-    pub async fn outdate<I>(ctx: &ServiceContext<'_>, ids: I) -> Result<()>
-    where
-        I: IntoIterator<Item = (i64, i64)>,
-    {
-        let txn = ctx.transaction();
-        let mut revision_ids = vec![];
-
+    pub fn outdate<I: IntoIterator<Item = (i64, i64)>>(ids: I) {
         for (site_id, page_id) in ids {
-            // We use the raw variant here because we don't want to re-render anything.
-            // We're about to mark it as outdated, so any rendering effort is wasted.
-            let revision = RevisionService::get_latest_raw(ctx, site_id, page_id).await?;
-            revision_ids.push(revision.revision_id);
+            JobService::queue_rerender_page(site_id, page_id);
         }
-
-        PageRevision::update_many()
-            .col_expr(page_revision::Column::CompiledOutdated, Expr::value(true))
-            .filter(page_revision::Column::RevisionId.is_in(revision_ids))
-            .exec(txn)
-            .await?;
-
-        Ok(())
     }
 
     pub async fn outdate_incoming_links(
@@ -69,7 +50,8 @@ impl OutdateService {
             .map(|connection| (site_id, connection.from_page_id))
             .collect::<Vec<_>>();
 
-        Self::outdate(ctx, ids).await
+        Self::outdate(ids);
+        Ok(())
     }
 
     pub async fn outdate_included_pages(
@@ -90,7 +72,8 @@ impl OutdateService {
             .map(|connection| (site_id, connection.from_page_id))
             .collect::<Vec<_>>();
 
-        Self::outdate(ctx, ids).await
+        Self::outdate(ids);
+        Ok(())
     }
 
     pub async fn outdate_outgoing_links(
@@ -110,7 +93,8 @@ impl OutdateService {
             .map(|connection| (site_id, connection.to_page_id))
             .collect::<Vec<_>>();
 
-        Self::outdate(ctx, ids).await
+        Self::outdate(ids);
+        Ok(())
     }
 
     pub async fn outdate_navigation(
@@ -128,7 +112,7 @@ impl OutdateService {
                 .map(|model| (model.site_id, model.page_id))
                 .collect::<Vec<_>>();
 
-            Self::outdate(ctx, ids).await?;
+            Self::outdate(ids);
         }
 
         Ok(())
@@ -154,7 +138,7 @@ impl OutdateService {
             .map(|model| (model.site_id, model.page_id))
             .collect::<Vec<_>>();
 
-            Self::outdate(ctx, ids).await?;
+            Self::outdate(ids);
         }
 
         Ok(())
