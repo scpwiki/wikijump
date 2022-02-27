@@ -1,7 +1,7 @@
 // organize-imports-ignore
 import "@wikijump/prism/vendor/prism-min"
 import { prismFTML } from "@wikijump/prism/src/ftml"
-import { Comlink, encode } from "@wikijump/comlink"
+import { Comlink } from "@wikijump/comlink"
 
 // add FTML to our tiny prism instance
 // @ts-ignore undeclared global
