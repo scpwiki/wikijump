@@ -2,21 +2,11 @@
 // https://github.com/aFarkas/requestIdleCallback
 
 (function (factory) {
-	if (typeof define === 'function' && define.amd) {
-		define([], factory);
-	} else if (typeof module === 'object' && module.exports) {
-		module.exports = factory();
-	} else {
-		window.idleCallbackShim = factory();
-	}
+  globalThis.idleCallbackShim = factory();
 }(function(){
 	'use strict';
 	var scheduleStart, throttleDelay, lazytimer, lazyraf;
-	var root = typeof window != 'undefined' ?
-		window :
-		typeof global != undefined ?
-			global :
-			this || {};
+	var root = typeof window !== undefined ? window : globalThis
 	var requestAnimationFrame = root.cancelRequestAnimationFrame && root.requestAnimationFrame || setTimeout;
 	var cancelRequestAnimationFrame = root.cancelRequestAnimationFrame || clearTimeout;
 	var tasks = [];
@@ -167,6 +157,11 @@
 	if(!root.requestIdleCallback || !root.cancelIdleCallback){
 		root.requestIdleCallback = requestIdleCallbackShim;
 		root.cancelIdleCallback = cancelIdleCallbackShim;
+
+    if (root !== globalThis) {
+      globalThis.requestIdleCallback = requestIdleCallbackShim;
+      globalThis.cancelIdleCallback = cancelIdleCallbackShim;
+    }
 
 		if(root.document && document.addEventListener){
 			root.addEventListener('scroll', onInputorMutation, true);
