@@ -72,6 +72,8 @@ impl JobRunner {
     }
 
     async fn main_loop(mut self) -> Void {
+        tide::log::info!("Starting job runner");
+
         loop {
             tide::log::trace!("Waiting for next job on queue...");
             let job = sink!().recv().await.expect("Job channel has disconnected");
