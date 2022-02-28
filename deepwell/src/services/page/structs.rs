@@ -22,6 +22,7 @@ use super::prelude::*;
 use crate::services::revision::CreateRevisionOutput;
 use ftml::parsing::ParseWarning;
 use sea_orm::entity::prelude::DateTimeWithTimeZone;
+use serde_json::Value as JsonValue;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -60,6 +61,15 @@ pub struct GetPageOutput<'a> {
     pub revision_user_id: i64,
     pub wikitext: Option<String>,
     pub compiled_html: Option<String>,
+    pub compiled_at: DateTimeWithTimeZone,
+    pub compiled_generator: &'a str,
+    pub revision_comments: &'a str,
+    pub hidden_fields: &'a JsonValue, // TODO: replace with &[&str]
+    pub title: &'a str,
+    pub alt_title: Option<&'a str>,
+    pub slug: &'a str,
+    pub tags: &'a JsonValue, // TODO: replace with &[&str]
+    pub metadata: &'a JsonValue,
 }
 
 #[derive(Deserialize, Debug, Default)]

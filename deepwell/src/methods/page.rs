@@ -26,6 +26,7 @@ use crate::services::page::{
 };
 use crate::services::Result;
 use crate::web::PageDetailsQuery;
+use ref_map::*;
 
 pub async fn page_invalid(req: ApiRequest) -> ApiResponse {
     tide::log::warn!("Received invalid /page path: {}", req.url());
@@ -341,6 +342,15 @@ async fn build_page_response(
         revision_user_id: revision.user_id,
         wikitext,
         compiled_html,
+        compiled_at: revision.compiled_at,
+        compiled_generator: &revision.compiled_generator,
+        revision_comments: &revision.comments,
+        hidden_fields: &revision.hidden,
+        title: &revision.title,
+        alt_title: revision.alt_title.ref_map(|s| s.as_str()),
+        slug: &revision.slug,
+        tags: &revision.tags,
+        metadata: &revision.metadata,
     };
 
     let body = Body::from_json(&output)?;
