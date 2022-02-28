@@ -1,7 +1,7 @@
 import type { Prism as PrismType } from "./index"
 
 /** Adds FTML syntax highlighting to a Prism instance. */
-export function prismFTML(Prism: typeof PrismType) {
+export function prismFTML(Prism: PrismType) {
   function generateEmbedded(embed: string, start: string, end = start) {
     const pattern = new RegExp(
       `(\\[\\[\\s*${start}[^]*?\\]\\])([^]*?(?=\\[\\[\\/\\s*${end}\\s*\\]\\]))`,
