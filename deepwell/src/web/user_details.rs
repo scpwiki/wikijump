@@ -83,7 +83,7 @@ impl Default for UserDetails {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Copy, Clone)]
 pub struct UserDetailsQuery {
     #[serde(default)]
     pub detail: UserDetails,

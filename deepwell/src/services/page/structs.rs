@@ -21,6 +21,7 @@
 use super::prelude::*;
 use crate::services::revision::CreateRevisionOutput;
 use ftml::parsing::ParseWarning;
+use sea_orm::entity::prelude::DateTimeWithTimeZone;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -40,6 +41,25 @@ pub struct CreatePageOutput {
     pub slug: String,
     pub revision_id: i64,
     pub parser_warnings: Vec<ParseWarning>,
+}
+
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct GetPageOutput<'a> {
+    pub page_id: i64,
+    pub page_created_at: DateTimeWithTimeZone,
+    pub page_updated_at: Option<DateTimeWithTimeZone>,
+    pub page_deleted_at: Option<DateTimeWithTimeZone>,
+    pub site_id: i64,
+    pub page_category_id: i64,
+    pub page_category_slug: &'a str,
+    pub discussion_thread_id: Option<i64>,
+    pub revision_id: i64,
+    pub revision_created_at: DateTimeWithTimeZone,
+    pub revision_number: i32,
+    pub revision_user_id: i64,
+    pub wikitext: Option<String>,
+    pub compiled_html: Option<String>,
 }
 
 #[derive(Deserialize, Debug, Default)]

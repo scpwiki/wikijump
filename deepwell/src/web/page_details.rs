@@ -1,5 +1,5 @@
 /*
- * web/mod.rs
+ * web/page_details.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -18,21 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod category;
-mod connection_type;
-mod page_details;
-mod provided_value;
-mod reference;
-mod unwrap;
-mod user_details;
+#[derive(Serialize, Deserialize, Default, Debug, Copy, Clone)]
+#[serde(default, rename_all = "camelCase")]
+pub struct PageDetailsQuery {
+    /// Include the wikitext in the page output.
+    pub wikitext: bool,
 
-pub mod ratelimit;
-pub mod utils;
-
-pub use self::category::*;
-pub use self::connection_type::ConnectionType;
-pub use self::page_details::PageDetailsQuery;
-pub use self::provided_value::ProvidedValue;
-pub use self::reference::Reference;
-pub use self::unwrap::HttpUnwrap;
-pub use self::user_details::{UserDetails, UserDetailsQuery};
+    /// Include the compiled HTML in the page output.
+    pub compiled_html: bool,
+}

@@ -21,13 +21,11 @@
 use super::prelude::*;
 use crate::models::page::Model as PageModel;
 use crate::models::page_revision::Model as PageRevisionModel;
-use crate::services::page::{CreatePage, DeletePage, EditPage, UndeletePage};
-
-#[derive(Serialize, Debug)]
-struct PageOutput<'a> {
-    page: &'a PageModel,
-    revision: &'a PageRevisionModel,
-}
+use crate::services::page::{
+    CreatePage, DeletePage, EditPage, GetPageOutput, UndeletePage,
+};
+use crate::services::Result;
+use crate::web::PageDetailsQuery;
 
 pub async fn page_invalid(req: ApiRequest) -> ApiResponse {
     tide::log::warn!("Received invalid /page path: {}", req.url());
@@ -53,13 +51,16 @@ pub async fn page_get_direct(req: ApiRequest) -> ApiResponse {
     let page_id = req.param("page_id")?.parse()?;
     tide::log::info!("Getting page ID {}", page_id);
 
+    let details: PageDetailsQuery = req.query()?;
     let page = PageService::get_direct(&ctx, page_id).await.to_api()?;
     let revision = RevisionService::get_latest(&ctx, page.site_id, page.page_id)
         .await
         .to_api()?;
 
+    let response =
+        build_page_response(&ctx, &page, &revision, details, StatusCode::Ok).await?;
     txn.commit().await?;
-    build_page_response(&page, &revision, StatusCode::Ok)
+    Ok(response)
 }
 
 pub async fn page_create(mut req: ApiRequest) -> ApiResponse {
@@ -101,6 +102,7 @@ pub async fn page_get(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
+    let details: PageDetailsQuery = req.query()?;
     let site_id = req.param("site_id")?.parse()?;
     let reference = Reference::try_from(&req)?;
     tide::log::info!("Getting page {:?} in site ID {}", reference, site_id);
@@ -110,8 +112,10 @@ pub async fn page_get(req: ApiRequest) -> ApiResponse {
         .await
         .to_api()?;
 
+    let response =
+        build_page_response(&ctx, &page, &revision, details, StatusCode::Ok).await?;
     txn.commit().await?;
-    build_page_response(&page, &revision, StatusCode::Ok)
+    Ok(response)
 }
 
 pub async fn page_edit(mut req: ApiRequest) -> ApiResponse {
@@ -290,12 +294,54 @@ pub async fn page_links_external_to(req: ApiRequest) -> ApiResponse {
     Ok(body.into())
 }
 
-fn build_page_response(
+async fn get_text(
+    ctx: &ServiceContext<'_>,
+    should_fetch: bool,
+    text_hash: &[u8],
+) -> Result<Option<String>> {
+    if !should_fetch {
+        return Ok(None);
+    }
+
+    let text = TextService::get(ctx, text_hash).await?;
+    Ok(Some(text))
+}
+
+async fn build_page_response(
+    ctx: &ServiceContext<'_>,
     page: &PageModel,
     revision: &PageRevisionModel,
+    details: PageDetailsQuery,
     status: StatusCode,
-) -> ApiResponse {
-    let body = Body::from_json(&PageOutput { page, revision })?;
+) -> Result<Response> {
+    // Get category slug from ID
+    let category =
+        CategoryService::get(ctx, page.site_id, Reference::from(page.page_category_id))
+            .await?;
+
+    // Get text data, if needed
+    let wikitext = get_text(ctx, details.wikitext, &revision.wikitext_hash).await?;
+    let compiled_html =
+        get_text(ctx, details.compiled_html, &revision.compiled_hash).await?;
+
+    let output = GetPageOutput {
+        page_id: page.page_id,
+        page_created_at: page.created_at,
+        page_updated_at: page.updated_at,
+        page_deleted_at: page.deleted_at,
+        site_id: page.site_id,
+        page_category_id: category.category_id,
+        page_category_slug: &category.slug,
+        discussion_thread_id: page.discussion_thread_id,
+        revision_id: revision.revision_id,
+        revision_created_at: revision.created_at,
+        revision_number: revision.revision_number,
+        revision_user_id: revision.user_id,
+        wikitext,
+        compiled_html,
+    };
+
+    let body = Body::from_json(&output)?;
     let response = Response::builder(status).body(body).into();
     Ok(response)
 }
