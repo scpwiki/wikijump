@@ -21,6 +21,16 @@ export class EspellsWorker extends AbstractWorkerBase.of<Espells>([
 ]) {
   declare locale: string
 
+  protected _baseDefaults = {
+    add: undefined,
+    remove: undefined,
+    addDictionary: undefined,
+    lookup: () => ({ correct: true, forbidden: false, warn: false }),
+    data: () => new Map(),
+    stems: () => [],
+    suggest: () => []
+  }
+
   constructor(locale = "en") {
     super()
     this.set(locale)

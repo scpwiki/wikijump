@@ -39,6 +39,12 @@ declare global {
 
   /** A type which may be an array of itself, or just itself. */
   type Arrayable<T> = T | T[]
+
+  /**
+   * A type which may either be the given type or a function returning the
+   * given type.
+   */
+  type Functionable<T, A = any, G = this> = T | ((this: G, ...args: A) => T)
 }
 
 export {}

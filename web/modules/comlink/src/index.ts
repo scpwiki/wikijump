@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
 import { decode, encode, timedout, TIMED_OUT_SYMBOL } from "@wikijump/util"
 import * as Comlink from "comlink"
 
@@ -43,12 +42,6 @@ export abstract class AbstractWorkerBase<T> {
   /** Required function needed for getting a `Worker` or `Comlink.Remote<T>` instance. */
   protected abstract _baseGetWorker(): Promisable<AbstractRemoteWorker<T> | false>
 
-  /**
-   * An optional function that will be called before each method call. If
-   * it returns a boolean, the method will not be called if the value is false.
-   */
-  protected _baseBeforeMethod?(): Promisable<boolean | void>
-
   /** An optional function that will be ran whenever a new worker is created. */
   protected _baseInitalize?(): Promisable<void>
 
@@ -58,8 +51,8 @@ export abstract class AbstractWorkerBase<T> {
    */
   protected _baseDefaults?: {
     [P in keyof T]?: RemoteObject<T>[P] extends (...args: infer A) => infer R
-      ? (this: this, ...args: A) => R
-      : (this: this) => RemoteObject<T>
+      ? Functionable<Promisable<Awaited<R>>, A, this>
+      : Functionable<Promisable<Awaited<RemoteObject<T>[P]>>, void, this>
   }
 
   /**
@@ -99,11 +92,6 @@ export abstract class AbstractWorkerBase<T> {
         const value = this.worker![prop] as unknown
 
         if (typeof value === "function") {
-          if (this._baseBeforeMethod) {
-            const value = await this._baseBeforeMethod()
-            if (value === false) return await this._tryToGetDefault(prop, ...args)
-          }
-
           if (this._baseMethodTimeout !== 0) {
             const result = await timedout(
               value.call(this.worker!, ...args),
@@ -129,12 +117,18 @@ export abstract class AbstractWorkerBase<T> {
 
   /** Tries to run a default method if the worker couldn't be started. */
   private async _tryToGetDefault(method: keyof T, ...args: any[]) {
-    if (!this._baseDefaults || !this._baseDefaults[method]) {
+    if (!this._baseDefaults || !this._baseDefaults.hasOwnProperty(method)) {
       if (!this.worker) throw new Error(`Worker could not be started!`)
       else throw new Error(`Method "${method}" could not be called!`)
     }
 
-    return await this._baseDefaults[method]!.call(this, ...args)
+    const def = this._baseDefaults[method]
+
+    if (typeof def === "function") {
+      return await def.call(this, ...args)
+    } else {
+      return def
+    }
   }
 
   /** True if the worker has been started. */
