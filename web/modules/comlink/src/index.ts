@@ -1,5 +1,8 @@
-import { decode, encode } from "@wikijump/util"
+/* eslint-disable @typescript-eslint/ban-types */
+import { decode, encode, timedout, TIMED_OUT_SYMBOL } from "@wikijump/util"
 import * as Comlink from "comlink"
+
+const DEFAULT_TIMEOUT = 5000
 
 /**
  * Releases a remote proxy. This is required to prevent memory leaks.
@@ -34,6 +37,9 @@ export abstract class AbstractWorkerBase<T> {
   /** Tracks if the worker is still be created. Prevents a race condition. */
   declare starting?: Promise<void>
 
+  /** The worker instance. */
+  protected declare worker?: Remote<T>
+
   /** Required function needed for getting a `Worker` or `Comlink.Remote<T>` instance. */
   protected abstract _baseGetWorker(): Promisable<AbstractRemoteWorker<T> | false>
 
@@ -56,8 +62,17 @@ export abstract class AbstractWorkerBase<T> {
       : (this: this) => RemoteObject<T>
   }
 
-  /** The worker instance. */
-  protected declare worker?: Remote<T>
+  /**
+   * Number of milliseconds a function can run before an error is thrown
+   * and the worker is stopped. Defaults to 5000. Set to 0 to disable.
+   */
+  protected _baseMethodTimeout?: number
+
+  /**
+   * If a worker was provided, its instance will be kept here so that it
+   * can be forcefully terminated.
+   */
+  private _workerInstance?: Worker
 
   /**
    * Function intended to be used within an `extends` expression.
@@ -79,20 +94,32 @@ export abstract class AbstractWorkerBase<T> {
         if (!this.worker) await this.start()
 
         // check one more time - maybe worker couldn't start
-        if (!this.worker) await this._tryToGetDefault(prop, ...args)
+        if (!this.worker) return await this._tryToGetDefault(prop, ...args)
 
-        const workerProperty = this.worker![prop] as unknown
+        const value = this.worker![prop] as unknown
 
-        if (typeof workerProperty === "function") {
+        if (typeof value === "function") {
           if (this._baseBeforeMethod) {
             const value = await this._baseBeforeMethod()
-            if (value === false) await this._tryToGetDefault(prop, ...args)
+            if (value === false) return await this._tryToGetDefault(prop, ...args)
           }
 
-          // @ts-ignore
-          return await workerProperty.call(this.worker!, ...args)
+          if (this._baseMethodTimeout !== 0) {
+            const result = await timedout(
+              value.call(this.worker!, ...args),
+              this._baseMethodTimeout ?? DEFAULT_TIMEOUT
+            )
+
+            if (result !== TIMED_OUT_SYMBOL) return result
+
+            // worker is timing out, have to stop it
+            this.stop()
+            throw new Error(`Method "${prop}" timed out!`)
+          } else {
+            return await value.call(this.worker!, ...args)
+          }
         } else {
-          return workerProperty
+          return value
         }
       }
     }
@@ -123,27 +150,42 @@ export abstract class AbstractWorkerBase<T> {
    */
   async start(force?: boolean) {
     if (!force && this.worker) return
+
     if (this.starting) {
       await this.starting
       this.starting = undefined
       if (!force) return
     }
-    let oldWorker = this.worker
+    const old = [this.worker, this._workerInstance] as const
+
     const result = this._baseGetWorker()
     if (result instanceof Promise) this.starting = result.then()
     const worker: AbstractRemoteWorker<T> | false = await result
-    if (!worker) return
-    if (worker instanceof Worker) this.worker = Comlink.wrap<T>(worker)
-    else this.worker = worker
-    if (this._baseInitalize) await this._baseInitalize()
-    if (oldWorker) releaseRemote(oldWorker)
-    this.starting = undefined
+
+    if (worker) {
+      if (worker instanceof Worker) {
+        this.worker = Comlink.wrap<T>(worker)
+        this._workerInstance = worker
+      } else {
+        this.worker = worker
+        this._workerInstance = undefined
+      }
+
+      if (this._baseInitalize) await this._baseInitalize()
+
+      if (old[0]) releaseRemote(old[0])
+      if (old[1]) old[1].terminate()
+
+      this.starting = undefined
+    }
   }
 
   /** Stops the worker. Needed for garbage collection. */
   stop() {
     if (this.worker) releaseRemote(this.worker)
+    if (this._workerInstance) this._workerInstance.terminate()
     this.worker = undefined
+    this._workerInstance = undefined
   }
 }
 

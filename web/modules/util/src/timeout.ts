@@ -153,3 +153,20 @@ function clearTimeoutClass(timeout: Timeout | undefined | null) {
 }
 
 export { clearTimeoutClass as clearTimeout }
+
+/** Symbol for identifying timed out promises. */
+export const TIMED_OUT_SYMBOL = Symbol("timedout")
+
+/**
+ * Utility for handling promise timeouts. If the {@link TIMED_OUT_SYMBOL}
+ * symbol is returned, the promise timed out.
+ *
+ * @param promise - The promise to wrap.
+ * @param time - The duration to use.
+ */
+export async function timedout<T>(promise: Promise<T>, time: number) {
+  const timer = timeout<typeof TIMED_OUT_SYMBOL>(time, () => TIMED_OUT_SYMBOL)
+  const result = await Promise.race([promise, timer.promise])
+  if (result !== TIMED_OUT_SYMBOL) timer.clear()
+  return result
+}
