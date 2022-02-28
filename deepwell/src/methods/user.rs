@@ -44,7 +44,7 @@ pub async fn user_head(req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let reference = Reference::try_from(&req)?;
-    tide::log::info!("Checking eixstence of user {:?}", reference);
+    tide::log::info!("Checking existence of user {:?}", reference);
 
     let exists = UserService::exists(&ctx, reference).await.to_api()?;
     txn.commit().await?;
