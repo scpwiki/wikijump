@@ -34,11 +34,11 @@ use std::collections::HashMap;
 /// type(s) of connections are desired.
 macro_rules! make_contype_condition {
     ($table_name:ident, $connection_types:expr $(,)?) => {
-        // Layer 1: Option<&[ConnectionType]>
+        // Layer 1: Option<&[ConnectionType]> -> Option<Condition>
         $connection_types.map(|connection_types| {
-            // Layer 2: &[ConnectionType]
+            // Layer 2: &[ConnectionType] -> [&str]
             $table_name::Column::ConnectionType.is_in(
-                // Layer 3: ConnectionType::name
+                // Layer 3: ConnectionType::name -> &str
                 connection_types.iter().map(|ctype| ctype.name()),
             )
         })
