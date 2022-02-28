@@ -92,11 +92,11 @@ class DeepwellPage extends Migration
                 compiled_at TIMESTAMP WITH TIME ZONE NOT NULL,
                 compiled_generator TEXT NOT NULL,
                 comments TEXT NOT NULL,
-                hidden JSON NOT NULL DEFAULT '{}', -- List of fields to be hidden/suppressed
+                hidden JSON NOT NULL DEFAULT '[]', -- List of fields to be hidden/suppressed
                 title TEXT NOT NULL,
                 alt_title TEXT,
                 slug TEXT NOT NULL,
-                tags JSON NOT NULL DEFAULT '{}', -- Should be sorted and deduplicated before insertion
+                tags JSON NOT NULL DEFAULT '[]', -- Should be sorted and deduplicated before insertion
                 metadata JSONB NOT NULL DEFAULT '{}', -- Customizable metadata. Currently unused.
 
                 -- NOTE: json_array_to_text_array() is needed while we're still on JSON
