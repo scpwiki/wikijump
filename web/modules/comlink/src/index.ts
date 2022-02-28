@@ -26,6 +26,8 @@ export type {
 } from "comlink"
 export { Comlink }
 
+export type DerivedWorkerBase<T> = AbstractWorkerBase<T> & Comlink.RemoteObject<T>
+
 export abstract class AbstractWorkerBase<T> {
   /** True if the worker has already been terminated. */
   declare terminated: boolean
@@ -60,35 +62,34 @@ export abstract class AbstractWorkerBase<T> {
    * @param methods - The methods to bind to the class instance, which when
    *   called will be passed the worker instance.
    */
-  static of<T>(
-    methods: (keyof T)[]
-  ): abstract new () => AbstractWorkerBase<T> & Comlink.RemoteObject<T> {
+  static of<T>(methods: (keyof T)[]): abstract new () => DerivedWorkerBase<T> {
     // @ts-ignore
-    return class extends AbstractWorkerBase<T> {
-      constructor() {
-        super()
-        for (const method of methods) {
-          // @ts-ignore
-          this[method] = async (...args: any[]) => {
-            if (this.terminated) throw new Error("Worker was already terminated!")
-            if (this.starting) await this.starting
-            if (!this.worker) await this.start()
+    const Derived: new () => DerivedWorkerBase<T> = class extends AbstractWorkerBase<T> {}
 
-            // check one more time - maybe worker couldn't start
-            if (!this.worker) throw new Error("Worker could not be started!")
+    for (const method of methods) {
+      Derived.prototype[method] = async function (
+        this: DerivedWorkerBase<T>,
+        ...args: any[]
+      ) {
+        if (this.terminated) throw new Error("Worker was already terminated!")
+        if (this.starting) await this.starting
+        if (!this.worker) await this.start()
 
-            if (this._baseBeforeMethod) {
-              const value = await this._baseBeforeMethod()
-              if (typeof value === "boolean" && !value) return
-            }
+        // check one more time - maybe worker couldn't start
+        if (!this.worker) throw new Error("Worker could not be started!")
 
-            // @ts-ignore
-            const result = await this.worker[method](...args)
-            return result
-          }
+        if (this._baseBeforeMethod) {
+          const value = await this._baseBeforeMethod()
+          if (typeof value === "boolean" && !value) return
         }
+
+        // @ts-ignore
+        const result = await this.worker[method](...args)
+        return result
       }
     }
+
+    return Derived
   }
 
   /** True if the worker has been started. */
