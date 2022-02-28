@@ -127,16 +127,22 @@ impl OutdateService {
         // If a template page has been updated,
         // we need to recompile everything in that category.
         if page_slug == "_template" {
-            let ids = PageService::get_all(
-                ctx,
-                site_id,
-                Some(category_slug.into()),
-                Some(false),
-            )
-            .await?
-            .into_iter()
-            .map(|model| (model.site_id, model.page_id))
-            .collect::<Vec<_>>();
+            let category_select = if category_slug == "_default" {
+                // If the category is _default, we need to recompile everything.
+                // All other categories may inherit from _default.
+                //
+                // Specifying "None" here means that we aren't filtering by category.
+                None
+            } else {
+                // Otherwise, filter by whatever category slug we have here.
+                Some(category_slug.into())
+            };
+
+            let ids = PageService::get_all(ctx, site_id, category_select, Some(false))
+                .await?
+                .into_iter()
+                .map(|model| (model.site_id, model.page_id))
+                .collect::<Vec<_>>();
 
             Self::outdate(ids);
         }
