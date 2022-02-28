@@ -13,6 +13,7 @@ pub struct Model {
     pub page_id: i64,
     pub site_id: i64,
     pub user_id: i64,
+    pub changes: Json,
     pub wikitext_hash: Vec<u8>,
     pub compiled_hash: Vec<u8>,
     pub compiled_at: DateTimeWithTimeZone,

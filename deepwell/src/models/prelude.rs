@@ -9,7 +9,6 @@ pub use super::page::Entity as Page;
 pub use super::page_category::Entity as PageCategory;
 pub use super::page_connection::Entity as PageConnection;
 pub use super::page_connection_missing::Entity as PageConnectionMissing;
-pub use super::page_edit_lock::Entity as PageEditLock;
 pub use super::page_link::Entity as PageLink;
 pub use super::page_rate_vote::Entity as PageRateVote;
 pub use super::page_revision::Entity as PageRevision;

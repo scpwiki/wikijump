@@ -46,8 +46,6 @@ pub enum Relation {
     Site,
     #[sea_orm(has_many = "super::file::Entity")]
     File,
-    #[sea_orm(has_many = "super::page_edit_lock::Entity")]
-    PageEditLock,
     #[sea_orm(has_many = "super::page_rate_vote::Entity")]
     PageRateVote,
     #[sea_orm(has_many = "super::page_link::Entity")]
@@ -79,12 +77,6 @@ impl Related<super::site::Entity> for Entity {
 impl Related<super::file::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::File.def()
-    }
-}
-
-impl Related<super::page_edit_lock::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::PageEditLock.def()
     }
 }
 
