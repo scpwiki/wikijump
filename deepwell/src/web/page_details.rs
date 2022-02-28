@@ -25,5 +25,6 @@ pub struct PageDetailsQuery {
     pub wikitext: bool,
 
     /// Include the compiled HTML in the page output.
+    #[serde(alias = "compiled")]
     pub compiled_html: bool,
 }
