@@ -63,7 +63,6 @@ pub enum Error {
 }
 
 impl Error {
-    // TODO fix service result -> tide result in endpoints
     pub fn into_tide_error(self) -> TideError {
         match self {
             Error::Database(inner) => {
