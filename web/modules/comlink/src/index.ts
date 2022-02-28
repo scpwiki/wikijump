@@ -1,4 +1,6 @@
+import { decode, encode } from "@wikijump/util"
 import * as Comlink from "comlink"
+
 /**
  * Releases a remote proxy. This is required to prevent memory leaks.
  *
@@ -130,10 +132,33 @@ export abstract class AbstractWorkerBase<T> {
     this.stop()
     this.terminated = true
   }
-
-  /**
-   * An optional function that will be called before each method call. If
-   * it returns a boolean, the method will not be called if the value is false.
-   */
-  methodCondition?(): Promise<boolean | void>
 }
+
+export class TransferString {
+  readonly buffer: ArrayBuffer
+
+  constructor(str: string | ArrayBufferView | ArrayBufferLike) {
+    this.buffer = encode(str)
+  }
+
+  toString() {
+    return decode(this.buffer)
+  }
+
+  static handler: Comlink.TransferHandler<TransferString, ArrayBuffer> = {
+    canHandle(value: unknown): value is TransferString {
+      return value instanceof TransferString
+    },
+
+    serialize(value: TransferString) {
+      const serialized = encode(value.buffer)
+      return [serialized, [serialized]]
+    },
+
+    deserialize(buffer: ArrayBuffer) {
+      return new TransferString(buffer)
+    }
+  }
+}
+
+Comlink.transferHandlers.set("TransferString", TransferString.handler)
