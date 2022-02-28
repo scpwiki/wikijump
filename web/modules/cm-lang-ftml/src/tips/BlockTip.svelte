@@ -32,12 +32,6 @@
       ? ' value arg="value"'
       : ""
   }]]`
-
-  Prism.highlight(codeString, block.outputType === "html" ? "html" : "log").then(
-    code => (codeString = code)
-  )
-
-  Prism.highlight(ftmlString, "ftml").then(code => (ftmlString = code))
 </script>
 
 <div class="cm-ftml-block-tip">
@@ -127,16 +121,18 @@
   </div>
 
   {#if block.docs}
-    <pre class="code cm-ftml-block-tip-example"><code
-        >{@html Prism.highlight(block.docs.example, "ftml")}</code
-      ></pre>
+    {#await Prism.highlight(block.docs.example, "ftml") then example}
+      <pre class="code cm-ftml-block-tip-example"><code>{@html example}</code></pre>
+    {/await}
   {/if}
 
   <hr />
 
   <div class="cm-ftml-block-tip-emit">
-    <pre class="code cm-ftml-block-tip-emit-info"><code>{@html ftmlString}</code></pre>
-    <pre class="code cm-ftml-block-tip-emit-info"><code>{@html codeString}</code></pre>
+    {#await Promise.all( [Prism.highlight(ftmlString, "ftml"), Prism.highlight(codeString, block.outputType === "html" ? "html" : "log")] ) then [code, ftml]}
+      <pre class="code cm-ftml-block-tip-emit-info"><code>{@html ftml}</code></pre>
+      <pre class="code cm-ftml-block-tip-emit-info"><code>{@html code}</code></pre>
+    {/await}
   </div>
 </div>
 
