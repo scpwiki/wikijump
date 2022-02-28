@@ -123,6 +123,7 @@ impl RevisionService {
 
         // Fields to create in the revision
         let mut parser_warnings = None;
+        let mut changes = Vec::new();
         let PageRevisionModel {
             mut wikitext_hash,
             mut compiled_hash,
@@ -139,22 +140,27 @@ impl RevisionService {
 
         // Update fields from input
         if let ProvidedValue::Set(new_title) = body.title {
+            changes.push(str!("title"));
             title = new_title;
         }
 
         if let ProvidedValue::Set(new_alt_title) = body.alt_title {
+            changes.push(str!("alt_title"));
             alt_title = new_alt_title;
         }
 
         if let ProvidedValue::Set(new_slug) = body.slug {
+            changes.push(str!("slug"));
             slug = new_slug;
         }
 
         if let ProvidedValue::Set(new_tags) = body.tags {
+            changes.push(str!("tags"));
             tags = string_list_to_json(new_tags);
         }
 
         if let ProvidedValue::Set(new_metadata) = body.metadata {
+            changes.push(str!("metadata"));
             metadata = new_metadata
         }
 
@@ -252,6 +258,7 @@ impl RevisionService {
             page_id: Set(page_id),
             site_id: Set(site_id),
             user_id: Set(user_id),
+            changes: Set(string_list_to_json(changes)),
             wikitext_hash: Set(wikitext_hash),
             compiled_hash: Set(compiled_hash),
             compiled_at: Set(compiled_at),
@@ -317,12 +324,24 @@ impl RevisionService {
         } = Self::render_and_update_links(ctx, site_id, page_id, wikitext, render_input)
             .await?;
 
+        // Effective constant, number of changes for the first revision.
+        // The first revision is always considered to have changed everything.
+        let all_changes = serde_json::json!([
+            "wikitext",
+            "title",
+            "alt_title",
+            "slug",
+            "tags",
+            "metadata"
+        ]);
+
         // Insert the new revision into the table
         let model = page_revision::ActiveModel {
             revision_number: Set(0),
             page_id: Set(page_id),
             site_id: Set(site_id),
             user_id: Set(user_id),
+            changes: Set(all_changes),
             wikitext_hash: Set(wikitext_hash.to_vec()),
             compiled_hash: Set(compiled_hash.to_vec()),
             compiled_at: Set(now()),
