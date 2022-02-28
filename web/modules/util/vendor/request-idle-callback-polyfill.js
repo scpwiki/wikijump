@@ -6,7 +6,7 @@
 }(function(){
 	'use strict';
 	var scheduleStart, throttleDelay, lazytimer, lazyraf;
-	var root = typeof window !== undefined ? window : globalThis
+	var root = globalThis.window ? globalThis.window : globalThis;
 	var requestAnimationFrame = root.cancelRequestAnimationFrame && root.requestAnimationFrame || setTimeout;
 	var cancelRequestAnimationFrame = root.cancelRequestAnimationFrame || clearTimeout;
 	var tasks = [];
