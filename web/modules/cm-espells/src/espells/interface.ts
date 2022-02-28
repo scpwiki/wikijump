@@ -31,7 +31,7 @@ export class EspellsWorker extends AbstractWorkerBase.of<Espells>([
     if (this.loaded) await this.start(true)
   }
 
-  protected async createWorker() {
+  protected async _baseGetWorker() {
     if (DICTIONARIES.hasOwnProperty(this.locale)) {
       const { aff: affURL, dic: dicURL } = await DICTIONARIES[this.locale]()
 

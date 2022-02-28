@@ -18,6 +18,7 @@
     "@wikijump/components": "workspace:*",
     "@wikijump/fluent": "workspace:*",
     "@wikijump/ftml-wasm-worker": "workspace:*",
+    "@wikijump/prism": "workspace:*",
     "@wikijump/util": "workspace:*",
     "cm-tarnation": "^0.2.0",
     "svelte": "^3.46.4"

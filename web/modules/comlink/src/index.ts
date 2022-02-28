@@ -32,7 +32,16 @@ export abstract class AbstractWorkerBase<T> {
   declare starting?: Promise<void>
 
   /** Required function needed for getting a `Worker` or `Comlink.Remote<T>` instance. */
-  protected abstract createWorker(): Promisable<Worker | Comlink.Remote<T> | false>
+  protected abstract _baseGetWorker(): Promisable<Worker | Comlink.Remote<T> | false>
+
+  /**
+   * An optional function that will be called before each method call. If
+   * it returns a boolean, the method will not be called if the value is false.
+   */
+  protected _baseBeforeMethod?(): Promisable<boolean | void>
+
+  /** An optional function that will be ran whenever a new worker is created. */
+  protected _baseInitalize?(): Promisable<void>
 
   /** The worker instance. */
   declare worker?: Comlink.Remote<T>
@@ -62,10 +71,15 @@ export abstract class AbstractWorkerBase<T> {
             if (this.terminated) throw new Error("Worker was already terminated!")
             if (this.starting) await this.starting
             if (!this.worker) await this.start()
-            if (this.methodCondition) {
-              const value = await this.methodCondition()
+
+            // check one more time - maybe worker couldn't start
+            if (!this.worker) throw new Error("Worker could not be started!")
+
+            if (this._baseBeforeMethod) {
+              const value = await this._baseBeforeMethod()
               if (typeof value === "boolean" && !value) return
             }
+
             // @ts-ignore
             const result = await this.worker[method](...args)
             return result
@@ -94,12 +108,13 @@ export abstract class AbstractWorkerBase<T> {
       if (!force) return
     }
     let oldWorker = this.worker
-    const result = this.createWorker()
+    const result = this._baseGetWorker()
     if (result instanceof Promise) this.starting = result.then()
     const worker: Comlink.Remote<T> | Worker | false = await result
     if (!worker) return
     if (worker instanceof Worker) this.worker = Comlink.wrap<T>(worker)
     else this.worker = worker
+    if (this._baseInitalize) await this._baseInitalize()
     if (oldWorker) releaseRemote(oldWorker)
     this.starting = undefined
   }

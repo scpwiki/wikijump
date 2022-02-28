@@ -37,11 +37,11 @@ export class FTMLWorker extends AbstractWorkerBase.of<FTMLModule>([
   "warnings",
   "wordCount"
 ]) {
-  protected createWorker() {
+  protected _baseGetWorker() {
     return new FTMLRemoteWorker()
   }
 
-  async methodCondition() {
+  protected async _baseInitalize() {
     await this.worker!.waitUntilReady()
   }
 }

@@ -11,6 +11,7 @@
   "type": "module",
   "main": "src/index.ts",
   "dependencies": {
+    "@wikijump/util": "workspace:*",
     "comlink": "^4.3.1"
   }
 }

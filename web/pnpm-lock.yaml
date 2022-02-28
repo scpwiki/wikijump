@@ -183,6 +183,7 @@ importers:
       '@wikijump/components': workspace:*
       '@wikijump/fluent': workspace:*
       '@wikijump/ftml-wasm-worker': workspace:*
+      '@wikijump/prism': workspace:*
       '@wikijump/util': workspace:*
       cm-tarnation: ^0.2.0
       svelte: ^3.46.4
@@ -194,6 +195,7 @@ importers:
       '@wikijump/components': link:../components
       '@wikijump/fluent': link:../fluent
       '@wikijump/ftml-wasm-worker': link:../ftml-wasm-worker
+      '@wikijump/prism': link:../prism
       '@wikijump/util': link:../util
       cm-tarnation: 0.2.0
       svelte: 3.46.4
@@ -260,8 +262,10 @@ importers:
 
   modules/comlink:
     specifiers:
+      '@wikijump/util': workspace:*
       comlink: ^4.3.1
     dependencies:
+      '@wikijump/util': link:../util
       comlink: 4.3.1
 
   modules/components:
