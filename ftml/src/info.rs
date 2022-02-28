@@ -30,12 +30,13 @@ pub use self::build::{
 
 lazy_static! {
     pub static ref VERSION: String = {
-        format!(
-            "{} v{} [{}]",
-            PKG_NAME,
-            PKG_VERSION,
-            GIT_COMMIT_HASH_SHORT.unwrap_or("nohash"),
-        )
+        let mut version = format!("{} v{}", PKG_NAME, PKG_VERSION);
+
+        if let Some(commit_hash) = *GIT_COMMIT_HASH_SHORT {
+            str_write!(&mut version, " [{}]", commit_hash);
+        }
+
+        version
     };
     pub static ref TARGET_TRIPLET: String = {
         format!(
