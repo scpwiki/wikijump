@@ -19,24 +19,23 @@ export type {
   ProxyMarked,
   ProxyMethods,
   ProxyOrClone,
-  Remote,
-  RemoteObject,
   TransferHandler,
   UnproxyOrClone
 } from "comlink"
 export { Comlink }
 
-export type DerivedWorkerBase<T> = AbstractWorkerBase<T> & Comlink.RemoteObject<T>
+export type Remote<T> = Comlink.Remote<T>
+export type RemoteObject<T> = Comlink.RemoteObject<T>
+export type AbstractRemoteWorker<T> = Worker | Remote<T>
+
+export type DerivedWorkerBase<T> = AbstractWorkerBase<T> & RemoteObject<T>
 
 export abstract class AbstractWorkerBase<T> {
-  /** True if the worker has already been terminated. */
-  declare terminated: boolean
-
   /** Tracks if the worker is still be created. Prevents a race condition. */
   declare starting?: Promise<void>
 
   /** Required function needed for getting a `Worker` or `Comlink.Remote<T>` instance. */
-  protected abstract _baseGetWorker(): Promisable<Worker | Comlink.Remote<T> | false>
+  protected abstract _baseGetWorker(): Promisable<AbstractRemoteWorker<T> | false>
 
   /**
    * An optional function that will be called before each method call. If
@@ -47,49 +46,68 @@ export abstract class AbstractWorkerBase<T> {
   /** An optional function that will be ran whenever a new worker is created. */
   protected _baseInitalize?(): Promisable<void>
 
-  /** The worker instance. */
-  declare worker?: Comlink.Remote<T>
-
-  constructor() {
-    this.terminated = false
+  /**
+   * Object that allows for setting a default return value function when a
+   * worker couldn't be started, or if a `_baseBeforeMethod` check failed.
+   */
+  protected _baseDefaults?: {
+    [P in keyof T]?: RemoteObject<T>[P] extends (...args: infer A) => infer R
+      ? (this: this, ...args: A) => R
+      : (this: this) => RemoteObject<T>
   }
+
+  /** The worker instance. */
+  protected declare worker?: Remote<T>
 
   /**
    * Function intended to be used within an `extends` expression.
-   * Constructs a class that wraps around a worker factory function and
-   * automatically handles binding methods and worker creation.
+   * Constructs a class with a prototype that has all the methods and
+   * properties of the worker proxy.
    *
-   * @param methods - The methods to bind to the class instance, which when
-   *   called will be passed the worker instance.
+   * @param props - The properties to bind. These can't be figured out automatically.
    */
-  static of<T>(methods: (keyof T)[]): abstract new () => DerivedWorkerBase<T> {
+  static of<T>(props: (keyof T)[]): abstract new () => DerivedWorkerBase<T> {
     // @ts-ignore
     const Derived: new () => DerivedWorkerBase<T> = class extends AbstractWorkerBase<T> {}
 
-    for (const method of methods) {
-      Derived.prototype[method] = async function (
+    for (const prop of props) {
+      Derived.prototype[prop] = async function (
         this: DerivedWorkerBase<T>,
         ...args: any[]
       ) {
-        if (this.terminated) throw new Error("Worker was already terminated!")
         if (this.starting) await this.starting
         if (!this.worker) await this.start()
 
         // check one more time - maybe worker couldn't start
-        if (!this.worker) throw new Error("Worker could not be started!")
+        if (!this.worker) await this._tryToGetDefault(prop, ...args)
 
-        if (this._baseBeforeMethod) {
-          const value = await this._baseBeforeMethod()
-          if (typeof value === "boolean" && !value) return
+        const workerProperty = this.worker![prop] as unknown
+
+        if (typeof workerProperty === "function") {
+          if (this._baseBeforeMethod) {
+            const value = await this._baseBeforeMethod()
+            if (value === false) await this._tryToGetDefault(prop, ...args)
+          }
+
+          // @ts-ignore
+          return await workerProperty.call(this.worker!, ...args)
+        } else {
+          return workerProperty
         }
-
-        // @ts-ignore
-        const result = await this.worker[method](...args)
-        return result
       }
     }
 
     return Derived
+  }
+
+  /** Tries to run a default method if the worker couldn't be started. */
+  private async _tryToGetDefault(method: keyof T, ...args: any[]) {
+    if (!this._baseDefaults || !this._baseDefaults[method]) {
+      if (!this.worker) throw new Error(`Worker could not be started!`)
+      else throw new Error(`Method "${method}" could not be called!`)
+    }
+
+    return await this._baseDefaults[method]!.call(this, ...args)
   }
 
   /** True if the worker has been started. */
@@ -113,7 +131,7 @@ export abstract class AbstractWorkerBase<T> {
     let oldWorker = this.worker
     const result = this._baseGetWorker()
     if (result instanceof Promise) this.starting = result.then()
-    const worker: Comlink.Remote<T> | Worker | false = await result
+    const worker: AbstractRemoteWorker<T> | false = await result
     if (!worker) return
     if (worker instanceof Worker) this.worker = Comlink.wrap<T>(worker)
     else this.worker = worker
@@ -122,16 +140,10 @@ export abstract class AbstractWorkerBase<T> {
     this.starting = undefined
   }
 
-  /** Stops the worker, but will still allow method calls to restart it. */
+  /** Stops the worker. Needed for garbage collection. */
   stop() {
     if (this.worker) releaseRemote(this.worker)
     this.worker = undefined
-  }
-
-  /** Terminates the worker. */
-  terminate() {
-    this.stop()
-    this.terminated = true
   }
 }
 
