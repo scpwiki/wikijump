@@ -3,5 +3,5 @@
     "composite": true
   },
   "extends": "../../tsconfig.json",
-  "include": ["src/**/*", "tests/**/*", "../_types/**/*"]
+  "include": ["src/**/*", "tests/**/*", "vendor/**/*", "../_types/**/*"]
 }

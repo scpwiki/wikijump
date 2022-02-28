@@ -1,7 +1,7 @@
 {
-  "name": "@wikijump/prism",
+  "name": "@wikijump/comlink",
   "license": "agpl-3.0-or-later",
-  "description": "Wrapper around the Prism library for Wikijump.",
+  "description": "Comlink wrapper for Wikijump.",
   "version": "0.0.0",
   "keywords": [
     "wikijump"
@@ -10,10 +10,7 @@
   "scripts": {},
   "type": "module",
   "main": "src/index.ts",
-  "devDependencies": {
-    "@types/prismjs": "^1.26.0"
-  },
   "dependencies": {
-    "@wikijump/comlink": "workspace:*"
+    "comlink": "^4.3.1"
   }
 }

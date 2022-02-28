@@ -1,4 +1,6 @@
-import FTML from "./ftml"
+import { AbstractWorkerBase } from "@wikijump/comlink"
+import type { FTMLModule } from "./worker"
+import FTMLRemoteWorker from "./worker?worker"
 
 export type {
   Backlinks,
@@ -10,6 +12,32 @@ export type {
   Warning
 } from "@wikijump/ftml-wasm"
 export * from "./fragment"
-export { FTML }
+
+export class FTMLWorker extends AbstractWorkerBase.of<FTMLModule>([
+  "detailRenderHTML",
+  "detailRenderText",
+  "formatHTML",
+  "getUTF16IndexMap",
+  "inspectTokens",
+  "makeInfo",
+  "parse",
+  "preprocess",
+  "renderHTML",
+  "renderText",
+  "tokenize",
+  "version",
+  "waitUntilReady",
+  "warnings"
+]) {
+  protected createWorker() {
+    return new FTMLRemoteWorker()
+  }
+
+  async methodCondition() {
+    await this.worker!.waitUntilReady()
+  }
+}
+
+export const FTML = new FTMLWorker()
 
 export default FTML

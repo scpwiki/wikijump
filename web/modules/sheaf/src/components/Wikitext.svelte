@@ -6,8 +6,14 @@
   import { anim } from "@wikijump/components/lib"
   import Locale, { unit } from "@wikijump/fluent"
   import FTML from "@wikijump/ftml-wasm-worker"
-  import { createAnimQueued, createMutatingLock, perfy, toFragment } from "@wikijump/util"
-  import morphdom from "morphdom"
+  import {
+    animationFrame,
+    createMutatingLock,
+    idleCallback,
+    perfy,
+    toFragment
+  } from "@wikijump/util"
+  import micromorph from "micromorph"
 
   const t = Locale.makeComponentFormatter("wikitext")
 
@@ -48,8 +54,11 @@
   /** Shows render performance information if true. */
   export let debug = false
 
-  /** Prevents the rendering of elements which may cause a network request. */
-  export let offline = false
+  /**
+   * If true, the wikitext container will fill its parent and have the
+   * rendered wikitext scroll inside of it.
+   */
+  export let contain = false
 
   let element: HTMLElement
   let stylesheets: string[] = []
@@ -70,53 +79,54 @@
   }
 
   const render = createMutatingLock(async (wikitext: WikitextInput) => {
-    const displayIndicatorTimeout = setTimeout(() => (rendering = true), 100)
+    const displayIndicatorTimeout = setTimeout(() => (rendering = true), 500)
     const measure = perfy()
+
     if (typeof wikitext === "function") wikitext = wikitext()
     wikitext = await wikitext
-    const result: Rendered = wikitext
-      ? typeof wikitext !== "string"
-        ? wikitext
-        : await FTML.renderHTML(wikitext)
-      : { html: "", styles: [""] }
-    perfRender = measure()
-    clearTimeout(displayIndicatorTimeout)
-    return result
+
+    return await idleCallback(async () => {
+      const result: Rendered = wikitext
+        ? typeof wikitext !== "string"
+          ? wikitext
+          : await FTML.renderHTML(wikitext)
+        : { html: "", styles: [""] }
+      perfRender = measure()
+      clearTimeout(displayIndicatorTimeout)
+      return result
+    })
   })
 
-  // TODO: Security audit of this - how much should we trust FTML output right now?
-
-  const update = createAnimQueued(async ({ html, styles }: Rendered) => {
+  const update = createMutatingLock(async ({ html, styles }: Rendered) => {
     if (!element) return
 
-    // there are better ways to do this, but this is mostly just a development tool
-    // this prevents the console from getting spammed with
-    // crossorigin or missing link errors
-    if (offline) {
-      html = html.replaceAll(
-        /<(img|iframe)[^]+?>/g,
-        "<div>Offline Replacement Element</div>"
-      )
-    }
+    const fragment = await idleCallback(() => toFragment(html))
 
-    const fragment = toFragment(html)
-    if (morph) {
-      morphdom(element, fragment, {
-        childrenOnly: true,
-        onBeforeElUpdated: function (fromEl, toEl) {
-          if (fromEl.isEqualNode(toEl)) return false
-          return true
+    await animationFrame(() => {
+      if (morph) {
+        const oldBody = element.querySelector("wj-body")
+        const newBody = fragment.querySelector("wj-body")
+
+        if (!newBody || !oldBody) {
+          element.innerText = ""
+          element.appendChild(fragment)
+          return
         }
-      })
-    } else {
-      element.innerText = ""
-      element.append(fragment)
-    }
 
-    // prepend style with a index comment so that each style string is unique
-    stylesheets = styles.map(
-      (style, idx) => `\n/* stylesheet ${idx + 1} */\n\n${style}\n`
-    )
+        micromorph(oldBody, newBody)
+      } else {
+        element.innerText = ""
+        element.appendChild(fragment)
+      }
+    })
+
+    await animationFrame(() => {
+      // prepend style with a index comment so that each style string is unique
+      stylesheets = styles.map(
+        (style, idx) => `\n/* stylesheet ${idx + 1} */\n\n${style}\n`
+      )
+    })
+
     rendering = false
   })
 
@@ -133,7 +143,7 @@
   {/each}
 </svelte:head>
 
-<div class="wikitext-container">
+<div class="wikitext-container" class:is-contained={contain}>
   {#if rendering}
     <div
       class="wikitext-loading-panel"
@@ -173,6 +183,19 @@
     top: 1rem;
     right: 1rem;
     z-index: $z-above;
+  }
+
+  .wikitext-container.is-contained {
+    contain: strict;
+    height: 100%;
+
+    .wikitext-body {
+      max-height: 100%;
+      padding: 0 1rem;
+      padding-bottom: 10rem;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
   }
 
   @include tolerates-motion {

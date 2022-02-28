@@ -182,6 +182,9 @@
         @endif
     @endif
 
+    {{-- Polyfills --}}
+    <script src="/files--static/vendor/module-workers-polyfill.js"></script>
+
     {{-- Styles --}}
     @vite('index.scss')
     @stack('styles')

@@ -5,7 +5,7 @@ cmftml-undocumented-block = This block is valid, but hasn't yet been documented.
 ## Linting
 
 cmftml-lint =
-  .warning-source = ftml({ $rule } = { $kind } at { $token }) [{ $from }, { $to }]
+  .warning-source = ftml({ $rule } = { $kind } at { $token }) [{ NUMBER($from, useGrouping: 0) }, { NUMBER($to, useGrouping: 0) }]
 
   .recursion-depth-exceeded = Too much recursion in markup.
 

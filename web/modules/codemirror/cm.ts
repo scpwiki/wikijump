@@ -20,23 +20,22 @@ export {
   snippet,
   snippetCompletion,
   snippetKeymap,
-  startCompletion
-} from "@codemirror/autocomplete"
-
-export type {
-  Completion,
-  CompletionResult,
-  CompletionSource
+  startCompletion,
+  type Completion,
+  type CompletionResult,
+  type CompletionSource,
+  ifIn,
+  pickedCompletion,
+  selectedCompletion
 } from "@codemirror/autocomplete"
 
 export {
   closeBrackets,
   closeBracketsKeymap,
   deleteBracketPair,
-  insertBracket
+  insertBracket,
+  type CloseBracketConfig
 } from "@codemirror/closebrackets"
-
-export type { CloseBracketConfig } from "@codemirror/closebrackets"
 
 export {
   copyLineDown,
@@ -112,7 +111,8 @@ export {
   cursorSubwordForward,
   indentWithTab,
   selectSubwordBackward,
-  selectSubwordForward
+  selectSubwordForward,
+  insertBlankLine
 } from "@codemirror/commands"
 
 export {
@@ -123,10 +123,10 @@ export {
   lineUncomment,
   toggleBlockComment,
   toggleComment,
-  toggleLineComment
+  toggleLineComment,
+  type CommentTokens,
+  toggleBlockCommentByLine
 } from "@codemirror/comment"
-
-export type { CommentTokens } from "@codemirror/comment"
 
 export {
   codeFolding,
@@ -158,10 +158,9 @@ export {
   defaultHighlightStyle,
   highlightTree,
   styleTags,
-  tags
+  tags,
+  type TagStyle
 } from "@codemirror/highlight"
-
-export type { TagStyle } from "@codemirror/highlight"
 
 export {
   history,
@@ -203,7 +202,9 @@ export {
   languageDataProp,
   syntaxTree,
   LRLanguage,
-  ParseContext
+  ParseContext,
+  syntaxParserRunning,
+  syntaxTreeAvailable
 } from "@codemirror/language"
 
 export { languages } from "@codemirror/language-data"
@@ -215,18 +216,28 @@ export {
   nextDiagnostic,
   openLintPanel,
   setDiagnostics,
-  forceLinting
+  forceLinting,
+  type Action,
+  type Diagnostic,
+  diagnosticCount,
+  lintGutter,
+  setDiagnosticsEffect
 } from "@codemirror/lint"
 
-export type { Action, Diagnostic } from "@codemirror/lint"
+export {
+  bracketMatching,
+  matchBrackets,
+  type Config,
+  type MatchResult
+} from "@codemirror/matchbrackets"
 
-export { bracketMatching, matchBrackets } from "@codemirror/matchbrackets"
-
-export type { Config, MatchResult } from "@codemirror/matchbrackets"
-
-export { getPanel, panels, showPanel } from "@codemirror/panel"
-
-export type { Panel, PanelConstructor } from "@codemirror/panel"
+export {
+  getPanel,
+  panels,
+  showPanel,
+  type Panel,
+  type PanelConstructor
+} from "@codemirror/panel"
 
 export { rectangularSelection } from "@codemirror/rectangular-selection"
 
@@ -244,7 +255,11 @@ export {
   searchKeymap,
   selectMatches,
   selectNextOccurrence,
-  selectSelectionMatches
+  selectSelectionMatches,
+  SearchQuery,
+  getSearchQuery,
+  setSearchQuery,
+  search
 } from "@codemirror/search"
 
 export {
@@ -265,15 +280,12 @@ export {
   StateField,
   Text,
   Transaction,
-  combineConfig
-} from "@codemirror/state"
-
-export type {
-  ChangeSpec,
-  EditorStateConfig,
-  TransactionSpec,
-  Extension,
-  StateCommand
+  combineConfig,
+  type ChangeSpec,
+  type EditorStateConfig,
+  type Extension,
+  type StateCommand,
+  type TransactionSpec
 } from "@codemirror/state"
 
 export {
@@ -283,14 +295,21 @@ export {
   countColumn,
   findClusterBreak,
   findColumn,
-  fromCodePoint
+  fromCodePoint,
+  type TextIterator
 } from "@codemirror/text"
 
-export type { TextIterator } from "@codemirror/text"
-
-export { hoverTooltip, showTooltip } from "@codemirror/tooltip"
-
-export type { Tooltip, TooltipView } from "@codemirror/tooltip"
+export {
+  hoverTooltip,
+  showTooltip,
+  type Tooltip,
+  type TooltipView,
+  closeHoverTooltips,
+  getTooltip,
+  hasHoverTooltips,
+  repositionTooltips,
+  tooltips
+} from "@codemirror/tooltip"
 
 export {
   BidiSpan,
@@ -313,24 +332,27 @@ export {
   logException,
   placeholder,
   runScopeHandlers,
-  scrollPastEnd
+  scrollPastEnd,
+  type Command,
+  type DOMEventHandlers,
+  type DOMEventMap,
+  type DecorationSet,
+  type KeyBinding,
+  type MouseSelectionStyle,
+  type PluginSpec,
+  type PluginValue,
+  type Rect,
+  dropCursor
 } from "@codemirror/view"
 
-export type {
-  Command,
-  DOMEventHandlers,
-  DOMEventMap,
-  DecorationSet,
-  KeyBinding,
-  MouseSelectionStyle,
-  PluginSpec,
-  PluginValue,
-  Rect
-} from "@codemirror/view"
-
-export { RangeSet, RangeSetBuilder, RangeValue } from "@codemirror/rangeset"
-
-export type { RangeComparator, RangeCursor, SpanIterator } from "@codemirror/rangeset"
+export {
+  RangeSet,
+  RangeSetBuilder,
+  RangeValue,
+  type RangeComparator,
+  type RangeCursor,
+  type SpanIterator
+} from "@codemirror/rangeset"
 
 export { css, cssCompletion, cssLanguage } from "@codemirror/lang-css"
 

@@ -3,6 +3,7 @@
 -->
 <script lang="ts">
   import { Content } from "@wikijump/cm-lang-ftml"
+  import { textByteLength } from "@wikijump/codemirror"
   import { Button } from "@wikijump/components"
   import Locale, { number, unit } from "@wikijump/fluent"
   import { throttle } from "@wikijump/util"
@@ -24,19 +25,26 @@
   // we really don't want to call this function often
   // it has to get the editor's value, which means it has to stringify
   // the document contents, which is expensive and memory intensive
-  const updateExpensiveStats = throttle(async () => {
+  const updateWordCount = throttle(async () => {
     const value = await $editor.value()
-    const stats = await Content.stats(value)
-    words = stats.words
-    bytes = Math.round(stats.bytes / 1000)
+    words = await Content.words(value)
   }, 250)
+
+  // seems a bit excessive to call this function every time the editor changes,
+  // but it's actually very cheap. still, it's probably a good idea to throttle it.
+  // it's in kilobytes anyways, so you won't notice the throttling because you'd
+  // have to be typing insanely fast.
+  const updateByteCount = throttle(async () => {
+    bytes = Math.round(textByteLength($editor.doc) / 1000)
+  }, 1000)
 
   $: if ($editor.doc) {
     // we'll update chars and lines here because that's cheap, and it fools the user
     // into thinking that the stats display is super responsive :)
     chars = $editor.doc.length
     lines = $editor.doc.lines
-    updateExpensiveStats()
+    updateWordCount()
+    updateByteCount()
   }
 </script>
 

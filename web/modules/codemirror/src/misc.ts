@@ -1,5 +1,5 @@
 import type { LRParser, ParserConfig } from "@lezer/lr"
-import { animationFrame, idleCallback } from "@wikijump/util"
+import { animationFrame, byteLength, idleCallback } from "@wikijump/util"
 import {
   LanguageDescription,
   LanguageSupport,
@@ -55,6 +55,13 @@ export async function textBuffer(doc: Text) {
   })
 
   return out
+}
+
+/** Efficiently gets the byte length of a `Text` object. */
+export function textByteLength(doc: Text) {
+  let len = 0
+  for (const str of doc) len += byteLength(str)
+  return len
 }
 
 /**

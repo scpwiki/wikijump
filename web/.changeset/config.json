@@ -11,6 +11,7 @@
     "@wikijump/cm-espells",
     "@wikijump/cm-lang-ftml",
     "@wikijump/codemirror",
+    "@wikijump/comlink",
     "@wikijump/components",
     "@wikijump/dom",
     "@wikijump/fluent",

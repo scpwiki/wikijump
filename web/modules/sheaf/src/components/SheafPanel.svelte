@@ -19,7 +19,7 @@
       ftmlPerfs.unshift(perf)
       if (ftmlPerfs.length > 5) ftmlPerfs.pop()
       // tells svelte to check the value
-      ftmlPerfs = ftmlPerfs
+      ftmlPerfs = [...ftmlPerfs]
     }
   }
 </script>

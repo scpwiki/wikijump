@@ -99,7 +99,9 @@ rules:
   "@typescript-eslint/consistent-indexed-object-style": warn
   "@typescript-eslint/no-confusing-non-null-assertion": warn
   "@typescript-eslint/class-literal-property-style": [warn, fields]
-
+  "@typescript-eslint/consistent-type-exports": [warn, {
+    fixMixedExportsWithInlineTypeSpecifier: true
+  }]
 
   "@ota-meshi/svelte/no-dupe-else-if-blocks": error
   "@ota-meshi/svelte/no-dynamic-slot-name": error

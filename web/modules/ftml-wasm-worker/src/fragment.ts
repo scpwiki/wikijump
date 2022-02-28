@@ -1,6 +1,6 @@
 import type { PartialInfo } from "@wikijump/ftml-wasm"
 import { toFragment } from "@wikijump/util"
-import FTML from "./ftml"
+import FTML from "./index"
 
 export class FTMLFragment {
   private declare styles: string[]

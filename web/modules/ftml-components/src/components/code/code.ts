@@ -1,6 +1,6 @@
 import { addElement, BaseButton, observe, pauseObservation } from "@wikijump/dom"
-import { highlight } from "@wikijump/prism"
-import { timeout } from "@wikijump/util"
+import Prism from "@wikijump/prism"
+import { animationFrame, timeout } from "@wikijump/util"
 
 /**
  * FTML `[[code]]` element. Automatically highlights the contents of its
@@ -47,23 +47,40 @@ export class CodeElement extends HTMLElement {
 
   /** Ran whenever highlighting needs to be updated. */
   @pauseObservation
-  private update() {
+  private async update() {
     // get the element every time we update,
     // because it might have been replaced by morphing or something
     const element = this.querySelector("code")
     if (!element) return
 
-    const language = this.getLanguageFromClass() ?? "none"
-    const content = element.innerText
+    const language = this.getLanguageFromClass()
 
-    // don't waste resources if we're just doing the same thing
-    if (!this.html || this.content !== content || this.language !== language) {
-      this.language = language
-      this.content = content
-      this.html = highlight(content, language)
+    // jump out early if no language
+    if (!language) {
+      // replace old highlighting
+      if (this.language) {
+        this.language = null
+        await animationFrame(() => {
+          this.content = element.innerText
+          this.html = this.content
+          element.innerHTML = this.content
+        })
+      }
+      return
     }
 
-    element.innerHTML = this.html
+    await animationFrame(async () => {
+      const content = element.innerText
+
+      // don't waste resources if we're just doing the same thing
+      if (!this.html || this.content !== content || this.language !== language) {
+        this.language = language
+        this.content = content
+        this.html = await Prism.highlight(content, language!)
+      }
+
+      await animationFrame(() => (element.innerHTML = this.html!))
+    })
   }
 
   // -- LIFECYCLE

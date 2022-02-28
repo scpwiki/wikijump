@@ -1,4 +1,5 @@
 import { addElement, BaseTooltipButton, observe, pauseObservation } from "@wikijump/dom"
+import { animationFrame } from "@wikijump/util"
 
 const NEED_TO_POLYFILL = !hasMathMLSupport()
 
@@ -62,21 +63,26 @@ export class MathElement extends HTMLElement {
     // but still accessible to screen readers
     this.classList.add("wj-math-ml-polyfilled")
 
-    const latex = this.sourceLatex
+    const latex = await animationFrame(() => this.sourceLatex)
     if (!latex) return
 
     try {
       const hfmath = await hfmathPromise!
-      const svg = new hfmath(latex).svg({
-        SCALE_X: 7.5,
-        SCALE_Y: 7.5,
-        MARGIN_X: 0,
-        MARGIN_Y: 0
+      await animationFrame(() => {
+        const svg = new hfmath(latex).svg({
+          SCALE_X: 7.5,
+          SCALE_Y: 7.5,
+          MARGIN_X: 0,
+          MARGIN_Y: 0
+        })
+        this.container.innerHTML = svg
+        const element = this.container.querySelector("svg")!
+        // align SVG with surrounding text, set color to the current text color
+        element.setAttribute(
+          "style",
+          "vertical-align: text-bottom; stroke: currentColor;"
+        )
       })
-      this.container.innerHTML = svg
-      const element = this.container.querySelector("svg")!
-      // align SVG with surrounding text, set color to the current text color
-      element.setAttribute("style", "vertical-align: text-bottom; stroke: currentColor;")
     } catch (err) {
       // display an error message if something goes wrong
       const message = err instanceof Error ? err.message : "unknown error"

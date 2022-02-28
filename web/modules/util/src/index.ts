@@ -1,3 +1,6 @@
+// smart idle callback polyfill
+import "../vendor/request-idle-callback-polyfill.js"
+
 export * from "./decorators"
 export * from "./html"
 export * from "./pref"
@@ -196,9 +199,27 @@ export function sleep(ms: number): Promise<void> {
 /**
  * Creates and returns a promise that resolves when an invokation of
  * `requestAnimationFrame()` fires its callback.
+ *
+ * @param fn - An optional function to invoke and to resolve the promise
+ *   with its return value. If the function returns a promise, that promise
+ *   will be waited on as well.
  */
-export function animationFrame(): Promise<number> {
-  return new Promise(resolve => requestAnimationFrame(resolve))
+export function animationFrame(): Promise<void>
+export function animationFrame<T>(fn: () => T): Promise<T>
+export function animationFrame(fn?: () => any): Promise<void> {
+  // simple delay
+  if (!fn) return new Promise(resolve => requestAnimationFrame(() => resolve()))
+  // callback based
+  return new Promise(resolve =>
+    requestAnimationFrame(() => {
+      const result = fn()
+      if (result instanceof Promise) {
+        result.then(res => resolve(res))
+      } else {
+        resolve(result)
+      }
+    })
+  )
 }
 
 // Credit: https://gist.github.com/beaucharman/e46b8e4d03ef30480d7f4db5a78498ca
@@ -344,37 +365,27 @@ export function createAnimQueued<T extends AnyFunction>(fn: T) {
   }
 }
 
-const HAS_IDLE_CALLBACK = "requestIdleCallback" in globalThis
-
 /** Safely calls `requestIdleCallback` in an awaitable `Promise`. */
-// bad coverage as requestIdleCallback isn't always available
-/*! c8 ignore next */
-export function idleCallback<T extends AnyFunction<any>>(
-  cb: T,
-  timeout = 100
-): Promise<ReturnType<T>> {
-  if (!HAS_IDLE_CALLBACK) {
-    return new Promise(resolve => setTimeout(() => resolve(cb()), timeout))
-  } else {
-    return new Promise(resolve =>
-      // @ts-ignore
-      requestIdleCallback(() => resolve(cb()), { timeout })
+export function idleCallback<T>(fn: () => T, timeout = 1000): Promise<T> {
+  return new Promise<T>(resolve => {
+    requestIdleCallback(
+      () => {
+        const result = fn()
+        if (result instanceof Promise) result.then(resolve)
+        else resolve(result)
+      },
+      { timeout }
     )
-  }
+  })
 }
 
 /**
  * See `createAnimQueued` for a description of how this function works. The
- * only difference is that this function uses `requestIdleCallback`
- * instead. If `requestIdleCallback` isn't available, it will use
- * `createAnimQueued` instead.
+ * only difference is that this function uses `requestIdleCallback` instead.
  *
  * @see {@link createAnimQueued}
  */
-// bad coverage as requestIdleCallback isn't always available
-/*! c8 ignore next */
 export function createIdleQueued<T extends AnyFunction>(fn: T, timeout = 100) {
-  if (!HAS_IDLE_CALLBACK) return createAnimQueued(fn)
   let queued: boolean
   let useArgs: any[] = []
   return (...args: Parameters<T>): void => {
@@ -414,7 +425,7 @@ export function mod(a: number, n: number) {
  * @param sub - The replacement/substitute string.
  */
 export function replaceRange(str: string, from: number, to: number, sub: string) {
-  return str.substr(0, from) + sub + str.substr(to)
+  return str.substring(0, from) + sub + str.substring(to)
 }
 
 /**
@@ -502,4 +513,72 @@ export async function url(imp: Promise<any>) {
  */
 export function dedupe<T extends any[]>(arr: T, ...insert: T) {
   return [...new Set([...arr, ...insert])] as T
+}
+
+/**
+ * Simple helper for creating lazy singletons. Use the `.get()` method to
+ * get the current instance. If `.get()` is being called for the first
+ * time, the instance will be constructed using a factory function.
+ */
+export class LazySingleton<T> {
+  /** The singleton instance. */
+  private instance?: T
+
+  /** @param factory - The factory function to use to construct the instance. */
+  constructor(private factory: () => T) {}
+
+  /** Gets the current instance. */
+  get() {
+    return !this.instance ? (this.instance = this.factory()) : this.instance
+  }
+
+  /** Is `true` if the instance has ever been contructed. */
+  get loaded() {
+    return Boolean(this.instance)
+  }
+}
+
+// adapted from: https://stackoverflow.com/a/34920444
+// this, as far as I can tell, is basically the fastest way to do this.
+// there is a simpler method involving `TextEncoder`, but for large strings
+// that method is slower than this. It also has to allocate a new buffer
+// every time, which is a waste of memory.
+
+/**
+ * Gets the byte length of a string.
+ *
+ * @param str - The string to get the byte length of.
+ */
+export function byteLength(str: string) {
+  // assuming the String is UCS-2(aka UTF-16) encoded
+  let len = 0
+
+  for (let i = 0; i < str.length; i++) {
+    let high = str.charCodeAt(i)
+
+    // [0x0000, 0x007F]
+    if (high < 0x0080) len += 1
+    // [0x0080, 0x07FF]
+    else if (high < 0x0800) len += 2
+    // [0x0800, 0xD7FF]
+    else if (high < 0xd800) len += 3
+    // [0xD800, 0xDBFF]
+    else if (high < 0xdc00) {
+      let low = str.charCodeAt(++i)
+      if (i < str.length && low >= 0xdc00 && low <= 0xdfff) {
+        // followed by [0xDC00, 0xDFFF]
+        len += 4
+      } else {
+        throw new Error("malformed UTF-16 string")
+      }
+    }
+    // [0xDC00, 0xDFFF]
+    else if (high < 0xe000) {
+      throw new Error("malformed UTF-16 string")
+    }
+    // [0xE000, 0xFFFF]
+    else len += 3
+  }
+
+  return len
 }
