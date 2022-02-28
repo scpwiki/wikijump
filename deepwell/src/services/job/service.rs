@@ -53,8 +53,13 @@ impl JobService {
         source!().send(job).expect("Job channel has disconnected");
     }
 
-    #[inline]
     pub fn queue_rerender_page(site_id: i64, page_id: i64) {
+        tide::log::debug!(
+            "Queueing page ID {} in site ID {} for rerendering",
+            page_id,
+            site_id,
+        );
+
         Self::queue_job(Job::RerenderPageId { site_id, page_id });
     }
 }
