@@ -1,4 +1,5 @@
 import { AbstractWorkerBase } from "@wikijump/comlink"
+import type { FTMLModule } from "./worker"
 import FTMLRemoteWorker from "./worker?worker"
 
 export type {
@@ -12,7 +13,7 @@ export type {
 } from "@wikijump/ftml-wasm"
 export * from "./fragment"
 
-export class FTMLWorker extends AbstractWorkerBase.of([
+export class FTMLWorker extends AbstractWorkerBase.of<FTMLModule>([
   "detailRenderHTML",
   "detailRenderText",
   "formatHTML",
