@@ -57,8 +57,9 @@ pub async fn page_get_direct(req: ApiRequest) -> ApiResponse {
         .await
         .to_api()?;
 
-    let response =
-        build_page_response(&ctx, &page, &revision, details, StatusCode::Ok).await?;
+    let response = build_page_response(&ctx, &page, &revision, details, StatusCode::Ok)
+        .await
+        .to_api()?;
     txn.commit().await?;
     Ok(response)
 }
@@ -112,8 +113,9 @@ pub async fn page_get(req: ApiRequest) -> ApiResponse {
         .await
         .to_api()?;
 
-    let response =
-        build_page_response(&ctx, &page, &revision, details, StatusCode::Ok).await?;
+    let response = build_page_response(&ctx, &page, &revision, details, StatusCode::Ok)
+        .await
+        .to_api()?;
     txn.commit().await?;
     Ok(response)
 }
