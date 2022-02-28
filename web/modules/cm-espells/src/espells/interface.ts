@@ -40,9 +40,7 @@ export class EspellsWorker extends AbstractWorkerBase.of<Espells>([
 
       const aff = await fetch(affURL).then(res => res.text())
       const dic = Array.isArray(dicURL)
-        ? await Promise.all(dicURL.map(dic => fetch(dic))).then(res =>
-            Promise.all(res.map(res => res.text()))
-          )
+        ? await Promise.all(dicURL.map(url => fetch(url).then(res => res.text())))
         : await fetch(dicURL).then(res => res.text())
 
       const espells = await new (RemoteClassSingleton.get())({ aff, dic })
