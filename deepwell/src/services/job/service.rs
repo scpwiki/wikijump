@@ -88,6 +88,8 @@ impl JobRunner {
                 Ok(()) => tide::log::debug!("Finished processing job"),
                 Err(error) => tide::log::warn!("Error processing job: {}", error),
             }
+
+            tide::log::debug!("Estimated queue backlog: {} items", sink!().len());
         }
     }
 
