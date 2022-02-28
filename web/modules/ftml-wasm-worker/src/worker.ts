@@ -13,7 +13,8 @@ import {
   renderText,
   tokenize,
   version,
-  warnings
+  warnings,
+  wordCount
 } from "@wikijump/ftml-wasm"
 import * as indent from "../vendor/indent"
 
@@ -70,6 +71,7 @@ const module = {
   getUTF16IndexMap,
   inspectTokens,
   formatHTML,
+  wordCount,
   async waitUntilReady() {
     await loading
   }

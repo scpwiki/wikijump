@@ -4,12 +4,19 @@ import FTMLRemoteWorker from "./worker?worker"
 
 export type {
   Backlinks,
+  DetailRenderedHTML,
+  DetailRenderedText,
   HTMLMeta,
   PageInfo,
   PartialInfo,
+  RenderedHTML,
+  RenderSettings,
   SyntaxTree,
   Token,
-  Warning
+  UTF16IndexMapFunction,
+  Warning,
+  WikitextMode,
+  WikitextSettings
 } from "@wikijump/ftml-wasm"
 export * from "./fragment"
 
@@ -27,7 +34,8 @@ export class FTMLWorker extends AbstractWorkerBase.of<FTMLModule>([
   "tokenize",
   "version",
   "waitUntilReady",
-  "warnings"
+  "warnings",
+  "wordCount"
 ]) {
   protected createWorker() {
     return new FTMLRemoteWorker()
