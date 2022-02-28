@@ -14,6 +14,7 @@ import {
   indentOnInput,
   rectangularSelection,
   scrollPastEnd,
+  tooltips,
   ViewPlugin,
   ViewUpdate,
   type Extension
@@ -52,6 +53,7 @@ export class SheafCore {
           highlightActiveLine(),
           EditorView.lineWrapping,
           scrollPastEnd(),
+          tooltips({ position: "absolute" }),
           getSheafKeymap(),
           IndentHack,
           Gutters,
