@@ -22,7 +22,7 @@
     "@wikijump/ftml-wasm-worker": "workspace:*",
     "@wikijump/prism": "workspace:*",
     "@wikijump/util": "workspace:*",
-    "cm-tarnation": "^0.1.1",
+    "cm-tarnation": "^0.2.0",
     "svelte": "^3.46.4"
   }
 }
