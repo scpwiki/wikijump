@@ -142,6 +142,18 @@ $ docker images        # List images
 $ docker rmi [ID]      # Remove the image with this ID
 ```
 
+### "Permission denied" error
+
+Depending on your local installation, you may receive a "failed to open stream: Permission denied" error from PHP. This occurs because the `www-data` user inside the ocntainer is not the owner of the directory Wikijump is trying to write to, which is likely mapped to your local filesystem. You can manually fix this by changing the owner of those directories to `www-data`.
+
+Find the container hosting PHP-FPM (usually called `wikijump-php-fpm-1`), and run:
+
+```
+$ chown -R www-data:www-data /var/www/wikijump/web/storage
+```
+
+Of course, you should adjust the path on the right-hand side appropriately to whatever directory is unable to be written to. Typically it is a data directory such as `storage` or `logs`.
+
 ## Relevant Documentation
 
 - [Docker Compose](https://docs.docker.com/compose/)
