@@ -366,7 +366,7 @@ export function createAnimQueued<T extends AnyFunction>(fn: T) {
 }
 
 /** Safely calls `requestIdleCallback` in an awaitable `Promise`. */
-export function idleCallback<T>(fn: () => T, timeout = 1000): Promise<T> {
+export function idleCallback<T>(fn: () => T, timeout?: number): Promise<T> {
   return new Promise<T>(resolve => {
     requestIdleCallback(
       () => {
