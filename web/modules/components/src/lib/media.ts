@@ -1,5 +1,7 @@
 import { writable, type Readable } from "svelte/store"
 
+const HAS_MATCH_MEDIA = typeof globalThis.matchMedia === "function"
+
 const OPERATORS = [">", "<", ">=", "<=", "=="] as const
 
 const BREAKPOINTS = [
@@ -29,9 +31,11 @@ class BreakpointMapping {
   constructor(callback: () => void) {
     let idx = 0
     for (const [name, pixels] of BREAKPOINTS) {
-      const query = matchMedia(`(min-width: ${pixels}px)`)
-      query.addEventListener("change", callback)
-      this.queries.set(name, query)
+      if (HAS_MATCH_MEDIA) {
+        const query = matchMedia(`(min-width: ${pixels}px)`)
+        query.addEventListener("change", callback)
+        this.queries.set(name, query)
+      }
       this.map.set(idx, name)
       this.map.set(name, idx)
       idx++
@@ -49,6 +53,7 @@ class BreakpointMapping {
   }
 
   active() {
+    if (!HAS_MATCH_MEDIA) return "normal"
     let current: BreakpointName = "tiny"
     for (const [name, query] of this.queries) {
       if (query.matches) current = name
@@ -81,6 +86,7 @@ class MediaQueryHandler {
 
   /** True if `(prefers-reduced-motion: reduce)` is matched. */
   get reducedMotion() {
+    if (!HAS_MATCH_MEDIA) return false
     return this._reducedMotion.matches
   }
 
@@ -89,6 +95,7 @@ class MediaQueryHandler {
    * "dark". Defaults to "light" if this can't be determined.
    */
   get colorScheme(): "light" | "dark" {
+    if (!HAS_MATCH_MEDIA) return "light"
     return this._colorSchemeLight.matches
       ? "light"
       : this._colorSchemeDark.matches
@@ -98,11 +105,13 @@ class MediaQueryHandler {
 
   /** True if `(any-hover: hover), (hover: hover)` is matched. */
   get canHover() {
+    if (!HAS_MATCH_MEDIA) return true
     return this._canHover.matches
   }
 
   /** The currently active breakpoint. */
   get breakpoint() {
+    if (!HAS_MATCH_MEDIA) return "normal"
     return this.breakpoints.active()
   }
 
@@ -111,6 +120,7 @@ class MediaQueryHandler {
    * reason it can't be determined.
    */
   get orientation(): "landscape" | "portrait" {
+    if (!HAS_MATCH_MEDIA) return "landscape"
     return this._orientationLandscape.matches
       ? "landscape"
       : this._orientationPortrait.matches
@@ -119,6 +129,7 @@ class MediaQueryHandler {
   }
 
   private addQuery(query: string) {
+    if (!HAS_MATCH_MEDIA) return { matches: false } as MediaQueryList
     const mediaQuery = matchMedia(query)
     mediaQuery.addEventListener("change", () => this.refresh())
     return mediaQuery
@@ -136,6 +147,7 @@ class MediaQueryHandler {
 
   /** Tests if a query passes or not. */
   test(query: string) {
+    if (!HAS_MATCH_MEDIA) return false
     const mediaQuery = matchMedia(query)
     return mediaQuery.matches
   }

@@ -10,7 +10,10 @@ export interface HoverOpts {
   move?: () => void
 }
 
-const HoverMediaQuery = matchMedia("(any-hover: hover), (hover: hover)")
+const HoverMediaQuery =
+  typeof globalThis.matchMedia === "function"
+    ? matchMedia("(any-hover: hover), (hover: hover)")
+    : ({ matches: true } as MediaQueryList)
 
 /** Observer for hover (and optionally focus) events. */
 export class HoverObserver {
