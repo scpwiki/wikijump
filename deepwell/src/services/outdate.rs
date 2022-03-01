@@ -30,8 +30,7 @@ impl OutdateService {
         ctx: &ServiceContext<'_>,
         site_id: i64,
         page_id: i64,
-        category_slug: &str,
-        page_slug: &str,
+        slug: &str,
     ) -> Result<()> {
         todo!()
     }
@@ -40,8 +39,7 @@ impl OutdateService {
         ctx: &ServiceContext<'_>,
         site_id: i64,
         page_id: i64,
-        category_slug: &str,
-        page_slug: &str,
+        slug: &str,
     ) -> Result<()> {
         todo!()
     }
@@ -50,10 +48,8 @@ impl OutdateService {
         ctx: &ServiceContext<'_>,
         site_id: i64,
         page_id: i64,
-        old_category_slug: &str,
-        old_page_slug: &str,
-        new_category_slug: &str,
-        new_page_slug: &str,
+        old_slug: &str,
+        new_slug: &str,
     ) -> Result<()> {
         // In terms of outdating, a move is equivalent to
         // deleting at the old page location and
@@ -63,15 +59,13 @@ impl OutdateService {
                 ctx,
                 site_id,
                 page_id,
-                new_category_slug,
-                new_page_slug
+                new_slug,
             ),
             Self::process_page_delete(
                 ctx,
                 site_id,
                 page_id,
-                old_category_slug,
-                old_page_slug
+                old_slug,
             ),
         )?;
 
