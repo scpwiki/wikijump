@@ -13,6 +13,11 @@ sheaf-preview =
   .ast = AST
   .tokens = Tokens
   .editor-ast = Editor AST
+  .compile = COMPILE:
+  .patch = PATCH:
+  .total = TOTAL:
+  .rendering = Rendering...
+  .performance = Performance
 
 sheaf-stats =
   .chars = CHARS

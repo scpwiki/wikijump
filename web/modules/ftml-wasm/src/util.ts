@@ -36,14 +36,20 @@ export function inspectTokens(str: string, preprocess = true) {
 /**
  * Gets a word count from a string of wikitext.
  *
- * @param str - Wikitext to count words in.
+ * @param str - Wikitext to count words in. Can also be a syntax tree.
  * @param preprocess - Whether to preprocess the wikitext before counting.
  */
-export function wordCount(str: string, preprocess = true) {
+export function wordCount(str: string | FTML.ISyntaxTree, preprocess = true) {
   if (!ready) throw new Error("FTML wasn't ready yet!")
 
-  str = preprocess ? FTML.preprocess(str) : str
-  const tree = parse(str, undefined, "draft").ast
+  let tree: FTML.ISyntaxTree
+  if (typeof str === "string") {
+    str = preprocess ? FTML.preprocess(str) : str
+    tree = parse(str, undefined, "draft").ast
+  } else {
+    tree = str
+  }
+
   let count = 0
 
   const addWords = (str: string) => {

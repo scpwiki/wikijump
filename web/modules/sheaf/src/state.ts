@@ -1,5 +1,6 @@
 import { getActiveLines, Gutters, textBuffer, textValue } from "@wikijump/codemirror"
 import { EditorState, EditorView, syntaxTree, Text } from "@wikijump/codemirror/cm"
+import { Memoize } from "typescript-memoize"
 import type { SheafCore } from "./core"
 import type { SheafBindings } from "./extensions/bindings"
 
@@ -27,13 +28,12 @@ export class SheafState {
     this.activeLines = getActiveLines(opts.view.state)
   }
 
-  private declare _value?: string
-
+  @Memoize()
   async value() {
-    if (this._value) return this._value
-    return (this._value = await textValue(this.doc))
+    return await textValue(this.doc)
   }
 
+  @Memoize()
   async buffer() {
     return await textBuffer(this.doc)
   }

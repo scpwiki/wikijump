@@ -47,11 +47,11 @@ importers:
       svelte-preprocess: ^4.10.4
       typescript: ^4.5.5
       typescript-svelte-plugin: ^0.3.0
-      vite: ^2.8.4
+      vite: ^2.8.5
       vitest: ^0.5.8
     dependencies:
       '@ltd/j-toml': 1.29.0
-      '@sveltejs/vite-plugin-svelte': 1.0.0-next.38_233ff36b49db7e82380e5ed513e0c10b
+      '@sveltejs/vite-plugin-svelte': 1.0.0-next.38_a3ca7059a24f4888fbce7fe726aa5a38
       autoprefixer: 10.4.2_postcss@8.4.7
       diff-match-patch: 1.0.5
       esbuild: 0.14.23
@@ -68,7 +68,7 @@ importers:
       svelte-preprocess: 4.10.4_ec89ba02fdec1f0dce753a01f35d6599
       typescript: 4.5.5
       typescript-svelte-plugin: 0.3.0_svelte@3.46.4+typescript@4.5.5
-      vite: 2.8.4_sass@1.49.9
+      vite: 2.8.5_sass@1.49.9
     devDependencies:
       '@changesets/cli': 2.21.0
       '@ota-meshi/eslint-plugin-svelte': 0.29.0_eslint@8.10.0+svelte@3.46.4
@@ -354,7 +354,7 @@ importers:
       '@wikijump/fluent': workspace:*
       '@wikijump/ftml-wasm-worker': workspace:*
       '@wikijump/util': workspace:*
-      micromorph: ^0.0.9
+      micromorph: ^0.1.1
       svelte: ^3.46.4
       typescript-memoize: ^1.1.0
     dependencies:
@@ -366,7 +366,7 @@ importers:
       '@wikijump/fluent': link:../fluent
       '@wikijump/ftml-wasm-worker': link:../ftml-wasm-worker
       '@wikijump/util': link:../util
-      micromorph: 0.0.9
+      micromorph: 0.1.1
       svelte: 3.46.4
       typescript-memoize: 1.1.0
 
@@ -1522,7 +1522,7 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /@sveltejs/vite-plugin-svelte/1.0.0-next.38_233ff36b49db7e82380e5ed513e0c10b:
+  /@sveltejs/vite-plugin-svelte/1.0.0-next.38_a3ca7059a24f4888fbce7fe726aa5a38:
     resolution: {integrity: sha512-epYAVZvfpiDZwB4Whe5AALk3zF5odKFf8Vx4q2tth+QuXmr0GLZ13ri02zINS6pHRCx+GjtOqCEEwMaPAfPcgQ==}
     engines: {node: ^14.13.1 || >= 16}
     peerDependencies:
@@ -1540,7 +1540,7 @@ packages:
       magic-string: 0.25.7
       svelte: 3.46.4
       svelte-hmr: 0.14.9_svelte@3.46.4
-      vite: 2.8.4_sass@1.49.9
+      vite: 2.8.5_sass@1.49.9
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -5138,8 +5138,8 @@ packages:
       picomatch: 2.3.1
     dev: true
 
-  /micromorph/0.0.9:
-    resolution: {integrity: sha512-TOlmJcAoAsEWx3awnQUPPVGSZp0URiOxi61phmZcHApAVX43+eoywyvxgenhl/TkXUCnEpb0UbMn3NuP3QbkDg==}
+  /micromorph/0.1.1:
+    resolution: {integrity: sha512-VIAYxW6D9yOkcMJK/G6xS1fh8r1gD+mmD4VLPKki7Xqzfrq1qlCfQAA6ITIbUnLDAHv8UpPPhCWzFJ29fiUjZQ==}
     dev: false
 
   /mime-db/1.51.0:
@@ -7484,8 +7484,8 @@ packages:
     engines: {node: '>= 0.8'}
     dev: true
 
-  /vite/2.8.4_sass@1.49.9:
-    resolution: {integrity: sha512-GwtOkkaT2LDI82uWZKcrpRQxP5tymLnC7hVHHqNkhFNknYr0hJUlDLfhVRgngJvAy3RwypkDCWtTKn1BjO96Dw==}
+  /vite/2.8.5_sass@1.49.9:
+    resolution: {integrity: sha512-C/7EGNa1ugWejol6nOcd/0d8PR70Nzd+XXwsPbnNOfzZw0NN2xyXfmw/GNDHgr5fcaTSO4gjxCJCrwNhQUMhmA==}
     engines: {node: '>=12.2.0'}
     hasBin: true
     peerDependencies:
@@ -7535,7 +7535,7 @@ packages:
       local-pkg: 0.4.1
       tinypool: 0.1.2
       tinyspy: 0.3.0
-      vite: 2.8.4_sass@1.49.9
+      vite: 2.8.5_sass@1.49.9
     transitivePeerDependencies:
       - less
       - sass
