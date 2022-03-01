@@ -30,7 +30,6 @@ pub struct RevisionTasks {
     pub rename: bool,
     pub rerender_incoming_links: bool,
     pub rerender_included_pages: bool,
-    pub rerender_navigation: bool,
     pub rerender_templates: bool,
 }
 
@@ -43,7 +42,6 @@ impl RevisionTasks {
             {
                 tasks.render_and_update_links = true;
                 tasks.rerender_included_pages = true;
-                tasks.rerender_navigation = true;
                 tasks.rerender_templates = true;
             }
         }
@@ -70,7 +68,6 @@ impl RevisionTasks {
                 tasks.rename = true;
                 tasks.rerender_incoming_links = true;
                 tasks.rerender_included_pages = true;
-                tasks.rerender_navigation = true;
                 tasks.rerender_templates = true;
             }
         }
@@ -79,7 +76,6 @@ impl RevisionTasks {
             if !string_list_equals_json(&revision.tags, tags) {
                 tasks.render_and_update_links = true;
                 tasks.rerender_included_pages = true;
-                tasks.rerender_navigation = true;
                 tasks.rerender_templates = true;
             }
         }
@@ -100,7 +96,6 @@ impl RevisionTasks {
             && !self.rename
             && !self.rerender_incoming_links
             && !self.rerender_included_pages
-            && !self.rerender_navigation
             && !self.rerender_templates
     }
 }

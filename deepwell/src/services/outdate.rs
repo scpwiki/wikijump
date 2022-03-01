@@ -97,27 +97,6 @@ impl OutdateService {
         Ok(())
     }
 
-    pub async fn outdate_navigation(
-        ctx: &ServiceContext<'_>,
-        site_id: i64,
-        category_slug: &str,
-        page_slug: &str,
-    ) -> Result<()> {
-        // If a navigation page has been updated,
-        // we need to recompile everything on that site.
-        if matches!((category_slug, page_slug), ("nav", "side" | "top")) {
-            let ids = PageService::get_all(ctx, site_id, None, Some(false))
-                .await?
-                .into_iter()
-                .map(|model| (model.site_id, model.page_id))
-                .collect::<Vec<_>>();
-
-            Self::outdate(ids);
-        }
-
-        Ok(())
-    }
-
     pub async fn outdate_templates(
         ctx: &ServiceContext<'_>,
         site_id: i64,

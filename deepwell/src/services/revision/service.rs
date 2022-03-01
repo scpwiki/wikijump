@@ -218,7 +218,6 @@ impl RevisionService {
             //      for the new location:
             //      - update backlinks
             //      - rerender included
-            //      - process navigation
             //      - process templates
 
             todo!();
@@ -236,15 +235,6 @@ impl RevisionService {
             conditional_future!(
                 tasks.rerender_included_pages,
                 OutdateService::outdate_included_pages(ctx, site_id, page_id),
-            ),
-            conditional_future!(
-                tasks.rerender_navigation,
-                OutdateService::outdate_navigation(
-                    ctx,
-                    site_id,
-                    category_slug,
-                    page_slug,
-                ),
             ),
             conditional_future!(
                 tasks.rerender_templates,
@@ -460,12 +450,6 @@ impl RevisionService {
             OutdateService::outdate_incoming_links(ctx, site_id, page_id),
             OutdateService::outdate_outgoing_links(ctx, site_id, page_id),
             OutdateService::outdate_included_pages(ctx, site_id, page_id),
-            OutdateService::outdate_navigation(
-                ctx,
-                site_id,
-                category_slug_default,
-                page_slug,
-            ),
             OutdateService::outdate_templates(
                 ctx,
                 site_id,
