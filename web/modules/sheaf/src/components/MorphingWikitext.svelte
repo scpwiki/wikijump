@@ -71,7 +71,7 @@
       }
 
       const diff = micromorph.diff(oldBody, newBody)
-      if (diff) await idleCallback(() => micromorph.patch(oldBody, diff))
+      if (diff) await animationFrame(() => micromorph.patch(oldBody, diff))
     })
 
     await animationFrame(() => {
