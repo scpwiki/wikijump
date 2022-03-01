@@ -100,6 +100,7 @@ impl OutdateService {
             .connections
             .iter()
             .map(|connection| (site_id, connection.from_page_id))
+            .filter(|&(_, to_page_id)| to_page_id != page_id)
             .collect::<Vec<_>>();
 
         Self::outdate(ids);
@@ -122,6 +123,7 @@ impl OutdateService {
             .connections
             .iter()
             .map(|connection| (site_id, connection.from_page_id))
+            .filter(|&(_, to_page_id)| to_page_id != page_id)
             .collect::<Vec<_>>();
 
         Self::outdate(ids);
@@ -143,6 +145,7 @@ impl OutdateService {
             .present
             .iter()
             .map(|connection| (site_id, connection.to_page_id))
+            .filter(|&(_, to_page_id)| to_page_id != page_id)
             .collect::<Vec<_>>();
 
         Self::outdate(ids);
