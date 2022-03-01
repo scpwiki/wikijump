@@ -29,7 +29,7 @@ pub struct RevisionTasks {
     pub render_and_update_links: bool,
     pub rename: bool,
     pub rerender_incoming_links: bool,
-    pub rerender_included_pages: bool,
+    pub rerender_outgoing_includes: bool,
     pub rerender_templates: bool,
 }
 
@@ -41,7 +41,7 @@ impl RevisionTasks {
             if revision.wikitext_hash.as_slice() != TextService::hash(wikitext).as_slice()
             {
                 tasks.render_and_update_links = true;
-                tasks.rerender_included_pages = true;
+                tasks.rerender_outgoing_includes = true;
                 tasks.rerender_templates = true;
             }
         }
@@ -67,7 +67,7 @@ impl RevisionTasks {
                 tasks.render_and_update_links = true;
                 tasks.rename = true;
                 tasks.rerender_incoming_links = true;
-                tasks.rerender_included_pages = true;
+                tasks.rerender_outgoing_includes = true;
                 tasks.rerender_templates = true;
             }
         }
@@ -75,7 +75,7 @@ impl RevisionTasks {
         if let ProvidedValue::Set(ref tags) = changes.tags {
             if !string_list_equals_json(&revision.tags, tags) {
                 tasks.render_and_update_links = true;
-                tasks.rerender_included_pages = true;
+                tasks.rerender_outgoing_includes = true;
                 tasks.rerender_templates = true;
             }
         }
@@ -95,7 +95,7 @@ impl RevisionTasks {
         !self.render_and_update_links
             && !self.rename
             && !self.rerender_incoming_links
-            && !self.rerender_included_pages
+            && !self.rerender_outgoing_includes
             && !self.rerender_templates
     }
 }
@@ -105,6 +105,6 @@ impl RevisionTasks {
  *
  * page file change:
  * - render
- * - rerender_included_pages
+ * - rerender_outgoing_includes
  * - outdate page cache
  */

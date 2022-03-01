@@ -233,8 +233,8 @@ impl RevisionService {
                 OutdateService::outdate_incoming_links(ctx, site_id, page_id),
             ),
             conditional_future!(
-                tasks.rerender_included_pages,
-                OutdateService::outdate_included_pages(ctx, site_id, page_id),
+                tasks.rerender_outgoing_includes,
+                OutdateService::outdate_outgoing_includes(ctx, site_id, page_id),
             ),
             conditional_future!(
                 tasks.rerender_templates,
@@ -449,7 +449,7 @@ impl RevisionService {
         try_join!(
             OutdateService::outdate_incoming_links(ctx, site_id, page_id),
             OutdateService::outdate_outgoing_links(ctx, site_id, page_id),
-            OutdateService::outdate_included_pages(ctx, site_id, page_id),
+            OutdateService::outdate_outgoing_includes(ctx, site_id, page_id),
             OutdateService::outdate_templates(
                 ctx,
                 site_id,

@@ -101,7 +101,7 @@ impl OutdateService {
         Ok(())
     }
 
-    pub async fn outdate_included_pages(
+    pub async fn outdate_outgoing_includes(
         ctx: &ServiceContext<'_>,
         site_id: i64,
         page_id: i64,
