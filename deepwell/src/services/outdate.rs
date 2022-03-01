@@ -26,7 +26,7 @@ use crate::web::ConnectionType;
 pub struct OutdateService;
 
 impl OutdateService {
-    /// Marks a series of page revisions as outdated.
+    /// Queues the given pages for re-rendering.
     ///
     /// Finds the most recent revision for each of the given `(site_id, page_id)`
     /// pairs passed in.
