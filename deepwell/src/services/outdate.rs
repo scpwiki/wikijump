@@ -26,6 +26,58 @@ use crate::web::ConnectionType;
 pub struct OutdateService;
 
 impl OutdateService {
+    pub async fn process_page_create(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+        category_slug: &str,
+        page_slug: &str,
+    ) -> Result<()> {
+        todo!()
+    }
+
+    pub async fn process_page_delete(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+        category_slug: &str,
+        page_slug: &str,
+    ) -> Result<()> {
+        todo!()
+    }
+
+    pub async fn process_page_move(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+        old_category_slug: &str,
+        old_page_slug: &str,
+        new_category_slug: &str,
+        new_page_slug: &str,
+    ) -> Result<()> {
+        // In terms of outdating, a move is equivalent to
+        // deleting at the old page location and
+        // creating at the new page location.
+        try_join!(
+            Self::process_page_create(
+                ctx,
+                site_id,
+                page_id,
+                new_category_slug,
+                new_page_slug
+            ),
+            Self::process_page_delete(
+                ctx,
+                site_id,
+                page_id,
+                old_category_slug,
+                old_page_slug
+            ),
+        )?;
+
+        Ok(())
+    }
+
     /// Queues the given pages for re-rendering.
     ///
     /// Finds the most recent revision for each of the given `(site_id, page_id)`
