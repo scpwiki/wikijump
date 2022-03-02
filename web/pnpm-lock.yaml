@@ -396,6 +396,7 @@ importers:
       include-media: ^1.4.10
       svelte: ^3.46.4
       tinro: ^0.6.12
+      tippy.js: ^6.3.7
     dependencies:
       '@uppy/core': 2.1.5
       '@uppy/dashboard': 2.1.4_@uppy+core@2.1.5
@@ -411,6 +412,7 @@ importers:
       include-media: 1.4.10
       svelte: 3.46.4
       tinro: 0.6.12
+      tippy.js: 6.3.7
 
   scripts/dev:
     specifiers:

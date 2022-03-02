@@ -1,8 +1,4 @@
 import tippy, { followCursor, inlinePositioning, roundArrow, type Props } from "tippy.js"
-// Import CSS dynamically
-import "tippy.js/animations/scale.css"
-import "tippy.js/dist/svg-arrow.css"
-import "tippy.js/dist/tippy.css"
 
 export const DEFAULT_TIPPY_OPTS: Partial<Props> = {
   ignoreAttributes: true,

@@ -3,6 +3,9 @@
 
 // Vendor
 @import "@wikijump/ftml-components/src/index";
+@import "tippy.js/animations/scale.css";
+@import "tippy.js/dist/svg-arrow.css";
+@import "tippy.js/dist/tippy.css";
 
 // Base
 @import "base/reset";

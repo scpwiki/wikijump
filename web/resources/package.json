@@ -24,6 +24,7 @@
     "@wikijump/util": "workspace:*",
     "include-media": "^1.4.10",
     "svelte": "^3.46.4",
-    "tinro": "^0.6.12"
+    "tinro": "^0.6.12",
+    "tippy.js": "^6.3.7"
   }
 }
