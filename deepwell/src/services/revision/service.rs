@@ -227,6 +227,8 @@ impl RevisionService {
         //
         // This macro runs the given method (second value) if the condition (first value)
         // is true, otherwise does nothing.
+
+        // TODO: Maybe replace this with OutdateService::process_* methods
         try_join!(
             conditional_future!(
                 tasks.rerender_incoming_links,
@@ -313,6 +315,9 @@ impl RevisionService {
             compiled_generator,
         } = Self::render_and_update_links(ctx, site_id, page_id, wikitext, render_input)
             .await?;
+
+        // Run outdater
+        OutdateService::process_page_displace(ctx, site_id, page_id, &slug).await?;
 
         // Effective constant, number of changes for the first revision.
         // The first revision is always considered to have changed everything.
@@ -468,6 +473,9 @@ impl RevisionService {
             ..
         } = Self::render_and_update_links(ctx, site_id, page_id, wikitext, render_input)
             .await?;
+
+        // Update descendents
+        OutdateService::process_page_edit(ctx, site_id, page_id, &revision.slug).await?;
 
         let model = page_revision::ActiveModel {
             revision_id: Set(revision.revision_id),
