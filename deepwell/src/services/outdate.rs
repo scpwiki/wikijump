@@ -52,7 +52,7 @@ impl OutdateService {
         try_join!(
             Self::process_page_edit(ctx, site_id, page_id, slug),
             Self::outdate_incoming_links(ctx, site_id, page_id),
-        );
+        )?;
 
         Ok(())
     }
