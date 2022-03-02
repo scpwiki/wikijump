@@ -37,17 +37,6 @@ export interface FlaggedWord extends Word {
 }
 
 /**
- * Describes an asynchronous function that returns absolute URLs to a
- * Hunspell `.aff` and `.dic` pair.
- */
-export type DictionaryImporter = () => Promise<{
-  /** Absolute URL to the affix file to be loaded. */
-  aff: string
-  /** Absolute URL(s) to the dictionary file(s) to be loaded. */
-  dic: string | string[]
-}>
-
-/**
  * A function provided by a language's `languageData` `spellcheck`
  * property. Determines if a given word should be spellchecked or not.
  *

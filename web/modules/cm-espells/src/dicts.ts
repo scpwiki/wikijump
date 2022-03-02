@@ -1,89 +1,99 @@
-import { url } from "@wikijump/util"
-import type { DictionaryImporter } from "./types"
+// organize-imports-ignore
 
-/** Table of dictionary import functions, using locale language codes as keys. */
-export const DICTIONARIES: Record<string, DictionaryImporter> = {
-  "en": async () =>
-    imp(import("dictionary-en/index.aff"), import("dictionary-en/index.dic")),
+// these are imported as URLs, not full files
+// check the vite config, `.dic` and `.aff` are added as "assets"
 
-  "de": async () =>
-    imp(import("../vendor/de.aff"), [
-      import("../vendor/de-transam.dic"),
-      import("../vendor/de-bjoern.dic"),
-      import("../vendor/de-chrome.dic")
-    ]),
+import dicEN from "dictionary-en/index.dic"
+import affEN from "dictionary-en/index.aff"
 
-  "es": async () =>
-    imp(import("dictionary-es/index.aff"), import("dictionary-es/index.dic")),
+import dicDE1 from "../vendor/de-transam.dic"
+import dicDE2 from "../vendor/de-bjoern.dic"
+import dicDE3 from "../vendor/de-chrome.dic"
+import affDE from "../vendor/de.aff"
 
-  "fr": async () =>
-    imp(import("dictionary-fr/index.aff"), import("dictionary-fr/index.dic")),
+import dicES from "dictionary-es/index.dic"
+import affES from "dictionary-es/index.aff"
 
-  "it": async () =>
-    imp(import("dictionary-it/index.aff"), import("dictionary-it/index.dic")),
+import dicFR from "dictionary-fr/index.dic"
+import affFR from "dictionary-fr/index.aff"
 
-  "ru": async () =>
-    imp(import("dictionary-ru/index.aff"), import("dictionary-ru/index.dic")),
+import dicIT from "dictionary-it/index.dic"
+import affIT from "dictionary-it/index.aff"
 
-  "ko": async () =>
-    imp(import("dictionary-ko/index.aff"), import("dictionary-ko/index.dic")),
+import dicRU from "dictionary-ru/index.dic"
+import affRU from "dictionary-ru/index.aff"
 
-  "pl": async () =>
-    imp(import("dictionary-pl/index.aff"), import("dictionary-pl/index.dic")),
+import dicKO from "dictionary-ko/index.dic"
+import affKO from "dictionary-ko/index.aff"
 
-  "uk": async () =>
-    imp(import("dictionary-uk/index.aff"), import("dictionary-uk/index.dic")),
+import dicPL from "dictionary-pl/index.dic"
+import affPL from "dictionary-pl/index.aff"
 
-  "pt": async () =>
-    imp(import("dictionary-pt/index.aff"), import("dictionary-pt/index.dic")),
+import dicUK from "dictionary-uk/index.dic"
+import affUK from "dictionary-uk/index.aff"
 
-  "cs": async () =>
-    imp(import("dictionary-cs/index.aff"), import("dictionary-cs/index.dic")),
+import dicPT from "dictionary-pt/index.dic"
+import affPT from "dictionary-pt/index.aff"
 
-  "vi": async () =>
-    imp(import("dictionary-vi/index.aff"), import("dictionary-vi/index.dic")),
+import dicCS from "dictionary-cs/index.dic"
+import affCS from "dictionary-cs/index.aff"
 
-  "el": async () =>
-    imp(import("dictionary-el/index.aff"), import("dictionary-el/index.dic")),
+import dicVI from "dictionary-vi/index.dic"
+import affVI from "dictionary-vi/index.aff"
 
-  "tr": async () =>
-    imp(import("dictionary-tr/index.aff"), import("dictionary-tr/index.dic")),
+import dicEL from "dictionary-el/index.dic"
+import affEL from "dictionary-el/index.aff"
 
-  "da": async () =>
-    imp(import("dictionary-da/index.aff"), import("dictionary-da/index.dic")),
+import dicTR from "dictionary-tr/index.dic"
+import affTR from "dictionary-tr/index.aff"
 
-  "nb": async () =>
-    imp(import("dictionary-nb/index.aff"), import("dictionary-nb/index.dic")),
+import dicDA from "dictionary-da/index.dic"
+import affDA from "dictionary-da/index.aff"
 
-  "nn": async () =>
-    imp(import("dictionary-nn/index.aff"), import("dictionary-nn/index.dic")),
+import dicNB from "dictionary-nb/index.dic"
+import affNB from "dictionary-nb/index.aff"
 
-  "sv": async () =>
-    imp(import("dictionary-sv/index.aff"), import("dictionary-sv/index.dic")),
+import dicNN from "dictionary-nn/index.dic"
+import affNN from "dictionary-nn/index.aff"
 
-  "fo": async () =>
-    imp(import("dictionary-fo/index.aff"), import("dictionary-fo/index.dic")),
+import dicSV from "dictionary-sv/index.dic"
+import affSV from "dictionary-sv/index.aff"
 
-  "nl": async () =>
-    imp(import("dictionary-nl/index.aff"), import("dictionary-nl/index.dic")),
+import dicFO from "dictionary-fo/index.dic"
+import affFO from "dictionary-fo/index.aff"
 
-  "hu": async () =>
-    imp(import("dictionary-hu/index.aff"), import("dictionary-hu/index.dic")),
+import dicNL from "dictionary-nl/index.dic"
+import affNL from "dictionary-nl/index.aff"
 
-  "ro": async () =>
-    imp(import("dictionary-ro/index.aff"), import("dictionary-ro/index.dic"))
+import dicHU from "dictionary-hu/index.dic"
+import affHU from "dictionary-hu/index.aff"
+
+import dicRO from "dictionary-ro/index.dic"
+import affRO from "dictionary-ro/index.aff"
+
+export const DICTIONARIES: Record<string, { aff: string; dic: Arrayable<string> }> = {
+  "en": { aff: affEN, dic: dicEN },
+  "de": { aff: affDE, dic: [dicDE1, dicDE2, dicDE3] },
+  "es": { aff: affES, dic: dicES },
+  "fr": { aff: affFR, dic: dicFR },
+  "it": { aff: affIT, dic: dicIT },
+  "ru": { aff: affRU, dic: dicRU },
+  "ko": { aff: affKO, dic: dicKO },
+  "pl": { aff: affPL, dic: dicPL },
+  "uk": { aff: affUK, dic: dicUK },
+  "pt": { aff: affPT, dic: dicPT },
+  "cs": { aff: affCS, dic: dicCS },
+  "vi": { aff: affVI, dic: dicVI },
+  "el": { aff: affEL, dic: dicEL },
+  "tr": { aff: affTR, dic: dicTR },
+  "da": { aff: affDA, dic: dicDA },
+  "nb": { aff: affNB, dic: dicNB },
+  "nn": { aff: affNN, dic: dicNN },
+  "sv": { aff: affSV, dic: dicSV },
+  "fo": { aff: affFO, dic: dicFO },
+  "nl": { aff: affNL, dic: dicNL },
+  "hu": { aff: affHU, dic: dicHU },
+  "ro": { aff: affRO, dic: dicRO }
 }
 
 export default DICTIONARIES
-
-async function imp(aff: any, dic: any) {
-  if (Array.isArray(dic)) {
-    const dics: string[] = []
-    for (const d of dic) {
-      dics.push(await url(d))
-    }
-    return { aff: await url(aff), dic: dics }
-  } else {
-    return { aff: await url(aff), dic: await url(dic) }
-  }
-}
