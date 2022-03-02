@@ -32,7 +32,7 @@ const SVELTE_OPTIONS = {
     }
   },
   hot: !process.env.VITEST && process.env.NODE_ENV !== "production",
-  emitCss: false,
+  emitCss: process.env.NODE_ENV !== "production",
   experimental: {
     generateMissingPreprocessorSourcemaps: true
   }
