@@ -63,3 +63,5 @@ Copyright (c) 2020-2021, Wikijump Team
 Based on Wikidot - free wiki collaboration software
 Copyright (c) 2008, Wikidot Inc.
 ```
+
+:D
