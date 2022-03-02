@@ -63,8 +63,6 @@ export class EspellsWorker extends AbstractWorkerBase.of<Espells>([
       return espells
     }
 
-    console.warn("Locale given to spellchecker has no resources available for it.")
-
     return false
   }
 
@@ -74,7 +72,7 @@ export class EspellsWorker extends AbstractWorkerBase.of<Espells>([
 
     const flagged: FlaggedWord[] = []
     for (const word of words) {
-      const info = await this.worker!.lookup(word.word, caseSensitive)
+      const info = await this.lookup(word.word, caseSensitive)
       flagged.push({
         ...word,
         info
