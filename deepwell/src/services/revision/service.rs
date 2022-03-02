@@ -219,15 +219,9 @@ impl RevisionService {
             compiled_at = now();
         }
 
-        if tasks.rename {
-            OutdateService::process_page_move(
-                ctx,
-                site_id,
-                page_id,
-                &old_slug.expect("No old_slug but 'tasks.rename' is set"),
-                &slug,
-            )
-            .await?;
+        if let Some(ref old_slug) = old_slug {
+            OutdateService::process_page_move(ctx, site_id, page_id, old_slug, &slug)
+                .await?;
         }
 
         // Run all outdating tasks in parallel.

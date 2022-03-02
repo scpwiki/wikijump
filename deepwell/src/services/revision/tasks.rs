@@ -27,7 +27,6 @@ use crate::web::ProvidedValue;
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct RevisionTasks {
     pub render_and_update_links: bool,
-    pub rename: bool,
     pub rerender_incoming_links: bool,
     pub rerender_outgoing_includes: bool,
     pub rerender_templates: bool,
@@ -65,7 +64,6 @@ impl RevisionTasks {
         if let ProvidedValue::Set(ref slug) = changes.slug {
             if &revision.slug != slug {
                 tasks.render_and_update_links = true;
-                tasks.rename = true;
                 tasks.rerender_incoming_links = true;
                 tasks.rerender_outgoing_includes = true;
                 tasks.rerender_templates = true;
@@ -93,7 +91,6 @@ impl RevisionTasks {
     #[inline]
     pub fn is_empty(self) -> bool {
         !self.render_and_update_links
-            && !self.rename
             && !self.rerender_incoming_links
             && !self.rerender_outgoing_includes
             && !self.rerender_templates
@@ -113,7 +110,6 @@ impl Default for RevisionTasks {
 
             // The rest of these are false, since the point of RevisionTasks
             // is to only run the jobs that are necessary for this change.
-            rename: false,
             rerender_incoming_links: false,
             rerender_outgoing_includes: false,
             rerender_templates: false,
