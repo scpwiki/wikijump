@@ -114,28 +114,6 @@ impl OutdateService {
         Ok(())
     }
 
-    pub async fn outdate_outgoing_links(
-        ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
-    ) -> Result<()> {
-        const CONNECTION_TYPES: &[ConnectionType] = &[ConnectionType::Link];
-
-        let result =
-            LinkService::get_connections_from(ctx, page_id, Some(CONNECTION_TYPES))
-                .await?;
-
-        let ids = result
-            .present
-            .iter()
-            .map(|connection| (site_id, connection.to_page_id))
-            .filter(|&(_, to_page_id)| to_page_id != page_id)
-            .collect::<Vec<_>>();
-
-        Self::outdate(ids);
-        Ok(())
-    }
-
     pub async fn outdate_templates(
         ctx: &ServiceContext<'_>,
         site_id: i64,
