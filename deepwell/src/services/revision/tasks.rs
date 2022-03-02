@@ -96,12 +96,3 @@ impl RevisionTasks {
             && !self.rerender_templates
     }
 }
-
-/*
- * TODO: Tasks for other page changes:
- *
- * page file change:
- * - render
- * - rerender_outgoing_includes
- * - outdate page cache
- */
