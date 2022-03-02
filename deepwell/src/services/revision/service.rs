@@ -219,31 +219,47 @@ impl RevisionService {
             compiled_at = now();
         }
 
-        if let Some(ref old_slug) = old_slug {
-            OutdateService::process_page_move(ctx, site_id, page_id, old_slug, &slug)
-                .await?;
+        // Perform outdating based on changes made.
+        match old_slug {
+            Some(ref old_slug) => {
+                // If there's an "old slug" set, then this is a page rename / move.
+                // Thus we should invoke the OutdateService for both the source
+                // and destination.
+                //
+                // This is equivalent to the three outdate calls below, but for
+                // the source and destination slugs, which is why we don't
+                // also run those again.
+
+                OutdateService::process_page_move(ctx, site_id, page_id, old_slug, &slug)
+                    .await?;
+            }
+            None => {
+                // Run all outdating tasks in parallel.
+                //
+                // This macro runs the given method (second value) if the condition (first value)
+                // is true, otherwise does nothing.
+
+                try_join!(
+                    conditional_future!(
+                        tasks.rerender_incoming_links,
+                        OutdateService::outdate_incoming_links(ctx, site_id, page_id),
+                    ),
+                    conditional_future!(
+                        tasks.rerender_outgoing_includes,
+                        OutdateService::outdate_outgoing_includes(ctx, site_id, page_id),
+                    ),
+                    conditional_future!(
+                        tasks.rerender_templates,
+                        OutdateService::outdate_templates(
+                            ctx,
+                            site_id,
+                            category_slug,
+                            page_slug,
+                        ),
+                    ),
+                )?;
+            }
         }
-
-        // Run all outdating tasks in parallel.
-        //
-        // This macro runs the given method (second value) if the condition (first value)
-        // is true, otherwise does nothing.
-
-        // TODO: Maybe replace this with OutdateService::process_* methods
-        try_join!(
-            conditional_future!(
-                tasks.rerender_incoming_links,
-                OutdateService::outdate_incoming_links(ctx, site_id, page_id),
-            ),
-            conditional_future!(
-                tasks.rerender_outgoing_includes,
-                OutdateService::outdate_outgoing_includes(ctx, site_id, page_id),
-            ),
-            conditional_future!(
-                tasks.rerender_templates,
-                OutdateService::outdate_templates(ctx, site_id, category_slug, page_slug),
-            ),
-        )?;
 
         // Insert the new revision into the table
         let model = page_revision::ActiveModel {
