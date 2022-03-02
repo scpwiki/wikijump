@@ -23,6 +23,15 @@ use crate::models::page_revision::Model as PageRevisionModel;
 use crate::services::TextService;
 use crate::web::ProvidedValue;
 
+// TODO: Consolidate this.
+//
+//       Determine where our one source of truth for changes -> outdate calls
+//       is, because right now some of these fields aren't used.
+//
+//       See the code branch "match old_slug" in services/revision/service.rs
+//       We want a unified system where diff -> descendent changes, and
+//       there's one place or structure or something to consult.
+
 /// A representation of the updating tasks to do for a revision.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Default)]
 pub struct RevisionTasks {
