@@ -80,9 +80,9 @@ impl RevisionTasks {
             }
         }
 
-        if let ProvidedValue::Set(ref _metadata) = changes.metadata {
-            // TODO check metadata
-            if false {
+        if let ProvidedValue::Set(ref metadata) = changes.metadata {
+            if &revision.metadata != metadata {
+                // TODO
                 tasks.render_and_update_links = true;
             }
         }
