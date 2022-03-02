@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { decode, encode, timedout, TIMED_OUT_SYMBOL } from "@wikijump/util"
+import { timedout, TIMED_OUT_SYMBOL } from "@wikijump/util"
 import * as Comlink from "comlink"
 
 const DEFAULT_TIMEOUT = 5000
@@ -181,32 +181,3 @@ export abstract class AbstractWorkerBase<T> {
     this._workerInstance = undefined
   }
 }
-
-export class TransferString {
-  readonly buffer: ArrayBuffer
-
-  constructor(str: string | ArrayBufferView | ArrayBufferLike) {
-    this.buffer = encode(str)
-  }
-
-  toString() {
-    return decode(this.buffer)
-  }
-
-  static handler: Comlink.TransferHandler<TransferString, ArrayBuffer> = {
-    canHandle(value: unknown): value is TransferString {
-      return value instanceof TransferString
-    },
-
-    serialize(value: TransferString) {
-      const serialized = encode(value.buffer)
-      return [serialized, [serialized]]
-    },
-
-    deserialize(buffer: ArrayBuffer) {
-      return new TransferString(buffer)
-    }
-  }
-}
-
-Comlink.transferHandlers.set("TransferString", TransferString.handler)
