@@ -42,9 +42,17 @@ export class Timeout<T = void> {
   /**
    * @param delay - The delay between now and when the callback should be fired.
    * @param cb - The callback that will be fired when the timeout expires.
+   * @param immediate - If true, the callback will be fired immediately.
+   *   Defaults to true.
    */
-  constructor(delay: number, cb: () => T) {
+  constructor(delay: number, cb: () => T, immediate = true) {
     this.reset(delay, cb)
+    if (!immediate) this.clear()
+  }
+
+  /** True if the timeout is running. */
+  get running() {
+    return this.timeout !== undefined
   }
 
   /** Function for fulfilling the thenable contract. */
