@@ -418,7 +418,6 @@ impl RevisionService {
         // Set up parse context
         let settings = WikitextSettings::from_mode(WikitextMode::Page);
         let (category_slug, page_slug) = split_category(slug);
-        let category_slug_default = category_slug.unwrap_or("_default");
         let page_info = PageInfo {
             page: cow!(page_slug),
             category: cow_opt!(category_slug),
@@ -435,17 +434,6 @@ impl RevisionService {
 
         // Update backlinks
         LinkService::update(ctx, site_id, page_id, &output.html_output.backlinks).await?;
-
-        // Now, outdate descendents
-        try_join!(
-            OutdateService::outdate_outgoing_includes(ctx, site_id, page_id),
-            OutdateService::outdate_templates(
-                ctx,
-                site_id,
-                category_slug_default,
-                page_slug,
-            ),
-        )?;
 
         Ok(output)
     }

@@ -32,7 +32,12 @@ impl OutdateService {
         page_id: i64,
         slug: &str,
     ) -> Result<()> {
-        todo!()
+        try_join!(
+            Self::process_page_edit(ctx, site_id, page_id, slug),
+            Self::outdate_incoming_links(ctx, site_id, page_id),
+        );
+
+        Ok(())
     }
 
     pub async fn process_page_delete(
@@ -41,12 +46,9 @@ impl OutdateService {
         page_id: i64,
         slug: &str,
     ) -> Result<()> {
-        let (category_slug, page_slug) = split_category_name(slug);
-
         try_join!(
+            Self::process_page_edit(ctx, site_id, page_id, slug),
             Self::outdate_incoming_links(ctx, site_id, page_id),
-            Self::outdate_outgoing_includes(ctx, site_id, page_id),
-            Self::outdate_templates(ctx, site_id, category_slug, page_slug),
         )?;
 
         Ok(())
@@ -65,6 +67,22 @@ impl OutdateService {
         try_join!(
             Self::process_page_create(ctx, site_id, page_id, new_slug),
             Self::process_page_delete(ctx, site_id, page_id, old_slug),
+        )?;
+
+        Ok(())
+    }
+
+    pub async fn process_page_edit(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+        slug: &str,
+    ) -> Result<()> {
+        let (category_slug, page_slug) = split_category_name(slug);
+
+        try_join!(
+            OutdateService::outdate_outgoing_includes(ctx, site_id, page_id),
+            OutdateService::outdate_templates(ctx, site_id, category_slug, page_slug),
         )?;
 
         Ok(())
