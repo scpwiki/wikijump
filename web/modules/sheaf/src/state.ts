@@ -133,6 +133,12 @@ export class SheafState {
     return await FTML.inspectTokens(await this.value())
   }
 
+  /** Gets the word count via inspection of the FTML AST. */
+  @Memoize()
+  async wordCount() {
+    return await FTML.wordCount(await this.value())
+  }
+
   /** Creates a pretty printed version of the editor's syntax tree. */
   @Memoize()
   async prettyEditorAST() {
