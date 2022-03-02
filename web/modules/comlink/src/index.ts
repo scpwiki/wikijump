@@ -36,11 +36,14 @@ export type WorkerMethods<T> = keyof FilterFor<T, Function>
 export type BoundWorker<T> = AbstractWorkerBase<T> & FilterFor<RemoteObject<T>, Function>
 
 export abstract class AbstractWorkerBase<T> {
-  /** Tracks if the worker is still be created. Prevents a race condition. */
+  /**
+   * Tracks if the worker is still being created. Will be undefined if the
+   * worker is stopped or fully started.
+   */
   declare starting?: Promise<void>
 
   /** The worker instance. */
-  protected declare worker?: Remote<T>
+  declare worker?: Remote<T>
 
   /** Required function needed for getting a `Worker` or `Comlink.Remote<T>` instance. */
   protected abstract _baseGetWorker(): Promisable<RemoteWorker<T> | false>
@@ -72,8 +75,13 @@ export abstract class AbstractWorkerBase<T> {
 
   /**
    * Function intended to be used within an `extends` expression.
-   * Constructs a class with a prototype that has all the methods of the
-   * worker proxy.
+   * Constructs a class with a prototype that binds the given methods of
+   * the worker proxy.
+   *
+   * This function doesn't have to be used - it's just a convenience.
+   * However, you'll have to create your own methods that call out to the
+   * worker. Note that calling worker methods directly will not have any
+   * protections.
    *
    * @param methods - The methods to bind. These can't be figured out automatically.
    */
@@ -87,7 +95,7 @@ export abstract class AbstractWorkerBase<T> {
         if (!this.worker) await this.start()
 
         // check one more time - maybe worker couldn't start
-        if (!this.worker) return await this._tryToGetDefault(method, args)
+        if (!this.worker) return await this._baseTryToGetDefault(method, args)
 
         if (this._baseMethodTimeout !== 0) {
           const result = await timedout(
@@ -109,7 +117,7 @@ export abstract class AbstractWorkerBase<T> {
   }
 
   /** Tries to run a default method if the worker couldn't be started. */
-  private async _tryToGetDefault(method: WorkerMethods<T>, args: any[]) {
+  private async _baseTryToGetDefault(method: WorkerMethods<T>, args: any[]) {
     if (!this._baseDefaults || !this._baseDefaults.hasOwnProperty(method)) {
       if (!this.worker) throw new Error(`Worker could not be started!`)
       else throw new Error(`Method "${method}" could not be called!`)
