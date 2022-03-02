@@ -123,6 +123,7 @@ impl RevisionService {
 
         // Fields to create in the revision
         let mut parser_warnings = None;
+        let mut old_slug = None;
         let mut changes = Vec::new();
         let PageRevisionModel {
             mut wikitext_hash,
@@ -151,6 +152,7 @@ impl RevisionService {
 
         if let ProvidedValue::Set(new_slug) = body.slug {
             changes.push(str!("slug"));
+            old_slug = Some(slug);
             slug = new_slug;
         }
 
@@ -196,6 +198,10 @@ impl RevisionService {
             };
 
             // Run renderer and related tasks
+            //
+            // Since outdating depends on scope (see RevisionTasks),
+            // we don't do that right after here.
+            //
             // TODO: use html_output
             let render_output = Self::render_and_update_links(
                 ctx,
@@ -214,13 +220,14 @@ impl RevisionService {
         }
 
         if tasks.rename {
-            // TODO consult Outdater.php
-            //      for the new location:
-            //      - update backlinks
-            //      - rerender included
-            //      - process templates
-
-            todo!();
+            OutdateService::process_page_move(
+                ctx,
+                site_id,
+                page_id,
+                &old_slug.expect("No old_slug but 'tasks.rename' is set"),
+                &slug,
+            )
+            .await?;
         }
 
         // Run all outdating tasks in parallel.
