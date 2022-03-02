@@ -55,18 +55,8 @@ impl OutdateService {
         // deleting at the old page location and
         // creating at the new page location.
         try_join!(
-            Self::process_page_create(
-                ctx,
-                site_id,
-                page_id,
-                new_slug,
-            ),
-            Self::process_page_delete(
-                ctx,
-                site_id,
-                page_id,
-                old_slug,
-            ),
+            Self::process_page_create(ctx, site_id, page_id, new_slug),
+            Self::process_page_delete(ctx, site_id, page_id, old_slug),
         )?;
 
         Ok(())
