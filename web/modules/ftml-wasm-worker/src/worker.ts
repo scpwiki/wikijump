@@ -8,6 +8,7 @@ import {
   inspectTokens,
   loading,
   makeInfo,
+  Page,
   parse,
   preprocess,
   renderHTML,
@@ -56,15 +57,13 @@ function formatHTML(html: string) {
   }
 }
 
-init()
-
-export interface FTMLModule
-  extends Omit<typeof FTML, "ready" | "init" | "loading" | "Page"> {
+export interface FTMLModule extends Methods<typeof FTML> {
   formatHTML: typeof formatHTML
   waitUntilReady: () => void
 }
 
 const module: FTMLModule = {
+  init,
   makeInfo,
   version,
   preprocess,
@@ -79,6 +78,7 @@ const module: FTMLModule = {
   inspectTokens,
   formatHTML,
   wordCount,
+  Page,
   async waitUntilReady() {
     await loading
   }

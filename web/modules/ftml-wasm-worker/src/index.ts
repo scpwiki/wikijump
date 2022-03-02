@@ -7,6 +7,7 @@ export type {
   DetailRenderedHTML,
   DetailRenderedText,
   HTMLMeta,
+  Page,
   PageInfo,
   ParseResult,
   PartialInfo,
@@ -22,6 +23,7 @@ export type {
 export * from "./fragment"
 
 export class FTMLWorker extends AbstractWorkerBase.of<FTMLModule>([
+  "init",
   "detailRenderHTML",
   "detailRenderText",
   "formatHTML",
@@ -36,13 +38,15 @@ export class FTMLWorker extends AbstractWorkerBase.of<FTMLModule>([
   "version",
   "waitUntilReady",
   "warnings",
-  "wordCount"
+  "wordCount",
+  "Page"
 ]) {
   protected _baseGetWorker() {
     return new FTMLRemoteWorker()
   }
 
   protected async _baseInitalize() {
+    await this.worker!.init()
     await this.worker!.waitUntilReady()
   }
 }
