@@ -8,6 +8,7 @@ export type {
   DetailRenderedText,
   HTMLMeta,
   PageInfo,
+  ParseResult,
   PartialInfo,
   RenderedHTML,
   RenderSettings,

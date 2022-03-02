@@ -2,22 +2,18 @@
   @component Sheaf Editor: Preview Pane.
 -->
 <script lang="ts">
-  import { printTree } from "@wikijump/codemirror"
   import { Card, Spinny, Tab, Tabview } from "@wikijump/components"
   import { anim } from "@wikijump/components/lib"
   import Locale, { unit } from "@wikijump/fluent"
   import { Timeout } from "@wikijump/util"
   import { getContext } from "svelte"
   import type { SheafContext } from "../context"
-  import { RenderHandler } from "../render-handler"
   import CodeDisplay from "./CodeDisplay.svelte"
   import MorphingWikitext from "./MorphingWikitext.svelte"
 
   const t = Locale.makeComponentFormatter("sheaf")
 
   const { editor, bindings, settings, small } = getContext<SheafContext>("sheaf")
-
-  let render = new RenderHandler()
 
   let timeTotal = 0
   let timeCompile = 0
@@ -27,10 +23,6 @@
   let showRendering = false
 
   $: debug = $settings.debug
-
-  $: if ($editor.doc) {
-    render = new RenderHandler($editor.doc)
-  }
 
   let timer = new Timeout(500, () => (showRendering = true), false)
 
@@ -87,31 +79,28 @@
 
     <Tab>
       <span slot="button">{$t("#-preview.html")}</span>
-      <CodeDisplay content={render.html(true)} lang="html" />
+      <CodeDisplay content={$editor.html(true)} lang="html" />
     </Tab>
 
     <Tab>
       <span slot="button">{$t("#-preview.css")}</span>
-      <CodeDisplay content={render.style()} lang="css" />
+      <CodeDisplay content={$editor.style()} lang="css" />
     </Tab>
 
     {#if debug}
       <Tab>
         <span slot="button">{$t("#-preview.ast")}</span>
-        <CodeDisplay content={render.stringifiedAST()} lang="json" />
+        <CodeDisplay content={$editor.prettyAST()} lang="json" />
       </Tab>
 
       <Tab>
         <span slot="button">{$t("#-preview.tokens")}</span>
-        <CodeDisplay content={render.inspectTokens()} lang="FTMLTokens" />
+        <CodeDisplay content={$editor.inspectTokens()} lang="FTMLTokens" />
       </Tab>
 
       <Tab>
         <span slot="button">{$t("#-preview.editor-ast")}</span>
-        <CodeDisplay
-          content={$editor.value().then(value => printTree($editor.tree, value))}
-          lang="PrintTree"
-        />
+        <CodeDisplay content={$editor.prettyEditorAST()} lang="PrintTree" />
       </Tab>
     {/if}
   </Tabview>

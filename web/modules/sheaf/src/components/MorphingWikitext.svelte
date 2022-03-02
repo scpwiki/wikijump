@@ -46,8 +46,10 @@
     const measureCompile = perfy()
     if (!measureTotal) measureTotal = perfy()
 
-    const input = typeof wikitext === "string" ? wikitext : await wikitext.value()
-    const result = await FTML.renderHTML(input, undefined, "draft")
+    const result =
+      typeof wikitext === "string"
+        ? await FTML.renderHTML(wikitext, undefined, "draft")
+        : await wikitext.render()
 
     timeCompile = measureCompile()
     return result
