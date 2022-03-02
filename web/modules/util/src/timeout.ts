@@ -37,15 +37,16 @@ export class Timeout<T = void> {
    * not** be the same function that was given when this timeout was
    * constructed, so identity comparisons won't work.
    */
-  declare cb: () => T
+  private declare cb?: () => void
 
   /**
-   * @param delay - The delay between now and when the callback should be fired.
+   * @param delay - The delay for the timer. Set to `null` for an immediate timer.
    * @param cb - The callback that will be fired when the timeout expires.
+   *   Is optional.
    * @param immediate - If true, the callback will be fired immediately.
    *   Defaults to true.
    */
-  constructor(delay: number, cb: () => T, immediate = true) {
+  constructor(delay?: number | null, cb?: (() => T) | null, immediate = true) {
     this.reset(delay, cb)
     if (!immediate) this.clear()
   }
@@ -96,10 +97,12 @@ export class Timeout<T = void> {
   /**
    * Resets the timeout. Optionally allows changing the delay and callback.
    *
-   * @param delay - The delay between now and when the callback should be fired.
+   * @param delay - The delay between now and when the callback should be
+   *   fired. Set to `null` to have a "tick" timer.
    * @param cb - The callback that will be fired when the timeout expires.
+   *   Provide `null` to get rid of the current callback.
    */
-  reset(delay?: number, cb?: () => T) {
+  reset(delay?: number | null, cb?: (() => T) | null) {
     if (cb && typeof cb !== "function") {
       console.error("Avoided potential string eval in timeout!")
       throw new Error("Timeout callback must be a function")
@@ -111,23 +114,28 @@ export class Timeout<T = void> {
       })
     }
 
-    if (delay) this.delay = delay
+    if (typeof delay === "number") this.delay = delay
+    else if (delay === null) this.delay = 0
 
     if (cb) {
       this.cb = () => {
         const out = cb()
         this.value = out
-        this.timeout = undefined
         this.promiseResolve(out)
-        return out
       }
+    } else if (cb === null) {
+      this.cb = undefined
     }
 
     if (this.expired()) this.started = new Date()
     this.ends = new Date(this.started.getTime() + this.delay)
     this.value = undefined
     this.clear() // make sure we end the old timeout
-    this.timeout = setTimeout(() => this.cb(), this.delay)
+
+    this.timeout = setTimeout(() => {
+      if (this.cb) this.cb()
+      this.timeout = undefined
+    }, this.delay)
   }
 }
 
@@ -137,7 +145,7 @@ export class Timeout<T = void> {
  * @param delay - The delay between now and when the callback should be fired.
  * @param cb - The callback that will be fired when the timeout expires.
  */
-export function timeout<T>(delay: number, cb: () => T) {
+export function timeout<T>(delay: number, cb?: () => T) {
   return new Timeout(delay, cb)
 }
 
@@ -146,7 +154,7 @@ export function timeout<T>(delay: number, cb: () => T) {
  *
  * @param cb - The callback that will be fired when the timeout expires.
  */
-export function tick<T>(cb: () => T) {
+export function tick<T>(cb?: () => T) {
   return new Timeout(0, cb)
 }
 
