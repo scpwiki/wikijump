@@ -56,6 +56,9 @@ declare global {
   type AbstractClass<T = {}, A extends any[] | void = void> = A extends any[]
     ? abstract new (...args: A) => T
     : abstract new () => T
+
+  /** Gets the methods of an object. */
+  type Methods<T> = FilterFor<T, Function>
 }
 
 export {}
