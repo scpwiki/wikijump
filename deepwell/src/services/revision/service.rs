@@ -443,12 +443,7 @@ impl RevisionService {
         LinkService::update(ctx, site_id, page_id, &output.html_output.backlinks).await?;
 
         // Now, outdate descendents
-        //
-        // Incoming links aren't technically blocked by updating backlinks,
-        // but are grouped here regardless.
         try_join!(
-            OutdateService::outdate_incoming_links(ctx, site_id, page_id),
-            OutdateService::outdate_outgoing_links(ctx, site_id, page_id),
             OutdateService::outdate_outgoing_includes(ctx, site_id, page_id),
             OutdateService::outdate_templates(
                 ctx,
