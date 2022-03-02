@@ -167,6 +167,10 @@ impl PageService {
     }
 
     // TODO
+    /// Moves a page from from one slug to another.
+    ///
+    /// Note: This is called `rename` and not `move` because
+    ///       the latter is a reserved word in Rust.
     #[allow(dead_code)]
     pub async fn rename(
         _ctx: &ServiceContext<'_>,
