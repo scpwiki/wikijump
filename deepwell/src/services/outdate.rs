@@ -26,7 +26,8 @@ use crate::web::{split_category_name, ConnectionType};
 pub struct OutdateService;
 
 impl OutdateService {
-    pub async fn process_page_create(
+    /// Performs outdating tasks for a page being created or deleted here.
+    pub async fn process_page_displace(
         ctx: &ServiceContext<'_>,
         site_id: i64,
         page_id: i64,
@@ -36,20 +37,6 @@ impl OutdateService {
             Self::process_page_edit(ctx, site_id, page_id, slug),
             Self::outdate_incoming_links(ctx, site_id, page_id),
         );
-
-        Ok(())
-    }
-
-    pub async fn process_page_delete(
-        ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
-        slug: &str,
-    ) -> Result<()> {
-        try_join!(
-            Self::process_page_edit(ctx, site_id, page_id, slug),
-            Self::outdate_incoming_links(ctx, site_id, page_id),
-        )?;
 
         Ok(())
     }
@@ -65,8 +52,8 @@ impl OutdateService {
         // deleting at the old page location and
         // creating at the new page location.
         try_join!(
-            Self::process_page_create(ctx, site_id, page_id, new_slug),
-            Self::process_page_delete(ctx, site_id, page_id, old_slug),
+            Self::process_page_displace(ctx, site_id, page_id, new_slug),
+            Self::process_page_displace(ctx, site_id, page_id, old_slug),
         )?;
 
         Ok(())
