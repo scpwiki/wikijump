@@ -145,11 +145,6 @@ impl PageService {
         )
         .await?;
 
-        // If no changes occurred, we should still rerender the page since it was "edited".
-        if revision_output.is_none() {
-            // TODO force rerender of revision
-        }
-
         // Set page updated_at column.
         //
         // Previously this was conditional on whether a revision was actually created.

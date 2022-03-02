@@ -24,7 +24,7 @@ use crate::services::TextService;
 use crate::web::ProvidedValue;
 
 /// A representation of the updating tasks to do for a revision.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Default)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct RevisionTasks {
     pub render_and_update_links: bool,
     pub rename: bool,
@@ -97,6 +97,27 @@ impl RevisionTasks {
             && !self.rerender_incoming_links
             && !self.rerender_outgoing_includes
             && !self.rerender_templates
+    }
+}
+
+impl Default for RevisionTasks {
+    #[inline]
+    fn default() -> Self {
+        RevisionTasks {
+            // Doing a no-op edit should force a rerender of the page,
+            // as if changes had been made.
+            //
+            // As a convenience instead of the user necessarily needing
+            // to invoke the rerender page action.
+            render_and_update_links: true,
+
+            // The rest of these are false, since the point of RevisionTasks
+            // is to only run the jobs that are necessary for this change.
+            rename: false,
+            rerender_incoming_links: false,
+            rerender_outgoing_includes: false,
+            rerender_templates: false,
+        }
     }
 }
 
