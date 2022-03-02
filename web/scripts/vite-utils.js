@@ -173,7 +173,6 @@ const BaseConfig = () => ({
     root: ROOT,
     environment: "jsdom",
     include: ["./modules/**/tests/**/*.{js,ts}"],
-    setupFiles: ["./scripts/test-setup.js"],
     coverage: {
       all: true,
       reporter: ["text", "lcovonly"],

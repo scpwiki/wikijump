@@ -357,3 +357,5 @@ export {
 export { css, cssCompletion, cssLanguage } from "@codemirror/lang-css"
 
 export { html, htmlCompletion, htmlLanguage } from "@codemirror/lang-html"
+
+export { type Tree } from "@lezer/common"

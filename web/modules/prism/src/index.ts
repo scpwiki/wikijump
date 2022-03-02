@@ -10,7 +10,7 @@ export class PrismWorker extends AbstractWorkerBase.of<PrismModule>([
   "highlight",
   "manual"
 ]) {
-  createWorker() {
+  protected _baseGetWorker() {
     return new PrismRemoteWorker()
   }
 }

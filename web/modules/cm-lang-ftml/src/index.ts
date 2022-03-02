@@ -1,4 +1,3 @@
-export { default as Content } from "./content"
 export type { Argument, Block, BlockConfiguration } from "./data/types"
 export * from "./grammars/ast"
 export * from "./grammars/ftml"

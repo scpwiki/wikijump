@@ -21,6 +21,16 @@ export class EspellsWorker extends AbstractWorkerBase.of<Espells>([
 ]) {
   declare locale: string
 
+  protected _baseDefaults = {
+    add: undefined,
+    remove: undefined,
+    addDictionary: undefined,
+    lookup: () => ({ correct: true, forbidden: false, warn: false }),
+    data: () => new Map(),
+    stems: () => [],
+    suggest: () => []
+  }
+
   constructor(locale = "en") {
     super()
     this.set(locale)
@@ -31,7 +41,7 @@ export class EspellsWorker extends AbstractWorkerBase.of<Espells>([
     if (this.loaded) await this.start(true)
   }
 
-  protected async createWorker() {
+  protected async _baseGetWorker() {
     if (DICTIONARIES.hasOwnProperty(this.locale)) {
       const { aff: affURL, dic: dicURL } = await DICTIONARIES[this.locale]()
 
@@ -53,8 +63,6 @@ export class EspellsWorker extends AbstractWorkerBase.of<Espells>([
       return espells
     }
 
-    console.warn("Locale given to spellchecker has no resources available for it.")
-
     return false
   }
 
@@ -64,7 +72,7 @@ export class EspellsWorker extends AbstractWorkerBase.of<Espells>([
 
     const flagged: FlaggedWord[] = []
     for (const word of words) {
-      const info = await this.worker!.lookup(word.word, caseSensitive)
+      const info = await this.lookup(word.word, caseSensitive)
       flagged.push({
         ...word,
         info

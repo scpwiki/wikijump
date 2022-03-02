@@ -13,10 +13,8 @@
   "dependencies": {
     "@lezer/common": "^0.15.11",
     "@lezer/lr": "^0.15.8",
-    "@types/prismjs": "^1.26.0",
     "@wikijump/cm-espells": "workspace:*",
     "@wikijump/codemirror": "workspace:*",
-    "@wikijump/comlink": "workspace:*",
     "@wikijump/components": "workspace:*",
     "@wikijump/fluent": "workspace:*",
     "@wikijump/ftml-wasm-worker": "workspace:*",

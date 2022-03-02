@@ -366,7 +366,7 @@ export function createAnimQueued<T extends AnyFunction>(fn: T) {
 }
 
 /** Safely calls `requestIdleCallback` in an awaitable `Promise`. */
-export function idleCallback<T>(fn: () => T, timeout = 1000): Promise<T> {
+export function idleCallback<T>(fn: () => T, timeout?: number): Promise<T> {
   return new Promise<T>(resolve => {
     requestIdleCallback(
       () => {
@@ -581,4 +581,28 @@ export function byteLength(str: string) {
   }
 
   return len
+}
+
+const decoder = new TextDecoder()
+const encoder = new TextEncoder()
+
+/**
+ * Convert a string or generic buffer into an `ArrayBuffer`.
+ *
+ * @param buffer - The string, `ArrayBuffer`, or typed array to convert.
+ */
+export function encode(buffer: string | ArrayBufferLike | ArrayBufferView) {
+  if (typeof buffer === "string") return encoder.encode(buffer).buffer
+  if ("buffer" in buffer) return buffer.buffer
+  if (buffer instanceof ArrayBuffer) return buffer
+  throw new TypeError("Expected a string, ArrayBuffer, or typed array!")
+}
+
+/**
+ * Decode an `ArrayBuffer` into a string.
+ *
+ * @param buffer - The `ArrayBuffer` to decode.
+ */
+export function decode(buffer: ArrayBufferLike | ArrayBufferView) {
+  return decoder.decode(buffer)
 }

@@ -1,4 +1,5 @@
 import { Comlink } from "@wikijump/comlink"
+import type * as FTML from "@wikijump/ftml-wasm"
 import {
   detailRenderHTML,
   detailRenderText,
@@ -7,13 +8,15 @@ import {
   inspectTokens,
   loading,
   makeInfo,
+  Page,
   parse,
   preprocess,
   renderHTML,
   renderText,
   tokenize,
   version,
-  warnings
+  warnings,
+  wordCount
 } from "@wikijump/ftml-wasm"
 import * as indent from "../vendor/indent"
 
@@ -54,9 +57,13 @@ function formatHTML(html: string) {
   }
 }
 
-init()
+export interface FTMLModule extends Methods<typeof FTML> {
+  formatHTML: typeof formatHTML
+  waitUntilReady: () => void
+}
 
-const module = {
+const module: FTMLModule = {
+  init,
   makeInfo,
   version,
   preprocess,
@@ -70,11 +77,11 @@ const module = {
   getUTF16IndexMap,
   inspectTokens,
   formatHTML,
+  wordCount,
+  Page,
   async waitUntilReady() {
     await loading
   }
 }
-
-export type FTMLModule = typeof module
 
 Comlink.expose(module)

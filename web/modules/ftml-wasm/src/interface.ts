@@ -12,6 +12,8 @@ export type Warning = FTML.IParseWarning
 export type WikitextMode = FTML.WikitextMode
 export type WikitextSettings = FTML.IWikitextSettings
 
+export type ParseResult = { ast: SyntaxTree; warnings: Warning[] }
+
 export type RenderSettings = WikitextMode | WikitextSettings
 
 export interface RenderedHTML {
@@ -119,7 +121,7 @@ export function parse(str: string, info?: PartialInfo, mode: RenderSettings = "p
 
     freeTracked()
 
-    return { ast, warnings }
+    return { ast, warnings } as ParseResult
   } catch (err) {
     freeTracked()
     throw err

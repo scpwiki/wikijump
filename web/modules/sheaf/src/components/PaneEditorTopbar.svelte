@@ -2,7 +2,6 @@
   @component Sheaf Editor: Editor Pane Topbar.
 -->
 <script lang="ts">
-  import { Content } from "@wikijump/cm-lang-ftml"
   import { textByteLength } from "@wikijump/codemirror"
   import { Button } from "@wikijump/components"
   import Locale, { number, unit } from "@wikijump/fluent"
@@ -26,9 +25,8 @@
   // it has to get the editor's value, which means it has to stringify
   // the document contents, which is expensive and memory intensive
   const updateWordCount = throttle(async () => {
-    const value = await $editor.value()
-    words = await Content.words(value)
-  }, 250)
+    words = await $editor.wordCount()
+  }, 1000)
 
   // seems a bit excessive to call this function every time the editor changes,
   // but it's actually very cheap. still, it's probably a good idea to throttle it.
