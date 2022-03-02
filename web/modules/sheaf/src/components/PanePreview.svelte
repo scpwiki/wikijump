@@ -32,10 +32,13 @@
     render = new RenderHandler($editor.doc)
   }
 
-  let timer = new Timeout(500, () => (showRendering = rendering))
-  timer.clear()
+  let timer = new Timeout(500, () => (showRendering = true), false)
 
-  $: rendering ? timer.reset() : timer.clear()
+  $: if (rendering === true && !timer.running) timer.reset()
+  $: if (rendering === false) {
+    timer.clear()
+    showRendering = false
+  }
 </script>
 
 <div class="sheaf-preview-container">
@@ -48,7 +51,7 @@
           class="sheaf-preview-loading-panel"
           transition:anim={{ duration: 250, css: t => `opacity: ${t}` }}
         >
-          <Spinny inline size="1.25rem" description={$t("#-rendering")} />
+          <Spinny inline size="1.25rem" description={$t("#-preview.rendering")} />
         </div>
       {/if}
 
@@ -123,6 +126,7 @@
     position: absolute;
     top: 1rem;
     left: 1rem;
+    z-index: $z-above;
     padding: 0.25rem 0.5rem;
     color: var(--col-con-text);
     background: var(--col-con-background);
