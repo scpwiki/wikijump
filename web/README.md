@@ -84,14 +84,35 @@ This will run ESLint, Prettier, and Stylelint. You can run a linter individually
 You can run `tsc` (TypeScript) for typechecking with:
 
 ```
-pnpm typecheck
+$ pnpm typecheck
 ```
 
 If you want to run linting and typechecking at the same time, and have everything done in parallel, do:
 
 ```
-pnpm validate
+$ pnpm validate
 ```
+
+### Dependencies
+
+You can run a command to check if dependencies need updating:
+```
+$ pnpm taze
+```
+
+The command is named `taze` because that's the dependency checking utility being used.
+
+Once you've reviewed what dependencies need updating (make sure updating them won't break anything), you can write to each `package.json` using:
+```
+$ pnpm taze:write
+
+don't forget to update the lock file:
+$ pnpm install
+```
+
+This will update all dependencies to their latest version.
+
+The file `.tazerc.json` will lets you exclude dependencies from being checked and updated, so you can modify that if needed. This is especially useful if you've pinned a dependency.
 
 ### Commands
 

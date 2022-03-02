@@ -23,6 +23,27 @@ modules:publish: node scripts/publish-all.js
 # - clean : cleans up any running services
 dev: esr scripts/dev.js
 
+taze:
+  # taze can't ignore directories yet, so we have to do this a bit manually
+  - echo [taze] root
+  - taze major
+  - echo [taze] modules
+  - cd modules && taze major -r
+  - echo [taze] frontend
+  - cd ../resources && taze major
+  - echo [taze] legacy frontend
+  - cd ../web && taze major
+
+taze:write:
+  - echo [taze:write] root
+  - taze major -w
+  - echo [taze:write] modules
+  - cd modules && taze major -r -w
+  - echo [taze:write] frontend
+  - cd ../resources && taze major -w
+  - echo [taze:write] legacy frontend
+  - cd ../web && taze major -w
+
 # -- TESTING
 
 test: vitest --run
