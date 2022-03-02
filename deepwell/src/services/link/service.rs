@@ -220,7 +220,6 @@ impl LinkService {
         Ok(GetLinksExternalToOutput { links })
     }
 
-    // TEMP
     pub async fn update(
         ctx: &ServiceContext<'_>,
         site_id: i64,
