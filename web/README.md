@@ -38,6 +38,7 @@ serve : launches the server, but doesn't launch Vite
 clean : cleans up any running services
 ```
 
+If you're in the `serve` or default mode, there are you a few commands you can run while the the script is running. Enter `help` to see the available commands - they're fairly self-explanatory.
 ### Modules
 
 Modules can be found in the [`modules`](./modules) folder. See [`modules.md`](../docs/modules.md).
