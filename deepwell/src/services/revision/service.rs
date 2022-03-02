@@ -366,12 +366,6 @@ impl RevisionService {
     ) -> Result<CreateRevisionOutput> {
         // TODO modify metadata field to add 'deleted: true'
 
-        // TODO run deletion outdater procdures:
-        //      - rerender incoming links
-        //      - rerender included pages
-        //      - process nav pages
-        //      - process template pages
-
         todo!()
     }
 

@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::services::{JobService, LinkService, PageService};
-use crate::web::ConnectionType;
+use crate::web::{split_category_name, ConnectionType};
 
 #[derive(Debug)]
 pub struct OutdateService;
@@ -41,7 +41,15 @@ impl OutdateService {
         page_id: i64,
         slug: &str,
     ) -> Result<()> {
-        todo!()
+        let (category_slug, page_slug) = split_category_name(slug);
+
+        try_join!(
+            Self::outdate_incoming_links(ctx, site_id, page_id),
+            Self::outdate_outgoing_includes(ctx, site_id, page_id),
+            Self::outdate_templates(ctx, site_id, category_slug, page_slug),
+        )?;
+
+        Ok(())
     }
 
     pub async fn process_page_move(
