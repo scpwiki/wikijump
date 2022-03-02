@@ -160,6 +160,8 @@ export class SheafState {
    * @param opts - Options to pass to the new state.
    */
   extend(opts?: Partial<SheafStateConstructorOpts>) {
+    // TODO: reimplement memoization manually
+    // so that if the documentdoesn't change, we copy over the rendered result
     return new SheafState({
       self: this.self,
       view: this.view,
