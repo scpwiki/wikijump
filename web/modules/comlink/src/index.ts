@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { decode, encode, timedout, TIMED_OUT_SYMBOL } from "@wikijump/util"
 import * as Comlink from "comlink"
 
@@ -28,9 +29,11 @@ export { Comlink }
 
 export type Remote<T> = Comlink.Remote<T>
 export type RemoteObject<T> = Comlink.RemoteObject<T>
-export type AbstractRemoteWorker<T> = Worker | Remote<T>
+export type RemoteWorker<T> = Worker | Remote<T>
 
-export type DerivedWorkerBase<T> = AbstractWorkerBase<T> & RemoteObject<T>
+export type WorkerMethods<T> = keyof FilterFor<T, Function>
+
+export type BoundWorker<T> = AbstractWorkerBase<T> & FilterFor<RemoteObject<T>, Function>
 
 export abstract class AbstractWorkerBase<T> {
   /** Tracks if the worker is still be created. Prevents a race condition. */
@@ -40,7 +43,7 @@ export abstract class AbstractWorkerBase<T> {
   protected declare worker?: Remote<T>
 
   /** Required function needed for getting a `Worker` or `Comlink.Remote<T>` instance. */
-  protected abstract _baseGetWorker(): Promisable<AbstractRemoteWorker<T> | false>
+  protected abstract _baseGetWorker(): Promisable<RemoteWorker<T> | false>
 
   /** An optional function that will be ran whenever a new worker is created. */
   protected _baseInitalize?(): Promisable<void>
@@ -50,7 +53,7 @@ export abstract class AbstractWorkerBase<T> {
    * worker couldn't be started, or if a `_baseBeforeMethod` check failed.
    */
   protected _baseDefaults?: {
-    [P in keyof T]?: RemoteObject<T>[P] extends (...args: infer A) => infer R
+    [P in WorkerMethods<T>]?: RemoteObject<T>[P] extends (...args: infer A) => infer R
       ? Functionable<Promisable<Awaited<R>>, A, this>
       : Functionable<Promisable<Awaited<RemoteObject<T>[P]>>, void, this>
   }
@@ -69,45 +72,35 @@ export abstract class AbstractWorkerBase<T> {
 
   /**
    * Function intended to be used within an `extends` expression.
-   * Constructs a class with a prototype that has all the methods and
-   * properties of the worker proxy.
+   * Constructs a class with a prototype that has all the methods of the
+   * worker proxy.
    *
-   * @param props - The properties to bind. These can't be figured out automatically.
+   * @param methods - The methods to bind. These can't be figured out automatically.
    */
-  static of<T>(props: (keyof T)[]): abstract new () => DerivedWorkerBase<T> {
+  static of<T>(methods: WorkerMethods<T>[]): AbstractClass<BoundWorker<T>> {
     // @ts-ignore
-    const Derived: new () => DerivedWorkerBase<T> = class extends AbstractWorkerBase<T> {}
+    const Derived: AbstractClass<BoundWorker<T>> = class extends AbstractWorkerBase<T> {}
 
-    for (const prop of props) {
-      Derived.prototype[prop] = async function (
-        this: DerivedWorkerBase<T>,
-        ...args: any[]
-      ) {
+    for (const method of methods) {
+      Derived.prototype[method] = async function (this: BoundWorker<T>, ...args: any[]) {
         if (this.starting) await this.starting
         if (!this.worker) await this.start()
 
         // check one more time - maybe worker couldn't start
-        if (!this.worker) return await this._tryToGetDefault(prop, ...args)
+        if (!this.worker) return await this._tryToGetDefault(method, args)
 
-        const value = this.worker![prop] as unknown
+        if (this._baseMethodTimeout !== 0) {
+          const result = await timedout(
+            // @ts-ignore
+            this.worker![method](...args),
+            this._baseMethodTimeout ?? DEFAULT_TIMEOUT
+          )
 
-        if (typeof value === "function") {
-          if (this._baseMethodTimeout !== 0) {
-            const result = await timedout(
-              value.call(this.worker!, ...args),
-              this._baseMethodTimeout ?? DEFAULT_TIMEOUT
-            )
+          if (result !== TIMED_OUT_SYMBOL) return result
 
-            if (result !== TIMED_OUT_SYMBOL) return result
-
-            // worker is timing out, have to stop it
-            this.stop()
-            throw new Error(`Method "${prop}" timed out!`)
-          } else {
-            return await value.call(this.worker!, ...args)
-          }
-        } else {
-          return value
+          // worker is timing out, have to stop it
+          this.stop()
+          throw new Error(`Method "${method}" timed out!`)
         }
       }
     }
@@ -116,7 +109,7 @@ export abstract class AbstractWorkerBase<T> {
   }
 
   /** Tries to run a default method if the worker couldn't be started. */
-  private async _tryToGetDefault(method: keyof T, ...args: any[]) {
+  private async _tryToGetDefault(method: WorkerMethods<T>, args: any[]) {
     if (!this._baseDefaults || !this._baseDefaults.hasOwnProperty(method)) {
       if (!this.worker) throw new Error(`Worker could not be started!`)
       else throw new Error(`Method "${method}" could not be called!`)
@@ -125,7 +118,7 @@ export abstract class AbstractWorkerBase<T> {
     const def = this._baseDefaults[method]
 
     if (typeof def === "function") {
-      return await def.call(this, ...args)
+      return await def.apply(this, args)
     } else {
       return def
     }
@@ -154,7 +147,7 @@ export abstract class AbstractWorkerBase<T> {
 
     const result = this._baseGetWorker()
     if (result instanceof Promise) this.starting = result.then()
-    const worker: AbstractRemoteWorker<T> | false = await result
+    const worker: RemoteWorker<T> | false = await result
 
     if (worker) {
       if (worker instanceof Worker) {

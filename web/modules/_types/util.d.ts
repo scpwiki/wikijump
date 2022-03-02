@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 declare global {
   /** Represents any function, without using the {@link Function} object. */
   type AnyFunction<R = unknown> = (...args: any) => R
@@ -45,6 +46,16 @@ declare global {
    * given type.
    */
   type Functionable<T, A = any, G = this> = T | ((this: G, ...args: A) => T)
+
+  /** Represents a constructor function (a class, effectively) */
+  type Constructor<T = {}, A extends any[] | void = void> = A extends any[]
+    ? new (...args: A) => T
+    : new () => T
+
+  /** Represents an abstract class constructor function. */
+  type AbstractClass<T = {}, A extends any[] | void = void> = A extends any[]
+    ? abstract new (...args: A) => T
+    : abstract new () => T
 }
 
 export {}
