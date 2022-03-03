@@ -75,9 +75,6 @@ pub fn build(mut app: ApiServer) -> ApiServer {
     app.at("/page/:site_id/:page_id/undelete")
         .post(page_undelete);
 
-    app.at("/page/:site_id/:type/:id_or_slug/revision")
-        .get(page_revision_latest);
-
     app.at("/page/:site_id/:type/:id_or_slug/revision/:revision_number")
         .head(page_revision_head)
         .get(page_revision_get)

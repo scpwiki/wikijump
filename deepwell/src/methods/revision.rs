@@ -22,27 +22,6 @@ use super::prelude::*;
 use crate::models::page_revision::Model as PageRevisionModel;
 use crate::services::revision::UpdateRevision;
 
-pub async fn page_revision_latest(req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let site_id = req.param("site_id")?.parse()?;
-    let reference = Reference::try_from(&req)?;
-    tide::log::info!(
-        "Getting latest revision for page {:?} in site ID {}",
-        reference,
-        site_id,
-    );
-
-    let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
-    let revision = RevisionService::get_latest(&ctx, site_id, page.page_id)
-        .await
-        .to_api()?;
-
-    txn.commit().await?;
-    build_revision_response(&revision, StatusCode::Ok)
-}
-
 pub async fn page_revision_head(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
