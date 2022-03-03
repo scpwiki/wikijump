@@ -171,8 +171,6 @@ impl<'a> slog::Serializer for ContextSerializer<'a> {
         key: slog::Key,
         value: &(dyn Error + 'static),
     ) -> slog::Result {
-        use std::fmt::Write;
-
         let mut traceback = value.to_string();
         let mut last = value;
 
