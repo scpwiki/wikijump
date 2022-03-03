@@ -35,6 +35,9 @@ extern crate serde;
 #[macro_use]
 extern crate str_macro;
 
+#[macro_use]
+mod macros;
+
 mod api;
 mod config;
 mod database;

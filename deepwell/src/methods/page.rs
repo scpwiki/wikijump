@@ -38,7 +38,7 @@ pub async fn page_head_direct(req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let page_id = req.param("page_id")?.parse()?;
-    tide::log::info!("Checking existence of page ID {}", page_id);
+    tide::log::info!("Checking existence of page ID {page_id}");
 
     let exists = PageService::exists_direct(&ctx, page_id).await.to_api()?;
     txn.commit().await?;
@@ -50,7 +50,7 @@ pub async fn page_get_direct(req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let page_id = req.param("page_id")?.parse()?;
-    tide::log::info!("Getting page ID {}", page_id);
+    tide::log::info!("Getting page ID {page_id}");
 
     let details: PageDetailsQuery = req.query()?;
     let page = PageService::get_direct(&ctx, page_id).await.to_api()?;
@@ -71,7 +71,7 @@ pub async fn page_create(mut req: ApiRequest) -> ApiResponse {
 
     let input: CreatePage = req.body_json().await?;
     let site_id = req.param("site_id")?.parse()?;
-    tide::log::info!("Creating new page in site ID {}", site_id);
+    tide::log::info!("Creating new page in site ID {site_id}");
 
     let output = PageService::create(&ctx, site_id, input).await.to_api()?;
     let body = Body::from_json(&output)?;
@@ -86,11 +86,7 @@ pub async fn page_head(req: ApiRequest) -> ApiResponse {
 
     let site_id = req.param("site_id")?.parse()?;
     let reference = Reference::try_from(&req)?;
-    tide::log::info!(
-        "Checking existence of page {:?} in site ID {}",
-        reference,
-        site_id,
-    );
+    tide::log::info!("Checking existence of page {reference:?} in site ID {site_id}");
 
     let exists = PageService::exists(&ctx, site_id, reference)
         .await
@@ -107,7 +103,7 @@ pub async fn page_get(req: ApiRequest) -> ApiResponse {
     let details: PageDetailsQuery = req.query()?;
     let site_id = req.param("site_id")?.parse()?;
     let reference = Reference::try_from(&req)?;
-    tide::log::info!("Getting page {:?} in site ID {}", reference, site_id);
+    tide::log::info!("Getting page {reference:?} in site ID {site_id}");
 
     let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
     let revision = RevisionService::get_latest(&ctx, site_id, page.page_id)
@@ -128,7 +124,7 @@ pub async fn page_edit(mut req: ApiRequest) -> ApiResponse {
     let input: EditPage = req.body_json().await?;
     let site_id = req.param("site_id")?.parse()?;
     let reference = Reference::try_from(&req)?;
-    tide::log::info!("Editing page {:?} in site ID {}", reference, site_id);
+    tide::log::info!("Editing page {reference:?} in site ID {site_id}");
 
     let output = PageService::edit(&ctx, site_id, reference, input)
         .await
@@ -146,7 +142,7 @@ pub async fn page_delete(mut req: ApiRequest) -> ApiResponse {
     let input: DeletePage = req.body_json().await?;
     let site_id = req.param("site_id")?.parse()?;
     let reference = Reference::try_from(&req)?;
-    tide::log::info!("Deleting page {:?} in site ID {}", reference, site_id);
+    tide::log::info!("Deleting page {reference:?} in site ID {site_id}");
 
     let output = PageService::delete(&ctx, site_id, reference, input)
         .await
@@ -163,7 +159,7 @@ pub async fn page_rerender(req: ApiRequest) -> ApiResponse {
 
     let site_id = req.param("site_id")?.parse()?;
     let page_id = req.param("page_id")?.parse()?;
-    tide::log::info!("Re-rendering page ID {} in site ID {}", page_id, site_id);
+    tide::log::info!("Re-rendering page ID {page_id} in site ID {site_id}");
 
     RevisionService::rerender(&ctx, site_id, page_id)
         .await
@@ -180,7 +176,7 @@ pub async fn page_undelete(mut req: ApiRequest) -> ApiResponse {
     let input: UndeletePage = req.body_json().await?;
     let site_id = req.param("site_id")?.parse()?;
     let page_id = req.param("page_id")?.parse()?;
-    tide::log::info!("Un-deleting page ID {} in site ID {}", page_id, site_id);
+    tide::log::info!("Un-deleting page ID {page_id} in site ID {site_id}");
 
     let output = PageService::undelete(&ctx, site_id, page_id, input)
         .await
@@ -197,11 +193,7 @@ pub async fn page_links_from_get(req: ApiRequest) -> ApiResponse {
 
     let site_id = req.param("site_id")?.parse()?;
     let reference = Reference::try_from(&req)?;
-    tide::log::info!(
-        "Getting page links for page {:?} in site ID {}",
-        reference,
-        site_id,
-    );
+    tide::log::info!("Getting page links for page {reference:?} in site ID {site_id}");
 
     let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
     let output = LinkService::get_from(&ctx, page.page_id).await.to_api()?;
@@ -217,11 +209,7 @@ pub async fn page_links_to_get(req: ApiRequest) -> ApiResponse {
 
     let site_id = req.param("site_id")?.parse()?;
     let reference = Reference::try_from(&req)?;
-    tide::log::info!(
-        "Getting page links from page {:?} in site ID {}",
-        reference,
-        site_id,
-    );
+    tide::log::info!("Getting page links from page {reference:?} in site ID {site_id}");
 
     let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
     let output = LinkService::get_to(&ctx, page.page_id, None)
@@ -240,9 +228,7 @@ pub async fn page_links_to_missing_get(req: ApiRequest) -> ApiResponse {
     let site_id = req.param("site_id")?.parse()?;
     let page_slug = req.param("page_slug")?;
     tide::log::info!(
-        "Getting missing page links from page slug {} in site ID {}",
-        page_slug,
-        site_id,
+        "Getting missing page links from page slug {page_slug} in site ID {site_id}",
     );
 
     let output = LinkService::get_to_missing(&ctx, site_id, page_slug, None)
@@ -261,9 +247,7 @@ pub async fn page_links_external_from(req: ApiRequest) -> ApiResponse {
     let site_id = req.param("site_id")?.parse()?;
     let reference = Reference::try_from(&req)?;
     tide::log::info!(
-        "Getting external links from page {:?} in site ID {}",
-        reference,
-        site_id,
+        "Getting external links from page {reference:?} in site ID {site_id}",
     );
 
     let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
@@ -282,11 +266,7 @@ pub async fn page_links_external_to(req: ApiRequest) -> ApiResponse {
 
     let site_id = req.param("site_id")?.parse()?;
     let url = req.param("url")?;
-    tide::log::info!(
-        "Getting external links to URL {} in site ID {}",
-        url,
-        site_id,
-    );
+    tide::log::info!("Getting external links to URL {url} in site ID {site_id}");
 
     let output = LinkService::get_external_to(&ctx, site_id, url)
         .await

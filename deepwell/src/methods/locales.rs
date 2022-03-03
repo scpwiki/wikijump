@@ -38,7 +38,7 @@ struct LocaleOutput<'a> {
 
 pub async fn locale_get(req: ApiRequest) -> ApiResponse {
     let locale_str = req.param("locale")?;
-    tide::log::info!("Getting locale information for {}", locale_str);
+    tide::log::info!("Getting locale information for {locale_str}");
 
     let locale = LanguageIdentifier::from_bytes(locale_str.as_bytes())
         .map_err(|error| TideError::new(StatusCode::BadRequest, error))?;
@@ -58,9 +58,7 @@ pub async fn message_head(req: ApiRequest) -> ApiResponse {
     let locale_str = req.param("locale")?;
     let message_key = req.param("message_key")?;
     tide::log::info!(
-        "Checking existence of message key {} in locale {}",
-        message_key,
-        locale_str,
+        "Checking existence of message key {message_key} in locale {locale_str}",
     );
 
     let locale = LanguageIdentifier::from_bytes(locale_str.as_bytes())?;
@@ -77,11 +75,7 @@ pub async fn message_post(mut req: ApiRequest) -> ApiResponse {
     let input: MessageArguments = req.body_json().await?;
     let locale_str = req.param("locale")?;
     let message_key = req.param("message_key")?;
-    tide::log::info!(
-        "Formatting message key {} in locale {}",
-        message_key,
-        locale_str,
-    );
+    tide::log::info!("Formatting message key {message_key} in locale {locale_str}");
 
     let locale = LanguageIdentifier::from_bytes(locale_str.as_bytes())?;
     let arguments = input.into_fluent_args();

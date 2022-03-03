@@ -56,9 +56,7 @@ impl JobService {
 
     pub fn queue_rerender_page(site_id: i64, page_id: i64) {
         tide::log::debug!(
-            "Queueing page ID {} in site ID {} for rerendering",
-            page_id,
-            site_id,
+            "Queueing page ID {page_id} in site ID {site_id} for rerendering",
         );
 
         Self::queue_job(Job::RerenderPageId { site_id, page_id });
@@ -89,7 +87,7 @@ impl JobRunner {
 
             match self.process_job(job).await {
                 Ok(()) => tide::log::debug!("Finished processing job"),
-                Err(error) => tide::log::warn!("Error processing job: {}", error),
+                Err(error) => tide::log::warn!("Error processing job: {error}"),
             }
 
             tide::log::debug!("Estimated queue backlog: {} items", sink!().len());

@@ -59,11 +59,7 @@ impl PageService {
             .await?;
 
         if result.is_some() {
-            tide::log::error!(
-                "Page with slug '{}' already exists on site ID {}, cannot create",
-                slug,
-                site_id,
-            );
+            tide::log::error!("Page with slug '{slug}' already exists on site ID {site_id}, cannot create");
             return Err(Error::Conflict);
         }
 
@@ -249,11 +245,7 @@ impl PageService {
             .await?;
 
         if result.is_some() {
-            tide::log::error!(
-                "Page with slug '{}' already exists on site ID {}, cannot undelete",
-                slug,
-                site_id,
-            );
+            tide::log::error!("Page with slug '{slug}' already exists on site ID {site_id}, cannot undelete");
             return Err(Error::Conflict);
         }
 

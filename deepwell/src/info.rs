@@ -29,16 +29,16 @@ pub use self::build::{
 
 lazy_static! {
     static ref VERSION_INFO: String = {
-        let mut version = format!("v{}", PKG_VERSION);
+        let mut version = format!("v{PKG_VERSION}");
 
         if let Some(commit_hash) = *GIT_COMMIT_HASH_SHORT {
-            str_write!(&mut version, " [{}]", commit_hash);
+            str_write!(&mut version, " [{commit_hash}]");
         }
 
         version
     };
 
-    pub static ref VERSION: String = format!("{} {}", PKG_NAME, *VERSION_INFO);
+    pub static ref VERSION: String = format!("{PKG_NAME} {}", *VERSION_INFO);
 
     pub static ref FULL_VERSION: String = {
         let mut version = format!("{}\n\nCompiled:\n", *VERSION_INFO);

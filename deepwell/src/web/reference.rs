@@ -32,13 +32,11 @@ impl<'a> Reference<'a> {
     pub fn try_from_fields(value_type: &str, value: &'a str) -> Result<Self, Error> {
         match value_type {
             "slug" => {
-                tide::log::debug!("Reference via slug, {}", value);
-
+                tide::log::debug!("Reference via slug, {value}");
                 Ok(Reference::Slug(value))
             }
             "id" => {
-                tide::log::debug!("Reference via ID, {}", value);
-
+                tide::log::debug!("Reference via ID, {value}");
                 let id = value.parse()?;
                 Ok(Reference::Id(id))
             }

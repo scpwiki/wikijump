@@ -67,7 +67,7 @@ pub async fn text_head(req: ApiRequest) -> ApiResponse {
 
 fn read_hash(req: &ApiRequest) -> Result<Vec<u8>, TideError> {
     let hash_hex = req.param("hash")?;
-    tide::log::debug!("Text hash: {}", hash_hex);
+    tide::log::debug!("Text hash: {hash_hex}");
 
     let hash = hex::decode(hash_hex)
         .map_err(|error| TideError::new(StatusCode::UnprocessableEntity, error))?;

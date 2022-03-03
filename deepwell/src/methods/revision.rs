@@ -29,9 +29,7 @@ pub async fn page_revision_info(req: ApiRequest) -> ApiResponse {
     let site_id = req.param("site_id")?.parse()?;
     let reference = Reference::try_from(&req)?;
     tide::log::info!(
-        "Getting latest revision for page {:?} in site ID {}",
-        reference,
-        site_id,
+        "Getting latest revision for page {reference:?} in site ID {site_id}",
     );
 
     let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
@@ -59,10 +57,7 @@ pub async fn page_revision_head(req: ApiRequest) -> ApiResponse {
     let revision_number = req.param("revision_number")?.parse()?;
     let reference = Reference::try_from(&req)?;
     tide::log::info!(
-        "Checking existence of revision {} for page {:?} in site ID {}",
-        revision_number,
-        reference,
-        site_id,
+        "Checking existence of revision {revision_number} for page {reference:?} in site ID {site_id}",
     );
 
     let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
@@ -82,10 +77,7 @@ pub async fn page_revision_get(req: ApiRequest) -> ApiResponse {
     let revision_number = req.param("revision_number")?.parse()?;
     let reference = Reference::try_from(&req)?;
     tide::log::info!(
-        "Getting revision {} for page {:?} in site ID {}",
-        revision_number,
-        reference,
-        site_id,
+        "Getting revision {revision_number} for page {reference:?} in site ID {site_id}",
     );
 
     let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
@@ -106,10 +98,7 @@ pub async fn page_revision_put(mut req: ApiRequest) -> ApiResponse {
     let revision_number = req.param("revision_number")?.parse()?;
     let reference = Reference::try_from(&req)?;
     tide::log::info!(
-        "Editing revision {} for page {:?} in site ID {}",
-        revision_number,
-        reference,
-        site_id,
+        "Editing revision {revision_number} for page {reference:?} in site ID {site_id}",
     );
 
     let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
