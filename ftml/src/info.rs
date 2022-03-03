@@ -38,6 +38,7 @@ lazy_static! {
 
         version
     };
+
     pub static ref TARGET_TRIPLET: String = {
         format!(
             "{}-{}-{}", //
@@ -46,6 +47,7 @@ lazy_static! {
             CFG_OS,
         )
     };
+
     pub static ref GIT_COMMIT_HASH_SHORT: Option<&'static str> =
         GIT_COMMIT_HASH.map(|s| &s[..8]);
 }
