@@ -174,6 +174,7 @@ impl RevisionService {
         let wikitext = match body.wikitext {
             // Insert new wikitext and update hash
             ProvidedValue::Set(wikitext) => {
+                changes.push(str!("wikitext"));
                 let new_hash = TextService::create(ctx, wikitext.clone()).await?;
                 replace_hash(&mut wikitext_hash, &new_hash);
                 wikitext
