@@ -60,7 +60,7 @@ lazy_static! {
 #[test]
 fn info() {
     assert!(VERSION.starts_with(PKG_NAME));
-    assert!(VERSION.ends_with(*VERSION_INFO));
+    assert!(VERSION.ends_with(&*VERSION_INFO));
 
     if let Some(hash) = *GIT_COMMIT_HASH_SHORT {
         assert_eq!(hash.len(), 8);
