@@ -3,7 +3,7 @@ module "api" {
 
   container_name               = "api"
   container_image              = "${data.aws_ssm_parameter.API_ECR_URL.value}:develop"
-  container_memory_reservation = var.esc_api_memory / 8
+  container_memory_reservation = var.ecs_api_memory / 8
   essential                    = true
   environment                  = []
 
