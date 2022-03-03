@@ -41,8 +41,7 @@ mod prelude {
         }
 
         panic!(
-            "Actual {} name doesn't match any expected: {:?} (was {})",
-            name_type, expected_names, actual_name,
+            "Actual {name_type} name doesn't match any expected: {expected_names:?} (was {actual_name})",
         );
     }
 

@@ -106,7 +106,7 @@ fn render_latex(
                             ))
                             .inner(log, "(");
 
-                        str_write!(ctx, "{}", index);
+                        str_write!(ctx, "{index}");
 
                         // Close parenthesis
                         ctx.html()

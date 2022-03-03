@@ -68,7 +68,7 @@ impl Handle {
 
         let mut info = UserInfo::dummy();
         info.user_name = cow!(name);
-        info.user_profile_url = Cow::Owned(format!("/user:info/{}", name));
+        info.user_profile_url = Cow::Owned(format!("/user:info/{name}"));
         Some(info)
     }
 
@@ -102,8 +102,7 @@ impl Handle {
 
         // TODO: emit url
         Some(Cow::Owned(format!(
-            "https://{}.wjfiles.com/local--files/{}/{}",
-            site, page, file,
+            "https://{site}.wjfiles.com/local--files/{page}/{file}",
         )))
     }
 
@@ -206,7 +205,7 @@ impl BuildSiteUrl for Handle {
         };
 
         // TODO
-        format!("https://{}.wikijump.com/{}", site, path)
+        format!("https://{site}.wikijump.com/{path}")
     }
 }
 

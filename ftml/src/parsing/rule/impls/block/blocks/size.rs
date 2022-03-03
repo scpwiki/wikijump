@@ -52,7 +52,7 @@ fn parse_fn<'r, 't>(
 
     let size =
         parser.get_head_value(&BLOCK_SIZE, in_head, |parser, value| match value {
-            Some(size) => Ok(format!("font-size: {};", size)),
+            Some(size) => Ok(format!("font-size: {size};")),
             None => Err(parser.make_warn(ParseWarningKind::BlockMissingArguments)),
         })?;
 

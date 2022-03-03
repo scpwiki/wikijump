@@ -56,7 +56,7 @@ pub fn render_variable(log: &Logger, ctx: &mut HtmlContext, name: &str) {
 
         // Value is absent, leave as original value.
         // Variables are {$name}, so just write that back.
-        None => format!("{{${}}}", name),
+        None => format!("{{${name}}}"),
     };
 
     // Append the formatted string

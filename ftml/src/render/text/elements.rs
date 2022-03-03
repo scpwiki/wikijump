@@ -112,7 +112,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
 
             let value = match value {
                 Some(value) => str!(value),
-                None => format!("{{${}}}", name),
+                None => format!("{{${name}}}"),
             };
 
             ctx.push_str(&value);
@@ -142,7 +142,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
         Element::TabView(tabs) => {
             for Tab { label, elements } in tabs {
                 // Add tab name
-                str_write!(ctx, "[{}]", label);
+                str_write!(ctx, "[{label}]");
                 ctx.add_newline();
 
                 // Add tab contents
@@ -161,7 +161,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 let link = LinkLocation::parse(cow!(href));
                 let url = get_url_from_link(ctx, &link);
 
-                str_write!(ctx, " [{}]", url);
+                str_write!(ctx, " [{url}]");
             }
         }
         Element::Link { link, label, .. } => {
@@ -172,7 +172,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
 
                 // Don't show URL if it's a name link, or an anchor
                 if url != label && !url.starts_with('#') {
-                    str_write!(ctx, " [{}]", url);
+                    str_write!(ctx, " [{url}]");
                 }
             });
         }
@@ -188,7 +188,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
 
             match source_url {
                 Some(url) => {
-                    str_write!(ctx, "Image: {}", &url);
+                    str_write!(ctx, "Image: {url}");
 
                     if let Some(image) = alignment {
                         let float = if image.float { " float" } else { "" };
@@ -200,11 +200,11 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                     }
 
                     if let Some(alt_text) = attributes.get().get("alt") {
-                        str_write!(ctx, " [Alt: {}]", alt_text);
+                        str_write!(ctx, " [Alt: {alt_text}]");
                     }
 
                     if let Some(title) = attributes.get().get("title") {
-                        str_write!(ctx, " [Title: {}]", title);
+                        str_write!(ctx, " [Title: {title}]");
                     }
                 }
                 None => str_write!(ctx, "Missing Image"),
@@ -233,7 +233,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                             ListType::Bullet => ctx.push_str("* "),
                             ListType::Numbered => {
                                 let index = ctx.next_list_index();
-                                str_write!(ctx, "{}. ", index);
+                                str_write!(ctx, "{index}. ");
                             }
                             ListType::Generic => (),
                         }
@@ -370,7 +370,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 None => "",
             };
 
-            str_write!(ctx, "```{}", language);
+            str_write!(ctx, "```{language}");
             ctx.add_newline();
             ctx.push_str(contents);
             ctx.add_newline();
@@ -379,9 +379,9 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
         Element::Math { name, latex_source } => {
             let index = ctx.next_equation_index();
 
-            str_write!(ctx, "{}.", index);
+            str_write!(ctx, "{index}.");
             if let Some(name) = name {
-                str_write!(ctx, " ({})", name);
+                str_write!(ctx, " ({name})");
             }
 
             ctx.add_newline();
@@ -392,18 +392,18 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             ctx.push_str("```");
         }
         Element::MathInline { latex_source } => {
-            str_write!(ctx, "[[$ {} $]]", latex_source);
+            str_write!(ctx, "[[$ {latex_source} $]]");
         }
         Element::EquationReference(name) => {
-            str_write!(ctx, "[Equation: {}]", name);
+            str_write!(ctx, "[Equation: {name}]");
         }
         Element::Embed(embed) => {
             ctx.push_str(&embed.direct_url());
         }
         Element::Html { contents } => {
-            str_write!(ctx, "```html\n{}\n```", contents);
+            str_write!(ctx, "```html\n{contents}\n```");
         }
-        Element::Iframe { url, .. } => str_write!(ctx, "[iframe: {}]", url),
+        Element::Iframe { url, .. } => str_write!(ctx, "[iframe: {url}]"),
         Element::Include {
             variables,
             elements,

@@ -51,13 +51,13 @@ impl Embed<'_> {
 
     pub fn direct_url(&self) -> String {
         match self {
-            Embed::Youtube { video_id } => format!("https://youtu.be/{}", video_id),
-            Embed::Vimeo { video_id } => format!("https://vimeo.com/{}", video_id),
+            Embed::Youtube { video_id } => format!("https://youtu.be/{video_id}"),
+            Embed::Vimeo { video_id } => format!("https://vimeo.com/{video_id}"),
             Embed::GithubGist { username, hash } => {
-                format!("https://gist.github.com/{}/{}", username, hash)
+                format!("https://gist.github.com/{username}/{hash}")
             }
             Embed::GitlabSnippet { snippet_id } => {
-                format!("https://gitlab.com/-/snippets/{}", snippet_id)
+                format!("https://gitlab.com/-/snippets/{snippet_id}")
             }
         }
     }

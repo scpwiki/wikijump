@@ -177,7 +177,7 @@ impl<'a> slog::Serializer for ContextSerializer<'a> {
         let mut last = value;
 
         while let Some(error) = last.source() {
-            write!(&mut traceback, "\n{}", error).expect("Formatting failed");
+            str_write!(&mut traceback, "\n{error}");
 
             last = error;
         }

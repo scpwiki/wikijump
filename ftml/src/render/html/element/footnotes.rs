@@ -28,7 +28,7 @@ pub fn render_footnote(log: &Logger, ctx: &mut HtmlContext) {
 
     // TODO make this into a locale template string
     let footnote_string = ctx.handle().get_message(log, ctx.language(), "footnote");
-    let label = format!("{} {}.", footnote_string, index);
+    let label = format!("{footnote_string} {index}.");
 
     let contents = ctx
         .get_footnote(index)
@@ -106,7 +106,7 @@ pub fn render_footnote_block(log: &Logger, ctx: &mut HtmlContext, title: Option<
                 // TODO make this into a footnote helper method
                 for (index, contents) in ctx.footnotes().iter().enumerate() {
                     let index = index + 1;
-                    let id = &format!("{}", index);
+                    let id = &format!("{index}");
 
                     // Build actual footnote item
                     ctx.html()
@@ -125,7 +125,7 @@ pub fn render_footnote_block(log: &Logger, ctx: &mut HtmlContext, title: Option<
                                     "role" => "link",
                                 ))
                                 .contents(|ctx| {
-                                    str_write!(ctx, "{}", index);
+                                    str_write!(ctx, "{index}");
 
                                     // Period after item number. Has special class to permit styling.
                                     ctx.html()
