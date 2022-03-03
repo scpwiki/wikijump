@@ -25,12 +25,13 @@ mod build {
 
 pub use self::build::{
     BUILT_TIME_UTC, CFG_ENV, CFG_OS, CFG_TARGET_ARCH, CI_PLATFORM, DEBUG,
-    GIT_COMMIT_HASH, PKG_LICENSE, PKG_NAME, PKG_REPOSITORY, PKG_VERSION, RUSTC_VERSION,
+    GIT_COMMIT_HASH, NUM_JOBS, PKG_LICENSE, PKG_NAME, PKG_REPOSITORY, PKG_VERSION,
+    RUSTC_VERSION, TARGET,
 };
 
 lazy_static! {
-    pub static ref VERSION: String = {
-        let mut version = format!("{} v{}", PKG_NAME, PKG_VERSION);
+    static ref VERSION_INFO: String = {
+        let mut version = format!("v{}", PKG_VERSION);
 
         if let Some(commit_hash) = *GIT_COMMIT_HASH_SHORT {
             str_write!(&mut version, " [{}]", commit_hash);
@@ -38,16 +39,13 @@ lazy_static! {
 
         version
     };
-
-    pub static ref TARGET_TRIPLET: String = {
+    pub static ref VERSION: String = format!("{} {}", PKG_NAME, *VERSION_INFO);
+    pub static ref FULL_VERSION: String = {
         format!(
-            "{}-{}-{}", //
-            CFG_TARGET_ARCH,
-            CFG_ENV,
-            CFG_OS,
+            "{}\n\nCompiled:\n* across {} threads\n* by {}\n* for {}\n* on {}",
+            *VERSION_INFO, NUM_JOBS, RUSTC_VERSION, TARGET, BUILT_TIME_UTC,
         )
     };
-
     pub static ref GIT_COMMIT_HASH_SHORT: Option<&'static str> =
         GIT_COMMIT_HASH.map(|s| &s[..8]);
 }
@@ -55,7 +53,7 @@ lazy_static! {
 #[test]
 fn info() {
     assert!(VERSION.starts_with(PKG_NAME));
-    assert!(TARGET_TRIPLET.starts_with(CFG_TARGET_ARCH));
+    assert!(VERSION.ends_with(*VERSION_INFO));
 
     if let Some(hash) = *GIT_COMMIT_HASH_SHORT {
         assert_eq!(hash.len(), 8);
