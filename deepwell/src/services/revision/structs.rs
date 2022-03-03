@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use ftml::parsing::ParseWarning;
+use std::num::NonZeroI32;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -73,4 +74,19 @@ pub struct CreateFirstRevisionOutput {
 pub struct UpdateRevision {
     pub user_id: i64,
     pub hidden: Vec<String>,
+}
+
+/// Information about the revisions currently associated with a page.
+///
+/// A lot of this information is not strictly necessary:
+/// * The first revision number is always `0`.
+/// * The last revision number is always the total count of revisions minus one.
+///
+/// However it's convenient so that we don't have to do these calculations inline
+/// in other places, and also so that API consumers have the relevant information.
+#[derive(Serialize, Debug)]
+pub struct RevisionCountOutput {
+    pub revision_count: NonZeroI32,
+    pub first_revision: i32,
+    pub last_revision: i32,
 }

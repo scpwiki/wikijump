@@ -31,6 +31,7 @@ use ftml::data::PageInfo;
 use ftml::settings::{WikitextMode, WikitextSettings};
 use ref_map::*;
 use std::borrow::Cow;
+use std::num::NonZeroI32;
 
 macro_rules! cow {
     ($s:expr) => {
@@ -544,8 +545,8 @@ impl RevisionService {
         let revision = PageRevision::find()
             .filter(
                 Condition::all()
-                    .add(page_revision::Column::PageId.eq(page_id))
-                    .add(page_revision::Column::SiteId.eq(site_id)),
+                    .add(page_revision::Column::SiteId.eq(site_id))
+                    .add(page_revision::Column::PageId.eq(page_id)),
             )
             .order_by_desc(page_revision::Column::RevisionNumber)
             .one(txn)
@@ -565,8 +566,8 @@ impl RevisionService {
         let revision = PageRevision::find()
             .filter(
                 Condition::all()
-                    .add(page_revision::Column::PageId.eq(page_id))
                     .add(page_revision::Column::SiteId.eq(site_id))
+                    .add(page_revision::Column::PageId.eq(page_id))
                     .add(page_revision::Column::RevisionNumber.eq(revision_number)),
             )
             .one(txn)
@@ -596,6 +597,35 @@ impl RevisionService {
     ) -> Result<PageRevisionModel> {
         match Self::get_optional(ctx, site_id, page_id, revision_number).await? {
             Some(revision) => Ok(revision),
+            None => Err(Error::NotFound),
+        }
+    }
+
+    pub async fn count(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+    ) -> Result<NonZeroI32> {
+        let txn = ctx.transaction();
+        let row_count = PageRevision::find()
+            .filter(
+                Condition::all()
+                    .add(page_revision::Column::SiteId.eq(site_id))
+                    .add(page_revision::Column::PageId.eq(page_id)),
+            )
+            .count(txn)
+            .await?;
+
+        // We store revision_number in INT, which is i32.
+        // So even though this row count is usize, it
+        // should always fit inside an i32.
+        let row_count = i32::try_from(row_count)
+            .expect("Revision row count greater than revision_number integer size");
+
+        // All pages have at least one revision, so if there are none
+        // that means this page does not exist, and we should return an error.
+        match NonZeroI32::new(row_count) {
+            Some(count) => Ok(count),
             None => Err(Error::NotFound),
         }
     }
