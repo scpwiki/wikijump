@@ -33,10 +33,10 @@ fn includes() {
             let (output, actual) = result.expect("Fetching pages failed");
             let expected = $expected;
 
-            println!("Input:  '{text}'");
-            println!("Output: '{output}'");
-            println!("Pages (actual):   {actual:?}");
-            println!("Pages (expected): {expected:?}");
+            println!("Input:  '{}'", $text);
+            println!("Output: '{}'", &output);
+            println!("Pages (actual):   {:?}", &actual);
+            println!("Pages (expected): {:?}", &expected);
             println!();
 
             assert_eq!(
