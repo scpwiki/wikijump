@@ -51,6 +51,7 @@ pub struct GetPageOutput<'a> {
     pub page_created_at: DateTimeWithTimeZone,
     pub page_updated_at: Option<DateTimeWithTimeZone>,
     pub page_deleted_at: Option<DateTimeWithTimeZone>,
+    pub page_revision_count: i32,
     pub site_id: i64,
     pub page_category_id: i64,
     pub page_category_slug: &'a str,

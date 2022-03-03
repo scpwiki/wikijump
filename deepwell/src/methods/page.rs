@@ -332,6 +332,7 @@ async fn build_page_response(
         page_created_at: page.created_at,
         page_updated_at: page.updated_at,
         page_deleted_at: page.deleted_at,
+        page_revision_count: revision.revision_number + 1,
         site_id: page.site_id,
         page_category_id: category.category_id,
         page_category_slug: &category.slug,
