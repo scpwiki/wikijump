@@ -114,7 +114,7 @@ impl RevisionService {
             // Check to see if any fields have changed
             let tasks = RevisionTasks::determine(&previous, &body);
             if tasks.is_empty() {
-                tide::log::info!("No changes from previous revision, returning");
+                tide::log::info!("No changes from previous revision");
                 return Ok(None);
             }
 
