@@ -310,7 +310,7 @@ fn parse_args(config: &mut Config) {
 
     if let Some(value) = matches.value_of("ratelimit-min") {
         match value.parse() {
-            Ok(value) => config.rate_limit_secret = value,
+            Ok(value) => config.rate_limit_per_minute = value,
             Err(_) => {
                 eprintln!("Invalid number of requests per minute: {}", value);
                 process::exit(1);
