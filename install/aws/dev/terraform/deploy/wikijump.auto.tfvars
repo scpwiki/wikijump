@@ -16,6 +16,9 @@ ecs_cache_memory = 512
 ecs_cache_cpu    = 256
 ecs_cache_image  = "memcached:1.6-alpine"
 
+ecs_api_memory = 512
+ecs_api_cpu    = 1024
+
 ecs_db_memory = 2048
 ecs_db_cpu    = 256
 

@@ -46,6 +46,16 @@ variable "availability_zone" {
   default = "a"
 }
 
+variable "ecs_api_memory" {
+  type    = number
+  default = 512
+}
+
+variable "ecs_api_cpu" {
+  type    = number
+  default = 1024
+}
+
 variable "ecs_cache_memory" {
   type    = number
   default = 512
