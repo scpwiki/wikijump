@@ -143,6 +143,11 @@ variable "route53_secret_key" {
   sensitive = true
 }
 
+variable "api_ratelimit_secret" {
+  type      = string
+  sensitive = true
+}
+
 variable "datadog_api_key" {
   type      = string
   sensitive = true
