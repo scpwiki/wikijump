@@ -81,6 +81,7 @@ pub struct UpdateRevision {
 /// A lot of this information is not strictly necessary:
 /// * The first revision number is always `0`.
 /// * The last revision number is always the total count of revisions minus one.
+/// * If there is only one revision, then the first and last revision numbers are the same.
 ///
 /// However it's convenient so that we don't have to do these calculations inline
 /// in other places, and also so that API consumers have the relevant information.
