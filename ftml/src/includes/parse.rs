@@ -123,6 +123,7 @@ fn process_pairs<'t>(
         //     width={$width} |
         //     width=300px
         // ]]
+        // ```
 
         var_reference.clear();
         str_write!(var_reference, "{{${}}}", key);
