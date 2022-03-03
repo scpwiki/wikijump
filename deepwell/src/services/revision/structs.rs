@@ -85,6 +85,7 @@ pub struct UpdateRevision {
 /// However it's convenient so that we don't have to do these calculations inline
 /// in other places, and also so that API consumers have the relevant information.
 #[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct RevisionCountOutput {
     pub revision_count: NonZeroI32,
     pub first_revision: i32,
