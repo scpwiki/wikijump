@@ -26,7 +26,10 @@ module "api" {
   links = ["database:database"]
 
   secrets = [
-    # TODO: Add API ratelimit bypass secret here and in php-fpm
+    {
+      name      = "RATE_LIMIT_SECRET"
+      valueFrom = var.api_ratelimit_secret
+    },
     {
       name      = "WIKIJUMP_DB_HOST"
       valueFrom = aws_ssm_parameter.DB_HOST.name
@@ -186,6 +189,10 @@ module "php-fpm" {
   links = ["api:api", "cache:cache", "database:database"]
 
   secrets = [
+    {
+      name      = "WIKIJUMP_API_RATE_LIMIT_SECRET"
+      valueFrom = var.api_ratelimit_secret
+    },
     {
       name      = "WIKIJUMP_URL_DOMAIN"
       valueFrom = aws_ssm_parameter.URL_DOMAIN.name
