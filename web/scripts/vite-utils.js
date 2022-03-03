@@ -32,6 +32,7 @@ const SVELTE_OPTIONS = {
     }
   },
   hot: !process.env.VITEST && process.env.NODE_ENV !== "production",
+  emitCss: process.env.NODE_ENV !== "production",
   experimental: {
     generateMissingPreprocessorSourcemaps: true
   }
@@ -150,7 +151,7 @@ const BaseConfig = () => ({
 
   build: {
     target: "esnext",
-    sourcemap: true,
+    sourcemap: false,
     reportCompressedSize: false,
     cssCodeSplit: true,
     rollupOptions: {

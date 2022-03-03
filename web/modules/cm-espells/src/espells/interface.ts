@@ -43,7 +43,7 @@ export class EspellsWorker extends AbstractWorkerBase.of<Espells>([
 
   protected async _baseGetWorker() {
     if (DICTIONARIES.hasOwnProperty(this.locale)) {
-      const { aff: affURL, dic: dicURL } = await DICTIONARIES[this.locale]()
+      const { aff: affURL, dic: dicURL } = DICTIONARIES[this.locale]
 
       // we can't use the static fromURL method on Espells because of Comlink limitations
       // so it has to be reimplemented basically - we have to resolve the urls

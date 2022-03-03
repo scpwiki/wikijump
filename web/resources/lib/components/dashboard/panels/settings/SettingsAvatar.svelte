@@ -1,7 +1,4 @@
 <script lang="ts">
-  import "@uppy/core/dist/style.css"
-  import "@uppy/dashboard/dist/style.css"
-  import "@uppy/image-editor/dist/style.css"
   import Uppy from "@uppy/core"
   import Dashboard from "@uppy/dashboard"
   import ImageEditor from "@uppy/image-editor"

@@ -1,4 +1,5 @@
 import { AbstractWorkerBase } from "@wikijump/comlink"
+import wasmURL from "@wikijump/ftml-wasm/vendor/ftml_bg.wasm?url"
 import type { FTMLModule } from "./worker"
 import FTMLRemoteWorker from "./worker?worker"
 
@@ -46,7 +47,7 @@ export class FTMLWorker extends AbstractWorkerBase.of<FTMLModule>([
   }
 
   protected async _baseInitalize() {
-    await this.worker!.init()
+    await this.worker!.init(wasmURL)
     await this.worker!.waitUntilReady()
   }
 }

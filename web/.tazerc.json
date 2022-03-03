@@ -1,0 +1,3 @@
+{
+  "exclude": ["query-string", "@prettier/plugin-php", "/@wikijump/"]
+}
