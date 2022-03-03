@@ -50,6 +50,7 @@ impl UserService {
             .await?;
 
         if result.is_some() {
+            tide::log::error!("User with slug '{}' already exists, cannot create", slug);
             return Err(Error::Conflict);
         }
 
