@@ -10,24 +10,56 @@ class Page extends DeepwellModel
 {
     // Fields and constructor
     public int $page_id;
-    public Carbon $created_at;
-    public ?Carbon $updated_at;
-    public ?Carbon $deleted_at;
+    public Carbon $page_created_at;
+    public ?Carbon $page_updated_at;
+    public ?Carbon $page_deleted_at;
+    public int $page_revision_count;
     public int $site_id;
-    public int $category_id;
-    public string $slug;
+    public int $page_category_id;
+    public string $page_category_slug;
     public int $discussion_thread_id;
+    public int $revision_id;
+    public Carbon $revision_created_at;
+    public int $revision_number;
+    public int $revision_user_id;
+    public ?string $wikitext;
+    public ?string $compiled_html;
+    public Carbon $compiled_at;
+    public string $compiled_generator;
+    public string $revision_comments;
+    public array $hidden_fields;
+    public string $title;
+    public ?string $alt_title;
+    public string $slug;
+    public array $tags;
+    public array $metadata;
 
     public function __construct(object $raw_page)
     {
         $this->page_id = $raw_page->pageId;
-        $this->created_at = $raw_page->createdAt;
-        $this->updated_at = $raw_page->updatedAt;
-        $this->deleted_at = $raw_page->deletedAt;
+        $this->page_created_at = $raw_page->pageCreatedAt;
+        $this->page_updated_at = $raw_page->pageUpdatedAt;
+        $this->page_deleted_at = $raw_page->pageDeletedAt;
+        $this->page_revision_count = $raw_page->pageRevisionCount;
         $this->site_id = $raw_page->siteId;
-        $this->category_id = $raw_page->pageCategoryId;
-        $this->slug = $raw_page->slug;
+        $this->page_category_id = $raw_page->pageCategoryId;
+        $this->page_category_slug = $raw_page->pageCategorySlug;
         $this->discussion_thread_id = $raw_page->discussionThreadId;
+        $this->revision_id = $raw_page->revisionId;
+        $this->revision_created_at = $raw_page->revisionCreatedAt;
+        $this->revision_number = $raw_page->revisionNumber;
+        $this->revision_user_id = $raw_page->revisionUserId;
+        $this->wikitext = $raw_page->wikitext;
+        $this->compiled_html = $raw_page->compiledHtml;
+        $this->compiled_at = $raw_page->compiledAt;
+        $this->compiled_generator = $raw_page->compiledGenerator;
+        $this->revision_comments = $raw_page->revisionComments;
+        $this->hidden_fields = $raw_page->hiddenFields;
+        $this->title = $raw_page->title;
+        $this->alt_title = $raw_page->altTitle;
+        $this->slug = $raw_page->slug;
+        $this->tags = $raw_page->tags;
+        $this->metadata = $raw_page->metadata;
     }
 
     // Fetch methods
@@ -67,23 +99,5 @@ class Page extends DeepwellModel
     public function exists(): bool
     {
         return $this->deleted_at === null;
-    }
-
-    // Instance methods
-    public function getLastRevision(): PageRevision
-    {
-        return DeepwellService::getInstance()->getLatestPageRevision(
-            $this->site_id,
-            $this->page_id,
-        );
-    }
-
-    public function getRevision(int $revision_number): ?PageRevision
-    {
-        return DeepwellService::getInstance()->getPageRevision(
-            $this->site_id,
-            $this->page_id,
-            $revision_number,
-        );
     }
 }

@@ -277,15 +277,16 @@ final class DeepwellService
     private function parsePage($resp): Page
     {
         $page = self::readJson($resp);
-        self::convertDateProperties($page, ['createdAt', 'updatedAt', 'deletedAt']);
-        return new Page($page);
-    }
 
-    private function parsePageRevision($resp): PageRevision
-    {
-        $revision = self::readJson($resp);
-        self::convertDateProperties($revision, ['createdAt', 'compiledAt']);
-        return new PageRevision($revision);
+        self::convertDateProperties($page, [
+            'pageCreatedAt',
+            'pageUpdatedAt',
+            'pageDeletedAt',
+            'revisionCreatedAt',
+            'compiledAt',
+        ]);
+
+        return new Page($page);
     }
 
     private function parseUser($resp, string $detail): User
