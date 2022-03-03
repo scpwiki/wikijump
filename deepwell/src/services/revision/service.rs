@@ -136,7 +136,7 @@ impl RevisionService {
             mut alt_title,
             mut slug,
             mut tags,
-            mut metadata,
+            metadata, // TODO make mut, when we start modifying this
             ..
         } = previous;
 
@@ -160,11 +160,6 @@ impl RevisionService {
         if let ProvidedValue::Set(new_tags) = body.tags {
             changes.push(str!("tags"));
             tags = string_list_to_json(new_tags);
-        }
-
-        if let ProvidedValue::Set(new_metadata) = body.metadata {
-            changes.push(str!("metadata"));
-            metadata = new_metadata
         }
 
         // Get slug strings for the new location

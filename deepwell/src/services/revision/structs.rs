@@ -40,7 +40,6 @@ pub struct CreateRevisionBody {
     pub alt_title: ProvidedValue<Option<String>>,
     pub slug: ProvidedValue<String>,
     pub tags: ProvidedValue<Vec<String>>,
-    pub metadata: ProvidedValue<serde_json::Value>,
 }
 
 #[derive(Deserialize, Debug)]
