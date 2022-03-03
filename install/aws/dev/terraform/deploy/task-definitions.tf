@@ -1,3 +1,53 @@
+module "api" {
+  source = "../modules/secure-container-definitions"
+
+  container_name               = "api"
+  container_image              = "${data.aws_ssm_parameter.API_ECR_URL.value}:develop"
+  container_memory_reservation = var.esc_api_memory / 8
+  essential                    = true
+  environment                  = []
+
+  log_configuration = {
+    logDriver = "awslogs"
+    options = {
+      "awslogs-group"         = "ecs/api-${var.environment}"
+      "awslogs-region"        = var.region
+      "awslogs-stream-prefix" = "ecs"
+    }
+  }
+
+  container_depends_on = [
+    {
+      containerName = "database"
+      condition     = "HEALTHY"
+    }
+  ]
+
+  links = ["database:database"]
+
+  secrets = [
+    # TODO: Add API ratelimit bypass secret here and in php-fpm
+    {
+      name      = "WIKIJUMP_DB_HOST"
+      valueFrom = aws_ssm_parameter.DB_HOST.name
+    }
+  ]
+
+  docker_labels = {
+    "com.datadoghq.ad.check_names"  = "[\"api\"]",
+    "com.datadoghq.ad.init_configs" = "[{}]",
+    "com.datadoghq.ad.instances"    = "{\"url\":\"%%host%%\",\"port\":\"11211\"}"
+  }
+
+  healthcheck = {
+    command     = ["CMD", "wikijump-health-check"]
+    retries     = 6
+    timeout     = 5
+    interval    = 5
+    startPeriod = 0
+  }
+}
+
 module "cache" {
   source = "github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.56.0"
 
@@ -47,8 +97,9 @@ module "database" {
     "com.datadoghq.ad.init_configs" = "[{}]",
     "com.datadoghq.ad.instances"    = "[{\"host\":\"%%host%%\", \"port\":5432,\"username\":\"datadog\",\"password\":\"Ge07mcovAKvIT9WM\"}]"
   }
+
   healthcheck = {
-    command     = ["CMD", "pg_isready", "-d", "wikijump", "-U", "wikijump"]
+    command     = ["CMD", "wikijump-health-check"]
     retries     = 6
     timeout     = 5
     interval    = 5
@@ -123,12 +174,16 @@ module "php-fpm" {
 
   container_depends_on = [
     {
+      containerName = "api"
+      condition     = "HEALTHY"
+    },
+    {
       containerName = "database"
       condition     = "HEALTHY"
     }
   ]
 
-  links = ["cache:cache", "database:database"]
+  links = ["api:api", "cache:cache", "database:database"]
 
   secrets = [
     {
