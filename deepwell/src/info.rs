@@ -28,19 +28,22 @@ pub use self::build::{
 };
 
 lazy_static! {
-    pub static ref VERSION: String = {
-        format!(
-            "v{} [{}]",
-            PKG_VERSION,
-            GIT_COMMIT_HASH_SHORT.unwrap_or("nohash"),
-        )
+    static ref VERSION_INFO: String = {
+        let mut version = format!("v{}", PKG_VERSION);
+
+        if let Some(commit_hash) = *GIT_COMMIT_HASH_SHORT {
+            str_write!(&mut version, " [{}]", commit_hash);
+        }
+
+        version
     };
+
+    pub static ref VERSION: String = format!("{} {}", PKG_NAME, *VERSION_INFO);
 
     pub static ref FULL_VERSION: String = {
         format!(
-            "v{} [{}]\n\nCompiled:\n* across {} threads\n* by {}\n* for {}\n* on {}",
-            PKG_VERSION,
-            GIT_COMMIT_HASH.unwrap_or("nohash"),
+            "{}\n\nCompiled:\n* across {} threads\n* by {}\n* for {}\n* on {}",
+            *VERSION_INFO,
             NUM_JOBS,
             RUSTC_VERSION,
             TARGET,
@@ -71,4 +74,14 @@ lazy_static! {
             .into_string()
             .expect("Unable to convert to UTF-8 string")
     };
+}
+
+#[test]
+fn info() {
+    assert!(VERSION.starts_with(PKG_NAME));
+    assert!(VERSION.ends_with(*VERSION_INFO));
+
+    if let Some(hash) = *GIT_COMMIT_HASH_SHORT {
+        assert_eq!(hash.len(), 8);
+    }
 }
