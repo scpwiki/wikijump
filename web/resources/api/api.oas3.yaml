@@ -195,9 +195,7 @@ paths:
       - QueryAPIAccess: []
       responses:
         200: { $ref: '#/components/responses/OK' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   # -- UTIL
@@ -214,9 +212,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/ReferenceTypesObject' }}}
-        400: { $ref: '#/components/responses/BadRequest' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   # -- AUTH
@@ -231,8 +227,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/LoginOptions' }}}
       responses:
         200: { $ref: '#/components/responses/RegeneratedSession' }
-        400: { description: Invalid email or password. }
-        409: { description: Already logged in. }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /auth/confirm:
@@ -245,7 +240,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/PasswordObject' }}}
       responses:
         200: { $ref: '#/components/responses/OK' }
-        400: { description: Invalid password. }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /auth/logout:
@@ -257,7 +252,7 @@ paths:
       - AccountSession: []
       responses:
         default: { $ref: '#/components/responses/OK' }
-        401:     { description: Not logged in. }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500:     { $ref: '#/components/responses/UnexpectedError' }
 
   /auth/check:
@@ -280,8 +275,7 @@ paths:
       - AccountSession: []
       responses:
         200: { $ref: '#/components/responses/RegeneratedSession' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   # -- ACCOUNT
@@ -296,8 +290,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/RegisterOptions' }}}
       responses:
         202: { $ref: '#/components/responses/RegeneratedSession' }
-        403: { description: Email or username already in use. }
-        409: { description: Already logged in. }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /account/send-verification-email:
@@ -309,9 +302,7 @@ paths:
       - AccountSession: []
       responses:
         202: { $ref: '#/components/responses/Accepted' }
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { description: Email has already been verified. }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /account/request-deletion:
@@ -325,7 +316,7 @@ paths:
       - AccountSession: []
       responses:
         202: { $ref: '#/components/responses/Accepted' }
-        401: { $ref: '#/components/responses/Unauthorized' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /account/start-recovery:
@@ -338,8 +329,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/EmailObject' }}}
       responses:
         202: { $ref: '#/components/responses/Accepted' }
-        403: { description: Email isn't in use. }
-        409: { description: Already logged in. }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /account/email:
@@ -353,7 +343,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/EmailObject' }}}
-        401: { $ref: '#/components/responses/Unauthorized' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     put:
@@ -371,8 +361,7 @@ paths:
 
       responses:
         202: { $ref: '#/components/responses/Accepted' }
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /account/password:
@@ -388,8 +377,7 @@ paths:
 
       responses:
         200: { $ref: '#/components/responses/OK' }
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /account/username:
@@ -404,7 +392,7 @@ paths:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/UsernameObject' }}}
 
-        401: { $ref: '#/components/responses/Unauthorized' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     put:
@@ -419,8 +407,7 @@ paths:
 
       responses:
         200: { $ref: '#/components/responses/OK' }
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /account/settings:
@@ -434,7 +421,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/AccountSettings' }}}
-        401: { $ref: '#/components/responses/Unauthorized' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     patch:
@@ -448,8 +435,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/AccountSettingsPatch' }}}
       responses:
         200: { $ref: '#/components/responses/OK' }
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   # -- NOTIFICATION
@@ -465,7 +451,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/NotificationList' }}}
-        401: { $ref: '#/components/responses/Unauthorized' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     delete:
@@ -476,7 +462,7 @@ paths:
       - AccountSession: []
       responses:
         200: { $ref: '#/components/responses/OK' }
-        401: { $ref: '#/components/responses/Unauthorized' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   # -- USER
@@ -493,7 +479,7 @@ paths:
       - AccountSession: []
       responses:
         200: { $ref: '#/components/responses/UserGet' }
-        401: { $ref: '#/components/responses/Unauthorized' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     patch:
@@ -507,8 +493,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/UserProfilePatch' }}}
       responses:
         200: { $ref: '#/components/responses/OK' }
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /user/avatar:
@@ -520,8 +505,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/AvatarURLObject' }}}
-        401: { $ref: '#/components/responses/Unauthorized' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     post:
@@ -536,9 +520,7 @@ paths:
       }}}
       responses:
         201: { $ref: '#/components/responses/Created' }
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     delete:
@@ -549,8 +531,7 @@ paths:
       - AccountSession: []
       responses:
         200: { $ref: '#/components/responses/OK' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /user/blocked:
@@ -564,8 +545,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/UserBlockedList' }}}
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
 
@@ -583,7 +563,7 @@ paths:
       - $ref: '#/components/parameters/UserDetailsType'
       responses:
         200: { $ref: '#/components/responses/UserGet' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     delete:
@@ -597,8 +577,7 @@ paths:
       - AccountSession: []
       responses:
         200: { $ref: '#/components/responses/OK' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /user/{path_type}/{path}/avatar:
@@ -615,7 +594,7 @@ paths:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/AvatarURLObject' }}}
 
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     delete:
@@ -629,8 +608,7 @@ paths:
       - AccountSession: []
       responses:
         200: { $ref: '#/components/responses/OK' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /user/{path_type}/{path}/block:
@@ -648,7 +626,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/UserBlocked' }}}
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     put:
@@ -662,9 +640,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/UserBlocked' }}}
       responses:
         200: { $ref: '#/components/responses/OK' }
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
 
@@ -681,7 +657,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/MembershipList' }}}
-        401: { $ref: '#/components/responses/Unauthorized' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /membership/applications:
@@ -695,7 +671,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/ApplicationSendList' }}}
-        401: { $ref: '#/components/responses/Unauthorized' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /membership/invites:
@@ -709,7 +685,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/InviteList' }}}
-        401: { $ref: '#/components/responses/Unauthorized' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /membership/site/{site}:
@@ -726,8 +702,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/MembershipStatus' }}}
-        401: { $ref: '#/components/responses/Unauthorized' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     post:
@@ -741,10 +716,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/ApplicationSend' }}}
       responses:
         201: { $ref: '#/components/responses/Created' }
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     delete:
@@ -755,7 +727,7 @@ paths:
       - AccountSession: []
       responses:
         200: { $ref: '#/components/responses/OK' }
-        401: { $ref: '#/components/responses/Unauthorized' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /member/{path_type}/{path}/membership:
@@ -771,8 +743,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/MembershipList' }}}
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /member/{path_type}/{path}/membership/{site}:
@@ -790,8 +761,7 @@ paths:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/MembershipStatus' }}}
 
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /member/{path_type}/{path}/role:
@@ -807,8 +777,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/MembershipRole' }}}
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     post:
@@ -822,10 +791,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/MembershipRole' }}}
       responses:
         200: { $ref: '#/components/responses/OK' }
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /member/{path_type}/{path}/invite:
@@ -844,10 +810,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/InviteSend' }}}
       responses:
         201: { $ref: '#/components/responses/Created' }
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   # -- PAGE
@@ -864,9 +827,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/PageCreateOptions' }}}
       responses:
         201: { $ref: '#/components/responses/Created' }
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { description: The requested path cannot be used. }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /page/{path_type}/{path}:
@@ -883,7 +844,7 @@ paths:
       - $ref: '#/components/parameters/Avatars'
       responses:
         200: { $ref: '#/components/responses/PageGet' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     patch:
@@ -897,10 +858,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/PagePatch' }}}
       responses:
         200: { $ref: '#/components/responses/OK' }
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     delete:
@@ -911,9 +869,7 @@ paths:
       - AccountSession: []
       responses:
         200: { $ref: '#/components/responses/OK' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /page/id/{id}/restore:
@@ -931,9 +887,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/SlugObject' }}}
       responses:
         201: { $ref: '#/components/responses/Created' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /page/{path_type}/{path}/rename:
@@ -952,10 +906,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/SlugObject' }}}
       responses:
         200: { $ref: '#/components/responses/OK' }
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { description: The requested path cannot be used. }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   # -- REVISION
@@ -976,7 +927,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/RevisionHistory' }}}
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /page/{path_type}/{path}/revision/{revision}:
@@ -994,7 +945,7 @@ paths:
       - $ref: '#/components/parameters/Avatars'
       responses:
         200: { $ref: '#/components/responses/PageGet' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     patch:
@@ -1008,9 +959,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/RevisionPatch' }}}
       responses:
         200: { $ref: '#/components/responses/OK' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     post:
@@ -1021,9 +970,7 @@ paths:
       - AccountSession: []
       responses:
         200: { $ref: '#/components/responses/OK' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   # -- TAG
@@ -1041,7 +988,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/TagListObject' }}}
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     put:
@@ -1055,10 +1002,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/TagListObject' }}}
       responses:
         200: { $ref: '#/components/responses/OK' }
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   # -- VOTE
@@ -1076,7 +1020,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/Score' }}}
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /page/{path_type}/{path}/voters:
@@ -1095,7 +1039,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/VoterList' }}}
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /page/{path_type}/{path}/vote:
@@ -1113,8 +1057,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/CastVoteStatus' }}}
-        401: { $ref: '#/components/responses/Unauthorized' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     put:
@@ -1128,10 +1071,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/CastVoteObject' }}}
       responses:
         200: { $ref: '#/components/responses/OK' }
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { description: Page has scoring disabled. }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     delete:
@@ -1142,8 +1082,7 @@ paths:
       - AccountSession: []
       responses:
         200: { $ref: '#/components/responses/OK' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   # -- FILE
@@ -1163,7 +1102,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/FileMetadataList' }}}
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     post:
@@ -1175,9 +1114,7 @@ paths:
       requestBody: { content: { multipart/form-data: { schema: { $ref: '#/components/schemas/FileUpload' }}}}
       responses:
         201: { $ref: '#/components/responses/Created' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /file:
@@ -1208,8 +1145,7 @@ paths:
       }}}
       responses:
         201: { $ref: '#/components/responses/Created' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /file/{id}:
@@ -1227,7 +1163,7 @@ paths:
             example: FFD8FFDB00430006040506050406060506070706...,
             schema: { $ref: '#/components/schemas/FileData' }
           }}
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     delete:
@@ -1238,9 +1174,7 @@ paths:
       - AccountSession: []
       responses:
         200: { $ref: '#/components/responses/OK' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /file/metadata:
@@ -1253,7 +1187,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/FileSiteMetadata' }}}
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
 
@@ -1270,7 +1204,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/FileMetadata' }}}
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   # -- REPORT
@@ -1292,9 +1226,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/ReportList' }}}
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     post:
@@ -1306,9 +1238,7 @@ paths:
       requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/ReportSend' }}}}
       responses:
         201: { $ref: '#/components/responses/Created' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /page/{path_type}/{path}/report:
@@ -1328,9 +1258,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/ReportList' }}}
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     post:
@@ -1342,9 +1270,7 @@ paths:
       requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/ReportSend' }}}}
       responses:
         201: { $ref: '#/components/responses/Created' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /report/{id}:
@@ -1363,9 +1289,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/Report' }}}
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   # -- ABUSE
@@ -1386,9 +1310,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/ReportList' }}}
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     post:
@@ -1400,9 +1322,7 @@ paths:
       requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/ReportSend' }}}}
       responses:
         201: { $ref: '#/components/responses/Created' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /user/{path_type}/{path}/abuse:
@@ -1425,9 +1345,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/ReportList' }}}
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     post:
@@ -1439,9 +1357,7 @@ paths:
       requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/ReportSend' }}}}
       responses:
         201: { $ref: '#/components/responses/Created' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /page/{path_type}/{path}/abuse:
@@ -1464,9 +1380,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/ReportList' }}}
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     post:
@@ -1478,9 +1392,7 @@ paths:
       requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/ReportSend' }}}}
       responses:
         201: { $ref: '#/components/responses/Created' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /abuse/{id}:
@@ -1503,9 +1415,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/Report' }}}
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   # -- MESSAGE
@@ -1529,9 +1439,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/MessageList' }}}
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /message/{id}:
@@ -1551,9 +1459,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/Message' }}}
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     patch:
@@ -1567,9 +1473,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/MessagePatch' }}}
       responses:
         200: { $ref: '#/components/responses/OK' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     delete:
@@ -1580,9 +1484,7 @@ paths:
       - AccountSession: []
       responses:
         200: { $ref: '#/components/responses/OK' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /user/{path_type}/{path}/message:
@@ -1601,10 +1503,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/MessageSend' }}}
       responses:
         201: { $ref: '#/components/responses/Created' }
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   # -- FORUM
@@ -1651,7 +1550,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/ForumGroup' }}}
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     patch:
@@ -1665,10 +1564,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/ForumGroupPatch' }}}
       responses:
         200: { $ref: '#/components/responses/OK' }
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     post:
@@ -1682,10 +1578,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/ForumCategoryCreate' }}}
       responses:
         201: { $ref: '#/components/responses/Created' }
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     delete:
@@ -1696,9 +1589,7 @@ paths:
       - AccountSession: []
       responses:
         200: { $ref: '#/components/responses/OK' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /forum/group/{id}/categories:
@@ -1715,7 +1606,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/ForumCategoryList' }}}
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /forum/category:
@@ -1746,7 +1637,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/ForumCategory' }}}
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     patch:
@@ -1760,10 +1651,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/ForumCategoryPatch' }}}
       responses:
         200: { $ref: '#/components/responses/OK' }
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     post:
@@ -1777,10 +1665,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/ForumThreadCreate' }}}
       responses:
         201: { $ref: '#/components/responses/Created' }
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     delete:
@@ -1791,9 +1676,7 @@ paths:
       - AccountSession: []
       responses:
         200: { $ref: '#/components/responses/OK' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /forum/category/{id}/threads:
@@ -1827,7 +1710,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/ForumThread' }}}
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     patch:
@@ -1841,10 +1724,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/ForumThreadPatch' }}}
       responses:
         200: { $ref: '#/components/responses/OK' }
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     post:
@@ -1858,10 +1738,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/ForumPostCreate' }}}
       responses:
         201: { $ref: '#/components/responses/Created' }
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     delete:
@@ -1874,9 +1751,7 @@ paths:
       - AccountSession: []
       responses:
         200: { $ref: '#/components/responses/OK' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /forum/thread/{id}/posts:
@@ -1914,7 +1789,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/ForumPost' }}}
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     patch:
@@ -1928,10 +1803,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/ForumPostPatch' }}}
       responses:
         200: { $ref: '#/components/responses/OK' }
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     post:
@@ -1945,10 +1817,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/ForumPostCreate' }}}
       responses:
         201: { $ref: '#/components/responses/Created' }
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     delete:
@@ -1961,9 +1830,7 @@ paths:
       - AccountSession: []
       responses:
         200: { $ref: '#/components/responses/OK' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /forum/post/{id}/replies:
@@ -2000,7 +1867,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/RevisionHistory' }}}
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /forum/post/{id}/revision/{revision}:
@@ -2019,7 +1886,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/ForumPost' }}}
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     patch:
@@ -2033,10 +1900,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/RevisionPatch' }}}
       responses:
         200: { $ref: '#/components/responses/OK' }
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     post:
@@ -2047,9 +1911,7 @@ paths:
       - AccountSession: []
       responses:
         200: { $ref: '#/components/responses/OK' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   # -- MODERATION
@@ -2070,10 +1932,7 @@ paths:
       - AccountSession: []
       responses:
         200: { $ref: '#/components/responses/OK' }
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /moderation/banned:
@@ -2087,10 +1946,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/UserBannedList' }}}
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /user/{path_type}/{path}/ban:
@@ -2108,9 +1964,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/UserBanned' }}}
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     put:
@@ -2124,10 +1978,7 @@ paths:
       - AccountSession: []
       responses:
         200: { $ref: '#/components/responses/OK' }
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     delete:
@@ -2138,9 +1989,7 @@ paths:
       - AccountSession: []
       responses:
         200: { $ref: '#/components/responses/OK' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   # -- CATEGORY
@@ -2178,9 +2027,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/CategoryDefaultPatch' }}}
       responses:
         200: { $ref: '#/components/responses/OK' }
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /category/id/{id}:
@@ -2195,7 +2042,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/Category' }}}
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     patch:
@@ -2209,10 +2056,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/CategoryPatch' }}}
       responses:
         200: { $ref: '#/components/responses/OK' }
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   # -- SITE
@@ -2228,8 +2072,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/SiteSettings' }}}
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     patch:
@@ -2243,9 +2086,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/SiteSettingsPatch' }}}
       responses:
         200: { $ref: '#/components/responses/OK' }
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /site/application:
@@ -2263,8 +2104,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/ApplicationList' }}}
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /site/application/{id}:
@@ -2281,9 +2121,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/Application' }}}
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     post:
@@ -2294,9 +2132,7 @@ paths:
       - AccountSession: []
       responses:
         200: { $ref: '#/components/responses/OK' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     delete:
@@ -2307,9 +2143,7 @@ paths:
       - AccountSession: []
       responses:
         200: { $ref: '#/components/responses/OK' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
-        404: { $ref: '#/components/responses/NotFound' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /site/backup:
@@ -2326,8 +2160,7 @@ paths:
             example: FFD8FFDB00430006040506050406060506070706...,
             schema: { $ref: '#/components/schemas/FileData' }
           }}
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /site/create:
@@ -2342,9 +2175,7 @@ paths:
       - AccountSession: []
       responses:
         201: { $ref: '#/components/responses/Created' }
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /site/request-deletion:
@@ -2358,8 +2189,7 @@ paths:
       - AccountSession: []
       responses:
         202: { $ref: '#/components/responses/Accepted' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /site/notification:
@@ -2373,8 +2203,7 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/NotificationList' }}}
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
     delete:
@@ -2385,8 +2214,7 @@ paths:
       - AccountSession: []
       responses:
         200: { $ref: '#/components/responses/OK' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /site/newsletter:
@@ -2401,9 +2229,7 @@ paths:
       - AccountSession: []
       responses:
         201: { $ref: '#/components/responses/Created' }
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
   /site/transfer:
@@ -2418,9 +2244,7 @@ paths:
       - AccountSession: []
       responses:
         202: { $ref: '#/components/responses/Accepted' }
-        400: { $ref: '#/components/responses/BadRequest' }
-        401: { $ref: '#/components/responses/Unauthorized' }
-        403: { $ref: '#/components/responses/Forbidden' }
+        4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
 components:
@@ -2554,15 +2378,19 @@ components:
 
     # Generic Responses
 
-    OK:              { description: OK }               # 200
-    Created:         { description: Created }          # 201
-    Accepted:        { description: Accepted }         # 202
-    BadRequest:      { description: Bad Request }      # 400
-    Unauthorized:    { description: Unauthorized }     # 401
-    Forbidden:       { description: Forbidden }        # 403
-    NotFound:        { description: NotFound }         # 404
-    Conflict:        { description: Conflict }         # 409
-    UnexpectedError: { description: Unexpected Error } # 500
+    OK:              { description: OK }       # 200
+    Created:         { description: Created }  # 201
+    Accepted:        { description: Accepted } # 202
+
+    # Errors
+
+    UnexpectedError:
+      description: Unexpected Error
+      content: { application/json: { schema: { $ref: "#/components/schemas/UnexpectedError" }}}
+
+    APIRequestError:
+      description: API Request Error
+      content: { application/json: { schema: { $ref: "#/components/schemas/APIError" }}}
 
     # Normal Responses
 
@@ -2597,32 +2425,39 @@ components:
 
     # -- ERRORS
 
-    # TODO: implement these
-
-    ErrorEnumLogin:
+    UnexpectedError:
       type: object
-      required: [error]
+      required: [status, error]
       properties:
-        error:
-          type: string
-          enum:
-          - BAD_SYNTAX
-          - INVALID_SPECIFIER
-          - INVALID_PASSWORD
+        status: { type: number }
+        error: { type: string }
+      # enum:
+      # - { status: 500, error: "UNEXPECTED_ERROR" }
 
-    ErrorEnumRegister:
+    APIError:
       type: object
-      required: [error]
+      required: [status, error]
       properties:
-        error:
-          type: string
-          enum:
-          - BAD_SYNTAX
-          - EMAIL_ALREADY_IN_USE
-          - USERNAME_ALREADY_IN_USE
-          - BAD_PASSWORD
+        status: { type: number }
+        error: { type: string }
+    #   enum:
+    #   # generic
+    #   - { status: 400, error: "BAD_SYNTAX" }
+    #   - { status: 401, error: "UNAUTHORIZED" }
+    #   - { status: 403, error: "FORBIDDEN" }
+    #   - { status: 404, error: "NOT_FOUND" }
+    #   - { status: 409, error: "CONFLICT" }
+    #   # non-generic
+    #   - { status: 400, error: "INVALID_USERNAME" }
+    #   - { status: 400, error: "INVALID_EMAIL" }
+    #   - { status: 401, error: "WRONG_PASSWORD" }
+    #   - { status: 409, error: "EMAIL_ALREADY_IN_USE" }
+    #   - { status: 409, error: "USERNAME_ALREADY_IN_USE" }
+    #   - { status: 400, error: "BAD_USERNAME" }
+    #   - { status: 400, error: "BAD_EMAIL" }
+    #   - { status: 400, error: "BAD_PASSWORD" }
 
-    # -- BASIC
+    # # -- BASIC
 
     Paginated:
       description: Describes the pagination property present with all paginated responses.
@@ -3193,7 +3028,7 @@ components:
       required: [vote]
       properties:
         vote:
-          allOf: 
+          allOf:
             - $ref: '#/components/schemas/CastVote'
           nullable: true
 
