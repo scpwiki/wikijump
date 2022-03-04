@@ -67,7 +67,10 @@ class Page extends DeepwellModel
     public static function findSlug($site_id, string $page_slug): ?User
     {
         // NOTE: We cast arbitrary input to int, since Wikidot uses strings for IDs in most places
-        return DeepwellService::getInstance()->getPageBySlug(intval($site_id), $page_slug);
+        return DeepwellService::getInstance()->getPageBySlug(
+            intval($site_id),
+            $page_slug,
+        );
     }
 
     public static function findId($site_id, int $page_id): ?Page
