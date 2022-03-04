@@ -6,6 +6,7 @@ conf/wikijump.ini
 /vendor
 composer.phar
 node_modules
+.pnpm-debug.log
 
 # Temporary or Data
 /tmp
