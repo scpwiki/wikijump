@@ -114,90 +114,6 @@ final class DeepwellService
         $this->client->post("page/$site_id/id/$page_id", ['json' => $body]);
     }
 
-    public function deletePage(
-        int $site_id,
-        int $page_id,
-        int $user_id,
-        string $comments
-    ): void {
-        $this->client->delete("page/$site_id/id/$page_id", [
-            'json' => [
-                'revisionComments' => $comments,
-                'userId' => $user_id,
-            ],
-        ]);
-    }
-
-    public function undeletePage(
-        int $site_id,
-        int $page_id,
-        int $user_id,
-        string $comments
-    ): void {
-        $this->client->post("page/$site_id/$page_id", [
-            'json' => [
-                'revisionComments' => $comments,
-                'userId' => $user_id,
-            ],
-        ]);
-    }
-
-    public function rerenderPage(
-        int $site_id,
-        int $page_id,
-        int $user_id,
-        string $comments
-    ): void {
-        $this->client->post("page/$site_id/$page_id", [
-            'json' => [
-                'revisionComments' => $comments,
-                'userId' => $user_id,
-            ],
-        ]);
-    }
-
-    public function getLatestPageRevision(int $site_id, int $page_id): object
-    {
-        return self::fetchOrNull(function () use ($site_id, $page_id) {
-            $resp = $this->client->get("page/$site_id/id/$page_id/revision");
-            return self::parsePageRevision($resp);
-        }, "No page revisions found for page ID $page_id in site ID $site_id");
-    }
-
-    public function getPageRevision(
-        int $site_id,
-        int $page_id,
-        int $revision_number
-    ): ?object {
-        return self::fetchOrNull(function () use ($site_id, $page_id, $revision_number) {
-            $resp = $this->client->get(
-                "page/$site_id/id/$page_id/revision/$revision_number",
-            );
-            return self::parsePageRevision($resp);
-        }, "No page revision $revision_number found for page ID $page_id in site ID $site_id");
-    }
-
-    public function setPageRevision(
-        int $site_id,
-        int $page_id,
-        int $revision_number,
-        int $user_id,
-        array $hidden
-    ): void {
-        $this->client->put("page/$site_id/id/$page_id/revision/$revision_number", [
-            'json' => [
-                'userId' => $user_id,
-                'hidden' => $hidden,
-            ],
-        ]);
-    }
-
-    public function getLinksFrom(int $site_id, int $page_id): array
-    {
-        $resp = $this->client->get("page/$site_id/id/$page_id/links/from");
-        return self::readJson($resp);
-    }
-
     /**
      * @param string|int $site_id
      * @param string|int $page_id
@@ -217,16 +133,6 @@ final class DeepwellService
     {
         $resp = $this->client->get("page/$site_id/slug/$page_slug/links/to/missing");
         return self::readJson($resp);
-    }
-
-    private static function backlinksToJson(Backlinks $backlinks): array
-    {
-        // TODO in ftml, this struct uses kebab-case
-        return [
-            'included-pages' => $backlinks->inclusions,
-            'internal-links' => $backlinks->internal_links,
-            'external-links' => $backlinks->external_links,
-        ];
     }
 
     // Text
@@ -314,8 +220,8 @@ final class DeepwellService
 
     public function version(bool $full = false): string
     {
-        $method = $full ? 'version/full' : 'version';
-        return (string) $this->client->get($method)->getBody();
+        $route = $full ? 'version/full' : 'version';
+        return (string) $this->client->get($route)->getBody();
     }
 
     public function checkRatelimitExempt(): void

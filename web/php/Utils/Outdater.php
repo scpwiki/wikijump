@@ -178,32 +178,7 @@ final class Outdater
      */
     private function recompilePage(Page $page): void
     {
-        // compiled content not up to date. recompile!
-        $contents = PageService::getLatestContents($page->getPageId(), ['wikitext']);
-        $wikitext = $contents['wikitext'];
-
-        /* Find out if the category is using any templates. */
-        if (!preg_match('/(:|^)_/', $page->getUnixName())) {
-            $category = $page->getCategory();
-            $categoryName = $category->getName();
-            $templatePage = PagePeer::instance()->selectByName(
-                $page->getSiteId(),
-                ($categoryName == '_default' ? '' : $categoryName.':') .'_template'
-            );
-
-            if ($templatePage) {
-                $templateSource = $templatePage->getSource();
-                $wikitext = LegacyTemplateAssembler::assembleTemplate($wikitext, $templateSource, $page);
-            }
-        }
-
-        $pageInfo = PageInfo::fromPageObject($page);
-        $wt = WikitextBackend::make(ParseRenderMode::PAGE, $pageInfo);
-        $result = $wt->renderHtml($wikitext);
-        $contents->compiled_html = $result->body;
-        $contents->generator = $wt->version();
-        $contents->save();
-        $this->link_stats = $result->link_stats;
+        // TODO -- this class is being deprecated
     }
 
     private function updateLinks(Page $page): void

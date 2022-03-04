@@ -4,7 +4,6 @@ namespace Wikidot\DB;
 
 use Ozone\Framework\Database\Criteria;
 use Wikijump\Models\User;
-use Wikijump\Services\Deepwell\PageService;
 
 /**
  * Object Model Class.
@@ -20,15 +19,15 @@ class Page extends PageBase
     // TODO: remove
     public function getSource(): string
     {
-        $contents = PageService::getLatestContents($this->getPageId(), ['wikitext']);
-        return $contents['wikitext'];
+        // TODO
+        return '!!';
     }
 
     // TODO: remove
     public function getCompiled(): string
     {
-        $contents = PageService::getLatestContents($this->getPageId(), ['compiled_html']);
-        return $contents['compiled_html'];
+        // TODO
+        return '!!';
     }
 
     public function getCurrentRevision()

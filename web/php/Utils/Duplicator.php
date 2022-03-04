@@ -422,7 +422,7 @@ class Duplicator
                 }
                 $nmeta->save();
 
-                $rev = PageService::getLatestRevision($page->getPageId());
+                $rev = null; // TODO get latest revision for $page->getPageId()
                 $nrev = new PageRevision();
                 $nrev->setSiteId($nsite->getSiteId());
                 $nrev->setMetadataId($nmeta->getMetadataId());
