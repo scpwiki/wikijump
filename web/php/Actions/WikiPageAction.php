@@ -778,7 +778,7 @@ class WikiPageAction extends SmartyAction
         // Turn the tags into a set.
         // We have a check here because preg_split() on an empty string yields ['']
         $current_tags = $tags === '' ? new Set() : new Set(preg_split('/[, ]+/', $tags));
-        $previous_tags = PagePeer::getTags($page_id);
+        $previous_tags = new Set(); // PagePeer::getTags($page_id);
 
         // TODO: concept of roles
         $role_ids = new Set();
@@ -800,7 +800,7 @@ class WikiPageAction extends SmartyAction
         }
 
         // Save the tags.
-        PagePeer::saveTags($page_id, $current_tags);
+        // TODO save tags $page_id, $current_tags
 
         $od = new Outdater();
         $od->pageEvent("tag_change", $page);

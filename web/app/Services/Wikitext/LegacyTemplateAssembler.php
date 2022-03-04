@@ -201,8 +201,7 @@ final class LegacyTemplateAssembler
 
     private static function handleTags($match, string $page_id): string
     {
-        /* Select tags. */
-        $tags = PagePeer::getTags($page_id);
+        $tags = new Set(); // get tags for $page_id
         if ($tags->isEmpty()) {
             return _('//No tags found for this page.//');
         }

@@ -147,7 +147,7 @@ class WikiScreen extends Screen
             $runData->contextAdd("showPageoptions", $showPageOptions);
 
             // Get the tags and convert them to string.
-            $tags = PagePeer::getTags($page->getPageId());
+            $tags = new Set(); // PagePeer::getTags($page->getPageId());
             $tags = $tags->join(" ");
             $runData->contextAdd("tags", $tags);
 

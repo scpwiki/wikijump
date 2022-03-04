@@ -97,9 +97,4 @@ class Page extends PageBase
     {
         return SitePeer::instance()->selectByPrimaryKey($this->getSiteId());
     }
-
-    public function getTags()
-    {
-        return PagePeer::getTags($this->getPageId());
-    }
 }

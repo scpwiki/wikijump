@@ -38,27 +38,6 @@ class PageInfo
         $this->language = $language;
     }
 
-    public static function fromPageObject(Page $page): PageInfo
-    {
-        $page_slug = $page->getUnixName();
-        $category_slug = $page->getCategoryName();
-        $site_slug = $page->getSite()->getSlug();
-        $title = $page->getTitle();
-        $alt_title = null;
-        $tags = $page->getTags();
-        $language = 'default';
-
-        return new PageInfo(
-            $page_slug,
-            $category_slug,
-            $site_slug,
-            $title,
-            $alt_title,
-            $tags,
-            $language,
-        );
-    }
-
     public function getCategory(): string
     {
         return $this->category ?? '_default';

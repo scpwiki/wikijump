@@ -243,7 +243,7 @@ class ListPagesModule extends SmartyModule
                     /* It means: any tags of the current page. */
                     if ($runData->getTemp('page')) {
                         $pageId = $runData->getTemp('page')->getPageId();
-                        $tagAny = PagePeer::getTags($pageId);
+                        $tagAny = new Set(); // PagePeer::getTags($pageId);
                         if (count($tagsAny) == 0) {
                             /*
                              * If someone uses the '=' tag, the line below guarantees that
@@ -704,7 +704,7 @@ class ListPagesModule extends SmartyModule
         $page = $this->_tmpPage;
         /* Select tags. */
         // get the tags
-        $t2 = PagePeer::getTags($pageId);
+        $t2 = new Set(); // PagePeer::getTags($pageId);
         if (count($t2) == 0) {
             return _('//no tags found for this page//');
         }

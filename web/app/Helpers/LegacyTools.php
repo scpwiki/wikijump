@@ -233,8 +233,7 @@ final class LegacyTools
             $return['showPageoptions'] = true;
 
             // get the tags
-            $page_id = $page->getPageId();
-            $tags = PagePeer::getTags($page_id);
+            $tags = new Set(); // get tags for $page->getPageId()
             $runData->contextAdd("tags", $tags);
             $return['tags'] = null;
 

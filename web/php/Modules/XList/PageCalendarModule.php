@@ -212,7 +212,7 @@ class PageCalendarModule extends SmartyModule
                     /* It means: any tags of the current page. */
                     if ($runData->getTemp('page')) {
                         $pageId = $runData->getTemp('page')->getPageId();
-                        $tagAny = PagePeer::getTags($pageId);
+                        $tagAny = new Set(); // PagePeer::getTags($pageId);
                         if (count($tagsAny) == 0) {
                             /*
                              * If someone uses the '=' tag, the line below guarantees that

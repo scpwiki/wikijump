@@ -33,7 +33,7 @@ class PageTagsModule extends SmartyModule
         WDPermissionManager::instance()->hasPagePermission('edit', $user, $category, $page);
 
         // Fetch the tags and convert them to a string.
-        $tags = PagePeer::getTags($page_id);
+        $tags = new Set(); // PagePeer::getTags($page_id);
         $tags = $tags->join(" ");
 
         $runData->contextAdd("tags", $tags);
