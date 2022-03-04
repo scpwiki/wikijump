@@ -15,7 +15,7 @@ describe("ftml-wasm", () => {
     assert.equal(
       thisVersion,
       version,
-      `FTML version was ${version}, expected ${thisVersion}! Run "ftml-pack" in this package's directory.`
+      `FTML version was ${version}, expected ${thisVersion}! Run "pnpm compile" in this module's directory (see README).`
     )
   })
 

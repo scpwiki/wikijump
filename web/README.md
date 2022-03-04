@@ -39,10 +39,21 @@ clean : cleans up any running services
 ```
 
 If you're in the `serve` or default mode, there are you a few commands you can run while the the script is running. Enter `help` to see the available commands - they're fairly self-explanatory.
+
 ### Modules
 
 Modules can be found in the [`modules`](./modules) folder. See [`modules.md`](../docs/modules.md).
 
+#### Updating ftml
+
+As [ftml](../ftml/README.md) updates, it is necessary to copy the built artifacts into the `ftml-wasm` module so that it is up-to-date. There is a test which checks that the versions are matching and will fail if they are not.
+
+You can update the vendored ftml wasm artifacts using the following:
+
+```
+$ cd modules/ftml-wasm
+$ pnpm compile
+```
 
 ### Testing
 
