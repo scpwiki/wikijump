@@ -297,10 +297,10 @@ final class DeepwellService
             'since',
             'lastActive',
             'birthday',
-            'email_verified_at',
-            'created_at',
-            'updated_at',
-            'deleted_at',
+            'emailVerifiedAt',
+            'createdAt',
+            'updatedAt',
+            'deletedAt',
         ]);
 
         return new User($user, $detail);
