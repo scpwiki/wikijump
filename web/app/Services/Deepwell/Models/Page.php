@@ -64,14 +64,16 @@ class Page extends DeepwellModel
     }
 
     // Fetch methods
-    public static function findSlug(int $site_id, string $page_slug): ?User
+    public static function findSlug($site_id, string $page_slug): ?User
     {
-        return DeepwellService::getInstance()->getPageBySlug($site_id, $page_slug);
+        // NOTE: We cast arbitrary input to int, since Wikidot uses strings for IDs in most places
+        return DeepwellService::getInstance()->getPageBySlug(intval($site_id), $page_slug);
     }
 
-    public static function findId(int $site_id, int $page_id): ?Page
+    public static function findId($site_id, int $page_id): ?Page
     {
-        return DeepwellService::getInstance()->getPageById($site_id, $page_id);
+        // NOTE: We cast arbitrary input to int, since Wikidot uses strings for IDs in most places
+        return DeepwellService::getInstance()->getPageById(intval($site_id), $page_id);
     }
 
     /**
@@ -83,11 +85,12 @@ class Page extends DeepwellModel
      * ID of a hidden page, smuggles it into a request and
      * has the backend retrieve it for them.
      *
-     * @param int $page_id The ID of the Page to find
+     * @param string|int $page_id The ID of the Page to find
      * @return ?Page The page if found, or null
      */
-    public static function findIdOnly(int $page_id): ?Page
+    public static function findIdOnly($page_id): ?Page
     {
+        // NOTE: We cast arbitrary input to int, since Wikidot uses strings for IDs in most places
         return DeepwellService::getInstance()->getPageByIdOnly($page_id);
     }
 
