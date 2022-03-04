@@ -63,14 +63,14 @@ class Page extends DeepwellModel
     }
 
     // Fetch methods
-    public static function findId(int $site_id, int $page_id): ?Page
-    {
-        return DeepwellService::getInstance()->getPageById($site_id, $page_id);
-    }
-
     public static function findSlug(int $site_id, string $page_slug): ?User
     {
         return DeepwellService::getInstance()->getPageBySlug($site_id, $page_slug);
+    }
+
+    public static function findId(int $site_id, int $page_id): ?Page
+    {
+        return DeepwellService::getInstance()->getPageById($site_id, $page_id);
     }
 
     /**
@@ -87,7 +87,7 @@ class Page extends DeepwellModel
      */
     public static function findIdOnly(int $page_id): ?Page
     {
-        throw new Exception('DEEPWELL getPageByIdOnly not implemented yet');
+        return DeepwellService::getInstance()->getPageByIdOnly($page_id);
     }
 
     // Getters
