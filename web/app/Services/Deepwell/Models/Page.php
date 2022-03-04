@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Wikijump\Services\Deepwell\Models;
 
 use Carbon\Carbon;
+use Ds\Set;
 use Wikijump\Services\Deepwell\DeepwellService;
 
 class Page extends DeepwellModel
@@ -31,7 +32,7 @@ class Page extends DeepwellModel
     public string $title;
     public ?string $alt_title;
     public string $slug;
-    public array $tags;
+    public Set $tags;
     public array $metadata;
 
     public function __construct(object $raw_page)
@@ -58,7 +59,7 @@ class Page extends DeepwellModel
         $this->title = $raw_page->title;
         $this->alt_title = $raw_page->altTitle;
         $this->slug = $raw_page->slug;
-        $this->tags = $raw_page->tags;
+        $this->tags = new Set($raw_page->tags);
         $this->metadata = $raw_page->metadata;
     }
 
