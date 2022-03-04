@@ -178,7 +178,7 @@ final class Outdater
      */
     private function recompilePage(Page $page): void
     {
-        // TODO -- this class is being deprecated
+        Log::error('This temporary call (recompiledPage) has been removed!');
     }
 
     private function updateLinks(Page $page): void
