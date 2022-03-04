@@ -18,7 +18,7 @@ class Page extends DeepwellModel
     public int $site_id;
     public int $page_category_id;
     public string $page_category_slug;
-    public int $discussion_thread_id;
+    public ?int $discussion_thread_id;
     public int $revision_id;
     public Carbon $revision_created_at;
     public int $revision_number;
