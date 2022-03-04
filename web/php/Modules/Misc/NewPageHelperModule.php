@@ -34,7 +34,7 @@ class NewPageHelperModule extends SmartyModule
                 if (!preg_match("/^template:/", $t)) {
                     throw new ProcessException(sprintf(_('"%s" is not in the "template:" category.'), $t), "not_template");
                 }
-                $page = PagePeer::instance()->selectByName($site->getSiteId(), $t);
+                $page = Page::findSlug($site->getSiteId(), $t);
                 if ($page == null) {
                     throw new ProcessException(sprintf(_('Template "%s" cannot be found.'), $t), "no_template");
                 }

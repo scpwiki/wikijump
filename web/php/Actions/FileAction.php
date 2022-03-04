@@ -462,9 +462,8 @@ class FileAction extends SmartyAction
             throw new ProcessException(_("There is not point in moving the file to the same (current)  page..."), "no_destination");
         }
 
-        $destinationPage = PagePeer::instance()->selectByName($site->getSiteId(), $destinationPageName);
-
-        if ($destinationPage == null) {
+        $destinationPage = Page::findSlug($site->getSiteId(), $destinationPageName);
+        if ($destinationPage === null) {
             throw new ProcessException(_("Destination page does not exist."), "no_destination");
         }
 

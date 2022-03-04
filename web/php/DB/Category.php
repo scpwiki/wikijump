@@ -46,7 +46,7 @@ class Category extends CategoryBase
             }
         }
         // now GET this page
-        return PagePeer::instance()->selectByName($this->getSiteId(), $pageName);
+        return Page::findSlug($this->getSiteId(), $pageName);
     }
 
     public function getSidePage()
@@ -63,7 +63,7 @@ class Category extends CategoryBase
             }
         }
         // now GET this page
-        $page = PagePeer::instance()->selectByName($this->getSiteId(), $pageName);
+        $page = Page::findSlug($this->getSiteId(), $pageName);
         return $page;
     }
 
@@ -222,7 +222,7 @@ class Category extends CategoryBase
         } else {
             $name = $name . ':_template';
         }
-        return PagePeer::instance()->selectByName($this->getSiteId(), $name);
+        return Page::findSlug($this->getSiteId(), $name);
     }
 
     public function save()

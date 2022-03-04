@@ -124,8 +124,8 @@ class ManageSiteAction extends SmartyAction
         if ($pageName == '') {
             throw new ProcessException(_("No page given."), "form_error");
         }
-        $page = PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
-        if ($page == null) {
+        $page = Page::findSlug($site->getSiteId(), $pageName);
+        if ($page === null) {
             throw new ProcessException(_("No page found with this name."), "form_error");
         }
         $source = $page->getSource();

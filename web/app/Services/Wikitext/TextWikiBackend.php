@@ -79,6 +79,6 @@ class TextWikiBackend extends WikitextBackend
 
     private static function getPage(string $site_id, string $page_slug): Page
     {
-        return PagePeer::instance()->selectByName($site_id, $page_slug);
+        return Page::findSlug($site_id, $page_slug);
     }
 }

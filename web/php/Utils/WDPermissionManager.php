@@ -342,9 +342,9 @@ class WDPermissionManager
         $uc = self::$userClasses['owner'];
         if ($page && $this->permissionLookup($ac, $uc, $ps)) {
             if ($site && is_string($page)) {
-                $page = PagePeer::instance()->selectByName($site->getSiteId(), $page);
+                $page = Page::findSlug($site->getSiteId(), $page);
             }
-            if ($page && $page->getOwnerUserId() && $user->id == $page->getOwnerUserId()) {
+            if ($page && $page->getOwnerUserId() && $user->id === $page->getOwnerUserId()) {
                 // check blocked users
                 if ($this->checkUserBlocks) {
                     $block = $this->checkUserBlocked($user, $site);
@@ -352,12 +352,10 @@ class WDPermissionManager
                         if ($this->throwExceptions) {
                             $message = _("" .
                                     "Sorry, you are blocked from participating in and modifying this site. ");
-                            if ($block->getReason() && $block->getReason()!='') {
+                            if ($block->getReason() && $block->getReason() !== '') {
                                 $message .= _("The given reason is:")." <p>".htmlspecialchars($block->getReason())."</p>";
                             }
                             throw new WDPermissionException($message);
-                            //throw new WDPermissionException("Sorry, you are blocked from participating in and modifying this site. " .
-                            //      "The given reason is: \"".htmlspecialchars($block->getReason())."\"");
                         } else {
                             return false;
                         }

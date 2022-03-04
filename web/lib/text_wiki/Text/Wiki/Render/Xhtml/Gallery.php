@@ -156,8 +156,8 @@ class Text_Wiki_Render_Xhtml_Gallery extends Text_Wiki_Render {
     		// get page first
 
     		$site = $GLOBALS['site'];
-    		$page = PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
-    		if($page == null){
+            $page = Page::findSlug($site->getSiteId(), $pageName);
+    		if($page === null){
     			return '<div class="error-block">Error selecting page.</div>';
     		}
     		// get attachments that might be images.

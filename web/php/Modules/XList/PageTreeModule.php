@@ -21,7 +21,7 @@ class PageTreeModule extends SmartyModule
         if (!$root) {
             $page = $runData->getTemp("page");
         } else {
-            $page = PagePeer::instance()->selectByName($site->getSiteId(), $root);
+            $page = Page::findSlug($site->getSiteId(), $root);
         }
         if (!$page) {
             $runData->setModuleTemplate("Empty");

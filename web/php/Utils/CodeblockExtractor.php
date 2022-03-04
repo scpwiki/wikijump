@@ -28,9 +28,8 @@ class CodeblockExtractor
                 $codeblockNo = 1;
             }
 
-            $page = PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
-
-            if ($page == null) {
+            $page = Page::findSlug($site->getSiteId(), $pageName);
+            if ($page === null) {
                 throw new ProcessException("No such page");
             }
             // page exists!!! wooo!!!

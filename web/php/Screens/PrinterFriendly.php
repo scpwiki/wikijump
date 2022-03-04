@@ -61,9 +61,8 @@ class PrinterFriendly extends Screen
             $runData->contextAdd("wikiPageName", $wikiPage);
             // get Wiki page from the database
 
-            $page = PagePeer::instance()->selectByName($site->getSiteId(), $wikiPage);
-
-            if ($page == null) {
+            $page = Page::findSlug($site->getSiteId(), $wikiPage);
+            if ($page === null) {
                 throw new ProcessException("No such page");
             } else {
                 // page exists!!! wooo!!!

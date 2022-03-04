@@ -158,7 +158,7 @@ class ListPagesModule extends SmartyModule
             $pageUnixName = $pl->getParameterValue('page_unix_name');
         }
 
-        $thisPage = PagePeer::instance()->selectByName($site->getSiteId(), $pageUnixName);
+        $thisPage = Page::findSlug($site->getSiteId(), $pageUnixName);
         $pageInfo = PageInfo::fromPageObject($thisPage);
 
         $categories = array();

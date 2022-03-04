@@ -13,7 +13,6 @@ use Ozone\Framework\RunData;
 use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\ForumThreadPeer;
 use Wikidot\DB\MemberPeer;
-use Wikidot\DB\Page;
 use Wikidot\DB\PagePeer;
 use Wikidot\DB\Site;
 use Wikidot\DB\SitePeer;
@@ -23,6 +22,7 @@ use Wikidot\Utils\UploadedFileFlowController;
 use Wikidot\Utils\WDPermissionManager;
 use Wikidot\Utils\WDStringUtils;
 use Wikijump\Models\User;
+use Wikijump\Services\Deepwell\Models\Page;
 
 /** A collection of static methods to smooth the transition to Wikijump code. */
 // prettier-ignore
@@ -194,24 +194,23 @@ final class LegacyTools
         $runData->contextAdd("wikiPageName", $wikiPage);
         $return['wikiPageName'] = $wikiPage;
         $settings = $site->getSettings();
-        /** @var ?Page $page */
-        $page = PagePeer::instance()->selectByName($site->getSiteId(), $wikiPage);
-        if ($page == null) {
-            $runData->contextAdd("pageNotExists", true);
+        $page = Page::findSlug($site->getSiteId(), $wikiPage);
+        if ($page === null) {
+            $runData->contextAdd('pageNotExists', true);
             $return['pageNotExists'] = true;
             // get category based on suggested page name
 
-            if (strpos($wikiPage, ":") != false) {
+            if (strpos($wikiPage, ':') != false) {
                 $tmp0 = explode(':', $return['wikiPage']);
                 $categoryName = $tmp0[0];
             } else {
-                $categoryName = "_default";
+                $categoryName = '_default';
             }
             $category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
             if ($category == null) {
                 $category = CategoryPeer::instance()->selectByName('_default', $site->getSiteId());
             }
-            $runData->setTemp("category", $category);
+            $runData->setTemp('category', $category);
         } else {
             // page exists!!! wooo!!!
 
@@ -233,8 +232,7 @@ final class LegacyTools
             $return['showPageoptions'] = true;
 
             // get the tags
-            $tags = new Set(); // get tags for $page->getPageId()
-            $runData->contextAdd("tags", $tags);
+            $runData->contextAdd("tags", $page->tags);
             $return['tags'] = null;
 
             // has discussion?

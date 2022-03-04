@@ -105,10 +105,10 @@ class ForumCommentsListModule extends SmartyModule
                 $pageName = $runData->getTemp("pageUnixName");
 
                 $site = $runData->getTemp("site");
-                $page =  PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
+                $page = Page::findSlug($site->getSiteId(), $pageName);
             }
 
-            if ($page == null || $page->getSiteId() !== $site->getSiteId()) {
+            if ($page === null || $page->getSiteId() !== $site->getSiteId()) {
                 throw new ProcessException(_("Can not find related page."), "no_page");
             }
         }

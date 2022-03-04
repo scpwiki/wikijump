@@ -56,7 +56,7 @@ class ForumCommentsModule extends SmartyModule
         if ($pageName == null) {
             return $out;
         }
-        $page = PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
+        $page = Page::findSlug($site->getSiteId(), $pageName);
         $pageId = $page->getPageId();
         $link = '/feed/page/comments-'.$pageId.'.xml';
         $title =  "Comments for the page \"".$page->getTitleOrUnixName()."\"";

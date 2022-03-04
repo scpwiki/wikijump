@@ -40,7 +40,7 @@ class FrontForumFeed extends FeedScreen
         $feed = Cache::get($fkey);
 
         if (!$feed) {
-            $page = PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
+            $page = Page::findSlug($site->getSiteId(), $pageName);
 
             //  get the feed object
             $c = new Criteria();
@@ -110,8 +110,8 @@ class FrontForumFeed extends FeedScreen
         $label = $pl->getParameterValue('label');
 
         // get the feed object
-        $page = PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
-        if (!$page) {
+        $page = Page::findSlug($site->getSiteId(), $pageName);
+        if ($page === null) {
             throw new ProcessException(_('No such page.'), 'no_page');
         }
         $c = new Criteria();

@@ -54,8 +54,8 @@ class PageEditModule extends SmartyModule
                 throw new ProcessException(_("The page cannot be found or does not exist."), "no_page");
             }
 
-            $page = PagePeer::instance()->selectByName($site->getSiteId(), $unixName);
-            if ($page != null) {
+            $page = Page::findSlug($site->getSiteId(), $unixName);
+            if ($page !== null) {
                 // page exists!!! error!
                 throw new ProcessException(_("The page you want to create already exists. Please refresh the page in your browser to see it."));
             }
@@ -81,7 +81,6 @@ class PageEditModule extends SmartyModule
 
             if ($category == null) {
                 // get the default!
-                //$category = Wikidot_DB_CategoryPeer::instance()->selectByName('_default', $site->getSiteId());
                 $category = $this->createTempCategory($categoryName, $site);
             }
 

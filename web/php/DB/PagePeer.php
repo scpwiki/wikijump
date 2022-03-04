@@ -13,11 +13,4 @@ use Wikidot\Utils\WDStringUtils;use Wikijump\Services\Deepwell\DeepwellService;
  */
 class PagePeer extends PagePeerBase
 {
-    public function selectByName(string $site_id, string $name)
-    {
-        $c = new Criteria();
-        $c->add("site_id", $site_id);
-        $c->add("unix_name", WDStringUtils::toUnixName($name));
-        return $this->selectOne($c);
-    }
 }

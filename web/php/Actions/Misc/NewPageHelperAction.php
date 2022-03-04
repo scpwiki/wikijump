@@ -54,7 +54,7 @@ class NewPageHelperAction extends SmartyAction
             $unixName = WDStringUtils::toUnixName($categoryName.':'.$pageName);
         }
 
-        $page = PagePeer::instance()->selectByName($site->getSiteId(), $unixName);
+        $page = Page::findSlug($site->getSiteId(), $unixName);
         if ($page != null) {
             $runData->ajaxResponseAdd("status", "page_exists");
             $runData->ajaxResponseAdd("message", "The page <em>".$unixName."</em> already exists." .

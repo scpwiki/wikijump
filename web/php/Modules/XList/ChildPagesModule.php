@@ -17,7 +17,7 @@ class ChildPagesModule extends SmartyModule
         if (!$page) {
             $pageName = $runData->getTemp("pageUnixName");
             $site = $runData->getTemp("site");
-            $page =  PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
+            $page =  Page::findSlug($site->getSiteId(), $pageName);
         }
 
         if (!$page) {

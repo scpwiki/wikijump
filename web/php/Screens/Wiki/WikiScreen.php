@@ -113,9 +113,8 @@ class WikiScreen extends Screen
         $settings = $site->getSettings();
 
         // get Wiki page from the database
-        $page = PagePeer::instance()->selectByName($site->getSiteId(), $wikiPage);
-
-        if ($page == null) {
+        $page = Page::findSlug($site->getSiteId(), $wikiPage);
+        if ($page === null) {
             $runData->contextAdd("pageNotExists", true);
             // get category based on suggested page name
 

@@ -356,7 +356,7 @@ class WikiPageAction extends SmartyAction
 
         // check if the new page exists or not.
 
-        $conflictPage = PagePeer::instance()->selectByName($site->getSiteId(), $newName);
+        $conflictPage = Page::findSlug($site->getSiteId(), $newName);
         if ($conflictPage != null) {
             throw new ProcessException(_("The destination page already exists."), "page_exists");
         }
@@ -559,7 +559,7 @@ class WikiPageAction extends SmartyAction
             $ppId = null;
         } else {
             // get the page!
-            $pp = PagePeer::instance()->selectByName($site->getSiteId(), $ppName);
+            $pp = Page::findSlug($site->getSiteId(), $ppName);
             if ($pp == null) {
                 // page does not exist. return error
                 throw new ProcessException(_("The requested page does not exist. Please indicate a parent page that already exists."), "no_parent_page");

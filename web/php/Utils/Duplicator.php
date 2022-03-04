@@ -271,10 +271,16 @@ class Duplicator
         }
 
         // check if page exists - if so, forcibly delete!!!
+        // Wait, why exactly are we deleting this?
+        // I'm just going to comment this out for now, and eventually
+        // this will go the way of the dodo when it's moved to DEEPWELL.
+
+        /*
         $p = PagePeer::instance()->selectByName($nsite->getSiteId(), $newUnixName);
         if ($p) {
             PagePeer::instance()->deleteByPrimaryKey($p->getPageId());
         }
+        */
 
         $owner = $this->owner;
         $now = new ODate();
