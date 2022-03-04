@@ -388,11 +388,11 @@ impl RevisionService {
         todo!()
     }
 
-    /// Creates a revision marking a pages as undeleted.
+    /// Creates a revision marking a pages as restored (i.e., undeleted).
     ///
     /// Similar to `create_tombstone`, this method creates
     /// a revision whose only purpose is to mark that the page
-    /// has been undeleted.
+    /// has been restored.
     pub async fn create_resurrection(
         _ctx: &ServiceContext<'_>,
         _site_id: i64,

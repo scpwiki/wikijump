@@ -22,7 +22,7 @@ use super::prelude::*;
 use crate::models::page::Model as PageModel;
 use crate::models::page_revision::Model as PageRevisionModel;
 use crate::services::page::{
-    CreatePage, DeletePage, EditPage, GetPageOutput, UndeletePage,
+    CreatePage, DeletePage, EditPage, GetPageOutput, RestorePage,
 };
 use crate::services::Result;
 use crate::web::PageDetailsQuery;
@@ -169,16 +169,16 @@ pub async fn page_rerender(req: ApiRequest) -> ApiResponse {
     Ok(Response::new(StatusCode::NoContent))
 }
 
-pub async fn page_undelete(mut req: ApiRequest) -> ApiResponse {
+pub async fn page_restore(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let input: UndeletePage = req.body_json().await?;
+    let input: RestorePage = req.body_json().await?;
     let site_id = req.param("site_id")?.parse()?;
     let page_id = req.param("page_id")?.parse()?;
     tide::log::info!("Un-deleting page ID {page_id} in site ID {site_id}");
 
-    let output = PageService::undelete(&ctx, site_id, page_id, input)
+    let output = PageService::restore(&ctx, site_id, page_id, input)
         .await
         .to_api()?;
 

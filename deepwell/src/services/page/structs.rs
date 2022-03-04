@@ -101,7 +101,7 @@ pub struct DeletePage {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct UndeletePage {
+pub struct RestorePage {
     pub revision_comments: String,
     pub user_id: i64,
     pub slug: Option<String>,
@@ -117,7 +117,7 @@ pub struct DeletePageOutput {
 
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct UndeletePageOutput {
+pub struct RestorePageOutput {
     slug: String,
     revision_id: i64,
     revision_number: i32,
@@ -165,7 +165,7 @@ impl From<(CreateRevisionOutput, i64)> for DeletePageOutput {
     }
 }
 
-impl From<(CreateRevisionOutput, String)> for UndeletePageOutput {
+impl From<(CreateRevisionOutput, String)> for RestorePageOutput {
     #[inline]
     fn from(
         (
@@ -176,13 +176,13 @@ impl From<(CreateRevisionOutput, String)> for UndeletePageOutput {
             },
             slug,
         ): (CreateRevisionOutput, String),
-    ) -> UndeletePageOutput {
+    ) -> RestorePageOutput {
         debug_assert!(
             parser_warnings.is_none(),
             "Parser warnings from deleted page revision",
         );
 
-        UndeletePageOutput {
+        RestorePageOutput {
             slug,
             revision_id,
             revision_number,

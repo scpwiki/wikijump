@@ -72,8 +72,7 @@ pub fn build(mut app: ApiServer) -> ApiServer {
     app.at("/page/:site_id/:page_id/rerender")
         .post(page_rerender);
 
-    app.at("/page/:site_id/:page_id/undelete")
-        .post(page_undelete);
+    app.at("/page/:site_id/:page_id/restore").post(page_restore);
 
     app.at("/page/:site_id/:type/:id_or_slug/revision")
         .get(page_revision_info);

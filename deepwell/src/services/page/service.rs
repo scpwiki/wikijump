@@ -209,12 +209,13 @@ impl PageService {
         Ok((output, page_id).into())
     }
 
-    pub async fn undelete(
+    /// Restore a deleted page, causing it to be undeleted.
+    pub async fn restore(
         ctx: &ServiceContext<'_>,
         site_id: i64,
         page_id: i64,
-        input: UndeletePage,
-    ) -> Result<UndeletePageOutput> {
+        input: RestorePage,
+    ) -> Result<RestorePageOutput> {
         let txn = ctx.transaction();
         let page = Self::get_direct(ctx, page_id).await?;
         let slug = input.slug.unwrap_or(page.slug);
@@ -230,7 +231,7 @@ impl PageService {
         }
 
         if page.deleted_at.is_none() {
-            tide::log::warn!("Page requested to be undeleted is not currently deleted");
+            tide::log::warn!("Page requested to be restored is not currently deleted");
             return Err(Error::BadRequest);
         }
 
@@ -245,7 +246,7 @@ impl PageService {
             .await?;
 
         if result.is_some() {
-            tide::log::error!("Page with slug '{slug}' already exists on site ID {site_id}, cannot undelete");
+            tide::log::error!("Page with slug '{slug}' already exists on site ID {site_id}, cannot restore");
             return Err(Error::Conflict);
         }
 
