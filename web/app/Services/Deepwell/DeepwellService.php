@@ -9,6 +9,7 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
 use Wikidot\Utils\GlobalProperties;
+use Wikijump\Services\Deepwell\Models\Page;
 
 final class DeepwellService
 {
