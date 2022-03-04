@@ -274,14 +274,15 @@ impl PageService {
         Ok((output, slug).into())
     }
 
-    /// Resets a page to be the same as it was in a previous revision.
+    /// Rolls back a page to be the same as it was in a previous revision.
+    /// Also called "page reset".
     ///
     /// It changes the page to have the exact state it had in a previous
     /// revision, regardless of any changes since.
     ///
     /// This is equivalent to Wikidot's concept of a "revert".
     #[allow(dead_code)]
-    pub async fn reset(
+    pub async fn rollback(
         _ctx: &ServiceContext<'_>,
         _site_id: i64,
         _page_id: i64,
