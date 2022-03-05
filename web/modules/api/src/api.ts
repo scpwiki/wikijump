@@ -160,7 +160,7 @@ export class WikijumpAPI extends API {
   formatError(error: unknown) {
     error = error instanceof APIResult ? error.error : error
     if (error instanceof HttpError) {
-      console.warn(error)
+      console.warn(error, error.data)
       const { status, data } = error
       if (data?.error && Locale.has(`error-api.${data.error}`)) {
         return Locale.format(`error-api.${data.error}`)

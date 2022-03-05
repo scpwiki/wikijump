@@ -2368,15 +2368,12 @@ components:
 
     # Generic Responses
 
-    OK:              { description: OK }       # 200
-    Created:         { description: Created }  # 201
-    Accepted:        { description: Accepted } # 202
+    OK:              { description: OK }               # 200
+    Created:         { description: Created }          # 201
+    Accepted:        { description: Accepted }         # 202
+    UnexpectedError: { description: Unexpected Error } # 500
 
     # Errors
-
-    UnexpectedError:
-      description: Unexpected Error
-      content: { application/json: { schema: { $ref: '#/components/schemas/UnexpectedError' }}}
 
     APIRequestError:
       description: API Request Error
@@ -2415,35 +2412,11 @@ components:
 
     # -- ERRORS
 
-    UnexpectedError:
-      type: object
-      required: [error]
-      properties:
-        error: { type: string, const: "UNEXPECTED_ERROR" }
-
     APIError:
       type: object
       required: [error]
       properties:
-        error: { $ref: "#/components/schemas/APIErrorTypes" }
-
-    APIErrorTypes:
-      type: string
-      enum:
-      - BAD_SYNTAX              # 400
-      - UNAUTHORIZED            # 401
-      - FORBIDDEN               # 403
-      - NOT_FOUND               # 404
-      - CONFLICT                # 409
-      # -----------------------------
-      - INVALID_USERNAME        # 400
-      - INVALID_EMAIL           # 400
-      - WRONG_PASSWORD          # 401
-      - EMAIL_ALREADY_IN_USE    # 409
-      - USERNAME_ALREADY_IN_USE # 409
-      - BAD_USERNAME            # 400
-      - BAD_EMAIL               # 400
-      - BAD_PASSWORD            # 400
+        error: { type: string }
 
     # # -- BASIC
 

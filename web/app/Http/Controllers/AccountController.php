@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Wikidot\Utils\WDStringUtils;
+use Wikijump\Common\APIError;
 use Wikijump\Models\User;
 use Wikijump\Services\Deepwell\DeepwellService;
 use Wikijump\Services\Users\UserValidation;
@@ -51,7 +52,7 @@ class AccountController extends Controller
     {
         // check if user is already logged in
         if ($this->guard->check()) {
-            return new Response('', 409);
+            return apierror(409, APIError::ALREADY_LOGGED_IN);
         }
 
         // validate request
@@ -60,13 +61,16 @@ class AccountController extends Controller
         $username = $request->input('username');
         $password = $request->input('password');
 
-        // TODO: differentiate response codes for different validation errors
-        if (
-            !UserValidation::isValidEmail($email) ||
-            !UserValidation::isValidUsername($username) ||
-            !UserValidation::isValidPassword($password)
-        ) {
-            return new Response('', 403);
+        if (!UserValidation::isValidEmail($email)) {
+            return apierror(400, APIError::INVALID_EMAIL);
+        }
+
+        if (!UserValidation::isValidUsername($username)) {
+            return apierror(400, APIError::INVALID_USERNAME);
+        }
+
+        if (!UserValidation::isValidPassword($password)) {
+            return apierror(400, APIError::INVALID_PASSWORD);
         }
 
         // slugify username - the isValidUsername method already checked if
@@ -112,7 +116,7 @@ class AccountController extends Controller
 
         // no one is using this email, return 403
         if (!UserValidation::isEmailTaken($email)) {
-            return new Response('', 403);
+            return apierror(404, APIError::UNKNOWN_EMAIL);
         }
 
         // send recovery email
@@ -124,7 +128,7 @@ class AccountController extends Controller
                 return new Response('', 202);
 
             case Password::INVALID_USER:
-                return new Response('', 403);
+                return apierror(404, APIError::UNKNOWN_EMAIL);
 
             default:
                 return new Response('', 500);
@@ -140,7 +144,7 @@ class AccountController extends Controller
         $client = $this->resolveClient();
 
         if (!$client) {
-            return new Response('', 401);
+            return apierror(401, APIError::NOT_LOGGED_IN);
         }
 
         return new Response(['email' => $client->email], 200);
@@ -155,17 +159,17 @@ class AccountController extends Controller
         $client = $this->resolveClient();
 
         if (!$client) {
-            return new Response('', 401);
+            return apierror(401, APIError::NOT_LOGGED_IN);
         }
 
         // unlikely edge case: account doesn't have an email address
         if (!$client->email) {
-            return new Response('', 400);
+            return apierror(400, APIError::ACCOUNT_NO_EMAIL);
         }
 
         // check if email has already been verified
         if ($client->hasVerifiedEmail()) {
-            return new Response('', 403);
+            return apierror(409, APIError::ACCOUNT_ALREADY_VERIFIED);
         }
 
         // send verification email
@@ -183,7 +187,7 @@ class AccountController extends Controller
         $client = $this->resolveClient();
 
         if (!$client) {
-            return new Response('', 401);
+            return apierror(401, APIError::NOT_LOGGED_IN);
         }
 
         $accepts_invites = (bool) $client->get('receive_invitations');
@@ -224,7 +228,7 @@ class AccountController extends Controller
         $client = $this->resolveClient();
 
         if (!$client) {
-            return new Response('', 401);
+            return apierror(401, APIError::NOT_LOGGED_IN);
         }
 
         if ($request->has('language')) {
@@ -237,7 +241,7 @@ class AccountController extends Controller
                 ]);
             } catch (Exception $e) {
                 // we'll presume a bad language code was given
-                return new Response('', 400);
+                return apierror(400, APIError::INVALID_LANGUAGE_CODE);
             }
         }
 
@@ -258,7 +262,7 @@ class AccountController extends Controller
             }
 
             if (!$allow_messages) {
-                return new Response('', 400);
+                return apierror(400, APIError::INVALID_ALLOW_MESSAGES);
             }
 
             $client->set(['receive_pm' => $allow_messages]);
@@ -276,7 +280,7 @@ class AccountController extends Controller
         $client = $this->resolveClient();
 
         if (!$client) {
-            return new Response('', 401);
+            return apierror(401, APIError::NOT_LOGGED_IN);
         }
 
         return new Response(['username' => $client->username], 200);
@@ -296,7 +300,7 @@ class AccountController extends Controller
 
         // do our more strict check on the password
         if (!UserValidation::isValidPassword($request->input('password'))) {
-            return new Response('', 400);
+            return apierror(400, APIError::INVALID_PASSWORD);
         }
 
         $credentials = $request->only(['email', 'password', 'token']);

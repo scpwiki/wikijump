@@ -43,8 +43,8 @@ final class AuthenticationResult
                 throw new InvalidArgumentException('Invalid error type');
             }
 
+            $this->user = null;
             $this->error = $input;
-            $this->error = null;
         }
         // Something else
         else {
@@ -81,6 +81,6 @@ final class AuthenticationResult
             throw new LogicException('Error is null');
         }
 
-        return $this->failure;
+        return $this->error;
     }
 }

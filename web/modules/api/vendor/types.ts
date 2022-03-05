@@ -1,9 +1,5 @@
-export type APIErrorTypes = "BAD_SYNTAX" | "UNAUTHORIZED" | "FORBIDDEN" | "NOT_FOUND" | "CONFLICT" | "INVALID_USERNAME" | "INVALID_EMAIL" | "WRONG_PASSWORD" | "EMAIL_ALREADY_IN_USE" | "USERNAME_ALREADY_IN_USE" | "BAD_USERNAME" | "BAD_EMAIL" | "BAD_PASSWORD";
 export interface APIError {
-    error: APIErrorTypes;
-}
-export interface UnexpectedError {
-    error: "UNEXPECTED_ERROR";
+    error: string;
 }
 export type Reference = number;
 export type ReferenceTypes = "user" | "page" | "message" | "file" | "report" | "abuse" | "forum-group" | "forum-category" | "forum-thread" | "forum-post";
