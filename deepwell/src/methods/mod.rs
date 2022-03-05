@@ -49,6 +49,7 @@ mod prelude {
     }
 }
 
+pub mod category;
 pub mod locales;
 pub mod misc;
 pub mod page;

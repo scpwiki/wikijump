@@ -88,7 +88,9 @@ impl CategoryService {
         site_id: i64,
         reference: Reference<'_>,
     ) -> Result<bool> {
-        Self::get_optional(ctx, site_id, reference).await.map(|category| category.is_some())
+        Self::get_optional(ctx, site_id, reference)
+            .await
+            .map(|category| category.is_some())
     }
 
     pub async fn get_or_create(

@@ -23,6 +23,7 @@
 //! This version has no commitments to stability and is used only by Wikijump itself.
 
 use crate::api::ApiServer;
+use crate::methods::category::*;
 use crate::methods::locales::*;
 use crate::methods::misc::*;
 use crate::methods::page::*;
@@ -56,6 +57,13 @@ pub fn build(mut app: ApiServer) -> ApiServer {
     app.at("/site/:type/:id_or_slug")
         .head(site_head)
         .get(site_get);
+
+    // Category
+    app.at("/category/:site_id").get(category_all_get);
+
+    app.at("/category/:site_id/:type/:id_or_slug")
+        .head(category_head)
+        .get(category_get);
 
     // Page
     app.at("/page/direct/:page_id")
