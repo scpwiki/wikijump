@@ -64,19 +64,34 @@ class Page extends DeepwellModel
     }
 
     // Fetch methods
-    public static function findSlug($site_id, string $page_slug): ?Page
-    {
+    public static function findSlug(
+        $site_id,
+        string $page_slug,
+        bool $wikitext = false,
+        bool $compiledHtml = false
+    ): ?Page {
         // NOTE: We cast arbitrary input to int, since Wikidot uses strings for IDs in most places
         return DeepwellService::getInstance()->getPageBySlug(
             intval($site_id),
             $page_slug,
+            $wikitext,
+            $compiledHtml,
         );
     }
 
-    public static function findId($site_id, int $page_id): ?Page
-    {
+    public static function findId(
+        $site_id,
+        int $page_id,
+        bool $wikitext = false,
+        bool $compiledHtml = false
+    ): ?Page {
         // NOTE: We cast arbitrary input to int, since Wikidot uses strings for IDs in most places
-        return DeepwellService::getInstance()->getPageById(intval($site_id), $page_id);
+        return DeepwellService::getInstance()->getPageById(
+            intval($site_id),
+            $page_id,
+            $wikitext,
+            $compiledHtml,
+        );
     }
 
     /**

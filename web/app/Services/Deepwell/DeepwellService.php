@@ -69,26 +69,64 @@ final class DeepwellService
     }
 
     // Page
-    public function getPageBySlug(int $site_id, string $page_slug): ?Page
-    {
-        return self::fetchOrNull(function () use ($site_id, $page_slug) {
-            $resp = $this->client->get("page/$site_id/slug/$page_slug");
+    public function getPageBySlug(
+        int $site_id,
+        string $page_slug,
+        bool $wikitext = false,
+        bool $compiledHtml = false
+    ): ?Page {
+        return self::fetchOrNull(function () use (
+            $site_id,
+            $page_slug,
+            $wikitext,
+            $compiledHtml
+        ) {
+            $resp = $this->client->get("page/$site_id/slug/$page_slug", [
+                'query' => [
+                    'wikitext' => $wikitext,
+                    'compiledHtml' => $compiledHtml,
+                ],
+            ]);
             return $this->parsePage($resp);
-        }, "No page found in site ID $site_id with slug '$page_slug'");
+        },
+        "No page found in site ID $site_id with slug '$page_slug'");
     }
 
-    public function getPageById(int $site_id, int $page_id): ?Page
-    {
-        return self::fetchOrNull(function () use ($site_id, $page_id) {
-            $resp = $this->client->get("page/$site_id/id/$page_id");
+    public function getPageById(
+        int $site_id,
+        int $page_id,
+        bool $wikitext = false,
+        bool $compiledHtml = false
+    ): ?Page {
+        return self::fetchOrNull(function () use (
+            $site_id,
+            $page_id,
+            $wikitext,
+            $compiledHtml
+        ) {
+            $resp = $this->client->get("page/$site_id/id/$page_id", [
+                'query' => [
+                    'wikitext' => $wikitext,
+                    'compiledHtml' => $compiledHtml,
+                ],
+            ]);
             return $this->parsePage($resp);
-        }, "No page found in site ID $site_id with page ID $page_id");
+        },
+        "No page found in site ID $site_id with page ID $page_id");
     }
 
-    public function getPageByIdOnly(int $page_id): ?Page
-    {
-        return self::fetchOrNull(function () use ($page_id) {
-            $resp = $this->client->get("page/direct/$page_id");
+    public function getPageByIdOnly(
+        int $page_id,
+        bool $wikitext = false,
+        bool $compiledHtml = false
+    ): ?Page {
+        return self::fetchOrNull(function () use ($page_id, $wikitext, $compiledHtml) {
+            $resp = $this->client->get("page/direct/$page_id", [
+                'query' => [
+                    'wikitext' => $wikitext,
+                    'compiledHtml' => $compiledHtml,
+                ],
+            ]);
             return $this->parsePage($resp);
         }, "No page found with page ID $page_id");
     }
