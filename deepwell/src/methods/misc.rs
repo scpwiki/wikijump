@@ -51,10 +51,10 @@ pub async fn full_version(_: ApiRequest) -> ApiResponse {
 
 pub async fn ratelimit_exempt(req: ApiRequest) -> ApiResponse {
     if is_ratelimit_exempt(&req) {
-        tide::log::info!("Requesting user is rate-limit exempt");
+        tide::log::info!("Requester is rate-limit exempt");
         Ok(Response::new(StatusCode::NoContent))
     } else {
-        tide::log::warn!("Requesting user is not rate-limit exempt");
+        tide::log::warn!("Requester is not rate-limit exempt");
         Ok(Response::new(StatusCode::Forbidden))
     }
 }
