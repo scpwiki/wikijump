@@ -14,23 +14,6 @@ use Wikijump\Services\License\LicenseMapping;
  */
 class Category extends CategoryBase
 {
-    public function getLicense(): License
-    {
-        // Determine if we pull from _default, because the license is inherited.
-        if ($this->getName() !== '_default' && $this->getLicenseInherits()) {
-            $cat = CategoryPeer::instance()->selectByName('_default', $this->getSiteId());
-            return $cat->getLicense();
-        }
-
-        // Get license info
-        return LicenseMapping::get($this->getLicenseId());
-    }
-
-    public function getLicenseHtml(): string
-    {
-        return $this->getLicense()->html();
-    }
-
     public function getTheme()
     {
         if ($this->getExternalTheme()) {

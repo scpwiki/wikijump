@@ -100,37 +100,6 @@ class CategoryBase extends BaseDBObject
     {
         $this->setFieldValue('permissions', $v1, $raw);
     }
-
-    public function getLicenseInherits()
-    {
-        return $this->getFieldValue('license_inherits');
-    }
-
-    public function setLicenseInherits($v1, $raw = false)
-    {
-        $this->setFieldValue('license_inherits', $v1, $raw);
-    }
-
-    public function getLicenseId(): string
-    {
-        return $this->getFieldValue('license_id');
-    }
-
-    public function setLicenseId($v1, $raw = false)
-    {
-        $this->setFieldValue('license_id', $v1, $raw);
-    }
-
-    public function getNavDefault()
-    {
-        return $this->getFieldValue('nav_default');
-    }
-
-    public function setNavDefault($v1, $raw = false)
-    {
-        $this->setFieldValue('nav_default', $v1, $raw);
-    }
-
     public function getTopBarPageName()
     {
         return $this->getFieldValue('top_bar_page_name');

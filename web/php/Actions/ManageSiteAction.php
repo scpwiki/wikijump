@@ -367,64 +367,8 @@ class ManageSiteAction extends SmartyAction
         }
     }
 
-    public function saveLicenseEvent($runData)
-    {
-        $pl =  $runData->getParameterList();
-        $site = $runData->getTemp("site");
-        $siteId = $site->getSiteId();
-        $json = new JSONService(SERVICES_JSON_LOOSE_TYPE);
-        $cats0 = $json->decode($pl->getParameterValue("categories"));
-
-        /* for each category
-     *  - get a category from database
-     *  - check if license_id or license_inherits has changed
-     *  - if changed: update
-     */
-        $db = Database::connection();
-        $db->begin();
-        foreach ($cats0 as $category) {
-            $categoryId = $category['category_id'];
-            $c = new Criteria();
-            $c->add("category_id", $categoryId);
-            $c->add("site_id", $siteId);
-            $dCategory = CategoryPeer::instance()->selectOne($c);
-
-            // now compare
-            $changed = false;
-            if ($category['license_id'] != $dCategory->getLicenseId()) {
-                $dCategory->setLicenseId($category['license_id']);
-                $changed = true;
-            }
-            if ($category['license_inherits'] != $dCategory->getLicenseInherits()) {
-                $dCategory->setLicenseInherits($category['license_inherits']);
-                $changed = true;
-            }
-            if ($changed) {
-                $dCategory->save();
-                // outdate category
-                $outdater = new Outdater();
-                $outdater->categoryEvent("category_save", $dCategory);
-            }
-
-            if ($changed && $dCategory->getName()=='_default') {
-                // outdate all that depends somehow
-                $c = new Criteria();
-                $c->add("site_id", $dCategory->getSiteId());
-                $c->add("license_inherits", true);
-                $c->add("name", "_default", '!=');
-                $depcats = CategoryPeer::instance()->select($c);
-                foreach ($depcats as $dc) {
-                    $outdater = new Outdater();
-                    $outdater->categoryEvent("category_save", $dc);
-                }
-            }
-        }
-        $db->commit();
-    }
-
     public function saveGeneralEvent($runData)
     {
-
         $pl = $runData->getParameterList();
         $name = trim($pl->getParameterValue("name"));
         $subtitle = trim($pl->getParameterValue("subtitle"));

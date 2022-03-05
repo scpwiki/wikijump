@@ -9,15 +9,14 @@ use Ozone\Framework\PathManager;
 use Ozone\Framework\Screen;
 use Wikidot\DB\MemberPeer;
 use Wikidot\DB\SiteViewerPeer;
+use Wikidot\DB\ThemePeer;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDStringUtils;
 
 class PrinterFriendly extends Screen
 {
-
     public function render($runData)
     {
-
         try {
             // get site
             $site = $runData->getTemp("site");
@@ -82,13 +81,14 @@ class PrinterFriendly extends Screen
 
             // GET THEME for the category
 
-            $theme = $category->getTheme();
-            $runData->contextAdd("theme", $theme);
+            $theme = ThemePeer::tempGet();
+            $runData->contextAdd('theme', $theme);
 
             // GET LICENSE for the category
 
-            $licenseHtml = $category->getLicenseHtml();
-            $runData->contextAdd("licenseHtml", $licenseHtml);
+            // TODO
+            $licenseHtml = '<b>TODO!</b> Replace with license text configured by the site';
+            $runData->contextAdd('licenseHtml', $licenseHtml);
 
             $smarty = Ozone::getSmarty();
 

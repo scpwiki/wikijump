@@ -277,14 +277,14 @@ final class LegacyTools
         // GET THEME for the category
 
         $theme = ThemePeer::tempGet();
-        $runData->contextAdd("theme", $theme);
+        $runData->contextAdd('theme', $theme);
         $return['theme'] = $theme;
 
         // GET LICENSE for the category
 
         // TODO
         $licenseHtml = '<b>TODO!</b> Replace with license text configured by the site';
-        $runData->contextAdd("licenseHtml", $licenseHtml);
+        $runData->contextAdd('licenseHtml', $licenseHtml);
         $return['licenseHtml'] = $licenseHtml;
 
         // show nav elements?
