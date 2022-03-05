@@ -17,6 +17,7 @@ use Wikidot\DB\PagePeer;
 use Wikidot\DB\Site;
 use Wikidot\DB\SitePeer;
 use Wikidot\DB\SiteViewerPeer;
+use Wikidot\DB\ThemePeer;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\UploadedFileFlowController;
 use Wikidot\Utils\WDPermissionManager;
@@ -194,7 +195,7 @@ final class LegacyTools
         $runData->contextAdd("wikiPageName", $wikiPage);
         $return['wikiPageName'] = $wikiPage;
         $settings = $site->getSettings();
-        $page = Page::findSlug($site->getSiteId(), $wikiPage);
+        $page = Page::findSlug($site->getSiteId(), $wikiPage, false, true);
         if ($page === null) {
             $runData->contextAdd('pageNotExists', true);
             $return['pageNotExists'] = true;
@@ -217,14 +218,12 @@ final class LegacyTools
             $runData->setTemp("page", $page);
             $GLOBALS['page'] = $page;
 
-            $compiled = $page->getCompiled();
+            $compiled = $page->compiled_html;
             $runData->contextAdd("wikiPage", $page);
             $return['wikiPage'] = $page;
             $runData->contextAdd("pageContent", $compiled);
             $return['pageContent'] = $compiled;
-
-            $category = $page->getCategory();
-            $runData->setTemp("category", $category);
+            $runData->setTemp('category_id', $page->page_category_id);
 
             // show options?
             $showPageOptions = true;
@@ -236,17 +235,24 @@ final class LegacyTools
             $return['tags'] = null;
 
             // has discussion?
-            if ($page->getThreadId() !== null) {
-                $thread = ForumThreadPeer::instance()->selectByPrimaryKey($page->getThreadId());
-                if ($thread == null) {
+            if ($page->discussion_thread_id !== null) {
+                $thread = ForumThreadPeer::instance()->selectByPrimaryKey($page->discussion_thread_id);
+                if ($thread === null) {
+                    // How the hell is this code path possible? A discussion thread is assigned but it doesn't exist?
+                    /*
                     $page->setThreadId(null);
                     $page->save();
+                    */
                 } else {
+                    /*
                     $page->setTemp("numberPosts", $thread->getNumberPosts());
+                    */
                 }
             }
 
             // look for parent pages (and prepare breadcrumbs)
+            // TODO add page parenting
+            /*
             if ($page->getParentPageId()) {
                 $breadcrumbs = [];
                 $ppage = Page::findId($page->getSiteId(), $page->getParentPageId());
@@ -260,20 +266,24 @@ final class LegacyTools
                 $runData->contextAdd("breadcrumbs", $breadcrumbs);
                 $return['breadcrumbs'] = $breadcrumbs;
             }
+            */
         }
 
-        $runData->contextAdd("category", $category);
-        $return['category'] = $category;
+        $runData->contextAdd('category_id', $page->page_category_id);
+        $runData->contextAdd('category_slug', $page->page_category_slug);
+        $return['category_id'] = $page->page_category_id;
+        $return['category_slug'] = $page->page_category_slug;
 
         // GET THEME for the category
 
-        $theme = $category->getTheme();
+        $theme = ThemePeer::tempGet();
         $runData->contextAdd("theme", $theme);
         $return['theme'] = $theme;
 
         // GET LICENSE for the category
 
-        $licenseHtml = $category->getLicenseHtml();
+        // TODO
+        $licenseHtml = '<b>TODO!</b> Replace with license text configured by the site';
         $runData->contextAdd("licenseHtml", $licenseHtml);
         $return['licenseHtml'] = $licenseHtml;
 
@@ -281,23 +291,19 @@ final class LegacyTools
 
         if ($privateAccessGranted || !$settings->getHideNavigationUnauthorized()) {
             if ($theme->getUseSideBar()) {
-                $sideBar1 = $category->getSidePage();
+                $sideBar1 = Page::findSlug($page->site_id, 'nav:side', false, true);
                 if ($sideBar1 !== null) {
-                    $sideBar1Compiled = $sideBar1->getCompiled();
-                    $ccc =  $sideBar1Compiled;
-                    $ccc = preg_replace('/id="[^"]*"/', '', $ccc);
-                    $runData->contextAdd("sideBar1Content", $ccc);
-                    $return['sideBar1Content'] = $ccc;
+                    $sideBar1Compiled = preg_replace('/id="[^"]*"/', '', $sideBar1->compiled_html);
+                    $runData->contextAdd("sideBar1Content", $sideBar1Compiled);
+                    $return['sideBar1Content'] = $sideBar1Compiled;
                 }
             }
             if ($theme->getUseTopBar()) {
-                $topBar = $category->getTopPage();
+                $topBar = Page::findSlug($page->site_id, 'nav:top', true, false);
                 if ($topBar !== null) {
-                    $topBarCompiled = $topBar;
-                    $ccc =  $topBarCompiled->getText();
-                    $ccc = preg_replace('/id="[^"]*"/', '', $ccc);
-                    $runData->contextAdd("topBarContent", $ccc);
-                    $return['topBarContent'] = $ccc;
+                    $topBarCompiled = preg_replace('/id="[^"]*"/', '', $topBar->wikitext);
+                    $runData->contextAdd("topBarContent", $topBarCompiled);
+                    $return['topBarContent'] = $topBarCompiled;
                 }
             }
         }

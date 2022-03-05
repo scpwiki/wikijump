@@ -14,6 +14,7 @@ use Wikidot\DB\SiteViewerPeer;
 use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\ForumThreadPeer;
 use Wikidot\DB\NotificationPeer;
+use Wikidot\DB\ThemePeer;
 use Wikidot\Utils\GlobalProperties;
 use Wikijump\Helpers\LegacyTools;
 use Wikijump\Models\UserMessage;
@@ -161,7 +162,7 @@ class WikiScreen extends Screen
 
             // look for parent pages (and prepare breadcrumbs)
             if ($page->getParentPageId()) {
-                $breadcrumbs = array();
+                $breadcrumbs = [];
                 $ppage = Page::findIdOnly($page->getParentPageId());
                 array_unshift($breadcrumbs, $ppage);
                 $bcount = 0;
@@ -178,30 +179,34 @@ class WikiScreen extends Screen
 
         // GET THEME for the category
 
-        $theme = $category->getTheme();
-        $runData->contextAdd("theme", $theme);
+        $theme = ThemePeer::tempGet();
+        $runData->contextAdd('theme', $theme);
+        $return['theme'] = $theme;
 
         // GET LICENSE for the category
 
-        $licenseHtml = $category->getLicenseHtml();
-        $runData->contextAdd("licenseHtml", $licenseHtml);
+        // TODO
+        $licenseHtml = '<b>TODO!</b> Replace with license text configured by the site';
+        $runData->contextAdd('licenseHtml', $licenseHtml);
+        $return['licenseHtml'] = $licenseHtml;
 
         // show nav elements?
 
         if ($privateAccessGranted || !$settings->getHideNavigationUnauthorized()) {
             if ($theme->getUseSideBar()) {
-                $sideBar1 = $category->getSidePage();
+                $sideBar1 = Page::findSlug($page->site_id, 'nav:side', false, true);
                 if ($sideBar1 !== null) {
-                    $ccc = preg_replace('/id="[^"]*"/', '', $sideBar1->getCompiled());
-                    $runData->contextAdd("sideBar1Content", $ccc);
+                    $sideBar1Compiled = preg_replace('/id="[^"]*"/', '', $sideBar1->compiled_html);
+                    $runData->contextAdd('sideBar1Content', $sideBar1Compiled);
+                    $return['sideBar1Content'] = $sideBar1Compiled;
                 }
             }
             if ($theme->getUseTopBar()) {
-                $topBar = $category->getTopPage();
+                $topBar = Page::findSlug($page->site_id, 'nav:top', true, false);
                 if ($topBar !== null) {
-                    $topBarCompiled = $topBar->getCompiled();
-                    $ccc = preg_replace('/id="[^"]*"/', '', $topBarCompiled);
-                    $runData->contextAdd("topBarContent", $ccc);
+                    $topBarCompiled = preg_replace('/id="[^"]*"/', '', $topBar->wikitext);
+                    $runData->contextAdd('topBarContent', $topBarCompiled);
+                    $return['topBarContent'] = $topBarCompiled;
                 }
             }
         }

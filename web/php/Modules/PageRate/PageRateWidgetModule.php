@@ -33,10 +33,8 @@ class PageRateWidgetModule extends SmartyModule
             $site = $runData->getTemp("site");
             $category = CategoryPeer::instance()->selectByName('_default', $site->getSiteId());
         } else {
-            $category = $runData->getTemp("category");
-            if (!$category) {
-                $category = CategoryPeer::instance()->selectByPrimaryKey($page->getCategoryId());
-            }
+            $category_id = $runData->getTemp('category_id');
+            $category = CategoryPeer::instance()->selectByPrimaryKey($category_id ?? $page->page_category_id);
         }
         $type = $category->getRatingType();
         $runData->contextAdd("type", $type);

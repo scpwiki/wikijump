@@ -2,7 +2,6 @@
 
 namespace Wikidot\DB;
 
-
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Wikidot\Modules\PageRate\PageRateWidgetModule;
@@ -32,41 +31,6 @@ class Category extends CategoryBase
         return $this->getLicense()->html();
     }
 
-    public function getTopPage()
-    {
-        if ($this->getName() === '_default') {
-            $pageName = $this->getTopBarPageName();
-        } else {
-            if ($this->getNavDefault()) {
-                // get default category
-                $dc = CategoryPeer::instance()->selectByName('_default', $this->getSiteId());
-                $pageName = $dc->getTopBarPageName();
-            } else {
-                $pageName = $this->getTopBarPageName();
-            }
-        }
-        // now GET this page
-        return Page::findSlug($this->getSiteId(), $pageName);
-    }
-
-    public function getSidePage()
-    {
-        if ($this->getName() === '_default') {
-            $pageName = $this->getSideBarPageName();
-        } else {
-            if ($this->getNavDefault()) {
-                // get default category
-                $dc = CategoryPeer::instance()->selectByName('_default', $this->getSiteId());
-                $pageName = $dc->getSideBarPageName();
-            } else {
-                $pageName = $this->getSideBarPageName();
-            }
-        }
-        // now GET this page
-        $page = Page::findSlug($this->getSiteId(), $pageName);
-        return $page;
-    }
-
     public function getTheme()
     {
         if ($this->getExternalTheme()) {
@@ -81,7 +45,6 @@ class Category extends CategoryBase
             }
             return $theme;
         }
-
 
         if ($this->getName() === '_default') {
             $theme = ThemePeer::instance()->selectByPrimaryKey($this->getThemeId());
