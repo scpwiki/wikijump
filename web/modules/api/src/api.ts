@@ -51,7 +51,7 @@ export class WikijumpAPI extends API {
     this.try = new Proxy(this, {
       get: (target, name, receiver) => {
         if (name in API.prototype) {
-          return async (...args: any[]) => {
+          return (async (...args: any[]) => {
             try {
               // @ts-ignore
               const result = await this[name](...args)
@@ -60,7 +60,7 @@ export class WikijumpAPI extends API {
               if (err instanceof HttpError) return new APIResult(err)
               else throw err
             }
-          }
+          }).bind(this)
         } else {
           Reflect.get(target, name, receiver)
         }
