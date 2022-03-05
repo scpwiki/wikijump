@@ -58,14 +58,6 @@ class Page extends PageBase
         return $categoryName;
     }
 
-    public function getCategory()
-    {
-        $categoryId = $this->getCategoryId();
-        $siteId = $this->getSiteId();
-
-        return CategoryPeer::instance()->selectById($categoryId, $siteId);
-    }
-
     public function getTitleOrUnixName()
     {
         $title = $this->getTitle();

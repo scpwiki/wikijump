@@ -2,9 +2,6 @@
 
 namespace Wikidot\DB;
 
-
-
-
 use Ozone\Framework\Database\BaseDBObject;
 
 /**

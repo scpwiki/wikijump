@@ -9,7 +9,6 @@ use Ozone\Framework\Database\Database;
 use Ozone\Framework\JSONService;
 use Ozone\Framework\SmartyAction;
 use Wikidot\Config\ForbiddenNames;
-use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\ThemePeer;
 use Wikidot\DB\Theme;
 use Wikidot\DB\SitePeer;
@@ -64,7 +63,7 @@ class ManageSiteAction extends SmartyAction
             $c = new Criteria();
             $c->add("category_id", $categoryId);
             $c->add("site_id", $siteId); // for sure
-            $dCategory = CategoryPeer::instance()->selectOne($c);
+            $dCategory = null; /* CategoryPeer::instance()->selectOne($c); */
 
             // now compare
             $changed = false;
@@ -105,7 +104,7 @@ class ManageSiteAction extends SmartyAction
                 $c->add("site_id", $dCategory->getSiteId());
                 $c->add("theme_default", true);
                 $c->add("name", "_default", '!=');
-                $depcats = CategoryPeer::instance()->select($c);
+                $depcats = [null]; /* CategoryPeer::instance()->select($c); */
                 foreach ($depcats as $dc) {
                     $outdater = new Outdater();
                     $outdater->categoryEvent("category_save", $dc);
@@ -255,14 +254,6 @@ class ManageSiteAction extends SmartyAction
         $db = Database::connection();
         $db->begin();
 
-        // now check if theme is used by pages (categories)
-        $c = new Criteria();
-        $c->add("theme_id", $theme->getThemeId());
-        $c->add("site_id", $site->getSiteId());
-        $cats = CategoryPeer::instance()->select($c);
-        if (count($cats)>0) {
-            throw new ProcessException(_("This theme cannot be deleted because there are still pages that use it. Please check themes assigned to particular categories."), "can_not_delete");
-        }
         // ok, delete now!
         ThemePeer::instance()->deleteByPrimaryKey($theme->getThemeId());
 
@@ -287,9 +278,9 @@ class ManageSiteAction extends SmartyAction
             $c = new Criteria();
             $c->add("category_id", $categoryId);
             $c->add("site_id", $siteId);
-            $dCategory = CategoryPeer::instance()->selectOne($c);
+            $dCategory = null; // CategoryPeer::instance()->selectOne($c);
             if ($dCategory == null) {
-                throw new ProcessException(_("Error saving changes - one of the categories could not be found."), "no_category");
+                //throw new ProcessException(_("Error saving changes - one of the categories could not be found."), "no_category");
             }
             // now compare
             $changed = false;
@@ -329,9 +320,9 @@ class ManageSiteAction extends SmartyAction
             $c = new Criteria();
             $c->add("category_id", $categoryId);
             $c->add("site_id", $siteId);
-            $dCategory = CategoryPeer::instance()->selectOne($c);
-            if ($dCategory == null) {
-                throw new ProcessException("Invalid category.");
+            $dCategory = null; // CategoryPeer::instance()->selectOne($c);
+            if ($dCategory === null) {
+                //throw new ProcessException("Invalid category.");
             }
 
             // now compare
@@ -339,7 +330,7 @@ class ManageSiteAction extends SmartyAction
             $permstring = $category['permissions'];
 
             //validate permstring
-            $p2 = explode(";", $permstring);
+            $p2 = explode(';', $permstring);
             foreach ($p2 as $perm) {
                 if (!$category['permissions_default'] && preg_match("/^[vecmdarzo]:[armo]{0,4}$/", $perm) == 0) {
                     throw new ProcessException(_("Error saving permissions - invalid internal format. Please try again and contact admins if the problem repeats."));
@@ -404,7 +395,6 @@ class ManageSiteAction extends SmartyAction
         }
 
         $site = $runData->getTemp("site");
-        $siteId = $site->getSiteId();
         $changed = false;
         if ($site->getName() !== $name) {
             $site->setName($name);
@@ -596,9 +586,8 @@ class ManageSiteAction extends SmartyAction
             $categoryId = $category['category_id'];
             $c = new Criteria();
             $c->add("category_id", $categoryId);
-
             $c->add("site_id", $siteId);
-            $dCategory = CategoryPeer::instance()->selectOne($c);
+            $dCategory = null; /* CategoryPeer::instance()->selectOne($c); */
 
             // now compare
             $changed = false;
@@ -627,7 +616,7 @@ class ManageSiteAction extends SmartyAction
                 $c->add("site_id", $dCategory->getSiteId());
                 $c->add("nav_default", true);
                 $c->add("name", "_default", '!=');
-                $depcats = CategoryPeer::instance()->select($c);
+                $depcats = [null]; /* CategoryPeer::instance()->select($c); */
                 foreach ($depcats as $dc) {
                     $outdater = new Outdater();
                     $outdater->categoryEvent("category_save", $dc);
@@ -654,7 +643,7 @@ class ManageSiteAction extends SmartyAction
             $c = new Criteria();
             $c->add("category_id", $categoryId);
             $c->add("site_id", $siteId);
-            $dCategory = CategoryPeer::instance()->selectOne($c);
+            $dCategory = null; /* CategoryPeer::instance()->selectOne($c); */
 
             // now compare
             $changed = false;

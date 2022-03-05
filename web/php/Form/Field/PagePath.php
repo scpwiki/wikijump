@@ -53,12 +53,12 @@ class PagePath extends WikiBase
 
         $selects = array();
 
+        /*
         $c = new Criteria();
         $c->add('name', $this->field['category']);
 
         if ($category = CategoryPeer::instance()->selectOne($c)) {
             $categoryId = $category->getCategoryId();
-            $pages = array();
             $parentId = null;
 
             foreach ($path as $part) {
@@ -85,9 +85,9 @@ class PagePath extends WikiBase
                 }
             }
         }
+        */
 
         $selectsEnd = '';
-        $selectsNo = count($selects);
         for ($i = 1; $i < count($selects); $i++) {
             $selectsEnd .= '</span>';
         }

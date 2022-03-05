@@ -4,14 +4,11 @@ namespace Wikidot\Modules\PageRate;
 
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\SmartyModule;
-use Wikidot\DB\Category;
-use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\PageRateVotePeer;
 use Wikijump\Services\Deepwell\Models\Page;
 
 class PageRateWidgetModule extends SmartyModule
 {
-
     public function build($runData)
     {
         $page = $runData->getTemp("page");
@@ -28,15 +25,7 @@ class PageRateWidgetModule extends SmartyModule
             }
         }
 
-        // get the category too
-        if (!$page) {
-            $site = $runData->getTemp("site");
-            $category = CategoryPeer::instance()->selectByName('_default', $site->getSiteId());
-        } else {
-            $category_id = $runData->getTemp('category_id');
-            $category = CategoryPeer::instance()->selectByPrimaryKey($category_id ?? $page->page_category_id);
-        }
-        $type = $category->getRatingType();
+        $type = 'Z'; // TODO rating type
         $runData->contextAdd("type", $type);
         $runData->contextAdd("rate", $rate);
 
@@ -56,6 +45,6 @@ class PageRateWidgetModule extends SmartyModule
          * misleading widget. Used in PageRateWidgetModule.tpl
          * @see Category::getRatingEnabled()
          */
-        $runData->contextAdd("enabled", $category->getRatingEnabled());
+        $runData->contextAdd("enabled", true);
     }
 }

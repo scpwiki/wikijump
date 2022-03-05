@@ -10,7 +10,6 @@ use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\ModuleProcessor;
 use Ozone\Framework\Ozone;
 use Ozone\Framework\RunData;
-use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\ForumThreadPeer;
 use Wikidot\DB\MemberPeer;
 use Wikidot\DB\PagePeer;
@@ -199,19 +198,6 @@ final class LegacyTools
         if ($page === null) {
             $runData->contextAdd('pageNotExists', true);
             $return['pageNotExists'] = true;
-            // get category based on suggested page name
-
-            if (strpos($wikiPage, ':') != false) {
-                $tmp0 = explode(':', $return['wikiPage']);
-                $categoryName = $tmp0[0];
-            } else {
-                $categoryName = '_default';
-            }
-            $category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
-            if ($category == null) {
-                $category = CategoryPeer::instance()->selectByName('_default', $site->getSiteId());
-            }
-            $runData->setTemp('category', $category);
         } else {
             // page exists!!! wooo!!!
 
@@ -223,7 +209,6 @@ final class LegacyTools
             $return['wikiPage'] = $page;
             $runData->contextAdd("pageContent", $compiled);
             $return['pageContent'] = $compiled;
-            $runData->setTemp('category_id', $page->page_category_id);
 
             // show options?
             $showPageOptions = true;
@@ -269,18 +254,9 @@ final class LegacyTools
             */
         }
 
-        $runData->contextAdd('category_id', $page->page_category_id);
-        $runData->contextAdd('category_slug', $page->page_category_slug);
-        $return['category_id'] = $page->page_category_id;
-        $return['category_slug'] = $page->page_category_slug;
-
-        // GET THEME for the category
-
         $theme = ThemePeer::tempGet();
         $runData->contextAdd('theme', $theme);
         $return['theme'] = $theme;
-
-        // GET LICENSE for the category
 
         // TODO
         $licenseHtml = '<b>TODO!</b> Replace with license text configured by the site';
@@ -383,37 +359,21 @@ final class LegacyTools
         /**
          * Page Options Bottom module injection
          */
-        $pl = $runData->getParameterList();
         $pageName = $runData->getTemp("pageUnixName");
 
         $page = $runData->getTemp("page");//$pl->getParameterValue("page", "MODULE");
-
-        // get category name and get the category by name.
-        // this should be enchanced to use memcache later
-        // to get category to avoid db connection.
-
-        // extract category name
-        if (strpos($pageName, ':') != false) {
-            // ok, there is category!
-            $exp = explode(':', $pageName);
-            $categoryName = $exp[0];
-        } else {
-            $categoryName = "_default";
-        }
         $site = $runData->getTemp("site");
-        $category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
         $user = $runData->getUser();
 
         $pm = new WDPermissionManager();
         $pm->setThrowExceptions(false);
         $pm->setCheckIpBlocks(false); // to avoid database connection.
-        if (!$pm->hasPagePermission('options', $user, $category, $pageName, $site)) {
+        if (!$pm->hasPagePermission('options', $user, $pageName)) {
             return '';
         }
 
         $threadId = $wikiPage->getThreadId();
         $pageUnixName = $wikiPage->getUnixName();
-        $showRate = $category->getRatingEnabledEff();
 
         // now a nasty part - make it inline such that
         // the Smarty engine does need to be initialized.
@@ -434,8 +394,8 @@ final class LegacyTools
 <div id="page-options-bottom"  class="page-options-bottom">
 	<a href="javascript:;" id="edit-button">'._('edit').'</a>';
 
-        if ($showRate&&$page) {
-            $otext .=   '<a href="javascript:;" id="pagerate-button">'._('rate').' (<span id="prw54355">'.($page->getRate() > 0 && $category->getRatingType() != "S" ?'+':''). ($category->getRatingType() == "S" ? $page->getRate() : round($page->getRate())) .'</span>)</a>';
+        if ($page) {
+            $otext .=   '<a href="javascript:;" id="pagerate-button">'._('rate').' (<span id="prw54355">'.($page->getRate() > 0). '</span>)</a>';
         }
 
         $otext .= '<a href="javascript:;" id="tags-button">'._('tags').'</a>';
