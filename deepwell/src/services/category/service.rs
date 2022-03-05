@@ -1,5 +1,5 @@
 /*
- * services/category.rs
+ * services/category/service.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -22,8 +22,6 @@ use super::prelude::*;
 use crate::models::page_category::{
     self, Entity as PageCategory, Model as PageCategoryModel,
 };
-
-// Service
 
 #[derive(Debug)]
 pub struct CategoryService;
@@ -82,6 +80,15 @@ impl CategoryService {
             Some(category) => Ok(category),
             None => Err(Error::NotFound),
         }
+    }
+
+    #[inline]
+    pub async fn exists(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        reference: Reference<'_>,
+    ) -> Result<bool> {
+        Self::get_optional(ctx, site_id, reference).await.map(|category| category.is_some())
     }
 
     pub async fn get_or_create(
