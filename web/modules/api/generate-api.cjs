@@ -20,7 +20,7 @@ async function generate(path) {
   const typesString = printer.printFile(types)
 
   await fs.writeFile("./vendor/output.ts", clientString)
-  await fs.writeFile("./vendor/types.d.ts", typesString)
+  await fs.writeFile("./vendor/types.ts", typesString)
 }
 
 function processClient(str) {

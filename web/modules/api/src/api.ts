@@ -1,3 +1,4 @@
+import Locale from "@wikijump/fluent"
 import { get, writable, type Writable } from "svelte/store"
 import type { LoginOptions, UserInfo, UserProfile } from "."
 import {
@@ -147,6 +148,30 @@ export class WikijumpAPI extends API {
    */
   subdomainURL(subdomain: string) {
     return `${window.location.protocol}//${subdomain}.${window.location.host}/${API_PATH}`
+  }
+
+  /**
+   * Formats an error into an error message that can be displayed.
+   *
+   * @param err - The error to format. While this is typed as `unknown`, it
+   *   only really accepts `HttpError` and `APIResult`. Any other type will
+   *   rethrow the error.
+   */
+  formatError(error: unknown) {
+    error = error instanceof APIResult ? error.error : error
+    if (error instanceof HttpError) {
+      console.warn(error)
+      const { status, data } = error
+      if (data?.error && Locale.has(`error-api.${data.error}`)) {
+        return Locale.format(`error-api.${data.error}`)
+      } else if (status >= 500) {
+        return Locale.format("error-api.INTERNAL")
+      } else {
+        return Locale.format("error.api.GENERIC")
+      }
+    } else {
+      throw error
+    }
   }
 
   // -- STORE

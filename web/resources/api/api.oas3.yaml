@@ -2417,37 +2417,33 @@ components:
 
     UnexpectedError:
       type: object
-      required: [status, error]
+      required: [error]
       properties:
-        status: { type: number }
-        error: { type: string }
-      enum:
-      - { status: 500, error: 'UNEXPECTED_ERROR' }
+        error: { type: string, const: "UNEXPECTED_ERROR" }
 
     APIError:
       type: object
-      required: [status, error]
+      required: [error]
       properties:
-        status: { type: number }
-        error: { type: string }
-      # thankfully, spec2ts doesn't get confused by this
-      # it doesn't export these with the type though, this enum gets skipped
+        error: { $ref: "#/components/schemas/APIErrorTypes" }
+
+    APIErrorTypes:
+      type: string
       enum:
-      # generic
-      - { status: 400, error: 'BAD_SYNTAX' }
-      - { status: 401, error: 'UNAUTHORIZED' }
-      - { status: 403, error: 'FORBIDDEN' }
-      - { status: 404, error: 'NOT_FOUND' }
-      - { status: 409, error: 'CONFLICT' }
-      # non-generic
-      - { status: 400, error: 'INVALID_USERNAME' }
-      - { status: 400, error: 'INVALID_EMAIL' }
-      - { status: 401, error: 'WRONG_PASSWORD' }
-      - { status: 409, error: 'EMAIL_ALREADY_IN_USE' }
-      - { status: 409, error: 'USERNAME_ALREADY_IN_USE' }
-      - { status: 400, error: 'BAD_USERNAME' }
-      - { status: 400, error: 'BAD_EMAIL' }
-      - { status: 400, error: 'BAD_PASSWORD' }
+      - BAD_SYNTAX              # 400
+      - UNAUTHORIZED            # 401
+      - FORBIDDEN               # 403
+      - NOT_FOUND               # 404
+      - CONFLICT                # 409
+      # -----------------------------
+      - INVALID_USERNAME        # 400
+      - INVALID_EMAIL           # 400
+      - WRONG_PASSWORD          # 401
+      - EMAIL_ALREADY_IN_USE    # 409
+      - USERNAME_ALREADY_IN_USE # 409
+      - BAD_USERNAME            # 400
+      - BAD_EMAIL               # 400
+      - BAD_PASSWORD            # 400
 
     # # -- BASIC
 

@@ -103,10 +103,12 @@ importers:
     specifiers:
       '@spec2ts/core': ^2.0.0-beta.2
       '@spec2ts/openapi-client': ^2.0.0-beta.9
+      '@wikijump/fluent': workspace:*
       '@wikijump/util': workspace:*
       svelte: ^3.46.4
       ziggy-js: ^1.4.3
     dependencies:
+      '@wikijump/fluent': link:../fluent
       '@wikijump/util': link:../util
       svelte: 3.46.4
       ziggy-js: 1.4.3

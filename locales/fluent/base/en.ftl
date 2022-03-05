@@ -121,16 +121,16 @@ error-form =
   .password-mismatch = Passwords do not match.
 
 error-api =
-  .generic = Something went wrong with your request.
-  .internal = An internal server error has occurred. Please try again later.
-  .no-connection = You are not connected to the internet.
-  .login-failed = Failed to login. Please check your email/username and password.
-  .register-failed = Failed to register. Please check your email, username and password.
-  .password-confirm-failed = The password you entered is incorrect.
-  .email-taken = The email you entered is already taken.
-  .username-taken = The username you entered is already taken.
-  .already-logged-in = You are already logged in.
-  .unknown-email = The email you entered is not in use.
-  .invalid-tags = These tags are not valid with this site's tag configuration.
+  .GENERIC = Something went wrong with your request.
+  .INTERNAL = An internal server error has occurred. Please try again later.
+  .NO_CONNECTION = You are not connected to the internet.
+  .LOGIN_FAILED = Failed to login. Please check your email/username and password.
+  .REGISTER_FAILED = Failed to register. Please check your email, username and password.
+  .PASSWORD_CONFIRM_FAILED = The password you entered is incorrect.
+  .EMAIL_TAKEN = The email you entered is already taken.
+  .USERNAME_TAKEN = The username you entered is already taken.
+  .ALREADY_LOGGED_IN = You are already logged in.
+  .UNKNOWN_EMAL = The email you entered is not in use.
+  .INVALID_TAGS = These tags are not valid with this site's tag configuration.
 
 error-418 = I'm a Teapot

@@ -4,6 +4,8 @@
   an `onsubmit` function.
 -->
 <script lang="ts">
+  import WikijumpAPI from "@wikijump/api"
+
   import { getFoci, inputsValid } from "@wikijump/dom"
   import { format as t } from "@wikijump/fluent"
 
@@ -25,8 +27,12 @@
   /**
    * Callback to fire when an error occurs during submission. It is
    * provided the error. Returning a string will set the slots error variable.
+   *
+   * By default, the error will be formatted with the
+   * `WikijumpAPI.formatError` handler.
    */
-  export let onerror: (error: unknown) => void | string = () => {}
+  export let onerror: (error: unknown) => void | string = error =>
+    WikijumpAPI.formatError(error)
 
   let form: HTMLFormElement
 

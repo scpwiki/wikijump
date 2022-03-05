@@ -17,6 +17,7 @@
     "@spec2ts/openapi-client": "^2.0.0-beta.9"
   },
   "dependencies": {
+    "@wikijump/fluent": "workspace:*",
     "@wikijump/util": "workspace:*",
     "svelte": "^3.46.4",
     "ziggy-js": "^1.4.3"

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import WikijumpAPI, { HttpError } from "@wikijump/api"
+  import WikijumpAPI from "@wikijump/api"
   import { Form, Button, TextInput } from "@wikijump/components"
   import { format as t } from "@wikijump/fluent"
   import { createEventDispatcher } from "svelte"
@@ -22,22 +22,10 @@
       window.location.href = back === true ? "/" : back || "/"
     }
   }
-
-  function onerror(err: unknown) {
-    if (err instanceof HttpError) {
-      // prettier-ignore
-      switch(err.status) {
-        case 500: return t("error-api.internal")
-        default:  return t("error-api.password-confirm-failed")
-      }
-    } else {
-      throw err
-    }
-  }
 </script>
 
 <div class="confirm-form">
-  <Form {onsubmit} {onerror} let:busy let:error let:submit>
+  <Form {onsubmit} let:busy let:error let:submit>
     <TextInput
       name="password"
       on:enter={submit}
