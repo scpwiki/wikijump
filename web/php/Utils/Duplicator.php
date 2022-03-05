@@ -16,7 +16,6 @@ use Wikidot\DB\FilePeer;
 use Wikidot\DB\PageMetadata;
 use Wikidot\DB\PageRevision;
 use Wikidot\DB\Page;
-use Wikijump\Services\Deepwell\PageService;
 
 class Duplicator
 {

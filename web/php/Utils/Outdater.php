@@ -9,7 +9,6 @@ use Ozone\Framework\Database\Database;
 use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\SitePeer;
 use Wikijump\Services\Deepwell\DeepwellService;
-use Wikijump\Services\Deepwell\PageService;
 use Wikijump\Services\Wikitext\Backlinks;
 use Wikijump\Services\Deepwell\Models\Page;
 
