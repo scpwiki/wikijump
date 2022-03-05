@@ -33,7 +33,7 @@ class Page extends DeepwellModel
     public ?string $alt_title;
     public string $slug;
     public Set $tags;
-    public array $metadata;
+    public object $metadata; // TODO change type when we figure out the metadata structure
 
     public function __construct(object $raw_page)
     {
@@ -64,7 +64,7 @@ class Page extends DeepwellModel
     }
 
     // Fetch methods
-    public static function findSlug($site_id, string $page_slug): ?User
+    public static function findSlug($site_id, string $page_slug): ?Page
     {
         // NOTE: We cast arbitrary input to int, since Wikidot uses strings for IDs in most places
         return DeepwellService::getInstance()->getPageBySlug(
