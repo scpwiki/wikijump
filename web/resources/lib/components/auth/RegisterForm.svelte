@@ -2,7 +2,7 @@
   @component Account registration form.
 -->
 <script lang="ts">
-  import WikijumpAPI from "@wikijump/api"
+  import WikijumpAPI, { HttpError } from "@wikijump/api"
   import { Form, Button, TextInput } from "@wikijump/components"
   import { format as t } from "@wikijump/fluent"
   import { escapeRegExp } from "@wikijump/util"
@@ -40,7 +40,7 @@
   }
 
   function onerror(err: unknown) {
-    if (err instanceof Response) {
+    if (err instanceof HttpError) {
       // prettier-ignore
       switch(err.status) {
         case 403: return t("error-api.email-taken")

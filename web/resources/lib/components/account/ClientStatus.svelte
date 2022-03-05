@@ -1,5 +1,5 @@
 <script lang="ts">
-  import WikijumpAPI, { authed, identity, route } from "@wikijump/api"
+  import WikijumpAPI, { route } from "@wikijump/api"
   import { Button, Card, DetailsMenu, Icon, Sprite } from "@wikijump/components"
   import { matchBreakpoint, toast } from "@wikijump/components/lib"
   import { focusGroup } from "@wikijump/dom"
@@ -12,7 +12,7 @@
   export let background = true
 
   async function logout() {
-    if (!$authed) return
+    if (!$WikijumpAPI.authed) return
     await WikijumpAPI.authLogout()
     toast("success", t("logout.toast"))
   }
@@ -20,7 +20,7 @@
 
 <!-- TODO: persist auth state across page -->
 
-{#if !$authed}
+{#if !$WikijumpAPI.authed}
   <div class="client-status" class:has-background={background}>
     <Button baseline compact on:click={() => AuthModal.toggle(true)}>
       <Icon i="ic:round-login" size="1.25rem" />
@@ -34,7 +34,7 @@
       {t("create-account")}
     </Button>
   </div>
-{:else if $identity}
+{:else if $WikijumpAPI.identity}
   <div class="client-status is-authed" class:has-background={background}>
     <NotificationBell />
 

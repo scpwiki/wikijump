@@ -2,7 +2,7 @@
   @component Login form.
 -->
 <script lang="ts">
-  import WikijumpAPI, { route } from "@wikijump/api"
+  import WikijumpAPI, { HttpError, route } from "@wikijump/api"
   import { format as t } from "@wikijump/fluent"
   import { Form, Button, TextInput, Toggle } from "@wikijump/components"
   import { createEventDispatcher } from "svelte"
@@ -32,7 +32,7 @@
   }
 
   function onerror(err: unknown) {
-    if (err instanceof Response) {
+    if (err instanceof HttpError) {
       // prettier-ignore
       switch(err.status) {
         case 409: return t("error-api.already-logged-in")

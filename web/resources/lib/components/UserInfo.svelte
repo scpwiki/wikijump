@@ -1,9 +1,5 @@
 <script lang="ts">
-  import WikijumpAPI, {
-    identity as currentIdentity,
-    route,
-    type UserIdentity
-  } from "@wikijump/api"
+  import WikijumpAPI, { route, type UserIdentity } from "@wikijump/api"
   import { Sprite } from "@wikijump/components"
 
   export let user: null | string | number = null
@@ -21,7 +17,7 @@
   $: {
     identity = null
     // default is current user
-    if (user === null) identity = $currentIdentity
+    if (user === null) identity = $WikijumpAPI.identity
     // fetch user from API
     else {
       const type = typeof user === "number" ? "id" : "slug"

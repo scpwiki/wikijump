@@ -1,5 +1,5 @@
 <script lang="ts">
-  import WikijumpAPI from "@wikijump/api"
+  import WikijumpAPI, { HttpError } from "@wikijump/api"
   import { Form, Button } from "@wikijump/components"
   import Locale from "@wikijump/fluent"
   import FormError from "./FormError.svelte"
@@ -11,7 +11,7 @@
   }
 
   function onerror(err: unknown) {
-    if (err instanceof Response) return $t("error-api.internal")
+    if (err instanceof HttpError) return $t("error-api.internal")
     else throw err
   }
 </script>
