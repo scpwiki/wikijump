@@ -97,4 +97,19 @@ impl CategoryService {
 
         Ok(category)
     }
+
+    pub async fn get_all(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+    ) -> Result<Vec<PageCategoryModel>> {
+        let txn = ctx.transaction();
+
+        let categories = PageCategory::find()
+            .filter(page_category::Column::SiteId.eq(site_id))
+            .order_by_asc(page_category::Column::Slug)
+            .all(txn)
+            .await?;
+
+        Ok(categories)
+    }
 }
