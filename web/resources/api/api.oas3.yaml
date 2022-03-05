@@ -34,8 +34,8 @@ info:
     a single property. The following code-block demonstrates an example payload:
     ```json
     {
-      "login": "fake@example.com",
-      "password": "pa$$word"
+      'login': 'fake@example.com',
+      'password': 'pa$$word'
     }
     ```
 
@@ -46,7 +46,7 @@ info:
     interactions, which means that any sort of service requesting information on many resources will have to send
     a large amount of API requests if it were to use this API as a frontend would.
 
-    However, the Wikijump API has a special endpoint, `/query`, which allows complex and "closer to the metal"
+    However, the Wikijump API has a special endpoint, `/query`, which allows complex and 'closer to the metal'
     transactions with the Wikijump database. Services, but also frontends, can use this endpoint to
     request information efficiently on a multitude of resources without excessive API requests and bandwidth usage.
 
@@ -64,7 +64,7 @@ info:
     - Advertising
     - XML-RPC API
     - Pingbacks
-    - Twitter integration ("Tweet My Wiki")
+    - Twitter integration ('Tweet My Wiki')
     - Site traffic statistics (Google Analytics is still available!)
     - Per-site user profiles
     - Inter-site promotion
@@ -111,7 +111,7 @@ servers:
       default: www
       description: >
         The site instance that the API should interact with.
-        Requests will generally be "relative" to the site specified.
+        Requests will generally be 'relative' to the site specified.
 
 tags:
 # -- CATEGORICAL
@@ -2376,11 +2376,11 @@ components:
 
     UnexpectedError:
       description: Unexpected Error
-      content: { application/json: { schema: { $ref: "#/components/schemas/UnexpectedError" }}}
+      content: { application/json: { schema: { $ref: '#/components/schemas/UnexpectedError' }}}
 
     APIRequestError:
       description: API Request Error
-      content: { application/json: { schema: { $ref: "#/components/schemas/APIError" }}}
+      content: { application/json: { schema: { $ref: '#/components/schemas/APIError' }}}
 
     # Normal Responses
 
@@ -2422,7 +2422,7 @@ components:
         status: { type: number }
         error: { type: string }
       enum:
-      - { status: 500, error: "UNEXPECTED_ERROR" }
+      - { status: 500, error: 'UNEXPECTED_ERROR' }
 
     APIError:
       type: object
@@ -2434,20 +2434,20 @@ components:
       # it doesn't export these with the type though, this enum gets skipped
       enum:
       # generic
-      - { status: 400, error: "BAD_SYNTAX" }
-      - { status: 401, error: "UNAUTHORIZED" }
-      - { status: 403, error: "FORBIDDEN" }
-      - { status: 404, error: "NOT_FOUND" }
-      - { status: 409, error: "CONFLICT" }
+      - { status: 400, error: 'BAD_SYNTAX' }
+      - { status: 401, error: 'UNAUTHORIZED' }
+      - { status: 403, error: 'FORBIDDEN' }
+      - { status: 404, error: 'NOT_FOUND' }
+      - { status: 409, error: 'CONFLICT' }
       # non-generic
-      - { status: 400, error: "INVALID_USERNAME" }
-      - { status: 400, error: "INVALID_EMAIL" }
-      - { status: 401, error: "WRONG_PASSWORD" }
-      - { status: 409, error: "EMAIL_ALREADY_IN_USE" }
-      - { status: 409, error: "USERNAME_ALREADY_IN_USE" }
-      - { status: 400, error: "BAD_USERNAME" }
-      - { status: 400, error: "BAD_EMAIL" }
-      - { status: 400, error: "BAD_PASSWORD" }
+      - { status: 400, error: 'INVALID_USERNAME' }
+      - { status: 400, error: 'INVALID_EMAIL' }
+      - { status: 401, error: 'WRONG_PASSWORD' }
+      - { status: 409, error: 'EMAIL_ALREADY_IN_USE' }
+      - { status: 409, error: 'USERNAME_ALREADY_IN_USE' }
+      - { status: 400, error: 'BAD_USERNAME' }
+      - { status: 400, error: 'BAD_EMAIL' }
+      - { status: 400, error: 'BAD_PASSWORD' }
 
     # # -- BASIC
 
@@ -2712,7 +2712,7 @@ components:
       properties:
         id:         { $ref: '#/components/schemas/Reference' }
         username:   { $ref: '#/components/schemas/Username' }
-        tinyavatar: { $ref: "#/components/schemas/Base64", nullable: true}
+        tinyavatar: { $ref: '#/components/schemas/Base64', nullable: true}
         karma:      { type: integer, minimum: 0, maximum: 5 }
         role:       { $ref: '#/components/schemas/UserRole' }
 
@@ -2720,13 +2720,13 @@ components:
       description: Describes a user in an intermediate amount of detail.
       type: object
       allOf:
-      - $ref: "#/components/schemas/UserIdentity"
+      - $ref: '#/components/schemas/UserIdentity'
       - type: object
         required: [about, avatar, signature, since, lastActive]
         properties:
           about:      { type: [string, 'null'] }
           avatar:     { type: [string, 'null'], format: url }
-          signature:  { $ref: "#/components/schemas/HTML", nullable: true }
+          signature:  { $ref: '#/components/schemas/HTML', nullable: true }
           since:      { type: string, format: date-time }
           lastActive: { type: string, format: date-time }
 
@@ -2734,7 +2734,7 @@ components:
       description: Fully describes a user and their personalization preferences.
       type: object
       allOf:
-      - $ref: "#/components/schemas/UserInfo"
+      - $ref: '#/components/schemas/UserInfo'
       - type: object
         required: [realname, pronouns, birthday, location, links]
         properties:
@@ -2806,7 +2806,7 @@ components:
     UserBannedList:
       type: object
       allOf:
-      - $ref: "#/components/schemas/Paginated"
+      - $ref: '#/components/schemas/Paginated'
       - type: object
         required: [banned]
         properties:
@@ -2829,7 +2829,7 @@ components:
       required: [status]
       properties:
         status:
-          $ref: "#/components/schemas/Membership"
+          $ref: '#/components/schemas/Membership'
           nullable: true
 
     MembershipList:
@@ -2859,7 +2859,7 @@ components:
     ApplicationList:
       type: object
       allOf:
-      - $ref: "#/components/schemas/Paginated"
+      - $ref: '#/components/schemas/Paginated'
       - type: object
         required: [applications]
         properties:
@@ -2941,7 +2941,7 @@ components:
         id:       { $ref: '#/components/schemas/Reference' }
         slug:     { $ref: '#/components/schemas/Slug' }
         category: { $ref: '#/components/schemas/Reference' }
-        parent:   { $ref: "#/components/schemas/Slug", nullable: true }
+        parent:   { $ref: '#/components/schemas/Slug', nullable: true }
         children: { type: array, items: { $ref: '#/components/schemas/Slug' }}
         title:    { type: string }
         tags:     { $ref: '#/components/schemas/TagList' }
@@ -2988,7 +2988,7 @@ components:
     RevisionHistory:
       type: object
       allOf:
-      - $ref: "#/components/schemas/Paginated"
+      - $ref: '#/components/schemas/Paginated'
       - type: object
         required: [revisions, history]
         properties:
@@ -3097,7 +3097,7 @@ components:
     Vote:
       type: object
       allOf:
-      - $ref: "#/components/schemas/UserIdentity"
+      - $ref: '#/components/schemas/UserIdentity'
       - oneOf:
         - type: object
           required: [format, time, vote]
@@ -3121,11 +3121,11 @@ components:
     VoterList:
       type: object
       allOf:
-      - $ref: "#/components/schemas/Paginated"
+      - $ref: '#/components/schemas/Paginated'
       - type: object
         required: [score, voters]
         properties:
-          score: { $ref: "#/components/schemas/Score" }
+          score: { $ref: '#/components/schemas/Score' }
           voters:
             type: array
             uniqueItems: true
@@ -3156,7 +3156,7 @@ components:
     FileMetadataList:
       type: object
       allOf:
-      - $ref: "#/components/schemas/Paginated"
+      - $ref: '#/components/schemas/Paginated'
       - type: object
         required: [files]
         properties:
@@ -3226,7 +3226,7 @@ components:
     MessageList:
       type: object
       allOf:
-      - $ref: "#/components/schemas/Paginated"
+      - $ref: '#/components/schemas/Paginated'
       - type: object
         required: [messages]
         properties:
@@ -3365,7 +3365,7 @@ components:
         category:   { $ref: '#/components/schemas/Reference' }
         group:      { $ref: '#/components/schemas/Reference' }
         thread:     { $ref: '#/components/schemas/Reference' }
-        parent:     { $ref: "#/components/schemas/Reference", nullable: true }
+        parent:     { $ref: '#/components/schemas/Reference', nullable: true }
         created:    { $ref: '#/components/schemas/ForumCreationContext' }
         revision:   { type: integer}
         replyCount: { type: integer }
@@ -3408,7 +3408,7 @@ components:
     ForumThreadList:
       type: object
       allOf:
-      - $ref: "#/components/schemas/Paginated"
+      - $ref: '#/components/schemas/Paginated'
       - type: object
         required: [order, threads]
         properties:
@@ -3421,7 +3421,7 @@ components:
     ForumPostList:
       type: object
       allOf:
-      - $ref: "#/components/schemas/Paginated"
+      - $ref: '#/components/schemas/Paginated'
       - type: object
         required: [order, posts]
         properties:
@@ -3516,7 +3516,7 @@ components:
     CategoryList:
       type: object
       allOf:
-      - $ref: "#/components/schemas/Paginated"
+      - $ref: '#/components/schemas/Paginated'
       - type: object
         required: [categories]
         properties:
