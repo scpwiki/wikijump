@@ -42,8 +42,6 @@ Wikijump.modules.ManageSiteForumPermissionsModule.listeners = {
 
 		Wikijump.modules.ManageSiteForumPermissionsModule.utils.decodePermissions(pstring);
 		return;
-		Wikijump.modules.ManageSitePermissionsModule.utils.updateThemePreview();
-
 	}	,
 
 	indClick: function(e){

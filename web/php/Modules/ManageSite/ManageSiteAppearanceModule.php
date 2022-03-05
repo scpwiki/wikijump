@@ -34,7 +34,6 @@ class ManageSiteAppearanceModule extends ManageSiteBaseModule
                 if ($theme->getVariantOfThemeId() != null) {
                     $arr['theme_id'] = $theme->getVariantOfThemeId();
                     $arr['variant_theme_id'] = $theme->getThemeId();
-                    $arr['theme_external_url']  = $category->getThemeExternalUrl();
                 }
             }
             $cats2[] = $arr;

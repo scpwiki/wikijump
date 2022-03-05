@@ -51,36 +51,6 @@ class CategoryBase extends BaseDBObject
         $this->setFieldValue('name', $v1, $raw);
     }
 
-    public function getThemeDefault()
-    {
-        return $this->getFieldValue('theme_default');
-    }
-
-    public function setThemeDefault($v1, $raw = false)
-    {
-        $this->setFieldValue('theme_default', $v1, $raw);
-    }
-
-    public function getThemeId()
-    {
-        return $this->getFieldValue('theme_id');
-    }
-
-    public function setThemeId($v1, $raw = false)
-    {
-        $this->setFieldValue('theme_id', $v1, $raw);
-    }
-
-    public function getThemeExternalUrl()
-    {
-        return $this->getFieldValue('theme_external_url');
-    }
-
-    public function setThemeExternalUrl($v1, $raw = false)
-    {
-        $this->setFieldValue('theme_external_url', $v1, $raw);
-    }
-
     public function getPermissionsDefault()
     {
         return $this->getFieldValue('permissions_default');
