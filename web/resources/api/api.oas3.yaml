@@ -1,4 +1,4 @@
-openapi: 3.0.3
+openapi: 3.1.0
 
 # TODO: document navigable url construction
 # TODO: /query
@@ -514,10 +514,7 @@ paths:
       operationId: userClientSetAvatar
       security:
       - AccountSession: []
-      requestBody: { content: { application/octet-stream: {
-        example: FFD8FFDB00430006040506050406060506070706...,
-        schema: { $ref: '#/components/schemas/FileData' }
-      }}}
+      requestBody: { content: { application/octet-stream: {} }}
       responses:
         201: { $ref: '#/components/responses/Created' }
         4XX: { $ref: '#/components/responses/APIRequestError' }
@@ -1140,7 +1137,6 @@ paths:
       security:
       - AccountSession: []
       requestBody: { content: { multipart/form-data: {
-        example: FFD8FFDB00430006040506050406060506070706...,
         schema: { $ref: '#/components/schemas/FileUpload' }
       }}}
       responses:
@@ -1159,10 +1155,7 @@ paths:
       responses:
         200:
           description: OK
-          content: { application/octet-stream: {
-            example: FFD8FFDB00430006040506050406060506070706...,
-            schema: { $ref: '#/components/schemas/FileData' }
-          }}
+          content: { application/octet-stream: {} }
         4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
@@ -2156,10 +2149,7 @@ paths:
       responses:
         200:
           description: OK
-          content: { application/octet-stream: {
-            example: FFD8FFDB00430006040506050406060506070706...,
-            schema: { $ref: '#/components/schemas/FileData' }
-          }}
+          content: { application/octet-stream: {} }
         4XX: { $ref: '#/components/responses/APIRequestError' }
         500: { $ref: '#/components/responses/UnexpectedError' }
 
@@ -2501,7 +2491,8 @@ components:
         If a category is not included, it is simply `name`.
       type: string
       format: slug
-      example: 'category:page'
+      examples:
+      - 'category:page'
 
     SlugObject:
       type: object
@@ -2512,7 +2503,8 @@ components:
     AvatarURL:
       title: Avatar URL
       type: string
-      example: https://wikijump.com/files--static/media/default-avatar.png
+      examples:
+      - https://wikijump.com/files--static/media/default-avatar.png
 
     AvatarURLObject:
       type: object
@@ -2523,12 +2515,14 @@ components:
     SiteName:
       title: Site Name
       type: string
-      example: mywiki
+      examples:
+      - mywiki
 
     Username:
       title: Username
       type: string
-      example: ExampleUsername
+      examples:
+      - ExampleUsername
 
     UsernameObject:
       type: object
@@ -2562,20 +2556,23 @@ components:
       title: Reference
       description: An integer that uniquely points to a resource.
       type: integer
-      example: 1234
+      examples:
+      - 1234
 
     FileData:
       description: A binary chunk of data representing a file.
       title: Binary Data
       type: string
-      format: binary
-      example: FFD8FFDB00430006040506050406060506070706...
+      contentMediaType: application/octet-stream
+      examples:
+      - FFD8FFDB00430006040506050406060506070706...
 
     Base64:
       description: A base64 encoded chunk of data.
       type: string
       format: byte
-      example: Y3VyaW91cyBhcmVuJ3QgeW91
+      examples:
+      - Y3VyaW91cyBhcmVuJ3QgeW91
 
     Wikitext:
       description: A chunk of text in FTML format.
@@ -2583,7 +2580,8 @@ components:
         url: https://github.com/scpwiki/wikijump/tree/develop/ftml
       type: string
       format: ftml
-      example: '[[div]]/some wikitext/[[/div]]'
+      examples:
+      - '[[div]]/some wikitext/[[/div]]'
 
     WikitextObject:
       type: object
@@ -2594,7 +2592,8 @@ components:
       description: A chunk of text in HTML format.
       type: string
       format: html
-      example: '<div><i>some html</i></div>'
+      examples:
+      - '<div><i>some html</i></div>'
 
     HTMLObject:
       type: object
@@ -2725,8 +2724,8 @@ components:
       - type: object
         required: [about, avatar, signature, since, lastActive]
         properties:
-          about:      { type: string, nullable: true }
-          avatar:     { type: string, format: url, nullable: true }
+          about:      { type: [string, 'null'] }
+          avatar:     { type: [string, 'null'], format: url }
           signature:  { $ref: "#/components/schemas/HTML", nullable: true }
           since:      { type: string, format: date-time }
           lastActive: { type: string, format: date-time }
@@ -2739,10 +2738,10 @@ components:
       - type: object
         required: [realname, pronouns, birthday, location, links]
         properties:
-          realname:  { type: string,               nullable: true }
-          pronouns:  { type: string,               nullable: true }
-          birthday:  { type: string, format: date, nullable: true }
-          location:  { type: string,               nullable: true }
+          realname:  { type: [string, 'null'],              }
+          pronouns:  { type: [string, 'null'],              }
+          birthday:  { type: [string, 'null'], format: date }
+          location:  { type: [string, 'null'],              }
           links:
             type: object
             uniqueItems: true
@@ -2754,15 +2753,14 @@ components:
       description: Partial object that is used to update a user's profile.
       type: object
       properties:
-        about:     { type: string,                          nullable: true }
+        about:     { type: [string, 'null'],                                 }
         signature: { $ref: '#/components/schemas/Wikitext', nullable: true }
-        realname:  { type: string,                          nullable: true }
-        pronouns:  { type: string,                          nullable: true }
-        birthday:  { type: string, format: date,            nullable: true }
-        location:  { type: string,                          nullable: true }
+        realname:  { type: [string, 'null'],                                 }
+        pronouns:  { type: [string, 'null'],                                 }
+        birthday:  { type: [string, 'null'], format: date                    }
+        location:  { type: [string, 'null'],                                 }
         links:
-          type: object
-          nullable: true
+          type: [object, 'null']
           uniqueItems: true
           additionalProperties:
             type: string
@@ -2793,7 +2791,7 @@ components:
       type: object
       required: [until, reason]
       properties:
-        until:  { type: string, format: date-time, nullable: true }
+        until:  { type: [string, 'null'], format: date-time }
         reason: { type: string }
 
     UserBanned:
@@ -2802,7 +2800,7 @@ components:
       properties:
         user:   { $ref: '#/components/schemas/UserIdentity' }
         when:   { type: string, format: date-time }
-        until:  { type: string, format: date-time, nullable: true }
+        until:  { type: [string, 'null'], format: date-time }
         reason: { type: string }
 
     UserBannedList:
@@ -3058,7 +3056,7 @@ components:
       - type: object
         required: [format, score, count, totals]
         properties:
-          format: { type: string, enum: [plus] }
+          format: { type: string, const: plus }
           score:  { type: number }
           count:  { type: integer }
           totals:
@@ -3070,7 +3068,7 @@ components:
       - type: object
         required: [format, score, count, totals]
         properties:
-          format: { type: string, enum: [plusminus] }
+          format: { type: string, const: plusminus }
           score:  { type: number }
           count:  { type: integer }
           totals:
@@ -3083,7 +3081,7 @@ components:
       - type: object
         required: [format, score, count, totals]
         properties:
-          format: { type: string, enum: [star] }
+          format: { type: string, const: star }
           score:  { type: number }
           count:  { type: integer }
           totals:
@@ -3104,19 +3102,19 @@ components:
         - type: object
           required: [format, time, vote]
           properties:
-            format: { type: string, enum: [plus] }
+            format: { type: string, const: plus }
             time:   { type: string, format: date-time }
             vote:   { $ref: '#/components/schemas/CastVotePlus' }
         - type: object
           required: [format, time, vote]
           properties:
-            format: { type: string, enum: [plusminus] }
+            format: { type: string, const: plusminus }
             time:   { type: string, format: date-time }
             vote:   { $ref: '#/components/schemas/CastVotePlusMinus' }
         - type: object
           required: [format, time, vote]
           properties:
-            format: { type: string, enum: [star] }
+            format: { type: string, const: star }
             time:   { type: string, format: date-time }
             vote:   { $ref: '#/components/schemas/CastVoteStar' }
 
@@ -3148,7 +3146,7 @@ components:
       required: [id, size, comment, mime, uploader, uploaded, url]
       properties:
         id:       { $ref: '#/components/schemas/Reference' }
-        size:     { type: integer, example: 20kb }
+        size:     { type: integer, examples: [20kb] }
         comment:  { type: string }
         mime:     { $ref: '#/components/schemas/Mime' }
         uploader: { $ref: '#/components/schemas/UserIdentity' }
@@ -3308,8 +3306,7 @@ components:
         postCount:   { type: integer }
         last:        { $ref: '#/components/schemas/ForumCreationContext' }
         permissions:
-          type: object
-          nullable: true
+          type: [object, 'null']
           required: [createPosts, createThreads, edit]
           properties:
             createPosts:   { type: array, items: { type: string, enum: [guest, registered, member] } }
@@ -3442,13 +3439,12 @@ components:
       properties:
         id:          { $ref: '#/components/schemas/Reference' }
         name:        { type: string }
-        license:     { type: string,  nullable: true }
-        ratings:     { type: string,  nullable: true, enum: [disabled, plus, plusminus, star] }
-        discussions: { type: boolean, nullable: true }
+        license:     { type: [string, 'null'], }
+        ratings:     { type: [string, 'null'], enum: [disabled, plus, plusminus, star] }
+        discussions: { type: [boolean, 'null'] }
         autonumber:  { type: boolean, default: false }
         permissions:
-          type: object
-          nullable: true
+          type: [object, 'null']
           required: [createPages, renamePages, deletePages, uploadFiles, changeFiles, showOptions, edit]
           properties:
             createPages: { type: array, items: { type: string, enum: [guest, registered, member] } }
@@ -3464,11 +3460,11 @@ components:
       required: [id, name, license, ratings, discussions, autonumber, permissions]
       properties:
         id:          { $ref: '#/components/schemas/Reference' }
-        name:        { type: string, enum: [_default] }
+        name:        { type: string, const: _default }
         license:     { type: string }
         ratings:     { type: string, enum: [disabled, plus, plusminus, star] }
         discussions: { type: boolean }
-        autonumber:  { type: boolean, enum: [false] }
+        autonumber:  { type: boolean, const: false }
         permissions:
           type: object
           required: [createPages, renamePages, deletePages, uploadFiles, changeFiles, showOptions, edit]
@@ -3484,13 +3480,12 @@ components:
     CategoryPatch:
       type: object
       properties:
-        license:     { type: string,  nullable: true }
-        ratings:     { type: string,  nullable: true, enum: [disabled, plus, plusminus, star] }
-        discussions: { type: boolean, nullable: true }
+        license:     { type: [string, 'null'] }
+        ratings:     { type: [string, 'null'], enum: [disabled, plus, plusminus, star] }
+        discussions: { type: [boolean, 'null'] }
         autonumber:  { type: boolean, default: false }
         permissions:
-          type: object
-          nullable: true
+          type: [object, 'null']
           properties:
             createPages: { type: array, items: { type: string, enum: [guest, registered, member] } }
             renamePages: { type: array, items: { type: string, enum: [guest, registered, member, creator] } }
@@ -3506,7 +3501,7 @@ components:
         license:     { type: string }
         ratings:     { type: string, enum: [disabled, plus, plusminus, star] }
         discussions: { type: boolean }
-        autonumber:  { type: boolean, enum: [false] }
+        autonumber:  { type: boolean, const: false }
         permissions:
           type: object
           properties:
@@ -3553,7 +3548,7 @@ components:
           type: object
           required: [googleAnalytics]
           properties:
-            googleAnalytics: { type: string, nullable: true }
+            googleAnalytics: { type: [string, 'null'] }
 
         security:
           type: object
@@ -3561,13 +3556,13 @@ components:
           - type: object
             required: [policy, cloning, fileHotLinking]
             properties:
-              policy:         { type: string, enum: [open] }
+              policy:         { type: string, const: open }
               cloning:        { type: boolean }
               fileHotLinking: { type: boolean }
           - type: object
             required: [policy, cloning, fileHotLinking, usersCanApply, sitePassword]
             properties:
-              policy:         { type: string, enum: [closed] }
+              policy:         { type: string, const: closed }
               cloning:        { type: boolean }
               fileHotLinking: { type: boolean }
               usersCanApply:  { type: boolean }
@@ -3575,7 +3570,7 @@ components:
           - type: object
             required: [policy, usersCanApply, sitePassword, guestDefaultPage, guestHideNav, extraUsers]
             properties:
-              policy:           { type: string, enum: [private] }
+              policy:           { type: string, const: private }
               usersCanApply:    { type: boolean }
               sitePassword:     { type: string }
               guestDefaultPage: { $ref: '#/components/schemas/Slug' }
@@ -3632,26 +3627,26 @@ components:
         integrations:
           type: object
           properties:
-            googleAnalytics: { type: string, nullable: true }
+            googleAnalytics: { type: [string, 'null'] }
 
         security:
           type: object
           oneOf:
           - type: object
             properties:
-              policy:         { type: string, enum: [open] }
+              policy:         { type: string, const: open }
               cloning:        { type: boolean }
               fileHotLinking: { type: boolean }
           - type: object
             properties:
-              policy:         { type: string, enum: [closed] }
+              policy:         { type: string, const: closed }
               cloning:        { type: boolean }
               fileHotLinking: { type: boolean }
               usersCanApply:  { type: boolean }
               sitePassword:   { type: string }
           - type: object
             properties:
-              policy:           { type: string, enum: [private] }
+              policy:           { type: string, const: private }
               usersCanApply:    { type: boolean }
               sitePassword:     { type: string }
               guestDefaultPage: { $ref: '#/components/schemas/Slug' }

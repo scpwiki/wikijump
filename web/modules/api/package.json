@@ -8,12 +8,13 @@
   ],
   "private": true,
   "scripts": {
-    "generate-api": "swagger-typescript-api -p ../../../web/resources/api/api.oas3.yaml -o ./vendor --name api.ts --unwrap-response-data  --module-name-index -1 --clean-output --patch"
+    "generate-api": "node generate-api.cjs"
   },
   "type": "module",
   "main": "src/index.ts",
   "devDependencies": {
-    "swagger-typescript-api": "^9.3.1"
+    "@spec2ts/core": "^2.0.0-beta.2",
+    "@spec2ts/openapi-client": "^2.0.0-beta.9"
   },
   "dependencies": {
     "@wikijump/util": "workspace:*",
