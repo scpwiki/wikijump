@@ -251,9 +251,9 @@ paths:
       security:
       - AccountSession: []
       responses:
-        default: { $ref: '#/components/responses/OK' }
+        200: { $ref: '#/components/responses/OK' }
         4XX: { $ref: '#/components/responses/APIRequestError' }
-        500:     { $ref: '#/components/responses/UnexpectedError' }
+        500: { $ref: '#/components/responses/UnexpectedError' }
 
   /auth/check:
     post:
@@ -2431,8 +2431,8 @@ components:
       properties:
         status: { type: number }
         error: { type: string }
-      # enum:
-      # - { status: 500, error: "UNEXPECTED_ERROR" }
+      enum:
+      - { status: 500, error: "UNEXPECTED_ERROR" }
 
     APIError:
       type: object
@@ -2440,22 +2440,24 @@ components:
       properties:
         status: { type: number }
         error: { type: string }
-    #   enum:
-    #   # generic
-    #   - { status: 400, error: "BAD_SYNTAX" }
-    #   - { status: 401, error: "UNAUTHORIZED" }
-    #   - { status: 403, error: "FORBIDDEN" }
-    #   - { status: 404, error: "NOT_FOUND" }
-    #   - { status: 409, error: "CONFLICT" }
-    #   # non-generic
-    #   - { status: 400, error: "INVALID_USERNAME" }
-    #   - { status: 400, error: "INVALID_EMAIL" }
-    #   - { status: 401, error: "WRONG_PASSWORD" }
-    #   - { status: 409, error: "EMAIL_ALREADY_IN_USE" }
-    #   - { status: 409, error: "USERNAME_ALREADY_IN_USE" }
-    #   - { status: 400, error: "BAD_USERNAME" }
-    #   - { status: 400, error: "BAD_EMAIL" }
-    #   - { status: 400, error: "BAD_PASSWORD" }
+      # thankfully, spec2ts doesn't get confused by this
+      # it doesn't export these with the type though, this enum gets skipped
+      enum:
+      # generic
+      - { status: 400, error: "BAD_SYNTAX" }
+      - { status: 401, error: "UNAUTHORIZED" }
+      - { status: 403, error: "FORBIDDEN" }
+      - { status: 404, error: "NOT_FOUND" }
+      - { status: 409, error: "CONFLICT" }
+      # non-generic
+      - { status: 400, error: "INVALID_USERNAME" }
+      - { status: 400, error: "INVALID_EMAIL" }
+      - { status: 401, error: "WRONG_PASSWORD" }
+      - { status: 409, error: "EMAIL_ALREADY_IN_USE" }
+      - { status: 409, error: "USERNAME_ALREADY_IN_USE" }
+      - { status: 400, error: "BAD_USERNAME" }
+      - { status: 400, error: "BAD_EMAIL" }
+      - { status: 400, error: "BAD_PASSWORD" }
 
     # # -- BASIC
 
@@ -2711,38 +2713,42 @@ components:
       properties:
         id:         { $ref: '#/components/schemas/Reference' }
         username:   { $ref: '#/components/schemas/Username' }
-        tinyavatar: { allOf: [$ref: '#/components/schemas/Base64'], nullable: true}
+        tinyavatar: { $ref: "#/components/schemas/Base64", nullable: true}
         karma:      { type: integer, minimum: 0, maximum: 5 }
         role:       { $ref: '#/components/schemas/UserRole' }
 
     UserInfo:
       description: Describes a user in an intermediate amount of detail.
       type: object
-      allOf: [$ref: '#/components/schemas/UserIdentity']
-      required: [about, avatar, signature, since, lastActive]
-      properties:
-        about:      { type: string, nullable: true }
-        avatar:     { type: string, format: url, example: /users/1234/avatar, nullable: true }
-        signature:  { allOf: [$ref: '#/components/schemas/HTML'], nullable: true }
-        since:      { type: string, format: date-time }
-        lastActive: { type: string, format: date-time }
+      allOf:
+      - $ref: "#/components/schemas/UserIdentity"
+      - type: object
+        required: [about, avatar, signature, since, lastActive]
+        properties:
+          about:      { type: string, nullable: true }
+          avatar:     { type: string, format: url, nullable: true }
+          signature:  { $ref: "#/components/schemas/HTML", nullable: true }
+          since:      { type: string, format: date-time }
+          lastActive: { type: string, format: date-time }
 
     UserProfile:
       description: Fully describes a user and their personalization preferences.
       type: object
-      allOf: [$ref: '#/components/schemas/UserInfo']
-      required: [realname, pronouns, birthday, location, links]
-      properties:
-        realname:  { type: string,               nullable: true }
-        pronouns:  { type: string,               nullable: true }
-        birthday:  { type: string, format: date, nullable: true }
-        location:  { type: string,               nullable: true }
-        links:
-          type: object
-          uniqueItems: true
-          additionalProperties:
-            type: string
-            format: url
+      allOf:
+      - $ref: "#/components/schemas/UserInfo"
+      - type: object
+        required: [realname, pronouns, birthday, location, links]
+        properties:
+          realname:  { type: string,               nullable: true }
+          pronouns:  { type: string,               nullable: true }
+          birthday:  { type: string, format: date, nullable: true }
+          location:  { type: string,               nullable: true }
+          links:
+            type: object
+            uniqueItems: true
+            additionalProperties:
+              type: string
+              format: url
 
     UserProfilePatch:
       description: Partial object that is used to update a user's profile.
@@ -2801,13 +2807,15 @@ components:
 
     UserBannedList:
       type: object
-      allOf: [$ref: '#/components/schemas/Paginated']
-      required: [banned]
-      properties:
-        banned:
-          type: array
-          uniqueItems: true
-          items: { $ref: '#/components/schemas/UserBanned' }
+      allOf:
+      - $ref: "#/components/schemas/Paginated"
+      - type: object
+        required: [banned]
+        properties:
+          banned:
+            type: array
+            uniqueItems: true
+            items: { $ref: '#/components/schemas/UserBanned' }
 
     # -- MEMBERSHIP
 
@@ -2823,8 +2831,8 @@ components:
       required: [status]
       properties:
         status:
+          $ref: "#/components/schemas/Membership"
           nullable: true
-          allOf: [$ref: '#/components/schemas/Membership']
 
     MembershipList:
       type: object
@@ -2843,7 +2851,7 @@ components:
 
     Application:
       type: object
-      required: [sender, message, time]
+      required: [id, sender, message, time]
       properties:
         id:      { $ref: '#/components/schemas/Reference' }
         sender:  { $ref: '#/components/schemas/UserIdentity' }
@@ -2852,13 +2860,15 @@ components:
 
     ApplicationList:
       type: object
-      allOf: [$ref: '#/components/schemas/Paginated']
-      required: [applications]
-      properties:
-        applications:
-          type: array
-          uniqueItems: true
-          items: { $ref: '#/components/schemas/Application' }
+      allOf:
+      - $ref: "#/components/schemas/Paginated"
+      - type: object
+        required: [applications]
+        properties:
+          applications:
+            type: array
+            uniqueItems: true
+            items: { $ref: '#/components/schemas/Application' }
 
     ApplicationSend:
       type: object
@@ -2886,7 +2896,7 @@ components:
       properties:
         sender:   { $ref: '#/components/schemas/UserIdentity' }
         site:     { $ref: '#/components/schemas/SiteName' }
-        messsage: { type: string }
+        message:  { type: string }
         time:     { type: string, format: date-time }
 
     InviteList:
@@ -2933,7 +2943,7 @@ components:
         id:       { $ref: '#/components/schemas/Reference' }
         slug:     { $ref: '#/components/schemas/Slug' }
         category: { $ref: '#/components/schemas/Reference' }
-        parent:   { allOf: [$ref: '#/components/schemas/Slug'], nullable: true }
+        parent:   { $ref: "#/components/schemas/Slug", nullable: true }
         children: { type: array, items: { $ref: '#/components/schemas/Slug' }}
         title:    { type: string }
         tags:     { $ref: '#/components/schemas/TagList' }
@@ -2979,11 +2989,13 @@ components:
 
     RevisionHistory:
       type: object
-      allOf: [$ref: '#/components/schemas/Paginated']
-      required: [revisions, history]
-      properties:
-        revisions: { type: integer }
-        history:   { type: array, uniqueItems: true, items: { $ref: '#/components/schemas/Revision' }}
+      allOf:
+      - $ref: "#/components/schemas/Paginated"
+      - type: object
+        required: [revisions, history]
+        properties:
+          revisions: { type: integer }
+          history:   { type: array, uniqueItems: true, items: { $ref: '#/components/schemas/Revision' }}
 
     # -- TAG
 
@@ -3028,8 +3040,7 @@ components:
       required: [vote]
       properties:
         vote:
-          allOf:
-            - $ref: '#/components/schemas/CastVote'
+          $ref: '#/components/schemas/CastVote'
           nullable: true
 
     Score:
@@ -3042,6 +3053,7 @@ components:
         > - `star`
         >
         > You will find the format used in the `format` property.
+      type: object
       oneOf:
       - type: object
         required: [format, score, count, totals]
@@ -3086,38 +3098,40 @@ components:
 
     Vote:
       type: object
-      allOf: [$ref: '#/components/schemas/UserIdentity']
-      oneOf:
-      - type: object
-        required: [format, time, vote]
-        properties:
-          format: { type: string, enum: [plus] }
-          time:   { type: string, format: date-time }
-          vote:   { $ref: '#/components/schemas/CastVotePlus' }
-      - type: object
-        required: [format, time, vote]
-        properties:
-          format: { type: string, enum: [plusminus] }
-          time:   { type: string, format: date-time }
-          vote:   { $ref: '#/components/schemas/CastVotePlusMinus' }
-      - type: object
-        required: [format, time, vote]
-        properties:
-          format: { type: string, enum: [star] }
-          time:   { type: string, format: date-time }
-          vote:   { $ref: '#/components/schemas/CastVoteStar' }
+      allOf:
+      - $ref: "#/components/schemas/UserIdentity"
+      - oneOf:
+        - type: object
+          required: [format, time, vote]
+          properties:
+            format: { type: string, enum: [plus] }
+            time:   { type: string, format: date-time }
+            vote:   { $ref: '#/components/schemas/CastVotePlus' }
+        - type: object
+          required: [format, time, vote]
+          properties:
+            format: { type: string, enum: [plusminus] }
+            time:   { type: string, format: date-time }
+            vote:   { $ref: '#/components/schemas/CastVotePlusMinus' }
+        - type: object
+          required: [format, time, vote]
+          properties:
+            format: { type: string, enum: [star] }
+            time:   { type: string, format: date-time }
+            vote:   { $ref: '#/components/schemas/CastVoteStar' }
 
     VoterList:
       type: object
       allOf:
-      - $ref: '#/components/schemas/Paginated'
-      - $ref: '#/components/schemas/Score'
-      required: [voters]
-      properties:
-        voters:
-          type: array
-          uniqueItems: true
-          items: { $ref: '#/components/schemas/Vote' }
+      - $ref: "#/components/schemas/Paginated"
+      - type: object
+        required: [score, voters]
+        properties:
+          score: { $ref: "#/components/schemas/Score" }
+          voters:
+            type: array
+            uniqueItems: true
+            items: { $ref: '#/components/schemas/Vote' }
 
     # -- FILE
 
@@ -3143,12 +3157,14 @@ components:
 
     FileMetadataList:
       type: object
-      required: [files]
-      allOf: [$ref: '#/components/schemas/Paginated']
-      properties:
-        files:
-          type: array
-          items: { $ref: '#/components/schemas/FileMetadata' }
+      allOf:
+      - $ref: "#/components/schemas/Paginated"
+      - type: object
+        required: [files]
+        properties:
+          files:
+            type: array
+            items: { $ref: '#/components/schemas/FileMetadata' }
 
     FileSiteMetadata:
       type: object
@@ -3211,17 +3227,19 @@ components:
 
     MessageList:
       type: object
-      allOf: [$ref: '#/components/schemas/Paginated']
-      required: [messages]
-      properties:
-        messages:
-          type: array
-          uniqueItems: true
-          items: { $ref: '#/components/schemas/Message' }
+      allOf:
+      - $ref: "#/components/schemas/Paginated"
+      - type: object
+        required: [messages]
+        properties:
+          messages:
+            type: array
+            uniqueItems: true
+            items: { $ref: '#/components/schemas/Message' }
 
     MessageSend:
       type: object
-      required: [subject, body]
+      required: [subject, wikitext]
       properties:
         subject:  { type: string }
         wikitext: { $ref: '#/components/schemas/Wikitext' }
@@ -3350,7 +3368,7 @@ components:
         category:   { $ref: '#/components/schemas/Reference' }
         group:      { $ref: '#/components/schemas/Reference' }
         thread:     { $ref: '#/components/schemas/Reference' }
-        parent:     { allOf: [$ref: '#/components/schemas/Reference'], nullable: true }
+        parent:     { $ref: "#/components/schemas/Reference", nullable: true }
         created:    { $ref: '#/components/schemas/ForumCreationContext' }
         revision:   { type: integer}
         replyCount: { type: integer }
@@ -3392,25 +3410,29 @@ components:
 
     ForumThreadList:
       type: object
-      allOf: [$ref: '#/components/schemas/Paginated']
-      required: [order, threads]
-      properties:
-        order: { $ref: '#/components/schemas/ForumSortingTypes' }
-        threads:
-          type: array
-          uniqueItems: true
-          items: { $ref: '#/components/schemas/ForumThread' }
+      allOf:
+      - $ref: "#/components/schemas/Paginated"
+      - type: object
+        required: [order, threads]
+        properties:
+          order: { $ref: '#/components/schemas/ForumSortingTypes' }
+          threads:
+            type: array
+            uniqueItems: true
+            items: { $ref: '#/components/schemas/ForumThread' }
 
     ForumPostList:
       type: object
-      allOf: [$ref: '#/components/schemas/Paginated']
-      required: [order, posts]
-      properties:
-        order: { $ref: '#/components/schemas/ForumSortingTypes' }
-        posts:
-          type: array
-          uniqueItems: true
-          items: { $ref: '#/components/schemas/ForumPost' }
+      allOf:
+      - $ref: "#/components/schemas/Paginated"
+      - type: object
+        required: [order, posts]
+        properties:
+          order: { $ref: '#/components/schemas/ForumSortingTypes' }
+          posts:
+            type: array
+            uniqueItems: true
+            items: { $ref: '#/components/schemas/ForumPost' }
 
     # -- CATEGORY
 
@@ -3498,13 +3520,15 @@ components:
 
     CategoryList:
       type: object
-      allOf: [$ref: '#/components/schemas/Paginated']
-      required: [categories]
-      properties:
-        categories:
-          type: array
-          uniqueItems: true
-          items: { $ref: '#/components/schemas/Category' }
+      allOf:
+      - $ref: "#/components/schemas/Paginated"
+      - type: object
+        required: [categories]
+        properties:
+          categories:
+            type: array
+            uniqueItems: true
+            items: { $ref: '#/components/schemas/Category' }
 
     # -- SITE
 
