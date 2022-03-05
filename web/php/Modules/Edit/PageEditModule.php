@@ -88,7 +88,7 @@ class PageEditModule extends SmartyModule
             $runData->contextAdd("title", $suggestedTitle);
 
             /* Select available templates, but only if the category does not have a live template. */
-            $templatePage = $category->getTemplatePage();
+            $templatePage = "$categoryName:_template";
 
             if ($templatePage && $form = Form::fromSource($templatePage->getSource())) {
                 $runData->contextAdd("form", new Renderer($form));
@@ -152,7 +152,7 @@ class PageEditModule extends SmartyModule
 
         // now check if form is defined
 
-        $templatePage = $category->getTemplatePage();
+        $templatePage = "$categoryName:_template";
 
         if (preg_match('/^[^:]*:[^_]|^[^_:][^:]*$/', $page->getUnixName())
             && $templatePage && $form = Form::fromSource($templatePage->getSource())

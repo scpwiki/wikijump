@@ -40,12 +40,8 @@ class PageOptionsBottomModule extends Module
             return '';
         }
 
-        $showDiscuss = $pl->getParameterValue("showDiscuss");
-        if ($showDiscuss) {
-            $threadId = $pl->getParameterValue("threadId");
-            $pageUnixName = $pl->getParameterValue("pageUnixName");
-        }
-
+        $threadId = $pl->getParameterValue("threadId");
+        $pageUnixName = $pl->getParameterValue("pageUnixName");
         $showRate = $category->getRatingEnabledEff();
 
         // now a nasty part - make it inline such that
@@ -73,7 +69,7 @@ class PageOptionsBottomModule extends Module
 
         $otext .= '<a href="javascript:;" id="tags-button">'._('tags').'</a>';
 
-        if ($showDiscuss&&$page) {
+        if ($page) {
             if ($threadId) {
                 $no = $page->getTemp("numberPosts");
                 $otext.='<a href="/forum/t-'.$threadId.'/'.$pageUnixName.'"  id="discuss-button">'._('discuss').' ('.$no.')</a>';

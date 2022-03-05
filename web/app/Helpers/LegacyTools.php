@@ -411,12 +411,8 @@ final class LegacyTools
             return '';
         }
 
-        $showDiscuss = $category->getShowDiscuss();
-        if ($showDiscuss) {
-            $threadId = $wikiPage->getThreadId();
-            $pageUnixName = $wikiPage->getUnixName();
-        }
-
+        $threadId = $wikiPage->getThreadId();
+        $pageUnixName = $wikiPage->getUnixName();
         $showRate = $category->getRatingEnabledEff();
 
         // now a nasty part - make it inline such that
@@ -444,7 +440,7 @@ final class LegacyTools
 
         $otext .= '<a href="javascript:;" id="tags-button">'._('tags').'</a>';
 
-        if ($showDiscuss&&$page) {
+        if ($page) {
             if ($threadId) {
                 $no = $page->getTemp("numberPosts");
                 $otext.='<a href="/forum/t-'.$threadId.'/'.$pageUnixName.'"  id="discuss-button">'._('discuss').' ('.$no.')</a>';

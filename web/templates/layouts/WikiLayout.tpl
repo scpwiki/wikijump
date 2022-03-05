@@ -132,7 +132,7 @@
 
 					<div style="clear:both; height:1px; font-size:1px;"></div>
 					{if !$pageNotExists}
-						{module name="PageOptionsBottomModule" showDiscuss=$category->getShowDiscuss() threadId=$wikiPage->getThreadId() pageUnixName=$wikiPage->getUnixName()}
+						{module name="PageOptionsBottomModule" threadId=$wikiPage->getThreadId() pageUnixName=$wikiPage->getUnixName()}
 					{/if}
 
 					<div id="action-area" style="display: none"></div>

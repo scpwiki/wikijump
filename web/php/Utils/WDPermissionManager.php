@@ -272,7 +272,7 @@ class WDPermissionManager
         //action code
         $ac = self::$pageActions[$action];
         //permission string
-        $ps = $category->getPermissionString();
+        $ps = ''; // TODO permission string
 
         // first try anonymous and registered to save effort
         $uc = self::$userClasses['anonymous'];
@@ -416,7 +416,7 @@ class WDPermissionManager
         //action code
         $ac = self::$forumActions[$action];
         //permission string
-        $ps = $category->getPermissionString();
+        $ps = ''; // TODO permission string
 
         //throw new WDPermissionException($ps);
 
