@@ -3,9 +3,8 @@
 namespace Wikidot\Modules\XList;
 
 use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\PagePeer;
-
 use Ozone\Framework\SmartyModule;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class PageTreeModule extends SmartyModule
 {
@@ -38,7 +37,7 @@ class PageTreeModule extends SmartyModule
         $c = new Criteria();
         $c->add("parent_page_id", $page->getPageId());
         $c->addOrderAscending("COALESCE(title, unix_name)");
-        $children = PagePeer::instance()->select($c);
+        $children = [null]; // TODO run query
 
         $descendants = array();
         // select next level of children
@@ -62,7 +61,7 @@ class PageTreeModule extends SmartyModule
                 $q .= ") ORDER BY COALESCE(title, unix_name)";
                 $c = new Criteria();
                 $c->setExplicitQuery($q);
-                $ch2 = PagePeer::instance()->select($c);
+                $ch2 = [null]; // TODO run query
                 $ch1 = $ch2;
             } else {
                 $ch1 = null;

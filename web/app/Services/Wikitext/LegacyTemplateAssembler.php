@@ -3,10 +3,8 @@ declare(strict_types=1);
 
 namespace Wikijump\Services\Wikitext;
 
-use Ds\Sets;
-use Ozone\Framework\Database\Criteria;
+use Ds\Set;
 use Wikidot\DB\ForumThreadPeer;
-use Wikidot\DB\PagePeer;
 use Wikidot\Utils\GlobalProperties;
 use Wikijump\Helpers\LegacyTools;
 use Wikijump\Models\User;

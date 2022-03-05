@@ -236,7 +236,7 @@ final class LegacyTools
             $return['tags'] = null;
 
             // has discussion?
-            if ($page->getThreadId()!== null) {
+            if ($page->getThreadId() !== null) {
                 $thread = ForumThreadPeer::instance()->selectByPrimaryKey($page->getThreadId());
                 if ($thread == null) {
                     $page->setThreadId(null);
@@ -248,12 +248,12 @@ final class LegacyTools
 
             // look for parent pages (and prepare breadcrumbs)
             if ($page->getParentPageId()) {
-                $breadcrumbs = array();
-                $ppage = PagePeer::instance()->selectByPrimaryKey($page->getParentPageId());
+                $breadcrumbs = [];
+                $ppage = Page::findId($page->getSiteId(), $page->getParentPageId());
                 array_unshift($breadcrumbs, $ppage);
                 $bcount = 0;
                 while ($ppage->getParentPageId() && $bcount<=4) {
-                    $ppage = PagePeer::instance()->selectByPrimaryKey($ppage->getParentPageId());
+                    $ppage = Page::findId($page->getSiteId(), $page->getParentPageId());
                     array_unshift($breadcrumbs, $ppage);
                     $bcount++;
                 }

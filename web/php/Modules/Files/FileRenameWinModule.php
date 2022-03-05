@@ -2,17 +2,14 @@
 
 namespace Wikidot\Modules\Files;
 
-
-use Wikidot\DB\FilePeer;
-use Wikidot\DB\PagePeer;
-
 use Ozone\Framework\SmartyModule;
+use Wikidot\DB\FilePeer;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionManager;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class FileRenameWinModule extends SmartyModule
 {
-
     public function build($runData)
     {
         $pl = $runData->getParameterList();
@@ -22,7 +19,7 @@ class FileRenameWinModule extends SmartyModule
         if ($file == null || $file->getSiteId() != $runData->getTemp("site")->getSiteId()) {
             throw new ProcessException(_("Error getting file information."), "no_file");
         }
-        $page = PagePeer::instance()->selectByPrimaryKey($file->getPageId());
+        $page = Page::findIdOnly($file->getPageId());
         if ($page == null || $page->getSiteId() != $runData->getTemp("site")->getSiteId()) {
             throw new ProcessException(_("Error getting file information."), "no_page");
         }

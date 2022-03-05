@@ -4,8 +4,6 @@ namespace Wikidot\Modules\XList;
 
 use Ozone\Framework\Database\Criteria;
 use Wikidot\DB\CategoryPeer;
-use Wikidot\DB\PagePeer;
-
 use Wikidot\Utils\CacheableModule;
 use Wikidot\Utils\ProcessException;
 
@@ -65,7 +63,7 @@ class WikiPagesModule extends CacheableModule
             $c->setLimit($limit);
         }
 
-        $pages = PagePeer::instance()->select($c);
+        $pages = [null]; // TODO run query
 
         // by default cathegorize by first letter...
 

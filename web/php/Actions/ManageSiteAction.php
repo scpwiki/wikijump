@@ -10,7 +10,6 @@ use Ozone\Framework\JSONService;
 use Ozone\Framework\SmartyAction;
 use Wikidot\Config\ForbiddenNames;
 use Wikidot\DB\CategoryPeer;
-use Wikidot\DB\PagePeer;
 use Wikidot\DB\ThemePeer;
 use Wikidot\DB\Theme;
 use Wikidot\DB\SitePeer;
@@ -28,6 +27,7 @@ use Wikidot\Utils\Outdater;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionManager;
 use Wikidot\Utils\WDStringUtils;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class ManageSiteAction extends SmartyAction
 {

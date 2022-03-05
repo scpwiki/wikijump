@@ -28,7 +28,7 @@
 
 use Ozone\Framework\Database\Criteria;
 use Wikidot\DB\FilePeer;
-use Wikidot\DB\PagePeer;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class Text_Wiki_Render_Xhtml_Image extends Text_Wiki_Render {
 

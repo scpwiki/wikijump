@@ -2,12 +2,10 @@
 
 namespace Wikidot\Modules\Files;
 
-
-use Wikidot\DB\PagePeer;
-
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\FileHelper;
 use Wikidot\Utils\ProcessException;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class PageFilesModule extends SmartyModule
 {
@@ -20,13 +18,13 @@ class PageFilesModule extends SmartyModule
         if (!$pageId || !is_numeric($pageId)) {
             throw new ProcessException(_("The page cannot be found or does not exist."), "no_page");
         }
-        $page = PagePeer::instance()->selectByPrimaryKey($pageId);
-        if (!$page || $page->getSiteId() !== $site->getSiteId()) {
+        $page = Page::findIdOnly($pageId);
+        if ($page === null || $page->getSiteId() !== $site->getSiteId()) {
             throw new ProcessException(_("The page cannot be found or does not exist."), "no_page");
         }
         $files = $page->getFiles();
 
-        if (count($files)>0) {
+        if (count($files) > 0) {
             $runData->contextAdd("files", $files);
             $runData->contextAdd("filePath", "/local--files/".$page->getUnixName()."/");
             $totalPageSize = FileHelper::totalPageFilesSize($pageId);

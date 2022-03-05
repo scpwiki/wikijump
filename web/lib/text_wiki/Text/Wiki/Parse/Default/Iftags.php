@@ -12,7 +12,7 @@
  *
  */
 
-use Wikidot\DB\PagePeer;
+use Wikijump\Services\Deepwell\Models\Page;
 
 /**
  *

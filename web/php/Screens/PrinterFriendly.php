@@ -9,7 +9,6 @@ use Ozone\Framework\PathManager;
 use Ozone\Framework\Screen;
 use Wikidot\DB\MemberPeer;
 use Wikidot\DB\SiteViewerPeer;
-use Wikidot\DB\PagePeer;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDStringUtils;
 

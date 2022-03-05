@@ -6,7 +6,6 @@ namespace Wikidot\Form\Field;
 use Wikidot\Utils\WDStringUtils;
 use Ozone\Framework\Database\Criteria;
 use Wikidot\DB\CategoryPeer;
-use Wikidot\DB\PagePeer;
 
 class PagePath extends WikiBase
 {
@@ -127,6 +126,7 @@ class PagePath extends WikiBase
         } else {
             $c->setExplicitQuery("SELECT * FROM page WHERE category_id = $categoryId AND parent_page_id IS NULL");
         }
-        return PagePeer::instance()->select($c);
+        // TODO get pages
+        return [null];
     }
 }

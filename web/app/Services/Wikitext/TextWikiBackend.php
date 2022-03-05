@@ -5,7 +5,6 @@ namespace Wikijump\Services\Wikitext;
 
 use Ozone\Framework\Database\Criteria;
 use Wikidot\DB\Page;
-use Wikidot\DB\PagePeer;
 use Wikidot\DB\Site;
 use Wikidot\DB\SitePeer;
 use Wikidot\Utils\WikiTransformation;

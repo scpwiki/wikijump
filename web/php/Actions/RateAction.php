@@ -5,8 +5,6 @@ use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\ODate;
 use Ozone\Framework\SmartyAction;
-use Wikidot\DB\Page;
-use Wikidot\DB\PagePeer;
 use Wikidot\DB\PageRateVotePeer;
 use Wikidot\DB\PageRateVote;
 use Wikidot\DB\MemberPeer;
@@ -39,7 +37,7 @@ class RateAction extends SmartyAction
         /**
          * @var Page|null $page
          */
-        $page = PagePeer::instance()->selectByPrimaryKey($pageId);
+        $page = Page::findIdOnly($pageId);
         if ($page == null || $page->getSiteId() != $runData->getTemp("site")->getSiteId()) {
             throw new ProcessException(_("Error getting page information."), "no_page");
         }
@@ -119,7 +117,7 @@ class RateAction extends SmartyAction
         $pageId = $pl->getParameterValue("pageId");
         $user = $runData->getUser();
 
-        $page = PagePeer::instance()->selectByPrimaryKey($pageId);
+        $page = Page::findIdOnly($pageId);
         if (!$pageId || $page == null || $page->getSiteId() != $runData->getTemp("site")->getSiteId()) {
             throw new ProcessException(_("Error getting page information."), "no_page");
         }

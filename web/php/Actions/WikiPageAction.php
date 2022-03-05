@@ -18,8 +18,6 @@ use Wikidot\Utils\WDPermissionManager;
 use Wikidot\Utils\WDStringUtils;
 use Wikidot\Yaml;
 use Wikidot\DB\CategoryPeer;
-use Wikidot\DB\PagePeer;
-use Wikidot\DB\Page;
 use Wikidot\DB\PageRevision;
 use Wikidot\DB\PageMetadata;
 use Wikidot\DB\PageRevisionPeer;
@@ -29,6 +27,7 @@ use Wikidot\DB\AdminPeer;
 use Wikijump\Models\TagSettings;
 use Wikijump\Models\User;
 use Wikijump\Services\Deepwell\DeepwellService;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class WikiPageAction extends SmartyAction
 {
@@ -211,12 +210,8 @@ class WikiPageAction extends SmartyAction
         } else {
             // THE PAGE ALREADY EXISTS
 
-            $c = new Criteria();
-            $c->add("page_id", $pageId);
-            $c->setForUpdate(true);
-            $page = PagePeer::instance()->selectOne($c);
-
-            if ($page == null) {
+            $page = Page::findIdOnly($pageId);
+            if ($page === null) {
                 throw new ProcessException(_("Page does not exist."));
             }
 
@@ -335,10 +330,7 @@ class WikiPageAction extends SmartyAction
         $db = Database::connection();
         $db->begin();
 
-        $c = new Criteria();
-        $c->add("page_id", $pageId);
-        $c->setForUpdate(true);
-        $page = PagePeer::instance()->selectOne($c);
+        $page = Page::findIdOnly($pageId);
 
         if ($page == null || $page->getSiteId() != $site->getSiteId()) {
             throw new ProcessException(_("Error getting page information."), "no_page");
@@ -466,17 +458,8 @@ class WikiPageAction extends SmartyAction
 
             // also see if the old category is empty - if yes - delete it!
             if ($oldCategoryName != "_default") {
-                $category = CategoryPeer::instance()->selectByName($oldCategoryName, $site->getSiteId(), false);
-
-                $c = new Criteria();
-                $c->add("category_id", $category->getCategoryId());
-                $count = PagePeer::instance()->selectCount($c);
-
-                if ($count == 0) {
-                    // delete the category
-                    CategoryPeer::instance()->delete($c);
-                    $outdater->categoryEvent('delete', $category, $site);
-                }
+                // Deleted code:
+                // If number of pages in category is 0, delete category
             }
         }
 
@@ -517,8 +500,6 @@ class WikiPageAction extends SmartyAction
 
         $c->setExplicitQuery($q);
 
-        $pages = PagePeer::instance()->select($c);
-
         $q = "SELECT page_id, title, unix_name FROM page, page_inclusion " .
                 "WHERE page_inclusion.included_page_name='".db_escape_string($oldName)."' " .
                 "AND page_inclusion.including_page_id=page.page_id AND page.site_id={$site->getSiteId()} ORDER BY COALESCE(title, unix_name)";
@@ -540,12 +521,8 @@ class WikiPageAction extends SmartyAction
         $db = Database::connection();
         $db->begin();
 
-        $c = new Criteria();
-        $c->add("page_id", $pageId);
-        $c->setForUpdate(true);
-        $page = PagePeer::instance()->selectOne($c);
-
-        if ($page == null) {
+        $page = Page::findIdOnly($pageId);
+        if ($page === null) {
             throw new ProcessException(_("Error: original page does not exist any more...???"), "no_page");
         }
 
@@ -560,12 +537,12 @@ class WikiPageAction extends SmartyAction
         } else {
             // get the page!
             $pp = Page::findSlug($site->getSiteId(), $ppName);
-            if ($pp == null) {
+            if ($pp === null) {
                 // page does not exist. return error
                 throw new ProcessException(_("The requested page does not exist. Please indicate a parent page that already exists."), "no_parent_page");
             }
             // check if not "self"
-            if ($pp->getPageId() == $page->getPageId()) {
+            if ($pp->getPageId() === $page->getPageId()) {
                 throw new ProcessException(_("Cannot set parent page to this page."), "loop_error");
             }
 
@@ -652,12 +629,8 @@ class WikiPageAction extends SmartyAction
         $db = Database::connection();
         $db->begin();
 
-        $c = new Criteria();
-        $c->add("page_id", $pageId);
-        $c->setForUpdate(true);
-        $page = PagePeer::instance()->selectOne($c);
-
-        if ($page == null || $page->getSiteId() != $site->getSiteId()) {
+        $page = Page::findIdOnly($pageId);
+        if ($page === null || $page->getSiteId() !== $site->getSiteId()) {
             throw new ProcessException(_("Error getting page information."), "no_page");
         }
 
@@ -765,9 +738,8 @@ class WikiPageAction extends SmartyAction
         $page_id = $pl->getParameterValue("pageId");
 
         $site = $runData->getTemp("site");
-        $page = PagePeer::instance()->selectByPrimaryKey($page_id);
-
-        if ($page == null || $page->getSiteId() != $site->getSiteId()) {
+        $page = Page::findIdOnly($page_id);
+        if ($page === null || $page->getSiteId() !== $site->getSiteId()) {
             throw new ProcessException(_("Error getting page information."), "no_page");
         }
 
@@ -816,7 +788,7 @@ class WikiPageAction extends SmartyAction
         $pageId = $pl->getParameterValue("pageId");
         $user = $runData->getUser();
 
-        $page = PagePeer::instance()->selectByPrimaryKey($pageId);
+        $page = Page::findIdOnly($pageId);
         if (!$pageId || $page == null || $page->getSiteId() != $runData->getTemp("site")->getSiteId()) {
             throw new ProcessException(_("Error getting page information."), "no_page");
         }
@@ -878,12 +850,8 @@ class WikiPageAction extends SmartyAction
         $db = Database::connection();
         $db->begin();
 
-        $c = new Criteria();
-        $c->add("page_id", $pageId);
-        $c->setForUpdate(true);
-        $page = PagePeer::instance()->selectOne($c);
-
-        if ($page == null || $page->getSiteId() != $site->getSiteId()) {
+        $page = Page::findIdOnly($pageId);
+        if ($page === null || $page->getSiteId() !== $site->getSiteId()) {
             throw new ProcessException(_("Error getting page information."), "no_page");
         }
 

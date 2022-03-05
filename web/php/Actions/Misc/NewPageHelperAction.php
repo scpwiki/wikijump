@@ -2,9 +2,9 @@
 
 namespace Wikidot\Actions\Misc;
 use Ozone\Framework\SmartyAction;
-use Wikidot\DB\PagePeer;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDStringUtils;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class NewPageHelperAction extends SmartyAction
 {
@@ -63,7 +63,7 @@ class NewPageHelperAction extends SmartyAction
         }
 
         if ($templateId) {
-            $templatePage = PagePeer::instance()->selectByPrimaryKey($templateId);
+            $templatePage = Page::findIdOnly($templateId);
             if (!$templatePage || !preg_match("/^template:/", $templatePage->getUnixName())) {
                 throw new ProcessException("Error selecting the template");
             }

@@ -3,9 +3,8 @@
 namespace Wikidot\Modules\Rename;
 
 use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\PagePeer;
-
 use Ozone\Framework\SmartyModule;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class RenameBacklinksModule extends SmartyModule
 {
@@ -22,7 +21,7 @@ class RenameBacklinksModule extends SmartyModule
 
         $c->setExplicitQuery($q);
 
-        $pages = PagePeer::instance()->select($c);
+        $pages = [null]; // TODO run query
 
         $q = "SELECT page_id, title, unix_name FROM page, page_inclusion " .
                 "WHERE page_inclusion.included_page_id='".db_escape_string($pageId)."' " .
@@ -31,7 +30,7 @@ class RenameBacklinksModule extends SmartyModule
         $c = new Criteria();
         $c->setExplicitQuery($q);
 
-        $pagesI = PagePeer::instance()->select($c);
+        $pagesI = [null]; // TODO run query
 
         $merged = array();
         foreach ($pages as $key => $p) {

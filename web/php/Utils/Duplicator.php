@@ -10,7 +10,6 @@ use Wikidot\DB\Admin;
 use Wikidot\DB\Member;
 use Wikidot\DB\ThemePeer;
 use Wikidot\DB\CategoryPeer;
-use Wikidot\DB\PagePeer;
 use Wikidot\DB\ForumGroupPeer;
 use Wikidot\DB\ForumCategoryPeer;
 use Wikidot\DB\FilePeer;
@@ -256,7 +255,7 @@ class Duplicator
         // copy pages
         $c = new Criteria();
         $c->add("category_id", $category->getCategoryId());
-        $pages = PagePeer::instance()->select($c);
+        $pages = [null]; // TODO run query
         foreach ($pages as $page) {
             $this->duplicatePage($page, $nsite, $cat);
         }
@@ -359,7 +358,7 @@ class Duplicator
         foreach ($categories as $cat) {
             $c = new Criteria();
             $c->add("category_id", $cat->getCategoryId());
-            $pages = PagePeer::instance()->select($c);
+            $pages = [null]; // TODO run query
             foreach ($pages as &$p) {
                 $p->setTemp("source", $p->getSource());
                 $p->setTemp("meta", $p->getMetadata());

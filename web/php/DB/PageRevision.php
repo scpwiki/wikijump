@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Cache;
 use Exception;
 use Wikijump\Models\User;
 use Wikijump\Services\Deepwell\DeepwellService;
+use Wikijump\Services\Deepwell\Models\Page;
 
 /**
  * Object Model Class.
@@ -69,7 +70,7 @@ class PageRevision extends PageRevisionBase
                 }
             }
         }
-        return PagePeer::instance()->selectByPrimaryKey($this->getPageId());
+        return Page::findIdOnly($this->getPageId());
     }
 
     public function save(): void

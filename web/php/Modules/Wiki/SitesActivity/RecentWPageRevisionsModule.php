@@ -5,8 +5,6 @@ namespace Wikidot\Modules\Wiki\SitesActivity;
 
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
-use Ozone\Framework\Ozone;
-use Wikidot\DB\PagePeer;
 
 use Ozone\Framework\SmartyModule;
 
@@ -76,7 +74,7 @@ class RecentWPageRevisionsModule extends SmartyModule
                 "ORDER BY page.revision_id DESC LIMIT 10";
         $c->setExplicitQuery($q);
 
-        $pages = PagePeer::instance()->select($c);
+        $pages = [null]; // TODO run query
         $runData->contextAdd("pages", $pages);
     }
 }

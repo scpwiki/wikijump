@@ -3,10 +3,9 @@
 namespace Wikidot\Modules\PageRate;
 
 use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\PagePeer;
-use Wikidot\DB\PageRateVotePeer;
-
 use Ozone\Framework\SmartyModule;
+use Wikidot\DB\PageRateVotePeer;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class WhoRatedPageModule extends SmartyModule
 {
@@ -16,7 +15,7 @@ class WhoRatedPageModule extends SmartyModule
         $pl = $runData->getParameterList();
         $pageId = $pl->getParameterValue("pageId");
 
-        $page = PagePeer::instance()->selectByPrimaryKey($pageId);
+        $page = Page::findIdOnly($pageId);
 
         $c = new Criteria();
         $c->add("page_id", $page->getPageId());

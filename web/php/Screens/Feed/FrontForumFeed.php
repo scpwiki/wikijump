@@ -4,8 +4,6 @@ namespace Wikidot\Screens\Feed;
 
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
-use Ozone\Framework\Ozone;
-use Wikidot\DB\PagePeer;
 use Wikidot\DB\FrontForumFeedPeer;
 use Wikidot\DB\ForumCategoryPeer;
 use Wikidot\DB\ForumThreadPeer;
@@ -13,7 +11,7 @@ use Wikidot\Utils\FeedScreen;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\ProcessException;
 use Wikijump\Helpers\LegacyTools;
-use Wikijump\Models\User;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class FrontForumFeed extends FeedScreen
 {
@@ -126,7 +124,7 @@ class FrontForumFeed extends FeedScreen
         $categories = array();
 
         // get page
-        $page = PagePeer::instance()->selectByPrimaryKey($feed->getPageId());
+        $page = Page::findIdOnly($feed->getPageId());
         if (!$page) {
             throw new ProcessException(_('Page cannot be found.'), 'no_page');
         }

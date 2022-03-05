@@ -7,7 +7,6 @@ use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\ODate;
 use Ozone\Framework\SmartyAction;
-use Wikidot\DB\PagePeer;
 use Wikidot\DB\FilePeer;
 use Wikidot\DB\File;
 use Wikidot\Utils\FileHelper;
@@ -16,6 +15,7 @@ use Wikidot\Utils\Outdater;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionManager;
 use Wikijump\Models\User;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class FileAction extends SmartyAction
 {
@@ -31,7 +31,7 @@ class FileAction extends SmartyAction
         $pageId = $pl->getParameterValue("pageId");
         $fileName = trim($pl->getParameterValue("filename"));
 
-        $page = PagePeer::instance()->selectByPrimaryKey($pageId);
+        $page = Page::findIdOnly($pageId);
         if ($page == null || $page->getSiteId() != $site->getSiteId()) {
             throw new ProcessException(_("Problem selecting destination page."), "no_page");
         }
@@ -84,8 +84,8 @@ class FileAction extends SmartyAction
             $pl = $runData->getParameterList();
             $site = $runData->getTemp("site");
             $pageId = $pl->getParameterValue("page_id");
-            $page = PagePeer::instance()->selectByPrimaryKey($pageId);
-            if ($page == null || $page->getSiteId() != $site->getSiteId()) {
+            $page = Page::findIdOnly($pageId);
+            if ($page === null || $page->getSiteId() !== $site->getSiteId()) {
                 $status = "error";
                 $runData->contextAdd("status", $status);
                 $runData->contextAdd("message", _("Page does not exist???"));
@@ -306,7 +306,7 @@ class FileAction extends SmartyAction
         $db->begin();
 
         $file = FilePeer::instance()->selectByPrimaryKey($fileId);
-        $page = PagePeer::instance()->selectByPrimaryKey($file->getPageId());
+        $page = Page::findIdOnly($file->getPageId());
 
         if ($file == null || $file->getSiteId() != $site->getSiteId() || $page==null) {
             throw new ProcessException(_("Error getting file data."), "file_error");
@@ -445,7 +445,7 @@ class FileAction extends SmartyAction
         $user = $runData->getUser();
 
         $file = FilePeer::instance()->selectByPrimaryKey($fileId);
-        $page = PagePeer::instance()->selectByPrimaryKey($file->getPageId());
+        $page = Page::findIdOnly($file->getPageId());
 
         if ($file == null || $file->getSiteId() != $site->getSiteId()) {
             throw new ProcessException(_("Error getting file data."), "file_error");
@@ -616,7 +616,7 @@ class FileAction extends SmartyAction
         if ($file == null || $file->getSiteId() != $site->getSiteId()) {
             throw new ProcessException("File does not exist.", "no_file");
         }
-        $page = PagePeer::instance()->selectByPrimaryKey($file->getPageId());
+        $page = Page::findIdOnly($file->getPageId());
         if ($page == null) {
             throw new ProcessException(_("Page does not exist."), "no_page");
         }

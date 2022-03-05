@@ -1,9 +1,8 @@
 <?php
 
 namespace Wikidot\Modules\Backlinks;
-use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\PagePeer;
 
+use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\ProcessException;
 
@@ -26,7 +25,7 @@ class BacklinksModule extends SmartyModule
 
         $c->setExplicitQuery($q);
 
-        $pages = PagePeer::instance()->select($c);
+        $pages = [null]; // TODO run query
 
         $q = "SELECT page_id, title, unix_name FROM page, page_inclusion " .
                 "WHERE page_inclusion.included_page_id='".db_escape_string($pageId)."' " .
@@ -34,7 +33,7 @@ class BacklinksModule extends SmartyModule
 
         $c->setExplicitQuery($q);
 
-        $pagesI = PagePeer::instance()->select($c);
+        $pagesI = [null]; // TODO run query
 
         $runData->contextAdd("pagesI", $pagesI);
 

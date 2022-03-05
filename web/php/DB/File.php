@@ -2,10 +2,10 @@
 
 namespace Wikidot\DB;
 
-
 use Wikidot\Utils\FileHelper;
 use Wikidot\Utils\GlobalProperties;
 use Wikijump\Models\User;
+use Wikijump\Services\Deepwell\Models\Page;
 
 /**
  * Object Model Class.
@@ -23,7 +23,7 @@ class File extends FileBase
 
     public function getFilePath()
     {
-        $page = PagePeer::instance()->selectByPrimaryKey($this->getPageId());
+        $page = Page::findIdOnly($this->getPageId());
         $site = SitePeer::instance()->selectByPrimaryKey($this->getSiteId());
         return WIKIJUMP_ROOT."/web/files--sites/".
             $site->getSlug()."/files/".$page->getUnixName().'/'.$this->getFilename();
@@ -31,7 +31,7 @@ class File extends FileBase
 
     public function getResizedDir()
     {
-        $page = PagePeer::instance()->selectByPrimaryKey($this->getPageId());
+        $page = Page::findIdOnly($this->getPageId());
         $site = SitePeer::instance()->selectByPrimaryKey($this->getSiteId());
         return WIKIJUMP_ROOT."/web/files--sites/".
                         $site->getSlug()."/resized-images/".$page->getUnixName().
@@ -41,7 +41,7 @@ class File extends FileBase
     public function getResizedURI($size = null)
     {
 
-        $page = PagePeer::instance()->selectByPrimaryKey($this->getPageId());
+        $page = Page::findIdOnly($this->getPageId());
         $site = SitePeer::instance()->selectByPrimaryKey($this->getSiteId());
         $out =  GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/local--resized-images/".
             $page->getUnixName().'/'.$this->getFilename();
@@ -53,7 +53,7 @@ class File extends FileBase
 
     public function getFileURI()
     {
-        $page = PagePeer::instance()->selectByPrimaryKey($this->getPageId());
+        $page = Page::findIdOnly($this->getPageId());
         $site = SitePeer::instance()->selectByPrimaryKey($this->getSiteId());
 
         return  GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/local--files/".

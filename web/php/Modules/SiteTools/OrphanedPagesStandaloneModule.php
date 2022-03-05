@@ -3,8 +3,6 @@
 namespace Wikidot\Modules\SiteTools;
 
 use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\PagePeer;
-
 use Wikidot\Utils\CacheableModule;
 
 class OrphanedPagesStandaloneModule extends CacheableModule
@@ -17,11 +15,6 @@ class OrphanedPagesStandaloneModule extends CacheableModule
         $site = $runData->getTemp("site");
         $siteId = $site->getSiteId();
 
-        $q = "SELECT *, count(*) AS number_links FROM page, page_link " .
-                "WHERE page.site_id = '$siteId' AND page_link.to_page_id=page.page_id " .
-                "GROUP BY (page.page_id) " .
-                "ORDER BY COALESCE(page.title, page.unix_name)";
-
         $q = "SELECT * FROM page " .
                 "WHERE page.site_id = '$siteId'" .
                 "AND (SELECT count(*) FROM page_link WHERE page_link.to_page_id = page.page_id) = 0 ".
@@ -30,7 +23,7 @@ class OrphanedPagesStandaloneModule extends CacheableModule
         $c = new Criteria();
         $c->setExplicitQuery($q);
 
-        $pages = PagePeer::instance()->select($c);
+        $pages = [null]; // TODO run query
 
         $runData->contextAdd("pages", $pages);
     }

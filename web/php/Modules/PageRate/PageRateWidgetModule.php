@@ -3,12 +3,11 @@
 namespace Wikidot\Modules\PageRate;
 
 use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\SmartyModule;
 use Wikidot\DB\Category;
-use Wikidot\DB\PagePeer;
 use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\PageRateVotePeer;
-
-use Ozone\Framework\SmartyModule;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class PageRateWidgetModule extends SmartyModule
 {
@@ -22,7 +21,7 @@ class PageRateWidgetModule extends SmartyModule
             $pl = $runData->getParameterList();
             $pageId = $pl->getParameterValue("pageId");
             if ($pageId) {
-                $page = PagePeer::instance()->selectByPrimaryKey($pageId);
+                $page = Page::findIdOnly($pageId);
                 $rate = $page->getRate();
             } else {
                 $rate = 0;

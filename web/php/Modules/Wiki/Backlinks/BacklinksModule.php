@@ -2,10 +2,7 @@
 
 namespace Wikidot\Modules\Wiki\Backlinks;
 
-
 use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\PagePeer;
-
 use Ozone\Framework\SmartyModule;
 
 class BacklinksModule extends SmartyModule
@@ -27,7 +24,7 @@ class BacklinksModule extends SmartyModule
 
         $c->setExplicitQuery($q);
 
-        $pages = PagePeer::instance()->select($c);
+        $pages = [null]; // TODO run query
 
         $runData->contextAdd("pages", $pages);
     }

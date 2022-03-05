@@ -6,17 +6,12 @@ namespace Wikidot\Utils;
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
-use Wikidot\DB\Page;
-use Wikidot\DB\PagePeer;
 use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\SitePeer;
 use Wikijump\Services\Deepwell\DeepwellService;
 use Wikijump\Services\Deepwell\PageService;
 use Wikijump\Services\Wikitext\Backlinks;
-use Wikijump\Services\Wikitext\LegacyTemplateAssembler;
-use Wikijump\Services\Wikitext\PageInfo;
-use Wikijump\Services\Wikitext\ParseRenderMode;
-use Wikijump\Services\Wikitext\WikitextBackend;
+use Wikijump\Services\Deepwell\Models\Page;
 
 final class Outdater
 {
@@ -206,7 +201,7 @@ final class Outdater
     private function recompiledIncludedPagesInternal($connections): void
     {
         foreach ($connections as $connection) {
-            $page = PagePeer::getInstance()->selectByPrimaryKey($connection->from_page_id);
+            $page = Page::findIdOnly($connection->from_page_id);
             $outdater = new Outdater($this->recurrence_level);
             $outdater->pageEvent('source_changed', $page);
         }
@@ -220,16 +215,15 @@ final class Outdater
 
         $c = new Criteria();
         $c->add("parent_page_id", $page->getPageId());
+        $pages = [null]; // TODO run query
 
-        $pages = PagePeer::instance()->select($c);
-
-        while ($pages !== null && count($pages)>0 && $rec<10) {
+        while ($pages !== null && count($pages) > 0 && $rec < 10) {
             $p2 = array();
             foreach ($pages as $p) {
                 $this->outdatePageCache($p);
                 $c = new Criteria();
                 $c->add("parent_page_id", $p->getPageId());
-                $ptmp = PagePeer::instance()->select($c);
+                $ptmp = [null]; // TODO run query
                 $p2 = array_merge($p2, $ptmp);
             }
             $pages = $p2;
@@ -400,7 +394,7 @@ final class Outdater
 
         // check if forum not related to any page (page discussion)
         if ($thread->getPageId() !== null) {
-            $page = PagePeer::instance()->selectByPrimaryKey($thread->getPageId());
+            $page = Page::findIdOnly($thread->getPageId());
             $this->outdatePageCache($page);
         }
     }
@@ -441,7 +435,7 @@ final class Outdater
         $GLOBALS['site'] = $site;
         $c = new Criteria();
         $c->add("category_id", $category->getCategoryId());
-        $pages = PagePeer::instance()->select($c);
+        $pages = [null]; // TODO run query
 
         foreach ($pages as $page) {
             $this->recompilePage($page);
@@ -458,7 +452,7 @@ final class Outdater
         $GLOBALS['site'] = $site;
         $c = new Criteria();
         $c->add("site_id", $site->getSiteId());
-        $pages = PagePeer::instance()->select($c);
+        $pages = [null]; // TODO run query
 
         foreach ($pages as $page) {
             $this->recompilePage($page);

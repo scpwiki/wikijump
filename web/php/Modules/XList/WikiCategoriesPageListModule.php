@@ -3,8 +3,6 @@
 namespace Wikidot\Modules\XList;
 
 use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\PagePeer;
-
 use Ozone\Framework\SmartyModule;
 
 class WikiCategoriesPageListModule extends SmartyModule
@@ -20,7 +18,7 @@ class WikiCategoriesPageListModule extends SmartyModule
         $c->add("site_id", $site->getSiteId());
         $c->add("category_id", $categoryId);
         $c->addOrderAscending("COALESCE(title, unix_name)");
-        $pages = PagePeer::instance()->select($c);
+        $pages = [null]; // TODO run query
 
         if (count($pages)>0) {
             $runData->contextAdd("pages", $pages);

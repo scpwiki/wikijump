@@ -3,10 +3,9 @@
 namespace Wikidot\Modules\XList;
 
 use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\PagePeer;
-
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\ProcessException;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class ChildPagesModule extends SmartyModule
 {
@@ -28,7 +27,7 @@ class ChildPagesModule extends SmartyModule
         $c->add("parent_page_id", $page->getPageId());
         $c->addOrderAscending("COALESCE(title, unix_name)");
 
-        $pages = PagePeer::instance()->select($c);
+        $pages = [null]; // TODO run query
         if (count($pages)>0) {
             $runData->contextAdd("pages", $pages);
         }

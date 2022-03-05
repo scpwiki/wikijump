@@ -4,7 +4,6 @@ namespace Wikidot\Modules\ManageSite;
 
 use Ozone\Framework\Database\Criteria;
 use Wikidot\DB\CategoryPeer;
-use Wikidot\DB\PagePeer;
 use Wikidot\Utils\ManageSiteBaseModule;
 
 class ManageSiteTemplatesModule extends ManageSiteBaseModule
@@ -27,7 +26,7 @@ class ManageSiteTemplatesModule extends ManageSiteBaseModule
         $c = new Criteria();
         $c->add("category_id", $templatesCategory->getCategoryId());
         $c->addOrderAscending("title");
-        $templates =  PagePeer::instance()->select($c);
+        $templates =  [null]; // TODO run query
         $runData->contextAdd("templates", $templates);
 
         // get all categories for the site

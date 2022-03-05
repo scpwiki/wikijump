@@ -8,7 +8,6 @@ use Ozone\Framework\SmartyAction;
 use Wikidot\Config\ForbiddenNames;
 use Wikidot\DB\SitePeer;
 use Wikidot\DB\Site;
-use Wikidot\DB\PagePeer;
 use Wikidot\Utils\Duplicator;
 use Wikidot\Utils\FriendlyCaptchaHandler;
 use Wikidot\Utils\Indexer;

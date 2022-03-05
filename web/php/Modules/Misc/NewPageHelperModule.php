@@ -2,8 +2,6 @@
 
 namespace Wikidot\Modules\Misc;
 
-use Wikidot\DB\PagePeer;
-
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDStringUtils;

@@ -5,20 +5,18 @@ namespace Wikidot\Utils;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Wikidot\DB\SitePeer;
-use Wikidot\DB\PagePeer;
 use Wikidot\DB\CategoryPeer;
 
 class Deleter
 {
-    private static $instance;
+    private static ?Deleter $instance = null;
 
-    private $vars = array();
-
-    private $recurrenceLevel = 0;
+    private array $vars = [];
+    private int $recurrenceLevel = 0;
 
     public static function instance()
     {
-        if (self::$instance == null) {
+        if (self::$instance === null) {
             self::$instance = new Deleter();
         }
         return self::$instance;
@@ -46,7 +44,7 @@ class Deleter
         $c = new Criteria();
         $c->add("parent_page_id", $page->getPageId());
 
-        $pages = PagePeer::instance()->select($c);
+        $pages = [null]; // TODO run query
 
         // ok, these are direct children. need to clear the perent_page_id field
 
@@ -56,7 +54,7 @@ class Deleter
             foreach ($pages as $p) {
                 $c = new Criteria();
                 $c->add("parent_page_id", $p->getPageId());
-                $ptmp = PagePeer::instance()->select($c);
+                $ptmp = [null]; // TODO run query
                 $p2 = array_merge($p2, $ptmp);
 
                 if ($rec === 0) {
@@ -98,9 +96,9 @@ class Deleter
         if ($category->getName() != "_default") {
             $c = new Criteria();
             $c->add("category_id", $category->getCategoryId());
-            $count = PagePeer::instance()->selectCount($c);
+            $count = -1; // TODO run query, count
 
-            if ($count == 0) {
+            if ($count === 0) {
                 // delete the category
                 CategoryPeer::instance()->delete($c);
                 $outdater->categoryEvent('delete', $category, $site);
@@ -110,8 +108,6 @@ class Deleter
         // remove FILES (if any)
         $path = WIKIJUMP_ROOT . "/web/files--sites/" . $site->getSlug() . "/files/" . $page->getUnixName();
         exec('rm -r ' . escapeshellarg($path) . ' &> /dev/null');
-
-    //
     }
 
     public function deleteSite($site)
@@ -123,8 +119,7 @@ class Deleter
 
         $c = new Criteria();
         $c->add("site_id", $site->getSiteId());
-
-        $pages = PagePeer::instance()->select($c);
+        $pages = [null]; // TODO run query
 
         foreach ($pages as $page) {
             $this->deletePage($page);

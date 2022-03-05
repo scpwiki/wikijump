@@ -4,7 +4,6 @@ namespace Wikidot\Screens\Wiki;
 
 use Ds\Set;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\Ozone;
@@ -12,14 +11,13 @@ use Ozone\Framework\PathManager;
 use Ozone\Framework\Screen;
 use Wikidot\DB\MemberPeer;
 use Wikidot\DB\SiteViewerPeer;
-use Wikidot\DB\PagePeer;
 use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\ForumThreadPeer;
 use Wikidot\DB\NotificationPeer;
 use Wikidot\Utils\GlobalProperties;
-use Wikidot\Utils\WDStringUtils;
 use Wikijump\Helpers\LegacyTools;
 use Wikijump\Models\UserMessage;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class WikiScreen extends Screen
 {
@@ -164,11 +162,11 @@ class WikiScreen extends Screen
             // look for parent pages (and prepare breadcrumbs)
             if ($page->getParentPageId()) {
                 $breadcrumbs = array();
-                $ppage = PagePeer::instance()->selectByPrimaryKey($page->getParentPageId());
+                $ppage = Page::findIdOnly($page->getParentPageId());
                 array_unshift($breadcrumbs, $ppage);
                 $bcount = 0;
                 while ($ppage->getParentPageId() && $bcount<=4) {
-                    $ppage = PagePeer::instance()->selectByPrimaryKey($ppage->getParentPageId());
+                    $ppage = Page::findIdOnly($ppage->getParentPageId());
                     array_unshift($breadcrumbs, $ppage);
                     $bcount++;
                 }

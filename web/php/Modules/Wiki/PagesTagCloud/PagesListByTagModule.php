@@ -5,9 +5,7 @@ namespace Wikidot\Modules\Wiki\PagesTagCloud;
 
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
-use Ozone\Framework\Ozone;
 use Wikidot\DB\CategoryPeer;
-use Wikidot\DB\PagePeer;
 
 use Ozone\Framework\SmartyModule;
 
@@ -18,7 +16,6 @@ class PagesListByTagModule extends SmartyModule
     {
         $site = $runData->getTemp("site");
         $pl = $runData->getParameterList();
-        $threadId = $pl->getParameterValue("t");
 
         $parmHash = md5(serialize($pl->asArray()));
 
@@ -89,7 +86,7 @@ class PagesListByTagModule extends SmartyModule
         }
         $c->addOrderAscending('COALESCE(title, unix_name)');
 
-        $pages = PagePeer::instance()->select($c);
+        $pages = [null]; // TODO run query
 
         $runData->contextAdd("tag", $tag);
         $runData->contextAdd("pages", $pages);

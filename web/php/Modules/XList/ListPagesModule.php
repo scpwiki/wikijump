@@ -6,9 +6,7 @@ namespace Wikidot\Modules\XList;
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\ODate;
-use Ozone\Framework\Ozone;
 use Wikidot\DB\CategoryPeer;
-use Wikidot\DB\PagePeer;
 use Wikidot\DB\PageRevisionPeer;
 use Wikidot\DB\ForumThreadPeer;
 use Ozone\Framework\SmartyModule;
@@ -357,7 +355,7 @@ class ListPagesModule extends SmartyModule
             $pageNo = 1;
         }
 
-        $co = PagePeer::instance()->selectCount($c);
+        $co = [null]; // TODO run query
 
         if ($limit) {
             $co = min(array($co, $limit));
@@ -420,7 +418,7 @@ class ListPagesModule extends SmartyModule
                 break;
         }
 
-        $pages = PagePeer::instance()->select($c);
+        $pages = [null]; // TODO run query
 
         /* Process... */
         $format = $this->_readParameter("module_body");

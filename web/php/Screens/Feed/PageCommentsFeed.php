@@ -4,15 +4,13 @@ namespace Wikidot\Screens\Feed;
 
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
-use Ozone\Framework\Ozone;
-use Wikidot\DB\PagePeer;
 use Wikidot\DB\ForumThreadPeer;
 use Wikidot\DB\ForumPostPeer;
 use Wikidot\Utils\FeedScreen;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\ProcessException;
 use Wikijump\Helpers\LegacyTools;
-use Wikijump\Models\User;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class PageCommentsFeed extends FeedScreen
 {
@@ -80,7 +78,7 @@ class PageCommentsFeed extends FeedScreen
         $pl = $runData->getParameterList();
         $pageId = $pl->getParameterValue("p");
 
-        $page = PagePeer::instance()->selectByPrimaryKey($pageId);
+        $page = Page::findIdOnly($pageId);
         $threadId = $page->getThreadId();
 
         $thread = ForumThreadPeer::instance()->selectByPrimaryKey($threadId);

@@ -5,7 +5,7 @@ namespace Wikidot\Modules\Edit;
 
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
-use Wikidot\DB\PagePeer;
+use Ozone\Framework\SmartyModule;
 use Wikidot\DB\CategoryPeer;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDEditUtils;
@@ -13,8 +13,7 @@ use Wikidot\Utils\WDPermissionManager;
 use Wikidot\Utils\WDStringUtils;
 use Wikidot\Form;
 use Wikidot\Form\Renderer;
-
-use Ozone\Framework\SmartyModule;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class PageEditModule extends SmartyModule
 {
@@ -100,7 +99,7 @@ class PageEditModule extends SmartyModule
                     $c = new Criteria();
                     $c->add("category_id", $templatesCategory->getCategoryId());
                     $c->addOrderAscending("title");
-                    $templates =  PagePeer::instance()->select($c);
+                    $templates = [null]; // TODO run query
 
                     $runData->contextAdd("templates", $templates);
                 }
@@ -137,8 +136,8 @@ class PageEditModule extends SmartyModule
             throw new ProcessException(_("The page cannot be found or does not exist."), "no_page");
         }
 
-        $page = PagePeer::instance()->selectByPrimaryKey($pageId);
-        if (!$page || $page->getSiteId() !== $site->getSiteId()) {
+        $page = Page::findIdOnly($pageId);
+        if ($page === null || $page->getSiteId() !== $site->getSiteId()) {
             throw new ProcessException(_("The page cannot be found or does not exist."), "no_page");
         }
 

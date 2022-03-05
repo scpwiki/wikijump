@@ -6,11 +6,8 @@ namespace Wikidot\Modules\XList;
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
-use Ozone\Framework\Ozone;
-use Wikidot\DB\CategoryPeer;
-use Wikidot\DB\PagePeer;
-
 use Ozone\Framework\SmartyModule;
+use Wikidot\DB\CategoryPeer;
 use Wikidot\Utils\ProcessException;
 
 class PageCalendarModule extends SmartyModule
@@ -263,12 +260,8 @@ class PageCalendarModule extends SmartyModule
 
         $db = Database::connection();
 
-
-        $corig = clone($c);
         $c->setExplicitFields("EXTRACT(YEAR FROM date_created)::varchar || '.' || EXTRACT(MONTH FROM date_created)::varchar as datestring, count(*) as c");
-        //$c->addOrderDescending("regexp_replace(datestring, '\.[0-9]+$', '')::integer");
-        //$c->addOrderDescending("regexp_replace(datestring, '^[0-9]+\.', '')::integer");
-        $q = PagePeer::instance()->criteriaToQuery($c);
+        $q = []; // TODO run query
 
         $r = $db->query($q);
         $r = $r->fetchAll();
@@ -276,10 +269,7 @@ class PageCalendarModule extends SmartyModule
             $r = array();
         }
         $postCount = array();
-        if ($lang == 'pl') {
-            $locale = 'pl_PL';
-        }
-        setlocale(LC_TIME, $locale);
+        setlocale(LC_TIME, App::currentLocale());
 
         foreach ($r as $mo) {
             $spl = explode('.', $mo['datestring']);
@@ -294,7 +284,7 @@ class PageCalendarModule extends SmartyModule
 
         //$c = clone($corig);
         $c->setExplicitFields("EXTRACT(YEAR FROM date_created)::varchar as datestring, count(*) as c");
-        $q = PagePeer::instance()->criteriaToQuery($c);
+        $q = [null]; // TODO run query
 
         $r = $db->query($q);
         $r = $r->fetchAll();

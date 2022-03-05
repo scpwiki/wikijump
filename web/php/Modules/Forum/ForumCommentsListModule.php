@@ -6,8 +6,7 @@ namespace Wikidot\Modules\Forum;
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\ODate;
-use Ozone\Framework\Ozone;
-use Wikidot\DB\PagePeer;
+use Ozone\Framework\SmartyModule;
 use Wikidot\DB\ForumThreadPeer;
 use Wikidot\DB\ForumCategoryPeer;
 use Wikidot\DB\ForumCategory;
@@ -15,11 +14,10 @@ use Wikidot\DB\ForumGroupPeer;
 use Wikidot\DB\ForumGroup;
 use Wikidot\DB\ForumThread;
 use Wikidot\DB\ForumPostPeer;
-
-use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\ProcessException;
 use Wikijump\Models\User;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class ForumCommentsListModule extends SmartyModule
 {
@@ -99,8 +97,8 @@ class ForumCommentsListModule extends SmartyModule
 
         if ($page == null) {
             $pageId = $pl->getParameterValue("pageId");
-            if ($pageId !== null && is_numeric($pageId)) {
-                $page = PagePeer::instance()->selectByPrimaryKey($pageId);
+            if (is_numeric($pageId)) {
+                $page = Page::findIdOnly($pageId);
             } else {
                 $pageName = $runData->getTemp("pageUnixName");
 
@@ -121,7 +119,7 @@ class ForumCommentsListModule extends SmartyModule
 
         $thread = ForumThreadPeer::instance()->selectOne($c);
 
-        if ($thread == null) {
+        if ($thread === null) {
             // create thread!!!
             $c = new Criteria();
             $c->add("site_id", $site->getSiteId());
@@ -129,7 +127,7 @@ class ForumCommentsListModule extends SmartyModule
 
             $category = ForumCategoryPeer::instance()->selectOne($c);
 
-            if ($category == null) {
+            if ($category === null) {
                 // create this category!
                 $category = new ForumCategory();
                 $category->setName(_("Per page discussions"));

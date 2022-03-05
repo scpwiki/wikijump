@@ -3,7 +3,6 @@
 namespace Wikidot\Utils;
 
 use Illuminate\Auth\Access\Response;
-use Illuminate\Support\Facades\Auth;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\Ozone;
@@ -13,7 +12,6 @@ use Wikidot\DB\AdminPeer;
 use Wikidot\DB\ModeratorPeer;
 use Wikidot\DB\MemberPeer;
 use Wikidot\DB\Page;
-use Wikidot\DB\PagePeer;
 use Wikidot\DB\IpBlockPeer;
 use Wikidot\DB\UserBlockPeer;
 use Wikijump\Models\User;

@@ -17,8 +17,8 @@
 */
 
 use Ozone\Framework\Ozone;
-use Wikidot\DB\PagePeer;
 use Wikidot\Utils\WDStringUtils;
+use Wikijump\Services\Deepwell\Models\Page;
 
 /**
 *

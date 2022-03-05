@@ -4,14 +4,13 @@ namespace Wikidot\Screens\Feed;
 
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
-use Ozone\Framework\Ozone;
 use Wikidot\DB\CategoryPeer;
-use Wikidot\DB\PagePeer;
 use Wikidot\Utils\FeedScreen;
 use Wikidot\Utils\GlobalProperties;
 use Wikijump\Models\User;
 use Wikijump\Services\Wikitext\ParseRenderMode;
 use Wikijump\Services\Wikitext\WikitextBackend;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class PagesFeed extends FeedScreen
 {
@@ -229,7 +228,7 @@ class PagesFeed extends FeedScreen
             $pageNo = 1;
         }
 
-        $co = PagePeer::instance()->selectCount($c);
+        $co = 0; // TODO run query, count pages
 
         $totalPages = ceil($co/$perPage);
         if ($pageNo>$totalPages) {
@@ -270,7 +269,7 @@ class PagesFeed extends FeedScreen
                 break;
         }
 
-        $pages = PagePeer::instance()->select($c);
+        $pages = [null]; // TODO run query
 
         /* Process... */
         $format = $pl->getParameterValue("module_body");
