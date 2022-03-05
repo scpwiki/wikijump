@@ -83,8 +83,8 @@ final class DeepwellService
         ) {
             $resp = $this->client->get("page/$site_id/slug/$page_slug", [
                 'query' => [
-                    'wikitext' => $wikitext,
-                    'compiledHtml' => $compiledHtml,
+                    'wikitext' => self::booleanValue($wikitext),
+                    'compiledHtml' => self::booleanValue($compiledHtml),
                 ],
             ]);
             return $this->parsePage($resp);
@@ -106,8 +106,8 @@ final class DeepwellService
         ) {
             $resp = $this->client->get("page/$site_id/id/$page_id", [
                 'query' => [
-                    'wikitext' => $wikitext,
-                    'compiledHtml' => $compiledHtml,
+                    'wikitext' => self::booleanValue($wikitext),
+                    'compiledHtml' => self::booleanValue($compiledHtml),
                 ],
             ]);
             return $this->parsePage($resp);
@@ -123,8 +123,8 @@ final class DeepwellService
         return self::fetchOrNull(function () use ($page_id, $wikitext, $compiledHtml) {
             $resp = $this->client->get("page/direct/$page_id", [
                 'query' => [
-                    'wikitext' => $wikitext,
-                    'compiledHtml' => $compiledHtml,
+                    'wikitext' => self::booleanValue($wikitext),
+                    'compiledHtml' => self::booleanValue($compiledHtml),
                 ],
             ]);
             return $this->parsePage($resp);
@@ -330,5 +330,17 @@ final class DeepwellService
             // For other errors, re-throw, since it's not an "expected" error
             throw $exception;
         }
+    }
+
+    /**
+     * PHP booleans are technically ints...
+     *
+     * This takes a boolean value and makes an explicit string 'true' or 'false'.
+     * @param bool $value
+     * @return string
+     */
+    private static function booleanValue(bool $value): string
+    {
+        return $value ? 'true' : 'false';
     }
 }
