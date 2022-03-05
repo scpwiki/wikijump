@@ -2,7 +2,7 @@ import WikijumpAPI from "./api"
 
 export default WikijumpAPI
 
-export { HttpError } from "../vendor/output"
+export { HttpError, type RequestOptions } from "../vendor/output"
 export * from "../vendor/types"
 export * from "./api"
 export * from "./asset"
