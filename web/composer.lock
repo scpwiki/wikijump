@@ -297,16 +297,16 @@
         },
         {
             "name": "cerdic/css-tidy",
-            "version": "v2.0.0",
+            "version": "v2.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Cerdic/CSSTidy.git",
-                "reference": "3eaaedd862563bbaa8f85606cfda65c8f6ad513b"
+                "reference": "9efced88f9fc31ecbd52c798b6c01283966c0e48"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Cerdic/CSSTidy/zipball/3eaaedd862563bbaa8f85606cfda65c8f6ad513b",
-                "reference": "3eaaedd862563bbaa8f85606cfda65c8f6ad513b",
+                "url": "https://api.github.com/repos/Cerdic/CSSTidy/zipball/9efced88f9fc31ecbd52c798b6c01283966c0e48",
+                "reference": "9efced88f9fc31ecbd52c798b6c01283966c0e48",
                 "shasum": ""
             },
             "require": {
@@ -340,9 +340,9 @@
             "description": "CSSTidy is a CSS minifier",
             "support": {
                 "issues": "https://github.com/Cerdic/CSSTidy/issues",
-                "source": "https://github.com/Cerdic/CSSTidy/tree/v2.0.0"
+                "source": "https://github.com/Cerdic/CSSTidy/tree/v2.0.1"
             },
-            "time": "2022-01-10T15:58:08+00:00"
+            "time": "2022-02-21T15:33:09+00:00"
         },
         {
             "name": "dflydev/dot-access-data",
