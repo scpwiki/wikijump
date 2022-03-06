@@ -7,6 +7,7 @@ use Exception;
 use Illuminate\Http\Response;
 use Wikijump\Common\Enum;
 
+/** Enum for API error types. */
 final class APIError extends Enum
 {
     const BAD_SYNTAX = 'BAD_SYNTAX';
@@ -33,6 +34,10 @@ final class APIError extends Enum
     const UNKNOWN_USER = 'UNKNOWN_USER';
     const WRONG_PASSWORD = 'WRONG_PASSWORD';
 
+    /** Makes an a proper `Response` for when returning API errors.
+     * @param int $status HTTP status code. Should be something in the 400 range.
+     * @param string $error The error name, as a string. Needs to a value of one of the constants in this class.
+     */
     public static function makeResponse(int $status, string $error)
     {
         if (!static::isValue($error)) {
