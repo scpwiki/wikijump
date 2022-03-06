@@ -43,7 +43,6 @@ class PageRateWidgetModule extends SmartyModule
         /**
          * If voting is disabled, send that to the widget so we don't display a
          * misleading widget. Used in PageRateWidgetModule.tpl
-         * @see Category::getRatingEnabled()
          */
         $runData->contextAdd("enabled", true);
     }
