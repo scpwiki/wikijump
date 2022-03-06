@@ -146,7 +146,7 @@ module "nginx" {
   }
 
   healthcheck = {
-    command     = ["CMD-SHELL", "curl -f http://localhost"]
+    command     = ["CMD", "curl", "-f", "http://localhost"]
     interval    = 30
     timeout     = 5
     retries     = 3
