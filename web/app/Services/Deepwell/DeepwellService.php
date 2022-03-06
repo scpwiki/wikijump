@@ -68,6 +68,31 @@ final class DeepwellService
         }
     }
 
+    // Category
+    public function getCategoryBySlug(int $site_id, string $category_slug): ?Category
+    {
+        return self::fetchOrNull(function () use ($site_id, $category_slug) {
+            $resp = $this->client->get("category/$site_id/slug/$category_slug");
+            return $this->parseCategory($resp);
+        });
+    }
+
+    public function getCategoryById(int $site_id, int $category_id): ?Category
+    {
+        return self::fetchOrNull(function () use ($site_id, $category_id) {
+            $resp = $this->client->get("category/$site_id/id/$category_id");
+            return $this->parseCategory($resp);
+        });
+    }
+
+    public function getCategoryByIdOnly(int $category_id): ?Category
+    {
+        return self::fetchOrNull(function () use ($category_id) {
+            $resp = $this->client->get("category/direct/$category_id");
+            return $this->parseCategory($resp);
+        });
+    }
+
     // Page
     public function getPageBySlug(
         int $site_id,
@@ -224,6 +249,13 @@ final class DeepwellService
     public function setUser(int $id, array $fields): void
     {
         $this->client->put("user/id/$id", ['json' => $fields]);
+    }
+
+    private function parseCategory($resp): Category
+    {
+        $category = self::readJson($resp);
+        self::convertDateProperties($category, ['createdAt', 'updatedAt']);
+        return new Category($category);
     }
 
     private function parsePage($resp): Page
