@@ -49,6 +49,12 @@ class Category
         return DeepwellService::getInstance()->getCategoryByIdOnly(intval($category_id));
     }
 
+    public static function findAll($site_id): array
+    {
+        // NOTE: We cast arbitrary input to int, since Wikidot uses strings for IDs in most places
+        return DeepwellService::getInstance()->getCategories(intval($site_id));
+    }
+
     // Getters
     public function id(): int
     {

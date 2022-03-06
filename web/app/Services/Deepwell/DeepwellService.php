@@ -93,6 +93,15 @@ final class DeepwellService
         });
     }
 
+    public function getCategories(int $site_id): array
+    {
+        $resp = $this->client->get("category/$site_id");
+        return array_map(function (object $raw_category) {
+            self::convertDateProperties($raw_category, ['createdAt', 'updatedAt']);
+            return new Category($raw_category);
+        }, self::readJson($resp));
+    }
+
     // Page
     public function getPageBySlug(
         int $site_id,
