@@ -3,7 +3,6 @@
 namespace Wikidot\Modules\XList;
 
 use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\CategoryPeer;
 use Wikidot\Utils\CacheableModule;
 use Wikidot\Utils\ProcessException;
 
@@ -24,15 +23,15 @@ class WikiPagesModule extends CacheableModule
         $order = $pl->getParameterValue("order", "MODULE", "AMODULE");
         $limit = $pl->getParameterValue("limit", "MODULE", "AMODULE");
 
+        $category = null;
         if ($categoryName !== null) {
-            $category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
-            if ($category == null) {
+            $category = Category::findSlug($site->getSiteId(), $categoryName);
+            if ($category === null) {
                 throw new ProcessException(_("The category cannot be found."));
             }
         }
 
         // now select pages according to the specified criteria
-
         $c = new Criteria();
         $c->add("site_id", $site->getSiteId());
         if ($category) {

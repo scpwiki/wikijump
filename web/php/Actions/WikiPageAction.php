@@ -17,7 +17,6 @@ use Wikidot\Utils\WDPermissionException;
 use Wikidot\Utils\WDPermissionManager;
 use Wikidot\Utils\WDStringUtils;
 use Wikidot\Yaml;
-use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\PageRevision;
 use Wikidot\DB\PageMetadata;
 use Wikidot\DB\PageRevisionPeer;
@@ -27,6 +26,7 @@ use Wikidot\DB\AdminPeer;
 use Wikijump\Models\TagSettings;
 use Wikijump\Models\User;
 use Wikijump\Services\Deepwell\DeepwellService;
+use Wikijump\Services\Deepwell\Models\Category;
 use Wikijump\Services\Deepwell\Models\Page;
 
 class WikiPageAction extends SmartyAction
@@ -108,10 +108,10 @@ class WikiPageAction extends SmartyAction
             }
 
             // check if category exists. if not - create it!
-            $category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId(), false);
-            if ($category == null) {
+            $category = Category::findSlug($site->getSiteId(), $categoryName);
+            if ($category === null) {
                 // create the category - just clone the default category!!!
-                $category = CategoryPeer::instance()->selectByName("_default", $site->getSiteId(), false);
+                $category = Category::findSlug($site->getSiteId(), '_default');
                 $category->setName($categoryName);
                 // fill with some important things - we assume the _default category exists!!! IT REALLY SHOULD!!!
                 $category->setCategoryId(null);
@@ -431,10 +431,10 @@ class WikiPageAction extends SmartyAction
         if ($categoryName !== $oldCategoryName) {
             // check if new category exists. if not - create it!
 
-            $category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId(), false);
-            if ($category == null) {
+            $category = Category::findSlug($site->getSiteId(), $categoryName);
+            if ($category === null) {
                 // create the category - just clone the default category!!!
-                $category = CategoryPeer::instance()->selectByName("_default", $site->getSiteId(), false);
+                $category = Category::findSlug($site->getSiteId(), '_default');
                 $category->setName($categoryName);
                 // fill with some important things - we assume the _default category exists!!! IT REALLY SHOULD!!!
                 $category->setCategoryId(null);

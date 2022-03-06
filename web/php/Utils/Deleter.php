@@ -5,7 +5,6 @@ namespace Wikidot\Utils;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Wikidot\DB\SitePeer;
-use Wikidot\DB\CategoryPeer;
 
 class Deleter
 {
@@ -100,7 +99,7 @@ class Deleter
 
             if ($count === 0) {
                 // delete the category
-                CategoryPeer::instance()->delete($c);
+                // CategoryPeer::instance()->delete($c);
                 $outdater->categoryEvent('delete', $category, $site);
             }
         }

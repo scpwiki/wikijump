@@ -26,6 +26,7 @@ use Wikidot\Utils\Outdater;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionManager;
 use Wikidot\Utils\WDStringUtils;
+use Wikijump\Services\Deepwell\Models\Category;
 use Wikijump\Services\Deepwell\Models\Page;
 
 class ManageSiteAction extends SmartyAction
@@ -230,10 +231,7 @@ class ManageSiteAction extends SmartyAction
         file_put_contents($dir."/style.css", $code);
 
         $theme->setRevisionNumber($theme->getRevisionNumber()+1);
-
         $theme->save();
-        $outdater = new Outdater();
-        $outdater->themeEvent("theme_save", $theme);
 
         $db->commit();
         if (GlobalProperties::$UI_SLEEP) {
@@ -587,7 +585,7 @@ class ManageSiteAction extends SmartyAction
             $c = new Criteria();
             $c->add("category_id", $categoryId);
             $c->add("site_id", $siteId);
-            $dCategory = null; /* CategoryPeer::instance()->selectOne($c); */
+            $dCategory = null; // CategoryPeer::instance()->selectOne($c);
 
             // now compare
             $changed = false;
@@ -616,7 +614,7 @@ class ManageSiteAction extends SmartyAction
                 $c->add("site_id", $dCategory->getSiteId());
                 $c->add("nav_default", true);
                 $c->add("name", "_default", '!=');
-                $depcats = [null]; /* CategoryPeer::instance()->select($c); */
+                $depcats = Category::findAll($dCategory->getSiteId()); /* CategoryPeer::instance()->select($c); */
                 foreach ($depcats as $dc) {
                     $outdater = new Outdater();
                     $outdater->categoryEvent("category_save", $dc);

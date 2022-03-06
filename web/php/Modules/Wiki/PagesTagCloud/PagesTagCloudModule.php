@@ -2,12 +2,11 @@
 
 namespace Wikidot\Modules\Wiki\PagesTagCloud;
 
-
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\SmartyModule;
-use Wikidot\DB\CategoryPeer;
 use Wikidot\Utils\ProcessException;
+use Wikijump\Services\Deepwell\Models\Category;
 
 class PagesTagCloudModule extends SmartyModule
 {
@@ -230,8 +229,8 @@ class PagesTagCloudModule extends SmartyModule
         $site = $runData->getTemp("site");
 
         if ($categoryName) {
-            $category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
-            if ($category == null) {
+            $category = Category::findSlug($site->getSiteId(), $categoryName);
+            if ($category === null) {
                 throw new ProcessException(sprintf(_('Category "%s" cannot be found.'), $categoryName));
             }
         }

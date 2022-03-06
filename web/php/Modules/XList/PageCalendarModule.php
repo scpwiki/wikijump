@@ -2,22 +2,19 @@
 
 namespace Wikidot\Modules\XList;
 
-
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\SmartyModule;
-use Wikidot\DB\CategoryPeer;
 use Wikidot\Utils\ProcessException;
+use Wikijump\Services\Deepwell\Models\Category;
 
 class PageCalendarModule extends SmartyModule
 {
-
     protected $_pl;
     protected $parameterhash;
     protected $_vars;
     private $_parameterUrlPrefix = null;
-
 
     public function render($runData)
     {
@@ -138,8 +135,8 @@ class PageCalendarModule extends SmartyModule
             }
         }
 
-        $categories = array();
-        $categoryNames = array();
+        $categories = [];
+        $categoryNames = [];
         if ($categoryName != '*') {
             if (!$categoryName) {
                 /* No category name specified, use the current category! */
@@ -155,7 +152,7 @@ class PageCalendarModule extends SmartyModule
                 }
             }
             foreach (preg_split('/[,;\s]+?/', $categoryName) as $cn) {
-                $category = CategoryPeer::instance()->selectByName($cn, $site->getSiteId());
+                $category = Category::findSlug($site->getSiteId(), $cn);
                 if ($category) {
                     $categories[] = $category;
                     $categoryNames[] = $category->getName();
@@ -165,10 +162,6 @@ class PageCalendarModule extends SmartyModule
                 throw new ProcessException('The requested categories do not (yet) exist.');
             }
         }
-        //if(count($categories) == 0){
-        //  throw new ProcessException(_("The category cannot be found."));
-        //}
-
 
         $attrUrlPrefix = $pl->getParameterValue('urlAttrPrefix');
 

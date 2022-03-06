@@ -11,7 +11,6 @@ use Ozone\Framework\PathManager;
 use Ozone\Framework\Screen;
 use Wikidot\DB\MemberPeer;
 use Wikidot\DB\SiteViewerPeer;
-use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\ForumThreadPeer;
 use Wikidot\DB\NotificationPeer;
 use Wikidot\DB\ThemePeer;
@@ -19,11 +18,11 @@ use Wikidot\Utils\GlobalProperties;
 use Wikijump\Helpers\LegacyTools;
 use Wikijump\Models\UserMessage;
 use Wikijump\Services\Deepwell\Models\Page;
+use Wikijump\Services\Deepwell\Models\Category;
 
 class WikiScreen extends Screen
 {
-
-    private $vars = array();
+    private $vars = [];
 
     public function render($runData)
     {
@@ -123,14 +122,13 @@ class WikiScreen extends Screen
             } else {
                 $categoryName = "_default";
             }
-            $category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
-            if ($category == null) {
-                $category = CategoryPeer::instance()->selectByName('_default', $site->getSiteId());
+            $category = Category::findSlug($site->getSiteId(), $categoryName);
+            if ($category === null) {
+                $category = Category::findSlug($site->getSiteId(), '_default');
             }
             $runData->setTemp("category", $category);
         } else {
             // page exists!!! wooo!!!
-
             $runData->setTemp("page", $page);
             $GLOBALS['page'] = $page;
 

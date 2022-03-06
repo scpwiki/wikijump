@@ -23,7 +23,7 @@ class CategoryPeerBase extends BaseDBPeer
 
     public static function instance()
     {
-        if (self::$peerInstance == null) {
+        if (self::$peerInstance === null) {
             self::$peerInstance = new CategoryPeer();
         }
         return self::$peerInstance;

@@ -2,7 +2,6 @@
 
 namespace Wikidot\Modules;
 use Ozone\Framework\Module;
-use Wikidot\DB\CategoryPeer;
 use Wikidot\Utils\WDPermissionManager;
 
 class PageOptionsBottomModule extends Module

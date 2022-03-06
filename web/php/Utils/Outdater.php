@@ -6,10 +6,10 @@ namespace Wikidot\Utils;
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
-use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\SitePeer;
 use Wikijump\Services\Deepwell\DeepwellService;
 use Wikijump\Services\Wikitext\Backlinks;
+use Wikijump\Services\Deepwell\Models\Category;
 use Wikijump\Services\Deepwell\Models\Page;
 
 final class Outdater
@@ -21,7 +21,7 @@ final class Outdater
 
     public static function instance()
     {
-        if (self::$instance == null) {
+        if (self::$instance === null) {
             self::$instance = new Outdater();
         }
         return self::$instance;
@@ -140,15 +140,6 @@ final class Outdater
         switch ($eventType) {
             case 'category_save':
                 $this->outdateCategoryPagesCache($category);
-                break;
-        }
-    }
-
-    public function themeEvent($eventType, $theme = null)
-    {
-        switch ($eventType) {
-            case 'theme_save':
-                $this->outdateThemeDependentCategories($theme);
                 break;
         }
     }
@@ -291,7 +282,7 @@ final class Outdater
         // get default cat
         $site = $GLOBALS['site'];
         $pUnixName = $page->getUnixName();
-        $dcat = CategoryPeer::instance()->selectByName('_default', $site->getSiteId());
+        $dcat = Category::findSlug($site->getSiteId(), '_default');
 
         $q = "SELECT unix_name FROM page WHERE category_id IN ( " .
                 "SELECT category_id FROM category WHERE nav_default = false " .
@@ -332,17 +323,6 @@ final class Outdater
         Cache::forget($key);
         $key = 'categorybyid..'.$site->getSiteId().'..'.$category->getCategoryId();
         Cache::forget($key);
-    }
-
-    private function outdateThemeDependentCategories($theme)
-    {
-
-        $c = new Criteria();
-        $c->add("theme_id", $theme->getThemeId());
-        $cats = CategoryPeer::instance()->select($c);
-        foreach ($cats as $cat) {
-            $this->outdateCategoryPagesCache($cat);
-        }
     }
 
     private function outdateAllPagesCache($site)
@@ -507,7 +487,7 @@ final class Outdater
             }
             if (preg_match('/_template$/', $page)) {
                 $site = $GLOBALS['site'];
-                $category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId(), false);
+                $category = Category::findSlug($site->getSiteId(), $categoryName);
                 $this->recompileCategory($category);
             }
         } elseif (preg_match('/_template$/', $page->getUnixName())) {

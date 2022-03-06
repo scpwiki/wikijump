@@ -5,7 +5,6 @@ namespace Wikidot\Form\Field;
 
 use Wikidot\Utils\WDStringUtils;
 use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\CategoryPeer;
 
 class PagePath extends WikiBase
 {

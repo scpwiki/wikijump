@@ -9,13 +9,13 @@ use Wikidot\DB\AdminPeer;
 use Wikidot\DB\Admin;
 use Wikidot\DB\Member;
 use Wikidot\DB\ThemePeer;
-use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\ForumGroupPeer;
 use Wikidot\DB\ForumCategoryPeer;
 use Wikidot\DB\FilePeer;
 use Wikidot\DB\PageMetadata;
 use Wikidot\DB\PageRevision;
 use Wikidot\DB\Page;
+use Wikijump\Services\Deepwell\Models\Category;
 
 class Duplicator
 {
@@ -107,10 +107,7 @@ class Duplicator
 
 
         // get all categories from the site
-        $c = new Criteria();
-        $c->add("site_id", $site->getSiteId());
-        $categories = CategoryPeer::instance()->select($c);
-
+        $categories = Category::getAll($site->getSiteId());
         foreach ($categories as $cat) {
             if (!in_array($cat->getName(), $this->excludedCategories)) {
                 $ncategory = $this->duplicateCategory($cat, $nsite);
@@ -224,10 +221,7 @@ class Duplicator
         }
 
         // get all categories from the site
-        $c = new Criteria();
-        $c->add("site_id", $site->getSiteId());
-        $categories = CategoryPeer::instance()->select($c);
-
+        $categories = Category::findAll($site->getSiteId());
         foreach ($categories as $cat) {
             if (!in_array($cat->getName(), $this->excludedCategories)) {
                 $this->duplicateCategory($cat, $nsite);
@@ -345,14 +339,9 @@ class Duplicator
 
         $dump['settings'] = $settings;
         $dump['forumSettings'] = $fs;
-
-        $c = new Criteria();
-        $c->add("site_id", $site->getSiteId());
-        $categories = CategoryPeer::instance()->select($c);
-
+        $categories = Category::findAll($site->getSiteId());
         $dump['categories'] = $categories;
-
-        $dump['pages'] = array();
+        $dump['pages'] = [];
 
         foreach ($categories as $cat) {
             $c = new Criteria();

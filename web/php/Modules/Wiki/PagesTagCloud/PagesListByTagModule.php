@@ -2,12 +2,10 @@
 
 namespace Wikidot\Modules\Wiki\PagesTagCloud;
 
-
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\CategoryPeer;
-
 use Ozone\Framework\SmartyModule;
+use Wikijump\Services\Deepwell\Models\Category;
 
 class PagesListByTagModule extends SmartyModule
 {
@@ -68,10 +66,11 @@ class PagesListByTagModule extends SmartyModule
 
         // get pages
 
-        $categoryName =  $pl->getParameterValue("category");
+        $categoryName = $pl->getParameterValue("category");
+        $category = null;
         if ($categoryName) {
-            $category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
-            if ($category == null) {
+            $category = Category::findSlug($site->getSiteId(), $categoryName);
+            if ($category === null) {
                 return '';
             }
             $runData->contextAdd("category", $category);

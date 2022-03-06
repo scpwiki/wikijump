@@ -6,7 +6,6 @@ namespace Wikidot\Modules\Edit;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\SmartyModule;
-use Wikidot\DB\CategoryPeer;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDEditUtils;
 use Wikidot\Utils\WDPermissionManager;
@@ -76,15 +75,8 @@ class PageEditModule extends SmartyModule
                 $suggestedTitle = $stitle;
             }
 
-            $category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
-
-            if ($category == null) {
-                // get the default!
-                $category = $this->createTempCategory($categoryName, $site);
-            }
-
             // now check for permissions!!!
-            WDPermissionManager::instance()->hasPagePermission('create', $user, $category);
+            WDPermissionManager::instance()->hasPagePermission('create', $user);
             $runData->contextAdd("title", $suggestedTitle);
 
             /* Select available templates, but only if the category does not have a live template. */
@@ -93,6 +85,7 @@ class PageEditModule extends SmartyModule
             if ($templatePage && $form = Form::fromSource($templatePage->getSource())) {
                 $runData->contextAdd("form", new Renderer($form));
             } elseif (!$templatePage || !preg_match('/^={4,}$/sm', $templatePage->getSource())) {
+                /*
                 $templatesCategory = CategoryPeer::instance()->selectByName("template", $site->getSiteId());
 
                 if ($templatesCategory != null) {
@@ -103,15 +96,9 @@ class PageEditModule extends SmartyModule
 
                     $runData->contextAdd("templates", $templates);
                 }
+                */
 
                 // check if there is a default template...
-
-
-                if ($category != null) {
-                    if ($category->getTemplateId() != null) {
-                        $runData->contextAdd("templateId", $category->getTemplateId());
-                    }
-                }
             } else {
                 /* Has default template, try to populate the edit box with initial content. */
                 $templateSource = $templatePage->getSource();
@@ -179,26 +166,5 @@ class PageEditModule extends SmartyModule
         $runData->ajaxResponseAdd("timeLeft", 15*60);
 
         $db->commit();
-    }
-
-    protected function createTempCategory($categoryName, $site)
-    {
-        $category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId(), false);
-        if ($category == null) {
-            // create the category - just clone the default category!!!
-            $category = CategoryPeer::instance()->selectByName("_default", $site->getSiteId(), false);
-            $category->setName($categoryName);
-            // fill with some important things - we assume the _default category exists!!! IT REALLY SHOULD!!!
-            $category->setCategoryId(null);
-            $category->setNew(true); // this will make it INSERT, not UPDATE on save()
-            $category->setPerPageDiscussion(null); //default value
-            // set default permissions theme and license
-            $category->setPermissionsDefault(true);
-            $category->setThemeDefault(true);
-            $category->setLicenseDefault(true);
-            $category->setNavDefault(true);
-        }
-
-        return $category;
     }
 }

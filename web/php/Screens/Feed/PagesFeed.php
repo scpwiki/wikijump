@@ -4,12 +4,12 @@ namespace Wikidot\Screens\Feed;
 
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\CategoryPeer;
 use Wikidot\Utils\FeedScreen;
 use Wikidot\Utils\GlobalProperties;
 use Wikijump\Models\User;
 use Wikijump\Services\Wikitext\ParseRenderMode;
 use Wikijump\Services\Wikitext\WikitextBackend;
+use Wikijump\Services\Deepwell\Models\Category;
 use Wikijump\Services\Deepwell\Models\Page;
 
 class PagesFeed extends FeedScreen
@@ -101,16 +101,12 @@ class PagesFeed extends FeedScreen
         $categoryNames = array();
 
         foreach (preg_split('/[,;\s]+?/', $categoryName) as $cn) {
-            $category = CategoryPeer::instance()->selectByName($cn, $site->getSiteId());
+            $category = Category::findSlug($site->getSiteId(), $cn);
             if ($category) {
                 $categories[] = $category;
                 $categoryNames[] = $category->getName();
             }
         }
-        //if(count($categories) == 0){
-        //  throw new ProcessException(_("The category cannot be found."));
-        //}
-
 
         // now select pages according to the specified criteria
 

@@ -6,7 +6,6 @@ namespace Wikidot\Modules\XList;
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\ODate;
-use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\PageRevisionPeer;
 use Wikidot\DB\ForumThreadPeer;
 use Ozone\Framework\SmartyModule;
@@ -16,10 +15,10 @@ use Wikijump\Helpers\LegacyTools;
 use Wikijump\Models\User;
 use Wikijump\Services\Wikitext\ParseRenderMode;
 use Wikijump\Services\Wikitext\WikitextBackend;
+use Wikijump\Services\Deepwell\Models\Category;
 
 class ListPagesModule extends SmartyModule
 {
-
     public $parameterhash;
 
     protected $processPage = true;
@@ -27,11 +26,8 @@ class ListPagesModule extends SmartyModule
     private $_tmpSplitSource;
     private $_tmpSource;
     private $_tmpPage;
-
-    private $_vars = array();
-
+    private $_vars = [];
     private $_pl;
-
     private $_parameterUrlPrefix = null;
 
     public function render($runData)
@@ -45,10 +41,7 @@ class ListPagesModule extends SmartyModule
          * Read all parameters.
          */
 
-        $categoryName = $this->_readParameter(array('category', 'categories'), false);
-
-        $categoryName = strtolower($categoryName);
-
+        $categoryName = strtolower($this->_readParameter(array('category', 'categories'), false));
         $parmHash = md5(serialize($pl->asArrayAll()));
         $this->parameterhash = $parmHash;
         /* Check if recursive. */
@@ -59,18 +52,17 @@ class ListPagesModule extends SmartyModule
         }
 
         $valid = true;
-
         if (!$categoryName) {
             /* No category name specified, use the current category! */
             $pageUnixName = $runData->getTemp('pageUnixName');
             if (!$pageUnixName) {
                 $pageUnixName = $pl->getParameterValue('page_unix_name');
             }
-            if (strpos($pageUnixName, ":") != false) {
+            if (strpos($pageUnixName, ':') != false) {
                 $tmp0 = explode(':', $pageUnixName);
                 $categoryName = $tmp0[0];
             } else {
-                $categoryName = "_default";
+                $categoryName = '_default';
             }
         }
 
@@ -145,7 +137,7 @@ class ListPagesModule extends SmartyModule
         $perPage = $this->_readParameter("perPage", true);
         $skipCurrent = $this->_readParameter('skipCurrent');
 
-        if ($skipCurrent && ($skipCurrent == 'yes' || $skipCurrent == 'true')) {
+        if ($skipCurrent && ($skipCurrent === 'yes' || $skipCurrent === 'true')) {
             $skipCurrent = true;
         } else {
             $skipCurrent = false;
@@ -159,9 +151,9 @@ class ListPagesModule extends SmartyModule
         $thisPage = Page::findSlug($site->getSiteId(), $pageUnixName);
         $pageInfo = PageInfo::fromPageObject($thisPage);
 
-        $categories = array();
-        $categoryNames = array();
-        if ($categoryName != '*') {
+        $categories = [];
+        $categoryNames = [];
+        if ($categoryName !== '*') {
             if (!$categoryName) {
                 /* No category name specified, use the current category! */
 
@@ -173,7 +165,7 @@ class ListPagesModule extends SmartyModule
                 }
             }
             foreach (preg_split('/[,;\s]+?/', $categoryName) as $cn) {
-                $category = CategoryPeer::instance()->selectByName($cn, $site->getSiteId());
+                $category = Category::findSlug($site->getSiteId(), $cn);
                 if ($category) {
                     $categories[] = $category;
                     $categoryNames[] = $category->getName();

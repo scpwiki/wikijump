@@ -3,8 +3,8 @@
 namespace Wikidot\Modules\ManageSite;
 
 use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\CategoryPeer;
 use Wikidot\Utils\ManageSiteBaseModule;
+use Wikijump\Services\Deepwell\Models\Category;
 
 class ManageSiteTemplatesModule extends ManageSiteBaseModule
 {
@@ -16,9 +16,8 @@ class ManageSiteTemplatesModule extends ManageSiteBaseModule
         $runData->contextAdd("site", $site);
 
         // select templates
-        $templatesCategory = CategoryPeer::instance()->selectByName("template", $site->getSiteId());
-
-        if ($templatesCategory == null) {
+        $templatesCategory = Category::findSlug($site->getSiteId(), 'template');
+        if ($templatesCategory === null) {
             $runData->contextAdd("noTemplates", true);
             return;
         }
@@ -30,11 +29,7 @@ class ManageSiteTemplatesModule extends ManageSiteBaseModule
         $runData->contextAdd("templates", $templates);
 
         // get all categories for the site
-        $c = new Criteria();
-        $c->add("site_id", $site->getSiteId());
-        $c->addOrderAscending("replace(name, '_', '00000000')");
-        $categories = CategoryPeer::instance()->select($c);
-
+        $categories = Category::findAll($site->getSiteId());
         $runData->contextAdd("categories", $categories);
 
         // also prepare categories to put into javascript...
