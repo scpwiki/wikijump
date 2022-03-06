@@ -39,24 +39,11 @@
     }
   }
 
-  function onerror(err: unknown) {
-    if (err instanceof Response) {
-      // prettier-ignore
-      switch(err.status) {
-        case 403: return t("error-api.email-taken")
-        case 500: return t("error-api.internal")
-        default:  return t("error-api.register-failed")
-      }
-    } else {
-      throw err
-    }
-  }
-
   let password = ""
 </script>
 
 <div class="register-form">
-  <Form {onsubmit} {onerror} let:busy let:error let:submit let:focusnext>
+  <Form {onsubmit} let:busy let:error let:submit let:focusnext>
     <TextInput
       name="email"
       on:enter={focusnext}

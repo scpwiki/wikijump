@@ -1,8 +1,10 @@
 <?php
 declare(strict_types=1);
 
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
+use Wikijump\Common\APIError;
 
 /**
  * This file is a set of default helper functions to wrap code in.
@@ -52,4 +54,14 @@ function previousUrl(): string
     }
 
     return $url;
+}
+
+/**
+ * Shorthand for making an API error response.
+ * @param int $status HTTP status code.
+ * @param string $error The error to throw. Must be a value of `APIError`.
+ */
+function apierror(int $status, string $error): Response
+{
+    return APIError::makeResponse($status, $error);
 }

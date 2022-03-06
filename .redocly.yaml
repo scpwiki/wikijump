@@ -1,0 +1,19 @@
+# The Redocly extension for VSCode requires that this file be in workspace root unfortunately
+
+apiDefinitions:
+  wikijump: ./web/resources/api/api.oas3.yaml
+lint:
+  extends:
+    - recommended
+  rules:
+    tag-description: off
+    operation-summary: off
+    operation-singular-tag: off
+    operation-4xx-response: off
+    no-unresolved-refs: error
+    no-unused-components: warn
+    operation-2xx-response: error
+    operation-operationId: error
+    no-enum-type-mismatch: error
+    no-identical-paths: error
+    no-ambiguous-paths: error

@@ -26,27 +26,24 @@
   async function resetPassword() {
     if (inputsValid(inputPassword, inputPasswordConfirm)) {
       busy = true
-      try {
-        const token = WikijumpAPI.getPathSegment(2)
-        const email = WikijumpAPI.getQueryParameter("email")
-        const password = inputPassword.value
+      const token = WikijumpAPI.getPathSegment(2)
+      const email = WikijumpAPI.getQueryParameter("email")
+      const password = inputPassword.value
 
-        if (!token || !email || !password) {
-          busy = false
-          error = t("form-error.missing-field")
-          return
-        }
-
-        await WikijumpAPI.post(window.location.href, { token, email, password })
-
-        dispatch("reset")
-
-        if (goto !== null) {
-          window.location.href = goto === true ? "/" : goto || "/"
-        }
-      } catch {
-        error = t("error-api.internal")
+      if (!token || !email || !password) {
+        busy = false
+        error = t("form-error.missing-field")
+        return
       }
+
+      await WikijumpAPI.post(window.location.href, { token, email, password })
+
+      dispatch("reset")
+
+      if (goto !== null) {
+        window.location.href = goto === true ? "/" : goto || "/"
+      }
+
       busy = false
     } else {
       error = t("form-error.missing-field")

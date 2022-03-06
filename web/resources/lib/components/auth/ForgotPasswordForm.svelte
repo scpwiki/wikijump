@@ -16,24 +16,11 @@
     dispatch("started")
     started = true
   }
-
-  function onerror(err: unknown) {
-    if (err instanceof Response) {
-      // prettier-ignore
-      switch(err.status) {
-        case 403: return $t("error-api.unknown-email")
-        case 409: return $t("error-api.already-logged-in")
-        default:  return $t("error-api.internal")
-      }
-    } else {
-      throw err
-    }
-  }
 </script>
 
 {#if !started}
   <div class="password-recovery-form">
-    <Form {onsubmit} {onerror} let:busy let:error let:submit>
+    <Form {onsubmit} let:busy let:error let:submit>
       <TextInput
         name="email"
         on:enter={submit}

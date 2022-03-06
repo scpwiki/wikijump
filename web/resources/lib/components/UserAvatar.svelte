@@ -8,9 +8,9 @@
 
   $: request = user
     ? typeof user === "number"
-      ? WikijumpAPI.try("userGetAvatar", "id", user)
-      : WikijumpAPI.try("userGetAvatar", "slug", user)
-    : WikijumpAPI.try("userClientGetAvatar")
+      ? WikijumpAPI.try.userGetAvatar("id", user)
+      : WikijumpAPI.try.userGetAvatar("slug", user)
+    : WikijumpAPI.try.userClientGetAvatar()
 </script>
 
 {#await request}
@@ -21,7 +21,7 @@
   <img
     style="width: {size}; height: {size};"
     class="avatar"
-    src={res?.avatar ?? asset("BAD_AVATAR").raw}
+    src={res.unwrapOrNull()?.avatar ?? asset("BAD_AVATAR").raw}
     alt=""
   />
 {/await}

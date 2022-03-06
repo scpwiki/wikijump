@@ -9,14 +9,9 @@
   async function onsubmit() {
     await WikijumpAPI.accountSendVerificationEmail()
   }
-
-  function onerror(err: unknown) {
-    if (err instanceof Response) return $t("error-api.internal")
-    else throw err
-  }
 </script>
 
-<Form {onsubmit} {onerror} let:busy let:fired let:error>
+<Form {onsubmit} let:busy let:fired let:error>
   <Button submit disabled={busy} wide primary>
     {$t("#-verify-email.resend-email")}
   </Button>

@@ -7,6 +7,7 @@ namespace Wikijump\Http\Controllers;
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
+use Wikijump\Common\APIError;
 use Wikijump\Services\Users\Authentication;
 use Wikijump\Services\Users\AuthenticationError;
 
@@ -36,7 +37,7 @@ class AuthController extends Controller
     {
         // check if the user is already logged in
         if ($this->guard->check()) {
-            return new Response('', 409);
+            return apierror(409, APIError::ALREADY_LOGGED_IN);
         }
 
         // atempt to get the user for the given credentials
@@ -44,16 +45,15 @@ class AuthController extends Controller
 
         if ($result->isErr()) {
             $error = $result->error();
-            // TODO: specific response codes for different error types
             switch ($error) {
                 case AuthenticationError::FAILED_TO_VALIDATE:
-                    return new Response('', 400);
+                    return apierror(400, APIError::LOGIN_FAILED);
                 case AuthenticationError::INVALID_PASSWORD:
-                    return new Response('', 400);
+                    return apierror(400, APIError::WRONG_PASSWORD);
                 case AuthenticationError::INVALID_SPECIFIER:
-                    return new Response('', 400);
+                    return apierror(400, APIError::INVALID_SPECIFIER);
                 default:
-                    return new Response('', 400);
+                    return new Response('', 500);
             }
         }
 
@@ -78,7 +78,7 @@ class AuthController extends Controller
     {
         // can't confirm a password if the user is not logged in
         if (!$this->guard->check()) {
-            return new Response('', 401);
+            return apierror(401, APIError::NOT_LOGGED_IN);
         }
 
         $confirmed = $this->guard->validate([
@@ -91,7 +91,7 @@ class AuthController extends Controller
             return new Response('', 200);
         }
 
-        return new Response('', 400);
+        return apierror(401, APIError::WRONG_PASSWORD);
     }
 
     /**
@@ -110,7 +110,7 @@ class AuthController extends Controller
         }
         // user isn't logged in, so we can't log them out
         else {
-            return new Response('', 401);
+            return apierror(401, APIError::NOT_LOGGED_IN);
         }
     }
 
@@ -135,7 +135,7 @@ class AuthController extends Controller
     {
         // check if session is invalid
         if (!$request->session()->isStarted()) {
-            return new Response('', 403);
+            return apierror(409, APIError::INVALID_SESSION);
         }
         // check if the user is logged in
         elseif ($this->guard->check()) {
@@ -144,7 +144,7 @@ class AuthController extends Controller
         }
         // user is logged out, so we can't refresh
         else {
-            return new Response('', 401);
+            return apierror(401, APIError::NOT_LOGGED_IN);
         }
     }
 }

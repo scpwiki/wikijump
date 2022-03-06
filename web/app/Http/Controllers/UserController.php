@@ -8,6 +8,7 @@ use Exception;
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Wikijump\Common\APIError;
 use Wikijump\Models\User;
 use Wikijump\Services\Deepwell\DeepwellService;
 use Wikijump\Services\Users\UserValidation;
@@ -122,7 +123,7 @@ class UserController extends Controller
         $obj = $this->clientData($request);
 
         if (!$obj) {
-            return new Response('', 401);
+            return apierror(404, APIError::UNKNOWN_USER);
         }
 
         return new Response(json_encode($obj), 200);
@@ -137,7 +138,7 @@ class UserController extends Controller
         $client = $this->resolveClient();
 
         if (!$client) {
-            return new Response('', 401);
+            return apierror(401, APIError::NOT_LOGGED_IN);
         }
 
         // TODO: signature, location, links
@@ -156,7 +157,7 @@ class UserController extends Controller
         try {
             DeepwellService::getInstance()->setUser($client->id, $data);
         } catch (Exception $e) {
-            return new Response('', 400);
+            return apierror(400, APIError::FAILED_TO_UPDATE_PROFILE);
         }
 
         return new Response('', 200);
@@ -172,7 +173,7 @@ class UserController extends Controller
         $client = $this->resolveClient();
 
         if (!$client) {
-            return new Response('', 401);
+            return apierror(401, APIError::NOT_LOGGED_IN);
         }
 
         return new Response(['avatar' => $client->avatar()], 200);
@@ -187,7 +188,7 @@ class UserController extends Controller
         $client = $this->resolveClient();
 
         if (!$client) {
-            return new Response('', 401);
+            return apierror(401, APIError::NOT_LOGGED_IN);
         }
 
         // note: isn't documented that the file name is "avatar",
@@ -195,7 +196,7 @@ class UserController extends Controller
         $avatar = $request->file('avatar');
 
         if (!UserValidation::isValidAvatar($avatar)) {
-            return new Response('', 400);
+            return apierror(400, APIError::INVALID_AVATAR);
         }
 
         $client->updateAvatar($avatar);
@@ -212,7 +213,7 @@ class UserController extends Controller
         $client = $this->resolveClient();
 
         if (!$client) {
-            return new Response('', 401);
+            return apierror(401, APIError::NOT_LOGGED_IN);
         }
 
         $client->deleteAvatar();
@@ -231,7 +232,7 @@ class UserController extends Controller
         $obj = $this->userData($request);
 
         if (!$obj) {
-            return new Response('', 404);
+            return apierror(404, APIError::UNKNOWN_USER);
         }
 
         return new Response(json_encode($obj), 200);
@@ -247,7 +248,7 @@ class UserController extends Controller
         $user = $this->resolveUser($request);
 
         if ($user === null) {
-            return new Response('', 404);
+            return apierror(404, APIError::UNKNOWN_USER);
         }
 
         return new Response(['avatar' => $user->avatar()], 200);

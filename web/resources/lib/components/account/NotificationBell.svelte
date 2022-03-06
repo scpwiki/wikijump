@@ -1,5 +1,5 @@
 <script lang="ts">
-  import WikijumpAPI, { authed, route } from "@wikijump/api"
+  import WikijumpAPI, { route } from "@wikijump/api"
   import { Button } from "@wikijump/components"
   import Locale from "@wikijump/fluent"
 
@@ -9,7 +9,7 @@
   let count = ""
 
   // TODO: maybe a very slow poll?
-  $: if ($authed) {
+  $: if ($WikijumpAPI.authed) {
     WikijumpAPI.notificationGet()
       .then(({ notifications }) => {
         hasNotifications = notifications.length > 0

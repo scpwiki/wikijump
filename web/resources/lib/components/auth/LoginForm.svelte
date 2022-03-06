@@ -30,23 +30,10 @@
       window.location.href = back === true ? "/" : back || "/"
     }
   }
-
-  function onerror(err: unknown) {
-    if (err instanceof Response) {
-      // prettier-ignore
-      switch(err.status) {
-        case 409: return t("error-api.already-logged-in")
-        case 500: return t("error-api.internal")
-        default:  return t("error-api.login-failed")
-      }
-    } else {
-      throw err
-    }
-  }
 </script>
 
 <div class="login-form">
-  <Form {onsubmit} {onerror} let:busy let:error let:submit let:focusnext>
+  <Form {onsubmit} let:busy let:error let:submit let:focusnext>
     <TextInput
       name="login"
       on:enter={focusnext}
