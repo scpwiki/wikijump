@@ -395,7 +395,7 @@ impl PageService {
     /// The `deleted` argument:
     /// * If it is `Some(true)`, then it only returns pages which have been deleted.
     /// * If it is `Some(false)`, then it only returns pages which are extant.
-    /// * If it is `None`, then it all pages regardless of deletion status are selected.
+    /// * If it is `None`, then it returns all pages regardless of deletion status are selected.
     pub async fn get_all(
         ctx: &ServiceContext<'_>,
         site_id: i64,
