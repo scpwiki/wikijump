@@ -61,14 +61,18 @@ pub fn build(mut app: ApiServer) -> ApiServer {
     // Category
     app.at("/category/:site_id").get(category_all_get);
 
+    app.at("/category/direct/:category_id")
+        .head(category_head_direct)
+        .get(category_get_direct);
+
     app.at("/category/:site_id/:type/:id_or_slug")
         .head(category_head)
         .get(category_get);
 
     // Page
     app.at("/page/direct/:page_id")
-        .get(page_get_direct)
-        .head(page_head_direct);
+        .head(page_head_direct)
+        .get(page_get_direct);
 
     app.at("/page/:site_id").post(page_create);
     app.at("/page/:site_id/:type/:id_or_slug")

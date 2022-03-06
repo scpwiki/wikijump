@@ -121,4 +121,33 @@ impl CategoryService {
 
         Ok(categories)
     }
+
+    #[inline]
+    pub async fn exists_direct(
+        ctx: &ServiceContext<'_>,
+        category_id: i64,
+    ) -> Result<bool> {
+        Self::get_direct_optional(ctx, category_id)
+            .await
+            .map(|category| category.is_some())
+    }
+
+    pub async fn get_direct(
+        ctx: &ServiceContext<'_>,
+        category_id: i64,
+    ) -> Result<PageCategoryModel> {
+        match Self::get_direct_optional(ctx, category_id).await? {
+            Some(page) => Ok(page),
+            None => Err(Error::NotFound),
+        }
+    }
+
+    pub async fn get_direct_optional(
+        ctx: &ServiceContext<'_>,
+        category_id: i64,
+    ) -> Result<Option<PageCategoryModel>> {
+        let txn = ctx.transaction();
+        let page = PageCategory::find_by_id(category_id).one(txn).await?;
+        Ok(page)
+    }
 }
