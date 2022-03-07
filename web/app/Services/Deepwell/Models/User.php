@@ -51,34 +51,8 @@ class User extends DeepwellModel
     }
 
     // Getters
-    public function details(): string
-    {
-        return $this->details;
-    }
-
     public function id(): int
     {
         return $this->id;
-    }
-
-    public function username(): string
-    {
-        return $this->username;
-    }
-
-    public function tiny_avatar(): string
-    {
-        return $this->tiny_avatar;
-    }
-
-    public function karma(): int
-    {
-        return $this->karma;
-    }
-
-    // Instance methods
-    public function save(): void
-    {
-        throw new Exception('Not implemented yet!');
     }
 }
