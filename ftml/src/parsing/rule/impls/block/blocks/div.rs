@@ -30,21 +30,13 @@ pub const BLOCK_DIV: BlockRule = BlockRule {
 };
 
 fn parse_fn<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(
-        log,
-        "Parsing div block";
-        "flag-score" => flag_score,
-        "in-head" => in_head,
-        "name" => name,
-    );
-
+    info!("Parsing div block (name '{name}', in-head {in_head}, score {flag_score})");
     assert!(!flag_star, "Div doesn't allow star flag");
     assert_block_name(&BLOCK_DIV, name);
 

@@ -30,20 +30,13 @@ pub const BLOCK_EQUATION_REF: BlockRule = BlockRule {
 };
 
 fn parse_fn<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(
-        log,
-        "Parsing equation reference block";
-        "in-head" => in_head,
-        "name" => name,
-    );
-
+    info!("Parsing equation reference block (name '{name}', in-head {in_head})");
     assert!(!flag_star, "Equation reference doesn't allow start flag");
     assert!(!flag_score, "Equation reference doesn't allow score flag");
     assert_block_name(&BLOCK_EQUATION_REF, name);

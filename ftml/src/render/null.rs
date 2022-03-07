@@ -34,7 +34,6 @@ impl Render for NullRender {
     #[inline]
     fn render(
         &self,
-        _log: &Logger,
         _tree: &SyntaxTree,
         _page_info: &PageInfo,
         _settings: &WikitextSettings,

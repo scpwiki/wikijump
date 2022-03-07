@@ -27,7 +27,6 @@ pub const MODULE_PAGE_TREE: ModuleRule = ModuleRule {
 };
 
 fn parse_fn<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     mut arguments: Arguments<'t>,

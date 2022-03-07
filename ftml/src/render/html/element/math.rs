@@ -36,14 +36,12 @@ cfg_if! {
 }
 
 pub fn render_math_block(
-    log: &Logger,
     ctx: &mut HtmlContext,
     name: Option<&str>,
     latex_source: &str,
 ) {
     info!(
-        log,
-        "Rendering math block";
+        "Rendering math block (name '{}', source '{}')",
         "name" => name.unwrap_or("<none>"),
         "latex-source" => latex_source,
     );
@@ -60,18 +58,12 @@ pub fn render_math_block(
     );
 }
 
-pub fn render_math_inline(log: &Logger, ctx: &mut HtmlContext, latex_source: &str) {
-    info!(
-        log,
-        "Rendering math inline";
-        "latex-source" => latex_source,
-    );
-
+pub fn render_math_inline(ctx: &mut HtmlContext, latex_source: &str) {
+    info!("Rendering math inline (source '{latex_source}'");
     render_latex(log, ctx, None, None, latex_source, DisplayStyle::Inline);
 }
 
 fn render_latex(
-    log: &Logger,
     ctx: &mut HtmlContext,
     name: Option<&str>,
     index: Option<NonZeroUsize>,
@@ -169,12 +161,8 @@ fn render_latex(
         });
 }
 
-pub fn render_equation_reference(log: &Logger, ctx: &mut HtmlContext, name: &str) {
-    info!(
-        log,
-        "Rendering equation reference";
-        "name" => name,
-    );
+pub fn render_equation_reference(ctx: &mut HtmlContext, name: &str) {
+    info!("Rendering equation reference (name '{name}')");
 
     ctx.html()
         .span()

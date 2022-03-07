@@ -33,21 +33,13 @@ pub const BLOCK_DATE: BlockRule = BlockRule {
 };
 
 fn parse_fn<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(
-        log,
-        "Parsing date block";
-        "flag-score" => flag_score,
-        "in-head" => in_head,
-        "name" => name,
-    );
-
+    info!("Parsing date block (name '{name}', in-head {in_head}, score {flag_score})");
     assert!(!flag_star, "Date doesn't allow star flag");
     assert!(!flag_score, "Date doesn't allow score flag");
     assert_block_name(&BLOCK_DATE, name);
@@ -95,8 +87,8 @@ fn parse_fn<'r, 't>(
 // Parser functions
 
 /// Parse a datetime string and produce its time value, as well as possible timezone info.
-fn parse_date(log: &Logger, value: &str) -> Result<Date, DateParseError> {
-    info!(log, "Parsing possible date value"; "value" => value);
+fn parse_date(value: &str) -> Result<Date, DateParseError> {
+    info!("Parsing possible date value '{value}'");
 
     // Special case, current time
     if value.eq_ignore_ascii_case("now") || value == "." {
@@ -116,12 +108,7 @@ fn parse_date(log: &Logger, value: &str) -> Result<Date, DateParseError> {
 
     // Try date strings
     if let Ok(date) = NaiveDate::parse_from_str(value, "%F") {
-        debug!(
-            log,
-            "Was ISO 8601 date string (dashes)";
-            "result" => str!(date),
-        );
-
+        debug!("Was ISO 8601 date string (dashes), result '{date}'");
         return Ok(date.into());
     }
 
@@ -172,13 +159,13 @@ fn parse_date(log: &Logger, value: &str) -> Result<Date, DateParseError> {
 }
 
 /// Parse the timezone based on the specifier string.
-fn parse_timezone(log: &Logger, value: &str) -> Result<FixedOffset, DateParseError> {
+fn parse_timezone(value: &str) -> Result<FixedOffset, DateParseError> {
     lazy_static! {
         static ref TIMEZONE_REGEX: Regex =
             Regex::new(r"^(\+|-)?([0-9]{1,2}):?([0-9]{2})?$").unwrap();
     }
 
-    info!(log, "Parsing possible timezone value"; "value" => value);
+    info!("Parsing possible timezone value '{value}'");
 
     // Try hours / minutes (via regex)
     if let Some(captures) = TIMEZONE_REGEX.captures(value) {
@@ -212,15 +199,7 @@ fn parse_timezone(log: &Logger, value: &str) -> Result<FixedOffset, DateParseErr
         // Get offset in seconds
         let seconds = sign * (hour * 3600 + minute * 60);
 
-        debug!(
-            log,
-            "Was offset via +HH:MM";
-            "sign" => sign,
-            "hour" => hour,
-            "minute" => minute,
-            "offset" => seconds,
-        );
-
+        debug!("Was offset via +HH:MM (sign {sign}, hour {hour}, minute {minute}, offset {offset})");
         return Ok(FixedOffset::east(seconds));
     }
 
@@ -229,12 +208,7 @@ fn parse_timezone(log: &Logger, value: &str) -> Result<FixedOffset, DateParseErr
     // This is lower-priority than the regex to permit "integer" cases,
     // such as "0800".
     if let Ok(seconds) = value.parse::<i32>() {
-        debug!(
-            log,
-            "Was offset in seconds";
-            "seconds" => seconds,
-        );
-
+        debug!("Was offset in seconds ({seconds})");
         return Ok(FixedOffset::east(seconds));
     }
 

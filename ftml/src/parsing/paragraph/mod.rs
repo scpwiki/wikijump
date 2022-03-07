@@ -27,7 +27,6 @@ use super::parser::Parser;
 use super::prelude::*;
 use super::rule::Rule;
 use super::token::Token;
-use crate::log::prelude::*;
 
 /// Wrapper type to satisfy the issue with generic closure types.
 ///
@@ -50,7 +49,6 @@ type CloseConditionFn = fn(&mut Parser) -> Result<bool, ParseWarning>;
 /// It may produce multiple or none. Instead the logic iterates
 /// and produces paragraphs or child elements as needed.
 pub fn gather_paragraphs<'r, 't, F>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     rule: Rule,
     mut close_condition_fn: Option<F>,
@@ -59,7 +57,7 @@ where
     'r: 't,
     F: FnMut(&mut Parser<'r, 't>) -> Result<bool, ParseWarning>,
 {
-    info!(log, "Gathering paragraphs until ending");
+    info!("Gathering paragraphs until ending");
 
     // Update parser rule
     parser.set_rule(rule);
@@ -91,10 +89,7 @@ where
 
             // If we've hit a paragraph break, then finish the current paragraph
             Token::ParagraphBreak => {
-                info!(
-                    log,
-                    "Hit a paragraph break, creating a new paragraph container",
-                );
+                info!("Hit a paragraph break, creating a new paragraph container");
 
                 // Paragraph break -- end the paragraph and start a new one!
                 stack.end_paragraph();
@@ -120,13 +115,13 @@ where
                 }
 
                 // Otherwise, produce consumption from this token pointer
-                debug!(log, "Trying to consume tokens to produce element");
-                consume(log, parser)
+                debug!("Trying to consume tokens to produce element");
+                consume(parser)
             }
         }?
         .into();
 
-        debug!(log, "Tokens consumed to produce element");
+        debug!("Tokens consumed to produce element");
 
         // Add new elements to the list
         push_elements(&mut stack, elements, paragraph_safe);

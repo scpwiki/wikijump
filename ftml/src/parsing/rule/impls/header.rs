@@ -28,10 +28,9 @@ pub const RULE_HEADER: Rule = Rule {
 };
 
 fn try_consume_fn<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(log, "Trying to create header container");
+    info!("Trying to create header container");
 
     macro_rules! step {
         ($token:expr) => {{
@@ -55,7 +54,6 @@ fn try_consume_fn<'p, 'r, 't>(
     step!(Token::Whitespace);
 
     let (elements, mut all_exceptions, _) = collect_container(
-        log,
         parser,
         RULE_HEADER,
         ContainerType::Header(heading),
@@ -88,7 +86,7 @@ fn try_consume_fn<'p, 'r, 't>(
     // which we need to trigger the next header when using regular rules.
     let mut all_elements: Vec<_> = elements.into_iter().collect();
 
-    if let Ok(success) = try_consume_fn(log, parser) {
+    if let Ok(success) = (try_consume_fn)(parser) {
         let (elements, mut exceptions, _) = success.into();
 
         all_elements.extend(elements);

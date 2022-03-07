@@ -32,20 +32,13 @@ pub const BLOCK_IFTAGS: BlockRule = BlockRule {
 };
 
 fn parse_fn<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(
-        log,
-        "Parsing iftags block";
-        "in-head" => in_head,
-        "name" => name,
-    );
-
+    info!("Parsing iftags block (name '{name}', in-head {in_head})");
     assert!(!flag_star, "IfTags doesn't allow star flag");
     assert!(!flag_score, "IfTags doesn't allow score flag");
     assert_block_name(&BLOCK_IFTAGS, name);
@@ -86,16 +79,9 @@ fn parse_fn<'r, 't>(
 }
 
 pub fn check_iftags(
-    log: &Logger,
     info: &PageInfo,
     conditions: &[ElementCondition],
 ) -> bool {
-    debug!(
-        log,
-        "Checking iftags";
-        "tags-len" => info.tags.len(),
-        "conditions-len" => conditions.len(),
-    );
-
+    debug!("Checking iftags");
     ElementCondition::check(conditions, &info.tags)
 }

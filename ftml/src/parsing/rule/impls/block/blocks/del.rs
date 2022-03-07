@@ -30,20 +30,13 @@ pub const BLOCK_DEL: BlockRule = BlockRule {
 };
 
 fn parse_fn<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(
-        log,
-        "Parsing deletion block";
-        "in-head" => in_head,
-        "name" => name,
-    );
-
+    info!("Parsing deletion block (name '{name}', in-head {in_head})");
     assert!(!flag_star, "Deletion doesn't allow star flag");
     assert!(!flag_score, "Deletion doesn't allow score flag");
     assert_block_name(&BLOCK_DEL, name);

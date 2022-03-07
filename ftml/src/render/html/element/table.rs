@@ -22,7 +22,7 @@ use super::prelude::*;
 use crate::tree::Table;
 use std::num::NonZeroU32;
 
-pub fn render_table(log: &Logger, ctx: &mut HtmlContext, table: &Table) {
+pub fn render_table(ctx: &mut HtmlContext, table: &Table) {
     info!(log, "Rendering table");
 
     let mut column_span_buf = String::new();

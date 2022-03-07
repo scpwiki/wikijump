@@ -20,7 +20,6 @@
 
 use super::IncludeRef;
 use crate::data::{PageRef, PageRefParseError};
-use crate::log::prelude::*;
 use pest::iterators::Pairs;
 use pest::Parser;
 use std::borrow::Cow;
@@ -31,7 +30,6 @@ use std::collections::HashMap;
 struct IncludeParser;
 
 pub fn parse_include_block<'t>(
-    log: &Logger,
     text: &'t str,
     start: usize,
 ) -> Result<(IncludeRef<'t>, usize), IncludeParseError> {
@@ -42,45 +40,31 @@ pub fn parse_include_block<'t>(
             let first = pairs.next().expect("No pairs returned on successful parse");
             let span = first.as_span();
 
-            info!(
-                log,
-                "Parsed include block";
-                "span" => SpanWrap::from(span.start()..span.end()),
-                "slice" => text,
-            );
+            info!("Parsed include block");
 
             // Convert into an IncludeRef
-            let include = process_pairs(log, first.into_inner())?;
+            let include = process_pairs(first.into_inner())?;
 
             // Adjust offset and return
             Ok((include, start + span.end()))
         }
-        Err(_error) => {
-            warn!(
-                log,
-                "Include block was invalid";
-                "error" => str!(_error),
-                "start" => start,
-                "slice" => text,
-            );
-
+        Err(error) => {
+            warn!("Include block was invalid: {error}");
             Err(IncludeParseError)
         }
     }
 }
 
 fn process_pairs<'t>(
-    log: &Logger,
     mut pairs: Pairs<'t, Rule>,
 ) -> Result<IncludeRef<'t>, IncludeParseError> {
     let page_raw = pairs.next().ok_or(IncludeParseError)?.as_str();
     let page_ref = PageRef::parse(page_raw)?;
 
     debug!(
-        log,
-        "Got page for include";
-        "site" => page_ref.site(),
-        "page" => page_ref.page(),
+        "Got page for include (site {}, page {})",
+        page_ref.site(),
+        page_ref.page(),
     );
 
     let mut arguments = HashMap::new();
@@ -105,12 +89,7 @@ fn process_pairs<'t>(
             (key, value)
         };
 
-        trace!(
-            log,
-            "Adding argument for include";
-            "key" => key,
-            "value" => value,
-        );
+        trace!("Adding argument for include (key '{key}', value '{value}')");
 
         // In Wikidot, the first argument takes precedence.
         //

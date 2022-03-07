@@ -32,20 +32,13 @@ pub const BLOCK_IFCATEGORY: BlockRule = BlockRule {
 };
 
 fn parse_fn<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(
-        log,
-        "Parsing ifcategory block";
-        "in-head" => in_head,
-        "name" => name,
-    );
-
+    info!("Parsing ifcategory block (name '{name}', in-head {in_head})");
     assert!(!flag_star, "IfCategory doesn't allow star flag");
     assert!(!flag_score, "IfCategory doesn't allow score flag");
     assert_block_name(&BLOCK_IFCATEGORY, name);
@@ -102,7 +95,6 @@ fn parse_fn<'r, 't>(
 }
 
 pub fn check_ifcategory(
-    log: &Logger,
     info: &PageInfo,
     conditions: &[ElementCondition],
 ) -> bool {
@@ -111,12 +103,6 @@ pub fn check_ifcategory(
         None => "_default",
     };
 
-    debug!(
-        log,
-        "Checking ifcategory";
-        "category" => category,
-        "conditions-len" => conditions.len(),
-    );
-
+    debug!("Checking ifcategory (category '{category}')");
     ElementCondition::check(conditions, &[cow!(category)])
 }

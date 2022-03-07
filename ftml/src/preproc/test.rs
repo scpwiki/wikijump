@@ -19,21 +19,19 @@
  */
 
 use super::preprocess;
-use crate::log::prelude::*;
 use proptest::prelude::*;
 
 pub fn test_substitution<F>(filter_name: &str, mut substitute: F, tests: &[(&str, &str)])
 where
-    F: FnMut(&Logger, &mut String),
+    F: FnMut(&mut String),
 {
     let mut string = String::new();
-    let log = crate::build_logger();
 
     for (input, expected) in tests {
         string.clear();
         string.push_str(input);
 
-        info!(log, "Testing {filter_name} substitution"; "input" => input, "expected" => expected);
+        info!("Testing {filter_name} substitution");
 
         substitute(&log, &mut string);
 

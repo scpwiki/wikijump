@@ -27,11 +27,9 @@ pub const RULE_COLOR: Rule = Rule {
 };
 
 fn try_consume_fn<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(log, "Trying to create color container");
-
+    info!("Trying to create color container");
     check_step(parser, Token::Color)?;
 
     // The pattern for color is:
@@ -50,15 +48,10 @@ fn try_consume_fn<'p, 'r, 't>(
         None,
     )?;
 
-    debug!(
-        log,
-        "Retrieved color descriptor, now building container";
-        "color" => color,
-    );
+    debug!("Retrieved color descriptor, now building container ('{color}')");
 
     // Build color container
     let (elements, exceptions, paragraph_safe) = collect_consume(
-        log,
         parser,
         RULE_COLOR,
         &[ParseCondition::current(Token::Color)],

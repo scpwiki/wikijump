@@ -27,15 +27,11 @@ pub const RULE_MONOSPACE: Rule = Rule {
 };
 
 fn try_consume_fn<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(log, "Trying to create monospace container");
-
+    info!("Trying to create monospace container");
     check_step(parser, Token::LeftMonospace)?;
-
     collect_container(
-        log,
         parser,
         RULE_MONOSPACE,
         ContainerType::Monospace,

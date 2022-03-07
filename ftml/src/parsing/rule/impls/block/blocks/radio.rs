@@ -30,21 +30,13 @@ pub const BLOCK_RADIO: BlockRule = BlockRule {
 };
 
 fn parse_fn<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(
-        log,
-        "Parsing radio button block";
-        "in-head" => in_head,
-        "name" => name,
-        "star" => flag_star,
-    );
-
+    info!("Parsing radio button block (name '{name}', in-head {in_head}, star {star})");
     assert!(!flag_score, "Radio buttons don't allow score flag");
     assert_block_name(&BLOCK_RADIO, name);
 

@@ -24,7 +24,6 @@ mod elements;
 use self::context::TextContext;
 use self::elements::render_elements;
 use crate::data::PageInfo;
-use crate::log::prelude::*;
 use crate::render::{Handle, Render};
 use crate::settings::WikitextSettings;
 use crate::tree::{Element, SyntaxTree};
@@ -36,17 +35,15 @@ impl TextRender {
     #[inline]
     pub fn render_partial(
         &self,
-        log: &Logger,
         elements: &[Element],
         page_info: &PageInfo,
         settings: &WikitextSettings,
     ) -> String {
-        self.render_partial_direct(log, elements, page_info, settings, &[], &[])
+        self.render_partial_direct(elements, page_info, settings, &[], &[])
     }
 
     fn render_partial_direct(
         &self,
-        log: &Logger,
         elements: &[Element],
         page_info: &PageInfo,
         settings: &WikitextSettings,
@@ -54,12 +51,10 @@ impl TextRender {
         footnotes: &[Vec<Element>],
     ) -> String {
         info!(
-            log,
-            "Rendering syntax tree";
-            "target" => "html",
-            "site" => page_info.site.as_ref(),
-            "page" => page_info.page.as_ref(),
-            "category" => match &page_info.category {
+            "Rendering text (site {}, page {}, category {})",
+            page_info.site.as_ref(),
+            page_info.page.as_ref(),
+            match &page_info.category {
                 Some(category) => category.as_ref(),
                 None => "_default",
             },
@@ -88,13 +83,11 @@ impl Render for TextRender {
     #[inline]
     fn render(
         &self,
-        log: &Logger,
         tree: &SyntaxTree,
         page_info: &PageInfo,
         settings: &WikitextSettings,
     ) -> String {
         self.render_partial_direct(
-            log,
             &tree.elements,
             page_info,
             settings,

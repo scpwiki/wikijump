@@ -20,8 +20,8 @@
 
 use super::prelude::*;
 
-pub fn render_wikitext_raw(log: &Logger, ctx: &mut HtmlContext, text: &str) {
-    info!(log, "Escaping raw string"; "text" => text);
+pub fn render_wikitext_raw(ctx: &mut HtmlContext, text: &str) {
+    info!("Escaping raw string '{text}'");
 
     ctx.html()
         .span()
@@ -31,8 +31,8 @@ pub fn render_wikitext_raw(log: &Logger, ctx: &mut HtmlContext, text: &str) {
         .inner(log, text);
 }
 
-pub fn render_email(log: &Logger, ctx: &mut HtmlContext, email: &str) {
-    info!(log, "Rendering email address"; "email" => email);
+pub fn render_email(ctx: &mut HtmlContext, email: &str) {
+    info!("Rendering email address '{email}'");
 
     // Since our usecase doesn't typically have emails as real,
     // but rather as fictional elements, we're just rendering as text.
@@ -46,18 +46,11 @@ pub fn render_email(log: &Logger, ctx: &mut HtmlContext, email: &str) {
 }
 
 pub fn render_code(
-    log: &Logger,
     ctx: &mut HtmlContext,
     language: Option<&str>,
     contents: &str,
 ) {
-    info!(
-        log,
-        "Rendering code block";
-        "language" => language.unwrap_or("<none>"),
-        "contents" => contents,
-    );
-
+    info!("Rendering code block (language {})", language.unwrap_or("<none>"));
     let index = ctx.next_code_snippet_index();
     ctx.handle().post_code(log, index, contents);
 

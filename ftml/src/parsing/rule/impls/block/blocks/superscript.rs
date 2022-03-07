@@ -30,20 +30,13 @@ pub const BLOCK_SUPERSCRIPT: BlockRule = BlockRule {
 };
 
 fn parse_fn<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(
-        log,
-        "Parsing superscript block";
-        "in-head" => in_head,
-        "name" => name,
-    );
-
+    info!("Parsing superscript block (name '{name}', in-head {in_head})");
     assert!(!flag_star, "Superscript doesn't allow star flag");
     assert!(!flag_score, "Superscript doesn't allow score flag");
     assert_block_name(&BLOCK_SUPERSCRIPT, name);

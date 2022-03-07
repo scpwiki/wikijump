@@ -36,7 +36,6 @@ pub use self::includer::{DebugIncluder, FetchedPage, Includer, NullIncluder};
 
 use self::parse::parse_include_block;
 use crate::data::PageRef;
-use crate::log::prelude::*;
 use crate::settings::WikitextSettings;
 use crate::tree::VariableMap;
 use regex::{Regex, RegexBuilder};
@@ -55,7 +54,6 @@ lazy_static! {
 }
 
 pub fn include<'t, I, E, F>(
-    log: &Logger,
     input: &'t str,
     settings: &WikitextSettings,
     mut includer: I,
@@ -65,25 +63,15 @@ where
     I: Includer<'t, Error = E>,
     F: FnOnce() -> E,
 {
-    let log = &log.new(slog_o!(
-        "filename" => slog_filename!(),
-        "lineno" => slog_lineno!(),
-        "function" => "include",
-        "text" => str!(input),
-    ));
-
     if !settings.enable_page_syntax {
-        info!(log, "Includes are disabled for this input, skipping",);
+        info!("Includes are disabled for this input, skipping");
 
         let output = str!(input);
         let pages = vec![];
         return Ok((output, pages));
     }
 
-    info!(
-        log,
-        "Finding and replacing all instances of include blocks in text"
-    );
+    info!("Finding and replacing all instances of include blocks in text");
 
     let mut ranges = Vec::new();
     let mut includes = Vec::new();
@@ -93,18 +81,17 @@ where
         let start = mtch.start();
 
         debug!(
-            log,
-            "Found include regex match";
-            "start" => start,
-            "slice" => mtch.as_str(),
+            "Found include regex match (start {}, slice '{}')",
+            start,
+            mtch.as_str(),
         );
 
-        match parse_include_block(log, &input[start..], start) {
+        match parse_include_block(&input[start..], start) {
             Ok((include, end)) => {
                 ranges.push(start..end);
                 includes.push(include);
             }
-            Err(_) => warn!(log, "Unable to parse include regex match"),
+            Err(_) => warn!("Unable to parse include regex match"),
         }
     }
 
@@ -136,11 +123,9 @@ where
         let (page_ref, variables) = include.into();
 
         info!(
-            log,
-            "Replacing range for included page";
-            "span" => SpanWrap::from(&range),
-            "site" => page_ref.site(),
-            "page" => page_ref.page(),
+            "Replacing range for included page ({}..{})",
+            range.start,
+            range.end,
         );
 
         // Ensure the returned page reference matches

@@ -21,7 +21,6 @@
 //! Module that implements text rendering for `Element` and its children.
 
 use super::TextContext;
-use crate::log::prelude::*;
 use crate::render::ModuleRenderMode;
 use crate::tree::{
     ContainerType, DefinitionListItem, Element, LinkLocation, ListItem, ListType, Tab,
@@ -29,16 +28,16 @@ use crate::tree::{
 use crate::url::normalize_link;
 use std::borrow::Cow;
 
-pub fn render_elements(log: &Logger, ctx: &mut TextContext, elements: &[Element]) {
-    info!(log, "Rendering elements"; "elements-len" => elements.len());
+pub fn render_elements(ctx: &mut TextContext, elements: &[Element]) {
+    info!("Rendering elements (length {})", elements.len());
 
     for element in elements {
         render_element(log, ctx, element);
     }
 }
 
-pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
-    info!(log, "Rendering element"; "element" => element.name());
+pub fn render_element(ctx: &mut TextContext, element: &Element) {
+    info!("Rendering element {}", element.name());
 
     match element {
         Element::Container(container) => {

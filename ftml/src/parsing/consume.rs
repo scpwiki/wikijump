@@ -36,36 +36,29 @@ use std::mem;
 /// It will use the fallback if all rules, fail, so the only failure case is if
 /// the end of the input is reached.
 pub fn consume<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    let log = &log.new(slog_o!(
-        "token" => parser.current().token,
-        "slice" => str!(parser.current().slice),
-        "span" => SpanWrap::from(&parser.current().span),
-        "remaining-len" => parser.remaining().len(),
-    ));
+    info!(
+        "Running consume attempt (token {}, slice {:?})",
+        parser.current().token,
+        parser.current().slice,
+    );
 
     // Incrementing recursion depth
     // Will fail if we're too many layers in
     parser.depth_increment()?;
 
-    debug!(log, "Looking for valid rules");
+    debug!("Looking for valid rules");
     let mut all_exceptions = Vec::new();
     let current = parser.current();
 
     for &rule in get_rules_for_token(current) {
-        debug!(log, "Trying rule consumption for tokens"; "rule" => rule);
+        debug!("Trying rule consumption for tokens (rule {})", rle);
 
         let old_remaining = parser.remaining();
-        match rule.try_consume(log, parser) {
+        match rule.try_consume(parser) {
             Ok(output) => {
-                info!(
-                    log,
-                    "Rule matched, returning generated result";
-                    "rule" => rule,
-                    "element" => format!("{:?}", output.item),
-                );
+                info!("Rule {} matched, returning generated result", rle);
 
                 // If the pointer hasn't moved, we step one token.
                 if parser.same_pointer(old_remaining) {

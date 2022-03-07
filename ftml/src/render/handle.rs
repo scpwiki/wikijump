@@ -19,7 +19,6 @@
  */
 
 use crate::data::{PageInfo, UserInfo};
-use crate::log::prelude::*;
 use crate::settings::WikitextSettings;
 use crate::tree::{ImageSource, LinkLabel, LinkLocation, Module};
 use crate::url::BuildSiteUrl;
@@ -34,16 +33,14 @@ pub struct Handle;
 impl Handle {
     pub fn render_module(
         &self,
-        log: &Logger,
         buffer: &mut String,
         module: &Module,
         mode: ModuleRenderMode,
     ) {
         info!(
-            log,
-            "Rendering module";
-            "module" => module.name(),
-            "mode" => mode.name(),
+            "Rendering module '{}' (mode '{}')",
+            module.name(),
+            mode.name(),
         );
 
         match mode {
@@ -56,16 +53,15 @@ impl Handle {
         }
     }
 
-    pub fn get_page_title(&self, log: &Logger, link: &LinkLocation) -> String {
-        info!(log, "Fetching page title"; "link" => link);
+    pub fn get_page_title(&self, link: &LinkLocation) -> String {
+        info!("Fetching page title");
 
         // TODO
         format!("TODO: actual title ({:?})", link)
     }
 
-    pub fn get_user_info<'a>(&self, log: &Logger, name: &'a str) -> Option<UserInfo<'a>> {
-        info!(log, "Fetching user info"; "name" => name);
-
+    pub fn get_user_info<'a>(&self, name: &'a str) -> Option<UserInfo<'a>> {
+        info!("Fetching user info (name '{name}')");
         let mut info = UserInfo::dummy();
         info.user_name = cow!(name);
         info.user_profile_url = Cow::Owned(format!("/user:info/{name}"));
@@ -74,12 +70,11 @@ impl Handle {
 
     pub fn get_image_link<'a>(
         &self,
-        log: &Logger,
         source: &ImageSource<'a>,
         info: &PageInfo,
         settings: &WikitextSettings,
     ) -> Option<Cow<'a, str>> {
-        info!(log, "Getting file link for image");
+        info!("Getting file link for image");
 
         let (site, page, file): (&str, &str, &str) = match source {
             ImageSource::Url(url) => return Some(Cow::clone(url)),
@@ -88,11 +83,7 @@ impl Handle {
             | ImageSource::File3 { .. }
                 if !settings.allow_local_paths =>
             {
-                warn!(
-                    log,
-                    "Specified path image source when local paths  are disabled",
-                );
-
+                warn!("Specified path image source when local paths are disabled");
                 return None;
             }
             ImageSource::File1 { file } => (&info.site, &info.page, file),
@@ -108,7 +99,6 @@ impl Handle {
 
     pub fn get_link_label<F>(
         &self,
-        log: &Logger,
         link: &LinkLocation,
         label: &LinkLabel,
         f: F,
@@ -134,16 +124,10 @@ impl Handle {
 
     pub fn get_message(
         &self,
-        log: &Logger,
         language: &str,
         message: &str,
     ) -> &'static str {
-        info!(
-            log,
-            "Fetching message";
-            "language" => language,
-            "message" => message,
-        );
+        info!("Fetching message (language {language}, message {message})");
 
         let _ = language;
 
@@ -168,8 +152,8 @@ impl Handle {
         }
     }
 
-    pub fn post_html(&self, log: &Logger, info: &PageInfo, html: &str) -> String {
-        info!(log, "Submitting HTML to create iframe-able snippet");
+    pub fn post_html(&self, info: &PageInfo, html: &str) -> String {
+        info!("Submitting HTML to create iframe-able snippet");
 
         let _ = info;
         let _ = html;
@@ -178,13 +162,8 @@ impl Handle {
         str!("https://example.com/")
     }
 
-    pub fn post_code(&self, log: &Logger, index: NonZeroUsize, code: &str) {
-        info!(
-            log,
-            "Submitting code snippet";
-            "index" => index.get(),
-            "code" => code,
-        );
+    pub fn post_code(&self, index: NonZeroUsize, code: &str) {
+        info!("Submitting code snippet (index {})", index.get());
 
         let _ = index;
         let _ = code;

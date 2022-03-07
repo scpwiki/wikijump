@@ -23,7 +23,6 @@ use super::prelude::*;
 use super::rule::Rule;
 use super::RULE_PAGE;
 use crate::data::PageInfo;
-use crate::log::prelude::*;
 use crate::render::text::TextRender;
 use crate::tokenizer::Tokenization;
 use crate::tree::{AcceptsPartial, HeadingLevel};
@@ -35,9 +34,6 @@ const MAX_RECURSION_DEPTH: usize = 100;
 
 #[derive(Debug, Clone)]
 pub struct Parser<'r, 't> {
-    // Logger instance
-    log: Logger,
-
     // Page and parse information
     page_info: &'r PageInfo<'t>,
     settings: &'r WikitextSettings,
@@ -79,12 +75,10 @@ impl<'r, 't> Parser<'r, 't> {
     /// All other instances should be `.clone()` or `.clone_with_rule()`d from
     /// the main instance used during parsing.
     pub(crate) fn new(
-        log: &Logger,
         tokenization: &'r Tokenization<'t>,
         page_info: &'r PageInfo<'t>,
         settings: &'r WikitextSettings,
     ) -> Self {
-        let log = Logger::clone(log);
         let full_text = tokenization.full_text();
         let (current, remaining) = tokenization
             .tokens()
@@ -92,7 +86,6 @@ impl<'r, 't> Parser<'r, 't> {
             .expect("Parsed tokens list was empty (expected at least one element)");
 
         Parser {
-            log,
             page_info,
             settings,
             current,
@@ -110,11 +103,6 @@ impl<'r, 't> Parser<'r, 't> {
     }
 
     // Getters
-    #[inline]
-    pub fn log(&self) -> Logger {
-        Logger::clone(&self.log)
-    }
-
     #[inline]
     pub fn page_info(&self) -> &PageInfo<'t> {
         self.page_info

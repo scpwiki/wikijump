@@ -21,7 +21,6 @@
 mod prelude {
     pub use super::Render;
     pub use crate::data::PageInfo;
-    pub use crate::log::prelude::*;
     pub use crate::settings::{WikitextMode, WikitextSettings};
     pub use crate::tree::{AttributeMap, Container, ContainerType, Element, SyntaxTree};
 }
@@ -36,7 +35,6 @@ mod handle;
 
 use self::handle::{Handle, ModuleRenderMode};
 use crate::data::PageInfo;
-use crate::log::prelude::*;
 use crate::settings::WikitextSettings;
 use crate::tree::SyntaxTree;
 
@@ -61,7 +59,6 @@ pub trait Render {
     /// it requires to produce the output string.
     fn render(
         &self,
-        log: &Logger,
         tree: &SyntaxTree,
         page_info: &PageInfo,
         settings: &WikitextSettings,

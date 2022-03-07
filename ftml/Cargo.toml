@@ -18,14 +18,10 @@ name = "ftml"
 crate-type = ["cdylib", "lib"]
 
 [features]
-default  = ["ffi", "log", "mathml"]
+default  = ["ffi", "mathml"]
 # If removed, then FFI integrations are not included in the crate.
 # This feature does not build even if included if the target is "wasm32".
 ffi      = ["parking_lot", "slog-bunyan"]
-# If removed, then logging is cut out entirely -- replaces slog macros with no-ops.
-log      = ["slog"]
-# Enables console.log() logging. Spams your browser, caveat emptor!
-wasm-log = []
 # Adds LaTeX -> MathML support for rendering.
 mathml   = ["latex2mathml"]
 
@@ -36,6 +32,7 @@ entities = "1"
 enum-map = "2"
 latex2mathml = { version = "0.2", optional = true }
 lazy_static = "1"
+log = "0.4"
 maplit = "1"
 pest = "2"
 pest_derive = "2"
@@ -45,7 +42,6 @@ regex = "1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 serde_repr = "0.1"
-slog = { version = "2.7", optional = true }
 str-macro = "1"
 strum = "0.24"
 strum_macros = "0.24"

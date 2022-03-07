@@ -27,15 +27,11 @@ pub const RULE_STRIKETHROUGH: Rule = Rule {
 };
 
 fn try_consume_fn<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     info!(log, "Trying to create strikethrough container");
-
     check_step(parser, Token::DoubleDash)?;
-
     collect_container(
-        log,
         parser,
         RULE_STRIKETHROUGH,
         ContainerType::Strikethrough,

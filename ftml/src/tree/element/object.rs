@@ -530,15 +530,3 @@ impl Element<'_> {
         }
     }
 }
-
-#[cfg(feature = "log")]
-impl slog::Value for Element<'_> {
-    fn serialize(
-        &self,
-        _: &slog::Record,
-        key: slog::Key,
-        serializer: &mut dyn slog::Serializer,
-    ) -> slog::Result {
-        serializer.emit_str(key, self.name())
-    }
-}

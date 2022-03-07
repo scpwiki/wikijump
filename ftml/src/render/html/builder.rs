@@ -21,7 +21,6 @@
 use super::attributes::AddedAttributes;
 use super::context::HtmlContext;
 use super::render::ItemRender;
-use crate::log::prelude::*;
 use std::collections::HashSet;
 
 macro_rules! tag_method {
@@ -267,9 +266,9 @@ impl<'c, 'i, 'h, 'e, 't> HtmlBuilderTag<'c, 'i, 'h, 'e, 't> {
     }
 
     #[inline]
-    pub fn inner<R: ItemRender>(&mut self, log: &Logger, item: R) -> &mut Self {
+    pub fn inner<R: ItemRender>(&mut self, item: R) -> &mut Self {
         self.content_start();
-        item.render(log, self.ctx);
+        item.render(self.ctx);
 
         self
     }

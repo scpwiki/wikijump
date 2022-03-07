@@ -41,26 +41,19 @@ pub const RULE_LINK_SINGLE_NEW_TAB: Rule = Rule {
 };
 
 fn link<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    debug!(log, "Trying to create a single-bracket link (regular)");
-
+    debug!("Trying to create a single-bracket link (regular)");
     check_step(parser, Token::LeftBracket)?;
-
-    try_consume_link(log, parser, RULE_LINK_SINGLE, None)
+    try_consume_link(parser, RULE_LINK_SINGLE, None)
 }
 
 fn link_new_tab<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    debug!(log, "Trying to create a single-bracket link (new tab)");
-
+    debug!("Trying to create a single-bracket link (new tab)");
     check_step(parser, Token::LeftBracketStar)?;
-
     try_consume_link(
-        log,
         parser,
         RULE_LINK_SINGLE_NEW_TAB,
         Some(AnchorTarget::NewTab),
@@ -69,20 +62,20 @@ fn link_new_tab<'p, 'r, 't>(
 
 /// Build a single-bracket link with the given target.
 fn try_consume_link<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
     target: Option<AnchorTarget>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     info!(
-        log,
-        "Trying to create a single-bracket link";
-        "target" => target.map(|t| t.name()),
+        "Trying to create a single-bracket link (target {})",
+        match target {
+            Some(target) => target.name(),
+            None => "<none>",
+        },
     );
 
     // Gather path for link
     let url = collect_text(
-        log,
         parser,
         rule,
         &[ParseCondition::current(Token::Whitespace)],
@@ -99,14 +92,12 @@ fn try_consume_link<'p, 'r, 't>(
     }
 
     debug!(
-        log,
         "Retrieved URL for link, now fetching label";
         "url" => url,
     );
 
     // Gather label for link
     let label = collect_text(
-        log,
         parser,
         rule,
         &[ParseCondition::current(Token::RightBracket)],
@@ -117,11 +108,7 @@ fn try_consume_link<'p, 'r, 't>(
         None,
     )?;
 
-    debug!(
-        log,
-        "Retrieved label for link, now build element";
-        "label" => label,
-    );
+    debug!("Retrieved label for link, now build element (label '{label}')");
 
     // Trim label
     let label = label.trim();

@@ -24,7 +24,6 @@
 //! against the upcoming tokens in accordance to how the
 //! various blocks define themselves.
 
-use crate::log::prelude::*;
 use crate::parsing::result::ParseResult;
 use crate::parsing::rule::{LineRequirement, Rule};
 use crate::parsing::Parser;
@@ -97,7 +96,6 @@ impl BlockRule {
     pub fn rule(&self) -> Rule {
         // Stubbed try_consume_fn implementation for the Rule.
         fn try_consume_fn<'p, 'r, 't>(
-            _: &Logger,
             _: &'p mut Parser<'r, 't>,
         ) -> ParseResult<'r, 't, Elements<'t>> {
             panic!("Pseudo rule for this block should not be executed directly!");
@@ -127,14 +125,12 @@ impl Debug for BlockRule {
 /// Function pointer type to implement block parsing.
 ///
 /// The arguments are, in order:
-/// * `log` -- `Logger` instance
 /// * `parser` -- `Parser` instance
 /// * `name` -- The name of the block
 /// * `flag_star` -- Whether this block is has the star flag (`*`).
 /// * `flag_score` -- Whether this block has the score flag (`_`).
 /// * `in_head` -- Whether we're still in the block head, or if it's finished
 pub type BlockParseFn = for<'r, 't> fn(
-    &Logger,
     &mut Parser<'r, 't>,
     &'t str,
     bool,

@@ -44,7 +44,6 @@ mod prelude {
     pub use super::super::context::HtmlContext;
     pub use super::super::random::Random;
     pub use super::{render_element, render_elements};
-    pub use crate::log::prelude::*;
     pub use crate::tree::{Element, SyntaxTree};
 }
 
@@ -68,27 +67,26 @@ use self::toc::render_table_of_contents;
 use self::user::render_user;
 use super::attributes::AddedAttributes;
 use super::HtmlContext;
-use crate::log::prelude::*;
 use crate::render::ModuleRenderMode;
 use crate::tree::Element;
 use ref_map::*;
 
-pub fn render_elements(log: &Logger, ctx: &mut HtmlContext, elements: &[Element]) {
-    info!(log, "Rendering elements"; "elements-len" => elements.len());
+pub fn render_elements(ctx: &mut HtmlContext, elements: &[Element]) {
+    info!("Rendering elements (length {})", elements.len());
 
     for element in elements {
         render_element(log, ctx, element);
     }
 }
 
-pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
+pub fn render_element(ctx: &mut HtmlContext, element: &Element) {
     macro_rules! ref_cow {
         ($input:expr) => {
             $input.ref_map(|s| s.as_ref())
         };
     }
 
-    info!(log, "Rendering element"; "element" => element.name());
+    info!("Rendering element '{}'", element.name());
 
     match element {
         Element::Container(container) => render_container(log, ctx, container),

@@ -28,10 +28,9 @@ pub const RULE_CENTER: Rule = Rule {
 };
 
 fn try_consume_fn<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(log, "Trying to create centered container");
+    info!("Trying to create centered container");
 
     // Check that the rule has "= "
     macro_rules! next {
@@ -50,7 +49,6 @@ fn try_consume_fn<'p, 'r, 't>(
 
     // Collect contents
     collect_container(
-        log,
         parser,
         RULE_CENTER,
         ContainerType::Align(Alignment::Center),

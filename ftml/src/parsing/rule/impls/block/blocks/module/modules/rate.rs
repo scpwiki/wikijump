@@ -27,13 +27,11 @@ pub const MODULE_RATE: ModuleRule = ModuleRule {
 };
 
 fn parse_fn<'r, 't>(
-    log: &Logger,
     _parser: &mut Parser<'r, 't>,
     name: &'t str,
     _arguments: Arguments<'t>,
 ) -> ParseResult<'r, 't, Option<Module<'t>>> {
-    info!(log, "Parsing categories module");
+    info!("Parsing categories module");
     assert_module_name(&MODULE_RATE, name);
-
     ok!(false; Some(Module::Rate))
 }

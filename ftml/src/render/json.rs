@@ -48,12 +48,11 @@ impl Render for JsonRender {
 
     fn render(
         &self,
-        log: &Logger,
         syntax_tree: &SyntaxTree,
         page_info: &PageInfo,
         settings: &WikitextSettings,
     ) -> String {
-        info!(log, "Running JSON logger on syntax tree"; "pretty" => self.pretty);
+        info!("Running JSON logger on syntax tree (pretty {})", self.pretty);
 
         // Get the JSON serializer
         let writer = if self.pretty {

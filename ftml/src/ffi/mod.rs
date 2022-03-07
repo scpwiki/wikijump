@@ -28,7 +28,6 @@
 #![allow(non_camel_case_types, clippy::upper_case_acronyms)]
 
 mod prelude {
-    pub use super::log::get_logger;
     pub use super::pool::get_static_cstr;
     pub use super::string::*;
     pub use super::vec::*;
@@ -40,7 +39,6 @@ mod prelude {
 mod backlinks;
 mod exports;
 mod html;
-mod log;
 mod misc;
 mod page_info;
 mod page_ref;

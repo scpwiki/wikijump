@@ -37,7 +37,6 @@ macro_rules! make_align_block {
         };
 
         fn parse_fn<'r, 't>(
-            log: &Logger,
             parser: &mut Parser<'r, 't>,
             name: &'t str,
             flag_star: bool,
@@ -46,7 +45,6 @@ macro_rules! make_align_block {
         ) -> ParseResult<'r, 't, Elements<'t>> {
             parse_alignment_block(
                 (&$block_const, Alignment::$align),
-                log,
                 parser,
                 name,
                 flag_star,
@@ -59,7 +57,6 @@ macro_rules! make_align_block {
 
 pub fn parse_alignment_block<'r, 't>(
     (block_rule, alignment): (&BlockRule, Alignment),
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     flag_star: bool,
@@ -67,14 +64,12 @@ pub fn parse_alignment_block<'r, 't>(
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     info!(
-        log,
-        "Parsing alignment block";
-        "block-rule" => block_rule.name,
-        "alignment" => alignment.name(),
-        "in-head" => in_head,
-        "name" => name,
+        "Parsing alignment block (name '{}', block-rule '{}', alignment '{}', in-head {})",
+        name,
+        block_rule.name,
+        alignment.name(),
+        in_head,
     );
-
     assert!(!flag_star, "Alignment block doesn't allow star flag");
     assert!(!flag_score, "Alignment block doesn't allow score flag");
     assert_block_name(block_rule, name);

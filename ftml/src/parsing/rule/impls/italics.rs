@@ -27,13 +27,10 @@ pub const RULE_ITALICS: Rule = Rule {
 };
 
 fn try_consume_fn<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(log, "Trying to create italics (emphasis) container");
-
+    info!("Trying to create italics (emphasis) container");
     check_step(parser, Token::Italics)?;
-
     collect_container(
         log,
         parser,

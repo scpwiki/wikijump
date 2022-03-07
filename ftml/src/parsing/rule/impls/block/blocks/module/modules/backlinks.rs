@@ -27,7 +27,6 @@ pub const MODULE_BACKLINKS: ModuleRule = ModuleRule {
 };
 
 fn parse_fn<'r, 't>(
-    log: &Logger,
     _parser: &mut Parser<'r, 't>,
     name: &'t str,
     mut arguments: Arguments<'t>,
@@ -36,6 +35,5 @@ fn parse_fn<'r, 't>(
     assert_module_name(&MODULE_BACKLINKS, name);
 
     let page = arguments.get("page");
-
     ok!(false; Some(Module::Backlinks { page }))
 }

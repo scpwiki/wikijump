@@ -27,13 +27,10 @@ pub const RULE_SUPERSCRIPT: Rule = Rule {
 };
 
 fn try_consume_fn<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(log, "Trying to create superscript container");
-
+    info!("Trying to create superscript container");
     check_step(parser, Token::Superscript)?;
-
     collect_container(
         log,
         parser,

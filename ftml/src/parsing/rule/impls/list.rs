@@ -39,11 +39,10 @@ pub const RULE_LIST: Rule = Rule {
 };
 
 fn try_consume_fn<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     // We don't know the list type(s) yet, so just log that we're starting
-    info!(log, "Parsing a list");
+    info!("Parsing a list");
 
     // Context variables
     let mut depths = Vec::new();
@@ -71,27 +70,14 @@ fn try_consume_fn<'p, 'r, 't>(
 
             // Invalid token, bail
             _ => {
-                warn!(
-                    log,
-                    "Didn't find correct bullet token or couldn't determine list depth, ending list iteration";
-                    "token" => current.token,
-                    "slice" => current.slice,
-                    "span" => SpanWrap::from(&current.span),
-                );
-
+                warn!("Didn't find correct bullet token or couldn't determine list depth, ending list iteration");
                 break;
             }
         };
 
         // Check that the depth isn't obscenely deep, to avoid DOS attacks via stack overflow.
         if depth > MAX_LIST_DEPTH {
-            warn!(
-                log,
-                "List item has a depth greater than the maximum! Failing";
-                "depth" => depth,
-                "max-depth" => MAX_LIST_DEPTH,
-            );
-
+            warn!("List item has a depth {depth} greater than the maximum ({MAX_LIST_DEPTH})! Failing");
             return Err(parser.make_warn(ParseWarningKind::ListDepthExceeded));
         }
 
@@ -100,36 +86,18 @@ fn try_consume_fn<'p, 'r, 't>(
         let list_type = match get_list_type(current.token) {
             Some(ltype) => ltype,
             None => {
-                debug!(
-                    log,
-                    "Didn't find bullet token, couldn't determine list type, ending list iteration";
-                    "token" => current.token,
-                    "slice" => current.slice,
-                    "span" => SpanWrap::from(&current.span),
-                );
-
+                debug!("Didn't find bullet token, couldn't determine list type, ending list iteration");
                 break;
             }
         };
         parser.step()?;
 
-        debug!(
-            log,
-            "Parsing list item";
-            "list-type" => list_type.name(),
-        );
+        debug!("Parsing list item '{}'", list_type.name());
 
         // For now, always expect whitespace after the bullet
         let current = parser.current();
         if current.token != Token::Whitespace {
-            warn!(
-                log,
-                "Didn't find whitespace after bullet token, ending list iteration";
-                "token" => current.token,
-                "slice" => current.slice,
-                "span" => SpanWrap::from(&current.span),
-            );
-
+            warn!("Didn't find whitespace after bullet token, ending list iteration");
             break;
         }
         parser.step()?;

@@ -30,20 +30,13 @@ pub const BLOCK_USER: BlockRule = BlockRule {
 };
 
 fn parse_fn<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(
-        log,
-        "Parsing user block";
-        "in-head" => in_head,
-        "name" => name,
-    );
-
+    info!("Parsing user block (name '{name}', in-head {in_head})");
     assert!(!flag_score, "User doesn't allow score flag");
     assert_block_name(&BLOCK_USER, name);
 

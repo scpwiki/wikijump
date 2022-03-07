@@ -22,15 +22,10 @@ use super::prelude::*;
 use crate::tree::DefinitionListItem;
 
 pub fn render_definition_list(
-    log: &Logger,
     ctx: &mut HtmlContext,
     items: &[DefinitionListItem],
 ) {
-    info!(
-        log,
-        "Rendering definition list";
-        "items-len" => items.len(),
-    );
+    info!("Rendering definition list (length {})", items.len());
 
     ctx.html().dl().contents(|ctx| {
         for DefinitionListItem { key, value } in items {

@@ -27,7 +27,6 @@ use super::prelude::*;
 /// rather than considering them as special elements.
 #[inline]
 pub fn collect_text<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
     close_conditions: &[ParseCondition],
@@ -38,7 +37,6 @@ where
     'r: 't,
 {
     collect_text_keep(
-        log,
         parser,
         rule,
         close_conditions,
@@ -55,7 +53,6 @@ where
 ///
 /// Compare with `collect_consume_keep()`.
 pub fn collect_text_keep<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
     close_conditions: &[ParseCondition],
@@ -77,7 +74,6 @@ where
     //
     // We know text is always paragraph safe, so we ignore that value.
     let (last, exceptions, _) = collect(
-        log,
         parser,
         rule,
         close_conditions,

@@ -173,15 +173,3 @@ impl ContainerType {
         }
     }
 }
-
-#[cfg(feature = "log")]
-impl slog::Value for ContainerType {
-    fn serialize(
-        &self,
-        _: &slog::Record,
-        key: slog::Key,
-        serializer: &mut dyn slog::Serializer,
-    ) -> slog::Result {
-        serializer.emit_str(key, self.name())
-    }
-}

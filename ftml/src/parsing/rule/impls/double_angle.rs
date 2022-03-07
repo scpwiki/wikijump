@@ -27,15 +27,12 @@ pub const RULE_DOUBLE_ANGLE: Rule = Rule {
 };
 
 fn try_consume_fn<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     let current = parser.current();
-
     info!(
-        log,
-        "Consuming token to create a left/right double angle quote";
-        "token" => current.token,
+        "Consuming token '{}', to create a left/right double angle quote",
+        current.token,
     );
 
     match current.token {

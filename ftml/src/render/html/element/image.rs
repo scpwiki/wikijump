@@ -23,7 +23,6 @@ use crate::tree::{AttributeMap, FloatAlignment, ImageSource, LinkLocation};
 use crate::url::normalize_link;
 
 pub fn render_image(
-    log: &Logger,
     ctx: &mut HtmlContext,
     source: &ImageSource,
     link: &Option<LinkLocation>,
@@ -31,18 +30,17 @@ pub fn render_image(
     attributes: &AttributeMap,
 ) {
     info!(
-        log,
-        "Rendering image element";
-        "source" => source.name(),
-        "link" => match link {
+        "Rendering image element (source '{}', link {}, alignment {}, float {})",
+        source.name(),
+        match link {
             Some(link) => format!("{:?}", link),
             None => str!("<none>"),
         },
-        "alignment" => match alignment {
+        match alignment {
             Some(image) => image.align.name(),
             None => "<default>",
         },
-        "float" => match alignment {
+        match alignment {
             Some(image) => image.float,
             None => false,
         },
@@ -51,6 +49,7 @@ pub fn render_image(
     let source_url = ctx
         .handle()
         .get_image_link(log, source, ctx.info(), ctx.settings());
+
     match source_url {
         // Found URL
         Some(url) => render_image_element(log, ctx, &url, link, alignment, attributes),
@@ -61,18 +60,13 @@ pub fn render_image(
 }
 
 fn render_image_element(
-    log: &Logger,
     ctx: &mut HtmlContext,
     url: &str,
     link: &Option<LinkLocation>,
     alignment: Option<FloatAlignment>,
     attributes: &AttributeMap,
 ) {
-    debug!(
-        log,
-        "Found URL, rendering image";
-        "url" => url,
-    );
+    debug!("Found URL, rendering image (value '{url}')");
 
     let (space, align_class) = match alignment {
         Some(align) => (" ", align.html_class()),
@@ -107,12 +101,12 @@ fn render_image_element(
         });
 }
 
-fn render_image_missing(log: &Logger, ctx: &mut HtmlContext) {
-    debug!(log, "Image URL unresolved, missing or error");
+fn render_image_missing(ctx: &mut HtmlContext) {
+    debug!("Image URL unresolved, missing or error");
 
     let message = ctx
         .handle()
-        .get_message(log, ctx.language(), "image-context-bad");
+        .get_message(ctx.language(), "image-context-bad");
 
     ctx.html()
         .div()

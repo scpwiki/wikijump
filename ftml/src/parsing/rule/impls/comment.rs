@@ -27,10 +27,9 @@ pub const RULE_COMMENT: Rule = Rule {
 };
 
 fn try_consume_fn<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(log, "Consuming tokens until end of comment");
+    info!("Consuming tokens until end of comment");
 
     check_step(parser, Token::LeftComment)?;
 
@@ -41,13 +40,7 @@ fn try_consume_fn<'p, 'r, 't>(
             slice: _slice,
         } = parser.current();
 
-        debug!(
-            log,
-            "Received token inside comment";
-            "token" => token,
-            "slice" => _slice,
-            "span" => SpanWrap::from(_span),
-        );
+        debug!("Received token '{}' inside comment", token.name());
 
         match token {
             // Hit the end of the comment, return
@@ -59,14 +52,13 @@ fn try_consume_fn<'p, 'r, 't>(
 
             // Hit the end of the input, abort
             Token::InputEnd => {
-                debug!(log, "Reached end of input, aborting");
-
+                debug!("Reached end of input, aborting");
                 return Err(parser.make_warn(ParseWarningKind::EndOfInput));
             }
 
             // Consume any other token
             _ => {
-                debug!(log, "Token inside comment received. Discarding.");
+                debug!("Token inside comment received. Discarding.");
                 parser.step()?;
             }
         }

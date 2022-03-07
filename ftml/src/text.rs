@@ -18,7 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::log::prelude::*;
 use crate::parsing::ExtractedToken;
 
 /// Wrapper for the input string that was tokenized.
@@ -59,14 +58,12 @@ impl<'t> FullText<'t> {
     /// this function will panic.
     pub fn slice(
         &self,
-        log: &Logger,
         start_token: &ExtractedToken,
         end_token: &ExtractedToken,
     ) -> &'t str {
         let start = start_token.span.start;
         let end = end_token.span.end;
-
-        self.slice_impl(log, "full", start, end)
+        self.slice_impl("full", start, end)
     }
 
     /// Slices from the given start, but before the end token.
@@ -84,29 +81,21 @@ impl<'t> FullText<'t> {
     /// this function will panic.
     pub fn slice_partial(
         &self,
-        log: &Logger,
         start_token: &ExtractedToken,
         end_token: &ExtractedToken,
     ) -> &'t str {
         let start = start_token.span.start;
         let end = end_token.span.start;
-
-        self.slice_impl(log, "partial", start, end)
+        self.slice_impl("partial", start, end)
     }
 
     fn slice_impl(
         &self,
-        log: &Logger,
-        _slice_kind: &'static str,
+        slice_kind: &'static str,
         start: usize,
         end: usize,
     ) -> &'t str {
-        info!(
-            log,
-            "Extracting {_slice_kind} slice from full text";
-            "start" => start,
-            "end" => end,
-        );
+        info!("Extracting {slice_kind} slice ({start}-{end}) from full text");
 
         assert!(
             start <= end,
@@ -121,7 +110,6 @@ impl<'t> FullText<'t> {
 fn slice() {
     use crate::parsing::Token;
 
-    let log = crate::build_logger();
     let text = "Apple banana!";
     let full_text = FullText::new(text);
 
@@ -136,14 +124,12 @@ fn slice() {
     }
 
     {
-        let slice = full_text.slice(&log, range!(0..1), range!(4..5));
-
+        let slice = full_text.slice(range!(0..1), range!(4..5));
         assert_eq!(slice, "Apple", "Full slice didn't match expected");
     }
 
     {
-        let slice = full_text.slice_partial(&log, range!(6..9), range!(12..13));
-
+        let slice = full_text.slice_partial(range!(6..9), range!(12..13));
         assert_eq!(slice, "banana", "Partial slice didn't match expected");
     }
 }
@@ -153,7 +139,6 @@ fn slice() {
 fn slice_invalid() {
     use crate::parsing::Token;
 
-    let log = crate::build_logger();
     let text = "Durian...";
     let full_text = FullText::new(text);
 
@@ -168,5 +153,5 @@ fn slice_invalid() {
     }
 
     // "Durian"
-    let _ = full_text.slice(&log, range!(6..7), range!(0..1));
+    let _ = full_text.slice(range!(6..7), range!(0..1));
 }

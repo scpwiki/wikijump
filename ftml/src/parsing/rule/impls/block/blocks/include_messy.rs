@@ -39,15 +39,13 @@ pub const BLOCK_INCLUDE_MESSY: BlockRule = BlockRule {
 };
 
 fn parse_fn<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     flag_star: bool,
     flag_score: bool,
     _in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(log, "Found invalid include-messy block");
-
+    info!("Found invalid include-messy block");
     parser.check_page_syntax()?;
     assert!(!flag_star, "Include (messy) doesn't allow star flag");
     assert!(!flag_score, "Include (messy) doesn't allow score flag");
@@ -55,6 +53,5 @@ fn parse_fn<'r, 't>(
 
     // Includes are handled specially, so we should never actually be
     // parsing a block here. So, we return a warning.
-
     Err(parser.make_warn(ParseWarningKind::InvalidInclude))
 }

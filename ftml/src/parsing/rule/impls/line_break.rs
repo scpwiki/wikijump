@@ -33,10 +33,9 @@ pub const RULE_LINE_BREAK_PARAGRAPH: Rule = Rule {
 };
 
 fn line_break<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(log, "Consuming newline token as line break");
+    info!("Consuming newline token as line break");
 
     // Skip this newline if we're coming up on a rule that starts
     // on its own line.
@@ -67,8 +66,7 @@ fn line_break<'p, 'r, 't>(
     });
 
     if upcoming_skip {
-        info!(log, "Skipping line break element because of upcoming token");
-
+        info!("Skipping line break element because of upcoming token");
         return ok!(Elements::None);
     }
 
@@ -77,7 +75,6 @@ fn line_break<'p, 'r, 't>(
 
 #[inline]
 fn line_break_paragraph<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     // This rule is kind of special. It's the same as RULE_LINE_BREAK,
@@ -94,5 +91,5 @@ fn line_break_paragraph<'p, 'r, 't>(
     // In these cases, if we encounter two or more newlines, we must pretend it's simply
     // one regular newline, or a line break.
 
-    line_break(log, parser)
+    line_break(parser)
 }

@@ -27,12 +27,11 @@ pub const MODULE_CATEGORIES: ModuleRule = ModuleRule {
 };
 
 fn parse_fn<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     mut arguments: Arguments<'t>,
 ) -> ParseResult<'r, 't, Option<Module<'t>>> {
-    info!(log, "Parsing categories module");
+    info!("Parsing categories module");
     assert_module_name(&MODULE_CATEGORIES, name);
 
     let include_hidden = arguments

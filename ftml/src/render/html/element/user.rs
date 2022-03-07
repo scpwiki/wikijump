@@ -20,13 +20,8 @@
 
 use super::prelude::*;
 
-pub fn render_user(log: &Logger, ctx: &mut HtmlContext, name: &str, show_avatar: bool) {
-    info!(
-        log,
-        "Rendering user block";
-        "name" => name,
-        "show-avatar" => show_avatar,
-    );
+pub fn render_user(ctx: &mut HtmlContext, name: &str, show_avatar: bool) {
+    info!("Rendering user block (name '{name}', show-avatar {show_avatar})");
 
     ctx.html()
         .span()

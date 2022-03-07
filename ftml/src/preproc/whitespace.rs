@@ -27,7 +27,6 @@
 //! * Convert null characters to regular spaces
 //! * Compress groups of 3+ newlines into 2 newlines
 
-use crate::log::prelude::*;
 use regex::{Regex, RegexBuilder};
 
 lazy_static! {
@@ -41,38 +40,31 @@ lazy_static! {
     static ref TRAILING_NEWLINES: Regex = Regex::new(r"\n+$").unwrap();
 }
 
-pub fn substitute(log: &Logger, text: &mut String) {
+pub fn substitute(text: &mut String) {
     // Replace DOS and Mac newlines
-    str_replace(log, text, "\r\n", "\n");
-    str_replace(log, text, "\r", "\n");
+    str_replace(text, "\r\n", "\n");
+    str_replace(text, "\r", "\n");
 
     // Strip lines with only whitespace
-    regex_replace(log, text, &*WHITESPACE, "");
+    regex_replace(text, &*WHITESPACE, "");
 
     // Join concatenated lines (ending with '\')
-    str_replace(log, text, "\\\n", "");
+    str_replace(text, "\\\n", "");
 
     // Tabs to spaces
-    str_replace(log, text, "\t", "    ");
+    str_replace(text, "\t", "    ");
 
     // Null characters to spaces
-    str_replace(log, text, "\0", " ");
+    str_replace(text, "\0", " ");
 
     // Remove leading and trailing newlines,
     // save one at the end
-    regex_replace(log, text, &*LEADING_NEWLINES, "");
-    regex_replace(log, text, &*TRAILING_NEWLINES, "");
+    regex_replace(text, &*LEADING_NEWLINES, "");
+    regex_replace(text, &*TRAILING_NEWLINES, "");
 }
 
-fn str_replace(log: &Logger, text: &mut String, pattern: &str, replacement: &str) {
-    debug!(
-        log,
-        "Replacing miscellaneous static string";
-        "type" => "string",
-        "text" => &*text,
-        "pattern" => pattern,
-        "replacement" => replacement,
-    );
+fn str_replace(text: &mut String, pattern: &str, replacement: &str) {
+    debug!("Replacing miscellaneous static string (pattern {pattern}, replacement {replacement})");
 
     while let Some(idx) = text.find(pattern) {
         let range = idx..idx + pattern.len();
@@ -80,15 +72,8 @@ fn str_replace(log: &Logger, text: &mut String, pattern: &str, replacement: &str
     }
 }
 
-fn regex_replace(log: &Logger, text: &mut String, regex: &Regex, replacement: &str) {
-    debug!(
-        log,
-        "Replacing miscellaneous regular expression";
-        "type" => "regex",
-        "text" => &*text,
-        "pattern" => regex.as_str(),
-        "replacement" => replacement,
-    );
+fn regex_replace(text: &mut String, regex: &Regex, replacement: &str) {
+    debug!("Replacing miscellaneous regular expression (pattern {pattern}, replacement {replacement})");
 
     while let Some(mtch) = regex.find(text) {
         let range = mtch.start()..mtch.end();

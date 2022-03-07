@@ -27,15 +27,11 @@ pub const RULE_MATH: Rule = Rule {
 };
 
 fn try_consume_fn<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(log, "Trying to create inline math equation");
-
+    info!("Trying to create inline math equation");
     check_step(parser, Token::LeftMath)?;
-
     let source = collect_text(
-        log,
         parser,
         RULE_MATH,
         &[ParseCondition::current(Token::RightMath)],

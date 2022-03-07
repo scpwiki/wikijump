@@ -49,15 +49,13 @@ pub const BLOCK_CHAR: BlockRule = BlockRule {
 };
 
 fn parse_fn<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(log, "Parsing character / HTML entity block"; "in-head" => in_head);
-
+    info!("Parsing character / HTML entity block (in-head {in_head})");
     assert!(!flag_star, "Char doesn't allow star flag");
     assert!(!flag_score, "Char doesn't allow score flag");
     assert_block_name(&BLOCK_CHAR, name);

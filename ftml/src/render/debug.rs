@@ -31,13 +31,11 @@ impl Render for DebugRender {
     #[inline]
     fn render(
         &self,
-        log: &Logger,
         tree: &SyntaxTree,
         page_info: &PageInfo,
         settings: &WikitextSettings,
     ) -> String {
-        info!(log, "Running debug logger on syntax tree");
-
+        info!("Running debug logger on syntax tree");
         format!("{:#?}\n{:#?}\n{:#?}", settings, page_info, tree)
     }
 }

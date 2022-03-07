@@ -25,7 +25,6 @@
 
 use super::includer::TestIncluder;
 use crate::data::PageInfo;
-use crate::log::prelude::*;
 use crate::parsing::ParseWarning;
 use crate::render::html::HtmlRender;
 use crate::render::text::TextRender;
@@ -181,7 +180,7 @@ impl Test<'_> {
         test
     }
 
-    pub fn run(&self, log: &Logger) {
+    pub fn run(&self) {
         if SKIP_TESTS.contains(&&*self.name) {
             println!("+ {} [SKIPPED]", self.name);
             return;
@@ -193,7 +192,6 @@ impl Test<'_> {
         }
 
         info!(
-            &log,
             "Running syntax tree test case";
             "name" => &self.name,
             "input" => &self.input,
@@ -215,10 +213,10 @@ impl Test<'_> {
         let settings = WikitextSettings::from_mode(WikitextMode::Page);
 
         let (mut text, _pages) =
-            crate::include(log, &self.input, &settings, TestIncluder, || unreachable!())
+            crate::include(&self.input, &settings, TestIncluder, || unreachable!())
                 .void_unwrap();
 
-        crate::preprocess(log, &mut text);
+        crate::preprocess(&mut text);
         let tokens = crate::tokenize(log, &text);
         let result = crate::parse(log, &tokens, &page_info, &settings);
         let (tree, warnings) = result.into();
@@ -284,8 +282,6 @@ impl Test<'_> {
 
 #[test]
 fn ast_and_html() {
-    let log = crate::build_logger();
-
     // Warn if any test are being skipped
     if !SKIP_TESTS.is_empty() {
         println!("=========");

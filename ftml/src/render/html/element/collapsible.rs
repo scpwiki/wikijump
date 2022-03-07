@@ -55,7 +55,7 @@ impl<'a> Collapsible<'a> {
     }
 }
 
-pub fn render_collapsible(log: &Logger, ctx: &mut HtmlContext, collapsible: Collapsible) {
+pub fn render_collapsible(ctx: &mut HtmlContext, collapsible: Collapsible) {
     let Collapsible {
         elements,
         attributes,
@@ -79,12 +79,12 @@ pub fn render_collapsible(log: &Logger, ctx: &mut HtmlContext, collapsible: Coll
 
     let show_text = show_text.unwrap_or_else(|| {
         ctx.handle()
-            .get_message(log, ctx.language(), "collapsible-open")
+            .get_message(ctx.language(), "collapsible-open")
     });
 
     let hide_text = hide_text.unwrap_or_else(|| {
         ctx.handle()
-            .get_message(log, ctx.language(), "collapsible-hide")
+            .get_message(ctx.language(), "collapsible-hide")
     });
 
     ctx.html()

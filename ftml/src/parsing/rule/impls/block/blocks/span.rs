@@ -31,20 +31,13 @@ pub const BLOCK_SPAN: BlockRule = BlockRule {
 };
 
 fn parse_fn<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(
-        log,
-        "Parsing span block";
-        "in-head" => in_head,
-        "name" => name,
-    );
-
+    info!("Parsing span block (name '{name}', in-head {in_head})");
     assert!(!flag_star, "Span doesn't allow star flag");
     assert_block_name(&BLOCK_SPAN, name);
 

@@ -32,7 +32,6 @@
 //! it was moved to the parser to prevent typography from converting
 //! the `--` in `[!--` and `--]` into em dashes.
 
-use crate::log::prelude::*;
 use regex::Regex;
 
 lazy_static! {
@@ -95,7 +94,7 @@ pub enum Replacer {
 }
 
 impl Replacer {
-    fn replace(&self, log: &Logger, text: &mut String, buffer: &mut String) {
+    fn replace(&self, text: &mut String, buffer: &mut String) {
         use self::Replacer::*;
 
         match *self {
@@ -104,11 +103,9 @@ impl Replacer {
                 replacement,
             } => {
                 debug!(
-                    log,
-                    "Running regular expression replacement";
-                    "type" => "regex",
-                    "pattern" => regex.as_str(),
-                    "replacement" => replacement,
+                    "Running regex regular expression replacement (pattern {}, replacement {})",
+                    regex.as_str(),
+                    replacement,
                 );
 
                 while let Some(capture) = regex.captures(text) {
@@ -129,12 +126,10 @@ impl Replacer {
                 end,
             } => {
                 debug!(
-                    log,
-                    "Running regular expression capture replacement";
-                    "type" => "surround",
-                    "pattern" => regex.as_str(),
-                    "begin" => begin,
-                    "end" => end,
+                    "Running surround regular expression capture replacement (pattern {}, begin {}, end {})",
+                    regex.as_str(),
+                    begin,
+                    end,
                 );
 
                 while let Some(capture) = regex.captures(text) {
@@ -162,14 +157,13 @@ impl Replacer {
     }
 }
 
-pub fn substitute(log: &Logger, text: &mut String) {
+pub fn substitute(text: &mut String) {
     let mut buffer = String::new();
-
-    info!(log, "Performing typography substitutions"; "text" => &*text);
+    info!("Performing typography substitutions");
 
     macro_rules! replace {
         ($replacer:expr) => {
-            $replacer.replace(log, text, &mut buffer)
+            $replacer.replace(text, &mut buffer)
         };
     }
 

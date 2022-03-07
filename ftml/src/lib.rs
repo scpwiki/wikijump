@@ -51,28 +51,13 @@
 //! # Features
 //! This crate has several features of note.
 //!
-//! By default the `ffi` and `log` features are enabled.
-//! These enable support for FFI interfacing for the library
-//! via [`cbindgen`] (with a slightly more limited interface),
-//! and logging via [`slog`] respectively.
-//!
-//! If the `log` feature is enabled, then all calls requiring
-//! a `Logger` are replaced with a stub, and all actual logging
-//! calls are replaced with no-ops. Generally you want this
-//! for very performance-sensitive contexts where logging is
-//! simply not worth the overhead.
+//! By default the `ffi` feature is enabled.
+//! This enables support for FFI interfacing for the library
+//! via [`cbindgen`] (with a slightly more limited interface).
 //!
 //! # Targets
 //! The library supports being compiled into WebAssembly.
 //! (target `wasm32-unknown-unknown`, see [`wasm-pack`] for more information)
-//!
-//! This adds the feature `wasm-log`, which adds `slog` logging support via
-//! `console.log()` calls to the browser's console. This is very useful for
-//! debugging, but caveat emptor! This spams the console very hard and can cause
-//! lag on some browsers. Do not enable in production.
-//!
-//! Additionally, disabling `log` as a feature compiles out all logging, similar
-//! to the default target.
 //!
 //! Compiling to wasm also disables all FFI integration,
 //! since these are inherently incompatible.
@@ -88,7 +73,6 @@
 //! [`HtmlRender`]: ./render/text/struct.TextRender.html
 //! [`serde`]: https://docs.rs/serde
 //! [`cbindgen`]: https://docs.rs/cbindgen
-//! [`slog`]: https://docs.rs/slog
 //! [`wasm-pack`]: https://rustwasm.github.io/docs/wasm-pack/
 
 // Only list crates which we want global macro imports.
@@ -102,6 +86,9 @@ extern crate enum_map;
 
 #[macro_use]
 extern crate lazy_static;
+
+#[macro_use]
+extern crate log;
 
 #[macro_use]
 extern crate maplit;
@@ -118,17 +105,10 @@ extern crate serde_repr;
 #[macro_use]
 extern crate str_macro;
 
-#[cfg(feature = "log")]
-#[macro_use]
-extern crate slog;
-
 // Library top-level modules
 
 #[cfg(test)]
 mod test;
-
-#[macro_use]
-mod log;
 
 #[macro_use]
 mod macros;
@@ -136,7 +116,6 @@ mod macros;
 mod next_index;
 mod non_empty_vec;
 mod preproc;
-mod span_wrap;
 mod text;
 mod url;
 mod utf16;
@@ -156,10 +135,6 @@ pub mod render;
 pub mod settings;
 pub mod tokenizer;
 pub mod tree;
-
-#[cfg(test)]
-#[cfg(feature = "log")]
-pub use self::log::{build_logger, build_null_logger, build_terminal_logger};
 
 pub use self::includes::include;
 pub use self::parsing::parse;

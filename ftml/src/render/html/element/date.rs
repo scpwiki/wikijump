@@ -22,7 +22,6 @@ use super::prelude::*;
 use crate::tree::Date;
 
 pub fn render_date(
-    log: &Logger,
     ctx: &mut HtmlContext,
     date: Date,
     date_format: Option<&str>,

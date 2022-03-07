@@ -24,8 +24,6 @@ mod whitespace;
 #[cfg(test)]
 mod test;
 
-use crate::log::prelude::*;
-
 /// Run the preprocessor on the given wikitext, which is modified in-place.
 ///
 /// The following modifications are performed:
@@ -37,23 +35,15 @@ use crate::log::prelude::*;
 ///
 /// This call always succeeds. The return value designates where issues occurred
 /// to allow programmatic determination of where things were not as expected.
-pub fn preprocess(log: &Logger, text: &mut String) {
-    let log = &log.new(slog_o!(
-        "filename" => slog_filename!(),
-        "lineno" => slog_lineno!(),
-        "function" => "preprocess",
-        "text" => str!(text),
-    ));
-
+pub fn preprocess(text: &mut String) {
     whitespace::substitute(log, text);
     typography::substitute(log, text);
-
-    info!(log, "Finished preprocessing of text"; "text" => &*text);
+    info!("Finished preprocessing of text");
 }
 
 #[test]
 fn fn_type() {
-    type SubstituteFn = fn(&Logger, &mut String);
+    type SubstituteFn = fn(&mut String);
 
     let _: SubstituteFn = whitespace::substitute;
     let _: SubstituteFn = typography::substitute;
