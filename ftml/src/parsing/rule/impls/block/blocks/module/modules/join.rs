@@ -27,12 +27,11 @@ pub const MODULE_JOIN: ModuleRule = ModuleRule {
 };
 
 fn parse_fn<'r, 't>(
-    log: &Logger,
     _parser: &mut Parser<'r, 't>,
     name: &'t str,
     mut arguments: Arguments<'t>,
 ) -> ParseResult<'r, 't, Option<Module<'t>>> {
-    info!(log, "Parsing join module");
+    info!("Parsing join module");
     assert_module_name(&MODULE_JOIN, name);
 
     let button_text = arguments.get("button");

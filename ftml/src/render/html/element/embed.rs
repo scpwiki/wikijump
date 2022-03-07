@@ -21,12 +21,11 @@
 use super::prelude::*;
 use crate::tree::Embed;
 
-pub fn render_embed(log: &Logger, ctx: &mut HtmlContext, embed: &Embed) {
+pub fn render_embed(ctx: &mut HtmlContext, embed: &Embed) {
     info!(
-        log,
-        "Rendering embed";
-        "variant" => embed.name(),
-        "url" => embed.direct_url(),
+        "Rendering embed (variant '{}', url '{}')",
+        embed.name(),
+        embed.direct_url(),
     );
 
     ctx.html()

@@ -31,15 +31,13 @@ pub const BLOCK_MODULE: BlockRule = BlockRule {
 };
 
 fn parse_fn<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(log, "Parsing module block"; "in-head" => in_head);
-
+    info!("Parsing module block (in-head {in_head})");
     parser.check_page_syntax()?;
     assert!(!flag_star, "Module doesn't allow star flag");
     assert!(!flag_score, "Module doesn't allow score flag");
@@ -63,7 +61,7 @@ fn parse_fn<'r, 't>(
     // If the module accepts a body, it should consume it,
     // then the tail. Otherwise it shouldn't move the token pointer.
     let (module, exceptions, paragraph_safe) =
-        (module_rule.parse_fn)(log, parser, subname, arguments)?.into();
+        (module_rule.parse_fn)(parser, subname, arguments)?.into();
 
     debug_assert_eq!(
         paragraph_safe,

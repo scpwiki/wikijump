@@ -36,15 +36,13 @@ pub const BLOCK_INCLUDE_ELEMENTS: BlockRule = BlockRule {
 };
 
 fn parse_fn<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(log, "Found invalid include-elements block");
-
+    info!("Found invalid include-elements block");
     parser.check_page_syntax()?;
     assert!(!flag_star, "Include (elements) doesn't allow star flag");
     assert!(!flag_score, "Include (elements) doesn't allow score flag");

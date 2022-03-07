@@ -23,31 +23,24 @@ use crate::data::PageRef;
 use crate::tree::VariableMap;
 
 pub fn render_include(
-    log: &Logger,
     ctx: &mut HtmlContext,
-    _location: &PageRef,
+    location: &PageRef,
     variables: &VariableMap,
     elements: &[Element],
 ) {
-    info!(
-        log,
-        "Rendering include";
-        "location" => str!(_location),
-        "variables-len" => variables.len(),
-        "elements-len" => elements.len(),
-    );
-
+    info!("Rendering include (location {location:?})");
     ctx.variables_mut().push_scope(variables);
-
-    render_elements(log, ctx, elements);
-
+    render_elements(ctx, elements);
     ctx.variables_mut().pop_scope();
 }
 
-pub fn render_variable(log: &Logger, ctx: &mut HtmlContext, name: &str) {
+pub fn render_variable(ctx: &mut HtmlContext, name: &str) {
     let value = ctx.variables().get(name);
-
-    info!(log, "Rendering variable"; "name" => name, "value" => value);
+    info!(
+        "Rendering variable (name '{}', value '{}'",
+        name,
+        value.unwrap_or("<none>"),
+    );
 
     // Write to a separate buffer since we can't borrow &mut for buffer and & for variables.
     let value = match value {

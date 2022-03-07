@@ -238,26 +238,3 @@ impl ParseWarningKind {
         self.into()
     }
 }
-
-#[cfg(feature = "log")]
-impl slog::Value for ParseWarningKind {
-    fn serialize(
-        &self,
-        _: &slog::Record,
-        key: slog::Key,
-        serializer: &mut dyn slog::Serializer,
-    ) -> slog::Result {
-        serializer.emit_str(key, self.name())
-    }
-}
-
-#[test]
-fn log() {
-    let log = crate::build_logger();
-
-    info!(
-        &log,
-        "Received parse warning";
-        "warning" => ParseWarningKind::NoRulesMatch,
-    );
-}

@@ -30,20 +30,13 @@ pub const BLOCK_STRIKETHROUGH: BlockRule = BlockRule {
 };
 
 fn parse_fn<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(
-        log,
-        "Parsing strikethrough block";
-        "in-head" => in_head,
-        "name" => name,
-    );
-
+    info!("Parsing strikethrough block (name '{name}', in-head {in_head})");
     assert!(!flag_star, "Strikethrough doesn't allow star flag");
     assert!(!flag_score, "Strikethrough doesn't allow score flag");
     assert_block_name(&BLOCK_STRIKETHROUGH, name);

@@ -35,16 +35,13 @@ pub const RULE_LINK_ANCHOR: Rule = Rule {
 };
 
 fn try_consume_fn<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(log, "Trying to create a single-bracket anchor link");
-
+    info!("Trying to create a single-bracket anchor link");
     check_step(parser, Token::LeftBracketAnchor)?;
 
     // Gather path for link
     let url = collect_text(
-        log,
         parser,
         RULE_LINK_ANCHOR,
         &[ParseCondition::current(Token::Whitespace)],
@@ -70,7 +67,6 @@ fn try_consume_fn<'p, 'r, 't>(
 
     // Gather label for link
     let label = collect_text(
-        log,
         parser,
         RULE_LINK_ANCHOR,
         &[ParseCondition::current(Token::RightBracket)],
@@ -81,11 +77,7 @@ fn try_consume_fn<'p, 'r, 't>(
         None,
     )?;
 
-    debug!(
-        log,
-        "Retrieved label for link, building element";
-        "label" => label,
-    );
+    debug!("Retrieved label ('{label}') for link, building element");
 
     // Trim label
     let label = label.trim();

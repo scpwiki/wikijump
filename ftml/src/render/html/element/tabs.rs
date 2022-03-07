@@ -22,8 +22,8 @@ use super::prelude::*;
 use crate::tree::Tab;
 use std::iter;
 
-pub fn render_tabview(log: &Logger, ctx: &mut HtmlContext, tabs: &[Tab]) {
-    info!(log, "Rendering tabview"; "tabs-len" => tabs.len());
+pub fn render_tabview(ctx: &mut HtmlContext, tabs: &[Tab]) {
+    info!("Rendering tabview (tabs {})", tabs.len());
 
     // Generate IDs for each tab
     let button_ids = generate_ids(ctx.random(), tabs.len());
@@ -63,7 +63,7 @@ pub fn render_tabview(log: &Logger, ctx: &mut HtmlContext, tabs: &[Tab]) {
                                 "aria-controls" => &tab_ids[i],
                                 "tabindex" => tab_index,
                             ))
-                            .inner(log, &tab.label);
+                            .inner(&tab.label);
                     }
                 });
 
@@ -86,7 +86,7 @@ pub fn render_tabview(log: &Logger, ctx: &mut HtmlContext, tabs: &[Tab]) {
                                 "tabindex" => "0",
                                 "hidden"; if i > 0,
                             ))
-                            .inner(log, &tab.elements);
+                            .inner(&tab.elements);
                     }
                 });
         });

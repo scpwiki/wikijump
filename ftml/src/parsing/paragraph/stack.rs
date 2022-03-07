@@ -22,11 +22,8 @@ use crate::parsing::prelude::*;
 use crate::tree::{AttributeMap, Container, ContainerType};
 use std::mem;
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct ParagraphStack<'t> {
-    /// The `Logger` instance used for logging stack operations.
-    log: Logger,
-
     /// Elements being accumulated in the current paragraph.
     current: Vec<Element<'t>>,
 
@@ -39,13 +36,8 @@ pub struct ParagraphStack<'t> {
 
 impl<'t> ParagraphStack<'t> {
     #[inline]
-    pub fn new(log: &Logger) -> Self {
-        ParagraphStack {
-            log: Logger::clone(log),
-            current: Vec::new(),
-            finished: Vec::new(),
-            exceptions: Vec::new(),
-        }
+    pub fn new() -> Self {
+        ParagraphStack::default()
     }
 
     #[inline]
@@ -61,20 +53,17 @@ impl<'t> ParagraphStack<'t> {
     #[inline]
     pub fn push_element(&mut self, element: Element<'t>, paragraph_safe: bool) {
         info!(
-            self.log,
-            "Pushing element to stack";
-            "element" => element.name(),
-            "paragraph-safe" => paragraph_safe,
+            "Pushing element {} to stack (paragraph safe: {}",
+            element.name(),
+            paragraph_safe,
         );
 
         if paragraph_safe {
             // Add it to the current (or new) paragraph. Nothing special.
-
             self.current.push(element);
         } else {
             // This has to be its own "finished" element, outside of any
             // paragraph wrapper. So finish up what we have, then add this element.
-
             self.end_paragraph();
             self.finished.push(element);
         }
@@ -82,12 +71,7 @@ impl<'t> ParagraphStack<'t> {
 
     #[inline]
     pub fn push_exceptions(&mut self, exceptions: &mut Vec<ParseException<'t>>) {
-        info!(
-            self.log,
-            "Pushing exception to stack";
-            "exceptions-len" => exceptions.len(),
-        );
-
+        info!("Pushing exception to stack (length {})", exceptions.len());
         self.exceptions.append(exceptions);
     }
 
@@ -100,7 +84,7 @@ impl<'t> ParagraphStack<'t> {
     /// This should only be between lines in the blockquote.
     #[inline]
     pub fn pop_line_break(&mut self) {
-        debug!(self.log, "Popping last element if Element::LineBreak");
+        debug!("Popping last element if Element::LineBreak");
 
         if let Some(Element::LineBreak) = self.current.last() {
             self.current.pop();
@@ -109,18 +93,13 @@ impl<'t> ParagraphStack<'t> {
 
     pub fn build_paragraph(&mut self) -> Option<Element<'t>> {
         debug!(
-            self.log,
-            "Building paragraph from current stack state";
-            "current-len" => self.current.len(),
+            "Building paragraph from current stack state (length {})",
+            self.current.len(),
         );
 
         // Don't create empty paragraphs
         if self.current.is_empty() {
-            debug!(
-                self.log,
-                "No paragraph created, no pending elements in stack",
-            );
-
+            debug!("No paragraph created, no pending elements in stack");
             return None;
         }
 
@@ -129,15 +108,11 @@ impl<'t> ParagraphStack<'t> {
         let container =
             Container::new(ContainerType::Paragraph, elements, AttributeMap::new());
         let element = Element::Container(container);
-
         Some(element)
     }
 
     pub fn end_paragraph(&mut self) {
-        debug!(
-            self.log,
-            "Ending the current paragraph to push as a completed element",
-        );
+        debug!("Ending the current paragraph to push as a completed element");
 
         if let Some(paragraph) = self.build_paragraph() {
             self.finished.push(paragraph);
@@ -149,17 +124,13 @@ impl<'t> ParagraphStack<'t> {
     /// This returns all collected elements, exceptions, and returns the final
     /// paragraph safety value.
     pub fn into_result<'r>(mut self) -> ParseResult<'r, 't, Vec<Element<'t>>> {
-        info!(
-            self.log,
-            "Converting paragraph parse stack into ParseResult",
-        );
+        info!("Converting paragraph parse stack into ParseResult");
 
         // Finish current paragraph, if any
         self.end_paragraph();
 
         // Deconstruct stack
         let ParagraphStack {
-            log: _,
             current: _,
             finished: elements,
             exceptions,
@@ -183,10 +154,7 @@ impl<'t> ParagraphStack<'t> {
     /// and either have an alternate means of determining paragraph safety, or
     /// statically know what that value would be.
     pub fn into_elements(mut self) -> Vec<Element<'t>> {
-        info!(
-            self.log,
-            "Converting paragraph parse stack into a Vec<Element>",
-        );
+        info!("Converting paragraph parse stack into a Vec<Element>");
 
         // Finish current paragraph, if any
         self.end_paragraph();

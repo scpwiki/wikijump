@@ -22,18 +22,12 @@ use super::prelude::*;
 use crate::tree::AttributeMap;
 
 pub fn render_radio_button(
-    log: &Logger,
     ctx: &mut HtmlContext,
     name: &str,
     checked: bool,
     attributes: &AttributeMap,
 ) {
-    info!(
-        log,
-        "Creating radio button";
-        "name" => name,
-        "checked" => checked,
-    );
+    info!("Creating radio button (name '{name}', checked {checked})");
 
     ctx.html().input().attr(attr!(
         "name" => name,
@@ -43,17 +37,8 @@ pub fn render_radio_button(
     ));
 }
 
-pub fn render_checkbox(
-    log: &Logger,
-    ctx: &mut HtmlContext,
-    checked: bool,
-    attributes: &AttributeMap,
-) {
-    info!(
-        log,
-        "Creating checkbox";
-        "checked" => checked,
-    );
+pub fn render_checkbox(ctx: &mut HtmlContext, checked: bool, attributes: &AttributeMap) {
+    info!("Creating checkbox (checked {checked})");
 
     ctx.html().input().attr(attr!(
         "type" => "checkbox",

@@ -22,25 +22,19 @@ use super::prelude::*;
 use crate::tree::{Alignment, AttributeMap, FloatAlignment};
 
 pub fn render_table_of_contents(
-    log: &Logger,
     ctx: &mut HtmlContext,
     align: Option<Alignment>,
     attributes: &AttributeMap,
 ) {
-    info!(
-        log,
-        "Creating table of contents";
-        "align" => align.map(|a| a.name()),
-    );
-
+    info!("Creating table of contents");
     let use_true_ids = ctx.settings().use_true_ids;
 
     let class_value = match align {
+        None => "",
         Some(align) => {
             // Only valid for float left / right
             FloatAlignment { align, float: true }.html_class()
         }
-        None => "",
     };
 
     ctx.html()
@@ -64,14 +58,14 @@ pub fn render_table_of_contents(
                 });
 
             // TOC Heading
-            let table_of_contents_title =
-                ctx.handle()
-                    .get_message(log, ctx.language(), "table-of-contents");
+            let table_of_contents_title = ctx
+                .handle()
+                .get_message(ctx.language(), "table-of-contents");
 
             ctx.html()
                 .div()
                 .attr(attr!("class" => "title"))
-                .inner(log, table_of_contents_title);
+                .inner(table_of_contents_title);
 
             // TOC List
             let table_of_contents = ctx.table_of_contents();
@@ -79,6 +73,6 @@ pub fn render_table_of_contents(
             ctx.html()
                 .div()
                 .attr(attr!("id" => "wj-toc-list"; if use_true_ids))
-                .inner(log, table_of_contents);
+                .inner(table_of_contents);
         });
 }

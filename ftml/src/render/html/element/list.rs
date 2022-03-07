@@ -22,19 +22,16 @@ use super::prelude::*;
 use crate::tree::{AttributeMap, ListItem, ListType};
 
 pub fn render_list(
-    log: &Logger,
     ctx: &mut HtmlContext,
     ltype: ListType,
     list_items: &[ListItem],
     attributes: &AttributeMap,
 ) {
     info!(
-        log,
-        "Rendering list";
-        "list-type" => ltype.name(),
-        "list-items-len" => list_items.len(),
+        "Rendering list '{}' (items {})",
+        ltype.name(),
+        list_items.len(),
     );
-
     let list_tag = ltype.html_tag();
     let mut tag = ctx.html().tag(list_tag);
 
@@ -45,13 +42,10 @@ pub fn render_list(
                     elements,
                     attributes,
                 } => {
-                    ctx.html()
-                        .li()
-                        .attr(attr!(;; attributes))
-                        .inner(log, elements);
+                    ctx.html().li().attr(attr!(;; attributes)).inner(elements);
                 }
                 ListItem::SubList { element } => {
-                    render_element(log, ctx, element);
+                    render_element(ctx, element);
                 }
             }
         }

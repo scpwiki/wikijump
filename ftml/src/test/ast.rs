@@ -25,7 +25,6 @@
 
 use super::includer::TestIncluder;
 use crate::data::PageInfo;
-use crate::log::prelude::*;
 use crate::parsing::ParseWarning;
 use crate::render::html::HtmlRender;
 use crate::render::text::TextRender;
@@ -181,7 +180,7 @@ impl Test<'_> {
         test
     }
 
-    pub fn run(&self, log: &Logger) {
+    pub fn run(&self) {
         if SKIP_TESTS.contains(&&*self.name) {
             println!("+ {} [SKIPPED]", self.name);
             return;
@@ -193,10 +192,8 @@ impl Test<'_> {
         }
 
         info!(
-            &log,
-            "Running syntax tree test case";
-            "name" => &self.name,
-            "input" => &self.input,
+            "Running syntax tree test case {} on {}",
+            &self.name, &self.input,
         );
 
         println!("+ {}", self.name);
@@ -215,15 +212,15 @@ impl Test<'_> {
         let settings = WikitextSettings::from_mode(WikitextMode::Page);
 
         let (mut text, _pages) =
-            crate::include(log, &self.input, &settings, TestIncluder, || unreachable!())
+            crate::include(&self.input, &settings, TestIncluder, || unreachable!())
                 .void_unwrap();
 
-        crate::preprocess(log, &mut text);
-        let tokens = crate::tokenize(log, &text);
-        let result = crate::parse(log, &tokens, &page_info, &settings);
+        crate::preprocess(&mut text);
+        let tokens = crate::tokenize(&text);
+        let result = crate::parse(&tokens, &page_info, &settings);
         let (tree, warnings) = result.into();
-        let html_output = HtmlRender.render(log, &tree, &page_info, &settings);
-        let text_output = TextRender.render(log, &tree, &page_info, &settings);
+        let html_output = HtmlRender.render(&tree, &page_info, &settings);
+        let text_output = TextRender.render(&tree, &page_info, &settings);
 
         fn json<T>(object: &T) -> String
         where
@@ -284,8 +281,6 @@ impl Test<'_> {
 
 #[test]
 fn ast_and_html() {
-    let log = crate::build_logger();
-
     // Warn if any test are being skipped
     if !SKIP_TESTS.is_empty() {
         println!("=========");
@@ -358,7 +353,7 @@ fn ast_and_html() {
     // Run tests
     println!("Running {} syntax tree tests:", tests.len());
     for test in tests {
-        test.run(&log);
+        test.run();
     }
 
     // Ensure we don't accidentally commit excluded tests

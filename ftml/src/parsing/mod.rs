@@ -40,7 +40,6 @@ mod strip;
 mod token;
 
 mod prelude {
-    pub use crate::log::prelude::*;
     pub use crate::parsing::{
         ExtractedToken, ParseException, ParseResult, ParseSuccess, ParseWarning,
         ParseWarningKind, Token,
@@ -59,7 +58,6 @@ use self::rule::impls::RULE_PAGE;
 use self::string::parse_string;
 use self::strip::{strip_newlines, strip_whitespace};
 use crate::data::PageInfo;
-use crate::log::prelude::*;
 use crate::next_index::{NextIndex, TableOfContentsIndex};
 use crate::settings::WikitextSettings;
 use crate::tokenizer::Tokenization;
@@ -78,7 +76,6 @@ pub use self::token::{ExtractedToken, Token};
 ///
 /// This takes a list of `ExtractedToken` items produced by `tokenize()`.
 pub fn parse<'r, 't>(
-    log: &Logger,
     tokenization: &'r Tokenization<'t>,
     page_info: &'r PageInfo<'t>,
     settings: &'r WikitextSettings,
@@ -92,12 +89,12 @@ where
         table_of_contents_depths,
         footnotes,
         has_footnote_block,
-    } = parse_internal(log, page_info, settings, tokenization);
+    } = parse_internal(page_info, settings, tokenization);
 
     // For producing table of contents indexes
     let mut incrementer = Incrementer(0);
 
-    info!(log, "Finished paragraph gathering, matching on consumption");
+    info!("Finished paragraph gathering, matching on consumption");
     match result {
         Ok(ParseSuccess {
             item: mut elements,
@@ -107,10 +104,9 @@ where
             let (warnings, styles) = extract_exceptions(exceptions);
 
             info!(
-                log,
-                "Finished parsing, producing final syntax tree";
-                "warnings-len" => warnings.len(),
-                "styles-len" => styles.len(),
+                "Finished parsing, producing final syntax tree ({} warnings, {} styles)",
+                warnings.len(),
+                styles.len(),
             );
 
             // process_depths() wants a "list type", so we map in a () for each.
@@ -127,7 +123,7 @@ where
             // Add a footnote block at the end,
             // if the user doesn't have one already
             if !has_footnote_block {
-                info!(log, "No footnote block in elements, appending one");
+                info!("No footnote block in elements, appending one");
 
                 elements.push(Element::FootnoteBlock {
                     title: None,
@@ -149,12 +145,7 @@ where
             // If this happens, then just return the input source as the output
             // and the warning.
 
-            crit!(
-                log,
-                "Fatal error occurred at highest-level parsing: {:#?}",
-                warning,
-            );
-
+            error!("Fatal error occurred at highest-level parsing: {warning:#?}");
             let wikitext = tokenization.full_text().inner();
             let elements = vec![text!(wikitext)];
             let warnings = vec![warning];
@@ -175,7 +166,6 @@ where
 
 /// Runs the parser, but returns the raw internal results prior to conversion.
 pub fn parse_internal<'r, 't>(
-    log: &Logger,
     page_info: &'r PageInfo<'t>,
     settings: &'r WikitextSettings,
     tokenization: &'r Tokenization<'t>,
@@ -183,19 +173,11 @@ pub fn parse_internal<'r, 't>(
 where
     'r: 't,
 {
-    let mut parser = Parser::new(log, tokenization, page_info, settings);
-
-    // Logging setup
-    let log = &log.new(slog_o!(
-        "filename" => slog_filename!(),
-        "lineno" => slog_lineno!(),
-        "function" => "parse",
-        "tokens-len" => tokenization.tokens().len(),
-    ));
+    let mut parser = Parser::new(tokenization, page_info, settings);
 
     // At the top level, we gather elements into paragraphs
-    info!(log, "Running parser on tokens");
-    let result = gather_paragraphs(log, &mut parser, RULE_PAGE, NO_CLOSE_CONDITION);
+    info!("Running parser on tokens");
+    let result = gather_paragraphs(&mut parser, RULE_PAGE, NO_CLOSE_CONDITION);
 
     // Build and return
     let table_of_contents_depths = parser.remove_table_of_contents();

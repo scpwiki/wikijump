@@ -44,49 +44,30 @@ pub const RULE_LINK_TRIPLE_NEW_TAB: Rule = Rule {
     try_consume_fn: link_new_tab,
 };
 
-fn link<'p, 'r, 't>(
-    log: &Logger,
-    parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(log, "Trying to create a triple-bracket link (regular)");
-
+fn link<'p, 'r, 't>(parser: &'p mut Parser<'r, 't>) -> ParseResult<'r, 't, Elements<'t>> {
+    info!("Trying to create a triple-bracket link (regular)");
     check_step(parser, Token::LeftLink)?;
-
-    try_consume_link(log, parser, RULE_LINK_TRIPLE, None)
+    try_consume_link(parser, RULE_LINK_TRIPLE, None)
 }
 
 fn link_new_tab<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(log, "Trying to create a triple-bracket link (new tab)");
-
+    info!("Trying to create a triple-bracket link (new tab)");
     check_step(parser, Token::LeftLinkStar)?;
-
-    try_consume_link(
-        log,
-        parser,
-        RULE_LINK_TRIPLE_NEW_TAB,
-        Some(AnchorTarget::NewTab),
-    )
+    try_consume_link(parser, RULE_LINK_TRIPLE_NEW_TAB, Some(AnchorTarget::NewTab))
 }
 
 /// Build a triple-bracket link with the given target.
 fn try_consume_link<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
     target: Option<AnchorTarget>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    debug!(
-        log,
-        "Trying to create a triple-bracket link";
-        "target" => target.map(|t| t.name()),
-    );
+    debug!("Trying to create a triple-bracket link");
 
     // Gather path for link
     let (url, last) = collect_text_keep(
-        log,
         parser,
         rule,
         &[
@@ -100,11 +81,7 @@ fn try_consume_link<'p, 'r, 't>(
         None,
     )?;
 
-    debug!(
-        log,
-        "Retrieved url for link, now build element";
-        "url" => url,
-    );
+    debug!("Retrieved url for link, now build element (url: '{url}')");
 
     // Trim text
     let url = url.trim();
@@ -117,10 +94,10 @@ fn try_consume_link<'p, 'r, 't>(
     // Determine what token we ended on, i.e. which [[[ variant it is.
     match last.token {
         // [[[name]]] type links
-        Token::RightLink => build_same(log, parser, url, target),
+        Token::RightLink => build_same(parser, url, target),
 
         // [[[url|label]]] type links
-        Token::Pipe => build_separate(log, parser, rule, url, target),
+        Token::Pipe => build_separate(parser, rule, url, target),
 
         // Token was already checked in collect_text(), impossible case
         _ => unreachable!(),
@@ -130,16 +107,11 @@ fn try_consume_link<'p, 'r, 't>(
 /// Helper to build link with the same URL and label.
 /// e.g. `[[[name]]]`
 fn build_same<'p, 'r, 't>(
-    log: &Logger,
     _parser: &'p mut Parser<'r, 't>,
     url: &'t str,
     target: Option<AnchorTarget>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(
-        log,
-        "Building link with same URL and label";
-        "url" => url,
-    );
+    info!("Building link with same URL and label (url '{url}')");
 
     // Remove category, if present
     let label = strip_category(url).map(Cow::Borrowed);
@@ -157,21 +129,15 @@ fn build_same<'p, 'r, 't>(
 /// Helper to build link with separate URL and label.
 /// e.g. `[[[page|label]]]`, or `[[[page|]]]`
 fn build_separate<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
     url: &'t str,
     target: Option<AnchorTarget>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(
-        log,
-        "Building link with separate URL and label";
-        "url" => url,
-    );
+    info!("Building link with separate URL and label (url '{url}')");
 
     // Gather label for link
     let label = collect_text(
-        log,
         parser,
         rule,
         &[ParseCondition::current(Token::RightLink)],
@@ -182,11 +148,7 @@ fn build_separate<'p, 'r, 't>(
         None,
     )?;
 
-    debug!(
-        log,
-        "Retrieved label for link, now building element";
-        "label" => label,
-    );
+    debug!("Retrieved label for link, now building element (label '{label}')");
 
     // Trim label
     let label = label.trim();

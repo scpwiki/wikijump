@@ -27,12 +27,7 @@ where
 {
     #[inline]
     pub fn set_module(&mut self, module_rule: &ModuleRule) {
-        info!(
-            &self.log(),
-            "Running module rule {} for these tokens",
-            module_rule.name;
-        );
-
+        info!("Running module rule {} for these tokens", module_rule.name);
         self.set_rule(module_rule.rule());
     }
 }

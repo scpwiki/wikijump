@@ -19,23 +19,21 @@
  */
 
 use super::preprocess;
-use crate::log::prelude::*;
 use proptest::prelude::*;
 
 pub fn test_substitution<F>(filter_name: &str, mut substitute: F, tests: &[(&str, &str)])
 where
-    F: FnMut(&Logger, &mut String),
+    F: FnMut(&mut String),
 {
     let mut string = String::new();
-    let log = crate::build_logger();
 
     for (input, expected) in tests {
         string.clear();
         string.push_str(input);
 
-        info!(log, "Testing {filter_name} substitution"; "input" => input, "expected" => expected);
+        info!("Testing {filter_name} substitution");
 
-        substitute(&log, &mut string);
+        substitute(&mut string);
 
         assert_eq!(
             &string, expected,
@@ -78,19 +76,13 @@ const PREFILTER_TEST_CASES: [(&str, &str); 10] = [
 
 #[test]
 fn prefilter() {
-    test_substitution(
-        "prefilter",
-        |log, text| preprocess(log, text),
-        &PREFILTER_TEST_CASES,
-    );
+    test_substitution("prefilter", |text| preprocess(text), &PREFILTER_TEST_CASES);
 }
 
 proptest! {
     #[test]
     fn prefilter_prop(mut s in ".*") {
-        let log = crate::build_logger();
-
-        crate::preprocess(&log, &mut s);
+        crate::preprocess(&mut s);
 
         const INVALID_SUBSTRINGS: [&str; 7] = [
             "...",

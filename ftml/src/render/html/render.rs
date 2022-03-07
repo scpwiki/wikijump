@@ -20,59 +20,58 @@
 
 use super::context::HtmlContext;
 use super::element::{render_element, render_elements};
-use crate::log::prelude::*;
 use crate::tree::Element;
 use std::borrow::Cow;
 
 pub trait ItemRender {
-    fn render(&self, log: &Logger, ctx: &mut HtmlContext);
+    fn render(&self, ctx: &mut HtmlContext);
 }
 
 impl ItemRender for &'_ str {
     #[inline]
-    fn render(&self, _log: &Logger, ctx: &mut HtmlContext) {
+    fn render(&self, ctx: &mut HtmlContext) {
         ctx.push_escaped(self);
     }
 }
 
 impl ItemRender for &'_ Cow<'_, str> {
     #[inline]
-    fn render(&self, _log: &Logger, ctx: &mut HtmlContext) {
+    fn render(&self, ctx: &mut HtmlContext) {
         ctx.push_escaped(self);
     }
 }
 
 impl ItemRender for String {
     #[inline]
-    fn render(&self, _log: &Logger, ctx: &mut HtmlContext) {
+    fn render(&self, ctx: &mut HtmlContext) {
         ctx.push_escaped(self);
     }
 }
 
 impl ItemRender for &'_ String {
     #[inline]
-    fn render(&self, _log: &Logger, ctx: &mut HtmlContext) {
+    fn render(&self, ctx: &mut HtmlContext) {
         ctx.push_escaped(self);
     }
 }
 
 impl ItemRender for &'_ Element<'_> {
     #[inline]
-    fn render(&self, log: &Logger, ctx: &mut HtmlContext) {
-        render_element(log, ctx, self)
+    fn render(&self, ctx: &mut HtmlContext) {
+        render_element(ctx, self)
     }
 }
 
 impl ItemRender for &'_ [Element<'_>] {
     #[inline]
-    fn render(&self, log: &Logger, ctx: &mut HtmlContext) {
-        render_elements(log, ctx, self)
+    fn render(&self, ctx: &mut HtmlContext) {
+        render_elements(ctx, self)
     }
 }
 
 impl ItemRender for &'_ Vec<Element<'_>> {
     #[inline]
-    fn render(&self, log: &Logger, ctx: &mut HtmlContext) {
-        render_elements(log, ctx, self)
+    fn render(&self, ctx: &mut HtmlContext) {
+        render_elements(ctx, self)
     }
 }

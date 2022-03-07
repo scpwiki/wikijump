@@ -21,8 +21,8 @@
 use super::prelude::*;
 use crate::tree::{Container, HtmlTag};
 
-pub fn render_container(log: &Logger, ctx: &mut HtmlContext, container: &Container) {
-    info!(log, "Rendering container"; "container" => container.ctype().name());
+pub fn render_container(ctx: &mut HtmlContext, container: &Container) {
+    info!("Rendering container '{}'", container.ctype().name());
 
     // Get HTML tag type for this type of container
     let tag_spec = container.ctype().html_tag(ctx);
@@ -50,28 +50,18 @@ pub fn render_container(log: &Logger, ctx: &mut HtmlContext, container: &Contain
     };
 
     // Add container internals
-    tag.inner(log, container.elements());
+    tag.inner(container.elements());
 }
 
-pub fn render_color(
-    log: &Logger,
-    ctx: &mut HtmlContext,
-    color: &str,
-    elements: &[Element],
-) {
-    info!(
-        log,
-        "Rendering color container";
-        "color" => color,
-        "elements-len" => elements.len(),
-    );
+pub fn render_color(ctx: &mut HtmlContext, color: &str, elements: &[Element]) {
+    info!("Rendering color container (color '{color}')");
 
     ctx.html()
         .span()
         .attr(attr!(
             "style" => "color: " color ";",
         ))
-        .inner(log, elements);
+        .inner(elements);
 }
 
 fn choose_id(ctx: &mut HtmlContext, tag_spec: &HtmlTag) -> Option<String> {

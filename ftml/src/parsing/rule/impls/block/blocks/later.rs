@@ -39,17 +39,14 @@ pub const BLOCK_LATER: BlockRule = BlockRule {
 };
 
 fn parse_fn<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     _flag_star: bool,
     _flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(log, "Parsing later block (easter egg)"; "in-head" => in_head);
-
+    info!("Parsing later block (easter egg, in-head {in_head})");
     assert_block_name(&BLOCK_LATER, name);
     parser.get_head_none(&BLOCK_LATER, in_head)?;
-
     ok!(text!("later."))
 }

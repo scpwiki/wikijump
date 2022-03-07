@@ -23,18 +23,12 @@ use crate::tree::{AnchorTarget, AttributeMap, Element, LinkLabel, LinkLocation};
 use crate::url::normalize_link;
 
 pub fn render_anchor(
-    log: &Logger,
     ctx: &mut HtmlContext,
     elements: &[Element],
     attributes: &AttributeMap,
     target: Option<AnchorTarget>,
 ) {
-    info!(
-        log,
-        "Rendering anchor";
-        "elements-len" => elements.len(),
-        "target" => target_str(target),
-    );
+    info!("Rendering anchor");
 
     let target_value = match target {
         Some(target) => target.html_attr(),
@@ -47,23 +41,16 @@ pub fn render_anchor(
             "target" => target_value; if target.is_some();;
             attributes
         ))
-        .inner(log, elements);
+        .inner(elements);
 }
 
 pub fn render_link(
-    log: &Logger,
     ctx: &mut HtmlContext,
     link: &LinkLocation,
     label: &LinkLabel,
     target: Option<AnchorTarget>,
 ) {
-    info!(
-        log,
-        "Rendering link";
-        "link" => link,
-        "target" => target_str(target),
-    );
-
+    info!("Rendering link '{link:?}'");
     let handle = ctx.handle();
 
     // Add to backlinks
@@ -82,15 +69,7 @@ pub fn render_link(
     ));
 
     // Add <a> internals, i.e. the link name
-    handle.get_link_label(log, link, label, |label| {
-        tag.inner(log, label);
+    handle.get_link_label(link, label, |label| {
+        tag.inner(label);
     });
-}
-
-#[cfg(feature = "log")]
-fn target_str(target: Option<AnchorTarget>) -> &'static str {
-    match target {
-        Some(target) => target.name(),
-        None => "<none>",
-    }
 }

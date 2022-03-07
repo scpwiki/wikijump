@@ -22,8 +22,8 @@ use super::prelude::*;
 use crate::tree::Table;
 use std::num::NonZeroU32;
 
-pub fn render_table(log: &Logger, ctx: &mut HtmlContext, table: &Table) {
-    info!(log, "Rendering table");
+pub fn render_table(ctx: &mut HtmlContext, table: &Table) {
+    info!("Rendering table");
 
     let mut column_span_buf = String::new();
     let value_one = NonZeroU32::new(1).unwrap();
@@ -66,7 +66,7 @@ pub fn render_table(log: &Logger, ctx: &mut HtmlContext, table: &Table) {
 
                                         &cell.attributes,
                                     ))
-                                    .inner(log, elements);
+                                    .inner(elements);
                             }
                         });
                 }

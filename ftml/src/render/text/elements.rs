@@ -21,7 +21,6 @@
 //! Module that implements text rendering for `Element` and its children.
 
 use super::TextContext;
-use crate::log::prelude::*;
 use crate::render::ModuleRenderMode;
 use crate::tree::{
     ContainerType, DefinitionListItem, Element, LinkLocation, ListItem, ListType, Tab,
@@ -29,16 +28,16 @@ use crate::tree::{
 use crate::url::normalize_link;
 use std::borrow::Cow;
 
-pub fn render_elements(log: &Logger, ctx: &mut TextContext, elements: &[Element]) {
-    info!(log, "Rendering elements"; "elements-len" => elements.len());
+pub fn render_elements(ctx: &mut TextContext, elements: &[Element]) {
+    info!("Rendering elements (length {})", elements.len());
 
     for element in elements {
-        render_element(log, ctx, element);
+        render_element(ctx, element);
     }
 }
 
-pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
-    info!(log, "Rendering element"; "element" => element.name());
+pub fn render_element(ctx: &mut TextContext, element: &Element) {
+    info!("Rendering element {}", element.name());
 
     match element {
         Element::Container(container) => {
@@ -78,7 +77,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             }
 
             // Render internal elements
-            render_elements(log, ctx, container.elements());
+            render_elements(ctx, container.elements());
 
             if add_newlines {
                 // Pop prefix, if there's one
@@ -95,26 +94,22 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
         }
         Element::Module(module) => {
             ctx.handle()
-                .render_module(log, ctx.buffer(), module, ModuleRenderMode::Text)
+                .render_module(ctx.buffer(), module, ModuleRenderMode::Text)
         }
         Element::Text(text) | Element::Raw(text) | Element::Email(text) => {
             ctx.push_str(text)
         }
         Element::Variable(name) => {
-            let value = ctx.variables().get(name);
-
-            info!(
-                log,
-                "Rendering variable";
-                "name" => name.as_ref(),
-                "value" => value,
-            );
-
-            let value = match value {
+            let value = match ctx.variables().get(name) {
                 Some(value) => str!(value),
                 None => format!("{{${name}}}"),
             };
 
+            info!(
+                "Rendering variable (name '{}', value {})",
+                name.as_ref(),
+                value,
+            );
             ctx.push_str(&value);
         }
         Element::Table(table) => {
@@ -126,7 +121,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 ctx.push_str("|| ");
 
                 for (i, cell) in row.cells.iter().enumerate() {
-                    render_elements(log, ctx, &cell.elements);
+                    render_elements(ctx, &cell.elements);
 
                     if i < row.cells.len() - 1 {
                         ctx.push_str(" || ");
@@ -146,7 +141,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 ctx.add_newline();
 
                 // Add tab contents
-                render_elements(log, ctx, elements);
+                render_elements(ctx, elements);
                 ctx.add_newline();
             }
         }
@@ -155,7 +150,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             attributes,
             ..
         } => {
-            render_elements(log, ctx, elements);
+            render_elements(ctx, elements);
 
             if let Some(href) = attributes.get().get("href") {
                 let link = LinkLocation::parse(cow!(href));
@@ -167,7 +162,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
         Element::Link { link, label, .. } => {
             let url = get_url_from_link(ctx, link);
 
-            ctx.handle().get_link_label(log, link, label, |label| {
+            ctx.handle().get_link_label(link, label, |label| {
                 ctx.push_str(label);
 
                 // Don't show URL if it's a name link, or an anchor
@@ -184,7 +179,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
         } => {
             let source_url =
                 ctx.handle()
-                    .get_image_link(log, source, ctx.info(), ctx.settings());
+                    .get_image_link(source, ctx.info(), ctx.settings());
 
             match source_url {
                 Some(url) => {
@@ -239,13 +234,13 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                         }
 
                         // Render elements for this list item
-                        render_elements(log, ctx, elements);
+                        render_elements(ctx, elements);
                         ctx.add_newline();
                     }
                     ListItem::SubList { element } => {
                         // Update bullet depth
                         ctx.incr_list_depth();
-                        render_element(log, ctx, element);
+                        render_element(ctx, element);
                         ctx.decr_list_depth();
                     }
                 }
@@ -254,9 +249,9 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
         Element::DefinitionList(items) => {
             for DefinitionListItem { key, value } in items {
                 str_write!(ctx, ": ");
-                render_elements(log, ctx, key);
+                render_elements(ctx, key);
                 str_write!(ctx, " : ");
-                render_elements(log, ctx, value);
+                render_elements(ctx, value);
                 ctx.add_newline();
             }
 
@@ -280,7 +275,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 ($input:expr, $message:expr) => {
                     match $input {
                         Some(ref text) => &text,
-                        None => ctx.handle().get_message(log, ctx.language(), $message),
+                        None => ctx.handle().get_message(ctx.language(), $message),
                     }
                 };
             }
@@ -299,7 +294,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             }
 
             // Collapsible contents
-            render_elements(log, ctx, elements);
+            render_elements(ctx, elements);
 
             // Bottom of collapsible
             if *show_bottom {
@@ -309,25 +304,25 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             }
         }
         Element::TableOfContents { .. } => {
-            info!(log, "Rendering table of contents");
+            info!("Rendering table of contents");
 
-            let table_of_contents_title =
-                ctx.handle()
-                    .get_message(log, ctx.language(), "table-of-contents");
+            let table_of_contents_title = ctx
+                .handle()
+                .get_message(ctx.language(), "table-of-contents");
 
             ctx.add_newline();
             ctx.push_str(table_of_contents_title);
             ctx.add_newline();
-            render_elements(log, ctx, ctx.table_of_contents());
+            render_elements(ctx, ctx.table_of_contents());
         }
         Element::Footnote => {
-            info!(log, "Rendering footnote reference");
+            info!("Rendering footnote reference");
 
             let index = ctx.next_footnote_index();
             str_write!(ctx, "[{}]", index);
         }
         Element::FootnoteBlock { title, hide } => {
-            info!(log, "Rendering footnote block");
+            info!("Rendering footnote block");
 
             if *hide || ctx.footnotes().is_empty() {
                 return;
@@ -338,11 +333,10 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             let title: &str = match title {
                 Some(title) => title.as_ref(),
                 None => {
-                    title_default = ctx.handle().get_message(
-                        log,
-                        ctx.language(),
-                        "footnote-block-title",
-                    );
+                    title_default = ctx
+                        .handle()
+                        .get_message(ctx.language(), "footnote-block-title");
+
                     title_default
                 }
             };
@@ -355,7 +349,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             for (index, contents) in ctx.footnotes().iter().enumerate() {
                 str_write!(ctx, "{}. ", index + 1);
 
-                render_elements(log, ctx, contents);
+                render_elements(ctx, contents);
                 ctx.add_newline();
             }
         }
@@ -363,7 +357,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
         Element::Date { value, format, .. } => {
             str_write!(ctx, "{}", value.format(format.as_ref()));
         }
-        Element::Color { elements, .. } => render_elements(log, ctx, elements),
+        Element::Color { elements, .. } => render_elements(ctx, elements),
         Element::Code { contents, language } => {
             let language = match language {
                 Some(language) => language,
@@ -407,21 +401,16 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
         Element::Include {
             variables,
             elements,
-            location: _location,
             ..
         } => {
             info!(
-                log,
-                "Rendering include";
-                "location" => str!(_location),
-                "variables-len" => variables.len(),
-                "elements-len" => elements.len(),
+                "Rendering include (variables length {}, elements length {})",
+                variables.len(),
+                elements.len(),
             );
 
             ctx.variables_mut().push_scope(variables);
-
-            render_elements(log, ctx, elements);
-
+            render_elements(ctx, elements);
             ctx.variables_mut().pop_scope();
         }
         Element::LineBreak => ctx.add_newline(),

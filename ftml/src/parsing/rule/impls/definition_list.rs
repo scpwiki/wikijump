@@ -35,10 +35,9 @@ pub const RULE_DEFINITION_LIST_SKIP_NEWLINE: Rule = Rule {
 };
 
 fn skip_newline<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(log, "Seeing if we skip due to an upcoming definition list");
+    info!("Seeing if we skip due to an upcoming definition list");
 
     match parser.next_three_tokens() {
         // It looks like a definition list is upcoming
@@ -52,18 +51,16 @@ fn skip_newline<'p, 'r, 't>(
 }
 
 fn parse_definition_list<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(log, "Trying to create a definition list");
+    info!("Trying to create a definition list");
 
     let mut items = Vec::new();
     let mut exceptions = Vec::new();
     let mut _paragraph_safe = false;
 
     // Definition list needs at least one item
-    let (item, at_end) =
-        parse_item(log, parser)?.chain(&mut exceptions, &mut _paragraph_safe);
+    let (item, at_end) = parse_item(parser)?.chain(&mut exceptions, &mut _paragraph_safe);
 
     items.push(item);
 
@@ -72,9 +69,9 @@ fn parse_definition_list<'p, 'r, 't>(
         loop {
             let sub_parser = &mut parser.clone();
 
-            match parse_item(log, sub_parser) {
+            match parse_item(sub_parser) {
                 Ok(success) => {
-                    debug!(log, "Retrieved definition list item");
+                    debug!("Retrieved definition list item");
 
                     let (item, at_end) =
                         success.chain(&mut exceptions, &mut _paragraph_safe);
@@ -86,13 +83,8 @@ fn parse_definition_list<'p, 'r, 't>(
                         break;
                     }
                 }
-                Err(_warn) => {
-                    warn!(
-                        log,
-                        "Failed to get the next definition list item, ending iteration";
-                        "warning" => format!("{:#?}", _warn),
-                    );
-
+                Err(warn) => {
+                    warn!("Failed to get the next definition list item, ending iteration: {warn:?}");
                     break;
                 }
             }
@@ -104,10 +96,9 @@ fn parse_definition_list<'p, 'r, 't>(
 }
 
 fn parse_item<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, (DefinitionListItem<'t>, bool)> {
-    debug!(log, "Trying to parse a definition list item pair");
+    debug!("Trying to parse a definition list item pair");
 
     let mut exceptions = Vec::new();
     let mut _paragraph_safe = false;
@@ -132,7 +123,6 @@ fn parse_item<'p, 'r, 't>(
 
     // Gather key text until colon
     let mut key = collect_consume(
-        log,
         parser,
         RULE_DEFINITION_LIST,
         &[ParseCondition::token_pair(Token::Whitespace, Token::Colon)],
@@ -149,7 +139,6 @@ fn parse_item<'p, 'r, 't>(
 
     // Gather value text until end of line
     let (mut value, last) = collect_consume_keep(
-        log,
         parser,
         RULE_DEFINITION_LIST,
         &[
@@ -166,13 +155,12 @@ fn parse_item<'p, 'r, 't>(
     let should_break = match last.token {
         Token::ParagraphBreak | Token::InputEnd => true,
         Token::LineBreak => false,
-        _ => panic!("Invalid close token: {:#?}", last),
+        _ => panic!("Invalid close token: {}", last.token.name()),
     };
 
     strip_whitespace(&mut value);
 
     // Build and return
     let item = DefinitionListItem { key, value };
-
     ok!(false; (item, should_break), exceptions)
 }

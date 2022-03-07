@@ -20,46 +20,36 @@
 
 use super::prelude::*;
 
-pub fn render_wikitext_raw(log: &Logger, ctx: &mut HtmlContext, text: &str) {
-    info!(log, "Escaping raw string"; "text" => text);
+pub fn render_wikitext_raw(ctx: &mut HtmlContext, text: &str) {
+    info!("Escaping raw string '{text}'");
 
     ctx.html()
         .span()
         .attr(attr!(
             "class" => "wj-raw",
         ))
-        .inner(log, text);
+        .inner(text);
 }
 
-pub fn render_email(log: &Logger, ctx: &mut HtmlContext, email: &str) {
-    info!(log, "Rendering email address"; "email" => email);
+pub fn render_email(ctx: &mut HtmlContext, email: &str) {
+    info!("Rendering email address '{email}'");
 
     // Since our usecase doesn't typically have emails as real,
     // but rather as fictional elements, we're just rendering as text.
 
     ctx.html()
         .span()
-        .attr(attr!(
-            "class" => "wj-email",
-        ))
-        .inner(log, email);
+        .attr(attr!("class" => "wj-email"))
+        .inner(email);
 }
 
-pub fn render_code(
-    log: &Logger,
-    ctx: &mut HtmlContext,
-    language: Option<&str>,
-    contents: &str,
-) {
+pub fn render_code(ctx: &mut HtmlContext, language: Option<&str>, contents: &str) {
     info!(
-        log,
-        "Rendering code block";
-        "language" => language.unwrap_or("<none>"),
-        "contents" => contents,
+        "Rendering code block (language {})",
+        language.unwrap_or("<none>"),
     );
-
     let index = ctx.next_code_snippet_index();
-    ctx.handle().post_code(log, index, contents);
+    ctx.handle().post_code(index, contents);
 
     let class = {
         let mut class = format!("wj-code wj-language-{}", language.unwrap_or("none"));
@@ -78,11 +68,9 @@ pub fn render_code(
                     "class" => "wj-code-panel",
                 ))
                 .contents(|ctx| {
-                    let button_title = ctx.handle().get_message(
-                        log,
-                        ctx.language(),
-                        "button-copy-clipboard",
-                    );
+                    let button_title = ctx
+                        .handle()
+                        .get_message(ctx.language(), "button-copy-clipboard");
 
                     // Copy to clipboard button
                     ctx.html()
@@ -104,12 +92,12 @@ pub fn render_code(
                         .attr(attr!(
                             "class" => "wj-code-language",
                         ))
-                        .inner(log, language.unwrap_or(""));
+                        .inner(language.unwrap_or(""));
                 });
 
             // Code block containing highlighted contents
             ctx.html().pre().contents(|ctx| {
-                ctx.html().code().inner(log, contents);
+                ctx.html().code().inner(contents);
             });
         });
 }

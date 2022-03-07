@@ -22,7 +22,6 @@ use super::prelude::*;
 use crate::tree::Date;
 
 pub fn render_date(
-    log: &Logger,
     ctx: &mut HtmlContext,
     date: Date,
     date_format: Option<&str>,
@@ -50,5 +49,5 @@ pub fn render_date(
             "data-timestamp" => &timestamp,
             "data-delta" => &delta,
         ))
-        .inner(log, formatted_datetime);
+        .inner(formatted_datetime);
 }

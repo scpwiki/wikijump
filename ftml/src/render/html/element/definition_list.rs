@@ -21,21 +21,13 @@
 use super::prelude::*;
 use crate::tree::DefinitionListItem;
 
-pub fn render_definition_list(
-    log: &Logger,
-    ctx: &mut HtmlContext,
-    items: &[DefinitionListItem],
-) {
-    info!(
-        log,
-        "Rendering definition list";
-        "items-len" => items.len(),
-    );
+pub fn render_definition_list(ctx: &mut HtmlContext, items: &[DefinitionListItem]) {
+    info!("Rendering definition list (length {})", items.len());
 
     ctx.html().dl().contents(|ctx| {
         for DefinitionListItem { key, value } in items {
-            ctx.html().dt().inner(log, key);
-            ctx.html().dd().inner(log, value);
+            ctx.html().dt().inner(key);
+            ctx.html().dd().inner(value);
         }
     });
 }

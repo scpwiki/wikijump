@@ -22,7 +22,6 @@
 mod macros;
 
 mod error;
-mod log;
 mod misc;
 mod page_info;
 mod parsing;
@@ -33,13 +32,9 @@ mod tokenizer;
 mod utf16;
 
 mod prelude {
-    pub use super::log::LOGGER;
     pub use wasm_bindgen::prelude::*;
     pub use wasm_bindgen::JsCast;
 }
-
-#[cfg(feature = "wasm-log")]
-pub use self::log::ConsoleLogger;
 
 pub use self::misc::version;
 pub use self::parsing::{parse, ParseOutcome, SyntaxTree};

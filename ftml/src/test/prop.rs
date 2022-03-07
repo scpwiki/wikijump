@@ -434,10 +434,8 @@ fn render<R: Render>(
     tree: SyntaxTree<'static>,
     page_info: PageInfo<'static>,
 ) -> R::Output {
-    let log = crate::build_logger();
     let settings = WikitextSettings::from_mode(WikitextMode::Page);
-
-    render.render(&log, &tree, &page_info, &settings)
+    render.render(&tree, &page_info, &settings)
 }
 
 proptest! {
@@ -450,7 +448,6 @@ proptest! {
     #[test]
     fn render_html_prop(page_info in arb_page_info(), tree in arb_tree()) {
         let out = render(HtmlRender, tree, page_info);
-
         assert!(out.meta.len() >= 4);
     }
 

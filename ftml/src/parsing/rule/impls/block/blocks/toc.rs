@@ -31,20 +31,13 @@ pub const BLOCK_TABLE_OF_CONTENTS: BlockRule = BlockRule {
 };
 
 fn parse_fn<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(
-        log,
-        "Parsing table-of-contents block";
-        "in-head" => in_head,
-        "name" => name,
-    );
-
+    info!("Parsing table-of-contents block (name '{name}', in-head {in_head})");
     parser.check_page_syntax()?;
     assert!(!flag_star, "Table of Contents doesn't allow star flag");
     assert!(!flag_score, "Table of Contents doesn't allow score flag");
@@ -54,6 +47,5 @@ fn parse_fn<'r, 't>(
     let attributes = arguments.to_attribute_map();
     let align = FloatAlignment::parse(name).map(|float| float.align);
     let element = Element::TableOfContents { align, attributes };
-
     ok!(false; element)
 }

@@ -32,10 +32,9 @@ pub const RULE_VARIABLE: Rule = Rule {
 };
 
 fn try_consume_fn<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(log, "Consuming token by placing variable contents");
+    info!("Consuming token by placing variable contents");
 
     let ExtractedToken { slice, .. } = parser.current();
 

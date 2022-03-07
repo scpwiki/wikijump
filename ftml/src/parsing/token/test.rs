@@ -22,15 +22,13 @@ use super::*;
 
 #[test]
 fn tokens() {
-    let log = crate::build_logger();
-
     macro_rules! test {
         ($input:expr, $expected:expr $(,)?) => {{
-            info!(&log, "Testing tokens!"; "input" => $input);
+            info!("Testing tokens! Input: {}", $input);
 
             let expected: Vec<ExtractedToken> = $expected;
             let result = {
-                let tokenization = crate::tokenize(&log, $input);
+                let tokenization = crate::tokenize($input);
                 let mut tokens: Vec<ExtractedToken> = tokenization.into();
 
                 let first = tokens.remove(0);

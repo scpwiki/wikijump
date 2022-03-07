@@ -36,20 +36,13 @@ pub const BLOCK_EMBED: BlockRule = BlockRule {
 };
 
 fn parse_fn<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(
-        log,
-        "Parsing embed block";
-        "in-head" => in_head,
-        "name" => name,
-    );
-
+    info!("Parsing embed block (name '{name}', in-head {in_head})");
     assert!(!flag_star, "Embed doesn't allow star flag");
     assert!(!flag_score, "Embed doesn't allow star flag");
     assert_block_name(&BLOCK_EMBED, name);

@@ -39,7 +39,6 @@ use crate::tree::{AttributeMap, Container, ContainerType, Element};
 /// Must match the parse rule.
 /// * `container_type`
 pub fn collect_container<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
     container_type: ContainerType,
@@ -47,20 +46,14 @@ pub fn collect_container<'p, 'r, 't>(
     invalid_conditions: &[ParseCondition],
     warn_kind: Option<ParseWarningKind>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    // Log collect_container() call
-    let log = &log.new(slog_o!(
-        "container-type" => str!(container_type.name()),
-    ));
-
     info!(
-        log,
-        "Trying to consume tokens to produce container for {}",
+        "Trying to consume tokens to produce container {} for {}",
+        container_type.name(),
         rule.name(),
     );
 
     // Iterate and consume all the tokens
     let (elements, exceptions, paragraph_safe) = collect_consume(
-        log,
         parser,
         rule,
         close_conditions,

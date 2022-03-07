@@ -28,16 +28,10 @@ pub const RULE_CLEAR_FLOAT: Rule = Rule {
 };
 
 fn try_consume_fn<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     let current = parser.current();
-
-    info!(
-        log,
-        "Consuming token to create a clear float";
-        "slice" => current.slice,
-    );
+    info!("Consuming token to create a clear float");
 
     let clear_float = match current.token {
         Token::ClearFloatBoth => ClearFloat::Both,

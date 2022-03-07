@@ -32,20 +32,13 @@ pub const BLOCK_IFTAGS: BlockRule = BlockRule {
 };
 
 fn parse_fn<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(
-        log,
-        "Parsing iftags block";
-        "in-head" => in_head,
-        "name" => name,
-    );
-
+    info!("Parsing iftags block (name '{name}', in-head {in_head})");
     assert!(!flag_star, "IfTags doesn't allow star flag");
     assert!(!flag_score, "IfTags doesn't allow score flag");
     assert_block_name(&BLOCK_IFTAGS, name);
@@ -62,19 +55,18 @@ fn parse_fn<'r, 't>(
         parser.get_body_elements(&BLOCK_IFTAGS, false)?.into();
 
     debug!(
-        log,
-        "IfTags conditions parsed";
-        "conditions" => format!("{:#?}", conditions),
-        "elements-len" => elements.len(),
+        "IfTags conditions parsed (conditions length {}, elements length {})",
+        conditions.len(),
+        elements.len(),
     );
 
     // Return elements based on condition
-    let elements = if check_iftags(log, parser.page_info(), &conditions) {
-        debug!(log, "Conditions passed, including elements");
+    let elements = if check_iftags(parser.page_info(), &conditions) {
+        debug!("Conditions passed, including elements");
 
         Elements::Multiple(elements)
     } else {
-        debug!(log, "Conditions failed, excluding elements");
+        debug!("Conditions failed, excluding elements");
 
         // Filter out non-warning exceptions
         exceptions.retain(|ex| matches!(ex, ParseException::Warning(_)));
@@ -85,17 +77,7 @@ fn parse_fn<'r, 't>(
     ok!(paragraph_safe; elements, exceptions)
 }
 
-pub fn check_iftags(
-    log: &Logger,
-    info: &PageInfo,
-    conditions: &[ElementCondition],
-) -> bool {
-    debug!(
-        log,
-        "Checking iftags";
-        "tags-len" => info.tags.len(),
-        "conditions-len" => conditions.len(),
-    );
-
+pub fn check_iftags(info: &PageInfo, conditions: &[ElementCondition]) -> bool {
+    debug!("Checking iftags");
     ElementCondition::check(conditions, &info.tags)
 }

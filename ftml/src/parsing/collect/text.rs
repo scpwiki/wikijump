@@ -27,7 +27,6 @@ use super::prelude::*;
 /// rather than considering them as special elements.
 #[inline]
 pub fn collect_text<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
     close_conditions: &[ParseCondition],
@@ -38,7 +37,6 @@ where
     'r: 't,
 {
     collect_text_keep(
-        log,
         parser,
         rule,
         close_conditions,
@@ -55,7 +53,6 @@ where
 ///
 /// Compare with `collect_consume_keep()`.
 pub fn collect_text_keep<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
     close_conditions: &[ParseCondition],
@@ -66,10 +63,7 @@ where
     'r: 't,
 {
     // Log collect_text() call
-    info!(
-        log,
-        "Trying to consume tokens to merge into a single string",
-    );
+    info!("Trying to consume tokens to merge into a single string");
 
     let (start, mut end) = (parser.current(), None);
 
@@ -77,14 +71,13 @@ where
     //
     // We know text is always paragraph safe, so we ignore that value.
     let (last, exceptions, _) = collect(
-        log,
         parser,
         rule,
         close_conditions,
         invalid_conditions,
         warn_kind,
-        |log, parser| {
-            debug!(log, "Ingesting token in string span");
+        |parser| {
+            debug!("Ingesting token in string span");
 
             end = Some(parser.current());
             ok!(true; ())
@@ -99,7 +92,7 @@ where
 
     let slice = match (start, end) {
         // We have a token span, use to get string slice
-        (start, Some(end)) => parser.full_text().slice(log, start, end),
+        (start, Some(end)) => parser.full_text().slice(start, end),
 
         // Empty list of tokens, resultant slice must be empty
         (_, None) => "",

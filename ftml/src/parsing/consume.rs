@@ -36,36 +36,29 @@ use std::mem;
 /// It will use the fallback if all rules, fail, so the only failure case is if
 /// the end of the input is reached.
 pub fn consume<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    let log = &log.new(slog_o!(
-        "token" => parser.current().token,
-        "slice" => str!(parser.current().slice),
-        "span" => SpanWrap::from(&parser.current().span),
-        "remaining-len" => parser.remaining().len(),
-    ));
+    info!(
+        "Running consume attempt (token {}, slice {:?})",
+        parser.current().token.name(),
+        parser.current().slice,
+    );
 
     // Incrementing recursion depth
     // Will fail if we're too many layers in
     parser.depth_increment()?;
 
-    debug!(log, "Looking for valid rules");
+    debug!("Looking for valid rules");
     let mut all_exceptions = Vec::new();
     let current = parser.current();
 
     for &rule in get_rules_for_token(current) {
-        debug!(log, "Trying rule consumption for tokens"; "rule" => rule);
+        debug!("Trying rule consumption for tokens (rule {})", rule.name());
 
         let old_remaining = parser.remaining();
-        match rule.try_consume(log, parser) {
+        match rule.try_consume(parser) {
             Ok(output) => {
-                info!(
-                    log,
-                    "Rule matched, returning generated result";
-                    "rule" => rule,
-                    "element" => format!("{:?}", output.item),
-                );
+                info!("Rule {} matched, returning generated result", rule.name());
 
                 // If the pointer hasn't moved, we step one token.
                 if parser.same_pointer(old_remaining) {
@@ -86,28 +79,26 @@ pub fn consume<'p, 'r, 't>(
             }
             Err(warning) => {
                 warn!(
-                    log,
-                    "Rule failed, returning warning";
-                    "warning" => warning.kind().name(),
+                    "Rule failed, returning warning: '{}'",
+                    warning.kind().name(),
                 );
-
                 all_exceptions.push(ParseException::Warning(warning));
             }
         }
     }
 
-    warn!(log, "All rules exhausted, using generic text fallback");
+    warn!("All rules exhausted, using generic text fallback");
     let element = text!(current.slice);
     parser.step()?;
 
     // We should only carry styles over from *successful* consumptions
-    debug!(log, "Removing non-warnings from exceptions list");
+    debug!("Removing non-warnings from exceptions list");
     all_exceptions.retain(|exception| matches!(exception, ParseException::Warning(_)));
 
     // If we've hit the recursion limit, just bail
     if let Some(ParseException::Warning(warning)) = all_exceptions.last() {
         if warning.kind() == ParseWarningKind::RecursionDepthExceeded {
-            error!(log, "Found recursion depth error, failing");
+            error!("Found recursion depth error, failing");
             return Err(warning.clone());
         }
     }

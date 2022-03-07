@@ -42,32 +42,19 @@ pub const RULE_BLOCK_SKIP_NEWLINE: Rule = Rule {
 // Rule implementations
 
 fn block_regular<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(log, "Trying to process a block");
-
-    parse_block(log, parser, false)
+    info!("Trying to process a block");
+    parse_block(parser, false)
 }
 
-fn block_star<'r, 't>(
-    log: &Logger,
-    parser: &mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(log, "Trying to process a block (with star flag)");
-
-    parse_block(log, parser, true)
+fn block_star<'r, 't>(parser: &mut Parser<'r, 't>) -> ParseResult<'r, 't, Elements<'t>> {
+    info!("Trying to process a block (with star flag)");
+    parse_block(parser, true)
 }
 
-fn block_skip<'r, 't>(
-    log: &Logger,
-    parser: &mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(
-        log,
-        "Trying to see if we skip a newline due to upcoming block",
-    );
-
+fn block_skip<'r, 't>(parser: &mut Parser<'r, 't>) -> ParseResult<'r, 't, Elements<'t>> {
+    info!("Trying to see if we skip a newline due to upcoming block");
     let current = parser.step()?;
 
     // See if there's a block upcoming
@@ -88,11 +75,7 @@ fn block_skip<'r, 't>(
     });
 
     if result {
-        info!(
-            log,
-            "Skipping newline due to upcoming line-terminated block",
-        );
-
+        info!("Skipping newline due to upcoming line-terminated block");
         ok!(Elements::None)
     } else {
         Err(parser.make_warn(ParseWarningKind::RuleFailed))
@@ -102,18 +85,13 @@ fn block_skip<'r, 't>(
 // Block parsing implementation
 
 fn parse_block<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     flag_star: bool,
 ) -> ParseResult<'r, 't, Elements<'t>>
 where
     'r: 't,
 {
-    info!(
-        log,
-        "Trying to process a block";
-        "star" => flag_star,
-    );
+    info!("Trying to process a block (star {flag_star})");
 
     // Set general rule based on presence of star flag
     parser.set_rule(if flag_star {
@@ -126,7 +104,7 @@ where
     parser.get_optional_space()?;
 
     let (name, in_head) = parser.get_block_name(flag_star)?;
-    debug!(log, "Got block name"; "name" => name, "in-head" => in_head);
+    debug!("Got block name '{name}' (in head {in_head})");
 
     let (name, flag_score) = match name.strip_suffix('_') {
         Some(name) => (name, true),
@@ -159,5 +137,5 @@ where
     // This is responsible for parsing any arguments,
     // and terminating the block (the ']]' token),
     // then processing the body (if any) and tail block.
-    (block.parse_fn)(log, parser, name, flag_star, flag_score, in_head)
+    (block.parse_fn)(parser, name, flag_star, flag_score, in_head)
 }

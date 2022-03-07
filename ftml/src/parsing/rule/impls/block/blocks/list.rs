@@ -52,7 +52,6 @@ pub const BLOCK_LI: BlockRule = BlockRule {
 };
 
 fn parse_unordered_block<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     flag_star: bool,
@@ -61,7 +60,6 @@ fn parse_unordered_block<'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     parse_list_block(
         (&BLOCK_UL, ListType::Bullet),
-        log,
         parser,
         name,
         flag_star,
@@ -71,7 +69,6 @@ fn parse_unordered_block<'r, 't>(
 }
 
 fn parse_ordered_block<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     flag_star: bool,
@@ -80,7 +77,6 @@ fn parse_ordered_block<'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     parse_list_block(
         (&BLOCK_OL, ListType::Numbered),
-        log,
         parser,
         name,
         flag_star,
@@ -93,7 +89,6 @@ fn parse_ordered_block<'r, 't>(
 
 fn parse_list_block<'r, 't>(
     (block_rule, list_type): (&BlockRule, ListType),
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     flag_star: bool,
@@ -101,13 +96,12 @@ fn parse_list_block<'r, 't>(
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     info!(
-        log,
-        "Parsing list block";
-        "block-rule" => block_rule.name,
-        "list-type" => list_type.name(),
-        "flag-score" => flag_score,
-        "in-head" => in_head,
-        "name" => name,
+        "Parsing list block (name '{}', rule {}, list type {}, in-head {}, score {})",
+        name,
+        block_rule.name,
+        list_type.name(),
+        in_head,
+        flag_score,
     );
 
     let parser = &mut ParserWrap::new(parser, AcceptsPartial::ListItem);
@@ -186,7 +180,6 @@ fn parse_list_block<'r, 't>(
 // List item
 
 fn parse_list_item<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     flag_star: bool,
@@ -194,14 +187,9 @@ fn parse_list_item<'r, 't>(
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     info!(
-        log,
-        "Parsing list item block";
-        "block-rule" => BLOCK_LI.name,
-        "flag-score" => flag_score,
-        "in-head" => in_head,
-        "name" => name,
+        "Parsing list item block (name '{}', in-head {}, score {})",
+        name, in_head, flag_score,
     );
-
     assert!(!flag_star, "List item block doesn't allow star flag");
     assert_block_name(&BLOCK_LI, name);
 

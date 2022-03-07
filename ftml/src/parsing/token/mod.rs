@@ -32,7 +32,6 @@ mod lexer {
 }
 
 use self::lexer::*;
-use crate::log::prelude::*;
 use crate::utf16::Utf16IndexMap;
 use pest::iterators::Pair;
 use pest::Parser;
@@ -161,15 +160,12 @@ pub enum Token {
 }
 
 impl Token {
-    pub(crate) fn extract_all<'a>(
-        log: &Logger,
-        text: &'a str,
-    ) -> Vec<ExtractedToken<'a>> {
-        info!(log, "Running lexer on input");
+    pub(crate) fn extract_all(text: &str) -> Vec<ExtractedToken> {
+        info!("Running lexer on input");
 
         match TokenLexer::parse(Rule::document, text) {
             Ok(pairs) => {
-                info!(log, "Lexer produced pairs for processing");
+                info!("Lexer produced pairs for processing");
 
                 // Map pairs to tokens, and add a Token::InputStart at the beginning
                 // Pest already adds a Token::InputEnd at the end
@@ -180,15 +176,14 @@ impl Token {
                 };
 
                 let mut tokens = vec![start];
-                tokens.extend(pairs.map(|pair| Token::convert_pair(log, pair)));
+                tokens.extend(pairs.map(Token::convert_pair));
                 tokens
             }
-            Err(_error) => {
+            Err(error) => {
                 // Return all of the input as one big raw text
                 // and log this as an error, since it shouldn't be happening
 
-                crit!(log, "Error while lexing input in pest: {_error}");
-
+                error!("Error while lexing input in pest: {error}");
                 vec![ExtractedToken {
                     token: Token::Other,
                     slice: text,
@@ -199,7 +194,7 @@ impl Token {
     }
 
     /// Converts a single `Pair` from pest into its corresponding `ExtractedToken`.
-    fn convert_pair<'a>(log: &Logger, pair: Pair<'a, Rule>) -> ExtractedToken<'a> {
+    fn convert_pair(pair: Pair<Rule>) -> ExtractedToken {
         // Extract values from the Pair
         let rule = pair.as_rule();
         let slice = pair.as_str();
@@ -209,14 +204,7 @@ impl Token {
 
         // Get matching Token.
         let token = Token::get_from_rule(rule);
-
-        debug!(
-            log,
-            "Converting pair '{:?}' into token", rule;
-            "token" => token.name(),
-            "slice" => pair.as_str(),
-            "span" => SpanWrap::from(&span),
-        );
+        debug!("Converting pair '{:?}' into token {}", rule, token.name());
 
         ExtractedToken { token, slice, span }
     }
@@ -305,17 +293,5 @@ impl Token {
     #[inline]
     pub fn name(self) -> &'static str {
         self.into()
-    }
-}
-
-#[cfg(feature = "log")]
-impl slog::Value for Token {
-    fn serialize(
-        &self,
-        _: &slog::Record,
-        key: slog::Key,
-        serializer: &mut dyn slog::Serializer,
-    ) -> slog::Result {
-        serializer.emit_str(key, self.name())
     }
 }

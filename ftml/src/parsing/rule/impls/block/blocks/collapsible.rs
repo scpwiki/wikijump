@@ -31,19 +31,13 @@ pub const BLOCK_COLLAPSIBLE: BlockRule = BlockRule {
 };
 
 fn parse_fn<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(
-        log,
-        "Parsing collapsible block";
-        "in-head" => in_head,
-    );
-
+    info!("Parsing collapsible block (in-head {in_head})");
     assert!(!flag_star, "Collapsible doesn't allow star flag");
     assert!(!flag_score, "Collapsible doesn't allow score flag");
     assert_block_name(&BLOCK_COLLAPSIBLE, name);
@@ -98,7 +92,6 @@ fn parse_hide_location(s: &str, parser: &Parser) -> Result<(bool, bool), ParseWa
         }
     }
 
-    warn!(&parser.log(), "Unknown hideLocation argument"; "value" => s);
-
+    warn!("Unknown hideLocation argument '{s}'");
     Err(parser.make_warn(ParseWarningKind::BlockMalformedArguments))
 }

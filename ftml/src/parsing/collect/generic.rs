@@ -28,8 +28,7 @@ use super::prelude::*;
 /// The conditions for how to consume tokens are passed as arguments,
 /// which are explained below.
 ///
-/// Logger instance and mutable parser reference:
-/// * `log`
+/// Mutable parser reference:
 /// * `parser`
 ///
 /// The rule we're parsing for:
@@ -61,35 +60,17 @@ use super::prelude::*;
 /// The final token from the collection, one prior to the now-current token,
 /// is returned.
 pub fn collect<'p, 'r, 't, F>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
-    _rule: Rule,
+    rule: Rule,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
     warn_kind: Option<ParseWarningKind>,
     mut process: F,
 ) -> ParseResult<'r, 't, &'r ExtractedToken<'t>>
 where
-    F: FnMut(&Logger, &mut Parser<'r, 't>) -> ParseResult<'r, 't, ()>,
+    F: FnMut(&mut Parser<'r, 't>) -> ParseResult<'r, 't, ()>,
 {
-    // Log collect_until() call
-    let log = {
-        let ExtractedToken {
-            token: _token,
-            slice: _slice,
-            span: _span,
-        } = parser.current();
-
-        &log.new(slog_o!(
-            "rule" => str!(_rule.name()),
-            "token" => str!(_token.name()),
-            "slice" => str!(_slice),
-            "span" => SpanWrap::from(_span),
-            "remaining-len" => parser.remaining().len(),
-        ))
-    };
-
-    info!(log, "Trying to collect tokens for rule {:?}", _rule);
+    info!("Trying to collect tokens for rule {}", rule.name());
 
     let mut exceptions = Vec::new();
     let mut paragraph_safe = true;
@@ -104,9 +85,8 @@ where
         // See if the container has ended
         if parser.evaluate_any(close_conditions) {
             debug!(
-                log,
-                "Found ending condition, returning collected elements";
-                "token" => parser.current().token,
+                "Found ending condition, returning collected elements (token {})",
+                parser.current().token.name(),
             );
 
             let last = parser.current();
@@ -120,9 +100,8 @@ where
         // See if the container should be aborted
         if parser.evaluate_any(invalid_conditions) {
             debug!(
-                log,
-                "Found invalid token, aborting container attempt";
-                "token" => parser.current().token,
+                "Found invalid token, aborting container attempt (token {})",
+                parser.current().token.name(),
             );
 
             return Err(
@@ -132,14 +111,13 @@ where
 
         // See if we've hit the end
         if parser.current().token == Token::InputEnd {
-            debug!(log, "Found end of input, aborting");
-
+            debug!("Found end of input, aborting");
             return Err(parser.make_warn(ParseWarningKind::EndOfInput));
         }
 
         // Process token(s).
         let old_remaining = parser.remaining();
-        process(log, parser)?.chain(&mut exceptions, &mut paragraph_safe);
+        process(parser)?.chain(&mut exceptions, &mut paragraph_safe);
 
         // If the pointer hasn't moved, we step one token.
         if parser.same_pointer(old_remaining) {

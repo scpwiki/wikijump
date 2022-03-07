@@ -32,10 +32,9 @@ pub const RULE_BLOCKQUOTE: Rule = Rule {
 };
 
 fn try_consume_fn<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(log, "Parsing nested native blockquotes");
+    info!("Parsing nested native blockquotes");
 
     // Context variables
     let mut depths = Vec::new();
@@ -50,14 +49,7 @@ fn try_consume_fn<'p, 'r, 't>(
 
             // Invalid token, bail
             _ => {
-                warn!(
-                    log,
-                    "Didn't find blockquote token, ending list iteration";
-                    "token" => current.token,
-                    "slice" => current.slice,
-                    "span" => SpanWrap::from(&current.span),
-                );
-
+                warn!("Didn't find blockquote token, ending list iteration");
                 break;
             }
         };
@@ -66,20 +58,13 @@ fn try_consume_fn<'p, 'r, 't>(
 
         // Check that the depth isn't obscenely deep, to avoid DOS attacks via stack overflow.
         if depth > MAX_BLOCKQUOTE_DEPTH {
-            info!(
-                log,
-                "Native blockquote has a depth greater than the maximum! Failing";
-                "depth" => depth,
-                "max-depth" => MAX_BLOCKQUOTE_DEPTH,
-            );
-
+            info!("Native blockquote has a depth ({depth}) greater than the maximum ({MAX_BLOCKQUOTE_DEPTH})! Failing");
             return Err(parser.make_warn(ParseWarningKind::BlockquoteDepthExceeded));
         }
 
         // Parse elements until we hit the end of the line
         let mut paragraph_safe = true;
         let mut elements = collect_consume(
-            log,
             parser,
             RULE_BLOCKQUOTE,
             &[
@@ -112,17 +97,14 @@ fn try_consume_fn<'p, 'r, 't>(
     let depth_lists = process_depths((), depths);
     let elements: Vec<Element> = depth_lists
         .into_iter()
-        .map(|(_, depth_list)| build_blockquote_element(log, depth_list))
+        .map(|(_, depth_list)| build_blockquote_element(depth_list))
         .collect();
 
     ok!(false; elements, exceptions)
 }
 
-fn build_blockquote_element<'t>(
-    log: &Logger,
-    list: DepthList<(), (Vec<Element<'t>>, bool)>,
-) -> Element<'t> {
-    let mut stack = ParagraphStack::new(log);
+fn build_blockquote_element(list: DepthList<(), (Vec<Element>, bool)>) -> Element {
+    let mut stack = ParagraphStack::new();
 
     // Convert depth list into a list of elements
     for item in list {
@@ -133,7 +115,7 @@ fn build_blockquote_element<'t>(
                 }
             }
             DepthItem::List(_, list) => {
-                let blockquote = build_blockquote_element(log, list);
+                let blockquote = build_blockquote_element(list);
                 stack.pop_line_break();
                 stack.push_element(blockquote, false);
             }

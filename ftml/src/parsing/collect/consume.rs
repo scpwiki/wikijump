@@ -27,7 +27,6 @@ use super::prelude::*;
 ///
 /// This call always sets `step_on_final` to `true`.
 pub fn collect_consume<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
     close_conditions: &[ParseCondition],
@@ -35,7 +34,6 @@ pub fn collect_consume<'p, 'r, 't>(
     warn_kind: Option<ParseWarningKind>,
 ) -> ParseResult<'r, 't, Vec<Element<'t>>> {
     collect_consume_keep(
-        log,
         parser,
         rule,
         close_conditions,
@@ -52,7 +50,6 @@ pub fn collect_consume<'p, 'r, 't>(
 ///
 /// Compare with `collect_text_keep()`.
 pub fn collect_consume_keep<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
     close_conditions: &[ParseCondition],
@@ -65,15 +62,12 @@ where
     let mut all_elements = Vec::new();
 
     let (last, exceptions, paragraph_safe) = collect(
-        log,
         parser,
         rule,
         close_conditions,
         invalid_conditions,
         warn_kind,
-        |log, parser| {
-            consume(log, parser)?.map_ok(|elements| all_elements.extend(elements))
-        },
+        |parser| consume(parser)?.map_ok(|elements| all_elements.extend(elements)),
     )?
     .into();
 

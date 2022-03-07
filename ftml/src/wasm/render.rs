@@ -110,11 +110,10 @@ pub fn render_html(
     page_info: PageInfo,
     settings: WikitextSettings,
 ) -> HtmlOutput {
-    let log = &*LOGGER;
     let tree = syntax_tree.get();
     let page_info = page_info.get();
     let settings = settings.get();
-    let html = HtmlRender.render(&log, tree, page_info, settings);
+    let html = HtmlRender.render(tree, page_info, settings);
 
     HtmlOutput {
         inner: Arc::new(html),
@@ -127,11 +126,10 @@ pub fn render_text(
     page_info: PageInfo,
     settings: WikitextSettings,
 ) -> String {
-    let log = &*LOGGER;
     let tree = syntax_tree.get();
     let page_info = page_info.get();
     let settings = settings.get();
-    let text = TextRender.render(&log, tree, page_info, settings);
+    let text = TextRender.render(tree, page_info, settings);
 
     text
 }

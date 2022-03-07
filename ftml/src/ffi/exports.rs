@@ -34,8 +34,6 @@ fn render<R: Render>(
     c_settings: *const ftml_wikitext_settings,
     renderer: &R,
 ) -> (R::Output, Vec<ParseWarning>) {
-    let log = &get_logger();
-
     // Convert data from C to Rust
     let mut text = unsafe { cstr_to_string(c_text) };
     let page_info = unsafe {
@@ -53,10 +51,10 @@ fn render<R: Render>(
 
     // TODO includer
 
-    crate::preprocess(log, &mut text);
-    let tokens = crate::tokenize(log, &text);
-    let (tree, warnings) = crate::parse(log, &tokens, &page_info, &settings).into();
-    let output = renderer.render(log, &tree, &page_info, &settings);
+    crate::preprocess(&mut text);
+    let tokens = crate::tokenize(&text);
+    let (tree, warnings) = crate::parse(&tokens, &page_info, &settings).into();
+    let output = renderer.render(&tree, &page_info, &settings);
     (output, warnings)
 }
 

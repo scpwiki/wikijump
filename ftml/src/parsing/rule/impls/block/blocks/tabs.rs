@@ -41,7 +41,6 @@ pub const BLOCK_TAB: BlockRule = BlockRule {
 };
 
 fn parse_tabview<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     flag_star: bool,
@@ -50,13 +49,7 @@ fn parse_tabview<'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     let parser = &mut ParserWrap::new(parser, AcceptsPartial::Tab);
 
-    info!(
-        log,
-        "Parsing tabview block";
-        "in-head" => in_head,
-        "name" => name,
-    );
-
+    info!("Parsing tabview block (name '{name}', in-head {in_head})");
     assert!(!flag_star, "Tabview doesn't allow star flag");
     assert!(!flag_score, "Tabview doesn't allow score flag");
     assert_block_name(&BLOCK_TABVIEW, name);
@@ -91,20 +84,13 @@ fn parse_tabview<'r, 't>(
 }
 
 fn parse_tab<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(
-        log,
-        "Parsing tab block";
-        "in-head" => in_head,
-        "name" => name,
-    );
-
+    info!("Parsing tab block (name '{name}', in-head {in_head})");
     assert!(!flag_star, "Tab doesn't allow star flag");
     assert!(!flag_score, "Tab doesn't allow score flag");
     assert_block_name(&BLOCK_TAB, name);

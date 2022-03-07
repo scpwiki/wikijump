@@ -27,13 +27,10 @@ pub const RULE_HORIZONTAL_RULE: Rule = Rule {
 };
 
 fn try_consume_fn<'p, 'r, 't>(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(log, "Consuming token to create a horizontal rule");
-
+    info!("Consuming token to create a horizontal rule");
     check_step(parser, Token::TripleDash)?;
     parser.get_optional_line_break()?;
-
     ok!(Element::HorizontalRule)
 }

@@ -41,7 +41,6 @@ use super::prelude;
 use self::attributes::AddedAttributes;
 use self::context::HtmlContext;
 use crate::data::PageInfo;
-use crate::log::prelude::*;
 use crate::render::{Handle, Render};
 use crate::settings::WikitextSettings;
 use crate::tree::SyntaxTree;
@@ -54,18 +53,15 @@ impl Render for HtmlRender {
 
     fn render(
         &self,
-        log: &Logger,
         tree: &SyntaxTree,
         page_info: &PageInfo,
         settings: &WikitextSettings,
     ) -> HtmlOutput {
         info!(
-            log,
-            "Rendering syntax tree";
-            "target" => "html",
-            "site" => page_info.site.as_ref(),
-            "page" => page_info.page.as_ref(),
-            "category" => match &page_info.category {
+            "Rendering HTML (site {}, page {}, category {})",
+            page_info.site.as_ref(),
+            page_info.page.as_ref(),
+            match &page_info.category {
                 Some(category) => category.as_ref(),
                 None => "_default",
             },
@@ -88,7 +84,7 @@ impl Render for HtmlRender {
         ctx.html()
             .element("wj-body")
             .attr(attr!("class" => "wj-body"))
-            .inner(log, &tree.elements);
+            .inner(&tree.elements);
 
         // Build and return HtmlOutput
         ctx.into()

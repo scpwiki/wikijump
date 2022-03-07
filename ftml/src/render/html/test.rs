@@ -23,13 +23,12 @@ use super::HtmlRender;
 
 #[test]
 fn html() {
-    let log = crate::build_logger();
     let page_info = PageInfo::dummy();
     let settings = WikitextSettings::from_mode(WikitextMode::Page);
 
     let result = SyntaxTree::from_element_result(vec![], vec![], vec![], vec![], vec![]);
     let (tree, _) = result.into();
     if false {
-        let _output = HtmlRender.render(&log, &tree, &page_info, &settings);
+        let _output = HtmlRender.render(&tree, &page_info, &settings);
     }
 }

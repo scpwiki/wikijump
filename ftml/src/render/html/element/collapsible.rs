@@ -55,7 +55,7 @@ impl<'a> Collapsible<'a> {
     }
 }
 
-pub fn render_collapsible(log: &Logger, ctx: &mut HtmlContext, collapsible: Collapsible) {
+pub fn render_collapsible(ctx: &mut HtmlContext, collapsible: Collapsible) {
     let Collapsible {
         elements,
         attributes,
@@ -67,25 +67,20 @@ pub fn render_collapsible(log: &Logger, ctx: &mut HtmlContext, collapsible: Coll
     } = collapsible;
 
     info!(
-        log,
-        "Rendering collapsible";
-        "elements-len" => elements.len(),
-        "start-open" => start_open,
-        "show-text" => show_text.unwrap_or("<default>"),
-        "hide-text" => hide_text.unwrap_or("<default>"),
-        "show-top" => show_top,
-        "show-bottom" => show_bottom,
+        "Rendering collapsible (elements length {}, start-open {}, show-text {}, hide-text {}, show-top {}, show-bottom {})",
+        elements.len(),
+        start_open,
+        show_text.unwrap_or("<default>"),
+        hide_text.unwrap_or("<default>"),
+        show_top,
+        show_bottom,
     );
 
-    let show_text = show_text.unwrap_or_else(|| {
-        ctx.handle()
-            .get_message(log, ctx.language(), "collapsible-open")
-    });
+    let show_text = show_text
+        .unwrap_or_else(|| ctx.handle().get_message(ctx.language(), "collapsible-open"));
 
-    let hide_text = hide_text.unwrap_or_else(|| {
-        ctx.handle()
-            .get_message(log, ctx.language(), "collapsible-hide")
-    });
+    let hide_text = hide_text
+        .unwrap_or_else(|| ctx.handle().get_message(ctx.language(), "collapsible-hide"));
 
     ctx.html()
         .details()
@@ -108,20 +103,20 @@ pub fn render_collapsible(log: &Logger, ctx: &mut HtmlContext, collapsible: Coll
                     ctx.html()
                         .span()
                         .attr(attr!("class" => "wj-collapsible-show-text"))
-                        .inner(log, show_text);
+                        .inner(show_text);
 
                     // Block is unfolded text
                     ctx.html()
                         .span()
                         .attr(attr!("class" => "wj-collapsible-hide-text"))
-                        .inner(log, hide_text);
+                        .inner(hide_text);
                 });
 
             // Content block
             ctx.html()
                 .div()
                 .attr(attr!("class" => "wj-collapsible-content"))
-                .inner(log, elements);
+                .inner(elements);
 
             // Bottom open/close button
             if show_bottom {
@@ -135,7 +130,7 @@ pub fn render_collapsible(log: &Logger, ctx: &mut HtmlContext, collapsible: Coll
                         ctx.html()
                             .span()
                             .attr(attr!("class" => "wj-collapsible-hide-text"))
-                            .inner(log, hide_text);
+                            .inner(hide_text);
                     });
             }
         });

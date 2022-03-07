@@ -32,20 +32,13 @@ pub const BLOCK_IFCATEGORY: BlockRule = BlockRule {
 };
 
 fn parse_fn<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(
-        log,
-        "Parsing ifcategory block";
-        "in-head" => in_head,
-        "name" => name,
-    );
-
+    info!("Parsing ifcategory block (name '{name}', in-head {in_head})");
     assert!(!flag_star, "IfCategory doesn't allow star flag");
     assert!(!flag_score, "IfCategory doesn't allow score flag");
     assert_block_name(&BLOCK_IFCATEGORY, name);
@@ -78,19 +71,18 @@ fn parse_fn<'r, 't>(
         parser.get_body_elements(&BLOCK_IFCATEGORY, false)?.into();
 
     debug!(
-        log,
-        "IfCategory conditions parsed";
-        "conditions" => format!("{:#?}", conditions),
-        "elements-len" => elements.len(),
+        "IfCategory conditions parsed (conditions length {}, elements length {})",
+        conditions.len(),
+        elements.len(),
     );
 
     // Return elements based on condition
-    let elements = if check_ifcategory(log, parser.page_info(), &conditions) {
-        debug!(log, "Conditions passed, including elements");
+    let elements = if check_ifcategory(parser.page_info(), &conditions) {
+        debug!("Conditions passed, including elements");
 
         Elements::Multiple(elements)
     } else {
-        debug!(log, "Conditions failed, excluding elements");
+        debug!("Conditions failed, excluding elements");
 
         // Filter out non-warning exceptions
         exceptions.retain(|ex| matches!(ex, ParseException::Warning(_)));
@@ -101,22 +93,12 @@ fn parse_fn<'r, 't>(
     ok!(paragraph_safe; elements, exceptions)
 }
 
-pub fn check_ifcategory(
-    log: &Logger,
-    info: &PageInfo,
-    conditions: &[ElementCondition],
-) -> bool {
+pub fn check_ifcategory(info: &PageInfo, conditions: &[ElementCondition]) -> bool {
     let category = match &info.category {
         Some(category) => category,
         None => "_default",
     };
 
-    debug!(
-        log,
-        "Checking ifcategory";
-        "category" => category,
-        "conditions-len" => conditions.len(),
-    );
-
+    debug!("Checking ifcategory (category '{category}')");
     ElementCondition::check(conditions, &[cow!(category)])
 }

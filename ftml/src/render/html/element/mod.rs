@@ -44,7 +44,6 @@ mod prelude {
     pub use super::super::context::HtmlContext;
     pub use super::super::random::Random;
     pub use super::{render_element, render_elements};
-    pub use crate::log::prelude::*;
     pub use crate::tree::{Element, SyntaxTree};
 }
 
@@ -68,71 +67,70 @@ use self::toc::render_table_of_contents;
 use self::user::render_user;
 use super::attributes::AddedAttributes;
 use super::HtmlContext;
-use crate::log::prelude::*;
 use crate::render::ModuleRenderMode;
 use crate::tree::Element;
 use ref_map::*;
 
-pub fn render_elements(log: &Logger, ctx: &mut HtmlContext, elements: &[Element]) {
-    info!(log, "Rendering elements"; "elements-len" => elements.len());
+pub fn render_elements(ctx: &mut HtmlContext, elements: &[Element]) {
+    info!("Rendering elements (length {})", elements.len());
 
     for element in elements {
-        render_element(log, ctx, element);
+        render_element(ctx, element);
     }
 }
 
-pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
+pub fn render_element(ctx: &mut HtmlContext, element: &Element) {
     macro_rules! ref_cow {
         ($input:expr) => {
             $input.ref_map(|s| s.as_ref())
         };
     }
 
-    info!(log, "Rendering element"; "element" => element.name());
+    info!("Rendering element '{}'", element.name());
 
     match element {
-        Element::Container(container) => render_container(log, ctx, container),
+        Element::Container(container) => render_container(ctx, container),
         Element::Module(module) => {
             ctx.handle()
-                .render_module(log, ctx.buffer(), module, ModuleRenderMode::Html);
+                .render_module(ctx.buffer(), module, ModuleRenderMode::Html);
         }
         Element::Text(text) => ctx.push_escaped(text),
-        Element::Raw(text) => render_wikitext_raw(log, ctx, text),
-        Element::Variable(name) => render_variable(log, ctx, name),
-        Element::Email(email) => render_email(log, ctx, email),
-        Element::Table(table) => render_table(log, ctx, table),
-        Element::TabView(tabs) => render_tabview(log, ctx, tabs),
+        Element::Raw(text) => render_wikitext_raw(ctx, text),
+        Element::Variable(name) => render_variable(ctx, name),
+        Element::Email(email) => render_email(ctx, email),
+        Element::Table(table) => render_table(ctx, table),
+        Element::TabView(tabs) => render_tabview(ctx, tabs),
         Element::Anchor {
             elements,
             attributes,
             target,
-        } => render_anchor(log, ctx, elements, attributes, *target),
+        } => render_anchor(ctx, elements, attributes, *target),
         Element::Link {
             link,
             label,
             target,
-        } => render_link(log, ctx, link, label, *target),
+        } => render_link(ctx, link, label, *target),
         Element::Image {
             source,
             link,
             alignment,
             attributes,
-        } => render_image(log, ctx, source, link, *alignment, attributes),
+        } => render_image(ctx, source, link, *alignment, attributes),
         Element::List {
             ltype,
             items,
             attributes,
-        } => render_list(log, ctx, *ltype, items, attributes),
-        Element::DefinitionList(items) => render_definition_list(log, ctx, items),
+        } => render_list(ctx, *ltype, items, attributes),
+        Element::DefinitionList(items) => render_definition_list(ctx, items),
         Element::RadioButton {
             name,
             checked,
             attributes,
-        } => render_radio_button(log, ctx, name, *checked, attributes),
+        } => render_radio_button(ctx, name, *checked, attributes),
         Element::CheckBox {
             checked,
             attributes,
-        } => render_checkbox(log, ctx, *checked, attributes),
+        } => render_checkbox(ctx, *checked, attributes),
         Element::Collapsible {
             elements,
             attributes,
@@ -142,7 +140,6 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
             show_top,
             show_bottom,
         } => render_collapsible(
-            log,
             ctx,
             Collapsible::new(
                 elements,
@@ -155,40 +152,38 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
             ),
         ),
         Element::TableOfContents { align, attributes } => {
-            render_table_of_contents(log, ctx, *align, attributes)
+            render_table_of_contents(ctx, *align, attributes)
         }
-        Element::Footnote => render_footnote(log, ctx),
+        Element::Footnote => render_footnote(ctx),
         Element::FootnoteBlock { title, hide } => {
             if !(*hide || ctx.footnotes().is_empty()) {
-                render_footnote_block(log, ctx, ref_cow!(title));
+                render_footnote_block(ctx, ref_cow!(title));
             }
         }
-        Element::User { name, show_avatar } => render_user(log, ctx, name, *show_avatar),
+        Element::User { name, show_avatar } => render_user(ctx, name, *show_avatar),
         Element::Date {
             value,
             format,
             hover,
-        } => render_date(log, ctx, *value, ref_cow!(format), *hover),
-        Element::Color { color, elements } => render_color(log, ctx, color, elements),
+        } => render_date(ctx, *value, ref_cow!(format), *hover),
+        Element::Color { color, elements } => render_color(ctx, color, elements),
         Element::Code { contents, language } => {
-            render_code(log, ctx, ref_cow!(language), contents)
+            render_code(ctx, ref_cow!(language), contents)
         }
         Element::Math { name, latex_source } => {
-            render_math_block(log, ctx, ref_cow!(name), latex_source)
+            render_math_block(ctx, ref_cow!(name), latex_source)
         }
-        Element::MathInline { latex_source } => {
-            render_math_inline(log, ctx, latex_source)
-        }
-        Element::EquationReference(name) => render_equation_reference(log, ctx, name),
-        Element::Embed(embed) => render_embed(log, ctx, embed),
-        Element::Html { contents } => render_html(log, ctx, contents),
-        Element::Iframe { url, attributes } => render_iframe(log, ctx, url, attributes),
+        Element::MathInline { latex_source } => render_math_inline(ctx, latex_source),
+        Element::EquationReference(name) => render_equation_reference(ctx, name),
+        Element::Embed(embed) => render_embed(ctx, embed),
+        Element::Html { contents } => render_html(ctx, contents),
+        Element::Iframe { url, attributes } => render_iframe(ctx, url, attributes),
         Element::Include {
             variables,
             location,
             elements,
             ..
-        } => render_include(log, ctx, location, variables, elements),
+        } => render_include(ctx, location, variables, elements),
         Element::LineBreak => {
             ctx.html().br();
         }

@@ -21,17 +21,8 @@
 use super::prelude::*;
 use crate::tree::AttributeMap;
 
-pub fn render_iframe(
-    log: &Logger,
-    ctx: &mut HtmlContext,
-    url: &str,
-    attributes: &AttributeMap,
-) {
-    info!(
-        log,
-        "Rendering iframe block";
-        "url" => url,
-    );
+pub fn render_iframe(ctx: &mut HtmlContext, url: &str, attributes: &AttributeMap) {
+    info!("Rendering iframe block (url '{url}')");
 
     ctx.html().iframe().attr(attr!(
         "src" => url,
@@ -40,15 +31,11 @@ pub fn render_iframe(
     ));
 }
 
-pub fn render_html(log: &Logger, ctx: &mut HtmlContext, contents: &str) {
-    info!(
-        log,
-        "Rendering html block (submitting to remote for iframe)";
-        "contents" => contents,
-    );
+pub fn render_html(ctx: &mut HtmlContext, contents: &str) {
+    info!("Rendering html block (submitting to remote for iframe)");
 
     // Submit HTML to be hosted on wjfiles, then get back its URL for the iframe.
-    let iframe_url = ctx.handle().post_html(log, ctx.info(), contents);
+    let iframe_url = ctx.handle().post_html(ctx.info(), contents);
     ctx.html().iframe().attr(attr!(
         "src" => &iframe_url,
         "crossorigin",

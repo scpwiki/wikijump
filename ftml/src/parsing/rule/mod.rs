@@ -52,10 +52,9 @@ impl Rule {
     #[inline]
     pub fn try_consume<'p, 'r, 't>(
         self,
-        log: &Logger,
         parser: &'p mut Parser<'r, 't>,
     ) -> ParseResult<'r, 't, Elements<'t>> {
-        info!(log, "Trying to consume for parse rule"; "name" => self.name);
+        info!("Trying to consume for parse rule {}", self.name);
 
         // Check that the line position matches what the rule wants.
         match self.position {
@@ -69,7 +68,7 @@ impl Rule {
 
         // Fork parser and try running the rule.
         let mut sub_parser = parser.clone_with_rule(self);
-        let result = (self.try_consume_fn)(log, &mut sub_parser);
+        let result = (self.try_consume_fn)(&mut sub_parser);
 
         if let Ok(ref output) = result {
             // First, ensure there aren't any partial elements in the result.
@@ -92,18 +91,6 @@ impl Debug for Rule {
     }
 }
 
-#[cfg(feature = "log")]
-impl slog::Value for Rule {
-    fn serialize(
-        &self,
-        _: &slog::Record,
-        key: slog::Key,
-        serializer: &mut dyn slog::Serializer,
-    ) -> slog::Result {
-        serializer.emit_str(key, self.name())
-    }
-}
-
 /// The enum describing what requirements a rule has regarding lines.
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum LineRequirement {
@@ -119,6 +106,5 @@ pub enum LineRequirement {
 
 /// The function type for actually trying to consume tokens
 pub type TryConsumeFn = for<'p, 'r, 't> fn(
-    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>>;

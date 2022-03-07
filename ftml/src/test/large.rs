@@ -31,7 +31,6 @@ use std::borrow::Cow;
 /// also goes past serde_json's recursion limit, lol.
 #[test]
 fn recursion_depth() {
-    let log = crate::build_logger();
     let page_info = PageInfo::dummy();
     let settings = WikitextSettings::from_mode(WikitextMode::Page);
 
@@ -47,9 +46,9 @@ fn recursion_depth() {
     }
 
     // Run parser steps
-    crate::preprocess(&log, &mut input);
-    let tokens = crate::tokenize(&log, &input);
-    let (tree, warnings) = crate::parse(&log, &tokens, &page_info, &settings).into();
+    crate::preprocess(&mut input);
+    let tokens = crate::tokenize(&input);
+    let (tree, warnings) = crate::parse(&tokens, &page_info, &settings).into();
 
     // Check outputted warnings
     let warning = warnings.get(0).expect("No warnings produced");
@@ -75,7 +74,6 @@ fn recursion_depth() {
 fn large_payload() {
     const ITERATIONS: usize = 50;
 
-    let log = crate::build_logger();
     let page_info = PageInfo::dummy();
     let settings = WikitextSettings::from_mode(WikitextMode::Page);
 
@@ -101,9 +99,9 @@ In hac habitasse platea dictumst. Vestibulum fermentum libero nec erat porttitor
     }
 
     // Run parser steps
-    crate::preprocess(&log, &mut input);
-    let tokens = crate::tokenize(&log, &input);
-    let (_tree, warnings) = crate::parse(&log, &tokens, &page_info, &settings).into();
+    crate::preprocess(&mut input);
+    let tokens = crate::tokenize(&input);
+    let (_tree, warnings) = crate::parse(&tokens, &page_info, &settings).into();
 
     // Check output
     assert_eq!(warnings.len(), ITERATIONS * 3);

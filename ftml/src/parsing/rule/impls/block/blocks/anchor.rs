@@ -32,21 +32,13 @@ pub const BLOCK_ANCHOR: BlockRule = BlockRule {
 };
 
 fn parse_fn<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(
-        log,
-        "Parsing anchor block";
-        "in-head" => in_head,
-        "name" => name,
-        "star" => flag_star,
-    );
-
+    info!("Parsing anchor block (name '{name}', in-head {in_head}, star {flag_star})");
     assert_block_name(&BLOCK_ANCHOR, name);
 
     let arguments = parser.get_head_map(&BLOCK_ANCHOR, in_head)?;

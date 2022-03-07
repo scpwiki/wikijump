@@ -75,9 +75,6 @@ jobs:
       - name: Build (Default)
         run: cd ftml && wasm-pack build --dev
 
-      - name: Build (Console Logging)
-        run: cd ftml && wasm-pack build --dev -- --features wasm-log
-
       - name: Build (No Features)
         run: cd ftml && wasm-pack build --dev -- --no-default-features
 

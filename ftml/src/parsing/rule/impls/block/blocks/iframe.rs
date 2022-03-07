@@ -30,15 +30,13 @@ pub const BLOCK_IFRAME: BlockRule = BlockRule {
 };
 
 fn parse_fn<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!(log, "Parsing iframe block"; "in-head" => in_head);
-
+    info!("Parsing iframe block (in-head {in_head})");
     assert!(!flag_star, "iframe doesn't allow star flag");
     assert!(!flag_score, "iframe doesn't allow score flag");
     assert_block_name(&BLOCK_IFRAME, name);

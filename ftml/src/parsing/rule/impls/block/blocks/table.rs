@@ -71,7 +71,6 @@ struct ParsedBlock<'t> {
 }
 
 fn parse_block<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &str,
     flag_star: bool,
@@ -83,13 +82,7 @@ where
     'r: 't,
     ParsedBlock<'t>: 't,
 {
-    info!(
-        log,
-        "Parsing {description} block";
-        "in-head" => in_head,
-        "name" => name,
-    );
-
+    info!("Parsing {description} block (name '{name}', in-head {in_head})");
     assert!(
         !flag_star,
         "Block for {description} doesn't allow star flag",
@@ -141,7 +134,6 @@ macro_rules! extract_table_items {
 // Table block
 
 fn parse_table<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     flag_star: bool,
@@ -156,7 +148,6 @@ fn parse_table<'r, 't>(
         attributes,
         exceptions,
     } = parse_block(
-        log,
         parser,
         name,
         flag_star,
@@ -176,7 +167,6 @@ fn parse_table<'r, 't>(
 // Table row
 
 fn parse_row<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     flag_star: bool,
@@ -191,7 +181,6 @@ fn parse_row<'r, 't>(
         attributes,
         exceptions,
     } = parse_block(
-        log,
         parser,
         name,
         flag_star,
@@ -213,7 +202,6 @@ fn parse_row<'r, 't>(
 // Table cell
 
 fn parse_cell_regular<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     flag_star: bool,
@@ -226,7 +214,6 @@ fn parse_cell_regular<'r, 't>(
         attributes,
         exceptions,
     } = parse_block(
-        log,
         parser,
         name,
         flag_star,
@@ -239,7 +226,6 @@ fn parse_cell_regular<'r, 't>(
 }
 
 fn parse_cell_header<'r, 't>(
-    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     flag_star: bool,
@@ -254,7 +240,6 @@ fn parse_cell_header<'r, 't>(
         attributes,
         exceptions,
     } = parse_block(
-        log,
         parser,
         name,
         flag_star,

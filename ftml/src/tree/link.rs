@@ -61,29 +61,6 @@ impl<'a> LinkLocation<'a> {
     }
 }
 
-#[cfg(feature = "log")]
-impl slog::Value for LinkLocation<'_> {
-    fn serialize(
-        &self,
-        _: &slog::Record,
-        key: slog::Key,
-        serializer: &mut dyn slog::Serializer,
-    ) -> slog::Result {
-        let string;
-
-        serializer.emit_str(
-            key,
-            match self {
-                LinkLocation::Url(url) => url,
-                LinkLocation::Page(page) => {
-                    string = str!(page);
-                    &string
-                }
-            },
-        )
-    }
-}
-
 #[test]
 fn test_link_location() {
     macro_rules! check {
