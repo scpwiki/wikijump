@@ -16,7 +16,6 @@ final class Outdater
 {
     private static Outdater $instance;
     private array $vars = [];
-    private Backlinks $link_stats;
     private int $recurrenceLevel = 0;
 
     public static function instance()
