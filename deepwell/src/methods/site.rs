@@ -2,7 +2,7 @@
  * methods/site.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
- * Copyright (C) 2021 Wikijump Team
+ * Copyright (C) 2019-2022 Wikijump Team
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
