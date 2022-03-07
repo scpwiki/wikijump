@@ -25,7 +25,6 @@ use std::sync::Arc;
 #[derive(Debug)]
 pub struct ServiceContext<'txn> {
     state: ApiServerState,
-    slog: slog::Logger,
     transaction: &'txn DatabaseTransaction,
 }
 
@@ -41,8 +40,6 @@ impl<'txn> ServiceContext<'txn> {
     ) -> Self {
         ServiceContext {
             state: Arc::clone(state),
-            // TODO: hook slog into tide's logger
-            slog: slog::Logger::root(slog::Discard, slog::o!()),
             transaction,
         }
     }
@@ -52,11 +49,6 @@ impl<'txn> ServiceContext<'txn> {
     #[allow(dead_code)] // temp
     pub fn state(&self) -> &ApiServerState {
         &self.state
-    }
-
-    #[inline]
-    pub fn slog(&self) -> &slog::Logger {
-        &self.slog
     }
 
     #[inline]
