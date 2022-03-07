@@ -8930,21 +8930,21 @@
         },
         {
             "name": "laravel/telescope",
-            "version": "v4.7.3",
+            "version": "v4.7.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/telescope.git",
-                "reference": "f91e7d068d3754575388b990332d0aad8d7ac7d1"
+                "reference": "6a7815103f9c35fb535f008dec47938352a98d34"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/telescope/zipball/f91e7d068d3754575388b990332d0aad8d7ac7d1",
-                "reference": "f91e7d068d3754575388b990332d0aad8d7ac7d1",
+                "url": "https://api.github.com/repos/laravel/telescope/zipball/6a7815103f9c35fb535f008dec47938352a98d34",
+                "reference": "6a7815103f9c35fb535f008dec47938352a98d34",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "laravel/framework": "^8.29|^9.0",
+                "laravel/framework": "^8.37|^9.0",
                 "php": "^7.3|^8.0",
                 "symfony/var-dumper": "^5.0|^6.0"
             },
@@ -8992,9 +8992,9 @@
             ],
             "support": {
                 "issues": "https://github.com/laravel/telescope/issues",
-                "source": "https://github.com/laravel/telescope/tree/v4.7.3"
+                "source": "https://github.com/laravel/telescope/tree/v4.7.4"
             },
-            "time": "2022-02-14T17:29:12+00:00"
+            "time": "2022-03-03T12:58:33+00:00"
         },
         {
             "name": "mockery/mockery",
