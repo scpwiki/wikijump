@@ -23,7 +23,7 @@ class PageController extends Controller
         $page_content = null;
         $category = null;
         $breadcrumbs = null;
-        $page_title = null;
+        $title = null;
         $revision = null;
         $timestamp = null;
         $tags = null;
@@ -38,12 +38,11 @@ class PageController extends Controller
             $sidebar_content = $values['sideBar1Content'] ?? null;
             $page_content = $values['pageContent'] ?? null;
             $tags = $values['tags'] ?? null;
-            $revision = $page->getRevisionNumber();
-            $timestamp = $page->getDateLastEdited()->getTimestamp();
-            $page_title = $page->getTitleOrUnixName();
-            $title = $page_title;
+            $revision = $page->revision_number;
+            $timestamp = $page->lastUpdated()->getTimestamp();
+            $title = $page->title;
             $license = LicenseMapping::get('cc_by_sa_3'); // TODO hardcoded
-            $social_title = $page_title;
+            $social_title = $title;
 
             // this should always be there, but just in case...
             if ($values['category']) {
@@ -78,7 +77,7 @@ class PageController extends Controller
 
             'page_content' => $page_content,
             'page_category' => $category,
-            'page_title' => $page_title,
+            'page_title' => $title,
             'page_breadcrumbs' => $breadcrumbs,
             'page_revision' => $revision,
             'page_last_edit_timestamp' => $timestamp,

@@ -111,7 +111,7 @@ class WikiScreen extends Screen
         $settings = $site->getSettings();
 
         // get Wiki page from the database
-        $page = Page::findSlug($site->getSiteId(), $wikiPage);
+        $page = Page::findSlug($site->getSiteId(), $wikiPage, true, true);
         if ($page === null) {
             $runData->contextAdd("pageNotExists", true);
             // get category based on suggested page name
@@ -133,10 +133,8 @@ class WikiScreen extends Screen
             $GLOBALS['page'] = $page;
 
             $runData->contextAdd("wikiPage", $page);
-            $runData->contextAdd("pageContent", $page->getCompiled());
-
-            $category = $page->getCategory();
-            $runData->setTemp("category", $category);
+            $runData->contextAdd("pageContent", $page->compiled_html);
+            $runData->setTemp("category", $page->page_category_slug);
 
             // show options?
             $showPageOptions = true;
@@ -148,7 +146,7 @@ class WikiScreen extends Screen
             $runData->contextAdd("tags", $tags);
 
             // has discussion?
-            if ($page->getThreadId()!== null) {
+            if ($page->discussion_thread_id !== null) {
                 $thread = ForumThreadPeer::instance()->selectByPrimaryKey($page->getThreadId());
                 if ($thread == null) {
                     $page->setThreadId(null);
@@ -159,7 +157,8 @@ class WikiScreen extends Screen
             }
 
             // look for parent pages (and prepare breadcrumbs)
-            if ($page->getParentPageId()) {
+            // TODO support page parents
+            if (false) {
                 $breadcrumbs = [];
                 $ppage = Page::findIdOnly($page->getParentPageId());
                 array_unshift($breadcrumbs, $ppage);

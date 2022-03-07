@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="{$site->getLanguage()}" lang="{$site->getLanguage()}">
 
 <head>
- 	<title>{$site->getName()}{if $wikiPage && $wikiPage->getTitle()}: {$wikiPage->getTitle()|escape}{/if}</title>
+ 	<title>{$site->getName()}{if $wikiPage && $wikiPage->title}: {$wikiPage->title|escape}{/if}</title>
     <script type="text/javascript" src="/common--javascript/jquery-1.3.2.min.js"></script>
     <script type="text/javascript">
         $j = jQuery.noConflict();
@@ -30,8 +30,8 @@
  		OZONE.request.date = new Date();
  		WIKIREQUEST.info.lang = '{$site->getLanguage()}';
  		{if $wikiPage}
- 		WIKIREQUEST.info.pageUnixName = "{$wikiPage->getUnixName()}";
- 		WIKIREQUEST.info.pageId = {$wikiPage->getPageId()};
+ 		WIKIREQUEST.info.pageUnixName = "{$wikiPage->slug}";
+ 		WIKIREQUEST.info.pageId = {$wikiPage->page_id};
  		{/if}
  		WIKIREQUEST.info.lang = "{$site->getLanguage()}";
  		OZONE.lang = "{$site->getLanguage()}";
@@ -132,7 +132,7 @@
 
 					<div style="clear:both; height:1px; font-size:1px;"></div>
 					{if !$pageNotExists}
-						{module name="PageOptionsBottomModule" threadId=$wikiPage->getThreadId() pageUnixName=$wikiPage->getUnixName()}
+						{module name="PageOptionsBottomModule" threadId=$wikiPage->discussion_thread_id pageUnixName=$wikiPage->slug}
 					{/if}
 
 					<div id="action-area" style="display: none"></div>

@@ -146,7 +146,7 @@ final class LegacyTools
          */
         $return = [];
         $site = $runData->getTemp("site");
-        $runData->contextAdd("site", $site);
+        $runData->contextAdd('site', $site);
         $return['site'] = $site;
         /** Normally we would handle notifications here in the legacy flow. */
         $pl = $runData->getParameterList();
@@ -176,7 +176,7 @@ final class LegacyTools
                     }
                 }
             }
-            if ($user == null) {
+            if ($user === null) {
                 $wikiPage = $site->getSettings()->getPrivateLandingPage();
                 $privateAccessGranted = false;
             }
@@ -223,7 +223,7 @@ final class LegacyTools
             if ($page->discussion_thread_id !== null) {
                 $thread = ForumThreadPeer::instance()->selectByPrimaryKey($page->discussion_thread_id);
                 if ($thread === null) {
-                    // How the hell is this code path possible? A discussion thread is assigned but it doesn't exist?
+                    // How the hell is this code path possible? A discussion thread is assigned, but it doesn't exist?
                     /*
                     $page->setThreadId(null);
                     $page->save();
@@ -252,6 +252,7 @@ final class LegacyTools
                 $return['breadcrumbs'] = $breadcrumbs;
             }
             */
+            $return['breadcrumbs'] = [];
         }
 
         $theme = ThemePeer::tempGet();
@@ -287,7 +288,7 @@ final class LegacyTools
         /**
          * Process Modules
          */
-        $runData->setTemp("jsInclude", array());
+        $runData->setTemp("jsInclude", []);
         // process modules...
         $moduleProcessor = new ModuleProcessor($runData);
         //$moduleProcessor->setJavascriptInline(true); // embed associated javascript files in <script> tags
@@ -304,7 +305,6 @@ final class LegacyTools
             $incl .= '<script type="text/javascript" src="'.$js.'"></script>';
         }
 
-
         $runData->handleSessionEnd();
 
             // one more thing - some url will need to be rewritten if using HTTPS
@@ -320,9 +320,8 @@ final class LegacyTools
         } while ($renderedOld != $rendered);
         }
 
+        // What is this about?
         echo str_replace("%%%CURRENT_TIMESTAMP%%%", (string)time(), $rendered);
-
-//        dd($rendered);
 
         /**
          * Custom Domain Script module injection
@@ -359,21 +358,15 @@ final class LegacyTools
         /**
          * Page Options Bottom module injection
          */
-        $pageName = $runData->getTemp("pageUnixName");
-
         $page = $runData->getTemp("page");//$pl->getParameterValue("page", "MODULE");
-        $site = $runData->getTemp("site");
-        $user = $runData->getUser();
 
         $pm = new WDPermissionManager();
         $pm->setThrowExceptions(false);
         $pm->setCheckIpBlocks(false); // to avoid database connection.
-        if (!$pm->hasPagePermission('options', $user, $pageName)) {
-            return '';
-        }
-
-        $threadId = $wikiPage->getThreadId();
-        $pageUnixName = $wikiPage->getUnixName();
+        // This branch was previously a bug, it just didn't return the right thing...
+        // Since page permissions aren't really being a thing right now, I cut them out.
+        //
+        // Previously was !$pm->hasPagePermission('options', $user, $pageName)
 
         // now a nasty part - make it inline such that
         // the Smarty engine does need to be initialized.
@@ -382,10 +375,10 @@ final class LegacyTools
         $otext = '';
 
         if ($page) {
-            $otext .=   '<div id="page-info">'.
-                _('page_revision').': '.$page->getRevisionNumber().', '.
+            $otext .= '<div id="page-info">'.
+                _('page_revision').': '.$page->revision_number.', '.
                 _('last_edited').': <span class="odate">'.
-                $page->getDateLastEdited()->getTimestamp().
+                $page->lastUpdated()->getTimestamp().
                 '|%e %b %Y, %H:%M %Z (%O '._('ago').')</span>'.
                 '</div>';
         }
@@ -395,15 +388,16 @@ final class LegacyTools
 	<a href="javascript:;" id="edit-button">'._('edit').'</a>';
 
         if ($page) {
-            $otext .=   '<a href="javascript:;" id="pagerate-button">'._('rate').' (<span id="prw54355">'.($page->getRate() > 0). '</span>)</a>';
+            $otext .= '<a href="javascript:;" id="pagerate-button">'._('rate').' (<span id="prw54355">-1</span>)</a>';
         }
 
         $otext .= '<a href="javascript:;" id="tags-button">'._('tags').'</a>';
 
         if ($page) {
+            $threadId = $page->discussion_thread_id;
             if ($threadId) {
                 $no = $page->getTemp("numberPosts");
-                $otext.='<a href="/forum/t-'.$threadId.'/'.$pageUnixName.'"  id="discuss-button">'._('discuss').' ('.$no.')</a>';
+                $otext.='<a href="/forum/t-'.$threadId.'/'.$page->slug.'"  id="discuss-button">'._('discuss').' ('.$no.')</a>';
             } else {
                 $otext.='<a href="javascript:;" id="discuss-button" onclick="Wikijump.page.listeners.createPageDiscussion(event)">'._('discuss').'</a> ';
             }
@@ -427,7 +421,6 @@ final class LegacyTools
 <div id="page-options-area-bottom">
 </div>
 ';
-
         $return['pageOptions'] = $otext;
 
         return $return;

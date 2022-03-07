@@ -122,4 +122,9 @@ class Page extends DeepwellModel
     {
         return $this->deleted_at === null;
     }
+
+    public function lastUpdated(): Carbon
+    {
+        return $this->page_updated_at ?? $this->page_created_at;
+    }
 }
