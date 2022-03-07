@@ -156,7 +156,7 @@ impl<'r, 't> Parser<'r, 't> {
     }
 
     pub fn depth_increment(&mut self) -> Result<(), ParseWarning> {
-        debug!(self.log, "Incrementing recursion depth"; "depth" => self.depth);
+        debug!("Incrementing recursion depth"; "depth" => self.depth);
 
         self.depth += 1;
 
@@ -169,7 +169,7 @@ impl<'r, 't> Parser<'r, 't> {
 
     #[inline]
     pub fn depth_decrement(&mut self) {
-        debug!(self.log, "Decrementing recursion depth"; "depth" => self.depth);
+        debug!("Decrementing recursion depth"; "depth" => self.depth);
 
         self.depth -= 1;
     }
@@ -209,7 +209,6 @@ impl<'r, 't> Parser<'r, 't> {
 
         // Render name as text, so it lacks formatting
         let name = TextRender.render_partial(
-            &self.log,
             name_elements,
             self.page_info,
             self.settings,
@@ -249,11 +248,11 @@ impl<'r, 't> Parser<'r, 't> {
     // State evaluation
     pub fn evaluate(&self, condition: ParseCondition) -> bool {
         info!(
-            &self.log,
-            "Evaluating parser condition";
-            "current-token" => self.current.token,
-            "current-slice" => self.current.slice,
-            "current-span" => SpanWrap::from(&self.current.span),
+            "Evaluating parser condition (token {}, slice '{}', span {}..{})",
+            self.current.token.name(),
+            self.current.slice,
+            self.current.span.start,
+            self.current.span.end,
         );
 
         match condition {
@@ -261,12 +260,10 @@ impl<'r, 't> Parser<'r, 't> {
             ParseCondition::TokenPair(current, next) => {
                 if self.current().token != current {
                     debug!(
-                        &self.log,
-                        "Current token in pair doesn't match, failing";
-                        "expected" => current,
-                        "actual" => self.current().token,
+                        "Current token in pair doesn't match, failing (expected '{}', actual '{}')",
+                        current.name(),
+                        self.current().token.name(),
                     );
-
                     return false;
                 }
 
@@ -274,22 +271,15 @@ impl<'r, 't> Parser<'r, 't> {
                     Some(actual) => {
                         if actual.token != next {
                             debug!(
-                                &self.log,
-                                "Second token in pair doesn't match, failing";
-                                "expected" => next,
-                                "actual" => actual.token,
+                                "Second token in pair doesn't match, failing (expected {}, actual {})",
+                                next.name(),
+                                actual.token.name(),
                             );
-
                             return false;
                         }
                     }
                     None => {
-                        debug!(
-                            &self.log,
-                            "Second token in pair doesn't exist, failing";
-                            "expected" => next,
-                        );
-
+                        debug!("Second token in pair doesn't exist (token {})", next.name());
                         return false;
                     }
                 }
@@ -302,9 +292,8 @@ impl<'r, 't> Parser<'r, 't> {
     #[inline]
     pub fn evaluate_any(&self, conditions: &[ParseCondition]) -> bool {
         info!(
-            &self.log,
-            "Evaluating to see if any parser condition is true";
-            "conditions-len" => conditions.len(),
+            "Evaluating to see if any parser condition is true (conditions length {})",
+            conditions.len(),
         );
 
         conditions.iter().any(|&condition| self.evaluate(condition))
@@ -315,8 +304,7 @@ impl<'r, 't> Parser<'r, 't> {
     where
         F: FnOnce(&mut Parser<'r, 't>) -> Result<bool, ParseWarning>,
     {
-        info!(&self.log, "Evaluating closure for parser condition");
-
+        info!("Evaluating closure for parser condition");
         f(&mut self.clone()).unwrap_or(false)
     }
 
@@ -324,10 +312,7 @@ impl<'r, 't> Parser<'r, 't> {
     where
         F: FnOnce(&mut Parser<'r, 't>) -> Result<bool, ParseWarning>,
     {
-        info!(
-            &self.log,
-            "Evaluating closure for parser condition, saving progress on success",
-        );
+        info!("Evaluating closure for parser condition, saving progress on success");
 
         let mut parser = self.clone();
         if f(&mut parser).unwrap_or(false) {
@@ -371,7 +356,7 @@ impl<'r, 't> Parser<'r, 't> {
     /// Move the token pointer forward one step.
     #[inline]
     pub fn step(&mut self) -> Result<&'r ExtractedToken<'t>, ParseWarning> {
-        debug!(self.log, "Stepping to the next token");
+        debug!("Stepping to the next token");
 
         // Set the start-of-line flag.
         self.start_of_line = matches!(
@@ -387,10 +372,7 @@ impl<'r, 't> Parser<'r, 't> {
                 Ok(current)
             }
             None => {
-                warn!(
-                    self.log,
-                    "Exhausted all tokens, yielding end of input warning",
-                );
+                warn!("Exhausted all tokens, yielding end of input warning");
                 Err(self.make_warn(ParseWarningKind::EndOfInput))
             }
         }
@@ -399,7 +381,7 @@ impl<'r, 't> Parser<'r, 't> {
     /// Move the token pointer forward `count` steps.
     #[inline]
     pub fn step_n(&mut self, count: usize) -> Result<(), ParseWarning> {
-        trace!(self.log, "Stepping n times"; "count" => count);
+        trace!("Stepping {count} times");
 
         for _ in 0..count {
             self.step()?;
@@ -413,8 +395,7 @@ impl<'r, 't> Parser<'r, 't> {
     /// For instance, submitting `0` will yield the first item of `parser.remaining()`.
     #[inline]
     pub fn look_ahead(&self, offset: usize) -> Option<&'r ExtractedToken<'t>> {
-        debug!(self.log, "Looking ahead to a token"; "offset" => offset);
-
+        debug!("Looking ahead to a token (offset {offset})");
         self.remaining.get(offset)
     }
 
@@ -464,14 +445,13 @@ fn make_shared_vec<T>() -> Rc<RefCell<Vec<T>>> {
 fn parser_newline_flag() {
     use crate::settings::WikitextMode;
 
-    let log = &crate::build_logger();
     let page_info = PageInfo::dummy();
     let settings = WikitextSettings::from_mode(WikitextMode::Page);
 
     macro_rules! check {
         ($input:expr, $expected_steps:expr $(,)?) => {{
-            let tokens = crate::tokenize(log, $input);
-            let mut parser = Parser::new(log, &tokens, &page_info, &settings);
+            let tokens = crate::tokenize($input);
+            let mut parser = Parser::new(&tokens, &page_info, &settings);
             let mut actual_steps = Vec::new();
 
             // Iterate through the tokens.

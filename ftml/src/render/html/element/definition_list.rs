@@ -29,8 +29,8 @@ pub fn render_definition_list(
 
     ctx.html().dl().contents(|ctx| {
         for DefinitionListItem { key, value } in items {
-            ctx.html().dt().inner(log, key);
-            ctx.html().dd().inner(log, value);
+            ctx.html().dt().inner(key);
+            ctx.html().dd().inner(value);
         }
     });
 }

@@ -33,7 +33,7 @@ where
 
         info!("Testing {filter_name} substitution");
 
-        substitute(&log, &mut string);
+        substitute(&&mut string);
 
         assert_eq!(
             &string, expected,
@@ -78,7 +78,7 @@ const PREFILTER_TEST_CASES: [(&str, &str); 10] = [
 fn prefilter() {
     test_substitution(
         "prefilter",
-        |log, text| preprocess(log, text),
+        |text| preprocess(text),
         &PREFILTER_TEST_CASES,
     );
 }
@@ -86,9 +86,7 @@ fn prefilter() {
 proptest! {
     #[test]
     fn prefilter_prop(mut s in ".*") {
-        let log = crate::build_logger();
-
-        crate::preprocess(&log, &mut s);
+        crate::preprocess(&mut s);
 
         const INVALID_SUBSTRINGS: [&str; 7] = [
             "...",

@@ -54,7 +54,7 @@ impl Rule {
         self,
         parser: &'p mut Parser<'r, 't>,
     ) -> ParseResult<'r, 't, Elements<'t>> {
-        info!(log, "Trying to consume for parse rule {}", self.name);
+        info!("Trying to consume for parse rule {}", self.name);
 
         // Check that the line position matches what the rule wants.
         match self.position {

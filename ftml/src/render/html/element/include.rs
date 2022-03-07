@@ -30,7 +30,7 @@ pub fn render_include(
 ) {
     info!("Rendering include (location {location:?})");
     ctx.variables_mut().push_scope(variables);
-    render_elements(log, ctx, elements);
+    render_elements(ctx, elements);
     ctx.variables_mut().pop_scope();
 }
 

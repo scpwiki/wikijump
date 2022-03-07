@@ -48,14 +48,14 @@ pub fn render_image(
 
     let source_url = ctx
         .handle()
-        .get_image_link(log, source, ctx.info(), ctx.settings());
+        .get_image_link(source, ctx.info(), ctx.settings());
 
     match source_url {
         // Found URL
-        Some(url) => render_image_element(log, ctx, &url, link, alignment, attributes),
+        Some(url) => render_image_element(ctx, &url, link, alignment, attributes),
 
         // Missing or error
-        None => render_image_missing(log, ctx),
+        None => render_image_missing(ctx),
     }
 }
 
@@ -111,5 +111,5 @@ fn render_image_missing(ctx: &mut HtmlContext) {
     ctx.html()
         .div()
         .attr(attr!("class" => "wj-error-block"))
-        .inner(log, message);
+        .inner(message);
 }

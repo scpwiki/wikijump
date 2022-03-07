@@ -185,8 +185,7 @@ impl Token {
                 // Return all of the input as one big raw text
                 // and log this as an error, since it shouldn't be happening
 
-                crit!("Error while lexing input in pest: {error}");
-
+                error!("Error while lexing input in pest: {error}");
                 vec![ExtractedToken {
                     token: Token::Other,
                     slice: text,

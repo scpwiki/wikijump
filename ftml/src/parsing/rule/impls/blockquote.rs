@@ -65,7 +65,6 @@ fn try_consume_fn<'p, 'r, 't>(
         // Parse elements until we hit the end of the line
         let mut paragraph_safe = true;
         let mut elements = collect_consume(
-            log,
             parser,
             RULE_BLOCKQUOTE,
             &[
@@ -98,7 +97,7 @@ fn try_consume_fn<'p, 'r, 't>(
     let depth_lists = process_depths((), depths);
     let elements: Vec<Element> = depth_lists
         .into_iter()
-        .map(|(_, depth_list)| build_blockquote_element(log, depth_list))
+        .map(|(_, depth_list)| build_blockquote_element(depth_list))
         .collect();
 
     ok!(false; elements, exceptions)

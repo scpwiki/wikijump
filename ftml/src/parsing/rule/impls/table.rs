@@ -72,7 +72,7 @@ fn try_consume_fn<'p, 'r, 't>(
 
         // Loop for each cell in the row
         'row: loop {
-            info!(log, "Parsing next table cell"; "cells" => cells.len());
+            info!("Parsing next table cell"; "cells" => cells.len());
 
             let mut elements = Vec::new();
             let TableCellStart {
@@ -168,7 +168,7 @@ fn try_consume_fn<'p, 'r, 't>(
                     _ => {
                         debug!("Consuming cell contents as elements");
 
-                        let new_elements = consume(log, parser)?
+                        let new_elements = consume(parser)?
                             .chain(&mut exceptions, &mut _paragraph_break);
 
                         elements.extend(new_elements);

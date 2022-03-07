@@ -45,7 +45,7 @@ fn try_consume_fn<'p, 'r, 't>(
         match token {
             // Hit the end of the comment, return
             Token::RightComment => {
-                debug!(log, "Reached end of comment, returning");
+                debug!("Reached end of comment, returning");
                 parser.step()?;
                 return ok!(Elements::None);
             }

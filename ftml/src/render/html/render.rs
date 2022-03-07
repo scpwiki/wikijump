@@ -58,20 +58,20 @@ impl ItemRender for &'_ String {
 impl ItemRender for &'_ Element<'_> {
     #[inline]
     fn render(&self, ctx: &mut HtmlContext) {
-        render_element(log, ctx, self)
+        render_element(ctx, self)
     }
 }
 
 impl ItemRender for &'_ [Element<'_>] {
     #[inline]
     fn render(&self, ctx: &mut HtmlContext) {
-        render_elements(log, ctx, self)
+        render_elements(ctx, self)
     }
 }
 
 impl ItemRender for &'_ Vec<Element<'_>> {
     #[inline]
     fn render(&self, ctx: &mut HtmlContext) {
-        render_elements(log, ctx, self)
+        render_elements(ctx, self)
     }
 }

@@ -67,11 +67,10 @@ fn wrap() {
     use crate::data::PageInfo;
     use crate::settings::{WikitextMode, WikitextSettings};
 
-    let log = &crate::build_logger();
     let page_info = PageInfo::dummy();
     let settings = WikitextSettings::from_mode(WikitextMode::Page);
-    let tokens = crate::tokenize(log, "Test input");
-    let mut parser = Parser::new(log, &tokens, &page_info, &settings);
+    let tokens = crate::tokenize("Test input");
+    let mut parser = Parser::new(&tokens, &page_info, &settings);
 
     assert_eq!(
         parser.accepts_partial(),

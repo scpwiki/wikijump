@@ -45,14 +45,14 @@ fn block_regular<'r, 't>(
     parser: &mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     info!("Trying to process a block");
-    parse_block(log, parser, false)
+    parse_block(parser, false)
 }
 
 fn block_star<'r, 't>(
     parser: &mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     info!("Trying to process a block (with star flag)");
-    parse_block(log, parser, true)
+    parse_block(parser, true)
 }
 
 fn block_skip<'r, 't>(
@@ -79,11 +79,7 @@ fn block_skip<'r, 't>(
     });
 
     if result {
-        info!(
-            log,
-            "Skipping newline due to upcoming line-terminated block",
-        );
-
+        info!("Skipping newline due to upcoming line-terminated block");
         ok!(Elements::None)
     } else {
         Err(parser.make_warn(ParseWarningKind::RuleFailed))
@@ -145,5 +141,5 @@ where
     // This is responsible for parsing any arguments,
     // and terminating the block (the ']]' token),
     // then processing the body (if any) and tail block.
-    (block.parse_fn)(log, parser, name, flag_star, flag_score, in_head)
+    (block.parse_fn)(parser, name, flag_star, flag_score, in_head)
 }

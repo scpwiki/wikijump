@@ -217,11 +217,11 @@ impl Test<'_> {
                 .void_unwrap();
 
         crate::preprocess(&mut text);
-        let tokens = crate::tokenize(log, &text);
-        let result = crate::parse(log, &tokens, &page_info, &settings);
+        let tokens = crate::tokenize(&text);
+        let result = crate::parse(&tokens, &page_info, &settings);
         let (tree, warnings) = result.into();
-        let html_output = HtmlRender.render(log, &tree, &page_info, &settings);
-        let text_output = TextRender.render(log, &tree, &page_info, &settings);
+        let html_output = HtmlRender.render(&tree, &page_info, &settings);
+        let text_output = TextRender.render(&tree, &page_info, &settings);
 
         fn json<T>(object: &T) -> String
         where

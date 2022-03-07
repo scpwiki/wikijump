@@ -53,10 +53,10 @@ fn render<R: Render>(
 
     // TODO includer
 
-    crate::preprocess(log, &mut text);
-    let tokens = crate::tokenize(log, &text);
-    let (tree, warnings) = crate::parse(log, &tokens, &page_info, &settings).into();
-    let output = renderer.render(log, &tree, &page_info, &settings);
+    crate::preprocess(&mut text);
+    let tokens = crate::tokenize(&text);
+    let (tree, warnings) = crate::parse(&tokens, &page_info, &settings).into();
+    let output = renderer.render(&tree, &page_info, &settings);
     (output, warnings)
 }
 

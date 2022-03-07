@@ -53,12 +53,12 @@ pub fn consume<'p, 'r, 't>(
     let current = parser.current();
 
     for &rule in get_rules_for_token(current) {
-        debug!("Trying rule consumption for tokens (rule {})", rle);
+        debug!("Trying rule consumption for tokens (rule {})");
 
         let old_remaining = parser.remaining();
         match rule.try_consume(parser) {
             Ok(output) => {
-                info!("Rule {} matched, returning generated result", rle);
+                info!("Rule {} matched, returning generated result");
 
                 // If the pointer hasn't moved, we step one token.
                 if parser.same_pointer(old_remaining) {
@@ -78,29 +78,24 @@ pub fn consume<'p, 'r, 't>(
                 return Ok(output);
             }
             Err(warning) => {
-                warn!(
-                    log,
-                    "Rule failed, returning warning";
-                    "warning" => warning.kind().name(),
-                );
-
+                warn!("Rule failed, returning warning: '{}'", warning.kind().name());
                 all_exceptions.push(ParseException::Warning(warning));
             }
         }
     }
 
-    warn!(log, "All rules exhausted, using generic text fallback");
+    warn!("All rules exhausted, using generic text fallback");
     let element = text!(current.slice);
     parser.step()?;
 
     // We should only carry styles over from *successful* consumptions
-    debug!(log, "Removing non-warnings from exceptions list");
+    debug!("Removing non-warnings from exceptions list");
     all_exceptions.retain(|exception| matches!(exception, ParseException::Warning(_)));
 
     // If we've hit the recursion limit, just bail
     if let Some(ParseException::Warning(warning)) = all_exceptions.last() {
         if warning.kind() == ParseWarningKind::RecursionDepthExceeded {
-            error!(log, "Found recursion depth error, failing");
+            error!("Found recursion depth error, failing");
             return Err(warning.clone());
         }
     }

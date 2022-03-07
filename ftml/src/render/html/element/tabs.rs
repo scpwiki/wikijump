@@ -63,7 +63,7 @@ pub fn render_tabview(ctx: &mut HtmlContext, tabs: &[Tab]) {
                                 "aria-controls" => &tab_ids[i],
                                 "tabindex" => tab_index,
                             ))
-                            .inner(log, &tab.label);
+                            .inner(&tab.label);
                     }
                 });
 
@@ -86,7 +86,7 @@ pub fn render_tabview(ctx: &mut HtmlContext, tabs: &[Tab]) {
                                 "tabindex" => "0",
                                 "hidden"; if i > 0,
                             ))
-                            .inner(log, &tab.elements);
+                            .inner(&tab.elements);
                     }
                 });
         });

@@ -32,7 +32,6 @@ fn try_consume_fn<'p, 'r, 't>(
     info!("Trying to create superscript container");
     check_step(parser, Token::Superscript)?;
     collect_container(
-        log,
         parser,
         RULE_SUPERSCRIPT,
         ContainerType::Superscript,

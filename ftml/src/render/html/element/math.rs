@@ -49,7 +49,6 @@ pub fn render_math_block(
     let index = ctx.next_equation_index();
 
     render_latex(
-        log,
         ctx,
         name,
         Some(index),
@@ -60,7 +59,7 @@ pub fn render_math_block(
 
 pub fn render_math_inline(ctx: &mut HtmlContext, latex_source: &str) {
     info!("Rendering math inline (source '{latex_source}'");
-    render_latex(log, ctx, None, None, latex_source, DisplayStyle::Inline);
+    render_latex(ctx, None, None, latex_source, DisplayStyle::Inline);
 }
 
 fn render_latex(
@@ -96,7 +95,7 @@ fn render_latex(
                             .attr(attr!(
                                 "class" => "wj-equation-paren wj-equation-paren-open",
                             ))
-                            .inner(log, "(");
+                            .inner("(");
 
                         str_write!(ctx, "{index}");
 
@@ -106,7 +105,7 @@ fn render_latex(
                             .attr(attr!(
                                 "class" => "wj-equation-paren wj-equation-paren-close",
                             ))
-                            .inner(log, ")");
+                            .inner(")");
                     });
             }
 
@@ -118,42 +117,29 @@ fn render_latex(
                     "class" => "wj-math-source wj-hidden",
                     "aria-hidden" => "true",
                 ))
-                .inner(log, latex_source);
+                .inner(latex_source);
 
             // Add generated MathML
             cfg_if! {
                 if #[cfg(feature = "mathml")] {
                     match latex_to_mathml(latex_source, display) {
                         Ok(mathml) => {
-                            info!(
-                                log,
-                                "Processed LaTeX -> MathML";
-                                "display" => str!(display),
-                                "mathml" => &mathml,
-                            );
+                            info!("Processed LaTeX -> MathML");
 
                             // Inject MathML elements
                             ctx.html()
                                 .element("wj-math-ml")
-                                .attr(attr!(
-                                    "class" => "wj-math-ml",
-                                ))
+                                .attr(attr!("class" => "wj-math-ml"))
                                 .contents(|ctx| ctx.push_raw_str(&mathml));
                         }
                         Err(error) => {
-                            warn!(
-                                log,
-                                "Error processing LaTeX -> MathML";
-                                "display" => str!(display),
-                                "error" => str!(error),
-                            );
-
+                            warn!("Error processing LaTeX -> MathML: {error}");
                             let error = str!(error);
 
                             ctx.html()
                                 .span()
                                 .attr(attr!("class" => _error_type))
-                                .inner(log, error);
+                                .inner(error);
                         }
                     }
                 }
@@ -176,7 +162,7 @@ pub fn render_equation_reference(ctx: &mut HtmlContext, name: &str) {
                     "type" => "button",
                     "data-name" => name,
                 ))
-                .inner(log, name);
+                .inner(name);
 
             // Tooltip shown on hover.
             ctx.html().span().attr(attr!(

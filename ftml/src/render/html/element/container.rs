@@ -50,7 +50,7 @@ pub fn render_container(ctx: &mut HtmlContext, container: &Container) {
     };
 
     // Add container internals
-    tag.inner(log, container.elements());
+    tag.inner(container.elements());
 }
 
 pub fn render_color(
@@ -65,7 +65,7 @@ pub fn render_color(
         .attr(attr!(
             "style" => "color: " color ";",
         ))
-        .inner(log, elements);
+        .inner(elements);
 }
 
 fn choose_id(ctx: &mut HtmlContext, tag_spec: &HtmlTag) -> Option<String> {

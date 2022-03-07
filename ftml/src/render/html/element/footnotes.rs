@@ -21,7 +21,7 @@
 use super::prelude::*;
 
 pub fn render_footnote(ctx: &mut HtmlContext) {
-    info!(log, "Rendering footnote reference");
+    info!("Rendering footnote reference");
 
     let index = ctx.next_footnote_index();
     let id = str!(index);
@@ -47,7 +47,7 @@ pub fn render_footnote(ctx: &mut HtmlContext) {
                     "aria-label" => &label,
                     "data-id" => &id,
                 ))
-                .inner(log, &id);
+                .inner(&id);
 
             // Tooltip shown on hover.
             // Is aria-hidden due to difficulty in getting a simultaneous
@@ -64,24 +64,19 @@ pub fn render_footnote(ctx: &mut HtmlContext) {
                     ctx.html()
                         .span()
                         .attr(attr!("class" => "wj-footnote-ref-tooltip-label"))
-                        .inner(log, &label);
+                        .inner(&label);
 
                     // Actual tooltip contents
                     ctx.html()
                         .span()
                         .attr(attr!("class" => "wj-footnote-ref-contents"))
-                        .inner(log, contents);
+                        .inner(contents);
                 });
         });
 }
 
 pub fn render_footnote_block(ctx: &mut HtmlContext, title: Option<&str>) {
-    info!(
-        log,
-        "Rendering footnote block";
-        "title" => title.unwrap_or("<default>"),
-    );
-
+    info!("Rendering footnote block (title {})", title.unwrap_or("<default>"));
     let title_default;
     let title: &str = match title {
         Some(title) => title,
@@ -98,7 +93,7 @@ pub fn render_footnote_block(ctx: &mut HtmlContext, title: Option<&str>) {
             ctx.html()
                 .div()
                 .attr(attr!("class" => "wj-title"))
-                .inner(log, title);
+                .inner(title);
 
             ctx.html().ol().contents(|ctx| {
                 // TODO make this into a footnote helper method
@@ -129,14 +124,14 @@ pub fn render_footnote_block(ctx: &mut HtmlContext, title: Option<&str>) {
                                     ctx.html()
                                         .span()
                                         .attr(attr!("class" => "wj-footnote-sep"))
-                                        .inner(log, ".");
+                                        .inner(".");
                                 });
 
                             // Footnote contents
                             ctx.html()
                                 .span()
                                 .attr(attr!("class" => "wj-footnote-list-item-contents"))
-                                .inner(log, contents);
+                                .inner(contents);
                         });
                 }
             });

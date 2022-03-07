@@ -114,7 +114,7 @@ impl Handle {
                 LinkLocation::Page(page_ref) => page_ref.page(),
             },
             LinkLabel::Page => {
-                page_title = self.get_page_title(log, link);
+                page_title = self.get_page_title(link);
                 &page_title
             }
         };
@@ -127,7 +127,7 @@ impl Handle {
         language: &str,
         message: &str,
     ) -> &'static str {
-        info!("Fetching message (language {language}, message {message})");
+        info!("Fetching message (language {language}, key {message})");
 
         let _ = language;
 
@@ -141,12 +141,7 @@ impl Handle {
             "footnote-block-title" => "Footnotes",
             "image-context-bad" => "No images in this context",
             _ => {
-                info!(
-                    log,
-                    "Unknown message requested";
-                    "message" => message,
-                );
-
+                error!("Unknown message requested (key {message])");
                 "?"
             }
         }

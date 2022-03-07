@@ -148,7 +148,6 @@ fn parse_table<'r, 't>(
         attributes,
         exceptions,
     } = parse_block(
-        log,
         parser,
         name,
         flag_star,
@@ -182,7 +181,6 @@ fn parse_row<'r, 't>(
         attributes,
         exceptions,
     } = parse_block(
-        log,
         parser,
         name,
         flag_star,
@@ -216,7 +214,6 @@ fn parse_cell_regular<'r, 't>(
         attributes,
         exceptions,
     } = parse_block(
-        log,
         parser,
         name,
         flag_star,
@@ -243,7 +240,6 @@ fn parse_cell_header<'r, 't>(
         attributes,
         exceptions,
     } = parse_block(
-        log,
         parser,
         name,
         flag_star,

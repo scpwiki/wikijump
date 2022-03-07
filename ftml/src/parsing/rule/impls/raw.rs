@@ -136,27 +136,25 @@ fn try_consume_fn<'p, 'r, 't>(
                 if *token == ending_token {
                     trace!("Reached end of raw, returning");
 
-                    let slice = parser.full_text().slice_partial(log, start, end);
+                    let slice = parser.full_text().slice_partial(start, end);
                     parser.step()?;
 
                     let element = Element::Raw(cow!(slice));
                     return ok!(element);
                 }
 
-                trace!(log, "Wasn't end of raw, continuing");
+                trace!("Wasn't end of raw, continuing");
             }
 
             // Hit a newline, abort
             Token::LineBreak | Token::ParagraphBreak => {
-                trace!(log, "Reached newline, aborting");
-
+                trace!("Reached newline, aborting");
                 return Err(parser.make_warn(ParseWarningKind::RuleFailed));
             }
 
             // Hit the end of the input, abort
             Token::InputEnd => {
                 trace!("Reached end of input, aborting");
-
                 return Err(parser.make_warn(ParseWarningKind::EndOfInput));
             }
 

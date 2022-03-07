@@ -104,7 +104,6 @@ fn try_consume_fn<'p, 'r, 't>(
 
         // Parse elements until we hit the end of the line
         let elements = collect_consume(
-            log,
             parser,
             RULE_LIST,
             &[

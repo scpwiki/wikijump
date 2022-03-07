@@ -63,7 +63,7 @@ where
     parser.set_rule(rule);
 
     // Create paragraph stack
-    let mut stack = ParagraphStack::new(log);
+    let mut stack = ParagraphStack::new();
 
     loop {
         let (elements, mut exceptions, paragraph_safe) = match parser.current().token {
@@ -74,15 +74,13 @@ where
                     //
                     // Pass a warning up the chain
 
-                    warn!(log, "Hit the end of input, producing warning");
-
+                    warn!("Hit the end of input, producing warning");
                     return Err(parser.make_warn(ParseWarningKind::EndOfInput));
                 } else {
                     // Avoid an unnecessary Element::Null and just exit
                     // If there's no close condition, then this is not a warning
 
-                    warn!(log, "Hit the end of input, terminating token iteration");
-
+                    warn!("Hit the end of input, terminating token iteration");
                     break;
                 }
             }
@@ -105,11 +103,7 @@ where
             _ => {
                 if let Some(ref mut close_condition_fn) = close_condition_fn {
                     if close_condition_fn(parser).unwrap_or(false) {
-                        info!(
-                            log,
-                            "Hit closing condition for paragraphs, terminating token iteration",
-                        );
-
+                        info!("Hit closing condition for paragraphs, terminating token iteration");
                         break;
                     }
                 }

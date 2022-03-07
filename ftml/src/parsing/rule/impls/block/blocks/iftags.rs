@@ -55,19 +55,18 @@ fn parse_fn<'r, 't>(
         parser.get_body_elements(&BLOCK_IFTAGS, false)?.into();
 
     debug!(
-        log,
-        "IfTags conditions parsed";
-        "conditions" => format!("{:#?}", conditions),
-        "elements-len" => elements.len(),
+        "IfTags conditions parsed (conditions length {}, elements length {})",
+        conditions.len(),
+        elements.len(),
     );
 
     // Return elements based on condition
-    let elements = if check_iftags(log, parser.page_info(), &conditions) {
-        debug!(log, "Conditions passed, including elements");
+    let elements = if check_iftags(parser.page_info(), &conditions) {
+        debug!("Conditions passed, including elements");
 
         Elements::Multiple(elements)
     } else {
-        debug!(log, "Conditions failed, excluding elements");
+        debug!("Conditions failed, excluding elements");
 
         // Filter out non-warning exceptions
         exceptions.retain(|ex| matches!(ex, ParseException::Warning(_)));

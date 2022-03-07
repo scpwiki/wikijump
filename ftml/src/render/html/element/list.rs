@@ -41,10 +41,10 @@ pub fn render_list(
                     ctx.html()
                         .li()
                         .attr(attr!(;; attributes))
-                        .inner(log, elements);
+                        .inner(elements);
                 }
                 ListItem::SubList { element } => {
-                    render_element(log, ctx, element);
+                    render_element(ctx, element);
                 }
             }
         }

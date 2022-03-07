@@ -63,10 +63,7 @@ where
     'r: 't,
 {
     // Log collect_text() call
-    info!(
-        log,
-        "Trying to consume tokens to merge into a single string",
-    );
+    info!("Trying to consume tokens to merge into a single string");
 
     let (start, mut end) = (parser.current(), None);
 
@@ -79,8 +76,8 @@ where
         close_conditions,
         invalid_conditions,
         warn_kind,
-        |log, parser| {
-            debug!(log, "Ingesting token in string span");
+        |parser| {
+            debug!("Ingesting token in string span");
 
             end = Some(parser.current());
             ok!(true; ())
@@ -95,7 +92,7 @@ where
 
     let slice = match (start, end) {
         // We have a token span, use to get string slice
-        (start, Some(end)) => parser.full_text().slice(log, start, end),
+        (start, Some(end)) => parser.full_text().slice(start, end),
 
         // Empty list of tokens, resultant slice must be empty
         (_, None) => "",

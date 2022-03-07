@@ -69,7 +69,7 @@ pub fn render_link(
     ));
 
     // Add <a> internals, i.e. the link name
-    handle.get_link_label(log, link, label, |label| {
-        tag.inner(log, label);
+    handle.get_link_label(link, label, |label| {
+        tag.inner(label);
     });
 }

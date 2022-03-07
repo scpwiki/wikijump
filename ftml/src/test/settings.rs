@@ -32,19 +32,18 @@ fn settings() {
         WikitextMode::List,
     ];
 
-    let log = &crate::build_logger();
     let page_info = PageInfo::dummy();
 
     macro_rules! check_individual {
         ($mode:expr, $input:expr, $substring:expr, $contains:expr) => {{
             let settings = WikitextSettings::from_mode($mode);
             let mut text = str!($input);
-            crate::preprocess(log, &mut text);
+            crate::preprocess(&mut text);
 
-            let tokens = crate::tokenize(log, &text);
-            let result = crate::parse(log, &tokens, &page_info, &settings);
+            let tokens = crate::tokenize(&text);
+            let result = crate::parse(&tokens, &page_info, &settings);
             let (tree, _warnings) = result.into();
-            let html_output = HtmlRender.render(log, &tree, &page_info, &settings);
+            let html_output = HtmlRender.render(&tree, &page_info, &settings);
 
             println!();
             println!("Input:  {:?}", $input);

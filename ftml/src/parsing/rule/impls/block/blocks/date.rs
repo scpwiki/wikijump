@@ -50,12 +50,12 @@ fn parse_fn<'r, 't>(
     let hover = arguments.get_bool(parser, "hover")?.unwrap_or(true);
 
     // Parse out timestamp given by user
-    let mut date = parse_date(log, value)
+    let mut date = parse_date(value)
         .map_err(|_| parser.make_warn(ParseWarningKind::BlockMalformedArguments))?;
 
     if let Some(arg) = arg_timezone {
         // Parse out argument timezone
-        let offset = parse_timezone(log, &arg)
+        let offset = parse_timezone(&arg)
             .map_err(|_| parser.make_warn(ParseWarningKind::BlockMalformedArguments))?;
 
         // Add timezone. If None, then conflicting timezones.
@@ -63,10 +63,9 @@ fn parse_fn<'r, 't>(
             Some(date) => date,
             None => {
                 warn!(
-                    log,
-                    "Date block has two specified timezones";
-                    "argument-timezone" => arg.as_ref(),
-                    "parsed-timezone" => str!(offset),
+                    "Date block has two specified timezones (argument {}, parsed {})",
+                    arg.as_ref(),
+                    offset,
                 );
 
                 return Err(parser.make_warn(ParseWarningKind::BlockMalformedArguments));
@@ -92,14 +91,14 @@ fn parse_date(value: &str) -> Result<Date, DateParseError> {
 
     // Special case, current time
     if value.eq_ignore_ascii_case("now") || value == "." {
-        debug!(log, "Was now");
+        debug!("Was now");
 
         return Ok(now());
     }
 
     // Try UNIX timestamp (e.g. 1398763929)
     if let Ok(timestamp) = value.parse::<i64>() {
-        debug!(log, "Was UNIX timestamp"; "timestamp" => timestamp);
+        debug!("Was UNIX timestamp"; "timestamp" => timestamp);
 
         let date = NaiveDateTime::from_timestamp(timestamp, 0);
 
@@ -113,44 +112,24 @@ fn parse_date(value: &str) -> Result<Date, DateParseError> {
     }
 
     if let Ok(date) = NaiveDate::parse_from_str(value, "%Y/%m/%d") {
-        debug!(
-            log,
-            "Was ISO 8601 date string (slashes)";
-            "result" => str!(date),
-        );
-
+        debug!("Was ISO 8601 date string (slashes), result '{date}'");
         return Ok(date.into());
     }
 
     // Try datetime strings
     if let Ok(datetime) = NaiveDateTime::parse_from_str(value, "%FT%T") {
-        debug!(
-            log,
-            "Was ISO 8601 datetime string (dashes)";
-            "result" => str!(datetime),
-        );
-
+        debug!("Was ISO 8601 datetime string (dashes), result '{datetime}'");
         return Ok(datetime.into());
     }
 
     if let Ok(datetime) = NaiveDateTime::parse_from_str(value, "%Y/%m/%dT%T") {
-        debug!(
-            log,
-            "Was ISO 8601 datetime string (slashes)";
-            "result" => str!(datetime),
-        );
-
+        debug!("Was ISO 8601 datetime string (slashes), result '{datetime}'");
         return Ok(datetime.into());
     }
 
     // Try full RFC 3339 (stricter form of ISO 8601)
     if let Ok(datetime_tz) = DateTime::parse_from_rfc3339(value) {
-        debug!(
-            log,
-            "Was RFC 3339 datetime string";
-            "result" => str!(datetime_tz),
-        );
-
+        debug!("Was RFC 3339 datetime string, result '{datetime_tz}'");
         return Ok(datetime_tz.into());
     }
 
@@ -244,11 +223,9 @@ fn date() {
         (timestamp1 - timestamp2).abs() < 5
     }
 
-    let log = crate::build_logger();
-
     macro_rules! check_ok {
         ($input:expr, $date:expr $(,)?) => {{
-            let actual = parse_date(&log, $input).expect("Datetime parse didn't succeed");
+            let actual = parse_date($input).expect("Datetime parse didn't succeed");
             let expected = $date.into();
 
             if !dates_equal(actual, expected) {
@@ -263,8 +240,7 @@ fn date() {
 
     macro_rules! check_err {
         ($input:expr $(,)?) => {{
-            parse_date(&log, $input)
-                .expect_err("Error case for datetime parse succeeded");
+            parse_date($input).expect_err("Error case for datetime parse succeeded");
         }};
     }
 
@@ -311,12 +287,10 @@ fn date() {
 
 #[test]
 fn timezone() {
-    let log = crate::build_logger();
-
     macro_rules! check_ok {
         ($input:expr, $offset:expr) => {{
             let actual =
-                parse_timezone(&log, $input).expect("Timezone parse didn't succeed");
+                parse_timezone(&$input).expect("Timezone parse didn't succeed");
 
             assert_eq!(
                 actual,
@@ -328,7 +302,7 @@ fn timezone() {
 
     macro_rules! check_err {
         ($input:expr) => {{
-            parse_timezone(&log, $input)
+            parse_timezone($input)
                 .expect_err("Error case for timezone parse succeeded");
         }};
     }

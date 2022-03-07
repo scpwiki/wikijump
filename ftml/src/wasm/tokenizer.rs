@@ -96,8 +96,7 @@ impl Tokenization {
 
 #[wasm_bindgen]
 pub fn tokenize(text: String) -> Tokenization {
-    let log = &*LOGGER;
-    let inner = TokenizationInner::new(text, |text: &String| crate::tokenize(&log, text));
+    let inner = TokenizationInner::new(text, |text: &String| crate::tokenize(text));
 
     Tokenization {
         inner: Arc::new(inner),

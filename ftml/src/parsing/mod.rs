@@ -89,12 +89,12 @@ where
         table_of_contents_depths,
         footnotes,
         has_footnote_block,
-    } = parse_internal(log, page_info, settings, tokenization);
+    } = parse_internal(page_info, settings, tokenization);
 
     // For producing table of contents indexes
     let mut incrementer = Incrementer(0);
 
-    info!(log, "Finished paragraph gathering, matching on consumption");
+    info!("Finished paragraph gathering, matching on consumption");
     match result {
         Ok(ParseSuccess {
             item: mut elements,
@@ -123,7 +123,7 @@ where
             // Add a footnote block at the end,
             // if the user doesn't have one already
             if !has_footnote_block {
-                info!(log, "No footnote block in elements, appending one");
+                info!("No footnote block in elements, appending one");
 
                 elements.push(Element::FootnoteBlock {
                     title: None,
@@ -145,11 +145,7 @@ where
             // If this happens, then just return the input source as the output
             // and the warning.
 
-            crit!(
-                "Fatal error occurred at highest-level parsing: {:#?}",
-                warning,
-            );
-
+            error!("Fatal error occurred at highest-level parsing: {warning:#?}");
             let wikitext = tokenization.full_text().inner();
             let elements = vec![text!(wikitext)];
             let warnings = vec![warning];
@@ -177,7 +173,7 @@ pub fn parse_internal<'r, 't>(
 where
     'r: 't,
 {
-    let mut parser = Parser::new(log, tokenization, page_info, settings);
+    let mut parser = Parser::new(tokenization, page_info, settings);
 
     // At the top level, we gather elements into paragraphs
     info!("Running parser on tokens");

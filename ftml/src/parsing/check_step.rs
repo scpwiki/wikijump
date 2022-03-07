@@ -48,11 +48,10 @@ fn check_step_fail() {
     use crate::data::PageInfo;
     use crate::settings::{WikitextMode, WikitextSettings};
 
-    let log = crate::build_logger();
     let page_info = PageInfo::dummy();
     let settings = WikitextSettings::from_mode(WikitextMode::Page);
-    let tokenization = crate::tokenize(&log, "**Apple** banana");
-    let mut parser = Parser::new(&log, &tokenization, &page_info, &settings);
+    let tokenization = crate::tokenize("**Apple** banana");
+    let mut parser = Parser::new(&tokenization, &page_info, &settings);
 
     let _ = check_step(&mut parser, Token::Italics);
 }

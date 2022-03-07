@@ -28,7 +28,7 @@ pub fn render_wikitext_raw(ctx: &mut HtmlContext, text: &str) {
         .attr(attr!(
             "class" => "wj-raw",
         ))
-        .inner(log, text);
+        .inner(text);
 }
 
 pub fn render_email(ctx: &mut HtmlContext, email: &str) {
@@ -42,7 +42,7 @@ pub fn render_email(ctx: &mut HtmlContext, email: &str) {
         .attr(attr!(
             "class" => "wj-email",
         ))
-        .inner(log, email);
+        .inner(email);
 }
 
 pub fn render_code(
@@ -52,7 +52,7 @@ pub fn render_code(
 ) {
     info!("Rendering code block (language {})", language.unwrap_or("<none>"));
     let index = ctx.next_code_snippet_index();
-    ctx.handle().post_code(log, index, contents);
+    ctx.handle().post_code(index, contents);
 
     let class = {
         let mut class = format!("wj-code wj-language-{}", language.unwrap_or("none"));
@@ -72,7 +72,6 @@ pub fn render_code(
                 ))
                 .contents(|ctx| {
                     let button_title = ctx.handle().get_message(
-                        log,
                         ctx.language(),
                         "button-copy-clipboard",
                     );
@@ -97,12 +96,12 @@ pub fn render_code(
                         .attr(attr!(
                             "class" => "wj-code-language",
                         ))
-                        .inner(log, language.unwrap_or(""));
+                        .inner(language.unwrap_or(""));
                 });
 
             // Code block containing highlighted contents
             ctx.html().pre().contents(|ctx| {
-                ctx.html().code().inner(log, contents);
+                ctx.html().code().inner(contents);
             });
         });
 }

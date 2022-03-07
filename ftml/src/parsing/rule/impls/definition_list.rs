@@ -61,7 +61,7 @@ fn parse_definition_list<'p, 'r, 't>(
 
     // Definition list needs at least one item
     let (item, at_end) =
-        parse_item(log, parser)?.chain(&mut exceptions, &mut _paragraph_safe);
+        parse_item(parser)?.chain(&mut exceptions, &mut _paragraph_safe);
 
     items.push(item);
 
@@ -70,9 +70,9 @@ fn parse_definition_list<'p, 'r, 't>(
         loop {
             let sub_parser = &mut parser.clone();
 
-            match parse_item(log, sub_parser) {
+            match parse_item(sub_parser) {
                 Ok(success) => {
-                    debug!(log, "Retrieved definition list item");
+                    debug!("Retrieved definition list item");
 
                     let (item, at_end) =
                         success.chain(&mut exceptions, &mut _paragraph_safe);
@@ -99,7 +99,7 @@ fn parse_definition_list<'p, 'r, 't>(
 fn parse_item<'p, 'r, 't>(
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, (DefinitionListItem<'t>, bool)> {
-    debug!(log, "Trying to parse a definition list item pair");
+    debug!("Trying to parse a definition list item pair");
 
     let mut exceptions = Vec::new();
     let mut _paragraph_safe = false;

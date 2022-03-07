@@ -132,14 +132,11 @@ pub fn parse(
     page_info: PageInfo,
     settings: WikitextSettings,
 ) -> Result<ParseOutcome, JsValue> {
-    let log = &*LOGGER;
-
     // Borrow and perform parsing
     let tokenization = tokens.get();
     let page_info = page_info.get();
     let settings = settings.get();
-    let (syntax_tree, warnings) =
-        crate::parse(log, tokenization, page_info, settings).into();
+    let (syntax_tree, warnings) = crate::parse(tokenization, page_info, settings).into();
 
     // Deep-clone AST to make it owned, so it can be
     // safely passed to JS, where it will live for an unknown time.

@@ -37,7 +37,6 @@ fn try_consume_fn<'p, 'r, 't>(
 
     // Gather the color name until the separator
     let color = collect_text(
-        log,
         parser,
         RULE_COLOR,
         &[ParseCondition::current(Token::Pipe)],

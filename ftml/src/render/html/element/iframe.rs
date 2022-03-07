@@ -39,7 +39,7 @@ pub fn render_html(ctx: &mut HtmlContext, contents: &str) {
     info!("Rendering html block (submitting to remote for iframe)");
 
     // Submit HTML to be hosted on wjfiles, then get back its URL for the iframe.
-    let iframe_url = ctx.handle().post_html(log, ctx.info(), contents);
+    let iframe_url = ctx.handle().post_html(ctx.info(), contents);
     ctx.html().iframe().attr(attr!(
         "src" => &iframe_url,
         "crossorigin",

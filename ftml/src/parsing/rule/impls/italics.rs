@@ -32,7 +32,6 @@ fn try_consume_fn<'p, 'r, 't>(
     info!("Trying to create italics (emphasis) container");
     check_step(parser, Token::Italics)?;
     collect_container(
-        log,
         parser,
         RULE_ITALICS,
         ContainerType::Italics,

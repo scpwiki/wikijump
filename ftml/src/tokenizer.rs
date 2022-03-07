@@ -50,7 +50,7 @@ impl<'t> From<Tokenization<'t>> for Vec<ExtractedToken<'t>> {
 pub fn tokenize<'t>(text: &'t str) -> Tokenization<'t> {
     info!("Running lexer on text to produce tokens");
 
-    let tokens = Token::extract_all(log, text);
+    let tokens = Token::extract_all(text);
     let full_text = FullText::new(text);
 
     Tokenization { tokens, full_text }

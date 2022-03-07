@@ -113,12 +113,7 @@ fn parse_footnote_block<'r, 't>(
     let hide = arguments.get_bool(parser, "hide")?.unwrap_or(false);
 
     if !arguments.is_empty() {
-        warn!(
-            log,
-            "Invalid argument keys found";
-            "arguments" => format!("{:#?}", arguments),
-        );
-
+        warn!("Invalid argument keys found");
         return Err(parser.make_warn(ParseWarningKind::BlockMalformedArguments));
     }
 
