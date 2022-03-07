@@ -32,7 +32,7 @@ fn try_consume_fn<'p, 'r, 't>(
     let current = parser.current();
     info!(
         "Consuming token '{}', to create a left/right double angle quote",
-        current.token,
+        current.token.name(),
     );
 
     match current.token {

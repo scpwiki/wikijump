@@ -72,8 +72,7 @@ fn try_consume_fn<'p, 'r, 't>(
 
         // Loop for each cell in the row
         'row: loop {
-            info!("Parsing next table cell"; "cells" => cells.len());
-
+            info!("Parsing next table cell");
             let mut elements = Vec::new();
             let TableCellStart {
                 align,

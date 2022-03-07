@@ -50,7 +50,7 @@ pub fn render_link(
     label: &LinkLabel,
     target: Option<AnchorTarget>,
 ) {
-    info!("Rendering link '{link}'");
+    info!("Rendering link '{link:?}'");
     let handle = ctx.handle();
 
     // Add to backlinks

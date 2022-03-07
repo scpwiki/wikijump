@@ -156,9 +156,8 @@ impl<'r, 't> Parser<'r, 't> {
     }
 
     pub fn depth_increment(&mut self) -> Result<(), ParseWarning> {
-        debug!("Incrementing recursion depth"; "depth" => self.depth);
-
         self.depth += 1;
+        debug!("Incrementing recursion depth to {}", self.depth);
 
         if self.depth > MAX_RECURSION_DEPTH {
             return Err(self.make_warn(ParseWarningKind::RecursionDepthExceeded));
@@ -169,9 +168,8 @@ impl<'r, 't> Parser<'r, 't> {
 
     #[inline]
     pub fn depth_decrement(&mut self) {
-        debug!("Decrementing recursion depth"; "depth" => self.depth);
-
         self.depth -= 1;
+        debug!("Decrementing recursion depth to {}", self.depth);
     }
 
     #[inline]

@@ -100,14 +100,12 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
             ctx.push_str(text)
         }
         Element::Variable(name) => {
-            let value = ctx.variables().get(name);
-            info!("Rendering variable (name '{}', value {})", name.as_ref(), value);
-
-            let value = match value {
+            let value = match ctx.variables().get(name) {
                 Some(value) => str!(value),
                 None => format!("{{${name}}}"),
             };
 
+            info!("Rendering variable (name '{}', value {})", name.as_ref(), value);
             ctx.push_str(&value);
         }
         Element::Table(table) => {
@@ -403,8 +401,8 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
         } => {
             info!(
                 "Rendering include (variables length {}, elements length {})",
-                "variables-len" => variables.len(),
-                "elements-len" => elements.len(),
+                variables.len(),
+                elements.len(),
             );
 
             ctx.variables_mut().push_scope(variables);

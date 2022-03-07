@@ -64,7 +64,11 @@ pub fn substitute(text: &mut String) {
 }
 
 fn str_replace(text: &mut String, pattern: &str, replacement: &str) {
-    debug!("Replacing miscellaneous static string (pattern {pattern}, replacement {replacement})");
+    debug!(
+        "Replacing miscellaneous static string (pattern {}, replacement {})",
+        pattern,
+        replacement,
+    );
 
     while let Some(idx) = text.find(pattern) {
         let range = idx..idx + pattern.len();
@@ -73,7 +77,11 @@ fn str_replace(text: &mut String, pattern: &str, replacement: &str) {
 }
 
 fn regex_replace(text: &mut String, regex: &Regex, replacement: &str) {
-    debug!("Replacing miscellaneous regular expression (pattern {pattern}, replacement {replacement})");
+    debug!(
+        "Replacing miscellaneous regular expression (pattern {}, replacement {})",
+        regex.as_str(),
+        replacement,
+    );
 
     while let Some(mtch) = regex.find(text) {
         let range = mtch.start()..mtch.end();

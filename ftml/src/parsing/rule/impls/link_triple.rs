@@ -70,10 +70,7 @@ fn try_consume_link<'p, 'r, 't>(
     rule: Rule,
     target: Option<AnchorTarget>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    debug!(
-        "Trying to create a triple-bracket link";
-        "target" => target.map(|t| t.name()),
-    );
+    debug!("Trying to create a triple-bracket link");
 
     // Gather path for link
     let (url, last) = collect_text_keep(

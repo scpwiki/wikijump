@@ -61,12 +61,7 @@ fn process_pairs<'t>(
     let page_raw = pairs.next().ok_or(IncludeParseError)?.as_str();
     let page_ref = PageRef::parse(page_raw)?;
 
-    debug!(
-        "Got page for include (site {}, page {})",
-        page_ref.site(),
-        page_ref.page(),
-    );
-
+    debug!("Got page for include {page_ref:?}");
     let mut arguments = HashMap::new();
     let mut var_reference = String::new();
 

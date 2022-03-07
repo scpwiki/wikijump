@@ -206,12 +206,7 @@ impl Token {
 
         // Get matching Token.
         let token = Token::get_from_rule(rule);
-
-        debug!(
-            "Converting pair '{}' into token {}",
-            rule.name(),
-            token.name(),
-        );
+        debug!("Converting pair '{:?}' into token {}", rule, token.name());
 
         ExtractedToken { token, slice, span }
     }

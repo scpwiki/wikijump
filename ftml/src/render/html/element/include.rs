@@ -36,7 +36,11 @@ pub fn render_include(
 
 pub fn render_variable(ctx: &mut HtmlContext, name: &str) {
     let value = ctx.variables().get(name);
-    info!("Rendering variable (name '{name}', value '{value}'");
+    info!(
+        "Rendering variable (name '{}', value '{}'",
+        name,
+        value.unwrap_or("<none>"),
+    );
 
     // Write to a separate buffer since we can't borrow &mut for buffer and & for variables.
     let value = match value {

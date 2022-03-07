@@ -91,10 +91,7 @@ fn try_consume_link<'p, 'r, 't>(
         return Err(parser.make_warn(ParseWarningKind::InvalidUrl));
     }
 
-    debug!(
-        "Retrieved URL for link, now fetching label";
-        "url" => url,
-    );
+    debug!("Retrieved URL '{url}' for link, now fetching label");
 
     // Gather label for link
     let label = collect_text(

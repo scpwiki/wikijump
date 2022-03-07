@@ -98,10 +98,8 @@ fn parse_date(value: &str) -> Result<Date, DateParseError> {
 
     // Try UNIX timestamp (e.g. 1398763929)
     if let Ok(timestamp) = value.parse::<i64>() {
-        debug!("Was UNIX timestamp"; "timestamp" => timestamp);
-
+        debug!("Was UNIX timestamp '{timestamp}'");
         let date = NaiveDateTime::from_timestamp(timestamp, 0);
-
         return Ok(date.into());
     }
 
@@ -178,7 +176,7 @@ fn parse_timezone(value: &str) -> Result<FixedOffset, DateParseError> {
         // Get offset in seconds
         let seconds = sign * (hour * 3600 + minute * 60);
 
-        debug!("Was offset via +HH:MM (sign {sign}, hour {hour}, minute {minute}, offset {offset})");
+        debug!("Was offset via +HH:MM (sign {sign}, hour {hour}, minute {minute})");
         return Ok(FixedOffset::east(seconds));
     }
 

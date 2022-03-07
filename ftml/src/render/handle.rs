@@ -141,7 +141,7 @@ impl Handle {
             "footnote-block-title" => "Footnotes",
             "image-context-bad" => "No images in this context",
             _ => {
-                error!("Unknown message requested (key {message])");
+                error!("Unknown message requested (key {message})");
                 "?"
             }
         }

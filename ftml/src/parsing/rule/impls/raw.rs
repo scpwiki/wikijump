@@ -126,7 +126,7 @@ fn try_consume_fn<'p, 'r, 't>(
             span: _span,
         } = parser.current();
 
-        debug!("Received token '{token}' inside raw");
+        debug!("Received token '{}' inside raw", token.name());
 
         // Check token
         match token {

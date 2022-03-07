@@ -42,8 +42,8 @@ pub fn render_math_block(
 ) {
     info!(
         "Rendering math block (name '{}', source '{}')",
-        "name" => name.unwrap_or("<none>"),
-        "latex-source" => latex_source,
+        name.unwrap_or("<none>"),
+        latex_source,
     );
 
     let index = ctx.next_equation_index();

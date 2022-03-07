@@ -131,7 +131,6 @@ impl<'t> ParagraphStack<'t> {
 
         // Deconstruct stack
         let ParagraphStack {
-            log: _,
             current: _,
             finished: elements,
             exceptions,

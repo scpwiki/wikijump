@@ -34,8 +34,6 @@ fn render<R: Render>(
     c_settings: *const ftml_wikitext_settings,
     renderer: &R,
 ) -> (R::Output, Vec<ParseWarning>) {
-    let log = &get_logger();
-
     // Convert data from C to Rust
     let mut text = unsafe { cstr_to_string(c_text) };
     let page_info = unsafe {

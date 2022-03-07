@@ -85,7 +85,7 @@ fn parse_definition_list<'p, 'r, 't>(
                     }
                 }
                 Err(warn) => {
-                    warn!("Failed to get the next definition list item, ending iteration: {warn}");
+                    warn!("Failed to get the next definition list item, ending iteration: {warn:?}");
                     break;
                 }
             }
@@ -156,7 +156,7 @@ fn parse_item<'p, 'r, 't>(
     let should_break = match last.token {
         Token::ParagraphBreak | Token::InputEnd => true,
         Token::LineBreak => false,
-        _ => panic!("Invalid close token: {}", last.name()),
+        _ => panic!("Invalid close token: {}", last.token.name()),
     };
 
     strip_whitespace(&mut value);
