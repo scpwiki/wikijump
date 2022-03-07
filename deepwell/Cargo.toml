@@ -8,7 +8,7 @@ keywords = ["wikijump", "api", "backend", "wiki"]
 categories = ["asynchronous", "database", "web-programming::http-server"]
 exclude = [".gitignore", ".editorconfig"]
 
-version = "0.5.0"
+version = "0.5.1"
 authors = ["Ammon Smith <ammon.i.smith@gmail.com>"]
 edition = "2021" # this is *not* the same as the current year
 rust-version = "1.56.0"
@@ -23,7 +23,7 @@ crossfire = "0.1"
 cuid = "1"
 dotenv = "0.15"
 fluent = "0.16"
-ftml = { version = "1.12", features = ["mathml"] }
+ftml = { version = "1.13", features = ["mathml"] }
 futures = { version = "0.3", features = ["async-await"], default-features = false }
 governor = "0.4"
 hex = "0.4"
@@ -36,7 +36,6 @@ sea-orm = { version = "0.6", features = ["sqlx-postgres", "runtime-async-std-rus
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sha2 = "0.10"
-slog = "2.7"
 sqlx = "0.5"
 str-macro = "1"
 strum = "0.24"
