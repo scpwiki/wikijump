@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Definitions of methods invoked by different
+//! Definitions of methods invoked by different API routes.
 //!
 //! This module contains functions defining various routes used by the web server,
 //! so that they can be referred to and reused by name.
