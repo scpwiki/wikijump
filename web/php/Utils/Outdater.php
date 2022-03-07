@@ -93,11 +93,11 @@ final class Outdater
                 // and the page when that information would be helpful.
 
                 // NOTE: incoming links only need to be updated
-                $this->updateLinksMissing($page->getSiteId(), $page->getUnixName());
+                $this->updateLinksMissing($page->getSiteId(), $page->slug);
                 $this->recompileIncludedByPage($page);
-                $this->outdatePageTagsCache($page->getUnixName());
-                $this->outdatePageCache($page->getUnixName());
-                $this->handleTemplateChange($page->getUnixName());
+                $this->outdatePageTagsCache($page->slug);
+                $this->outdatePageCache($page->slug);
+                $this->handleTemplateChange($page->slug);
                 break;
             case 'parent_changed':
                 $this->outdatePageCache($page);
@@ -229,7 +229,7 @@ final class Outdater
         if (is_string($page)) {
             $pageName = $page;
         } else {
-            $pageName = $page->getUnixName();
+            $pageName = $page->slug;
         }
 
         $key = 'url..'.$site->getSlug() . '.' . GlobalProperties::$URL_DOMAIN . '/'.$pageName;
@@ -281,7 +281,7 @@ final class Outdater
     {
         // get default cat
         $site = $GLOBALS['site'];
-        $pUnixName = $page->getUnixName();
+        $pUnixName = $page->slug;
         $dcat = Category::findSlug($site->getSiteId(), '_default');
 
         $q = "SELECT unix_name FROM page WHERE category_id IN ( " .
@@ -490,7 +490,7 @@ final class Outdater
                 $category = Category::findSlug($site->getSiteId(), $categoryName);
                 $this->recompileCategory($category);
             }
-        } elseif (preg_match('/_template$/', $page->getUnixName())) {
+        } elseif (preg_match('/_template$/', $page->slug)) {
             $category = $page->getCategory();
             $this->recompileCategory($category);
         }

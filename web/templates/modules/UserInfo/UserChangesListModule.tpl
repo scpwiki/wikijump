@@ -15,7 +15,7 @@
 						<a href="{$HTTP_SCHEMA}://{$site->getDomain()}">{$site->getName()|escape}</a>
 					</td>
 					<td class="title">
-						<a href="{$HTTP_SCHEMA}://{$site->getDomain()|escape}/{$page->getUnixname()}">{if $page->getTitle()|escape}{$page->getTitle()|escape}{else}{$page->getUnixName()|escape}{/if}</a>
+						<a href="{$HTTP_SCHEMA}://{$site->getDomain()|escape}/{$page->getUnixname()}">{if $page->title|escape}{$page->title|escape}{else}{$page->slug|escape}{/if}</a>
 					</td>
 					<td class="flags">
 						{if $revision->getFlagNew()}

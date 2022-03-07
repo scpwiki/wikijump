@@ -67,8 +67,8 @@ class PagePath extends WikiBase
                 $pages = $this->selectPagesByParent($categoryId, $parentId);
                 $parentId = null;
                 foreach ($pages as $page) {
-                    $unixName = htmlspecialchars($page->getUnixName());
-                    $title = htmlspecialchars($page->getTitleOrUnixName());
+                    $unixName = htmlspecialchars($page->slug);
+                    $title = htmlspecialchars($page->title);
                     $selected = "";
                     if ($unixName == $part) {
                         $selected = ' selected="selected"';

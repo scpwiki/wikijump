@@ -1,12 +1,12 @@
 <script type="text/javascript">
-	Wikijump.cancelurl = '/forum/c-{$category->getCategoryId()}/{$category->getUnixifiedName()}';
+	Wikijump.cancelurl = '/forum/c-{$category->category_id}/{$category->getUnixifiedName()}';
 </script>
 
 <div class="forum-new-thread-box">
 	<div class="forum-breadcrumbs">
 		<a href="/forum/start">Forum</a>
 		&raquo;
-		<a href="/forum/c-{$category->getCategoryId()}/{$category->getUnixifiedName()|escape}">{$category->getName()|escape}</a>
+		<a href="/forum/c-{$category->category_id}/{$category->getUnixifiedName()|escape}">{$category->getName()|escape}</a>
 		&raquo;
 		{t}new thread{/t}
 	</div>
@@ -33,7 +33,7 @@
 <div>
 	<form id="new-thread-form" action="" onsubmit="return false;">
 
-		<input type="hidden" name="category_id" value="{$category->getCategoryId()}"/>
+		<input type="hidden" name="category_id" value="{$category->category_id}"/>
 		<table class="form" style="margin: 1em 0">
 			<tr>
 				<td>

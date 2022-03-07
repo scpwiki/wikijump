@@ -87,7 +87,7 @@
 					{t}Current page name{/t}:
 				</td>
 				<td>
-					{$page->getUnixName()}
+					{$page->slug}
 				</td>
 			</tr>
 			<tr>

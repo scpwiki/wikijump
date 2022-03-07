@@ -3,7 +3,7 @@
 		<ul>
 			{foreach from=$pages item=page}
 				<li>
-					<a href="/{$page->getUnixName()}">{$page->getTitleOrUnixName()}</a>
+					<a href="/{$page->slug}">{$page->title}</a>
 				</li>
 			{/foreach}
 		</ul>

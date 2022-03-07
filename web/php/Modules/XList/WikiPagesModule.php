@@ -35,7 +35,7 @@ class WikiPagesModule extends CacheableModule
         $c = new Criteria();
         $c->add("site_id", $site->getSiteId());
         if ($category) {
-            $c->add("category_id", $category->getCategoryId());
+            $c->add("category_id", $category->category_id);
         }
 
         switch ($order) {

@@ -27,7 +27,7 @@ class ParentPageModule extends SmartyModule
 
         if ($page->getParentPageId() !== null) {
             $parentPage = Page::findIdOnly($page->getParentPageId());
-            $runData->contextAdd("parentPageName", $parentPage->getUnixName());
+            $runData->contextAdd("parentPageName", $parentPage->slug);
         }
     }
 }

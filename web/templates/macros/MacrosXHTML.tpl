@@ -3,7 +3,7 @@
 *}
 {defmacro name="OzoneXHTMLHead"}
 	<head>
-		<title>{$page->getTitle()}</title>
+		<title>{$page->title} - {$site->getTitle()}</title>
 
 
     {foreach from=$page->getMetas() key=key item=content}
@@ -25,7 +25,7 @@
     	/>
     {/foreach}
 
-    <style type="text/css">
+    <style>
     {foreach from=$page->getStyleSheets() item=css}
     	@import url({$ui->style($css)});
   	{/foreach}
@@ -47,7 +47,6 @@
                 {$hr}
             {/foreach}
     {/if}
-
     </head>
 {/defmacro}
 

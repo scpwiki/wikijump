@@ -77,9 +77,9 @@ class WatchedPageChangesFeed extends FeedScreen
             $site = $page->getSite();
             $item = array();
 
-            $item['title'] = '"'.$page->getTitleOrUnixName().'" '._('on site').' "'.
+            $item['title'] = '"'.$page->title.'" '._('on site').' "'.
                 $site->getName().'"';
-            $item['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain().'/'.$page->getUnixName();
+            $item['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain().'/'.$page->slug;
 
             $desc = '';
 
@@ -104,7 +104,7 @@ class WatchedPageChangesFeed extends FeedScreen
             }
 
             $desc .= _('Site').': <a href="'.GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain().'">'.htmlspecialchars($site->getName()).'</a><br/>';
-            $desc .= _('Page').': <a href="'.GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain().'/'.$page->getUnixName().'">'.htmlspecialchars($page->getTitle()).'</a> ('.$page->getUnixName().')<br/>';
+            $desc .= _('Page').': <a href="'.GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain().'/'.$page->slug.'">'.htmlspecialchars($page->title).'</a> ('.$page->slug.')<br/>';
             $desc .= _('Current revision number').': '.$rev->getRevisionNumber().'<br/>';
             $desc .= _('Date changed').': '.date('r', $rev->getDateLastEdited()->getTimestamp()).'<br/>';
             $desc .= _('Change type').': '.implode(', ', $flags).'<br/>';

@@ -240,7 +240,7 @@ class WikiPageAction extends SmartyAction
             $metadataChanged = false;
             $oldMetadata = $page->getMetadata();
             // check only if the whole page is edited
-            if ($title !== $oldMetadata->getTitle()) {
+            if ($title !== $oldMetadata->title) {
                 $pageRevision->setFlagTitle(true);
                 $metadataChanged = true;
             }
@@ -336,7 +336,7 @@ class WikiPageAction extends SmartyAction
             throw new ProcessException(_("Error getting page information."), "no_page");
         }
 
-        if ($newName == $page->getUnixName()) {
+        if ($newName == $page->slug) {
             throw new ProcessException(_("The current and new names are the same."), "page_exists");
         }
 
@@ -353,7 +353,7 @@ class WikiPageAction extends SmartyAction
             throw new ProcessException(_("The destination page already exists."), "page_exists");
         }
 
-        $oldName = $page->getUnixName();
+        $oldName = $page->slug;
 
         // check if new page exists!
 
@@ -651,12 +651,12 @@ class WikiPageAction extends SmartyAction
         // success so far...
 
         $titleChanged = false;
-        if ($toMeta->getTitle() !== $currentMeta->getTitle()) {
+        if ($toMeta->title !== $currentMeta->title) {
             // change the title, need to create a new metadata...
             $metadata = clone($currentMeta);
             $metadata->setMetadataId(null);
             $metadata->setNew(true);
-            $metadata->setTitle($toMeta->getTitle());
+            $metadata->setTitle($toMeta->title);
             $metadata->save();
             $titleChanged = true;
         }
@@ -682,7 +682,7 @@ class WikiPageAction extends SmartyAction
         if ($titleChanged) {
             $revision->setFlagTitle(true);
             $revision->setMetadataId($metadata->getMetadataId());
-            $page->setTitle($toMeta->getTitle());
+            $page->setTitle($toMeta->title);
         }
 
         $revision->setComments(_("Reverted to page revision number")." ".$toRevision->getRevisionNumber());

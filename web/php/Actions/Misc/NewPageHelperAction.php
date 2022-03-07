@@ -64,7 +64,7 @@ class NewPageHelperAction extends SmartyAction
 
         if ($templateId) {
             $templatePage = Page::findIdOnly($templateId);
-            if (!$templatePage || !preg_match("/^template:/", $templatePage->getUnixName())) {
+            if (!$templatePage || !preg_match("/^template:/", $templatePage->slug)) {
                 throw new ProcessException("Error selecting the template");
             }
 

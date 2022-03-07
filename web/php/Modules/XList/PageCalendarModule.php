@@ -172,7 +172,7 @@ class PageCalendarModule extends SmartyModule
         if (count($categories) > 0) {
             $ccat = new Criteria();
             foreach ($categories as $cat) {
-                $ccat->addOr('category_id', $cat->getCategoryId());
+                $ccat->addOr('category_id', $cat->category_id);
             }
             $c->addCriteriaAnd($ccat);
         }

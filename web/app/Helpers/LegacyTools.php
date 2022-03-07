@@ -278,7 +278,7 @@ final class LegacyTools
             if ($theme->getUseTopBar()) {
                 $topBar = Page::findSlug($page->site_id, 'nav:top', true, false);
                 if ($topBar !== null) {
-                    $topBarCompiled = preg_replace('/id="[^"]*"/', '', $topBar->wikitext);
+                    $topBarCompiled = preg_replace('/id="[^"]*"/', '', $topBar->compiled_html);
                     $runData->contextAdd("topBarContent", $topBarCompiled);
                     $return['topBarContent'] = $topBarCompiled;
                 }

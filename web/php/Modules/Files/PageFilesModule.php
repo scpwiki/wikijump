@@ -26,7 +26,7 @@ class PageFilesModule extends SmartyModule
 
         if (count($files) > 0) {
             $runData->contextAdd("files", $files);
-            $runData->contextAdd("filePath", "/local--files/".$page->getUnixName()."/");
+            $runData->contextAdd("filePath", "/local--files/".$page->slug."/");
             $totalPageSize = FileHelper::totalPageFilesSize($pageId);
             $totalPageSize = FileHelper::formatSize($totalPageSize);
             $runData->contextAdd("totalPageSize", $totalPageSize);

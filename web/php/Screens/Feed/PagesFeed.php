@@ -279,13 +279,13 @@ class PagesFeed extends FeedScreen
         $items = array();
 
         foreach ($pages as $page) {
-            $title = $page->getTitle();
-            $source = $page->getSource();
+            $title = $page->title;
+            $source = $page->wikitext;
 
             $item = array();
 
-            $item['title'] = $page->getTitle();
-            $item['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/".$page->getUnixName();
+            $item['title'] = $page->title;
+            $item['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/".$page->slug;
             $item['guid'] = $item['link'];
             $item['date'] = date('r', $page->getDateCreated()->getTimestamp());
 
@@ -340,11 +340,6 @@ class PagesFeed extends FeedScreen
         }
         $channel = array();
         $channel['title'] = $pl->getParameterValue("t");
-        //$channel['link'] = "http://".$site->getDomain()."/".$page->getUnixName();
-//      if($feed->getDescription()){
-//          $channel['description'] = $feed->getDescription();
-//      }
-
         $runData->contextAdd("channel", $channel);
         $runData->contextAdd("items", $items);
     }

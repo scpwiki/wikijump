@@ -26,10 +26,10 @@ class RenamePageModule extends SmartyModule
         $user = $runData->getUser();
 
         if ($delete) {
-            $newName = 'deleted:'.$page->getUnixName();
+            $newName = 'deleted:'.$page->slug;
             $runData->contextAdd("delete", true);
         } else {
-            $newName = $page->getUnixName();
+            $newName = $page->slug;
         }
 
         $category = $page->getCategory();

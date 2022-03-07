@@ -6,7 +6,7 @@
 				<table>
 					<tr>
 						<td class="title">
-							<a href="/{$page->getUnixname()}">{if $page->getTitle()|escape}{$page->getTitle()|escape}{else}{$page->getUnixName()|escape}{/if}</a>
+							<a href="/{$page->getUnixname()}">{if $page->title|escape}{$page->title|escape}{else}{$page->slug|escape}{/if}</a>
 						</td>
 						<td class="last-mod-by">
 							{printuser user=$page->getLastEditUserOrString()}
@@ -21,7 +21,7 @@
 				</table>
 			{else}
 				<div class="title">
-					<a href="/{$page->getUnixname()}">{if $page->getTitle()|escape}{$page->getTitle()|escape}{else}{$page->getUnixName()|escape}{/if}</a>
+					<a href="/{$page->getUnixname()}">{if $page->title|escape}{$page->title|escape}{else}{$page->slug|escape}{/if}</a>
 				</div>
 			{/if}
 		</div>
@@ -40,7 +40,7 @@
 				</div>
 			{/if}
 			<div class="title">
-				<a href="/{$page->getUnixname()}">{if $page->getTitle()|escape}{$page->getTitle()|escape}{else}{$page->getUnixName()|escape}{/if}</a>
+				<a href="/{$page->slug}">{if $page->title|escape}{$page->title|escape}{else}{$page->slug|escape}{/if}</a>
 			</div>
 		</div>
 		*}

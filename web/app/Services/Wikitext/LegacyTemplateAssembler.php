@@ -75,9 +75,9 @@ final class LegacyTemplateAssembler
         /* If there is $page, try substituting more tags. */
         if ($page) {
             $b = $template;
-            $title = $page->getTitle();
+            $title = $page->title;
             $title = str_replace(array('[', ']'), '', $title);
-            $replacement = preg_quote_replacement('[[[' . $page->getUnixName() . ' | ' . $title . ']]]');
+            $replacement = preg_quote_replacement('[[[' . $page->slug . ' | ' . $title . ']]]');
             $b = str_replace('%%%%%title%%%%%', $title, $b);
             $b = preg_replace(';%%%%%((linked_title)|(title_linked))%%%%%;i', $replacement, $b);
 
@@ -118,10 +118,10 @@ final class LegacyTemplateAssembler
             );
 
             /* %%page_unix_name%% */
-            $b = str_ireplace('%%%%%page_unix_name%%%%%', $page->getUnixName(), $b);
+            $b = str_ireplace('%%%%%page_unix_name%%%%%', $page->slug, $b);
 
-            if (strpos($page->getUnixName(), ':') != false) {
-                $tmp0 = explode(':', $page->getUnixName());
+            if (strpos($page->slug, ':') != false) {
+                $tmp0 = explode(':', $page->slug);
                 $categoryName00 = $tmp0[0];
             } else {
                 $categoryName00 = '_default';
@@ -133,7 +133,7 @@ final class LegacyTemplateAssembler
             $site = $page->getSite();
             $b = str_ireplace(
                 '%%%%%link%%%%%',
-                GlobalProperties::$HTTP_SCHEMA . '://' . $site->getDomain() . '/' . $page->getUnixName(),
+                GlobalProperties::$HTTP_SCHEMA . '://' . $site->getDomain() . '/' . $page->slug,
                 $b,
             );
 

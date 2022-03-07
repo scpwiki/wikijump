@@ -21,15 +21,15 @@
             WIKIREQUEST.info = {};
             WIKIREQUEST.info.domain = "{{$site->getDomain()}}";
             WIKIREQUEST.info.siteId = {{$site->getSiteId()}};
-            WIKIREQUEST.info.categoryId = {{$category->getCategoryId()}};
+            WIKIREQUEST.info.categoryId = {{$category->category_id}};
             WIKIREQUEST.info.themeId = {{$theme->getThemeId()}};
             WIKIREQUEST.info.requestPageName = "{{$wikiPageName}}";
             OZONE.request.timestamp = {{ time() }};
             OZONE.request.date = new Date();
             WIKIREQUEST.info.lang = '{{$site->getLanguage()}}';
             @if ($wikiPage != null)
-            WIKIREQUEST.info.pageUnixName = "{{$wikiPage->getUnixName()}}";
-            WIKIREQUEST.info.pageId = {{$wikiPage->getPageId()}};
+            WIKIREQUEST.info.pageUnixName = "{{$wikiPage->slug}}";
+            WIKIREQUEST.info.pageId = {{$wikiPage->page_id}};
             @endif
             WIKIREQUEST.info.lang = "{{$site->getLanguage()}}";
             OZONE.lang = "{{$site->getLanguage()}}";
@@ -101,10 +101,10 @@
             <div id="main-content">
                 <div id="action-area-top"></div>
 
-                @if ($wikiPage == null || $wikiPage->getTitle() != '')
+                @if ($wikiPage == null || $wikiPage->title != '')
                 <div id="page-title">
                     @if($wikiPage != null)
-                    {{$wikiPage->getTitle()}}
+                    {{$wikiPage->title}}
                     @else
                         The page does not (yet) exist.
                     @endif
@@ -115,7 +115,7 @@
                     @foreach ($breadcrumbs as $breadcrumb)
                     <a href="/{{$breadcrumb->getUnixName()}}">{{$breadcrumb->getTitle()}}</a> &raquo;
                     @endforeach
-                    {{$wikiPage->getTitleOrUnixName()}}
+                    {{$wikiPage->title}}
                 </div>
                 @endif
 

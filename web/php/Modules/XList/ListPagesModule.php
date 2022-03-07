@@ -196,7 +196,7 @@ class ListPagesModule extends SmartyModule
         if ($previousBy || $nextBy) {
             if ($refPage = $runData->getTemp('page')) {
                 $refPageId = $refPage->getPageId();
-                $refPageTitle = $refPage->getTitle() . ' ... ' . $refPage->getUnixName();
+                $refPageTitle = $refPage->title . ' ... ' . $refPage->slug;
 
                 if ($previousBy == 'page_id') {
                     $c->add('page_id', $refPageId, '<');
@@ -429,8 +429,8 @@ class ListPagesModule extends SmartyModule
 
         foreach ($pages as $page) {
             $this->_tmpPage = $page;
-            $title = $page->getTitle();
-            $source = $page->getSource();
+            $title = $page->title;
+            $source = $page->wikitext;
 
             $title = str_replace(array('[',']'), '', $title);
             $title = str_replace('%%', "\xFD", $title);
@@ -441,10 +441,6 @@ class ListPagesModule extends SmartyModule
             $c->add('revision_id', $page->getRevisionId());
             $lastRevision = PageRevisionPeer::instance()->selectOne($c);
 
-            //$c = new Criteria();
-            //$c->add('page_id', $page->getPageId());
-            //$c->addOrderAscending('revision_id');
-            //$firstRevision = Wikidot_DB_PageRevisionPeer::instance()->selectOne($c);
             $b = $format;
 
             /* A series of substitutions. */
@@ -454,7 +450,7 @@ class ListPagesModule extends SmartyModule
             /* %%title%% and similar */
 
             $b = str_replace('%%title%%', $title, $b);
-            $b = preg_replace("/%%((linked_title)|(title_linked))%%/i", preg_quote_replacement('[[[' . $page->getUnixName() . ' | ' . $title . ']]]'), $b);
+            $b = preg_replace("/%%((linked_title)|(title_linked))%%/i", preg_quote_replacement('[[[' . $page->slug . ' | ' . $title . ']]]'), $b);
 
             /* %%author%% */
 
@@ -520,12 +516,12 @@ class ListPagesModule extends SmartyModule
                 $this, '_handleCommentsCount'), $b);
 
             /* %%page_unix_name%% */
-            $b = str_ireplace('%%page_unix_name%%', $page->getUnixName(), $b);
+            $b = str_ireplace('%%page_unix_name%%', $page->slug, $b);
 
             /* %%category%% */
 
-            if (strpos($page->getUnixName(), ":") != false) {
-                $tmp0 = explode(':', $page->getUnixName());
+            if (strpos($page->slug, ":") != false) {
+                $tmp0 = explode(':', $page->slug);
                 $categoryName00 = $tmp0[0];
             } else {
                 $categoryName00 = "_default";
@@ -534,7 +530,7 @@ class ListPagesModule extends SmartyModule
             $b = str_ireplace('%%category%%', $categoryName00, $b);
 
             /* %%link%% */
-            $b = str_ireplace('%%link%%', GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain().'/'.$page->getUnixName(), $b);
+            $b = str_ireplace('%%link%%', GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain().'/'.$page->slug, $b);
 
             /* %%tags%% */
             $b = preg_replace_callback("/%%tags%%/i", array(

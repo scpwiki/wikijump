@@ -23,7 +23,7 @@
  		{/literal}
  		WIKIREQUEST.info.domain = "{$site->getDomain()}";
  		WIKIREQUEST.info.siteId = {$site->getSiteId()};
- 		WIKIREQUEST.info.categoryId = {$category->getCategoryId()};
+ 		WIKIREQUEST.info.categoryId = {$category->category_id};
  		WIKIREQUEST.info.themeId = {$theme->getThemeId()};
  		WIKIREQUEST.info.requestPageName = "{$wikiPageName}";
  		OZONE.request.timestamp = %%%CURRENT_TIMESTAMP%%%;
@@ -97,9 +97,9 @@
 				<div id="main-content">
 					<div id="action-area-top"></div>
 
-					{if $wikiPage == null || $wikiPage->getTitle() != ''}
+					{if $wikiPage == null || $wikiPage->title != ''}
 					<div id="page-title">
-					{if $wikiPage}{$wikiPage->getTitle()|escape}{else}{t}The page does not (yet) exist.{/t}{/if}
+					{if $wikiPage}{$wikiPage->title|escape}{else}{t}The page does not (yet) exist.{/t}{/if}
 					</div>
 					{/if}
 					{if $breadcrumbs}

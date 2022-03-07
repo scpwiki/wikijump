@@ -26,7 +26,7 @@ class File extends FileBase
         $page = Page::findIdOnly($this->getPageId());
         $site = SitePeer::instance()->selectByPrimaryKey($this->getSiteId());
         return WIKIJUMP_ROOT."/web/files--sites/".
-            $site->getSlug()."/files/".$page->getUnixName().'/'.$this->getFilename();
+            $site->getSlug()."/files/".$page->slug.'/'.$this->getFilename();
     }
 
     public function getResizedDir()
@@ -34,7 +34,7 @@ class File extends FileBase
         $page = Page::findIdOnly($this->getPageId());
         $site = SitePeer::instance()->selectByPrimaryKey($this->getSiteId());
         return WIKIJUMP_ROOT."/web/files--sites/".
-                        $site->getSlug()."/resized-images/".$page->getUnixName().
+                        $site->getSlug()."/resized-images/".$page->slug.
                         '/'.$this->getFilename();
     }
 
@@ -44,7 +44,7 @@ class File extends FileBase
         $page = Page::findIdOnly($this->getPageId());
         $site = SitePeer::instance()->selectByPrimaryKey($this->getSiteId());
         $out =  GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/local--resized-images/".
-            $page->getUnixName().'/'.$this->getFilename();
+            $page->slug.'/'.$this->getFilename();
         if ($size) {
             $out .= '/'.strtolower($size).'.jpg';
         }
@@ -57,7 +57,7 @@ class File extends FileBase
         $site = SitePeer::instance()->selectByPrimaryKey($this->getSiteId());
 
         return  GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/local--files/".
-            $page->getUnixName()."/".$this->getFilename();
+            $page->slug."/".$this->getFilename();
     }
 
     public function getUser()

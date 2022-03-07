@@ -151,7 +151,7 @@ class FrontForumFeed extends FeedScreen
         $threads = ForumThreadPeer::instance()->select($c);
 
         $channel['title'] = $feed->getTitle();
-        $channel['link'] = GlobalProperties::$HTTP_SCHEMA . '://' . $site->getDomain(). '/' .$page->getUnixName();
+        $channel['link'] = GlobalProperties::$HTTP_SCHEMA . '://' . $site->getDomain(). '/' .$page->slug;
         if ($feed->getDescription()) {
             $channel['description'] = $feed->getDescription();
         }

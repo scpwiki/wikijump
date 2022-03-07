@@ -196,7 +196,7 @@ class FileAction extends SmartyAction
             $fdesc = FileMime::description($file['tmp_name']);
             $fmime = FileMime::mime($file['tmp_name']);
 
-            $uploadDir = $site->getLocalFilesPath()."/files/".$page->getUnixName();
+            $uploadDir = $site->getLocalFilesPath()."/files/".$page->slug;
             mkdirfull($uploadDir);
 
             $dest = $uploadDir."/".$destinationFilename;
@@ -212,7 +212,7 @@ class FileAction extends SmartyAction
             if ($res) {
                 // is at least "imageable" - can have thumbnails
                 // resized images dir
-                $resizedDir = $site->getLocalFilesPath() . "/resized-images/".$page->getUnixName().
+                $resizedDir = $site->getLocalFilesPath() . "/resized-images/".$page->slug.
                         '/'.$destinationFilename;
                 mkdirfull($resizedDir);
 
@@ -458,7 +458,7 @@ class FileAction extends SmartyAction
         // now check for permissions!!!
         WDPermissionManager::instance()->hasPagePermission('move_file', $user, $categoryFrom, $page);
 
-        if ($destinationPageName == $page->getUnixName()) {
+        if ($destinationPageName == $page->slug) {
             throw new ProcessException(_("There is not point in moving the file to the same (current)  page..."), "no_destination");
         }
 
@@ -526,7 +526,7 @@ class FileAction extends SmartyAction
             throw new ProcessException(_("Error moving files."), "error_moving");
         }
         if ($file->getHasResized()) {
-            $resizedDir = $site->getLocalFilesPath()."/resized-images/".$destinationPage->getUnixName();
+            $resizedDir = $site->getLocalFilesPath()."/resized-images/".$destinationPage->slug;
             mkdirfull($resizedDir);
             if (rename("$oldRDir", "$newRDir") == false) {
                 throw new ProcessException(_("Error moving resized files."), "error_moving");
@@ -561,7 +561,7 @@ class FileAction extends SmartyAction
             $revision->setUserString($userString);
             $page->setLastEditUserString($userString);
         }
-        $revision->setComments('File "'.$file->getFilename().'" moved away to page "'.$destinationPage->getUnixName().'".');
+        $revision->setComments('File "'.$file->getFilename().'" moved away to page "'.$destinationPage->slug.'".');
         $revision->save();
         $page->setRevisionId($revision->getRevisionId());
         $page->setDateLastEdited($now);
@@ -588,7 +588,7 @@ class FileAction extends SmartyAction
             $revision->setUserString($userString);
             $destinationPage->setLastEditUserString($userString);
         }
-        $revision->setComments('File "'.$file->getFilename().'" moved from page "'.$page->getUnixName().'".');
+        $revision->setComments('File "'.$file->getFilename().'" moved from page "'.$page->slug.'".');
         $revision->save();
         $destinationPage->setRevisionId($revision->getRevisionId());
         $destinationPage->setDateLastEdited($now);

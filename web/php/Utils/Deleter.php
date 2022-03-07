@@ -105,7 +105,7 @@ class Deleter
         }
 
         // remove FILES (if any)
-        $path = WIKIJUMP_ROOT . "/web/files--sites/" . $site->getSlug() . "/files/" . $page->getUnixName();
+        $path = WIKIJUMP_ROOT . "/web/files--sites/" . $site->getSlug() . "/files/" . $page->slug;
         exec('rm -r ' . escapeshellarg($path) . ' &> /dev/null');
     }
 

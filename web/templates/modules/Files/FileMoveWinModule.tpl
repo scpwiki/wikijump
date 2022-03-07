@@ -14,7 +14,7 @@
 			{t}Current page{/t}:
 		</td>
 		<td>
-			{$page->getUnixName()}
+			{$page->slug}
 		</td>
 	</tr>
 	<tr>

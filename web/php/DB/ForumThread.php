@@ -28,7 +28,7 @@ class ForumThread extends ForumThreadBase
             return parent::getTitle();
         } else {
             $page = $this->getPage();
-            return $page->getTitle();
+            return $page->title;
         }
     }
 

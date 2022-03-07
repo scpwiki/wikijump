@@ -89,8 +89,8 @@ class PageCommentsFeed extends FeedScreen
 
         $channel = array();
 
-        $channel['title'] = _('Comments for page').' "'.$page->getTitleOrUnixName().'"';
-        $channel['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/".$page->getUnixName()."/comments/show";
+        $channel['title'] = _('Comments for page').' "'.$page->title.'"';
+        $channel['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/".$page->slug."/comments/show";
 
         $items = array();
 

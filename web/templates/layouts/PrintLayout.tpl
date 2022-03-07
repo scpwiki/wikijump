@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="{$site->getLanguage()}" lang="{$site->getLanguage()}">
 
 <head>
- 	<title>{$site->getName()}{if $wikiPage && $wikiPage->getTitle()}: {$wikiPage->getTitle()|escape}{/if}</title>
+ 	<title>{$site->getName()}{if $wikiPage && $wikiPage->title}: {$wikiPage->title|escape}{/if}</title>
  	<script type="text/javascript" src="/common--javascript/json.js"></script>
 
  	<script type="text/javascript" src="/common--javascript/yahooui/yahoo-min.js"></script>
@@ -32,8 +32,8 @@
  		OZONE.request.date = new Date();
  		WIKIREQUEST.info.lang = '{$site->getLanguage()}';
  		{if $wikiPage}
- 		WIKIREQUEST.info.pageUnixName = "{$wikiPage->getUnixName()}";
- 		WIKIREQUEST.info.pageId = {$wikiPage->getPageId()};
+ 		WIKIREQUEST.info.pageUnixName = "{$wikiPage->slug}";
+ 		WIKIREQUEST.info.pageId = {$wikiPage->page_id};
  		{/if}
  	</script>
 
@@ -107,14 +107,14 @@
 	  	<div id="print-head">
 		  	{t}Site{/t}: <b>{$site->getName()|escape}</b> at {$HTTP_SCHEMA}://{$site->getDomain()}
 		  	<br/>
-		  	{t}Source page{/t}: <b>{$wikiPage->getTitleOrUnixName()|escape}</b> at {$HTTP_SCHEMA}://{$site->getDomain()}/{$wikiPage->getUnixName()}
+		  	{t}Source page{/t}: <b>{$wikiPage->title|escape}</b> at {$HTTP_SCHEMA}://{$site->getDomain()}/{$wikiPage->slug}
 	  	</div>
 		<div id="content-wrap">
 			<div id="main-content">
 				<div id="action-area-top"></div>
-				{if $wikiPage->getTitle() != ''}
+				{if $wikiPage->title != ''}
 				<div id="page-title">
-					{$wikiPage->getTitle()|escape}
+					{$wikiPage->title|escape}
 				</div>
 				{/if}
 
@@ -123,7 +123,7 @@
 				</div>
 
 				<div id="page-info" >
-					{t}page revision{/t}: {$wikiPage->getRevisionNumber()}, {t}last edited{/t}: <span class="odate">{$wikiPage->getDateLastEdited()->getTimestamp()}|%e %b %Y, %H:%M %Z (%O ago)</span>
+					{t}page revision{/t}: {$wikiPage->revision_number}, {t}last edited{/t}: <span class="odate">{$wikiPage->lastUpdated()->getTimestamp()}|%e %b %Y, %H:%M %Z (%O ago)</span>
 				</div>
 				<div id="action-area" style="display: none"></div>
 			</div>

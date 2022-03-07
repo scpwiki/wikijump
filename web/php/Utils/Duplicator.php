@@ -259,7 +259,7 @@ class Duplicator
     {
 
         if ($newUnixName == null) {
-            $newUnixName = $page->getUnixName();
+            $newUnixName = $page->slug;
         }
 
         // check if page exists - if so, forcibly delete!!!
@@ -279,7 +279,7 @@ class Duplicator
 
         $meta = $page->getMetadata();
         $nmeta = new PageMetadata();
-        $nmeta->setTitle($meta->getTitle());
+        $nmeta->setTitle($meta->title);
         $nmeta->setSlug($newUnixName);
         if ($owner) {
             $nmeta->setOwnerUserId($owner->id);
@@ -305,7 +305,7 @@ class Duplicator
         $npage->setCategoryId($ncategory->getCategoryId());
         $npage->setRevisionId($nrev->getRevisionId());
         $npage->setMetadataId($nmeta->getMetadataId());
-        $npage->setTitle($page->getTitle());
+        $npage->setTitle($page->title);
         $npage->setUnixName($newUnixName);
         $npage->setDateLastEdited($now);
         $npage->setDateCreated($now);
@@ -400,13 +400,13 @@ class Duplicator
             $pages = $dump['pages'][$category->getCategoryId()];
 
             foreach ($pages as $page) {
-                $newUnixName = $page->getUnixName();
+                $newUnixName = $page->slug;
 
                 $now = new ODate();
 
                 $meta = $page->getTemp("meta");
                 $nmeta = new PageMetadata();
-                $nmeta->setTitle($meta->getTitle());
+                $nmeta->setTitle($meta->title);
                 $nmeta->setUnixName($newUnixName);
                 if ($owner) {
                     $nmeta->setOwnerUserId($owner->getUserId());
@@ -432,7 +432,7 @@ class Duplicator
                 $npage->setCategoryId($cat->getCategoryId());
                 $npage->setRevisionId($nrev->getRevisionId());
                 $npage->setMetadataId($nmeta->getMetadataId());
-                $npage->setTitle($page->getTitle());
+                $npage->setTitle($page->title);
                 $npage->setUnixName($newUnixName);
                 $npage->setDateLastEdited($now);
                 $npage->setLastEditUserId($owner->getUserId());

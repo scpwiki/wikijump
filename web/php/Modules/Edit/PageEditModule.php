@@ -123,7 +123,7 @@ class PageEditModule extends SmartyModule
             throw new ProcessException(_("The page cannot be found or does not exist."), "no_page");
         }
 
-        $page = Page::findIdOnly($pageId);
+        $page = Page::findIdOnly($pageId, true);
         if ($page === null || $page->getSiteId() !== $site->getSiteId()) {
             throw new ProcessException(_("The page cannot be found or does not exist."), "no_page");
         }
@@ -141,7 +141,7 @@ class PageEditModule extends SmartyModule
 
         $templatePage = "$categoryName:_template";
 
-        if (preg_match('/^[^:]*:[^_]|^[^_:][^:]*$/', $page->getUnixName())
+        if (preg_match('/^[^:]*:[^_]|^[^_:][^:]*$/', $page->slug)
             && $templatePage && $form = Form::fromSource($templatePage->getSource())
         ) {
             $form->setDataFromYaml($page->getSource());
@@ -158,10 +158,9 @@ class PageEditModule extends SmartyModule
         // keep the session - i.e. put an object into session storage not to delete it!!!
         $runData->sessionAdd("keep", true);
 
-        $pageSource = $page->getSource();
-        $runData->contextAdd("source", $pageSource);
-        $runData->contextAdd("title", $page->getTitle());
-        $runData->contextAdd("pageId", $page->getPageId());
+        $runData->contextAdd("source", $page->wikitext);
+        $runData->contextAdd("title", $page->title);
+        $runData->contextAdd("pageId", $page->page_id);
 
         $runData->ajaxResponseAdd("timeLeft", 15*60);
 
