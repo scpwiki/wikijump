@@ -103,9 +103,7 @@ fn try_consume_fn<'p, 'r, 't>(
     ok!(false; elements, exceptions)
 }
 
-fn build_blockquote_element<'t>(
-    list: DepthList<(), (Vec<Element<'t>>, bool)>,
-) -> Element<'t> {
+fn build_blockquote_element(list: DepthList<(), (Vec<Element>, bool)>) -> Element {
     let mut stack = ParagraphStack::new();
 
     // Convert depth list into a list of elements

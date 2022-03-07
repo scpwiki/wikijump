@@ -29,10 +29,10 @@ use std::collections::HashMap;
 #[grammar = "includes/grammar.pest"]
 struct IncludeParser;
 
-pub fn parse_include_block<'t>(
-    text: &'t str,
+pub fn parse_include_block(
+    text: &str,
     start: usize,
-) -> Result<(IncludeRef<'t>, usize), IncludeParseError> {
+) -> Result<(IncludeRef, usize), IncludeParseError> {
     match IncludeParser::parse(Rule::include, text) {
         Ok(mut pairs) => {
             // Extract inner pairs
@@ -55,9 +55,7 @@ pub fn parse_include_block<'t>(
     }
 }
 
-fn process_pairs<'t>(
-    mut pairs: Pairs<'t, Rule>,
-) -> Result<IncludeRef<'t>, IncludeParseError> {
+fn process_pairs(mut pairs: Pairs<Rule>) -> Result<IncludeRef, IncludeParseError> {
     let page_raw = pairs.next().ok_or(IncludeParseError)?.as_str();
     let page_ref = PageRef::parse(page_raw)?;
 

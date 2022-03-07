@@ -160,7 +160,7 @@ pub enum Token {
 }
 
 impl Token {
-    pub(crate) fn extract_all<'a>(text: &'a str) -> Vec<ExtractedToken<'a>> {
+    pub(crate) fn extract_all(text: &str) -> Vec<ExtractedToken> {
         info!("Running lexer on input");
 
         match TokenLexer::parse(Rule::document, text) {
@@ -194,7 +194,7 @@ impl Token {
     }
 
     /// Converts a single `Pair` from pest into its corresponding `ExtractedToken`.
-    fn convert_pair<'a>(pair: Pair<'a, Rule>) -> ExtractedToken<'a> {
+    fn convert_pair(pair: Pair<Rule>) -> ExtractedToken {
         // Extract values from the Pair
         let rule = pair.as_rule();
         let slice = pair.as_str();

@@ -47,7 +47,7 @@ impl<'t> From<Tokenization<'t>> for Vec<ExtractedToken<'t>> {
 }
 
 /// Take an input string and produce a list of tokens for consumption by the parser.
-pub fn tokenize<'t>(text: &'t str) -> Tokenization<'t> {
+pub fn tokenize(text: &str) -> Tokenization {
     info!("Running lexer on text to produce tokens");
 
     let tokens = Token::extract_all(text);
