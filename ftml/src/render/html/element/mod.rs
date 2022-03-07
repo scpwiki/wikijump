@@ -173,9 +173,7 @@ pub fn render_element(ctx: &mut HtmlContext, element: &Element) {
         Element::Math { name, latex_source } => {
             render_math_block(ctx, ref_cow!(name), latex_source)
         }
-        Element::MathInline { latex_source } => {
-            render_math_inline(ctx, latex_source)
-        }
+        Element::MathInline { latex_source } => render_math_inline(ctx, latex_source),
         Element::EquationReference(name) => render_equation_reference(ctx, name),
         Element::Embed(embed) => render_embed(ctx, embed),
         Element::Html { contents } => render_html(ctx, contents),

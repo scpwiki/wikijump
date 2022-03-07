@@ -44,9 +44,7 @@ pub const RULE_LINK_TRIPLE_NEW_TAB: Rule = Rule {
     try_consume_fn: link_new_tab,
 };
 
-fn link<'p, 'r, 't>(
-    parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Elements<'t>> {
+fn link<'p, 'r, 't>(parser: &'p mut Parser<'r, 't>) -> ParseResult<'r, 't, Elements<'t>> {
     info!("Trying to create a triple-bracket link (regular)");
     check_step(parser, Token::LeftLink)?;
     try_consume_link(parser, RULE_LINK_TRIPLE, None)
@@ -57,11 +55,7 @@ fn link_new_tab<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     info!("Trying to create a triple-bracket link (new tab)");
     check_step(parser, Token::LeftLinkStar)?;
-    try_consume_link(
-        parser,
-        RULE_LINK_TRIPLE_NEW_TAB,
-        Some(AnchorTarget::NewTab),
-    )
+    try_consume_link(parser, RULE_LINK_TRIPLE_NEW_TAB, Some(AnchorTarget::NewTab))
 }
 
 /// Build a triple-bracket link with the given target.

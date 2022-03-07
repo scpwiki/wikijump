@@ -39,18 +39,15 @@ pub fn render_email(ctx: &mut HtmlContext, email: &str) {
 
     ctx.html()
         .span()
-        .attr(attr!(
-            "class" => "wj-email",
-        ))
+        .attr(attr!("class" => "wj-email"))
         .inner(email);
 }
 
-pub fn render_code(
-    ctx: &mut HtmlContext,
-    language: Option<&str>,
-    contents: &str,
-) {
-    info!("Rendering code block (language {})", language.unwrap_or("<none>"));
+pub fn render_code(ctx: &mut HtmlContext, language: Option<&str>, contents: &str) {
+    info!(
+        "Rendering code block (language {})",
+        language.unwrap_or("<none>"),
+    );
     let index = ctx.next_code_snippet_index();
     ctx.handle().post_code(index, contents);
 
@@ -71,10 +68,9 @@ pub fn render_code(
                     "class" => "wj-code-panel",
                 ))
                 .contents(|ctx| {
-                    let button_title = ctx.handle().get_message(
-                        ctx.language(),
-                        "button-copy-clipboard",
-                    );
+                    let button_title = ctx
+                        .handle()
+                        .get_message(ctx.language(), "button-copy-clipboard");
 
                     // Copy to clipboard button
                     ctx.html()

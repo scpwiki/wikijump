@@ -34,7 +34,7 @@ pub fn render_table_of_contents(
         Some(align) => {
             // Only valid for float left / right
             FloatAlignment { align, float: true }.html_class()
-        },
+        }
     };
 
     ctx.html()
@@ -58,9 +58,9 @@ pub fn render_table_of_contents(
                 });
 
             // TOC Heading
-            let table_of_contents_title =
-                ctx.handle()
-                    .get_message(ctx.language(), "table-of-contents");
+            let table_of_contents_title = ctx
+                .handle()
+                .get_message(ctx.language(), "table-of-contents");
 
             ctx.html()
                 .div()

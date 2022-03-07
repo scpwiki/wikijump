@@ -206,11 +206,8 @@ impl<'r, 't> Parser<'r, 't> {
         let level = usize::from(heading.value()) - 1;
 
         // Render name as text, so it lacks formatting
-        let name = TextRender.render_partial(
-            name_elements,
-            self.page_info,
-            self.settings,
-        );
+        let name =
+            TextRender.render_partial(name_elements, self.page_info, self.settings);
 
         self.table_of_contents.borrow_mut().push((level, name));
     }
@@ -277,7 +274,10 @@ impl<'r, 't> Parser<'r, 't> {
                         }
                     }
                     None => {
-                        debug!("Second token in pair doesn't exist (token {})", next.name());
+                        debug!(
+                            "Second token in pair doesn't exist (token {})",
+                            next.name(),
+                        );
                         return false;
                     }
                 }

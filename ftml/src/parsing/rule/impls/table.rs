@@ -108,7 +108,10 @@ fn try_consume_fn<'p, 'r, 't>(
                         | Token::TableColumnRight,
                         Some(next),
                     ) => {
-                        debug!("Ending cell, row, or table (next token '{}')", next.name());
+                        debug!(
+                            "Ending cell, row, or table (next token '{}')",
+                            next.name(),
+                        );
                         match next {
                             // End the table entirely, there's a newline in between,
                             // or it's the end of input.

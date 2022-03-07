@@ -27,7 +27,11 @@ pub fn render_list(
     list_items: &[ListItem],
     attributes: &AttributeMap,
 ) {
-    info!("Rendering list '{}' (items {})", ltype.name(), list_items.len());
+    info!(
+        "Rendering list '{}' (items {})",
+        ltype.name(),
+        list_items.len(),
+    );
     let list_tag = ltype.html_tag();
     let mut tag = ctx.html().tag(list_tag);
 
@@ -38,10 +42,7 @@ pub fn render_list(
                     elements,
                     attributes,
                 } => {
-                    ctx.html()
-                        .li()
-                        .attr(attr!(;; attributes))
-                        .inner(elements);
+                    ctx.html().li().attr(attr!(;; attributes)).inner(elements);
                 }
                 ListItem::SubList { element } => {
                     render_element(ctx, element);

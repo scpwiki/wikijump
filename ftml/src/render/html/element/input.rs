@@ -37,11 +37,7 @@ pub fn render_radio_button(
     ));
 }
 
-pub fn render_checkbox(
-    ctx: &mut HtmlContext,
-    checked: bool,
-    attributes: &AttributeMap,
-) {
+pub fn render_checkbox(ctx: &mut HtmlContext, checked: bool, attributes: &AttributeMap) {
     info!("Creating checkbox (checked {checked})");
 
     ctx.html().input().attr(attr!(

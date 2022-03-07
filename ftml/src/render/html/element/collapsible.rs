@@ -76,15 +76,11 @@ pub fn render_collapsible(ctx: &mut HtmlContext, collapsible: Collapsible) {
         show_bottom,
     );
 
-    let show_text = show_text.unwrap_or_else(|| {
-        ctx.handle()
-            .get_message(ctx.language(), "collapsible-open")
-    });
+    let show_text = show_text
+        .unwrap_or_else(|| ctx.handle().get_message(ctx.language(), "collapsible-open"));
 
-    let hide_text = hide_text.unwrap_or_else(|| {
-        ctx.handle()
-            .get_message(ctx.language(), "collapsible-hide")
-    });
+    let hide_text = hide_text
+        .unwrap_or_else(|| ctx.handle().get_message(ctx.language(), "collapsible-hide"));
 
     ctx.html()
         .details()

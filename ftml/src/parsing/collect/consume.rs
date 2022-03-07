@@ -67,9 +67,7 @@ where
         close_conditions,
         invalid_conditions,
         warn_kind,
-        |parser| {
-            consume(parser)?.map_ok(|elements| all_elements.extend(elements))
-        },
+        |parser| consume(parser)?.map_ok(|elements| all_elements.extend(elements)),
     )?
     .into();
 

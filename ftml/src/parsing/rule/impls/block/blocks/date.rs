@@ -287,8 +287,7 @@ fn date() {
 fn timezone() {
     macro_rules! check_ok {
         ($input:expr, $offset:expr) => {{
-            let actual =
-                parse_timezone(&$input).expect("Timezone parse didn't succeed");
+            let actual = parse_timezone(&$input).expect("Timezone parse didn't succeed");
 
             assert_eq!(
                 actual,
@@ -300,8 +299,7 @@ fn timezone() {
 
     macro_rules! check_err {
         ($input:expr) => {{
-            parse_timezone($input)
-                .expect_err("Error case for timezone parse succeeded");
+            parse_timezone($input).expect_err("Error case for timezone parse succeeded");
         }};
     }
 

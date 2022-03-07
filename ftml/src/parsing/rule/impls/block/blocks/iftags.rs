@@ -77,10 +77,7 @@ fn parse_fn<'r, 't>(
     ok!(paragraph_safe; elements, exceptions)
 }
 
-pub fn check_iftags(
-    info: &PageInfo,
-    conditions: &[ElementCondition],
-) -> bool {
+pub fn check_iftags(info: &PageInfo, conditions: &[ElementCondition]) -> bool {
     debug!("Checking iftags");
     ElementCondition::check(conditions, &info.tags)
 }

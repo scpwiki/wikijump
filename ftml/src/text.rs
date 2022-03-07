@@ -89,12 +89,7 @@ impl<'t> FullText<'t> {
         self.slice_impl("partial", start, end)
     }
 
-    fn slice_impl(
-        &self,
-        slice_kind: &'static str,
-        start: usize,
-        end: usize,
-    ) -> &'t str {
+    fn slice_impl(&self, slice_kind: &'static str, start: usize, end: usize) -> &'t str {
         info!("Extracting {slice_kind} slice ({start}-{end}) from full text");
 
         assert!(

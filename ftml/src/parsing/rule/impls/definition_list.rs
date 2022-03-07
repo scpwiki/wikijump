@@ -60,8 +60,7 @@ fn parse_definition_list<'p, 'r, 't>(
     let mut _paragraph_safe = false;
 
     // Definition list needs at least one item
-    let (item, at_end) =
-        parse_item(parser)?.chain(&mut exceptions, &mut _paragraph_safe);
+    let (item, at_end) = parse_item(parser)?.chain(&mut exceptions, &mut _paragraph_safe);
 
     items.push(item);
 

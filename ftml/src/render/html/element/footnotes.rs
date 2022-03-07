@@ -76,12 +76,19 @@ pub fn render_footnote(ctx: &mut HtmlContext) {
 }
 
 pub fn render_footnote_block(ctx: &mut HtmlContext, title: Option<&str>) {
-    info!("Rendering footnote block (title {})", title.unwrap_or("<default>"));
+    info!(
+        "Rendering footnote block (title {})",
+        title.unwrap_or("<default>"),
+    );
+
     let title_default;
     let title: &str = match title {
         Some(title) => title,
         None => {
-            title_default = ctx.handle().get_message(ctx.language(), "footnote-block-title");
+            title_default = ctx
+                .handle()
+                .get_message(ctx.language(), "footnote-block-title");
+
             title_default
         }
     };

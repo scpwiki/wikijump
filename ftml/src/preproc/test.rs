@@ -76,11 +76,7 @@ const PREFILTER_TEST_CASES: [(&str, &str); 10] = [
 
 #[test]
 fn prefilter() {
-    test_substitution(
-        "prefilter",
-        |text| preprocess(text),
-        &PREFILTER_TEST_CASES,
-    );
+    test_substitution("prefilter", |text| preprocess(text), &PREFILTER_TEST_CASES);
 }
 
 proptest! {

@@ -160,9 +160,7 @@ pub enum Token {
 }
 
 impl Token {
-    pub(crate) fn extract_all<'a>(
-        text: &'a str,
-    ) -> Vec<ExtractedToken<'a>> {
+    pub(crate) fn extract_all<'a>(text: &'a str) -> Vec<ExtractedToken<'a>> {
         info!("Running lexer on input");
 
         match TokenLexer::parse(Rule::document, text) {

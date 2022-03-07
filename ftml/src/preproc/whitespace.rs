@@ -66,8 +66,7 @@ pub fn substitute(text: &mut String) {
 fn str_replace(text: &mut String, pattern: &str, replacement: &str) {
     debug!(
         "Replacing miscellaneous static string (pattern {}, replacement {})",
-        pattern,
-        replacement,
+        pattern, replacement,
     );
 
     while let Some(idx) = text.find(pattern) {

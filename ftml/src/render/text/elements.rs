@@ -105,7 +105,11 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
                 None => format!("{{${name}}}"),
             };
 
-            info!("Rendering variable (name '{}', value {})", name.as_ref(), value);
+            info!(
+                "Rendering variable (name '{}', value {})",
+                name.as_ref(),
+                value,
+            );
             ctx.push_str(&value);
         }
         Element::Table(table) => {
@@ -302,9 +306,9 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
         Element::TableOfContents { .. } => {
             info!("Rendering table of contents");
 
-            let table_of_contents_title =
-                ctx.handle()
-                    .get_message(ctx.language(), "table-of-contents");
+            let table_of_contents_title = ctx
+                .handle()
+                .get_message(ctx.language(), "table-of-contents");
 
             ctx.add_newline();
             ctx.push_str(table_of_contents_title);
@@ -329,10 +333,10 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
             let title: &str = match title {
                 Some(title) => title.as_ref(),
                 None => {
-                    title_default = ctx.handle().get_message(
-                        ctx.language(),
-                        "footnote-block-title",
-                    );
+                    title_default = ctx
+                        .handle()
+                        .get_message(ctx.language(), "footnote-block-title");
+
                     title_default
                 }
             };

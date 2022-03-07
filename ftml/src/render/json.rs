@@ -52,7 +52,10 @@ impl Render for JsonRender {
         page_info: &PageInfo,
         settings: &WikitextSettings,
     ) -> String {
-        info!("Running JSON logger on syntax tree (pretty {})", self.pretty);
+        info!(
+            "Running JSON logger on syntax tree (pretty {})",
+            self.pretty,
+        );
 
         // Get the JSON serializer
         let writer = if self.pretty {

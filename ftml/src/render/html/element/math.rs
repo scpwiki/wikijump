@@ -35,11 +35,7 @@ cfg_if! {
     }
 }
 
-pub fn render_math_block(
-    ctx: &mut HtmlContext,
-    name: Option<&str>,
-    latex_source: &str,
-) {
+pub fn render_math_block(ctx: &mut HtmlContext, name: Option<&str>, latex_source: &str) {
     info!(
         "Rendering math block (name '{}', source '{}')",
         name.unwrap_or("<none>"),
@@ -48,13 +44,7 @@ pub fn render_math_block(
 
     let index = ctx.next_equation_index();
 
-    render_latex(
-        ctx,
-        name,
-        Some(index),
-        latex_source,
-        DisplayStyle::Block,
-    );
+    render_latex(ctx, name, Some(index), latex_source, DisplayStyle::Block);
 }
 
 pub fn render_math_inline(ctx: &mut HtmlContext, latex_source: &str) {

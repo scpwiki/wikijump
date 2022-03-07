@@ -78,7 +78,10 @@ pub fn consume<'p, 'r, 't>(
                 return Ok(output);
             }
             Err(warning) => {
-                warn!("Rule failed, returning warning: '{}'", warning.kind().name());
+                warn!(
+                    "Rule failed, returning warning: '{}'",
+                    warning.kind().name(),
+                );
                 all_exceptions.push(ParseException::Warning(warning));
             }
         }

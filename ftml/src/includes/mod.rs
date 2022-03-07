@@ -124,8 +124,7 @@ where
 
         info!(
             "Replacing range for included page ({}..{})",
-            range.start,
-            range.end,
+            range.start, range.end,
         );
 
         // Ensure the returned page reference matches

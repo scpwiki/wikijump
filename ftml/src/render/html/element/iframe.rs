@@ -21,11 +21,7 @@
 use super::prelude::*;
 use crate::tree::AttributeMap;
 
-pub fn render_iframe(
-    ctx: &mut HtmlContext,
-    url: &str,
-    attributes: &AttributeMap,
-) {
+pub fn render_iframe(ctx: &mut HtmlContext, url: &str, attributes: &AttributeMap) {
     info!("Rendering iframe block (url '{url}')");
 
     ctx.html().iframe().attr(attr!(

@@ -188,9 +188,7 @@ fn parse_list_item<'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     info!(
         "Parsing list item block (name '{}', in-head {}, score {})",
-        name,
-        in_head,
-        flag_score,
+        name, in_head, flag_score,
     );
     assert!(!flag_star, "List item block doesn't allow star flag");
     assert_block_name(&BLOCK_LI, name);

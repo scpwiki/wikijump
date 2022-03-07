@@ -97,12 +97,8 @@ impl Handle {
         )))
     }
 
-    pub fn get_link_label<F>(
-        &self,
-        link: &LinkLocation,
-        label: &LinkLabel,
-        f: F,
-    ) where
+    pub fn get_link_label<F>(&self, link: &LinkLocation, label: &LinkLabel, f: F)
+    where
         F: FnOnce(&str),
     {
         let page_title;
@@ -122,11 +118,7 @@ impl Handle {
         f(label_text);
     }
 
-    pub fn get_message(
-        &self,
-        language: &str,
-        message: &str,
-    ) -> &'static str {
+    pub fn get_message(&self, language: &str, message: &str) -> &'static str {
         info!("Fetching message (language {language}, key {message})");
 
         let _ = language;

@@ -48,16 +48,12 @@ fn block_regular<'r, 't>(
     parse_block(parser, false)
 }
 
-fn block_star<'r, 't>(
-    parser: &mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Elements<'t>> {
+fn block_star<'r, 't>(parser: &mut Parser<'r, 't>) -> ParseResult<'r, 't, Elements<'t>> {
     info!("Trying to process a block (with star flag)");
     parse_block(parser, true)
 }
 
-fn block_skip<'r, 't>(
-    parser: &mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Elements<'t>> {
+fn block_skip<'r, 't>(parser: &mut Parser<'r, 't>) -> ParseResult<'r, 't, Elements<'t>> {
     info!("Trying to see if we skip a newline due to upcoming block");
     let current = parser.step()?;
 

@@ -272,8 +272,7 @@ where
     ) -> ParseResult<'r, 't, Vec<Element<'t>>> {
         info!(
             "Getting block body as elements (block rule {}, as-paragraphs {})",
-            block_rule.name,
-            as_paragraphs,
+            block_rule.name, as_paragraphs,
         );
 
         if as_paragraphs {
@@ -318,8 +317,7 @@ where
 
             first = false;
             let old_remaining = self.remaining();
-            let elements = consume(self)?
-                .chain(&mut all_exceptions, &mut paragraph_safe);
+            let elements = consume(self)?.chain(&mut all_exceptions, &mut paragraph_safe);
             all_elements.extend(elements);
 
             // Step if the rule hasn't moved the pointer itself

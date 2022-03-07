@@ -93,10 +93,7 @@ fn parse_fn<'r, 't>(
     ok!(paragraph_safe; elements, exceptions)
 }
 
-pub fn check_ifcategory(
-    info: &PageInfo,
-    conditions: &[ElementCondition],
-) -> bool {
+pub fn check_ifcategory(info: &PageInfo, conditions: &[ElementCondition]) -> bool {
     let category = match &info.category {
         Some(category) => category,
         None => "_default",

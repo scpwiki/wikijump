@@ -53,11 +53,7 @@ pub fn render_container(ctx: &mut HtmlContext, container: &Container) {
     tag.inner(container.elements());
 }
 
-pub fn render_color(
-    ctx: &mut HtmlContext,
-    color: &str,
-    elements: &[Element],
-) {
+pub fn render_color(ctx: &mut HtmlContext, color: &str, elements: &[Element]) {
     info!("Rendering color container (color '{color}')");
 
     ctx.html()
