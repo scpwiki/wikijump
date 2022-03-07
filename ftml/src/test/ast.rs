@@ -192,9 +192,8 @@ impl Test<'_> {
         }
 
         info!(
-            "Running syntax tree test case";
-            "name" => &self.name,
-            "input" => &self.input,
+            "Running syntax tree test case {} on {}",
+            &self.name, &self.input,
         );
 
         println!("+ {}", self.name);
@@ -354,7 +353,7 @@ fn ast_and_html() {
     // Run tests
     println!("Running {} syntax tree tests:", tests.len());
     for test in tests {
-        test.run(&log);
+        test.run();
     }
 
     // Ensure we don't accidentally commit excluded tests

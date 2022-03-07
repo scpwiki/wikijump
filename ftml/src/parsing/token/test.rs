@@ -24,7 +24,7 @@ use super::*;
 fn tokens() {
     macro_rules! test {
         ($input:expr, $expected:expr $(,)?) => {{
-            info!("Testing tokens!"; "input" => $input);
+            info!("Testing tokens! Input: {}", $input);
 
             let expected: Vec<ExtractedToken> = $expected;
             let result = {

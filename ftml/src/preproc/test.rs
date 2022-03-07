@@ -33,7 +33,7 @@ where
 
         info!("Testing {filter_name} substitution");
 
-        substitute(&&mut string);
+        substitute(&mut string);
 
         assert_eq!(
             &string, expected,
