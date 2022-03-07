@@ -250,6 +250,7 @@ class FileAction extends SmartyAction
 
             $f->save();
             // create a new revision
+            /*
             $revision = $page->getCurrentRevision();
             $revision->setNew(true);
             $revision->setRevisionId(null);
@@ -277,6 +278,7 @@ class FileAction extends SmartyAction
             $page->setDateLastEdited($now);
             $page->setRevisionNumber($revision->getRevisionNumber());
             $page->save();
+            */
 
             // in case there is a gallery plugin or an image pointing
             // to the file - simpy recompile the page

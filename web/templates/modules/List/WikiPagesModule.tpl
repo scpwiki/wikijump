@@ -9,7 +9,7 @@
 							<a href="/{$page->getUnixname()}">{if $page->title|escape}{$page->title|escape}{else}{$page->slug|escape}{/if}</a>
 						</td>
 						<td class="last-mod-by">
-							{printuser user=$page->getLastEditUserOrString()}
+							{printuser user=$page->revision_user_id}
 						</td>
 						<td class="revision-no">
 							({if $page->getRevisionNumber() == 0}new{else}rev. {$page->getRevisionNumber()}{/if})
@@ -25,25 +25,6 @@
 				</div>
 			{/if}
 		</div>
-
-	{*	<div class="pages-list-item">
-			{if $details}
-
-				<div class="last-mod-by">
-					{printuser user=$page->getLastEditUserOrString()}
-				</div>
-				<div class="revision-no">
-					({if $page->getRevisionNumber() == 0}new{else}rev. {$page->getRevisionNumber()}{/if})
-				</div>
-				<div class="last-mod-date">
-					<span class="odate">{$page->getDateLastEdited()->getTimestamp()}|%e %b %Y - %H:%M|agohover</span>
-				</div>
-			{/if}
-			<div class="title">
-				<a href="/{$page->slug}">{if $page->title|escape}{$page->title|escape}{else}{$page->slug|escape}{/if}</a>
-			</div>
-		</div>
-		*}
 	{/foreach}
 </div>
 {else}

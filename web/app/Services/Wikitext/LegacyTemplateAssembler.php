@@ -5,6 +5,7 @@ namespace Wikijump\Services\Wikitext;
 
 use Ds\Set;
 use Wikidot\DB\ForumThreadPeer;
+use Wikidot\DB\SitePeer;
 use Wikidot\Utils\GlobalProperties;
 use Wikijump\Helpers\LegacyTools;
 use Wikijump\Models\User;
@@ -93,9 +94,7 @@ final class LegacyTemplateAssembler
             }
             $b = str_ireplace('%%%%%author%%%%%', $userString, $b);
             $b = str_ireplace('%%%%%user%%%%%', $userString, $b);
-
             $b = str_ireplace('%%%%%user_edited%%%%%', $userString, $b);
-
             $b = preg_replace(
                 ';%%%%%date(\|.*?)?%%%%%;',
                 '%%%%%date|' . $page->getDateCreated()->getTimestamp() . '\\1%%%%%',
@@ -130,7 +129,7 @@ final class LegacyTemplateAssembler
             $b = str_ireplace('%%%%%category%%%%%', $categoryName00, $b);
 
             /* %%link%% */
-            $site = $page->getSite();
+            $site = SitePeer::instance()->selectByPrimaryKey($page->site_id);
             $b = str_ireplace(
                 '%%%%%link%%%%%',
                 GlobalProperties::$HTTP_SCHEMA . '://' . $site->getDomain() . '/' . $page->slug,

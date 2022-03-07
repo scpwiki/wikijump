@@ -4,15 +4,14 @@ namespace Wikidot\Screens\Feed;
 
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
-use Ozone\Framework\Ozone;
 use Wikidot\DB\PageRevisionPeer;
+use Wikidot\DB\SitePeer;
 use Wikidot\Utils\FeedScreen;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\WDRenderUtils;
 
 class WatchedPageChangesFeed extends FeedScreen
 {
-
     protected $requiresAuthentication = true;
 
     public function render($runData)
@@ -30,9 +29,7 @@ class WatchedPageChangesFeed extends FeedScreen
 
     public function build($runData)
     {
-
         $user = $runData->getTemp("user");
-        $userId = $user->id;
 
         // set language for the user
         $lang = $user->language;
@@ -74,8 +71,8 @@ class WatchedPageChangesFeed extends FeedScreen
 
         foreach ($revisions as $rev) {
             $page = $rev->getPage();
-            $site = $page->getSite();
-            $item = array();
+            $site = SitePeer::instance()->findByPrimaryKey($page->site_id);
+            $item = [];
 
             $item['title'] = '"'.$page->title.'" '._('on site').' "'.
                 $site->getName().'"';

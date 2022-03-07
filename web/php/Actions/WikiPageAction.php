@@ -164,22 +164,11 @@ class WikiPageAction extends SmartyAction
             $pageRevision->setCompiledHash('cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e');
             $pageRevision->setCompiledGenerator('');
 
-            $pageMetadata = new PageMetadata();
-            $pageMetadata->setTitle($title);
-
-            $pageMetadata->setUnixName($unixName);
-            if ($userId) {
-                $pageMetadata -> setOwnerUserId($userId);
-            }
-            $pageMetadata->save();
-            $pageRevision->setMetadataId($pageMetadata->getMetadataId());
-
             // update the page object
 
             $page->setUnixName($unixName);
             $page->setDateCreated($nowDate);
             $page->setSiteId($site->getSiteId());
-            $page->setMetadataId($pageMetadata->getMetadataId());
             $page->setTitle($title);
             $page->setDateLastEdited($nowDate);
             $page->setTagsArray([]);
@@ -222,6 +211,7 @@ class WikiPageAction extends SmartyAction
             // check if source or metadata has changed. if neither is changed - do nothing
 
             // get current revision
+            /*
             $currentRevision = $page->getCurrentRevision();
 
             // compare source text
@@ -236,18 +226,9 @@ class WikiPageAction extends SmartyAction
             $pageRevision = new PageRevision();
             $pageRevision->setSiteId($site->getSiteId());
 
-            // compare metadata
-            $metadataChanged = false;
-            $oldMetadata = $page->getMetadata();
-            // check only if the whole page is edited
-            if ($title !== $oldMetadata->title) {
-                $pageRevision->setFlagTitle(true);
-                $metadataChanged = true;
-            }
-
             // and act accordingly to the situation
 
-            if ($sourceChanged == false && $metadataChanged == false) {
+            if ($sourceChanged == false) {
                 $db->commit();
                 return;
             }
@@ -257,18 +238,7 @@ class WikiPageAction extends SmartyAction
             $pageRevision->setRevisionNumber($currentRevision->getRevisionNumber()+1);
             $pageRevision->setFlagText(true);
 
-            if ($metadataChanged) {
-                $pageMetadata = clone($oldMetadata);
-                $pageMetadata->setNew(true);
-                $pageMetadata->setMetadataId(null);
-                $pageMetadata->setTitle($title);
-                $pageMetadata->save();
-
-                $pageRevision->setMetadataId($pageMetadata->getMetadataId());
-            } else {
-                // copy metadata id
-                $pageRevision->setMetadataId($currentRevision->getMetadataId());
-            }
+            // copy metadata id
 
             // now set user_id, user_string
 
@@ -298,7 +268,6 @@ class WikiPageAction extends SmartyAction
 
             $page->setTitle($title);
             $page->setDateLastEdited($nowDate);
-            $page->setMetadataId($pageRevision->getMetadataId());
             $page->setRevisionNumber($pageRevision->getRevisionNumber());
             $page->save();
             $db->commit();
@@ -311,6 +280,7 @@ class WikiPageAction extends SmartyAction
             if ($metadataChanged) {
                 $outdater->pageEvent("title_changed", $page);
             }
+            */
         }
     }
 
@@ -360,7 +330,6 @@ class WikiPageAction extends SmartyAction
         // success so far...
 
         // create new revision, new metadata and alter the page object too.
-        $oldMetadata = $page->getMetadata();
         $metadata = clone($oldMetadata);
         $metadata->setNew(true);
         $metadata->setMetadataId(null);
@@ -371,7 +340,6 @@ class WikiPageAction extends SmartyAction
         $revision = new PageRevision();
         $revision->setSiteId($site->getSiteId());
         $revision->setPageId($page->getPageId());
-        $revision->setMetadataId($metadata->getMetadataId());
         $revision->setFlagRename(true);
         $revision->setRevisionNumber($oldRevision->getRevisionNumber()+1);
 
@@ -565,7 +533,6 @@ class WikiPageAction extends SmartyAction
 
             // create a new revision!!!!!!!!!!!!!!!
             // create new revision, new metadata and alter the page object too.
-            $oldMetadata = $page->getMetadata();
             $metadata = clone($oldMetadata);
             $metadata->setNew(true);
             $metadata->setMetadataId(null);
@@ -577,7 +544,6 @@ class WikiPageAction extends SmartyAction
             $revision->setRevisionId(null);
             $revision->resetFlags();
             $revision->setFlagMeta(true);
-            $revision->setMetadataId($metadata->getMetadataId());
 
             $revision->setRevisionNumber($revision->getRevisionNumber() +1);
             $now = new ODate();
@@ -643,23 +609,9 @@ class WikiPageAction extends SmartyAction
         // get the revision
 
         $toRevision = PageRevisionPeer::instance()->selectByPrimaryKey($revisionId);
-        $toMeta = PageMetadataPeer::instance()->selectByPrimaryKey($toRevision->getMetadataId());
         $currentRevision = $page->getCurrentRevision();
 
-        $currentMeta = $currentRevision->getMetadata();
-
         // success so far...
-
-        $titleChanged = false;
-        if ($toMeta->title !== $currentMeta->title) {
-            // change the title, need to create a new metadata...
-            $metadata = clone($currentMeta);
-            $metadata->setMetadataId(null);
-            $metadata->setNew(true);
-            $metadata->setTitle($toMeta->title);
-            $metadata->save();
-            $titleChanged = true;
-        }
 
         $userId = $runData->getUserId();
         if ($userId === null) {
@@ -676,14 +628,6 @@ class WikiPageAction extends SmartyAction
         $revision->setNew(true);
         $revision->setRevisionId(null);
         $revision->resetFlags();
-        if ($sourceChanged) {
-            $revision->setFlagText(true);
-        }
-        if ($titleChanged) {
-            $revision->setFlagTitle(true);
-            $revision->setMetadataId($metadata->getMetadataId());
-            $page->setTitle($toMeta->title);
-        }
 
         $revision->setComments(_("Reverted to page revision number")." ".$toRevision->getRevisionNumber());
 
@@ -713,12 +657,6 @@ class WikiPageAction extends SmartyAction
 
         // outdate party!
         $outdater = new Outdater();
-        if ($sourceChanged) {
-            $outdater->pageEvent("source_changed", $page);
-        }
-        if ($titleChanged) {
-            $outdater->pageEvent("title_changed", $page);
-        }
         // index page
         $db->commit();
 

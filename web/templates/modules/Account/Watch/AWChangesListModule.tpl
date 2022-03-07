@@ -6,7 +6,7 @@
 	{foreach from=$revisions item=revision}
 
 		{assign var=page value=$revision->getPage()}
-		{assign var=site value=$page->getSite()}
+		{assign var=site value=SitePeer::instance()->selectByPrimaryKey($page->site_id)}
 		<div class="changes-list-item">
 
 			<table>

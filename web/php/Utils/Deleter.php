@@ -10,9 +10,6 @@ class Deleter
 {
     private static ?Deleter $instance = null;
 
-    private array $vars = [];
-    private int $recurrenceLevel = 0;
-
     public static function instance()
     {
         if (self::$instance === null) {
@@ -60,9 +57,6 @@ class Deleter
                     $p->setParentPageId(null);
                     $p->save();
                     // clear metadata
-                    $m = $p->getMetadata();
-                    $m->setParentPageId(null);
-                    $m->save();
                 }
             }
             $descs = array_merge($descs, $pages, $p2);

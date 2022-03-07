@@ -2,7 +2,9 @@
 
 namespace Wikidot\Modules\Files;
 
+use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\SmartyModule;
+use Wikidot\DB\FilePeer;
 use Wikidot\Utils\FileHelper;
 use Wikidot\Utils\ProcessException;
 use Wikijump\Services\Deepwell\Models\Page;
@@ -22,7 +24,11 @@ class PageFilesModule extends SmartyModule
         if ($page === null || $page->getSiteId() !== $site->getSiteId()) {
             throw new ProcessException(_("The page cannot be found or does not exist."), "no_page");
         }
-        $files = $page->getFiles();
+        $q = "SELECT * FROM file WHERE page_id='" . $this->getPageId() . "' ORDER BY filename, file_id DESC";
+        $c = new Criteria();
+        $c->setExplicitQuery($q);
+
+        return FilePeer::instance()->select($c);
 
         if (count($files) > 0) {
             $runData->contextAdd("files", $files);
