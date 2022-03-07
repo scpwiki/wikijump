@@ -138,7 +138,7 @@ class WikiScreen extends Screen
 
             // show options?
             $showPageOptions = true;
-            $runData->contextAdd("showPageoptions", $showPageOptions);
+            $runData->contextAdd("showPageOptions", $showPageOptions);
 
             // Get the tags and convert them to string.
             $tags = new Set(); // PagePeer::getTags($page->getPageId());

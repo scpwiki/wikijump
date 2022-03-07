@@ -212,8 +212,8 @@ final class LegacyTools
 
             // show options?
             $showPageOptions = true;
-            $runData->contextAdd("showPageoptions", $showPageOptions);
-            $return['showPageoptions'] = true;
+            $runData->contextAdd("showPageOptions", $showPageOptions);
+            $return['showPageOptions'] = true;
 
             // get the tags
             $runData->contextAdd("tags", $page->tags);
