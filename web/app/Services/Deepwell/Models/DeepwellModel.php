@@ -5,5 +5,5 @@ namespace Wikijump\Services\Deepwell\Models;
 
 abstract class DeepwellModel
 {
-    public abstract function id(): int;
+    abstract public function id(): int;
 }
