@@ -51,11 +51,6 @@ class PageRevision extends PageRevisionBase
         }
     }
 
-    public function getMetadata(): PageMetadata
-    {
-        return PageMetadataPeer::instance()->selectByPrimaryKey($this->getMetadataId());
-    }
-
     public function getPage(): ?Page
     {
         if (is_array($this->prefetched)) {

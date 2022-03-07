@@ -12,7 +12,6 @@ use Wikidot\DB\ThemePeer;
 use Wikidot\DB\ForumGroupPeer;
 use Wikidot\DB\ForumCategoryPeer;
 use Wikidot\DB\FilePeer;
-use Wikidot\DB\PageMetadata;
 use Wikidot\DB\PageRevision;
 use Wikidot\DB\Page;
 use Wikijump\Services\Deepwell\Models\Category;
@@ -277,17 +276,6 @@ class Duplicator
         $owner = $this->owner;
         $now = new ODate();
 
-        $meta = $page->getMetadata();
-        $nmeta = new PageMetadata();
-        $nmeta->setTitle($meta->title);
-        $nmeta->setSlug($newUnixName);
-        if ($owner) {
-            $nmeta->setOwnerUserId($owner->id);
-        } else {
-            $nmeta->setOwnerUserId($meta->getOwnerUserId());
-        }
-        $nmeta->save();
-
         $rev = $page->getCurrentRevision();
         $nrev = new PageRevision();
         $nrev->setSiteId($nsite->getSiteId());
@@ -403,17 +391,6 @@ class Duplicator
                 $newUnixName = $page->slug;
 
                 $now = new ODate();
-
-                $meta = $page->getTemp("meta");
-                $nmeta = new PageMetadata();
-                $nmeta->setTitle($meta->title);
-                $nmeta->setUnixName($newUnixName);
-                if ($owner) {
-                    $nmeta->setOwnerUserId($owner->getUserId());
-                } else {
-                    $nmeta->setOwnerUserId($meta->getOwnerUserId());
-                }
-                $nmeta->save();
 
                 $rev = null; // TODO get latest revision for $page->getPageId()
                 $nrev = new PageRevision();
