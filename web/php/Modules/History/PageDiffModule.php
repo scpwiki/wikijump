@@ -2,12 +2,11 @@
 
 namespace Wikidot\Modules\History;
 
+use Ozone\Framework\SmartyModule;
 use Wikidot\DB\PageRevisionPeer;
-use Wikidot\DB\PagePeer;
 use Wikidot\Utils\Diff;
 use Wikidot\Utils\ProcessException;
-
-use Ozone\Framework\SmartyModule;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class PageDiffModule extends SmartyModule
 {
@@ -45,11 +44,11 @@ class PageDiffModule extends SmartyModule
         if ($fromMetadata->getParentPageId() !== $toMetadata->getParentPageId()) {
             $changed['parent'] = true;
             if ($fromMetadata->getParentPageId()) {
-                $fromParent = PagePeer::instance()->selectByPrimaryKey($fromMetadata->getParentPageId())->getUnixName();
+                $fromParent = Page::findIdOnly($fromMetadata->getParentPageId())->slug;
                 $runData->contextAdd("fromParent", $fromParent);
             }
             if ($toMetadata->getParentPageId()) {
-                $toParent = PagePeer::instance()->selectByPrimaryKey($toMetadata->getParentPageId())->getUnixName();
+                $toParent = Page::findIdOnly($toMetadata->getParentPageId())->slug;
                 $runData->contextAdd("toParent", $toParent);
             }
         }

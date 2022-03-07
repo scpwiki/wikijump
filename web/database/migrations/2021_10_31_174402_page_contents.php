@@ -47,7 +47,7 @@ class PageContents extends Migration
                 'revision_id' => $revision->revision_id,
                 'wikitext' => $wikitext ?? '',
                 'compiled_html' => $compiled_html ?? '',
-                'generator' => 'Text_Wiki 0.0.1',
+                'generator' => 'Text_Wiki (legacy)',
             ]);
         }
 

@@ -18,21 +18,42 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+//! Definitions of methods invoked by different API routes.
+//!
+//! This module contains functions defining various routes used by the web server,
+//! so that they can be referred to and reused by name.
+//!
+//! The module should not contain any core business logic of its own, but should
+//! be simple wrappers around the various service methods exposed by structures
+//! in the `services` module.
+
 mod prelude {
     pub use crate::api::{ApiRequest, ApiResponse};
     pub use crate::services::{
-        Error as ServiceError, LinkService, PageService, PostTransactionToApiResponse,
-        RequestFetchService, ServiceContext, TextService, UserService,
+        CategoryService, Error as ServiceError, LinkService, PageService,
+        PostTransactionToApiResponse, RenderService, RequestFetchService,
+        RevisionService, ServiceContext, SiteService, TextService, UserService,
     };
     pub use crate::web::{utils::error_response, HttpUnwrap, Reference};
     pub use chrono::prelude::*;
-    pub use sea_orm::ConnectionTrait;
+    pub use sea_orm::{ConnectionTrait, TransactionTrait};
     pub use std::convert::TryFrom;
     pub use tide::{Body, Error as TideError, Request, Response, StatusCode};
+
+    pub fn exists_status(exists: bool) -> ApiResponse {
+        if exists {
+            Ok(Response::new(StatusCode::NoContent))
+        } else {
+            Ok(Response::new(StatusCode::NotFound))
+        }
+    }
 }
 
+pub mod category;
 pub mod locales;
 pub mod misc;
 pub mod page;
+pub mod revision;
+pub mod site;
 pub mod text;
 pub mod user;

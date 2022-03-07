@@ -2,10 +2,8 @@
 
 namespace Wikidot\Modules\ManageSite;
 
-use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\CategoryPeer;
-use Wikidot\Utils\ManageSiteBaseModule;
 use Wikijump\Services\License\LicenseMapping;
+use Wikijump\Services\Deepwell\Models\Category;
 
 class ManageSiteLicenseModule extends ManageSiteBaseModule
 {
@@ -15,10 +13,7 @@ class ManageSiteLicenseModule extends ManageSiteBaseModule
         $runData->contextAdd('site', $site);
 
         // get all categories for the site
-        $c = new Criteria();
-        $c->add('site_id', $site->getSiteId());
-        $c->addOrderAscending("replace(name, '_', '00000000')"); // Weird wikidot hack to make "_default" et all appear at the top
-        $categories = CategoryPeer::instance()->select($c);
+        $categories = Category::findAll($site->getSiteId());
         $runData->contextAdd('categories', $categories);
 
         // also prepare categories to put into javascript...

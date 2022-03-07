@@ -4,14 +4,13 @@ namespace Wikidot\Screens\Feed;
 
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
-use Ozone\Framework\Ozone;
-use Wikidot\DB\CategoryPeer;
-use Wikidot\DB\PagePeer;
 use Wikidot\Utils\FeedScreen;
 use Wikidot\Utils\GlobalProperties;
 use Wikijump\Models\User;
 use Wikijump\Services\Wikitext\ParseRenderMode;
 use Wikijump\Services\Wikitext\WikitextBackend;
+use Wikijump\Services\Deepwell\Models\Category;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class PagesFeed extends FeedScreen
 {
@@ -23,7 +22,7 @@ class PagesFeed extends FeedScreen
         $categoryName = $pl->getParameterValue("category");
         $parmHash = md5(serialize($pl->asArray()));
 
-        $key = 'listpagesfeed_v..'.$site->getUnixName().'..'.$categoryName.'..'.$parmHash;
+        $key = 'listpagesfeed_v..'.$site->getSlug().'..'.$categoryName.'..'.$parmHash;
 
         $valid = true;
 
@@ -38,7 +37,7 @@ class PagesFeed extends FeedScreen
         $cats = preg_split('/[,;\s]+?/', $categoryName);
 
         foreach ($cats as $cat) {
-            $tkey = 'pagecategory_lc..'.$site->getUnixName().'..'.$cat; // last change timestamp
+            $tkey = 'pagecategory_lc..'.$site->getSlug().'..'.$cat; // last change timestamp
             $changeTimestamp = Cache::get($tkey);
             if ($changeTimestamp && $cacheTimestamp && $changeTimestamp <= $cacheTimestamp) {
                 //cache valid
@@ -53,7 +52,7 @@ class PagesFeed extends FeedScreen
         }
 
         if (count($cats) == 0) {
-            $akey = 'pageall_lc..'.$site->getUnixName();
+            $akey = 'pageall_lc..'.$site->getSlug();
             $allPagesTimestamp = Cache::get($akey);
             if ($allPagesTimestamp && $cacheTimestamp && $allPagesTimestamp <= $cacheTimestamp) {
                 //cache valid
@@ -102,16 +101,12 @@ class PagesFeed extends FeedScreen
         $categoryNames = array();
 
         foreach (preg_split('/[,;\s]+?/', $categoryName) as $cn) {
-            $category = CategoryPeer::instance()->selectByName($cn, $site->getSiteId());
+            $category = Category::findSlug($site->getSiteId(), $cn);
             if ($category) {
                 $categories[] = $category;
                 $categoryNames[] = $category->getName();
             }
         }
-        //if(count($categories) == 0){
-        //  throw new ProcessException(_("The category cannot be found."));
-        //}
-
 
         // now select pages according to the specified criteria
 
@@ -229,7 +224,7 @@ class PagesFeed extends FeedScreen
             $pageNo = 1;
         }
 
-        $co = PagePeer::instance()->selectCount($c);
+        $co = 0; // TODO run query, count pages
 
         $totalPages = ceil($co/$perPage);
         if ($pageNo>$totalPages) {
@@ -270,7 +265,7 @@ class PagesFeed extends FeedScreen
                 break;
         }
 
-        $pages = PagePeer::instance()->select($c);
+        $pages = [null]; // TODO run query
 
         /* Process... */
         $format = $pl->getParameterValue("module_body");
@@ -284,13 +279,13 @@ class PagesFeed extends FeedScreen
         $items = array();
 
         foreach ($pages as $page) {
-            $title = $page->getTitle();
-            $source = $page->getSource();
+            $title = $page->title;
+            $source = $page->wikitext;
 
             $item = array();
 
-            $item['title'] = $page->getTitle();
-            $item['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/".$page->getUnixName();
+            $item['title'] = $page->title;
+            $item['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/".$page->slug;
             $item['guid'] = $item['link'];
             $item['date'] = date('r', $page->getDateCreated()->getTimestamp());
 
@@ -345,11 +340,6 @@ class PagesFeed extends FeedScreen
         }
         $channel = array();
         $channel['title'] = $pl->getParameterValue("t");
-        //$channel['link'] = "http://".$site->getDomain()."/".$page->getUnixName();
-//      if($feed->getDescription()){
-//          $channel['description'] = $feed->getDescription();
-//      }
-
         $runData->contextAdd("channel", $channel);
         $runData->contextAdd("items", $items);
     }

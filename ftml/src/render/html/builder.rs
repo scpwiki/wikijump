@@ -90,8 +90,8 @@ where
             _ => "0 0 24 24",
         };
 
-        let class = format!("wj-sprite sprite-{}", id);
-        let href = format!("/files--static/media/ui.svg#{}", id);
+        let class = format!("wj-sprite sprite-{id}");
+        let href = format!("/files--static/media/ui.svg#{id}");
 
         self.tag("svg")
             .attr(attr!(

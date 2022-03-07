@@ -5,8 +5,6 @@ namespace Wikidot\Form\Field;
 
 use Wikidot\Utils\WDStringUtils;
 use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\CategoryPeer;
-use Wikidot\DB\PagePeer;
 
 class PagePath extends WikiBase
 {
@@ -54,12 +52,12 @@ class PagePath extends WikiBase
 
         $selects = array();
 
+        /*
         $c = new Criteria();
         $c->add('name', $this->field['category']);
 
         if ($category = CategoryPeer::instance()->selectOne($c)) {
             $categoryId = $category->getCategoryId();
-            $pages = array();
             $parentId = null;
 
             foreach ($path as $part) {
@@ -69,8 +67,8 @@ class PagePath extends WikiBase
                 $pages = $this->selectPagesByParent($categoryId, $parentId);
                 $parentId = null;
                 foreach ($pages as $page) {
-                    $unixName = htmlspecialchars($page->getUnixName());
-                    $title = htmlspecialchars($page->getTitleOrUnixName());
+                    $unixName = htmlspecialchars($page->slug);
+                    $title = htmlspecialchars($page->title);
                     $selected = "";
                     if ($unixName == $part) {
                         $selected = ' selected="selected"';
@@ -86,9 +84,9 @@ class PagePath extends WikiBase
                 }
             }
         }
+        */
 
         $selectsEnd = '';
-        $selectsNo = count($selects);
         for ($i = 1; $i < count($selects); $i++) {
             $selectsEnd .= '</span>';
         }
@@ -127,6 +125,7 @@ class PagePath extends WikiBase
         } else {
             $c->setExplicitQuery("SELECT * FROM page WHERE category_id = $categoryId AND parent_page_id IS NULL");
         }
-        return PagePeer::instance()->select($c);
+        // TODO get pages
+        return [null];
     }
 }

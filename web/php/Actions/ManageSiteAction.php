@@ -9,8 +9,6 @@ use Ozone\Framework\Database\Database;
 use Ozone\Framework\JSONService;
 use Ozone\Framework\SmartyAction;
 use Wikidot\Config\ForbiddenNames;
-use Wikidot\DB\CategoryPeer;
-use Wikidot\DB\PagePeer;
 use Wikidot\DB\ThemePeer;
 use Wikidot\DB\Theme;
 use Wikidot\DB\SitePeer;
@@ -28,6 +26,8 @@ use Wikidot\Utils\Outdater;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionManager;
 use Wikidot\Utils\WDStringUtils;
+use Wikijump\Services\Deepwell\Models\Category;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class ManageSiteAction extends SmartyAction
 {
@@ -64,7 +64,7 @@ class ManageSiteAction extends SmartyAction
             $c = new Criteria();
             $c->add("category_id", $categoryId);
             $c->add("site_id", $siteId); // for sure
-            $dCategory = CategoryPeer::instance()->selectOne($c);
+            $dCategory = null; /* CategoryPeer::instance()->selectOne($c); */
 
             // now compare
             $changed = false;
@@ -105,7 +105,7 @@ class ManageSiteAction extends SmartyAction
                 $c->add("site_id", $dCategory->getSiteId());
                 $c->add("theme_default", true);
                 $c->add("name", "_default", '!=');
-                $depcats = CategoryPeer::instance()->select($c);
+                $depcats = [null]; /* CategoryPeer::instance()->select($c); */
                 foreach ($depcats as $dc) {
                     $outdater = new Outdater();
                     $outdater->categoryEvent("category_save", $dc);
@@ -124,8 +124,8 @@ class ManageSiteAction extends SmartyAction
         if ($pageName == '') {
             throw new ProcessException(_("No page given."), "form_error");
         }
-        $page = PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
-        if ($page == null) {
+        $page = Page::findSlug($site->getSiteId(), $pageName);
+        if ($page === null) {
             throw new ProcessException(_("No page found with this name."), "form_error");
         }
         $source = $page->getSource();
@@ -226,15 +226,12 @@ class ManageSiteAction extends SmartyAction
         }
 
         // handle code now
-        $dir = WIKIJUMP_ROOT."/web/files--sites/".$site->getUnixName()."/theme/".$unixName;
+        $dir = WIKIJUMP_ROOT."/web/files--sites/".$site->getSlug()."/theme/".$unixName;
         mkdirfull($dir);
         file_put_contents($dir."/style.css", $code);
 
         $theme->setRevisionNumber($theme->getRevisionNumber()+1);
-
         $theme->save();
-        $outdater = new Outdater();
-        $outdater->themeEvent("theme_save", $theme);
 
         $db->commit();
         if (GlobalProperties::$UI_SLEEP) {
@@ -255,14 +252,6 @@ class ManageSiteAction extends SmartyAction
         $db = Database::connection();
         $db->begin();
 
-        // now check if theme is used by pages (categories)
-        $c = new Criteria();
-        $c->add("theme_id", $theme->getThemeId());
-        $c->add("site_id", $site->getSiteId());
-        $cats = CategoryPeer::instance()->select($c);
-        if (count($cats)>0) {
-            throw new ProcessException(_("This theme cannot be deleted because there are still pages that use it. Please check themes assigned to particular categories."), "can_not_delete");
-        }
         // ok, delete now!
         ThemePeer::instance()->deleteByPrimaryKey($theme->getThemeId());
 
@@ -287,9 +276,9 @@ class ManageSiteAction extends SmartyAction
             $c = new Criteria();
             $c->add("category_id", $categoryId);
             $c->add("site_id", $siteId);
-            $dCategory = CategoryPeer::instance()->selectOne($c);
+            $dCategory = null; // CategoryPeer::instance()->selectOne($c);
             if ($dCategory == null) {
-                throw new ProcessException(_("Error saving changes - one of the categories could not be found."), "no_category");
+                //throw new ProcessException(_("Error saving changes - one of the categories could not be found."), "no_category");
             }
             // now compare
             $changed = false;
@@ -329,9 +318,9 @@ class ManageSiteAction extends SmartyAction
             $c = new Criteria();
             $c->add("category_id", $categoryId);
             $c->add("site_id", $siteId);
-            $dCategory = CategoryPeer::instance()->selectOne($c);
-            if ($dCategory == null) {
-                throw new ProcessException("Invalid category.");
+            $dCategory = null; // CategoryPeer::instance()->selectOne($c);
+            if ($dCategory === null) {
+                //throw new ProcessException("Invalid category.");
             }
 
             // now compare
@@ -339,7 +328,7 @@ class ManageSiteAction extends SmartyAction
             $permstring = $category['permissions'];
 
             //validate permstring
-            $p2 = explode(";", $permstring);
+            $p2 = explode(';', $permstring);
             foreach ($p2 as $perm) {
                 if (!$category['permissions_default'] && preg_match("/^[vecmdarzo]:[armo]{0,4}$/", $perm) == 0) {
                     throw new ProcessException(_("Error saving permissions - invalid internal format. Please try again and contact admins if the problem repeats."));
@@ -367,64 +356,8 @@ class ManageSiteAction extends SmartyAction
         }
     }
 
-    public function saveLicenseEvent($runData)
-    {
-        $pl =  $runData->getParameterList();
-        $site = $runData->getTemp("site");
-        $siteId = $site->getSiteId();
-        $json = new JSONService(SERVICES_JSON_LOOSE_TYPE);
-        $cats0 = $json->decode($pl->getParameterValue("categories"));
-
-        /* for each category
-     *  - get a category from database
-     *  - check if license_id or license_inherits has changed
-     *  - if changed: update
-     */
-        $db = Database::connection();
-        $db->begin();
-        foreach ($cats0 as $category) {
-            $categoryId = $category['category_id'];
-            $c = new Criteria();
-            $c->add("category_id", $categoryId);
-            $c->add("site_id", $siteId);
-            $dCategory = CategoryPeer::instance()->selectOne($c);
-
-            // now compare
-            $changed = false;
-            if ($category['license_id'] != $dCategory->getLicenseId()) {
-                $dCategory->setLicenseId($category['license_id']);
-                $changed = true;
-            }
-            if ($category['license_inherits'] != $dCategory->getLicenseInherits()) {
-                $dCategory->setLicenseInherits($category['license_inherits']);
-                $changed = true;
-            }
-            if ($changed) {
-                $dCategory->save();
-                // outdate category
-                $outdater = new Outdater();
-                $outdater->categoryEvent("category_save", $dCategory);
-            }
-
-            if ($changed && $dCategory->getName()=='_default') {
-                // outdate all that depends somehow
-                $c = new Criteria();
-                $c->add("site_id", $dCategory->getSiteId());
-                $c->add("license_inherits", true);
-                $c->add("name", "_default", '!=');
-                $depcats = CategoryPeer::instance()->select($c);
-                foreach ($depcats as $dc) {
-                    $outdater = new Outdater();
-                    $outdater->categoryEvent("category_save", $dc);
-                }
-            }
-        }
-        $db->commit();
-    }
-
     public function saveGeneralEvent($runData)
     {
-
         $pl = $runData->getParameterList();
         $name = trim($pl->getParameterValue("name"));
         $subtitle = trim($pl->getParameterValue("subtitle"));
@@ -460,7 +393,6 @@ class ManageSiteAction extends SmartyAction
         }
 
         $site = $runData->getTemp("site");
-        $siteId = $site->getSiteId();
         $changed = false;
         if ($site->getName() !== $name) {
             $site->setName($name);
@@ -617,7 +549,7 @@ class ManageSiteAction extends SmartyAction
             }
             if ($domain != '') {
                 symlink(
-                    WIKIJUMP_ROOT.'/web/files--sites/'.$site->getUnixName(),
+                    WIKIJUMP_ROOT.'/web/files--sites/'.$site->getSlug(),
                     $cdLinkDir.$domain
                 );
             }
@@ -652,9 +584,8 @@ class ManageSiteAction extends SmartyAction
             $categoryId = $category['category_id'];
             $c = new Criteria();
             $c->add("category_id", $categoryId);
-
             $c->add("site_id", $siteId);
-            $dCategory = CategoryPeer::instance()->selectOne($c);
+            $dCategory = null; // CategoryPeer::instance()->selectOne($c);
 
             // now compare
             $changed = false;
@@ -683,7 +614,7 @@ class ManageSiteAction extends SmartyAction
                 $c->add("site_id", $dCategory->getSiteId());
                 $c->add("nav_default", true);
                 $c->add("name", "_default", '!=');
-                $depcats = CategoryPeer::instance()->select($c);
+                $depcats = Category::findAll($dCategory->getSiteId()); /* CategoryPeer::instance()->select($c); */
                 foreach ($depcats as $dc) {
                     $outdater = new Outdater();
                     $outdater->categoryEvent("category_save", $dc);
@@ -710,7 +641,7 @@ class ManageSiteAction extends SmartyAction
             $c = new Criteria();
             $c->add("category_id", $categoryId);
             $c->add("site_id", $siteId);
-            $dCategory = CategoryPeer::instance()->selectOne($c);
+            $dCategory = null; /* CategoryPeer::instance()->selectOne($c); */
 
             // now compare
             $changed = false;
@@ -875,7 +806,7 @@ class ManageSiteAction extends SmartyAction
 
         $db = Database::connection();
         $db->begin();
-        $oldUnixName = $site->getUnixName();
+        $oldUnixName = $site->getSlug();
         $site->setDeleted(true);
 
         // remove some data.
@@ -890,7 +821,7 @@ class ManageSiteAction extends SmartyAction
         // now clear cache!
 
         $keys = array();
-        $keys[] = 'site..'.$site->getUnixName();
+        $keys[] = 'site..'.$site->getSlug();
         $keys[] = 'site_cd..'.$site->getCustomDomain();
 
         foreach ($keys as $k) {
@@ -902,14 +833,14 @@ class ManageSiteAction extends SmartyAction
         $outdater->siteEvent('sitewide_change', $site);
 
         // change site name!!!
-        $site->setUnixName($site->getUnixName().'..del..'.time());
+        $site->setSlug($site->getSlug().'..del..'.time());
 
         $site->save();
 
         // remove custom domain link
 
         // rename the files
-        @rename(WIKIJUMP_ROOT.'/web/files--sites/'.$oldUnixName, WIKIJUMP_ROOT.'/web/files--sites/'.$site->getUnixName());
+        @rename(WIKIJUMP_ROOT.'/web/files--sites/'.$oldUnixName, WIKIJUMP_ROOT.'/web/files--sites/'.$site->getSlug());
         // delete custom domain link
 
         if ($site->getCustomDomain()) {
@@ -944,11 +875,11 @@ class ManageSiteAction extends SmartyAction
 
         $db = Database::connection();
         $db->begin();
-        $oldUnixName = $site->getUnixName();
+        $oldUnixName = $site->getSlug();
 
     // validate unix name
         $errors = array();
-        if ($unixName == $site->getUnixName()) {
+        if ($unixName == $site->getSlug()) {
             $errors['unixname'] = _('The new and current addresses are the same.');
         } elseif ($unixName === null || strlen($unixName)<3 || strlen(WDStringUtils::toUnixName($unixName))<3) {
             $errors['unixname'] = _("Web address must be present and should be at least 3 characters long.");
@@ -972,7 +903,7 @@ class ManageSiteAction extends SmartyAction
 
             // check if the domain is not taken.
             $c = new Criteria();
-            $c->add("unix_name", $unixName);
+            $c->add("slug", $unixName);
             $ss = SitePeer::instance()->selectOne($c);
             if ($ss) {
                 $errors['unixname'] = _('Sorry, this web address is already used by another site.');
@@ -990,7 +921,7 @@ class ManageSiteAction extends SmartyAction
         // now clear cache!
 
         $keys = array();
-        $keys[] = 'site..'.$site->getUnixName();
+        $keys[] = 'site..'.$site->getSlug();
         $keys[] = 'site_cd..'.$site->getCustomDomain();
 
         foreach ($keys as $k) {
@@ -1002,25 +933,25 @@ class ManageSiteAction extends SmartyAction
         $outdater->siteEvent('sitewide_change', $site);
 
         // change site name!!!
-        $site->setUnixName($unixName);
+        $site->setSlug($unixName);
 
         $site->save();
 
         // remove custom domain link
 
         // rename the files
-        @rename(WIKIJUMP_ROOT.'/web/files--sites/'.$oldUnixName, WIKIJUMP_ROOT.'/web/files--sites/'.$site->getUnixName());
+        @rename(WIKIJUMP_ROOT.'/web/files--sites/'.$oldUnixName, WIKIJUMP_ROOT.'/web/files--sites/'.$site->getSlug());
         // delete custom domain link
 
         if ($site->getCustomDomain()) {
             @unlink(WIKIJUMP_ROOT.'/web/custom--domains/'.$site->getCustomDomain());
             symlink(
-                WIKIJUMP_ROOT.'/web/files--sites/'.$site->getUnixName(),
+                WIKIJUMP_ROOT.'/web/files--sites/'.$site->getSlug(),
                 WIKIJUMP_ROOT.'/web/custom--domains/'.$site->getCustomDomain()
             );
         }
         $db->commit();
 
-        $runData->ajaxResponseAdd("unixName", $site->getUnixName());
+        $runData->ajaxResponseAdd("unixName", $site->getSlug());
     }
 }

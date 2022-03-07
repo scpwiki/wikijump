@@ -6,8 +6,7 @@ namespace Wikidot\Modules\Forum;
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\ODate;
-use Ozone\Framework\Ozone;
-use Wikidot\DB\PagePeer;
+use Ozone\Framework\SmartyModule;
 use Wikidot\DB\ForumThreadPeer;
 use Wikidot\DB\ForumCategoryPeer;
 use Wikidot\DB\ForumCategory;
@@ -15,11 +14,10 @@ use Wikidot\DB\ForumGroupPeer;
 use Wikidot\DB\ForumGroup;
 use Wikidot\DB\ForumThread;
 use Wikidot\DB\ForumPostPeer;
-
-use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\ProcessException;
 use Wikijump\Models\User;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class ForumCommentsListModule extends SmartyModule
 {
@@ -39,11 +37,11 @@ class ForumCommentsListModule extends SmartyModule
         $parmHash = md5(serialize($pl->asArray()));
 
         if ($pageId !== null) {
-            $key = 'pagecomments_v_pageid..'.$site->getUnixName().'..'.$pageId.'..'.$parmHash;
+            $key = 'pagecomments_v_pageid..'.$site->getSlug().'..'.$pageId.'..'.$parmHash;
         } else {
-            $key = 'pagecomments_v_pagename..'.$site->getUnixName().'..'.$pageName.'..'.$parmHash;
+            $key = 'pagecomments_v_pagename..'.$site->getSlug().'..'.$pageName.'..'.$parmHash;
         }
-        $akey = 'forumall_lc..'.$site->getUnixName();
+        $akey = 'forumall_lc..'.$site->getSlug();
 
         $uri = GlobalProperties::$MODULES_JS_URL.'/forum/ForumViewThreadModule.js';
         $this->extraJs[] = $uri;
@@ -54,7 +52,7 @@ class ForumCommentsListModule extends SmartyModule
             // check the times
             $cacheTimestamp = $struct['timestamp'];
             $threadId = $struct['threadId'];
-            $tkey = 'forumthread_lc..'.$site->getUnixName().'..'.$threadId; // last change timestamp
+            $tkey = 'forumthread_lc..'.$site->getSlug().'..'.$threadId; // last change timestamp
             $changeTimestamp = Cache::get($tkey);
             if ($changeTimestamp && $changeTimestamp <= $cacheTimestamp && $allForumTimestamp && $allForumTimestamp <= $cacheTimestamp) {
                 $runData->ajaxResponseAdd("threadId", $threadId);
@@ -72,13 +70,13 @@ class ForumCommentsListModule extends SmartyModule
         $struct['threadId']=$this->threadId;
 
         if (!$changeTimestamp) {
-            $tkey = 'forumthread_lc..'.$site->getUnixName().'..'.$this->threadId; // last change timestamp
+            $tkey = 'forumthread_lc..'.$site->getSlug().'..'.$this->threadId; // last change timestamp
             $changeTimestamp = Cache::get($tkey);
         }
 
         Cache::put($key, $struct, 864000);
         if (!$changeTimestamp) {
-            $tkey = 'forumthread_lc..'.$site->getUnixName().'..'.$this->threadId;
+            $tkey = 'forumthread_lc..'.$site->getSlug().'..'.$this->threadId;
             $changeTimestamp = $now;
             Cache::put($tkey, $changeTimestamp, 864000);
         }
@@ -99,16 +97,16 @@ class ForumCommentsListModule extends SmartyModule
 
         if ($page == null) {
             $pageId = $pl->getParameterValue("pageId");
-            if ($pageId !== null && is_numeric($pageId)) {
-                $page = PagePeer::instance()->selectByPrimaryKey($pageId);
+            if (is_numeric($pageId)) {
+                $page = Page::findIdOnly($pageId);
             } else {
                 $pageName = $runData->getTemp("pageUnixName");
 
                 $site = $runData->getTemp("site");
-                $page =  PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
+                $page = Page::findSlug($site->getSiteId(), $pageName);
             }
 
-            if ($page == null || $page->getSiteId() !== $site->getSiteId()) {
+            if ($page === null || $page->getSiteId() !== $site->getSiteId()) {
                 throw new ProcessException(_("Can not find related page."), "no_page");
             }
         }
@@ -121,7 +119,7 @@ class ForumCommentsListModule extends SmartyModule
 
         $thread = ForumThreadPeer::instance()->selectOne($c);
 
-        if ($thread == null) {
+        if ($thread === null) {
             // create thread!!!
             $c = new Criteria();
             $c->add("site_id", $site->getSiteId());
@@ -129,7 +127,7 @@ class ForumCommentsListModule extends SmartyModule
 
             $category = ForumCategoryPeer::instance()->selectOne($c);
 
-            if ($category == null) {
+            if ($category === null) {
                 // create this category!
                 $category = new ForumCategory();
                 $category->setName(_("Per page discussions"));

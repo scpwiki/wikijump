@@ -2,7 +2,7 @@
 
 {if $pages}
 	{foreach from=$pages item=page}
-		<a href="/{$page->getUnixName()}">{$page->getTitleOrUnixName()|escape}</a> <span style="color: #999">({$page->getUnixName()})</span>
+		<a href="/{$page->slug}">{$page->title|escape}</a> <span style="color: #999">({$page->slug})</span>
 		<br/>
 	{/foreach}
 {else}

@@ -34,9 +34,9 @@ fn includes() {
             let expected = $expected;
 
             println!("Input:  '{}'", $text);
-            println!("Output: '{}'", output);
-            println!("Pages (actual):   {:?}", actual);
-            println!("Pages (expected): {:?}", expected);
+            println!("Output: '{}'", &output);
+            println!("Pages (actual):   {:?}", &actual);
+            println!("Pages (expected): {:?}", &expected);
             println!();
 
             assert_eq!(

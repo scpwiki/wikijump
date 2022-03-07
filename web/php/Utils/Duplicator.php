@@ -9,15 +9,12 @@ use Wikidot\DB\AdminPeer;
 use Wikidot\DB\Admin;
 use Wikidot\DB\Member;
 use Wikidot\DB\ThemePeer;
-use Wikidot\DB\CategoryPeer;
-use Wikidot\DB\PagePeer;
 use Wikidot\DB\ForumGroupPeer;
 use Wikidot\DB\ForumCategoryPeer;
 use Wikidot\DB\FilePeer;
-use Wikidot\DB\PageMetadata;
 use Wikidot\DB\PageRevision;
 use Wikidot\DB\Page;
-use Wikijump\Services\Deepwell\PageService;
+use Wikijump\Services\Deepwell\Models\Category;
 
 class Duplicator
 {
@@ -40,7 +37,7 @@ class Duplicator
         $nsite->setNew(true);
         $nsite->setSiteId(null);
 
-        $nsite->setUnixName($siteProperties['unixname']);
+        $nsite->setSlug($siteProperties['unixname']);
         if (isset($siteProperties['name'])) {
             $nsite->setName($siteProperties['name']);
         }
@@ -109,10 +106,7 @@ class Duplicator
 
 
         // get all categories from the site
-        $c = new Criteria();
-        $c->add("site_id", $site->getSiteId());
-        $categories = CategoryPeer::instance()->select($c);
-
+        $categories = Category::getAll($site->getSiteId());
         foreach ($categories as $cat) {
             if (!in_array($cat->getName(), $this->excludedCategories)) {
                 $ncategory = $this->duplicateCategory($cat, $nsite);
@@ -170,8 +164,8 @@ class Duplicator
         }
 
         /* Copy ALL files from the filesystem. */
-        $srcDir = WIKIJUMP_ROOT."/web/files--sites/".$site->getUnixName();
-        $destDir = WIKIJUMP_ROOT."/web/files--sites/".$nsite->getUnixName();
+        $srcDir = WIKIJUMP_ROOT."/web/files--sites/".$site->getSlug();
+        $destDir = WIKIJUMP_ROOT."/web/files--sites/".$nsite->getSlug();
 
         $cmd = 'cp -r '. escapeshellarg($srcDir) . ' ' . escapeshellarg($destDir);
         exec($cmd);
@@ -226,10 +220,7 @@ class Duplicator
         }
 
         // get all categories from the site
-        $c = new Criteria();
-        $c->add("site_id", $site->getSiteId());
-        $categories = CategoryPeer::instance()->select($c);
-
+        $categories = Category::findAll($site->getSiteId());
         foreach ($categories as $cat) {
             if (!in_array($cat->getName(), $this->excludedCategories)) {
                 $this->duplicateCategory($cat, $nsite);
@@ -256,7 +247,7 @@ class Duplicator
         // copy pages
         $c = new Criteria();
         $c->add("category_id", $category->getCategoryId());
-        $pages = PagePeer::instance()->select($c);
+        $pages = [null]; // TODO run query
         foreach ($pages as $page) {
             $this->duplicatePage($page, $nsite, $cat);
         }
@@ -267,28 +258,23 @@ class Duplicator
     {
 
         if ($newUnixName == null) {
-            $newUnixName = $page->getUnixName();
+            $newUnixName = $page->slug;
         }
 
         // check if page exists - if so, forcibly delete!!!
+        // Wait, why exactly are we deleting this?
+        // I'm just going to comment this out for now, and eventually
+        // this will go the way of the dodo when it's moved to DEEPWELL.
+
+        /*
         $p = PagePeer::instance()->selectByName($nsite->getSiteId(), $newUnixName);
         if ($p) {
             PagePeer::instance()->deleteByPrimaryKey($p->getPageId());
         }
+        */
 
         $owner = $this->owner;
         $now = new ODate();
-
-        $meta = $page->getMetadata();
-        $nmeta = new PageMetadata();
-        $nmeta->setTitle($meta->getTitle());
-        $nmeta->setUnixName($newUnixName);
-        if ($owner) {
-            $nmeta->setOwnerUserId($owner->id);
-        } else {
-            $nmeta->setOwnerUserId($meta->getOwnerUserId());
-        }
-        $nmeta->save();
 
         $rev = $page->getCurrentRevision();
         $nrev = new PageRevision();
@@ -307,14 +293,14 @@ class Duplicator
         $npage->setCategoryId($ncategory->getCategoryId());
         $npage->setRevisionId($nrev->getRevisionId());
         $npage->setMetadataId($nmeta->getMetadataId());
-        $npage->setTitle($page->getTitle());
+        $npage->setTitle($page->title);
         $npage->setUnixName($newUnixName);
         $npage->setDateLastEdited($now);
         $npage->setDateCreated($now);
         $npage->setLastEditUserId($owner->id);
         $npage->setOwnerUserId($owner->id);
 
-        $tags = PagePeer::getTags($page->getPageId());
+        $tags = new Set(); // PagePeer::getTags($page->getPageId());
         $npage->setTagsArray($tags->toArray());
 
         $npage->save();
@@ -341,19 +327,14 @@ class Duplicator
 
         $dump['settings'] = $settings;
         $dump['forumSettings'] = $fs;
-
-        $c = new Criteria();
-        $c->add("site_id", $site->getSiteId());
-        $categories = CategoryPeer::instance()->select($c);
-
+        $categories = Category::findAll($site->getSiteId());
         $dump['categories'] = $categories;
-
-        $dump['pages'] = array();
+        $dump['pages'] = [];
 
         foreach ($categories as $cat) {
             $c = new Criteria();
             $c->add("category_id", $cat->getCategoryId());
-            $pages = PagePeer::instance()->select($c);
+            $pages = [null]; // TODO run query
             foreach ($pages as &$p) {
                 $p->setTemp("source", $p->getSource());
                 $p->setTemp("meta", $p->getMetadata());
@@ -407,22 +388,11 @@ class Duplicator
             $pages = $dump['pages'][$category->getCategoryId()];
 
             foreach ($pages as $page) {
-                $newUnixName = $page->getUnixName();
+                $newUnixName = $page->slug;
 
                 $now = new ODate();
 
-                $meta = $page->getTemp("meta");
-                $nmeta = new PageMetadata();
-                $nmeta->setTitle($meta->getTitle());
-                $nmeta->setUnixName($newUnixName);
-                if ($owner) {
-                    $nmeta->setOwnerUserId($owner->getUserId());
-                } else {
-                    $nmeta->setOwnerUserId($meta->getOwnerUserId());
-                }
-                $nmeta->save();
-
-                $rev = PageService::getLatestRevision($page->getPageId());
+                $rev = null; // TODO get latest revision for $page->getPageId()
                 $nrev = new PageRevision();
                 $nrev->setSiteId($nsite->getSiteId());
                 $nrev->setMetadataId($nmeta->getMetadataId());
@@ -439,7 +409,7 @@ class Duplicator
                 $npage->setCategoryId($cat->getCategoryId());
                 $npage->setRevisionId($nrev->getRevisionId());
                 $npage->setMetadataId($nmeta->getMetadataId());
-                $npage->setTitle($page->getTitle());
+                $npage->setTitle($page->title);
                 $npage->setUnixName($newUnixName);
                 $npage->setDateLastEdited($now);
                 $npage->setLastEditUserId($owner->getUserId());

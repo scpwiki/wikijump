@@ -2,10 +2,9 @@
 
 namespace Wikidot\Modules\PageRate;
 
-use Wikidot\DB\PagePeer;
-
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\GlobalProperties;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class PageRateModule extends SmartyModule
 {
@@ -16,7 +15,7 @@ class PageRateModule extends SmartyModule
         $pl = $runData->getParameterList();
         $pageId = $pl->getParameterValue("pageId");
 
-        $page = PagePeer::instance()->selectByPrimaryKey($pageId);
+        $page = Page::findIdOnly($pageId);
         // todo: check if allowed
 
         $runData->contextAdd("pageId", $page->getPageId());

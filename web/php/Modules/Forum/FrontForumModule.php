@@ -31,7 +31,7 @@ class FrontForumModule extends SmartyModule
 
         $parmHash = md5(serialize($pl->asArray()));
 
-        $key = 'frontforum_v..'.$site->getUnixName().'..'.$categoryIds.'..'.$parmHash;
+        $key = 'frontforum_v..'.$site->getSlug().'..'.$categoryIds.'..'.$parmHash;
 
         $valid = true;
 
@@ -47,7 +47,7 @@ class FrontForumModule extends SmartyModule
         $cats = preg_split('/[,;] ?/', $categoryIds);
 
         foreach ($cats as $cat) {
-            $tkey = 'forumcategory_lc..'.$site->getUnixName().'..'.$cat; // last change timestamp
+            $tkey = 'forumcategory_lc..'.$site->getSlug().'..'.$cat; // last change timestamp
             $changeTimestamp = Cache::get($tkey);
             if ($changeTimestamp && $cacheTimestamp && $changeTimestamp <= $cacheTimestamp) {
                 //cache valid
@@ -60,7 +60,7 @@ class FrontForumModule extends SmartyModule
                 }
             }
         }
-        $akey = 'forumall_lc..'.$site->getUnixName();
+        $akey = 'forumall_lc..'.$site->getSlug();
         $allForumTimestamp = Cache::get($akey);
         if ($allForumTimestamp &&  $allForumTimestamp <= $cacheTimestamp) {
             //cache valid
@@ -244,7 +244,7 @@ class FrontForumModule extends SmartyModule
             }
 
             // and the feed url is:
-            $feedUrl = "/feed/front/".$page->getUnixName()."/".$flabel.".xml";
+            $feedUrl = "/feed/front/".$page->getSlug()."/".$flabel.".xml";
             $this->vars['feedUrl'] = $feedUrl;
             $this->vars['feedTitle'] = $ftitle;
             $this->vars['feedLabel'] = $flabel;

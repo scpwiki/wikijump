@@ -5,7 +5,6 @@ use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\JSONService;
 use Wikidot\DB\SitePeer;
-use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\ForumGroup;
 use Wikidot\DB\ForumCategory;
 use Wikidot\DB\ForumGroupPeer;
@@ -16,6 +15,7 @@ use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\Outdater;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionManager;
+use Wikijump\Services\Deepwell\Models\Category;
 
 class ManageSiteForumAction
 {
@@ -54,7 +54,7 @@ class ManageSiteForumAction
         $d->setOwner($runData->getUser());
 
         // copy "forum" category
-        $fc = CategoryPeer::instance()->selectByName("forum", $templateSite->getSiteId());
+        $fc = Category::findSlug($templateSite->getSiteId(), 'forum');
         $d->duplicateCategory($fc, $site);
 
         // recompile category.

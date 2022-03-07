@@ -67,20 +67,6 @@
 			</tr>
 		</table>
 
-
-
-		<div id="sm-appearance-theme-preview" style="overflow: hidden;">
-			<h2>{t}Theme details{/t}:</h2>
-
-			{foreach from=$themes item=theme}
-				{assign var=preview value=$theme->getThemePreview()}
-				{if $preview}
-					<div id="sm-theme-preview-{$theme->getThemeId()}">
-						{$preview->getBody()}
-					</div>
-				{/if}
-			{/foreach}
-		</div>
 		<div class="buttons">
 			<input type="button" value="{t}cancel{/t}" id="sm-appearance-cancel"/>
 			<input type="button" value="{t}save changes{/t}" id="sm-appearance-save"/>

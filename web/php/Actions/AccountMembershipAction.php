@@ -29,6 +29,7 @@ class AccountMembershipAction extends SmartyAction
 
     public function isAllowed($runData)
     {
+        // What the fuck is this?
         $user->id = $runData->getUserId();
         if(!$user->id) {
             throw new WDPermissionException(_("Not allowed. You should login first."));
@@ -312,9 +313,8 @@ class AccountMembershipAction extends SmartyAction
             throw new ProcessException($errors['unixname']);
         }
 
-        $oldUnixName = $site->getUnixName();
         $oldLocalPath = $site->getLocalFilesPath();
-        $site->setUnixName($unixName);
+        $site->setSlug($unixName);
         //  rename the files
         mkdirfull(dirname($site->getLocalFilesPath()));
         @rename($oldLocalPath, $site->getLocalFilesPath());
@@ -325,6 +325,6 @@ class AccountMembershipAction extends SmartyAction
 
         $db->commit();
 
-        $runData->ajaxResponseAdd('unixName', $site->getUnixName());
+        $runData->ajaxResponseAdd('unixName', $site->getSlug());
     }
 }

@@ -3,7 +3,6 @@
 namespace Wikidot\Utils;
 
 use Illuminate\Auth\Access\Response;
-use Illuminate\Support\Facades\Auth;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\Ozone;
@@ -13,7 +12,6 @@ use Wikidot\DB\AdminPeer;
 use Wikidot\DB\ModeratorPeer;
 use Wikidot\DB\MemberPeer;
 use Wikidot\DB\Page;
-use Wikidot\DB\PagePeer;
 use Wikidot\DB\IpBlockPeer;
 use Wikidot\DB\UserBlockPeer;
 use Wikijump\Models\User;
@@ -49,7 +47,7 @@ class WDPermissionManager
     private static $pageActionsDesc = array(
             'view' => 'view this page',
             'edit' => 'edit this page',
-            'create' => 'create a new page in this category',
+            'create' => 'create a new page',
             'move' => 'move this page',
             'delete' => 'delete this page',
             'attach_file' => 'attach a new file to this page',
@@ -106,7 +104,7 @@ class WDPermissionManager
         self::$pageActionsDesc = array(
             'view' => _('view this page'),
             'edit' => _('edit this page'),
-            'create' => _('create a new page in this category'),
+            'create' => _('create a new page'),
             'move' => _('move this page'),
             'delete' => _('delete this page'),
             'attach_file' => _('attach a new file to this page'),
@@ -223,7 +221,7 @@ class WDPermissionManager
     }
 
 
-    public function hasPagePermission($action, $user, $category, $page = null, $site = null)
+    public function hasPagePermission($action, $user, $page = null)
     {
         if ($user->id === User::ADMIN_USER) {
             return true;
@@ -249,7 +247,6 @@ class WDPermissionManager
             if ($user) {
                 // still nothing. check if moderator of "pages".
                 $c = new Criteria();
-                $c->add("site_id", $category->getSiteId());
                 $c->add("user_id", $user->id);
                 $rel = ModeratorPeer::instance()->selectOne($c);
                 if ($rel && strpos($rel->getPermissions(), 'p') !== false) {
@@ -258,7 +255,7 @@ class WDPermissionManager
 
                 // still nothing. check if admin.
                 $c = new Criteria();
-                $c->add("site_id", $category->getSiteId());
+                $c->add("site_id", 1); // TODO hardcoded
                 $c->add("user_id", $user->id);
                 $rel = AdminPeer::instance()->selectOne($c);
                 if ($rel) {
@@ -274,7 +271,7 @@ class WDPermissionManager
         //action code
         $ac = self::$pageActions[$action];
         //permission string
-        $ps = $category->getPermissionString();
+        $ps = ''; // TODO permission string
 
         // first try anonymous and registered to save effort
         $uc = self::$userClasses['anonymous'];
@@ -331,7 +328,7 @@ class WDPermissionManager
         if ($this->permissionLookup($ac, $uc, $ps)) {
             // ok, members CAN do this. is the user a member?
             $c = new Criteria();
-            $c->add("site_id", $category->getSiteId());
+            $c->add("site_id", 1); // TODO site id
             $c->add("user_id", $user->id);
             $rel = MemberPeer::instance()->selectOne($c);
             if ($rel) {
@@ -342,9 +339,9 @@ class WDPermissionManager
         $uc = self::$userClasses['owner'];
         if ($page && $this->permissionLookup($ac, $uc, $ps)) {
             if ($site && is_string($page)) {
-                $page = PagePeer::instance()->selectByName($site->getSiteId(), $page);
+                $page = Page::findSlug($site->getSiteId(), $page);
             }
-            if ($page && $page->getOwnerUserId() && $user->id == $page->getOwnerUserId()) {
+            if ($page && $page->getOwnerUserId() && $user->id === $page->getOwnerUserId()) {
                 // check blocked users
                 if ($this->checkUserBlocks) {
                     $block = $this->checkUserBlocked($user, $site);
@@ -352,12 +349,10 @@ class WDPermissionManager
                         if ($this->throwExceptions) {
                             $message = _("" .
                                     "Sorry, you are blocked from participating in and modifying this site. ");
-                            if ($block->getReason() && $block->getReason()!='') {
+                            if ($block->getReason() && $block->getReason() !== '') {
                                 $message .= _("The given reason is:")." <p>".htmlspecialchars($block->getReason())."</p>";
                             }
                             throw new WDPermissionException($message);
-                            //throw new WDPermissionException("Sorry, you are blocked from participating in and modifying this site. " .
-                            //      "The given reason is: \"".htmlspecialchars($block->getReason())."\"");
                         } else {
                             return false;
                         }
@@ -369,7 +364,7 @@ class WDPermissionManager
 
         // still nothing. check if moderator of "pages".
         $c = new Criteria();
-        $c->add("site_id", $category->getSiteId());
+        $c->add("site_id", 1); // TODO site id
         $c->add("user_id", $user->id);
         $rel = ModeratorPeer::instance()->selectOne($c);
         if ($rel && strpos($rel->getPermissions(), 'p') !== false) {
@@ -378,7 +373,7 @@ class WDPermissionManager
 
         // still nothing. check if admin.
         $c = new Criteria();
-        $c->add("site_id", $category->getSiteId());
+        $c->add("site_id", 1); // TODO site id
         $c->add("user_id", $user->id);
         $rel = AdminPeer::instance()->selectOne($c);
         if ($rel) {
@@ -390,7 +385,7 @@ class WDPermissionManager
         return false;
     }
 
-    public function hasForumPermission($action, $user, $category, $thread = null, $post = null)
+    public function hasForumPermission($action, $user, $thread = null, $post = null)
     {
         if ($user->id === User::ADMIN_USER) {
             return true;
@@ -420,7 +415,7 @@ class WDPermissionManager
         //action code
         $ac = self::$forumActions[$action];
         //permission string
-        $ps = $category->getPermissionString();
+        $ps = ''; // TODO permission string
 
         //throw new WDPermissionException($ps);
 
@@ -483,7 +478,7 @@ class WDPermissionManager
         if ($this->permissionLookup($ac, $uc, $ps)) {
             // ok, members CAN do this. is the user a member?
             $c = new Criteria();
-            $c->add("site_id", $category->getSiteId());
+            $c->add("site_id", 1); // TODO site id
             $c->add("user_id", $user->id);
             $rel = MemberPeer::instance()->selectOne($c);
             if ($rel) {
@@ -520,7 +515,7 @@ class WDPermissionManager
 
         // still nothing. check if moderator of "forum".
         $c = new Criteria();
-        $c->add("site_id", $category->getSiteId());
+        $c->add("site_id", 1); // TODO site id
         $c->add("user_id", $user->id);
         $rel = ModeratorPeer::instance()->selectOne($c);
         if ($rel && strpos($rel->getPermissions(), 'f') !== false) {
@@ -529,7 +524,7 @@ class WDPermissionManager
 
         // still nothing. check if admin.
         $c = new Criteria();
-        $c->add("site_id", $category->getSiteId());
+        $c->add("site_id", 1); // TODO site id
         $c->add("user_id", $user->id);
         $rel = AdminPeer::instance()->selectOne($c);
         if ($rel) {

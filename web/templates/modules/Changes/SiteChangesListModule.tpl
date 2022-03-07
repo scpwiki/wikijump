@@ -11,7 +11,7 @@
 			<table>
 				<tr>
 					<td class="title">
-						<a href="/{$page->getUnixname()}">{if $page->getTitle()|escape}{$page->getTitle()|escape}{else}{$page->getUnixName()|escape}{/if}</a>
+						<a href="/{$page->getUnixname()}">{if $page->title|escape}{$page->title|escape}{else}{$page->slug|escape}{/if}</a>
 					</td>
 					<td class="flags">
 						{if $revision->getFlagNew()}
@@ -86,7 +86,7 @@
 
 
 			<div class="title">
-				<a href="/{$page->getUnixname()}">{if $page->getTitle()|escape}{$page->getTitle()|escape}{else}{$page->getUnixName()|escape}{/if}</a>
+				<a href="/{$page->getUnixname()}">{if $page->title|escape}{$page->title|escape}{else}{$page->slug|escape}{/if}</a>
 			</div>
 			{if $revision->getComments()}
 				<div class="comments">

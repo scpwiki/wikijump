@@ -2,10 +2,9 @@
 
 namespace Wikidot\Modules\ViewSource;
 
-use Wikidot\DB\PagePeer;
-
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\ProcessException;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class ViewSourceModule extends SmartyModule
 {
@@ -21,9 +20,8 @@ class ViewSourceModule extends SmartyModule
             throw new ProcessException(_("The page cannot be found or does not exist."), "no_page");
         }
 
-        $page = PagePeer::instance()->selectByPrimaryKey($pageId);
-
-        if (!$page || $page->getSiteId() !== $site->getSiteId()) {
+        $page = Page::findIdOnly($pageId);
+        if ($page === null || $page->getSiteId() !== $site->getSiteId()) {
             throw new ProcessException(_("The page cannot be found or does not exist."), "no_page");
         }
 

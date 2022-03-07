@@ -11,7 +11,7 @@
 		{foreach from=$merged item=page}
 			<tr>
 				<td>
-					<a target="_blank" href="/{$page->getUnixName()}">{$page->getTitleOrUnixName()} ({$page->getUnixName()})</a>
+					<a target="_blank" href="/{$page->slug}">{$page->title} ({$page->slug})</a>
 				</td>
 				<td>
 					<input type="checkbox" class="checkbox" id="rename-dep-fix-{$page->getPageId()}"/>

@@ -77,7 +77,7 @@ impl Localizations {
                 .to_str()
                 .expect("Path is not valid UTF-8");
 
-            tide::log::debug!("Loading locale {}", locale_name);
+            tide::log::debug!("Loading locale {locale_name}");
             let locale: LanguageIdentifier = locale_name.parse()?;
 
             // Read and parse localization strings
@@ -176,17 +176,15 @@ impl Localizations {
         // Log any errors
         if !errors.is_empty() {
             tide::log::warn!(
-                "Errors formatting message for locale {}, message key {}",
-                locale,
-                key,
+                "Errors formatting message for locale {locale}, message key {key}",
             );
 
             for (key, value) in args.iter() {
-                tide::log::warn!("Passed formatting argument: {} -> {:?}", key, value);
+                tide::log::warn!("Passed formatting argument: {key} -> {value:?}");
             }
 
             for error in errors {
-                tide::log::warn!("Message formatting error: {}", error);
+                tide::log::warn!("Message formatting error: {error}");
             }
         }
 

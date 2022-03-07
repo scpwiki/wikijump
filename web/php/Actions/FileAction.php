@@ -7,7 +7,6 @@ use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\ODate;
 use Ozone\Framework\SmartyAction;
-use Wikidot\DB\PagePeer;
 use Wikidot\DB\FilePeer;
 use Wikidot\DB\File;
 use Wikidot\Utils\FileHelper;
@@ -16,6 +15,7 @@ use Wikidot\Utils\Outdater;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionManager;
 use Wikijump\Models\User;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class FileAction extends SmartyAction
 {
@@ -31,7 +31,7 @@ class FileAction extends SmartyAction
         $pageId = $pl->getParameterValue("pageId");
         $fileName = trim($pl->getParameterValue("filename"));
 
-        $page = PagePeer::instance()->selectByPrimaryKey($pageId);
+        $page = Page::findIdOnly($pageId);
         if ($page == null || $page->getSiteId() != $site->getSiteId()) {
             throw new ProcessException(_("Problem selecting destination page."), "no_page");
         }
@@ -84,8 +84,8 @@ class FileAction extends SmartyAction
             $pl = $runData->getParameterList();
             $site = $runData->getTemp("site");
             $pageId = $pl->getParameterValue("page_id");
-            $page = PagePeer::instance()->selectByPrimaryKey($pageId);
-            if ($page == null || $page->getSiteId() != $site->getSiteId()) {
+            $page = Page::findIdOnly($pageId);
+            if ($page === null || $page->getSiteId() !== $site->getSiteId()) {
                 $status = "error";
                 $runData->contextAdd("status", $status);
                 $runData->contextAdd("message", _("Page does not exist???"));
@@ -196,7 +196,7 @@ class FileAction extends SmartyAction
             $fdesc = FileMime::description($file['tmp_name']);
             $fmime = FileMime::mime($file['tmp_name']);
 
-            $uploadDir = $site->getLocalFilesPath()."/files/".$page->getUnixName();
+            $uploadDir = $site->getLocalFilesPath()."/files/".$page->slug;
             mkdirfull($uploadDir);
 
             $dest = $uploadDir."/".$destinationFilename;
@@ -212,7 +212,7 @@ class FileAction extends SmartyAction
             if ($res) {
                 // is at least "imageable" - can have thumbnails
                 // resized images dir
-                $resizedDir = $site->getLocalFilesPath() . "/resized-images/".$page->getUnixName().
+                $resizedDir = $site->getLocalFilesPath() . "/resized-images/".$page->slug.
                         '/'.$destinationFilename;
                 mkdirfull($resizedDir);
 
@@ -250,6 +250,7 @@ class FileAction extends SmartyAction
 
             $f->save();
             // create a new revision
+            /*
             $revision = $page->getCurrentRevision();
             $revision->setNew(true);
             $revision->setRevisionId(null);
@@ -277,6 +278,7 @@ class FileAction extends SmartyAction
             $page->setDateLastEdited($now);
             $page->setRevisionNumber($revision->getRevisionNumber());
             $page->save();
+            */
 
             // in case there is a gallery plugin or an image pointing
             // to the file - simpy recompile the page
@@ -306,7 +308,7 @@ class FileAction extends SmartyAction
         $db->begin();
 
         $file = FilePeer::instance()->selectByPrimaryKey($fileId);
-        $page = PagePeer::instance()->selectByPrimaryKey($file->getPageId());
+        $page = Page::findIdOnly($file->getPageId());
 
         if ($file == null || $file->getSiteId() != $site->getSiteId() || $page==null) {
             throw new ProcessException(_("Error getting file data."), "file_error");
@@ -445,7 +447,7 @@ class FileAction extends SmartyAction
         $user = $runData->getUser();
 
         $file = FilePeer::instance()->selectByPrimaryKey($fileId);
-        $page = PagePeer::instance()->selectByPrimaryKey($file->getPageId());
+        $page = Page::findIdOnly($file->getPageId());
 
         if ($file == null || $file->getSiteId() != $site->getSiteId()) {
             throw new ProcessException(_("Error getting file data."), "file_error");
@@ -458,13 +460,12 @@ class FileAction extends SmartyAction
         // now check for permissions!!!
         WDPermissionManager::instance()->hasPagePermission('move_file', $user, $categoryFrom, $page);
 
-        if ($destinationPageName == $page->getUnixName()) {
+        if ($destinationPageName == $page->slug) {
             throw new ProcessException(_("There is not point in moving the file to the same (current)  page..."), "no_destination");
         }
 
-        $destinationPage = PagePeer::instance()->selectByName($site->getSiteId(), $destinationPageName);
-
-        if ($destinationPage == null) {
+        $destinationPage = Page::findSlug($site->getSiteId(), $destinationPageName);
+        if ($destinationPage === null) {
             throw new ProcessException(_("Destination page does not exist."), "no_destination");
         }
 
@@ -527,7 +528,7 @@ class FileAction extends SmartyAction
             throw new ProcessException(_("Error moving files."), "error_moving");
         }
         if ($file->getHasResized()) {
-            $resizedDir = $site->getLocalFilesPath()."/resized-images/".$destinationPage->getUnixName();
+            $resizedDir = $site->getLocalFilesPath()."/resized-images/".$destinationPage->slug;
             mkdirfull($resizedDir);
             if (rename("$oldRDir", "$newRDir") == false) {
                 throw new ProcessException(_("Error moving resized files."), "error_moving");
@@ -562,7 +563,7 @@ class FileAction extends SmartyAction
             $revision->setUserString($userString);
             $page->setLastEditUserString($userString);
         }
-        $revision->setComments('File "'.$file->getFilename().'" moved away to page "'.$destinationPage->getUnixName().'".');
+        $revision->setComments('File "'.$file->getFilename().'" moved away to page "'.$destinationPage->slug.'".');
         $revision->save();
         $page->setRevisionId($revision->getRevisionId());
         $page->setDateLastEdited($now);
@@ -589,7 +590,7 @@ class FileAction extends SmartyAction
             $revision->setUserString($userString);
             $destinationPage->setLastEditUserString($userString);
         }
-        $revision->setComments('File "'.$file->getFilename().'" moved from page "'.$page->getUnixName().'".');
+        $revision->setComments('File "'.$file->getFilename().'" moved from page "'.$page->slug.'".');
         $revision->save();
         $destinationPage->setRevisionId($revision->getRevisionId());
         $destinationPage->setDateLastEdited($now);
@@ -617,7 +618,7 @@ class FileAction extends SmartyAction
         if ($file == null || $file->getSiteId() != $site->getSiteId()) {
             throw new ProcessException("File does not exist.", "no_file");
         }
-        $page = PagePeer::instance()->selectByPrimaryKey($file->getPageId());
+        $page = Page::findIdOnly($file->getPageId());
         if ($page == null) {
             throw new ProcessException(_("Page does not exist."), "no_page");
         }

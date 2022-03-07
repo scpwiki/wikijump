@@ -2,11 +2,11 @@
 
 namespace Wikidot\Modules\Rename;
 
-use Wikidot\DB\PagePeer;
 use Exception;
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionManager;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class RenamePageModule extends SmartyModule
 {
@@ -16,8 +16,8 @@ class RenamePageModule extends SmartyModule
         // only check for permissions
         $pl = $runData->getParameterList();
         $pageId = $pl->getParameterValue("pageId");
-        $page = PagePeer::instance()->selectByPrimaryKey($pageId);
-        if ($page == null || $page->getSiteId() != $runData->getTemp("site")->getSiteId()) {
+        $page = Page::findIdOnly($pageId);
+        if ($page === null || $page->getSiteId() !== $runData->getTemp("site")->getSiteId()) {
             throw new ProcessException(_("Error getting page information."), "no_page");
         }
 
@@ -26,10 +26,10 @@ class RenamePageModule extends SmartyModule
         $user = $runData->getUser();
 
         if ($delete) {
-            $newName = 'deleted:'.$page->getUnixName();
+            $newName = 'deleted:'.$page->slug;
             $runData->contextAdd("delete", true);
         } else {
-            $newName = $page->getUnixName();
+            $newName = $page->slug;
         }
 
         $category = $page->getCategory();

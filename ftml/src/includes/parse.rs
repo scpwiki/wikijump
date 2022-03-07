@@ -123,9 +123,10 @@ fn process_pairs<'t>(
         //     width={$width} |
         //     width=300px
         // ]]
+        // ```
 
         var_reference.clear();
-        str_write!(var_reference, "{{${}}}", key);
+        str_write!(var_reference, "{{${key}}}");
 
         if !arguments.contains_key(key) && value != var_reference {
             let key = Cow::Borrowed(key);

@@ -39,18 +39,18 @@ class WikiFlowController extends WebFlowController
         $siteHost = $_SERVER["HTTP_HOST"];
 
         if (preg_match("/^([a-zA-Z0-9\-]+)\." . GlobalProperties::$URL_DOMAIN_PREG . "$/", $siteHost, $matches)==1) {
-            $siteUnixName=$matches[1];
+            $siteSlug = $matches[1];
 
             // select site based on the unix name
 
             // check memcached first!
 
-            $mcKey = 'site..'.$siteUnixName;
+            $mcKey = 'site..'.$siteSlug;
             $site = Cache::get($mcKey);
 
             if (!$site) {
                 $c = new Criteria();
-                $c->add("unix_name", $siteUnixName);
+                $c->add("slug", $siteSlug);
                 $c->add("site.deleted", false);
                 $site = SitePeer::instance()->selectOne($c);
                 if ($site) {

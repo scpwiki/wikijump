@@ -40,11 +40,17 @@ pub enum Error {
     #[error("Localization error: {0}")]
     Localization(#[from] LocalizationTranslateError),
 
+    #[error("Serialization error: {0}")]
+    Serde(#[from] serde_json::Error),
+
     #[error("Web server error: HTTP {}", .0.status() as u16)]
     Web(TideError),
 
     #[error("Invalid enum serialization value")]
     InvalidEnumValue,
+
+    #[error("The request is in some way malformed or incorrect")]
+    BadRequest,
 
     #[error("The request conflicts with data already present")]
     Conflict,
@@ -57,17 +63,18 @@ pub enum Error {
 }
 
 impl Error {
-    // TODO fix service result -> tide result in endpoints
     pub fn into_tide_error(self) -> TideError {
         match self {
             Error::Database(inner) => {
                 TideError::new(StatusCode::InternalServerError, inner)
             }
             Error::Localization(inner) => TideError::new(StatusCode::NotFound, inner),
+            Error::Serde(inner) => TideError::new(StatusCode::InternalServerError, inner),
             Error::Web(inner) => inner,
             Error::InvalidEnumValue => {
                 TideError::from_str(StatusCode::InternalServerError, "")
             }
+            Error::BadRequest => TideError::from_str(StatusCode::BadRequest, ""),
             Error::Exists | Error::Conflict => {
                 TideError::from_str(StatusCode::Conflict, "")
             }

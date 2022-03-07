@@ -5,7 +5,6 @@ namespace Wikijump\Services\Wikitext;
 
 use Ozone\Framework\Database\Criteria;
 use Wikidot\DB\Page;
-use Wikidot\DB\PagePeer;
 use Wikidot\DB\Site;
 use Wikidot\DB\SitePeer;
 use Wikidot\Utils\WikiTransformation;
@@ -66,19 +65,19 @@ class TextWikiBackend extends WikitextBackend
 
     public function version(): string
     {
-        return 'Text_Wiki 0.0.1';
+        return 'Text_Wiki (legacy)';
     }
 
     // Helper methods
     private static function getSite(string $site_slug): Site
     {
         $c = new Criteria();
-        $c->add('unix_name', $site_slug);
+        $c->add('slug', $site_slug);
         return SitePeer::instance()->selectOne($c);
     }
 
     private static function getPage(string $site_id, string $page_slug): Page
     {
-        return PagePeer::instance()->selectByName($site_id, $page_slug);
+        return Page::findSlug($site_id, $page_slug);
     }
 }

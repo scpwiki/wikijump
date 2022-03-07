@@ -17,10 +17,10 @@
 					site: <a href="{$HTTP_SCHEMA}://{$site->getDomain()}">{$site->getName()|escape}</a>
 				</td>
 				<td>
-					| <a href="{$HTTP_SCHEMA}://{$site->getDomain()}/{$page->getUnixName()}">{$page->getTitle()|escape}</a>
+					| <a href="{$HTTP_SCHEMA}://{$site->getDomain()}/{$page->slug}">{$page->title|escape}</a>
 				</td>
 				<td>
-					| <a href="javascript:;" onclick="Wikijump.modules.AWChangesModule.listeners.removeWatchedPage(event, {$page->getPageId()})">remove</a>
+					| <a href="javascript:;" onclick="Wikijump.modules.AWChangesModule.listeners.removeWatchedPage(event, {$page->page_id})">remove</a>
 				</td>
 			</tr>
 		{/foreach}

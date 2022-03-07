@@ -5,12 +5,10 @@ namespace Wikidot\Modules\History;
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\JSONService;
-use Ozone\Framework\Ozone;
-use Wikidot\DB\PagePeer;
-use Wikidot\DB\PageRevisionPeer;
-
 use Ozone\Framework\SmartyModule;
+use Wikidot\DB\PageRevisionPeer;
 use Wikidot\Utils\ProcessException;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class PageRevisionListModule extends SmartyModule
 {
@@ -74,8 +72,8 @@ class PageRevisionListModule extends SmartyModule
 
         // get the page
 
-        $page = PagePeer::instance()->selectByPrimaryKey($pageId);
-        if ($page == null || $page->getSiteId() !== $site->getSiteId()) {
+        $page = Page::findIdOnly($pageId);
+        if ($page === null || $page->getSiteId() !== $site->getSiteId()) {
             throw new ProcessException(_("Error selecting the page."), "no_page");
         }
 

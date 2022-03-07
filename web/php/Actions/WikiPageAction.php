@@ -17,18 +17,15 @@ use Wikidot\Utils\WDPermissionException;
 use Wikidot\Utils\WDPermissionManager;
 use Wikidot\Utils\WDStringUtils;
 use Wikidot\Yaml;
-use Wikidot\DB\CategoryPeer;
-use Wikidot\DB\PagePeer;
-use Wikidot\DB\Page;
 use Wikidot\DB\PageRevision;
-use Wikidot\DB\PageMetadata;
 use Wikidot\DB\PageRevisionPeer;
-use Wikidot\DB\PageMetadataPeer;
 use Wikidot\DB\ModeratorPeer;
 use Wikidot\DB\AdminPeer;
 use Wikijump\Models\TagSettings;
 use Wikijump\Models\User;
 use Wikijump\Services\Deepwell\DeepwellService;
+use Wikijump\Services\Deepwell\Models\Category;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class WikiPageAction extends SmartyAction
 {
@@ -109,10 +106,10 @@ class WikiPageAction extends SmartyAction
             }
 
             // check if category exists. if not - create it!
-            $category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId(), false);
-            if ($category == null) {
+            $category = Category::findSlug($site->getSiteId(), $categoryName);
+            if ($category === null) {
                 // create the category - just clone the default category!!!
-                $category = CategoryPeer::instance()->selectByName("_default", $site->getSiteId(), false);
+                $category = Category::findSlug($site->getSiteId(), '_default');
                 $category->setName($categoryName);
                 // fill with some important things - we assume the _default category exists!!! IT REALLY SHOULD!!!
                 $category->setCategoryId(null);
@@ -165,22 +162,11 @@ class WikiPageAction extends SmartyAction
             $pageRevision->setCompiledHash('cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e');
             $pageRevision->setCompiledGenerator('');
 
-            $pageMetadata = new PageMetadata();
-            $pageMetadata->setTitle($title);
-
-            $pageMetadata->setUnixName($unixName);
-            if ($userId) {
-                $pageMetadata -> setOwnerUserId($userId);
-            }
-            $pageMetadata->save();
-            $pageRevision->setMetadataId($pageMetadata->getMetadataId());
-
             // update the page object
 
             $page->setUnixName($unixName);
             $page->setDateCreated($nowDate);
             $page->setSiteId($site->getSiteId());
-            $page->setMetadataId($pageMetadata->getMetadataId());
             $page->setTitle($title);
             $page->setDateLastEdited($nowDate);
             $page->setTagsArray([]);
@@ -211,12 +197,8 @@ class WikiPageAction extends SmartyAction
         } else {
             // THE PAGE ALREADY EXISTS
 
-            $c = new Criteria();
-            $c->add("page_id", $pageId);
-            $c->setForUpdate(true);
-            $page = PagePeer::instance()->selectOne($c);
-
-            if ($page == null) {
+            $page = Page::findIdOnly($pageId);
+            if ($page === null) {
                 throw new ProcessException(_("Page does not exist."));
             }
 
@@ -227,6 +209,7 @@ class WikiPageAction extends SmartyAction
             // check if source or metadata has changed. if neither is changed - do nothing
 
             // get current revision
+            /*
             $currentRevision = $page->getCurrentRevision();
 
             // compare source text
@@ -241,18 +224,9 @@ class WikiPageAction extends SmartyAction
             $pageRevision = new PageRevision();
             $pageRevision->setSiteId($site->getSiteId());
 
-            // compare metadata
-            $metadataChanged = false;
-            $oldMetadata = $page->getMetadata();
-            // check only if the whole page is edited
-            if ($title !== $oldMetadata->getTitle()) {
-                $pageRevision->setFlagTitle(true);
-                $metadataChanged = true;
-            }
-
             // and act accordingly to the situation
 
-            if ($sourceChanged == false && $metadataChanged == false) {
+            if ($sourceChanged == false) {
                 $db->commit();
                 return;
             }
@@ -262,18 +236,7 @@ class WikiPageAction extends SmartyAction
             $pageRevision->setRevisionNumber($currentRevision->getRevisionNumber()+1);
             $pageRevision->setFlagText(true);
 
-            if ($metadataChanged) {
-                $pageMetadata = clone($oldMetadata);
-                $pageMetadata->setNew(true);
-                $pageMetadata->setMetadataId(null);
-                $pageMetadata->setTitle($title);
-                $pageMetadata->save();
-
-                $pageRevision->setMetadataId($pageMetadata->getMetadataId());
-            } else {
-                // copy metadata id
-                $pageRevision->setMetadataId($currentRevision->getMetadataId());
-            }
+            // copy metadata id
 
             // now set user_id, user_string
 
@@ -303,7 +266,6 @@ class WikiPageAction extends SmartyAction
 
             $page->setTitle($title);
             $page->setDateLastEdited($nowDate);
-            $page->setMetadataId($pageRevision->getMetadataId());
             $page->setRevisionNumber($pageRevision->getRevisionNumber());
             $page->save();
             $db->commit();
@@ -316,6 +278,7 @@ class WikiPageAction extends SmartyAction
             if ($metadataChanged) {
                 $outdater->pageEvent("title_changed", $page);
             }
+            */
         }
     }
 
@@ -335,16 +298,13 @@ class WikiPageAction extends SmartyAction
         $db = Database::connection();
         $db->begin();
 
-        $c = new Criteria();
-        $c->add("page_id", $pageId);
-        $c->setForUpdate(true);
-        $page = PagePeer::instance()->selectOne($c);
+        $page = Page::findIdOnly($pageId);
 
         if ($page == null || $page->getSiteId() != $site->getSiteId()) {
             throw new ProcessException(_("Error getting page information."), "no_page");
         }
 
-        if ($newName == $page->getUnixName()) {
+        if ($newName == $page->slug) {
             throw new ProcessException(_("The current and new names are the same."), "page_exists");
         }
 
@@ -356,19 +316,18 @@ class WikiPageAction extends SmartyAction
 
         // check if the new page exists or not.
 
-        $conflictPage = PagePeer::instance()->selectByName($site->getSiteId(), $newName);
+        $conflictPage = Page::findSlug($site->getSiteId(), $newName);
         if ($conflictPage != null) {
             throw new ProcessException(_("The destination page already exists."), "page_exists");
         }
 
-        $oldName = $page->getUnixName();
+        $oldName = $page->slug;
 
         // check if new page exists!
 
         // success so far...
 
         // create new revision, new metadata and alter the page object too.
-        $oldMetadata = $page->getMetadata();
         $metadata = clone($oldMetadata);
         $metadata->setNew(true);
         $metadata->setMetadataId(null);
@@ -379,7 +338,6 @@ class WikiPageAction extends SmartyAction
         $revision = new PageRevision();
         $revision->setSiteId($site->getSiteId());
         $revision->setPageId($page->getPageId());
-        $revision->setMetadataId($metadata->getMetadataId());
         $revision->setFlagRename(true);
         $revision->setRevisionNumber($oldRevision->getRevisionNumber()+1);
 
@@ -439,10 +397,10 @@ class WikiPageAction extends SmartyAction
         if ($categoryName !== $oldCategoryName) {
             // check if new category exists. if not - create it!
 
-            $category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId(), false);
-            if ($category == null) {
+            $category = Category::findSlug($site->getSiteId(), $categoryName);
+            if ($category === null) {
                 // create the category - just clone the default category!!!
-                $category = CategoryPeer::instance()->selectByName("_default", $site->getSiteId(), false);
+                $category = Category::findSlug($site->getSiteId(), '_default');
                 $category->setName($categoryName);
                 // fill with some important things - we assume the _default category exists!!! IT REALLY SHOULD!!!
                 $category->setCategoryId(null);
@@ -466,17 +424,8 @@ class WikiPageAction extends SmartyAction
 
             // also see if the old category is empty - if yes - delete it!
             if ($oldCategoryName != "_default") {
-                $category = CategoryPeer::instance()->selectByName($oldCategoryName, $site->getSiteId(), false);
-
-                $c = new Criteria();
-                $c->add("category_id", $category->getCategoryId());
-                $count = PagePeer::instance()->selectCount($c);
-
-                if ($count == 0) {
-                    // delete the category
-                    CategoryPeer::instance()->delete($c);
-                    $outdater->categoryEvent('delete', $category, $site);
-                }
+                // Deleted code:
+                // If number of pages in category is 0, delete category
             }
         }
 
@@ -488,9 +437,9 @@ class WikiPageAction extends SmartyAction
 
         // move files too
         $oldDir = WIKIJUMP_ROOT."/web/files--sites/".
-            $site->getUnixName()."/files/".$oldName;
+            $site->getSlug()."/files/".$oldName;
         $newDir =  WIKIJUMP_ROOT."/web/files--sites/".
-            $site->getUnixName()."/files/".$newName;
+            $site->getSlug()."/files/".$newName;
 
         if (file_exists($oldDir)) {
             if (rename($oldDir, $newDir) == false) {
@@ -499,9 +448,9 @@ class WikiPageAction extends SmartyAction
         }
 
         $oldRDir = WIKIJUMP_ROOT."/web/files--sites/".
-                $site->getUnixName()."/resized-images/".$oldName;
+                $site->getSlug()."/resized-images/".$oldName;
         $newRDir = WIKIJUMP_ROOT."/web/files--sites/".
-                $site->getUnixName()."/resized-images/".$newName;
+                $site->getSlug()."/resized-images/".$newName;
 
         if (file_exists($oldRDir)) {
             if (rename($oldRDir, $newRDir) == false) {
@@ -516,8 +465,6 @@ class WikiPageAction extends SmartyAction
                 "AND page_link.from_page_id=page.page_id AND page.site_id={$site->getSiteId()} ORDER BY COALESCE(title, unix_name)";
 
         $c->setExplicitQuery($q);
-
-        $pages = PagePeer::instance()->select($c);
 
         $q = "SELECT page_id, title, unix_name FROM page, page_inclusion " .
                 "WHERE page_inclusion.included_page_name='".db_escape_string($oldName)."' " .
@@ -540,12 +487,8 @@ class WikiPageAction extends SmartyAction
         $db = Database::connection();
         $db->begin();
 
-        $c = new Criteria();
-        $c->add("page_id", $pageId);
-        $c->setForUpdate(true);
-        $page = PagePeer::instance()->selectOne($c);
-
-        if ($page == null) {
+        $page = Page::findIdOnly($pageId);
+        if ($page === null) {
             throw new ProcessException(_("Error: original page does not exist any more...???"), "no_page");
         }
 
@@ -559,13 +502,13 @@ class WikiPageAction extends SmartyAction
             $ppId = null;
         } else {
             // get the page!
-            $pp = PagePeer::instance()->selectByName($site->getSiteId(), $ppName);
-            if ($pp == null) {
+            $pp = Page::findSlug($site->getSiteId(), $ppName);
+            if ($pp === null) {
                 // page does not exist. return error
                 throw new ProcessException(_("The requested page does not exist. Please indicate a parent page that already exists."), "no_parent_page");
             }
             // check if not "self"
-            if ($pp->getPageId() == $page->getPageId()) {
+            if ($pp->getPageId() === $page->getPageId()) {
                 throw new ProcessException(_("Cannot set parent page to this page."), "loop_error");
             }
 
@@ -588,7 +531,6 @@ class WikiPageAction extends SmartyAction
 
             // create a new revision!!!!!!!!!!!!!!!
             // create new revision, new metadata and alter the page object too.
-            $oldMetadata = $page->getMetadata();
             $metadata = clone($oldMetadata);
             $metadata->setNew(true);
             $metadata->setMetadataId(null);
@@ -600,7 +542,6 @@ class WikiPageAction extends SmartyAction
             $revision->setRevisionId(null);
             $revision->resetFlags();
             $revision->setFlagMeta(true);
-            $revision->setMetadataId($metadata->getMetadataId());
 
             $revision->setRevisionNumber($revision->getRevisionNumber() +1);
             $now = new ODate();
@@ -652,12 +593,8 @@ class WikiPageAction extends SmartyAction
         $db = Database::connection();
         $db->begin();
 
-        $c = new Criteria();
-        $c->add("page_id", $pageId);
-        $c->setForUpdate(true);
-        $page = PagePeer::instance()->selectOne($c);
-
-        if ($page == null || $page->getSiteId() != $site->getSiteId()) {
+        $page = Page::findIdOnly($pageId);
+        if ($page === null || $page->getSiteId() !== $site->getSiteId()) {
             throw new ProcessException(_("Error getting page information."), "no_page");
         }
 
@@ -670,23 +607,9 @@ class WikiPageAction extends SmartyAction
         // get the revision
 
         $toRevision = PageRevisionPeer::instance()->selectByPrimaryKey($revisionId);
-        $toMeta = PageMetadataPeer::instance()->selectByPrimaryKey($toRevision->getMetadataId());
         $currentRevision = $page->getCurrentRevision();
 
-        $currentMeta = $currentRevision->getMetadata();
-
         // success so far...
-
-        $titleChanged = false;
-        if ($toMeta->getTitle() !== $currentMeta->getTitle()) {
-            // change the title, need to create a new metadata...
-            $metadata = clone($currentMeta);
-            $metadata->setMetadataId(null);
-            $metadata->setNew(true);
-            $metadata->setTitle($toMeta->getTitle());
-            $metadata->save();
-            $titleChanged = true;
-        }
 
         $userId = $runData->getUserId();
         if ($userId === null) {
@@ -703,14 +626,6 @@ class WikiPageAction extends SmartyAction
         $revision->setNew(true);
         $revision->setRevisionId(null);
         $revision->resetFlags();
-        if ($sourceChanged) {
-            $revision->setFlagText(true);
-        }
-        if ($titleChanged) {
-            $revision->setFlagTitle(true);
-            $revision->setMetadataId($metadata->getMetadataId());
-            $page->setTitle($toMeta->getTitle());
-        }
 
         $revision->setComments(_("Reverted to page revision number")." ".$toRevision->getRevisionNumber());
 
@@ -740,12 +655,6 @@ class WikiPageAction extends SmartyAction
 
         // outdate party!
         $outdater = new Outdater();
-        if ($sourceChanged) {
-            $outdater->pageEvent("source_changed", $page);
-        }
-        if ($titleChanged) {
-            $outdater->pageEvent("title_changed", $page);
-        }
         // index page
         $db->commit();
 
@@ -765,9 +674,8 @@ class WikiPageAction extends SmartyAction
         $page_id = $pl->getParameterValue("pageId");
 
         $site = $runData->getTemp("site");
-        $page = PagePeer::instance()->selectByPrimaryKey($page_id);
-
-        if ($page == null || $page->getSiteId() != $site->getSiteId()) {
+        $page = Page::findIdOnly($page_id);
+        if ($page === null || $page->getSiteId() !== $site->getSiteId()) {
             throw new ProcessException(_("Error getting page information."), "no_page");
         }
 
@@ -778,7 +686,7 @@ class WikiPageAction extends SmartyAction
         // Turn the tags into a set.
         // We have a check here because preg_split() on an empty string yields ['']
         $current_tags = $tags === '' ? new Set() : new Set(preg_split('/[, ]+/', $tags));
-        $previous_tags = PagePeer::getTags($page_id);
+        $previous_tags = new Set(); // PagePeer::getTags($page_id);
 
         // TODO: concept of roles
         $role_ids = new Set();
@@ -800,7 +708,7 @@ class WikiPageAction extends SmartyAction
         }
 
         // Save the tags.
-        PagePeer::saveTags($page_id, $current_tags);
+        // TODO save tags $page_id, $current_tags
 
         $od = new Outdater();
         $od->pageEvent("tag_change", $page);
@@ -816,7 +724,7 @@ class WikiPageAction extends SmartyAction
         $pageId = $pl->getParameterValue("pageId");
         $user = $runData->getUser();
 
-        $page = PagePeer::instance()->selectByPrimaryKey($pageId);
+        $page = Page::findIdOnly($pageId);
         if (!$pageId || $page == null || $page->getSiteId() != $runData->getTemp("site")->getSiteId()) {
             throw new ProcessException(_("Error getting page information."), "no_page");
         }
@@ -878,12 +786,8 @@ class WikiPageAction extends SmartyAction
         $db = Database::connection();
         $db->begin();
 
-        $c = new Criteria();
-        $c->add("page_id", $pageId);
-        $c->setForUpdate(true);
-        $page = PagePeer::instance()->selectOne($c);
-
-        if ($page == null || $page->getSiteId() != $site->getSiteId()) {
+        $page = Page::findIdOnly($pageId);
+        if ($page === null || $page->getSiteId() !== $site->getSiteId()) {
             throw new ProcessException(_("Error getting page information."), "no_page");
         }
 

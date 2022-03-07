@@ -2,7 +2,6 @@
 
 namespace Wikidot\DB;
 
-
 use Wikidot\Utils\ProcessException;
 
 /**
@@ -11,12 +10,10 @@ use Wikidot\Utils\ProcessException;
  */
 class Theme extends ThemeBase
 {
-
     protected $_external;
 
     public function getStyleUrls()
     {
-
         if ($this->getExtendsThemeId()) {
             // get parent theme
             $parent = ThemePeer::instance()->selectByPrimaryKey($this->getExtendsThemeId());

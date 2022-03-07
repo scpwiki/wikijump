@@ -26,8 +26,8 @@
  * @link       http://pear.php.net/package/Text_Wiki
  */
 
-use Wikidot\DB\PagePeer;
 use Wikidot\Utils\GlobalProperties;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class Text_Wiki_Render_Xhtml_Wikilink extends Text_Wiki_Render {
 
@@ -105,7 +105,7 @@ class Text_Wiki_Render_Xhtml_Wikilink extends Text_Wiki_Render {
 
 		if($exists && $textFromTitle){
 			// get displayed text from the page title
-			$pageObj = PagePeer::instance()->selectByPrimaryKey($exists);
+            $pageObj = Page::findIdOnly($exists);
 			$text = $pageObj->getTitleOrUnixName();
 		}
 

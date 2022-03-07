@@ -2,15 +2,12 @@
 
 namespace Wikidot\Modules\Forum;
 
-
-use Wikidot\DB\PagePeer;
-
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\ProcessException;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class ForumCommentsModule extends SmartyModule
 {
-
     protected $processPage = true;
 
     public function build($runData)
@@ -53,10 +50,10 @@ class ForumCommentsModule extends SmartyModule
     {
         $site = $runData->getTemp("site");
         $pageName = $runData->getTemp("pageUnixName");
-        if ($pageName == null) {
+        if ($pageName === null) {
             return $out;
         }
-        $page = PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
+        $page = Page::findSlug($site->getSiteId(), $pageName);
         $pageId = $page->getPageId();
         $link = '/feed/page/comments-'.$pageId.'.xml';
         $title =  "Comments for the page \"".$page->getTitleOrUnixName()."\"";
@@ -64,7 +61,7 @@ class ForumCommentsModule extends SmartyModule
             "/<\/head>/",
             '<link rel="alternate" type="application/rss+xml" title="'.htmlspecialchars($title).'" href="'.$link.'"/></head>',
             $out,
-            1
+            1,
         );
 
         return $out;

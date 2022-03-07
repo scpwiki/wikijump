@@ -103,17 +103,14 @@ impl<'t> FullText<'t> {
     ) -> &'t str {
         info!(
             log,
-            "Extracting {} slice from full text",
-            _slice_kind;
+            "Extracting {_slice_kind} slice from full text";
             "start" => start,
             "end" => end,
         );
 
         assert!(
             start <= end,
-            "Starting index is later than the ending index: {} > {}",
-            start,
-            end,
+            "Starting index is later than the ending index: {start} > {end}",
         );
 
         &self.text[start..end]

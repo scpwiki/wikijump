@@ -6,7 +6,6 @@ namespace Wikidot\Modules\Wiki\HotTags;
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\SmartyModule;
-use Wikidot\DB\PagePeer;
 use Wikidot\Utils\ProcessException;
 
 class GlobalHotTagsModule extends SmartyModule
@@ -120,7 +119,7 @@ class GlobalHotTagsModule extends SmartyModule
         // Fetch tags and their counts
         $c = new Criteria();
         $c->add('site_id', $site->getSiteId());
-        $pages = PagePeer::instance()->select($c);
+        $pages = [null]; // TODO run query
         $tag_counts = [];
 
         foreach ($pages as $page) {

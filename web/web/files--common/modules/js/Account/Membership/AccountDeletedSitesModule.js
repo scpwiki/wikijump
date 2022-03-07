@@ -8,7 +8,7 @@ Wikijump.modules.AccountDeletedSitesModule.listeners = {
 	clickRestore: function(e, siteId){
 		var sitesData = Wikijump.modules.AccountDeletedSitesModule.vars.sitesData;
 		$("as-restore-site-name").innerHTML = sitesData[siteId]['name'];
-		$("as-restore-site-unixname").value = sitesData[siteId]['unix_name'];
+		$("as-restore-site-unixname").value = sitesData[siteId]['slug'];
 		$("as-restore-site-box").style.display = 'block';
 		Wikijump.modules.AccountDeletedSitesModule.vars.siteId = siteId;
 		OZONE.visuals.scrollTo($("as-restore-site-box"));

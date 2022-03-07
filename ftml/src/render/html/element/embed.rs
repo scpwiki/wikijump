@@ -36,7 +36,7 @@ pub fn render_embed(log: &Logger, ctx: &mut HtmlContext, embed: &Embed) {
         ))
         .contents(|ctx| match embed {
             Embed::Youtube { video_id } => {
-                let url = format!("https://www.youtube.com/embed/{}", video_id);
+                let url = format!("https://www.youtube.com/embed/{video_id}");
 
                 ctx.html().iframe().attr(attr!(
                     "src" => &url,
@@ -49,7 +49,7 @@ pub fn render_embed(log: &Logger, ctx: &mut HtmlContext, embed: &Embed) {
             }
 
             Embed::Vimeo { video_id } => {
-                let url = format!("https://player.vimeo.com/video/{}", video_id);
+                let url = format!("https://player.vimeo.com/video/{video_id}");
 
                 ctx.html().iframe().attr(attr!(
                     "src" => &url,
@@ -60,13 +60,13 @@ pub fn render_embed(log: &Logger, ctx: &mut HtmlContext, embed: &Embed) {
             }
 
             Embed::GithubGist { username, hash } => {
-                let url = format!("https://gist.github.com/{}/{}.js", username, hash);
+                let url = format!("https://gist.github.com/{username}/{hash}.js");
 
                 ctx.html().script().attr(attr!("src" => &url));
             }
 
             Embed::GitlabSnippet { snippet_id } => {
-                let url = format!("https://gitlab.com/-/snippets/{}.js", snippet_id);
+                let url = format!("https://gitlab.com/-/snippets/{snippet_id}.js");
 
                 ctx.html().script().attr(attr!("src" => &url));
             }

@@ -24,9 +24,9 @@ class ForumCategoryThreadsFeed extends FeedScreen
 
         $parmHash = md5(serialize($pl->asArray()));
 
-        $key = 'forumcategorythreads_f..'.$site->getUnixName().'..'.$categoryId.'..'.$parmHash;
-        $tkey = 'forumcategory_lc..'.$site->getUnixName().'..'.$categoryId; // last change timestamp
-        $akey = 'forumall_lc..'.$site->getUnixName();
+        $key = 'forumcategorythreads_f..'.$site->getSlug().'..'.$categoryId.'..'.$parmHash;
+        $tkey = 'forumcategory_lc..'.$site->getSlug().'..'.$categoryId; // last change timestamp
+        $akey = 'forumall_lc..'.$site->getSlug();
 
         $struct = Cache::get($key);
         $cacheTimestamp = $struct['timestamp'];

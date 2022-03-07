@@ -3,10 +3,9 @@ declare(strict_types=1);
 
 namespace Wikijump\Services\Wikitext;
 
-use Ds\Sets;
-use Ozone\Framework\Database\Criteria;
+use Ds\Set;
 use Wikidot\DB\ForumThreadPeer;
-use Wikidot\DB\PagePeer;
+use Wikidot\DB\SitePeer;
 use Wikidot\Utils\GlobalProperties;
 use Wikijump\Helpers\LegacyTools;
 use Wikijump\Models\User;
@@ -77,9 +76,9 @@ final class LegacyTemplateAssembler
         /* If there is $page, try substituting more tags. */
         if ($page) {
             $b = $template;
-            $title = $page->getTitle();
+            $title = $page->title;
             $title = str_replace(array('[', ']'), '', $title);
-            $replacement = preg_quote_replacement('[[[' . $page->getUnixName() . ' | ' . $title . ']]]');
+            $replacement = preg_quote_replacement('[[[' . $page->slug . ' | ' . $title . ']]]');
             $b = str_replace('%%%%%title%%%%%', $title, $b);
             $b = preg_replace(';%%%%%((linked_title)|(title_linked))%%%%%;i', $replacement, $b);
 
@@ -95,9 +94,7 @@ final class LegacyTemplateAssembler
             }
             $b = str_ireplace('%%%%%author%%%%%', $userString, $b);
             $b = str_ireplace('%%%%%user%%%%%', $userString, $b);
-
             $b = str_ireplace('%%%%%user_edited%%%%%', $userString, $b);
-
             $b = preg_replace(
                 ';%%%%%date(\|.*?)?%%%%%;',
                 '%%%%%date|' . $page->getDateCreated()->getTimestamp() . '\\1%%%%%',
@@ -120,10 +117,10 @@ final class LegacyTemplateAssembler
             );
 
             /* %%page_unix_name%% */
-            $b = str_ireplace('%%%%%page_unix_name%%%%%', $page->getUnixName(), $b);
+            $b = str_ireplace('%%%%%page_unix_name%%%%%', $page->slug, $b);
 
-            if (strpos($page->getUnixName(), ':') != false) {
-                $tmp0 = explode(':', $page->getUnixName());
+            if (strpos($page->slug, ':') != false) {
+                $tmp0 = explode(':', $page->slug);
                 $categoryName00 = $tmp0[0];
             } else {
                 $categoryName00 = '_default';
@@ -132,10 +129,10 @@ final class LegacyTemplateAssembler
             $b = str_ireplace('%%%%%category%%%%%', $categoryName00, $b);
 
             /* %%link%% */
-            $site = $page->getSite();
+            $site = SitePeer::instance()->selectByPrimaryKey($page->site_id);
             $b = str_ireplace(
                 '%%%%%link%%%%%',
-                GlobalProperties::$HTTP_SCHEMA . '://' . $site->getDomain() . '/' . $page->getUnixName(),
+                GlobalProperties::$HTTP_SCHEMA . '://' . $site->getDomain() . '/' . $page->slug,
                 $b,
             );
 
@@ -201,8 +198,7 @@ final class LegacyTemplateAssembler
 
     private static function handleTags($match, string $page_id): string
     {
-        /* Select tags. */
-        $tags = PagePeer::getTags($page_id);
+        $tags = new Set(); // get tags for $page_id
         if ($tags->isEmpty()) {
             return _('//No tags found for this page.//');
         }

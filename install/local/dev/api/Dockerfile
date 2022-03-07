@@ -27,6 +27,7 @@ ENV LOCALIZATION_PATH="/opt/locales"
 RUN apk add --no-cache curl
 COPY --from=rust /src/deepwell/target/release/deepwell /usr/local/bin/deepwell
 COPY ./locales/fluent /opt/locales/fluent
+COPY ./install/files/api/health-check.sh /bin/wikijump-health-check
 
 USER daemon
 CMD ["/usr/local/bin/deepwell"]

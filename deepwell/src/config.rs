@@ -19,7 +19,7 @@
  */
 
 use crate::info;
-use clap::{App, Arg};
+use clap::{Arg, Command};
 use dotenv::dotenv;
 use std::env;
 use std::net::SocketAddr;
@@ -174,8 +174,7 @@ fn read_env(config: &mut Config) {
     if let Ok(value) = env::var("RATE_LIMIT_SECRET") {
         if value.len() < MIN_SECRET_LENGTH {
             eprintln!(
-                "RATE_LIMIT_SECRET value too short (must be at least {} bytes long)",
-                MIN_SECRET_LENGTH,
+                "RATE_LIMIT_SECRET value too short (must be at least {MIN_SECRET_LENGTH} bytes long)",
             );
             process::exit(1);
         }
@@ -185,7 +184,7 @@ fn read_env(config: &mut Config) {
 }
 
 fn parse_args(config: &mut Config) {
-    let matches = App::new("DEEPWELL")
+    let matches = Command::new("DEEPWELL")
         .author(info::PKG_AUTHORS)
         .version(info::VERSION.as_str())
         .long_version(info::FULL_VERSION.as_str())
@@ -268,7 +267,7 @@ fn parse_args(config: &mut Config) {
         match get_log_level(value) {
             Some(level) => config.logger_level = level,
             None => {
-                eprintln!("Invalid logging level: {}", value);
+                eprintln!("Invalid logging level: {value}");
                 process::exit(1);
             }
         }
@@ -278,7 +277,7 @@ fn parse_args(config: &mut Config) {
         match value.parse() {
             Ok(host) => config.address.set_ip(host),
             Err(_) => {
-                eprintln!("Invalid IP address: {}", value);
+                eprintln!("Invalid IP address: {value}");
                 process::exit(1);
             }
         }
@@ -288,7 +287,7 @@ fn parse_args(config: &mut Config) {
         match value.parse() {
             Ok(port) => config.address.set_port(port),
             Err(_) => {
-                eprintln!("Invalid port number: {}", value);
+                eprintln!("Invalid port number: {value}");
                 process::exit(1);
             }
         }
@@ -298,7 +297,7 @@ fn parse_args(config: &mut Config) {
         match value.parse() {
             Ok(run) => config.run_migrations = run,
             Err(_) => {
-                eprintln!("Invalid boolean value for migrations: {}", value);
+                eprintln!("Invalid boolean value for migrations: {value}");
                 process::exit(1);
             }
         }
@@ -310,9 +309,9 @@ fn parse_args(config: &mut Config) {
 
     if let Some(value) = matches.value_of("ratelimit-min") {
         match value.parse() {
-            Ok(value) => config.rate_limit_secret = value,
+            Ok(value) => config.rate_limit_per_minute = value,
             Err(_) => {
-                eprintln!("Invalid number of requests per minute: {}", value);
+                eprintln!("Invalid number of requests per minute: {value}");
                 process::exit(1);
             }
         }

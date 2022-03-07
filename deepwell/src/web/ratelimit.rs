@@ -96,10 +96,10 @@ impl Middleware<ApiServerState> for GovernorMiddleware {
         };
 
         // Check rate-limit bucket by IP address
-        tide::log::trace!("Checking rate-limit for IP address {}", remote);
+        tide::log::trace!("Checking rate-limit for IP address {remote}");
         match self.limiter.check_key(&remote) {
             Ok(_) => {
-                tide::log::debug!("Allowing IP address {}", remote);
+                tide::log::debug!("Allowing IP address {remote}");
                 Ok(next!())
             }
             Err(negative) => {

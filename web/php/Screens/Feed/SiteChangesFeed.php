@@ -52,7 +52,7 @@ class SiteChangesFeed extends FeedScreen
 
             $item = array();
 
-            $item['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain().'/'.$page->getUnixName();
+            $item['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain().'/'.$page->slug;
 
             $desc = '';
 
@@ -76,9 +76,9 @@ class SiteChangesFeed extends FeedScreen
                 $flags[] = _("new page");
             }
 
-            $item['title'] = '"'.$page->getTitleOrUnixName().'" - '.implode(', ', $flags);
+            $item['title'] = '"'.$page->title.'" - '.implode(', ', $flags);
             $desc = '';
-            $desc .= _('Page').': <a href="'.GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain().'/'.$page->getUnixName().'">'.htmlspecialchars($page->getTitle()).'</a> ('.$page->getUnixName().')<br/>';
+            $desc .= _('Page').': <a href="'.GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain().'/'.$page->title.'">'.htmlspecialchars($page->title).'</a> ('.$page->slug.')<br/>';
             $desc .= _('Current revision number').': '.$rev->getRevisionNumber().'<br/>';
             $desc .= _('Date changed').': '.date('r', $rev->getDateLastEdited()->getTimestamp()).'<br/>';
             $desc .= _('Change type').': '.implode(', ', $flags).'<br/>';

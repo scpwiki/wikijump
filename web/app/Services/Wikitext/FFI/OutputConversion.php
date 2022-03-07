@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Wikijump\Services\Wikitext\FFI;
 
 use FFI;
-use Wikidot\DB\PagePeer;
 use Wikijump\Services\Wikitext\Backlinks;
 use Wikijump\Services\Wikitext\PageRef;
 use Wikijump\Services\Wikitext\HtmlMeta;

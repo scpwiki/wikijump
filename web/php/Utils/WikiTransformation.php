@@ -62,10 +62,10 @@ class WikiTransformation
 
     public function setPage($page)
     {
-        $pageSlug = $page->getUnixName();
+        $pageSlug = $page->slug;
         $this->page = $page;
         $this->wiki->vars['page'] = $page;
-        $this->wiki->vars['pageTitle'] = $page->getTitleOrUnixName();
+        $this->wiki->vars['pageTitle'] = $page->title;
         $this->wiki->vars['pageName'] = $pageSlug;
         $this->wiki->setRenderConf('image', 'base', '/local--files/'.$pageSlug.'/');
         $this->wiki->setRenderConf('file', 'base', '/local--files/'.$pageSlug.'/');

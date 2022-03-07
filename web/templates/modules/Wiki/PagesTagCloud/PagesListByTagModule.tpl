@@ -10,7 +10,7 @@
 	{foreach from=$pages item=page}
 		<div class="pages-list-item">
 			<div class="title">
-				<a href="/{$page->getUnixName()}">{$page->getTitleOrUnixName()}</a>
+				<a href="/{$page->slug}">{$page->title}</a>
 			</div>
 		</div>
 	{/foreach}

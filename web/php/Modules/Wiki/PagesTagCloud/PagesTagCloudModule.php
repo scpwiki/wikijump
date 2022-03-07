@@ -2,13 +2,11 @@
 
 namespace Wikidot\Modules\Wiki\PagesTagCloud;
 
-
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\SmartyModule;
-use Wikidot\DB\CategoryPeer;
-use Wikidot\DB\PagePeer;
 use Wikidot\Utils\ProcessException;
+use Wikijump\Services\Deepwell\Models\Category;
 
 class PagesTagCloudModule extends SmartyModule
 {
@@ -61,7 +59,7 @@ class PagesTagCloudModule extends SmartyModule
             $categoryName = '*';
         }
 
-        $key = 'pagetagcloud_v..' . $site->getUnixName() . '..' . $categoryName . '..' . $parmHash;
+        $key = 'pagetagcloud_v..' . $site->getSlug() . '..' . $categoryName . '..' . $parmHash;
 
         $struct =Cache::get($key);
         if (!$struct) {
@@ -77,7 +75,7 @@ class PagesTagCloudModule extends SmartyModule
 
         if ($categoryName != '*') {
             foreach ($cats as $cat) {
-                $tkey = 'pagecategory_lc..' . $site->getUnixName() . '..' . $cat; // last change timestamp
+                $tkey = 'pagecategory_lc..' . $site->getSlug() . '..' . $cat; // last change timestamp
                 $changeTimestamp = Cache::get($tkey);
                 if ($changeTimestamp && $cacheTimestamp && $changeTimestamp <= $cacheTimestamp) {    //cache valid
                 } else {
@@ -90,7 +88,7 @@ class PagesTagCloudModule extends SmartyModule
                 }
             }
         } else {
-            $akey = 'pageall_lc..' . $site->getUnixName();
+            $akey = 'pageall_lc..' . $site->getSlug();
             $allPagesTimestamp = Cache::get($akey);
             if ($allPagesTimestamp && $cacheTimestamp && $allPagesTimestamp <= $cacheTimestamp) {    //cache valid
             } else {
@@ -231,8 +229,8 @@ class PagesTagCloudModule extends SmartyModule
         $site = $runData->getTemp("site");
 
         if ($categoryName) {
-            $category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
-            if ($category == null) {
+            $category = Category::findSlug($site->getSiteId(), $categoryName);
+            if ($category === null) {
                 throw new ProcessException(sprintf(_('Category "%s" cannot be found.'), $categoryName));
             }
         }
@@ -240,7 +238,7 @@ class PagesTagCloudModule extends SmartyModule
         // Fetch tags and their counts
         $c = new Criteria();
         $c->add('site_id', $site->getSiteId());
-        $pages = PagePeer::instance()->select($c);
+        $pages = [null]; // TODO query query
         $tag_counts = [];
 
         foreach ($pages as $page) {

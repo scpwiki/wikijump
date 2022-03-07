@@ -5,16 +5,14 @@ namespace Wikidot\Modules\Edit;
 
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
-use Wikidot\DB\PagePeer;
-use Wikidot\DB\CategoryPeer;
+use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDEditUtils;
 use Wikidot\Utils\WDPermissionManager;
 use Wikidot\Utils\WDStringUtils;
 use Wikidot\Form;
 use Wikidot\Form\Renderer;
-
-use Ozone\Framework\SmartyModule;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class PageEditModule extends SmartyModule
 {
@@ -54,8 +52,8 @@ class PageEditModule extends SmartyModule
                 throw new ProcessException(_("The page cannot be found or does not exist."), "no_page");
             }
 
-            $page = PagePeer::instance()->selectByName($site->getSiteId(), $unixName);
-            if ($page != null) {
+            $page = Page::findSlug($site->getSiteId(), $unixName);
+            if ($page !== null) {
                 // page exists!!! error!
                 throw new ProcessException(_("The page you want to create already exists. Please refresh the page in your browser to see it."));
             }
@@ -77,43 +75,30 @@ class PageEditModule extends SmartyModule
                 $suggestedTitle = $stitle;
             }
 
-            $category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
-
-            if ($category == null) {
-                // get the default!
-                //$category = Wikidot_DB_CategoryPeer::instance()->selectByName('_default', $site->getSiteId());
-                $category = $this->createTempCategory($categoryName, $site);
-            }
-
             // now check for permissions!!!
-            WDPermissionManager::instance()->hasPagePermission('create', $user, $category);
+            WDPermissionManager::instance()->hasPagePermission('create', $user);
             $runData->contextAdd("title", $suggestedTitle);
 
             /* Select available templates, but only if the category does not have a live template. */
-            $templatePage = $category->getTemplatePage();
+            $templatePage = "$categoryName:_template";
 
             if ($templatePage && $form = Form::fromSource($templatePage->getSource())) {
                 $runData->contextAdd("form", new Renderer($form));
             } elseif (!$templatePage || !preg_match('/^={4,}$/sm', $templatePage->getSource())) {
+                /*
                 $templatesCategory = CategoryPeer::instance()->selectByName("template", $site->getSiteId());
 
                 if ($templatesCategory != null) {
                     $c = new Criteria();
                     $c->add("category_id", $templatesCategory->getCategoryId());
                     $c->addOrderAscending("title");
-                    $templates =  PagePeer::instance()->select($c);
+                    $templates = [null]; // TODO run query
 
                     $runData->contextAdd("templates", $templates);
                 }
+                */
 
                 // check if there is a default template...
-
-
-                if ($category != null) {
-                    if ($category->getTemplateId() != null) {
-                        $runData->contextAdd("templateId", $category->getTemplateId());
-                    }
-                }
             } else {
                 /* Has default template, try to populate the edit box with initial content. */
                 $templateSource = $templatePage->getSource();
@@ -138,8 +123,8 @@ class PageEditModule extends SmartyModule
             throw new ProcessException(_("The page cannot be found or does not exist."), "no_page");
         }
 
-        $page = PagePeer::instance()->selectByPrimaryKey($pageId);
-        if (!$page || $page->getSiteId() !== $site->getSiteId()) {
+        $page = Page::findIdOnly($pageId, true);
+        if ($page === null || $page->getSiteId() !== $site->getSiteId()) {
             throw new ProcessException(_("The page cannot be found or does not exist."), "no_page");
         }
 
@@ -154,9 +139,9 @@ class PageEditModule extends SmartyModule
 
         // now check if form is defined
 
-        $templatePage = $category->getTemplatePage();
+        $templatePage = "$categoryName:_template";
 
-        if (preg_match('/^[^:]*:[^_]|^[^_:][^:]*$/', $page->getUnixName())
+        if (preg_match('/^[^:]*:[^_]|^[^_:][^:]*$/', $page->slug)
             && $templatePage && $form = Form::fromSource($templatePage->getSource())
         ) {
             $form->setDataFromYaml($page->getSource());
@@ -173,34 +158,12 @@ class PageEditModule extends SmartyModule
         // keep the session - i.e. put an object into session storage not to delete it!!!
         $runData->sessionAdd("keep", true);
 
-        $pageSource = $page->getSource();
-        $runData->contextAdd("source", $pageSource);
-        $runData->contextAdd("title", $page->getTitleRaw());
-        $runData->contextAdd("pageId", $page->getPageId());
+        $runData->contextAdd("source", $page->wikitext);
+        $runData->contextAdd("title", $page->title);
+        $runData->contextAdd("pageId", $page->page_id);
 
         $runData->ajaxResponseAdd("timeLeft", 15*60);
 
         $db->commit();
-    }
-
-    protected function createTempCategory($categoryName, $site)
-    {
-        $category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId(), false);
-        if ($category == null) {
-            // create the category - just clone the default category!!!
-            $category = CategoryPeer::instance()->selectByName("_default", $site->getSiteId(), false);
-            $category->setName($categoryName);
-            // fill with some important things - we assume the _default category exists!!! IT REALLY SHOULD!!!
-            $category->setCategoryId(null);
-            $category->setNew(true); // this will make it INSERT, not UPDATE on save()
-            $category->setPerPageDiscussion(null); //default value
-            // set default permissions theme and license
-            $category->setPermissionsDefault(true);
-            $category->setThemeDefault(true);
-            $category->setLicenseDefault(true);
-            $category->setNavDefault(true);
-        }
-
-        return $category;
     }
 }

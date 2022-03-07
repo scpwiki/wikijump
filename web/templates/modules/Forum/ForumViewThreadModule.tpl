@@ -4,21 +4,19 @@
 
 {loadmacro set="Forum"}
 
-
-
 {assign var=wpage value=$thread->getPage()}
 
 <div class="forum-thread-box"> {* one should be able to change the class... *}
 
 	{*{if $wpage}
-		<h1><a href="/{$wpage->getUnixName()}">{$wpage->getTitle()|escape}</a> / {t}discussion{/t}</h1>
+		<h1><a href="/{$wpage->getUnixName()}">{$wpage->title|escape}</a> / {t}discussion{/t}</h1>
 	{else}
 		<h1>{$thread->getTitle()|escape}</h1>
 	{/if}*}
 		<div  class="forum-breadcrumbs">
 			<a href="/forum/start">Forum</a>
 			&raquo;
-			<a href="/forum/c-{$category->getCategoryId()}/{$category->getUnixifiedName()|escape}">{$category->getForumGroup()->getName()|escape} / {$category->getName()|escape}</a>
+			<a href="/forum/c-{$category->category_id}/{$category->getUnixifiedName()|escape}">{$category->getForumGroup()->getName()|escape} / {$category->getName()|escape}</a>
 			&raquo;
 			{$thread->getTitle()|escape}
 		</div>
@@ -39,7 +37,7 @@
 			{/if}
 		{else}
 			{t}This is the discussion related to the wiki page {/t}
-			<a href="/{$wpage->getUnixName()}">{if $wpage->getTitle() && $wpage->getTitle()!=''}{$wpage->getTitle()}{else}{$wpage->getUnixname()}{/if}</a>.
+			<a href="/{$wpage->getUnixName()}">{if $wpage->title && $wpage->title!=''}{$wpage->title}{else}{$wpage->getUnixname()}{/if}</a>.
 		{/if}
 
 	</div>
@@ -103,7 +101,7 @@
 
 	<div style="display:none" id="post-options-template">
 			<a href="javascript:;" onclick="Wikijump.modules.ForumViewThreadModule.listeners.showPermalink(event,'%POST_ID%')">{t}permanent link{/t}</a> |
-			<a href="javascript:;" onclick="Wikijump.modules.ForumViewThreadModule.listeners.editPost(event,'%POST_ID%')">{t}edit{/t}</a> 
+			<a href="javascript:;" onclick="Wikijump.modules.ForumViewThreadModule.listeners.editPost(event,'%POST_ID%')">{t}edit{/t}</a>
             {if $canDelete}
                  | <a href="javascript:;" onclick="Wikijump.modules.ForumViewThreadModule.listeners.deletePost(event,'%POST_ID%')">{t}delete{/t}</a>
             {/if}

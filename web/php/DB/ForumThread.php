@@ -2,10 +2,10 @@
 
 namespace Wikidot\DB;
 
-
 use Wikidot\Utils\WDStringUtils;
 use Ozone\Framework\Database\Criteria;
 use Wikijump\Models\User;
+use Wikijump\Services\Deepwell\Models\Page;
 
 /**
  * Object Model Class.
@@ -28,7 +28,7 @@ class ForumThread extends ForumThreadBase
             return parent::getTitle();
         } else {
             $page = $this->getPage();
-            return $page->getTitle();
+            return $page->title;
         }
     }
 
@@ -40,7 +40,7 @@ class ForumThread extends ForumThreadBase
             if ($this->getPageId() === null) {
                 return null;
             }
-            $page = PagePeer::instance()->selectByPrimaryKey($this->getPageId());
+            $page = Page::findIdOnly($this->getPageId());
             $this->page = $page;
             return $page;
         }

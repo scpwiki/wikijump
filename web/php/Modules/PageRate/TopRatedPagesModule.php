@@ -3,13 +3,11 @@
 namespace Wikidot\Modules\PageRate;
 
 use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\CategoryPeer;
-use Wikidot\DB\PagePeer;
 use Wikidot\DB\ForumThreadPeer;
-
-use Wikidot\Utils\CacheableModule;
 use Wikidot\Utils\CacheableModule2;
 use Wikidot\Utils\ProcessException;
+use Wikijump\Services\Deepwell\Models\Category;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class TopRatedPagesModule extends CacheableModule2
 {
@@ -45,26 +43,26 @@ class TopRatedPagesModule extends CacheableModule2
         }
 
         $showComments = $pl->getParameterValue("comments", "MODULE");
-
         $categoryName = $pl->getParameterValue("category", "MODULE", "AMODULE");
+        $category = null;
         if ($categoryName !== null) {
-            $category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
-            if ($category == null) {
+            $category = Category::findSlug($site->getSiteId(), $categoryName);
+            if ($category === null) {
                 throw new ProcessException(_("The category cannot be found."));
             }
         }
 
         $c = new Criteria();
-        if ($category) {
+        if ($category !== null) {
             $c->add("category_id", $category->getCategoryId());
         }
         $c->add("site_id", $site->getSiteId());
 
-        if ($minRating!==null) {
+        if ($minRating !== null) {
             $c->add("rate", $minRating, '>=');
         }
 
-        if ($maxRating!==null) {
+        if ($maxRating !== null) {
             $c->add("rate", $maxRating, '<=');
         }
 
@@ -76,8 +74,6 @@ class TopRatedPagesModule extends CacheableModule2
                 $c->addOrderDescending("date_created");
                 break;
             case 'rate-asc':
-                $c->addOrderAscending("rate");
-                break;
             case 'rating-asc':
                 $c->addOrderAscending("rate");
                 break;
@@ -91,7 +87,7 @@ class TopRatedPagesModule extends CacheableModule2
             $c->setLimit($limit);
         }
 
-        $pages = PagePeer::instance()->select($c);
+        $pages = [null]; // TODO run query
 
         if ($showComments) {
             foreach ($pages as &$page) {

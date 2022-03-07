@@ -21,9 +21,9 @@ class ForumPostsFeed extends FeedScreen
         $pl = $runData->getParameterList();
         $parmHash = md5(serialize($pl->asArray()));
 
-        $key = 'forumposts_f..'.$site->getUnixName().'..'.$parmHash;
-        $tkey = 'forumstart_lc..'.$site->getUnixName(); // last change timestamp
-        $akey = 'forumall_lc..'.$site->getUnixName();
+        $key = 'forumposts_f..'.$site->getSlug().'..'.$parmHash;
+        $tkey = 'forumstart_lc..'.$site->getSlug(); // last change timestamp
+        $akey = 'forumall_lc..'.$site->getSlug();
 
         $struct = Cache::get($key);
         $cacheTimestamp = $struct['timestamp'];

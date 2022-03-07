@@ -38,12 +38,12 @@ abstract class WikidotController extends WebFlowController
         if (preg_match($regexp, $siteHost, $matches) == 1) {
             // select site based on the unix name
 
-            $siteUnixName = $matches[1];
-            $mcKey = 'site..'.$siteUnixName;
+            $site_slug = $matches[1];
+            $mcKey = 'site..'.$site_slug;
             $site = Cache::get($mcKey);
             if ($site == false) {
                 $c = new Criteria();
-                $c->add("unix_name", $siteUnixName);
+                $c->add("slug", $site_slug);
                 $c->add("site.deleted", false);
                 $site = SitePeer::instance()->selectOne($c);
                 if ($site) {

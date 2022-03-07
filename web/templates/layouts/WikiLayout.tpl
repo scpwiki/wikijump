@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="{$site->getLanguage()}" lang="{$site->getLanguage()}">
 
 <head>
- 	<title>{$site->getName()}{if $wikiPage && $wikiPage->getTitle()}: {$wikiPage->getTitle()|escape}{/if}</title>
+ 	<title>{$site->getName()}{if $wikiPage && $wikiPage->title}: {$wikiPage->title|escape}{/if}</title>
     <script type="text/javascript" src="/common--javascript/jquery-1.3.2.min.js"></script>
     <script type="text/javascript">
         $j = jQuery.noConflict();
@@ -23,15 +23,15 @@
  		{/literal}
  		WIKIREQUEST.info.domain = "{$site->getDomain()}";
  		WIKIREQUEST.info.siteId = {$site->getSiteId()};
- 		WIKIREQUEST.info.categoryId = {$category->getCategoryId()};
+ 		WIKIREQUEST.info.categoryId = {$category->category_id};
  		WIKIREQUEST.info.themeId = {$theme->getThemeId()};
  		WIKIREQUEST.info.requestPageName = "{$wikiPageName}";
  		OZONE.request.timestamp = %%%CURRENT_TIMESTAMP%%%;
  		OZONE.request.date = new Date();
  		WIKIREQUEST.info.lang = '{$site->getLanguage()}';
  		{if $wikiPage}
- 		WIKIREQUEST.info.pageUnixName = "{$wikiPage->getUnixName()}";
- 		WIKIREQUEST.info.pageId = {$wikiPage->getPageId()};
+ 		WIKIREQUEST.info.pageUnixName = "{$wikiPage->slug}";
+ 		WIKIREQUEST.info.pageId = {$wikiPage->page_id};
  		{/if}
  		WIKIREQUEST.info.lang = "{$site->getLanguage()}";
  		OZONE.lang = "{$site->getLanguage()}";
@@ -97,9 +97,9 @@
 				<div id="main-content">
 					<div id="action-area-top"></div>
 
-					{if $wikiPage == null || $wikiPage->getTitle() != ''}
+					{if $wikiPage == null || $wikiPage->title != ''}
 					<div id="page-title">
-					{if $wikiPage}{$wikiPage->getTitle()|escape}{else}{t}The page does not (yet) exist.{/t}{/if}
+					{if $wikiPage}{$wikiPage->title|escape}{else}{t}The page does not (yet) exist.{/t}{/if}
 					</div>
 					{/if}
 					{if $breadcrumbs}
@@ -132,7 +132,7 @@
 
 					<div style="clear:both; height:1px; font-size:1px;"></div>
 					{if !$pageNotExists}
-						{module name="PageOptionsBottomModule" showDiscuss=$category->getShowDiscuss() threadId=$wikiPage->getThreadId() pageUnixName=$wikiPage->getUnixName()}
+						{module name="PageOptionsBottomModule" threadId=$wikiPage->discussion_thread_id pageUnixName=$wikiPage->slug}
 					{/if}
 
 					<div id="action-area" style="display: none"></div>

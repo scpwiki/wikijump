@@ -17,8 +17,8 @@
 */
 
 use Ozone\Framework\Ozone;
-use Wikidot\DB\PagePeer;
 use Wikidot\Utils\WDStringUtils;
+use Wikijump\Services\Deepwell\Models\Page;
 
 /**
 *
@@ -93,7 +93,7 @@ class Text_Wiki_Parse_Include extends Text_Wiki_Parse {
      	$runData = Ozone::getRunData();
      	$site = $runData->getTemp("site");
 
-    		$page = PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
+        $page = Page::findSlug($site->getSiteId(), $pageName);
             if ($this->wiki->vars['inclusions'] === null) {
                 $this->wiki->vars['inclusions'] = [];
             }

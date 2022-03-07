@@ -36,12 +36,15 @@ pub struct Model {
     pub deleted_at: Option<DateTime>,
 }
 
-#[derive(Copy, Clone, Debug, EnumIter)]
-pub enum Relation {}
+#[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
+pub enum Relation {
+    #[sea_orm(has_many = "super::page_revision::Entity")]
+    PageRevision,
+}
 
-impl RelationTrait for Relation {
-    fn def(&self) -> RelationDef {
-        panic!("No RelationDef")
+impl Related<super::page_revision::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::PageRevision.def()
     }
 }
 

@@ -36,14 +36,33 @@ macro_rules! text {
     }};
 }
 
-/// Like `std::write()`, except it asserts the writing succeeded.
+/// Like `std::write!()`, except it asserts the writing succeeded.
 ///
 /// This is done because the only failure mode for writing to a `String`
 /// would be insufficient memory, which would cause an abort anyways.
+///
+/// # See also
+/// * [`str_writeln!`](macro.str_writeln.html)
 macro_rules! str_write {
     ($dest:expr, $($arg:tt)*) => {{
         use std::fmt::Write;
 
         write!($dest, $($arg)*).expect("Writing to string failed");
+    }};
+}
+
+/// Like `std::writeln!()`, except it asserts the writing succeeded.
+///
+/// This is done because the only failure mode for writing to a `String`
+/// would be insufficient memory, which would cause an abort anyways.
+///
+///
+/// # See also
+/// * [`str_write!`](macro.str_write.html)
+macro_rules! str_writeln {
+    ($dest:expr, $($arg:tt)*) => {{
+        use std::fmt::Write;
+
+        writeln!($dest, $($arg)*).expect("Writing to string failed");
     }};
 }

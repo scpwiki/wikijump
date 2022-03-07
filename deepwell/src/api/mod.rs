@@ -22,15 +22,20 @@
 //!
 //! No top-level routes should exist, any methods should be available under its respective API
 //! version prefix to avoid future issues with backwards compatibility.
+//!
+//! This module should only contain definitions for the web server such as its routes, and
+//! not any of the implementations themselves. Those should be in the `methods` module.
 
 use crate::config::Config;
 use crate::database;
 use crate::locales::Localizations;
+use crate::services::job::JobRunner;
 use crate::web::ratelimit::GovernorMiddleware;
 use anyhow::Result;
 use sea_orm::DatabaseConnection;
 use std::sync::Arc;
 
+mod internal;
 mod v0;
 mod v1;
 
@@ -71,12 +76,16 @@ pub async fn build_server(config: Config) -> Result<ApiServer> {
         };
     }
 
+    // Create job executor task
+    JobRunner::spawn(&state);
+
     // Create server and add routes
     let mut app = new!();
     app.at("/api")
         .with(GovernorMiddleware::per_minute(rate_limit))
         .nest({
             let mut api = new!();
+            api.at("/vI").nest(internal::build(new!()));
             api.at("/v0").nest(v0::build(new!()));
             api.at("/v1").nest(v1::build(new!()));
             api

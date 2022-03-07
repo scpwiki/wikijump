@@ -2,23 +2,20 @@
 
 namespace Wikidot\Modules\Files;
 
-
-use Wikidot\DB\PagePeer;
-
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\FileHelper;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionManager;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class FileUploadModule extends SmartyModule
 {
-
     public function build($runData)
     {
         $site = $runData->getTemp("site");
         $pl = $runData->getParameterList();
         $pageId = $pl->getParameterValue("pageId");
-        $page = PagePeer::instance()->selectByPrimaryKey($pageId);
+        $page = Page::findIdOnly($pageId);
         if ($page == null || $page->getSiteId() != $site->getSiteId()) {
             throw new ProcessException(_("Problem selecting destination page."), "no_page");
         }

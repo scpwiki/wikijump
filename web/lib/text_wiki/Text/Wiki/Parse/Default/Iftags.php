@@ -12,7 +12,7 @@
  *
  */
 
-use Wikidot\DB\PagePeer;
+use Wikijump\Services\Deepwell\Models\Page;
 
 /**
  *
@@ -62,7 +62,7 @@ class Text_Wiki_Parse_Iftags extends Text_Wiki_Parse {
     	if(!$page){
     		$pageName = $this->wiki->vars['pageName'];
 	    	$site = $GLOBALS['site'];
-	    	$page = PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
+            $page = Page::findSlug($site->getSiteId(), $pageName);
     	}
     	if(!$page) {
     		return;

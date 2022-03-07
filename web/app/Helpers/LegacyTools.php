@@ -10,19 +10,19 @@ use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\ModuleProcessor;
 use Ozone\Framework\Ozone;
 use Ozone\Framework\RunData;
-use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\ForumThreadPeer;
 use Wikidot\DB\MemberPeer;
-use Wikidot\DB\Page;
 use Wikidot\DB\PagePeer;
 use Wikidot\DB\Site;
 use Wikidot\DB\SitePeer;
 use Wikidot\DB\SiteViewerPeer;
+use Wikidot\DB\ThemePeer;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\UploadedFileFlowController;
 use Wikidot\Utils\WDPermissionManager;
 use Wikidot\Utils\WDStringUtils;
 use Wikijump\Models\User;
+use Wikijump\Services\Deepwell\Models\Page;
 
 /** A collection of static methods to smooth the transition to Wikijump code. */
 // prettier-ignore
@@ -89,7 +89,7 @@ final class LegacyTools
         }
 
         $c = new Criteria();
-        $c->add("unix_name", $siteUnixName);
+        $c->add("site.slug", $siteUnixName);
         $c->add("site.deleted", false);
         $site = SitePeer::instance()->selectOne($c);
         if ($site === null) {
@@ -146,7 +146,7 @@ final class LegacyTools
          */
         $return = [];
         $site = $runData->getTemp("site");
-        $runData->contextAdd("site", $site);
+        $runData->contextAdd('site', $site);
         $return['site'] = $site;
         /** Normally we would handle notifications here in the legacy flow. */
         $pl = $runData->getParameterList();
@@ -176,7 +176,7 @@ final class LegacyTools
                     }
                 }
             }
-            if ($user == null) {
+            if ($user === null) {
                 $wikiPage = $site->getSettings()->getPrivateLandingPage();
                 $privateAccessGranted = false;
             }
@@ -194,113 +194,93 @@ final class LegacyTools
         $runData->contextAdd("wikiPageName", $wikiPage);
         $return['wikiPageName'] = $wikiPage;
         $settings = $site->getSettings();
-        /** @var ?Page $page */
-        $page = PagePeer::instance()->selectByName($site->getSiteId(), $wikiPage);
-        if ($page == null) {
-            $runData->contextAdd("pageNotExists", true);
+        $page = Page::findSlug($site->getSiteId(), $wikiPage, false, true);
+        if ($page === null) {
+            $runData->contextAdd('pageNotExists', true);
             $return['pageNotExists'] = true;
-            // get category based on suggested page name
-
-            if (strpos($wikiPage, ":") != false) {
-                $tmp0 = explode(':', $return['wikiPage']);
-                $categoryName = $tmp0[0];
-            } else {
-                $categoryName = "_default";
-            }
-            $category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
-            if ($category == null) {
-                $category = CategoryPeer::instance()->selectByName('_default', $site->getSiteId());
-            }
-            $runData->setTemp("category", $category);
         } else {
             // page exists!!! wooo!!!
 
             $runData->setTemp("page", $page);
             $GLOBALS['page'] = $page;
 
-            $compiled = $page->getCompiled();
+            $compiled = $page->compiled_html;
             $runData->contextAdd("wikiPage", $page);
             $return['wikiPage'] = $page;
             $runData->contextAdd("pageContent", $compiled);
             $return['pageContent'] = $compiled;
 
-            $category = $page->getCategory();
-            $runData->setTemp("category", $category);
-
             // show options?
             $showPageOptions = true;
-            $runData->contextAdd("showPageoptions", $showPageOptions);
-            $return['showPageoptions'] = true;
+            $runData->contextAdd("showPageOptions", $showPageOptions);
+            $return['showPageOptions'] = true;
 
             // get the tags
-            $page_id = $page->getPageId();
-            $tags = PagePeer::getTags($page_id);
-            $runData->contextAdd("tags", $tags);
+            $runData->contextAdd("tags", $page->tags);
             $return['tags'] = null;
 
             // has discussion?
-            if ($page->getThreadId()!== null) {
-                $thread = ForumThreadPeer::instance()->selectByPrimaryKey($page->getThreadId());
-                if ($thread == null) {
+            if ($page->discussion_thread_id !== null) {
+                $thread = ForumThreadPeer::instance()->selectByPrimaryKey($page->discussion_thread_id);
+                if ($thread === null) {
+                    // How the hell is this code path possible? A discussion thread is assigned, but it doesn't exist?
+                    /*
                     $page->setThreadId(null);
                     $page->save();
+                    */
                 } else {
+                    /*
                     $page->setTemp("numberPosts", $thread->getNumberPosts());
+                    */
                 }
             }
 
             // look for parent pages (and prepare breadcrumbs)
+            // TODO add page parenting
+            /*
             if ($page->getParentPageId()) {
-                $breadcrumbs = array();
-                $ppage = PagePeer::instance()->selectByPrimaryKey($page->getParentPageId());
+                $breadcrumbs = [];
+                $ppage = Page::findId($page->getSiteId(), $page->getParentPageId());
                 array_unshift($breadcrumbs, $ppage);
                 $bcount = 0;
                 while ($ppage->getParentPageId() && $bcount<=4) {
-                    $ppage = PagePeer::instance()->selectByPrimaryKey($ppage->getParentPageId());
+                    $ppage = Page::findId($page->getSiteId(), $page->getParentPageId());
                     array_unshift($breadcrumbs, $ppage);
                     $bcount++;
                 }
                 $runData->contextAdd("breadcrumbs", $breadcrumbs);
                 $return['breadcrumbs'] = $breadcrumbs;
             }
+            */
+            $return['breadcrumbs'] = [];
         }
 
-        $runData->contextAdd("category", $category);
-        $return['category'] = $category;
-
-        // GET THEME for the category
-
-        $theme = $category->getTheme();
-        $runData->contextAdd("theme", $theme);
+        $theme = ThemePeer::tempGet();
+        $runData->contextAdd('theme', $theme);
         $return['theme'] = $theme;
 
-        // GET LICENSE for the category
-
-        $licenseHtml = $category->getLicenseHtml();
-        $runData->contextAdd("licenseHtml", $licenseHtml);
+        // TODO
+        $licenseHtml = '<b>TODO!</b> Replace with license text configured by the site';
+        $runData->contextAdd('licenseHtml', $licenseHtml);
         $return['licenseHtml'] = $licenseHtml;
 
         // show nav elements?
 
         if ($privateAccessGranted || !$settings->getHideNavigationUnauthorized()) {
             if ($theme->getUseSideBar()) {
-                $sideBar1 = $category->getSidePage();
+                $sideBar1 = Page::findSlug($page->site_id, 'nav:side', false, true);
                 if ($sideBar1 !== null) {
-                    $sideBar1Compiled = $sideBar1->getCompiled();
-                    $ccc =  $sideBar1Compiled;
-                    $ccc = preg_replace('/id="[^"]*"/', '', $ccc);
-                    $runData->contextAdd("sideBar1Content", $ccc);
-                    $return['sideBar1Content'] = $ccc;
+                    $sideBar1Compiled = preg_replace('/id="[^"]*"/', '', $sideBar1->compiled_html);
+                    $runData->contextAdd("sideBar1Content", $sideBar1Compiled);
+                    $return['sideBar1Content'] = $sideBar1Compiled;
                 }
             }
             if ($theme->getUseTopBar()) {
-                $topBar = $category->getTopPage();
+                $topBar = Page::findSlug($page->site_id, 'nav:top', true, false);
                 if ($topBar !== null) {
-                    $topBarCompiled = $topBar;
-                    $ccc =  $topBarCompiled->getText();
-                    $ccc = preg_replace('/id="[^"]*"/', '', $ccc);
-                    $runData->contextAdd("topBarContent", $ccc);
-                    $return['topBarContent'] = $ccc;
+                    $topBarCompiled = preg_replace('/id="[^"]*"/', '', $topBar->compiled_html);
+                    $runData->contextAdd("topBarContent", $topBarCompiled);
+                    $return['topBarContent'] = $topBarCompiled;
                 }
             }
         }
@@ -308,7 +288,7 @@ final class LegacyTools
         /**
          * Process Modules
          */
-        $runData->setTemp("jsInclude", array());
+        $runData->setTemp("jsInclude", []);
         // process modules...
         $moduleProcessor = new ModuleProcessor($runData);
         //$moduleProcessor->setJavascriptInline(true); // embed associated javascript files in <script> tags
@@ -325,7 +305,6 @@ final class LegacyTools
             $incl .= '<script type="text/javascript" src="'.$js.'"></script>';
         }
 
-
         $runData->handleSessionEnd();
 
             // one more thing - some url will need to be rewritten if using HTTPS
@@ -341,9 +320,8 @@ final class LegacyTools
         } while ($renderedOld != $rendered);
         }
 
+        // What is this about?
         echo str_replace("%%%CURRENT_TIMESTAMP%%%", (string)time(), $rendered);
-
-//        dd($rendered);
 
         /**
          * Custom Domain Script module injection
@@ -361,7 +339,7 @@ final class LegacyTools
          */
         $u = new UploadedFileFlowController();
         if ($runData->getUser() && $site->getPrivate() && $u->userAllowed($runData->getUser(), $site)) {
-            $pwdomain = $site->getUnixName() . "." . GlobalProperties::$URL_UPLOAD_DOMAIN;
+            $pwdomain = $site->getSlug() . "." . GlobalProperties::$URL_UPLOAD_DOMAIN;
             $pwproto = ($_SERVER["HTTPS"]) ? "https" : "http";
             $pwurl = "$pwproto://$pwdomain/filesauth.php";
 
@@ -380,41 +358,15 @@ final class LegacyTools
         /**
          * Page Options Bottom module injection
          */
-        $pl = $runData->getParameterList();
-        $pageName = $runData->getTemp("pageUnixName");
-
         $page = $runData->getTemp("page");//$pl->getParameterValue("page", "MODULE");
-
-        // get category name and get the category by name.
-        // this should be enchanced to use memcache later
-        // to get category to avoid db connection.
-
-        // extract category name
-        if (strpos($pageName, ':') != false) {
-            // ok, there is category!
-            $exp = explode(':', $pageName);
-            $categoryName = $exp[0];
-        } else {
-            $categoryName = "_default";
-        }
-        $site = $runData->getTemp("site");
-        $category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
-        $user = $runData->getUser();
 
         $pm = new WDPermissionManager();
         $pm->setThrowExceptions(false);
         $pm->setCheckIpBlocks(false); // to avoid database connection.
-        if (!$pm->hasPagePermission('options', $user, $category, $pageName, $site)) {
-            return '';
-        }
-
-        $showDiscuss = $category->getShowDiscuss();
-        if ($showDiscuss) {
-            $threadId = $wikiPage->getThreadId();
-            $pageUnixName = $wikiPage->getUnixName();
-        }
-
-        $showRate = $category->getRatingEnabledEff();
+        // This branch was previously a bug, it just didn't return the right thing...
+        // Since page permissions aren't really being a thing right now, I cut them out.
+        //
+        // Previously was !$pm->hasPagePermission('options', $user, $pageName)
 
         // now a nasty part - make it inline such that
         // the Smarty engine does need to be initialized.
@@ -423,10 +375,10 @@ final class LegacyTools
         $otext = '';
 
         if ($page) {
-            $otext .=   '<div id="page-info">'.
-                _('page_revision').': '.$page->getRevisionNumber().', '.
+            $otext .= '<div id="page-info">'.
+                _('page_revision').': '.$page->revision_number.', '.
                 _('last_edited').': <span class="odate">'.
-                $page->getDateLastEdited()->getTimestamp().
+                $page->lastUpdated()->getTimestamp().
                 '|%e %b %Y, %H:%M %Z (%O '._('ago').')</span>'.
                 '</div>';
         }
@@ -435,16 +387,17 @@ final class LegacyTools
 <div id="page-options-bottom"  class="page-options-bottom">
 	<a href="javascript:;" id="edit-button">'._('edit').'</a>';
 
-        if ($showRate&&$page) {
-            $otext .=   '<a href="javascript:;" id="pagerate-button">'._('rate').' (<span id="prw54355">'.($page->getRate() > 0 && $category->getRatingType() != "S" ?'+':''). ($category->getRatingType() == "S" ? $page->getRate() : round($page->getRate())) .'</span>)</a>';
+        if ($page) {
+            $otext .= '<a href="javascript:;" id="pagerate-button">'._('rate').' (<span id="prw54355">-1</span>)</a>';
         }
 
         $otext .= '<a href="javascript:;" id="tags-button">'._('tags').'</a>';
 
-        if ($showDiscuss&&$page) {
+        if ($page) {
+            $threadId = $page->discussion_thread_id;
             if ($threadId) {
                 $no = $page->getTemp("numberPosts");
-                $otext.='<a href="/forum/t-'.$threadId.'/'.$pageUnixName.'"  id="discuss-button">'._('discuss').' ('.$no.')</a>';
+                $otext.='<a href="/forum/t-'.$threadId.'/'.$page->slug.'"  id="discuss-button">'._('discuss').' ('.$no.')</a>';
             } else {
                 $otext.='<a href="javascript:;" id="discuss-button" onclick="Wikijump.page.listeners.createPageDiscussion(event)">'._('discuss').'</a> ';
             }
@@ -468,7 +421,6 @@ final class LegacyTools
 <div id="page-options-area-bottom">
 </div>
 ';
-
         $return['pageOptions'] = $otext;
 
         return $return;

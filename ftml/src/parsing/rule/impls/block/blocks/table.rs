@@ -85,21 +85,18 @@ where
 {
     info!(
         log,
-        "Parsing {} block",
-        description;
+        "Parsing {description} block";
         "in-head" => in_head,
         "name" => name,
     );
 
     assert!(
         !flag_star,
-        "Block for {} doesn't allow star flag",
-        description,
+        "Block for {description} doesn't allow star flag",
     );
     assert!(
         !flag_score,
-        "Block for {} doesn't allow score flag",
-        description,
+        "Block for {description} doesn't allow score flag",
     );
     assert_block_name(block_rule, name);
 

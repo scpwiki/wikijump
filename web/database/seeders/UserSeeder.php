@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace Database\Seeders;
@@ -23,12 +22,12 @@ class UserSeeder extends Seeder
      * @return void
      * @throws Exception
      */
-    public function run()
+    public function run(): void
     {
         DB::table('users')->insert([
             [
                 // ID 1
-                'username' => 'admin',
+                'username' => 'Administrator',
                 'unix_name' => WDStringUtils::toUnixName('admin'),
                 'password' => Hash::make(env('ADMIN_INITIAL_PASSWORD', 'admin1')),
                 'email' => 'admin@wikijump',
@@ -63,7 +62,7 @@ class UserSeeder extends Seeder
         if (env('APP_ENV') != 'production') {
             DB::table('users')->insert([
                 // ID 4 if not in prod
-                'username' => 'user',
+                'username' => 'User',
                 'unix_name' => WDStringUtils::toUnixName('user'),
                 'password' => Hash::make('user1'),
                 'email' => 'user@wikijump.dev',

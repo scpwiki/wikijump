@@ -4,7 +4,6 @@ namespace Wikidot\Screens\Wiki;
 
 use Ds\Set;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\Ozone;
@@ -12,19 +11,18 @@ use Ozone\Framework\PathManager;
 use Ozone\Framework\Screen;
 use Wikidot\DB\MemberPeer;
 use Wikidot\DB\SiteViewerPeer;
-use Wikidot\DB\PagePeer;
-use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\ForumThreadPeer;
 use Wikidot\DB\NotificationPeer;
+use Wikidot\DB\ThemePeer;
 use Wikidot\Utils\GlobalProperties;
-use Wikidot\Utils\WDStringUtils;
 use Wikijump\Helpers\LegacyTools;
 use Wikijump\Models\UserMessage;
+use Wikijump\Services\Deepwell\Models\Page;
+use Wikijump\Services\Deepwell\Models\Category;
 
 class WikiScreen extends Screen
 {
-
-    private $vars = array();
+    private $vars = [];
 
     public function render($runData)
     {
@@ -75,7 +73,7 @@ class WikiScreen extends Screen
             ) {
             // try to get content from the memorycache server
 
-            $mcKey = 'page..'.$site->getUnixName().'..'.$wikiPage;
+            $mcKey = 'page..'.$site->getSlug().'..'.$wikiPage;
 
             if (strpos($wikiPage, ":") != false) {
                 $tmp0 = explode(':', $wikiPage);
@@ -83,7 +81,7 @@ class WikiScreen extends Screen
             } else {
                 $categoryName = "_default";
             }
-            $aKey = 'category_lc..'.$site->getUnixName().'..'.$categoryName;
+            $aKey = 'category_lc..'.$site->getSlug().'..'.$categoryName;
             $changeTime = Cache::get($aKey);
             $cachedPage = Cache::get($mcKey);
             if ($cachedPage !== false && $changeTime && $changeTime <= $cachedPage['timestamp']) {
@@ -113,9 +111,8 @@ class WikiScreen extends Screen
         $settings = $site->getSettings();
 
         // get Wiki page from the database
-        $page = PagePeer::instance()->selectByName($site->getSiteId(), $wikiPage);
-
-        if ($page == null) {
+        $page = Page::findSlug($site->getSiteId(), $wikiPage, true, true);
+        if ($page === null) {
             $runData->contextAdd("pageNotExists", true);
             // get category based on suggested page name
 
@@ -125,34 +122,31 @@ class WikiScreen extends Screen
             } else {
                 $categoryName = "_default";
             }
-            $category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
-            if ($category == null) {
-                $category = CategoryPeer::instance()->selectByName('_default', $site->getSiteId());
+            $category = Category::findSlug($site->getSiteId(), $categoryName);
+            if ($category === null) {
+                $category = Category::findSlug($site->getSiteId(), '_default');
             }
             $runData->setTemp("category", $category);
         } else {
             // page exists!!! wooo!!!
-
             $runData->setTemp("page", $page);
             $GLOBALS['page'] = $page;
 
             $runData->contextAdd("wikiPage", $page);
-            $runData->contextAdd("pageContent", $page->getCompiled());
-
-            $category = $page->getCategory();
-            $runData->setTemp("category", $category);
+            $runData->contextAdd("pageContent", $page->compiled_html);
+            $runData->setTemp("category", $page->page_category_slug);
 
             // show options?
             $showPageOptions = true;
-            $runData->contextAdd("showPageoptions", $showPageOptions);
+            $runData->contextAdd("showPageOptions", $showPageOptions);
 
             // Get the tags and convert them to string.
-            $tags = PagePeer::getTags($page->getPageId());
+            $tags = new Set(); // PagePeer::getTags($page->getPageId());
             $tags = $tags->join(" ");
             $runData->contextAdd("tags", $tags);
 
             // has discussion?
-            if ($page->getThreadId()!== null) {
+            if ($page->discussion_thread_id !== null) {
                 $thread = ForumThreadPeer::instance()->selectByPrimaryKey($page->getThreadId());
                 if ($thread == null) {
                     $page->setThreadId(null);
@@ -163,13 +157,14 @@ class WikiScreen extends Screen
             }
 
             // look for parent pages (and prepare breadcrumbs)
-            if ($page->getParentPageId()) {
-                $breadcrumbs = array();
-                $ppage = PagePeer::instance()->selectByPrimaryKey($page->getParentPageId());
+            // TODO support page parents
+            if (false) {
+                $breadcrumbs = [];
+                $ppage = Page::findIdOnly($page->getParentPageId());
                 array_unshift($breadcrumbs, $ppage);
                 $bcount = 0;
                 while ($ppage->getParentPageId() && $bcount<=4) {
-                    $ppage = PagePeer::instance()->selectByPrimaryKey($ppage->getParentPageId());
+                    $ppage = Page::findIdOnly($ppage->getParentPageId());
                     array_unshift($breadcrumbs, $ppage);
                     $bcount++;
                 }
@@ -181,31 +176,34 @@ class WikiScreen extends Screen
 
         // GET THEME for the category
 
-        $theme = $category->getTheme();
-        $runData->contextAdd("theme", $theme);
+        $theme = ThemePeer::tempGet();
+        $runData->contextAdd('theme', $theme);
+        $return['theme'] = $theme;
 
         // GET LICENSE for the category
 
-        $licenseHtml = $category->getLicenseHtml();
-        $runData->contextAdd("licenseHtml", $licenseHtml);
+        // TODO
+        $licenseHtml = '<b>TODO!</b> Replace with license text configured by the site';
+        $runData->contextAdd('licenseHtml', $licenseHtml);
+        $return['licenseHtml'] = $licenseHtml;
 
         // show nav elements?
 
         if ($privateAccessGranted || !$settings->getHideNavigationUnauthorized()) {
             if ($theme->getUseSideBar()) {
-                $sideBar1 = $category->getSidePage();
+                $sideBar1 = Page::findSlug($page->site_id, 'nav:side', false, true);
                 if ($sideBar1 !== null) {
-                    $ccc = preg_replace('/id="[^"]*"/', '', $sideBar1->getCompiled());
-                    $runData->contextAdd("sideBar1Content", $ccc);
+                    $sideBar1Compiled = preg_replace('/id="[^"]*"/', '', $sideBar1->compiled_html);
+                    $runData->contextAdd('sideBar1Content', $sideBar1Compiled);
+                    $return['sideBar1Content'] = $sideBar1Compiled;
                 }
             }
             if ($theme->getUseTopBar()) {
-                $topBar = $category->getTopPage();
+                $topBar = Page::findSlug($page->site_id, 'nav:top', true, false);
                 if ($topBar !== null) {
-                    $topBarCompiled = $topBar->getCompiled();
-                    $ccc =  $topBarCompiled->getText();
-                    $ccc = preg_replace('/id="[^"]*"/', '', $ccc);
-                    $runData->contextAdd("topBarContent", $ccc);
+                    $topBarCompiled = preg_replace('/id="[^"]*"/', '', $topBar->wikitext);
+                    $runData->contextAdd('topBarContent', $topBarCompiled);
+                    $return['topBarContent'] = $topBarCompiled;
                 }
             }
         }

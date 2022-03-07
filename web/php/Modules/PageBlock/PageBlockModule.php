@@ -3,14 +3,13 @@
 namespace Wikidot\Modules\PageBlock;
 
 use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\PagePeer;
+use Ozone\Framework\SmartyModule;
 use Wikidot\DB\ModeratorPeer;
 use Wikidot\DB\AdminPeer;
-
-use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionException;
 use Wikijump\Models\User;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class PageBlockModule extends SmartyModule
 {
@@ -24,7 +23,7 @@ class PageBlockModule extends SmartyModule
         $pageId = $pl->getParameterValue("page_id");
         $user = $runData->getUser();
 
-        $page = PagePeer::instance()->selectByPrimaryKey($pageId);
+        $page = Page::findIdOnly($pageId);
         if (!$pageId || $page == null || $page->getSiteId() != $runData->getTemp("site")->getSiteId()) {
             throw new ProcessException(_("Error getting page information."), "no_page");
         }

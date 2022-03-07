@@ -15,7 +15,6 @@ use Wikidot\DB\ForumThreadPeer;
 use Wikidot\DB\ModeratorPeer;
 use Wikidot\DB\AdminPeer;
 use Wikidot\DB\ForumPostPeer;
-use Wikidot\DB\PagePeer;
 use Wikidot\DB\ForumCategory;
 use Wikidot\DB\ForumGroupPeer;
 use Wikidot\DB\ForumGroup;
@@ -26,6 +25,7 @@ use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionException;
 use Wikidot\Utils\WDPermissionManager;
 use Wikijump\Models\User;
+use Wikijump\Services\Deepwell\Models\Page;
 use Wikijump\Services\Wikitext\ParseRenderMode;
 use Wikijump\Services\Wikitext\WikitextBackend;
 
@@ -416,7 +416,7 @@ class ForumAction extends SmartyAction
         $pl = $runData->getParameterList();
         $pageId = $pl->getParameterValue("page_id");
 
-        $page = PagePeer::instance()->selectByPrimaryKey($pageId);
+        $page = Page::findIdOnly($pageId);
         if ($page == null || $page->getSiteId() != $site->getSiteId()) {
             throw new ProcessException(_("Page does not exist."), "no_page");
         }

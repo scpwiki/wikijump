@@ -48,13 +48,8 @@ Wikijump.modules.ManagerSiteAppearanceModule.listeners = {
 				}
 			}
 		}
-		//if(category['theme_external_url']){
-			$('sm-appearance-external-url').value = category['theme_external_url'];
-		//}
 
 		$("sm-appearance-theme-id").value=category['theme_id'];
-		Wikijump.modules.ManagerSiteAppearanceModule.utils.updateThemePreview();
-
 	},
 
 	indClick: function(e){
@@ -79,7 +74,6 @@ Wikijump.modules.ManagerSiteAppearanceModule.listeners = {
 				}
 
 		}
-		Wikijump.modules.ManagerSiteAppearanceModule.utils.updateThemePreview();
 	},
 
 	themeChange: function(e){
@@ -104,13 +98,6 @@ Wikijump.modules.ManagerSiteAppearanceModule.listeners = {
 		}else{
 			category['variant_theme_id'] = null;
 		}
-
-		/* Handle external themes. */
-		var exurl = $('sm-appearance-external-url').value;
-		//if(exurl != '' && exurl.match('^https?://')){
-			category['theme_external_url'] = exurl;
-		//}
-		Wikijump.modules.ManagerSiteAppearanceModule.utils.updateThemePreview();
 	},
 
 	variantChange: function(e){
@@ -158,33 +145,6 @@ Wikijump.modules.ManagerSiteAppearanceModule.callbacks = {
 }
 
 Wikijump.modules.ManagerSiteAppearanceModule.utils = {
-	updateThemePreview: function(){
-		var categoryId = $("sm-appearance-cats").value;
-		var category = Wikijump.modules.ManagerSiteModule.utils.getCategoryById(categoryId);
-		var themeId;
-		// get current theme_id
-		if($("sm-appearance-noin").checked == true && category['name'] != "_default"){
-			// get theme_id for the category _default
-			var defCategory = Wikijump.modules.ManagerSiteModule.utils.getCategoryByName("_default");
-			themeId = defCategory['theme_id'];
-		} else {
-			themeId = $("sm-appearance-theme-id").value;
-		}
-
-		// hide all previews first
-		var prs = $("sm-appearance-theme-preview").childNodes;
-		for(var i=0; i<prs.length; i++){
-			if(prs.tagName=='div') {prs[i].style.display="none";}
-		}
-		var previewDiv = $("sm-theme-preview-"+themeId);
-		if(previewDiv){
-			previewDiv.style.display="block";
-			$("sm-appearance-theme-preview").style.display="block";
-		}else{
-			$("sm-appearance-theme-preview").style.display="none";
-		}
-
-	},
 	hideVariants: function(){
 		var divs = $("theme-variants-container").getElementsByTagName("div");
 		for(var i=0; i<divs.length; i++){

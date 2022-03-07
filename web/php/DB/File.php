@@ -2,10 +2,10 @@
 
 namespace Wikidot\DB;
 
-
 use Wikidot\Utils\FileHelper;
 use Wikidot\Utils\GlobalProperties;
 use Wikijump\Models\User;
+use Wikijump\Services\Deepwell\Models\Page;
 
 /**
  * Object Model Class.
@@ -23,28 +23,28 @@ class File extends FileBase
 
     public function getFilePath()
     {
-        $page = PagePeer::instance()->selectByPrimaryKey($this->getPageId());
+        $page = Page::findIdOnly($this->getPageId());
         $site = SitePeer::instance()->selectByPrimaryKey($this->getSiteId());
         return WIKIJUMP_ROOT."/web/files--sites/".
-            $site->getUnixName()."/files/".$page->getUnixName().'/'.$this->getFilename();
+            $site->getSlug()."/files/".$page->slug.'/'.$this->getFilename();
     }
 
     public function getResizedDir()
     {
-        $page = PagePeer::instance()->selectByPrimaryKey($this->getPageId());
+        $page = Page::findIdOnly($this->getPageId());
         $site = SitePeer::instance()->selectByPrimaryKey($this->getSiteId());
         return WIKIJUMP_ROOT."/web/files--sites/".
-                        $site->getUnixName()."/resized-images/".$page->getUnixName().
+                        $site->getSlug()."/resized-images/".$page->slug.
                         '/'.$this->getFilename();
     }
 
     public function getResizedURI($size = null)
     {
 
-        $page = PagePeer::instance()->selectByPrimaryKey($this->getPageId());
+        $page = Page::findIdOnly($this->getPageId());
         $site = SitePeer::instance()->selectByPrimaryKey($this->getSiteId());
         $out =  GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/local--resized-images/".
-            $page->getUnixName().'/'.$this->getFilename();
+            $page->slug.'/'.$this->getFilename();
         if ($size) {
             $out .= '/'.strtolower($size).'.jpg';
         }
@@ -53,11 +53,11 @@ class File extends FileBase
 
     public function getFileURI()
     {
-        $page = PagePeer::instance()->selectByPrimaryKey($this->getPageId());
+        $page = Page::findIdOnly($this->getPageId());
         $site = SitePeer::instance()->selectByPrimaryKey($this->getSiteId());
 
         return  GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/local--files/".
-            $page->getUnixName()."/".$this->getFilename();
+            $page->slug."/".$this->getFilename();
     }
 
     public function getUser()

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="{$site->getLanguage()}" lang="{$site->getLanguage()}">
 
 <head>
- 	<title>{$site->getName()}{if $wikiPage && $wikiPage->getTitle()}: {$wikiPage->getTitle()|escape}{/if}</title>
+ 	<title>{$site->getName()}{if $wikiPage && $wikiPage->title}: {$wikiPage->title|escape}{/if}</title>
  	<script type="text/javascript" src="/common--javascript/json.js"></script>
 	<script type="text/javascript" src="/common--javascript/combined.js"></script>
  	<script type="text/javascript" src="/common--dist/bundle.js"></script>

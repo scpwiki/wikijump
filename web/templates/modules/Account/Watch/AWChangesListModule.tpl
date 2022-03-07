@@ -6,7 +6,7 @@
 	{foreach from=$revisions item=revision}
 
 		{assign var=page value=$revision->getPage()}
-		{assign var=site value=$page->getSite()}
+		{assign var=site value=SitePeer::instance()->selectByPrimaryKey($page->site_id)}
 		<div class="changes-list-item">
 
 			<table>
@@ -15,7 +15,7 @@
 						<a href="{$HTTP_SCHEMA}://{$site->getDomain()}">{$site->getName()|escape}</a>
 					</td>
 					<td class="title">
-						<a href="/{$page->getUnixname()}">{if $page->getTitle()|escape}{$page->getTitle()|escape}{else}{$page->getUnixName()|escape}{/if}</a>
+						<a href="/{$page->getUnixname()}">{if $page->title|escape}{$page->title|escape}{else}{$page->slug|escape}{/if}</a>
 					</td>
 					<td class="flags">
 						{if $revision->getFlagNew()}

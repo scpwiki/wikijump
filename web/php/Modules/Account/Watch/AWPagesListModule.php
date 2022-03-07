@@ -2,11 +2,7 @@
 
 namespace Wikidot\Modules\Account\Watch;
 
-
-
-
 use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\PagePeer;
 use Wikidot\Utils\AccountBaseModule;
 
 class AWPagesListModule extends AccountBaseModule
@@ -29,7 +25,7 @@ class AWPagesListModule extends AccountBaseModule
                         "AND watched_page.page_id=page.page_id";
         $c->setExplicitQuery($q);
 
-        $pages = PagePeer::instance()->select($c);
+        $pages = [null]; // TODO run query
 
         $runData->contextAdd("pages", $pages);
 

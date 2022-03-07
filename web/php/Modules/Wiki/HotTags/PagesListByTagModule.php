@@ -2,13 +2,10 @@
 
 namespace Wikidot\Modules\Wiki\HotTags;
 
-
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
-use Ozone\Framework\Ozone;
-use Wikidot\DB\CategoryPeer;
-use Wikidot\DB\PagePeer;
 use Ozone\Framework\SmartyModule;
+use Wikijump\Services\Deepwell\Models\Category;
 
 class PagesListByTagModule extends SmartyModule
 {
@@ -70,10 +67,11 @@ class PagesListByTagModule extends SmartyModule
 
         // get pages
 
-        $categoryName =  $pl->getParameterValue("category");
+        $categoryName = $pl->getParameterValue("category");
+        $category = null;
         if ($categoryName) {
-            $category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
-            if ($category == null) {
+            $category = Category::findSlug($site->getSiteId(), $categoryName);
+            if ($category === null) {
                 return '';
             }
             $runData->contextAdd("category", $category);
@@ -88,7 +86,7 @@ class PagesListByTagModule extends SmartyModule
         }
         $c->addOrderAscending('COALESCE(title, unix_name)');
 
-        $pages = PagePeer::instance()->select($c);
+        $pages = [null]; // TODO run query
 
     //  $q = "SELECT site.* FROM site, tag WHERE tag.tag = '".db_escape_string($tag")."'
 

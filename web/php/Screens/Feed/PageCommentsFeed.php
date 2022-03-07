@@ -4,15 +4,13 @@ namespace Wikidot\Screens\Feed;
 
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
-use Ozone\Framework\Ozone;
-use Wikidot\DB\PagePeer;
 use Wikidot\DB\ForumThreadPeer;
 use Wikidot\DB\ForumPostPeer;
 use Wikidot\Utils\FeedScreen;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\ProcessException;
 use Wikijump\Helpers\LegacyTools;
-use Wikijump\Models\User;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class PageCommentsFeed extends FeedScreen
 {
@@ -26,9 +24,9 @@ class PageCommentsFeed extends FeedScreen
 
         $parmHash = md5(serialize($pl->asArray()));
 
-        $key = 'pagecommentsfeed_f..'.$site->getUnixName().'..'.$pageId.'..'.$parmHash;
+        $key = 'pagecommentsfeed_f..'.$site->getSlug().'..'.$pageId.'..'.$parmHash;
 
-        $akey = 'forumall_lc..'.$site->getUnixName();
+        $akey = 'forumall_lc..'.$site->getSlug();
 
         $struct = Cache::get($key);
         $allForumTimestamp = Cache::get($akey);
@@ -36,7 +34,7 @@ class PageCommentsFeed extends FeedScreen
             // check the times
             $cacheTimestamp = $struct['timestamp'];
             $threadId = $struct['threadId'];
-            $tkey = 'forumthread_lc..'.$site->getUnixName().'..'.$threadId; // last change timestamp
+            $tkey = 'forumthread_lc..'.$site->getSlug().'..'.$threadId; // last change timestamp
             $changeTimestamp = Cache::get($tkey);
             if ($changeTimestamp && $changeTimestamp <= $cacheTimestamp && $allForumTimestamp && $allForumTimestamp <= $cacheTimestamp) {
                 $runData->ajaxResponseAdd("threadId", $threadId);
@@ -54,13 +52,13 @@ class PageCommentsFeed extends FeedScreen
         $struct['threadId']=$this->threadId;
 
         if (!$changeTimestamp) {
-            $tkey = 'forumthread_lc..'.$site->getUnixName().'..'.$this->threadId; // last change timestamp
+            $tkey = 'forumthread_lc..'.$site->getSlug().'..'.$this->threadId; // last change timestamp
             $changeTimestamp = Cache::get($tkey);
         }
 
         Cache::put($key, $struct, 1000);
         if (!$changeTimestamp) {
-            $tkey = 'forumthread_lc..'.$site->getUnixName().'..'.$this->threadId;
+            $tkey = 'forumthread_lc..'.$site->getSlug().'..'.$this->threadId;
             $changeTimestamp = $now;
             Cache::put($tkey, $changeTimestamp, 1000);
         }
@@ -80,7 +78,7 @@ class PageCommentsFeed extends FeedScreen
         $pl = $runData->getParameterList();
         $pageId = $pl->getParameterValue("p");
 
-        $page = PagePeer::instance()->selectByPrimaryKey($pageId);
+        $page = Page::findIdOnly($pageId);
         $threadId = $page->getThreadId();
 
         $thread = ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
@@ -91,8 +89,8 @@ class PageCommentsFeed extends FeedScreen
 
         $channel = array();
 
-        $channel['title'] = _('Comments for page').' "'.$page->getTitleOrUnixName().'"';
-        $channel['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/".$page->getUnixName()."/comments/show";
+        $channel['title'] = _('Comments for page').' "'.$page->title.'"';
+        $channel['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/".$page->slug."/comments/show";
 
         $items = array();
 

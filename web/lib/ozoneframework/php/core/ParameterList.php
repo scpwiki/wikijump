@@ -156,9 +156,9 @@ class ParameterList {
     /**
      * Returns type of the passed parameter: POST or GET.
      * @param string $name
-     * @return string
+     * @return ?string
      */
-    public function getParameterType(string $name): string
+    public function getParameterType(string $name): ?string
     {
         return $this->parameterTypes[$name];
     }

@@ -6,7 +6,7 @@
 </p>
 <p>
 	If you enable this feature this Site will be available via both domains, i.e.
-	<em>{$site->getUnixName()|escape}.{$URL_DOMAIN}</em> <u>and</u> the new domain.
+	<em>{$site->getSlug()|escape}.{$URL_DOMAIN}</em> <u>and</u> the new domain.
 </p>
 <p>
 	You can also set up to 3 <strong>"301 redirects"</strong>. This means that if these domain
@@ -108,7 +108,7 @@
 
 <h2>Note:</h2>
 <p>
-	This site will <u>always</u> be available via <em>{$HTTP_SCHEMA}://{$site->getUnixName()|escape}.{$URL_DOMAIN}</em> address
+	This site will <u>always</u> be available via <em>{$HTTP_SCHEMA}://{$site->getSlug()|escape}.{$URL_DOMAIN}</em> address
 	regardless of the custom domain settings.
 </p>
 <p>

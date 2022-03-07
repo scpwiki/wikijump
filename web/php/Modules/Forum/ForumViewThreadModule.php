@@ -27,9 +27,9 @@ class ForumViewThreadModule extends SmartyModule
 
         $parmHash = md5(serialize($pl->asArray()));
 
-        $key = 'forumthread_v..'.$site->getUnixName().'..'.$threadId.'..'.$parmHash;
-        $tkey = 'forumthread_lc..'.$site->getUnixName().'..'.$threadId; // last change timestamp
-        $akey = 'forumall_lc..'.$site->getUnixName();
+        $key = 'forumthread_v..'.$site->getSlug().'..'.$threadId.'..'.$parmHash;
+        $tkey = 'forumthread_lc..'.$site->getSlug().'..'.$threadId; // last change timestamp
+        $akey = 'forumall_lc..'.$site->getSlug();
 
         $struct = Cache::get($key);
         $cacheTimestamp = $struct['timestamp'];
@@ -169,7 +169,7 @@ class ForumViewThreadModule extends SmartyModule
         $runData->contextAdd("thread", $thread);
         $runData->contextAdd("category", $category);
         $runData->contextAdd("posts", $posts);
-        
+
         $canDelete = WDPermissionManager::instance()->hasForumPermission('moderate_forum', $runData->getUser(), $category);
         $runData->contextAdd("canDelete", $canDelete);
 

@@ -1,10 +1,9 @@
 <?php
 
 namespace Wikidot\Modules\Changes;
-use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\CategoryPeer;
 
 use Wikidot\Utils\CacheableModule;
+use Wikijump\Services\Deepwell\Models\Category;
 
 class SiteChangesModule extends CacheableModule
 {
@@ -15,22 +14,13 @@ class SiteChangesModule extends CacheableModule
 
     public function build($runData)
     {
-
         $site = $runData->getTemp("site");
-
-        // get all categories
-        $c = new Criteria();
-        $c->add("site_id", $site->getSiteId());
-        $c->addOrderAscending("replace(name, '_', '00000000')");
-
-        $categories = CategoryPeer::instance()->select($c);
-
+        $categories = Category::findAll($site->getSiteId());
         $runData->contextAdd("categories", $categories);
     }
 
     public function processPage($out, $runData)
     {
-
         $site = $runData->getTemp("site");
         $out = preg_replace(
             "/<\/head>/",

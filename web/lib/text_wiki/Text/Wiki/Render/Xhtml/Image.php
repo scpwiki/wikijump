@@ -28,7 +28,7 @@
 
 use Ozone\Framework\Database\Criteria;
 use Wikidot\DB\FilePeer;
-use Wikidot\DB\PagePeer;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class Text_Wiki_Render_Xhtml_Image extends Text_Wiki_Render {
 
@@ -62,9 +62,9 @@ class Text_Wiki_Render_Xhtml_Image extends Text_Wiki_Render {
         $postVars = $this->getConf("post_vars");
 
         if (preg_match('/^:first/', $src)) {
-    		$page = PagePeer::instance()->selectByName($GLOBALS['site']->getSiteId(), $this->wiki->vars['pageName']);
-    		if (! $page) {
-    			return "";
+    		$page = Page::findSlug($GLOBALS['site']->getSiteId(), $this->wiki->vars['pageName']);
+    		if ($page === null) {
+    			return '';
     		}
     		$c = new Criteria();
     		$c->add("page_id", $page->getPageId());

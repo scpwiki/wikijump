@@ -4,8 +4,6 @@ namespace Wikidot\Screens\Feed;
 
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
-use Ozone\Framework\Ozone;
-use Wikidot\DB\PagePeer;
 use Wikidot\DB\FrontForumFeedPeer;
 use Wikidot\DB\ForumCategoryPeer;
 use Wikidot\DB\ForumThreadPeer;
@@ -13,7 +11,7 @@ use Wikidot\Utils\FeedScreen;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\ProcessException;
 use Wikijump\Helpers\LegacyTools;
-use Wikijump\Models\User;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class FrontForumFeed extends FeedScreen
 {
@@ -26,7 +24,7 @@ class FrontForumFeed extends FeedScreen
         $pageName = $pl->getParameterValue('page');
         $label = $pl->getParameterValue('label');
 
-        $key = 'frontforumfeed..'.$site->getUnixName().'..'.$pageName.'..'.$label;
+        $key = 'frontforumfeed..'.$site->getSlug().'..'.$pageName.'..'.$label;
 
         $valid = true;
 
@@ -36,11 +34,11 @@ class FrontForumFeed extends FeedScreen
         }
         $cacheTimestamp = $struct['timestamp'];
 
-        $fkey = 'frontforumfeedobject..' .$site->getUnixName().'..'.$pageName.'..'.$label;
+        $fkey = 'frontforumfeedobject..' .$site->getSlug().'..'.$pageName.'..'.$label;
         $feed = Cache::get($fkey);
 
         if (!$feed) {
-            $page = PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
+            $page = Page::findSlug($site->getSiteId(), $pageName);
 
             //  get the feed object
             $c = new Criteria();
@@ -59,7 +57,7 @@ class FrontForumFeed extends FeedScreen
         $cats = preg_split('/[,;] ?/', $categoryIds);
 
         foreach ($cats as $cat) {
-            $tkey = 'forumcategory_lc..'.$site->getUnixName().'..'.$cat; // last change timestamp
+            $tkey = 'forumcategory_lc..'.$site->getSlug().'..'.$cat; // last change timestamp
             $changeTimestamp = Cache::get($tkey);
             if ($changeTimestamp && $cacheTimestamp && $changeTimestamp <= $cacheTimestamp) {
                 //cache valid
@@ -72,7 +70,7 @@ class FrontForumFeed extends FeedScreen
                 }
             }
         }
-        $akey = 'forumall_lc..'.$site->getUnixName();
+        $akey = 'forumall_lc..'.$site->getSlug();
         $allForumTimestamp = Cache::get($akey);
         if ($allForumTimestamp &&  $cacheTimestamp && $changeTimestamp <= $cacheTimestamp) {
             //cache valid
@@ -110,8 +108,8 @@ class FrontForumFeed extends FeedScreen
         $label = $pl->getParameterValue('label');
 
         // get the feed object
-        $page = PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
-        if (!$page) {
+        $page = Page::findSlug($site->getSiteId(), $pageName);
+        if ($page === null) {
             throw new ProcessException(_('No such page.'), 'no_page');
         }
         $c = new Criteria();
@@ -126,7 +124,7 @@ class FrontForumFeed extends FeedScreen
         $categories = array();
 
         // get page
-        $page = PagePeer::instance()->selectByPrimaryKey($feed->getPageId());
+        $page = Page::findIdOnly($feed->getPageId());
         if (!$page) {
             throw new ProcessException(_('Page cannot be found.'), 'no_page');
         }
@@ -153,7 +151,7 @@ class FrontForumFeed extends FeedScreen
         $threads = ForumThreadPeer::instance()->select($c);
 
         $channel['title'] = $feed->getTitle();
-        $channel['link'] = GlobalProperties::$HTTP_SCHEMA . '://' . $site->getDomain(). '/' .$page->getUnixName();
+        $channel['link'] = GlobalProperties::$HTTP_SCHEMA . '://' . $site->getDomain(). '/' .$page->slug;
         if ($feed->getDescription()) {
             $channel['description'] = $feed->getDescription();
         }

@@ -2,7 +2,6 @@
 
 namespace Wikidot\Modules;
 use Ozone\Framework\Module;
-use Wikidot\DB\CategoryPeer;
 use Wikidot\Utils\WDPermissionManager;
 
 class PageOptionsBottomModule extends Module
@@ -30,23 +29,17 @@ class PageOptionsBottomModule extends Module
             $categoryName = "_default";
         }
         $site = $runData->getTemp("site");
-        $category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
         $user = $runData->getUser();
 
         $pm = new WDPermissionManager();
         $pm->setThrowExceptions(false);
         $pm->setCheckIpBlocks(false); // to avoid database connection.
-        if (!$pm->hasPagePermission('options', $user, $category, $pageName, $site)) {
+        if (!$pm->hasPagePermission('options', $user, $pageName, $site)) {
             return '';
         }
 
-        $showDiscuss = $pl->getParameterValue("showDiscuss");
-        if ($showDiscuss) {
-            $threadId = $pl->getParameterValue("threadId");
-            $pageUnixName = $pl->getParameterValue("pageUnixName");
-        }
-
-        $showRate = $category->getRatingEnabledEff();
+        $threadId = $pl->getParameterValue("threadId");
+        $pageUnixName = $pl->getParameterValue("pageUnixName");
 
         // now a nasty part - make it inline such that
         // the Smarty engine does need to be initialized.
@@ -67,13 +60,13 @@ class PageOptionsBottomModule extends Module
 <div id="page-options-bottom"  class="page-options-bottom">
 	<a href="javascript:;" id="edit-button">'._('edit').'</a>';
 
-        if ($showRate&&$page) {
-            $otext .=   '<a href="javascript:;" id="pagerate-button">'._('rate').' (<span id="prw54355">'.($page->getRate() > 0 && $category->getRatingType() != "S" ?'+':''). ($category->getRatingType() == "S" ? $page->getRate() : round($page->getRate())) .'</span>)</a>';
+        if ($page) {
+            $otext .=   '<a href="javascript:;" id="pagerate-button">'._('rate').' (<span id="prw54355">' .'</span>)</a>';
         }
 
         $otext .= '<a href="javascript:;" id="tags-button">'._('tags').'</a>';
 
-        if ($showDiscuss&&$page) {
+        if ($page) {
             if ($threadId) {
                 $no = $page->getTemp("numberPosts");
                 $otext.='<a href="/forum/t-'.$threadId.'/'.$pageUnixName.'"  id="discuss-button">'._('discuss').' ('.$no.')</a>';

@@ -44,7 +44,7 @@ impl TextService {
         ctx: &ServiceContext<'_>,
         hash: &[u8],
     ) -> Result<Option<String>> {
-        debug_assert_eq!(hash.len(), HASH_LENGTH);
+        assert_eq!(hash.len(), HASH_LENGTH);
 
         let txn = ctx.transaction();
         let contents = Text::find()
@@ -72,18 +72,7 @@ impl TextService {
 
     pub async fn create(ctx: &ServiceContext<'_>, contents: String) -> Result<Hash> {
         let txn = ctx.transaction();
-
-        let hash: Hash = {
-            // Perform hash
-            let mut hasher = Sha512::new();
-            hasher.update(contents.as_bytes());
-            let result = hasher.finalize();
-
-            // Copy data into regular Rust array
-            let mut bytes = [0; 64];
-            bytes.copy_from_slice(&result);
-            bytes
-        };
+        let hash = Self::hash(&contents);
 
         if !Self::exists(ctx, &hash).await? {
             let model = text::ActiveModel {
@@ -95,5 +84,38 @@ impl TextService {
         }
 
         Ok(hash)
+    }
+
+    pub fn hash(contents: &str) -> Hash {
+        // Perform hash
+        let mut hasher = Sha512::new();
+        hasher.update(contents.as_bytes());
+        let result = hasher.finalize();
+
+        // Copy data into regular Rust array
+        let mut bytes = [0; 64];
+        bytes.copy_from_slice(&result);
+        bytes
+    }
+
+    /// Searches for any text rows which are unused.
+    ///
+    /// This is rare, but can happen when text is invalidated,
+    /// such as rerendering pages.
+    #[allow(dead_code)]
+    pub async fn prune(_ctx: &ServiceContext<'_>) -> Result<()> {
+        todo!();
+
+        // Postgres Query:
+        //
+        // SELECT hash
+        // FROM text
+        // WHERE hash NOT IN (
+        //     SELECT wikitext_hash AS hash
+        //     FROM page_revision
+        //     UNION
+        //     SELECT compiled_hash AS hash
+        //     FROM page_revision
+        // )
     }
 }

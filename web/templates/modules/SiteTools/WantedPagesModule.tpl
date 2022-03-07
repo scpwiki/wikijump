@@ -18,7 +18,7 @@
 		<tr>
 			<td>
 				{foreach from=$r item=page}
-					<a href="/{$page->getUnixName()}">{$page->getTitleOrUnixName()|escape}</a><br/>
+					<a href="/{$page->slug}">{$page->title|escape}</a><br/>
 				{/foreach}
 			</td>
 			<td>

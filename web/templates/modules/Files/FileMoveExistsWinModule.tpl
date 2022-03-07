@@ -15,7 +15,7 @@
 			{t}Current page{/t}:
 		</td>
 		<td>
-			{$page->getUnixName()|escape}
+			{$page->slug|escape}
 		</td>
 	</tr>
 	<tr>
@@ -23,7 +23,7 @@
 			{t}Destination page{/t}:
 		</td>
 		<td>
-			{$destinationPage->getUnixName()|escape}
+			{$destinationPage->slug|escape}
 		</td>
 	</tr>
 </table>
@@ -31,9 +31,9 @@
 {if $hasPermission}
 	<p>
 		{t}Unfortunately the file named{/t} {$file->getFilename()|escape} {t}already exists as an attachment
-		to page{/t} {$destinationPage->getUnixName()|escape}. {t}Do you want to overwrite it?{/t}
+		to page{/t} {$destinationPage->slug|escape}. {t}Do you want to overwrite it?{/t}
 	</p>
-	<input type="hidden" id="file-move-page" value="{$destinationPage->getUnixName()|escape}"/>
+	<input type="hidden" id="file-move-page" value="{$destinationPage->slug|escape}"/>
 	</div>
 	<div class="button-bar">
 		<a href="javascript:;" onclick="Wikijump.modules.PageFilesModule.listeners.moveFile2(event, true)">{t}overwrite{/t}</a>
@@ -42,7 +42,7 @@
 {else}
 	<p>
 		{t}Unfortunately the file named{/t} {$file->getFilename()|escape} {t}already exists as an attachment
-		to page{/t} {$destinationPage->getUnixName()|escape}. {t}You have no
+		to page{/t} {$destinationPage->slug|escape}. {t}You have no
 		permission to overwrite/delete files on this page.{/t}
 	</p>
 	</div>

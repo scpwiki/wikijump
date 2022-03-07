@@ -6,28 +6,21 @@ namespace Wikidot\Utils;
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
-use Wikidot\DB\Page;
-use Wikidot\DB\PagePeer;
-use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\SitePeer;
 use Wikijump\Services\Deepwell\DeepwellService;
-use Wikijump\Services\Deepwell\PageService;
 use Wikijump\Services\Wikitext\Backlinks;
-use Wikijump\Services\Wikitext\LegacyTemplateAssembler;
-use Wikijump\Services\Wikitext\PageInfo;
-use Wikijump\Services\Wikitext\ParseRenderMode;
-use Wikijump\Services\Wikitext\WikitextBackend;
+use Wikijump\Services\Deepwell\Models\Category;
+use Wikijump\Services\Deepwell\Models\Page;
 
 final class Outdater
 {
     private static Outdater $instance;
     private array $vars = [];
-    private Backlinks $link_stats;
     private int $recurrenceLevel = 0;
 
     public static function instance()
     {
-        if (self::$instance == null) {
+        if (self::$instance === null) {
             self::$instance = new Outdater();
         }
         return self::$instance;
@@ -99,11 +92,11 @@ final class Outdater
                 // and the page when that information would be helpful.
 
                 // NOTE: incoming links only need to be updated
-                $this->updateLinksMissing($page->getSiteId(), $page->getUnixName());
+                $this->updateLinksMissing($page->getSiteId(), $page->slug);
                 $this->recompileIncludedByPage($page);
-                $this->outdatePageTagsCache($page->getUnixName());
-                $this->outdatePageCache($page->getUnixName());
-                $this->handleTemplateChange($page->getUnixName());
+                $this->outdatePageTagsCache($page->slug);
+                $this->outdatePageCache($page->slug);
+                $this->handleTemplateChange($page->slug);
                 break;
             case 'parent_changed':
                 $this->outdatePageCache($page);
@@ -150,15 +143,6 @@ final class Outdater
         }
     }
 
-    public function themeEvent($eventType, $theme = null)
-    {
-        switch ($eventType) {
-            case 'theme_save':
-                $this->outdateThemeDependentCategories($theme);
-                break;
-        }
-    }
-
     public function siteEvent($eventType, $site = null)
     {
         switch ($eventType) {
@@ -178,42 +162,17 @@ final class Outdater
      */
     private function recompilePage(Page $page): void
     {
-        // compiled content not up to date. recompile!
-        $contents = PageService::getLatestContents($page->getPageId(), ['wikitext']);
-        $wikitext = $contents['wikitext'];
-
-        /* Find out if the category is using any templates. */
-        if (!preg_match('/(:|^)_/', $page->getUnixName())) {
-            $category = $page->getCategory();
-            $categoryName = $category->getName();
-            $templatePage = PagePeer::instance()->selectByName(
-                $page->getSiteId(),
-                ($categoryName == '_default' ? '' : $categoryName.':') .'_template'
-            );
-
-            if ($templatePage) {
-                $templateSource = $templatePage->getSource();
-                $wikitext = LegacyTemplateAssembler::assembleTemplate($wikitext, $templateSource, $page);
-            }
-        }
-
-        $pageInfo = PageInfo::fromPageObject($page);
-        $wt = WikitextBackend::make(ParseRenderMode::PAGE, $pageInfo);
-        $result = $wt->renderHtml($wikitext);
-        $contents->compiled_html = $result->body;
-        $contents->generator = $wt->version();
-        $contents->save();
-        $this->link_stats = $result->link_stats;
+        Log::error('This temporary call (recompiledPage) has been removed!');
     }
 
     private function updateLinks(Page $page): void
     {
-        DeepwellService::getInstance()->updateLinks($page->getSiteId(), $page->getPageId(), $this->link_stats);
+        Log::error('This temporary call (updateLinks) has been removed!');
     }
 
     private function updateLinksMissing(string $site_id, string $page_slug): void
     {
-        DeepwellService::getInstance()->updateLinksMissing($site_id, $page_slug, $this->link_stats);
+        Log::error('This temporary call (updateLinksMissing) has been removed!');
     }
 
     private function recompileIncludedByPage(Page $page): void
@@ -231,7 +190,7 @@ final class Outdater
     private function recompiledIncludedPagesInternal($connections): void
     {
         foreach ($connections as $connection) {
-            $page = PagePeer::getInstance()->selectByPrimaryKey($connection->from_page_id);
+            $page = Page::findIdOnly($connection->from_page_id);
             $outdater = new Outdater($this->recurrence_level);
             $outdater->pageEvent('source_changed', $page);
         }
@@ -245,16 +204,15 @@ final class Outdater
 
         $c = new Criteria();
         $c->add("parent_page_id", $page->getPageId());
+        $pages = [null]; // TODO run query
 
-        $pages = PagePeer::instance()->select($c);
-
-        while ($pages !== null && count($pages)>0 && $rec<10) {
+        while ($pages !== null && count($pages) > 0 && $rec < 10) {
             $p2 = array();
             foreach ($pages as $p) {
                 $this->outdatePageCache($p);
                 $c = new Criteria();
                 $c->add("parent_page_id", $p->getPageId());
-                $ptmp = PagePeer::instance()->select($c);
+                $ptmp = [null]; // TODO run query
                 $p2 = array_merge($p2, $ptmp);
             }
             $pages = $p2;
@@ -270,10 +228,10 @@ final class Outdater
         if (is_string($page)) {
             $pageName = $page;
         } else {
-            $pageName = $page->getUnixName();
+            $pageName = $page->slug;
         }
 
-        $key = 'url..'.$site->getUnixName() . '.' . GlobalProperties::$URL_DOMAIN . '/'.$pageName;
+        $key = 'url..'.$site->getSlug() . '.' . GlobalProperties::$URL_DOMAIN . '/'.$pageName;
         $cd = $site->getCustomDomain();
         if ($cd !== null && $cd !=='') {
             $key = 'url..'.$cd.'/'.$pageName;
@@ -282,7 +240,7 @@ final class Outdater
 
         // check if default landing page
         if ($site->getDefaultPage() == $pageName) {
-            $key = 'url..'.$site->getUnixName(). '.' . GlobalProperties::$URL_DOMAIN;
+            $key = 'url..'.$site->getSlug(). '.' . GlobalProperties::$URL_DOMAIN;
             if ($cd !== null && $cd !=='') {
                 $key = 'url..'.$cd;
                 Cache::forget($key);
@@ -290,7 +248,7 @@ final class Outdater
         }
 
         Cache::forget($key);
-        $key = 'page..'.$site->getUnixName().'..'.$pageName;
+        $key = 'page..'.$site->getSlug().'..'.$pageName;
         Cache::forget($key);
 
         /* Touch the catefory "last change" timestamp. */
@@ -301,10 +259,10 @@ final class Outdater
         } else {
             $categoryName = "_default";
         }
-        $ckey = 'pagecategory_lc..'.$site->getUnixName().'..'.$categoryName;
+        $ckey = 'pagecategory_lc..'.$site->getSlug().'..'.$categoryName;
         Cache::put($ckey, $now, 10000);
 
-        $ckey = 'pageall_lc..'.$site->getUnixName();
+        $ckey = 'pageall_lc..'.$site->getSlug();
         Cache::put($ckey, $now, 10000);
         /*
          * Outdate code blocks.
@@ -322,8 +280,8 @@ final class Outdater
     {
         // get default cat
         $site = $GLOBALS['site'];
-        $pUnixName = $page->getUnixName();
-        $dcat = CategoryPeer::instance()->selectByName('_default', $site->getSiteId());
+        $pUnixName = $page->slug;
+        $dcat = Category::findSlug($site->getSiteId(), '_default');
 
         $q = "SELECT unix_name FROM page WHERE category_id IN ( " .
                 "SELECT category_id FROM category WHERE nav_default = false " .
@@ -357,24 +315,13 @@ final class Outdater
         }
 
         // the above is not necesarily necessary. try the below code:
-        $aKey = 'category_lc..'.$site->getUnixName().'..'.$category->getName();
+        $aKey = 'category_lc..'.$site->getSlug().'..'.$category->getName();
         $now = time();
         Cache::put($aKey, $now, 7200);
         $key = 'category..'.$site->getSiteId().'..'.$category->getName();
         Cache::forget($key);
         $key = 'categorybyid..'.$site->getSiteId().'..'.$category->getCategoryId();
         Cache::forget($key);
-    }
-
-    private function outdateThemeDependentCategories($theme)
-    {
-
-        $c = new Criteria();
-        $c->add("theme_id", $theme->getThemeId());
-        $cats = CategoryPeer::instance()->select($c);
-        foreach ($cats as $cat) {
-            $this->outdateCategoryPagesCache($cat);
-        }
     }
 
     private function outdateAllPagesCache($site)
@@ -398,7 +345,7 @@ final class Outdater
         $now = time();
         while ($row = $r->nextRow()) {
             $name = $row['name'];
-            $aKey = 'category_lc..'.$site->getUnixName().'..'.$name;
+            $aKey = 'category_lc..'.$site->getSlug().'..'.$name;
             Cache::put($aKey, $now, 7200);
         }
     }
@@ -410,22 +357,22 @@ final class Outdater
         $site = $GLOBALS['site'];
 
         // outdate forum thread
-        $tkey = 'forumthread_lc..'.$site->getUnixName().'..'.$post->getThreadId();
+        $tkey = 'forumthread_lc..'.$site->getSlug().'..'.$post->getThreadId();
         Cache::put($tkey, $now, 1000);
 
         // outdate forum category
         $thread = $post->getForumThread();
-        $tkey = 'forumcategory_lc..'.$site->getUnixName().'..'.$thread->getCategoryId();
+        $tkey = 'forumcategory_lc..'.$site->getSlug().'..'.$thread->getCategoryId();
         Cache::put($tkey, $now, 1000);
 
         // outdate whole forum (affects the main view)
 
-        $tkey = 'forumstart_lc..'.$site->getUnixName();
+        $tkey = 'forumstart_lc..'.$site->getSlug();
         Cache::put($tkey, $now, 1000);
 
         // check if forum not related to any page (page discussion)
         if ($thread->getPageId() !== null) {
-            $page = PagePeer::instance()->selectByPrimaryKey($thread->getPageId());
+            $page = Page::findIdOnly($thread->getPageId());
             $this->outdatePageCache($page);
         }
     }
@@ -437,15 +384,15 @@ final class Outdater
         $site = $GLOBALS['site'];
 
         // outdate forum thread
-        $tkey = 'forumthread_lc..'.$site->getUnixName().'..'.$thread->getThreadId();
+        $tkey = 'forumthread_lc..'.$site->getSlug().'..'.$thread->getThreadId();
         Cache::put($tkey, $now, 1000);
 
         // outdate forum category
-        $tkey = 'forumcategory_lc..'.$site->getUnixName().'..'.$thread->getCategoryId();
+        $tkey = 'forumcategory_lc..'.$site->getSlug().'..'.$thread->getCategoryId();
         Cache::put($tkey, $now, 1000);
 
         // outdate whole forum (affects the main view)
-        $tkey = 'forumstart_lc..'.$site->getUnixName();
+        $tkey = 'forumstart_lc..'.$site->getSlug();
         Cache::put($tkey, $now, 1000);
     }
 
@@ -455,7 +402,7 @@ final class Outdater
         $now = time();
         $site = $GLOBALS['site'];
 
-        $key = 'forumall_lc..'.$site->getUnixName();
+        $key = 'forumall_lc..'.$site->getSlug();
         Cache::put($key, $now, 3600);
     }
 
@@ -466,7 +413,7 @@ final class Outdater
         $GLOBALS['site'] = $site;
         $c = new Criteria();
         $c->add("category_id", $category->getCategoryId());
-        $pages = PagePeer::instance()->select($c);
+        $pages = [null]; // TODO run query
 
         foreach ($pages as $page) {
             $this->recompilePage($page);
@@ -483,7 +430,7 @@ final class Outdater
         $GLOBALS['site'] = $site;
         $c = new Criteria();
         $c->add("site_id", $site->getSiteId());
-        $pages = PagePeer::instance()->select($c);
+        $pages = [null]; // TODO run query
 
         foreach ($pages as $page) {
             $this->recompilePage($page);
@@ -521,7 +468,7 @@ final class Outdater
         $key = "sitesettings..".$site->getSiteId();
         Cache::forget($key);
 
-        $key = 'site..'.$site->getUnixName();
+        $key = 'site..'.$site->getSlug();
         Cache::forget($key);
 
         $key = 'site_cd..'.$site->getCustomDomain();
@@ -539,10 +486,10 @@ final class Outdater
             }
             if (preg_match('/_template$/', $page)) {
                 $site = $GLOBALS['site'];
-                $category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId(), false);
+                $category = Category::findSlug($site->getSiteId(), $categoryName);
                 $this->recompileCategory($category);
             }
-        } elseif (preg_match('/_template$/', $page->getUnixName())) {
+        } elseif (preg_match('/_template$/', $page->slug)) {
             $category = $page->getCategory();
             $this->recompileCategory($category);
         }

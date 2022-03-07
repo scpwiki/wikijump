@@ -13,9 +13,14 @@ function join_arr() {
 # incompatible with SeaORM.
 
 tables=(
-	category
 	file
+	forum_category
+	forum_group
+	forum_post
+	forum_thread
+	job
 	page
+	page_category
 	page_connection
 	page_connection_missing
 	page_edit_lock

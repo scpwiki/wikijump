@@ -3,16 +3,12 @@
 namespace Wikidot\Modules\PageRate;
 
 use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\Category;
-use Wikidot\DB\PagePeer;
-use Wikidot\DB\CategoryPeer;
-use Wikidot\DB\PageRateVotePeer;
-
 use Ozone\Framework\SmartyModule;
+use Wikidot\DB\PageRateVotePeer;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class PageRateWidgetModule extends SmartyModule
 {
-
     public function build($runData)
     {
         $page = $runData->getTemp("page");
@@ -22,24 +18,14 @@ class PageRateWidgetModule extends SmartyModule
             $pl = $runData->getParameterList();
             $pageId = $pl->getParameterValue("pageId");
             if ($pageId) {
-                $page = PagePeer::instance()->selectByPrimaryKey($pageId);
+                $page = Page::findIdOnly($pageId);
                 $rate = $page->getRate();
             } else {
                 $rate = 0;
             }
         }
 
-        // get the category too
-        if (!$page) {
-            $site = $runData->getTemp("site");
-            $category = CategoryPeer::instance()->selectByName('_default', $site->getSiteId());
-        } else {
-            $category = $runData->getTemp("category");
-            if (!$category) {
-                $category = CategoryPeer::instance()->selectByPrimaryKey($page->getCategoryId());
-            }
-        }
-        $type = $category->getRatingType();
+        $type = 'Z'; // TODO rating type
         $runData->contextAdd("type", $type);
         $runData->contextAdd("rate", $rate);
 
@@ -57,8 +43,7 @@ class PageRateWidgetModule extends SmartyModule
         /**
          * If voting is disabled, send that to the widget so we don't display a
          * misleading widget. Used in PageRateWidgetModule.tpl
-         * @see Category::getRatingEnabled()
          */
-        $runData->contextAdd("enabled", $category->getRatingEnabled());
+        $runData->contextAdd("enabled", true);
     }
 }

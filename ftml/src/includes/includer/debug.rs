@@ -67,7 +67,7 @@ impl<'t> Includer<'t> for DebugIncluder {
 
     #[inline]
     fn no_such_include(&mut self, page_ref: &PageRef<'t>) -> Result<Cow<'t, str>, Void> {
-        Ok(Cow::Owned(format!("<MISSING-PAGE {}>", page_ref)))
+        Ok(Cow::Owned(format!("<MISSING-PAGE {page_ref}>")))
     }
 }
 
@@ -126,10 +126,11 @@ fn map_wrap() {
             };
 
             let actual = MapWrap(&input).to_string();
+            let expected = $expected;
 
-            println!("Input:    {}", raw_input);
-            println!("Actual:   {}", actual);
-            println!("Expected: {}", $expected);
+            println!("Input:    {raw_input}");
+            println!("Actual:   {actual}");
+            println!("Expected: {expected}");
             println!();
 
             assert_eq!(

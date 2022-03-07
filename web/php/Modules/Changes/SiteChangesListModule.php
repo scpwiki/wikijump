@@ -19,7 +19,7 @@ class SiteChangesListModule extends SmartyModule
         $pl = $runData->getParameterList();
         $parmHash = md5(serialize($pl->asArray()));
 
-        $key = 'siterecentrevisions_v..'.$site->getUnixName().'..'.$parmHash;
+        $key = 'siterecentrevisions_v..'.$site->getSlug().'..'.$parmHash;
         $tkey = 'siterevisions_lc..'.$site->getSiteId(); // last change timestamp
 
         $struct = Cache::get($key);

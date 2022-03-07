@@ -48,10 +48,10 @@ services:
       - "2747:2747"
     environment:
       - "DATABASE_URL=postgres://wikijump:wikijump@database/wikijump"
-      - "RATE_LIMIT_SECRET=local_deploy_only_7uDCoVRgQtdzMIx4Y6VUQJKEOqtvBDhiYXmPD8xfODsxtQ"
+      - "RATE_LIMIT_SECRET=local_deploy_only_0000000000000000000000000000000000000000000000"
     restart: always
     healthcheck:
-      test: ["CMD", "curl", "-i", "http://localhost:2747/api/v0/ping"]
+      test: ["CMD", "wikijump-health-check"]
       interval: 60s
       timeout: 2s
       retries: 3

@@ -28,7 +28,7 @@ class NewSiteModule extends SmartyModule
 
         // get template sites
         $c = new Criteria();
-        $c->add('unix_name', '^template-', '~');
+        $c->add('slug', '^template-', '~');
         $c->addOrderAscending('site_id');
         $templates = SitePeer::instance()->select($c);
         $runData->contextAdd('templates', $templates);

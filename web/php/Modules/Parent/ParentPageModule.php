@@ -2,11 +2,10 @@
 
 namespace Wikidot\Modules\Parent;
 
-use Wikidot\DB\PagePeer;
-
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionManager;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class ParentPageModule extends SmartyModule
 {
@@ -15,8 +14,8 @@ class ParentPageModule extends SmartyModule
     {
         $pageId = $runData->getParameterList()->getParameterValue("page_id");
 
-        $page = PagePeer::instance()->selectByPrimaryKey($pageId);
-        if ($page == null || $page->getSiteId() != $runData->getTemp("site")->getSiteId()) {
+        $page = Page::findIdOnly($pageId);
+        if ($page === null || $page->getSiteId() !== $runData->getTemp("site")->getSiteId()) {
             throw new ProcessException(_("Error getting page information."), "no_page");
         }
 
@@ -27,8 +26,8 @@ class ParentPageModule extends SmartyModule
         WDPermissionManager::instance()->hasPagePermission('edit', $user, $category, $page);
 
         if ($page->getParentPageId() !== null) {
-            $parentPage = PagePeer::instance()->selectByPrimaryKey($page->getParentPageId());
-            $runData->contextAdd("parentPageName", $parentPage->getUnixName());
+            $parentPage = Page::findIdOnly($page->getParentPageId());
+            $runData->contextAdd("parentPageName", $parentPage->slug);
         }
     }
 }

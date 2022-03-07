@@ -2,9 +2,9 @@
 
 namespace Wikidot\Actions\Misc;
 use Ozone\Framework\SmartyAction;
-use Wikidot\DB\PagePeer;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDStringUtils;
+use Wikijump\Services\Deepwell\Models\Page;
 
 class NewPageHelperAction extends SmartyAction
 {
@@ -54,7 +54,7 @@ class NewPageHelperAction extends SmartyAction
             $unixName = WDStringUtils::toUnixName($categoryName.':'.$pageName);
         }
 
-        $page = PagePeer::instance()->selectByName($site->getSiteId(), $unixName);
+        $page = Page::findSlug($site->getSiteId(), $unixName);
         if ($page != null) {
             $runData->ajaxResponseAdd("status", "page_exists");
             $runData->ajaxResponseAdd("message", "The page <em>".$unixName."</em> already exists." .
@@ -63,8 +63,8 @@ class NewPageHelperAction extends SmartyAction
         }
 
         if ($templateId) {
-            $templatePage = PagePeer::instance()->selectByPrimaryKey($templateId);
-            if (!$templatePage || !preg_match("/^template:/", $templatePage->getUnixName())) {
+            $templatePage = Page::findIdOnly($templateId);
+            if (!$templatePage || !preg_match("/^template:/", $templatePage->slug)) {
                 throw new ProcessException("Error selecting the template");
             }
 
