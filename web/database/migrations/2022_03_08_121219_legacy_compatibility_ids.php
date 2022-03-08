@@ -15,9 +15,9 @@ class LegacyCompatibilityIds extends Migration
     public function up()
     {
         // Temporary compatibility IDs while these tables are still in Ozone
-        DB::statement('ALTER SEQUENCE forum_post_post_id_seq         START WITH  7000000');
-        DB::statement('ALTER SEQUENCE forum_thread_thread_id_seq     START WITH 30000000');
-        DB::statement('ALTER SEQUENCE forum_category_category_id_seq START WITH  9000000');
+        DB::statement('ALTER SEQUENCE forum_post_post_id_seq         RESTART WITH  7000000');
+        DB::statement('ALTER SEQUENCE forum_thread_thread_id_seq     RESTART WITH 30000000');
+        DB::statement('ALTER SEQUENCE forum_category_category_id_seq RESTART WITH  9000000');
     }
 
     /**
@@ -27,8 +27,8 @@ class LegacyCompatibilityIds extends Migration
      */
     public function down()
     {
-        DB::statement('ALTER SEQUENCE forum_post_post_id_seq         START WITH 1');
-        DB::statement('ALTER SEQUENCE forum_thread_thread_id_seq     START WITH 1');
-        DB::statement('ALTER SEQUENCE forum_category_category_id_seq START WITH 1');
+        DB::statement('ALTER SEQUENCE forum_post_post_id_seq         RESTART WITH 1');
+        DB::statement('ALTER SEQUENCE forum_thread_thread_id_seq     RESTART WITH 1');
+        DB::statement('ALTER SEQUENCE forum_category_category_id_seq RESTART WITH 1');
     }
 }

@@ -48,7 +48,7 @@ class CreateUsersTable extends Migration
 
         // Set compatibility IDs
         // The initial users should have early IDs due to their special status.
-        DB::statement('ALTER SEQUENCE users_id_seq START WITH 10000000');
+        DB::statement('ALTER SEQUENCE users_id_seq RESTART WITH 10000000');
     }
 
     /**
