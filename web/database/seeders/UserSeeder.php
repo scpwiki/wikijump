@@ -26,7 +26,7 @@ class UserSeeder extends Seeder
     {
         DB::table('users')->insert([
             [
-                // ID 1
+                'id' => 1,
                 'username' => 'Administrator',
                 'unix_name' => WDStringUtils::toUnixName('admin'),
                 'password' => Hash::make(env('ADMIN_INITIAL_PASSWORD', 'admin1')),
@@ -37,7 +37,7 @@ class UserSeeder extends Seeder
                 'karma_level' => 2,
             ],
             [
-                // ID 2
+                'id' => 2,
                 'username' => 'Automatic',
                 'unix_name' => WDStringUtils::toUnixName('Automatic'),
                 'password' => Hash::make(bin2hex(random_bytes(32))),
@@ -48,7 +48,7 @@ class UserSeeder extends Seeder
                 'karma_level' => 0,
             ],
             [
-                // ID 3
+                'id' => 3,
                 'username' => 'Anonymous',
                 'unix_name' => WDStringUtils::toUnixName('Anonymous'),
                 'password' => Hash::make(bin2hex(random_bytes(32))),
@@ -59,9 +59,10 @@ class UserSeeder extends Seeder
                 'karma_level' => 0,
             ],
         ]);
-        if (env('APP_ENV') != 'production') {
+        if (env('APP_ENV') !== 'production') {
+            // Sample user if not in prod
             DB::table('users')->insert([
-                // ID 4 if not in prod
+                'id' => 4,
                 'username' => 'User',
                 'unix_name' => WDStringUtils::toUnixName('user'),
                 'password' => Hash::make('user1'),

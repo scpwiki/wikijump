@@ -194,9 +194,7 @@ class DeepwellPage extends Migration
         DB::statement('ALTER SEQUENCE page_revision_revision_id_seq START WITH 3000000000');
 
         // Seed initial pages
-        Artisan::call('db:seed', [
-            '--class' => PageSeeder::class,
-        ]);
+        Artisan::call('db:seed', ['--class' => PageSeeder::class]);
     }
 
     /**
