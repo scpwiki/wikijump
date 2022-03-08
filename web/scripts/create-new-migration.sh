@@ -47,10 +47,10 @@ function to_pascal_case() {
 }
 
 function make_migration() {
-	echo "+ $1"
-
 	class_name="$(to_pascal_case "$1")"
 	filename="$(get_filename "$1")"
+
+	echo "+ $filename"
 
 	cat > "$filename" << EOF
 <?php
