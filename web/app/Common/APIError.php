@@ -33,6 +33,11 @@ final class APIError extends Enum
     const UNKNOWN_EMAIL = 'UNKNOWN_EMAIL';
     const UNKNOWN_USER = 'UNKNOWN_USER';
     const WRONG_PASSWORD = 'WRONG_PASSWORD';
+    const SITE_NOT_FOUND = 'SITE_NOT_FOUND';
+    const UNIMPLEMENTED = 'UNIMPLEMENTED';
+    const INVALID_PAGE_TYPE = 'INVALID_PAGE_TYPE';
+    const INVALID_PAGE_PATH = 'INVALID_PAGE_PATH';
+    const PAGE_NOT_FOUND = 'PAGE_NOT_FOUND';
 
     /** Makes an a proper `Response` for when returning API errors.
      * @param int $status HTTP status code. Should be something in the 400 range.

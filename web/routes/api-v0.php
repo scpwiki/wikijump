@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Wikijump\Http\Controllers\AccountController;
 use Wikijump\Http\Controllers\AuthController;
+use Wikijump\Http\Controllers\PageController;
 use Wikijump\Http\Controllers\UserController;
 
 // -- QUERY
@@ -74,8 +75,9 @@ Route::get('/user/{path_type}/{path}/avatar', [UserController::class, 'getAvatar
 // TODO: membershipUserInvite
 
 // -- PAGE
+// these can be implemented!
 // TODO: pageCreate
-// TODO: pageGet
+Route::get('/page/{path_type}/{path}', [PageController::class, 'pageGet']);
 // TODO: pageUpdate
 // TODO: pageDelete
 // TODO: pageRestore

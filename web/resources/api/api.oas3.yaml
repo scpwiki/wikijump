@@ -2275,7 +2275,7 @@ components:
       in: query
       schema:
         type: string
-        enum: [all, metadata-html, metadata, wikitext, html, syntaxtree, none]
+        enum: [all, metadata, metadata-html, metadata-wikitext, wikitext, html, none]
         default: none
 
     PagePathType:
@@ -2903,7 +2903,7 @@ components:
     Page:
       type: object
       required: [
-        id, slug, category, parent, children, title, tags, score, revision,
+        id, slug, category, parent, children, title, altTitle, tags, score, revision,
         created, creator, updated, updater
       ]
       properties:
@@ -2913,6 +2913,7 @@ components:
         parent:   { $ref: '#/components/schemas/Slug', nullable: true }
         children: { type: array, items: { $ref: '#/components/schemas/Slug' }}
         title:    { type: string }
+        altTitle: { type: [string, 'null'] }
         tags:     { $ref: '#/components/schemas/TagList' }
         score:    { type: number }
         revision: { type: integer }
