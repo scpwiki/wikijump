@@ -700,43 +700,31 @@ EOF
         );
 
         // Add links and connections
-        $this->addExternalLinks(
-            $www_start_page_id,
-            [
-                'https://github.com/scpwiki/wikijump/pulls' => 1,
-                'https://github.com/scpwiki/wikijump' => 1,
-                'https://github.com/scpwiki/wikijump/tree/legacy' => 1,
-                'https://scuttle.atlassian.net/browse/WJ' => 2,
-                'https://scuttle.atlassian.net/wiki/spaces/WD/overview' => 1,
-                'https://creativecommons.org/licenses/by-sa/4.0/' => 1,
-                'https://www.wikidot.com/' => 1,
-                'https://wikijump.org' => 1,
-                'https://scpwiki.com/forum/c-3335628/general-information' => 1,
-                'https://scpwiki.com/forum/c-3335630/feature-requests' => 1,
-            ],
-        );
-        $this->addExternalLinks(
-            $template_start_page_id,
-            [
-                'https://creativecommons.org/licenses/by-sa/4.0/' => 1,
-                'https://www.wikidot.com/' => 1,
-                'https://wikijump.org' => 1,
-                'https://scpwiki.com/forum/c-3335628/general-information' => 1,
-                'https://scpwiki.com/forum/c-3335630/feature-requests' => 1,
-            ],
-        );
-        $this->addExternalLinks(
-            $www_nav_top_page_id,
-            [
-                'https://wikijump.org' => 1,
-            ],
-        );
-        $this->addExternalLinks(
-            $template_nav_top_page_id,
-            [
-                'https://wikijump.org' => 1,
-            ],
-        );
+        $this->addExternalLinks($www_start_page_id, [
+            'https://github.com/scpwiki/wikijump/pulls' => 1,
+            'https://github.com/scpwiki/wikijump' => 1,
+            'https://github.com/scpwiki/wikijump/tree/legacy' => 1,
+            'https://scuttle.atlassian.net/browse/WJ' => 2,
+            'https://scuttle.atlassian.net/wiki/spaces/WD/overview' => 1,
+            'https://creativecommons.org/licenses/by-sa/4.0/' => 1,
+            'https://www.wikidot.com/' => 1,
+            'https://wikijump.org' => 1,
+            'https://scpwiki.com/forum/c-3335628/general-information' => 1,
+            'https://scpwiki.com/forum/c-3335630/feature-requests' => 1,
+        ]);
+        $this->addExternalLinks($template_start_page_id, [
+            'https://creativecommons.org/licenses/by-sa/4.0/' => 1,
+            'https://www.wikidot.com/' => 1,
+            'https://wikijump.org' => 1,
+            'https://scpwiki.com/forum/c-3335628/general-information' => 1,
+            'https://scpwiki.com/forum/c-3335630/feature-requests' => 1,
+        ]);
+        $this->addExternalLinks($www_nav_top_page_id, [
+            'https://wikijump.org' => 1,
+        ]);
+        $this->addExternalLinks($template_nav_top_page_id, [
+            'https://wikijump.org' => 1,
+        ]);
 
         // NOTE: format is [from_page_id, to_page_id, count]
         $this->addInternalLinks([
@@ -796,7 +784,8 @@ EOF
         return $hash;
     }
 
-    private function addCategory(int $site_id, string $slug): int {
+    private function addCategory(int $site_id, string $slug): int
+    {
         // Add page category
         $category = DB::selectOne(
             "INSERT INTO page_category (
@@ -813,7 +802,9 @@ EOF
 
         $category_id = $category->category_id;
         if (!is_integer($category_id)) {
-            throw new Exception("Returned category ID from insert not an integer: $category_id");
+            throw new Exception(
+                "Returned category ID from insert not an integer: $category_id",
+            );
         }
 
         return $category_id;
@@ -908,7 +899,9 @@ EOF
             // If this happens, the structure of the array is incorrect
             // For instance, they may have forgotten the count value.
             if (!is_string($url) || !is_integer($count)) {
-                throw new Exception("Invalid external link data: url $url, count: $count");
+                throw new Exception(
+                    "Invalid external link data: url $url, count: $count",
+                );
             }
 
             $rows[] = [
@@ -933,7 +926,9 @@ EOF
                 $to_display = var_export($to_page_id, true);
                 $count_display = var_export($count, true);
 
-                throw new Exception("Invalid internal link data, from_page_id $from_display, to_page_id $to_display, count $count_display");
+                throw new Exception(
+                    "Invalid internal link data, from_page_id $from_display, to_page_id $to_display, count $count_display",
+                );
             }
 
             $rows[] = [
