@@ -82,7 +82,6 @@ class GlobalProperties
     public static $LOGGER_FILE;
 
     // feature flags
-    public static $FEATURE_WIKITEXT_BACKEND;
     public static $FEATURE_FRONTEND;
 
     // other settings
@@ -232,7 +231,6 @@ class GlobalProperties
         self::$LOGGER_FILE              = $_ENV["WIKIJUMP_LOGGER_FILE"] ?? self::fromIni("log", "file", "wikijump.log"); // TODO: use this setting
 
         // feature flags
-        self::$FEATURE_WIKITEXT_BACKEND = $_ENV["FEATURE_WIKITEXT_BACKEND"] ?? self::fromIni("feature", "wikitext_backend", "text_wiki");
         self::$FEATURE_FRONTEND         = $_ENV["FEATURE_FRONTEND"] ?? self::fromIni("feature", "frontend", "legacy");
 
         // other settings

@@ -4,7 +4,6 @@ namespace Wikidot\Modules\Forum;
 
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
-use Ozone\Framework\Ozone;
 use Ozone\Framework\SmartyModule;
 use Wikidot\DB\ForumCategoryPeer;
 use Wikidot\DB\ForumThreadPeer;
@@ -14,14 +13,13 @@ use Wikidot\DB\SitePeer;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDRenderUtils;
 use Wikidot\Utils\WDStringUtils;
+use Wikijump\Services\Deepwell\DeepwellService;
 use Wikijump\Services\Wikitext\ParseRenderMode;
-use Wikijump\Services\Wikitext\WikitextBackend;
 
 class FrontForumModule extends SmartyModule
 {
-
     protected $processPage = true;
-    private $vars = array();
+    private $vars = [];
 
     public function render($runData)
     {
@@ -150,8 +148,7 @@ class FrontForumModule extends SmartyModule
         }
 
         // process the format and create the message template
-        $wt = WikitextBackend::make(ParseRenderMode::FEED, null);
-        $template = $wt->renderHtml($format)->body;
+        $template = DeepwellService::getInstance()->renderHtml(ParseRenderMode::FEED, $format, null);
 
         $template = preg_replace(
             '/

@@ -2,7 +2,6 @@
 
 namespace Wikidot\Modules\XList;
 
-
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\ODate;
@@ -13,8 +12,8 @@ use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\ProcessException;
 use Wikijump\Helpers\LegacyTools;
 use Wikijump\Models\User;
+use Wikijump\Services\Deepwell\DeepwellService;
 use Wikijump\Services\Wikitext\ParseRenderMode;
-use Wikijump\Services\Wikitext\WikitextBackend;
 use Wikijump\Services\Deepwell\Models\Category;
 
 class ListPagesModule extends SmartyModule
@@ -149,7 +148,7 @@ class ListPagesModule extends SmartyModule
         }
 
         $thisPage = Page::findSlug($site->getSiteId(), $pageUnixName);
-        $pageInfo = PageInfo::fromPageObject($thisPage);
+        $page_info = PageInfo::fromPageObject($thisPage);
 
         $categories = [];
         $categoryNames = [];
@@ -539,9 +538,8 @@ class ListPagesModule extends SmartyModule
             $b = str_replace("\xFD", '%%', $b);
 
             if ($separation) {
-                $wt = WikitextBackend::make(ParseRenderMode::LIST, $pageInfo);
-                $b = $wt->renderHtml($b)->body;
-                $b = "<div class=\"list-pages-item\">\n" . $b . "</div>";
+                $b = DeepwellService::getInstance()->renderHtml(ParseRenderMode::LIST, $b, $page_info);
+                $b = "<div class=\"list-pages-item\">\n" . $b . '</div>';
             }
 
             $items[] = trim($b);
@@ -555,8 +553,8 @@ class ListPagesModule extends SmartyModule
 
             $modifiedSource = $prefix . implode("\n", $items) . $suffix;
 
-            $wt = WikitextBackend::make(ParseRenderMode::LIST, $pageInfo);
-            $itemsContent = $wt->renderHtml($modifiedSource)->body;
+            $b = DeepwellService::getInstance()->renderHtml(ParseRenderMode::LIST, $b, $page_info);
+            $itemsContent = "<div class=\"list-pages-item\">\n" . $modifiedSource . '</div>';
         } else {
             $itemsContent = implode("\n", $items);
         }

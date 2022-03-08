@@ -1,17 +1,21 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
+* @returns {string}
+*/
+export function version(): string;
+/**
+* @param {string} text
+* @returns {Tokenization}
+*/
+export function tokenize(text: string): Tokenization;
+/**
 * @param {Tokenization} tokens
 * @param {PageInfo} page_info
 * @param {WikitextSettings} settings
 * @returns {ParseOutcome}
 */
 export function parse(tokens: Tokenization, page_info: PageInfo, settings: WikitextSettings): ParseOutcome;
-/**
-* @param {string} text
-* @returns {string}
-*/
-export function preprocess(text: string): string;
 /**
 * @param {SyntaxTree} syntax_tree
 * @param {PageInfo} page_info
@@ -27,14 +31,23 @@ export function render_html(syntax_tree: SyntaxTree, page_info: PageInfo, settin
 */
 export function render_text(syntax_tree: SyntaxTree, page_info: PageInfo, settings: WikitextSettings): string;
 /**
+* @param {string} text
 * @returns {string}
 */
-export function version(): string;
-/**
-* @param {string} text
-* @returns {Tokenization}
-*/
-export function tokenize(text: string): Tokenization;
+export function preprocess(text: string): string;
+
+
+export interface IToken {
+    token: string;
+    slice: string;
+    span: {
+        start: number;
+        end: number;
+    };
+}
+
+
+
 
 
 export interface IElement {
@@ -56,6 +69,24 @@ export interface IParseWarning {
     };
     kind: string;
 }
+
+
+
+
+
+export interface IWikitextSettings {
+    mode: WikitextMode;
+    enable_page_syntax: boolean;
+    use_true_ids: boolean;
+    allow_local_paths: boolean;
+}
+
+export type WikitextMode =
+    | 'page'
+    | 'draft'
+    | 'forum-post'
+    | 'direct-message'
+    | 'list'
 
 
 
@@ -92,37 +123,6 @@ export interface IBacklinks {
     included_pages: string[];
     internal_links: string[];
     external_links: string[];
-}
-
-
-
-
-
-export interface IWikitextSettings {
-    mode: WikitextMode;
-    enable_page_syntax: boolean;
-    use_true_ids: boolean;
-    allow_local_paths: boolean;
-}
-
-export type WikitextMode =
-    | 'page'
-    | 'draft'
-    | 'forum-post'
-    | 'direct-message'
-    | 'list'
-
-
-
-
-
-export interface IToken {
-    token: string;
-    slice: string;
-    span: {
-        start: number;
-        end: number;
-    };
 }
 
 
@@ -285,6 +285,16 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
+  readonly version: (a: number) => void;
+  readonly __wbg_tokenization_free: (a: number) => void;
+  readonly tokenization_copy: (a: number) => number;
+  readonly tokenization_text: (a: number, b: number) => void;
+  readonly tokenization_tokens: (a: number, b: number) => void;
+  readonly tokenize: (a: number, b: number) => number;
+  readonly __wbg_utf16indexmap_free: (a: number) => void;
+  readonly utf16indexmap_new: (a: number, b: number) => number;
+  readonly utf16indexmap_get_index: (a: number, b: number, c: number) => void;
+  readonly utf16indexmap_copy: (a: number) => number;
   readonly __wbg_parseoutcome_free: (a: number) => void;
   readonly parseoutcome_copy: (a: number) => number;
   readonly parseoutcome_syntax_tree: (a: number) => number;
@@ -292,8 +302,11 @@ export interface InitOutput {
   readonly __wbg_syntaxtree_free: (a: number) => void;
   readonly syntaxtree_data: (a: number, b: number) => void;
   readonly parse: (a: number, b: number, c: number, d: number) => void;
-  readonly preprocess: (a: number, b: number, c: number) => void;
+  readonly __wbg_wikitextsettings_free: (a: number) => void;
+  readonly wikitextsettings_new: (a: number, b: number) => void;
+  readonly wikitextsettings_from_mode: (a: number, b: number, c: number) => void;
   readonly syntaxtree_copy: (a: number) => number;
+  readonly wikitextsettings_copy: (a: number) => number;
   readonly __wbg_pageinfo_free: (a: number) => void;
   readonly pageinfo_new: (a: number, b: number) => void;
   readonly pageinfo_page: (a: number, b: number) => void;
@@ -312,21 +325,8 @@ export interface InitOutput {
   readonly htmloutput_backlinks: (a: number, b: number) => void;
   readonly render_html: (a: number, b: number, c: number) => number;
   readonly render_text: (a: number, b: number, c: number, d: number) => void;
-  readonly __wbg_wikitextsettings_free: (a: number) => void;
-  readonly wikitextsettings_new: (a: number, b: number) => void;
-  readonly wikitextsettings_from_mode: (a: number, b: number, c: number) => void;
   readonly pageinfo_copy: (a: number) => number;
-  readonly wikitextsettings_copy: (a: number) => number;
-  readonly version: (a: number) => void;
-  readonly __wbg_tokenization_free: (a: number) => void;
-  readonly tokenization_copy: (a: number) => number;
-  readonly tokenization_text: (a: number, b: number) => void;
-  readonly tokenization_tokens: (a: number, b: number) => void;
-  readonly tokenize: (a: number, b: number) => number;
-  readonly __wbg_utf16indexmap_free: (a: number) => void;
-  readonly utf16indexmap_new: (a: number, b: number) => number;
-  readonly utf16indexmap_get_index: (a: number, b: number, c: number) => void;
-  readonly utf16indexmap_copy: (a: number) => number;
+  readonly preprocess: (a: number, b: number, c: number) => void;
   readonly __wbindgen_malloc: (a: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number) => number;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;

@@ -10,6 +10,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
 use Wikidot\Utils\GlobalProperties;
 use Wikijump\Services\Deepwell\Models\Page;
+use Wikijump\Services\Wikitext\ParseRenderMode;
 
 final class DeepwellService
 {
@@ -66,6 +67,16 @@ final class DeepwellService
             // For other errors, re-throw, since it's not an "expected" error
             throw $exception;
         }
+    }
+
+    // Rendering
+    public function renderHtml(
+        ParseRenderMode $mode,
+        string $wikitext,
+        ?PageInfo $page_info
+    ): string {
+        // TODO stub
+        return "!! TODO !! $wikitext";
     }
 
     // Category

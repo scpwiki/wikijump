@@ -6,8 +6,8 @@ use Exception;
 use Wikidot\Utils\CacheableModule;
 use Wikidot\Utils\MagpieFeed;
 use Wikidot\Utils\ProcessException;
+use Wikijump\Services\Deepwell\DeepwellService;
 use Wikijump\Services\Wikitext\ParseRenderMode;
-use Wikijump\Services\Wikitext\WikitextBackend;
 
 class FeedModule extends CacheableModule
 {
@@ -102,8 +102,7 @@ class FeedModule extends CacheableModule
         }
 
         // process the format and create the message template
-        $wt = WikitextBackend::make(ParseRenderMode::FEED, null);
-        $template = $wt->renderHtml($format)->body;
+        $template = DeepwellService::getInstance()->renderHtml(ParseRenderMode::FEED, $format, null);
 
         // fix template
         $template = preg_replace(

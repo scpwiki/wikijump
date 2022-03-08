@@ -18,7 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#![deny(missing_debug_implementations, unsafe_code)]
+#![forbid(unsafe_code)]
+#![deny(missing_debug_implementations)]
 
 //! A library to parse Wikidot text and produce an abstract syntax tree (AST).
 //!
@@ -49,11 +50,11 @@
 //! plain text and full HTML respectively.
 //!
 //! # Features
-//! This crate has several features of note.
+//! This crate has one feature of note:
 //!
-//! By default the `ffi` feature is enabled.
-//! This enables support for FFI interfacing for the library
-//! via [`cbindgen`] (with a slightly more limited interface).
+//! The `mathml` feature pulls in the `latex2mathml` library,
+//! which renders LaTeX blocks using MathML. It is enabled
+//! by default.
 //!
 //! # Targets
 //! The library supports being compiled into WebAssembly.
@@ -72,7 +73,6 @@
 //! [`TextRender`]: ./render/html/struct.HtmlRender.html
 //! [`HtmlRender`]: ./render/text/struct.TextRender.html
 //! [`serde`]: https://docs.rs/serde
-//! [`cbindgen`]: https://docs.rs/cbindgen
 //! [`wasm-pack`]: https://rustwasm.github.io/docs/wasm-pack/
 
 // Only list crates which we want global macro imports.
@@ -119,10 +119,6 @@ mod preproc;
 mod text;
 mod url;
 mod utf16;
-
-#[cfg(feature = "ffi")]
-#[cfg(not(target_arch = "wasm32"))]
-pub mod ffi;
 
 #[cfg(target_arch = "wasm32")]
 pub mod wasm;

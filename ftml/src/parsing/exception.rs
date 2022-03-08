@@ -91,13 +91,6 @@ impl ParseWarning {
         self.kind
     }
 
-    #[inline]
-    #[cfg(feature = "ffi")]
-    #[cfg(not(target_arch = "wasm32"))]
-    pub(crate) fn rule_raw(&self) -> &Cow<'static, str> {
-        &self.rule
-    }
-
     #[must_use]
     pub fn to_utf16_indices(&self, map: &Utf16IndexMap) -> Self {
         // Copy fields

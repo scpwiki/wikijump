@@ -7,10 +7,9 @@ use Ozone\Framework\Database\Criteria;
 use Wikidot\Utils\FeedScreen;
 use Wikidot\Utils\GlobalProperties;
 use Wikijump\Models\User;
+use Wikijump\Services\Deepwell\DeepwellService;
 use Wikijump\Services\Wikitext\ParseRenderMode;
-use Wikijump\Services\Wikitext\WikitextBackend;
 use Wikijump\Services\Deepwell\Models\Category;
-use Wikijump\Services\Deepwell\Models\Page;
 
 class PagesFeed extends FeedScreen
 {
@@ -324,9 +323,8 @@ class PagesFeed extends FeedScreen
             }
             $b .= 'by ' . $userString;
 
-            $pageInfo = PageInfo::fromPageObject($page);
-            $wt = WikitextBackend::make(ParseRenderMode::LIST, $pageInfo);
-            $wt->renderHtml($b)->body;
+            $page_info = PageInfo::fromPageObject($page);
+            $content = DeepwellService::getInstance()->renderHtml(ParseRenderMode::LIST, $b, $page_info);
 
             $d = utf8_encode("\xFE");
             $content = preg_replace("/" . $d . "module \"([a-zA-Z0-9\/_]+?)\"(.+?)?" . $d . "/", '', $content);

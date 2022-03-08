@@ -8,7 +8,7 @@ keywords = ["wikidot", "wikijump", "ftml", "parsing", "html"]
 categories = ["parser-implementations"]
 exclude = [".gitignore", ".editorconfig"]
 
-version = "1.13.0"
+version = "1.14.0"
 authors = ["Ammon Smith <ammon.i.smith@gmail.com>"]
 edition = "2021" # this is *not* the same as the current year
 rust-version = "1.57.0"
@@ -18,10 +18,7 @@ name = "ftml"
 crate-type = ["cdylib", "lib"]
 
 [features]
-default  = ["ffi", "mathml"]
-# If removed, then FFI integrations are not included in the crate.
-# This feature does not build even if included if the target is "wasm32".
-ffi      = ["parking_lot", "slog-bunyan"]
+default  = ["mathml"]
 # Adds LaTeX -> MathML support for rendering.
 mathml   = ["latex2mathml"]
 
@@ -64,10 +61,6 @@ getrandom = { version = "0.2", features = ["js"] }
 self_cell = "0.10"
 wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
 web-sys = { version = "0.3", features = ["console"] }
-
-[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-parking_lot = { version = "0.12", optional = true }
-slog-bunyan = { version = "2", optional = true }
 
 # Performance options
 

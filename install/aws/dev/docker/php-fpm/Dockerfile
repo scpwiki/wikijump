@@ -6,7 +6,6 @@ FROM php:7.4-fpm-buster AS php
 
 # Build variables
 ARG ENVIRONMENT="dev"
-ARG DEBUG_IP="192.168.42.128"
 
 ARG MAIN_DOMAIN="wikijump.localhost"
 ARG FILES_DOMAIN="wjfiles.localhost"
@@ -55,20 +54,6 @@ RUN sed -i "s/%%BASE_DOMAIN%%/${MAIN_DOMAIN}/g" conf/wikijump.ini && \
 
 FROM rust:latest AS rust
 
-# Copy source
-RUN mkdir /src
-COPY ./ftml /src/ftml
-WORKDIR /src/ftml
-
-# Download dependencies for caching
-RUN cargo vendor
-
-# Build ftml-ffi without logging
-RUN cargo build \
-    --release \
-    --no-default-features \
-    --features ffi,mathml
-
 # Install mrml-cli for compiling MJML email templates
 RUN cargo install --locked --version 1.3.2 mrml-cli
 
@@ -80,8 +65,6 @@ FROM php
 EXPOSE 9000
 
 # Copy binaries from intermediate images
-COPY --from=rust /src/ftml/target/release/ftml.h /usr/local/include/ftml.h
-COPY --from=rust /src/ftml/target/release/libftml.so /usr/local/lib/libftml.so
 COPY --from=rust /usr/local/cargo/bin/mrml /usr/local/bin/mrml
 
 # PHP configuration preparation
