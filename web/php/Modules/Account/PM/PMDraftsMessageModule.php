@@ -7,8 +7,8 @@ namespace Wikidot\Modules\Account\PM;
 use Wikidot\Utils\AccountBaseModule;
 use Wikidot\Utils\ProcessException;
 use Wikijump\Models\UserMessage;
+use Wikijump\Services\Deepwell\DeepwellService;
 use Wikijump\Services\Wikitext\ParseRenderMode;
-use Wikijump\Services\Wikitext\WikitextBackend;
 
 /**
  * AJAX Module for PM Drafts.
@@ -29,9 +29,7 @@ class PMDraftsMessageModule extends AccountBaseModule
             throw new ProcessException(_('Error selecting message.'), 'no_message');
         }
 
-        $wt = WikitextBackend::make(ParseRenderMode::DIRECT_MESSAGE, null);
-        $source = $message->body;
-        $message->body = $wt->renderHtml($source)->body;
+        $message->body = DeepwellService::getInstance()->renderHtml(ParseRenderMode::DIRECT_MESSAGE, $message->body, null);
 
         $runData->contextAdd('message', $message);
 

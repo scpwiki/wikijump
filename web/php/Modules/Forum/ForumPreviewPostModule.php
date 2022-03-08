@@ -7,8 +7,8 @@ use Ozone\Framework\SmartyModule;
 use Wikidot\DB\ForumPost;
 use Wikidot\Utils\ProcessException;
 use Wikijump\Models\User;
+use Wikijump\Services\Deepwell\DeepwellService;
 use Wikijump\Services\Wikitext\ParseRenderMode;
-use Wikijump\Services\Wikitext\WikitextBackend;
 
 class ForumPreviewPostModule extends SmartyModule
 {
@@ -17,15 +17,13 @@ class ForumPreviewPostModule extends SmartyModule
     {
         $pl = $runData->getParameterList();
         $title = $pl->getParameterValue("title");
-        $description = trim($pl->getParameterValue("description"));
         $source = trim($pl->getParameterValue("source"));
 
-        if ($source == null || $source == '') {
+        if ($source === '') {
             throw new ProcessException(_("Post is empty."), "post_empty");
         }
 
-        $wt = WikitextBackend::make(ParseRenderMode::FORUM_POST, null);
-        $body = $wt->renderHtml($source)->body;
+        $body = DeepwellService::getInstance()->renderHtml(ParseRenderMode::FORUM_POST, $source, null);
 
         $post = new ForumPost();
         $post->setText($body);

@@ -25,13 +25,12 @@ use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionException;
 use Wikidot\Utils\WDPermissionManager;
 use Wikijump\Models\User;
+use Wikijump\Services\Deepwell\DeepwellService;
 use Wikijump\Services\Deepwell\Models\Page;
 use Wikijump\Services\Wikitext\ParseRenderMode;
-use Wikijump\Services\Wikitext\WikitextBackend;
 
 class ForumAction extends SmartyAction
 {
-
     public function perform($r)
     {
     }
@@ -74,8 +73,7 @@ class ForumAction extends SmartyAction
 
         // compile content
 
-        $wt = WikitextBackend::make(ParseRenderMode::FORUM_POST, null);
-        $body = $wt->renderHtml($source)->body;
+        $body = DeepwellService::getInstance()->renderHtml(ParseRenderMode::FORUM_POST, $source, null);
 
         // new thread
 
@@ -219,8 +217,7 @@ class ForumAction extends SmartyAction
 
         // compile content
 
-        $wt = WikitextBackend::make(ParseRenderMode::FORUM_POST, null);
-        $body = $wt->renderHtml($source)->body;
+        $body = DeepwellService::getInstance()->renderHtml(ParseRenderMode::FORUM_POST, $source, null);
 
         $db = Database::connection();
         $db->begin();
@@ -371,8 +368,7 @@ class ForumAction extends SmartyAction
 
         // compile content
 
-        $wt = WikitextBackend::make(ParseRenderMode::FORUM_POST, null);
-        $body = $wt->renderHtml($source)->body;
+        $body = DeepwellService::getInstance()->renderHtml(ParseRenderMode::FORUM_POST, $source, null);
 
         $postRevision = new ForumPostRevision();
         $postRevision->obtainPK();

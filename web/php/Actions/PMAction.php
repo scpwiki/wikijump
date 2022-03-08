@@ -13,7 +13,8 @@ use Wikidot\Utils\WDPermissionException;
 use Wikijump\Models\User;
 use Wikijump\Models\UserMessage;
 use Wikijump\Policies\UserPolicy;
-use Wikijump\Services\Wikitext\WikitextBackend;
+use Wikijump\Services\Deepwell\DeepwellService;
+use Wikijump\Services\Wikitext\ParseRenderMode;
 
 /**
  * Action class for User Message events.
@@ -74,8 +75,7 @@ class PMAction extends SmartyAction
         }
 
         // compile content
-        $wt = WikitextBackend::make(PageRenderMode::DIRECT_MESSAGE, null);
-        $body = $wt->renderHtml($body)->body;
+        $body = DeepwellService::getInstance()->renderHtml(ParseRenderMode::DIRECT_MESSAGE, $body, null);
 
         $message = new UserMessage([
             'from_user_id' => $runData->id(),

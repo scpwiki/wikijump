@@ -5,8 +5,8 @@ namespace Wikidot\Modules\Forum\Sub;
 use Ozone\Framework\SmartyModule;
 use Wikidot\DB\ForumPostRevisionPeer;
 use Wikidot\Utils\ProcessException;
+use Wikijump\Services\Deepwell\DeepwellService;
 use Wikijump\Services\Wikitext\ParseRenderMode;
-use Wikijump\Services\Wikitext\WikitextBackend;
 
 class ForumPostRevisionModule extends SmartyModule
 {
@@ -15,8 +15,6 @@ class ForumPostRevisionModule extends SmartyModule
     {
         $pl = $runData->getParameterList();
         $revisionId = $pl->getParameterValue("revisionId");
-
-        $site = $runData->getTemp("site");
 
         if ($revisionId == null || !is_numeric($revisionId)) {
             throw new ProcessException(_("No revision specified."), "no_post");
@@ -30,8 +28,7 @@ class ForumPostRevisionModule extends SmartyModule
         $runData->ajaxResponseAdd("title", $revision->getTitle());
 
         $source = $revision->getText();
-        $wt = WikitextBackend::make(ParseRenderMode::FORUM_POST, null);
-        $body = $wt->renderHtml($source)->body;
+        $body = DeepwellService::getInstance()->renderHtml(ParseRenderMode::FORUM_POST, $source, null);
 
         $runData->ajaxResponseAdd("content", $body);
         $runData->ajaxResponseAdd("postId", $revision->getPostId());

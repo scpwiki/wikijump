@@ -3,16 +3,15 @@
 
 namespace Wikidot\Form\Field;
 
+use Wikijump\Services\Deepwell\DeepwellService;
 use Wikijump\Services\Wikitext\ParseRenderMode;
-use Wikijump\Services\Wikitext\WikitextBackend;
 
 class Wiki extends Base
 {
     public function renderView()
     {
         $source = $this->field['value'];
-        $wt = WikitextBackend::make(ParseRenderMode::DIRECT_MESSAGE, null);
-        return $wt->renderHtml($source)->body;
+        return DeepwellService::getInstance()->renderHtml(ParseRenderMode::DIRECT_MESSAGE, $source, null);
     }
 
     public function renderEdit()

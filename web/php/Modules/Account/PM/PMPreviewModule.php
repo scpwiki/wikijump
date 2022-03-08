@@ -5,8 +5,8 @@ namespace Wikidot\Modules\Account\PM;
 
 use Wikidot\Utils\AccountBaseModule;
 use Wikijump\Models\UserMessage;
+use Wikijump\Services\Deepwell\DeepwellService;
 use Wikijump\Services\Wikitext\ParseRenderMode;
-use Wikijump\Services\Wikitext\WikitextBackend;
 
 /**
  * AJAX module for previewing a PM
@@ -14,14 +14,13 @@ use Wikijump\Services\Wikitext\WikitextBackend;
  */
 class PMPreviewModule extends AccountBaseModule
 {
-
     /**
      * @param $runData
      */
     public function build($runData)
     {
-        $wt = WikitextBackend::make(ParseRenderMode::DIRECT_MESSAGE, null);
-        $body = $wt->renderHtml($runData->get('source'))->body;
+        $source = $runData->get('source');
+        $body = DeepwellService::getInstance()->renderHtml(ParseRenderMode::DIRECT_MESSAGE, $source, null);
 
         $message = new UserMessage(
             [
