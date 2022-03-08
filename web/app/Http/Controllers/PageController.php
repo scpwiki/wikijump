@@ -27,28 +27,15 @@ class PageController extends Controller
         $this->guard = $guard;
     }
 
-    /**
-     * @return null|int|string
-     */
-    private function resolvePagePath(Request $request)
-    {
-        $path_type = (string) $request->input('path_type');
-        $path = (string) $request->input('path');
-        if ($path_type !== 'slug' || $path_type !== 'id') {
-            return null;
-        }
-        return $path_type === 'slug' ? $path : (int) $path;
-    }
-
     private function resolvePageType(Request $request): ?array
     {
-        $page_type = (string) $request->input('type', 'none');
+        $output_type = (string) $request->query('type', 'none');
 
         $metadata = false;
         $wikitext = false;
         $html = false;
 
-        switch ($page_type) {
+        switch ($output_type) {
             case 'all':
                 $metadata = true;
                 $wikitext = true;
@@ -85,26 +72,14 @@ class PageController extends Controller
     }
 
     /**
-     * @param int|string $slug_or_id
-     * @param int|string $site_id
+     * @return Page|Response
      */
     private function resolvePage(
-        $slug_or_id,
-        $site_id,
+        string $path_type,
+        string $path,
         bool $wikitext = false,
         bool $html = false
-    ): ?Page {
-        $page = null;
-        if (typeof($slug_or_id) === 'string') {
-            $page = Page::findSlug($site_id, $slug_or_id, $wikitext, $html);
-        } else {
-            $page = Page::findId($site_id, $slug_or_id, $wikitext, $html);
-        }
-        return $page;
-    }
-
-    public function pageGet(Request $request)
-    {
+    ) {
         $site = LegacyTools::getCurrentSite();
         if ($site === null) {
             return apierror(404, APIError::SITE_NOT_FOUND);
@@ -112,27 +87,50 @@ class PageController extends Controller
 
         $site_id = $site->getSiteId();
 
-        $page_path = $this->resolvePagePath($request);
-        if ($page_path === null) {
+        $page = null;
+
+        if ($path_type === 'slug') {
+            $page = Page::findSlug($site_id, $path, $wikitext, $html);
+        } elseif ($path_type === 'id') {
+            $page = Page::findId($site_id, (int) $path, $wikitext, $html);
+        } else {
             return apierror(400, APIError::INVALID_PAGE_PATH);
         }
 
-        $page_type = $this->resolvePageType($request);
-        if ($page_type === null) {
-            return apierror(400, APIError::INVALID_PAGE_TYPE);
-        }
-
-        [$metadata, $wikitext, $html] = $page_type;
-
-        $page = $this->resolvePage($site_id, $page_path, $wikitext, $html);
         if ($page === null) {
             return apierror(404, APIError::PAGE_NOT_FOUND);
         }
 
+        return $page;
+    }
+
+    /**
+     * Gets a page.
+     * Endpoint: `GET:/page/{path_type}/{path}` | `pageGet`
+     */
+    public function pageGet(Request $request, string $path_type, string $path)
+    {
+        $output_type = $this->resolvePageType($request);
+        if ($output_type === null) {
+            return apierror(400, APIError::INVALID_PAGE_TYPE);
+        }
+
+        $page = $this->resolvePage(
+            $path_type,
+            $path,
+            $output_type['wikitext'],
+            $output_type['html'],
+        );
+
+        // api error was returned
+        if ($page instanceof Response) {
+            return $page;
+        }
+
         $output = [];
 
-        if ($metadata) {
-            array_merge($output, [
+        if ($output_type['metadata']) {
+            $output = array_merge($output, [
                 'id' => $page->id(),
                 'slug' => $page->slug,
                 'category' => $page->page_category_id,
@@ -149,14 +147,14 @@ class PageController extends Controller
             ]);
         }
 
-        if ($wikitext) {
-            array_merge($output, [
+        if ($output_type['wikitext']) {
+            $output = array_merge($output, [
                 'wikitext' => $page->wikitext,
             ]);
         }
 
-        if ($html) {
-            array_merge($output, [
+        if ($output_type['html']) {
+            $output = array_merge($output, [
                 'html' => $page->compiled_html,
             ]);
         }

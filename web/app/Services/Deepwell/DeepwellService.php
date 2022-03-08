@@ -11,8 +11,9 @@ use Illuminate\Support\Facades\Log;
 use Wikidot\Utils\GlobalProperties;
 use Wikijump\Services\Deepwell\Models\Category;
 use Wikijump\Services\Deepwell\Models\Page;
-use Wikijump\Services\Wikitext\ParseRenderMode;
 use Wikijump\Services\Deepwell\Models\User;
+use Wikijump\Services\Wikitext\PageInfo;
+use Wikijump\Services\Wikitext\ParseRenderMode;
 
 final class DeepwellService
 {
