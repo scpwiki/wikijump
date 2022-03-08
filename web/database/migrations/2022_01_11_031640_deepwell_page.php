@@ -189,10 +189,12 @@ class DeepwellPage extends Migration
         DB::statement('ALTER TABLE page_rate_vote ADD CONSTRAINT page_rate_vote_page_id_fkey FOREIGN KEY (page_id) REFERENCES page(page_id)');
         DB::statement('ALTER TABLE watched_page ADD CONSTRAINT watched_page_page_id_fkey FOREIGN KEY (page_id) REFERENCES page(page_id)');
 
+        // Set compatibility IDs
+        DB::statement('ALTER SEQUENCE page_page_id_seq              RESTART WITH 3000000000');
+        DB::statement('ALTER SEQUENCE page_revision_revision_id_seq RESTART WITH 3000000000');
+
         // Seed initial pages
-        Artisan::call('db:seed', [
-            '--class' => PageSeeder::class,
-        ]);
+        Artisan::call('db:seed', ['--class' => PageSeeder::class]);
     }
 
     /**

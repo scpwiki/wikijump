@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use Exception;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -526,163 +527,106 @@ EOF
 EOF
         );
 
-        DB::table('page_category')->insert([
-            // Main site (www)
-
-            // ID: 1
-            [
-                'created_at' => self::TIMESTAMP,
-                'site_id' => 1,
-                'slug' => '_default',
-            ],
-            // ID: 2
-            [
-                'created_at' => self::TIMESTAMP,
-                'site_id' => 1,
-                'slug' => 'admin',
-            ],
-            // ID: 3
-            [
-                'created_at' => self::TIMESTAMP,
-                'site_id' => 1,
-                'slug' => 'nav',
-            ],
-            // ID: 4
-            [
-                'created_at' => self::TIMESTAMP,
-                'site_id' => 1,
-                'slug' => 'platform',
-            ],
-            // ID: 5
-            [
-                'created_at' => self::TIMESTAMP,
-                'site_id' => 1,
-                'slug' => 'system',
-            ],
-            // ID: 6
-            [
-                'created_at' => self::TIMESTAMP,
-                'site_id' => 2,
-                'slug' => '_default',
-            ],
-
-            // Template site (template-en)
-
-            // ID: 7
-            [
-                'created_at' => self::TIMESTAMP,
-                'site_id' => 2,
-                'slug' => 'admin',
-            ],
-            // ID: 8
-            [
-                'created_at' => self::TIMESTAMP,
-                'site_id' => 2,
-                'slug' => 'nav',
-            ],
-            // ID: 9
-            [
-                'created_at' => self::TIMESTAMP,
-                'site_id' => 2,
-                'slug' => 'system',
-            ],
-        ]);
+        $www_site_id = 1;
+        $template_site_id = 2;
 
         // Main site (www)
-        $this->addPage(
-            1,
-            1,
-            1,
+        $www_default_category_id = $this->addCategory($www_site_id, '_default');
+        $www_admin_category_id = $this->addCategory($www_site_id, 'admin');
+        $www_nav_category_id = $this->addCategory($www_site_id, 'nav');
+        $www_platform_category_id = $this->addCategory($www_site_id, 'platform');
+        $www_system_category_id = $this->addCategory($www_site_id, 'system');
+
+        // Template site (template-en)
+        $template_default_category_id = $this->addCategory($template_site_id, '_default');
+        $template_admin_category_id = $this->addCategory($template_site_id, 'admin');
+        $template_nav_category_id = $this->addCategory($template_site_id, 'nav');
+        $template_system_category_id = $this->addCategory($template_site_id, 'system');
+
+        // Main site (www)
+        $www_start_page_id = $this->addPage(
+            $www_default_category_id,
+            $www_site_id,
             'start',
             'Welcome to your new Wikijump instance!',
             $www_start_wikitext_hash,
             $www_start_compiled_hash,
         );
-        $this->addPage(
-            2,
-            3,
-            1,
+        $www_nav_side_page_id = $this->addPage(
+            $www_nav_category_id,
+            $www_site_id,
             'nav:side',
             'Sidebar',
             $nav_side_wikitext_hash,
             $nav_side_compiled_hash,
         );
-        $this->addPage(
-            3,
-            3,
-            1,
+        $www_nav_top_page_id = $this->addPage(
+            $www_nav_category_id,
+            $www_site_id,
             'nav:top',
             'Topbar',
             $nav_top_wikitext_hash,
             $nav_top_compiled_hash,
         );
-        $this->addPage(
-            4,
-            4,
-            1,
+        $www_platform_activity_page_id = $this->addPage(
+            $www_platform_category_id,
+            $www_site_id,
             'platform:activity',
             'Wikijump: Activity across all sites',
             $platform_activity_wikitext_hash,
             $platform_activity_compiled_hash,
         );
-        $this->addPage(
-            5,
-            4,
-            1,
+        $www_platform_sites_page_id = $this->addPage(
+            $www_platform_category_id,
+            $www_site_id,
             'platform:sites',
             'Wikijump: List of all sites',
             $platform_sites_wikitext_hash,
             $platform_sites_compiled_hash,
         );
-        $this->addPage(
-            6,
-            4,
-            1,
+        $www_platform_search_page_id = $this->addPage(
+            $www_platform_category_id,
+            $www_site_id,
             'platform:search',
             'Wikijump: Search all sites',
             $platform_search_wikitext_hash,
             $platform_search_compiled_hash,
         );
-        $this->addPage(
-            7,
-            5,
-            1,
+        $www_system_join_page_id = $this->addPage(
+            $www_system_category_id,
+            $www_site_id,
             'system:join',
             'Join this site',
             $system_join_wikitext_hash,
             $system_join_compiled_hash,
         );
-        $this->addPage(
-            8,
-            5,
-            1,
+        $www_system_members_page_id = $this->addPage(
+            $www_system_category_id,
+            $www_site_id,
             'system:members',
             'Site Members',
             $system_members_wikitext_hash,
             $system_members_compiled_hash,
         );
-        $this->addPage(
-            9,
-            5,
-            1,
+        $www_system_recent_changes_page_id = $this->addPage(
+            $www_system_category_id,
+            $www_site_id,
             'system:recent-changes',
             'Recent Changes',
             $system_recent_changes_wikitext_hash,
             $system_recent_changes_compiled_hash,
         );
-        $this->addPage(
-            10,
-            5,
-            1,
+        $www_system_page_tags_page_id = $this->addPage(
+            $www_system_category_id,
+            $www_site_id,
             'system:page-tags',
             'Page Tags',
             $system_page_tags_wikitext_hash,
             $system_page_tags_compiled_hash,
         );
-        $this->addPage(
-            11,
-            2,
-            1,
+        $www_admin_manage_page_id = $this->addPage(
+            $www_admin_category_id,
+            $www_site_id,
             'admin:manage',
             'Site Manager',
             $admin_manage_wikitext_hash,
@@ -690,73 +634,65 @@ EOF
         );
 
         // Template site (template-en)
-        $this->addPage(
-            12,
-            6,
-            2,
+        $template_start_page_id = $this->addPage(
+            $template_default_category_id,
+            $template_site_id,
             'start',
             "You've just created a new Wikijump wiki!",
             $system_join_wikitext_hash,
             $system_join_compiled_hash,
         );
-        $this->addPage(
-            13,
-            8,
-            2,
+        $template_nav_side_page_id = $this->addPage(
+            $template_nav_category_id,
+            $template_site_id,
             'nav:side',
             'Sidebar',
             $nav_side_wikitext_hash,
             $nav_side_compiled_hash,
         );
-        $this->addPage(
-            14,
-            8,
-            2,
+        $template_nav_top_page_id = $this->addPage(
+            $template_nav_category_id,
+            $template_site_id,
             'nav:top',
             'Topbar',
             $nav_top_wikitext_hash,
             $nav_top_compiled_hash,
         );
-        $this->addPage(
-            15,
-            9,
-            2,
+        $template_system_join_page_id = $this->addPage(
+            $template_system_category_id,
+            $template_site_id,
             'system:join',
             'Join this site',
             $system_join_wikitext_hash,
             $system_join_compiled_hash,
         );
-        $this->addPage(
-            16,
-            9,
-            2,
+        $template_system_members_page_id = $this->addPage(
+            $template_system_category_id,
+            $template_site_id,
             'system:members',
             'Site Members',
             $system_members_wikitext_hash,
             $system_members_compiled_hash,
         );
-        $this->addPage(
-            17,
-            9,
-            2,
+        $template_system_recent_changes_page_id = $this->addPage(
+            $template_system_category_id,
+            $template_site_id,
             'system:recent-changes',
             'Recent Changes',
             $system_recent_changes_wikitext_hash,
             $system_recent_changes_compiled_hash,
         );
-        $this->addPage(
-            18,
-            9,
-            2,
+        $template_system_page_tags_page_id = $this->addPage(
+            $template_system_category_id,
+            $template_site_id,
             'system:page-tags',
             'Page Tags',
             $system_page_tags_wikitext_hash,
             $system_page_tags_compiled_hash,
         );
-        $this->addPage(
-            19,
-            7,
-            2,
+        $template_admin_manage_page_id = $this->addPage(
+            $template_admin_category_id,
+            $template_site_id,
             'admin:manage',
             'Site Manager',
             $admin_manage_wikitext_hash,
@@ -764,83 +700,63 @@ EOF
         );
 
         // Add links and connections
-        $this->addExternalLinks(
-            1, // www start
-            [
-                'https://github.com/scpwiki/wikijump/pulls' => 1,
-                'https://github.com/scpwiki/wikijump' => 1,
-                'https://github.com/scpwiki/wikijump/tree/legacy' => 1,
-                'https://scuttle.atlassian.net/browse/WJ' => 2,
-                'https://scuttle.atlassian.net/wiki/spaces/WD/overview' => 1,
-                'https://creativecommons.org/licenses/by-sa/4.0/' => 1,
-                'https://www.wikidot.com/' => 1,
-                'https://wikijump.org' => 1,
-                'https://scpwiki.com/forum/c-3335628/general-information' => 1,
-                'https://scpwiki.com/forum/c-3335630/feature-requests' => 1,
-            ],
-        );
-        $this->addExternalLinks(
-            12, // template-en start
-            [
-                'https://creativecommons.org/licenses/by-sa/4.0/' => 1,
-                'https://www.wikidot.com/' => 1,
-                'https://wikijump.org' => 1,
-                'https://scpwiki.com/forum/c-3335628/general-information' => 1,
-                'https://scpwiki.com/forum/c-3335630/feature-requests' => 1,
-            ],
-        );
-        $this->addExternalLinks(
-            3, // www nav:top
-            [
-                'https://wikijump.org' => 1,
-            ],
-        );
-        $this->addExternalLinks(
-            14, // www nav:top
-            [
-                'https://wikijump.org' => 1,
-            ],
-        );
+        $this->addExternalLinks($www_start_page_id, [
+            'https://github.com/scpwiki/wikijump/pulls' => 1,
+            'https://github.com/scpwiki/wikijump' => 1,
+            'https://github.com/scpwiki/wikijump/tree/legacy' => 1,
+            'https://scuttle.atlassian.net/browse/WJ' => 2,
+            'https://scuttle.atlassian.net/wiki/spaces/WD/overview' => 1,
+            'https://creativecommons.org/licenses/by-sa/4.0/' => 1,
+            'https://www.wikidot.com/' => 1,
+            'https://wikijump.org' => 1,
+            'https://scpwiki.com/forum/c-3335628/general-information' => 1,
+            'https://scpwiki.com/forum/c-3335630/feature-requests' => 1,
+        ]);
+        $this->addExternalLinks($template_start_page_id, [
+            'https://creativecommons.org/licenses/by-sa/4.0/' => 1,
+            'https://www.wikidot.com/' => 1,
+            'https://wikijump.org' => 1,
+            'https://scpwiki.com/forum/c-3335628/general-information' => 1,
+            'https://scpwiki.com/forum/c-3335630/feature-requests' => 1,
+        ]);
+        $this->addExternalLinks($www_nav_top_page_id, [
+            'https://wikijump.org' => 1,
+        ]);
+        $this->addExternalLinks($template_nav_top_page_id, [
+            'https://wikijump.org' => 1,
+        ]);
 
         // NOTE: format is [from_page_id, to_page_id, count]
-
         $this->addInternalLinks([
-            // www start
-            [1, 11, 2], // admin:manage
-            [1, 2, 1], // nav:side
-            [1, 3, 1], // nav:top
+            [$www_start_page_id, $www_admin_manage_page_id, 2],
+            [$www_start_page_id, $www_nav_side_page_id, 1],
+            [$www_start_page_id, $www_nav_top_page_id, 1],
 
-            // template start
-            [12, 19, 2], // admin:manage
-            [12, 13, 1], // nav:side
-            [12, 14, 1], // nav:top
+            [$template_start_page_id, $template_admin_manage_page_id, 2],
+            [$template_start_page_id, $template_nav_side_page_id, 1],
+            [$template_start_page_id, $template_nav_top_page_id, 1],
 
-            // both system:join
-            [7, 11, 1], // admin:manage
-            [15, 11, 1],
+            [$www_system_join_page_id, $www_admin_manage_page_id, 1],
+            [$template_system_join_page_id, $template_admin_manage_page_id, 1],
 
-            // both nav:side
-            [2, 1, 1], // start
-            [2, 4, 1], // platform:activity
-            [2, 5, 1], // platform:sites
-            [2, 6, 1], // platform:search
-            [2, 7, 1], // system:join
-            [2, 8, 1], // system:members
-            [2, 9, 1], // system:recent-changes
-            [2, 10, 1], // system:page-tags
-            [2, 11, 1], // admin:manage
-            [2, 2, 1], // self
+            [$www_nav_side_page_id, $www_start_page_id, 1],
+            [$www_nav_side_page_id, $www_platform_activity_page_id, 1],
+            [$www_nav_side_page_id, $www_platform_sites_page_id, 1],
+            [$www_nav_side_page_id, $www_platform_search_page_id, 1],
+            [$www_nav_side_page_id, $www_system_join_page_id, 1],
+            [$www_nav_side_page_id, $www_system_members_page_id, 1],
+            [$www_nav_side_page_id, $www_system_recent_changes_page_id, 1],
+            [$www_nav_side_page_id, $www_system_page_tags_page_id, 1],
+            [$www_nav_side_page_id, $www_admin_manage_page_id, 1],
+            [$www_nav_side_page_id, $www_nav_side_page_id, 1],
 
-            [13, 12, 1], // start
-            [13, 4, 1], // platform:activity
-            [13, 5, 1], // platform:sites
-            [13, 6, 1], // platform:search
-            [13, 15, 1], // system:join
-            [13, 16, 1], // system:members
-            [13, 17, 1], // system:recent-changes
-            [13, 18, 1], // system:page-tags
-            [13, 19, 1], // admin:manage
-            [13, 13, 1], // self
+            [$template_nav_side_page_id, $template_start_page_id, 1],
+            [$template_nav_side_page_id, $template_system_join_page_id, 1],
+            [$template_nav_side_page_id, $template_system_members_page_id, 1],
+            [$template_nav_side_page_id, $template_system_recent_changes_page_id, 1],
+            [$template_nav_side_page_id, $template_system_page_tags_page_id, 1],
+            [$template_nav_side_page_id, $template_admin_manage_page_id, 1],
+            [$template_nav_side_page_id, $template_nav_side_page_id, 1],
         ]);
     }
 
@@ -868,8 +784,33 @@ EOF
         return $hash;
     }
 
+    private function addCategory(int $site_id, string $slug): int
+    {
+        // Add page category
+        $category = DB::selectOne(
+            "INSERT INTO page_category (
+                created_at,
+                site_id,
+                slug
+            ) VALUES (
+                ?,
+                ?,
+                ?
+            ) RETURNING category_id",
+            [self::TIMESTAMP, $site_id, $slug],
+        );
+
+        $category_id = $category->category_id;
+        if (!is_integer($category_id)) {
+            throw new Exception(
+                "Returned category ID from insert not an integer: $category_id",
+            );
+        }
+
+        return $category_id;
+    }
+
     private function addPage(
-        int $page_id,
         int $category_id,
         int $site_id,
         string $slug,
@@ -877,12 +818,9 @@ EOF
         string $wikitext_hash,
         string $compiled_hash,
         int $revision_number = 0
-    ): void {
-        // NOTE: Assumes the $page_id passed in is the
-        //       next one generated when inserting into page.
-
+    ): int {
         // Add page
-        DB::insert(
+        $page = DB::selectOne(
             "INSERT INTO page (
                 created_at,
                 site_id,
@@ -893,9 +831,14 @@ EOF
                 ?,
                 ?,
                 ?
-            )",
+            ) RETURNING page_id",
             [self::TIMESTAMP, $site_id, $category_id, $slug],
         );
+
+        $page_id = $page->page_id;
+        if (!is_integer($page_id)) {
+            throw new Exception("Returned page ID from insert not an integer: $page_id");
+        }
 
         // Add revision
         DB::insert(
@@ -944,6 +887,8 @@ EOF
                 $slug,
             ],
         );
+
+        return $page_id;
     }
 
     private function addExternalLinks(int $page_id, array $urls): void
@@ -954,7 +899,9 @@ EOF
             // If this happens, the structure of the array is incorrect
             // For instance, they may have forgotten the count value.
             if (!is_string($url) || !is_integer($count)) {
-                throw new Error("Invalid external link data: url $url, count: $count");
+                throw new Exception(
+                    "Invalid external link data: url $url, count: $count",
+                );
             }
 
             $rows[] = [
@@ -974,6 +921,15 @@ EOF
 
         foreach ($connections as $connection) {
             [$from_page_id, $to_page_id, $count] = $connection;
+            if ($from_page_id === null || $to_page_id === null || $count === null) {
+                $from_display = var_export($from_page_id, true);
+                $to_display = var_export($to_page_id, true);
+                $count_display = var_export($count, true);
+
+                throw new Exception(
+                    "Invalid internal link data, from_page_id $from_display, to_page_id $to_display, count $count_display",
+                );
+            }
 
             $rows[] = [
                 'from_page_id' => $from_page_id,

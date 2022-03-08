@@ -43,9 +43,12 @@ class CreateUsersTable extends Migration
             $table->softDeletes();
         });
 
-        Artisan::call('db:seed', [
-            '--class' => UserSeeder::class,
-        ]);
+        // Seed initial users
+        Artisan::call('db:seed', ['--class' => UserSeeder::class]);
+
+        // Set compatibility IDs
+        // The initial users should have early IDs due to their special status.
+        DB::statement('ALTER SEQUENCE users_id_seq RESTART WITH 10000000');
     }
 
     /**
