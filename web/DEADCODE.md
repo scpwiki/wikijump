@@ -273,3 +273,9 @@ If possible, add to this log in the same commit in which the code is removed.
 * Relevant Issues: [WJ-245](https://scuttle.atlassian.net/browse/WJ-245)
 * What it did: Allow for "quick" querying, such as for autocomplete in text boxes.
 * Why it was removed: Poorly implemented, not performant, and exposed potential security issues through poor sanitization and ratelimiting.
+
+## PHP: Text\_Wiki
+* Where it was: [web/lib/text\_wiki](https://github.com/scpwiki/wikijump/tree/f618591b3e51dd02738b01accd8ca5c7e78fce9c/web/lib/text_wiki), [web/php/Utils/WikiTransformation.php](https://github.com/scpwiki/wikijump/blob/f618591b3e51dd02738b01accd8ca5c7e78fce9c/web/php/Utils/WikiTransformation.php), other places
+* Relevant Issues: [WJ-997](https://scuttle.atlassian.net/browse/WJ-997)
+* What it did: Wikidot's legacy parser and renderer library.
+* Why it was removed: DEEPWELL can invoke ftml directly for parsing and rendering, and with its increasing prominence as it develops, this legacy renderer is no longer needed or used by the code.
