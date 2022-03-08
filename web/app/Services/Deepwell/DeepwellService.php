@@ -70,8 +70,11 @@ final class DeepwellService
     }
 
     // Rendering
-    public function renderHtml(ParseRenderMode $mode, string $wikitext, ?PageInfo $page_info): string
-    {
+    public function renderHtml(
+        ParseRenderMode $mode,
+        string $wikitext,
+        ?PageInfo $page_info
+    ): string {
         // TODO stub
         return "!! TODO !! $wikitext";
     }
