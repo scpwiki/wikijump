@@ -6,7 +6,6 @@ FROM php:7.4-fpm-buster AS php
 
 # Build variables
 ARG ENVIRONMENT="dev"
-ARG DEBUG_IP="192.168.42.128"
 
 ARG MAIN_DOMAIN="wikijump.localhost"
 ARG FILES_DOMAIN="wjfiles.localhost"
