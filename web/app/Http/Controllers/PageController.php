@@ -11,6 +11,7 @@ use Illuminate\Http\Response;
 use Wikijump\Common\APIError;
 use Wikijump\Helpers\LegacyTools;
 use Wikijump\Services\Deepwell\Models\Page;
+use Wikijump\Services\Deepwell\Models\User;
 use Wikijump\Services\License\License;
 use Wikijump\Services\License\LicenseMapping;
 
@@ -130,8 +131,19 @@ class PageController extends Controller
         $output = [];
 
         if ($output_type['metadata']) {
+            $avatars = (bool) $request->query('avatars', false);
+
+            // TODO: get creator through earliest revision
+            // (unless we implement the authors field first)
+
+            $updater = User::findId($page->revision_user_id);
+
+            if ($updater !== null) {
+                $updater = $updater->toApiArray($avatars);
+            }
+
             $output = array_merge($output, [
-                'id' => $page->id(),
+                'id' => $page->id,
                 'slug' => $page->slug,
                 'category' => $page->page_category_id,
                 'parent' => null, // TODO
@@ -142,8 +154,8 @@ class PageController extends Controller
                 'score' => 0, // TODO
                 'created' => $page->page_created_at,
                 'creator' => null, // TODO
-                'updated' => $page->page_updated_at,
-                'updater' => null, // TODO
+                'updated' => $page->lastUpdated(),
+                'updater' => $updater,
             ]);
         }
 
