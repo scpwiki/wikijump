@@ -9,8 +9,10 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
 use Wikidot\Utils\GlobalProperties;
+use Wikijump\Services\Deepwell\Models\Category;
 use Wikijump\Services\Deepwell\Models\Page;
 use Wikijump\Services\Wikitext\ParseRenderMode;
+use Wikijump\Services\Deepwell\Models\User;
 
 final class DeepwellService
 {
@@ -210,7 +212,7 @@ final class DeepwellService
      * @param string|int $page_id
      * @throws GuzzleException
      */
-    public function getLinksTo($site_id, $page_id): array
+    public function getLinksTo($site_id, $page_id): object
     {
         $resp = $this->client->get("page/$site_id/id/$page_id/links/to");
         return self::readJson($resp);
@@ -220,7 +222,7 @@ final class DeepwellService
      * @param string|int $site_id
      * @throws GuzzleException
      */
-    public function getLinksToMissing($site_id, string $page_slug): array
+    public function getLinksToMissing($site_id, string $page_slug): object
     {
         $resp = $this->client->get("page/$site_id/slug/$page_slug/links/to/missing");
         return self::readJson($resp);
@@ -251,11 +253,11 @@ final class DeepwellService
                 'query' => ['detail' => $detail],
             ]);
 
-            return $this->parseUser($resp);
+            return $this->parseUser($resp, $detail);
         }, "No user found with ID $id");
     }
 
-    public function getUserBySlug(string $slug, string $detail = 'string'): ?User
+    public function getUserBySlug(string $slug, string $detail = 'identity'): ?User
     {
         return self::fetchOrNull(function () use ($slug, $detail) {
             $resp = $this->client->get("user/id/$slug", [

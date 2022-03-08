@@ -3,8 +3,10 @@ declare(strict_types=1);
 
 namespace Wikijump\Services\Deepwell\Models;
 
-use Exception;
 use Wikijump\Services\Deepwell\DeepwellService;
+use Wikijump\Services\Deepwell\UserDetail;
+use Wikijump\Services\Deepwell\UserInfo;
+use Wikijump\Services\Deepwell\UserProfile;
 
 class User extends DeepwellModel
 {
