@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use Exception;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -568,7 +569,7 @@ EOF
             $nav_top_compiled_hash,
         );
         $www_platform_activity_page_id = $this->addPage(
-            $www_platform_category_id,,
+            $www_platform_category_id,
             $www_site_id,
             'platform:activity',
             'Wikijump: Activity across all sites',
@@ -762,9 +763,6 @@ EOF
             [$www_nav_side_page_id, $www_nav_side_page_id, 1],
 
             [$template_nav_side_page_id, $template_start_page_id, 1],
-            [$template_nav_side_page_id, $template_platform_activity_page_id, 1],
-            [$template_nav_side_page_id, $template_platform_sites_page_id, 1],
-            [$template_nav_side_page_id, $template_platform_search_page_id, 1],
             [$template_nav_side_page_id, $template_system_join_page_id, 1],
             [$template_nav_side_page_id, $template_system_members_page_id, 1],
             [$template_nav_side_page_id, $template_system_recent_changes_page_id, 1],
@@ -811,8 +809,14 @@ EOF
                 ?
             ) RETURNING category_id",
             [self::TIMESTAMP, $site_id, $slug],
+        );
 
-        return $category->category_id;
+        $category_id = $category->category_id;
+        if (!is_integer($category_id)) {
+            throw new Exception("Returned category ID from insert not an integer: $category_id");
+        }
+
+        return $category_id;
     }
 
     private function addPage(
@@ -839,6 +843,11 @@ EOF
             ) RETURNING page_id",
             [self::TIMESTAMP, $site_id, $category_id, $slug],
         );
+
+        $page_id = $page->page_id;
+        if (!is_integer($page_id)) {
+            throw new Exception("Returned page ID from insert not an integer: $page_id");
+        }
 
         // Add revision
         DB::insert(
@@ -888,7 +897,7 @@ EOF
             ],
         );
 
-        return $page->page_id;
+        return $page_id;
     }
 
     private function addExternalLinks(int $page_id, array $urls): void
@@ -899,7 +908,7 @@ EOF
             // If this happens, the structure of the array is incorrect
             // For instance, they may have forgotten the count value.
             if (!is_string($url) || !is_integer($count)) {
-                throw new Error("Invalid external link data: url $url, count: $count");
+                throw new Exception("Invalid external link data: url $url, count: $count");
             }
 
             $rows[] = [
@@ -919,6 +928,13 @@ EOF
 
         foreach ($connections as $connection) {
             [$from_page_id, $to_page_id, $count] = $connection;
+            if ($from_page_id === null || $to_page_id === null || $count === null) {
+                $from_display = var_export($from_page_id, true);
+                $to_display = var_export($to_page_id, true);
+                $count_display = var_export($count, true);
+
+                throw new Exception("Invalid internal link data, from_page_id $from_display, to_page_id $to_display, count $count_display");
+            }
 
             $rows[] = [
                 'from_page_id' => $from_page_id,
