@@ -18,10 +18,7 @@ name = "ftml"
 crate-type = ["cdylib", "lib"]
 
 [features]
-default  = ["ffi", "mathml"]
-# If removed, then FFI integrations are not included in the crate.
-# This feature does not build even if included if the target is "wasm32".
-ffi      = ["parking_lot", "slog-bunyan"]
+default  = ["mathml"]
 # Adds LaTeX -> MathML support for rendering.
 mathml   = ["latex2mathml"]
 
