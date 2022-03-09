@@ -161,15 +161,11 @@ class PageController extends Controller
         }
 
         if ($output_type['wikitext']) {
-            $output = array_merge($output, [
-                'wikitext' => $page->wikitext,
-            ]);
+            $output['wikitext'] = $page->wikitext;
         }
 
         if ($output_type['html']) {
-            $output = array_merge($output, [
-                'html' => $page->compiled_html,
-            ]);
+            $output['html'] = $page->compiled_html;
         }
 
         return new Response($output, 200);
