@@ -8,6 +8,11 @@
 ftml                                @ammongit
 web/app/Services/Wikitext           @ammongit
 
+# The DEEPWELL replacement API service
+.github/workflows/deepwell.yaml     @ammongit
+deepwell                            @ammongit
+web/app/Services/Deepwell           @ammongit
+
 # Frontend monorepo
 .github/workflows/client.yaml       @Monkatraz @rossjrw
 web/modules                         @Monkatraz @rossjrw
