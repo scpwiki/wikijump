@@ -197,7 +197,7 @@ class PageController extends Controller
         $site_id = $site->getSiteId();
 
         $page = Page::findSlug($site_id, $slug, false, true);
-        if ($page === null || $page->page_deleted_at !== null) {
+        if ($page === null) {
             abort(404);
         }
 
