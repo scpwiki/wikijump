@@ -167,6 +167,7 @@ export interface Page {
     parent: Slug | null;
     children: Slug[];
     title: string;
+    altTitle: string | null;
     tags: TagList;
     score: number;
     revision: number;

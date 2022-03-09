@@ -662,7 +662,7 @@ async pageCreate(pageCreateOptions: PageCreateOptions, options?: RequestOptions)
  * Gets a page.
  */
 async pageGet(path_type: "id" | "slug", path: Slug | Reference, { type, avatars }: {
-    "type"?: "all" | "metadata-html" | "metadata" | "wikitext" | "html" | "syntaxtree" | "none";
+    "type"?: "all" | "metadata" | "metadata-html" | "metadata-wikitext" | "wikitext" | "html" | "none";
     avatars?: boolean;
 } = {}, options?: RequestOptions): Promise<PageGetResponse> {
     return await _.unwrap(http.fetchJson(`/page/${path_type}/${path}${QS.query(QS.form({
@@ -731,7 +731,7 @@ async revisionPageGetHistory(path_type: "id" | "slug", path: Slug | Reference, {
  * Gets the page corresponding to a revision.
  */
 async revisionGet(path_type: "id" | "slug", path: Slug | Reference, revision: Reference, { type, avatars }: {
-    "type"?: "all" | "metadata-html" | "metadata" | "wikitext" | "html" | "syntaxtree" | "none";
+    "type"?: "all" | "metadata" | "metadata-html" | "metadata-wikitext" | "wikitext" | "html" | "none";
     avatars?: boolean;
 } = {}, options?: RequestOptions): Promise<RevisionGetResponse> {
     return await _.unwrap(http.fetchJson(`/page/${path_type}/${path}/revision/${revision}${QS.query(QS.form({
