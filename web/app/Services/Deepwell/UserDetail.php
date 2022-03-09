@@ -23,11 +23,11 @@ final class UserDetail extends Enum
     public static function getOrder(string $value): int
     {
         switch ($value) {
-            case IDENTITY:
+            case static::IDENTITY:
                 return 0;
-            case INFO:
+            case static::INFO:
                 return 1;
-            case PROFILE:
+            case static::PROFILE:
                 return 2;
             default:
                 throw new Exception("Invalid UserDetails enum value: $value");

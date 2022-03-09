@@ -55,21 +55,21 @@ class UserController extends Controller
         return $this->guard->user();
     }
 
-    private function data(Request $request, User $user): object
+    private function data(Request $request, User $user): ?array
     {
         $detail = (string) $request->query('detail', 'identity');
         $avatars = (bool) $request->query('avatars', true);
 
-        $obj = DeepwellService::getInstance()->getUserById($user->id, $detail);
+        $user = DeepwellService::getInstance()->getUserById($user->id, $detail);
 
-        if (!$avatars) {
-            $obj->tinyavatar = null;
+        if ($user === null) {
+            return null;
         }
 
-        return $obj;
+        return $user->toApiArray($avatars);
     }
 
-    private function clientData(Request $request): ?object
+    private function clientData(Request $request): ?array
     {
         $client = $this->resolveClient();
 
@@ -80,7 +80,7 @@ class UserController extends Controller
         return $this->data($request, $client);
     }
 
-    private function userData(Request $request): ?object
+    private function userData(Request $request): ?array
     {
         $user = $this->resolveUser($request);
 
@@ -120,13 +120,13 @@ class UserController extends Controller
      */
     public function clientGet(Request $request): Response
     {
-        $obj = $this->clientData($request);
+        $data = $this->clientData($request);
 
-        if (!$obj) {
+        if (!$data) {
             return apierror(404, APIError::UNKNOWN_USER);
         }
 
-        return new Response(json_encode($obj), 200);
+        return new Response($data, 200);
     }
 
     /**
@@ -229,13 +229,13 @@ class UserController extends Controller
      */
     public function get(Request $request): Response
     {
-        $obj = $this->userData($request);
+        $data = $this->userData($request);
 
-        if (!$obj) {
+        if (!$data) {
             return apierror(404, APIError::UNKNOWN_USER);
         }
 
-        return new Response(json_encode($obj), 200);
+        return new Response($data, 200);
     }
 
     /**

@@ -3,17 +3,19 @@ declare(strict_types=1);
 
 namespace Wikijump\Services\Deepwell\Models;
 
-use Exception;
 use Wikijump\Services\Deepwell\DeepwellService;
+use Wikijump\Services\Deepwell\UserDetail;
+use Wikijump\Services\Deepwell\UserInfo;
+use Wikijump\Services\Deepwell\UserProfile;
 
 class User extends DeepwellModel
 {
     // Fields and constructor
-    private string $detail;
-    private int $id;
-    private string $username;
-    private string $tiny_avatar;
-    private int $karma;
+    public string $detail;
+    public int $id;
+    public string $username;
+    public ?string $tiny_avatar;
+    public int $karma;
     public ?UserInfo $info;
     public ?UserProfile $profile;
 
@@ -54,5 +56,39 @@ class User extends DeepwellModel
     public function id(): int
     {
         return $this->id;
+    }
+
+    // API utility methods
+    public function toApiArray(bool $avatars = true): array
+    {
+        $output = [
+            'id' => $this->id,
+            'username' => $this->username,
+            'tinyavatar' => $avatars ? $this->tiny_avatar : null,
+            'karma' => $this->karma,
+            'role' => 'registered', // TODO
+        ];
+
+        if ($this->info) {
+            $output = array_merge($output, [
+                'about' => $this->info->about,
+                'avatar' => $this->info->avatar,
+                'signature' => $this->info->signature,
+                'since' => $this->info->since,
+                'lastActive' => $this->info->last_active,
+            ]);
+        }
+
+        if ($this->profile) {
+            $output = array_merge($output, [
+                'realname' => $this->profile->real_name,
+                'pronouns' => $this->profile->pronouns,
+                'birthday' => $this->profile->birthday,
+                'location' => $this->profile->location,
+                'links' => $this->profile->links,
+            ]);
+        }
+
+        return $output;
     }
 }

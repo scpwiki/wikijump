@@ -65,21 +65,9 @@ final class LegacyTools
         return $id === User::ANONYMOUS_USER || $id === User::AUTOMATIC_USER;
     }
 
-    /**
-     * Bootstrap a runData instance and generate the needed vars to give to a blade template.
-     * @return array|string
-     * @throws \Wikidot\Utils\ProcessException
-     */
-    public static function generateScreenVars()
+    /** Returns the current site. */
+    public static function getCurrentSite(): ?Site
     {
-        /**
-         * Create a RunData instance.
-         */
-        $runData = new RunData();
-        $runData->init();
-        Ozone::setRunData($runData);
-        Log::debug('runData object created and initialized in LegacyTools::generateScreenVars()');
-
         /**
          * Determine if the host we received the connection on has a site associated with it.
          */
@@ -115,6 +103,26 @@ final class LegacyTools
                 exit();
             }
         }
+
+        return $site;
+    }
+
+    /**
+     * Bootstrap a runData instance and generate the needed vars to give to a blade template.
+     * @return array|string
+     * @throws \Wikidot\Utils\ProcessException
+     */
+    public static function generateScreenVars()
+    {
+        /**
+         * Create a RunData instance.
+         */
+        $runData = new RunData();
+        $runData->init();
+        Ozone::setRunData($runData);
+        Log::debug('runData object created and initialized in LegacyTools::generateScreenVars()');
+
+        $site = static::getCurrentSite();
 
         if ($site === null) {
             // echo file_get_contents(WIKIJUMP_ROOT."/resources/views/site_not_exists.html");
