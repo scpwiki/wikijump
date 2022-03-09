@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Wikijump\Common\APIError;
 use Wikijump\Helpers\LegacyTools;
+use Wikijump\Services\Deepwell\Models\Category;
 use Wikijump\Services\Deepwell\Models\Page;
 use Wikijump\Services\Deepwell\Models\User;
 use Wikijump\Services\License\License;
@@ -175,11 +176,33 @@ class PageController extends Controller
     }
 
     /** Returns a `view` for the current page. */
-    public function show(): View
+    public function show(?string $path = null): View
     {
-        $values = LegacyTools::generateScreenVars();
+        // TODO: description, image, twitter, etc.
+        // TODO: site theming
+        // TODO: favicons
+        // TODO: header image/text + subtitle management
+        // TODO: navbar items
+        // TODO: private sites
+        // TODO: page queries, like ?noredirect=true
+        // TODO: breadcrumbs
+
+        $site = LegacyTools::getCurrentSite();
+        if ($site === null) {
+            abort(404);
+        }
+
+        $slug = LegacyTools::redirectToNormalUrl($site, $path ?? '', '');
+
+        $site_id = $site->getSiteId();
+
+        $page = Page::findSlug($site_id, $slug, false, true);
+        if ($page === null || $page->page_deleted_at !== null) {
+            abort(404);
+        }
 
         $title = null;
+        $alt_title = null;
         $license = null;
         $social_title = null;
         $sidebar_content = null;
@@ -191,45 +214,29 @@ class PageController extends Controller
         $timestamp = null;
         $tags = null;
 
-        if ($values['site']) {
-            $title = $values['site']->getName();
+        $title = $site->getName();
+
+        // TODO: this doesn't seem elegant?
+        $sidebar_page = Page::findSlug($site_id, 'nav:side', false, true);
+        if ($sidebar_page !== null) {
+            $sidebar_content = $sidebar_page->compiled_html;
         }
 
-        if ($values['wikiPage']) {
-            $page = $values['wikiPage'];
+        $page_content = $page->compiled_html;
+        $tags = $page->tags;
+        $revision = $page->revision_number;
+        $timestamp = $page->lastUpdated()->getTimestamp();
+        $title = $page->title;
+        $alt_title = $page->alt_title;
+        $social_title = $title;
 
-            $sidebar_content = $values['sideBar1Content'] ?? null;
-            $page_content = $values['pageContent'] ?? null;
-            $tags = $values['tags'] ?? null;
-            $revision = $page->revision_number;
-            $timestamp = $page->lastUpdated()->getTimestamp();
-            $title = $page->title;
+        $category_data = Category::findIdOnly($page->page_category_id);
+        if ($category_data !== null) {
+            $category = $category_data->slug;
             $license = LicenseMapping::get('cc_by_sa_3'); // TODO hardcoded
-            $social_title = $title;
-
-            // this should always be there, but just in case...
-            if ($values['category']) {
-                $category = $values['category']->getName();
-            }
-
-            if ($values['breadcrumbs']) {
-                $breadcrumbs = [];
-                foreach ($values['breadcrumbs'] as $breadcrumb) {
-                    $breadcrumbs[] = [
-                        'title' => $breadcrumb->getTitleOrUnixName(),
-                        'slug' => $breadcrumb->getUnixName(),
-                    ];
-                }
-            }
         }
 
         return view('next.wiki.page', [
-            // TODO: description, image, twitter, etc.
-            // TODO: site theming
-            // TODO: favicons
-            // TODO: header image/text + subtitle management
-            // TODO: navbar items
-
             'title' => $title,
             'license' => $license,
 
@@ -241,6 +248,7 @@ class PageController extends Controller
             'page_content' => $page_content,
             'page_category' => $category,
             'page_title' => $title,
+            'page_alt_title' => $alt_title,
             'page_breadcrumbs' => $breadcrumbs,
             'page_revision' => $revision,
             'page_last_edit_timestamp' => $timestamp,

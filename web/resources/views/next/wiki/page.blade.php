@@ -11,6 +11,7 @@
     data:
         $page_category
         $page_title
+        $page_alt_title
         $page_breadcrumbs
         $page_content (UNESCAPED)
         $page_revision
@@ -40,6 +41,9 @@
     <article id="page">
         @isset($page_title)
             <h1 id="page_title">{{ $page_title }}</h1>
+            @isset($page_alt_title)
+                <h2 id="page_alt_title">{{ $page_alt_title }}</h2>
+            @endisset
             <hr>
         @endisset
 
@@ -61,11 +65,6 @@
             </div>
         @endif
 
-        {{-- TODO: proper 404 page --}}
-        {{--
-            Wikidot handles missing pages basically by showing hardcoded content
-            in the $page_content variable. That is stupid.
-        --}}
         <div id="page_content">
             {!! $page_content !!}
         </div>

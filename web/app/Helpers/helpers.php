@@ -65,3 +65,11 @@ function apierror(int $status, string $error): Response
 {
     return APIError::makeResponse($status, $error);
 }
+
+/** Global debug logging function. Prevents the need to import the `Log` facade.
+ * @param mixed $data
+ */
+function logdebug($data)
+{
+    Log::debug(json_encode($data));
+}
