@@ -155,7 +155,7 @@ class PageController extends Controller
                 'score' => 0, // TODO
                 'created' => $page->page_created_at,
                 'creator' => null, // TODO
-                'updated' => $page->lastUpdated(),
+                'updated' => $page->revision_created_at,
                 'updater' => $updater,
             ]);
         }
