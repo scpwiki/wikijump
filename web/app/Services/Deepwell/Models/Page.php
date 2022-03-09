@@ -72,7 +72,7 @@ class Page extends DeepwellModel
     ): ?Page {
         // NOTE: We cast arbitrary input to int, since Wikidot uses strings for IDs in most places
         return DeepwellService::getInstance()->getPageBySlug(
-            intval($site_id),
+            (int) $site_id,
             $page_slug,
             $wikitext,
             $compiledHtml,
@@ -87,7 +87,7 @@ class Page extends DeepwellModel
     ): ?Page {
         // NOTE: We cast arbitrary input to int, since Wikidot uses strings for IDs in most places
         return DeepwellService::getInstance()->getPageById(
-            intval($site_id),
+            (int) $site_id,
             $page_id,
             $wikitext,
             $compiledHtml,
@@ -109,7 +109,7 @@ class Page extends DeepwellModel
     public static function findIdOnly($page_id): ?Page
     {
         // NOTE: We cast arbitrary input to int, since Wikidot uses strings for IDs in most places
-        return DeepwellService::getInstance()->getPageByIdOnly(intval($page_id));
+        return DeepwellService::getInstance()->getPageByIdOnly((int) $page_id);
     }
 
     // Getters
