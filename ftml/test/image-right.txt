@@ -1,1 +1,1 @@
-Image: https://test.wjfiles.com/local--files/page-image-right/landscape.png [Align: right]
+https://test.wjfiles.com/local--files/page-image-right/landscape.png

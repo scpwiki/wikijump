@@ -1,4 +1,4 @@
-A[Equation: alpha], B[Equation: beta]
+A[alpha], B[beta]
 
-C[Equation: omega]
+C[omega]
 D
