@@ -16,7 +16,10 @@ ARG WWW_DOMAIN="www.${MAIN_DOMAIN}"
 
 # Copy setup scripts
 RUN mkdir /src
-COPY ./install/files/php-fpm/setup*.sh /src/
+COPY ./install/files/php-fpm/*.sh /src/
+
+# Ensure PHP integer width is correct
+RUN /src/check-php-int.sh
 
 # Install system dependencies
 RUN /src/setup-system.sh
