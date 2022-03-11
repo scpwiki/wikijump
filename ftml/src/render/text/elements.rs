@@ -174,35 +174,27 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
         Element::Image {
             source,
             link,
-            alignment,
             attributes,
+            ..
         } => {
             let source_url =
                 ctx.handle()
                     .get_image_link(source, ctx.info(), ctx.settings());
 
-            match source_url {
-                Some(url) => {
-                    str_write!(ctx, "Image: {url}");
+            if let Some(url) = source_url {
+                ctx.push_str(&url);
 
-                    if let Some(image) = alignment {
-                        let float = if image.float { " float" } else { "" };
-                        str_write!(ctx, " [Align: {}{}]", image.align.name(), float);
-                    }
-
-                    if let Some(link) = link {
-                        str_write!(ctx, " [Link: {}]", get_url_from_link(ctx, link));
-                    }
-
-                    if let Some(alt_text) = attributes.get().get("alt") {
-                        str_write!(ctx, " [Alt: {alt_text}]");
-                    }
-
-                    if let Some(title) = attributes.get().get("title") {
-                        str_write!(ctx, " [Title: {title}]");
-                    }
+                if let Some(link) = link {
+                    ctx.push_str(&get_url_from_link(ctx, link));
                 }
-                None => str_write!(ctx, "Missing Image"),
+
+                if let Some(alt_text) = attributes.get().get("alt") {
+                    ctx.push_str(alt_text);
+                }
+
+                if let Some(title) = attributes.get().get("title") {
+                    ctx.push_str(title);
+                }
             }
         }
         Element::List { ltype, items, .. } => {
@@ -389,7 +381,7 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
             str_write!(ctx, "[[$ {latex_source} $]]");
         }
         Element::EquationReference(name) => {
-            str_write!(ctx, "[Equation: {name}]");
+            str_write!(ctx, "[{name}]");
         }
         Element::Embed(embed) => {
             ctx.push_str(&embed.direct_url());
@@ -397,7 +389,7 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
         Element::Html { contents } => {
             str_write!(ctx, "```html\n{contents}\n```");
         }
-        Element::Iframe { url, .. } => str_write!(ctx, "[iframe: {url}]"),
+        Element::Iframe { url, .. } => str_write!(ctx, "[{url}]"),
         Element::Include {
             variables,
             elements,
