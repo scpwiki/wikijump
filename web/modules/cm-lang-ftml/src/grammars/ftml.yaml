@@ -712,6 +712,11 @@ repository:
 
   # blocks
 
+  BlockCompletelyEmpty:
+    chain:
+      - BlockStart
+      - BlockEnd
+
   BlockNodeMap:
     emit: BlockNode
     indent: delimited(]])
@@ -972,6 +977,7 @@ includes:
   blocks:
     - TripleLink
     - TripleLinkSimple
+    - BlockCompletelyEmpty
     - BlockNodeInlineMath
     - BlockNestedMath
     - BlockNestedModuleCSS
