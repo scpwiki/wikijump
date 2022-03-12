@@ -185,14 +185,17 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
                 ctx.push_str(&url);
 
                 if let Some(link) = link {
+                    ctx.push(' ');
                     ctx.push_str(&get_url_from_link(ctx, link));
                 }
 
                 if let Some(alt_text) = attributes.get().get("alt") {
+                    ctx.push(' ');
                     ctx.push_str(alt_text);
                 }
 
                 if let Some(title) = attributes.get().get("title") {
+                    ctx.push(' ');
                     ctx.push_str(title);
                 }
             }
