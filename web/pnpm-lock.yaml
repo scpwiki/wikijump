@@ -15,7 +15,6 @@ importers:
       '@typescript-eslint/typescript-estree': ^5.13.0
       autoprefixer: ^10.4.2
       c8: ^7.11.0
-      cross-env: ^7.0.3
       diff-match-patch: ^1.0.5
       esbuild: ^0.14.23
       esbuild-runner: ^2.2.1
@@ -55,7 +54,6 @@ importers:
       '@ltd/j-toml': 1.29.0
       '@sveltejs/vite-plugin-svelte': 1.0.0-next.39_71ffaba7e3532f25b946701a6cf8d807
       autoprefixer: 10.4.2_postcss@8.4.7
-      cross-env: 7.0.3
       diff-match-patch: 1.0.5
       esbuild: 0.14.23
       js-yaml: 4.1.0
@@ -193,7 +191,7 @@ importers:
       '@wikijump/ftml-wasm-worker': workspace:*
       '@wikijump/prism': workspace:*
       '@wikijump/util': workspace:*
-      cm-tarnation: ^0.3.0
+      cm-tarnation: ^0.4.0
       svelte: ^3.46.4
     dependencies:
       '@lezer/common': 0.15.11
@@ -205,7 +203,7 @@ importers:
       '@wikijump/ftml-wasm-worker': link:../ftml-wasm-worker
       '@wikijump/prism': link:../prism
       '@wikijump/util': link:../util
-      cm-tarnation: 0.3.0
+      cm-tarnation: 0.4.0
       svelte: 3.46.4
 
   modules/codemirror:
@@ -2817,8 +2815,8 @@ packages:
     engines: {node: '>=0.8'}
     dev: true
 
-  /cm-tarnation/0.3.0:
-    resolution: {integrity: sha512-sOnEyzVdv2un4q/1+lfy9gNoZa3oBhlBCbhSd6DztdDwqducFVKsWg2RJRPUA2kHN+mZCTCZag7P3y2cqDSdqw==}
+  /cm-tarnation/0.4.0:
+    resolution: {integrity: sha512-v6yofHCpkZc2XdsN9T02tEecDC0m8v0ZbYWrjDL5HpQTuMTdalv+MMo5CHejUuwbsKeAH3x8joajjE3s1+SOzA==}
     dependencies:
       '@codemirror/autocomplete': 0.19.14
       '@codemirror/highlight': 0.19.7
@@ -2990,14 +2988,6 @@ packages:
 
   /cropperjs/1.5.7:
     resolution: {integrity: sha512-sGj+G/ofKh+f6A4BtXLJwtcKJgMUsXYVUubfTo9grERiDGXncttefmue/fyQFvn8wfdyoD1KhDRYLfjkJFl0yw==}
-    dev: false
-
-  /cross-env/7.0.3:
-    resolution: {integrity: sha512-+/HKd6EgcQCJGh2PSjZuUitQBQynKor4wrFbRg4DtAgS1aWO+gU52xpH7M9ScGgXSYmAVS9bIJ8EzuaGw0oNAw==}
-    engines: {node: '>=10.14', npm: '>=6', yarn: '>=1'}
-    hasBin: true
-    dependencies:
-      cross-spawn: 7.0.3
     dev: false
 
   /cross-fetch/3.1.5:

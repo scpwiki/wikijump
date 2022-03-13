@@ -1,5 +1,7 @@
+import type { SyntaxNode } from "@lezer/common"
 import { addLanguages, languageList } from "@wikijump/codemirror"
 import { cssCompletion, htmlCompletion, type Completion } from "@wikijump/codemirror/cm"
+import type { TarnationCompletionContext } from "cm-tarnation"
 import { TarnationLanguage } from "cm-tarnation"
 import { BlockMap, Blocks, BlockSet, ModuleMap, Modules, ModuleSet } from "../data/data"
 import { htmlEnumCompletions } from "../data/html-attributes"
@@ -118,6 +120,7 @@ export const FTMLLanguage = new TarnationLanguage({
     autocomplete: {
       _alsoEmitNames: true,
       _alsoTypeNames: true,
+      _traverseUpwards: true,
 
       "BlockNameUnknown BlockName": ctx => ({
         from: ctx.from,
@@ -132,38 +135,25 @@ export const FTMLLanguage = new TarnationLanguage({
       }),
 
       // just typed a new block (`[[]]`)
-      "BlockStart": ctx => {
-        if (ctx.node.parent?.name !== "BlockCompletelyEmpty") return null
+      "BlockCompletelyEmpty": ctx => {
         // must be [[_]] (underscore being the cursor)
         if (ctx.pos !== ctx.from + 2) return null
         return { from: ctx.pos, to: ctx.pos, options: blockCompletions }
       },
 
-      // incomplete block node arguments
+      // incomplete block node arguments,
       "BlockLabel": ctx => {
-        const tag = ctx.textOf(ctx.around?.getChild("BlockName"))
-        const module = ctx.textOf(ctx.around?.getChild("ModuleName"))
-        if (!tag && !module) return null
-
-        const block = module ? ModuleMap.get(module) : BlockMap.get(tag!)
+        const block = blockOf(ctx, ctx.around)
         if (!block || !block.argumentCompletions) return null
-
-        const options = block.argumentCompletions
-        return { from: ctx.from, to: ctx.to, options }
+        return { from: ctx.from, to: ctx.to, options: block.argumentCompletions }
       },
 
-      // explicitly hitting autocomplete while in a block node
+      // explicit request for argument completions
       "BlockNode": ctx => {
-        if (!ctx.explicit) return null
-        const tag = ctx.textOf(ctx.node.getChild("BlockName"))
-        const module = ctx.textOf(ctx.node.getChild("ModuleName"))
-        if (!tag && !module) return null
-
-        const block = module ? ModuleMap.get(module) : BlockMap.get(tag!)
+        if (ctx.traversed || !ctx.explicit) return null
+        const block = blockOf(ctx, ctx.node)
         if (!block || !block.argumentCompletions) return null
-
-        const options = block.argumentCompletions
-        return { from: ctx.pos, to: ctx.pos, options }
+        return { from: ctx.pos, to: ctx.pos, options: block.argumentCompletions }
       },
 
       // block node argument values
@@ -173,19 +163,11 @@ export const FTMLLanguage = new TarnationLanguage({
         if (!prop) return null
 
         const node = ctx.parent("BlockNode", 2)
-        const tag = ctx.textOf(node?.getChild("BlockName"))
-        const module = ctx.textOf(
-          node?.getChild("ModuleName") || node?.getChild("ModuleNameUnknown")
-        )
+        const block = blockOf(ctx, node)
+        if (!block) return null
 
-        if (!tag && !module) return null
-
-        const block = module ? ModuleMap.get(module) : BlockMap.get(tag!)
-
-        const options =
-          block?.arguments?.get(prop)?.enumCompletions ??
-          htmlEnumCompletions.get(prop) ??
-          null
+        let options = block.arguments?.get(prop)?.enumCompletions
+        if (!options && block.htmlAttributes) options = htmlEnumCompletions.get(prop)
 
         if (options) {
           return ctx.type.name === "BlockNodeArgumentValue"
@@ -200,3 +182,14 @@ export const FTMLLanguage = new TarnationLanguage({
 
   grammar: ftmlGrammar as any
 })
+
+function blockOf(ctx: TarnationCompletionContext, node: SyntaxNode | null | undefined) {
+  if (!node) return null
+  const tag = ctx.textOf(node?.getChild("BlockName"))
+  const module = ctx.textOf(
+    node?.getChild("ModuleName") || node?.getChild("ModuleNameUnknown")
+  )
+  if (!tag && !module) return null
+  const block = module ? ModuleMap.get(module) : BlockMap.get(tag!)
+  return block ?? null
+}
