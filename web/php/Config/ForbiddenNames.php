@@ -1,10 +1,11 @@
 <?php
+declare(strict_types=1);
 
 namespace Wikidot\Config;
 
 class ForbiddenNames {
 
-    public static $sites = [
+    public static array $sites = [
         '/^www[0-9]*$/',
         '/^[0-9]*www$/',
         '/^www\-/',
@@ -28,6 +29,7 @@ class ForbiddenNames {
         '/^null$/',
         '/^undefined$/',
         '/^blog$/',
+        '/^login/';
         '/^support$/',
         '/^helpdesk$/',
         '/wikidot/',
@@ -58,13 +60,14 @@ class ForbiddenNames {
         '/^api[0-9]*/',
     ];
 
-    public static $users = [
+    public static array $users = [
         '/^[0-9]*www[0-9]*$/',
         '/^mail$/',
         '/^\-/',
         '/\-$/',
         '/^dev$/',
         '/^blog$/',
+        '/^login$/',
         '/^support$/',
         '/^helpdesk$/',
         '/wikidot/',
@@ -97,8 +100,8 @@ class ForbiddenNames {
         '/^undefined$/',
         '/^bot$/',
         '/^robot$/',
-        '/^O5\-\w+$/',
-        '/^SCP\-\w+$/',
+        '/^O5\-\w+$/',  // These are both SCP Wiki-related, but given how many users are registered on Wikidot
+        '/^SCP\-\w+$/', // with these, I think it's a good idea to nip this in the bud at the account creation stage.
     ];
 
 }
