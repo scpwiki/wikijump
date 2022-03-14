@@ -100,8 +100,8 @@ class ForbiddenNames {
         '/^undefined$/',
         '/^bot$/',
         '/^robot$/',
-        '/^O5\-\w+$/',
-        '/^SCP\-\w+$/',
+        '/^O5\-\w+$/',  // These are both SCP Wiki-related, but given how many users are registered on Wikidot
+        '/^SCP\-\w+$/', // with these, I think it's a good idea to nip this in the bud at the account creation stage.
     ];
 
 }
