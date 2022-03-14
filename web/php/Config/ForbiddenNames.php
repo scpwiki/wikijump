@@ -1,10 +1,11 @@
 <?php
+declare(strict_types=1);
 
 namespace Wikidot\Config;
 
 class ForbiddenNames {
 
-    public static $sites = [
+    public static array $sites = [
         '/^www[0-9]*$/',
         '/^[0-9]*www$/',
         '/^www\-/',
@@ -58,7 +59,7 @@ class ForbiddenNames {
         '/^api[0-9]*/',
     ];
 
-    public static $users = [
+    public static array $users = [
         '/^[0-9]*www[0-9]*$/',
         '/^mail$/',
         '/^\-/',
