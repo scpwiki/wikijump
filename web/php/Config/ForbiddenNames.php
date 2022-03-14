@@ -29,6 +29,7 @@ class ForbiddenNames {
         '/^null$/',
         '/^undefined$/',
         '/^blog$/',
+        '/^login/';
         '/^support$/',
         '/^helpdesk$/',
         '/wikidot/',
@@ -66,6 +67,7 @@ class ForbiddenNames {
         '/\-$/',
         '/^dev$/',
         '/^blog$/',
+        '/^login$/',
         '/^support$/',
         '/^helpdesk$/',
         '/wikidot/',
