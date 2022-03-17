@@ -13,7 +13,7 @@
   "main": "svelte.ts",
   "dependencies": {
     "@iconify/iconify": "^2.1.2",
-    "@popperjs/core": "^2.11.2",
+    "@popperjs/core": "^2.11.4",
     "@wikijump/api": "workspace:*",
     "@wikijump/dom": "workspace:*",
     "@wikijump/fluent": "workspace:*",

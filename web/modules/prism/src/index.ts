@@ -1,6 +1,5 @@
 import { AbstractWorkerBase } from "@wikijump/comlink"
 import type { PrismModule } from "./worker"
-import PrismRemoteWorker from "./worker?worker"
 
 export type Prism = typeof globalThis.Prism
 
@@ -11,7 +10,7 @@ export class PrismWorker extends AbstractWorkerBase.of<PrismModule>([
   "manual"
 ]) {
   protected _baseGetWorker() {
-    return new PrismRemoteWorker()
+    return new Worker(new URL("./worker", import.meta.url), { type: "classic" })
   }
 }
 

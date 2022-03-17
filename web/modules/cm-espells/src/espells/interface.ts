@@ -4,10 +4,11 @@ import { dedupe, LazySingleton, Pref } from "@wikijump/util"
 import type { Espells } from "espells"
 import DICTIONARIES from "../dicts"
 import type { FlaggedWord, Word } from "../types"
-import RemoteWorker from "./worker?worker"
 
 const RemoteClassSingleton = new LazySingleton(() =>
-  Comlink.wrap<typeof Espells>(new RemoteWorker())
+  Comlink.wrap<typeof Espells>(
+    new Worker(new URL("./worker", import.meta.url), { type: "classic" })
+  )
 )
 
 export class EspellsWorker extends AbstractWorkerBase.of<Espells>([

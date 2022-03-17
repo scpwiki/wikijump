@@ -1,7 +1,6 @@
 import { AbstractWorkerBase } from "@wikijump/comlink"
 import wasmURL from "@wikijump/ftml-wasm/vendor/ftml_bg.wasm?url"
 import type { FTMLModule } from "./worker"
-import FTMLRemoteWorker from "./worker?worker"
 
 export type {
   Backlinks,
@@ -43,7 +42,7 @@ export class FTMLWorker extends AbstractWorkerBase.of<FTMLModule>([
   "Page"
 ]) {
   protected _baseGetWorker() {
-    return new FTMLRemoteWorker()
+    return new Worker(new URL("./worker", import.meta.url), { type: "classic" })
   }
 
   protected async _baseInitalize() {
