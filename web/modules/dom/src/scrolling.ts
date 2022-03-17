@@ -1,8 +1,8 @@
 export type ScrollDirection = "vertical" | "horizontal" | "both"
 
 /**
- * Checks if an element scrolls vertically. Only checks if the element *is
- * scrolling*, not if it *can scroll*.
+ * Checks if an element scrolls vertically. Only checks if the element _is
+ * scrolling_, not if it _can scroll_.
  *
  * @param element - The element to check.
  */
@@ -26,7 +26,7 @@ export function scrollsVertically(element: HTMLElement) {
 
 /**
  * Checks if an element scrolls horizontally. Only checks if the element
- * *is scrolling*, not if it *can scroll*.
+ * _is scrolling_, not if it _can scroll_.
  *
  * @param element - The element to check.
  */
@@ -49,8 +49,8 @@ export function scrollsHorizontally(element: HTMLElement) {
 }
 
 /**
- * Checks if an element scrolls. Only checks if the element *is scrolling*,
- * not if it *can scroll*.
+ * Checks if an element scrolls. Only checks if the element _is scrolling_,
+ * not if it _can scroll_.
  *
  * @param element - The element to check.
  * @param dir - The direction to check. Defaults to `both`.

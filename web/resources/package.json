@@ -11,7 +11,7 @@
   "type": "module",
   "main": "scripts/index.ts",
   "dependencies": {
-    "@uppy/core": "^2.1.5",
+    "@uppy/core": "^2.1.6",
     "@uppy/dashboard": "^2.1.4",
     "@uppy/image-editor": "^1.1.1",
     "@uppy/xhr-upload": "^2.0.7",

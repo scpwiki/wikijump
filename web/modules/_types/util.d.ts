@@ -13,7 +13,7 @@ declare global {
   /** All JS primitive values. */
   type Primitive = string | number | BigInt | boolean | symbol | null | undefined
 
-  /** *Strictly* represents a `{ 'key': value }` object with only primitives. */
+  /** _Strictly_ represents a `{ 'key': value }` object with only primitives. */
   type PlainObject = Record<string, Primitive>
 
   /** Represents either a value of the given type or a promise that resolves to one. */
