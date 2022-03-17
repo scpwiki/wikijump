@@ -10,7 +10,7 @@ export class PrismWorker extends AbstractWorkerBase.of<PrismModule>([
   "manual"
 ]) {
   protected _baseGetWorker() {
-    return new Worker(new URL("./worker", import.meta.url), { type: "classic" })
+    return new Worker(new URL("./worker", import.meta.url), { type: "module" })
   }
 }
 

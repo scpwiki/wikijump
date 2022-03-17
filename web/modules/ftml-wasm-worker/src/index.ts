@@ -42,7 +42,7 @@ export class FTMLWorker extends AbstractWorkerBase.of<FTMLModule>([
   "Page"
 ]) {
   protected _baseGetWorker() {
-    return new Worker(new URL("./worker", import.meta.url), { type: "classic" })
+    return new Worker(new URL("./worker", import.meta.url), { type: "module" })
   }
 
   protected async _baseInitalize() {

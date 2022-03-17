@@ -7,7 +7,7 @@ import type { FlaggedWord, Word } from "../types"
 
 const RemoteClassSingleton = new LazySingleton(() =>
   Comlink.wrap<typeof Espells>(
-    new Worker(new URL("./worker", import.meta.url), { type: "classic" })
+    new Worker(new URL("./worker", import.meta.url), { type: "module" })
   )
 )
 
