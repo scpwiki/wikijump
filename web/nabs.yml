@@ -83,12 +83,10 @@ build-container:
 # $ pnpm compose up
 # $ pnpm compose build
 compose:
-  - export DOCKER_BUILDKIT=1
   - cd ../install/local/dev
-  - docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml
+  - cross-env DOCKER_BUILDKIT=1 docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml
 
 # Like compose, but invokes docker with sudo
 compose-sudo:
-  - export DOCKER_BUILDKIT=1
   - cd ../install/local/dev
-  - sudo -E docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml
+  - cross-env DOCKER_BUILDKIT=1 sudo -E docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml

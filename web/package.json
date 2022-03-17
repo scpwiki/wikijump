@@ -5,8 +5,8 @@
   "scripts": {
     "build-container": "vite build && cd web && pnpm -s build",
     "changeset": "changeset",
-    "compose": "export DOCKER_BUILDKIT=1 && cd ../install/local/dev && docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml",
-    "compose-sudo": "export DOCKER_BUILDKIT=1 && cd ../install/local/dev && sudo -E docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml",
+    "compose": "cd ../install/local/dev && cross-env DOCKER_BUILDKIT=1 docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml",
+    "compose-sudo": "cd ../install/local/dev && cross-env DOCKER_BUILDKIT=1 sudo -E docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml",
     "cover": "vitest --coverage --run",
     "dev": "esr scripts/dev.js",
     "lint": "run-p -lns lint:eslint lint:stylelint lint:prettier",
@@ -39,6 +39,7 @@
     "@ltd/j-toml": "^1.29.0",
     "@sveltejs/vite-plugin-svelte": "1.0.0-next.39",
     "autoprefixer": "^10.4.2",
+    "cross-env": "^7.0.3",
     "diff-match-patch": "^1.0.5",
     "esbuild": "^0.14.23",
     "js-yaml": "^4.1.0",
