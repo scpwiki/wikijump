@@ -83,7 +83,7 @@
     "stylelint-scss": "^4.1.0",
     "svelte-eslint-parser": "^0.15.0",
     "taze": "^0.4.6",
-    "vitest": "^0.5.9"
+    "vitest": "^0.7.0"
   },
   "engineStrict": true,
   "engines": {
