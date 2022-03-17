@@ -3,7 +3,11 @@ const mergeQueries = require("postcss-merge-queries")
 const autoprefixer = require("autoprefixer")
 const { globalStyle, postcss, scss, typescript } = require("svelte-preprocess")
 
-const abstracts = path.resolve(__dirname, "resources/css/abstracts.scss")
+let abstracts = path.resolve(__dirname, "resources/css/abstracts.scss")
+// removing the drive letter and normalizing the slashes is required for Windows,
+// which is absurd but that's just what Sass wants I guess
+abstracts = abstracts.replace(/^[A-Z]:/, "")
+abstracts = abstracts.replaceAll("\\", "/")
 
 module.exports = {
   preprocess: [
