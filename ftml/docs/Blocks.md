@@ -99,7 +99,7 @@ Alternatively you may look here for a formatted list: (though it may not be upda
 | [HTML](#html)                           | `html`                           | No    | No     | Yes       | Map           | Raw       |
 | [IfCategory](#ifcategory)               | `ifcategory`                     | No    | No     | Yes       | Value         | Elements  |
 | [IfTags](#iftags)                       | `iftags`                         | No    | No     | Yes       | Value         | Elements  |
-| [Iframe](#iframe)                       | `iframe`                         | No    | No     | Yes       | None          | None      |
+| [Iframe](#iframe)                       | `iframe`                         | No    | No     | Yes       | Value + Map   | None      |
 | [Image](#image)                         | `image`                          | No    | No     | No        | Value + Map  | None      |
 | [Include (Elements)](#include-elements) | `include-elements`               | No    | No     | Yes       | Value + Map  | None      |
 | [Include (Messy)](#include-messy)       | `include-messy`                  | No    | No     | Yes       | Value + Map  | None      |
