@@ -209,10 +209,10 @@ Arguments:
 Example:
 
 ```
-[[checkbox Apple]]
-[[*checkbox Blueberry]]
-[[checkbox Cherry]]
-[[checkbox Durian]]
+[[checkbox]] Apple
+[[*checkbox]] Blueberry
+[[checkbox]] Cherry
+[[checkbox]] Durian
 ```
 
 ### Code
@@ -772,10 +772,10 @@ Example:
 ```
 Favorite kind of music:
 
-[[radio]] Disco
-[[radio]] Dance
-[[radio]] Rap
-[[*radio]] Noise
+[[radio music]] Disco
+[[radio music]] Dance
+[[radio music]] Rap
+[[*radio music]] Noise
 ```
 
 ### Size
