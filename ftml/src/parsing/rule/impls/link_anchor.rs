@@ -82,13 +82,10 @@ fn try_consume_fn<'p, 'r, 't>(
     // Trim label
     let label = label.trim();
 
-    // Build link element
-    let element = Element::Link {
+    // Build and return link element
+    ok!(Element::Link {
         link: LinkLocation::Url(url),
         label: LinkLabel::Text(cow!(label)),
         target: None,
-    };
-
-    // Return result
-    ok!(element)
+    })
 }
