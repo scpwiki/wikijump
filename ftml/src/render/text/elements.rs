@@ -162,8 +162,6 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
         Element::AnchorName(_) => {
             // Anchor names are an invisible addition to the HTML
             // to aid navigation. So in text mode, they are ignored.
-
-            ()
         }
         Element::Link { link, label, .. } => {
             let url = get_url_from_link(ctx, link);
