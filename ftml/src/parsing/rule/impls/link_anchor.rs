@@ -18,10 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Rules for anchor soft-links.
+//! Rule for links to anchors on the same document.
 //!
-//! A variant on single-bracket links which targets an anchor on the current page,
-//! or is a fake link.
+//! A variant on single-bracket links which targets an anchor
+//! on the current page, or is a fake link.
 
 use super::prelude::*;
 use crate::tree::{LinkLabel, LinkLocation};
