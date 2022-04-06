@@ -1,0 +1,55 @@
+{
+    "input": "[[# apple",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "[[#"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "apple"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+        {
+            "token": "input-end",
+            "rule": "anchor",
+            "span": [9, 9],
+            "kind": "end-of-input"
+        },
+        {
+            "token": "left-block-anchor",
+            "rule": "fallback",
+            "span": [0, 3],
+            "kind": "no-rules-match"
+        }
+    ]
+}
