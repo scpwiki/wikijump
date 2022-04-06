@@ -38,5 +38,18 @@ fn try_consume_fn<'p, 'r, 't>(
     info!("Trying to create a named anchor");
     check_step(parser, Token::LeftBlockAnchor)?;
 
+    // Gather name for anchor
+    let name = collect_text(
+        parser,
+        RULE_ANCHOR,
+        &[ParseCondition::current(Token::RightBlock)],
+        &[
+            ParseCondition::current(Token::Whitespace),
+            ParseCondition::current(Token::ParagraphBreak),
+            ParseCondition::current(Token::LineBreak),
+        ],
+        None,
+    )?;
+
     todo!()
 }
