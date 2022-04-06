@@ -54,5 +54,6 @@ fn try_consume_fn<'p, 'r, 't>(
         None,
     )?;
 
-    todo!()
+    // Build and return link element
+    ok!(Element::AnchorName(cow!(name)))
 }

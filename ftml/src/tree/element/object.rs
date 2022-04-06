@@ -84,6 +84,12 @@ pub enum Element<'t> {
         elements: Vec<Element<'t>>,
     },
 
+    /// An element representing a named anchor.
+    ///
+    /// This is an area of the page that can be jumped to by name.
+    /// Associated syntax is `[[# name-of-anchor]]`.
+    AnchorName(Cow<'t, str>),
+
     /// An element linking to a different page.
     ///
     /// The "label" field is an optional field denoting what the link should
