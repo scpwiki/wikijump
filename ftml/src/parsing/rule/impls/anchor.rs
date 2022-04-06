@@ -21,8 +21,8 @@
 //! Rule for anchor name blocks.
 //!
 //! Not to be confused with the anchor block (`[[a]]`), this
-//! "block" is a rule for `[[#name]]`, that is, created an
-//! `<a id="name">` anchor that can be jumped to.
+//! "block" is a rule for `[[# name-of-anchor]]`, that is, created an
+//! `<a id="name-of-anchor">` anchor that can be jumped to.
 
 use super::prelude::*;
 
@@ -37,6 +37,9 @@ fn try_consume_fn<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     info!("Trying to create a named anchor");
     check_step(parser, Token::LeftBlockAnchor)?;
+
+    // Requires a space before the name
+    parser.get_token(Token::Whitespace, ParseWarningKind::RuleFailed)?;
 
     // Gather name for anchor
     let name = collect_text(
