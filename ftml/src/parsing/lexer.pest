@@ -145,6 +145,7 @@ left_bracket_anchor = @{ "[#" }
 left_bracket_star = @{ "[*" }
 left_block = @{ "[[" }
 left_block_end = @{ "[[/" }
+left_block_anchor = @{ "[[#" }
 left_block_star = @{ "[[*" }
 left_math = @{ "[[$" }
 left_link = @{ "[[[" }
