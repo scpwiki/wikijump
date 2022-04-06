@@ -424,6 +424,69 @@ impl<'r, 't> Parser<'r, 't> {
         (first, second, third)
     }
 
+    // Helpers to get individual tokens
+    pub fn get_token(
+        &mut self,
+        token: Token,
+        kind: ParseWarningKind,
+    ) -> Result<&'t str, ParseWarning> {
+        debug!(
+            "Looking for token {} (warning {})",
+            token.name(),
+            kind.name(),
+        );
+
+        let current = self.current();
+        if current.token == token {
+            let text = current.slice;
+            self.step()?;
+            Ok(text)
+        } else {
+            Err(self.make_warn(kind))
+        }
+    }
+
+    pub fn get_optional_token(&mut self, token: Token) -> Result<(), ParseWarning> {
+        debug!("Looking for optional token {}", token.name());
+
+        if self.current().token == token {
+            self.step()?;
+        }
+
+        Ok(())
+    }
+
+    pub fn get_optional_line_break(&mut self) -> Result<(), ParseWarning> {
+        info!("Looking for optional line break");
+        self.get_optional_token(Token::LineBreak)
+    }
+
+    #[inline]
+    pub fn get_optional_space(&mut self) -> Result<(), ParseWarning> {
+        info!("Looking for optional space");
+        self.get_optional_token(Token::Whitespace)
+    }
+
+    pub fn get_optional_spaces_any(&mut self) -> Result<(), ParseWarning> {
+        info!("Looking for optional spaces (any)");
+
+        let tokens = &[
+            Token::Whitespace,
+            Token::LineBreak,
+            Token::ParagraphBreak,
+            Token::Equals,
+        ];
+
+        loop {
+            let current_token = self.current().token;
+            if !tokens.contains(&current_token) {
+                return Ok(());
+            }
+
+            self.step()?;
+        }
+    }
+
     // Utilities
     #[cold]
     #[inline]
