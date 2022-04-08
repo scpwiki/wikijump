@@ -185,15 +185,64 @@ impl InterwikiSettings {
 
 #[test]
 fn interwiki_prefixes() {
+    use ref_map::*;
+
     macro_rules! check {
-        ($link:expr, $expected:expr) => {
+        ($link:expr, $expected:expr $(,)?) => {{
+            let actual = DEFAULT_INTERWIKI.build($link);
+            let expected = $expected;
+
             assert_eq!(
-                DEFAULT_INTERWIKI.build($link),
-                $expected,
+                actual.ref_map(|s| s.as_str()),
+                expected,
                 "Actual interwiki result doesn't match expected",
             );
-        };
+        }};
     }
 
-    todo!();
+    check!("my-link", None);
+    check!(
+        "wikipedia:Mallard",
+        Some("https://wikipedia.org/wiki/Mallard"),
+    );
+    check!(
+        "wikipedia:SCP_Foundation",
+        Some("https://wikipedia.org/wiki/SCP_Foundation"),
+    );
+    check!(
+        "wikipedia:Special:RecentChanges",
+        Some("https://wikipedia.org/wiki/Special:RecentChanges"),
+    );
+    check!(
+        "wp:SCP_Foundation",
+        Some("https://wikipedia.org/wiki/SCP_Foundation"),
+    );
+    check!(
+        "wp:it:SCP_Foundation",
+        Some("https://wikipedia.org/wiki/it:SCP_Foundation"),
+    );
+    check!(
+        "commons:File:SCP-682.jpg",
+        Some("https://commons.wikimedia.org/wiki/File:SCP-682.jpg"),
+    );
+    check!(
+        "commons:Category:SCP_Foundation",
+        Some("https://commons.wikimedia.org/wiki/Category:SCP_Foundation"),
+    );
+    check!(
+        "google:what's+my+ip",
+        Some("https://google.com/search?q=what's+my+ip"),
+    );
+    check!(
+        "duckduckgo:what's+my+ip",
+        Some("https://duckduckgo.com/?q=what's+my+ip"),
+    );
+    check!(
+        "ddg:what's+my+ip",
+        Some("https://duckduckgo.com/?q=what's+my+ip"),
+    );
+    check!("dictionary:oak", Some("https://dictionary.com/browse/oak"));
+    check!("thesaurus:oak", Some("https://thesaurus.com/browse/oak"));
+    check!("banana:fruit-salad", None);
+    check!(":empty", None);
 }
