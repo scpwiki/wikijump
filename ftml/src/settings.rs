@@ -185,7 +185,6 @@ fn interwiki_prefixes() {
         ($link:expr, $expected:expr $(,)?) => {{
             let actual = DEFAULT_INTERWIKI.build($link);
             let expected = $expected;
-    println!("-- {} -> {:?} ({:?})", $link, actual, expected);
 
             assert_eq!(
                 actual.ref_map(|s| s.as_str()),
