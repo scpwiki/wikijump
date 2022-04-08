@@ -416,10 +416,12 @@ impl Element<'_> {
                 link,
                 label,
                 target,
+                interwiki,
             } => Element::Link {
                 link: link.to_owned(),
                 label: label.to_owned(),
                 target: *target,
+                interwiki: *interwiki,
             },
             Element::List {
                 ltype,

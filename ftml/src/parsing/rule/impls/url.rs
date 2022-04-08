@@ -38,6 +38,7 @@ fn try_consume_fn<'p, 'r, 't>(
         link: LinkLocation::Url(url),
         label: LinkLabel::Url(None),
         target: None,
+        interwiki: false,
     };
 
     ok!(element)

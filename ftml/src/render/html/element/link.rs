@@ -49,14 +49,16 @@ pub fn render_link(
     link: &LinkLocation,
     label: &LinkLabel,
     target: Option<AnchorTarget>,
+    interwiki: bool,
 ) {
-    info!("Rendering link '{link:?}'");
+    info!("Rendering link '{link:?}' (interwiki {interwiki})");
     let handle = ctx.handle();
 
     // Add to backlinks
     ctx.add_link(link);
 
     let url = normalize_link(link, ctx.handle());
+    let interwiki_value = if interwiki { "true" } else { "false" };
     let target_value = match target {
         Some(target) => target.html_attr(),
         None => "",
@@ -66,6 +68,7 @@ pub fn render_link(
     tag.attr(attr!(
         "href" => &url,
         "target" => target_value; if target.is_some(),
+        "data-interwiki" => interwiki_value,
     ));
 
     // Add <a> internals, i.e. the link name

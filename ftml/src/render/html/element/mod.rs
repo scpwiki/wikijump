@@ -112,7 +112,8 @@ pub fn render_element(ctx: &mut HtmlContext, element: &Element) {
             link,
             label,
             target,
-        } => render_link(ctx, link, label, *target),
+            interwiki,
+        } => render_link(ctx, link, label, *target, *interwiki),
         Element::Image {
             source,
             link,

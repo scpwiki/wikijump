@@ -121,6 +121,7 @@ fn build_same<'p, 'r, 't>(
         link: LinkLocation::parse(cow!(url)),
         label: LinkLabel::Url(label),
         target,
+        interwiki: false,
     };
 
     ok!(element)
@@ -166,6 +167,7 @@ fn build_separate<'p, 'r, 't>(
         link: LinkLocation::parse(cow!(url)),
         label,
         target,
+        interwiki: false,
     };
 
     // Return result

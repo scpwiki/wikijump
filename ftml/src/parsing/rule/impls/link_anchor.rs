@@ -87,5 +87,6 @@ fn try_consume_fn<'p, 'r, 't>(
         link: LinkLocation::Url(url),
         label: LinkLabel::Text(cow!(label)),
         target: None,
+        interwiki: false,
     })
 }

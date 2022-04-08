@@ -224,6 +224,7 @@ fn build_toc_list_element(
                 link: LinkLocation::Url(Cow::Owned(anchor)),
                 label: LinkLabel::Text(Cow::Owned(name)),
                 target: None,
+                interwiki: false,
             };
 
             ListItem::Elements {
