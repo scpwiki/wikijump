@@ -182,6 +182,7 @@
                                                                                 {
                                                                                     "element": "link",
                                                                                     "data": {
+                                                                                        "type": "table-of-contents",
                                                                                         "link": "#toc0",
                                                                                         "label": {
                                                                                             "text": "H5"
@@ -210,6 +211,7 @@
                                 {
                                     "element": "link",
                                     "data": {
+                                        "type": "table-of-contents",
                                         "link": "#toc1",
                                         "label": {
                                             "text": "H1"
@@ -233,6 +235,7 @@
                                             {
                                                 "element": "link",
                                                 "data": {
+                                                    "type": "table-of-contents",
                                                     "link": "#toc2",
                                                     "label": {
                                                         "text": "H2 ++"

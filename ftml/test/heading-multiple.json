@@ -134,6 +134,7 @@
                                 {
                                     "element": "link",
                                     "data": {
+                                        "type": "table-of-contents",
                                         "link": "#toc0",
                                         "label": {
                                             "text": "H1"
@@ -157,6 +158,7 @@
                                             {
                                                 "element": "link",
                                                 "data": {
+                                                    "type": "table-of-contents",
                                                     "link": "#toc1",
                                                     "label": {
                                                         "text": "H2"
@@ -187,6 +189,7 @@
                                                                     {
                                                                         "element": "link",
                                                                         "data": {
+                                                                            "type": "table-of-contents",
                                                                             "link": "#toc2",
                                                                             "label": {
                                                                                 "text": "H4"
@@ -217,6 +220,7 @@
                                                                                             {
                                                                                                 "element": "link",
                                                                                                 "data": {
+                                                                                                    "type": "table-of-contents",
                                                                                                     "link": "#toc3",
                                                                                                     "label": {
                                                                                                         "text": "H6"
@@ -242,6 +246,7 @@
                                                         {
                                                             "element": "link",
                                                             "data": {
+                                                                "type": "table-of-contents",
                                                                 "link": "#toc4",
                                                                 "label": {
                                                                     "text": "H3"
@@ -264,6 +269,7 @@
                                 {
                                     "element": "link",
                                     "data": {
+                                        "type": "table-of-contents",
                                         "link": "#toc5",
                                         "label": {
                                             "text": "H1"

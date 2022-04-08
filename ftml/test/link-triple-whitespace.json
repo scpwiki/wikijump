@@ -11,6 +11,7 @@
                         {
                             "element": "link",
                             "data": {
+                                "type": "direct",
                                 "link": {
                                     "site": null,
                                     "page": "some-page"

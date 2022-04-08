@@ -97,6 +97,7 @@
                                                                                             {
                                                                                                 "element": "link",
                                                                                                 "data": {
+                                                                                                    "type": "table-of-contents",
                                                                                                     "link": "#toc0",
                                                                                                     "label": {
                                                                                                         "text": "toc"

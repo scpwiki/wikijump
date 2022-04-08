@@ -106,6 +106,7 @@
                                 {
                                     "element": "link",
                                     "data": {
+                                        "type": "table-of-contents",
                                         "link": "#toc0",
                                         "label": {
                                             "text": "A"
@@ -129,6 +130,7 @@
                                             {
                                                 "element": "link",
                                                 "data": {
+                                                    "type": "table-of-contents",
                                                     "link": "#toc1",
                                                     "label": {
                                                         "text": "B"
@@ -148,6 +150,7 @@
                                 {
                                     "element": "link",
                                     "data": {
+                                        "type": "table-of-contents",
                                         "link": "#toc2",
                                         "label": {
                                             "text": "C"

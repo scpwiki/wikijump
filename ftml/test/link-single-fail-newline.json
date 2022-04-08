@@ -15,6 +15,7 @@
                         {
                             "element": "link",
                             "data": {
+                                "type": "direct",
                                 "link": "https://example.com/",
                                 "label": {
                                     "url": null
