@@ -60,6 +60,13 @@ impl<'a> LinkLocation<'a> {
             LinkLocation::Url(url) => LinkLocation::Url(string_to_owned(url)),
         }
     }
+
+    pub fn link_type(&self) -> LinkType {
+        match self {
+            LinkLocation::Page(_) => LinkType::Page,
+            LinkLocation::Url(_) => LinkType::Direct,
+        }
+    }
 }
 
 #[test]
