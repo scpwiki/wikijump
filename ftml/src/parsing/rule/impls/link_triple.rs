@@ -118,10 +118,10 @@ fn build_same<'p, 'r, 't>(
 
     // Build and return element
     let element = Element::Link {
+        ltype: LinkType::Page,
         link: LinkLocation::parse(cow!(url)),
         label: LinkLabel::Url(label),
         target,
-        ltype: LinkType::Page,
     };
 
     ok!(element)
@@ -164,10 +164,10 @@ fn build_separate<'p, 'r, 't>(
 
     // Build link element
     let element = Element::Link {
+        ltype: LinkType::Page,
         link: LinkLocation::parse(cow!(url)),
         label,
         target,
-        ltype: LinkType::Page,
     };
 
     // Return result

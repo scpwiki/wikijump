@@ -99,12 +99,11 @@ pub enum Element<'t> {
     ///
     /// The "ltype" field tells what kind of link produced this element.
     Link {
+        #[serde(rename = "type")]
+        ltype: LinkType,
         link: LinkLocation<'t>,
         label: LinkLabel<'t>,
         target: Option<AnchorTarget>,
-
-        #[serde(rename = "type")]
-        ltype: LinkType,
     },
 
     /// An element representing an image and its associated metadata.
@@ -414,15 +413,15 @@ impl Element<'_> {
             },
             Element::AnchorName(name) => Element::AnchorName(string_to_owned(name)),
             Element::Link {
+                ltype,
                 link,
                 label,
                 target,
-                ltype,
             } => Element::Link {
+                ltype: *ltype,
                 link: link.to_owned(),
                 label: label.to_owned(),
                 target: *target,
-                ltype: *ltype,
             },
             Element::List {
                 ltype,

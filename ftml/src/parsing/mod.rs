@@ -222,10 +222,10 @@ fn build_toc_list_element(
         DepthItem::Item(name) => {
             let anchor = format!("#toc{}", incr.next());
             let link = Element::Link {
+                ltype: LinkType::TableOfContents,
                 link: LinkLocation::Url(Cow::Owned(anchor)),
                 label: LinkLabel::Text(Cow::Owned(name)),
                 target: None,
-                ltype: LinkType::TableOfContents,
             };
 
             ListItem::Elements {

@@ -109,10 +109,10 @@ pub fn render_element(ctx: &mut HtmlContext, element: &Element) {
             ctx.html().a().attr(attr!("id" => name));
         }
         Element::Link {
+            ltype,
             link,
             label,
             target,
-            ltype,
         } => render_link(ctx, link, label, *target, *ltype),
         Element::Image {
             source,

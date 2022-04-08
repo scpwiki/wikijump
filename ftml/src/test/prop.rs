@@ -149,12 +149,12 @@ fn arb_link_element() -> impl Strategy<Value = Element<'static>> {
         Just(LinkLabel::Page),
     ];
 
-    (arb_link_location(), label, arb_target(), arb_link_type()).prop_map(
-        |(link, label, target, ltype)| Element::Link {
+    (arb_link_type(), arb_link_location(), label, arb_target()).prop_map(
+        |(ltype, link, label, target)| Element::Link {
+            ltype,
             link,
             label,
             target,
-            ltype,
         },
     )
 }

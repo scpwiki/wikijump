@@ -114,10 +114,10 @@ fn try_consume_link<'p, 'r, 't>(
 
     // Build link element
     let element = Element::Link {
+        ltype,
         link: LinkLocation::Url(url),
         label: LinkLabel::Text(cow!(label)),
         target,
-        ltype,
     };
 
     // Return result
