@@ -174,4 +174,42 @@ impl LinkType {
     }
 }
 
-// TODO #[test]
+impl<'a> TryFrom<&'a str> for LinkType {
+    type Error = &'a str;
+
+    fn try_from(value: &'a str) -> Result<LinkType, &'a str> {
+        match value {
+            "direct" => Ok(LinkType::Direct),
+            "page" => Ok(LinkType::Page),
+            "interwiki" => Ok(LinkType::Interwiki),
+            "anchor" => Ok(LinkType::Anchor),
+            "table-of-contents" => Ok(LinkType::TableOfContents),
+            _ => Err(value),
+        }
+    }
+}
+
+/// Ensure `LinkType::name()` produces the same output as serde.
+#[test]
+fn link_type_name_serde() {
+    use strum::IntoEnumIterator;
+
+    for variant in LinkType::iter() {
+        let output = serde_json::to_string(&variant).expect("Unable to serialize JSON");
+        let serde_name: String =
+            serde_json::from_str(&output).expect("Unable to deserialize JSON");
+
+        assert_eq!(
+            &serde_name,
+            variant.name(),
+            "Serde name does not match variant name",
+        );
+
+        let converted: LinkType = serde_name
+            .as_str()
+            .try_into()
+            .expect("Could not convert item");
+
+        assert_eq!(converted, variant, "Converted item does not match variant");
+    }
+}
