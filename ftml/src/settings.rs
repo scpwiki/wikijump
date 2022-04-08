@@ -168,15 +168,8 @@ impl InterwikiSettings {
 
                 // If there's an interwiki prefix, apply the template.
                 self.prefixes.get(prefix).map(|template| {
-                    let mut url = str!(template);
-
                     // Substitute all $$s in the URL templates.
-                    while let Some(idx) = template.find("$$") {
-                        let range = idx..idx + 2;
-                        url.replace_range(range, path);
-                    }
-
-                    url
+                    template.replace("$$", path)
                 })
             }
         }
@@ -191,6 +184,7 @@ fn interwiki_prefixes() {
         ($link:expr, $expected:expr $(,)?) => {{
             let actual = DEFAULT_INTERWIKI.build($link);
             let expected = $expected;
+    println!("-- {} -> {:?} ({:?})", $link, actual, expected);
 
             assert_eq!(
                 actual.ref_map(|s| s.as_str()),
