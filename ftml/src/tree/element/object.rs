@@ -23,7 +23,7 @@ use crate::tree::clone::*;
 use crate::tree::{
     Alignment, AnchorTarget, AttributeMap, ClearFloat, Container, Date,
     DefinitionListItem, Embed, FloatAlignment, ImageSource, LinkLabel, LinkLocation,
-    ListItem, ListType, Module, PartialElement, Tab, Table, VariableMap,
+    LinkType, ListItem, ListType, Module, PartialElement, Tab, Table, VariableMap,
 };
 use ref_map::*;
 use std::borrow::Cow;
@@ -97,13 +97,14 @@ pub enum Element<'t> {
     ///
     /// The "link" field is either a page reference (relative URL) or full URL.
     ///
-    /// The "interwiki" field tells whether the resultant URL is from interwiki
-    /// substitution or not.
+    /// The "ltype" field tells what kind of link produced this element.
     Link {
         link: LinkLocation<'t>,
         label: LinkLabel<'t>,
         target: Option<AnchorTarget>,
-        interwiki: bool,
+
+        #[serde(rename = "type")]
+        ltype: LinkType,
     },
 
     /// An element representing an image and its associated metadata.
@@ -416,12 +417,12 @@ impl Element<'_> {
                 link,
                 label,
                 target,
-                interwiki,
+                ltype,
             } => Element::Link {
                 link: link.to_owned(),
                 label: label.to_owned(),
                 target: *target,
-                interwiki: *interwiki,
+                ltype: *ltype,
             },
             Element::List {
                 ltype,

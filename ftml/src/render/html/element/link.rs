@@ -19,7 +19,9 @@
  */
 
 use super::prelude::*;
-use crate::tree::{AnchorTarget, AttributeMap, Element, LinkLabel, LinkLocation};
+use crate::tree::{
+    AnchorTarget, AttributeMap, Element, LinkLabel, LinkLocation, LinkType,
+};
 use crate::url::normalize_link;
 
 pub fn render_anchor(
@@ -49,16 +51,15 @@ pub fn render_link(
     link: &LinkLocation,
     label: &LinkLabel,
     target: Option<AnchorTarget>,
-    interwiki: bool,
+    ltype: LinkType,
 ) {
-    info!("Rendering link '{link:?}' (interwiki {interwiki})");
+    info!("Rendering link '{:?}' (type {})", link, ltype.name());
     let handle = ctx.handle();
 
     // Add to backlinks
     ctx.add_link(link);
 
     let url = normalize_link(link, ctx.handle());
-    let interwiki_value = if interwiki { "true" } else { "false" };
     let target_value = match target {
         Some(target) => target.html_attr(),
         None => "",
@@ -68,7 +69,7 @@ pub fn render_link(
     tag.attr(attr!(
         "href" => &url,
         "target" => target_value; if target.is_some(),
-        "data-interwiki" => interwiki_value,
+        "data-link-type" => ltype.name(),
     ));
 
     // Add <a> internals, i.e. the link name

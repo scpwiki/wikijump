@@ -138,3 +138,40 @@ impl LinkLabel<'_> {
         }
     }
 }
+
+#[derive(Serialize, Deserialize, Debug, Hash, Copy, Clone, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
+pub enum LinkType {
+    /// This URL was specified directly.
+    ///
+    /// For instance, as a raw URL, or a single-bracket link.
+    Direct,
+
+    /// This URL was specified by specifying a particular Wikijump page.
+    ///
+    /// This variant comes from triple-bracket links.
+    Page,
+
+    /// This URL was generated via interwiki substitution.
+    Interwiki,
+
+    /// This URL points to an anchor elsewhere on this page.
+    Anchor,
+
+    /// This URL points to entries on a page in a table of contents.
+    TableOfContents,
+}
+
+impl LinkType {
+    pub fn name(self) -> &'static str {
+        match self {
+            LinkType::Direct => "direct",
+            LinkType::Page => "page",
+            LinkType::Interwiki => "interwiki",
+            LinkType::Anchor => "anchor",
+            LinkType::TableOfContents => "table-of-contents",
+        }
+    }
+}
+
+// TODO #[test]

@@ -25,7 +25,7 @@
 //! Its syntax is `[https://example.com/ Label text]`.
 
 use super::prelude::*;
-use crate::tree::{AnchorTarget, LinkLabel, LinkLocation};
+use crate::tree::{AnchorTarget, LinkLabel, LinkLocation, LinkType};
 use crate::url::is_url;
 use std::borrow::Cow;
 
@@ -83,9 +83,9 @@ fn try_consume_link<'p, 'r, 't>(
     )?;
 
     // Convert to interwiki, if valid.
-    let (url, interwiki) = match parser.settings().interwiki.build(original_link) {
-        Some(url) => (Cow::Owned(url), true),
-        None => (Cow::Borrowed(original_link), false),
+    let (url, ltype) = match parser.settings().interwiki.build(original_link) {
+        Some(url) => (Cow::Owned(url), LinkType::Interwiki),
+        None => (Cow::Borrowed(original_link), LinkType::Direct),
     };
 
     // Return error if the resultant URL is not valid.
@@ -117,7 +117,7 @@ fn try_consume_link<'p, 'r, 't>(
         link: LinkLocation::Url(url),
         label: LinkLabel::Text(cow!(label)),
         target,
-        interwiki,
+        ltype,
     };
 
     // Return result

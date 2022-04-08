@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::tree::{LinkLabel, LinkLocation};
+use crate::tree::{LinkLabel, LinkLocation, LinkType};
 
 pub const RULE_URL: Rule = Rule {
     name: "url",
@@ -38,7 +38,7 @@ fn try_consume_fn<'p, 'r, 't>(
         link: LinkLocation::Url(url),
         label: LinkLabel::Url(None),
         target: None,
-        interwiki: false,
+        ltype: LinkType::Direct,
     };
 
     ok!(element)

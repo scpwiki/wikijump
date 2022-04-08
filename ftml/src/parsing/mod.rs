@@ -62,7 +62,8 @@ use crate::next_index::{NextIndex, TableOfContentsIndex};
 use crate::settings::WikitextSettings;
 use crate::tokenizer::Tokenization;
 use crate::tree::{
-    AttributeMap, Element, LinkLabel, LinkLocation, ListItem, ListType, SyntaxTree,
+    AttributeMap, Element, LinkLabel, LinkLocation, LinkType, ListItem, ListType,
+    SyntaxTree,
 };
 use std::borrow::Cow;
 
@@ -224,7 +225,7 @@ fn build_toc_list_element(
                 link: LinkLocation::Url(Cow::Owned(anchor)),
                 label: LinkLabel::Text(Cow::Owned(name)),
                 target: None,
-                interwiki: false,
+                ltype: LinkType::TableOfContents,
             };
 
             ListItem::Elements {

@@ -29,7 +29,7 @@
 //! Its syntax is `[[[page-name | Label text]`.
 
 use super::prelude::*;
-use crate::tree::{AnchorTarget, LinkLabel, LinkLocation};
+use crate::tree::{AnchorTarget, LinkLabel, LinkLocation, LinkType};
 use std::borrow::Cow;
 
 pub const RULE_LINK_TRIPLE: Rule = Rule {
@@ -121,7 +121,7 @@ fn build_same<'p, 'r, 't>(
         link: LinkLocation::parse(cow!(url)),
         label: LinkLabel::Url(label),
         target,
-        interwiki: false,
+        ltype: LinkType::Page,
     };
 
     ok!(element)
@@ -167,7 +167,7 @@ fn build_separate<'p, 'r, 't>(
         link: LinkLocation::parse(cow!(url)),
         label,
         target,
-        interwiki: false,
+        ltype: LinkType::Page,
     };
 
     // Return result
