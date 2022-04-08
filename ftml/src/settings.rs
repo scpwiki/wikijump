@@ -18,7 +18,25 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use std::borrow::Cow;
 use std::collections::HashMap;
+
+lazy_static! {
+    pub static ref DEFAULT_INTERWIKI: InterwikiSettings = {
+        InterwikiSettings {
+            prefixes: hashmap! {
+                cow!("wikipedia") => cow!("https://wikipedia.org/wiki/$$"),
+                cow!("wp") => cow!("https://wikipedia.org/wiki/$$"),
+                cow!("commons") => cow!("https://commons.wikimedia.org/wiki/$$"),
+                cow!("google") => cow!("https://google.com/search?q=$$"),
+                cow!("duckduckgo") => cow!("https://duckduckgo.com/?q=$$"),
+                cow!("ddg") => cow!("https://duckduckgo.com/?q=$$"),
+                cow!("dictionary") => cow!("https://dictionary.com/browse/$$"),
+                cow!("thesaurus") => cow!("https://thesaurus.com/browse/$$"),
+            },
+        }
+    };
+}
 
 /// Settings to tweak behavior in the ftml parser and renderer.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
@@ -123,7 +141,7 @@ pub enum WikitextMode {
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone, PartialEq, Eq)]
 pub struct InterwikiSettings {
-    pub prefixes: HashMap<String, String>,
+    pub prefixes: HashMap<Cow<'static, str>, Cow<'static, str>>,
 }
 
 impl InterwikiSettings {

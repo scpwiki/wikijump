@@ -144,7 +144,9 @@ pub mod prelude {
     pub use super::parsing::{parse, ParseResult, ParseWarning};
     pub use super::preprocess;
     pub use super::render::Render;
-    pub use super::settings::{InterwikiSettings, WikitextMode, WikitextSettings};
+    pub use super::settings::{
+        InterwikiSettings, WikitextMode, WikitextSettings, DEFAULT_INTERWIKI,
+    };
     pub use super::tokenizer::{tokenize, Tokenization};
     pub use super::tree::{Element, SyntaxTree};
 }
