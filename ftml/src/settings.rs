@@ -150,16 +150,40 @@ impl InterwikiSettings {
         InterwikiSettings::default()
     }
 
-    pub fn build(&self, prefix: &str, link: &str) -> Option<String> {
-        self.prefixes.get(prefix).map(|template| {
-            let mut url = str!(template);
+    pub fn build(&self, link: &str) -> Option<String> {
+        // Split at first colon, any further are treated as part of the link contents.
+        link.find(':')
+            .map(|idx| {
+                let (prefix, path) = link.split_at(idx);
 
-            while let Some(idx) = template.find("$$") {
-                let range = idx..idx + 2;
-                url.replace_range(range, link);
-            }
+                // If there's an interwiki prefix, apply the template.
+                self.prefixes.get(prefix).map(|template| {
+                    let mut url = str!(template);
 
-            url
-        })
+                    // Substitute all $$s in the URL templates.
+                    while let Some(idx) = template.find("$$") {
+                        let range = idx..idx + 2;
+                        url.replace_range(range, path);
+                    }
+
+                    url
+                })
+            })
+            .flatten()
     }
+}
+
+#[test]
+fn interwiki_prefixes() {
+    macro_rules! check {
+        ($link:expr, $expected:expr) => {
+            assert_eq!(
+                DEFAULT_INTERWIKI.build($link),
+                $expected,
+                "Actual interwiki result doesn't match expected",
+            );
+        };
+    }
+
+    todo!();
 }
