@@ -96,10 +96,14 @@ pub enum Element<'t> {
     /// display.
     ///
     /// The "link" field is either a page reference (relative URL) or full URL.
+    ///
+    /// The "interwiki" field tells whether the resultant URL is from interwiki
+    /// substitution or not.
     Link {
         link: LinkLocation<'t>,
         label: LinkLabel<'t>,
         target: Option<AnchorTarget>,
+        interwiki: bool,
     },
 
     /// An element representing an image and its associated metadata.
