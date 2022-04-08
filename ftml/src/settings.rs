@@ -18,6 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use std::collections::HashMap;
+
 /// Settings to tweak behavior in the ftml parser and renderer.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
@@ -47,6 +49,20 @@ pub struct WikitextSettings {
     /// * Files
     /// * Images
     pub allow_local_paths: bool,
+
+    /// What interwiki prefixes are supported.
+    ///
+    /// All instances of `$$` in the destination URL are replaced with the link provided
+    /// in the interwiki link. For instance, `[wikipedia:SCP_Foundation SCP Wiki]`, then
+    /// `$$` will be replaced with `SCP_Foundation`.
+    ///
+    /// # Notes
+    ///
+    /// * These are matched case-sensitively.
+    /// * Prefixes may not contain colons, they are matched up to the first colon, and
+    ///   any beyond that are considered part of the link.
+    /// * By convention, prefixes should be all-lowercase.
+    pub interwiki: InterwikiSettings,
 }
 
 impl WikitextSettings {
@@ -103,4 +119,29 @@ pub enum WikitextMode {
 
     /// Processing for modules or other contexts such as `ListPages`.
     List,
+}
+
+#[derive(Serialize, Deserialize, Debug, Default, Clone, PartialEq, Eq)]
+pub struct InterwikiSettings {
+    pub prefixes: HashMap<String, String>,
+}
+
+impl InterwikiSettings {
+    #[inline]
+    pub fn new() -> Self {
+        InterwikiSettings::default()
+    }
+
+    pub fn build(&self, prefix: &str, link: &str) -> Option<String> {
+        self.prefixes.get(prefix).map(|template| {
+            let mut url = str!(template);
+
+            while let Some(idx) = template.find("$$") {
+                let range = idx..idx + 2;
+                url.replace_range(range, link);
+            }
+
+            url
+        })
+    }
 }
