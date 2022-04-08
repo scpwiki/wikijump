@@ -151,9 +151,12 @@ impl InterwikiSettings {
     }
 
     pub fn build(&self, link: &str) -> Option<String> {
-        // Split at first colon, any further are treated as part of the link contents.
-        link.find(':')
-            .map(|idx| {
+        match link.find(':') {
+            // Starting with a colon is not interwiki, skip.
+            Some(0) => None,
+
+            // Split at first colon, any further are treated as part of the link contents.
+            Some(idx) => {
                 let (prefix, path) = link.split_at(idx);
 
                 // If there's an interwiki prefix, apply the template.
@@ -168,8 +171,11 @@ impl InterwikiSettings {
 
                     url
                 })
-            })
-            .flatten()
+            }
+
+            // No colon, no interwiki.
+            None => None,
+        }
     }
 }
 
