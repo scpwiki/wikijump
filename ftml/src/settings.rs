@@ -85,30 +85,36 @@ pub struct WikitextSettings {
 
 impl WikitextSettings {
     pub fn from_mode(mode: WikitextMode) -> Self {
+        let interwiki = DEFAULT_INTERWIKI.clone();
+
         match mode {
             WikitextMode::Page => WikitextSettings {
                 mode,
                 enable_page_syntax: true,
                 use_true_ids: true,
                 allow_local_paths: true,
+                interwiki,
             },
             WikitextMode::Draft => WikitextSettings {
                 mode,
                 enable_page_syntax: true,
                 use_true_ids: false,
                 allow_local_paths: true,
+                interwiki,
             },
             WikitextMode::ForumPost | WikitextMode::DirectMessage => WikitextSettings {
                 mode,
                 enable_page_syntax: false,
                 use_true_ids: false,
                 allow_local_paths: false,
+                interwiki,
             },
             WikitextMode::List => WikitextSettings {
                 mode,
                 enable_page_syntax: true,
                 use_true_ids: false,
                 allow_local_paths: true,
+                interwiki,
             },
         }
     }
