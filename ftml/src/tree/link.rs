@@ -22,6 +22,7 @@ use super::clone::{option_string_to_owned, string_to_owned};
 use crate::data::PageRef;
 use crate::url::is_url;
 use std::borrow::Cow;
+use strum_macros::EnumIter;
 
 #[derive(Serialize, Deserialize, Debug, Hash, Clone, PartialEq, Eq)]
 #[serde(untagged)]
@@ -139,7 +140,7 @@ impl LinkLabel<'_> {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Hash, Copy, Clone, PartialEq, Eq)]
+#[derive(EnumIter, Serialize, Deserialize, Debug, Hash, Copy, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub enum LinkType {
     /// This URL was specified directly.
