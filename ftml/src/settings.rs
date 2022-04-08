@@ -153,7 +153,8 @@ impl InterwikiSettings {
     pub fn build(&self, link: &str) -> Option<String> {
         match link.find(':') {
             // Starting with a colon is not interwiki, skip.
-            Some(0) => None,
+            // Or, if no colon, no interwiki.
+            Some(0) | None => None,
 
             // Split at first colon, any further are treated as part of the link contents.
             Some(idx) => {
@@ -172,9 +173,6 @@ impl InterwikiSettings {
                     url
                 })
             }
-
-            // No colon, no interwiki.
-            None => None,
         }
     }
 }
