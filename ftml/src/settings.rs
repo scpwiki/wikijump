@@ -164,7 +164,8 @@ impl InterwikiSettings {
 
             // Split at first colon, any further are treated as part of the link contents.
             Some(idx) => {
-                let (prefix, path) = link.split_at(idx);
+                let (prefix, rest) = link.split_at(idx);
+                let path = &rest[1..]; // Safe because we're splitting on ':', an ASCII character.
 
                 // If there's an interwiki prefix, apply the template.
                 self.prefixes.get(prefix).map(|template| {
