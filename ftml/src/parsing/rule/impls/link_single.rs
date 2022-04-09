@@ -82,7 +82,7 @@ fn try_consume_link<'p, 'r, 't>(
     )?;
 
     // Return error if the resultant URL is not valid.
-    if !url_valid(&url) {
+    if !url_valid(url) {
         return Err(parser.make_warn(ParseWarningKind::InvalidUrl));
     }
 
