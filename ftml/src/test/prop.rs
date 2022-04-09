@@ -128,8 +128,7 @@ fn arb_page_ref() -> impl Strategy<Value = PageRef<'static>> {
 fn arb_link_location() -> impl Strategy<Value = LinkLocation<'static>> {
     prop_oneof![
         arb_page_ref().prop_map(LinkLocation::Page),
-        (cow!(".+"), select!([true, false]))
-            .prop_map(|(link, interwiki)| LinkLocation::Url { link, interwiki }),
+        cow!(".+").prop_map(LinkLocation::Url),
     ]
 }
 

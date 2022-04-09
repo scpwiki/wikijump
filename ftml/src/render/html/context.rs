@@ -219,10 +219,7 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
             LinkLocation::Page(page) => {
                 self.backlinks.internal_links.push(page.to_owned());
             }
-            LinkLocation::Url {
-                link,
-                interwiki: false,
-            } => {
+            LinkLocation::Url(link) => {
                 let mut link: &str = link;
 
                 if link == "javascript:;" {
@@ -242,13 +239,6 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
                     let page_ref = PageRef::page_only(cow!(link));
                     self.backlinks.internal_links.push(page_ref.to_owned());
                 }
-            }
-            LinkLocation::Url {
-                link,
-                interwiki: true,
-            } => {
-                let link = Cow::Owned(str!(link));
-                self.backlinks.external_links.push(link);
             }
         }
     }

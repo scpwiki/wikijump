@@ -36,7 +36,7 @@ fn try_consume_fn<'p, 'r, 't>(
 
     let element = Element::Link {
         ltype: LinkType::Direct,
-        link: LinkLocation::url(url),
+        link: LinkLocation::Url(url),
         label: LinkLabel::Url(None),
         target: None,
     };

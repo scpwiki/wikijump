@@ -85,7 +85,7 @@ fn try_consume_fn<'p, 'r, 't>(
     // Build and return link element
     ok!(Element::Link {
         ltype: LinkType::Anchor,
-        link: LinkLocation::url(url),
+        link: LinkLocation::Url(url),
         label: LinkLabel::Text(cow!(label)),
         target: None,
     })

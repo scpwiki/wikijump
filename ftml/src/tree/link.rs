@@ -32,42 +32,28 @@ pub enum LinkLocation<'a> {
     Page(PageRef<'a>),
 
     /// This link is to a specific URL.
-    ///
-    /// If the field `interwiki` is `true`, then it means the URL was interwiki-generated.
-    Url { link: Cow<'a, str>, interwiki: bool },
+    Url(Cow<'a, str>),
 }
 
 impl<'a> LinkLocation<'a> {
-    #[inline]
-    pub fn url(link: Cow<'a, str>) -> Self {
-        LinkLocation::Url {
-            link,
-            interwiki: false,
-        }
-    }
-
-    #[inline]
-    pub fn interwiki(link: Cow<'a, str>) -> Self {
-        LinkLocation::Url {
-            link,
-            interwiki: true,
-        }
-    }
-
     pub fn parse_interwiki(
         link: Cow<'a, str>,
         settings: &WikitextSettings,
-    ) -> Option<Self> {
+    ) -> Option<(Self, LinkType)> {
         // Handle interwiki (starts with "!", like "!wp:Apple")
         match link.as_ref().strip_prefix('!') {
             // Not interwiki, parse as normal
-            None => Some(Self::parse(link)),
+            None => {
+                let interwiki = Self::parse(link);
+                let ltype = interwiki.link_type();
+                Some((interwiki, ltype))
+            }
 
             // Try to interpret as interwiki
             Some(link) => settings
                 .interwiki
                 .build(link)
-                .map(|url| Self::url(Cow::Owned(url))),
+                .map(|url| (LinkLocation::Url(Cow::Owned(url)), LinkType::Interwiki)),
         }
     }
 
@@ -76,7 +62,7 @@ impl<'a> LinkLocation<'a> {
 
         // Check for direct URLs or anchor links
         if is_url(link_str) || link_str.starts_with('#') {
-            return Self::url(link);
+            return LinkLocation::Url(link);
         }
 
         // Check for local links starting with '/'
@@ -85,7 +71,7 @@ impl<'a> LinkLocation<'a> {
         }
 
         match PageRef::parse(link_str) {
-            Err(_) => Self::url(link),
+            Err(_) => LinkLocation::Url(link),
             Ok(page_ref) => LinkLocation::Page(page_ref.to_owned()),
         }
     }
@@ -93,22 +79,14 @@ impl<'a> LinkLocation<'a> {
     pub fn to_owned(&self) -> LinkLocation<'static> {
         match self {
             LinkLocation::Page(page) => LinkLocation::Page(page.to_owned()),
-            LinkLocation::Url { link, interwiki } => LinkLocation::Url {
-                link: string_to_owned(link),
-                interwiki: *interwiki,
-            },
+            LinkLocation::Url(url) => LinkLocation::Url(string_to_owned(url)),
         }
     }
 
     pub fn link_type(&self) -> LinkType {
         match self {
             LinkLocation::Page(_) => LinkType::Page,
-            LinkLocation::Url {
-                interwiki: false, ..
-            } => LinkType::Direct,
-            LinkLocation::Url {
-                interwiki: true, ..
-            } => LinkType::Interwiki,
+            LinkLocation::Url(_) => LinkType::Direct,
         }
     }
 }
@@ -126,7 +104,7 @@ fn test_link_location() {
 
         ($input:expr => $url:expr) => {
             let url = cow!($url);
-            let expected = LinkLocation::url(url);
+            let expected = LinkLocation::Url(url);
 
             check!($input; expected);
         };

@@ -61,7 +61,7 @@ pub fn normalize_link<'a>(
     helper: &dyn BuildSiteUrl,
 ) -> Cow<'a, str> {
     match link {
-        LinkLocation::Url { link, .. } => normalize_href(link),
+        LinkLocation::Url(url) => normalize_href(url),
         LinkLocation::Page(page_ref) => {
             let (site, page) = page_ref.fields();
 
