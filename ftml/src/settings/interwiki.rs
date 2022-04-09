@@ -68,7 +68,14 @@ impl InterwikiSettings {
                 // If there's an interwiki prefix, apply the template.
                 self.prefixes.get(prefix).map(|template| {
                     // Substitute all $$s in the URL templates.
-                    template.replace("$$", path)
+                    let mut url = template.replace("$$", path);
+
+                    // Substitute all spaces into url-encoded form.
+                    while let Some(idx) = url.find(' ') {
+                        url.replace_range(idx..idx + 1, "%20");
+                    }
+
+                    url
                 })
             }
         }

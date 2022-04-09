@@ -20,7 +20,7 @@
 
 mod interwiki;
 
-pub use self::interwiki::{DEFAULT_INTERWIKI, InterwikiSettings};
+pub use self::interwiki::{InterwikiSettings, DEFAULT_INTERWIKI};
 
 /// Settings to tweak behavior in the ftml parser and renderer.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
