@@ -223,7 +223,7 @@ fn build_toc_list_element(
             let anchor = format!("#toc{}", incr.next());
             let link = Element::Link {
                 ltype: LinkType::TableOfContents,
-                link: LinkLocation::Url(Cow::Owned(anchor)),
+                link: LinkLocation::url(Cow::Owned(anchor)),
                 label: LinkLabel::Text(Cow::Owned(name)),
                 target: None,
             };

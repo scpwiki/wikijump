@@ -106,7 +106,7 @@ impl Handle {
             LinkLabel::Text(ref text) => text,
             LinkLabel::Url(Some(ref text)) => text,
             LinkLabel::Url(None) => match link {
-                LinkLocation::Url(url) | LinkLocation::InterwikiUrl(url) => url,
+                LinkLocation::Url { link, .. } => link,
                 LinkLocation::Page(page_ref) => page_ref.page(),
             },
             LinkLabel::Page => {

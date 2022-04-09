@@ -108,7 +108,7 @@ fn try_consume_link<'p, 'r, 't>(
     // Build link element
     let element = Element::Link {
         ltype: LinkType::Direct,
-        link: LinkLocation::Url(cow!(url)),
+        link: LinkLocation::url(cow!(url)),
         label: LinkLabel::Text(cow!(label)),
         target,
     };
