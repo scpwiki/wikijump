@@ -48,6 +48,18 @@ fn debug() {
     enable_page_syntax: true,
     use_true_ids: true,
     allow_local_paths: true,
+    interwiki: InterwikiSettings {
+        prefixes: {
+            "dictionary": "https://dictionary.com/browse/$$",
+            "thesaurus": "https://thesaurus.com/browse/$$",
+            "commons": "https://commons.wikimedia.org/wiki/$$",
+            "google": "https://google.com/search?q=$$",
+            "wikipedia": "https://wikipedia.org/wiki/$$",
+            "wp": "https://wikipedia.org/wiki/$$",
+            "duckduckgo": "https://duckduckgo.com/?q=$$",
+            "ddg": "https://duckduckgo.com/?q=$$",
+        },
+    },
 }
 PageInfo {
     page: "some-page",

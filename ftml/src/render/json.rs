@@ -91,7 +91,17 @@ fn json() {
     "mode": "page",
     "enable-page-syntax": true,
     "use-true-ids": true,
-    "allow-local-paths": true
+    "allow-local-paths": true,
+    "interwiki": {
+      "dictionary": "https://dictionary.com/browse/$$",
+      "thesaurus": "https://thesaurus.com/browse/$$",
+      "commons": "https://commons.wikimedia.org/wiki/$$",
+      "google": "https://google.com/search?q=$$",
+      "wikipedia": "https://wikipedia.org/wiki/$$",
+      "wp": "https://wikipedia.org/wiki/$$",
+      "duckduckgo": "https://duckduckgo.com/?q=$$",
+      "ddg": "https://duckduckgo.com/?q=$$"
+    }
   },
   "page-info": {
     "page": "some-page",
@@ -138,7 +148,7 @@ fn json() {
   }
 }"#;
 
-    const COMPACT_OUTPUT: &str = r#"{"settings":{"mode":"page","enable-page-syntax":true,"use-true-ids":true,"allow-local-paths":true},"page-info":{"page":"some-page","category":null,"site":"sandbox","title":"A page for the age","alt-title":null,"rating":69.0,"tags":["tale","_cc"],"language":"default"},"syntax-tree":{"elements":[{"element":"text","data":"apple"},{"element":"text","data":" "},{"element":"container","data":{"type":"bold","attributes":{},"elements":[{"element":"text","data":"banana"}]}}],"styles":["span.hidden-text { display: none; }"],"table-of-contents":[],"footnotes":[]}}"#;
+    const COMPACT_OUTPUT: &str = r#"{"settings":{"mode":"page","enable-page-syntax":true,"use-true-ids":true,"allow-local-paths":true,"interwiki":{"wp":"https://wikipedia.org/wiki/$$","google":"https://google.com/search?q=$$","ddg":"https://duckduckgo.com/?q=$$","duckduckgo":"https://duckduckgo.com/?q=$$","commons":"https://commons.wikimedia.org/wiki/$$","dictionary":"https://dictionary.com/browse/$$","thesaurus":"https://thesaurus.com/browse/$$","wikipedia":"https://wikipedia.org/wiki/$$"}},"page-info":{"page":"some-page","category":null,"site":"sandbox","title":"A page for the age","alt-title":null,"rating":69.0,"tags":["tale","_cc"],"language":"default"},"syntax-tree":{"elements":[{"element":"text","data":"apple"},{"element":"text","data":" "},{"element":"container","data":{"type":"bold","attributes":{},"elements":[{"element":"text","data":"banana"}]}}],"styles":["span.hidden-text { display: none; }"],"table-of-contents":[],"footnotes":[]}}"#;
 
     let page_info = PageInfo::dummy();
     let settings = WikitextSettings::from_mode(WikitextMode::Page);
