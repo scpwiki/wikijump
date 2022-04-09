@@ -12,7 +12,7 @@
                             "element": "link",
                             "data": {
                                 "type": "interwiki",
-                                "link": "https://wikipedia.org/wiki/SCP Foundation",
+                                "link": "https://wikipedia.org/wiki/SCP%20Foundation",
                                 "label": {
                                     "text": "SCP Wiki"
                                 },
