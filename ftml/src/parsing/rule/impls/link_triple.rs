@@ -107,7 +107,7 @@ fn try_consume_link<'p, 'r, 't>(
 /// Helper to build link with the same URL and label.
 /// e.g. `[[[name]]]`
 fn build_same<'p, 'r, 't>(
-    _parser: &'p mut Parser<'r, 't>,
+    parser: &'p mut Parser<'r, 't>,
     url: &'t str,
     target: Option<AnchorTarget>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
@@ -117,7 +117,10 @@ fn build_same<'p, 'r, 't>(
     let label = strip_category(url).map(Cow::Borrowed);
 
     // Parse out link location
-    let link = LinkLocation::parse(cow!(url));
+    let link = match LinkLocation::parse_interwiki(cow!(url), parser.settings()) {
+        Some(link) => link,
+        None => return Err(parser.make_warn(ParseWarningKind::RuleFailed)),
+    };
 
     // Build and return element
     let element = Element::Link {
@@ -166,7 +169,10 @@ fn build_separate<'p, 'r, 't>(
     };
 
     // Parse out link location
-    let link = LinkLocation::parse(cow!(url));
+    let link = match LinkLocation::parse_interwiki(cow!(url), parser.settings()) {
+        Some(link) => link,
+        None => return Err(parser.make_warn(ParseWarningKind::RuleFailed)),
+    };
 
     // Build link element
     let element = Element::Link {

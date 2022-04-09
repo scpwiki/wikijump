@@ -240,6 +240,10 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
                     self.backlinks.internal_links.push(page_ref.to_owned());
                 }
             }
+            LinkLocation::InterwikiUrl(link) => {
+                let link = Cow::Owned(str!(link));
+                self.backlinks.external_links.push(link);
+            }
         }
     }
 

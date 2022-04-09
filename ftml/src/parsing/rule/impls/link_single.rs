@@ -27,7 +27,6 @@
 use super::prelude::*;
 use crate::tree::{AnchorTarget, LinkLabel, LinkLocation, LinkType};
 use crate::url::is_url;
-use std::borrow::Cow;
 
 pub const RULE_LINK_SINGLE: Rule = Rule {
     name: "link-single",
@@ -70,7 +69,7 @@ fn try_consume_link<'p, 'r, 't>(
     );
 
     // Gather path for link
-    let original_link = collect_text(
+    let url = collect_text(
         parser,
         rule,
         &[ParseCondition::current(Token::Whitespace)],
@@ -81,12 +80,6 @@ fn try_consume_link<'p, 'r, 't>(
         ],
         None,
     )?;
-
-    // Convert to interwiki, if valid.
-    let (url, ltype) = match parser.settings().interwiki.build(original_link) {
-        Some(url) => (Cow::Owned(url), LinkType::Interwiki),
-        None => (Cow::Borrowed(original_link), LinkType::Direct),
-    };
 
     // Return error if the resultant URL is not valid.
     if !url_valid(&url) {
@@ -114,8 +107,8 @@ fn try_consume_link<'p, 'r, 't>(
 
     // Build link element
     let element = Element::Link {
-        ltype,
-        link: LinkLocation::Url(url),
+        ltype: LinkType::Direct,
+        link: LinkLocation::Url(cow!(url)),
         label: LinkLabel::Text(cow!(label)),
         target,
     };

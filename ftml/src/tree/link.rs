@@ -20,6 +20,7 @@
 
 use super::clone::{option_string_to_owned, string_to_owned};
 use crate::data::PageRef;
+use crate::settings::WikitextSettings;
 use crate::url::is_url;
 use std::borrow::Cow;
 use strum_macros::EnumIter;
@@ -32,9 +33,29 @@ pub enum LinkLocation<'a> {
 
     /// This link is to a specific URL.
     Url(Cow<'a, str>),
+
+    /// This link is an interwiki-generated URL.
+    InterwikiUrl(Cow<'a, str>),
 }
 
 impl<'a> LinkLocation<'a> {
+    pub fn parse_interwiki(
+        link: Cow<'a, str>,
+        settings: &WikitextSettings,
+    ) -> Option<Self> {
+        // Handle interwiki (starts with "!", like "!wp:Apple")
+        match link.as_ref().strip_prefix('!') {
+            // Not interwiki, parse as normal
+            None => Some(Self::parse(link)),
+
+            // Try to interpret as interwiki
+            Some(link) => settings
+                .interwiki
+                .build(link)
+                .map(|url| LinkLocation::InterwikiUrl(Cow::Owned(url))),
+        }
+    }
+
     pub fn parse(link: Cow<'a, str>) -> Self {
         let mut link_str = link.as_ref();
 
@@ -58,6 +79,9 @@ impl<'a> LinkLocation<'a> {
         match self {
             LinkLocation::Page(page) => LinkLocation::Page(page.to_owned()),
             LinkLocation::Url(url) => LinkLocation::Url(string_to_owned(url)),
+            LinkLocation::InterwikiUrl(url) => {
+                LinkLocation::InterwikiUrl(string_to_owned(url))
+            }
         }
     }
 
@@ -65,6 +89,7 @@ impl<'a> LinkLocation<'a> {
         match self {
             LinkLocation::Page(_) => LinkType::Page,
             LinkLocation::Url(_) => LinkType::Direct,
+            LinkLocation::InterwikiUrl(_) => LinkType::Interwiki,
         }
     }
 }
