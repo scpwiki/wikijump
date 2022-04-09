@@ -40,6 +40,7 @@ lazy_static! {
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone, PartialEq, Eq)]
 pub struct InterwikiSettings {
+    #[serde(flatten)]
     pub prefixes: HashMap<Cow<'static, str>, Cow<'static, str>>,
 }
 
