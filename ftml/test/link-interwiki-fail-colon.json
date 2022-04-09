@@ -1,0 +1,77 @@
+{
+    "input": "[[[!:missing|Label]]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "[[["
+                        },
+                        {
+                            "element": "text",
+                            "data": "!"
+                        },
+                        {
+                            "element": "text",
+                            "data": ":"
+                        },
+                        {
+                            "element": "text",
+                            "data": "missing"
+                        },
+                        {
+                            "element": "text",
+                            "data": "|"
+                        },
+                        {
+                            "element": "text",
+                            "data": "Label"
+                        },
+                        {
+                            "element": "text",
+                            "data": "]]]"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+        {
+            "token": "input-end",
+            "rule": "link-triple",
+            "span": [21, 21],
+            "kind": "rule-failed"
+        },
+        {
+            "token": "left-link",
+            "rule": "fallback",
+            "span": [0, 3],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "right-link",
+            "rule": "fallback",
+            "span": [18, 21],
+            "kind": "no-rules-match"
+        }
+    ]
+}

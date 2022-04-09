@@ -1,0 +1,97 @@
+{
+    "input": "[[[!banana:Missing provider | Label]]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "[[["
+                        },
+                        {
+                            "element": "text",
+                            "data": "!"
+                        },
+                        {
+                            "element": "text",
+                            "data": "banana"
+                        },
+                        {
+                            "element": "text",
+                            "data": ":"
+                        },
+                        {
+                            "element": "text",
+                            "data": "Missing"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "provider"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "|"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "Label"
+                        },
+                        {
+                            "element": "text",
+                            "data": "]]]"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+        {
+            "token": "input-end",
+            "rule": "link-triple",
+            "span": [38, 38],
+            "kind": "rule-failed"
+        },
+        {
+            "token": "left-link",
+            "rule": "fallback",
+            "span": [0, 3],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "right-link",
+            "rule": "fallback",
+            "span": [35, 38],
+            "kind": "no-rules-match"
+        }
+    ]
+}

@@ -1,0 +1,100 @@
+{
+    "input": "[[[!wikipedia:Apple]]], [[[!wp:Apple]]]\n\n[[[!duckduckgo:LMGTFY]]], [[[!ddg:LMGTFY]]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "link",
+                            "data": {
+                                "type": "interwiki",
+                                "link": "https://wikipedia.org/wiki/Apple",
+                                "label": {
+                                    "url": "Apple"
+                                },
+                                "target": null
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": ","
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "link",
+                            "data": {
+                                "type": "interwiki",
+                                "link": "https://wikipedia.org/wiki/Apple",
+                                "label": {
+                                    "url": "Apple"
+                                },
+                                "target": null
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "link",
+                            "data": {
+                                "type": "interwiki",
+                                "link": "https://duckduckgo.com/?q=LMGTFY",
+                                "label": {
+                                    "url": "LMGTFY"
+                                },
+                                "target": null
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": ","
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "link",
+                            "data": {
+                                "type": "interwiki",
+                                "link": "https://duckduckgo.com/?q=LMGTFY",
+                                "label": {
+                                    "url": "LMGTFY"
+                                },
+                                "target": null
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}
