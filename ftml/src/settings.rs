@@ -167,6 +167,11 @@ impl InterwikiSettings {
                 let (prefix, rest) = link.split_at(idx);
                 let path = &rest[1..]; // Safe because we're splitting on ':', an ASCII character.
 
+                // Special handling, if it's empty then fail
+                if path.is_empty() {
+                    return None;
+                }
+
                 // If there's an interwiki prefix, apply the template.
                 self.prefixes.get(prefix).map(|template| {
                     // Substitute all $$s in the URL templates.
