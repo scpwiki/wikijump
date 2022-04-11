@@ -59,7 +59,7 @@
   },
   "devDependencies": {
     "@changesets/cli": "^2.21.0",
-    "@ota-meshi/eslint-plugin-svelte": "^0.29.0",
+    "@ota-meshi/eslint-plugin-svelte": "^0.30.0",
     "@prettier/plugin-php": "0.18.0",
     "@testing-library/dom": "^8.11.3",
     "@typescript-eslint/eslint-plugin": "^5.13.0",
