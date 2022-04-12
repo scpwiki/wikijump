@@ -40,8 +40,9 @@ pub fn render_anchor(
     ctx.html()
         .a()
         .attr(attr!(
+            "class" => "wj-link wj-link-anchor",
             "target" => target_value; if target.is_some();;
-            attributes
+            attributes,
         ))
         .inner(elements);
 }
@@ -60,14 +61,22 @@ pub fn render_link(
     ctx.add_link(link);
 
     let url = normalize_link(link, ctx.handle());
+
     let target_value = match target {
         Some(target) => target.html_attr(),
         None => "",
     };
 
+    let css_class = match link {
+        LinkLocation::Url(url) if url.starts_with('#') => "wj-link-anchor",
+        LinkLocation::Url(_) => "wj-link-external",
+        LinkLocation::Page(_) => "wj-link-internal",
+    };
+
     let mut tag = ctx.html().a();
     tag.attr(attr!(
         "href" => &url,
+        "class" => "wj-link " css_class,
         "target" => target_value; if target.is_some(),
         "data-link-type" => ltype.name(),
     ));
