@@ -40,7 +40,7 @@ pub fn render_anchor(
     ctx.html()
         .a()
         .attr(attr!(
-            "class" => "wj-link wj-link-anchor",
+            "class" => "wj-anchor",
             "target" => target_value; if target.is_some();;
             attributes,
         ))
