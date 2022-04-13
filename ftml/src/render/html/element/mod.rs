@@ -113,7 +113,7 @@ pub fn render_element(ctx: &mut HtmlContext, element: &Element) {
                 value = isolate_ids(name);
                 &value
             } else {
-                &name
+                name
             };
 
             ctx.html().a().attr(attr!("id" => id));
