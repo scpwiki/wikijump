@@ -21,6 +21,7 @@
 use super::attributes::AddedAttributes;
 use super::context::HtmlContext;
 use super::render::ItemRender;
+use crate::id_prefix::isolate_ids;
 use std::collections::HashSet;
 
 macro_rules! tag_method {
@@ -171,6 +172,33 @@ impl<'c, 'i, 'h, 'e, 't> HtmlBuilderTag<'c, 'i, 'h, 'e, 't> {
         }
     }
 
+    pub fn attr_single(&mut self, key: &str, value_parts: &[&str]) -> &mut Self {
+        // If value_parts is empty, then we just give the key.
+        //
+        // For instance, ("checked", &[]) in input produces
+        // <input checked> rather than <input checked="...">
+        //
+        // Alternatively, if it's only composed of empty strings,
+        // the same intent is signalled.
+        //
+        // Because .all() is true for empty slices, this expression
+        // checks both:
+
+        let has_value = !value_parts.iter().all(|s| s.is_empty());
+
+        self.attr_key(key, has_value);
+
+        if has_value {
+            self.ctx.push_raw('"');
+            for part in value_parts {
+                self.ctx.push_escaped(part);
+            }
+            self.ctx.push_raw('"');
+        }
+
+        self
+    }
+
     pub fn attr(&mut self, attributes: AddedAttributes) -> &mut Self {
         fn filter_entries<'a>(
             attributes: &AddedAttributes<'a>,
@@ -223,33 +251,6 @@ impl<'c, 'i, 'h, 'e, 't> HtmlBuilderTag<'c, 'i, 'h, 'e, 't> {
                     self.attr_single(key, &[value]);
                 }
             }
-        }
-
-        self
-    }
-
-    pub fn attr_single(&mut self, key: &str, value_parts: &[&str]) -> &mut Self {
-        // If value_parts is empty, then we just give the key.
-        //
-        // For instance, ("checked", &[]) in input produces
-        // <input checked> rather than <input checked="...">
-        //
-        // Alternatively, if it's only composed of empty strings,
-        // the same intent is signalled.
-        //
-        // Because .all() is true for empty slices, this expression
-        // checks both:
-
-        let has_value = !value_parts.iter().all(|s| s.is_empty());
-
-        self.attr_key(key, has_value);
-
-        if has_value {
-            self.ctx.push_raw('"');
-            for part in value_parts {
-                self.ctx.push_escaped(part);
-            }
-            self.ctx.push_raw('"');
         }
 
         self
