@@ -84,6 +84,12 @@ pub enum Element<'t> {
         elements: Vec<Element<'t>>,
     },
 
+    /// An element representing a named anchor.
+    ///
+    /// This is an area of the page that can be jumped to by name.
+    /// Associated syntax is `[[# name-of-anchor]]`.
+    AnchorName(Cow<'t, str>),
+
     /// An element linking to a different page.
     ///
     /// The "label" field is an optional field denoting what the link should
@@ -296,6 +302,7 @@ impl Element<'_> {
             Element::Table(_) => "Table",
             Element::TabView(_) => "TabView",
             Element::Anchor { .. } => "Anchor",
+            Element::AnchorName(_) => "AnchorName",
             Element::Link { .. } => "Link",
             Element::Image { .. } => "Image",
             Element::List { .. } => "List",
@@ -344,7 +351,9 @@ impl Element<'_> {
             | Element::Email(_) => true,
             Element::Table(_) => false,
             Element::TabView(_) => false,
-            Element::Anchor { .. } | Element::Link { .. } => true,
+            Element::Anchor { .. } | Element::AnchorName(_) | Element::Link { .. } => {
+                true
+            }
             Element::Image { .. } => true,
             Element::List { .. } => false,
             Element::DefinitionList(_) => false,
@@ -398,6 +407,7 @@ impl Element<'_> {
                 attributes: attributes.to_owned(),
                 elements: elements_to_owned(elements),
             },
+            Element::AnchorName(name) => Element::AnchorName(string_to_owned(name)),
             Element::Link {
                 link,
                 label,

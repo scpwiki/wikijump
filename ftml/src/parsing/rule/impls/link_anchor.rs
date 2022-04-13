@@ -18,10 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Rules for anchor soft-links.
+//! Rule for links to anchors on the same document.
 //!
-//! A variant on single-bracket links which targets an anchor on the current page,
-//! or is a fake link.
+//! A variant on single-bracket links which targets an anchor
+//! on the current page, or is a fake link.
 
 use super::prelude::*;
 use crate::tree::{LinkLabel, LinkLocation};
@@ -82,13 +82,10 @@ fn try_consume_fn<'p, 'r, 't>(
     // Trim label
     let label = label.trim();
 
-    // Build link element
-    let element = Element::Link {
+    // Build and return link element
+    ok!(Element::Link {
         link: LinkLocation::Url(url),
         label: LinkLabel::Text(cow!(label)),
         target: None,
-    };
-
-    // Return result
-    ok!(element)
+    })
 }

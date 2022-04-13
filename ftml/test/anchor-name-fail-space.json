@@ -1,0 +1,61 @@
+{
+    "input": "[[#apple]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "[[#"
+                        },
+                        {
+                            "element": "text",
+                            "data": "apple"
+                        },
+                        {
+                            "element": "text",
+                            "data": "]]"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+        {
+            "token": "identifier",
+            "rule": "anchor",
+            "span": [3, 8],
+            "kind": "rule-failed"
+        },
+        {
+            "token": "left-block-anchor",
+            "rule": "fallback",
+            "span": [0, 3],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "right-block",
+            "rule": "fallback",
+            "span": [8, 10],
+            "kind": "no-rules-match"
+        }
+    ]
+}
