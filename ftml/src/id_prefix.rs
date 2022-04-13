@@ -27,6 +27,10 @@ pub fn isolate_ids(id_string: &str) -> String {
     let mut isolated_ids = String::new();
 
     for class in id_string.split_whitespace() {
+        if !isolated_ids.is_empty() {
+            isolated_ids.push(' ');
+        }
+
         str_write!(isolated_ids, "u-{}", class);
     }
 
@@ -35,5 +39,24 @@ pub fn isolate_ids(id_string: &str) -> String {
 
 #[test]
 fn test_isolate_ids() {
-    panic!("TODO");
+    macro_rules! check {
+        ($input:expr, $expected:expr) => {
+            assert_eq!(
+                isolate_ids($input),
+                $expected,
+                "Actual isolated ID string doesn't match expected",
+            );
+        };
+    }
+
+    check!("", "");
+    check!("  ", "");
+    check!("apple", "u-apple");
+    check!("apple banana", "u-apple u-banana");
+    check!("apple  banana", "u-apple u-banana");
+    check!(" apple  banana", "u-apple u-banana");
+    check!(" apple   banana ", "u-apple u-banana");
+    check!("apple banana cherry", "u-apple u-banana u-cherry");
+    check!("apple  banana cherry", "u-apple u-banana u-cherry");
+    check!("  apple  banana\tcherry", "u-apple u-banana u-cherry");
 }
