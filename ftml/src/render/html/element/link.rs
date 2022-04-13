@@ -78,8 +78,8 @@ pub fn render_link(
     let mut tag = ctx.html().a();
     tag.attr(attr!(
         "href" => &url,
-        "class" => "wj-link " css_class,
         "target" => target_value; if target.is_some(),
+        "class" => "wj-link " css_class,
         "data-link-type" => ltype.name(),
     ));
 
