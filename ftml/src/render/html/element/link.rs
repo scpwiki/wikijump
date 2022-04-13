@@ -75,11 +75,17 @@ pub fn render_link(
         LinkLocation::Page(_) => "wj-link-internal",
     };
 
+    let interwiki_class = if ltype == LinkType::Interwiki {
+        " wj-link-interwiki"
+    } else {
+        ""
+    };
+
     let mut tag = ctx.html().a();
     tag.attr(attr!(
         "href" => &url,
         "target" => target_value; if target.is_some(),
-        "class" => "wj-link " css_class,
+        "class" => "wj-link " css_class interwiki_class,
         "data-link-type" => ltype.name(),
     ));
 
