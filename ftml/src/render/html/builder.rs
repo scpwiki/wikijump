@@ -172,6 +172,16 @@ impl<'c, 'i, 'h, 'e, 't> HtmlBuilderTag<'c, 'i, 'h, 'e, 't> {
         }
     }
 
+    fn attr_value(&mut self, value_parts: &[&str]) {
+        self.ctx.push_raw('"');
+
+        for part in value_parts {
+            self.ctx.push_escaped(part);
+        }
+
+        self.ctx.push_raw('"');
+    }
+
     pub fn attr_single(&mut self, key: &str, value_parts: &[&str]) -> &mut Self {
         // If value_parts is empty, then we just give the key.
         //
@@ -189,11 +199,7 @@ impl<'c, 'i, 'h, 'e, 't> HtmlBuilderTag<'c, 'i, 'h, 'e, 't> {
         self.attr_key(key, has_value);
 
         if has_value {
-            self.ctx.push_raw('"');
-            for part in value_parts {
-                self.ctx.push_escaped(part);
-            }
-            self.ctx.push_raw('"');
+            self.attr_value(value_parts);
         }
 
         self
