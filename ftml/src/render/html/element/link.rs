@@ -69,6 +69,7 @@ pub fn render_link(
 
     let css_class = match link {
         LinkLocation::Url(url) if url.starts_with('#') => "wj-link-anchor",
+        LinkLocation::Url(url) if url.starts_with('/') => "wj-link-internal",
         LinkLocation::Url(_) => "wj-link-external",
         LinkLocation::Page(_) => "wj-link-internal",
     };
