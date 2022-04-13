@@ -1,5 +1,5 @@
 {
-    "input": "[*http://scp-sandbox-3.wikidot.com/system:recent-changes Sandbox: Recent Changes ]",
+    "input": "[*https://scp-sandbox-3.wikidot.com/system:recent-changes Sandbox: Recent Changes ]",
     "tree": {
         "elements": [
             {
@@ -11,7 +11,8 @@
                         {
                             "element": "link",
                             "data": {
-                                "link": "http://scp-sandbox-3.wikidot.com/system:recent-changes",
+                                "type": "direct",
+                                "link": "https://scp-sandbox-3.wikidot.com/system:recent-changes",
                                 "label": {
                                     "text": "Sandbox: Recent Changes"
                                 },

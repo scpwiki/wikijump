@@ -1,0 +1,42 @@
+{
+    "input": "[[[!wikipedia:SCP Foundation|SCP Wiki]]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "link",
+                            "data": {
+                                "type": "interwiki",
+                                "link": "https://wikipedia.org/wiki/SCP%20Foundation",
+                                "label": {
+                                    "text": "SCP Wiki"
+                                },
+                                "target": null
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}

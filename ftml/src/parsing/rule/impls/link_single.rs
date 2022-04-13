@@ -25,7 +25,7 @@
 //! Its syntax is `[https://example.com/ Label text]`.
 
 use super::prelude::*;
-use crate::tree::{AnchorTarget, LinkLabel, LinkLocation};
+use crate::tree::{AnchorTarget, LinkLabel, LinkLocation, LinkType};
 use crate::url::is_url;
 
 pub const RULE_LINK_SINGLE: Rule = Rule {
@@ -81,6 +81,7 @@ fn try_consume_link<'p, 'r, 't>(
         None,
     )?;
 
+    // Return error if the resultant URL is not valid.
     if !url_valid(url) {
         return Err(parser.make_warn(ParseWarningKind::InvalidUrl));
     }
@@ -106,6 +107,7 @@ fn try_consume_link<'p, 'r, 't>(
 
     // Build link element
     let element = Element::Link {
+        ltype: LinkType::Direct,
         link: LinkLocation::Url(cow!(url)),
         label: LinkLabel::Text(cow!(label)),
         target,

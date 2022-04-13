@@ -1,0 +1,61 @@
+{
+    "input": "[[[!wikipedia:es:Capybara]]], [[[!wikipedia:es:Capybara | Capybaras]]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "link",
+                            "data": {
+                                "type": "interwiki",
+                                "link": "https://wikipedia.org/wiki/es:Capybara",
+                                "label": {
+                                    "url": "es:Capybara"
+                                },
+                                "target": null
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": ","
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "link",
+                            "data": {
+                                "type": "interwiki",
+                                "link": "https://wikipedia.org/wiki/es:Capybara",
+                                "label": {
+                                    "text": "Capybaras"
+                                },
+                                "target": null
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}

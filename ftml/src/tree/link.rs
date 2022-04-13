@@ -20,8 +20,10 @@
 
 use super::clone::{option_string_to_owned, string_to_owned};
 use crate::data::PageRef;
+use crate::settings::WikitextSettings;
 use crate::url::is_url;
 use std::borrow::Cow;
+use strum_macros::EnumIter;
 
 #[derive(Serialize, Deserialize, Debug, Hash, Clone, PartialEq, Eq)]
 #[serde(untagged)]
@@ -34,6 +36,27 @@ pub enum LinkLocation<'a> {
 }
 
 impl<'a> LinkLocation<'a> {
+    pub fn parse_interwiki(
+        link: Cow<'a, str>,
+        settings: &WikitextSettings,
+    ) -> Option<(Self, LinkType)> {
+        // Handle interwiki (starts with "!", like "!wp:Apple")
+        match link.as_ref().strip_prefix('!') {
+            // Not interwiki, parse as normal
+            None => {
+                let interwiki = Self::parse(link);
+                let ltype = interwiki.link_type();
+                Some((interwiki, ltype))
+            }
+
+            // Try to interpret as interwiki
+            Some(link) => settings
+                .interwiki
+                .build(link)
+                .map(|url| (LinkLocation::Url(Cow::Owned(url)), LinkType::Interwiki)),
+        }
+    }
+
     pub fn parse(link: Cow<'a, str>) -> Self {
         let mut link_str = link.as_ref();
 
@@ -57,6 +80,13 @@ impl<'a> LinkLocation<'a> {
         match self {
             LinkLocation::Page(page) => LinkLocation::Page(page.to_owned()),
             LinkLocation::Url(url) => LinkLocation::Url(string_to_owned(url)),
+        }
+    }
+
+    pub fn link_type(&self) -> LinkType {
+        match self {
+            LinkLocation::Page(_) => LinkType::Page,
+            LinkLocation::Url(_) => LinkType::Direct,
         }
     }
 }
@@ -136,5 +166,80 @@ impl LinkLabel<'_> {
             LinkLabel::Url(url) => LinkLabel::Url(option_string_to_owned(url)),
             LinkLabel::Page => LinkLabel::Page,
         }
+    }
+}
+
+#[derive(EnumIter, Serialize, Deserialize, Debug, Hash, Copy, Clone, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
+pub enum LinkType {
+    /// This URL was specified directly.
+    ///
+    /// For instance, as a raw URL, or a single-bracket link.
+    Direct,
+
+    /// This URL was specified by specifying a particular Wikijump page.
+    ///
+    /// This variant comes from triple-bracket links.
+    Page,
+
+    /// This URL was generated via interwiki substitution.
+    Interwiki,
+
+    /// This URL points to an anchor elsewhere on this page.
+    Anchor,
+
+    /// This URL points to entries on a page in a table of contents.
+    TableOfContents,
+}
+
+impl LinkType {
+    pub fn name(self) -> &'static str {
+        match self {
+            LinkType::Direct => "direct",
+            LinkType::Page => "page",
+            LinkType::Interwiki => "interwiki",
+            LinkType::Anchor => "anchor",
+            LinkType::TableOfContents => "table-of-contents",
+        }
+    }
+}
+
+impl<'a> TryFrom<&'a str> for LinkType {
+    type Error = &'a str;
+
+    fn try_from(value: &'a str) -> Result<LinkType, &'a str> {
+        match value {
+            "direct" => Ok(LinkType::Direct),
+            "page" => Ok(LinkType::Page),
+            "interwiki" => Ok(LinkType::Interwiki),
+            "anchor" => Ok(LinkType::Anchor),
+            "table-of-contents" => Ok(LinkType::TableOfContents),
+            _ => Err(value),
+        }
+    }
+}
+
+/// Ensure `LinkType::name()` produces the same output as serde.
+#[test]
+fn link_type_name_serde() {
+    use strum::IntoEnumIterator;
+
+    for variant in LinkType::iter() {
+        let output = serde_json::to_string(&variant).expect("Unable to serialize JSON");
+        let serde_name: String =
+            serde_json::from_str(&output).expect("Unable to deserialize JSON");
+
+        assert_eq!(
+            &serde_name,
+            variant.name(),
+            "Serde name does not match variant name",
+        );
+
+        let converted: LinkType = serde_name
+            .as_str()
+            .try_into()
+            .expect("Could not convert item");
+
+        assert_eq!(converted, variant, "Converted item does not match variant");
     }
 }

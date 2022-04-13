@@ -23,7 +23,7 @@ use crate::tree::clone::*;
 use crate::tree::{
     Alignment, AnchorTarget, AttributeMap, ClearFloat, Container, Date,
     DefinitionListItem, Embed, FloatAlignment, ImageSource, LinkLabel, LinkLocation,
-    ListItem, ListType, Module, PartialElement, Tab, Table, VariableMap,
+    LinkType, ListItem, ListType, Module, PartialElement, Tab, Table, VariableMap,
 };
 use ref_map::*;
 use std::borrow::Cow;
@@ -96,7 +96,11 @@ pub enum Element<'t> {
     /// display.
     ///
     /// The "link" field is either a page reference (relative URL) or full URL.
+    ///
+    /// The "ltype" field tells what kind of link produced this element.
     Link {
+        #[serde(rename = "type")]
+        ltype: LinkType,
         link: LinkLocation<'t>,
         label: LinkLabel<'t>,
         target: Option<AnchorTarget>,
@@ -409,10 +413,12 @@ impl Element<'_> {
             },
             Element::AnchorName(name) => Element::AnchorName(string_to_owned(name)),
             Element::Link {
+                ltype,
                 link,
                 label,
                 target,
             } => Element::Link {
+                ltype: *ltype,
                 link: link.to_owned(),
                 label: label.to_owned(),
                 target: *target,

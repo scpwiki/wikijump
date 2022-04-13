@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::tree::{LinkLabel, LinkLocation};
+use crate::tree::{LinkLabel, LinkLocation, LinkType};
 
 pub const RULE_URL: Rule = Rule {
     name: "url",
@@ -35,6 +35,7 @@ fn try_consume_fn<'p, 'r, 't>(
     let url = cow!(token.slice);
 
     let element = Element::Link {
+        ltype: LinkType::Direct,
         link: LinkLocation::Url(url),
         label: LinkLabel::Url(None),
         target: None,

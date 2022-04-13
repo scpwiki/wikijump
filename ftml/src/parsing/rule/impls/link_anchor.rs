@@ -24,7 +24,7 @@
 //! on the current page, or is a fake link.
 
 use super::prelude::*;
-use crate::tree::{LinkLabel, LinkLocation};
+use crate::tree::{LinkLabel, LinkLocation, LinkType};
 use std::borrow::Cow;
 use wikidot_normalize::normalize;
 
@@ -84,6 +84,7 @@ fn try_consume_fn<'p, 'r, 't>(
 
     // Build and return link element
     ok!(Element::Link {
+        ltype: LinkType::Anchor,
         link: LinkLocation::Url(url),
         label: LinkLabel::Text(cow!(label)),
         target: None,

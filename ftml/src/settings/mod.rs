@@ -18,6 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod interwiki;
+
+pub use self::interwiki::{InterwikiSettings, DEFAULT_INTERWIKI};
+
 /// Settings to tweak behavior in the ftml parser and renderer.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
@@ -47,34 +51,54 @@ pub struct WikitextSettings {
     /// * Files
     /// * Images
     pub allow_local_paths: bool,
+
+    /// What interwiki prefixes are supported.
+    ///
+    /// All instances of `$$` in the destination URL are replaced with the link provided
+    /// in the interwiki link. For instance, `[wikipedia:SCP_Foundation SCP Wiki]`, then
+    /// `$$` will be replaced with `SCP_Foundation`.
+    ///
+    /// # Notes
+    ///
+    /// * These are matched case-sensitively.
+    /// * Prefixes may not contain colons, they are matched up to the first colon, and
+    ///   any beyond that are considered part of the link.
+    /// * By convention, prefixes should be all-lowercase.
+    pub interwiki: InterwikiSettings,
 }
 
 impl WikitextSettings {
     pub fn from_mode(mode: WikitextMode) -> Self {
+        let interwiki = DEFAULT_INTERWIKI.clone();
+
         match mode {
             WikitextMode::Page => WikitextSettings {
                 mode,
                 enable_page_syntax: true,
                 use_true_ids: true,
                 allow_local_paths: true,
+                interwiki,
             },
             WikitextMode::Draft => WikitextSettings {
                 mode,
                 enable_page_syntax: true,
                 use_true_ids: false,
                 allow_local_paths: true,
+                interwiki,
             },
             WikitextMode::ForumPost | WikitextMode::DirectMessage => WikitextSettings {
                 mode,
                 enable_page_syntax: false,
                 use_true_ids: false,
                 allow_local_paths: false,
+                interwiki,
             },
             WikitextMode::List => WikitextSettings {
                 mode,
                 enable_page_syntax: true,
                 use_true_ids: false,
                 allow_local_paths: true,
+                interwiki,
             },
         }
     }

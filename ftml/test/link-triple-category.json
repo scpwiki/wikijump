@@ -11,6 +11,7 @@
                         {
                             "element": "link",
                             "data": {
+                                "type": "page",
                                 "link": {
                                     "site": null,
                                     "page": "system:Recent Changes"

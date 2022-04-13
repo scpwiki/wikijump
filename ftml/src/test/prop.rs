@@ -25,7 +25,7 @@ use crate::tree::attribute::SAFE_ATTRIBUTES;
 use crate::tree::{
     Alignment, AnchorTarget, AttributeMap, ClearFloat, Container, ContainerType, Element,
     FloatAlignment, Heading, HeadingLevel, ImageSource, LinkLabel, LinkLocation,
-    ListItem, ListType, Module, SyntaxTree,
+    LinkType, ListItem, ListType, Module, SyntaxTree,
 };
 use proptest::option;
 use proptest::prelude::*;
@@ -132,6 +132,16 @@ fn arb_link_location() -> impl Strategy<Value = LinkLocation<'static>> {
     ]
 }
 
+fn arb_link_type() -> impl Strategy<Value = LinkType> {
+    select!([
+        LinkType::Direct,
+        LinkType::Page,
+        LinkType::Interwiki,
+        LinkType::Anchor,
+        LinkType::TableOfContents,
+    ])
+}
+
 fn arb_link_element() -> impl Strategy<Value = Element<'static>> {
     let label = prop_oneof![
         cow!(".*").prop_map(LinkLabel::Text),
@@ -139,13 +149,14 @@ fn arb_link_element() -> impl Strategy<Value = Element<'static>> {
         Just(LinkLabel::Page),
     ];
 
-    (arb_link_location(), label, arb_target()).prop_map(|(link, label, target)| {
-        Element::Link {
+    (arb_link_type(), arb_link_location(), label, arb_target()).prop_map(
+        |(ltype, link, label, target)| Element::Link {
+            ltype,
             link,
             label,
             target,
-        }
-    })
+        },
+    )
 }
 
 fn arb_image() -> impl Strategy<Value = Element<'static>> {
