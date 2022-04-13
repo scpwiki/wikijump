@@ -40,8 +40,9 @@ pub fn render_anchor(
     ctx.html()
         .a()
         .attr(attr!(
+            "class" => "wj-anchor",
             "target" => target_value; if target.is_some();;
-            attributes
+            attributes,
         ))
         .inner(elements);
 }
@@ -60,15 +61,31 @@ pub fn render_link(
     ctx.add_link(link);
 
     let url = normalize_link(link, ctx.handle());
+
     let target_value = match target {
         Some(target) => target.html_attr(),
         None => "",
+    };
+
+    let css_class = match link {
+        LinkLocation::Url(url) if url == "javascript:;" => "wj-link-anchor",
+        LinkLocation::Url(url) if url.starts_with('#') => "wj-link-anchor",
+        LinkLocation::Url(url) if url.starts_with('/') => "wj-link-internal",
+        LinkLocation::Url(_) => "wj-link-external",
+        LinkLocation::Page(_) => "wj-link-internal",
+    };
+
+    let interwiki_class = if ltype == LinkType::Interwiki {
+        " wj-link-interwiki"
+    } else {
+        ""
     };
 
     let mut tag = ctx.html().a();
     tag.attr(attr!(
         "href" => &url,
         "target" => target_value; if target.is_some(),
+        "class" => "wj-link " css_class interwiki_class,
         "data-link-type" => ltype.name(),
     ));
 
