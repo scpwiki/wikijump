@@ -202,7 +202,7 @@ fn parse_args(config: &mut Config) {
                 .long("log")
                 .long("log-level")
                 .takes_value(true)
-                .value_name("level")
+                .value_name("LEVEL")
                 .help("What logging level to use."),
         )
         .arg(
@@ -211,7 +211,7 @@ fn parse_args(config: &mut Config) {
                 .long("host")
                 .long("hostname")
                 .takes_value(true)
-                .value_name("host")
+                .value_name("HOST")
                 .help("What host to listen on."),
         )
         .arg(
@@ -219,7 +219,7 @@ fn parse_args(config: &mut Config) {
                 .short('p')
                 .long("port")
                 .takes_value(true)
-                .value_name("port")
+                .value_name("PORT")
                 .help("What port to listen on."),
         )
         .arg(
@@ -228,7 +228,7 @@ fn parse_args(config: &mut Config) {
                 .long("db")
                 .long("database")
                 .takes_value(true)
-                .value_name("uri")
+                .value_name("URI")
                 .help("The URL of the PostgreSQL database to connect to."),
         )
         .arg(
@@ -237,7 +237,7 @@ fn parse_args(config: &mut Config) {
                 .long("migrate")
                 .long("run-migrations")
                 .takes_value(true)
-                .value_name("true / false")
+                .value_name("BOOLEAN")
                 .help("Whether to run migrations on server startup."),
         )
         .arg(
@@ -245,7 +245,7 @@ fn parse_args(config: &mut Config) {
                 .short('L')
                 .long("localizations")
                 .takes_value(true)
-                .value_name("path")
+                .value_name("PATH")
                 .help("The path to read translation files from."),
         )
         .arg(
@@ -253,7 +253,7 @@ fn parse_args(config: &mut Config) {
                 .short('r')
                 .long("requests-per-minute")
                 .takes_value(true)
-                .value_name("count")
+                .value_name("COUNT")
                 .help("How many requests are allowed per IP address per minute."),
         )
         .get_matches();
