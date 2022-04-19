@@ -27,6 +27,7 @@
 //! it's already prefixed with that.
 
 pub fn isolate_ids(id_string: &str) -> String {
+    const PREFIX: &str = "u-";
     let mut isolated_ids = String::new();
 
     for class in id_string.split_whitespace() {
@@ -34,10 +35,10 @@ pub fn isolate_ids(id_string: &str) -> String {
             isolated_ids.push(' ');
         }
 
-        if class.starts_with("u-") {
+        if class.starts_with(PREFIX) {
             isolated_ids.push_str(class);
         } else {
-            str_write!(isolated_ids, "u-{}", class);
+            str_write!(isolated_ids, "{}{}", PREFIX, class);
         }
     }
 
