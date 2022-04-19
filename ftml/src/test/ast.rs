@@ -82,7 +82,7 @@ fn only_test_should_skip(name: &str) -> bool {
             return false;
         }
 
-        // Test prefix
+        // Test name prefix
         if pattern.ends_with('-') {
             if name.starts_with(pattern) {
                 return false;
