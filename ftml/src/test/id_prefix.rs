@@ -20,7 +20,9 @@
 
 use crate::data::PageInfo;
 use crate::settings::{WikitextMode, WikitextSettings, EMPTY_INTERWIKI};
-use crate::tree::{AttributeMap, Container, ContainerType, Element, SyntaxTree};
+use crate::tree::{
+    AttributeMap, Container, ContainerType, Element, ImageSource, SyntaxTree,
+};
 use std::borrow::Cow;
 
 #[test]
@@ -53,7 +55,7 @@ fn isolate_user_ids() {
         enable_page_syntax: true,
         use_true_ids: true,
         isolate_user_ids: true,
-        allow_local_paths: false,
+        allow_local_paths: true,
         interwiki: EMPTY_INTERWIKI.clone(),
     };
 
@@ -92,7 +94,7 @@ fn isolate_user_ids() {
     // Trivial
     check!("", vec![]);
 
-    // Anchor block ([[a]])
+    // Anchor block [[a]]
     check!(
         r#"[[a id="apple"]]X[[/a]]"#,
         vec![Element::Container(Container::new(
@@ -117,6 +119,44 @@ fn isolate_user_ids() {
                     cow!("id") => cow!("u-apple"),
                 }),
                 elements: vec![text!("X")],
+            }],
+            AttributeMap::new(),
+        ))],
+    );
+
+    // Images [[image]]
+    check!(
+        r#"[[image example.png class="apple" id="banana"]]"#,
+        vec![Element::Container(Container::new(
+            ContainerType::Paragraph,
+            vec![Element::Image {
+                source: ImageSource::File1 {
+                    file: cow!("example.png"),
+                },
+                link: None,
+                alignment: None,
+                attributes: AttributeMap::from(btreemap! {
+                    cow!("class") => cow!("apple"),
+                    cow!("id") => cow!("u-banana"),
+                }),
+            }],
+            AttributeMap::new(),
+        ))],
+    );
+    check!(
+        r#"[[image example.png class="u-apple" id="u-banana"]]"#,
+        vec![Element::Container(Container::new(
+            ContainerType::Paragraph,
+            vec![Element::Image {
+                source: ImageSource::File1 {
+                    file: cow!("example.png"),
+                },
+                link: None,
+                alignment: None,
+                attributes: AttributeMap::from(btreemap! {
+                    cow!("class") => cow!("u-apple"),
+                    cow!("id") => cow!("u-banana"),
+                }),
             }],
             AttributeMap::new(),
         ))],
