@@ -67,7 +67,6 @@ use self::toc::render_table_of_contents;
 use self::user::render_user;
 use super::attributes::AddedAttributes;
 use super::HtmlContext;
-use crate::id_prefix::isolate_ids;
 use crate::render::ModuleRenderMode;
 use crate::tree::Element;
 use ref_map::*;
@@ -106,16 +105,7 @@ pub fn render_element(ctx: &mut HtmlContext, element: &Element) {
             attributes,
             target,
         } => render_anchor(ctx, elements, attributes, *target),
-        Element::AnchorName(name) => {
-            // Prefix with "u-" if settings call for it.
-            let value;
-            let id: &str = if ctx.settings().isolate_user_ids {
-                value = isolate_ids(name);
-                &value
-            } else {
-                name
-            };
-
+        Element::AnchorName(id) => {
             ctx.html().a().attr(attr!("id" => id));
         }
         Element::Link {
