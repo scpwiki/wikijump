@@ -20,7 +20,7 @@
 
 use crate::data::PageInfo;
 use crate::settings::{WikitextMode, WikitextSettings, EMPTY_INTERWIKI};
-use crate::tree::SyntaxTree;
+use crate::tree::{AttributeMap, Container, ContainerType, Element, SyntaxTree};
 use std::borrow::Cow;
 
 #[test]
@@ -28,6 +28,12 @@ fn isolate_user_ids() {
     macro_rules! cow {
         ($text:expr) => {
             Cow::Borrowed($text)
+        };
+    }
+
+    macro_rules! text {
+        ($text:expr) => {
+            Element::Text(cow!($text))
         };
     }
 
@@ -51,8 +57,16 @@ fn isolate_user_ids() {
         interwiki: EMPTY_INTERWIKI.clone(),
     };
 
+    fn append_footnote_block(mut elements: Vec<Element>) -> Vec<Element> {
+        elements.push(Element::FootnoteBlock {
+            title: None,
+            hide: false,
+        });
+        elements
+    }
+
     macro_rules! check {
-        ($wikitext:expr, $elements:expr) => {{
+        ($wikitext:expr, $elements:expr $(,)?) => {{
             let mut text = str!($wikitext);
 
             crate::preprocess(&mut text);
@@ -61,7 +75,7 @@ fn isolate_user_ids() {
             let (actual_tree, warnings) = result.into();
 
             let expected_tree = SyntaxTree {
-                elements: $elements,
+                elements: append_footnote_block($elements),
                 styles: vec![],
                 table_of_contents: vec![],
                 footnotes: vec![],
@@ -76,4 +90,18 @@ fn isolate_user_ids() {
     }
 
     check!("", vec![]);
+    check!(
+        r#"[[a id="apple"]]X[[/a]]"#,
+        vec![Element::Container(Container::new(
+            ContainerType::Paragraph,
+            vec![Element::Anchor {
+                target: None,
+                attributes: AttributeMap::from(btreemap! {
+                    cow!("id") => cow!("u-apple"),
+                }),
+                elements: vec![text!("X")],
+            }],
+            AttributeMap::new(),
+        )),],
+    );
 }
