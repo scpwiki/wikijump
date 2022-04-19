@@ -31,15 +31,17 @@ pub fn isolate_ids(id_string: &str) -> String {
     let mut isolated_ids = String::new();
 
     for class in id_string.split_whitespace() {
+        // Add space separator between each class
         if !isolated_ids.is_empty() {
             isolated_ids.push(' ');
         }
 
-        if class.starts_with(PREFIX) {
-            isolated_ids.push_str(class);
-        } else {
-            str_write!(isolated_ids, "{}{}", PREFIX, class);
+        // Prefix if not already present
+        if !class.starts_with(PREFIX) {
+            isolated_ids.push_str(PREFIX);
         }
+
+        isolated_ids.push_str(class);
     }
 
     isolated_ids
