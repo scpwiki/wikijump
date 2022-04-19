@@ -80,10 +80,7 @@ fn isolate_user_ids() {
             let expected = append_footnote_block($elements);
 
             assert!(warnings.is_empty(), "Warnings produced during parsing!");
-            assert_eq!(
-                actual, expected,
-                "Actual elements didn't match expected",
-            );
+            assert_eq!(actual, expected, "Actual elements didn't match expected");
         }};
     }
 
@@ -330,6 +327,26 @@ fn isolate_user_ids() {
             hide_text: None,
             show_top: true,
             show_bottom: false,
+        }],
+    );
+
+    // Table of contents [[toc]]
+    check!(
+        r#"[[toc id="apple"]]"#,
+        vec![Element::TableOfContents {
+            attributes: AttributeMap::from(btreemap! {
+                cow!("id") => cow!("u-apple"),
+            }),
+            align: None,
+        }],
+    );
+    check!(
+        r#"[[toc id="u-apple"]]"#,
+        vec![Element::TableOfContents {
+            attributes: AttributeMap::from(btreemap! {
+                cow!("id") => cow!("u-apple"),
+            }),
+            align: None,
         }],
     );
 }
