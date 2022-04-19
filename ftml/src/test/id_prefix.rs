@@ -89,7 +89,10 @@ fn isolate_user_ids() {
         }};
     }
 
+    // Trivial
     check!("", vec![]);
+
+    // Anchor block ([[a]])
     check!(
         r#"[[a id="apple"]]X[[/a]]"#,
         vec![Element::Container(Container::new(
