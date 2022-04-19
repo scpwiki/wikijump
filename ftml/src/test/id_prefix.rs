@@ -297,4 +297,44 @@ fn isolate_user_ids() {
             AttributeMap::new(),
         ))],
     );
+
+    // Collapsibles [[collapsible]]
+    check!(
+        r#"[[collapsible class="apple" id="banana"]]X[[/collapsible]]"#,
+        vec![Element::Collapsible {
+            elements: vec![Element::Container(Container::new(
+                ContainerType::Paragraph,
+                vec![text!("X")],
+                AttributeMap::new(),
+            ))],
+            attributes: AttributeMap::from(btreemap! {
+                cow!("class") => cow!("apple"),
+                cow!("id") => cow!("u-banana"),
+            }),
+            start_open: false,
+            show_text: None,
+            hide_text: None,
+            show_top: true,
+            show_bottom: false,
+        }],
+    );
+    check!(
+        r#"[[collapsible class="u-apple" id="u-banana"]]X[[/collapsible]]"#,
+        vec![Element::Collapsible {
+            elements: vec![Element::Container(Container::new(
+                ContainerType::Paragraph,
+                vec![text!("X")],
+                AttributeMap::new(),
+            ))],
+            attributes: AttributeMap::from(btreemap! {
+                cow!("class") => cow!("u-apple"),
+                cow!("id") => cow!("u-banana"),
+            }),
+            start_open: false,
+            show_text: None,
+            hide_text: None,
+            show_top: true,
+            show_bottom: false,
+        }],
+    );
 }
