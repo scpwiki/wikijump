@@ -105,7 +105,7 @@ fn isolate_user_ids() {
                 elements: vec![text!("X")],
             }],
             AttributeMap::new(),
-        )),],
+        ))],
     );
     check!(
         r#"[[a id="u-apple"]]X[[/a]]"#,
@@ -119,6 +119,6 @@ fn isolate_user_ids() {
                 elements: vec![text!("X")],
             }],
             AttributeMap::new(),
-        )),],
+        ))],
     );
 }
