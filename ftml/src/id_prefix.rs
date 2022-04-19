@@ -22,6 +22,9 @@
 //!
 //! This adds `u-` to all IDs in the string (if non-empty)
 //! to ensure non-collision with generated elements.
+//!
+//! However it is intelligent, and doesn't add the `u-` if
+//! it's already prefixed with that.
 
 pub fn isolate_ids(id_string: &str) -> String {
     let mut isolated_ids = String::new();
@@ -31,7 +34,11 @@ pub fn isolate_ids(id_string: &str) -> String {
             isolated_ids.push(' ');
         }
 
-        str_write!(isolated_ids, "u-{}", class);
+        if class.starts_with("u-") {
+            isolated_ids.push_str(class);
+        } else {
+            str_write!(isolated_ids, "u-{}", class);
+        }
     }
 
     isolated_ids
