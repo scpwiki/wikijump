@@ -21,7 +21,7 @@
 use crate::data::PageInfo;
 use crate::settings::{WikitextMode, WikitextSettings, EMPTY_INTERWIKI};
 use crate::tree::{
-    AttributeMap, Container, ContainerType, Element, ImageSource, SyntaxTree,
+    AttributeMap, Container, ContainerType, Element, ListItem, ListType, ImageSource, SyntaxTree,
 };
 use std::borrow::Cow;
 
@@ -160,5 +160,76 @@ fn isolate_user_ids() {
             }],
             AttributeMap::new(),
         ))],
+    );
+
+    // Lists [[ul]] / [[ol]]
+    check!(
+        r#"[[ul id="apple"]] [[li id="u-banana"]]X[[/li]] [[/ul]]"#,
+        vec![Element::List {
+            ltype: ListType::Bullet,
+            attributes: AttributeMap::from(btreemap! {
+                cow!("id") => cow!("u-apple"),
+            }),
+            items: vec![
+                ListItem::Elements {
+                    attributes: AttributeMap::from(btreemap! {
+                        cow!("id") => cow!("u-banana"),
+                    }),
+                    elements: vec![text!("X")],
+                },
+            ],
+        }],
+    );
+    check!(
+        r#"[[ul id="u-apple"]] [[li id="banana"]]X[[/li]] [[/ul]]"#,
+        vec![Element::List {
+            ltype: ListType::Bullet,
+            attributes: AttributeMap::from(btreemap! {
+                cow!("id") => cow!("u-apple"),
+            }),
+            items: vec![
+                ListItem::Elements {
+                    attributes: AttributeMap::from(btreemap! {
+                        cow!("id") => cow!("u-banana"),
+                    }),
+                    elements: vec![text!("X")],
+                },
+            ],
+        }],
+    );
+
+    check!(
+        r#"[[ol id="apple"]] [[li id="u-banana"]]X[[/li]] [[/ol]]"#,
+        vec![Element::List {
+            ltype: ListType::Numbered,
+            attributes: AttributeMap::from(btreemap! {
+                cow!("id") => cow!("u-apple"),
+            }),
+            items: vec![
+                ListItem::Elements {
+                    attributes: AttributeMap::from(btreemap! {
+                        cow!("id") => cow!("u-banana"),
+                    }),
+                    elements: vec![text!("X")],
+                },
+            ],
+        }],
+    );
+    check!(
+        r#"[[ol id="u-apple"]] [[li id="banana"]]X[[/li]] [[/ol]]"#,
+        vec![Element::List {
+            ltype: ListType::Bullet,
+            attributes: AttributeMap::from(btreemap! {
+                cow!("id") => cow!("u-apple"),
+            }),
+            items: vec![
+                ListItem::Elements {
+                    attributes: AttributeMap::from(btreemap! {
+                        cow!("id") => cow!("u-banana"),
+                    }),
+                    elements: vec![text!("X")],
+                },
+            ],
+        }],
     );
 }
