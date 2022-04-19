@@ -54,6 +54,11 @@ pub struct WikitextSettings {
 
     /// Whether local paths are permitted.
     ///
+    /// This should be disabled in contexts where there is no "local context"
+    /// to which these paths could be interpreted. For instance, on pages
+    /// you can reference an attached file, but on an arbitrary forum thread
+    /// no such file can exist.
+    ///
     /// This applies to:
     /// * Files
     /// * Images
