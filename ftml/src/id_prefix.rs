@@ -69,4 +69,8 @@ fn test_isolate_ids() {
     check!("apple banana cherry", "u-apple u-banana u-cherry");
     check!("apple  banana cherry", "u-apple u-banana u-cherry");
     check!("  apple  banana\tcherry", "u-apple u-banana u-cherry");
+    check!("u-apple banana cherry", "u-apple u-banana u-cherry");
+    check!("u-apple u-banana cherry", "u-apple u-banana u-cherry");
+    check!("u-apple u-banana u-cherry", "u-apple u-banana u-cherry");
+    check!("apple u-banana cherry", "u-apple u-banana u-cherry");
 }
