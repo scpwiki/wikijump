@@ -22,7 +22,6 @@ use crate::data::PageInfo;
 use crate::settings::{WikitextMode, WikitextSettings, EMPTY_INTERWIKI};
 use crate::tree::{
     AttributeMap, Container, ContainerType, Element, ImageSource, ListItem, ListType,
-    SyntaxTree,
 };
 use std::borrow::Cow;
 
@@ -75,19 +74,15 @@ fn isolate_user_ids() {
             crate::preprocess(&mut text);
             let tokens = crate::tokenize(&text);
             let result = crate::parse(&tokens, &page_info, &settings);
-            let (actual_tree, warnings) = result.into();
+            let (tree, warnings) = result.into();
 
-            let expected_tree = SyntaxTree {
-                elements: append_footnote_block($elements),
-                styles: vec![],
-                table_of_contents: vec![],
-                footnotes: vec![],
-            };
+            let actual = tree.elements;
+            let expected = append_footnote_block($elements);
 
             assert!(warnings.is_empty(), "Warnings produced during parsing!");
             assert_eq!(
-                actual_tree, expected_tree,
-                "Actual syntax tree didn't match expected",
+                actual, expected,
+                "Actual elements didn't match expected",
             );
         }};
     }
