@@ -19,6 +19,7 @@
  */
 
 mod ast;
+mod id_prefix;
 mod includer;
 mod large;
 mod prop;

@@ -1,0 +1,79 @@
+/*
+ * test/id_prefix.rs
+ *
+ * ftml - Library to parse Wikidot text
+ * Copyright (C) 2019-2022 Wikijump Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+use crate::data::PageInfo;
+use crate::settings::{WikitextMode, WikitextSettings, EMPTY_INTERWIKI};
+use crate::tree::SyntaxTree;
+use std::borrow::Cow;
+
+#[test]
+fn isolate_user_ids() {
+    macro_rules! cow {
+        ($text:expr) => {
+            Cow::Borrowed($text)
+        };
+    }
+
+    let page_info = PageInfo {
+        page: cow!("isolated-user-id-test"),
+        category: None,
+        site: cow!("test"),
+        title: cow!("test"),
+        alt_title: None,
+        rating: 0.0,
+        tags: vec![],
+        language: cow!("default"),
+    };
+
+    let settings = WikitextSettings {
+        mode: WikitextMode::Page,
+        enable_page_syntax: true,
+        use_true_ids: true,
+        isolate_user_ids: true,
+        allow_local_paths: false,
+        interwiki: EMPTY_INTERWIKI.clone(),
+    };
+
+    macro_rules! check {
+        ($wikitext:expr, $elements:expr) => {{
+            let mut text = str!($wikitext);
+
+            crate::preprocess(&mut text);
+            let tokens = crate::tokenize(&text);
+            let result = crate::parse(&tokens, &page_info, &settings);
+            let (actual_tree, warnings) = result.into();
+
+            let expected_tree = SyntaxTree {
+                elements: $elements,
+                styles: vec![],
+                table_of_contents: vec![],
+                footnotes: vec![],
+            };
+
+            assert!(warnings.is_empty(), "Warnings produced during parsing!");
+            assert_eq!(
+                actual_tree, expected_tree,
+                "Actual syntax tree didn't match expected",
+            );
+        }};
+    }
+
+    check!("", vec![]);
+}
