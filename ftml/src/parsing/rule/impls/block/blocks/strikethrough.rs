@@ -51,7 +51,7 @@ fn parse_fn<'r, 't>(
     let element = Element::Container(Container::new(
         ContainerType::Strikethrough,
         elements,
-        arguments.to_attribute_map(),
+        arguments.to_attribute_map(parser.settings()),
     ));
 
     ok!(paragraph_safe; element, exceptions)

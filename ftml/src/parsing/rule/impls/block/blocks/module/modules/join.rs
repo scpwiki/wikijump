@@ -27,7 +27,7 @@ pub const MODULE_JOIN: ModuleRule = ModuleRule {
 };
 
 fn parse_fn<'r, 't>(
-    _parser: &mut Parser<'r, 't>,
+    parser: &mut Parser<'r, 't>,
     name: &'t str,
     mut arguments: Arguments<'t>,
 ) -> ParseResult<'r, 't, Option<Module<'t>>> {
@@ -35,7 +35,7 @@ fn parse_fn<'r, 't>(
     assert_module_name(&MODULE_JOIN, name);
 
     let button_text = arguments.get("button");
-    let attributes = arguments.to_attribute_map();
+    let attributes = arguments.to_attribute_map(parser.settings());
 
     ok!(false; Some(Module::Join {
         button_text,

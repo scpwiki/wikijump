@@ -95,7 +95,7 @@ where
 
     // Get attributes
     let arguments = parser.get_head_map(block_rule, in_head)?;
-    let attributes = arguments.to_attribute_map();
+    let attributes = arguments.to_attribute_map(parser.settings());
 
     // Get body elements
     let (elements, exceptions, _) = parser.get_body_elements(block_rule, false)?.into();

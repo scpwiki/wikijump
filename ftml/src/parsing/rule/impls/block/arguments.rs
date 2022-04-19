@@ -19,6 +19,7 @@
  */
 
 use crate::parsing::{parse_boolean, ParseWarning, ParseWarningKind, Parser};
+use crate::settings::WikitextSettings;
 use crate::tree::AttributeMap;
 use std::borrow::Cow;
 use std::collections::HashMap;
@@ -106,8 +107,13 @@ impl<'t> Arguments<'t> {
     }
 
     /// Similar to `to_hash_map()`, but creates an `AttributeMap` instead.
+    ///
+    /// Because all fields are passed from the user, this does ID isolation
+    /// if that is enabled, and so needs `WikitextSettings` to be passed in.
     #[inline]
-    pub fn to_attribute_map(&self) -> AttributeMap<'t> {
-        AttributeMap::from_arguments(&self.inner)
+    pub fn to_attribute_map(&self, settings: &WikitextSettings) -> AttributeMap<'t> {
+        let mut map = AttributeMap::from_arguments(&self.inner);
+        map.isolate_id(settings);
+        map
     }
 }
