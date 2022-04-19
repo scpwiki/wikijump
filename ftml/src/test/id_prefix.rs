@@ -21,7 +21,8 @@
 use crate::data::PageInfo;
 use crate::settings::{WikitextMode, WikitextSettings, EMPTY_INTERWIKI};
 use crate::tree::{
-    AttributeMap, Container, ContainerType, Element, ListItem, ListType, ImageSource, SyntaxTree,
+    AttributeMap, Container, ContainerType, Element, ImageSource, ListItem, ListType,
+    SyntaxTree,
 };
 use std::borrow::Cow;
 
@@ -170,14 +171,12 @@ fn isolate_user_ids() {
             attributes: AttributeMap::from(btreemap! {
                 cow!("id") => cow!("u-apple"),
             }),
-            items: vec![
-                ListItem::Elements {
-                    attributes: AttributeMap::from(btreemap! {
-                        cow!("id") => cow!("u-banana"),
-                    }),
-                    elements: vec![text!("X")],
-                },
-            ],
+            items: vec![ListItem::Elements {
+                attributes: AttributeMap::from(btreemap! {
+                    cow!("id") => cow!("u-banana"),
+                }),
+                elements: vec![text!("X")],
+            }],
         }],
     );
     check!(
@@ -187,14 +186,12 @@ fn isolate_user_ids() {
             attributes: AttributeMap::from(btreemap! {
                 cow!("id") => cow!("u-apple"),
             }),
-            items: vec![
-                ListItem::Elements {
-                    attributes: AttributeMap::from(btreemap! {
-                        cow!("id") => cow!("u-banana"),
-                    }),
-                    elements: vec![text!("X")],
-                },
-            ],
+            items: vec![ListItem::Elements {
+                attributes: AttributeMap::from(btreemap! {
+                    cow!("id") => cow!("u-banana"),
+                }),
+                elements: vec![text!("X")],
+            }],
         }],
     );
 
@@ -205,31 +202,85 @@ fn isolate_user_ids() {
             attributes: AttributeMap::from(btreemap! {
                 cow!("id") => cow!("u-apple"),
             }),
-            items: vec![
-                ListItem::Elements {
-                    attributes: AttributeMap::from(btreemap! {
-                        cow!("id") => cow!("u-banana"),
-                    }),
-                    elements: vec![text!("X")],
-                },
-            ],
+            items: vec![ListItem::Elements {
+                attributes: AttributeMap::from(btreemap! {
+                    cow!("id") => cow!("u-banana"),
+                }),
+                elements: vec![text!("X")],
+            }],
         }],
     );
     check!(
         r#"[[ol id="u-apple"]] [[li id="banana"]]X[[/li]] [[/ol]]"#,
         vec![Element::List {
-            ltype: ListType::Bullet,
+            ltype: ListType::Numbered,
             attributes: AttributeMap::from(btreemap! {
                 cow!("id") => cow!("u-apple"),
             }),
-            items: vec![
-                ListItem::Elements {
+            items: vec![ListItem::Elements {
+                attributes: AttributeMap::from(btreemap! {
+                    cow!("id") => cow!("u-banana"),
+                }),
+                elements: vec![text!("X")],
+            }],
+        }],
+    );
+
+    // Radio buttons and checkboxes
+    check!(
+        r#"[[radio vegetables class="apple" id="banana"]] Celery
+[[radio vegetables class="u-cherry" id="u-durian"]] Lettuce"#,
+        vec![Element::Container(Container::new(
+            ContainerType::Paragraph,
+            vec![
+                Element::RadioButton {
+                    name: cow!("vegetables"),
+                    checked: false,
                     attributes: AttributeMap::from(btreemap! {
+                        cow!("class") => cow!("apple"),
                         cow!("id") => cow!("u-banana"),
                     }),
-                    elements: vec![text!("X")],
                 },
+                text!("Celery"),
+                Element::LineBreak,
+                Element::RadioButton {
+                    name: cow!("vegetables"),
+                    checked: false,
+                    attributes: AttributeMap::from(btreemap! {
+                        cow!("class") => cow!("u-cherry"),
+                        cow!("id") => cow!("u-durian"),
+                    }),
+                },
+                text!("Lettuce"),
             ],
-        }],
+            AttributeMap::new(),
+        ))],
+    );
+    check!(
+        r#"[[checkbox class="apple" id="banana"]] Celery
+[[checkbox class="u-cherry" id="u-durian"]] Lettuce"#,
+        vec![Element::Container(Container::new(
+            ContainerType::Paragraph,
+            vec![
+                Element::CheckBox {
+                    checked: false,
+                    attributes: AttributeMap::from(btreemap! {
+                        cow!("class") => cow!("apple"),
+                        cow!("id") => cow!("u-banana"),
+                    }),
+                },
+                text!("Celery"),
+                Element::LineBreak,
+                Element::CheckBox {
+                    checked: false,
+                    attributes: AttributeMap::from(btreemap! {
+                        cow!("class") => cow!("u-cherry"),
+                        cow!("id") => cow!("u-durian"),
+                    }),
+                },
+                text!("Lettuce"),
+            ],
+            AttributeMap::new(),
+        ))],
     );
 }
