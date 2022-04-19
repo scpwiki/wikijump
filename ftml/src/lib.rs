@@ -147,6 +147,7 @@ pub mod prelude {
     pub use super::render::Render;
     pub use super::settings::{
         InterwikiSettings, WikitextMode, WikitextSettings, DEFAULT_INTERWIKI,
+        EMPTY_INTERWIKI,
     };
     pub use super::tokenizer::{tokenize, Tokenization};
     pub use super::tree::{Element, SyntaxTree};
