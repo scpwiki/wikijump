@@ -21,7 +21,6 @@
 use super::attributes::AddedAttributes;
 use super::context::HtmlContext;
 use super::render::ItemRender;
-use crate::id_prefix::isolate_ids;
 use std::collections::HashSet;
 
 macro_rules! tag_method {
@@ -172,26 +171,11 @@ impl<'c, 'i, 'h, 'e, 't> HtmlBuilderTag<'c, 'i, 'h, 'e, 't> {
         }
     }
 
-    fn attr_value(&mut self, key: &str, value_parts: &[&str]) {
+    fn attr_value(&mut self, value_parts: &[&str]) {
         self.ctx.push_raw('"');
 
-        // Isolate IDs, special handling of value
-        if key == "id" && self.ctx.settings().isolate_user_ids {
-            let mut value = String::new();
-
-            // Render to string
-            for part in value_parts {
-                value.push_str(part);
-            }
-
-            // Isolate ID
-            let value = isolate_ids(&value);
-            self.ctx.push_escaped(&value);
-        } else {
-            // Normal rendering
-            for part in value_parts {
-                self.ctx.push_escaped(part);
-            }
+        for part in value_parts {
+            self.ctx.push_escaped(part);
         }
 
         self.ctx.push_raw('"');
@@ -214,7 +198,7 @@ impl<'c, 'i, 'h, 'e, 't> HtmlBuilderTag<'c, 'i, 'h, 'e, 't> {
         self.attr_key(key, has_value);
 
         if has_value {
-            self.attr_value(key, value_parts);
+            self.attr_value(value_parts);
         }
 
         self
