@@ -349,4 +349,24 @@ fn isolate_user_ids() {
             align: None,
         }],
     );
+
+    // Iframes [[iframe]]
+    check!(
+        r#"[[iframe https://example.com/ id="apple"]]"#,
+        vec![Element::Iframe {
+            attributes: AttributeMap::from(btreemap! {
+                cow!("id") => cow!("u-apple"),
+            }),
+            url: cow!("https://example.com/"),
+        }],
+    );
+    check!(
+        r#"[[iframe https://example.com/ id="u-apple"]]"#,
+        vec![Element::Iframe {
+            attributes: AttributeMap::from(btreemap! {
+                cow!("id") => cow!("u-apple"),
+            }),
+            url: cow!("https://example.com/"),
+        }],
+    );
 }
