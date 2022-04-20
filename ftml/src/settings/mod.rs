@@ -20,7 +20,7 @@
 
 mod interwiki;
 
-pub use self::interwiki::{InterwikiSettings, DEFAULT_INTERWIKI};
+pub use self::interwiki::{InterwikiSettings, DEFAULT_INTERWIKI, EMPTY_INTERWIKI};
 
 /// Settings to tweak behavior in the ftml parser and renderer.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
@@ -45,7 +45,19 @@ pub struct WikitextSettings {
     /// context where more than one instance of rendered wikitext could be emitted.
     pub use_true_ids: bool,
 
+    /// Whether to prefix user IDs with `u-`.
+    ///
+    /// This is a behavior found in Wikidot (although implemented incompletely)
+    /// which prefixes IDs in HTML elements provided by the user with `u-` to ensure
+    /// isolation.
+    pub isolate_user_ids: bool,
+
     /// Whether local paths are permitted.
+    ///
+    /// This should be disabled in contexts where there is no "local context"
+    /// to which these paths could be interpreted. For instance, on pages
+    /// you can reference an attached file, but on an arbitrary forum thread
+    /// no such file can exist.
     ///
     /// This applies to:
     /// * Files
@@ -76,6 +88,7 @@ impl WikitextSettings {
                 mode,
                 enable_page_syntax: true,
                 use_true_ids: true,
+                isolate_user_ids: false,
                 allow_local_paths: true,
                 interwiki,
             },
@@ -83,6 +96,7 @@ impl WikitextSettings {
                 mode,
                 enable_page_syntax: true,
                 use_true_ids: false,
+                isolate_user_ids: false,
                 allow_local_paths: true,
                 interwiki,
             },
@@ -90,6 +104,7 @@ impl WikitextSettings {
                 mode,
                 enable_page_syntax: false,
                 use_true_ids: false,
+                isolate_user_ids: false,
                 allow_local_paths: false,
                 interwiki,
             },
@@ -97,6 +112,7 @@ impl WikitextSettings {
                 mode,
                 enable_page_syntax: true,
                 use_true_ids: false,
+                isolate_user_ids: false,
                 allow_local_paths: true,
                 interwiki,
             },

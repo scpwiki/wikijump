@@ -113,6 +113,7 @@ mod test;
 #[macro_use]
 mod macros;
 
+mod id_prefix;
 mod next_index;
 mod non_empty_vec;
 mod preproc;
@@ -146,6 +147,7 @@ pub mod prelude {
     pub use super::render::Render;
     pub use super::settings::{
         InterwikiSettings, WikitextMode, WikitextSettings, DEFAULT_INTERWIKI,
+        EMPTY_INTERWIKI,
     };
     pub use super::tokenizer::{tokenize, Tokenization};
     pub use super::tree::{Element, SyntaxTree};

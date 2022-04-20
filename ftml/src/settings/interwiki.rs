@@ -22,6 +22,11 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 
 lazy_static! {
+    pub static ref EMPTY_INTERWIKI: InterwikiSettings = {
+        InterwikiSettings {
+            prefixes: hashmap! {},
+        }
+    };
     pub static ref DEFAULT_INTERWIKI: InterwikiSettings = {
         InterwikiSettings {
             prefixes: hashmap! {

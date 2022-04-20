@@ -80,7 +80,7 @@ pub enum ListType {
     /// Corresponds to the tag `<ol>`.
     Numbered,
 
-    /// Generic list, which does not have a preferred
+    /// Generic list, which does not have a preferred list type.
     ///
     /// This can be implemented in HTML with either
     /// `<ul>` or `<ol>`, as these should not have any

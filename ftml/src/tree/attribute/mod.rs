@@ -21,7 +21,9 @@
 mod safe;
 
 use super::clone::string_to_owned;
+use crate::id_prefix::isolate_ids;
 use crate::parsing::parse_boolean;
+use crate::settings::WikitextSettings;
 use std::borrow::Cow;
 use std::collections::{BTreeMap, HashMap};
 use std::fmt::{self, Debug};
@@ -89,6 +91,15 @@ impl<'t> AttributeMap<'t> {
     #[inline]
     pub fn get(&self) -> &BTreeMap<Cow<'t, str>, Cow<'t, str>> {
         &self.inner
+    }
+
+    pub fn isolate_id(&mut self, settings: &WikitextSettings) {
+        if settings.isolate_user_ids {
+            if let Some(value) = self.inner.get_mut("id") {
+                debug!("Found 'id' attribute, isolating value");
+                *value = Cow::Owned(isolate_ids(value));
+            }
+        }
     }
 
     pub fn to_owned(&self) -> AttributeMap<'static> {

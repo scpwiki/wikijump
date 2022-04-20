@@ -25,6 +25,8 @@
 //! `<a id="name-of-anchor">` anchor that can be jumped to.
 
 use super::prelude::*;
+use crate::id_prefix::isolate_ids;
+use std::borrow::Cow;
 
 pub const RULE_ANCHOR: Rule = Rule {
     name: "anchor",
@@ -54,6 +56,12 @@ fn try_consume_fn<'p, 'r, 't>(
         None,
     )?;
 
+    let name = if parser.settings().isolate_user_ids {
+        Cow::Owned(isolate_ids(name))
+    } else {
+        cow!(name)
+    };
+
     // Build and return link element
-    ok!(Element::AnchorName(cow!(name)))
+    ok!(Element::AnchorName(name))
 }

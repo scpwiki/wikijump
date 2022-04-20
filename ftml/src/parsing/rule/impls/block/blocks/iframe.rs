@@ -44,7 +44,7 @@ fn parse_fn<'r, 't>(
     let (url, arguments) = parser.get_head_name_map(&BLOCK_IFRAME, in_head)?;
     let element = Element::Iframe {
         url: cow!(url),
-        attributes: arguments.to_attribute_map(),
+        attributes: arguments.to_attribute_map(parser.settings()),
     };
 
     ok!(element)

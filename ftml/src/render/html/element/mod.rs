@@ -105,8 +105,8 @@ pub fn render_element(ctx: &mut HtmlContext, element: &Element) {
             attributes,
             target,
         } => render_anchor(ctx, elements, attributes, *target),
-        Element::AnchorName(name) => {
-            ctx.html().a().attr(attr!("id" => name));
+        Element::AnchorName(id) => {
+            ctx.html().a().attr(attr!("id" => id));
         }
         Element::Link {
             ltype,

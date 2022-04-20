@@ -115,7 +115,7 @@ fn parse_list_block<'r, 't>(
 
     // Get attributes
     let arguments = parser.get_head_map(block_rule, in_head)?;
-    let attributes = arguments.to_attribute_map();
+    let attributes = arguments.to_attribute_map(parser.settings());
 
     // Get body and convert into list form.
     let (mut elements, exceptions, _) =
@@ -199,7 +199,7 @@ fn parse_list_item<'r, 't>(
 
     // Get attributes
     let arguments = parser.get_head_map(&BLOCK_LI, in_head)?;
-    let attributes = arguments.to_attribute_map();
+    let attributes = arguments.to_attribute_map(parser.settings());
 
     // Get body elements
     let (mut elements, exceptions, _) =
