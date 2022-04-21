@@ -8,7 +8,7 @@ keywords = ["wikidot", "wikijump", "ftml", "parsing", "html"]
 categories = ["parser-implementations"]
 exclude = [".gitignore", ".editorconfig"]
 
-version = "1.15.1"
+version = "1.15.2"
 authors = ["Ammon Smith <ammon.i.smith@gmail.com>"]
 edition = "2021" # this is *not* the same as the current year
 rust-version = "1.60.0"
@@ -49,7 +49,7 @@ wikidot-normalize = "0.9"
 
 [build-dependencies]
 built = { version = "0.5", features = ["chrono", "git2"] }
-cbindgen = "0.21"
+cbindgen = "0.22"
 
 [dev-dependencies]
 proptest = "1"
