@@ -117,8 +117,7 @@ impl PageService {
         let PageModel { page_id, .. } = Self::get(ctx, site_id, reference).await?;
 
         // Get latest revision
-        let last_revision =
-            RevisionService::get_latest(ctx, site_id, page_id).await?;
+        let last_revision = RevisionService::get_latest(ctx, site_id, page_id).await?;
 
         // Create new revision
         //
@@ -137,14 +136,9 @@ impl PageService {
             },
         };
 
-        let revision_output = RevisionService::create(
-            ctx,
-            site_id,
-            page_id,
-            revision_input,
-            last_revision,
-        )
-        .await?;
+        let revision_output =
+            RevisionService::create(ctx, site_id, page_id, revision_input, last_revision)
+                .await?;
 
         // Set page updated_at column.
         //
@@ -186,6 +180,9 @@ impl PageService {
         let txn = ctx.transaction();
         let PageModel { page_id, .. } = Self::get(ctx, site_id, reference).await?;
 
+        // Get latest revision
+        let last_revision = RevisionService::get_latest(ctx, site_id, page_id).await?;
+
         // Create tombstone revision
         // This also updates backlinks, includes, etc
         let output = RevisionService::create_tombstone(
@@ -194,6 +191,7 @@ impl PageService {
             page_id,
             input.user_id,
             input.revision_comments,
+            last_revision,
         )
         .await?;
 

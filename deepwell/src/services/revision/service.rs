@@ -24,12 +24,13 @@ use crate::models::page_revision::{
 };
 use crate::services::render::RenderOutput;
 use crate::services::{
-    LinkService, OutdateService, RenderService, SiteService, TextService,
+    LinkService, OutdateService, ParentService, RenderService, SiteService, TextService,
 };
 use crate::web::{split_category, split_category_name};
 use ftml::data::PageInfo;
 use ftml::settings::{WikitextMode, WikitextSettings};
 use ref_map::*;
+use sea_orm::JsonValue;
 use std::borrow::Cow;
 use std::num::NonZeroI32;
 
@@ -377,15 +378,84 @@ impl RevisionService {
     /// This revision is called a "tombstone" in that
     /// its only purpose is to mark that the page has been deleted.
     pub async fn create_tombstone(
-        _ctx: &ServiceContext<'_>,
-        _site_id: i64,
-        _page_id: i64,
-        _user_id: i64,
-        _comments: String,
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+        user_id: i64,
+        comments: String,
+        previous: PageRevisionModel,
     ) -> Result<CreateRevisionOutput> {
-        // TODO modify metadata field to add 'deleted: true'
+        let txn = ctx.transaction();
 
-        todo!()
+        // Get the new revision number
+        let revision_number = {
+            // Check for basic consistency
+            assert_eq!(
+                previous.site_id, site_id,
+                "Previous revision has an inconsistent site ID",
+            );
+            assert_eq!(
+                previous.page_id, page_id,
+                "Previous revision has an inconsistent page ID",
+            );
+
+            // Increment from previous
+            previous.revision_number + 1
+        };
+
+        let PageRevisionModel {
+            wikitext_hash,
+            compiled_hash,
+            compiled_at,
+            compiled_generator,
+            hidden,
+            title,
+            alt_title,
+            slug,
+            tags,
+            mut metadata, // TODO make mut, when we start modifying this
+            ..
+        } = previous;
+
+        // Set 'deleted' on metadata
+        metadata
+            .as_object_mut()
+            .expect("Metadata field not an object")
+            .insert(str!("deleted"), JsonValue::Bool(true));
+
+        let changes = vec![str!("metadata")];
+
+        ParentService::delete_children().await?; // TODO stub
+
+        // TODO update page cache
+
+        // Insert the tombstone revision into the table
+        let model = page_revision::ActiveModel {
+            revision_number: Set(revision_number),
+            page_id: Set(page_id),
+            site_id: Set(site_id),
+            user_id: Set(user_id),
+            changes: Set(string_list_to_json(changes)),
+            wikitext_hash: Set(wikitext_hash),
+            compiled_hash: Set(compiled_hash),
+            compiled_at: Set(compiled_at),
+            compiled_generator: Set(compiled_generator),
+            comments: Set(comments),
+            hidden: Set(hidden),
+            title: Set(title),
+            alt_title: Set(alt_title),
+            slug: Set(slug),
+            tags: Set(tags),
+            metadata: Set(metadata),
+            ..Default::default()
+        };
+
+        let PageRevisionModel { revision_id, .. } = model.insert(txn).await?;
+        Ok(CreateRevisionOutput {
+            revision_id,
+            revision_number,
+            parser_warnings: None,
+        })
     }
 
     /// Creates a revision marking a pages as restored (i.e., undeleted).

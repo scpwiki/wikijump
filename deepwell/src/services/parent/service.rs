@@ -18,7 +18,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::prelude::*;
+
 #[derive(Debug)]
 pub struct ParentService;
+
+impl ParentService {
+    pub async fn delete_children() -> Result<()> {
+        // TODO
+        Ok(())
+    }
+}
 
 // TODO
