@@ -23,7 +23,7 @@ crossfire = "0.1"
 cuid = "1"
 dotenv = "0.15"
 fluent = "0.16"
-ftml = { version = "1.13", features = ["mathml"] }
+ftml = { version = "1.15", features = ["mathml"] }
 futures = { version = "0.3", features = ["async-await"], default-features = false }
 governor = "0.4"
 hex = "0.4"
