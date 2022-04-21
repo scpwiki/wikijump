@@ -114,11 +114,11 @@ impl PageService {
         }: EditPage,
     ) -> Result<Option<EditPageOutput>> {
         let txn = ctx.transaction();
-        let page = Self::get(ctx, site_id, reference).await?;
+        let PageModel { page_id, .. } = Self::get(ctx, site_id, reference).await?;
 
         // Get latest revision
         let last_revision =
-            RevisionService::get_latest(ctx, site_id, page.page_id).await?;
+            RevisionService::get_latest(ctx, site_id, page_id).await?;
 
         // Create new revision
         //
@@ -140,7 +140,7 @@ impl PageService {
         let revision_output = RevisionService::create(
             ctx,
             site_id,
-            page.page_id,
+            page_id,
             revision_input,
             last_revision,
         )
@@ -151,7 +151,7 @@ impl PageService {
         // Previously this was conditional on whether a revision was actually created.
         // But since this rerenders regardless, we need to update the page row.
         let model = page::ActiveModel {
-            page_id: Set(page.page_id),
+            page_id: Set(page_id),
             updated_at: Set(Some(now())),
             ..Default::default()
         };
