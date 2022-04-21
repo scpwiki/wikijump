@@ -25,7 +25,7 @@ use crate::services::revision::{
     CreateFirstRevision, CreateFirstRevisionOutput, CreateRevision, CreateRevisionBody,
 };
 use crate::services::{CategoryService, RevisionService};
-use crate::web::trim_default;
+use crate::web::{get_category_name, trim_default};
 use wikidot_normalize::normalize;
 
 #[derive(Debug)]
@@ -64,7 +64,9 @@ impl PageService {
         }
 
         // Create category if not already present
-        let category = CategoryService::get_or_create(ctx, site_id, &slug).await?;
+        let category =
+            CategoryService::get_or_create(ctx, site_id, get_category_name(&slug))
+                .await?;
 
         // Insert page
         let model = page::ActiveModel {
