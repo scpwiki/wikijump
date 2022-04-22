@@ -59,6 +59,11 @@ pub fn get_category_name(slug: &str) -> &str {
     split_category_name(slug).0
 }
 
+pub fn slug_is_valid(slug: &str) -> bool {
+    let (category, page) = split_category_name(slug);
+    !slug.starts_with(':') && slug.find("::").is_none() && !category.is_empty() && !page.is_empty()
+}
+
 /// Trims off the `_default:` category if present.
 pub fn trim_default(slug: &str) -> &str {
     slug.strip_prefix("_default:").unwrap_or(slug)
