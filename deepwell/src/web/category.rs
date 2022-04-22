@@ -69,7 +69,17 @@ pub fn slug_is_valid(slug: &str) -> bool {
 
 /// Trims off the `_default:` category if present.
 pub fn trim_default(slug: &str) -> &str {
-    slug.strip_prefix("_default:").unwrap_or(slug)
+    // We cannot simply use str::strip_prefix() here,
+    // since if the category *starts* with "_default"
+    // but is not solely "_default" (for instance,
+    // the category string "_default:blah", as in
+    // "_default:blah:page-name") then this will
+    // mangle the category name.
+
+    match split_category_name(slug) {
+        ("_default", page_slug) => page_slug,
+        (_, _) => slug,
+    }
 }
 
 #[test]
