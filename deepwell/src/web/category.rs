@@ -20,13 +20,13 @@
 
 /// Splits a normalized slug into the category and page portions.
 ///
-/// This finds the first `:` in the full slug and returns everything
+/// This finds the last `:` in the full slug and returns everything
 /// up to that as the category slug.
 ///
 /// Normalized slugs do not have an explicit `_default`, so they
 /// should lack a `:` entirely.
 pub fn split_category(slug: &str) -> (Option<&str>, &str) {
-    match slug.find(':') {
+    match slug.rfind(':') {
         None => (None, slug),
         Some(idx) => {
             let (category, page) = slug.split_at(idx);
