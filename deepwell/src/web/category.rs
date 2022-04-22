@@ -123,3 +123,23 @@ fn test_get_category() {
     check!("_default:start", Some("_default"));
     check!("_default:_template", Some("_default"));
 }
+
+#[test]
+fn test_get_category_name() {
+    macro_rules! check {
+        ($input:expr, $expected:expr $(,)?) => {
+            assert_eq!(
+                get_category_name($input),
+                $expected,
+                "Actual parsed category doesn't match expected",
+            )
+        };
+    }
+
+    check!("apple", "_default");
+    check!("foo-bar", "_default");
+    check!("component:wide-modal", "component");
+    check!("archived:component:wide-modal", "archived:component");
+    check!("_default:start", "_default");
+    check!("_default:_template", "_default");
+}
