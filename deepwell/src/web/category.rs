@@ -143,3 +143,26 @@ fn test_get_category_name() {
     check!("_default:start", "_default");
     check!("_default:_template", "_default");
 }
+
+#[test]
+fn test_trim_default() {
+    macro_rules! check {
+        ($input:expr, $expected:expr $(,)?) => {
+            assert_eq!(
+                trim_default($input),
+                $expected,
+                "Actual trimmed slug doesn't match expected",
+            )
+        };
+    }
+
+    check!("apple", "apple");
+    check!("foo-bar", "foo-bar");
+    check!("component:wide-modal", "component:wide-modal");
+    check!("archived:component:wide-modal", "archived:component:wide-modal");
+    check!("_default:start", "start");
+    check!("_default:foo-bar", "foo-bar");
+    check!("_default:_template", "_template");
+    check!("archived:_default:start", "archived:_default:start");
+    check!("_default:archived:start", "_default:archived:start");
+}
