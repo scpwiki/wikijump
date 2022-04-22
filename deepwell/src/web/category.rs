@@ -69,7 +69,7 @@ pub fn get_category_name(slug: &str) -> &str {
 pub fn slug_is_valid(slug: &str) -> bool {
     let (category, page) = split_category_name(slug);
     !slug.starts_with(':')
-        && slug.find("::").is_none()
+        && slug.contains("::")
         && !category.is_empty()
         && !page.is_empty()
 }
