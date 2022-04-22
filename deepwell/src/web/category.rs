@@ -76,11 +76,10 @@ fn test_split_category() {
         };
     }
 
-    // Proper
-    check!("foo-bar", None, "foo-bar");
     check!("apple", None, "apple");
-    check!("banana:apple", Some("banana"), "apple");
-    check!("cherry:banana:apple", Some("cherry:banana"), "apple");
+    check!("foo-bar", None, "foo-bar");
+    check!("component:wide-modal", Some("component"), "wide-modal");
+    check!("archived:component:wide-modal", Some("archived:component"), "wide-modal");
     check!("_default:start", Some("_default"), "start");
     check!("_default:_template", Some("_default"), "_template");
 }
@@ -92,16 +91,15 @@ fn test_split_category_name() {
             assert_eq!(
                 split_category_name($input),
                 ($category, $page),
-                "Actual split category doesn't match expected",
+                "Actual split category with name doesn't match expected",
             )
         };
     }
 
-    // Proper
-    check!("foo-bar", "_default", "foo-bar");
     check!("apple", "_default", "apple");
-    check!("banana:apple", "banana", "apple");
-    check!("cherry:banana:apple", "cherry:banana", "apple");
+    check!("foo-bar", "_default", "foo-bar");
+    check!("component:wide-modal", "component", "wide-modal");
+    check!("archived:component:wide-modal", "archived:component", "wide-modal");
     check!("_default:start", "_default", "start");
     check!("_default:_template", "_default", "_template");
 }
