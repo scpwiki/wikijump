@@ -63,3 +63,23 @@ pub fn get_category_name(slug: &str) -> &str {
 pub fn trim_default(slug: &str) -> &str {
     slug.strip_prefix("_default:").unwrap_or(slug)
 }
+
+#[test]
+fn test_split_category() {
+    macro_rules! check {
+        ($input:expr, $category:expr, $page:expr $(,)?) => {
+            assert_eq!(
+                split_category($input),
+                ($category, $page),
+                "Actual split category doesn't match expected",
+            )
+        };
+    }
+
+    // Proper
+    check!("apple", None, "apple");
+    check!("banana:apple", Some("banana"), "apple");
+    check!("cherry:banana:apple", Some("cherry:banana"), "apple");
+    check!("_default:start", Some("_default"), "start");
+    check!("_default:_template", Some("_default"), "_template");
+}
