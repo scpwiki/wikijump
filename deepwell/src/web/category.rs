@@ -184,7 +184,7 @@ fn test_slug_is_valid() {
 
     check!("", false);
     check!("apple", true);
-    check!("", true);
+    check!("some-page", true);
     check!("_template", true);
     check!("component:wide-modal", true);
     check!("archived:component:wide-modal", true);
@@ -194,7 +194,7 @@ fn test_slug_is_valid() {
     check!("::banana", false);
     check!("banana::", false);
     check!("::banana::", false);
-    check!("apple:banana:page", false);
+    check!("apple:banana:page", true);
     check!("apple::banana:page", false);
     check!("_default:", false);
     check!("_default:apple", true);
