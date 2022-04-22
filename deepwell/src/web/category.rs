@@ -59,6 +59,7 @@ pub fn get_category_name(slug: &str) -> &str {
     split_category_name(slug).0
 }
 
+#[allow(dead_code)] // TEMP
 pub fn slug_is_valid(slug: &str) -> bool {
     let (category, page) = split_category_name(slug);
     !slug.starts_with(':')
