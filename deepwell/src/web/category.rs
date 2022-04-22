@@ -61,7 +61,10 @@ pub fn get_category_name(slug: &str) -> &str {
 
 pub fn slug_is_valid(slug: &str) -> bool {
     let (category, page) = split_category_name(slug);
-    !slug.starts_with(':') && slug.find("::").is_none() && !category.is_empty() && !page.is_empty()
+    !slug.starts_with(':')
+        && slug.find("::").is_none()
+        && !category.is_empty()
+        && !page.is_empty()
 }
 
 /// Trims off the `_default:` category if present.
@@ -84,7 +87,11 @@ fn test_split_category() {
     check!("apple", None, "apple");
     check!("foo-bar", None, "foo-bar");
     check!("component:wide-modal", Some("component"), "wide-modal");
-    check!("archived:component:wide-modal", Some("archived:component"), "wide-modal");
+    check!(
+        "archived:component:wide-modal",
+        Some("archived:component"),
+        "wide-modal",
+    );
     check!("_default:start", Some("_default"), "start");
     check!("_default:_template", Some("_default"), "_template");
 }
@@ -104,7 +111,11 @@ fn test_split_category_name() {
     check!("apple", "_default", "apple");
     check!("foo-bar", "_default", "foo-bar");
     check!("component:wide-modal", "component", "wide-modal");
-    check!("archived:component:wide-modal", "archived:component", "wide-modal");
+    check!(
+        "archived:component:wide-modal",
+        "archived:component",
+        "wide-modal",
+    );
     check!("_default:start", "_default", "start");
     check!("_default:_template", "_default", "_template");
 }
@@ -164,7 +175,10 @@ fn test_trim_default() {
     check!("apple", "apple");
     check!("foo-bar", "foo-bar");
     check!("component:wide-modal", "component:wide-modal");
-    check!("archived:component:wide-modal", "archived:component:wide-modal");
+    check!(
+        "archived:component:wide-modal",
+        "archived:component:wide-modal",
+    );
     check!("_default:start", "start");
     check!("_default:foo-bar", "foo-bar");
     check!("_default:_template", "_template");
