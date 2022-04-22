@@ -30,7 +30,7 @@ pub fn split_category(slug: &str) -> (Option<&str>, &str) {
         None => (None, slug),
         Some(idx) => {
             let (category, page) = slug.split_at(idx);
-            (Some(category), page)
+            (Some(category), &page[1..])
         }
     }
 }
