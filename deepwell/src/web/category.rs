@@ -56,7 +56,7 @@ pub fn get_category(slug: &str) -> Option<&str> {
 #[inline]
 #[allow(dead_code)] // TEMP
 pub fn get_category_name(slug: &str) -> &str {
-    get_category(slug).unwrap_or("_default")
+    split_category_name(slug).0
 }
 
 /// Trims off the `_default:` category if present.
