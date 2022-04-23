@@ -19,7 +19,7 @@
  */
 
 use crate::services::Error as ServiceError;
-use std::convert::TryFrom;
+use std::str::FromStr;
 use strum_macros::EnumIter;
 
 #[derive(EnumIter, Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -44,10 +44,10 @@ impl ConnectionType {
     }
 }
 
-impl TryFrom<&'_ str> for ConnectionType {
-    type Error = ServiceError;
+impl FromStr for ConnectionType {
+    type Err = ServiceError;
 
-    fn try_from(value: &'_ str) -> Result<ConnectionType, ServiceError> {
+    fn from_str(value: &str) -> Result<ConnectionType, ServiceError> {
         match value {
             "include-messy" => Ok(ConnectionType::IncludeMessy),
             "include-elements" => Ok(ConnectionType::IncludeElements),
@@ -77,7 +77,7 @@ fn name_serde() {
 
         let converted: ConnectionType = serde_name
             .as_str()
-            .try_into()
+            .parse()
             .expect("Could not convert item");
 
         assert_eq!(converted, variant, "Converted item does not match variant");

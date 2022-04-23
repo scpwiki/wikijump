@@ -20,6 +20,7 @@
 
 use crate::services::Error as ServiceError;
 use strum_macros::EnumIter;
+use std::str::FromStr;
 
 #[derive(
     EnumIter,
@@ -63,10 +64,10 @@ impl UserDetails {
     }
 }
 
-impl TryFrom<&'_ str> for UserDetails {
-    type Error = ServiceError;
+impl FromStr for UserDetails {
+    type Err = ServiceError;
 
-    fn try_from(value: &'_ str) -> Result<UserDetails, ServiceError> {
+    fn from_str(value: &str) -> Result<UserDetails, ServiceError> {
         match value {
             "identity" => Ok(UserDetails::Identity),
             "info" => Ok(UserDetails::Info),
@@ -107,7 +108,7 @@ fn name_serde() {
 
         let converted: UserDetails = serde_name
             .as_str()
-            .try_into()
+            .parse()
             .expect("Could not convert item");
 
         assert_eq!(converted, variant, "Converted item does not match variant");
