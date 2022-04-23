@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::json_utils::{json_to_string_list, string_list_to_json};
 use crate::models::page_revision::{
     self, Entity as PageRevision, Model as PageRevisionModel,
 };

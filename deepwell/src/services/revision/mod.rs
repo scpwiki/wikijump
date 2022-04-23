@@ -22,13 +22,11 @@ mod prelude {
     pub use super::super::prelude::*;
     pub use super::structs::*;
     pub use super::tasks::RevisionTasks;
-    pub use super::utils::*;
 }
 
 mod service;
 mod structs;
 mod tasks;
-mod utils;
 
 pub use self::service::RevisionService;
 pub use self::structs::*;
