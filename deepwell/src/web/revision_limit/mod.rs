@@ -1,5 +1,5 @@
 /*
- * web/mod.rs
+ * web/revision_limit/mod.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,23 +18,30 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod category;
-mod connection_type;
-mod page_details;
-mod provided_value;
-mod reference;
-mod revision_limit;
-mod unwrap;
-mod user_details;
+mod de;
 
-pub mod ratelimit;
-pub mod utils;
+/// Represents the number of revisions to return in this request.
+///
+/// The default value is 10, and the maximum value is 100.
+#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq)]
+pub struct RevisionLimit(u16);
 
-pub use self::category::*;
-pub use self::connection_type::ConnectionType;
-pub use self::page_details::PageDetailsQuery;
-pub use self::provided_value::ProvidedValue;
-pub use self::reference::Reference;
-pub use self::revision_limit::{RevisionLimit, RevisionLimitQuery};
-pub use self::unwrap::HttpUnwrap;
-pub use self::user_details::{UserDetails, UserDetailsQuery};
+impl From<RevisionLimit> for u16 {
+    #[inline]
+    fn from(limit: RevisionLimit) -> u16 {
+        limit.0
+    }
+}
+
+impl Default for RevisionLimit {
+    #[inline]
+    fn default() -> Self {
+        RevisionLimit(10)
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
+pub struct RevisionLimitQuery {
+    #[serde(default)]
+    pub limit: RevisionLimit,
+}
