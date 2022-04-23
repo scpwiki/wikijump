@@ -638,6 +638,15 @@ impl RevisionService {
         let revision_condition = {
             use page_revision::Column::RevisionNumber;
 
+            // Allow specifying "-1" to mean "the most recent revision",
+            // otherwise keep as-is.
+            let revision_number = if revision_number >= 0 {
+                revision_number
+            } else {
+                i32::MAX
+            };
+
+            // Get correct database condition based on requested ordering
             match revision_direction {
                 RevisionDirection::Before => RevisionNumber.lte(revision_number),
                 RevisionDirection::After => RevisionNumber.gte(revision_number),
