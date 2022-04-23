@@ -45,7 +45,7 @@ pub enum RevisionDirection {
 }
 
 impl RevisionDirection {
-    #[inline]
+    #[cfg(test)]
     pub fn name(self) -> &'static str {
         match self {
             RevisionDirection::Before => "before",
