@@ -26,7 +26,7 @@ use crate::services::render::RenderOutput;
 use crate::services::{
     LinkService, OutdateService, RenderService, SiteService, TextService,
 };
-use crate::web::{split_category, split_category_name};
+use crate::web::{split_category, split_category_name, RevisionDirection};
 use ftml::data::PageInfo;
 use ftml::settings::{WikitextMode, WikitextSettings};
 use ref_map::*;
