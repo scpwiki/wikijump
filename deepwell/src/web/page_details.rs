@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#[derive(Serialize, Deserialize, Default, Debug, Copy, Clone)]
+#[derive(Serialize, Deserialize, Default, Debug, Copy, Clone, PartialEq, Eq)]
 #[serde(default, rename_all = "camelCase")]
 pub struct PageDetailsQuery {
     /// Include the wikitext in the page output.
