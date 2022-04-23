@@ -139,7 +139,8 @@ pub async fn page_revision_range_get(req: ApiRequest) -> ApiResponse {
     .await
     .to_api()?;
 
-    todo!()
+    txn.commit().await?;
+    build_revision_list_response(&revisions, StatusCode::Ok)
 }
 
 // TODO: filter out hidden fields
@@ -148,6 +149,15 @@ fn build_revision_response(
     status: StatusCode,
 ) -> ApiResponse {
     let body = Body::from_json(revision)?;
+    let response = Response::builder(status).body(body).into();
+    Ok(response)
+}
+
+fn build_revision_list_response(
+    revisions: &[PageRevisionModel],
+    status: StatusCode,
+) -> ApiResponse {
+    let body = Body::from_json(&revisions)?;
     let response = Response::builder(status).body(body).into();
     Ok(response)
 }
