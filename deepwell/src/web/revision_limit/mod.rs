@@ -33,6 +33,13 @@ impl From<RevisionLimit> for u16 {
     }
 }
 
+impl From<RevisionLimit> for usize {
+    #[inline]
+    fn from(limit: RevisionLimit) -> usize {
+        limit.0.into()
+    }
+}
+
 impl Default for RevisionLimit {
     #[inline]
     fn default() -> Self {

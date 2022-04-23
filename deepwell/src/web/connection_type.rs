@@ -75,10 +75,8 @@ fn name_serde() {
             "Serde name does not match variant name",
         );
 
-        let converted: ConnectionType = serde_name
-            .as_str()
-            .parse()
-            .expect("Could not convert item");
+        let converted: ConnectionType =
+            serde_name.as_str().parse().expect("Could not convert item");
 
         assert_eq!(converted, variant, "Converted item does not match variant");
     }

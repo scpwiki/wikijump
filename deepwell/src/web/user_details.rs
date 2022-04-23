@@ -19,8 +19,8 @@
  */
 
 use crate::services::Error as ServiceError;
-use strum_macros::EnumIter;
 use std::str::FromStr;
+use strum_macros::EnumIter;
 
 #[derive(
     EnumIter,
@@ -106,10 +106,8 @@ fn name_serde() {
             "Serde name does not match variant name",
         );
 
-        let converted: UserDetails = serde_name
-            .as_str()
-            .parse()
-            .expect("Could not convert item");
+        let converted: UserDetails =
+            serde_name.as_str().parse().expect("Could not convert item");
 
         assert_eq!(converted, variant, "Converted item does not match variant");
     }
