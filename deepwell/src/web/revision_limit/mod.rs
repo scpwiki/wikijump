@@ -18,6 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::PageDetailsQuery;
+
 mod de;
 
 /// Represents the number of revisions to return in this request.
@@ -49,6 +51,9 @@ impl Default for RevisionLimit {
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
 pub struct RevisionLimitQuery {
+    #[serde(flatten)]
+    pub details: PageDetailsQuery,
+
     #[serde(default)]
     pub limit: RevisionLimit,
 }
