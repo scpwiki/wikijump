@@ -625,6 +625,19 @@ impl RevisionService {
             None => Err(Error::NotFound),
         }
     }
+
+    pub async fn get_range(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+        revision_number: i32,
+        revision_direction: RevisionDirection,
+        revision_limit: usize,
+    ) -> Result<Vec<PageRevisionModel>> {
+        let txn = ctx.transaction();
+
+        todo!()
+    }
 }
 
 #[derive(Debug)]

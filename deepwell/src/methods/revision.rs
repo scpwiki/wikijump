@@ -21,6 +21,7 @@
 use super::prelude::*;
 use crate::models::page_revision::Model as PageRevisionModel;
 use crate::services::revision::{RevisionCountOutput, UpdateRevision};
+use crate::web::RevisionLimitQuery;
 
 pub async fn page_revision_info(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
@@ -118,7 +119,25 @@ pub async fn page_revision_put(mut req: ApiRequest) -> ApiResponse {
 // app.at("/page/:site_id/:type/:id_or_slug/revision/:revision_num/:direction")
 pub async fn page_revision_range_get(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let _ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::new(&req, &txn);
+
+    let RevisionLimitQuery { limit } = req.query()?;
+    let site_id = req.param("site_id")?.parse()?;
+    let revision_number = req.param("revision_number")?.parse()?;
+    let direction = req.param("direction")?.parse()?;
+    let reference = Reference::try_from(&req)?;
+
+    let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
+    let revisions = RevisionService::get_range(
+        &ctx,
+        site_id,
+        page.page_id,
+        revision_number,
+        direction,
+        limit.into(),
+    )
+    .await
+    .to_api()?;
 
     todo!()
 }
