@@ -33,9 +33,9 @@ impl From<RevisionLimit> for u16 {
     }
 }
 
-impl From<RevisionLimit> for usize {
+impl From<RevisionLimit> for u64 {
     #[inline]
-    fn from(limit: RevisionLimit) -> usize {
+    fn from(limit: RevisionLimit) -> u64 {
         limit.0.into()
     }
 }

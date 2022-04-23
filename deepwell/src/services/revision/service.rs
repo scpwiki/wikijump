@@ -632,9 +632,29 @@ impl RevisionService {
         page_id: i64,
         revision_number: i32,
         revision_direction: RevisionDirection,
-        revision_limit: usize,
+        revision_limit: u64,
     ) -> Result<Vec<PageRevisionModel>> {
+        let revision_condition = {
+            use page_revision::Column::RevisionNumber;
+
+            match revision_direction {
+                RevisionDirection::Before => RevisionNumber.lte(revision_number),
+                RevisionDirection::After => RevisionNumber.gte(revision_number),
+            }
+        };
+
         let txn = ctx.transaction();
+        let revisions = PageRevision::find()
+            .filter(
+                Condition::all()
+                    .add(page_revision::Column::SiteId.eq(site_id))
+                    .add(page_revision::Column::PageId.eq(page_id))
+                    .add(revision_condition),
+            )
+            .order_by_asc(page_revision::Column::RevisionNumber)
+            .limit(revision_limit)
+            .all(txn)
+            .await?;
 
         todo!()
     }
