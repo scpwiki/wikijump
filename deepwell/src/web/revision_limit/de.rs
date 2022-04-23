@@ -103,3 +103,48 @@ impl<'de> Visitor<'de> for RevisionLimitVisitor {
     impl_visit_unsigned!(u64, visit_u64);
     impl_visit_unsigned!(u128, visit_u128);
 }
+
+#[test]
+fn revision_limit_deserialize() {
+    macro_rules! check_internal {
+        ($value:expr => $expected:expr) => {{
+            let actual: Option<RevisionLimit> =
+                serde_json::from_str(stringify!($value)).ok();
+
+            assert_eq!(
+                actual, $expected,
+                "Actual revision limit doesn't match expected",
+            );
+        }};
+    }
+
+    macro_rules! check_ok {
+        ($value:expr $(,)?) => {
+            check_internal!($value => Some(RevisionLimit($value)))
+        };
+    }
+
+    macro_rules! check_err {
+        ($value:expr $(,)?) => {
+            check_internal!($value => None)
+        };
+    }
+
+    check_err!(-1000);
+    check_err!(-100);
+    check_err!(-10);
+    check_err!(-1);
+
+    check_ok!(0);
+    check_ok!(1);
+    check_ok!(5);
+    check_ok!(10);
+    check_ok!(20);
+    check_ok!(50);
+    check_ok!(100);
+
+    check_err!(101);
+    check_err!(200);
+    check_err!(1000);
+    check_err!(10000);
+}
