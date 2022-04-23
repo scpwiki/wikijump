@@ -19,12 +19,11 @@
  */
 
 use super::prelude::*;
-use crate::json_utils::json_to_string_list;
 use crate::models::page_revision::Model as PageRevisionModel;
-use crate::services::revision::{RevisionCountOutput, UpdateRevision};
+use crate::services::revision::{
+    PageRevisionModelFiltered, RevisionCountOutput, UpdateRevision,
+};
 use crate::web::RevisionLimitQuery;
-use sea_orm::prelude::DateTimeWithTimeZone;
-use serde_json::Value as JsonValue;
 
 pub async fn page_revision_info(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
@@ -142,104 +141,6 @@ pub async fn page_revision_range_get(req: ApiRequest) -> ApiResponse {
 
     txn.commit().await?;
     build_revision_list_response(revisions, StatusCode::Ok)
-}
-
-#[derive(Serialize, Debug)]
-struct PageRevisionModelFiltered {
-    revision_id: i64,
-    created_at: DateTimeWithTimeZone,
-    revision_number: i32,
-    page_id: i64,
-    site_id: i64,
-    user_id: i64,
-    changes: Vec<String>,
-    wikitext_hash: Option<Vec<u8>>,
-    compiled_hash: Option<Vec<u8>>,
-    compiled_at: DateTimeWithTimeZone,
-    compiled_generator: String,
-    comments: Option<String>,
-    hidden: Vec<String>,
-    title: Option<String>,
-    alt_title: Option<String>,
-    slug: Option<String>,
-    tags: Option<Vec<String>>,
-    metadata: Option<JsonValue>,
-}
-
-impl From<PageRevisionModel> for PageRevisionModelFiltered {
-    fn from(model: PageRevisionModel) -> PageRevisionModelFiltered {
-        let PageRevisionModel {
-            revision_id,
-            created_at,
-            revision_number,
-            page_id,
-            site_id,
-            user_id,
-            changes,
-            wikitext_hash,
-            compiled_hash,
-            compiled_at,
-            compiled_generator,
-            comments,
-            hidden,
-            title,
-            mut alt_title,
-            slug,
-            tags,
-            metadata,
-        } = model;
-
-        // Convert string list fields
-        let changes = json_to_string_list(&changes);
-        let hidden = json_to_string_list(&hidden);
-        let tags = json_to_string_list(&tags);
-
-        // Strip hidden fields
-        let mut wikitext_hash = Some(wikitext_hash);
-        let mut compiled_hash = Some(compiled_hash);
-        let mut comments = Some(comments);
-        let mut title = Some(title);
-        // alt-title is already Option and we're not doubling up
-        let mut slug = Some(slug);
-        let mut tags = Some(tags);
-        let mut metadata = Some(metadata);
-
-        for field in &hidden {
-            // TODO hidden fields aren't standardized yet
-            match field.as_str() {
-                "wikitext" => wikitext_hash = None,
-                "compiled" => compiled_hash = None,
-                "comments" => comments = None,
-                "title" => title = None,
-                "alt_title" => alt_title = None,
-                "slug" => slug = None,
-                "tags" => tags = None,
-                "metadata" => metadata = None,
-                _ => panic!("Unknown field name in hidden: {}", field),
-            }
-        }
-
-        PageRevisionModelFiltered {
-            revision_id,
-            created_at,
-            revision_number,
-            page_id,
-            site_id,
-            user_id,
-            changes,
-            wikitext_hash,
-            compiled_hash,
-            compiled_at,
-            compiled_generator,
-            comments,
-            hidden,
-            title,
-            alt_title,
-            slug,
-            tags,
-            metadata,
-        }
-    }
 }
 
 fn build_revision_response(

@@ -19,7 +19,11 @@
  */
 
 use super::prelude::*;
+use crate::json_utils::json_to_string_list;
+use crate::models::page_revision::Model as PageRevisionModel;
 use ftml::parsing::ParseWarning;
+use sea_orm::prelude::DateTimeWithTimeZone;
+use serde_json::Value as JsonValue;
 use std::num::NonZeroI32;
 
 #[derive(Deserialize, Debug)]
@@ -90,4 +94,102 @@ pub struct RevisionCountOutput {
     pub revision_count: NonZeroI32,
     pub first_revision: i32,
     pub last_revision: i32,
+}
+
+#[derive(Serialize, Debug)]
+pub struct PageRevisionModelFiltered {
+    pub revision_id: i64,
+    pub created_at: DateTimeWithTimeZone,
+    pub revision_number: i32,
+    pub page_id: i64,
+    pub site_id: i64,
+    pub user_id: i64,
+    pub changes: Vec<String>,
+    pub wikitext_hash: Option<Vec<u8>>,
+    pub compiled_hash: Option<Vec<u8>>,
+    pub compiled_at: DateTimeWithTimeZone,
+    pub compiled_generator: String,
+    pub comments: Option<String>,
+    pub hidden: Vec<String>,
+    pub title: Option<String>,
+    pub alt_title: Option<String>,
+    pub slug: Option<String>,
+    pub tags: Option<Vec<String>>,
+    pub metadata: Option<JsonValue>,
+}
+
+impl From<PageRevisionModel> for PageRevisionModelFiltered {
+    fn from(model: PageRevisionModel) -> PageRevisionModelFiltered {
+        let PageRevisionModel {
+            revision_id,
+            created_at,
+            revision_number,
+            page_id,
+            site_id,
+            user_id,
+            changes,
+            wikitext_hash,
+            compiled_hash,
+            compiled_at,
+            compiled_generator,
+            comments,
+            hidden,
+            title,
+            mut alt_title,
+            slug,
+            tags,
+            metadata,
+        } = model;
+
+        // Convert string list fields
+        let changes = json_to_string_list(&changes);
+        let hidden = json_to_string_list(&hidden);
+        let tags = json_to_string_list(&tags);
+
+        // Strip hidden fields
+        let mut wikitext_hash = Some(wikitext_hash);
+        let mut compiled_hash = Some(compiled_hash);
+        let mut comments = Some(comments);
+        let mut title = Some(title);
+        // alt-title is already Option and we're not doubling up
+        let mut slug = Some(slug);
+        let mut tags = Some(tags);
+        let mut metadata = Some(metadata);
+
+        for field in &hidden {
+            // TODO hidden fields aren't standardized yet
+            match field.as_str() {
+                "wikitext" => wikitext_hash = None,
+                "compiled" => compiled_hash = None,
+                "comments" => comments = None,
+                "title" => title = None,
+                "alt_title" => alt_title = None,
+                "slug" => slug = None,
+                "tags" => tags = None,
+                "metadata" => metadata = None,
+                _ => panic!("Unknown field name in hidden: {}", field),
+            }
+        }
+
+        PageRevisionModelFiltered {
+            revision_id,
+            created_at,
+            revision_number,
+            page_id,
+            site_id,
+            user_id,
+            changes,
+            wikitext_hash,
+            compiled_hash,
+            compiled_at,
+            compiled_generator,
+            comments,
+            hidden,
+            title,
+            alt_title,
+            slug,
+            tags,
+            metadata,
+        }
+    }
 }
