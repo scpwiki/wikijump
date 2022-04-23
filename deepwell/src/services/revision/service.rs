@@ -656,7 +656,7 @@ impl RevisionService {
             .all(txn)
             .await?;
 
-        todo!()
+        Ok(revisions)
     }
 }
 
