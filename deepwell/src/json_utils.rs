@@ -71,13 +71,26 @@ pub fn string_list_equals_json<S: AsRef<str>>(json: &JsonValue, list: &[S]) -> b
 #[test]
 fn json_list() {
     macro_rules! check {
-        ($list:expr, $json:expr $(,)?) => {
+        ($input_list:expr, $expected_json:expr $(,)?) => {{
+            // Convert to JSON and ensure that matches
+            let input_list = $input_list;
+            let actual_json = string_list_to_json(input_list.clone());
+
             assert_eq!(
-                string_list_to_json($list),
-                $json,
-                "Expected JSON (left) doesn't match actual (right)",
+                actual_json,
+                $expected_json,
+                "Actual converted JSON list doesn't match expected",
             );
-        };
+
+            // Convert back to original and ensure that matches
+            let new_list = json_to_string_list(&actual_json);
+
+            assert_eq!(
+                input_list,
+                new_list,
+                "Original list doesn't match reconverted list",
+            );
+        }};
     }
 
     check!(vec![], serde_json::json!([]));
