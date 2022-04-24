@@ -160,7 +160,7 @@ impl RevisionService {
 
         if let ProvidedValue::Set(new_tags) = body.tags {
             changes.push(str!("tags"));
-            tags = string_list_to_json(new_tags);
+            tags = string_list_to_json(&new_tags)?;
         }
 
         // Get slug strings for the new location
@@ -186,7 +186,7 @@ impl RevisionService {
         if tasks.render_and_update_links {
             // This is necessary until we are able to replace the
             // 'tags' column with TEXT[] instead of JSON.
-            let temp_tags = json_to_string_list(&tags);
+            let temp_tags = json_to_string_list(tags.clone())?;
             let render_input = RenderPageInfo {
                 slug: &slug,
                 title: &title,
@@ -260,12 +260,13 @@ impl RevisionService {
         }
 
         // Insert the new revision into the table
+        let changes = string_list_to_json(&changes)?;
         let model = page_revision::ActiveModel {
             revision_number: Set(revision_number),
             page_id: Set(page_id),
             site_id: Set(site_id),
             user_id: Set(user_id),
-            changes: Set(string_list_to_json(changes)),
+            changes: Set(changes),
             wikitext_hash: Set(wikitext_hash),
             compiled_hash: Set(compiled_hash),
             compiled_at: Set(compiled_at),
@@ -472,7 +473,7 @@ impl RevisionService {
 
         // This is necessary until we are able to replace the
         // 'tags' column with TEXT[] instead of JSON.
-        let temp_tags = json_to_string_list(&revision.tags);
+        let temp_tags = json_to_string_list(revision.tags)?;
         let render_input = RenderPageInfo {
             slug: &revision.slug,
             title: &revision.title,
@@ -519,9 +520,10 @@ impl RevisionService {
         let _ = user_id;
 
         let txn = ctx.transaction();
+        let hidden = string_list_to_json(&hidden)?;
         let model = page_revision::ActiveModel {
             revision_id: Set(revision_id),
-            hidden: Set(string_list_to_json(hidden)),
+            hidden: Set(hidden),
             ..Default::default()
         };
 

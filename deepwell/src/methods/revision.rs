@@ -197,9 +197,9 @@ async fn filter_and_populate_revision(
     } = model;
 
     // Convert string list fields
-    let changes = json_to_string_list(&changes);
-    let hidden = json_to_string_list(&hidden);
-    let tags = json_to_string_list(&tags);
+    let changes = json_to_string_list(changes)?;
+    let hidden = json_to_string_list(hidden)?;
+    let tags = json_to_string_list(tags)?;
 
     // Strip hidden fields
     let mut comments = Some(comments);

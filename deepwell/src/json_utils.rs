@@ -25,22 +25,30 @@
 //! adds full support for PostgreSQL's `ARRAY` type, which we use for a few
 //! different columns.
 //!
+//! Yes, they re-allocate data constantly and are annoying. I know.
+//! It's a temporary workaround. I'm sorry and want it go away too.
+//!
 //! See also https://github.com/SeaQL/sea-orm/discussions/487
 
-use serde_json::Value as JsonValue;
+use serde::Serialize;
+use serde_json::{Result, Value as JsonValue};
 
 #[inline]
-pub fn string_list_to_json(list: Vec<String>) -> JsonValue {
-    JsonValue::Array(list.into_iter().map(JsonValue::String).collect())
+pub fn string_list_to_json<S>(items: &[S]) -> Result<JsonValue>
+where
+    S: Serialize + AsRef<str>,
+{
+    #[derive(Serialize, Debug)]
+    struct StringList<'a, S: Serialize>(&'a [S]);
+
+    serde_json::to_value(&StringList(items))
 }
 
-pub fn json_to_string_list(json: &JsonValue) -> Vec<String> {
-    let slice = match json {
-        JsonValue::Array(slice) => slice,
-        _ => panic!("JSON value not a list"),
-    };
+pub fn json_to_string_list(value: JsonValue) -> Result<Vec<String>> {
+    #[derive(Deserialize, Debug)]
+    struct StringList(Vec<String>);
 
-    slice.iter().map(|s| str!(s)).collect()
+    serde_json::from_value(value).map(|StringList(items)| items)
 }
 
 pub fn string_list_equals_json<S: AsRef<str>>(json: &JsonValue, list: &[S]) -> bool {
@@ -70,6 +78,8 @@ pub fn string_list_equals_json<S: AsRef<str>>(json: &JsonValue, list: &[S]) -> b
 
 #[test]
 fn json_list() {
+    use serde_json::json;
+
     macro_rules! check {
         ($input_list:expr, $expected_json:expr $(,)?) => {{
             // Convert to JSON and ensure that matches
@@ -77,8 +87,7 @@ fn json_list() {
             let actual_json = string_list_to_json(input_list.clone());
 
             assert_eq!(
-                actual_json,
-                $expected_json,
+                actual_json, $expected_json,
                 "Actual converted JSON list doesn't match expected",
             );
 
@@ -86,22 +95,23 @@ fn json_list() {
             let new_list = json_to_string_list(&actual_json);
 
             assert_eq!(
-                input_list,
-                new_list,
+                input_list, new_list,
                 "Original list doesn't match reconverted list",
             );
         }};
     }
 
-    check!(vec![], serde_json::json!([]));
+    check!(vec![], json!([]));
     check!(
         vec![str!("apple"), str!("banana"), str!("cherry")],
-        serde_json::json!(["apple", "banana", "cherry"]),
+        json!(["apple", "banana", "cherry"]),
     );
 }
 
 #[test]
 fn json_equals() {
+    use serde_json::json;
+
     macro_rules! check {
         ($list:expr, $json:expr, $equals:expr $(,)?) => {
             let list: &[&str] = $list;
@@ -115,11 +125,11 @@ fn json_equals() {
         };
     }
 
-    check!(&[], serde_json::json!([]), true);
-    check!(&[], serde_json::json!(["a"]), false);
-    check!(&["a"], serde_json::json!([]), false);
-    check!(&["a"], serde_json::json!(["a"]), true);
-    check!(&["a"], serde_json::json!(["b"]), false);
-    check!(&["a", "b", "c"], serde_json::json!(["a", "b", "c"]), true);
-    check!(&["a", "b", "c"], serde_json::json!(["b", "b", "c"]), false);
+    check!(&[], json!([]), true);
+    check!(&[], json!(["a"]), false);
+    check!(&["a"], json!([]), false);
+    check!(&["a"], json!(["a"]), true);
+    check!(&["a"], json!(["b"]), false);
+    check!(&["a", "b", "c"], json!(["a", "b", "c"]), true);
+    check!(&["a", "b", "c"], json!(["b", "b", "c"]), false);
 }
