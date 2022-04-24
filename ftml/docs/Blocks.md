@@ -123,7 +123,7 @@ Alternatively you may look here for a formatted list: (though it may not be upda
 | [Tables](#tables)                       | `table`, `row`, `cell`, `hcell`  | No    | No     | Yes       | Map           | Elements  |
 | [Tab Views](#tabs)                      | `tabview`, `tabs`                | No    | No     | Yes       | None          | Elements  |
 | [Tabs](#tabs)                           | `tab`                            | No    | No     | Yes       | Value         | Elements  |
-| [Target](#target)                       | `target`                         | No    | No     | Yes       | Value         | None      |
+| [Target](#target)                       | `target`, `anchortarget`         | No    | No     | Yes       | Value         | None      |
 | [TOC](#toc)                             | `toc`                            | No    | No     | Yes       | Map           | None      |
 | [Underline](#underline)                 | `u`, `underline`                 | No    | No     | No        | Map           | Elements  |
 | [User](#user)                           | `user`                           | Yes   | No     | No        | Value         | None      |
@@ -929,7 +929,7 @@ Example:
 
 ### Target
 
-Input: `[[#]]`, `[[target]]`
+Input: `[[#]]`, `[[target]]`, `[[anchortarget]]`
 
 Output: `Element::AnchorName` / `<a id="[name]">`
 
@@ -941,11 +941,15 @@ Arguments:
 Creates an anchor at the given location, allowing local navigation to it.
 For instance, creating an anchor `foo-bar` allows jumping to it via `page-name#foo-bar`.
 
+Wikidot only supports the `[[#name]]` syntax, the `[[target]]` block was added to
+make it less visually confusing with `[#name ...]` syntax.
+
 Example:
 
 ```
 [[#apple]]
 [[target banana]]
+[[anchortarget cherry]]
 ```
 
 ### TOC
