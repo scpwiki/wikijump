@@ -83,8 +83,9 @@ fn json_list() {
     macro_rules! check {
         ($input_list:expr, $expected_json:expr $(,)?) => {{
             // Convert to JSON and ensure that matches
-            let input_list = $input_list;
-            let actual_json = string_list_to_json(input_list.clone());
+            let input_list: Vec<String> = $input_list;
+            let actual_json =
+                string_list_to_json(&input_list).expect("JSON conversion failed");
 
             assert_eq!(
                 actual_json, $expected_json,
@@ -92,7 +93,8 @@ fn json_list() {
             );
 
             // Convert back to original and ensure that matches
-            let new_list = json_to_string_list(&actual_json);
+            let new_list =
+                json_to_string_list(actual_json).expect("List conversion failed");
 
             assert_eq!(
                 input_list, new_list,
@@ -113,16 +115,17 @@ fn json_equals() {
     use serde_json::json;
 
     macro_rules! check {
-        ($list:expr, $json:expr, $equals:expr $(,)?) => {
+        ($list:expr, $json:expr, $equals:expr $(,)?) => {{
             let list: &[&str] = $list;
+            let actual = string_list_equals_json(&$json, list);
 
             assert_eq!(
-                string_list_equals_json(&$json, list),
+                actual,
                 $equals,
                 "Expected JSON and list to be {}",
                 if $equals { "equals" } else { "not equals" },
             );
-        };
+        }};
     }
 
     check!(&[], json!([]), true);
