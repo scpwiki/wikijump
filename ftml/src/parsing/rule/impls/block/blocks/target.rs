@@ -49,6 +49,11 @@ fn parse_fn<'r, 't>(
             None => Err(parser.make_warn(ParseWarningKind::BlockMissingArguments)),
         })?;
 
+    // Handle invalid anchor names
+    if name.is_empty() || name.contains(' ') {
+        return Err(parser.make_warn(ParseWarningKind::BlockMissingArguments));
+    }
+
     // Isolate ID if requested
     let name = if parser.settings().isolate_user_ids {
         Cow::Owned(isolate_ids(name))
