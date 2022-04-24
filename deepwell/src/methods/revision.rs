@@ -25,7 +25,7 @@ use crate::services::revision::{
     PageRevisionModelFiltered, RevisionCountOutput, UpdateRevision,
 };
 use crate::services::{Result, TextService};
-use crate::web::{PageDetailsQuery, RevisionLimitQuery};
+use crate::web::{RevisionDetailsQuery, RevisionLimitQuery};
 
 pub async fn page_revision_info(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
@@ -78,7 +78,7 @@ pub async fn page_revision_get(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let details: PageDetailsQuery = req.query()?;
+    let details: RevisionDetailsQuery = req.query()?;
     let site_id = req.param("site_id")?.parse()?;
     let revision_number = req.param("revision_number")?.parse()?;
     let reference = Reference::try_from(&req)?;
@@ -103,7 +103,7 @@ pub async fn page_revision_put(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let details: PageDetailsQuery = req.query()?;
+    let details: RevisionDetailsQuery = req.query()?;
     let input: UpdateRevision = req.body_json().await?;
     let site_id = req.param("site_id")?.parse()?;
     let revision_number = req.param("revision_number")?.parse()?;
@@ -162,7 +162,7 @@ pub async fn page_revision_range_get(req: ApiRequest) -> ApiResponse {
 async fn filter_and_populate_revision(
     ctx: &ServiceContext<'_>,
     model: PageRevisionModel,
-    mut details: PageDetailsQuery,
+    mut details: RevisionDetailsQuery,
 ) -> Result<PageRevisionModelFiltered> {
     let PageRevisionModel {
         revision_id,
@@ -245,7 +245,7 @@ async fn filter_and_populate_revision(
 async fn build_revision_response(
     ctx: &ServiceContext<'_>,
     revision: PageRevisionModel,
-    details: PageDetailsQuery,
+    details: RevisionDetailsQuery,
     status: StatusCode,
 ) -> Result<Response> {
     let filtered_revision = filter_and_populate_revision(ctx, revision, details).await?;
@@ -257,7 +257,7 @@ async fn build_revision_response(
 async fn build_revision_list_response(
     ctx: &ServiceContext<'_>,
     revisions: Vec<PageRevisionModel>,
-    details: PageDetailsQuery,
+    details: RevisionDetailsQuery,
     status: StatusCode,
 ) -> Result<Response> {
     let filtered_revisions = {

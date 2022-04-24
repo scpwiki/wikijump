@@ -37,6 +37,6 @@ pub use self::page_details::PageDetailsQuery;
 pub use self::provided_value::ProvidedValue;
 pub use self::reference::Reference;
 pub use self::revision_direction::RevisionDirection;
-pub use self::revision_limit::{RevisionLimit, RevisionLimitQuery};
+pub use self::revision_limit::{RevisionDetailsQuery, RevisionLimit, RevisionLimitQuery};
 pub use self::unwrap::HttpUnwrap;
 pub use self::user_details::{UserDetails, UserDetailsQuery};
