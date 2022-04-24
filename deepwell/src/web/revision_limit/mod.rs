@@ -52,10 +52,11 @@ impl Default for RevisionLimit {
 pub type RevisionDetailsQuery = PageDetailsQuery;
 
 #[derive(Serialize, Deserialize, Debug, Default, Copy, Clone, PartialEq, Eq)]
+#[serde(default, rename_all = "camelCase")]
 pub struct RevisionLimitQuery {
     #[serde(flatten)]
     pub details: PageDetailsQuery,
 
-    #[serde(default)]
+    /// How many revisions to pull in this query.
     pub limit: RevisionLimit,
 }
