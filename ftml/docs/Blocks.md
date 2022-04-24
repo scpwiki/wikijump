@@ -123,6 +123,7 @@ Alternatively you may look here for a formatted list: (though it may not be upda
 | [Tables](#tables)                       | `table`, `row`, `cell`, `hcell`  | No    | No     | Yes       | Map           | Elements  |
 | [Tab Views](#tabs)                      | `tabview`, `tabs`                | No    | No     | Yes       | None          | Elements  |
 | [Tabs](#tabs)                           | `tab`                            | No    | No     | Yes       | Value         | Elements  |
+| [Target](#target)                       | `target`                         | No    | No     | Yes       | Value         | None      |
 | [TOC](#toc)                             | `toc`                            | No    | No     | Yes       | Map           | None      |
 | [Underline](#underline)                 | `u`, `underline`                 | No    | No     | No        | Map           | Elements  |
 | [User](#user)                           | `user`                           | Yes   | No     | No        | Value         | None      |
