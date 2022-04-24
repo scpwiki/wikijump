@@ -82,10 +82,10 @@ impl TextService {
         hash: &[u8],
     ) -> Result<Option<String>> {
         if should_fetch {
-            Ok(None)
-        } else {
             let text = TextService::get(ctx, hash).await?;
             Ok(Some(text))
+        } else {
+            Ok(None)
         }
     }
 
