@@ -1,5 +1,5 @@
 /*
- * parsing/rule/impls/anchor.rs
+ * parsing/rule/impls/block/blocks/target.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,43 +18,36 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Rule for anchor name blocks.
-//!
-//! Not to be confused with the anchor block (`[[a]]`), this
-//! "block" is a rule for `[[# name-of-anchor]]`, that is, created an
-//! `<a id="name-of-anchor">` anchor that can be jumped to.
-
 use super::prelude::*;
 use crate::id_prefix::isolate_ids;
 use std::borrow::Cow;
 
-pub const RULE_ANCHOR: Rule = Rule {
-    name: "anchor",
-    position: LineRequirement::Any,
-    try_consume_fn,
+pub const BLOCK_TARGET: BlockRule = BlockRule {
+    name: "block-target",
+    accepts_names: &["target", "anchortarget"],
+    accepts_star: false,
+    accepts_score: false,
+    accepts_newlines: true,
+    parse_fn,
 };
 
-fn try_consume_fn<'p, 'r, 't>(
-    parser: &'p mut Parser<'r, 't>,
+fn parse_fn<'r, 't>(
+    parser: &mut Parser<'r, 't>,
+    name: &'t str,
+    flag_star: bool,
+    flag_score: bool,
+    in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    info!("Trying to create a named anchor");
-    check_step(parser, Token::LeftBlockAnchor)?;
+    info!("Parsing target block (name '{name}', in-head {in_head})");
+    assert!(!flag_star, "Target doesn't allow star flag");
+    assert!(!flag_score, "Target doesn't allow score flag");
+    assert_block_name(&BLOCK_TARGET, name);
 
-    // Requires a space before the name
-    parser.get_token(Token::Whitespace, ParseWarningKind::RuleFailed)?;
-
-    // Gather name for anchor
-    let name = collect_text(
-        parser,
-        RULE_ANCHOR,
-        &[ParseCondition::current(Token::RightBlock)],
-        &[
-            ParseCondition::current(Token::Whitespace),
-            ParseCondition::current(Token::ParagraphBreak),
-            ParseCondition::current(Token::LineBreak),
-        ],
-        None,
-    )?;
+    let name =
+        parser.get_head_value(&BLOCK_TARGET, in_head, |parser, value| match value {
+            Some(name) => Ok(name.trim()),
+            None => Err(parser.make_warn(ParseWarningKind::BlockMissingArguments)),
+        })?;
 
     // Isolate ID if requested
     let name = if parser.settings().isolate_user_ids {
@@ -63,6 +56,5 @@ fn try_consume_fn<'p, 'r, 't>(
         cow!(name)
     };
 
-    // Build and return link element
     ok!(Element::AnchorName(name))
 }
