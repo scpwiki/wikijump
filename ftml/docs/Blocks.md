@@ -927,6 +927,27 @@ Example:
 [[/tabview]]
 ```
 
+### Target
+
+Input: `[[#]]`, `[[target]]`
+
+Output: `Element::AnchorName` / `<a id="[name]">`
+
+Body: None
+
+Arguments:
+* Anchor name
+
+Creates an anchor at the given location, allowing local navigation to it.
+For instance, creating an anchor `foo-bar` allows jumping to it via `page-name#foo-bar`.
+
+Example:
+
+```
+[[#apple]]
+[[target banana]]
+```
+
 ### TOC
 
 Name: Table of Contents
