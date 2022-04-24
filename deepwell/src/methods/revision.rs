@@ -133,7 +133,8 @@ pub async fn page_revision_range_get(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let RevisionLimitQuery { details, limit } = req.query()?;
+    let RevisionLimitQuery { wikitext, compiled_html, limit } = req.query()?;
+    let details = RevisionDetailsQuery { wikitext, compiled_html };
     let site_id = req.param("site_id")?.parse()?;
     let revision_number = req.param("revision_number")?.parse()?;
     let direction = req.param("direction")?.parse()?;
@@ -154,6 +155,7 @@ pub async fn page_revision_range_get(req: ApiRequest) -> ApiResponse {
     let response = build_revision_list_response(&ctx, revisions, details, StatusCode::Ok)
         .await
         .to_api()?;
+
     txn.commit().await?;
     Ok(response)
 }

@@ -54,9 +54,16 @@ pub type RevisionDetailsQuery = PageDetailsQuery;
 #[derive(Serialize, Deserialize, Debug, Default, Copy, Clone, PartialEq, Eq)]
 #[serde(default, rename_all = "camelCase")]
 pub struct RevisionLimitQuery {
-    #[serde(flatten)]
-    pub details: PageDetailsQuery,
+    /// Include the wikitext in the page output.
+    pub wikitext: bool,
+
+    /// Include the compiled HTML in the page output.
+    #[serde(alias = "compiled")]
+    pub compiled_html: bool,
 
     /// How many revisions to pull in this query.
     pub limit: RevisionLimit,
 }
+
+// NOTE: #[serde(flatten)] on RevisionDetailsQuery as a field
+//       doesn't seem to work here, so we're just pasting it in.
