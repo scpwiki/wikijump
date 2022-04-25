@@ -137,7 +137,7 @@ class DeepwellPage extends Migration
                 -- Since we already check if it's a subset or equal, this is the same as
                 -- strict equivalence, but without regard for ordering.
                 CHECK (
-                    revision_number != 0 OR
+                    revision_type != 'create' OR
                     json_array_to_text_array(changes) @> '{
                         \"wikitext\",
                         \"title\",
@@ -147,8 +147,8 @@ class DeepwellPage extends Migration
                     }'
                 ),
 
-                -- Ensure array is not empty
-                CHECK (json_array_to_text_array(changes) != '{}'),
+                -- Ensure array is not empty for regular revisions
+                CHECK (revision_type != 'regular' OR json_array_to_text_array(changes) != '{}'),
 
                 -- Ensure page creations are always the first revision
                 CHECK (revision_number != 0 OR revision_type = 'create'),
