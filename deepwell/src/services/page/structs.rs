@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use crate::services::revision::CreateRevisionOutput;
+use crate::web::RevisionType;
 use ftml::parsing::ParseWarning;
 use sea_orm::entity::prelude::DateTimeWithTimeZone;
 use serde_json::Value as JsonValue;

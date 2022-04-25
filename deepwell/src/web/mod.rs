@@ -25,6 +25,7 @@ mod provided_value;
 mod reference;
 mod revision_direction;
 mod revision_limit;
+mod revision_type;
 mod unwrap;
 mod user_details;
 
@@ -38,5 +39,6 @@ pub use self::provided_value::ProvidedValue;
 pub use self::reference::Reference;
 pub use self::revision_direction::RevisionDirection;
 pub use self::revision_limit::{RevisionDetailsQuery, RevisionLimit, RevisionLimitQuery};
+pub use self::revision_type::RevisionType;
 pub use self::unwrap::HttpUnwrap;
 pub use self::user_details::{UserDetails, UserDetailsQuery};
