@@ -1,5 +1,5 @@
 /*
- * web/page_details.rs
+ * web/revision_limit/mod.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,13 +18,52 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::PageDetailsQuery;
+
+mod de;
+
+/// Represents the number of revisions to return in this request.
+///
+/// The default value is 10, and the maximum value is 100.
+#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq)]
+pub struct RevisionLimit(u16);
+
+impl From<RevisionLimit> for u16 {
+    #[inline]
+    fn from(limit: RevisionLimit) -> u16 {
+        limit.0
+    }
+}
+
+impl From<RevisionLimit> for u64 {
+    #[inline]
+    fn from(limit: RevisionLimit) -> u64 {
+        limit.0.into()
+    }
+}
+
+impl Default for RevisionLimit {
+    #[inline]
+    fn default() -> Self {
+        RevisionLimit(10)
+    }
+}
+
+pub type RevisionDetailsQuery = PageDetailsQuery;
+
 #[derive(Serialize, Deserialize, Debug, Default, Copy, Clone, PartialEq, Eq)]
 #[serde(default, rename_all = "camelCase")]
-pub struct PageDetailsQuery {
+pub struct RevisionLimitQuery {
     /// Include the wikitext in the page output.
     pub wikitext: bool,
 
     /// Include the compiled HTML in the page output.
     #[serde(alias = "compiled")]
     pub compiled_html: bool,
+
+    /// How many revisions to pull in this query.
+    pub limit: RevisionLimit,
 }
+
+// NOTE: #[serde(flatten)] on RevisionDetailsQuery as a field
+//       doesn't seem to work here, so we're just pasting it in.

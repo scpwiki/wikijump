@@ -20,6 +20,8 @@
 
 use super::prelude::*;
 use ftml::parsing::ParseWarning;
+use sea_orm::prelude::DateTimeWithTimeZone;
+use serde_json::Value as JsonValue;
 use std::num::NonZeroI32;
 
 #[derive(Deserialize, Debug)]
@@ -90,4 +92,26 @@ pub struct RevisionCountOutput {
     pub revision_count: NonZeroI32,
     pub first_revision: i32,
     pub last_revision: i32,
+}
+
+#[derive(Serialize, Debug)]
+pub struct PageRevisionModelFiltered {
+    pub revision_id: i64,
+    pub created_at: DateTimeWithTimeZone,
+    pub revision_number: i32,
+    pub page_id: i64,
+    pub site_id: i64,
+    pub user_id: i64,
+    pub changes: Vec<String>,
+    pub wikitext: Option<String>,
+    pub compiled_html: Option<String>,
+    pub compiled_at: DateTimeWithTimeZone,
+    pub compiled_generator: String,
+    pub comments: Option<String>,
+    pub hidden: Vec<String>,
+    pub title: Option<String>,
+    pub alt_title: Option<String>,
+    pub slug: Option<String>,
+    pub tags: Option<Vec<String>>,
+    pub metadata: Option<JsonValue>,
 }

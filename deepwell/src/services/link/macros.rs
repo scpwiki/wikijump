@@ -20,6 +20,6 @@
 
 macro_rules! parse_connection_type {
     ($connection:expr) => {
-        ConnectionType::try_from($connection.connection_type.as_str())?
+        $connection.connection_type.as_str().parse()?
     };
 }

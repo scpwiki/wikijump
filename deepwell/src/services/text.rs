@@ -70,6 +70,25 @@ impl TextService {
             .map(|text| text.is_some())
     }
 
+    /// Possibly retrieve text, if a flag is set.
+    ///
+    /// This utility conditionally retrieves the
+    /// text given by the specified hash only
+    /// if the flag `should_fetch` is true.
+    /// Otherwise, it does no action, returning `None`.
+    pub async fn get_maybe(
+        ctx: &ServiceContext<'_>,
+        should_fetch: bool,
+        hash: &[u8],
+    ) -> Result<Option<String>> {
+        if should_fetch {
+            let text = TextService::get(ctx, hash).await?;
+            Ok(Some(text))
+        } else {
+            Ok(None)
+        }
+    }
+
     pub async fn create(ctx: &ServiceContext<'_>, contents: String) -> Result<Hash> {
         let txn = ctx.transaction();
         let hash = Self::hash(&contents);

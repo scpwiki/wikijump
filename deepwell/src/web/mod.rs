@@ -23,6 +23,8 @@ mod connection_type;
 mod page_details;
 mod provided_value;
 mod reference;
+mod revision_direction;
+mod revision_limit;
 mod unwrap;
 mod user_details;
 
@@ -34,5 +36,7 @@ pub use self::connection_type::ConnectionType;
 pub use self::page_details::PageDetailsQuery;
 pub use self::provided_value::ProvidedValue;
 pub use self::reference::Reference;
+pub use self::revision_direction::RevisionDirection;
+pub use self::revision_limit::{RevisionDetailsQuery, RevisionLimit, RevisionLimitQuery};
 pub use self::unwrap::HttpUnwrap;
 pub use self::user_details::{UserDetails, UserDetailsQuery};

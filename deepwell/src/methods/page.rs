@@ -24,7 +24,7 @@ use crate::models::page_revision::Model as PageRevisionModel;
 use crate::services::page::{
     CreatePage, DeletePage, EditPage, GetPageOutput, RestorePage,
 };
-use crate::services::Result;
+use crate::services::{Result, TextService};
 use crate::web::PageDetailsQuery;
 use ref_map::*;
 
@@ -277,19 +277,6 @@ pub async fn page_links_external_to(req: ApiRequest) -> ApiResponse {
     Ok(body.into())
 }
 
-async fn get_text(
-    ctx: &ServiceContext<'_>,
-    should_fetch: bool,
-    text_hash: &[u8],
-) -> Result<Option<String>> {
-    if !should_fetch {
-        return Ok(None);
-    }
-
-    let text = TextService::get(ctx, text_hash).await?;
-    Ok(Some(text))
-}
-
 async fn build_page_response(
     ctx: &ServiceContext<'_>,
     page: &PageModel,
@@ -302,11 +289,13 @@ async fn build_page_response(
         CategoryService::get(ctx, page.site_id, Reference::from(page.page_category_id))
             .await?;
 
-    // Get text data, if needed
-    let wikitext = get_text(ctx, details.wikitext, &revision.wikitext_hash).await?;
-    let compiled_html =
-        get_text(ctx, details.compiled_html, &revision.compiled_hash).await?;
+    // Get text data, if requested
+    let (wikitext, compiled_html) = try_join!(
+        TextService::get_maybe(ctx, details.wikitext, &revision.wikitext_hash),
+        TextService::get_maybe(ctx, details.compiled_html, &revision.compiled_hash),
+    )?;
 
+    // Build result struct
     let output = GetPageOutput {
         page_id: page.page_id,
         page_created_at: page.created_at,

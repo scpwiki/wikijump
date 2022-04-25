@@ -42,6 +42,7 @@ mod api;
 mod config;
 mod database;
 mod info;
+mod json_utils;
 mod locales;
 mod methods;
 mod models;

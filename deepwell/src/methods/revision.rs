@@ -19,8 +19,13 @@
  */
 
 use super::prelude::*;
+use crate::json_utils::json_to_string_list;
 use crate::models::page_revision::Model as PageRevisionModel;
-use crate::services::revision::{RevisionCountOutput, UpdateRevision};
+use crate::services::revision::{
+    PageRevisionModelFiltered, RevisionCountOutput, UpdateRevision,
+};
+use crate::services::{Result, TextService};
+use crate::web::{RevisionDetailsQuery, RevisionLimitQuery};
 
 pub async fn page_revision_info(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
@@ -73,6 +78,7 @@ pub async fn page_revision_get(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
+    let details: RevisionDetailsQuery = req.query()?;
     let site_id = req.param("site_id")?.parse()?;
     let revision_number = req.param("revision_number")?.parse()?;
     let reference = Reference::try_from(&req)?;
@@ -85,14 +91,19 @@ pub async fn page_revision_get(req: ApiRequest) -> ApiResponse {
         .await
         .to_api()?;
 
+    let response = build_revision_response(&ctx, revision, details, StatusCode::Ok)
+        .await
+        .to_api()?;
+
     txn.commit().await?;
-    build_revision_response(&revision, StatusCode::Ok)
+    Ok(response)
 }
 
 pub async fn page_revision_put(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
+    let details: RevisionDetailsQuery = req.query()?;
     let input: UpdateRevision = req.body_json().await?;
     let site_id = req.param("site_id")?.parse()?;
     let revision_number = req.param("revision_number")?.parse()?;
@@ -110,25 +121,168 @@ pub async fn page_revision_put(mut req: ApiRequest) -> ApiResponse {
         .await
         .to_api()?;
 
+    let response = build_revision_response(&ctx, revision, details, StatusCode::Ok)
+        .await
+        .to_api()?;
+
     txn.commit().await?;
-    build_revision_response(&revision, StatusCode::Ok)
+    Ok(response)
 }
 
-// TODO: get list of revisions before/after a spec, max limit 100, default 10
-// app.at("/page/:site_id/:type/:id_or_slug/revision/:revision_num/:direction")
 pub async fn page_revision_range_get(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let _ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::new(&req, &txn);
 
-    todo!()
+    let RevisionLimitQuery {
+        wikitext,
+        compiled_html,
+        limit,
+    } = req.query()?;
+
+    let details = RevisionDetailsQuery {
+        wikitext,
+        compiled_html,
+    };
+
+    let site_id = req.param("site_id")?.parse()?;
+    let revision_number = req.param("revision_number")?.parse()?;
+    let direction = req.param("direction")?.parse()?;
+    let reference = Reference::try_from(&req)?;
+
+    let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
+    let revisions = RevisionService::get_range(
+        &ctx,
+        site_id,
+        page.page_id,
+        revision_number,
+        direction,
+        limit.into(),
+    )
+    .await
+    .to_api()?;
+
+    let response = build_revision_list_response(&ctx, revisions, details, StatusCode::Ok)
+        .await
+        .to_api()?;
+
+    txn.commit().await?;
+    Ok(response)
 }
 
-// TODO: filter out hidden fields
-fn build_revision_response(
-    revision: &PageRevisionModel,
+// Helper functions
+async fn filter_and_populate_revision(
+    ctx: &ServiceContext<'_>,
+    model: PageRevisionModel,
+    mut details: RevisionDetailsQuery,
+) -> Result<PageRevisionModelFiltered> {
+    let PageRevisionModel {
+        revision_id,
+        created_at,
+        revision_number,
+        page_id,
+        site_id,
+        user_id,
+        changes,
+        wikitext_hash,
+        compiled_hash,
+        compiled_at,
+        compiled_generator,
+        comments,
+        hidden,
+        title,
+        mut alt_title,
+        slug,
+        tags,
+        metadata,
+    } = model;
+
+    // Convert string list fields
+    let changes = json_to_string_list(changes)?;
+    let hidden = json_to_string_list(hidden)?;
+    let tags = json_to_string_list(tags)?;
+
+    // Strip hidden fields
+    let mut comments = Some(comments);
+    let mut title = Some(title);
+    // alt-title is already Option and we're not doubling up
+    let mut slug = Some(slug);
+    let mut tags = Some(tags);
+    let mut metadata = Some(metadata);
+
+    for field in &hidden {
+        // TODO hidden fields aren't standardized yet
+        match field.as_str() {
+            "wikitext" => details.wikitext = false,
+            "compiled" => details.compiled_html = false,
+            "comments" => comments = None,
+            "title" => title = None,
+            "alt_title" => alt_title = None,
+            "slug" => slug = None,
+            "tags" => tags = None,
+            "metadata" => metadata = None,
+            _ => panic!("Unknown field name in hidden: {}", field),
+        }
+    }
+
+    // Get text data, if requested
+    let (wikitext, compiled_html) = try_join!(
+        TextService::get_maybe(ctx, details.wikitext, &wikitext_hash),
+        TextService::get_maybe(ctx, details.compiled_html, &compiled_hash),
+    )
+    .to_api()?;
+
+    Ok(PageRevisionModelFiltered {
+        revision_id,
+        created_at,
+        revision_number,
+        page_id,
+        site_id,
+        user_id,
+        changes,
+        wikitext,
+        compiled_html,
+        compiled_at,
+        compiled_generator,
+        comments,
+        hidden,
+        title,
+        alt_title,
+        slug,
+        tags,
+        metadata,
+    })
+}
+
+async fn build_revision_response(
+    ctx: &ServiceContext<'_>,
+    revision: PageRevisionModel,
+    details: RevisionDetailsQuery,
     status: StatusCode,
-) -> ApiResponse {
-    let body = Body::from_json(revision)?;
+) -> Result<Response> {
+    let filtered_revision = filter_and_populate_revision(ctx, revision, details).await?;
+    let body = Body::from_json(&filtered_revision)?;
+    let response = Response::builder(status).body(body).into();
+    Ok(response)
+}
+
+async fn build_revision_list_response(
+    ctx: &ServiceContext<'_>,
+    revisions: Vec<PageRevisionModel>,
+    details: RevisionDetailsQuery,
+    status: StatusCode,
+) -> Result<Response> {
+    let filtered_revisions = {
+        let mut f_revisions = Vec::new();
+
+        for revision in revisions {
+            let f_revision = filter_and_populate_revision(ctx, revision, details).await?;
+            f_revisions.push(f_revision);
+        }
+
+        f_revisions
+    };
+
+    let body = Body::from_json(&filtered_revisions)?;
     let response = Response::builder(status).body(body).into();
     Ok(response)
 }

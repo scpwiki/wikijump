@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::json_utils::{json_to_string_list, string_list_to_json};
 use crate::models::page_revision::{
     self, Entity as PageRevision, Model as PageRevisionModel,
 };
@@ -26,7 +27,7 @@ use crate::services::render::RenderOutput;
 use crate::services::{
     LinkService, OutdateService, ParentService, RenderService, SiteService, TextService,
 };
-use crate::web::{split_category, split_category_name};
+use crate::web::{split_category, split_category_name, RevisionDirection};
 use ftml::data::PageInfo;
 use ftml::settings::{WikitextMode, WikitextSettings};
 use ref_map::*;
@@ -160,7 +161,7 @@ impl RevisionService {
 
         if let ProvidedValue::Set(new_tags) = body.tags {
             changes.push(str!("tags"));
-            tags = string_list_to_json(new_tags);
+            tags = string_list_to_json(&new_tags)?;
         }
 
         // Get slug strings for the new location
@@ -186,7 +187,7 @@ impl RevisionService {
         if tasks.render_and_update_links {
             // This is necessary until we are able to replace the
             // 'tags' column with TEXT[] instead of JSON.
-            let temp_tags = json_to_string_list(&tags);
+            let temp_tags = json_to_string_list(tags.clone())?;
             let render_input = RenderPageInfo {
                 slug: &slug,
                 title: &title,
@@ -260,12 +261,13 @@ impl RevisionService {
         }
 
         // Insert the new revision into the table
+        let changes = string_list_to_json(&changes)?;
         let model = page_revision::ActiveModel {
             revision_number: Set(revision_number),
             page_id: Set(page_id),
             site_id: Set(site_id),
             user_id: Set(user_id),
-            changes: Set(string_list_to_json(changes)),
+            changes: Set(changes),
             wikitext_hash: Set(wikitext_hash),
             compiled_hash: Set(compiled_hash),
             compiled_at: Set(compiled_at),
@@ -541,7 +543,7 @@ impl RevisionService {
 
         // This is necessary until we are able to replace the
         // 'tags' column with TEXT[] instead of JSON.
-        let temp_tags = json_to_string_list(&revision.tags);
+        let temp_tags = json_to_string_list(revision.tags)?;
         let render_input = RenderPageInfo {
             slug: &revision.slug,
             title: &revision.title,
@@ -588,9 +590,10 @@ impl RevisionService {
         let _ = user_id;
 
         let txn = ctx.transaction();
+        let hidden = string_list_to_json(&hidden)?;
         let model = page_revision::ActiveModel {
             revision_id: Set(revision_id),
-            hidden: Set(string_list_to_json(hidden)),
+            hidden: Set(hidden),
             ..Default::default()
         };
 
@@ -694,6 +697,48 @@ impl RevisionService {
             Some(count) => Ok(count),
             None => Err(Error::NotFound),
         }
+    }
+
+    pub async fn get_range(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+        revision_number: i32,
+        revision_direction: RevisionDirection,
+        revision_limit: u64,
+    ) -> Result<Vec<PageRevisionModel>> {
+        let revision_condition = {
+            use page_revision::Column::RevisionNumber;
+
+            // Allow specifying "-1" to mean "the most recent revision",
+            // otherwise keep as-is.
+            let revision_number = if revision_number >= 0 {
+                revision_number
+            } else {
+                i32::MAX
+            };
+
+            // Get correct database condition based on requested ordering
+            match revision_direction {
+                RevisionDirection::Before => RevisionNumber.lte(revision_number),
+                RevisionDirection::After => RevisionNumber.gte(revision_number),
+            }
+        };
+
+        let txn = ctx.transaction();
+        let revisions = PageRevision::find()
+            .filter(
+                Condition::all()
+                    .add(page_revision::Column::SiteId.eq(site_id))
+                    .add(page_revision::Column::PageId.eq(page_id))
+                    .add(revision_condition),
+            )
+            .order_by_asc(page_revision::Column::RevisionNumber)
+            .limit(revision_limit)
+            .all(txn)
+            .await?;
+
+        Ok(revisions)
     }
 }
 
