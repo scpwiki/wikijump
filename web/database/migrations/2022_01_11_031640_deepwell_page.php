@@ -128,7 +128,7 @@ class DeepwellPage extends Migration
                     \"title\",
                     \"alt_title\",
                     \"slug\",
-                    \"tags\",
+                    \"tags\"
                 }'),
 
                 -- Ensure first revision reports all changes
@@ -143,7 +143,7 @@ class DeepwellPage extends Migration
                         \"title\",
                         \"alt_title\",
                         \"slug\",
-                        \"tags\",
+                        \"tags\"
                     }'
                 ),
 
