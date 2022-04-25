@@ -432,12 +432,13 @@ impl RevisionService {
         // TODO update page cache
 
         // Insert the tombstone revision into the table
+        let changes = string_list_to_json(&changes)?;
         let model = page_revision::ActiveModel {
             revision_number: Set(revision_number),
             page_id: Set(page_id),
             site_id: Set(site_id),
             user_id: Set(user_id),
-            changes: Set(string_list_to_json(changes)),
+            changes: Set(changes),
             wikitext_hash: Set(wikitext_hash),
             compiled_hash: Set(compiled_hash),
             compiled_at: Set(compiled_at),
