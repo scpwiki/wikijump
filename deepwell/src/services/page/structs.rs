@@ -121,6 +121,7 @@ pub struct RestorePageOutput {
     slug: String,
     revision_id: i64,
     revision_number: i32,
+    parser_warnings: Vec<ParseWarning>,
 }
 
 impl From<CreateRevisionOutput> for EditPageOutput {
@@ -152,6 +153,7 @@ impl From<(CreateRevisionOutput, i64)> for DeletePageOutput {
             page_id,
         ): (CreateRevisionOutput, i64),
     ) -> DeletePageOutput {
+        // There's no reason to rerender on page deletion
         debug_assert!(
             parser_warnings.is_none(),
             "Parser warnings from deleted page revision",
@@ -177,15 +179,15 @@ impl From<(CreateRevisionOutput, String)> for RestorePageOutput {
             slug,
         ): (CreateRevisionOutput, String),
     ) -> RestorePageOutput {
-        debug_assert!(
-            parser_warnings.is_none(),
-            "Parser warnings from deleted page revision",
-        );
+        // We should always rerender on page restoration
+        let parser_warnings =
+            parser_warnings.expect("No parser warnings from deleted page revision");
 
         RestorePageOutput {
             slug,
             revision_id,
             revision_number,
+            parser_warnings,
         }
     }
 }
