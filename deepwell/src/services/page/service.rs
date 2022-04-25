@@ -250,6 +250,11 @@ impl PageService {
             return Err(Error::Conflict);
         }
 
+        // Create category if not already present
+        let category =
+            CategoryService::get_or_create(ctx, site_id, get_category_name(&slug))
+                .await?;
+
         // Get latest revision
         let last_revision = RevisionService::get_latest(ctx, site_id, page_id).await?;
 
@@ -269,6 +274,7 @@ impl PageService {
         // Set deletion flag
         let model = page::ActiveModel {
             page_id: Set(page_id),
+            page_category_id: Set(category.category_id),
             deleted_at: Set(None),
             ..Default::default()
         };
