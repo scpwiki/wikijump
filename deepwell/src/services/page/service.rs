@@ -25,7 +25,7 @@ use crate::services::revision::{
     CreateFirstRevision, CreateFirstRevisionOutput, CreateRevision, CreateRevisionBody,
 };
 use crate::services::{CategoryService, RevisionService};
-use crate::web::trim_default;
+use crate::web::{get_category_name, trim_default};
 use wikidot_normalize::normalize;
 
 #[derive(Debug)]
@@ -64,7 +64,9 @@ impl PageService {
         }
 
         // Create category if not already present
-        let category = CategoryService::get_or_create(ctx, site_id, &slug).await?;
+        let category =
+            CategoryService::get_or_create(ctx, site_id, get_category_name(&slug))
+                .await?;
 
         // Insert page
         let model = page::ActiveModel {
@@ -114,11 +116,10 @@ impl PageService {
         }: EditPage,
     ) -> Result<Option<EditPageOutput>> {
         let txn = ctx.transaction();
-        let page = Self::get(ctx, site_id, reference).await?;
+        let PageModel { page_id, .. } = Self::get(ctx, site_id, reference).await?;
 
         // Get latest revision
-        let last_revision =
-            RevisionService::get_latest(ctx, site_id, page.page_id).await?;
+        let last_revision = RevisionService::get_latest(ctx, site_id, page_id).await?;
 
         // Create new revision
         //
@@ -137,21 +138,16 @@ impl PageService {
             },
         };
 
-        let revision_output = RevisionService::create(
-            ctx,
-            site_id,
-            page.page_id,
-            revision_input,
-            last_revision,
-        )
-        .await?;
+        let revision_output =
+            RevisionService::create(ctx, site_id, page_id, revision_input, last_revision)
+                .await?;
 
         // Set page updated_at column.
         //
         // Previously this was conditional on whether a revision was actually created.
         // But since this rerenders regardless, we need to update the page row.
         let model = page::ActiveModel {
-            page_id: Set(page.page_id),
+            page_id: Set(page_id),
             updated_at: Set(Some(now())),
             ..Default::default()
         };
@@ -186,6 +182,9 @@ impl PageService {
         let txn = ctx.transaction();
         let PageModel { page_id, .. } = Self::get(ctx, site_id, reference).await?;
 
+        // Get latest revision
+        let last_revision = RevisionService::get_latest(ctx, site_id, page_id).await?;
+
         // Create tombstone revision
         // This also updates backlinks, includes, etc
         let output = RevisionService::create_tombstone(
@@ -194,6 +193,7 @@ impl PageService {
             page_id,
             input.user_id,
             input.revision_comments,
+            last_revision,
         )
         .await?;
 

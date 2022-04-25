@@ -54,7 +54,6 @@ pub fn get_category(slug: &str) -> Option<&str> {
 
 /// Retrieves the category name for a slug.
 #[inline]
-#[allow(dead_code)] // TEMP
 pub fn get_category_name(slug: &str) -> &str {
     get_category(slug).unwrap_or("_default")
 }

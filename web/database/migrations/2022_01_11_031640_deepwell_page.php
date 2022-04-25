@@ -71,7 +71,7 @@ class DeepwellPage extends Migration
                 slug TEXT NOT NULL,
                 discussion_thread_id BIGINT REFERENCES forum_thread(thread_id),
 
-                UNIQUE (site_id, slug)
+                UNIQUE (site_id, slug, deleted_at)
             )
         ");
 
