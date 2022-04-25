@@ -14,6 +14,7 @@ pub mod page_connection_missing;
 pub mod page_link;
 pub mod page_rate_vote;
 pub mod page_revision;
+pub mod sea_orm_active_enums;
 pub mod settings;
 pub mod site;
 pub mod site_settings;

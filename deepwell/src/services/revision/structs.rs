@@ -20,8 +20,8 @@
 
 use super::prelude::*;
 use ftml::parsing::ParseWarning;
+use crate::models::sea_orm_active_enums::RevisionType;
 use sea_orm::prelude::DateTimeWithTimeZone;
-use serde_json::Value as JsonValue;
 use std::num::NonZeroI32;
 
 #[derive(Deserialize, Debug)]
@@ -97,6 +97,7 @@ pub struct RevisionCountOutput {
 #[derive(Serialize, Debug)]
 pub struct PageRevisionModelFiltered {
     pub revision_id: i64,
+    pub revision_type: RevisionType,
     pub created_at: DateTimeWithTimeZone,
     pub revision_number: i32,
     pub page_id: i64,
@@ -113,5 +114,4 @@ pub struct PageRevisionModelFiltered {
     pub alt_title: Option<String>,
     pub slug: Option<String>,
     pub tags: Option<Vec<String>>,
-    pub metadata: Option<JsonValue>,
 }

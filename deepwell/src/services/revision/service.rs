@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use crate::json_utils::{json_to_string_list, string_list_to_json};
+use crate::models::sea_orm_active_enums::RevisionType;
 use crate::models::page_revision::{
     self, Entity as PageRevision, Model as PageRevisionModel,
 };
@@ -27,11 +28,10 @@ use crate::services::render::RenderOutput;
 use crate::services::{
     LinkService, OutdateService, ParentService, RenderService, SiteService, TextService,
 };
-use crate::web::{split_category, split_category_name, RevisionDirection, RevisionType};
+use crate::web::{split_category, split_category_name, RevisionDirection};
 use ftml::data::PageInfo;
 use ftml::settings::{WikitextMode, WikitextSettings};
 use ref_map::*;
-use sea_orm::JsonValue;
 use std::borrow::Cow;
 use std::num::NonZeroI32;
 
@@ -346,7 +346,7 @@ impl RevisionService {
 
         // Insert the new revision into the table
         let model = page_revision::ActiveModel {
-            revision_type: Set(RevisionType::Create.name()),
+            revision_type: Set(RevisionType::Create),
             revision_number: Set(0),
             page_id: Set(page_id),
             site_id: Set(site_id),
@@ -384,8 +384,6 @@ impl RevisionService {
         comments: String,
         previous: PageRevisionModel,
     ) -> Result<CreateRevisionOutput> {
-        // TODO remake!
-
         let txn = ctx.transaction();
 
         // Get the new revision number
@@ -426,6 +424,7 @@ impl RevisionService {
         // Insert the tombstone revision into the table
         let changes = string_list_to_json(&changes)?;
         let model = page_revision::ActiveModel {
+            revision_type: Set(RevisionType::Delete),
             revision_number: Set(revision_number),
             page_id: Set(page_id),
             site_id: Set(site_id),
