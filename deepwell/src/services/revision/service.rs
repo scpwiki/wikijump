@@ -526,9 +526,6 @@ impl RevisionService {
             vec!["metadata", "slug"]
         };
 
-        // Run outdater
-        OutdateService::process_page_displace(ctx, site_id, page_id, &new_slug).await?;
-
         // Re-render page
         let temp_tags = json_to_string_list(tags.clone())?;
         let render_input = RenderPageInfo {
@@ -550,6 +547,9 @@ impl RevisionService {
             .await?;
 
         replace_hash(&mut compiled_hash, &new_compiled_hash);
+
+        // Run outdater
+        OutdateService::process_page_displace(ctx, site_id, page_id, &new_slug).await?;
 
         // Insert the resurrection revision into the table
         let changes = string_list_to_json(&changes)?;
