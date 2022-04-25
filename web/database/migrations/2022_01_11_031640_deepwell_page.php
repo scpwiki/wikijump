@@ -97,7 +97,7 @@ class DeepwellPage extends Migration
                 alt_title TEXT,
                 slug TEXT NOT NULL,
                 tags JSON NOT NULL DEFAULT '[]', -- Should be sorted and deduplicated before insertion
-                metadata JSONB NOT NULL DEFAULT '{}', -- Customizable metadata. Currently unused.
+                special TEXT, -- Designates a special kind of revision, NULL means a regular revision
 
                 -- NOTE: json_array_to_text_array() is needed while we're still on JSON
 
@@ -108,7 +108,6 @@ class DeepwellPage extends Migration
                     \"alt_title\",
                     \"slug\",
                     \"tags\",
-                    \"metadata\"
                 }'),
 
                 -- Ensure first revision reports all changes
@@ -124,7 +123,6 @@ class DeepwellPage extends Migration
                         \"alt_title\",
                         \"slug\",
                         \"tags\",
-                        \"metadata\"
                     }'
                 ),
 
