@@ -27,7 +27,7 @@ use crate::services::render::RenderOutput;
 use crate::services::{
     LinkService, OutdateService, ParentService, RenderService, SiteService, TextService,
 };
-use crate::web::{split_category, split_category_name, RevisionDirection};
+use crate::web::{split_category, split_category_name, RevisionDirection, RevisionType};
 use ftml::data::PageInfo;
 use ftml::settings::{WikitextMode, WikitextSettings};
 use ref_map::*;
@@ -138,7 +138,6 @@ impl RevisionService {
             mut alt_title,
             mut slug,
             mut tags,
-            metadata, // TODO make mut, when we start modifying this
             ..
         } = previous;
 
@@ -278,7 +277,6 @@ impl RevisionService {
             alt_title: Set(alt_title),
             slug: Set(slug),
             tags: Set(tags),
-            metadata: Set(metadata),
             ..Default::default()
         };
 
@@ -343,12 +341,12 @@ impl RevisionService {
             "title",
             "alt_title",
             "slug",
-            "tags",
-            "metadata"
+            "tags"
         ]);
 
         // Insert the new revision into the table
         let model = page_revision::ActiveModel {
+            revision_type: Set(RevisionType::Create.name()),
             revision_number: Set(0),
             page_id: Set(page_id),
             site_id: Set(site_id),
@@ -364,7 +362,6 @@ impl RevisionService {
             alt_title: Set(alt_title),
             slug: Set(slug),
             tags: Set(serde_json::json!([])),
-            metadata: Set(serde_json::json!({})),
             ..Default::default()
         };
 
@@ -387,6 +384,8 @@ impl RevisionService {
         comments: String,
         previous: PageRevisionModel,
     ) -> Result<CreateRevisionOutput> {
+        // TODO remake!
+
         let txn = ctx.transaction();
 
         // Get the new revision number
@@ -415,17 +414,8 @@ impl RevisionService {
             alt_title,
             slug,
             tags,
-            mut metadata,
             ..
         } = previous;
-
-        // Set 'deleted' on metadata
-        metadata
-            .as_object_mut()
-            .expect("Metadata field not an object")
-            .insert(str!("deleted"), JsonValue::Bool(true));
-
-        let changes = vec!["metadata"];
 
         // Run outdater
         OutdateService::process_page_displace(ctx, site_id, page_id, &slug).await?;
@@ -451,7 +441,6 @@ impl RevisionService {
             alt_title: Set(alt_title),
             slug: Set(slug),
             tags: Set(tags),
-            metadata: Set(metadata),
             ..Default::default()
         };
 
@@ -484,6 +473,8 @@ impl RevisionService {
         comments: String,
         previous: PageRevisionModel,
     ) -> Result<CreateRevisionOutput> {
+        // TODO remake!
+
         let txn = ctx.transaction();
 
         // Get the new revision number
@@ -510,20 +501,13 @@ impl RevisionService {
             alt_title,
             slug: old_slug,
             tags,
-            mut metadata,
             ..
         } = previous;
 
-        // Set 'deleted' on metadata
-        metadata
-            .as_object_mut()
-            .expect("Metadata field not an object")
-            .insert(str!("deleted"), JsonValue::Bool(false));
-
         let changes = if old_slug == new_slug {
-            vec!["metadata"]
+            vec![]
         } else {
-            vec!["metadata", "slug"]
+            vec!["slug"]
         };
 
         // Re-render page
@@ -569,7 +553,6 @@ impl RevisionService {
             alt_title: Set(alt_title),
             slug: Set(new_slug),
             tags: Set(tags),
-            metadata: Set(metadata),
             ..Default::default()
         };
 

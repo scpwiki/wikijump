@@ -58,6 +58,7 @@ pub struct GetPageOutput<'a> {
     pub page_category_slug: &'a str,
     pub discussion_thread_id: Option<i64>,
     pub revision_id: i64,
+    pub revision_type: RevisionType,
     pub revision_created_at: DateTimeWithTimeZone,
     pub revision_number: i32,
     pub revision_user_id: i64,
@@ -71,7 +72,6 @@ pub struct GetPageOutput<'a> {
     pub alt_title: Option<&'a str>,
     pub slug: &'a str,
     pub tags: &'a JsonValue, // TODO: replace with &[&str]
-    pub metadata: &'a JsonValue,
 }
 
 #[derive(Deserialize, Debug, Default)]

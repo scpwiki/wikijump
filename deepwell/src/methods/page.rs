@@ -307,6 +307,7 @@ async fn build_page_response(
         page_category_slug: &category.slug,
         discussion_thread_id: page.discussion_thread_id,
         revision_id: revision.revision_id,
+        revision_type: revision.revision_type,
         revision_created_at: revision.created_at,
         revision_number: revision.revision_number,
         revision_user_id: revision.user_id,
@@ -320,7 +321,6 @@ async fn build_page_response(
         alt_title: revision.alt_title.ref_map(|s| s.as_str()),
         slug: &revision.slug,
         tags: &revision.tags,
-        metadata: &revision.metadata,
     };
 
     let body = Body::from_json(&output)?;
