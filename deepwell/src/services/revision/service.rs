@@ -262,6 +262,7 @@ impl RevisionService {
         // Insert the new revision into the table
         let changes = string_list_to_json(&changes)?;
         let model = page_revision::ActiveModel {
+            revision_type: Set(RevisionType::Regular),
             revision_number: Set(revision_number),
             page_id: Set(page_id),
             site_id: Set(site_id),
@@ -422,14 +423,13 @@ impl RevisionService {
         ParentService::delete_children().await?; // TODO stub
 
         // Insert the tombstone revision into the table
-        let changes = string_list_to_json(&changes)?;
         let model = page_revision::ActiveModel {
             revision_type: Set(RevisionType::Delete),
             revision_number: Set(revision_number),
             page_id: Set(page_id),
             site_id: Set(site_id),
             user_id: Set(user_id),
-            changes: Set(changes),
+            changes: Set(serde_json::json!([])),
             wikitext_hash: Set(wikitext_hash),
             compiled_hash: Set(compiled_hash),
             compiled_at: Set(compiled_at),
@@ -537,6 +537,7 @@ impl RevisionService {
         // Insert the resurrection revision into the table
         let changes = string_list_to_json(&changes)?;
         let model = page_revision::ActiveModel {
+            revision_type: Set(RevisionType::Undelete),
             revision_number: Set(revision_number),
             page_id: Set(page_id),
             site_id: Set(site_id),
