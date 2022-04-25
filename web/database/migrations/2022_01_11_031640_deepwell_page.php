@@ -75,12 +75,33 @@ class DeepwellPage extends Migration
             )
         ");
 
+        // Create enum types for use in page_revision
+        DB::statement("
+            CREATE TYPE revision_type AS ENUM (
+                'regular',
+                'create',
+                'delete',
+                'undelete'
+            )
+        ");
+
+        DB::statement("
+            CREATE TYPE revision_change AS ENUM (
+                'wikitext',
+                'title',
+                'alt_title',
+                'slug',
+                'tags'
+            )
+        ");
+
         // NOTE: We want to make 'changes', 'hidden' and 'tags' arrays,
         //        but for now SeaORM doesn't support that, so we're
         //        using JSON until it does, at which time we will make a migration.
         DB::statement("
             CREATE TABLE page_revision (
                 revision_id BIGSERIAL PRIMARY KEY,
+                revision_type revision_type NOT NULL DEFAULT 'regular',
                 created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
                 revision_number INT NOT NULL,
                 page_id BIGINT NOT NULL REFERENCES page(page_id),
@@ -97,11 +118,11 @@ class DeepwellPage extends Migration
                 alt_title TEXT,
                 slug TEXT NOT NULL,
                 tags JSON NOT NULL DEFAULT '[]', -- Should be sorted and deduplicated before insertion
-                special TEXT, -- Designates a special kind of revision, NULL means a regular revision
 
                 -- NOTE: json_array_to_text_array() is needed while we're still on JSON
 
                 -- Ensure array only contains valid values
+                -- Change this to use the 'revision_change' type later
                 CHECK (json_array_to_text_array(changes) <@ '{
                     \"wikitext\",
                     \"title\",
