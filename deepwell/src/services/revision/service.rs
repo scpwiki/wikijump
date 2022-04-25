@@ -415,7 +415,7 @@ impl RevisionService {
             alt_title,
             slug,
             tags,
-            mut metadata, // TODO make mut, when we start modifying this
+            mut metadata,
             ..
         } = previous;
 
@@ -425,11 +425,13 @@ impl RevisionService {
             .expect("Metadata field not an object")
             .insert(str!("deleted"), JsonValue::Bool(true));
 
-        let changes = vec![str!("metadata")];
+        let changes = vec!["metadata"];
 
+        // Run outdater
+        OutdateService::process_page_displace(ctx, site_id, page_id, &slug).await?;
+
+        // Delete parent-child relationships, if any
         ParentService::delete_children().await?; // TODO stub
-
-        // TODO update page cache
 
         // Insert the tombstone revision into the table
         let changes = string_list_to_json(&changes)?;
@@ -474,23 +476,109 @@ impl RevisionService {
     /// the caller has already verified that undeleting the page here
     /// will not cause conflicts.
     pub async fn create_resurrection(
-        _ctx: &ServiceContext<'_>,
-        _site_id: i64,
-        _page_id: i64,
-        _user_id: i64,
-        _slug: String,
-        _comments: String,
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+        user_id: i64,
+        new_slug: String,
+        comments: String,
+        previous: PageRevisionModel,
     ) -> Result<CreateRevisionOutput> {
-        // TODO modify metadata field to add 'deleted: false'
+        let txn = ctx.transaction();
 
-        // TODO run undeletion outdater procdures:
-        //      - rerender incoming links
-        //      - rerender included pages
-        //      - update outgoing links
-        //      - process nav pages
-        //      - process template pages
+        // Get the new revision number
+        let revision_number = {
+            // Check for basic consistency
+            assert_eq!(
+                previous.site_id, site_id,
+                "Previous revision has an inconsistent site ID",
+            );
+            assert_eq!(
+                previous.page_id, page_id,
+                "Previous revision has an inconsistent page ID",
+            );
 
-        todo!()
+            // Increment from previous
+            previous.revision_number + 1
+        };
+
+        let PageRevisionModel {
+            wikitext_hash,
+            mut compiled_hash,
+            hidden,
+            title,
+            alt_title,
+            slug: old_slug,
+            tags,
+            mut metadata,
+            ..
+        } = previous;
+
+        // Set 'deleted' on metadata
+        metadata
+            .as_object_mut()
+            .expect("Metadata field not an object")
+            .insert(str!("deleted"), JsonValue::Bool(false));
+
+        let changes = if old_slug == new_slug {
+            vec!["metadata"]
+        } else {
+            vec!["metadata", "slug"]
+        };
+
+        // Run outdater
+        OutdateService::process_page_displace(ctx, site_id, page_id, &new_slug).await?;
+
+        // Re-render page
+        let temp_tags = json_to_string_list(tags.clone())?;
+        let render_input = RenderPageInfo {
+            slug: &new_slug,
+            title: &title,
+            alt_title: alt_title.ref_map(|s| s.as_str()),
+            rating: 0.0, // TODO
+            tags: &temp_tags,
+        };
+
+        let wikitext = TextService::get(ctx, &wikitext_hash).await?;
+        let RenderOutput {
+            // TODO: use html_output
+            html_output: _,
+            warnings,
+            compiled_hash: new_compiled_hash,
+            compiled_generator,
+        } = Self::render_and_update_links(ctx, site_id, page_id, wikitext, render_input)
+            .await?;
+
+        replace_hash(&mut compiled_hash, &new_compiled_hash);
+
+        // Insert the resurrection revision into the table
+        let changes = string_list_to_json(&changes)?;
+        let model = page_revision::ActiveModel {
+            revision_number: Set(revision_number),
+            page_id: Set(page_id),
+            site_id: Set(site_id),
+            user_id: Set(user_id),
+            changes: Set(changes),
+            wikitext_hash: Set(wikitext_hash),
+            compiled_hash: Set(compiled_hash),
+            compiled_at: Set(now()),
+            compiled_generator: Set(compiled_generator),
+            comments: Set(comments),
+            hidden: Set(hidden),
+            title: Set(title),
+            alt_title: Set(alt_title),
+            slug: Set(new_slug),
+            tags: Set(tags),
+            metadata: Set(metadata),
+            ..Default::default()
+        };
+
+        let PageRevisionModel { revision_id, .. } = model.insert(txn).await?;
+        Ok(CreateRevisionOutput {
+            revision_id,
+            revision_number,
+            parser_warnings: Some(warnings),
+        })
     }
 
     /// Helper method for performing rendering for a revision.

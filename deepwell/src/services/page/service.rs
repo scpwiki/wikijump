@@ -250,6 +250,9 @@ impl PageService {
             return Err(Error::Conflict);
         }
 
+        // Get latest revision
+        let last_revision = RevisionService::get_latest(ctx, site_id, page_id).await?;
+
         // Create resurrection revision
         // This also updates backlinks, includes, etc.
         let output = RevisionService::create_resurrection(
@@ -259,6 +262,7 @@ impl PageService {
             input.user_id,
             input.revision_comments,
             slug.clone(),
+            last_revision,
         )
         .await?;
 
