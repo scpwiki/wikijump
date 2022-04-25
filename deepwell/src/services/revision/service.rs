@@ -466,6 +466,13 @@ impl RevisionService {
     /// Similar to `create_tombstone`, this method creates
     /// a revision whose only purpose is to mark that the page
     /// has been restored.
+    ///
+    /// Note that page parenting information is removed during deletion
+    /// and is not restored here.
+    ///
+    /// Remember that, like `create_first()`, this method assumes
+    /// the caller has already verified that undeleting the page here
+    /// will not cause conflicts.
     pub async fn create_resurrection(
         _ctx: &ServiceContext<'_>,
         _site_id: i64,
