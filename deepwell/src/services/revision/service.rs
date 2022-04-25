@@ -144,23 +144,23 @@ impl RevisionService {
 
         // Update fields from input
         if let ProvidedValue::Set(new_title) = body.title {
-            changes.push(str!("title"));
+            changes.push("title");
             title = new_title;
         }
 
         if let ProvidedValue::Set(new_alt_title) = body.alt_title {
-            changes.push(str!("alt_title"));
+            changes.push("alt_title");
             alt_title = new_alt_title;
         }
 
         if let ProvidedValue::Set(new_slug) = body.slug {
-            changes.push(str!("slug"));
+            changes.push("slug");
             old_slug = Some(slug);
             slug = new_slug;
         }
 
         if let ProvidedValue::Set(new_tags) = body.tags {
-            changes.push(str!("tags"));
+            changes.push("tags");
             tags = string_list_to_json(&new_tags)?;
         }
 
@@ -171,7 +171,7 @@ impl RevisionService {
         let wikitext = match body.wikitext {
             // Insert new wikitext and update hash
             ProvidedValue::Set(wikitext) => {
-                changes.push(str!("wikitext"));
+                changes.push("wikitext");
                 let new_hash = TextService::create(ctx, wikitext.clone()).await?;
                 replace_hash(&mut wikitext_hash, &new_hash);
                 wikitext
