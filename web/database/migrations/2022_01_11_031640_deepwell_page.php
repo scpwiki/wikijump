@@ -150,6 +150,9 @@ class DeepwellPage extends Migration
                 -- Ensure array is not empty
                 CHECK (json_array_to_text_array(changes) != '{}'),
 
+                -- Ensure page creations are always the first revision
+                CHECK (revision_number != 0 OR revision_type = 'create'),
+
                 -- For logical consistency, and adding an index
                 UNIQUE (page_id, site_id, revision_number)
             )
