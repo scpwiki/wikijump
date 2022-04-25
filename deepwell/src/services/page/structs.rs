@@ -19,8 +19,8 @@
  */
 
 use super::prelude::*;
-use crate::services::revision::CreateRevisionOutput;
 use crate::models::sea_orm_active_enums::RevisionType;
+use crate::services::revision::CreateRevisionOutput;
 use ftml::parsing::ParseWarning;
 use sea_orm::entity::prelude::DateTimeWithTimeZone;
 use serde_json::Value as JsonValue;

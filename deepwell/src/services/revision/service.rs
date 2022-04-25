@@ -20,10 +20,10 @@
 
 use super::prelude::*;
 use crate::json_utils::{json_to_string_list, string_list_to_json};
-use crate::models::sea_orm_active_enums::RevisionType;
 use crate::models::page_revision::{
     self, Entity as PageRevision, Model as PageRevisionModel,
 };
+use crate::models::sea_orm_active_enums::RevisionType;
 use crate::services::render::RenderOutput;
 use crate::services::{
     LinkService, OutdateService, ParentService, RenderService, SiteService, TextService,
@@ -337,13 +337,8 @@ impl RevisionService {
 
         // Effective constant, number of changes for the first revision.
         // The first revision is always considered to have changed everything.
-        let all_changes = serde_json::json!([
-            "wikitext",
-            "title",
-            "alt_title",
-            "slug",
-            "tags"
-        ]);
+        let all_changes =
+            serde_json::json!(["wikitext", "title", "alt_title", "slug", "tags"]);
 
         // Insert the new revision into the table
         let model = page_revision::ActiveModel {

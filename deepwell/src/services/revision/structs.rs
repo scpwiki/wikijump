@@ -19,8 +19,8 @@
  */
 
 use super::prelude::*;
-use ftml::parsing::ParseWarning;
 use crate::models::sea_orm_active_enums::RevisionType;
+use ftml::parsing::ParseWarning;
 use sea_orm::prelude::DateTimeWithTimeZone;
 use std::num::NonZeroI32;
 
