@@ -345,6 +345,13 @@ accepts-newlines = true
 html-attributes = true
 html-output = "html,tr"
 
+[target]
+aliases = ["target", "anchortarget"]
+head = "value"
+body = "none"
+accepts-newlines = true
+html-output = "html,a"
+
 [toc]
 aliases = ["f<toc", "f>toc"]
 accepts-newlines = true
