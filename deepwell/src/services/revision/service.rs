@@ -429,7 +429,7 @@ impl RevisionService {
         OutdateService::process_page_displace(ctx, site_id, page_id, &slug).await?;
 
         // Delete parent-child relationships, if any
-        ParentService::delete_children().await?; // TODO stub
+        ParentService::remove_all(ctx, page_id).await?;
 
         // Insert the tombstone revision into the table
         let model = page_revision::ActiveModel {

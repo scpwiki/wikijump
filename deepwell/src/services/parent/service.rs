@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::models::page_parent::{self, Entity as PageParent};
+use crate::models::page_parent::{self, Entity as PageParent, Model as PageParentModel};
 use crate::services::PageService;
 
 #[derive(Debug)]
@@ -104,8 +104,22 @@ impl ParentService {
         }
     }
 
-    pub async fn delete_children() -> Result<()> {
-        // TODO
+    /// Removes all parent relationships involving this page.
+    ///
+    /// Whether this page is a parent or a child, this method
+    /// will remove all those relationships.
+    pub async fn remove_all(ctx: &ServiceContext<'_>, page_id: i64) -> Result<()> {
+        let txn = ctx.transaction();
+
+        PageParent::delete_many()
+            .filter(
+                Condition::any()
+                    .add(page_parent::Column::ParentPageId.eq(page_id))
+                    .add(page_parent::Column::ChildPageId.eq(page_id)),
+            )
+            .exec(txn)
+            .await?;
+
         Ok(())
     }
 }
