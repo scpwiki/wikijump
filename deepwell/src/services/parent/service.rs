@@ -33,7 +33,7 @@ impl ParentService {
     /// # Returns
     /// Returns `true` if the relationship was created, and
     /// `false` if it already existed.
-    pub async fn add(
+    pub async fn create(
         ctx: &ServiceContext<'_>,
         site_id: i64,
         parent_page_ref: Reference<'_>,
