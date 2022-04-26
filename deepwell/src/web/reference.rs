@@ -29,6 +29,17 @@ pub enum Reference<'a> {
 }
 
 impl<'a> Reference<'a> {
+    pub fn try_from_fields_key(
+        req: &'a ApiRequest,
+        value_type_key: &str,
+        value_key: &str,
+    ) -> Result<Self, Error> {
+        let value_type = req.param(value_type_key)?;
+        let value = req.param(value_key)?;
+
+        Reference::try_from_fields(value_type, value)
+    }
+
     pub fn try_from_fields(value_type: &str, value: &'a str) -> Result<Self, Error> {
         match value_type {
             "slug" => {
@@ -65,10 +76,8 @@ impl<'a> From<&'a str> for Reference<'a> {
 impl<'a> TryFrom<&'a ApiRequest> for Reference<'a> {
     type Error = Error;
 
+    #[inline]
     fn try_from(req: &'a ApiRequest) -> Result<Reference<'a>, Error> {
-        let value_type = req.param("type")?;
-        let value = req.param("id_or_slug")?;
-
-        Reference::try_from_fields(value_type, value)
+        Reference::try_from_fields_key(req, "type", "id_or_slug")
     }
 }
