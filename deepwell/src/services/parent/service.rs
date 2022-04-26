@@ -19,11 +19,56 @@
  */
 
 use super::prelude::*;
+use crate::models::page_parent::{self, Entity as PageParent};
+use crate::services::PageService;
 
 #[derive(Debug)]
 pub struct ParentService;
 
 impl ParentService {
+    /// Adds a parental relationship with the two given pages.
+    ///
+    /// Both pages must be extant and on the same site.
+    ///
+    /// # Returns
+    /// Returns `true` if the relationship was created, and
+    /// `false` if it already existed.
+    pub async fn add_child(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        parent_page_ref: Reference<'_>,
+        child_page_ref: Reference<'_>,
+    ) -> Result<bool> {
+        let txn = ctx.transaction();
+
+        let (parent_page, child_page) = try_join!(
+            PageService::get(ctx, site_id, parent_page_ref),
+            PageService::get(ctx, site_id, child_page_ref),
+        )?;
+
+        let relationship =
+            PageParent::find_by_id((parent_page.page_id, child_page.page_id))
+                .one(txn)
+                .await?;
+
+        match relationship {
+            // Create new parent relationship
+            None => {
+                let relationship = page_parent::ActiveModel {
+                    parent_page_id: Set(parent_page.page_id),
+                    child_page_id: Set(child_page.page_id),
+                    ..Default::default()
+                };
+
+                relationship.insert(txn).await?;
+                Ok(true)
+            }
+
+            // Parent relationship already exists
+            Some(_) => Ok(false),
+        }
+    }
+
     pub async fn delete_children() -> Result<()> {
         // TODO
         Ok(())
