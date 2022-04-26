@@ -117,7 +117,7 @@ pub async fn page_revision_put(mut req: ApiRequest) -> ApiResponse {
         .await
         .to_api()?;
 
-    RevisionService::update(&ctx, revision.revision_id, input)
+    RevisionService::update(&ctx, site_id, page.page_id, revision.revision_id, input)
         .await
         .to_api()?;
 

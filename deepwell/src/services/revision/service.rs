@@ -670,20 +670,41 @@ impl RevisionService {
     /// for instance, if it contains spam, abuse, or harassment.
     pub async fn update(
         ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
         revision_id: i64,
         UpdateRevision { user_id, hidden }: UpdateRevision,
     ) -> Result<()> {
+        let txn = ctx.transaction();
+
+        // Unfortunately, we cannot do .contains() on Vec<String> because
+        // it wans to compare with &String, not &str.
+        #[inline]
+        fn contains(items: &[String], query: &str) -> bool {
+            for item in items {
+                if item == query {
+                    return true;
+                }
+            }
+
+            false
+        }
+
+        // The wikitext changes to a page are visible even if that part
+        // of the revision is hidden, so current revisions are not allowed
+        // to have that field hidden. It should be reverted first, and then
+        // the diff can be hidden like any other.
+
+        let latest = Self::get_latest(ctx, site_id, page_id).await?;
+        if revision_id == latest.revision_id && contains(&hidden, "wikitext") {
+            return Err(Error::CannotHideLatestRevision);
+        }
+
         // TODO: record revision edit in audit log
         let _ = user_id;
 
-        // TODO don't allow hiding entries in the latest revision
-        //      since the changes are visible anyways as part of
-        //      viewing the page
-        //
-        //      instead ask that the user edit over / undo the problem revision
-        //      (or if the whole page is bad it should just be deleted)
+        // Update the revision
 
-        let txn = ctx.transaction();
         let hidden = string_list_to_json(&hidden)?;
         let model = page_revision::ActiveModel {
             revision_id: Set(revision_id),
