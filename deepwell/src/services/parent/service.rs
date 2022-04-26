@@ -87,40 +87,36 @@ impl ParentService {
             PageService::get(ctx, site_id, child_page_ref),
         )?;
 
-        let relationship =
-            PageParent::find_by_id((parent_page.page_id, child_page.page_id))
-                .one(txn)
-                .await?;
+        let rows_deleted =
+            PageParent::delete_by_id((parent_page.page_id, child_page.page_id))
+                .exec(txn)
+                .await?
+                .rows_affected;
 
-        match relationship {
-            // Delete parent relationship
-            Some(model) => {
-                model.delete(txn).await?;
-                Ok(true)
-            }
-
-            // Parent relationship already absent
-            None => Ok(false),
-        }
+        Ok(rows_deleted == 1)
     }
 
     /// Removes all parent relationships involving this page.
     ///
     /// Whether this page is a parent or a child, this method
     /// will remove all those relationships.
-    pub async fn remove_all(ctx: &ServiceContext<'_>, page_id: i64) -> Result<()> {
+    ///
+    /// # Returns
+    /// Returns the number of relationships deleted.
+    pub async fn remove_all(ctx: &ServiceContext<'_>, page_id: i64) -> Result<u64> {
         let txn = ctx.transaction();
 
-        PageParent::delete_many()
+        let rows_deleted = PageParent::delete_many()
             .filter(
                 Condition::any()
                     .add(page_parent::Column::ParentPageId.eq(page_id))
                     .add(page_parent::Column::ChildPageId.eq(page_id)),
             )
             .exec(txn)
-            .await?;
+            .await?
+            .rows_affected;
 
-        Ok(())
+        Ok(rows_deleted)
     }
 }
 
