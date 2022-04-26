@@ -18,12 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
-use crate::json_utils::string_list_equals_json;
-use crate::models::page_revision::Model as PageRevisionModel;
-use crate::services::TextService;
-use crate::web::ProvidedValue;
-
 /// A representation of the updating tasks to do for a revision.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Default)]
 pub struct RevisionTasks {
@@ -73,13 +67,5 @@ impl RevisionTasks {
         }
 
         tasks
-    }
-
-    #[inline]
-    pub fn is_empty(self) -> bool {
-        !self.render_and_update_links
-            && !self.rerender_incoming_links
-            && !self.rerender_outgoing_includes
-            && !self.rerender_templates
     }
 }
