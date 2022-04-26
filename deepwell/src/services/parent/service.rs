@@ -102,6 +102,51 @@ impl ParentService {
         Ok(rows_deleted == 1)
     }
 
+    pub async fn get_optional(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        parent_page_ref: Reference<'_>,
+        child_page_ref: Reference<'_>,
+    ) -> Result<Option<PageParentModel>> {
+        let txn = ctx.transaction();
+
+        let (parent_page, child_page) = try_join!(
+            PageService::get(ctx, site_id, parent_page_ref),
+            PageService::get(ctx, site_id, child_page_ref),
+        )?;
+
+        let model = PageParent::find_by_id((parent_page.page_id, child_page.page_id))
+            .one(txn)
+            .await?;
+
+        Ok(model)
+    }
+
+    #[inline]
+    pub async fn exists(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        parent_page_ref: Reference<'_>,
+        child_page_ref: Reference<'_>,
+    ) -> Result<bool> {
+        Self::get_optional(ctx, site_id, parent_page_ref, child_page_ref)
+            .await
+            .map(|model| model.is_some())
+    }
+
+    #[inline]
+    pub async fn get(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        parent_page_ref: Reference<'_>,
+        child_page_ref: Reference<'_>,
+    ) -> Result<PageParentModel> {
+        match Self::get_optional(ctx, site_id, parent_page_ref, child_page_ref).await? {
+            Some(model) => Ok(model),
+            None => Err(Error::NotFound),
+        }
+    }
+
     /// Get all parents this page may have.
     #[inline]
     pub async fn get_parents(
