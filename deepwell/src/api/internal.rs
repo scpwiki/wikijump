@@ -23,15 +23,10 @@
 //! This version has no commitments to stability and is used only by Wikijump itself.
 
 use crate::api::ApiServer;
-use crate::methods::category::*;
-use crate::methods::locales::*;
-use crate::methods::misc::*;
-use crate::methods::page::*;
-use crate::methods::parent::*;
-use crate::methods::revision::*;
-use crate::methods::site::*;
-use crate::methods::text::*;
-use crate::methods::user::*;
+use crate::methods::{
+    category::*, locales::*, misc::*, page::*, parent::*, revision::*, site::*, text::*,
+    user::*,
+};
 use crate::web::utils::error_response;
 use tide::StatusCode;
 
