@@ -462,13 +462,13 @@ impl RevisionService {
         ctx: &ServiceContext<'_>,
         site_id: i64,
         page_id: i64,
-        user_id: i64,
-        new_slug: String,
-        comments: String,
+        CreateResurrectionRevision {
+            user_id,
+            comments,
+            new_slug,
+        }: CreateResurrectionRevision,
         previous: PageRevisionModel,
     ) -> Result<CreateRevisionOutput> {
-        // TODO remake!
-
         let txn = ctx.transaction();
 
         // Get the new revision number

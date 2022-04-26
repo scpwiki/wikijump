@@ -55,6 +55,14 @@ pub struct CreateFirstRevision {
     pub slug: String,
 }
 
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateResurrectionRevision {
+    pub user_id: i64,
+    pub comments: String,
+    pub new_slug: String,
+}
+
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateRevisionOutput {
