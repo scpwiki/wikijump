@@ -147,28 +147,6 @@ impl ParentService {
         }
     }
 
-    /// Get all parents this page may have.
-    #[inline]
-    pub async fn get_parents(
-        ctx: &ServiceContext<'_>,
-        site_id: i64,
-        reference: Reference<'_>,
-    ) -> Result<Vec<PageParentModel>> {
-        Self::get_relationships(ctx, site_id, reference, ParentalRelationshipType::Parent)
-            .await
-    }
-
-    /// Get all children this page may have.
-    #[inline]
-    pub async fn get_children(
-        ctx: &ServiceContext<'_>,
-        site_id: i64,
-        reference: Reference<'_>,
-    ) -> Result<Vec<PageParentModel>> {
-        Self::get_relationships(ctx, site_id, reference, ParentalRelationshipType::Child)
-            .await
-    }
-
     /// Gets all relationships of the given type.
     pub async fn get_relationships(
         ctx: &ServiceContext<'_>,
