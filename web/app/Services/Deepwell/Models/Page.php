@@ -20,6 +20,7 @@ class Page extends DeepwellModel
     public string $page_category_slug;
     public ?int $discussion_thread_id;
     public int $revision_id;
+    public string $revision_type;
     public Carbon $revision_created_at;
     public int $revision_number;
     public int $revision_user_id;
@@ -33,7 +34,6 @@ class Page extends DeepwellModel
     public ?string $alt_title;
     public string $slug;
     public Set $tags;
-    public object $metadata; // TODO change type when we figure out the metadata structure
 
     public function __construct(object $raw_page)
     {
@@ -47,6 +47,7 @@ class Page extends DeepwellModel
         $this->page_category_slug = $raw_page->pageCategorySlug;
         $this->discussion_thread_id = $raw_page->discussionThreadId;
         $this->revision_id = $raw_page->revisionId;
+        $this->revision_type = $raw_page->revisionType;
         $this->revision_created_at = $raw_page->revisionCreatedAt;
         $this->revision_number = $raw_page->revisionNumber;
         $this->revision_user_id = $raw_page->revisionUserId;
@@ -60,7 +61,6 @@ class Page extends DeepwellModel
         $this->alt_title = $raw_page->altTitle;
         $this->slug = $raw_page->slug;
         $this->tags = new Set($raw_page->tags);
-        $this->metadata = $raw_page->metadata;
     }
 
     // Fetch methods
