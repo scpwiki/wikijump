@@ -46,6 +46,12 @@ impl ParentService {
             PageService::get(ctx, site_id, child_page_ref),
         )?;
 
+        // Check if the two pages are the same
+        if parent_page.page_id == child_page.page_id {
+            return Err(Error::Conflict);
+        }
+
+        // Check if this relationship already exists
         let relationship =
             PageParent::find_by_id((parent_page.page_id, child_page.page_id))
                 .one(txn)
