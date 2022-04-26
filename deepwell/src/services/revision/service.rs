@@ -676,6 +676,13 @@ impl RevisionService {
         // TODO: record revision edit in audit log
         let _ = user_id;
 
+        // TODO don't allow hiding entries in the latest revision
+        //      since the changes are visible anyways as part of
+        //      viewing the page
+        //
+        //      instead ask that the user edit over / undo the problem revision
+        //      (or if the whole page is bad it should just be deleted)
+
         let txn = ctx.transaction();
         let hidden = string_list_to_json(&hidden)?;
         let model = page_revision::ActiveModel {
