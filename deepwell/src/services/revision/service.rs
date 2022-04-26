@@ -103,8 +103,7 @@ impl RevisionService {
     ) -> Result<Option<CreateRevisionOutput>> {
         let txn = ctx.transaction();
 
-        // Get the new revision number and the change tasks to process
-        let (tasks, revision_number) = {
+        let revision_number = {
             // Check for basic consistency
             assert_eq!(
                 previous.site_id, site_id,
@@ -115,15 +114,8 @@ impl RevisionService {
                 "Previous revision has an inconsistent page ID",
             );
 
-            // Check to see if any fields have changed
-            let tasks = RevisionTasks::determine(&previous, &body);
-            if tasks.is_empty() {
-                tide::log::info!("No changes from previous revision");
-                return Ok(None);
-            }
-
-            // Can proceed, increment from previous
-            (tasks, previous.revision_number + 1)
+            // Get the new revision number
+            previous.revision_number + 1
         };
 
         // Fields to create in the revision
@@ -197,8 +189,14 @@ impl RevisionService {
             ProvidedValue::Unset => TextService::get(ctx, &wikitext_hash).await?,
         };
 
+        // If nothing has changed, then don't create a new revision
+        if changes.is_empty() {
+            return Ok(None);
+        }
+
         // Run tasks based on changes:
         // See RevisionTasks struct for more information.
+        let tasks = RevisionTasks::determine(&changes);
 
         if tasks.render_and_update_links {
             // This is necessary until we are able to replace the
@@ -399,7 +397,6 @@ impl RevisionService {
     ) -> Result<CreateRevisionOutput> {
         let txn = ctx.transaction();
 
-        // Get the new revision number
         let revision_number = {
             // Check for basic consistency
             assert_eq!(
@@ -411,7 +408,7 @@ impl RevisionService {
                 "Previous revision has an inconsistent page ID",
             );
 
-            // Increment from previous
+            // Get the new revision number
             previous.revision_number + 1
         };
 
@@ -488,7 +485,6 @@ impl RevisionService {
     ) -> Result<CreateRevisionOutput> {
         let txn = ctx.transaction();
 
-        // Get the new revision number
         let revision_number = {
             // Check for basic consistency
             assert_eq!(
@@ -500,7 +496,7 @@ impl RevisionService {
                 "Previous revision has an inconsistent page ID",
             );
 
-            // Increment from previous
+            // Get the new revision number
             previous.revision_number + 1
         };
 

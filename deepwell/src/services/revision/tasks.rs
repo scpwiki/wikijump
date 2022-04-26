@@ -24,15 +24,6 @@ use crate::models::page_revision::Model as PageRevisionModel;
 use crate::services::TextService;
 use crate::web::ProvidedValue;
 
-// TODO: Consolidate this.
-//
-//       Determine where our one source of truth for changes -> outdate calls
-//       is, because right now some of these fields aren't used.
-//
-//       See the code branch "match old_slug" in services/revision/service.rs
-//       We want a unified system where diff -> descendent changes, and
-//       there's one place or structure or something to consult.
-
 /// A representation of the updating tasks to do for a revision.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Default)]
 pub struct RevisionTasks {
@@ -43,48 +34,41 @@ pub struct RevisionTasks {
 }
 
 impl RevisionTasks {
-    pub fn determine(revision: &PageRevisionModel, changes: &CreateRevisionBody) -> Self {
+    /// Determine what tasks need to be performed based on the found changes.
+    ///
+    /// # Panics
+    /// This takes a list of string changes, which is the same pattern as stored
+    /// in the database. Invalid values will cause the function to panic.
+    ///
+    /// This should be thought of as a list of enums, but because we want to avoid
+    /// the extra conversion step before this goes to the database, we're using strings.
+    /// Eventually we can use the native database enum when SeaORM supports Postgres arrays.
+    pub fn determine(changes: &[&str]) -> Self {
         let mut tasks = RevisionTasks::default();
 
-        if let ProvidedValue::Set(ref wikitext) = changes.wikitext {
-            if revision.wikitext_hash.as_slice() != TextService::hash(wikitext).as_slice()
-            {
-                tasks.render_and_update_links = true;
-                tasks.rerender_outgoing_includes = true;
-                tasks.rerender_templates = true;
-            }
-        }
-
-        // Don't need to check changes.hidden
-
-        if let ProvidedValue::Set(ref title) = changes.title {
-            if &revision.title != title {
-                tasks.render_and_update_links = true;
-                tasks.rerender_incoming_links = true;
-            }
-        }
-
-        if let ProvidedValue::Set(ref alt_title) = changes.alt_title {
-            if &revision.alt_title != alt_title {
-                tasks.render_and_update_links = true;
-                tasks.rerender_incoming_links = true;
-            }
-        }
-
-        if let ProvidedValue::Set(ref slug) = changes.slug {
-            if &revision.slug != slug {
-                tasks.render_and_update_links = true;
-                tasks.rerender_incoming_links = true;
-                tasks.rerender_outgoing_includes = true;
-                tasks.rerender_templates = true;
-            }
-        }
-
-        if let ProvidedValue::Set(ref tags) = changes.tags {
-            if !string_list_equals_json(&revision.tags, tags) {
-                tasks.render_and_update_links = true;
-                tasks.rerender_outgoing_includes = true;
-                tasks.rerender_templates = true;
+        for change in changes {
+            match *change {
+                "wikitext" => {
+                    tasks.render_and_update_links = true;
+                    tasks.rerender_outgoing_includes = true;
+                    tasks.rerender_templates = true;
+                }
+                "title" | "alt_title" => {
+                    tasks.render_and_update_links = true;
+                    tasks.rerender_incoming_links = true;
+                }
+                "slug" => {
+                    tasks.render_and_update_links = true;
+                    tasks.rerender_incoming_links = true;
+                    tasks.rerender_outgoing_includes = true;
+                    tasks.rerender_templates = true;
+                }
+                "tags" => {
+                    tasks.render_and_update_links = true;
+                    tasks.rerender_outgoing_includes = true;
+                    tasks.rerender_templates = true;
+                }
+                _ => panic!("Unknown change string enum value: {}", change),
             }
         }
 
