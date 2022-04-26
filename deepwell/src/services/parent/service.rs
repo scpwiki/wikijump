@@ -54,18 +54,53 @@ impl ParentService {
         match relationship {
             // Create new parent relationship
             None => {
-                let relationship = page_parent::ActiveModel {
+                let model = page_parent::ActiveModel {
                     parent_page_id: Set(parent_page.page_id),
                     child_page_id: Set(child_page.page_id),
                     ..Default::default()
                 };
 
-                relationship.insert(txn).await?;
+                model.insert(txn).await?;
                 Ok(true)
             }
 
             // Parent relationship already exists
             Some(_) => Ok(false),
+        }
+    }
+
+    /// Removes the parental relationship with the two given pages.
+    ///
+    /// # Returns
+    /// Returns `true` if the relationship was deleted, and
+    /// `false` if it was already absent.
+    pub async fn remove_child(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        parent_page_ref: Reference<'_>,
+        child_page_ref: Reference<'_>,
+    ) -> Result<bool> {
+        let txn = ctx.transaction();
+
+        let (parent_page, child_page) = try_join!(
+            PageService::get(ctx, site_id, parent_page_ref),
+            PageService::get(ctx, site_id, child_page_ref),
+        )?;
+
+        let relationship =
+            PageParent::find_by_id((parent_page.page_id, child_page.page_id))
+                .one(txn)
+                .await?;
+
+        match relationship {
+            // Delete parent relationship
+            Some(model) => {
+                model.delete(txn).await?;
+                Ok(true)
+            }
+
+            // Parent relationship already absent
+            None => Ok(false),
         }
     }
 
