@@ -94,11 +94,17 @@ fn json_list() {
 
             // Convert back to original and ensure that matches
             let new_list =
-                json_to_string_list(actual_json).expect("List conversion failed");
+                json_to_string_list(actual_json.clone()).expect("List conversion failed");
 
             assert_eq!(
                 input_list, new_list,
                 "Original list doesn't match reconverted list",
+            );
+
+            // Ensure they're both considered equivalent
+            assert!(
+                string_list_equals_json(&actual_json, &new_list),
+                "JSON and generated list are not considered equal",
             );
         }};
     }
