@@ -137,9 +137,14 @@ fn json_equals() {
 
     check!(&[], json!([]), true);
     check!(&[], json!(["a"]), false);
+    check!(&[], json!(["a", "b"]), false);
     check!(&["a"], json!([]), false);
     check!(&["a"], json!(["a"]), true);
     check!(&["a"], json!(["b"]), false);
     check!(&["a", "b", "c"], json!(["a", "b", "c"]), true);
     check!(&["a", "b", "c"], json!(["b", "b", "c"]), false);
+    check!(&["a", "b", "c"], json!(["x", "y", "z"]), false);
+    check!(&["a", "b", "c"], json!([]), false);
+    check!(&["a", "b", "c"], json!(["a"]), false);
+    check!(&["a", "b", "c"], json!(["a", "b"]), false);
 }
