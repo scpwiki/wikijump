@@ -19,7 +19,9 @@
  */
 
 use super::prelude::*;
-use crate::json_utils::{json_to_string_list, string_list_to_json};
+use crate::json_utils::{
+    json_to_string_list, string_list_equals_json, string_list_to_json,
+};
 use crate::models::page_revision::{
     self, Entity as PageRevision, Model as PageRevisionModel,
 };
@@ -142,25 +144,36 @@ impl RevisionService {
         } = previous;
 
         // Update fields from input
+        //
+        // We check the values so that the only listed "changes"
+        // are those that actually are different.
         if let ProvidedValue::Set(new_title) = body.title {
-            changes.push("title");
-            title = new_title;
+            if title != new_title {
+                changes.push("title");
+                title = new_title;
+            }
         }
 
         if let ProvidedValue::Set(new_alt_title) = body.alt_title {
-            changes.push("alt_title");
-            alt_title = new_alt_title;
+            if alt_title != new_alt_title {
+                changes.push("alt_title");
+                alt_title = new_alt_title;
+            }
         }
 
         if let ProvidedValue::Set(new_slug) = body.slug {
-            changes.push("slug");
-            old_slug = Some(slug);
-            slug = new_slug;
+            if slug != new_slug {
+                changes.push("slug");
+                old_slug = Some(slug);
+                slug = new_slug;
+            }
         }
 
         if let ProvidedValue::Set(new_tags) = body.tags {
-            changes.push("tags");
-            tags = string_list_to_json(&new_tags)?;
+            if !string_list_equals_json(&tags, &new_tags) {
+                changes.push("tags");
+                tags = string_list_to_json(&new_tags)?;
+            }
         }
 
         // Get slug strings for the new location
@@ -169,11 +182,15 @@ impl RevisionService {
         // Get wikitext, set wikitext hash
         let wikitext = match body.wikitext {
             // Insert new wikitext and update hash
-            ProvidedValue::Set(wikitext) => {
-                changes.push("wikitext");
-                let new_hash = TextService::create(ctx, wikitext.clone()).await?;
-                replace_hash(&mut wikitext_hash, &new_hash);
-                wikitext
+            ProvidedValue::Set(new_wikitext) => {
+                let new_hash = TextService::create(ctx, new_wikitext.clone()).await?;
+
+                if wikitext_hash != new_hash {
+                    changes.push("wikitext");
+                    replace_hash(&mut wikitext_hash, &new_hash);
+                }
+
+                new_wikitext
             }
 
             // Use previous revision's wikitext
