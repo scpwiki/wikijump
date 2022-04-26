@@ -124,6 +124,9 @@ pub fn build(mut app: ApiServer) -> ApiServer {
     .put(parent_put)
     .delete(parent_delete);
 
+    app.at("/page/:site_id/:relationship_type/:type/:id_or_slug")
+        .get(parent_relationships_get);
+
     // Page (invalid routes)
     app.at("/page").all(page_invalid);
     app.at("/page/:type/:id_or_slug").all(page_invalid);

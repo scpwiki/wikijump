@@ -19,8 +19,33 @@
  */
 
 use super::prelude::*;
-use crate::models::page_parent::Model as PageParentModel;
-use crate::services::ParentService;
+use crate::services::{parent::ParentalRelationshipType, ParentService};
+use serde::Serialize;
+
+pub async fn parent_relationships_get(req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    let reference = Reference::try_from(&req)?;
+    let site_id = req.param("site_id")?.parse()?;
+    let relationship_type: ParentalRelationshipType =
+        req.param("relationship_type")?.parse()?;
+
+    tide::log::info!(
+        "Getting all {} pages from {:?} in site ID {}",
+        relationship_type.name(),
+        reference,
+        site_id,
+    );
+
+    let models =
+        ParentService::get_relationships(&ctx, site_id, reference, relationship_type)
+            .await
+            .to_api()?;
+
+    txn.commit().await?;
+    build_parent_response(&models, StatusCode::Ok)
+}
 
 pub async fn parent_head(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
@@ -127,8 +152,8 @@ pub async fn parent_delete(req: ApiRequest) -> ApiResponse {
     Ok(Response::new(StatusCode::NoContent))
 }
 
-fn build_parent_response(model: &PageParentModel, status: StatusCode) -> ApiResponse {
-    let body = Body::from_json(&model)?;
+fn build_parent_response<T: Serialize>(data: &T, status: StatusCode) -> ApiResponse {
+    let body = Body::from_json(data)?;
     let response = Response::builder(status).body(body).into();
     Ok(response)
 }
