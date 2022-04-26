@@ -102,6 +102,28 @@ impl ParentService {
         Ok(rows_deleted == 1)
     }
 
+    /// Gets all relationships of the given type.
+    pub async fn get_relationships(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        reference: Reference<'_>,
+        relationship_type: ParentalRelationshipType,
+    ) -> Result<Vec<PageParentModel>> {
+        let txn = ctx.transaction();
+        let page = PageService::get(ctx, site_id, reference).await?;
+        let column = match relationship_type {
+            ParentalRelationshipType::Parent => page_parent::Column::ParentPageId,
+            ParentalRelationshipType::Child => page_parent::Column::ChildPageId,
+        };
+
+        let models = PageParent::find()
+            .filter(column.eq(page.page_id))
+            .all(txn)
+            .await?;
+
+        Ok(models)
+    }
+
     /// Removes all parent relationships involving this page.
     ///
     /// Whether this page is a parent or a child, this method

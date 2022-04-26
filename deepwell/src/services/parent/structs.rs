@@ -18,4 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// TODO
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum ParentalRelationshipType {
+    Parent,
+    Child,
+}
