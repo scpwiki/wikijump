@@ -33,7 +33,7 @@ impl ParentService {
     /// # Returns
     /// Returns `true` if the relationship was created, and
     /// `false` if it already existed.
-    pub async fn add_child(
+    pub async fn add(
         ctx: &ServiceContext<'_>,
         site_id: i64,
         parent_page_ref: Reference<'_>,
@@ -80,7 +80,7 @@ impl ParentService {
     /// # Returns
     /// Returns `true` if the relationship was deleted, and
     /// `false` if it was already absent.
-    pub async fn remove_child(
+    pub async fn remove(
         ctx: &ServiceContext<'_>,
         site_id: i64,
         parent_page_ref: Reference<'_>,
