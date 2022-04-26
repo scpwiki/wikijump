@@ -110,6 +110,7 @@ fn json_list() {
     }
 
     check!(vec![], json!([]));
+    check!(vec![str!("apple")], json!(["apple"]));
     check!(
         vec![str!("apple"), str!("banana"), str!("cherry")],
         json!(["apple", "banana", "cherry"]),
