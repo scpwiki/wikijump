@@ -26,6 +26,7 @@ tables=(
 	page_edit_lock
 	page_link
 	page_metadata
+	page_parent
 	page_rate_vote
 	page_revision
 	settings
