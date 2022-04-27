@@ -1,5 +1,5 @@
 /*
- * test/mod.rs
+ * test/page.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,24 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod prelude {
-    pub use super::setup;
-    pub use anyhow::Result;
-    pub use tide_testing::TideTestingExt;
-}
+use super::prelude::*;
 
-mod page;
+#[async_std::test]
+async fn create() -> Result<()> {
+    let app = setup().await?;
 
-use crate::api::{self, ApiServer};
-use crate::config::Config;
-use anyhow::Result;
+    // TODO
 
-pub async fn setup() -> Result<ApiServer> {
-    // The Default impl is different in the test environment
-    let config = Config::default();
-
-    // Build API server
-    crate::setup(&config).await?;
-    let app = api::build_server(config).await?;
-    Ok(app)
+    Ok(())
 }
