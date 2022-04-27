@@ -23,14 +23,10 @@
 //! This version has no commitments to stability and is used only by Wikijump itself.
 
 use crate::api::ApiServer;
-use crate::methods::category::*;
-use crate::methods::locales::*;
-use crate::methods::misc::*;
-use crate::methods::page::*;
-use crate::methods::revision::*;
-use crate::methods::site::*;
-use crate::methods::text::*;
-use crate::methods::user::*;
+use crate::methods::{
+    category::*, locales::*, misc::*, page::*, parent::*, revision::*, site::*, text::*,
+    user::*,
+};
 use crate::web::utils::error_response;
 use tide::StatusCode;
 
@@ -86,6 +82,7 @@ pub fn build(mut app: ApiServer) -> ApiServer {
 
     app.at("/page/:site_id/:page_id/restore").post(page_restore);
 
+    // Page revisions
     app.at("/page/:site_id/:type/:id_or_slug/revision")
         .get(page_revision_info);
 
@@ -97,6 +94,7 @@ pub fn build(mut app: ApiServer) -> ApiServer {
     app.at("/page/:site_id/:type/:id_or_slug/revision/:revision_number/:direction")
         .get(page_revision_range_get);
 
+    // Page links
     app.at("/page/:site_id/:type/:id_or_slug/links/from")
         .get(page_links_from_get);
 
@@ -112,7 +110,19 @@ pub fn build(mut app: ApiServer) -> ApiServer {
     app.at("/page/:site_id/urls/:url")
         .get(page_links_external_to);
 
-    // Page -- invalid routes
+    // Page parents
+    app.at(
+        "/page/:site_id/:parent_type/:parent_id_or_slug/:child_type/:child_id_or_slug",
+    )
+    .head(parent_head)
+    .get(parent_get)
+    .put(parent_put)
+    .delete(parent_delete);
+
+    app.at("/page/:site_id/:relationship_type/:type/:id_or_slug")
+        .get(parent_relationships_get);
+
+    // Page (invalid routes)
     app.at("/page").all(page_invalid);
     app.at("/page/:type/:id_or_slug").all(page_invalid);
     app.at("/page/:site_id/id/:page_slug/links/to/missing")

@@ -18,4 +18,32 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// TODO
+use crate::services::Error;
+use std::str::FromStr;
+
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum ParentalRelationshipType {
+    Parent,
+    Child,
+}
+
+impl ParentalRelationshipType {
+    pub fn name(self) -> &'static str {
+        match self {
+            ParentalRelationshipType::Parent => "parent",
+            ParentalRelationshipType::Child => "child",
+        }
+    }
+}
+
+impl FromStr for ParentalRelationshipType {
+    type Err = Error;
+
+    fn from_str(value: &str) -> Result<ParentalRelationshipType, Error> {
+        match value {
+            "parent" => Ok(ParentalRelationshipType::Parent),
+            "child" => Ok(ParentalRelationshipType::Child),
+            _ => Err(Error::InvalidEnumValue),
+        }
+    }
+}

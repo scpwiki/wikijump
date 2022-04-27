@@ -113,6 +113,7 @@ pub async fn page_get(req: ApiRequest) -> ApiResponse {
     let response = build_page_response(&ctx, &page, &revision, details, StatusCode::Ok)
         .await
         .to_api()?;
+
     txn.commit().await?;
     Ok(response)
 }

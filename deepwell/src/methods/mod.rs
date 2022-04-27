@@ -53,6 +53,7 @@ pub mod category;
 pub mod locales;
 pub mod misc;
 pub mod page;
+pub mod parent;
 pub mod revision;
 pub mod site;
 pub mod text;
