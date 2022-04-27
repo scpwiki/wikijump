@@ -56,12 +56,7 @@ mod web;
 use self::config::Config;
 use anyhow::Result;
 
-#[async_std::main]
-async fn main() -> Result<()> {
-    // Load the configuration so we can set up
-    let config = Config::load();
-    let socket_address = config.address;
-
+async fn setup(config: &Config) -> Result<()> {
     // Configure the logger
     if config.logger {
         tide::log::with_level(config.logger_level);
@@ -75,6 +70,16 @@ async fn main() -> Result<()> {
     if config.run_migrations {
         database::migrate(&config.database_url).await?;
     }
+
+    Ok(())
+}
+
+#[async_std::main]
+async fn main() -> Result<()> {
+    // Load the configuration so we can set up
+    let config = Config::load();
+    let socket_address = config.address;
+    setup(&config).await?;
 
     // Build server and run
     let app = api::build_server(config).await?;
