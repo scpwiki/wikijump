@@ -18,4 +18,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// TODO
+mod prelude {
+    pub use super::setup;
+    pub use tide_testing::TideTestingExt;
+}
+
+use crate::api::{self, ApiServer};
+use crate::config::Config;
+use anyhow::Result;
+
+pub async fn setup() -> Result<ApiServer> {
+    // The Default impl is different in the test environment
+    let config = Config::default();
+
+    // Build API server
+    crate::setup(&config).await?;
+    let app = api::build_server(config).await?;
+    Ok(app)
+}
