@@ -19,10 +19,13 @@
  */
 
 use super::prelude::*;
-use crate::json_utils::{json_to_string_list, string_list_to_json};
+use crate::json_utils::{
+    json_to_string_list, string_list_equals_json, string_list_to_json,
+};
 use crate::models::page_revision::{
     self, Entity as PageRevision, Model as PageRevisionModel,
 };
+use crate::models::sea_orm_active_enums::RevisionType;
 use crate::services::render::RenderOutput;
 use crate::services::{
     LinkService, OutdateService, ParentService, RenderService, SiteService, TextService,
@@ -31,7 +34,6 @@ use crate::web::{split_category, split_category_name, RevisionDirection};
 use ftml::data::PageInfo;
 use ftml::settings::{WikitextMode, WikitextSettings};
 use ref_map::*;
-use sea_orm::JsonValue;
 use std::borrow::Cow;
 use std::num::NonZeroI32;
 
@@ -101,8 +103,7 @@ impl RevisionService {
     ) -> Result<Option<CreateRevisionOutput>> {
         let txn = ctx.transaction();
 
-        // Get the new revision number and the change tasks to process
-        let (tasks, revision_number) = {
+        let revision_number = {
             // Check for basic consistency
             assert_eq!(
                 previous.site_id, site_id,
@@ -113,15 +114,8 @@ impl RevisionService {
                 "Previous revision has an inconsistent page ID",
             );
 
-            // Check to see if any fields have changed
-            let tasks = RevisionTasks::determine(&previous, &body);
-            if tasks.is_empty() {
-                tide::log::info!("No changes from previous revision");
-                return Ok(None);
-            }
-
-            // Can proceed, increment from previous
-            (tasks, previous.revision_number + 1)
+            // Get the new revision number
+            previous.revision_number + 1
         };
 
         // Fields to create in the revision
@@ -138,30 +132,40 @@ impl RevisionService {
             mut alt_title,
             mut slug,
             mut tags,
-            metadata, // TODO make mut, when we start modifying this
             ..
         } = previous;
 
         // Update fields from input
+        //
+        // We check the values so that the only listed "changes"
+        // are those that actually are different.
         if let ProvidedValue::Set(new_title) = body.title {
-            changes.push(str!("title"));
-            title = new_title;
+            if title != new_title {
+                changes.push("title");
+                title = new_title;
+            }
         }
 
         if let ProvidedValue::Set(new_alt_title) = body.alt_title {
-            changes.push(str!("alt_title"));
-            alt_title = new_alt_title;
+            if alt_title != new_alt_title {
+                changes.push("alt_title");
+                alt_title = new_alt_title;
+            }
         }
 
         if let ProvidedValue::Set(new_slug) = body.slug {
-            changes.push(str!("slug"));
-            old_slug = Some(slug);
-            slug = new_slug;
+            if slug != new_slug {
+                changes.push("slug");
+                old_slug = Some(slug);
+                slug = new_slug;
+            }
         }
 
         if let ProvidedValue::Set(new_tags) = body.tags {
-            changes.push(str!("tags"));
-            tags = string_list_to_json(&new_tags)?;
+            if !string_list_equals_json(&tags, &new_tags) {
+                changes.push("tags");
+                tags = string_list_to_json(&new_tags)?;
+            }
         }
 
         // Get slug strings for the new location
@@ -170,19 +174,29 @@ impl RevisionService {
         // Get wikitext, set wikitext hash
         let wikitext = match body.wikitext {
             // Insert new wikitext and update hash
-            ProvidedValue::Set(wikitext) => {
-                changes.push(str!("wikitext"));
-                let new_hash = TextService::create(ctx, wikitext.clone()).await?;
-                replace_hash(&mut wikitext_hash, &new_hash);
-                wikitext
+            ProvidedValue::Set(new_wikitext) => {
+                let new_hash = TextService::create(ctx, new_wikitext.clone()).await?;
+
+                if wikitext_hash != new_hash {
+                    changes.push("wikitext");
+                    replace_hash(&mut wikitext_hash, &new_hash);
+                }
+
+                new_wikitext
             }
 
             // Use previous revision's wikitext
             ProvidedValue::Unset => TextService::get(ctx, &wikitext_hash).await?,
         };
 
+        // If nothing has changed, then don't create a new revision
+        if changes.is_empty() {
+            return Ok(None);
+        }
+
         // Run tasks based on changes:
         // See RevisionTasks struct for more information.
+        let tasks = RevisionTasks::determine(&changes);
 
         if tasks.render_and_update_links {
             // This is necessary until we are able to replace the
@@ -263,6 +277,7 @@ impl RevisionService {
         // Insert the new revision into the table
         let changes = string_list_to_json(&changes)?;
         let model = page_revision::ActiveModel {
+            revision_type: Set(RevisionType::Regular),
             revision_number: Set(revision_number),
             page_id: Set(page_id),
             site_id: Set(site_id),
@@ -278,7 +293,6 @@ impl RevisionService {
             alt_title: Set(alt_title),
             slug: Set(slug),
             tags: Set(tags),
-            metadata: Set(metadata),
             ..Default::default()
         };
 
@@ -338,17 +352,12 @@ impl RevisionService {
 
         // Effective constant, number of changes for the first revision.
         // The first revision is always considered to have changed everything.
-        let all_changes = serde_json::json!([
-            "wikitext",
-            "title",
-            "alt_title",
-            "slug",
-            "tags",
-            "metadata"
-        ]);
+        let all_changes =
+            serde_json::json!(["wikitext", "title", "alt_title", "slug", "tags"]);
 
         // Insert the new revision into the table
         let model = page_revision::ActiveModel {
+            revision_type: Set(RevisionType::Create),
             revision_number: Set(0),
             page_id: Set(page_id),
             site_id: Set(site_id),
@@ -364,7 +373,6 @@ impl RevisionService {
             alt_title: Set(alt_title),
             slug: Set(slug),
             tags: Set(serde_json::json!([])),
-            metadata: Set(serde_json::json!({})),
             ..Default::default()
         };
 
@@ -389,7 +397,6 @@ impl RevisionService {
     ) -> Result<CreateRevisionOutput> {
         let txn = ctx.transaction();
 
-        // Get the new revision number
         let revision_number = {
             // Check for basic consistency
             assert_eq!(
@@ -401,7 +408,7 @@ impl RevisionService {
                 "Previous revision has an inconsistent page ID",
             );
 
-            // Increment from previous
+            // Get the new revision number
             previous.revision_number + 1
         };
 
@@ -415,29 +422,23 @@ impl RevisionService {
             alt_title,
             slug,
             tags,
-            mut metadata, // TODO make mut, when we start modifying this
             ..
         } = previous;
 
-        // Set 'deleted' on metadata
-        metadata
-            .as_object_mut()
-            .expect("Metadata field not an object")
-            .insert(str!("deleted"), JsonValue::Bool(true));
+        // Run outdater
+        OutdateService::process_page_displace(ctx, site_id, page_id, &slug).await?;
 
-        let changes = vec![str!("metadata")];
-
+        // Delete parent-child relationships, if any
         ParentService::delete_children().await?; // TODO stub
-
-        // TODO update page cache
 
         // Insert the tombstone revision into the table
         let model = page_revision::ActiveModel {
+            revision_type: Set(RevisionType::Delete),
             revision_number: Set(revision_number),
             page_id: Set(page_id),
             site_id: Set(site_id),
             user_id: Set(user_id),
-            changes: Set(string_list_to_json(changes)),
+            changes: Set(serde_json::json!([])),
             wikitext_hash: Set(wikitext_hash),
             compiled_hash: Set(compiled_hash),
             compiled_at: Set(compiled_at),
@@ -448,7 +449,6 @@ impl RevisionService {
             alt_title: Set(alt_title),
             slug: Set(slug),
             tags: Set(tags),
-            metadata: Set(metadata),
             ..Default::default()
         };
 
@@ -465,24 +465,111 @@ impl RevisionService {
     /// Similar to `create_tombstone`, this method creates
     /// a revision whose only purpose is to mark that the page
     /// has been restored.
+    ///
+    /// Note that page parenting information is removed during deletion
+    /// and is not restored here.
+    ///
+    /// Remember that, like `create_first()`, this method assumes
+    /// the caller has already verified that undeleting the page here
+    /// will not cause conflicts.
     pub async fn create_resurrection(
-        _ctx: &ServiceContext<'_>,
-        _site_id: i64,
-        _page_id: i64,
-        _user_id: i64,
-        _slug: String,
-        _comments: String,
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+        CreateResurrectionRevision {
+            user_id,
+            comments,
+            new_slug,
+        }: CreateResurrectionRevision,
+        previous: PageRevisionModel,
     ) -> Result<CreateRevisionOutput> {
-        // TODO modify metadata field to add 'deleted: false'
+        let txn = ctx.transaction();
 
-        // TODO run undeletion outdater procdures:
-        //      - rerender incoming links
-        //      - rerender included pages
-        //      - update outgoing links
-        //      - process nav pages
-        //      - process template pages
+        let revision_number = {
+            // Check for basic consistency
+            assert_eq!(
+                previous.site_id, site_id,
+                "Previous revision has an inconsistent site ID",
+            );
+            assert_eq!(
+                previous.page_id, page_id,
+                "Previous revision has an inconsistent page ID",
+            );
 
-        todo!()
+            // Get the new revision number
+            previous.revision_number + 1
+        };
+
+        let PageRevisionModel {
+            wikitext_hash,
+            mut compiled_hash,
+            hidden,
+            title,
+            alt_title,
+            slug: old_slug,
+            tags,
+            ..
+        } = previous;
+
+        let changes = if old_slug == new_slug {
+            vec![]
+        } else {
+            vec!["slug"]
+        };
+
+        // Re-render page
+        let temp_tags = json_to_string_list(tags.clone())?;
+        let render_input = RenderPageInfo {
+            slug: &new_slug,
+            title: &title,
+            alt_title: alt_title.ref_map(|s| s.as_str()),
+            rating: 0.0, // TODO
+            tags: &temp_tags,
+        };
+
+        let wikitext = TextService::get(ctx, &wikitext_hash).await?;
+        let RenderOutput {
+            // TODO: use html_output
+            html_output: _,
+            warnings,
+            compiled_hash: new_compiled_hash,
+            compiled_generator,
+        } = Self::render_and_update_links(ctx, site_id, page_id, wikitext, render_input)
+            .await?;
+
+        replace_hash(&mut compiled_hash, &new_compiled_hash);
+
+        // Run outdater
+        OutdateService::process_page_displace(ctx, site_id, page_id, &new_slug).await?;
+
+        // Insert the resurrection revision into the table
+        let changes = string_list_to_json(&changes)?;
+        let model = page_revision::ActiveModel {
+            revision_type: Set(RevisionType::Undelete),
+            revision_number: Set(revision_number),
+            page_id: Set(page_id),
+            site_id: Set(site_id),
+            user_id: Set(user_id),
+            changes: Set(changes),
+            wikitext_hash: Set(wikitext_hash),
+            compiled_hash: Set(compiled_hash),
+            compiled_at: Set(now()),
+            compiled_generator: Set(compiled_generator),
+            comments: Set(comments),
+            hidden: Set(hidden),
+            title: Set(title),
+            alt_title: Set(alt_title),
+            slug: Set(new_slug),
+            tags: Set(tags),
+            ..Default::default()
+        };
+
+        let PageRevisionModel { revision_id, .. } = model.insert(txn).await?;
+        Ok(CreateRevisionOutput {
+            revision_id,
+            revision_number,
+            parser_warnings: Some(warnings),
+        })
     }
 
     /// Helper method for performing rendering for a revision.
@@ -583,13 +670,41 @@ impl RevisionService {
     /// for instance, if it contains spam, abuse, or harassment.
     pub async fn update(
         ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
         revision_id: i64,
         UpdateRevision { user_id, hidden }: UpdateRevision,
     ) -> Result<()> {
+        let txn = ctx.transaction();
+
+        // Unfortunately, we cannot do .contains() on Vec<String> because
+        // it wans to compare with &String, not &str.
+        #[inline]
+        fn contains(items: &[String], query: &str) -> bool {
+            for item in items {
+                if item == query {
+                    return true;
+                }
+            }
+
+            false
+        }
+
+        // The wikitext changes to a page are visible even if that part
+        // of the revision is hidden, so current revisions are not allowed
+        // to have that field hidden. It should be reverted first, and then
+        // the diff can be hidden like any other.
+
+        let latest = Self::get_latest(ctx, site_id, page_id).await?;
+        if revision_id == latest.revision_id && contains(&hidden, "wikitext") {
+            return Err(Error::CannotHideLatestRevision);
+        }
+
         // TODO: record revision edit in audit log
         let _ = user_id;
 
-        let txn = ctx.transaction();
+        // Update the revision
+
         let hidden = string_list_to_json(&hidden)?;
         let model = page_revision::ActiveModel {
             revision_id: Set(revision_id),

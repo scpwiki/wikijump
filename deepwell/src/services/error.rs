@@ -60,6 +60,9 @@ pub enum Error {
 
     #[error("The requested data was not found")]
     NotFound,
+
+    #[error("Cannot hide the wikitext for the latest page revision")]
+    CannotHideLatestRevision,
 }
 
 impl Error {
@@ -79,6 +82,9 @@ impl Error {
                 TideError::from_str(StatusCode::Conflict, "")
             }
             Error::NotFound => TideError::from_str(StatusCode::NotFound, ""),
+            Error::CannotHideLatestRevision => {
+                TideError::from_str(StatusCode::BadRequest, "")
+            }
         }
     }
 }

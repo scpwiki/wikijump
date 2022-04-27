@@ -19,9 +19,9 @@
  */
 
 use super::prelude::*;
+use crate::models::sea_orm_active_enums::RevisionType;
 use ftml::parsing::ParseWarning;
 use sea_orm::prelude::DateTimeWithTimeZone;
-use serde_json::Value as JsonValue;
 use std::num::NonZeroI32;
 
 #[derive(Deserialize, Debug)]
@@ -53,6 +53,14 @@ pub struct CreateFirstRevision {
     pub title: String,
     pub alt_title: Option<String>,
     pub slug: String,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateResurrectionRevision {
+    pub user_id: i64,
+    pub comments: String,
+    pub new_slug: String,
 }
 
 #[derive(Serialize, Debug)]
@@ -97,6 +105,7 @@ pub struct RevisionCountOutput {
 #[derive(Serialize, Debug)]
 pub struct PageRevisionModelFiltered {
     pub revision_id: i64,
+    pub revision_type: RevisionType,
     pub created_at: DateTimeWithTimeZone,
     pub revision_number: i32,
     pub page_id: i64,
@@ -113,5 +122,4 @@ pub struct PageRevisionModelFiltered {
     pub alt_title: Option<String>,
     pub slug: Option<String>,
     pub tags: Option<Vec<String>>,
-    pub metadata: Option<JsonValue>,
 }

@@ -22,7 +22,8 @@ use super::prelude::*;
 use crate::models::page::{self, Entity as Page, Model as PageModel};
 use crate::models::page_category::Model as PageCategoryModel;
 use crate::services::revision::{
-    CreateFirstRevision, CreateFirstRevisionOutput, CreateRevision, CreateRevisionBody,
+    CreateFirstRevision, CreateFirstRevisionOutput, CreateResurrectionRevision,
+    CreateRevision, CreateRevisionBody,
 };
 use crate::services::{CategoryService, RevisionService};
 use crate::web::{get_category_name, trim_default};
@@ -250,21 +251,33 @@ impl PageService {
             return Err(Error::Conflict);
         }
 
+        // Create category if not already present
+        let category =
+            CategoryService::get_or_create(ctx, site_id, get_category_name(&slug))
+                .await?;
+
+        // Get latest revision
+        let last_revision = RevisionService::get_latest(ctx, site_id, page_id).await?;
+
         // Create resurrection revision
         // This also updates backlinks, includes, etc.
         let output = RevisionService::create_resurrection(
             ctx,
             site_id,
             page_id,
-            input.user_id,
-            input.revision_comments,
-            slug.clone(),
+            CreateResurrectionRevision {
+                user_id: input.user_id,
+                comments: input.revision_comments,
+                new_slug: slug.clone(),
+            },
+            last_revision,
         )
         .await?;
 
         // Set deletion flag
         let model = page::ActiveModel {
             page_id: Set(page_id),
+            page_category_id: Set(category.category_id),
             deleted_at: Set(None),
             ..Default::default()
         };

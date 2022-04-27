@@ -17,7 +17,7 @@ class PageSeeder extends Seeder
     const TIMESTAMP = 'Fri Jan 18 15:32:15 2019 -0700';
 
     // Because it's temporarily JSON, not TEXT[] yet
-    const ALL_CHANGES = '["wikitext", "title", "alt_title", "slug", "tags", "metadata"]';
+    const ALL_CHANGES = '["wikitext", "title", "alt_title", "slug", "tags"]';
 
     /**
      * Run the database seeds.
@@ -843,6 +843,7 @@ EOF
         // Add revision
         DB::insert(
             "INSERT INTO page_revision (
+                revision_type,
                 created_at,
                 revision_number,
                 page_id,
@@ -863,6 +864,7 @@ EOF
                 ?,
                 ?,
                 ?,
+                ?,
                 decode(?, 'hex'),
                 decode(?, 'hex'),
                 ?,
@@ -872,6 +874,7 @@ EOF
                 ?
             )",
             [
+                'create',
                 self::TIMESTAMP,
                 $revision_number,
                 $page_id,

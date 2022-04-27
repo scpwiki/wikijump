@@ -94,16 +94,23 @@ fn json_list() {
 
             // Convert back to original and ensure that matches
             let new_list =
-                json_to_string_list(actual_json).expect("List conversion failed");
+                json_to_string_list(actual_json.clone()).expect("List conversion failed");
 
             assert_eq!(
                 input_list, new_list,
                 "Original list doesn't match reconverted list",
             );
+
+            // Ensure they're both considered equivalent
+            assert!(
+                string_list_equals_json(&actual_json, &new_list),
+                "JSON and generated list are not considered equal",
+            );
         }};
     }
 
     check!(vec![], json!([]));
+    check!(vec![str!("apple")], json!(["apple"]));
     check!(
         vec![str!("apple"), str!("banana"), str!("cherry")],
         json!(["apple", "banana", "cherry"]),
@@ -130,9 +137,14 @@ fn json_equals() {
 
     check!(&[], json!([]), true);
     check!(&[], json!(["a"]), false);
+    check!(&[], json!(["a", "b"]), false);
     check!(&["a"], json!([]), false);
     check!(&["a"], json!(["a"]), true);
     check!(&["a"], json!(["b"]), false);
     check!(&["a", "b", "c"], json!(["a", "b", "c"]), true);
     check!(&["a", "b", "c"], json!(["b", "b", "c"]), false);
+    check!(&["a", "b", "c"], json!(["x", "y", "z"]), false);
+    check!(&["a", "b", "c"], json!([]), false);
+    check!(&["a", "b", "c"], json!(["a"]), false);
+    check!(&["a", "b", "c"], json!(["a", "b"]), false);
 }

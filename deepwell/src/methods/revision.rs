@@ -117,7 +117,7 @@ pub async fn page_revision_put(mut req: ApiRequest) -> ApiResponse {
         .await
         .to_api()?;
 
-    RevisionService::update(&ctx, revision.revision_id, input)
+    RevisionService::update(&ctx, site_id, page.page_id, revision.revision_id, input)
         .await
         .to_api()?;
 
@@ -177,6 +177,7 @@ async fn filter_and_populate_revision(
 ) -> Result<PageRevisionModelFiltered> {
     let PageRevisionModel {
         revision_id,
+        revision_type,
         created_at,
         revision_number,
         page_id,
@@ -193,7 +194,6 @@ async fn filter_and_populate_revision(
         mut alt_title,
         slug,
         tags,
-        metadata,
     } = model;
 
     // Convert string list fields
@@ -207,7 +207,6 @@ async fn filter_and_populate_revision(
     // alt-title is already Option and we're not doubling up
     let mut slug = Some(slug);
     let mut tags = Some(tags);
-    let mut metadata = Some(metadata);
 
     for field in &hidden {
         // TODO hidden fields aren't standardized yet
@@ -219,7 +218,6 @@ async fn filter_and_populate_revision(
             "alt_title" => alt_title = None,
             "slug" => slug = None,
             "tags" => tags = None,
-            "metadata" => metadata = None,
             _ => panic!("Unknown field name in hidden: {}", field),
         }
     }
@@ -233,6 +231,7 @@ async fn filter_and_populate_revision(
 
     Ok(PageRevisionModelFiltered {
         revision_id,
+        revision_type,
         created_at,
         revision_number,
         page_id,
@@ -249,7 +248,6 @@ async fn filter_and_populate_revision(
         alt_title,
         slug,
         tags,
-        metadata,
     })
 }
 
