@@ -85,6 +85,7 @@ pub struct Config {
 }
 
 impl Default for Config {
+    #[cfg(not(test))]
     fn default() -> Self {
         Config {
             logger: true,
@@ -94,6 +95,20 @@ impl Default for Config {
             run_migrations: true,
             localization_path: PathBuf::from("../locales"),
             rate_limit_per_minute: NonZeroU32::new(20).unwrap(),
+            rate_limit_secret: String::new(),
+        }
+    }
+
+    #[cfg(test)]
+    fn default() -> Self {
+        Config {
+            logger: true,
+            logger_level: LevelFilter::Debug,
+            address: "[::]:2747".parse().unwrap(),
+            database_url: str!("postgres://localhost"),
+            run_migrations: false,
+            localization_path: PathBuf::from("../locales"),
+            rate_limit_per_minute: NonZeroU32::new(1000).unwrap(),
             rate_limit_secret: String::new(),
         }
     }
