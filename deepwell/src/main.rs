@@ -76,12 +76,12 @@ async fn setup(config: &Config) -> Result<()> {
 
 #[async_std::main]
 async fn main() -> Result<()> {
-    // Load the configuration so we can set up
+    // Load configuration
     let config = Config::load();
     let socket_address = config.address;
-    setup(&config).await?;
 
-    // Build server and run
+    // Build API server
+    setup(&config).await?;
     let app = api::build_server(config).await?;
 
     tide::log::info!("Built server. Listening...");
