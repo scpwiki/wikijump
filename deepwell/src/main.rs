@@ -38,6 +38,9 @@ extern crate str_macro;
 #[macro_use]
 mod macros;
 
+#[cfg(test)]
+mod test;
+
 mod api;
 mod config;
 mod database;
