@@ -51,10 +51,7 @@ pub struct ServerState {
     pub localizations: Localizations,
 }
 
-pub async fn build_server(config: Config) -> Result<ApiServer> {
-    // Values needed to build routes
-    let rate_limit = config.rate_limit_per_minute;
-
+pub async fn build_server_state(config: Config) -> Result<Arc<ServerState>> {
     // Connect to database
     tide::log::info!("Connecting to PostgreSQL database");
     let database = database::connect(&config.database_url).await?;
@@ -63,12 +60,20 @@ pub async fn build_server(config: Config) -> Result<ApiServer> {
     tide::log::info!("Loading localization data");
     let localizations = Localizations::open(&config.localization_path).await?;
 
-    // Create server state
-    let state = Arc::new(ServerState {
+    // Build and return
+    Ok(Arc::new(ServerState {
         config,
         database,
         localizations,
-    });
+    }))
+}
+
+pub async fn build_server(config: Config) -> Result<ApiServer> {
+    // Values needed to build routes
+    let rate_limit = config.rate_limit_per_minute;
+
+    // Create server state
+    let state = build_server_state(config).await?;
 
     macro_rules! new {
         () => {
