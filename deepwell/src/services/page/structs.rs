@@ -25,7 +25,7 @@ use ftml::parsing::ParseWarning;
 use sea_orm::entity::prelude::DateTimeWithTimeZone;
 use serde_json::Value as JsonValue;
 
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct CreatePage {
     pub wikitext: String,
@@ -36,7 +36,7 @@ pub struct CreatePage {
     pub user_id: i64,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct CreatePageOutput {
     pub page_id: i64,
@@ -74,7 +74,7 @@ pub struct GetPageOutput<'a> {
     pub tags: &'a JsonValue, // TODO: replace with &[&str]
 }
 
-#[derive(Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug, Default)]
 #[serde(rename_all = "camelCase", default)]
 pub struct EditPage {
     pub wikitext: ProvidedValue<String>,
@@ -85,7 +85,7 @@ pub struct EditPage {
     pub user_id: i64,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct EditPageOutput {
     revision_id: i64,
@@ -93,14 +93,14 @@ pub struct EditPageOutput {
     parser_warnings: Option<Vec<ParseWarning>>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct DeletePage {
     pub revision_comments: String,
     pub user_id: i64,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct RestorePage {
     pub revision_comments: String,
@@ -108,7 +108,7 @@ pub struct RestorePage {
     pub slug: Option<String>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct DeletePageOutput {
     page_id: i64,
@@ -116,7 +116,7 @@ pub struct DeletePageOutput {
     revision_number: i32,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct RestorePageOutput {
     slug: String,

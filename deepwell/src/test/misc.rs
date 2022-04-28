@@ -1,5 +1,5 @@
 /*
- * test/page.rs
+ * test/misc.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -19,33 +19,54 @@
  */
 
 use super::prelude::*;
-use crate::services::page::{CreatePage, CreatePageOutput};
+use crate::info;
 
 #[async_std::test]
-async fn create() -> Result<()> {
+async fn ping() -> Result<()> {
     let app = setup().await?;
 
-    let output: CreatePageOutput = app
-        .post("/api/vI/page/1")
-        .body(create_body(CreatePage {
-            wikitext: str!("Page contents"),
-            title: str!("Test page"),
-            alt_title: None,
-            slug: str!("test"),
-            revision_comments: str!("Create page"),
-            user_id: ADMIN_USER,
-        }))
-        .recv_json()
+    // GET
+    let output = app
+        .get("/api/vI/ping")
+        .recv_string()
         .await
         .expect("Unable to send web request");
 
-    println!("-- {:#?}", output);
+    assert_eq!(output, "Pong!");
 
-    assert_eq!(&output.slug, "test", "Created page slug doesn't match");
-    assert!(
-        output.parser_warnings.is_empty(),
-        "Parser warnings in page creation",
-    );
+    // POST
+    let output = app
+        .post("/api/vI/ping")
+        .recv_string()
+        .await
+        .expect("Unable to send web request");
+
+    assert_eq!(output, "Pong!");
+
+    Ok(())
+}
+
+#[async_std::test]
+async fn version() -> Result<()> {
+    let app = setup().await?;
+
+    // Regular
+    let output = app
+        .get("/api/vI/version")
+        .recv_string()
+        .await
+        .expect("Unable to send web request");
+
+    assert_eq!(&output, &*info::VERSION_WITH_NAME);
+
+    // Full
+    let output = app
+        .get("/api/vI/version/full")
+        .recv_string()
+        .await
+        .expect("Unable to send web request");
+
+    assert_eq!(&output, &*info::FULL_VERSION_WITH_NAME);
 
     Ok(())
 }

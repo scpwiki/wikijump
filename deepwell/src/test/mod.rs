@@ -21,9 +21,26 @@
 mod prelude {
     pub use super::setup;
     pub use anyhow::Result;
+    pub use tide::Body;
     pub use tide_testing::TideTestingExt;
+
+    use serde::Serialize;
+
+    pub const WWW_SITE: i64 = 1;
+    pub const EN_TEMPLATE_SITE: i64 = 2;
+
+    pub const ADMIN_USER: i64 = 1;
+    pub const AUTOMATIC_USER: i64 = 2;
+    pub const ANONYMOUS_USER: i64 = 3;
+    pub const REGULAR_USER: i64 = 4;
+
+    #[inline]
+    pub fn create_body<T: Serialize>(data: T) -> Body {
+        Body::from_json(&data).expect("Unable to create JSON body")
+    }
 }
 
+mod misc;
 mod page;
 
 use crate::api::{self, ApiServer};
