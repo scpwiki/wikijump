@@ -102,7 +102,7 @@ impl Default for Config {
     #[cfg(test)]
     fn default() -> Self {
         Config {
-            logger: true,
+            logger: false,
             logger_level: LevelFilter::Debug,
             address: "[::]:2747".parse().unwrap(),
             database_url: str!("postgres://localhost"),
