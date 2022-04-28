@@ -57,7 +57,7 @@ async fn version() -> Result<()> {
         .await
         .expect("Unable to send web request");
 
-    assert_eq!(&output, &*info::VERSION_WITH_NAME);
+    assert_eq!(&output, &*info::VERSION);
 
     // Full
     let output = app

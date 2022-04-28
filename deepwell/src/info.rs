@@ -51,10 +51,6 @@ lazy_static! {
         version
     };
 
-    pub static ref VERSION_WITH_NAME: String = {
-        format!("{} {}", PKG_NAME, *VERSION)
-    };
-
     pub static ref FULL_VERSION_WITH_NAME: String = {
         format!("{} {}", PKG_NAME, *FULL_VERSION)
     };
