@@ -19,33 +19,26 @@
  */
 
 use super::prelude::*;
-use crate::services::page::{CreatePage, CreatePageOutput};
 
 #[async_std::test]
 async fn create() -> Result<()> {
     let app = setup().await?;
 
-    let output: CreatePageOutput = app
+    let output: JsonValue = app
         .post("/api/vI/page/1")
-        .body(create_body(CreatePage {
-            wikitext: str!("Page contents"),
-            title: str!("Test page"),
-            alt_title: None,
-            slug: str!("test"),
-            revision_comments: str!("Create page"),
-            user_id: ADMIN_USER,
-        }))
+        .body(create_body(json!({
+            "wikitext": "Page contents",
+            "title": "Test page!",
+            "altTitle": null,
+            "slug": "test",
+            "revisionComments": "Create page",
+            "userId": ADMIN_USER_ID,
+        })))
         .recv_json()
         .await
         .expect("Unable to send web request");
 
     println!("-- {:#?}", output);
-
-    assert_eq!(&output.slug, "test", "Created page slug doesn't match");
-    assert!(
-        output.parser_warnings.is_empty(),
-        "Parser warnings in page creation",
-    );
 
     Ok(())
 }
