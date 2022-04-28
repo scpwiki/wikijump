@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::info;
-use clap::{Arg, Command};
 use dotenv::dotenv;
 use std::env;
 use std::net::SocketAddr;
@@ -85,7 +83,6 @@ pub struct Config {
 }
 
 impl Default for Config {
-    #[cfg(not(test))]
     fn default() -> Self {
         Config {
             logger: true,
@@ -95,20 +92,6 @@ impl Default for Config {
             run_migrations: true,
             localization_path: PathBuf::from("../locales"),
             rate_limit_per_minute: NonZeroU32::new(20).unwrap(),
-            rate_limit_secret: String::new(),
-        }
-    }
-
-    #[cfg(test)]
-    fn default() -> Self {
-        Config {
-            logger: false,
-            logger_level: LevelFilter::Debug,
-            address: "[::]:2747".parse().unwrap(),
-            database_url: str!("postgres://localhost"),
-            run_migrations: false,
-            localization_path: PathBuf::from("../locales"),
-            rate_limit_per_minute: NonZeroU32::new(1000).unwrap(),
             rate_limit_secret: String::new(),
         }
     }
@@ -198,7 +181,11 @@ fn read_env(config: &mut Config) {
     }
 }
 
+#[cfg(not(test))]
 fn parse_args(config: &mut Config) {
+    use crate::info;
+    use clap::{Arg, Command};
+
     let matches = Command::new("DEEPWELL")
         .author(info::PKG_AUTHORS)
         .version(info::VERSION.as_str())
@@ -334,10 +321,20 @@ fn parse_args(config: &mut Config) {
 }
 
 impl Config {
+    #[cfg(not(test))]
     pub fn load() -> Self {
         let mut config = Config::default();
         read_env(&mut config);
         parse_args(&mut config);
+        config
+    }
+
+    #[cfg(test)]
+    pub fn load() -> Self {
+        let mut config = Config::default();
+        config.logger = false;
+        config.run_migrations = false;
+        read_env(&mut config);
         config
     }
 

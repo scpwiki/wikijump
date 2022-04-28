@@ -49,7 +49,7 @@ use anyhow::Result;
 
 pub async fn setup() -> Result<ApiServer> {
     // The Default impl is different in the test environment
-    let config = Config::default();
+    let config = Config::load();
 
     // Build API server
     crate::setup(&config).await?;
