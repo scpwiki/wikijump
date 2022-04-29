@@ -38,6 +38,7 @@ mod prelude {
 #[macro_use]
 mod macros;
 
+mod locale;
 mod misc;
 mod page;
 

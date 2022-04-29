@@ -25,7 +25,7 @@ async fn create() -> Result<()> {
     run_test! {{
         let env = TestEnvironment::setup().await?;
 
-        let output = env
+        let (output, status) = env
             .post(format!("/page/{WWW_SITE_ID}"))?
             .body_json(json!({
                 "wikitext": "Page contents",
@@ -39,6 +39,7 @@ async fn create() -> Result<()> {
             .await?;
 
         println!("-- {:#?}", output);
+        println!("-- {:#?}", status);
 
         Ok(())
     }}
