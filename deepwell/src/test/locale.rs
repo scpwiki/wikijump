@@ -100,3 +100,36 @@ async fn locale_name() -> Result<()> {
         Ok(())
     }}
 }
+
+#[async_std::test]
+async fn message() -> Result<()> {
+    run_test! {{
+        let env = TestEnvironment::setup().await?;
+
+        macro_rules! check {
+            ($locale:expr, $message_key:expr, $translation:expr $(,)?) => {
+                check!($locale, $message_key, $translation, {})
+            };
+
+            ($locale:expr, $message_key:expr, $translation:expr, $($json:tt)+ $(,)?) => {{
+                let path = concat!("/message/", $locale, "/", $message_key);
+                let (translation, status) = env
+                    .post(path)?
+                    .body_json(json!($($json)+))?
+                    .recv_string()
+                    .await?;
+
+                assert_eq!(status, StatusCode::Ok);
+                assert_eq!(translation, $translation);
+            }};
+        }
+
+        check!("en", "goto-home", "Go to home page");
+        // TODO add translation for another language
+
+        check!("en", "navigated-to", "Navigated to \u{2068}jellybean\u{2069}", { "path": "jellybean" });
+        // TODO add translation for another language
+
+        Ok(())
+    }}
+}
