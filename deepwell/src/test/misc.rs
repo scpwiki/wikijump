@@ -23,14 +23,22 @@ use crate::info;
 
 #[async_std::test]
 async fn ping() -> Result<()> {
-    let env = TestEnvironment::setup().await?;
+    let app = setup().await;
 
     // GET
-    let output = env.get("/ping")?.recv_string().await?;
+    let output = app
+        .get("/api/vI/ping")
+        .recv_string()
+        .await?;
+
     assert_eq!(output, "Pong!");
 
     // POST
-    let output = env.post("/ping")?.recv_string().await?;
+    let output = app
+        .post("/api/vI/ping")
+        .recv_string()
+        .await?;
+
     assert_eq!(output, "Pong!");
 
     Ok(())
@@ -38,14 +46,22 @@ async fn ping() -> Result<()> {
 
 #[async_std::test]
 async fn version() -> Result<()> {
-    let env = TestEnvironment::setup().await?;
+    let app = setup().await;
 
     // Regular
-    let output = env.get("/version")?.recv_string().await?;
+    let output = app
+        .get("/api/vI/version")
+        .recv_string()
+        .await?;
+
     assert_eq!(&output, &*info::VERSION);
 
     // Full
-    let output = env.get("/version/full")?.recv_string().await?;
+    let output = app
+        .get("/api/vI/version/full")
+        .recv_string()
+        .await?;
+
     assert_eq!(&output, &*info::FULL_VERSION_WITH_NAME);
 
     Ok(())

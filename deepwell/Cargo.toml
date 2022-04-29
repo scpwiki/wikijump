@@ -50,6 +50,9 @@ wikidot-normalize = "0.10"
 #       See: https://stackoverflow.com/questions/68399961
 #            https://github.com/tkaitchuck/aHash/issues/95
 
+[dev-dependencies]
+tide-testing = "0.1"
+
 [build-dependencies]
 built = { version = "0.5", features = ["chrono", "git2"] }
 
