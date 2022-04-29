@@ -20,9 +20,9 @@
 
 #[allow(dead_code)]
 mod prelude {
-    pub use super::setup;
+    pub use super::{setup, RequestBuilderExt};
     pub use serde_json::{json, Value as JsonValue};
-    pub use tide::{Body, Result};
+    pub use tide::{Body, Result, StatusCode};
     pub use tide_testing::TideTestingExt;
 
     use serde::Serialize;
@@ -46,12 +46,54 @@ mod page;
 
 use crate::api::{self, ApiServer};
 use crate::config::Config;
+use async_trait::async_trait;
+use serde::de::DeserializeOwned;
+use surf::RequestBuilder;
+use tide::StatusCode;
 
 pub async fn setup() -> ApiServer {
     // The Default impl is different in the test environment
     let config = Config::load();
 
     // Build API server
-    crate::setup(&config).await.expect("Unable to run API setup");
-    api::build_server(config).await.expect("Unable to build API server")
+    crate::setup(&config)
+        .await
+        .expect("Unable to run API setup");
+    api::build_server(config)
+        .await
+        .expect("Unable to build API server")
+}
+
+#[async_trait]
+pub trait RequestBuilderExt {
+    async fn recv_bytes_status(self) -> surf::Result<(Vec<u8>, StatusCode)>;
+    async fn recv_string_status(self) -> surf::Result<(String, StatusCode)>;
+    async fn recv_json_status<T: DeserializeOwned>(self)
+        -> surf::Result<(T, StatusCode)>;
+}
+
+#[async_trait]
+impl RequestBuilderExt for RequestBuilder {
+    async fn recv_bytes_status(self) -> surf::Result<(Vec<u8>, StatusCode)> {
+        let mut response = self.send().await?;
+        let status_code = response.status();
+        let body = response.body_bytes().await?;
+        Ok((body, status_code))
+    }
+
+    async fn recv_string_status(self) -> surf::Result<(String, StatusCode)> {
+        let mut response = self.send().await?;
+        let status_code = response.status();
+        let body = response.body_string().await?;
+        Ok((body, status_code))
+    }
+
+    async fn recv_json_status<T: DeserializeOwned>(
+        self,
+    ) -> surf::Result<(T, StatusCode)> {
+        let mut response = self.send().await?;
+        let status_code = response.status();
+        let body = response.body_json::<T>().await?;
+        Ok((body, status_code))
+    }
 }

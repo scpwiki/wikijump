@@ -26,19 +26,13 @@ async fn ping() -> Result<()> {
     let app = setup().await;
 
     // GET
-    let output = app
-        .get("/api/vI/ping")
-        .recv_string()
-        .await?;
-
+    let (output, status) = app.get("/api/vI/ping").recv_string_status().await?;
+    assert_eq!(status, StatusCode::Ok);
     assert_eq!(output, "Pong!");
 
     // POST
-    let output = app
-        .post("/api/vI/ping")
-        .recv_string()
-        .await?;
-
+    let (output, status) = app.post("/api/vI/ping").recv_string_status().await?;
+    assert_eq!(status, StatusCode::Ok);
     assert_eq!(output, "Pong!");
 
     Ok(())
@@ -49,19 +43,13 @@ async fn version() -> Result<()> {
     let app = setup().await;
 
     // Regular
-    let output = app
-        .get("/api/vI/version")
-        .recv_string()
-        .await?;
-
+    let (output, status) = app.get("/api/vI/version").recv_string_status().await?;
+    assert_eq!(status, StatusCode::Ok);
     assert_eq!(&output, &*info::VERSION);
 
     // Full
-    let output = app
-        .get("/api/vI/version/full")
-        .recv_string()
-        .await?;
-
+    let (output, status) = app.get("/api/vI/version/full").recv_string_status().await?;
+    assert_eq!(status, StatusCode::Ok);
     assert_eq!(&output, &*info::FULL_VERSION_WITH_NAME);
 
     Ok(())
