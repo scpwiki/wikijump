@@ -111,7 +111,9 @@ impl<'a> RequestBuilder<'a> {
         assert!(route.starts_with('/'), "Route doesn't start with /");
 
         let url = Url::parse(&format!("https://test.example.com/api/vI{route}"))?;
-        let request = Request::new(method, url);
+        let mut request = Request::new(method, url);
+        request.insert_header("accept", "*/*");
+        request.insert_header("user-agent", "deepwell/test");
         Ok(RequestBuilder { app, request })
     }
 
