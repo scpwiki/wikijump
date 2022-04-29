@@ -24,25 +24,20 @@ use super::prelude::*;
 async fn create() -> Result<()> {
     let env = TestEnvironment::setup().await?;
 
-    let _ = env.post(format!("/api/vI/page/{WWW_SITE_ID}"))?;
-
-    /*
-    let output: JsonValue = app
-        .post("/api/vI/page/1")
-        .body(create_body(json!({
+    let output = env
+        .post(format!("/page/{WWW_SITE_ID}"))?
+        .body_json(json!({
             "wikitext": "Page contents",
             "title": "Test page!",
             "altTitle": null,
             "slug": "test",
             "revisionComments": "Create page",
             "userId": ADMIN_USER_ID,
-        })))
+        }))?
         .recv_json()
-        .await
-        .expect("Unable to send web request");
+        .await?;
 
     println!("-- {:#?}", output);
-    */
 
     Ok(())
 }

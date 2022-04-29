@@ -105,7 +105,7 @@ impl<'a> RequestBuilder<'a> {
     pub fn new(app: &'a ApiServer, method: Method, route: &str) -> Result<Self> {
         assert!(route.starts_with('/'), "Route doesn't start with /");
 
-        let url = Url::parse(&format!("https://test.example.com{route}"))?;
+        let url = Url::parse(&format!("https://test.example.com/api/vI{route}"))?;
         let request = Request::new(method, url);
         Ok(RequestBuilder { app, request })
     }
@@ -122,8 +122,8 @@ impl<'a> RequestBuilder<'a> {
         self
     }
 
-    pub fn body_json(mut self, data: &impl Serialize) -> Result<Self> {
-        let body = Body::from_json(data)?;
+    pub fn body_json<T: Serialize>(mut self, data: T) -> Result<Self> {
+        let body = Body::from_json(&data)?;
         self.request.set_body(body);
         Ok(self)
     }
