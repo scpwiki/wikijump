@@ -20,10 +20,9 @@
 
 #[allow(dead_code)]
 mod prelude {
-    pub use super::{setup, RequestBuilderExt};
+    pub use super::TestEnvironment;
     pub use serde_json::{json, Value as JsonValue};
-    pub use tide::{Body, Result, StatusCode};
-    pub use tide_testing::TideTestingExt;
+    pub use tide::{Result, StatusCode};
 
     use serde::Serialize;
 
@@ -34,11 +33,6 @@ mod prelude {
     pub const AUTOMATIC_USER_ID: i64 = 2;
     pub const ANONYMOUS_USER_ID: i64 = 3;
     pub const REGULAR_USER_ID: i64 = 4;
-
-    #[inline]
-    pub fn create_body<T: Serialize>(data: T) -> Body {
-        Body::from_json(&data).expect("Unable to create JSON body")
-    }
 }
 
 mod misc;
@@ -46,54 +40,114 @@ mod page;
 
 use crate::api::{self, ApiServer};
 use crate::config::Config;
-use async_trait::async_trait;
-use serde::de::DeserializeOwned;
-use surf::RequestBuilder;
-use tide::StatusCode;
+use serde::Serialize;
+use serde_json::Value as JsonValue;
+use tide::convert::DeserializeOwned;
+use tide::http::{Method, Request, Url};
+use tide::{Body, Response, Result, StatusCode};
 
-pub async fn setup() -> ApiServer {
-    // The Default impl is different in the test environment
-    let config = Config::load();
-
-    // Build API server
-    crate::setup(&config)
-        .await
-        .expect("Unable to run API setup");
-    api::build_server(config)
-        .await
-        .expect("Unable to build API server")
+macro_rules! impl_request_method {
+    ($method_enum:ident, $method_name:ident) => {
+        #[inline]
+        #[allow(dead_code)]
+        pub fn $method_name<'a, S: AsRef<str>>(
+            &'a self,
+            route: S,
+        ) -> Result<RequestBuilder<'a>> {
+            RequestBuilder::new(&self.app, Method::$method_enum, route.as_ref())
+        }
+    };
 }
 
-#[async_trait]
-pub trait RequestBuilderExt {
-    async fn recv_bytes_status(self) -> surf::Result<(Vec<u8>, StatusCode)>;
-    async fn recv_string_status(self) -> surf::Result<(String, StatusCode)>;
-    async fn recv_json_status<T: DeserializeOwned>(self)
-        -> surf::Result<(T, StatusCode)>;
+#[derive(Debug)]
+pub struct TestEnvironment {
+    pub app: ApiServer,
 }
 
-#[async_trait]
-impl RequestBuilderExt for RequestBuilder {
-    async fn recv_bytes_status(self) -> surf::Result<(Vec<u8>, StatusCode)> {
-        let mut response = self.send().await?;
-        let status_code = response.status();
-        let body = response.body_bytes().await?;
-        Ok((body, status_code))
+impl TestEnvironment {
+    pub async fn setup() -> Result<Self> {
+        // The Default impl is different in the test environment
+        let config = Config::load();
+
+        // Build API server
+        crate::setup(&config).await?;
+        let app = api::build_server(config).await?;
+
+        // Build and return
+        Ok(TestEnvironment { app })
     }
 
-    async fn recv_string_status(self) -> surf::Result<(String, StatusCode)> {
-        let mut response = self.send().await?;
-        let status_code = response.status();
-        let body = response.body_string().await?;
-        Ok((body, status_code))
+    impl_request_method!(Get, get);
+    impl_request_method!(Put, put);
+    impl_request_method!(Post, post);
+    impl_request_method!(Delete, delete);
+    impl_request_method!(Head, head);
+    impl_request_method!(Connect, connect);
+    impl_request_method!(Options, options);
+    impl_request_method!(Trace, trace);
+    impl_request_method!(Patch, patch);
+}
+
+macro_rules! impl_recv_method {
+    ($self:expr, $into_method:ident) => {{
+        let mut response = $self.recv().await?;
+        let status = response.status();
+        let body = response.take_body().$into_method().await?;
+        Ok((body, status))
+    }};
+}
+
+#[derive(Debug)]
+pub struct RequestBuilder<'a> {
+    app: &'a ApiServer,
+    request: Request,
+}
+
+impl<'a> RequestBuilder<'a> {
+    pub fn new(app: &'a ApiServer, method: Method, route: &str) -> Result<Self> {
+        assert!(route.starts_with('/'), "Route doesn't start with /");
+
+        let url = Url::parse(&format!("https://test.example.com/api/vI{route}"))?;
+        let request = Request::new(method, url);
+        Ok(RequestBuilder { app, request })
     }
 
-    async fn recv_json_status<T: DeserializeOwned>(
-        self,
-    ) -> surf::Result<(T, StatusCode)> {
-        let mut response = self.send().await?;
-        let status_code = response.status();
-        let body = response.body_json::<T>().await?;
-        Ok((body, status_code))
+    pub fn body_bytes<B: Into<Vec<u8>>>(mut self, bytes: B) -> Self {
+        let body = Body::from_bytes(bytes.into());
+        self.request.set_body(body);
+        self
+    }
+
+    pub fn body_string<S: Into<String>>(mut self, string: S) -> Self {
+        let body = Body::from_string(string.into());
+        self.request.set_body(body);
+        self
+    }
+
+    pub fn body_json<T: Serialize>(mut self, data: T) -> Result<Self> {
+        let body = Body::from_json(&data)?;
+        self.request.set_body(body);
+        Ok(self)
+    }
+
+    pub async fn recv(self) -> Result<Response> {
+        self.app.respond(self.request).await
+    }
+
+    #[allow(dead_code)]
+    pub async fn recv_bytes(self) -> Result<(Vec<u8>, StatusCode)> {
+        impl_recv_method!(self, into_bytes)
+    }
+
+    pub async fn recv_string(self) -> Result<(String, StatusCode)> {
+        impl_recv_method!(self, into_string)
+    }
+
+    pub async fn recv_json(self) -> Result<(JsonValue, StatusCode)> {
+        self.recv_json_serde().await
+    }
+
+    pub async fn recv_json_serde<T: DeserializeOwned>(self) -> Result<(T, StatusCode)> {
+        impl_recv_method!(self, into_json)
     }
 }

@@ -23,15 +23,15 @@ use crate::info;
 
 #[async_std::test]
 async fn ping() -> Result<()> {
-    let app = setup().await;
+    let env = TestEnvironment::setup().await?;
 
     // GET
-    let (output, status) = app.get("/api/vI/ping").recv_string_status().await?;
+    let (output, status) = env.get("/ping")?.recv_string().await?;
     assert_eq!(status, StatusCode::Ok);
     assert_eq!(output, "Pong!");
 
     // POST
-    let (output, status) = app.post("/api/vI/ping").recv_string_status().await?;
+    let (output, status) = env.post("/ping")?.recv_string().await?;
     assert_eq!(status, StatusCode::Ok);
     assert_eq!(output, "Pong!");
 
@@ -40,15 +40,15 @@ async fn ping() -> Result<()> {
 
 #[async_std::test]
 async fn version() -> Result<()> {
-    let app = setup().await;
+    let env = TestEnvironment::setup().await?;
 
     // Regular
-    let (output, status) = app.get("/api/vI/version").recv_string_status().await?;
+    let (output, status) = env.get("/version")?.recv_string().await?;
     assert_eq!(status, StatusCode::Ok);
     assert_eq!(&output, &*info::VERSION);
 
     // Full
-    let (output, status) = app.get("/api/vI/version/full").recv_string_status().await?;
+    let (output, status) = env.get("/version/full")?.recv_string().await?;
     assert_eq!(status, StatusCode::Ok);
     assert_eq!(&output, &*info::FULL_VERSION_WITH_NAME);
 
