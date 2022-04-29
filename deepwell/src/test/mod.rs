@@ -93,7 +93,7 @@ impl TestEnvironment {
 
 macro_rules! impl_recv_method {
     ($self:expr, $into_method:ident) => {{
-        let mut response = $self.recv().await?;
+        let mut response = $self.send().await?;
         let status = response.status();
         let body = response.take_body().$into_method().await?;
         Ok((body, status))
@@ -135,8 +135,13 @@ impl<'a> RequestBuilder<'a> {
         Ok(self)
     }
 
-    pub async fn recv(self) -> Result<Response> {
+    pub async fn send(self) -> Result<Response> {
         self.app.respond(self.request).await
+    }
+
+    pub async fn recv(self) -> Result<StatusCode> {
+        let response = self.send().await?;
+        Ok(response.status())
     }
 
     #[allow(dead_code)]

@@ -65,7 +65,7 @@ async fn teapot() -> Result<()> {
         let env = TestEnvironment::setup().await?;
 
         // GET
-        let (_, status) = env.get("/teapot")?.recv_string().await?;
+        let status = env.get("/teapot")?.recv().await?;
         assert_eq!(status, StatusCode::ImATeapot);
 
         Ok(())
