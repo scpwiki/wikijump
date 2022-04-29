@@ -49,8 +49,11 @@ macro_rules! impl_request_method {
     ($method_enum:ident, $method_name:ident) => {
         #[inline]
         #[allow(dead_code)]
-        pub fn $method_name<'a>(&'a self, route: &str) -> Result<RequestBuilder<'a>> {
-            RequestBuilder::new(&self.app, Method::$method_enum, route)
+        pub fn $method_name<'a, S: AsRef<str>>(
+            &'a self,
+            route: S,
+        ) -> Result<RequestBuilder<'a>> {
+            RequestBuilder::new(&self.app, Method::$method_enum, route.as_ref())
         }
     };
 }
@@ -129,6 +132,7 @@ impl<'a> RequestBuilder<'a> {
         self.app.respond(self.request).await
     }
 
+    #[allow(dead_code)]
     pub async fn recv_bytes(self) -> Result<Vec<u8>> {
         impl_recv_method!(self, into_bytes)
     }

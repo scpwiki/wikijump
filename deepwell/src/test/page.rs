@@ -24,6 +24,8 @@ use super::prelude::*;
 async fn create() -> Result<()> {
     let env = TestEnvironment::setup().await?;
 
+    let _ = env.post(format!("/api/vI/page/{WWW_SITE_ID}"))?;
+
     /*
     let output: JsonValue = app
         .post("/api/vI/page/1")
