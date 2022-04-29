@@ -24,7 +24,7 @@ use super::prelude::*;
 async fn create() -> Result<()> {
     let app = setup().await;
 
-    let output: JsonValue = app
+    let (output, status): (JsonValue, _) = app
         .post("/api/vI/page/1")
         .body(create_body(json!({
             "wikitext": "Page contents",
@@ -34,9 +34,10 @@ async fn create() -> Result<()> {
             "revisionComments": "Create page",
             "userId": ADMIN_USER_ID,
         })))
-        .recv_json()
+        .recv_json_status()
         .await?;
 
+    assert_eq!(status, StatusCode::Ok);
     println!("-- {:#?}", output);
 
     Ok(())
