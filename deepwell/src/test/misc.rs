@@ -58,3 +58,16 @@ async fn version() -> Result<()> {
         Ok(())
     }}
 }
+
+#[async_std::test]
+async fn teapot() -> Result<()> {
+    run_test! {{
+        let env = TestEnvironment::setup().await?;
+
+        // GET
+        let (_, status) = env.get("/teapot")?.recv_string().await?;
+        assert_eq!(status, StatusCode::ImATeapot);
+
+        Ok(())
+    }}
+}
