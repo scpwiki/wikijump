@@ -23,24 +23,14 @@ use crate::info;
 
 #[async_std::test]
 async fn ping() -> Result<()> {
-    let app = setup().await?;
+    let env = TestEnvironment::setup().await?;
 
     // GET
-    let output = app
-        .get("/api/vI/ping")
-        .recv_string()
-        .await
-        .expect("Unable to send web request");
-
+    let output = env.get("/api/vI/ping")?.recv_string().await?;
     assert_eq!(output, "Pong!");
 
     // POST
-    let output = app
-        .post("/api/vI/ping")
-        .recv_string()
-        .await
-        .expect("Unable to send web request");
-
+    let output = env.post("/api/vI/ping")?.recv_string().await?;
     assert_eq!(output, "Pong!");
 
     Ok(())
@@ -48,24 +38,14 @@ async fn ping() -> Result<()> {
 
 #[async_std::test]
 async fn version() -> Result<()> {
-    let app = setup().await?;
+    let env = TestEnvironment::setup().await?;
 
     // Regular
-    let output = app
-        .get("/api/vI/version")
-        .recv_string()
-        .await
-        .expect("Unable to send web request");
-
+    let output = env.get("/api/vI/version")?.recv_string().await?;
     assert_eq!(&output, &*info::VERSION);
 
     // Full
-    let output = app
-        .get("/api/vI/version/full")
-        .recv_string()
-        .await
-        .expect("Unable to send web request");
-
+    let output = env.get("/api/vI/version/full")?.recv_string().await?;
     assert_eq!(&output, &*info::FULL_VERSION_WITH_NAME);
 
     Ok(())
