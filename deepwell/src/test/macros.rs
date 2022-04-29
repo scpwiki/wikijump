@@ -1,5 +1,5 @@
 /*
- * test/page.rs
+ * test/macros.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,28 +18,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
+macro_rules! run_test {
+    ($code:expr) => {{
+        async fn run_test() -> Result<()> {
+            $code
+        }
 
-#[async_std::test]
-async fn create() -> Result<()> {
-    run_test! {{
-        let env = TestEnvironment::setup().await?;
-
-        let output = env
-            .post(format!("/page/{WWW_SITE_ID}"))?
-            .body_json(json!({
-                "wikitext": "Page contents",
-                "title": "Test page!",
-                "altTitle": null,
-                "slug": "test",
-                "revisionComments": "Create page",
-                "userId": ADMIN_USER_ID,
-            }))?
-            .recv_json()
-            .await?;
-
-        println!("-- {:#?}", output);
-
-        Ok(())
-    }}
+        match run_test().await {
+            Ok(_) => Ok(()),
+            Err(error) => panic!("Error in test execution: {error}"),
+        }
+    }};
 }

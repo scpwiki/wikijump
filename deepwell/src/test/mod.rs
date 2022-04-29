@@ -35,6 +35,9 @@ mod prelude {
     pub const REGULAR_USER_ID: i64 = 4;
 }
 
+#[macro_use]
+mod macros;
+
 mod misc;
 mod page;
 
