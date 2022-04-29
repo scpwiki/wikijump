@@ -74,7 +74,7 @@ impl TestEnvironment {
 
         // Build API server
         crate::setup(&config).await?;
-        let app = api::build_server(config).await?;
+        let app = api::build_internal_api(config).await?;
 
         // Build and return
         Ok(TestEnvironment { app })
@@ -110,7 +110,7 @@ impl<'a> RequestBuilder<'a> {
     pub fn new(app: &'a ApiServer, method: Method, route: &str) -> Result<Self> {
         assert!(route.starts_with('/'), "Route doesn't start with /");
 
-        let url = Url::parse(&format!("https://test.example.com/api/vI{route}"))?;
+        let url = Url::parse(&format!("https://test.example.com{route}"))?;
         let mut request = Request::new(method, url);
         request.insert_header("accept", "*/*");
         request.insert_header("user-agent", "deepwell/test");

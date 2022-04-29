@@ -98,3 +98,10 @@ pub async fn build_server(config: Config) -> Result<ApiServer> {
 
     Ok(app)
 }
+
+#[cfg(test)]
+pub async fn build_internal_api(config: Config) -> Result<ApiServer> {
+    let state = build_server_state(config).await?;
+    let server = tide::Server::with_state(state);
+    Ok(internal::build(server))
+}
