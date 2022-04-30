@@ -63,7 +63,7 @@ pub struct CreateResurrectionRevision {
     pub new_slug: String,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateRevisionOutput {
     pub revision_id: i64,
@@ -71,7 +71,7 @@ pub struct CreateRevisionOutput {
     pub parser_warnings: Option<Vec<ParseWarning>>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateFirstRevisionOutput {
     pub revision_id: i64,
@@ -94,7 +94,7 @@ pub struct UpdateRevision {
 ///
 /// However it's convenient so that we don't have to do these calculations inline
 /// in other places, and also so that API consumers have the relevant information.
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct RevisionCountOutput {
     pub revision_count: NonZeroI32,
@@ -102,7 +102,7 @@ pub struct RevisionCountOutput {
     pub last_revision: i32,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct PageRevisionModelFiltered {
     pub revision_id: i64,
     pub revision_type: RevisionType,
