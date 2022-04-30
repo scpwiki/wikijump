@@ -21,12 +21,27 @@
 use super::prelude::*;
 
 #[async_std::test]
-async fn default_exists() -> Result<()> {
+async fn exists() -> Result<()> {
     run_test! {{
         let env = TestEnvironment::setup().await?;
 
-        let status = env.head(format!("/page/{WWW_SITE_ID}/slug/start"))?.recv().await?;
-        assert_eq!(status, StatusCode::NoContent);
+        macro_rules! check {
+            ($slug:expr, $exists:expr $(,)?) => {
+                let path = format!("/page/{WWW_SITE_ID}/slug/{}", $slug);
+                let expected_status = if $exists { StatusCode::NoContent } else { StatusCode::NotFound };
+                let actual_status = env.head(path)?.recv().await?;
+                assert_eq!(
+                    actual_status,
+                    expected_status,
+                    "Actual HTTP status doesn't match expect",
+                );
+            };
+        }
+
+        check!("start", true);
+        check!("xyz", false);
+        check!("system:members", true);
+        check!("system:xyz", false);
 
         Ok(())
     }}
