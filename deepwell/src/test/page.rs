@@ -21,6 +21,18 @@
 use super::prelude::*;
 
 #[async_std::test]
+async fn default_exists() -> Result<()> {
+    run_test! {{
+        let env = TestEnvironment::setup().await?;
+
+        let status = env.head(format!("/page/{WWW_SITE_ID}/slug/start"))?.recv().await?;
+        assert_eq!(status, StatusCode::NoContent);
+
+        Ok(())
+    }}
+}
+
+#[async_std::test]
 async fn create() -> Result<()> {
     run_test! {{
         let env = TestEnvironment::setup().await?;
