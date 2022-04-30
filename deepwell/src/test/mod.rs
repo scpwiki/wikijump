@@ -136,18 +136,21 @@ impl<'a> RequestBuilder<'a> {
         Ok(RequestBuilder { app, request })
     }
 
+    #[allow(dead_code)]
     pub fn body_bytes<B: Into<Vec<u8>>>(mut self, bytes: B) -> Self {
         let body = Body::from_bytes(bytes.into());
         self.request.set_body(body);
         self
     }
 
+    #[allow(dead_code)]
     pub fn body_string<S: Into<String>>(mut self, string: S) -> Self {
         let body = Body::from_string(string.into());
         self.request.set_body(body);
         self
     }
 
+    #[allow(dead_code)]
     pub fn body_json<T: Serialize>(mut self, data: T) -> Result<Self> {
         let body = Body::from_json(&data)?;
         self.request.set_body(body);
@@ -168,14 +171,17 @@ impl<'a> RequestBuilder<'a> {
         impl_recv_method!(self, into_bytes)
     }
 
+    #[allow(dead_code)]
     pub async fn recv_string(self) -> Result<(String, StatusCode)> {
         impl_recv_method!(self, into_string)
     }
 
+    #[allow(dead_code)]
     pub async fn recv_json(self) -> Result<(JsonValue, StatusCode)> {
         self.recv_json_serde().await
     }
 
+    #[allow(dead_code)]
     pub async fn recv_json_serde<T: DeserializeOwned>(self) -> Result<(T, StatusCode)> {
         impl_recv_method!(self, into_json)
     }
