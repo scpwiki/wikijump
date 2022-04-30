@@ -22,114 +22,110 @@ use super::prelude::*;
 
 #[async_std::test]
 async fn locale_name() -> Result<()> {
-    run_test! {{
-        let env = TestEnvironment::setup().await?;
+    let env = TestEnvironment::setup().await?;
 
-        macro_rules! check {
-            ($locale:expr, $($json:tt)+ $(,)?) => {{
-                let path = concat!("/locale/", $locale);
-                let (output, status) = env.get(path)?.recv_json().await?;
-                assert_eq!(status, StatusCode::Ok);
-                assert_eq!(output, json!($($json)+));
-            }};
-        }
+    macro_rules! check {
+        ($locale:expr, $($json:tt)+ $(,)?) => {{
+            let path = concat!("/locale/", $locale);
+            let (output, status) = env.get(path)?.recv_json().await?;
+            assert_eq!(status, StatusCode::Ok);
+            assert_eq!(output, json!($($json)+));
+        }};
+    }
 
-        check!("EN", {
-            "language": "en",
-            "region": null,
-            "script": null,
-            "variants": [],
-        });
+    check!("EN", {
+        "language": "en",
+        "region": null,
+        "script": null,
+        "variants": [],
+    });
 
-        check!("en-us", {
-            "language": "en",
-            "region": "US",
-            "script": null,
-            "variants": [],
-        });
+    check!("en-us", {
+        "language": "en",
+        "region": "US",
+        "script": null,
+        "variants": [],
+    });
 
-        check!("en_US", {
-            "language": "en",
-            "region": "US",
-            "script": null,
-            "variants": [],
-        });
+    check!("en_US", {
+        "language": "en",
+        "region": "US",
+        "script": null,
+        "variants": [],
+    });
 
-        check!("en-gb", {
-            "language": "en",
-            "region": "GB",
-            "script": null,
-            "variants": [],
-        });
+    check!("en-gb", {
+        "language": "en",
+        "region": "GB",
+        "script": null,
+        "variants": [],
+    });
 
-        check!("en-in", {
-            "language": "en",
-            "region": "IN",
-            "script": null,
-            "variants": [],
-        });
+    check!("en-in", {
+        "language": "en",
+        "region": "IN",
+        "script": null,
+        "variants": [],
+    });
 
-        check!("fR", {
-            "language": "fr",
-            "region": null,
-            "script": null,
-            "variants": [],
-        });
+    check!("fR", {
+        "language": "fr",
+        "region": null,
+        "script": null,
+        "variants": [],
+    });
 
-        check!("fr_ca", {
-            "language": "fr",
-            "region": "CA",
-            "script": null,
-            "variants": [],
-        });
+    check!("fr_ca", {
+        "language": "fr",
+        "region": "CA",
+        "script": null,
+        "variants": [],
+    });
 
-        check!("de-AT", {
-            "language": "de",
-            "region": "AT",
-            "script": null,
-            "variants": [],
-        });
+    check!("de-AT", {
+        "language": "de",
+        "region": "AT",
+        "script": null,
+        "variants": [],
+    });
 
-        check!("Pl-Latn-PL", {
-            "language": "pl",
-            "region": "PL",
-            "script": "Latn",
-            "variants": [],
-        });
+    check!("Pl-Latn-PL", {
+        "language": "pl",
+        "region": "PL",
+        "script": "Latn",
+        "variants": [],
+    });
 
-        Ok(())
-    }}
+    Ok(())
 }
 
 #[async_std::test]
 async fn message() -> Result<()> {
-    run_test! {{
-        let env = TestEnvironment::setup().await?;
+    let env = TestEnvironment::setup().await?;
 
-        macro_rules! check {
-            ($locale:expr, $message_key:expr, $translation:expr $(,)?) => {
-                check!($locale, $message_key, $translation, {})
-            };
+    macro_rules! check {
+        ($locale:expr, $message_key:expr, $translation:expr $(,)?) => {
+            check!($locale, $message_key, $translation, {})
+        };
 
-            ($locale:expr, $message_key:expr, $translation:expr, $($json:tt)+ $(,)?) => {{
-                let path = concat!("/message/", $locale, "/", $message_key);
-                let (translation, status) = env
-                    .post(path)?
-                    .body_json(json!($($json)+))?
-                    .recv_string()
-                    .await?;
+        ($locale:expr, $message_key:expr, $translation:expr, $($json:tt)+ $(,)?) => {{
+            let path = concat!("/message/", $locale, "/", $message_key);
+            let (translation, status) = env
+                .post(path)?
+                .body_json(json!($($json)+))?
+                .recv_string()
+                .await?;
 
-                assert_eq!(status, StatusCode::Ok);
-                assert_eq!(translation, $translation);
-            }};
-        }
+            assert_eq!(status, StatusCode::Ok);
+            assert_eq!(translation, $translation);
+        }};
+    }
 
-        check!("en", "goto-home", "Go to home page");
-        // TODO add translation for another language
+    check!("en", "goto-home", "Go to home page");
+    // TODO add translation for another language
 
-        check!("en", "navigated-to", "Navigated to \u{2068}jellybean\u{2069}", { "path": "jellybean" });
-        // TODO add translation for another language
+    check!("en", "navigated-to", "Navigated to \u{2068}jellybean\u{2069}", { "path": "jellybean" });
+    // TODO add translation for another language
 
-        Ok(())
-    }}
+    Ok(())
 }

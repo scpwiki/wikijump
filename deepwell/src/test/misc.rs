@@ -23,51 +23,45 @@ use crate::info;
 
 #[async_std::test]
 async fn ping() -> Result<()> {
-    run_test! {{
-        let env = TestEnvironment::setup().await?;
+    let env = TestEnvironment::setup().await?;
 
-        // GET
-        let (output, status) = env.get("/ping")?.recv_string().await?;
-        assert_eq!(status, StatusCode::Ok);
-        assert_eq!(output, "Pong!");
+    // GET
+    let (output, status) = env.get("/ping")?.recv_string().await?;
+    assert_eq!(status, StatusCode::Ok);
+    assert_eq!(output, "Pong!");
 
-        // POST
-        let (output, status) = env.post("/ping")?.recv_string().await?;
-        assert_eq!(status, StatusCode::Ok);
-        assert_eq!(output, "Pong!");
+    // POST
+    let (output, status) = env.post("/ping")?.recv_string().await?;
+    assert_eq!(status, StatusCode::Ok);
+    assert_eq!(output, "Pong!");
 
-        Ok(())
-    }}
+    Ok(())
 }
 
 #[async_std::test]
 async fn version() -> Result<()> {
-    run_test! {{
-        let env = TestEnvironment::setup().await?;
+    let env = TestEnvironment::setup().await?;
 
-        // Regular
-        let (output, status) = env.get("/version")?.recv_string().await?;
-        assert_eq!(status, StatusCode::Ok);
-        assert_eq!(&output, &*info::VERSION);
+    // Regular
+    let (output, status) = env.get("/version")?.recv_string().await?;
+    assert_eq!(status, StatusCode::Ok);
+    assert_eq!(&output, &*info::VERSION);
 
-        // Full
-        let (output, status) = env.get("/version/full")?.recv_string().await?;
-        assert_eq!(status, StatusCode::Ok);
-        assert_eq!(&output, &*info::FULL_VERSION_WITH_NAME);
+    // Full
+    let (output, status) = env.get("/version/full")?.recv_string().await?;
+    assert_eq!(status, StatusCode::Ok);
+    assert_eq!(&output, &*info::FULL_VERSION_WITH_NAME);
 
-        Ok(())
-    }}
+    Ok(())
 }
 
 #[async_std::test]
 async fn teapot() -> Result<()> {
-    run_test! {{
-        let env = TestEnvironment::setup().await?;
+    let env = TestEnvironment::setup().await?;
 
-        // GET
-        let status = env.get("/teapot")?.recv().await?;
-        assert_eq!(status, StatusCode::ImATeapot);
+    // GET
+    let status = env.get("/teapot")?.recv().await?;
+    assert_eq!(status, StatusCode::ImATeapot);
 
-        Ok(())
-    }}
+    Ok(())
 }
