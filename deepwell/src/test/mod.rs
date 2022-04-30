@@ -99,7 +99,7 @@ impl TestEnvironment {
     }
 
     pub fn random_name_with_prefix(&self, prefix: &str) -> String {
-        let slug = String::from(prefix);
+        let mut slug = String::from(prefix);
         let mut rng = thread_rng();
 
         for _ in 0..20 {
