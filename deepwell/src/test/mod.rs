@@ -44,6 +44,8 @@ mod page;
 
 use crate::api::{self, ApiServer};
 use crate::config::Config;
+use rand::distributions::Alphanumeric;
+use rand::prelude::*;
 use serde::Serialize;
 use serde_json::Value as JsonValue;
 use tide::convert::DeserializeOwned;
@@ -90,6 +92,23 @@ impl TestEnvironment {
     impl_request_method!(Options, options);
     impl_request_method!(Trace, trace);
     impl_request_method!(Patch, patch);
+
+    #[inline]
+    pub fn random_slug(&self) -> String {
+        self.random_slug_with_prefix("test-")
+    }
+
+    pub fn random_slug_with_prefix(&self, prefix: &str) -> String {
+        let mut slug = String::from(prefix);
+        let mut rng = thread_rng();
+
+        for _ in 0..20 {
+            slug.push(rng.sample(Alphanumeric) as char);
+        }
+
+        slug.make_ascii_lowercase();
+        slug
+    }
 }
 
 macro_rules! impl_recv_method {

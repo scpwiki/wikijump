@@ -51,22 +51,31 @@ async fn exists() -> Result<()> {
 async fn create() -> Result<()> {
     run_test! {{
         let env = TestEnvironment::setup().await?;
+        let slug = env.random_slug();
 
-        let (output, status) = env
+        #[derive(Deserialize, Debug)]
+        #[serde(rename_all = "camelCase")]
+        struct CreatePageOutput {
+            slug: String,
+            parser_warnings: Vec<JsonValue>,
+        }
+
+        let (output, status): (CreatePageOutput, _) = env
             .post(format!("/page/{WWW_SITE_ID}"))?
             .body_json(json!({
                 "wikitext": "Page contents",
                 "title": "Test page!",
                 "altTitle": null,
-                "slug": "test",
+                "slug": slug,
                 "revisionComments": "Create page",
                 "userId": ADMIN_USER_ID,
             }))?
-            .recv_json()
+            .recv_json_serde()
             .await?;
 
-        println!("-- {:#?}", output);
-        println!("-- {:#?}", status);
+        assert_eq!(status, StatusCode::Ok);
+        assert_eq!(output.slug, slug);
+        assert!(output.parser_warnings.is_empty());
 
         Ok(())
     }}
