@@ -334,6 +334,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "async-std-test"
+version = "0.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ee5a944f9f969344ac325354f3cc4d4d9d26b71835fb82aee5e87ed57e5a22f5"
+dependencies = [
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "async-stream"
 version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -914,6 +924,7 @@ version = "0.6.2"
 dependencies = [
  "anyhow",
  "async-std",
+ "async-std-test",
  "built",
  "chrono",
  "clap",

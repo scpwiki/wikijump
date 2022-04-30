@@ -21,6 +21,7 @@
 #[allow(dead_code)]
 mod prelude {
     pub use super::TestEnvironment;
+    pub use async_std_test::async_test;
     pub use serde_json::{json, Value as JsonValue};
     pub use tide::{Result, StatusCode};
 

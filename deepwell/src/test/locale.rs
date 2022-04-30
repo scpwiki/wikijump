@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 
-#[async_std::test]
+#[async_test]
 async fn locale_name() -> Result<()> {
     let env = TestEnvironment::setup().await?;
 
@@ -99,7 +99,7 @@ async fn locale_name() -> Result<()> {
     Ok(())
 }
 
-#[async_std::test]
+#[async_test]
 async fn message() -> Result<()> {
     let env = TestEnvironment::setup().await?;
 

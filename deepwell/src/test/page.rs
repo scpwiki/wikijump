@@ -22,7 +22,7 @@ use super::prelude::*;
 use crate::models::sea_orm_active_enums::RevisionType;
 use crate::services::page::{CreatePageOutput, GetPageOutput};
 
-#[async_std::test]
+#[async_test]
 async fn exists() -> Result<()> {
     let env = TestEnvironment::setup().await?;
 

@@ -21,7 +21,7 @@
 use super::prelude::*;
 use crate::info;
 
-#[async_std::test]
+#[async_test]
 async fn ping() -> Result<()> {
     let env = TestEnvironment::setup().await?;
 
@@ -38,7 +38,7 @@ async fn ping() -> Result<()> {
     Ok(())
 }
 
-#[async_std::test]
+#[async_test]
 async fn version() -> Result<()> {
     let env = TestEnvironment::setup().await?;
 
@@ -55,7 +55,7 @@ async fn version() -> Result<()> {
     Ok(())
 }
 
-#[async_std::test]
+#[async_test]
 async fn teapot() -> Result<()> {
     let env = TestEnvironment::setup().await?;
 
