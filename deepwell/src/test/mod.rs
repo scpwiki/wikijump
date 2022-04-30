@@ -92,18 +92,19 @@ impl TestEnvironment {
 
     #[inline]
     pub fn random_slug(&self) -> String {
-        self.random_slug_with_prefix("test-")
+        let mut slug = self.random_name_with_prefix("test-");
+        slug.make_ascii_lowercase();
+        slug
     }
 
-    pub fn random_slug_with_prefix(&self, prefix: &str) -> String {
-        let mut slug = String::from(prefix);
+    pub fn random_name_with_prefix(&self, prefix: &str) -> String {
+        let slug = String::from(prefix);
         let mut rng = thread_rng();
 
         for _ in 0..20 {
             slug.push(rng.sample(Alphanumeric) as char);
         }
 
-        slug.make_ascii_lowercase();
         slug
     }
 }
