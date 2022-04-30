@@ -27,6 +27,7 @@ use crate::services::page::{
 use crate::services::{Result, TextService};
 use crate::web::PageDetailsQuery;
 use ref_map::*;
+use std::borrow::Cow;
 
 pub async fn page_invalid(req: ApiRequest) -> ApiResponse {
     tide::log::warn!("Received invalid /page path: {}", req.url());
@@ -305,7 +306,7 @@ async fn build_page_response(
         page_revision_count: revision.revision_number + 1,
         site_id: page.site_id,
         page_category_id: category.category_id,
-        page_category_slug: &category.slug,
+        page_category_slug: cow!(category.slug),
         discussion_thread_id: page.discussion_thread_id,
         revision_id: revision.revision_id,
         revision_type: revision.revision_type,
@@ -315,13 +316,13 @@ async fn build_page_response(
         wikitext,
         compiled_html,
         compiled_at: revision.compiled_at,
-        compiled_generator: &revision.compiled_generator,
-        revision_comments: &revision.comments,
-        hidden_fields: &revision.hidden,
-        title: &revision.title,
-        alt_title: revision.alt_title.ref_map(|s| s.as_str()),
-        slug: &revision.slug,
-        tags: &revision.tags,
+        compiled_generator: cow!(revision.compiled_generator),
+        revision_comments: cow!(revision.comments),
+        hidden_fields: revision.hidden.clone(),
+        title: cow!(revision.title),
+        alt_title: cow_opt!(revision.alt_title),
+        slug: cow!(revision.slug),
+        tags: revision.tags.clone(),
     };
 
     let body = Body::from_json(&output)?;

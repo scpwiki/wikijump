@@ -24,6 +24,7 @@ use crate::services::revision::CreateRevisionOutput;
 use ftml::parsing::ParseWarning;
 use sea_orm::entity::prelude::DateTimeWithTimeZone;
 use serde_json::Value as JsonValue;
+use std::borrow::Cow;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -36,7 +37,7 @@ pub struct CreatePage {
     pub user_id: i64,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct CreatePageOutput {
     pub page_id: i64,
@@ -45,7 +46,7 @@ pub struct CreatePageOutput {
     pub parser_warnings: Vec<ParseWarning>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct GetPageOutput<'a> {
     pub page_id: i64,
@@ -55,7 +56,7 @@ pub struct GetPageOutput<'a> {
     pub page_revision_count: i32,
     pub site_id: i64,
     pub page_category_id: i64,
-    pub page_category_slug: &'a str,
+    pub page_category_slug: Cow<'a, str>,
     pub discussion_thread_id: Option<i64>,
     pub revision_id: i64,
     pub revision_type: RevisionType,
@@ -65,13 +66,13 @@ pub struct GetPageOutput<'a> {
     pub wikitext: Option<String>,
     pub compiled_html: Option<String>,
     pub compiled_at: DateTimeWithTimeZone,
-    pub compiled_generator: &'a str,
-    pub revision_comments: &'a str,
-    pub hidden_fields: &'a JsonValue, // TODO: replace with &[&str]
-    pub title: &'a str,
-    pub alt_title: Option<&'a str>,
-    pub slug: &'a str,
-    pub tags: &'a JsonValue, // TODO: replace with &[&str]
+    pub compiled_generator: Cow<'a, str>,
+    pub revision_comments: Cow<'a, str>,
+    pub hidden_fields: JsonValue, // TODO: replace with &[&str]
+    pub title: Cow<'a, str>,
+    pub alt_title: Option<Cow<'a, str>>,
+    pub slug: Cow<'a, str>,
+    pub tags: JsonValue, // TODO: replace with &[&str]
 }
 
 #[derive(Deserialize, Debug, Default)]
@@ -85,7 +86,7 @@ pub struct EditPage {
     pub user_id: i64,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct EditPageOutput {
     revision_id: i64,
@@ -108,7 +109,7 @@ pub struct RestorePage {
     pub slug: Option<String>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct DeletePageOutput {
     page_id: i64,
@@ -116,7 +117,7 @@ pub struct DeletePageOutput {
     revision_number: i32,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct RestorePageOutput {
     slug: String,
