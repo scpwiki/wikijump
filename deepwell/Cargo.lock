@@ -335,9 +335,9 @@ dependencies = [
 
 [[package]]
 name = "async-std-test"
-version = "0.0.1"
+version = "0.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ee5a944f9f969344ac325354f3cc4d4d9d26b71835fb82aee5e87ed57e5a22f5"
+checksum = "34e661352e8305f243395c9cc1aaaaa8f3b35e2e8b12ba5734ae517ee2673980"
 dependencies = [
  "quote",
  "syn",
