@@ -21,6 +21,7 @@
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::RevisionType;
 use crate::services::page::{CreatePageOutput, GetPageOutput};
+use crate::services::revision::CreateRevisionOutput;
 
 #[async_test]
 async fn exists() -> Result<()> {
@@ -48,7 +49,7 @@ async fn exists() -> Result<()> {
 }
 
 #[async_std::test]
-async fn create() -> Result<()> {
+async fn basic_create() -> Result<()> {
     let env = TestEnvironment::setup().await?;
     let slug = env.random_slug();
 
@@ -102,6 +103,58 @@ async fn create() -> Result<()> {
     assert_eq!(output.title, "Test page!");
     assert!(output.alt_title.is_none());
     assert_eq!(output.slug, slug);
+
+    Ok(())
+}
+
+#[async_test]
+async fn deletion_lifecycle() -> Result<()> {
+    let env = TestEnvironment::setup().await?;
+    let slug = env.random_slug();
+
+    // TODO
+    todo!()
+}
+
+#[async_test]
+async fn multiple_deleted() -> Result<()> {
+    let env = TestEnvironment::setup().await?;
+    let slug = env.random_slug();
+
+    // Create, then delete multiple pages
+    for i in 0..5 {
+        // Create
+        let (output, status) = env
+            .post(format!("/page/{WWW_SITE_ID}"))?
+            .body_json(json!({
+                "wikitext": "Page contents",
+                "title": "Test page!",
+                "altTitle": null,
+                "slug": slug,
+                "revisionComments": format!("Create page {i}"),
+                "userId": REGULAR_USER_ID,
+            }))?
+            .recv_json_serde::<CreatePageOutput>()
+            .await?;
+
+        assert_eq!(status, StatusCode::Ok);
+        assert_eq!(output.slug, slug);
+        assert!(output.parser_warnings.is_empty());
+
+        // Delete
+        let (output, status) = env
+            .delete(format!("/page/{WWW_SITE_ID}"))?
+            .body_json(json!({
+                "revisionComments": format!("Delete page {i}"),
+                "userId": ADMIN_USER_ID,
+            }))?
+            .recv_json_serde::<CreateRevisionOutput>()
+            .await?;
+
+        assert_eq!(status, StatusCode::Ok);
+        assert_eq!(output.revision_number, 1);
+        assert!(output.parser_warnings.is_none());
+    }
 
     Ok(())
 }
