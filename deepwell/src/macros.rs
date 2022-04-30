@@ -48,3 +48,17 @@ macro_rules! str_writeln {
         writeln!($dest, $($arg)*).expect("Writing to string failed");
     }};
 }
+
+/// Shortcut for creating a `Cow::Borrowed` from this object.
+macro_rules! cow {
+    ($s:expr) => {
+        Cow::Borrowed($s.as_ref())
+    };
+}
+
+/// Creates an `Option<Cow::Borrowed>` from this `Option<T>`.
+macro_rules! cow_opt {
+    ($s:expr) => {
+        $s.ref_map(|s| cow!(s))
+    };
+}
