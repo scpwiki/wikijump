@@ -25,8 +25,6 @@ mod prelude {
     pub use serde_json::{json, Value as JsonValue};
     pub use tide::{Result, StatusCode};
 
-    use serde::Serialize;
-
     pub const WWW_SITE_ID: i64 = 1;
     pub const EN_TEMPLATE_SITE_ID: i64 = 2;
 

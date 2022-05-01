@@ -23,7 +23,6 @@ use crate::models::sea_orm_active_enums::RevisionType;
 use crate::services::page::{
     CreatePageOutput, DeletePageOutput, EditPageOutput, GetPageOutput, RestorePageOutput,
 };
-use crate::services::revision::CreateRevisionOutput;
 
 #[async_test]
 async fn exists() -> Result<()> {
