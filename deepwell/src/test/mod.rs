@@ -175,7 +175,11 @@ impl<'a> RequestBuilder<'a> {
         // A panic here will give a more useful traceback
         // that we can follow.
         if body.is_empty().unwrap_or(true) {
-            panic!("Response body is empty in recv_json() (status {})", status);
+            panic!(
+                "Response body is empty in recv_json() (status {} {:?})",
+                status,
+                status,
+            );
         }
 
         let output = body.into_json().await?;
