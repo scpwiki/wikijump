@@ -177,12 +177,12 @@ impl<'a> RequestBuilder<'a> {
     }
 
     #[allow(dead_code)]
-    pub async fn recv_json(self) -> Result<(JsonValue, StatusCode)> {
-        self.recv_json_serde().await
+    pub async fn recv_json<T: DeserializeOwned>(self) -> Result<(T, StatusCode)> {
+        impl_recv_method!(self, into_json)
     }
 
     #[allow(dead_code)]
-    pub async fn recv_json_serde<T: DeserializeOwned>(self) -> Result<(T, StatusCode)> {
-        impl_recv_method!(self, into_json)
+    pub async fn recv_json_value(self) -> Result<(JsonValue, StatusCode)> {
+        self.recv_json().await
     }
 }

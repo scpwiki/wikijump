@@ -27,7 +27,7 @@ async fn locale_name() -> Result<()> {
     macro_rules! check {
         ($locale:expr, $($json:tt)+ $(,)?) => {{
             let path = concat!("/locale/", $locale);
-            let (output, status) = env.get(path)?.recv_json().await?;
+            let (output, status) = env.get(path)?.recv_json_value().await?;
             assert_eq!(status, StatusCode::Ok);
             assert_eq!(output, json!($($json)+));
         }};

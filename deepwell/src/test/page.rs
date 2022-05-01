@@ -70,7 +70,7 @@ async fn basic_create() -> Result<()> {
             "revisionComments": "Create page test",
             "userId": ADMIN_USER_ID,
         }))?
-        .recv_json_serde::<CreatePageOutput>()
+        .recv_json::<CreatePageOutput>()
         .await?;
 
     let page_id = output.page_id;
@@ -90,7 +90,7 @@ async fn basic_create() -> Result<()> {
     // Get page
     let (output, status) = env
         .get(format!("/page/{WWW_SITE_ID}/slug/{slug}"))?
-        .recv_json_serde::<GetPageOutput>()
+        .recv_json::<GetPageOutput>()
         .await?;
 
     assert_eq!(status, StatusCode::Ok);
@@ -131,7 +131,7 @@ async fn deletion_lifecycle() -> Result<()> {
             "revisionComments": "Create page",
             "userId": ADMIN_USER_ID,
         }))?
-        .recv_json_serde::<CreatePageOutput>()
+        .recv_json::<CreatePageOutput>()
         .await?;
 
     let page_id = output.page_id;
@@ -147,7 +147,7 @@ async fn deletion_lifecycle() -> Result<()> {
             "revisionComments": "Edit page",
             "userId": REGULAR_USER_ID,
         }))?
-        .recv_json_serde::<EditPageOutput>()
+        .recv_json::<EditPageOutput>()
         .await?;
 
     assert_eq!(status, StatusCode::Ok);
@@ -161,7 +161,7 @@ async fn deletion_lifecycle() -> Result<()> {
             "revisionComments": "Delete page",
             "userId": ADMIN_USER_ID,
         }))?
-        .recv_json_serde::<DeletePageOutput>()
+        .recv_json::<DeletePageOutput>()
         .await?;
 
     assert_eq!(status, StatusCode::Ok);
@@ -196,7 +196,7 @@ async fn deletion_lifecycle() -> Result<()> {
             "revisionComments": "Restore page",
             "userId": ADMIN_USER_ID,
         }))?
-        .recv_json_serde::<RestorePageOutput>()
+        .recv_json::<RestorePageOutput>()
         .await?;
 
     assert_eq!(status, StatusCode::Ok);
@@ -219,7 +219,7 @@ async fn deletion_lifecycle() -> Result<()> {
             "revisionComments": "Edit page",
             "userId": REGULAR_USER_ID,
         }))?
-        .recv_json_serde::<EditPageOutput>()
+        .recv_json::<EditPageOutput>()
         .await?;
 
     assert_eq!(status, StatusCode::Ok);
@@ -247,7 +247,7 @@ async fn multiple_deleted() -> Result<()> {
                 "revisionComments": format!("Create page {i}"),
                 "userId": REGULAR_USER_ID,
             }))?
-            .recv_json_serde::<CreatePageOutput>()
+            .recv_json::<CreatePageOutput>()
             .await?;
 
         assert_eq!(status, StatusCode::Ok);
@@ -261,7 +261,7 @@ async fn multiple_deleted() -> Result<()> {
                 "revisionComments": format!("Delete page {i}"),
                 "userId": ADMIN_USER_ID,
             }))?
-            .recv_json_serde::<DeletePageOutput>()
+            .recv_json::<DeletePageOutput>()
             .await?;
 
         assert_eq!(status, StatusCode::Ok);
