@@ -147,9 +147,10 @@ async fn deletion_lifecycle() -> Result<()> {
             "revisionComments": "Edit page",
             "userId": REGULAR_USER_ID,
         }))?
-        .recv_json::<EditPageOutput>()
+        .recv_json::<Option<EditPageOutput>>()
         .await?;
 
+    let output = output.expect("No new revision created");
     assert_eq!(status, StatusCode::Ok);
     assert_eq!(output.revision_number, 1);
     assert_eq!(output.parser_warnings, Some(vec![]));
@@ -190,7 +191,7 @@ async fn deletion_lifecycle() -> Result<()> {
 
     // Restore
     let (output, status) = env
-        .post(format!("/page/{WWW_SITE_ID}/id/{page_id}/restore"))?
+        .post(format!("/page/{WWW_SITE_ID}/{page_id}/restore"))?
         .body_json(json!({
             "slug": null,
             "revisionComments": "Restore page",
@@ -215,16 +216,17 @@ async fn deletion_lifecycle() -> Result<()> {
     let (output, status) = env
         .post(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
         .body_json(json!({
-            "wikitext": "Apple banana cherry",
+            "wikitext": "Apple banana cherry pineapple",
             "revisionComments": "Edit page",
             "userId": REGULAR_USER_ID,
         }))?
-        .recv_json::<EditPageOutput>()
+        .recv_json::<Option<EditPageOutput>>()
         .await?;
 
+    let output = output.expect("No new revision created");
     assert_eq!(status, StatusCode::Ok);
-    assert_eq!(output.revision_number, 1);
-    assert!(output.parser_warnings.is_none());
+    assert_eq!(output.revision_number, 4);
+    assert_eq!(output.parser_warnings, Some(vec![]));
 
     Ok(())
 }
@@ -256,7 +258,7 @@ async fn multiple_deleted() -> Result<()> {
 
         // Delete
         let (output, status) = env
-            .delete(format!("/page/{WWW_SITE_ID}"))?
+            .delete(format!("/page/{WWW_SITE_ID}/slug/{slug}"))?
             .body_json(json!({
                 "revisionComments": format!("Delete page {i}"),
                 "userId": ADMIN_USER_ID,

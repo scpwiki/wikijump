@@ -177,8 +177,7 @@ impl<'a> RequestBuilder<'a> {
         if body.is_empty().unwrap_or(true) {
             panic!(
                 "Response body is empty in recv_json() (status {} {:?})",
-                status,
-                status,
+                status, status,
             );
         }
 
