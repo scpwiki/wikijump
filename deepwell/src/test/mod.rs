@@ -37,6 +37,7 @@ mod prelude {
 mod locale;
 mod misc;
 mod page;
+mod revision;
 
 use crate::api::{self, ApiServer};
 use crate::config::Config;

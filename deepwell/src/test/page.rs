@@ -112,8 +112,6 @@ async fn basic_create() -> Result<()> {
     Ok(())
 }
 
-// TODO tests for edits
-
 #[async_test]
 async fn deletion_lifecycle() -> Result<()> {
     let env = TestEnvironment::setup().await?;
