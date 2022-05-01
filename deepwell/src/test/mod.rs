@@ -110,15 +110,6 @@ impl TestEnvironment {
     }
 }
 
-macro_rules! impl_recv_method {
-    ($self:expr, $into_method:ident) => {{
-        let mut response = $self.send().await?;
-        let status = response.status();
-        let body = response.take_body().$into_method().await?;
-        Ok((body, status))
-    }};
-}
-
 #[derive(Debug)]
 pub struct RequestBuilder<'a> {
     app: &'a ApiServer,
@@ -166,19 +157,29 @@ impl<'a> RequestBuilder<'a> {
         Ok(response.status())
     }
 
-    #[allow(dead_code)]
-    pub async fn recv_bytes(self) -> Result<(Vec<u8>, StatusCode)> {
-        impl_recv_method!(self, into_bytes)
-    }
-
-    #[allow(dead_code)]
     pub async fn recv_string(self) -> Result<(String, StatusCode)> {
-        impl_recv_method!(self, into_string)
+        let mut response = self.send().await?;
+        let status = response.status();
+        let body = response.take_body().into_string().await?;
+        Ok((body, status))
     }
 
-    #[allow(dead_code)]
     pub async fn recv_json<T: DeserializeOwned>(self) -> Result<(T, StatusCode)> {
-        impl_recv_method!(self, into_json)
+        let mut response = self.send().await?;
+        let status = response.status();
+        let body = response.take_body();
+
+        // Special handling if empty, probably error
+        // and a serde error is unhelpful.
+        //
+        // A panic here will give a more useful traceback
+        // that we can follow.
+        if body.is_empty().unwrap_or(true) {
+            panic!("Response body is empty in recv_json() (status {})", status);
+        }
+
+        let output = body.into_json().await?;
+        Ok((output, status))
     }
 
     #[allow(dead_code)]
