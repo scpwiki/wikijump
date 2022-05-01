@@ -81,7 +81,7 @@ async fn basic_create() -> Result<()> {
 
     // Check presence
     let status = env
-        .head(format!("/page/{WWW_SITE_ID}/slug/{}", slug))?
+        .head(format!("/page/{WWW_SITE_ID}/slug/{slug}"))?
         .recv()
         .await?;
 
@@ -89,7 +89,7 @@ async fn basic_create() -> Result<()> {
 
     // Get page
     let (output, status) = env
-        .get(format!("/page/{WWW_SITE_ID}/slug/{}", slug))?
+        .get(format!("/page/{WWW_SITE_ID}/slug/{slug}"))?
         .recv_json_serde::<GetPageOutput>()
         .await?;
 
@@ -152,7 +152,7 @@ async fn deletion_lifecycle() -> Result<()> {
 
     assert_eq!(status, StatusCode::Ok);
     assert_eq!(output.revision_number, 1);
-    assert!(output.parser_warnings.is_none());
+    assert_eq!(output.parser_warnings, Some(vec![]));
 
     // Delete
     let (output, status) = env
@@ -166,6 +166,14 @@ async fn deletion_lifecycle() -> Result<()> {
 
     assert_eq!(status, StatusCode::Ok);
     assert_eq!(output.revision_number, 2);
+
+    // Check presence
+    let status = env
+        .head(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
+        .recv()
+        .await?;
+
+    assert_eq!(status, StatusCode::NotFound);
 
     // Edit (fails)
     let status = env
@@ -194,6 +202,14 @@ async fn deletion_lifecycle() -> Result<()> {
     assert_eq!(status, StatusCode::Ok);
     assert_eq!(output.revision_number, 3);
     assert!(output.parser_warnings.is_empty());
+
+    // Check presence
+    let status = env
+        .head(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
+        .recv()
+        .await?;
+
+    assert_eq!(status, StatusCode::NoContent);
 
     // Edit again
     let (output, status) = env
