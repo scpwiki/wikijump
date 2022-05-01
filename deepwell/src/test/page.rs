@@ -21,7 +21,7 @@
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::RevisionType;
 use crate::services::page::{
-    CreatePageOutput, EditPageOutput, GetPageOutput, RestorePageOutput,
+    CreatePageOutput, DeletePageOutput, EditPageOutput, GetPageOutput, RestorePageOutput,
 };
 use crate::services::revision::CreateRevisionOutput;
 
@@ -161,12 +161,11 @@ async fn deletion_lifecycle() -> Result<()> {
             "revisionComments": "Delete page",
             "userId": ADMIN_USER_ID,
         }))?
-        .recv_json_serde::<CreateRevisionOutput>()
+        .recv_json_serde::<DeletePageOutput>()
         .await?;
 
     assert_eq!(status, StatusCode::Ok);
     assert_eq!(output.revision_number, 2);
-    assert!(output.parser_warnings.is_none());
 
     // Edit (fails)
     let status = env
@@ -246,12 +245,11 @@ async fn multiple_deleted() -> Result<()> {
                 "revisionComments": format!("Delete page {i}"),
                 "userId": ADMIN_USER_ID,
             }))?
-            .recv_json_serde::<CreateRevisionOutput>()
+            .recv_json_serde::<DeletePageOutput>()
             .await?;
 
         assert_eq!(status, StatusCode::Ok);
         assert_eq!(output.revision_number, 1);
-        assert!(output.parser_warnings.is_none());
     }
 
     Ok(())
