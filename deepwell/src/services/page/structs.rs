@@ -89,9 +89,9 @@ pub struct EditPage {
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct EditPageOutput {
-    revision_id: i64,
-    revision_number: i32,
-    parser_warnings: Option<Vec<ParseWarning>>,
+    pub revision_id: i64,
+    pub revision_number: i32,
+    pub parser_warnings: Option<Vec<ParseWarning>>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -112,18 +112,18 @@ pub struct RestorePage {
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct DeletePageOutput {
-    page_id: i64,
-    revision_id: i64,
-    revision_number: i32,
+    pub page_id: i64,
+    pub revision_id: i64,
+    pub revision_number: i32,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct RestorePageOutput {
-    slug: String,
-    revision_id: i64,
-    revision_number: i32,
-    parser_warnings: Vec<ParseWarning>,
+    pub slug: String,
+    pub revision_id: i64,
+    pub revision_number: i32,
+    pub parser_warnings: Vec<ParseWarning>,
 }
 
 impl From<CreateRevisionOutput> for EditPageOutput {

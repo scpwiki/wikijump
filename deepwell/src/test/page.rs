@@ -20,7 +20,9 @@
 
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::RevisionType;
-use crate::services::page::{CreatePageOutput, GetPageOutput};
+use crate::services::page::{
+    CreatePageOutput, EditPageOutput, GetPageOutput, RestorePageOutput,
+};
 use crate::services::revision::CreateRevisionOutput;
 
 #[async_test]
@@ -30,11 +32,15 @@ async fn exists() -> Result<()> {
     macro_rules! check {
         ($slug:expr, $exists:expr $(,)?) => {
             let path = format!("/page/{WWW_SITE_ID}/slug/{}", $slug);
-            let expected_status = if $exists { StatusCode::NoContent } else { StatusCode::NotFound };
             let actual_status = env.head(path)?.recv().await?;
+            let expected_status = if $exists {
+                StatusCode::NoContent
+            } else {
+                StatusCode::NotFound
+            };
+
             assert_eq!(
-                actual_status,
-                expected_status,
+                actual_status, expected_status,
                 "Actual HTTP status doesn't match expect",
             );
         };
@@ -107,13 +113,105 @@ async fn basic_create() -> Result<()> {
     Ok(())
 }
 
+// TODO tests for edits
+
 #[async_test]
 async fn deletion_lifecycle() -> Result<()> {
     let env = TestEnvironment::setup().await?;
     let slug = env.random_slug();
 
-    // TODO
-    todo!()
+    // Create
+    let (output, status) = env
+        .post(format!("/page/{WWW_SITE_ID}"))?
+        .body_json(json!({
+            "wikitext": "Apple banana",
+            "title": "Test page!",
+            "altTitle": null,
+            "slug": slug,
+            "revisionComments": "Create page",
+            "userId": ADMIN_USER_ID,
+        }))?
+        .recv_json_serde::<CreatePageOutput>()
+        .await?;
+
+    let page_id = output.page_id;
+    assert_eq!(status, StatusCode::Ok);
+    assert_eq!(output.slug, slug);
+    assert!(output.parser_warnings.is_empty());
+
+    // Edit
+    let (output, status) = env
+        .post(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
+        .body_json(json!({
+            "wikitext": "Apple banana cherry",
+            "revisionComments": "Edit page",
+            "userId": REGULAR_USER_ID,
+        }))?
+        .recv_json_serde::<EditPageOutput>()
+        .await?;
+
+    assert_eq!(status, StatusCode::Ok);
+    assert_eq!(output.revision_number, 1);
+    assert!(output.parser_warnings.is_none());
+
+    // Delete
+    let (output, status) = env
+        .delete(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
+        .body_json(json!({
+            "revisionComments": "Delete page",
+            "userId": ADMIN_USER_ID,
+        }))?
+        .recv_json_serde::<CreateRevisionOutput>()
+        .await?;
+
+    assert_eq!(status, StatusCode::Ok);
+    assert_eq!(output.revision_number, 2);
+    assert!(output.parser_warnings.is_none());
+
+    // Edit (fails)
+    let status = env
+        .post(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
+        .body_json(json!({
+            "wikitext": "Apple banana durian",
+            "revisionComments": "Edit deleted page",
+            "userId": REGULAR_USER_ID,
+        }))?
+        .recv()
+        .await?;
+
+    assert_eq!(status, StatusCode::NotFound);
+
+    // Restore
+    let (output, status) = env
+        .post(format!("/page/{WWW_SITE_ID}/id/{page_id}/restore"))?
+        .body_json(json!({
+            "slug": null,
+            "revisionComments": "Restore page",
+            "userId": ADMIN_USER_ID,
+        }))?
+        .recv_json_serde::<RestorePageOutput>()
+        .await?;
+
+    assert_eq!(status, StatusCode::Ok);
+    assert_eq!(output.revision_number, 3);
+    assert!(output.parser_warnings.is_empty());
+
+    // Edit again
+    let (output, status) = env
+        .post(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
+        .body_json(json!({
+            "wikitext": "Apple banana cherry",
+            "revisionComments": "Edit page",
+            "userId": REGULAR_USER_ID,
+        }))?
+        .recv_json_serde::<EditPageOutput>()
+        .await?;
+
+    assert_eq!(status, StatusCode::Ok);
+    assert_eq!(output.revision_number, 1);
+    assert!(output.parser_warnings.is_none());
+
+    Ok(())
 }
 
 #[async_test]
