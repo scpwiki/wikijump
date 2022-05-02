@@ -255,3 +255,55 @@ async fn edits() -> Result<()> {
 
     Ok(())
 }
+
+#[async_test]
+async fn big_page() -> Result<()> {
+    const INSERT_ITERATIONS: i32 = 5;
+    const EXPANSION_ITERATIONS: i32 = 128;
+
+    let runner = Runner::setup().await?;
+    let GeneratedPage { page_id, .. } = runner.page().await?;
+
+    // Build large wikitext
+    let mut body = str!("++ Very large page\n\n");
+
+    for _ in 0..EXPANSION_ITERATIONS {
+        body.push_str("alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu nu xi omicron pi rho sigma tau upsilon phi chi psi omega\n");
+        body.push_str("Α α, Β β, Γ γ, Δ δ, Ε ε, Ζ ζ, Η η, Θ θ, Ι ι, Κ κ, Λ λ, Μ μ, Ν ν, Ξ ξ, Ο ο, Π π, Ρ ρ, Σ σ/ς, Τ τ, Υ υ, Φ φ, Χ χ, Ψ ψ, Ω ω.\n\n");
+    }
+
+    // Insert multiple times, increasing the size
+    for revision_number in 0..INSERT_ITERATIONS {
+        let (output, status) = runner
+            .post(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
+            .body_json(json!({
+                "wikitext": body,
+                "tags": ["big"],
+                "revisionComments": "Append more text",
+                "userId": REGULAR_USER_ID,
+            }))?
+            .recv_json::<Option<EditPageOutput>>()
+            .await?;
+
+        let output = output.expect("No new revision created");
+        assert_eq!(status, StatusCode::Ok);
+        assert_eq!(output.revision_number, revision_number);
+
+        for _ in 0..EXPANSION_ITERATIONS {
+            body.push_str("[[div]]................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................[[/div]]\n");
+        }
+    }
+
+    // Check wikitext matches
+    let (output, status) = runner
+        .get(format!("/page/{WWW_SITE_ID}/id/{page_id}?wikitext=true"))?
+        .recv_json::<GetPageOutput>()
+        .await?;
+
+    assert_eq!(status, StatusCode::Ok);
+    assert_eq!(output.revision_type, RevisionType::Regular);
+    assert_eq!(output.revision_number, INSERT_ITERATIONS);
+    assert_eq!(output.wikitext.expect("No wikitext"), body);
+
+    Ok(())
+}
