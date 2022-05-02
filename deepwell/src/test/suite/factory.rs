@@ -1,5 +1,5 @@
 /*
- * test/suite/mod.rs
+ * test/suite/factory.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,12 +18,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Structures to help run integration tests for DEEPWELL.
+#[derive(Debug)]
+pub struct GeneratedPage {
+    pub revision_id: i64,
+    pub site_id: i64,
+    pub user_id: i64,
+    pub slug: String,
+}
 
-mod factory;
-mod request;
-mod runner;
-
-pub use self::factory::{GeneratedPage, GeneratedUser};
-pub use self::request::RequestBuilder;
-pub use self::runner::Runner;
+// TODO
+#[derive(Debug)]
+pub struct GeneratedUser;

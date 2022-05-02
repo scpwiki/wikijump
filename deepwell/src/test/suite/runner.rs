@@ -18,12 +18,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::RequestBuilder;
+use super::super::{ADMIN_USER_ID, WWW_SITE_ID};
+use super::{GeneratedPage, GeneratedUser, RequestBuilder};
 use crate::api::{self, ApiServer};
 use crate::config::Config;
+use crate::services::page::CreatePageOutput;
 use rand::distributions::Alphanumeric;
 use rand::prelude::*;
-use tide::{http::Method, Result};
+use serde_json::json;
+use tide::{http::Method, Result, StatusCode};
 
 macro_rules! impl_request_method {
     ($method_enum:ident, $method_name:ident) => {
@@ -84,5 +87,46 @@ impl Runner {
         }
 
         slug
+    }
+
+    // Factory methods
+
+    #[inline]
+    pub async fn page(&self) -> Result<GeneratedPage> {
+        let slug = self.slug();
+        self.page2(WWW_SITE_ID, ADMIN_USER_ID, slug).await
+    }
+
+    pub async fn page2(
+        &self,
+        site_id: i64,
+        user_id: i64,
+        slug: String,
+    ) -> Result<GeneratedPage> {
+        let (output, status) = self
+            .post(format!("/page/{site_id}"))?
+            .body_json(json!({
+                "wikitext": "Page contents",
+                "title": "Page title",
+                "altTitle": null,
+                "slug": &slug,
+                "revisionComments": "[factory] Create page",
+                "userId": user_id,
+            }))?
+            .recv_json::<CreatePageOutput>()
+            .await?;
+
+        assert_eq!(status, StatusCode::Ok, "[factory] Failed to create page");
+
+        Ok(GeneratedPage {
+            revision_id: output.revision_id,
+            site_id,
+            user_id,
+            slug,
+        })
+    }
+
+    pub async fn user(&self) -> Result<GeneratedUser> {
+        todo!()
     }
 }
