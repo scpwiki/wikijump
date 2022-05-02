@@ -267,13 +267,25 @@ async fn big_page() -> Result<()> {
     // Build large wikitext
     let mut body = str!("++ Very large page\n\n");
 
-    for _ in 0..EXPANSION_ITERATIONS {
-        body.push_str("alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu nu xi omicron pi rho sigma tau upsilon phi chi psi omega\n");
-        body.push_str("Α α, Β β, Γ γ, Δ δ, Ε ε, Ζ ζ, Η η, Θ θ, Ι ι, Κ κ, Λ λ, Μ μ, Ν ν, Ξ ξ, Ο ο, Π π, Ρ ρ, Σ σ/ς, Τ τ, Υ υ, Φ φ, Χ χ, Ψ ψ, Ω ω.\n\n");
+    macro_rules! append {
+        () => {
+            body.push_str("alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu nu xi omicron pi rho sigma tau upsilon phi chi psi omega\n");
+            body.push_str("Α α, Β β, Γ γ, Δ δ, Ε ε, Ζ ζ, Η η, Θ θ, Ι ι, Κ κ, Λ λ, Μ μ, Ν ν, Ξ ξ, Ο ο, Π π, Ρ ρ, Σ σ/ς, Τ τ, Υ υ, Φ φ, Χ χ, Ψ ψ, Ω ω.\n\n");
+        };
     }
 
-    // Insert multiple times, increasing the size
+    for _ in 0..EXPANSION_ITERATIONS {
+        append!();
+    }
+
     for i in 0..INSERT_ITERATIONS {
+        // Append to the wikitext
+        body.push_str("[[div]]..................................................[[/div]]\n----\n");
+        for _ in 0..EXPANSION_ITERATIONS {
+            append!();
+        }
+
+        // Insert new revision
         let (output, status) = runner
             .post(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
             .body_json(json!({
@@ -288,10 +300,6 @@ async fn big_page() -> Result<()> {
         let output = output.expect("No new revision created");
         assert_eq!(status, StatusCode::Ok);
         assert_eq!(output.revision_number, i + 1);
-
-        for _ in 0..EXPANSION_ITERATIONS {
-            body.push_str("[[div]]..................................................[[/div]]\n");
-        }
     }
 
     // Check wikitext matches
