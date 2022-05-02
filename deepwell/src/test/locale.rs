@@ -22,12 +22,12 @@ use super::prelude::*;
 
 #[async_test]
 async fn locale_name() -> Result<()> {
-    let env = TestEnvironment::setup().await?;
+    let runner = Runner::setup().await?;
 
     macro_rules! check {
         ($locale:expr, $($json:tt)+ $(,)?) => {{
             let path = concat!("/locale/", $locale);
-            let (output, status) = env.get(path)?.recv_json_value().await?;
+            let (output, status) = runner.get(path)?.recv_json_value().await?;
             assert_eq!(status, StatusCode::Ok);
             assert_eq!(output, json!($($json)+));
         }};
@@ -101,7 +101,7 @@ async fn locale_name() -> Result<()> {
 
 #[async_test]
 async fn message() -> Result<()> {
-    let env = TestEnvironment::setup().await?;
+    let runner = Runner::setup().await?;
 
     macro_rules! check {
         ($locale:expr, $message_key:expr, $translation:expr $(,)?) => {
@@ -110,7 +110,7 @@ async fn message() -> Result<()> {
 
         ($locale:expr, $message_key:expr, $translation:expr, $($json:tt)+ $(,)?) => {{
             let path = concat!("/message/", $locale, "/", $message_key);
-            let (translation, status) = env
+            let (translation, status) = runner
                 .post(path)?
                 .body_json(json!($($json)+))?
                 .recv_string()

@@ -26,12 +26,12 @@ use crate::services::page::{
 
 #[async_test]
 async fn exists() -> Result<()> {
-    let env = TestEnvironment::setup().await?;
+    let runner = Runner::setup().await?;
 
     macro_rules! check {
         ($slug:expr, $exists:expr $(,)?) => {
             let path = format!("/page/{WWW_SITE_ID}/slug/{}", $slug);
-            let actual_status = env.head(path)?.recv().await?;
+            let actual_status = runner.head(path)?.recv().await?;
             let expected_status = if $exists {
                 StatusCode::NoContent
             } else {
@@ -55,11 +55,11 @@ async fn exists() -> Result<()> {
 
 #[async_std::test]
 async fn basic_create() -> Result<()> {
-    let env = TestEnvironment::setup().await?;
-    let slug = env.random_slug();
+    let runner = Runner::setup().await?;
+    let slug = runner.random_slug();
 
     // Create page
-    let (output, status) = env
+    let (output, status) = runner
         .post(format!("/page/{WWW_SITE_ID}"))?
         .body_json(json!({
             "wikitext": "Page contents",
@@ -79,7 +79,7 @@ async fn basic_create() -> Result<()> {
     assert!(output.parser_warnings.is_empty());
 
     // Check presence
-    let status = env
+    let status = runner
         .head(format!("/page/{WWW_SITE_ID}/slug/{slug}"))?
         .recv()
         .await?;
@@ -87,7 +87,7 @@ async fn basic_create() -> Result<()> {
     assert_eq!(status, StatusCode::NoContent);
 
     // Get page
-    let (output, status) = env
+    let (output, status) = runner
         .get(format!("/page/{WWW_SITE_ID}/slug/{slug}"))?
         .recv_json::<GetPageOutput>()
         .await?;
@@ -114,11 +114,11 @@ async fn basic_create() -> Result<()> {
 
 #[async_test]
 async fn deletion_lifecycle() -> Result<()> {
-    let env = TestEnvironment::setup().await?;
-    let slug = env.random_slug();
+    let runner = Runner::setup().await?;
+    let slug = runner.random_slug();
 
     // Create
-    let (output, status) = env
+    let (output, status) = runner
         .post(format!("/page/{WWW_SITE_ID}"))?
         .body_json(json!({
             "wikitext": "Apple banana",
@@ -137,7 +137,7 @@ async fn deletion_lifecycle() -> Result<()> {
     assert!(output.parser_warnings.is_empty());
 
     // Edit
-    let (output, status) = env
+    let (output, status) = runner
         .post(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
         .body_json(json!({
             "wikitext": "Apple banana cherry",
@@ -153,7 +153,7 @@ async fn deletion_lifecycle() -> Result<()> {
     assert_eq!(output.parser_warnings, Some(vec![]));
 
     // Delete
-    let (output, status) = env
+    let (output, status) = runner
         .delete(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
         .body_json(json!({
             "revisionComments": "Delete page",
@@ -166,7 +166,7 @@ async fn deletion_lifecycle() -> Result<()> {
     assert_eq!(output.revision_number, 2);
 
     // Check presence
-    let status = env
+    let status = runner
         .head(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
         .recv()
         .await?;
@@ -174,7 +174,7 @@ async fn deletion_lifecycle() -> Result<()> {
     assert_eq!(status, StatusCode::NotFound);
 
     // Edit (fails)
-    let status = env
+    let status = runner
         .post(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
         .body_json(json!({
             "wikitext": "Apple banana durian",
@@ -187,7 +187,7 @@ async fn deletion_lifecycle() -> Result<()> {
     assert_eq!(status, StatusCode::NotFound);
 
     // Restore
-    let (output, status) = env
+    let (output, status) = runner
         .post(format!("/page/{WWW_SITE_ID}/{page_id}/restore"))?
         .body_json(json!({
             "slug": null,
@@ -202,7 +202,7 @@ async fn deletion_lifecycle() -> Result<()> {
     assert!(output.parser_warnings.is_empty());
 
     // Check presence
-    let status = env
+    let status = runner
         .head(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
         .recv()
         .await?;
@@ -210,7 +210,7 @@ async fn deletion_lifecycle() -> Result<()> {
     assert_eq!(status, StatusCode::NoContent);
 
     // Edit again
-    let (output, status) = env
+    let (output, status) = runner
         .post(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
         .body_json(json!({
             "wikitext": "Apple banana cherry pineapple",
@@ -230,13 +230,13 @@ async fn deletion_lifecycle() -> Result<()> {
 
 #[async_test]
 async fn multiple_deleted() -> Result<()> {
-    let env = TestEnvironment::setup().await?;
-    let slug = env.random_slug();
+    let runner = Runner::setup().await?;
+    let slug = runner.random_slug();
 
     // Create, then delete multiple pages
     for i in 0..5 {
         // Create
-        let (output, status) = env
+        let (output, status) = runner
             .post(format!("/page/{WWW_SITE_ID}"))?
             .body_json(json!({
                 "wikitext": "Page contents",
@@ -254,7 +254,7 @@ async fn multiple_deleted() -> Result<()> {
         assert!(output.parser_warnings.is_empty());
 
         // Delete
-        let (output, status) = env
+        let (output, status) = runner
             .delete(format!("/page/{WWW_SITE_ID}/slug/{slug}"))?
             .body_json(json!({
                 "revisionComments": format!("Delete page {i}"),

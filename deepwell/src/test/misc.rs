@@ -23,15 +23,15 @@ use crate::info;
 
 #[async_test]
 async fn ping() -> Result<()> {
-    let env = TestEnvironment::setup().await?;
+    let runner = Runner::setup().await?;
 
     // GET
-    let (output, status) = env.get("/ping")?.recv_string().await?;
+    let (output, status) = runner.get("/ping")?.recv_string().await?;
     assert_eq!(status, StatusCode::Ok);
     assert_eq!(output, "Pong!");
 
     // POST
-    let (output, status) = env.post("/ping")?.recv_string().await?;
+    let (output, status) = runner.post("/ping")?.recv_string().await?;
     assert_eq!(status, StatusCode::Ok);
     assert_eq!(output, "Pong!");
 
@@ -40,15 +40,15 @@ async fn ping() -> Result<()> {
 
 #[async_test]
 async fn version() -> Result<()> {
-    let env = TestEnvironment::setup().await?;
+    let runner = Runner::setup().await?;
 
     // Regular
-    let (output, status) = env.get("/version")?.recv_string().await?;
+    let (output, status) = runner.get("/version")?.recv_string().await?;
     assert_eq!(status, StatusCode::Ok);
     assert_eq!(&output, &*info::VERSION);
 
     // Full
-    let (output, status) = env.get("/version/full")?.recv_string().await?;
+    let (output, status) = runner.get("/version/full")?.recv_string().await?;
     assert_eq!(status, StatusCode::Ok);
     assert_eq!(&output, &*info::FULL_VERSION_WITH_NAME);
 
@@ -57,10 +57,10 @@ async fn version() -> Result<()> {
 
 #[async_test]
 async fn teapot() -> Result<()> {
-    let env = TestEnvironment::setup().await?;
+    let runner = Runner::setup().await?;
 
     // GET
-    let status = env.get("/teapot")?.recv().await?;
+    let status = runner.get("/teapot")?.recv().await?;
     assert_eq!(status, StatusCode::ImATeapot);
 
     Ok(())
