@@ -258,8 +258,7 @@ async fn edits() -> Result<()> {
 
 #[async_test]
 async fn big_page() -> Result<()> {
-    const INSERT_ITERATIONS: i32 = 5;
-    const EXPANSION_ITERATIONS: i32 = 10;
+    const EXPANSION_ITERATIONS: i32 = 20;
     const TEXT_FILE_CONTENTS: &str = include_str!("../../misc/statute-of-anne.txt");
     const LONG_LINE: &str = "
 alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu nu xi omicron pi rho sigma tau upsilon phi chi psi omega
@@ -278,26 +277,21 @@ alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu nu xi omicron
         body.push_str(TEXT_FILE_CONTENTS);
     }
 
-    for i in 0..INSERT_ITERATIONS {
-        // Append to the wikitext
-        body.push_str(LONG_LINE);
+    // Insert new revision
+    let (output, status) = runner
+        .post(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
+        .body_json(json!({
+            "wikitext": body,
+            "tags": ["big"],
+            "revisionComments": "Append more text",
+            "userId": REGULAR_USER_ID,
+        }))?
+        .recv_json::<Option<EditPageOutput>>()
+        .await?;
 
-        // Insert new revision
-        let (output, status) = runner
-            .post(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
-            .body_json(json!({
-                "wikitext": body,
-                "tags": ["big"],
-                "revisionComments": "Append more text",
-                "userId": REGULAR_USER_ID,
-            }))?
-            .recv_json::<Option<EditPageOutput>>()
-            .await?;
-
-        let output = output.expect("No new revision created");
-        assert_eq!(status, StatusCode::Ok);
-        assert_eq!(output.revision_number, i + 1);
-    }
+    let output = output.expect("No new revision created");
+    assert_eq!(status, StatusCode::Ok);
+    assert_eq!(output.revision_number, 1);
 
     // Check wikitext matches
     let (output, status) = runner
@@ -307,7 +301,7 @@ alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu nu xi omicron
 
     assert_eq!(status, StatusCode::Ok);
     assert_eq!(output.revision_type, RevisionType::Regular);
-    assert_eq!(output.revision_number, INSERT_ITERATIONS);
+    assert_eq!(output.revision_number, 1);
     assert_eq!(output.wikitext.expect("No wikitext"), body);
 
     Ok(())
