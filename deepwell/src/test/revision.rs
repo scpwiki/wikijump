@@ -259,7 +259,7 @@ async fn edits() -> Result<()> {
 #[async_test]
 async fn big_page() -> Result<()> {
     const INSERT_ITERATIONS: i32 = 5;
-    const EXPANSION_ITERATIONS: i32 = 128;
+    const EXPANSION_ITERATIONS: i32 = 20;
 
     let runner = Runner::setup().await?;
     let GeneratedPage { page_id, .. } = runner.page().await?;
@@ -273,7 +273,7 @@ async fn big_page() -> Result<()> {
     }
 
     // Insert multiple times, increasing the size
-    for revision_number in 0..INSERT_ITERATIONS {
+    for i in 0..INSERT_ITERATIONS {
         let (output, status) = runner
             .post(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
             .body_json(json!({
@@ -287,10 +287,10 @@ async fn big_page() -> Result<()> {
 
         let output = output.expect("No new revision created");
         assert_eq!(status, StatusCode::Ok);
-        assert_eq!(output.revision_number, revision_number);
+        assert_eq!(output.revision_number, i + 1);
 
         for _ in 0..EXPANSION_ITERATIONS {
-            body.push_str("[[div]]................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................[[/div]]\n");
+            body.push_str("[[div]]..................................................[[/div]]\n");
         }
     }
 
