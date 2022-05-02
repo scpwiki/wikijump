@@ -23,6 +23,7 @@ pub struct GeneratedPage {
     pub revision_id: i64,
     pub site_id: i64,
     pub user_id: i64,
+    pub page_id: i64,
     pub slug: String,
 }
 

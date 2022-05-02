@@ -19,7 +19,7 @@
  */
 
 use super::super::{ADMIN_USER_ID, WWW_SITE_ID};
-use super::{GeneratedPage, GeneratedUser, RequestBuilder};
+use super::{GeneratedPage, GeneratedUser, GeneratedSite, RequestBuilder};
 use crate::api::{self, ApiServer};
 use crate::config::Config;
 use crate::services::page::CreatePageOutput;
@@ -129,6 +129,7 @@ impl Runner {
             revision_id: output.revision_id,
             site_id,
             user_id,
+            page_id: output.page_id,
             slug,
         })
     }

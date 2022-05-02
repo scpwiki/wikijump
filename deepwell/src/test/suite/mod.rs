@@ -24,6 +24,6 @@ mod factory;
 mod request;
 mod runner;
 
-pub use self::factory::{GeneratedPage, GeneratedUser};
+pub use self::factory::{GeneratedPage, GeneratedSite, GeneratedUser};
 pub use self::request::RequestBuilder;
 pub use self::runner::Runner;

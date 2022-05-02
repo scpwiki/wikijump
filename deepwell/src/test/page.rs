@@ -115,32 +115,15 @@ async fn basic_create() -> Result<()> {
 #[async_test]
 async fn deletion_lifecycle() -> Result<()> {
     let runner = Runner::setup().await?;
-    let slug = runner.slug();
 
     // Create
-    let (output, status) = runner
-        .post(format!("/page/{WWW_SITE_ID}"))?
-        .body_json(json!({
-            "wikitext": "Apple banana",
-            "title": "Test page!",
-            "altTitle": null,
-            "slug": slug,
-            "revisionComments": "Create page",
-            "userId": ADMIN_USER_ID,
-        }))?
-        .recv_json::<CreatePageOutput>()
-        .await?;
-
-    let page_id = output.page_id;
-    assert_eq!(status, StatusCode::Ok);
-    assert_eq!(output.slug, slug);
-    assert!(output.parser_warnings.is_empty());
+    let GeneratedPage { page_id, .. } = runner.page().await?;
 
     // Edit
     let (output, status) = runner
         .post(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
         .body_json(json!({
-            "wikitext": "Apple banana cherry",
+            "wikitext": "Apple banana",
             "revisionComments": "Edit page",
             "userId": REGULAR_USER_ID,
         }))?
@@ -213,7 +196,7 @@ async fn deletion_lifecycle() -> Result<()> {
     let (output, status) = runner
         .post(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
         .body_json(json!({
-            "wikitext": "Apple banana cherry pineapple",
+            "wikitext": "Apple banana cherry",
             "revisionComments": "Edit page",
             "userId": REGULAR_USER_ID,
         }))?
