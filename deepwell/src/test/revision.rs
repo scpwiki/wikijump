@@ -59,7 +59,7 @@ async fn edits() -> Result<()> {
     assert_eq!(output.revision_type, RevisionType::Regular);
     assert_eq!(output.revision_number, 1);
     assert_eq!(output.page_revision_count, 2);
-    assert_eq!(output.title, "Test page!");
+    assert_eq!(output.title, "Page title");
     assert!(output.alt_title.is_none());
 
     // Edit wikitext via page slug
@@ -75,7 +75,7 @@ async fn edits() -> Result<()> {
 
     let output = output.expect("No new revision created");
     assert_eq!(status, StatusCode::Ok);
-    assert_eq!(output.revision_number, 1);
+    assert_eq!(output.revision_number, 2);
     assert_eq!(output.parser_warnings, Some(vec![]));
 
     // Check page (wikitext)
@@ -86,16 +86,17 @@ async fn edits() -> Result<()> {
 
     assert_eq!(status, StatusCode::Ok);
     assert_eq!(output.revision_type, RevisionType::Regular);
+    assert_eq!(output.revision_number, 2);
     assert_eq!(output.wikitext.expect("No wikitext"), "Apple banana cherry");
-    assert_eq!(output.title, "Test page!");
+    assert_eq!(output.title, "Page title");
     assert!(output.alt_title.is_none());
 
     // Edit title
     let (output, status) = runner
         .post(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
         .body_json(json!({
-            "title": "A great page",
-            "altTitle": "Fantastic",
+            "title": "Test page!",
+            "altTitle": "A place to call home",
             "revisionComments": "Edit title",
             "userId": REGULAR_USER_ID,
         }))?
@@ -104,7 +105,7 @@ async fn edits() -> Result<()> {
 
     let output = output.expect("No new revision created");
     assert_eq!(status, StatusCode::Ok);
-    assert_eq!(output.revision_number, 2);
+    assert_eq!(output.revision_number, 3);
     assert_eq!(output.parser_warnings, Some(vec![]));
 
     // Check page (wikitext and title)
@@ -115,11 +116,10 @@ async fn edits() -> Result<()> {
 
     assert_eq!(status, StatusCode::Ok);
     assert_eq!(output.revision_type, RevisionType::Regular);
-    assert_eq!(output.revision_number, 2);
+    assert_eq!(output.revision_number, 3);
     assert_eq!(output.wikitext.expect("No wikitext"), "Apple banana cherry");
-    assert_eq!(output.title, "A great page");
-    assert_eq!(output.alt_title, Some(cow!("Fantastic")));
-    assert!(output.alt_title.is_none());
+    assert_eq!(output.title, "Test page!");
+    assert_eq!(output.alt_title, Some(cow!("A place to call home")));
 
     // Edit, remove alt title
     let (output, status) = runner
@@ -134,7 +134,7 @@ async fn edits() -> Result<()> {
 
     let output = output.expect("No new revision created");
     assert_eq!(status, StatusCode::Ok);
-    assert_eq!(output.revision_number, 3);
+    assert_eq!(output.revision_number, 4);
     assert_eq!(output.parser_warnings, Some(vec![]));
 
     // Check page (wikitext and title)
@@ -145,9 +145,9 @@ async fn edits() -> Result<()> {
 
     assert_eq!(status, StatusCode::Ok);
     assert_eq!(output.revision_type, RevisionType::Regular);
-    assert_eq!(output.revision_number, 3);
+    assert_eq!(output.revision_number, 4);
     assert_eq!(output.wikitext.expect("No wikitext"), "Apple banana cherry");
-    assert_eq!(output.title, "A great page");
+    assert_eq!(output.title, "Test page!");
     assert_eq!(output.alt_title, None);
     assert!(output.alt_title.is_none());
 
@@ -155,7 +155,7 @@ async fn edits() -> Result<()> {
     let (output, status) = runner
         .post(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
         .body_json(json!({
-            "title": "A great page",
+            "title": "Test page!",
             "altTitle": null,
             "revisionComments": "Null edit",
             "userId": REGULAR_USER_ID,
@@ -174,21 +174,22 @@ async fn edits() -> Result<()> {
 
     assert_eq!(status, StatusCode::Ok);
     assert_eq!(output.revision_type, RevisionType::Regular);
-    assert_eq!(output.revision_number, 3);
+    assert_eq!(output.revision_number, 4);
 
     // Edit (tags)
     let (output, status) = runner
         .post(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
         .body_json(json!({
             "tags": ["apple"],
-            "revisionComments": "Null edit",
-            "userId": REGULAR_USER_ID,
+            "revisionComments": "Add tags",
+            "userId": ADMIN_USER_ID,
         }))?
         .recv_json::<Option<EditPageOutput>>()
         .await?;
 
+    let output = output.expect("No new revision created");
     assert_eq!(status, StatusCode::Ok);
-    assert!(output.is_none());
+    assert_eq!(output.revision_number, 5);
 
     // Check page (tags)
     let (output, status) = runner
@@ -198,7 +199,7 @@ async fn edits() -> Result<()> {
 
     assert_eq!(status, StatusCode::Ok);
     assert_eq!(output.revision_type, RevisionType::Regular);
-    assert_eq!(output.revision_number, 4);
+    assert_eq!(output.revision_number, 5);
     assert_eq!(output.tags, json!(["apple"]));
 
     // Edit (nothing, no revision)
@@ -223,8 +224,34 @@ async fn edits() -> Result<()> {
 
     assert_eq!(status, StatusCode::Ok);
     assert_eq!(output.revision_type, RevisionType::Regular);
-    assert_eq!(output.revision_number, 4);
+    assert_eq!(output.revision_number, 5);
     assert_eq!(output.tags, json!(["apple"]));
+
+    // Edit (tags again)
+    let (output, status) = runner
+        .post(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
+        .body_json(json!({
+            "tags": ["apple", "banana"],
+            "revisionComments": "More tags",
+            "userId": ADMIN_USER_ID,
+        }))?
+        .recv_json::<Option<EditPageOutput>>()
+        .await?;
+
+    let output = output.expect("No new revision created");
+    assert_eq!(status, StatusCode::Ok);
+    assert_eq!(output.revision_number, 6);
+
+    // Check page (tags again)
+    let (output, status) = runner
+        .get(format!("/page/{WWW_SITE_ID}/slug/{slug}"))?
+        .recv_json::<GetPageOutput>()
+        .await?;
+
+    assert_eq!(status, StatusCode::Ok);
+    assert_eq!(output.revision_type, RevisionType::Regular);
+    assert_eq!(output.revision_number, 6);
+    assert_eq!(output.tags, json!(["apple", "banana"]));
 
     Ok(())
 }
