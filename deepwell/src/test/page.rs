@@ -168,8 +168,8 @@ async fn text() -> Result<()> {
         .await?;
 
     assert_eq!(status, StatusCode::Ok);
-    assert!(output.wikitext.is_some());
-    assert!(output.compiled_html.is_some());
+    assert!(output.wikitext.is_none());
+    assert!(output.compiled_html.is_none());
 
     Ok(())
 }
