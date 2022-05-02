@@ -113,6 +113,68 @@ async fn basic_create() -> Result<()> {
 }
 
 #[async_test]
+async fn text() -> Result<()> {
+    let runner = Runner::setup().await?;
+    let GeneratedPage { slug, .. } = runner.page().await?;
+
+    // Get page (with wikitext)
+    let (output, status) = runner
+        .get(format!("/page/{WWW_SITE_ID}/slug/{slug}?wikitext=true"))?
+        .recv_json::<GetPageOutput>()
+        .await?;
+
+    assert_eq!(status, StatusCode::Ok);
+    assert_eq!(output.wikitext.expect("No wikitext"), "Page contents");
+    assert!(output.compiled_html.is_none());
+
+    // Get page (with HTML)
+    let (output, status) = runner
+        .get(format!("/page/{WWW_SITE_ID}/slug/{slug}?compiledHtml=true"))?
+        .recv_json::<GetPageOutput>()
+        .await?;
+
+    assert_eq!(status, StatusCode::Ok);
+    assert!(output.wikitext.is_none());
+    assert!(output.compiled_html.is_some());
+
+    // Get page (with HTML alias)
+    let (output, status) = runner
+        .get(format!("/page/{WWW_SITE_ID}/slug/{slug}?compiled=true"))?
+        .recv_json::<GetPageOutput>()
+        .await?;
+
+    assert_eq!(status, StatusCode::Ok);
+    assert!(output.wikitext.is_none());
+    assert!(output.compiled_html.is_some());
+
+    // Get page (with both)
+    let (output, status) = runner
+        .get(format!(
+            "/page/{WWW_SITE_ID}/slug/{slug}?wikitext=true&compiledHtml=true",
+        ))?
+        .recv_json::<GetPageOutput>()
+        .await?;
+
+    assert_eq!(status, StatusCode::Ok);
+    assert!(output.wikitext.is_some());
+    assert!(output.compiled_html.is_some());
+
+    // Get page (with neither)
+    let (output, status) = runner
+        .get(format!(
+            "/page/{WWW_SITE_ID}/slug/{slug}?wikitext=false&compiledHtml=false",
+        ))?
+        .recv_json::<GetPageOutput>()
+        .await?;
+
+    assert_eq!(status, StatusCode::Ok);
+    assert!(output.wikitext.is_some());
+    assert!(output.compiled_html.is_some());
+
+    Ok(())
+}
+
+#[async_test]
 async fn deletion_lifecycle() -> Result<()> {
     let runner = Runner::setup().await?;
 
