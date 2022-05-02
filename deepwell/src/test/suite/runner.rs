@@ -73,7 +73,11 @@ impl Runner {
 
     #[inline]
     pub fn slug(&self) -> String {
-        let mut slug = self.name_with_prefix("test-");
+        self.slug_with_prefix("test-")
+    }
+
+    pub fn slug_with_prefix(&self, prefix: &str) -> String {
+        let mut slug = self.name_with_prefix(prefix);
         slug.make_ascii_lowercase();
         slug
     }
