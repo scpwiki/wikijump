@@ -56,7 +56,7 @@ async fn exists() -> Result<()> {
 #[async_std::test]
 async fn basic_create() -> Result<()> {
     let runner = Runner::setup().await?;
-    let slug = runner.random_slug();
+    let slug = runner.slug();
 
     // Create page
     let (output, status) = runner
@@ -115,7 +115,7 @@ async fn basic_create() -> Result<()> {
 #[async_test]
 async fn deletion_lifecycle() -> Result<()> {
     let runner = Runner::setup().await?;
-    let slug = runner.random_slug();
+    let slug = runner.slug();
 
     // Create
     let (output, status) = runner
@@ -231,7 +231,7 @@ async fn deletion_lifecycle() -> Result<()> {
 #[async_test]
 async fn multiple_deleted() -> Result<()> {
     let runner = Runner::setup().await?;
-    let slug = runner.random_slug();
+    let slug = runner.slug();
 
     // Create, then delete multiple pages
     for i in 0..5 {

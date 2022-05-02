@@ -69,13 +69,13 @@ impl Runner {
     // Helper methods
 
     #[inline]
-    pub fn random_slug(&self) -> String {
-        let mut slug = self.random_name_with_prefix("test-");
+    pub fn slug(&self) -> String {
+        let mut slug = self.name_with_prefix("test-");
         slug.make_ascii_lowercase();
         slug
     }
 
-    pub fn random_name_with_prefix(&self, prefix: &str) -> String {
+    pub fn name_with_prefix(&self, prefix: &str) -> String {
         let mut slug = String::from(prefix);
         let mut rng = thread_rng();
 
