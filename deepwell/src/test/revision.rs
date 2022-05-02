@@ -260,6 +260,10 @@ async fn edits() -> Result<()> {
 async fn big_page() -> Result<()> {
     const INSERT_ITERATIONS: i32 = 5;
     const EXPANSION_ITERATIONS: i32 = 20;
+    const LONG_LINE: &str = "alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu nu xi omicron pi rho sigma tau upsilon phi chi psi omega
+Α α, Β β, Γ γ, Δ δ, Ε ε, Ζ ζ, Η η, Θ θ, Ι ι, Κ κ, Λ λ, Μ μ, Ν ν, Ξ ξ, Ο ο, Π π, Ρ ρ, Σ σ/ς, Τ τ, Υ υ, Φ φ, Χ χ, Ψ ψ, Ω ω.
+
+";
 
     let runner = Runner::setup().await?;
     let GeneratedPage { page_id, .. } = runner.page().await?;
@@ -267,22 +271,15 @@ async fn big_page() -> Result<()> {
     // Build large wikitext
     let mut body = str!("++ Very large page\n\n");
 
-    macro_rules! append {
-        () => {
-            body.push_str("alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu nu xi omicron pi rho sigma tau upsilon phi chi psi omega\n");
-            body.push_str("Α α, Β β, Γ γ, Δ δ, Ε ε, Ζ ζ, Η η, Θ θ, Ι ι, Κ κ, Λ λ, Μ μ, Ν ν, Ξ ξ, Ο ο, Π π, Ρ ρ, Σ σ/ς, Τ τ, Υ υ, Φ φ, Χ χ, Ψ ψ, Ω ω.\n\n");
-        };
-    }
-
     for _ in 0..EXPANSION_ITERATIONS {
-        append!();
+        body.push_str(LONG_LINE);
     }
 
     for i in 0..INSERT_ITERATIONS {
         // Append to the wikitext
         body.push_str("[[div]]..................................................[[/div]]\n----\n");
         for _ in 0..EXPANSION_ITERATIONS {
-            append!();
+            body.push_str(LONG_LINE);
         }
 
         // Insert new revision
