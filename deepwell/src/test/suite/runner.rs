@@ -133,6 +133,8 @@ impl Runner {
         })
     }
 
+    // TODO
+    #[allow(dead_code)]
     pub async fn user(&self) -> Result<GeneratedUser> {
         todo!()
     }
