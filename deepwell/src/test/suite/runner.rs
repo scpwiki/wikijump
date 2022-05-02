@@ -93,16 +93,19 @@ impl Runner {
 
     #[inline]
     pub async fn page(&self) -> Result<GeneratedPage> {
-        let slug = self.slug();
-        self.page2(WWW_SITE_ID, ADMIN_USER_ID, slug).await
+        self.page2(None, None, None).await
     }
 
     pub async fn page2(
         &self,
-        site_id: i64,
-        user_id: i64,
-        slug: String,
+        site_id: Option<i64>,
+        user_id: Option<i64>,
+        slug: Option<String>,
     ) -> Result<GeneratedPage> {
+        let site_id = site_id.unwrap_or(WWW_SITE_ID);
+        let user_id = user_id.unwrap_or(ADMIN_USER_ID);
+        let slug = slug.unwrap_or_else(|| self.slug());
+
         let (output, status) = self
             .post(format!("/page/{site_id}"))?
             .body_json(json!({
