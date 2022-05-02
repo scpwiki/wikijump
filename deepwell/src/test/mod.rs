@@ -90,6 +90,8 @@ impl TestEnvironment {
     impl_request_method!(Trace, trace);
     impl_request_method!(Patch, patch);
 
+    // Helper methods
+
     #[inline]
     pub fn random_slug(&self) -> String {
         let mut slug = self.random_name_with_prefix("test-");
