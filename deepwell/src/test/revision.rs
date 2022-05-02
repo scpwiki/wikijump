@@ -259,8 +259,10 @@ async fn edits() -> Result<()> {
 #[async_test]
 async fn big_page() -> Result<()> {
     const INSERT_ITERATIONS: i32 = 5;
-    const EXPANSION_ITERATIONS: i32 = 20;
-    const LONG_LINE: &str = "alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu nu xi omicron pi rho sigma tau upsilon phi chi psi omega
+    const EXPANSION_ITERATIONS: i32 = 10;
+    const TEXT_FILE_CONTENTS: &str = include_str!("../../misc/statute-of-anne.txt");
+    const LONG_LINE: &str = "
+alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu nu xi omicron pi rho sigma tau upsilon phi chi psi omega
 Α α, Β β, Γ γ, Δ δ, Ε ε, Ζ ζ, Η η, Θ θ, Ι ι, Κ κ, Λ λ, Μ μ, Ν ν, Ξ ξ, Ο ο, Π π, Ρ ρ, Σ σ/ς, Τ τ, Υ υ, Φ φ, Χ χ, Ψ ψ, Ω ω.
 
 ";
@@ -269,18 +271,16 @@ async fn big_page() -> Result<()> {
     let GeneratedPage { page_id, .. } = runner.page().await?;
 
     // Build large wikitext
-    let mut body = str!("++ Very large page\n\n");
+    let mut body = str!(TEXT_FILE_CONTENTS);
 
     for _ in 0..EXPANSION_ITERATIONS {
         body.push_str(LONG_LINE);
+        body.push_str(TEXT_FILE_CONTENTS);
     }
 
     for i in 0..INSERT_ITERATIONS {
         // Append to the wikitext
-        body.push_str("[[div]]..................................................[[/div]]\n----\n");
-        for _ in 0..EXPANSION_ITERATIONS {
-            body.push_str(LONG_LINE);
-        }
+        body.push_str(LONG_LINE);
 
         // Insert new revision
         let (output, status) = runner
