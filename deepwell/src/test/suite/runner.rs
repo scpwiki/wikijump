@@ -19,7 +19,7 @@
  */
 
 use super::super::{ADMIN_USER_ID, WWW_SITE_ID};
-use super::{GeneratedPage, GeneratedUser, GeneratedSite, RequestBuilder};
+use super::{GeneratedPage, GeneratedSite, GeneratedUser, RequestBuilder};
 use crate::api::{self, ApiServer};
 use crate::config::Config;
 use crate::services::page::CreatePageOutput;

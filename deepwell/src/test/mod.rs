@@ -21,8 +21,7 @@
 mod prelude {
     pub use super::suite::*;
     pub use super::{
-        ADMIN_USER_ID, ANONYMOUS_USER_ID, AUTOMATIC_USER_ID, EN_TEMPLATE_SITE_ID,
-        REGULAR_USER_ID, WWW_SITE_ID,
+        ADMIN_USER_ID, ANONYMOUS_USER_ID, AUTOMATIC_USER_ID, REGULAR_USER_ID, WWW_SITE_ID,
     };
     pub use async_std_test::async_test;
     pub use serde_json::{json, Value as JsonValue};
@@ -30,10 +29,11 @@ mod prelude {
 }
 
 pub const WWW_SITE_ID: i64 = 1;
-pub const EN_TEMPLATE_SITE_ID: i64 = 2;
 
 pub const ADMIN_USER_ID: i64 = 1;
+#[allow(dead_code)]
 pub const AUTOMATIC_USER_ID: i64 = 2;
+#[allow(dead_code)]
 pub const ANONYMOUS_USER_ID: i64 = 3;
 pub const REGULAR_USER_ID: i64 = 4;
 
