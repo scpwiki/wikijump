@@ -135,6 +135,12 @@ impl Runner {
 
     // TODO
     #[allow(dead_code)]
+    pub async fn site(&self) -> Result<GeneratedSite> {
+        todo!()
+    }
+
+    // TODO
+    #[allow(dead_code)]
     pub async fn user(&self) -> Result<GeneratedUser> {
         todo!()
     }

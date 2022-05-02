@@ -28,4 +28,8 @@ pub struct GeneratedPage {
 
 // TODO
 #[derive(Debug)]
+pub struct GeneratedSite;
+
+// TODO
+#[derive(Debug)]
 pub struct GeneratedUser;
