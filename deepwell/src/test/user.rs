@@ -1,5 +1,5 @@
 /*
- * test/mod.rs
+ * test/user.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,29 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod prelude {
-    pub use super::suite::*;
-    pub use super::{
-        ADMIN_USER_ID, ANONYMOUS_USER_ID, AUTOMATIC_USER_ID, REGULAR_USER_ID, WWW_SITE_ID,
-    };
-    pub use async_std_test::async_test;
-    pub use serde_json::{json, Value as JsonValue};
-    pub use tide::{Result, StatusCode};
-}
-
-pub const WWW_SITE_ID: i64 = 1;
-
-pub const ADMIN_USER_ID: i64 = 1;
-pub const AUTOMATIC_USER_ID: i64 = 2;
-pub const ANONYMOUS_USER_ID: i64 = 3;
-pub const REGULAR_USER_ID: i64 = 4;
-
-mod locale;
-mod link;
-mod misc;
-mod page;
-mod revision;
-mod site;
-mod slug;
-mod suite;
-mod user;
+// TODO add tests for users
+// - create
+// - check (exists, get)
+// - edit, check
+// - delete, check
+//
+// Also add user creation to factory
