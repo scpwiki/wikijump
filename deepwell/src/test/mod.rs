@@ -31,9 +31,7 @@ mod prelude {
 pub const WWW_SITE_ID: i64 = 1;
 
 pub const ADMIN_USER_ID: i64 = 1;
-#[allow(dead_code)]
 pub const AUTOMATIC_USER_ID: i64 = 2;
-#[allow(dead_code)]
 pub const ANONYMOUS_USER_ID: i64 = 3;
 pub const REGULAR_USER_ID: i64 = 4;
 
@@ -41,4 +39,5 @@ mod locale;
 mod misc;
 mod page;
 mod revision;
+mod slug;
 mod suite;
