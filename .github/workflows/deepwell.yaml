@@ -15,6 +15,18 @@ jobs:
     runs-on: ubuntu-latest
     env:
       RUSTFLAGS: -D warnings
+
+    services:
+      postgres:
+        image: postgres:14-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -38,6 +50,8 @@ jobs:
 
       - name: Test
         run: cd deepwell && cargo test --all-features
+        env:
+          DATABASE_URL: postgres://postgres:postgres@postgres/postgres
 
   coverage:
     name: Coverage
