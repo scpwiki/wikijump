@@ -55,6 +55,28 @@ async fn categories() -> Result<()> {
     let runner = Runner::setup().await?;
 
     create_page!(runner, "apple", "apple");
+    create_page!(runner, "_default:apple", "apple");
+    create_page!(runner, "category:apple", "category:apple");
+    create_page!(runner, "category-with-dashes:apple", "category-with-dashes:apple");
+    create_page!(runner, "_template", "_template");
+    create_page!(runner, "_default:_template", "_template");
+
+    Ok(())
+}
+
+#[async_test]
+async fn invalid() -> Result<()> {
+    let runner = Runner::setup().await?;
+
+    // TODO
+
+    Ok(())
+}
+
+#[async_test]
+async fn normalization() -> Result<()> {
+    let runner = Runner::setup().await?;
+
     // TODO
 
     Ok(())
