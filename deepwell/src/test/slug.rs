@@ -89,7 +89,32 @@ async fn invalid() -> Result<()> {
 async fn normalization() -> Result<()> {
     let runner = Runner::setup().await?;
 
-    // TODO
+    create_page!(runner, "Apple", "apple");
+    create_page!(runner, "AppleBanana", "applebanana");
+    create_page!(runner, "Apple Banana", "apple-banana");
+    create_page!(runner, " apple ", "apple");
+    create_page!(runner, " APPLE ", "apple");
+    create_page!(runner, "-apple-", "apple");
+    create_page!(runner, "-apple", "apple");
+    create_page!(runner, "apple-", "apple");
+    create_page!(runner, "apple-banana", "apple-banana");
+    create_page!(runner, "apple--banana", "apple-banana");
+    create_page!(runner, "apple---banana", "apple-banana");
+    create_page!(runner, "__template", "_template");
+    create_page!(runner, "_template_", "_template");
+    create_page!(runner, "template_", "template");
+    create_page!(runner, "Tufto's Proposal", "tufto-s-proposal");
+    create_page!(runner, "SCP-001", "scp-001");
+
+    create_page!(runner, "_default:Apple", "apple");
+    create_page!(runner, "_default:APPLE", "apple");
+    create_page!(runner, "category:Apple", "category:apple");
+    create_page!(runner, "category:APPLE", "category:apple");
+    create_page!(runner, "category::apple", "category:apple");
+    create_page!(runner, "category:::apple", "category:apple");
+    create_page!(runner, "category-:-apple", "category:apple");
+    create_page!(runner, "category:-apple", "category:apple");
+    create_page!(runner, "category-:apple", "category:apple");
 
     Ok(())
 }
