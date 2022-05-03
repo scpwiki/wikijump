@@ -11,7 +11,7 @@ on:
 
 jobs:
   binary_build_and_test:
-    name: Executable
+    name: Build and Test
     runs-on: ubuntu-latest
     env:
       RUSTFLAGS: -D warnings
