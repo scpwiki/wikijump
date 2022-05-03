@@ -37,7 +37,7 @@ jobs:
         run: cd deepwell && cargo build
 
       - name: Test
-        run: cd deepwell && cargo test --all-features -- --nocapture --test-threads 1
+        run: cd deepwell && cargo test --all-features
 
   coverage:
     name: Coverage
