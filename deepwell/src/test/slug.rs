@@ -77,15 +77,6 @@ async fn categories() -> Result<()> {
 }
 
 #[async_test]
-async fn invalid() -> Result<()> {
-    let runner = Runner::setup().await?;
-
-    // TODO
-
-    Ok(())
-}
-
-#[async_test]
 async fn normalization() -> Result<()> {
     let runner = Runner::setup().await?;
 
@@ -108,6 +99,8 @@ async fn normalization() -> Result<()> {
 
     create_page!(runner, "_default:Apple", "apple");
     create_page!(runner, "_default:APPLE", "apple");
+    create_page!(runner, "_default::Apple", "apple");
+    create_page!(runner, "_default::APPLE", "apple");
     create_page!(runner, "category:Apple", "category:apple");
     create_page!(runner, "category:APPLE", "category:apple");
     create_page!(runner, "category::apple", "category:apple");
@@ -115,6 +108,11 @@ async fn normalization() -> Result<()> {
     create_page!(runner, "category-:-apple", "category:apple");
     create_page!(runner, "category:-apple", "category:apple");
     create_page!(runner, "category-:apple", "category:apple");
+
+    create_page!(runner, "category:xyz:apple", "category:xyz:apple");
+    create_page!(runner, "category::xyz::apple", "category:xyz:apple");
+    create_page!(runner, "category::xyz:apple", "category:xyz:apple");
+    create_page!(runner, "category:xyz::apple", "category:xyz:apple");
 
     Ok(())
 }
