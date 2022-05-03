@@ -19,17 +19,29 @@
  */
 
 use super::prelude::*;
+use crate::services::page::GetPageOutput;
 
 macro_rules! create_page {
     ($runner:expr, $create_slug:expr, $expected_slug:expr $(,)?) => {{
-        let page = $runner.page2(
+        let GeneratedPage { page_id, .. } = $runner.page2(
             Some(WWW_SITE_ID),
             Some(ANONYMOUS_USER_ID),
             Some(str!($create_slug)),
         ).await?;
 
+        // Get page data
+        let (output, status) = $runner
+            .get(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
+            .recv_json::<GetPageOutput>()
+            .await?;
+
+        // Ensure request worked
+        assert_eq!(status, StatusCode::Ok);
+        assert_eq!(output.page_id, page_id);
+
+        // Actual assertion for this test
         assert_eq!(
-            page.slug,
+            output.slug,
             $expected_slug,
             "Actual created page slug doesn't match expected",
         );
@@ -38,7 +50,7 @@ macro_rules! create_page {
         // Since tests still work on the main site and don't create a dummy one.
 
         let status = $runner
-            .delete(format!("/page/{WWW_SITE_ID}/id/{}", page.page_id))?
+            .delete(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
             .body_json(json!({
                 "revisionComments": "Delete slug test page",
                 "userId": AUTOMATIC_USER_ID,
