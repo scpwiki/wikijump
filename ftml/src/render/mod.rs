@@ -26,10 +26,12 @@ mod prelude {
 }
 
 pub mod debug;
-pub mod html;
 pub mod json;
 pub mod null;
 pub mod text;
+
+#[cfg(feature = "html")]
+pub mod html;
 
 mod handle;
 
