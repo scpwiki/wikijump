@@ -21,15 +21,15 @@
 #[cfg(feature = "html")]
 mod html;
 
+#[cfg(feature = "html")]
+pub use self::html::*;
+
 use super::page_info::PageInfo;
 use super::parsing::SyntaxTree;
 use super::prelude::*;
 use super::settings::WikitextSettings;
 use crate::render::text::TextRender;
 use crate::render::Render;
-
-#[cfg(feature = "html")]
-pub use self::html::*;
 
 // Function exports
 
