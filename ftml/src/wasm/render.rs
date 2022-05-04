@@ -22,13 +22,18 @@ use super::page_info::PageInfo;
 use super::parsing::SyntaxTree;
 use super::prelude::*;
 use super::settings::WikitextSettings;
-use crate::render::html::{HtmlOutput as RustHtmlOutput, HtmlRender};
 use crate::render::text::TextRender;
 use crate::render::Render;
+
+#[cfg(feature = "html")]
 use std::sync::Arc;
+
+#[cfg(feature = "html")]
+use crate::render::html::{HtmlOutput as RustHtmlOutput, HtmlRender};
 
 // Typescript declarations
 
+#[cfg(feature = "html")]
 #[wasm_bindgen(typescript_custom_section)]
 const TS_APPEND_CONTENT: &str = r#"
 
@@ -52,6 +57,7 @@ export interface IBacklinks {
 
 "#;
 
+#[cfg(feature = "html")]
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(typescript_type = "string[]")]
@@ -66,12 +72,14 @@ extern "C" {
 
 // Wrapper structures
 
+#[cfg(feature = "html")]
 #[wasm_bindgen]
 #[derive(Debug, Clone)]
 pub struct HtmlOutput {
     inner: Arc<RustHtmlOutput>,
 }
 
+#[cfg(feature = "html")]
 #[wasm_bindgen]
 impl HtmlOutput {
     #[wasm_bindgen]
@@ -104,6 +112,7 @@ impl HtmlOutput {
 
 // Exported functions
 
+#[cfg(feature = "html")]
 #[wasm_bindgen]
 pub fn render_html(
     syntax_tree: SyntaxTree,
