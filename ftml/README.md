@@ -40,19 +40,11 @@ You can use this as a dependency by adding the following to your `Cargo.toml`:
 ftml = "1"
 ```
 
-The library comes with two default features, `log`, `ffi`, and `mathml`.
+The library has two features:
+* `html` (enabled by default) &mdash; This includes the HTML renderer in the crate.
+* `mathml` (enabled by default) &mdash; This includes `latex2mathml`, which is used to compile any LaTeX into MathML for inclusion in rendered HTML.
 
-The `log` feature adds all `slog` logging code, which when removed replaces all of them with no-ops.
-This may be desirable on certain platforms where the performance difference is significant.
-
-The `ffi` feature introduces an FFI interface for ftml, permitting C and C API-compatible code
-to interface with the library.
-
-The `mathml` feature includes `latex2mathml`, which compiles any LaTeX into MathML for inclusion
-in rendered HTML output.
-
-Note that, when compiling for the `wasm32` target, even if the `ffi` feature is enabled, its
-corresponding code is not built.
+They can be disabled by building without features:
 
 ```
 $ cargo check --no-default-features
@@ -64,17 +56,11 @@ If you wish to build the WebAssembly target for ftml, use `wasm-pack`:
 $ wasm-pack build -- --no-default-features
 ```
 
-This produces a build with no `slog` logging at all, which is helpful for limiting the binary footprint and improving performance.
-
-However, there is a `wasm-log` feature, which initializes a `console.log()`-based `slog::Logger` for WebASM. Note that this will slam your brower's console hard and is **not** recommended for production, only local testing.
-
-If developing and just want to check that the build passes, use:
+This optimizes the final WASM, which can take some time. If you are developing and are only interested in the build passing, you should instead use:
 
 ```
 $ wasm-pack build --dev
 ```
-
-Without release optimizations, this runs fast enough to use during development.
 
 If for some reason you want to invoke `cargo check` instead, call `cargo check --target wasm32-unknown-unkown`.
 
@@ -84,9 +70,7 @@ If for some reason you want to invoke `cargo check` instead, call `cargo check -
 $ cargo test
 ```
 
-Add `-- --nocapture` to the end if you want to see test output.
-If you wish to see the logging output, you can change `crate::build_logger()` to use a different logger
-creation implementation. Or you can modify the test you're inspecting to use a different logger.
+Add `-- --nocapture` to the end if you want to see test output. You can additionally inspect logging by exposing a `log`-compatible logger.
 
 ### Philosophy
 
@@ -108,11 +92,16 @@ name similarity to HTML.
 
 ### Syntax
 
-ftml is intended to be compatible with a subset of Wikidot text deemed to be "well-formed". Wikidot's general syntax documentation will be relevant here, but weird constructions or strange features may not be. During the development process, they are analyzed and either explicitly unimplemented, or implemented through more sensible syntax.
+ftml is intended to be compatible with a subset of Wikidot text deemed to be "well-formed". Wikidot's general syntax documentation will be relevant here, but weird constructions or strange features may not be. During the development process, they are analyzed and either explicitly unimplemented, or implemented through more sensible syntax. Additionally, it supports several new features and blocks not present in Wikidot, such as checkboxes, and fixes bugs, such as allowing collapsibles to be nested.
 
 As ftml develops into its own branch of wikitext, pages here will document the syntax separately from Wikidot, with the goal of deprecating Wikidot's documentation entirely.
 
 - [`Blocks.md`](docs/Blocks.md) -- Which blocks (e.g. `[[div]]`) are available in ftml and what options they take.
+
+There are some lesser-used or troublesome features which are implemented in a different, backwards-incompatible way with Wikidot. For instance:
+
+* `[[include]]` is split into `[[include-messy]]` (legacy behavior), and `[[include-elements]]` (self-contained element insertion).
+* Interwiki links are implemented by prefixing `!` in triple-bracket links. So `[[[!wp:Amazon.com | Amazon]]]` instead of `[wp:Amazon.com Amazon]`.
 
 ### Usage
 
@@ -130,7 +119,6 @@ Finally, with the syntax tree you `render` it with whatever `Render` instance yo
 
 ```rust
 fn include<'t, I, E>(
-    log: &slog::Logger,
     input: &'t str,
     includer: I,
 ) -> Result<(String, Vec<PageRef<'t>>), E>
@@ -138,17 +126,14 @@ where
     I: Includer<'t, Error = E>;
 
 fn preprocess(
-    log: &slog::Logger,
     text: &mut String,
 );
 
 fn tokenize<'t>(
-    log: &slog::Logger,
     text: &'t str,
 ) -> Tokenization<'t>;
 
 fn parse<'r, 't>(
-    log: &slog::Logger,
     tokenization: &'r Tokenization<'t>,
 ) -> ParseResult<SyntaxTree<'t>>;
 
@@ -157,7 +142,6 @@ trait Render {
 
     fn render(
         &self,
-        log: &slog::Logger,
         info: &PageInfo,
         tree: &SyntaxTree,
     ) -> Self::Output;
@@ -171,13 +155,6 @@ Consider the lifetimes of each of the artifacts being generated, should you want
 store the results in a `struct`.
 
 ```rust
-// Generate slog logger.
-//
-// See https://docs.rs/slog/2.7.0/slog/ for crate information.
-// You will need a drain to produce an instance, as that's where
-// journalled messages are outputted to.
-let log = slog::Logger::root(/* drain */);
-
 // Get an `Includer`.
 //
 // See trait documentation for what this requires, but
