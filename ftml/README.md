@@ -119,7 +119,6 @@ Finally, with the syntax tree you `render` it with whatever `Render` instance yo
 
 ```rust
 fn include<'t, I, E>(
-    log: &slog::Logger,
     input: &'t str,
     includer: I,
 ) -> Result<(String, Vec<PageRef<'t>>), E>
@@ -127,17 +126,14 @@ where
     I: Includer<'t, Error = E>;
 
 fn preprocess(
-    log: &slog::Logger,
     text: &mut String,
 );
 
 fn tokenize<'t>(
-    log: &slog::Logger,
     text: &'t str,
 ) -> Tokenization<'t>;
 
 fn parse<'r, 't>(
-    log: &slog::Logger,
     tokenization: &'r Tokenization<'t>,
 ) -> ParseResult<SyntaxTree<'t>>;
 
@@ -146,7 +142,6 @@ trait Render {
 
     fn render(
         &self,
-        log: &slog::Logger,
         info: &PageInfo,
         tree: &SyntaxTree,
     ) -> Self::Output;
@@ -160,13 +155,6 @@ Consider the lifetimes of each of the artifacts being generated, should you want
 store the results in a `struct`.
 
 ```rust
-// Generate slog logger.
-//
-// See https://docs.rs/slog/2.7.0/slog/ for crate information.
-// You will need a drain to produce an instance, as that's where
-// journalled messages are outputted to.
-let log = slog::Logger::root(/* drain */);
-
 // Get an `Includer`.
 //
 // See trait documentation for what this requires, but
