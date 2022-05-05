@@ -56,17 +56,11 @@ If you wish to build the WebAssembly target for ftml, use `wasm-pack`:
 $ wasm-pack build -- --no-default-features
 ```
 
-This produces a build with no `slog` logging at all, which is helpful for limiting the binary footprint and improving performance.
-
-However, there is a `wasm-log` feature, which initializes a `console.log()`-based `slog::Logger` for WebASM. Note that this will slam your brower's console hard and is **not** recommended for production, only local testing.
-
-If developing and just want to check that the build passes, use:
+This optimizes the final WASM, which can take some time. If you are developing and are only interested in the build passing, you should instead use:
 
 ```
 $ wasm-pack build --dev
 ```
-
-Without release optimizations, this runs fast enough to use during development.
 
 If for some reason you want to invoke `cargo check` instead, call `cargo check --target wasm32-unknown-unkown`.
 
