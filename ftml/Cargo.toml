@@ -8,7 +8,7 @@ keywords = ["wikidot", "wikijump", "ftml", "parsing", "html"]
 categories = ["parser-implementations"]
 exclude = [".gitignore", ".editorconfig"]
 
-version = "1.15.4"
+version = "1.16.0"
 authors = ["Ammon Smith <ammon.i.smith@gmail.com>"]
 edition = "2021" # this is *not* the same as the current year
 rust-version = "1.60.0"
@@ -18,9 +18,11 @@ name = "ftml"
 crate-type = ["cdylib", "lib"]
 
 [features]
-default  = ["mathml"]
+default  = ["html", "mathml"]
+# Adds HTML rendering.
+html     = []
 # Adds LaTeX -> MathML support for rendering.
-mathml   = ["latex2mathml"]
+mathml   = ["html", "latex2mathml"]
 
 [dependencies]
 cfg-if = "1"

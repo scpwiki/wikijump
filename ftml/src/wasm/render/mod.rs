@@ -1,5 +1,5 @@
 /*
- * wasm/mod.rs
+ * wasm/render/mod.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,30 +18,31 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#[macro_use]
-mod macros;
-
-mod error;
-mod misc;
-mod page_info;
-mod parsing;
-mod preproc;
-mod render;
-mod settings;
-mod tokenizer;
-mod utf16;
-
-mod prelude {
-    pub use wasm_bindgen::prelude::*;
-    pub use wasm_bindgen::JsCast;
-}
-
-pub use self::misc::version;
-pub use self::parsing::{parse, ParseOutcome, SyntaxTree};
-pub use self::preproc::preprocess;
-pub use self::render::render_text;
-pub use self::settings::WikitextSettings;
-pub use self::tokenizer::{tokenize, Tokenization};
+#[cfg(feature = "html")]
+mod html;
 
 #[cfg(feature = "html")]
-pub use self::render::render_html;
+pub use self::html::*;
+
+use super::page_info::PageInfo;
+use super::parsing::SyntaxTree;
+use super::prelude::*;
+use super::settings::WikitextSettings;
+use crate::render::text::TextRender;
+use crate::render::Render;
+
+// Function exports
+
+#[wasm_bindgen]
+pub fn render_text(
+    syntax_tree: SyntaxTree,
+    page_info: PageInfo,
+    settings: WikitextSettings,
+) -> String {
+    let tree = syntax_tree.get();
+    let page_info = page_info.get();
+    let settings = settings.get();
+    let text = TextRender.render(tree, page_info, settings);
+
+    text
+}

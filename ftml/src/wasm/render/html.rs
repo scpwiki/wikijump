@@ -1,5 +1,5 @@
 /*
- * wasm/render.rs
+ * wasm/render/html.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,12 +18,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::page_info::PageInfo;
-use super::parsing::SyntaxTree;
-use super::prelude::*;
-use super::settings::WikitextSettings;
+//! Isolated module for WASM HTML rendering.
+//!
+//! This submodule is separate to easily gate it within `#[cfg(feature = "html")]`,
+//! and so imports essentially the same fields as its parent.
+
+use super::super::page_info::PageInfo;
+use super::super::parsing::SyntaxTree;
+use super::super::prelude::*;
+use super::super::settings::WikitextSettings;
 use crate::render::html::{HtmlOutput as RustHtmlOutput, HtmlRender};
-use crate::render::text::TextRender;
 use crate::render::Render;
 use std::sync::Arc;
 
@@ -102,7 +106,7 @@ impl HtmlOutput {
     }
 }
 
-// Exported functions
+// Function exports
 
 #[wasm_bindgen]
 pub fn render_html(
@@ -118,18 +122,4 @@ pub fn render_html(
     HtmlOutput {
         inner: Arc::new(html),
     }
-}
-
-#[wasm_bindgen]
-pub fn render_text(
-    syntax_tree: SyntaxTree,
-    page_info: PageInfo,
-    settings: WikitextSettings,
-) -> String {
-    let tree = syntax_tree.get();
-    let page_info = page_info.get();
-    let settings = settings.get();
-    let text = TextRender.render(tree, page_info, settings);
-
-    text
 }
