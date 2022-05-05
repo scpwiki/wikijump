@@ -92,11 +92,16 @@ name similarity to HTML.
 
 ### Syntax
 
-ftml is intended to be compatible with a subset of Wikidot text deemed to be "well-formed". Wikidot's general syntax documentation will be relevant here, but weird constructions or strange features may not be. During the development process, they are analyzed and either explicitly unimplemented, or implemented through more sensible syntax.
+ftml is intended to be compatible with a subset of Wikidot text deemed to be "well-formed". Wikidot's general syntax documentation will be relevant here, but weird constructions or strange features may not be. During the development process, they are analyzed and either explicitly unimplemented, or implemented through more sensible syntax. Additionally, it supports several new features and blocks not present in Wikidot, such as checkboxes, and fixes bugs, such as allowing collapsibles to be nested.
 
 As ftml develops into its own branch of wikitext, pages here will document the syntax separately from Wikidot, with the goal of deprecating Wikidot's documentation entirely.
 
 - [`Blocks.md`](docs/Blocks.md) -- Which blocks (e.g. `[[div]]`) are available in ftml and what options they take.
+
+There are some lesser-used or troublesome features which are implemented in a different, backwards-incompatible way with Wikidot. For instance:
+
+* `[[include]]` is split into `[[include-messy]]` (legacy behavior), and `[[include-elements]]` (self-contained element insertion).
+* Interwiki links are implemented by prefixing `!` in triple-bracket links. So `[[[!wp:Amazon.com | Amazon]]]` instead of `[wp:Amazon.com Amazon]`.
 
 ### Usage
 
