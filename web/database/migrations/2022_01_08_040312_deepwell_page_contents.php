@@ -43,7 +43,7 @@ class DeepwellPageContents extends Migration
             -- which will impact performance. Instead we add a CHECK constraint.
             CREATE TABLE text (
                 hash BYTEA PRIMARY KEY,
-                contents TEXT NOT NULL,
+                contents TEXT COMPRESSION pglz NOT NULL,
 
                 CHECK (hash = digest(contents, 'sha512'))
             )
