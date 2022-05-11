@@ -129,9 +129,6 @@ pub enum Element<'t> {
     /// A definition list.
     DefinitionList(Vec<DefinitionListItem<'t>>),
 
-    /// A ruby annotation element.
-    Ruby(Vec<Element<'t>>),
-
     /// A radio button.
     ///
     /// The "name" field translates to HTML, but is standard for grouping them.
@@ -314,7 +311,6 @@ impl Element<'_> {
             Element::Image { .. } => "Image",
             Element::List { .. } => "List",
             Element::DefinitionList(_) => "DefinitionList",
-            Element::Ruby(_) => "Ruby",
             Element::RadioButton { .. } => "RadioButton",
             Element::CheckBox { .. } => "CheckBox",
             Element::Collapsible { .. } => "Collapsible",
@@ -365,7 +361,6 @@ impl Element<'_> {
             Element::Image { .. } => true,
             Element::List { .. } => false,
             Element::DefinitionList(_) => false,
-            Element::Ruby(_) => false,
             Element::RadioButton { .. } | Element::CheckBox { .. } => true,
             Element::Collapsible { .. } => false,
             Element::TableOfContents { .. } => false,
@@ -451,7 +446,6 @@ impl Element<'_> {
             Element::DefinitionList(items) => Element::DefinitionList(
                 items.iter().map(|item| item.to_owned()).collect(),
             ),
-            Element::Ruby(elements) => Element::Ruby(elements_to_owned(elements)),
             Element::RadioButton {
                 name,
                 checked,

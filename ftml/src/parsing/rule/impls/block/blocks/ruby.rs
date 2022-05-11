@@ -61,8 +61,6 @@ fn parse_block<'r, 't>(
     let (elements, exceptions, paragraph_safe) =
         parser.get_body_elements(&BLOCK_RUBY, false)?.into();
 
-    todo!();
-
     let element = Element::Container(Container::new(
         ContainerType::Span,
         elements,

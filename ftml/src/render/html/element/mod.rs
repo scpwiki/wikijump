@@ -126,7 +126,6 @@ pub fn render_element(ctx: &mut HtmlContext, element: &Element) {
             attributes,
         } => render_list(ctx, *ltype, items, attributes),
         Element::DefinitionList(items) => render_definition_list(ctx, items),
-        Element::Ruby(elements) => todo!(),
         Element::RadioButton {
             name,
             checked,

@@ -107,6 +107,7 @@ pub enum ContainerType {
     Hidden,
     Invisible,
     Size,
+    Ruby,
     Paragraph,
     Align(Alignment),
     Header(Heading),
@@ -137,6 +138,7 @@ impl ContainerType {
             ContainerType::Hidden => HtmlTag::with_class("span", "wj-hidden"),
             ContainerType::Invisible => HtmlTag::with_class("span", "wj-invisible"),
             ContainerType::Size => HtmlTag::new("span"),
+            ContainerType::Ruby => HtmlTag::new("ruby"),
             ContainerType::Paragraph => HtmlTag::new("p"),
             ContainerType::Align(alignment) => {
                 HtmlTag::with_class("div", alignment.html_class())
@@ -167,6 +169,7 @@ impl ContainerType {
             ContainerType::Hidden => true,
             ContainerType::Invisible => true,
             ContainerType::Size => true,
+            ContainerType::Ruby => true,
             ContainerType::Paragraph => false,
             ContainerType::Align(_) => false,
             ContainerType::Header(_) => false,

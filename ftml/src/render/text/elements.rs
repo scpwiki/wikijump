@@ -256,7 +256,6 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
 
             ctx.add_newline();
         }
-        Element::Ruby(elements) => todo!(),
         Element::RadioButton { checked, .. } => {
             str_write!(ctx, "({}) ", if *checked { '*' } else { ' ' })
         }
