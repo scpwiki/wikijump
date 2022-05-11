@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::parsing::ParserWrap;
+use crate::parsing::{strip_whitespace, ParserWrap};
 use crate::tree::{AcceptsPartial, PartialElement, RubyText};
 use std::mem;
 
@@ -97,6 +97,9 @@ fn parse_block<'r, 't>(
         }
     }
 
+    // Remove leading and trailing whitespace
+    strip_whitespace(&mut elements);
+
     // Build final ruby element
     let element = Element::Container(Container::new(
         ContainerType::Ruby,
@@ -123,8 +126,11 @@ fn parse_text<'r, 't>(
 
     let arguments = parser.get_head_map(&BLOCK_RT, in_head)?;
 
-    let (elements, exceptions, paragraph_safe) =
+    let (mut elements, exceptions, paragraph_safe) =
         parser.get_body_elements(&BLOCK_RT, false)?.into();
+
+    // Remove leading and trailing whitespace
+    strip_whitespace(&mut elements);
 
     let element = Element::Partial(PartialElement::RubyText(RubyText {
         elements,
