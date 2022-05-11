@@ -43,7 +43,7 @@ fn parse_fn<'r, 't>(
 
     let arguments = parser.get_head_map(&BLOCK_RT, in_head)?;
 
-    let (mut elements, exceptions, paragraph_safe) =
+    let (elements, exceptions, paragraph_safe) =
         parser.get_body_elements(&BLOCK_RT, false)?.into();
 
     todo!()

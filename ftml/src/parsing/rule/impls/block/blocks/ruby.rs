@@ -19,7 +19,6 @@
  */
 
 use super::prelude::*;
-use crate::parsing::strip_newlines;
 
 pub const BLOCK_RUBY: BlockRule = BlockRule {
     name: "block-ruby",
@@ -45,7 +44,7 @@ fn parse_fn<'r, 't>(
     let arguments = parser.get_head_map(&BLOCK_RUBY, in_head)?;
 
     // Get body content, strip treading and leading newlines
-    let (mut elements, exceptions, paragraph_safe) =
+    let (elements, exceptions, paragraph_safe) =
         parser.get_body_elements(&BLOCK_RUBY, false)?.into();
 
     todo!();
