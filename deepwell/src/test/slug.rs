@@ -118,10 +118,10 @@ async fn normalization() -> Result<()> {
     create_page(&runner, "category:-apple", "category:apple").await?;
     create_page(&runner, "category-:apple", "category:apple").await?;
 
-    create_page(&runner, "category:xyz:apple", "category:xyz:apple").await?;
-    create_page(&runner, "category::xyz::apple", "category:xyz:apple").await?;
-    create_page(&runner, "category::xyz:apple", "category:xyz:apple").await?;
-    create_page(&runner, "category:xyz::apple", "category:xyz:apple").await?;
+    create_page(&runner, "category:xyz:apple", "category-xyz:apple").await?;
+    create_page(&runner, "category::xyz::apple", "category-xyz:apple").await?;
+    create_page(&runner, "category::xyz:apple", "category-xyz:apple").await?;
+    create_page(&runner, "category:xyz::apple", "category-xyz:apple").await?;
 
     create_page(&runner, ":apple:", "apple").await?;
     create_page(&runner, "apple:", "apple").await?;
