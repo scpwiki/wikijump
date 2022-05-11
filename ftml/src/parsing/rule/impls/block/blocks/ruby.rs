@@ -34,11 +34,20 @@ pub const BLOCK_RUBY: BlockRule = BlockRule {
 
 pub const BLOCK_RT: BlockRule = BlockRule {
     name: "block-ruby-text",
-    accepts_names: &["rubytext", "rt"],
+    accepts_names: &["rt", "rubytext"],
     accepts_star: false,
     accepts_score: false,
     accepts_newlines: true,
     parse_fn: parse_text,
+};
+
+pub const BLOCK_RB: BlockRule = BlockRule {
+    name: "block-ruby-short",
+    accepts_names: &["rb", "ruby2"],
+    accepts_star: false,
+    accepts_score: false,
+    accepts_newlines: false,
+    parse_fn: parse_shortcut,
 };
 
 // Main container block
@@ -138,4 +147,36 @@ fn parse_text<'r, 't>(
     }));
 
     ok!(paragraph_safe; element, exceptions)
+}
+
+// Shortcut block
+
+fn parse_shortcut<'r, 't>(
+    parser: &mut Parser<'r, 't>,
+    name: &'t str,
+    flag_star: bool,
+    flag_score: bool,
+    in_head: bool,
+) -> ParseResult<'r, 't, Elements<'t>> {
+    info!("Parsing ruby shortcut block (name '{name}', in-head {in_head})");
+    assert!(!flag_star, "Ruby shortcut doesn't allow star flag");
+    assert!(!flag_score, "Ruby shortcut doesn't allow score flag");
+    assert_block_name(&BLOCK_RB, name);
+
+    let (text, label) =
+        parser.get_head_value(&BLOCK_RB, in_head, |parser, value| match value {
+            None => Err(parser.make_warn(ParseWarningKind::BlockMissingArguments)),
+            Some(value) => {
+                let parts = value.split('|').collect::<Vec<_>>();
+                match parts.as_slice() {
+                    // Exactly one pipe, split in the middle
+                    [text, label] => Ok((text.trim(), label.trim())),
+
+                    // Too many or too few pipes, invalid
+                    _ => Err(parser.make_warn(ParseWarningKind::BlockMalformedArguments)),
+                }
+            }
+        })?;
+
+    todo!()
 }
