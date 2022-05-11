@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::parsing::ParserWrap;
-use crate::tree::{AcceptsPartial, PartialElement};
+use crate::tree::{AcceptsPartial, PartialElement, RubyText};
 
 pub const BLOCK_RUBY: BlockRule = BlockRule {
     name: "block-ruby",
@@ -57,12 +57,11 @@ fn parse_block<'r, 't>(
     let parser = &mut ParserWrap::new(parser, AcceptsPartial::Ruby);
     let arguments = parser.get_head_map(&BLOCK_RUBY, in_head)?;
 
-    // Get body content, strip treading and leading newlines
     let (elements, exceptions, paragraph_safe) =
         parser.get_body_elements(&BLOCK_RUBY, false)?.into();
 
     let element = Element::Container(Container::new(
-        ContainerType::Span,
+        ContainerType::Ruby,
         elements,
         arguments.to_attribute_map(parser.settings()),
     ));
@@ -89,5 +88,10 @@ fn parse_text<'r, 't>(
     let (elements, exceptions, paragraph_safe) =
         parser.get_body_elements(&BLOCK_RT, false)?.into();
 
-    todo!()
+    let element = Element::Partial(PartialElement::RubyText(RubyText {
+        elements,
+        attributes: arguments.to_attribute_map(parser.settings()),
+    }));
+
+    ok!(paragraph_safe; element, exceptions)
 }

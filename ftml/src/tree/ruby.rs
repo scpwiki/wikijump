@@ -18,17 +18,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::attribute::AttributeMap;
 use super::clone::elements_to_owned;
 use super::Element;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct RubyText<'t> {
+    pub attributes: AttributeMap<'t>,
     pub elements: Vec<Element<'t>>,
 }
 
 impl RubyText<'_> {
     pub fn to_owned(&self) -> RubyText<'static> {
         RubyText {
+            attributes: self.attributes.to_owned(),
             elements: elements_to_owned(&self.elements),
         }
     }
