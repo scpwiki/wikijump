@@ -14,6 +14,12 @@ updates:
     schedule:
       interval: daily
 
+  # DEEPWELL
+  - package-ecosystem: cargo
+    directory: "/deepwell"
+    schedule:
+      interval: daily
+
   # FTML
   - package-ecosystem: cargo
     directory: "/ftml"
