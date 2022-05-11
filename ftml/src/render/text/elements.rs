@@ -63,6 +63,13 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
                     (true, Some(heading.level.prefix_with_space()))
                 }
 
+                // Wrap any ruby text with parentheses
+                ContainerType::RubyText => {
+                    ctx.push('(');
+
+                    (false, None)
+                }
+
                 // Inline or miscellaneous container.
                 _ => (false, None),
             };
@@ -78,6 +85,11 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
 
             // Render internal elements
             render_elements(ctx, container.elements());
+
+            // Wrap any ruby text with parentheses
+            if container.ctype() == ContainerType::RubyText {
+                ctx.push(')');
+            }
 
             if add_newlines {
                 // Pop prefix, if there's one
