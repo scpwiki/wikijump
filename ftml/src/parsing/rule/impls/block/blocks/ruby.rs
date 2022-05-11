@@ -21,6 +21,7 @@
 use super::prelude::*;
 use crate::parsing::ParserWrap;
 use crate::tree::{AcceptsPartial, PartialElement, RubyText};
+use std::mem;
 
 pub const BLOCK_RUBY: BlockRule = BlockRule {
     name: "block-ruby",
@@ -57,9 +58,42 @@ fn parse_block<'r, 't>(
     let parser = &mut ParserWrap::new(parser, AcceptsPartial::Ruby);
     let arguments = parser.get_head_map(&BLOCK_RUBY, in_head)?;
 
-    let (elements, exceptions, paragraph_safe) =
+    let (mut elements, exceptions, paragraph_safe) =
         parser.get_body_elements(&BLOCK_RUBY, false)?.into();
 
+    // Convert ruby partials to elements
+    for element in &mut elements {
+        let (attributes, elements) = match element {
+            // Swap out so we can extract fields
+            Element::Partial(PartialElement::RubyText(ref mut ruby_text)) => {
+                let RubyText { attributes, elements } = mem::take(ruby_text);
+                (attributes, elements)
+            }
+
+            // Leave other elements as-is
+            _ => continue,
+        };
+
+        // Replace element with container, for final AST
+        *element = Element::Container(Container::new(
+            ContainerType::RubyText,
+            elements,
+            attributes,
+        ));
+    }
+
+    // Ensure it contains no partials
+    cfg_if! {
+        if #[cfg(debug)] {
+            for element in elements {
+                if let Element::Partial(_) = element {
+                    panic!("Found partial after conversion");
+                }
+            }
+        }
+    }
+
+    // Build final ruby element
     let element = Element::Container(Container::new(
         ContainerType::Ruby,
         elements,

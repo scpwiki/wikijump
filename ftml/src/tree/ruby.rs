@@ -22,7 +22,7 @@ use super::attribute::AttributeMap;
 use super::clone::elements_to_owned;
 use super::Element;
 
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq, Eq)]
 pub struct RubyText<'t> {
     pub attributes: AttributeMap<'t>,
     pub elements: Vec<Element<'t>>,
