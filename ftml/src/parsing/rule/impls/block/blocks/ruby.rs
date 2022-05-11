@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::parsing::ParserWrap;
 
 pub const BLOCK_RUBY: BlockRule = BlockRule {
     name: "block-ruby",
@@ -38,6 +39,8 @@ pub const BLOCK_RT: BlockRule = BlockRule {
     parse_fn: parse_text,
 };
 
+// Main container block
+
 fn parse_block<'r, 't>(
     parser: &mut Parser<'r, 't>,
     name: &'t str,
@@ -50,6 +53,7 @@ fn parse_block<'r, 't>(
     assert!(!flag_score, "Ruby doesn't allow score flag");
     assert_block_name(&BLOCK_RUBY, name);
 
+    let parser = &mut ParserWrap::new(parser, AcceptsPartial::RubyText);
     let arguments = parser.get_head_map(&BLOCK_RUBY, in_head)?;
 
     // Get body content, strip treading and leading newlines
@@ -66,6 +70,8 @@ fn parse_block<'r, 't>(
 
     ok!(paragraph_safe; element, exceptions)
 }
+
+// Label block
 
 fn parse_text<'r, 't>(
     parser: &mut Parser<'r, 't>,
