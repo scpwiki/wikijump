@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::{ListItem, Tab, TableCell, TableRow};
+use super::{ListItem, RubyText, Tab, TableCell, TableRow};
 use crate::parsing::ParseWarningKind;
 
 /// Part of an element, as returned by a rule.
@@ -39,6 +39,11 @@ pub enum PartialElement<'t> {
 
     /// A particular tab within a tab view.
     Tab(Tab<'t>),
+
+    /// Text associated with a Ruby annotation.
+    ///
+    /// Outputs HTML `<rt>`. See also https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ruby.
+    RubyText(RubyText<'t>),
 }
 
 impl PartialElement<'_> {
@@ -48,6 +53,7 @@ impl PartialElement<'_> {
             PartialElement::TableRow(_) => "TableRow",
             PartialElement::TableCell(_) => "TableCell",
             PartialElement::Tab(_) => "Tab",
+            PartialElement::RubyText(_) => "RubyText",
         }
     }
 
@@ -58,6 +64,7 @@ impl PartialElement<'_> {
             PartialElement::TableRow(_) => ParseWarningKind::TableRowOutsideTable,
             PartialElement::TableCell(_) => ParseWarningKind::TableCellOutsideTable,
             PartialElement::Tab(_) => ParseWarningKind::TabOutsideTabView,
+            PartialElement::RubyText(_) => ParseWarningKind::RubyTextOutsideRuby,
         }
     }
 
@@ -73,6 +80,7 @@ impl PartialElement<'_> {
                 PartialElement::TableCell(table_cell.to_owned())
             }
             PartialElement::Tab(tab) => PartialElement::Tab(tab.to_owned()),
+            PartialElement::RubyText(text) => PartialElement::RubyText(text.to_owned()),
         }
     }
 }
@@ -88,6 +96,7 @@ pub enum AcceptsPartial {
     TableRow,
     TableCell,
     Tab,
+    RubyText,
 }
 
 impl AcceptsPartial {
@@ -98,6 +107,7 @@ impl AcceptsPartial {
                 | (AcceptsPartial::TableRow, PartialElement::TableRow(_))
                 | (AcceptsPartial::TableCell, PartialElement::TableCell(_))
                 | (AcceptsPartial::Tab, PartialElement::Tab(_))
+                | (AcceptsPartial::RubyText, PartialElement::RubyText(_))
         )
     }
 }
