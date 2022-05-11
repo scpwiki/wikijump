@@ -146,7 +146,7 @@ pub use self::module::BLOCK_MODULE;
 pub use self::monospace::BLOCK_MONOSPACE;
 pub use self::paragraph::BLOCK_PARAGRAPH;
 pub use self::radio::BLOCK_RADIO;
-pub use self::ruby::{BLOCK_RT, BLOCK_RUBY};
+pub use self::ruby::{BLOCK_RB, BLOCK_RT, BLOCK_RUBY};
 pub use self::size::BLOCK_SIZE;
 pub use self::span::BLOCK_SPAN;
 pub use self::strikethrough::BLOCK_STRIKETHROUGH;
