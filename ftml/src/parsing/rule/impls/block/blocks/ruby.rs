@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::parsing::{strip_whitespace, ParserWrap};
-use crate::tree::{AcceptsPartial, PartialElement, RubyText};
+use crate::tree::{AcceptsPartial, AttributeMap, PartialElement, RubyText};
 use std::mem;
 
 pub const BLOCK_RUBY: BlockRule = BlockRule {
@@ -163,14 +163,14 @@ fn parse_shortcut<'r, 't>(
     assert!(!flag_score, "Ruby shortcut doesn't allow score flag");
     assert_block_name(&BLOCK_RB, name);
 
-    let (text, label) =
+    let (base_text, ruby_text) =
         parser.get_head_value(&BLOCK_RB, in_head, |parser, value| match value {
             None => Err(parser.make_warn(ParseWarningKind::BlockMissingArguments)),
             Some(value) => {
                 let parts = value.split('|').collect::<Vec<_>>();
                 match parts.as_slice() {
                     // Exactly one pipe, split in the middle
-                    [text, label] => Ok((text.trim(), label.trim())),
+                    [base, ruby] => Ok((base.trim(), ruby.trim())),
 
                     // Too many or too few pipes, invalid
                     _ => Err(parser.make_warn(ParseWarningKind::BlockMalformedArguments)),
@@ -178,5 +178,17 @@ fn parse_shortcut<'r, 't>(
             }
         })?;
 
-    todo!()
+    let ruby_text = Element::Container(Container::new(
+        ContainerType::RubyText,
+        vec![text!(ruby_text)],
+        AttributeMap::new(),
+    ));
+
+    let ruby = Element::Container(Container::new(
+        ContainerType::Ruby,
+        vec![text!(base_text), ruby_text],
+        AttributeMap::new(),
+    ));
+
+    ok!(ruby)
 }
