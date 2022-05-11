@@ -26,10 +26,19 @@ pub const BLOCK_RUBY: BlockRule = BlockRule {
     accepts_star: false,
     accepts_score: false,
     accepts_newlines: true,
-    parse_fn,
+    parse_fn: parse_block,
 };
 
-fn parse_fn<'r, 't>(
+pub const BLOCK_RT: BlockRule = BlockRule {
+    name: "block-ruby-text",
+    accepts_names: &["rubytext", "rt"],
+    accepts_star: false,
+    accepts_score: false,
+    accepts_newlines: true,
+    parse_fn: parse_text,
+};
+
+fn parse_block<'r, 't>(
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     flag_star: bool,
@@ -56,4 +65,24 @@ fn parse_fn<'r, 't>(
     ));
 
     ok!(paragraph_safe; element, exceptions)
+}
+
+fn parse_text<'r, 't>(
+    parser: &mut Parser<'r, 't>,
+    name: &'t str,
+    flag_star: bool,
+    flag_score: bool,
+    in_head: bool,
+) -> ParseResult<'r, 't, Elements<'t>> {
+    info!("Parsing ruby text block (name '{name}', in-head {in_head})");
+    assert!(!flag_star, "Ruby text doesn't allow star flag");
+    assert!(!flag_score, "Ruby text doesn't allow score flag");
+    assert_block_name(&BLOCK_RT, name);
+
+    let arguments = parser.get_head_map(&BLOCK_RT, in_head)?;
+
+    let (elements, exceptions, paragraph_safe) =
+        parser.get_body_elements(&BLOCK_RT, false)?.into();
+
+    todo!()
 }
