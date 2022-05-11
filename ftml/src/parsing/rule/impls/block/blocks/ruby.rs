@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use crate::parsing::ParserWrap;
+use crate::tree::{AcceptsPartial, PartialElement};
 
 pub const BLOCK_RUBY: BlockRule = BlockRule {
     name: "block-ruby",
@@ -53,7 +54,7 @@ fn parse_block<'r, 't>(
     assert!(!flag_score, "Ruby doesn't allow score flag");
     assert_block_name(&BLOCK_RUBY, name);
 
-    let parser = &mut ParserWrap::new(parser, AcceptsPartial::RubyText);
+    let parser = &mut ParserWrap::new(parser, AcceptsPartial::Ruby);
     let arguments = parser.get_head_map(&BLOCK_RUBY, in_head)?;
 
     // Get body content, strip treading and leading newlines

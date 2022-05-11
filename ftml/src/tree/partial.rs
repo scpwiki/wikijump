@@ -96,7 +96,7 @@ pub enum AcceptsPartial {
     TableRow,
     TableCell,
     Tab,
-    RubyText,
+    Ruby,
 }
 
 impl AcceptsPartial {
@@ -107,7 +107,7 @@ impl AcceptsPartial {
                 | (AcceptsPartial::TableRow, PartialElement::TableRow(_))
                 | (AcceptsPartial::TableCell, PartialElement::TableCell(_))
                 | (AcceptsPartial::Tab, PartialElement::Tab(_))
-                | (AcceptsPartial::RubyText, PartialElement::RubyText(_))
+                | (AcceptsPartial::Ruby, PartialElement::RubyText(_))
         )
     }
 }
