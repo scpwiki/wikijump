@@ -49,6 +49,9 @@ jobs:
             deepwell/target
           key: ${{ runner.os }}-deepwell-default-${{ hashFiles('deepwell/**/Cargo.toml') }}
 
+      # This is already done as part of the health check, but this is here so that if the database
+      # configuration ever gets changed or messed up, it'll notify before doing a big long build,
+      # and this line can be used as a reference for what the correct Postgres URL is.
       - name: Database Check
         run: pg_isready -h localhost -d wikijump -U wikijump -p ${{ job.services.postgres.ports[5432] }} && echo connected
 
