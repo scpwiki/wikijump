@@ -53,7 +53,7 @@ jobs:
         run: >-
           psql
           -h localhost
-          -d wikijump
+          -d wikijump_test
           -U wikijump
           -p ${{ job.services.postgres.ports[5432] }}
           < deepwell/src/test/migration.sql
