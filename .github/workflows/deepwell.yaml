@@ -20,7 +20,6 @@ jobs:
       postgres:
         image: postgres:14-alpine
         env:
-          POSTGRES_HOST: postgres
           POSTGRES_DB: wikijump_test
           POSTGRES_USER: wikijump
           POSTGRES_PASSWORD: wikijump
@@ -54,7 +53,7 @@ jobs:
         run: echo p${{ job.services.postgres.ports[5432] }} x${{ job.services.postgres }}
 
       - name: DB ping (temp)
-        run: pg_isready -h postgres -d wikijump -U wikijump -p ${{ job.services.postgres.ports[5432] }} && echo connected
+        run: pg_isready -h localhost -d wikijump -U wikijump -p ${{ job.services.postgres.ports[5432] }} && echo connected
 
       - name: Build
         run: cd deepwell && cargo build
@@ -62,7 +61,7 @@ jobs:
       - name: Test
         run: cd deepwell && cargo test --all-features
         env:
-          DATABASE_URL: postgres://wikijump:wikijump@postgres:${{ job.services.postgres.ports[5432] }}/wikijump_test
+          DATABASE_URL: postgres://wikijump:wikijump@localhost/wikijump_test
 
   coverage:
     name: Coverage
