@@ -46,11 +46,11 @@ jobs:
             deepwell/target
           key: ${{ runner.os }}-deepwell-default-${{ hashFiles('deepwell/**/Cargo.toml') }}
 
-      - name: Build
-        run: cd deepwell && cargo build
-
       - name: DB ping (temp)
         run: pg_isready -d postgres -h postgres -U postgres && echo connected
+
+      - name: Build
+        run: cd deepwell && cargo build
 
       - name: Test
         run: cd deepwell && cargo test --all-features
