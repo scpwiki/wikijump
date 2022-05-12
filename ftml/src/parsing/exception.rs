@@ -179,6 +179,9 @@ pub enum ParseWarningKind {
     /// This native blockquote tries to nest too deeply.
     BlockquoteDepthExceeded,
 
+    /// Ruby text block appears outside of a ruby annotation block.
+    RubyTextOutsideRuby,
+
     /// There is no rule for the block name specified.
     NoSuchBlock,
 

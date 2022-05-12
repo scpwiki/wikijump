@@ -19,11 +19,27 @@
  */
 
 use super::prelude::*;
-use crate::tree::{Container, HtmlTag};
+use crate::tree::{Container, ContainerType, HtmlTag};
 
 pub fn render_container(ctx: &mut HtmlContext, container: &Container) {
     info!("Rendering container '{}'", container.ctype().name());
 
+    match container.ctype() {
+        // We wrap with <rp> around the <rt> contents
+        ContainerType::RubyText => {
+            ctx.html().rp().inner("(");
+
+            render_container_internal(ctx, container);
+
+            ctx.html().rp().inner(")");
+        }
+
+        // Render normally
+        _ => render_container_internal(ctx, container),
+    }
+}
+
+pub fn render_container_internal(ctx: &mut HtmlContext, container: &Container) {
     // Get HTML tag type for this type of container
     let tag_spec = container.ctype().html_tag(ctx);
 

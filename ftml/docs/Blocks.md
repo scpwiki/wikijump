@@ -115,6 +115,9 @@ Alternatively you may look here for a formatted list: (though it may not be upda
 | [Monospace](#monospace)                 | `tt`, `mono`, `monospace`        | No    | No     | No        | Map           | Elements  |
 | [Paragraph](#paragraph)                 | `p`, `paragraph`                 | No    | No     | Yes       | Map           | Elements  |
 | [Radio](#radio)                         | `radio`, `radio-button`          | Yes   | No     | No        | Value + Map   | None      |
+| [Ruby](#ruby)                           | `ruby`                           | No    | No     | Yes       | Map           | Elements  |
+| [Ruby text](#ruby-text)                 | `rt`, `rubytext`                 | No    | No     | Yes       | Map           | Elements  |
+| [Ruby (short)](#ruby-short)             | `rb`, `ruby2`                    | No    | No     | Yes       | Value         | None      |
 | [Size](#size)                           | `size`                           | No    | No     | No        | Value         | Elements  |
 | [Span](#span)                           | `span`                           | No    | Yes    | No        | Map           | Elements  |
 | [Strikethrough](#strikethrough)         | `s`, `strikethrough`             | No    | No     | No        | Map           | Elements  |
@@ -777,6 +780,51 @@ Favorite kind of music:
 [[radio music]] Dance
 [[radio music]] Rap
 [[*radio music]] Noise
+```
+
+### Ruby
+
+See also: [`<ruby>` block on MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ruby)
+
+Output: `Element::Container(ContainerType::Ruby)` / `<ruby>`
+
+Body: Elements
+
+Arguments:
+* All accepted attributes
+
+Example:
+
+```
+[[ruby]]語 [[rt]]go[[/rt]][[/ruby]]
+```
+
+### Ruby Text
+
+Only permitted within a `[[ruby]]` block. See above for example.
+
+Output: `Element::Container(ContainerType::RubyText)` / `<rt>`
+
+Body: Elements
+
+Arguments:
+* All accepted attributes
+
+### Ruby (short)
+
+A shorter form of `[[ruby]]` and `[[rt]]`, when specialized styling is not needed.
+
+Output: `Element::Container(ContainerType::Ruby)` / `<ruby><rt>`
+
+Body: None
+
+Arguments:
+* Takes a value, separated by a pipe. The main text is first, then the ruby annotation text after. Any spacing is trimmed.
+
+Example:
+
+```
+[[rb 語|go]]
 ```
 
 ### Size

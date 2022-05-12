@@ -390,12 +390,15 @@ def check_module_docs(module_conf, module_docs):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
+    if len(sys.argv) >= 3:
         print("Usage: check_blocks.py <ftml-root-dir>")
         sys.exit(-1)
 
-    root_dir = sys.argv[1]
     success = True
+    if len(sys.argv) == 2:
+        root_dir = sys.argv[1]
+    else:
+        root_dir = "."
 
     blocks, block_rules = load_block_data(root_dir)
     block_docs = load_block_docs(root_dir)

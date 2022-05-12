@@ -263,6 +263,29 @@ body = "none"
 html-attributes = true
 html-output = "html,input"
 
+[ruby]
+accepts-newlines = true
+head = "map"
+body = "elements"
+html-attributes = true
+html-output = "html,ruby"
+
+[ruby-text]
+exclude-name = true
+aliases = ["rt", "rubytext"]
+accepts-newlines = true
+head = "map"
+body = "elements"
+html-attributes = true
+html-output = "html,rt"
+
+[ruby-short]
+exclude-name = true
+aliases = ["rb", "ruby2"]
+head = "value"
+body = "none"
+html-output = "html,ruby"
+
 [size]
 head = "value"
 body = "elements"
