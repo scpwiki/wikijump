@@ -49,10 +49,7 @@ jobs:
             deepwell/target
           key: ${{ runner.os }}-deepwell-default-${{ hashFiles('deepwell/**/Cargo.toml') }}
 
-      - name: DB info (temp)
-        run: echo 'p${{ job.services.postgres.ports[5432] }} x${{ job.services.postgres }}'
-
-      - name: DB ping (temp)
+      - name: Database Check
         run: pg_isready -h localhost -d wikijump -U wikijump -p ${{ job.services.postgres.ports[5432] }} && echo connected
 
       - name: Build
