@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::super::{ADMIN_USER_ID, WWW_SITE_ID};
+use super::super::ADMIN_USER_ID;
 use super::{GeneratedPage, GeneratedSite, GeneratedUser, RequestBuilder};
 use crate::api::{self, ApiServer};
 use crate::config::Config;
@@ -97,17 +97,16 @@ impl Runner {
     // Factory methods
 
     #[inline]
-    pub async fn page(&self) -> Result<GeneratedPage> {
-        self.page2(None, None, None).await
+    pub async fn page(&self, site_id: i64) -> Result<GeneratedPage> {
+        self.page2(site_id, None, None).await
     }
 
     pub async fn page2(
         &self,
-        site_id: Option<i64>,
+        site_id: i64,
         user_id: Option<i64>,
         slug: Option<String>,
     ) -> Result<GeneratedPage> {
-        let site_id = site_id.unwrap_or(WWW_SITE_ID);
         let user_id = user_id.unwrap_or(ADMIN_USER_ID);
         let slug = slug.unwrap_or_else(|| self.slug());
 

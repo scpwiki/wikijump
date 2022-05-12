@@ -28,7 +28,7 @@ async fn create_page(
 ) -> Result<()> {
     let GeneratedPage { page_id, .. } = runner
         .page2(
-            Some(WWW_SITE_ID),
+            WWW_SITE_ID,
             Some(ANONYMOUS_USER_ID),
             Some(str!(create_slug)),
         )

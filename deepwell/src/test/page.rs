@@ -24,14 +24,14 @@ use crate::services::page::{
     CreatePageOutput, DeletePageOutput, EditPageOutput, GetPageOutput, RestorePageOutput,
 };
 
+/// Checks for the presence of default pages.
 #[async_test]
 async fn exists() -> Result<()> {
     let runner = Runner::setup().await?;
-    let site = runner.site().await?;
 
     macro_rules! check {
         ($slug:expr, $exists:expr $(,)?) => {
-            let path = format!("/page/{}/slug/{}", site.site_id, $slug);
+            let path = format!("/page/{}/slug/{}", WWW_SITE_ID, $slug);
             let actual_status = runner.head(path)?.recv().await?;
             let expected_status = if $exists {
                 StatusCode::NoContent
@@ -118,7 +118,7 @@ async fn basic_create() -> Result<()> {
 async fn text() -> Result<()> {
     let runner = Runner::setup().await?;
     let GeneratedSite { site_id, .. } = runner.site().await?;
-    let GeneratedPage { slug, .. } = runner.page().await?;
+    let GeneratedPage { slug, .. } = runner.page(site_id).await?;
 
     // Get page (with wikitext)
     let (output, status) = runner
@@ -183,7 +183,7 @@ async fn deletion_lifecycle() -> Result<()> {
 
     // Create
     let GeneratedSite { site_id, .. } = runner.site().await?;
-    let GeneratedPage { page_id, .. } = runner.page().await?;
+    let GeneratedPage { page_id, .. } = runner.page(site_id).await?;
 
     // Edit
     let (output, status) = runner

@@ -26,7 +26,8 @@ use std::borrow::Cow;
 #[async_test]
 async fn edits() -> Result<()> {
     let runner = Runner::setup().await?;
-    let GeneratedPage { page_id, slug, .. } = runner.page().await?;
+    let GeneratedSite { site_id, .. } = runner.site().await?;
+    let GeneratedPage { page_id, slug, .. } = runner.page(site_id).await?;
 
     // Edit wikitext via page ID
     let (output, status) = runner
@@ -267,7 +268,8 @@ alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu nu xi omicron
 ";
 
     let runner = Runner::setup().await?;
-    let GeneratedPage { page_id, .. } = runner.page().await?;
+    let GeneratedSite { site_id, .. } = runner.site().await?;
+    let GeneratedPage { page_id, .. } = runner.page(site_id).await?;
 
     // Build large wikitext
     let mut body = str!(TEXT_FILE_CONTENTS);
