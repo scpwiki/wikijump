@@ -27,9 +27,11 @@ pub struct GeneratedPage {
     pub slug: String,
 }
 
-// TODO
 #[derive(Debug)]
-pub struct GeneratedSite;
+pub struct GeneratedSite {
+    pub id: i64,
+    pub slug: String,
+}
 
 // TODO
 #[derive(Debug)]

@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::super::{ADMIN_USER_ID, WWW_SITE_ID};
+use super::super::ADMIN_USER_ID;
 use super::{GeneratedPage, GeneratedSite, GeneratedUser, RequestBuilder};
 use crate::api::{self, ApiServer};
 use crate::config::Config;
@@ -26,6 +26,7 @@ use crate::services::page::CreatePageOutput;
 use rand::distributions::Alphanumeric;
 use rand::prelude::*;
 use serde_json::json;
+use std::sync::atomic::{AtomicI64, Ordering};
 use tide::{http::Method, Result, StatusCode};
 
 macro_rules! impl_request_method {
@@ -43,7 +44,12 @@ macro_rules! impl_request_method {
 
 #[derive(Debug)]
 pub struct Runner {
+    /// API server to run requests against.
     pub app: ApiServer,
+
+    /// ID of a temporary site created for this batch of tests.
+    /// Set to `0` if no temporary site has been created.
+    site_id: AtomicI64,
 }
 
 impl Runner {
@@ -54,9 +60,10 @@ impl Runner {
         // Build API server
         crate::setup(&config).await?;
         let app = api::build_internal_api(config).await?;
+        let site_id = AtomicI64::new(0);
 
         // Build and return
-        Ok(Runner { app })
+        Ok(Runner { app, site_id })
     }
 
     impl_request_method!(Get, get);
@@ -93,6 +100,11 @@ impl Runner {
         slug
     }
 
+    #[inline]
+    pub fn site_id(&self) -> i64 {
+        self.site_id.load(Ordering::Relaxed)
+    }
+
     // Factory methods
 
     #[inline]
@@ -106,7 +118,7 @@ impl Runner {
         user_id: Option<i64>,
         slug: Option<String>,
     ) -> Result<GeneratedPage> {
-        let site_id = site_id.unwrap_or(WWW_SITE_ID);
+        let site_id = site_id.unwrap_or_else(|| self.site_id());
         let user_id = user_id.unwrap_or(ADMIN_USER_ID);
         let slug = slug.unwrap_or_else(|| self.slug());
 
@@ -134,10 +146,21 @@ impl Runner {
         })
     }
 
-    // TODO
-    #[allow(dead_code)]
     pub async fn site(&self) -> Result<GeneratedSite> {
-        todo!()
+        let slug = self.slug_with_prefix("test-site-");
+
+        let (id, status) = self
+            .post(format!(
+                "/site/temp/Test Site/{slug}/A temporary site for testing/en",
+            ))?
+            .recv_json::<i64>()
+            .await?;
+
+        assert_eq!(status, StatusCode::Ok, "[factory] Failed to create site");
+
+        self.site_id.store(id, Ordering::Relaxed);
+
+        Ok(GeneratedSite { id, slug })
     }
 
     // TODO
