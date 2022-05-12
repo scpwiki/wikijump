@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::super::ADMIN_USER_ID;
+use super::super::{ADMIN_USER_ID, WWW_SITE_ID};
 use super::{GeneratedPage, GeneratedSite, GeneratedUser, RequestBuilder};
 use crate::api::{self, ApiServer};
 use crate::config::Config;
@@ -45,10 +45,6 @@ macro_rules! impl_request_method {
 pub struct Runner {
     /// API server to run requests against.
     pub app: ApiServer,
-
-    /// ID of a temporary site created for this batch of tests.
-    /// Set to `0` if no temporary site has been created.
-    pub site_id: i64,
 }
 
 impl Runner {
@@ -61,7 +57,7 @@ impl Runner {
         let app = api::build_internal_api(config).await?;
 
         // Build and return
-        Ok(Runner { app, site_id: 0 })
+        Ok(Runner { app })
     }
 
     impl_request_method!(Get, get);
@@ -111,7 +107,7 @@ impl Runner {
         user_id: Option<i64>,
         slug: Option<String>,
     ) -> Result<GeneratedPage> {
-        let site_id = site_id.unwrap_or(self.site_id);
+        let site_id = site_id.unwrap_or(WWW_SITE_ID);
         let user_id = user_id.unwrap_or(ADMIN_USER_ID);
         let slug = slug.unwrap_or_else(|| self.slug());
 
@@ -139,10 +135,10 @@ impl Runner {
         })
     }
 
-    pub async fn site(&mut self) -> Result<GeneratedSite> {
+    pub async fn site(&self) -> Result<GeneratedSite> {
         let slug = self.slug_with_prefix("test-site-");
 
-        let (id, status) = self
+        let (site_id, status) = self
             .post(format!(
                 "/site/temp/Test Site/{slug}/A temporary site for testing/en",
             ))?
@@ -151,8 +147,7 @@ impl Runner {
 
         assert_eq!(status, StatusCode::Ok, "[factory] Failed to create site");
 
-        self.site_id = id;
-        Ok(GeneratedSite { id, slug })
+        Ok(GeneratedSite { site_id, slug })
     }
 
     // TODO

@@ -27,10 +27,11 @@ use crate::services::page::{
 #[async_test]
 async fn exists() -> Result<()> {
     let runner = Runner::setup().await?;
+    let site = runner.site().await?;
 
     macro_rules! check {
         ($slug:expr, $exists:expr $(,)?) => {
-            let path = format!("/page/{WWW_SITE_ID}/slug/{}", $slug);
+            let path = format!("/page/{}/slug/{}", site.site_id, $slug);
             let actual_status = runner.head(path)?.recv().await?;
             let expected_status = if $exists {
                 StatusCode::NoContent
@@ -56,11 +57,12 @@ async fn exists() -> Result<()> {
 #[async_std::test]
 async fn basic_create() -> Result<()> {
     let runner = Runner::setup().await?;
+    let GeneratedSite { site_id, .. } = runner.site().await?;
     let slug = runner.slug();
 
     // Create page
     let (output, status) = runner
-        .post(format!("/page/{WWW_SITE_ID}"))?
+        .post(format!("/page/{site_id}"))?
         .body_json(json!({
             "wikitext": "Page contents",
             "title": "Test page!",
@@ -80,7 +82,7 @@ async fn basic_create() -> Result<()> {
 
     // Check presence
     let status = runner
-        .head(format!("/page/{WWW_SITE_ID}/slug/{slug}"))?
+        .head(format!("/page/{site_id}/slug/{slug}"))?
         .recv()
         .await?;
 
@@ -88,7 +90,7 @@ async fn basic_create() -> Result<()> {
 
     // Get page
     let (output, status) = runner
-        .get(format!("/page/{WWW_SITE_ID}/slug/{slug}"))?
+        .get(format!("/page/{site_id}/slug/{slug}"))?
         .recv_json::<GetPageOutput>()
         .await?;
 
@@ -97,7 +99,7 @@ async fn basic_create() -> Result<()> {
     assert!(output.page_updated_at.is_none());
     assert!(output.page_deleted_at.is_none());
     assert_eq!(output.page_revision_count, 1);
-    assert_eq!(output.site_id, WWW_SITE_ID);
+    assert_eq!(output.site_id, site_id);
     assert_eq!(output.page_category_slug, "_default");
     assert!(output.discussion_thread_id.is_none());
     assert_eq!(output.revision_id, revision_id);
@@ -115,11 +117,12 @@ async fn basic_create() -> Result<()> {
 #[async_test]
 async fn text() -> Result<()> {
     let runner = Runner::setup().await?;
+    let GeneratedSite { site_id, .. } = runner.site().await?;
     let GeneratedPage { slug, .. } = runner.page().await?;
 
     // Get page (with wikitext)
     let (output, status) = runner
-        .get(format!("/page/{WWW_SITE_ID}/slug/{slug}?wikitext=true"))?
+        .get(format!("/page/{site_id}/slug/{slug}?wikitext=true"))?
         .recv_json::<GetPageOutput>()
         .await?;
 
@@ -129,7 +132,7 @@ async fn text() -> Result<()> {
 
     // Get page (with HTML)
     let (output, status) = runner
-        .get(format!("/page/{WWW_SITE_ID}/slug/{slug}?compiledHtml=true"))?
+        .get(format!("/page/{site_id}/slug/{slug}?compiledHtml=true"))?
         .recv_json::<GetPageOutput>()
         .await?;
 
@@ -139,7 +142,7 @@ async fn text() -> Result<()> {
 
     // Get page (with HTML alias)
     let (output, status) = runner
-        .get(format!("/page/{WWW_SITE_ID}/slug/{slug}?compiled=true"))?
+        .get(format!("/page/{site_id}/slug/{slug}?compiled=true"))?
         .recv_json::<GetPageOutput>()
         .await?;
 
@@ -150,7 +153,7 @@ async fn text() -> Result<()> {
     // Get page (with both)
     let (output, status) = runner
         .get(format!(
-            "/page/{WWW_SITE_ID}/slug/{slug}?wikitext=true&compiledHtml=true",
+            "/page/{site_id}/slug/{slug}?wikitext=true&compiledHtml=true",
         ))?
         .recv_json::<GetPageOutput>()
         .await?;
@@ -162,7 +165,7 @@ async fn text() -> Result<()> {
     // Get page (with neither)
     let (output, status) = runner
         .get(format!(
-            "/page/{WWW_SITE_ID}/slug/{slug}?wikitext=false&compiledHtml=false",
+            "/page/{site_id}/slug/{slug}?wikitext=false&compiledHtml=false",
         ))?
         .recv_json::<GetPageOutput>()
         .await?;
@@ -179,11 +182,12 @@ async fn deletion_lifecycle() -> Result<()> {
     let runner = Runner::setup().await?;
 
     // Create
+    let GeneratedSite { site_id, .. } = runner.site().await?;
     let GeneratedPage { page_id, .. } = runner.page().await?;
 
     // Edit
     let (output, status) = runner
-        .post(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
+        .post(format!("/page/{site_id}/id/{page_id}"))?
         .body_json(json!({
             "wikitext": "Apple banana",
             "revisionComments": "Edit page",
@@ -199,7 +203,7 @@ async fn deletion_lifecycle() -> Result<()> {
 
     // Delete
     let (output, status) = runner
-        .delete(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
+        .delete(format!("/page/{site_id}/id/{page_id}"))?
         .body_json(json!({
             "revisionComments": "Delete page",
             "userId": ADMIN_USER_ID,
@@ -212,7 +216,7 @@ async fn deletion_lifecycle() -> Result<()> {
 
     // Check presence
     let status = runner
-        .head(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
+        .head(format!("/page/{site_id}/id/{page_id}"))?
         .recv()
         .await?;
 
@@ -220,7 +224,7 @@ async fn deletion_lifecycle() -> Result<()> {
 
     // Edit (fails)
     let status = runner
-        .post(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
+        .post(format!("/page/{site_id}/id/{page_id}"))?
         .body_json(json!({
             "wikitext": "Apple banana durian",
             "revisionComments": "Edit deleted page",
@@ -233,7 +237,7 @@ async fn deletion_lifecycle() -> Result<()> {
 
     // Restore
     let (output, status) = runner
-        .post(format!("/page/{WWW_SITE_ID}/{page_id}/restore"))?
+        .post(format!("/page/{site_id}/{page_id}/restore"))?
         .body_json(json!({
             "slug": null,
             "revisionComments": "Restore page",
@@ -248,7 +252,7 @@ async fn deletion_lifecycle() -> Result<()> {
 
     // Check presence
     let status = runner
-        .head(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
+        .head(format!("/page/{site_id}/id/{page_id}"))?
         .recv()
         .await?;
 
@@ -256,7 +260,7 @@ async fn deletion_lifecycle() -> Result<()> {
 
     // Edit again
     let (output, status) = runner
-        .post(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
+        .post(format!("/page/{site_id}/id/{page_id}"))?
         .body_json(json!({
             "wikitext": "Apple banana cherry",
             "revisionComments": "Edit page",
@@ -276,13 +280,14 @@ async fn deletion_lifecycle() -> Result<()> {
 #[async_test]
 async fn multiple_deleted() -> Result<()> {
     let runner = Runner::setup().await?;
+    let GeneratedSite { site_id, .. } = runner.site().await?;
     let slug = runner.slug();
 
     // Create, then delete multiple pages
     for i in 0..5 {
         // Create
         let (output, status) = runner
-            .post(format!("/page/{WWW_SITE_ID}"))?
+            .post(format!("/page/{site_id}"))?
             .body_json(json!({
                 "wikitext": "Page contents",
                 "title": "Test page!",
@@ -300,7 +305,7 @@ async fn multiple_deleted() -> Result<()> {
 
         // Delete
         let (output, status) = runner
-            .delete(format!("/page/{WWW_SITE_ID}/slug/{slug}"))?
+            .delete(format!("/page/{site_id}/slug/{slug}"))?
             .body_json(json!({
                 "revisionComments": format!("Delete page {i}"),
                 "userId": ADMIN_USER_ID,
