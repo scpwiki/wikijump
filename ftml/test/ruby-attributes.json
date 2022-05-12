@@ -1,0 +1,67 @@
+{
+    "input": "[[ruby class=\"apple\" id=\"character\"]]語 [[rt class=\"banana\" style=\"font-size: 125%;\"]]go[[/rt]][[/ruby]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": "ruby",
+                                "attributes": {
+                                    "class": "apple",
+                                    "id": "character"
+                                },
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "語"
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": " "
+                                    },
+                                    {
+                                        "element": "container",
+                                        "data": {
+                                            "type": "ruby-text",
+                                            "attributes": {
+                                                "class": "banana",
+                                                "style": "font-size: 125%;"
+                                            },
+                                            "elements": [
+                                                {
+                                                    "element": "text",
+                                                    "data": "go"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}
