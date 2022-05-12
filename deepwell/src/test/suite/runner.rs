@@ -26,7 +26,6 @@ use crate::services::page::CreatePageOutput;
 use rand::distributions::Alphanumeric;
 use rand::prelude::*;
 use serde_json::json;
-use std::sync::atomic::{AtomicI64, Ordering};
 use tide::{http::Method, Result, StatusCode};
 
 macro_rules! impl_request_method {
@@ -49,7 +48,7 @@ pub struct Runner {
 
     /// ID of a temporary site created for this batch of tests.
     /// Set to `0` if no temporary site has been created.
-    site_id: AtomicI64,
+    pub site_id: i64,
 }
 
 impl Runner {
@@ -60,10 +59,9 @@ impl Runner {
         // Build API server
         crate::setup(&config).await?;
         let app = api::build_internal_api(config).await?;
-        let site_id = AtomicI64::new(0);
 
         // Build and return
-        Ok(Runner { app, site_id })
+        Ok(Runner { app, site_id: 0 })
     }
 
     impl_request_method!(Get, get);
@@ -100,11 +98,6 @@ impl Runner {
         slug
     }
 
-    #[inline]
-    pub fn site_id(&self) -> i64 {
-        self.site_id.load(Ordering::Relaxed)
-    }
-
     // Factory methods
 
     #[inline]
@@ -118,7 +111,7 @@ impl Runner {
         user_id: Option<i64>,
         slug: Option<String>,
     ) -> Result<GeneratedPage> {
-        let site_id = site_id.unwrap_or_else(|| self.site_id());
+        let site_id = site_id.unwrap_or(self.site_id);
         let user_id = user_id.unwrap_or(ADMIN_USER_ID);
         let slug = slug.unwrap_or_else(|| self.slug());
 
@@ -146,7 +139,7 @@ impl Runner {
         })
     }
 
-    pub async fn site(&self) -> Result<GeneratedSite> {
+    pub async fn site(&mut self) -> Result<GeneratedSite> {
         let slug = self.slug_with_prefix("test-site-");
 
         let (id, status) = self
@@ -158,8 +151,7 @@ impl Runner {
 
         assert_eq!(status, StatusCode::Ok, "[factory] Failed to create site");
 
-        self.site_id.store(id, Ordering::Relaxed);
-
+        self.site_id = id;
         Ok(GeneratedSite { id, slug })
     }
 
