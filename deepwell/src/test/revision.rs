@@ -31,7 +31,7 @@ async fn edits() -> Result<()> {
 
     // Edit wikitext via page ID
     let (output, status) = runner
-        .post(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
+        .post(format!("/page/{site_id}/id/{page_id}"))?
         .body_json(json!({
             "wikitext": "Apple banana",
             "revisionComments": "Edit wikitext (page ID)",
@@ -47,7 +47,7 @@ async fn edits() -> Result<()> {
 
     // Check page (full)
     let (output, status) = runner
-        .get(format!("/page/{WWW_SITE_ID}/slug/{slug}?wikitext=true"))?
+        .get(format!("/page/{site_id}/slug/{slug}?wikitext=true"))?
         .recv_json::<GetPageOutput>()
         .await?;
 
@@ -65,7 +65,7 @@ async fn edits() -> Result<()> {
 
     // Edit wikitext via page slug
     let (output, status) = runner
-        .post(format!("/page/{WWW_SITE_ID}/slug/{slug}"))?
+        .post(format!("/page/{site_id}/slug/{slug}"))?
         .body_json(json!({
             "wikitext": "Apple banana cherry",
             "revisionComments": "Edit wikitext (slug)",
@@ -81,7 +81,7 @@ async fn edits() -> Result<()> {
 
     // Check page (wikitext)
     let (output, status) = runner
-        .get(format!("/page/{WWW_SITE_ID}/slug/{slug}?wikitext=true"))?
+        .get(format!("/page/{site_id}/slug/{slug}?wikitext=true"))?
         .recv_json::<GetPageOutput>()
         .await?;
 
@@ -94,7 +94,7 @@ async fn edits() -> Result<()> {
 
     // Edit title
     let (output, status) = runner
-        .post(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
+        .post(format!("/page/{site_id}/id/{page_id}"))?
         .body_json(json!({
             "title": "Test page!",
             "altTitle": "A place to call home",
@@ -111,7 +111,7 @@ async fn edits() -> Result<()> {
 
     // Check page (wikitext and title)
     let (output, status) = runner
-        .get(format!("/page/{WWW_SITE_ID}/slug/{slug}?wikitext=true"))?
+        .get(format!("/page/{site_id}/slug/{slug}?wikitext=true"))?
         .recv_json::<GetPageOutput>()
         .await?;
 
@@ -124,7 +124,7 @@ async fn edits() -> Result<()> {
 
     // Edit, remove alt title
     let (output, status) = runner
-        .post(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
+        .post(format!("/page/{site_id}/id/{page_id}"))?
         .body_json(json!({
             "altTitle": null,
             "revisionComments": "Remove alt title",
@@ -140,7 +140,7 @@ async fn edits() -> Result<()> {
 
     // Check page (wikitext and title)
     let (output, status) = runner
-        .get(format!("/page/{WWW_SITE_ID}/slug/{slug}?wikitext=true"))?
+        .get(format!("/page/{site_id}/slug/{slug}?wikitext=true"))?
         .recv_json::<GetPageOutput>()
         .await?;
 
@@ -154,7 +154,7 @@ async fn edits() -> Result<()> {
 
     // Edit (nothing, no revision)
     let (output, status) = runner
-        .post(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
+        .post(format!("/page/{site_id}/id/{page_id}"))?
         .body_json(json!({
             "title": "Test page!",
             "altTitle": null,
@@ -169,7 +169,7 @@ async fn edits() -> Result<()> {
 
     // Check page (revision number should be the same)
     let (output, status) = runner
-        .get(format!("/page/{WWW_SITE_ID}/slug/{slug}"))?
+        .get(format!("/page/{site_id}/slug/{slug}"))?
         .recv_json::<GetPageOutput>()
         .await?;
 
@@ -179,7 +179,7 @@ async fn edits() -> Result<()> {
 
     // Edit (tags)
     let (output, status) = runner
-        .post(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
+        .post(format!("/page/{site_id}/id/{page_id}"))?
         .body_json(json!({
             "tags": ["apple"],
             "revisionComments": "Add tags",
@@ -194,7 +194,7 @@ async fn edits() -> Result<()> {
 
     // Check page (tags)
     let (output, status) = runner
-        .get(format!("/page/{WWW_SITE_ID}/slug/{slug}"))?
+        .get(format!("/page/{site_id}/slug/{slug}"))?
         .recv_json::<GetPageOutput>()
         .await?;
 
@@ -205,7 +205,7 @@ async fn edits() -> Result<()> {
 
     // Edit (nothing, no revision)
     let (output, status) = runner
-        .post(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
+        .post(format!("/page/{site_id}/id/{page_id}"))?
         .body_json(json!({
             "tags": ["apple"],
             "revisionComments": "Null edit",
@@ -219,7 +219,7 @@ async fn edits() -> Result<()> {
 
     // Check page (revision number should be the same)
     let (output, status) = runner
-        .get(format!("/page/{WWW_SITE_ID}/slug/{slug}"))?
+        .get(format!("/page/{site_id}/slug/{slug}"))?
         .recv_json::<GetPageOutput>()
         .await?;
 
@@ -230,7 +230,7 @@ async fn edits() -> Result<()> {
 
     // Edit (tags again)
     let (output, status) = runner
-        .post(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
+        .post(format!("/page/{site_id}/id/{page_id}"))?
         .body_json(json!({
             "tags": ["apple", "banana"],
             "revisionComments": "More tags",
@@ -245,7 +245,7 @@ async fn edits() -> Result<()> {
 
     // Check page (tags again)
     let (output, status) = runner
-        .get(format!("/page/{WWW_SITE_ID}/slug/{slug}"))?
+        .get(format!("/page/{site_id}/slug/{slug}"))?
         .recv_json::<GetPageOutput>()
         .await?;
 
@@ -281,7 +281,7 @@ alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu nu xi omicron
 
     // Insert new revision
     let (output, status) = runner
-        .post(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
+        .post(format!("/page/{site_id}/id/{page_id}"))?
         .body_json(json!({
             "wikitext": body,
             "tags": ["big"],
@@ -297,7 +297,7 @@ alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu nu xi omicron
 
     // Check wikitext matches
     let (output, status) = runner
-        .get(format!("/page/{WWW_SITE_ID}/id/{page_id}?wikitext=true"))?
+        .get(format!("/page/{site_id}/id/{page_id}?wikitext=true"))?
         .recv_json::<GetPageOutput>()
         .await?;
 

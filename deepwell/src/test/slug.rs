@@ -26,17 +26,14 @@ async fn create_page(
     create_slug: &str,
     expected_slug: &str,
 ) -> Result<()> {
+    let GeneratedSite { site_id, .. } = runner.site().await?;
     let GeneratedPage { page_id, .. } = runner
-        .page2(
-            WWW_SITE_ID,
-            Some(ANONYMOUS_USER_ID),
-            Some(str!(create_slug)),
-        )
+        .page2(site_id, Some(ANONYMOUS_USER_ID), Some(str!(create_slug)))
         .await?;
 
     // Get page data
     let (output, status) = runner
-        .get(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
+        .get(format!("/page/{site_id}/id/{page_id}"))?
         .recv_json::<GetPageOutput>()
         .await?;
 
@@ -54,7 +51,7 @@ async fn create_page(
     // Since tests still work on the main site and don't create a dummy one.
 
     let status = runner
-        .delete(format!("/page/{WWW_SITE_ID}/id/{page_id}"))?
+        .delete(format!("/page/{site_id}/id/{page_id}"))?
         .body_json(json!({
             "revisionComments": "Delete slug test page",
             "userId": AUTOMATIC_USER_ID,
