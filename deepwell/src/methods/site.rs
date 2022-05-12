@@ -27,6 +27,32 @@ pub async fn site_create(_req: ApiRequest) -> ApiResponse {
     todo!()
 }
 
+// Temporary, for testing only. Will be replaced with the above.
+pub async fn site_create_temp(req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    let name = req.param("name")?;
+    let slug = req.param("slug")?;
+    let description = req.param("description")?;
+    let language = req.param("language")?;
+    tide::log::info!("TEMP: Creating new site {} ('{}')", name, slug);
+
+    let site_id = SiteService::create_temp(
+        &ctx,
+        str!(name),
+        str!(slug),
+        str!(description),
+        str!(language),
+    )
+    .await?;
+
+    let body = Body::from_json(&site_id)?;
+    let response = Response::builder(StatusCode::Ok).body(body).into();
+    txn.commit().await?;
+    Ok(response)
+}
+
 pub async fn site_head(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);

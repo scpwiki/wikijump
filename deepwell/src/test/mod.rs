@@ -35,8 +35,8 @@ pub const AUTOMATIC_USER_ID: i64 = 2;
 pub const ANONYMOUS_USER_ID: i64 = 3;
 pub const REGULAR_USER_ID: i64 = 4;
 
-mod locale;
 mod link;
+mod locale;
 mod misc;
 mod page;
 mod revision;

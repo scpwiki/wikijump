@@ -25,6 +25,32 @@ use crate::models::site::{self, Entity as Site, Model as SiteModel};
 pub struct SiteService;
 
 impl SiteService {
+    // TODO Temporary method to create a new site, for testing.
+    pub async fn create_temp(
+        ctx: &ServiceContext<'_>,
+        name: String,
+        slug: String,
+        description: String,
+        language: String,
+    ) -> Result<i64> {
+        let txn = ctx.transaction();
+        let model = site::ActiveModel {
+            name: Set(Some(name)),
+            slug: Set(slug),
+            description: Set(Some(description)),
+            language: Set(language),
+            date_created: Set(Some(now_naive())),
+            visible: Set(true),
+            default_page: Set(str!("start")),
+            private: Set(false),
+            deleted: Set(false),
+            ..Default::default()
+        };
+
+        let site = model.insert(txn).await?;
+        Ok(site.site_id)
+    }
+
     #[inline]
     pub async fn exists(
         ctx: &ServiceContext<'_>,
