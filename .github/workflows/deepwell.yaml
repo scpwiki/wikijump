@@ -57,6 +57,8 @@ jobs:
           -U wikijump
           -p ${{ job.services.postgres.ports[5432] }}
           < deepwell/src/test/migration.sql
+        env:
+          PGPASSWORD: wikijump
 
       - name: Build
         run: cd deepwell && cargo build
