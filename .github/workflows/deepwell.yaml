@@ -53,7 +53,7 @@ jobs:
         run: echo 'p${{ job.services.postgres.ports[5432] }} x${{ job.services.postgres }}'
 
       - name: DB ping (temp)
-        run: pg_isready -h localhost -d wikijump -U wikijump -p  && echo connected
+        run: pg_isready -h localhost -d wikijump -U wikijump -p ${{ job.services.postgres.ports[5432] }} && echo connected
 
       - name: Build
         run: cd deepwell && cargo build
