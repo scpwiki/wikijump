@@ -49,7 +49,7 @@ jobs:
           key: ${{ runner.os }}-deepwell-default-${{ hashFiles('deepwell/**/Cargo.toml') }}
 
       - name: DB ping (temp)
-        run: pg_isready -h postgres -d wikijump_test -U wikijump && echo connected
+        run: pg_isready -h postgres -d wikijump -U wikijump -p ${{ job.services.postgres.ports[5432] }} && echo connected
 
       - name: Build
         run: cd deepwell && cargo build
@@ -57,7 +57,7 @@ jobs:
       - name: Test
         run: cd deepwell && cargo test --all-features
         env:
-          DATABASE_URL: postgres://wikijump:wikijump@postgres/wikijump_test
+          DATABASE_URL: postgres://wikijump:wikijump@postgres:${{ job.services.postgres.ports[5432] }}/wikijump_test
 
   coverage:
     name: Coverage
