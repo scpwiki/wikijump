@@ -24,6 +24,8 @@ jobs:
           POSTGRES_DB: wikijump_test
           POSTGRES_USER: wikijump
           POSTGRES_PASSWORD: wikijump
+        ports:
+          - 5432:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
