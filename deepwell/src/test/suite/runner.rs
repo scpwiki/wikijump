@@ -139,7 +139,7 @@ impl Runner {
 
         let (site_id, status) = self
             .post(format!(
-                "/site/temp/Test Site/{slug}/A temporary site for testing/en",
+                "/site/temp/Test-site/{slug}/A_temporary_site_for_testing/en",
             ))?
             .recv_json::<i64>()
             .await?;
