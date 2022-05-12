@@ -50,7 +50,13 @@ jobs:
           key: ${{ runner.os }}-deepwell-default-${{ hashFiles('deepwell/**/Cargo.toml') }}
 
       - name: Database Setup
-        run: psql -h localhost -d wikijump -U wikijump -p ${{ job.services.postgres.ports[5432] }} < deepwell/src/test/migration.sql
+        run: >-
+          psql
+          -h localhost
+          -d wikijump
+          -U wikijump
+          -p ${{ job.services.postgres.ports[5432] }}
+          < deepwell/src/test/migration.sql
 
       - name: Build
         run: cd deepwell && cargo build
