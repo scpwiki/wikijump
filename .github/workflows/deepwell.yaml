@@ -20,6 +20,7 @@ jobs:
       postgres:
         image: postgres:14-alpine
         env:
+          POSTGRES_HOST: postgres
           POSTGRES_PASSWORD: postgres
         options: >-
           --health-cmd pg_isready
@@ -47,6 +48,9 @@ jobs:
 
       - name: Build
         run: cd deepwell && cargo build
+
+      - name: DB ping (temp)
+        run: pg_isready -d postgres -h postgres -U postgres && echo connected
 
       - name: Test
         run: cd deepwell && cargo test --all-features
