@@ -27,8 +27,8 @@ class DeepwellPageVote extends Migration
                 deleted_at TIMESTAMP WITH TIME ZONE,
                 disabled_at TIMESTAMP WITH TIME ZONE,
                 disabled_by BIGINT REFERENCES users(id),
-                page_id BIGINT REFERENCES page(page_id),
-                user_id BIGINT REFERENCES users(id),
+                page_id BIGINT NOT NULL REFERENCES page(page_id),
+                user_id BIGINT NOT NULL REFERENCES users(id),
                 value SMALLINT NOT NULL,
 
                 UNIQUE (page_id, user_id, deleted_at),
