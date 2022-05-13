@@ -1,5 +1,5 @@
 /*
- * web/revision_limit/mod.rs
+ * web/fetch_limit/mod.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -22,38 +22,38 @@ use super::PageDetailsQuery;
 
 mod de;
 
-/// Represents the number of revisions to return in this request.
+/// Represents the number of items to return in this request.
 ///
 /// The default value is 10, and the maximum value is 100.
 #[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq)]
-pub struct RevisionLimit(u16);
+pub struct FetchLimit(u16);
 
-impl From<RevisionLimit> for u16 {
+impl From<FetchLimit> for u16 {
     #[inline]
-    fn from(limit: RevisionLimit) -> u16 {
+    fn from(limit: FetchLimit) -> u16 {
         limit.0
     }
 }
 
-impl From<RevisionLimit> for u64 {
+impl From<FetchLimit> for u64 {
     #[inline]
-    fn from(limit: RevisionLimit) -> u64 {
+    fn from(limit: FetchLimit) -> u64 {
         limit.0.into()
     }
 }
 
-impl Default for RevisionLimit {
+impl Default for FetchLimit {
     #[inline]
     fn default() -> Self {
-        RevisionLimit(10)
+        FetchLimit(10)
     }
 }
 
-pub type RevisionDetailsQuery = PageDetailsQuery;
+pub type FetchDetailsQuery = PageDetailsQuery;
 
 #[derive(Serialize, Deserialize, Debug, Default, Copy, Clone, PartialEq, Eq)]
 #[serde(default, rename_all = "camelCase")]
-pub struct RevisionLimitQuery {
+pub struct FetchLimitQuery {
     /// Include the wikitext in the page output.
     pub wikitext: bool,
 
@@ -61,9 +61,9 @@ pub struct RevisionLimitQuery {
     #[serde(alias = "compiled")]
     pub compiled_html: bool,
 
-    /// How many revisions to pull in this query.
-    pub limit: RevisionLimit,
+    /// How many items to pull in this query.
+    pub limit: FetchLimit,
 }
 
-// NOTE: #[serde(flatten)] on RevisionDetailsQuery as a field
+// NOTE: #[serde(flatten)] on FetchDetailsQuery as a field
 //       doesn't seem to work here, so we're just pasting it in.

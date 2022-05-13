@@ -21,10 +21,10 @@
 mod category;
 mod connection_type;
 mod fetch_direction;
+mod fetch_limit;
 mod page_details;
 mod provided_value;
 mod reference;
-mod revision_limit;
 mod unwrap;
 mod user_details;
 
@@ -34,9 +34,9 @@ pub mod utils;
 pub use self::category::*;
 pub use self::connection_type::ConnectionType;
 pub use self::fetch_direction::FetchDirection;
+pub use self::fetch_limit::{FetchDetailsQuery, FetchLimit, FetchLimitQuery};
 pub use self::page_details::PageDetailsQuery;
 pub use self::provided_value::ProvidedValue;
 pub use self::reference::Reference;
-pub use self::revision_limit::{RevisionDetailsQuery, RevisionLimit, RevisionLimitQuery};
 pub use self::unwrap::HttpUnwrap;
 pub use self::user_details::{UserDetails, UserDetailsQuery};
