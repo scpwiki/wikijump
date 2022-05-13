@@ -12,8 +12,8 @@ pub struct Model {
     pub deleted_at: Option<DateTimeWithTimeZone>,
     pub disabled_at: Option<DateTimeWithTimeZone>,
     pub disabled_by: Option<i64>,
-    pub page_id: Option<i64>,
-    pub user_id: Option<i64>,
+    pub page_id: i64,
+    pub user_id: i64,
     pub value: i16,
 }
 
