@@ -34,3 +34,9 @@ pub struct GetVote {
     pub page_id: i64,
     pub user_id: i64,
 }
+
+#[derive(Debug, Copy, Clone)]
+pub enum VoteHistoryKind {
+    Page(i64),
+    User(i64),
+}

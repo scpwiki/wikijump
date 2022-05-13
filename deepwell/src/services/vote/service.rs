@@ -40,6 +40,12 @@ impl VoteService {
         }: CreateVote,
     ) -> Result<Option<PageVoteModel>> {
         let txn = ctx.transaction();
+        tide::log::info!(
+            "Casting new vote by user ID {} on page ID {} (value {})",
+            user_id,
+            page_id,
+            value,
+        );
 
         // Get previous vote, if any
         if let Some(vote) = Self::get_optional(ctx, GetVote { page_id, user_id }).await? {
@@ -97,17 +103,66 @@ impl VoteService {
         Ok(vote)
     }
 
+    /// Enables or disables the vote specified.
+    ///
+    /// The action depends on the value of the boolean:
+    /// * `value` being `true`: enable the vote
+    /// * `value` being `false`: disable the vote
+    pub async fn disable(
+        ctx: &ServiceContext<'_>,
+        input: GetVote,
+        acting_user_id: i64,
+        value: bool,
+    ) -> Result<PageVoteModel> {
+        tide::log::info!(
+            "{} vote cast by user {} on page {} (being done by {})",
+            if value { "Enabling" } else { "Disabling" },
+            input.user_id,
+            input.page_id,
+            acting_user_id,
+        );
+
+        let txn = ctx.transaction();
+        let mut vote = Self::get(ctx, input).await?.into_active_model();
+
+        if value {
+            // Enable, clear "disabled" field.
+            vote.disabled_at = Set(None);
+            vote.disabled_by = Set(None);
+        } else {
+            // Disable, set "disabled" field.
+            vote.disabled_at = Set(Some(now()));
+            vote.disabled_by = Set(Some(acting_user_id));
+        }
+
+        let model = vote.update(txn).await?;
+        Ok(model)
+    }
+
     /// Removes the vote specified.
     pub async fn remove(
         ctx: &ServiceContext<'_>,
         input: GetVote,
     ) -> Result<PageVoteModel> {
-        let txn = ctx.transaction();
+        tide::log::info!(
+            "Removing vote cast by user {} on page {}",
+            input.user_id,
+            input.page_id,
+        );
 
+        let txn = ctx.transaction();
         let mut vote = Self::get(ctx, input).await?.into_active_model();
         vote.deleted_at = Set(Some(now()));
 
         let model = vote.update(txn).await?;
         Ok(model)
+    }
+
+    /// Gets the history of votes for either a page or a user.
+    pub async fn get_history(
+        ctx: &ServiceContext<'_>,
+        kind: VoteHistoryKind,
+    ) -> Result<Vec<PageVoteModel>> {
+        todo!()
     }
 }
