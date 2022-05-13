@@ -27,8 +27,8 @@ tables=(
 	page_link
 	page_metadata
 	page_parent
-	page_rate_vote
 	page_revision
+	page_vote
 	settings
 	site
 	site_settings
