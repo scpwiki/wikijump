@@ -20,7 +20,8 @@
 
 use super::prelude::*;
 use crate::models::page_vote::{self, Entity as PageVote, Model as PageVoteModel};
-use sea_orm::IntoActiveModel;
+use crate::web::FetchDirection;
+use sea_orm::{prelude::DateTimeWithTimeZone, IntoActiveModel};
 
 #[derive(Debug)]
 pub struct VoteService;
@@ -162,7 +163,33 @@ impl VoteService {
     pub async fn get_history(
         ctx: &ServiceContext<'_>,
         kind: VoteHistoryKind,
+        vote_start_date: Option<DateTimeWithTimeZone>,
+        vote_direction: FetchDirection,
+        vote_limit: u64,
     ) -> Result<Vec<PageVoteModel>> {
-        todo!()
+        let txn = ctx.transaction();
+
+        let kind_condition = match kind {
+            VoteHistoryKind::Page(page_id) => page_vote::Column::PageId.eq(page_id),
+            VoteHistoryKind::User(user_id) => page_vote::Column::UserId.eq(user_id),
+        };
+
+        let vote_condition = vote_start_date.map(|start_date| match vote_direction {
+            FetchDirection::Before => page_vote::Column::CreatedAt.lte(start_date),
+            FetchDirection::After => page_vote::Column::CreatedAt.gte(start_date),
+        });
+
+        let votes = PageVote::find()
+            .filter(
+                Condition::all()
+                    .add(kind_condition)
+                    .add_option(vote_condition),
+            )
+            .order_by_asc(page_vote::Column::PageVoteId)
+            .limit(vote_limit)
+            .all(txn)
+            .await?;
+
+        Ok(votes)
     }
 }
