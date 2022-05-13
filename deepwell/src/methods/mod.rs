@@ -33,6 +33,7 @@ mod prelude {
         CategoryService, Error as ServiceError, LinkService, PageService,
         PostTransactionToApiResponse, RenderService, RequestFetchService,
         RevisionService, ServiceContext, SiteService, TextService, UserService,
+        VoteService,
     };
     pub use crate::web::{utils::error_response, HttpUnwrap, Reference};
     pub use chrono::prelude::*;

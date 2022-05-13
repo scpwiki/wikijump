@@ -60,6 +60,7 @@ pub mod revision;
 pub mod site;
 pub mod text;
 pub mod user;
+pub mod vote;
 
 use crate::api::ApiRequest;
 use sea_orm::DatabaseConnection;
@@ -77,6 +78,7 @@ pub use self::revision::RevisionService;
 pub use self::site::SiteService;
 pub use self::text::TextService;
 pub use self::user::UserService;
+pub use self::vote::VoteService;
 
 /// Extension trait to retrieve service objects from an `ApiRequest`.
 pub trait RequestFetchService {
