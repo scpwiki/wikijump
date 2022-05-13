@@ -30,7 +30,7 @@ use crate::services::render::RenderOutput;
 use crate::services::{
     LinkService, OutdateService, ParentService, RenderService, SiteService, TextService,
 };
-use crate::web::{split_category, split_category_name, RevisionDirection};
+use crate::web::{split_category, split_category_name, FetchDirection};
 use ftml::data::PageInfo;
 use ftml::settings::{WikitextMode, WikitextSettings};
 use ref_map::*;
@@ -819,7 +819,7 @@ impl RevisionService {
         site_id: i64,
         page_id: i64,
         revision_number: i32,
-        revision_direction: RevisionDirection,
+        revision_direction: FetchDirection,
         revision_limit: u64,
     ) -> Result<Vec<PageRevisionModel>> {
         let revision_condition = {
@@ -835,8 +835,8 @@ impl RevisionService {
 
             // Get correct database condition based on requested ordering
             match revision_direction {
-                RevisionDirection::Before => RevisionNumber.lte(revision_number),
-                RevisionDirection::After => RevisionNumber.gte(revision_number),
+                FetchDirection::Before => RevisionNumber.lte(revision_number),
+                FetchDirection::After => RevisionNumber.gte(revision_number),
             }
         };
 

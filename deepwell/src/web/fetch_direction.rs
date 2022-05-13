@@ -1,5 +1,5 @@
 /*
- * web/revision_direction.rs
+ * web/fetch_direction.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -36,42 +36,42 @@ use strum_macros::EnumIter;
     Eq,
 )]
 #[serde(rename_all = "camelCase")]
-pub enum RevisionDirection {
-    /// Retrieves revisions prior (earlier) to this one.
+pub enum FetchDirection {
+    /// Retrieves items prior (earlier) to this one.
     Before,
 
-    /// Retrieves revisions after (later than) this one.
+    /// Retrieves items after (later than) this one.
     After,
 }
 
-impl RevisionDirection {
+impl FetchDirection {
     #[cfg(test)]
     pub fn name(self) -> &'static str {
         match self {
-            RevisionDirection::Before => "before",
-            RevisionDirection::After => "after",
+            FetchDirection::Before => "before",
+            FetchDirection::After => "after",
         }
     }
 }
 
-impl FromStr for RevisionDirection {
+impl FromStr for FetchDirection {
     type Err = ServiceError;
 
-    fn from_str(value: &str) -> Result<RevisionDirection, ServiceError> {
+    fn from_str(value: &str) -> Result<FetchDirection, ServiceError> {
         match value {
-            "before" => Ok(RevisionDirection::Before),
-            "after" => Ok(RevisionDirection::After),
+            "before" => Ok(FetchDirection::Before),
+            "after" => Ok(FetchDirection::After),
             _ => Err(ServiceError::InvalidEnumValue),
         }
     }
 }
 
-/// Ensure `RevisionDirection::name()` produces the same output as serde.
+/// Ensure `FetchDirection::name()` produces the same output as serde.
 #[test]
 fn name_serde() {
     use strum::IntoEnumIterator;
 
-    for variant in RevisionDirection::iter() {
+    for variant in FetchDirection::iter() {
         let output = serde_json::to_string(&variant).expect("Unable to serialize JSON");
         let serde_name: String =
             serde_json::from_str(&output).expect("Unable to deserialize JSON");
@@ -82,7 +82,7 @@ fn name_serde() {
             "Serde name does not match variant name",
         );
 
-        let converted: RevisionDirection =
+        let converted: FetchDirection =
             serde_name.as_str().parse().expect("Could not convert item");
 
         assert_eq!(converted, variant, "Converted item does not match variant");
