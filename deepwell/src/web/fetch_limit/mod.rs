@@ -49,11 +49,16 @@ impl Default for FetchLimit {
     }
 }
 
-pub type FetchDetailsQuery = PageDetailsQuery;
-
 #[derive(Serialize, Deserialize, Debug, Default, Copy, Clone, PartialEq, Eq)]
 #[serde(default, rename_all = "camelCase")]
 pub struct FetchLimitQuery {
+    /// How many items to pull in this query.
+    pub limit: FetchLimit,
+}
+
+#[derive(Serialize, Deserialize, Debug, Default, Copy, Clone, PartialEq, Eq)]
+#[serde(default, rename_all = "camelCase")]
+pub struct PageLimitQuery {
     /// Include the wikitext in the page output.
     pub wikitext: bool,
 
