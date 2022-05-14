@@ -183,9 +183,23 @@ json.homepage = `https://github.com/scpwiki/wikijump/tree/develop/web/modules/${
   linebreak()
 })()
 
-async function copy(from, to) {
+async function copy(from, to, isDir) {
   if (await exists(from)) {
-    await fs.copy(from, to)
+    if (isDir || (await fs.stat(from)).isDirectory()) {
+      await fs.mkdir(to, { recursive: true })
+      let entries = await fs.readdir(from, { withFileTypes: true })
+
+      for (let entry of entries) {
+        let fromPath = path.join(from, entry.name)
+        let toPath = path.join(to, entry.name)
+
+        return entry.isDirectory() ?
+          await copy(fromPath, toPath, true) :
+          await fs.copyFile(fromPath, toPath)
+      }
+    } else {
+      return await fs.copyFile(from, to)
+    }
   }
 }
 
