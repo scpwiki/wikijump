@@ -185,7 +185,7 @@ impl VoteService {
     }
 
     /// Counts the number of votes for either a page or a user.
-    pub async fn count(
+    pub async fn count_history(
         ctx: &ServiceContext<'_>,
         kind: VoteHistoryKind,
         vote_start_date: Option<DateTimeWithTimeZone>,

@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
+use sea_orm::prelude::DateTimeWithTimeZone;
 
 #[derive(Deserialize, Debug, Copy, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -41,10 +41,19 @@ pub enum VoteReference {
     Pair(GetVote),
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Deserialize, Debug, Copy, Clone)]
+#[serde(rename_all = "camelCase", tag = "type", content = "id")]
 pub enum VoteHistoryKind {
     Page(i64),
     User(i64),
+}
+
+#[derive(Deserialize, Debug, Copy, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct GetVoteHistory {
+    #[serde(flatten)]
+    pub kind: VoteHistoryKind,
+    pub start_date: Option<DateTimeWithTimeZone>,
 }
 
 #[derive(Deserialize, Debug, Copy, Clone)]

@@ -19,8 +19,10 @@
  */
 
 use super::prelude::*;
-use crate::services::vote::{CreateVote, GetVote, VoteAction, VoteReference};
-use crate::web::{FetchDetailsQuery, FetchLimitQuery};
+use crate::services::vote::{
+    CreateVote, GetVote, GetVoteHistory, VoteAction, VoteReference,
+};
+use crate::web::FetchLimitQuery;
 use serde::Serialize;
 
 pub async fn vote_head_direct(req: ApiRequest) -> ApiResponse {
@@ -144,11 +146,31 @@ pub async fn vote_action(mut req: ApiRequest) -> ApiResponse {
 }
 
 pub async fn vote_range_get(mut req: ApiRequest) -> ApiResponse {
-    todo!()
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    let FetchLimitQuery { limit } = req.query()?;
+    let GetVoteHistory { kind, start_date } = req.body_json().await?;
+    let direction = req.param("direction")?.parse()?;
+
+    let votes =
+        VoteService::get_history(&ctx, kind, start_date, direction, limit.into()).await?;
+
+    txn.commit().await?;
+    build_vote_response(&votes, StatusCode::Ok)
 }
 
 pub async fn vote_count_get(mut req: ApiRequest) -> ApiResponse {
-    todo!()
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    let GetVoteHistory { kind, start_date } = req.body_json().await?;
+    let direction = req.param("direction")?.parse()?;
+
+    let count = VoteService::count_history(&ctx, kind, start_date, direction).await?;
+
+    txn.commit().await?;
+    build_vote_response(&count, StatusCode::Ok)
 }
 
 fn build_vote_response<T: Serialize>(data: &T, status: StatusCode) -> ApiResponse {
