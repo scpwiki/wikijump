@@ -36,7 +36,22 @@ pub struct GetVote {
 }
 
 #[derive(Debug, Copy, Clone)]
+pub enum VoteReference {
+    Id(i64),
+    Pair(GetVote),
+}
+
+#[derive(Debug, Copy, Clone)]
 pub enum VoteHistoryKind {
     Page(i64),
     User(i64),
+}
+
+#[derive(Deserialize, Debug, Copy, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct VoteAction {
+    pub page_id: i64,
+    pub user_id: i64,
+    pub enable: bool,
+    pub acting_user_id: i64,
 }

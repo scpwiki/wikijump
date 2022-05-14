@@ -25,7 +25,7 @@
 use crate::api::ApiServer;
 use crate::methods::{
     category::*, locales::*, misc::*, page::*, parent::*, revision::*, site::*, text::*,
-    user::*,
+    user::*, vote::*,
 };
 use crate::web::utils::error_response;
 use tide::StatusCode;
@@ -140,6 +140,21 @@ pub fn build(mut app: ApiServer) -> ApiServer {
         .get(user_get)
         .put(user_put)
         .delete(user_delete);
+
+    // Votes
+    app.at("/vote")
+        .head(vote_head)
+        .get(vote_get)
+        .put(vote_put)
+        .delete(vote_delete);
+
+    app.at("/vote/direct/:vote_id")
+        .head(vote_head_direct)
+        .get(vote_get_direct);
+
+    app.at("/vote/action").put(vote_action);
+    app.at("/vote/history/:direction").get(vote_range_get);
+    app.at("/vote/history/:direction/count").get(vote_count_get);
 
     app
 }

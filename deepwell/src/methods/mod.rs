@@ -59,3 +59,4 @@ pub mod revision;
 pub mod site;
 pub mod text;
 pub mod user;
+pub mod vote;

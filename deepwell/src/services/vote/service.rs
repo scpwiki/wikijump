@@ -49,14 +49,17 @@ impl VoteService {
         );
 
         // Get previous vote, if any
-        if let Some(vote) = Self::get_optional(ctx, GetVote { page_id, user_id }).await? {
+        let reference = VoteReference::Pair(GetVote { page_id, user_id });
+        if let Some(vote) = Self::get_optional(ctx, reference).await? {
             // If it's the same value, no new vote is needed
             if vote.value == value {
                 return Ok(None);
             }
 
             // Otherwise, delete so we can insert the new one
-            vote.delete(txn).await?;
+            let mut model = vote.into_active_model();
+            model.deleted_at = Set(Some(now()));
+            model.update(txn).await?;
         }
 
         // Insert the new vote
@@ -72,14 +75,20 @@ impl VoteService {
     }
 
     #[inline]
-    pub async fn exists(ctx: &ServiceContext<'_>, input: GetVote) -> Result<bool> {
-        Self::get_optional(ctx, input)
+    pub async fn exists(
+        ctx: &ServiceContext<'_>,
+        reference: VoteReference,
+    ) -> Result<bool> {
+        Self::get_optional(ctx, reference)
             .await
             .map(|vote| vote.is_some())
     }
 
-    pub async fn get(ctx: &ServiceContext<'_>, input: GetVote) -> Result<PageVoteModel> {
-        match Self::get_optional(ctx, input).await? {
+    pub async fn get(
+        ctx: &ServiceContext<'_>,
+        reference: VoteReference,
+    ) -> Result<PageVoteModel> {
+        match Self::get_optional(ctx, reference).await? {
             Some(vote) => Ok(vote),
             None => Err(Error::NotFound),
         }
@@ -88,50 +97,48 @@ impl VoteService {
     /// Gets any current vote for the current page and user.
     pub async fn get_optional(
         ctx: &ServiceContext<'_>,
-        GetVote { page_id, user_id }: GetVote,
+        reference: VoteReference,
     ) -> Result<Option<PageVoteModel>> {
         let txn = ctx.transaction();
-        let vote = PageVote::find()
-            .filter(
-                Condition::all()
-                    .add(page_vote::Column::PageId.eq(page_id))
-                    .add(page_vote::Column::UserId.eq(user_id))
-                    .add(page_vote::Column::DeletedAt.is_null()),
-            )
-            .one(txn)
-            .await?;
+
+        let condition = match reference {
+            VoteReference::Id(vote_id) => Condition::all()
+                .add(page_vote::Column::PageVoteId.eq(vote_id))
+                .add(page_vote::Column::DeletedAt.is_null()),
+            VoteReference::Pair(GetVote { page_id, user_id }) => Condition::all()
+                .add(page_vote::Column::PageId.eq(page_id))
+                .add(page_vote::Column::UserId.eq(user_id))
+                .add(page_vote::Column::DeletedAt.is_null()),
+        };
+
+        let vote = PageVote::find().filter(condition).one(txn).await?;
 
         Ok(vote)
     }
 
     /// Enables or disables the vote specified.
-    ///
-    /// The action depends on the value of the boolean:
-    /// * `value` being `true`: enable the vote
-    /// * `value` being `false`: disable the vote
-    pub async fn disable(
+    pub async fn action(
         ctx: &ServiceContext<'_>,
-        input: GetVote,
+        reference: VoteReference,
+        enable: bool,
         acting_user_id: i64,
-        value: bool,
     ) -> Result<PageVoteModel> {
         tide::log::info!(
-            "{} vote cast by user {} on page {} (being done by {})",
-            if value { "Enabling" } else { "Disabling" },
-            input.user_id,
-            input.page_id,
+            "{} vote on {:?} (being done by {})",
+            if enable { "Enabling" } else { "Disabling" },
+            reference,
             acting_user_id,
         );
 
         let txn = ctx.transaction();
-        let mut vote = Self::get(ctx, input).await?.into_active_model();
+        let mut vote = Self::get(ctx, reference).await?.into_active_model();
 
-        if value {
-            // Enable, clear "disabled" field.
+        if enable {
+            // Clear "disabled" field.
             vote.disabled_at = Set(None);
             vote.disabled_by = Set(None);
         } else {
-            // Disable, set "disabled" field.
+            // Set "disabled" field.
             vote.disabled_at = Set(Some(now()));
             vote.disabled_by = Set(Some(acting_user_id));
         }
@@ -143,16 +150,12 @@ impl VoteService {
     /// Removes the vote specified.
     pub async fn remove(
         ctx: &ServiceContext<'_>,
-        input: GetVote,
+        reference: VoteReference,
     ) -> Result<PageVoteModel> {
-        tide::log::info!(
-            "Removing vote cast by user {} on page {}",
-            input.user_id,
-            input.page_id,
-        );
+        tide::log::info!("Removing vote {reference:?}");
 
         let txn = ctx.transaction();
-        let mut vote = Self::get(ctx, input).await?.into_active_model();
+        let mut vote = Self::get(ctx, reference).await?.into_active_model();
         vote.deleted_at = Set(Some(now()));
 
         let model = vote.update(txn).await?;
@@ -168,28 +171,51 @@ impl VoteService {
         vote_limit: u64,
     ) -> Result<Vec<PageVoteModel>> {
         let txn = ctx.transaction();
-
-        let kind_condition = match kind {
-            VoteHistoryKind::Page(page_id) => page_vote::Column::PageId.eq(page_id),
-            VoteHistoryKind::User(user_id) => page_vote::Column::UserId.eq(user_id),
-        };
-
-        let vote_condition = vote_start_date.map(|start_date| match vote_direction {
-            FetchDirection::Before => page_vote::Column::CreatedAt.lte(start_date),
-            FetchDirection::After => page_vote::Column::CreatedAt.gte(start_date),
-        });
+        let condition =
+            Self::build_history_condition(kind, vote_start_date, vote_direction);
 
         let votes = PageVote::find()
-            .filter(
-                Condition::all()
-                    .add(kind_condition)
-                    .add_option(vote_condition),
-            )
+            .filter(condition)
             .order_by_asc(page_vote::Column::PageVoteId)
             .limit(vote_limit)
             .all(txn)
             .await?;
 
         Ok(votes)
+    }
+
+    /// Counts the number of votes for either a page or a user.
+    pub async fn count(
+        ctx: &ServiceContext<'_>,
+        kind: VoteHistoryKind,
+        vote_start_date: Option<DateTimeWithTimeZone>,
+        vote_direction: FetchDirection,
+    ) -> Result<usize> {
+        let txn = ctx.transaction();
+        let condition =
+            Self::build_history_condition(kind, vote_start_date, vote_direction);
+
+        let vote_count = PageVote::find().filter(condition).count(txn).await?;
+        Ok(vote_count)
+    }
+
+    fn build_history_condition(
+        kind: VoteHistoryKind,
+        start_date: Option<DateTimeWithTimeZone>,
+        direction: FetchDirection,
+    ) -> Condition {
+        let kind_condition = match kind {
+            VoteHistoryKind::Page(page_id) => page_vote::Column::PageId.eq(page_id),
+            VoteHistoryKind::User(user_id) => page_vote::Column::UserId.eq(user_id),
+        };
+
+        let vote_condition = start_date.map(|start_date| match direction {
+            FetchDirection::Before => page_vote::Column::CreatedAt.lte(start_date),
+            FetchDirection::After => page_vote::Column::CreatedAt.gte(start_date),
+        });
+
+        Condition::all()
+            .add(kind_condition)
+            .add_option(vote_condition)
     }
 }
