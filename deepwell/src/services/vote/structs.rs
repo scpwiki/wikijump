@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use sea_orm::prelude::DateTimeWithTimeZone;
-
 #[derive(Deserialize, Debug, Copy, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateVote {
@@ -53,7 +51,8 @@ pub enum VoteHistoryKind {
 pub struct GetVoteHistory {
     #[serde(flatten)]
     pub kind: VoteHistoryKind,
-    pub start_date: Option<DateTimeWithTimeZone>,
+    pub start_id: Option<i64>,
+    pub deleted: Option<bool>,
 }
 
 #[derive(Deserialize, Debug, Copy, Clone)]

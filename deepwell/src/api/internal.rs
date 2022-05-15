@@ -153,8 +153,8 @@ pub fn build(mut app: ApiServer) -> ApiServer {
         .get(vote_get_direct);
 
     app.at("/vote/action").put(vote_action);
-    app.at("/vote/history/:direction").get(vote_range_get);
-    app.at("/vote/history/:direction/count").get(vote_count_get);
+    app.at("/vote/list").get(vote_list_get);
+    app.at("/vote/count").get(vote_count_get);
 
     app
 }

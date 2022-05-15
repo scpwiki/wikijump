@@ -145,16 +145,25 @@ pub async fn vote_action(mut req: ApiRequest) -> ApiResponse {
     build_vote_response(&vote, StatusCode::Ok)
 }
 
-pub async fn vote_range_get(mut req: ApiRequest) -> ApiResponse {
+pub async fn vote_list_get(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
     let FetchLimitQuery { limit } = req.query()?;
-    let GetVoteHistory { kind, start_date } = req.body_json().await?;
-    let direction = req.param("direction")?.parse()?;
+    let GetVoteHistory {
+        kind,
+        start_id,
+        deleted,
+    } = req.body_json().await?;
 
-    let votes =
-        VoteService::get_history(&ctx, kind, start_date, direction, limit.into()).await?;
+    let votes = VoteService::get_history(
+        &ctx,
+        kind,
+        start_id.unwrap_or(0),
+        deleted,
+        limit.into(),
+    )
+    .await?;
 
     txn.commit().await?;
     build_vote_response(&votes, StatusCode::Ok)
@@ -164,10 +173,14 @@ pub async fn vote_count_get(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let GetVoteHistory { kind, start_date } = req.body_json().await?;
-    let direction = req.param("direction")?.parse()?;
+    let GetVoteHistory {
+        kind,
+        start_id,
+        deleted,
+    } = req.body_json().await?;
 
-    let count = VoteService::count_history(&ctx, kind, start_date, direction).await?;
+    let count =
+        VoteService::count_history(&ctx, kind, start_id.unwrap_or(0), deleted).await?;
 
     txn.commit().await?;
     build_vote_response(&count, StatusCode::Ok)

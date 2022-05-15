@@ -20,8 +20,7 @@
 
 use super::prelude::*;
 use crate::models::page_vote::{self, Entity as PageVote, Model as PageVoteModel};
-use crate::web::FetchDirection;
-use sea_orm::{prelude::DateTimeWithTimeZone, IntoActiveModel};
+use sea_orm::IntoActiveModel;
 
 #[derive(Debug)]
 pub struct VoteService;
@@ -162,38 +161,46 @@ impl VoteService {
         Ok(model)
     }
 
-    /// Gets the history of votes for either a page or a user.
+    /// Gets votes for either a page or a user.
+    ///
+    /// The `start_id` argument gives the start ID to search from, exclusive.
+    /// If `0`, then means "everything".
+    ///
+    /// The `deleted` argument:
+    /// * If it is `Some(true)`, then it only returns pages which have been deleted.
+    /// * If it is `Some(false)`, then it only returns pages which are extant.
+    /// * If it is `None`, then it returns all pages regardless of deletion status are selected.
     pub async fn get_history(
         ctx: &ServiceContext<'_>,
         kind: VoteHistoryKind,
-        vote_start_date: Option<DateTimeWithTimeZone>,
-        vote_direction: FetchDirection,
-        vote_limit: u64,
+        start_id: i64,
+        deleted: Option<bool>,
+        limit: u64,
     ) -> Result<Vec<PageVoteModel>> {
         let txn = ctx.transaction();
-        let condition =
-            Self::build_history_condition(kind, vote_start_date, vote_direction);
+        let condition = Self::build_history_condition(kind, start_id, deleted);
 
         let votes = PageVote::find()
             .filter(condition)
             .order_by_asc(page_vote::Column::PageVoteId)
-            .limit(vote_limit)
+            .limit(limit)
             .all(txn)
             .await?;
 
         Ok(votes)
     }
 
-    /// Counts the number of votes for either a page or a user.
+    /// Counts the number of historical bvotes for either a page or a user.
+    ///
+    /// See `get_history()` for more information.
     pub async fn count_history(
         ctx: &ServiceContext<'_>,
         kind: VoteHistoryKind,
-        vote_start_date: Option<DateTimeWithTimeZone>,
-        vote_direction: FetchDirection,
+        start_id: i64,
+        deleted: Option<bool>,
     ) -> Result<usize> {
         let txn = ctx.transaction();
-        let condition =
-            Self::build_history_condition(kind, vote_start_date, vote_direction);
+        let condition = Self::build_history_condition(kind, start_id, deleted);
 
         let vote_count = PageVote::find().filter(condition).count(txn).await?;
         Ok(vote_count)
@@ -201,21 +208,23 @@ impl VoteService {
 
     fn build_history_condition(
         kind: VoteHistoryKind,
-        start_date: Option<DateTimeWithTimeZone>,
-        direction: FetchDirection,
+        start_id: i64,
+        deleted: Option<bool>,
     ) -> Condition {
         let kind_condition = match kind {
             VoteHistoryKind::Page(page_id) => page_vote::Column::PageId.eq(page_id),
             VoteHistoryKind::User(user_id) => page_vote::Column::UserId.eq(user_id),
         };
 
-        let vote_condition = start_date.map(|start_date| match direction {
-            FetchDirection::Before => page_vote::Column::CreatedAt.lte(start_date),
-            FetchDirection::After => page_vote::Column::CreatedAt.gte(start_date),
-        });
+        let deleted_condition = match deleted {
+            Some(true) => Some(page_vote::Column::DeletedAt.is_not_null()),
+            Some(false) => Some(page_vote::Column::DeletedAt.is_null()),
+            None => None,
+        };
 
         Condition::all()
+            .add(page_vote::Column::PageVoteId.gt(start_id))
             .add(kind_condition)
-            .add_option(vote_condition)
+            .add_option(deleted_condition)
     }
 }
