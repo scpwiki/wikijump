@@ -183,7 +183,8 @@ pub async fn vote_count_get(mut req: ApiRequest) -> ApiResponse {
     } = req.body_json().await?;
 
     let count =
-        VoteService::count_history(&ctx, kind, start_id.unwrap_or(0), deleted, disabled).await?;
+        VoteService::count_history(&ctx, kind, start_id.unwrap_or(0), deleted, disabled)
+            .await?;
 
     txn.commit().await?;
     build_vote_response(&count, StatusCode::Ok)
