@@ -18,12 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use countmap::CountMap;
 use std::cmp::Ordering;
+use std::collections::HashMap;
 
 pub use crate::services::vote::VoteValue;
 
-pub type VoteMap = CountMap<VoteValue>;
+pub type VoteMap = HashMap<VoteValue, u64>;
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
 #[serde(untagged)]

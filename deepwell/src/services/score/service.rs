@@ -26,4 +26,19 @@ pub struct ScoreService;
 
 impl ScoreService {
     // TODO
+    pub async fn collect_votes(ctx: &ServiceContext<'_>, page_id: i64) -> Result<Vec<PageVoteModel>> {
+        let txn = ctx.transaction();
+
+        let votes = PageVote::find()
+            .filter(
+                Condition::all()
+                    .add(page_vote::Column::PageId.eq(page_id))
+                    .add(page_vote::Column::DeletedAt.is_null())
+                    .add(page_vote::Column::DisabledAt.is_null())
+            )
+            .all(txn)
+            .await?;
+
+        Ok(votes)
+    }
 }
