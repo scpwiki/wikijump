@@ -18,12 +18,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+pub type VoteValue = i16;
+
 #[derive(Deserialize, Debug, Copy, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateVote {
     pub page_id: i64,
     pub user_id: i64,
-    pub value: i16,
+    pub value: VoteValue,
 }
 
 #[derive(Deserialize, Debug, Copy, Clone)]

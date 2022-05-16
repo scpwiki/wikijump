@@ -1,5 +1,5 @@
 /*
- * services/score/mod.rs
+ * services/score/scorer.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,13 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod prelude {
-    pub use super::super::prelude::*;
-    pub use super::structs::*;
+use super::prelude::*;
+
+pub trait Scorer {
+    fn name(&self) -> &'static str;
+    fn values(&self) -> &'static [VoteValue];
+    fn score(&self, votes: &VoteMap) -> ScoreValue;
 }
-
-mod scorer;
-mod service;
-mod structs;
-
-pub use self::service::ScoreService;

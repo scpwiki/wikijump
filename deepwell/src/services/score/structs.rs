@@ -1,5 +1,5 @@
 /*
- * services/score/mod.rs
+ * services/score/structs.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,13 +18,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod prelude {
-    pub use super::super::prelude::*;
-    pub use super::structs::*;
+use countmap::CountMap;
+
+pub use crate::services::vote::VoteValue;
+
+pub type VoteMap = CountMap<VoteValue>;
+
+#[derive(Serialize, Deserialize, Debug, Copy, Clone)]
+#[serde(untagged)]
+pub enum ScoreValue {
+    Integer(i64),
+    Float(f64),
 }
-
-mod scorer;
-mod service;
-mod structs;
-
-pub use self::service::ScoreService;
