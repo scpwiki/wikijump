@@ -19,6 +19,7 @@
  */
 
 use countmap::CountMap;
+use std::cmp::Ordering;
 
 pub use crate::services::vote::VoteValue;
 
@@ -29,4 +30,37 @@ pub type VoteMap = CountMap<VoteValue>;
 pub enum ScoreValue {
     Integer(i64),
     Float(f64),
+}
+
+impl ScoreValue {
+    #[inline]
+    pub fn as_f64(self) -> f64 {
+        self.into()
+    }
+}
+
+impl From<ScoreValue> for f64 {
+    fn from(value: ScoreValue) -> f64 {
+        match value {
+            ScoreValue::Integer(n) => n as f64,
+            ScoreValue::Float(n) => n,
+        }
+    }
+}
+
+impl PartialEq for ScoreValue {
+    #[inline]
+    fn eq(&self, other: &ScoreValue) -> bool {
+        self.as_f64() == other.as_f64()
+    }
+}
+
+impl PartialOrd for ScoreValue {
+    #[inline]
+    fn partial_cmp(&self, other: &ScoreValue) -> Option<Ordering> {
+        let x = self.as_f64();
+        let y = other.as_f64();
+
+        x.partial_cmp(&y)
+    }
 }
