@@ -1,5 +1,5 @@
 /*
- * services/score/mod.rs
+ * services/score/impls/mod.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,17 +18,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod prelude {
-    pub use super::super::prelude::*;
-    pub use super::structs::*;
-    pub use super::Scorer;
-}
+use super::prelude;
 
-mod impls;
-mod scorer;
-mod service;
-mod structs;
+mod null;
+mod percent;
+mod sum;
+mod wilson;
 
-pub use self::impls::*;
-pub use self::scorer::Scorer;
-pub use self::service::ScoreService;
+// TODO pub use

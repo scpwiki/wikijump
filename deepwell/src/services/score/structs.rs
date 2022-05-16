@@ -48,6 +48,20 @@ impl From<ScoreValue> for f64 {
     }
 }
 
+impl From<i64> for ScoreValue {
+    #[inline]
+    fn from(value: i64) -> ScoreValue {
+        ScoreValue::Integer(value)
+    }
+}
+
+impl From<f64> for ScoreValue {
+    #[inline]
+    fn from(value: f64) -> ScoreValue {
+        ScoreValue::Float(value)
+    }
+}
+
 impl PartialEq for ScoreValue {
     #[inline]
     fn eq(&self, other: &ScoreValue) -> bool {
@@ -63,4 +77,13 @@ impl PartialOrd for ScoreValue {
 
         x.partial_cmp(&y)
     }
+}
+
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub enum ScoreType {
+    Null,
+    Sum,
+    Percent,
+    Wilson,
 }

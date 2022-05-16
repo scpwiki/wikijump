@@ -21,7 +21,6 @@
 use super::prelude::*;
 
 pub trait Scorer {
-    fn name(&self) -> &'static str;
-    fn values(&self) -> &'static [VoteValue];
+    fn score_type(&self) -> ScoreType;
     fn score(&self, votes: &VoteMap) -> ScoreValue;
 }
