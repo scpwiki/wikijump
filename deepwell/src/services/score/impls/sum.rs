@@ -30,6 +30,6 @@ impl Scorer for SumScorer {
     }
 
     fn score(&self, votes: &VoteMap) -> f64 {
-        votes.sum() as f64
+        votes.sum()
     }
 }

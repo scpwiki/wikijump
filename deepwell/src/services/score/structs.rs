@@ -48,22 +48,37 @@ impl VoteMap {
     }
 
     #[inline]
-    pub fn get(&self, vote: VoteValue) -> u64 {
+    pub fn get_int(&self, vote: VoteValue) -> u64 {
         self.inner.get(&vote).copied().unwrap_or(0)
     }
 
+    #[inline]
+    pub fn get(&self, vote: VoteValue) -> f64 {
+        self.get(vote) as f64
+    }
+
     /// Gets the number of votes in this map.
-    pub fn count(&self) -> u64 {
+    pub fn count_int(&self) -> u64 {
         self.inner.iter().fold(0, |sum, (_, &count)| sum + count)
     }
 
+    #[inline]
+    pub fn count(&self) -> f64 {
+        self.count_int() as f64
+    }
+
     /// Gets the sum of all the votes in this map.
-    pub fn sum(&self) -> i64 {
+    pub fn sum_int(&self) -> i64 {
         self.inner.iter().fold(0, |sum, (&value, &count)| {
             let value = i64::from(value);
             let count = count as i64;
 
             sum + value * count
         })
+    }
+
+    #[inline]
+    pub fn sum(&self) -> f64 {
+        self.sum_int() as f64
     }
 }

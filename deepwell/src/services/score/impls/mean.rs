@@ -30,9 +30,6 @@ impl Scorer for MeanScorer {
     }
 
     fn score(&self, votes: &VoteMap) -> f64 {
-        let positive = votes.get(1) as f64;
-        let count = votes.count() as f64;
-
-        positive / count
+        votes.get(1) / votes.count()
     }
 }
