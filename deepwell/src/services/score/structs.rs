@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 pub use crate::services::vote::VoteValue;
 
@@ -33,7 +33,7 @@ pub enum ScoreType {
 
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct VoteMap {
-    inner: HashMap<VoteValue, u64>,
+    inner: BTreeMap<VoteValue, u64>,
 }
 
 impl VoteMap {
