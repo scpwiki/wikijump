@@ -932,6 +932,7 @@ dependencies = [
  "lazy_static",
  "ref-map",
  "sea-orm",
+ "sea-query",
  "serde",
  "serde_json",
  "sha2 0.10.2",

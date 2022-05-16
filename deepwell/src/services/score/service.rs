@@ -20,25 +20,57 @@
 
 use super::prelude::*;
 use crate::models::page_vote::{self, Entity as PageVote, Model as PageVoteModel};
+use sea_orm::FromQueryResult;
+use sea_query::Expr;
 
 #[derive(Debug)]
 pub struct ScoreService;
 
 impl ScoreService {
-    // TODO
-    pub async fn collect_votes(ctx: &ServiceContext<'_>, page_id: i64) -> Result<Vec<PageVoteModel>> {
+    pub async fn collect_votes(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
+    ) -> Result<VoteMap> {
         let txn = ctx.transaction();
 
-        let votes = PageVote::find()
+        // Query for votes aggregated by value.
+        //
+        // As raw SQL:
+        //
+        // SELECT value, COUNT(value)
+        // FROM page_vote
+        // WHERE page_id = $1
+        // AND deleted_at IS NULL
+        // AND disabled_at IS NULL
+        // GROUP BY value;
+
+        #[derive(FromQueryResult, Debug)]
+        struct VoteCountRow {
+            value: VoteValue,
+            count: u64,
+        }
+
+        let counts = PageVote::find()
+            .column(page_vote::Column::Value)
+            .column_as(Expr::col(page_vote::Column::Value).count(), "count")
             .filter(
                 Condition::all()
                     .add(page_vote::Column::PageId.eq(page_id))
                     .add(page_vote::Column::DeletedAt.is_null())
-                    .add(page_vote::Column::DisabledAt.is_null())
+                    .add(page_vote::Column::DisabledAt.is_null()),
             )
+            .group_by(page_vote::Column::Value)
+            .into_model::<VoteCountRow>()
             .all(txn)
             .await?;
 
-        Ok(votes)
+        // Gather results into map
+        let mut map = VoteMap::new();
+
+        for VoteCountRow { value, count } in counts {
+            map.insert(value, count);
+        }
+
+        Ok(map)
     }
 }
