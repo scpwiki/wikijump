@@ -23,8 +23,6 @@ use std::collections::HashMap;
 
 pub use crate::services::vote::VoteValue;
 
-pub type VoteMap = HashMap<VoteValue, u64>;
-
 #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
 #[serde(untagged)]
 pub enum ScoreValue {
@@ -86,4 +84,26 @@ pub enum ScoreType {
     Sum,
     Percent,
     Wilson,
+}
+
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
+pub struct VoteMap {
+    inner: HashMap<VoteValue, u64>,
+}
+
+impl VoteMap {
+    #[inline]
+    pub fn new() -> Self {
+        VoteMap::default()
+    }
+
+    #[inline]
+    pub fn insert(&mut self, vote: VoteValue, count: u64) {
+        self.inner.insert(vote, count);
+    }
+
+    #[inline]
+    pub fn get(&self, vote: VoteValue) -> u64 {
+        self.inner.get(&vote).copied().unwrap_or(0)
+    }
 }
