@@ -1,5 +1,5 @@
 /*
- * services/score/impls/percent.rs
+ * services/score/impls/mean.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,4 +18,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// TODO
+use super::prelude::*;
+
+#[derive(Debug)]
+pub struct MeanScorer;
+
+impl Scorer for MeanScorer {
+    #[inline]
+    fn score_type(&self) -> ScoreType {
+        ScoreType::Mean
+    }
+
+    fn score(&self, votes: &VoteMap) -> f64 {
+        let sum = votes.sum() as f64;
+        let count = votes.count() as f64;
+
+        sum / count
+    }
+}

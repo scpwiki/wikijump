@@ -20,9 +20,12 @@
 
 use super::prelude;
 
+mod mean;
 mod null;
-mod percent;
 mod sum;
 mod wilson;
 
-// TODO pub use
+pub use self::mean::MeanScorer;
+pub use self::null::NullScorer;
+pub use self::sum::SumScorer;
+// TODO wilson

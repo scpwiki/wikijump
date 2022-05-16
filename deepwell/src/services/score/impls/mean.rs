@@ -1,5 +1,5 @@
 /*
- * services/score/impls/sum.rs
+ * services/score/impls/mean.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -21,15 +21,18 @@
 use super::prelude::*;
 
 #[derive(Debug)]
-pub struct SumScorer;
+pub struct MeanScorer;
 
-impl Scorer for SumScorer {
+impl Scorer for MeanScorer {
     #[inline]
     fn score_type(&self) -> ScoreType {
-        ScoreType::Sum
+        ScoreType::Mean
     }
 
     fn score(&self, votes: &VoteMap) -> f64 {
-        votes.sum() as f64
+        let positive = votes.get(1) as f64;
+        let count = votes.count() as f64;
+
+        positive / count
     }
 }

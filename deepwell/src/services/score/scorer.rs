@@ -22,5 +22,5 @@ use super::prelude::*;
 
 pub trait Scorer {
     fn score_type(&self) -> ScoreType;
-    fn score(&self, votes: &VoteMap) -> ScoreValue;
+    fn score(&self, votes: &VoteMap) -> f64;
 }

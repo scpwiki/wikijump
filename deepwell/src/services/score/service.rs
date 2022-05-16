@@ -27,6 +27,14 @@ use sea_query::Expr;
 pub struct ScoreService;
 
 impl ScoreService {
+    pub async fn score(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
+        scorer: &impl Scorer,
+    ) -> Result<f64> {
+        todo!()
+    }
+
     pub async fn collect_votes(
         ctx: &ServiceContext<'_>,
         page_id: i64,

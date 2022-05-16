@@ -29,7 +29,7 @@ impl Scorer for NullScorer {
         ScoreType::Null
     }
 
-    fn score(&self, votes: &VoteMap) -> ScoreValue {
-        0.into()
+    fn score(&self, _: &VoteMap) -> f64 {
+        0.0
     }
 }

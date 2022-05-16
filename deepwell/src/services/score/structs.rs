@@ -18,71 +18,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::cmp::Ordering;
 use std::collections::HashMap;
 
 pub use crate::services::vote::VoteValue;
-
-#[derive(Serialize, Deserialize, Debug, Copy, Clone)]
-#[serde(untagged)]
-pub enum ScoreValue {
-    Integer(i64),
-    Float(f64),
-}
-
-impl ScoreValue {
-    #[inline]
-    pub fn as_f64(self) -> f64 {
-        self.into()
-    }
-}
-
-impl From<ScoreValue> for f64 {
-    fn from(value: ScoreValue) -> f64 {
-        match value {
-            ScoreValue::Integer(n) => n as f64,
-            ScoreValue::Float(n) => n,
-        }
-    }
-}
-
-impl From<i64> for ScoreValue {
-    #[inline]
-    fn from(value: i64) -> ScoreValue {
-        ScoreValue::Integer(value)
-    }
-}
-
-impl From<f64> for ScoreValue {
-    #[inline]
-    fn from(value: f64) -> ScoreValue {
-        ScoreValue::Float(value)
-    }
-}
-
-impl PartialEq for ScoreValue {
-    #[inline]
-    fn eq(&self, other: &ScoreValue) -> bool {
-        self.as_f64() == other.as_f64()
-    }
-}
-
-impl PartialOrd for ScoreValue {
-    #[inline]
-    fn partial_cmp(&self, other: &ScoreValue) -> Option<Ordering> {
-        let x = self.as_f64();
-        let y = other.as_f64();
-
-        x.partial_cmp(&y)
-    }
-}
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub enum ScoreType {
     Null,
     Sum,
-    Percent,
+    Mean,
     Wilson,
 }
 
@@ -105,5 +50,20 @@ impl VoteMap {
     #[inline]
     pub fn get(&self, vote: VoteValue) -> u64 {
         self.inner.get(&vote).copied().unwrap_or(0)
+    }
+
+    /// Gets the number of votes in this map.
+    pub fn count(&self) -> u64 {
+        self.inner.iter().fold(0, |sum, (_, &count)| sum + count)
+    }
+
+    /// Gets the sum of all the votes in this map.
+    pub fn sum(&self) -> i64 {
+        self.inner.iter().fold(0, |sum, (&value, &count)| {
+            let value = i64::from(value);
+            let count = count as i64;
+
+            sum + value * count
+        })
     }
 }
