@@ -175,10 +175,11 @@ impl VoteService {
         kind: VoteHistoryKind,
         start_id: i64,
         deleted: Option<bool>,
+        disabled: Option<bool>,
         limit: u64,
     ) -> Result<Vec<PageVoteModel>> {
         let txn = ctx.transaction();
-        let condition = Self::build_history_condition(kind, start_id, deleted);
+        let condition = Self::build_history_condition(kind, start_id, deleted, disabled);
 
         let votes = PageVote::find()
             .filter(condition)
@@ -198,9 +199,10 @@ impl VoteService {
         kind: VoteHistoryKind,
         start_id: i64,
         deleted: Option<bool>,
+        disabled: Option<bool>,
     ) -> Result<usize> {
         let txn = ctx.transaction();
-        let condition = Self::build_history_condition(kind, start_id, deleted);
+        let condition = Self::build_history_condition(kind, start_id, deleted, disabled);
 
         let vote_count = PageVote::find().filter(condition).count(txn).await?;
         Ok(vote_count)
@@ -210,6 +212,7 @@ impl VoteService {
         kind: VoteHistoryKind,
         start_id: i64,
         deleted: Option<bool>,
+        disabled: Option<bool>,
     ) -> Condition {
         let kind_condition = match kind {
             VoteHistoryKind::Page(page_id) => page_vote::Column::PageId.eq(page_id),
@@ -222,9 +225,16 @@ impl VoteService {
             None => None,
         };
 
+        let disabled_condition = match disabled {
+            Some(true) => Some(page_vote::Column::DisabledAt.is_not_null()),
+            Some(false) => Some(page_vote::Column::DisabledAt.is_null()),
+            None => None,
+        };
+
         Condition::all()
             .add(page_vote::Column::PageVoteId.gt(start_id))
             .add(kind_condition)
             .add_option(deleted_condition)
+            .add_option(disabled_condition)
     }
 }

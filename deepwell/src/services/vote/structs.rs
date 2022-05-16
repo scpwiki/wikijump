@@ -53,6 +53,7 @@ pub struct GetVoteHistory {
     pub kind: VoteHistoryKind,
     pub start_id: Option<i64>,
     pub deleted: Option<bool>,
+    pub disabled: Option<bool>,
 }
 
 #[derive(Deserialize, Debug, Copy, Clone)]

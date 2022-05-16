@@ -154,6 +154,7 @@ pub async fn vote_list_get(mut req: ApiRequest) -> ApiResponse {
         kind,
         start_id,
         deleted,
+        disabled,
     } = req.body_json().await?;
 
     let votes = VoteService::get_history(
@@ -161,6 +162,7 @@ pub async fn vote_list_get(mut req: ApiRequest) -> ApiResponse {
         kind,
         start_id.unwrap_or(0),
         deleted,
+        disabled,
         limit.into(),
     )
     .await?;
@@ -177,10 +179,11 @@ pub async fn vote_count_get(mut req: ApiRequest) -> ApiResponse {
         kind,
         start_id,
         deleted,
+        disabled,
     } = req.body_json().await?;
 
     let count =
-        VoteService::count_history(&ctx, kind, start_id.unwrap_or(0), deleted).await?;
+        VoteService::count_history(&ctx, kind, start_id.unwrap_or(0), deleted, disabled).await?;
 
     txn.commit().await?;
     build_vote_response(&count, StatusCode::Ok)
