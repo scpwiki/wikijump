@@ -28,6 +28,7 @@ pub enum ScoreType {
     Null,
     Sum,
     Mean,
+    Median,
     Wilson,
 }
 
@@ -59,7 +60,7 @@ impl VoteMap {
 
     /// Gets the number of votes in this map.
     pub fn count_int(&self) -> u64 {
-        self.inner.iter().fold(0, |sum, (_, &count)| sum + count)
+        self.iter().fold(0, |sum, (_, count)| sum + count)
     }
 
     #[inline]
@@ -69,7 +70,7 @@ impl VoteMap {
 
     /// Gets the sum of all the votes in this map.
     pub fn sum_int(&self) -> i64 {
-        self.inner.iter().fold(0, |sum, (&value, &count)| {
+        self.iter().fold(0, |sum, (value, count)| {
             let value = i64::from(value);
             let count = count as i64;
 
@@ -80,5 +81,11 @@ impl VoteMap {
     #[inline]
     pub fn sum(&self) -> f64 {
         self.sum_int() as f64
+    }
+
+    #[inline]
+    pub fn iter(&self) -> impl Iterator<Item = (VoteValue, u64)> + '_ {
+        // We can't quite use .copied() here because we need to copy the tuple too
+        self.inner.iter().map(|(&value, &count)| (value, count))
     }
 }

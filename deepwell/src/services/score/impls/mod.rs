@@ -21,11 +21,13 @@
 use super::prelude;
 
 mod mean;
+mod median;
 mod null;
 mod sum;
 mod wilson;
 
 pub use self::mean::MeanScorer;
+pub use self::median::MedianScorer;
 pub use self::null::NullScorer;
 pub use self::sum::SumScorer;
 // TODO wilson
