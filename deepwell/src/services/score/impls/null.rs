@@ -23,6 +23,7 @@ use super::prelude::*;
 #[derive(Debug)]
 pub struct NullScorer;
 
+#[async_trait]
 impl Scorer for NullScorer {
     #[inline]
     fn score_type(&self) -> ScoreType {
@@ -34,7 +35,8 @@ impl Scorer for NullScorer {
         true
     }
 
-    fn score(&self, _: &VoteMap) -> f64 {
-        0.0
+    #[inline]
+    async fn score(&self, _: &DatabaseTransaction, _: Condition) -> Result<f64> {
+        Ok(0.0)
     }
 }

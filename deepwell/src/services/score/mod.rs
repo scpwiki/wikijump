@@ -22,6 +22,10 @@ mod prelude {
     pub use super::super::prelude::*;
     pub use super::structs::*;
     pub use super::Scorer;
+    pub use crate::models::page_vote::{self, Entity as PageVote};
+    pub use sea_orm::{DatabaseTransaction, FromQueryResult};
+    pub use sea_query::Expr;
+    pub use tide::utils::async_trait;
 }
 
 mod impls;

@@ -19,10 +19,12 @@
  */
 
 use super::prelude::*;
+use crate::services::ScoreService;
 
 #[derive(Debug)]
 pub struct PercentScorer;
 
+#[async_trait]
 impl Scorer for PercentScorer {
     #[inline]
     fn score_type(&self) -> ScoreType {
@@ -36,7 +38,18 @@ impl Scorer for PercentScorer {
         }
     }
 
-    fn score(&self, votes: &VoteMap) -> f64 {
-        votes.get(1) / votes.count()
+    async fn score(
+        &self,
+        txn: &DatabaseTransaction,
+        condition: Condition,
+    ) -> Result<f64> {
+        // We need to do a GROUP BY either way here,
+        // may as well use the helper method.
+        let votes = ScoreService::collect_votes_inner(txn, condition).await?;
+
+        let upvotes = votes.get(1) as f64;
+        let total = votes.count() as f64;
+
+        Ok(upvotes / total * 100.0)
     }
 }

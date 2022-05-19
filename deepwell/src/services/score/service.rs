@@ -19,9 +19,6 @@
  */
 
 use super::prelude::*;
-use crate::models::page_vote::{self, Entity as PageVote, Model as PageVoteModel};
-use sea_orm::FromQueryResult;
-use sea_query::Expr;
 
 #[derive(Debug)]
 pub struct ScoreService;
@@ -32,17 +29,24 @@ impl ScoreService {
         page_id: i64,
         scorer: &impl Scorer,
     ) -> Result<f64> {
-        let votes = Self::collect_votes(ctx, page_id).await?;
-        let score = scorer.score(&votes);
+        let txn = ctx.transaction();
+        let condition = Self::build_condition(page_id);
+        let score = scorer.score(txn, condition).await?;
         Ok(score)
     }
 
+    #[inline]
     pub async fn collect_votes(
         ctx: &ServiceContext<'_>,
         page_id: i64,
     ) -> Result<VoteMap> {
-        let txn = ctx.transaction();
+        Self::collect_votes_inner(ctx.transaction(), Self::build_condition(page_id)).await
+    }
 
+    pub(crate) async fn collect_votes_inner(
+        txn: &DatabaseTransaction,
+        condition: Condition,
+    ) -> Result<VoteMap> {
         // Query for votes aggregated by value.
         //
         // As raw SQL:
@@ -63,12 +67,7 @@ impl ScoreService {
         let counts = PageVote::find()
             .column(page_vote::Column::Value)
             .column_as(Expr::col(page_vote::Column::Value).count(), "count")
-            .filter(
-                Condition::all()
-                    .add(page_vote::Column::PageId.eq(page_id))
-                    .add(page_vote::Column::DeletedAt.is_null())
-                    .add(page_vote::Column::DisabledAt.is_null()),
-            )
+            .filter(condition)
             .group_by(page_vote::Column::Value)
             .into_model::<VoteCountRow>()
             .all(txn)
@@ -82,5 +81,12 @@ impl ScoreService {
         }
 
         Ok(map)
+    }
+
+    fn build_condition(page_id: i64) -> Condition {
+        Condition::all()
+            .add(page_vote::Column::PageId.eq(page_id))
+            .add(page_vote::Column::DeletedAt.is_null())
+            .add(page_vote::Column::DisabledAt.is_null())
     }
 }

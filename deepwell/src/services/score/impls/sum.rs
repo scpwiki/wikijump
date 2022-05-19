@@ -23,6 +23,7 @@ use super::prelude::*;
 #[derive(Debug)]
 pub struct SumScorer;
 
+#[async_trait]
 impl Scorer for SumScorer {
     #[inline]
     fn score_type(&self) -> ScoreType {
@@ -34,7 +35,35 @@ impl Scorer for SumScorer {
         true
     }
 
-    fn score(&self, votes: &VoteMap) -> f64 {
-        votes.sum()
+    async fn score(
+        &self,
+        txn: &DatabaseTransaction,
+        condition: Condition,
+    ) -> Result<f64> {
+        #[derive(FromQueryResult, Debug)]
+        struct SumRow {
+            sum: u64,
+        }
+
+        // Query for sum of all votes.
+        //
+        // As raw SQL:
+        //
+        // SELECT SUM(value)
+        // FROM page_vote
+        // WHERE page_id = $1
+        // AND deleted_at IS NULL
+        // AND disabled_at IS NULL
+        // GROUP BY value;
+
+        let result = PageVote::find()
+            .column_as(Expr::col(page_vote::Column::Value).sum(), "sum")
+            .filter(condition)
+            .into_model::<SumRow>()
+            .one(txn)
+            .await?
+            .expect("No results in aggregate query");
+
+        Ok(result.sum as f64)
     }
 }

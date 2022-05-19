@@ -23,6 +23,7 @@ use super::prelude::*;
 #[derive(Debug)]
 pub struct MeanScorer;
 
+#[async_trait]
 impl Scorer for MeanScorer {
     #[inline]
     fn score_type(&self) -> ScoreType {
@@ -35,7 +36,41 @@ impl Scorer for MeanScorer {
         }
     }
 
-    fn score(&self, votes: &VoteMap) -> f64 {
-        votes.sum() / votes.count()
+    async fn score(
+        &self,
+        txn: &DatabaseTransaction,
+        condition: Condition,
+    ) -> Result<f64> {
+        #[derive(FromQueryResult, Debug)]
+        struct MeanRow {
+            sum: u64,
+            count: u64,
+        }
+
+        // Query for sum of all votes.
+        //
+        // As raw SQL:
+        //
+        // SELECT SUM(value), COUNT(value)
+        // FROM page_vote
+        // WHERE page_id = $1
+        // AND deleted_at IS NULL
+        // AND disabled_at IS NULL
+        // GROUP BY value;
+
+        let MeanRow { sum, count } = PageVote::find()
+            .column_as(Expr::col(page_vote::Column::Value).sum(), "sum")
+            .column_as(Expr::col(page_vote::Column::Value).count(), "count")
+            .filter(condition)
+            .into_model::<MeanRow>()
+            .one(txn)
+            .await?
+            .expect("No results in aggregate query");
+
+        if count == 0 {
+            Ok(0.0)
+        } else {
+            Ok((sum / count) as f64)
+        }
     }
 }
