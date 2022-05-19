@@ -1,5 +1,5 @@
 /*
- * util.rs
+ * services/score/mod.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,21 +18,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use chrono::{DateTime, FixedOffset, Utc};
-
-pub fn replace_in_place(string: &mut String, pattern: &str, replacement: &str) {
-    while let Some(index) = string.find(pattern) {
-        let end = index + replacement.len();
-
-        string.replace_range(index..end, replacement);
-    }
+mod prelude {
+    pub use super::super::prelude::*;
+    pub use super::structs::*;
+    pub use super::Scorer;
+    pub use crate::models::page_vote::{self, Entity as PageVote};
+    pub use sea_orm::{DatabaseTransaction, FromQueryResult};
+    pub use sea_query::Expr;
+    pub use tide::utils::async_trait;
 }
 
-lazy_static! {
-    pub static ref UTC: FixedOffset = FixedOffset::east(0);
-}
+mod impls;
+mod scorer;
+mod service;
+mod structs;
 
-#[inline]
-pub fn now() -> DateTime<FixedOffset> {
-    Utc::now().with_timezone(&*UTC)
-}
+pub use self::impls::*;
+pub use self::scorer::Scorer;
+pub use self::service::ScoreService;

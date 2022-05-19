@@ -1,5 +1,5 @@
 /*
- * util.rs
+ * services/score/impls/null.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,21 +18,25 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use chrono::{DateTime, FixedOffset, Utc};
+use super::prelude::*;
 
-pub fn replace_in_place(string: &mut String, pattern: &str, replacement: &str) {
-    while let Some(index) = string.find(pattern) {
-        let end = index + replacement.len();
+#[derive(Debug)]
+pub struct NullScorer;
 
-        string.replace_range(index..end, replacement);
+#[async_trait]
+impl Scorer for NullScorer {
+    #[inline]
+    fn score_type(&self) -> ScoreType {
+        ScoreType::Null
     }
-}
 
-lazy_static! {
-    pub static ref UTC: FixedOffset = FixedOffset::east(0);
-}
+    #[inline]
+    fn accepts_vote_type(&self, _: VoteType) -> bool {
+        true
+    }
 
-#[inline]
-pub fn now() -> DateTime<FixedOffset> {
-    Utc::now().with_timezone(&*UTC)
+    #[inline]
+    async fn score(&self, _: &DatabaseTransaction, _: Condition) -> Result<f64> {
+        Ok(0.0)
+    }
 }

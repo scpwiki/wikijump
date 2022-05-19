@@ -1,5 +1,5 @@
 /*
- * util.rs
+ * services/score/impls/mean.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,21 +18,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use chrono::{DateTime, FixedOffset, Utc};
+use super::prelude::*;
 
-pub fn replace_in_place(string: &mut String, pattern: &str, replacement: &str) {
-    while let Some(index) = string.find(pattern) {
-        let end = index + replacement.len();
+#[derive(Debug)]
+pub struct MeanScorer;
 
-        string.replace_range(index..end, replacement);
+impl Scorer for MeanScorer {
+    #[inline]
+    fn score_type(&self) -> ScoreType {
+        ScoreType::Mean
     }
-}
 
-lazy_static! {
-    pub static ref UTC: FixedOffset = FixedOffset::east(0);
-}
+    fn score(&self, votes: &VoteMap) -> f64 {
+        let sum = votes.sum() as f64;
+        let count = votes.count() as f64;
 
-#[inline]
-pub fn now() -> DateTime<FixedOffset> {
-    Utc::now().with_timezone(&*UTC)
+        sum / count
+    }
 }

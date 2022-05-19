@@ -72,6 +72,7 @@ pub struct GetPageOutput<'a> {
     pub alt_title: Option<&'a str>,
     pub slug: &'a str,
     pub tags: &'a JsonValue, // TODO: replace with &[&str]
+    pub rating: f64,
 }
 
 #[derive(Deserialize, Debug, Default)]

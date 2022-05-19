@@ -4,50 +4,50 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
-#[sea_orm(table_name = "page_connection_missing")]
+#[sea_orm(table_name = "page_vote")]
 pub struct Model {
-    #[sea_orm(primary_key, auto_increment = false)]
-    pub from_page_id: i64,
-    #[sea_orm(primary_key, auto_increment = false)]
-    pub to_site_id: i64,
-    #[sea_orm(primary_key, auto_increment = false, column_type = "Text")]
-    pub to_page_slug: String,
-    #[sea_orm(primary_key, auto_increment = false, column_type = "Text")]
-    pub connection_type: String,
+    #[sea_orm(primary_key)]
+    pub page_vote_id: i64,
     pub created_at: DateTimeWithTimeZone,
-    pub updated_at: Option<DateTimeWithTimeZone>,
-    pub count: i32,
+    pub deleted_at: Option<DateTimeWithTimeZone>,
+    pub disabled_at: Option<DateTimeWithTimeZone>,
+    pub disabled_by: Option<i64>,
+    pub page_id: i64,
+    pub user_id: i64,
+    pub value: i16,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
     #[sea_orm(
+        belongs_to = "super::users::Entity",
+        from = "Column::DisabledBy",
+        to = "super::users::Column::Id",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    Users2,
+    #[sea_orm(
         belongs_to = "super::page::Entity",
-        from = "Column::FromPageId",
+        from = "Column::PageId",
         to = "super::page::Column::PageId",
         on_update = "NoAction",
         on_delete = "NoAction"
     )]
     Page,
     #[sea_orm(
-        belongs_to = "super::site::Entity",
-        from = "Column::ToSiteId",
-        to = "super::site::Column::SiteId",
+        belongs_to = "super::users::Entity",
+        from = "Column::UserId",
+        to = "super::users::Column::Id",
         on_update = "NoAction",
         on_delete = "NoAction"
     )]
-    Site,
+    Users1,
 }
 
 impl Related<super::page::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Page.def()
-    }
-}
-
-impl Related<super::site::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Site.def()
     }
 }
 

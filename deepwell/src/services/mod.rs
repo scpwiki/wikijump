@@ -37,8 +37,9 @@
 mod prelude {
     pub use super::context::ServiceContext;
     pub use super::error::*;
-    pub use crate::utils::{now, now_naive};
+    pub use crate::utils::now;
     pub use crate::web::{ProvidedValue, Reference};
+    pub use chrono::Utc;
     pub use sea_orm::{
         ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, EntityTrait, JoinType,
         ModelTrait, PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, RelationTrait,
@@ -57,9 +58,11 @@ pub mod page;
 pub mod parent;
 pub mod render;
 pub mod revision;
+pub mod score;
 pub mod site;
 pub mod text;
 pub mod user;
+pub mod vote;
 
 use crate::api::ApiRequest;
 use sea_orm::DatabaseConnection;
@@ -74,9 +77,11 @@ pub use self::page::PageService;
 pub use self::parent::ParentService;
 pub use self::render::RenderService;
 pub use self::revision::RevisionService;
+pub use self::score::ScoreService;
 pub use self::site::SiteService;
 pub use self::text::TextService;
 pub use self::user::UserService;
+pub use self::vote::VoteService;
 
 /// Extension trait to retrieve service objects from an `ApiRequest`.
 pub trait RequestFetchService {

@@ -1,5 +1,5 @@
 /*
- * util.rs
+ * services/score/impls/mod.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,21 +18,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use chrono::{DateTime, FixedOffset, Utc};
+use super::prelude;
 
-pub fn replace_in_place(string: &mut String, pattern: &str, replacement: &str) {
-    while let Some(index) = string.find(pattern) {
-        let end = index + replacement.len();
+mod mean;
+mod null;
+mod percent;
+mod sum;
 
-        string.replace_range(index..end, replacement);
-    }
-}
-
-lazy_static! {
-    pub static ref UTC: FixedOffset = FixedOffset::east(0);
-}
-
-#[inline]
-pub fn now() -> DateTime<FixedOffset> {
-    Utc::now().with_timezone(&*UTC)
-}
+pub use self::mean::MeanScorer;
+pub use self::null::NullScorer;
+pub use self::percent::PercentScorer;
+pub use self::sum::SumScorer;

@@ -73,7 +73,7 @@ impl UserService {
             bio: Set(None),
             about_page: Set(None),
             avatar_path: Set(None),
-            created_at: Set(Some(now_naive())),
+            created_at: Set(Some(Utc::now())),
             updated_at: Set(None),
             deleted_at: Set(None),
             ..Default::default()
@@ -151,7 +151,7 @@ impl UserService {
 
         if let ProvidedValue::Set(email_verified) = input.email_verified {
             let value = if email_verified {
-                Some(now_naive())
+                Some(Utc::now())
             } else {
                 None
             };
@@ -215,7 +215,7 @@ impl UserService {
 
         // Set update flag
         // TODO update to add TZ
-        user.updated_at = Set(Some(now_naive()));
+        user.updated_at = Set(Some(Utc::now()));
 
         // Update and return
         user.update(txn).await?;
@@ -232,7 +232,7 @@ impl UserService {
 
         // Set deletion flag
         // TODO update to add TZ
-        user.deleted_at = Set(Some(now_naive()));
+        user.deleted_at = Set(Some(Utc::now()));
 
         // Update and return
         user.update(txn).await?;

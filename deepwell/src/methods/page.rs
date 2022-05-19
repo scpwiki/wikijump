@@ -61,6 +61,7 @@ pub async fn page_get_direct(req: ApiRequest) -> ApiResponse {
     let response = build_page_response(&ctx, &page, &revision, details, StatusCode::Ok)
         .await
         .to_api()?;
+
     txn.commit().await?;
     Ok(response)
 }
@@ -296,6 +297,9 @@ async fn build_page_response(
         TextService::get_maybe(ctx, details.compiled_html, &revision.compiled_hash),
     )?;
 
+    // Calculate score
+    let rating = ScoreService::score(ctx, page.page_id).await?;
+
     // Build result struct
     let output = GetPageOutput {
         page_id: page.page_id,
@@ -322,6 +326,7 @@ async fn build_page_response(
         alt_title: revision.alt_title.ref_map(|s| s.as_str()),
         slug: &revision.slug,
         tags: &revision.tags,
+        rating,
     };
 
     let body = Body::from_json(&output)?;
