@@ -40,7 +40,9 @@ impl ScoreService {
         ctx: &ServiceContext<'_>,
         page_id: i64,
     ) -> Result<VoteMap> {
-        Self::collect_votes_inner(ctx.transaction(), Self::build_condition(page_id)).await
+        let txn = ctx.transaction();
+        let condition = Self::build_condition(page_id);
+        Self::collect_votes_inner(txn, condition).await
     }
 
     pub(crate) async fn collect_votes_inner(
