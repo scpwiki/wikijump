@@ -1,5 +1,5 @@
 /*
- * services/score/impls/mod.rs
+ * services/score/impls/percent.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,18 +18,25 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude;
+use super::prelude::*;
 
-mod mean;
-mod median;
-mod null;
-mod percent;
-mod sum;
-mod wilson;
+#[derive(Debug)]
+pub struct PercentScorer;
 
-pub use self::mean::MeanScorer;
-pub use self::median::MedianScorer;
-pub use self::null::NullScorer;
-pub use self::percent::PercentScorer;
-pub use self::sum::SumScorer;
-// TODO wilson
+impl Scorer for PercentScorer {
+    #[inline]
+    fn score_type(&self) -> ScoreType {
+        ScoreType::Percent
+    }
+
+    fn accepts_vote_type(&self, vote_type: VoteType) -> bool {
+        match vote_type {
+            VoteType::UpsDowns => true,
+            VoteType::FiveStar => false,
+        }
+    }
+
+    fn score(&self, votes: &VoteMap) -> f64 {
+        votes.get(1) / votes.count()
+    }
+}

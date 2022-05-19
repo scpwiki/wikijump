@@ -37,6 +37,7 @@ pub enum ScoreType {
     Sum,
     Mean,
     Median,
+    Percent,
     Wilson,
 }
 
