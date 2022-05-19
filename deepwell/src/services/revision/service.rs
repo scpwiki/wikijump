@@ -28,7 +28,8 @@ use crate::models::page_revision::{
 use crate::models::sea_orm_active_enums::RevisionType;
 use crate::services::render::RenderOutput;
 use crate::services::{
-    LinkService, OutdateService, ParentService, RenderService, ScoreService, SiteService, TextService,
+    LinkService, OutdateService, ParentService, RenderService, ScoreService, SiteService,
+    TextService,
 };
 use crate::web::{split_category, split_category_name, FetchDirection};
 use ftml::data::PageInfo;
@@ -338,7 +339,7 @@ impl RevisionService {
             title: &title,
             alt_title: alt_title.ref_map(|s| s.as_str()),
             rating,
-            tags: &[],   // Initial revision always has empty tags
+            tags: &[], // Initial revision always has empty tags
         };
 
         let RenderOutput {

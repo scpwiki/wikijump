@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::models::users::Model as UserModel;
-use chrono::{NaiveDate, NaiveDateTime};
+use chrono::{DateTime, NaiveDate, Utc};
 use std::collections::HashMap;
 
 #[derive(Deserialize, Debug)]
@@ -91,8 +91,8 @@ pub struct UserInfoOutput {
     about: Option<String>,
     avatar: Option<String>, // TODO
     signature: Option<String>,
-    since: Option<NaiveDateTime>,
-    last_active: Option<NaiveDateTime>,
+    since: Option<DateTime<Utc>>,
+    last_active: Option<DateTime<Utc>>,
 }
 
 impl From<&UserModel> for UserInfoOutput {

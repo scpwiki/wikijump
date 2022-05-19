@@ -18,17 +18,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
 use super::impls::*;
+use super::prelude::*;
 
 #[derive(Debug)]
 pub struct ScoreService;
 
 impl ScoreService {
-    pub async fn score(
-        ctx: &ServiceContext<'_>,
-        page_id: i64,
-    ) -> Result<f64> {
+    pub async fn score(ctx: &ServiceContext<'_>, page_id: i64) -> Result<f64> {
         let txn = ctx.transaction();
         let condition = Self::build_condition(page_id);
         let scorer = Self::get_scorer(ctx, page_id).await?;
