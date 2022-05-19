@@ -64,3 +64,43 @@ impl Scorer for MedianScorer {
         0.0
     }
 }
+
+#[test]
+fn median() {
+    // Tests to ensure our median algorithm works, see above.
+
+    macro_rules! votes {
+        () => {
+            VoteMap::new()
+        };
+
+        ($($key:expr => $value:expr,)+) => {
+            votes!($($key => $value),+)
+        };
+
+        ($($key:expr => $value:expr),*) => {{
+            let mut votes = VoteMap::new();
+
+            $(
+                votes.insert($key, $value);
+            )*
+
+            votes
+        }};
+    }
+
+    macro_rules! check {
+        ($expected:expr, $votes:expr $(,)?) => {{
+            let votes = $votes;
+            let actual = MedianScorer.score(&votes);
+            let expected = $expected as f64;
+
+            assert_eq!(
+                actual, expected,
+                "Actual median score doesn't match expected",
+            );
+        }};
+    }
+
+    check!(0, votes! {});
+}
