@@ -21,6 +21,16 @@
 use super::prelude::*;
 
 pub trait Scorer {
+    /// What kind of score this scorer evaluates.
+    ///
+    /// There should be a 1-to-1 mapping between `Scorer`
+    /// implementations and values for the `ScoreType` enum.
     fn score_type(&self) -> ScoreType;
+
+    /// Whether this scorer accepts vote maps of this type.
+    fn accepts_vote_type(&self, vtype: VoteType) -> bool;
+
+    /// Takes the given `VoteMap` and produces a float score.
+    /// This method is the core of the trait.
     fn score(&self, votes: &VoteMap) -> f64;
 }

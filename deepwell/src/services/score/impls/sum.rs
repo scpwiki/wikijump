@@ -29,6 +29,11 @@ impl Scorer for SumScorer {
         ScoreType::Sum
     }
 
+    #[inline]
+    fn accepts_vote_type(&self, _: VoteType) -> bool {
+        true
+    }
+
     fn score(&self, votes: &VoteMap) -> f64 {
         votes.sum()
     }

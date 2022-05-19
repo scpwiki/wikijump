@@ -29,6 +29,11 @@ impl Scorer for NullScorer {
         ScoreType::Null
     }
 
+    #[inline]
+    fn accepts_vote_type(&self, _: VoteType) -> bool {
+        true
+    }
+
     fn score(&self, _: &VoteMap) -> f64 {
         0.0
     }

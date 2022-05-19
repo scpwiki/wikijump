@@ -29,6 +29,11 @@ impl Scorer for MedianScorer {
         ScoreType::Median
     }
 
+    #[inline]
+    fn accepts_vote_type(&self, vote_type: VoteType) -> bool {
+        true
+    }
+
     fn score(&self, votes: &VoteMap) -> f64 {
         // Finds the median by iterating through elements
         // until it finds one which is before than the target

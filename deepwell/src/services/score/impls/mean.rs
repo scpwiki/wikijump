@@ -29,6 +29,12 @@ impl Scorer for MeanScorer {
         ScoreType::Mean
     }
 
+    fn accepts_vote_type(&self, vote_type: VoteType) -> bool {
+        match vote_type {
+            VoteType::UpsDowns | VoteType::FiveStar => true,
+        }
+    }
+
     fn score(&self, votes: &VoteMap) -> f64 {
         votes.get(1) / votes.count()
     }
