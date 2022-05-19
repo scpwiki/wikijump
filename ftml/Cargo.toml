@@ -27,8 +27,8 @@ mathml   = ["html", "latex2mathml"]
 [dependencies]
 cfg-if = "1"
 chrono = { version = "0.4.19", features = ["serde", "wasmbind"] }
-entities = "1"
 enum-map = "2"
+entities = "1"
 latex2mathml = { version = "0.2", optional = true }
 lazy_static = "1"
 log = "0.4"
