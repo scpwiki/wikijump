@@ -104,7 +104,7 @@ field-required = To pole jest wymagane
 
 characters-left = { $count ->
   [1] Pozostał 1 znak
-  *[other] pozostało { $count } znaków
+  *[other] Pozostało { $count } znaków
 }
 
 hold-to-show-password = Przytrzymaj, aby pokazać hasło
