@@ -32,7 +32,9 @@ impl ScoreService {
         page_id: i64,
         scorer: &impl Scorer,
     ) -> Result<f64> {
-        todo!()
+        let votes = Self::collect_votes(ctx, page_id).await?;
+        let score = scorer.score(&votes);
+        Ok(score)
     }
 
     pub async fn collect_votes(
