@@ -38,7 +38,6 @@ pub enum ScoreType {
     Mean,
     Median,
     Percent,
-    Wilson,
 }
 
 #[derive(Debug, Default, Clone, PartialEq, Eq)]

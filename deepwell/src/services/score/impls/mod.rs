@@ -25,11 +25,9 @@ mod median;
 mod null;
 mod percent;
 mod sum;
-mod wilson;
 
 pub use self::mean::MeanScorer;
 pub use self::median::MedianScorer;
 pub use self::null::NullScorer;
 pub use self::percent::PercentScorer;
 pub use self::sum::SumScorer;
-// TODO wilson
