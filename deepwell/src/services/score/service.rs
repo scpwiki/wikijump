@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use super::impls::*;
 
 #[derive(Debug)]
 pub struct ScoreService;
@@ -27,12 +28,23 @@ impl ScoreService {
     pub async fn score(
         ctx: &ServiceContext<'_>,
         page_id: i64,
-        scorer: &impl Scorer,
     ) -> Result<f64> {
         let txn = ctx.transaction();
         let condition = Self::build_condition(page_id);
+        let scorer = Self::get_scorer(ctx, page_id).await?;
         let score = scorer.score(txn, condition).await?;
         Ok(score)
+    }
+
+    /// Gets the correct `Scorer` implementation for this page.
+    ///
+    /// Currently stubbed, will be implemented when relevant settings are added.
+    pub async fn get_scorer(
+        _ctx: &ServiceContext<'_>,
+        _page_id: i64,
+    ) -> Result<&'static impl Scorer> {
+        // TODO
+        Ok(&NullScorer)
     }
 
     /// Helper method for retrieving a `VoteMap` for a page.
