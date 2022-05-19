@@ -35,17 +35,11 @@ impl ScoreService {
         Ok(score)
     }
 
-    #[inline]
-    pub async fn collect_votes(
-        ctx: &ServiceContext<'_>,
-        page_id: i64,
-    ) -> Result<VoteMap> {
-        let txn = ctx.transaction();
-        let condition = Self::build_condition(page_id);
-        Self::collect_votes_inner(txn, condition).await
-    }
-
-    pub(crate) async fn collect_votes_inner(
+    /// Helper method for retrieving a `VoteMap` for a page.
+    /// Takes inputs as used in `Scorer.score()`.
+    ///
+    /// This can become a full service method, see above.
+    pub(crate) async fn collect_votes(
         txn: &DatabaseTransaction,
         condition: Condition,
     ) -> Result<VoteMap> {

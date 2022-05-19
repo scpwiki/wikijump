@@ -45,7 +45,7 @@ impl Scorer for PercentScorer {
     ) -> Result<f64> {
         // We need to do a GROUP BY either way here,
         // may as well use the helper method.
-        let votes = ScoreService::collect_votes_inner(txn, condition).await?;
+        let votes = ScoreService::collect_votes(txn, condition).await?;
 
         let upvotes = votes.get(1) as f64;
         let total = votes.count() as f64;

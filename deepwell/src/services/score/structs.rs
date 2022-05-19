@@ -67,11 +67,13 @@ impl VoteMap {
     }
 
     #[inline]
+    #[allow(dead_code)] // TEMP
     pub fn is_empty(&self) -> bool {
         self.count() == 0
     }
 
     /// Gets the sum of all the votes in this map.
+    #[allow(dead_code)] // TEMP
     pub fn sum(&self) -> i64 {
         self.iter().fold(0, |sum, (value, count)| {
             let value = i64::from(value);
