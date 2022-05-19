@@ -28,7 +28,7 @@ use crate::models::page_revision::{
 use crate::models::sea_orm_active_enums::RevisionType;
 use crate::services::render::RenderOutput;
 use crate::services::{
-    LinkService, OutdateService, ParentService, RenderService, SiteService, TextService,
+    LinkService, OutdateService, ParentService, RenderService, ScoreService, SiteService, TextService,
 };
 use crate::web::{split_category, split_category_name, FetchDirection};
 use ftml::data::PageInfo;
@@ -329,12 +329,15 @@ impl RevisionService {
         // Add wikitext
         let wikitext_hash = TextService::create(ctx, wikitext.clone()).await?;
 
+        // Calculate rating
+        let rating = ScoreService::score(ctx, page_id).await?;
+
         // Render first revision
         let render_input = RenderPageInfo {
             slug: &slug,
             title: &title,
             alt_title: alt_title.ref_map(|s| s.as_str()),
-            rating: 0.0, // TODO
+            rating,
             tags: &[],   // Initial revision always has empty tags
         };
 
@@ -517,13 +520,16 @@ impl RevisionService {
             vec!["slug"]
         };
 
+        // Calculate rating
+        let rating = ScoreService::score(ctx, page_id).await?;
+
         // Re-render page
         let temp_tags = json_to_string_list(tags.clone())?;
         let render_input = RenderPageInfo {
             slug: &new_slug,
             title: &title,
             alt_title: alt_title.ref_map(|s| s.as_str()),
-            rating: 0.0, // TODO
+            rating,
             tags: &temp_tags,
         };
 
@@ -627,6 +633,7 @@ impl RevisionService {
         let txn = ctx.transaction();
         let revision = Self::get_latest(ctx, site_id, page_id).await?;
         let wikitext = TextService::get(ctx, &revision.wikitext_hash).await?;
+        let rating = ScoreService::score(ctx, page_id).await?;
 
         // This is necessary until we are able to replace the
         // 'tags' column with TEXT[] instead of JSON.
@@ -635,7 +642,7 @@ impl RevisionService {
             slug: &revision.slug,
             title: &revision.title,
             alt_title: revision.alt_title.ref_map(|s| s.as_str()),
-            rating: 0.0, // TODO
+            rating,
             tags: &temp_tags,
         };
 
@@ -862,7 +869,7 @@ struct RenderPageInfo<'a> {
     slug: &'a str,
     title: &'a str,
     alt_title: Option<&'a str>,
-    rating: f32,
+    rating: f64,
     tags: &'a [String],
 }
 
