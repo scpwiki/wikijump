@@ -126,6 +126,13 @@ pub struct RestorePageOutput {
     parser_warnings: Vec<ParseWarning>,
 }
 
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct RollbackPage {
+    pub revision_comments: String,
+    pub user_id: i64,
+}
+
 impl From<CreateRevisionOutput> for EditPageOutput {
     #[inline]
     fn from(
