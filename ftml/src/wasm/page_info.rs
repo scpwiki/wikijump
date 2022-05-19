@@ -110,7 +110,7 @@ impl PageInfo {
     }
 
     #[wasm_bindgen(method, getter)]
-    pub fn rating(&self) -> f32 {
+    pub fn rating(&self) -> f64 {
         self.inner.rating
     }
 
