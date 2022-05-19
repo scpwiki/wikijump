@@ -68,6 +68,11 @@ impl VoteMap {
         self.count_int() as f64
     }
 
+    #[inline]
+    pub fn is_empty(&self) -> bool {
+        self.count_int() == 0
+    }
+
     /// Gets the sum of all the votes in this map.
     pub fn sum_int(&self) -> i64 {
         self.iter().fold(0, |sum, (value, count)| {
