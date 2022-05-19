@@ -51,7 +51,7 @@ impl Scorer for MedianScorer {
         for (vote, count) in votes.iter() {
             progress += count;
 
-            if progress >= half {
+            if progress > half {
                 return f64::from(vote);
             }
         }
@@ -82,6 +82,8 @@ fn median() {
             let mut votes = VoteMap::new();
 
             $(
+                // $key   -- Vote value
+                // $value -- Count
                 votes.insert($key, $value);
             )*
 
@@ -103,4 +105,15 @@ fn median() {
     }
 
     check!(0, votes! {});
+    check!(0, votes! { 1 => 0 });
+    check!(0, votes! { 0 => 0, 1 => 0 });
+
+    check!(1, votes! { 1 => 1 });
+    check!(1, votes! { 1 => 5 });
+    check!(0, votes! { 0 => 5 });
+    check!(-1, votes! { -1 => 5 });
+
+    check!(0, votes! { -1 => 1, 0 => 1, 1 => 1 });
+    check!(-1, votes! { -1 => 4, 0 => 1, 1 => 1 });
+    check!(1, votes! { -1 => 1, 0 => 1, 1 => 4 });
 }
