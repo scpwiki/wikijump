@@ -21,7 +21,7 @@ navigated-to = Przejdź do { $path }
 
 ## Generic
 
-about = O stronie
+about = O witrynie
 account = Konto
 applications = Aplikacje
 avatar = Awatar
@@ -29,7 +29,7 @@ breadcrumbs = Nawigacja okruszkowa
 change = Zmiany
 clear = Wyczyść
 close = Zamknij
-dashboard = Dashboard
+dashboard = Panel sterowania
 docs = Dokumentacja
 download = Pobierz
 edit = Edytuj
