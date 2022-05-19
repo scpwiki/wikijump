@@ -191,6 +191,7 @@ impl RevisionService {
         };
 
         // If nothing has changed, then don't create a new revision
+        // TODO it should still recompile the page
         if changes.is_empty() {
             return Ok(None);
         }
