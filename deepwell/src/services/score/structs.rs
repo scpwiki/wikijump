@@ -55,7 +55,7 @@ impl VoteMap {
 
     #[inline]
     pub fn get(&self, vote: VoteValue) -> f64 {
-        self.get(vote) as f64
+        self.get_int(vote) as f64
     }
 
     /// Gets the number of votes in this map.
