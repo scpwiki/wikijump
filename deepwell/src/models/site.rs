@@ -26,10 +26,6 @@ pub struct Model {
 pub enum Relation {
     #[sea_orm(has_many = "super::file::Entity")]
     File,
-    #[sea_orm(has_many = "super::page_category::Entity")]
-    PageCategory,
-    #[sea_orm(has_many = "super::page::Entity")]
-    Page,
     #[sea_orm(has_many = "super::forum_group::Entity")]
     ForumGroup,
     #[sea_orm(has_many = "super::forum_category::Entity")]
@@ -38,31 +34,23 @@ pub enum Relation {
     ForumPost,
     #[sea_orm(has_many = "super::forum_thread::Entity")]
     ForumThread,
-    #[sea_orm(has_many = "super::page_revision::Entity")]
-    PageRevision,
     #[sea_orm(has_many = "super::site_settings::Entity")]
     SiteSettings,
     #[sea_orm(has_many = "super::user_block::Entity")]
     UserBlock,
+    #[sea_orm(has_many = "super::page::Entity")]
+    Page,
     #[sea_orm(has_many = "super::page_connection_missing::Entity")]
     PageConnectionMissing,
+    #[sea_orm(has_many = "super::page_category::Entity")]
+    PageCategory,
+    #[sea_orm(has_many = "super::page_revision::Entity")]
+    PageRevision,
 }
 
 impl Related<super::file::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::File.def()
-    }
-}
-
-impl Related<super::page_category::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::PageCategory.def()
-    }
-}
-
-impl Related<super::page::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Page.def()
     }
 }
 
@@ -90,12 +78,6 @@ impl Related<super::forum_thread::Entity> for Entity {
     }
 }
 
-impl Related<super::page_revision::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::PageRevision.def()
-    }
-}
-
 impl Related<super::site_settings::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::SiteSettings.def()
@@ -108,9 +90,27 @@ impl Related<super::user_block::Entity> for Entity {
     }
 }
 
+impl Related<super::page::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Page.def()
+    }
+}
+
 impl Related<super::page_connection_missing::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::PageConnectionMissing.def()
+    }
+}
+
+impl Related<super::page_category::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::PageCategory.def()
+    }
+}
+
+impl Related<super::page_revision::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::PageRevision.def()
     }
 }
 

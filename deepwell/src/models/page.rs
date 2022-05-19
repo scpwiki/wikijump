@@ -46,14 +46,14 @@ pub enum Relation {
     Site,
     #[sea_orm(has_many = "super::file::Entity")]
     File,
-    #[sea_orm(has_many = "super::page_revision::Entity")]
-    PageRevision,
-    #[sea_orm(has_many = "super::page_vote::Entity")]
-    PageVote,
     #[sea_orm(has_many = "super::page_link::Entity")]
     PageLink,
     #[sea_orm(has_many = "super::page_connection_missing::Entity")]
     PageConnectionMissing,
+    #[sea_orm(has_many = "super::page_revision::Entity")]
+    PageRevision,
+    #[sea_orm(has_many = "super::page_vote::Entity")]
+    PageVote,
 }
 
 impl Related<super::forum_thread::Entity> for Entity {
@@ -80,18 +80,6 @@ impl Related<super::file::Entity> for Entity {
     }
 }
 
-impl Related<super::page_revision::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::PageRevision.def()
-    }
-}
-
-impl Related<super::page_vote::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::PageVote.def()
-    }
-}
-
 impl Related<super::page_link::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::PageLink.def()
@@ -101,6 +89,18 @@ impl Related<super::page_link::Entity> for Entity {
 impl Related<super::page_connection_missing::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::PageConnectionMissing.def()
+    }
+}
+
+impl Related<super::page_revision::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::PageRevision.def()
+    }
+}
+
+impl Related<super::page_vote::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::PageVote.def()
     }
 }
 
