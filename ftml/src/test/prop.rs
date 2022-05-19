@@ -420,7 +420,7 @@ fn arb_page_info() -> impl Strategy<Value = PageInfo<'static>> {
         cow!(".+"),
         cow!(".+"),
         arb_optional_str(),
-        any::<f32>(),
+        any::<f64>(),
         proptest::collection::vec(cow!(".+"), 0..20),
         cow!(r"[a-z\-]+"),
     )

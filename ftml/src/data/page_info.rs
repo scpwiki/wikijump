@@ -52,7 +52,7 @@ pub struct PageInfo<'a> {
     pub alt_title: Option<Cow<'a, str>>,
 
     /// The current rating the page has.
-    pub rating: f32,
+    pub rating: f64,
 
     /// The current set of tags this page has.
     pub tags: Vec<Cow<'a, str>>,
