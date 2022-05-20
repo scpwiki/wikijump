@@ -235,7 +235,10 @@ impl RevisionService {
         }
 
         // Perform outdating based on changes made.
-        match old_slug {
+        //
+        // Also, determine the revision type.
+        // If the slug changes it's "move", otherwise "regular".
+        let revision_type = match old_slug {
             Some(ref old_slug) => {
                 // If there's an "old slug" set, then this is a page rename / move.
                 // Thus we should invoke the OutdateService for both the source
@@ -247,6 +250,8 @@ impl RevisionService {
 
                 OutdateService::process_page_move(ctx, site_id, page_id, old_slug, &slug)
                     .await?;
+
+                RevisionType::Move
             }
             None => {
                 // Run all outdating tasks in parallel.
@@ -273,13 +278,15 @@ impl RevisionService {
                         ),
                     ),
                 )?;
+
+                RevisionType::Regular
             }
-        }
+        };
 
         // Insert the new revision into the table
         let changes = string_list_to_json(&changes)?;
         let model = page_revision::ActiveModel {
-            revision_type: Set(RevisionType::Regular),
+            revision_type: Set(revision_type),
             revision_number: Set(revision_number),
             page_id: Set(page_id),
             site_id: Set(site_id),
