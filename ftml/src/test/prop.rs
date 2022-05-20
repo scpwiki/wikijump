@@ -451,6 +451,7 @@ fn render<R: Render>(
 
 proptest! {
     // Warning: these tests are *very* slow.
+    #![proptest_config(ProptestConfig::with_cases(16))]
 
     #[test]
     #[ignore = "slow test"]
