@@ -341,7 +341,17 @@ impl PageService {
             RevisionService::create(ctx, site_id, page_id, revision_input, last_revision)
                 .await?;
 
-        todo!()
+        // Set page updated_at column.
+        let model = page::ActiveModel {
+            page_id: Set(page_id),
+            updated_at: Set(Some(now())),
+            ..Default::default()
+        };
+
+        model.update(txn).await?;
+
+        // Build and return
+        Ok(revision_output.map(|data| data.into()))
     }
 
     /// Undoes a past revision, applying the inverse of its changes.
