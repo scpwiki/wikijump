@@ -163,6 +163,7 @@ pub async fn page_move(mut req: ApiRequest) -> ApiResponse {
     let reference = Reference::try_from(&req)?;
     let site_id = req.param("site_id")?.parse()?;
     let new_slug = req.param("new_slug")?;
+
     tide::log::info!(
         "Moving page {:?} in site ID {} to {}",
         reference,
