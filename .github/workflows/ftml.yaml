@@ -44,6 +44,10 @@ jobs:
       - name: Test
         run: cd ftml && cargo test --all-features -- --nocapture --test-threads 1
 
+      - name: Test (exhaustive)
+        run: cd deepwell && cargo test --all-features -- --nocapture --ignored
+        if: github.ref == 'refs/head/develop' || github.ref == 'refs/head/prod'
+
   wasm:
     name: WebASM
     runs-on: ubuntu-latest

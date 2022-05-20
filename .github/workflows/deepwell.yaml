@@ -39,10 +39,6 @@ jobs:
       - name: Test
         run: cd deepwell && cargo test --all-features -- --nocapture --test-threads 1
 
-      - name: Test (exhaustive)
-        run: cd deepwell && cargo test --all-features -- --nocapture --ignored
-        if: github.ref == 'refs/head/develop' || github.ref == 'refs/head/prod'
-
   coverage:
     name: Coverage
     runs-on: ubuntu-latest
