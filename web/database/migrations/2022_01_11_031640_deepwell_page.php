@@ -81,7 +81,8 @@ class DeepwellPage extends Migration
                 'regular',
                 'create',
                 'delete',
-                'undelete'
+                'undelete',
+                'move'
             )
         ");
 

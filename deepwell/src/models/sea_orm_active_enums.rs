@@ -16,4 +16,6 @@ pub enum RevisionType {
     Regular,
     #[sea_orm(string_value = "undelete")]
     Undelete,
+    #[sea_orm(string_value = "move")]
+    Move,
 }
