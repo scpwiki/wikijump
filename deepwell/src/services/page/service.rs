@@ -199,10 +199,13 @@ impl PageService {
             RevisionService::create(ctx, site_id, page_id, revision_input, last_revision)
                 .await?;
 
-        // Update page category ID.
-        // We also of course bump the updated_at column.
+        // Update page after move. This changes:
+        // * slug             -- New slug for the page
+        // * page_category_id -- In case the category also changed
+        // * updated_at       -- This is updated every time a page is changed
         let model = page::ActiveModel {
             page_id: Set(page_id),
+            slug: Set(new_slug.clone()),
             page_category_id: Set(category_id),
             updated_at: Set(Some(now())),
             ..Default::default()
@@ -226,7 +229,6 @@ impl PageService {
             }),
             None => {
                 tide::log::error!("Page move did not create new revision");
-
                 Err(Error::BadRequest)
             }
         }
