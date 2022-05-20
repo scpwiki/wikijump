@@ -160,18 +160,41 @@ impl PageService {
         Ok(revision_output.map(|data| data.into()))
     }
 
-    // TODO
     /// Moves a page from from one slug to another.
     ///
     /// Note: This is called `rename` and not `move` because
     ///       the latter is a reserved word in Rust.
-    #[allow(dead_code)]
     pub async fn rename(
-        _ctx: &ServiceContext<'_>,
-        _site_id: i64,
-        _reference: Reference<'_>,
-        _new_slug: &str,
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        reference: Reference<'_>,
+        MovePage {
+            revision_comments: comments,
+            new_slug,
+            user_id,
+        }: MovePage,
     ) -> Result<()> {
+        let txn = ctx.transaction();
+        let PageModel { page_id, .. } = Self::get(ctx, site_id, reference).await?;
+
+        // Get latest revision
+        let last_revision = RevisionService::get_latest(ctx, site_id, page_id).await?;
+
+        // Create revision for move
+
+        let revision_input = CreateRevision {
+            user_id,
+            comments,
+            body: CreateRevisionBody {
+                slug: ProvidedValue::Set(new_slug),
+                ..Default::default()
+            },
+        };
+
+        let output =
+            RevisionService::create(ctx, site_id, page_id, revision_input, last_revision)
+                .await?;
+
         todo!()
     }
 
