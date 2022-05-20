@@ -172,6 +172,7 @@ impl PageService {
         // and that a page with that slug doesn't already exist.
         normalize(&mut new_slug);
         if old_slug == new_slug {
+            tide::log::error!("Source and destination slugs are the same: {}", old_slug);
             return Err(Error::BadRequest);
         }
 
