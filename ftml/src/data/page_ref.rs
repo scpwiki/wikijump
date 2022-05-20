@@ -191,6 +191,7 @@ mod prop {
 
     proptest! {
         #[test]
+        #[ignore = "slow test"]
         fn page_ref_prop(s in r"[a-zA-Z_:.]*") {
             let _ = PageRef::parse(&s);
         }

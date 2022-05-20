@@ -217,6 +217,7 @@ mod test {
 
     proptest! {
         #[test]
+        #[ignore = "slow test"]
         fn utf16_prop(s in ".*") {
             check(&s);
         }

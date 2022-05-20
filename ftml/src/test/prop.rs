@@ -450,19 +450,17 @@ fn render<R: Render>(
 }
 
 proptest! {
-    // These tests are *very* slow, so we only run a few of them.
-    //
-    // Occasionally you should bump this up to a high number
-    // and run through it all locally.
-    #![proptest_config(ProptestConfig::with_cases(2))]
+    // Warning: these tests are *very* slow.
 
     #[test]
+    #[ignore = "slow test"]
     fn render_html_prop(page_info in arb_page_info(), tree in arb_tree()) {
         let out = render(HtmlRender, tree, page_info);
         assert!(out.meta.len() >= 4);
     }
 
     #[test]
+    #[ignore = "slow test"]
     fn render_text_prop(page_info in arb_page_info(), tree in arb_tree()) {
         let _ = render(TextRender, tree, page_info);
     }

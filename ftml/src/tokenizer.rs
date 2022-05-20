@@ -63,6 +63,7 @@ mod test {
 
     proptest! {
         #[test]
+        #[ignore = "slow test"]
         fn tokenizer_prop(s in ".*") {
             let _ = tokenize(&s);
         }

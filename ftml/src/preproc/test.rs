@@ -81,6 +81,7 @@ fn prefilter() {
 
 proptest! {
     #[test]
+    #[ignore = "slow test"]
     fn prefilter_prop(mut s in ".*") {
         crate::preprocess(&mut s);
 
