@@ -196,6 +196,9 @@ impl RevisionService {
             return Ok(None);
         }
 
+        // Calculate rating
+        let rating = ScoreService::score(ctx, page_id).await?;
+
         // Run tasks based on changes:
         // See RevisionTasks struct for more information.
         let tasks = RevisionTasks::determine(&changes);
@@ -208,7 +211,7 @@ impl RevisionService {
                 slug: &slug,
                 title: &title,
                 alt_title: alt_title.ref_map(|s| s.as_str()),
-                rating: 0.0, // TODO
+                rating,
                 tags: &temp_tags,
             };
 
