@@ -22,7 +22,7 @@ use super::prelude::*;
 use crate::models::page::Model as PageModel;
 use crate::models::page_revision::Model as PageRevisionModel;
 use crate::services::page::{
-    CreatePage, DeletePage, EditPage, GetPageOutput, RestorePage, RollbackPage,
+    CreatePage, DeletePage, EditPage, GetPageOutput, MovePage, RestorePage, RollbackPage,
 };
 use crate::services::{Result, TextService};
 use crate::web::PageDetailsQuery;
@@ -147,6 +147,30 @@ pub async fn page_delete(mut req: ApiRequest) -> ApiResponse {
     tide::log::info!("Deleting page {reference:?} in site ID {site_id}");
 
     let output = PageService::delete(&ctx, site_id, reference, input)
+        .await
+        .to_api()?;
+
+    txn.commit().await?;
+    let body = Body::from_json(&output)?;
+    Ok(body.into())
+}
+
+pub async fn page_move(mut req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    let input: MovePage = req.body_json().await?;
+    let reference = Reference::try_from(&req)?;
+    let site_id = req.param("site_id")?.parse()?;
+    let new_slug = req.param("new_slug")?;
+    tide::log::info!(
+        "Moving page {:?} in site ID {} to {}",
+        reference,
+        site_id,
+        new_slug,
+    );
+
+    let output = PageService::rename(&ctx, site_id, reference, input, str!(new_slug))
         .await
         .to_api()?;
 

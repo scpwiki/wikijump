@@ -98,8 +98,8 @@ pub struct EditPageOutput {
 #[serde(rename_all = "camelCase")]
 pub struct MovePage {
     pub revision_comments: String,
-    pub new_slug: String,
     pub user_id: i64,
+    // NOTE: slug field is a parameter, not in the body
 }
 
 #[derive(Serialize, Debug)]

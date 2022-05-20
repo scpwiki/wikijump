@@ -156,9 +156,9 @@ impl PageService {
         reference: Reference<'_>,
         MovePage {
             revision_comments: comments,
-            mut new_slug,
             user_id,
         }: MovePage,
+        mut new_slug: String,
     ) -> Result<MovePageOutput> {
         let txn = ctx.transaction();
 

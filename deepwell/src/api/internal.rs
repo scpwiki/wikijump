@@ -77,6 +77,9 @@ pub fn build(mut app: ApiServer) -> ApiServer {
         .post(page_edit)
         .delete(page_delete);
 
+    app.at("/page/:site_id/:type/:id_or_slug/move/:new_slug")
+        .post(page_move);
+
     app.at("/page/:site_id/:page_id/rerender")
         .post(page_rerender);
 
