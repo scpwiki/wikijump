@@ -22,7 +22,7 @@ use super::prelude::*;
 use crate::models::page::Model as PageModel;
 use crate::models::page_revision::Model as PageRevisionModel;
 use crate::services::page::{
-    CreatePage, DeletePage, EditPage, GetPageOutput, RestorePage,
+    CreatePage, DeletePage, EditPage, GetPageOutput, RestorePage, RollbackPage,
 };
 use crate::services::{Result, TextService};
 use crate::web::PageDetailsQuery;
@@ -181,6 +181,33 @@ pub async fn page_restore(mut req: ApiRequest) -> ApiResponse {
     tide::log::info!("Un-deleting page ID {page_id} in site ID {site_id}");
 
     let output = PageService::restore(&ctx, site_id, page_id, input)
+        .await
+        .to_api()?;
+
+    txn.commit().await?;
+    let body = Body::from_json(&output)?;
+    Ok(body.into())
+}
+
+pub async fn page_rollback(mut req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    let input: RollbackPage = req.body_json().await?;
+    let reference = Reference::try_from(&req)?;
+    let site_id = req.param("site_id")?.parse()?;
+    let revision_number = req.param("revision_number")?.parse()?;
+    tide::log::info!(
+        "Rolling back page {:?} in site ID {} to revision number {}",
+        reference,
+        site_id,
+        revision_number,
+    );
+
+    let PageModel { page_id, .. } =
+        PageService::get(&ctx, site_id, reference).await.to_api()?;
+
+    let output = PageService::rollback(&ctx, site_id, page_id, revision_number, input)
         .await
         .to_api()?;
 

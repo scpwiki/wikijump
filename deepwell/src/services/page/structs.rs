@@ -126,7 +126,7 @@ pub struct RestorePageOutput {
     parser_warnings: Vec<ParseWarning>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct RollbackPage {
     pub revision_comments: String,

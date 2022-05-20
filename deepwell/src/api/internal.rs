@@ -91,6 +91,9 @@ pub fn build(mut app: ApiServer) -> ApiServer {
         .get(page_revision_get)
         .put(page_revision_put);
 
+    app.at("/page/:site_id/:type/:id_or_slug/revision/:revision_number/rollback")
+        .post(page_rollback);
+
     app.at("/page/:site_id/:type/:id_or_slug/revision/:revision_number/:direction")
         .get(page_revision_range_get);
 
