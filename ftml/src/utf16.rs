@@ -216,8 +216,9 @@ mod test {
     }
 
     proptest! {
+        #![proptest_config(ProptestConfig::with_cases(4096))]
+
         #[test]
-        #[ignore = "slow test"]
         fn utf16_prop(s in ".*") {
             check(&s);
         }
