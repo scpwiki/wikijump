@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::hash::HASH_LENGTH;
+use crate::hash::Hash;
 
 pub async fn text_put(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
@@ -65,16 +65,14 @@ pub async fn text_head(req: ApiRequest) -> ApiResponse {
     }
 }
 
-fn read_hash(req: &ApiRequest) -> Result<Vec<u8>, TideError> {
+fn read_hash(req: &ApiRequest) -> Result<Hash, TideError> {
     let hash_hex = req.param("hash")?;
     tide::log::debug!("Text hash: {hash_hex}");
 
-    let hash = hex::decode(hash_hex)
-        .map_err(|error| TideError::new(StatusCode::UnprocessableEntity, error))?;
+    let mut hash = [0; 64];
 
-    if hash.len() != HASH_LENGTH {
-        return Err(TideError::from_str(StatusCode::UnprocessableEntity, ""));
-    }
+    hex::decode_to_slice(hash_hex, &mut hash)
+        .map_err(|error| TideError::new(StatusCode::UnprocessableEntity, error))?;
 
     Ok(hash)
 }
