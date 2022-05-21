@@ -19,6 +19,7 @@
  */
 
 use crate::api::{ApiRequest, ApiServerState};
+use s3::bucket::Bucket;
 use sea_orm::DatabaseTransaction;
 use std::sync::Arc;
 
@@ -45,6 +46,11 @@ impl<'txn> ServiceContext<'txn> {
     }
 
     // Getters
+    #[inline]
+    pub fn s3_bucket(&self) -> &Bucket {
+        &self.state.s3_bucket
+    }
+
     #[inline]
     pub fn transaction(&self) -> &'txn DatabaseTransaction {
         self.transaction
