@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::hash::{sha512_hash, Hash};
+use crate::hash::{hash_to_hex, sha512_hash, Hash};
 
 #[derive(Debug)]
 pub struct FileService;
@@ -61,7 +61,16 @@ impl FileService {
         ctx: &ServiceContext<'_>,
         hash: &[u8],
     ) -> Result<Option<Vec<u8>>> {
-        todo!()
+        let bucket = ctx.s3_bucket();
+        let hex_hash = hash_to_hex(hash);
+        let (data, status) = bucket.get_object(&hex_hash).await?;
+
+        // TODO
+        match status {
+            200 => Ok(Some(data)),
+            404 => Ok(None),
+            _ => todo!(),
+        }
     }
 
     pub async fn blob_exists(ctx: &ServiceContext<'_>, hash: &[u8]) -> Result<bool> {

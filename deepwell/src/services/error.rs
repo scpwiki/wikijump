@@ -45,7 +45,7 @@ pub enum Error {
     Serde(#[from] serde_json::Error),
 
     #[error("S3 error: {0}")]
-    S3(S3Error),
+    S3(#[from] S3Error),
 
     #[error("Web server error: HTTP {}", .0.status() as u16)]
     Web(TideError),
