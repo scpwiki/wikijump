@@ -69,6 +69,7 @@ pub struct Config {
     pub run_migrations: bool,
 
     /// The name of the S3 bucket that file blobs are kept in.
+    /// The bucket must already exist prior to program invocation.
     ///
     /// Can be set using environment variable `S3_BUCKET`.
     pub s3_bucket: String,
@@ -310,6 +311,22 @@ fn parse_args(config: &mut Config) {
                 .help("Whether to run migrations on server startup."),
         )
         .arg(
+            Arg::new("s3-bucket")
+                .short('B')
+                .long("bucket")
+                .long("s3-bucket")
+                .takes_value(true)
+                .value_name("NAME")
+                .help("The name of the S3 bucket where uploaded file blobs are kept."),
+        )
+        .arg(
+            Arg::new("aws-region")
+                .long("aws-region")
+                .takes_value(true)
+                .value_name("NAME")
+                .help("The name of the standard AWS region to use for AWS calls."),
+        )
+        .arg(
             Arg::new("localization-path")
                 .short('L')
                 .long("localizations")
@@ -371,6 +388,20 @@ fn parse_args(config: &mut Config) {
             }
         }
     }
+
+    if let Some(bucket) = matches.value_of("s3-bucket") {
+        config.s3_bucket = bucket.into();
+    };
+
+    if let Some(value) = matches.value_of("aws-region") {
+        match value.parse() {
+            Ok(region) => config.aws_region = region,
+            Err(_) => {
+                eprintln!("Invalid standard AWS region name: {value}");
+                process::exit(1);
+            }
+        }
+    };
 
     if let Some(localization_path) = matches.value_of_os("localization-path") {
         config.localization_path = localization_path.into();
