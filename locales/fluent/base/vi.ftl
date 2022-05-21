@@ -66,19 +66,19 @@ search = Tìm kiếm
 
 ## Generic Authentication
 
-login = Login
+login = Đăng nhập
   .toast = Bạn đã được đăng nhập.
 
-logout = Logout
+logout = Đăng xuất
   .toast = Bạn đã được đăng xuất.
 
-register = Register
+register = Đăng ký
   .toast = Bạn đã được đăng ký.
 
-specifier = Email or Username
+specifier = Email hoặc Tên người dùng
   .placeholder = Nhập email hoặc tên người dùng...
 
-username = Username
+username = Tên người dùng
   .placeholder = Nhập tên người dùng...
   .info = Bạn sẽ có thể thay đổi thông tin này sau.
 
@@ -92,7 +92,7 @@ password = Mật khẩu
 confirm-password = Xác Nhận Mật Khẩu
 
 forgot-password = Quên Mật Khẩu
-  .question = Bạn đã quên mật khẩu>
+  .question = Bạn đã quên mật khẩu?
 
 reset-password = Đặt Lại Mật Khẩu
 
