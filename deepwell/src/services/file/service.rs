@@ -65,11 +65,20 @@ impl FileService {
         let hex_hash = hash_to_hex(hash);
         let (data, status) = bucket.get_object(&hex_hash).await?;
 
-        // TODO
         match status {
             200 => Ok(Some(data)),
             404 => Ok(None),
-            _ => todo!(),
+            _ => {
+                // We assume all unexpected statuses are errors, even if 1XX or 2XX
+                let error_message = String::from_utf8_lossy(&data);
+                tide::log::error!(
+                    "Error while fetching S3 blob (HTTP {}): {}",
+                    status,
+                    &error_message,
+                );
+
+                Err(Error::RemoteOperationFailed)
+            }
         }
     }
 

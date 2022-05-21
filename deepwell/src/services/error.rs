@@ -53,6 +53,9 @@ pub enum Error {
     #[error("Invalid enum serialization value")]
     InvalidEnumValue,
 
+    #[error("A request to a remote service returned an error")]
+    RemoteOperationFailed,
+
     #[error("The request is in some way malformed or incorrect")]
     BadRequest,
 
@@ -80,6 +83,9 @@ impl Error {
             Error::S3(inner) => TideError::new(StatusCode::InternalServerError, inner),
             Error::Web(inner) => inner,
             Error::InvalidEnumValue => {
+                TideError::from_str(StatusCode::InternalServerError, "")
+            }
+            Error::RemoteOperationFailed => {
                 TideError::from_str(StatusCode::InternalServerError, "")
             }
             Error::BadRequest => TideError::from_str(StatusCode::BadRequest, ""),
