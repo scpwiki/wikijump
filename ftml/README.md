@@ -14,6 +14,8 @@
 
 ### Foundation Text Markup Language
 
+(Alternatively, ftml: the markup language)
+
 A Rust library to parse Wikidot text ("Wikitext") into an abstract syntax tree (AST).
 This aims to be a replacement for the aging [Text\_Wiki](https://github.com/gabrys/wikidot/tree/master/lib/Text_Wiki/Text) from Wikidot.
 This is version aims to have a nearly fully compatible parser for common Wikidot, including common malformed constructs.
