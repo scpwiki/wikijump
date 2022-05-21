@@ -58,4 +58,19 @@ impl MfaService {
             Err(Error::InvalidAuthentication)
         }
     }
+
+    /// Verifies if the recovery code for this user is valid.
+    ///
+    /// If it is, then the code is removed from the user's list
+    /// of valid codes before returning success.
+    ///
+    /// # Returns
+    /// Nothing on success, yields an `InvalidAuthentication` error on failure.
+    pub async fn verify_recovery(
+        ctx: &ServiceContext<'_>,
+        user_id: i64,
+        recovery_code: &str,
+    ) -> Result<()> {
+        todo!()
+    }
 }

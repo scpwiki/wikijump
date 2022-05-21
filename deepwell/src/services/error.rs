@@ -40,6 +40,9 @@ pub enum Error {
     #[error("CUID generation error: {0}")]
     Cuid(#[from] CuidError),
 
+    #[error("Cryptography error: {0}")]
+    Cryptography(argon2::password_hash::Error),
+
     #[error("Database error: {0}")]
     Database(DbErr),
 
@@ -96,6 +99,9 @@ impl Error {
     pub fn into_tide_error(self) -> TideError {
         match self {
             Error::Cuid(inner) => TideError::new(StatusCode::InternalServerError, inner),
+            Error::Cryptography(_) => {
+                TideError::from_str(StatusCode::InternalServerError, "")
+            }
             Error::Database(inner) => {
                 TideError::new(StatusCode::InternalServerError, inner)
             }
@@ -130,6 +136,16 @@ impl Error {
 }
 
 // Error conversion implementations
+//
+// Required if the value doesn't implement StdError,
+// or we want custom conversions.
+
+impl From<argon2::password_hash::Error> for Error {
+    #[inline]
+    fn from(error: argon2::password_hash::Error) -> Error {
+        Error::Cryptography(error)
+    }
+}
 
 impl From<DbErr> for Error {
     fn from(error: DbErr) -> Error {

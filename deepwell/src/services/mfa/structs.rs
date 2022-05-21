@@ -18,7 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::prelude::*;
 use crate::utils::assert_is_csprng;
+use argon2::{password_hash::SaltString, Argon2, PasswordHasher};
 use data_encoding::BASE32_NOPAD;
 use rand::distributions::{Alphanumeric, DistString};
 use rand::{thread_rng, Rng};
@@ -31,19 +33,23 @@ pub const RECOVERY_CODE_LENGTH: usize = 8;
 pub struct MfaSecrets {
     pub totp_secret: String,
     pub recovery_codes: Vec<String>,
+    pub recovery_codes_hashed: Vec<String>,
 }
 
 impl MfaSecrets {
-    pub fn generate() -> Self {
+    pub fn generate() -> Result<Self> {
         let mut rng = thread_rng();
         assert_is_csprng(&rng);
 
+        // TOTP secret is any sufficiently-long random base32 string
         let totp_secret = {
             let mut buffer = [0; 32];
             rng.fill(&mut buffer);
             BASE32_NOPAD.encode(&buffer)
         };
 
+        // Recovery codes are any randomly-generated codes which the application
+        // accepts as a one-time code to bypass MFA.
         let recovery_codes = iter::repeat(())
             .take(RECOVERY_CODE_COUNT)
             .map(|_| {
@@ -51,14 +57,31 @@ impl MfaSecrets {
                 code.insert(RECOVERY_CODE_LENGTH / 2, '-'); // for readability
                 code
             })
-            .collect();
+            .collect::<Vec<String>>();
+
+        // Since we only need to check if the recovery code is *correct*, not what it is,
+        // we can hash them just like passwords.
+        // We use argon2, the same as recommended for passwords.
+        let recovery_codes_hashed = {
+            let mut hashes = Vec::new();
+            let argon2 = Argon2::default();
+
+            for code in &recovery_codes {
+                let salt = SaltString::generate(&mut rng);
+                let hash = argon2.hash_password(code.as_bytes(), &salt)?.to_string();
+                hashes.push(hash);
+            }
+
+            hashes
+        };
 
         // TODO convert recovery codes to passwords since we only need to check if they're the
         //      same, not the value itself
 
-        MfaSecrets {
+        Ok(MfaSecrets {
             totp_secret,
             recovery_codes,
-        }
+            recovery_codes_hashed,
+        })
     }
 }
