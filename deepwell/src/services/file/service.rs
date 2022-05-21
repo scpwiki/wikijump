@@ -75,9 +75,15 @@ impl FileService {
     }
 
     pub async fn blob_exists(ctx: &ServiceContext<'_>, hash: &[u8]) -> Result<bool> {
-        // TODO
-        // *NOT* get_blob_optional.is_some(), we make a separate S3 call for HEAD
-        todo!()
+        let bucket = ctx.s3_bucket();
+        let hex_hash = hash_to_hex(hash);
+        let (data, status) = bucket.get_object(&hex_hash).await?;
+
+        match status {
+            200 | 204 => Ok(true),
+            404 => Ok(false),
+            _ => s3_error(&data, status, "fetching S3 blob"),
+        }
     }
 
     #[inline]
