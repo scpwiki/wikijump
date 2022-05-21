@@ -96,6 +96,24 @@ pub struct EditPageOutput {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
+pub struct MovePage {
+    pub revision_comments: String,
+    pub user_id: i64,
+    // NOTE: slug field is a parameter, not in the body
+}
+
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct MovePageOutput {
+    pub old_slug: String,
+    pub new_slug: String,
+    pub revision_id: i64,
+    pub revision_number: i32,
+    pub parser_warnings: Option<Vec<ParseWarning>>,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct DeletePage {
     pub revision_comments: String,
     pub user_id: i64,

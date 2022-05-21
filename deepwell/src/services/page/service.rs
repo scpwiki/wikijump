@@ -24,7 +24,7 @@ use crate::models::page::{self, Entity as Page, Model as PageModel};
 use crate::models::page_category::Model as PageCategoryModel;
 use crate::services::revision::{
     CreateFirstRevision, CreateFirstRevisionOutput, CreateResurrectionRevision,
-    CreateRevision, CreateRevisionBody,
+    CreateRevision, CreateRevisionBody, CreateRevisionOutput,
 };
 use crate::services::{CategoryService, RevisionService, TextService};
 use crate::web::{get_category_name, trim_default};
@@ -47,33 +47,19 @@ impl PageService {
         }: CreatePage,
     ) -> Result<CreatePageOutput> {
         let txn = ctx.transaction();
+
         normalize(&mut slug);
-
-        // Check for conflicts
-        let result = Page::find()
-            .filter(
-                Condition::all()
-                    .add(page::Column::SiteId.eq(site_id))
-                    .add(page::Column::Slug.eq(slug.as_str()))
-                    .add(page::Column::DeletedAt.is_null()),
-            )
-            .one(txn)
-            .await?;
-
-        if result.is_some() {
-            tide::log::error!("Page with slug '{slug}' already exists on site ID {site_id}, cannot create");
-            return Err(Error::Conflict);
-        }
+        Self::check_conflicts(ctx, site_id, &slug).await?;
 
         // Create category if not already present
-        let category =
+        let PageCategoryModel { category_id, .. } =
             CategoryService::get_or_create(ctx, site_id, get_category_name(&slug))
                 .await?;
 
         // Insert page
         let model = page::ActiveModel {
             site_id: Set(site_id),
-            page_category_id: Set(category.category_id),
+            page_category_id: Set(category_id),
             slug: Set(slug.clone()),
             ..Default::default()
         };
@@ -160,19 +146,93 @@ impl PageService {
         Ok(revision_output.map(|data| data.into()))
     }
 
-    // TODO
     /// Moves a page from from one slug to another.
     ///
     /// Note: This is called `rename` and not `move` because
     ///       the latter is a reserved word in Rust.
-    #[allow(dead_code)]
     pub async fn rename(
-        _ctx: &ServiceContext<'_>,
-        _site_id: i64,
-        _reference: Reference<'_>,
-        _new_slug: &str,
-    ) -> Result<()> {
-        todo!()
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        reference: Reference<'_>,
+        MovePage {
+            revision_comments: comments,
+            user_id,
+        }: MovePage,
+        mut new_slug: String,
+    ) -> Result<MovePageOutput> {
+        let txn = ctx.transaction();
+
+        let PageModel {
+            page_id,
+            slug: old_slug,
+            ..
+        } = Self::get(ctx, site_id, reference).await?;
+
+        // Check that a move is actually taking place,
+        // and that a page with that slug doesn't already exist.
+        normalize(&mut new_slug);
+        if old_slug == new_slug {
+            tide::log::error!("Source and destination slugs are the same: {}", old_slug);
+            return Err(Error::BadRequest);
+        }
+
+        Self::check_conflicts(ctx, site_id, &new_slug).await?;
+
+        // Create category if not already present
+        let PageCategoryModel { category_id, .. } =
+            CategoryService::get_or_create(ctx, site_id, get_category_name(&new_slug))
+                .await?;
+
+        // Get latest revision
+        let last_revision = RevisionService::get_latest(ctx, site_id, page_id).await?;
+
+        // Create revision for move
+        let revision_input = CreateRevision {
+            user_id,
+            comments,
+            body: CreateRevisionBody {
+                slug: ProvidedValue::Set(new_slug.clone()),
+                ..Default::default()
+            },
+        };
+
+        let revision_output =
+            RevisionService::create(ctx, site_id, page_id, revision_input, last_revision)
+                .await?;
+
+        // Update page after move. This changes:
+        // * slug             -- New slug for the page
+        // * page_category_id -- In case the category also changed
+        // * updated_at       -- This is updated every time a page is changed
+        let model = page::ActiveModel {
+            page_id: Set(page_id),
+            slug: Set(new_slug.clone()),
+            page_category_id: Set(category_id),
+            updated_at: Set(Some(now())),
+            ..Default::default()
+        };
+
+        model.update(txn).await?;
+
+        // Build and return
+
+        match revision_output {
+            Some(CreateRevisionOutput {
+                revision_id,
+                revision_number,
+                parser_warnings,
+            }) => Ok(MovePageOutput {
+                old_slug,
+                new_slug,
+                revision_id,
+                revision_number,
+                parser_warnings,
+            }),
+            None => {
+                tide::log::error!("Page move did not create new revision");
+                Err(Error::BadRequest)
+            }
+        }
     }
 
     pub async fn delete(
@@ -495,5 +555,40 @@ impl PageService {
             .await?;
 
         Ok(pages)
+    }
+
+    /// Checks to see if a page already exists at the slug specified.
+    ///
+    /// If so, this method fails with `Error::Conflict`. Otherwise it returns nothing.
+    async fn check_conflicts(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        slug: &str,
+    ) -> Result<()> {
+        let txn = ctx.transaction();
+
+        let result = Page::find()
+            .filter(
+                Condition::all()
+                    .add(page::Column::SiteId.eq(site_id))
+                    .add(page::Column::Slug.eq(slug))
+                    .add(page::Column::DeletedAt.is_null()),
+            )
+            .one(txn)
+            .await?;
+
+        match result {
+            None => Ok(()),
+            Some(page) => {
+                tide::log::error!(
+                    "Page {} with slug '{}' already exists on site ID {}, cannot create",
+                    page.page_id,
+                    slug,
+                    site_id,
+                );
+
+                Err(Error::Conflict)
+            }
+        }
     }
 }
