@@ -51,6 +51,7 @@ mod context;
 mod error;
 
 pub mod category;
+pub mod file;
 pub mod job;
 pub mod link;
 pub mod outdate;
