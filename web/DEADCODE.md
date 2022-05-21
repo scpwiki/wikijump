@@ -279,3 +279,9 @@ If possible, add to this log in the same commit in which the code is removed.
 * Relevant Issues: [WJ-997](https://scuttle.atlassian.net/browse/WJ-997)
 * What it did: Wikidot's legacy parser and renderer library.
 * Why it was removed: DEEPWELL can invoke ftml directly for parsing and rendering, and with its increasing prominence as it develops, this legacy renderer is no longer needed or used by the code.
+
+## PHP: `PageRateVote`
+* Where it was: [web/php/DB/PageRateVote.php](https://github.com/scpwiki/wikijump/blob/develop/web/php/DB/PageRateVote.php), [web/php/Actions/RateAction.php](https://github.com/scpwiki/wikijump/blob/develop/web/php/Actions/RateAction.php), various templates
+* Relevant Issues: [WJ-752](https://scuttle.atlassian.net/browse/WJ-752)
+* What it did: Wikidot's handling for page votes.
+* Why it was removed: Moved to DEEPWELL, table replaced with `page_vote`.

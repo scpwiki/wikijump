@@ -186,12 +186,6 @@ export const page = {
     pageBugReport: function (_event: Event): void {
       OZONE.ajax.requestModule('Report/BugReportModule', {}, Wikijump.page.callbacks.pageBugReport);
     },
-    pageRate: function (_event: Event): void {
-      const parms: RequestModuleParameters = {
-        pageId: WIKIREQUEST.info.pageId
-      };
-      OZONE.ajax.requestModule('PageRate/PageRateModule', parms, Wikijump.page.callbacks.pageRate);
-    },
     parentClick: function (_event: Event): void {
       const parms: RequestModuleParameters = {
         page_id: WIKIREQUEST.info.pageId
@@ -365,13 +359,6 @@ export const page = {
     blockClick: function (response: YahooResponse): void {
       if (!Wikijump.utils.handleError(response)) { return; }
       document.getElementById('action-area')!.innerHTML = response.body;
-      document.getElementById("action-area")!.style.display = "block";
-      Wikijump.page.utils.addCloseToActionArea();
-      setTimeout(() => OZONE.visuals.scrollTo('action-area'), 300);
-    },
-    pageRate: function (response: YahooResponse): void {
-      if (!Wikijump.utils.handleError(response)) { return; }
-      document.getElementById('action-area')!.innerHTML = response.body.replace(/prw54353/, 'prw54354');
       document.getElementById("action-area")!.style.display = "block";
       Wikijump.page.utils.addCloseToActionArea();
       setTimeout(() => OZONE.visuals.scrollTo('action-area'), 300);
@@ -701,7 +688,6 @@ export const page = {
   /* initialize a few things */
   init: function (): void {
     YAHOO.util.Event.addListener("edit-button", "click", Wikijump.page.listeners.editClick);
-    YAHOO.util.Event.addListener("pagerate-button", "click", Wikijump.page.listeners.pageRate);
     YAHOO.util.Event.addListener("tags-button", "click", Wikijump.page.listeners.editTags);
     YAHOO.util.Event.addListener("history-button", "click", Wikijump.page.listeners.historyClick);
     YAHOO.util.Event.addListener("files-button", "click", Wikijump.page.listeners.filesClick);
