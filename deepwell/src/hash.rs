@@ -18,7 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use arraystring::ArrayString;
 use sha2::{Digest, Sha512};
+use typenum::U128;
 
 /// The expected length of a hash digest.
 ///
@@ -27,6 +29,12 @@ pub const HASH_LENGTH: usize = 64;
 
 /// The array type for a hash digest.
 pub type Hash = [u8; 64];
+
+/// The stack string type for a hex representation of a hash.
+///
+/// Because it is hexadecimal, it must be double the size of the
+/// actual byte buffer it represents.
+pub type HexHash = ArrayString<U128>;
 
 pub fn sha512_hash(data: &[u8]) -> Hash {
     // Perform hash
