@@ -53,9 +53,17 @@ impl FileService {
 
     /// Creates a blob with this data, if it does not already exist.
     pub async fn create_blob(ctx: &ServiceContext<'_>, data: &[u8]) -> Result<Hash> {
+        let bucket = ctx.s3_bucket();
         let hash = sha512_hash(data);
+        let hex_hash = hash_to_hex(&hash);
 
-        todo!()
+        let (return_data, status) = bucket.put_object(&hex_hash, data).await?;
+
+        // We assume all unexpected statuses are errors, even if 1XX or 2XX
+        match status {
+            200 => Ok(hash),
+            _ => s3_error(&return_data, status, "creating S3 blob"),
+        }
     }
 
     pub async fn get_blob_optional(
@@ -69,7 +77,6 @@ impl FileService {
         match status {
             200 => Ok(Some(data)),
             404 => Ok(None),
-            // We assume all unexpected statuses are errors, even if 1XX or 2XX
             _ => s3_error(&data, status, "fetching S3 blob"),
         }
     }
