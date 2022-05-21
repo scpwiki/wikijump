@@ -46,12 +46,6 @@ impl<'txn> ServiceContext<'txn> {
 
     // Getters
     #[inline]
-    #[allow(dead_code)] // temp
-    pub fn state(&self) -> &ApiServerState {
-        &self.state
-    }
-
-    #[inline]
     pub fn transaction(&self) -> &'txn DatabaseTransaction {
         self.transaction
     }
