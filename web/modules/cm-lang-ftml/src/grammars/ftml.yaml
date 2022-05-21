@@ -10,8 +10,8 @@ repository:
 
   ws: /[^\S\r\n]/
   esc: /@ws(?:_|\\)$/
-  sws: /^(?!@esc)@ws*/
-  enl: /^@ws*$/
+  sws: /\n@ws*?(?!(?:_|\\)\n)/
+  enl: /\n@ws*\n/
   control: /[\s!"#$%&'()*+,\-./:;<=>?@\[\\\]^_`{|}~\xA1\u2010-\u2027]/
   nocontrol: /[^\s!"#$%&'()*+,\-./:;<=>?@\[\\\]^_`{|}~\xA1\u2010-\u2027]/
   escapes: /\\@control/
@@ -313,9 +313,6 @@ repository:
       - include: inline
       - include: blocks
 
-  # TODO: make this behave better
-  # disabled for now, due to wacky behavior
-  # usually weird nesting and generally not ending where it should
   Paragraph:
     begin: { match: /@sws(?!@interrupt)\S/, rematch: true }
     end: { match: /@sws(?:@interrupt)|@enl/, rematch: true }
@@ -952,7 +949,7 @@ includes:
     - Center
     - Table
     - Container
-    # - Paragraph
+    - Paragraph
 
   inline:
     - Typography
