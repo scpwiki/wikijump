@@ -67,7 +67,7 @@ EOF
 
         // prettier-ignore
         $www_start_compiled_hash = $this->addString(<<<EOF
-p>Congratulations, you have successfully deployed an instance of Wikijump!</p>
+<p>Congratulations, you have successfully deployed an instance of Wikijump!</p>
 <h2 id="toc0"><span>Developer Information</span></h2>
 <p>Ensure your <a href="https://github.com/scpwiki/wikijump/pulls" target="_blank">pull request</a> has the issue in the title, and describes the changes you make. The issue should link to the PR and be in the appropriate state for your work.</p>
 <ul>
