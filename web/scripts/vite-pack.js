@@ -193,7 +193,7 @@ async function copy(from, to, isDir) {
         let fromPath = path.join(from, entry.name)
         let toPath = path.join(to, entry.name)
 
-        return entry.isDirectory() ?
+        entry.isDirectory() ?
           await copy(fromPath, toPath, true) :
           await fs.copyFile(fromPath, toPath)
       }
