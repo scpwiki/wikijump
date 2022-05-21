@@ -102,10 +102,7 @@ create-account = Tạo Tài Khoản
 
 field-required = Mục này là bắt buộc
 
-characters-left = { $count ->
-  [1] 1 ký tự còn lại
-  *[other] { $count } ký tự còn lại
-}
+characters-left = { $count } ký tự còn lại
 
 hold-to-show-password = Giữ để hiện mật khẩu
 
