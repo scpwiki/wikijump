@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use crate::hash::{hash_to_hex, sha512_hash, Hash};
+use std::str;
 
 #[derive(Debug)]
 pub struct FileService;
@@ -68,17 +69,8 @@ impl FileService {
         match status {
             200 => Ok(Some(data)),
             404 => Ok(None),
-            _ => {
-                // We assume all unexpected statuses are errors, even if 1XX or 2XX
-                let error_message = String::from_utf8_lossy(&data);
-                tide::log::error!(
-                    "Error while fetching S3 blob (HTTP {}): {}",
-                    status,
-                    &error_message,
-                );
-
-                Err(Error::RemoteOperationFailed)
-            }
+            // We assume all unexpected statuses are errors, even if 1XX or 2XX
+            _ => s3_error(&data, status, "fetching S3 blob"),
         }
     }
 
@@ -97,4 +89,20 @@ impl FileService {
     }
 }
 
-// TODO
+/// Helper method to parse out an S3 error response and print the message (if any)
+fn s3_error<T>(data: &[u8], status: u16, action: &str) -> Result<T> {
+    let error_message = match str::from_utf8(data) {
+        Ok(m) if m.is_empty() => "(no content)",
+        Ok(m) => m,
+        Err(_) => "(invalid UTF-8)",
+    };
+
+    tide::log::error!(
+        "Error while {} (HTTP {}): {}",
+        action,
+        status,
+        error_message,
+    );
+
+    Err(Error::RemoteOperationFailed)
+}
