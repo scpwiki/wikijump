@@ -68,6 +68,11 @@ pub struct Config {
     /// Can be set using environment variable `RUN_MIGRATIONS`.
     pub run_migrations: bool,
 
+    /// The name of the S3 bucket that file blobs are kept in.
+    ///
+    /// Can be set using environment variable `S3_BUCKET`.
+    pub s3_bucket: String,
+
     /// The AWS region to run in.
     ///
     /// Can be set using environment variable `AWS_REGION` if standard,
@@ -107,6 +112,7 @@ impl Default for Config {
             address: "[::]:2747".parse().unwrap(),
             database_url: str!("postgres://localhost"),
             run_migrations: true,
+            s3_bucket: String::new(),
             aws_region: Region::Custom {
                 region: String::new(),
                 endpoint: String::new(),
@@ -180,6 +186,10 @@ fn read_env(config: &mut Config) {
                 process::exit(1);
             }
         }
+    }
+
+    if let Ok(value) = env::var("S3_BUCKET") {
+        config.s3_bucket = value;
     }
 
     if let Ok(value) = env::var("AWS_REGION") {
