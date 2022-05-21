@@ -57,6 +57,8 @@ impl FileService {
         let hash = sha512_hash(data);
         let hex_hash = hash_to_hex(&hash);
 
+        // TODO insert into file_blob table
+
         let (return_data, status) = bucket.put_object(&hex_hash, data).await?;
 
         // We assume all unexpected statuses are errors, even if 1XX or 2XX
@@ -74,6 +76,9 @@ impl FileService {
         let hex_hash = hash_to_hex(hash);
         let (data, status) = bucket.get_object(&hex_hash).await?;
 
+        // TODO read from file_blob table
+        // TODO change return to FileBlob type
+
         match status {
             200 => Ok(Some(data)),
             404 => Ok(None),
@@ -85,6 +90,8 @@ impl FileService {
         let bucket = ctx.s3_bucket();
         let hex_hash = hash_to_hex(hash);
         let (data, status) = bucket.get_object(&hex_hash).await?;
+
+        // TODO check from file_blob table, don't call S3
 
         match status {
             200 | 204 => Ok(true),
