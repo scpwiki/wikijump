@@ -20,6 +20,15 @@
 
 use super::prelude::*;
 
+/// The amount of time to give for each TOTP.
+///
+/// We use 30 seconds because this is standard with helpers
+/// such as Google Authenticator and Authy.
+///
+/// It balances between giving the user enough time to enter a code,
+/// but short enough to make bruteforcing values impractical.
+const TIME_STEP: u64 = 30;
+
 #[derive(Debug)]
 pub struct MfaService;
 
@@ -30,7 +39,23 @@ impl MfaService {
         todo!()
     }
 
-    pub async fn verify(ctx: &ServiceContext<'_>) -> Result<()> {
-        todo!()
+    /// Verifies if the TOTP passed for this user is valid.
+    ///
+    /// # Returns
+    /// Nothing on success, yields an `InvalidAuthentication` error on failure.
+    pub async fn verify(
+        ctx: &ServiceContext<'_>,
+        user_id: i64,
+        entered_totp: u32,
+    ) -> Result<()> {
+        let secret: String = todo!(); // TODO fetch from database. if none, return InvalidAuthentication
+        let skew = todo!();
+        let actual_totp = otp::make_totp(&secret, TIME_STEP, skew)?;
+
+        if actual_totp == entered_totp {
+            Ok(())
+        } else {
+            Err(Error::InvalidAuthentication)
+        }
     }
 }

@@ -49,6 +49,9 @@ pub enum Error {
     #[error("Magic library error: {0}")]
     Magic(#[from] FileMagicError),
 
+    #[error("One-time password error: {0}")]
+    Otp(#[from] otp::Error),
+
     #[error("Serialization error: {0}")]
     Serde(#[from] serde_json::Error),
 
@@ -69,6 +72,9 @@ pub enum Error {
 
     #[error("The user cannot rename as they do not have enough name change tokens")]
     InsufficientNameChanges,
+
+    #[error("Invalid username, password, or TOTP code")]
+    InvalidAuthentication,
 
     #[error("The request is in some way malformed or incorrect")]
     BadRequest,
@@ -95,6 +101,7 @@ impl Error {
             }
             Error::Magic(inner) => TideError::new(StatusCode::InternalServerError, inner),
             Error::Localization(inner) => TideError::new(StatusCode::NotFound, inner),
+            Error::Otp(inner) => TideError::new(StatusCode::InternalServerError, inner),
             Error::Serde(inner) => TideError::new(StatusCode::InternalServerError, inner),
             Error::S3(inner) => TideError::new(StatusCode::InternalServerError, inner),
             Error::Web(inner) => inner,
@@ -106,6 +113,9 @@ impl Error {
             }
             Error::InsufficientNameChanges => {
                 TideError::from_str(StatusCode::PaymentRequired, "")
+            }
+            Error::InvalidAuthentication => {
+                TideError::from_str(StatusCode::Forbidden, "")
             }
             Error::BadRequest => TideError::from_str(StatusCode::BadRequest, ""),
             Error::Exists | Error::Conflict => {
