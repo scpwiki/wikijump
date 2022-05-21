@@ -3,8 +3,7 @@ name: '[l10n] Localization'
 on:
   push:
     paths:
-      - 'locales/fluent/**'
-      - 'locales/validator/**'
+      - 'locales/**'
       - '.github/workflows/locales.yaml'
 
 jobs:
