@@ -36,6 +36,7 @@ pub type Hash = [u8; 64];
 /// actual byte buffer it represents.
 pub type HexHash = ArrayString<U128>;
 
+/// Produces a byte array containing the SHA-512 for the given data.
 pub fn sha512_hash(data: &[u8]) -> Hash {
     // Perform hash
     let mut hasher = Sha512::new();
@@ -46,4 +47,20 @@ pub fn sha512_hash(data: &[u8]) -> Hash {
     let mut bytes = [0; 64];
     bytes.copy_from_slice(&result);
     bytes
+}
+
+/// Converts the given SHA-512 hash into a hex array string.
+pub fn hash_to_hex(hash: &[u8]) -> HexHash {
+    debug_assert_eq!(
+        hash.len(),
+        HASH_LENGTH,
+        "SHA-512 hash buffer of incorrect length",
+    );
+
+    let mut hex_bytes = [0; 128];
+
+    hex::encode_to_slice(hash, &mut hex_bytes)
+        .expect("Encoding hash to hex slice failed");
+
+    ArrayString::from_utf8(&hex_bytes).expect("Encoded hash was not UTF-8")
 }
