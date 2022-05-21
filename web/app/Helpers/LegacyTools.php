@@ -395,10 +395,6 @@ final class LegacyTools
 <div id="page-options-bottom"  class="page-options-bottom">
 	<a href="javascript:;" id="edit-button">'._('edit').'</a>';
 
-        if ($page) {
-            $otext .= '<a href="javascript:;" id="pagerate-button">'._('rate').' (<span id="prw54355">-1</span>)</a>';
-        }
-
         $otext .= '<a href="javascript:;" id="tags-button">'._('tags').'</a>';
 
         if ($page) {
