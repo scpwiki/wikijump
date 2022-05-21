@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use cuid;
 use crate::hash::{hash_to_hex, sha512_hash, Hash};
 use std::str;
 
@@ -31,6 +32,37 @@ impl FileService {
     /// In the background, this stores the blob via content addressing,
     /// meaning that duplicates are not uploaded twice.
     pub async fn create(ctx: &ServiceContext<'_>) -> Result<()> {
+        // TODO insert into file
+
+        todo!()
+    }
+
+    /// Deletes this file.
+    ///
+    /// Like other deletions throughout Wikijump, this is a soft deletion.
+    /// It marks the files as deleted but retains the contents, permitting it
+    /// to be easily reverted.
+    pub async fn delete(ctx: &ServiceContext<'_>, file_id: &str) -> Result<()> {
+        // TODO update deleted_at in file
+
+        todo!()
+    }
+
+    /// Hard deletes this file and all duplicates.
+    ///
+    /// This is a very powerful method and needs to be used carefully.
+    /// It should only be accessible to platform staff.
+    ///
+    /// As opposed to normal soft deletions, this method will completely
+    /// remove a file from Wikijump. The file rows will be deleted themselves,
+    /// and will cascade to any places where file IDs are used.
+    ///
+    /// This method should only be used very rarely to clear content such
+    /// as severe copyright violations, abuse content, or comply with court orders.
+    pub async fn hard_delete_all(ctx: &ServiceContext<'_>, file_id: &str) -> Result<()> {
+        // TODO delete blob, all used files
+        // TODO add to audit log
+
         todo!()
     }
 
