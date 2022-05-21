@@ -66,7 +66,7 @@ macro_rules! conditional_future {
 pub struct RevisionService;
 
 impl RevisionService {
-    /// Creates a new revision.
+    /// Creates a new revision on an existing page.
     ///
     /// For the given page, look at the changes to make. If there are none,
     /// or they are all equivalent to the previous revision's, then no
@@ -192,6 +192,7 @@ impl RevisionService {
 
         // If nothing has changed, then don't create a new revision
         if changes.is_empty() {
+            Self::rerender(ctx, site_id, page_id).await?;
             return Ok(None);
         }
 

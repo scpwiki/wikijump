@@ -24,8 +24,8 @@
 
 use crate::api::ApiServer;
 use crate::methods::{
-    category::*, locales::*, misc::*, page::*, parent::*, revision::*, site::*, text::*,
-    user::*, vote::*,
+    category::*, link::*, locales::*, misc::*, page::*, parent::*, revision::*, site::*,
+    text::*, user::*, vote::*,
 };
 use crate::web::utils::error_response;
 use tide::StatusCode;
@@ -90,6 +90,9 @@ pub fn build(mut app: ApiServer) -> ApiServer {
         .head(page_revision_head)
         .get(page_revision_get)
         .put(page_revision_put);
+
+    app.at("/page/:site_id/:type/:id_or_slug/revision/:revision_number/rollback")
+        .post(page_rollback);
 
     app.at("/page/:site_id/:type/:id_or_slug/revision/:revision_number/:direction")
         .get(page_revision_range_get);

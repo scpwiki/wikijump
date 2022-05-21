@@ -19,13 +19,14 @@
  */
 
 use super::prelude::*;
+use crate::json_utils::json_to_string_list;
 use crate::models::page::{self, Entity as Page, Model as PageModel};
 use crate::models::page_category::Model as PageCategoryModel;
 use crate::services::revision::{
     CreateFirstRevision, CreateFirstRevisionOutput, CreateResurrectionRevision,
     CreateRevision, CreateRevisionBody,
 };
-use crate::services::{CategoryService, RevisionService};
+use crate::services::{CategoryService, RevisionService, TextService};
 use crate::web::{get_category_name, trim_default};
 use wikidot_normalize::normalize;
 
@@ -294,14 +295,63 @@ impl PageService {
     /// revision, regardless of any changes since.
     ///
     /// This is equivalent to Wikidot's concept of a "revert".
-    #[allow(dead_code)]
     pub async fn rollback(
-        _ctx: &ServiceContext<'_>,
-        _site_id: i64,
-        _page_id: i64,
-        _revision_number: i32,
-    ) -> Result<EditPageOutput> {
-        todo!()
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+        revision_number: i32,
+        RollbackPage {
+            revision_comments: comments,
+            user_id,
+        }: RollbackPage,
+    ) -> Result<Option<EditPageOutput>> {
+        let txn = ctx.transaction();
+
+        // Get target revision and latest revision
+        let (target_revision, last_revision) = try_join!(
+            RevisionService::get(ctx, site_id, page_id, revision_number),
+            RevisionService::get_latest(ctx, site_id, page_id),
+        )?;
+
+        // Note: we can't just copy the wikitext_hash because we
+        //       need its actual value for rendering.
+        //       This isn't run here, but in RevisionService::create().
+        let wikitext = TextService::get(ctx, &target_revision.wikitext_hash).await?;
+
+        // TODO annoying JSON/array workaround
+        let tags = json_to_string_list(target_revision.tags)?;
+
+        // Create new revision
+        //
+        // Copy the body of the target revision
+
+        let revision_input = CreateRevision {
+            user_id,
+            comments,
+            body: CreateRevisionBody {
+                wikitext: ProvidedValue::Set(wikitext),
+                title: ProvidedValue::Set(target_revision.title),
+                alt_title: ProvidedValue::Set(target_revision.alt_title),
+                tags: ProvidedValue::Set(tags),
+                slug: ProvidedValue::Unset, // rollbacks should never move a page
+            },
+        };
+
+        let revision_output =
+            RevisionService::create(ctx, site_id, page_id, revision_input, last_revision)
+                .await?;
+
+        // Set page updated_at column.
+        let model = page::ActiveModel {
+            page_id: Set(page_id),
+            updated_at: Set(Some(now())),
+            ..Default::default()
+        };
+
+        model.update(txn).await?;
+
+        // Build and return
+        Ok(revision_output.map(|data| data.into()))
     }
 
     /// Undoes a past revision, applying the inverse of its changes.
