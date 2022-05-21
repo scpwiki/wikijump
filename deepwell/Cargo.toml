@@ -33,6 +33,7 @@ hostname = "0.3"
 intl-memoizer = "0.5"
 lazy_static = "1"
 otp = { git = "https://github.com/TimDumol/rust-otp" }
+rand = "0.8"
 ref-map = "0.1"
 rust-s3 = { version = "0.32", features = ["with-async-std"], default-features = false }
 sea-orm = { version = "0.10", features = ["sqlx-postgres", "runtime-async-std-rustls", "postgres-array", "macros"] }
