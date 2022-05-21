@@ -375,12 +375,16 @@ mod test {
     }
 
     proptest! {
+        #![proptest_config(ProptestConfig::with_cases(4096))]
+
         #[test]
+        #[ignore = "slow test"]
         fn deep_depth_prop(depths in arb_depth(128)) {
             check!(depths);
         }
 
         #[test]
+        #[ignore = "slow test"]
         fn shallow_depth_prop(depths in arb_depth(4)) {
             check!(depths);
         }

@@ -71,8 +71,9 @@ fn recursion_depth() {
 
 /// Test the parser's ability to process large bodies
 #[test]
+#[ignore = "slow test"]
 fn large_payload() {
-    const ITERATIONS: usize = 50;
+    const ITERATIONS: usize = 500;
 
     let page_info = PageInfo::dummy();
     let settings = WikitextSettings::from_mode(WikitextMode::Page);

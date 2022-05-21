@@ -190,6 +190,8 @@ mod prop {
     use proptest::prelude::*;
 
     proptest! {
+        #![proptest_config(ProptestConfig::with_cases(4096))]
+
         #[test]
         fn page_ref_prop(s in r"[a-zA-Z_:.]*") {
             let _ = PageRef::parse(&s);

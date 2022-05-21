@@ -80,6 +80,8 @@ fn prefilter() {
 }
 
 proptest! {
+    #![proptest_config(ProptestConfig::with_cases(4096))]
+
     #[test]
     fn prefilter_prop(mut s in ".*") {
         crate::preprocess(&mut s);
