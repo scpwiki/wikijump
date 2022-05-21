@@ -61,7 +61,7 @@ tags = Tag
 terms = Điều khoản
 upload = Tải lên
 
-search = Search
+search = Tìm kiếm
   .placeholder = Tìm...
 
 ## Generic Authentication
