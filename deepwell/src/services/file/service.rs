@@ -70,6 +70,21 @@ impl FileService {
         // TODO delete blob, all used files
         // TODO add to audit log
 
+        // Delete blob from S3
+        //
+        // This needs to be last, since unlike the other steps,
+        // this cannot be rolled back by the database.
+        let bucket = ctx.s3_bucket();
+        let hash: Hash = todo!();
+        let hex_hash = hash_to_hex(&hash);
+
+        let (_, status) = bucket.delete_object(&hex_hash).await?;
+
+        match status {
+            204 => (),
+            _ => return s3_error(&[], status, "hard-deleting S3 blob"),
+        }
+
         todo!()
     }
 
