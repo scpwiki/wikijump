@@ -56,6 +56,7 @@ pub mod file;
 pub mod file_revision;
 pub mod job;
 pub mod link;
+pub mod mfa;
 pub mod outdate;
 pub mod page;
 pub mod parent;
