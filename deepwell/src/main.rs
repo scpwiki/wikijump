@@ -41,6 +41,7 @@ mod macros;
 mod api;
 mod config;
 mod database;
+mod hash;
 mod info;
 mod json_utils;
 mod locales;

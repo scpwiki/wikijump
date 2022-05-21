@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::services::text::HASH_LENGTH;
+use crate::hash::HASH_LENGTH;
 
 pub async fn text_put(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
