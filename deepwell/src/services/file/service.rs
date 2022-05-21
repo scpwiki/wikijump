@@ -37,6 +37,13 @@ impl FileService {
         todo!()
     }
 
+    /// Updates metadata associated with this file.
+    pub async fn update(ctx: &ServiceContext<'_>, file_id: &str) -> Result<()> {
+        // TODO update file, updated_at
+
+        todo!()
+    }
+
     /// Deletes this file.
     ///
     /// Like other deletions throughout Wikijump, this is a soft deletion.
