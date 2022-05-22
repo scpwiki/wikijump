@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use argon2::{Argon2, PasswordHash, PasswordVerifier};
 
 /// The amount of time to give for each TOTP.
 ///
@@ -71,6 +72,20 @@ impl MfaService {
         user_id: i64,
         recovery_code: &str,
     ) -> Result<()> {
-        todo!()
+        let argon2 = Argon2::default();
+        let recovery_code_hashes: Vec<String> = todo!(); // TODO fetch from database. if none, return InvalidAuthentication
+
+        for recovery_code_hash in recovery_code_hashes {
+            let parsed_hash = PasswordHash::new(&recovery_code_hash)?;
+            if argon2
+                .verify_password(recovery_code.as_bytes(), &parsed_hash)
+                .is_ok()
+            {
+                // TODO delete recovery code hash
+                return Ok(());
+            }
+        }
+
+        Err(Error::InvalidAuthentication)
     }
 }
