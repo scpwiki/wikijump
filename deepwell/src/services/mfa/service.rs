@@ -35,7 +35,8 @@ pub struct MfaService;
 
 impl MfaService {
     pub async fn setup(ctx: &ServiceContext<'_>) -> Result<()> {
-        let secrets = MfaSecrets::generate();
+        let totp_secret = generate_totp_secret();
+        let recovery_codes = RecoveryCodes::generate();
 
         todo!()
     }

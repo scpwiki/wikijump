@@ -29,24 +29,30 @@ use std::iter;
 pub const RECOVERY_CODE_COUNT: usize = 12;
 pub const RECOVERY_CODE_LENGTH: usize = 8;
 
+pub fn generate_totp_secret() -> String {
+    let mut rng = thread_rng();
+    assert_is_csprng(&rng);
+
+    // TOTP secret is any sufficiently-long random base32 string
+    let totp_secret = {
+        let mut buffer = [0; 32];
+        rng.fill(&mut buffer);
+        BASE32_NOPAD.encode(&buffer)
+    };
+
+    totp_secret
+}
+
 #[derive(Debug)]
-pub struct MfaSecrets {
-    pub totp_secret: String,
+pub struct RecoveryCodes {
     pub recovery_codes: Vec<String>,
     pub recovery_codes_hashed: Vec<String>,
 }
 
-impl MfaSecrets {
+impl RecoveryCodes {
     pub fn generate() -> Result<Self> {
         let mut rng = thread_rng();
         assert_is_csprng(&rng);
-
-        // TOTP secret is any sufficiently-long random base32 string
-        let totp_secret = {
-            let mut buffer = [0; 32];
-            rng.fill(&mut buffer);
-            BASE32_NOPAD.encode(&buffer)
-        };
 
         // Recovery codes are any randomly-generated codes which the application
         // accepts as a one-time code to bypass MFA.
@@ -75,11 +81,7 @@ impl MfaSecrets {
             hashes
         };
 
-        // TODO convert recovery codes to passwords since we only need to check if they're the
-        //      same, not the value itself
-
-        Ok(MfaSecrets {
-            totp_secret,
+        Ok(RecoveryCodes {
             recovery_codes,
             recovery_codes_hashed,
         })
