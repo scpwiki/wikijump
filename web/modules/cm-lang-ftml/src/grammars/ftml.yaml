@@ -949,7 +949,7 @@ includes:
     - Center
     - Table
     - Container
-    - Paragraph
+    # - Paragraph
 
   inline:
     - Typography
