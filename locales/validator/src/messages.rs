@@ -33,9 +33,12 @@ use unic_langid::LanguageIdentifier;
 /// as they are either typos or removed keys.
 const PRIMARY_LOCALE: LanguageIdentifier = langid!("en");
 
-/// A list of all Fluent functions made available by DEEPWELL.
+/// A list of all Fluent functions used by DEEPWELL.
 /// Any outside this list will be considered invalid.
-const VALID_FLUENT_FUNCTIONS: [&str; 0] = [];
+/// If a new one is used, please add it to this list.
+///
+/// See also: https://projectfluent.org/fluent/guide/functions.html
+const USED_FLUENT_FUNCTIONS: [&str; 1] = ["NUMBER"];
 
 #[derive(Debug, Default, Clone)]
 pub struct Catalog {
@@ -119,11 +122,7 @@ impl Catalog {
             println!("+ (no locales to check)");
         }
 
-        for (locale, messages) in self
-            .locales
-            .iter()
-            .filter(|(locale, _)| *locale != &PRIMARY_LOCALE)
-        {
+        for (locale, messages) in &self.locales {
             println!("+ Checking locale {}", locale);
 
             for (key, usages) in messages.iter() {
@@ -137,8 +136,11 @@ impl Catalog {
                 };
 
                 // Check usage information
+
                 for function in &usages.functions {
-                    if !VALID_FLUENT_FUNCTIONS.contains(&function.as_str()) {
+                    // If a new fluent function is being used,
+                    // then add it to the USED_FLUENT_FUNCTIONS constant.
+                    if !USED_FLUENT_FUNCTIONS.contains(&function.as_str()) {
                         fail!("Invalid Fluent function {}", function);
                     }
                 }
