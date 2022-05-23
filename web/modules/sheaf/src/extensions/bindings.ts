@@ -1,4 +1,5 @@
-import { keymap, ViewPlugin, type Extension } from "@wikijump/codemirror/cm"
+import type { Extension } from "@codemirror/state"
+import { keymap, ViewPlugin } from "@codemirror/view"
 import { debounce } from "@wikijump/util"
 import type { SheafCore } from "../core"
 
@@ -7,7 +8,7 @@ export interface SheafBindings {
   save?: (core: SheafCore) => void
 
   /**
-   * Callback fired when the document state changes. _This is debounced._
+   * Callback fired when the document state changes. *This is debounced.*
    * It won't be called immediately after a change.
    */
   update?: (core: SheafCore) => void

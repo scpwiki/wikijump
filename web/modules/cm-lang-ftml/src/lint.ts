@@ -1,5 +1,6 @@
+import { linter, type Diagnostic } from "@codemirror/lint"
+import type { EditorView } from "@codemirror/view"
 import { textValue } from "@wikijump/codemirror"
-import { EditorView, linter, type Diagnostic } from "@wikijump/codemirror/cm"
 import Locale, { format } from "@wikijump/fluent"
 import FTML from "@wikijump/ftml-wasm-worker"
 

@@ -1,4 +1,5 @@
-import { EditorView, syntaxTree } from "@wikijump/codemirror/cm"
+import { syntaxTree } from "@codemirror/language"
+import type { EditorView } from "@codemirror/view"
 import type { Locale, SpellcheckFilter, Word } from "./types"
 
 /**

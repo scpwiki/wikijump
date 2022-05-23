@@ -1,4 +1,4 @@
-import type { Completion } from "@wikijump/codemirror/cm"
+import type { Completion } from "@codemirror/autocomplete"
 import type { Argument } from "./types"
 
 // TODO: should probably make html attrs discriminate based on block name

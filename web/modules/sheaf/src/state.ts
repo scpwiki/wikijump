@@ -1,3 +1,7 @@
+import { syntaxTree } from "@codemirror/language"
+import type { EditorState, Text } from "@codemirror/state"
+import type { EditorView } from "@codemirror/view"
+import type { Tree } from "@lezer/common"
 import {
   getActiveLines,
   Gutters,
@@ -5,7 +9,6 @@ import {
   textBuffer,
   textValue
 } from "@wikijump/codemirror"
-import { EditorState, EditorView, syntaxTree, Text } from "@wikijump/codemirror/cm"
 import FTML, {
   type SyntaxTree,
   type Token,
@@ -145,8 +148,8 @@ export class SheafState {
     return printTree(this.tree, await this.value())
   }
 
-  /** The current _editor_ syntax tree. */
-  get tree() {
+  /** The current *editor* syntax tree. */
+  get tree(): Tree {
     return syntaxTree(this.state)
   }
 

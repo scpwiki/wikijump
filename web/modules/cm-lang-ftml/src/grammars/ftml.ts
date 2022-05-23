@@ -1,6 +1,6 @@
+import type { Completion } from "@codemirror/autocomplete"
 import type { SyntaxNode } from "@lezer/common"
 import { addLanguages, languageList } from "@wikijump/codemirror"
-import { cssCompletion, htmlCompletion, type Completion } from "@wikijump/codemirror/cm"
 import type { TarnationCompletionContext } from "cm-tarnation"
 import { TarnationLanguage } from "cm-tarnation"
 import { BlockMap, Blocks, BlockSet, ModuleMap, Modules, ModuleSet } from "../data/data"
@@ -52,8 +52,6 @@ export const FTMLLanguage = new TarnationLanguage({
   supportExtensions: [
     ftmlLinter,
     ftmlHoverTooltips,
-    htmlCompletion,
-    cssCompletion,
     addLanguages(TexLanguage.description, StyleAttributeGrammar.description)
   ],
 

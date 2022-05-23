@@ -1,12 +1,7 @@
+import { cssCompletionSource, cssLanguage } from "@codemirror/lang-css"
+import { continuedIndent, indentNodeProp } from "@codemirror/language"
+import { styleTags, tags as t } from "@lezer/highlight"
 import { createLezerLanguage } from "@wikijump/codemirror"
-import {
-  continuedIndent,
-  cssCompletion,
-  cssLanguage,
-  indentNodeProp,
-  styleTags,
-  tags as t
-} from "@wikijump/codemirror/cm"
 import { parser as CSSAttrParser } from "../../vendor/css-attribute"
 
 export const StyleAttributeGrammar = createLezerLanguage({
@@ -16,7 +11,7 @@ export const StyleAttributeGrammar = createLezerLanguage({
     // @ts-ignore
     ...cssLanguage.data.default[0],
     // @ts-ignore
-    ...cssCompletion.value
+    autocomplete: cssCompletionSource
   },
   configure: {
     props: [

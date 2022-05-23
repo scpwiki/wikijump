@@ -1,5 +1,6 @@
+import type { Extension } from "@codemirror/state"
+import { EditorView, showPanel, type Panel } from "@codemirror/view"
 import type { SvelteComponent } from "svelte"
-import { EditorView, showPanel, type Extension, type Panel } from "../../cm"
 import { EditorField } from "../editor-field"
 import {
   EditorSvelteComponent,

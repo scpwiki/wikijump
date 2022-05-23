@@ -1,4 +1,5 @@
-import { foldGutter, lineNumbers } from "../cm"
+import { foldGutter } from "@codemirror/language"
+import { lineNumbers } from "@codemirror/view"
 import { EditorField } from "./editor-field"
 
 /**

@@ -1,4 +1,6 @@
-import { Facet, LanguageDescription, languages } from "../cm"
+import type { LanguageDescription } from "@codemirror/language"
+import { languages } from "@codemirror/language-data"
+import { Facet } from "@codemirror/state"
 
 /**
  * A `Facet` that holds a list of `LanguageDescription` instances.

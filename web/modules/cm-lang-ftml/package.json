@@ -11,8 +11,15 @@
   "type": "module",
   "main": "src/index.ts",
   "dependencies": {
-    "@lezer/common": "^0.15.11",
-    "@lezer/lr": "^0.15.8",
+    "@codemirror/autocomplete": "^0.20.1",
+    "@codemirror/lang-css": "^0.20.0",
+    "@codemirror/language": "^0.20.2",
+    "@codemirror/lint": "^0.20.2",
+    "@codemirror/state": "^0.20.0",
+    "@codemirror/view": "^0.20.6",
+    "@lezer/common": "^0.16.0",
+    "@lezer/highlight": "^0.16.0",
+    "@lezer/lr": "^0.16.3",
     "@wikijump/cm-espells": "workspace:*",
     "@wikijump/codemirror": "workspace:*",
     "@wikijump/components": "workspace:*",
@@ -20,7 +27,7 @@
     "@wikijump/ftml-wasm-worker": "workspace:*",
     "@wikijump/prism": "workspace:*",
     "@wikijump/util": "workspace:*",
-    "cm-tarnation": "^0.4.0",
-    "svelte": "^3.46.4"
+    "cm-tarnation": "^0.5.0",
+    "svelte": "^3.48.0"
   }
 }

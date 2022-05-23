@@ -1,22 +1,18 @@
+import { closeBracketsKeymap, completionKeymap } from "@codemirror/autocomplete"
 import {
-  closeBracketsKeymap,
-  commentKeymap,
-  completionKeymap,
   copyLineDown,
   defaultKeymap,
-  foldKeymap,
   historyKeymap,
   indentWithTab,
-  keymap,
-  nextDiagnostic,
-  openLintPanel,
-  redo,
-  searchKeymap,
-  type KeyBinding
-} from "@wikijump/codemirror/cm"
+  redo
+} from "@codemirror/commands"
+import { foldKeymap } from "@codemirror/language"
+import { nextDiagnostic, openLintPanel } from "@codemirror/lint"
+import { searchKeymap } from "@codemirror/search"
+import { keymap } from "@codemirror/view"
 
 /** Additional key bindings for the editor. */
-const KEY_MAP: KeyBinding[] = [
+const KEY_MAP = [
   { key: "Mod-l", run: openLintPanel, preventDefault: true },
   { key: "F8", run: nextDiagnostic, preventDefault: true },
   { key: "Mod-Shift-z", run: redo, preventDefault: true },
@@ -31,7 +27,6 @@ export function getSheafKeymap() {
     ...searchKeymap,
     ...historyKeymap,
     ...foldKeymap,
-    ...commentKeymap,
     ...completionKeymap,
     ...KEY_MAP,
     indentWithTab

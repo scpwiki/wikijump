@@ -19,7 +19,7 @@
   "dependencies": {
     "@wikijump/fluent": "workspace:*",
     "@wikijump/util": "workspace:*",
-    "svelte": "^3.46.4",
-    "ziggy-js": "^1.4.4"
+    "svelte": "^3.48.0",
+    "ziggy-js": "^1.4.6"
   }
 }

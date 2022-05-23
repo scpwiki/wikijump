@@ -1,24 +1,21 @@
-import { Spellcheck } from "@wikijump/cm-espells"
-import { defaultLanguages, Gutters, IndentHack } from "@wikijump/codemirror"
+import { autocompletion, closeBrackets } from "@codemirror/autocomplete"
+import { history } from "@codemirror/commands"
+import { bracketMatching, indentOnInput, syntaxHighlighting } from "@codemirror/language"
+import { highlightSelectionMatches } from "@codemirror/search"
+import { EditorState, type Extension } from "@codemirror/state"
 import {
-  autocompletion,
-  bracketMatching,
-  closeBrackets,
   drawSelection,
-  EditorState,
   EditorView,
   highlightActiveLine,
-  highlightSelectionMatches,
   highlightSpecialChars,
-  history,
-  indentOnInput,
   rectangularSelection,
   scrollPastEnd,
   tooltips,
   ViewPlugin,
-  ViewUpdate,
-  type Extension
-} from "@wikijump/codemirror/cm"
+  type ViewUpdate
+} from "@codemirror/view"
+import { Spellcheck } from "@wikijump/cm-espells"
+import { defaultLanguages, Gutters, IndentHack } from "@wikijump/codemirror"
 import { writable, type Writable } from "svelte/store"
 import { createSheafBinding, type SheafBindings } from "./extensions/bindings"
 import { getSheafKeymap } from "./extensions/keymap"
@@ -59,7 +56,7 @@ export class SheafCore {
           Gutters,
           Spellcheck,
           defaultLanguages,
-          confinement,
+          syntaxHighlighting(confinement),
           createSheafBinding(this, bindings),
           extensions,
           updateHandler

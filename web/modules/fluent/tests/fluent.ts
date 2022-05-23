@@ -1,7 +1,7 @@
 import { FluentResource } from "@fluent/bundle"
 import { sleep } from "@wikijump/util"
 import { get } from "svelte/store"
-import { describe, expect, it, spyOn } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import * as lib from "../src/index"
 import type { FluentImportMap } from "../src/locales"
 
@@ -101,7 +101,7 @@ describe("@wikijump/fluent", () => {
 
     it("loads a component only once", async () => {
       // the second promise should not result in another call to `add`
-      const spied = spyOn(locale, "add")
+      const spied = vi.spyOn(locale, "add")
       await locale.load("emails")
       await locale.load("emails")
       expect(spied).toHaveBeenCalledTimes(1)
