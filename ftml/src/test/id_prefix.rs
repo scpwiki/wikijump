@@ -54,6 +54,7 @@ fn isolate_user_ids() {
         mode: WikitextMode::Page,
         enable_page_syntax: true,
         use_true_ids: true,
+        use_include_compatibility: false,
         isolate_user_ids: true,
         allow_local_paths: true,
         interwiki: EMPTY_INTERWIKI.clone(),
