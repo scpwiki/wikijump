@@ -1,10 +1,7 @@
 name: '[backend] Docker build Nginx (prod)'
 
 on:
-  push:
-    branches-ignore:
-      - develop
-      - prod
+  pull_request:
     paths:
       - 'web/web/**'
       - 'web/package.json'

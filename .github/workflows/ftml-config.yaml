@@ -1,7 +1,7 @@
 name: '[ftml] Rust'
 
 on:
-  push:
+  pull_request:
     paths:
       - 'ftml/Cargo.toml'
       - 'ftml/Cargo.lock'
@@ -10,6 +10,10 @@ on:
       - 'ftml/src/**/*'
       - 'ftml/scripts/*'
       - '.github/workflows/ftml-config.yaml'
+  push:
+    branches:
+      - develop
+      - prod
 
 jobs:
   conf_check:

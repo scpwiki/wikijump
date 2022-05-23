@@ -1,13 +1,17 @@
 name: '[deepwell] Rust'
 
 on:
-  push:
+  pull_request:
     paths:
       - 'deepwell/Cargo.toml'
       - 'deepwell/Cargo.lock'
       - 'deepwell/src/**'
       - '.github/workflows/deepwell.yaml'
       - '.gihub/codecov.yml'
+  push:
+    branches:
+      - develop
+      - prod
 
 jobs:
   binary_build_and_test:
