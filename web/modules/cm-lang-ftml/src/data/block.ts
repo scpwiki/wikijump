@@ -1,8 +1,8 @@
+import type { Completion } from "@codemirror/autocomplete"
 import {
   EditorSvelteComponent,
   type EditorSvelteComponentInstance
 } from "@wikijump/codemirror"
-import type { Completion } from "@wikijump/codemirror/cm"
 import { FTMLFragment } from "@wikijump/ftml-wasm-worker"
 import BlockTip from "../tips/BlockTip.svelte"
 import ModuleTip from "../tips/ModuleTip.svelte"

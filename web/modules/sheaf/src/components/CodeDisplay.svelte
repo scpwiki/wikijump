@@ -4,14 +4,9 @@
 <script lang="ts">
   import { ftmlLanguages } from "@wikijump/cm-lang-ftml"
   import { defaultLanguages, IndentHack, languageList } from "@wikijump/codemirror"
-  import {
-    Compartment,
-    drawSelection,
-    EditorState,
-    EditorView,
-    LanguageDescription,
-    type Extension
-  } from "@wikijump/codemirror/cm"
+  import { Compartment, EditorState, type Extension } from "@codemirror/state"
+  import { drawSelection, EditorView } from "@codemirror/view"
+  import { LanguageDescription, syntaxHighlighting } from "@codemirror/language"
   import { Spinny } from "@wikijump/components"
   import { createIdleQueued, createMutatingLock } from "@wikijump/util"
   import { onDestroy, onMount } from "svelte"
@@ -65,7 +60,7 @@
           EditorView.editable.of(false),
           EditorView.lineWrapping,
           IndentHack,
-          confinement,
+          syntaxHighlighting(confinement),
           defaultLanguages,
           ftmlLanguages,
           langExtension.of([])

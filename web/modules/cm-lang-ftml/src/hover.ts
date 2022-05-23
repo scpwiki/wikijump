@@ -1,9 +1,6 @@
-import {
-  ensureSyntaxTree,
-  hoverTooltip,
-  type EditorView,
-  type Tooltip
-} from "@wikijump/codemirror/cm"
+import { ensureSyntaxTree } from "@codemirror/language"
+import type { Extension } from "@codemirror/state"
+import { hoverTooltip, type EditorView, type Tooltip } from "@codemirror/view"
 import { BlockMap } from "./data/data"
 
 function tooltip(view: EditorView, pos: number, side: -1 | 1): Tooltip | null {
@@ -29,4 +26,4 @@ function tooltip(view: EditorView, pos: number, side: -1 | 1): Tooltip | null {
   return null
 }
 
-export const ftmlHoverTooltips = hoverTooltip(tooltip)
+export const ftmlHoverTooltips: Extension = hoverTooltip(tooltip)

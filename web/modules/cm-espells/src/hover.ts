@@ -1,5 +1,5 @@
+import type { EditorView, Tooltip } from "@codemirror/view"
 import { EditorSvelteComponent } from "@wikijump/codemirror"
-import type { EditorView, Tooltip } from "@wikijump/codemirror/cm"
 import { Spellcheck } from "./extension"
 import MisspellingTooltip from "./MisspellingTooltip.svelte"
 import type { FlaggedWord } from "./types"

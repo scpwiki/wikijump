@@ -1,4 +1,4 @@
-import { Decoration, type DecorationSet } from "@wikijump/codemirror/cm"
+import { Decoration, type DecorationSet } from "@codemirror/view"
 import type { FlaggedWord } from "./types"
 
 /**

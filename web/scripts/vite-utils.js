@@ -71,7 +71,7 @@ function manualChunks(id) {
   if (id.includes("node_modules/ziggy")) return "ziggy"
   if (id.includes("node_modules/svelte")) return "svelte"
   if (id.includes("vendor/prism.js")) return "prism"
-  if (id.includes("modules/codemirror/cm.ts")) return "codemirror"
+  if (id.includes("node_modules/codemirror")) return "codemirror"
 }
 
 /** @returns {import("vite").UserConfig} */
@@ -94,30 +94,20 @@ const BaseConfig = () => ({
       "svelte/store",
       "svelte/internal",
       "@codemirror/autocomplete",
-      "@codemirror/closebrackets",
       "@codemirror/commands",
-      "@codemirror/comment",
-      "@codemirror/fold",
-      "@codemirror/gutter",
       "@codemirror/highlight",
-      "@codemirror/history",
       "@codemirror/lang-css",
       "@codemirror/lang-html",
       "@codemirror/language",
       "@codemirror/language-data",
       "@codemirror/legacy-modes",
       "@codemirror/lint",
-      "@codemirror/matchbrackets",
-      "@codemirror/panel",
-      "@codemirror/rangeset",
-      "@codemirror/rectangular-selection",
       "@codemirror/search",
       "@codemirror/state",
-      "@codemirror/text",
-      "@codemirror/tooltip",
       "@codemirror/view",
       "@lezer/common",
-      "@lezer/lr"
+      "@lezer/lr",
+      "@lezer/highlight"
     ]
   },
 
@@ -174,6 +164,7 @@ const BaseConfig = () => ({
     root: ROOT,
     environment: "jsdom",
     include: ["./modules/**/tests/**/*.{js,ts}"],
+    setupFiles: ["@vitest/web-worker"],
     coverage: {
       all: true,
       reporter: ["text", "lcovonly"],

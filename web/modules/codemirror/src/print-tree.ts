@@ -10,17 +10,20 @@ export function printTree(tree: Tree, src: string) {
   let depth = -1
 
   tree.iterate({
-    enter(type, from, to) {
+    enter(node) {
+      const from = node.from
+      const to = node.to
+      const len = to - from
+
       depth++
 
-      const len = to - from
       let slice: string
       if (len <= 40) slice = src.slice(from, to)
       else slice = `${src.slice(from, from + 20)} ... ${src.slice(to - 20, to)}`
 
       slice = slice.replaceAll("\n", "\\n").replaceAll('"', '\\"')
 
-      output += `\n${indent(depth, "│ ")}${type.name} [${from}, ${to}]: "${slice}"`
+      output += `\n${indent(depth, "│ ")}${node.name} [${from}, ${to}]: "${slice}"`
     },
 
     leave() {

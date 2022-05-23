@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/unbound-method */
-import { EditorView, ViewPlugin, ViewUpdate } from "@wikijump/codemirror/cm"
+import { EditorView, ViewPlugin, ViewUpdate } from "@codemirror/view"
 import { timeout, Timeout } from "@wikijump/util"
 import espells from "./espells/interface"
 import { Spellcheck } from "./extension"

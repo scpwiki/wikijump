@@ -41,7 +41,7 @@ export class PreferenceHandler {
    * empty string will remove the preference from storage.
    *
    * The `value` given **must** be in such a format that it can be
-   * stringified by `JSON.stringify`. Otherwise, data *will* be lost.
+   * stringified by `JSON.stringify`. Otherwise, data _will_ be lost.
    *
    * @param name - The name/key for the preference.
    * @param value - The value to set. An empty string removes the preference.

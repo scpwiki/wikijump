@@ -1,5 +1,5 @@
+import type { EditorState } from "@codemirror/state"
 import type { Tree } from "@lezer/common"
-import type { EditorState } from "@wikijump/codemirror/cm"
 
 /** Describes a word in a document, i.e. the term itself and its location. */
 export interface Word {

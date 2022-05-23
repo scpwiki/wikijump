@@ -1,5 +1,5 @@
+import { EditorView, hoverTooltip } from "@codemirror/view"
 import { EditorField, underline } from "@wikijump/codemirror"
-import { EditorView, hoverTooltip } from "@wikijump/codemirror/cm"
 import espells from "./espells/interface"
 import { misspelledTooltip } from "./hover"
 import { spellcheckLinterPlugin } from "./linter"

@@ -1,13 +1,7 @@
+import { LanguageDescription, LanguageSupport, LRLanguage } from "@codemirror/language"
+import type { EditorState, Extension, Text } from "@codemirror/state"
 import type { LRParser, ParserConfig } from "@lezer/lr"
 import { animationFrame, byteLength, idleCallback } from "@wikijump/util"
-import {
-  LanguageDescription,
-  LanguageSupport,
-  LRLanguage,
-  type EditorState,
-  type Extension,
-  type Text
-} from "../cm"
 
 const encoder = new TextEncoder()
 

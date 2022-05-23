@@ -1,13 +1,11 @@
+import { EditorState, RangeSetBuilder, type Line } from "@codemirror/state"
 import {
   Decoration,
-  EditorState,
-  EditorView,
-  Line,
-  RangeSetBuilder,
   ViewPlugin,
-  ViewUpdate,
-  type DecorationSet
-} from "../cm"
+  type DecorationSet,
+  type EditorView,
+  type ViewUpdate
+} from "@codemirror/view"
 
 const WHITESPACE_REGEX = /^\s+/
 

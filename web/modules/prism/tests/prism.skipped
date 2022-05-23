@@ -1,8 +1,12 @@
 import { describe, expect, it } from "vitest"
 import * as lib from "../src/index"
 
-// Vitest doesn't support web workers yet
-describe.skip("@wikijump/prism", () => {
+// This file is being skipped for now due to issues with Vitest and web-workers.
+// Simply using `describe.skip(...)` won't work because Vitest will still try to transform
+// this file, and will error when doing so.
+// It tries to parse a `new Worker(new URL(url, import. meta.url))` call, which it can't.
+
+describe("@wikijump/prism", () => {
   const worker = lib.default
 
   it("needs manual to be true", async () => {

@@ -1,4 +1,5 @@
-import { HighlightStyle, tags as t } from "@wikijump/codemirror/cm"
+import { HighlightStyle } from "@codemirror/language"
+import { tags as t } from "@lezer/highlight"
 
 // prettier-ignore
 const
