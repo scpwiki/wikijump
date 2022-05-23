@@ -234,7 +234,6 @@ importers:
     specifiers:
       '@codemirror/autocomplete': ^0.20.1
       '@codemirror/commands': ^0.20.0
-      '@codemirror/highlight': ^0.19.8
       '@codemirror/lang-css': ^0.20.0
       '@codemirror/lang-html': ^0.20.0
       '@codemirror/language': ^0.20.2
@@ -253,7 +252,6 @@ importers:
     dependencies:
       '@codemirror/autocomplete': 0.20.1
       '@codemirror/commands': 0.20.0
-      '@codemirror/highlight': 0.19.8
       '@codemirror/lang-css': 0.20.0
       '@codemirror/lang-html': 0.20.0
       '@codemirror/language': 0.20.2
@@ -739,17 +737,6 @@ packages:
       '@lezer/common': 0.16.0
     dev: false
 
-  /@codemirror/highlight/0.19.8:
-    resolution: {integrity: sha512-v/lzuHjrYR8MN2mEJcUD6fHSTXXli9C1XGYpr+ElV6fLBIUhMTNKR3qThp611xuWfXfwDxeL7ppcbkM/MzPV3A==}
-    dependencies:
-      '@codemirror/language': 0.19.8
-      '@codemirror/rangeset': 0.19.9
-      '@codemirror/state': 0.19.9
-      '@codemirror/view': 0.19.47
-      '@lezer/common': 0.15.11
-      style-mod: 4.0.0
-    dev: false
-
   /@codemirror/lang-cpp/0.20.0:
     resolution: {integrity: sha512-pgLidQ3G1wUnfKW/aaXET4I8CqmiVqy4C87i/V7igLxsH5pi4Um2IObpA+YVZJ3KL5UG17Al32vSQ0MfqdjBJw==}
     dependencies:
@@ -886,16 +873,6 @@ packages:
       '@codemirror/legacy-modes': 0.20.0
     dev: false
 
-  /@codemirror/language/0.19.8:
-    resolution: {integrity: sha512-KhRne8qmzSKkaw+qhkwgNsPKxmThlyeJ3umfc33B9kJzVP7xhTkwX2MEPl0almM3brxMi+lPYx7gCPOy1gHsWw==}
-    dependencies:
-      '@codemirror/state': 0.19.9
-      '@codemirror/text': 0.19.6
-      '@codemirror/view': 0.19.47
-      '@lezer/common': 0.15.11
-      '@lezer/lr': 0.15.8
-    dev: false
-
   /@codemirror/language/0.20.2:
     resolution: {integrity: sha512-WB3Bnuusw0xhVvhBocieYKwJm04SOk5bPoOEYksVHKHcGHFOaYaw+eZVxR4gIqMMcGzOIUil0FsCmFk8yrhHpw==}
     dependencies:
@@ -921,12 +898,6 @@ packages:
       crelt: 1.0.5
     dev: false
 
-  /@codemirror/rangeset/0.19.9:
-    resolution: {integrity: sha512-V8YUuOvK+ew87Xem+71nKcqu1SXd5QROMRLMS/ljT5/3MCxtgrRie1Cvild0G/Z2f1fpWxzX78V0U4jjXBorBQ==}
-    dependencies:
-      '@codemirror/state': 0.19.9
-    dev: false
-
   /@codemirror/search/0.20.1:
     resolution: {integrity: sha512-ROe6gRboQU5E4z6GAkNa2kxhXqsGNbeLEisbvzbOeB7nuDYXUZ70vGIgmqPu0tB+1M3F9yWk6W8k2vrFpJaD4Q==}
     dependencies:
@@ -935,28 +906,8 @@ packages:
       crelt: 1.0.5
     dev: false
 
-  /@codemirror/state/0.19.9:
-    resolution: {integrity: sha512-psOzDolKTZkx4CgUqhBQ8T8gBc0xN5z4gzed109aF6x7D7umpDRoimacI/O6d9UGuyl4eYuDCZmDFr2Rq7aGOw==}
-    dependencies:
-      '@codemirror/text': 0.19.6
-    dev: false
-
   /@codemirror/state/0.20.0:
     resolution: {integrity: sha512-R3XrAWCS5Xm9lx+4pDET4EUPEg+8bDfAa5zoOFIhx+VChsfew9Vy33dAjCXS5ES4Q8UecW4WM4UudmUFpZ+86A==}
-    dev: false
-
-  /@codemirror/text/0.19.6:
-    resolution: {integrity: sha512-T9jnREMIygx+TPC1bOuepz18maGq/92q2a+n4qTqObKwvNMg+8cMTslb8yxeEDEq7S3kpgGWxgO1UWbQRij0dA==}
-    dev: false
-
-  /@codemirror/view/0.19.47:
-    resolution: {integrity: sha512-SfbagKvJQl5dtt+9wYpo9sa3ZkMgUxTq+/hXDf0KVwIx+zu3cJIqfEm9xSx6yXkq7it7RsPGHaPasApNffF/8g==}
-    dependencies:
-      '@codemirror/rangeset': 0.19.9
-      '@codemirror/state': 0.19.9
-      '@codemirror/text': 0.19.6
-      style-mod: 4.0.0
-      w3c-keyname: 2.2.4
     dev: false
 
   /@codemirror/view/0.20.6:
@@ -1064,10 +1015,6 @@ packages:
     resolution: {integrity: sha512-4JQNk+3mVzK3xh2rqd6RB4J46qUR19azEHBneZyTZM+c456qOrbbM/5xcR8huNCCcbVt7+UmizG6GuUvPvKUYg==}
     dev: true
 
-  /@lezer/common/0.15.11:
-    resolution: {integrity: sha512-vv0nSdIaVCRcJ8rPuDdsrNVfBOYe/4Szr/LhF929XyDmBndLDuWiCCHooGlGlJfzELyO608AyDhVsuX/ZG36NA==}
-    dev: false
-
   /@lezer/common/0.16.0:
     resolution: {integrity: sha512-H6sPCku+asKWYaNjwfQ1Uvcay9UP1Pdzu4qpy8GtRZ0cKT2AAGnj9MQGiRtY18MDntvhYRJxNGv7FNWOSV/e8A==}
     dev: false
@@ -1118,12 +1065,6 @@ packages:
     dependencies:
       '@lezer/highlight': 0.16.0
       '@lezer/lr': 0.16.3
-    dev: false
-
-  /@lezer/lr/0.15.8:
-    resolution: {integrity: sha512-bM6oE6VQZ6hIFxDNKk8bKPa14hqFrV07J/vHGOeiAbJReIaQXmkVb6xQu4MR+JBTLa5arGRyAAjJe1qaQt3Uvg==}
-    dependencies:
-      '@lezer/common': 0.15.11
     dev: false
 
   /@lezer/lr/0.16.3:
