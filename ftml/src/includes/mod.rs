@@ -86,7 +86,7 @@ where
             mtch.as_str(),
         );
 
-        match parse_include_block(&input[start..], start) {
+        match parse_include_block(&input[start..], start, settings) {
             Ok((include, end)) => {
                 ranges.push(start..end);
                 includes.push(include);

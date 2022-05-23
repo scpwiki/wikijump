@@ -123,6 +123,7 @@ Finally, with the syntax tree you `render` it with whatever `Render` instance yo
 fn include<'t, I, E>(
     input: &'t str,
     includer: I,
+    settings: &WikitextSettings,
 ) -> Result<(String, Vec<PageRef<'t>>), E>
 where
     I: Includer<'t, Error = E>;
@@ -171,19 +172,19 @@ let includer = MyIncluderImpl::new();
 let mut input = "**some** test <<string?>>";
 
 // Substitute page inclusions
-let (mut text, included_pages) = ftml::include(&log, input, includer);
+let (mut text, included_pages) = ftml::include(input, includer, &settings);
 
 // Perform preprocess substitions
 ftml::preprocess(&log, &mut text);
 
 // Generate token from input text
-let tokens = ftml::tokenize(&log, &text);
+let tokens = ftml::tokenize(&text);
 
 // Parse the token list to produce an AST.
 //
 // Note that this produces a `ParseResult<SyntaxTree>`, which records the
 // parsing warnings in addition to the final result.
-let result = ftml::parse(&log, &tokens);
+let result = ftml::parse(&tokens, &page_info, &settings);
 
 // Here we extract the tree separately from the warning list.
 //
@@ -197,7 +198,7 @@ let (tree, warnings) = result.into();
 // You must provide a `PageInfo` struct, which describes the page being rendered.
 // You must also provide a handle to provide various remote sources, such as
 // module content, but this is not stabilized yet.
-let html_output = HtmlRender.render(&log, &page_info, &tree);
+let html_output = HtmlRender.render(&tree, &page_info, &settings);
 ```
 
 ### JSON Serialization

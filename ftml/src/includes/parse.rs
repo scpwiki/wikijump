@@ -20,6 +20,7 @@
 
 use super::IncludeRef;
 use crate::data::{PageRef, PageRefParseError};
+use crate::settings::WikitextSettings;
 use pest::iterators::Pairs;
 use pest::Parser;
 use std::borrow::Cow;
@@ -29,11 +30,18 @@ use std::collections::HashMap;
 #[grammar = "includes/grammar.pest"]
 struct IncludeParser;
 
-pub fn parse_include_block(
-    text: &str,
+pub fn parse_include_block<'t>(
+    text: &'t str,
     start: usize,
-) -> Result<(IncludeRef, usize), IncludeParseError> {
-    match IncludeParser::parse(Rule::include, text) {
+    settings: &WikitextSettings,
+) -> Result<(IncludeRef<'t>, usize), IncludeParseError> {
+    let rule = if settings.use_include_compatibility {
+        Rule::include_compatibility
+    } else {
+        Rule::include_normal
+    };
+
+    match IncludeParser::parse(rule, text) {
         Ok(mut pairs) => {
             // Extract inner pairs
             // These actually make up the include block's tokens
