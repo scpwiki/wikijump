@@ -20,7 +20,7 @@ RUN cargo build --release
 #
 
 # We want alpine, but need glibc
-FROM frolvlad/alpine-glibc:latest
+FROM frolvlad/alpine-glibc:glibc-2.30
 
 ENV LOCALIZATION_PATH="/opt/locales"
 
