@@ -38,7 +38,7 @@ const PRIMARY_LOCALE: LanguageIdentifier = langid!("en");
 /// If a new one is used, please add it to this list.
 ///
 /// See also: https://projectfluent.org/fluent/guide/functions.html
-const USED_FLUENT_FUNCTIONS: [&str; 0] = [];
+const USED_FLUENT_FUNCTIONS: [&str; 1] = ["NUMBER"];
 
 #[derive(Debug, Default, Clone)]
 pub struct Catalog {
