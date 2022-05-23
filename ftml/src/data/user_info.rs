@@ -22,7 +22,7 @@ use super::KarmaLevel;
 use std::borrow::Cow;
 
 /// Returned information about a user.
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub struct UserInfo<'a> {
     /// The user ID.
