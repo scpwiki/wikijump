@@ -148,7 +148,7 @@ export class SheafState {
     return printTree(this.tree, await this.value())
   }
 
-  /** The current *editor* syntax tree. */
+  /** The current _editor_ syntax tree. */
   get tree(): Tree {
     return syntaxTree(this.state)
   }

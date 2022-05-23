@@ -6,7 +6,7 @@
   import { defaultLanguages, IndentHack, languageList } from "@wikijump/codemirror"
   import { Compartment, EditorState, type Extension } from "@codemirror/state"
   import { drawSelection, EditorView } from "@codemirror/view"
-  import { LanguageDescription, syntaxHighlighting } from "@codemirror/language";
+  import { LanguageDescription, syntaxHighlighting } from "@codemirror/language"
   import { Spinny } from "@wikijump/components"
   import { createIdleQueued, createMutatingLock } from "@wikijump/util"
   import { onDestroy, onMount } from "svelte"
