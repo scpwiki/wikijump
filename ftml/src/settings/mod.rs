@@ -38,6 +38,14 @@ pub struct WikitextSettings {
     /// * Button
     pub enable_page_syntax: bool,
 
+    /// Whether a literal `[[include]]` is permitted.
+    ///
+    /// If this is true, then `[[include]]` is treated as an alias
+    /// for `[[include-messy]]`, which is necessary for Wikidot compatibility.
+    ///
+    /// It is off by default.
+    pub use_include_compatibility: bool,
+
     /// Whether IDs should have true values, or be excluded or randomly generated.
     ///
     /// In the latter case, IDs can be used for navigation, for instance
@@ -87,6 +95,7 @@ impl WikitextSettings {
             WikitextMode::Page => WikitextSettings {
                 mode,
                 enable_page_syntax: true,
+                use_include_compatibility: false,
                 use_true_ids: true,
                 isolate_user_ids: false,
                 allow_local_paths: true,
@@ -95,6 +104,7 @@ impl WikitextSettings {
             WikitextMode::Draft => WikitextSettings {
                 mode,
                 enable_page_syntax: true,
+                use_include_compatibility: false,
                 use_true_ids: false,
                 isolate_user_ids: false,
                 allow_local_paths: true,
@@ -103,6 +113,7 @@ impl WikitextSettings {
             WikitextMode::ForumPost | WikitextMode::DirectMessage => WikitextSettings {
                 mode,
                 enable_page_syntax: false,
+                use_include_compatibility: false,
                 use_true_ids: false,
                 isolate_user_ids: false,
                 allow_local_paths: false,
@@ -111,6 +122,7 @@ impl WikitextSettings {
             WikitextMode::List => WikitextSettings {
                 mode,
                 enable_page_syntax: true,
+                use_include_compatibility: false,
                 use_true_ids: false,
                 isolate_user_ids: false,
                 allow_local_paths: true,
