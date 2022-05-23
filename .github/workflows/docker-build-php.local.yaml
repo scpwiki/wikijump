@@ -1,10 +1,7 @@
 name: '[backend] Docker build PHP-FPM (local)'
 
 on:
-  push:
-    branches-ignore:
-      - develop
-      - prod
+  pull_request:
     paths:
       - 'web/**/*.php'
       - 'web/composer.*'

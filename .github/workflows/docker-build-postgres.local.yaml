@@ -1,10 +1,7 @@
 name: '[backend] Docker build PostgreSQL (local)'
 
 on:
-  push:
-    branches-ignore:
-      - develop
-      - prod
+  pull_request:
     paths:
       - 'web/database/**'
       - 'install/files/postgres/**'
