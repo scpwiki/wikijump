@@ -34,7 +34,7 @@ use std::borrow::Cow;
 pub use self::debug::DebugIncluder;
 pub use self::null::NullIncluder;
 
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub struct FetchedPage<'t> {
     pub page_ref: PageRef<'t>,

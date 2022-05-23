@@ -38,7 +38,7 @@ use pest::Parser;
 use std::ops::Range;
 use strum_macros::IntoStaticStr;
 
-#[derive(Serialize, Debug, Clone, PartialEq)]
+#[derive(Serialize, Debug, Clone, PartialEq, Eq)]
 pub struct ExtractedToken<'a> {
     pub token: Token,
     pub slice: &'a str,
