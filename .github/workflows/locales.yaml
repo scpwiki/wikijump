@@ -5,7 +5,6 @@ on:
     paths:
       - 'locales/**'
       - '.github/workflows/locales.yaml'
-
   push:
     branches:
       - develop

@@ -10,7 +10,6 @@ on:
       - 'ftml/src/**/*'
       - 'ftml/scripts/*'
       - '.github/workflows/ftml-config.yaml'
-
   push:
     branches:
       - develop

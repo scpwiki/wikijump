@@ -10,7 +10,6 @@ on:
       - 'ftml/test/*'
       - '.github/workflows/ftml.yaml'
       - '.github/codecov.yml'
-
   push:
     branches:
       - develop
