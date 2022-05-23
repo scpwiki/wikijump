@@ -1,6 +1,10 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
+* @returns {string}
+*/
+export function version(): string;
+/**
 * @param {Tokenization} tokens
 * @param {PageInfo} page_info
 * @param {WikitextSettings} settings
@@ -26,10 +30,6 @@ export function preprocess(text: string): string;
 * @returns {string}
 */
 export function render_text(syntax_tree: SyntaxTree, page_info: PageInfo, settings: WikitextSettings): string;
-/**
-* @returns {string}
-*/
-export function version(): string;
 /**
 * @param {string} text
 * @returns {Tokenization}
@@ -285,6 +285,11 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
+  readonly version: (a: number) => void;
+  readonly __wbg_utf16indexmap_free: (a: number) => void;
+  readonly utf16indexmap_new: (a: number, b: number) => number;
+  readonly utf16indexmap_copy: (a: number) => number;
+  readonly utf16indexmap_get_index: (a: number, b: number, c: number) => void;
   readonly __wbg_parseoutcome_free: (a: number) => void;
   readonly parseoutcome_copy: (a: number) => number;
   readonly parseoutcome_syntax_tree: (a: number) => number;
@@ -317,16 +322,11 @@ export interface InitOutput {
   readonly render_html: (a: number, b: number, c: number) => number;
   readonly preprocess: (a: number, b: number, c: number) => void;
   readonly render_text: (a: number, b: number, c: number, d: number) => void;
-  readonly version: (a: number) => void;
   readonly __wbg_tokenization_free: (a: number) => void;
   readonly tokenization_copy: (a: number) => number;
   readonly tokenization_text: (a: number, b: number) => void;
   readonly tokenization_tokens: (a: number, b: number) => void;
   readonly tokenize: (a: number, b: number) => number;
-  readonly __wbg_utf16indexmap_free: (a: number) => void;
-  readonly utf16indexmap_new: (a: number, b: number) => number;
-  readonly utf16indexmap_get_index: (a: number, b: number, c: number) => void;
-  readonly utf16indexmap_copy: (a: number) => number;
   readonly __wbindgen_malloc: (a: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number) => number;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
