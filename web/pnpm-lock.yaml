@@ -199,6 +199,7 @@ importers:
       '@codemirror/state': ^0.20.0
       '@codemirror/view': ^0.20.6
       '@lezer/common': ^0.16.0
+      '@lezer/generator': ^0.16.0
       '@lezer/highlight': ^0.16.0
       '@lezer/lr': ^0.16.3
       '@wikijump/cm-espells': workspace:*
@@ -229,6 +230,8 @@ importers:
       '@wikijump/util': link:../util
       cm-tarnation: 0.5.0
       svelte: 3.48.0
+    devDependencies:
+      '@lezer/generator': 0.16.0
 
   modules/codemirror:
     specifiers:
@@ -1017,7 +1020,6 @@ packages:
 
   /@lezer/common/0.16.0:
     resolution: {integrity: sha512-H6sPCku+asKWYaNjwfQ1Uvcay9UP1Pdzu4qpy8GtRZ0cKT2AAGnj9MQGiRtY18MDntvhYRJxNGv7FNWOSV/e8A==}
-    dev: false
 
   /@lezer/cpp/0.16.0:
     resolution: {integrity: sha512-BxDzTmOB2Wuy3Aex4FFDDbB3qoIvIEhCjzMLZH6oUEiQZJHm8adBxDtuotf25ifZbS6Xo0oxr1Pge9RM9JDTmg==}
@@ -1032,6 +1034,14 @@ packages:
       '@lezer/highlight': 0.16.0
       '@lezer/lr': 0.16.3
     dev: false
+
+  /@lezer/generator/0.16.0:
+    resolution: {integrity: sha512-dhkChgTGXdgj++0VV/Av1ARNe35Fj5uYuVt7W6g/7cDtHToS1dNn73rUtRb1cRO6kQXaISE/ne1cr3VofyBcng==}
+    hasBin: true
+    dependencies:
+      '@lezer/common': 0.16.0
+      '@lezer/lr': 0.16.3
+    dev: true
 
   /@lezer/highlight/0.16.0:
     resolution: {integrity: sha512-iE5f4flHlJ1g1clOStvXNLbORJoiW4Kytso6ubfYzHnaNo/eo5SKhxs4wv/rtvwZQeZrK3we8S9SyA7OGOoRKQ==}
@@ -1071,7 +1081,6 @@ packages:
     resolution: {integrity: sha512-pau7um4eAw94BEuuShUIeQDTf3k4Wt6oIUOYxMmkZgDHdqtIcxWND4LRxi8nI9KuT4I1bXQv67BCapkxt7Ywqw==}
     dependencies:
       '@lezer/common': 0.16.0
-    dev: false
 
   /@lezer/markdown/0.16.1:
     resolution: {integrity: sha512-z+BkiwmtcFpAhlqHg7VahS0Zz6IRh9GTw0mNNW3J7BtlFzCF0gza3sOsBgVta3s3uZQB48ywq4e2WWOvpdCCjg==}

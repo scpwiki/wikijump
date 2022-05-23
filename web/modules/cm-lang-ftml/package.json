@@ -7,7 +7,9 @@
     "wikijump"
   ],
   "private": true,
-  "scripts": {},
+  "scripts": {
+    "generate-css": "lezer-generator vendor/css-attribute.grammar -o vendor/css-attribute.js"
+  },
   "type": "module",
   "main": "src/index.ts",
   "dependencies": {
@@ -29,5 +31,8 @@
     "@wikijump/util": "workspace:*",
     "cm-tarnation": "^0.5.0",
     "svelte": "^3.48.0"
+  },
+  "devDependencies": {
+    "@lezer/generator": "^0.16.0"
   }
 }
