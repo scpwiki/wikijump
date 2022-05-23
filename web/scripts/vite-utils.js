@@ -164,6 +164,7 @@ const BaseConfig = () => ({
     root: ROOT,
     environment: "jsdom",
     include: ["./modules/**/tests/**/*.{js,ts}"],
+    setupFiles: ["@vitest/web-worker"],
     coverage: {
       all: true,
       reporter: ["text", "lcovonly"],

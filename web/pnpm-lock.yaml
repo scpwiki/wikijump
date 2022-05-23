@@ -13,6 +13,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ^5.25.0
       '@typescript-eslint/parser': ^5.25.0
       '@typescript-eslint/typescript-estree': ^5.25.0
+      '@vitest/web-worker': ^0.12.9
       autoprefixer: ^10.4.7
       c8: ^7.11.3
       cross-env: ^7.0.3
@@ -80,6 +81,7 @@ importers:
       '@typescript-eslint/eslint-plugin': 5.25.0_4ba2eb2aa3853cfb440cb10dd593ed15
       '@typescript-eslint/parser': 5.25.0_eslint@8.16.0+typescript@4.6.4
       '@typescript-eslint/typescript-estree': 5.25.0_typescript@4.6.4
+      '@vitest/web-worker': 0.12.9_sass@1.52.1+vitest@0.12.9
       c8: 7.11.3
       esbuild-runner: 2.2.1_esbuild@0.14.39
       eslint: 8.16.0
@@ -2088,6 +2090,20 @@ packages:
       '@uppy/utils': 4.0.7
       nanoid: 3.3.1
     dev: false
+
+  /@vitest/web-worker/0.12.9_sass@1.52.1+vitest@0.12.9:
+    resolution: {integrity: sha512-s+ae+dDf6DpJo4xtHPAzQvTdsBtyVyxZOQ+fw3QSQVs/p5AlBllx/oFvYPcFv6H0HOwVtSzOfvrnOM8K3U86yg==}
+    peerDependencies:
+      vitest: '*'
+    dependencies:
+      vite-node: 0.12.9_sass@1.52.1
+      vitest: 0.12.9_4b6d10334b2d3dda2ede777e556a539b
+    transitivePeerDependencies:
+      - less
+      - sass
+      - stylus
+      - supports-color
+    dev: true
 
   /abab/2.0.5:
     resolution: {integrity: sha512-9IK9EadsbHo6jLWIpxpR6pL0sazTXV6+SQv25ZB+F7Bj9mJNaOc4nCRabwd5M/JwmUa8idz6Eci6eKfJryPs6Q==}
@@ -5108,6 +5124,10 @@ packages:
     dev: true
     optional: true
 
+  /jsonc-parser/3.0.0:
+    resolution: {integrity: sha512-fQzRfAbIBnR0IQvftw9FJveWiHp72Fg20giDrHz6TdfB12UH/uue0D3hm57UB5KgAVuniLMCaS8P1IMj9NR7cA==}
+    dev: true
+
   /jsonfile/4.0.0:
     resolution: {integrity: sha1-h3Gq4HmbZAdrdmQPygWPnBDjPss=}
     optionalDependencies:
@@ -5153,6 +5173,10 @@ packages:
 
   /known-css-properties/0.25.0:
     resolution: {integrity: sha512-b0/9J1O9Jcyik1GC6KC42hJ41jKwdO/Mq8Mdo5sYN+IuRTXs2YFHZC3kZSx6ueusqa95x3wLYe/ytKjbAfGixA==}
+    dev: true
+
+  /kolorist/1.5.1:
+    resolution: {integrity: sha512-lxpCM3HTvquGxKGzHeknB/sUjuVoUElLlfYnXZT73K8geR9jQbroGlSCFBax9/0mpGoD3kzcMLnOlGQPJJNyqQ==}
     dev: true
 
   /kuler/2.0.0:
@@ -5873,6 +5897,17 @@ packages:
     hasBin: true
     dev: true
 
+  /mlly/0.3.19:
+    resolution: {integrity: sha512-zMq5n3cOf4fOzA4WoeulxagbAgMChdev3MgP6K51k7M0u2whTXxupfIY4VVzws4vxkiWhwH1rVQcsw7zDGfRhA==}
+    dev: true
+
+  /mlly/0.5.2:
+    resolution: {integrity: sha512-4GTELSSErv6ZZJYU98fZNuIBJcXSz+ktHdRrCYEqU1m6ZlebOCG0jwZ+IEd9vOrbpYsVBBMC5OTrEyLnKRcauQ==}
+    dependencies:
+      pathe: 0.2.0
+      pkg-types: 0.3.2
+    dev: true
+
   /module-details-from-path/1.0.3:
     resolution: {integrity: sha1-EUyUlnPiqKNenTV4hSeqN7Z52is=}
     dev: true
@@ -6504,6 +6539,10 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
+  /pathe/0.2.0:
+    resolution: {integrity: sha512-sTitTPYnn23esFR3RlqYBWn4c45WGeLcsKzQiUpXJAyfcWkolvlYpV8FLo7JishK946oQwMFUCHXQ9AjGPKExw==}
+    dev: true
+
   /pathval/1.1.1:
     resolution: {integrity: sha512-Dp6zGqpTdETdR63lehJYPeIOqpiNBNtc7BpWSLrOje7UaIsE5aY92r/AunQA7rsXvet3lrJ3JnZX29UPTKXyKQ==}
     dev: true
@@ -6547,6 +6586,14 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       find-up: 4.1.0
+    dev: true
+
+  /pkg-types/0.3.2:
+    resolution: {integrity: sha512-eBYzX/7NYsQEOR2alWY4rnQB49G62oHzFpoi9Som56aUr8vB8UGcmcIia9v8fpBeuhH3Ltentuk2OGpp4IQV3Q==}
+    dependencies:
+      jsonc-parser: 3.0.0
+      mlly: 0.3.19
+      pathe: 0.2.0
     dev: true
 
   /pm2-axon-rpc/0.7.1:
@@ -8309,6 +8356,23 @@ packages:
   /vary/1.1.2:
     resolution: {integrity: sha1-IpnwLG3tMNSllhsLn3RSShj2NPw=}
     engines: {node: '>= 0.8'}
+    dev: true
+
+  /vite-node/0.12.9_sass@1.52.1:
+    resolution: {integrity: sha512-TghOBHI2sZ+vIXF3YqgNnvhKmiQkW2xcuAXI65d4O5Wr414fRPFaSd+skdvmXzM7StoJt2A5qJ5u1WYDA6eGMQ==}
+    engines: {node: '>=v14.16.0'}
+    hasBin: true
+    dependencies:
+      debug: 4.3.4
+      kolorist: 1.5.1
+      mlly: 0.5.2
+      pathe: 0.2.0
+      vite: 2.9.9_sass@1.52.1
+    transitivePeerDependencies:
+      - less
+      - sass
+      - stylus
+      - supports-color
     dev: true
 
   /vite/2.9.9_sass@1.52.1:
