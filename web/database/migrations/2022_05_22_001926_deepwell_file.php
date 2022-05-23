@@ -36,7 +36,8 @@ class DeepwellFile extends Migration
                 UNIQUE (page_id, name, deleted_at),               -- Names are scoped per-page
                 CHECK (length(name) > 0 AND length(name) < 256),  -- Constrain filename length
                 CHECK (length(s3_hash) = 64),                     -- SHA-512 hash size
-                CHECK ((s3_hash IS NULL) = (size_hint = 0))       -- Hard deletion consistency
+                CHECK ((s3_hash IS NULL) = (size_hint = 0)),      -- Hard deletion consistency
+                CHECK (mime_hint != '')                           -- Should have a MIME hint, even if hard deleted
             )
         ");
     }
