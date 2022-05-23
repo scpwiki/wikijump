@@ -119,11 +119,7 @@ impl Catalog {
             println!("+ (no locales to check)");
         }
 
-        for (locale, messages) in self
-            .locales
-            .iter()
-            .filter(|(locale, _)| *locale != &PRIMARY_LOCALE)
-        {
+        for (locale, messages) in &self.locales {
             println!("+ Checking locale {}", locale);
 
             for (key, usages) in messages.iter() {
