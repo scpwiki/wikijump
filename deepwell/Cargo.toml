@@ -23,6 +23,7 @@ crossfire = "0.1"
 cuid = "1"
 dotenv = "0.15"
 either = "1"
+filemagic = "0.12"
 fluent = "0.16"
 ftml = { version = "1.15", features = ["mathml"] }
 futures = { version = "0.3", features = ["async-await"], default-features = false }

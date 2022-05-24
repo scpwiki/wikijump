@@ -994,6 +994,7 @@ dependencies = [
  "cuid",
  "dotenv",
  "either",
+ "filemagic",
  "fluent",
  "ftml",
  "futures",
@@ -1164,6 +1165,16 @@ dependencies = [
  "serde_json",
  "wasm-bindgen",
  "web-sys",
+]
+
+[[package]]
+name = "filemagic"
+version = "0.12.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e0ab576ac8d15cf0e281ae7d4b27cccce08486264c843aa19d624f741a7717ed"
+dependencies = [
+ "bitflags",
+ "libc",
 ]
 
 [[package]]
