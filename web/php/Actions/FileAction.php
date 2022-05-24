@@ -7,8 +7,6 @@ use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\ODate;
 use Ozone\Framework\SmartyAction;
-use Wikidot\DB\FilePeer;
-use Wikidot\DB\File;
 use Wikidot\Utils\FileHelper;
 use Wikidot\Utils\FileMime;
 use Wikidot\Utils\Outdater;
@@ -45,14 +43,9 @@ class FileAction extends SmartyAction
         $f = preg_split("/[\/\\\\]/", $fileName);
         $fileName = end($f);
 
-        $c = new Criteria();
-        $c->add("filename", $fileName);
-        $c->add("site_id", $site->getSiteId());
-        $c->add("page_id", $pageId);
+        $file = File::findName($site->getSiteId(), $pageId, $fileName);
 
-        $file = FilePeer::instance()->selectOne($c);
-
-        if ($file == null) {
+        if ($file === null) {
             $runData->ajaxResponseAdd("exists", false);
         } else {
             $runData->ajaxResponseAdd("exists", true);
@@ -167,13 +160,9 @@ class FileAction extends SmartyAction
                 $destinationFilename = $file['name'];
             }
 
-            $c = new Criteria();
-            $c->add("filename", $destinationFilename);
-            $c->add("site_id", $site->getSiteId());
-            $c->add("page_id", $pageId);
+            $conflict_file = File::findName($site->getSiteId(), $pageId, $destinationFilename);
 
-            $conflictFiles = FilePeer::instance()->select($c);
-            if (count($conflictFiles)>0) {
+            if ($conflict_file !== null) {
                 // file already exists!!!
                 try {
                     WDPermissionManager::instance()->hasPagePermission('replace_file', $user, $category, $page);
@@ -183,7 +172,7 @@ class FileAction extends SmartyAction
                 }
 
                 if ($pl->getParameterValue("force") && $overwritePermission) {
-                    FilePeer::instance()->delete($c);
+                    // TODO delete original file
                 } else {
                     $status = "file_exists";
                     $runData->contextAdd("status", $status);
@@ -307,7 +296,7 @@ class FileAction extends SmartyAction
         $db = Database::connection();
         $db->begin();
 
-        $file = FilePeer::instance()->selectByPrimaryKey($fileId);
+        $file = File::findId($fileId);
         $page = Page::findIdOnly($file->getPageId());
 
         if ($file == null || $file->getSiteId() != $site->getSiteId() || $page==null) {
@@ -349,6 +338,7 @@ class FileAction extends SmartyAction
             $c = new Criteria();
             $c->add("page_id", $page->getPageId());
             $c->add("filename", $newName);
+            /*
             $conflict = FilePeer::instance()->selectOne();
             // delete from filesystem
             if ($conflict) {
@@ -361,13 +351,10 @@ class FileAction extends SmartyAction
                 }
             }
             FilePeer::instance()->delete($c);
+            */
         }
         // ok, move along. nothing to watch.
-        $c = new Criteria();
-        $c->add("page_id", $page->getPageId());
-        $c->add("filename", $newName);
-
-        $conflictFile = FilePeer::instance()->selectOne($c);
+        $conflictFile = File::findName($site->getSiteId(), $page->getPageId(), $newName);
         if ($conflictFile != null) {
             // file already exists!!! ask what to do!
             $runData->contextAdd("newFile", $conflictFile);
@@ -446,8 +433,8 @@ class FileAction extends SmartyAction
         $db->begin();
         $user = $runData->getUser();
 
-        $file = FilePeer::instance()->selectByPrimaryKey($fileId);
-        $page = Page::findIdOnly($file->getPageId());
+        $file = File::findId($fileId);
+        $page = Page::findIdOnly($file->page_id);
 
         if ($file == null || $file->getSiteId() != $site->getSiteId()) {
             throw new ProcessException(_("Error getting file data."), "file_error");
@@ -488,17 +475,19 @@ class FileAction extends SmartyAction
         $force = $pl->getParameterValue("force");
 
         if ($force && $overwritePermission) {
+            /*
             // delete any file by this name in the page
             $c = new Criteria();
             $c->add("page_id", $destinationPage->getPageId());
             $c->add("filename", $file->getFilename());
             FilePeer::instance()->delete($c);
+            */
         }
         $c = new Criteria();
         $c->add("page_id", $destinationPage->getPageId());
         $c->add("filename", $file->getFilename());
-        $conflictFile = FilePeer::instance()->selectOne($c);
-        if ($conflictFile != null) {
+        $conflictFile = File::getName($site->getSiteId(), $destinationPage->getPageId(), $file->name);
+        if ($conflictFile !== null) {
             // file already exists!!! ask what to do!
             // check permissions to overwrite?
             $runData->contextAdd("page", $page);
@@ -613,6 +602,8 @@ class FileAction extends SmartyAction
 
         $db = Database::connection();
         $db->begin();
+        /*
+         TODO
         $file = FilePeer::instance()->selectByPrimaryKey($fileId);
 
         if ($file == null || $file->getSiteId() != $site->getSiteId()) {
@@ -636,6 +627,7 @@ class FileAction extends SmartyAction
             exec($cmd);
         }
         FilePeer::instance()->deleteByPrimaryKey($file->getFileId());
+         */
         // create a new revision
         $revision = $page->getCurrentRevision();
         $revision->setNew(true);

@@ -2,11 +2,10 @@
 
 namespace Wikidot\Modules\Files;
 
-
 use Ozone\Framework\SmartyModule;
-use Wikidot\DB\FilePeer;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionManager;
+use Wikijump\Services\Deepwell\Models\File;
 use Wikijump\Services\Deepwell\Models\Page;
 
 class FileMoveWinModule extends SmartyModule
@@ -16,14 +15,15 @@ class FileMoveWinModule extends SmartyModule
     {
         $pl = $runData->getParameterList();
         $fileId = $pl->getParameterValue("file_id");
+        $site = $runData->getTemp("site");
 
-        $file = FilePeer::instance()->selectByPrimaryKey($fileId);
-
-        if ($file == null || $file->getSiteId() != $runData->getTemp("site")->getSiteId()) {
+        $file = File::findId($fileId);
+        if ($file === null || $file->getSiteId() !== $site->getSiteId()) {
             throw new ProcessException(_("Error getting file information."), "no_file");
         }
+
         $page = Page::findIdOnly($file->getPageId());
-        if ($page == null || $page->getSiteId() != $runData->getTemp("site")->getSiteId()) {
+        if ($page === null || $page->getSiteId() !== $site->getSiteId()) {
             throw new ProcessException(_("Error getting page information."), "no_page");
         }
 
