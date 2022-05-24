@@ -285,3 +285,9 @@ If possible, add to this log in the same commit in which the code is removed.
 * Relevant Issues: [WJ-752](https://scuttle.atlassian.net/browse/WJ-752)
 * What it did: Wikidot's handling for page votes.
 * Why it was removed: Moved to DEEPWELL, table replaced with `page_vote`.
+
+## PHP: `PageRateVote`
+* Where it was: [web/php/DB/File.php](https://github.com/scpwiki/wikijump/blob/develop/web/php/DB/File.php),[web/php/DB/FilesEvent.php](https://github.com/scpwiki/wikijump/blob/develop/web/php/DB/FilesEvent.php)
+* Relevant Issues: [WJ-716](https://scuttle.atlassian.net/browse/WJ-716), [WJ-717](https://scuttle.atlassian.net/browse/WJ-717)
+* What it did: Wikidot's DB models for files
+* Why it was removed: Moved to DEEPWELL, table replaced with `file`.
