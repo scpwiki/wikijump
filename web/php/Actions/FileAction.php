@@ -339,6 +339,7 @@ class FileAction extends SmartyAction
             $c->add("page_id", $page->getPageId());
             $c->add("filename", $newName);
             /*
+             TODO
             $conflict = FilePeer::instance()->selectOne();
             // delete from filesystem
             if ($conflict) {
@@ -476,6 +477,7 @@ class FileAction extends SmartyAction
 
         if ($force && $overwritePermission) {
             /*
+            TODO
             // delete any file by this name in the page
             $c = new Criteria();
             $c->add("page_id", $destinationPage->getPageId());
