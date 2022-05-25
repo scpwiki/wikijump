@@ -11,7 +11,6 @@ use Wikidot\DB\Member;
 use Wikidot\DB\ThemePeer;
 use Wikidot\DB\ForumGroupPeer;
 use Wikidot\DB\ForumCategoryPeer;
-use Wikidot\DB\FilePeer;
 use Wikidot\DB\PageRevision;
 use Wikidot\DB\Page;
 use Wikijump\Services\Deepwell\Models\Category;
@@ -172,6 +171,8 @@ class Duplicator
 
         /* Copy file objects. */
 
+        /*
+         TODO
         $c = new Criteria();
         $c->add('site_id', $site->getSiteId());
         $files = FilePeer::instance()->select($c);
@@ -186,6 +187,7 @@ class Duplicator
             $nfile->setPageId($pageId);
             $nfile->save();
         }
+        */
 
         $db->commit();
         return $nsite;

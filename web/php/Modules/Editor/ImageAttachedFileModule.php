@@ -4,9 +4,8 @@ namespace Wikidot\Modules\Editor;
 
 
 use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\FilePeer;
-
 use Ozone\Framework\SmartyModule;
+use Wikijump\Services\Deepwell\Models\File;
 
 class ImageAttachedFileModule extends SmartyModule
 {
@@ -16,13 +15,7 @@ class ImageAttachedFileModule extends SmartyModule
         $pl = $runData->getParameterList();
 
         $pageId = $pl->getParameterValue("pageId");
-
-        $c = new Criteria();
-            $c->add("page_id", $pageId);
-            $c->add("has_resized", true);
-            $c->addOrderAscending("filename");
-            $files = FilePeer::instance()->select($c);
-
-            $runData->contextAdd("files", $files);
+        $files = File::findFromPage($pageId);
+        $runData->contextAdd("files", $files);
     }
 }

@@ -16,7 +16,7 @@ class FileUploadModule extends SmartyModule
         $pl = $runData->getParameterList();
         $pageId = $pl->getParameterValue("pageId");
         $page = Page::findIdOnly($pageId);
-        if ($page == null || $page->getSiteId() != $site->getSiteId()) {
+        if ($page === null || $page->getSiteId() !== $site->getSiteId()) {
             throw new ProcessException(_("Problem selecting destination page."), "no_page");
         }
 
