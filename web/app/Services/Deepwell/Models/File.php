@@ -38,17 +38,20 @@ class File extends DeepwellModel
     }
 
     // Fetch methods
-    public function findName($site_id, $page_id, string $filename): ?File {
+    public function findName($site_id, $page_id, string $filename): ?File
+    {
         // TODO
         return null;
     }
 
-    public function findId(string $file_id): ?File {
+    public function findId(string $file_id): ?File
+    {
         // TODO
         return null;
     }
 
-    public function findFromPage($page_id): array {
+    public function findFromPage($page_id): array
+    {
         // TODO
         return [];
     }
