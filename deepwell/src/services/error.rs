@@ -19,6 +19,7 @@
  */
 
 use crate::locales::LocalizationTranslateError;
+use cuid::CuidError;
 use filemagic::FileMagicError;
 use s3::error::S3Error;
 use sea_orm::error::DbErr;
@@ -36,6 +37,9 @@ pub type Result<T> = StdResult<T, Error>;
 /// facilitated by `PostTransactionToApiResponse`.
 #[derive(ThisError, Debug)]
 pub enum Error {
+    #[error("CUID generation error: {0}")]
+    Cuid(#[from] CuidError),
+
     #[error("Database error: {0}")]
     Database(DbErr),
 
@@ -79,6 +83,9 @@ pub enum Error {
 impl Error {
     pub fn into_tide_error(self) -> TideError {
         match self {
+            Error::Cuid(inner) => {
+                TideError::new(StatusCode::InternalServerError, inner)
+            }
             Error::Database(inner) => {
                 TideError::new(StatusCode::InternalServerError, inner)
             }
