@@ -83,9 +83,7 @@ pub enum Error {
 impl Error {
     pub fn into_tide_error(self) -> TideError {
         match self {
-            Error::Cuid(inner) => {
-                TideError::new(StatusCode::InternalServerError, inner)
-            }
+            Error::Cuid(inner) => TideError::new(StatusCode::InternalServerError, inner),
             Error::Database(inner) => {
                 TideError::new(StatusCode::InternalServerError, inner)
             }

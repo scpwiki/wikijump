@@ -18,22 +18,47 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+//! Evaluates MIME types using libmagic.
+//!
+//! Because it is a binding to a C library, it cannot be shared among threads.
+//! So we cannot use `lazy_static` and we can't have it in a coroutine.
+//! We don't load the `Magic` instance locally because it's an expensive operation
+//! and it would be inefficient to load it for each invocation.
+//!
+//! Instead we have it in a thread and ferry requests and responses back and forth.
+
 use super::prelude::*;
-use async_std::channel::{self, Receiver, Sender};
 use async_std::task;
+use crossfire::mpsc;
 use filemagic::{FileMagicError, Flags as MagicFlags, Magic};
 use std::{process, thread};
 use void::{ResultVoidErrExt, Void};
 
-pub type MagicResponsePayload = StdResult<String, FileMagicError>;
-pub type MagicResponseSender = Sender<MagicResponsePayload>;
-pub type MagicResponseReceiver = Receiver<MagicResponsePayload>;
+type ResponsePayload = StdResult<String, FileMagicError>;
+type ResponseSender = mpsc::TxBlocking<ResponsePayload, mpsc::SharedSenderBRecvF>;
 
-pub type MagicPayload = (Vec<u8>, MagicResponseSender);
-pub type MagicSender = Sender<MagicPayload>;
-pub type MagicReceiver = Receiver<MagicPayload>;
+type RequestPayload = (Vec<u8>, ResponseSender);
+type RequestSender = mpsc::TxFuture<RequestPayload, mpsc::SharedSenderFRecvB>;
+type RequestReceiver = mpsc::RxBlocking<RequestPayload, mpsc::SharedSenderFRecvB>;
 
-fn run_magic_thread(receiver: MagicReceiver) -> Result<Void> {
+lazy_static! {
+    static ref QUEUE: (RequestSender, RequestReceiver) =
+        mpsc::bounded_tx_future_rx_blocking(64);
+}
+
+macro_rules! sink {
+    () => {
+        QUEUE.0
+    };
+}
+
+macro_rules! source {
+    () => {
+        QUEUE.1
+    };
+}
+
+fn main_loop() -> Result<Void> {
     const MAGIC_FLAGS: MagicFlags = MagicFlags::MIME;
     const MAGIC_PATHS: &[&str] = &[]; // Empty indicates using the default magic database
 
@@ -44,59 +69,45 @@ fn run_magic_thread(receiver: MagicReceiver) -> Result<Void> {
     loop {
         tide::log::debug!("Waiting for next MIME request");
 
-        let (bytes, sender) =
-            task::block_on(receiver.recv()).expect("Unable to receive MIME request");
-
+        let (bytes, sender) = source!().recv().expect("MIME channel has disconnected");
         let result = magic.buffer(&bytes);
-
-        task::block_on(sender.send(result)) //
-            .expect("Unable to send MIME response");
+        sender
+            .send(result)
+            .expect("MIME response channel has disconnected");
     }
 }
 
-/// Starts a thread which contains the `Magic` instance.
-///
-/// Because it is a binding to a C library, it cannot be shared among threads.
-/// So we cannot use `lazy_static` and we can't have it in a coroutine.
-/// We don't load the `Magic` instance locally because it's an expensive operation
-/// and it would be inefficient to load it for each invocation.
-///
-/// Instead we have it in a thread and ferry requests and responses back and forth.
-pub fn spawn_magic_thread() -> MagicSender {
-    let (send, recv) = channel::unbounded();
-
-    thread::spawn(move || {
+/// Starts the thread containing the `Magic` instance.
+pub fn spawn_magic_thread() {
+    thread::spawn(|| {
         // Since this is an infinite loop, no success case can return.
         // Only the initialization can fail, individual requests just pass back the result.
-        let error = run_magic_thread(recv).void_unwrap_err();
+        let error = main_loop().void_unwrap_err();
         tide::log::error!("Failed to spawn magic thread: {error}");
         process::exit(1);
     });
-
-    send
 }
 
 /// Requests that libmagic analyze the buffer to determine its MIME type.
 ///
 /// Because all requests involve sending an item over the channel,
 /// and then waiting for the response, we need to send both the input
-/// and a oneshot channel to get the response. However `async_std`
-/// doesn't have a separate oneshot channel, so we're using a bounded
-/// one instead.
-pub async fn mime_type(sender: &MagicSender, buffer: Vec<u8>) -> Result<String> {
-    let (resp_send, resp_recv) = channel::bounded(1);
+/// and a oneshot channel to get the response.
+pub async fn mime_type(buffer: Vec<u8>) -> Result<String> {
+    // One-shot equivalent channel
+    let (resp_send, resp_recv) = mpsc::bounded_tx_blocking_rx_future(1);
 
     // Send request
-    sender //
+    sink!()
         .send((buffer, resp_send))
         .await
-        .expect("Unable to send to MIME channel");
+        .expect("MIME channel has disconnected");
 
     // Wait for response
     let result = resp_recv
         .recv()
         .await
-        .expect("Unable to receive from MIME channel");
+        .expect("MIME response channel has disconnected");
 
     let mime = result?;
     Ok(mime)
