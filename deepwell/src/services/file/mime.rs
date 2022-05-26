@@ -101,3 +101,26 @@ pub async fn mime_type(sender: &MagicSender, buffer: Vec<u8>) -> Result<String> 
     let mime = result?;
     Ok(mime)
 }
+
+#[test]
+fn mime_request() {
+    const PNG: &[u8] = b"\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d\x49\x48\x44\x52\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\x04\x73\x42\x49\x54\x08\x08\x08\x08\x7c\x08\x64\x88\x00\x00\x00\x0b\x49\x44\x41\x54\x08\x99\x63\xf8\x0f\x04\x00\x09\xfb\x03\xfd\xe3\x55\xf2\x9c\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82";
+    const TAR: &[u8] =
+        b"\x1f\x8b\x08\x08\xb1\xb7\x8f\x62\x00\x03\x78\x00\x03\x00\x00\x00\x00";
+
+    let sender = spawn_magic_thread();
+
+    macro_rules! check {
+        ($bytes:expr, $expected:expr $(,)?) => {{
+            let future = mime_type(&sender, $bytes.to_vec());
+            let actual = task::block_on(future).expect("Unable to get MIME type");
+
+            assert_eq!(actual, $expected, "Actual MIME type doesn't match expected");
+        }};
+    }
+
+    check!(b"", "application/x-empty; charset=binary");
+    check!(b"Apple banana", "text/plain; charset=us-ascii");
+    check!(PNG, "image/png; charset=binary");
+    check!(TAR, "application/gzip; charset=binary");
+}
