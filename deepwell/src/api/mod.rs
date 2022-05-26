@@ -29,7 +29,7 @@
 use crate::config::Config;
 use crate::database;
 use crate::locales::Localizations;
-use crate::services::file::spawn_magic_thread;
+use crate::services::blob::spawn_magic_thread;
 use crate::services::job::JobRunner;
 use crate::web::ratelimit::GovernorMiddleware;
 use anyhow::Result;

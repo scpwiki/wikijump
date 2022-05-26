@@ -1,5 +1,5 @@
 /*
- * services/file/mod.rs
+ * services/blob/mod.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,13 +18,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+//! The blob service, for interfacing with content-addressable S3 objects.
+//!
+//! This is essentially just a wrapper for how DEEPWELL interacts with S3.
+//! Method implementations should instead work with the relevant concept
+//! service instead, for instance the `FileService`.
+
 mod prelude {
     pub use super::super::prelude::*;
+    pub use super::mime_type;
     pub use super::structs::*;
 }
 
+mod mime;
 mod service;
 mod structs;
 
-pub use self::service::FileService;
+pub use self::mime::{mime_type, spawn_magic_thread};
+pub use self::service::BlobService;
 pub use self::structs::*;

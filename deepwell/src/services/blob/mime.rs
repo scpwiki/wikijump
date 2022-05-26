@@ -1,5 +1,5 @@
 /*
- * services/file/mime.rs
+ * services/blob/mime.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -31,8 +31,8 @@ use super::prelude::*;
 use async_std::task;
 use crossfire::mpsc;
 use filemagic::{FileMagicError, Flags as MagicFlags, Magic};
-use std::{process, thread};
 use std::sync::Once;
+use std::{process, thread};
 use void::{ResultVoidErrExt, Void};
 
 type ResponsePayload = StdResult<String, FileMagicError>;

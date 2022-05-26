@@ -30,7 +30,7 @@
 mod prelude {
     pub use crate::api::{ApiRequest, ApiResponse};
     pub use crate::services::{
-        CategoryService, Error as ServiceError, LinkService, PageService,
+        BlobService, CategoryService, Error as ServiceError, LinkService, PageService,
         PostTransactionToApiResponse, RenderService, RequestFetchService,
         RevisionService, ScoreService, ServiceContext, SiteService, TextService,
         UserService, VoteService,
