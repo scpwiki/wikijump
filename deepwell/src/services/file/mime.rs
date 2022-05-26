@@ -119,16 +119,16 @@ fn mime_request() {
     const TAR: &[u8] =
         b"\x1f\x8b\x08\x08\xb1\xb7\x8f\x62\x00\x03\x78\x00\x03\x00\x00\x00\x00";
 
-    let sender = spawn_magic_thread();
-
     macro_rules! check {
         ($bytes:expr, $expected:expr $(,)?) => {{
-            let future = mime_type(&sender, $bytes.to_vec());
+            let future = mime_type($bytes.to_vec());
             let actual = task::block_on(future).expect("Unable to get MIME type");
 
             assert_eq!(actual, $expected, "Actual MIME type doesn't match expected");
         }};
     }
+
+    spawn_magic_thread();
 
     check!(b"", "application/x-empty; charset=binary");
     check!(b"Apple banana", "text/plain; charset=us-ascii");
