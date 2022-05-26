@@ -29,6 +29,7 @@
 use crate::config::Config;
 use crate::database;
 use crate::locales::Localizations;
+use crate::services::file::spawn_magic_thread;
 use crate::services::job::JobRunner;
 use crate::web::ratelimit::GovernorMiddleware;
 use anyhow::Result;
@@ -88,8 +89,11 @@ pub async fn build_server(config: Config) -> Result<ApiServer> {
         };
     }
 
-    // Create job executor task
+    // Start job executor task
     JobRunner::spawn(&state);
+
+    // Start MIME evaluator thread
+    spawn_magic_thread();
 
     // Create server and add routes
     let mut app = new!();

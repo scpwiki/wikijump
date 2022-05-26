@@ -27,5 +27,6 @@ mod mime;
 mod service;
 mod structs;
 
+pub use self::mime::spawn_magic_thread;
 pub use self::service::FileService;
 pub use self::structs::*;
