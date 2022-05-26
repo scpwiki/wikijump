@@ -62,7 +62,7 @@ fn run_magic_thread(receiver: MagicReceiver) -> Result<Void> {
 /// and it would be inefficient to load it for each invocation.
 ///
 /// Instead we have it in a thread and ferry requests and responses back and forth.
-pub fn spawn_magic_thread() {
+pub fn spawn_magic_thread() -> MagicSender {
     let (send, recv) = channel::unbounded();
 
     thread::spawn(move || {
@@ -72,6 +72,8 @@ pub fn spawn_magic_thread() {
         tide::log::error!("Failed to spawn magic thread: {error}");
         process::exit(1);
     });
+
+    send
 }
 
 /// Requests that libmagic analyze the buffer to determine its MIME type.
