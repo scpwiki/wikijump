@@ -19,7 +19,6 @@
  */
 
 use super::prelude::*;
-use cuid;
 use crate::hash::{hash_to_hex, sha512_hash, Hash};
 use std::str;
 

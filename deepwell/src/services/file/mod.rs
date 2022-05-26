@@ -23,6 +23,7 @@ mod prelude {
     pub use super::structs::*;
 }
 
+mod mime;
 mod service;
 mod structs;
 
