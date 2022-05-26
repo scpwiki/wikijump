@@ -19,12 +19,21 @@
  */
 
 use super::prelude::*;
+use async_std::channel::{self, Receiver, Sender};
 use async_std::task;
-use filemagic::{Flags as MagicFlags, Magic};
+use filemagic::{FileMagicError, Flags as MagicFlags, Magic};
 use std::{process, thread};
 use void::{ResultVoidErrExt, Void};
 
-fn run_magic_thread() -> Result<Void> {
+pub type MagicResponsePayload = StdResult<String, FileMagicError>;
+pub type MagicResponseSender = Sender<MagicResponsePayload>;
+pub type MagicResponseReceiver = Receiver<MagicResponsePayload>;
+
+pub type MagicPayload = (Vec<u8>, MagicResponseSender);
+pub type MagicSender = Sender<MagicPayload>;
+pub type MagicReceiver = Receiver<MagicPayload>;
+
+fn run_magic_thread(receiver: MagicReceiver) -> Result<Void> {
     const MAGIC_FLAGS: MagicFlags = MagicFlags::MIME;
     const MAGIC_PATHS: &[&str] = &[]; // Empty indicates using the default magic database
 
@@ -33,8 +42,15 @@ fn run_magic_thread() -> Result<Void> {
     magic.load(MAGIC_PATHS)?;
 
     loop {
-        let buffer: &[u8] = &[];
-        let _ = magic.buffer(buffer);
+        tide::log::debug!("Waiting for next MIME request");
+
+        let (bytes, sender) =
+            task::block_on(receiver.recv()).expect("Unable to receive MIME request");
+
+        let result = magic.buffer(&bytes);
+
+        task::block_on(sender.send(result)) //
+            .expect("Unable to send MIME response");
     }
 }
 
@@ -47,16 +63,39 @@ fn run_magic_thread() -> Result<Void> {
 ///
 /// Instead we have it in a thread and ferry requests and responses back and forth.
 pub fn spawn_magic_thread() {
-    thread::spawn(|| {
+    let (send, recv) = channel::unbounded();
+
+    thread::spawn(move || {
         // Since this is an infinite loop, no success case can return.
         // Only the initialization can fail, individual requests just pass back the result.
-        let error = run_magic_thread().void_unwrap_err();
+        let error = run_magic_thread(recv).void_unwrap_err();
         tide::log::error!("Failed to spawn magic thread: {error}");
         process::exit(1);
     });
 }
 
-#[inline]
-pub fn mime_type(buffer: &[u8]) -> Result<String> {
-    todo!()
+/// Requests that libmagic analyze the buffer to determine its MIME type.
+///
+/// Because all requests involve sending an item over the channel,
+/// and then waiting for the response, we need to send both the input
+/// and a oneshot channel to get the response. However `async_std`
+/// doesn't have a separate oneshot channel, so we're using a bounded
+/// one instead.
+pub async fn mime_type(sender: &MagicSender, buffer: Vec<u8>) -> Result<String> {
+    let (resp_send, resp_recv) = channel::bounded(1);
+
+    // Send request
+    sender //
+        .send((buffer, resp_send))
+        .await
+        .expect("Unable to send to MIME channel");
+
+    // Wait for response
+    let result = resp_recv
+        .recv()
+        .await
+        .expect("Unable to receive from MIME channel");
+
+    let mime = result?;
+    Ok(mime)
 }
