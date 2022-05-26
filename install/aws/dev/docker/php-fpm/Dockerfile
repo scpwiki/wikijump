@@ -45,7 +45,7 @@ COPY ./web /var/www/wikijump/web
 # Inject values in the wikijump.ini and .env configuration files
 USER root
 COPY ./install/files/${ENVIRONMENT}/wikijump.ini conf/wikijump.ini
-COPY ./install/files/${ENVIRONMENT}/env .env
+COPY ./install/files/${ENVIRONMENT}/php_env .env
 
 RUN sed -i "s/%%BASE_DOMAIN%%/${MAIN_DOMAIN}/g" conf/wikijump.ini && \
     sed -i "s/%%MAIN_WIKI%%/${WWW_DOMAIN}/g" conf/wikijump.ini && \
