@@ -18,4 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::prelude::*;
+
+#[derive(Debug)]
+pub struct CreateBlobOutput {
+    pub hash: Hash,
+    pub mime: String,
+}
+
 // TODO

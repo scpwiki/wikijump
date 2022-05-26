@@ -19,7 +19,6 @@
  */
 
 use super::prelude::*;
-use crate::hash::{hash_to_hex, sha512_hash, Hash};
 use std::str;
 
 #[derive(Debug)]
@@ -27,13 +26,16 @@ pub struct BlobService;
 
 impl BlobService {
     /// Creates a blob with this data, if it does not already exist.
-    pub async fn create(ctx: &ServiceContext<'_>, data: &[u8]) -> Result<Hash> {
+    pub async fn create(
+        ctx: &ServiceContext<'_>,
+        data: &[u8],
+    ) -> Result<CreateBlobOutput> {
         let bucket = ctx.s3_bucket();
         let hash = sha512_hash(data);
         let hex_hash = hash_to_hex(&hash);
 
         // Determine MIME type for the new file
-        let mime_type = mime_type(data.to_vec()).await?;
+        let mime = mime_type(data.to_vec()).await?;
 
         // TODO insert into file_blob table
 
@@ -41,7 +43,7 @@ impl BlobService {
 
         // We assume all unexpected statuses are errors, even if 1XX or 2XX
         match status {
-            200 => Ok(hash),
+            200 => Ok(CreateBlobOutput { hash, mime }),
             _ => s3_error(&return_data, status, "creating S3 blob"),
         }
     }

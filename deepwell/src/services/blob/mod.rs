@@ -28,6 +28,7 @@ mod prelude {
     pub use super::super::prelude::*;
     pub use super::mime_type;
     pub use super::structs::*;
+    pub use crate::hash::{hash_to_hex, sha512_hash, Hash};
 }
 
 mod mime;
