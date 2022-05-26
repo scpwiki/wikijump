@@ -19,6 +19,8 @@
  */
 
 use crate::api::{ApiRequest, ApiServerState};
+use super::error::Result;
+use cuid::cuid;
 use s3::bucket::Bucket;
 use sea_orm::DatabaseTransaction;
 use std::sync::Arc;
@@ -54,5 +56,11 @@ impl<'txn> ServiceContext<'txn> {
     #[inline]
     pub fn transaction(&self) -> &'txn DatabaseTransaction {
         self.transaction
+    }
+
+    // Helpers
+    pub fn cuid(&self) -> Result<String> {
+        let cuid = cuid()?;
+        Ok(cuid)
     }
 }
