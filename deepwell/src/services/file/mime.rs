@@ -32,6 +32,7 @@ use async_std::task;
 use crossfire::mpsc;
 use filemagic::{FileMagicError, Flags as MagicFlags, Magic};
 use std::{process, thread};
+use std::sync::Once;
 use void::{ResultVoidErrExt, Void};
 
 type ResponsePayload = StdResult<String, FileMagicError>;
@@ -79,12 +80,16 @@ fn main_loop() -> Result<Void> {
 
 /// Starts the thread containing the `Magic` instance.
 pub fn spawn_magic_thread() {
-    thread::spawn(|| {
-        // Since this is an infinite loop, no success case can return.
-        // Only the initialization can fail, individual requests just pass back the result.
-        let error = main_loop().void_unwrap_err();
-        tide::log::error!("Failed to spawn magic thread: {error}");
-        process::exit(1);
+    static START: Once = Once::new();
+
+    START.call_once(|| {
+        thread::spawn(|| {
+            // Since this is an infinite loop, no success case can return.
+            // Only the initialization can fail, individual requests just pass back the result.
+            let error = main_loop().void_unwrap_err();
+            tide::log::error!("Failed to spawn magic thread: {error}");
+            process::exit(1);
+        });
     });
 }
 
