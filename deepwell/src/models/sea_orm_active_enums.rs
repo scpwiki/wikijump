@@ -12,10 +12,10 @@ pub enum RevisionType {
     Create,
     #[sea_orm(string_value = "delete")]
     Delete,
+    #[sea_orm(string_value = "move")]
+    Move,
     #[sea_orm(string_value = "regular")]
     Regular,
     #[sea_orm(string_value = "undelete")]
     Undelete,
-    #[sea_orm(string_value = "move")]
-    Move,
 }

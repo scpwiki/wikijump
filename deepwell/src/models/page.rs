@@ -44,8 +44,6 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     Site,
-    #[sea_orm(has_many = "super::file::Entity")]
-    File,
     #[sea_orm(has_many = "super::page_link::Entity")]
     PageLink,
     #[sea_orm(has_many = "super::page_connection_missing::Entity")]
@@ -54,6 +52,8 @@ pub enum Relation {
     PageRevision,
     #[sea_orm(has_many = "super::page_vote::Entity")]
     PageVote,
+    #[sea_orm(has_many = "super::file::Entity")]
+    File,
 }
 
 impl Related<super::forum_thread::Entity> for Entity {
@@ -71,12 +71,6 @@ impl Related<super::page_category::Entity> for Entity {
 impl Related<super::site::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Site.def()
-    }
-}
-
-impl Related<super::file::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::File.def()
     }
 }
 
@@ -101,6 +95,12 @@ impl Related<super::page_revision::Entity> for Entity {
 impl Related<super::page_vote::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::PageVote.def()
+    }
+}
+
+impl Related<super::file::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::File.def()
     }
 }
 

@@ -24,8 +24,6 @@ pub struct Model {
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
-    #[sea_orm(has_many = "super::file::Entity")]
-    File,
     #[sea_orm(has_many = "super::forum_group::Entity")]
     ForumGroup,
     #[sea_orm(has_many = "super::forum_category::Entity")]
@@ -46,12 +44,6 @@ pub enum Relation {
     PageCategory,
     #[sea_orm(has_many = "super::page_revision::Entity")]
     PageRevision,
-}
-
-impl Related<super::file::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::File.def()
-    }
 }
 
 impl Related<super::forum_group::Entity> for Entity {

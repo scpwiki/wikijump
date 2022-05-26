@@ -6,20 +6,20 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "file")]
 pub struct Model {
-    #[sea_orm(primary_key)]
-    pub file_id: i64,
-    pub page_id: Option<i32>,
-    pub site_id: Option<i32>,
-    pub filename: Option<String>,
-    pub mimetype: Option<String>,
-    pub description: Option<String>,
-    pub description_short: Option<String>,
-    pub comment: Option<String>,
-    pub size: Option<i32>,
-    pub date_added: Option<DateTimeUtc>,
-    pub user_id: Option<i32>,
-    pub user_string: Option<String>,
-    pub has_resized: bool,
+    #[sea_orm(primary_key, auto_increment = false, column_type = "Text")]
+    pub file_id: String,
+    pub created_at: DateTimeWithTimeZone,
+    pub updated_at: Option<DateTimeWithTimeZone>,
+    pub deleted_at: Option<DateTimeWithTimeZone>,
+    #[sea_orm(column_type = "Text")]
+    pub name: String,
+    pub s3_hash: Option<Vec<u8>>,
+    pub user_id: i64,
+    pub page_id: i64,
+    pub size_hint: i64,
+    #[sea_orm(column_type = "Text")]
+    pub mime_hint: String,
+    pub licensing: Json,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -33,13 +33,13 @@ pub enum Relation {
     )]
     Page,
     #[sea_orm(
-        belongs_to = "super::site::Entity",
-        from = "Column::SiteId",
-        to = "super::site::Column::SiteId",
-        on_update = "Cascade",
-        on_delete = "SetNull"
+        belongs_to = "super::users::Entity",
+        from = "Column::UserId",
+        to = "super::users::Column::Id",
+        on_update = "NoAction",
+        on_delete = "NoAction"
     )]
-    Site,
+    Users,
 }
 
 impl Related<super::page::Entity> for Entity {
@@ -48,9 +48,9 @@ impl Related<super::page::Entity> for Entity {
     }
 }
 
-impl Related<super::site::Entity> for Entity {
+impl Related<super::users::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::Site.def()
+        Relation::Users.def()
     }
 }
 
