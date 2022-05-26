@@ -19,6 +19,7 @@
  */
 
 use crate::locales::LocalizationTranslateError;
+use filemagic::FileMagicError;
 use s3::error::S3Error;
 use sea_orm::error::DbErr;
 use thiserror::Error as ThisError;
@@ -40,6 +41,9 @@ pub enum Error {
 
     #[error("Localization error: {0}")]
     Localization(#[from] LocalizationTranslateError),
+
+    #[error("Magic library error: {0}")]
+    Magic(#[from] FileMagicError),
 
     #[error("Serialization error: {0}")]
     Serde(#[from] serde_json::Error),
@@ -78,6 +82,7 @@ impl Error {
             Error::Database(inner) => {
                 TideError::new(StatusCode::InternalServerError, inner)
             }
+            Error::Magic(inner) => TideError::new(StatusCode::InternalServerError, inner),
             Error::Localization(inner) => TideError::new(StatusCode::NotFound, inner),
             Error::Serde(inner) => TideError::new(StatusCode::InternalServerError, inner),
             Error::S3(inner) => TideError::new(StatusCode::InternalServerError, inner),
