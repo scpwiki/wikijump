@@ -26,5 +26,3 @@ pub struct CreateBlobOutput {
     pub mime: String,
     pub created: bool,
 }
-
-// TODO
