@@ -292,6 +292,7 @@ impl RevisionService {
             alt_title: Set(alt_title),
             slug: Set(slug),
             tags: Set(tags),
+            file_id: Set(None),
             ..Default::default()
         };
 
@@ -374,6 +375,7 @@ impl RevisionService {
             alt_title: Set(alt_title),
             slug: Set(slug),
             tags: Set(json!([])),
+            file_id: Set(None),
             ..Default::default()
         };
 
@@ -436,6 +438,7 @@ impl RevisionService {
             alt_title: Set(alt_title),
             slug: Set(slug),
             tags: Set(tags),
+            file_id: Set(None),
             ..Default::default()
         };
 
@@ -537,6 +540,7 @@ impl RevisionService {
             alt_title: Set(alt_title),
             slug: Set(new_slug),
             tags: Set(tags),
+            file_id: Set(None),
             ..Default::default()
         };
 
