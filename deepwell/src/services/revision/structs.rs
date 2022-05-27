@@ -61,6 +61,16 @@ pub struct CreateResurrectionRevision {
     pub new_slug: String,
 }
 
+#[derive(Debug)]
+pub struct CreateFileRevision {
+    pub site_id: i64,
+    pub page_id: i64,
+    pub user_id: i64,
+    pub file_id: String,
+    pub file_change: RevisionType,
+    pub comments: String,
+}
+
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateRevisionOutput {

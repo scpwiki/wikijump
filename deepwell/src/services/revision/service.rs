@@ -551,6 +551,69 @@ impl RevisionService {
         })
     }
 
+    pub async fn create_file_revision(
+        ctx: &ServiceContext<'_>,
+        CreateFileRevision {
+            site_id,
+            page_id,
+            user_id,
+            file_id,
+            file_change,
+            comments,
+        }: CreateFileRevision,
+        previous: PageRevisionModel,
+    ) -> Result<CreateRevisionOutput> {
+        let txn = ctx.transaction();
+        let revision_number = next_revision_number(&previous, site_id, page_id);
+
+        let PageRevisionModel {
+            wikitext_hash,
+            compiled_hash,
+            compiled_at,
+            compiled_generator,
+            title,
+            alt_title,
+            slug,
+            tags,
+            ..
+        } = previous;
+
+        // Assert file_change is the correct kind of RevisionType
+        assert!(matches!(file_change, RevisionType::FileCreate | RevisionType::FileUpdate | RevisionType::FileDelete), "Revision type for a file revision must be file-related",);
+
+        // Run outdater
+        OutdateService::process_page_edit(ctx, site_id, page_id, &slug).await?;
+
+        // Insert the page change revision into the table
+        let model = page_revision::ActiveModel {
+            revision_type: Set(file_change),
+            revision_number: Set(revision_number),
+            page_id: Set(page_id),
+            site_id: Set(site_id),
+            user_id: Set(user_id),
+            changes: Set(json!(["file"])),
+            wikitext_hash: Set(wikitext_hash),
+            compiled_hash: Set(compiled_hash),
+            compiled_at: Set(compiled_at),
+            compiled_generator: Set(compiled_generator),
+            comments: Set(comments),
+            hidden: Set(json!([])),
+            title: Set(title),
+            alt_title: Set(alt_title),
+            slug: Set(slug),
+            tags: Set(json!([])),
+            file_id: Set(Some(file_id)),
+            ..Default::default()
+        };
+
+        let PageRevisionModel { revision_id, .. } = model.insert(txn).await?;
+        Ok(CreateRevisionOutput {
+            revision_id,
+            revision_number,
+            parser_warnings: None,
+        })
+    }
+
     /// Helper method for performing rendering for a revision.
     ///
     /// Makes all the changes associated with rendering, such as
