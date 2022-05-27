@@ -155,6 +155,12 @@ impl FileService {
         }
     }
 
+    pub async fn exists(ctx: &ServiceContext<'_>, file_id: &str) -> Result<bool> {
+        Self::get_optional(ctx, file_id, false)
+            .await
+            .map(|file| file.is_some())
+    }
+
     /// Hard deletes this file and all duplicates.
     ///
     /// This is a very powerful method and needs to be used carefully.
