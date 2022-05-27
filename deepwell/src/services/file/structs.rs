@@ -40,3 +40,21 @@ pub struct CreateFileOutput {
     #[serde(flatten)]
     pub revision: CreateRevisionOutput,
 }
+
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct GetFileOutput {
+    #[serde(flatten)]
+    pub file: FileModel,
+    pub data: Option<Vec<u8>>,
+}
+
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct DeleteFileOutput {
+    #[serde(flatten)]
+    pub file: FileModel,
+
+    #[serde(flatten)]
+    pub revision: CreateRevisionOutput,
+}
