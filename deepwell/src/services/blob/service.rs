@@ -38,7 +38,7 @@ impl BlobService {
         match Self::head(ctx, &hex_hash).await? {
             // Blob exists, copy metadata and return that
             Some(result) => {
-                // Content-Type header should be passed
+                // Content-Type header should be passed in
                 let mime = result.content_type.ok_or(Error::RemoteOperationFailed)?;
 
                 Ok(CreateBlobOutput {
@@ -53,8 +53,7 @@ impl BlobService {
                 // Determine MIME type for the new file
                 let mime = mime_type(data.to_vec()).await?;
 
-                // TODO insert into file_blob table
-
+                // Put into S3
                 let (return_data, status) = bucket
                     .put_object_with_content_type(&hex_hash, data, &mime)
                     .await?;

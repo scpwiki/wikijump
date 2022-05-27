@@ -62,8 +62,9 @@ fn provided_value_deserialize() {
     }
 
     macro_rules! check {
-        ($value:expr, $expected:expr) => {{
-            let object: Object = serde_json::from_value($value).expect("Unable to deserialize JSON");
+        ($value:expr, $expected:expr $(,)?) => {{
+            let object: Object =
+                serde_json::from_value($value).expect("Unable to deserialize JSON");
 
             assert_eq!(
                 object.field, $expected,
@@ -73,6 +74,9 @@ fn provided_value_deserialize() {
     }
 
     check!(json!({}), ProvidedValue::Unset);
-    check!(json!({"field": null}), ProvidedValue::Set(None));
-    check!(json!({"field": "value"}), ProvidedValue::Set(Some(str!("value"))));
+    check!(json!({ "field": null }), ProvidedValue::Set(None));
+    check!(
+        json!({"field": "value"}),
+        ProvidedValue::Set(Some(str!("value"))),
+    );
 }
