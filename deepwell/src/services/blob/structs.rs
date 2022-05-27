@@ -19,10 +19,17 @@
  */
 
 use super::prelude::*;
+use sea_orm::entity::prelude::DateTimeWithTimeZone;
 
 #[derive(Debug)]
 pub struct CreateBlobOutput {
     pub hash: Hash,
     pub mime: String,
     pub created: bool,
+}
+
+#[derive(Debug)]
+pub struct BlobMetadata {
+    pub mime: String,
+    pub created_at: DateTimeWithTimeZone,
 }

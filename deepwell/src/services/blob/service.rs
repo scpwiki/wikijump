@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use chrono::DateTime;
 use s3::serde_types::HeadObjectResult;
 use std::str;
 
@@ -79,9 +80,6 @@ impl BlobService {
         let hex_hash = hash_to_hex(hash);
         let (data, status) = bucket.get_object(&hex_hash).await?;
 
-        // TODO read from file_blob table
-        // TODO change return to FileBlob type
-
         match status {
             200 => Ok(Some(data)),
             404 => Ok(None),
@@ -93,6 +91,41 @@ impl BlobService {
     pub async fn get(ctx: &ServiceContext<'_>, hash: &[u8]) -> Result<Vec<u8>> {
         match Self::get_optional(ctx, hash).await? {
             Some(string) => Ok(string),
+            None => Err(Error::NotFound),
+        }
+    }
+
+    pub async fn get_metadata_optional(
+        ctx: &ServiceContext<'_>,
+        hash: &[u8],
+    ) -> Result<Option<BlobMetadata>> {
+        let hex_hash = hash_to_hex(hash);
+
+        match Self::head(ctx, &hex_hash).await? {
+            None => Ok(None),
+            Some(result) => {
+                // Headers should be passed in
+                let mime = result.content_type.ok_or(Error::RemoteOperationFailed)?;
+                let created_at = {
+                    let timestamp =
+                        result.last_modified.ok_or(Error::RemoteOperationFailed)?;
+
+                    DateTime::parse_from_str(&timestamp, "%a, %d %b %Y %H:%M:%S %Z")
+                        .map_err(|_| Error::RemoteOperationFailed)?
+                };
+
+                Ok(Some(BlobMetadata { mime, created_at }))
+            }
+        }
+    }
+
+    #[inline]
+    pub async fn get_metadata(
+        ctx: &ServiceContext<'_>,
+        hash: &[u8],
+    ) -> Result<BlobMetadata> {
+        match Self::get_metadata_optional(ctx, hash).await? {
+            Some(metadata) => Ok(metadata),
             None => Err(Error::NotFound),
         }
     }
