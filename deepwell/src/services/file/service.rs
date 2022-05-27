@@ -143,12 +143,12 @@ impl FileService {
         ctx: &ServiceContext<'_>,
         file_id: &str,
         blob: bool,
-    ) -> Result<Option<()>> {
+    ) -> Result<Option<GetFileOutput>> {
         todo!()
     }
 
     /// Gets an uploaded file, failing if it does not exists.
-    pub async fn get(ctx: &ServiceContext<'_>, file_id: &str, blob: bool) -> Result<()> {
+    pub async fn get(ctx: &ServiceContext<'_>, file_id: &str, blob: bool) -> Result<GetFileOutput> {
         match Self::get_optional(ctx, file_id, blob).await? {
             Some(file) => Ok(file),
             None => Err(Error::NotFound),
