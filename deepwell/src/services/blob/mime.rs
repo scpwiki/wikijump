@@ -28,7 +28,6 @@
 //! Instead we have it in a thread and ferry requests and responses back and forth.
 
 use super::prelude::*;
-use async_std::task;
 use crossfire::mpsc;
 use filemagic::{FileMagicError, Flags as MagicFlags, Magic};
 use std::sync::Once;

@@ -20,6 +20,10 @@
 
 use super::prelude::*;
 use crate::models::file::{self, Entity as File, Model as FileModel};
+use crate::models::sea_orm_active_enums::RevisionType;
+use crate::services::{BlobService, RevisionService};
+use crate::services::blob::CreateBlobOutput;
+use crate::services::revision::CreateFileRevision;
 
 #[derive(Debug)]
 pub struct FileService;
@@ -29,10 +33,84 @@ impl FileService {
     ///
     /// In the background, this stores the blob via content addressing,
     /// meaning that duplicates are not uploaded twice.
-    pub async fn create(ctx: &ServiceContext<'_>, data: &[u8]) -> Result<()> {
-        // TODO insert into file
+    pub async fn create(ctx: &ServiceContext<'_>, input: CreateFile, data: &[u8]) -> Result<CreateFileOutput> {
+        let txn = ctx.transaction();
 
-        todo!()
+        tide::log::info!(
+            "Creating file with name '{}', content length {}",
+            input.name,
+            data.len(),
+        );
+
+        let CreateFile {
+            revision_comments,
+            name,
+            site_id,
+            page_id,
+            user_id,
+            licensing,
+        } = input;
+
+        // Check file doesn't already exist
+        {
+            let result = File::find()
+                .filter(
+                    Condition::all()
+                        .add(file::Column::Name.eq(name.as_str()))
+                        .add(file::Column::PageId.eq(page_id))
+                        .add(file::Column::DeletedAt.is_null()),
+                )
+                .one(txn)
+                .await?;
+
+            if let Some(file) = result {
+                tide::log::error!(
+                    "File {} with name '{}' already exists on page ID {}, cannot create",
+                    file.file_id,
+                    name,
+                    page_id,
+                );
+
+                return Err(Error::Conflict);
+            }
+        }
+
+        // Upload to S3, get derived metadata
+        let CreateBlobOutput { hash, mime, .. } = BlobService::create(ctx, data).await?;
+
+        // Insert into database
+        let file_id = ctx.cuid()?;
+        let size_hint: i64 = data.len().try_into().expect("Buffer size exceeds i64");
+
+        let model = file::ActiveModel {
+            file_id: Set(file_id.clone()),
+            name: Set(name),
+            s3_hash: Set(Some(hash.to_vec())),
+            user_id: Set(user_id),
+            page_id: Set(page_id),
+            size_hint: Set(size_hint),
+            mime_hint: Set(mime),
+            licensing: Set(licensing),
+            ..Default::default()
+        };
+        let file = model.insert(txn).await?;
+
+        // Add new page revision
+        let previous = RevisionService::get_latest(ctx, site_id, page_id).await?;
+        let revision = RevisionService::create_file_revision(
+            ctx,
+            CreateFileRevision {
+                site_id,
+                page_id,
+                user_id,
+                file_id,
+                file_change: RevisionType::FileCreate,
+                comments: revision_comments,
+            },
+            previous,
+        ).await?;
+
+        Ok(CreateFileOutput { file, revision })
     }
 
     /// Updates metadata associated with this file.

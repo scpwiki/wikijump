@@ -18,4 +18,25 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// TODO
+use crate::models::file::Model as FileModel;
+use crate::services::revision::CreateRevisionOutput;
+
+#[derive(Debug)]
+pub struct CreateFile {
+    pub revision_comments: String,
+    pub name: String,
+    pub site_id: i64,
+    pub page_id: i64,
+    pub user_id: i64,
+    pub licensing: serde_json::Value, // TODO
+}
+
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateFileOutput {
+    #[serde(flatten)]
+    pub file: FileModel,
+
+    #[serde(flatten)]
+    pub revision: CreateRevisionOutput,
+}
