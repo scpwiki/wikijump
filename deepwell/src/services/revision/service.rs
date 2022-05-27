@@ -103,21 +103,7 @@ impl RevisionService {
         previous: PageRevisionModel,
     ) -> Result<Option<CreateRevisionOutput>> {
         let txn = ctx.transaction();
-
-        let revision_number = {
-            // Check for basic consistency
-            assert_eq!(
-                previous.site_id, site_id,
-                "Previous revision has an inconsistent site ID",
-            );
-            assert_eq!(
-                previous.page_id, page_id,
-                "Previous revision has an inconsistent page ID",
-            );
-
-            // Get the new revision number
-            previous.revision_number + 1
-        };
+        let revision_number = next_revision_number(&previous, site_id, page_id);
 
         // Fields to create in the revision
         let mut parser_warnings = None;
@@ -411,21 +397,7 @@ impl RevisionService {
         previous: PageRevisionModel,
     ) -> Result<CreateRevisionOutput> {
         let txn = ctx.transaction();
-
-        let revision_number = {
-            // Check for basic consistency
-            assert_eq!(
-                previous.site_id, site_id,
-                "Previous revision has an inconsistent site ID",
-            );
-            assert_eq!(
-                previous.page_id, page_id,
-                "Previous revision has an inconsistent page ID",
-            );
-
-            // Get the new revision number
-            previous.revision_number + 1
-        };
+        let revision_number = next_revision_number(&previous, site_id, page_id);
 
         let PageRevisionModel {
             wikitext_hash,
@@ -499,21 +471,7 @@ impl RevisionService {
         previous: PageRevisionModel,
     ) -> Result<CreateRevisionOutput> {
         let txn = ctx.transaction();
-
-        let revision_number = {
-            // Check for basic consistency
-            assert_eq!(
-                previous.site_id, site_id,
-                "Previous revision has an inconsistent site ID",
-            );
-            assert_eq!(
-                previous.page_id, page_id,
-                "Previous revision has an inconsistent page ID",
-            );
-
-            // Get the new revision number
-            previous.revision_number + 1
-        };
+        let revision_number = next_revision_number(&previous, site_id, page_id);
 
         let PageRevisionModel {
             wikitext_hash,
@@ -894,4 +852,19 @@ fn replace_hash(dest: &mut Vec<u8>, src: &[u8]) {
     );
 
     dest.as_mut_slice().copy_from_slice(src);
+}
+
+fn next_revision_number(previous: &PageRevisionModel, site_id: i64, page_id: i64) -> i32 {
+    // Check for basic consistency
+    assert_eq!(
+        previous.site_id, site_id,
+        "Previous revision has an inconsistent site ID",
+    );
+    assert_eq!(
+        previous.page_id, page_id,
+        "Previous revision has an inconsistent page ID",
+    );
+
+    // Get the new revision number
+    previous.revision_number + 1
 }
