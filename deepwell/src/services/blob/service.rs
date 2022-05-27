@@ -18,6 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// TEMP, until https://scuttle.atlassian.net/browse/WJ-1032
+#![allow(dead_code)]
+
 use super::prelude::*;
 use chrono::DateTime;
 use s3::serde_types::HeadObjectResult;
