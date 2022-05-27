@@ -32,6 +32,8 @@ impl BlobService {
         ctx: &ServiceContext<'_>,
         data: &[u8],
     ) -> Result<CreateBlobOutput> {
+        tide::log::info!("Creating blob (length {})", data.len());
+
         let bucket = ctx.s3_bucket();
         let hash = sha512_hash(data);
         let hex_hash = hash_to_hex(&hash);
@@ -39,6 +41,8 @@ impl BlobService {
         match Self::head(ctx, &hex_hash).await? {
             // Blob exists, copy metadata and return that
             Some(result) => {
+                tide::log::debug!("Blob with hash {hex_hash} already exists");
+
                 // Content-Type header should be passed in
                 let mime = result.content_type.ok_or(Error::RemoteOperationFailed)?;
 
@@ -51,6 +55,8 @@ impl BlobService {
 
             // Blob doesn't exist, insert it
             None => {
+                tide::log::debug!("Blob with hash {hex_hash} to be created");
+
                 // Determine MIME type for the new file
                 let mime = mime_type(data.to_vec()).await?;
 
