@@ -132,10 +132,50 @@ impl FileService {
     /// Like other deletions throughout Wikijump, this is a soft deletion.
     /// It marks the files as deleted but retains the contents, permitting it
     /// to be easily reverted.
-    pub async fn delete(ctx: &ServiceContext<'_>, file_id: &str) -> Result<()> {
-        // TODO update deleted_at in file
+    pub async fn delete(
+        ctx: &ServiceContext<'_>,
+        file_id: String,
+        input: DeleteFile,
+    ) -> Result<DeleteFileOutput> {
+        let txn = ctx.transaction();
 
-        todo!()
+        let DeleteFile {
+            revision_comments,
+            site_id,
+            page_id,
+            user_id,
+        } = input;
+
+        // Ensure file exists
+        if !Self::exists(ctx, &file_id).await? {
+            return Err(Error::NotFound);
+        }
+
+        // Set deletion flag
+        let model = file::ActiveModel {
+            file_id: Set(file_id.clone()),
+            deleted_at: Set(Some(now())),
+            ..Default::default()
+        };
+        let file = model.update(txn).await?;
+
+        // Add new page revision
+        let previous = RevisionService::get_latest(ctx, site_id, page_id).await?;
+        let revision = RevisionService::create_file_revision(
+            ctx,
+            CreateFileRevision {
+                site_id,
+                page_id,
+                user_id,
+                file_id,
+                file_change: RevisionType::FileDelete,
+                comments: revision_comments,
+            },
+            previous,
+        )
+        .await?;
+
+        Ok(DeleteFileOutput { file, revision })
     }
 
     /// Gets an uploaded file that has been, including its contents if requested.
@@ -148,7 +188,11 @@ impl FileService {
     }
 
     /// Gets an uploaded file, failing if it does not exists.
-    pub async fn get(ctx: &ServiceContext<'_>, file_id: &str, blob: bool) -> Result<GetFileOutput> {
+    pub async fn get(
+        ctx: &ServiceContext<'_>,
+        file_id: &str,
+        blob: bool,
+    ) -> Result<GetFileOutput> {
         match Self::get_optional(ctx, file_id, blob).await? {
             Some(file) => Ok(file),
             None => Err(Error::NotFound),

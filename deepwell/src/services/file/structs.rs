@@ -49,6 +49,14 @@ pub struct GetFileOutput {
     pub data: Option<Vec<u8>>,
 }
 
+#[derive(Debug)]
+pub struct DeleteFile {
+    pub revision_comments: String,
+    pub site_id: i64,
+    pub page_id: i64,
+    pub user_id: i64,
+}
+
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct DeleteFileOutput {
