@@ -44,8 +44,7 @@ pub struct CreateRevisionBody {
     pub tags: ProvidedValue<Vec<String>>,
 }
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug)]
 pub struct CreateFirstRevision {
     pub user_id: i64,
     pub comments: String,
@@ -55,8 +54,7 @@ pub struct CreateFirstRevision {
     pub slug: String,
 }
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug)]
 pub struct CreateResurrectionRevision {
     pub user_id: i64,
     pub comments: String,
