@@ -50,3 +50,29 @@ impl<T> Default for ProvidedValue<T> {
         ProvidedValue::Unset
     }
 }
+
+#[test]
+fn provided_value_deserialize() {
+    use serde_json::json;
+
+    #[derive(Deserialize, Debug)]
+    struct Object {
+        #[serde(default)]
+        field: ProvidedValue<Option<String>>,
+    }
+
+    macro_rules! check {
+        ($value:expr, $expected:expr) => {{
+            let object: Object = serde_json::from_value($value).expect("Unable to deserialize JSON");
+
+            assert_eq!(
+                object.field, $expected,
+                "Actual optional item doesn't match expected",
+            );
+        }};
+    }
+
+    check!(json!({}), ProvidedValue::Unset);
+    check!(json!({"field": null}), ProvidedValue::Set(None));
+    check!(json!({"field": "value"}), ProvidedValue::Set(Some(str!("value"))));
+}
