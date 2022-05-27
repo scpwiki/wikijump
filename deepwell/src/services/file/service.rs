@@ -122,6 +122,8 @@ impl FileService {
     pub async fn update(ctx: &ServiceContext<'_>, file_id: &str) -> Result<()> {
         // TODO update file, updated_at
 
+        // TODO: how to preserve history of changes?
+
         todo!()
     }
 
