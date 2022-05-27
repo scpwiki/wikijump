@@ -34,12 +34,14 @@ impl BlobService {
         let hash = sha512_hash(data);
         let hex_hash = hash_to_hex(&hash);
 
+        // TODO check if it exists
+
         // Determine MIME type for the new file
         let mime = mime_type(data.to_vec()).await?;
 
         // TODO insert into file_blob table
 
-        let (return_data, status) = bucket.put_object(&hex_hash, data).await?;
+        let (return_data, status) = bucket.put_object_with_content_type(&hex_hash, data, &mime).await?;
 
         // We assume all unexpected statuses are errors, even if 1XX or 2XX
         match status {
