@@ -35,6 +35,7 @@ use crate::web::{split_category, split_category_name, FetchDirection};
 use ftml::data::PageInfo;
 use ftml::settings::{WikitextMode, WikitextSettings};
 use ref_map::*;
+use serde_json::json;
 use std::borrow::Cow;
 use std::num::NonZeroI32;
 
@@ -353,8 +354,7 @@ impl RevisionService {
 
         // Effective constant, number of changes for the first revision.
         // The first revision is always considered to have changed everything.
-        let all_changes =
-            serde_json::json!(["wikitext", "title", "alt_title", "slug", "tags"]);
+        let all_changes = json!(["wikitext", "title", "alt_title", "slug", "tags"]);
 
         // Insert the new revision into the table
         let model = page_revision::ActiveModel {
@@ -369,11 +369,11 @@ impl RevisionService {
             compiled_at: Set(now()),
             compiled_generator: Set(compiled_generator),
             comments: Set(comments),
-            hidden: Set(serde_json::json!([])),
+            hidden: Set(json!([])),
             title: Set(title),
             alt_title: Set(alt_title),
             slug: Set(slug),
-            tags: Set(serde_json::json!([])),
+            tags: Set(json!([])),
             ..Default::default()
         };
 
@@ -425,7 +425,7 @@ impl RevisionService {
             page_id: Set(page_id),
             site_id: Set(site_id),
             user_id: Set(user_id),
-            changes: Set(serde_json::json!([])),
+            changes: Set(json!([])),
             wikitext_hash: Set(wikitext_hash),
             compiled_hash: Set(compiled_hash),
             compiled_at: Set(compiled_at),
