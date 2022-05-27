@@ -579,7 +579,15 @@ impl RevisionService {
         } = previous;
 
         // Assert file_change is the correct kind of RevisionType
-        assert!(matches!(file_change, RevisionType::FileCreate | RevisionType::FileUpdate | RevisionType::FileDelete), "Revision type for a file revision must be file-related",);
+        assert!(
+            matches!(
+                file_change,
+                RevisionType::FileCreate
+                    | RevisionType::FileUpdate
+                    | RevisionType::FileDelete,
+            ),
+            "Revision type for a file revision must be file-related",
+        );
 
         // Run outdater
         OutdateService::process_page_edit(ctx, site_id, page_id, &slug).await?;

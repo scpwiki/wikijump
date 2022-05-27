@@ -21,9 +21,9 @@
 use super::prelude::*;
 use crate::models::file::{self, Entity as File, Model as FileModel};
 use crate::models::sea_orm_active_enums::RevisionType;
-use crate::services::{BlobService, RevisionService};
 use crate::services::blob::CreateBlobOutput;
 use crate::services::revision::CreateFileRevision;
+use crate::services::{BlobService, RevisionService};
 
 #[derive(Debug)]
 pub struct FileService;
@@ -33,7 +33,11 @@ impl FileService {
     ///
     /// In the background, this stores the blob via content addressing,
     /// meaning that duplicates are not uploaded twice.
-    pub async fn create(ctx: &ServiceContext<'_>, input: CreateFile, data: &[u8]) -> Result<CreateFileOutput> {
+    pub async fn create(
+        ctx: &ServiceContext<'_>,
+        input: CreateFile,
+        data: &[u8],
+    ) -> Result<CreateFileOutput> {
         let txn = ctx.transaction();
 
         tide::log::info!(
@@ -108,7 +112,8 @@ impl FileService {
                 comments: revision_comments,
             },
             previous,
-        ).await?;
+        )
+        .await?;
 
         Ok(CreateFileOutput { file, revision })
     }
