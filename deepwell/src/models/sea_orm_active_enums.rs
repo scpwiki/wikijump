@@ -12,6 +12,12 @@ pub enum RevisionType {
     Create,
     #[sea_orm(string_value = "delete")]
     Delete,
+    #[sea_orm(string_value = "file_create")]
+    FileCreate,
+    #[sea_orm(string_value = "file_delete")]
+    FileDelete,
+    #[sea_orm(string_value = "file_update")]
+    FileUpdate,
     #[sea_orm(string_value = "move")]
     Move,
     #[sea_orm(string_value = "regular")]

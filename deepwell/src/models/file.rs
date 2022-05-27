@@ -40,6 +40,8 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     Users,
+    #[sea_orm(has_many = "super::page_revision::Entity")]
+    PageRevision,
 }
 
 impl Related<super::page::Entity> for Entity {
@@ -51,6 +53,12 @@ impl Related<super::page::Entity> for Entity {
 impl Related<super::users::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Users.def()
+    }
+}
+
+impl Related<super::page_revision::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::PageRevision.def()
     }
 }
 

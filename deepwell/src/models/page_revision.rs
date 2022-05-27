@@ -31,6 +31,8 @@ pub struct Model {
     #[sea_orm(column_type = "Text")]
     pub slug: String,
     pub tags: Json,
+    #[sea_orm(column_type = "Text", nullable)]
+    pub file_id: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -43,6 +45,14 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     Text2,
+    #[sea_orm(
+        belongs_to = "super::file::Entity",
+        from = "Column::FileId",
+        to = "super::file::Column::FileId",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    File,
     #[sea_orm(
         belongs_to = "super::page::Entity",
         from = "Column::PageId",
@@ -75,6 +85,12 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     Text1,
+}
+
+impl Related<super::file::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::File.def()
+    }
 }
 
 impl Related<super::page::Entity> for Entity {
