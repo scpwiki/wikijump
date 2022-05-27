@@ -609,7 +609,7 @@ impl RevisionService {
             title: Set(title),
             alt_title: Set(alt_title),
             slug: Set(slug),
-            tags: Set(json!([])),
+            tags: Set(tags),
             file_id: Set(Some(file_id)),
             ..Default::default()
         };
