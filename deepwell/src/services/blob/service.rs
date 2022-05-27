@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use s3::serde_types::HeadObjectResult;
 use std::str;
 
 #[derive(Debug)]
@@ -34,19 +35,40 @@ impl BlobService {
         let hash = sha512_hash(data);
         let hex_hash = hash_to_hex(&hash);
 
-        // TODO check if it exists
+        match Self::head(ctx, &hex_hash).await? {
+            // Blob exists, copy metadata and return that
+            Some(result) => {
+                // Content-Type header should be passed
+                let mime = result.content_type.ok_or(Error::RemoteOperationFailed)?;
 
-        // Determine MIME type for the new file
-        let mime = mime_type(data.to_vec()).await?;
+                Ok(CreateBlobOutput {
+                    hash,
+                    mime,
+                    created: false,
+                })
+            }
 
-        // TODO insert into file_blob table
+            // Blob doesn't exist, insert it
+            None => {
+                // Determine MIME type for the new file
+                let mime = mime_type(data.to_vec()).await?;
 
-        let (return_data, status) = bucket.put_object_with_content_type(&hex_hash, data, &mime).await?;
+                // TODO insert into file_blob table
 
-        // We assume all unexpected statuses are errors, even if 1XX or 2XX
-        match status {
-            200 => Ok(CreateBlobOutput { hash, mime }),
-            _ => s3_error(&return_data, status, "creating S3 blob"),
+                let (return_data, status) = bucket
+                    .put_object_with_content_type(&hex_hash, data, &mime)
+                    .await?;
+
+                // We assume all unexpected statuses are errors, even if 1XX or 2XX
+                match status {
+                    200 => Ok(CreateBlobOutput {
+                        hash,
+                        mime,
+                        created: true,
+                    }),
+                    _ => s3_error(&return_data, status, "creating S3 blob"),
+                }
+            }
         }
     }
 
@@ -77,14 +99,22 @@ impl BlobService {
     }
 
     pub async fn exists(ctx: &ServiceContext<'_>, hash: &[u8]) -> Result<bool> {
-        let bucket = ctx.s3_bucket();
         let hex_hash = hash_to_hex(hash);
-        let (data, status) = bucket.get_object(&hex_hash).await?;
+        let result = Self::head(ctx, &hex_hash).await?;
+        Ok(result.is_some())
+    }
+
+    async fn head(
+        ctx: &ServiceContext<'_>,
+        hex_hash: &str,
+    ) -> Result<Option<HeadObjectResult>> {
+        let bucket = ctx.s3_bucket();
+        let (result, status) = bucket.head_object(hex_hash).await?;
 
         match status {
-            200 | 204 => Ok(true),
-            404 => Ok(false),
-            _ => s3_error(&data, status, "fetching S3 blob"),
+            200 | 204 => Ok(Some(result)),
+            404 => Ok(None),
+            _ => s3_error(&[], status, "heading S3 blob"),
         }
     }
 

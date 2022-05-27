@@ -24,6 +24,7 @@ use super::prelude::*;
 pub struct CreateBlobOutput {
     pub hash: Hash,
     pub mime: String,
+    pub created: bool,
 }
 
 // TODO
