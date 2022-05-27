@@ -198,6 +198,7 @@ async fn filter_and_populate_revision(
         mut alt_title,
         slug,
         tags,
+        file_id,
     } = model;
 
     // Convert string list fields
@@ -252,6 +253,7 @@ async fn filter_and_populate_revision(
         alt_title,
         slug,
         tags,
+        file_id_changed: file_id,
     })
 }
 

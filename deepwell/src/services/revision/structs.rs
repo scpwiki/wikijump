@@ -120,4 +120,5 @@ pub struct PageRevisionModelFiltered {
     pub alt_title: Option<String>,
     pub slug: Option<String>,
     pub tags: Option<Vec<String>>,
+    pub file_id_changed: Option<String>,
 }
