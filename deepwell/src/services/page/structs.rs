@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::models::sea_orm_active_enums::RevisionType;
+use crate::models::sea_orm_active_enums::PageRevisionType;
 use crate::services::revision::CreateRevisionOutput;
 use ftml::parsing::ParseWarning;
 use sea_orm::entity::prelude::DateTimeWithTimeZone;
@@ -58,7 +58,7 @@ pub struct GetPageOutput<'a> {
     pub page_category_slug: &'a str,
     pub discussion_thread_id: Option<i64>,
     pub revision_id: i64,
-    pub revision_type: RevisionType,
+    pub revision_type: PageRevisionType,
     pub revision_created_at: DateTimeWithTimeZone,
     pub revision_number: i32,
     pub revision_user_id: i64,

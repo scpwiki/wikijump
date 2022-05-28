@@ -22,11 +22,14 @@
 #![allow(dead_code, unused_variables)]
 
 use super::prelude::*;
-use crate::models::file::{self, Entity as File};
-use crate::models::sea_orm_active_enums::RevisionType;
+use crate::models::file::{self, Entity as File, Model as FileModel};
+use crate::models::file_revision::{
+    self, Entity as FileRevision, Model as FileRevisionModel,
+};
+use crate::models::sea_orm_active_enums::FileRevisionType;
 use crate::services::blob::CreateBlobOutput;
-use crate::services::revision::CreateFileRevision;
-use crate::services::{BlobService, RevisionService};
+use crate::services::BlobService;
+use serde_json::json;
 
 #[derive(Debug)]
 pub struct FileService;
@@ -40,7 +43,7 @@ impl FileService {
         ctx: &ServiceContext<'_>,
         input: CreateFile,
         data: &[u8],
-    ) -> Result<CreateFileOutput> {
+    ) -> Result<FileModel> {
         let txn = ctx.transaction();
 
         tide::log::info!(
@@ -91,34 +94,32 @@ impl FileService {
 
         let model = file::ActiveModel {
             file_id: Set(file_id.clone()),
-            name: Set(name),
-            s3_hash: Set(Some(hash.to_vec())),
-            user_id: Set(user_id),
+            name: Set(name.clone()),
             page_id: Set(page_id),
-            size_hint: Set(size_hint),
-            mime_hint: Set(mime),
-            licensing: Set(licensing),
             ..Default::default()
         };
         let file = model.insert(txn).await?;
 
-        // Add new page revision
-        let previous = RevisionService::get_latest(ctx, site_id, page_id).await?;
-        let revision = RevisionService::create_file_revision(
-            ctx,
-            CreateFileRevision {
-                site_id,
-                page_id,
-                user_id,
-                file_id,
-                file_change: RevisionType::FileCreate,
-                comments: revision_comments,
-            },
-            previous,
-        )
-        .await?;
+        // Add new file revision
+        // TODO
 
-        Ok(CreateFileOutput { file, revision })
+        let model = file_revision::ActiveModel {
+            revision_type: Set(FileRevisionType::Create),
+            revision_number: Set(0),
+            file_id: Set(file_id.clone()),
+            page_id: Set(page_id),
+            user_id: Set(user_id),
+            name: Set(name),
+            s3_hash: Set(hash.to_vec()),
+            size_hint: Set(size_hint),
+            mime_hint: Set(mime),
+            licensing: Set(licensing),
+            changes: Set(json!(["name", "blob", "mime", "licensing"])),
+            ..Default::default()
+        };
+        model.insert(txn).await?;
+
+        Ok(file)
     }
 
     /// Updates metadata associated with this file.
@@ -140,7 +141,7 @@ impl FileService {
         ctx: &ServiceContext<'_>,
         file_id: String,
         input: DeleteFile,
-    ) -> Result<DeleteFileOutput> {
+    ) -> Result<FileModel> {
         let txn = ctx.transaction();
 
         let DeleteFile {
@@ -163,23 +164,10 @@ impl FileService {
         };
         let file = model.update(txn).await?;
 
-        // Add new page revision
-        let previous = RevisionService::get_latest(ctx, site_id, page_id).await?;
-        let revision = RevisionService::create_file_revision(
-            ctx,
-            CreateFileRevision {
-                site_id,
-                page_id,
-                user_id,
-                file_id,
-                file_change: RevisionType::FileDelete,
-                comments: revision_comments,
-            },
-            previous,
-        )
-        .await?;
+        // Add new file revision
+        // TODO
 
-        Ok(DeleteFileOutput { file, revision })
+        Ok(file)
     }
 
     /// Gets an uploaded file that has been, including its contents if requested.

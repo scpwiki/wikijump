@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::models::sea_orm_active_enums::RevisionType;
+use crate::models::sea_orm_active_enums::PageRevisionType;
 use ftml::parsing::ParseWarning;
 use sea_orm::prelude::DateTimeWithTimeZone;
 use std::num::NonZeroI32;
@@ -59,16 +59,6 @@ pub struct CreateResurrectionRevision {
     pub user_id: i64,
     pub comments: String,
     pub new_slug: String,
-}
-
-#[derive(Debug)]
-pub struct CreateFileRevision {
-    pub site_id: i64,
-    pub page_id: i64,
-    pub user_id: i64,
-    pub file_id: String,
-    pub file_change: RevisionType,
-    pub comments: String,
 }
 
 #[derive(Serialize, Debug)]
@@ -113,7 +103,7 @@ pub struct RevisionCountOutput {
 #[derive(Serialize, Debug)]
 pub struct PageRevisionModelFiltered {
     pub revision_id: i64,
-    pub revision_type: RevisionType,
+    pub revision_type: PageRevisionType,
     pub created_at: DateTimeWithTimeZone,
     pub revision_number: i32,
     pub page_id: i64,
@@ -130,5 +120,4 @@ pub struct PageRevisionModelFiltered {
     pub alt_title: Option<String>,
     pub slug: Option<String>,
     pub tags: Option<Vec<String>>,
-    pub file_id_changed: Option<String>,
 }
