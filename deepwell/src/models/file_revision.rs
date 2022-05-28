@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 pub struct Model {
     #[sea_orm(primary_key)]
     pub revision_id: i64,
-    pub revision_type: Option<FileRevisionType>,
+    pub revision_type: FileRevisionType,
     pub created_at: DateTimeWithTimeZone,
     pub revision_number: i32,
     #[sea_orm(column_type = "Text")]

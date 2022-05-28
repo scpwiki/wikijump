@@ -57,7 +57,7 @@ class DeepwellFile extends Migration
         DB::statement("
             CREATE TABLE file_revision (
                 revision_id BIGSERIAL PRIMARY KEY,
-                revision_type file_revision_type,
+                revision_type file_revision_type NOT NULL,
                 created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
                 revision_number INTEGER NOT NULL,
                 file_id TEXT NOT NULL REFERENCES file(file_id),
