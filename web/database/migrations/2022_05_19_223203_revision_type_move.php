@@ -14,7 +14,7 @@ class RevisionTypeMove extends Migration
      */
     public function up()
     {
-        DB::statement("ALTER TYPE revision_type ADD VALUE IF NOT EXISTS 'move'");
+        DB::statement("ALTER TYPE page_revision_type ADD VALUE IF NOT EXISTS 'move'");
     }
 
     /**

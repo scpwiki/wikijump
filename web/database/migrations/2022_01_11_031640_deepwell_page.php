@@ -77,7 +77,7 @@ class DeepwellPage extends Migration
 
         // Create enum types for use in page_revision
         DB::statement("
-            CREATE TYPE revision_type AS ENUM (
+            CREATE TYPE page_revision_type AS ENUM (
                 'regular',
                 'create',
                 'delete',
@@ -86,7 +86,7 @@ class DeepwellPage extends Migration
         ");
 
         DB::statement("
-            CREATE TYPE revision_change AS ENUM (
+            CREATE TYPE page_revision_change AS ENUM (
                 'wikitext',
                 'title',
                 'alt_title',
@@ -101,7 +101,7 @@ class DeepwellPage extends Migration
         DB::statement("
             CREATE TABLE page_revision (
                 revision_id BIGSERIAL PRIMARY KEY,
-                revision_type revision_type NOT NULL DEFAULT 'regular',
+                revision_type page_revision_type NOT NULL DEFAULT 'regular',
                 created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
                 revision_number INT NOT NULL,
                 page_id BIGINT NOT NULL REFERENCES page(page_id),
@@ -122,7 +122,7 @@ class DeepwellPage extends Migration
                 -- NOTE: json_array_to_text_array() is needed while we're still on JSON
 
                 -- Ensure array only contains valid values
-                -- Change this to use the 'revision_change' type later
+                -- Change this to use the 'page_revision_change' type later
                 CHECK (json_array_to_text_array(changes) <@ '{
                     \"wikitext\",
                     \"title\",
