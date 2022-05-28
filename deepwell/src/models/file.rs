@@ -13,13 +13,7 @@ pub struct Model {
     pub deleted_at: Option<DateTimeWithTimeZone>,
     #[sea_orm(column_type = "Text")]
     pub name: String,
-    pub s3_hash: Option<Vec<u8>>,
-    pub user_id: i64,
     pub page_id: i64,
-    pub size_hint: i64,
-    #[sea_orm(column_type = "Text")]
-    pub mime_hint: String,
-    pub licensing: Json,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -32,16 +26,8 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     Page,
-    #[sea_orm(
-        belongs_to = "super::users::Entity",
-        from = "Column::UserId",
-        to = "super::users::Column::Id",
-        on_update = "NoAction",
-        on_delete = "NoAction"
-    )]
-    Users,
-    #[sea_orm(has_many = "super::page_revision::Entity")]
-    PageRevision,
+    #[sea_orm(has_many = "super::file_revision::Entity")]
+    FileRevision,
 }
 
 impl Related<super::page::Entity> for Entity {
@@ -50,15 +36,9 @@ impl Related<super::page::Entity> for Entity {
     }
 }
 
-impl Related<super::users::Entity> for Entity {
+impl Related<super::file_revision::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::Users.def()
-    }
-}
-
-impl Related<super::page_revision::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::PageRevision.def()
+        Relation::FileRevision.def()
     }
 }
 

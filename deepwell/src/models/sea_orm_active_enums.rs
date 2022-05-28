@@ -5,19 +5,28 @@ use sea_orm::entity::prelude::*;
 #[derive(
     Serialize, Deserialize, Debug, Copy, Clone, PartialEq, EnumIter, DeriveActiveEnum,
 )]
+#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "file_revision_type")]
 #[serde(rename_all = "camelCase")]
-#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "revision_type")]
-pub enum RevisionType {
+pub enum FileRevisionType {
     #[sea_orm(string_value = "create")]
     Create,
     #[sea_orm(string_value = "delete")]
     Delete,
-    #[sea_orm(string_value = "file_create")]
-    FileCreate,
-    #[sea_orm(string_value = "file_delete")]
-    FileDelete,
-    #[sea_orm(string_value = "file_update")]
-    FileUpdate,
+    #[sea_orm(string_value = "undelete")]
+    Undelete,
+    #[sea_orm(string_value = "update")]
+    Update,
+}
+#[derive(
+    Serialize, Deserialize, Debug, Copy, Clone, PartialEq, EnumIter, DeriveActiveEnum,
+)]
+#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "page_revision_type")]
+#[serde(rename_all = "camelCase")]
+pub enum PageRevisionType {
+    #[sea_orm(string_value = "create")]
+    Create,
+    #[sea_orm(string_value = "delete")]
+    Delete,
     #[sea_orm(string_value = "move")]
     Move,
     #[sea_orm(string_value = "regular")]

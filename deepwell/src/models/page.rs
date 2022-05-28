@@ -54,6 +54,8 @@ pub enum Relation {
     PageVote,
     #[sea_orm(has_many = "super::file::Entity")]
     File,
+    #[sea_orm(has_many = "super::file_revision::Entity")]
+    FileRevision,
 }
 
 impl Related<super::forum_thread::Entity> for Entity {
@@ -101,6 +103,12 @@ impl Related<super::page_vote::Entity> for Entity {
 impl Related<super::file::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::File.def()
+    }
+}
+
+impl Related<super::file_revision::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::FileRevision.def()
     }
 }
 

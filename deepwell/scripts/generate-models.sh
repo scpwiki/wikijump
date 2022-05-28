@@ -14,6 +14,7 @@ function join_arr() {
 
 tables=(
 	file
+	file_revision
 	forum_category
 	forum_group
 	forum_post
