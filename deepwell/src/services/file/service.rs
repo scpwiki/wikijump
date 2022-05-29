@@ -57,30 +57,7 @@ impl FileService {
             user_id,
             licensing,
         } = input;
-
-        // Check file doesn't already exist
-        {
-            let result = File::find()
-                .filter(
-                    Condition::all()
-                        .add(file::Column::Name.eq(name.as_str()))
-                        .add(file::Column::PageId.eq(page_id))
-                        .add(file::Column::DeletedAt.is_null()),
-                )
-                .one(txn)
-                .await?;
-
-            if let Some(file) = result {
-                tide::log::error!(
-                    "File {} with name '{}' already exists on page ID {}, cannot create",
-                    file.file_id,
-                    name,
-                    page_id,
-                );
-
-                return Err(Error::Conflict);
-            }
-        }
+        Self::check_conflicts(ctx, &name, page_id).await?;
 
         // Upload to S3, get derived metadata
         let CreateBlobOutput { hash, mime, .. } = BlobService::create(ctx, data).await?;
@@ -223,5 +200,38 @@ impl FileService {
         // TODO hard delete BlobService
 
         todo!()
+    }
+
+    /// Checks to see if a file already exists at the name specified.
+    ///
+    /// If so, this method fails with `Error::Conflict`. Otherwise it returns nothing.
+    async fn check_conflicts(
+        ctx: &ServiceContext<'_>,
+        name: &str,
+        page_id: i64,
+    ) -> Result<()> {
+        let result = File::find()
+            .filter(
+                Condition::all()
+                    .add(file::Column::Name.eq(name))
+                    .add(file::Column::PageId.eq(page_id))
+                    .add(file::Column::DeletedAt.is_null()),
+            )
+            .one(txn)
+            .await?;
+
+        match result {
+            None => Ok(()),
+            Some(file) => {
+                tide::log::error!(
+                    "File {} with name '{}' already exists on page ID {}, cannot create",
+                    file.file_id,
+                    name,
+                    page_id,
+                );
+
+                Err(Error::Conflict)
+            }
+        }
     }
 }
