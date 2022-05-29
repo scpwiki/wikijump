@@ -18,9 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// TEMP, until https://scuttle.atlassian.net/browse/WJ-1032
-#![allow(dead_code, unused_variables)]
-
 use super::prelude::*;
 use crate::models::file::{self, Entity as File, Model as FileModel};
 use crate::models::file_revision::{
