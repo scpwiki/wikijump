@@ -73,6 +73,7 @@ pub use self::blob::BlobService;
 pub use self::category::CategoryService;
 pub use self::context::ServiceContext;
 pub use self::error::*;
+pub use self::file::FileService;
 pub use self::job::JobService;
 pub use self::link::LinkService;
 pub use self::outdate::OutdateService;
