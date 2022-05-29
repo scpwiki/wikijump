@@ -167,6 +167,18 @@ impl FileService {
         Ok(file)
     }
 
+    // TODO
+    /// Restores a deleted file.
+    ///
+    /// This undeletes a file, moving it from the deleted sphere to the specified location.
+    #[allow(dead_code)]
+    pub async restore(
+        _ctx: &ServiceContext<'_>,
+        _file_id: String,
+    ) -> Result<()> {
+        todo!()
+    }
+
     /// Gets an uploaded file that has been, including its contents if requested.
     pub async fn get_optional(
         ctx: &ServiceContext<'_>,
