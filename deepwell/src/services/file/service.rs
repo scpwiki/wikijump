@@ -172,7 +172,7 @@ impl FileService {
     ///
     /// This undeletes a file, moving it from the deleted sphere to the specified location.
     #[allow(dead_code)]
-    pub async restore(
+    pub async fn restore(
         _ctx: &ServiceContext<'_>,
         _file_id: String,
     ) -> Result<()> {
