@@ -210,6 +210,8 @@ impl FileService {
         name: &str,
         page_id: i64,
     ) -> Result<()> {
+        let txn = ctx.transaction();
+
         let result = File::find()
             .filter(
                 Condition::all()
