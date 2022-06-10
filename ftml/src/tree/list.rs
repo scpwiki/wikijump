@@ -55,7 +55,7 @@ impl ListItem<'_> {
                 elements: elements_to_owned(elements),
             },
             ListItem::SubList { element } => {
-                let element: &Element = &*element;
+                let element: &Element = element;
 
                 ListItem::SubList {
                     element: Box::new(element.to_owned()),
