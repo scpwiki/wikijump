@@ -73,7 +73,7 @@
     "eslint-plugin-tsdoc": "^0.2.16",
     "jsdom": "^19.0.0",
     "nabs": "^0.3.0",
-    "package-json": "^7.0.0",
+    "package-json": "^8.0.0",
     "picocolors": "^1.0.0",
     "prettier": "^2.6.2",
     "prettier-plugin-jsdoc": "^0.3.38",
