@@ -20,11 +20,9 @@
 
 use super::prelude::*;
 use crate::models::file::{self, Entity as File, Model as FileModel};
-use crate::models::sea_orm_active_enums::FileRevisionType;
 use crate::services::blob::CreateBlobOutput;
 use crate::services::file_revision::CreateFirstFileRevision;
 use crate::services::{BlobService, FileRevisionService};
-use serde_json::json;
 
 #[derive(Debug)]
 pub struct FileService;
@@ -74,9 +72,10 @@ impl FileService {
         // Add new file revision
         let revision_output = FileRevisionService::create_first(
             ctx,
-            page_id,
-            file_id.clone(),
             CreateFirstFileRevision {
+                site_id,
+                page_id,
+                file_id: file_id.clone(),
                 user_id,
                 name,
                 s3_hash: hash,

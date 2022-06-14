@@ -145,9 +145,10 @@ impl FileRevisionService {
     /// If the given previous revision is for a different file or page, this method will panic.
     pub async fn create_first(
         ctx: &ServiceContext<'_>,
-        page_id: i64,
-        file_id: String,
         CreateFirstFileRevision {
+            page_id,
+            site_id,
+            file_id,
             user_id,
             name,
             s3_hash,

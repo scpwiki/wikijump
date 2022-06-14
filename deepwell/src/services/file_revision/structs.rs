@@ -53,6 +53,9 @@ pub struct CreateFileRevisionOutput {
 
 #[derive(Debug)]
 pub struct CreateFirstFileRevision {
+    pub site_id: i64,
+    pub page_id: i64,
+    pub file_id: String,
     pub user_id: i64,
     pub name: String,
     pub s3_hash: Hash,
