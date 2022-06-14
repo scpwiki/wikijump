@@ -20,12 +20,10 @@
 
 use super::prelude::*;
 use crate::models::file::{self, Entity as File, Model as FileModel};
-use crate::models::file_revision::{
-    self, Entity as FileRevision, Model as FileRevisionModel,
-};
 use crate::models::sea_orm_active_enums::FileRevisionType;
 use crate::services::blob::CreateBlobOutput;
-use crate::services::BlobService;
+use crate::services::file_revision::CreateFirstFileRevision;
+use crate::services::{BlobService, FileRevisionService};
 use serde_json::json;
 
 #[derive(Debug)]
@@ -38,25 +36,24 @@ impl FileService {
     /// meaning that duplicates are not uploaded twice.
     pub async fn create(
         ctx: &ServiceContext<'_>,
-        input: CreateFile,
-        data: &[u8],
-    ) -> Result<FileModel> {
-        let txn = ctx.transaction();
-
-        tide::log::info!(
-            "Creating file with name '{}', content length {}",
-            input.name,
-            data.len(),
-        );
-
-        let CreateFile {
+        CreateFile {
             revision_comments,
             name,
             site_id,
             page_id,
             user_id,
             licensing,
-        } = input;
+        }: CreateFile,
+        data: &[u8],
+    ) -> Result<()> {
+        let txn = ctx.transaction();
+
+        tide::log::info!(
+            "Creating file with name '{}', content length {}",
+            name,
+            data.len(),
+        );
+
         Self::check_conflicts(ctx, &name, page_id).await?;
 
         // Upload to S3, get derived metadata
@@ -75,25 +72,25 @@ impl FileService {
         let file = model.insert(txn).await?;
 
         // Add new file revision
+        let revision_output = FileRevisionService::create_first(
+            ctx,
+            page_id,
+            file_id.clone(),
+            CreateFirstFileRevision {
+                user_id,
+                name,
+                s3_hash: hash,
+                size_hint,
+                mime_hint: mime,
+                licensing,
+                comments: revision_comments,
+            },
+        )
+        .await?;
+
         // TODO
 
-        let model = file_revision::ActiveModel {
-            revision_type: Set(FileRevisionType::Create),
-            revision_number: Set(0),
-            file_id: Set(file_id.clone()),
-            page_id: Set(page_id),
-            user_id: Set(user_id),
-            name: Set(name),
-            s3_hash: Set(hash.to_vec()),
-            size_hint: Set(size_hint),
-            mime_hint: Set(mime),
-            licensing: Set(licensing),
-            changes: Set(json!(["name", "blob", "mime", "licensing"])),
-            ..Default::default()
-        };
-        model.insert(txn).await?;
-
-        Ok(file)
+        Ok(todo!())
     }
 
     /// Updates metadata associated with this file.
@@ -149,10 +146,7 @@ impl FileService {
     ///
     /// This undeletes a file, moving it from the deleted sphere to the specified location.
     #[allow(dead_code)]
-    pub async fn restore(
-        _ctx: &ServiceContext<'_>,
-        _file_id: String,
-    ) -> Result<()> {
+    pub async fn restore(_ctx: &ServiceContext<'_>, _file_id: String) -> Result<()> {
         todo!()
     }
 

@@ -127,6 +127,7 @@ impl RevisionService {
         //
         // We check the values so that the only listed "changes"
         // are those that actually are different.
+
         if let ProvidedValue::Set(new_title) = body.title {
             if title != new_title {
                 changes.push("title");

@@ -21,6 +21,8 @@
 mod prelude {
     pub use super::super::prelude::*;
     pub use super::structs::*;
+    pub use crate::hash::Hash;
+    pub use crate::models::sea_orm_active_enums::FileRevisionType;
 }
 
 mod service;

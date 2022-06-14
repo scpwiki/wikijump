@@ -18,4 +18,53 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// TODO
+use super::prelude::*;
+
+#[derive(Debug)]
+pub struct CreateFileRevision {
+    pub file_id: String,
+    pub page_id: i64,
+    pub user_id: i64,
+    pub comments: String,
+    pub body: CreateFileRevisionBody,
+}
+
+#[derive(Debug, Default)]
+pub struct CreateFileRevisionBody {
+    pub page_id: ProvidedValue<i64>,
+    pub name: ProvidedValue<String>,
+    pub blob: ProvidedValue<FileBlob>,
+    pub mime_hint: ProvidedValue<String>,
+    pub licensing: ProvidedValue<serde_json::Value>,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub struct FileBlob {
+    pub s3_hash: Hash,
+    pub size_hint: i64,
+}
+
+#[derive(Serialize, Debug, Default)]
+#[serde(rename_all = "camelCase", default)]
+pub struct CreateFileRevisionOutput {
+    pub file_revision_id: i64,
+    pub file_revision_number: i32,
+}
+
+#[derive(Debug)]
+pub struct CreateFirstFileRevision {
+    pub user_id: i64,
+    pub name: String,
+    pub s3_hash: Hash,
+    pub size_hint: i64,
+    pub mime_hint: String,
+    pub licensing: serde_json::Value,
+    pub comments: String,
+}
+
+#[derive(Serialize, Debug, Default)]
+#[serde(rename_all = "camelCase", default)]
+pub struct CreateFirstFileRevisionOutput {
+    pub file_id: String,
+    pub file_revision_id: i64,
+}
