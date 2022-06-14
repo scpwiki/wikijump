@@ -19,6 +19,7 @@
  */
 
 use crate::models::file::Model as FileModel;
+use crate::services::file_revision::CreateFirstFileRevisionOutput;
 
 #[derive(Debug)]
 pub struct CreateFile {
@@ -28,6 +29,22 @@ pub struct CreateFile {
     pub page_id: i64,
     pub user_id: i64,
     pub licensing: serde_json::Value, // TODO
+}
+
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateFileOutput {
+    file_id: String,
+    file_revision_id: i64,
+}
+
+impl From<CreateFirstFileRevisionOutput> for CreateFileOutput {
+    fn from(output: CreateFirstFileRevisionOutput) -> CreateFileOutput {
+        CreateFileOutput {
+            file_id: output.file_id,
+            file_revision_id: output.file_revision_id,
+        }
+    }
 }
 
 #[derive(Serialize, Debug)]

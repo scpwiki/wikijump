@@ -43,7 +43,7 @@ impl FileService {
             licensing,
         }: CreateFile,
         data: &[u8],
-    ) -> Result<()> {
+    ) -> Result<CreateFileOutput> {
         let txn = ctx.transaction();
 
         tide::log::info!(
@@ -67,7 +67,7 @@ impl FileService {
             page_id: Set(page_id),
             ..Default::default()
         };
-        let file = model.insert(txn).await?;
+        model.insert(txn).await?;
 
         // Add new file revision
         let revision_output = FileRevisionService::create_first(
@@ -87,9 +87,7 @@ impl FileService {
         )
         .await?;
 
-        // TODO
-
-        Ok(todo!())
+        Ok(revision_output.into())
     }
 
     /// Updates metadata associated with this file.

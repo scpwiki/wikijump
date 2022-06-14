@@ -65,8 +65,7 @@ pub struct CreateFirstFileRevision {
     pub comments: String,
 }
 
-#[derive(Serialize, Debug, Default)]
-#[serde(rename_all = "camelCase", default)]
+#[derive(Debug, Default)]
 pub struct CreateFirstFileRevisionOutput {
     pub file_id: String,
     pub file_revision_id: i64,
