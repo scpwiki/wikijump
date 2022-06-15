@@ -61,9 +61,12 @@ pub type UpdateFileOutput = CreateFileRevisionOutput;
 pub struct MoveFile {
     pub revision_comments: String,
     pub user_id: i64,
+    pub name: Option<String>,
     pub current_page_id: i64,
-    pub new_page_id: i64,
+    pub destination_page_id: i64,
 }
+
+pub type MoveFileOutput = CreateFileRevisionOutput;
 
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]

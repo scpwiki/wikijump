@@ -42,7 +42,7 @@ impl FileRevisionService {
         ctx: &ServiceContext<'_>,
         CreateFileRevision {
             site_id,
-            page_id,
+            mut page_id,
             file_id,
             user_id,
             comments,
@@ -68,6 +68,13 @@ impl FileRevisionService {
         //
         // We check the values so that the only listed "changes"
         // are those that actually are different.
+
+        if let ProvidedValue::Set(new_page_id) = body.page_id {
+            if page_id != new_page_id {
+                changes.push("page");
+                page_id = new_page_id;
+            }
+        }
 
         if let ProvidedValue::Set(new_name) = body.name {
             if name != new_name {
@@ -171,7 +178,7 @@ impl FileRevisionService {
 
         // Effective constant, number of changes for the first revision.
         // The first revision is always considered to have changed everything.
-        let all_changes = json!(["name", "blob", "mime", "licensing"]);
+        let all_changes = json!(["page", "name", "blob", "mime", "licensing"]);
 
         // Insert the first revision into the table
         let model = file_revision::ActiveModel {

@@ -168,10 +168,10 @@ impl FileService {
                 user_id,
                 comments: revision_comments,
                 body: CreateFileRevisionBody {
-                    page_id: ProvidedValue::Unset, // For moving to a different page
                     name,
                     blob,
                     licensing,
+                    ..Default::default()
                 },
             },
             previous,
@@ -187,19 +187,65 @@ impl FileService {
     ///       the latter is a reserved word in Rust.
     pub async fn rename(
         ctx: &ServiceContext<'_>,
-        page_id: String,
+        site_id: i64,
+        file_id: String,
         input: MoveFile,
-    ) -> Result<FileModel> {
+    ) -> Result<Option<MoveFileOutput>> {
         let txn = ctx.transaction();
 
         let MoveFile {
             revision_comments,
             user_id,
+            name,
             current_page_id,
-            new_page_id,
+            destination_page_id,
         } = input;
 
-        todo!()
+        let previous =
+            FileRevisionService::get_latest(ctx, current_page_id, &file_id).await?;
+
+        // Get destination filename
+        let name = name.unwrap_or_else(|| previous.name.clone());
+
+        tide::log::info!(
+            "Moving file with ID '{}' from page ID {} to {} ",
+            file_id,
+            current_page_id,
+            destination_page_id,
+        );
+
+        // Ensure there isn't a file with this name on the destination page
+        Self::check_conflicts(ctx, destination_page_id, &name).await?;
+
+        // Update file metadata
+        let model = file::ActiveModel {
+            file_id: Set(file_id.clone()),
+            updated_at: Set(Some(now())),
+            name: Set(name),
+            page_id: Set(destination_page_id),
+            ..Default::default()
+        };
+        model.update(txn).await?;
+
+        // Add new file revision
+        let revision_output = FileRevisionService::create(
+            ctx,
+            CreateFileRevision {
+                site_id,
+                page_id: current_page_id,
+                file_id,
+                user_id,
+                comments: revision_comments,
+                body: CreateFileRevisionBody {
+                    page_id: ProvidedValue::Set(destination_page_id),
+                    ..Default::default()
+                },
+            },
+            previous,
+        )
+        .await?;
+
+        Ok(revision_output)
     }
 
     /// Deletes this file.

@@ -32,7 +32,7 @@ pub struct CreateFileRevision {
 
 #[derive(Debug, Default)]
 pub struct CreateFileRevisionBody {
-    pub page_id: ProvidedValue<i64>,
+    pub page_id: ProvidedValue<i64>, // for changing the page this file is on
     pub name: ProvidedValue<String>,
     pub blob: ProvidedValue<FileBlob>,
     pub licensing: ProvidedValue<serde_json::Value>,
