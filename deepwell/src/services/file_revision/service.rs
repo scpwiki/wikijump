@@ -128,7 +128,7 @@ impl FileRevisionService {
         // Insert the new revision into the table
         let changes = string_list_to_json(&changes)?;
         let model = file_revision::ActiveModel {
-            revision_type: Set(FileRevisionType::Create),
+            revision_type: Set(FileRevisionType::Update),
             revision_number: Set(0),
             file_id: Set(file_id.clone()),
             page_id: Set(page_id),
