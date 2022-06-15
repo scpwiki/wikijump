@@ -81,6 +81,7 @@ class DeepwellFile extends Migration
                 -- Ensure array only contains valid values
                 -- Change this to use the 'page_revision_change' type later
                 CHECK (json_array_to_text_array(changes) <@ '{
+                    \"page\",
                     \"name\",
                     \"blob\",
                     \"mime\",
@@ -95,6 +96,7 @@ class DeepwellFile extends Migration
                 CHECK (
                     revision_type != 'create' OR
                     json_array_to_text_array(changes) @> '{
+                        \"page\",
                         \"name\",
                         \"blob\",
                         \"mime\",
