@@ -93,7 +93,7 @@ impl FileService {
         )
         .await?;
 
-        Ok(revision_output.into())
+        Ok(revision_output)
     }
 
     /// Updates a file, including the ability to upload a new version.
@@ -107,7 +107,7 @@ impl FileService {
             user_id,
             body,
         }: UpdateFile,
-    ) -> Result<()> {
+    ) -> Result<Option<UpdateFileOutput>> {
         let txn = ctx.transaction();
         let previous = FileRevisionService::get_latest(ctx, page_id, &file_id).await?;
 
@@ -178,7 +178,7 @@ impl FileService {
         )
         .await?;
 
-        todo!()
+        Ok(revision_output)
     }
 
     /// Moves a file from from one page to another.
