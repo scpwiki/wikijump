@@ -19,7 +19,9 @@
  */
 
 use crate::models::file::Model as FileModel;
-use crate::services::file_revision::CreateFirstFileRevisionOutput;
+use crate::services::file_revision::{
+    CreateFileRevisionOutput, CreateFirstFileRevisionOutput,
+};
 use crate::web::ProvidedValue;
 
 #[derive(Deserialize, Debug)]
@@ -32,21 +34,7 @@ pub struct CreateFile {
     pub licensing: serde_json::Value, // TODO
 }
 
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct CreateFileOutput {
-    file_id: String,
-    file_revision_id: i64,
-}
-
-impl From<CreateFirstFileRevisionOutput> for CreateFileOutput {
-    fn from(output: CreateFirstFileRevisionOutput) -> CreateFileOutput {
-        CreateFileOutput {
-            file_id: output.file_id,
-            file_revision_id: output.file_revision_id,
-        }
-    }
-}
+pub type CreateFileOutput = CreateFirstFileRevisionOutput;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -65,6 +53,8 @@ pub struct UpdateFileBody {
     pub data: ProvidedValue<Vec<u8>>,
     pub licensing: ProvidedValue<serde_json::Value>,
 }
+
+pub type UpdateFileOutput = CreateFileRevisionOutput;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]

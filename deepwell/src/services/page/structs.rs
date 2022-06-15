@@ -86,14 +86,6 @@ pub struct EditPage {
     pub user_id: i64,
 }
 
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct EditPageOutput {
-    revision_id: i64,
-    revision_number: i32,
-    parser_warnings: Option<Vec<ParseWarning>>,
-}
-
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct MovePage {
@@ -151,22 +143,7 @@ pub struct RollbackPage {
     pub user_id: i64,
 }
 
-impl From<CreateRevisionOutput> for EditPageOutput {
-    #[inline]
-    fn from(
-        CreateRevisionOutput {
-            revision_id,
-            revision_number,
-            parser_warnings,
-        }: CreateRevisionOutput,
-    ) -> EditPageOutput {
-        EditPageOutput {
-            revision_id,
-            revision_number,
-            parser_warnings,
-        }
-    }
-}
+pub type EditPageOutput = CreateRevisionOutput;
 
 impl From<(CreateRevisionOutput, i64)> for DeletePageOutput {
     #[inline]
