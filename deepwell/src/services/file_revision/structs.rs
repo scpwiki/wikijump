@@ -22,8 +22,8 @@ use super::prelude::*;
 
 #[derive(Debug)]
 pub struct CreateFileRevision {
-    pub file_id: String,
     pub page_id: i64,
+    pub file_id: String,
     pub user_id: i64,
     pub comments: String,
     pub body: CreateFileRevisionBody,
@@ -34,7 +34,6 @@ pub struct CreateFileRevisionBody {
     pub page_id: ProvidedValue<i64>,
     pub name: ProvidedValue<String>,
     pub blob: ProvidedValue<FileBlob>,
-    pub mime_hint: ProvidedValue<String>,
     pub licensing: ProvidedValue<serde_json::Value>,
 }
 
@@ -42,6 +41,7 @@ pub struct CreateFileRevisionBody {
 pub struct FileBlob {
     pub s3_hash: Hash,
     pub size_hint: i64,
+    pub mime_hint: String,
 }
 
 #[derive(Serialize, Debug, Default)]

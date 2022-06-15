@@ -25,6 +25,7 @@ use sea_orm::entity::prelude::DateTimeWithTimeZone;
 pub struct CreateBlobOutput {
     pub hash: Hash,
     pub mime: String,
+    pub size: i64,
     pub created: bool,
 }
 

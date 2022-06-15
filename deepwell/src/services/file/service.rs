@@ -21,7 +21,9 @@
 use super::prelude::*;
 use crate::models::file::{self, Entity as File, Model as FileModel};
 use crate::services::blob::CreateBlobOutput;
-use crate::services::file_revision::CreateFirstFileRevision;
+use crate::services::file_revision::{
+    CreateFileRevision, CreateFileRevisionBody, CreateFirstFileRevision, FileBlob,
+};
 use crate::services::{BlobService, FileRevisionService};
 
 #[derive(Debug)]
@@ -34,11 +36,11 @@ impl FileService {
     /// meaning that duplicates are not uploaded twice.
     pub async fn create(
         ctx: &ServiceContext<'_>,
+        page_id: i64,
         CreateFile {
             revision_comments,
             name,
             site_id,
-            page_id,
             user_id,
             licensing,
         }: CreateFile,
@@ -52,14 +54,18 @@ impl FileService {
             data.len(),
         );
 
-        Self::check_conflicts(ctx, &name, page_id).await?;
+        Self::check_conflicts(ctx, page_id, &name).await?;
 
         // Upload to S3, get derived metadata
-        let CreateBlobOutput { hash, mime, .. } = BlobService::create(ctx, data).await?;
+        let CreateBlobOutput {
+            hash,
+            mime,
+            size,
+            created: _,
+        } = BlobService::create(ctx, data).await?;
 
-        // Insert into database
+        // Add new file
         let file_id = ctx.cuid()?;
-        let size_hint: i64 = data.len().try_into().expect("Buffer size exceeds i64");
 
         let model = file::ActiveModel {
             file_id: Set(file_id.clone()),
@@ -79,7 +85,7 @@ impl FileService {
                 user_id,
                 name,
                 s3_hash: hash,
-                size_hint,
+                size_hint: size,
                 mime_hint: mime,
                 licensing,
                 comments: revision_comments,
@@ -90,12 +96,106 @@ impl FileService {
         Ok(revision_output.into())
     }
 
-    /// Updates metadata associated with this file.
-    pub async fn update(ctx: &ServiceContext<'_>, file_id: &str) -> Result<()> {
-        // TODO update file, updated_at
+    /// Updates a file, including the ability to upload a new version.
+    pub async fn update(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
+        file_id: String,
+        UpdateFile {
+            revision_comments,
+            user_id,
+            body,
+        }: UpdateFile,
+    ) -> Result<()> {
+        let txn = ctx.transaction();
+        let previous = FileRevisionService::get_latest(ctx, page_id, &file_id).await?;
 
-        // TODO: how to preserve history of changes?
-        //       maybe file_revision table (and then trashing file page_revision_type)
+        tide::log::info!("Updating file with ID '{}'", file_id);
+
+        // Process inputs
+
+        let UpdateFileBody {
+            name,
+            data,
+            licensing,
+        } = body;
+
+        // Verify name change
+        //
+        // If the name isn't changing, then we already verified this
+        // when the file was originally created.
+        if let ProvidedValue::Set(ref name) = name {
+            Self::check_conflicts(ctx, page_id, name).await?;
+        }
+
+        // Upload to S3, get derived metadata
+        let blob = match data {
+            ProvidedValue::Unset => ProvidedValue::Unset,
+            ProvidedValue::Set(bytes) => {
+                let CreateBlobOutput {
+                    hash,
+                    mime,
+                    size,
+                    created: _,
+                } = BlobService::create(ctx, &bytes).await?;
+
+                ProvidedValue::Set(FileBlob {
+                    s3_hash: hash,
+                    size_hint: size,
+                    mime_hint: mime,
+                })
+            }
+        };
+
+        // Make database changes
+
+        // Update file metadata
+        let model = file::ActiveModel {
+            file_id: Set(file_id.clone()),
+            updated_at: Set(Some(now())),
+            ..Default::default()
+        };
+        model.update(txn).await?;
+
+        // Add new file revision
+        let revision_output = FileRevisionService::create(
+            ctx,
+            CreateFileRevision {
+                page_id,
+                file_id,
+                user_id,
+                comments: revision_comments,
+                body: CreateFileRevisionBody {
+                    page_id: ProvidedValue::Unset, // For moving to a different page
+                    name,
+                    blob,
+                    licensing,
+                },
+            },
+            previous,
+        )
+        .await?;
+
+        todo!()
+    }
+
+    /// Moves a file from from one page to another.
+    ///
+    /// Note: This is called `rename` and not `move` because
+    ///       the latter is a reserved word in Rust.
+    pub async fn rename(
+        ctx: &ServiceContext<'_>,
+        page_id: String,
+        input: MoveFile,
+    ) -> Result<FileModel> {
+        let txn = ctx.transaction();
+
+        let MoveFile {
+            revision_comments,
+            user_id,
+            current_page_id,
+            new_page_id,
+        } = input;
 
         todo!()
     }
@@ -198,8 +298,8 @@ impl FileService {
     /// If so, this method fails with `Error::Conflict`. Otherwise it returns nothing.
     async fn check_conflicts(
         ctx: &ServiceContext<'_>,
-        name: &str,
         page_id: i64,
+        name: &str,
     ) -> Result<()> {
         let txn = ctx.transaction();
 

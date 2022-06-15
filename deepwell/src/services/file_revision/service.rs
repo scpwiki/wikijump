@@ -23,7 +23,9 @@ use crate::json_utils::string_list_to_json;
 use crate::models::file_revision::{
     self, Entity as FileRevision, Model as FileRevisionModel,
 };
+use crate::web::FetchDirection;
 use serde_json::json;
+use std::num::NonZeroI32;
 
 #[derive(Debug)]
 pub struct FileRevisionService;
@@ -73,17 +75,14 @@ impl FileRevisionService {
         }
 
         if let ProvidedValue::Set(new_blob) = body.blob {
-            if s3_hash != new_blob.s3_hash || size_hint != new_blob.size_hint {
+            if s3_hash != new_blob.s3_hash
+                || size_hint != new_blob.size_hint
+                || mime_hint != new_blob.mime_hint
+            {
                 changes.push("blob");
                 s3_hash = new_blob.s3_hash.to_vec();
                 size_hint = new_blob.size_hint;
-            }
-        }
-
-        if let ProvidedValue::Set(new_mime_hint) = body.mime_hint {
-            if mime_hint != new_mime_hint {
-                changes.push("mime");
-                mime_hint = new_mime_hint;
+                mime_hint = new_blob.mime_hint;
             }
         }
 
@@ -161,6 +160,163 @@ impl FileRevisionService {
         let txn = ctx.transaction();
 
         todo!()
+    }
+
+    /// Get the latest revision for this file.
+    ///
+    /// See `RevisionService::get_latest()`.
+    pub async fn get_latest(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
+        file_id: &str,
+    ) -> Result<FileRevisionModel> {
+        // NOTE: There is no optional variant of this method,
+        //       since all extant files must have at least one revision.
+
+        let txn = ctx.transaction();
+        let revision = FileRevision::find()
+            .filter(
+                Condition::all()
+                    .add(file_revision::Column::PageId.eq(page_id))
+                    .add(file_revision::Column::FileId.eq(file_id)),
+            )
+            .order_by_desc(file_revision::Column::RevisionNumber)
+            .one(txn)
+            .await?
+            .ok_or(Error::NotFound)?;
+
+        Ok(revision)
+    }
+
+    /// Get the given revision for a file.
+    ///
+    /// See `RevisionService::get_optional()`.
+    pub async fn get_optional(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
+        file_id: &str,
+        revision_number: i32,
+    ) -> Result<Option<FileRevisionModel>> {
+        let txn = ctx.transaction();
+        let revision = FileRevision::find()
+            .filter(
+                Condition::all()
+                    .add(file_revision::Column::PageId.eq(page_id))
+                    .add(file_revision::Column::FileId.eq(file_id))
+                    .add(file_revision::Column::RevisionNumber.eq(revision_number)),
+            )
+            .one(txn)
+            .await?;
+
+        Ok(revision)
+    }
+
+    /// Determines if the given file revision exists.
+    ///
+    /// See `RevisionService::exists()`.
+    #[inline]
+    pub async fn exists(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
+        file_id: &str,
+        revision_number: i32,
+    ) -> Result<bool> {
+        Self::get_optional(ctx, page_id, file_id, revision_number)
+            .await
+            .map(|revision| revision.is_some())
+    }
+
+    /// Gets the given revision for a file, failing if it doesn't exist.
+    ///
+    /// See `RevisionService::get()`.
+    #[inline]
+    pub async fn get(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
+        file_id: &str,
+        revision_number: i32,
+    ) -> Result<FileRevisionModel> {
+        match Self::get_optional(ctx, page_id, file_id, revision_number).await? {
+            Some(revision) => Ok(revision),
+            None => Err(Error::NotFound),
+        }
+    }
+
+    /// Counts the number of revisions for a file.
+    ///
+    /// See `RevisionService::count()`.
+    pub async fn count(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
+        file_id: &str,
+    ) -> Result<NonZeroI32> {
+        let txn = ctx.transaction();
+        let row_count = FileRevision::find()
+            .filter(
+                Condition::all()
+                    .add(file_revision::Column::PageId.eq(page_id))
+                    .add(file_revision::Column::FileId.eq(file_id)),
+            )
+            .count(txn)
+            .await?;
+
+        // We store revision_number in INT, which is i32.
+        // So even though this row count is usize, it
+        // should always fit inside an i32.
+        let row_count = i32::try_from(row_count)
+            .expect("Revision row count greater than revision_number integer size");
+
+        // All pages have at least one revision, so if there are none
+        // that means this page does not exist, and we should return an error.
+        match NonZeroI32::new(row_count) {
+            Some(count) => Ok(count),
+            None => Err(Error::NotFound),
+        }
+    }
+
+    /// Gets a range of revisions for a file.
+    ///
+    /// See `RevisionService::get_range()`.
+    pub async fn get_range(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
+        file_id: &str,
+        revision_number: i32,
+        revision_direction: FetchDirection,
+        revision_limit: u64,
+    ) -> Result<Vec<FileRevisionModel>> {
+        let revision_condition = {
+            use file_revision::Column::RevisionNumber;
+
+            // Allow specifying "-1" to mean "the most recent revision",
+            // otherwise keep as-is.
+            let revision_number = if revision_number >= 0 {
+                revision_number
+            } else {
+                i32::MAX
+            };
+
+            // Get correct database condition based on requested ordering
+            match revision_direction {
+                FetchDirection::Before => RevisionNumber.lte(revision_number),
+                FetchDirection::After => RevisionNumber.gte(revision_number),
+            }
+        };
+
+        let txn = ctx.transaction();
+        let revisions = FileRevision::find()
+            .filter(
+                Condition::all()
+                    .add(file_revision::Column::PageId.eq(page_id))
+                    .add(file_revision::Column::FileId.eq(file_id))
+                    .add(revision_condition),
+            )
+            .order_by_asc(file_revision::Column::RevisionNumber)
+            .limit(revision_limit)
+            .all(txn)
+            .await?;
+
+        Ok(revisions)
     }
 }
 

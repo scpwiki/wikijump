@@ -20,13 +20,14 @@
 
 use crate::models::file::Model as FileModel;
 use crate::services::file_revision::CreateFirstFileRevisionOutput;
+use crate::web::ProvidedValue;
 
-#[derive(Debug)]
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct CreateFile {
     pub revision_comments: String,
     pub name: String,
     pub site_id: i64,
-    pub page_id: i64,
     pub user_id: i64,
     pub licensing: serde_json::Value, // TODO
 }
@@ -45,6 +46,33 @@ impl From<CreateFirstFileRevisionOutput> for CreateFileOutput {
             file_revision_id: output.file_revision_id,
         }
     }
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateFile {
+    pub revision_comments: String,
+    pub user_id: i64,
+
+    #[serde(flatten)]
+    pub body: UpdateFileBody,
+}
+
+#[derive(Deserialize, Debug, Default)]
+#[serde(rename_all = "camelCase", default)]
+pub struct UpdateFileBody {
+    pub name: ProvidedValue<String>,
+    pub data: ProvidedValue<Vec<u8>>,
+    pub licensing: ProvidedValue<serde_json::Value>,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct MoveFile {
+    pub revision_comments: String,
+    pub user_id: i64,
+    pub current_page_id: i64,
+    pub new_page_id: i64,
 }
 
 #[derive(Serialize, Debug)]

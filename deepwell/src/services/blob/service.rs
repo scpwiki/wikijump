@@ -41,6 +41,9 @@ impl BlobService {
         let hash = sha512_hash(data);
         let hex_hash = hash_to_hex(&hash);
 
+        // Convert size to correct integer type
+        let size: i64 = data.len().try_into().expect("Buffer size exceeds i64");
+
         match Self::head(ctx, &hex_hash).await? {
             // Blob exists, copy metadata and return that
             Some(result) => {
@@ -52,6 +55,7 @@ impl BlobService {
                 Ok(CreateBlobOutput {
                     hash,
                     mime,
+                    size,
                     created: false,
                 })
             }
@@ -73,6 +77,7 @@ impl BlobService {
                     200 => Ok(CreateBlobOutput {
                         hash,
                         mime,
+                        size,
                         created: true,
                     }),
                     _ => s3_error(&return_data, status, "creating S3 blob"),
