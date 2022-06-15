@@ -171,7 +171,7 @@ pub async fn page_move(mut req: ApiRequest) -> ApiResponse {
         new_slug,
     );
 
-    let output = PageService::rename(&ctx, site_id, reference, input, str!(new_slug))
+    let output = PageService::r#move(&ctx, site_id, reference, input, str!(new_slug))
         .await
         .to_api()?;
 

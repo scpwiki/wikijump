@@ -182,10 +182,7 @@ impl FileService {
     }
 
     /// Moves a file from from one page to another.
-    ///
-    /// Note: This is called `rename` and not `move` because
-    ///       the latter is a reserved word in Rust.
-    pub async fn rename(
+    pub async fn r#move(
         ctx: &ServiceContext<'_>,
         site_id: i64,
         file_id: String,
