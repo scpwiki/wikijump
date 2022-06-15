@@ -22,6 +22,7 @@ use super::prelude::*;
 
 #[derive(Debug)]
 pub struct CreateFileRevision {
+    pub site_id: i64,
     pub page_id: i64,
     pub file_id: String,
     pub user_id: i64,

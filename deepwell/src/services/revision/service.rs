@@ -357,7 +357,7 @@ impl RevisionService {
         // The first revision is always considered to have changed everything.
         let all_changes = json!(["wikitext", "title", "alt_title", "slug", "tags"]);
 
-        // Insert the new revision into the table
+        // Insert the first revision into the table
         let model = page_revision::ActiveModel {
             revision_type: Set(PageRevisionType::Create),
             revision_number: Set(0),

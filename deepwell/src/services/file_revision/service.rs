@@ -23,6 +23,7 @@ use crate::json_utils::string_list_to_json;
 use crate::models::file_revision::{
     self, Entity as FileRevision, Model as FileRevisionModel,
 };
+use crate::services::{OutdateService, PageService};
 use crate::web::FetchDirection;
 use serde_json::json;
 use std::num::NonZeroI32;
@@ -40,8 +41,9 @@ impl FileRevisionService {
     pub async fn create(
         ctx: &ServiceContext<'_>,
         CreateFileRevision {
-            file_id,
+            site_id,
             page_id,
+            file_id,
             user_id,
             comments,
             body,
@@ -112,6 +114,10 @@ impl FileRevisionService {
 
         // TODO validate licensing field
 
+        // Run outdater
+        let page_slug = Self::get_page_slug(ctx, site_id, page_id).await?;
+        OutdateService::process_page_edit(ctx, site_id, page_id, &page_slug).await?;
+
         // Insert the new revision into the table
         let changes = string_list_to_json(&changes)?;
         let model = file_revision::ActiveModel {
@@ -159,7 +165,36 @@ impl FileRevisionService {
     ) -> Result<CreateFirstFileRevisionOutput> {
         let txn = ctx.transaction();
 
-        todo!()
+        // Run outdater
+        let page_slug = Self::get_page_slug(ctx, site_id, page_id).await?;
+        OutdateService::process_page_displace(ctx, site_id, page_id, &page_slug).await?;
+
+        // Effective constant, number of changes for the first revision.
+        // The first revision is always considered to have changed everything.
+        let all_changes = json!(["name", "blob", "mime", "licensing"]);
+
+        // Insert the first revision into the table
+        let model = file_revision::ActiveModel {
+            revision_type: Set(FileRevisionType::Create),
+            revision_number: Set(0),
+            file_id: Set(file_id.clone()),
+            page_id: Set(page_id),
+            user_id: Set(user_id),
+            name: Set(name),
+            s3_hash: Set(s3_hash.to_vec()),
+            mime_hint: Set(mime_hint),
+            size_hint: Set(size_hint),
+            licensing: Set(licensing),
+            comments: Set(comments),
+            hidden: Set(json!([])),
+            ..Default::default()
+        };
+
+        let FileRevisionModel { revision_id, .. } = model.insert(txn).await?;
+        Ok(CreateFirstFileRevisionOutput {
+            file_id,
+            file_revision_id: revision_id,
+        })
     }
 
     /// Get the latest revision for this file.
@@ -317,6 +352,15 @@ impl FileRevisionService {
             .await?;
 
         Ok(revisions)
+    }
+
+    async fn get_page_slug(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+    ) -> Result<String> {
+        let page = PageService::get(ctx, site_id, Reference::Id(page_id)).await?;
+        Ok(page.slug)
     }
 }
 

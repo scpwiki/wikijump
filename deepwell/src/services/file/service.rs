@@ -99,6 +99,7 @@ impl FileService {
     /// Updates a file, including the ability to upload a new version.
     pub async fn update(
         ctx: &ServiceContext<'_>,
+        site_id: i64,
         page_id: i64,
         file_id: String,
         UpdateFile {
@@ -161,6 +162,7 @@ impl FileService {
         let revision_output = FileRevisionService::create(
             ctx,
             CreateFileRevision {
+                site_id,
                 page_id,
                 file_id,
                 user_id,
