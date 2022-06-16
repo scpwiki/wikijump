@@ -55,7 +55,17 @@ pub struct CreateFirstRevision {
 }
 
 #[derive(Debug)]
+pub struct CreateTombstoneRevision {
+    pub site_id: i64,
+    pub page_id: i64,
+    pub user_id: i64,
+    pub comments: String,
+}
+
+#[derive(Debug)]
 pub struct CreateResurrectionRevision {
+    pub site_id: i64,
+    pub page_id: i64,
     pub user_id: i64,
     pub comments: String,
     pub new_slug: String,

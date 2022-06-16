@@ -24,7 +24,7 @@ use crate::models::page::{self, Entity as Page, Model as PageModel};
 use crate::models::page_category::Model as PageCategoryModel;
 use crate::services::revision::{
     CreateFirstRevision, CreateFirstRevisionOutput, CreateResurrectionRevision,
-    CreateRevision, CreateRevisionBody, CreateRevisionOutput,
+    CreateRevision, CreateRevisionBody, CreateRevisionOutput, CreateTombstoneRevision,
 };
 use crate::services::{CategoryService, RevisionService, TextService};
 use crate::web::{get_category_name, trim_default};
@@ -236,7 +236,10 @@ impl PageService {
         ctx: &ServiceContext<'_>,
         site_id: i64,
         reference: Reference<'_>,
-        input: DeletePage,
+        DeletePage {
+            user_id,
+            revision_comments: comments,
+        }: DeletePage,
     ) -> Result<DeletePageOutput> {
         let txn = ctx.transaction();
         let PageModel { page_id, .. } = Self::get(ctx, site_id, reference).await?;
@@ -248,10 +251,12 @@ impl PageService {
         // This also updates backlinks, includes, etc
         let output = RevisionService::create_tombstone(
             ctx,
-            site_id,
-            page_id,
-            input.user_id,
-            input.revision_comments,
+            CreateTombstoneRevision {
+                site_id,
+                page_id,
+                user_id,
+                comments,
+            },
             last_revision,
         )
         .await?;
@@ -273,11 +278,15 @@ impl PageService {
         ctx: &ServiceContext<'_>,
         site_id: i64,
         page_id: i64,
-        input: RestorePage,
+        RestorePage {
+            user_id,
+            slug,
+            revision_comments: comments,
+        }: RestorePage,
     ) -> Result<RestorePageOutput> {
         let txn = ctx.transaction();
         let page = Self::get_direct(ctx, page_id).await?;
-        let slug = input.slug.unwrap_or(page.slug);
+        let slug = slug.unwrap_or(page.slug);
 
         // Do page checks:
         // - Site is correct
@@ -321,11 +330,11 @@ impl PageService {
         // This also updates backlinks, includes, etc.
         let output = RevisionService::create_resurrection(
             ctx,
-            site_id,
-            page_id,
             CreateResurrectionRevision {
-                user_id: input.user_id,
-                comments: input.revision_comments,
+                site_id,
+                page_id,
+                user_id,
+                comments,
                 new_slug: slug.clone(),
             },
             last_revision,

@@ -394,10 +394,12 @@ impl RevisionService {
     /// If the given previous revision is for a different page or site, this method will panic.
     pub async fn create_tombstone(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
-        user_id: i64,
-        comments: String,
+        CreateTombstoneRevision {
+            site_id,
+            page_id,
+            user_id,
+            comments,
+        }: CreateTombstoneRevision,
         previous: PageRevisionModel,
     ) -> Result<CreateRevisionOutput> {
         let txn = ctx.transaction();
@@ -467,9 +469,9 @@ impl RevisionService {
     /// If the given previous revision is for a different page or site, this method will panic.
     pub async fn create_resurrection(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
         CreateResurrectionRevision {
+            site_id,
+            page_id,
             user_id,
             comments,
             new_slug,
