@@ -252,6 +252,7 @@ impl FileService {
     /// to be easily reverted.
     pub async fn delete(
         ctx: &ServiceContext<'_>,
+        page_id: i64,
         file_id: String,
         input: DeleteFile,
     ) -> Result<FileModel> {
@@ -260,12 +261,11 @@ impl FileService {
         let DeleteFile {
             revision_comments,
             site_id,
-            page_id,
             user_id,
         } = input;
 
         // Ensure file exists
-        if !Self::exists(ctx, &file_id).await? {
+        if !Self::exists(ctx, page_id, &file_id).await? {
             return Err(Error::NotFound);
         }
 
@@ -292,29 +292,41 @@ impl FileService {
         todo!()
     }
 
-    /// Gets an uploaded file that has been, including its contents if requested.
     pub async fn get_optional(
         ctx: &ServiceContext<'_>,
+        page_id: i64,
         file_id: &str,
-        blob: bool,
-    ) -> Result<Option<GetFileOutput>> {
-        todo!()
+    ) -> Result<Option<FileModel>> {
+        let txn = ctx.transaction();
+        let file = File::find()
+            .filter(
+                Condition::all()
+                    .add(file::Column::PageId.eq(page_id))
+                    .add(file::Column::FileId.eq(file_id)),
+            )
+            .one(txn)
+            .await?;
+
+        Ok(file)
     }
 
-    /// Gets an uploaded file, failing if it does not exists.
     pub async fn get(
         ctx: &ServiceContext<'_>,
+        page_id: i64,
         file_id: &str,
-        blob: bool,
-    ) -> Result<GetFileOutput> {
-        match Self::get_optional(ctx, file_id, blob).await? {
+    ) -> Result<FileModel> {
+        match Self::get_optional(ctx, page_id, file_id).await? {
             Some(file) => Ok(file),
             None => Err(Error::NotFound),
         }
     }
 
-    pub async fn exists(ctx: &ServiceContext<'_>, file_id: &str) -> Result<bool> {
-        Self::get_optional(ctx, file_id, false)
+    pub async fn exists(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
+        file_id: &str,
+    ) -> Result<bool> {
+        Self::get_optional(ctx, page_id, file_id)
             .await
             .map(|file| file.is_some())
     }

@@ -30,10 +30,10 @@
 mod prelude {
     pub use crate::api::{ApiRequest, ApiResponse};
     pub use crate::services::{
-        BlobService, CategoryService, Error as ServiceError, LinkService, PageService,
-        PostTransactionToApiResponse, RenderService, RequestFetchService,
-        RevisionService, ScoreService, ServiceContext, SiteService, TextService,
-        UserService, VoteService,
+        BlobService, CategoryService, Error as ServiceError, FileRevisionService,
+        FileService, LinkService, PageService, PostTransactionToApiResponse,
+        RenderService, RequestFetchService, RevisionService, ScoreService,
+        ServiceContext, SiteService, TextService, UserService, VoteService,
     };
     pub use crate::web::{utils::error_response, HttpUnwrap, Reference};
     pub use chrono::prelude::*;
@@ -51,6 +51,7 @@ mod prelude {
 }
 
 pub mod category;
+pub mod file;
 pub mod link;
 pub mod locales;
 pub mod misc;

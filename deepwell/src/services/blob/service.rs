@@ -150,6 +150,25 @@ impl BlobService {
         Ok(result.is_some())
     }
 
+    /// Possibly retrieve blob contents, if a flag is set.
+    ///
+    /// This utility conditionally retrieves the
+    /// text given by the specified hash only
+    /// if the flag `should_fetch` is true.
+    /// Otherwise, it does no action, returning `None`.
+    pub async fn get_maybe(
+        ctx: &ServiceContext<'_>,
+        should_fetch: bool,
+        hash: &[u8],
+    ) -> Result<Option<Vec<u8>>> {
+        if should_fetch {
+            let data = Self::get(ctx, hash).await?;
+            Ok(Some(data))
+        } else {
+            Ok(None)
+        }
+    }
+
     async fn head(
         ctx: &ServiceContext<'_>,
         hex_hash: &str,

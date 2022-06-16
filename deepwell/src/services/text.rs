@@ -74,7 +74,7 @@ impl TextService {
         hash: &[u8],
     ) -> Result<Option<String>> {
         if should_fetch {
-            let text = TextService::get(ctx, hash).await?;
+            let text = Self::get(ctx, hash).await?;
             Ok(Some(text))
         } else {
             Ok(None)

@@ -18,11 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::models::file::Model as FileModel;
+use crate::models::sea_orm_active_enums::FileRevisionType;
 use crate::services::file_revision::{
     CreateFileRevisionOutput, CreateFirstFileRevisionOutput,
 };
 use crate::web::ProvidedValue;
+use sea_orm::entity::prelude::DateTimeWithTimeZone;
+use serde_json::Value as JsonValue;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -70,16 +72,29 @@ pub type MoveFileOutput = CreateFileRevisionOutput;
 
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct GetFileOutput {
-    #[serde(flatten)]
-    pub file: FileModel,
+pub struct GetFileOutput<'a> {
+    pub file_id: &'a str,
+    pub file_created_at: DateTimeWithTimeZone,
+    pub file_updated_at: Option<DateTimeWithTimeZone>,
+    pub file_deleted_at: Option<DateTimeWithTimeZone>,
+    pub page_id: i64,
+    pub revision_id: i64,
+    pub revision_type: FileRevisionType,
+    pub revision_created_at: DateTimeWithTimeZone,
+    pub revision_number: i32,
+    pub revision_user_id: i64,
+    pub name: &'a str,
     pub data: Option<Vec<u8>>,
+    pub mime: &'a str,
+    pub size: i64,
+    pub licensing: &'a JsonValue, // TODO: replace?
+    pub revision_comments: &'a str,
+    pub hidden_fields: &'a JsonValue, // TODO: replace with &[&str]
 }
 
 #[derive(Debug)]
 pub struct DeleteFile {
     pub revision_comments: String,
     pub site_id: i64,
-    pub page_id: i64,
     pub user_id: i64,
 }
