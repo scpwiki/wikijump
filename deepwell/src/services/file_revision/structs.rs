@@ -71,3 +71,11 @@ pub struct CreateFirstFileRevisionOutput {
     pub file_id: String,
     pub file_revision_id: i64,
 }
+
+#[derive(Debug)]
+pub struct CreateResurrectionFileRevision {
+    pub user_id: i64,
+    pub comments: String,
+    pub new_page_id: i64,
+    pub new_name: String,
+}

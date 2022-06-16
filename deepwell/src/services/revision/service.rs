@@ -389,6 +389,9 @@ impl RevisionService {
     ///
     /// This revision is called a "tombstone" in that
     /// its only purpose is to mark that the page has been deleted.
+    ///
+    /// # Panics
+    /// If the given previous revision is for a different page or site, this method will panic.
     pub async fn create_tombstone(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -459,6 +462,9 @@ impl RevisionService {
     /// Remember that, like `create_first()`, this method assumes
     /// the caller has already verified that undeleting the page here
     /// will not cause conflicts.
+    ///
+    /// # Panics
+    /// If the given previous revision is for a different page or site, this method will panic.
     pub async fn create_resurrection(
         ctx: &ServiceContext<'_>,
         site_id: i64,

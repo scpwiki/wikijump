@@ -51,7 +51,7 @@ impl FileRevisionService {
         previous: FileRevisionModel,
     ) -> Result<Option<CreateFileRevisionOutput>> {
         let txn = ctx.transaction();
-        let revision_number = next_revision_number(&previous, &file_id, page_id);
+        let revision_number = next_revision_number(&previous, page_id, &file_id);
 
         // Fields to create in the revision
         let mut changes = Vec::new();
@@ -202,6 +202,63 @@ impl FileRevisionService {
             file_id,
             file_revision_id: revision_id,
         })
+    }
+
+    /// Creates a revision marking a page as deleted.
+    ///
+    /// This revision is called a "tombstone" in that
+    /// its only purpose is to mark that the file has been deleted.
+    ///
+    /// See `RevisionService::create_tombstone()`.
+    ///
+    /// # Panics
+    /// If the given previous revision is for a different file or page, this method will panic.
+    pub async fn create_tombstone(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
+        file_id: String,
+        comments: String,
+        previous: FileRevisionModel,
+    ) -> Result<CreateFileRevisionOutput> {
+        let txn = ctx.transaction();
+        let revision_number = next_revision_number(&previous, page_id, &file_id);
+
+        todo!()
+    }
+
+    /// Creates a revision marking a pages as restored (i.e., undeleted).
+    ///
+    /// Similar to `create_tombstone`, this method creates
+    /// a revision whose only purpose is to mark that the page
+    /// has been restored.
+    ///
+    /// Note that page parenting information is removed during deletion
+    /// and is not restored here.
+    ///
+    /// Remember that, like `create_first()`, this method assumes
+    /// the caller has already verified that undeleting the page here
+    /// will not cause conflicts.
+    ///
+    /// See `RevisionService::create_tombstone()`.
+    ///
+    /// # Panics
+    /// If the given previous revision is for a different file or page, this method will panic.
+    pub async fn create_resurrection(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
+        file_id: String,
+        CreateResurrectionFileRevision {
+            user_id,
+            comments,
+            new_page_id,
+            new_name,
+        }: CreateResurrectionFileRevision,
+        previous: FileRevisionModel,
+    ) -> Result<CreateFileRevisionOutput> {
+        let txn = ctx.transaction();
+        let revision_number = next_revision_number(&previous, page_id, &file_id);
+
+        todo!()
     }
 
     /// Get the latest revision for this file.
@@ -373,8 +430,8 @@ impl FileRevisionService {
 
 fn next_revision_number(
     previous: &FileRevisionModel,
-    file_id: &str,
     page_id: i64,
+    file_id: &str,
 ) -> i32 {
     // Check for basic consistency
     assert_eq!(
