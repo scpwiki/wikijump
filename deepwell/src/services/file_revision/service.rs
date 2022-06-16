@@ -238,7 +238,7 @@ impl FileRevisionService {
 
         // Run outdater
         let page_slug = Self::get_page_slug(ctx, site_id, page_id).await?;
-        OutdateService::process_page_displace(ctx, site_id, page_id, &page_slug).await?;
+        OutdateService::process_page_edit(ctx, site_id, page_id, &page_slug).await?;
 
         // Insert the tombstone revision into the table
         let model = file_revision::ActiveModel {
@@ -286,7 +286,7 @@ impl FileRevisionService {
         ctx: &ServiceContext<'_>,
         CreateResurrectionFileRevision {
             site_id,
-            page_id,
+            page_id: old_page_id,
             file_id,
             user_id,
             new_page_id,
@@ -296,9 +296,60 @@ impl FileRevisionService {
         previous: FileRevisionModel,
     ) -> Result<CreateFileRevisionOutput> {
         let txn = ctx.transaction();
-        let revision_number = next_revision_number(&previous, page_id, &file_id);
+        let revision_number = next_revision_number(&previous, old_page_id, &file_id);
 
-        todo!()
+        let FileRevisionModel {
+            name: old_name,
+            s3_hash,
+            mime_hint,
+            size_hint,
+            licensing,
+            ..
+        } = previous;
+
+        let changes = {
+            let mut changes = vec![];
+
+            if old_page_id != new_page_id {
+                changes.push("page");
+            }
+
+            if old_name != new_name {
+                changes.push("name");
+            }
+
+            changes
+        };
+
+        // Run outdater
+        let new_page_slug = Self::get_page_slug(ctx, site_id, new_page_id).await?;
+        OutdateService::process_page_edit(ctx, site_id, new_page_id, &new_page_slug)
+            .await?;
+
+        // Insert the resurrection revision into the table
+        let changes = string_list_to_json(&changes)?;
+        let model = file_revision::ActiveModel {
+            revision_type: Set(FileRevisionType::Undelete),
+            revision_number: Set(revision_number),
+            file_id: Set(file_id.clone()),
+            page_id: Set(new_page_id),
+            user_id: Set(user_id),
+            name: Set(new_name),
+            s3_hash: Set(s3_hash),
+            mime_hint: Set(mime_hint),
+            size_hint: Set(size_hint),
+            licensing: Set(licensing),
+            changes: Set(changes),
+            comments: Set(comments),
+            hidden: Set(json!([])),
+            ..Default::default()
+        };
+
+        let FileRevisionModel { revision_id, .. } = model.insert(txn).await?;
+        Ok(CreateFileRevisionOutput {
+            file_revision_id: revision_id,
+            file_revision_number: revision_number,
+        })
     }
 
     /// Get the latest revision for this file.
