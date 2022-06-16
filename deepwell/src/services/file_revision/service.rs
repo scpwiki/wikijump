@@ -215,15 +215,54 @@ impl FileRevisionService {
     /// If the given previous revision is for a different file or page, this method will panic.
     pub async fn create_tombstone(
         ctx: &ServiceContext<'_>,
-        page_id: i64,
-        file_id: String,
-        comments: String,
+        CreateTombstoneFileRevision {
+            user_id,
+            comments,
+            site_id,
+            page_id,
+            file_id,
+        }: CreateTombstoneFileRevision,
         previous: FileRevisionModel,
     ) -> Result<CreateFileRevisionOutput> {
         let txn = ctx.transaction();
         let revision_number = next_revision_number(&previous, page_id, &file_id);
 
-        todo!()
+        let FileRevisionModel {
+            name,
+            s3_hash,
+            mime_hint,
+            size_hint,
+            licensing,
+            ..
+        } = previous;
+
+        // Run outdater
+        let page_slug = Self::get_page_slug(ctx, site_id, page_id).await?;
+        OutdateService::process_page_displace(ctx, site_id, page_id, &page_slug).await?;
+
+        // Insert the tombstone revision into the table
+        let model = file_revision::ActiveModel {
+            revision_type: Set(FileRevisionType::Delete),
+            revision_number: Set(revision_number),
+            file_id: Set(file_id.clone()),
+            page_id: Set(page_id),
+            user_id: Set(user_id),
+            name: Set(name),
+            s3_hash: Set(s3_hash),
+            mime_hint: Set(mime_hint),
+            size_hint: Set(size_hint),
+            licensing: Set(licensing),
+            changes: Set(json!([])),
+            comments: Set(comments),
+            hidden: Set(json!([])),
+            ..Default::default()
+        };
+
+        let FileRevisionModel { revision_id, .. } = model.insert(txn).await?;
+        Ok(CreateFileRevisionOutput {
+            file_revision_id: revision_id,
+            file_revision_number: revision_number,
+        })
     }
 
     /// Creates a revision marking a pages as restored (i.e., undeleted).
@@ -245,6 +284,7 @@ impl FileRevisionService {
     /// If the given previous revision is for a different file or page, this method will panic.
     pub async fn create_resurrection(
         ctx: &ServiceContext<'_>,
+        site_id: i64,
         page_id: i64,
         file_id: String,
         CreateResurrectionFileRevision {
