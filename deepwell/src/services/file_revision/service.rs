@@ -216,11 +216,11 @@ impl FileRevisionService {
     pub async fn create_tombstone(
         ctx: &ServiceContext<'_>,
         CreateTombstoneFileRevision {
-            user_id,
-            comments,
             site_id,
             page_id,
             file_id,
+            user_id,
+            comments,
         }: CreateTombstoneFileRevision,
         previous: FileRevisionModel,
     ) -> Result<CreateFileRevisionOutput> {
@@ -284,14 +284,14 @@ impl FileRevisionService {
     /// If the given previous revision is for a different file or page, this method will panic.
     pub async fn create_resurrection(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
-        file_id: String,
         CreateResurrectionFileRevision {
+            site_id,
+            page_id,
+            file_id,
             user_id,
-            comments,
             new_page_id,
             new_name,
+            comments,
         }: CreateResurrectionFileRevision,
         previous: FileRevisionModel,
     ) -> Result<CreateFileRevisionOutput> {

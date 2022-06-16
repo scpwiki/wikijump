@@ -74,17 +74,20 @@ pub struct CreateFirstFileRevisionOutput {
 
 #[derive(Debug)]
 pub struct CreateTombstoneFileRevision {
-    pub user_id: i64,
-    pub comments: String,
     pub site_id: i64,
     pub page_id: i64,
     pub file_id: String,
+    pub user_id: i64,
+    pub comments: String,
 }
 
 #[derive(Debug)]
 pub struct CreateResurrectionFileRevision {
+    pub site_id: i64,
+    pub page_id: i64,
+    pub file_id: String,
     pub user_id: i64,
-    pub comments: String,
     pub new_page_id: i64,
     pub new_name: String,
+    pub comments: String,
 }
