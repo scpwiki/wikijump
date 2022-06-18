@@ -31,14 +31,14 @@ pub async fn file_head(req: ApiRequest) -> ApiResponse {
 
     let page_reference = Reference::try_from(&req)?;
     let site_id = req.param("site_id")?.parse()?;
-    let file_id = req.param("file_id")?;
-    tide::log::info!("Checking existence of file ID {file_id}");
+    let file_reference = CuidReference::try_from(&req)?;
+    tide::log::info!("Checking existence of file {file_reference:?}");
 
     let page = PageService::get(&ctx, site_id, page_reference)
         .await
         .to_api()?;
 
-    let exists = FileService::exists(&ctx, page.page_id, file_id)
+    let exists = FileService::exists(&ctx, page.page_id, file_reference)
         .await
         .to_api()?;
 
@@ -52,15 +52,15 @@ pub async fn file_get(req: ApiRequest) -> ApiResponse {
 
     let page_reference = Reference::try_from(&req)?;
     let site_id = req.param("site_id")?.parse()?;
-    let file_id = req.param("file_id")?;
+    let file_reference = CuidReference::try_from(&req)?;
     let details: FileDetailsQuery = req.query()?;
-    tide::log::info!("Getting file ID {file_id}");
+    tide::log::info!("Getting file {file_reference:?}");
 
     let page = PageService::get(&ctx, site_id, page_reference)
         .await
         .to_api()?;
 
-    let file = FileService::get(&ctx, page.page_id, file_id)
+    let file = FileService::get(&ctx, page.page_id, file_reference)
         .await
         .to_api()?;
 

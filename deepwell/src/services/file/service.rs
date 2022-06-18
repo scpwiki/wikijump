@@ -255,7 +255,7 @@ impl FileService {
     pub async fn delete(
         ctx: &ServiceContext<'_>,
         page_id: i64,
-        file_id: String,
+        reference: CuidReference<'_>,
         input: DeleteFile,
     ) -> Result<DeleteFileOutput> {
         let txn = ctx.transaction();
@@ -267,9 +267,7 @@ impl FileService {
         } = input;
 
         // Ensure file exists
-        if !Self::exists(ctx, page_id, &file_id).await? {
-            return Err(Error::NotFound);
-        }
+        let FileModel { file_id, .. } = Self::get(ctx, page_id, reference).await?;
 
         let last_revision =
             FileRevisionService::get_latest(ctx, page_id, &file_id).await?;
@@ -385,28 +383,34 @@ impl FileService {
     pub async fn get_optional(
         ctx: &ServiceContext<'_>,
         page_id: i64,
-        file_id: &str,
+        reference: CuidReference<'_>,
     ) -> Result<Option<FileModel>> {
         let txn = ctx.transaction();
-        let file = File::find()
-            .filter(
-                Condition::all()
-                    .add(file::Column::PageId.eq(page_id))
-                    .add(file::Column::FileId.eq(file_id)),
-            )
-            .one(txn)
-            .await?;
+        let file = {
+            let condition = match reference {
+                CuidReference::Id(id) => file::Column::FileId.eq(id),
+                CuidReference::Name(name) => file::Column::Name.eq(name),
+            };
+
+            File::find()
+                .filter(
+                    Condition::all()
+                        .add(condition)
+                        .add(file::Column::PageId.eq(page_id)),
+                )
+                .one(txn)
+                .await?
+        };
 
         Ok(file)
     }
 
-    // TODO change to Reference
     pub async fn get(
         ctx: &ServiceContext<'_>,
         page_id: i64,
-        file_id: &str,
+        reference: CuidReference<'_>,
     ) -> Result<FileModel> {
-        match Self::get_optional(ctx, page_id, file_id).await? {
+        match Self::get_optional(ctx, page_id, reference).await? {
             Some(file) => Ok(file),
             None => Err(Error::NotFound),
         }
@@ -415,9 +419,9 @@ impl FileService {
     pub async fn exists(
         ctx: &ServiceContext<'_>,
         page_id: i64,
-        file_id: &str,
+        reference: CuidReference<'_>,
     ) -> Result<bool> {
-        Self::get_optional(ctx, page_id, file_id)
+        Self::get_optional(ctx, page_id, reference)
             .await
             .map(|file| file.is_some())
     }
