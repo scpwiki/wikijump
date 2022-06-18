@@ -343,6 +343,35 @@ impl FileService {
             .map(|file| file.is_some())
     }
 
+    pub async fn get_direct_optional(
+        ctx: &ServiceContext<'_>,
+        file_id: &str,
+    ) -> Result<Option<FileModel>> {
+        let txn = ctx.transaction();
+        let file = File::find()
+            .filter(file::Column::FileId.eq(file_id))
+            .one(txn)
+            .await?;
+
+        Ok(file)
+    }
+
+    pub async fn get_direct(
+        ctx: &ServiceContext<'_>,
+        file_id: &str,
+    ) -> Result<FileModel> {
+        match Self::get_direct_optional(ctx, file_id).await? {
+            Some(file) => Ok(file),
+            None => Err(Error::NotFound),
+        }
+    }
+
+    pub async fn exists_direct(ctx: &ServiceContext<'_>, file_id: &str) -> Result<bool> {
+        Self::get_direct_optional(ctx, file_id)
+            .await
+            .map(|file| file.is_some())
+    }
+
     /// Hard deletes this file and all duplicates.
     ///
     /// This is a very powerful method and needs to be used carefully.
