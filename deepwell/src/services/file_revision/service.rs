@@ -138,7 +138,9 @@ impl FileRevisionService {
             size_hint: Set(size_hint),
             mime_hint: Set(mime_hint),
             licensing: Set(licensing),
-            changes: Set(json!(["name", "blob", "mime", "licensing"])),
+            changes: Set(changes),
+            comments: Set(comments),
+            hidden: Set(json!([])),
             ..Default::default()
         };
 
@@ -192,6 +194,7 @@ impl FileRevisionService {
             mime_hint: Set(mime_hint),
             size_hint: Set(size_hint),
             licensing: Set(licensing),
+            changes: Set(all_changes),
             comments: Set(comments),
             hidden: Set(json!([])),
             ..Default::default()
