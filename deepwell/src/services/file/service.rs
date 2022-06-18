@@ -110,7 +110,7 @@ impl FileService {
         }: UpdateFile,
     ) -> Result<Option<UpdateFileOutput>> {
         let txn = ctx.transaction();
-        let previous = FileRevisionService::get_latest(ctx, page_id, &file_id).await?;
+        let last_revision = FileRevisionService::get_latest(ctx, page_id, &file_id).await?;
 
         tide::log::info!("Updating file with ID '{}'", file_id);
 
@@ -175,7 +175,7 @@ impl FileService {
                     ..Default::default()
                 },
             },
-            previous,
+            last_revision,
         )
         .await?;
 
@@ -199,11 +199,11 @@ impl FileService {
             destination_page_id,
         } = input;
 
-        let previous =
+        let last_revision =
             FileRevisionService::get_latest(ctx, current_page_id, &file_id).await?;
 
         // Get destination filename
-        let name = name.unwrap_or_else(|| previous.name.clone());
+        let name = name.unwrap_or_else(|| last_revision.name.clone());
 
         tide::log::info!(
             "Moving file with ID '{}' from page ID {} to {} ",
@@ -239,7 +239,7 @@ impl FileService {
                     ..Default::default()
                 },
             },
-            previous,
+            last_revision,
         )
         .await?;
 
@@ -272,7 +272,7 @@ impl FileService {
 
         // Create tombstone revision
         // This outdates the page, etc
-        let previous = FileRevisionService::get_latest(ctx, page_id, &file_id).await?;
+        let last_revision = FileRevisionService::get_latest(ctx, page_id, &file_id).await?;
         let output = FileRevisionService::create_tombstone(
             ctx,
             CreateTombstoneFileRevision {
@@ -282,7 +282,7 @@ impl FileService {
                 user_id,
                 comments: revision_comments,
             },
-            previous,
+            last_revision,
         )
         .await?;
 
@@ -337,11 +337,9 @@ impl FileService {
 
         Self::check_conflicts(ctx, page_id, &new_name, "restore").await?;
 
-        // TODO
-
         // Create resurrection revision
         // This outdates the page, etc
-        let previous = FileRevisionService::get_latest(ctx, page_id, &file_id).await?;
+        let last_revision = FileRevisionService::get_latest(ctx, page_id, &file_id).await?;
         let output = FileRevisionService::create_resurrection(
             ctx,
             CreateResurrectionFileRevision {
@@ -353,7 +351,7 @@ impl FileService {
                 new_name,
                 comments: revision_comments,
             },
-            previous,
+            last_revision,
         )
         .await?;
 
