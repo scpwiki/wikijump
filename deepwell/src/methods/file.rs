@@ -83,10 +83,12 @@ pub async fn file_get(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let page_reference = Reference::try_from(&req)?;
-    let site_id = req.param("site_id")?.parse()?;
-    let file_reference = CuidReference::try_from(&req)?;
     let details: FileDetailsQuery = req.query()?;
+    let page_reference = Reference::try_from_fields_key(&req, "page_type", "id_or_slug")?;
+    let site_id = req.param("site_id")?.parse()?;
+    let file_reference =
+        CuidReference::try_from_fields_key(&req, "file_type", "id_or_name")?;
+
     tide::log::info!("Getting file {file_reference:?}");
 
     let page = PageService::get(&ctx, site_id, page_reference)
@@ -107,6 +109,41 @@ pub async fn file_get(req: ApiRequest) -> ApiResponse {
 
     txn.commit().await?;
     Ok(response)
+}
+
+pub async fn file_create(req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    todo!()
+}
+
+pub async fn file_edit(req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    todo!()
+}
+
+pub async fn file_delete(req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    todo!()
+}
+
+pub async fn file_move(req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    todo!()
+}
+
+pub async fn file_restore(req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    todo!()
 }
 
 async fn build_file_response(

@@ -70,6 +70,6 @@ impl<'a> TryFrom<&'a ApiRequest> for CuidReference<'a> {
 
     #[inline]
     fn try_from(req: &'a ApiRequest) -> Result<CuidReference<'a>, Error> {
-        CuidReference::try_from_fields_key(req, "type", "id_or_slug")
+        CuidReference::try_from_fields_key(req, "type", "id_or_name")
     }
 }

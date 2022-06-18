@@ -139,9 +139,16 @@ pub fn build(mut app: ApiServer) -> ApiServer {
         .head(file_head_direct)
         .get(file_get_direct);
 
-    app.at("/file/:site_id/:type/:id_or_slug/:file_id")
+    app.at("/file/:site_id/:type/:id_or_slug").post(file_create);
+
+    app.at("/file/:site_id/:page_type/:id_or_slug/:file_type/:id_or_name")
         .head(file_head)
-        .get(file_get);
+        .get(file_get)
+        .post(file_edit)
+        .delete(file_delete);
+
+    app.at("/file/:site_id/:page_type/:id_or_slug/move")
+        .post(file_move);
 
     // TODO
 
