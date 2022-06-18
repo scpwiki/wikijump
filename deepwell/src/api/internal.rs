@@ -135,6 +135,10 @@ pub fn build(mut app: ApiServer) -> ApiServer {
         .all(page_invalid);
 
     // Files
+    app.at("/file/direct/:file_id")
+        .head(file_head_direct)
+        .get(file_get_direct);
+
     app.at("/file/:site_id/:type/:id_or_slug/:file_id")
         .head(file_head)
         .get(file_get);
