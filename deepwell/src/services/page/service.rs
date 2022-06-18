@@ -49,7 +49,7 @@ impl PageService {
         let txn = ctx.transaction();
 
         normalize(&mut slug);
-        Self::check_conflicts(ctx, site_id, &slug).await?;
+        Self::check_conflicts(ctx, site_id, &slug, "create").await?;
 
         // Create category if not already present
         let PageCategoryModel { category_id, .. } =
@@ -173,7 +173,7 @@ impl PageService {
             return Err(Error::BadRequest);
         }
 
-        Self::check_conflicts(ctx, site_id, &new_slug).await?;
+        Self::check_conflicts(ctx, site_id, &new_slug, "move").await?;
 
         // Create category if not already present
         let PageCategoryModel { category_id, .. } =
@@ -303,20 +303,7 @@ impl PageService {
             return Err(Error::BadRequest);
         }
 
-        let result = Page::find()
-            .filter(
-                Condition::all()
-                    .add(page::Column::SiteId.eq(site_id))
-                    .add(page::Column::Slug.eq(slug.as_str()))
-                    .add(page::Column::DeletedAt.is_null()),
-            )
-            .one(txn)
-            .await?;
-
-        if result.is_some() {
-            tide::log::error!("Page with slug '{slug}' already exists on site ID {site_id}, cannot restore");
-            return Err(Error::Conflict);
-        }
+        Self::check_conflicts(ctx, site_id, &slug, "restore").await?;
 
         // Create category if not already present
         let category =
@@ -570,6 +557,7 @@ impl PageService {
         ctx: &ServiceContext<'_>,
         site_id: i64,
         slug: &str,
+        action: &str,
     ) -> Result<()> {
         let txn = ctx.transaction();
 
@@ -587,10 +575,11 @@ impl PageService {
             None => Ok(()),
             Some(page) => {
                 tide::log::error!(
-                    "Page {} with slug '{}' already exists on site ID {}, cannot create",
+                    "Page {} with slug '{}' already exists on site ID {}, cannot {}",
                     page.page_id,
                     slug,
                     site_id,
+                    action,
                 );
 
                 Err(Error::Conflict)
