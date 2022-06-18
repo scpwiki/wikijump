@@ -35,6 +35,7 @@ impl FileService {
     ///
     /// In the background, this stores the blob via content addressing,
     /// meaning that duplicates are not uploaded twice.
+    #[allow(dead_code)] // TEMP
     pub async fn create(
         ctx: &ServiceContext<'_>,
         page_id: i64,
@@ -98,6 +99,7 @@ impl FileService {
     }
 
     /// Updates a file, including the ability to upload a new version.
+    #[allow(dead_code)] // TEMP
     pub async fn update(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -184,6 +186,7 @@ impl FileService {
     }
 
     /// Moves a file from from one page to another.
+    #[allow(dead_code)] // TEMP
     pub async fn r#move(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -252,6 +255,7 @@ impl FileService {
     /// Like other deletions throughout Wikijump, this is a soft deletion.
     /// It marks the files as deleted but retains the contents, permitting it
     /// to be easily reverted.
+    #[allow(dead_code)] // TEMP
     pub async fn delete(
         ctx: &ServiceContext<'_>,
         page_id: i64,
@@ -305,7 +309,7 @@ impl FileService {
     /// Restores a deleted file.
     ///
     /// This undeletes a file, moving it from the deleted sphere to the specified location.
-    #[allow(dead_code)]
+    #[allow(dead_code)] // TEMP
     pub async fn restore(
         ctx: &ServiceContext<'_>,
         page_id: i64,
@@ -466,7 +470,7 @@ impl FileService {
     ///
     /// This method should only be used very rarely to clear content such
     /// as severe copyright violations, abuse content, or comply with court orders.
-    #[allow(dead_code)]
+    #[allow(dead_code)] // TEMP
     pub async fn hard_delete_all(
         _ctx: &ServiceContext<'_>,
         _file_id: &str,
