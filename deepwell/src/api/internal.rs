@@ -150,6 +150,9 @@ pub fn build(mut app: ApiServer) -> ApiServer {
     app.at("/file/:site_id/:page_type/:id_or_slug/move")
         .post(file_move);
 
+    app.at("/file/:site_id/:page_type/:id_or_slug/restore")
+        .post(file_restore);
+
     // TODO
 
     // Text
