@@ -110,7 +110,8 @@ impl FileService {
         }: UpdateFile,
     ) -> Result<Option<UpdateFileOutput>> {
         let txn = ctx.transaction();
-        let last_revision = FileRevisionService::get_latest(ctx, page_id, &file_id).await?;
+        let last_revision =
+            FileRevisionService::get_latest(ctx, page_id, &file_id).await?;
 
         tide::log::info!("Updating file with ID '{}'", file_id);
 
@@ -270,9 +271,11 @@ impl FileService {
             return Err(Error::NotFound);
         }
 
+        let last_revision =
+            FileRevisionService::get_latest(ctx, page_id, &file_id).await?;
+
         // Create tombstone revision
         // This outdates the page, etc
-        let last_revision = FileRevisionService::get_latest(ctx, page_id, &file_id).await?;
         let output = FileRevisionService::create_tombstone(
             ctx,
             CreateTombstoneFileRevision {
@@ -342,9 +345,11 @@ impl FileService {
 
         Self::check_conflicts(ctx, page_id, &new_name, "restore").await?;
 
+        let last_revision =
+            FileRevisionService::get_latest(ctx, page_id, &file_id).await?;
+
         // Create resurrection revision
         // This outdates the page, etc
-        let last_revision = FileRevisionService::get_latest(ctx, page_id, &file_id).await?;
         let output = FileRevisionService::create_resurrection(
             ctx,
             CreateResurrectionFileRevision {
