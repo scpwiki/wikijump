@@ -269,6 +269,21 @@ impl FileService {
             return Err(Error::NotFound);
         }
 
+        // Create tombstone revision
+        // This outdates the page, etc
+        let output = FileRevisionService::create_tombstone(
+            ctx,
+            CreateTombstoneFileRevision {
+                site_id,
+                page_id,
+                file_id: file_id.clone(),
+                user_id,
+                comments: revision_comments,
+            },
+            last_revision,
+        )
+        .await?;
+
         // Set deletion flag
         let model = file::ActiveModel {
             file_id: Set(file_id.clone()),
@@ -276,9 +291,6 @@ impl FileService {
             ..Default::default()
         };
         let file = model.update(txn).await?;
-
-        // Add new file revision
-        // TODO
 
         Ok(file)
     }
