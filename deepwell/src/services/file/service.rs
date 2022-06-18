@@ -38,10 +38,10 @@ impl FileService {
     pub async fn create(
         ctx: &ServiceContext<'_>,
         page_id: i64,
+        site_id: i64,
         CreateFile {
             revision_comments,
             name,
-            site_id,
             user_id,
             licensing,
         }: CreateFile,

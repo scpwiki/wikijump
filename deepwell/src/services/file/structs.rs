@@ -31,7 +31,6 @@ use serde_json::Value as JsonValue;
 pub struct CreateFile {
     pub revision_comments: String,
     pub name: String,
-    pub site_id: i64,
     pub user_id: i64,
     pub licensing: serde_json::Value, // TODO
 }

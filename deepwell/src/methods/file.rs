@@ -21,7 +21,7 @@
 use super::prelude::*;
 use crate::models::file::Model as FileModel;
 use crate::models::file_revision::Model as FileRevisionModel;
-use crate::services::file::GetFileOutput;
+use crate::services::file::{CreateFile, GetFileOutput};
 use crate::services::Result;
 use crate::web::FileDetailsQuery;
 
@@ -115,7 +115,17 @@ pub async fn file_create(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    todo!()
+    let input: CreateFile = req.body_json().await?;
+    let site_id = req.param("site_id")?.parse()?;
+    let page_reference = Reference::try_from(&req)?;
+    tide::log::info!("Creating new file in site ID {site_id} in {page_reference:?}");
+
+    let page = PageService::get(&ctx, site_id, page_reference).await.to_api();
+    let output = FileService::create(&ctx, page.page_id, site_id, input, data).await.to_api()?;
+    let body = Body::from_json(&output)?;
+    txn.commit().await?;
+
+    Ok(body.into())
 }
 
 pub async fn file_edit(req: ApiRequest) -> ApiResponse {
