@@ -107,3 +107,21 @@ pub struct RestoreFile {
     pub site_id: i64,
     pub user_id: i64,
 }
+
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct DeleteFileOutput {
+    pub file_id: String,
+    pub file_revision_id: i64,
+    pub file_revision_number: i32,
+}
+
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct RestoreFileOutput {
+    pub page_id: i64,
+    pub file_id: String,
+    pub name: String,
+    pub file_revision_id: i64,
+    pub file_revision_number: i32,
+}

@@ -256,7 +256,7 @@ impl FileService {
         page_id: i64,
         file_id: String,
         input: DeleteFile,
-    ) -> Result<FileModel> {
+    ) -> Result<DeleteFileOutput> {
         let txn = ctx.transaction();
 
         let DeleteFile {
@@ -292,8 +292,13 @@ impl FileService {
             deleted_at: Set(Some(now())),
             ..Default::default()
         };
-        let file = model.update(txn).await?;
-        Ok(file)
+        model.update(txn).await?;
+
+        Ok(DeleteFileOutput {
+            file_id,
+            file_revision_id: output.file_revision_id,
+            file_revision_number: output.file_revision_number,
+        })
     }
 
     /// Restores a deleted file.
@@ -305,7 +310,7 @@ impl FileService {
         page_id: i64,
         file_id: String,
         input: RestoreFile,
-    ) -> Result<FileModel> {
+    ) -> Result<RestoreFileOutput> {
         let txn = ctx.transaction();
 
         let RestoreFile {
@@ -348,7 +353,7 @@ impl FileService {
                 file_id: file_id.clone(),
                 user_id,
                 new_page_id,
-                new_name,
+                new_name: new_name.clone(),
                 comments: revision_comments,
             },
             last_revision,
@@ -361,8 +366,15 @@ impl FileService {
             deleted_at: Set(None),
             ..Default::default()
         };
-        let file = model.update(txn).await?;
-        Ok(file)
+        model.update(txn).await?;
+
+        Ok(RestoreFileOutput {
+            page_id,
+            file_id,
+            name: new_name,
+            file_revision_id: output.file_revision_id,
+            file_revision_number: output.file_revision_number,
+        })
     }
 
     pub async fn get_optional(
