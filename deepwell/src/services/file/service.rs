@@ -22,7 +22,8 @@ use super::prelude::*;
 use crate::models::file::{self, Entity as File, Model as FileModel};
 use crate::services::blob::CreateBlobOutput;
 use crate::services::file_revision::{
-    CreateFileRevision, CreateFileRevisionBody, CreateFirstFileRevision, FileBlob,
+    CreateFileRevision, CreateFileRevisionBody, CreateFirstFileRevision,
+    CreateResurrectionFileRevision, CreateTombstoneFileRevision, FileBlob,
 };
 use crate::services::{BlobService, FileRevisionService};
 
@@ -271,6 +272,7 @@ impl FileService {
 
         // Create tombstone revision
         // This outdates the page, etc
+        let previous = FileRevisionService::get_latest(ctx, page_id, &file_id).await?;
         let output = FileRevisionService::create_tombstone(
             ctx,
             CreateTombstoneFileRevision {
@@ -280,7 +282,7 @@ impl FileService {
                 user_id,
                 comments: revision_comments,
             },
-            last_revision,
+            previous,
         )
         .await?;
 
@@ -295,12 +297,67 @@ impl FileService {
         Ok(file)
     }
 
-    // TODO
     /// Restores a deleted file.
     ///
     /// This undeletes a file, moving it from the deleted sphere to the specified location.
     #[allow(dead_code)]
-    pub async fn restore(_ctx: &ServiceContext<'_>, _file_id: String) -> Result<()> {
+    pub async fn restore(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
+        file_id: String,
+        input: RestoreFile,
+    ) -> Result<()> {
+        let txn = ctx.transaction();
+
+        let RestoreFile {
+            revision_comments,
+            new_page_id,
+            new_name,
+            site_id,
+            user_id,
+        } = input;
+
+        let file = Self::get_direct(ctx, &file_id).await?;
+        let new_page_id = new_page_id.unwrap_or(page_id);
+        let new_name = new_name.unwrap_or(file.name);
+
+        // Do page checks:
+        // - Page is correct
+        // - File is deleted
+        // - Name doesn't already exist
+
+        if file.page_id != page_id {
+            tide::log::warn!("File's page ID and passed page ID do not match");
+            return Err(Error::NotFound);
+        }
+
+        if file.deleted_at.is_none() {
+            tide::log::warn!("File requested to be restored is not currently deleted");
+            return Err(Error::BadRequest);
+        }
+
+        Self::check_conflicts(ctx, page_id, &new_name, "restore").await?;
+
+        // TODO
+
+        // Create resurrection revision
+        // This outdates the page, etc
+        let previous = FileRevisionService::get_latest(ctx, page_id, &file_id).await?;
+        let output = FileRevisionService::create_resurrection(
+            ctx,
+            CreateResurrectionFileRevision {
+                site_id,
+                page_id,
+                file_id,
+                user_id,
+                new_page_id,
+                new_name,
+                comments: revision_comments,
+            },
+            previous,
+        )
+        .await?;
+
         todo!()
     }
 

@@ -98,3 +98,12 @@ pub struct DeleteFile {
     pub site_id: i64,
     pub user_id: i64,
 }
+
+#[derive(Debug)]
+pub struct RestoreFile {
+    pub revision_comments: String,
+    pub new_page_id: Option<i64>,
+    pub new_name: Option<String>,
+    pub site_id: i64,
+    pub user_id: i64,
+}
