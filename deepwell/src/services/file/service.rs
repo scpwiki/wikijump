@@ -54,7 +54,7 @@ impl FileService {
             data.len(),
         );
 
-        Self::check_conflicts(ctx, page_id, &name).await?;
+        Self::check_conflicts(ctx, page_id, &name, "create").await?;
 
         // Upload to S3, get derived metadata
         let CreateBlobOutput {
@@ -126,7 +126,7 @@ impl FileService {
         // If the name isn't changing, then we already verified this
         // when the file was originally created.
         if let ProvidedValue::Set(ref name) = name {
-            Self::check_conflicts(ctx, page_id, name).await?;
+            Self::check_conflicts(ctx, page_id, name, "update").await?;
         }
 
         // Upload to S3, get derived metadata
@@ -212,7 +212,7 @@ impl FileService {
         );
 
         // Ensure there isn't a file with this name on the destination page
-        Self::check_conflicts(ctx, destination_page_id, &name).await?;
+        Self::check_conflicts(ctx, destination_page_id, &name, "move").await?;
 
         // Update file metadata
         let model = file::ActiveModel {
@@ -398,6 +398,7 @@ impl FileService {
         ctx: &ServiceContext<'_>,
         page_id: i64,
         name: &str,
+        action: &str,
     ) -> Result<()> {
         let txn = ctx.transaction();
 
@@ -415,10 +416,11 @@ impl FileService {
             None => Ok(()),
             Some(file) => {
                 tide::log::error!(
-                    "File {} with name '{}' already exists on page ID {}, cannot create",
+                    "File {} with name '{}' already exists on page ID {}, cannot {}",
                     file.file_id,
                     name,
                     page_id,
+                    action,
                 );
 
                 Err(Error::Conflict)
