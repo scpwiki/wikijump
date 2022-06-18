@@ -293,7 +293,6 @@ impl FileService {
             ..Default::default()
         };
         let file = model.update(txn).await?;
-
         Ok(file)
     }
 
@@ -306,7 +305,7 @@ impl FileService {
         page_id: i64,
         file_id: String,
         input: RestoreFile,
-    ) -> Result<()> {
+    ) -> Result<FileModel> {
         let txn = ctx.transaction();
 
         let RestoreFile {
@@ -348,7 +347,7 @@ impl FileService {
             CreateResurrectionFileRevision {
                 site_id,
                 page_id,
-                file_id,
+                file_id: file_id.clone(),
                 user_id,
                 new_page_id,
                 new_name,
@@ -358,7 +357,14 @@ impl FileService {
         )
         .await?;
 
-        todo!()
+        // Set deletion flag
+        let model = file::ActiveModel {
+            file_id: Set(file_id.clone()),
+            deleted_at: Set(None),
+            ..Default::default()
+        };
+        let file = model.update(txn).await?;
+        Ok(file)
     }
 
     pub async fn get_optional(
