@@ -35,7 +35,9 @@ pub mod utils;
 pub use self::category::*;
 pub use self::connection_type::ConnectionType;
 pub use self::fetch_direction::FetchDirection;
-pub use self::fetch_limit::{FetchLimit, FetchLimitQuery, PageLimitQuery};
+pub use self::fetch_limit::{
+    FetchLimit, FetchLimitQuery, FileLimitQuery, PageLimitQuery,
+};
 pub use self::file_details::FileDetailsQuery;
 pub use self::page_details::PageDetailsQuery;
 pub use self::provided_value::ProvidedValue;

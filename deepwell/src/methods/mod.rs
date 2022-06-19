@@ -52,6 +52,7 @@ mod prelude {
 
 pub mod category;
 pub mod file;
+pub mod file_revision;
 pub mod link;
 pub mod locales;
 pub mod misc;

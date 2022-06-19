@@ -91,3 +91,10 @@ pub struct CreateResurrectionFileRevision {
     pub new_name: String,
     pub comments: String,
 }
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateFileRevision {
+    pub user_id: i64,
+    pub hidden: Vec<String>,
+}

@@ -364,7 +364,7 @@ impl FileRevisionService {
         ctx: &ServiceContext<'_>,
         page_id: i64,
         file_id: &str,
-        revision_number: i32,
+        revision_id: i64,
         UpdateFileRevision { user_id, hidden }: UpdateFileRevision,
     ) -> Result<()> {
         let txn = ctx.transaction();

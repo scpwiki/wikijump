@@ -24,8 +24,8 @@
 
 use crate::api::ApiServer;
 use crate::methods::{
-    category::*, file::*, link::*, locales::*, misc::*, page::*, parent::*, page_revision::*,
-    site::*, text::*, user::*, vote::*,
+    category::*, file::*, file_revision::*, link::*, locales::*, misc::*, page::*,
+    page_revision::*, parent::*, site::*, text::*, user::*, vote::*,
 };
 use crate::web::utils::error_response;
 use tide::StatusCode;
@@ -153,7 +153,17 @@ pub fn build(mut app: ApiServer) -> ApiServer {
     app.at("/file/:site_id/:page_type/:id_or_slug/restore")
         .post(file_restore);
 
-    // TODO
+    // File revisions
+    app.at("/file/:site_id/:page_type/:id_or_slug/:file_type/:id_or_name/revision")
+        .get(file_revision_info);
+
+    app.at("/file/:site_id/:page_type/:id_or_slug/:file_type/:id_or_name/revision/:revision_number")
+        .head(file_revision_head)
+        .get(file_revision_get)
+        .put(file_revision_put);
+
+    app.at("/file/:site_id/:page_type/:id_or_slug/:file_type/:id_or_name/revision/:revision_number/:direction")
+        .get(file_revision_range_get);
 
     // Text
     // TEMP

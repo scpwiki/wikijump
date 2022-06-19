@@ -84,8 +84,8 @@ pub async fn file_get(req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let details: FileDetailsQuery = req.query()?;
-    let page_reference = Reference::try_from_fields_key(&req, "page_type", "id_or_slug")?;
     let site_id = req.param("site_id")?.parse()?;
+    let page_reference = Reference::try_from_fields_key(&req, "page_type", "id_or_slug")?;
     let file_reference =
         CuidReference::try_from_fields_key(&req, "file_type", "id_or_name")?;
 

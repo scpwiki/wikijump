@@ -54,6 +54,9 @@ pub struct FetchLimitQuery {
     pub limit: FetchLimit,
 }
 
+// NOTE: #[serde(flatten)] on PageDetailsQuery as a field
+//       doesn't seem to work here, so we're just pasting it in.
+
 #[derive(Serialize, Deserialize, Debug, Default, Copy, Clone, PartialEq, Eq)]
 #[serde(default, rename_all = "camelCase")]
 pub struct PageLimitQuery {
@@ -68,5 +71,9 @@ pub struct PageLimitQuery {
     pub limit: FetchLimit,
 }
 
-// NOTE: #[serde(flatten)] on FetchDetailsQuery as a field
-//       doesn't seem to work here, so we're just pasting it in.
+#[derive(Serialize, Deserialize, Debug, Default, Copy, Clone, PartialEq, Eq)]
+#[serde(default, rename_all = "camelCase")]
+pub struct FileLimitQuery {
+    /// How many items to pull in this query.
+    pub limit: FetchLimit,
+}
