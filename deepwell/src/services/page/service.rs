@@ -143,7 +143,7 @@ impl PageService {
         model.update(txn).await?;
 
         // Build and return
-        Ok(revision_output.map(|data| data.into()))
+        Ok(revision_output)
     }
 
     /// Moves a page from from one slug to another.
@@ -404,7 +404,7 @@ impl PageService {
         model.update(txn).await?;
 
         // Build and return
-        Ok(revision_output.map(|data| data.into()))
+        Ok(revision_output)
     }
 
     /// Undoes a past revision, applying the inverse of its changes.
