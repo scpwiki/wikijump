@@ -355,6 +355,46 @@ impl FileRevisionService {
         })
     }
 
+    /// Modifies an existing file revision.
+    ///
+    /// Revisions are immutable entries in an append-only log.
+    /// However, the `hidden` column can be updated to "delete"
+    /// revisions (wholly or partially) to cover spam and abuse.
+    pub async fn update(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
+        file_id: &str,
+        revision_number: i32,
+        UpdateFileRevision { user_id, hidden }: UpdateFileRevision,
+    ) -> Result<()> {
+        let txn = ctx.transaction();
+
+        // The latest file revision cannot be hidden, because
+        // the file, its name, contents, etc are exposed.
+        // It should be reverted first, and then it can be hidden.
+
+        let latest = Self::get_latest(ctx, page_id, file_id).await?;
+        if revision_id == latest.revision_id {
+            return Err(Error::CannotHideLatestRevision);
+        }
+
+        // TODO: record revision edit in audit log
+        let _ = user_id;
+
+        // Update the revision
+
+        let hidden = string_list_to_json(&hidden)?;
+        let model = file_revision::ActiveModel {
+            revision_id: Set(revision_id),
+            hidden: Set(hidden),
+            ..Default::default()
+        };
+
+        // Update and return
+        model.update(txn).await?;
+        Ok(())
+    }
+
     /// Get the latest revision for this file.
     ///
     /// See `RevisionService::get_latest()`.
