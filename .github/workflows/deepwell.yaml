@@ -37,6 +37,9 @@ jobs:
             deepwell/target
           key: ${{ runner.os }}-deepwell-default-${{ hashFiles('deepwell/**/Cargo.toml') }}
 
+      - name: System Dependencies
+        run: sudo apt update && sudo apt install libmagic-dev
+
       - name: Build
         run: cd deepwell && cargo build
 
