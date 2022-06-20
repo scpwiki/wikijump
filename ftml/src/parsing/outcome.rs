@@ -21,7 +21,7 @@
 use super::ParseWarning;
 use std::borrow::{Borrow, BorrowMut};
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct ParseOutcome<T> {
     value: T,
     warnings: Vec<ParseWarning>,
