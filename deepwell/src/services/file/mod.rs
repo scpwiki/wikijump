@@ -1,5 +1,5 @@
 /*
- * services/render/structs.rs
+ * services/file/mod.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,13 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
-use crate::hash::Hash;
-
-#[derive(Debug)]
-pub struct RenderOutput {
-    pub html_output: HtmlOutput,
-    pub warnings: Vec<ParseWarning>,
-    pub compiled_hash: Hash,
-    pub compiled_generator: String,
+mod prelude {
+    pub use super::super::prelude::*;
+    pub use super::structs::*;
 }
+
+mod service;
+mod structs;
+
+pub use self::service::FileService;
+pub use self::structs::*;

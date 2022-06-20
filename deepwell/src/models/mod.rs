@@ -6,6 +6,7 @@
 pub mod prelude;
 
 pub mod file;
+pub mod file_revision;
 pub mod forum_category;
 pub mod forum_group;
 pub mod forum_post;

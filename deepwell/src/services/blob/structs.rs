@@ -1,5 +1,5 @@
 /*
- * services/render/structs.rs
+ * services/blob/structs.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -19,12 +19,18 @@
  */
 
 use super::prelude::*;
-use crate::hash::Hash;
+use sea_orm::entity::prelude::DateTimeWithTimeZone;
 
 #[derive(Debug)]
-pub struct RenderOutput {
-    pub html_output: HtmlOutput,
-    pub warnings: Vec<ParseWarning>,
-    pub compiled_hash: Hash,
-    pub compiled_generator: String,
+pub struct CreateBlobOutput {
+    pub hash: Hash,
+    pub mime: String,
+    pub size: i64,
+    pub created: bool,
+}
+
+#[derive(Debug)]
+pub struct BlobMetadata {
+    pub mime: String,
+    pub created_at: DateTimeWithTimeZone,
 }

@@ -8,12 +8,13 @@ keywords = ["wikijump", "api", "backend", "wiki"]
 categories = ["asynchronous", "database", "web-programming::http-server"]
 exclude = [".gitignore", ".editorconfig"]
 
-version = "0.7.0"
+version = "0.8.0"
 authors = ["Ammon Smith <ammon.i.smith@gmail.com>"]
 edition = "2021" # this is *not* the same as the current year
 
 [dependencies]
 anyhow = "1"
+arraystring = "0.3"
 async-std = { version = "1", features = ["attributes"] }
 chrono = { version = "0.4", features = ["serde"] }
 clap = "3"
@@ -22,6 +23,7 @@ crossfire = "0.1"
 cuid = "1"
 dotenv = "0.15"
 either = "1"
+filemagic = "0.12"
 fluent = "0.16"
 ftml = { version = "1.15", features = ["mathml"] }
 futures = { version = "0.3", features = ["async-await"], default-features = false }
@@ -31,6 +33,7 @@ hostname = "0.3"
 intl-memoizer = "0.5"
 lazy_static = "1"
 ref-map = "0.1"
+rust-s3 = { version = "0.31", features = ["with-async-std"], default-features = false }
 sea-orm = { version = "0.8", features = ["sqlx-postgres", "runtime-async-std-rustls", "macros"], default-features = false }
 sea-query = "0.24"
 serde = { version = "1", features = ["derive"] }
@@ -42,6 +45,7 @@ strum = "0.24"
 strum_macros = "0.24"
 thiserror = "1"
 tide = "0.16"
+typenum = "1"
 unic-langid = "0.9"
 void = "1"
 wikidot-normalize = "0.10"

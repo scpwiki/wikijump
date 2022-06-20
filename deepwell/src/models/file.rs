@@ -6,20 +6,14 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "file")]
 pub struct Model {
-    #[sea_orm(primary_key)]
-    pub file_id: i64,
-    pub page_id: Option<i32>,
-    pub site_id: Option<i32>,
-    pub filename: Option<String>,
-    pub mimetype: Option<String>,
-    pub description: Option<String>,
-    pub description_short: Option<String>,
-    pub comment: Option<String>,
-    pub size: Option<i32>,
-    pub date_added: Option<DateTimeUtc>,
-    pub user_id: Option<i32>,
-    pub user_string: Option<String>,
-    pub has_resized: bool,
+    #[sea_orm(primary_key, auto_increment = false, column_type = "Text")]
+    pub file_id: String,
+    pub created_at: DateTimeWithTimeZone,
+    pub updated_at: Option<DateTimeWithTimeZone>,
+    pub deleted_at: Option<DateTimeWithTimeZone>,
+    #[sea_orm(column_type = "Text")]
+    pub name: String,
+    pub page_id: i64,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -32,14 +26,8 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     Page,
-    #[sea_orm(
-        belongs_to = "super::site::Entity",
-        from = "Column::SiteId",
-        to = "super::site::Column::SiteId",
-        on_update = "Cascade",
-        on_delete = "SetNull"
-    )]
-    Site,
+    #[sea_orm(has_many = "super::file_revision::Entity")]
+    FileRevision,
 }
 
 impl Related<super::page::Entity> for Entity {
@@ -48,9 +36,9 @@ impl Related<super::page::Entity> for Entity {
     }
 }
 
-impl Related<super::site::Entity> for Entity {
+impl Related<super::file_revision::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::Site.def()
+        Relation::FileRevision.def()
     }
 }
 

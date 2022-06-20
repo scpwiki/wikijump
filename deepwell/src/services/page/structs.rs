@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::models::sea_orm_active_enums::RevisionType;
+use crate::models::sea_orm_active_enums::PageRevisionType;
 use crate::services::revision::CreateRevisionOutput;
 use ftml::parsing::ParseWarning;
 use sea_orm::entity::prelude::DateTimeWithTimeZone;
@@ -58,7 +58,7 @@ pub struct GetPageOutput<'a> {
     pub page_category_slug: &'a str,
     pub discussion_thread_id: Option<i64>,
     pub revision_id: i64,
-    pub revision_type: RevisionType,
+    pub revision_type: PageRevisionType,
     pub revision_created_at: DateTimeWithTimeZone,
     pub revision_number: i32,
     pub revision_user_id: i64,
@@ -84,14 +84,6 @@ pub struct EditPage {
     pub tags: ProvidedValue<Vec<String>>,
     pub revision_comments: String,
     pub user_id: i64,
-}
-
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct EditPageOutput {
-    revision_id: i64,
-    revision_number: i32,
-    parser_warnings: Option<Vec<ParseWarning>>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -151,22 +143,7 @@ pub struct RollbackPage {
     pub user_id: i64,
 }
 
-impl From<CreateRevisionOutput> for EditPageOutput {
-    #[inline]
-    fn from(
-        CreateRevisionOutput {
-            revision_id,
-            revision_number,
-            parser_warnings,
-        }: CreateRevisionOutput,
-    ) -> EditPageOutput {
-        EditPageOutput {
-            revision_id,
-            revision_number,
-            parser_warnings,
-        }
-    }
-}
+pub type EditPageOutput = CreateRevisionOutput;
 
 impl From<(CreateRevisionOutput, i64)> for DeletePageOutput {
     #[inline]

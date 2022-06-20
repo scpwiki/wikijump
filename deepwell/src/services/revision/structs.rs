@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::models::sea_orm_active_enums::RevisionType;
+use crate::models::sea_orm_active_enums::PageRevisionType;
 use ftml::parsing::ParseWarning;
 use sea_orm::prelude::DateTimeWithTimeZone;
 use std::num::NonZeroI32;
@@ -44,8 +44,7 @@ pub struct CreateRevisionBody {
     pub tags: ProvidedValue<Vec<String>>,
 }
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug)]
 pub struct CreateFirstRevision {
     pub user_id: i64,
     pub comments: String,
@@ -55,9 +54,18 @@ pub struct CreateFirstRevision {
     pub slug: String,
 }
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug)]
+pub struct CreateTombstoneRevision {
+    pub site_id: i64,
+    pub page_id: i64,
+    pub user_id: i64,
+    pub comments: String,
+}
+
+#[derive(Debug)]
 pub struct CreateResurrectionRevision {
+    pub site_id: i64,
+    pub page_id: i64,
     pub user_id: i64,
     pub comments: String,
     pub new_slug: String,
@@ -105,7 +113,7 @@ pub struct RevisionCountOutput {
 #[derive(Serialize, Debug)]
 pub struct PageRevisionModelFiltered {
     pub revision_id: i64,
-    pub revision_type: RevisionType,
+    pub revision_type: PageRevisionType,
     pub created_at: DateTimeWithTimeZone,
     pub revision_number: i32,
     pub page_id: i64,

@@ -25,16 +25,8 @@
 //! identified by its hash.
 
 use super::prelude::*;
+use crate::hash::{sha512_hash, Hash, HASH_LENGTH};
 use crate::models::text::{self, Entity as Text};
-use sha2::{Digest, Sha512};
-
-/// The expected length of a hash digest.
-///
-/// This is the output length for SHA-512 in bytes.
-pub const HASH_LENGTH: usize = 64;
-
-/// The array type for a hash digest.
-pub type Hash = [u8; 64];
 
 #[derive(Debug)]
 pub struct TextService;
@@ -82,16 +74,17 @@ impl TextService {
         hash: &[u8],
     ) -> Result<Option<String>> {
         if should_fetch {
-            let text = TextService::get(ctx, hash).await?;
+            let text = Self::get(ctx, hash).await?;
             Ok(Some(text))
         } else {
             Ok(None)
         }
     }
 
+    /// Creates a text entry with this data, if it does not already exist.
     pub async fn create(ctx: &ServiceContext<'_>, contents: String) -> Result<Hash> {
         let txn = ctx.transaction();
-        let hash = Self::hash(&contents);
+        let hash = sha512_hash(contents.as_bytes());
 
         if !Self::exists(ctx, &hash).await? {
             let model = text::ActiveModel {
@@ -103,18 +96,6 @@ impl TextService {
         }
 
         Ok(hash)
-    }
-
-    pub fn hash(contents: &str) -> Hash {
-        // Perform hash
-        let mut hasher = Sha512::new();
-        hasher.update(contents.as_bytes());
-        let result = hasher.finalize();
-
-        // Copy data into regular Rust array
-        let mut bytes = [0; 64];
-        bytes.copy_from_slice(&result);
-        bytes
     }
 
     /// Searches for any text rows which are unused.

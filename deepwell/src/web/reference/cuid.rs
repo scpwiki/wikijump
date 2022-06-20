@@ -1,5 +1,5 @@
 /*
- * web/reference.rs
+ * web/reference/file.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -23,12 +23,12 @@ use std::convert::TryFrom;
 use tide::{Error, StatusCode};
 
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub enum Reference<'a> {
-    Id(i64),
-    Slug(&'a str),
+pub enum CuidReference<'a> {
+    Id(&'a str),
+    Name(&'a str),
 }
 
-impl<'a> Reference<'a> {
+impl<'a> CuidReference<'a> {
     pub fn try_from_fields_key(
         req: &'a ApiRequest,
         value_type_key: &str,
@@ -37,19 +37,25 @@ impl<'a> Reference<'a> {
         let value_type = req.param(value_type_key)?;
         let value = req.param(value_key)?;
 
-        Reference::try_from_fields(value_type, value)
+        CuidReference::try_from_fields(value_type, value)
     }
 
     pub fn try_from_fields(value_type: &str, value: &'a str) -> Result<Self, Error> {
+        // How long a cuid string is
+        const CUID_LENGTH: usize = 25;
+
         match value_type {
-            "slug" => {
-                tide::log::debug!("Reference via slug, {value}");
-                Ok(Reference::Slug(value))
+            "name" => {
+                tide::log::debug!("Reference via name, {value}");
+                Ok(CuidReference::Name(value))
             }
+            "id" if value.len() == CUID_LENGTH => Err(Error::from_str(
+                StatusCode::BadRequest,
+                "CUID string is of an incorrect length",
+            )),
             "id" => {
                 tide::log::debug!("Reference via ID, {value}");
-                let id = value.parse()?;
-                Ok(Reference::Id(id))
+                Ok(CuidReference::Id(value))
             }
             _ => Err(Error::from_str(
                 StatusCode::BadRequest,
@@ -59,25 +65,11 @@ impl<'a> Reference<'a> {
     }
 }
 
-impl From<i64> for Reference<'static> {
-    #[inline]
-    fn from(id: i64) -> Reference<'static> {
-        Reference::Id(id)
-    }
-}
-
-impl<'a> From<&'a str> for Reference<'a> {
-    #[inline]
-    fn from(slug: &'a str) -> Reference<'a> {
-        Reference::Slug(slug)
-    }
-}
-
-impl<'a> TryFrom<&'a ApiRequest> for Reference<'a> {
+impl<'a> TryFrom<&'a ApiRequest> for CuidReference<'a> {
     type Error = Error;
 
     #[inline]
-    fn try_from(req: &'a ApiRequest) -> Result<Reference<'a>, Error> {
-        Reference::try_from_fields_key(req, "type", "id_or_slug")
+    fn try_from(req: &'a ApiRequest) -> Result<CuidReference<'a>, Error> {
+        CuidReference::try_from_fields_key(req, "type", "id_or_name")
     }
 }

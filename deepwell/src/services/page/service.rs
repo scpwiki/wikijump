@@ -24,7 +24,7 @@ use crate::models::page::{self, Entity as Page, Model as PageModel};
 use crate::models::page_category::Model as PageCategoryModel;
 use crate::services::revision::{
     CreateFirstRevision, CreateFirstRevisionOutput, CreateResurrectionRevision,
-    CreateRevision, CreateRevisionBody, CreateRevisionOutput,
+    CreateRevision, CreateRevisionBody, CreateRevisionOutput, CreateTombstoneRevision,
 };
 use crate::services::{CategoryService, RevisionService, TextService};
 use crate::web::{get_category_name, trim_default};
@@ -49,7 +49,7 @@ impl PageService {
         let txn = ctx.transaction();
 
         normalize(&mut slug);
-        Self::check_conflicts(ctx, site_id, &slug).await?;
+        Self::check_conflicts(ctx, site_id, &slug, "create").await?;
 
         // Create category if not already present
         let PageCategoryModel { category_id, .. } =
@@ -143,14 +143,11 @@ impl PageService {
         model.update(txn).await?;
 
         // Build and return
-        Ok(revision_output.map(|data| data.into()))
+        Ok(revision_output)
     }
 
     /// Moves a page from from one slug to another.
-    ///
-    /// Note: This is called `rename` and not `move` because
-    ///       the latter is a reserved word in Rust.
-    pub async fn rename(
+    pub async fn r#move(
         ctx: &ServiceContext<'_>,
         site_id: i64,
         reference: Reference<'_>,
@@ -176,7 +173,7 @@ impl PageService {
             return Err(Error::BadRequest);
         }
 
-        Self::check_conflicts(ctx, site_id, &new_slug).await?;
+        Self::check_conflicts(ctx, site_id, &new_slug, "move").await?;
 
         // Create category if not already present
         let PageCategoryModel { category_id, .. } =
@@ -239,7 +236,10 @@ impl PageService {
         ctx: &ServiceContext<'_>,
         site_id: i64,
         reference: Reference<'_>,
-        input: DeletePage,
+        DeletePage {
+            user_id,
+            revision_comments: comments,
+        }: DeletePage,
     ) -> Result<DeletePageOutput> {
         let txn = ctx.transaction();
         let PageModel { page_id, .. } = Self::get(ctx, site_id, reference).await?;
@@ -251,10 +251,12 @@ impl PageService {
         // This also updates backlinks, includes, etc
         let output = RevisionService::create_tombstone(
             ctx,
-            site_id,
-            page_id,
-            input.user_id,
-            input.revision_comments,
+            CreateTombstoneRevision {
+                site_id,
+                page_id,
+                user_id,
+                comments,
+            },
             last_revision,
         )
         .await?;
@@ -276,11 +278,15 @@ impl PageService {
         ctx: &ServiceContext<'_>,
         site_id: i64,
         page_id: i64,
-        input: RestorePage,
+        RestorePage {
+            user_id,
+            slug,
+            revision_comments: comments,
+        }: RestorePage,
     ) -> Result<RestorePageOutput> {
         let txn = ctx.transaction();
         let page = Self::get_direct(ctx, page_id).await?;
-        let slug = input.slug.unwrap_or(page.slug);
+        let slug = slug.unwrap_or(page.slug);
 
         // Do page checks:
         // - Site is correct
@@ -297,20 +303,7 @@ impl PageService {
             return Err(Error::BadRequest);
         }
 
-        let result = Page::find()
-            .filter(
-                Condition::all()
-                    .add(page::Column::SiteId.eq(site_id))
-                    .add(page::Column::Slug.eq(slug.as_str()))
-                    .add(page::Column::DeletedAt.is_null()),
-            )
-            .one(txn)
-            .await?;
-
-        if result.is_some() {
-            tide::log::error!("Page with slug '{slug}' already exists on site ID {site_id}, cannot restore");
-            return Err(Error::Conflict);
-        }
+        Self::check_conflicts(ctx, site_id, &slug, "restore").await?;
 
         // Create category if not already present
         let category =
@@ -324,11 +317,11 @@ impl PageService {
         // This also updates backlinks, includes, etc.
         let output = RevisionService::create_resurrection(
             ctx,
-            site_id,
-            page_id,
             CreateResurrectionRevision {
-                user_id: input.user_id,
-                comments: input.revision_comments,
+                site_id,
+                page_id,
+                user_id,
+                comments,
                 new_slug: slug.clone(),
             },
             last_revision,
@@ -411,7 +404,7 @@ impl PageService {
         model.update(txn).await?;
 
         // Build and return
-        Ok(revision_output.map(|data| data.into()))
+        Ok(revision_output)
     }
 
     /// Undoes a past revision, applying the inverse of its changes.
@@ -564,6 +557,7 @@ impl PageService {
         ctx: &ServiceContext<'_>,
         site_id: i64,
         slug: &str,
+        action: &str,
     ) -> Result<()> {
         let txn = ctx.transaction();
 
@@ -581,10 +575,11 @@ impl PageService {
             None => Ok(()),
             Some(page) => {
                 tide::log::error!(
-                    "Page {} with slug '{}' already exists on site ID {}, cannot create",
+                    "Page {} with slug '{}' already exists on site ID {}, cannot {}",
                     page.page_id,
                     slug,
                     site_id,
+                    action,
                 );
 
                 Err(Error::Conflict)

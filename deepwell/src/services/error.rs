@@ -19,6 +19,9 @@
  */
 
 use crate::locales::LocalizationTranslateError;
+use cuid::CuidError;
+use filemagic::FileMagicError;
+use s3::error::S3Error;
 use sea_orm::error::DbErr;
 use thiserror::Error as ThisError;
 use tide::{Error as TideError, StatusCode};
@@ -34,20 +37,32 @@ pub type Result<T> = StdResult<T, Error>;
 /// facilitated by `PostTransactionToApiResponse`.
 #[derive(ThisError, Debug)]
 pub enum Error {
+    #[error("CUID generation error: {0}")]
+    Cuid(#[from] CuidError),
+
     #[error("Database error: {0}")]
     Database(DbErr),
 
     #[error("Localization error: {0}")]
     Localization(#[from] LocalizationTranslateError),
 
+    #[error("Magic library error: {0}")]
+    Magic(#[from] FileMagicError),
+
     #[error("Serialization error: {0}")]
     Serde(#[from] serde_json::Error),
+
+    #[error("S3 error: {0}")]
+    S3(#[from] S3Error),
 
     #[error("Web server error: HTTP {}", .0.status() as u16)]
     Web(TideError),
 
     #[error("Invalid enum serialization value")]
     InvalidEnumValue,
+
+    #[error("A request to a remote service returned an error")]
+    RemoteOperationFailed,
 
     #[error("The request is in some way malformed or incorrect")]
     BadRequest,
@@ -68,13 +83,19 @@ pub enum Error {
 impl Error {
     pub fn into_tide_error(self) -> TideError {
         match self {
+            Error::Cuid(inner) => TideError::new(StatusCode::InternalServerError, inner),
             Error::Database(inner) => {
                 TideError::new(StatusCode::InternalServerError, inner)
             }
+            Error::Magic(inner) => TideError::new(StatusCode::InternalServerError, inner),
             Error::Localization(inner) => TideError::new(StatusCode::NotFound, inner),
             Error::Serde(inner) => TideError::new(StatusCode::InternalServerError, inner),
+            Error::S3(inner) => TideError::new(StatusCode::InternalServerError, inner),
             Error::Web(inner) => inner,
             Error::InvalidEnumValue => {
+                TideError::from_str(StatusCode::InternalServerError, "")
+            }
+            Error::RemoteOperationFailed => {
                 TideError::from_str(StatusCode::InternalServerError, "")
             }
             Error::BadRequest => TideError::from_str(StatusCode::BadRequest, ""),

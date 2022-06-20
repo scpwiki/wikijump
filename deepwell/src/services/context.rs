@@ -18,7 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::error::Result;
 use crate::api::{ApiRequest, ApiServerState};
+use cuid::cuid;
+use s3::bucket::Bucket;
 use sea_orm::DatabaseTransaction;
 use std::sync::Arc;
 
@@ -46,13 +49,18 @@ impl<'txn> ServiceContext<'txn> {
 
     // Getters
     #[inline]
-    #[allow(dead_code)] // temp
-    pub fn state(&self) -> &ApiServerState {
-        &self.state
+    pub fn s3_bucket(&self) -> &Bucket {
+        &self.state.s3_bucket
     }
 
     #[inline]
     pub fn transaction(&self) -> &'txn DatabaseTransaction {
         self.transaction
+    }
+
+    // Helpers
+    pub fn cuid(&self) -> Result<String> {
+        let cuid = cuid()?;
+        Ok(cuid)
     }
 }

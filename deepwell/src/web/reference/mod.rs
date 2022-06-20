@@ -1,5 +1,5 @@
 /*
- * services/render/structs.rs
+ * web/reference.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,13 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
-use crate::hash::Hash;
+//! A representation of a way of referenceing an item, either by name or by ID.
+//!
+//! For instance, a page can be referenced via its ID, or in the context of a site,
+//! via its page slug.
 
-#[derive(Debug)]
-pub struct RenderOutput {
-    pub html_output: HtmlOutput,
-    pub warnings: Vec<ParseWarning>,
-    pub compiled_hash: Hash,
-    pub compiled_generator: String,
-}
+mod cuid;
+mod id;
+
+pub use self::cuid::CuidReference;
+pub use self::id::Reference;

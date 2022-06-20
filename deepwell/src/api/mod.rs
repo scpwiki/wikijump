@@ -29,9 +29,11 @@
 use crate::config::Config;
 use crate::database;
 use crate::locales::Localizations;
+use crate::services::blob::spawn_magic_thread;
 use crate::services::job::JobRunner;
 use crate::web::ratelimit::GovernorMiddleware;
 use anyhow::Result;
+use s3::bucket::Bucket;
 use sea_orm::DatabaseConnection;
 use std::sync::Arc;
 
@@ -49,6 +51,7 @@ pub struct ServerState {
     pub config: Config,
     pub database: DatabaseConnection,
     pub localizations: Localizations,
+    pub s3_bucket: Bucket,
 }
 
 pub async fn build_server(config: Config) -> Result<ApiServer> {
@@ -63,11 +66,21 @@ pub async fn build_server(config: Config) -> Result<ApiServer> {
     tide::log::info!("Loading localization data");
     let localizations = Localizations::open(&config.localization_path).await?;
 
+    // Create S3 bucket
+    tide::log::info!("Opening S3 bucket");
+
+    let s3_bucket = Bucket::new(
+        &config.s3_bucket,
+        config.aws_region.clone(),
+        config.aws_credentials.clone(),
+    )?;
+
     // Create server state
     let state = Arc::new(ServerState {
         config,
         database,
         localizations,
+        s3_bucket,
     });
 
     macro_rules! new {
@@ -76,8 +89,11 @@ pub async fn build_server(config: Config) -> Result<ApiServer> {
         };
     }
 
-    // Create job executor task
+    // Start job executor task
     JobRunner::spawn(&state);
+
+    // Start MIME evaluator thread
+    spawn_magic_thread();
 
     // Create server and add routes
     let mut app = new!();

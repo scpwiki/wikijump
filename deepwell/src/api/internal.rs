@@ -24,8 +24,8 @@
 
 use crate::api::ApiServer;
 use crate::methods::{
-    category::*, link::*, locales::*, misc::*, page::*, parent::*, revision::*, site::*,
-    text::*, user::*, vote::*,
+    category::*, file::*, file_revision::*, link::*, locales::*, misc::*, page::*,
+    page_revision::*, parent::*, site::*, text::*, user::*, vote::*,
 };
 use crate::web::utils::error_response;
 use tide::StatusCode;
@@ -133,6 +133,37 @@ pub fn build(mut app: ApiServer) -> ApiServer {
     app.at("/page/:type/:id_or_slug").all(page_invalid);
     app.at("/page/:site_id/id/:page_slug/links/to/missing")
         .all(page_invalid);
+
+    // Files
+    app.at("/file/direct/:file_id")
+        .head(file_head_direct)
+        .get(file_get_direct);
+
+    app.at("/file/:site_id/:type/:id_or_slug").post(file_create);
+
+    app.at("/file/:site_id/:page_type/:id_or_slug/:file_type/:id_or_name")
+        .head(file_head)
+        .get(file_get)
+        .post(file_edit)
+        .delete(file_delete);
+
+    app.at("/file/:site_id/:page_type/:id_or_slug/move")
+        .post(file_move);
+
+    app.at("/file/:site_id/:page_type/:id_or_slug/restore")
+        .post(file_restore);
+
+    // File revisions
+    app.at("/file/:site_id/:page_type/:id_or_slug/:file_type/:id_or_name/revision")
+        .get(file_revision_info);
+
+    app.at("/file/:site_id/:page_type/:id_or_slug/:file_type/:id_or_name/revision/:revision_number")
+        .head(file_revision_head)
+        .get(file_revision_get)
+        .put(file_revision_put);
+
+    app.at("/file/:site_id/:page_type/:id_or_slug/:file_type/:id_or_name/revision/:revision_number/:direction")
+        .get(file_revision_range_get);
 
     // Text
     // TEMP

@@ -30,12 +30,12 @@
 mod prelude {
     pub use crate::api::{ApiRequest, ApiResponse};
     pub use crate::services::{
-        CategoryService, Error as ServiceError, LinkService, PageService,
-        PostTransactionToApiResponse, RenderService, RequestFetchService,
-        RevisionService, ScoreService, ServiceContext, SiteService, TextService,
-        UserService, VoteService,
+        BlobService, CategoryService, Error as ServiceError, FileRevisionService,
+        FileService, LinkService, PageService, PostTransactionToApiResponse,
+        RenderService, RequestFetchService, RevisionService, ScoreService,
+        ServiceContext, SiteService, TextService, UserService, VoteService,
     };
-    pub use crate::web::{utils::error_response, HttpUnwrap, Reference};
+    pub use crate::web::{utils::error_response, CuidReference, HttpUnwrap, Reference};
     pub use chrono::prelude::*;
     pub use sea_orm::{ConnectionTrait, TransactionTrait};
     pub use std::convert::TryFrom;
@@ -51,12 +51,14 @@ mod prelude {
 }
 
 pub mod category;
+pub mod file;
+pub mod file_revision;
 pub mod link;
 pub mod locales;
 pub mod misc;
 pub mod page;
+pub mod page_revision;
 pub mod parent;
-pub mod revision;
 pub mod site;
 pub mod text;
 pub mod user;

@@ -38,7 +38,7 @@ mod prelude {
     pub use super::context::ServiceContext;
     pub use super::error::*;
     pub use crate::utils::now;
-    pub use crate::web::{ProvidedValue, Reference};
+    pub use crate::web::{CuidReference, ProvidedValue, Reference};
     pub use chrono::Utc;
     pub use sea_orm::{
         ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, EntityTrait, JoinType,
@@ -50,7 +50,10 @@ mod prelude {
 mod context;
 mod error;
 
+pub mod blob;
 pub mod category;
+pub mod file;
+pub mod file_revision;
 pub mod job;
 pub mod link;
 pub mod outdate;
@@ -67,9 +70,12 @@ pub mod vote;
 use crate::api::ApiRequest;
 use sea_orm::DatabaseConnection;
 
+pub use self::blob::BlobService;
 pub use self::category::CategoryService;
 pub use self::context::ServiceContext;
 pub use self::error::*;
+pub use self::file::FileService;
+pub use self::file_revision::FileRevisionService;
 pub use self::job::JobService;
 pub use self::link::LinkService;
 pub use self::outdate::OutdateService;

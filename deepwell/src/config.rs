@@ -21,6 +21,8 @@
 use crate::info;
 use clap::{Arg, Command};
 use dotenv::dotenv;
+use ref_map::*;
+use s3::{creds::Credentials, region::Region};
 use std::env;
 use std::net::SocketAddr;
 use std::num::NonZeroU32;
@@ -66,6 +68,25 @@ pub struct Config {
     /// Can be set using environment variable `RUN_MIGRATIONS`.
     pub run_migrations: bool,
 
+    /// The name of the S3 bucket that file blobs are kept in.
+    /// The bucket must already exist prior to program invocation.
+    ///
+    /// Can be set using environment variable `S3_BUCKET`.
+    pub s3_bucket: String,
+
+    /// The AWS region to run in.
+    ///
+    /// Can be set using environment variable `AWS_REGION` if standard,
+    /// or `AWS_REGION_NAME` and `AWS_REGION_ENDPOINT` if custom.
+    pub aws_region: Region,
+
+    /// The AWS credentials.
+    ///
+    /// Can be set using environment variable `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`.
+    /// Alternatively or set in the AWS credentials file.
+    /// Which profile to read from can be set in the `AWS_PROFILE_NAME` environment variable.
+    pub aws_credentials: Credentials,
+
     /// The location where all gettext translation files are kept.
     ///
     /// Can be set using environment variable `LOCALIZATION_PATH`.
@@ -92,6 +113,17 @@ impl Default for Config {
             address: "[::]:2747".parse().unwrap(),
             database_url: str!("postgres://localhost"),
             run_migrations: true,
+            s3_bucket: String::new(),
+            aws_region: Region::Custom {
+                region: String::new(),
+                endpoint: String::new(),
+            },
+            aws_credentials: Credentials {
+                access_key: None,
+                secret_key: None,
+                security_token: None,
+                session_token: None,
+            },
             localization_path: PathBuf::from("../locales"),
             rate_limit_per_minute: NonZeroU32::new(20).unwrap(),
             rate_limit_secret: String::new(),
@@ -155,6 +187,44 @@ fn read_env(config: &mut Config) {
                 process::exit(1);
             }
         }
+    }
+
+    if let Ok(value) = env::var("S3_BUCKET") {
+        config.s3_bucket = value;
+    }
+
+    if let Ok(value) = env::var("AWS_REGION") {
+        match value.parse() {
+            Ok(region) => config.aws_region = region,
+            Err(_) => {
+                eprintln!("AWS_REGION variable is not a valid AWS region ID");
+                process::exit(1);
+            }
+        }
+    } else {
+        let region = env::var("AWS_REGION_NAME");
+        let endpoint = env::var("AWS_REGION_ENDPOINT");
+
+        if let (Ok(region), Ok(endpoint)) = (region, endpoint) {
+            config.aws_region = Region::Custom { region, endpoint };
+        }
+    }
+
+    if let Ok(credentials) = Credentials::from_env() {
+        // Try to read from environment
+        config.aws_credentials = credentials;
+    } else {
+        // Try to read from profile
+        let profile_name = env::var("AWS_PROFILE_NAME").ok();
+        let profile_name = profile_name.ref_map(|s| s.as_str());
+
+        config.aws_credentials = match Credentials::from_profile(profile_name) {
+            Ok(credentials) => credentials,
+            Err(error) => {
+                eprintln!("Unable to read credentials: {}", error);
+                process::exit(1);
+            }
+        };
     }
 
     if let Some(value) = env::var_os("LOCALIZATION_PATH") {
@@ -241,6 +311,22 @@ fn parse_args(config: &mut Config) {
                 .help("Whether to run migrations on server startup."),
         )
         .arg(
+            Arg::new("s3-bucket")
+                .short('B')
+                .long("bucket")
+                .long("s3-bucket")
+                .takes_value(true)
+                .value_name("NAME")
+                .help("The name of the S3 bucket where uploaded file blobs are kept."),
+        )
+        .arg(
+            Arg::new("aws-region")
+                .long("aws-region")
+                .takes_value(true)
+                .value_name("NAME")
+                .help("The name of the standard AWS region to use for AWS calls."),
+        )
+        .arg(
             Arg::new("localization-path")
                 .short('L')
                 .long("localizations")
@@ -302,6 +388,20 @@ fn parse_args(config: &mut Config) {
             }
         }
     }
+
+    if let Some(bucket) = matches.value_of("s3-bucket") {
+        config.s3_bucket = bucket.into();
+    };
+
+    if let Some(value) = matches.value_of("aws-region") {
+        match value.parse() {
+            Ok(region) => config.aws_region = region,
+            Err(_) => {
+                eprintln!("Invalid standard AWS region name: {value}");
+                process::exit(1);
+            }
+        }
+    };
 
     if let Some(localization_path) = matches.value_of_os("localization-path") {
         config.localization_path = localization_path.into();

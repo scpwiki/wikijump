@@ -25,7 +25,7 @@ use crate::json_utils::{
 use crate::models::page_revision::{
     self, Entity as PageRevision, Model as PageRevisionModel,
 };
-use crate::models::sea_orm_active_enums::RevisionType;
+use crate::models::sea_orm_active_enums::PageRevisionType;
 use crate::services::render::RenderOutput;
 use crate::services::{
     LinkService, OutdateService, ParentService, RenderService, ScoreService, SiteService,
@@ -35,6 +35,7 @@ use crate::web::{split_category, split_category_name, FetchDirection};
 use ftml::data::PageInfo;
 use ftml::settings::{WikitextMode, WikitextSettings};
 use ref_map::*;
+use serde_json::json;
 use std::borrow::Cow;
 use std::num::NonZeroI32;
 
@@ -103,21 +104,7 @@ impl RevisionService {
         previous: PageRevisionModel,
     ) -> Result<Option<CreateRevisionOutput>> {
         let txn = ctx.transaction();
-
-        let revision_number = {
-            // Check for basic consistency
-            assert_eq!(
-                previous.site_id, site_id,
-                "Previous revision has an inconsistent site ID",
-            );
-            assert_eq!(
-                previous.page_id, page_id,
-                "Previous revision has an inconsistent page ID",
-            );
-
-            // Get the new revision number
-            previous.revision_number + 1
-        };
+        let revision_number = next_revision_number(&previous, site_id, page_id);
 
         // Fields to create in the revision
         let mut parser_warnings = None;
@@ -140,6 +127,7 @@ impl RevisionService {
         //
         // We check the values so that the only listed "changes"
         // are those that actually are different.
+
         if let ProvidedValue::Set(new_title) = body.title {
             if title != new_title {
                 changes.push("title");
@@ -254,7 +242,7 @@ impl RevisionService {
                 OutdateService::process_page_move(ctx, site_id, page_id, old_slug, &slug)
                     .await?;
 
-                RevisionType::Move
+                PageRevisionType::Move
             }
             None => {
                 // Run all outdating tasks in parallel.
@@ -282,7 +270,7 @@ impl RevisionService {
                     ),
                 )?;
 
-                RevisionType::Regular
+                PageRevisionType::Regular
             }
         };
 
@@ -367,12 +355,11 @@ impl RevisionService {
 
         // Effective constant, number of changes for the first revision.
         // The first revision is always considered to have changed everything.
-        let all_changes =
-            serde_json::json!(["wikitext", "title", "alt_title", "slug", "tags"]);
+        let all_changes = json!(["wikitext", "title", "alt_title", "slug", "tags"]);
 
-        // Insert the new revision into the table
+        // Insert the first revision into the table
         let model = page_revision::ActiveModel {
-            revision_type: Set(RevisionType::Create),
+            revision_type: Set(PageRevisionType::Create),
             revision_number: Set(0),
             page_id: Set(page_id),
             site_id: Set(site_id),
@@ -383,11 +370,11 @@ impl RevisionService {
             compiled_at: Set(now()),
             compiled_generator: Set(compiled_generator),
             comments: Set(comments),
-            hidden: Set(serde_json::json!([])),
+            hidden: Set(json!([])),
             title: Set(title),
             alt_title: Set(alt_title),
             slug: Set(slug),
-            tags: Set(serde_json::json!([])),
+            tags: Set(json!([])),
             ..Default::default()
         };
 
@@ -402,37 +389,27 @@ impl RevisionService {
     ///
     /// This revision is called a "tombstone" in that
     /// its only purpose is to mark that the page has been deleted.
+    ///
+    /// # Panics
+    /// If the given previous revision is for a different page or site, this method will panic.
     pub async fn create_tombstone(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
-        user_id: i64,
-        comments: String,
+        CreateTombstoneRevision {
+            site_id,
+            page_id,
+            user_id,
+            comments,
+        }: CreateTombstoneRevision,
         previous: PageRevisionModel,
     ) -> Result<CreateRevisionOutput> {
         let txn = ctx.transaction();
-
-        let revision_number = {
-            // Check for basic consistency
-            assert_eq!(
-                previous.site_id, site_id,
-                "Previous revision has an inconsistent site ID",
-            );
-            assert_eq!(
-                previous.page_id, page_id,
-                "Previous revision has an inconsistent page ID",
-            );
-
-            // Get the new revision number
-            previous.revision_number + 1
-        };
+        let revision_number = next_revision_number(&previous, site_id, page_id);
 
         let PageRevisionModel {
             wikitext_hash,
             compiled_hash,
             compiled_at,
             compiled_generator,
-            hidden,
             title,
             alt_title,
             slug,
@@ -448,18 +425,18 @@ impl RevisionService {
 
         // Insert the tombstone revision into the table
         let model = page_revision::ActiveModel {
-            revision_type: Set(RevisionType::Delete),
+            revision_type: Set(PageRevisionType::Delete),
             revision_number: Set(revision_number),
             page_id: Set(page_id),
             site_id: Set(site_id),
             user_id: Set(user_id),
-            changes: Set(serde_json::json!([])),
+            changes: Set(json!([])),
             wikitext_hash: Set(wikitext_hash),
             compiled_hash: Set(compiled_hash),
             compiled_at: Set(compiled_at),
             compiled_generator: Set(compiled_generator),
             comments: Set(comments),
-            hidden: Set(hidden),
+            hidden: Set(json!([])),
             title: Set(title),
             alt_title: Set(alt_title),
             slug: Set(slug),
@@ -487,11 +464,14 @@ impl RevisionService {
     /// Remember that, like `create_first()`, this method assumes
     /// the caller has already verified that undeleting the page here
     /// will not cause conflicts.
+    ///
+    /// # Panics
+    /// If the given previous revision is for a different page or site, this method will panic.
     pub async fn create_resurrection(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
         CreateResurrectionRevision {
+            site_id,
+            page_id,
             user_id,
             comments,
             new_slug,
@@ -499,21 +479,7 @@ impl RevisionService {
         previous: PageRevisionModel,
     ) -> Result<CreateRevisionOutput> {
         let txn = ctx.transaction();
-
-        let revision_number = {
-            // Check for basic consistency
-            assert_eq!(
-                previous.site_id, site_id,
-                "Previous revision has an inconsistent site ID",
-            );
-            assert_eq!(
-                previous.page_id, page_id,
-                "Previous revision has an inconsistent page ID",
-            );
-
-            // Get the new revision number
-            previous.revision_number + 1
-        };
+        let revision_number = next_revision_number(&previous, site_id, page_id);
 
         let PageRevisionModel {
             wikitext_hash,
@@ -563,7 +529,7 @@ impl RevisionService {
         // Insert the resurrection revision into the table
         let changes = string_list_to_json(&changes)?;
         let model = page_revision::ActiveModel {
-            revision_type: Set(RevisionType::Undelete),
+            revision_type: Set(PageRevisionType::Undelete),
             revision_number: Set(revision_number),
             page_id: Set(page_id),
             site_id: Set(site_id),
@@ -894,4 +860,19 @@ fn replace_hash(dest: &mut Vec<u8>, src: &[u8]) {
     );
 
     dest.as_mut_slice().copy_from_slice(src);
+}
+
+fn next_revision_number(previous: &PageRevisionModel, site_id: i64, page_id: i64) -> i32 {
+    // Check for basic consistency
+    assert_eq!(
+        previous.site_id, site_id,
+        "Previous revision has an inconsistent site ID",
+    );
+    assert_eq!(
+        previous.page_id, page_id,
+        "Previous revision has an inconsistent page ID",
+    );
+
+    // Get the new revision number
+    previous.revision_number + 1
 }

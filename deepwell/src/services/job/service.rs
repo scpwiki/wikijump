@@ -33,13 +33,13 @@ lazy_static! {
         mpsc::unbounded_future();
 }
 
-macro_rules! source {
+macro_rules! sink {
     () => {
         QUEUE.0
     };
 }
 
-macro_rules! sink {
+macro_rules! source {
     () => {
         QUEUE.1
     };
@@ -51,7 +51,7 @@ pub struct JobService;
 impl JobService {
     #[inline]
     fn queue_job(job: Job) {
-        source!().send(job).expect("Job channel has disconnected");
+        sink!().send(job).expect("Job channel has disconnected");
     }
 
     pub fn queue_rerender_page(site_id: i64, page_id: i64) {
@@ -82,7 +82,11 @@ impl JobRunner {
 
         loop {
             tide::log::trace!("Waiting for next job on queue...");
-            let job = sink!().recv().await.expect("Job channel has disconnected");
+            let job = source!()
+                .recv()
+                .await
+                .expect("Job channel has disconnected");
+
             tide::log::debug!("Received new job item: {:?}", job);
 
             match self.process_job(job).await {
@@ -90,7 +94,7 @@ impl JobRunner {
                 Err(error) => tide::log::warn!("Error processing job: {error}"),
             }
 
-            tide::log::debug!("Estimated queue backlog: {} items", sink!().len());
+            tide::log::debug!("Estimated queue backlog: {} items", source!().len());
             task::sleep(JOB_DELAY).await; // Sleep a bit to avoid overloading the database
         }
     }

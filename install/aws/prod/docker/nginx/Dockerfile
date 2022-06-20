@@ -8,7 +8,7 @@ FROM node:alpine AS node
 ARG ENVIRONMENT="local"
 
 # Copy relevant .env file
-COPY ./install/files/${ENVIRONMENT}/env .env
+COPY ./install/files/${ENVIRONMENT}/nginx_env .env
 
 # Install pnpm
 RUN npm install -g pnpm
