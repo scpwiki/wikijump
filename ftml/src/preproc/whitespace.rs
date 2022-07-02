@@ -46,7 +46,7 @@ pub fn substitute(text: &mut String) {
     str_replace(text, "\r", "\n");
 
     // Strip lines with only whitespace
-    regex_replace(text, WHITESPACE, "");
+    regex_replace(text, &WHITESPACE, "");
 
     // Join concatenated lines (ending with '\')
     str_replace(text, "\\\n", "");
@@ -59,8 +59,8 @@ pub fn substitute(text: &mut String) {
 
     // Remove leading and trailing newlines,
     // save one at the end
-    regex_replace(text, LEADING_NEWLINES, "");
-    regex_replace(text, TRAILING_NEWLINES, "");
+    regex_replace(text, &LEADING_NEWLINES, "");
+    regex_replace(text, &TRAILING_NEWLINES, "");
 }
 
 fn str_replace(text: &mut String, pattern: &str, replacement: &str) {
