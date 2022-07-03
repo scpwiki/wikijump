@@ -11,6 +11,7 @@ import psycopg2
 import py7zr
 from bidict import bidict
 
+REPLACE_COLON = True
 SITE_CREATION_DATE = datetime(1970, 1, 1)
 
 Site = namedtuple("Site", ("slug", "wikijump_id", "directory"))
@@ -117,10 +118,40 @@ class WikicommaImporter:
                     discussion_thread_id,
                 ),
             )
-        del mapping
 
-        # Store page revisions
-        # TODO
+            # Add page revisions to database
+            page_metadata_filename = f"{page_slug}.json"
+            if REPLACE_COLON:
+                page_metadata_filename = page_metadata_filename.replace(":", "_")
+            page_metadata = self.read_json(site.directory, "meta", "pages", page_metadata_filename)
+
+            assert page_metadata["name"] == page_slug
+
+            for revision in page_metadata["revisions"]:
+                user_id = None  # TODO get based on username, revision["author"]
+                                # if isinstance int, then that's the user ID
+
+                self.append_sql(
+                    "INSERT INTO page_revision (revision_id, revision_type, created_at, revision_number, slug, page_id, site_id, user_id, changes, wikitext_hash, compiled_hash, compiled_at, compiled_generator, comments, title, tags) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                    (
+                        revision["global_revision"],
+                        revision_type,
+                        datetime.fromtimestamp(revision["stamp"]),
+                        revision["revision"],
+                        page_slug,
+                        page_id,
+                        site.wikijump_id,
+                        user_id,
+                        changes,
+                        wikitext_hash,
+                        compiled_hash,
+                        datetime.utcnow(),
+                        "WikiComma import tool",
+                        revision["commentary"],
+                        title, # NOTE: We can't tell what they were historically, so we just assign the same value
+                        tags,
+                    ),
+                )
 
     def pull_site_forum(self, site):
         print(f"++ Writing forum posts")
@@ -186,6 +217,9 @@ class WikicommaImporter:
             self.text_hashes.add(text_hash)
 
         return text_hash
+
+    def add_user(self):
+        # TODO
 
     @staticmethod
     def read_json(*path_parts):
