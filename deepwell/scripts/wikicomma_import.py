@@ -51,16 +51,16 @@ class WikicommaImporter:
         with open(self.output_file, "w") as self._file:
             with psycopg2.connect(self.database_url) as self._conn:
                 with conn.cursor() as self._cur:
-                    self.pull_all()
+                    self.add_all()
 
         self._clean()
         print(f"Finished. Wrote SQL query to {self.output_file}")
 
-    def pull_all(self):
+    def add_all(self):
         for site_slug in os.listdir(self.wikicomma_directory):
-            self.pull_site(site_slug)
+            self.add_site(site_slug)
 
-    def pull_site(self, site_slug):
+    def add_site(self, site_slug):
         print(f"+ Pulling site {site_slug}")
 
         # Create site
@@ -86,11 +86,11 @@ class WikicommaImporter:
         site = Site(slug=site_slug, wj_id=site_id, directory=site_directory)
 
         # Pull contents within this site
-        self.pull_site_pages(site)
-        self.pull_site_forum(site)
-        self.pull_site_files(site)
+        self.add_site_pages(site)
+        self.add_site_forum(site)
+        self.add_site_files(site)
 
-    def pull_site_pages(self, site):
+    def add_site_pages(self, site):
         print(f"++ Writing pages")
         self.append_sql_section("Pages")
 
@@ -153,14 +153,14 @@ class WikicommaImporter:
                     ),
                 )
 
-    def pull_site_forum(self, site):
+    def add_site_forum(self, site):
         print(f"++ Writing forum posts")
         self.append_sql_section("Forum")
 
         # TODO
         print("++ TODO")
 
-    def pull_site_files(self, site):
+    def add_site_files(self, site):
         print(f"++ Writing files")
         self.append_sql_section("Files")
 
