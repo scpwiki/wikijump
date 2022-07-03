@@ -130,8 +130,7 @@ class WikicommaImporter:
 
     def add_page_revisions(self, site, page, metadata):
         for revision in metadata["revisions"]:
-            user_id = None  # TODO get based on username, revision["author"]
-            # if isinstance int, then that's the user ID
+            user_id = self.get_user_id(revision["author"])
             title = metadata["title"]
             tags = metadata["tags"]
 
@@ -159,8 +158,7 @@ class WikicommaImporter:
 
     def add_page_votes(self, site, page, metadata):
         for (user_spec, value) in metadata["votings"]:
-            user_id = None  # TODO get based on username, user_spec
-            # if isinstance int, then that's the user ID
+            user_id = self.get_user_id(user_spec)
 
             if isinstance(value, bool):
                 value = +1 if value else -1
@@ -249,12 +247,16 @@ class WikicommaImporter:
         return text_hash
 
     def add_user(self):
-        # TODO
-        pass
+        # TODO implement method
+        # TODO change over when user table changes
+        raise NotImplementedError
 
-    def get_user(self, spec):
-        # TODO
-        pass
+    def get_user_id(self, spec):
+        if isinstance(spec, int):
+            return spec
+
+        # TODO get user by slug
+        raise NotImplementedError
 
     def read_page_metadata(self, site, page_slug):
         page_metadata_filename = f"{page_slug}.json"
