@@ -12,9 +12,11 @@ import py7zr
 from bidict import bidict
 
 REPLACE_COLON = True
-SITE_CREATION_DATE = datetime(1970, 1, 1)
+ANONYMOUS_USER_ID = 3
+UNKNOWN_CREATION_DATE = datetime.fromtimestamp(0)
 
 Site = namedtuple("Site", ("slug", "wikijump_id", "directory"))
+Page = namedtuple("Page", ("slug", "wikidot_id"))
 
 
 class WikicommaImporter:
@@ -72,7 +74,7 @@ class WikicommaImporter:
                 site_slug,
                 f"[NEEDS UPDATE] {site_slug}",
                 f"[NEEDS UPDATE] {site_slug}",
-                SITE_CREATION_DATE,
+                UNKNOWN_CREATION_DATE,
             ),
         )
 
@@ -118,40 +120,74 @@ class WikicommaImporter:
                     discussion_thread_id,
                 ),
             )
+            page = Page(slug=page_slug, wikidot_id=page_id)
 
-            # Add page revisions to database
             page_metadata_filename = f"{page_slug}.json"
             if REPLACE_COLON:
                 page_metadata_filename = page_metadata_filename.replace(":", "_")
-            page_metadata = self.read_json(site.directory, "meta", "pages", page_metadata_filename)
+            page_metadata = self.read_json(
+                site.directory, "meta", "pages", page_metadata_filename,
+            )
 
             assert page_metadata["name"] == page_slug
 
-            for revision in page_metadata["revisions"]:
-                user_id = None  # TODO get based on username, revision["author"]
-                                # if isinstance int, then that's the user ID
+            # Add page revisions to database
+            self.add_page_revisions(site, page, page_metadata)
 
-                self.append_sql(
-                    "INSERT INTO page_revision (revision_id, revision_type, created_at, revision_number, slug, page_id, site_id, user_id, changes, wikitext_hash, compiled_hash, compiled_at, compiled_generator, comments, title, tags) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                    (
-                        revision["global_revision"],
-                        revision_type,
-                        datetime.fromtimestamp(revision["stamp"]),
-                        revision["revision"],
-                        page_slug,
-                        page_id,
-                        site.wikijump_id,
-                        user_id,
-                        changes,
-                        wikitext_hash,
-                        compiled_hash,
-                        datetime.utcnow(),
-                        "WikiComma import tool",
-                        revision["commentary"],
-                        title, # NOTE: We can't tell what they were historically, so we just assign the same value
-                        tags,
-                    ),
-                )
+    def add_page_revisions(self, site, page, metadata):
+        for revision in metadata["revisions"]:
+            user_id = None  # TODO get based on username, revision["author"]
+            # if isinstance int, then that's the user ID
+            title = metadata["title"]
+            tags = metadata["tags"]
+
+            self.append_sql(
+                "INSERT INTO page_revision (revision_id, revision_type, created_at, revision_number, slug, page_id, site_id, user_id, changes, wikitext_hash, compiled_hash, compiled_at, compiled_generator, comments, title, tags) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                (
+                    revision["global_revision"],
+                    revision_type,
+                    datetime.fromtimestamp(revision["stamp"]),
+                    revision["revision"],
+                    page_slug,
+                    page_id,
+                    site.wikijump_id,
+                    user_id,
+                    changes,
+                    wikitext_hash,
+                    compiled_hash,
+                    datetime.utcnow(),
+                    "WikiComma import tool",
+                    revision["commentary"],
+                    title,  # NOTE: We can't tell what they were historically, so we just assign the same value
+                    tags,
+                ),
+            )
+
+    def add_page_votes(self, site, page, metadata):
+        for (user_spec, value) in metadata["votings"]:
+            user_id = None  # TODO get based on username, user_spec
+            # if isinstance int, then that's the user ID
+
+            if isinstance(value, bool):
+                value = +1 if value else -1
+
+            self.append_sql(
+                "INSERT INTO page_vote (created_at, page_id, user_id, value)",
+                (UNKNOWN_CREATION_DATE, page.wikidot_id, user_id, value),
+            )
+
+    def add_page_lock(self, site, page, metadata):
+        if metadata["is_locked"]:
+            self.append_sql(
+                "INSERT INTO page_lock (created_at, lock_type, page_id, user_id, reason) VALUES (%s, %s, %s, %s, %s)",
+                (
+                    UNKNOWN_CREATION_DATE,
+                    "wikidot",
+                    page.wikidot_id,
+                    ANONYMOUS_USER_ID,
+                    "Lock imported from Wikidot",
+                ),
+            )
 
     def add_site_forum(self, site):
         print(f"++ Writing forum posts")
@@ -220,6 +256,11 @@ class WikicommaImporter:
 
     def add_user(self):
         # TODO
+        pass
+
+    def get_user(self, spec):
+        # TODO
+        pass
 
     @staticmethod
     def read_json(*path_parts):
