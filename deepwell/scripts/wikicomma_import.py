@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import hashlib
 import os
 
 import psycopg2
@@ -11,6 +12,7 @@ class WikicommaImporter:
         "output_file",
         "database_url",
         "wikicomma_directory",
+        "text_hashes",
         "_file",
         "_conn",
         "_cur",
@@ -20,6 +22,9 @@ class WikicommaImporter:
         self.output_file = args.output_file
         self.database_url = args.database_url
         self.wikicomma_directory = os.path.normpath(args.wikicomma_directory)
+
+        self.text_hashes = set()
+
         self._clean()
 
     def run(self):
@@ -79,6 +84,15 @@ class WikicommaImporter:
     def append_sql_section(self, name):
         self._file.writelines(["\n\n--\n-- ", name, "\n--\n\n"])
 
+    def add_text(self, text):
+        text_bytes = text.encode("utf-8")
+        text_hash = hashlib.sha512(text_bytes).digest()
+
+        if text_hash not in self.text_hashes:
+            self.append_sql("INSERT INTO text (hash, contents) VALUES (%s, %s)", (text_hash, text))
+            self.text_hashes.add(text_hash)
+
+        return text_hash
 
 if __name__ == "__main__":
     # Parse arguments
