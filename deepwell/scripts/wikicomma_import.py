@@ -5,6 +5,7 @@ import hashlib
 import os
 
 import psycopg2
+import py7zr
 
 
 class WikicommaImporter:
