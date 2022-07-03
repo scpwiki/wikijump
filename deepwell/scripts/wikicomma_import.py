@@ -52,7 +52,7 @@ class WikicommaImporter:
 
         with open(self.output_file, "w") as self._file:
             with psycopg2.connect(self.database_url) as self._conn:
-                with conn.cursor() as self._cur:
+                with self._conn.cursor() as self._cur:
                     self.add_all()
 
         self._clean()
