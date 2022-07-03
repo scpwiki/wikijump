@@ -2,10 +2,18 @@
 
 import argparse
 import hashlib
+import json
 import os
+from collections import namedtuple
+from datetime import datetime
 
 import psycopg2
 import py7zr
+from bidict import bidict
+
+SITE_CREATION_DATE = datetime(1970, 1, 1)
+
+Site = namedtuple("Site", ("slug", "wikijump_id", "directory"))
 
 
 class WikicommaImporter:
@@ -14,6 +22,10 @@ class WikicommaImporter:
         "database_url",
         "wikicomma_directory",
         "text_hashes",
+        "pages",
+        "page_categories",
+        "last_site_id",
+        "last_category_id",
         "_file",
         "_conn",
         "_cur",
@@ -25,6 +37,10 @@ class WikicommaImporter:
         self.wikicomma_directory = os.path.normpath(args.wikicomma_directory)
 
         self.text_hashes = set()
+        self.pages = bidict()
+        self.page_categories = {}
+        self.last_site_id = args.start_site_id
+        self.last_category_id = args.start_category_id
 
         self._clean()
 
@@ -40,35 +56,93 @@ class WikicommaImporter:
         print(f"Finished. Wrote SQL query to {self.output_file}")
 
     def pull_all(self):
-        for site in os.listdir(self.wikicomma_directory):
-            self.pull_site(site)
+        for site_slug in os.listdir(self.wikicomma_directory):
+            self.pull_site(site_slug)
 
-    def pull_site(self, site):
-        print(f"+ Pulling site {site}")
-        site_directory = os.path.join(self.wikicomma_directory, site)
+    def pull_site(self, site_slug):
+        print(f"+ Pulling site {site_slug}")
 
-        self.pull_site_pages(site_directory)
-        self.pull_site_forum(site_directory)
-        self.pull_site_files(site_directory)
+        # Create site
+        self.append_sql_section(f"Site {site_slug}")
+        self.append_sql(
+            # NOTE: Site name, description, and date created will need to be adjusted
+            "INSERT INTO site (slug, name, description, date_created)",
+            (
+                site_slug,
+                f"[NEEDS UPDATE] {site_slug}",
+                f"[NEEDS UPDATE] {site_slug}",
+                SITE_CREATION_DATE,
+            ),
+        )
 
-    def pull_site_pages(self, site_directory):
+        # Reset site-specific values
+        self.pages = bidict()
+        self.page_categories = {}
+
+        # Create site data objects
+        site_id = self.next_site_id()
+        site_directory = os.path.join(self.wikicomma_directory, site_slug)
+        site = Site(slug=site_slug, wj_id=site_id, directory=site_directory)
+
+        # Pull contents within this site
+        self.pull_site_pages(site)
+        self.pull_site_forum(site)
+        self.pull_site_files(site)
+
+    def pull_site_pages(self, site):
         print(f"++ Writing pages")
         self.append_sql_section("Pages")
 
+        # Load page mapping
+        mapping = self.read_json(site.directory, "meta", "page_id_map.json")
+
+        for page_id, page_slug in mapping.items():
+            # Store page data locally
+            page_id = int(page_id)
+            self.pages[page_id] = page_slug
+
+            # Add page to database
+            page_category_id = self.add_page_category(page_slug)
+            discussion_thread_id = None  # TODO get discussion thread ID
+
+            self.append_sql(
+                "INSERT INTO page (page_id, created_at, updated_at, site_id, page_category_id, slug, discussion_thread_id) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                (
+                    page_id,
+                    created_at,
+                    updated_at,
+                    site.wikijump_id,
+                    page_category_id,
+                    page_slug,
+                    discussion_thread_id,
+                ),
+            )
+        del mapping
+
+        # Store page revisions
         # TODO
 
-    def pull_site_forum(self, site_directory):
+    def pull_site_forum(self, site):
         print(f"++ Writing forum posts")
         self.append_sql_section("Forum")
 
         # TODO
         print("++ TODO")
 
-    def pull_site_files(self, site_directory):
+    def pull_site_files(self, site):
         print(f"++ Writing files")
         self.append_sql_section("Files")
 
+        # Load file mapping
+        mapping = self.read_json(site.directory, "meta", "file_map.json")
+
         # TODO
+        for file_id, file_data in mapping.items():
+            # TODO
+            # int(file_id)
+            # file_data['url']
+            # file_data['path']
+            pass
 
     def _clean(self):
         self._file = None
@@ -85,19 +159,67 @@ class WikicommaImporter:
     def append_sql_section(self, name):
         self._file.writelines(["\n\n--\n-- ", name, "\n--\n\n"])
 
+    @staticmethod
+    def get_page_category(page_slug):
+        parts = page_slug.split(":")
+        if len(parts) == 1:
+            return "_default"
+
+        return parts[0]
+
+    def add_page_category(self, page_slug):
+        category_slug = self.get_page_category(page_slug)
+
+        if category_slug not in self.page_categories:
+            self.page_categories[category_slug] = self.next_category_id()
+
+        return self.page_categories[category_slug]
+
     def add_text(self, text):
         text_bytes = text.encode("utf-8")
         text_hash = hashlib.sha512(text_bytes).digest()
 
         if text_hash not in self.text_hashes:
-            self.append_sql("INSERT INTO text (hash, contents) VALUES (%s, %s)", (text_hash, text))
+            self.append_sql(
+                "INSERT INTO text (hash, contents) VALUES (%s, %s)", (text_hash, text)
+            )
             self.text_hashes.add(text_hash)
 
         return text_hash
 
+    @staticmethod
+    def read_json(*path_parts):
+        path = os.path.join(*path_parts)
+
+        with open(path) as file:
+            return json.load(file)
+
+    def next_site_id(self):
+        next_id = self.last_site_id
+        self.last_site_id += 1
+        return next_id
+
+    def next_category_id(self):
+        next_id = self.last_category_id
+        self.last_category_id += 1
+        return next_id
+
+
 if __name__ == "__main__":
     # Parse arguments
     argparser = argparse.ArgumentParser(description="WikiComma import utility")
+    argparser.add_argument(
+        "--start-site-id",
+        dest="start_site_id",
+        default=3,
+        help="What ID value to start enumerating new sites from",
+    )
+    argparser.add_argument(
+        "--start-category-id",
+        dest="start_category_id",
+        default=3,
+        help="What ID value to start enumerating new page categories from",
+    )
     argparser.add_argument(
         "-o",
         "--output",
