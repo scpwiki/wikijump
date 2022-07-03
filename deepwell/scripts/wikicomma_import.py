@@ -121,15 +121,7 @@ class WikicommaImporter:
                 ),
             )
             page = Page(slug=page_slug, wikidot_id=page_id)
-
-            page_metadata_filename = f"{page_slug}.json"
-            if REPLACE_COLON:
-                page_metadata_filename = page_metadata_filename.replace(":", "_")
-            page_metadata = self.read_json(
-                site.directory, "meta", "pages", page_metadata_filename,
-            )
-
-            assert page_metadata["name"] == page_slug
+            page_metadata = self.read_page_metadata(site, page_slug)
 
             # Add page revisions to database
             self.add_page_revisions(site, page, page_metadata)
@@ -261,6 +253,19 @@ class WikicommaImporter:
     def get_user(self, spec):
         # TODO
         pass
+
+    def read_page_metadata(self, site, page_slug):
+        page_metadata_filename = f"{page_slug}.json"
+
+        if REPLACE_COLON:
+            page_metadata_filename = page_metadata_filename.replace(":", "_")
+
+        page_metadata = self.read_json(
+            site.directory, "meta", "pages", page_metadata_filename,
+        )
+
+        assert page_metadata["name"] == page_slug
+        return page_metadata
 
     @staticmethod
     def read_json(*path_parts):
