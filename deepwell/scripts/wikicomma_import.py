@@ -123,8 +123,10 @@ class WikicommaImporter:
             page = Page(slug=page_slug, wikidot_id=page_id)
             page_metadata = self.read_page_metadata(site, page_slug)
 
-            # Add page revisions to database
+            # Add page components to database
             self.add_page_revisions(site, page, page_metadata)
+            self.add_page_votes(site, page, page_metadata)
+            self.add_page_lock(site, page, page_metadata)
 
     def add_page_revisions(self, site, page, metadata):
         for revision in metadata["revisions"]:
