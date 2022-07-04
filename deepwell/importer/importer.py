@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import argparse
 import hashlib
 import json
@@ -7,13 +5,11 @@ import os
 from collections import namedtuple
 from datetime import datetime
 
-import psycopg2
 import py7zr
 from bidict import bidict
 
 REPLACE_COLON = True
 ANONYMOUS_USER_ID = 3
-UNKNOWN_CREATION_DATE = datetime.fromtimestamp(0)
 
 Site = namedtuple("Site", ("slug", "wikijump_id", "directory"))
 Page = namedtuple("Page", ("slug", "wikidot_id"))
@@ -61,36 +57,6 @@ class WikicommaImporter:
     def add_all(self):
         for site_slug in os.listdir(self.wikicomma_directory):
             self.add_site(site_slug)
-
-    def add_site(self, site_slug):
-        print(f"+ Pulling site {site_slug}")
-
-        # Create site
-        self.append_sql_section(f"Site {site_slug}")
-        self.append_sql(
-            # NOTE: Site name, description, and date created will need to be adjusted
-            "INSERT INTO site (slug, name, description, date_created)",
-            (
-                site_slug,
-                f"[NEEDS UPDATE] {site_slug}",
-                f"[NEEDS UPDATE] {site_slug}",
-                UNKNOWN_CREATION_DATE,
-            ),
-        )
-
-        # Reset site-specific values
-        self.pages = bidict()
-        self.page_categories = {}
-
-        # Create site data objects
-        site_id = self.next_site_id()
-        site_directory = os.path.join(self.wikicomma_directory, site_slug)
-        site = Site(slug=site_slug, wj_id=site_id, directory=site_directory)
-
-        # Pull contents within this site
-        self.add_site_pages(site)
-        self.add_site_forum(site)
-        self.add_site_files(site)
 
     def add_site_pages(self, site):
         print(f"++ Writing pages")
@@ -208,16 +174,6 @@ class WikicommaImporter:
         self._file = None
         self._cur = None
 
-    def format_sql(self, query, parameters=()):
-        return self._cur.mogrify(query, parameters)
-
-    def append_sql(self, query, parameters=()):
-        sql_line = self.format_sql(query, parameters)
-        self._file.writelines([sql_line, ";\n"])
-
-    def append_sql_section(self, name):
-        self._file.writelines(["\n\n--\n-- ", name, "\n--\n\n"])
-
     @staticmethod
     def get_page_category(page_slug):
         parts = page_slug.split(":")
@@ -234,30 +190,6 @@ class WikicommaImporter:
 
         return self.page_categories[category_slug]
 
-    def add_text(self, text):
-        text_bytes = text.encode("utf-8")
-        text_hash = hashlib.sha512(text_bytes).digest()
-
-        if text_hash not in self.text_hashes:
-            self.append_sql(
-                "INSERT INTO text (hash, contents) VALUES (%s, %s)", (text_hash, text)
-            )
-            self.text_hashes.add(text_hash)
-
-        return text_hash
-
-    def add_user(self):
-        # TODO implement method
-        # TODO change over when user table changes
-        raise NotImplementedError
-
-    def get_user_id(self, spec):
-        if isinstance(spec, int):
-            return spec
-
-        # TODO get user by slug
-        raise NotImplementedError
-
     def read_page_metadata(self, site, page_slug):
         page_metadata_filename = f"{page_slug}.json"
 
@@ -265,7 +197,10 @@ class WikicommaImporter:
             page_metadata_filename = page_metadata_filename.replace(":", "_")
 
         page_metadata = self.read_json(
-            site.directory, "meta", "pages", page_metadata_filename,
+            site.directory,
+            "meta",
+            "pages",
+            page_metadata_filename,
         )
 
         assert page_metadata["name"] == page_slug
@@ -288,44 +223,4 @@ class WikicommaImporter:
         self.last_category_id += 1
         return next_id
 
-
-if __name__ == "__main__":
-    # Parse arguments
-    argparser = argparse.ArgumentParser(description="WikiComma import utility")
-    argparser.add_argument(
-        "--start-site-id",
-        dest="start_site_id",
-        default=3,
-        help="What ID value to start enumerating new sites from",
-    )
-    argparser.add_argument(
-        "--start-category-id",
-        dest="start_category_id",
-        default=3,
-        help="What ID value to start enumerating new page categories from",
-    )
-    argparser.add_argument(
-        "-o",
-        "--output",
-        dest="output_file",
-        default="wikicomma_ingest.sql",
-        help="The path to write the output SQL file to.",
-    )
-    argparser.add_argument(
-        "database_url",
-        help=(
-            "A PostgreSQL connection string which has a DEEPWELL database. "
-            "The database is not written to."
-        ),
-    )
-    argparser.add_argument(
-        "wikicomma_directory",
-        help=(
-            "The directory containing WikiComma data. "
-            "Each top-level directory contains one wiki to be imported."
-        ),
-    )
-    args = argparser.parse_args()
-
-    # Run importer
-    WikicommaImporter(args).run()
+    # TODO
