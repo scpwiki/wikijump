@@ -88,6 +88,9 @@ class Generator:
 
         return bucket_path
 
+    def section_sh(self, name: str):
+        self.sh_buffer.write(f"\n\n#\n# {name}\n#\n\n")
+
     def add_user(self, user: User):
         if (
             self.id_exists(self.user_ids, user.wikidot_id)
