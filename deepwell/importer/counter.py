@@ -7,4 +7,4 @@ class IncrementingCounter:
 
     def next(self) -> int:
         self.value += 1
-        return value
+        return self.value

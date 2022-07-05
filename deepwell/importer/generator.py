@@ -2,7 +2,7 @@ import hashlib
 from binascii import hexlify
 from typing import Iterable, Optional, Set
 
-from .constants import UNKNOWN_CREATION_DATE
+from .constants import *
 from .counter import IncrementingCounter
 from .structures import *
 from .utils import get_page_category
@@ -132,7 +132,7 @@ class Generator:
         ):
             return
 
-        page_category_id = self.add_page_category(get_page_category(page.slug))
+        page_category_id = self.add_page_category(page.site_id, get_page_category(page.slug))
         self.append_sql(
             "INSERT INTO page (page_id, created_at, updated_at, site_id, page_category_id, slug, discussion_thread_id) VALUES (%s, %s, %s, %s, %s, %s, %s)",
             (
@@ -297,9 +297,9 @@ def generate_seed(
 
     with open(sql_path, "w") as sql_file:
         with open(sh_path, "w") as sh_file:
-            with psycopg2.connect(postgres_url) as conn:
-                with conn.cursor() as cur:
+            with psycopg2.connect(postgres_url) as connection:
+                with connection.cursor() as cursor:
                     generator = Generator(
-                        sql_file, sh_file, cursor, s3_bucket, last_page_category_id
+                        sql_file, sh_file, cursor, s3_bucket, last_page_category_id,
                     )
                     runner(generator)

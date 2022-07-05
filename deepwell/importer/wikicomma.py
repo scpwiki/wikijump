@@ -8,9 +8,6 @@ from .structures import *
 
 from py7zr import SevenZipFile
 
-REPLACE_COLON = True
-ANONYMOUS_USER_ID = 3
-
 
 class WikicommaImporter:
     __slots__ = (
@@ -59,8 +56,8 @@ class WikicommaImporter:
             self.generator.section_sql(f"Page: {page_slug}")
             page_id = int(page_id)
             metadata = self.read_page_metadata(site_directory, page_slug)
-            created_at = datetime.fromtimestamp(metadata.revisions[-1]["stamp"])
-            updated_at = datetime.fromtimestamp(metadata.revisions[0]["stamp"])
+            created_at = datetime.fromtimestamp(metadata["revisions"][-1]["stamp"])
+            updated_at = datetime.fromtimestamp(metadata["revisions"][0]["stamp"])
             site_id = -1 # TODO unknown
 
             self.generator.add_page(
@@ -168,10 +165,10 @@ class WikicommaImporter:
         self.generator.section_sql(f"Forum: {site_slug} [TODO]")
         # TODO
 
-    def read_page_metadata(self, site_directory: str, page_slug: str):
+    def read_page_metadata(self, site_directory: str, page_slug: str, replace_colon: bool = True):
         page_metadata_filename = f"{page_slug}.json"
 
-        if REPLACE_COLON:
+        if replace_colon:
             page_metadata_filename = page_metadata_filename.replace(":", "_")
 
         page_metadata = self.read_json(
