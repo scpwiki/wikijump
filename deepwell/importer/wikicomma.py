@@ -70,6 +70,30 @@ class WikicommaImporter:
                 discussion_thread_id=None,  # TODO unknown
             )
             self.generator.add_page(page)
+            self.generator.add_page_lock(page_id, metadata["is_locked"])
+            self.process_page_votes(metadata)
+
+    def process_page_revisions(self, metadata: dict):
+        # TODO
+        ...
+
+    def process_page_votes(self, metadata: dict):
+        for (user_spec, value) in metadata["votings"]:
+            # Is user slug, not a user ID
+            if isinstance(user_spec, str):
+                # TODO get ID
+                continue
+
+            # Get vote value
+            if isinstance(value, bool):
+                value = +1 if value else -1
+
+            vote = PageVote(
+                page_id=metadata["page_id"],
+                user_id=user_spec,
+                value=value,
+            )
+            self.generator.add_page_vote(vote)
 
     def process_site_forum(self, site_slug: str, site_directory: str):
         self.generator.section_sql(f"Forum: {site_slug}")
@@ -79,34 +103,22 @@ class WikicommaImporter:
         self.generator.section_sql(f"Files: {site_slug}")
         # TODO
 
-    def _add_page_votes(self, site, page, metadata):
-        for (user_spec, value) in metadata["votings"]:
-            user_id = self.get_user_id(user_spec)
 
-            if isinstance(value, bool):
-                value = +1 if value else -1
+    def read_page_metadata(self, site_directory: str, page_slug: str):
+        page_metadata_filename = f"{page_slug}.json"
 
-            self.append_sql(
-                "INSERT INTO page_vote (created_at, page_id, user_id, value)",
-                (UNKNOWN_CREATION_DATE, page.wikidot_id, user_id, value),
-            )
-        # lock: metadata["is_locked"]:
+        if REPLACE_COLON:
+            page_metadata_filename = page_metadata_filename.replace(":", "_")
 
-        def read_page_metadata(self, site_directory: str, page_slug: str):
-            page_metadata_filename = f"{page_slug}.json"
+        page_metadata = self.read_json(
+            site_directory,
+            "meta",
+            "pages",
+            page_metadata_filename,
+        )
 
-            if REPLACE_COLON:
-                page_metadata_filename = page_metadata_filename.replace(":", "_")
-
-            page_metadata = self.read_json(
-                site_directory,
-                "meta",
-                "pages",
-                page_metadata_filename,
-            )
-
-            assert page_metadata["name"] == page_slug
-            return page_metadata
+        assert page_metadata["name"] == page_slug
+        return page_metadata
 
     @staticmethod
     def read_json(*path_parts):
@@ -142,45 +154,6 @@ def run_wikicomma_import(
 
 
 # XXX
-
-    def add_site_pages(self, site):
-        print(f"++ Writing pages")
-        self.append_sql_section("Pages")
-
-        # Load page mapping
-        mapping = self.read_json(site.directory, "meta", "page_id_map.json")
-
-        for page_id, page_slug in mapping.items():
-            # Store page data locally
-            page_id = int(page_id)
-            self.pages[page_id] = page_slug
-
-            # Add page to database
-            page_category_id = self.add_page_category(page_slug)
-            discussion_thread_id = None  # TODO get discussion thread ID
-
-            sql.add_page(
-                site, page_id, page_slug, created_at, updated_at, discussion_thread,
-            )
-            self.append_sql(
-                "INSERT INTO page (page_id, created_at, updated_at, site_id, page_category_id, slug, discussion_thread_id) VALUES (%s, %s, %s, %s, %s, %s, %s)",
-                (
-                    page_id,
-                    created_at,
-                    updated_at,
-                    site.wikijump_id,
-                    page_category_id,
-                    page_slug,
-                    discussion_thread_id,
-                ),
-            )
-            page = Page(slug=page_slug, wikidot_id=page_id)
-            page_metadata = self.read_page_metadata(site, page_slug)
-
-            # Add page components to database
-            self.add_page_revisions(site, page, page_metadata)
-            self.add_page_votes(site, page, page_metadata)
-            self.add_page_lock(site, page, page_metadata)
 
     def add_page_revisions(self, site, page, metadata):
         for revision in metadata["revisions"]:
