@@ -58,7 +58,6 @@ class WikicommaImporter:
         self.process_site_forum(site_slug, site_directory)
 
     def process_site_pages(self, site_slug: str, site_directory: str):
-        self.generator.section_sql(f"Pages: {site_slug}")
         page_mapping = self.read_json(site_directory, "meta", "page_id_map.json")
         file_mapping = self.read_json(site_directory, "meta", "file_map.json")
         logger.info("Processing %d pages", len(page_mapping))
