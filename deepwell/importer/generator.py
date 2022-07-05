@@ -1,6 +1,6 @@
 import hashlib
 from binascii import hexlify
-from typing import Optional, Set
+from typing import Iterable, Optional, Set
 
 from .counter import IncrementingCounter
 from .structures import *
@@ -31,6 +31,7 @@ class Generator:
         self.user_ids, self.user_slugs = set(), set()  # Set[int], Set[str]
         self.site_ids, self.site_slugs = set(), set()  # Set[int], Set[str]
         self.page_ids, self.page_slugs = set(), set()  # Set[int], Set[Tuple[int, str]]
+        self.page_revision_ids, self.page_revision_numbers = set(), set()  # Set[int], Set[Tuple[int, int]]
         self.page_categories = {}  # dict[Tuple[int, str], int]
         self.blob_hashes = {}  # dict[bytes, str]
         self.text_hashes = set()  # Set[bytes]
@@ -111,6 +112,46 @@ class Generator:
 
         self.id_add(self.page_ids, page.wikidot_id)
         self.page_slugs.add((page.site_id, page.slug))
+
+    def add_page_revisions(self, revisions: Iterable[PageRevision]):
+        for revision in revisions:
+            self.add_page_revision(revision)
+
+    def add_page_revision(self, revision: PageRevision):
+        if self.id_exists(self.page_revision_ids, revision.wikidot_id) or (revision.page_id, revision.revision_number) in self.page_revision_numbers:
+            return
+
+        if revision.flags == "N" or revision.revision_number == 0:
+            revision_type = "created"
+        elif revision.flags == "R":
+            revision_type = "move"
+        else:
+            revision_type = "regular"
+
+        wikitext_hash = self.add_text(revision.wikitext)
+        compiled_hash = self.add_text(revision.html)
+
+        # TODO per-revision fields?
+        self.append_sql(
+            "INSERT INTO page_revision (revision_id, revision_type, revision_number, created_at, page_id, site_id, user_id, wikitext_hash, compiled_hash, compiled_at, compiled_generator, comments) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+            (
+                revision.wikidot_id,
+                revision_type,
+                revision.revision_number,
+                revision.created_at,
+                revision.page_id,
+                revision.site_id,
+                revision.user_id,
+                wikitext_hash,
+                compiled_hash,
+                revision.created_at,
+                "Imported from Wikidot",
+                revision_comments,
+            ),
+        )
+
+        self.id_add(self.page_revision_ids, revision.wikidot_id)
+        self.page_revision_numbers.add((revision.page_id, revision.revision_number))
 
     def add_page_category(self, site_id: int, category_slug: slug) -> int:
         page_category_id = self.page_categories.get((site_id, category_slug))

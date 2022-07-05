@@ -31,3 +31,16 @@ class Page:
     title: str
     slug: str
     discussion_thread_id: Optional[int]
+
+@dataclass(frozen=True)
+class PageRevision:
+    wikidot_id: Optional[int]
+    revision_number: int
+    created_at: datetime
+    flags: str
+    page_id: int
+    site_id: int
+    user_id: int
+    wikitext: str
+    html: str
+    comments: str
