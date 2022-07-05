@@ -38,6 +38,7 @@ if __name__ == "__main__":
         "--sql",
         "--output-sql",
         dest="sql_path",
+        required=True,
         help="The location to output the SQL dump to",
     )
     argparser.add_argument(
@@ -45,6 +46,7 @@ if __name__ == "__main__":
         "--shell",
         "--output-shell",
         dest="sh_path",
+        required=True,
         help="The location to output the shell dump to",
     )
     argparser.add_argument(
@@ -52,12 +54,14 @@ if __name__ == "__main__":
         "--s3",
         "--s3-bucket",
         dest="s3_bucket",
+        required=True,
         help="The name of the S3 bucket to use (read-only)",
     )
     argparser.add_argument(
         "-u",
         "--postgres-url",
         dest="postgres_url",
+        required=True,
         help="The DEEPWELL database to connect to (read-only)",
     )
     args = argparser.parse_args()
