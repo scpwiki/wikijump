@@ -60,6 +60,9 @@ class Generator:
         self.blob_hashes = {}  # dict[bytes, str]
         self.text_hashes = set()  # Set[bytes]
 
+        self.sql_buffer.write("-- AUTO-GENERATED FILE\n")
+        self.sh_buffer.write("# AUTO-GENERATED FILE\n")
+
     def format(self, query: str, parameters=()) -> str:
         return self.cursor.mogrify(query, parameters).decode("utf-8")
 
