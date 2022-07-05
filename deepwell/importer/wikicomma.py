@@ -13,11 +13,13 @@ class WikicommaImporter:
     __slots__ = (
         "generator",
         "directory",
+        "replace_colon",
     )
 
-    def __init__(self, generator, directory):
+    def __init__(self, generator, directory, replace_colon = True):
         self.generator = generator
         self.directory = directory
+        self.replace_colon = replace_colon
 
     def process_all(self):
         self.generator.section_sql("Wikicomma")
@@ -84,8 +86,7 @@ class WikicommaImporter:
         title = metadata["title"]  # We don't know what these are historically
         tags = metadata["tags"]
 
-        archive_path = os.path.join(site_directory, f"{page_slug}.7z")
-        with SevenZipFile(archive_path, "r") as archive:
+        with self.open_page_revisions(site_directory, page_slug) as archive:
             wikitext_mapping = archive.readall()
 
         for revision in metadata["revisions"]:
@@ -165,10 +166,10 @@ class WikicommaImporter:
         self.generator.section_sql(f"Forum: {site_slug} [TODO]")
         # TODO
 
-    def read_page_metadata(self, site_directory: str, page_slug: str, replace_colon: bool = True):
+    def read_page_metadata(self, site_directory: str, page_slug: str):
         page_metadata_filename = f"{page_slug}.json"
 
-        if replace_colon:
+        if self.replace_colon:
             page_metadata_filename = page_metadata_filename.replace(":", "_")
 
         page_metadata = self.read_json(
@@ -180,6 +181,15 @@ class WikicommaImporter:
 
         assert page_metadata["name"] == page_slug
         return page_metadata
+
+    def open_page_revisions(self, site_directory: str, page_slug: str):
+        page_revisions_filename = f"{page_slug}.7z"
+
+        if self.replace_colon:
+            page_revisions_filename = page_revisions_filename.replace(":", "_")
+
+        page_revisions_path = os.path.join(site_directory, "pages", page_revisions_filename)
+        return SevenZipFile(page_revisions_path, "r")
 
     @staticmethod
     def read_json(*path_parts):
