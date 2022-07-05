@@ -74,6 +74,7 @@ class WikicommaImporter:
             page_category_id = self.add_page_category(page_slug)
             discussion_thread_id = None  # TODO get discussion thread ID
 
+            sql.add_page(site, page_id, page_slug, created_at, updated_at, discussion_thread)
             self.append_sql(
                 "INSERT INTO page (page_id, created_at, updated_at, site_id, page_category_id, slug, discussion_thread_id) VALUES (%s, %s, %s, %s, %s, %s, %s)",
                 (
@@ -212,15 +213,3 @@ class WikicommaImporter:
 
         with open(path) as file:
             return json.load(file)
-
-    def next_site_id(self):
-        next_id = self.last_site_id
-        self.last_site_id += 1
-        return next_id
-
-    def next_category_id(self):
-        next_id = self.last_category_id
-        self.last_category_id += 1
-        return next_id
-
-    # TODO
