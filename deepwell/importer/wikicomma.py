@@ -120,6 +120,10 @@ class WikicommaImporter:
                 # TODO get ID
                 continue
 
+            wikitext = wikitext_mapping.get(revision_number)
+            if wikitext is None:
+                continue
+
             self.generator.add_page_revision(
                 PageRevision(
                     wikidot_id=revision["global_revision"],
@@ -129,7 +133,7 @@ class WikicommaImporter:
                     page_id=page_id,
                     site_id=site_id,
                     user_id=user_spec,
-                    wikitext=wikitext_mapping[revision_number],
+                    wikitext=wikitext,
                     slug=page_slug,
                     title=title,
                     html="",  # TODO not stored
