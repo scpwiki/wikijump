@@ -34,14 +34,16 @@ class WikicommaImporter:
 
         # Add site
         unknown_description = f"[NEEDS UPDATE] {site_slug}"
-        self.generator.add_site(Site(
-            wikidot_id=None,
-            created_at=UNKNOWN_CREATION_DATE,
-            name=unknown_description,
-            slug=site_slug,
-            subtitle=unknown_description,
-            description=unknown_description,
-        ))
+        self.generator.add_site(
+            Site(
+                wikidot_id=None,
+                created_at=UNKNOWN_CREATION_DATE,
+                name=unknown_description,
+                slug=site_slug,
+                subtitle=unknown_description,
+                description=unknown_description,
+            )
+        )
 
         # Process site internals
         site_directory = os.path.join(self.directory, site_slug)
@@ -60,22 +62,26 @@ class WikicommaImporter:
             created_at = datetime.fromtimestamp(metadata.revisions[-1]["stamp"])
             updated_at = datetime.fromtimestamp(metadata.revisions[0]["stamp"])
 
-            self.generator.add_page(Page(
-                wikidot_id=page_id,
-                created_at=created_at,
-                updated_at=updated_at,
-                site_id=-1, # TODO unknown
-                title=metadata["title"],
-                slug=page_slug,
-                discussion_thread_id=None,  # TODO unknown
-            ))
+            self.generator.add_page(
+                Page(
+                    wikidot_id=page_id,
+                    created_at=created_at,
+                    updated_at=updated_at,
+                    site_id=-1,  # TODO unknown
+                    title=metadata["title"],
+                    slug=page_slug,
+                    discussion_thread_id=None,  # TODO unknown
+                )
+            )
             self.generator.add_page_lock(page_id, metadata["is_locked"])
-            self.process_page_files(site_directory, page_id, file_mapping, metadata["files"])
+            self.process_page_files(
+                site_directory, page_id, file_mapping, metadata["files"]
+            )
             self.process_page_votes(metadata)
 
     def process_page_revisions(self, site_id: int, metadata: dict):
         page_id = metadata["page_id"]
-        title = metadata["title"] # We don't know what these are historically
+        title = metadata["title"]  # We don't know what these are historically
         tags = metadata["tags"]
 
         for revision in metadata["revisions"]:
@@ -86,22 +92,26 @@ class WikicommaImporter:
                 # TODO get ID
                 continue
 
-            self.generator.add_page_revision(PageRevision(
-                wikidot_id=revision["global_revision"],
-                revision_number=revision["revision"],
-                created_at=datetime.fromtimestamp(revision["stamp"]),
-                flags=revision["flags"],
-                page_id=page_id,
-                site_id=site_id,
-                user_id=user_spec,
-                wikitext=wikitext,
-                slug=page_slug,
-                html="", # TODO not stored
-                tags=tags,
-                comments=revision["commentary"],
-            ))
+            self.generator.add_page_revision(
+                PageRevision(
+                    wikidot_id=revision["global_revision"],
+                    revision_number=revision["revision"],
+                    created_at=datetime.fromtimestamp(revision["stamp"]),
+                    flags=revision["flags"],
+                    page_id=page_id,
+                    site_id=site_id,
+                    user_id=user_spec,
+                    wikitext=wikitext,
+                    slug=page_slug,
+                    html="",  # TODO not stored
+                    tags=tags,
+                    comments=revision["commentary"],
+                )
+            )
 
-    def process_page_files(self, site_directory: str, page_id: int, file_mapping: dict, metadata_list: list):
+    def process_page_files(
+        self, site_directory: str, page_id: int, file_mapping: dict, metadata_list: list,
+    ):
         for metadata in metadata_list:
             user_spec = metadata["author"]
             # Is user slug, not a user ID
@@ -115,15 +125,17 @@ class WikicommaImporter:
             with open(file_path, "rb") as file:
                 file_data = file.read()
 
-            self.generator.add_file(File(
-                wikidot_id=metadata["file_id"],
-                page_id=page_id,
-                name=metadata["name"],
-                mime=metadata["mime"],
-                size=metadata["size_bytes"],
-                user_id=user_spec,
-                created_at=datetime.fromtimestamp(metadata["stamp"]),
-            ))
+            self.generator.add_file(
+                File(
+                    wikidot_id=metadata["file_id"],
+                    page_id=page_id,
+                    name=metadata["name"],
+                    mime=metadata["mime"],
+                    size=metadata["size_bytes"],
+                    user_id=user_spec,
+                    created_at=datetime.fromtimestamp(metadata["stamp"]),
+                )
+            )
 
     def process_page_votes(self, metadata: dict):
         for (user_spec, value) in metadata["votings"]:
@@ -136,11 +148,13 @@ class WikicommaImporter:
             if isinstance(value, bool):
                 value = +1 if value else -1
 
-            self.generator.add_page_vote(PageVote(
-                page_id=metadata["page_id"],
-                user_id=user_spec,
-                value=value,
-            ))
+            self.generator.add_page_vote(
+                PageVote(
+                    page_id=metadata["page_id"],
+                    user_id=user_spec,
+                    value=value,
+                )
+            )
 
     def process_site_forum(self, site_slug: str, site_directory: str):
         self.generator.section_sql(f"Forum: {site_slug} [TODO]")

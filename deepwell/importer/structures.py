@@ -46,7 +46,7 @@ class PageRevision:
     wikitext: str
     html: str
     slug: str
-    title: str,
+    title: str
     tags: List[str]
     comments: str
 
