@@ -22,7 +22,7 @@ class Generator:
     duplicate data.
     """
 
-    def __init__(self, sql_buffer, sh_buffer, cursor, s3_bucket, *, last_page_category_id: int = 0):
+    def __init__(self, sql_buffer, sh_buffer, cursor, s3_bucket, last_page_category_id):
         self.sql_buffer = sql_buffer
         self.sh_buffer = sh_buffer
         self.cursor = cursor
@@ -215,3 +215,16 @@ class Generator:
             return
 
         field.add(id)
+
+def generate_seed(runner: callable, *, sql_path: str, sh_path: str, s3_bucket: str, postgres_url: str, last_page_category_id: int = 0):
+    """
+    Given a function which takes a Generator, run through whatever backup and add all the relevant information.
+    The generator will ensure duplicate data is not added.
+    """
+
+    with open(sql_path, "w") as sql_file:
+        with open(sh_path, "w") as sh_file:
+            with psycopg2.connect(postgres_url) as conn:
+                with conn.cursor() as cur
+                    generator = Generator(sql_file, sh_file, cursor, s3_bucket, last_page_category_id)
+                    runner(generator)
