@@ -91,7 +91,7 @@ class WikicommaImporter:
                     discussion_thread_id=None,  # TODO unknown
                 )
             )
-            self.generator.add_page_lock(page_id, metadata["is_locked"])
+            self.generator.add_page_lock(page_id, metadata.get("is_locked", False))
             self.process_page_revisions(site_directory, site_id, metadata)
             self.process_page_files(
                 site_directory, page_id, file_mapping, metadata["files"],
