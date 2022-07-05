@@ -5,7 +5,7 @@ from typing import Iterable, Optional, Set, Union
 from .constants import *
 from .counter import IncrementingCounter
 from .structures import *
-from .utils import get_page_category
+from .utils import get_page_category, wikidot_id_or_auto
 
 import psycopg2
 from cuid import cuid
@@ -107,7 +107,7 @@ class Generator:
         # TODO change over when user table changes, remaining fields
         self.append_sql(
             "INSERT INTO users (id, slug, username, avatar_path, created_at) VALUES (%s, %s, %s, %s)",
-            (user.wikidot_id, user.slug, user.name, avatar_path, user.created_at),
+            (wikidot_id_or_auto(user), user.slug, user.name, avatar_path, user.created_at),
         )
 
         self.id_add(self.user_ids, user.wikidot_id)
@@ -122,7 +122,7 @@ class Generator:
 
         self.append_sql(
             "INSERT INTO site (site_id, name, slug, subtitle, description) VALUES (%s, %s, %s, %s, %s)",
-            (site.wikidot_id, site.name, site.slug, site.subtitle, site.description),
+            (wikidot_id_or_auto(site), site.name, site.slug, site.subtitle, site.description),
         )
 
         self.id_add(self.site_ids, site.wikidot_id)
@@ -142,7 +142,7 @@ class Generator:
         self.append_sql(
             "INSERT INTO page (page_id, created_at, updated_at, site_id, page_category_id, slug, discussion_thread_id) VALUES (%s, %s, %s, %s, %s, %s, %s)",
             (
-                page.wikidot_id,
+                wikidot_id_or_auto(page),
                 page.created_at,
                 page.updated_at,
                 page.site_id,
@@ -181,7 +181,7 @@ class Generator:
         self.append_sql(
             "INSERT INTO page_revision (revision_id, revision_type, revision_number, created_at, page_id, site_id, user_id, wikitext_hash, compiled_hash, compiled_at, compiled_generator, slug, title, tags, comments) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
             (
-                revision.wikidot_id,
+                wikidot_id_or_auto(revision),
                 revision_type,
                 revision.revision_number,
                 revision.created_at,
