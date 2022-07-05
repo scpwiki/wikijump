@@ -1,5 +1,6 @@
 import json
 import os
+import re
 from datetime import datetime
 
 from .constants import UNKNOWN_CREATION_DATE
@@ -7,6 +8,8 @@ from .generator import generate_seed
 from .structures import *
 
 from py7zr import SevenZipFile
+
+REVISION_FILENAME_REGEX = re.compile(r"(\d+)\.txt")
 
 
 class WikicommaImporter:
@@ -86,8 +89,12 @@ class WikicommaImporter:
         title = metadata["title"]  # We don't know what these are historically
         tags = metadata["tags"]
 
+        wikitext_mapping = {}
         with self.open_page_revisions(site_directory, page_slug) as archive:
-            wikitext_mapping = archive.readall()
+            for filename, data in archive.readall().items():
+                match = REVISION_FILENAME_REGEX.fullmatch(filename)
+                revision_number = int(match[1])
+                wikitext = data.read().decode("utf-8")
 
         for revision in metadata["revisions"]:
             revision_number = revision["revision"]
@@ -107,7 +114,7 @@ class WikicommaImporter:
                     page_id=page_id,
                     site_id=site_id,
                     user_id=user_spec,
-                    wikitext=wikitext_mapping[f"{revision_number}.txt"],
+                    wikitext=wikitext_mapping[revision_number],
                     slug=page_slug,
                     title=title,
                     html="",  # TODO not stored

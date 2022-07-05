@@ -256,12 +256,8 @@ class Generator:
 
         return s3_url
 
-    def add_text(self, text: Union[bytes, str]) -> bytes:
-        if isinstance(text, str):
-            text_bytes = text.encode("utf-8")
-        else:
-            text_bytes = text
-
+    def add_text(self, text: str) -> bytes:
+        text_bytes = text.encode("utf-8")
         text_hash = hashlib.sha512(text_bytes).digest()
 
         if text_hash not in self.text_hashes:
