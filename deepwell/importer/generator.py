@@ -219,7 +219,7 @@ class Generator:
                 ),
             )
 
-    def add_page_category(self, site_id: int, category_slug: slug) -> int:
+    def add_page_category(self, site_id: int, category_slug: str) -> int:
         page_category_id = self.page_categories.get((site_id, category_slug))
 
         if page_category_id is None:
