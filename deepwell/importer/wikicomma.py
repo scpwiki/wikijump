@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import re
 from datetime import datetime
@@ -11,6 +12,7 @@ from py7zr import SevenZipFile
 
 REVISION_FILENAME_REGEX = re.compile(r"(\d+)\.txt")
 
+logger = logging.getLogger(__name__)
 
 class WikicommaImporter:
     __slots__ = (
@@ -25,6 +27,7 @@ class WikicommaImporter:
         self.replace_colon = replace_colon
 
     def process_all(self):
+        logger.info("Processing all sites")
         self.generator.section_sql("Wikicomma")
         self.generator.section_sh("Files")
 
@@ -32,6 +35,7 @@ class WikicommaImporter:
             self.process_site(site_slug)
 
     def process_site(self, site_slug):
+        logger.info("Processing site %s", site_slug)
         self.generator.section_sql(f"Site: {site_slug}")
 
         # Add site
@@ -56,6 +60,7 @@ class WikicommaImporter:
         self.generator.section_sql(f"Pages: {site_slug}")
         page_mapping = self.read_json(site_directory, "meta", "page_id_map.json")
         file_mapping = self.read_json(site_directory, "meta", "file_map.json")
+        logger.info("Processing %d pages", len(page_mapping))
 
         def get_first_last_revisions(revisions: List[dict]):
             # Since the revision list isn't always in order...
@@ -103,6 +108,7 @@ class WikicommaImporter:
         page_id = metadata["page_id"]
         title = metadata.get("title", "")  # NOTE: We don't know what these are historically,
         tags = metadata["tags"]
+        logger.info("Processing revisions for page %s (%d)", page_slug, page_id)
 
         wikitext_mapping = {}
         with self.open_page_revisions(site_directory, page_slug) as archive:
@@ -114,6 +120,7 @@ class WikicommaImporter:
         for revision in metadata["revisions"]:
             revision_number = revision["revision"]
             user_spec = revision["author"]
+            logger.debug("Processing revision number %d", revision_number)
 
             # Is user slug, not a user ID
             if isinstance(user_spec, str):
@@ -145,14 +152,19 @@ class WikicommaImporter:
     def process_page_files(
         self, site_directory: str, page_id: int, file_mapping: dict, metadata_list: list,
     ):
+        logger.info("Processing files for page ID %d", page_id)
+
         for metadata in metadata_list:
+            file_id = metadata["file_id"]
+            logger.debug("Processing file ID %d", file_id)
+
             user_spec = metadata["author"]
             # Is user slug, not a user ID
             if isinstance(user_spec, str):
                 # TODO get ID
                 continue
 
-            file_location = file_mapping[str(metadata["file_id"])]
+            file_location = file_mapping[str(file_id)]
             file_path = os.path.join(site_directory, "files", file_location["path"])
 
             with open(file_path, "rb") as file:
@@ -171,7 +183,11 @@ class WikicommaImporter:
             )
 
     def process_page_votes(self, metadata: dict):
+        logger.info("Processing %d votes", len(metadata["votings"]))
+
         for (user_spec, value) in metadata["votings"]:
+            logger.debug("Processing vote by %s", user_spec)
+
             # Is user slug, not a user ID
             if isinstance(user_spec, str):
                 # TODO get ID
@@ -190,6 +206,7 @@ class WikicommaImporter:
             )
 
     def process_site_forum(self, site_slug: str, site_directory: str):
+        logger.info("Processing forum posts for site %s", site_slug)
         self.generator.section_sql(f"Forum: {site_slug} [TODO]")
         # TODO
 
