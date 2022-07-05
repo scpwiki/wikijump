@@ -57,12 +57,27 @@ class WikicommaImporter:
         page_mapping = self.read_json(site_directory, "meta", "page_id_map.json")
         file_mapping = self.read_json(site_directory, "meta", "file_map.json")
 
+        def get_first_last_revisions(revisions: List[dict]):
+            # Since the revision list isn't always in order...
+            start_revision = revisions[0]
+            last_revision = revisions[0]
+
+            for revision in revisions:
+                if revision["revision"] < start_revision["revision"]:
+                    start_revision = revision
+
+                if revision["revision"] > last_revision["revision"]:
+                    last_revision = revision
+
+            return start_revision, last_revision
+
         for page_id, page_slug in page_mapping.items():
             self.generator.section_sql(f"Page: {page_slug}")
             page_id = int(page_id)
             metadata = self.read_page_metadata(site_directory, page_slug)
-            created_at = datetime.fromtimestamp(metadata["revisions"][-1]["stamp"])
-            updated_at = datetime.fromtimestamp(metadata["revisions"][0]["stamp"])
+            start_revision, last_revision = get_first_last_revisions(metadata["revisions"])
+            created_at = datetime.fromtimestamp(start_revision["stamp"])
+            updated_at = datetime.fromtimestamp(last_revision["stamp"])
             site_id = -1 # TODO unknown
 
             self.generator.add_page(
