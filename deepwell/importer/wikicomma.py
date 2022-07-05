@@ -86,7 +86,7 @@ class WikicommaImporter:
                     created_at=created_at,
                     updated_at=updated_at,
                     site_id=site_id,
-                    title=metadata["title"],
+                    title=metadata.get("title", ""),
                     slug=page_slug,
                     discussion_thread_id=None,  # TODO unknown
                 )
@@ -101,7 +101,7 @@ class WikicommaImporter:
     def process_page_revisions(self, site_directory: str, site_id: int, metadata: dict):
         page_slug = metadata["name"]
         page_id = metadata["page_id"]
-        title = metadata["title"]  # We don't know what these are historically
+        title = metadata.get("title", "")  # NOTE: We don't know what these are historically,
         tags = metadata["tags"]
 
         wikitext_mapping = {}
