@@ -175,14 +175,6 @@ class WikicommaImporter:
         self._file = None
         self._cur = None
 
-    @staticmethod
-    def get_page_category(page_slug):
-        parts = page_slug.split(":")
-        if len(parts) == 1:
-            return "_default"
-
-        return parts[0]
-
     def add_page_category(self, page_slug):
         category_slug = self.get_page_category(page_slug)
 
