@@ -5,7 +5,8 @@ from typing import Optional
 
 @dataclass(frozen=True)
 class User:
-    wikidot_id: Optional[int]  # None means the ID isn't known, so we should assign our own
+    # None means the ID isn't known, so we should assign our own
+    wikidot_id: Optional[int]
     created_at: datetime
     name: str
     slug: str
@@ -32,6 +33,7 @@ class Page:
     slug: str
     discussion_thread_id: Optional[int]
 
+
 @dataclass(frozen=True)
 class PageRevision:
     wikidot_id: Optional[int]
@@ -45,6 +47,7 @@ class PageRevision:
     html: str
     comments: str
 
+
 @dataclass(frozen=True)
 class File:
     page_id: int
@@ -53,5 +56,6 @@ class File:
     size: int
     user_id: int
     created_at: datetime
+
 
 # TODO forums

@@ -74,7 +74,9 @@ class WikicommaImporter:
             page_category_id = self.add_page_category(page_slug)
             discussion_thread_id = None  # TODO get discussion thread ID
 
-            sql.add_page(site, page_id, page_slug, created_at, updated_at, discussion_thread)
+            sql.add_page(
+                site, page_id, page_slug, created_at, updated_at, discussion_thread,
+            )
             self.append_sql(
                 "INSERT INTO page (page_id, created_at, updated_at, site_id, page_category_id, slug, discussion_thread_id) VALUES (%s, %s, %s, %s, %s, %s, %s)",
                 (

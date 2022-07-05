@@ -32,7 +32,8 @@ class Generator:
         self.user_ids, self.user_slugs = set(), set()  # Set[int], Set[str]
         self.site_ids, self.site_slugs = set(), set()  # Set[int], Set[str]
         self.page_ids, self.page_slugs = set(), set()  # Set[int], Set[Tuple[int, str]]
-        self.page_revision_ids, self.page_revision_numbers = set(), set()  # Set[int], Set[Tuple[int, int]]
+        self.page_revision_ids = set()  # Set[int]
+        self.page_revision_numbers = set()  # Set[Tuple[int, int]]
         self.page_categories = {}  # dict[Tuple[int, str], int]
         self.file_names = {}  # dict[Tuple[int, str], str]
         self.blob_hashes = {}  # dict[bytes, str]
@@ -50,7 +51,7 @@ class Generator:
 
     def append_sh(self, data: bytes, data_hash: bytes):
         def bash_escape(d: bytes) -> str:
-            r""" Bash-escape binary strings. e.g. $'\x00' """
+            r"""Bash-escape binary strings. e.g. $'\x00'"""
 
             inner = "".join(f"\\x{b:02x}" for b in d)
             return f"$'{inner}'"
@@ -59,16 +60,19 @@ class Generator:
         bucket_path = f"s3://{self.s3_bucket}/{data_hash_hex}"
 
         self.sh_buffer.write(
-            "file=\"$(mktemp)\"\n"
+            'file="$(mktemp)"\n'
             f"printf '%s' {bash_escape(data)} > \"$file\"\n"
-            f"aws cp \"$file\" {bucket_path}\n"
-            f"rm \"$file\"\n\n"
+            f'aws cp "$file" {bucket_path}\n'
+            f'rm "$file"\n\n'
         )
 
         return bucket_path
 
     def add_user(self, user: User):
-        if self.id_exists(self.user_ids, user.wikidot_id) or user.slug in self.user_slugs:
+        if (
+            self.id_exists(self.user_ids, user.wikidot_id)
+            or user.slug in self.user_slugs
+        ):
             return
 
         avatar_path = self.add_blob(user.avatar)
@@ -83,7 +87,10 @@ class Generator:
         self.user_slugs.add(user.slug)
 
     def add_site(self, site: Site):
-        if self.id_exists(self.site_ids, site.wikidot_id) or site.slug in self.site_slugs:
+        if (
+            self.id_exists(self.site_ids, site.wikidot_id)
+            or site.slug in self.site_slugs
+        ):
             return
 
         self.append_sql(
@@ -95,7 +102,10 @@ class Generator:
         self.site_slugs.add(site.slug)
 
     def add_page(self, page: Page):
-        if self.id_exists(self.page_ids, page.wikidot_id) or (page.site_id, page.slug) in self.page_slugs:
+        if (
+            self.id_exists(self.page_ids, page.wikidot_id)
+            or (page.site_id, page.slug) in self.page_slugs
+        ):
             return
 
         page_category_id = self.add_page_category(get_page_category(page.slug))
@@ -120,7 +130,11 @@ class Generator:
             self.add_page_revision(revision)
 
     def add_page_revision(self, revision: PageRevision):
-        if self.id_exists(self.page_revision_ids, revision.wikidot_id) or (revision.page_id, revision.revision_number) in self.page_revision_numbers:
+        if (
+            self.id_exists(self.page_revision_ids, revision.wikidot_id)
+            or (revision.page_id, revision.revision_number)
+            in self.page_revision_numbers
+        ):
             return
 
         if revision.flags == "N" or revision.revision_number == 0:
@@ -216,7 +230,16 @@ class Generator:
 
         field.add(id)
 
-def generate_seed(runner: callable, *, sql_path: str, sh_path: str, s3_bucket: str, postgres_url: str, last_page_category_id: int = 0):
+
+def generate_seed(
+    runner: callable,
+    *,
+    sql_path: str,
+    sh_path: str,
+    s3_bucket: str,
+    postgres_url: str,
+    last_page_category_id: int = 0,
+):
     """
     Given a function which takes a Generator, run through whatever backup and add all the relevant information.
     The generator will ensure duplicate data is not added.
@@ -226,5 +249,7 @@ def generate_seed(runner: callable, *, sql_path: str, sh_path: str, s3_bucket: s
         with open(sh_path, "w") as sh_file:
             with psycopg2.connect(postgres_url) as conn:
                 with conn.cursor() as cur:
-                    generator = Generator(sql_file, sh_file, cursor, s3_bucket, last_page_category_id)
+                    generator = Generator(
+                        sql_file, sh_file, cursor, s3_bucket, last_page_category_id
+                    )
                     runner(generator)
