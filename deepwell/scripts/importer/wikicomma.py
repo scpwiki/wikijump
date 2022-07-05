@@ -131,7 +131,7 @@ class WikicommaImporter:
             # Is user slug, not a user ID
             if isinstance(user_spec, str):
                 # TODO get ID
-                logger.warn("Skipping user specification with unknown ID: %s", user_spec)
+                logger.warn("Skipping revision, unknown user: %s", user_spec)
                 continue
 
             wikitext = wikitext_mapping.get(revision_number)
@@ -174,7 +174,7 @@ class WikicommaImporter:
             # Is user slug, not a user ID
             if isinstance(user_spec, str):
                 # TODO get ID
-                logger.warn("Skipping user specification with unknown ID: %s", user_spec)
+                logger.warn("Skipping file, unknown user: %s", user_spec)
                 continue
 
             file_location = file_mapping[str(file_id)]
@@ -207,7 +207,7 @@ class WikicommaImporter:
             # Is user slug, not a user ID
             if isinstance(user_spec, str):
                 # TODO get ID
-                logger.warn("Skipping user specification with unknown ID: %s", user_spec)
+                logger.warn("Skipping vote, unknown user: %s", user_spec)
                 continue
 
             # Get vote value
