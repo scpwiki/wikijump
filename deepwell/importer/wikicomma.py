@@ -153,7 +153,7 @@ class WikicommaImporter:
                 continue
 
             file_location = file_mapping[str(metadata["file_id"])]
-            file_path = os.path.join(site_directory, file_location["path"])
+            file_path = os.path.join(site_directory, "files", file_location["path"])
 
             with open(file_path, "rb") as file:
                 file_data = file.read()
