@@ -7,7 +7,7 @@ from .structures import *
 from .utils import get_page_category
 
 import psycopg2
-from cuid import import cuid
+from cuid import cuid
 
 
 class Generator:
@@ -225,6 +225,6 @@ def generate_seed(runner: callable, *, sql_path: str, sh_path: str, s3_bucket: s
     with open(sql_path, "w") as sql_file:
         with open(sh_path, "w") as sh_file:
             with psycopg2.connect(postgres_url) as conn:
-                with conn.cursor() as cur
+                with conn.cursor() as cur:
                     generator = Generator(sql_file, sh_file, cursor, s3_bucket, last_page_category_id)
                     runner(generator)
