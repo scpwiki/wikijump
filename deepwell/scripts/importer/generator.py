@@ -208,7 +208,7 @@ class Generator:
 
     def add_page_vote(self, vote: PageVote):
         self.append_sql(
-            "INSERT INTO page_vote (created_at, page_id, user_id, value)",
+            "INSERT INTO page_vote (created_at, page_id, user_id, value) VALUES (%s, %s, %s, %s)",
             (UNKNOWN_CREATION_DATE, vote.page_id, vote.user_id, vote.value),
         )
 
@@ -268,7 +268,7 @@ class Generator:
 
         if text_hash not in self.text_hashes:
             self.append_sql(
-                "INSERT INTO text (hash, contents) VALUES (%s, %s)", (text_hash, text)
+                "INSERT INTO text (hash, contents) VALUES (%s, %s)", (text_hash, text),
             )
             self.text_hashes.add(text_hash)
 
