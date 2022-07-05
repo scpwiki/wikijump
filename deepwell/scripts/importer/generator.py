@@ -61,7 +61,7 @@ class Generator:
         self.text_hashes = set()  # Set[bytes]
 
     def format(self, query: str, parameters=()) -> str:
-        return self.cursor.mogrify(query, parameters)
+        return self.cursor.mogrify(query, parameters).decode("utf-8")
 
     def append_sql(self, query: str, parameters=()):
         sql_line = self.format(query, parameters)
