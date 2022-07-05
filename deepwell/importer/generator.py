@@ -173,7 +173,7 @@ class Generator:
 
         # TODO per-revision fields?
         self.append_sql(
-            "INSERT INTO page_revision (revision_id, revision_type, revision_number, created_at, page_id, site_id, user_id, wikitext_hash, compiled_hash, compiled_at, compiled_generator, comments) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+            "INSERT INTO page_revision (revision_id, revision_type, revision_number, created_at, page_id, site_id, user_id, wikitext_hash, compiled_hash, compiled_at, compiled_generator, slug, title, tags, comments) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
             (
                 revision.wikidot_id,
                 revision_type,
@@ -186,7 +186,10 @@ class Generator:
                 compiled_hash,
                 revision.created_at,
                 "Imported from Wikidot",
-                revision_comments,
+                revision.slug,
+                revision.title,
+                revision.tags,
+                revision.comments,
             ),
         )
 

@@ -73,9 +73,34 @@ class WikicommaImporter:
             self.generator.add_page_lock(page_id, metadata["is_locked"])
             self.process_page_votes(metadata)
 
-    def process_page_revisions(self, metadata: dict):
-        # TODO
-        ...
+    def process_page_revisions(self, site_id: int, metadata: dict):
+        page_id = metadata["page_id"]
+        title = metadata["title"] # We don't know what these are historically
+        tags = metadata["tags"]
+
+        for revision in metadata["revisions"]:
+            user_spec = revision["author"]
+
+            # Is user slug, not a user ID
+            if isinstance(user_spec, str):
+                # TODO get ID
+                continue
+
+            revision_object = PageRevision(
+                wikidot_id=revision["global_revision"],
+                revision_number=revision["revision"],
+                created_at=datetime.fromtimestamp(revision["stamp"]),
+                flags=revision["flags"],
+                page_id=page_id,
+                site_id=site_id,
+                user_id=user_spec,
+                wikitext=wikitext,
+                slug=page_slug,
+                html="", # TODO not stored
+                tags=tags,
+                comments=revision["commentary"],
+            )
+            self.generator.add_page_revision(revision_object)
 
     def process_page_votes(self, metadata: dict):
         for (user_spec, value) in metadata["votings"]:
@@ -154,34 +179,6 @@ def run_wikicomma_import(
 
 
 # XXX
-
-    def add_page_revisions(self, site, page, metadata):
-        for revision in metadata["revisions"]:
-            user_id = self.get_user_id(revision["author"])
-            title = metadata["title"]
-            tags = metadata["tags"]
-
-            self.append_sql(
-                "INSERT INTO page_revision (revision_id, revision_type, created_at, revision_number, slug, page_id, site_id, user_id, changes, wikitext_hash, compiled_hash, compiled_at, compiled_generator, comments, title, tags) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                (
-                    revision["global_revision"],
-                    revision_type,
-                    datetime.fromtimestamp(revision["stamp"]),
-                    revision["revision"],
-                    page_slug,
-                    page_id,
-                    site.wikijump_id,
-                    user_id,
-                    changes,
-                    wikitext_hash,
-                    compiled_hash,
-                    datetime.utcnow(),
-                    "WikiComma import tool",
-                    revision["commentary"],
-                    title,  # NOTE: We can't tell what they were historically, so we just assign the same value
-                    tags,
-                ),
-            )
 
     def add_site_forum(self, site):
         print(f"++ Writing forum posts")

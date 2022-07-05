@@ -45,6 +45,9 @@ class PageRevision:
     user_id: int
     wikitext: str
     html: str
+    slug: str
+    title: str,
+    tags: List[str]
     comments: str
 
 
