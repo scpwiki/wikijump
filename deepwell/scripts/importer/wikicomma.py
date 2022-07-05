@@ -113,7 +113,7 @@ class WikicommaImporter:
         page_id = metadata["page_id"]
         # NOTE: We don't know what these are historically,
         title = metadata.get("title", "")
-        tags = metadata["tags"]
+        tags = metadata.get("tags", [])
         logger.info("Processing revisions for page %s (%d)", page_slug, page_id)
 
         wikitext_mapping = {}
