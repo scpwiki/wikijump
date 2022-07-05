@@ -7,7 +7,6 @@ from .generator import generate_seed
 from .structures import *
 
 import py7zr
-from bidict import bidict
 
 REPLACE_COLON = True
 ANONYMOUS_USER_ID = 3
