@@ -35,15 +35,14 @@ class WikicommaImporter:
 
         # Add site
         unknown_description = f"[NEEDS UPDATE] {site_slug}"
-        site = Site(
+        self.generator.add_site(Site(
             wikidot_id=None,
             created_at=UNKNOWN_CREATION_DATE,
             name=unknown_description,
             slug=site_slug,
             subtitle=unknown_description,
             description=unknown_description,
-        )
-        self.generator.add_site(site)
+        ))
 
         # Process site internals
         site_directory = os.path.join(self.directory, site_slug)
@@ -60,7 +59,7 @@ class WikicommaImporter:
             created_at = datetime.fromtimestamp(metadata.revisions[-1]["stamp"])
             updated_at = datetime.fromtimestamp(metadata.revisions[0]["stamp"])
 
-            page = Page(
+            self.generator.add_page(Page(
                 wikidot_id=page_id,
                 created_at=created_at,
                 updated_at=updated_at,
@@ -68,8 +67,7 @@ class WikicommaImporter:
                 title=metadata["title"],
                 slug=page_slug,
                 discussion_thread_id=None,  # TODO unknown
-            )
-            self.generator.add_page(page)
+            ))
             self.generator.add_page_lock(page_id, metadata["is_locked"])
             self.process_page_votes(metadata)
 
@@ -86,7 +84,7 @@ class WikicommaImporter:
                 # TODO get ID
                 continue
 
-            revision_object = PageRevision(
+            self.generator.add_page_revision(PageRevision(
                 wikidot_id=revision["global_revision"],
                 revision_number=revision["revision"],
                 created_at=datetime.fromtimestamp(revision["stamp"]),
@@ -99,8 +97,7 @@ class WikicommaImporter:
                 html="", # TODO not stored
                 tags=tags,
                 comments=revision["commentary"],
-            )
-            self.generator.add_page_revision(revision_object)
+            ))
 
     def process_page_votes(self, metadata: dict):
         for (user_spec, value) in metadata["votings"]:
@@ -113,12 +110,11 @@ class WikicommaImporter:
             if isinstance(value, bool):
                 value = +1 if value else -1
 
-            vote = PageVote(
+            self.generator.add_page_vote(PageVote(
                 page_id=metadata["page_id"],
                 user_id=user_spec,
                 value=value,
-            )
-            self.generator.add_page_vote(vote)
+            ))
 
     def process_site_forum(self, site_slug: str, site_directory: str):
         self.generator.section_sql(f"Forum: {site_slug} [TODO]")
