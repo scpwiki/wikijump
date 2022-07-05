@@ -44,3 +44,14 @@ class PageRevision:
     wikitext: str
     html: str
     comments: str
+
+@dataclass(frozen=True)
+class File:
+    page_id: int
+    name: str
+    mime: str
+    size: int
+    user_id: int
+    created_at: datetime
+
+# TODO forums
