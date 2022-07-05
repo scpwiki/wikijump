@@ -121,13 +121,27 @@ class WikicommaImporter:
             self.generator.add_page_vote(vote)
 
     def process_site_forum(self, site_slug: str, site_directory: str):
-        self.generator.section_sql(f"Forum: {site_slug}")
+        self.generator.section_sql(f"Forum: {site_slug} [TODO]")
         # TODO
 
     def process_site_files(self, site_slug: str, site_directory: str):
         self.generator.section_sql(f"Files: {site_slug}")
-        # TODO
+        mapping = self.read_json(site_directory, "meta", "file_map.json")
 
+        for file_id, file_info in mapping.items():
+            file_id = int(file_id)
+            file_path = os.path.join(site_directory, file_info["path"])
+
+            with open(file_path, "rb") as file:
+                file_data = file.read()
+
+            self.generator.add_file(...)
+
+            # TODO
+            # int(file_id)
+            # file_data['url']
+            # file_data['path']
+            pass
 
     def read_page_metadata(self, site_directory: str, page_slug: str):
         page_metadata_filename = f"{page_slug}.json"
@@ -176,28 +190,3 @@ def run_wikicomma_import(
         postgres_url=postgres_url,
         last_page_category_id=last_page_category_id,
     )
-
-
-# XXX
-
-    def add_site_forum(self, site):
-        print(f"++ Writing forum posts")
-        self.append_sql_section("Forum")
-
-        # TODO
-        print("++ TODO")
-
-    def add_site_files(self, site):
-        print(f"++ Writing files")
-        self.append_sql_section("Files")
-
-        # Load file mapping
-        mapping = self.read_json(site.directory, "meta", "file_map.json")
-
-        # TODO
-        for file_id, file_data in mapping.items():
-            # TODO
-            # int(file_id)
-            # file_data['url']
-            # file_data['path']
-            pass
