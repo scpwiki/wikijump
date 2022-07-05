@@ -109,6 +109,7 @@ class WikicommaImporter:
                     user_id=user_spec,
                     wikitext=wikitext_mapping[f"{revision_number}.txt"],
                     slug=page_slug,
+                    title=title,
                     html="",  # TODO not stored
                     tags=tags,
                     comments=revision["commentary"],
