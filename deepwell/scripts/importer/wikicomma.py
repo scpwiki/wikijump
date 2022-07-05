@@ -176,6 +176,9 @@ class WikicommaImporter:
 
             file_location = file_mapping[str(file_id)]
             file_path = os.path.join(site_directory, "files", file_location["path"])
+            if not os.path.exists(file_path):
+                logger.error("Path %s does not exist", file_path)
+                continue
 
             with open(file_path, "rb") as file:
                 file_data = file.read()
