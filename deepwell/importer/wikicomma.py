@@ -6,7 +6,7 @@ from .constants import UNKNOWN_CREATION_DATE
 from .generator import generate_seed
 from .structures import *
 
-import py7zr
+from py7zr import SevenZipFile
 
 REPLACE_COLON = True
 ANONYMOUS_USER_ID = 3
@@ -61,30 +61,38 @@ class WikicommaImporter:
             metadata = self.read_page_metadata(site_directory, page_slug)
             created_at = datetime.fromtimestamp(metadata.revisions[-1]["stamp"])
             updated_at = datetime.fromtimestamp(metadata.revisions[0]["stamp"])
+            site_id = -1 # TODO unknown
 
             self.generator.add_page(
                 Page(
                     wikidot_id=page_id,
                     created_at=created_at,
                     updated_at=updated_at,
-                    site_id=-1,  # TODO unknown
+                    site_id=site_id,
                     title=metadata["title"],
                     slug=page_slug,
                     discussion_thread_id=None,  # TODO unknown
                 )
             )
             self.generator.add_page_lock(page_id, metadata["is_locked"])
+            self.process_page_revisions(site_directory, site_id, metadata)
             self.process_page_files(
-                site_directory, page_id, file_mapping, metadata["files"]
+                site_directory, page_id, file_mapping, metadata["files"],
             )
             self.process_page_votes(metadata)
 
-    def process_page_revisions(self, site_id: int, metadata: dict):
+    def process_page_revisions(self, site_directory: str, site_id: int, metadata: dict):
+        page_slug = metadata["name"]
         page_id = metadata["page_id"]
         title = metadata["title"]  # We don't know what these are historically
         tags = metadata["tags"]
 
+        archive_path = os.path.join(site_directory, f"{page_slug}.7z")
+        with SevenZipFile(archive_path, "r") as archive:
+            wikitext_mapping = archive.readall()
+
         for revision in metadata["revisions"]:
+            revision_number = revision["revision"]
             user_spec = revision["author"]
 
             # Is user slug, not a user ID
@@ -95,13 +103,13 @@ class WikicommaImporter:
             self.generator.add_page_revision(
                 PageRevision(
                     wikidot_id=revision["global_revision"],
-                    revision_number=revision["revision"],
+                    revision_number=revision_number,
                     created_at=datetime.fromtimestamp(revision["stamp"]),
                     flags=revision["flags"],
                     page_id=page_id,
                     site_id=site_id,
                     user_id=user_spec,
-                    wikitext=wikitext,
+                    wikitext=wikitext_mapping[f"{revision_number}.txt"],
                     slug=page_slug,
                     html="",  # TODO not stored
                     tags=tags,
