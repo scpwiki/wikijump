@@ -22,6 +22,26 @@ class Generator:
     duplicate data.
     """
 
+    __slots__ = (
+        "sql_buffer",
+        "sh_buffer",
+        "cursor",
+        "s3_bucket",
+        "page_category_id",
+        "user_ids",
+        "user_slugs",
+        "site_ids",
+        "site_slugs",
+        "page_ids",
+        "page_slugs",
+        "page_revision_ids",
+        "page_revision_numbers",
+        "page_categories",
+        "file_names",
+        "blob_hashes",
+        "text_hashes",
+    )
+
     def __init__(self, sql_buffer, sh_buffer, cursor, s3_bucket, last_page_category_id):
         self.sql_buffer = sql_buffer
         self.sh_buffer = sh_buffer
