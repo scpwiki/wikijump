@@ -2,6 +2,7 @@ import hashlib
 from binascii import hexlify
 from typing import Iterable, Optional, Set
 
+from .constants import UNKNOWN_CREATION_DATE
 from .counter import IncrementingCounter
 from .structures import *
 from .utils import get_page_category
@@ -191,6 +192,29 @@ class Generator:
 
         self.id_add(self.page_revision_ids, revision.wikidot_id)
         self.page_revision_numbers.add((revision.page_id, revision.revision_number))
+
+    def add_page_votes(self, votes: Iterable[PageVote]):
+        for vote in votes:
+            self.add_page_vote(vote)
+
+    def add_page_vote(self, vote: PageVote):
+        self.append_sql(
+            "INSERT INTO page_vote (created_at, page_id, user_id, value)",
+            (UNKNOWN_CREATION_DATE, vote.page_id, vote.user_id, vote.value),
+        )
+
+    def add_page_lock(self, page_id: int, locked: bool = True):
+        if locked:
+            self.append_sql(
+                "INSERT INTO page_lock (created_at, lock_type, page_id, user_id, reason) VALUES (%s, %s, %s, %s, %s)",
+                (
+                    UNKNOWN_CREATION_DATE,
+                    "wikidot",
+                    page_id,
+                    ANONYMOUS_USER_ID,
+                    "Imported from Wikidot",
+                ),
+            )
 
     def add_page_category(self, site_id: int, category_slug: slug) -> int:
         page_category_id = self.page_categories.get((site_id, category_slug))

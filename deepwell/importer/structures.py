@@ -49,6 +49,13 @@ class PageRevision:
 
 
 @dataclass(frozen=True)
+class PageVote:
+    page_id: int
+    user_id: int
+    value: int
+
+
+@dataclass(frozen=True)
 class File:
     page_id: int
     name: str
