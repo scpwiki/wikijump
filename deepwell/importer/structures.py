@@ -60,6 +60,7 @@ class PageVote:
 
 @dataclass(frozen=True)
 class File:
+    wikidot_id: Optional[int]
     page_id: int
     name: str
     mime: str

@@ -48,13 +48,15 @@ class WikicommaImporter:
         site_directory = os.path.join(self.directory, site_slug)
         self.process_site_pages(site_slug, site_directory)
         self.process_site_forum(site_slug, site_directory)
-        self.process_site_files(site_slug, site_directory)
 
     def process_site_pages(self, site_slug: str, site_directory: str):
         self.generator.section_sql(f"Pages: {site_slug}")
-        mapping = self.read_json(site_directory, "meta", "page_id_map.json")
+        page_mapping = self.read_json(site_directory, "meta", "page_id_map.json")
+        file_mapping = self.read_json(site_directory, "meta", "file_map.json")
 
-        for page_id, page_slug in mapping.items():
+        for page_id, page_slug in page_mapping.items():
+            self.generator.section_sql(f"Page: {page_slug}")
+            page_id = int(page_id)
             metadata = self.read_page_metadata(site_directory, page_slug)
             created_at = datetime.fromtimestamp(metadata.revisions[-1]["stamp"])
             updated_at = datetime.fromtimestamp(metadata.revisions[0]["stamp"])
@@ -69,6 +71,7 @@ class WikicommaImporter:
                 discussion_thread_id=None,  # TODO unknown
             ))
             self.generator.add_page_lock(page_id, metadata["is_locked"])
+            self.process_page_files(site_directory, page_id, file_mapping, metadata["files"])
             self.process_page_votes(metadata)
 
     def process_page_revisions(self, site_id: int, metadata: dict):
@@ -99,6 +102,30 @@ class WikicommaImporter:
                 comments=revision["commentary"],
             ))
 
+    def process_page_files(self, site_directory: str, page_id: int, file_mapping: dict, metadata_list: list):
+        for metadata in metadata_list:
+            user_spec = metadata["author"]
+            # Is user slug, not a user ID
+            if isinstance(user_spec, str):
+                # TODO get ID
+                continue
+
+            file_location = file_mapping[str(metadata["file_id"])]
+            file_path = os.path.join(site_directory, file_location["path"])
+
+            with open(file_path, "rb") as file:
+                file_data = file.read()
+
+            self.generator.add_file(File(
+                wikidot_id=metadata["file_id"],
+                page_id=page_id,
+                name=metadata["name"],
+                mime=metadata["mime"],
+                size=metadata["size_bytes"],
+                user_id=user_spec,
+                created_at=datetime.fromtimestamp(metadata["stamp"]),
+            ))
+
     def process_page_votes(self, metadata: dict):
         for (user_spec, value) in metadata["votings"]:
             # Is user slug, not a user ID
@@ -119,25 +146,6 @@ class WikicommaImporter:
     def process_site_forum(self, site_slug: str, site_directory: str):
         self.generator.section_sql(f"Forum: {site_slug} [TODO]")
         # TODO
-
-    def process_site_files(self, site_slug: str, site_directory: str):
-        self.generator.section_sql(f"Files: {site_slug}")
-        mapping = self.read_json(site_directory, "meta", "file_map.json")
-
-        for file_id, file_info in mapping.items():
-            file_id = int(file_id)
-            file_path = os.path.join(site_directory, file_info["path"])
-
-            with open(file_path, "rb") as file:
-                file_data = file.read()
-
-            self.generator.add_file(...)
-
-            # TODO
-            # int(file_id)
-            # file_data['url']
-            # file_data['path']
-            pass
 
     def read_page_metadata(self, site_directory: str, page_slug: str):
         page_metadata_filename = f"{page_slug}.json"
