@@ -14,6 +14,7 @@ REVISION_FILENAME_REGEX = re.compile(r"(\d+)\.txt")
 
 logger = logging.getLogger(__name__)
 
+
 class WikicommaImporter:
     __slots__ = (
         "generator",
@@ -21,7 +22,7 @@ class WikicommaImporter:
         "replace_colon",
     )
 
-    def __init__(self, generator, directory, replace_colon = True):
+    def __init__(self, generator, directory, replace_colon=True):
         self.generator = generator
         self.directory = directory
         self.replace_colon = replace_colon
@@ -80,10 +81,12 @@ class WikicommaImporter:
             self.generator.section_sql(f"Page: {page_slug}")
             page_id = int(page_id)
             metadata = self.read_page_metadata(site_directory, page_slug)
-            start_revision, last_revision = get_first_last_revisions(metadata["revisions"])
+            start_revision, last_revision = get_first_last_revisions(
+                metadata["revisions"]
+            )
             created_at = datetime.fromtimestamp(start_revision["stamp"])
             updated_at = datetime.fromtimestamp(last_revision["stamp"])
-            site_id = -1 # TODO unknown
+            site_id = -1  # TODO unknown
 
             self.generator.add_page(
                 Page(
@@ -99,14 +102,18 @@ class WikicommaImporter:
             self.generator.add_page_lock(page_id, metadata.get("is_locked", False))
             self.process_page_revisions(site_directory, site_id, metadata)
             self.process_page_files(
-                site_directory, page_id, file_mapping, metadata["files"],
+                site_directory,
+                page_id,
+                file_mapping,
+                metadata["files"],
             )
             self.process_page_votes(metadata)
 
     def process_page_revisions(self, site_directory: str, site_id: int, metadata: dict):
         page_slug = metadata["name"]
         page_id = metadata["page_id"]
-        title = metadata.get("title", "")  # NOTE: We don't know what these are historically,
+        # NOTE: We don't know what these are historically,
+        title = metadata.get("title", "")
         tags = metadata["tags"]
         logger.info("Processing revisions for page %s (%d)", page_slug, page_id)
 
@@ -150,7 +157,11 @@ class WikicommaImporter:
             )
 
     def process_page_files(
-        self, site_directory: str, page_id: int, file_mapping: dict, metadata_list: list,
+        self,
+        site_directory: str,
+        page_id: int,
+        file_mapping: dict,
+        metadata_list: list,
     ):
         logger.info("Processing files for page ID %d", page_id)
 
@@ -232,7 +243,9 @@ class WikicommaImporter:
         if self.replace_colon:
             page_revisions_filename = page_revisions_filename.replace(":", "_")
 
-        page_revisions_path = os.path.join(site_directory, "pages", page_revisions_filename)
+        page_revisions_path = os.path.join(
+            site_directory, "pages", page_revisions_filename,
+        )
         return SevenZipFile(page_revisions_path, "r")
 
     @staticmethod

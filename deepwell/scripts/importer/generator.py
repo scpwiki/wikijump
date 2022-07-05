@@ -132,7 +132,10 @@ class Generator:
         ):
             return
 
-        page_category_id = self.add_page_category(page.site_id, get_page_category(page.slug))
+        page_category_id = self.add_page_category(
+            page.site_id, get_page_category(page.slug),
+        )
+
         self.append_sql(
             "INSERT INTO page (page_id, created_at, updated_at, site_id, page_category_id, slug, discussion_thread_id) VALUES (%s, %s, %s, %s, %s, %s, %s)",
             (
@@ -300,6 +303,10 @@ def generate_seed(
             with psycopg2.connect(postgres_url) as connection:
                 with connection.cursor() as cursor:
                     generator = Generator(
-                        sql_file, sh_file, cursor, s3_bucket, last_page_category_id,
+                        sql_file,
+                        sh_file,
+                        cursor,
+                        s3_bucket,
+                        last_page_category_id,
                     )
                     runner(generator)
