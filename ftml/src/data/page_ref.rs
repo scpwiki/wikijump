@@ -78,6 +78,11 @@ impl<'t> PageRef<'t> {
         (self.site(), self.page())
     }
 
+    /// Like `fields()`, but uses the passed in value as the current site for local references.
+    pub fn fields_or<'a>(&'a self, current_site: &'a str) -> (&'a str, &'a str) {
+        (self.site().unwrap_or(current_site), self.page())
+    }
+
     pub fn parse(s: &'t str) -> Result<PageRef<'t>, PageRefParseError> {
         let s = s.trim();
         if s.is_empty() {

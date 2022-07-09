@@ -53,11 +53,18 @@ impl Handle {
         }
     }
 
-    pub fn get_page_title(&self, link: &LinkLocation) -> String {
+    pub fn get_page_title(&self, _site: &str, _page: &str) -> Option<String> {
         info!("Fetching page title");
 
         // TODO
-        format!("TODO: actual title ({:?})", link)
+        Some(format!("TODO: actual title ({_site} {_page})"))
+    }
+
+    pub fn get_page_exists(&self, _site: &str, _page: &str) -> bool {
+        info!("Checking page existence");
+
+        // TODO
+        true
     }
 
     pub fn get_user_info<'a>(&self, name: &'a str) -> Option<UserInfo<'a>> {
@@ -97,8 +104,13 @@ impl Handle {
         )))
     }
 
-    pub fn get_link_label<F>(&self, link: &LinkLocation, label: &LinkLabel, f: F)
-    where
+    pub fn get_link_label<F>(
+        &self,
+        page_info: &PageInfo,
+        link: &LinkLocation,
+        label: &LinkLabel,
+        f: F,
+    ) where
         F: FnOnce(&str),
     {
         let page_title;
@@ -109,10 +121,20 @@ impl Handle {
                 LinkLocation::Url(url) => url,
                 LinkLocation::Page(page_ref) => page_ref.page(),
             },
-            LinkLabel::Page => {
-                page_title = self.get_page_title(link);
-                &page_title
-            }
+            LinkLabel::Page => match link {
+                LinkLocation::Url(url) => {
+                    panic!("Requested link label of page for a URL")
+                }
+                LinkLocation::Page(page_ref) => {
+                    let (site, page) = page_ref.fields_or(&page_info.site);
+                    page_title = match self.get_page_title(site, page) {
+                        Some(title) => title,
+                        None => page_ref.to_string(),
+                    };
+
+                    &page_title
+                }
+            },
         };
 
         f(label_text);
