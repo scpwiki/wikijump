@@ -63,6 +63,12 @@ impl Handle {
     pub fn get_page_exists(&self, _site: &str, _page: &str) -> bool {
         info!("Checking page existence");
 
+        // For testing
+        #[cfg(test)]
+        if _page == "missing" {
+            return false;
+        }
+
         // TODO
         true
     }
