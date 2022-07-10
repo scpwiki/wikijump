@@ -366,16 +366,30 @@ fn ast_and_html() {
     tests.sort_by(|a, b| (a.name).cmp(&b.name));
 
     // Run tests
+    let mut failed = 0;
+    let mut skipped = 0;
+
     println!("Running {} syntax tree tests:", tests.len());
-    for test in tests {
-        test.run();
+    for test in &tests {
+        match test.run() {
+            TestResult::Pass => (),
+            TestResult::Fail => failed += 1,
+            TestResult::Skip => skipped += 1,
+        }
     }
 
-    // Ensure we don't accidentally commit excluded tests
-    if !SKIP_TESTS.is_empty() || !ONLY_TESTS.is_empty() {
-        println!("Files are being skipped, returning failure.");
+    println!();
+    println!("Ran a total of {} tests", tests.len());
+
+    if failed > 0 {
+        println!("Of these, {} failed", failed);
+    }
+
+    if skipped > 0 {
+        // Don't allow accidentally committing skipped tests
+        println!("Additionally, {} tests are being skipped", skipped);
         println!("Remember to re-enable all tests before committing!");
-
-        process::exit(2);
     }
+
+    process::exit(failed + skipped);
 }
