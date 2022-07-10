@@ -1,0 +1,45 @@
+{
+    "input": "[[[missing | Wanted page]]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "link",
+                            "data": {
+                                "type": "page",
+                                "link": {
+                                    "site": null,
+                                    "page": "missing"
+                                },
+                                "label": {
+                                    "text": "Wanted page"
+                                },
+                                "target": null
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}
