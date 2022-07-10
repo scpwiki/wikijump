@@ -1,1 +1,1 @@
-TODO: actual title (Page(PageRef { site: Some("scp-wiki"), page: "scp-series" })) [https://scp-wiki.wikijump.com/scp-series]
+TODO: actual title (scp-wiki scp-series) [https://scp-wiki.wikijump.com/scp-series]

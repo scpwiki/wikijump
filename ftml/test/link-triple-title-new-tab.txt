@@ -1,1 +1,1 @@
-TODO: actual title (Page(PageRef { site: None, page: "some-page" })) [/some-page]
+TODO: actual title (test some-page) [/some-page]

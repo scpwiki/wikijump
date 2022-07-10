@@ -32,6 +32,7 @@ use crate::settings::WikitextSettings;
 use crate::tree::{Element, LinkLocation, VariableScopes};
 use crate::url::is_url;
 use std::borrow::Cow;
+use std::collections::HashMap;
 use std::fmt::{self, Write};
 use std::num::NonZeroUsize;
 
@@ -59,6 +60,11 @@ where
     //
     table_of_contents: &'e [Element<'t>],
     footnotes: &'e [Vec<Element<'t>>],
+
+    //
+    // Cached data
+    //
+    pages_exists: HashMap<PageRef<'static>, bool>,
 
     //
     // Other fields to track
@@ -90,6 +96,7 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
             variables: VariableScopes::new(),
             table_of_contents,
             footnotes,
+            pages_exists: HashMap::new(),
             code_snippet_index: NonZeroUsize::new(1).unwrap(),
             table_of_contents_index: 0,
             equation_index: NonZeroUsize::new(1).unwrap(),
@@ -239,6 +246,20 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
                     let page_ref = PageRef::page_only(cow!(link));
                     self.backlinks.internal_links.push(page_ref.to_owned());
                 }
+            }
+        }
+    }
+
+    pub fn page_exists(&mut self, page_ref: &PageRef) -> bool {
+        let (site, page) = page_ref.fields_or(&self.info.site);
+
+        // Get from cache, or fetch and add
+        match self.pages_exists.get(page_ref) {
+            Some(exists) => *exists,
+            None => {
+                let exists = self.handle.get_page_exists(site, page);
+                self.pages_exists.insert(page_ref.to_owned(), exists);
+                exists
             }
         }
     }
