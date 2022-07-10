@@ -1,5 +1,5 @@
 {
-    "input": "[[embed github-gist username=\"ammongit\" hash=\"ad5be96bd2e6fe5f06b8e33290273f53\"]]",
+    "input": "[[embed github-gist username=\"emmiegit\" hash=\"ad5be96bd2e6fe5f06b8e33290273f53\"]]",
     "tree": {
         "elements": [
             {
@@ -7,7 +7,7 @@
                 "data": {
                     "embed": "github-gist",
                     "data": {
-                        "username": "ammongit",
+                        "username": "emmiegit",
                         "hash": "ad5be96bd2e6fe5f06b8e33290273f53"
                     }
                 }
