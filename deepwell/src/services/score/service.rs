@@ -71,7 +71,7 @@ impl ScoreService {
 
         let counts = PageVote::find()
             .column(page_vote::Column::Value)
-            .column_as(Expr::col(page_vote::Column::Value).count(), "count")
+            .column_as(page_vote::Column::Value.count(), "count")
             .filter(condition)
             .group_by(page_vote::Column::Value)
             .into_model::<VoteCountRow>()

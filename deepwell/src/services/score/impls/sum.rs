@@ -57,7 +57,7 @@ impl Scorer for SumScorer {
         // GROUP BY value;
 
         let result = PageVote::find()
-            .column_as(Expr::col(page_vote::Column::Value).sum(), "sum")
+            .column_as(page_vote::Column::Value.sum(), "sum")
             .filter(condition)
             .into_model::<SumRow>()
             .one(txn)
