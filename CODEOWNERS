@@ -4,14 +4,14 @@
 
 # The ftml (Foundation Text Markup Language) service provides
 # parsing and rendering of wikitext.
-.github/workflows/ftml*.yaml        @ammongit
-ftml                                @ammongit
-web/app/Services/Wikitext           @ammongit
+.github/workflows/ftml*.yaml        @emmiegit
+ftml                                @emmiegit
+web/app/Services/Wikitext           @emmiegit
 
 # The DEEPWELL replacement API service
-.github/workflows/deepwell.yaml     @ammongit
-deepwell                            @ammongit
-web/app/Services/Deepwell           @ammongit
+.github/workflows/deepwell.yaml     @emmiegit
+deepwell                            @emmiegit
+web/app/Services/Deepwell           @emmiegit
 
 # Frontend monorepo
 .github/workflows/client.yaml       @Monkatraz @rossjrw
@@ -26,17 +26,17 @@ web/web/files--common/javascript    @rossjrw
 web/web/files--common/modules       @rossjrw
 
 # Localization
-.github/workflows/locales.yaml      @ammongit
+.github/workflows/locales.yaml      @emmiegit
 
 # Terraform and docker-compose deployment
 .github/workflows/docker-*.yaml     @danieltharp
 /install/                           @danieltharp
 
 # PHP and related
-*.php                               @ammongit @danieltharp
-/web/composer.json                  @ammongit @danieltharp
-/web/phpunit.xml                    @ammongit @danieltharp
-/web/.env.example                   @ammongit @danieltharp
+*.php                               @emmiegit @danieltharp
+/web/composer.json                  @emmiegit @danieltharp
+/web/phpunit.xml                    @emmiegit @danieltharp
+/web/.env.example                   @emmiegit @danieltharp
 
 # Smarty
-*.tpl                               @ammongit @danieltharp
+*.tpl                               @emmiegit @danieltharp
