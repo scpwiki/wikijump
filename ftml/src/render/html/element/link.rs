@@ -73,7 +73,7 @@ pub fn render_link(
         LinkLocation::Url(url) if url.starts_with('/') => "wj-link-internal",
         LinkLocation::Url(_) => "wj-link-external",
         LinkLocation::Page(page) => {
-            if ctx.page_exists(&page) {
+            if ctx.page_exists(page) {
                 "wj-link-internal"
             } else {
                 "wj-link-internal wj-link-missing"
