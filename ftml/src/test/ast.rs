@@ -71,6 +71,13 @@ macro_rules! file_name {
     };
 }
 
+#[derive(Debug, Copy, Clone)]
+pub enum TestResult {
+    Pass,
+    Fail,
+    Skip,
+}
+
 // Debugging execution
 
 fn only_test_should_skip(name: &str) -> bool {
@@ -180,15 +187,15 @@ impl Test<'_> {
         test
     }
 
-    pub fn run(&self) {
+    pub fn run(&self) -> TestResult {
         if SKIP_TESTS.contains(&&*self.name) {
             println!("+ {} [SKIPPED]", self.name);
-            return;
+            return TestResult::Skip;
         }
 
         if !ONLY_TESTS.is_empty() && only_test_should_skip(&&*self.name) {
             println!("+ {} [SKIPPED]", self.name);
-            return;
+            return TestResult::Skip;
         }
 
         info!(
@@ -233,9 +240,12 @@ impl Test<'_> {
             output
         }
 
+        let mut result = TestResult::Pass;
+
         if tree != self.tree {
-            panic!(
-                "Running test '{}' failed! AST did not match:\nExpected: {:#?}\nActual: {:#?}\n{}\nWarnings: {:#?}",
+            result = TestResult::Fail;
+            eprintln!(
+                "Test '{}' AST did not match:\nExpected: {:#?}\nActual: {:#?}\n{}\nWarnings: {:#?}",
                 self.name,
                 self.tree,
                 tree,
@@ -245,8 +255,9 @@ impl Test<'_> {
         }
 
         if warnings != self.warnings {
-            panic!(
-                "Running test '{}' failed! Warnings did not match:\nExpected: {:#?}\nActual:   {:#?}\n{}\nTree (correct): {:#?}",
+            result = TestResult::Fail;
+            eprintln!(
+                "Test '{}' warnings did not match:\nExpected: {:#?}\nActual:   {:#?}\n{}\nTree (correct): {:#?}",
                 self.name,
                 self.warnings,
                 warnings,
@@ -256,8 +267,9 @@ impl Test<'_> {
         }
 
         if html_output.body != self.html {
-            panic!(
-                "Running test '{}' failed! HTML does not match:\nExpected: {:?}\nActual:   {:?}\n\n{}\n\nTree (correct): {:#?}",
+            result = TestResult::Fail;
+            eprintln!(
+                "Test '{}' HTML does not match:\nExpected: {:?}\nActual:   {:?}\n\n{}\n\nTree (correct): {:#?}",
                 self.name,
                 self.html,
                 html_output.body,
@@ -267,8 +279,9 @@ impl Test<'_> {
         }
 
         if text_output != self.text {
-            panic!(
-                "Running test '{}' failed! Text output does not match:\nExpected: {:?}\nActual:   {:?}\n\n{}\n\nTree (correct): {:#?}",
+            result = TestResult::Fail;
+            eprintln!(
+                "Test '{}' text output does not match:\nExpected: {:?}\nActual:   {:?}\n\n{}\n\nTree (correct): {:#?}",
                 self.name,
                 self.text,
                 text_output,
@@ -276,6 +289,8 @@ impl Test<'_> {
                 &tree,
             );
         }
+
+        result
     }
 }
 
