@@ -122,8 +122,8 @@ impl Handle {
                 LinkLocation::Page(page_ref) => page_ref.page(),
             },
             LinkLabel::Page => match link {
-                LinkLocation::Url(url) => {
-                    panic!("Requested link label of page for a URL")
+                LinkLocation::Url(_) => {
+                    panic!("Requested link label of page for a URL");
                 }
                 LinkLocation::Page(page_ref) => {
                     let (site, page) = page_ref.fields_or(site);
