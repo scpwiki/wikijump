@@ -106,7 +106,7 @@ impl Handle {
 
     pub fn get_link_label<F>(
         &self,
-        page_info: &PageInfo,
+        site: &str,
         link: &LinkLocation,
         label: &LinkLabel,
         f: F,
@@ -126,7 +126,7 @@ impl Handle {
                     panic!("Requested link label of page for a URL")
                 }
                 LinkLocation::Page(page_ref) => {
-                    let (site, page) = page_ref.fields_or(&page_info.site);
+                    let (site, page) = page_ref.fields_or(site);
                     page_title = match self.get_page_title(site, page) {
                         Some(title) => title,
                         None => page_ref.to_string(),

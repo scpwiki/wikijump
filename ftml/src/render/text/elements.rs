@@ -177,8 +177,9 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
         }
         Element::Link { link, label, .. } => {
             let url = get_url_from_link(ctx, link);
+            let site = ctx.info().site.as_ref().to_string();
 
-            ctx.handle().get_link_label(link, label, |label| {
+            ctx.handle().get_link_label(&site, link, label, |label| {
                 ctx.push_str(label);
 
                 // Don't show URL if it's a name link, or an anchor

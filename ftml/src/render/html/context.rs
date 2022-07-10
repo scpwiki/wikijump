@@ -64,7 +64,7 @@ where
     //
     // Cached data
     //
-    pages_exists: HashMap<(&'t str, &'t str), bool>,
+    pages_exists: HashMap<PageRef<'static>, bool>,
 
     //
     // Other fields to track
@@ -250,15 +250,15 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
         }
     }
 
-    pub fn page_exists(&mut self, page_ref: &PageRef<'t>) -> bool {
-        let (site, page) = page_ref.fields_or(&self.page_info);
+    pub fn page_exists(&mut self, page_ref: &PageRef) -> bool {
+        let (site, page) = page_ref.fields_or(&self.info.site);
 
         // Get from cache, or fetch and add
-        match self.pages_exists.get(&(site, page)) {
+        match self.pages_exists.get(page_ref) {
             Some(exists) => *exists,
             None => {
                 let exists = self.handle.get_page_exists(site, page);
-                self.pages_exists.insert((site, page), exists);
+                self.pages_exists.insert(page_ref.to_owned(), exists);
                 exists
             }
         }

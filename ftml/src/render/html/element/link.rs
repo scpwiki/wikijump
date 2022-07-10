@@ -87,6 +87,7 @@ pub fn render_link(
         ""
     };
 
+    let site = ctx.info().site.as_ref().to_string();
     let mut tag = ctx.html().a();
     tag.attr(attr!(
         "href" => &url,
@@ -96,7 +97,7 @@ pub fn render_link(
     ));
 
     // Add <a> internals, i.e. the link name
-    handle.get_link_label(link, label, |label| {
+    handle.get_link_label(&site, link, label, |label| {
         tag.inner(label);
     });
 }
