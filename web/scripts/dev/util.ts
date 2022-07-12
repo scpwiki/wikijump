@@ -16,7 +16,7 @@ export async function pnpm(args: string, pipe = true, cd?: string) {
 export function compose(args: string, spawn?: false, pipe?: boolean): Promise<string>
 export function compose(args: string, spawn: true, pipe?: boolean): Promise<ChildProcess>
 export async function compose(args: string, spawn = false, pipe = true) {
-  const str = `pnpm -s compose${isSudo ? "-sudo" : ""} -- ${args}`
+  const str = `npm run compose${isSudo ? "-sudo" : ""} -- ${args}`
   return spawn ? await shell(str, pipe) : await cmd(str, pipe)
 }
 
