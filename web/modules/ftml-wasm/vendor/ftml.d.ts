@@ -12,17 +12,17 @@ export function version(): string;
 */
 export function parse(tokens: Tokenization, page_info: PageInfo, settings: WikitextSettings): ParseOutcome;
 /**
+* @param {string} text
+* @returns {string}
+*/
+export function preprocess(text: string): string;
+/**
 * @param {SyntaxTree} syntax_tree
 * @param {PageInfo} page_info
 * @param {WikitextSettings} settings
 * @returns {HtmlOutput}
 */
 export function render_html(syntax_tree: SyntaxTree, page_info: PageInfo, settings: WikitextSettings): HtmlOutput;
-/**
-* @param {string} text
-* @returns {string}
-*/
-export function preprocess(text: string): string;
 /**
 * @param {SyntaxTree} syntax_tree
 * @param {PageInfo} page_info
@@ -313,6 +313,7 @@ export interface InitOutput {
   readonly pageinfo_rating: (a: number) => number;
   readonly pageinfo_tags: (a: number, b: number) => void;
   readonly pageinfo_language: (a: number, b: number) => void;
+  readonly preprocess: (a: number, b: number, c: number) => void;
   readonly __wbg_htmloutput_free: (a: number) => void;
   readonly htmloutput_copy: (a: number) => number;
   readonly htmloutput_body: (a: number, b: number) => void;
@@ -320,7 +321,6 @@ export interface InitOutput {
   readonly htmloutput_html_meta: (a: number, b: number) => void;
   readonly htmloutput_backlinks: (a: number, b: number) => void;
   readonly render_html: (a: number, b: number, c: number) => number;
-  readonly preprocess: (a: number, b: number, c: number) => void;
   readonly render_text: (a: number, b: number, c: number, d: number) => void;
   readonly __wbg_tokenization_free: (a: number) => void;
   readonly tokenization_copy: (a: number) => number;
