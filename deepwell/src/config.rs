@@ -221,7 +221,7 @@ fn read_env(config: &mut Config) {
         config.aws_credentials = match Credentials::from_profile(profile_name) {
             Ok(credentials) => credentials,
             Err(error) => {
-                eprintln!("Unable to read credentials: {}", error);
+                eprintln!("Unable to read AWS credentials file: {}", error);
                 process::exit(1);
             }
         };
