@@ -29,6 +29,17 @@ services:
       timeout: 5s
       retries: 6
 
+  files:
+    image: quay.io/minio/minio:latest
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-I", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    ports:
+      - "9000:9000"
+
   nginx:
     extra_hosts:
     - "host.docker.internal:host-gateway"
@@ -57,6 +68,8 @@ services:
       retries: 3
     depends_on:
       database:
+        condition: service_healthy
+      files:
         condition: service_healthy
 
   php-fpm:
