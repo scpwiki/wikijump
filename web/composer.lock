@@ -149,16 +149,16 @@
         },
         {
             "name": "brianium/paratest",
-            "version": "v6.5.1",
+            "version": "v6.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/paratestphp/paratest.git",
-                "reference": "41fc4cc01422dae2d6bf6a0ce39756f57ac7d8a9"
+                "reference": "ae5803ce4558f855c7d955baa2d90b93ec40c4b7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/paratestphp/paratest/zipball/41fc4cc01422dae2d6bf6a0ce39756f57ac7d8a9",
-                "reference": "41fc4cc01422dae2d6bf6a0ce39756f57ac7d8a9",
+                "url": "https://api.github.com/repos/paratestphp/paratest/zipball/ae5803ce4558f855c7d955baa2d90b93ec40c4b7",
+                "reference": "ae5803ce4558f855c7d955baa2d90b93ec40c4b7",
                 "shasum": ""
             },
             "require": {
@@ -173,18 +173,18 @@
                 "phpunit/php-timer": "^5.0.3",
                 "phpunit/phpunit": "^9.5.21",
                 "sebastian/environment": "^5.1.4",
-                "symfony/console": "^5.4.9 || ^6.1.1",
+                "symfony/console": "^5.4.9 || ^6.1.2",
                 "symfony/process": "^5.4.8 || ^6.1.0"
             },
             "require-dev": {
                 "doctrine/coding-standard": "^9.0.0",
                 "ext-pcov": "*",
                 "ext-posix": "*",
-                "infection/infection": "^0.26.12",
+                "infection/infection": "^0.26.13",
                 "malukenho/mcbumpface": "^1.1.5",
                 "squizlabs/php_codesniffer": "^3.7.1",
                 "symfony/filesystem": "^5.4.9 || ^6.1.0",
-                "vimeo/psalm": "^4.23.0"
+                "vimeo/psalm": "^4.24.0"
             },
             "bin": [
                 "bin/paratest",
@@ -225,7 +225,7 @@
             ],
             "support": {
                 "issues": "https://github.com/paratestphp/paratest/issues",
-                "source": "https://github.com/paratestphp/paratest/tree/v6.5.1"
+                "source": "https://github.com/paratestphp/paratest/tree/v6.6.1"
             },
             "funding": [
                 {
@@ -237,7 +237,7 @@
                     "type": "paypal"
                 }
             ],
-            "time": "2022-06-24T16:02:27+00:00"
+            "time": "2022-07-22T14:07:17+00:00"
         },
         {
             "name": "brick/math",
