@@ -6,7 +6,7 @@ This document will explain how to set up Wikijump on your machine for local deve
 
 The `install` folder has everything you need to run a local Wikijump install either in a container or on metal or a VM.
 
-The recommended way to install Wikijump is via Docker, utilizing pnpm. Docker is a way of containerizing, or in the case of Windows or Mac, also virtualizing, Linux images. It lets you easily create and destroy different Wikijump builds, and it also acts like a sandbox to protect the rest of your system from dependency pollution. PNPM is an alternate package manager for NodeJS.
+The recommended way to install Wikijump is via Docker, utilizing pnpm. Docker is a way of containerizing, or in the case of Windows or Mac, also virtualizing Linux images. It lets you easily create and destroy different Wikijump builds, and it also acts like a sandbox to protect the rest of your system from dependency pollution. PNPM is an alternate package manager for NodeJS.
 
 > ### For Windows:
 >
@@ -33,16 +33,16 @@ You will need [Docker](https://www.docker.com/) installed and running:
   </tr></tbody>
 </table>
 
-## Setup: Utilites and Programs
+## Setup: Utilities and Programs
 
-You will need some utilites and programs to get started. You will to install the following:
+You will need some utilities and programs to get started. You will to install the following:
 
 - [Docker](https://www.docker.com/get-started) (see above)
 - [Docker Compose](https://docs.docker.com/compose/)
 - [NodeJS (and NPM, which comes with it), v15 or greater](https://nodejs.org/en/)
 - [PNPM v6](https://pnpm.io/installation)
 
-Node, NPM, and PNPM are well-behaved on Windows and Linux, and the difference in usage between operating systems is negligable.
+Node, NPM, and PNPM are well-behaved on Windows and Linux, and the difference in usage between operating systems is negligible.
 
 ## Setup: Configuration
 
@@ -144,7 +144,7 @@ $ docker rmi [ID]      # Remove the image with this ID
 
 ### "Permission denied" error
 
-Depending on your local installation, you may receive a "failed to open stream: Permission denied" error from PHP. This occurs because the `www-data` user inside the ocntainer is not the owner of the directory Wikijump is trying to write to, which is likely mapped to your local filesystem. You can manually fix this by changing the owner of those directories to `www-data`.
+Depending on your local installation, you may receive a "failed to open stream: Permission denied" error from PHP. This occurs because the `www-data` user inside the container is not the owner of the directory Wikijump is trying to write to, which is likely mapped to your local filesystem. You can manually fix this by changing the owner of those directories to `www-data`.
 
 Find the container hosting PHP-FPM (usually called `wikijump-php-fpm-1`), and run:
 

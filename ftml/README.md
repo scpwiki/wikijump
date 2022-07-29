@@ -174,7 +174,7 @@ let mut input = "**some** test <<string?>>";
 // Substitute page inclusions
 let (mut text, included_pages) = ftml::include(input, includer, &settings);
 
-// Perform preprocess substitions
+// Perform preprocess substitutions
 ftml::preprocess(&log, &mut text);
 
 // Generate token from input text
