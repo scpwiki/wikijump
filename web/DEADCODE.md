@@ -260,7 +260,7 @@ If possible, add to this log in the same commit in which the code is removed.
 * Where it was: Multiple files, see pull request
 * Relevant Issues: [WJ-938](https://scuttle.atlassian.net/browse/WJ-938)
 * What it did: Allowed editing by adding contents to the end of a page.
-* Why it was removed: It was frequently used, and with the removal of section editing, it made sense to simplify page edit code by removing it as well.
+* Why it was removed: It was not frequently used, and with the removal of section editing, it made sense to simplify page edit code by removing it as well.
 
 ## PHP, JS: Page Edit Locks
 * Where it was: Multiple files, see pull request

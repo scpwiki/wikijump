@@ -10,7 +10,7 @@ Blocks have five variable properties worth noting:
 2. Their name may end in `_`. This is referred to as the "score" flag. This underscore is ignored if found in the foot.
 3. The block may have some arguments before ending in `]]`.
 4. The block may accept delimited newlines. This is explained in more detail [below](#newlines).
-5. The block may have a body. It has contents that is terminated by `[[/name]]` (where `name` is the block name), referred to as the block footer or tail.
+5. The block may have a body. It has contents that are terminated by `[[/name]]` (where `name` is the block name), referred to as the block footer or tail.
 
 Whether particular blocks accept these variables is noted in the table below. If a block does not permit that variance, then it will fail to parse.
 
@@ -57,7 +57,7 @@ Banana
 
 ### Body
 
-How the bodies of a block are interpreted depend on its type. They fall into one of the following categories:
+How the bodies of a block are interpreted depends on its type. They fall into one of the following categories:
 
 | Name            | Example block | Description |
 |-----------------|---------------|-------------|

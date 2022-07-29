@@ -6,10 +6,10 @@ Wikitext is similar to Markdown and dissimilar to C in that the grammar is loose
 Any invalid token combinations are rendered as-is, rather than producing a fatal parsing
 error which halts the process. This latter, C-like (or any programming language, really)
 philosophy was how the original version of ftml operated. However this presents obvious
-incomaptibilities with Wikidot, and the grammar had to be increasingly complicated to handle
+incompatibilities with Wikidot, and the grammar had to be increasingly complicated to handle
 edge-case conditions.
 
-ftml as it exists now performs preprocessing substitions and tokenization like the first version,
+ftml as it exists now performs preprocessing substitutions and tokenization like the first version,
 but has a hand-written parser which explicitly permits loose fallback rules. Thus, any invalid
 token formations are interpreted as the raw text itself, rather than being forced to fail parsing completely.
 
