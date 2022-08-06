@@ -1,3 +1,3 @@
 FROM quay.io/minio/minio:latest
-COPY ./run.sh /
-ENTRYPOINT ["/run.sh"]
+COPY ./docker-entrypoint.sh /
+ENTRYPOINT ["/docker-entrypoint.sh"]
