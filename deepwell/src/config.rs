@@ -123,6 +123,7 @@ impl Default for Config {
                 secret_key: None,
                 security_token: None,
                 session_token: None,
+                expiration: None,
             },
             localization_path: PathBuf::from("../locales"),
             rate_limit_per_minute: NonZeroU32::new(20).unwrap(),
