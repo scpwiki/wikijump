@@ -30,11 +30,10 @@ function create_bucket() {
 	local address="local/$1"
 	if mc stat -q "$address" > /dev/null; then
 		echo "Bucket $1 already exists"
-		return
+	else
+		echo "Creating bucket $1"
+		mc mb --region "$mc_region" -p "$address"
 	fi
-
-	echo "Creating bucket $1"
-	mc mb --region "$mc_region" -p "$address"
 }
 
 function create_initial_buckets() {
