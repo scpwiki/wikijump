@@ -65,6 +65,5 @@ function create_initial_buckets() {
 create_initial_buckets
 
 exec minio server "$data_dir" \
-	--quiet \
 	--address "$api_address" \
 	--console-address "$console_address"
