@@ -43,7 +43,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
-    network_mode: host
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -63,7 +62,6 @@ services:
     build:
       context: ../../..
       dockerfile: install/local/dev/api/Dockerfile
-    network_mode: host
     ports:
       - "2747:2747"
     environment:
