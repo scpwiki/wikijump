@@ -39,7 +39,7 @@ services:
       - "INITIAL_BUCKETS=deepwell-files"
       - "DATA_DIR=/data"  # You can add a volume for /data if you wish
     healthcheck:
-      test: ["CMD", "curl", "-I", "http://localhost:9000/minio/health/live"]
+      test: ["CMD", "curl", "-If", "http://localhost:9000/minio/health/live"]
       interval: 10s
       timeout: 5s
       retries: 3
