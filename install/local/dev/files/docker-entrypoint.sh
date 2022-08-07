@@ -20,6 +20,7 @@ readonly mc_region="${MINIO_REGION_NAME:-us-east-1}"
 function wait_for_server() {
 	until curl -fs "http://$api_address"; do
 		sleep 1
+		echo "Waiting..."
 	done
 }
 
