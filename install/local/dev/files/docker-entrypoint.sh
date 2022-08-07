@@ -8,8 +8,10 @@ set -eu
 # Set variables
 
 readonly data_dir="${DATA_DIR:-/data}"
-readonly api_address='localhost:9000'
-readonly console_address='localhost:9001'
+readonly api_port=9000
+readonly console_port=9001
+readonly api_address="localhost:$api_port"
+readonly console_address="localhost:$console_port"
 
 readonly mc_user="${MINIO_ROOT_USER:-minioadmin}"
 readonly mc_password="${MINIO_ROOT_PASSWORD:-minioadmin}"
@@ -43,8 +45,8 @@ function create_initial_buckets() {
 	# Start server in background
 	minio server "$data_dir" \
 		--quiet \
-		--address "$api_address" \
-		--console-address "$console_address" \
+		--address ":$api_port" \
+		--console-address ":$console_port" \
 		&
 	local pid="$!"
 
@@ -66,5 +68,5 @@ create_initial_buckets
 
 echo "Starting minio server..."
 exec minio server "$data_dir" \
-	--address "$api_address" \
-	--console-address "$console_address"
+	--address ":$api_port" \
+	--console-address ":$console_port"
