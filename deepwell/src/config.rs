@@ -74,18 +74,19 @@ pub struct Config {
     /// Can be set using environment variable `S3_BUCKET`.
     pub s3_bucket: String,
 
-    /// The AWS region to run in.
+    /// The region to use for S3.
     ///
-    /// Can be set using environment variable `AWS_REGION` if standard,
-    /// or `AWS_REGION_NAME` and `AWS_REGION_ENDPOINT` if custom.
-    pub aws_region: Region,
+    /// Can be set using environment variable `S3_AWS_REGION` if standard,
+    /// or `S3_REGION_NAME` and `S3_REGION_ENDPOINT` if custom.
+    pub s3_region: Region,
 
-    /// The AWS credentials.
+    /// The credentials to use for S3.
     ///
     /// Can be set using environment variable `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`.
-    /// Alternatively or set in the AWS credentials file.
-    /// Which profile to read from can be set in the `AWS_PROFILE_NAME` environment variable.
-    pub aws_credentials: Credentials,
+    ///
+    /// Alternatively you can have it read from the AWS credentials file.
+    /// The profile to read from can be set in the `AWS_PROFILE_NAME` environment variable.
+    pub s3_credentials: Credentials,
 
     /// The location where all gettext translation files are kept.
     ///
@@ -114,11 +115,11 @@ impl Default for Config {
             database_url: str!("postgres://localhost"),
             run_migrations: true,
             s3_bucket: String::new(),
-            aws_region: Region::Custom {
+            s3_region: Region::Custom {
                 region: String::new(),
                 endpoint: String::new(),
             },
-            aws_credentials: Credentials {
+            s3_credentials: Credentials {
                 access_key: None,
                 secret_key: None,
                 security_token: None,
@@ -194,32 +195,33 @@ fn read_env(config: &mut Config) {
         config.s3_bucket = value;
     }
 
-    if let Ok(value) = env::var("AWS_REGION") {
+    if let Ok(value) = env::var("S3_AWS_REGION") {
         match value.parse() {
-            Ok(region) => config.aws_region = region,
+            Ok(region) => config.s3_region = region,
             Err(_) => {
-                eprintln!("AWS_REGION variable is not a valid AWS region ID");
+                eprintln!("S3_AWS_REGION variable is not a valid AWS region ID");
                 process::exit(1);
             }
         }
     } else {
-        let region = env::var("AWS_REGION_NAME");
-        let endpoint = env::var("AWS_REGION_ENDPOINT");
+        let region = env::var("S3_REGION_NAME");
+        let endpoint = env::var("S3_REGION_ENDPOINT");
 
         if let (Ok(region), Ok(endpoint)) = (region, endpoint) {
-            config.aws_region = Region::Custom { region, endpoint };
+            config.s3_region = Region::Custom { region, endpoint };
         }
     }
 
     if let Ok(credentials) = Credentials::from_env() {
         // Try to read from environment
-        config.aws_credentials = credentials;
+        // Reads from AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY
+        config.s3_credentials = credentials;
     } else {
         // Try to read from profile
         let profile_name = env::var("AWS_PROFILE_NAME").ok();
         let profile_name = profile_name.ref_map(|s| s.as_str());
 
-        config.aws_credentials = match Credentials::from_profile(profile_name) {
+        config.s3_credentials = match Credentials::from_profile(profile_name) {
             Ok(credentials) => credentials,
             Err(error) => {
                 eprintln!("Unable to read AWS credentials file: {}", error);
@@ -396,7 +398,7 @@ fn parse_args(config: &mut Config) {
 
     if let Some(value) = matches.value_of("aws-region") {
         match value.parse() {
-            Ok(region) => config.aws_region = region,
+            Ok(region) => config.s3_region = region,
             Err(_) => {
                 eprintln!("Invalid standard AWS region name: {value}");
                 process::exit(1);
