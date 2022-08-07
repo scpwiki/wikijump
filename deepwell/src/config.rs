@@ -327,7 +327,21 @@ fn parse_args(config: &mut Config) {
                 .long("aws-region")
                 .takes_value(true)
                 .value_name("NAME")
-                .help("The name of the standard AWS region to use for AWS calls."),
+                .help("The name of the standard AWS region to use for AWS calls. Conflicts with --s3-region."),
+        )
+        .arg(
+            Arg::new("s3-region")
+                .long("s3-region")
+                .takes_value(true)
+                .value_name("NAME")
+                .help("The name of the custom region to use, if not AWS. Conflicts with --aws-region."),
+        )
+        .arg(
+            Arg::new("s3-endpoint")
+                .long("s3-endpoint")
+                .takes_value(true)
+                .value_name("URL")
+                .help("The endpoint to contact for S3 calls, if not AWS. Requires --s3-region."),
         )
         .arg(
             Arg::new("localization-path")
@@ -394,17 +408,35 @@ fn parse_args(config: &mut Config) {
 
     if let Some(bucket) = matches.value_of("s3-bucket") {
         config.s3_bucket = bucket.into();
-    };
+    }
 
-    if let Some(value) = matches.value_of("aws-region") {
-        match value.parse() {
+    match (
+        matches.value_of("aws-region"),
+        matches.value_of("s3-region"),
+        matches.value_of("s3-endpoint"),
+    ) {
+        // Using AWS
+        (Some(value), None, None) => match value.parse() {
             Ok(region) => config.s3_region = region,
             Err(_) => {
                 eprintln!("Invalid standard AWS region name: {value}");
                 process::exit(1);
             }
+        },
+
+        // Using a custom endpoint
+        (None, Some(region), Some(endpoint)) => {
+            let region = str!(region);
+            let endpoint = str!(endpoint);
+            config.s3_region = Region::Custom { region, endpoint };
         }
-    };
+
+        // Conflicting options passed
+        _ => {
+            eprintln!("Conflicting arguments, you must specify either --aws-region OR --s3-region and --s3-endpoint, not both.");
+            process::exit(1);
+        }
+    }
 
     if let Some(localization_path) = matches.value_of_os("localization-path") {
         config.localization_path = localization_path.into();
