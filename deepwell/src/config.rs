@@ -77,7 +77,7 @@ pub struct Config {
     /// The region to use for S3.
     ///
     /// Can be set using environment variable `S3_AWS_REGION` if standard,
-    /// or `S3_REGION_NAME` and `S3_REGION_ENDPOINT` if custom.
+    /// or `S3_REGION_NAME` and `S3_CUSTOM_ENDPOINT` if custom.
     pub s3_region: Region,
 
     /// The credentials to use for S3.
@@ -205,7 +205,7 @@ fn read_env(config: &mut Config) {
         }
     } else {
         let region = env::var("S3_REGION_NAME");
-        let endpoint = env::var("S3_REGION_ENDPOINT");
+        let endpoint = env::var("S3_CUSTOM_ENDPOINT");
 
         if let (Ok(region), Ok(endpoint)) = (region, endpoint) {
             config.s3_region = Region::Custom { region, endpoint };
