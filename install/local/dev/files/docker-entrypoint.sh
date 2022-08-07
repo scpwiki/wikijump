@@ -48,10 +48,10 @@ function create_initial_buckets() {
 		&
 	local pid="$!"
 
-	echo "Server started, waiting for console to come up"
+	echo "Temporary server started, waiting for console to come up"
 	wait_for_server
 
-	echo "Server is ready. Creating missing buckets."
+	echo "Temporary server is ready. Creating missing buckets."
 	for bucket in "${buckets[@]}"; do
 		create_bucket "$bucket"
 	done
@@ -64,6 +64,7 @@ function create_initial_buckets() {
 
 create_initial_buckets
 
+echo "Starting minio server..."
 exec minio server "$data_dir" \
 	--address "$api_address" \
 	--console-address "$console_address"
