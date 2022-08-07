@@ -10,8 +10,6 @@ set -eu
 readonly data_dir="${DATA_DIR:-/data}"
 readonly api_port=9000
 readonly console_port=9001
-readonly api_address="localhost:$api_port"
-readonly console_address="localhost:$console_port"
 
 readonly mc_user="${MINIO_ROOT_USER:-minioadmin}"
 readonly mc_password="${MINIO_ROOT_PASSWORD:-minioadmin}"
@@ -20,14 +18,14 @@ readonly mc_region="${MINIO_REGION_NAME:-us-east-1}"
 # Helper functions
 
 function wait_for_server() {
-	until curl -If "http://$api_address/minio/health/live"; do
+	until curl -If "http://localhost:$api_port/minio/health/live"; do
 		sleep 1
 		echo "Waiting..."
 	done
 }
 
 function create_bucket() {
-	mc alias -q set local "http://$api_address" "$mc_user" "$mc_password" > /dev/null
+	mc alias -q set local "http://localhost:$api_port" "$mc_user" "$mc_password" > /dev/null
 
 	local address="local/$1"
 	if mc stat -q "$address" > /dev/null; then
