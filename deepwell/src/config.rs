@@ -436,6 +436,9 @@ fn parse_args(config: &mut Config) {
             config.s3_region = Region::Custom { region, endpoint };
         }
 
+        // Don't specify anything via arguments, use environment variables instead
+        (None, None, None) => (),
+
         // Conflicting options passed
         _ => {
             eprintln!("Conflicting arguments, you must specify either --aws-region OR --s3-region and --s3-endpoint, not both.");
