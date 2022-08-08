@@ -82,7 +82,7 @@ pub struct Config {
 
     /// The credentials to use for S3.
     ///
-    /// Can be set using environment variable `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`.
+    /// Can be set using environment variable `S3_ACCESS_KEY_ID` and `S3_SECRET_ACCESS_KEY`.
     ///
     /// Alternatively you can have it read from the AWS credentials file.
     /// The profile to read from can be set in the `AWS_PROFILE_NAME` environment variable.
@@ -212,9 +212,14 @@ fn read_env(config: &mut Config) {
         }
     }
 
-    if let Ok(credentials) = Credentials::from_env() {
+    if let Ok(credentials) = Credentials::from_env_specific(
+        Some("S3_ACCESS_KEY_ID"),
+        Some("S3_SECRET_ACCESS_KEY"),
+        None,
+        None,
+    ) {
         // Try to read from environment
-        // Reads from AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY
+        // Reads from S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY
         config.s3_credentials = credentials;
     } else {
         // Try to read from profile
