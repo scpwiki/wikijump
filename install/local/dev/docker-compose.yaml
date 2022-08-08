@@ -64,9 +64,15 @@ services:
       dockerfile: install/local/dev/api/Dockerfile
     ports:
       - "2747:2747"
+    links:
+      - files
     environment:
-      - "DATABASE_URL=postgres://wikijump:wikijump@database/wikijump"
       - "RATE_LIMIT_SECRET=local_deploy_only_0000000000000000000000000000000000000000000000"
+      - "DATABASE_URL=postgres://wikijump:wikijump@database/wikijump"
+      - "S3_REGION_NAME=local"
+      - "S3_CUSTOM_ENDPOINT=http://files:9000"
+      - "S3_ACCESS_KEY_ID=minio"
+      - "S3_SECRET_ACCESS_KEY=defaultpassword"
     restart: always
     healthcheck:
       test: ["CMD", "wikijump-health-check"]
