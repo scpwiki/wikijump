@@ -469,7 +469,9 @@ impl FileRevisionService {
         file_id: &str,
         revision_number: i32,
     ) -> Result<FileRevisionModel> {
-        Self::get_optional(ctx, page_id, file_id, revision_number).await?.ok_or(Error::NotFound)
+        Self::get_optional(ctx, page_id, file_id, revision_number)
+            .await?
+            .ok_or(Error::NotFound)
     }
 
     /// Counts the number of revisions for a file.

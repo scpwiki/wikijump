@@ -414,7 +414,9 @@ impl FileService {
         page_id: i64,
         reference: CuidReference<'_>,
     ) -> Result<FileModel> {
-        Self::get_optional(ctx, page_id, reference).await?.ok_or(Error::NotFound)
+        Self::get_optional(ctx, page_id, reference)
+            .await?
+            .ok_or(Error::NotFound)
     }
 
     pub async fn exists(

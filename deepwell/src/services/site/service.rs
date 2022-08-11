@@ -61,6 +61,8 @@ impl SiteService {
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
     ) -> Result<SiteModel> {
-        Self::get_optional(ctx, reference).await?.ok_or(Error::NotFound)
+        Self::get_optional(ctx, reference)
+            .await?
+            .ok_or(Error::NotFound)
     }
 }

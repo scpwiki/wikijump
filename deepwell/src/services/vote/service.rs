@@ -87,7 +87,9 @@ impl VoteService {
         ctx: &ServiceContext<'_>,
         reference: VoteReference,
     ) -> Result<PageVoteModel> {
-        Self::get_optional(ctx, reference).await?.ok_or(Error::NotFound)
+        Self::get_optional(ctx, reference)
+            .await?
+            .ok_or(Error::NotFound)
     }
 
     /// Gets any current vote for the current page and user.
