@@ -443,10 +443,7 @@ impl PageService {
         site_id: i64,
         reference: Reference<'_>,
     ) -> Result<PageModel> {
-        match Self::get_optional(ctx, site_id, reference).await? {
-            Some(page) => Ok(page),
-            None => Err(Error::NotFound),
-        }
+        Self::get_optional(ctx, site_id, reference).await?.ok_or(Error::NotFound)
     }
 
     pub async fn get_optional(

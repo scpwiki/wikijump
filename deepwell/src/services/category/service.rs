@@ -76,10 +76,7 @@ impl CategoryService {
         site_id: i64,
         reference: Reference<'_>,
     ) -> Result<PageCategoryModel> {
-        match Self::get_optional(ctx, site_id, reference).await? {
-            Some(category) => Ok(category),
-            None => Err(Error::NotFound),
-        }
+        Self::get_optional(ctx, site_id, reference).await?.ok_or(Error::NotFound)
     }
 
     #[inline]
