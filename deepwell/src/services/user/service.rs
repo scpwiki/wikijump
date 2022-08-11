@@ -119,10 +119,9 @@ impl UserService {
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
     ) -> Result<UserModel> {
-        match Self::get_optional(ctx, reference).await? {
-            Some(user) => Ok(user),
-            None => Err(Error::NotFound),
-        }
+        Self::get_optional(ctx, reference)
+            .await?
+            .ok_or(Error::NotFound)
     }
 
     pub async fn update(

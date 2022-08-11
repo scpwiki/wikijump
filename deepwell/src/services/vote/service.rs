@@ -87,10 +87,9 @@ impl VoteService {
         ctx: &ServiceContext<'_>,
         reference: VoteReference,
     ) -> Result<PageVoteModel> {
-        match Self::get_optional(ctx, reference).await? {
-            Some(vote) => Ok(vote),
-            None => Err(Error::NotFound),
-        }
+        Self::get_optional(ctx, reference)
+            .await?
+            .ok_or(Error::NotFound)
     }
 
     /// Gets any current vote for the current page and user.
@@ -111,7 +110,6 @@ impl VoteService {
         };
 
         let vote = PageVote::find().filter(condition).one(txn).await?;
-
         Ok(vote)
     }
 
@@ -191,7 +189,7 @@ impl VoteService {
         Ok(votes)
     }
 
-    /// Counts the number of historical bvotes for either a page or a user.
+    /// Counts the number of historical votes for either a page or a user.
     ///
     /// See `get_history()` for more information.
     pub async fn count_history(
