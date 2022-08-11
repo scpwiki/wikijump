@@ -71,8 +71,8 @@ pub async fn build_server(config: Config) -> Result<ApiServer> {
 
     let s3_bucket = Bucket::new(
         &config.s3_bucket,
-        config.aws_region.clone(),
-        config.aws_credentials.clone(),
+        config.s3_region.clone(),
+        config.s3_credentials.clone(),
     )?;
 
     // Create server state

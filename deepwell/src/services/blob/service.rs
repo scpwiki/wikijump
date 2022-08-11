@@ -23,6 +23,7 @@
 
 use super::prelude::*;
 use chrono::DateTime;
+use s3::request_trait::ResponseData;
 use s3::serde_types::HeadObjectResult;
 use std::str;
 
@@ -68,19 +69,19 @@ impl BlobService {
                 let mime = mime_type(data.to_vec()).await?;
 
                 // Put into S3
-                let (return_data, status) = bucket
+                let response = bucket
                     .put_object_with_content_type(&hex_hash, data, &mime)
                     .await?;
 
                 // We assume all unexpected statuses are errors, even if 1XX or 2XX
-                match status {
+                match response.status_code() {
                     200 => Ok(CreateBlobOutput {
                         hash,
                         mime,
                         size,
                         created: true,
                     }),
-                    _ => s3_error(&return_data, status, "creating S3 blob"),
+                    _ => s3_error(&response, "creating S3 blob"),
                 }
             }
         }
@@ -92,12 +93,12 @@ impl BlobService {
     ) -> Result<Option<Vec<u8>>> {
         let bucket = ctx.s3_bucket();
         let hex_hash = hash_to_hex(hash);
-        let (data, status) = bucket.get_object(&hex_hash).await?;
+        let response = bucket.get_object(&hex_hash).await?;
 
-        match status {
-            200 => Ok(Some(data)),
+        match response.status_code() {
+            200 => Ok(Some(response.into())),
             404 => Ok(None),
-            _ => s3_error(&data, status, "fetching S3 blob"),
+            _ => s3_error(&response, "fetching S3 blob"),
         }
     }
 
@@ -179,7 +180,7 @@ impl BlobService {
         match status {
             200 | 204 => Ok(Some(result)),
             404 => Ok(None),
-            _ => s3_error(&[], status, "heading S3 blob"),
+            _ => s3_error(&ResponseData::new(vec![], status), "heading S3 blob"),
         }
     }
 
@@ -187,18 +188,17 @@ impl BlobService {
         let bucket = ctx.s3_bucket();
         let hex_hash = hash_to_hex(hash);
 
-        let (_, status) = bucket.delete_object(&hex_hash).await?;
-
-        match status {
+        let response = bucket.delete_object(&hex_hash).await?;
+        match response.status_code() {
             204 => Ok(()),
-            _ => s3_error(&[], status, "hard-deleting S3 blob"),
+            _ => s3_error(&response, "hard-deleting S3 blob"),
         }
     }
 }
 
 /// Helper method to parse out an S3 error response and print the message (if any)
-fn s3_error<T>(data: &[u8], status: u16, action: &str) -> Result<T> {
-    let error_message = match str::from_utf8(data) {
+fn s3_error<T>(response: &ResponseData, action: &str) -> Result<T> {
+    let error_message = match str::from_utf8(response.bytes()) {
         Ok(m) if m.is_empty() => "(no content)",
         Ok(m) => m,
         Err(_) => "(invalid UTF-8)",
@@ -207,7 +207,7 @@ fn s3_error<T>(data: &[u8], status: u16, action: &str) -> Result<T> {
     tide::log::error!(
         "Error while {} (HTTP {}): {}",
         action,
-        status,
+        response.status_code(),
         error_message,
     );
 
