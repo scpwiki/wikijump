@@ -191,7 +191,7 @@ impl VoteService {
         Ok(votes)
     }
 
-    /// Counts the number of historical bvotes for either a page or a user.
+    /// Counts the number of historical votes for either a page or a user.
     ///
     /// See `get_history()` for more information.
     pub async fn count_history(
