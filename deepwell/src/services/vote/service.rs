@@ -111,7 +111,6 @@ impl VoteService {
         };
 
         let vote = PageVote::find().filter(condition).one(txn).await?;
-
         Ok(vote)
     }
 
