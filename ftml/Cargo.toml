@@ -25,7 +25,7 @@ mathml   = ["html", "latex2mathml"]
 
 [dependencies]
 cfg-if = "1"
-chrono = { version = "0.4.21", features = ["serde", "wasmbind"] }
+chrono = { version = "0.4.22", features = ["serde", "wasmbind"] }
 enum-map = "2"
 entities = "1"
 latex2mathml = { version = "0.2", optional = true }
