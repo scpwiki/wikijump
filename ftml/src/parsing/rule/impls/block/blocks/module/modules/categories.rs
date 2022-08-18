@@ -30,7 +30,7 @@ fn parse_fn<'r, 't>(
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     mut arguments: Arguments<'t>,
-) -> ParseResult<'r, 't, Option<Module<'t>>> {
+) -> ParseResult<'r, 't, ModuleParseOutput<'t>> {
     info!("Parsing categories module");
     assert_module_name(&MODULE_CATEGORIES, name);
 
@@ -38,5 +38,5 @@ fn parse_fn<'r, 't>(
         .get_bool(parser, "includeHidden")?
         .unwrap_or(false);
 
-    ok!(false; Some(Module::Categories { include_hidden }))
+    ok!(false; Module::Categories { include_hidden })
 }

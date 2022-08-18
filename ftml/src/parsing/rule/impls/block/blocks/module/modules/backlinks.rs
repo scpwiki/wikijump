@@ -30,10 +30,10 @@ fn parse_fn<'r, 't>(
     _parser: &mut Parser<'r, 't>,
     name: &'t str,
     mut arguments: Arguments<'t>,
-) -> ParseResult<'r, 't, Option<Module<'t>>> {
+) -> ParseResult<'r, 't, ModuleParseOutput<'t>> {
     info!("Parsing backlinks module");
     assert_module_name(&MODULE_BACKLINKS, name);
 
     let page = arguments.get("page");
-    ok!(false; Some(Module::Backlinks { page }))
+    ok!(false; Module::Backlinks { page })
 }

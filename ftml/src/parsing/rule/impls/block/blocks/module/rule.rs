@@ -60,14 +60,8 @@ fn parse_fn<'r, 't>(
     //
     // If the module accepts a body, it should consume it,
     // then the tail. Otherwise it shouldn't move the token pointer.
-    let (module, exceptions, paragraph_safe) =
+    let (elements, exceptions, paragraph_safe) =
         (module_rule.parse_fn)(parser, subname, arguments)?.into();
 
-    debug_assert_eq!(
-        paragraph_safe,
-        module.is_none(),
-        "Module returned but marked as paragraph-safe",
-    );
-
-    ok!(paragraph_safe; module.map(Element::Module), exceptions)
+    ok!(paragraph_safe; elements, exceptions)
 }

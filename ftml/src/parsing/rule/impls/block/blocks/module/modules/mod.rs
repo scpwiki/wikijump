@@ -19,7 +19,7 @@
  */
 
 mod prelude {
-    pub use super::super::{prelude::*, ModuleRule, BLOCK_MODULE};
+    pub use super::super::{prelude::*, ModuleParseOutput, ModuleRule, BLOCK_MODULE};
     pub use crate::tree::Module;
 
     #[inline]

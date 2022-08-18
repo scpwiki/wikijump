@@ -30,15 +30,15 @@ fn parse_fn<'r, 't>(
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     mut arguments: Arguments<'t>,
-) -> ParseResult<'r, 't, Option<Module<'t>>> {
+) -> ParseResult<'r, 't, ModuleParseOutput<'t>> {
     info!("Parsing join module");
     assert_module_name(&MODULE_JOIN, name);
 
     let button_text = arguments.get("button");
     let attributes = arguments.to_attribute_map(parser.settings());
 
-    ok!(false; Some(Module::Join {
+    ok!(false; Module::Join {
         button_text,
         attributes,
-    }))
+    })
 }
