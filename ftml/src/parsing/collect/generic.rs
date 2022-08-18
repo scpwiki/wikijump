@@ -42,8 +42,8 @@ use super::prelude::*;
 /// If one of these is true, we will return failure.
 /// * `invalid_conditions`
 ///
-/// If one of the failures is activated, then this `ParseWarningKind`
-/// will be returned. If `None` is provided, then `ParseWarningKind::RuleFailed` is used.
+/// If one of the failures is activated, then this `ParseErrorKind`
+/// will be returned. If `None` is provided, then `ParseErrorKind::RuleFailed` is used.
 /// * `warn_kind`
 ///
 /// The closure we should execute each time a token extraction is reached:
@@ -64,7 +64,7 @@ pub fn collect<'p, 'r, 't, F>(
     rule: Rule,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
-    warn_kind: Option<ParseWarningKind>,
+    warn_kind: Option<ParseErrorKind>,
     mut process: F,
 ) -> ParseResult<'r, 't, &'r ExtractedToken<'t>>
 where
@@ -105,14 +105,14 @@ where
             );
 
             return Err(
-                parser.make_warn(warn_kind.unwrap_or(ParseWarningKind::RuleFailed))
+                parser.make_warn(warn_kind.unwrap_or(ParseErrorKind::RuleFailed))
             );
         }
 
         // See if we've hit the end
         if parser.current().token == Token::InputEnd {
             debug!("Found end of input, aborting");
-            return Err(parser.make_warn(ParseWarningKind::EndOfInput));
+            return Err(parser.make_warn(ParseErrorKind::EndOfInput));
         }
 
         // Process token(s).

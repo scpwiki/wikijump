@@ -18,12 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::parsing::exception::{ParseException, ParseWarning};
+use crate::parsing::exception::{ParseException, ParseError};
 use crate::parsing::Parser;
 use crate::tree::{Element, Elements};
 use std::marker::PhantomData;
 
-pub type ParseResult<'r, 't, T> = Result<ParseSuccess<'r, 't, T>, ParseWarning>;
+pub type ParseResult<'r, 't, T> = Result<ParseSuccess<'r, 't, T>, ParseError>;
 pub type ParseSuccessTuple<T> = (T, Vec<ParseException>, bool);
 
 #[must_use]
@@ -112,7 +112,7 @@ impl<'r, 't, T> ParseSuccess<'r, 't, T> {
 }
 
 impl<'r, 't> ParseSuccess<'r, 't, Elements<'t>> {
-    pub fn check_partials(&self, parser: &Parser) -> Result<(), ParseWarning> {
+    pub fn check_partials(&self, parser: &Parser) -> Result<(), ParseError> {
         for element in &self.item {
             // This check only applies if the element is a partial.
             if let Element::Partial(partial) = element {

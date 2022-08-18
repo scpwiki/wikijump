@@ -47,7 +47,7 @@ fn parse_fn<'r, 't>(
     let conditions =
         parser.get_head_value(&BLOCK_IFTAGS, in_head, |parser, spec| match spec {
             Some(spec) => Ok(ElementCondition::parse(spec)),
-            None => Err(parser.make_warn(ParseWarningKind::BlockMissingArguments)),
+            None => Err(parser.make_warn(ParseErrorKind::BlockMissingArguments)),
         })?;
 
     // Get body content, never with paragraphs

@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::parsing::{ParseWarning, ParseWarningKind};
+use crate::parsing::{ParseError, ParseErrorKind};
 
 pub const BLOCK_COLLAPSIBLE: BlockRule = BlockRule {
     name: "block-collapsible",
@@ -76,7 +76,7 @@ fn parse_fn<'r, 't>(
     ok!(element, exceptions)
 }
 
-fn parse_hide_location(s: &str, parser: &Parser) -> Result<(bool, bool), ParseWarning> {
+fn parse_hide_location(s: &str, parser: &Parser) -> Result<(bool, bool), ParseError> {
     const NAMES: [(&str, (bool, bool)); 5] = [
         ("top", (true, false)),
         ("bottom", (false, true)),
@@ -93,5 +93,5 @@ fn parse_hide_location(s: &str, parser: &Parser) -> Result<(bool, bool), ParseWa
     }
 
     warn!("Unknown hideLocation argument '{s}'");
-    Err(parser.make_warn(ParseWarningKind::BlockMalformedArguments))
+    Err(parser.make_warn(ParseErrorKind::BlockMalformedArguments))
 }

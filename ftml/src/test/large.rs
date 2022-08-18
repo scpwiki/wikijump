@@ -19,7 +19,7 @@
  */
 
 use crate::data::PageInfo;
-use crate::parsing::{ParseWarningKind, Token};
+use crate::parsing::{ParseErrorKind, Token};
 use crate::settings::{WikitextMode, WikitextSettings};
 use crate::tree::{Element, SyntaxTree};
 use std::borrow::Cow;
@@ -55,7 +55,7 @@ fn recursion_depth() {
     assert_eq!(warning.token(), Token::LeftBlock);
     assert_eq!(warning.rule(), "block-div");
     assert_eq!(warning.span(), 800..802);
-    assert_eq!(warning.kind(), ParseWarningKind::RecursionDepthExceeded);
+    assert_eq!(warning.kind(), ParseErrorKind::RecursionDepthExceeded);
 
     // Check syntax tree
     //

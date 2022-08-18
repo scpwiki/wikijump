@@ -49,7 +49,7 @@ fn parse_fn<'r, 't>(
     // Parse the image source based on format
     let source = match ImageSource::parse(source) {
         Some(source) => source,
-        None => return Err(parser.make_warn(ParseWarningKind::BlockMalformedArguments)),
+        None => return Err(parser.make_warn(ParseErrorKind::BlockMalformedArguments)),
     };
 
     // Build image

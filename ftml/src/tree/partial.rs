@@ -19,7 +19,7 @@
  */
 
 use super::{ListItem, RubyText, Tab, TableCell, TableRow};
-use crate::parsing::ParseWarningKind;
+use crate::parsing::ParseErrorKind;
 
 /// Part of an element, as returned by a rule.
 ///
@@ -58,13 +58,13 @@ impl PartialElement<'_> {
     }
 
     #[inline]
-    pub fn parse_warning_kind(&self) -> ParseWarningKind {
+    pub fn parse_warning_kind(&self) -> ParseErrorKind {
         match self {
-            PartialElement::ListItem(_) => ParseWarningKind::ListItemOutsideList,
-            PartialElement::TableRow(_) => ParseWarningKind::TableRowOutsideTable,
-            PartialElement::TableCell(_) => ParseWarningKind::TableCellOutsideTable,
-            PartialElement::Tab(_) => ParseWarningKind::TabOutsideTabView,
-            PartialElement::RubyText(_) => ParseWarningKind::RubyTextOutsideRuby,
+            PartialElement::ListItem(_) => ParseErrorKind::ListItemOutsideList,
+            PartialElement::TableRow(_) => ParseErrorKind::TableRowOutsideTable,
+            PartialElement::TableCell(_) => ParseErrorKind::TableCellOutsideTable,
+            PartialElement::Tab(_) => ParseErrorKind::TabOutsideTabView,
+            PartialElement::RubyText(_) => ParseErrorKind::RubyTextOutsideRuby,
         }
     }
 

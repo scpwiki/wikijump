@@ -31,8 +31,8 @@ pub fn collect_text<'p, 'r, 't>(
     rule: Rule,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
-    warn_kind: Option<ParseWarningKind>,
-) -> Result<&'t str, ParseWarning>
+    warn_kind: Option<ParseErrorKind>,
+) -> Result<&'t str, ParseError>
 where
     'r: 't,
 {
@@ -57,8 +57,8 @@ pub fn collect_text_keep<'p, 'r, 't>(
     rule: Rule,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
-    warn_kind: Option<ParseWarningKind>,
-) -> Result<(&'t str, &'r ExtractedToken<'t>), ParseWarning>
+    warn_kind: Option<ParseErrorKind>,
+) -> Result<(&'t str, &'r ExtractedToken<'t>), ParseError>
 where
     'r: 't,
 {

@@ -47,7 +47,7 @@ fn parse_fn<'r, 't>(
 
     let latex_source = parser.get_body_text(&BLOCK_MATH)?.trim();
     if latex_source.is_empty() {
-        return Err(parser.make_warn(ParseWarningKind::RuleFailed));
+        return Err(parser.make_warn(ParseErrorKind::RuleFailed));
     }
 
     let element = Element::Math {

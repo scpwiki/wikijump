@@ -25,7 +25,7 @@
 
 use super::includer::TestIncluder;
 use crate::data::PageInfo;
-use crate::parsing::ParseWarning;
+use crate::parsing::ParseError;
 use crate::render::html::HtmlRender;
 use crate::render::text::TextRender;
 use crate::render::Render;
@@ -121,7 +121,7 @@ struct Test<'a> {
     name: String,
     input: String,
     tree: SyntaxTree<'a>,
-    warnings: Vec<ParseWarning>,
+    warnings: Vec<ParseError>,
 
     #[serde(skip)]
     html: String,

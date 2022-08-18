@@ -23,7 +23,7 @@ use super::prelude::*;
 use super::settings::WikitextSettings;
 use super::tokenizer::Tokenization;
 use crate::parsing::{
-    ParseOutcome as RustParseOutcome, ParseWarning as RustParseWarning,
+    ParseOutcome as RustParseOutcome, ParseError as RustParseError,
 };
 use crate::tree::SyntaxTree as RustSyntaxTree;
 use crate::utf16::Utf16IndexMap;
@@ -45,7 +45,7 @@ export interface ISyntaxTree {
     styles: string[];
 }
 
-export interface IParseWarning {
+export interface IParseError {
     token: string;
     rule: string;
     span: {
@@ -62,8 +62,8 @@ extern "C" {
     #[wasm_bindgen(typescript_type = "ISyntaxTree")]
     pub type ISyntaxTree;
 
-    #[wasm_bindgen(typescript_type = "IParseWarning[]")]
-    pub type IParseWarningArray;
+    #[wasm_bindgen(typescript_type = "IParseError[]")]
+    pub type IParseErrorArray;
 }
 
 // Wrapper structures
@@ -92,8 +92,8 @@ impl ParseOutcome {
         }
     }
 
-    #[wasm_bindgen(typescript_type = "IParseWarning")]
-    pub fn warnings(&self) -> Result<IParseWarningArray, JsValue> {
+    #[wasm_bindgen(typescript_type = "IParseError")]
+    pub fn warnings(&self) -> Result<IParseErrorArray, JsValue> {
         rust_to_js!(self.inner.warnings())
     }
 }
@@ -155,8 +155,8 @@ pub fn parse(
 
 fn convert_warnings_utf16(
     tokenization: &RustTokenization,
-    warnings: Vec<RustParseWarning>,
-) -> Vec<RustParseWarning> {
+    warnings: Vec<RustParseError>,
+) -> Vec<RustParseError> {
     // As an optimization, we can avoid the (relatively expensive) Utf16IndexMap creation
     // if we know there are no warnings to map indices of.
     if warnings.is_empty() {

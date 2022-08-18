@@ -69,15 +69,15 @@ fn parse_fn<'r, 't>(
 fn parse_entity<'r, 't>(
     parser: &Parser<'r, 't>,
     argument: Option<&'t str>,
-) -> Result<Cow<'t, str>, ParseWarning> {
+) -> Result<Cow<'t, str>, ParseError> {
     let argument = match argument {
         Some(arg) => strip_entity(arg),
-        None => return Err(parser.make_warn(ParseWarningKind::BlockMissingArguments)),
+        None => return Err(parser.make_warn(ParseErrorKind::BlockMissingArguments)),
     };
 
     match find_entity(argument) {
         Some(string) => Ok(string),
-        None => Err(parser.make_warn(ParseWarningKind::BlockMalformedArguments)),
+        None => Err(parser.make_warn(ParseErrorKind::BlockMalformedArguments)),
     }
 }
 

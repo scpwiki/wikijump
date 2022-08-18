@@ -41,8 +41,8 @@ mod token;
 
 mod prelude {
     pub use crate::parsing::{
-        ExtractedToken, ParseException, ParseResult, ParseSuccess, ParseWarning,
-        ParseWarningKind, Token,
+        ExtractedToken, ParseException, ParseResult, ParseSuccess, ParseError,
+        ParseErrorKind, Token,
     };
     pub use crate::settings::WikitextSettings;
     pub use crate::text::FullText;
@@ -68,7 +68,7 @@ use crate::tree::{
 use std::borrow::Cow;
 
 pub use self::boolean::{parse_boolean, NonBooleanValue};
-pub use self::exception::{ParseException, ParseWarning, ParseWarningKind};
+pub use self::exception::{ParseException, ParseError, ParseErrorKind};
 pub use self::outcome::ParseOutcome;
 pub use self::result::{ParseResult, ParseSuccess};
 pub use self::token::{ExtractedToken, Token};
@@ -191,7 +191,7 @@ where
 
 // Helper functions
 
-fn extract_exceptions(exceptions: Vec<ParseException>) -> Vec<ParseWarning> {
+fn extract_exceptions(exceptions: Vec<ParseException>) -> Vec<ParseError> {
     let mut warnings = Vec::new();
 
     for exception in exceptions {

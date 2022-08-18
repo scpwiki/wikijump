@@ -36,7 +36,7 @@ fn try_consume_fn<'p, 'r, 't>(
         ($token:expr) => {{
             let current = parser.current();
             if current.token != $token {
-                return Err(parser.make_warn(ParseWarningKind::RuleFailed));
+                return Err(parser.make_warn(ParseErrorKind::RuleFailed));
             }
 
             parser.step()?;

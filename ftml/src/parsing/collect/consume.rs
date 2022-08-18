@@ -31,7 +31,7 @@ pub fn collect_consume<'p, 'r, 't>(
     rule: Rule,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
-    warn_kind: Option<ParseWarningKind>,
+    warn_kind: Option<ParseErrorKind>,
 ) -> ParseResult<'r, 't, Vec<Element<'t>>> {
     collect_consume_keep(
         parser,
@@ -54,7 +54,7 @@ pub fn collect_consume_keep<'p, 'r, 't>(
     rule: Rule,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
-    warn_kind: Option<ParseWarningKind>,
+    warn_kind: Option<ParseErrorKind>,
 ) -> ParseResult<'r, 't, (Vec<Element<'t>>, &'r ExtractedToken<'t>)> {
     let mut all_elements = Vec::new();
 

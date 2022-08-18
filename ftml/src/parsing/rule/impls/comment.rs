@@ -53,7 +53,7 @@ fn try_consume_fn<'p, 'r, 't>(
             // Hit the end of the input, abort
             Token::InputEnd => {
                 debug!("Reached end of input, aborting");
-                return Err(parser.make_warn(ParseWarningKind::EndOfInput));
+                return Err(parser.make_warn(ParseErrorKind::EndOfInput));
             }
 
             // Consume any other token

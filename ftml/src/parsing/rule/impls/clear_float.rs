@@ -37,7 +37,7 @@ fn try_consume_fn<'p, 'r, 't>(
         Token::ClearFloatBoth => ClearFloat::Both,
         Token::ClearFloatLeft => ClearFloat::Left,
         Token::ClearFloatRight => ClearFloat::Right,
-        _ => return Err(parser.make_warn(ParseWarningKind::RuleFailed)),
+        _ => return Err(parser.make_warn(ParseErrorKind::RuleFailed)),
     };
 
     // Optionally consume newline after

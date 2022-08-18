@@ -24,8 +24,8 @@ use crate::parsing::collect::{collect_text, collect_text_keep};
 use crate::parsing::condition::ParseCondition;
 use crate::parsing::consume::consume;
 use crate::parsing::{
-    gather_paragraphs, parse_string, ExtractedToken, ParseResult, ParseWarning,
-    ParseWarningKind, Parser, Token,
+    gather_paragraphs, parse_string, ExtractedToken, ParseResult, ParseError,
+    ParseErrorKind, Parser, Token,
 };
 use crate::tree::Element;
 use regex::Regex;
@@ -41,7 +41,7 @@ where
     pub fn get_block_name(
         &mut self,
         flag_star: bool,
-    ) -> Result<(&'t str, bool), ParseWarning> {
+    ) -> Result<(&'t str, bool), ParseError> {
         info!("Looking for identifier");
 
         if flag_star {
@@ -53,13 +53,13 @@ where
         self.get_optional_space()?;
 
         // Collect block name and determine whether the head is done
-        self.get_block_name_internal(ParseWarningKind::BlockMissingName)
+        self.get_block_name_internal(ParseErrorKind::BlockMissingName)
     }
 
     fn get_block_name_internal(
         &mut self,
-        kind: ParseWarningKind,
-    ) -> Result<(&'t str, bool), ParseWarning> {
+        kind: ParseErrorKind,
+    ) -> Result<(&'t str, bool), ParseError> {
         collect_text_keep(
             self,
             self.rule(),
@@ -87,16 +87,16 @@ where
     }
 
     /// Matches an ending block, returning the name present.
-    pub fn get_end_block(&mut self) -> Result<&'t str, ParseWarning> {
+    pub fn get_end_block(&mut self) -> Result<&'t str, ParseError> {
         info!("Looking for end block");
 
-        self.get_token(Token::LeftBlockEnd, ParseWarningKind::BlockExpectedEnd)?;
+        self.get_token(Token::LeftBlockEnd, ParseErrorKind::BlockExpectedEnd)?;
         self.get_optional_space()?;
 
         let (name, in_head) = self.get_block_name(false)?;
         if in_head {
             self.get_optional_space()?;
-            self.get_token(Token::RightBlock, ParseWarningKind::BlockExpectedEnd)?;
+            self.get_token(Token::RightBlock, ParseErrorKind::BlockExpectedEnd)?;
         }
 
         Ok(name)
@@ -148,9 +148,9 @@ where
         &mut self,
         block_rule: &BlockRule,
         mut process: F,
-    ) -> Result<(&'r ExtractedToken<'t>, &'r ExtractedToken<'t>), ParseWarning>
+    ) -> Result<(&'r ExtractedToken<'t>, &'r ExtractedToken<'t>), ParseError>
     where
-        F: FnMut(&mut Parser<'r, 't>) -> Result<(), ParseWarning>,
+        F: FnMut(&mut Parser<'r, 't>) -> Result<(), ParseError>,
     {
         debug!("Running generic in block body parser");
 
@@ -192,7 +192,7 @@ where
     pub fn get_body_text(
         &mut self,
         block_rule: &BlockRule,
-    ) -> Result<&'t str, ParseWarning> {
+    ) -> Result<&'t str, ParseError> {
         info!("Getting block body as text (rule {})", block_rule.name);
 
         // State variables for collecting span
@@ -269,7 +269,7 @@ where
         &mut self,
         block_rule: &BlockRule,
         in_head: bool,
-    ) -> Result<Arguments<'t>, ParseWarning> {
+    ) -> Result<Arguments<'t>, ParseError> {
         debug!("Looking for key value arguments, then ']]'");
 
         let mut map = Arguments::new();
@@ -315,7 +315,7 @@ where
                             // Invalid token
                             _ => {
                                 return Err(self.make_warn(
-                                    ParseWarningKind::BlockMalformedArguments,
+                                    ParseErrorKind::BlockMalformedArguments,
                                 ))
                             }
                         }
@@ -333,13 +333,13 @@ where
 
                 // Equal sign
                 self.get_optional_space()?;
-                self.get_token(Token::Equals, ParseWarningKind::BlockMalformedArguments)?;
+                self.get_token(Token::Equals, ParseErrorKind::BlockMalformedArguments)?;
 
                 // Get the argument value
                 self.get_optional_space()?;
                 let value_raw = self.get_token(
                     Token::String,
-                    ParseWarningKind::BlockMalformedArguments,
+                    ParseErrorKind::BlockMalformedArguments,
                 )?;
 
                 // Parse the string
@@ -358,17 +358,17 @@ where
         &mut self,
         block_rule: &BlockRule,
         in_head: bool,
-    ) -> Result<(&'t str, Arguments<'t>), ParseWarning> {
+    ) -> Result<(&'t str, Arguments<'t>), ParseError> {
         debug!("Looking for a name, then key value arguments, then ']]'");
 
         if !in_head {
             warn!("Block is already over, there is no name or arguments");
-            return Err(self.make_warn(ParseWarningKind::BlockMissingName));
+            return Err(self.make_warn(ParseErrorKind::BlockMissingName));
         }
 
         // Get module's name
         let (subname, in_head) =
-            self.get_block_name_internal(ParseWarningKind::ModuleMissingName)?;
+            self.get_block_name_internal(ParseErrorKind::ModuleMissingName)?;
 
         // Get arguments and end of block
         let arguments = self.get_head_map(block_rule, in_head)?;
@@ -381,9 +381,9 @@ where
         block_rule: &BlockRule,
         in_head: bool,
         convert: F,
-    ) -> Result<T, ParseWarning>
+    ) -> Result<T, ParseError>
     where
-        F: FnOnce(&Self, Option<&'t str>) -> Result<T, ParseWarning>,
+        F: FnOnce(&Self, Option<&'t str>) -> Result<T, ParseError>,
     {
         info!("Looking for a value argument, then ']]' (in-head {in_head})");
 
@@ -397,7 +397,7 @@ where
                     ParseCondition::current(Token::ParagraphBreak),
                     ParseCondition::current(Token::LineBreak),
                 ],
-                Some(ParseWarningKind::BlockMalformedArguments),
+                Some(ParseErrorKind::BlockMalformedArguments),
             )?;
 
             Some(slice)
@@ -417,7 +417,7 @@ where
         &mut self,
         block_rule: &BlockRule,
         in_head: bool,
-    ) -> Result<(), ParseWarning> {
+    ) -> Result<(), ParseError> {
         info!("No arguments, looking for end of head block");
         self.get_optional_space()?;
         self.get_head_block(block_rule, in_head)?;
@@ -429,14 +429,14 @@ where
         &mut self,
         block_rule: &BlockRule,
         in_head: bool,
-    ) -> Result<(), ParseWarning> {
+    ) -> Result<(), ParseError> {
         debug!("Getting end of the head block");
 
         // If we're still in the head, finish
         if in_head {
             self.get_token(
                 Token::RightBlock,
-                ParseWarningKind::BlockMissingCloseBrackets,
+                ParseErrorKind::BlockMissingCloseBrackets,
             )?;
         }
 

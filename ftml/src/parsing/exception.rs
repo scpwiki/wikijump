@@ -26,7 +26,7 @@ use strum_macros::IntoStaticStr;
 
 /// Exceptions that occurred during parsing
 ///
-/// This is distinct from `ParseWarning` in that it is
+/// This is distinct from `ParseError` in that it is
 /// an internal structure meant to catch exceptional
 /// outputs.
 ///
@@ -36,7 +36,7 @@ use strum_macros::IntoStaticStr;
 /// to the top level.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub enum ParseException {
-    Warning(ParseWarning),
+    Warning(ParseError),
 }
 
 /// An issue that occurred during parsing.
@@ -48,21 +48,21 @@ pub enum ParseException {
 /// Instead a fallback rules is applied and parsing continues.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-pub struct ParseWarning {
+pub struct ParseError {
     token: Token,
     rule: Cow<'static, str>,
     span: Range<usize>,
-    kind: ParseWarningKind,
+    kind: ParseErrorKind,
 }
 
-impl ParseWarning {
+impl ParseError {
     #[inline]
-    pub fn new(kind: ParseWarningKind, rule: Rule, current: &ExtractedToken) -> Self {
+    pub fn new(kind: ParseErrorKind, rule: Rule, current: &ExtractedToken) -> Self {
         let token = current.token;
         let span = Range::clone(&current.span);
         let rule = cow!(rule.name());
 
-        ParseWarning {
+        ParseError {
             token,
             rule,
             span,
@@ -86,14 +86,14 @@ impl ParseWarning {
     }
 
     #[inline]
-    pub fn kind(&self) -> ParseWarningKind {
+    pub fn kind(&self) -> ParseErrorKind {
         self.kind
     }
 
     #[must_use]
     pub fn to_utf16_indices(&self, map: &Utf16IndexMap) -> Self {
         // Copy fields
-        let ParseWarning {
+        let ParseError {
             token,
             rule,
             span,
@@ -106,7 +106,7 @@ impl ParseWarning {
         let span = start..end;
 
         // Output new warning
-        ParseWarning {
+        ParseError {
             token,
             rule,
             span,
@@ -117,7 +117,7 @@ impl ParseWarning {
 
 #[derive(Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-pub enum ParseWarningKind {
+pub enum ParseErrorKind {
     /// The self-enforced recursion limit has been passed, giving up.
     RecursionDepthExceeded,
 
@@ -227,7 +227,7 @@ pub enum ParseWarningKind {
     InvalidUrl,
 }
 
-impl ParseWarningKind {
+impl ParseErrorKind {
     #[inline]
     pub fn name(self) -> &'static str {
         self.into()

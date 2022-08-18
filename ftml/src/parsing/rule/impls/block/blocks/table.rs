@@ -77,7 +77,7 @@ fn parse_block<'r, 't>(
     flag_score: bool,
     in_head: bool,
     (block_rule, description): (&BlockRule, &str),
-) -> Result<ParsedBlock<'t>, ParseWarning>
+) -> Result<ParsedBlock<'t>, ParseError>
 where
     'r: 't,
     ParsedBlock<'t>: 't,
@@ -123,7 +123,7 @@ macro_rules! extract_table_items {
                 element if element.is_whitespace() => (),
 
                 // Return a warning for anything else.
-                _ => return Err($parser.make_warn(ParseWarningKind::$warning_kind)),
+                _ => return Err($parser.make_warn(ParseErrorKind::$warning_kind)),
             }
         }
 

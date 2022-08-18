@@ -97,15 +97,15 @@ pub fn consume<'p, 'r, 't>(
 
     // If we've hit the recursion limit, just bail
     if let Some(ParseException::Warning(warning)) = all_exceptions.last() {
-        if warning.kind() == ParseWarningKind::RecursionDepthExceeded {
+        if warning.kind() == ParseErrorKind::RecursionDepthExceeded {
             error!("Found recursion depth error, failing");
             return Err(warning.clone());
         }
     }
 
     // Add fallback warning to exceptions list
-    all_exceptions.push(ParseException::Warning(ParseWarning::new(
-        ParseWarningKind::NoRulesMatch,
+    all_exceptions.push(ParseException::Warning(ParseError::new(
+        ParseErrorKind::NoRulesMatch,
         RULE_FALLBACK,
         current,
     )));
