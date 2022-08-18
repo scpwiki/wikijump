@@ -18,24 +18,24 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::ParseWarning;
+use super::ParseError;
 use std::borrow::{Borrow, BorrowMut};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct ParseOutcome<T> {
     value: T,
-    warnings: Vec<ParseWarning>,
+    errors: Vec<ParseError>,
 }
 
 impl<T> ParseOutcome<T> {
     #[inline]
-    pub fn new<I>(value: T, warnings: I) -> Self
+    pub fn new<I>(value: T, errors: I) -> Self
     where
-        I: Into<Vec<ParseWarning>>,
+        I: Into<Vec<ParseError>>,
     {
         ParseOutcome {
             value,
-            warnings: warnings.into(),
+            errors: errors.into(),
         }
     }
 
@@ -46,8 +46,8 @@ impl<T> ParseOutcome<T> {
     }
 
     #[inline]
-    pub fn warnings(&self) -> &[ParseWarning] {
-        &self.warnings
+    pub fn errors(&self) -> &[ParseError] {
+        &self.errors
     }
 }
 
@@ -66,7 +66,7 @@ where
     fn clone(&self) -> Self {
         ParseOutcome {
             value: self.value.clone(),
-            warnings: self.warnings.clone(),
+            errors: self.errors.clone(),
         }
     }
 }
@@ -79,7 +79,7 @@ where
     fn default() -> Self {
         ParseOutcome {
             value: T::default(),
-            warnings: Vec::new(),
+            errors: Vec::new(),
         }
     }
 }
@@ -98,12 +98,12 @@ impl<T> BorrowMut<T> for ParseOutcome<T> {
     }
 }
 
-impl<T> From<ParseOutcome<T>> for (T, Vec<ParseWarning>) {
+impl<T> From<ParseOutcome<T>> for (T, Vec<ParseError>) {
     #[inline]
-    fn from(outcome: ParseOutcome<T>) -> (T, Vec<ParseWarning>) {
-        let ParseOutcome { value, warnings } = outcome;
+    fn from(outcome: ParseOutcome<T>) -> (T, Vec<ParseError>) {
+        let ParseOutcome { value, errors } = outcome;
 
-        (value, warnings)
+        (value, errors)
     }
 }
 
@@ -112,12 +112,12 @@ fn outcome() {
     let mut outcome = ParseOutcome::new(vec!['a'], vec![]);
 
     assert_eq!(outcome.value(), &['a']);
-    assert_eq!(outcome.warnings(), &[]);
+    assert_eq!(outcome.errors(), &[]);
 
     outcome.push('b');
 
     assert_eq!(outcome.value(), &['a', 'b']);
-    assert_eq!(outcome.warnings(), &[]);
+    assert_eq!(outcome.errors(), &[]);
 
     let outcome_2 = outcome.clone();
     assert_eq!(outcome, outcome_2);

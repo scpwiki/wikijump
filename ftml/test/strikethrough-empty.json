@@ -38,7 +38,7 @@
         "footnotes": [
         ]
     },
-    "warnings": [
+    "errors": [
         {
             "token": "triple-dash",
             "rule": "page",

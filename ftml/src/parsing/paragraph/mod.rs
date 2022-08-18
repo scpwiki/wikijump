@@ -37,7 +37,7 @@ use super::token::Token;
 /// it's just clarifying what the `_` in `Option<_>` is.
 pub const NO_CLOSE_CONDITION: Option<CloseConditionFn> = None;
 
-type CloseConditionFn = fn(&mut Parser) -> Result<bool, ParseWarning>;
+type CloseConditionFn = fn(&mut Parser) -> Result<bool, ParseError>;
 
 /// Function to iterate over tokens to produce elements in paragraphs.
 ///
@@ -55,7 +55,7 @@ pub fn gather_paragraphs<'r, 't, F>(
 ) -> ParseResult<'r, 't, Vec<Element<'t>>>
 where
     'r: 't,
-    F: FnMut(&mut Parser<'r, 't>) -> Result<bool, ParseWarning>,
+    F: FnMut(&mut Parser<'r, 't>) -> Result<bool, ParseError>,
 {
     info!("Gathering paragraphs until ending");
 
@@ -66,19 +66,19 @@ where
     let mut stack = ParagraphStack::new();
 
     loop {
-        let (elements, mut exceptions, paragraph_safe) = match parser.current().token {
+        let (elements, mut errors, paragraph_safe) = match parser.current().token {
             Token::InputEnd => {
                 if close_condition_fn.is_some() {
                     // There was a close condition, but it was not satisfied
                     // before the end of input.
                     //
-                    // Pass a warning up the chain
+                    // Pass an error up the chain
 
-                    warn!("Hit the end of input, producing warning");
-                    return Err(parser.make_warn(ParseWarningKind::EndOfInput));
+                    warn!("Hit the end of input, producing an error");
+                    return Err(parser.make_err(ParseErrorKind::EndOfInput));
                 } else {
                     // Avoid an unnecessary Element::Null and just exit
-                    // If there's no close condition, then this is not a warning
+                    // If there's no close condition, then this is not an error
 
                     warn!("Hit the end of input, terminating token iteration");
                     break;
@@ -120,8 +120,8 @@ where
         // Add new elements to the list
         push_elements(&mut stack, elements, paragraph_safe);
 
-        // Process exceptions
-        stack.push_exceptions(&mut exceptions);
+        // Process errors
+        stack.push_errors(&mut errors);
     }
 
     stack.into_result()

@@ -26,7 +26,7 @@ fn html() {
     let page_info = PageInfo::dummy();
     let settings = WikitextSettings::from_mode(WikitextMode::Page);
 
-    let result = SyntaxTree::from_element_result(vec![], vec![], vec![], vec![], vec![]);
+    let result = SyntaxTree::from_element_result(vec![], vec![], vec![], vec![]);
     let (tree, _) = result.into();
     if false {
         let _output = HtmlRender.render(&tree, &page_info, &settings);

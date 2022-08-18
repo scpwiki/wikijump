@@ -51,12 +51,12 @@ fn parse_fn<'r, 't>(
 
     // Parse out timestamp given by user
     let mut date = parse_date(value)
-        .map_err(|_| parser.make_warn(ParseWarningKind::BlockMalformedArguments))?;
+        .map_err(|_| parser.make_err(ParseErrorKind::BlockMalformedArguments))?;
 
     if let Some(arg) = arg_timezone {
         // Parse out argument timezone
         let offset = parse_timezone(&arg)
-            .map_err(|_| parser.make_warn(ParseWarningKind::BlockMalformedArguments))?;
+            .map_err(|_| parser.make_err(ParseErrorKind::BlockMalformedArguments))?;
 
         // Add timezone. If None, then conflicting timezones.
         date = match date.add_timezone(offset) {
@@ -68,7 +68,7 @@ fn parse_fn<'r, 't>(
                     offset,
                 );
 
-                return Err(parser.make_warn(ParseWarningKind::BlockMalformedArguments));
+                return Err(parser.make_err(ParseErrorKind::BlockMalformedArguments));
             }
         };
     }

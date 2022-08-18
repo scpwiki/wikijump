@@ -75,11 +75,6 @@ impl Render for HtmlRender {
             &tree.footnotes,
         );
 
-        // Add styles
-        for style in &tree.styles {
-            ctx.add_style(str!(style));
-        }
-
         // Crawl through elements and generate HTML
         ctx.html()
             .element("wj-body")

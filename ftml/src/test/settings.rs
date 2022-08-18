@@ -42,7 +42,7 @@ fn settings() {
 
             let tokens = crate::tokenize(&text);
             let result = crate::parse(&tokens, &page_info, &settings);
-            let (tree, _warnings) = result.into();
+            let (tree, _errors) = result.into();
             let html_output = HtmlRender.render(&tree, &page_info, &settings);
 
             println!();

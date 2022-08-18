@@ -56,7 +56,7 @@ fn parse_fn<'r, 't>(
     };
 
     // Get body content, without paragraphs
-    let (mut elements, exceptions, paragraph_safe) =
+    let (mut elements, errors, paragraph_safe) =
         parser.get_body_elements(&BLOCK_ANCHOR, false)?.into();
 
     if strip_line_breaks {
@@ -69,5 +69,5 @@ fn parse_fn<'r, 't>(
         target,
     };
 
-    ok!(paragraph_safe; element, exceptions)
+    ok!(paragraph_safe; element, errors)
 }

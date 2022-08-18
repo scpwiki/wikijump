@@ -81,10 +81,6 @@ export class Page {
     return this.ensureRendered(false).meta
   }
 
-  get styles() {
-    return this.ensureRendered(false).styles
-  }
-
   get backlinks() {
     return this.ensureRendered(false).backlinks
   }
@@ -97,8 +93,8 @@ export class Page {
     return this.ensureRendered(true).ast
   }
 
-  get warnings() {
-    return this.ensureRendered(true).warnings
+  get errors() {
+    return this.ensureRendered(true).errors
   }
 
   get text() {

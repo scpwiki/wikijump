@@ -155,14 +155,12 @@
                 }
             }
         ],
-        "styles": [
-        ],
         "table-of-contents": [
         ],
         "footnotes": [
         ]
     },
-    "warnings": [
+    "errors": [
         {
             "token": "other",
             "rule": "block-date",

@@ -42,7 +42,6 @@ where
     'e: 't,
 {
     body: String,
-    styles: Vec<String>,
     meta: Vec<HtmlMeta>,
     backlinks: Backlinks<'static>,
     info: &'i PageInfo<'i>,
@@ -86,7 +85,6 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
     ) -> Self {
         HtmlContext {
             body: String::new(),
-            styles: Vec::new(),
             meta: Self::initial_metadata(info),
             backlinks: Backlinks::new(),
             info,
@@ -278,11 +276,6 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
     }
 
     #[inline]
-    pub fn add_style(&mut self, style: String) {
-        self.styles.push(style);
-    }
-
-    #[inline]
     pub fn push_raw(&mut self, ch: char) {
         self.buffer().push(ch);
     }
@@ -308,7 +301,6 @@ impl<'i, 'h, 'e, 't> From<HtmlContext<'i, 'h, 'e, 't>> for HtmlOutput {
     fn from(ctx: HtmlContext<'i, 'h, 'e, 't>) -> HtmlOutput {
         let HtmlContext {
             body,
-            styles,
             meta,
             backlinks,
             ..
@@ -316,7 +308,6 @@ impl<'i, 'h, 'e, 't> From<HtmlContext<'i, 'h, 'e, 't>> for HtmlOutput {
 
         HtmlOutput {
             body,
-            styles,
             meta,
             backlinks,
         }

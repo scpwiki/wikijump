@@ -90,11 +90,6 @@ impl HtmlOutput {
         self.inner.body.clone()
     }
 
-    #[wasm_bindgen(typescript_type = "IStyleArray")]
-    pub fn styles(&self) -> Result<IStyleArray, JsValue> {
-        rust_to_js!(self.inner.styles)
-    }
-
     #[wasm_bindgen(typescript_type = "IHtmlMetaArray")]
     pub fn html_meta(&self) -> Result<IHtmlMetaArray, JsValue> {
         rust_to_js!(self.inner.meta)

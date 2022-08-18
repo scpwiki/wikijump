@@ -119,6 +119,7 @@ where
     tag_method!(pre);
     tag_method!(rp);
     tag_method!(script);
+    tag_method!(style);
     tag_method!(span);
     tag_method!(sub);
     tag_method!(sup);

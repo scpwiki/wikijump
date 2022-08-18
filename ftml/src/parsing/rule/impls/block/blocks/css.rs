@@ -44,6 +44,6 @@ fn parse_fn<'r, 't>(
     parser.get_head_none(&BLOCK_CSS, in_head)?;
 
     let css = parser.get_body_text(&BLOCK_CSS)?;
-    let exceptions = vec![ParseException::Style(cow!(css))];
-    ok!(Elements::None, exceptions)
+    let element = Element::Style(cow!(css));
+    ok!(element)
 }

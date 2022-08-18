@@ -41,7 +41,7 @@ fn try_consume_fn<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     info!("Trying to parse simple table");
     let mut rows = Vec::new();
-    let mut exceptions = Vec::new();
+    let mut errors = Vec::new();
     let mut _paragraph_break = false;
 
     'table: loop {
@@ -62,7 +62,7 @@ fn try_consume_fn<'p, 'r, 't>(
             () => {
                 if rows.is_empty() {
                     // No rows were successfully parsed, fail.
-                    return Err(parser.make_warn(ParseWarningKind::RuleFailed));
+                    return Err(parser.make_err(ParseErrorKind::RuleFailed));
                 } else {
                     // At least one row was created, end it here.
                     break 'table;
@@ -170,8 +170,8 @@ fn try_consume_fn<'p, 'r, 't>(
                     _ => {
                         debug!("Consuming cell contents as elements");
 
-                        let new_elements = consume(parser)?
-                            .chain(&mut exceptions, &mut _paragraph_break);
+                        let new_elements =
+                            consume(parser)?.chain(&mut errors, &mut _paragraph_break);
 
                         elements.extend(new_elements);
                     }
@@ -189,7 +189,7 @@ fn try_consume_fn<'p, 'r, 't>(
     attributes.insert("class", cow!("wj-table"));
 
     let table = Table { rows, attributes };
-    ok!(false; Element::Table(table), exceptions)
+    ok!(false; Element::Table(table), errors)
 }
 
 /// Parse out the cell settings from the start.
@@ -203,7 +203,7 @@ fn try_consume_fn<'p, 'r, 't>(
 ///
 /// This is not an `Err(_)` case, because this may simply signal the end
 /// of the table if it already has rows.
-fn parse_cell_start(parser: &mut Parser) -> Result<Option<TableCellStart>, ParseWarning> {
+fn parse_cell_start(parser: &mut Parser) -> Result<Option<TableCellStart>, ParseError> {
     let mut span = 0;
 
     macro_rules! increase_span {

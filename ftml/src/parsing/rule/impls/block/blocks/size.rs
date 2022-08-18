@@ -46,11 +46,11 @@ fn parse_fn<'r, 't>(
     let size =
         parser.get_head_value(&BLOCK_SIZE, in_head, |parser, value| match value {
             Some(size) => Ok(format!("font-size: {size};")),
-            None => Err(parser.make_warn(ParseWarningKind::BlockMissingArguments)),
+            None => Err(parser.make_err(ParseErrorKind::BlockMissingArguments)),
         })?;
 
     // Get body content, without paragraphs
-    let (elements, exceptions, paragraph_safe) =
+    let (elements, errors, paragraph_safe) =
         parser.get_body_elements(&BLOCK_SIZE, false)?.into();
 
     let attributes = {
@@ -62,5 +62,5 @@ fn parse_fn<'r, 't>(
     let element =
         Element::Container(Container::new(ContainerType::Size, elements, attributes));
 
-    ok!(paragraph_safe; element, exceptions)
+    ok!(paragraph_safe; element, errors)
 }

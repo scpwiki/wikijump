@@ -49,7 +49,7 @@ fn parse_fn<'r, 't>(
     // Get the module rule for this name
     let module_rule = match get_module_rule_with_name(subname) {
         Some(rule) => rule,
-        None => return Err(parser.make_warn(ParseWarningKind::NoSuchModule)),
+        None => return Err(parser.make_err(ParseErrorKind::NoSuchModule)),
     };
 
     // Prepare to run the module's parsing function
@@ -60,14 +60,8 @@ fn parse_fn<'r, 't>(
     //
     // If the module accepts a body, it should consume it,
     // then the tail. Otherwise it shouldn't move the token pointer.
-    let (module, exceptions, paragraph_safe) =
+    let (elements, errors, paragraph_safe) =
         (module_rule.parse_fn)(parser, subname, arguments)?.into();
 
-    debug_assert_eq!(
-        paragraph_safe,
-        module.is_none(),
-        "Module returned but marked as paragraph-safe",
-    );
-
-    ok!(paragraph_safe; module.map(Element::Module), exceptions)
+    ok!(paragraph_safe; elements, errors)
 }

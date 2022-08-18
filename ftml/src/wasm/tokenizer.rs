@@ -109,7 +109,7 @@ fn convert_tokens_utf16<'a>(
     tokenization: &'a RustTokenization,
 ) -> Vec<RustExtractedToken<'a>> {
     // Because the list of tokens is almost certainly not empty,
-    // we don't perform the same check here that we do for warnings.
+    // we don't perform the same check here that we do for errors.
 
     let full_text = tokenization.full_text().inner();
     let utf16_map = Utf16IndexMap::new(full_text);

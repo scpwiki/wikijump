@@ -45,7 +45,7 @@
         "footnotes": [
         ]
     },
-    "warnings": [
+    "errors": [
         {
             "token": "raw",
             "rule": "raw",

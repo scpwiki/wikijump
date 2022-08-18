@@ -46,7 +46,7 @@ fn parse_fn<'r, 't>(
     // Parse out tag conditions
     let conditions =
         parser.get_head_value(&BLOCK_IFCATEGORY, in_head, |parser, spec| match spec {
-            None => Err(parser.make_warn(ParseWarningKind::BlockMissingArguments)),
+            None => Err(parser.make_err(ParseErrorKind::BlockMissingArguments)),
             Some(spec) => {
                 let mut conditions = ElementCondition::parse(spec);
 
@@ -67,7 +67,7 @@ fn parse_fn<'r, 't>(
         })?;
 
     // Get body content, never with paragraphs
-    let (elements, mut exceptions, paragraph_safe) =
+    let (elements, errors, paragraph_safe) =
         parser.get_body_elements(&BLOCK_IFCATEGORY, false)?.into();
 
     debug!(
@@ -84,13 +84,10 @@ fn parse_fn<'r, 't>(
     } else {
         debug!("Conditions failed, excluding elements");
 
-        // Filter out non-warning exceptions
-        exceptions.retain(|ex| matches!(ex, ParseException::Warning(_)));
-
         Elements::None
     };
 
-    ok!(paragraph_safe; elements, exceptions)
+    ok!(paragraph_safe; elements, errors)
 }
 
 pub fn check_ifcategory(info: &PageInfo, conditions: &[ElementCondition]) -> bool {

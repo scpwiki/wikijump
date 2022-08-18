@@ -118,8 +118,7 @@ fn parse_list_block<'r, 't>(
     let attributes = arguments.to_attribute_map(parser.settings());
 
     // Get body and convert into list form.
-    let (mut elements, exceptions, _) =
-        parser.get_body_elements(block_rule, false)?.into();
+    let (mut elements, errors, _) = parser.get_body_elements(block_rule, false)?.into();
 
     let items = {
         let mut items = Vec::new();
@@ -131,7 +130,7 @@ fn parse_list_block<'r, 't>(
 
         // Empty lists aren't allowed
         if elements.is_empty() {
-            return Err(parser.make_warn(ParseWarningKind::ListEmpty));
+            return Err(parser.make_err(ParseErrorKind::ListEmpty));
         }
 
         // Convert and extract list elements
@@ -161,7 +160,7 @@ fn parse_list_block<'r, 't>(
                 element if element.is_whitespace() => continue,
 
                 // Other kinds of elements result in an exception.
-                _ => return Err(parser.make_warn(ParseWarningKind::ListContainsNonItem)),
+                _ => return Err(parser.make_err(ParseErrorKind::ListContainsNonItem)),
             }
         }
 
@@ -174,7 +173,7 @@ fn parse_list_block<'r, 't>(
         attributes,
     };
 
-    ok!(false; element, exceptions)
+    ok!(false; element, errors)
 }
 
 // List item
@@ -202,8 +201,7 @@ fn parse_list_item<'r, 't>(
     let attributes = arguments.to_attribute_map(parser.settings());
 
     // Get body elements
-    let (mut elements, exceptions, _) =
-        parser.get_body_elements(&BLOCK_LI, false)?.into();
+    let (mut elements, errors, _) = parser.get_body_elements(&BLOCK_LI, false)?.into();
 
     // Strip newlines, if desired
     if strip_line_breaks {
@@ -215,5 +213,5 @@ fn parse_list_item<'r, 't>(
         attributes,
     }));
 
-    ok!(false; element, exceptions)
+    ok!(false; element, errors)
 }

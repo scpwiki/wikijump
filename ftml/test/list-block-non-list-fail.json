@@ -55,14 +55,12 @@
                 }
             }
         ],
-        "styles": [
-        ],
         "table-of-contents": [
         ],
         "footnotes": [
         ]
     },
-    "warnings": [
+    "errors": [
         {
             "token": "left-block",
             "rule": "page",

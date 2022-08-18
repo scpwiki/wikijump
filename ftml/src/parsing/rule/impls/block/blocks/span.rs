@@ -48,7 +48,7 @@ fn parse_fn<'r, 't>(
     let strip_line_breaks = flag_score;
 
     // Get body content, without paragraphs
-    let (mut elements, exceptions, paragraph_safe) =
+    let (mut elements, errors, paragraph_safe) =
         parser.get_body_elements(&BLOCK_SPAN, false)?.into();
 
     if strip_line_breaks {
@@ -61,5 +61,5 @@ fn parse_fn<'r, 't>(
         arguments.to_attribute_map(parser.settings()),
     ));
 
-    ok!(paragraph_safe; element, exceptions)
+    ok!(paragraph_safe; element, errors)
 }

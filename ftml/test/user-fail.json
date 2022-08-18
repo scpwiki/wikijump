@@ -45,7 +45,7 @@
         "footnotes": [
         ]
     },
-    "warnings": [
+    "errors": [
         {
             "token": "line-break",
             "rule": "block-user",

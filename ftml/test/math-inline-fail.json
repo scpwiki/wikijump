@@ -66,14 +66,12 @@
                 }
             }
         ],
-        "styles": [
-        ],
         "table-of-contents": [
         ],
         "footnotes": [
         ]
             },
-            "warnings": [
+            "errors": [
                 {
                     "token": "line-break",
                     "rule": "math",

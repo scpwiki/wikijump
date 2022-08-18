@@ -36,7 +36,7 @@ fn try_consume_fn<'p, 'r, 't>(
         ($token:expr) => {{
             let current = parser.current();
             if current.token != $token {
-                return Err(parser.make_warn(ParseWarningKind::RuleFailed));
+                return Err(parser.make_err(ParseErrorKind::RuleFailed));
             }
 
             parser.step()?;
@@ -53,7 +53,7 @@ fn try_consume_fn<'p, 'r, 't>(
     // Step over whitespace
     step!(Token::Whitespace);
 
-    let (elements, mut all_exceptions, _) = collect_container(
+    let (elements, mut all_errors, _) = collect_container(
         parser,
         RULE_HEADER,
         ContainerType::Header(heading),
@@ -80,19 +80,19 @@ fn try_consume_fn<'p, 'r, 't>(
         parser.push_table_of_contents_entry(heading.level, elements);
     }
 
-    // Recursively collect headings until we hit a warning.
+    // Recursively collect headings until we hit an error.
     //
     // We do this because the container consumes the newline,
     // which we need to trigger the next header when using regular rules.
     let mut all_elements: Vec<_> = elements.into_iter().collect();
 
     if let Ok(success) = (try_consume_fn)(parser) {
-        let (elements, mut exceptions, _) = success.into();
+        let (elements, mut errors, _) = success.into();
 
         all_elements.extend(elements);
-        all_exceptions.append(&mut exceptions);
+        all_errors.append(&mut errors);
     }
 
     // Build final Elements object
-    ok!(false; all_elements, all_exceptions)
+    ok!(false; all_elements, all_errors)
 }

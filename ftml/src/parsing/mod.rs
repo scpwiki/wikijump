@@ -28,7 +28,7 @@ mod condition;
 mod consume;
 mod depth;
 mod element_condition;
-mod exception;
+mod error;
 mod outcome;
 mod paragraph;
 mod parser;
@@ -41,8 +41,7 @@ mod token;
 
 mod prelude {
     pub use crate::parsing::{
-        ExtractedToken, ParseException, ParseResult, ParseSuccess, ParseWarning,
-        ParseWarningKind, Token,
+        ExtractedToken, ParseError, ParseErrorKind, ParseResult, ParseSuccess, Token,
     };
     pub use crate::settings::WikitextSettings;
     pub use crate::text::FullText;
@@ -68,7 +67,7 @@ use crate::tree::{
 use std::borrow::Cow;
 
 pub use self::boolean::{parse_boolean, NonBooleanValue};
-pub use self::exception::{ParseException, ParseWarning, ParseWarningKind};
+pub use self::error::{ParseError, ParseErrorKind};
 pub use self::outcome::ParseOutcome;
 pub use self::result::{ParseResult, ParseSuccess};
 pub use self::token::{ExtractedToken, Token};
@@ -99,15 +98,12 @@ where
     match result {
         Ok(ParseSuccess {
             item: mut elements,
-            exceptions,
+            errors,
             ..
         }) => {
-            let (warnings, styles) = extract_exceptions(exceptions);
-
             info!(
-                "Finished parsing, producing final syntax tree ({} warnings, {} styles)",
-                warnings.len(),
-                styles.len(),
+                "Finished parsing, producing final syntax tree ({} errors)",
+                errors.len(),
             );
 
             // process_depths() wants a "list type", so we map in a () for each.
@@ -134,30 +130,27 @@ where
 
             SyntaxTree::from_element_result(
                 elements,
-                warnings,
-                styles,
+                errors,
                 table_of_contents,
                 footnotes,
             )
         }
-        Err(warning) => {
+        Err(error) => {
             // This path is only reachable if a very bad error occurs.
             //
             // If this happens, then just return the input source as the output
-            // and the warning.
+            // and the error.
 
-            error!("Fatal error occurred at highest-level parsing: {warning:#?}");
+            error!("Fatal error occurred at highest-level parsing: {error:#?}");
             let wikitext = tokenization.full_text().inner();
             let elements = vec![text!(wikitext)];
-            let warnings = vec![warning];
-            let styles = vec![];
+            let errors = vec![error];
             let table_of_contents = vec![];
             let footnotes = vec![];
 
             SyntaxTree::from_element_result(
                 elements,
-                warnings,
-                styles,
+                errors,
                 table_of_contents,
                 footnotes,
             )
@@ -194,22 +187,6 @@ where
 }
 
 // Helper functions
-
-fn extract_exceptions(
-    exceptions: Vec<ParseException>,
-) -> (Vec<ParseWarning>, Vec<Cow<str>>) {
-    let mut warnings = Vec::new();
-    let mut styles = Vec::new();
-
-    for exception in exceptions {
-        match exception {
-            ParseException::Warning(warning) => warnings.push(warning),
-            ParseException::Style(style) => styles.push(style),
-        }
-    }
-
-    (warnings, styles)
-}
 
 fn build_toc_list_element(
     incr: &mut Incrementer,

@@ -20,30 +20,30 @@
 
 /// Creates a `ParseResult::Ok` with the given fields.
 ///
-/// There are two variants, for if there are exceptions or if there are not.
+/// There are two variants, for if there are errors or if there are not.
 macro_rules! ok {
     // Derive paragraph safety
     // Must return Elements instead of T
     ($item:expr $(,)?) => {
         ok!($item, Vec::new())
     };
-    ($item:expr, $exceptions:expr $(,)?) => {{
+    ($item:expr, $errors:expr $(,)?) => {{
         use crate::parsing::ParseSuccess;
         use crate::tree::Elements;
 
         let item: Elements = $item.into();
         let paragraph_safe = item.paragraph_safe();
 
-        Ok(ParseSuccess::new(item, $exceptions, paragraph_safe))
+        Ok(ParseSuccess::new(item, $errors, paragraph_safe))
 
     }};
     // Specify paragraph safety
     ($paragraph_safe:expr; $item:expr $(,)?) => {
         ok!($paragraph_safe; $item, Vec::new())
     };
-    ($paragraph_safe:expr; $item:expr, $exceptions:expr $(,)?) => {{
+    ($paragraph_safe:expr; $item:expr, $errors:expr $(,)?) => {{
         use crate::parsing::ParseSuccess;
 
-        Ok(ParseSuccess::new($item.into(), $exceptions, $paragraph_safe))
+        Ok(ParseSuccess::new($item.into(), $errors, $paragraph_safe))
     }};
 }

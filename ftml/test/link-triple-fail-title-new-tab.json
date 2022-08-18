@@ -43,14 +43,12 @@
                 }
             }
         ],
-        "styles": [
-        ],
         "table-of-contents": [
         ],
         "footnotes": [
         ]
     },
-    "warnings": [
+    "errors": [
         {
             "token": "identifier",
             "rule": "link-triple-new-tab",

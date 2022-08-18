@@ -43,7 +43,7 @@ fn try_consume_fn<'p, 'r, 't>(
             parser.step()?;
         }
         (Token::Underscore, Some(_)) if parser.start_of_line() => (),
-        _ => return Err(parser.make_warn(ParseWarningKind::RuleFailed)),
+        _ => return Err(parser.make_err(ParseErrorKind::RuleFailed)),
     }
 
     // Now the current token should be underscore, then newline.
@@ -54,7 +54,7 @@ fn try_consume_fn<'p, 'r, 't>(
             Some(Token::LineBreak | Token::ParagraphBreak),
         ),
     ) {
-        return Err(parser.make_warn(ParseWarningKind::RuleFailed));
+        return Err(parser.make_err(ParseErrorKind::RuleFailed));
     }
 
     // Since we know where we are, we can step over them, then be done.

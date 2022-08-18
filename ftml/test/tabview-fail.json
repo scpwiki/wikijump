@@ -103,7 +103,7 @@
         "footnotes": [
         ]
     },
-    "warnings": [
+    "errors": [
         {
             "token": "identifier",
             "rule": "block-tabview",

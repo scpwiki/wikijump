@@ -44,14 +44,12 @@
                 }
             }
         ],
-        "styles": [
-        ],
         "table-of-contents": [
         ],
         "footnotes": [
         ]
     },
-    "warnings": [
+    "errors": [
         {
             "token": "paragraph-break",
             "rule": "bold",

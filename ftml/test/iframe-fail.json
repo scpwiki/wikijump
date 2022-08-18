@@ -42,14 +42,12 @@
                 }
             }
         ],
-        "styles": [
-        ],
         "table-of-contents": [
         ],
         "footnotes": [
         ]
     },
-    "warnings": [
+    "errors": [
         {
             "token": "input-end",
             "rule": "block-iframe",

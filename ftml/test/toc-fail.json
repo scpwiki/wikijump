@@ -86,7 +86,7 @@
         "footnotes": [
         ]
     },
-    "warnings": [
+    "errors": [
         {
             "token": "input-end",
             "rule": "block",

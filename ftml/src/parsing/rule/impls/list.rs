@@ -46,7 +46,7 @@ fn try_consume_fn<'p, 'r, 't>(
 
     // Context variables
     let mut depths = Vec::new();
-    let mut exceptions = Vec::new();
+    let mut errors = Vec::new();
 
     // Blockquotes are always paragraph-unsafe,
     // but we need this binding for chain().
@@ -78,7 +78,7 @@ fn try_consume_fn<'p, 'r, 't>(
         // Check that the depth isn't obscenely deep, to avoid DOS attacks via stack overflow.
         if depth > MAX_LIST_DEPTH {
             warn!("List item has a depth {depth} greater than the maximum ({MAX_LIST_DEPTH})! Failing");
-            return Err(parser.make_warn(ParseWarningKind::ListDepthExceeded));
+            return Err(parser.make_err(ParseErrorKind::ListDepthExceeded));
         }
 
         // Check that we're processing a bullet, and get the type
@@ -114,7 +114,7 @@ fn try_consume_fn<'p, 'r, 't>(
             &[],
             None,
         )?
-        .chain(&mut exceptions, &mut paragraph_safe);
+        .chain(&mut errors, &mut paragraph_safe);
 
         // Append list line
         depths.push((depth, list_type, elements));
@@ -122,7 +122,7 @@ fn try_consume_fn<'p, 'r, 't>(
 
     // This list has no rows, so the rule fails
     if depths.is_empty() {
-        return Err(parser.make_warn(ParseWarningKind::RuleFailed));
+        return Err(parser.make_err(ParseErrorKind::RuleFailed));
     }
 
     let depth_lists = process_depths(ListType::Generic, depths);
@@ -131,7 +131,7 @@ fn try_consume_fn<'p, 'r, 't>(
         .map(|(ltype, depth_list)| build_list_element(ltype, depth_list))
         .collect();
 
-    ok!(paragraph_safe; elements, exceptions)
+    ok!(paragraph_safe; elements, errors)
 }
 
 fn build_list_element(

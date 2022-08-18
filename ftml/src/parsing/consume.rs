@@ -49,7 +49,7 @@ pub fn consume<'p, 'r, 't>(
     parser.depth_increment()?;
 
     debug!("Looking for valid rules");
-    let mut all_exceptions = Vec::new();
+    let mut all_errors = Vec::new();
     let current = parser.current();
 
     for &rule in get_rules_for_token(current) {
@@ -65,24 +65,21 @@ pub fn consume<'p, 'r, 't>(
                     parser.step()?;
                 }
 
-                // Explicitly drop exceptions
+                // Explicitly drop errors
                 //
                 // We're returning the successful consumption
                 // so these are going to be dropped as a previously
                 // unsuccessful attempts.
-                mem::drop(all_exceptions);
+                mem::drop(all_errors);
 
                 // Decrement recursion depth
                 parser.depth_decrement();
 
                 return Ok(output);
             }
-            Err(warning) => {
-                warn!(
-                    "Rule failed, returning warning: '{}'",
-                    warning.kind().name(),
-                );
-                all_exceptions.push(ParseException::Warning(warning));
+            Err(error) => {
+                warn!("Rule failed, returning error: '{}'", error.kind().name());
+                all_errors.push(error);
             }
         }
     }
@@ -91,27 +88,23 @@ pub fn consume<'p, 'r, 't>(
     let element = text!(current.slice);
     parser.step()?;
 
-    // We should only carry styles over from *successful* consumptions
-    debug!("Removing non-warnings from exceptions list");
-    all_exceptions.retain(|exception| matches!(exception, ParseException::Warning(_)));
-
     // If we've hit the recursion limit, just bail
-    if let Some(ParseException::Warning(warning)) = all_exceptions.last() {
-        if warning.kind() == ParseWarningKind::RecursionDepthExceeded {
+    if let Some(error) = all_errors.last() {
+        if error.kind() == ParseErrorKind::RecursionDepthExceeded {
             error!("Found recursion depth error, failing");
-            return Err(warning.clone());
+            return Err(error.clone());
         }
     }
 
-    // Add fallback warning to exceptions list
-    all_exceptions.push(ParseException::Warning(ParseWarning::new(
-        ParseWarningKind::NoRulesMatch,
+    // Add fallback error to errors list
+    all_errors.push(ParseError::new(
+        ParseErrorKind::NoRulesMatch,
         RULE_FALLBACK,
         current,
-    )));
+    ));
 
     // Decrement recursion depth
     parser.depth_decrement();
 
-    ok!(element, all_exceptions)
+    ok!(element, all_errors)
 }

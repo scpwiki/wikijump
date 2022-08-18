@@ -77,7 +77,7 @@ pub fn parse_alignment_block<'r, 't>(
     parser.get_head_none(block_rule, in_head)?;
 
     // Get body content, with paragraphs
-    let (elements, exceptions, _) = parser.get_body_elements(block_rule, true)?.into();
+    let (elements, errors, _) = parser.get_body_elements(block_rule, true)?.into();
 
     // Build element
     let element = Element::Container(Container::new(
@@ -86,5 +86,5 @@ pub fn parse_alignment_block<'r, 't>(
         AttributeMap::new(),
     ));
 
-    ok!(element, exceptions)
+    ok!(element, errors)
 }

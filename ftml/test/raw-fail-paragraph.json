@@ -51,7 +51,7 @@
         "footnotes": [
         ]
     },
-    "warnings": [
+    "errors": [
         {
             "token": "paragraph-break",
             "rule": "raw",

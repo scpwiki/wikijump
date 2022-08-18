@@ -19,7 +19,7 @@
  */
 
 use crate::data::PageInfo;
-use crate::parsing::{ParseWarningKind, Token};
+use crate::parsing::{ParseErrorKind, Token};
 use crate::settings::{WikitextMode, WikitextSettings};
 use crate::tree::{Element, SyntaxTree};
 use std::borrow::Cow;
@@ -48,14 +48,14 @@ fn recursion_depth() {
     // Run parser steps
     crate::preprocess(&mut input);
     let tokens = crate::tokenize(&input);
-    let (tree, warnings) = crate::parse(&tokens, &page_info, &settings).into();
+    let (tree, errors) = crate::parse(&tokens, &page_info, &settings).into();
 
-    // Check outputted warnings
-    let warning = warnings.get(0).expect("No warnings produced");
-    assert_eq!(warning.token(), Token::LeftBlock);
-    assert_eq!(warning.rule(), "block-div");
-    assert_eq!(warning.span(), 800..802);
-    assert_eq!(warning.kind(), ParseWarningKind::RecursionDepthExceeded);
+    // Check outputted errors
+    let error = errors.get(0).expect("No errors produced");
+    assert_eq!(error.token(), Token::LeftBlock);
+    assert_eq!(error.rule(), "block-div");
+    assert_eq!(error.span(), 800..802);
+    assert_eq!(error.kind(), ParseErrorKind::RecursionDepthExceeded);
 
     // Check syntax tree
     //
@@ -102,8 +102,8 @@ In hac habitasse platea dictumst. Vestibulum fermentum libero nec erat porttitor
     // Run parser steps
     crate::preprocess(&mut input);
     let tokens = crate::tokenize(&input);
-    let (_tree, warnings) = crate::parse(&tokens, &page_info, &settings).into();
+    let (_tree, errors) = crate::parse(&tokens, &page_info, &settings).into();
 
     // Check output
-    assert_eq!(warnings.len(), ITERATIONS * 3);
+    assert_eq!(errors.len(), ITERATIONS * 3);
 }

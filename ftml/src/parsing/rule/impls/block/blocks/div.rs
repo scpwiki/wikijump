@@ -48,7 +48,7 @@ fn parse_fn<'r, 't>(
 
     // Get body content, based on whether we want paragraphs or not.
     // Discard paragraph_safe, since divs never are.
-    let (elements, exceptions, _) = parser
+    let (elements, errors, _) = parser
         .get_body_elements(&BLOCK_DIV, wrap_paragraphs)?
         .into();
 
@@ -59,5 +59,5 @@ fn parse_fn<'r, 't>(
         arguments.to_attribute_map(parser.settings()),
     ));
 
-    ok!(element, exceptions)
+    ok!(element, errors)
 }

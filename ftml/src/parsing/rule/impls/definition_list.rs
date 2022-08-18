@@ -46,7 +46,7 @@ fn skip_newline<'p, 'r, 't>(
         }
 
         // Anything else
-        _ => Err(parser.make_warn(ParseWarningKind::RuleFailed)),
+        _ => Err(parser.make_err(ParseErrorKind::RuleFailed)),
     }
 }
 
@@ -56,11 +56,11 @@ fn parse_definition_list<'p, 'r, 't>(
     info!("Trying to create a definition list");
 
     let mut items = Vec::new();
-    let mut exceptions = Vec::new();
+    let mut errors = Vec::new();
     let mut _paragraph_safe = false;
 
     // Definition list needs at least one item
-    let (item, at_end) = parse_item(parser)?.chain(&mut exceptions, &mut _paragraph_safe);
+    let (item, at_end) = parse_item(parser)?.chain(&mut errors, &mut _paragraph_safe);
 
     items.push(item);
 
@@ -73,8 +73,7 @@ fn parse_definition_list<'p, 'r, 't>(
                 Ok(success) => {
                     debug!("Retrieved definition list item");
 
-                    let (item, at_end) =
-                        success.chain(&mut exceptions, &mut _paragraph_safe);
+                    let (item, at_end) = success.chain(&mut errors, &mut _paragraph_safe);
 
                     items.push(item);
                     parser.update(sub_parser);
@@ -83,8 +82,8 @@ fn parse_definition_list<'p, 'r, 't>(
                         break;
                     }
                 }
-                Err(warn) => {
-                    warn!("Failed to get the next definition list item, ending iteration: {warn:?}");
+                Err(error) => {
+                    warn!("Failed to get the next definition list item, ending iteration: {error:?}");
                     break;
                 }
             }
@@ -100,7 +99,7 @@ fn parse_item<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, (DefinitionListItem<'t>, bool)> {
     debug!("Trying to parse a definition list item pair");
 
-    let mut exceptions = Vec::new();
+    let mut errors = Vec::new();
     let mut _paragraph_safe = false;
 
     // The pattern for a definition list row is:
@@ -108,7 +107,7 @@ fn parse_item<'p, 'r, 't>(
 
     // Ensure the start of the line
     if !parser.start_of_line() {
-        return Err(parser.make_warn(ParseWarningKind::RuleFailed));
+        return Err(parser.make_err(ParseErrorKind::RuleFailed));
     }
 
     // Ensure that it matches expected token state
@@ -116,7 +115,7 @@ fn parse_item<'p, 'r, 't>(
         parser.next_two_tokens(),
         (Token::Colon, Some(Token::Whitespace)),
     ) {
-        return Err(parser.make_warn(ParseWarningKind::RuleFailed));
+        return Err(parser.make_err(ParseErrorKind::RuleFailed));
     }
 
     parser.step_n(2)?;
@@ -132,7 +131,7 @@ fn parse_item<'p, 'r, 't>(
         ],
         None,
     )?
-    .chain(&mut exceptions, &mut _paragraph_safe);
+    .chain(&mut errors, &mut _paragraph_safe);
 
     strip_whitespace(&mut key);
     parser.step_n(2)?;
@@ -149,7 +148,7 @@ fn parse_item<'p, 'r, 't>(
         &[],
         None,
     )?
-    .chain(&mut exceptions, &mut _paragraph_safe);
+    .chain(&mut errors, &mut _paragraph_safe);
 
     // Some ending tokens designate a definite end
     let should_break = match last.token {
@@ -162,5 +161,5 @@ fn parse_item<'p, 'r, 't>(
 
     // Build and return
     let item = DefinitionListItem { key, value };
-    ok!(false; (item, should_break), exceptions)
+    ok!(false; (item, should_break), errors)
 }

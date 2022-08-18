@@ -38,7 +38,7 @@ fn try_consume_fn<'p, 'r, 't>(
 
     // Context variables
     let mut depths = Vec::new();
-    let mut exceptions = Vec::new();
+    let mut errors = Vec::new();
 
     // Produce a depth list with elements
     loop {
@@ -59,7 +59,7 @@ fn try_consume_fn<'p, 'r, 't>(
         // Check that the depth isn't obscenely deep, to avoid DOS attacks via stack overflow.
         if depth > MAX_BLOCKQUOTE_DEPTH {
             info!("Native blockquote has a depth ({depth}) greater than the maximum ({MAX_BLOCKQUOTE_DEPTH})! Failing");
-            return Err(parser.make_warn(ParseWarningKind::BlockquoteDepthExceeded));
+            return Err(parser.make_err(ParseErrorKind::BlockquoteDepthExceeded));
         }
 
         // Parse elements until we hit the end of the line
@@ -75,7 +75,7 @@ fn try_consume_fn<'p, 'r, 't>(
             &[],
             None,
         )?
-        .chain(&mut exceptions, &mut paragraph_safe);
+        .chain(&mut errors, &mut paragraph_safe);
 
         // Add a line break for the end of the line
         elements.push(Element::LineBreak);
@@ -91,7 +91,7 @@ fn try_consume_fn<'p, 'r, 't>(
 
     // This blockquote has no rows, so the rule fails
     if depths.is_empty() {
-        return Err(parser.make_warn(ParseWarningKind::RuleFailed));
+        return Err(parser.make_err(ParseErrorKind::RuleFailed));
     }
 
     let depth_lists = process_depths((), depths);
@@ -100,7 +100,7 @@ fn try_consume_fn<'p, 'r, 't>(
         .map(|(_, depth_list)| build_blockquote_element(depth_list))
         .collect();
 
-    ok!(false; elements, exceptions)
+    ok!(false; elements, errors)
 }
 
 fn build_blockquote_element(list: DepthList<(), (Vec<Element>, bool)>) -> Element {

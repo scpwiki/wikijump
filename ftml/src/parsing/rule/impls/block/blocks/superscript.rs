@@ -44,7 +44,7 @@ fn parse_fn<'r, 't>(
     let arguments = parser.get_head_map(&BLOCK_SUPERSCRIPT, in_head)?;
 
     // Get body content, without paragraphs
-    let (elements, exceptions, paragraph_safe) =
+    let (elements, errors, paragraph_safe) =
         parser.get_body_elements(&BLOCK_SUPERSCRIPT, false)?.into();
 
     let element = Element::Container(Container::new(
@@ -53,5 +53,5 @@ fn parse_fn<'r, 't>(
         arguments.to_attribute_map(parser.settings()),
     ));
 
-    ok!(paragraph_safe; element, exceptions)
+    ok!(paragraph_safe; element, errors)
 }

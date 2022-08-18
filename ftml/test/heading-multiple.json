@@ -118,8 +118,6 @@
                 }
             }
         ],
-        "styles": [
-        ],
         "table-of-contents": [
             {
                 "element": "list",
@@ -286,6 +284,6 @@
         "footnotes": [
         ]
     },
-    "warnings": [
+    "errors": [
     ]
 }

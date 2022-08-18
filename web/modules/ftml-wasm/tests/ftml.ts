@@ -76,11 +76,10 @@ describe("ftml-wasm", () => {
             }
           }
         ],
-        "styles": [],
         "table-of-contents": [],
         "footnotes": []
       },
-      "warnings": []
+      "errors": []
     })
   })
 
@@ -93,9 +92,8 @@ describe("ftml-wasm", () => {
     const str = "//1//"
     // other returned values are not tested due to their dynamic nature
     // e.g. `meta` depends on version of FTML
-    const { html, styles } = lib.renderHTML(str)
+    const { html } = lib.renderHTML(str)
     assert.equal(html, '<wj-body class="wj-body"><p><em>1</em></p></wj-body>')
-    assert.equal(styles.join(""), "")
   })
 
   it.skip("detailRenderHTML", () => {
@@ -106,9 +104,8 @@ describe("ftml-wasm", () => {
     assert.isObject(render.ast)
     assert.isString(render.html)
     // assert.isObject(render.meta[0])
-    assert.isArray(render.styles)
     assert.isArray(render.tokens)
-    assert.isArray(render.warnings)
+    assert.isArray(render.errors)
   })
 
   it("renderText", () => {
@@ -123,12 +120,12 @@ describe("ftml-wasm", () => {
     assert.isObject(render.ast)
     assert.isString(render.text)
     assert.isArray(render.tokens)
-    assert.isArray(render.warnings)
+    assert.isArray(render.errors)
   })
 
-  it("warnings", () => {
+  it("errors", () => {
     const str = "[[div]]foo"
-    assert.deepEqual(lib.warnings(str), [
+    assert.deepEqual(lib.errors(str), [
       {
         token: "input-end",
         rule: "block-div",

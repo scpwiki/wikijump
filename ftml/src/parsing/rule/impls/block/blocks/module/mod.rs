@@ -20,6 +20,7 @@
 
 mod mapping;
 mod modules;
+mod output;
 mod parser;
 mod rule;
 
@@ -27,9 +28,10 @@ use super::prelude;
 use crate::parsing::rule::impls::block::Arguments;
 use crate::parsing::rule::{LineRequirement, Rule};
 use crate::parsing::{ParseResult, Parser};
-use crate::tree::{Elements, Module};
+use crate::tree::Elements;
 use std::fmt::{self, Debug};
 
+pub use self::output::ModuleParseOutput;
 pub use self::rule::BLOCK_MODULE;
 
 /// Define a rule for how to parse a module.
@@ -54,7 +56,7 @@ pub struct ModuleRule {
 impl ModuleRule {
     /// Produces a pseudo parse `Rule` associated with this `BlockRule`.
     ///
-    /// It should not be invoked, it is for warning construction.
+    /// It should not be invoked, it is for error construction.
     #[cold]
     pub fn rule(&self) -> Rule {
         // Stubbed try_consume_fn implementation for the Rule.
@@ -92,4 +94,4 @@ pub type ModuleParseFn = for<'r, 't> fn(
     &mut Parser<'r, 't>,
     &'t str,
     Arguments<'t>,
-) -> ParseResult<'r, 't, Option<Module<'t>>>;
+) -> ParseResult<'r, 't, ModuleParseOutput<'t>>;
