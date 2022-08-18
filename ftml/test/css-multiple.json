@@ -15,13 +15,6 @@
                         {
                             "element": "text",
                             "data": "apple"
-                        },
-                        {
-                            "element": "line-break"
-                        },
-                        {
-                            "element": "text",
-                            "data": "banana"
                         }
                     ]
                 }
@@ -29,6 +22,19 @@
             {
                 "element": "style",
                 "data": "b { display: none; }"
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "banana"
+                        }
+                    ]
+                }
             },
             {
                 "element": "footnote-block",

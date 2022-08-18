@@ -1,10 +1,10 @@
 {
-    "input": "[[css]]\nh1 {\n    margin-top: .7em\n    padding: 0;\n    font-weight: bold;\n}\n[[/css]]",
+    "input": "[[css]]\nh1 {\n    margin-top: .7em;\n    padding: 0;\n    font-weight: bold;\n}\n[[/css]]",
     "tree": {
         "elements": [
             {
                 "element": "style",
-                "data": "h1 {\n    margin-top: .7em\n    padding: 0;\n    font-weight: bold;\n}"
+                "data": "h1 {\n    margin-top: .7em;\n    padding: 0;\n    font-weight: bold;\n}"
             },
             {
                 "element": "footnote-block",
