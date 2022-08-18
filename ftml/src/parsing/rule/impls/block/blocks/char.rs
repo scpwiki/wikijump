@@ -72,12 +72,12 @@ fn parse_entity<'r, 't>(
 ) -> Result<Cow<'t, str>, ParseError> {
     let argument = match argument {
         Some(arg) => strip_entity(arg),
-        None => return Err(parser.make_warn(ParseErrorKind::BlockMissingArguments)),
+        None => return Err(parser.make_err(ParseErrorKind::BlockMissingArguments)),
     };
 
     match find_entity(argument) {
         Some(string) => Ok(string),
-        None => Err(parser.make_warn(ParseErrorKind::BlockMalformedArguments)),
+        None => Err(parser.make_err(ParseErrorKind::BlockMalformedArguments)),
     }
 }
 

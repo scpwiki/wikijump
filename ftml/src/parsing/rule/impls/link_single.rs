@@ -83,7 +83,7 @@ fn try_consume_link<'p, 'r, 't>(
 
     // Return error if the resultant URL is not valid.
     if !url_valid(url) {
-        return Err(parser.make_warn(ParseErrorKind::InvalidUrl));
+        return Err(parser.make_err(ParseErrorKind::InvalidUrl));
     }
 
     debug!("Retrieved URL '{url}' for link, now fetching label");

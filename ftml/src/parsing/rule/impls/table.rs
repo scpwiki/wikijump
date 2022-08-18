@@ -62,7 +62,7 @@ fn try_consume_fn<'p, 'r, 't>(
             () => {
                 if rows.is_empty() {
                     // No rows were successfully parsed, fail.
-                    return Err(parser.make_warn(ParseErrorKind::RuleFailed));
+                    return Err(parser.make_err(ParseErrorKind::RuleFailed));
                 } else {
                     // At least one row was created, end it here.
                     break 'table;

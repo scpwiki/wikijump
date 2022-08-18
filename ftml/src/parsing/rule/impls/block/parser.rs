@@ -315,7 +315,7 @@ where
                             // Invalid token
                             _ => {
                                 return Err(self
-                                    .make_warn(ParseErrorKind::BlockMalformedArguments))
+                                    .make_err(ParseErrorKind::BlockMalformedArguments))
                             }
                         }
                     }
@@ -360,7 +360,7 @@ where
 
         if !in_head {
             warn!("Block is already over, there is no name or arguments");
-            return Err(self.make_warn(ParseErrorKind::BlockMissingName));
+            return Err(self.make_err(ParseErrorKind::BlockMissingName));
         }
 
         // Get module's name

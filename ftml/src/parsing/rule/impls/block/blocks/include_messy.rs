@@ -53,5 +53,5 @@ fn parse_fn<'r, 't>(
 
     // Includes are handled specially, so we should never actually be
     // parsing a block here. So, we return a warning.
-    Err(parser.make_warn(ParseErrorKind::InvalidInclude))
+    Err(parser.make_err(ParseErrorKind::InvalidInclude))
 }

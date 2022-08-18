@@ -26,9 +26,9 @@ use std::collections::HashMap;
 use std::str::FromStr;
 use unicase::UniCase;
 
-macro_rules! make_warn {
+macro_rules! make_err {
     ($parser:expr) => {
-        $parser.make_warn(ParseErrorKind::BlockMalformedArguments)
+        $parser.make_err(ParseErrorKind::BlockMalformedArguments)
     };
 }
 
@@ -63,7 +63,7 @@ impl<'t> Arguments<'t> {
         match self.get(key) {
             Some(argument) => match parse_boolean(argument) {
                 Ok(value) => Ok(Some(value)),
-                Err(_) => Err(make_warn!(parser)),
+                Err(_) => Err(make_err!(parser)),
             },
             None => Ok(None),
         }
@@ -77,7 +77,7 @@ impl<'t> Arguments<'t> {
         match self.get(key) {
             Some(argument) => match argument.parse() {
                 Ok(value) => Ok(Some(value)),
-                Err(_) => Err(make_warn!(parser)),
+                Err(_) => Err(make_err!(parser)),
             },
             None => Ok(None),
         }

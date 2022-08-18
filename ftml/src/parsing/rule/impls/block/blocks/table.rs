@@ -123,7 +123,7 @@ macro_rules! extract_table_items {
                 element if element.is_whitespace() => (),
 
                 // Return a warning for anything else.
-                _ => return Err($parser.make_warn(ParseErrorKind::$warning_kind)),
+                _ => return Err($parser.make_err(ParseErrorKind::$warning_kind)),
             }
         }
 

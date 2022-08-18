@@ -43,7 +43,7 @@ fn try_consume_fn<'p, 'r, 't>(
         Token::Quote if current.slice == ">>" => ok!(text!("\u{0bb}")),
 
         // Some other series of ">"s in a line
-        Token::Quote => Err(parser.make_warn(ParseErrorKind::RuleFailed)),
+        Token::Quote => Err(parser.make_err(ParseErrorKind::RuleFailed)),
 
         // Invalid token for this rule
         _ => unreachable!(),

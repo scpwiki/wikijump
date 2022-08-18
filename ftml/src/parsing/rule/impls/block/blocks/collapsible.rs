@@ -93,5 +93,5 @@ fn parse_hide_location(s: &str, parser: &Parser) -> Result<(bool, bool), ParseEr
     }
 
     warn!("Unknown hideLocation argument '{s}'");
-    Err(parser.make_warn(ParseErrorKind::BlockMalformedArguments))
+    Err(parser.make_err(ParseErrorKind::BlockMalformedArguments))
 }

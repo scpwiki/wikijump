@@ -75,7 +75,7 @@ where
                     // Pass a warning up the chain
 
                     warn!("Hit the end of input, producing warning");
-                    return Err(parser.make_warn(ParseErrorKind::EndOfInput));
+                    return Err(parser.make_err(ParseErrorKind::EndOfInput));
                 } else {
                     // Avoid an unnecessary Element::Null and just exit
                     // If there's no close condition, then this is not a warning

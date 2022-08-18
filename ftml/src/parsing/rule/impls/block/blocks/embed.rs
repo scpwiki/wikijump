@@ -74,7 +74,7 @@ where
         }
     }
 
-    Err(parser.make_warn(ParseErrorKind::NoSuchEmbed))
+    Err(parser.make_err(ParseErrorKind::NoSuchEmbed))
 }
 
 // Different embed builders
@@ -85,7 +85,7 @@ fn build_youtube<'p, 't>(
 ) -> Result<Embed<'t>, ParseError> {
     let video_id = arguments
         .get("video")
-        .ok_or_else(|| parser.make_warn(ParseErrorKind::BlockMissingArguments))?;
+        .ok_or_else(|| parser.make_err(ParseErrorKind::BlockMissingArguments))?;
 
     Ok(Embed::Youtube { video_id })
 }
@@ -96,7 +96,7 @@ fn build_vimeo<'p, 't>(
 ) -> Result<Embed<'t>, ParseError> {
     let video_id = arguments
         .get("video")
-        .ok_or_else(|| parser.make_warn(ParseErrorKind::BlockMissingArguments))?;
+        .ok_or_else(|| parser.make_err(ParseErrorKind::BlockMissingArguments))?;
 
     Ok(Embed::Vimeo { video_id })
 }
@@ -107,11 +107,11 @@ fn build_github_gist<'p, 't>(
 ) -> Result<Embed<'t>, ParseError> {
     let username = arguments
         .get("username")
-        .ok_or_else(|| parser.make_warn(ParseErrorKind::BlockMissingArguments))?;
+        .ok_or_else(|| parser.make_err(ParseErrorKind::BlockMissingArguments))?;
 
     let hash = arguments
         .get("hash")
-        .ok_or_else(|| parser.make_warn(ParseErrorKind::BlockMissingArguments))?;
+        .ok_or_else(|| parser.make_err(ParseErrorKind::BlockMissingArguments))?;
 
     Ok(Embed::GithubGist { username, hash })
 }
@@ -122,7 +122,7 @@ fn build_gitlab_snippet<'p, 't>(
 ) -> Result<Embed<'t>, ParseError> {
     let snippet_id = arguments
         .get("id")
-        .ok_or_else(|| parser.make_warn(ParseErrorKind::BlockMissingArguments))?;
+        .ok_or_else(|| parser.make_err(ParseErrorKind::BlockMissingArguments))?;
 
     Ok(Embed::GitlabSnippet { snippet_id })
 }

@@ -160,7 +160,7 @@ impl<'r, 't> Parser<'r, 't> {
         debug!("Incrementing recursion depth to {}", self.depth);
 
         if self.depth > MAX_RECURSION_DEPTH {
-            return Err(self.make_warn(ParseErrorKind::RecursionDepthExceeded));
+            return Err(self.make_err(ParseErrorKind::RecursionDepthExceeded));
         }
 
         Ok(())
@@ -192,7 +192,7 @@ impl<'r, 't> Parser<'r, 't> {
         if self.settings.enable_page_syntax {
             Ok(())
         } else {
-            Err(self.make_warn(ParseErrorKind::NotSupportedMode))
+            Err(self.make_err(ParseErrorKind::NotSupportedMode))
         }
     }
 
@@ -371,7 +371,7 @@ impl<'r, 't> Parser<'r, 't> {
             }
             None => {
                 warn!("Exhausted all tokens, yielding end of input warning");
-                Err(self.make_warn(ParseErrorKind::EndOfInput))
+                Err(self.make_err(ParseErrorKind::EndOfInput))
             }
         }
     }
@@ -404,7 +404,7 @@ impl<'r, 't> Parser<'r, 't> {
         offset: usize,
     ) -> Result<&'r ExtractedToken<'t>, ParseError> {
         self.look_ahead(offset)
-            .ok_or_else(|| self.make_warn(ParseErrorKind::EndOfInput))
+            .ok_or_else(|| self.make_err(ParseErrorKind::EndOfInput))
     }
 
     /// Retrieves the current and next tokens.
@@ -442,7 +442,7 @@ impl<'r, 't> Parser<'r, 't> {
             self.step()?;
             Ok(text)
         } else {
-            Err(self.make_warn(kind))
+            Err(self.make_err(kind))
         }
     }
 
@@ -490,7 +490,7 @@ impl<'r, 't> Parser<'r, 't> {
     // Utilities
     #[cold]
     #[inline]
-    pub fn make_warn(&self, kind: ParseErrorKind) -> ParseError {
+    pub fn make_err(&self, kind: ParseErrorKind) -> ParseError {
         ParseError::new(kind, self.rule, self.current)
     }
 }

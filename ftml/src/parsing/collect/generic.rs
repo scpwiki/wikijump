@@ -104,13 +104,13 @@ where
                 parser.current().token.name(),
             );
 
-            return Err(parser.make_warn(warn_kind.unwrap_or(ParseErrorKind::RuleFailed)));
+            return Err(parser.make_err(warn_kind.unwrap_or(ParseErrorKind::RuleFailed)));
         }
 
         // See if we've hit the end
         if parser.current().token == Token::InputEnd {
             debug!("Found end of input, aborting");
-            return Err(parser.make_warn(ParseErrorKind::EndOfInput));
+            return Err(parser.make_err(ParseErrorKind::EndOfInput));
         }
 
         // Process token(s).
