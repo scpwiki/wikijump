@@ -222,7 +222,7 @@ string = @{ "\"" ~ char* ~ "\"" }
 
 line_break = @{ NEWLINE }
 paragraph_break = @{ NEWLINE{2,} }
-space = @{ (" " | "\t")+ }
+space = @{ (" " | "\t" | "\u{00a0}" | "\u{2007}" | "\u{202f}")+ }
 
 // To be consolidated in code
 //
