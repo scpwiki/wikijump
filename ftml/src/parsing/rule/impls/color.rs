@@ -19,6 +19,13 @@
  */
 
 use super::prelude::*;
+use regex::Regex;
+use std::borrow::Cow;
+
+lazy_static! {
+    static ref HEX_COLOR: Regex =
+        Regex::new(r"^([a-fA-F0-9]{3}|[a-fA-F0-9]{6})$").unwrap();
+}
 
 pub const RULE_COLOR: Rule = Rule {
     name: "color",
@@ -61,9 +68,22 @@ fn try_consume_fn<'p, 'r, 't>(
 
     // Return result
     let element = Element::Color {
-        color: cow!(color),
+        color: hexify_color(color),
         elements,
     };
 
     ok!(paragraph_safe; element, exceptions)
+}
+
+/// Prefix with `#`, if needed.
+///
+/// Normally we pass the color as-is, such as `blue` or `rgb(10, 12, 14)`,
+/// but if a hex specification is passed, and it doesn't already begin with
+/// `#`, then one should be prepended.
+fn hexify_color(color: &str) -> Cow<str> {
+    if HEX_COLOR.is_match(color) {
+        Cow::Owned(format!("#{color}"))
+    } else {
+        Cow::Borrowed(color)
+    }
 }
