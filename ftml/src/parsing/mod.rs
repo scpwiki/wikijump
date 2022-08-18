@@ -28,7 +28,7 @@ mod condition;
 mod consume;
 mod depth;
 mod element_condition;
-mod exception;
+mod error;
 mod outcome;
 mod paragraph;
 mod parser;
@@ -67,7 +67,7 @@ use crate::tree::{
 use std::borrow::Cow;
 
 pub use self::boolean::{parse_boolean, NonBooleanValue};
-pub use self::exception::{ParseError, ParseErrorKind};
+pub use self::error::{ParseError, ParseErrorKind};
 pub use self::outcome::ParseOutcome;
 pub use self::result::{ParseResult, ParseSuccess};
 pub use self::token::{ExtractedToken, Token};

@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::parsing::exception::ParseError;
+use crate::parsing::error::ParseError;
 use crate::parsing::Parser;
 use crate::tree::{Element, Elements};
 use std::marker::PhantomData;
