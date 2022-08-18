@@ -47,13 +47,6 @@ pub fn string_to_owned(string: &str) -> Cow<'static, str> {
     Cow::Owned(str!(string))
 }
 
-pub fn strings_to_owned(strings: &[Cow<'_, str>]) -> Vec<Cow<'static, str>> {
-    strings
-        .iter()
-        .map(|string| string_to_owned(string))
-        .collect()
-}
-
 pub fn elements_to_owned(elements: &[Element<'_>]) -> Vec<Element<'static>> {
     elements.iter().map(|element| element.to_owned()).collect()
 }
