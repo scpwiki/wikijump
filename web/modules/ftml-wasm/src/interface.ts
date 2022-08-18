@@ -19,7 +19,6 @@ export type RenderSettings = WikitextMode | WikitextSettings
 export interface RenderedHTML {
   html: string
   meta: HTMLMeta[]
-  styles: string[]
   backlinks: Backlinks
 }
 
@@ -176,12 +175,11 @@ export function renderHTML(
 
     const html = rendered.body()
     const meta = rendered.html_meta()
-    const styles = rendered.styles()
     const backlinks = rendered.backlinks()
 
     freeTracked()
 
-    return { html, meta, styles, backlinks }
+    return { html, meta, backlinks }
   } catch (err) {
     freeTracked()
     throw err
@@ -217,12 +215,11 @@ export function detailRenderHTML(
 
     const html = rendered.body()
     const meta = rendered.html_meta()
-    const styles = rendered.styles()
     const backlinks = rendered.backlinks()
 
     freeTracked()
 
-    return { tokens, ast, errors, html, meta, styles, backlinks }
+    return { tokens, ast, errors, html, meta, backlinks }
   } catch (err) {
     freeTracked()
     throw err

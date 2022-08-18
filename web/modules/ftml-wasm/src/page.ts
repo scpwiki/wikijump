@@ -81,10 +81,6 @@ export class Page {
     return this.ensureRendered(false).meta
   }
 
-  get styles() {
-    return this.ensureRendered(false).styles
-  }
-
   get backlinks() {
     return this.ensureRendered(false).backlinks
   }

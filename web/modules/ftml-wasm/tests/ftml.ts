@@ -76,7 +76,6 @@ describe("ftml-wasm", () => {
             }
           }
         ],
-        "styles": [],
         "table-of-contents": [],
         "footnotes": []
       },
@@ -93,9 +92,8 @@ describe("ftml-wasm", () => {
     const str = "//1//"
     // other returned values are not tested due to their dynamic nature
     // e.g. `meta` depends on version of FTML
-    const { html, styles } = lib.renderHTML(str)
+    const { html } = lib.renderHTML(str)
     assert.equal(html, '<wj-body class="wj-body"><p><em>1</em></p></wj-body>')
-    assert.equal(styles.join(""), "")
   })
 
   it.skip("detailRenderHTML", () => {
@@ -106,7 +104,6 @@ describe("ftml-wasm", () => {
     assert.isObject(render.ast)
     assert.isString(render.html)
     // assert.isObject(render.meta[0])
-    assert.isArray(render.styles)
     assert.isArray(render.tokens)
     assert.isArray(render.errors)
   })
