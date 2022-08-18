@@ -72,13 +72,13 @@ where
                     // There was a close condition, but it was not satisfied
                     // before the end of input.
                     //
-                    // Pass a warning up the chain
+                    // Pass an error up the chain
 
-                    warn!("Hit the end of input, producing warning");
-                    return Err(parser.make_err(ParseExceptionKind::EndOfInput));
+                    warn!("Hit the end of input, producing error");
+                    return Err(parser.make_exc(ParseExceptionKind::EndOfInput));
                 } else {
                     // Avoid an unnecessary Element::Null and just exit
-                    // If there's no close condition, then this is not a warning
+                    // If there's no close condition, then this is not an error
 
                     warn!("Hit the end of input, terminating token iteration");
                     break;

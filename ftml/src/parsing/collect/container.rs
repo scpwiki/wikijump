@@ -44,7 +44,7 @@ pub fn collect_container<'p, 'r, 't>(
     container_type: ContainerType,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
-    warn_kind: Option<ParseExceptionKind>,
+    exception_kind: Option<ParseExceptionKind>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     info!(
         "Trying to consume tokens to produce container {} for {}",
@@ -58,7 +58,7 @@ pub fn collect_container<'p, 'r, 't>(
         rule,
         close_conditions,
         invalid_conditions,
-        warn_kind,
+        exception_kind,
     )?
     .into();
 

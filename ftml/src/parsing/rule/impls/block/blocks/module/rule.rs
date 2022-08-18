@@ -49,7 +49,7 @@ fn parse_fn<'r, 't>(
     // Get the module rule for this name
     let module_rule = match get_module_rule_with_name(subname) {
         Some(rule) => rule,
-        None => return Err(parser.make_err(ParseExceptionKind::NoSuchModule)),
+        None => return Err(parser.make_exc(ParseExceptionKind::NoSuchModule)),
     };
 
     // Prepare to run the module's parsing function

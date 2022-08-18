@@ -165,7 +165,7 @@ fn parse_shortcut<'r, 't>(
 
     let (base_text, ruby_text) =
         parser.get_head_value(&BLOCK_RB, in_head, |parser, value| match value {
-            None => Err(parser.make_err(ParseExceptionKind::BlockMissingArguments)),
+            None => Err(parser.make_exc(ParseExceptionKind::BlockMissingArguments)),
             Some(value) => {
                 let parts = value.split('|').collect::<Vec<_>>();
                 match parts.as_slice() {
@@ -173,7 +173,9 @@ fn parse_shortcut<'r, 't>(
                     [base, ruby] => Ok((base.trim(), ruby.trim())),
 
                     // Too many or too few pipes, invalid
-                    _ => Err(parser.make_err(ParseExceptionKind::BlockMalformedArguments)),
+                    _ => {
+                        Err(parser.make_exc(ParseExceptionKind::BlockMalformedArguments))
+                    }
                 }
             }
         })?;

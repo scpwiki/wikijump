@@ -121,7 +121,7 @@ where
 
             // Check if it's an end block
             //
-            // This will ignore any warnings produced,
+            // This will ignore any exceptions produced,
             // since it's just more text
             let name = parser.get_end_block()?;
 
@@ -314,8 +314,9 @@ where
 
                             // Invalid token
                             _ => {
-                                return Err(self
-                                    .make_err(ParseExceptionKind::BlockMalformedArguments))
+                                return Err(self.make_exc(
+                                    ParseExceptionKind::BlockMalformedArguments,
+                                ))
                             }
                         }
                     }
@@ -332,12 +333,17 @@ where
 
                 // Equal sign
                 self.get_optional_space()?;
-                self.get_token(Token::Equals, ParseExceptionKind::BlockMalformedArguments)?;
+                self.get_token(
+                    Token::Equals,
+                    ParseExceptionKind::BlockMalformedArguments,
+                )?;
 
                 // Get the argument value
                 self.get_optional_space()?;
-                let value_raw = self
-                    .get_token(Token::String, ParseExceptionKind::BlockMalformedArguments)?;
+                let value_raw = self.get_token(
+                    Token::String,
+                    ParseExceptionKind::BlockMalformedArguments,
+                )?;
 
                 // Parse the string
                 let value = parse_string(value_raw);
@@ -360,7 +366,7 @@ where
 
         if !in_head {
             warn!("Block is already over, there is no name or arguments");
-            return Err(self.make_err(ParseExceptionKind::BlockMissingName));
+            return Err(self.make_exc(ParseExceptionKind::BlockMissingName));
         }
 
         // Get module's name
@@ -431,7 +437,10 @@ where
 
         // If we're still in the head, finish
         if in_head {
-            self.get_token(Token::RightBlock, ParseExceptionKind::BlockMissingCloseBrackets)?;
+            self.get_token(
+                Token::RightBlock,
+                ParseExceptionKind::BlockMissingCloseBrackets,
+            )?;
         }
 
         // If the block wants a newline after, take it

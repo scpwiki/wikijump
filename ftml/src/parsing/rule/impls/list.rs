@@ -78,7 +78,7 @@ fn try_consume_fn<'p, 'r, 't>(
         // Check that the depth isn't obscenely deep, to avoid DOS attacks via stack overflow.
         if depth > MAX_LIST_DEPTH {
             warn!("List item has a depth {depth} greater than the maximum ({MAX_LIST_DEPTH})! Failing");
-            return Err(parser.make_err(ParseExceptionKind::ListDepthExceeded));
+            return Err(parser.make_exc(ParseExceptionKind::ListDepthExceeded));
         }
 
         // Check that we're processing a bullet, and get the type
@@ -122,7 +122,7 @@ fn try_consume_fn<'p, 'r, 't>(
 
     // This list has no rows, so the rule fails
     if depths.is_empty() {
-        return Err(parser.make_err(ParseExceptionKind::RuleFailed));
+        return Err(parser.make_exc(ParseExceptionKind::RuleFailed));
     }
 
     let depth_lists = process_depths(ListType::Generic, depths);

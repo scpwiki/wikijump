@@ -41,7 +41,8 @@ mod token;
 
 mod prelude {
     pub use crate::parsing::{
-        ExtractedToken, ParseException, ParseExceptionKind, ParseResult, ParseSuccess, Token,
+        ExtractedToken, ParseException, ParseExceptionKind, ParseResult, ParseSuccess,
+        Token,
     };
     pub use crate::settings::WikitextSettings;
     pub use crate::text::FullText;
@@ -139,7 +140,7 @@ where
             // This path is only reachable if a very bad error occurs.
             //
             // If this happens, then just return the input source as the output
-            // and the warning.
+            // and the exception.
 
             error!("Fatal error occurred at highest-level parsing: {error:#?}");
             let wikitext = tokenization.full_text().inner();

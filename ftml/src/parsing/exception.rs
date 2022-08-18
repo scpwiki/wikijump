@@ -231,7 +231,18 @@ impl ParseExceptionKind {
     }
 }
 
-#[derive(Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(
+    Serialize,
+    Deserialize,
+    IntoStaticStr,
+    Debug,
+    Copy,
+    Clone,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+)]
 #[serde(rename_all = "kebab-case")]
 pub enum ParseExceptionLevel {
     Notice,

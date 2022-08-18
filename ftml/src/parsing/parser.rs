@@ -160,7 +160,7 @@ impl<'r, 't> Parser<'r, 't> {
         debug!("Incrementing recursion depth to {}", self.depth);
 
         if self.depth > MAX_RECURSION_DEPTH {
-            return Err(self.make_err(ParseExceptionKind::RecursionDepthExceeded));
+            return Err(self.make_exc(ParseExceptionKind::RecursionDepthExceeded));
         }
 
         Ok(())
@@ -192,7 +192,7 @@ impl<'r, 't> Parser<'r, 't> {
         if self.settings.enable_page_syntax {
             Ok(())
         } else {
-            Err(self.make_err(ParseExceptionKind::NotSupportedMode))
+            Err(self.make_exc(ParseExceptionKind::NotSupportedMode))
         }
     }
 
@@ -370,8 +370,8 @@ impl<'r, 't> Parser<'r, 't> {
                 Ok(current)
             }
             None => {
-                warn!("Exhausted all tokens, yielding end of input warning");
-                Err(self.make_err(ParseExceptionKind::EndOfInput))
+                warn!("Exhausted all tokens, yielding end of input error");
+                Err(self.make_exc(ParseExceptionKind::EndOfInput))
             }
         }
     }
@@ -397,14 +397,14 @@ impl<'r, 't> Parser<'r, 't> {
         self.remaining.get(offset)
     }
 
-    /// Like `look_ahead`, except returns a warning if the token isn't found.
+    /// Like `look_ahead`, except returns a error if the token isn't found.
     #[inline]
-    pub fn look_ahead_warn(
+    pub fn look_ahead_err(
         &self,
         offset: usize,
     ) -> Result<&'r ExtractedToken<'t>, ParseException> {
         self.look_ahead(offset)
-            .ok_or_else(|| self.make_err(ParseExceptionKind::EndOfInput))
+            .ok_or_else(|| self.make_exc(ParseExceptionKind::EndOfInput))
     }
 
     /// Retrieves the current and next tokens.
@@ -431,7 +431,7 @@ impl<'r, 't> Parser<'r, 't> {
         kind: ParseExceptionKind,
     ) -> Result<&'t str, ParseException> {
         debug!(
-            "Looking for token {} (warning {})",
+            "Looking for token {} (exception {})",
             token.name(),
             kind.name(),
         );
@@ -442,7 +442,7 @@ impl<'r, 't> Parser<'r, 't> {
             self.step()?;
             Ok(text)
         } else {
-            Err(self.make_err(kind))
+            Err(self.make_exc(kind))
         }
     }
 
@@ -490,7 +490,7 @@ impl<'r, 't> Parser<'r, 't> {
     // Utilities
     #[cold]
     #[inline]
-    pub fn make_err(&self, kind: ParseExceptionKind) -> ParseException {
+    pub fn make_exc(&self, kind: ParseExceptionKind) -> ParseException {
         ParseException::new(kind, self.rule, self.current)
     }
 }

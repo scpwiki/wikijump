@@ -46,7 +46,7 @@ fn parse_fn<'r, 't>(
     // Parse out tag conditions
     let conditions =
         parser.get_head_value(&BLOCK_IFCATEGORY, in_head, |parser, spec| match spec {
-            None => Err(parser.make_err(ParseExceptionKind::BlockMissingArguments)),
+            None => Err(parser.make_exc(ParseExceptionKind::BlockMissingArguments)),
             Some(spec) => {
                 let mut conditions = ElementCondition::parse(spec);
 

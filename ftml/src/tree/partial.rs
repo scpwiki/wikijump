@@ -58,7 +58,7 @@ impl PartialElement<'_> {
     }
 
     #[inline]
-    pub fn parse_warning_kind(&self) -> ParseExceptionKind {
+    pub fn parse_exception_kind(&self) -> ParseExceptionKind {
         match self {
             PartialElement::ListItem(_) => ParseExceptionKind::ListItemOutsideList,
             PartialElement::TableRow(_) => ParseExceptionKind::TableRowOutsideTable,

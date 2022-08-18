@@ -36,7 +36,7 @@ fn try_consume_fn<'p, 'r, 't>(
         ($token:expr) => {{
             let current = parser.current();
             if current.token != $token {
-                return Err(parser.make_err(ParseExceptionKind::RuleFailed));
+                return Err(parser.make_exc(ParseExceptionKind::RuleFailed));
             }
 
             parser.step()?;
@@ -80,7 +80,7 @@ fn try_consume_fn<'p, 'r, 't>(
         parser.push_table_of_contents_entry(heading.level, elements);
     }
 
-    // Recursively collect headings until we hit a warning.
+    // Recursively collect headings until we hit an exception.
     //
     // We do this because the container consumes the newline,
     // which we need to trigger the next header when using regular rules.

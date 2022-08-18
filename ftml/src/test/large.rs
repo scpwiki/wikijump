@@ -48,14 +48,14 @@ fn recursion_depth() {
     // Run parser steps
     crate::preprocess(&mut input);
     let tokens = crate::tokenize(&input);
-    let (tree, warnings) = crate::parse(&tokens, &page_info, &settings).into();
+    let (tree, exceptions) = crate::parse(&tokens, &page_info, &settings).into();
 
-    // Check outputted warnings
-    let warning = warnings.get(0).expect("No warnings produced");
-    assert_eq!(warning.token(), Token::LeftBlock);
-    assert_eq!(warning.rule(), "block-div");
-    assert_eq!(warning.span(), 800..802);
-    assert_eq!(warning.kind(), ParseExceptionKind::RecursionDepthExceeded);
+    // Check outputted exceptions
+    let excpt = exceptions.get(0).expect("No exceptions produced");
+    assert_eq!(excpt.token(), Token::LeftBlock);
+    assert_eq!(excpt.rule(), "block-div");
+    assert_eq!(excpt.span(), 800..802);
+    assert_eq!(excpt.kind(), ParseExceptionKind::RecursionDepthExceeded);
 
     // Check syntax tree
     //
@@ -102,8 +102,8 @@ In hac habitasse platea dictumst. Vestibulum fermentum libero nec erat porttitor
     // Run parser steps
     crate::preprocess(&mut input);
     let tokens = crate::tokenize(&input);
-    let (_tree, warnings) = crate::parse(&tokens, &page_info, &settings).into();
+    let (_tree, exceptions) = crate::parse(&tokens, &page_info, &settings).into();
 
     // Check output
-    assert_eq!(warnings.len(), ITERATIONS * 3);
+    assert_eq!(exceptions.len(), ITERATIONS * 3);
 }

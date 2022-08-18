@@ -88,7 +88,7 @@ fn try_consume_link<'p, 'r, 't>(
 
     // If url is an empty string, parsing should fail, there's nothing here
     if url.is_empty() {
-        return Err(parser.make_err(ParseExceptionKind::RuleFailed));
+        return Err(parser.make_exc(ParseExceptionKind::RuleFailed));
     }
 
     // Determine what token we ended on, i.e. which [[[ variant it is.
@@ -120,7 +120,7 @@ fn build_same<'p, 'r, 't>(
     let (link, ltype) = match LinkLocation::parse_interwiki(cow!(url), parser.settings())
     {
         Some(result) => result,
-        None => return Err(parser.make_err(ParseExceptionKind::RuleFailed)),
+        None => return Err(parser.make_exc(ParseExceptionKind::RuleFailed)),
     };
 
     // Build and return element
@@ -173,7 +173,7 @@ fn build_separate<'p, 'r, 't>(
     let (link, ltype) = match LinkLocation::parse_interwiki(cow!(url), parser.settings())
     {
         Some(result) => result,
-        None => return Err(parser.make_err(ParseExceptionKind::RuleFailed)),
+        None => return Err(parser.make_exc(ParseExceptionKind::RuleFailed)),
     };
 
     // Build link element

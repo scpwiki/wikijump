@@ -75,12 +75,12 @@ fn isolate_user_ids() {
             crate::preprocess(&mut text);
             let tokens = crate::tokenize(&text);
             let result = crate::parse(&tokens, &page_info, &settings);
-            let (tree, warnings) = result.into();
+            let (tree, exceptions) = result.into();
 
             let actual = tree.elements;
             let expected = append_footnote_block($elements);
 
-            assert!(warnings.is_empty(), "Warnings produced during parsing!");
+            assert!(exceptions.is_empty(), "Exceptions produced during parsing!");
             assert_eq!(actual, expected, "Actual elements didn't match expected");
         }};
     }

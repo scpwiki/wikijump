@@ -88,7 +88,7 @@ pub struct SyntaxTree<'t> {
 impl<'t> SyntaxTree<'t> {
     pub(crate) fn from_element_result(
         elements: Vec<Element<'t>>,
-        warnings: Vec<ParseException>,
+        exceptions: Vec<ParseException>,
         table_of_contents: Vec<Element<'t>>,
         footnotes: Vec<Vec<Element<'t>>>,
     ) -> ParseOutcome<Self> {
@@ -97,7 +97,7 @@ impl<'t> SyntaxTree<'t> {
             table_of_contents,
             footnotes,
         };
-        ParseOutcome::new(tree, warnings)
+        ParseOutcome::new(tree, exceptions)
     }
 
     pub fn to_owned(&self) -> SyntaxTree<'static> {

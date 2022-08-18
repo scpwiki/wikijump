@@ -59,7 +59,7 @@ fn try_consume_fn<'p, 'r, 't>(
         // Check that the depth isn't obscenely deep, to avoid DOS attacks via stack overflow.
         if depth > MAX_BLOCKQUOTE_DEPTH {
             info!("Native blockquote has a depth ({depth}) greater than the maximum ({MAX_BLOCKQUOTE_DEPTH})! Failing");
-            return Err(parser.make_err(ParseExceptionKind::BlockquoteDepthExceeded));
+            return Err(parser.make_exc(ParseExceptionKind::BlockquoteDepthExceeded));
         }
 
         // Parse elements until we hit the end of the line
@@ -91,7 +91,7 @@ fn try_consume_fn<'p, 'r, 't>(
 
     // This blockquote has no rows, so the rule fails
     if depths.is_empty() {
-        return Err(parser.make_err(ParseExceptionKind::RuleFailed));
+        return Err(parser.make_exc(ParseExceptionKind::RuleFailed));
     }
 
     let depth_lists = process_depths((), depths);

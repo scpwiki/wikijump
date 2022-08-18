@@ -77,8 +77,11 @@ pub fn consume<'p, 'r, 't>(
 
                 return Ok(output);
             }
-            Err(error) => {
-                warn!("Rule failed, returning error: '{}'", error.kind().name());
+            Err(exception) => {
+                warn!(
+                    "Rule failed, returning exception: '{}'",
+                    error.kind().name()
+                );
                 all_exceptions.push(error);
             }
         }
@@ -96,7 +99,7 @@ pub fn consume<'p, 'r, 't>(
         }
     }
 
-    // Add fallback warning to exceptions list
+    // Add fallback exception to exceptions list
     all_exceptions.push(ParseException::new(
         ParseExceptionKind::NoRulesMatch,
         RULE_FALLBACK,

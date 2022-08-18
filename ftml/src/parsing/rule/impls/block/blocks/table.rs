@@ -109,7 +109,7 @@ where
 }
 
 macro_rules! extract_table_items {
-    ($parser:expr, $elements:expr; $table_item_type:ident, $warning_kind:ident $(,)?) => {{
+    ($parser:expr, $elements:expr; $table_item_type:ident, $exception_kind:ident $(,)?) => {{
         let mut items = Vec::new();
 
         for element in $elements {
@@ -122,8 +122,8 @@ macro_rules! extract_table_items {
                 // Ignore internal whitespace.
                 element if element.is_whitespace() => (),
 
-                // Return a warning for anything else.
-                _ => return Err($parser.make_err(ParseExceptionKind::$warning_kind)),
+                // Return an exception for anything else.
+                _ => return Err($parser.make_exc(ParseExceptionKind::$exception_kind)),
             }
         }
 

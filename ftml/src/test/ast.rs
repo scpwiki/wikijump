@@ -121,7 +121,7 @@ struct Test<'a> {
     name: String,
     input: String,
     tree: SyntaxTree<'a>,
-    warnings: Vec<ParseException>,
+    exceptions: Vec<ParseException>,
 
     #[serde(skip)]
     html: String,
@@ -225,7 +225,7 @@ impl Test<'_> {
         crate::preprocess(&mut text);
         let tokens = crate::tokenize(&text);
         let result = crate::parse(&tokens, &page_info, &settings);
-        let (tree, warnings) = result.into();
+        let (tree, exceptions) = result.into();
         let html_output = HtmlRender.render(&tree, &page_info, &settings);
         let text_output = TextRender.render(&tree, &page_info, &settings);
 
@@ -249,17 +249,17 @@ impl Test<'_> {
                 self.tree,
                 tree,
                 json(&tree),
-                &warnings,
+                &exceptions,
             );
         }
 
-        if warnings != self.warnings {
+        if exceptions != self.exceptions {
             result = TestResult::Fail;
             eprintln!(
                 "Warnings did not match:\nExpected: {:#?}\nActual:   {:#?}\n{}\nTree (correct): {:#?}",
-                self.warnings,
-                warnings,
-                json(&warnings),
+                self.exceptions,
+                exceptions,
+                json(&exceptions),
                 &tree,
             );
         }

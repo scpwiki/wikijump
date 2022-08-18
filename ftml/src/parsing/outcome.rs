@@ -24,18 +24,18 @@ use std::borrow::{Borrow, BorrowMut};
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct ParseOutcome<T> {
     value: T,
-    warnings: Vec<ParseException>,
+    exceptions: Vec<ParseException>,
 }
 
 impl<T> ParseOutcome<T> {
     #[inline]
-    pub fn new<I>(value: T, warnings: I) -> Self
+    pub fn new<I>(value: T, exceptions: I) -> Self
     where
         I: Into<Vec<ParseException>>,
     {
         ParseOutcome {
             value,
-            warnings: warnings.into(),
+            exceptions: exceptions.into(),
         }
     }
 
@@ -46,8 +46,8 @@ impl<T> ParseOutcome<T> {
     }
 
     #[inline]
-    pub fn warnings(&self) -> &[ParseException] {
-        &self.warnings
+    pub fn exceptions(&self) -> &[ParseException] {
+        &self.exceptions
     }
 }
 
@@ -66,7 +66,7 @@ where
     fn clone(&self) -> Self {
         ParseOutcome {
             value: self.value.clone(),
-            warnings: self.warnings.clone(),
+            exceptions: self.exceptions.clone(),
         }
     }
 }
@@ -79,7 +79,7 @@ where
     fn default() -> Self {
         ParseOutcome {
             value: T::default(),
-            warnings: Vec::new(),
+            exceptions: Vec::new(),
         }
     }
 }
@@ -101,9 +101,9 @@ impl<T> BorrowMut<T> for ParseOutcome<T> {
 impl<T> From<ParseOutcome<T>> for (T, Vec<ParseException>) {
     #[inline]
     fn from(outcome: ParseOutcome<T>) -> (T, Vec<ParseException>) {
-        let ParseOutcome { value, warnings } = outcome;
+        let ParseOutcome { value, exceptions } = outcome;
 
-        (value, warnings)
+        (value, exceptions)
     }
 }
 
@@ -112,12 +112,12 @@ fn outcome() {
     let mut outcome = ParseOutcome::new(vec!['a'], vec![]);
 
     assert_eq!(outcome.value(), &['a']);
-    assert_eq!(outcome.warnings(), &[]);
+    assert_eq!(outcome.exceptions(), &[]);
 
     outcome.push('b');
 
     assert_eq!(outcome.value(), &['a', 'b']);
-    assert_eq!(outcome.warnings(), &[]);
+    assert_eq!(outcome.exceptions(), &[]);
 
     let outcome_2 = outcome.clone();
     assert_eq!(outcome, outcome_2);

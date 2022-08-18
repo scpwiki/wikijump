@@ -118,8 +118,8 @@ impl<'r, 't> ParseSuccess<'r, 't, Elements<'t>> {
             if let Element::Partial(partial) = element {
                 // Check if the current rule is looking for a partial.
                 if !parser.accepts_partial().matches(partial) {
-                    // Found a partial when not looking for one. Raise the appropriate warning.
-                    return Err(parser.make_err(partial.parse_warning_kind()));
+                    // Found a partial when not looking for one. Raise the appropriate exception.
+                    return Err(parser.make_exc(partial.parse_exception_kind()));
                 }
             }
         }

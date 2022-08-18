@@ -44,11 +44,11 @@ use super::prelude::*;
 ///
 /// If one of the failures is activated, then this `ParseExceptionKind`
 /// will be returned. If `None` is provided, then `ParseExceptionKind::RuleFailed` is used.
-/// * `warn_kind`
+/// * `exception_kind`
 ///
 /// The closure we should execute each time a token extraction is reached:
-/// If the return value is `Err(_)` then collection is aborted and that warning
-/// is bubbled up.
+/// If the return value is `Err(_)` then collection is aborted and that
+/// exception is bubbled up.
 /// * `process`
 ///
 /// This will proceed until a closing condition is found, an abort is found,
@@ -64,7 +64,7 @@ pub fn collect<'p, 'r, 't, F>(
     rule: Rule,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
-    warn_kind: Option<ParseExceptionKind>,
+    exception_kind: Option<ParseExceptionKind>,
     mut process: F,
 ) -> ParseResult<'r, 't, &'r ExtractedToken<'t>>
 where
@@ -104,13 +104,15 @@ where
                 parser.current().token.name(),
             );
 
-            return Err(parser.make_err(warn_kind.unwrap_or(ParseExceptionKind::RuleFailed)));
+            return Err(
+                parser.make_exc(exception_kind.unwrap_or(ParseExceptionKind::RuleFailed))
+            );
         }
 
         // See if we've hit the end
         if parser.current().token == Token::InputEnd {
             debug!("Found end of input, aborting");
-            return Err(parser.make_err(ParseExceptionKind::EndOfInput));
+            return Err(parser.make_exc(ParseExceptionKind::EndOfInput));
         }
 
         // Process token(s).

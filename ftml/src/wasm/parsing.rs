@@ -22,7 +22,9 @@ use super::page_info::PageInfo;
 use super::prelude::*;
 use super::settings::WikitextSettings;
 use super::tokenizer::Tokenization;
-use crate::parsing::{ParseException as RustParseException, ParseOutcome as RustParseOutcome};
+use crate::parsing::{
+    ParseException as RustParseException, ParseOutcome as RustParseOutcome,
+};
 use crate::tree::SyntaxTree as RustSyntaxTree;
 use crate::utf16::Utf16IndexMap;
 use crate::Tokenization as RustTokenization;
@@ -91,8 +93,8 @@ impl ParseOutcome {
     }
 
     #[wasm_bindgen(typescript_type = "IParseException")]
-    pub fn warnings(&self) -> Result<IParseExceptionArray, JsValue> {
-        rust_to_js!(self.inner.warnings())
+    pub fn exceptions(&self) -> Result<IParseExceptionArray, JsValue> {
+        rust_to_js!(self.inner.exceptions())
     }
 }
 
@@ -134,38 +136,39 @@ pub fn parse(
     let tokenization = tokens.get();
     let page_info = page_info.get();
     let settings = settings.get();
-    let (syntax_tree, warnings) = crate::parse(tokenization, page_info, settings).into();
+    let (syntax_tree, exceptions) =
+        crate::parse(tokenization, page_info, settings).into();
 
     // Deep-clone AST to make it owned, so it can be
     // safely passed to JS, where it will live for an unknown time.
     let syntax_tree = syntax_tree.to_owned();
 
-    // Convert warnings to use UTF-16 indices
-    let warnings = convert_warnings_utf16(tokenization, warnings);
+    // Convert exceptions to use UTF-16 indices
+    let exceptions = convert_exceptions_utf16(tokenization, exceptions);
 
     // Create inner wrapper
-    let inner = Arc::new(RustParseOutcome::new(syntax_tree, warnings));
+    let inner = Arc::new(RustParseOutcome::new(syntax_tree, exceptions));
 
     Ok(ParseOutcome { inner })
 }
 
 // Utility functions
 
-fn convert_warnings_utf16(
+fn convert_exceptions_utf16(
     tokenization: &RustTokenization,
-    warnings: Vec<RustParseException>,
+    exceptions: Vec<RustParseException>,
 ) -> Vec<RustParseException> {
     // As an optimization, we can avoid the (relatively expensive) Utf16IndexMap creation
-    // if we know there are no warnings to map indices of.
-    if warnings.is_empty() {
-        return warnings;
+    // if we know there are no exceptions to map indices of.
+    if exceptions.is_empty() {
+        return exceptions;
     }
 
     let full_text = tokenization.full_text().inner();
     let utf16_map = Utf16IndexMap::new(full_text);
 
-    warnings
+    exceptions
         .into_iter()
-        .map(|warn| warn.to_utf16_indices(&utf16_map))
+        .map(|excpt| excpt.to_utf16_indices(&utf16_map))
         .collect()
 }

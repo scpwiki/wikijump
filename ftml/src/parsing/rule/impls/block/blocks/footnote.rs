@@ -53,7 +53,7 @@ fn parse_footnote_ref<'r, 't>(
     // This is true if we're a [[footnote]] inside a [[footnote]],
     // which is not allowed.
     if parser.in_footnote() {
-        return Err(parser.make_err(ParseExceptionKind::FootnotesNested));
+        return Err(parser.make_exc(ParseExceptionKind::FootnotesNested));
     }
 
     // Set footnote ref flag
@@ -114,7 +114,7 @@ fn parse_footnote_block<'r, 't>(
 
     if !arguments.is_empty() {
         warn!("Invalid argument keys found");
-        return Err(parser.make_err(ParseExceptionKind::BlockMalformedArguments));
+        return Err(parser.make_exc(ParseExceptionKind::BlockMalformedArguments));
     }
 
     // Tell parser that a footnote block was added

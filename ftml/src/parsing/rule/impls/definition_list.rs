@@ -46,7 +46,7 @@ fn skip_newline<'p, 'r, 't>(
         }
 
         // Anything else
-        _ => Err(parser.make_err(ParseExceptionKind::RuleFailed)),
+        _ => Err(parser.make_exc(ParseExceptionKind::RuleFailed)),
     }
 }
 
@@ -83,8 +83,8 @@ fn parse_definition_list<'p, 'r, 't>(
                         break;
                     }
                 }
-                Err(warn) => {
-                    warn!("Failed to get the next definition list item, ending iteration: {warn:?}");
+                Err(exception) => {
+                    warn!("Failed to get the next definition list item, ending iteration: {exception:?}");
                     break;
                 }
             }
@@ -108,7 +108,7 @@ fn parse_item<'p, 'r, 't>(
 
     // Ensure the start of the line
     if !parser.start_of_line() {
-        return Err(parser.make_err(ParseExceptionKind::RuleFailed));
+        return Err(parser.make_exc(ParseExceptionKind::RuleFailed));
     }
 
     // Ensure that it matches expected token state
@@ -116,7 +116,7 @@ fn parse_item<'p, 'r, 't>(
         parser.next_two_tokens(),
         (Token::Colon, Some(Token::Whitespace)),
     ) {
-        return Err(parser.make_err(ParseExceptionKind::RuleFailed));
+        return Err(parser.make_exc(ParseExceptionKind::RuleFailed));
     }
 
     parser.step_n(2)?;

@@ -70,14 +70,14 @@ fn parse_tabview<'r, 't>(
             // Ignore internal whitespace.
             element if element.is_whitespace() => (),
 
-            // Return a warning for anything else.
-            _ => return Err(parser.make_err(ParseExceptionKind::TabViewContainsNonTab)),
+            // Return an exception for anything else.
+            _ => return Err(parser.make_exc(ParseExceptionKind::TabViewContainsNonTab)),
         }
     }
 
     // Ensure it's not empty
     if tabs.is_empty() {
-        return Err(parser.make_err(ParseExceptionKind::TabViewEmpty));
+        return Err(parser.make_exc(ParseExceptionKind::TabViewEmpty));
     }
 
     ok!(false; Element::TabView(tabs), exceptions)
@@ -98,7 +98,7 @@ fn parse_tab<'r, 't>(
     let label =
         parser.get_head_value(&BLOCK_TAB, in_head, |parser, value| match value {
             Some(name) => Ok(name),
-            None => Err(parser.make_err(ParseExceptionKind::BlockMissingArguments)),
+            None => Err(parser.make_exc(ParseExceptionKind::BlockMissingArguments)),
         })?;
 
     let (elements, exceptions, _) = parser.get_body_elements(&BLOCK_TAB, true)?.into();
