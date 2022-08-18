@@ -22,9 +22,7 @@ use super::page_info::PageInfo;
 use super::prelude::*;
 use super::settings::WikitextSettings;
 use super::tokenizer::Tokenization;
-use crate::parsing::{
-    ParseOutcome as RustParseOutcome, ParseError as RustParseError,
-};
+use crate::parsing::{ParseError as RustParseError, ParseOutcome as RustParseOutcome};
 use crate::tree::SyntaxTree as RustSyntaxTree;
 use crate::utf16::Utf16IndexMap;
 use crate::Tokenization as RustTokenization;

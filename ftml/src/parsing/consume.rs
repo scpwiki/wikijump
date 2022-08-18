@@ -77,12 +77,9 @@ pub fn consume<'p, 'r, 't>(
 
                 return Ok(output);
             }
-            Err(warning) => {
-                warn!(
-                    "Rule failed, returning warning: '{}'",
-                    warning.kind().name(),
-                );
-                all_exceptions.push(ParseException::Warning(warning));
+            Err(error) => {
+                warn!("Rule failed, returning error: '{}'", error.kind().name());
+                all_exceptions.push(error);
             }
         }
     }
@@ -91,24 +88,20 @@ pub fn consume<'p, 'r, 't>(
     let element = text!(current.slice);
     parser.step()?;
 
-    // We should only carry styles over from *successful* consumptions
-    debug!("Removing non-warnings from exceptions list");
-    all_exceptions.retain(|exception| matches!(exception, ParseException::Warning(_)));
-
     // If we've hit the recursion limit, just bail
-    if let Some(ParseException::Warning(warning)) = all_exceptions.last() {
-        if warning.kind() == ParseErrorKind::RecursionDepthExceeded {
+    if let Some(error) = all_exceptions.last() {
+        if error.kind() == ParseErrorKind::RecursionDepthExceeded {
             error!("Found recursion depth error, failing");
-            return Err(warning.clone());
+            return Err(error.clone());
         }
     }
 
     // Add fallback warning to exceptions list
-    all_exceptions.push(ParseException::Warning(ParseError::new(
+    all_exceptions.push(ParseError::new(
         ParseErrorKind::NoRulesMatch,
         RULE_FALLBACK,
         current,
-    )));
+    ));
 
     // Decrement recursion depth
     parser.depth_decrement();

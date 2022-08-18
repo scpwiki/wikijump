@@ -67,7 +67,7 @@ pub const BLOCK_TABLE_CELL_HEADER: BlockRule = BlockRule {
 struct ParsedBlock<'t> {
     elements: Vec<Element<'t>>,
     attributes: AttributeMap<'t>,
-    exceptions: Vec<ParseException>,
+    exceptions: Vec<ParseError>,
 }
 
 fn parse_block<'r, 't>(
@@ -254,7 +254,7 @@ fn parse_cell_header<'r, 't>(
 fn parse_cell<'r, 't>(
     mut elements: Vec<Element<'t>>,
     mut attributes: AttributeMap<'t>,
-    exceptions: Vec<ParseException>,
+    exceptions: Vec<ParseError>,
     header: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     lazy_static! {

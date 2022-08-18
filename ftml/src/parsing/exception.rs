@@ -24,21 +24,6 @@ use std::borrow::Cow;
 use std::ops::Range;
 use strum_macros::IntoStaticStr;
 
-/// Exceptions that occurred during parsing
-///
-/// This is distinct from `ParseError` in that it is
-/// an internal structure meant to catch exceptional
-/// outputs.
-///
-/// These are primarily parser warnings, but are not necessarily such.
-/// For instance, CSS styles are not present in the syntax tree
-/// like regular elements, and instead must be bubbled up
-/// to the top level.
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
-pub enum ParseException {
-    Warning(ParseError),
-}
-
 /// An issue that occurred during parsing.
 ///
 /// These refer to circumstances where a rule was attempted, but did not

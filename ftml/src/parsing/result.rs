@@ -18,13 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::parsing::exception::{ParseException, ParseError};
+use crate::parsing::exception::ParseError;
 use crate::parsing::Parser;
 use crate::tree::{Element, Elements};
 use std::marker::PhantomData;
 
 pub type ParseResult<'r, 't, T> = Result<ParseSuccess<'r, 't, T>, ParseError>;
-pub type ParseSuccessTuple<T> = (T, Vec<ParseException>, bool);
+pub type ParseSuccessTuple<T> = (T, Vec<ParseError>, bool);
 
 #[must_use]
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -34,7 +34,7 @@ where
     'r: 't,
 {
     pub item: T,
-    pub exceptions: Vec<ParseException>,
+    pub exceptions: Vec<ParseError>,
     pub paragraph_safe: bool,
 
     // Marker fields to assert that the 'r lifetime is at least as long as 't.
@@ -46,7 +46,7 @@ where
 
 impl<'r, 't, T> ParseSuccess<'r, 't, T> {
     #[inline]
-    pub fn new(item: T, exceptions: Vec<ParseException>, paragraph_safe: bool) -> Self {
+    pub fn new(item: T, exceptions: Vec<ParseError>, paragraph_safe: bool) -> Self {
         ParseSuccess {
             item,
             exceptions,
@@ -58,7 +58,7 @@ impl<'r, 't, T> ParseSuccess<'r, 't, T> {
 
     pub fn chain(
         self,
-        all_exceptions: &mut Vec<ParseException>,
+        all_exceptions: &mut Vec<ParseError>,
         all_paragraph_safe: &mut bool,
     ) -> T {
         let ParseSuccess {
@@ -130,7 +130,7 @@ impl<'r, 't> ParseSuccess<'r, 't, Elements<'t>> {
 
 impl<'r, 't> ParseSuccess<'r, 't, ()> {
     #[inline]
-    pub fn into_exceptions(self) -> Vec<ParseException> {
+    pub fn into_exceptions(self) -> Vec<ParseError> {
         self.exceptions
     }
 }

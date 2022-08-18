@@ -104,9 +104,7 @@ where
                 parser.current().token.name(),
             );
 
-            return Err(
-                parser.make_warn(warn_kind.unwrap_or(ParseErrorKind::RuleFailed))
-            );
+            return Err(parser.make_warn(warn_kind.unwrap_or(ParseErrorKind::RuleFailed)));
         }
 
         // See if we've hit the end

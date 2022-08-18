@@ -63,7 +63,7 @@ pub use self::tag::*;
 pub use self::variables::*;
 
 use self::clone::{elements_lists_to_owned, elements_to_owned};
-use crate::parsing::{ParseOutcome, ParseError};
+use crate::parsing::{ParseError, ParseOutcome};
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]

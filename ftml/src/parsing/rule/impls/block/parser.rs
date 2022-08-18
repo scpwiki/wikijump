@@ -24,8 +24,8 @@ use crate::parsing::collect::{collect_text, collect_text_keep};
 use crate::parsing::condition::ParseCondition;
 use crate::parsing::consume::consume;
 use crate::parsing::{
-    gather_paragraphs, parse_string, ExtractedToken, ParseResult, ParseError,
-    ParseErrorKind, Parser, Token,
+    gather_paragraphs, parse_string, ExtractedToken, ParseError, ParseErrorKind,
+    ParseResult, Parser, Token,
 };
 use crate::tree::Element;
 use regex::Regex;
@@ -314,9 +314,8 @@ where
 
                             // Invalid token
                             _ => {
-                                return Err(self.make_warn(
-                                    ParseErrorKind::BlockMalformedArguments,
-                                ))
+                                return Err(self
+                                    .make_warn(ParseErrorKind::BlockMalformedArguments))
                             }
                         }
                     }
@@ -337,10 +336,8 @@ where
 
                 // Get the argument value
                 self.get_optional_space()?;
-                let value_raw = self.get_token(
-                    Token::String,
-                    ParseErrorKind::BlockMalformedArguments,
-                )?;
+                let value_raw = self
+                    .get_token(Token::String, ParseErrorKind::BlockMalformedArguments)?;
 
                 // Parse the string
                 let value = parse_string(value_raw);
@@ -434,10 +431,7 @@ where
 
         // If we're still in the head, finish
         if in_head {
-            self.get_token(
-                Token::RightBlock,
-                ParseErrorKind::BlockMissingCloseBrackets,
-            )?;
+            self.get_token(Token::RightBlock, ParseErrorKind::BlockMissingCloseBrackets)?;
         }
 
         // If the block wants a newline after, take it

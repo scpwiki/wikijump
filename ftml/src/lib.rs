@@ -142,7 +142,7 @@ pub use self::utf16::Utf16IndexMap;
 pub mod prelude {
     pub use super::data::PageInfo;
     pub use super::includes::{include, Includer};
-    pub use super::parsing::{parse, ParseResult, ParseError};
+    pub use super::parsing::{parse, ParseError, ParseResult};
     pub use super::preprocess;
     pub use super::render::Render;
     pub use super::settings::{
