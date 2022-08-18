@@ -400,13 +400,11 @@ fn arb_tree() -> impl Strategy<Value = SyntaxTree<'static>> {
         proptest::collection::vec(toc_heading, 0..2),
         proptest::collection::vec(footnote, 0..2),
     )
-        .prop_map(
-            |(elements, table_of_contents, footnotes)| SyntaxTree {
-                elements,
-                table_of_contents,
-                footnotes,
-            },
-        )
+        .prop_map(|(elements, table_of_contents, footnotes)| SyntaxTree {
+            elements,
+            table_of_contents,
+            footnotes,
+        })
 }
 
 // Page Info
