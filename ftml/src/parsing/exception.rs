@@ -75,6 +75,11 @@ impl ParseException {
         self.kind
     }
 
+    #[inline]
+    pub fn level(&self) -> ParseExceptionLevel {
+        self.kind.level()
+    }
+
     #[must_use]
     pub fn to_utf16_indices(&self, map: &Utf16IndexMap) -> Self {
         // Copy fields
@@ -216,5 +221,30 @@ impl ParseExceptionKind {
     #[inline]
     pub fn name(self) -> &'static str {
         self.into()
+    }
+
+    pub fn level(self) -> ParseExceptionLevel {
+        // Right now, all are errors
+        match self {
+            _ => ParseExceptionLevel::Error,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[serde(rename_all = "kebab-case")]
+pub enum ParseExceptionLevel {
+    Notice,
+    Warning,
+    Error,
+}
+
+impl ParseExceptionLevel {
+    pub fn name(self) -> &'static str {
+        match self {
+            ParseExceptionLevel::Notice => "notice",
+            ParseExceptionLevel::Warning => "warning",
+            ParseExceptionLevel::Error => "error",
+        }
     }
 }
