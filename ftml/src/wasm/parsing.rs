@@ -40,7 +40,8 @@ export interface IElement {
 
 export interface ISyntaxTree {
     elements: IElement[];
-    styles: string[];
+    table_of_contents: IElement[];
+    footnotes: IElement[][];
 }
 
 export interface IParseError {
