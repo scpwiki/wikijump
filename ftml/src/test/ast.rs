@@ -245,7 +245,7 @@ impl Test<'_> {
         if tree != self.tree {
             result = TestResult::Fail;
             eprintln!(
-                "AST did not match:\nExpected: {:#?}\nActual: {:#?}\n{}\nWarnings: {:#?}",
+                "AST did not match:\nExpected: {:#?}\nActual: {:#?}\n{}\nErrors: {:#?}",
                 self.tree,
                 tree,
                 json(&tree),
