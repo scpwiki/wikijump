@@ -425,6 +425,9 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
             render_elements(ctx, elements);
             ctx.variables_mut().pop_scope();
         }
+        Element::Style(_) => {
+            debug!("Skipping CSS block from text output");
+        }
         Element::LineBreak => ctx.add_newline(),
         Element::LineBreaks(amount) => {
             for _ in 0..amount.get() {

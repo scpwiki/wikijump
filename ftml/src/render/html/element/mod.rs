@@ -188,6 +188,11 @@ pub fn render_element(ctx: &mut HtmlContext, element: &Element) {
             elements,
             ..
         } => render_include(ctx, location, variables, elements),
+        Element::Style(css) => {
+            info!("Inserting <style> block in body ({} bytes)", css.len());
+
+            ctx.html().style().inner(css);
+        }
         Element::LineBreak => {
             ctx.html().br();
         }

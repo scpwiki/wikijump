@@ -254,6 +254,11 @@ pub enum Element<'t> {
         elements: Vec<Element<'t>>,
     },
 
+    /// A CSS stylesheet.
+    ///
+    /// Corresponds with a `<style>` entity in the body of the HTML.
+    Style(Cow<'t, str>),
+
     /// A newline or line break.
     ///
     /// This calls for a newline in the final output, such as `<br>` in HTML.
@@ -328,6 +333,7 @@ impl Element<'_> {
             Element::Html { .. } => "HTML",
             Element::Iframe { .. } => "Iframe",
             Element::Include { .. } => "Include",
+            Element::Style(_) => "Style",
             Element::LineBreak => "LineBreak",
             Element::LineBreaks { .. } => "LineBreaks",
             Element::ClearFloat(_) => "ClearFloat",
@@ -376,6 +382,7 @@ impl Element<'_> {
             Element::Embed(_) => false,
             Element::Html { .. } | Element::Iframe { .. } => false,
             Element::Include { paragraph_safe, .. } => *paragraph_safe,
+            Element::Style(_) => false,
             Element::LineBreak | Element::LineBreaks { .. } => true,
             Element::ClearFloat(_) => false,
             Element::HorizontalRule => false,
@@ -538,6 +545,7 @@ impl Element<'_> {
                 location: location.to_owned(),
                 elements: elements_to_owned(elements),
             },
+            Element::Style(css) => Element::Style(string_to_owned(css)),
             Element::LineBreak => Element::LineBreak,
             Element::LineBreaks(amount) => Element::LineBreaks(*amount),
             Element::ClearFloat(clear_float) => Element::ClearFloat(*clear_float),
