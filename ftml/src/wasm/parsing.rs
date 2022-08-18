@@ -22,9 +22,7 @@ use super::page_info::PageInfo;
 use super::prelude::*;
 use super::settings::WikitextSettings;
 use super::tokenizer::Tokenization;
-use crate::parsing::{
-    ParseException as RustParseException, ParseOutcome as RustParseOutcome,
-};
+use crate::parsing::{ParseError as RustParseError, ParseOutcome as RustParseOutcome};
 use crate::tree::SyntaxTree as RustSyntaxTree;
 use crate::utf16::Utf16IndexMap;
 use crate::Tokenization as RustTokenization;
@@ -45,7 +43,7 @@ export interface ISyntaxTree {
     styles: string[];
 }
 
-export interface IParseException {
+export interface IParseError {
     token: string;
     rule: string;
     span: {
@@ -62,8 +60,8 @@ extern "C" {
     #[wasm_bindgen(typescript_type = "ISyntaxTree")]
     pub type ISyntaxTree;
 
-    #[wasm_bindgen(typescript_type = "IParseException[]")]
-    pub type IParseExceptionArray;
+    #[wasm_bindgen(typescript_type = "IParseError[]")]
+    pub type IParseErrorArray;
 }
 
 // Wrapper structures
@@ -92,9 +90,9 @@ impl ParseOutcome {
         }
     }
 
-    #[wasm_bindgen(typescript_type = "IParseException")]
-    pub fn exceptions(&self) -> Result<IParseExceptionArray, JsValue> {
-        rust_to_js!(self.inner.exceptions())
+    #[wasm_bindgen(typescript_type = "IParseError")]
+    pub fn errors(&self) -> Result<IParseErrorArray, JsValue> {
+        rust_to_js!(self.inner.errors())
     }
 }
 
@@ -136,39 +134,38 @@ pub fn parse(
     let tokenization = tokens.get();
     let page_info = page_info.get();
     let settings = settings.get();
-    let (syntax_tree, exceptions) =
-        crate::parse(tokenization, page_info, settings).into();
+    let (syntax_tree, errors) = crate::parse(tokenization, page_info, settings).into();
 
     // Deep-clone AST to make it owned, so it can be
     // safely passed to JS, where it will live for an unknown time.
     let syntax_tree = syntax_tree.to_owned();
 
-    // Convert exceptions to use UTF-16 indices
-    let exceptions = convert_exceptions_utf16(tokenization, exceptions);
+    // Convert errors to use UTF-16 indices
+    let errors = convert_errors_utf16(tokenization, errors);
 
     // Create inner wrapper
-    let inner = Arc::new(RustParseOutcome::new(syntax_tree, exceptions));
+    let inner = Arc::new(RustParseOutcome::new(syntax_tree, errors));
 
     Ok(ParseOutcome { inner })
 }
 
 // Utility functions
 
-fn convert_exceptions_utf16(
+fn convert_errors_utf16(
     tokenization: &RustTokenization,
-    exceptions: Vec<RustParseException>,
-) -> Vec<RustParseException> {
+    errors: Vec<RustParseError>,
+) -> Vec<RustParseError> {
     // As an optimization, we can avoid the (relatively expensive) Utf16IndexMap creation
-    // if we know there are no exceptions to map indices of.
-    if exceptions.is_empty() {
-        return exceptions;
+    // if we know there are no errors to map indices of.
+    if errors.is_empty() {
+        return errors;
     }
 
     let full_text = tokenization.full_text().inner();
     let utf16_map = Utf16IndexMap::new(full_text);
 
-    exceptions
+    errors
         .into_iter()
-        .map(|excpt| excpt.to_utf16_indices(&utf16_map))
+        .map(|err| err.to_utf16_indices(&utf16_map))
         .collect()
 }

@@ -27,7 +27,7 @@ use super::prelude::*;
 /// should actually be present in the wikitext.
 ///
 /// If they are, this indicates that an error occurred parsing
-/// them. As such, we return a particular exception instead of
+/// them. As such, we return a particular error instead of
 /// interpreting the block.
 pub const BLOCK_INCLUDE_MESSY: BlockRule = BlockRule {
     name: "block-include-messy",
@@ -52,6 +52,6 @@ fn parse_fn<'r, 't>(
     assert_block_name(&BLOCK_INCLUDE_MESSY, name);
 
     // Includes are handled specially, so we should never actually be
-    // parsing a block here. So, we return a exception.
-    Err(parser.make_exc(ParseExceptionKind::InvalidInclude))
+    // parsing a block here. So, we return an error.
+    Err(parser.make_err(ParseErrorKind::InvalidInclude))
 }

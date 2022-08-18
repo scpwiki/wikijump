@@ -41,7 +41,7 @@ fn try_consume_fn<'p, 'r, 't>(
     check_step(parser, Token::LeftBlockAnchor)?;
 
     // Requires a space before the name
-    parser.get_token(Token::Whitespace, ParseExceptionKind::RuleFailed)?;
+    parser.get_token(Token::Whitespace, ParseErrorKind::RuleFailed)?;
 
     // Gather name for anchor
     let name = collect_text(

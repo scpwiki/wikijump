@@ -50,7 +50,7 @@ fn try_consume_fn<'p, 'r, 't>(
     debug!("Retrieved color descriptor, now building container ('{color}')");
 
     // Build color container
-    let (elements, exceptions, paragraph_safe) = collect_consume(
+    let (elements, errors, paragraph_safe) = collect_consume(
         parser,
         RULE_COLOR,
         &[ParseCondition::current(Token::Color)],
@@ -65,5 +65,5 @@ fn try_consume_fn<'p, 'r, 't>(
         elements,
     };
 
-    ok!(paragraph_safe; element, exceptions)
+    ok!(paragraph_safe; element, errors)
 }

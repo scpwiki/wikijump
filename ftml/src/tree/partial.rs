@@ -19,7 +19,7 @@
  */
 
 use super::{ListItem, RubyText, Tab, TableCell, TableRow};
-use crate::parsing::ParseExceptionKind;
+use crate::parsing::ParseErrorKind;
 
 /// Part of an element, as returned by a rule.
 ///
@@ -58,13 +58,13 @@ impl PartialElement<'_> {
     }
 
     #[inline]
-    pub fn parse_exception_kind(&self) -> ParseExceptionKind {
+    pub fn parse_error_kind(&self) -> ParseErrorKind {
         match self {
-            PartialElement::ListItem(_) => ParseExceptionKind::ListItemOutsideList,
-            PartialElement::TableRow(_) => ParseExceptionKind::TableRowOutsideTable,
-            PartialElement::TableCell(_) => ParseExceptionKind::TableCellOutsideTable,
-            PartialElement::Tab(_) => ParseExceptionKind::TabOutsideTabView,
-            PartialElement::RubyText(_) => ParseExceptionKind::RubyTextOutsideRuby,
+            PartialElement::ListItem(_) => ParseErrorKind::ListItemOutsideList,
+            PartialElement::TableRow(_) => ParseErrorKind::TableRowOutsideTable,
+            PartialElement::TableCell(_) => ParseErrorKind::TableCellOutsideTable,
+            PartialElement::Tab(_) => ParseErrorKind::TabOutsideTabView,
+            PartialElement::RubyText(_) => ParseErrorKind::RubyTextOutsideRuby,
         }
     }
 

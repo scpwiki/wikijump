@@ -83,10 +83,10 @@ impl<'t> PageRef<'t> {
         (self.site().unwrap_or(current_site), self.page())
     }
 
-    pub fn parse(s: &'t str) -> Result<PageRef<'t>, PageRefParseException> {
+    pub fn parse(s: &'t str) -> Result<PageRef<'t>, PageRefParseError> {
         let s = s.trim();
         if s.is_empty() {
-            return Err(PageRefParseException);
+            return Err(PageRefParseError);
         }
 
         let result = match s.find(':') {
@@ -96,7 +96,7 @@ impl<'t> PageRef<'t> {
                 let idx = match s[1..].find(':') {
                     // Empty site name, e.g. "::something"
                     // or no second colon, e.g. ":something"
-                    Some(0) | None => return Err(PageRefParseException),
+                    Some(0) | None => return Err(PageRefParseError),
 
                     // Slice off the rest
                     Some(idx) => idx + 1,
@@ -144,7 +144,7 @@ impl Display for PageRef<'_> {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub struct PageRefParseException;
+pub struct PageRefParseError;
 
 #[test]
 fn page_ref() {
@@ -159,7 +159,7 @@ fn page_ref() {
 
         ($input:expr => $expected:expr) => {{
             let actual = PageRef::parse($input);
-            let expected = $expected.ok_or(PageRefParseException);
+            let expected = $expected.ok_or(PageRefParseError);
 
             println!("Input: {:?}", $input);
             println!("Output: {:?}", actual);

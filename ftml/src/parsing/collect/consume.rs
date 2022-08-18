@@ -31,14 +31,14 @@ pub fn collect_consume<'p, 'r, 't>(
     rule: Rule,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
-    exception_kind: Option<ParseExceptionKind>,
+    error_kind: Option<ParseErrorKind>,
 ) -> ParseResult<'r, 't, Vec<Element<'t>>> {
     collect_consume_keep(
         parser,
         rule,
         close_conditions,
         invalid_conditions,
-        exception_kind,
+        error_kind,
     )
     .map(|success| success.map(|(elements, _)| elements))
 }
@@ -54,19 +54,19 @@ pub fn collect_consume_keep<'p, 'r, 't>(
     rule: Rule,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
-    exception_kind: Option<ParseExceptionKind>,
+    error_kind: Option<ParseErrorKind>,
 ) -> ParseResult<'r, 't, (Vec<Element<'t>>, &'r ExtractedToken<'t>)> {
     let mut all_elements = Vec::new();
 
-    let (last, exceptions, paragraph_safe) = collect(
+    let (last, errors, paragraph_safe) = collect(
         parser,
         rule,
         close_conditions,
         invalid_conditions,
-        exception_kind,
+        error_kind,
         |parser| consume(parser)?.map_ok(|elements| all_elements.extend(elements)),
     )?
     .into();
 
-    ok!(paragraph_safe; (all_elements, last), exceptions)
+    ok!(paragraph_safe; (all_elements, last), errors)
 }

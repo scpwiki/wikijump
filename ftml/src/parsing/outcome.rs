@@ -18,24 +18,24 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::ParseException;
+use super::ParseError;
 use std::borrow::{Borrow, BorrowMut};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct ParseOutcome<T> {
     value: T,
-    exceptions: Vec<ParseException>,
+    errors: Vec<ParseError>,
 }
 
 impl<T> ParseOutcome<T> {
     #[inline]
-    pub fn new<I>(value: T, exceptions: I) -> Self
+    pub fn new<I>(value: T, errors: I) -> Self
     where
-        I: Into<Vec<ParseException>>,
+        I: Into<Vec<ParseError>>,
     {
         ParseOutcome {
             value,
-            exceptions: exceptions.into(),
+            errors: errors.into(),
         }
     }
 
@@ -46,8 +46,8 @@ impl<T> ParseOutcome<T> {
     }
 
     #[inline]
-    pub fn exceptions(&self) -> &[ParseException] {
-        &self.exceptions
+    pub fn errors(&self) -> &[ParseError] {
+        &self.errors
     }
 }
 
@@ -66,7 +66,7 @@ where
     fn clone(&self) -> Self {
         ParseOutcome {
             value: self.value.clone(),
-            exceptions: self.exceptions.clone(),
+            errors: self.errors.clone(),
         }
     }
 }
@@ -79,7 +79,7 @@ where
     fn default() -> Self {
         ParseOutcome {
             value: T::default(),
-            exceptions: Vec::new(),
+            errors: Vec::new(),
         }
     }
 }
@@ -98,12 +98,12 @@ impl<T> BorrowMut<T> for ParseOutcome<T> {
     }
 }
 
-impl<T> From<ParseOutcome<T>> for (T, Vec<ParseException>) {
+impl<T> From<ParseOutcome<T>> for (T, Vec<ParseError>) {
     #[inline]
-    fn from(outcome: ParseOutcome<T>) -> (T, Vec<ParseException>) {
-        let ParseOutcome { value, exceptions } = outcome;
+    fn from(outcome: ParseOutcome<T>) -> (T, Vec<ParseError>) {
+        let ParseOutcome { value, errors } = outcome;
 
-        (value, exceptions)
+        (value, errors)
     }
 }
 
@@ -112,12 +112,12 @@ fn outcome() {
     let mut outcome = ParseOutcome::new(vec!['a'], vec![]);
 
     assert_eq!(outcome.value(), &['a']);
-    assert_eq!(outcome.exceptions(), &[]);
+    assert_eq!(outcome.errors(), &[]);
 
     outcome.push('b');
 
     assert_eq!(outcome.value(), &['a', 'b']);
-    assert_eq!(outcome.exceptions(), &[]);
+    assert_eq!(outcome.errors(), &[]);
 
     let outcome_2 = outcome.clone();
     assert_eq!(outcome, outcome_2);

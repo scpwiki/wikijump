@@ -23,7 +23,7 @@ mod prelude {
     pub use crate::parsing::collect::*;
     pub use crate::parsing::condition::ParseCondition;
     pub use crate::parsing::consume::consume;
-    pub use crate::parsing::exception::{ParseException, ParseExceptionKind};
+    pub use crate::parsing::exception::{ParseError, ParseErrorKind};
     pub use crate::parsing::parser::Parser;
     pub use crate::parsing::result::{ParseResult, ParseSuccess};
     pub use crate::parsing::rule::{LineRequirement, Rule};

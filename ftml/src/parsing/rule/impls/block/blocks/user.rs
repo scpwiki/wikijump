@@ -43,7 +43,7 @@ fn parse_fn<'r, 't>(
     let name =
         parser.get_head_value(&BLOCK_USER, in_head, |parser, value| match value {
             Some(name) => Ok(name.trim()),
-            None => Err(parser.make_exc(ParseExceptionKind::BlockMissingArguments)),
+            None => Err(parser.make_err(ParseErrorKind::BlockMissingArguments)),
         })?;
 
     let element = Element::User {

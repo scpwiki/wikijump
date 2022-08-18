@@ -49,7 +49,7 @@ pub fn consume<'p, 'r, 't>(
     parser.depth_increment()?;
 
     debug!("Looking for valid rules");
-    let mut all_exceptions = Vec::new();
+    let mut all_errors = Vec::new();
     let current = parser.current();
 
     for &rule in get_rules_for_token(current) {
@@ -65,24 +65,21 @@ pub fn consume<'p, 'r, 't>(
                     parser.step()?;
                 }
 
-                // Explicitly drop exceptions
+                // Explicitly drop errors
                 //
                 // We're returning the successful consumption
                 // so these are going to be dropped as a previously
                 // unsuccessful attempts.
-                mem::drop(all_exceptions);
+                mem::drop(all_errors);
 
                 // Decrement recursion depth
                 parser.depth_decrement();
 
                 return Ok(output);
             }
-            Err(exception) => {
-                warn!(
-                    "Rule failed, returning exception: '{}'",
-                    error.kind().name()
-                );
-                all_exceptions.push(error);
+            Err(error) => {
+                warn!("Rule failed, returning error: '{}'", error.kind().name());
+                all_errors.push(error);
             }
         }
     }
@@ -92,16 +89,16 @@ pub fn consume<'p, 'r, 't>(
     parser.step()?;
 
     // If we've hit the recursion limit, just bail
-    if let Some(error) = all_exceptions.last() {
-        if error.kind() == ParseExceptionKind::RecursionDepthExceeded {
+    if let Some(error) = all_errors.last() {
+        if error.kind() == ParseErrorKind::RecursionDepthExceeded {
             error!("Found recursion depth error, failing");
             return Err(error.clone());
         }
     }
 
-    // Add fallback exception to exceptions list
-    all_exceptions.push(ParseException::new(
-        ParseExceptionKind::NoRulesMatch,
+    // Add fallback error to errors list
+    all_errors.push(ParseError::new(
+        ParseErrorKind::NoRulesMatch,
         RULE_FALLBACK,
         current,
     ));
@@ -109,5 +106,5 @@ pub fn consume<'p, 'r, 't>(
     // Decrement recursion depth
     parser.depth_decrement();
 
-    ok!(element, all_exceptions)
+    ok!(element, all_errors)
 }

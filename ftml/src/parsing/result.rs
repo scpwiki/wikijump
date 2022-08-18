@@ -18,13 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::parsing::exception::ParseException;
+use crate::parsing::exception::ParseError;
 use crate::parsing::Parser;
 use crate::tree::{Element, Elements};
 use std::marker::PhantomData;
 
-pub type ParseResult<'r, 't, T> = Result<ParseSuccess<'r, 't, T>, ParseException>;
-pub type ParseSuccessTuple<T> = (T, Vec<ParseException>, bool);
+pub type ParseResult<'r, 't, T> = Result<ParseSuccess<'r, 't, T>, ParseError>;
+pub type ParseSuccessTuple<T> = (T, Vec<ParseError>, bool);
 
 #[must_use]
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -34,7 +34,7 @@ where
     'r: 't,
 {
     pub item: T,
-    pub exceptions: Vec<ParseException>,
+    pub errors: Vec<ParseError>,
     pub paragraph_safe: bool,
 
     // Marker fields to assert that the 'r lifetime is at least as long as 't.
@@ -46,10 +46,10 @@ where
 
 impl<'r, 't, T> ParseSuccess<'r, 't, T> {
     #[inline]
-    pub fn new(item: T, exceptions: Vec<ParseException>, paragraph_safe: bool) -> Self {
+    pub fn new(item: T, errors: Vec<ParseError>, paragraph_safe: bool) -> Self {
         ParseSuccess {
             item,
-            exceptions,
+            errors,
             paragraph_safe,
             _ref_marker: PhantomData,
             _text_marker: PhantomData,
@@ -58,18 +58,18 @@ impl<'r, 't, T> ParseSuccess<'r, 't, T> {
 
     pub fn chain(
         self,
-        all_exceptions: &mut Vec<ParseException>,
+        all_errors: &mut Vec<ParseError>,
         all_paragraph_safe: &mut bool,
     ) -> T {
         let ParseSuccess {
             item,
-            mut exceptions,
+            mut errors,
             paragraph_safe,
             ..
         } = self;
 
-        // Append previous exceptions
-        all_exceptions.append(&mut exceptions);
+        // Append previous errors
+        all_errors.append(&mut errors);
 
         // Update paragraph safety
         *all_paragraph_safe &= paragraph_safe;
@@ -86,7 +86,7 @@ impl<'r, 't, T> ParseSuccess<'r, 't, T> {
     {
         let ParseSuccess {
             item,
-            exceptions,
+            errors,
             paragraph_safe,
             ..
         } = self;
@@ -95,7 +95,7 @@ impl<'r, 't, T> ParseSuccess<'r, 't, T> {
 
         ParseSuccess {
             item: new_item,
-            exceptions,
+            errors,
             paragraph_safe,
             _ref_marker: PhantomData,
             _text_marker: PhantomData,
@@ -112,14 +112,14 @@ impl<'r, 't, T> ParseSuccess<'r, 't, T> {
 }
 
 impl<'r, 't> ParseSuccess<'r, 't, Elements<'t>> {
-    pub fn check_partials(&self, parser: &Parser) -> Result<(), ParseException> {
+    pub fn check_partials(&self, parser: &Parser) -> Result<(), ParseError> {
         for element in &self.item {
             // This check only applies if the element is a partial.
             if let Element::Partial(partial) = element {
                 // Check if the current rule is looking for a partial.
                 if !parser.accepts_partial().matches(partial) {
-                    // Found a partial when not looking for one. Raise the appropriate exception.
-                    return Err(parser.make_exc(partial.parse_exception_kind()));
+                    // Found a partial when not looking for one. Raise the appropriate error.
+                    return Err(parser.make_err(partial.parse_error_kind()));
                 }
             }
         }
@@ -130,8 +130,8 @@ impl<'r, 't> ParseSuccess<'r, 't, Elements<'t>> {
 
 impl<'r, 't> ParseSuccess<'r, 't, ()> {
     #[inline]
-    pub fn into_exceptions(self) -> Vec<ParseException> {
-        self.exceptions
+    pub fn into_errors(self) -> Vec<ParseError> {
+        self.errors
     }
 }
 
@@ -140,11 +140,11 @@ impl<'r, 't, T> From<ParseSuccess<'r, 't, T>> for ParseSuccessTuple<T> {
     fn from(success: ParseSuccess<'r, 't, T>) -> ParseSuccessTuple<T> {
         let ParseSuccess {
             item,
-            exceptions,
+            errors,
             paragraph_safe,
             ..
         } = success;
 
-        (item, exceptions, paragraph_safe)
+        (item, errors, paragraph_safe)
     }
 }

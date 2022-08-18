@@ -45,7 +45,7 @@ fn parse_fn<'r, 't>(
     // Gather paragraphs
     let arguments = parser.get_head_map(&BLOCK_PARAGRAPH, in_head)?;
     let attributes = arguments.to_attribute_map(parser.settings());
-    let (mut elements, exceptions, _) =
+    let (mut elements, errors, _) =
         parser.get_body_elements(&BLOCK_PARAGRAPH, true)?.into();
 
     // Apply attributes to each paragraph
@@ -58,5 +58,5 @@ fn parse_fn<'r, 't>(
     }
 
     let element = Elements::Multiple(elements);
-    ok!(element, exceptions)
+    ok!(element, errors)
 }

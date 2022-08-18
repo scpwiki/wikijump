@@ -67,7 +67,7 @@ pub const BLOCK_TABLE_CELL_HEADER: BlockRule = BlockRule {
 struct ParsedBlock<'t> {
     elements: Vec<Element<'t>>,
     attributes: AttributeMap<'t>,
-    exceptions: Vec<ParseException>,
+    errors: Vec<ParseError>,
 }
 
 fn parse_block<'r, 't>(
@@ -77,7 +77,7 @@ fn parse_block<'r, 't>(
     flag_score: bool,
     in_head: bool,
     (block_rule, description): (&BlockRule, &str),
-) -> Result<ParsedBlock<'t>, ParseException>
+) -> Result<ParsedBlock<'t>, ParseError>
 where
     'r: 't,
     ParsedBlock<'t>: 't,
@@ -98,18 +98,18 @@ where
     let attributes = arguments.to_attribute_map(parser.settings());
 
     // Get body elements
-    let (elements, exceptions, _) = parser.get_body_elements(block_rule, false)?.into();
+    let (elements, errors, _) = parser.get_body_elements(block_rule, false)?.into();
 
     // Return result
     Ok(ParsedBlock {
         elements,
         attributes,
-        exceptions,
+        errors,
     })
 }
 
 macro_rules! extract_table_items {
-    ($parser:expr, $elements:expr; $table_item_type:ident, $exception_kind:ident $(,)?) => {{
+    ($parser:expr, $elements:expr; $table_item_type:ident, $error_kind:ident $(,)?) => {{
         let mut items = Vec::new();
 
         for element in $elements {
@@ -122,8 +122,8 @@ macro_rules! extract_table_items {
                 // Ignore internal whitespace.
                 element if element.is_whitespace() => (),
 
-                // Return an exception for anything else.
-                _ => return Err($parser.make_exc(ParseExceptionKind::$exception_kind)),
+                // Return an error for anything else.
+                _ => return Err($parser.make_err(ParseErrorKind::$error_kind)),
             }
         }
 
@@ -146,7 +146,7 @@ fn parse_table<'r, 't>(
     let ParsedBlock {
         elements,
         attributes,
-        exceptions,
+        errors,
     } = parse_block(
         parser,
         name,
@@ -161,7 +161,7 @@ fn parse_table<'r, 't>(
     // Build and return table element
     let element = Element::Table(Table { rows, attributes });
 
-    ok!(false; element, exceptions)
+    ok!(false; element, errors)
 }
 
 // Table row
@@ -179,7 +179,7 @@ fn parse_row<'r, 't>(
     let ParsedBlock {
         elements,
         attributes,
-        exceptions,
+        errors,
     } = parse_block(
         parser,
         name,
@@ -196,7 +196,7 @@ fn parse_row<'r, 't>(
     let element =
         Element::Partial(PartialElement::TableRow(TableRow { cells, attributes }));
 
-    ok!(false; element, exceptions)
+    ok!(false; element, errors)
 }
 
 // Table cell
@@ -212,7 +212,7 @@ fn parse_cell_regular<'r, 't>(
     let ParsedBlock {
         elements,
         attributes,
-        exceptions,
+        errors,
     } = parse_block(
         parser,
         name,
@@ -222,7 +222,7 @@ fn parse_cell_regular<'r, 't>(
         (&BLOCK_TABLE_CELL_REGULAR, "table cell (regular)"),
     )?;
 
-    parse_cell(elements, attributes, exceptions, false)
+    parse_cell(elements, attributes, errors, false)
 }
 
 fn parse_cell_header<'r, 't>(
@@ -238,7 +238,7 @@ fn parse_cell_header<'r, 't>(
     let ParsedBlock {
         elements,
         attributes,
-        exceptions,
+        errors,
     } = parse_block(
         parser,
         name,
@@ -248,13 +248,13 @@ fn parse_cell_header<'r, 't>(
         (&BLOCK_TABLE_CELL_HEADER, "table cell (header)"),
     )?;
 
-    parse_cell(elements, attributes, exceptions, true)
+    parse_cell(elements, attributes, errors, true)
 }
 
 fn parse_cell<'r, 't>(
     mut elements: Vec<Element<'t>>,
     mut attributes: AttributeMap<'t>,
-    exceptions: Vec<ParseException>,
+    errors: Vec<ParseError>,
     header: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     lazy_static! {
@@ -279,5 +279,5 @@ fn parse_cell<'r, 't>(
         attributes,
     }));
 
-    ok!(false; element, exceptions)
+    ok!(false; element, errors)
 }

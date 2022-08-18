@@ -44,7 +44,7 @@ pub fn collect_container<'p, 'r, 't>(
     container_type: ContainerType,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
-    exception_kind: Option<ParseExceptionKind>,
+    error_kind: Option<ParseErrorKind>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     info!(
         "Trying to consume tokens to produce container {} for {}",
@@ -53,12 +53,12 @@ pub fn collect_container<'p, 'r, 't>(
     );
 
     // Iterate and consume all the tokens
-    let (elements, exceptions, paragraph_safe) = collect_consume(
+    let (elements, errors, paragraph_safe) = collect_consume(
         parser,
         rule,
         close_conditions,
         invalid_conditions,
-        exception_kind,
+        error_kind,
     )?
     .into();
 
@@ -70,6 +70,6 @@ pub fn collect_container<'p, 'r, 't>(
             elements,
             AttributeMap::new(),
         )),
-        exceptions,
+        errors,
     )
 }

@@ -67,7 +67,7 @@ fn parse_block<'r, 't>(
     let parser = &mut ParserWrap::new(parser, AcceptsPartial::Ruby);
     let arguments = parser.get_head_map(&BLOCK_RUBY, in_head)?;
 
-    let (mut elements, exceptions, paragraph_safe) =
+    let (mut elements, errors, paragraph_safe) =
         parser.get_body_elements(&BLOCK_RUBY, false)?.into();
 
     // Convert ruby partials to elements
@@ -116,7 +116,7 @@ fn parse_block<'r, 't>(
         arguments.to_attribute_map(parser.settings()),
     ));
 
-    ok!(paragraph_safe; element, exceptions)
+    ok!(paragraph_safe; element, errors)
 }
 
 // Label block
@@ -135,7 +135,7 @@ fn parse_text<'r, 't>(
 
     let arguments = parser.get_head_map(&BLOCK_RT, in_head)?;
 
-    let (mut elements, exceptions, paragraph_safe) =
+    let (mut elements, errors, paragraph_safe) =
         parser.get_body_elements(&BLOCK_RT, false)?.into();
 
     // Remove leading and trailing whitespace
@@ -146,7 +146,7 @@ fn parse_text<'r, 't>(
         attributes: arguments.to_attribute_map(parser.settings()),
     }));
 
-    ok!(paragraph_safe; element, exceptions)
+    ok!(paragraph_safe; element, errors)
 }
 
 // Shortcut block
@@ -165,7 +165,7 @@ fn parse_shortcut<'r, 't>(
 
     let (base_text, ruby_text) =
         parser.get_head_value(&BLOCK_RB, in_head, |parser, value| match value {
-            None => Err(parser.make_exc(ParseExceptionKind::BlockMissingArguments)),
+            None => Err(parser.make_err(ParseErrorKind::BlockMissingArguments)),
             Some(value) => {
                 let parts = value.split('|').collect::<Vec<_>>();
                 match parts.as_slice() {
@@ -173,9 +173,7 @@ fn parse_shortcut<'r, 't>(
                     [base, ruby] => Ok((base.trim(), ruby.trim())),
 
                     // Too many or too few pipes, invalid
-                    _ => {
-                        Err(parser.make_exc(ParseExceptionKind::BlockMalformedArguments))
-                    }
+                    _ => Err(parser.make_err(ParseErrorKind::BlockMalformedArguments)),
                 }
             }
         })?;

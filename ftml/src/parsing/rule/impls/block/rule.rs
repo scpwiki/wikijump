@@ -78,7 +78,7 @@ fn block_skip<'r, 't>(parser: &mut Parser<'r, 't>) -> ParseResult<'r, 't, Elemen
         info!("Skipping newline due to upcoming line-terminated block");
         ok!(Elements::None)
     } else {
-        Err(parser.make_exc(ParseExceptionKind::RuleFailed))
+        Err(parser.make_err(ParseErrorKind::RuleFailed))
     }
 }
 
@@ -114,20 +114,20 @@ where
     // Get the block rule for this name
     let block = match get_block_rule_with_name(name) {
         Some(block) => block,
-        None => return Err(parser.make_exc(ParseExceptionKind::NoSuchBlock)),
+        None => return Err(parser.make_err(ParseErrorKind::NoSuchBlock)),
     };
 
-    // Set block rule for better exceptions
+    // Set block rule for better errors
     parser.set_block(block);
 
     // Check if this block allows star invocation (the '[[*' token)
     if !block.accepts_star && flag_star {
-        return Err(parser.make_exc(ParseExceptionKind::BlockDisallowsStar));
+        return Err(parser.make_err(ParseErrorKind::BlockDisallowsStar));
     }
 
     // Check if this block allows score invocation ('_' after name)
     if !block.accepts_score && flag_score {
-        return Err(parser.make_exc(ParseExceptionKind::BlockDisallowsScore));
+        return Err(parser.make_err(ParseErrorKind::BlockDisallowsScore));
     }
 
     parser.get_optional_space()?;

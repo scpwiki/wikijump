@@ -31,8 +31,8 @@ pub fn collect_text<'p, 'r, 't>(
     rule: Rule,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
-    exception_kind: Option<ParseExceptionKind>,
-) -> Result<&'t str, ParseException>
+    error_kind: Option<ParseErrorKind>,
+) -> Result<&'t str, ParseError>
 where
     'r: 't,
 {
@@ -41,7 +41,7 @@ where
         rule,
         close_conditions,
         invalid_conditions,
-        exception_kind,
+        error_kind,
     )
     .map(|(slice, _)| slice)
 }
@@ -57,8 +57,8 @@ pub fn collect_text_keep<'p, 'r, 't>(
     rule: Rule,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
-    exception_kind: Option<ParseExceptionKind>,
-) -> Result<(&'t str, &'r ExtractedToken<'t>), ParseException>
+    error_kind: Option<ParseErrorKind>,
+) -> Result<(&'t str, &'r ExtractedToken<'t>), ParseError>
 where
     'r: 't,
 {
@@ -70,12 +70,12 @@ where
     // Iterate and collect the tokens to merge.
     //
     // We know text is always paragraph safe, so we ignore that value.
-    let (last, exceptions, _) = collect(
+    let (last, errors, _) = collect(
         parser,
         rule,
         close_conditions,
         invalid_conditions,
-        exception_kind,
+        error_kind,
         |parser| {
             debug!("Ingesting token in string span");
 
@@ -86,7 +86,7 @@ where
     .into();
 
     assert!(
-        exceptions.is_empty(),
+        errors.is_empty(),
         "Exceptions were returned during text token collection",
     );
 

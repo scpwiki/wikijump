@@ -24,7 +24,7 @@ use crate::tree::Embed;
 type EmbedBuilderFn = for<'p, 't> fn(
     &'p Parser<'_, 't>,
     &'p mut Arguments<'t>,
-) -> Result<Embed<'t>, ParseException>;
+) -> Result<Embed<'t>, ParseError>;
 
 pub const BLOCK_EMBED: BlockRule = BlockRule {
     name: "block-embed",
@@ -57,7 +57,7 @@ fn build_embed<'r, 't>(
     parser: &Parser<'r, 't>,
     name: &str,
     arguments: &mut Arguments<'t>,
-) -> Result<Embed<'t>, ParseException>
+) -> Result<Embed<'t>, ParseError>
 where
     'r: 't,
 {
@@ -74,7 +74,7 @@ where
         }
     }
 
-    Err(parser.make_exc(ParseExceptionKind::NoSuchEmbed))
+    Err(parser.make_err(ParseErrorKind::NoSuchEmbed))
 }
 
 // Different embed builders
@@ -82,10 +82,10 @@ where
 fn build_youtube<'p, 't>(
     parser: &'p Parser<'_, 't>,
     arguments: &'p mut Arguments<'t>,
-) -> Result<Embed<'t>, ParseException> {
+) -> Result<Embed<'t>, ParseError> {
     let video_id = arguments
         .get("video")
-        .ok_or_else(|| parser.make_exc(ParseExceptionKind::BlockMissingArguments))?;
+        .ok_or_else(|| parser.make_err(ParseErrorKind::BlockMissingArguments))?;
 
     Ok(Embed::Youtube { video_id })
 }
@@ -93,10 +93,10 @@ fn build_youtube<'p, 't>(
 fn build_vimeo<'p, 't>(
     parser: &'p Parser<'_, 't>,
     arguments: &'p mut Arguments<'t>,
-) -> Result<Embed<'t>, ParseException> {
+) -> Result<Embed<'t>, ParseError> {
     let video_id = arguments
         .get("video")
-        .ok_or_else(|| parser.make_exc(ParseExceptionKind::BlockMissingArguments))?;
+        .ok_or_else(|| parser.make_err(ParseErrorKind::BlockMissingArguments))?;
 
     Ok(Embed::Vimeo { video_id })
 }
@@ -104,14 +104,14 @@ fn build_vimeo<'p, 't>(
 fn build_github_gist<'p, 't>(
     parser: &'p Parser<'_, 't>,
     arguments: &'p mut Arguments<'t>,
-) -> Result<Embed<'t>, ParseException> {
+) -> Result<Embed<'t>, ParseError> {
     let username = arguments
         .get("username")
-        .ok_or_else(|| parser.make_exc(ParseExceptionKind::BlockMissingArguments))?;
+        .ok_or_else(|| parser.make_err(ParseErrorKind::BlockMissingArguments))?;
 
     let hash = arguments
         .get("hash")
-        .ok_or_else(|| parser.make_exc(ParseExceptionKind::BlockMissingArguments))?;
+        .ok_or_else(|| parser.make_err(ParseErrorKind::BlockMissingArguments))?;
 
     Ok(Embed::GithubGist { username, hash })
 }
@@ -119,10 +119,10 @@ fn build_github_gist<'p, 't>(
 fn build_gitlab_snippet<'p, 't>(
     parser: &'p Parser<'_, 't>,
     arguments: &'p mut Arguments<'t>,
-) -> Result<Embed<'t>, ParseException> {
+) -> Result<Embed<'t>, ParseError> {
     let snippet_id = arguments
         .get("id")
-        .ok_or_else(|| parser.make_exc(ParseExceptionKind::BlockMissingArguments))?;
+        .ok_or_else(|| parser.make_err(ParseErrorKind::BlockMissingArguments))?;
 
     Ok(Embed::GitlabSnippet { snippet_id })
 }

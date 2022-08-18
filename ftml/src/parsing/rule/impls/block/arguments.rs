@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::parsing::{parse_boolean, ParseException, ParseExceptionKind, Parser};
+use crate::parsing::{parse_boolean, ParseError, ParseErrorKind, Parser};
 use crate::settings::WikitextSettings;
 use crate::tree::AttributeMap;
 use std::borrow::Cow;
@@ -26,9 +26,9 @@ use std::collections::HashMap;
 use std::str::FromStr;
 use unicase::UniCase;
 
-macro_rules! make_exc {
+macro_rules! make_err {
     ($parser:expr) => {
-        $parser.make_exc(ParseExceptionKind::BlockMalformedArguments)
+        $parser.make_err(ParseErrorKind::BlockMalformedArguments)
     };
 }
 
@@ -59,11 +59,11 @@ impl<'t> Arguments<'t> {
         &mut self,
         parser: &Parser<'_, 't>,
         key: &'t str,
-    ) -> Result<Option<bool>, ParseException> {
+    ) -> Result<Option<bool>, ParseError> {
         match self.get(key) {
             Some(argument) => match parse_boolean(argument) {
                 Ok(value) => Ok(Some(value)),
-                Err(_) => Err(make_exc!(parser)),
+                Err(_) => Err(make_err!(parser)),
             },
             None => Ok(None),
         }
@@ -73,11 +73,11 @@ impl<'t> Arguments<'t> {
         &mut self,
         parser: &Parser<'_, 't>,
         key: &'t str,
-    ) -> Result<Option<T>, ParseException> {
+    ) -> Result<Option<T>, ParseError> {
         match self.get(key) {
             Some(argument) => match argument.parse() {
                 Ok(value) => Ok(Some(value)),
-                Err(_) => Err(make_exc!(parser)),
+                Err(_) => Err(make_err!(parser)),
             },
             None => Ok(None),
         }

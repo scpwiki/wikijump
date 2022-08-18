@@ -91,7 +91,7 @@ fn try_consume_fn<'p, 'r, 't>(
             // "@@ \n @@" -> Abort
             (Token::LineBreak, Token::Raw) | (Token::ParagraphBreak, Token::Raw) => {
                 debug!("Found interrupted raw, aborting");
-                return Err(parser.make_exc(ParseExceptionKind::RuleFailed));
+                return Err(parser.make_err(ParseErrorKind::RuleFailed));
             }
 
             // "@@ [something] @@" -> Element::Raw(token)
@@ -149,13 +149,13 @@ fn try_consume_fn<'p, 'r, 't>(
             // Hit a newline, abort
             Token::LineBreak | Token::ParagraphBreak => {
                 trace!("Reached newline, aborting");
-                return Err(parser.make_exc(ParseExceptionKind::RuleFailed));
+                return Err(parser.make_err(ParseErrorKind::RuleFailed));
             }
 
             // Hit the end of the input, abort
             Token::InputEnd => {
                 trace!("Reached end of input, aborting");
-                return Err(parser.make_exc(ParseExceptionKind::EndOfInput));
+                return Err(parser.make_err(ParseErrorKind::EndOfInput));
             }
 
             // No special handling, append to slices like normal

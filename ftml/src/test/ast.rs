@@ -25,7 +25,7 @@
 
 use super::includer::TestIncluder;
 use crate::data::PageInfo;
-use crate::parsing::ParseException;
+use crate::parsing::ParseError;
 use crate::render::html::HtmlRender;
 use crate::render::text::TextRender;
 use crate::render::Render;
@@ -121,7 +121,7 @@ struct Test<'a> {
     name: String,
     input: String,
     tree: SyntaxTree<'a>,
-    exceptions: Vec<ParseException>,
+    errors: Vec<ParseError>,
 
     #[serde(skip)]
     html: String,
@@ -225,7 +225,7 @@ impl Test<'_> {
         crate::preprocess(&mut text);
         let tokens = crate::tokenize(&text);
         let result = crate::parse(&tokens, &page_info, &settings);
-        let (tree, exceptions) = result.into();
+        let (tree, errors) = result.into();
         let html_output = HtmlRender.render(&tree, &page_info, &settings);
         let text_output = TextRender.render(&tree, &page_info, &settings);
 
@@ -249,17 +249,17 @@ impl Test<'_> {
                 self.tree,
                 tree,
                 json(&tree),
-                &exceptions,
+                &errors,
             );
         }
 
-        if exceptions != self.exceptions {
+        if errors != self.errors {
             result = TestResult::Fail;
             eprintln!(
-                "Warnings did not match:\nExpected: {:#?}\nActual:   {:#?}\n{}\nTree (correct): {:#?}",
-                self.exceptions,
-                exceptions,
-                json(&exceptions),
+                "Errors did not match:\nExpected: {:#?}\nActual:   {:#?}\n{}\nTree (correct): {:#?}",
+                self.errors,
+                errors,
+                json(&errors),
                 &tree,
             );
         }

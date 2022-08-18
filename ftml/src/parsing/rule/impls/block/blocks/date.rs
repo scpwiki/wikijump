@@ -51,12 +51,12 @@ fn parse_fn<'r, 't>(
 
     // Parse out timestamp given by user
     let mut date = parse_date(value)
-        .map_err(|_| parser.make_exc(ParseExceptionKind::BlockMalformedArguments))?;
+        .map_err(|_| parser.make_err(ParseErrorKind::BlockMalformedArguments))?;
 
     if let Some(arg) = arg_timezone {
         // Parse out argument timezone
         let offset = parse_timezone(&arg)
-            .map_err(|_| parser.make_exc(ParseExceptionKind::BlockMalformedArguments))?;
+            .map_err(|_| parser.make_err(ParseErrorKind::BlockMalformedArguments))?;
 
         // Add timezone. If None, then conflicting timezones.
         date = match date.add_timezone(offset) {
@@ -68,7 +68,7 @@ fn parse_fn<'r, 't>(
                     offset,
                 );
 
-                return Err(parser.make_exc(ParseExceptionKind::BlockMalformedArguments));
+                return Err(parser.make_err(ParseErrorKind::BlockMalformedArguments));
             }
         };
     }
@@ -86,7 +86,7 @@ fn parse_fn<'r, 't>(
 // Parser functions
 
 /// Parse a datetime string and produce its time value, as well as possible timezone info.
-fn parse_date(value: &str) -> Result<Date, DateParseException> {
+fn parse_date(value: &str) -> Result<Date, DateParseError> {
     info!("Parsing possible date value '{value}'");
 
     // Special case, current time
@@ -132,11 +132,11 @@ fn parse_date(value: &str) -> Result<Date, DateParseException> {
     }
 
     // Exhausted all cases, failing
-    Err(DateParseException)
+    Err(DateParseError)
 }
 
 /// Parse the timezone based on the specifier string.
-fn parse_timezone(value: &str) -> Result<FixedOffset, DateParseException> {
+fn parse_timezone(value: &str) -> Result<FixedOffset, DateParseError> {
     lazy_static! {
         static ref TIMEZONE_REGEX: Regex =
             Regex::new(r"^(\+|-)?([0-9]{1,2}):?([0-9]{2})?$").unwrap();
@@ -190,11 +190,11 @@ fn parse_timezone(value: &str) -> Result<FixedOffset, DateParseException> {
     }
 
     // Exhausted all cases, failing
-    Err(DateParseException)
+    Err(DateParseError)
 }
 
 #[derive(Debug, PartialEq, Eq)]
-struct DateParseException;
+struct DateParseError;
 
 #[inline]
 fn now() -> Date {

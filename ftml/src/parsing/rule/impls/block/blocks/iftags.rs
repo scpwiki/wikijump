@@ -47,11 +47,11 @@ fn parse_fn<'r, 't>(
     let conditions =
         parser.get_head_value(&BLOCK_IFTAGS, in_head, |parser, spec| match spec {
             Some(spec) => Ok(ElementCondition::parse(spec)),
-            None => Err(parser.make_exc(ParseExceptionKind::BlockMissingArguments)),
+            None => Err(parser.make_err(ParseErrorKind::BlockMissingArguments)),
         })?;
 
     // Get body content, never with paragraphs
-    let (elements, exceptions, paragraph_safe) =
+    let (elements, errors, paragraph_safe) =
         parser.get_body_elements(&BLOCK_IFTAGS, false)?.into();
 
     debug!(
@@ -71,7 +71,7 @@ fn parse_fn<'r, 't>(
         Elements::None
     };
 
-    ok!(paragraph_safe; elements, exceptions)
+    ok!(paragraph_safe; elements, errors)
 }
 
 pub fn check_iftags(info: &PageInfo, conditions: &[ElementCondition]) -> bool {

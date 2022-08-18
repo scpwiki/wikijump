@@ -33,21 +33,21 @@ use strum_macros::IntoStaticStr;
 /// Instead a fallback rules is applied and parsing continues.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-pub struct ParseException {
+pub struct ParseError {
     token: Token,
     rule: Cow<'static, str>,
     span: Range<usize>,
-    kind: ParseExceptionKind,
+    kind: ParseErrorKind,
 }
 
-impl ParseException {
+impl ParseError {
     #[inline]
-    pub fn new(kind: ParseExceptionKind, rule: Rule, current: &ExtractedToken) -> Self {
+    pub fn new(kind: ParseErrorKind, rule: Rule, current: &ExtractedToken) -> Self {
         let token = current.token;
         let span = Range::clone(&current.span);
         let rule = cow!(rule.name());
 
-        ParseException {
+        ParseError {
             token,
             rule,
             span,
@@ -71,19 +71,14 @@ impl ParseException {
     }
 
     #[inline]
-    pub fn kind(&self) -> ParseExceptionKind {
+    pub fn kind(&self) -> ParseErrorKind {
         self.kind
-    }
-
-    #[inline]
-    pub fn level(&self) -> ParseExceptionLevel {
-        self.kind.level()
     }
 
     #[must_use]
     pub fn to_utf16_indices(&self, map: &Utf16IndexMap) -> Self {
         // Copy fields
-        let ParseException {
+        let ParseError {
             token,
             rule,
             span,
@@ -95,8 +90,8 @@ impl ParseException {
         let end = map.get_index(span.end);
         let span = start..end;
 
-        // Output new warning
-        ParseException {
+        // Output new error
+        ParseError {
             token,
             rule,
             span,
@@ -107,7 +102,7 @@ impl ParseException {
 
 #[derive(Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-pub enum ParseExceptionKind {
+pub enum ParseErrorKind {
     /// The self-enforced recursion limit has been passed, giving up.
     RecursionDepthExceeded,
 
@@ -217,45 +212,9 @@ pub enum ParseExceptionKind {
     InvalidUrl,
 }
 
-impl ParseExceptionKind {
+impl ParseErrorKind {
     #[inline]
     pub fn name(self) -> &'static str {
         self.into()
-    }
-
-    pub fn level(self) -> ParseExceptionLevel {
-        // Right now, all are errors
-        match self {
-            _ => ParseExceptionLevel::Error,
-        }
-    }
-}
-
-#[derive(
-    Serialize,
-    Deserialize,
-    IntoStaticStr,
-    Debug,
-    Copy,
-    Clone,
-    PartialEq,
-    Eq,
-    PartialOrd,
-    Ord,
-)]
-#[serde(rename_all = "kebab-case")]
-pub enum ParseExceptionLevel {
-    Notice,
-    Warning,
-    Error,
-}
-
-impl ParseExceptionLevel {
-    pub fn name(self) -> &'static str {
-        match self {
-            ParseExceptionLevel::Notice => "notice",
-            ParseExceptionLevel::Warning => "warning",
-            ParseExceptionLevel::Error => "error",
-        }
     }
 }

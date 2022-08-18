@@ -56,8 +56,7 @@ fn parse_tabview<'r, 't>(
 
     parser.get_head_none(&BLOCK_TABVIEW, in_head)?;
 
-    let (elements, exceptions, _) =
-        parser.get_body_elements(&BLOCK_TABVIEW, false)?.into();
+    let (elements, errors, _) = parser.get_body_elements(&BLOCK_TABVIEW, false)?.into();
 
     // Build element and return
     let mut tabs = Vec::new();
@@ -70,17 +69,17 @@ fn parse_tabview<'r, 't>(
             // Ignore internal whitespace.
             element if element.is_whitespace() => (),
 
-            // Return an exception for anything else.
-            _ => return Err(parser.make_exc(ParseExceptionKind::TabViewContainsNonTab)),
+            // Return an error for anything else.
+            _ => return Err(parser.make_err(ParseErrorKind::TabViewContainsNonTab)),
         }
     }
 
     // Ensure it's not empty
     if tabs.is_empty() {
-        return Err(parser.make_exc(ParseExceptionKind::TabViewEmpty));
+        return Err(parser.make_err(ParseErrorKind::TabViewEmpty));
     }
 
-    ok!(false; Element::TabView(tabs), exceptions)
+    ok!(false; Element::TabView(tabs), errors)
 }
 
 fn parse_tab<'r, 't>(
@@ -98,10 +97,10 @@ fn parse_tab<'r, 't>(
     let label =
         parser.get_head_value(&BLOCK_TAB, in_head, |parser, value| match value {
             Some(name) => Ok(name),
-            None => Err(parser.make_exc(ParseExceptionKind::BlockMissingArguments)),
+            None => Err(parser.make_err(ParseErrorKind::BlockMissingArguments)),
         })?;
 
-    let (elements, exceptions, _) = parser.get_body_elements(&BLOCK_TAB, true)?.into();
+    let (elements, errors, _) = parser.get_body_elements(&BLOCK_TAB, true)?.into();
 
     // Build element and return
     let element = Element::Partial(PartialElement::Tab(Tab {
@@ -109,5 +108,5 @@ fn parse_tab<'r, 't>(
         elements,
     }));
 
-    ok!(false; element, exceptions)
+    ok!(false; element, errors)
 }

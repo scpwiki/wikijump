@@ -30,8 +30,8 @@ pub struct ParagraphStack<'t> {
     /// Previous elements created, to be outputted in the final `SyntaxTree`.
     finished: Vec<Element<'t>>,
 
-    /// Gathered exceptions from paragraph parsing.
-    exceptions: Vec<ParseException>,
+    /// Gathered errors from paragraph parsing.
+    errors: Vec<ParseError>,
 }
 
 impl<'t> ParagraphStack<'t> {
@@ -70,9 +70,9 @@ impl<'t> ParagraphStack<'t> {
     }
 
     #[inline]
-    pub fn push_exceptions(&mut self, exceptions: &mut Vec<ParseException>) {
-        info!("Pushing exception to stack (length {})", exceptions.len());
-        self.exceptions.append(exceptions);
+    pub fn push_errors(&mut self, errors: &mut Vec<ParseError>) {
+        info!("Pushing errors to stack (length {})", errors.len());
+        self.errors.append(errors);
     }
 
     /// Remove the trailing line break if one exists.
@@ -121,7 +121,7 @@ impl<'t> ParagraphStack<'t> {
 
     /// Convert all paragraph context into a `ParseResult.`
     ///
-    /// This returns all collected elements, exceptions, and returns the final
+    /// This returns all collected elements, errors, and returns the final
     /// paragraph safety value.
     pub fn into_result<'r>(mut self) -> ParseResult<'r, 't, Vec<Element<'t>>> {
         info!("Converting paragraph parse stack into ParseResult");
@@ -133,7 +133,7 @@ impl<'t> ParagraphStack<'t> {
         let ParagraphStack {
             current: _,
             finished: elements,
-            exceptions,
+            errors,
         } = self;
 
         // If this has any paragraphs in it, or other incompatible elements,
@@ -145,12 +145,12 @@ impl<'t> ParagraphStack<'t> {
         let paragraph_safe = elements.iter().all(|element| element.paragraph_safe());
 
         // Return finished element list
-        ok!(paragraph_safe; elements, exceptions)
+        ok!(paragraph_safe; elements, errors)
     }
 
     /// Converts all paragraph context into a set of `Element`s.
     ///
-    /// You should only use this if you know for sure there are no exceptions,
+    /// You should only use this if you know for sure there are no errors,
     /// and either have an alternate means of determining paragraph safety, or
     /// statically know what that value would be.
     pub fn into_elements(mut self) -> Vec<Element<'t>> {
@@ -159,9 +159,9 @@ impl<'t> ParagraphStack<'t> {
         // Finish current paragraph, if any
         self.end_paragraph();
 
-        // Check that there are no exceptions
+        // Check that there are no errors
         debug_assert!(
-            self.exceptions.is_empty(),
+            self.errors.is_empty(),
             "Exceptions found in ParagraphStack::into_elements()!",
         );
 

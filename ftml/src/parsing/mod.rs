@@ -41,8 +41,7 @@ mod token;
 
 mod prelude {
     pub use crate::parsing::{
-        ExtractedToken, ParseException, ParseExceptionKind, ParseResult, ParseSuccess,
-        Token,
+        ExtractedToken, ParseError, ParseErrorKind, ParseResult, ParseSuccess, Token,
     };
     pub use crate::settings::WikitextSettings;
     pub use crate::text::FullText;
@@ -68,7 +67,7 @@ use crate::tree::{
 use std::borrow::Cow;
 
 pub use self::boolean::{parse_boolean, NonBooleanValue};
-pub use self::exception::{ParseException, ParseExceptionKind};
+pub use self::exception::{ParseError, ParseErrorKind};
 pub use self::outcome::ParseOutcome;
 pub use self::result::{ParseResult, ParseSuccess};
 pub use self::token::{ExtractedToken, Token};
@@ -99,12 +98,12 @@ where
     match result {
         Ok(ParseSuccess {
             item: mut elements,
-            exceptions,
+            errors,
             ..
         }) => {
             info!(
-                "Finished parsing, producing final syntax tree ({} exceptions)",
-                exceptions.len(),
+                "Finished parsing, producing final syntax tree ({} errors)",
+                errors.len(),
             );
 
             // process_depths() wants a "list type", so we map in a () for each.
@@ -131,7 +130,7 @@ where
 
             SyntaxTree::from_element_result(
                 elements,
-                exceptions,
+                errors,
                 table_of_contents,
                 footnotes,
             )
@@ -140,7 +139,7 @@ where
             // This path is only reachable if a very bad error occurs.
             //
             // If this happens, then just return the input source as the output
-            // and the exception.
+            // and the error.
 
             error!("Fatal error occurred at highest-level parsing: {error:#?}");
             let wikitext = tokenization.full_text().inner();

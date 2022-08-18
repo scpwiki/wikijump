@@ -53,7 +53,7 @@ fn parse_footnote_ref<'r, 't>(
     // This is true if we're a [[footnote]] inside a [[footnote]],
     // which is not allowed.
     if parser.in_footnote() {
-        return Err(parser.make_exc(ParseExceptionKind::FootnotesNested));
+        return Err(parser.make_err(ParseErrorKind::FootnotesNested));
     }
 
     // Set footnote ref flag
@@ -70,7 +70,7 @@ fn parse_footnote_ref<'r, 't>(
     //
     // However, if there's only one, then we strip it
     // and make it inline.
-    let (mut elements, exceptions, _) =
+    let (mut elements, errors, _) =
         parser.get_body_elements(&BLOCK_FOOTNOTE, true)?.into();
 
     if elements.len() == 1 {
@@ -91,7 +91,7 @@ fn parse_footnote_ref<'r, 't>(
     // Append footnote contents and return.
     parser.push_footnote(elements);
 
-    ok!(Element::Footnote, exceptions)
+    ok!(Element::Footnote, errors)
 }
 
 fn parse_footnote_block<'r, 't>(
@@ -114,7 +114,7 @@ fn parse_footnote_block<'r, 't>(
 
     if !arguments.is_empty() {
         warn!("Invalid argument keys found");
-        return Err(parser.make_exc(ParseExceptionKind::BlockMalformedArguments));
+        return Err(parser.make_err(ParseErrorKind::BlockMalformedArguments));
     }
 
     // Tell parser that a footnote block was added
