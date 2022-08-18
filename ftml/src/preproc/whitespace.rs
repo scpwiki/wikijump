@@ -30,7 +30,13 @@
 use regex::{Regex, RegexBuilder};
 
 lazy_static! {
-    static ref WHITESPACE: Regex = {
+    static ref LEADING_NONSTANDARD_WHITESPACE: Regex = {
+        RegexBuilder::new("^[\u{00a0}\u{2007}]+")
+            .multi_line(true)
+            .build()
+            .unwrap()
+    };
+    static ref WHITESPACE_ONLY_LINE: Regex = {
         RegexBuilder::new(r"^\s+$")
             .multi_line(true)
             .build()
@@ -45,8 +51,13 @@ pub fn substitute(text: &mut String) {
     str_replace(text, "\r\n", "\n");
     str_replace(text, "\r", "\n");
 
+    // Replace leading non-standard spaces with regular spaces
+    // Leave other non-standard spaces as-is (such as nbsp in
+    // the middle of paragraphs)
+    replace_leading_spaces(text);
+
     // Strip lines with only whitespace
-    regex_replace(text, &WHITESPACE, "");
+    regex_replace(text, &WHITESPACE_ONLY_LINE, "");
 
     // Join concatenated lines (ending with '\')
     str_replace(text, "\\\n", "");
@@ -88,8 +99,19 @@ fn regex_replace(text: &mut String, regex: &Regex, replacement: &str) {
     }
 }
 
+fn replace_leading_spaces(text: &mut String) {
+    debug!("Replacing leading non-standard spaces with regular spaces");
+
+    if let Some(mtch) = LEADING_NONSTANDARD_WHITESPACE.find(text) {
+        let range = mtch.start()..mtch.end();
+        let count = mtch.as_str().chars().count();
+        let spaces = " ".repeat(count);
+        text.replace_range(range, &spaces);
+    }
+}
+
 #[cfg(test)]
-const TEST_CASES: [(&str, &str); 6] = [
+const TEST_CASES: [(&str, &str); 7] = [
     (
         "\tapple\n\tbanana\tcherry\n",
         "    apple\n    banana    cherry",
@@ -111,11 +133,15 @@ const TEST_CASES: [(&str, &str); 6] = [
         "concat:\napple banana CherryPineapple \\ grape\nblueberry",
     ),
     ("<\n        \n      \n  \n      \n>", "<\n\n>"),
+    (
+        "\u{00a0}\u{00a0}\u{2007} apple", "    apple",
+    ),
 ];
 
 #[test]
 fn regexes() {
-    let _ = &*WHITESPACE;
+    let _ = &*LEADING_NONSTANDARD_WHITESPACE;
+    let _ = &*WHITESPACE_ONLY_LINE;
     let _ = &*LEADING_NEWLINES;
     let _ = &*TRAILING_NEWLINES;
 }
