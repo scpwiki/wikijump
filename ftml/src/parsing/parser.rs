@@ -155,12 +155,12 @@ impl<'r, 't> Parser<'r, 't> {
         clone
     }
 
-    pub fn depth_increment(&mut self) -> Result<(), ParseError> {
+    pub fn depth_increment(&mut self) -> Result<(), ParseException> {
         self.depth += 1;
         debug!("Incrementing recursion depth to {}", self.depth);
 
         if self.depth > MAX_RECURSION_DEPTH {
-            return Err(self.make_err(ParseErrorKind::RecursionDepthExceeded));
+            return Err(self.make_err(ParseExceptionKind::RecursionDepthExceeded));
         }
 
         Ok(())
@@ -188,11 +188,11 @@ impl<'r, 't> Parser<'r, 't> {
     }
 
     // Parse settings helpers
-    pub fn check_page_syntax(&self) -> Result<(), ParseError> {
+    pub fn check_page_syntax(&self) -> Result<(), ParseException> {
         if self.settings.enable_page_syntax {
             Ok(())
         } else {
-            Err(self.make_err(ParseErrorKind::NotSupportedMode))
+            Err(self.make_err(ParseExceptionKind::NotSupportedMode))
         }
     }
 
@@ -300,7 +300,7 @@ impl<'r, 't> Parser<'r, 't> {
     #[inline]
     pub fn evaluate_fn<F>(&self, f: F) -> bool
     where
-        F: FnOnce(&mut Parser<'r, 't>) -> Result<bool, ParseError>,
+        F: FnOnce(&mut Parser<'r, 't>) -> Result<bool, ParseException>,
     {
         info!("Evaluating closure for parser condition");
         f(&mut self.clone()).unwrap_or(false)
@@ -308,7 +308,7 @@ impl<'r, 't> Parser<'r, 't> {
 
     pub fn save_evaluate_fn<F>(&mut self, f: F) -> Option<&'r ExtractedToken<'t>>
     where
-        F: FnOnce(&mut Parser<'r, 't>) -> Result<bool, ParseError>,
+        F: FnOnce(&mut Parser<'r, 't>) -> Result<bool, ParseException>,
     {
         info!("Evaluating closure for parser condition, saving progress on success");
 
@@ -353,7 +353,7 @@ impl<'r, 't> Parser<'r, 't> {
 
     /// Move the token pointer forward one step.
     #[inline]
-    pub fn step(&mut self) -> Result<&'r ExtractedToken<'t>, ParseError> {
+    pub fn step(&mut self) -> Result<&'r ExtractedToken<'t>, ParseException> {
         debug!("Stepping to the next token");
 
         // Set the start-of-line flag.
@@ -371,14 +371,14 @@ impl<'r, 't> Parser<'r, 't> {
             }
             None => {
                 warn!("Exhausted all tokens, yielding end of input warning");
-                Err(self.make_err(ParseErrorKind::EndOfInput))
+                Err(self.make_err(ParseExceptionKind::EndOfInput))
             }
         }
     }
 
     /// Move the token pointer forward `count` steps.
     #[inline]
-    pub fn step_n(&mut self, count: usize) -> Result<(), ParseError> {
+    pub fn step_n(&mut self, count: usize) -> Result<(), ParseException> {
         trace!("Stepping {count} times");
 
         for _ in 0..count {
@@ -402,9 +402,9 @@ impl<'r, 't> Parser<'r, 't> {
     pub fn look_ahead_warn(
         &self,
         offset: usize,
-    ) -> Result<&'r ExtractedToken<'t>, ParseError> {
+    ) -> Result<&'r ExtractedToken<'t>, ParseException> {
         self.look_ahead(offset)
-            .ok_or_else(|| self.make_err(ParseErrorKind::EndOfInput))
+            .ok_or_else(|| self.make_err(ParseExceptionKind::EndOfInput))
     }
 
     /// Retrieves the current and next tokens.
@@ -428,8 +428,8 @@ impl<'r, 't> Parser<'r, 't> {
     pub fn get_token(
         &mut self,
         token: Token,
-        kind: ParseErrorKind,
-    ) -> Result<&'t str, ParseError> {
+        kind: ParseExceptionKind,
+    ) -> Result<&'t str, ParseException> {
         debug!(
             "Looking for token {} (warning {})",
             token.name(),
@@ -446,7 +446,7 @@ impl<'r, 't> Parser<'r, 't> {
         }
     }
 
-    pub fn get_optional_token(&mut self, token: Token) -> Result<(), ParseError> {
+    pub fn get_optional_token(&mut self, token: Token) -> Result<(), ParseException> {
         debug!("Looking for optional token {}", token.name());
 
         if self.current().token == token {
@@ -456,18 +456,18 @@ impl<'r, 't> Parser<'r, 't> {
         Ok(())
     }
 
-    pub fn get_optional_line_break(&mut self) -> Result<(), ParseError> {
+    pub fn get_optional_line_break(&mut self) -> Result<(), ParseException> {
         info!("Looking for optional line break");
         self.get_optional_token(Token::LineBreak)
     }
 
     #[inline]
-    pub fn get_optional_space(&mut self) -> Result<(), ParseError> {
+    pub fn get_optional_space(&mut self) -> Result<(), ParseException> {
         info!("Looking for optional space");
         self.get_optional_token(Token::Whitespace)
     }
 
-    pub fn get_optional_spaces_any(&mut self) -> Result<(), ParseError> {
+    pub fn get_optional_spaces_any(&mut self) -> Result<(), ParseException> {
         info!("Looking for optional spaces (any)");
 
         let tokens = &[
@@ -490,8 +490,8 @@ impl<'r, 't> Parser<'r, 't> {
     // Utilities
     #[cold]
     #[inline]
-    pub fn make_err(&self, kind: ParseErrorKind) -> ParseError {
-        ParseError::new(kind, self.rule, self.current)
+    pub fn make_err(&self, kind: ParseExceptionKind) -> ParseException {
+        ParseException::new(kind, self.rule, self.current)
     }
 }
 

@@ -54,7 +54,7 @@ fn parse_fn<'r, 't>(
 
     let page_ref = match PageRef::parse(page_name) {
         Ok(page_ref) => page_ref,
-        Err(_) => return Err(parser.make_err(ParseErrorKind::BlockMalformedArguments)),
+        Err(_) => return Err(parser.make_err(ParseExceptionKind::BlockMalformedArguments)),
     };
 
     // Get page to be included
@@ -94,11 +94,11 @@ fn parse_fn<'r, 't>(
 fn include_page<'r, 't>(
     parser: &Parser<'r, 't>,
     _page: &PageRef,
-) -> Result<UnstructuredParseResult<'r, 't>, ParseError> {
+) -> Result<UnstructuredParseResult<'r, 't>, ParseException> {
     // TODO stubbed
 
     if false {
-        return Err(parser.make_err(ParseErrorKind::NoSuchPage));
+        return Err(parser.make_err(ParseExceptionKind::NoSuchPage));
     }
 
     Ok(UnstructuredParseResult {

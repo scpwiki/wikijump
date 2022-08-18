@@ -44,7 +44,7 @@ pub fn collect_container<'p, 'r, 't>(
     container_type: ContainerType,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
-    warn_kind: Option<ParseErrorKind>,
+    warn_kind: Option<ParseExceptionKind>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     info!(
         "Trying to consume tokens to produce container {} for {}",

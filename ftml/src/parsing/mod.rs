@@ -41,7 +41,7 @@ mod token;
 
 mod prelude {
     pub use crate::parsing::{
-        ExtractedToken, ParseError, ParseErrorKind, ParseResult, ParseSuccess, Token,
+        ExtractedToken, ParseException, ParseExceptionKind, ParseResult, ParseSuccess, Token,
     };
     pub use crate::settings::WikitextSettings;
     pub use crate::text::FullText;
@@ -67,7 +67,7 @@ use crate::tree::{
 use std::borrow::Cow;
 
 pub use self::boolean::{parse_boolean, NonBooleanValue};
-pub use self::exception::{ParseError, ParseErrorKind};
+pub use self::exception::{ParseException, ParseExceptionKind};
 pub use self::outcome::ParseOutcome;
 pub use self::result::{ParseResult, ParseSuccess};
 pub use self::token::{ExtractedToken, Token};

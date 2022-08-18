@@ -18,20 +18,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::ParseError;
+use super::ParseException;
 use std::borrow::{Borrow, BorrowMut};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct ParseOutcome<T> {
     value: T,
-    warnings: Vec<ParseError>,
+    warnings: Vec<ParseException>,
 }
 
 impl<T> ParseOutcome<T> {
     #[inline]
     pub fn new<I>(value: T, warnings: I) -> Self
     where
-        I: Into<Vec<ParseError>>,
+        I: Into<Vec<ParseException>>,
     {
         ParseOutcome {
             value,
@@ -46,7 +46,7 @@ impl<T> ParseOutcome<T> {
     }
 
     #[inline]
-    pub fn warnings(&self) -> &[ParseError] {
+    pub fn warnings(&self) -> &[ParseException] {
         &self.warnings
     }
 }
@@ -98,9 +98,9 @@ impl<T> BorrowMut<T> for ParseOutcome<T> {
     }
 }
 
-impl<T> From<ParseOutcome<T>> for (T, Vec<ParseError>) {
+impl<T> From<ParseOutcome<T>> for (T, Vec<ParseException>) {
     #[inline]
-    fn from(outcome: ParseOutcome<T>) -> (T, Vec<ParseError>) {
+    fn from(outcome: ParseOutcome<T>) -> (T, Vec<ParseException>) {
         let ParseOutcome { value, warnings } = outcome;
 
         (value, warnings)

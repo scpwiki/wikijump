@@ -33,21 +33,21 @@ use strum_macros::IntoStaticStr;
 /// Instead a fallback rules is applied and parsing continues.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-pub struct ParseError {
+pub struct ParseException {
     token: Token,
     rule: Cow<'static, str>,
     span: Range<usize>,
-    kind: ParseErrorKind,
+    kind: ParseExceptionKind,
 }
 
-impl ParseError {
+impl ParseException {
     #[inline]
-    pub fn new(kind: ParseErrorKind, rule: Rule, current: &ExtractedToken) -> Self {
+    pub fn new(kind: ParseExceptionKind, rule: Rule, current: &ExtractedToken) -> Self {
         let token = current.token;
         let span = Range::clone(&current.span);
         let rule = cow!(rule.name());
 
-        ParseError {
+        ParseException {
             token,
             rule,
             span,
@@ -71,14 +71,14 @@ impl ParseError {
     }
 
     #[inline]
-    pub fn kind(&self) -> ParseErrorKind {
+    pub fn kind(&self) -> ParseExceptionKind {
         self.kind
     }
 
     #[must_use]
     pub fn to_utf16_indices(&self, map: &Utf16IndexMap) -> Self {
         // Copy fields
-        let ParseError {
+        let ParseException {
             token,
             rule,
             span,
@@ -91,7 +91,7 @@ impl ParseError {
         let span = start..end;
 
         // Output new warning
-        ParseError {
+        ParseException {
             token,
             rule,
             span,
@@ -102,7 +102,7 @@ impl ParseError {
 
 #[derive(Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-pub enum ParseErrorKind {
+pub enum ParseExceptionKind {
     /// The self-enforced recursion limit has been passed, giving up.
     RecursionDepthExceeded,
 
@@ -212,7 +212,7 @@ pub enum ParseErrorKind {
     InvalidUrl,
 }
 
-impl ParseErrorKind {
+impl ParseExceptionKind {
     #[inline]
     pub fn name(self) -> &'static str {
         self.into()

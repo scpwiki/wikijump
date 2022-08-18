@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::parsing::{parse_boolean, ParseError, ParseErrorKind, Parser};
+use crate::parsing::{parse_boolean, ParseException, ParseExceptionKind, Parser};
 use crate::settings::WikitextSettings;
 use crate::tree::AttributeMap;
 use std::borrow::Cow;
@@ -28,7 +28,7 @@ use unicase::UniCase;
 
 macro_rules! make_err {
     ($parser:expr) => {
-        $parser.make_err(ParseErrorKind::BlockMalformedArguments)
+        $parser.make_err(ParseExceptionKind::BlockMalformedArguments)
     };
 }
 
@@ -59,7 +59,7 @@ impl<'t> Arguments<'t> {
         &mut self,
         parser: &Parser<'_, 't>,
         key: &'t str,
-    ) -> Result<Option<bool>, ParseError> {
+    ) -> Result<Option<bool>, ParseException> {
         match self.get(key) {
             Some(argument) => match parse_boolean(argument) {
                 Ok(value) => Ok(Some(value)),
@@ -73,7 +73,7 @@ impl<'t> Arguments<'t> {
         &mut self,
         parser: &Parser<'_, 't>,
         key: &'t str,
-    ) -> Result<Option<T>, ParseError> {
+    ) -> Result<Option<T>, ParseException> {
         match self.get(key) {
             Some(argument) => match argument.parse() {
                 Ok(value) => Ok(Some(value)),

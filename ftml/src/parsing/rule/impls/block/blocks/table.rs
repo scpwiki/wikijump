@@ -67,7 +67,7 @@ pub const BLOCK_TABLE_CELL_HEADER: BlockRule = BlockRule {
 struct ParsedBlock<'t> {
     elements: Vec<Element<'t>>,
     attributes: AttributeMap<'t>,
-    exceptions: Vec<ParseError>,
+    exceptions: Vec<ParseException>,
 }
 
 fn parse_block<'r, 't>(
@@ -77,7 +77,7 @@ fn parse_block<'r, 't>(
     flag_score: bool,
     in_head: bool,
     (block_rule, description): (&BlockRule, &str),
-) -> Result<ParsedBlock<'t>, ParseError>
+) -> Result<ParsedBlock<'t>, ParseException>
 where
     'r: 't,
     ParsedBlock<'t>: 't,
@@ -123,7 +123,7 @@ macro_rules! extract_table_items {
                 element if element.is_whitespace() => (),
 
                 // Return a warning for anything else.
-                _ => return Err($parser.make_err(ParseErrorKind::$warning_kind)),
+                _ => return Err($parser.make_err(ParseExceptionKind::$warning_kind)),
             }
         }
 
@@ -254,7 +254,7 @@ fn parse_cell_header<'r, 't>(
 fn parse_cell<'r, 't>(
     mut elements: Vec<Element<'t>>,
     mut attributes: AttributeMap<'t>,
-    exceptions: Vec<ParseError>,
+    exceptions: Vec<ParseException>,
     header: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     lazy_static! {

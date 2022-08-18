@@ -46,12 +46,12 @@ fn parse_fn<'r, 't>(
     let name =
         parser.get_head_value(&BLOCK_TARGET, in_head, |parser, value| match value {
             Some(name) => Ok(name.trim()),
-            None => Err(parser.make_err(ParseErrorKind::BlockMissingArguments)),
+            None => Err(parser.make_err(ParseExceptionKind::BlockMissingArguments)),
         })?;
 
     // Handle invalid anchor names
     if name.is_empty() || name.contains(' ') {
-        return Err(parser.make_err(ParseErrorKind::BlockMissingArguments));
+        return Err(parser.make_err(ParseExceptionKind::BlockMissingArguments));
     }
 
     // Isolate ID if requested

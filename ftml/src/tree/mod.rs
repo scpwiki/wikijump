@@ -63,7 +63,7 @@ pub use self::tag::*;
 pub use self::variables::*;
 
 use self::clone::{elements_lists_to_owned, elements_to_owned};
-use crate::parsing::{ParseError, ParseOutcome};
+use crate::parsing::{ParseException, ParseOutcome};
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
@@ -88,7 +88,7 @@ pub struct SyntaxTree<'t> {
 impl<'t> SyntaxTree<'t> {
     pub(crate) fn from_element_result(
         elements: Vec<Element<'t>>,
-        warnings: Vec<ParseError>,
+        warnings: Vec<ParseException>,
         table_of_contents: Vec<Element<'t>>,
         footnotes: Vec<Vec<Element<'t>>>,
     ) -> ParseOutcome<Self> {

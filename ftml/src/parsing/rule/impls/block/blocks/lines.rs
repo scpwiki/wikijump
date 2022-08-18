@@ -49,21 +49,21 @@ fn parse_fn<'r, 't>(
 fn parse_count<'r, 't>(
     parser: &Parser<'r, 't>,
     argument: Option<&'t str>,
-) -> Result<NonZeroU32, ParseError> {
+) -> Result<NonZeroU32, ParseException> {
     let argument = match argument {
         Some(arg) => arg.trim(),
-        None => return Err(parser.make_err(ParseErrorKind::BlockMissingArguments)),
+        None => return Err(parser.make_err(ParseExceptionKind::BlockMissingArguments)),
     };
 
     match argument.parse::<NonZeroU32>() {
         Ok(value) if value.get() > 100 => {
             warn!("Number of lines ({}) is too great (max 100)", value.get());
-            Err(parser.make_err(ParseErrorKind::BlockMalformedArguments))
+            Err(parser.make_err(ParseExceptionKind::BlockMalformedArguments))
         }
         Ok(value) => Ok(value),
         Err(error) => {
             warn!("Invalid numeric expression: {error}");
-            Err(parser.make_err(ParseErrorKind::BlockMalformedArguments))
+            Err(parser.make_err(ParseExceptionKind::BlockMalformedArguments))
         }
     }
 }

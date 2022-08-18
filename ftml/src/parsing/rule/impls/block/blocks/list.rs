@@ -131,7 +131,7 @@ fn parse_list_block<'r, 't>(
 
         // Empty lists aren't allowed
         if elements.is_empty() {
-            return Err(parser.make_err(ParseErrorKind::ListEmpty));
+            return Err(parser.make_err(ParseExceptionKind::ListEmpty));
         }
 
         // Convert and extract list elements
@@ -161,7 +161,7 @@ fn parse_list_block<'r, 't>(
                 element if element.is_whitespace() => continue,
 
                 // Other kinds of elements result in an exception.
-                _ => return Err(parser.make_err(ParseErrorKind::ListContainsNonItem)),
+                _ => return Err(parser.make_err(ParseExceptionKind::ListContainsNonItem)),
             }
         }
 

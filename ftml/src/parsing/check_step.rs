@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::{ExtractedToken, ParseError, Parser, Token};
+use super::{ExtractedToken, ParseException, Parser, Token};
 
 /// Helper function to assert that the current token matches, then step.
 ///
@@ -32,7 +32,7 @@ use super::{ExtractedToken, ParseError, Parser, Token};
 pub fn check_step<'r, 't>(
     parser: &mut Parser<'r, 't>,
     token: Token,
-) -> Result<&'r ExtractedToken<'t>, ParseError> {
+) -> Result<&'r ExtractedToken<'t>, ParseException> {
     let current = parser.current();
 
     assert_eq!(current.token, token, "Opening token isn't {}", token.name());

@@ -19,7 +19,7 @@
  */
 
 use super::IncludeRef;
-use crate::data::{PageRef, PageRefParseError};
+use crate::data::{PageRef, PageRefParseException};
 use crate::settings::WikitextSettings;
 use pest::iterators::Pairs;
 use pest::Parser;
@@ -34,7 +34,7 @@ pub fn parse_include_block<'t>(
     text: &'t str,
     start: usize,
     settings: &WikitextSettings,
-) -> Result<(IncludeRef<'t>, usize), IncludeParseError> {
+) -> Result<(IncludeRef<'t>, usize), IncludeParseException> {
     let rule = if settings.use_include_compatibility {
         Rule::include_compatibility
     } else {
@@ -58,13 +58,13 @@ pub fn parse_include_block<'t>(
         }
         Err(error) => {
             warn!("Include block was invalid: {error}");
-            Err(IncludeParseError)
+            Err(IncludeParseException)
         }
     }
 }
 
-fn process_pairs(mut pairs: Pairs<Rule>) -> Result<IncludeRef, IncludeParseError> {
-    let page_raw = pairs.next().ok_or(IncludeParseError)?.as_str();
+fn process_pairs(mut pairs: Pairs<Rule>) -> Result<IncludeRef, IncludeParseException> {
+    let page_raw = pairs.next().ok_or(IncludeParseException)?.as_str();
     let page_ref = PageRef::parse(page_raw)?;
 
     debug!("Got page for include {page_ref:?}");
@@ -120,11 +120,11 @@ fn process_pairs(mut pairs: Pairs<Rule>) -> Result<IncludeRef, IncludeParseError
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub struct IncludeParseError;
+pub struct IncludeParseException;
 
-impl From<PageRefParseError> for IncludeParseError {
+impl From<PageRefParseException> for IncludeParseException {
     #[inline]
-    fn from(_: PageRefParseError) -> Self {
-        IncludeParseError
+    fn from(_: PageRefParseException) -> Self {
+        IncludeParseException
     }
 }

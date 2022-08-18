@@ -62,7 +62,7 @@ fn try_consume_fn<'p, 'r, 't>(
             () => {
                 if rows.is_empty() {
                     // No rows were successfully parsed, fail.
-                    return Err(parser.make_err(ParseErrorKind::RuleFailed));
+                    return Err(parser.make_err(ParseExceptionKind::RuleFailed));
                 } else {
                     // At least one row was created, end it here.
                     break 'table;
@@ -203,7 +203,7 @@ fn try_consume_fn<'p, 'r, 't>(
 ///
 /// This is not an `Err(_)` case, because this may simply signal the end
 /// of the table if it already has rows.
-fn parse_cell_start(parser: &mut Parser) -> Result<Option<TableCellStart>, ParseError> {
+fn parse_cell_start(parser: &mut Parser) -> Result<Option<TableCellStart>, ParseException> {
     let mut span = 0;
 
     macro_rules! increase_span {

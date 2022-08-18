@@ -61,7 +61,7 @@ impl Rule {
             LineRequirement::Any => (),
             LineRequirement::StartOfLine => {
                 if !parser.start_of_line() {
-                    return Err(parser.make_err(ParseErrorKind::NotStartOfLine));
+                    return Err(parser.make_err(ParseExceptionKind::NotStartOfLine));
                 }
             }
         }

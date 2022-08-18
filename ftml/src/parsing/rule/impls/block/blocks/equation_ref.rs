@@ -47,7 +47,7 @@ fn parse_fn<'r, 't>(
             in_head,
             |parser, value| match value {
                 Some(name) => Ok(name.trim()),
-                None => Err(parser.make_err(ParseErrorKind::BlockMissingArguments)),
+                None => Err(parser.make_err(ParseExceptionKind::BlockMissingArguments)),
             },
         )?;
 

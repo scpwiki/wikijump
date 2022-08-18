@@ -46,7 +46,7 @@ fn skip_newline<'p, 'r, 't>(
         }
 
         // Anything else
-        _ => Err(parser.make_err(ParseErrorKind::RuleFailed)),
+        _ => Err(parser.make_err(ParseExceptionKind::RuleFailed)),
     }
 }
 
@@ -108,7 +108,7 @@ fn parse_item<'p, 'r, 't>(
 
     // Ensure the start of the line
     if !parser.start_of_line() {
-        return Err(parser.make_err(ParseErrorKind::RuleFailed));
+        return Err(parser.make_err(ParseExceptionKind::RuleFailed));
     }
 
     // Ensure that it matches expected token state
@@ -116,7 +116,7 @@ fn parse_item<'p, 'r, 't>(
         parser.next_two_tokens(),
         (Token::Colon, Some(Token::Whitespace)),
     ) {
-        return Err(parser.make_err(ParseErrorKind::RuleFailed));
+        return Err(parser.make_err(ParseExceptionKind::RuleFailed));
     }
 
     parser.step_n(2)?;
