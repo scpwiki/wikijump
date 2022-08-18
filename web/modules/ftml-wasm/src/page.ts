@@ -97,8 +97,8 @@ export class Page {
     return this.ensureRendered(true).ast
   }
 
-  get warnings() {
-    return this.ensureRendered(true).warnings
+  get errors() {
+    return this.ensureRendered(true).errors
   }
 
   get text() {

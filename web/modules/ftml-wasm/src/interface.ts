@@ -8,11 +8,11 @@ export type Backlinks = FTML.IBacklinks
 export type PageInfo = FTML.IPageInfo
 export type PartialInfo = Partial<FTML.IPageInfo>
 export type SyntaxTree = FTML.ISyntaxTree
-export type Warning = FTML.IParseWarning
+export type FtmlError = FTML.IParseError
 export type WikitextMode = FTML.WikitextMode
 export type WikitextSettings = FTML.IWikitextSettings
 
-export type ParseResult = { ast: SyntaxTree; warnings: Warning[] }
+export type ParseResult = { ast: SyntaxTree; errors: FtmlError[] }
 
 export type RenderSettings = WikitextMode | WikitextSettings
 
@@ -26,13 +26,13 @@ export interface RenderedHTML {
 export interface DetailRenderedHTML extends RenderedHTML {
   tokens: Token[]
   ast: SyntaxTree
-  warnings: Warning[]
+  errors: FtmlError[]
 }
 
 export interface DetailRenderedText {
   tokens: Token[]
   ast: SyntaxTree
-  warnings: Warning[]
+  errors: FtmlError[]
   text: string
 }
 
@@ -102,7 +102,7 @@ export function tokenize(str: string) {
 }
 
 /**
- * Parses a string of wikitext. This returns an AST and warnings list, not HTML.
+ * Parses a string of wikitext. This returns an AST and errors list, not HTML.
  *
  * @param str - The wikitext to parse.
  * @param info - The page info to use.
@@ -117,11 +117,11 @@ export function parse(str: string, info?: PartialInfo, mode: RenderSettings = "p
     const parsed = trk(FTML.parse(tokenized, pageInfo, settings))
     const tree = trk(parsed.syntax_tree())
     const ast = tree.data()
-    const warnings = parsed.warnings()
+    const errors = parsed.errors()
 
     freeTracked()
 
-    return { ast, warnings } as ParseResult
+    return { ast, errors } as ParseResult
   } catch (err) {
     freeTracked()
     throw err
@@ -129,24 +129,24 @@ export function parse(str: string, info?: PartialInfo, mode: RenderSettings = "p
 }
 
 /**
- * Returns the list of warnings emitted when parsing the provided string.
+ * Returns the list of errors emitted when parsing the provided string.
  *
- * @param str - The wikitext to get the warnings of.
+ * @param str - The wikitext to get the errors of.
  * @param info - The page info to use.
  * @param mode - The wikitext rendering mode to use.
  */
-export function warnings(str: string, info?: PartialInfo, mode: RenderSettings = "page") {
+export function errors(str: string, info?: PartialInfo, mode: RenderSettings = "page") {
   if (!ready) throw new Error("FTML wasn't ready yet!")
   try {
     const pageInfo = trk(new FTML.PageInfo(makeInfo(info)))
     const tokenized = trk(FTML.tokenize(str))
     const settings = trk(makeSettings(mode))
     const parsed = trk(FTML.parse(tokenized, pageInfo, settings))
-    const warnings = parsed.warnings()
+    const errors = parsed.errors()
 
     freeTracked()
 
-    return warnings
+    return errors
   } catch (err) {
     freeTracked()
     throw err
@@ -212,7 +212,7 @@ export function detailRenderHTML(
     const parsed = trk(FTML.parse(tokenized, trk(pageInfo.copy()), trk(settings.copy())))
     const tree = trk(parsed.syntax_tree())
     const ast = tree.data()
-    const warnings = parsed.warnings()
+    const errors = parsed.errors()
     const rendered = trk(FTML.render_html(tree, pageInfo, settings))
 
     const html = rendered.body()
@@ -222,7 +222,7 @@ export function detailRenderHTML(
 
     freeTracked()
 
-    return { tokens, ast, warnings, html, meta, styles, backlinks }
+    return { tokens, ast, errors, html, meta, styles, backlinks }
   } catch (err) {
     freeTracked()
     throw err
@@ -282,12 +282,12 @@ export function detailRenderText(
     const parsed = trk(FTML.parse(tokenized, trk(pageInfo.copy()), trk(settings.copy())))
     const tree = trk(parsed.syntax_tree())
     const ast = tree.data()
-    const warnings = parsed.warnings()
+    const errors = parsed.errors()
     const text = FTML.render_text(tree, pageInfo, settings)
 
     freeTracked()
 
-    return { tokens, ast, warnings, text }
+    return { tokens, ast, errors, text }
   } catch (err) {
     freeTracked()
     throw err

@@ -80,7 +80,7 @@ describe("ftml-wasm", () => {
         "table-of-contents": [],
         "footnotes": []
       },
-      "warnings": []
+      "errors": []
     })
   })
 
@@ -108,7 +108,7 @@ describe("ftml-wasm", () => {
     // assert.isObject(render.meta[0])
     assert.isArray(render.styles)
     assert.isArray(render.tokens)
-    assert.isArray(render.warnings)
+    assert.isArray(render.errors)
   })
 
   it("renderText", () => {
@@ -123,12 +123,12 @@ describe("ftml-wasm", () => {
     assert.isObject(render.ast)
     assert.isString(render.text)
     assert.isArray(render.tokens)
-    assert.isArray(render.warnings)
+    assert.isArray(render.errors)
   })
 
-  it("warnings", () => {
+  it("errors", () => {
     const str = "[[div]]foo"
-    assert.deepEqual(lib.warnings(str), [
+    assert.deepEqual(lib.errors(str), [
       {
         token: "input-end",
         rule: "block-div",
