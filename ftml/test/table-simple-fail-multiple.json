@@ -120,7 +120,7 @@
         "footnotes": [
         ]
     },
-    "warnings": [
+    "errors": [
         {
             "token": "line-break",
             "rule": "table",

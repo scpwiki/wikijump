@@ -78,7 +78,7 @@
         "footnotes": [
         ]
     },
-    "warnings": [
+    "errors": [
         {
             "token": "left-block",
             "rule": "page",

@@ -3,6 +3,10 @@
     "tree": {
         "elements": [
             {
+                "element": "style",
+                "data": "body { color: red; }"
+            },
+            {
                 "element": "footnote-block",
                 "data": {
                     "title": null,
@@ -10,14 +14,11 @@
                 }
             }
         ],
-        "styles": [
-            "body { color: red; }"
-        ],
         "table-of-contents": [
         ],
         "footnotes": [
         ]
     },
-    "warnings": [
+    "errors": [
     ]
 }

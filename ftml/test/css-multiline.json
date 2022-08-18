@@ -3,6 +3,10 @@
     "tree": {
         "elements": [
             {
+                "element": "style",
+                "data": "h1 {\n    margin-top: .7em\n    padding: 0;\n    font-weight: bold;\n}"
+            },
+            {
                 "element": "footnote-block",
                 "data": {
                     "title": null,
@@ -10,14 +14,11 @@
                 }
             }
         ],
-        "styles": [
-            "h1 {\n    margin-top: .7em\n    padding: 0;\n    font-weight: bold;\n}"
-        ],
         "table-of-contents": [
         ],
         "footnotes": [
         ]
     },
-    "warnings": [
+    "errors": [
     ]
 }

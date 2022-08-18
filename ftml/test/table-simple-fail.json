@@ -38,7 +38,7 @@
         "footnotes": [
         ]
     },
-    "warnings": [
+    "errors": [
         {
             "token": "input-end",
             "rule": "table",

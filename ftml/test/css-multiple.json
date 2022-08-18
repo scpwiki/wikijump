@@ -3,6 +3,10 @@
     "tree": {
         "elements": [
             {
+                "element": "style",
+                "data": "a { display: none; }"
+            },
+            {
                 "element": "container",
                 "data": {
                     "type": "paragraph",
@@ -23,6 +27,10 @@
                 }
             },
             {
+                "element": "style",
+                "data": "b { display: none; }"
+            },
+            {
                 "element": "footnote-block",
                 "data": {
                     "title": null,
@@ -30,15 +38,11 @@
                 }
             }
         ],
-        "styles": [
-            "a { display: none; }",
-            "b { display: none; }"
-        ],
         "table-of-contents": [
         ],
         "footnotes": [
         ]
     },
-    "warnings": [
+    "errors": [
     ]
 }
