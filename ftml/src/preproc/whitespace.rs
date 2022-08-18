@@ -111,7 +111,7 @@ fn replace_leading_spaces(text: &mut String) {
 }
 
 #[cfg(test)]
-const TEST_CASES: [(&str, &str); 6] = [
+const TEST_CASES: [(&str, &str); 7] = [
     (
         "\tapple\n\tbanana\tcherry\n",
         "    apple\n    banana    cherry",
@@ -133,6 +133,9 @@ const TEST_CASES: [(&str, &str); 6] = [
         "concat:\napple banana CherryPineapple \\ grape\nblueberry",
     ),
     ("<\n        \n      \n  \n      \n>", "<\n\n>"),
+    (
+        "\u{00a0}\u{00a0}\u{2007} apple", "    apple",
+    ),
 ];
 
 #[test]
