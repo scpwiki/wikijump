@@ -31,7 +31,7 @@ pub struct ParagraphStack<'t> {
     finished: Vec<Element<'t>>,
 
     /// Gathered exceptions from paragraph parsing.
-    exceptions: Vec<ParseException<'t>>,
+    exceptions: Vec<ParseException>,
 }
 
 impl<'t> ParagraphStack<'t> {
@@ -70,7 +70,7 @@ impl<'t> ParagraphStack<'t> {
     }
 
     #[inline]
-    pub fn push_exceptions(&mut self, exceptions: &mut Vec<ParseException<'t>>) {
+    pub fn push_exceptions(&mut self, exceptions: &mut Vec<ParseException>) {
         info!("Pushing exception to stack (length {})", exceptions.len());
         self.exceptions.append(exceptions);
     }

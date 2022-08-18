@@ -62,9 +62,8 @@ pub use self::table::*;
 pub use self::tag::*;
 pub use self::variables::*;
 
-use self::clone::{elements_lists_to_owned, elements_to_owned, strings_to_owned};
+use self::clone::{elements_lists_to_owned, elements_to_owned};
 use crate::parsing::{ParseOutcome, ParseWarning};
-use std::borrow::Cow;
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
@@ -75,12 +74,6 @@ pub struct SyntaxTree<'t> {
     /// and these as well, etc. This structure composes the depth of the
     /// syntax tree.
     pub elements: Vec<Element<'t>>,
-
-    /// The list of CSS styles added in this page, in order.
-    ///
-    /// How the renderer decides to consume these is up to the implementation,
-    /// however the recommendation is to add these as separate style tags.
-    pub styles: Vec<Cow<'t, str>>,
 
     /// The full table of contents for this page.
     ///
@@ -96,13 +89,11 @@ impl<'t> SyntaxTree<'t> {
     pub(crate) fn from_element_result(
         elements: Vec<Element<'t>>,
         warnings: Vec<ParseWarning>,
-        styles: Vec<Cow<'t, str>>,
         table_of_contents: Vec<Element<'t>>,
         footnotes: Vec<Vec<Element<'t>>>,
     ) -> ParseOutcome<Self> {
         let tree = SyntaxTree {
             elements,
-            styles,
             table_of_contents,
             footnotes,
         };
@@ -112,7 +103,6 @@ impl<'t> SyntaxTree<'t> {
     pub fn to_owned(&self) -> SyntaxTree<'static> {
         SyntaxTree {
             elements: elements_to_owned(&self.elements),
-            styles: strings_to_owned(&self.styles),
             table_of_contents: elements_to_owned(&self.table_of_contents),
             footnotes: elements_lists_to_owned(&self.footnotes),
         }

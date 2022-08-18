@@ -35,9 +35,8 @@ use strum_macros::IntoStaticStr;
 /// like regular elements, and instead must be bubbled up
 /// to the top level.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
-pub enum ParseException<'t> {
+pub enum ParseException {
     Warning(ParseWarning),
-    Style(Cow<'t, str>),
 }
 
 /// An issue that occurred during parsing.

@@ -24,42 +24,41 @@ use crate::tree::{Element, Elements};
 use std::marker::PhantomData;
 
 pub type ParseResult<'r, 't, T> = Result<ParseSuccess<'r, 't, T>, ParseWarning>;
-pub type ParseSuccessTuple<'t, T> = (T, Vec<ParseException<'t>>, bool);
+pub type ParseSuccessTuple<T> = (T, Vec<ParseException>, bool);
 
 #[must_use]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ParseSuccess<'r, 't, T>
 where
-    'r: 't,
     T: 't,
+    'r: 't,
 {
     pub item: T,
-    pub exceptions: Vec<ParseException<'t>>,
+    pub exceptions: Vec<ParseException>,
     pub paragraph_safe: bool,
 
-    // Marker field to assert that the 'r lifetime is at least as long as 't.
+    // Marker fields to assert that the 'r lifetime is at least as long as 't.
     #[doc(hidden)]
-    _marker: PhantomData<&'r ()>,
+    _ref_marker: PhantomData<&'r ()>,
+    #[doc(hidden)]
+    _text_marker: PhantomData<&'t str>,
 }
 
 impl<'r, 't, T> ParseSuccess<'r, 't, T> {
     #[inline]
-    pub fn new(
-        item: T,
-        exceptions: Vec<ParseException<'t>>,
-        paragraph_safe: bool,
-    ) -> Self {
+    pub fn new(item: T, exceptions: Vec<ParseException>, paragraph_safe: bool) -> Self {
         ParseSuccess {
             item,
             exceptions,
             paragraph_safe,
-            _marker: PhantomData,
+            _ref_marker: PhantomData,
+            _text_marker: PhantomData,
         }
     }
 
     pub fn chain(
         self,
-        all_exceptions: &mut Vec<ParseException<'t>>,
+        all_exceptions: &mut Vec<ParseException>,
         all_paragraph_safe: &mut bool,
     ) -> T {
         let ParseSuccess {
@@ -80,10 +79,7 @@ impl<'r, 't, T> ParseSuccess<'r, 't, T> {
     }
 }
 
-impl<'r, 't, T> ParseSuccess<'r, 't, T>
-where
-    T: 't,
-{
+impl<'r, 't, T> ParseSuccess<'r, 't, T> {
     pub fn map<F, U>(self, f: F) -> ParseSuccess<'r, 't, U>
     where
         F: FnOnce(T) -> U,
@@ -101,7 +97,8 @@ where
             item: new_item,
             exceptions,
             paragraph_safe,
-            _marker: PhantomData,
+            _ref_marker: PhantomData,
+            _text_marker: PhantomData,
         }
     }
 
@@ -133,14 +130,14 @@ impl<'r, 't> ParseSuccess<'r, 't, Elements<'t>> {
 
 impl<'r, 't> ParseSuccess<'r, 't, ()> {
     #[inline]
-    pub fn into_exceptions(self) -> Vec<ParseException<'t>> {
+    pub fn into_exceptions(self) -> Vec<ParseException> {
         self.exceptions
     }
 }
 
-impl<'r, 't, T> From<ParseSuccess<'r, 't, T>> for ParseSuccessTuple<'t, T> {
+impl<'r, 't, T> From<ParseSuccess<'r, 't, T>> for ParseSuccessTuple<T> {
     #[inline]
-    fn from(success: ParseSuccess<'r, 't, T>) -> ParseSuccessTuple<'t, T> {
+    fn from(success: ParseSuccess<'r, 't, T>) -> ParseSuccessTuple<T> {
         let ParseSuccess {
             item,
             exceptions,

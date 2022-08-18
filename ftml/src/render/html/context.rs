@@ -308,7 +308,6 @@ impl<'i, 'h, 'e, 't> From<HtmlContext<'i, 'h, 'e, 't>> for HtmlOutput {
     fn from(ctx: HtmlContext<'i, 'h, 'e, 't>) -> HtmlOutput {
         let HtmlContext {
             body,
-            styles,
             meta,
             backlinks,
             ..
@@ -316,7 +315,6 @@ impl<'i, 'h, 'e, 't> From<HtmlContext<'i, 'h, 'e, 't>> for HtmlOutput {
 
         HtmlOutput {
             body,
-            styles,
             meta,
             backlinks,
         }

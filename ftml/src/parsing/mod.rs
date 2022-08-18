@@ -102,12 +102,11 @@ where
             exceptions,
             ..
         }) => {
-            let (warnings, styles) = extract_exceptions(exceptions);
+            let warnings = extract_exceptions(exceptions);
 
             info!(
-                "Finished parsing, producing final syntax tree ({} warnings, {} styles)",
+                "Finished parsing, producing final syntax tree ({} warnings)",
                 warnings.len(),
-                styles.len(),
             );
 
             // process_depths() wants a "list type", so we map in a () for each.
@@ -135,7 +134,6 @@ where
             SyntaxTree::from_element_result(
                 elements,
                 warnings,
-                styles,
                 table_of_contents,
                 footnotes,
             )
@@ -150,14 +148,12 @@ where
             let wikitext = tokenization.full_text().inner();
             let elements = vec![text!(wikitext)];
             let warnings = vec![warning];
-            let styles = vec![];
             let table_of_contents = vec![];
             let footnotes = vec![];
 
             SyntaxTree::from_element_result(
                 elements,
                 warnings,
-                styles,
                 table_of_contents,
                 footnotes,
             )
@@ -195,20 +191,16 @@ where
 
 // Helper functions
 
-fn extract_exceptions(
-    exceptions: Vec<ParseException>,
-) -> (Vec<ParseWarning>, Vec<Cow<str>>) {
+fn extract_exceptions(exceptions: Vec<ParseException>) -> Vec<ParseWarning> {
     let mut warnings = Vec::new();
-    let mut styles = Vec::new();
 
     for exception in exceptions {
         match exception {
             ParseException::Warning(warning) => warnings.push(warning),
-            ParseException::Style(style) => styles.push(style),
         }
     }
 
-    (warnings, styles)
+    warnings
 }
 
 fn build_toc_list_element(
