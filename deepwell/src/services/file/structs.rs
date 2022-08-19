@@ -72,7 +72,7 @@ pub type MoveFileOutput = CreateFileRevisionOutput;
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct GetFileOutput<'a> {
-    pub file_id: &'a str,
+    pub file_id: i64,
     pub file_created_at: DateTimeWithTimeZone,
     pub file_updated_at: Option<DateTimeWithTimeZone>,
     pub file_deleted_at: Option<DateTimeWithTimeZone>,
@@ -110,7 +110,7 @@ pub struct RestoreFile {
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct DeleteFileOutput {
-    pub file_id: String,
+    pub file_id: i64,
     pub file_revision_id: i64,
     pub file_revision_number: i32,
 }
@@ -119,7 +119,7 @@ pub struct DeleteFileOutput {
 #[serde(rename_all = "camelCase")]
 pub struct RestoreFileOutput {
     pub page_id: i64,
-    pub file_id: String,
+    pub file_id: i64,
     pub name: String,
     pub file_revision_id: i64,
     pub file_revision_number: i32,
