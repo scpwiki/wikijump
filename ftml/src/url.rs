@@ -22,12 +22,11 @@ use crate::tree::LinkLocation;
 use std::borrow::Cow;
 use wikidot_normalize::normalize;
 
-pub const URL_SCHEMES: [&str; 20] = [
+pub const URL_SCHEMES: [&str; 19] = [
     "blob:",
     "chrome-extension://",
     "chrome://",
     "content://",
-    "data:",
     "dns:",
     "feed:",
     "file://",
