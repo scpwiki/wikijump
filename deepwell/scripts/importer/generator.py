@@ -8,7 +8,6 @@ from .structures import *
 from .utils import get_page_category, wikidot_id_or_auto
 
 import psycopg2
-from cuid import cuid
 
 
 class Generator:
@@ -56,7 +55,7 @@ class Generator:
         self.page_revision_ids = set()  # Set[int]
         self.page_revision_numbers = set()  # Set[Tuple[int, int]]
         self.page_categories = {}  # dict[Tuple[int, str], int]
-        self.file_names = {}  # dict[Tuple[int, str], str]
+        self.file_names = set()  # Set[Tuple[int, str]]
         self.blob_hashes = {}  # dict[bytes, str]
         self.text_hashes = set()  # Set[bytes]
 
@@ -238,17 +237,17 @@ class Generator:
         return page_category_id
 
     def add_file(self, file: File):
-        file_id = self.file_names.get((file.page_id, file.name))
+        if (
+                self.id_exists(self.file_ids, file.wikidot_id)
+                or (file.page_id, file.name) in self.file_names
+        ):
+            return
 
-        if file_id is None:
-            file_id = cuid()
-            self.append_sql(
-                "INSERT INTO file (file_id, created_at, name, page_id) VALUES (%s, %s, %s, %s)",
-                (file_id, file.created_at, file.name, file.page_id),
-            )
-            self.file_names[(file.page_id, file.name)] = file_id
-
-        return file_id
+        self.append_sql(
+            "INSERT INTO file (file_id, created_at, name, page_id) VALUES (%s, %s, %s, %s)",
+            (wikidot_id_or_auto(file), file.created_at, file.name, file.page_id),
+        )
+        self.file_names.add((file.page_id, file.name))
 
     # TODO add forums
 

@@ -24,7 +24,7 @@ use super::prelude::*;
 pub struct CreateFileRevision {
     pub site_id: i64,
     pub page_id: i64,
-    pub file_id: String,
+    pub file_id: i64,
     pub user_id: i64,
     pub comments: String,
     pub body: CreateFileRevisionBody,
@@ -56,7 +56,7 @@ pub struct CreateFileRevisionOutput {
 pub struct CreateFirstFileRevision {
     pub site_id: i64,
     pub page_id: i64,
-    pub file_id: String,
+    pub file_id: i64,
     pub user_id: i64,
     pub name: String,
     pub s3_hash: Hash,
@@ -68,7 +68,7 @@ pub struct CreateFirstFileRevision {
 
 #[derive(Debug, Default)]
 pub struct CreateFirstFileRevisionOutput {
-    pub file_id: String,
+    pub file_id: i64,
     pub file_revision_id: i64,
 }
 
@@ -76,7 +76,7 @@ pub struct CreateFirstFileRevisionOutput {
 pub struct CreateTombstoneFileRevision {
     pub site_id: i64,
     pub page_id: i64,
-    pub file_id: String,
+    pub file_id: i64,
     pub user_id: i64,
     pub comments: String,
 }
@@ -85,7 +85,7 @@ pub struct CreateTombstoneFileRevision {
 pub struct CreateResurrectionFileRevision {
     pub site_id: i64,
     pub page_id: i64,
-    pub file_id: String,
+    pub file_id: i64,
     pub user_id: i64,
     pub new_page_id: i64,
     pub new_name: String,

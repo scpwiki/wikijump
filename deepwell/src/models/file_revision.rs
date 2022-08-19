@@ -12,8 +12,7 @@ pub struct Model {
     pub revision_type: FileRevisionType,
     pub created_at: DateTimeWithTimeZone,
     pub revision_number: i32,
-    #[sea_orm(column_type = "Text")]
-    pub file_id: String,
+    pub file_id: i64,
     pub page_id: i64,
     pub user_id: i64,
     #[sea_orm(column_type = "Text")]

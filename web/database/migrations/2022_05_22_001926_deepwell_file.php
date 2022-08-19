@@ -41,7 +41,7 @@ class DeepwellFile extends Migration
         // Create new tables
         DB::statement("
             CREATE TABLE file (
-                file_id TEXT PRIMARY KEY,
+                file_id BIGSERIAL PRIMARY KEY,
                 created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
                 updated_at TIMESTAMP WITH TIME ZONE,
                 deleted_at TIMESTAMP WITH TIME ZONE,
@@ -60,7 +60,7 @@ class DeepwellFile extends Migration
                 revision_type file_revision_type NOT NULL,
                 created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
                 revision_number INTEGER NOT NULL,
-                file_id TEXT NOT NULL REFERENCES file(file_id),
+                file_id BIGINT NOT NULL REFERENCES file(file_id),
                 page_id BIGINT NOT NULL REFERENCES page(page_id),
                 user_id BIGINT NOT NULL REFERENCES users(id),
                 name TEXT NOT NULL,

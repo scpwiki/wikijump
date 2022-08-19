@@ -51,7 +51,7 @@ impl FileRevisionService {
         previous: FileRevisionModel,
     ) -> Result<Option<CreateFileRevisionOutput>> {
         let txn = ctx.transaction();
-        let revision_number = next_revision_number(&previous, page_id, &file_id);
+        let revision_number = next_revision_number(&previous, page_id, file_id);
 
         // Fields to create in the revision
         let mut changes = Vec::new();
@@ -130,7 +130,7 @@ impl FileRevisionService {
         let model = file_revision::ActiveModel {
             revision_type: Set(FileRevisionType::Update),
             revision_number: Set(0),
-            file_id: Set(file_id.clone()),
+            file_id: Set(file_id),
             page_id: Set(page_id),
             user_id: Set(user_id),
             name: Set(name),
@@ -186,7 +186,7 @@ impl FileRevisionService {
         let model = file_revision::ActiveModel {
             revision_type: Set(FileRevisionType::Create),
             revision_number: Set(0),
-            file_id: Set(file_id.clone()),
+            file_id: Set(file_id),
             page_id: Set(page_id),
             user_id: Set(user_id),
             name: Set(name),
@@ -228,7 +228,7 @@ impl FileRevisionService {
         previous: FileRevisionModel,
     ) -> Result<CreateFileRevisionOutput> {
         let txn = ctx.transaction();
-        let revision_number = next_revision_number(&previous, page_id, &file_id);
+        let revision_number = next_revision_number(&previous, page_id, file_id);
 
         let FileRevisionModel {
             name,
@@ -247,7 +247,7 @@ impl FileRevisionService {
         let model = file_revision::ActiveModel {
             revision_type: Set(FileRevisionType::Delete),
             revision_number: Set(revision_number),
-            file_id: Set(file_id.clone()),
+            file_id: Set(file_id),
             page_id: Set(page_id),
             user_id: Set(user_id),
             name: Set(name),
@@ -299,7 +299,7 @@ impl FileRevisionService {
         previous: FileRevisionModel,
     ) -> Result<CreateFileRevisionOutput> {
         let txn = ctx.transaction();
-        let revision_number = next_revision_number(&previous, old_page_id, &file_id);
+        let revision_number = next_revision_number(&previous, old_page_id, file_id);
 
         let FileRevisionModel {
             name: old_name,
@@ -334,7 +334,7 @@ impl FileRevisionService {
         let model = file_revision::ActiveModel {
             revision_type: Set(FileRevisionType::Undelete),
             revision_number: Set(revision_number),
-            file_id: Set(file_id.clone()),
+            file_id: Set(file_id),
             page_id: Set(new_page_id),
             user_id: Set(user_id),
             name: Set(new_name),
@@ -363,7 +363,7 @@ impl FileRevisionService {
     pub async fn update(
         ctx: &ServiceContext<'_>,
         page_id: i64,
-        file_id: &str,
+        file_id: i64,
         revision_id: i64,
         UpdateFileRevision { user_id, hidden }: UpdateFileRevision,
     ) -> Result<()> {
@@ -401,7 +401,7 @@ impl FileRevisionService {
     pub async fn get_latest(
         ctx: &ServiceContext<'_>,
         page_id: i64,
-        file_id: &str,
+        file_id: i64,
     ) -> Result<FileRevisionModel> {
         // NOTE: There is no optional variant of this method,
         //       since all extant files must have at least one revision.
@@ -427,7 +427,7 @@ impl FileRevisionService {
     pub async fn get_optional(
         ctx: &ServiceContext<'_>,
         page_id: i64,
-        file_id: &str,
+        file_id: i64,
         revision_number: i32,
     ) -> Result<Option<FileRevisionModel>> {
         let txn = ctx.transaction();
@@ -451,7 +451,7 @@ impl FileRevisionService {
     pub async fn exists(
         ctx: &ServiceContext<'_>,
         page_id: i64,
-        file_id: &str,
+        file_id: i64,
         revision_number: i32,
     ) -> Result<bool> {
         Self::get_optional(ctx, page_id, file_id, revision_number)
@@ -466,7 +466,7 @@ impl FileRevisionService {
     pub async fn get(
         ctx: &ServiceContext<'_>,
         page_id: i64,
-        file_id: &str,
+        file_id: i64,
         revision_number: i32,
     ) -> Result<FileRevisionModel> {
         Self::get_optional(ctx, page_id, file_id, revision_number)
@@ -480,7 +480,7 @@ impl FileRevisionService {
     pub async fn count(
         ctx: &ServiceContext<'_>,
         page_id: i64,
-        file_id: &str,
+        file_id: i64,
     ) -> Result<NonZeroI32> {
         let txn = ctx.transaction();
         let row_count = FileRevision::find()
@@ -512,7 +512,7 @@ impl FileRevisionService {
     pub async fn get_range(
         ctx: &ServiceContext<'_>,
         page_id: i64,
-        file_id: &str,
+        file_id: i64,
         revision_number: i32,
         revision_direction: FetchDirection,
         revision_limit: u64,
@@ -561,11 +561,7 @@ impl FileRevisionService {
     }
 }
 
-fn next_revision_number(
-    previous: &FileRevisionModel,
-    page_id: i64,
-    file_id: &str,
-) -> i32 {
+fn next_revision_number(previous: &FileRevisionModel, page_id: i64, file_id: i64) -> i32 {
     // Check for basic consistency
     assert_eq!(
         previous.file_id, file_id,

@@ -40,7 +40,7 @@ pub async fn file_revision_info(req: ApiRequest) -> ApiResponse {
         .await
         .to_api()?;
 
-    let revision_count = FileRevisionService::count(&ctx, file.page_id, &file.file_id)
+    let revision_count = FileRevisionService::count(&ctx, file.page_id, file.file_id)
         .await
         .to_api()?;
 
@@ -82,7 +82,7 @@ pub async fn file_revision_head(req: ApiRequest) -> ApiResponse {
         .to_api()?;
 
     let exists =
-        FileRevisionService::exists(&ctx, file.page_id, &file.file_id, revision_number)
+        FileRevisionService::exists(&ctx, file.page_id, file.file_id, revision_number)
             .await
             .to_api()?;
 
@@ -116,7 +116,7 @@ pub async fn file_revision_get(req: ApiRequest) -> ApiResponse {
         .to_api()?;
 
     let revision =
-        FileRevisionService::get(&ctx, file.page_id, &file.file_id, revision_number)
+        FileRevisionService::get(&ctx, file.page_id, file.file_id, revision_number)
             .await
             .to_api()?;
 
@@ -151,14 +151,14 @@ pub async fn file_revision_put(mut req: ApiRequest) -> ApiResponse {
         .await
         .to_api()?;
     let revision =
-        FileRevisionService::get(&ctx, page.page_id, &file.file_id, revision_number)
+        FileRevisionService::get(&ctx, page.page_id, file.file_id, revision_number)
             .await
             .to_api()?;
 
     FileRevisionService::update(
         &ctx,
         page.page_id,
-        &file.file_id,
+        file.file_id,
         revision.revision_id,
         input,
     )
@@ -191,7 +191,7 @@ pub async fn file_revision_range_get(req: ApiRequest) -> ApiResponse {
     let revisions = FileRevisionService::get_range(
         &ctx,
         page.page_id,
-        &file.file_id,
+        file.file_id,
         revision_number,
         direction,
         limit.into(),

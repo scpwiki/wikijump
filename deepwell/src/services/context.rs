@@ -59,6 +59,7 @@ impl<'txn> ServiceContext<'txn> {
     }
 
     // Helpers
+    #[allow(dead_code)] // TEMP
     pub fn cuid(&self) -> Result<String> {
         let cuid = cuid()?;
         Ok(cuid)

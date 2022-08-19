@@ -29,7 +29,7 @@ pub async fn file_head_direct(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let file_id = req.param("file_id")?;
+    let file_id = req.param("file_id")?.parse()?;
     tide::log::info!("Checking existence of file ID {file_id}");
 
     let exists = FileService::exists_direct(&ctx, file_id).await.to_api()?;
@@ -42,11 +42,11 @@ pub async fn file_get_direct(req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let details: FileDetailsQuery = req.query()?;
-    let file_id = req.param("file_id")?;
+    let file_id = req.param("file_id")?.parse()?;
     tide::log::info!("Getting file ID {file_id}");
 
     let file = FileService::get_direct(&ctx, file_id).await.to_api()?;
-    let revision = FileRevisionService::get_latest(&ctx, file.page_id, &file.file_id)
+    let revision = FileRevisionService::get_latest(&ctx, file.page_id, file.file_id)
         .await
         .to_api()?;
 
@@ -99,7 +99,7 @@ pub async fn file_get(req: ApiRequest) -> ApiResponse {
         .await
         .to_api()?;
 
-    let revision = FileRevisionService::get_latest(&ctx, page.page_id, &file.file_id)
+    let revision = FileRevisionService::get_latest(&ctx, page.page_id, file.file_id)
         .await
         .to_api()?;
 
@@ -143,7 +143,7 @@ async fn build_file_response(
 
     // Build result struct
     let output = GetFileOutput {
-        file_id: &file.file_id,
+        file_id: file.file_id,
         file_created_at: file.created_at,
         file_updated_at: file.updated_at,
         file_deleted_at: file.deleted_at,
