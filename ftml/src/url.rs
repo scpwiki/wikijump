@@ -55,6 +55,18 @@ pub fn is_url(url: &str) -> bool {
     false
 }
 
+/// Returns true if the scheme for this URL is `javascript:` or `data:`.
+///
+/// Works case-insensitively (for ASCII).
+pub fn dangerous_scheme(url: &str) -> bool {
+    url.split_once(':')
+        .map(|(scheme, _)| {
+            scheme.eq_ignore_ascii_case("javascript")
+                || scheme.eq_ignore_ascii_case("data")
+        })
+        .unwrap_or(false)
+}
+
 pub fn normalize_link<'a>(
     link: &'a LinkLocation<'a>,
     helper: &dyn BuildSiteUrl,
@@ -75,6 +87,9 @@ pub fn normalize_link<'a>(
 pub fn normalize_href(url: &str) -> Cow<str> {
     if is_url(url) || url.starts_with('#') || url == "javascript:;" {
         Cow::Borrowed(url)
+    } else if dangerous_scheme(url) {
+        warn!("Attempt to pass in dangerous URL: {url}");
+        Cow::Borrowed("#invalid-url")
     } else {
         let mut url = str!(url);
         normalize(&mut url);
