@@ -439,10 +439,7 @@ impl FileService {
         Ok(file)
     }
 
-    pub async fn get_direct(
-        ctx: &ServiceContext<'_>,
-        file_id: i64,
-    ) -> Result<FileModel> {
+    pub async fn get_direct(ctx: &ServiceContext<'_>, file_id: i64) -> Result<FileModel> {
         match Self::get_direct_optional(ctx, file_id).await? {
             Some(file) => Ok(file),
             None => Err(Error::NotFound),
@@ -467,10 +464,7 @@ impl FileService {
     /// This method should only be used very rarely to clear content such
     /// as severe copyright violations, abuse content, or comply with court orders.
     #[allow(dead_code)] // TEMP
-    pub async fn hard_delete_all(
-        _ctx: &ServiceContext<'_>,
-        _file_id: i64,
-    ) -> Result<()> {
+    pub async fn hard_delete_all(_ctx: &ServiceContext<'_>, _file_id: i64) -> Result<()> {
         // TODO find hash. update all files with the same hash
         // TODO add to audit log
         // TODO hard delete BlobService

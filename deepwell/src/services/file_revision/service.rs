@@ -561,11 +561,7 @@ impl FileRevisionService {
     }
 }
 
-fn next_revision_number(
-    previous: &FileRevisionModel,
-    page_id: i64,
-    file_id: i64,
-) -> i32 {
+fn next_revision_number(previous: &FileRevisionModel, page_id: i64, file_id: i64) -> i32 {
     // Check for basic consistency
     assert_eq!(
         previous.file_id, file_id,
