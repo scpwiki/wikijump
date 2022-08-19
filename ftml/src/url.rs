@@ -101,3 +101,28 @@ pub fn normalize_href(url: &str) -> Cow<str> {
 pub trait BuildSiteUrl {
     fn build_url(&self, site: &str, path: &str) -> String;
 }
+
+#[test]
+fn detect_dangerous_schemes() {
+    macro_rules! check {
+        ($input:expr, $result:expr $(,)?) => {
+            assert_eq!(
+                dangerous_scheme($input),
+                $result,
+                "For input {:?}, dangerous scheme detection failed",
+                $input,
+            )
+        };
+    }
+
+    check!("http://example.com/", false);
+    check!("https://example.com/", false);
+    check!("irc://irc.scpwiki.com", false);
+    check!("javascript:alert(1)", true);
+    check!("JAVASCRIPT:alert(1)", true);
+    check!("JaVaScRiPt:alert(document.cookie)", true);
+    check!("data:text/plain;base64,SGVsbG8sIFdvcmxkIQ==", true);
+    check!("data:text/javascript,alert(1)", true);
+    check!("data:text/html,<script>alert('XSS');</script>", true);
+    check!("DATA:text/html,<script>alert('XSS');</script>", true);
+}
