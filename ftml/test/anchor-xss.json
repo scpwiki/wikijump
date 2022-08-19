@@ -1,0 +1,68 @@
+{
+    "input": "[[a href=\"javascript:alert('XSS!')\"]]My not-suspicious link[[/a]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "anchor",
+                            "data": {
+                                "attributes": {
+                                    "href": "#invalid-url"
+                                },
+                                "target": null,
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "My"
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": " "
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": "not"
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": "-"
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": "suspicious"
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": " "
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": "link"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "errors": [
+    ]
+}

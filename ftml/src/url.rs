@@ -22,12 +22,11 @@ use crate::tree::LinkLocation;
 use std::borrow::Cow;
 use wikidot_normalize::normalize;
 
-pub const URL_SCHEMES: [&str; 20] = [
+pub const URL_SCHEMES: [&str; 19] = [
     "blob:",
     "chrome-extension://",
     "chrome://",
     "content://",
-    "data:",
     "dns:",
     "feed:",
     "file://",
@@ -56,6 +55,18 @@ pub fn is_url(url: &str) -> bool {
     false
 }
 
+/// Returns true if the scheme for this URL is `javascript:` or `data:`.
+///
+/// Works case-insensitively (for ASCII).
+pub fn dangerous_scheme(url: &str) -> bool {
+    url.split_once(':')
+        .map(|(scheme, _)| {
+            scheme.eq_ignore_ascii_case("javascript")
+                || scheme.eq_ignore_ascii_case("data")
+        })
+        .unwrap_or(false)
+}
+
 pub fn normalize_link<'a>(
     link: &'a LinkLocation<'a>,
     helper: &dyn BuildSiteUrl,
@@ -76,6 +87,9 @@ pub fn normalize_link<'a>(
 pub fn normalize_href(url: &str) -> Cow<str> {
     if is_url(url) || url.starts_with('#') || url == "javascript:;" {
         Cow::Borrowed(url)
+    } else if dangerous_scheme(url) {
+        warn!("Attempt to pass in dangerous URL: {url}");
+        Cow::Borrowed("#invalid-url")
     } else {
         let mut url = str!(url);
         normalize(&mut url);
@@ -86,4 +100,29 @@ pub fn normalize_href(url: &str) -> Cow<str> {
 
 pub trait BuildSiteUrl {
     fn build_url(&self, site: &str, path: &str) -> String;
+}
+
+#[test]
+fn detect_dangerous_schemes() {
+    macro_rules! check {
+        ($input:expr, $result:expr $(,)?) => {
+            assert_eq!(
+                dangerous_scheme($input),
+                $result,
+                "For input {:?}, dangerous scheme detection failed",
+                $input,
+            )
+        };
+    }
+
+    check!("http://example.com/", false);
+    check!("https://example.com/", false);
+    check!("irc://irc.scpwiki.com", false);
+    check!("javascript:alert(1)", true);
+    check!("JAVASCRIPT:alert(1)", true);
+    check!("JaVaScRiPt:alert(document.cookie)", true);
+    check!("data:text/plain;base64,SGVsbG8sIFdvcmxkIQ==", true);
+    check!("data:text/javascript,alert(1)", true);
+    check!("data:text/html,<script>alert('XSS');</script>", true);
+    check!("DATA:text/html,<script>alert('XSS');</script>", true);
 }
