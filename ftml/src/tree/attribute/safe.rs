@@ -169,6 +169,22 @@ lazy_static! {
         ]
     };
 
+    /// List of HTML attributes which need to be checked for XSS.
+    ///
+    /// For instance, you could have `href="javascript:doSomething()"`,
+    /// which would escape normal sandboxing and run trusted javascript
+    /// from untrusted user data.
+    ///
+    /// ## See also
+    /// * `detect_dangerous_schemes()`
+    /// * `normalize_href()`
+    pub static ref URL_ATTRIBUTES: HashSet<UniCase<&'static str>> = {
+        hashset_unicase![
+            "href",
+            "src",
+        ]
+    };
+
     static ref ATTRIBUTE_SUFFIX_SAFE: Regex = Regex::new(r"[a-zA-z0-9\-]+").unwrap();
 }
 

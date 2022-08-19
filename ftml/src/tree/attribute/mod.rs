@@ -24,6 +24,7 @@ use super::clone::string_to_owned;
 use crate::id_prefix::isolate_ids;
 use crate::parsing::parse_boolean;
 use crate::settings::WikitextSettings;
+use crate::url::normalize_href;
 use std::borrow::Cow;
 use std::collections::{BTreeMap, HashMap};
 use std::fmt::{self, Debug};
@@ -31,6 +32,7 @@ use unicase::UniCase;
 
 pub use self::safe::{
     is_safe_attribute, BOOLEAN_ATTRIBUTES, SAFE_ATTRIBUTES, SAFE_ATTRIBUTE_PREFIXES,
+    URL_ATTRIBUTES,
 };
 
 #[derive(Serialize, Deserialize, Default, Clone, PartialEq, Eq)]
@@ -49,14 +51,16 @@ impl<'t> AttributeMap<'t> {
         let inner = arguments
             .iter()
             .filter(|(&key, _)| is_safe_attribute(key))
-            .filter_map(|(key, mut value)| {
+            .filter_map(|(key, value)| {
+                let mut value = Cow::clone(value);
+
                 // Check for special boolean behavior
                 if BOOLEAN_ATTRIBUTES.contains(key) {
-                    if let Ok(boolean_value) = parse_boolean(value) {
+                    if let Ok(boolean_value) = parse_boolean(&value) {
                         // It's a boolean HTML attribute, like "checked".
                         if boolean_value {
                             // true: Have a key-only attribute
-                            value = &cow!("");
+                            value = cow!("");
                         } else {
                             // false: Exclude the key entirely
                             return None;
@@ -64,10 +68,15 @@ impl<'t> AttributeMap<'t> {
                     }
                 }
 
+                // Check for URL-sensitive attributes
+                if URL_ATTRIBUTES.contains(key) {
+                    value = Cow::Owned(normalize_href(&value).into_owned())
+                }
+
                 // Add key/value pair to map
                 let key = key.into_inner().to_ascii_lowercase();
 
-                Some((Cow::Owned(key), Cow::clone(value)))
+                Some((Cow::Owned(key), value))
             })
             .collect();
 
