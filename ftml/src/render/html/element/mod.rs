@@ -33,6 +33,7 @@ mod input;
 mod link;
 mod list;
 mod math;
+mod style;
 mod table;
 mod tabs;
 mod text;
@@ -60,6 +61,7 @@ use self::input::{render_checkbox, render_radio_button};
 use self::link::{render_anchor, render_link};
 use self::list::render_list;
 use self::math::{render_equation_reference, render_math_block, render_math_inline};
+use self::style::render_style;
 use self::table::render_table;
 use self::tabs::render_tabview;
 use self::text::{render_code, render_email, render_wikitext_raw};
@@ -188,11 +190,7 @@ pub fn render_element(ctx: &mut HtmlContext, element: &Element) {
             elements,
             ..
         } => render_include(ctx, location, variables, elements),
-        Element::Style(css) => {
-            info!("Inserting <style> block in body ({} bytes)", css.len());
-
-            ctx.html().style().inner(css);
-        }
+        Element::Style(css) => render_style(ctx, css),
         Element::LineBreak => {
             ctx.html().br();
         }
