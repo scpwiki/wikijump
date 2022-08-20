@@ -56,6 +56,7 @@ fn isolate_user_ids() {
         use_true_ids: true,
         use_include_compatibility: false,
         isolate_user_ids: true,
+        minify_css: false,
         allow_local_paths: true,
         interwiki: EMPTY_INTERWIKI.clone(),
     };

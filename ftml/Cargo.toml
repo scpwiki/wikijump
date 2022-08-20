@@ -19,7 +19,7 @@ crate-type = ["cdylib", "lib"]
 [features]
 default  = ["html", "mathml"]
 # Adds HTML rendering.
-html     = []
+html     = ["parcel_css"]
 # Adds LaTeX -> MathML support for rendering.
 mathml   = ["html", "latex2mathml"]
 
@@ -32,6 +32,7 @@ latex2mathml = { version = "0.2", optional = true }
 lazy_static = "1"
 log = "0.4"
 maplit = "1"
+parcel_css = { version = "1.0.0-alpha.30", optional = true }
 pest = "2"
 pest_derive = "2"
 rand = { version = "0.8", features = ["small_rng"] }
