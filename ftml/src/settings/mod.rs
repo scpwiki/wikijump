@@ -22,13 +22,7 @@ mod interwiki;
 
 pub use self::interwiki::{InterwikiSettings, DEFAULT_INTERWIKI, EMPTY_INTERWIKI};
 
-cfg_if! {
-    if #[cfg(test)] {
-        const DEFAULT_MINIFY_CSS: bool = false;
-    } else {
-        const DEFAULT_MINIFY_CSS: bool = true;
-    }
-}
+const DEFAULT_MINIFY_CSS: bool = true;
 
 /// Settings to tweak behavior in the ftml parser and renderer.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
