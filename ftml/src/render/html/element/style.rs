@@ -21,8 +21,36 @@
 use super::prelude::*;
 use parcel_css::stylesheet::{ParserOptions, PrinterOptions, StyleSheet};
 
-pub fn render_style(ctx: &mut HtmlContext, css: &str) {
-    info!("Inserting <style> block in body ({} bytes)", css.len());
+pub fn render_style(ctx: &mut HtmlContext, input_css: &str) {
+    let parser_options = ParserOptions {
+        error_recovery: true,
+        ..Default::default()
+    };
 
-    ctx.html().style().inner(css);
+    let print_options = PrinterOptions {
+        minify: true,
+        ..Default::default()
+    };
+
+    info!("Parsing input CSS ({} bytes)", input_css.len());
+    let stylesheet = StyleSheet::parse(input_css, parser_options)
+        .expect("Produced error with recovery enabled");
+
+    debug!("Rendering minified CSS into HTML");
+    let output_css = match stylesheet.to_css(print_options) {
+        Ok(output) => output.code,
+        Err(error) => {
+            error!("Problem outputting CSS from stylesheet: {error}");
+            debug!("Input CSS:\n{input_css}");
+            debug!("Parsed stylesheet:\n{stylesheet:#?}");
+            return;
+        }
+    };
+
+    ctx.html().style().contents(|ctx| {
+        // SAFETY: The resultant CSS cannot contain HTML-escaping elements,
+        //         as those are invalid and would not be retained during
+        //         the parcel_css parsing process.
+        ctx.push_raw_str(&output_css);
+    });
 }
