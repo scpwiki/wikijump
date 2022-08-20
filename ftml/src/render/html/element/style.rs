@@ -22,13 +22,15 @@ use super::prelude::*;
 use parcel_css::stylesheet::{ParserOptions, PrinterOptions, StyleSheet};
 
 pub fn render_style(ctx: &mut HtmlContext, input_css: &str) {
+    let minify = ctx.settings().minify_css;
+
     let parser_options = ParserOptions {
         error_recovery: true,
         ..Default::default()
     };
 
     let print_options = PrinterOptions {
-        minify: true,
+        minify,
         ..Default::default()
     };
 
@@ -36,7 +38,7 @@ pub fn render_style(ctx: &mut HtmlContext, input_css: &str) {
     let stylesheet = StyleSheet::parse(input_css, parser_options)
         .expect("Produced error with recovery enabled");
 
-    debug!("Rendering minified CSS into HTML");
+    debug!("Rendering CSS into HTML (minify: {minify})");
     let output_css = match stylesheet.to_css(print_options) {
         Ok(output) => output.code,
         Err(error) => {

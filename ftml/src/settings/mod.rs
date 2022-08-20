@@ -22,6 +22,14 @@ mod interwiki;
 
 pub use self::interwiki::{InterwikiSettings, DEFAULT_INTERWIKI, EMPTY_INTERWIKI};
 
+cfg_if! {
+    if #[cfg(test)] {
+        const DEFAULT_MINIFY_CSS: bool = false;
+    } else {
+        const DEFAULT_MINIFY_CSS: bool = true;
+    }
+}
+
 /// Settings to tweak behavior in the ftml parser and renderer.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
@@ -59,6 +67,9 @@ pub struct WikitextSettings {
     /// which prefixes IDs in HTML elements provided by the user with `u-` to ensure
     /// isolation.
     pub isolate_user_ids: bool,
+
+    /// Whether to minify CSS in `<style>` blocks.
+    pub minify_css: bool,
 
     /// Whether local paths are permitted.
     ///
@@ -98,6 +109,7 @@ impl WikitextSettings {
                 use_include_compatibility: false,
                 use_true_ids: true,
                 isolate_user_ids: false,
+                minify_css: DEFAULT_MINIFY_CSS,
                 allow_local_paths: true,
                 interwiki,
             },
@@ -107,6 +119,7 @@ impl WikitextSettings {
                 use_include_compatibility: false,
                 use_true_ids: false,
                 isolate_user_ids: false,
+                minify_css: DEFAULT_MINIFY_CSS,
                 allow_local_paths: true,
                 interwiki,
             },
@@ -116,6 +129,7 @@ impl WikitextSettings {
                 use_include_compatibility: false,
                 use_true_ids: false,
                 isolate_user_ids: false,
+                minify_css: DEFAULT_MINIFY_CSS,
                 allow_local_paths: false,
                 interwiki,
             },
@@ -125,6 +139,7 @@ impl WikitextSettings {
                 use_include_compatibility: false,
                 use_true_ids: false,
                 isolate_user_ids: false,
+                minify_css: DEFAULT_MINIFY_CSS,
                 allow_local_paths: true,
                 interwiki,
             },
