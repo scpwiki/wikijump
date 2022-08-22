@@ -18,4 +18,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// TODO
+#[derive(Deserialize, Debug)]
+pub struct CreateSite {
+    pub slug: String,
+    pub name: String,
+    pub subtitle: String,
+    pub description: String,
+    pub locale: String, // Strum Enum, maybe?
+}
