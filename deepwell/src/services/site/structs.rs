@@ -24,5 +24,13 @@ pub struct CreateSite {
     pub name: String,
     pub subtitle: String,
     pub description: String,
-    pub locale: String, // Strum Enum, maybe?
+    pub locale: String, // Strum instead, maybe?
+}
+
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateSiteOutput {
+    pub site_id: i64,
+    pub slug: String,
+    pub default_page: String,
 }
