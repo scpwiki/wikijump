@@ -77,7 +77,7 @@ impl PageService {
 
         let CreateFirstRevisionOutput {
             revision_id,
-            parser_warnings,
+            parser_errors,
         } = RevisionService::create_first(ctx, site_id, page.page_id, revision_input)
             .await?;
 
@@ -86,7 +86,7 @@ impl PageService {
             page_id: page.page_id,
             slug,
             revision_id,
-            parser_warnings,
+            parser_errors,
         })
     }
 
@@ -217,13 +217,13 @@ impl PageService {
             Some(CreateRevisionOutput {
                 revision_id,
                 revision_number,
-                parser_warnings,
+                parser_errors,
             }) => Ok(MovePageOutput {
                 old_slug,
                 new_slug,
                 revision_id,
                 revision_number,
-                parser_warnings,
+                parser_errors,
             }),
             None => {
                 tide::log::error!("Page move did not create new revision");

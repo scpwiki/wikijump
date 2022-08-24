@@ -107,7 +107,7 @@ impl RevisionService {
         let revision_number = next_revision_number(&previous, site_id, page_id);
 
         // Fields to create in the revision
-        let mut parser_warnings = None;
+        let mut parser_errors = None;
         let mut old_slug = None;
         let mut changes = Vec::new();
         let PageRevisionModel {
@@ -219,7 +219,7 @@ impl RevisionService {
             .await?;
 
             // Update fields
-            parser_warnings = Some(render_output.warnings);
+            parser_errors = Some(render_output.errors);
             replace_hash(&mut compiled_hash, &render_output.compiled_hash);
             compiled_generator = render_output.compiled_generator;
             compiled_at = now();
@@ -300,7 +300,7 @@ impl RevisionService {
         Ok(Some(CreateRevisionOutput {
             revision_id,
             revision_number,
-            parser_warnings,
+            parser_errors,
         }))
     }
 
@@ -344,7 +344,7 @@ impl RevisionService {
         let RenderOutput {
             // TODO: use html_output
             html_output: _,
-            warnings,
+            errors,
             compiled_hash,
             compiled_generator,
         } = Self::render_and_update_links(ctx, site_id, page_id, wikitext, render_input)
@@ -381,7 +381,7 @@ impl RevisionService {
         let PageRevisionModel { revision_id, .. } = model.insert(txn).await?;
         Ok(CreateFirstRevisionOutput {
             revision_id,
-            parser_warnings: warnings,
+            parser_errors: errors,
         })
     }
 
@@ -448,7 +448,7 @@ impl RevisionService {
         Ok(CreateRevisionOutput {
             revision_id,
             revision_number,
-            parser_warnings: None,
+            parser_errors: None,
         })
     }
 
@@ -515,7 +515,7 @@ impl RevisionService {
         let RenderOutput {
             // TODO: use html_output
             html_output: _,
-            warnings,
+            errors,
             compiled_hash: new_compiled_hash,
             compiled_generator,
         } = Self::render_and_update_links(ctx, site_id, page_id, wikitext, render_input)
@@ -552,7 +552,7 @@ impl RevisionService {
         Ok(CreateRevisionOutput {
             revision_id,
             revision_number,
-            parser_warnings: Some(warnings),
+            parser_errors: Some(errors),
         })
     }
 

@@ -38,7 +38,7 @@ impl RenderService {
         ftml::preprocess(&mut wikitext);
         let tokens = ftml::tokenize(&wikitext);
         let result = ftml::parse(&tokens, page_info, settings);
-        let (tree, warnings) = result.into();
+        let (tree, errors) = result.into();
         let html_output = HtmlRender.render(&tree, page_info, settings);
 
         // Insert compiled HTML into text table
@@ -47,7 +47,7 @@ impl RenderService {
         // Build and return
         Ok(RenderOutput {
             html_output,
-            warnings,
+            errors,
             compiled_hash,
             compiled_generator,
         })
