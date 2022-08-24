@@ -21,7 +21,7 @@
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::PageRevisionType;
 use crate::services::revision::CreateRevisionOutput;
-use ftml::parsing::ParseWarning;
+use ftml::parsing::ParseError;
 use sea_orm::entity::prelude::DateTimeWithTimeZone;
 use serde_json::Value as JsonValue;
 
@@ -42,7 +42,7 @@ pub struct CreatePageOutput {
     pub page_id: i64,
     pub slug: String,
     pub revision_id: i64,
-    pub parser_warnings: Vec<ParseWarning>,
+    pub parser_errors: Vec<ParseError>,
 }
 
 #[derive(Serialize, Debug)]
@@ -101,7 +101,7 @@ pub struct MovePageOutput {
     pub new_slug: String,
     pub revision_id: i64,
     pub revision_number: i32,
-    pub parser_warnings: Option<Vec<ParseWarning>>,
+    pub parser_errors: Option<Vec<ParseError>>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -133,7 +133,7 @@ pub struct RestorePageOutput {
     slug: String,
     revision_id: i64,
     revision_number: i32,
-    parser_warnings: Vec<ParseWarning>,
+    parser_errors: Vec<ParseError>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -152,15 +152,15 @@ impl From<(CreateRevisionOutput, i64)> for DeletePageOutput {
             CreateRevisionOutput {
                 revision_id,
                 revision_number,
-                parser_warnings,
+                parser_errors,
             },
             page_id,
         ): (CreateRevisionOutput, i64),
     ) -> DeletePageOutput {
         // There's no reason to rerender on page deletion
         debug_assert!(
-            parser_warnings.is_none(),
-            "Parser warnings from deleted page revision",
+            parser_errors.is_none(),
+            "Parser errors from deleted page revision",
         );
 
         DeletePageOutput {
@@ -178,20 +178,20 @@ impl From<(CreateRevisionOutput, String)> for RestorePageOutput {
             CreateRevisionOutput {
                 revision_id,
                 revision_number,
-                parser_warnings,
+                parser_errors,
             },
             slug,
         ): (CreateRevisionOutput, String),
     ) -> RestorePageOutput {
         // We should always rerender on page restoration
-        let parser_warnings =
-            parser_warnings.expect("No parser warnings from deleted page revision");
+        let parser_errors =
+            parser_errors.expect("No parser warnings from deleted page revision");
 
         RestorePageOutput {
             slug,
             revision_id,
             revision_number,
-            parser_warnings,
+            parser_errors,
         }
     }
 }

@@ -25,7 +25,7 @@ mod prelude {
         self,
         data::PageInfo,
         info::VERSION,
-        parsing::ParseWarning,
+        parsing::ParseError,
         render::html::{HtmlOutput, HtmlRender},
         render::Render,
         settings::WikitextSettings,

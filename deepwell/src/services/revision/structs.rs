@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::PageRevisionType;
-use ftml::parsing::ParseWarning;
+use ftml::parsing::ParseError;
 use sea_orm::prelude::DateTimeWithTimeZone;
 use std::num::NonZeroI32;
 
@@ -76,14 +76,14 @@ pub struct CreateResurrectionRevision {
 pub struct CreateRevisionOutput {
     pub revision_id: i64,
     pub revision_number: i32,
-    pub parser_warnings: Option<Vec<ParseWarning>>,
+    pub parser_errors: Option<Vec<ParseError>>,
 }
 
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateFirstRevisionOutput {
     pub revision_id: i64,
-    pub parser_warnings: Vec<ParseWarning>,
+    pub parser_errors: Vec<ParseError>,
 }
 
 #[derive(Deserialize, Debug)]

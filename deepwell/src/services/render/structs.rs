@@ -24,7 +24,7 @@ use crate::hash::Hash;
 #[derive(Debug)]
 pub struct RenderOutput {
     pub html_output: HtmlOutput,
-    pub warnings: Vec<ParseWarning>,
+    pub errors: Vec<ParseError>,
     pub compiled_hash: Hash,
     pub compiled_generator: String,
 }
