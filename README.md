@@ -42,7 +42,7 @@ If you would like to volunteer some of your time to Wikijump development, join t
 
 ### Development
 
-We don't have a lot of documentation here yet. See [development.md](docs/development.md) and [install.md](docs/install.md) for information on running a local instance of Wikijump. See the [Wikijump Glossary](docs/glossary.md) for the terminology used by developers and API consumers.
+We don't have a lot of documentation here yet. See [development.md](docs/development.md) for information on running a local instance of Wikijump. See the [Wikijump Glossary](docs/glossary.md) for the terminology used by developers and API consumers, and [contributing.md](docs/contributing.md) if you're interested in contributing to the project.
 
 ## Sponsors
 
