@@ -1,5 +1,5 @@
 {
-    "input": "[[ifcategory _default]]\n[[css]]body { color: red; }[[/css]]\n[[/ifcategory]]\n[[ifcategory fragment]]\n[[css]]body { color: blue; }[[/css]]\n[[/ifcategory]]",
+    "input": "[[ifcategory _default]]\n[[module css]]body { color: red; }[[/module]]\n[[/ifcategory]]\n[[ifcategory fragment]]\n[[module css]]body { color: blue; }[[/module]]\n[[/ifcategory]]",
     "tree": {
         "elements": [
             {

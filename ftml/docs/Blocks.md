@@ -87,7 +87,6 @@ Alternatively you may look here for a formatted list: (though it may not be upda
 | [Checkbox](#checkbox)                   | `checkbox`                       | Yes   | No     | No        | Map           | None      |
 | [Code](#code)                           | `code`                           | No    | No     | Yes       | Map           | Raw       |
 | [Collapsible](#collapsible)             | `collapsible`                    | No    | No     | Yes       | Map           | Elements  |
-| [CSS](#css)                             | `css`                            | No    | No     | Yes       | None          | Raw       |
 | [Date](#date)                           | `date`                           | No    | No     | No        | Value + Map   | None      |
 | [Deletion](#deletion)                   | `del`, `deletion`                | No    | No     | No        | Map           | Elements  |
 | [Div](#div)                             | `div`                            | No    | Yes    | Yes       | Map           | Elements  |
@@ -258,27 +257,6 @@ Example:
 [[collapsible show="+ Spoilers for Ouroboros" hide="- Spoilers!" hideLocation="bottom"]]
 Overseers die.
 [[/collapsible]]
-```
-
-### CSS
-
-Output: None / `<style>`
-
-Body: Raw
-
-Accepts newline separation.
-
-Arguments:
-* None
-
-Example:
-
-```
-[[css]]
-#page-title {
-    color: purple;
-}
-[[/css]]
 ```
 
 ### Date

@@ -58,12 +58,6 @@ type = "string"
 enum = ["top", "both", "bottom", "neither"]
 default = "top"
 
-[css]
-accepts-newlines = true
-head = "none"
-body = "raw"
-html-output = "css"
-
 [date]
 head = "value+map"
 body = "none"

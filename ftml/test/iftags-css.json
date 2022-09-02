@@ -1,5 +1,5 @@
 {
-    "input": "[[iftags fruit]]\n[[css]]body { color: red; }[[/css]]\n[[/iftags]]\n[[iftags xyz]]\n[[css]]body { color: blue; }[[/css]]\n[[/iftags]]",
+    "input": "[[iftags fruit]]\n[[module css]]body { color: red; }[[/module]]\n[[/iftags]]\n[[iftags xyz]]\n[[module css]]body { color: blue; }[[/module]]\n[[/iftags]]",
     "tree": {
         "elements": [
             {
