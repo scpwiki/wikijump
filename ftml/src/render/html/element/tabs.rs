@@ -35,7 +35,7 @@ pub fn render_tabview(ctx: &mut HtmlContext, tabs: &[Tab]) {
         .attr(attr!(
             "class" => "wj-tabs",
         ))
-        .contents(|ctx| {
+        .inner(|ctx| {
             // Tab buttons
             ctx.html()
                 .div()
@@ -43,7 +43,7 @@ pub fn render_tabview(ctx: &mut HtmlContext, tabs: &[Tab]) {
                     "class" => "wj-tabs-button-list",
                     "role" => "tablist",
                 ))
-                .contents(|ctx| {
+                .inner(|ctx| {
                     for (i, tab) in tabs.iter().enumerate() {
                         let (tab_selected, tab_index) = if i == 0 {
                             ("true", "0")
@@ -73,7 +73,7 @@ pub fn render_tabview(ctx: &mut HtmlContext, tabs: &[Tab]) {
                 .attr(attr!(
                     "class" => "wj-tabs-panel-list",
                 ))
-                .contents(|ctx| {
+                .inner(|ctx| {
                     for (i, tab) in tabs.iter().enumerate() {
                         // Each tab panel
                         ctx.html()

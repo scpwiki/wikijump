@@ -44,12 +44,12 @@ pub fn render_table_of_contents(
             "class" => class_value; if align.is_some();;
             attributes
         ))
-        .contents(|ctx| {
+        .inner(|ctx| {
             // TOC buttons
             ctx.html()
                 .div()
                 .attr(attr!("id" => "wj-toc-action-bar"; if use_true_ids))
-                .contents(|ctx| {
+                .inner(|ctx| {
                     // TODO button
                     ctx.html().a().attr(attr!(
                         "href" => "javascript:;",

@@ -91,14 +91,14 @@ pub fn render_collapsible(ctx: &mut HtmlContext, collapsible: Collapsible) {
             "data-show-bottom"; if show_bottom;;
             attributes,
         ))
-        .contents(|ctx| {
+        .inner(|ctx| {
             // Open/close button
             ctx.html()
                 .summary()
                 .attr(attr!(
                     "class" => "wj-collapsible-button wj-collapsible-button-top",
                 ))
-                .contents(|ctx| {
+                .inner(|ctx| {
                     // Block is folded text
                     ctx.html()
                         .span()
@@ -125,7 +125,7 @@ pub fn render_collapsible(ctx: &mut HtmlContext, collapsible: Collapsible) {
                     .attr(attr!(
                         "class" => "wj-collapsible-button wj-collapsible-button-bottom",
                     ))
-                    .contents(|ctx| {
+                    .inner(|ctx| {
                         // Block is unfolded text
                         ctx.html()
                             .span()

@@ -35,7 +35,7 @@ pub fn render_list(
     let list_tag = ltype.html_tag();
     let mut tag = ctx.html().tag(list_tag);
 
-    tag.attr(attr!(;; attributes)).contents(|ctx| {
+    tag.attr(attr!(;; attributes)).inner(|ctx| {
         for list_item in list_items {
             match list_item {
                 ListItem::Elements {

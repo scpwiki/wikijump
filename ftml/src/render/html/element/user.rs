@@ -26,7 +26,7 @@ pub fn render_user(ctx: &mut HtmlContext, name: &str, show_avatar: bool) {
     ctx.html()
         .span()
         .attr(attr!("class" => "wj-user-info"))
-        .contents(|ctx| match ctx.handle().get_user_info(name) {
+        .inner(|ctx| match ctx.handle().get_user_info(name) {
             Some(info) => {
                 debug!(
                     "Got user information (user id {}, name {})",
@@ -40,7 +40,7 @@ pub fn render_user(ctx: &mut HtmlContext, name: &str, show_avatar: bool) {
                         "class" => "wj-user-info-link",
                         "href" => &info.user_profile_url,
                     ))
-                    .contents(|ctx| {
+                    .inner(|ctx| {
                         if show_avatar {
                             ctx.html()
                                 .span()
@@ -48,7 +48,7 @@ pub fn render_user(ctx: &mut HtmlContext, name: &str, show_avatar: bool) {
                                     "class" => "wj-karma",
                                     "data-karma" => &info.user_karma.to_string(),
                                 ))
-                                .contents(|ctx| {
+                                .inner(|ctx| {
                                     ctx.html().sprite("wj-karma");
                                 });
 
@@ -70,7 +70,7 @@ pub fn render_user(ctx: &mut HtmlContext, name: &str, show_avatar: bool) {
                 ctx.html()
                     .span()
                     .attr(attr!("class" => "wj-error-inline"))
-                    .contents(|ctx| {
+                    .inner(|ctx| {
                         if show_avatar {
                             // Karma SVG
                             ctx.html()
@@ -79,7 +79,7 @@ pub fn render_user(ctx: &mut HtmlContext, name: &str, show_avatar: bool) {
                                     "class" => "wj-karma",
                                     "data-karma" => "0",
                                 ))
-                                .contents(|ctx| {
+                                .inner(|ctx| {
                                     ctx.html().sprite("wj-karma");
                                 });
 

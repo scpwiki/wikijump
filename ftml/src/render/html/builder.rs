@@ -97,7 +97,7 @@ where
                 "class" => &class,
                 "viewBox" => viewbox,
             ))
-            .contents(|ctx| {
+            .inner(|ctx| {
                 ctx.html().tag("use").attr(attr!("href" => &href));
             });
     }
@@ -281,7 +281,7 @@ impl<'c, 'i, 'h, 'e, 't> HtmlBuilderTag<'c, 'i, 'h, 'e, 't> {
         self
     }
 
-    pub fn contents<F>(&mut self, mut f: F) -> &mut Self
+    pub fn inner<F>(&mut self, mut f: F) -> &mut Self
     where
         F: FnMut(&mut HtmlContext),
     {

@@ -78,7 +78,7 @@ fn render_image_element(
         .attr(attr!(
             "class" => "wj-image-container" space align_class,
         ))
-        .contents(|ctx| {
+        .inner(|ctx| {
             let build_image = |ctx: &mut HtmlContext| {
                 ctx.html().img().attr(attr!(
                     "class" => "wj-image",
@@ -94,7 +94,7 @@ fn render_image_element(
                     ctx.html()
                         .a()
                         .attr(attr!("href" => &url))
-                        .contents(build_image);
+                        .inner(build_image);
                 }
                 None => build_image(ctx),
             };

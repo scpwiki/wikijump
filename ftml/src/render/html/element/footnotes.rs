@@ -37,7 +37,7 @@ pub fn render_footnote(ctx: &mut HtmlContext) {
     ctx.html()
         .span()
         .attr(attr!("class" => "wj-footnote-ref"))
-        .contents(|ctx| {
+        .inner(|ctx| {
             // Footnote marker that is hoverable
             ctx.html()
                 .element("wj-footnote-ref-marker")
@@ -59,7 +59,7 @@ pub fn render_footnote(ctx: &mut HtmlContext) {
                     "class" => "wj-footnote-ref-tooltip",
                     "aria-hidden" => "true",
                 ))
-                .contents(|ctx| {
+                .inner(|ctx| {
                     // Tooltip label
                     ctx.html()
                         .span()
@@ -96,13 +96,13 @@ pub fn render_footnote_block(ctx: &mut HtmlContext, title: Option<&str>) {
     ctx.html()
         .div()
         .attr(attr!("class" => "wj-footnote-list"))
-        .contents(|ctx| {
+        .inner(|ctx| {
             ctx.html()
                 .div()
                 .attr(attr!("class" => "wj-title"))
                 .contents2(title);
 
-            ctx.html().ol().contents(|ctx| {
+            ctx.html().ol().inner(|ctx| {
                 // TODO make this into a footnote helper method
                 for (index, contents) in ctx.footnotes().iter().enumerate() {
                     let index = index + 1;
@@ -115,7 +115,7 @@ pub fn render_footnote_block(ctx: &mut HtmlContext, title: Option<&str>) {
                             "class" => "wj-footnote-list-item",
                             "data-id" => id,
                         ))
-                        .contents(|ctx| {
+                        .inner(|ctx| {
                             // Number and clickable anchor
                             ctx.html()
                                 .element("wj-footnote-list-item-marker")
@@ -124,7 +124,7 @@ pub fn render_footnote_block(ctx: &mut HtmlContext, title: Option<&str>) {
                                     "type" => "button",
                                     "role" => "link",
                                 ))
-                                .contents(|ctx| {
+                                .inner(|ctx| {
                                     str_write!(ctx, "{index}");
 
                                     // Period after item number. Has special class to permit styling.

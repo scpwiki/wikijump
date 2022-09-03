@@ -32,14 +32,14 @@ pub fn render_table(ctx: &mut HtmlContext, table: &Table) {
     ctx.html()
         .table()
         .attr(attr!(;; &table.attributes))
-        .contents(|ctx| {
-            ctx.html().tbody().contents(|ctx| {
+        .inner(|ctx| {
+            ctx.html().tbody().inner(|ctx| {
                 // Each row
                 for row in &table.rows {
                     ctx.html() //
                         .tr()
                         .attr(attr!(;; &row.attributes))
-                        .contents(|ctx| {
+                        .inner(|ctx| {
                             // Each cell in a row
                             for cell in &row.cells {
                                 let elements: &[Element] = &cell.elements;
