@@ -44,7 +44,7 @@ pub fn render_anchor(
             "target" => target_value; if target.is_some();;
             attributes,
         ))
-        .inner(elements);
+        .contents2(elements);
 }
 
 pub fn render_link(
@@ -98,6 +98,6 @@ pub fn render_link(
 
     // Add <a> internals, i.e. the link name
     handle.get_link_label(&site, link, label, |label| {
-        tag.inner(label);
+        tag.contents2(label);
     });
 }

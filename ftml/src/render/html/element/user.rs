@@ -61,7 +61,7 @@ pub fn render_user(ctx: &mut HtmlContext, name: &str, show_avatar: bool) {
                         ctx.html()
                             .span()
                             .attr(attr!("class" => "wj-user-info-name"))
-                            .inner(&info.user_name);
+                            .contents2(&info.user_name);
                     });
             }
             None => {
@@ -92,7 +92,7 @@ pub fn render_user(ctx: &mut HtmlContext, name: &str, show_avatar: bool) {
                         ctx.html()
                             .span()
                             .attr(attr!("class" => "wj-user-info-name"))
-                            .inner(name);
+                            .contents2(name);
                     });
             }
         });

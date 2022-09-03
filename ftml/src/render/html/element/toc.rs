@@ -65,7 +65,7 @@ pub fn render_table_of_contents(
             ctx.html()
                 .div()
                 .attr(attr!("class" => "title"))
-                .inner(table_of_contents_title);
+                .contents2(table_of_contents_title);
 
             // TOC List
             let table_of_contents = ctx.table_of_contents();
@@ -73,6 +73,6 @@ pub fn render_table_of_contents(
             ctx.html()
                 .div()
                 .attr(attr!("id" => "wj-toc-list"; if use_true_ids))
-                .inner(table_of_contents);
+                .contents2(table_of_contents);
         });
 }

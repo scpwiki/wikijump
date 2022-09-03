@@ -27,11 +27,11 @@ pub fn render_container(ctx: &mut HtmlContext, container: &Container) {
     match container.ctype() {
         // We wrap with <rp> around the <rt> contents
         ContainerType::RubyText => {
-            ctx.html().rp().inner("(");
+            ctx.html().rp().contents2("(");
 
             render_container_internal(ctx, container);
 
-            ctx.html().rp().inner(")");
+            ctx.html().rp().contents2(")");
         }
 
         // Render normally
@@ -66,7 +66,7 @@ pub fn render_container_internal(ctx: &mut HtmlContext, container: &Container) {
     };
 
     // Add container internals
-    tag.inner(container.elements());
+    tag.contents2(container.elements());
 }
 
 pub fn render_color(ctx: &mut HtmlContext, color: &str, elements: &[Element]) {
@@ -77,7 +77,7 @@ pub fn render_color(ctx: &mut HtmlContext, color: &str, elements: &[Element]) {
         .attr(attr!(
             "style" => "color: " color ";",
         ))
-        .inner(elements);
+        .contents2(elements);
 }
 
 fn choose_id(ctx: &mut HtmlContext, tag_spec: &HtmlTag) -> Option<String> {

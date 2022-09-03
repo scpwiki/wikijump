@@ -103,20 +103,20 @@ pub fn render_collapsible(ctx: &mut HtmlContext, collapsible: Collapsible) {
                     ctx.html()
                         .span()
                         .attr(attr!("class" => "wj-collapsible-show-text"))
-                        .inner(show_text);
+                        .contents2(show_text);
 
                     // Block is unfolded text
                     ctx.html()
                         .span()
                         .attr(attr!("class" => "wj-collapsible-hide-text"))
-                        .inner(hide_text);
+                        .contents2(hide_text);
                 });
 
             // Content block
             ctx.html()
                 .div()
                 .attr(attr!("class" => "wj-collapsible-content"))
-                .inner(elements);
+                .contents2(elements);
 
             // Bottom open/close button
             if show_bottom {
@@ -130,7 +130,7 @@ pub fn render_collapsible(ctx: &mut HtmlContext, collapsible: Collapsible) {
                         ctx.html()
                             .span()
                             .attr(attr!("class" => "wj-collapsible-hide-text"))
-                            .inner(hide_text);
+                            .contents2(hide_text);
                     });
             }
         });

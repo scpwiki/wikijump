@@ -66,7 +66,7 @@ pub fn render_table(ctx: &mut HtmlContext, table: &Table) {
 
                                         &cell.attributes,
                                     ))
-                                    .inner(elements);
+                                    .contents2(elements);
                             }
                         });
                 }

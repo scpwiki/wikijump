@@ -79,7 +79,7 @@ impl Render for HtmlRender {
         ctx.html()
             .element("wj-body")
             .attr(attr!("class" => "wj-body"))
-            .inner(&tree.elements);
+            .contents2(&tree.elements);
 
         // Build and return HtmlOutput
         ctx.into()

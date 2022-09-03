@@ -47,7 +47,7 @@ pub fn render_footnote(ctx: &mut HtmlContext) {
                     "aria-label" => &label,
                     "data-id" => &id,
                 ))
-                .inner(&id);
+                .contents2(&id);
 
             // Tooltip shown on hover.
             // Is aria-hidden due to difficulty in getting a simultaneous
@@ -64,13 +64,13 @@ pub fn render_footnote(ctx: &mut HtmlContext) {
                     ctx.html()
                         .span()
                         .attr(attr!("class" => "wj-footnote-ref-tooltip-label"))
-                        .inner(&label);
+                        .contents2(&label);
 
                     // Actual tooltip contents
                     ctx.html()
                         .span()
                         .attr(attr!("class" => "wj-footnote-ref-contents"))
-                        .inner(contents);
+                        .contents2(contents);
                 });
         });
 }
@@ -100,7 +100,7 @@ pub fn render_footnote_block(ctx: &mut HtmlContext, title: Option<&str>) {
             ctx.html()
                 .div()
                 .attr(attr!("class" => "wj-title"))
-                .inner(title);
+                .contents2(title);
 
             ctx.html().ol().contents(|ctx| {
                 // TODO make this into a footnote helper method
@@ -131,14 +131,14 @@ pub fn render_footnote_block(ctx: &mut HtmlContext, title: Option<&str>) {
                                     ctx.html()
                                         .span()
                                         .attr(attr!("class" => "wj-footnote-sep"))
-                                        .inner(".");
+                                        .contents2(".");
                                 });
 
                             // Footnote contents
                             ctx.html()
                                 .span()
                                 .attr(attr!("class" => "wj-footnote-list-item-contents"))
-                                .inner(contents);
+                                .contents2(contents);
                         });
                 }
             });

@@ -85,7 +85,7 @@ fn render_latex(
                             .attr(attr!(
                                 "class" => "wj-equation-paren wj-equation-paren-open",
                             ))
-                            .inner("(");
+                            .contents2("(");
 
                         str_write!(ctx, "{index}");
 
@@ -95,7 +95,7 @@ fn render_latex(
                             .attr(attr!(
                                 "class" => "wj-equation-paren wj-equation-paren-close",
                             ))
-                            .inner(")");
+                            .contents2(")");
                     });
             }
 
@@ -107,7 +107,7 @@ fn render_latex(
                     "class" => "wj-math-source wj-hidden",
                     "aria-hidden" => "true",
                 ))
-                .inner(latex_source);
+                .contents2(latex_source);
 
             // Add generated MathML
             cfg_if! {
@@ -129,7 +129,7 @@ fn render_latex(
                             ctx.html()
                                 .span()
                                 .attr(attr!("class" => _error_type))
-                                .inner(error);
+                                .contents2(error);
                         }
                     }
                 }
@@ -152,7 +152,7 @@ pub fn render_equation_reference(ctx: &mut HtmlContext, name: &str) {
                     "type" => "button",
                     "data-name" => name,
                 ))
-                .inner(name);
+                .contents2(name);
 
             // Tooltip shown on hover.
             ctx.html().span().attr(attr!(
