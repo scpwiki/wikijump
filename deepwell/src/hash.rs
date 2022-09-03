@@ -62,5 +62,5 @@ pub fn hash_to_hex(hash: &[u8]) -> HexHash {
     hex::encode_to_slice(hash, &mut hex_bytes)
         .expect("Encoding hash to hex slice failed");
 
-    ArrayString::from_utf8(&hex_bytes).expect("Encoded hash was not UTF-8")
+    ArrayString::from_utf8(hex_bytes).expect("Encoded hash was not UTF-8")
 }
