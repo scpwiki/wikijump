@@ -42,7 +42,10 @@ pub fn render_list(
                     elements,
                     attributes,
                 } => {
-                    ctx.html().li().attr(attr!(;; attributes)).contents(elements);
+                    ctx.html()
+                        .li()
+                        .attr(attr!(;; attributes))
+                        .contents(elements);
                 }
                 ListItem::SubList { element } => {
                     render_element(ctx, element);
