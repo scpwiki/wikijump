@@ -49,7 +49,7 @@ pub fn render_style(ctx: &mut HtmlContext, input_css: &str) {
         }
     };
 
-    ctx.html().style().contents(|ctx| {
+    ctx.html().style().inner(|ctx| {
         // SAFETY: The resultant CSS cannot contain HTML-escaping elements,
         //         as those are invalid and would not be retained during
         //         the parcel_css parsing process.

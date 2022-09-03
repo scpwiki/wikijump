@@ -35,7 +35,7 @@ pub fn render_tabview(ctx: &mut HtmlContext, tabs: &[Tab]) {
         .attr(attr!(
             "class" => "wj-tabs",
         ))
-        .contents(|ctx| {
+        .inner(|ctx| {
             // Tab buttons
             ctx.html()
                 .div()
@@ -43,7 +43,7 @@ pub fn render_tabview(ctx: &mut HtmlContext, tabs: &[Tab]) {
                     "class" => "wj-tabs-button-list",
                     "role" => "tablist",
                 ))
-                .contents(|ctx| {
+                .inner(|ctx| {
                     for (i, tab) in tabs.iter().enumerate() {
                         let (tab_selected, tab_index) = if i == 0 {
                             ("true", "0")
@@ -63,7 +63,7 @@ pub fn render_tabview(ctx: &mut HtmlContext, tabs: &[Tab]) {
                                 "aria-controls" => &tab_ids[i],
                                 "tabindex" => tab_index,
                             ))
-                            .inner(&tab.label);
+                            .contents(&tab.label);
                     }
                 });
 
@@ -73,7 +73,7 @@ pub fn render_tabview(ctx: &mut HtmlContext, tabs: &[Tab]) {
                 .attr(attr!(
                     "class" => "wj-tabs-panel-list",
                 ))
-                .contents(|ctx| {
+                .inner(|ctx| {
                     for (i, tab) in tabs.iter().enumerate() {
                         // Each tab panel
                         ctx.html()
@@ -86,7 +86,7 @@ pub fn render_tabview(ctx: &mut HtmlContext, tabs: &[Tab]) {
                                 "tabindex" => "0",
                                 "hidden"; if i > 0,
                             ))
-                            .inner(&tab.elements);
+                            .contents(&tab.elements);
                     }
                 });
         });

@@ -72,20 +72,20 @@ fn render_latex(
             "class" => "wj-math " wj_type,
             "data-name" => name.unwrap_or(""); if name.is_some(),
         ))
-        .contents(|ctx| {
+        .inner(|ctx| {
             // Add equation index
             if let Some(index) = index {
                 ctx.html()
                     .span()
                     .attr(attr!("class" => "wj-equation-number"))
-                    .contents(|ctx| {
+                    .inner(|ctx| {
                         // Open parenthesis
                         ctx.html()
                             .span()
                             .attr(attr!(
                                 "class" => "wj-equation-paren wj-equation-paren-open",
                             ))
-                            .inner("(");
+                            .contents("(");
 
                         str_write!(ctx, "{index}");
 
@@ -95,7 +95,7 @@ fn render_latex(
                             .attr(attr!(
                                 "class" => "wj-equation-paren wj-equation-paren-close",
                             ))
-                            .inner(")");
+                            .contents(")");
                     });
             }
 
@@ -107,7 +107,7 @@ fn render_latex(
                     "class" => "wj-math-source wj-hidden",
                     "aria-hidden" => "true",
                 ))
-                .inner(latex_source);
+                .contents(latex_source);
 
             // Add generated MathML
             cfg_if! {
@@ -120,7 +120,7 @@ fn render_latex(
                             ctx.html()
                                 .element("wj-math-ml")
                                 .attr(attr!("class" => "wj-math-ml"))
-                                .contents(|ctx| ctx.push_raw_str(&mathml));
+                                .inner(|ctx| ctx.push_raw_str(&mathml));
                         }
                         Err(error) => {
                             warn!("Error processing LaTeX -> MathML: {error}");
@@ -129,7 +129,7 @@ fn render_latex(
                             ctx.html()
                                 .span()
                                 .attr(attr!("class" => _error_type))
-                                .inner(error);
+                                .contents(error);
                         }
                     }
                 }
@@ -143,7 +143,7 @@ pub fn render_equation_reference(ctx: &mut HtmlContext, name: &str) {
     ctx.html()
         .span()
         .attr(attr!("class" => "wj-equation-ref"))
-        .contents(|ctx| {
+        .inner(|ctx| {
             // Equation marker that is hoverable
             ctx.html()
                 .element("wj-equation-ref-marker")
@@ -152,7 +152,7 @@ pub fn render_equation_reference(ctx: &mut HtmlContext, name: &str) {
                     "type" => "button",
                     "data-name" => name,
                 ))
-                .inner(name);
+                .contents(name);
 
             // Tooltip shown on hover.
             ctx.html().span().attr(attr!(

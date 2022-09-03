@@ -49,5 +49,5 @@ pub fn render_date(
             "data-timestamp" => &timestamp,
             "data-delta" => &delta,
         ))
-        .inner(formatted_datetime);
+        .contents(formatted_datetime);
 }

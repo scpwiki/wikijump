@@ -44,12 +44,12 @@ pub fn render_table_of_contents(
             "class" => class_value; if align.is_some();;
             attributes
         ))
-        .contents(|ctx| {
+        .inner(|ctx| {
             // TOC buttons
             ctx.html()
                 .div()
                 .attr(attr!("id" => "wj-toc-action-bar"; if use_true_ids))
-                .contents(|ctx| {
+                .inner(|ctx| {
                     // TODO button
                     ctx.html().a().attr(attr!(
                         "href" => "javascript:;",
@@ -65,7 +65,7 @@ pub fn render_table_of_contents(
             ctx.html()
                 .div()
                 .attr(attr!("class" => "title"))
-                .inner(table_of_contents_title);
+                .contents(table_of_contents_title);
 
             // TOC List
             let table_of_contents = ctx.table_of_contents();
@@ -73,6 +73,6 @@ pub fn render_table_of_contents(
             ctx.html()
                 .div()
                 .attr(attr!("id" => "wj-toc-list"; if use_true_ids))
-                .inner(table_of_contents);
+                .contents(table_of_contents);
         });
 }

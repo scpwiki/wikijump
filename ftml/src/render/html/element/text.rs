@@ -28,7 +28,7 @@ pub fn render_wikitext_raw(ctx: &mut HtmlContext, text: &str) {
         .attr(attr!(
             "class" => "wj-raw",
         ))
-        .inner(text);
+        .contents(text);
 }
 
 pub fn render_email(ctx: &mut HtmlContext, email: &str) {
@@ -40,7 +40,7 @@ pub fn render_email(ctx: &mut HtmlContext, email: &str) {
     ctx.html()
         .span()
         .attr(attr!("class" => "wj-email"))
-        .inner(email);
+        .contents(email);
 }
 
 pub fn render_code(ctx: &mut HtmlContext, language: Option<&str>, contents: &str) {
@@ -60,14 +60,14 @@ pub fn render_code(ctx: &mut HtmlContext, language: Option<&str>, contents: &str
     ctx.html()
         .element("wj-code")
         .attr(attr!("class" => &class))
-        .contents(|ctx| {
+        .inner(|ctx| {
             // Panel for holding additional features
             ctx.html()
                 .div()
                 .attr(attr!(
                     "class" => "wj-code-panel",
                 ))
-                .contents(|ctx| {
+                .inner(|ctx| {
                     let button_title = ctx
                         .handle()
                         .get_message(ctx.language(), "button-copy-clipboard");
@@ -80,7 +80,7 @@ pub fn render_code(ctx: &mut HtmlContext, language: Option<&str>, contents: &str
                             "class" => "wj-code-copy",
                             "title" => button_title,
                         ))
-                        .contents(|ctx| {
+                        .inner(|ctx| {
                             ctx.html().sprite("wj-clipboard");
                             // Hidden normally, shown when clicked
                             ctx.html().sprite("wj-clipboard-success");
@@ -92,12 +92,12 @@ pub fn render_code(ctx: &mut HtmlContext, language: Option<&str>, contents: &str
                         .attr(attr!(
                             "class" => "wj-code-language",
                         ))
-                        .inner(language.unwrap_or(""));
+                        .contents(language.unwrap_or(""));
                 });
 
             // Code block containing highlighted contents
-            ctx.html().pre().contents(|ctx| {
-                ctx.html().code().inner(contents);
+            ctx.html().pre().inner(|ctx| {
+                ctx.html().code().contents(contents);
             });
         });
 }

@@ -33,7 +33,7 @@ pub fn render_embed(ctx: &mut HtmlContext, embed: &Embed) {
         .attr(attr!(
             "class" => "wj-embed",
         ))
-        .contents(|ctx| match embed {
+        .inner(|ctx| match embed {
             Embed::Youtube { video_id } => {
                 let url = format!("https://www.youtube.com/embed/{video_id}");
 

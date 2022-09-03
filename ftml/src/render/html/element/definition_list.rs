@@ -24,10 +24,10 @@ use crate::tree::DefinitionListItem;
 pub fn render_definition_list(ctx: &mut HtmlContext, items: &[DefinitionListItem]) {
     info!("Rendering definition list (length {})", items.len());
 
-    ctx.html().dl().contents(|ctx| {
+    ctx.html().dl().inner(|ctx| {
         for DefinitionListItem { key, value } in items {
-            ctx.html().dt().inner(key);
-            ctx.html().dd().inner(value);
+            ctx.html().dt().contents(key);
+            ctx.html().dd().contents(value);
         }
     });
 }
