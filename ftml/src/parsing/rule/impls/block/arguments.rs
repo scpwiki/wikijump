@@ -99,7 +99,7 @@ impl<'t> Arguments<'t> {
             .iter()
             .map(|(key, value)| {
                 let key = cow!(key.into_inner());
-                let value = value.to_owned();
+                let value = value.clone();
 
                 (key, value)
             })
