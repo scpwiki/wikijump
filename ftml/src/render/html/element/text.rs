@@ -28,7 +28,7 @@ pub fn render_wikitext_raw(ctx: &mut HtmlContext, text: &str) {
         .attr(attr!(
             "class" => "wj-raw",
         ))
-        .contents2(text);
+        .contents(text);
 }
 
 pub fn render_email(ctx: &mut HtmlContext, email: &str) {
@@ -40,7 +40,7 @@ pub fn render_email(ctx: &mut HtmlContext, email: &str) {
     ctx.html()
         .span()
         .attr(attr!("class" => "wj-email"))
-        .contents2(email);
+        .contents(email);
 }
 
 pub fn render_code(ctx: &mut HtmlContext, language: Option<&str>, contents: &str) {
@@ -92,12 +92,12 @@ pub fn render_code(ctx: &mut HtmlContext, language: Option<&str>, contents: &str
                         .attr(attr!(
                             "class" => "wj-code-language",
                         ))
-                        .contents2(language.unwrap_or(""));
+                        .contents(language.unwrap_or(""));
                 });
 
             // Code block containing highlighted contents
             ctx.html().pre().inner(|ctx| {
-                ctx.html().code().contents2(contents);
+                ctx.html().code().contents(contents);
             });
         });
 }
