@@ -33,6 +33,7 @@ mod prelude {
 }
 
 mod anchor;
+mod bibcite;
 mod block;
 mod blockquote;
 mod bold;
@@ -69,6 +70,7 @@ mod url;
 mod variable;
 
 pub use self::anchor::RULE_ANCHOR;
+pub use self::bibcite::RULE_BIBCITE;
 pub use self::block::{RULE_BLOCK, RULE_BLOCK_SKIP_NEWLINE, RULE_BLOCK_STAR};
 pub use self::blockquote::RULE_BLOCKQUOTE;
 pub use self::bold::RULE_BOLD;
