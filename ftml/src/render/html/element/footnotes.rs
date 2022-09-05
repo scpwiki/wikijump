@@ -127,7 +127,7 @@ pub fn render_footnote_block(ctx: &mut HtmlContext, title: Option<&str>) {
                                 .inner(|ctx| {
                                     str_write!(ctx, "{index}");
 
-                                    // Period after item number. Has special class to permit styling.
+                                    // Period after entry number. Has special class to permit styling.
                                     ctx.html()
                                         .span()
                                         .attr(attr!("class" => "wj-footnote-sep"))

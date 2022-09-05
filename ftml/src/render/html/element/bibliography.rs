@@ -30,6 +30,7 @@ pub fn render_bibcite(ctx: &mut HtmlContext, label: &str, brackets: bool) {
 pub fn render_bibliography(
     ctx: &mut HtmlContext,
     title: Option<&str>,
+    bibliography_index: usize,
     bibliography: &Bibliography,
 ) {
     info!(
@@ -38,5 +39,69 @@ pub fn render_bibliography(
         bibliography.slice().len(),
     );
 
-    todo!()
+    let title_default;
+    let title: &str = match title {
+        Some(title) => title.as_ref(),
+        None => {
+            title_default = ctx
+                .handle()
+                .get_message(ctx.language(), "bibliography-block-title");
+
+            title_default
+        }
+    };
+
+    ctx.html()
+        .div()
+        .attr(attr!("class" => "wj-bibliography bibitems"))
+        .inner(|ctx| {
+            ctx.html()
+                .div()
+                .attr(attr!("class" => "wj-bibliography-title title"))
+                .contents(title);
+
+            let mut id = String::new();
+            for (entry_index, (_, elements)) in bibliography.slice().iter().enumerate() {
+                // Convert to 1-indexing
+                let bibliography_index = bibliography_index + 1;
+                let entry_index = entry_index + 1;
+
+                // Produce HTML ID
+                id.clear();
+                str_write!(
+                    id,
+                    "wj-bibliography-item-{}-{} bibitem-{}-{}",
+                    bibliography_index,
+                    entry_index,
+                    bibliography_index,
+                    entry_index,
+                );
+
+                // Make bibliography row
+                ctx.html()
+                    .div()
+                    .attr(attr!("class" => "wj-bibliography-item bibitem", "id" => &id))
+                    .inner(|ctx| {
+                        // Number and clickable anchor
+                        ctx.html()
+                            .element("wj-bibliography-item-marker")
+                            .attr(attr!(
+                                "class" => "wj-bibliography-item-marker",
+                                "type" => "button",
+                                "role" => "link",
+                            ))
+                            .inner(|ctx| {
+                                str_write!(ctx, "{entry_index}");
+
+                                // Period after entry number. Has special class to permit styling.
+                                ctx.html()
+                                    .span()
+                                    .attr(attr!("class" => "wj-bibliography-sep"))
+                                    .contents(".");
+                            });
+
+                        render_elements(ctx, elements);
+                    });
+            }
+        });
 }

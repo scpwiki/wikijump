@@ -175,7 +175,7 @@ pub fn render_element(ctx: &mut HtmlContext, element: &Element) {
             if !hide {
                 let title = title.ref_map(|s| s.as_ref());
                 let bibliography = ctx.get_bibliography(*index);
-                render_bibliography(ctx, title, bibliography);
+                render_bibliography(ctx, title, *index, bibliography);
             }
         }
         Element::User { name, show_avatar } => render_user(ctx, name, *show_avatar),
