@@ -21,9 +21,13 @@
 use super::prelude::*;
 
 pub fn render_bibcite(ctx: &mut HtmlContext, label: &str, brackets: bool) {
+    info!("Rendering bibliography citation (label {label}, brackets {brackets})");
+
     todo!()
 }
 
 pub fn render_bibliography(ctx: &mut HtmlContext, title: Option<&str>) {
+    info!("Rendering bibliography block (title {})", title.unwrap_or("<default>"));
+
     todo!()
 }
