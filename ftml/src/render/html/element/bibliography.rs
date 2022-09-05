@@ -20,10 +20,10 @@
 
 use super::prelude::*;
 
-pub fn render_bibcite(ctx: &mut HtmlContext) {
+pub fn render_bibcite(ctx: &mut HtmlContext, label: &str) {
     todo!()
 }
 
-pub fn render_bibliography(ctx: &mut HtmlContext) {
+pub fn render_bibliography(ctx: &mut HtmlContext, title: Option<&str>) {
     todo!()
 }

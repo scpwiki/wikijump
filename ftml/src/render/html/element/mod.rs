@@ -168,8 +168,10 @@ pub fn render_element(ctx: &mut HtmlContext, element: &Element) {
                 render_footnote_block(ctx, ref_cow!(title));
             }
         }
-        Element::BibliographyCite => render_bibcite(ctx),
-        Element::BibliographyBlock => render_bibliography(ctx),
+        Element::BibliographyCite { label } => render_bibcite(ctx, label),
+        Element::BibliographyBlock { title } => {
+            render_bibliography(ctx, title.ref_map(|s| s.as_ref()))
+        }
         Element::User { name, show_avatar } => render_user(ctx, name, *show_avatar),
         Element::Date {
             value,
