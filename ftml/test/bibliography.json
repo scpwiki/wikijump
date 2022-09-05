@@ -1,0 +1,165 @@
+{
+    "input": "In 1970,((bibcite wwiii)) the final war for all humanity[[bibcite man]] was fought.\n[[bibliography]]\n: wwiii : A\n: man : B\n: woman : C\n[[/bibliography]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "In"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "1970"
+                        },
+                        {
+                            "element": "text",
+                            "data": ","
+                        },
+                        {
+                            "element": "bibliography-cite",
+                            "data": {
+                                "label": "wwiii",
+                                "brackets": false
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "the"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "final"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "war"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "for"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "all"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "humanity"
+                        },
+                        {
+                            "element": "bibliography-cite",
+                            "data": {
+                                "label": "man",
+                                "brackets": true
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "was"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "fought"
+                        },
+                        {
+                            "element": "text",
+                            "data": "."
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "bibliography-block",
+                "data": {
+                    "index": 0,
+                    "title": null,
+                    "hide": false
+                }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "table-of-contents": [],
+        "footnotes": [],
+        "bibliographies": [
+            [
+                [
+                    "wwiii",
+                    [
+                        {
+                            "element": "text",
+                            "data": "A"
+                        }
+                    ]
+                ],
+                [
+                    "man",
+                    [
+                        {
+                            "element": "text",
+                            "data": "B"
+                        }
+                    ]
+                ],
+                [
+                    "woman",
+                    [
+                        {
+                            "element": "text",
+                            "data": "C"
+                        }
+                    ]
+                ]
+            ]
+        ]
+    }
+,
+    "errors": [
+    ]
+}
