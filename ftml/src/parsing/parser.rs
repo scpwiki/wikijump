@@ -25,7 +25,7 @@ use super::RULE_PAGE;
 use crate::data::PageInfo;
 use crate::render::text::TextRender;
 use crate::tokenizer::Tokenization;
-use crate::tree::{AcceptsPartial, BibliographyList, HeadingLevel};
+use crate::tree::{AcceptsPartial, Bibliography, BibliographyList, HeadingLevel};
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::{mem, ptr};
@@ -233,6 +233,11 @@ impl<'r, 't> Parser<'r, 't> {
     #[cold]
     pub fn remove_footnotes(&mut self) -> Vec<Vec<Element<'t>>> {
         mem::take(&mut self.footnotes.borrow_mut())
+    }
+
+    // Bibliography
+    pub fn push_bibliography(&mut self, bibliography: Bibliography<'t>) {
+        self.bibliographies.borrow_mut().push(bibliography);
     }
 
     // Special for [[include]], appending a SyntaxTree

@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::tree::DefinitionListItem;
+use crate::tree::{Bibliography, DefinitionListItem};
 
 pub const BLOCK_BIBLIOGRAPHY: BlockRule = BlockRule {
     name: "block-bibliography",
@@ -58,7 +58,7 @@ fn parse_fn<'r, 't>(
     //
     // Look through to find definition lists, ignoring "space" type elements,
     // and adding definition list values to the bibliography as we find them.
-    let mut bibliography = Vec::new();
+    let mut bibliography = Bibliography::new();
 
     for element in elements {
         match element {
@@ -70,7 +70,7 @@ fn parse_fn<'r, 't>(
                     ..
                 } in items
                 {
-                    bibliography.push((key_string, value_elements));
+                    bibliography.add(key_string, value_elements);
                 }
             }
 
@@ -90,5 +90,8 @@ fn parse_fn<'r, 't>(
         }
     }
 
-    todo!()
+    // Add bibliography object to parser for unified tracking, like footnotes.
+    parser.push_bibliography(bibliography);
+
+    ok!(Element::BibliographyBlock { title })
 }
