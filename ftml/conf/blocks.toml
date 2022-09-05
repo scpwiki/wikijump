@@ -7,6 +7,12 @@ body = "elements"
 html-attributes = true
 html-output = "html,a"
 
+[bibcite]
+accepts-score = true
+head = "value"
+body = "none"
+html-output = "html,a,wj-bibcite"
+
 [blockquote]
 aliases = ["quote"]
 accepts-newlines = true
