@@ -30,6 +30,35 @@ fn try_consume_fn<'p, 'r, 't>(
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     info!("Trying to create bibcite element");
+    check_step(parser, Token::LeftParentheses)?;
+
+    // This is like a poor man's block, it's "((bibcite <label>))"
+    let current = parser.current();
+    if current.token != Token::Identifier
+        && !current.slice.eq_ignore_ascii_case("bibcite")
+    {
+        debug!("'((' not followed by 'bibcite', failing rule");
+        return Err(parser.make_err(ParseErrorKind::RuleFailed));
+    }
+    parser.step()?;
+
+    // Then check the next token is a space
+    if !matches!(parser.current().token, Token::Whitespace) {
+        debug!("'((bibcite' not followed by a space, failing rule");
+        return Err(parser.make_err(ParseErrorKind::RuleFailed));
+    }
+    parser.step()?;
+
+    let label = collect_text(
+        parser,
+        RULE_BIBCITE,
+        &[ParseCondition::current(Token::RightParentheses)],
+        &[
+            ParseCondition::current(Token::ParagraphBreak),
+            ParseCondition::current(Token::LineBreak),
+        ],
+        None,
+    )?;
 
     todo!()
 }
