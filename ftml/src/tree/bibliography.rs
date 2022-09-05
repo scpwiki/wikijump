@@ -20,41 +20,46 @@
 
 use crate::tree::Element;
 use std::borrow::Cow;
-use std::collections::HashMap;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Bibliography<'t> {
-    references: HashMap<Cow<'t, str>, (u32, Vec<Element<'t>>)>,
-    last_index: u32,
+    references: Vec<(Cow<'t, str>, Vec<Element<'t>>)>,
 }
 
 impl<'t> Bibliography<'t> {
     pub fn new() -> Self {
-        Bibliography {
-            references: HashMap::new(),
-            last_index: 1,
-        }
+        Bibliography::default()
     }
 
     pub fn add(&mut self, label: Cow<'t, str>, elements: Vec<Element<'t>>) {
-        if self.references.get(&label).is_some() {
-            // If the reference already exists, it is *not* overwritten.
-            //
-            // This maintains the invariant that the first reference with a given label,
-            // across any bibliography, is the one which is used.
+        // If the reference already exists, it is *not* overwritten.
+        //
+        // This maintains the invariant that the first reference with a given label,
+        // across any bibliography, is the one which is used.
+        if self.get(&label).is_some() {
+            warn!("Duplicate reference in bibliography: {label}");
             return;
         }
 
-        let index = self.last_index;
-        self.references.insert(label, (index, elements));
-        self.last_index += 1;
+        self.references.push((label, elements));
     }
 
-    #[inline]
-    pub fn get(&self, label: &str) -> Option<(u32, &[Element<'t>])> {
-        self.references
-            .get(label)
-            .map(|&(index, ref elements)| (index, elements.as_slice()))
+    pub fn get(&self, label: &str) -> Option<(usize, &[Element<'t>])> {
+        // References are maintained as a list, which means that searching
+        // for a particular label is O(n), but this is fine as the number
+        // of references is always going to be bounded. Even at 100 references
+        // this would run at essentially the same speed.
+        //
+        // This also gives us free indexing based on this order, and the
+        // order based on it, so we don't need a two-index map here.
+        for (index, (ref_label, elements)) in self.references.iter().enumerate() {
+            if label == ref_label {
+                // Change from zero-indexing to one-indexing
+                return Some((index + 1, elements));
+            }
+        }
+
+        None
     }
 }
 
@@ -72,7 +77,7 @@ impl<'t> BibliographyList<'t> {
         self.bibliographies.push(bibliography);
     }
 
-    pub fn get(&self, label: &str) -> Option<(u32, &[Element<'t>])> {
+    pub fn get(&self, label: &str) -> Option<(usize, &[Element<'t>])> {
         for bibliography in &self.bibliographies {
             // Find the first entry with the label, per the above invariant.
             let reference = bibliography.get(label);
