@@ -98,6 +98,10 @@ impl<'t> BibliographyList<'t> {
         self.0.push(bibliography);
     }
 
+    pub fn append(&mut self, other: &mut Self) {
+        self.0.append(&mut other.0);
+    }
+
     pub fn get(&self, label: &str) -> Option<(usize, &[Element<'t>])> {
         for bibliography in &self.0 {
             // Find the first entry with the label, per the above invariant.

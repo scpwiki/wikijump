@@ -240,17 +240,25 @@ impl<'r, 't> Parser<'r, 't> {
         self.bibliographies.borrow_mut().push(bibliography);
     }
 
+    #[cold]
+    pub fn remove_bibliographies(&mut self) -> BibliographyList<'t> {
+        mem::take(&mut self.bibliographies.borrow_mut())
+    }
+
     // Special for [[include]], appending a SyntaxTree
-    pub fn append_toc_and_footnotes(
+    pub fn append_shared_items(
         &mut self,
         table_of_contents: &mut Vec<(usize, String)>,
         footnotes: &mut Vec<Vec<Element<'t>>>,
+        bibliographies: &mut BibliographyList<'t>,
     ) {
         self.table_of_contents
             .borrow_mut()
             .append(table_of_contents);
 
         self.footnotes.borrow_mut().append(footnotes);
+
+        self.bibliographies.borrow_mut().append(bibliographies);
     }
 
     // State evaluation

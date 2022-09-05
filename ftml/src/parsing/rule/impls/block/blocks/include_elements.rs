@@ -63,6 +63,7 @@ fn parse_fn<'r, 't>(
         mut table_of_contents_depths,
         mut footnotes,
         has_footnote_block,
+        mut bibliographies,
     } = include_page(parser, &page_ref)?;
 
     if has_footnote_block {
@@ -78,7 +79,11 @@ fn parse_fn<'r, 't>(
     } = result?;
 
     // Update parser state, build, and return
-    parser.append_toc_and_footnotes(&mut table_of_contents_depths, &mut footnotes);
+    parser.append_shared_items(
+        &mut table_of_contents_depths,
+        &mut footnotes,
+        &mut bibliographies,
+    );
 
     let variables = variables.to_hash_map();
     let element = Element::Include {
@@ -110,5 +115,6 @@ fn include_page<'r, 't>(
         table_of_contents_depths: vec![],
         footnotes: vec![],
         has_footnote_block: false,
+        bibliographies: Default::default(),
     })
 }
