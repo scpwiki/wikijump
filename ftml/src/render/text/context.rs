@@ -150,6 +150,13 @@ where
         self.bibliographies.get_bibliography(index)
     }
 
+    pub fn get_bibliography_ref(
+        &self,
+        label: &str,
+    ) -> Option<(usize, &'e [Element<'t>])> {
+        self.bibliographies.get_reference(label)
+    }
+
     pub fn next_equation_index(&mut self) -> NonZeroUsize {
         let index = self.equation_index;
         self.equation_index = NonZeroUsize::new(index.get() + 1).unwrap();

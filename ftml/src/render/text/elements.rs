@@ -371,16 +371,25 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
             }
         }
         Element::BibliographyCite { label, brackets } => {
-            let index = todo!();
+            match ctx.get_bibliography_ref(label) {
+                Some((index, _contents)) => {
+                    if *brackets {
+                        ctx.push('[');
+                    }
 
-            if *brackets {
-                ctx.push('[');
-            }
+                    str_write!(ctx, "{}. ", index);
 
-            todo!();
+                    if *brackets {
+                        ctx.push(']');
+                    }
+                }
+                None => {
+                    let message = ctx
+                        .handle()
+                        .get_message(ctx.language(), "bibliography-cite-not-found");
 
-            if *brackets {
-                ctx.push(']');
+                    ctx.push_str(message);
+                }
             }
         }
         Element::BibliographyBlock { index, title, hide } => {
