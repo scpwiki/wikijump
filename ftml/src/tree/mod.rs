@@ -45,7 +45,7 @@ mod variables;
 pub use self::align::*;
 pub use self::anchor::*;
 pub use self::attribute::AttributeMap;
-pub use self::bibliography::Bibliography;
+pub use self::bibliography::*;
 pub use self::clear_float::*;
 pub use self::container::*;
 pub use self::date::Date;

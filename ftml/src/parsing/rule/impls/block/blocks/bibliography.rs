@@ -58,6 +58,8 @@ fn parse_fn<'r, 't>(
     //
     // Look through to find definition lists, ignoring "space" type elements,
     // and adding definition list values to the bibliography as we find them.
+    let mut bibliography = Vec::new();
+
     for element in elements {
         match element {
             // Append definition list entries
@@ -68,7 +70,7 @@ fn parse_fn<'r, 't>(
                     ..
                 } in items
                 {
-                    todo!()
+                    bibliography.push((key_string, value_elements));
                 }
             }
 

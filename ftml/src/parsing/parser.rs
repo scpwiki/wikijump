@@ -25,7 +25,7 @@ use super::RULE_PAGE;
 use crate::data::PageInfo;
 use crate::render::text::TextRender;
 use crate::tokenizer::Tokenization;
-use crate::tree::{AcceptsPartial, HeadingLevel};
+use crate::tree::{AcceptsPartial, BibliographyList, HeadingLevel};
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::{mem, ptr};
@@ -67,7 +67,7 @@ pub struct Parser<'r, 't> {
     // Each bibliography block is separate, but the citations
     // can be referenced anywheres, with earlier ones
     // overriding later ones.
-    bibliographies: Rc<RefCell<Vec<()>>>, // TODO
+    bibliographies: Rc<RefCell<BibliographyList<'t>>>,
 
     // Flags
     accepts_partial: AcceptsPartial,
@@ -102,7 +102,7 @@ impl<'r, 't> Parser<'r, 't> {
             depth: 0,
             table_of_contents: make_shared_vec(),
             footnotes: make_shared_vec(),
-            bibliographies: make_shared_vec(),
+            bibliographies: Rc::new(RefCell::new(BibliographyList::new())),
             accepts_partial: AcceptsPartial::None,
             in_footnote: false,
             has_footnote_block: false,
