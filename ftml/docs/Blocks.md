@@ -178,7 +178,8 @@ Outputs: `Element::BibliographyBlock` / `<div class="wj-bibliography">`
 Body: A definition list with the references.
 
 Arguments:
-* `title` &mdash; An alternate title for the bibliography block.
+* `title` &mdash; (String) An alternate title for the bibliography block.
+* `hide` &mdash; (Boolean) `true` means to not render this element. Default is `false`.
 
 Example:
 
