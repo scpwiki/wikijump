@@ -32,5 +32,4 @@ pub struct CreateSite {
 pub struct CreateSiteOutput {
     pub site_id: i64,
     pub slug: String,
-    pub default_page: String,
 }
