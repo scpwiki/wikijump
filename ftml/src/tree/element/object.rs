@@ -190,7 +190,10 @@ pub enum Element<'t> {
     },
 
     /// A citation of a bibliography element, invoked via `((bibcite ...))`.
-    BibliographyCite { label: Cow<'t, str> },
+    ///
+    /// The `brackets` field tells whether the resultant HTML should be surrounded
+    /// in `[..]`, which is not very easily possible when using `[[bibcite ...]]`.
+    BibliographyCite { label: Cow<'t, str>, brackets: bool },
 
     /// A bibliography block, containing all the cited items from throughout the page.
     BibliographyBlock { title: Option<Cow<'t, str>> },
@@ -505,8 +508,9 @@ impl Element<'_> {
                 title: option_string_to_owned(title),
                 hide: *hide,
             },
-            Element::BibliographyCite { label } => Element::BibliographyCite {
+            Element::BibliographyCite { label, brackets } => Element::BibliographyCite {
                 label: string_to_owned(label),
+                brackets: *brackets,
             },
             Element::BibliographyBlock { title } => Element::BibliographyBlock {
                 title: option_string_to_owned(title),

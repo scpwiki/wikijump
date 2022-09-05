@@ -365,7 +365,7 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
                 ctx.add_newline();
             }
         }
-        Element::BibliographyCite { label } => todo!(),
+        Element::BibliographyCite { label, brackets } => todo!(),
         Element::BibliographyBlock { title } => todo!(),
         Element::User { name, .. } => ctx.push_str(name),
         Element::Date { value, format, .. } => {

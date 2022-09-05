@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 
-pub fn render_bibcite(ctx: &mut HtmlContext, label: &str) {
+pub fn render_bibcite(ctx: &mut HtmlContext, label: &str, brackets: bool) {
     todo!()
 }
 
