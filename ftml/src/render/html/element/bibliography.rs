@@ -41,6 +41,10 @@ pub fn render_bibcite(ctx: &mut HtmlContext, label: &str, brackets: bool) {
                     let id = str!(index);
 
                     // Bibliography marker that is hoverable
+                    if brackets {
+                        ctx.push_raw('[');
+                    }
+
                     ctx.html()
                         .element("wj-bibliography-ref-marker")
                         .attr(attr!(
@@ -49,17 +53,11 @@ pub fn render_bibcite(ctx: &mut HtmlContext, label: &str, brackets: bool) {
                             "aria-label" => &label,
                             "data-id" => &id,
                         ))
-                        .inner(|ctx| {
-                            if brackets {
-                                ctx.push_raw('[');
-                            }
+                        .contents(&id);
 
-                            ctx.push_raw_str(&id);
-
-                            if brackets {
-                                ctx.push_raw(']');
-                            }
-                        });
+                    if brackets {
+                        ctx.push_raw(']');
+                    }
 
                     // Tooltip shown on hover.
                     // Is aria-hidden due to difficulty in getting a simultaneous
