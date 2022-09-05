@@ -30,11 +30,11 @@ impl SiteService {
     pub async fn create(
         ctx: &ServiceContext<'_>,
         CreateSite {
-            slug,
+            mut slug,
             name,
             subtitle,
             description,
-            locale
+            locale,
         }: CreateSite,
     ) -> Result<CreateSiteOutput> {
         let txn = ctx.transaction();
@@ -43,18 +43,18 @@ impl SiteService {
         Self::check_conflicts(ctx, &slug, "create").await?;
 
         let model = site::ActiveModel {
-            slug: Set(slug),
-            name: Set(new),
-            subtitle: Set(Some(subtitle)),
-            description: Set(Some(description)),            
+            slug: Set(slug.clone()),
+            name: Set(name),
+            subtitle: Set(subtitle),
+            description: Set(description),
+            locale: Set(locale),         
             ..Default::default()
         };
         let site = model.insert(txn).await?;
 
         Ok(CreateSiteOutput {
             site_id: site.site_id,
-            slug,
-            default_page: site.default_page,
+            slug
         })
     }
 
@@ -80,7 +80,7 @@ impl SiteService {
                     .filter(
                         Condition::all()
                             .add(site::Column::Slug.eq(slug))
-                            .add(site::Column::Deleted.eq(false)),
+                            .add(site::Column::DeletedAt.is_null()),
                     )
                     .one(txn)
                     .await?
@@ -112,7 +112,6 @@ impl SiteService {
         let result = Site::find()
             .filter(
                 Condition::all()
-                    .add(site::Column::SiteId.eq(site_id))
                     .add(site::Column::Slug.eq(slug))
                     .add(site::Column::DeletedAt.is_null()),
             )
@@ -121,7 +120,7 @@ impl SiteService {
 
         match result {
             None => Ok(()),
-            Some(site) => {
+            Some(_) => {
                 tide::log::error!(
                     "Site with slug '{}' already exists, cannot {}",
                     slug,
