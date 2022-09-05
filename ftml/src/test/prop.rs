@@ -23,9 +23,9 @@ use crate::render::{html::HtmlRender, text::TextRender, Render};
 use crate::settings::{WikitextMode, WikitextSettings};
 use crate::tree::attribute::SAFE_ATTRIBUTES;
 use crate::tree::{
-    Alignment, AnchorTarget, AttributeMap, ClearFloat, Container, ContainerType, Element,
-    FloatAlignment, Heading, HeadingLevel, ImageSource, LinkLabel, LinkLocation,
-    LinkType, ListItem, ListType, Module, SyntaxTree,
+    Alignment, AnchorTarget, AttributeMap, BibliographyList, ClearFloat, Container,
+    ContainerType, Element, FloatAlignment, Heading, HeadingLevel, ImageSource,
+    LinkLabel, LinkLocation, LinkType, ListItem, ListType, Module, SyntaxTree,
 };
 use proptest::option;
 use proptest::prelude::*;
@@ -404,6 +404,7 @@ fn arb_tree() -> impl Strategy<Value = SyntaxTree<'static>> {
             elements,
             table_of_contents,
             footnotes,
+            bibliographies: BibliographyList::new(), // not bothering right now
         })
 }
 

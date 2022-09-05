@@ -24,6 +24,7 @@
 //! and produce a unit value as output.
 
 use super::prelude::*;
+use crate::tree::BibliographyList;
 
 #[derive(Debug)]
 pub struct NullRender;
@@ -45,7 +46,13 @@ impl Render for NullRender {
 fn null() {
     let page_info = PageInfo::dummy();
     let settings = WikitextSettings::from_mode(WikitextMode::Page);
-    let result = SyntaxTree::from_element_result(vec![], vec![], vec![], vec![]);
+    let result = SyntaxTree::from_element_result(
+        vec![],
+        vec![],
+        vec![],
+        vec![],
+        BibliographyList::new(),
+    );
     let (tree, _) = result.into();
     let output = NullRender.render(&tree, &page_info, &settings);
 
