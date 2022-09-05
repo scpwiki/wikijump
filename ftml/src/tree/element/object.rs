@@ -299,7 +299,7 @@ impl Element<'_> {
         }
     }
 
-    /// Returns the Rust name of this Element variant.
+    /// Returns the Rust name of this `Element` variant.
     pub fn name(&self) -> &'static str {
         match self {
             Element::Container(container) => container.ctype().name(),
