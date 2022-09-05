@@ -526,10 +526,7 @@ impl Element<'_> {
             } => Element::BibliographyBlock {
                 title: option_string_to_owned(title),
                 hide: *hide,
-                references: references
-                    .iter()
-                    .map(|elements| elements_to_owned(elements))
-                    .collect(),
+                references: elements_lists_to_owned(&references),
             },
             Element::User { name, show_avatar } => Element::User {
                 name: string_to_owned(name),

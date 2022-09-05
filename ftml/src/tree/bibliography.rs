@@ -26,10 +26,11 @@
 //!
 //! The first reference found is the one used.
 
-use crate::tree::Element;
+use super::clone::{elements_to_owned, string_to_owned};
+use super::Element;
 use std::borrow::Cow;
 
-#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default, PartialEq, Eq)]
 pub struct Bibliography<'t>(Vec<(Cow<'t, str>, Vec<Element<'t>>)>);
 
 impl<'t> Bibliography<'t> {
@@ -72,9 +73,20 @@ impl<'t> Bibliography<'t> {
     pub fn slice(&self) -> &[(Cow<'t, str>, Vec<Element<'t>>)] {
         &self.0
     }
+
+    pub fn to_owned(&self) -> Bibliography<'static> {
+        Bibliography(
+            self.0
+                .iter()
+                .map(|(label, elements)| {
+                    (string_to_owned(label), elements_to_owned(elements))
+                })
+                .collect(),
+        )
+    }
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default, PartialEq, Eq)]
 pub struct BibliographyList<'t>(Vec<Bibliography<'t>>);
 
 impl<'t> BibliographyList<'t> {
@@ -96,5 +108,9 @@ impl<'t> BibliographyList<'t> {
         }
 
         None
+    }
+
+    pub fn to_owned(&self) -> BibliographyList<'static> {
+        BibliographyList(self.0.iter().map(|b| b.to_owned()).collect())
     }
 }
