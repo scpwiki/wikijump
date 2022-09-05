@@ -41,5 +41,17 @@ fn parse_fn<'r, 't>(
     assert!(!flag_score, "Bibliography doesn't allow score flag");
     assert_block_name(&BLOCK_BIBLIOGRAPHY, name);
 
+    let arguments = parser.get_head_map(&BLOCK_BIBLIOGRAPHY, in_head)?;
+
+    // Get body content. The contents should only be a definition list, but
+    // we use the regular elements parser to make it easy on us. If we find
+    // anything else, we fail the rule.
+    //
+    // We also discard paragraph_safe, since it's not relevant, and this element
+    // never is (uses <div>).
+    let (elements, errors, _) = parser
+        .get_body_elements(&BLOCK_BIBLIOGRAPHY, false)?
+        .into();
+
     todo!()
 }
