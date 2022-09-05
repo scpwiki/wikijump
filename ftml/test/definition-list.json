@@ -19,6 +19,7 @@
                 "element": "definition-list",
                 "data": [
                     {
+                        "key_string": "Key 1",
                         "key": [
                             {
                                 "element": "text",
@@ -49,6 +50,7 @@
                         ]
                     },
                     {
+                        "key_string": "Key 2",
                         "key": [
                             {
                                 "element": "text",

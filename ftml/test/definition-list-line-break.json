@@ -6,6 +6,7 @@
                 "element": "definition-list",
                 "data": [
                     {
+                        "key_string": "My key",
                         "key": [
                             {
                                 "element": "text",
@@ -83,6 +84,7 @@
                         ]
                     },
                     {
+                        "key_string": "Other key",
                         "key": [
                             {
                                 "element": "text",

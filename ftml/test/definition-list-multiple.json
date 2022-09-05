@@ -19,6 +19,7 @@
                 "element": "definition-list",
                 "data": [
                     {
+                        "key_string": "A",
                         "key": [
                             {
                                 "element": "text",
@@ -33,6 +34,7 @@
                         ]
                     },
                     {
+                        "key_string": "C",
                         "key": [
                             {
                                 "element": "text",
@@ -52,6 +54,7 @@
                 "element": "definition-list",
                 "data": [
                     {
+                        "key_string": "E",
                         "key": [
                             {
                                 "element": "text",
@@ -74,6 +77,7 @@
                 "element": "definition-list",
                 "data": [
                     {
+                        "key_string": "G",
                         "key": [
                             {
                                 "element": "text",

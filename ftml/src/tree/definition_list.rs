@@ -26,11 +26,10 @@ pub type DefinitionList<'t> = Vec<DefinitionListItem<'t>>;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct DefinitionListItem<'t> {
+    pub key_string: Cow<'t, str>,
+
     #[serde(rename = "key")]
     pub key_elements: Vec<Element<'t>>,
-
-    #[serde(skip)]
-    pub key_string: Cow<'t, str>,
 
     #[serde(rename = "value")]
     pub value_elements: Vec<Element<'t>>,
