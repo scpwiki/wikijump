@@ -54,6 +54,7 @@ fn try_consume_fn<'p, 'r, 't>(
         RULE_BIBCITE,
         &[ParseCondition::current(Token::RightParentheses)],
         &[
+            ParseCondition::current(Token::Whitespace),
             ParseCondition::current(Token::ParagraphBreak),
             ParseCondition::current(Token::LineBreak),
         ],
