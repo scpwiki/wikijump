@@ -3,7 +3,7 @@
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, PartialEq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "file_revision_type")]
 pub enum FileRevisionType {
     #[sea_orm(string_value = "create")]
@@ -15,7 +15,7 @@ pub enum FileRevisionType {
     #[sea_orm(string_value = "update")]
     Update,
 }
-#[derive(Debug, Clone, PartialEq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, PartialEq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "page_revision_type")]
 pub enum PageRevisionType {
     #[sea_orm(string_value = "create")]
