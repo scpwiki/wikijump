@@ -37,14 +37,14 @@ fn try_consume_fn<'p, 'r, 't>(
     if current.token != Token::Identifier
         && !current.slice.eq_ignore_ascii_case("bibcite")
     {
-        debug!("'((' not followed by 'bibcite', failing rule");
+        warn!("'((' not followed by 'bibcite', failing rule");
         return Err(parser.make_err(ParseErrorKind::RuleFailed));
     }
     parser.step()?;
 
     // Then check the next token is a space
     if !matches!(parser.current().token, Token::Whitespace) {
-        debug!("'((bibcite' not followed by a space, failing rule");
+        warn!("'((bibcite' not followed by a space, failing rule");
         return Err(parser.make_err(ParseErrorKind::RuleFailed));
     }
     parser.step()?;

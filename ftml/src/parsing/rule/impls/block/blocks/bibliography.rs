@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::tree::DefinitionListItem;
 
 pub const BLOCK_BIBLIOGRAPHY: BlockRule = BlockRule {
     name: "block-bibliography",
@@ -49,9 +50,42 @@ fn parse_fn<'r, 't>(
     //
     // We also discard paragraph_safe, since it's not relevant, and this element
     // never is (uses <div>).
-    let (elements, errors, _) = parser
-        .get_body_elements(&BLOCK_BIBLIOGRAPHY, false)?
-        .into();
+    let (elements, errors, _) =
+        parser.get_body_elements(&BLOCK_BIBLIOGRAPHY, false)?.into();
+
+    // Build up the bibliography
+    //
+    // Look through to find definition lists, ignoring "space" type elements,
+    // and adding definition list values to the bibliography as we find them.
+    for element in elements {
+        match element {
+            // Append definition list entries
+            Element::DefinitionList(items) => {
+                for DefinitionListItem {
+                    key_string,
+                    value_elements,
+                    ..
+                } in items
+                {
+                    todo!()
+                }
+            }
+
+            // Skip whitespace elements
+            _ if element.is_whitespace() => continue,
+
+            // Other elements
+            _ => {
+                warn!(
+                    "Received non-definition list within bibliography block: {}",
+                    element.name(),
+                );
+
+                return Err(parser
+                    .make_err(ParseErrorKind::BibliographyContainsNonDefinitionList));
+            }
+        }
+    }
 
     todo!()
 }

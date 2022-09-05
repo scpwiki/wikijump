@@ -44,7 +44,7 @@ fn parse_fn<'r, 't>(
         parser.get_head_value(&BLOCK_BIBCITE, in_head, |parser, value| match value {
             Some(value) => Ok(value.trim()),
             None => {
-                debug!("No label provided in [[bibcite]], failing rule");
+                warn!("No label provided in [[bibcite]], failing rule");
                 Err(parser.make_err(ParseErrorKind::BlockMissingArguments))
             }
         })?;

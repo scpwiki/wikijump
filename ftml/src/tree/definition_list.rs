@@ -18,22 +18,25 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::clone::elements_to_owned;
+use super::clone::{elements_to_owned, string_to_owned};
 use super::Element;
+use std::borrow::Cow;
 
 pub type DefinitionList<'t> = Vec<DefinitionListItem<'t>>;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct DefinitionListItem<'t> {
-    pub key: Vec<Element<'t>>,
-    pub value: Vec<Element<'t>>,
+    pub key_elements: Vec<Element<'t>>,
+    pub key_string: Cow<'t, str>,
+    pub value_elements: Vec<Element<'t>>,
 }
 
 impl DefinitionListItem<'_> {
     pub fn to_owned(&self) -> DefinitionListItem<'static> {
         DefinitionListItem {
-            key: elements_to_owned(&self.key),
-            value: elements_to_owned(&self.value),
+            key_string: string_to_owned(&self.key_string),
+            key_elements: elements_to_owned(&self.key_elements),
+            value_elements: elements_to_owned(&self.value_elements),
         }
     }
 }

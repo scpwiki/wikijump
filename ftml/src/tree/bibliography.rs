@@ -1,5 +1,5 @@
 /*
- * render/html/element/definition_list.rs
+ * tree/bibliography.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,21 +18,5 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
-use crate::tree::DefinitionListItem;
-
-pub fn render_definition_list(ctx: &mut HtmlContext, items: &[DefinitionListItem]) {
-    info!("Rendering definition list (length {})", items.len());
-
-    ctx.html().dl().inner(|ctx| {
-        for DefinitionListItem {
-            key_elements,
-            value_elements,
-            ..
-        } in items
-        {
-            ctx.html().dt().contents(key_elements);
-            ctx.html().dd().contents(value_elements);
-        }
-    });
-}
+#[derive(Debug)]
+pub struct Bibliography;

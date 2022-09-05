@@ -120,8 +120,9 @@ fn parse_item<'p, 'r, 't>(
 
     parser.step_n(2)?;
 
-    // Gather key text until colon
-    let mut key = collect_consume(
+    // Gather key elements until colon
+    let start_token = parser.current();
+    let mut key_elements = collect_consume(
         parser,
         RULE_DEFINITION_LIST,
         &[ParseCondition::token_pair(Token::Whitespace, Token::Colon)],
@@ -132,12 +133,16 @@ fn parse_item<'p, 'r, 't>(
         None,
     )?
     .chain(&mut errors, &mut _paragraph_safe);
+    let end_token = parser.current();
 
-    strip_whitespace(&mut key);
+    strip_whitespace(&mut key_elements);
     parser.step_n(2)?;
 
-    // Gather value text until end of line
-    let (mut value, last) = collect_consume_keep(
+    // Gather key wikitext
+    let key_string = parser.full_text().slice(start_token, end_token);
+
+    // Gather value elements until end of line
+    let (mut value_elements, last) = collect_consume_keep(
         parser,
         RULE_DEFINITION_LIST,
         &[
@@ -157,9 +162,13 @@ fn parse_item<'p, 'r, 't>(
         _ => panic!("Invalid close token: {}", last.token.name()),
     };
 
-    strip_whitespace(&mut value);
+    strip_whitespace(&mut value_elements);
 
     // Build and return
-    let item = DefinitionListItem { key, value };
+    let item = DefinitionListItem {
+        key_string: cow!(key_string),
+        key_elements,
+        value_elements,
+    };
     ok!(false; (item, should_break), errors)
 }

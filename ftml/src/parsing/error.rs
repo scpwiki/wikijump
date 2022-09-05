@@ -166,6 +166,9 @@ pub enum ParseErrorKind {
     /// Ruby text block appears outside of a ruby annotation block.
     RubyTextOutsideRuby,
 
+    /// Bibliography contains an element other than a definition list.
+    BibliographyContainsNonDefinitionList,
+
     /// There is no rule for the block name specified.
     NoSuchBlock,
 

@@ -27,7 +27,10 @@ pub fn render_bibcite(ctx: &mut HtmlContext, label: &str, brackets: bool) {
 }
 
 pub fn render_bibliography(ctx: &mut HtmlContext, title: Option<&str>) {
-    info!("Rendering bibliography block (title {})", title.unwrap_or("<default>"));
+    info!(
+        "Rendering bibliography block (title {})",
+        title.unwrap_or("<default>"),
+    );
 
     todo!()
 }

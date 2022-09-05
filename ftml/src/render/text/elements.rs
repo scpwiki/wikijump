@@ -259,11 +259,16 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
             }
         }
         Element::DefinitionList(items) => {
-            for DefinitionListItem { key, value } in items {
+            for DefinitionListItem {
+                key_elements,
+                value_elements,
+                ..
+            } in items
+            {
                 str_write!(ctx, ": ");
-                render_elements(ctx, key);
+                render_elements(ctx, key_elements);
                 str_write!(ctx, " : ");
-                render_elements(ctx, value);
+                render_elements(ctx, value_elements);
                 ctx.add_newline();
             }
 

@@ -62,6 +62,13 @@ pub struct Parser<'r, 't> {
     // Schema: Vec<List of elements in a footnote>
     footnotes: Rc<RefCell<Vec<Vec<Element<'t>>>>>,
 
+    // Bibliographies
+    //
+    // Each bibliography block is separate, but the citations
+    // can be referenced anywheres, with earlier ones
+    // overriding later ones.
+    bibliographies: Rc<RefCell<Vec<()>>>, // TODO
+
     // Flags
     accepts_partial: AcceptsPartial,
     in_footnote: bool, // Whether we're currently inside [[footnote]] ... [[/footnote]].
@@ -95,6 +102,7 @@ impl<'r, 't> Parser<'r, 't> {
             depth: 0,
             table_of_contents: make_shared_vec(),
             footnotes: make_shared_vec(),
+            bibliographies: make_shared_vec(),
             accepts_partial: AcceptsPartial::None,
             in_footnote: false,
             has_footnote_block: false,
