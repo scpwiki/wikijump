@@ -43,6 +43,8 @@ lazy_static! {
             Token::LeftBlockAnchor => vec![RULE_ANCHOR],
             Token::LeftBlockStar => vec![RULE_BLOCK_STAR],
             Token::RightBlock => vec![],
+            Token::LeftParentheses => vec![todo!(), RULE_TEXT],
+            Token::RightParentheses => vec![todo!(), RULE_TEXT],
             Token::LeftMath => vec![RULE_MATH],
             Token::RightMath => vec![],
             Token::DoubleDash => vec![RULE_STRIKETHROUGH, RULE_DASH],

@@ -64,10 +64,12 @@ token = _{
     left_bracket_anchor |
     left_bracket_star |
     left_bracket |
+    left_parens |
     right_link |
     right_math |
     right_block |
     right_bracket |
+    right_parens |
 
     // Formatting
     bold |
@@ -155,6 +157,9 @@ right_bracket = @{ "]" }
 right_block = @{ "]]" }
 right_math = @{ "$]]" }
 right_link = @{ "]]]" }
+
+left_parens = @{ "((" }
+right_parens = @{ "))" }
 
 clear_float = @{ "~"{3,} }
 clear_float_left = @{ "~"{3,} ~ "<" }
