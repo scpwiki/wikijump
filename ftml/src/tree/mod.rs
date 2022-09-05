@@ -87,7 +87,7 @@ pub struct SyntaxTree<'t> {
     pub footnotes: Vec<Vec<Element<'t>>>,
 
     /// The full list of bibliographies for this page.
-    pub bibliography: BibliographyList<'t>,
+    pub bibliographies: BibliographyList<'t>,
 }
 
 impl<'t> SyntaxTree<'t> {
@@ -96,13 +96,13 @@ impl<'t> SyntaxTree<'t> {
         errors: Vec<ParseError>,
         table_of_contents: Vec<Element<'t>>,
         footnotes: Vec<Vec<Element<'t>>>,
-        bibliography: BibliographyList<'t>,
+        bibliographies: BibliographyList<'t>,
     ) -> ParseOutcome<Self> {
         let tree = SyntaxTree {
             elements,
             table_of_contents,
             footnotes,
-            bibliography,
+            bibliographies,
         };
         ParseOutcome::new(tree, errors)
     }
@@ -112,7 +112,7 @@ impl<'t> SyntaxTree<'t> {
             elements: elements_to_owned(&self.elements),
             table_of_contents: elements_to_owned(&self.table_of_contents),
             footnotes: elements_lists_to_owned(&self.footnotes),
-            bibliography: self.bibliography.to_owned(),
+            bibliographies: self.bibliographies.to_owned(),
         }
     }
 }

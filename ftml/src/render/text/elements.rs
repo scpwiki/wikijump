@@ -383,11 +383,7 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
                 ctx.push(']');
             }
         }
-        Element::BibliographyBlock {
-            title,
-            hide,
-            references,
-        } => {
+        Element::BibliographyBlock { index, title, hide } => {
             info!("Rendering bibliography block");
 
             if *hide {
@@ -412,7 +408,9 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
             ctx.add_newline();
 
             // Render bibliography items in order
-            for (index, contents) in references.iter().enumerate() {
+            for (index, (_, contents)) in
+                ctx.get_bibliography(*index).slice().iter().enumerate()
+            {
                 str_write!(ctx, "{}. ", index + 1);
 
                 render_elements(ctx, contents);

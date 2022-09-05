@@ -102,7 +102,12 @@ impl<'t> BibliographyList<'t> {
         self.0.append(&mut other.0);
     }
 
-    pub fn get(&self, label: &str) -> Option<(usize, &[Element<'t>])> {
+    #[inline]
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    pub fn get_reference(&self, label: &str) -> Option<(usize, &[Element<'t>])> {
         for bibliography in &self.0 {
             // Find the first entry with the label, per the above invariant.
             let reference = bibliography.get(label);
@@ -112,6 +117,10 @@ impl<'t> BibliographyList<'t> {
         }
 
         None
+    }
+
+    pub fn get_bibliography(&self, index: usize) -> &Bibliography<'t> {
+        &self.0[index]
     }
 
     pub fn to_owned(&self) -> BibliographyList<'static> {

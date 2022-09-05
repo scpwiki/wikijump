@@ -61,7 +61,6 @@ fn parse_fn<'r, 't>(
     // Look through to find definition lists, ignoring "space" type elements,
     // and adding definition list values to the bibliography as we find them.
     let mut bibliography = Bibliography::new();
-    let mut references = Vec::new();
 
     for element in elements {
         match element {
@@ -73,9 +72,7 @@ fn parse_fn<'r, 't>(
                     ..
                 } in items
                 {
-                    // Copy elements for both the bibliography block and the mapping.
-                    bibliography.add(key_string, value_elements.clone());
-                    references.push(value_elements);
+                    bibliography.add(key_string, value_elements);
                 }
             }
 
@@ -96,14 +93,7 @@ fn parse_fn<'r, 't>(
     }
 
     // Add bibliography object to parser for unified tracking, like footnotes.
-    parser.push_bibliography(bibliography);
+    let index = parser.push_bibliography(bibliography);
 
-    ok!(
-        Element::BibliographyBlock {
-            title,
-            hide,
-            references
-        },
-        errors
-    )
+    ok!(Element::BibliographyBlock { index, title, hide }, errors)
 }

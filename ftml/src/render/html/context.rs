@@ -29,7 +29,9 @@ use crate::info;
 use crate::next_index::{NextIndex, TableOfContentsIndex};
 use crate::render::Handle;
 use crate::settings::WikitextSettings;
-use crate::tree::{Element, LinkLocation, VariableScopes};
+use crate::tree::{
+    Bibliography, BibliographyList, Element, LinkLocation, VariableScopes,
+};
 use crate::url::is_url;
 use std::borrow::Cow;
 use std::collections::HashMap;
@@ -59,6 +61,7 @@ where
     //
     table_of_contents: &'e [Element<'t>],
     footnotes: &'e [Vec<Element<'t>>],
+    bibliographies: &'e BibliographyList<'t>,
 
     //
     // Cached data
@@ -82,6 +85,7 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
         settings: &'e WikitextSettings,
         table_of_contents: &'e [Element<'t>],
         footnotes: &'e [Vec<Element<'t>>],
+        bibliographies: &'e BibliographyList<'t>,
     ) -> Self {
         HtmlContext {
             body: String::new(),
@@ -94,6 +98,7 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
             variables: VariableScopes::new(),
             table_of_contents,
             footnotes,
+            bibliographies,
             pages_exists: HashMap::new(),
             code_snippet_index: NonZeroUsize::new(1).unwrap(),
             table_of_contents_index: 0,
@@ -181,6 +186,11 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
     #[inline]
     pub fn footnotes(&self) -> &'e [Vec<Element<'t>>] {
         self.footnotes
+    }
+
+    #[inline]
+    pub fn get_bibliography(&self, index: usize) -> &'e Bibliography<'t> {
+        self.bibliographies.get_bibliography(index)
     }
 
     pub fn next_code_snippet_index(&mut self) -> NonZeroUsize {

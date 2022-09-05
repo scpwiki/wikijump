@@ -197,12 +197,11 @@ pub enum Element<'t> {
 
     /// A bibliography block, containing all the cited items from throughout the page.
     ///
-    /// The `references` item is a list of reference lines, which each correspond to
-    /// one reference block.
+    /// The `index` field is the zero-indexed value of which bibliography block this is.
     BibliographyBlock {
+        index: usize,
         title: Option<Cow<'t, str>>,
         hide: bool,
-        references: Vec<Vec<Element<'t>>>,
     },
 
     /// A user block, linking to their information and possibly showing their avatar.
@@ -519,15 +518,13 @@ impl Element<'_> {
                 label: string_to_owned(label),
                 brackets: *brackets,
             },
-            Element::BibliographyBlock {
-                title,
-                hide,
-                references,
-            } => Element::BibliographyBlock {
-                title: option_string_to_owned(title),
-                hide: *hide,
-                references: elements_lists_to_owned(&references),
-            },
+            Element::BibliographyBlock { index, title, hide } => {
+                Element::BibliographyBlock {
+                    index: *index,
+                    title: option_string_to_owned(title),
+                    hide: *hide,
+                }
+            }
             Element::User { name, show_avatar } => Element::User {
                 name: string_to_owned(name),
                 show_avatar: *show_avatar,

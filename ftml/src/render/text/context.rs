@@ -22,7 +22,7 @@ use crate::data::PageInfo;
 use crate::non_empty_vec::NonEmptyVec;
 use crate::render::Handle;
 use crate::settings::WikitextSettings;
-use crate::tree::{Element, VariableScopes};
+use crate::tree::{Bibliography, BibliographyList, Element, VariableScopes};
 use std::fmt::{self, Write};
 use std::num::NonZeroUsize;
 
@@ -46,6 +46,7 @@ where
     //
     table_of_contents: &'e [Element<'t>],
     footnotes: &'e [Vec<Element<'t>>],
+    bibliographies: &'e BibliographyList<'t>,
 
     //
     // Other fields to track
@@ -79,6 +80,7 @@ where
         settings: &'e WikitextSettings,
         table_of_contents: &'e [Element<'t>],
         footnotes: &'e [Vec<Element<'t>>],
+        bibliographies: &'e BibliographyList<'t>,
     ) -> Self {
         TextContext {
             output: String::new(),
@@ -88,6 +90,7 @@ where
             variables: VariableScopes::new(),
             table_of_contents,
             footnotes,
+            bibliographies,
             prefixes: Vec::new(),
             list_depths: NonEmptyVec::new(1),
             invisible: 0,
@@ -140,6 +143,11 @@ where
     #[inline]
     pub fn footnotes(&self) -> &'e [Vec<Element<'t>>] {
         self.footnotes
+    }
+
+    #[inline]
+    pub fn get_bibliography(&self, index: usize) -> &'e Bibliography<'t> {
+        self.bibliographies.get_bibliography(index)
     }
 
     pub fn next_equation_index(&mut self) -> NonZeroUsize {

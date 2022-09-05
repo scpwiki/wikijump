@@ -171,13 +171,11 @@ pub fn render_element(ctx: &mut HtmlContext, element: &Element) {
         Element::BibliographyCite { label, brackets } => {
             render_bibcite(ctx, label, *brackets)
         }
-        Element::BibliographyBlock {
-            title,
-            hide,
-            references,
-        } => {
+        Element::BibliographyBlock { index, title, hide } => {
             if !hide {
-                render_bibliography(ctx, title.ref_map(|s| s.as_ref()), &references)
+                let title = title.ref_map(|s| s.as_ref());
+                let bibliography = ctx.get_bibliography(*index);
+                render_bibliography(ctx, title, bibliography);
             }
         }
         Element::User { name, show_avatar } => render_user(ctx, name, *show_avatar),

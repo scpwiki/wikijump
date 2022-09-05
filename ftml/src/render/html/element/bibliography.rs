@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::tree::Bibliography;
 
 pub fn render_bibcite(ctx: &mut HtmlContext, label: &str, brackets: bool) {
     info!("Rendering bibliography citation (label {label}, brackets {brackets})");
@@ -29,12 +30,12 @@ pub fn render_bibcite(ctx: &mut HtmlContext, label: &str, brackets: bool) {
 pub fn render_bibliography(
     ctx: &mut HtmlContext,
     title: Option<&str>,
-    bibliography: &[Vec<Element>],
+    bibliography: &Bibliography,
 ) {
     info!(
         "Rendering bibliography block (title {}, items {})",
         title.unwrap_or("<default>"),
-        bibliography.len(),
+        bibliography.slice().len(),
     );
 
     todo!()

@@ -236,8 +236,11 @@ impl<'r, 't> Parser<'r, 't> {
     }
 
     // Bibliography
-    pub fn push_bibliography(&mut self, bibliography: Bibliography<'t>) {
-        self.bibliographies.borrow_mut().push(bibliography);
+    pub fn push_bibliography(&mut self, bibliography: Bibliography<'t>) -> usize {
+        let mut guard = self.bibliographies.borrow_mut();
+        let index = guard.len();
+        guard.push(bibliography);
+        index
     }
 
     #[cold]
