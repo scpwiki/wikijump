@@ -103,7 +103,7 @@ impl<'t> BibliographyList<'t> {
     }
 
     #[inline]
-    pub fn len(&self) -> usize {
+    pub fn next_index(&self) -> usize {
         self.0.len()
     }
 

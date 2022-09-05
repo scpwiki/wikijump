@@ -116,7 +116,7 @@ pub fn render_bibliography(
 
     let title_default;
     let title: &str = match title {
-        Some(title) => title.as_ref(),
+        Some(title) => title,
         None => {
             title_default = ctx
                 .handle()
