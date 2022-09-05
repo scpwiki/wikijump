@@ -189,6 +189,12 @@ pub enum Element<'t> {
         hide: bool,
     },
 
+    /// A citation of a bibliography element, invoked via `((bibcite ...))`.
+    BibliographyCite,
+
+    /// A bibliography block, containing all the cited items from throughout the page.
+    BibliographyBlock,
+
     /// A user block, linking to their information and possibly showing their avatar.
     #[serde(rename_all = "kebab-case")]
     User {
@@ -322,6 +328,8 @@ impl Element<'_> {
             Element::TableOfContents { .. } => "TableOfContents",
             Element::Footnote => "Footnote",
             Element::FootnoteBlock { .. } => "FootnoteBlock",
+            Element::BibliographyCite => "BibliographyCite",
+            Element::BibliographyBlock => "BibliographyBlock",
             Element::User { .. } => "User",
             Element::Date { .. } => "Date",
             Element::Color { .. } => "Color",
@@ -372,6 +380,8 @@ impl Element<'_> {
             Element::TableOfContents { .. } => false,
             Element::Footnote => true,
             Element::FootnoteBlock { .. } => false,
+            Element::BibliographyCite => true,
+            Element::BibliographyBlock => false,
             Element::User { .. } => true,
             Element::Date { .. } => true,
             Element::Color { .. } => true,
@@ -495,6 +505,8 @@ impl Element<'_> {
                 title: option_string_to_owned(title),
                 hide: *hide,
             },
+            Element::BibliographyCite => Element::BibliographyCite,
+            Element::BibliographyBlock => Element::BibliographyBlock,
             Element::User { name, show_avatar } => Element::User {
                 name: string_to_owned(name),
                 show_avatar: *show_avatar,

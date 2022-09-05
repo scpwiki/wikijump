@@ -20,6 +20,7 @@
 
 //! Module that implements HTML rendering for `Element` and its children.
 
+mod bibliography;
 mod collapsible;
 mod container;
 mod date;
@@ -48,6 +49,7 @@ mod prelude {
     pub use crate::tree::{Element, SyntaxTree};
 }
 
+use self::bibliography::{render_bibcite, render_bibliography};
 use self::collapsible::{render_collapsible, Collapsible};
 use self::container::{render_color, render_container};
 use self::date::render_date;
@@ -166,6 +168,8 @@ pub fn render_element(ctx: &mut HtmlContext, element: &Element) {
                 render_footnote_block(ctx, ref_cow!(title));
             }
         }
+        Element::BibliographyCite => render_bibcite(ctx),
+        Element::BibliographyBlock => render_bibliography(ctx),
         Element::User { name, show_avatar } => render_user(ctx, name, *show_avatar),
         Element::Date {
             value,
