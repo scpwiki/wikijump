@@ -13,6 +13,12 @@ head = "value"
 body = "none"
 html-output = "html,a,wj-bibcite"
 
+[bibliography]
+accepts-newlines = true
+head = "map"
+body = "elements"
+html-output = "html,div,wj-bibliography"
+
 [blockquote]
 aliases = ["quote"]
 accepts-newlines = true
