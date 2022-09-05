@@ -32,7 +32,7 @@ latex2mathml = { version = "0.2", optional = true }
 lazy_static = "1"
 log = "0.4"
 maplit = "1"
-parcel_css = { version = "1.0.0-alpha.30", optional = true }
+parcel_css = { version = "1.0.0-alpha.32", optional = true }
 pest = "2"
 pest_derive = "2"
 rand = { version = "0.8", features = ["small_rng"] }
