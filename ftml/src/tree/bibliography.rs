@@ -29,7 +29,7 @@
 use crate::tree::Element;
 use std::borrow::Cow;
 
-#[derive(Debug, Clone, Default)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct Bibliography<'t>(Vec<(Cow<'t, str>, Vec<Element<'t>>)>);
 
 impl<'t> Bibliography<'t> {
@@ -74,10 +74,8 @@ impl<'t> Bibliography<'t> {
     }
 }
 
-#[derive(Debug, Clone, Default)]
-pub struct BibliographyList<'t> {
-    bibliographies: Vec<Bibliography<'t>>,
-}
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+pub struct BibliographyList<'t>(Vec<Bibliography<'t>>);
 
 impl<'t> BibliographyList<'t> {
     pub fn new() -> Self {
@@ -85,11 +83,11 @@ impl<'t> BibliographyList<'t> {
     }
 
     pub fn push(&mut self, bibliography: Bibliography<'t>) {
-        self.bibliographies.push(bibliography);
+        self.0.push(bibliography);
     }
 
     pub fn get(&self, label: &str) -> Option<(usize, &[Element<'t>])> {
-        for bibliography in &self.bibliographies {
+        for bibliography in &self.0 {
             // Find the first entry with the label, per the above invariant.
             let reference = bibliography.get(label);
             if reference.is_some() {

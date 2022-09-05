@@ -19,8 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::bibliography::Bibliography;
-use crate::tree::DefinitionListItem;
+use crate::tree::{Bibliography, DefinitionListItem};
 
 pub const BLOCK_BIBLIOGRAPHY: BlockRule = BlockRule {
     name: "block-bibliography",

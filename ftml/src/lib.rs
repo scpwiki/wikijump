@@ -113,7 +113,6 @@ mod test;
 #[macro_use]
 mod macros;
 
-mod bibliography;
 mod id_prefix;
 mod next_index;
 mod non_empty_vec;
