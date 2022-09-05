@@ -588,7 +588,7 @@ impl RevisionService {
             alt_title: cow_opt!(alt_title),
             rating,
             tags: tags.iter().map(|s| cow!(s)).collect(),
-            language: cow!(&site.language),
+            language: cow!(&site.locale),
         };
 
         // Parse and render
