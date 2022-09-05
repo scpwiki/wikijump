@@ -45,7 +45,7 @@
         "table-of-contents": [
         ],
         "footnotes": [
-            [
+          [
                 {
                     "element": "text",
                     "data": "B"
@@ -67,6 +67,8 @@
                     "data": "C"
                 }
             ]
+        ],
+        "bibliographies": [
         ]
     },
     "errors": [
