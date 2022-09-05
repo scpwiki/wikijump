@@ -60,5 +60,5 @@ fn try_consume_fn<'p, 'r, 't>(
         None,
     )?;
 
-    todo!()
+    ok!(Element::BibliographyCite { label: cow!(label) })
 }
