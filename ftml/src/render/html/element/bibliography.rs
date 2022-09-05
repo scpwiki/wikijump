@@ -40,7 +40,7 @@ pub fn render_bibcite(ctx: &mut HtmlContext, label: &str, brackets: bool) {
                 .inner(|ctx| {
                     let id = str!(index);
 
-                    // Footnote marker that is hoverable
+                    // Bibliography marker that is hoverable
                     ctx.html()
                         .element("wj-bibliography-ref-marker")
                         .attr(attr!(
@@ -64,7 +64,7 @@ pub fn render_bibcite(ctx: &mut HtmlContext, label: &str, brackets: bool) {
                     // Tooltip shown on hover.
                     // Is aria-hidden due to difficulty in getting a simultaneous
                     // tooltip and link to work. A screen reader can still navigate
-                    // through to the link and read the bibliographyootnote directly.
+                    // through to the link and read the bibliography directly.
                     ctx.html()
                         .span()
                         .attr(attr!(

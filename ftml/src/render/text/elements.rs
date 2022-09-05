@@ -377,7 +377,7 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
                         ctx.push('[');
                     }
 
-                    str_write!(ctx, "{}. ", index);
+                    str_write!(ctx, "{}", index);
 
                     if *brackets {
                         ctx.push(']');
