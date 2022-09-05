@@ -519,16 +519,18 @@ impl Element<'_> {
                 label: string_to_owned(label),
                 brackets: *brackets,
             },
-            Element::BibliographyBlock { title, hide, references } => {
-                Element::BibliographyBlock {
-                    title: option_string_to_owned(title),
-                    hide: *hide,
-                    references: references
-                        .iter()
-                        .map(|elements| elements_to_owned(elements))
-                        .collect(),
-                }
-            }
+            Element::BibliographyBlock {
+                title,
+                hide,
+                references,
+            } => Element::BibliographyBlock {
+                title: option_string_to_owned(title),
+                hide: *hide,
+                references: references
+                    .iter()
+                    .map(|elements| elements_to_owned(elements))
+                    .collect(),
+            },
             Element::User { name, show_avatar } => Element::User {
                 name: string_to_owned(name),
                 show_avatar: *show_avatar,

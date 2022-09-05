@@ -99,5 +99,12 @@ fn parse_fn<'r, 't>(
     // Add bibliography object to parser for unified tracking, like footnotes.
     parser.push_bibliography(bibliography);
 
-    ok!(Element::BibliographyBlock { title, hide, references }, errors)
+    ok!(
+        Element::BibliographyBlock {
+            title,
+            hide,
+            references
+        },
+        errors
+    )
 }

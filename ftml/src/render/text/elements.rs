@@ -362,7 +362,7 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
             ctx.push_str(title);
             ctx.add_newline();
 
-            // Render footnotes in order.
+            // Render footnotes in order
             for (index, contents) in ctx.footnotes().iter().enumerate() {
                 str_write!(ctx, "{}. ", index + 1);
 
@@ -370,8 +370,55 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
                 ctx.add_newline();
             }
         }
-        Element::BibliographyCite { label, brackets } => todo!(),
-        Element::BibliographyBlock { title, hide, references } => todo!(),
+        Element::BibliographyCite { label, brackets } => {
+            let index = todo!();
+
+            if *brackets {
+                ctx.push('[');
+            }
+
+            todo!();
+
+            if *brackets {
+                ctx.push(']');
+            }
+        }
+        Element::BibliographyBlock {
+            title,
+            hide,
+            references,
+        } => {
+            info!("Rendering bibliography block");
+
+            if *hide {
+                return;
+            }
+
+            // Render bibliography title
+            let title_default;
+            let title: &str = match title {
+                Some(title) => title.as_ref(),
+                None => {
+                    title_default = ctx
+                        .handle()
+                        .get_message(ctx.language(), "bibliography-block-title");
+
+                    title_default
+                }
+            };
+
+            ctx.add_newline();
+            ctx.push_str(title);
+            ctx.add_newline();
+
+            // Render bibliography items in order
+            for (index, contents) in references.iter().enumerate() {
+                str_write!(ctx, "{}. ", index + 1);
+
+                render_elements(ctx, contents);
+                ctx.add_newline();
+            }
+        }
         Element::User { name, .. } => ctx.push_str(name),
         Element::Date { value, format, .. } => {
             str_write!(ctx, "{}", value.format(format.as_ref()));
