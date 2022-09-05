@@ -62,6 +62,6 @@ fn try_consume_fn<'p, 'r, 't>(
 
     ok!(Element::BibliographyCite {
         label: cow!(label),
-        brackets: false
+        brackets: false,
     })
 }

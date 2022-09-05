@@ -62,6 +62,7 @@ mod align_justify;
 mod align_left;
 mod align_right;
 mod anchor;
+mod bibcite;
 mod blockquote;
 mod bold;
 mod char;
