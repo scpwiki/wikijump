@@ -193,6 +193,13 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
         self.bibliographies.get_bibliography(index)
     }
 
+    pub fn get_bibliography_ref(
+        &self,
+        label: &str,
+    ) -> Option<(usize, &'e [Element<'t>])> {
+        self.bibliographies.get_reference(label)
+    }
+
     pub fn next_code_snippet_index(&mut self) -> NonZeroUsize {
         let index = self.code_snippet_index;
         self.code_snippet_index = NonZeroUsize::new(index.get() + 1).unwrap();

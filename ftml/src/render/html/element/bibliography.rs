@@ -24,7 +24,82 @@ use crate::tree::Bibliography;
 pub fn render_bibcite(ctx: &mut HtmlContext, label: &str, brackets: bool) {
     info!("Rendering bibliography citation (label {label}, brackets {brackets})");
 
-    todo!()
+    match ctx.get_bibliography_ref(label) {
+        // Valid bibliography reference, render it
+        Some((index, contents)) => {
+            // TODO make this into a locale template string
+            let reference_string = ctx
+                .handle()
+                .get_message(ctx.language(), "bibliography-reference");
+            let label = format!("{reference_string} {index}.");
+
+            // TODO: For now, copied from footnotes
+            ctx.html()
+                .span()
+                .attr(attr!("class" => "wj-bibliography-ref"))
+                .inner(|ctx| {
+                    let id = str!(index);
+
+                    // Footnote marker that is hoverable
+                    ctx.html()
+                        .element("wj-bibliography-ref-marker")
+                        .attr(attr!(
+                            "class" => "wj-bibliography-ref-marker",
+                            "role" => "link",
+                            "aria-label" => &label,
+                            "data-id" => &id,
+                        ))
+                        .inner(|ctx| {
+                            if brackets {
+                                ctx.push_raw('[');
+                            }
+
+                            ctx.push_raw_str(&id);
+
+                            if brackets {
+                                ctx.push_raw(']');
+                            }
+                        });
+
+                    // Tooltip shown on hover.
+                    // Is aria-hidden due to difficulty in getting a simultaneous
+                    // tooltip and link to work. A screen reader can still navigate
+                    // through to the link and read the bibliographyootnote directly.
+                    ctx.html()
+                        .span()
+                        .attr(attr!(
+                            "class" => "wj-bibliography-ref-tooltip",
+                            "aria-hidden" => "true",
+                        ))
+                        .inner(|ctx| {
+                            // Tooltip label
+                            ctx.html()
+                                .span()
+                                .attr(
+                                    attr!("class" => "wj-bibliography-ref-tooltip-label"),
+                                )
+                                .contents(&label);
+
+                            // Actual tooltip contents
+                            ctx.html()
+                                .span()
+                                .attr(attr!("class" => "wj-bibliography-ref-contents"))
+                                .contents(contents);
+                        });
+                });
+        }
+        None => {
+            // We need to produce an error for invalid bibliography references
+            let message = ctx
+                .handle()
+                .get_message(ctx.language(), "bibliography-cite-not-found");
+
+            ctx.html()
+                .span()
+                .attr(attr!("class" => "wj-error-inline"))
+                .contents(message);
+        }
+    }
 }
 
 pub fn render_bibliography(
