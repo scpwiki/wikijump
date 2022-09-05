@@ -371,7 +371,7 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
             }
         }
         Element::BibliographyCite { label, brackets } => todo!(),
-        Element::BibliographyBlock { title } => todo!(),
+        Element::BibliographyBlock { title, references } => todo!(),
         Element::User { name, .. } => ctx.push_str(name),
         Element::Date { value, format, .. } => {
             str_write!(ctx, "{}", value.format(format.as_ref()));

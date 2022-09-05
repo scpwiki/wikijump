@@ -171,8 +171,8 @@ pub fn render_element(ctx: &mut HtmlContext, element: &Element) {
         Element::BibliographyCite { label, brackets } => {
             render_bibcite(ctx, label, *brackets)
         }
-        Element::BibliographyBlock { title } => {
-            render_bibliography(ctx, title.ref_map(|s| s.as_ref()))
+        Element::BibliographyBlock { title, references } => {
+            render_bibliography(ctx, title.ref_map(|s| s.as_ref()), &references)
         }
         Element::User { name, show_avatar } => render_user(ctx, name, *show_avatar),
         Element::Date {

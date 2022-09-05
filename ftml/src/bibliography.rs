@@ -1,5 +1,5 @@
 /*
- * tree/bibliography.rs
+ * bibliography.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,13 +18,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+//! Structures managing bibliographic references.
+//!
+//! As an extension from Wikidot, we permit multiple bibliographies
+//! to appear on a page, allowing people to have multiple sets,
+//! for instance on separate tabs on a page.
+//!
+//! The first reference found is the one used.
+
 use crate::tree::Element;
 use std::borrow::Cow;
 
 #[derive(Debug, Clone, Default)]
-pub struct Bibliography<'t> {
-    references: Vec<(Cow<'t, str>, Vec<Element<'t>>)>,
-}
+pub struct Bibliography<'t>(Vec<(Cow<'t, str>, Vec<Element<'t>>)>);
 
 impl<'t> Bibliography<'t> {
     pub fn new() -> Self {
@@ -41,7 +47,7 @@ impl<'t> Bibliography<'t> {
             return;
         }
 
-        self.references.push((label, elements));
+        self.0.push((label, elements));
     }
 
     pub fn get(&self, label: &str) -> Option<(usize, &[Element<'t>])> {
@@ -52,7 +58,7 @@ impl<'t> Bibliography<'t> {
         //
         // This also gives us free indexing based on this order, and the
         // order based on it, so we don't need a two-index map here.
-        for (index, (ref_label, elements)) in self.references.iter().enumerate() {
+        for (index, (ref_label, elements)) in self.0.iter().enumerate() {
             if label == ref_label {
                 // Change from zero-indexing to one-indexing
                 return Some((index + 1, elements));
@@ -60,6 +66,11 @@ impl<'t> Bibliography<'t> {
         }
 
         None
+    }
+
+    #[inline]
+    pub fn slice(&self) -> &[(Cow<'t, str>, Vec<Element<'t>>)] {
+        &self.0
     }
 }
 

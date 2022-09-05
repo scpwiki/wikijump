@@ -196,7 +196,13 @@ pub enum Element<'t> {
     BibliographyCite { label: Cow<'t, str>, brackets: bool },
 
     /// A bibliography block, containing all the cited items from throughout the page.
-    BibliographyBlock { title: Option<Cow<'t, str>> },
+    ///
+    /// The `references` item is a list of reference lines, which each correspond to
+    /// one reference block.
+    BibliographyBlock {
+        title: Option<Cow<'t, str>>,
+        references: Vec<Vec<Element<'t>>>,
+    },
 
     /// A user block, linking to their information and possibly showing their avatar.
     #[serde(rename_all = "kebab-case")]
@@ -512,9 +518,15 @@ impl Element<'_> {
                 label: string_to_owned(label),
                 brackets: *brackets,
             },
-            Element::BibliographyBlock { title } => Element::BibliographyBlock {
-                title: option_string_to_owned(title),
-            },
+            Element::BibliographyBlock { title, references } => {
+                Element::BibliographyBlock {
+                    title: option_string_to_owned(title),
+                    references: references
+                        .iter()
+                        .map(|elements| elements_to_owned(elements))
+                        .collect(),
+                }
+            }
             Element::User { name, show_avatar } => Element::User {
                 name: string_to_owned(name),
                 show_avatar: *show_avatar,

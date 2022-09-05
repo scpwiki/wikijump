@@ -26,10 +26,15 @@ pub fn render_bibcite(ctx: &mut HtmlContext, label: &str, brackets: bool) {
     todo!()
 }
 
-pub fn render_bibliography(ctx: &mut HtmlContext, title: Option<&str>) {
+pub fn render_bibliography(
+    ctx: &mut HtmlContext,
+    title: Option<&str>,
+    bibliography: &[Vec<Element>],
+) {
     info!(
-        "Rendering bibliography block (title {})",
+        "Rendering bibliography block (title {}, items {})",
         title.unwrap_or("<default>"),
+        bibliography.len(),
     );
 
     todo!()
