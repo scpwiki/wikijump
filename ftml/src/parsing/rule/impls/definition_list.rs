@@ -139,7 +139,10 @@ fn parse_item<'p, 'r, 't>(
     parser.step_n(2)?;
 
     // Gather key wikitext
-    let key_string = parser.full_text().slice_partial(start_token, end_token).trim();
+    let key_string = parser
+        .full_text()
+        .slice_partial(start_token, end_token)
+        .trim();
 
     // Gather value elements until end of line
     let (mut value_elements, last) = collect_consume_keep(
