@@ -44,7 +44,9 @@ fn parse_fn<'r, 't>(
     assert_block_name(&BLOCK_BIBLIOGRAPHY, name);
 
     let mut arguments = parser.get_head_map(&BLOCK_BIBLIOGRAPHY, in_head)?;
+
     let title = arguments.get("title");
+    let hide = arguments.get_bool(parser, "hide")?.unwrap_or(false);
 
     // Get body content. The contents should only be a definition list, but
     // we use the regular elements parser to make it easy on us. If we find
@@ -97,5 +99,5 @@ fn parse_fn<'r, 't>(
     // Add bibliography object to parser for unified tracking, like footnotes.
     parser.push_bibliography(bibliography);
 
-    ok!(Element::BibliographyBlock { title, references }, errors)
+    ok!(Element::BibliographyBlock { title, hide, references }, errors)
 }
