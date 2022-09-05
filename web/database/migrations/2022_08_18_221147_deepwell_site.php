@@ -14,6 +14,9 @@ class DeepwellSite extends Migration
      */
     public function up()
     {
+        DB::statement("UPDATE site SET subtitle = '' WHERE subtitle IS NULL");
+        DB::statement("UPDATE site SET description = '' WHERE description IS NULL");
+        DB::statement("UPDATE site SET date_created = 'Fri Jan 18 15:32:15 2019 -0700' WHERE date_created IS NULL");
 
         DB::statement("ALTER TABLE site ALTER COLUMN name TYPE text");
         DB::statement("ALTER TABLE site ALTER COLUMN name SET NOT NULL");
