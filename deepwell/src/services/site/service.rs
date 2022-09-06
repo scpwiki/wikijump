@@ -58,6 +58,41 @@ impl SiteService {
         })
     }
 
+    /// Update site information.
+    pub async fn update(
+        ctx: &ServiceContext<'_>,
+        reference: Reference<'_>,
+        input: UpdateSite,
+    ) -> Result<()> {
+        let txn = ctx.transaction();
+        let model = Self::get(ctx, reference).await?;
+        let mut site: users::ActiveModel = model.into();
+
+        if let ProvidedValue::Set(name) = input.name {
+            site.name = Set(name);
+        }
+
+        if let ProvidedValue::Set(subtitle) = input.subtitle {
+            site.subtitle = Set(subtitle);
+        }
+
+        if let ProvidedValue::Set(description) = input.description {
+            site.description = Set(description);
+        }
+
+        if let ProvidedValue::Set(locale) = input.locale {
+            site.locale = Set(locale);
+        }
+
+        // Set last time site was updated.
+        site.updated_at = Set(Some(now()));
+
+        // Update site.
+        site.update(txn).await?;
+
+        Ok(())
+    }
+
     #[inline]
     pub async fn exists(
         ctx: &ServiceContext<'_>,

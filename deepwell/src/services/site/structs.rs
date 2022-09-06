@@ -18,13 +18,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::web::ProvidedValue;
+
 #[derive(Deserialize, Debug)]
 pub struct CreateSite {
     pub slug: String,
     pub name: String,
     pub subtitle: String,
     pub description: String,
-    pub locale: String, // Strum instead, maybe?
+    pub locale: String,
 }
 
 #[derive(Serialize, Debug)]
@@ -32,4 +34,13 @@ pub struct CreateSite {
 pub struct CreateSiteOutput {
     pub site_id: i64,
     pub slug: String,
+}
+
+#[derive(Deserialize, Debug, Default)]
+#[serde(rename_all = "camelCase", default)]
+pub struct UpdateSite {
+    pub name: ProvidedValue<String>,
+    pub subtitle: ProvidedValue<String>,
+    pub description: ProvidedValue<String>,
+    pub locale: ProvidedValue<String>,
 }
