@@ -28,8 +28,20 @@ AS
 -- Site
 --
 
--- TODO
+CREATE TABLE site (
+    site_id BIGSERIAL PRIMARY KEY,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+    updated_at TIMESTAMP WITH TIME ZONE,
+    deleted_at TIMESTAMP WITH TIME ZONE,
+    slug TEXT NOT NULL,
+    name TEXT NOT NULL,
+    tagline TEXT NOT NULL,
+    description TEXT NOT NULL,
+    locale TEXT NOT NULL,
+    default_page TEXT NOT NULL DEFAULT 'start',
 
+    UNIQUE (slug, deleted_at)
+);
 
 --
 -- Page
