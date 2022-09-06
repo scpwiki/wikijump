@@ -1,0 +1,29 @@
+# Configuration files
+conf/wikidot.ini
+conf/wikijump.ini
+
+# Vendor
+/vendor
+composer.phar
+composer.lock
+node_modules
+
+# Temporary or data
+/tmp
+/coverage
+/web/files--common/tmp
+/web/files--sites
+
+# Built files
+/web/files--common/dist
+/public/files--built
+
+# Other Laravel
+/public/hot
+/public/storage
+/storage/*.key
+.env
+.env.backup
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml

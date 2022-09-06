@@ -1,36 +1,11 @@
-# Configuration files
-conf/wikidot.ini
-conf/wikijump.ini
-
 # Vendor
-/vendor
-composer.phar
 node_modules
 .pnpm-debug.log
-
-# Temporary or Data
-/tmp
-/coverage
-/web/files--common/tmp
-/web/files--sites
-
-# Built files
-/web/files--common/dist
-/public/files--built
-modules/**/dist
-
-# Lock Files
-composer.lock
 package-lock.json
 
-# Laravel suggestions not already included.
-/public/hot
-/public/storage
-/storage/*.key
-.env
-.env.backup
-.phpunit.result.cache
-Homestead.json
-Homestead.yaml
+# Built files
+modules/**/dist
+
+# Other logging
 npm-debug.log
 yarn-error.log
