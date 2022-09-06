@@ -25,7 +25,7 @@ use super::RULE_PAGE;
 use crate::data::PageInfo;
 use crate::render::text::TextRender;
 use crate::tokenizer::Tokenization;
-use crate::tree::{AcceptsPartial, HeadingLevel};
+use crate::tree::{AcceptsPartial, Bibliography, BibliographyList, HeadingLevel};
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::{mem, ptr};
@@ -62,6 +62,13 @@ pub struct Parser<'r, 't> {
     // Schema: Vec<List of elements in a footnote>
     footnotes: Rc<RefCell<Vec<Vec<Element<'t>>>>>,
 
+    // Bibliographies
+    //
+    // Each bibliography block is separate, but the citations
+    // can be referenced anywheres, with earlier ones
+    // overriding later ones.
+    bibliographies: Rc<RefCell<BibliographyList<'t>>>,
+
     // Flags
     accepts_partial: AcceptsPartial,
     in_footnote: bool, // Whether we're currently inside [[footnote]] ... [[/footnote]].
@@ -95,6 +102,7 @@ impl<'r, 't> Parser<'r, 't> {
             depth: 0,
             table_of_contents: make_shared_vec(),
             footnotes: make_shared_vec(),
+            bibliographies: Rc::new(RefCell::new(BibliographyList::new())),
             accepts_partial: AcceptsPartial::None,
             in_footnote: false,
             has_footnote_block: false,
@@ -227,17 +235,33 @@ impl<'r, 't> Parser<'r, 't> {
         mem::take(&mut self.footnotes.borrow_mut())
     }
 
+    // Bibliography
+    pub fn push_bibliography(&mut self, bibliography: Bibliography<'t>) -> usize {
+        let mut guard = self.bibliographies.borrow_mut();
+        let index = guard.next_index();
+        guard.push(bibliography);
+        index
+    }
+
+    #[cold]
+    pub fn remove_bibliographies(&mut self) -> BibliographyList<'t> {
+        mem::take(&mut self.bibliographies.borrow_mut())
+    }
+
     // Special for [[include]], appending a SyntaxTree
-    pub fn append_toc_and_footnotes(
+    pub fn append_shared_items(
         &mut self,
         table_of_contents: &mut Vec<(usize, String)>,
         footnotes: &mut Vec<Vec<Element<'t>>>,
+        bibliographies: &mut BibliographyList<'t>,
     ) {
         self.table_of_contents
             .borrow_mut()
             .append(table_of_contents);
 
         self.footnotes.borrow_mut().append(footnotes);
+
+        self.bibliographies.borrow_mut().append(bibliographies);
     }
 
     // State evaluation

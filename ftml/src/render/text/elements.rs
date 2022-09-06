@@ -259,11 +259,16 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
             }
         }
         Element::DefinitionList(items) => {
-            for DefinitionListItem { key, value } in items {
+            for DefinitionListItem {
+                key_elements,
+                value_elements,
+                ..
+            } in items
+            {
                 str_write!(ctx, ": ");
-                render_elements(ctx, key);
+                render_elements(ctx, key_elements);
                 str_write!(ctx, " : ");
-                render_elements(ctx, value);
+                render_elements(ctx, value_elements);
                 ctx.add_newline();
             }
 
@@ -357,8 +362,64 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
             ctx.push_str(title);
             ctx.add_newline();
 
-            // Render footnotes in order.
+            // Render footnotes in order
             for (index, contents) in ctx.footnotes().iter().enumerate() {
+                str_write!(ctx, "{}. ", index + 1);
+
+                render_elements(ctx, contents);
+                ctx.add_newline();
+            }
+        }
+        Element::BibliographyCite { label, brackets } => {
+            match ctx.get_bibliography_ref(label) {
+                Some((index, _contents)) => {
+                    if *brackets {
+                        ctx.push('[');
+                    }
+
+                    str_write!(ctx, "{}", index);
+
+                    if *brackets {
+                        ctx.push(']');
+                    }
+                }
+                None => {
+                    let message = ctx
+                        .handle()
+                        .get_message(ctx.language(), "bibliography-cite-not-found");
+
+                    ctx.push_str(message);
+                }
+            }
+        }
+        Element::BibliographyBlock { index, title, hide } => {
+            info!("Rendering bibliography block");
+
+            if *hide {
+                return;
+            }
+
+            // Render bibliography title
+            let title_default;
+            let title: &str = match title {
+                Some(title) => title.as_ref(),
+                None => {
+                    title_default = ctx
+                        .handle()
+                        .get_message(ctx.language(), "bibliography-block-title");
+
+                    title_default
+                }
+            };
+
+            ctx.add_newline();
+            ctx.push_str(title);
+            ctx.add_newline();
+
+            // Render bibliography items in order
+            for (index, (_, contents)) in
+                ctx.get_bibliography(*index).slice().iter().enumerate()
+            {
                 str_write!(ctx, "{}. ", index + 1);
 
                 render_elements(ctx, contents);

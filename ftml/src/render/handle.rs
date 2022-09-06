@@ -159,6 +159,9 @@ impl Handle {
             "table-of-contents" => "Table of Contents",
             "footnote" => "Footnote",
             "footnote-block-title" => "Footnotes",
+            "bibliography-reference" => "Reference",
+            "bibliography-block-title" => "Bibliography",
+            "bibliography-cite-not-found" => "Bibliography item not found",
             "image-context-bad" => "No images in this context",
             _ => {
                 error!("Unknown message requested (key {message})");

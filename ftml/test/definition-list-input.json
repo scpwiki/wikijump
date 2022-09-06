@@ -6,6 +6,7 @@
                 "element": "definition-list",
                 "data": [
                     {
+                        "key_string": "Key",
                         "key": [
                             {
                                 "element": "text",
@@ -32,6 +33,8 @@
         "table-of-contents": [
         ],
         "footnotes": [
+        ],
+        "bibliographies": [
         ]
     },
     "errors": [

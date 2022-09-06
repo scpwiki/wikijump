@@ -189,6 +189,21 @@ pub enum Element<'t> {
         hide: bool,
     },
 
+    /// A citation of a bibliography element, invoked via `((bibcite ...))`.
+    ///
+    /// The `brackets` field tells whether the resultant HTML should be surrounded
+    /// in `[..]`, which is not very easily possible when using `[[bibcite ...]]`.
+    BibliographyCite { label: Cow<'t, str>, brackets: bool },
+
+    /// A bibliography block, containing all the cited items from throughout the page.
+    ///
+    /// The `index` field is the zero-indexed value of which bibliography block this is.
+    BibliographyBlock {
+        index: usize,
+        title: Option<Cow<'t, str>>,
+        hide: bool,
+    },
+
     /// A user block, linking to their information and possibly showing their avatar.
     #[serde(rename_all = "kebab-case")]
     User {
@@ -299,7 +314,7 @@ impl Element<'_> {
         }
     }
 
-    /// Returns the Rust name of this Element variant.
+    /// Returns the Rust name of this `Element` variant.
     pub fn name(&self) -> &'static str {
         match self {
             Element::Container(container) => container.ctype().name(),
@@ -322,6 +337,8 @@ impl Element<'_> {
             Element::TableOfContents { .. } => "TableOfContents",
             Element::Footnote => "Footnote",
             Element::FootnoteBlock { .. } => "FootnoteBlock",
+            Element::BibliographyCite { .. } => "BibliographyCite",
+            Element::BibliographyBlock { .. } => "BibliographyBlock",
             Element::User { .. } => "User",
             Element::Date { .. } => "Date",
             Element::Color { .. } => "Color",
@@ -372,6 +389,8 @@ impl Element<'_> {
             Element::TableOfContents { .. } => false,
             Element::Footnote => true,
             Element::FootnoteBlock { .. } => false,
+            Element::BibliographyCite { .. } => true,
+            Element::BibliographyBlock { .. } => false,
             Element::User { .. } => true,
             Element::Date { .. } => true,
             Element::Color { .. } => true,
@@ -495,6 +514,17 @@ impl Element<'_> {
                 title: option_string_to_owned(title),
                 hide: *hide,
             },
+            Element::BibliographyCite { label, brackets } => Element::BibliographyCite {
+                label: string_to_owned(label),
+                brackets: *brackets,
+            },
+            Element::BibliographyBlock { index, title, hide } => {
+                Element::BibliographyBlock {
+                    index: *index,
+                    title: option_string_to_owned(title),
+                    hide: *hide,
+                }
+            }
             Element::User { name, show_avatar } => Element::User {
                 name: string_to_owned(name),
                 show_avatar: *show_avatar,

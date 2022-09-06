@@ -81,6 +81,8 @@ Alternatively you may look here for a formatted list: (though it may not be upda
 | Block Name                              | Accepted Names                   | Star? | Score? | Newlines? | Argument Type | Body Type |
 |-----------------------------------------|----------------------------------|-------|--------|-----------|---------------|-----------|
 | [Anchor](#anchor)                       | `a`, `anchor`                    | No    | Yes    | No        | Map           | Elements  |
+| [Bibliography Citation](#bibliography-citation) | `bibcite`                | No    | Yes    | No        | Value         | None      |
+| [Bibliography](#bibliography-block)     | `bibliography`                   | No    | No     | Yes       | Map           | (See below) |
 | [Blockquote](#blockquote)               | `blockquote`, `quote`            | No    | No     | Yes       | Map           | Elements  |
 | [Bold](#bold)                           | `b`, `bold`, `strong`            | No    | No     | No        | Map           | Elements  |
 | [Char](#char)                           | `char`, `character`              | No    | No     | No        | Value         | None      |
@@ -147,6 +149,46 @@ Example:
 
 ```
 [[a href="/scp-4000/noredirect/true" target="_blank" class="dual-link"]]Fae[[/a]]
+```
+
+### Bibliography Citation
+
+Wikidot's syntax is to use `((bibcite ...))`, but ftml also supports `[[bibcite ...]]`, as that is more customary.
+By default, the block version (`[[bibcite]]`) adds brackets around it, this can be disabled by using `[[bibcite_]]`.
+
+Outputs: `Element::BibliographyCitation` / `<a class="wj-bibcite">`
+
+Body: None
+
+Accepts score flag. (Block form only)
+
+Arguments:
+Value &mdash; (String) The label name. (No spaces unless in block form)
+
+Example:
+
+```
+On March 16, 1926,((bibcite rocket-1)) Robert H. Goddard launched his first liquid-fueld rocket.[[bibcite rocket-2]]
+```
+
+### Bibliography Block
+
+Outputs: `Element::BibliographyBlock` / `<div class="wj-bibliography">`
+
+Body: A definition list with the references.
+
+Arguments:
+* `title` &mdash; (String) An alternate title for the bibliography block.
+* `hide` &mdash; (Boolean) `true` means to not render this element. Default is `false`.
+
+Example:
+
+```
+[[bibliography]]
+: rocket-1 : Smith, John (June 2000). "An informative article about Robert Goddard".
+: rocket-2 : Doe, Jane. //The Rocket Which Can Fly//, book.
+: impact : Another reference, you get the idea, you can have arbitrary wikitext here.
+[[/bibliography]]
 ```
 
 ### Blockquote

@@ -61,8 +61,8 @@ use crate::next_index::{NextIndex, TableOfContentsIndex};
 use crate::settings::WikitextSettings;
 use crate::tokenizer::Tokenization;
 use crate::tree::{
-    AttributeMap, Element, LinkLabel, LinkLocation, LinkType, ListItem, ListType,
-    SyntaxTree,
+    AttributeMap, BibliographyList, Element, LinkLabel, LinkLocation, LinkType, ListItem,
+    ListType, SyntaxTree,
 };
 use std::borrow::Cow;
 
@@ -89,6 +89,7 @@ where
         table_of_contents_depths,
         footnotes,
         has_footnote_block,
+        bibliographies,
     } = parse_internal(page_info, settings, tokenization);
 
     // For producing table of contents indexes
@@ -133,6 +134,7 @@ where
                 errors,
                 table_of_contents,
                 footnotes,
+                bibliographies,
             )
         }
         Err(error) => {
@@ -147,12 +149,14 @@ where
             let errors = vec![error];
             let table_of_contents = vec![];
             let footnotes = vec![];
+            let bibliographies = BibliographyList::new();
 
             SyntaxTree::from_element_result(
                 elements,
                 errors,
                 table_of_contents,
                 footnotes,
+                bibliographies,
             )
         }
     }
@@ -177,12 +181,14 @@ where
     let table_of_contents_depths = parser.remove_table_of_contents();
     let footnotes = parser.remove_footnotes();
     let has_footnote_block = parser.has_footnote_block();
+    let bibliographies = parser.remove_bibliographies();
 
     UnstructuredParseResult {
         result,
         table_of_contents_depths,
         footnotes,
         has_footnote_block,
+        bibliographies,
     }
 }
 
@@ -255,4 +261,9 @@ pub struct UnstructuredParseResult<'r, 't> {
 
     /// Whether a footnote block was placed during parsing.
     pub has_footnote_block: bool,
+
+    /// The list of bibliographies.
+    ///
+    /// See `src/tree/bibliography.rs`.
+    pub bibliographies: BibliographyList<'t>,
 }

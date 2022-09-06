@@ -73,6 +73,7 @@ impl Render for HtmlRender {
             settings,
             &tree.table_of_contents,
             &tree.footnotes,
+            &tree.bibliographies,
         );
 
         // Crawl through elements and generate HTML

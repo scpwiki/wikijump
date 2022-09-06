@@ -8,7 +8,7 @@ keywords = ["wikidot", "wikijump", "ftml", "parsing", "html"]
 categories = ["parser-implementations"]
 exclude = [".gitignore", ".editorconfig"]
 
-version = "1.17.1"
+version = "1.18.0"
 authors = ["Ammon Smith <ammon.i.smith@gmail.com>"]
 edition = "2021" # this is *not* the same as the current year
 
@@ -54,7 +54,6 @@ built = { version = "0.5", features = ["chrono", "git2"] }
 
 [dev-dependencies]
 proptest = "1"
-sloggers = "2"
 termcolor = "1"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]

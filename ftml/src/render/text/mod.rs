@@ -26,7 +26,7 @@ use self::elements::render_elements;
 use crate::data::PageInfo;
 use crate::render::{Handle, Render};
 use crate::settings::WikitextSettings;
-use crate::tree::{Element, SyntaxTree};
+use crate::tree::{BibliographyList, Element, SyntaxTree};
 
 #[derive(Debug)]
 pub struct TextRender;
@@ -39,7 +39,14 @@ impl TextRender {
         page_info: &PageInfo,
         settings: &WikitextSettings,
     ) -> String {
-        self.render_partial_direct(elements, page_info, settings, &[], &[])
+        self.render_partial_direct(
+            elements,
+            page_info,
+            settings,
+            &[],
+            &[],
+            &BibliographyList::new(),
+        )
     }
 
     fn render_partial_direct(
@@ -49,6 +56,7 @@ impl TextRender {
         settings: &WikitextSettings,
         table_of_contents: &[Element],
         footnotes: &[Vec<Element>],
+        bibliographies: &BibliographyList,
     ) -> String {
         info!(
             "Rendering text (site {}, page {}, category {})",
@@ -60,8 +68,14 @@ impl TextRender {
             },
         );
 
-        let mut ctx =
-            TextContext::new(page_info, &Handle, settings, table_of_contents, footnotes);
+        let mut ctx = TextContext::new(
+            page_info,
+            &Handle,
+            settings,
+            table_of_contents,
+            footnotes,
+            bibliographies,
+        );
         render_elements(&mut ctx, elements);
 
         // Remove leading and trailing newlines
@@ -93,6 +107,7 @@ impl Render for TextRender {
             settings,
             &tree.table_of_contents,
             &tree.footnotes,
+            &tree.bibliographies,
         )
     }
 }

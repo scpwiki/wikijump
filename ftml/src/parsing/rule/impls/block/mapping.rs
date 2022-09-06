@@ -22,12 +22,14 @@ use super::{blocks::*, BlockRule};
 use std::collections::HashMap;
 use unicase::UniCase;
 
-pub const BLOCK_RULES: [BlockRule; 58] = [
+pub const BLOCK_RULES: [BlockRule; 60] = [
     BLOCK_ALIGN_CENTER,
     BLOCK_ALIGN_JUSTIFY,
     BLOCK_ALIGN_LEFT,
     BLOCK_ALIGN_RIGHT,
     BLOCK_ANCHOR,
+    BLOCK_BIBCITE,
+    BLOCK_BIBLIOGRAPHY,
     BLOCK_BLOCKQUOTE,
     BLOCK_BOLD,
     BLOCK_CHAR,
@@ -117,7 +119,7 @@ fn build_block_rule_map(block_rules: &'static [BlockRule]) -> BlockRuleMap {
 
             assert!(
                 previous.is_none(),
-                "Overwrote previous block rule during rule population!",
+                "Overwrote previous block rule during rule population! Duplicate block detected.",
             );
         }
     }

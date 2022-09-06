@@ -25,9 +25,14 @@ pub fn render_definition_list(ctx: &mut HtmlContext, items: &[DefinitionListItem
     info!("Rendering definition list (length {})", items.len());
 
     ctx.html().dl().inner(|ctx| {
-        for DefinitionListItem { key, value } in items {
-            ctx.html().dt().contents(key);
-            ctx.html().dd().contents(value);
+        for DefinitionListItem {
+            key_elements,
+            value_elements,
+            ..
+        } in items
+        {
+            ctx.html().dt().contents(key_elements);
+            ctx.html().dd().contents(value_elements);
         }
     });
 }
