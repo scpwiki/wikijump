@@ -131,7 +131,7 @@ impl UserService {
     ) -> Result<()> {
         let txn = ctx.transaction();
         let model = Self::get(ctx, reference).await?;
-        let mut user: users::ActiveModel = model.clone().into();
+        let mut user: users::ActiveModel = model.into();
 
         // Add each field
         if let ProvidedValue::Set(username) = input.username {
