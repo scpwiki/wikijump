@@ -2,36 +2,24 @@
 # DEEPWELL build
 #
 
-FROM rust:latest AS rust
+# This image is modified for development, it retains the
+# full rust container and rebuilds as needed, to ease
+# iteration during development.
 
-# Copy source
-RUN mkdir /src
-COPY ./deepwell /src/deepwell
-WORKDIR /src/deepwell
+FROM rust:latest AS rust
 
 # Install system dependencies
 RUN apt update
 RUN apt install libmagic-dev
 
-# Cache rust dependencies
-RUN cargo vendor
-
-# Build deepwell server
-RUN cargo build --release
-
-#
-# Final image
-#
-
-# We want alpine, but need glibc
-FROM frolvlad/alpine-glibc:glibc-2.30
-
-ENV LOCALIZATION_PATH="/opt/locales"
-
-RUN apk add --no-cache curl libmagic
-COPY --from=rust /src/deepwell/target/release/deepwell /usr/local/bin/deepwell
-COPY ./locales/fluent /opt/locales/fluent
+# Install helpers
+RUN cargo install cargo-watch
 COPY ./install/files/api/health-check.sh /bin/wikijump-health-check
 
-USER daemon
-CMD ["/usr/local/bin/deepwell"]
+# Copy source
+# Don't build until container execution (see cargo-watch)
+RUN mkdir /src
+COPY ./deepwell /src/deepwell
+WORKDIR /src/deepwell
+
+CMD ["/usr/local/cargo/bin/cargo", "watch", "--why", "-x", "run"]

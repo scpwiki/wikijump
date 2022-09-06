@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  api:
+    volumes:
+      # Rust sources
+      - type: bind
+        source: ../../../deepwell/src
+        target: /src/deepwell/src
+        read_only: true
+      - type: bind
+        source: ../../../deepwell/build.rs
+        target: /src/deepwell/build.rs
+        read_only: true
+      - type: bind
+        source: ../../../deepwell/Cargo.toml
+        target: /src/deepwell/Cargo.toml
+        read_only: true
+      # Translation data
+      - type: bind
+        source: ../../../locales
+        target: /opt/locales
+        read_only: true
