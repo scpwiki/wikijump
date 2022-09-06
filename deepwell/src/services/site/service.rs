@@ -47,14 +47,14 @@ impl SiteService {
             name: Set(name),
             subtitle: Set(subtitle),
             description: Set(description),
-            locale: Set(locale),         
+            locale: Set(locale),
             ..Default::default()
         };
         let site = model.insert(txn).await?;
 
         Ok(CreateSiteOutput {
             site_id: site.site_id,
-            slug
+            slug,
         })
     }
 
