@@ -66,7 +66,7 @@ impl SiteService {
     ) -> Result<()> {
         let txn = ctx.transaction();
         let model = Self::get(ctx, reference).await?;
-        let mut site: users::ActiveModel = model.into();
+        let mut site: site::ActiveModel = model.into();
 
         if let ProvidedValue::Set(name) = input.name {
             site.name = Set(name);
