@@ -628,7 +628,7 @@ CREATE TABLE wikidot__theme (
     unix_name TEXT,
     abstract BOOLEAN NOT NULL DEFAULT false,
     extends_theme_id INT,
-    variants_of_theme_id INT,
+    variant_of_theme_id INT,
     custom BOOLEAN NOT NULL DEFAULT false,
     site_id INT,
     use_side_bar BOOLEAN NOT NULL DEFAULT true,
