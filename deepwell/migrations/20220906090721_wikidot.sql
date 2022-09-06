@@ -1,7 +1,7 @@
 -- This table adds Wikidot's legacy tables, but with the "wikidot__" prefix so they are namespaced.
 --
--- They are not intended to be used, and should be dropped in subsequent migrations as their
--- functionality is replaced or implemented.
+-- They are not intended to be used, but instead purely as documentation.
+-- They are dropped in one of the next migrations.
 
 CREATE TABLE wikidot__admin (
     admin_id SERIAL PRIMARY KEY,
