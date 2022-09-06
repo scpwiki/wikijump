@@ -1,14 +1,6 @@
-## Wikijump Web
+## Wikijump Web (deprecated)
 
-> #### **IMPORTANT:**
->
-> This monorepo uses [PNPM](https://pnpm.io/). You need to have it installed.
->
-> ```
-> $ npm install pnpm --global
-> ```
->
-> You will need to use PNPM to interact with this monorepo, and not `npm`.
+This document is deprecated, and will eventually be moved to its final home in `framerail`. After everything has been moved out, the `web/` directory will be deleted.
 
 ### Relevant Documentation
 
