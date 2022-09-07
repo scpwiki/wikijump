@@ -216,7 +216,7 @@ variable = @{ "{$" ~ identifier ~ "}" }
 
 char = _{
     (!(NEWLINE | "\"" | "\\") ~ ANY) |
-    "\\" ~ ("\"" | "\\" | "r" | "n" | "t" | "'")
+    "\\" ~ !NEWLINE ~ ANY
 }
 
 string = @{ "\"" ~ char* ~ "\"" }
