@@ -36,21 +36,6 @@ use std::borrow::Cow;
 /// is returned. So for `\$`, it will emit a
 /// `\` followed by a `$`.
 pub fn parse_string(input: &str) -> Cow<str> {
-    /// Helper function to convert escapes to the actual character.
-    fn escape_char(ch: char) -> Option<char> {
-        let escaped = match ch {
-            '\\' => '\\',
-            '\"' => '\"',
-            '\'' => '\'',
-            'r' => '\r',
-            'n' => '\n',
-            't' => '\t',
-             _ => return None,
-        };
-
-        Some(escaped)
-    }
-
     // We could do an iteration thing, but tracking
     // the index across replacements is complicated.
     //
@@ -99,6 +84,21 @@ fn slice_middle(input: &str) -> &str {
     &input[1..last]
 }
 
+/// Helper function to convert escapes to the actual character.
+fn escape_char(ch: char) -> Option<char> {
+    let escaped = match ch {
+        '\\' => '\\',
+        '\"' => '\"',
+        '\'' => '\'',
+        'r' => '\r',
+        'n' => '\n',
+        't' => '\t',
+         _ => return None,
+    };
+
+    Some(escaped)
+}
+
 #[test]
 fn test_parse_string() {
     macro_rules! test {
@@ -129,18 +129,6 @@ fn test_parse_string() {
         "abc \t (\\\t) \r (\\\r) def",
         Owned,
     );
-}
-
-#[test]
-#[should_panic]
-fn test_parse_string_escape() {
-    // This shouldn't happen in real code, since
-    // any invalid string constructions are caught at the
-    // tokenization stage.
-    //
-    // However we're testing this to ensure high code coverage.
-
-    let _ = parse_string(r#""Invalid escape! \z""#);
 }
 
 #[test]
