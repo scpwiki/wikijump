@@ -20,6 +20,7 @@
 
 use super::error::Result;
 use crate::api::{ApiRequest, ApiServerState};
+use crate::config::Config;
 use cuid::cuid;
 use s3::bucket::Bucket;
 use sea_orm::DatabaseTransaction;
@@ -48,6 +49,11 @@ impl<'txn> ServiceContext<'txn> {
     }
 
     // Getters
+    #[inline]
+    pub fn config(&self) -> &Config {
+        &self.state.config
+    }
+
     #[inline]
     pub fn s3_bucket(&self) -> &Bucket {
         &self.state.s3_bucket
