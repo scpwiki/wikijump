@@ -95,14 +95,21 @@ pub fn parse_string(input: &str) -> Cow<str> {
 /// Does not make any assumptions about codepoints.
 fn slice_middle(input: &str) -> Option<&str> {
     // Starts and ends with "
-    if input.chars().next() != Some('"') && input.chars().next_back() != Some('"') {
+    //
+    // Regarding the length check:
+    // We can use byte length here, since ASCII " x2 is 2 bytes,
+    // so any other irregular pattern must be *at least* that.
+    //
+    // If shorter, it cannot be valid.
+    if input.len() < 2
+        || input.chars().next() != Some('"')
+        || input.chars().next_back() != Some('"')
+    {
         return None;
     }
 
     // Okay, we know the first and last chars are ASCII, it's safe to slice
-    let len = input.len();
-    let last = len - 1;
-
+    let last = input.len() - 1;
     Some(&input[1..last])
 }
 
@@ -115,7 +122,7 @@ fn escape_char(ch: char) -> Option<char> {
         'r' => '\r',
         'n' => '\n',
         't' => '\t',
-         _ => return None,
+        _ => return None,
     };
 
     Some(escaped)
@@ -151,11 +158,7 @@ fn test_parse_string() {
         "abc \t (\\\t) \r (\\\r) def",
         Owned,
     );
-    test!(
-        r#""abc \t \x \y \z \n""#,
-        "abc \t \\x \\y \\z \n",
-        Owned,
-    );
+    test!(r#""abc \t \x \y \z \n""#, "abc \t \\x \\y \\z \n", Owned);
     test!("'abc'", "'abc'", Borrowed);
     test!("\"abc", "\"abc", Borrowed);
     test!("foo", "foo", Borrowed);
@@ -176,7 +179,7 @@ fn test_slice_middle() {
         ($input:expr $(,)?) => {{
             assert!(
                 slice_middle($input).is_none(),
-                "Invalid string was sliced",
+                "Invalid string was accepted",
             );
         }};
     }
@@ -186,6 +189,7 @@ fn test_slice_middle() {
     test!(r#""abc""#, "abc");
     test!(r#""apple banana cherry""#, "apple banana cherry");
 
+    test!("");
     test!("\"");
     test!("\"'");
     test!("''");
