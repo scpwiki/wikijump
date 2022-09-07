@@ -250,7 +250,7 @@ impl Test<'_> {
         if errors != self.errors {
             result = TestResult::Fail;
             eprintln!(
-                "Errors did not match:\nExpected: {:#?}\nActual:   {:#?}\n{}\nTree (correct): {:#?}",
+                "Errors did not match:\nExpected: {:#?}\nActual:   {:#?}\n{}\nTree (for reference): {:#?}",
                 self.errors,
                 errors,
                 json(&errors),
@@ -261,7 +261,7 @@ impl Test<'_> {
         if html_output.body != self.html {
             result = TestResult::Fail;
             eprintln!(
-                "HTML does not match:\nExpected: {:?}\nActual:   {:?}\n\n{}\n\nTree (correct): {:#?}",
+                "HTML does not match:\nExpected: {:?}\nActual:   {:?}\n\n{}\n\nTree (for reference): {:#?}",
                 self.html,
                 html_output.body,
                 html_output.body,
