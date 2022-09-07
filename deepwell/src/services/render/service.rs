@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use crate::services::TextService;
+use async_std::future::timeout;
 
 #[derive(Debug)]
 pub struct RenderService;
@@ -33,13 +34,23 @@ impl RenderService {
     ) -> Result<RenderOutput> {
         let compiled_generator = VERSION.clone();
 
-        // Run ftml to parse and render
-        // TODO include
-        ftml::preprocess(&mut wikitext);
-        let tokens = ftml::tokenize(&wikitext);
-        let result = ftml::parse(&tokens, page_info, settings);
-        let (tree, errors) = result.into();
-        let html_output = HtmlRender.render(&tree, page_info, settings);
+        // Isolate the actual render task.
+        // This way we can cut it off if it times out.
+
+        let (html_output, errors) = timeout(ctx.config().render_timeout, async {
+            // Run ftml to parse and render
+            // TODO include
+            ftml::preprocess(&mut wikitext);
+            let tokens = ftml::tokenize(&wikitext);
+            let result = ftml::parse(&tokens, page_info, settings);
+            let (tree, errors) = result.into();
+            let html_output = HtmlRender.render(&tree, page_info, settings);
+            (html_output, errors)
+        })
+        .await
+        // Not using Error::from() because timeouts could occur in other places,
+        // and this error variant is not specific to all timeouts.
+        .map_err(|_| Error::RenderTimeout)?;
 
         // Insert compiled HTML into text table
         let compiled_hash = TextService::create(ctx, html_output.body.clone()).await?;
