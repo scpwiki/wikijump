@@ -41,9 +41,22 @@ pub fn parse_string(input: &str) -> Cow<str> {
     //
     // So we check if there are any possible escapes,
     // and if so, build a new string.
+    //
+    // This removes the double quotes on either end
+    // and lets us only deal with the center.
+    // If it's not a string (i.e. doesn't start/end with ")
+    // then it just quits.
 
-    let input = slice_middle(input);
+    let input = match slice_middle(input) {
+        Some(input) => input,
+        None => {
+            warn!("Not a 'string', returning as-is: {:?}", input);
+            return Cow::Borrowed(input);
+        }
+    };
+
     if !input.contains('\\') {
+        trace!("No escapes, returning as-is: {:?}", input);
         return Cow::Borrowed(input);
     }
 
