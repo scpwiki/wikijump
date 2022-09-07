@@ -19,7 +19,10 @@
  */
 
 use super::prelude::*;
-use crate::{models::site::Model as SiteModel, services::site::{CreateSite, UpdateSite}};
+use crate::{
+    models::site::Model as SiteModel,
+    services::site::{CreateSite, UpdateSite},
+};
 
 pub async fn site_create(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;

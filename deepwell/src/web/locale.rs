@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::services::{Result, Error};
+use crate::services::{Error, Result};
 use unic_langid::LanguageIdentifier;
 
 pub fn validate_locale(locale_str: &str) -> Result<LanguageIdentifier> {

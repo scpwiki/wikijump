@@ -23,12 +23,12 @@ mod connection_type;
 mod fetch_direction;
 mod fetch_limit;
 mod file_details;
+mod locale;
 mod page_details;
 mod provided_value;
 mod reference;
 mod unwrap;
 mod user_details;
-mod locale;
 
 pub mod ratelimit;
 pub mod utils;
@@ -40,9 +40,9 @@ pub use self::fetch_limit::{
     FetchLimit, FetchLimitQuery, FileLimitQuery, PageLimitQuery,
 };
 pub use self::file_details::FileDetailsQuery;
+pub use self::locale::validate_locale;
 pub use self::page_details::PageDetailsQuery;
 pub use self::provided_value::ProvidedValue;
 pub use self::reference::{CuidReference, Reference};
 pub use self::unwrap::HttpUnwrap;
 pub use self::user_details::{UserDetails, UserDetailsQuery};
-pub use self::locale::validate_locale;
