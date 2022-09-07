@@ -147,7 +147,7 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
         Element::Link { link, label, .. } => {
             let site = ctx.info().site.as_ref();
 
-            ctx.handle().get_link_label(&site, link, label, |label| {
+            ctx.handle().get_link_label(site, link, label, |label| {
                 // Only write the label, i.e. the part that's visible
                 ctx.push_str(label);
             });
