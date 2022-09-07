@@ -64,6 +64,9 @@ pub enum Error {
     #[error("A request to a remote service returned an error")]
     RemoteOperationFailed,
 
+    #[error("Attempting to perform a wikitext parse and render has timed out")]
+    RenderTimeout,
+
     #[error("The request is in some way malformed or incorrect")]
     BadRequest,
 
@@ -95,7 +98,7 @@ impl Error {
             Error::InvalidEnumValue => {
                 TideError::from_str(StatusCode::InternalServerError, "")
             }
-            Error::RemoteOperationFailed => {
+            Error::RemoteOperationFailed | Error::RenderTimeout => {
                 TideError::from_str(StatusCode::InternalServerError, "")
             }
             Error::BadRequest => TideError::from_str(StatusCode::BadRequest, ""),
