@@ -32,7 +32,7 @@ impl RenderService {
         page_info: &PageInfo<'_>,
         settings: &WikitextSettings,
     ) -> Result<RenderOutput> {
-        let compiled_generator = VERSION.clone();
+        let compiled_generator = FTML_VERSION.clone();
 
         // Isolate the actual render task.
         // This way we can cut it off if it times out.
