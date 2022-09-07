@@ -28,12 +28,7 @@
 //! Any formatting present must be directly justifiable.
 
 use super::TextContext;
-use crate::render::ModuleRenderMode;
-use crate::tree::{
-    ContainerType, DefinitionListItem, Element, LinkLocation, ListItem, ListType, Tab,
-};
-use crate::url::normalize_link;
-use std::borrow::Cow;
+use crate::tree::{ContainerType, DefinitionListItem, Element, ListItem, Tab};
 
 pub fn render_elements(ctx: &mut TextContext, elements: &[Element]) {
     info!("Rendering elements (length {})", elements.len());
@@ -49,7 +44,7 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
     match element {
         Element::Container(container) => {
             let mut invisible = false;
-            let (add_newlines, prefix) = match container.ctype() {
+            let add_newlines = match container.ctype() {
                 // Don't render this at all.
                 ContainerType::Hidden => return,
 
@@ -59,34 +54,27 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
                     ctx.enable_invisible();
                     invisible = true;
 
-                    (false, None)
+                    false
                 }
 
                 // If container is "terminating" (e.g. blockquote, p), then add newlines.
                 // Also, determine if we add a prefix.
-                ContainerType::Div | ContainerType::Paragraph => (true, None),
-                ContainerType::Blockquote => (true, Some("    ")),
-                ContainerType::Header(heading) => {
-                    (true, Some(heading.level.prefix_with_space()))
-                }
+                ContainerType::Div
+                | ContainerType::Paragraph
+                | ContainerType::Blockquote
+                | ContainerType::Header(_) => true,
 
                 // Wrap any ruby text with parentheses
                 ContainerType::RubyText => {
                     ctx.push('(');
-
-                    (false, None)
+                    false
                 }
 
                 // Inline or miscellaneous container.
-                _ => (false, None),
+                _ => false,
             };
 
             if add_newlines {
-                // Add prefix, if there's one
-                if let Some(prefix) = prefix {
-                    ctx.push_prefix(prefix);
-                }
-
                 ctx.add_newline();
             }
 
@@ -99,11 +87,6 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
             }
 
             if add_newlines {
-                // Pop prefix, if there's one
-                if prefix.is_some() {
-                    ctx.pop_prefix();
-                }
-
                 ctx.add_newline();
             }
 
@@ -111,12 +94,11 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
                 ctx.disable_invisible();
             }
         }
-        Element::Module(module) => {
-            ctx.handle()
-                .render_module(ctx.buffer(), module, ModuleRenderMode::Text)
+        Element::Module(_) => {
+            // We don't want to render modules at all
         }
         Element::Text(text) | Element::Raw(text) | Element::Email(text) => {
-            ctx.push_str(text)
+            ctx.push_str(text);
         }
         Element::Variable(name) => {
             let value = match ctx.variables().get(name) {
@@ -137,17 +119,10 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
             }
 
             for row in &table.rows {
-                ctx.push_str("|| ");
-
-                for (i, cell) in row.cells.iter().enumerate() {
+                for cell in &row.cells {
                     render_elements(ctx, &cell.elements);
-
-                    if i < row.cells.len() - 1 {
-                        ctx.push_str(" || ");
-                    }
                 }
 
-                ctx.push_str(" ||");
                 ctx.add_newline();
             }
 
@@ -156,7 +131,7 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
         Element::TabView(tabs) => {
             for Tab { label, elements } in tabs {
                 // Add tab name
-                str_write!(ctx, "[{label}]");
+                ctx.push_str(label);
                 ctx.add_newline();
 
                 // Add tab contents
@@ -164,103 +139,39 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
                 ctx.add_newline();
             }
         }
-        Element::Anchor {
-            elements,
-            attributes,
-            ..
-        } => {
-            render_elements(ctx, elements);
-
-            if let Some(href) = attributes.get().get("href") {
-                let link = LinkLocation::parse(cow!(href));
-                let url = get_url_from_link(ctx, &link);
-
-                str_write!(ctx, " [{url}]");
-            }
-        }
+        Element::Anchor { elements, .. } => render_elements(ctx, elements),
         Element::AnchorName(_) => {
             // Anchor names are an invisible addition to the HTML
             // to aid navigation. So in text mode, they are ignored.
         }
         Element::Link { link, label, .. } => {
-            let url = get_url_from_link(ctx, link);
             let site = ctx.info().site.as_ref().to_string();
 
             ctx.handle().get_link_label(&site, link, label, |label| {
+                // Only write the label, i.e. the part that's visible
                 ctx.push_str(label);
-
-                // Don't show URL if it's a name link, or an anchor
-                if url != label && !url.starts_with('#') {
-                    str_write!(ctx, " [{url}]");
-                }
             });
         }
-        Element::Image {
-            source,
-            link,
-            attributes,
-            ..
-        } => {
-            let source_url =
-                ctx.handle()
-                    .get_image_link(source, ctx.info(), ctx.settings());
-
-            if let Some(url) = source_url {
-                ctx.push_str(&url);
-
-                if let Some(link) = link {
-                    ctx.push(' ');
-                    ctx.push_str(&get_url_from_link(ctx, link));
-                }
-
-                if let Some(alt_text) = attributes.get().get("alt") {
-                    ctx.push(' ');
-                    ctx.push_str(alt_text);
-                }
-
-                if let Some(title) = attributes.get().get("title") {
-                    ctx.push(' ');
-                    ctx.push_str(title);
-                }
-            }
+        Element::Image { .. } => {
+            // Text cannot render images, so we don't add anything
         }
-        Element::List { ltype, items, .. } => {
+        Element::List { items, .. } => {
             if !ctx.ends_with_newline() {
                 ctx.add_newline();
             }
 
             for item in items {
                 match item {
+                    ListItem::SubList { element } => render_element(ctx, element),
                     ListItem::Elements { elements, .. } => {
                         // Don't do anything if it's empty
                         if elements.is_empty() {
                             continue;
                         }
 
-                        // Render bullet and its depth
-                        let depth = ctx.list_depth();
-                        for _ in 0..depth {
-                            ctx.push(' ');
-                        }
-
-                        match *ltype {
-                            ListType::Bullet => ctx.push_str("* "),
-                            ListType::Numbered => {
-                                let index = ctx.next_list_index();
-                                str_write!(ctx, "{index}. ");
-                            }
-                            ListType::Generic => (),
-                        }
-
                         // Render elements for this list item
                         render_elements(ctx, elements);
                         ctx.add_newline();
-                    }
-                    ListItem::SubList { element } => {
-                        // Update bullet depth
-                        ctx.incr_list_depth();
-                        render_element(ctx, element);
-                        ctx.decr_list_depth();
                     }
                 }
             }
@@ -272,212 +183,53 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
                 ..
             } in items
             {
-                str_write!(ctx, ": ");
                 render_elements(ctx, key_elements);
-                str_write!(ctx, " : ");
+                ctx.push(' ');
                 render_elements(ctx, value_elements);
                 ctx.add_newline();
             }
 
             ctx.add_newline();
         }
-        Element::RadioButton { checked, .. } => {
-            str_write!(ctx, "({}) ", if *checked { '*' } else { ' ' })
+        Element::RadioButton { .. } | Element::CheckBox { .. } => {
+            // These cannot be rendered in text mode, and so are ignored.
         }
-        Element::CheckBox { checked, .. } => {
-            str_write!(ctx, "[{}] ", if *checked { 'X' } else { ' ' })
-        }
-        Element::Collapsible {
-            elements,
-            show_text,
-            hide_text,
-            show_top,
-            show_bottom,
-            ..
-        } => {
-            macro_rules! get_text {
-                ($input:expr, $message:expr) => {
-                    match $input {
-                        Some(ref text) => &text,
-                        None => ctx.handle().get_message(ctx.language(), $message),
-                    }
-                };
-            }
+        Element::Collapsible { elements, .. } => {
+            // For collapsibles, we simply show the contents.
+            // No collapsible labels (open or close) are shown.
 
-            let show_text = get_text!(show_text, "collapsible-open");
-            let hide_text = get_text!(hide_text, "collapsible-hide");
-
-            // Top of collapsible
-            ctx.add_newline();
-            ctx.push_str(show_text);
-            ctx.add_newline();
-
-            if *show_top {
-                ctx.push_str(hide_text);
-                ctx.add_newline();
-            }
-
-            // Collapsible contents
             render_elements(ctx, elements);
-
-            // Bottom of collapsible
-            if *show_bottom {
-                ctx.add_newline();
-                ctx.push_str(hide_text);
-                ctx.add_newline();
-            }
         }
         Element::TableOfContents { .. } => {
-            info!("Rendering table of contents");
-
-            let table_of_contents_title = ctx
-                .handle()
-                .get_message(ctx.language(), "table-of-contents");
-
-            ctx.add_newline();
-            ctx.push_str(table_of_contents_title);
-            ctx.add_newline();
-            render_elements(ctx, ctx.table_of_contents());
+            // Doesn't make sense to have a textual table of contents, skip
         }
-        Element::Footnote => {
-            info!("Rendering footnote reference");
-
-            let index = ctx.next_footnote_index();
-            str_write!(ctx, "[{}]", index);
-        }
-        Element::FootnoteBlock { title, hide } => {
-            info!("Rendering footnote block");
-
-            if *hide || ctx.footnotes().is_empty() {
-                return;
-            }
-
-            // Render footnote title
-            let title_default;
-            let title: &str = match title {
-                Some(title) => title.as_ref(),
-                None => {
-                    title_default = ctx
-                        .handle()
-                        .get_message(ctx.language(), "footnote-block-title");
-
-                    title_default
-                }
-            };
-
-            ctx.add_newline();
-            ctx.push_str(title);
-            ctx.add_newline();
-
-            // Render footnotes in order
-            for (index, contents) in ctx.footnotes().iter().enumerate() {
-                str_write!(ctx, "{}. ", index + 1);
-
-                render_elements(ctx, contents);
-                ctx.add_newline();
-            }
-        }
-        Element::BibliographyCite { label, brackets } => {
-            match ctx.get_bibliography_ref(label) {
-                Some((index, _contents)) => {
-                    if *brackets {
-                        ctx.push('[');
-                    }
-
-                    str_write!(ctx, "{}", index);
-
-                    if *brackets {
-                        ctx.push(']');
-                    }
-                }
-                None => {
-                    let message = ctx
-                        .handle()
-                        .get_message(ctx.language(), "bibliography-cite-not-found");
-
-                    ctx.push_str(message);
-                }
-            }
-        }
-        Element::BibliographyBlock { index, title, hide } => {
-            info!("Rendering bibliography block");
-
-            if *hide {
-                return;
-            }
-
-            // Render bibliography title
-            let title_default;
-            let title: &str = match title {
-                Some(title) => title.as_ref(),
-                None => {
-                    title_default = ctx
-                        .handle()
-                        .get_message(ctx.language(), "bibliography-block-title");
-
-                    title_default
-                }
-            };
-
-            ctx.add_newline();
-            ctx.push_str(title);
-            ctx.add_newline();
-
-            // Render bibliography items in order
-            for (index, (_, contents)) in
-                ctx.get_bibliography(*index).slice().iter().enumerate()
-            {
-                str_write!(ctx, "{}. ", index + 1);
-
-                render_elements(ctx, contents);
-                ctx.add_newline();
-            }
+        Element::Footnote
+        | Element::FootnoteBlock { .. }
+        | Element::BibliographyCite { .. }
+        | Element::BibliographyBlock { .. } => {
+            // Footnotes and bibliographies cannot be cleanly rendered in text mode,
+            // so they are skipped.
         }
         Element::User { name, .. } => ctx.push_str(name),
         Element::Date { value, format, .. } => {
             str_write!(ctx, "{}", value.format(format.as_ref()));
         }
         Element::Color { elements, .. } => render_elements(ctx, elements),
-        Element::Code { contents, language } => {
-            let language = match language {
-                Some(language) => language,
-                None => "",
-            };
-
-            str_write!(ctx, "```{language}");
+        Element::Code { contents, .. } => {
             ctx.add_newline();
             ctx.push_str(contents);
             ctx.add_newline();
-            ctx.push_str("```");
         }
-        Element::Math { name, latex_source } => {
-            let index = ctx.next_equation_index();
-
-            str_write!(ctx, "{index}.");
-            if let Some(name) = name {
-                str_write!(ctx, " ({name})");
-            }
-
-            ctx.add_newline();
-            ctx.push_str("```latex");
-            ctx.add_newline();
-            ctx.push_str(latex_source);
-            ctx.add_newline();
-            ctx.push_str("```");
-        }
-        Element::MathInline { latex_source } => {
-            str_write!(ctx, "[[$ {latex_source} $]]");
+        Element::Math { .. } | Element::MathInline { .. } => {
+            // No real way to render arbitrary LaTeX, so we skip it.
         }
         Element::EquationReference(name) => {
             str_write!(ctx, "[{name}]");
         }
-        Element::Embed(embed) => {
-            ctx.push_str(&embed.direct_url());
+        Element::Embed(_) | Element::Html { .. } | Element::Iframe { .. } => {
+            // Interactive or HTML elements like this don't make sense in
+            // text mode, so we skip them.
         }
-        Element::Html { contents } => {
-            str_write!(ctx, "```html\n{contents}\n```");
-        }
-        Element::Iframe { url, .. } => str_write!(ctx, "[{url}]"),
         Element::Include {
             variables,
             elements,
@@ -493,8 +245,8 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
             render_elements(ctx, elements);
             ctx.variables_mut().pop_scope();
         }
-        Element::Style(_) => {
-            debug!("Skipping CSS block from text output");
+        Element::Style(_) | Element::ClearFloat(_) => {
+            // Style blocks and clear float do not do anything in text mode
         }
         Element::LineBreak => ctx.add_newline(),
         Element::LineBreaks(amount) => {
@@ -502,33 +254,12 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
                 ctx.add_newline();
             }
         }
-        Element::ClearFloat(_) => {
-            if !ctx.ends_with_newline() {
-                ctx.add_newline();
-            }
-
-            ctx.push_str("~~~~~~");
-            ctx.add_newline();
-        }
         Element::HorizontalRule => {
-            if !ctx.ends_with_newline() {
-                ctx.add_newline();
-            }
-
-            ctx.push_str("------");
-            ctx.add_newline();
+            // We could add dashes, but that looks tacky on anything
+            // that is not a fixed-width font.
+            //
+            // So we take the safe option of doing nothing.
         }
         Element::Partial(_) => panic!("Encountered partial element during parsing"),
     }
-}
-
-fn get_url_from_link<'a>(ctx: &TextContext, link: &'a LinkLocation<'a>) -> Cow<'a, str> {
-    let url = normalize_link(link, ctx.handle());
-
-    // TODO: when we remove inline javascript stuff
-    if url.as_ref() == "javascript:;" {
-        return Cow::Borrowed("#");
-    }
-
-    url
 }

@@ -71,7 +71,6 @@ use self::toc::render_table_of_contents;
 use self::user::render_user;
 use super::attributes::AddedAttributes;
 use super::HtmlContext;
-use crate::render::ModuleRenderMode;
 use crate::tree::Element;
 use ref_map::*;
 
@@ -94,10 +93,7 @@ pub fn render_element(ctx: &mut HtmlContext, element: &Element) {
 
     match element {
         Element::Container(container) => render_container(ctx, container),
-        Element::Module(module) => {
-            ctx.handle()
-                .render_module(ctx.buffer(), module, ModuleRenderMode::Html);
-        }
+        Element::Module(module) => ctx.handle().render_module(ctx.buffer(), module),
         Element::Text(text) => ctx.push_escaped(text),
         Element::Raw(text) => render_wikitext_raw(ctx, text),
         Element::Variable(name) => render_variable(ctx, name),
