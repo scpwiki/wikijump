@@ -22,7 +22,30 @@ AS
 -- User
 --
 
--- TODO
+-- TODO don't use the laravel users table
+CREATE TABLE users (
+    id BIGSERIAL PRIMARY KEY,
+    username TEXT NOT NULL UNIQUE,
+    slug TEXT NOT NULL UNIQUE,
+    username_changes INT NOT NULL DEFAULT 0,
+    email TEXT NOT NULL UNIQUE,
+    email_verified_at TIMESTAMP WITH TIME ZONE,
+    password TEXT NOT NULL,
+    two_factor_secret TEXT,
+    two_factor_recovery_codes TEXT,
+    remember_token TEXT,
+    language TEXT,
+    karma_points INT NOT NULL DEFAULT 0,
+    karma_level INT NOT NULL DEFAULT 0,
+    pronouns TEXT,
+    dob DATE,
+    bio TEXT,
+    about_page TEXT,
+    profile_photo_path TEXT,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP,
+    deleted_at TIMESTAMP
+);
 
 --
 -- Site
