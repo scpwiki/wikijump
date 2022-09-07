@@ -145,7 +145,7 @@ pub fn render_element(ctx: &mut TextContext, element: &Element) {
             // to aid navigation. So in text mode, they are ignored.
         }
         Element::Link { link, label, .. } => {
-            let site = ctx.info().site.as_ref().to_string();
+            let site = ctx.info().site.as_ref();
 
             ctx.handle().get_link_label(&site, link, label, |label| {
                 // Only write the label, i.e. the part that's visible
