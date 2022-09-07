@@ -101,10 +101,7 @@ fn slice_middle(input: &str) -> Option<&str> {
     // so any other irregular pattern must be *at least* that.
     //
     // If shorter, it cannot be valid.
-    if input.len() < 2
-        || input.chars().next() != Some('"')
-        || input.chars().next_back() != Some('"')
-    {
+    if input.len() < 2 || !input.starts_with('"') || !input.ends_with('"') {
         return None;
     }
 
