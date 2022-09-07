@@ -52,7 +52,8 @@ pub fn build(mut app: ApiServer) -> ApiServer {
     app.at("/site").post(site_create);
     app.at("/site/:type/:id_or_slug")
         .head(site_head)
-        .get(site_get);
+        .get(site_get)
+        .put(site_put);
 
     // Category
     app.at("/category/:site_id").get(category_all_get);
