@@ -28,6 +28,7 @@ use std::net::SocketAddr;
 use std::num::NonZeroU32;
 use std::path::PathBuf;
 use std::process;
+use std::time::Duration;
 use tide::log::LevelFilter;
 
 const MIN_SECRET_LENGTH: usize = 64;
@@ -104,6 +105,15 @@ pub struct Config {
     ///
     /// Set using environment variable `RATE_LIMIT_SECRET`.
     pub rate_limit_secret: String,
+
+    /// How long to allow a render job to run before terminating it.
+    ///
+    /// This is to ensure that a parser bug or malicious input cannot
+    /// crash or freeze the backend. This value should not be too
+    /// aggressive, but still not extremely long.
+    ///
+    /// Set using environment variable `RENDER_TIMEOUT_MS`.
+    pub render_timeout: Duration,
 }
 
 impl Default for Config {
@@ -129,6 +139,7 @@ impl Default for Config {
             localization_path: PathBuf::from("../locales"),
             rate_limit_per_minute: NonZeroU32::new(20).unwrap(),
             rate_limit_secret: String::new(),
+            render_timeout: Duration::from_millis(2000),
         }
     }
 }
@@ -259,6 +270,18 @@ fn read_env(config: &mut Config) {
 
         config.rate_limit_secret = value;
     }
+
+    if let Ok(value) = env::var("RENDER_TIMEOUT_MS") {
+        match value.parse() {
+            Ok(ms) => config.render_timeout = Duration::from_millis(ms),
+            Err(_) => {
+                eprintln!(
+                    "RENDER_TIMEOUT_MS variable is not a valid number of milliseconds",
+                );
+                process::exit(1);
+            }
+        }
+    }
 }
 
 fn parse_args(config: &mut Config) {
@@ -364,6 +387,13 @@ fn parse_args(config: &mut Config) {
                 .value_name("COUNT")
                 .help("How many requests are allowed per IP address per minute."),
         )
+        .arg(
+            Arg::new("render-timeout")
+                .long("render-timeout")
+                .takes_value(true)
+                .value_name("MS")
+                .help("How long in milliseconds to allow render jobs to run before terminating them."),
+        )
         .get_matches();
 
     // Parse arguments and modify config
@@ -455,6 +485,16 @@ fn parse_args(config: &mut Config) {
             Ok(value) => config.rate_limit_per_minute = value,
             Err(_) => {
                 eprintln!("Invalid number of requests per minute: {value}");
+                process::exit(1);
+            }
+        }
+    }
+
+    if let Some(value) = matches.value_of("render-timeout") {
+        match value.parse() {
+            Ok(ms) => config.render_timeout = Duration::from_millis(ms),
+            Err(_) => {
+                eprintln!("Invalid millisecond timeout for render calls: {value}");
                 process::exit(1);
             }
         }
