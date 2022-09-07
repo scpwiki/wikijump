@@ -18,10 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use locale::validate_locale;
 use wikidot_normalize::normalize;
 
 use super::prelude::*;
 use crate::models::site::{self, Entity as Site, Model as SiteModel};
+use crate::web::locale;
 
 #[derive(Debug)]
 pub struct SiteService;
@@ -39,8 +41,12 @@ impl SiteService {
     ) -> Result<CreateSiteOutput> {
         let txn = ctx.transaction();
 
+        // Normalize slug.
         normalize(&mut slug);
+        // Check for slug conflicts.
         Self::check_conflicts(ctx, &slug, "create").await?;
+        // Validate locale.
+        validate_locale(&locale)?;
 
         let model = site::ActiveModel {
             slug: Set(slug.clone()),
@@ -81,6 +87,7 @@ impl SiteService {
         }
 
         if let ProvidedValue::Set(locale) = input.locale {
+            validate_locale(&locale);
             site.locale = Set(locale);
         }
 
