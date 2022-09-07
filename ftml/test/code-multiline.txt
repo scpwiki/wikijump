@@ -1,6 +1,0 @@
-```
-multiple
-**lines**
-of
-code
-```

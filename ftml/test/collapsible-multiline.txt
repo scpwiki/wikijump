@@ -1,6 +1,0 @@
-+ Show stuff
-- Hide stuff
-
-Apple
-
-- Hide stuff

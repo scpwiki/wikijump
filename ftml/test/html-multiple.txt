@@ -1,5 +1,0 @@
-```html
-<p>Paragraph 1</p>
-``````html
-<p>Paragraph 2</p>
-```

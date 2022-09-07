@@ -1,8 +1,0 @@
-Pineapple
- * Apple
- * Banana
- * Cherry
-
-Melon
-INCLUDED PAGE
-Raspberry

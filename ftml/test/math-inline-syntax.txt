@@ -1,1 +1,0 @@
-Syntax [[$ 2^{\pi - 1 $]] Error
