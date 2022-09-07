@@ -19,12 +19,26 @@
  */
 
 use super::prelude::*;
-use crate::models::site::Model as SiteModel;
+use crate::{
+    models::site::Model as SiteModel,
+    services::site::{CreateSite, UpdateSite},
+};
 
-pub async fn site_create(_req: ApiRequest) -> ApiResponse {
-    // TODO when we get to site table refactoring
+pub async fn site_create(mut req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
 
-    todo!()
+    let reference = Reference::try_from(&req)?;
+    tide::log::info!("Creating site {:?}", reference);
+
+    let input: CreateSite = req.body_json().await?;
+
+    let output = SiteService::create(&ctx, input).await.to_api()?;
+    txn.commit().await?;
+
+    let body = Body::from_json(&output)?;
+    let response = Response::builder(StatusCode::Created).body(body).into();
+    Ok(response)
 }
 
 pub async fn site_head(req: ApiRequest) -> ApiResponse {
@@ -48,6 +62,20 @@ pub async fn site_get(req: ApiRequest) -> ApiResponse {
 
     let site = SiteService::get(&ctx, reference).await.to_api()?;
     build_site_response(&site, StatusCode::Ok)
+}
+
+pub async fn site_put(mut req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    let input: UpdateSite = req.body_json().await?;
+    let reference = Reference::try_from(&req)?;
+    tide::log::info!("Updating site {:?}", reference);
+
+    SiteService::update(&ctx, reference, input).await.to_api()?;
+
+    txn.commit().await?;
+    Ok(Response::new(StatusCode::NoContent))
 }
 
 fn build_site_response(site: &SiteModel, status: StatusCode) -> ApiResponse {

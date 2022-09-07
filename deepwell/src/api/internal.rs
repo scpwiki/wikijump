@@ -24,7 +24,7 @@
 
 use crate::api::ApiServer;
 use crate::methods::{
-    category::*, file::*, file_revision::*, link::*, locales::*, misc::*, page::*,
+    category::*, file::*, file_revision::*, link::*, locale::*, misc::*, page::*,
     page_revision::*, parent::*, site::*, text::*, user::*, vote::*,
 };
 use crate::web::utils::error_response;
@@ -52,7 +52,8 @@ pub fn build(mut app: ApiServer) -> ApiServer {
     app.at("/site").post(site_create);
     app.at("/site/:type/:id_or_slug")
         .head(site_head)
-        .get(site_get);
+        .get(site_get)
+        .put(site_put);
 
     // Category
     app.at("/category/:site_id").get(category_all_get);
