@@ -27,7 +27,6 @@ use super::includer::TestIncluder;
 use crate::data::PageInfo;
 use crate::parsing::ParseError;
 use crate::render::html::HtmlRender;
-use crate::render::text::TextRender;
 use crate::render::Render;
 use crate::settings::{WikitextMode, WikitextSettings};
 use crate::tree::SyntaxTree;
@@ -125,9 +124,6 @@ struct Test<'a> {
 
     #[serde(skip)]
     html: String,
-
-    #[serde(skip)]
-    text: String,
 }
 
 impl Test<'_> {
@@ -183,7 +179,6 @@ impl Test<'_> {
 
         test.name = str!(name);
         test.html = load_output!("HTML", "html");
-        test.text = load_output!("text", "txt");
         test
     }
 
@@ -227,7 +222,6 @@ impl Test<'_> {
         let result = crate::parse(&tokens, &page_info, &settings);
         let (tree, errors) = result.into();
         let html_output = HtmlRender.render(&tree, &page_info, &settings);
-        let text_output = TextRender.render(&tree, &page_info, &settings);
 
         fn json<T>(object: &T) -> String
         where
@@ -271,17 +265,6 @@ impl Test<'_> {
                 self.html,
                 html_output.body,
                 html_output.body,
-                &tree,
-            );
-        }
-
-        if text_output != self.text {
-            result = TestResult::Fail;
-            eprintln!(
-                "Text output does not match:\nExpected: {:?}\nActual:   {:?}\n\n{}\n\nTree (correct): {:#?}",
-                self.text,
-                text_output,
-                text_output,
                 &tree,
             );
         }
@@ -347,7 +330,7 @@ fn ast_and_html() {
             Some("json") => Some(Test::load(&path, &stem)),
 
             // We expect these, don't print anything
-            Some("html") | Some("txt") => None,
+            Some("html") => None,
 
             // Print for other, unexpected files
             _ => {
