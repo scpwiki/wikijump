@@ -32,18 +32,31 @@ use std::borrow::Cow;
 /// * `\n`
 /// * `\t`
 ///
-/// # Panics
-/// Assumes that the string is in the proper form.
-/// If it is not, this function may panic.
+/// If in invalid escape is found, the input
+/// is returned. So for `\$`, it will emit a
+/// `\` followed by a `$`.
 pub fn parse_string(input: &str) -> Cow<str> {
     // We could do an iteration thing, but tracking
     // the index across replacements is complicated.
     //
-    // So we check if there are any escapes, and if so,
-    // build a new string.
+    // So we check if there are any possible escapes,
+    // and if so, build a new string.
+    //
+    // This removes the double quotes on either end
+    // and lets us only deal with the center.
+    // If it's not a string (i.e. doesn't start/end with ")
+    // then it just quits.
 
-    let input = slice_middle(input);
+    let input = match slice_middle(input) {
+        Some(input) => input,
+        None => {
+            warn!("Not a 'string', returning as-is: {:?}", input);
+            return Cow::Borrowed(input);
+        }
+    };
+
     if !input.contains('\\') {
+        trace!("No escapes, returning as-is: {:?}", input);
         return Cow::Borrowed(input);
     }
 
@@ -52,17 +65,18 @@ pub fn parse_string(input: &str) -> Cow<str> {
 
     for ch in input.chars() {
         if wants_escape {
-            let replacement = match ch {
-                '\\' => '\\',
-                '\"' => '\"',
-                '\'' => '\'',
-                'r' => '\r',
-                'n' => '\n',
-                't' => '\t',
-                _ => panic!("Invalid escape sequence: '\\{ch}'"),
-            };
+            match escape_char(ch) {
+                Some(replacement) => {
+                    trace!("Replacing backslash escape: \\{ch}");
+                    output.push(replacement);
+                }
+                None => {
+                    warn!("Invalid backslash escape found, ignoring: \\{ch}");
+                    output.push('\\');
+                    output.push(ch);
+                }
+            }
 
-            output.push(replacement);
             wants_escape = false;
         } else if ch == '\\' {
             wants_escape = true;
@@ -74,13 +88,41 @@ pub fn parse_string(input: &str) -> Cow<str> {
     Cow::Owned(output)
 }
 
-/// Slices the first and last characters off of the string.
-/// Assumes there are codepoint boundaries there.
-fn slice_middle(input: &str) -> &str {
-    let len = input.len();
-    let last = len - 1;
+/// Remove the contents of a string if it is one.
+///
+/// Checks if the first and last characters are ASCII `"`,
+/// and if so, slices the first and last characters off of them.
+/// Does not make any assumptions about codepoints.
+fn slice_middle(input: &str) -> Option<&str> {
+    // Starts and ends with "
+    //
+    // Regarding the length check:
+    // We can use byte length here, since ASCII " x2 is 2 bytes,
+    // so any other irregular pattern must be *at least* that.
+    //
+    // If shorter, it cannot be valid.
+    if input.len() < 2 || !input.starts_with('"') || !input.ends_with('"') {
+        return None;
+    }
 
-    &input[1..last]
+    // Okay, we know the first and last chars are ASCII, it's safe to slice
+    let last = input.len() - 1;
+    Some(&input[1..last])
+}
+
+/// Helper function to convert escapes to the actual character.
+fn escape_char(ch: char) -> Option<char> {
+    let escaped = match ch {
+        '\\' => '\\',
+        '\"' => '\"',
+        '\'' => '\'',
+        'r' => '\r',
+        'n' => '\n',
+        't' => '\t',
+        _ => return None,
+    };
+
+    Some(escaped)
 }
 
 #[test]
@@ -113,29 +155,28 @@ fn test_parse_string() {
         "abc \t (\\\t) \r (\\\r) def",
         Owned,
     );
-}
-
-#[test]
-#[should_panic]
-fn test_parse_string_escape() {
-    // This shouldn't happen in real code, since
-    // any invalid string constructions are caught at the
-    // tokenization stage.
-    //
-    // However we're testing this to ensure high code coverage.
-
-    let _ = parse_string(r#""Invalid escape! \z""#);
+    test!(r#""abc \t \x \y \z \n""#, "abc \t \\x \\y \\z \n", Owned);
+    test!("'abc'", "'abc'", Borrowed);
+    test!("\"abc", "\"abc", Borrowed);
+    test!("foo", "foo", Borrowed);
 }
 
 #[test]
 fn test_slice_middle() {
     macro_rules! test {
         ($input:expr, $expected:expr $(,)?) => {{
-            let actual = slice_middle($input);
+            let actual = slice_middle($input).expect("Invalid string input");
 
             assert_eq!(
                 actual, $expected,
                 "Actual (left) doesn't match expected (right)",
+            );
+        }};
+
+        ($input:expr $(,)?) => {{
+            assert!(
+                slice_middle($input).is_none(),
+                "Invalid string was accepted",
             );
         }};
     }
@@ -144,4 +185,10 @@ fn test_slice_middle() {
     test!(r#""!""#, "!");
     test!(r#""abc""#, "abc");
     test!(r#""apple banana cherry""#, "apple banana cherry");
+
+    test!("");
+    test!("\"");
+    test!("\"'");
+    test!("''");
+    test!("[]");
 }
