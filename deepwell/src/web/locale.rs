@@ -18,10 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
+use crate::services::{Result, Error};
 use unic_langid::LanguageIdentifier;
 
 pub fn validate_locale(locale_str: &str) -> Result<LanguageIdentifier> {
-    let locale = LanguageIdentifier::from_bytes(locale_str.as_bytes())?;
-    Ok(locale)
+    LanguageIdentifier::from_bytes(locale_str.as_bytes()).map_err(|error| {
+        tide::log::warn!("Invalid locale '{}' passed: {:?}", locale_str, error);
+        Error::BadRequest
+    })
 }
