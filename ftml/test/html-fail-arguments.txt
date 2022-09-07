@@ -1,3 +1,0 @@
-[[html type="css"]]
-<div></div>
-[[/html]]

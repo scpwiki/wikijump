@@ -18,9 +18,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::tree::LinkLocation;
 use std::borrow::Cow;
 use wikidot_normalize::normalize;
+
+#[cfg(feature = "html")]
+use crate::tree::LinkLocation;
 
 pub const URL_SCHEMES: [&str; 19] = [
     "blob:",
@@ -67,6 +69,7 @@ pub fn dangerous_scheme(url: &str) -> bool {
         .unwrap_or(false)
 }
 
+#[cfg(feature = "html")]
 pub fn normalize_link<'a>(
     link: &'a LinkLocation<'a>,
     helper: &dyn BuildSiteUrl,

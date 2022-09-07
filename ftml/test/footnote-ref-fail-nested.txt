@@ -1,4 +1,0 @@
-A[1]D[[/footnote]]
-
-Footnotes
-1. B[[footnote]]C

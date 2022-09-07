@@ -34,7 +34,7 @@ pub mod html;
 
 mod handle;
 
-use self::handle::{Handle, ModuleRenderMode};
+use self::handle::Handle;
 use crate::data::PageInfo;
 use crate::settings::WikitextSettings;
 use crate::tree::SyntaxTree;

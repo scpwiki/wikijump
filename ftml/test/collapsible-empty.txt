@@ -1,2 +1,0 @@
-+ open block
-- hide block

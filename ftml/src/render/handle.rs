@@ -24,33 +24,16 @@ use crate::tree::{ImageSource, LinkLabel, LinkLocation, Module};
 use crate::url::BuildSiteUrl;
 use std::borrow::Cow;
 use std::num::NonZeroUsize;
-use strum_macros::IntoStaticStr;
 use wikidot_normalize::normalize;
 
 #[derive(Debug)]
 pub struct Handle;
 
 impl Handle {
-    pub fn render_module(
-        &self,
-        buffer: &mut String,
-        module: &Module,
-        mode: ModuleRenderMode,
-    ) {
-        info!(
-            "Rendering module '{}' (mode '{}')",
-            module.name(),
-            mode.name(),
-        );
-
-        match mode {
-            ModuleRenderMode::Html => {
-                str_write!(buffer, "<p>TODO: module {}</p>", module.name());
-            }
-            ModuleRenderMode::Text => {
-                str_write!(buffer, "TODO: module {}", module.name());
-            }
-        }
+    pub fn render_module(&self, buffer: &mut String, module: &Module) {
+        // Modules only render to HTML
+        info!("Rendering module '{}'", module.name());
+        str_write!(buffer, "<p>TODO: module {}</p>", module.name());
     }
 
     pub fn get_page_title(&self, _site: &str, _page: &str) -> Option<String> {
@@ -203,21 +186,5 @@ impl BuildSiteUrl for Handle {
 
         // TODO
         format!("https://{site}.wikijump.com/{path}")
-    }
-}
-
-#[derive(
-    IntoStaticStr, Serialize, Deserialize, Debug, Hash, Copy, Clone, PartialEq, Eq,
-)]
-#[serde(rename_all = "kebab-case")]
-pub enum ModuleRenderMode {
-    Html,
-    Text,
-}
-
-impl ModuleRenderMode {
-    #[inline]
-    pub fn name(self) -> &'static str {
-        self.into()
     }
 }

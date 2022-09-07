@@ -1,3 +1,0 @@
-: My key : Long value
-with a newline in the middle
-: Other key : Other value
