@@ -86,7 +86,7 @@ impl SiteService {
         }
 
         if let ProvidedValue::Set(locale) = input.locale {
-            validate_locale(&locale);
+            validate_locale(&locale)?;
             site.locale = Set(locale);
         }
 
