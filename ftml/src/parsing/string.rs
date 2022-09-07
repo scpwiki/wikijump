@@ -75,13 +75,22 @@ pub fn parse_string(input: &str) -> Cow<str> {
     Cow::Owned(output)
 }
 
-/// Slices the first and last characters off of the string.
-/// Assumes there are codepoint boundaries there.
-fn slice_middle(input: &str) -> &str {
+/// Remove the contents of a string if it is one.
+///
+/// Checks if the first and last characters are ASCII `"`,
+/// and if so, slices the first and last characters off of them.
+/// Does not make any assumptions about codepoints.
+fn slice_middle(input: &str) -> Option<&str> {
+    // Starts and ends with "
+    if input.chars().next() != Some('"') && input.chars().next_back() != Some('"') {
+        return None;
+    }
+
+    // Okay, we know the first and last chars are ASCII, it's safe to slice
     let len = input.len();
     let last = len - 1;
 
-    &input[1..last]
+    Some(&input[1..last])
 }
 
 /// Helper function to convert escapes to the actual character.
