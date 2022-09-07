@@ -19,6 +19,13 @@
  */
 
 //! Module that implements text rendering for `Element` and its children.
+//!
+//! The philosophy of this renderer is essentially to output what the HTML
+//! renderer would, but with all tags, styling, etc stripped.
+//!
+//! Only pure, unformatted text should remain. Whitespace formatting
+//! (such as indenting each line of a blockquote) should not occur.
+//! Any formatting present must be directly justifiable.
 
 use super::TextContext;
 use crate::render::ModuleRenderMode;
