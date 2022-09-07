@@ -24,7 +24,7 @@
 
 use crate::api::ApiServer;
 use crate::methods::{
-    category::*, file::*, file_revision::*, link::*, locales::*, misc::*, page::*,
+    category::*, file::*, file_revision::*, link::*, locale::*, misc::*, page::*,
     page_revision::*, parent::*, site::*, text::*, user::*, vote::*,
 };
 use crate::web::utils::error_response;
