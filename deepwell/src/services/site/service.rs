@@ -18,12 +18,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use locale::validate_locale;
 use wikidot_normalize::normalize;
 
 use super::prelude::*;
 use crate::models::site::{self, Entity as Site, Model as SiteModel};
-use crate::web::locale;
+use crate::web::validate_locale;
 
 #[derive(Debug)]
 pub struct SiteService;
