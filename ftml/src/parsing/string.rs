@@ -151,17 +151,32 @@ fn test_parse_string() {
         "abc \t (\\\t) \r (\\\r) def",
         Owned,
     );
+    test!(
+        r#""abc \t \x \y \z \n""#,
+        "abc \t \\x \\y \\z \n",
+        Owned,
+    );
+    test!("'abc'", "'abc'", Borrowed);
+    test!("\"abc", "\"abc", Borrowed);
+    test!("foo", "foo", Borrowed);
 }
 
 #[test]
 fn test_slice_middle() {
     macro_rules! test {
         ($input:expr, $expected:expr $(,)?) => {{
-            let actual = slice_middle($input);
+            let actual = slice_middle($input).expect("Invalid string input");
 
             assert_eq!(
                 actual, $expected,
                 "Actual (left) doesn't match expected (right)",
+            );
+        }};
+
+        ($input:expr $(,)?) => {{
+            assert!(
+                slice_middle($input).is_none(),
+                "Invalid string was sliced",
             );
         }};
     }
@@ -170,4 +185,9 @@ fn test_slice_middle() {
     test!(r#""!""#, "!");
     test!(r#""abc""#, "abc");
     test!(r#""apple banana cherry""#, "apple banana cherry");
+
+    test!("\"");
+    test!("\"'");
+    test!("''");
+    test!("[]");
 }
