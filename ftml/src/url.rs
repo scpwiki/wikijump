@@ -67,6 +67,7 @@ pub fn dangerous_scheme(url: &str) -> bool {
         .unwrap_or(false)
 }
 
+#[cfg(feature = "html")]
 pub fn normalize_link<'a>(
     link: &'a LinkLocation<'a>,
     helper: &dyn BuildSiteUrl,
