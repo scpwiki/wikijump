@@ -24,7 +24,7 @@ mod prelude {
     pub use ftml::{
         self,
         data::PageInfo,
-        info::VERSION,
+        info::VERSION as FTML_VERSION,
         parsing::ParseError,
         render::html::{HtmlOutput, HtmlRender},
         render::Render,
