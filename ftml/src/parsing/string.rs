@@ -32,15 +32,30 @@ use std::borrow::Cow;
 /// * `\n`
 /// * `\t`
 ///
-/// # Panics
-/// Assumes that the string is in the proper form.
-/// If it is not, this function may panic.
+/// If in invalid escape is found, the input
+/// is returned. So for `\$`, it will emit a
+/// `\` followed by a `$`.
 pub fn parse_string(input: &str) -> Cow<str> {
+    /// Helper function to convert escapes to the actual character.
+    fn escape_char(ch: char) -> Option<char> {
+        let escaped = match ch {
+            '\\' => '\\',
+            '\"' => '\"',
+            '\'' => '\'',
+            'r' => '\r',
+            'n' => '\n',
+            't' => '\t',
+             _ => return None,
+        };
+
+        Some(escaped)
+    }
+
     // We could do an iteration thing, but tracking
     // the index across replacements is complicated.
     //
-    // So we check if there are any escapes, and if so,
-    // build a new string.
+    // So we check if there are any possible escapes,
+    // and if so, build a new string.
 
     let input = slice_middle(input);
     if !input.contains('\\') {
@@ -52,17 +67,18 @@ pub fn parse_string(input: &str) -> Cow<str> {
 
     for ch in input.chars() {
         if wants_escape {
-            let replacement = match ch {
-                '\\' => '\\',
-                '\"' => '\"',
-                '\'' => '\'',
-                'r' => '\r',
-                'n' => '\n',
-                't' => '\t',
-                _ => panic!("Invalid escape sequence: '\\{ch}'"),
-            };
+            match escape_char(ch) {
+                Some(replacement) => {
+                    trace!("Replacing backslash escape: \\{ch}");
+                    output.push(replacement);
+                }
+                None => {
+                    warn!("Invalid backslash escape found, ignoring: \\{ch}");
+                    output.push('\\');
+                    output.push(ch);
+                }
+            }
 
-            output.push(replacement);
             wants_escape = false;
         } else if ch == '\\' {
             wants_escape = true;
