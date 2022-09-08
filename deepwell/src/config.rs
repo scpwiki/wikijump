@@ -69,6 +69,12 @@ pub struct Config {
     /// Can be set using environment variable `RUN_MIGRATIONS`.
     pub run_migrations: bool,
 
+    /// Whether to run the seeder on startup.
+    /// This will only attempt to add the rows if the `user` table is empty.
+    ///
+    /// Can be set using environment variable `RUN_SEEDER`.
+    pub run_seeder: bool,
+
     /// The name of the S3 bucket that file blobs are kept in.
     /// The bucket must already exist prior to program invocation.
     ///
@@ -124,6 +130,7 @@ impl Default for Config {
             address: "[::]:2747".parse().unwrap(),
             database_url: str!("postgres://localhost"),
             run_migrations: true,
+            run_seeder: true,
             s3_bucket: String::new(),
             s3_region: Region::Custom {
                 region: String::new(),
@@ -197,6 +204,16 @@ fn read_env(config: &mut Config) {
             Ok(run) => config.run_migrations = run,
             Err(_) => {
                 eprintln!("RUN_MIGRATIONS variable is not a valid boolean");
+                process::exit(1);
+            }
+        }
+    }
+
+    if let Ok(value) = env::var("RUN_SEEDER") {
+        match value.parse() {
+            Ok(run) => config.run_seeder = run,
+            Err(_) => {
+                eprintln!("RUN_SEEDER variable is not a valid boolean");
                 process::exit(1);
             }
         }
@@ -441,6 +458,16 @@ fn parse_args(config: &mut Config) {
         }
     }
 
+    if let Some(value) = matches.value_of("run-seeder") {
+        match value.parse() {
+            Ok(run) => config.run_seeder = run,
+            Err(_) => {
+                eprintln!("Invalid boolean value for seeder: {value}");
+                process::exit(1);
+            }
+        }
+    }
+
     if let Some(bucket) = matches.value_of("s3-bucket") {
         config.s3_bucket = bucket.into();
     }
@@ -522,6 +549,7 @@ impl Config {
         tide::log::info!("Configuration details:");
         tide::log::info!("Serving on {}", self.address);
         tide::log::info!("Migrations: {}", bool_str(self.run_migrations));
+        tide::log::info!("Seeder: {}", bool_str(self.run_seeder));
         tide::log::info!("Localization path: {}", self.localization_path.display());
         tide::log::info!(
             "Current working directory: {}",
