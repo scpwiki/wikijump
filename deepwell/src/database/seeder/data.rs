@@ -96,6 +96,9 @@ pub struct Page {
     pub slug: String,
     pub title: String,
 
+    #[serde(default)]
+    pub alt_title: Option<String>,
+
     #[serde(skip)]
     pub wikitext: String,
 
