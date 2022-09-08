@@ -1,5 +1,5 @@
 /*
- * database.rs
+ * database/seeder.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -19,26 +19,11 @@
  */
 
 use anyhow::Result;
-use sea_orm::{ConnectOptions, Database, DatabaseConnection};
 use sqlx::{Pool, Postgres};
-use std::time::Duration;
 
-pub async fn connect<S: Into<String>>(database_uri: S) -> Result<DatabaseConnection> {
-    let mut options = ConnectOptions::new(database_uri.into());
-    options
-        .min_connections(4)
-        .max_connections(100)
-        .connect_timeout(Duration::from_secs(5))
-        .idle_timeout(Duration::from_secs(10))
-        .sqlx_logging(true);
-
-    let db = Database::connect(options).await?;
-    Ok(db)
-}
-
-pub async fn migrate(database_uri: &str) -> Result<()> {
+pub async fn seed(database_uri: &str) -> Result<()> {
     let pool = Pool::<Postgres>::connect(database_uri).await?;
 
-    sqlx::migrate!("./migrations").run(&pool).await?;
+    // TODO
     Ok(())
 }
