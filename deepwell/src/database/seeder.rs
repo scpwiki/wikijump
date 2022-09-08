@@ -21,8 +21,8 @@
 use anyhow::Result;
 use sqlx::{Pool, Postgres};
 
-pub async fn seed(database_uri: &str) -> Result<()> {
-    let pool = Pool::<Postgres>::connect(database_uri).await?;
+pub async fn seed() -> Result<()> {
+    todo!();
 
     // TODO
     Ok(())

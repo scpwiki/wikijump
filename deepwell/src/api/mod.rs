@@ -54,10 +54,7 @@ pub struct ServerState {
     pub s3_bucket: Bucket,
 }
 
-pub async fn build_server(config: Config) -> Result<ApiServer> {
-    // Values needed to build routes
-    let rate_limit = config.rate_limit_per_minute;
-
+pub async fn build_server_state(config: Config) -> Result<ApiServerState> {
     // Connect to database
     tide::log::info!("Connecting to PostgreSQL database");
     let database = database::connect(&config.database_url).await?;
@@ -75,13 +72,18 @@ pub async fn build_server(config: Config) -> Result<ApiServer> {
         config.s3_credentials.clone(),
     )?;
 
-    // Create server state
-    let state = Arc::new(ServerState {
+    // Return server state
+    Ok(Arc::new(ServerState {
         config,
         database,
         localizations,
         s3_bucket,
-    });
+    }))
+}
+
+pub fn build_server(state: ApiServerState) -> ApiServer {
+    // Values needed to build routes
+    let rate_limit = state.config.rate_limit_per_minute;
 
     macro_rules! new {
         () => {
@@ -107,5 +109,5 @@ pub async fn build_server(config: Config) -> Result<ApiServer> {
             api
         });
 
-    Ok(app)
+    app
 }
