@@ -369,6 +369,15 @@ fn parse_args(config: &mut Config) {
                 .help("Whether to run migrations on server startup."),
         )
         .arg(
+            Arg::new("run-seeder")
+                .short('S')
+                .long("seeder")
+                .long("run-seeder")
+                .takes_value(true)
+                .value_name("BOOLEAN")
+                .help("Whether to run the seeder on server startup."),
+        )
+        .arg(
             Arg::new("s3-bucket")
                 .short('B')
                 .long("bucket")
@@ -408,7 +417,6 @@ fn parse_args(config: &mut Config) {
         )
         .arg(
             Arg::new("seeder-path")
-                .short('S')
                 .long("seed")
                 .takes_value(true)
                 .value_name("PATH")
