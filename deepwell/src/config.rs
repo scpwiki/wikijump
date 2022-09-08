@@ -95,7 +95,7 @@ pub struct Config {
     /// The profile to read from can be set in the `AWS_PROFILE_NAME` environment variable.
     pub s3_credentials: Credentials,
 
-    /// The location where all gettext translation files are kept.
+    /// The location where all Fluent translation files are kept.
     ///
     /// Can be set using environment variable `LOCALIZATION_PATH`.
     pub localization_path: PathBuf,
