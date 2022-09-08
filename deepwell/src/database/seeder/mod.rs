@@ -23,6 +23,9 @@ mod data;
 use self::data::SeedData;
 use crate::api::ApiServerState;
 use crate::services::ServiceContext;
+use crate::services::page::PageService;
+use crate::services::site::SiteService;
+use crate::services::user::{UserService, CreateUser, CreateUserOutput};
 use anyhow::Result;
 use sea_orm::TransactionTrait;
 use std::path::PathBuf;
@@ -37,15 +40,29 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
     let SeedData { users, site_pages } = SeedData::load(&state.config.seeder_path)?;
 
     // Seed user data
-    for user in &users {
-        // TODO create user
+    for user in users {
+        // Hash password
+        // TODO
+        let password = user.password;
+
+        // TODO Create with slug
+
+        // TODO modify during user refactor
+        let CreateUserOutput { user_id, slug } = UserService::create(&ctx, CreateUser {
+            username: user.name,
+            email: user.email,
+            password,
+            language: Some(user.locale),
+        }).await?;
+
+        assert_eq!(user_id, user.id, "Specified user ID doesn't match created");
     }
 
     // Seed site data
-    for site_page in &site_pages {
+    for site_page in site_pages {
         // TODO create site
 
-        for page in &site_page.pages {
+        for page in site_page.pages {
             // TODO create page
         }
     }
