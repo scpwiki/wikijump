@@ -18,12 +18,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::api::ApiServerState;
+use crate::services::ServiceContext;
 use anyhow::Result;
-use sqlx::{Pool, Postgres};
+use sea_orm::TransactionTrait;
 
-pub async fn seed() -> Result<()> {
-    todo!();
+pub async fn seed(state: &ApiServerState) -> Result<()> {
+    let txn = state.database.begin().await?;
+    let ctx = ServiceContext::from_raw(state, &txn);
 
     // TODO
+
+    txn.commit().await?;
     Ok(())
 }

@@ -83,7 +83,7 @@ async fn main() -> Result<()> {
 
     // Run seeder, if enabled
     if run_seeder {
-        database::seed().await?;
+        database::seed(&app_state).await?;
     }
 
     // Build and run server
