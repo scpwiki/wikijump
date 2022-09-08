@@ -1,0 +1,109 @@
+[
+    {
+        "site": {
+            "slug": "www",
+            "name": "Wikijump",
+            "tagline": "Fighting Ozone Pollution",
+            "description": "Wikijump host site",
+            "locale": "en"
+        },
+        "pages": [
+            {
+                "slug": "start",
+                "title": "Welcome to your new Wikijump instance!",
+                "wikitext": "www-start"
+            },
+            {
+                "slug": "nav:side",
+                "title": "Sidebar",
+                "wikitext": "sidebar"
+            },
+            {
+                "slug": "nav:top",
+                "title": "Topbar",
+                "wikitext": "topbar"
+            },
+            {
+                "slug": "platform:activity",
+                "title": "Wikijump: Activity across all sites",
+                "wikitext": "platform-activity"
+            },
+            {
+                "slug": "platform:sites",
+                "title": "Wikijump: List of all sites",
+                "wikitext": "platform-sites"
+            },
+            {
+                "slug": "platform:search",
+                "title": "Wikijump: Search all sites",
+                "wikitext": "platform-search"
+            },
+            {
+                "slug": "system:join",
+                "title": "Join this site",
+                "wikitext": "join"
+            },
+            {
+                "slug": "system:members",
+                "title": "Site Members",
+                "wikitext": "members"
+            },
+            {
+                "slug": "system:recent-changes",
+                "title": "Recent Changes",
+                "wikitext": "recent-changes"
+            },
+            {
+                "slug": "system:page-tags",
+                "title": "Page Tags",
+                "wikitext": "page-tags"
+            }
+        ]
+    },
+    {
+        "site": {
+            "slug": "template-en",
+            "name": "Default template site",
+            "tagline": "",
+            "description": "Template site (English)",
+            "locale": "en"
+        },
+        "pages": [
+            {
+                "slug": "start",
+                "title": "You've just created a new Wikijump site!",
+                "wikitext": "template-start"
+            },
+            {
+                "slug": "nav:side",
+                "title": "Sidebar",
+                "wikitext": "sidebar"
+            },
+            {
+                "slug": "nav:top",
+                "title": "Topbar",
+                "wikitext": "topbar"
+            },
+            {
+                "slug": "system:join",
+                "title": "Join this site",
+                "wikitext": "join"
+            },
+            {
+                "slug": "system:members",
+                "title": "Site Members",
+                "wikitext": "members"
+            },
+            {
+                "slug": "system:recent-changes",
+                "title": "Recent Changes",
+                "wikitext": "recent-changes"
+            },
+            {
+                "slug": "system:page-tags",
+                "title": "Page Tags",
+                "wikitext": "page-tags"
+            }
+        ]
+    }
+]

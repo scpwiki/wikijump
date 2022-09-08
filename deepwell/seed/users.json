@@ -1,0 +1,34 @@
+[
+    {
+        "id": 1,
+        "name": "Administrator",
+        "slug": "admin",
+        "password": "wikijumpadmin1",
+        "email": "admin@wikijump",
+        "language": "en"
+    },
+    {
+        "id": 2,
+        "name": "Automatic",
+        "slug": "auto",
+        "password": null,
+        "email": "automatic@wikijump",
+        "language": "en"
+    },
+    {
+        "id": 3,
+        "name": "Anonymous",
+        "slug": "anonymous",
+        "password": null,
+        "email": "anonymous@wikijump",
+        "language": "en"
+    },
+    {
+        "id": 4,
+        "name": "Sample User",
+        "slug": "user",
+        "password": null,
+        "email": "user@wikijump",
+        "language": "en"
+    }
+]

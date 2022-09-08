@@ -1,0 +1,18 @@
+[[=]]
++ Search all Wikis
+
+Perform a search through all public and visible wikis.
+
+[[module SearchAll]]
+
+---------------
+
++ Search users
+
+To look for someone, please enter:
+
+* email address of a person you are looking for (this will look for exact match)
+* any part of the screen name or realname (lists all Users matching the query)
+
+[[module SearchUsers]]
+[[/=]]

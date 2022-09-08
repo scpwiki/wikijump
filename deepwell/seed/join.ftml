@@ -1,0 +1,17 @@
+[[note]]
+Please change this page according to your policy (configure first using [[[admin:manage|Site Manager]]]) and remove this note.
+[[/note]]
+
++ Who can join?
+
+You can write here who can become a member of this site.
+
++ Join!
+
+So you want to become a member of this site? Tell us why and apply now!
+
+[[module MembershipApply]]
+
+Or, if you already know a "secret password", go for it!
+
+[[module MembershipByPassword]]
