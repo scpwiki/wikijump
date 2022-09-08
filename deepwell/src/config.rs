@@ -100,6 +100,11 @@ pub struct Config {
     /// Can be set using environment variable `LOCALIZATION_PATH`.
     pub localization_path: PathBuf,
 
+    /// The location where all the seeder files are kept.
+    ///
+    /// Can be set using environment variable `SEEDER_PATH`.
+    pub seeder_path: PathBuf,
+
     /// The number of requests allowed per IP per minute.
     ///
     /// Can be set using environment variable `RATE_LIMIT_PER_MINUTE`.
@@ -144,6 +149,7 @@ impl Default for Config {
                 expiration: None,
             },
             localization_path: PathBuf::from("../locales"),
+            seeder_path: PathBuf::from("seed"),
             rate_limit_per_minute: NonZeroU32::new(20).unwrap(),
             rate_limit_secret: String::new(),
             render_timeout: Duration::from_millis(2000),
@@ -265,6 +271,10 @@ fn read_env(config: &mut Config) {
 
     if let Some(value) = env::var_os("LOCALIZATION_PATH") {
         config.localization_path = PathBuf::from(value);
+    }
+
+    if let Some(value) = env::var_os("SEEDER_PATH") {
+        config.seeder_path = PathBuf::from(value);
     }
 
     if let Ok(value) = env::var("RATE_LIMIT_PER_MINUTE") {
@@ -397,6 +407,14 @@ fn parse_args(config: &mut Config) {
                 .help("The path to read translation files from."),
         )
         .arg(
+            Arg::new("seeder-path")
+                .short('S')
+                .long("seed")
+                .takes_value(true)
+                .value_name("PATH")
+                .help("The path to read seeder data from."),
+        )
+        .arg(
             Arg::new("ratelimit-min")
                 .short('r')
                 .long("requests-per-minute")
@@ -507,6 +525,10 @@ fn parse_args(config: &mut Config) {
         config.localization_path = localization_path.into();
     }
 
+    if let Some(seeder_path) = matches.value_of_os("seeder-path") {
+        config.seeder_path = seeder_path.into();
+    }
+
     if let Some(value) = matches.value_of("ratelimit-min") {
         match value.parse() {
             Ok(value) => config.rate_limit_per_minute = value,
@@ -551,6 +573,7 @@ impl Config {
         tide::log::info!("Migrations: {}", bool_str(self.run_migrations));
         tide::log::info!("Seeder: {}", bool_str(self.run_seeder));
         tide::log::info!("Localization path: {}", self.localization_path.display());
+        tide::log::info!("Seeder path: {}", self.seeder_path.display());
         tide::log::info!(
             "Current working directory: {}",
             env::current_dir()
