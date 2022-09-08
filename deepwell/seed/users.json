@@ -5,7 +5,7 @@
         "slug": "admin",
         "password": "wikijumpadmin1",
         "email": "admin@wikijump",
-        "language": "en"
+        "locale": "en"
     },
     {
         "id": 2,
@@ -13,7 +13,7 @@
         "slug": "auto",
         "password": null,
         "email": "automatic@wikijump",
-        "language": "en"
+        "locale": "en"
     },
     {
         "id": 3,
@@ -21,7 +21,7 @@
         "slug": "anonymous",
         "password": null,
         "email": "anonymous@wikijump",
-        "language": "en"
+        "locale": "en"
     },
     {
         "id": 4,
@@ -29,6 +29,6 @@
         "slug": "user",
         "password": null,
         "email": "user@wikijump",
-        "language": "en"
+        "locale": "en"
     }
 ]
