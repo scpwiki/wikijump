@@ -16,6 +16,13 @@ services:
         source: ../../../deepwell/Cargo.toml
         target: /src/deepwell/Cargo.toml
         read_only: true
+      # Database files
+      - type: bind
+        source: ../../../deepwell/migrations
+        target: /src/deepwell/migrations
+      - type: bind
+        source: ../../../deepwell/seed
+        target: /src/deepwell/seed
       # Translation data
       - type: bind
         source: ../../../locales
