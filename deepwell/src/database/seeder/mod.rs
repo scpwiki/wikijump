@@ -37,13 +37,18 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
     let SeedData { users, site_pages } = SeedData::load(&state.config.seeder_path)?;
 
     // Seed user data
-    // TODO
+    for user in &users {
+        // TODO create user
+    }
 
     // Seed site data
-    // TODO
+    for site_page in &site_pages {
+        // TODO create site
 
-        // Seed page data
-        // TODO
+        for page in &site_page.pages {
+            // TODO create page
+        }
+    }
 
     txn.commit().await?;
     Ok(())
