@@ -31,6 +31,8 @@ use anyhow::Result;
 use sea_orm::TransactionTrait;
 
 pub async fn seed(state: &ApiServerState) -> Result<()> {
+    tide::log::info!("Running seeder...");
+
     // Set up context
     let txn = state.database.begin().await?;
     let ctx = ServiceContext::from_raw(state, &txn);
