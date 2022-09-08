@@ -20,12 +20,13 @@
 
 mod data;
 
-use self::data::SeedData;
+use self::data::{SeedData, SitePages};
 use crate::api::ApiServerState;
+use crate::constants::AUTOMATIC_USER_ID;
+use crate::services::page::{CreatePage, PageService};
+use crate::services::site::{CreateSite, CreateSiteOutput, SiteService};
+use crate::services::user::{CreateUser, CreateUserOutput, UserService};
 use crate::services::ServiceContext;
-use crate::services::page::PageService;
-use crate::services::site::SiteService;
-use crate::services::user::{UserService, CreateUser, CreateUserOutput};
 use anyhow::Result;
 use sea_orm::TransactionTrait;
 use std::path::PathBuf;
@@ -48,22 +49,47 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
         // TODO Create with slug
 
         // TODO modify during user refactor
-        let CreateUserOutput { user_id, slug } = UserService::create(&ctx, CreateUser {
-            username: user.name,
-            email: user.email,
-            password,
-            language: Some(user.locale),
-        }).await?;
+        let CreateUserOutput { user_id, slug } = UserService::create(
+            &ctx,
+            CreateUser {
+                username: user.name,
+                email: user.email,
+                password,
+                language: Some(user.locale),
+            },
+        )
+        .await?;
 
         assert_eq!(user_id, user.id, "Specified user ID doesn't match created");
     }
 
     // Seed site data
-    for site_page in site_pages {
-        // TODO create site
+    for SitePages { site, pages } in site_pages {
+        let CreateSiteOutput { site_id, slug } = SiteService::create(
+            &ctx,
+            CreateSite {
+                slug: site.slug,
+                name: site.name,
+                subtitle: site.tagline, // TODO
+                description: site.description,
+                locale: site.locale,
+            },
+        )
+        .await?;
 
-        for page in site_page.pages {
-            // TODO create page
+        for page in pages {
+            PageService::create(
+                &ctx,
+                site_id,
+                CreatePage {
+                    wikitext: page.wikitext,
+                    title: page.title,
+                    alt_title: page.alt_title,
+                    slug: page.slug,
+                    revision_comments: str!(""),
+                    user_id: AUTOMATIC_USER_ID,
+                },
+            );
         }
     }
 
