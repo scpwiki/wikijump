@@ -88,7 +88,7 @@ CREATE TABLE page (
     site_id BIGINT NOT NULL REFERENCES site(site_id),
     page_category_id BIGINT NOT NULL REFERENCES page_category(category_id),
     slug TEXT NOT NULL,
-    discussion_thread_id BIGINT REFERENCES forum_thread(thread_id),
+    discussion_thread_id BIGINT, -- TODO: add REFERENCES to forum threads
 
     UNIQUE (site_id, slug, deleted_at)
 );
