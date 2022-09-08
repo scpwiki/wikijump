@@ -29,8 +29,6 @@ use crate::services::user::{CreateUser, CreateUserOutput, UserService};
 use crate::services::ServiceContext;
 use anyhow::Result;
 use sea_orm::TransactionTrait;
-use std::path::PathBuf;
-use wikidot_normalize::normalize;
 
 pub async fn seed(state: &ApiServerState) -> Result<()> {
     // Set up context
@@ -89,7 +87,7 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
                     revision_comments: str!(""),
                     user_id: AUTOMATIC_USER_ID,
                 },
-            );
+            ).await?;
         }
     }
 
