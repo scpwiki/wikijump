@@ -22,11 +22,12 @@ mod data;
 
 use self::data::{SeedData, SitePages};
 use crate::api::ApiServerState;
-use crate::constants::AUTOMATIC_USER_ID;
+use crate::constants::{ADMIN_USER_ID, AUTOMATIC_USER_ID};
 use crate::services::page::{CreatePage, PageService};
 use crate::services::site::{CreateSite, CreateSiteOutput, SiteService};
 use crate::services::user::{CreateUser, CreateUserOutput, UserService};
 use crate::services::ServiceContext;
+use crate::web::Reference;
 use anyhow::Result;
 use sea_orm::TransactionTrait;
 
@@ -37,7 +38,14 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
     let txn = state.database.begin().await?;
     let ctx = ServiceContext::from_raw(state, &txn);
 
+    // Ensure seeding has not already been done
+    if UserService::exists(&ctx, Reference::from(ADMIN_USER_ID)).await? {
+        tide::log::info!("Seeding has already been done");
+        return Ok(());
+    }
+
     // Load seed data
+    tide::log::debug!("Loading seed data from {}", state.config.seeder_path.display());
     let SeedData { users, site_pages } = SeedData::load(&state.config.seeder_path)?;
 
     // Seed user data
