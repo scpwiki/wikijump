@@ -40,6 +40,7 @@ mod macros;
 
 mod api;
 mod config;
+mod constants;
 mod database;
 mod hash;
 mod info;
