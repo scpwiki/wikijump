@@ -1,5 +1,5 @@
 /*
- * database/seeder.rs
+ * database/seeder/mod.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,16 +18,32 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod data;
+
+use self::data::SeedData;
 use crate::api::ApiServerState;
 use crate::services::ServiceContext;
 use anyhow::Result;
 use sea_orm::TransactionTrait;
+use std::path::PathBuf;
+use wikidot_normalize::normalize;
 
 pub async fn seed(state: &ApiServerState) -> Result<()> {
+    // Set up context
     let txn = state.database.begin().await?;
     let ctx = ServiceContext::from_raw(state, &txn);
 
+    // Load seed data
+    let SeedData { users, site_pages } = SeedData::load(&state.config.seeder_path)?;
+
+    // Seed user data
     // TODO
+
+    // Seed site data
+    // TODO
+
+        // Seed page data
+        // TODO
 
     txn.commit().await?;
     Ok(())
