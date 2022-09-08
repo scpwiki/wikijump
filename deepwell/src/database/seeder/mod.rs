@@ -87,7 +87,8 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
                     revision_comments: str!(""),
                     user_id: AUTOMATIC_USER_ID,
                 },
-            ).await?;
+            )
+            .await?;
         }
     }
 
