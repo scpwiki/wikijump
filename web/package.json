@@ -76,7 +76,7 @@
     "package-json": "^7.0.0",
     "picocolors": "^1.0.0",
     "prettier": "^2.6.2",
-    "prettier-plugin-jsdoc": "^0.3.38",
+    "prettier-plugin-jsdoc": "^0.4.2",
     "prettier-plugin-organize-imports": "^2.3.4",
     "prettier-plugin-svelte": "^2.7.0",
     "stylelint": "^14.8.3",
