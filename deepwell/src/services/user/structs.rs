@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::models::users::Model as UserModel;
-use chrono::{DateTime, NaiveDate, Utc};
+use chrono::{DateTime, NaiveDate, FixedOffset};
 use std::collections::HashMap;
 
 #[derive(Deserialize, Debug)]
@@ -50,7 +50,7 @@ pub struct UpdateUser {
     pub multi_factor_recovery_codes: ProvidedValue<Option<String>>,
     pub remember_token: ProvidedValue<Option<String>>,
     pub language: ProvidedValue<Option<String>>,
-    pub karma_points: ProvidedValue<i32>,
+    pub karma_points: ProvidedValue<i16>,
     pub karma_level: ProvidedValue<i16>,
     pub real_name: ProvidedValue<Option<String>>,
     pub pronouns: ProvidedValue<Option<String>>,
@@ -91,8 +91,8 @@ pub struct UserInfoOutput {
     about: Option<String>,
     avatar: Option<String>, // TODO
     signature: Option<String>,
-    since: Option<DateTime<Utc>>,
-    last_active: Option<DateTime<Utc>>,
+    since: DateTime<FixedOffset>,
+    last_active: Option<DateTime<FixedOffset>>,
 }
 
 impl From<&UserModel> for UserInfoOutput {

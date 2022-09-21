@@ -73,7 +73,7 @@ impl UserService {
             bio: Set(None),
             about_page: Set(None),
             avatar_path: Set(None),
-            created_at: Set(Some(Utc::now())),
+            created_at: Set(now()),
             updated_at: Set(None),
             deleted_at: Set(None),
             ..Default::default()
@@ -150,7 +150,7 @@ impl UserService {
 
         if let ProvidedValue::Set(email_verified) = input.email_verified {
             let value = if email_verified {
-                Some(Utc::now())
+                Some(now())
             } else {
                 None
             };
@@ -213,8 +213,7 @@ impl UserService {
         }
 
         // Set update flag
-        // TODO update to add TZ
-        user.updated_at = Set(Some(Utc::now()));
+        user.updated_at = Set(Some(now()));
 
         // Update and return
         user.update(txn).await?;
@@ -230,8 +229,7 @@ impl UserService {
         let mut user: users::ActiveModel = model.clone().into();
 
         // Set deletion flag
-        // TODO update to add TZ
-        user.deleted_at = Set(Some(Utc::now()));
+        user.deleted_at = Set(Some(now()));
 
         // Update and return
         user.update(txn).await?;

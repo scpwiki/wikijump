@@ -78,7 +78,7 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
             CreateSite {
                 slug: site.slug,
                 name: site.name,
-                subtitle: site.tagline, // TODO
+                tagline: site.tagline,
                 description: site.description,
                 locale: site.locale,
             },

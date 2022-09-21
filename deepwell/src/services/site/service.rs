@@ -33,7 +33,7 @@ impl SiteService {
         CreateSite {
             mut slug,
             name,
-            subtitle,
+            tagline,
             description,
             locale,
         }: CreateSite,
@@ -50,7 +50,7 @@ impl SiteService {
         let model = site::ActiveModel {
             slug: Set(slug.clone()),
             name: Set(name),
-            subtitle: Set(subtitle),
+            tagline: Set(tagline),
             description: Set(description),
             locale: Set(locale),
             ..Default::default()
@@ -77,8 +77,8 @@ impl SiteService {
             site.name = Set(name);
         }
 
-        if let ProvidedValue::Set(subtitle) = input.subtitle {
-            site.subtitle = Set(subtitle);
+        if let ProvidedValue::Set(tagline) = input.tagline {
+            site.tagline = Set(tagline);
         }
 
         if let ProvidedValue::Set(description) = input.description {
