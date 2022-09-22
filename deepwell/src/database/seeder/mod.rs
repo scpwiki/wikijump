@@ -83,7 +83,7 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
     for SitePages { site, pages } in site_pages {
         tide::log::info!("Creating seed site '{}' (slug {})", site.name, site.slug);
 
-        let CreateSiteOutput { site_id, slug } = SiteService::create(
+        let CreateSiteOutput { site_id, slug: _ } = SiteService::create(
             &ctx,
             CreateSite {
                 slug: site.slug,
