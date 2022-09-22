@@ -2,33 +2,43 @@
     {
         "id": 1,
         "name": "Administrator",
-        "slug": "admin",
         "password": "wikijumpadmin1",
         "email": "admin@wikijump",
-        "locale": "en"
+        "locale": "en",
+        "aliases": [
+            "admin"
+        ]
     },
     {
         "id": 2,
         "name": "Automatic",
-        "slug": "auto",
         "password": null,
         "email": "automatic@wikijump",
-        "locale": "en"
+        "locale": "en",
+        "aliases": [
+            "auto"
+        ]
     },
     {
         "id": 3,
         "name": "Anonymous",
-        "slug": "anonymous",
         "password": null,
         "email": "anonymous@wikijump",
-        "locale": "en"
+        "locale": "en",
+        "aliases": [
+            "anon"
+        ]
     },
     {
         "id": 4,
         "name": "Example User",
-        "slug": "user",
         "password": null,
         "email": "user@wikijump",
-        "locale": "en"
+        "locale": "en",
+        "aliases": [
+            "user",
+            "example",
+            "sample"
+        ]
     }
 ]

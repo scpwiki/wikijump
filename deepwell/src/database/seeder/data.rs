@@ -70,10 +70,10 @@ impl SeedData {
 pub struct User {
     pub id: i64,
     pub name: String,
-    pub slug: String,
     pub password: String,
     pub email: String,
     pub locale: String,
+    pub aliases: Vec<String>,
 }
 
 #[derive(Deserialize, Debug)]

@@ -56,7 +56,8 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
         // TODO
         let password = user.password;
 
-        // TODO Create with slug
+        // TODO Create user aliases
+        let _ = user.aliases;
 
         // TODO modify during user refactor
         let CreateUserOutput { user_id, slug } = UserService::create(
