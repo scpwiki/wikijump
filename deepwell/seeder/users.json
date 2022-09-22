@@ -6,7 +6,8 @@
         "email": "admin@wikijump",
         "locale": "en",
         "aliases": [
-            "admin"
+            "admin",
+            "root"
         ]
     },
     {
@@ -16,7 +17,8 @@
         "email": "automatic@wikijump",
         "locale": "en",
         "aliases": [
-            "auto"
+            "auto",
+            "system"
         ]
     },
     {
@@ -26,7 +28,8 @@
         "email": "anonymous@wikijump",
         "locale": "en",
         "aliases": [
-            "anon"
+            "anon",
+            "nobody"
         ]
     },
     {
