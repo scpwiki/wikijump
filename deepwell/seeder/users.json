@@ -25,7 +25,7 @@
     },
     {
         "id": 4,
-        "name": "Sample User",
+        "name": "Example User",
         "slug": "user",
         "password": null,
         "email": "user@wikijump",
