@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::models::users::Model as UserModel;
-use chrono::{DateTime, NaiveDate, FixedOffset};
+use chrono::{DateTime, FixedOffset, NaiveDate};
 use std::collections::HashMap;
 
 #[derive(Deserialize, Debug)]

@@ -45,7 +45,11 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
     }
 
     // Load seed data
-    tide::log::debug!("Loading seed data from {}", state.config.seeder_path.display());
+    tide::log::debug!(
+        "Loading seed data from {}",
+        state.config.seeder_path.display(),
+    );
+
     let SeedData { users, site_pages } = SeedData::load(&state.config.seeder_path)?;
 
     // Seed user data

@@ -149,13 +149,7 @@ impl UserService {
         }
 
         if let ProvidedValue::Set(email_verified) = input.email_verified {
-            let value = if email_verified {
-                Some(now())
-            } else {
-                None
-            };
-
-            user.email_verified_at = Set(value);
+            user.email_verified_at = Set(if email_verified { Some(now()) } else { None });
         }
 
         if let ProvidedValue::Set(password) = input.password {
