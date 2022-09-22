@@ -150,11 +150,11 @@ CREATE TABLE page_revision (
     -- Ensure array only contains valid values
     -- Change this to use the 'page_revision_change' type later
     CHECK (json_array_to_text_array(changes) <@ '{
-        \"wikitext\",
-        \"title\",
-        \"alt_title\",
-        \"slug\",
-        \"tags\"
+        wikitext,
+        title,
+        alt_title,
+        slug,
+        tags
     }'),
 
     -- Ensure first revision reports all changes
@@ -165,11 +165,11 @@ CREATE TABLE page_revision (
     CHECK (
         revision_type != 'create' OR
         json_array_to_text_array(changes) @> '{
-            \"wikitext\",
-            \"title\",
-            \"alt_title\",
-            \"slug\",
-            \"tags\"
+            wikitext,
+            title,
+            alt_title,
+            slug,
+            tags
         }'
     ),
 
