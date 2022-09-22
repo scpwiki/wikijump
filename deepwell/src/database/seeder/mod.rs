@@ -29,7 +29,9 @@ use crate::services::user::{CreateUser, CreateUserOutput, UserService};
 use crate::services::ServiceContext;
 use crate::web::Reference;
 use anyhow::Result;
-use sea_orm::TransactionTrait;
+use sea_orm::{
+    ConnectionTrait, DatabaseBackend, DatabaseTransaction, Statement, TransactionTrait,
+};
 
 pub async fn seed(state: &ApiServerState) -> Result<()> {
     tide::log::info!("Running seeder...");
@@ -43,6 +45,11 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
         tide::log::info!("Seeding has already been done");
         return Ok(());
     }
+
+    // Reset sequences so IDs are consistent
+    restart_sequence(&txn, "users_id_seq").await?;
+    restart_sequence(&txn, "page_page_id_seq").await?;
+    restart_sequence(&txn, "site_site_id_seq").await?;
 
     // Load seed data
     tide::log::info!(
@@ -111,5 +118,23 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
     }
 
     txn.commit().await?;
+    Ok(())
+}
+
+async fn restart_sequence(
+    txn: &DatabaseTransaction,
+    sequence_name: &'static str,
+) -> Result<()> {
+    tide::log::debug!("Restarting sequence {sequence_name}");
+
+    // SAFETY: We cannot parameterize the sequence name here, so we have to use format!()
+    //         However, by requiring that sequence_name be &'static str, we ensure that it
+    //         is only applied to hardcoded values and never used for runtime values
+    //         (such as ones entered by an external, untrusted user).
+    txn.execute(Statement::from_string(
+        DatabaseBackend::Postgres,
+        format!("ALTER SEQUENCE {sequence_name} RESTART"),
+    ))
+    .await?;
     Ok(())
 }
