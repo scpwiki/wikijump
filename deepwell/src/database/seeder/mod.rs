@@ -56,14 +56,6 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
     for user in users {
         tide::log::info!("Creating seed user '{}' (ID {})", user.name, user.id);
 
-        // Hash password
-        // TODO
-        //
-        // If the password is None, then that means this account should have disabled logins.
-        // Similar to /etc/shadow, setting the password hash to "!" means no possible input
-        // can match, effectively disabling the account.
-        let password = user.password.unwrap_or_else(|| str!("!"));
-
         // TODO Create user aliases
         let _ = user.aliases;
 
@@ -73,7 +65,7 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
             CreateUser {
                 username: user.name,
                 email: user.email,
-                password,
+                password: user.password,
                 language: Some(user.locale),
             },
         )

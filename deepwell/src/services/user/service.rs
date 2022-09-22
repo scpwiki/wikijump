@@ -60,7 +60,7 @@ impl UserService {
             slug: Set(slug.clone()),
             email: Set(input.email),
             email_verified_at: Set(None),
-            password: Set(input.password),
+            password: Set(hash_password(input.password)),
             multi_factor_secret: Set(None),
             multi_factor_recovery_codes: Set(None),
             remember_token: Set(None),
@@ -153,7 +153,7 @@ impl UserService {
         }
 
         if let ProvidedValue::Set(password) = input.password {
-            user.password = Set(password);
+            user.password = Set(hash_password(password));
         }
 
         if let ProvidedValue::Set(multi_factor_secret) = input.multi_factor_secret {
@@ -238,4 +238,20 @@ fn get_user_slug(username: &str) -> String {
     replace_in_place(&mut slug, ":", "-");
     normalize(&mut slug);
     slug
+}
+
+// TEMP helper, so it's easier to replace when implemented
+fn hash_password(value: Option<String>) -> String {
+    match value {
+        // Securely hash password
+        Some(value) => {
+            // TODO
+            value
+        }
+
+        // If the password is None, then that means this account should have disabled logins.
+        // Similar to /etc/shadow, setting the password hash to "!" means no possible input
+        // can match, effectively disabling the account.
+        None => str!("!"),
+    }
 }

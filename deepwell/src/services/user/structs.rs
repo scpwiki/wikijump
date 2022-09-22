@@ -28,7 +28,7 @@ use std::collections::HashMap;
 pub struct CreateUser {
     pub username: String,
     pub email: String,
-    pub password: String,
+    pub password: Option<String>, // None means "disable password", i.e. user cannot log in
     pub language: Option<String>,
 }
 
@@ -45,7 +45,7 @@ pub struct UpdateUser {
     pub username: ProvidedValue<String>,
     pub email: ProvidedValue<String>,
     pub email_verified: ProvidedValue<bool>,
-    pub password: ProvidedValue<String>,
+    pub password: ProvidedValue<Option<String>>, // None means "disable password", i.e. user cannot log in
     pub multi_factor_secret: ProvidedValue<Option<String>>,
     pub multi_factor_recovery_codes: ProvidedValue<Option<String>>,
     pub remember_token: ProvidedValue<Option<String>>,
