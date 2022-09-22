@@ -252,6 +252,10 @@ fn hash_password(value: Option<String>) -> String {
         // If the password is None, then that means this account should have disabled logins.
         // Similar to /etc/shadow, setting the password hash to "!" means no possible input
         // can match, effectively disabling the account.
-        None => str!("!"),
+        None => {
+            tide::log::info!("Creating user with disabled password");
+
+            str!("!")
+        }
     }
 }
