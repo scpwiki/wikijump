@@ -53,6 +53,8 @@ impl SeedData {
     {
         path.set_file_name(filename);
         path.set_extension("json");
+        tide::log::debug!("Loading JSON from {}", path.display());
+
         let mut file = File::open(&path)?;
         let data = serde_json::from_reader(&mut file)?;
         Ok(data)
@@ -61,6 +63,8 @@ impl SeedData {
     fn load_wikitext(path: &mut PathBuf, filename: &Path) -> Result<String> {
         path.set_file_name(filename);
         path.set_extension("ftml");
+        tide::log::debug!("Loading wikitext from {}", path.display());
+
         let wikitext = fs::read_to_string(&path)?;
         Ok(wikitext)
     }
