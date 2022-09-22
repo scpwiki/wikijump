@@ -21,8 +21,8 @@ services:
         source: ../../../deepwell/migrations
         target: /src/deepwell/migrations
       - type: bind
-        source: ../../../deepwell/seed
-        target: /src/deepwell/seed
+        source: ../../../deepwell/seeder
+        target: /src/deepwell/seeder
       # Translation data
       - type: bind
         source: ../../../locales
