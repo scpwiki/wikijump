@@ -74,7 +74,7 @@ impl SeedData {
 pub struct User {
     pub id: i64,
     pub name: String,
-    pub password: String,
+    pub password: Option<String>, // None means disable password
     pub email: String,
     pub locale: String,
     pub aliases: Vec<String>,

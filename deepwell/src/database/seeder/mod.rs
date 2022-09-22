@@ -58,7 +58,11 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
 
         // Hash password
         // TODO
-        let password = user.password;
+        //
+        // If the password is None, then that means this account should have disabled logins.
+        // Similar to /etc/shadow, setting the password hash to "!" means no possible input
+        // can match, effectively disabling the account.
+        let password = user.password.unwrap_or_else(|| str!("!"));
 
         // TODO Create user aliases
         let _ = user.aliases;
