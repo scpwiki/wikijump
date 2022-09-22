@@ -149,7 +149,7 @@ impl Default for Config {
                 expiration: None,
             },
             localization_path: PathBuf::from("../locales"),
-            seeder_path: PathBuf::from("seed"),
+            seeder_path: PathBuf::from("seeder"),
             rate_limit_per_minute: NonZeroU32::new(20).unwrap(),
             rate_limit_secret: String::new(),
             render_timeout: Duration::from_millis(2000),
