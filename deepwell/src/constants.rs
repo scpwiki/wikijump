@@ -23,6 +23,6 @@
 #![allow(dead_code)]
 
 pub const ADMIN_USER_ID: i64 = 1;
-pub const AUTOMATIC_USER_ID: i64 = 2;
+pub const SYSTEM_USER_ID: i64 = 2;
 pub const ANONYMOUS_USER_ID: i64 = 2;
 pub const SAMPLE_USER_ID: i64 = 2;

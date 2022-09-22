@@ -12,13 +12,15 @@
     },
     {
         "id": 2,
-        "name": "Automatic",
+        "name": "System",
         "password": null,
-        "email": "automatic@wikijump",
+        "email": "system@wikijump",
         "locale": "en",
         "aliases": [
             "auto",
-            "system"
+            "automatic",
+            "wikidot",
+            "wikijump"
         ]
     },
     {

@@ -22,7 +22,7 @@ mod data;
 
 use self::data::{SeedData, SitePages};
 use crate::api::ApiServerState;
-use crate::constants::{ADMIN_USER_ID, AUTOMATIC_USER_ID};
+use crate::constants::{ADMIN_USER_ID, SYSTEM_USER_ID};
 use crate::services::page::{CreatePage, PageService};
 use crate::services::site::{CreateSite, CreateSiteOutput, SiteService};
 use crate::services::user::{CreateUser, CreateUserOutput, UserService};
@@ -103,7 +103,7 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
                     alt_title: page.alt_title,
                     slug: page.slug,
                     revision_comments: str!(""),
-                    user_id: AUTOMATIC_USER_ID,
+                    user_id: SYSTEM_USER_ID,
                 },
             )
             .await?;
