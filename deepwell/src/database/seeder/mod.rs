@@ -50,6 +50,8 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
 
     // Seed user data
     for user in users {
+        tide::log::info!("Creating seed user '{}' (ID {})", user.name, user.id);
+
         // Hash password
         // TODO
         let password = user.password;
@@ -68,11 +70,14 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
         )
         .await?;
 
+        tide::log::debug!("User created with slug '{}'", slug);
         assert_eq!(user_id, user.id, "Specified user ID doesn't match created");
     }
 
     // Seed site data
     for SitePages { site, pages } in site_pages {
+        tide::log::info!("Creating seed site '{}' (slug {})", site.name, site.slug);
+
         let CreateSiteOutput { site_id, slug } = SiteService::create(
             &ctx,
             CreateSite {
@@ -86,6 +91,8 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
         .await?;
 
         for page in pages {
+            tide::log::info!("Creating page '{}' (slug {})", page.title, page.slug);
+
             PageService::create(
                 &ctx,
                 site_id,
