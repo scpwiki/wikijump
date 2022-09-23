@@ -1,0 +1,23 @@
+[[table]]
+[[row]]
+[[cell style="width: 45%; padding-right: 2%; border-right: 1px solid #999; vertical-align: top;"]]
+++ Recent edits (all wikis)
+
+[[module RecentWRevisions]]
+
+[[/cell]]
+[[cell style="width: 45%; padding-left: 2%; vertical-align:top;"]]
+++ Top Sites
+[[module MostActiveSites]]
+
+++ Top Forums
+[[module MostActiveForums]]
+
+++ New users
+[[module NewWUsers]]
+
+++ Some statistics
+[[module SomeGlobalStats]]
+[[/cell]]
+[[/row]]
+[[/table]]

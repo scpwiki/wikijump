@@ -2,12 +2,6 @@
 
 version: 2
 updates:
-  # Laravel
-  - package-ecosystem: composer
-    directory: "/web"
-    schedule:
-      interval: weekly
-
   # Frontend
   - package-ecosystem: npm
     directory: "/web"

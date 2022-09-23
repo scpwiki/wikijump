@@ -4,14 +4,14 @@
 
 FROM rust:latest AS rust
 
+# Install system dependencies
+RUN apt update
+RUN apt install libmagic-dev
+
 # Copy source
 RUN mkdir /src
 COPY ./deepwell /src/deepwell
 WORKDIR /src/deepwell
-
-# Install system dependencies
-RUN apt update
-RUN apt install libmagic-dev
 
 # Cache rust dependencies
 RUN cargo vendor

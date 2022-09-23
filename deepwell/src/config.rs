@@ -69,6 +69,12 @@ pub struct Config {
     /// Can be set using environment variable `RUN_MIGRATIONS`.
     pub run_migrations: bool,
 
+    /// Whether to run the seeder on startup.
+    /// This will only attempt to add the rows if the `user` table is empty.
+    ///
+    /// Can be set using environment variable `RUN_SEEDER`.
+    pub run_seeder: bool,
+
     /// The name of the S3 bucket that file blobs are kept in.
     /// The bucket must already exist prior to program invocation.
     ///
@@ -89,10 +95,15 @@ pub struct Config {
     /// The profile to read from can be set in the `AWS_PROFILE_NAME` environment variable.
     pub s3_credentials: Credentials,
 
-    /// The location where all gettext translation files are kept.
+    /// The location where all Fluent translation files are kept.
     ///
     /// Can be set using environment variable `LOCALIZATION_PATH`.
     pub localization_path: PathBuf,
+
+    /// The location where all the seeder files are kept.
+    ///
+    /// Can be set using environment variable `SEEDER_PATH`.
+    pub seeder_path: PathBuf,
 
     /// The number of requests allowed per IP per minute.
     ///
@@ -124,6 +135,7 @@ impl Default for Config {
             address: "[::]:2747".parse().unwrap(),
             database_url: str!("postgres://localhost"),
             run_migrations: true,
+            run_seeder: true,
             s3_bucket: String::new(),
             s3_region: Region::Custom {
                 region: String::new(),
@@ -137,6 +149,7 @@ impl Default for Config {
                 expiration: None,
             },
             localization_path: PathBuf::from("../locales"),
+            seeder_path: PathBuf::from("seeder"),
             rate_limit_per_minute: NonZeroU32::new(20).unwrap(),
             rate_limit_secret: String::new(),
             render_timeout: Duration::from_millis(2000),
@@ -202,6 +215,16 @@ fn read_env(config: &mut Config) {
         }
     }
 
+    if let Ok(value) = env::var("RUN_SEEDER") {
+        match value.parse() {
+            Ok(run) => config.run_seeder = run,
+            Err(_) => {
+                eprintln!("RUN_SEEDER variable is not a valid boolean");
+                process::exit(1);
+            }
+        }
+    }
+
     if let Ok(value) = env::var("S3_BUCKET") {
         config.s3_bucket = value;
     }
@@ -248,6 +271,10 @@ fn read_env(config: &mut Config) {
 
     if let Some(value) = env::var_os("LOCALIZATION_PATH") {
         config.localization_path = PathBuf::from(value);
+    }
+
+    if let Some(value) = env::var_os("SEEDER_PATH") {
+        config.seeder_path = PathBuf::from(value);
     }
 
     if let Ok(value) = env::var("RATE_LIMIT_PER_MINUTE") {
@@ -342,6 +369,15 @@ fn parse_args(config: &mut Config) {
                 .help("Whether to run migrations on server startup."),
         )
         .arg(
+            Arg::new("run-seeder")
+                .short('S')
+                .long("seeder")
+                .long("run-seeder")
+                .takes_value(true)
+                .value_name("BOOLEAN")
+                .help("Whether to run the seeder on server startup."),
+        )
+        .arg(
             Arg::new("s3-bucket")
                 .short('B')
                 .long("bucket")
@@ -378,6 +414,13 @@ fn parse_args(config: &mut Config) {
                 .takes_value(true)
                 .value_name("PATH")
                 .help("The path to read translation files from."),
+        )
+        .arg(
+            Arg::new("seeder-path")
+                .long("seed")
+                .takes_value(true)
+                .value_name("PATH")
+                .help("The path to read seeder data from."),
         )
         .arg(
             Arg::new("ratelimit-min")
@@ -441,6 +484,16 @@ fn parse_args(config: &mut Config) {
         }
     }
 
+    if let Some(value) = matches.value_of("run-seeder") {
+        match value.parse() {
+            Ok(run) => config.run_seeder = run,
+            Err(_) => {
+                eprintln!("Invalid boolean value for seeder: {value}");
+                process::exit(1);
+            }
+        }
+    }
+
     if let Some(bucket) = matches.value_of("s3-bucket") {
         config.s3_bucket = bucket.into();
     }
@@ -478,6 +531,10 @@ fn parse_args(config: &mut Config) {
 
     if let Some(localization_path) = matches.value_of_os("localization-path") {
         config.localization_path = localization_path.into();
+    }
+
+    if let Some(seeder_path) = matches.value_of_os("seeder-path") {
+        config.seeder_path = seeder_path.into();
     }
 
     if let Some(value) = matches.value_of("ratelimit-min") {
@@ -522,7 +579,9 @@ impl Config {
         tide::log::info!("Configuration details:");
         tide::log::info!("Serving on {}", self.address);
         tide::log::info!("Migrations: {}", bool_str(self.run_migrations));
+        tide::log::info!("Seeder: {}", bool_str(self.run_seeder));
         tide::log::info!("Localization path: {}", self.localization_path.display());
+        tide::log::info!("Seeder path: {}", self.seeder_path.display());
         tide::log::info!(
             "Current working directory: {}",
             env::current_dir()

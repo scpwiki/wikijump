@@ -24,7 +24,7 @@ use crate::web::ProvidedValue;
 pub struct CreateSite {
     pub slug: String,
     pub name: String,
-    pub subtitle: String,
+    pub tagline: String,
     pub description: String,
     pub locale: String,
 }
@@ -40,7 +40,7 @@ pub struct CreateSiteOutput {
 #[serde(rename_all = "camelCase", default)]
 pub struct UpdateSite {
     pub name: ProvidedValue<String>,
-    pub subtitle: ProvidedValue<String>,
+    pub tagline: ProvidedValue<String>,
     pub description: ProvidedValue<String>,
     pub locale: ProvidedValue<String>,
 }

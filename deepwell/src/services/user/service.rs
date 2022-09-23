@@ -60,7 +60,7 @@ impl UserService {
             slug: Set(slug.clone()),
             email: Set(input.email),
             email_verified_at: Set(None),
-            password: Set(input.password),
+            password: Set(hash_password(input.password)),
             multi_factor_secret: Set(None),
             multi_factor_recovery_codes: Set(None),
             remember_token: Set(None),
@@ -73,7 +73,7 @@ impl UserService {
             bio: Set(None),
             about_page: Set(None),
             avatar_path: Set(None),
-            created_at: Set(Some(Utc::now())),
+            created_at: Set(now()),
             updated_at: Set(None),
             deleted_at: Set(None),
             ..Default::default()
@@ -149,17 +149,11 @@ impl UserService {
         }
 
         if let ProvidedValue::Set(email_verified) = input.email_verified {
-            let value = if email_verified {
-                Some(Utc::now())
-            } else {
-                None
-            };
-
-            user.email_verified_at = Set(value);
+            user.email_verified_at = Set(if email_verified { Some(now()) } else { None });
         }
 
         if let ProvidedValue::Set(password) = input.password {
-            user.password = Set(password);
+            user.password = Set(hash_password(password));
         }
 
         if let ProvidedValue::Set(multi_factor_secret) = input.multi_factor_secret {
@@ -213,8 +207,7 @@ impl UserService {
         }
 
         // Set update flag
-        // TODO update to add TZ
-        user.updated_at = Set(Some(Utc::now()));
+        user.updated_at = Set(Some(now()));
 
         // Update and return
         user.update(txn).await?;
@@ -230,8 +223,7 @@ impl UserService {
         let mut user: users::ActiveModel = model.clone().into();
 
         // Set deletion flag
-        // TODO update to add TZ
-        user.deleted_at = Set(Some(Utc::now()));
+        user.deleted_at = Set(Some(now()));
 
         // Update and return
         user.update(txn).await?;
@@ -246,4 +238,24 @@ fn get_user_slug(username: &str) -> String {
     replace_in_place(&mut slug, ":", "-");
     normalize(&mut slug);
     slug
+}
+
+// TEMP helper, so it's easier to replace when implemented
+fn hash_password(value: Option<String>) -> String {
+    match value {
+        // Securely hash password
+        Some(value) => {
+            // TODO
+            value
+        }
+
+        // If the password is None, then that means this account should have disabled logins.
+        // Similar to /etc/shadow, setting the password hash to "!" means no possible input
+        // can match, effectively disabling the account.
+        None => {
+            tide::log::info!("Creating user with disabled password");
+
+            str!("!")
+        }
+    }
 }

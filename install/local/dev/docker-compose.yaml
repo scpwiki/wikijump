@@ -1,15 +1,6 @@
 version: '3.8'
 
 services:
-  cache:
-    image: memcached:1.6-alpine
-    restart: always
-    healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "11211"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-
   database:
     build:
       context: ../../..
@@ -47,17 +38,6 @@ services:
       - "9000:9000"
       - "9001:9001"
 
-  nginx:
-    extra_hosts:
-    - "host.docker.internal:host-gateway"
-    build:
-      context: ../../..
-      dockerfile: install/local/dev/nginx/Dockerfile
-    ports:
-      - "80:80"
-    depends_on:
-      - php-fpm
-
   api:
     build:
       context: ../../..
@@ -69,6 +49,9 @@ services:
     environment:
       - "RATE_LIMIT_SECRET=local_deploy_only_0000000000000000000000000000000000000000000000"
       - "DATABASE_URL=postgres://wikijump:wikijump@database/wikijump"
+      - "LOCALIZATION_PATH=/opt/locales"
+      - "RUN_MIGRATIONS=true"
+      - "RUN_SEEDER=true"
       - "S3_BUCKET=deepwell-files"
       - "S3_REGION_NAME=local"
       - "S3_CUSTOM_ENDPOINT=http://files:9000"
@@ -84,20 +67,4 @@ services:
       database:
         condition: service_healthy
       files:
-        condition: service_healthy
-
-  php-fpm:
-    extra_hosts:
-    - "host.docker.internal:host-gateway"
-    build:
-      context: ../../..
-      dockerfile: install/local/dev/php-fpm/Dockerfile
-      args:
-        MAIN_DOMAIN: 'wikijump.localhost'
-        FILES_DOMAIN: 'wjfiles.localhost'
-    restart: always
-    depends_on:
-      cache:
-        condition: service_healthy
-      database:
         condition: service_healthy

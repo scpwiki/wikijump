@@ -1,61 +1,30 @@
 version: '3.8'
 
 services:
-  php-fpm:
+  api:
     volumes:
-      # Laravel
+      # Rust sources
       - type: bind
-        source: ../../../web/app
-        target: /var/www/wikijump/web/app
+        source: ../../../deepwell/src
+        target: /src/deepwell/src
         read_only: true
       - type: bind
-        source: ../../../web/database
-        target: /var/www/wikijump/web/database
+        source: ../../../deepwell/build.rs
+        target: /src/deepwell/build.rs
         read_only: true
       - type: bind
-        source: ../../../web/routes
-        target: /var/www/wikijump/web/routes
+        source: ../../../deepwell/Cargo.toml
+        target: /src/deepwell/Cargo.toml
         read_only: true
+      # Database files
       - type: bind
-        source: ../../../web/storage
-        target: /var/www/wikijump/web/storage
-        read_only: false
-
-      # Views
+        source: ../../../deepwell/migrations
+        target: /src/deepwell/migrations
       - type: bind
-        source: ../../../web/resources/views
-        target: /var/www/wikijump/web/resources/views
-        read_only: true
-
-      # Legacy
+        source: ../../../deepwell/seeder
+        target: /src/deepwell/seeder
+      # Translation data
       - type: bind
-        source: ../../../web/lib
-        target: /var/www/wikijump/web/lib
-        read_only: true
-      - type: bind
-        source: ../../../web/php
-        target: /var/www/wikijump/web/php
-        read_only: true
-      - type: bind
-        source: ../../../web/templates
-        target: /var/www/wikijump/web/templates
-        read_only: true
-      - type: bind
-        source: ../../../web/web
-        target: /var/www/wikijump/web/web
-        read_only: true
-
-  nginx:
-    volumes:
-      - type: bind
-        source: ../../../web/web
-        target: /var/www/wikijump/web/web
-        read_only: true
-      - type: bind
-        source: ../../../web/public/files--static
-        target: /var/www/wikijump/web/public/files--static
-        read_only: true
-      - type: bind
-        source: ../../../web/storage
-        target: /var/www/wikijump/web/storage
+        source: ../../../locales
+        target: /opt/locales
         read_only: true

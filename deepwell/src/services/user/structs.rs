@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::models::users::Model as UserModel;
-use chrono::{DateTime, NaiveDate, Utc};
+use chrono::{DateTime, FixedOffset, NaiveDate};
 use std::collections::HashMap;
 
 #[derive(Deserialize, Debug)]
@@ -28,7 +28,7 @@ use std::collections::HashMap;
 pub struct CreateUser {
     pub username: String,
     pub email: String,
-    pub password: String,
+    pub password: Option<String>, // None means "disable password", i.e. user cannot log in
     pub language: Option<String>,
 }
 
@@ -45,12 +45,12 @@ pub struct UpdateUser {
     pub username: ProvidedValue<String>,
     pub email: ProvidedValue<String>,
     pub email_verified: ProvidedValue<bool>,
-    pub password: ProvidedValue<String>,
+    pub password: ProvidedValue<Option<String>>, // None means "disable password", i.e. user cannot log in
     pub multi_factor_secret: ProvidedValue<Option<String>>,
     pub multi_factor_recovery_codes: ProvidedValue<Option<String>>,
     pub remember_token: ProvidedValue<Option<String>>,
     pub language: ProvidedValue<Option<String>>,
-    pub karma_points: ProvidedValue<i32>,
+    pub karma_points: ProvidedValue<i16>,
     pub karma_level: ProvidedValue<i16>,
     pub real_name: ProvidedValue<Option<String>>,
     pub pronouns: ProvidedValue<Option<String>>,
@@ -91,8 +91,8 @@ pub struct UserInfoOutput {
     about: Option<String>,
     avatar: Option<String>, // TODO
     signature: Option<String>,
-    since: Option<DateTime<Utc>>,
-    last_active: Option<DateTime<Utc>>,
+    since: DateTime<FixedOffset>,
+    last_active: Option<DateTime<FixedOffset>>,
 }
 
 impl From<&UserModel> for UserInfoOutput {

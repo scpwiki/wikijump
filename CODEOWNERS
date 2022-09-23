@@ -6,17 +6,14 @@
 # parsing and rendering of wikitext.
 .github/workflows/ftml*.yaml        @emmiegit
 ftml                                @emmiegit
-web/app/Services/Wikitext           @emmiegit
 
 # The DEEPWELL replacement API service
 .github/workflows/deepwell.yaml     @emmiegit
 deepwell                            @emmiegit
-web/app/Services/Deepwell           @emmiegit
 
-# Frontend monorepo
-.github/workflows/client.yaml       @Monkatraz
-web/modules                         @Monkatraz
-web/resources                       @Monkatraz
+# Frontend / Web server
+framerail                           @Monkatraz @emmiegit
+web                                 @Monkatraz
 
 # Localization
 .github/workflows/locales.yaml      @emmiegit
@@ -24,12 +21,3 @@ web/resources                       @Monkatraz
 # Terraform and docker-compose deployment
 .github/workflows/docker-*.yaml     @danieltharp
 /install/                           @danieltharp
-
-# PHP and related
-*.php                               @emmiegit @danieltharp
-/web/composer.json                  @emmiegit @danieltharp
-/web/phpunit.xml                    @emmiegit @danieltharp
-/web/.env.example                   @emmiegit @danieltharp
-
-# Smarty
-*.tpl                               @emmiegit @danieltharp

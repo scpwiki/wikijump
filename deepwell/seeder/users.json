@@ -1,0 +1,49 @@
+[
+    {
+        "id": 1,
+        "name": "Administrator",
+        "password": "wikijumpadmin1",
+        "email": "admin@wikijump",
+        "locale": "en",
+        "aliases": [
+            "admin",
+            "root"
+        ]
+    },
+    {
+        "id": 2,
+        "name": "System",
+        "password": null,
+        "email": "system@wikijump",
+        "locale": "en",
+        "aliases": [
+            "auto",
+            "automatic",
+            "wikidot",
+            "wikijump"
+        ]
+    },
+    {
+        "id": 3,
+        "name": "Anonymous",
+        "password": null,
+        "email": "anonymous@wikijump",
+        "locale": "en",
+        "aliases": [
+            "anon",
+            "nobody"
+        ]
+    },
+    {
+        "id": 4,
+        "name": "Example User",
+        "password": null,
+        "email": "user@wikijump",
+        "locale": "en",
+        "aliases": [
+            "user",
+            "example",
+            "sample"
+        ]
+    }
+]

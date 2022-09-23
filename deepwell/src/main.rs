@@ -40,6 +40,7 @@ mod macros;
 
 mod api;
 mod config;
+mod constants;
 mod database;
 mod hash;
 mod info;
@@ -58,7 +59,11 @@ use anyhow::Result;
 async fn main() -> Result<()> {
     // Load the configuration so we can set up
     let config = Config::load();
+
+    // Copy fields we need
     let socket_address = config.address;
+    let run_migrations = config.run_migrations;
+    let run_seeder = config.run_seeder;
 
     // Configure the logger
     if config.logger {
@@ -70,14 +75,21 @@ async fn main() -> Result<()> {
     }
 
     // Run migrations, if enabled
-    if config.run_migrations {
+    if run_migrations {
         database::migrate(&config.database_url).await?;
     }
 
-    // Build server and run
-    let app = api::build_server(config).await?;
+    // Set up server state
+    let app_state = api::build_server_state(config).await?;
 
-    tide::log::info!("Built server. Listening...");
+    // Run seeder, if enabled
+    if run_seeder {
+        database::seed(&app_state).await?;
+    }
+
+    // Build and run server
+    tide::log::info!("Building server and listening...");
+    let app = api::build_server(app_state);
     app.listen(socket_address).await?;
 
     Ok(())
