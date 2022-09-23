@@ -78,6 +78,7 @@ impl TextRender {
             table_of_contents,
             footnotes,
             bibliographies,
+            wikitext_len,
         );
         render_elements(&mut ctx, elements);
 

@@ -81,9 +81,10 @@ where
         table_of_contents: &'e [Element<'t>],
         footnotes: &'e [Vec<Element<'t>>],
         bibliographies: &'e BibliographyList<'t>,
+        wikitext_len: usize,
     ) -> Self {
         TextContext {
-            output: String::new(),
+            output: String::with_capacity(wikitext_len),
             info,
             handle,
             settings,

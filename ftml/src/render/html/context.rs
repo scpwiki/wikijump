@@ -89,7 +89,7 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
         wikitext_len: usize,
     ) -> Self {
         HtmlContext {
-            body: String::new(),
+            body: String::with_capacity(wikitext_len),
             meta: Self::initial_metadata(info),
             backlinks: Backlinks::new(),
             info,
