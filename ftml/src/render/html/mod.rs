@@ -74,6 +74,7 @@ impl Render for HtmlRender {
             &tree.table_of_contents,
             &tree.footnotes,
             &tree.bibliographies,
+            tree.wikitext_len,
         );
 
         // Crawl through elements and generate HTML

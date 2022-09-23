@@ -86,6 +86,7 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
         table_of_contents: &'e [Element<'t>],
         footnotes: &'e [Vec<Element<'t>>],
         bibliographies: &'e BibliographyList<'t>,
+        wikitext_len: usize,
     ) -> Self {
         HtmlContext {
             body: String::new(),

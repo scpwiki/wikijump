@@ -38,6 +38,7 @@ impl TextRender {
         elements: &[Element],
         page_info: &PageInfo,
         settings: &WikitextSettings,
+        wikitext_len: usize,
     ) -> String {
         self.render_partial_direct(
             elements,
@@ -46,6 +47,7 @@ impl TextRender {
             &[],
             &[],
             &BibliographyList::new(),
+            wikitext_len,
         )
     }
 
@@ -57,6 +59,7 @@ impl TextRender {
         table_of_contents: &[Element],
         footnotes: &[Vec<Element>],
         bibliographies: &BibliographyList,
+        wikitext_len: usize,
     ) -> String {
         info!(
             "Rendering text (site {}, page {}, category {})",
@@ -108,6 +111,7 @@ impl Render for TextRender {
             &tree.table_of_contents,
             &tree.footnotes,
             &tree.bibliographies,
+            tree.wikitext_len,
         )
     }
 }

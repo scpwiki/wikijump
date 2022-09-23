@@ -135,6 +135,7 @@ where
                 table_of_contents,
                 footnotes,
                 bibliographies,
+                tokenization.full_text().len(),
             )
         }
         Err(error) => {
@@ -157,6 +158,7 @@ where
                 table_of_contents,
                 footnotes,
                 bibliographies,
+                tokenization.full_text().len(),
             )
         }
     }
