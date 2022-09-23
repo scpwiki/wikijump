@@ -220,7 +220,8 @@ impl Test<'_> {
         crate::preprocess(&mut text);
         let tokens = crate::tokenize(&text);
         let result = crate::parse(&tokens, &page_info, &settings);
-        let (tree, errors) = result.into();
+        let (mut tree, errors) = result.into();
+        tree.wikitext_len = self.tree.wikitext_len; // not stored in the JSON
         let html_output = HtmlRender.render(&tree, &page_info, &settings);
 
         fn json<T>(object: &T) -> String
