@@ -32,7 +32,7 @@ fn html() {
         vec![],
         vec![],
         BibliographyList::new(),
-        0
+        0,
     );
     let (tree, _) = result.into();
     let _output = HtmlRender.render(&tree, &page_info, &settings);
