@@ -53,6 +53,7 @@ fn null() {
         vec![],
         vec![],
         BibliographyList::new(),
+        0,
     );
     let (tree, _) = result.into();
     let output = NullRender.render(&tree, &page_info, &settings);
