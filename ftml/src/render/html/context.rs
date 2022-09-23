@@ -86,9 +86,29 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
         table_of_contents: &'e [Element<'t>],
         footnotes: &'e [Vec<Element<'t>>],
         bibliographies: &'e BibliographyList<'t>,
+        wikitext_len: usize,
     ) -> Self {
+        // Heuristic for improving rendering performance by avoiding reallocating.
+        //
+        // Looking at test data, the outputted HTML byte length usually stays
+        // below ~12% of the wikitext input byte length, with the greatest differences
+        // being small inputs.
+        let capacity = {
+            let input = wikitext_len as f32;
+            let output = input * 1.12;
+
+            // Basic sanity check, if this fails
+            // just return 0 to avoid weirdness.
+            if output.is_finite() {
+                output as usize
+            } else {
+                0
+            }
+        };
+
+        // Build and return
         HtmlContext {
-            body: String::new(),
+            body: String::with_capacity(capacity),
             meta: Self::initial_metadata(info),
             backlinks: Backlinks::new(),
             info,

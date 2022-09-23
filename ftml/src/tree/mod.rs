@@ -88,6 +88,12 @@ pub struct SyntaxTree<'t> {
 
     /// The full list of bibliographies for this page.
     pub bibliographies: BibliographyList<'t>,
+
+    /// Hint for the size of the wikitext input.
+    ///
+    /// This is an optimization to make rendering large parges slightly faster.
+    #[serde(default)]
+    pub wikitext_len: usize,
 }
 
 impl<'t> SyntaxTree<'t> {
@@ -97,12 +103,14 @@ impl<'t> SyntaxTree<'t> {
         table_of_contents: Vec<Element<'t>>,
         footnotes: Vec<Vec<Element<'t>>>,
         bibliographies: BibliographyList<'t>,
+        wikitext_len: usize,
     ) -> ParseOutcome<Self> {
         let tree = SyntaxTree {
             elements,
             table_of_contents,
             footnotes,
             bibliographies,
+            wikitext_len,
         };
         ParseOutcome::new(tree, errors)
     }
@@ -113,6 +121,7 @@ impl<'t> SyntaxTree<'t> {
             table_of_contents: elements_to_owned(&self.table_of_contents),
             footnotes: elements_lists_to_owned(&self.footnotes),
             bibliographies: self.bibliographies.to_owned(),
+            wikitext_len: self.wikitext_len,
         }
     }
 }

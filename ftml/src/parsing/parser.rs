@@ -215,7 +215,7 @@ impl<'r, 't> Parser<'r, 't> {
 
         // Render name as text, so it lacks formatting
         let name =
-            TextRender.render_partial(name_elements, self.page_info, self.settings);
+            TextRender.render_partial(name_elements, self.page_info, self.settings, 0);
 
         self.table_of_contents.borrow_mut().push((level, name));
     }

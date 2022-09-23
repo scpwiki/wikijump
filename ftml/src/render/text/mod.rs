@@ -38,25 +38,30 @@ impl TextRender {
         elements: &[Element],
         page_info: &PageInfo,
         settings: &WikitextSettings,
+        wikitext_len: usize,
     ) -> String {
-        self.render_partial_direct(
+        self.render_partial_direct(RenderPartial {
             elements,
             page_info,
             settings,
-            &[],
-            &[],
-            &BibliographyList::new(),
-        )
+            table_of_contents: &[],
+            footnotes: &[],
+            bibliographies: &BibliographyList::new(),
+            wikitext_len,
+        })
     }
 
     fn render_partial_direct(
         &self,
-        elements: &[Element],
-        page_info: &PageInfo,
-        settings: &WikitextSettings,
-        table_of_contents: &[Element],
-        footnotes: &[Vec<Element>],
-        bibliographies: &BibliographyList,
+        RenderPartial {
+            elements,
+            page_info,
+            settings,
+            table_of_contents,
+            footnotes,
+            bibliographies,
+            wikitext_len,
+        }: RenderPartial,
     ) -> String {
         info!(
             "Rendering text (site {}, page {}, category {})",
@@ -75,6 +80,7 @@ impl TextRender {
             table_of_contents,
             footnotes,
             bibliographies,
+            wikitext_len,
         );
         render_elements(&mut ctx, elements);
 
@@ -101,13 +107,29 @@ impl Render for TextRender {
         page_info: &PageInfo,
         settings: &WikitextSettings,
     ) -> String {
-        self.render_partial_direct(
-            &tree.elements,
+        self.render_partial_direct(RenderPartial {
+            elements: &tree.elements,
             page_info,
             settings,
-            &tree.table_of_contents,
-            &tree.footnotes,
-            &tree.bibliographies,
-        )
+            table_of_contents: &tree.table_of_contents,
+            footnotes: &tree.footnotes,
+            bibliographies: &tree.bibliographies,
+            wikitext_len: tree.wikitext_len,
+        })
     }
+}
+
+/// Helper structure to pass in values for `render_partial_direct()`.
+///
+/// This exists because otherwise the function would take an excessive
+/// number of parameters, which Clippy dislikes.
+#[derive(Debug)]
+struct RenderPartial<'a> {
+    elements: &'a [Element<'a>],
+    page_info: &'a PageInfo<'a>,
+    settings: &'a WikitextSettings,
+    table_of_contents: &'a [Element<'a>],
+    footnotes: &'a [Vec<Element<'a>>],
+    bibliographies: &'a BibliographyList<'a>,
+    wikitext_len: usize,
 }
