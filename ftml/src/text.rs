@@ -99,6 +99,12 @@ impl<'t> FullText<'t> {
 
         &self.text[start..end]
     }
+
+    /// Gives the length in bytes of the text.
+    #[inline]
+    pub fn len(&self) -> usize {
+        self.text.len()
+    }
 }
 
 #[test]
