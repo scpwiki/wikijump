@@ -95,7 +95,7 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
         // being small inputs.
         let capacity = {
             let input = wikitext_len as f32;
-            let output = input * 1.2;
+            let output = input * 1.12;
 
             // Basic sanity check, if this fails
             // just return 0 to avoid weirdness.
