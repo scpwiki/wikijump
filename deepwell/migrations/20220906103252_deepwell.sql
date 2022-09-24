@@ -347,11 +347,11 @@ CREATE TABLE file_revision (
     -- Ensure array only contains valid values
     -- Change this to use the 'page_revision_change' type later
     CHECK (json_array_to_text_array(changes) <@ '{
-        \"page\",
-        \"name\",
-        \"blob\",
-        \"mime\",
-        \"licensing\"
+        page,
+        name,
+        blob,
+        mime,
+        licensing
     }'),
 
     -- Ensure first revision reports all changes
@@ -362,11 +362,11 @@ CREATE TABLE file_revision (
     CHECK (
         revision_type != 'create' OR
         json_array_to_text_array(changes) @> '{
-            \"page\",
-            \"name\",
-            \"blob\",
-            \"mime\",
-            \"licensing\"
+            page,
+            name,
+            blob,
+            mime,
+            licensing
         }'
     ),
 
