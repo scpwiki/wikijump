@@ -212,6 +212,7 @@ CREATE TABLE page_lock (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE,
     deleted_at TIMESTAMP WITH TIME ZONE,
+    expires_at TIMESTAMP WITH TIME ZONE,
     -- Text enum describing what kind of lock (e.g. authors only, staff only)
     -- Currently the only value is 'wikidot' (meaning mods+ only)
     lock_type TEXT NOT NULL,
