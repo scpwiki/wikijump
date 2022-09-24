@@ -227,6 +227,15 @@ CREATE TABLE page_lock (
 -- Page backlinks tracking
 --
 
+-- Enum types for page backlinks
+CREATE TYPE page_connection_type AS ENUM (
+    'include-messy',
+    'include-elements',
+    'component',
+    'link',
+    'redirect'
+);
+
 CREATE TABLE page_link (
     page_id BIGINT REFERENCES page(page_id),
     url TEXT,
@@ -240,14 +249,7 @@ CREATE TABLE page_link (
 CREATE TABLE page_connection (
     from_page_id BIGINT REFERENCES page(page_id),
     to_page_id BIGINT REFERENCES page(page_id),
-    connection_type TEXT
-        CHECK (connection_type = ANY(ARRAY[
-            'include-messy',
-            'include-elements',
-            'component',
-            'link',
-            'redirect'
-        ])),
+    connection_type page_connection_type,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE,
     count INT NOT NULL CHECK (count > 0),
@@ -259,14 +261,7 @@ CREATE TABLE page_connection_missing (
     from_page_id BIGINT REFERENCES page(page_id),
     to_site_id BIGINT REFERENCES page(page_id),
     to_page_slug TEXT,
-    connection_type TEXT
-        CHECK (connection_type = ANY(ARRAY[
-            'include-messy',
-            'include-elements',
-            'component',
-            'link',
-            'redirect'
-        ])),
+    connection_type page_connection_type,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE,
     count INT NOT NULL CHECK (count > 0),
