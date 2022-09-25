@@ -47,7 +47,7 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
     }
 
     // Reset sequences so IDs are consistent
-    restart_sequence(&txn, "users_id_seq").await?;
+    restart_sequence(&txn, "user_user_id_seq").await?;
     restart_sequence(&txn, "page_page_id_seq").await?;
     restart_sequence(&txn, "site_site_id_seq").await?;
 
