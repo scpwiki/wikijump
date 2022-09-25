@@ -39,7 +39,7 @@ macro_rules! make_contype_condition {
             // Layer 2: &[ConnectionType] -> Condition
             $table_name::Column::ConnectionType.is_in(
                 // Layer 3: [&ConnectionType] -> Iterator<Value>
-                connection_types.iter().map(|c| *c),
+                connection_types.iter().copied()
             )
         })
     };
