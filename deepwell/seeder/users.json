@@ -23,7 +23,7 @@
     {
         "id": 2,
         "name": "System",
-        "user": "system",
+        "slug": "system",
         "email": "system@wikijump",
         "is_system": true,
         "is_bot": true,
@@ -31,7 +31,7 @@
         "locale": "en",
         "display_name": "Wikijump",
         "gender": null,
-        "birthday": "Fri Jan 18 15:32:15 2019 -0700",
+        "birthday": "2019-01-18",
         "biography": "Wikijump system user",
         "user_page": "https://wikijump.org/",
         "aliases": [
@@ -52,7 +52,7 @@
         "locale": "en",
         "display_name": "Anonymous User",
         "gender": null,
-        "birthday": "Fri Jan 18 15:32:15 2019 -0700",
+        "birthday": "2019-01-18",
         "biography": "Wikijump system user",
         "user_page": "https://wikijump.org/",
         "aliases": [
