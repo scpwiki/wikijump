@@ -60,6 +60,7 @@ pub struct UpdateUser {
     pub display_name: ProvidedValue<Option<String>>,
     pub gender: ProvidedValue<Option<String>>,
     pub birthday: ProvidedValue<Option<NaiveDate>>,
+    pub location: ProvidedValue<Option<String>>,
     pub biography: ProvidedValue<Option<String>>,
     pub user_page: ProvidedValue<Option<String>>,
 }

@@ -36,6 +36,8 @@ pub struct Model {
     pub gender: String,
     pub birthday: Option<Date>,
     #[sea_orm(column_type = "Text")]
+    pub location: String,
+    #[sea_orm(column_type = "Text")]
     pub biography: String,
     #[sea_orm(column_type = "Text")]
     pub user_page: String,
