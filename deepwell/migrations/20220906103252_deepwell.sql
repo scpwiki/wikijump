@@ -47,7 +47,11 @@ CREATE TABLE user (
 
     CHECK (name_changes_left >= 0),                                 -- Value cannot be negative
     CHECK (is_bot OR frozen_at IS NULL),                            -- Only applicable to bot users
-    CHECK (avatar_s3_hash IS NULL OR length(avatar_s3_hash) = 64)   -- SHA-512 hash size (if set)
+    CHECK (avatar_s3_hash IS NULL OR length(avatar_s3_hash) = 64),  -- SHA-512 hash size (if set)
+    CHECK (length(real_name) < 300),                                -- Max lengths
+    CHECK (length(gender) < 100),
+    CHECK (length(biography) < 4000),
+    CHECK (length(user_page) < 100)
 );
 
 CREATE TABLE user_alias (
