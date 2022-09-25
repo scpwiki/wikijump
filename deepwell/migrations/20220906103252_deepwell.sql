@@ -40,7 +40,7 @@ CREATE TABLE "user" (
     multi_factor_recovery_codes JSON,
     locale TEXT NOT NULL,
     avatar_s3_hash BYTEA,
-    real_name TEXT NOT NULL DEFAULT '',
+    display_name TEXT,
     gender TEXT NOT NULL DEFAULT '',
     birthday DATE,
     biography TEXT NOT NULL DEFAULT '',
