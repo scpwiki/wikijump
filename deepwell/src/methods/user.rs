@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::models::users::Model as UserModel;
+use crate::models::user::Model as UserModel;
 use crate::services::user::{
     CreateUser, UpdateUser, UserIdentityOutput, UserInfoOutput, UserProfileOutput,
 };

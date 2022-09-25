@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::models::users::{self, Entity as User, Model as UserModel};
+use crate::models::user::{self, Entity as User, Model as UserModel};
 use crate::utils::replace_in_place;
 use wikidot_normalize::normalize;
 
@@ -40,11 +40,11 @@ impl UserService {
                 Condition::all()
                     .add(
                         Condition::any()
-                            .add(users::Column::Username.eq(input.username.as_str()))
-                            .add(users::Column::Email.eq(input.email.as_str()))
-                            .add(users::Column::Slug.eq(slug.as_str())),
+                            .add(user::Column::Username.eq(input.username.as_str()))
+                            .add(user::Column::Email.eq(input.email.as_str()))
+                            .add(user::Column::Slug.eq(slug.as_str())),
                     )
-                    .add(users::Column::DeletedAt.is_null()),
+                    .add(user::Column::DeletedAt.is_null()),
             )
             .one(txn)
             .await?;
@@ -55,7 +55,7 @@ impl UserService {
         }
 
         // Insert new model
-        let user = users::ActiveModel {
+        let user = user::ActiveModel {
             username: Set(input.username),
             slug: Set(slug.clone()),
             email: Set(input.email),
@@ -104,8 +104,8 @@ impl UserService {
                 User::find()
                     .filter(
                         Condition::all()
-                            .add(users::Column::Slug.eq(slug))
-                            .add(users::Column::DeletedAt.is_null()),
+                            .add(user::Column::Slug.eq(slug))
+                            .add(user::Column::DeletedAt.is_null()),
                     )
                     .one(txn)
                     .await?
@@ -131,7 +131,7 @@ impl UserService {
     ) -> Result<()> {
         let txn = ctx.transaction();
         let model = Self::get(ctx, reference).await?;
-        let mut user: users::ActiveModel = model.into();
+        let mut user: user::ActiveModel = model.into();
 
         // Add each field
         if let ProvidedValue::Set(username) = input.username {
@@ -220,7 +220,7 @@ impl UserService {
     ) -> Result<UserModel> {
         let txn = ctx.transaction();
         let model = Self::get(ctx, reference).await?;
-        let mut user: users::ActiveModel = model.clone().into();
+        let mut user: user::ActiveModel = model.clone().into();
 
         // Set deletion flag
         user.deleted_at = Set(Some(now()));
