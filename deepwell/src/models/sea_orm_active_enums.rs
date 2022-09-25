@@ -6,6 +6,26 @@ use serde::{Deserialize, Serialize};
 #[derive(
     Debug, Copy, Clone, PartialEq, EnumIter, DeriveActiveEnum, Serialize, Deserialize,
 )]
+#[sea_orm(
+    rs_type = "String",
+    db_type = "Enum",
+    enum_name = "page_connection_type"
+)]
+pub enum PageConnectionType {
+    #[sea_orm(string_value = "component")]
+    Component,
+    #[sea_orm(string_value = "include-elements")]
+    IncludeElements,
+    #[sea_orm(string_value = "include-messy")]
+    IncludeMessy,
+    #[sea_orm(string_value = "link")]
+    Link,
+    #[sea_orm(string_value = "redirect")]
+    Redirect,
+}
+#[derive(
+    Debug, Copy, Clone, PartialEq, EnumIter, DeriveActiveEnum, Serialize, Deserialize,
+)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "file_revision_type")]
 pub enum FileRevisionType {
     #[sea_orm(string_value = "create")]

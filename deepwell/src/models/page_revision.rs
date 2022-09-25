@@ -60,13 +60,13 @@ pub enum Relation {
     )]
     Site,
     #[sea_orm(
-        belongs_to = "super::users::Entity",
+        belongs_to = "super::user::Entity",
         from = "Column::UserId",
-        to = "super::users::Column::Id",
+        to = "super::user::Column::UserId",
         on_update = "NoAction",
         on_delete = "NoAction"
     )]
-    Users,
+    User,
     #[sea_orm(
         belongs_to = "super::text::Entity",
         from = "Column::WikitextHash",
@@ -89,9 +89,9 @@ impl Related<super::site::Entity> for Entity {
     }
 }
 
-impl Related<super::users::Entity> for Entity {
+impl Related<super::user::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::Users.def()
+        Relation::User.def()
     }
 }
 

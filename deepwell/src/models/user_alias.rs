@@ -4,37 +4,27 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
-#[sea_orm(table_name = "page_vote")]
+#[sea_orm(table_name = "user_alias")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub page_vote_id: i64,
+    pub alias_id: i64,
     pub created_at: DateTimeWithTimeZone,
-    pub deleted_at: Option<DateTimeWithTimeZone>,
-    pub disabled_at: Option<DateTimeWithTimeZone>,
-    pub disabled_by: Option<i64>,
-    pub page_id: i64,
+    pub created_by: i64,
     pub user_id: i64,
-    pub value: i16,
+    #[sea_orm(column_type = "Text", unique)]
+    pub slug: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
     #[sea_orm(
         belongs_to = "super::user::Entity",
-        from = "Column::DisabledBy",
+        from = "Column::CreatedBy",
         to = "super::user::Column::UserId",
         on_update = "NoAction",
         on_delete = "NoAction"
     )]
     User2,
-    #[sea_orm(
-        belongs_to = "super::page::Entity",
-        from = "Column::PageId",
-        to = "super::page::Column::PageId",
-        on_update = "NoAction",
-        on_delete = "NoAction"
-    )]
-    Page,
     #[sea_orm(
         belongs_to = "super::user::Entity",
         from = "Column::UserId",
@@ -43,12 +33,6 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     User1,
-}
-
-impl Related<super::page::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Page.def()
-    }
 }
 
 impl ActiveModelBehavior for ActiveModel {}

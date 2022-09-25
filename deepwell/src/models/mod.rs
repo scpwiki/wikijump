@@ -20,4 +20,6 @@ pub mod page_vote;
 pub mod sea_orm_active_enums;
 pub mod site;
 pub mod text;
-pub mod users;
+pub mod user;
+pub mod user_alias;
+pub mod user_bot_owner;

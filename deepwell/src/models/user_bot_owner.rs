@@ -4,51 +4,36 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
-#[sea_orm(table_name = "page_vote")]
+#[sea_orm(table_name = "user_bot_owner")]
 pub struct Model {
-    #[sea_orm(primary_key)]
-    pub page_vote_id: i64,
+    #[sea_orm(primary_key, auto_increment = false)]
+    pub bot_user_id: i64,
+    #[sea_orm(primary_key, auto_increment = false)]
+    pub human_user_id: i64,
     pub created_at: DateTimeWithTimeZone,
-    pub deleted_at: Option<DateTimeWithTimeZone>,
-    pub disabled_at: Option<DateTimeWithTimeZone>,
-    pub disabled_by: Option<i64>,
-    pub page_id: i64,
-    pub user_id: i64,
-    pub value: i16,
+    pub updated_at: Option<DateTimeWithTimeZone>,
+    #[sea_orm(column_type = "Text")]
+    pub description: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
     #[sea_orm(
         belongs_to = "super::user::Entity",
-        from = "Column::DisabledBy",
+        from = "Column::BotUserId",
         to = "super::user::Column::UserId",
         on_update = "NoAction",
         on_delete = "NoAction"
     )]
     User2,
     #[sea_orm(
-        belongs_to = "super::page::Entity",
-        from = "Column::PageId",
-        to = "super::page::Column::PageId",
-        on_update = "NoAction",
-        on_delete = "NoAction"
-    )]
-    Page,
-    #[sea_orm(
         belongs_to = "super::user::Entity",
-        from = "Column::UserId",
+        from = "Column::HumanUserId",
         to = "super::user::Column::UserId",
         on_update = "NoAction",
         on_delete = "NoAction"
     )]
     User1,
-}
-
-impl Related<super::page::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Page.def()
-    }
 }
 
 impl ActiveModelBehavior for ActiveModel {}

@@ -4,44 +4,39 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
-#[sea_orm(table_name = "users")]
+#[sea_orm(table_name = "user")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: i64,
-    #[sea_orm(column_type = "Text", unique)]
-    pub username: String,
-    #[sea_orm(column_type = "Text", unique)]
-    pub slug: String,
-    pub username_changes: i32,
-    #[sea_orm(column_type = "Text", unique)]
-    pub email: String,
-    pub email_verified_at: Option<DateTimeWithTimeZone>,
-    #[sea_orm(column_type = "Text")]
-    pub password: String,
-    #[sea_orm(column_type = "Text", nullable)]
-    pub multi_factor_secret: Option<String>,
-    #[sea_orm(column_type = "Text", nullable)]
-    pub multi_factor_recovery_codes: Option<String>,
-    #[sea_orm(column_type = "Text", nullable)]
-    pub remember_token: Option<String>,
-    #[sea_orm(column_type = "Text", nullable)]
-    pub language: Option<String>,
-    pub karma_points: i16,
-    pub karma_level: i16,
-    #[sea_orm(column_type = "Text", nullable)]
-    pub pronouns: Option<String>,
-    pub dob: Option<Date>,
-    #[sea_orm(column_type = "Text", nullable)]
-    pub real_name: Option<String>,
-    #[sea_orm(column_type = "Text", nullable)]
-    pub bio: Option<String>,
-    #[sea_orm(column_type = "Text", nullable)]
-    pub about_page: Option<String>,
-    #[sea_orm(column_type = "Text", nullable)]
-    pub avatar_path: Option<String>,
+    pub user_id: i64,
     pub created_at: DateTimeWithTimeZone,
     pub updated_at: Option<DateTimeWithTimeZone>,
     pub deleted_at: Option<DateTimeWithTimeZone>,
+    #[sea_orm(column_type = "Text", unique)]
+    pub name: String,
+    #[sea_orm(column_type = "Text", unique)]
+    pub slug: String,
+    pub name_changes_left: i16,
+    pub last_renamed_at: Option<DateTimeWithTimeZone>,
+    #[sea_orm(column_type = "Text", unique)]
+    pub email: String,
+    pub email_verified_at: Option<DateTimeWithTimeZone>,
+    pub is_system: bool,
+    pub is_bot: bool,
+    pub frozen_at: Option<DateTimeWithTimeZone>,
+    #[sea_orm(column_type = "Text")]
+    pub password: String,
+    #[sea_orm(column_type = "Text")]
+    pub locale: String,
+    pub avatar_s3_hash: Option<Vec<u8>>,
+    #[sea_orm(column_type = "Text")]
+    pub real_name: String,
+    #[sea_orm(column_type = "Text")]
+    pub gender: String,
+    pub birthday: Option<Date>,
+    #[sea_orm(column_type = "Text")]
+    pub biography: String,
+    #[sea_orm(column_type = "Text")]
+    pub user_page: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
