@@ -41,20 +41,22 @@ CREATE TABLE "user" (
     locale TEXT NOT NULL,
     avatar_s3_hash BYTEA,
     display_name TEXT,
-    gender TEXT NOT NULL DEFAULT '',
+    gender TEXT,
     birthday DATE,
-    biography TEXT NOT NULL DEFAULT '',
-    user_page TEXT NOT NULL DEFAULT '',
+    biography TEXT,
+    user_page TEXT,
 
     -- Both MFA columns should either be set or unset
     CHECK ((multi_factor_secret IS NULL) = (multi_factor_recovery_codes IS NULL))
 
+    -- Strings should either be NULL or non-empty (and within limits)
+    CHECK (display_name IS NULL OR (length(display_name) > 0 AND length(display_name) < 300)),
+    CHECK (gender IS NULL OR (length(gender) > 0 AND length(gender) < 100)),
+    CHECK (biography IS NULL OR (length(biography) > 0 AND length(biography) < 4000)),
+    CHECK (user_page IS NULL OR (length(user_page) > 0 AND length(user_page) < 100))
+
     CHECK (name_changes_left >= 0),                                 -- Value cannot be negative
     CHECK (avatar_s3_hash IS NULL OR length(avatar_s3_hash) = 64),  -- SHA-512 hash size (if set)
-    CHECK (length(real_name) < 300),                                -- Max lengths
-    CHECK (length(gender) < 100),
-    CHECK (length(biography) < 4000),
-    CHECK (length(user_page) < 100)
 );
 
 CREATE TABLE user_alias (
