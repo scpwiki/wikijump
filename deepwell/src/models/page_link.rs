@@ -9,6 +9,7 @@ pub struct Model {
     #[sea_orm(primary_key)]
     pub link_id: i64,
     pub page_id: i64,
+    #[sea_orm(column_type = "Text")]
     pub url: String,
     pub created_at: DateTimeWithTimeZone,
     pub updated_at: Option<DateTimeWithTimeZone>,

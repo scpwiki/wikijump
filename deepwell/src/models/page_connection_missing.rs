@@ -11,6 +11,7 @@ pub struct Model {
     pub connection_missing_id: i64,
     pub from_page_id: i64,
     pub to_site_id: i64,
+    #[sea_orm(column_type = "Text")]
     pub to_page_slug: String,
     pub connection_type: PageConnectionType,
     pub created_at: DateTimeWithTimeZone,
