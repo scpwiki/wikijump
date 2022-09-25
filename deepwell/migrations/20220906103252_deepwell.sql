@@ -48,17 +48,17 @@ CREATE TABLE "user" (
     user_page TEXT,
 
     -- Both MFA columns should either be set or unset
-    CHECK ((multi_factor_secret IS NULL) = (multi_factor_recovery_codes IS NULL))
+    CHECK ((multi_factor_secret IS NULL) = (multi_factor_recovery_codes IS NULL)),
 
     -- Strings should either be NULL or non-empty (and within limits)
     CHECK (display_name IS NULL OR (length(display_name) > 0 AND length(display_name) < 300)),
     CHECK (gender IS NULL OR (length(gender) > 0 AND length(gender) < 100)),
     CHECK (location IS NULL OR (length(location) > 0 AND length(location) < 100)),
     CHECK (biography IS NULL OR (length(biography) > 0 AND length(biography) < 4000)),
-    CHECK (user_page IS NULL OR (length(user_page) > 0 AND length(user_page) < 100))
+    CHECK (user_page IS NULL OR (length(user_page) > 0 AND length(user_page) < 100)),
 
     CHECK (name_changes_left >= 0),                                 -- Value cannot be negative
-    CHECK (avatar_s3_hash IS NULL OR length(avatar_s3_hash) = 64),  -- SHA-512 hash size (if set)
+    CHECK (avatar_s3_hash IS NULL OR length(avatar_s3_hash) = 64)   -- SHA-512 hash size (if set)
 );
 
 CREATE TABLE user_alias (
