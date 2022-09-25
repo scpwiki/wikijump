@@ -22,30 +22,32 @@ AS
 -- User
 --
 
--- TODO don't use the laravel users table
-CREATE TABLE users (
-    id BIGSERIAL PRIMARY KEY,
-    username TEXT NOT NULL UNIQUE,
+CREATE TABLE user (
+    user_id BIGSERIAL PRIMARY KEY,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+    updated_at TIMESTAMP WITH TIME ZONE,
+    deleted_at TIMESTAMP WITH TIME ZONE,
+    name TEXT NOT NULL UNIQUE,
     slug TEXT NOT NULL UNIQUE,
-    username_changes INT NOT NULL DEFAULT 0,
+    name_changes_left SMALLINT NOT NULL,  -- Default set in runtime configuration.
+    last_renamed_at TIMESTAMP WITH TIME ZONE,
     email TEXT NOT NULL UNIQUE,
     email_verified_at TIMESTAMP WITH TIME ZONE,
+    is_system BOOLEAN NOT NULL DEFAULT false,  -- Marked in the UI, also cannot log in.
+    is_bot BOOLEAN NOT NULL DEFAULT false,
+    frozen_at TIMESTAMP WITH TIME ZONE,  -- For temporarily suspending a bot. Does not apply to normal users.
     password TEXT NOT NULL,
-    multi_factor_secret TEXT,
-    multi_factor_recovery_codes TEXT,
-    remember_token TEXT,
-    language TEXT,
-    karma_points SMALLINT NOT NULL DEFAULT 0,
-    karma_level SMALLINT NOT NULL DEFAULT 0,
-    pronouns TEXT,
-    dob DATE,
-    real_name TEXT,
-    bio TEXT,
-    about_page TEXT,
-    avatar_path TEXT,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    updated_at TIMESTAMP WITH TIME ZONE,
-    deleted_at TIMESTAMP WITH TIME ZONE
+    locale TEXT NOT NULL,
+    avatar_s3_hash BYTEA,
+    real_name TEXT NOT NULL DEFAULT '',
+    pronouns TEXT NOT NULL DEFAULT '',
+    birthday DATE,
+    biography TEXT NOT NULL DEFAULT '',
+    user_page TEXT NOT NULL DEFAULT '',
+
+    CHECK (name_changes_left >= 0),                                 -- Value cannot be negative
+    CHECK (is_bot OR frozen_at IS NULL),                            -- Only applicable to bot users
+    CHECK (avatar_s3_hash IS NULL OR length(avatar_s3_hash) = 64)   -- SHA-512 hash size (if set)
 );
 
 --
@@ -132,7 +134,7 @@ CREATE TABLE page_revision (
     revision_number INT NOT NULL,
     page_id BIGINT NOT NULL REFERENCES page(page_id),
     site_id BIGINT NOT NULL REFERENCES site(site_id),
-    user_id BIGINT NOT NULL REFERENCES users(id),
+    user_id BIGINT NOT NULL REFERENCES user(user_id),
     changes JSON NOT NULL, -- List of changes in this revision
     wikitext_hash BYTEA NOT NULL REFERENCES text(hash),
     compiled_hash BYTEA NOT NULL REFERENCES text(hash),
@@ -197,7 +199,7 @@ CREATE TABLE page_parent (
 
 CREATE TABLE page_attribution (
     page_id BIGINT REFERENCES page(page_id),
-    user_id BIGINT REFERENCES users(id),
+    user_id BIGINT REFERENCES user(user_id),
     -- Text enum describing the kind of attribution
     -- Currently synced to Crom: 'author', 'rewrite', 'translator', 'maintainer'
     attribution_type TEXT NOT NULL,
@@ -217,7 +219,7 @@ CREATE TABLE page_lock (
     -- Currently the only value is 'wikidot' (meaning mods+ only)
     lock_type TEXT NOT NULL,
     page_id BIGINT NOT NULL REFERENCES page(page_id),
-    user_id BIGINT NOT NULL REFERENCES users(id),
+    user_id BIGINT NOT NULL REFERENCES user(user_id),
     reason TEXT NOT NULL,
 
     UNIQUE (page_id, deleted_at)
@@ -278,9 +280,9 @@ CREATE TABLE page_vote (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     deleted_at TIMESTAMP WITH TIME ZONE,
     disabled_at TIMESTAMP WITH TIME ZONE,
-    disabled_by BIGINT REFERENCES users(id),
+    disabled_by BIGINT REFERENCES user(user_id),
     page_id BIGINT NOT NULL REFERENCES page(page_id),
-    user_id BIGINT NOT NULL REFERENCES users(id),
+    user_id BIGINT NOT NULL REFERENCES user(user_id),
     value SMALLINT NOT NULL,
 
     UNIQUE (page_id, user_id, deleted_at),
@@ -324,7 +326,7 @@ CREATE TABLE file_revision (
     revision_number INTEGER NOT NULL,
     file_id BIGINT NOT NULL REFERENCES file(file_id),
     page_id BIGINT NOT NULL REFERENCES page(page_id),
-    user_id BIGINT NOT NULL REFERENCES users(id),
+    user_id BIGINT NOT NULL REFERENCES user(user_id),
     name TEXT NOT NULL,
     s3_hash BYTEA NOT NULL,
     mime_hint TEXT NOT NULL,
