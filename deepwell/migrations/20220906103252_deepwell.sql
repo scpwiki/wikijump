@@ -50,6 +50,24 @@ CREATE TABLE user (
     CHECK (avatar_s3_hash IS NULL OR length(avatar_s3_hash) = 64)   -- SHA-512 hash size (if set)
 );
 
+CREATE TABLE user_alias (
+    alias_id BIGSERIAL PRIMARY KEY,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+    created_by BIGINT NOT NULL REFERENCES user(user_id),
+    user_id BIGINT NOT NULL REFERENCES user(user_id),
+    slug TEXT NOT NULL UNIQUE
+);
+
+CREATE TABLE user_bot_owner (
+    bot_user_id BIGINT REFERENCES user(user_id),
+    human_user_id BIGINT REFERENCES user(user_id),
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+    updated_at TIMESTAMP WITH TIME ZONE,
+    description TEXT NOT NULL,
+
+    PRIMARY KEY (bot_user_id, human_user_id)
+);
+
 --
 -- Site
 --
