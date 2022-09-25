@@ -40,7 +40,7 @@ CREATE TABLE user (
     locale TEXT NOT NULL,
     avatar_s3_hash BYTEA,
     real_name TEXT NOT NULL DEFAULT '',
-    pronouns TEXT NOT NULL DEFAULT '',
+    gender TEXT NOT NULL DEFAULT '',
     birthday DATE,
     biography TEXT NOT NULL DEFAULT '',
     user_page TEXT NOT NULL DEFAULT '',
