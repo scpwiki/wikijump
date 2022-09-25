@@ -295,9 +295,8 @@ async fn update_connections(
     while let Some(connections) = connection_chunks.fetch_and_next().await? {
         for connection in connections {
             let to_page_id = connection.to_page_id;
-            let connection_type = parse_connection_type!(connection);
 
-            match counts.remove(&(to_page_id, connection_type)) {
+            match counts.remove(&(to_page_id, connection)) {
                 // Connection exists, count is the same. Do nothing.
                 Some(count) if connection.count == count => (),
 
@@ -325,7 +324,7 @@ async fn update_connections(
             |(&(to_page_id, connection_type), count)| page_connection::ActiveModel {
                 from_page_id: Set(from_page_id),
                 to_page_id: Set(to_page_id),
-                connection_type: Set(str!(connection_type.name())),
+                connection_type: Set(connection_type),
                 created_at: Set(now()),
                 updated_at: Set(None),
                 count: Set(*count),
@@ -358,9 +357,8 @@ async fn update_connections_missing(
         for connection in connections {
             let to_site_id = connection.to_site_id;
             let to_page_slug = connection.to_page_slug.clone();
-            let connection_type = parse_connection_type!(connection);
 
-            match counts.remove(&(to_site_id, to_page_slug.clone(), connection_type)) {
+            match counts.remove(&(to_site_id, to_page_slug.clone(), connection)) {
                 // Connection exists, count is the same. Do nothing.
                 Some(count) if connection.count == count => (),
 
@@ -368,6 +366,7 @@ async fn update_connections_missing(
                 Some(count) => {
                     let mut model: page_connection_missing::ActiveModel =
                         connection.into();
+
                     model.count = Set(count);
                     model.updated_at = Set(Some(now()));
                     model.update(txn).await?;
@@ -391,7 +390,7 @@ async fn update_connections_missing(
                     from_page_id: Set(from_page_id),
                     to_site_id: Set(to_site_id),
                     to_page_slug: Set(str!(to_page_slug)),
-                    connection_type: Set(str!(connection_type.name())),
+                    connection_type: Set(connection_type),
                     created_at: Set(now()),
                     updated_at: Set(None),
                     count: Set(*count),

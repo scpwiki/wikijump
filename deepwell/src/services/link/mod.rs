@@ -41,8 +41,6 @@ mod prelude {
     pub use crate::web::ConnectionType;
 }
 
-#[macro_use]
-mod macros;
 mod service;
 mod structs;
 

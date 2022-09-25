@@ -32,7 +32,7 @@ impl UserService {
         input: CreateUser,
     ) -> Result<CreateUserOutput> {
         let txn = ctx.transaction();
-        let slug = get_user_slug(&input.username);
+        let slug = get_user_slug(&input.name);
 
         // Check for conflicts
         let result = User::find()
@@ -40,7 +40,7 @@ impl UserService {
                 Condition::all()
                     .add(
                         Condition::any()
-                            .add(user::Column::Username.eq(input.username.as_str()))
+                            .add(user::Column::Name.eq(input.name.as_str()))
                             .add(user::Column::Email.eq(input.email.as_str()))
                             .add(user::Column::Slug.eq(slug.as_str())),
                     )
@@ -56,23 +56,22 @@ impl UserService {
 
         // Insert new model
         let user = user::ActiveModel {
-            username: Set(input.username),
+            name: Set(input.name),
             slug: Set(slug.clone()),
             email: Set(input.email),
             email_verified_at: Set(None),
+            is_system: Set(input.is_system),
+            is_bot: Set(input.is_bot),
             password: Set(hash_password(input.password)),
             multi_factor_secret: Set(None),
             multi_factor_recovery_codes: Set(None),
-            remember_token: Set(None),
-            language: Set(input.language),
-            karma_points: Set(0),
-            karma_level: Set(0),
-            real_name: Set(None),
-            pronouns: Set(None),
-            dob: Set(None),
-            bio: Set(None),
-            about_page: Set(None),
-            avatar_path: Set(None),
+            locale: Set(input.locale),
+            avatar_s3_hash: Set(None),
+            display_name: Set(None),
+            gender: Set(None),
+            birthday: Set(None),
+            biography: Set(None),
+            user_page: Set(None),
             created_at: Set(now()),
             updated_at: Set(None),
             deleted_at: Set(None),

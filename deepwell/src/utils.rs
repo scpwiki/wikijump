@@ -20,6 +20,8 @@
 
 use chrono::{DateTime, FixedOffset, Utc};
 
+pub type DateTimeWithTimeZone = DateTime<FixedOffset>;
+
 pub fn replace_in_place(string: &mut String, pattern: &str, replacement: &str) {
     while let Some(index) = string.find(pattern) {
         let end = index + replacement.len();
@@ -33,6 +35,6 @@ lazy_static! {
 }
 
 #[inline]
-pub fn now() -> DateTime<FixedOffset> {
+pub fn now() -> DateTimeWithTimeZone {
     Utc::now().with_timezone(&*UTC)
 }

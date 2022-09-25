@@ -19,6 +19,7 @@
  */
 
 use anyhow::Result;
+use chrono::NaiveDate;
 use serde::Deserialize;
 use std::fs::{self, File};
 use std::path::{Path, PathBuf};
@@ -82,6 +83,7 @@ pub struct User {
     pub display_name: Option<String>,
     pub gender: Option<String>,
     pub birthday: Option<NaiveDate>,
+    pub biography: Option<String>,
     pub user_page: Option<String>,
     pub aliases: Vec<String>,
 }

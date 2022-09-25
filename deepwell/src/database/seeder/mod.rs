@@ -25,9 +25,9 @@ use crate::api::ApiServerState;
 use crate::constants::{ADMIN_USER_ID, SYSTEM_USER_ID};
 use crate::services::page::{CreatePage, PageService};
 use crate::services::site::{CreateSite, CreateSiteOutput, SiteService};
-use crate::services::user::{CreateUser, CreateUserOutput, UserService};
+use crate::services::user::{CreateUser, CreateUserOutput, UpdateUser, UserService};
 use crate::services::ServiceContext;
-use crate::web::Reference;
+use crate::web::{ProvidedValue, Reference};
 use anyhow::Result;
 use sea_orm::{
     ConnectionTrait, DatabaseBackend, DatabaseTransaction, Statement, TransactionTrait,
@@ -72,7 +72,7 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
                 name: user.name,
                 email: user.email,
                 password: user.password,
-                language: user.locale,
+                locale: user.locale,
                 is_system: user.is_system,
                 is_bot: user.is_bot,
             },
@@ -96,6 +96,7 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
 
         tide::log::debug!("User created with slug '{}'", slug);
         assert_eq!(user_id, user.id, "Specified user ID doesn't match created");
+        assert_eq!(slug, user.slug, "Specified user slug doesn't match created");
     }
 
     // Seed site data

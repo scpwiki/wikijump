@@ -19,7 +19,6 @@
  */
 
 mod category;
-mod connection_type;
 mod fetch_direction;
 mod fetch_limit;
 mod file_details;
@@ -34,7 +33,6 @@ pub mod ratelimit;
 pub mod utils;
 
 pub use self::category::*;
-pub use self::connection_type::ConnectionType;
 pub use self::fetch_direction::FetchDirection;
 pub use self::fetch_limit::{
     FetchLimit, FetchLimitQuery, FileLimitQuery, PageLimitQuery,
