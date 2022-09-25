@@ -2,6 +2,7 @@
     {
         "id": 1,
         "name": "Administrator",
+        "slug": "administrator",
         "email": "admin@wikijump",
         "is_system": false,
         "is_bot": false,
@@ -22,6 +23,7 @@
     {
         "id": 2,
         "name": "System",
+        "user": "system",
         "email": "system@wikijump",
         "is_system": true,
         "is_bot": true,
@@ -42,6 +44,7 @@
     {
         "id": 3,
         "name": "Anonymous",
+        "slug": "anonymous",
         "email": "anonymous@wikijump",
         "is_system": true,
         "is_bot": false,
@@ -62,6 +65,7 @@
     {
         "id": 4,
         "name": "User",
+        "slug": "user",
         "email": "user@wikijump",
         "is_system": true,
         "is_bot": false,

@@ -75,6 +75,7 @@ impl SeedData {
 pub struct User {
     pub id: i64,
     pub name: String,
+    pub slug: String,
     pub email: String,
     pub is_system: bool,
     pub is_bot: bool,
