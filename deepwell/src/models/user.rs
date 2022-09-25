@@ -25,6 +25,9 @@ pub struct Model {
     #[sea_orm(column_type = "Text")]
     pub password: String,
     #[sea_orm(column_type = "Text")]
+    pub multi_factor_secret: Option<String>,
+    pub multi_factor_recovery_codes: Option<Json>,
+    #[sea_orm(column_type = "Text")]
     pub locale: String,
     pub avatar_s3_hash: Option<Vec<u8>>,
     #[sea_orm(column_type = "Text")]

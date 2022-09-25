@@ -36,6 +36,8 @@ CREATE TABLE "user" (
     is_system BOOLEAN NOT NULL DEFAULT false,  -- Marked in the UI, also cannot log in.
     is_bot BOOLEAN NOT NULL DEFAULT false,
     password TEXT NOT NULL,
+    multi_factor_secret TEXT,
+    multi_factor_recovery_codes JSON,
     locale TEXT NOT NULL,
     avatar_s3_hash BYTEA,
     real_name TEXT NOT NULL DEFAULT '',
@@ -43,6 +45,9 @@ CREATE TABLE "user" (
     birthday DATE,
     biography TEXT NOT NULL DEFAULT '',
     user_page TEXT NOT NULL DEFAULT '',
+
+    -- Both MFA columns should either be set or unset
+    CHECK ((multi_factor_secret IS NULL) = (multi_factor_recovery_codes IS NULL))
 
     CHECK (name_changes_left >= 0),                                 -- Value cannot be negative
     CHECK (avatar_s3_hash IS NULL OR length(avatar_s3_hash) = 64),  -- SHA-512 hash size (if set)
