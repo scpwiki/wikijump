@@ -31,16 +31,16 @@ pub struct Model {
     pub locale: String,
     pub avatar_s3_hash: Option<Vec<u8>>,
     #[sea_orm(column_type = "Text")]
-    pub real_name: String,
+    pub display_name: Option<String>,
     #[sea_orm(column_type = "Text")]
-    pub gender: String,
+    pub gender: Option<String>,
     pub birthday: Option<Date>,
     #[sea_orm(column_type = "Text")]
-    pub location: String,
+    pub location: Option<String>,
     #[sea_orm(column_type = "Text")]
-    pub biography: String,
+    pub biography: Option<String>,
     #[sea_orm(column_type = "Text")]
-    pub user_page: String,
+    pub user_page: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

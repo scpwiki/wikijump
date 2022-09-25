@@ -53,9 +53,7 @@ pub struct UpdateUser {
     pub email: ProvidedValue<String>,
     pub email_verified: ProvidedValue<bool>,
     pub password: ProvidedValue<String>,
-    pub multi_factor_secret: ProvidedValue<Option<String>>,
-    pub multi_factor_recovery_codes: ProvidedValue<Option<String>>,
-    pub locale: ProvidedValue<Option<String>>,
+    pub locale: ProvidedValue<String>,
     pub avatar: ProvidedValue<Option<Vec<u8>>>,
     pub display_name: ProvidedValue<Option<String>>,
     pub gender: ProvidedValue<Option<String>>,
@@ -77,7 +75,7 @@ pub struct UserIdentityOutput {
 impl From<&UserModel> for UserIdentityOutput {
     fn from(user: &UserModel) -> Self {
         Self {
-            id: user.id,
+            id: user.user_id,
             name: user.name.clone(),
             tinyavatar: None,    // TODO
             role: String::new(), // TODO
@@ -91,9 +89,8 @@ pub struct UserInfoOutput {
     #[serde(flatten)]
     identity: UserIdentityOutput,
 
-    about: Option<String>,
+    biography: Option<String>,
     avatar: Option<String>, // TODO
-    signature: Option<String>,
     since: DateTimeWithTimeZone,
     last_active: Option<DateTimeWithTimeZone>,
 }
@@ -102,9 +99,8 @@ impl From<&UserModel> for UserInfoOutput {
     fn from(user: &UserModel) -> Self {
         Self {
             identity: UserIdentityOutput::from(user),
-            about: user.bio.clone(),
-            avatar: user.avatar_s3_hash.clone(), // TODO
-            signature: None,                     // TODO
+            biography: user.biography.clone(),
+            avatar: None, // TODO
             since: user.created_at,
             last_active: user.updated_at,
         }

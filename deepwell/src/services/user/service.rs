@@ -133,13 +133,13 @@ impl UserService {
         let mut user: user::ActiveModel = model.into();
 
         // Add each field
-        if let ProvidedValue::Set(username) = input.username {
+        if let ProvidedValue::Set(name) = input.name {
             // TODO: add old alias
             // TODO: check for conflicts
 
-            let slug = get_user_slug(&username);
-            user.username = Set(username);
-            user.username_changes = Set(user.username_changes.unwrap() + 1);
+            let slug = get_user_slug(&name);
+            user.name = Set(name);
+            user.name_changes_left = Set(user.name_changes_left.unwrap() - 1); // TODO
             user.slug = Set(slug);
         }
 
@@ -152,57 +152,36 @@ impl UserService {
         }
 
         if let ProvidedValue::Set(password) = input.password {
-            user.password = Set(hash_password(password));
+            user.password = Set(hash_password(Some(password)));
         }
 
-        if let ProvidedValue::Set(multi_factor_secret) = input.multi_factor_secret {
-            user.multi_factor_secret = Set(multi_factor_secret);
+        if let ProvidedValue::Set(locale) = input.locale {
+            user.locale = Set(locale);
         }
 
-        if let ProvidedValue::Set(multi_factor_recovery_codes) =
-            input.multi_factor_recovery_codes
-        {
-            user.multi_factor_recovery_codes = Set(multi_factor_recovery_codes);
+        if let ProvidedValue::Set(display_name) = input.display_name {
+            user.display_name = Set(display_name);
         }
 
-        if let ProvidedValue::Set(remember_token) = input.remember_token {
-            user.remember_token = Set(remember_token);
+        if let ProvidedValue::Set(gender) = input.gender {
+            user.gender = Set(gender);
         }
 
-        if let ProvidedValue::Set(language) = input.language {
-            user.language = Set(language);
+        if let ProvidedValue::Set(birthday) = input.birthday {
+            user.birthday = Set(birthday);
         }
 
-        if let ProvidedValue::Set(karma_points) = input.karma_points {
-            user.karma_points = Set(karma_points);
+        if let ProvidedValue::Set(biography) = input.biography {
+            user.biography = Set(biography);
         }
 
-        if let ProvidedValue::Set(karma_level) = input.karma_level {
-            user.karma_level = Set(karma_level);
+        if let ProvidedValue::Set(user_page) = input.user_page {
+            user.user_page = Set(user_page);
         }
 
-        if let ProvidedValue::Set(real_name) = input.real_name {
-            user.real_name = Set(real_name);
-        }
-
-        if let ProvidedValue::Set(pronouns) = input.pronouns {
-            user.pronouns = Set(pronouns);
-        }
-
-        if let ProvidedValue::Set(dob) = input.dob {
-            user.dob = Set(dob);
-        }
-
-        if let ProvidedValue::Set(bio) = input.bio {
-            user.bio = Set(bio);
-        }
-
-        if let ProvidedValue::Set(about_page) = input.about_page {
-            user.about_page = Set(about_page);
-        }
-
-        if let ProvidedValue::Set(avatar_path) = input.avatar_path {
-            user.avatar_path = Set(avatar_path);
+        if let ProvidedValue::Set(avatar) = input.avatar {
+            // TODO store avatar in S3
+            user.avatar_s3_hash = Set(avatar);
         }
 
         // Set update flag
@@ -240,6 +219,7 @@ fn get_user_slug(username: &str) -> String {
 }
 
 // TEMP helper, so it's easier to replace when implemented
+// TODO replace
 fn hash_password(value: Option<String>) -> String {
     match value {
         // Securely hash password

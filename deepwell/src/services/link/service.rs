@@ -23,8 +23,8 @@ use crate::models::page;
 use crate::models::page_connection::{self, Entity as PageConnection};
 use crate::models::page_connection_missing::{self, Entity as PageConnectionMissing};
 use crate::models::page_link::{self, Entity as PageLink, Model as PageLinkModel};
+use crate::models::sea_orm_active_enums::PageConnectionType;
 use crate::services::{PageService, SiteService};
-use crate::web::ConnectionType;
 use ftml::data::{Backlinks, PageRef};
 use std::collections::HashMap;
 
@@ -34,12 +34,12 @@ use std::collections::HashMap;
 /// type(s) of connections are desired.
 macro_rules! make_contype_condition {
     ($table_name:ident, $connection_types:expr $(,)?) => {
-        // Layer 1: Option<&[ConnectionType]> -> Option<Condition>
+        // Layer 1: Option<&[PageConnectionType]> -> Option<Condition>
         $connection_types.map(|connection_types| {
-            // Layer 2: &[ConnectionType] -> [&str]
+            // Layer 2: &[ConnectionType] -> Condition
             $table_name::Column::ConnectionType.is_in(
-                // Layer 3: ConnectionType::name -> &str
-                connection_types.iter().map(|ctype| ctype.name()),
+                // Layer 3: [&ConnectionType] -> Iterator<Value>
+                connection_types.iter().map(|c| *c),
             )
         })
     };
@@ -79,7 +79,7 @@ impl LinkService {
     pub async fn get_connections_from(
         ctx: &ServiceContext<'_>,
         page_id: i64,
-        connection_types: Option<&[ConnectionType]>,
+        connection_types: Option<&[PageConnectionType]>,
     ) -> Result<GetConnectionsFromOutput> {
         let txn = ctx.transaction();
 
@@ -112,7 +112,7 @@ impl LinkService {
     pub async fn get_to(
         ctx: &ServiceContext<'_>,
         page_id: i64,
-        connection_types: Option<&[ConnectionType]>,
+        connection_types: Option<&[PageConnectionType]>,
     ) -> Result<GetLinksToOutput> {
         let txn = ctx.transaction();
 
@@ -135,7 +135,7 @@ impl LinkService {
         ctx: &ServiceContext<'_>,
         site_id: i64,
         page_slug: &str,
-        connection_types: Option<&[ConnectionType]>,
+        connection_types: Option<&[PageConnectionType]>,
     ) -> Result<GetLinksToMissingOutput> {
         let txn = ctx.transaction();
 
@@ -239,7 +239,7 @@ impl LinkService {
                 site_id,
                 include,
                 // TODO: update Backlinks so that it also tracks other kinds of includes and components
-                ConnectionType::IncludeMessy,
+                PageConnectionType::IncludeMessy,
                 &mut connections,
                 &mut connections_missing,
             )
@@ -252,7 +252,7 @@ impl LinkService {
                 ctx,
                 site_id,
                 link,
-                ConnectionType::Link,
+                PageConnectionType::Link,
                 &mut connections,
                 &mut connections_missing,
             )
@@ -281,7 +281,7 @@ impl LinkService {
 async fn update_connections(
     ctx: &ServiceContext<'_>,
     from_page_id: i64,
-    counts: &mut HashMap<(i64, ConnectionType), i32>,
+    counts: &mut HashMap<(i64, PageConnectionType), i32>,
 ) -> Result<()> {
     let txn = ctx.transaction();
 
@@ -296,7 +296,7 @@ async fn update_connections(
         for connection in connections {
             let to_page_id = connection.to_page_id;
 
-            match counts.remove(&(to_page_id, connection)) {
+            match counts.remove(&(to_page_id, connection.connection_type)) {
                 // Connection exists, count is the same. Do nothing.
                 Some(count) if connection.count == count => (),
 
@@ -328,6 +328,7 @@ async fn update_connections(
                 created_at: Set(now()),
                 updated_at: Set(None),
                 count: Set(*count),
+                ..Default::default()
             },
         )
         .collect::<Vec<_>>();
@@ -342,7 +343,7 @@ async fn update_connections(
 async fn update_connections_missing(
     ctx: &ServiceContext<'_>,
     from_page_id: i64,
-    counts: &mut HashMap<(i64, String, ConnectionType), i32>,
+    counts: &mut HashMap<(i64, String, PageConnectionType), i32>,
 ) -> Result<()> {
     let txn = ctx.transaction();
 
@@ -358,7 +359,11 @@ async fn update_connections_missing(
             let to_site_id = connection.to_site_id;
             let to_page_slug = connection.to_page_slug.clone();
 
-            match counts.remove(&(to_site_id, to_page_slug.clone(), connection)) {
+            match counts.remove(&(
+                to_site_id,
+                to_page_slug.clone(),
+                connection.connection_type,
+            )) {
                 // Connection exists, count is the same. Do nothing.
                 Some(count) if connection.count == count => (),
 
@@ -394,6 +399,7 @@ async fn update_connections_missing(
                     created_at: Set(now()),
                     updated_at: Set(None),
                     count: Set(*count),
+                    ..Default::default()
                 }
             },
         )
@@ -454,6 +460,7 @@ async fn update_external_links(
             created_at: Set(now()),
             updated_at: Set(None),
             count: Set(*count),
+            ..Default::default()
         })
         .collect::<Vec<_>>();
 
@@ -471,9 +478,9 @@ async fn count_connections(
         site: site_slug,
         page: page_slug,
     }: &PageRef<'_>,
-    connection_type: ConnectionType,
-    connections: &mut HashMap<(i64, ConnectionType), i32>,
-    connections_missing: &mut HashMap<(i64, String, ConnectionType), i32>,
+    connection_type: PageConnectionType,
+    connections: &mut HashMap<(i64, PageConnectionType), i32>,
+    connections_missing: &mut HashMap<(i64, String, PageConnectionType), i32>,
 ) -> Result<()> {
     let to_site_id = match site_slug {
         Some(slug) => SiteService::get(ctx, Reference::Slug(slug)).await?.site_id,

@@ -268,36 +268,39 @@ CREATE TYPE page_connection_type AS ENUM (
 );
 
 CREATE TABLE page_link (
-    page_id BIGINT REFERENCES page(page_id),
-    url TEXT,
+    link_id BIGSERIAL PRIMARY KEY,
+    page_id BIGINT NOT NULL REFERENCES page(page_id),
+    url TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE,
     count INT NOT NULL CHECK (count > 0),
 
-    PRIMARY KEY (page_id, url)
+    UNIQUE (page_id, url)
 );
 
 CREATE TABLE page_connection (
-    from_page_id BIGINT REFERENCES page(page_id),
-    to_page_id BIGINT REFERENCES page(page_id),
-    connection_type page_connection_type,
+    connection_id BIGSERIAL PRIMARY KEY,
+    from_page_id BIGINT NOT NULL REFERENCES page(page_id),
+    to_page_id BIGINT NOT NULL REFERENCES page(page_id),
+    connection_type page_connection_type NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE,
     count INT NOT NULL CHECK (count > 0),
 
-    PRIMARY KEY (from_page_id, to_page_id, connection_type)
+    UNIQUE (from_page_id, to_page_id, connection_type)
 );
 
 CREATE TABLE page_connection_missing (
-    from_page_id BIGINT REFERENCES page(page_id),
-    to_site_id BIGINT REFERENCES page(page_id),
-    to_page_slug TEXT,
-    connection_type page_connection_type,
+    connection_missing_id BIGSERIAL PRIMARY KEY,
+    from_page_id BIGINT NOT NULL REFERENCES page(page_id),
+    to_site_id BIGINT NOT NULL REFERENCES page(page_id),
+    to_page_slug TEXT NOT NULL,
+    connection_type page_connection_type NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE,
     count INT NOT NULL CHECK (count > 0),
 
-    PRIMARY KEY (from_page_id, to_site_id, to_page_slug, connection_type)
+    UNIQUE (from_page_id, to_site_id, to_page_slug, connection_type)
 );
 
 --

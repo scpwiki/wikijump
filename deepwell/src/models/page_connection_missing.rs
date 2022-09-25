@@ -7,13 +7,11 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "page_connection_missing")]
 pub struct Model {
-    #[sea_orm(primary_key, auto_increment = false)]
+    #[sea_orm(primary_key)]
+    pub connection_missing_id: i64,
     pub from_page_id: i64,
-    #[sea_orm(primary_key, auto_increment = false)]
     pub to_site_id: i64,
-    #[sea_orm(primary_key, auto_increment = false, column_type = "Text")]
     pub to_page_slug: String,
-    #[sea_orm(primary_key, auto_increment = false)]
     pub connection_type: PageConnectionType,
     pub created_at: DateTimeWithTimeZone,
     pub updated_at: Option<DateTimeWithTimeZone>,
