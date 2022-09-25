@@ -66,14 +66,30 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
         // TODO Create user aliases
         let _ = user.aliases;
 
-        // TODO modify during user refactor
         let CreateUserOutput { user_id, slug } = UserService::create(
             &ctx,
             CreateUser {
-                username: user.name,
+                name: user.name,
                 email: user.email,
                 password: user.password,
-                language: Some(user.locale),
+                language: user.locale,
+                is_system: user.is_system,
+                is_bot: user.is_bot,
+            },
+        )
+        .await?;
+
+        UserService::update(
+            &ctx,
+            Reference::Id(user_id),
+            UpdateUser {
+                email_verified: ProvidedValue::Set(true),
+                display_name: ProvidedValue::Set(user.display_name),
+                gender: ProvidedValue::Set(user.gender),
+                birthday: ProvidedValue::Set(user.birthday),
+                biography: ProvidedValue::Set(user.biography),
+                user_page: ProvidedValue::Set(user.user_page),
+                ..Default::default()
             },
         )
         .await?;

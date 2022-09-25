@@ -2,20 +2,36 @@
     {
         "id": 1,
         "name": "Administrator",
-        "password": "wikijumpadmin1",
         "email": "admin@wikijump",
+        "is_system": false,
+        "is_bot": false,
+        "password": "wikijumpadmin1",
         "locale": "en",
+        "display_name": "Administrator",
+        "gender": null,
+        "birthday": null,
+        "biography": "Root platform administrator for this Wikijump instance",
+        "user_page": null,
         "aliases": [
             "admin",
-            "root"
+            "root",
+            "wheel",
+            "sudo"
         ]
     },
     {
         "id": 2,
         "name": "System",
-        "password": null,
         "email": "system@wikijump",
+        "is_system": true,
+        "is_bot": true,
+        "password": null,
         "locale": "en",
+        "display_name": "Wikijump",
+        "gender": null,
+        "birthday": "Fri Jan 18 15:32:15 2019 -0700",
+        "biography": "Wikijump system user",
+        "user_page": "https://wikijump.org/",
         "aliases": [
             "auto",
             "automatic",
@@ -26,22 +42,37 @@
     {
         "id": 3,
         "name": "Anonymous",
-        "password": null,
         "email": "anonymous@wikijump",
+        "is_system": true,
+        "is_bot": false,
+        "password": null,
         "locale": "en",
+        "display_name": "Anonymous User",
+        "gender": null,
+        "birthday": "Fri Jan 18 15:32:15 2019 -0700",
+        "biography": "Wikijump system user",
+        "user_page": "https://wikijump.org/",
         "aliases": [
             "anon",
-            "nobody"
+            "nobody",
+            "null",
+            "undefined"
         ]
     },
     {
         "id": 4,
-        "name": "Example User",
-        "password": null,
+        "name": "User",
         "email": "user@wikijump",
+        "is_system": true,
+        "is_bot": false,
+        "password": null,
         "locale": "en",
+        "display_name": "Example User",
+        "gender": null,
+        "birthday": null,
+        "biography": "Example user for documentation purposes",
+        "user_page": null,
         "aliases": [
-            "user",
             "example",
             "sample"
         ]
