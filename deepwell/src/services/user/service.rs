@@ -23,6 +23,9 @@ use crate::models::user::{self, Entity as User, Model as UserModel};
 use crate::utils::replace_in_place;
 use wikidot_normalize::normalize;
 
+// TODO make this configurable
+const DEFAULT_NAME_CHANGES: i16 = 3;
+
 #[derive(Debug)]
 pub struct UserService;
 
@@ -58,6 +61,7 @@ impl UserService {
         let user = user::ActiveModel {
             name: Set(input.name),
             slug: Set(slug.clone()),
+            name_changes_left: Set(DEFAULT_NAME_CHANGES),
             email: Set(input.email),
             email_verified_at: Set(None),
             is_system: Set(input.is_system),
