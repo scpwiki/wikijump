@@ -22,7 +22,6 @@ pub struct Model {
     pub email_verified_at: Option<DateTimeWithTimeZone>,
     pub is_system: bool,
     pub is_bot: bool,
-    pub frozen_at: Option<DateTimeWithTimeZone>,
     #[sea_orm(column_type = "Text")]
     pub password: String,
     #[sea_orm(column_type = "Text")]

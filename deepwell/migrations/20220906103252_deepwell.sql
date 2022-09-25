@@ -35,7 +35,6 @@ CREATE TABLE "user" (
     email_verified_at TIMESTAMP WITH TIME ZONE,
     is_system BOOLEAN NOT NULL DEFAULT false,  -- Marked in the UI, also cannot log in.
     is_bot BOOLEAN NOT NULL DEFAULT false,
-    frozen_at TIMESTAMP WITH TIME ZONE,  -- For temporarily suspending a bot. Does not apply to normal users.
     password TEXT NOT NULL,
     locale TEXT NOT NULL,
     avatar_s3_hash BYTEA,
@@ -46,7 +45,6 @@ CREATE TABLE "user" (
     user_page TEXT NOT NULL DEFAULT '',
 
     CHECK (name_changes_left >= 0),                                 -- Value cannot be negative
-    CHECK (is_bot OR frozen_at IS NULL),                            -- Only applicable to bot users
     CHECK (avatar_s3_hash IS NULL OR length(avatar_s3_hash) = 64),  -- SHA-512 hash size (if set)
     CHECK (length(real_name) < 300),                                -- Max lengths
     CHECK (length(gender) < 100),
