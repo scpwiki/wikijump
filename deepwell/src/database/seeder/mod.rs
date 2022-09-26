@@ -178,14 +178,17 @@ async fn restart_sequence_with(
 ) -> Result<()> {
     tide::log::debug!("Restarting sequence {sequence_name} with {new_start_value}");
 
+    let query = format!("ALTER SEQUENCE {sequence_name} RESTART WITH $1;");
+    let value: sea_orm::Value = new_start_value.into();
+
     // SAFETY: We cannot parameterize the sequence name here, so we have to use format!()
     //         However, by requiring that sequence_name be &'static str, we ensure that it
     //         is only applied to hardcoded values and never used for runtime values
     //         (such as ones entered by an external, untrusted user).
     txn.execute(Statement::from_sql_and_values(
         DatabaseBackend::Postgres,
-        &format!("ALTER SEQUENCE {sequence_name} RESTART WITH $1"),
-        &[new_start_value.into()],
+        &query,
+        [value],
     ))
     .await?;
 
