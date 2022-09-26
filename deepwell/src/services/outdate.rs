@@ -19,9 +19,8 @@
  */
 
 use super::prelude::*;
-use crate::models::sea_orm_active_enums::PageConnectionType;
 use crate::services::{JobService, LinkService, PageService};
-use crate::web::split_category_name;
+use crate::web::{split_category_name, ConnectionType};
 
 #[derive(Debug)]
 pub struct OutdateService;
@@ -91,7 +90,7 @@ impl OutdateService {
         site_id: i64,
         page_id: i64,
     ) -> Result<()> {
-        const CONNECTION_TYPES: &[PageConnectionType] = &[PageConnectionType::Link];
+        const CONNECTION_TYPES: &[ConnectionType] = &[ConnectionType::Link];
 
         let result = LinkService::get_to(ctx, page_id, Some(CONNECTION_TYPES)).await?;
         let ids = result
@@ -110,10 +109,10 @@ impl OutdateService {
         site_id: i64,
         page_id: i64,
     ) -> Result<()> {
-        const CONNECTION_TYPES: &[PageConnectionType] = &[
-            PageConnectionType::IncludeMessy,
-            PageConnectionType::IncludeElements,
-            PageConnectionType::Component,
+        const CONNECTION_TYPES: &[ConnectionType] = &[
+            ConnectionType::IncludeMessy,
+            ConnectionType::IncludeElements,
+            ConnectionType::Component,
         ];
 
         let result = LinkService::get_to(ctx, page_id, Some(CONNECTION_TYPES)).await?;

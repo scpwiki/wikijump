@@ -40,6 +40,8 @@ mod prelude {
     pub use super::structs::*;
 }
 
+#[macro_use]
+mod macros;
 mod service;
 mod structs;
 

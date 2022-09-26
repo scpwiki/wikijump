@@ -6,10 +6,9 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "page_link")]
 pub struct Model {
-    #[sea_orm(primary_key)]
-    pub link_id: i64,
+    #[sea_orm(primary_key, auto_increment = false)]
     pub page_id: i64,
-    #[sea_orm(column_type = "Text")]
+    #[sea_orm(primary_key, auto_increment = false, column_type = "Text")]
     pub url: String,
     pub created_at: DateTimeWithTimeZone,
     pub updated_at: Option<DateTimeWithTimeZone>,
