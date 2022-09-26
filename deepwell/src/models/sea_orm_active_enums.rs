@@ -4,68 +4,7 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(
-    Debug,
-    Copy,
-    Clone,
-    Hash,
-    PartialEq,
-    Eq,
-    EnumIter,
-    DeriveActiveEnum,
-    Serialize,
-    Deserialize,
-)]
-#[sea_orm(
-    rs_type = "String",
-    db_type = "Enum",
-    enum_name = "page_connection_type"
-)]
-pub enum PageConnectionType {
-    #[sea_orm(string_value = "component")]
-    Component,
-    #[sea_orm(string_value = "include-elements")]
-    IncludeElements,
-    #[sea_orm(string_value = "include-messy")]
-    IncludeMessy,
-    #[sea_orm(string_value = "link")]
-    Link,
-    #[sea_orm(string_value = "redirect")]
-    Redirect,
-}
-#[derive(
-    Debug,
-    Copy,
-    Clone,
-    Hash,
-    PartialEq,
-    Eq,
-    EnumIter,
-    DeriveActiveEnum,
-    Serialize,
-    Deserialize,
-)]
-#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "file_revision_type")]
-pub enum FileRevisionType {
-    #[sea_orm(string_value = "create")]
-    Create,
-    #[sea_orm(string_value = "delete")]
-    Delete,
-    #[sea_orm(string_value = "undelete")]
-    Undelete,
-    #[sea_orm(string_value = "update")]
-    Update,
-}
-#[derive(
-    Debug,
-    Copy,
-    Clone,
-    Hash,
-    PartialEq,
-    Eq,
-    EnumIter,
-    DeriveActiveEnum,
-    Serialize,
-    Deserialize,
+    Debug, Copy, Clone, PartialEq, EnumIter, DeriveActiveEnum, Serialize, Deserialize,
 )]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "page_revision_type")]
 pub enum PageRevisionType {
@@ -79,4 +18,30 @@ pub enum PageRevisionType {
     Regular,
     #[sea_orm(string_value = "undelete")]
     Undelete,
+}
+#[derive(
+    Debug, Copy, Clone, PartialEq, EnumIter, DeriveActiveEnum, Serialize, Deserialize,
+)]
+#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "user_type")]
+pub enum UserType {
+    #[sea_orm(string_value = "bot")]
+    Bot,
+    #[sea_orm(string_value = "regular")]
+    Regular,
+    #[sea_orm(string_value = "system")]
+    System,
+}
+#[derive(
+    Debug, Copy, Clone, PartialEq, EnumIter, DeriveActiveEnum, Serialize, Deserialize,
+)]
+#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "file_revision_type")]
+pub enum FileRevisionType {
+    #[sea_orm(string_value = "create")]
+    Create,
+    #[sea_orm(string_value = "delete")]
+    Delete,
+    #[sea_orm(string_value = "undelete")]
+    Undelete,
+    #[sea_orm(string_value = "update")]
+    Update,
 }
