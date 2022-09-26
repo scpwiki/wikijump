@@ -181,21 +181,29 @@ async fn restart_sequence_with(
     sequence_name: &'static str,
     new_start_value: i64,
 ) -> Result<()> {
-    tide::log::debug!("Restarting sequence {sequence_name} to start with {new_start_value}");
-    assert!(new_start_value > 0, "New sequence start value {new_start_value} is not positive");
+    tide::log::debug!(
+        "Restarting sequence {sequence_name} to start with {new_start_value}",
+    );
+    assert!(
+        new_start_value > 0,
+        "New sequence start value {new_start_value} is not positive",
+    );
 
     // SAFETY: Like the above, except we have to bake in the integer value too because
     //         I cannot figure out Sea-ORM's raw query parameterization.
     //
     //         This is unfortunate, but no positive integer value can result in a SQL injection,
     //         and like the sequence name, this is a hardcoded value.
-    run_query(txn, format!("ALTER SEQUENCE {sequence_name} RESTART WITH {new_start_value}")).await
+    run_query(
+        txn,
+        format!("ALTER SEQUENCE {sequence_name} RESTART WITH {new_start_value}"),
+    )
+    .await
 }
 
-async fn run_query(
-    txn: &DatabaseTransaction,
-    sql: String,
-) -> Result<()> {
-    txn.execute(Statement::from_string(DatabaseBackend::Postgres, sql)).await?;
+async fn run_query(txn: &DatabaseTransaction, sql: String) -> Result<()> {
+    txn.execute(Statement::from_string(DatabaseBackend::Postgres, sql))
+        .await?;
+
     Ok(())
 }
