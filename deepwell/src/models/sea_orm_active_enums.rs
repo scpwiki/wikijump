@@ -23,6 +23,7 @@ pub enum PageRevisionType {
     Debug, Copy, Clone, PartialEq, EnumIter, DeriveActiveEnum, Serialize, Deserialize,
 )]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "user_type")]
+#[serde(rename_all = "camelCase")]
 pub enum UserType {
     #[sea_orm(string_value = "bot")]
     Bot,
@@ -30,6 +31,12 @@ pub enum UserType {
     Regular,
     #[sea_orm(string_value = "system")]
     System,
+}
+impl Default for UserType {
+    #[inline]
+    fn default() -> Self {
+        UserType::Regular
+    }
 }
 #[derive(
     Debug, Copy, Clone, PartialEq, EnumIter, DeriveActiveEnum, Serialize, Deserialize,

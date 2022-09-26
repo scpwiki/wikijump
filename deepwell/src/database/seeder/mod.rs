@@ -73,8 +73,7 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
                 email: user.email,
                 password: user.password,
                 locale: user.locale,
-                is_system: user.is_system,
-                is_bot: user.is_bot,
+                user_type: user.user_type,
             },
         )
         .await?;

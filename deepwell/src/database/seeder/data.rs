@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::models::sea_orm_active_enums::UserType;
 use anyhow::Result;
 use chrono::NaiveDate;
 use serde::Deserialize;
@@ -77,8 +78,9 @@ pub struct User {
     pub name: String,
     pub slug: String,
     pub email: String,
-    pub is_system: bool,
-    pub is_bot: bool,
+
+    #[serde(rename = "type")]
+    pub user_type: UserType,
     pub password: Option<String>,
     pub locale: String,
     pub display_name: Option<String>,

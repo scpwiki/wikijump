@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user::{self, Entity as User, Model as UserModel};
 use crate::utils::replace_in_place;
 use wikidot_normalize::normalize;
@@ -57,32 +58,50 @@ impl UserService {
             return Err(Error::Conflict);
         }
 
-        // TODO bot user token
-        let password = match (input.is_system, input.password) {
-            // Is a system user (cannot login)
-            (true, None) => str!("!"),
-            (true, Some(_)) => {
-                tide::log::warn!("Password was specified, but the user is system");
-                return Err(Error::BadRequest);
-            }
+        let password = match input.user_type {
+            UserType::Regular => {
+                tide::log::info!("Creating regular user '{slug}' with password");
 
-            // Is a regular user (needs password login)
-            (false, Some(password)) => hash_password(password),
-            (false, None) => {
-                tide::log::warn!("No password specified");
-                return Err(Error::BadRequest);
+                match input.password {
+                    Some(password) => hash_password(password),
+                    None => {
+                        tide::log::warn!("No password specified");
+                        return Err(Error::BadRequest);
+                    }
+                }
+            }
+            UserType::System => {
+                tide::log::info!("Creating system user '{slug}'");
+
+                if input.password.is_some() {
+                    tide::log::warn!("Password was specified for system user");
+                    return Err(Error::BadRequest);
+                }
+
+                // Disabled password
+                str!("!")
+            }
+            UserType::Bot => {
+                tide::log::info!("Creating bot user '{slug}'");
+
+                if input.password.is_some() {
+                    tide::log::warn!("Password was specified for bot user");
+                    return Err(Error::BadRequest);
+                }
+
+                // TODO assign bot token
+                str!("TODO bot token")
             }
         };
 
         // Insert new model
         let user = user::ActiveModel {
+            user_type: Set(input.user_type),
             name: Set(input.name),
             slug: Set(slug.clone()),
             name_changes_left: Set(DEFAULT_NAME_CHANGES),
             email: Set(input.email),
             email_verified_at: Set(None),
-            is_system: Set(input.is_system),
-            is_bot: Set(input.is_bot),
             password: Set(password),
             multi_factor_secret: Set(None),
             multi_factor_recovery_codes: Set(None),

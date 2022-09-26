@@ -30,6 +30,7 @@ CREATE TYPE user_type AS ENUM (
 
 CREATE TABLE "user" (
     user_id BIGSERIAL PRIMARY KEY,
+    user_type user_type NOT NULL DEFAULT 'regular',
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE,
     deleted_at TIMESTAMP WITH TIME ZONE,
@@ -39,7 +40,6 @@ CREATE TABLE "user" (
     last_renamed_at TIMESTAMP WITH TIME ZONE,
     email TEXT NOT NULL UNIQUE,
     email_verified_at TIMESTAMP WITH TIME ZONE,
-    user_type user_type NOT NULL DEFAULT 'regular',
     password TEXT NOT NULL,
     multi_factor_secret TEXT,
     multi_factor_recovery_codes JSON,
