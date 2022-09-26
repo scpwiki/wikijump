@@ -22,6 +22,12 @@ AS
 -- User
 --
 
+CREATE TYPE user_type AS ENUM (
+    'regular',
+    'system',
+    'bot'
+);
+
 CREATE TABLE "user" (
     user_id BIGSERIAL PRIMARY KEY,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
@@ -33,8 +39,7 @@ CREATE TABLE "user" (
     last_renamed_at TIMESTAMP WITH TIME ZONE,
     email TEXT NOT NULL UNIQUE,
     email_verified_at TIMESTAMP WITH TIME ZONE,
-    is_system BOOLEAN NOT NULL DEFAULT false,  -- Marked in the UI, also cannot log in.
-    is_bot BOOLEAN NOT NULL DEFAULT false,
+    user_type user_type NOT NULL DEFAULT 'regular',
     password TEXT NOT NULL,
     multi_factor_secret TEXT,
     multi_factor_recovery_codes JSON,
