@@ -134,6 +134,31 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
         }
     }
 
+    // After all seeding, modify ID sequences so that they exhibit Wikidot compatibility.
+    //
+    // This property means that no valid Wikidot ID for a class of object
+    // can ever also be a valid Wikijump ID for that same class of object.
+    // We do this by putting the start ID for new Wikijump IDs well above
+    // what the Wikidot value is likely to reach by the time the project
+    // hits production.
+    //
+    // Some classes of object are not assigned compatibility IDs, either
+    // because the ID value does not matter, is unused, or is not exposed.
+    //
+    // See https://scuttle.atlassian.net/browse/WJ-964
+
+    restart_sequence_with(&txn, "user_user_id_seq", 10000000).await?;
+    restart_sequence_with(&txn, "site_site_id_seq", 6000000).await?;
+    restart_sequence_with(&txn, "page_page_id_seq", 3000000000).await?;
+    restart_sequence_with(&txn, "page_revision_revision_id_seq", 3000000000).await?;
+
+    /*
+     * TODO: tables which don't exist yet:
+     * restart_sequence_with(&txn, < forum category seq >, 9000000).await?;
+     * restart_sequence_with(&txn, < forum thread seq >, 30000000).await?;
+     * restart_sequence_with(&txn, < forum post seq >, 7000000).await?;
+     */
+
     txn.commit().await?;
     Ok(())
 }
@@ -142,16 +167,27 @@ async fn restart_sequence(
     txn: &DatabaseTransaction,
     sequence_name: &'static str,
 ) -> Result<()> {
-    tide::log::debug!("Restarting sequence {sequence_name}");
+    tide::log::debug!("Resetting sequence {sequence_name} (again return to 1)");
+    restart_sequence_with(txn, sequence_name, 1).await
+}
+
+async fn restart_sequence_with(
+    txn: &DatabaseTransaction,
+    sequence_name: &'static str,
+    new_start_value: i64,
+) -> Result<()> {
+    tide::log::debug!("Restarting sequence {sequence_name} with {new_start_value}");
 
     // SAFETY: We cannot parameterize the sequence name here, so we have to use format!()
     //         However, by requiring that sequence_name be &'static str, we ensure that it
     //         is only applied to hardcoded values and never used for runtime values
     //         (such as ones entered by an external, untrusted user).
-    txn.execute(Statement::from_string(
+    txn.execute(Statement::from_sql_and_values(
         DatabaseBackend::Postgres,
-        format!("ALTER SEQUENCE {sequence_name} RESTART"),
+        &format!("ALTER SEQUENCE {sequence_name} RESTART WITH $1"),
+        &[new_start_value.into()],
     ))
     .await?;
+
     Ok(())
 }
