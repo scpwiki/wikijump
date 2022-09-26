@@ -29,8 +29,10 @@ use std::collections::HashMap;
 pub struct CreateUser {
     pub name: String,
     pub email: String,
-    pub password: Option<String>,
     pub locale: String,
+
+    #[serde(default)]
+    pub password: Option<String>,
 
     #[serde(default)]
     pub is_system: bool,

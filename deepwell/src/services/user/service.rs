@@ -57,6 +57,23 @@ impl UserService {
             return Err(Error::Conflict);
         }
 
+        // TODO bot user token
+        let password = match (input.is_system, input.password) {
+            // Is a system user (cannot login)
+            (true, None) => str!("!"),
+            (true, Some(_)) => {
+                tide::log::warn!("Password was specified, but the user is system");
+                return Err(Error::BadRequest);
+            }
+
+            // Is a regular user (needs password login)
+            (false, Some(password)) => hash_password(password),
+            (false, None) => {
+                tide::log::warn!("No password specified");
+                return Err(Error::BadRequest);
+            }
+        };
+
         // Insert new model
         let user = user::ActiveModel {
             name: Set(input.name),
@@ -66,7 +83,7 @@ impl UserService {
             email_verified_at: Set(None),
             is_system: Set(input.is_system),
             is_bot: Set(input.is_bot),
-            password: Set(hash_password(input.password)),
+            password: Set(password),
             multi_factor_secret: Set(None),
             multi_factor_recovery_codes: Set(None),
             locale: Set(input.locale),
@@ -156,7 +173,7 @@ impl UserService {
         }
 
         if let ProvidedValue::Set(password) = input.password {
-            user.password = Set(hash_password(Some(password)));
+            user.password = Set(hash_password(password));
         }
 
         if let ProvidedValue::Set(locale) = input.locale {
@@ -224,21 +241,7 @@ fn get_user_slug(username: &str) -> String {
 
 // TEMP helper, so it's easier to replace when implemented
 // TODO replace
-fn hash_password(value: Option<String>) -> String {
-    match value {
-        // Securely hash password
-        Some(value) => {
-            // TODO
-            value
-        }
-
-        // If the password is None, then that means this account should have disabled logins.
-        // Similar to /etc/shadow, setting the password hash to "!" means no possible input
-        // can match, effectively disabling the account.
-        None => {
-            tide::log::info!("Creating user with disabled password");
-
-            str!("!")
-        }
-    }
+fn hash_password(value: String) -> String {
+    // TODO Securely hash password
+    value
 }
