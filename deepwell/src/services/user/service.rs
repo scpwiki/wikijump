@@ -21,8 +21,7 @@
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user::{self, Entity as User, Model as UserModel};
-use crate::utils::replace_in_place;
-use wikidot_normalize::normalize;
+use crate::utils::get_user_slug;
 
 // TODO make this configurable
 const DEFAULT_NAME_CHANGES: i16 = 3;
@@ -250,13 +249,6 @@ impl UserService {
 }
 
 // Helpers
-
-fn get_user_slug(username: &str) -> String {
-    let mut slug = str!(username);
-    replace_in_place(&mut slug, ":", "-");
-    normalize(&mut slug);
-    slug
-}
 
 // TEMP helper, so it's easier to replace when implemented
 // TODO replace

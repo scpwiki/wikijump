@@ -19,6 +19,7 @@
  */
 
 use chrono::{DateTime, FixedOffset, Utc};
+use wikidot_normalize::normalize;
 
 pub type DateTimeWithTimeZone = DateTime<FixedOffset>;
 
@@ -37,4 +38,11 @@ lazy_static! {
 #[inline]
 pub fn now() -> DateTimeWithTimeZone {
     Utc::now().with_timezone(&*UTC)
+}
+
+pub fn get_user_slug<S: Into<String>>(name: S) -> String {
+    let mut slug = name.into();
+    replace_in_place(&mut slug, ":", "-");
+    normalize(&mut slug);
+    slug
 }
