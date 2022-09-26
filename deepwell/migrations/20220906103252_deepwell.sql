@@ -280,7 +280,7 @@ CREATE TABLE page_link (
 CREATE TABLE page_connection (
     from_page_id BIGINT REFERENCES page(page_id),
     to_page_id BIGINT REFERENCES page(page_id),
-    connection_type page_connection_type,
+    connection_type TEXT, -- Cannot use page_connection_type right now because Sea-ORM issues
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE,
     count INT NOT NULL CHECK (count > 0),
@@ -292,7 +292,7 @@ CREATE TABLE page_connection_missing (
     from_page_id BIGINT REFERENCES page(page_id),
     to_site_id BIGINT REFERENCES page(page_id),
     to_page_slug TEXT,
-    connection_type page_connection_type NOT NULL,
+    connection_type TEXT, -- Ditto
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE,
     count INT NOT NULL CHECK (count > 0),
