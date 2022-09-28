@@ -58,6 +58,17 @@ impl UserService {
             return Err(Error::Conflict);
         }
 
+        // Check for alias conflicts
+        let result = UserAliasService::get_optional(ctx, &slug).await?;
+        if result.is_some() {
+            tide::log::error!(
+                "User alias with conflicting slug already exists, cannot create",
+            );
+
+            return Err(Error::Conflict);
+        }
+
+        // Set up password field depending on type
         let password = match input.user_type {
             UserType::Regular => {
                 tide::log::info!("Creating regular user '{slug}' with password");
