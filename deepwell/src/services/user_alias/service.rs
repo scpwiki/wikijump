@@ -135,6 +135,17 @@ impl UserAliasService {
         Ok(user)
     }
 
+    /// Like `get_redirect_optional()`, but failing if the user is missing.
+    pub async fn get_redirect(
+        ctx: &ServiceContext<'_>,
+        slug: &str,
+    ) -> Result<UserModel> {
+        match Self::get_redirect_optional(ctx, slug).await? {
+            Some(user) => Ok(user),
+            None => Err(Error::NotFound),
+        }
+    }
+
     pub async fn delete(
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
