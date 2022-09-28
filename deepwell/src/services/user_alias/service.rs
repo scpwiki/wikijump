@@ -105,9 +105,11 @@ impl UserAliasService {
          * FROM "user"
          * JOIN "user_alias"
          * ON "user".user_id = "user_alias".user_id
-         * WHERE "user".slug = $1
-         * OR "user_alias".slug = $1
-         *
+         * WHERE (
+         *     "user".slug = $1
+         *     OR "user_alias".slug = $1
+         * )
+         * AND "user".deleted_at IS NULL;
          */
 
         let user = User::find()
@@ -119,9 +121,13 @@ impl UserAliasService {
                     .into(),
             )
             .filter(
-                Condition::any()
-                    .add(user::Column::Slug.eq(slug))
-                    .add(user_alias::Column::Slug.eq(slug)),
+                Condition::all()
+                    .add(
+                        Condition::any()
+                            .add(user::Column::Slug.eq(slug))
+                            .add(user_alias::Column::Slug.eq(slug))
+                    )
+                    .add(user::Column::DeletedAt.is_null()),
             )
             .one(txn)
             .await?;
