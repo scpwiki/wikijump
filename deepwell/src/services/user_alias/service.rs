@@ -125,7 +125,7 @@ impl UserAliasService {
                     .add(
                         Condition::any()
                             .add(user::Column::Slug.eq(slug))
-                            .add(user_alias::Column::Slug.eq(slug))
+                            .add(user_alias::Column::Slug.eq(slug)),
                     )
                     .add(user::Column::DeletedAt.is_null()),
             )
@@ -136,10 +136,7 @@ impl UserAliasService {
     }
 
     /// Like `get_redirect_optional()`, but failing if the user is missing.
-    pub async fn get_redirect(
-        ctx: &ServiceContext<'_>,
-        slug: &str,
-    ) -> Result<UserModel> {
+    pub async fn get_redirect(ctx: &ServiceContext<'_>, slug: &str) -> Result<UserModel> {
         match Self::get_redirect_optional(ctx, slug).await? {
             Some(user) => Ok(user),
             None => Err(Error::NotFound),

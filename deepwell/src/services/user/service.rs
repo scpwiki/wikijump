@@ -21,6 +21,7 @@
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user::{self, Entity as User, Model as UserModel};
+use crate::services::UserAliasService;
 use crate::utils::get_user_slug;
 
 // TODO make this configurable
@@ -137,16 +138,12 @@ impl UserService {
     ) -> Result<Option<UserModel>> {
         let txn = ctx.transaction();
         let user = match reference {
+            // Get directly from ID
             Reference::Id(id) => User::find_by_id(id).one(txn).await?,
+
+            // Since a slug can be an alias, check for a redirect
             Reference::Slug(slug) => {
-                User::find()
-                    .filter(
-                        Condition::all()
-                            .add(user::Column::Slug.eq(slug))
-                            .add(user::Column::DeletedAt.is_null()),
-                    )
-                    .one(txn)
-                    .await?
+                UserAliasService::get_redirect_optional(ctx, slug).await?
             }
         };
 
