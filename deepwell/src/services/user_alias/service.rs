@@ -143,24 +143,23 @@ impl UserAliasService {
         }
     }
 
-    pub async fn delete(
+    /// Deletes all user aliases for this user.
+    ///
+    /// # Returns
+    /// The number of deleted aliases.
+    pub async fn delete_all(
         ctx: &ServiceContext<'_>,
-        reference: Reference<'_>,
-    ) -> Result<()> {
+        user_id: i64,
+    ) -> Result<u64> {
         let txn = ctx.transaction();
 
-        match reference {
-            Reference::Id(id) => {
-                tide::log::info!("Deleting user alias ID {id}");
-                UserAlias::delete_by_id(id).exec(txn).await?;
-            }
-            Reference::Slug(slug) => {
-                tide::log::info!("Deleting user alias '{slug}'");
-                let alias = Self::get(ctx, slug).await?;
-                alias.delete(txn).await?;
-            }
-        }
+        tide::log::info!("Deleting all user aliases for user ID {user_id}");
 
-        Ok(())
+        let result = UserAlias::delete_many()
+            .filter(user_alias::Column::UserId.eq(user_id))
+            .exec(txn)
+            .await?;
+
+        Ok(result.rows_affected)
     }
 }
