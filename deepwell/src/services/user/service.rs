@@ -245,7 +245,11 @@ impl UserService {
     ) -> Result<UserModel> {
         let txn = ctx.transaction();
         let model = Self::get(ctx, reference).await?;
+        let user_id = model.user_id;
         let mut user: user::ActiveModel = model.clone().into();
+
+        // Delete all user aliases
+        UserAliasService::delete_all(ctx, user_id).await?;
 
         // Set deletion flag
         user.deleted_at = Set(Some(now()));
