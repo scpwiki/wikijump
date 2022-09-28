@@ -103,10 +103,10 @@ impl UserAliasService {
          *
          * SELECT *
          * FROM "user"
-         * JOIN user_alias
-         * ON "user".user_id = user_alias.user_id
+         * JOIN "user_alias"
+         * ON "user".user_id = "user_alias".user_id
          * WHERE "user".slug = $1
-         * AND user_alias.slug = $1
+         * OR "user_alias".slug = $1
          *
          */
 
