@@ -44,7 +44,6 @@ mod constants;
 mod database;
 mod hash;
 mod info;
-mod json_utils;
 mod locales;
 mod methods;
 mod models;

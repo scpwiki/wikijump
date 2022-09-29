@@ -19,11 +19,11 @@
  */
 
 use super::prelude::*;
-use crate::json_utils::string_list_to_json;
 use crate::models::file_revision::{
     self, Entity as FileRevision, Model as FileRevisionModel,
 };
 use crate::services::{OutdateService, PageService};
+use crate::utils::string_list_to_json;
 use crate::web::FetchDirection;
 use serde_json::json;
 use std::num::NonZeroI32;

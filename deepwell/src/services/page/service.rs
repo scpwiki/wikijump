@@ -19,7 +19,6 @@
  */
 
 use super::prelude::*;
-use crate::json_utils::json_to_string_list;
 use crate::models::page::{self, Entity as Page, Model as PageModel};
 use crate::models::page_category::Model as PageCategoryModel;
 use crate::services::revision::{
@@ -27,7 +26,7 @@ use crate::services::revision::{
     CreateRevision, CreateRevisionBody, CreateRevisionOutput, CreateTombstoneRevision,
 };
 use crate::services::{CategoryService, RevisionService, TextService};
-use crate::utils::{get_category_name, trim_default};
+use crate::utils::{get_category_name, json_to_string_list, trim_default};
 use wikidot_normalize::normalize;
 
 #[derive(Debug)]

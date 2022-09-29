@@ -19,9 +19,6 @@
  */
 
 use super::prelude::*;
-use crate::json_utils::{
-    json_to_string_list, string_list_equals_json, string_list_to_json,
-};
 use crate::models::page_revision::{
     self, Entity as PageRevision, Model as PageRevisionModel,
 };
@@ -31,7 +28,10 @@ use crate::services::{
     LinkService, OutdateService, ParentService, RenderService, ScoreService, SiteService,
     TextService,
 };
-use crate::utils::{split_category, split_category_name};
+use crate::utils::{
+    json_to_string_list, split_category, split_category_name, string_list_equals_json,
+    string_list_to_json,
+};
 use crate::web::FetchDirection;
 use ftml::data::PageInfo;
 use ftml::settings::{WikitextMode, WikitextSettings};
