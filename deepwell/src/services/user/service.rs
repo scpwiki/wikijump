@@ -275,6 +275,8 @@ impl UserService {
         let user_id = model.user_id;
         let mut user: user::ActiveModel = model.clone().into();
 
+        tide::log::info!("Deleting user with ID {user_id}");
+
         // Delete all user aliases
         UserAliasService::delete_all(ctx, user_id).await?;
 
