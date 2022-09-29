@@ -58,21 +58,6 @@ pub fn get_category_name(slug: &str) -> &str {
     split_category_name(slug).0
 }
 
-/// Determines if a slug is valid or not.
-///
-/// This does *not* check if the slug is normalized,
-/// but it does check if the slug contains incorrect
-/// constructions, such as empty category or page sub-slugs.
-// TODO do we need this? we should be normalizing anyways?
-#[allow(dead_code)] // TEMP
-pub fn slug_is_valid(slug: &str) -> bool {
-    let (category, page) = split_category_name(slug);
-    !slug.starts_with(':')
-        && !slug.contains("::")
-        && !category.is_empty()
-        && !page.is_empty()
-}
-
 /// Trims off the `_default:` category if present.
 pub fn trim_default(slug: &str) -> &str {
     // We cannot simply use str::strip_prefix() here,
