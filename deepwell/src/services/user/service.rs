@@ -145,16 +145,43 @@ impl UserService {
 
     pub async fn get_optional(
         ctx: &ServiceContext<'_>,
-        reference: Reference<'_>,
+        mut reference: Reference<'_>,
     ) -> Result<Option<UserModel>> {
         let txn = ctx.transaction();
+
+        // If slug, determine if this is a user alias.
+        //
+        // NOTE: Originally I tried having a direct query to
+        //       select both the user and user_alias table at
+        //       the same time. I tried a JOIN and a subquery,
+        //       but for both the query planner indictated that
+        //       they would be slower than doing queries on
+        //       simple indexes directly, which is why we are
+        //       doing it this way.
+        if let Reference::Slug(slug) = reference {
+            // If present, proceed with SELECT by id.
+            // If absent, then this user is missing, return.
+            let alias = UserAliasService::get(ctx, slug).await?;
+
+            // Rewrite reference so in the "real" user search
+            // we locate directly via user ID.
+            reference = Reference::Id(alias.user_id);
+        }
+
         let user = match reference {
             // Get directly from ID
             Reference::Id(id) => User::find_by_id(id).one(txn).await?,
 
             // Since a slug can be an alias, check for a redirect
             Reference::Slug(slug) => {
-                UserAliasService::get_redirect_optional(ctx, slug).await?
+                User::find()
+                    .filter(
+                        Condition::all()
+                            .add(user::Column::Slug.eq(slug))
+                            .add(user::Column::DeletedAt.is_null()),
+                    )
+                    .one(txn)
+                    .await?
             }
         };
 

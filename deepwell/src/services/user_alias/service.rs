@@ -19,7 +19,6 @@
  */
 
 use super::prelude::*;
-use crate::models::user::{self, Entity as User, Model as UserModel};
 use crate::models::user_alias::{self, Entity as UserAlias, Model as UserAliasModel};
 use crate::services::user::UserService;
 use crate::utils::get_user_slug;
@@ -79,7 +78,7 @@ impl UserAliasService {
         let txn = ctx.transaction();
 
         let alias = UserAlias::find()
-            .filter(user::Column::Slug.eq(slug))
+            .filter(user_alias::Column::Slug.eq(slug))
             .one(txn)
             .await?;
 
@@ -90,67 +89,11 @@ impl UserAliasService {
         Self::get_optional(ctx, slug).await?.ok_or(Error::NotFound)
     }
 
-    /// If this alias exists, then get the `UserModel` for it.
-    /// Otherwise, return `None`.
-    pub async fn get_redirect_optional(
-        ctx: &ServiceContext<'_>,
-        slug: &str,
-    ) -> Result<Option<UserModel>> {
-        let txn = ctx.transaction();
-
-        /*
-         * Get a user by slug, or a joined user_alias by slug.
-         *
-         * SELECT *
-         * FROM "user"
-         * JOIN "user_alias"
-         * ON "user".user_id = "user_alias".user_id
-         * WHERE (
-         *     "user".slug = $1
-         *     OR "user_alias".slug = $1
-         * )
-         * AND "user".deleted_at IS NULL;
-         */
-
-        let user = User::find()
-            .join_rev(
-                JoinType::Join,
-                UserAlias::belongs_to(User)
-                    .from(user_alias::Column::UserId)
-                    .to(user::Column::UserId)
-                    .into(),
-            )
-            .filter(
-                Condition::all()
-                    .add(
-                        Condition::any()
-                            .add(user::Column::Slug.eq(slug))
-                            .add(user_alias::Column::Slug.eq(slug)),
-                    )
-                    .add(user::Column::DeletedAt.is_null()),
-            )
-            .one(txn)
-            .await?;
-
-        Ok(user)
-    }
-
-    /// Like `get_redirect_optional()`, but failing if the user is missing.
-    pub async fn get_redirect(ctx: &ServiceContext<'_>, slug: &str) -> Result<UserModel> {
-        match Self::get_redirect_optional(ctx, slug).await? {
-            Some(user) => Ok(user),
-            None => Err(Error::NotFound),
-        }
-    }
-
     /// Deletes all user aliases for this user.
     ///
     /// # Returns
     /// The number of deleted aliases.
-    pub async fn delete_all(
-        ctx: &ServiceContext<'_>,
-        user_id: i64,
-    ) -> Result<u64> {
+    pub async fn delete_all(ctx: &ServiceContext<'_>, user_id: i64) -> Result<u64> {
         let txn = ctx.transaction();
 
         tide::log::info!("Deleting all user aliases for user ID {user_id}");
