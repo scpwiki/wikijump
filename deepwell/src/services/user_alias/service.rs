@@ -23,7 +23,7 @@ use crate::models::user_alias::{self, Entity as UserAlias, Model as UserAliasMod
 use crate::services::user::UserService;
 use crate::utils::get_user_slug;
 use crate::web::Reference;
-use sea_orm::query::JoinType;
+use sea_orm::DeleteResult;
 
 #[derive(Debug)]
 pub struct UserAliasService;
@@ -98,11 +98,13 @@ impl UserAliasService {
 
         tide::log::info!("Deleting all user aliases for user ID {user_id}");
 
-        let result = UserAlias::delete_many()
+        let DeleteResult { rows_affected } = UserAlias::delete_many()
             .filter(user_alias::Column::UserId.eq(user_id))
             .exec(txn)
             .await?;
 
-        Ok(result.rows_affected)
+        tide::log::debug!("{rows_affected} user aliases for user ID {user_id} were deleted");
+
+        Ok(rows_affected)
     }
 }
