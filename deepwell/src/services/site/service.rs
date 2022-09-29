@@ -22,7 +22,7 @@ use wikidot_normalize::normalize;
 
 use super::prelude::*;
 use crate::models::site::{self, Entity as Site, Model as SiteModel};
-use crate::web::validate_locale;
+use crate::utils::validate_locale;
 
 #[derive(Debug)]
 pub struct SiteService;

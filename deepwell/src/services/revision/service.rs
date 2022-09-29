@@ -31,7 +31,8 @@ use crate::services::{
     LinkService, OutdateService, ParentService, RenderService, ScoreService, SiteService,
     TextService,
 };
-use crate::web::{split_category, split_category_name, FetchDirection};
+use crate::utils::{split_category, split_category_name};
+use crate::web::FetchDirection;
 use ftml::data::PageInfo;
 use ftml::settings::{WikitextMode, WikitextSettings};
 use ref_map::*;

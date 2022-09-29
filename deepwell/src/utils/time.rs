@@ -1,5 +1,5 @@
 /*
- * web/utils.rs
+ * utils/time.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,12 +18,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use tide::{Error, Response, StatusCode};
+use chrono::{DateTime, FixedOffset, Utc};
+
+pub type DateTimeWithTimeZone = DateTime<FixedOffset>;
+
+lazy_static! {
+    pub static ref UTC: FixedOffset = FixedOffset::east(0);
+}
 
 #[inline]
-pub fn error_response(
-    status: StatusCode,
-    message: &'static str,
-) -> Result<Response, Error> {
-    Err(Error::from_str(status, message))
+pub fn now() -> DateTimeWithTimeZone {
+    Utc::now().with_timezone(&*UTC)
 }

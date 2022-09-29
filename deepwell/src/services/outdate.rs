@@ -20,7 +20,8 @@
 
 use super::prelude::*;
 use crate::services::{JobService, LinkService, PageService};
-use crate::web::{split_category_name, ConnectionType};
+use crate::utils::split_category_name;
+use crate::web::ConnectionType;
 
 #[derive(Debug)]
 pub struct OutdateService;

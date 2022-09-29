@@ -27,7 +27,7 @@ use crate::methods::{
     category::*, file::*, file_revision::*, link::*, locale::*, misc::*, page::*,
     page_revision::*, parent::*, site::*, text::*, user::*, vote::*,
 };
-use crate::web::utils::error_response;
+use crate::utils::error_response;
 use tide::StatusCode;
 
 pub fn build(mut app: ApiServer) -> ApiServer {

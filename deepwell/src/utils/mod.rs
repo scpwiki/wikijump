@@ -1,5 +1,5 @@
 /*
- * web/locale.rs
+ * utils/mod.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,12 +18,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::services::{Error, Result};
-use unic_langid::LanguageIdentifier;
+//! Eclectic module containing various utilities, grouped by type.
 
-pub fn validate_locale(locale_str: &str) -> Result<LanguageIdentifier> {
-    LanguageIdentifier::from_bytes(locale_str.as_bytes()).map_err(|error| {
-        tide::log::warn!("Invalid locale '{}' passed: {:?}", locale_str, error);
-        Error::BadRequest
-    })
-}
+mod category;
+mod error;
+mod locale;
+mod string;
+mod tide;
+mod time;
+mod user;
+
+pub use self::category::*;
+pub use self::error::*;
+pub use self::locale::*;
+pub use self::string::*;
+pub use self::tide::*;
+pub use self::time::*;
+pub use self::user::*;
