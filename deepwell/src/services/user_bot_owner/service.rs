@@ -93,7 +93,7 @@ impl UserBotOwnerService {
             None => {
                 tide::log::debug!("Bot owner record is missing, inserting");
 
-                let mut model = user_bot_owner::ActiveModel {
+                let model = user_bot_owner::ActiveModel {
                     bot_user_id: Set(bot_user_id),
                     human_user_id: Set(human_user_id),
                     description: Set(description),
