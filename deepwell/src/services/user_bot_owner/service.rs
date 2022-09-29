@@ -19,10 +19,102 @@
  */
 
 use super::prelude::*;
+use crate::models::user_bot_owner::{
+    self, Entity as UserBotOwner, Model as UserBotOwnerModel,
+};
 
 #[derive(Debug)]
 pub struct UserBotOwnerService;
 
 impl UserBotOwnerService {
-    // TODO
+    pub async fn get_all(
+        ctx: &ServiceContext<'_>,
+        bot_user_id: i64,
+    ) -> Result<Vec<UserBotOwnerModel>> {
+        tide::log::info!("Looking up owners for bot ID {bot_user_id}");
+
+        let txn = ctx.transaction();
+        let owners = UserBotOwner::find()
+            .filter(user_bot_owner::Column::BotUserId.eq(bot_user_id))
+            .all(txn)
+            .await?;
+
+        Ok(owners)
+    }
+
+    async fn get_optional(
+        ctx: &ServiceContext<'_>,
+        bot_user_id: i64,
+        human_user_id: i64,
+    ) -> Result<Option<UserBotOwnerModel>> {
+        tide::log::debug!(
+            "Retrieving user_bot_owner record for human ID {} and bot ID {}",
+            human_user_id,
+            bot_user_id,
+        );
+
+        let txn = ctx.transaction();
+        let owner = UserBotOwner::find_by_id((bot_user_id, human_user_id))
+            .one(txn)
+            .await?;
+
+        Ok(owner)
+    }
+
+    /// Idempotently adds or updates a user as a bot owner.
+    pub async fn add(
+        ctx: &ServiceContext<'_>,
+        CreateBotOwner {
+            bot_user_id,
+            human_user_id,
+            description,
+        }: CreateBotOwner,
+    ) -> Result<()> {
+        tide::log::info!(
+            "Adding user ID {} as owner for bot ID {}: {}",
+            human_user_id,
+            bot_user_id,
+            description,
+        );
+
+        let txn = ctx.transaction();
+        match Self::get_optional(ctx, bot_user_id, human_user_id).await? {
+            // Update
+            Some(owner) => {
+                tide::log::debug!("Bot owner record exists, updating");
+
+                let mut model = owner.into_active_model();
+                model.description = Set(description);
+                model.updated_at = Set(Some(now()));
+                model.update(txn).await?;
+            }
+
+            // Insert
+            None => {
+                tide::log::debug!("Bot owner record is missing, inserting");
+
+                let mut model = user_bot_owner::ActiveModel {
+                    bot_user_id: Set(bot_user_id),
+                    human_user_id: Set(human_user_id),
+                    description: Set(description),
+                    ..Default::default()
+                };
+
+                model.insert(txn).await?;
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Idempotently deletes the give user / bot ownership record, if it exists.
+    pub async fn delete(
+        ctx: &ServiceContext<'_>,
+        DeleteBotOwner {
+            bot_user_id,
+            human_user_id,
+        }: DeleteBotOwner,
+    ) -> Result<()> {
+        todo!()
+    }
 }

@@ -103,7 +103,9 @@ impl UserAliasService {
             .exec(txn)
             .await?;
 
-        tide::log::debug!("{rows_affected} user aliases for user ID {user_id} were deleted");
+        tide::log::debug!(
+            "{rows_affected} user aliases for user ID {user_id} were deleted",
+        );
 
         Ok(rows_affected)
     }

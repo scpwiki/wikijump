@@ -18,4 +18,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// TODO
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateBotOwner {
+    pub bot_user_id: i64,
+    pub human_user_id: i64,
+    pub description: String,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct DeleteBotOwner {
+    pub bot_user_id: i64,
+    pub human_user_id: i64,
+}
