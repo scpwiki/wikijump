@@ -141,9 +141,13 @@ impl ParentService {
         parent_page_ref: Reference<'_>,
         child_page_ref: Reference<'_>,
     ) -> Result<PageParentModel> {
-        Self::get_optional(ctx, site_id, parent_page_ref, child_page_ref)
-            .await?
-            .ok_or(Error::NotFound)
+        find_or_error(Self::get_optional(
+            ctx,
+            site_id,
+            parent_page_ref,
+            child_page_ref,
+        ))
+        .await
     }
 
     /// Gets all relationships of the given type.

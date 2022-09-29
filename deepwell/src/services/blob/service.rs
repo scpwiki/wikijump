@@ -104,7 +104,7 @@ impl BlobService {
 
     #[inline]
     pub async fn get(ctx: &ServiceContext<'_>, hash: &[u8]) -> Result<Vec<u8>> {
-        Self::get_optional(ctx, hash).await?.ok_or(Error::NotFound)
+        find_or_error(Self::get_optional(ctx, hash)).await
     }
 
     pub async fn get_metadata_optional(
@@ -136,10 +136,7 @@ impl BlobService {
         ctx: &ServiceContext<'_>,
         hash: &[u8],
     ) -> Result<BlobMetadata> {
-        match Self::get_metadata_optional(ctx, hash).await? {
-            Some(metadata) => Ok(metadata),
-            None => Err(Error::NotFound),
-        }
+        find_or_error(Self::get_metadata_optional(ctx, hash)).await
     }
 
     pub async fn exists(ctx: &ServiceContext<'_>, hash: &[u8]) -> Result<bool> {

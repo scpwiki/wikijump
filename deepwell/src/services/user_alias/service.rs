@@ -84,8 +84,9 @@ impl UserAliasService {
         Ok(alias)
     }
 
+    #[inline]
     pub async fn get(ctx: &ServiceContext<'_>, slug: &str) -> Result<UserAliasModel> {
-        Self::get_optional(ctx, slug).await?.ok_or(Error::NotFound)
+        find_or_error(Self::get_optional(ctx, slug)).await
     }
 
     /// Deletes all user aliases for this user.

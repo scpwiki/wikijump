@@ -764,9 +764,7 @@ impl RevisionService {
         page_id: i64,
         revision_number: i32,
     ) -> Result<PageRevisionModel> {
-        Self::get_optional(ctx, site_id, page_id, revision_number)
-            .await?
-            .ok_or(Error::NotFound)
+        find_or_error(Self::get_optional(ctx, site_id, page_id, revision_number)).await
     }
 
     pub async fn count(

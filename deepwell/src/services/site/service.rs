@@ -131,13 +131,12 @@ impl SiteService {
         Ok(site)
     }
 
+    #[inline]
     pub async fn get(
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
     ) -> Result<SiteModel> {
-        Self::get_optional(ctx, reference)
-            .await?
-            .ok_or(Error::NotFound)
+        find_or_error(Self::get_optional(ctx, reference)).await
     }
 
     /// Checks to see if a site already exists at the slug specified.

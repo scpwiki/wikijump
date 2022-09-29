@@ -438,14 +438,13 @@ impl PageService {
             .map(|page| page.is_some())
     }
 
+    #[inline]
     pub async fn get(
         ctx: &ServiceContext<'_>,
         site_id: i64,
         reference: Reference<'_>,
     ) -> Result<PageModel> {
-        Self::get_optional(ctx, site_id, reference)
-            .await?
-            .ok_or(Error::NotFound)
+        find_or_error(Self::get_optional(ctx, site_id, reference)).await
     }
 
     pub async fn get_optional(
@@ -484,11 +483,9 @@ impl PageService {
             .map(|page| page.is_some())
     }
 
+    #[inline]
     pub async fn get_direct(ctx: &ServiceContext<'_>, page_id: i64) -> Result<PageModel> {
-        match Self::get_direct_optional(ctx, page_id).await? {
-            Some(page) => Ok(page),
-            None => Err(Error::NotFound),
-        }
+        find_or_error(Self::get_direct_optional(ctx, page_id)).await
     }
 
     pub async fn get_direct_optional(

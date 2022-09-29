@@ -71,14 +71,13 @@ impl CategoryService {
         Ok(category)
     }
 
+    #[inline]
     pub async fn get(
         ctx: &ServiceContext<'_>,
         site_id: i64,
         reference: Reference<'_>,
     ) -> Result<PageCategoryModel> {
-        Self::get_optional(ctx, site_id, reference)
-            .await?
-            .ok_or(Error::NotFound)
+        find_or_error(Self::get_optional(ctx, site_id, reference)).await
     }
 
     #[inline]
@@ -131,14 +130,12 @@ impl CategoryService {
             .map(|category| category.is_some())
     }
 
+    #[inline]
     pub async fn get_direct(
         ctx: &ServiceContext<'_>,
         category_id: i64,
     ) -> Result<PageCategoryModel> {
-        match Self::get_direct_optional(ctx, category_id).await? {
-            Some(page) => Ok(page),
-            None => Err(Error::NotFound),
-        }
+        find_or_error(Self::get_direct_optional(ctx, category_id)).await
     }
 
     pub async fn get_direct_optional(

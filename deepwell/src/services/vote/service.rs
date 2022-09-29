@@ -83,13 +83,12 @@ impl VoteService {
             .map(|vote| vote.is_some())
     }
 
+    #[inline]
     pub async fn get(
         ctx: &ServiceContext<'_>,
         reference: VoteReference,
     ) -> Result<PageVoteModel> {
-        Self::get_optional(ctx, reference)
-            .await?
-            .ok_or(Error::NotFound)
+        find_or_error(Self::get_optional(ctx, reference)).await
     }
 
     /// Gets any current vote for the current page and user.
