@@ -18,7 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::services::{Error, Result};
 use chrono::{DateTime, FixedOffset, Utc};
+use std::future::Future;
 use wikidot_normalize::normalize;
 
 pub type DateTimeWithTimeZone = DateTime<FixedOffset>;
@@ -45,4 +47,11 @@ pub fn get_user_slug<S: Into<String>>(name: S) -> String {
     replace_in_place(&mut slug, ":", "-");
     normalize(&mut slug);
     slug
+}
+
+pub async fn find_or_error<F, T>(future: F) -> Result<T>
+where
+    F: Future<Output = Result<Option<T>>>,
+{
+    future.await?.ok_or(Error::NotFound)
 }
