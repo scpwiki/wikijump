@@ -23,7 +23,6 @@ use crate::models::user_alias::{self, Entity as UserAlias, Model as UserAliasMod
 use crate::services::user::UserService;
 use crate::utils::get_user_slug;
 use crate::web::Reference;
-use sea_orm::DeleteResult;
 
 #[derive(Debug)]
 pub struct UserAliasService;

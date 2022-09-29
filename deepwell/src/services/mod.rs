@@ -41,9 +41,9 @@ mod prelude {
     pub use crate::web::{CuidReference, ProvidedValue, Reference};
     pub use chrono::Utc;
     pub use sea_orm::{
-        ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, EntityTrait,
-        IntoActiveModel, JoinType, ModelTrait, PaginatorTrait, QueryFilter, QueryOrder,
-        QuerySelect, RelationTrait, Set,
+        ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, DeleteResult,
+        EntityTrait, IntoActiveModel, JoinType, ModelTrait, PaginatorTrait, QueryFilter,
+        QueryOrder, QuerySelect, RelationTrait, Set,
     };
 }
 

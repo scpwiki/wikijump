@@ -108,13 +108,34 @@ impl UserBotOwnerService {
     }
 
     /// Idempotently deletes the give user / bot ownership record, if it exists.
+    ///
+    /// Returns `true` if the deletion was carried out (i.e. it used to exist),
+    /// and `false` if not.
     pub async fn delete(
         ctx: &ServiceContext<'_>,
         DeleteBotOwner {
             bot_user_id,
             human_user_id,
         }: DeleteBotOwner,
-    ) -> Result<()> {
-        todo!()
+    ) -> Result<bool> {
+        tide::log::info!(
+            "Deleting user ID {} as owner for bot ID {}",
+            human_user_id,
+            bot_user_id,
+        );
+
+        let txn = ctx.transaction();
+        let DeleteResult { rows_affected } =
+            UserBotOwner::delete_by_id((bot_user_id, human_user_id))
+                .exec(txn)
+                .await?;
+
+        debug_assert!(
+            rows_affected <= 1,
+            "Rows deleted using ID was more than 1: {}",
+            rows_affected,
+        );
+
+        Ok(rows_affected == 1)
     }
 }
