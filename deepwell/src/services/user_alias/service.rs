@@ -39,25 +39,12 @@ impl UserAliasService {
         tide::log::info!("Creating user alias with slug '{}'", slug);
 
         // Check for conflicts
+        //
+        // This also checks aliases, though we verify down below that
+        // it actually finds conflicts properly.
         if UserService::exists(ctx, Reference::Slug(&slug)).await? {
             tide::log::error!(
                 "User with conflicting slug '{slug}' already exists, cannot create",
-            );
-
-            return Err(Error::Conflict);
-        }
-
-        // The above also checks aliases, but here we do a separate query just to be sure
-        let result = UserAlias::find()
-            .filter(user_alias::Column::Slug.eq(slug.as_str()))
-            .one(txn)
-            .await?;
-
-        if let Some(alias) = result {
-            tide::log::error!(
-                "User alias with conflicting slug '{}' already exists (for user ID {}), cannot create",
-                slug,
-                alias.user_id,
             );
 
             return Err(Error::Conflict);
@@ -72,6 +59,8 @@ impl UserAliasService {
         };
 
         let alias_id = UserAlias::insert(alias).exec(txn).await?.last_insert_id;
+        Self::verify(ctx, &slug).await?;
+
         Ok(CreateUserAliasOutput { alias_id, slug })
     }
 
