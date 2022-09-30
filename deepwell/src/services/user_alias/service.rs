@@ -90,11 +90,35 @@ impl UserAliasService {
         find_or_error(Self::get_optional(ctx, slug)).await
     }
 
-    pub async fn delete(ctx: &ServiceContext<'_>, alias_id: i64) -> Result<()> {
-        tide::log::info!("Deleting user alias with ID {alias_id}");
-
+    /// Used for when a user renames to an old slug.
+    ///
+    /// This takes the old user alias and renames the slug in-place, without having to do
+    /// `create()` / `delete()` (which runs into a dependency issue as `create()` checks
+    /// `UserService` that the user doesn't already exist with that name.
+    ///
+    /// The database uniqueness constraint enforces that the `slug` doesn't collide with another
+    /// person's choice.
+    pub(crate) async fn swap<S: Into<String>>(
+        ctx: &ServiceContext<'_>,
+        alias_id: i64,
+        new_slug: S,
+    ) -> Result<()> {
         let txn = ctx.transaction();
-        UserAlias::delete_by_id(alias_id).exec(txn).await?;
+        let new_slug = new_slug.into();
+
+        tide::log::info!(
+            "Swapping user alias ID {} to use slug '{}'",
+            alias_id,
+            new_slug,
+        );
+
+        let model = user_alias::ActiveModel {
+            alias_id: Set(alias_id),
+            slug: Set(new_slug),
+            ..Default::default()
+        };
+
+        model.update(txn).await?;
         Ok(())
     }
 
