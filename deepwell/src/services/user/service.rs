@@ -203,9 +203,11 @@ impl UserService {
         input: UpdateUser,
     ) -> Result<()> {
         let txn = ctx.transaction();
-        let model = Self::get(ctx, reference).await?;
-        let name_changes_left = model.name_changes_left;
-        let mut user: user::ActiveModel = model.into();
+        let user = Self::get(ctx, reference).await?;
+        let mut model = user::ActiveModel {
+            user_id: Set(user.user_id),
+            ..Default::default()
+        };
 
         // Add each field
         if let ProvidedValue::Set(name) = input.name {
@@ -213,57 +215,57 @@ impl UserService {
             // TODO: check for conflicts
 
             let slug = get_user_slug(&name);
-            user.name = Set(name);
-            user.name_changes_left = Set(name_changes_left - 1); // TODO
-            user.slug = Set(slug);
+            model.name = Set(name);
+            model.name_changes_left = Set(user.name_changes_left - 1); // TODO
+            model.slug = Set(slug);
         }
 
         if let ProvidedValue::Set(email) = input.email {
-            user.email = Set(email);
+            model.email = Set(email);
         }
 
         if let ProvidedValue::Set(email_verified) = input.email_verified {
-            user.email_verified_at = Set(if email_verified { Some(now()) } else { None });
+            model.email_verified_at = Set(if email_verified { Some(now()) } else { None });
         }
 
         if let ProvidedValue::Set(password) = input.password {
-            user.password = Set(hash_password(password));
+            model.password = Set(hash_password(password));
         }
 
         if let ProvidedValue::Set(locale) = input.locale {
-            user.locale = Set(locale);
+            model.locale = Set(locale);
         }
 
         if let ProvidedValue::Set(display_name) = input.display_name {
-            user.display_name = Set(display_name);
+            model.display_name = Set(display_name);
         }
 
         if let ProvidedValue::Set(gender) = input.gender {
-            user.gender = Set(gender);
+            model.gender = Set(gender);
         }
 
         if let ProvidedValue::Set(birthday) = input.birthday {
-            user.birthday = Set(birthday);
+            model.birthday = Set(birthday);
         }
 
         if let ProvidedValue::Set(biography) = input.biography {
-            user.biography = Set(biography);
+            model.biography = Set(biography);
         }
 
         if let ProvidedValue::Set(user_page) = input.user_page {
-            user.user_page = Set(user_page);
+            model.user_page = Set(user_page);
         }
 
         if let ProvidedValue::Set(avatar) = input.avatar {
             // TODO store avatar in S3
-            user.avatar_s3_hash = Set(avatar);
+            model.avatar_s3_hash = Set(avatar);
         }
 
         // Set update flag
-        user.updated_at = Set(Some(now()));
+        model.updated_at = Set(Some(now()));
 
         // Update and return
-        user.update(txn).await?;
+        model.update(txn).await?;
         Ok(())
     }
 
