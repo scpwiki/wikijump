@@ -35,6 +35,8 @@ impl UserAliasService {
         let txn = ctx.transaction();
         let slug = get_user_slug(input.slug);
 
+        tide::log::info!("Creating user alias with slug '{}'", slug);
+
         // Check for conflicts
         if UserService::exists(ctx, Reference::Slug(&slug)).await? {
             tide::log::error!(
