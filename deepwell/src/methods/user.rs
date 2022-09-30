@@ -70,7 +70,7 @@ pub async fn user_put(mut req: ApiRequest) -> ApiResponse {
 
     let input: UpdateUser = req.body_json().await?;
     let reference = Reference::try_from(&req)?;
-    tide::log::info!("Editing user {:?}", reference);
+    tide::log::info!("Updating user {:?}", reference);
 
     UserService::update(&ctx, reference, input).await.to_api()?;
 
