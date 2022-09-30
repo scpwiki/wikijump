@@ -91,7 +91,7 @@ impl UserAliasService {
     ///
     /// The database uniqueness constraint enforces that the `slug` doesn't collide with another
     /// person's choice.
-    pub(crate) async fn swap<S: Into<String>>(
+    pub async fn swap<S: Into<String>>(
         ctx: &ServiceContext<'_>,
         alias_id: i64,
         new_slug: S,
@@ -112,6 +112,7 @@ impl UserAliasService {
         };
 
         model.update(txn).await?;
+        Self::verify(ctx, &new_slug).await?;
         Ok(())
     }
 
