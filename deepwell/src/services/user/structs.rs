@@ -68,6 +68,7 @@ pub struct UpdateUser {
 pub struct UserIdentityOutput {
     id: i64,
     name: String,
+    slug: String,
     tinyavatar: Option<String>, // TODO
     role: String,
 }
@@ -77,6 +78,7 @@ impl From<&UserModel> for UserIdentityOutput {
         Self {
             id: user.user_id,
             name: user.name.clone(),
+            slug: user.slug.clone(),
             tinyavatar: None,    // TODO
             role: String::new(), // TODO
         }
