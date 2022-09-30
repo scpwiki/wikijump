@@ -305,6 +305,8 @@ impl UserService {
             return Err(Error::InsufficientNameChanges);
         }
 
+        tide::log::debug!("Creating user alias for {} and deducting name change", slug);
+
         // Deduct name change token and add new user alias.
         //
         // The "created by" is the user themselves, since
