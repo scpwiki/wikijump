@@ -21,7 +21,7 @@
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user::{self, Entity as User, Model as UserModel};
-use crate::services::UserAliasService;
+use crate::services::{user_alias::CreateUserAlias, UserAliasService};
 use crate::utils::get_user_slug;
 
 // TODO make these configurable
@@ -211,22 +211,7 @@ impl UserService {
 
         // Add each field
         if let ProvidedValue::Set(name) = input.name {
-            if user.name_changes_left == 0 {
-                tide::log::error!(
-                    "User ID {} has no remaining name changes",
-                    user.user_id,
-                );
-
-                return Err(Error::InsufficientNameChanges);
-            }
-
-            // TODO: add old alias
-            // TODO: check for conflicts
-
-            let slug = get_user_slug(&name);
-            model.name = Set(name);
-            model.name_changes_left = Set(user.name_changes_left - 1); // TODO
-            model.slug = Set(slug);
+            Self::update_name(ctx, name, &user, &mut model).await?;
         }
 
         if let ProvidedValue::Set(email) = input.email {
@@ -276,6 +261,66 @@ impl UserService {
 
         // Update and return
         model.update(txn).await?;
+        Ok(())
+    }
+
+    async fn update_name(
+        ctx: &ServiceContext<'_>,
+        name: String,
+        user: &UserModel,
+        model: &mut user::ActiveModel,
+    ) -> Result<()> {
+        // Regardless of the number of name change tokens,
+        // the user can always change their name if the slug is
+        // unaltered, or if the slug is a prior name of theirs
+        // (i.e. they have a user alias for it).
+
+        let slug = get_user_slug(&name);
+
+        if user.slug == slug {
+            tide::log::debug!("User slug is the same, rename is free");
+
+            // Set model, but return early, we don't deduct a name change token
+            model.name = Set(name);
+            return Ok(());
+        }
+
+        if let Some(alias) = UserAliasService::get_optional(ctx, &slug).await? {
+            tide::log::debug!("User slug is a past alias, rename is free");
+
+            // Swap old user alias
+            UserAliasService::swap(ctx, alias.alias_id, &slug).await?;
+
+            // Set model, but return early, we don't deduct a name change token
+            model.name = Set(name);
+            model.slug = Set(slug);
+            return Ok(());
+        }
+
+        // All changes beyond this point involve creating a new alias, so
+        // a name change token must be consumed.
+        if user.name_changes_left == 0 {
+            tide::log::error!("User ID {} has no remaining name changes", user.user_id);
+            return Err(Error::InsufficientNameChanges);
+        }
+
+        // Deduct name change token and add new user alias.
+        //
+        // The "created by" is the user themselves, since
+        // they initiatived the rename.
+        UserAliasService::create(
+            ctx,
+            CreateUserAlias {
+                slug: slug.clone(),
+                target_user_id: user.user_id,
+                created_by_user_id: user.user_id,
+            },
+        )
+        .await?;
+
+        model.name_changes_left = Set(user.name_changes_left - 1);
+        model.name = Set(name);
+        model.slug = Set(slug);
         Ok(())
     }
 
