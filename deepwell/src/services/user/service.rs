@@ -329,23 +329,23 @@ impl UserService {
     ///
     /// # Returns
     /// The current number of rename tokens the user has.
-    pub async fn add_rename_token(
+    pub async fn add_name_change_token(
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
     ) -> Result<i16> {
         let txn = ctx.transaction();
         let user = Self::get(ctx, reference).await?;
-        tide::log::info!("Adding rename token to user ID {}", user.user_id);
+        tide::log::info!("Adding name change token to user ID {}", user.user_id);
 
-        let rename_tokens = cmp::min(user.name_changes_left + 1, MAX_NAME_CHANGES);
+        let name_changes = cmp::min(user.name_changes_left + 1, MAX_NAME_CHANGES);
         let model = user::ActiveModel {
             user_id: Set(user.user_id),
-            name_changes_left: Set(rename_tokens),
+            name_changes_left: Set(name_changes),
             ..Default::default()
         };
 
         model.update(txn).await?;
-        Ok(rename_tokens)
+        Ok(name_changes)
     }
 
     pub async fn delete(

@@ -180,6 +180,9 @@ pub fn build(mut app: ApiServer) -> ApiServer {
         .put(user_put)
         .delete(user_delete);
 
+    app.at("/user/:type/:id_or_slug/addNameChange")
+        .post(user_add_name_change);
+
     // Votes
     app.at("/vote")
         .head(vote_head)

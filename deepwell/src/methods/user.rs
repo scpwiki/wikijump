@@ -91,6 +91,23 @@ pub async fn user_delete(req: ApiRequest) -> ApiResponse {
     build_user_response(&user, detail, StatusCode::Ok)
 }
 
+pub async fn user_add_name_change(req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    let reference = Reference::try_from(&req)?;
+    tide::log::info!("Adding user name change token to {:?}", reference);
+
+    let name_changes = UserService::add_name_change_token(&ctx, reference)
+        .await
+        .to_api()?;
+
+    let body = Body::from_json(&name_changes)?;
+    let response = Response::builder(StatusCode::Ok).body(body).into();
+    txn.commit().await?;
+    Ok(response)
+}
+
 fn build_user_response(
     user: &UserModel,
     user_detail: UserDetails,
