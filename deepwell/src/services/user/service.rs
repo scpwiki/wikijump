@@ -204,6 +204,7 @@ impl UserService {
     ) -> Result<()> {
         let txn = ctx.transaction();
         let model = Self::get(ctx, reference).await?;
+        let name_changes_left = model.name_changes_left;
         let mut user: user::ActiveModel = model.into();
 
         // Add each field
@@ -213,7 +214,7 @@ impl UserService {
 
             let slug = get_user_slug(&name);
             user.name = Set(name);
-            user.name_changes_left = Set(user.name_changes_left.unwrap() - 1); // TODO
+            user.name_changes_left = Set(name_changes_left - 1); // TODO
             user.slug = Set(slug);
         }
 
