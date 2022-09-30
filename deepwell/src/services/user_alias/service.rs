@@ -90,6 +90,14 @@ impl UserAliasService {
         find_or_error(Self::get_optional(ctx, slug)).await
     }
 
+    pub async fn delete(ctx: &ServiceContext<'_>, alias_id: i64) -> Result<()> {
+        tide::log::info!("Deleting user alias with ID {alias_id}");
+
+        let txn = ctx.transaction();
+        UserAlias::delete_by_id(alias_id).exec(txn).await?;
+        Ok(())
+    }
+
     /// Deletes all user aliases for this user.
     ///
     /// # Returns
