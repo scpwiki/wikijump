@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::models::user::{self, Entity as User};
 use crate::models::user_alias::{self, Entity as UserAlias, Model as UserAliasModel};
 use crate::services::user::UserService;
 use crate::utils::get_user_slug;
@@ -144,5 +145,46 @@ impl UserAliasService {
         );
 
         Ok(rows_affected)
+    }
+
+    /// Verifies that the `user` and `user_alias` tables are consistent.
+    ///
+    /// These tables have a uniqueness invariant wherein a slug is only
+    /// present in at most one of these two tables, but not both.
+    pub async fn verify(ctx: &ServiceContext<'_>, slug: &str) -> Result<()> {
+        tide::log::info!(
+            "Verifying user and user alias table consistency for slug '{}'",
+            slug,
+        );
+
+        let txn = ctx.transaction();
+        let (user_result, alias_result) = try_join!(
+            User::find().filter(user::Column::Slug.eq(slug)).one(txn),
+            UserAlias::find()
+                .filter(user_alias::Column::Slug.eq(slug))
+                .one(txn),
+        )?;
+
+        match (user_result, alias_result) {
+            // Both tables bear the same slug
+            (Some(user), Some(alias)) => {
+                use tide::{Error as TideError, StatusCode};
+
+                tide::log::error!(
+                    "Consistency error! Both user and user_alias tables have the slug '{}'",
+                    slug,
+                );
+                tide::log::error!("User table: {user:#?}");
+                tide::log::error!("Alias table: {alias:#?}");
+
+                Err(Error::Web(TideError::from_str(
+                    StatusCode::InternalServerError,
+                    "",
+                )))
+            }
+
+            // Consistency invariant is maintained
+            _ => Ok(()),
+        }
     }
 }
