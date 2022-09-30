@@ -23,6 +23,7 @@ use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user::{self, Entity as User, Model as UserModel};
 use crate::services::{user_alias::CreateUserAlias, UserAliasService};
 use crate::utils::get_user_slug;
+use std::cmp;
 
 // TODO make these configurable
 const DEFAULT_NAME_CHANGES: i16 = 3;
@@ -322,6 +323,29 @@ impl UserService {
         model.name = Set(name);
         model.slug = Set(slug);
         Ok(())
+    }
+
+    /// Adds an additional rename token, up to the cap.
+    ///
+    /// # Returns
+    /// The current number of rename tokens the user has.
+    pub async fn add_rename_token(
+        ctx: &ServiceContext<'_>,
+        reference: Reference<'_>,
+    ) -> Result<i16> {
+        let txn = ctx.transaction();
+        let user = Self::get(ctx, reference).await?;
+        tide::log::info!("Adding rename token to user ID {}", user.user_id);
+
+        let rename_tokens = cmp::min(user.name_changes_left + 1, MAX_NAME_CHANGES);
+        let model = user::ActiveModel {
+            user_id: Set(user.user_id),
+            name_changes_left: Set(rename_tokens),
+            ..Default::default()
+        };
+
+        model.update(txn).await?;
+        Ok(rename_tokens)
     }
 
     pub async fn delete(
