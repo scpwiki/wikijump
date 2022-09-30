@@ -280,8 +280,7 @@ impl UserService {
         // (i.e. they have a user alias for it).
 
         let slug = get_user_slug(&name);
-
-        if user.slug == slug {
+        if slug == user.slug {
             tide::log::debug!("User slug is the same, rename is free");
 
             // Set model, but return early, we don't deduct a name change token
