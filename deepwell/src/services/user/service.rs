@@ -329,21 +329,22 @@ impl UserService {
         reference: Reference<'_>,
     ) -> Result<UserModel> {
         let txn = ctx.transaction();
-        let model = Self::get(ctx, reference).await?;
-        let user_id = model.user_id;
-        let mut user: user::ActiveModel = model.clone().into();
-
-        tide::log::info!("Deleting user with ID {user_id}");
+        let user = Self::get(ctx, reference).await?;
+        tide::log::info!("Deleting user with ID {}", user.user_id);
 
         // Delete all user aliases
-        UserAliasService::delete_all(ctx, user_id).await?;
+        UserAliasService::delete_all(ctx, user.user_id).await?;
 
         // Set deletion flag
-        user.deleted_at = Set(Some(now()));
+        let model = user::ActiveModel {
+            user_id: Set(user.user_id),
+            deleted_at: Set(Some(now())),
+            ..Default::default()
+        };
 
         // Update and return
-        user.update(txn).await?;
-        Ok(model)
+        let user = model.update(txn).await?;
+        Ok(user)
     }
 }
 
