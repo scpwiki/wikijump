@@ -341,6 +341,7 @@ impl UserService {
         let model = user::ActiveModel {
             user_id: Set(user.user_id),
             name_changes_left: Set(name_changes),
+            updated_at: Set(Some(now())),
             ..Default::default()
         };
 
