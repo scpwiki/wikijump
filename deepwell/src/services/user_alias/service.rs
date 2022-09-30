@@ -50,9 +50,11 @@ impl UserAliasService {
             .one(txn)
             .await?;
 
-        if result.is_some() {
+        if let Some(alias) = result {
             tide::log::error!(
-                "User alias with conflicting slug '{slug}' already exists, cannot create",
+                "User alias with conflicting slug '{}' already exists (for user ID {}), cannot create",
+                slug,
+                alias.user_id,
             );
 
             return Err(Error::Conflict);
