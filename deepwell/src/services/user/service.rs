@@ -24,8 +24,9 @@ use crate::models::user::{self, Entity as User, Model as UserModel};
 use crate::services::UserAliasService;
 use crate::utils::get_user_slug;
 
-// TODO make this configurable
+// TODO make these configurable
 const DEFAULT_NAME_CHANGES: i16 = 3;
+const MAX_NAME_CHANGES: i16 = 3;
 
 #[derive(Debug)]
 pub struct UserService;
