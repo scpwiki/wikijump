@@ -211,6 +211,15 @@ impl UserService {
 
         // Add each field
         if let ProvidedValue::Set(name) = input.name {
+            if user.name_changes_left == 0 {
+                tide::log::error!(
+                    "User ID {} has no remaining name changes",
+                    user.user_id,
+                );
+
+                return Err(Error::InsufficientNameChanges);
+            }
+
             // TODO: add old alias
             // TODO: check for conflicts
 
@@ -225,7 +234,8 @@ impl UserService {
         }
 
         if let ProvidedValue::Set(email_verified) = input.email_verified {
-            model.email_verified_at = Set(if email_verified { Some(now()) } else { None });
+            model.email_verified_at =
+                Set(if email_verified { Some(now()) } else { None });
         }
 
         if let ProvidedValue::Set(password) = input.password {

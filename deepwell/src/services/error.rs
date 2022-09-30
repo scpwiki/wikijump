@@ -67,6 +67,9 @@ pub enum Error {
     #[error("Attempting to perform a wikitext parse and render has timed out")]
     RenderTimeout,
 
+    #[error("The user cannot rename as they do not have enough name change tokens")]
+    InsufficientNameChanges,
+
     #[error("The request is in some way malformed or incorrect")]
     BadRequest,
 
@@ -100,6 +103,9 @@ impl Error {
             }
             Error::RemoteOperationFailed | Error::RenderTimeout => {
                 TideError::from_str(StatusCode::InternalServerError, "")
+            }
+            Error::InsufficientNameChanges => {
+                TideError::from_str(StatusCode::PaymentRequired, "")
             }
             Error::BadRequest => TideError::from_str(StatusCode::BadRequest, ""),
             Error::Exists | Error::Conflict => {
