@@ -28,7 +28,6 @@ use crate::web::Reference;
 pub struct UserAliasService;
 
 impl UserAliasService {
-    #[allow(dead_code)] // TODO
     pub async fn create(
         ctx: &ServiceContext<'_>,
         input: CreateUserAlias,
