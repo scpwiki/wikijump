@@ -335,7 +335,6 @@ impl UserService {
     ) -> Result<i16> {
         let txn = ctx.transaction();
         let user = Self::get(ctx, reference).await?;
-        tide::log::info!("Adding name change token to user ID {}", user.user_id);
 
         let name_changes = cmp::min(user.name_changes_left + 1, MAX_NAME_CHANGES);
         let model = user::ActiveModel {
@@ -344,6 +343,14 @@ impl UserService {
             updated_at: Set(Some(now())),
             ..Default::default()
         };
+
+        tide::log::info!(
+            "Adding name change token to user ID {} (was {}, now {}, max {})",
+            user.user_id,
+            user.name_changes_left,
+            name_changes,
+            MAX_NAME_CHANGES,
+        );
 
         model.update(txn).await?;
         Ok(name_changes)
