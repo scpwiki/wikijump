@@ -163,7 +163,10 @@ impl UserService {
         if let Reference::Slug(slug) = reference {
             // If present, proceed with SELECT by id.
             // If absent, then this user is missing, return.
-            let alias = UserAliasService::get(ctx, slug).await?;
+            let alias = match UserAliasService::get_optional(ctx, slug).await? {
+                Some(alias) => alias,
+                None => return Ok(None),
+            };
 
             // Rewrite reference so in the "real" user search
             // we locate directly via user ID.
