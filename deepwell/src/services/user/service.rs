@@ -310,14 +310,14 @@ impl UserService {
 
         tide::log::debug!("Creating user alias for {} and deducting name change", slug);
 
-        // Deduct name change token and add new user alias.
+        // Deduct name change token and add user alias for old slug.
         //
         // The "created by" is the user themselves, since
         // they initiatived the rename.
         UserAliasService::create(
             ctx,
             CreateUserAlias {
-                slug: slug.clone(),
+                slug: user.slug.clone(),
                 target_user_id: user.user_id,
                 created_by_user_id: user.user_id,
             },
