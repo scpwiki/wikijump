@@ -321,7 +321,8 @@ impl UserService {
         }
 
         tide::log::debug!(
-            "Creating user alias for {} and deducting name change",
+            "Creating user alias for '{}' -> '{}', deducting name change",
+            old_slug,
             new_slug,
         );
 
