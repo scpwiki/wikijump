@@ -111,7 +111,6 @@ impl UserAliasService {
         };
 
         model.update(txn).await?;
-        Self::verify(ctx, new_slug).await?;
         Ok(())
     }
 
