@@ -22,14 +22,18 @@ use super::prelude::*;
 use crate::services::user_bot_owner::{CreateBotOwner, UserBotOwnerService};
 
 pub async fn user_bot_create(req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    tide::log::info!("Creating new bot user");
     todo!()
 }
 
-pub async fn user_bot_owner_head(req: ApiRequest) -> ApiResponse {
-    todo!()
-}
+pub async fn user_bot_get(req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
 
-pub async fn user_bot_owner_get(req: ApiRequest) -> ApiResponse {
+    tide::log::info!("Getting bot user information");
     todo!()
 }
 

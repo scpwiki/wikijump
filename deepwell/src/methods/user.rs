@@ -29,7 +29,7 @@ pub async fn user_create(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    tide::log::info!("Creating new user");
+    tide::log::info!("Creating new regular user");
     let input: CreateUser = req.body_json().await?;
     let output = UserService::create(&ctx, input).await.to_api()?;
     let body = Body::from_json(&output)?;

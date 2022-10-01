@@ -185,9 +185,9 @@ pub fn build(mut app: ApiServer) -> ApiServer {
 
     // User bot information
     app.at("/user/bot").post(user_bot_create);
+    app.at("/user/bot/:bot_type/:bot_id_or_slug")
+        .get(user_bot_get);
     app.at("/user/bot/:bot_type/:bot_id_or_slug/owner/:human_type/:human_id_or_slug")
-        .head(user_bot_owner_head)
-        .get(user_bot_owner_get)
         .put(user_bot_owner_put)
         .delete(user_bot_owner_delete);
 
