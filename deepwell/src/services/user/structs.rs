@@ -19,7 +19,6 @@
  */
 
 use super::prelude::*;
-use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user::Model as UserModel;
 use crate::utils::DateTimeWithTimeZone;
 use chrono::NaiveDate;
@@ -31,12 +30,7 @@ pub struct CreateUser {
     pub name: String,
     pub email: String,
     pub locale: String,
-
-    #[serde(default)]
-    pub password: Option<String>,
-
-    #[serde(default)]
-    pub user_type: UserType,
+    pub password: String,
 }
 
 #[derive(Serialize, Debug)]

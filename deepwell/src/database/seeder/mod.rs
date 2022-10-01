@@ -68,12 +68,12 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
         // Create users
         let CreateUserOutput { user_id, slug } = UserService::create(
             &ctx,
+            user.user_type,
             CreateUser {
                 name: user.name,
                 email: user.email,
-                password: user.password,
+                password: user.password.unwrap_or_default(),
                 locale: user.locale,
-                user_type: user.user_type,
             },
         )
         .await?;

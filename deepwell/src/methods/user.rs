@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user::Model as UserModel;
 use crate::services::user::{
     CreateUser, UpdateUser, UserIdentityOutput, UserInfoOutput, UserProfileOutput,
@@ -31,7 +32,10 @@ pub async fn user_create(mut req: ApiRequest) -> ApiResponse {
 
     tide::log::info!("Creating new regular user");
     let input: CreateUser = req.body_json().await?;
-    let output = UserService::create(&ctx, input).await.to_api()?;
+    let output = UserService::create(&ctx, UserType::Regular, input)
+        .await
+        .to_api()?;
+
     let body = Body::from_json(&output)?;
     txn.commit().await?;
 

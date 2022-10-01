@@ -35,6 +35,7 @@ pub struct UserService;
 impl UserService {
     pub async fn create(
         ctx: &ServiceContext<'_>,
+        user_type: UserType,
         input: CreateUser,
     ) -> Result<CreateUserOutput> {
         let txn = ctx.transaction();
@@ -70,22 +71,15 @@ impl UserService {
         }
 
         // Set up password field depending on type
-        let password = match input.user_type {
+        let password = match user_type {
             UserType::Regular => {
                 tide::log::info!("Creating regular user '{slug}' with password");
-
-                match input.password {
-                    Some(password) => hash_password(password),
-                    None => {
-                        tide::log::warn!("No password specified");
-                        return Err(Error::BadRequest);
-                    }
-                }
+                hash_password(input.password)
             }
             UserType::System => {
                 tide::log::info!("Creating system user '{slug}'");
 
-                if input.password.is_some() {
+                if !input.password.is_empty() {
                     tide::log::warn!("Password was specified for system user");
                     return Err(Error::BadRequest);
                 }
@@ -95,20 +89,14 @@ impl UserService {
             }
             UserType::Bot => {
                 tide::log::info!("Creating bot user '{slug}'");
-
-                if input.password.is_some() {
-                    tide::log::warn!("Password was specified for bot user");
-                    return Err(Error::BadRequest);
-                }
-
                 // TODO assign bot token
-                str!("TODO bot token")
+                format!("TODO bot token: {}", input.password)
             }
         };
 
         // Insert new model
         let user = user::ActiveModel {
-            user_type: Set(input.user_type),
+            user_type: Set(user_type),
             name: Set(input.name),
             slug: Set(slug.clone()),
             name_changes_left: Set(DEFAULT_NAME_CHANGES),
