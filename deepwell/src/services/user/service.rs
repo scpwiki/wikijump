@@ -208,6 +208,7 @@ impl UserService {
     ) -> Result<()> {
         let txn = ctx.transaction();
         let user = Self::get(ctx, reference).await?;
+        let mut verify_name = false;
         let mut model = user::ActiveModel {
             user_id: Set(user.user_id),
             ..Default::default()
@@ -216,6 +217,7 @@ impl UserService {
         // Add each field
         if let ProvidedValue::Set(name) = input.name {
             Self::update_name(ctx, name, &user, &mut model).await?;
+            verify_name = true;
         }
 
         if let ProvidedValue::Set(email) = input.email {
@@ -264,7 +266,16 @@ impl UserService {
         model.updated_at = Set(Some(now()));
 
         // Update and return
-        model.update(txn).await?;
+        let new_user = model.update(txn).await?;
+
+        // Verify, if needed
+        if verify_name {
+            try_join!(
+                UserAliasService::verify(ctx, &user.slug),
+                UserAliasService::verify(ctx, &new_user.slug),
+            )?;
+        }
+
         Ok(())
     }
 
