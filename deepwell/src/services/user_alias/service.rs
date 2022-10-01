@@ -79,6 +79,7 @@ impl UserAliasService {
     }
 
     #[inline]
+    #[allow(dead_code)] // TEMP
     pub async fn get(ctx: &ServiceContext<'_>, slug: &str) -> Result<UserAliasModel> {
         find_or_error(Self::get_optional(ctx, slug)).await
     }
