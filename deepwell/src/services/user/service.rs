@@ -61,8 +61,7 @@ impl UserService {
         }
 
         // Check for alias conflicts
-        let result = UserAliasService::get_optional(ctx, &slug).await?;
-        if result.is_some() {
+        if UserAliasService::exists(ctx, &slug).await? {
             tide::log::error!(
                 "User alias with conflicting slug already exists, cannot create",
             );
