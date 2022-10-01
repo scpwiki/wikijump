@@ -281,7 +281,7 @@ impl UserService {
 
     async fn update_name(
         ctx: &ServiceContext<'_>,
-        name: String,
+        new_name: String,
         user: &UserModel,
         model: &mut user::ActiveModel,
     ) -> Result<()> {
@@ -290,24 +290,26 @@ impl UserService {
         // unaltered, or if the slug is a prior name of theirs
         // (i.e. they have a user alias for it).
 
-        let slug = get_user_slug(&name);
-        if slug == user.slug {
+        let new_slug = get_user_slug(&new_name);
+        let old_slug = &user.slug;
+
+        if new_slug == user.slug {
             tide::log::debug!("User slug is the same, rename is free");
 
             // Set model, but return early, we don't deduct a name change token
-            model.name = Set(name);
+            model.name = Set(new_name);
             return Ok(());
         }
 
-        if let Some(alias) = UserAliasService::get_optional(ctx, &slug).await? {
+        if let Some(alias) = UserAliasService::get_optional(ctx, &new_slug).await? {
             tide::log::debug!("User slug is a past alias, rename is free");
 
-            // Swap old user alias
-            UserAliasService::swap(ctx, alias.alias_id, &slug).await?;
+            // Swap user alias for old slug
+            UserAliasService::swap(ctx, alias.alias_id, old_slug).await?;
 
             // Set model, but return early, we don't deduct a name change token
-            model.name = Set(name);
-            model.slug = Set(slug);
+            model.name = Set(new_name);
+            model.slug = Set(new_slug);
             return Ok(());
         }
 
@@ -318,7 +320,10 @@ impl UserService {
             return Err(Error::InsufficientNameChanges);
         }
 
-        tide::log::debug!("Creating user alias for {} and deducting name change", slug);
+        tide::log::debug!(
+            "Creating user alias for {} and deducting name change",
+            new_slug,
+        );
 
         // Deduct name change token and add user alias for old slug.
         //
@@ -327,7 +332,7 @@ impl UserService {
         UserAliasService::create(
             ctx,
             CreateUserAlias {
-                slug: user.slug.clone(),
+                slug: old_slug.clone(),
                 target_user_id: user.user_id,
                 created_by_user_id: user.user_id,
             },
@@ -335,8 +340,8 @@ impl UserService {
         .await?;
 
         model.name_changes_left = Set(user.name_changes_left - 1);
-        model.name = Set(name);
-        model.slug = Set(slug);
+        model.name = Set(new_name);
+        model.slug = Set(new_slug);
         Ok(())
     }
 
