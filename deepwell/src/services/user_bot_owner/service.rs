@@ -79,8 +79,8 @@ impl UserBotOwnerService {
             description,
         );
 
-        // NOTE: Not using upsert (INSERT .. ON CONFLICT) because setting
-        //       updated_at on update is a bit gnarly.
+        // NOTE: Not using upsert (INSERT .. ON CONFLICT) because
+        //       setting updated_at is a bit gnarly.
 
         let txn = ctx.transaction();
         match Self::get_optional(ctx, bot_user_id, human_user_id).await? {
