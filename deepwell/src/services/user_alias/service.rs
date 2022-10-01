@@ -29,7 +29,24 @@ use crate::web::Reference;
 pub struct UserAliasService;
 
 impl UserAliasService {
+    /// Creates a new user alias.
     pub async fn create(
+        ctx: &ServiceContext<'_>,
+        input: CreateUserAlias,
+    ) -> Result<CreateUserAliasOutput> {
+        let output = Self::create_no_verify(ctx, input).await?;
+        Self::verify(ctx, &output.slug).await?;
+        Ok(output)
+    }
+
+    /// Creates a new user alias, but does not perform row checks.
+    ///
+    /// This method should only be invoked when the corresponding user
+    /// row has not been updated, if in doubt use `UserAliasService::create()`.
+    ///
+    /// The caller is responsible for calling `UserAliasService::verify()` after
+    /// all its database changes have been made.
+    pub(crate) async fn create_no_verify(
         ctx: &ServiceContext<'_>,
         input: CreateUserAlias,
     ) -> Result<CreateUserAliasOutput> {
@@ -59,8 +76,6 @@ impl UserAliasService {
         };
 
         let alias_id = UserAlias::insert(alias).exec(txn).await?.last_insert_id;
-        Self::verify(ctx, &slug).await?;
-
         Ok(CreateUserAliasOutput { alias_id, slug })
     }
 

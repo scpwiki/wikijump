@@ -330,7 +330,11 @@ impl UserService {
         //
         // The "created by" is the user themselves, since
         // they initiatived the rename.
-        UserAliasService::create(
+        //
+        // We don't verify here because the user row hasn't been
+        // updated yet, so we instead run UserAliasService::verify()
+        // ourselves at the end of user updating.
+        UserAliasService::create_no_verify(
             ctx,
             CreateUserAlias {
                 slug: old_slug.clone(),
