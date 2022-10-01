@@ -154,26 +154,20 @@ impl UserAliasService {
                 .one(txn),
         )?;
 
-        match (user_result, alias_result) {
-            // Both tables bear the same slug
-            (Some(user), Some(alias)) => {
-                use tide::{Error as TideError, StatusCode};
+        if let (Some(user), Some(alias)) = (user_result, alias_result) {
+            // Both tables bear the same slug!
+            // Invariant was not held, panic
 
-                tide::log::error!(
-                    "Consistency error! Both user and user_alias tables have the slug '{}'",
-                    slug,
-                );
-                tide::log::error!("User table: {user:#?}");
-                tide::log::error!("Alias table: {alias:#?}");
+            tide::log::error!(
+                "Consistency error! Both user and user_alias tables have the slug '{}'",
+                slug,
+            );
 
-                Err(Error::Web(TideError::from_str(
-                    StatusCode::InternalServerError,
-                    "",
-                )))
-            }
-
-            // Consistency invariant is maintained
-            _ => Ok(()),
+            panic!(
+                "Slug appears as both a user and an alias!\nUser: {user:#?}\nAlias: {alias:#?}",
+            );
         }
+
+        Ok(())
     }
 }
