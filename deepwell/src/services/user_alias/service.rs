@@ -99,6 +99,13 @@ impl UserAliasService {
         find_or_error(Self::get_optional(ctx, slug)).await
     }
 
+    #[inline]
+    pub async fn exists(ctx: &ServiceContext<'_>, slug: &str) -> Result<bool> {
+        Self::get_optional(ctx, slug)
+            .await
+            .map(|alias| alias.is_some())
+    }
+
     /// Used for when a user renames to an old slug.
     ///
     /// This takes the old user alias and renames the slug in-place, without having to do
