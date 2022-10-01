@@ -25,7 +25,7 @@
 use crate::api::ApiServer;
 use crate::methods::{
     category::*, file::*, file_revision::*, link::*, locale::*, misc::*, page::*,
-    page_revision::*, parent::*, site::*, text::*, user::*, vote::*,
+    page_revision::*, parent::*, site::*, text::*, user::*, user_bot::*, vote::*,
 };
 use crate::utils::error_response;
 use tide::StatusCode;
@@ -182,6 +182,14 @@ pub fn build(mut app: ApiServer) -> ApiServer {
 
     app.at("/user/:type/:id_or_slug/addNameChange")
         .post(user_add_name_change);
+
+    // User bot information
+    app.at("/user/bot").post(user_bot_create);
+    app.at("/user/bot/:bot_type/:bot_id_or_slug/owner/:human_type/:human_id_or_slug")
+        .head(user_bot_owner_head)
+        .get(user_bot_owner_get)
+        .put(user_bot_owner_put)
+        .delete(user_bot_owner_delete);
 
     // Votes
     app.at("/vote")
