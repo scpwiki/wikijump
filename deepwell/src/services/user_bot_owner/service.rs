@@ -67,7 +67,6 @@ impl UserBotOwnerService {
     /// It is the responsibility of the caller to assure
     /// that the `bot_user_id` is a bot, and
     /// that `human_user_id` is a human (i.e. `regular` user).
-    #[allow(dead_code)] // TODO
     pub async fn add(
         ctx: &ServiceContext<'_>,
         CreateBotOwner {
