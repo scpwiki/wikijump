@@ -21,7 +21,7 @@
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user::{self, Entity as User, Model as UserModel};
-use crate::services::{user_alias::CreateUserAlias, UserAliasService};
+use crate::services::user_alias::{CreateUserAlias, UserAliasService};
 use crate::utils::get_user_slug;
 use std::cmp;
 
