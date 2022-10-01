@@ -26,6 +26,7 @@ use crate::constants::{ADMIN_USER_ID, SYSTEM_USER_ID};
 use crate::services::page::{CreatePage, PageService};
 use crate::services::site::{CreateSite, CreateSiteOutput, SiteService};
 use crate::services::user::{CreateUser, CreateUserOutput, UpdateUser, UserService};
+use crate::services::user_alias::{CreateUserAlias, UserAliasService};
 use crate::services::ServiceContext;
 use crate::web::{ProvidedValue, Reference};
 use anyhow::Result;
@@ -58,14 +59,13 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
     );
 
     let SeedData { users, site_pages } = SeedData::load(&state.config.seeder_path)?;
+    let mut user_aliases = Vec::new();
 
     // Seed user data
     for user in users {
         tide::log::info!("Creating seed user '{}' (ID {})", user.name, user.id);
 
-        // TODO Create user aliases
-        let _ = user.aliases;
-
+        // Create users
         let CreateUserOutput { user_id, slug } = UserService::create(
             &ctx,
             CreateUser {
@@ -93,9 +93,34 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
         )
         .await?;
 
+        // Queue up aliases to add
+        //
+        // This has to be a separate list, since the alias is "added"
+        // by the "system" user, which may not have been created yet.
+        user_aliases.push((user_id, user.aliases));
+
         tide::log::debug!("User created with slug '{}'", slug);
         assert_eq!(user_id, user.id, "Specified user ID doesn't match created");
         assert_eq!(slug, user.slug, "Specified user slug doesn't match created");
+    }
+
+    // Seed user alias data
+    for (user_id, aliases) in user_aliases {
+        tide::log::info!("Creating aliases for user ID {user_id}");
+
+        for alias in aliases {
+            tide::log::info!("Creating user alias '{alias}'");
+
+            UserAliasService::create(
+                &ctx,
+                CreateUserAlias {
+                    slug: alias,
+                    target_user_id: user_id,
+                    created_by_user_id: SYSTEM_USER_ID,
+                },
+            )
+            .await?;
+        }
     }
 
     // Seed site data
