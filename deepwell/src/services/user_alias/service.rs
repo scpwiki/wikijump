@@ -91,7 +91,7 @@ impl UserAliasService {
     /// `UserService` that the user doesn't already exist with that name.
     ///
     /// The database uniqueness constraint enforces that the `slug` doesn't collide with another
-    /// person's choice.
+    /// user's alias.
     pub async fn swap(
         ctx: &ServiceContext<'_>,
         alias_id: i64,
