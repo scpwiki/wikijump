@@ -91,13 +91,12 @@ impl UserAliasService {
     ///
     /// The database uniqueness constraint enforces that the `slug` doesn't collide with another
     /// person's choice.
-    pub async fn swap<S: Into<String>>(
+    pub async fn swap(
         ctx: &ServiceContext<'_>,
         alias_id: i64,
-        new_slug: S,
+        new_slug: &str,
     ) -> Result<()> {
         let txn = ctx.transaction();
-        let new_slug = new_slug.into();
 
         tide::log::info!(
             "Swapping user alias ID {} to use slug '{}'",
@@ -107,12 +106,12 @@ impl UserAliasService {
 
         let model = user_alias::ActiveModel {
             alias_id: Set(alias_id),
-            slug: Set(new_slug),
+            slug: Set(str!(new_slug)),
             ..Default::default()
         };
 
         model.update(txn).await?;
-        Self::verify(ctx, &new_slug).await?;
+        Self::verify(ctx, new_slug).await?;
         Ok(())
     }
 
