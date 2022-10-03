@@ -46,6 +46,7 @@ CREATE TABLE "user" (
     locale TEXT NOT NULL,
     avatar_s3_hash BYTEA,
     display_name TEXT,
+    real_name TEXT,
     gender TEXT,
     birthday DATE,
     location TEXT,
@@ -57,6 +58,7 @@ CREATE TABLE "user" (
 
     -- Strings should either be NULL or non-empty (and within limits)
     CHECK (display_name IS NULL OR (length(display_name) > 0 AND length(display_name) < 300)),
+    CHECK (real_name IS NULL OR (length(real_name) > 0 AND length(real_name) < 300)),
     CHECK (gender IS NULL OR (length(gender) > 0 AND length(gender) < 100)),
     CHECK (location IS NULL OR (length(location) > 0 AND length(location) < 100)),
     CHECK (biography IS NULL OR (length(biography) > 0 AND length(biography) < 4000)),
