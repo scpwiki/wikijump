@@ -81,7 +81,7 @@ pub async fn user_bot_create(mut req: ApiRequest) -> ApiResponse {
             description,
         } = owner;
 
-        let human = UserService::get_with_user_type(
+        UserService::get_with_user_type(
             &ctx,
             Reference::Id(human_user_id),
             UserType::Regular,
