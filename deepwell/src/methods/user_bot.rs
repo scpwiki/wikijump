@@ -20,9 +20,10 @@
 
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::UserType;
-use crate::services::user::{CreateUser, UpdateUser};
+use crate::models::user_bot_owner::Model as UserBotOwnerModel;
+use crate::services::user::{CreateUser, UpdateUser, UserProfileOutput};
 use crate::services::user_bot_owner::{
-    BotOwner, CreateBotOwner, CreateBotUser, UserBotOwnerService,
+    BotOwner, BotUserOutput, CreateBotOwner, CreateBotUser, UserBotOwnerService,
 };
 use crate::services::{Error as ServiceError, Result as ServiceResult};
 use crate::web::ProvidedValue;
@@ -129,7 +130,36 @@ pub async fn user_bot_get(req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     tide::log::info!("Getting bot user information");
-    todo!()
+
+    let reference = Reference::try_from(&req)?;
+    tide::log::info!("Getting bot user {:?}", reference);
+
+    let user = UserService::get(&ctx, reference).await.to_api()?;
+    let owners = UserBotOwnerService::get_all(&ctx, user.user_id)
+        .await
+        .to_api()?;
+
+    let output = BotUserOutput {
+        user: UserProfileOutput::from(&user),
+        owners: owners
+            .into_iter()
+            .map(
+                |UserBotOwnerModel {
+                     human_user_id: user_id,
+                     description,
+                     ..
+                 }| BotOwner {
+                    user_id,
+                    description,
+                },
+            )
+            .collect(),
+    };
+
+    let body = Body::from_json(&output)?;
+    txn.commit().await?;
+
+    Ok(body.into())
 }
 
 pub async fn user_bot_owner_put(req: ApiRequest) -> ApiResponse {

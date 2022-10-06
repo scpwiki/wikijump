@@ -18,6 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::services::user::UserProfileOutput;
+
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateBotOwner {
@@ -33,7 +35,7 @@ pub struct DeleteBotOwner {
     pub human_user_id: i64,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct BotOwner {
     pub user_id: i64,
@@ -54,4 +56,11 @@ pub struct CreateBotUser {
                                      //
                                      //         B: create a bot user
                                      //         S: create a site
+}
+
+#[derive(Serialize, Debug)]
+pub struct BotUserOutput {
+    #[serde(flatten)]
+    pub user: UserProfileOutput,
+    pub owners: Vec<BotOwner>,
 }
