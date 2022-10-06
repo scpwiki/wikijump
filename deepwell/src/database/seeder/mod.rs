@@ -83,7 +83,7 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
             Reference::Id(user_id),
             UpdateUser {
                 email_verified: ProvidedValue::Set(true),
-                display_name: ProvidedValue::Set(user.display_name),
+                real_name: ProvidedValue::Set(user.real_name),
                 gender: ProvidedValue::Set(user.gender),
                 birthday: ProvidedValue::Set(user.birthday),
                 biography: ProvidedValue::Set(user.biography),

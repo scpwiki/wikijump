@@ -49,7 +49,7 @@ pub struct UpdateUser {
     pub password: ProvidedValue<String>,
     pub locale: ProvidedValue<String>,
     pub avatar: ProvidedValue<Option<Vec<u8>>>,
-    pub display_name: ProvidedValue<Option<String>>,
+    pub real_name: ProvidedValue<Option<String>>,
     pub gender: ProvidedValue<Option<String>>,
     pub birthday: ProvidedValue<Option<NaiveDate>>,
     pub location: ProvidedValue<Option<String>>,
@@ -109,7 +109,7 @@ pub struct UserProfileOutput {
     #[serde(flatten)]
     info: UserInfoOutput,
 
-    display_name: Option<String>,
+    real_name: Option<String>,
     gender: Option<String>,
     birthday: Option<NaiveDate>,
     location: Option<String>,
@@ -120,7 +120,7 @@ impl From<&UserModel> for UserProfileOutput {
     fn from(user: &UserModel) -> Self {
         Self {
             info: UserInfoOutput::from(user),
-            display_name: user.display_name.clone(),
+            real_name: user.real_name.clone(),
             gender: user.gender.clone(),
             birthday: user.birthday,
             location: None,        // TODO

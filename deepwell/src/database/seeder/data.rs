@@ -83,7 +83,7 @@ pub struct User {
     pub user_type: UserType,
     pub password: Option<String>,
     pub locale: String,
-    pub display_name: Option<String>,
+    pub real_name: Option<String>,
     pub gender: Option<String>,
     pub birthday: Option<NaiveDate>,
     pub biography: Option<String>,

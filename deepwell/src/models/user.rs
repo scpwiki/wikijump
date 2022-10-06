@@ -31,8 +31,6 @@ pub struct Model {
     pub locale: String,
     pub avatar_s3_hash: Option<Vec<u8>>,
     #[sea_orm(column_type = "Text", nullable)]
-    pub display_name: Option<String>,
-    #[sea_orm(column_type = "Text", nullable)]
     pub real_name: Option<String>,
     #[sea_orm(column_type = "Text", nullable)]
     pub gender: Option<String>,

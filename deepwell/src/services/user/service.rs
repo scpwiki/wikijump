@@ -107,7 +107,7 @@ impl UserService {
             multi_factor_recovery_codes: Set(None),
             locale: Set(input.locale),
             avatar_s3_hash: Set(None),
-            display_name: Set(None),
+            real_name: Set(None),
             gender: Set(None),
             birthday: Set(None),
             biography: Set(None),
@@ -239,8 +239,8 @@ impl UserService {
             model.locale = Set(locale);
         }
 
-        if let ProvidedValue::Set(display_name) = input.display_name {
-            model.display_name = Set(display_name);
+        if let ProvidedValue::Set(real_name) = input.real_name {
+            model.real_name = Set(real_name);
         }
 
         if let ProvidedValue::Set(gender) = input.gender {
