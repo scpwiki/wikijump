@@ -27,7 +27,6 @@ use crate::models::user_bot_owner::{
 pub struct UserBotOwnerService;
 
 impl UserBotOwnerService {
-    #[allow(dead_code)] // TODO
     pub async fn get_all(
         ctx: &ServiceContext<'_>,
         bot_user_id: i64,
@@ -119,7 +118,6 @@ impl UserBotOwnerService {
     ///
     /// Returns `true` if the deletion was carried out (i.e. it used to exist),
     /// and `false` if not.
-    #[allow(dead_code)] // TODO
     pub async fn delete(
         ctx: &ServiceContext<'_>,
         DeleteBotOwner {
