@@ -188,6 +188,21 @@ impl UserService {
         find_or_error(Self::get_optional(ctx, reference)).await
     }
 
+    /// Gets a user, but fails if the user type doesn't match.
+    pub async fn get_with_user_type(
+        ctx: &ServiceContext<'_>,
+        reference: Reference<'_>,
+        user_type: UserType,
+    ) -> Result<UserModel> {
+        let user = Self::get(ctx, reference).await?;
+
+        if user.user_type == user_type {
+            Ok(user)
+        } else {
+            Err(Error::BadRequest)
+        }
+    }
+
     pub async fn update(
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
