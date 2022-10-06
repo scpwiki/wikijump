@@ -37,13 +37,15 @@ pub struct DeleteBotOwner {
 #[serde(rename_all = "camelCase")]
 pub struct BotOwner {
     pub user_id: i64,
-    pub description: i64,
+    pub description: String,
 }
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateBotUser {
     pub name: String,
+    pub email: String,
+    pub locale: String,
     pub purpose: String,
     pub owners: Vec<BotOwner>,
     pub authorization_token: String, // TODO add authorization token service
