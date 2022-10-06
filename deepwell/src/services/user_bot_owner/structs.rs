@@ -58,7 +58,14 @@ pub struct CreateBotUser {
                                      //         S: create a site
 }
 
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateBotOwnerBody {
+    pub description: String,
+}
+
 #[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct BotUserOutput {
     #[serde(flatten)]
     pub user: UserProfileOutput,

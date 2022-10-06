@@ -23,7 +23,8 @@ use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user_bot_owner::Model as UserBotOwnerModel;
 use crate::services::user::{CreateUser, UpdateUser, UserProfileOutput};
 use crate::services::user_bot_owner::{
-    BotOwner, BotUserOutput, CreateBotOwner, CreateBotUser, UserBotOwnerService,
+    BotOwner, BotUserOutput, CreateBotOwner, CreateBotOwnerBody, CreateBotUser,
+    UserBotOwnerService,
 };
 use crate::web::ProvidedValue;
 
@@ -144,9 +145,11 @@ pub async fn user_bot_get(req: ApiRequest) -> ApiResponse {
     Ok(body.into())
 }
 
-pub async fn user_bot_owner_put(req: ApiRequest) -> ApiResponse {
+pub async fn user_bot_owner_put(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
+
+    let CreateBotOwnerBody { description } = req.body_json().await?;
 
     let bot_reference =
         Reference::try_from_fields_key(&req, "bot_type", "bot_id_or_slug")?;
@@ -165,7 +168,18 @@ pub async fn user_bot_owner_put(req: ApiRequest) -> ApiResponse {
     )
     .to_api()?;
 
-    todo!()
+    UserBotOwnerService::add(
+        &ctx,
+        CreateBotOwner {
+            bot_user_id: bot.user_id,
+            human_user_id: human.user_id,
+            description,
+        },
+    )
+    .await
+    .to_api()?;
+
+    Ok(Response::new(StatusCode::NoContent))
 }
 
 pub async fn user_bot_owner_delete(req: ApiRequest) -> ApiResponse {
