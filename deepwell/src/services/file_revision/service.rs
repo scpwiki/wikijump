@@ -19,11 +19,11 @@
  */
 
 use super::prelude::*;
-use crate::json_utils::string_list_to_json;
 use crate::models::file_revision::{
     self, Entity as FileRevision, Model as FileRevisionModel,
 };
 use crate::services::{OutdateService, PageService};
+use crate::utils::string_list_to_json;
 use crate::web::FetchDirection;
 use serde_json::json;
 use std::num::NonZeroI32;
@@ -469,9 +469,7 @@ impl FileRevisionService {
         file_id: i64,
         revision_number: i32,
     ) -> Result<FileRevisionModel> {
-        Self::get_optional(ctx, page_id, file_id, revision_number)
-            .await?
-            .ok_or(Error::NotFound)
+        find_or_error(Self::get_optional(ctx, page_id, file_id, revision_number)).await
     }
 
     /// Counts the number of revisions for a file.

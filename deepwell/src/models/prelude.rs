@@ -14,4 +14,6 @@ pub use super::page_revision::Entity as PageRevision;
 pub use super::page_vote::Entity as PageVote;
 pub use super::site::Entity as Site;
 pub use super::text::Entity as Text;
-pub use super::users::Entity as Users;
+pub use super::user::Entity as User;
+pub use super::user_alias::Entity as UserAlias;
+pub use super::user_bot_owner::Entity as UserBotOwner;

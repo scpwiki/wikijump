@@ -1,5 +1,5 @@
 /*
- * web/category.rs
+ * utils/category.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -56,21 +56,6 @@ pub fn get_category(slug: &str) -> Option<&str> {
 #[inline]
 pub fn get_category_name(slug: &str) -> &str {
     split_category_name(slug).0
-}
-
-/// Determines if a slug is valid or not.
-///
-/// This does *not* check if the slug is normalized,
-/// but it does check if the slug contains incorrect
-/// constructions, such as empty category or page sub-slugs.
-// TODO do we need this? we should be normalizing anyways?
-#[allow(dead_code)] // TEMP
-pub fn slug_is_valid(slug: &str) -> bool {
-    let (category, page) = split_category_name(slug);
-    !slug.starts_with(':')
-        && !slug.contains("::")
-        && !category.is_empty()
-        && !page.is_empty()
 }
 
 /// Trims off the `_default:` category if present.
@@ -174,36 +159,6 @@ fn test_get_category_name() {
     check!("archived:component:wide-modal", "archived:component");
     check!("_default:start", "_default");
     check!("_default:_template", "_default");
-}
-
-#[test]
-fn test_slug_is_valid() {
-    macro_rules! check {
-        ($input:expr, $expected:expr $(,)?) => {
-            assert_eq!(
-                slug_is_valid($input),
-                $expected,
-                "Actual slug validity doesn't match expected",
-            )
-        };
-    }
-
-    check!("", false);
-    check!("apple", true);
-    check!("some-page", true);
-    check!("_template", true);
-    check!("component:wide-modal", true);
-    check!("archived:component:wide-modal", true);
-    check!(":banana", false);
-    check!("banana:", false);
-    check!(":banana:", false);
-    check!("::banana", false);
-    check!("banana::", false);
-    check!("::banana::", false);
-    check!("apple:banana:page", true);
-    check!("apple::banana:page", false);
-    check!("_default:", false);
-    check!("_default:apple", true);
 }
 
 #[test]

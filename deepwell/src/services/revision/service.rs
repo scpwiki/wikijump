@@ -19,9 +19,6 @@
  */
 
 use super::prelude::*;
-use crate::json_utils::{
-    json_to_string_list, string_list_equals_json, string_list_to_json,
-};
 use crate::models::page_revision::{
     self, Entity as PageRevision, Model as PageRevisionModel,
 };
@@ -31,7 +28,11 @@ use crate::services::{
     LinkService, OutdateService, ParentService, RenderService, ScoreService, SiteService,
     TextService,
 };
-use crate::web::{split_category, split_category_name, FetchDirection};
+use crate::utils::{
+    json_to_string_list, split_category, split_category_name, string_list_equals_json,
+    string_list_to_json,
+};
+use crate::web::FetchDirection;
 use ftml::data::PageInfo;
 use ftml::settings::{WikitextMode, WikitextSettings};
 use ref_map::*;
@@ -764,9 +765,7 @@ impl RevisionService {
         page_id: i64,
         revision_number: i32,
     ) -> Result<PageRevisionModel> {
-        Self::get_optional(ctx, site_id, page_id, revision_number)
-            .await?
-            .ok_or(Error::NotFound)
+        find_or_error(Self::get_optional(ctx, site_id, page_id, revision_number)).await
     }
 
     pub async fn count(

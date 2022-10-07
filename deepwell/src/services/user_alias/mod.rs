@@ -1,5 +1,5 @@
 /*
- * web/utils.rs
+ * services/user_alias/mod.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,12 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use tide::{Error, Response, StatusCode};
-
-#[inline]
-pub fn error_response(
-    status: StatusCode,
-    message: &'static str,
-) -> Result<Response, Error> {
-    Err(Error::from_str(status, message))
+mod prelude {
+    pub use super::super::prelude::*;
+    pub use super::structs::*;
 }
+
+mod service;
+mod structs;
+
+pub use self::service::UserAliasService;
+pub use self::structs::*;

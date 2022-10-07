@@ -19,9 +19,15 @@
  */
 
 use super::prelude::*;
-use crate::models::users::{self, Entity as User, Model as UserModel};
-use crate::utils::replace_in_place;
-use wikidot_normalize::normalize;
+use crate::models::sea_orm_active_enums::UserType;
+use crate::models::user::{self, Entity as User, Model as UserModel};
+use crate::services::user_alias::{CreateUserAlias, UserAliasService};
+use crate::utils::get_user_slug;
+use std::cmp;
+
+// TODO make these configurable
+const DEFAULT_NAME_CHANGES: i16 = 3;
+const MAX_NAME_CHANGES: i16 = 3;
 
 #[derive(Debug)]
 pub struct UserService;
@@ -29,10 +35,11 @@ pub struct UserService;
 impl UserService {
     pub async fn create(
         ctx: &ServiceContext<'_>,
+        user_type: UserType,
         input: CreateUser,
     ) -> Result<CreateUserOutput> {
         let txn = ctx.transaction();
-        let slug = get_user_slug(&input.username);
+        let slug = get_user_slug(&input.name);
 
         // Check for conflicts
         let result = User::find()
@@ -40,39 +47,71 @@ impl UserService {
                 Condition::all()
                     .add(
                         Condition::any()
-                            .add(users::Column::Username.eq(input.username.as_str()))
-                            .add(users::Column::Email.eq(input.email.as_str()))
-                            .add(users::Column::Slug.eq(slug.as_str())),
+                            .add(user::Column::Name.eq(input.name.as_str()))
+                            .add(user::Column::Email.eq(input.email.as_str()))
+                            .add(user::Column::Slug.eq(slug.as_str())),
                     )
-                    .add(users::Column::DeletedAt.is_null()),
+                    .add(user::Column::DeletedAt.is_null()),
             )
             .one(txn)
             .await?;
 
         if result.is_some() {
-            tide::log::error!("User with slug '{slug}' already exists, cannot create");
+            tide::log::error!("User with conflicting name, slug, or email already exists, cannot create");
             return Err(Error::Conflict);
         }
 
+        // Check for alias conflicts
+        if UserAliasService::exists(ctx, &slug).await? {
+            tide::log::error!(
+                "User alias with conflicting slug already exists, cannot create",
+            );
+
+            return Err(Error::Conflict);
+        }
+
+        // Set up password field depending on type
+        let password = match user_type {
+            UserType::Regular => {
+                tide::log::info!("Creating regular user '{slug}' with password");
+                hash_password(input.password)
+            }
+            UserType::System => {
+                tide::log::info!("Creating system user '{slug}'");
+
+                if !input.password.is_empty() {
+                    tide::log::warn!("Password was specified for system user");
+                    return Err(Error::BadRequest);
+                }
+
+                // Disabled password
+                str!("!")
+            }
+            UserType::Bot => {
+                tide::log::info!("Creating bot user '{slug}'");
+                // TODO assign bot token
+                format!("TODO bot token: {}", input.password)
+            }
+        };
+
         // Insert new model
-        let user = users::ActiveModel {
-            username: Set(input.username),
+        let user = user::ActiveModel {
+            user_type: Set(user_type),
+            name: Set(input.name),
             slug: Set(slug.clone()),
+            name_changes_left: Set(DEFAULT_NAME_CHANGES),
             email: Set(input.email),
             email_verified_at: Set(None),
-            password: Set(hash_password(input.password)),
+            password: Set(password),
             multi_factor_secret: Set(None),
             multi_factor_recovery_codes: Set(None),
-            remember_token: Set(None),
-            language: Set(input.language),
-            karma_points: Set(0),
-            karma_level: Set(0),
+            locale: Set(input.locale),
+            avatar_s3_hash: Set(None),
             real_name: Set(None),
-            pronouns: Set(None),
-            dob: Set(None),
-            bio: Set(None),
-            about_page: Set(None),
-            avatar_path: Set(None),
+            gender: Set(None),
+            birthday: Set(None),
+            biography: Set(None),
+            user_page: Set(None),
             created_at: Set(now()),
             updated_at: Set(None),
             deleted_at: Set(None),
@@ -95,17 +134,43 @@ impl UserService {
 
     pub async fn get_optional(
         ctx: &ServiceContext<'_>,
-        reference: Reference<'_>,
+        mut reference: Reference<'_>,
     ) -> Result<Option<UserModel>> {
         let txn = ctx.transaction();
+
+        // If slug, determine if this is a user alias.
+        //
+        // NOTE: Originally I tried having a direct query to
+        //       select both the user and user_alias table at
+        //       the same time. I tried a JOIN and a subquery,
+        //       but for both the query planner indictated that
+        //       they would be slower than doing queries on
+        //       simple indexes directly, which is why we are
+        //       doing it this way.
+        if let Reference::Slug(slug) = reference {
+            // If present, proceed with SELECT by id.
+            // If absent, then this user is missing, return.
+            let alias = match UserAliasService::get_optional(ctx, slug).await? {
+                Some(alias) => alias,
+                None => return Ok(None),
+            };
+
+            // Rewrite reference so in the "real" user search
+            // we locate directly via user ID.
+            reference = Reference::Id(alias.user_id);
+        }
+
         let user = match reference {
+            // Get directly from ID
             Reference::Id(id) => User::find_by_id(id).one(txn).await?,
+
+            // Since a slug can be an alias, check for a redirect
             Reference::Slug(slug) => {
                 User::find()
                     .filter(
                         Condition::all()
-                            .add(users::Column::Slug.eq(slug))
-                            .add(users::Column::DeletedAt.is_null()),
+                            .add(user::Column::Slug.eq(slug))
+                            .add(user::Column::DeletedAt.is_null()),
                     )
                     .one(txn)
                     .await?
@@ -115,13 +180,27 @@ impl UserService {
         Ok(user)
     }
 
+    #[inline]
     pub async fn get(
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
     ) -> Result<UserModel> {
-        Self::get_optional(ctx, reference)
-            .await?
-            .ok_or(Error::NotFound)
+        find_or_error(Self::get_optional(ctx, reference)).await
+    }
+
+    /// Gets a user, but fails if the user type doesn't match.
+    pub async fn get_with_user_type(
+        ctx: &ServiceContext<'_>,
+        reference: Reference<'_>,
+        user_type: UserType,
+    ) -> Result<UserModel> {
+        let user = Self::get(ctx, reference).await?;
+
+        if user.user_type == user_type {
+            Ok(user)
+        } else {
+            Err(Error::BadRequest)
+        }
     }
 
     pub async fn update(
@@ -130,88 +209,178 @@ impl UserService {
         input: UpdateUser,
     ) -> Result<()> {
         let txn = ctx.transaction();
-        let model = Self::get(ctx, reference).await?;
-        let mut user: users::ActiveModel = model.into();
+        let user = Self::get(ctx, reference).await?;
+        let mut verify_name = false;
+        let mut model = user::ActiveModel {
+            user_id: Set(user.user_id),
+            ..Default::default()
+        };
 
         // Add each field
-        if let ProvidedValue::Set(username) = input.username {
-            // TODO: add old alias
-            // TODO: check for conflicts
-
-            let slug = get_user_slug(&username);
-            user.username = Set(username);
-            user.username_changes = Set(user.username_changes.unwrap() + 1);
-            user.slug = Set(slug);
+        if let ProvidedValue::Set(name) = input.name {
+            Self::update_name(ctx, name, &user, &mut model).await?;
+            verify_name = true;
         }
 
         if let ProvidedValue::Set(email) = input.email {
-            user.email = Set(email);
+            model.email = Set(email);
         }
 
         if let ProvidedValue::Set(email_verified) = input.email_verified {
-            user.email_verified_at = Set(if email_verified { Some(now()) } else { None });
+            let timestamp = if email_verified { Some(now()) } else { None };
+            model.email_verified_at = Set(timestamp);
         }
 
         if let ProvidedValue::Set(password) = input.password {
-            user.password = Set(hash_password(password));
+            model.password = Set(hash_password(password));
         }
 
-        if let ProvidedValue::Set(multi_factor_secret) = input.multi_factor_secret {
-            user.multi_factor_secret = Set(multi_factor_secret);
-        }
-
-        if let ProvidedValue::Set(multi_factor_recovery_codes) =
-            input.multi_factor_recovery_codes
-        {
-            user.multi_factor_recovery_codes = Set(multi_factor_recovery_codes);
-        }
-
-        if let ProvidedValue::Set(remember_token) = input.remember_token {
-            user.remember_token = Set(remember_token);
-        }
-
-        if let ProvidedValue::Set(language) = input.language {
-            user.language = Set(language);
-        }
-
-        if let ProvidedValue::Set(karma_points) = input.karma_points {
-            user.karma_points = Set(karma_points);
-        }
-
-        if let ProvidedValue::Set(karma_level) = input.karma_level {
-            user.karma_level = Set(karma_level);
+        if let ProvidedValue::Set(locale) = input.locale {
+            model.locale = Set(locale);
         }
 
         if let ProvidedValue::Set(real_name) = input.real_name {
-            user.real_name = Set(real_name);
+            model.real_name = Set(real_name);
         }
 
-        if let ProvidedValue::Set(pronouns) = input.pronouns {
-            user.pronouns = Set(pronouns);
+        if let ProvidedValue::Set(gender) = input.gender {
+            model.gender = Set(gender);
         }
 
-        if let ProvidedValue::Set(dob) = input.dob {
-            user.dob = Set(dob);
+        if let ProvidedValue::Set(birthday) = input.birthday {
+            model.birthday = Set(birthday);
         }
 
-        if let ProvidedValue::Set(bio) = input.bio {
-            user.bio = Set(bio);
+        if let ProvidedValue::Set(biography) = input.biography {
+            model.biography = Set(biography);
         }
 
-        if let ProvidedValue::Set(about_page) = input.about_page {
-            user.about_page = Set(about_page);
+        if let ProvidedValue::Set(user_page) = input.user_page {
+            model.user_page = Set(user_page);
         }
 
-        if let ProvidedValue::Set(avatar_path) = input.avatar_path {
-            user.avatar_path = Set(avatar_path);
+        if let ProvidedValue::Set(avatar) = input.avatar {
+            // TODO store avatar in S3
+            model.avatar_s3_hash = Set(avatar);
         }
 
         // Set update flag
-        user.updated_at = Set(Some(now()));
+        model.updated_at = Set(Some(now()));
 
         // Update and return
-        user.update(txn).await?;
+        let new_user = model.update(txn).await?;
+
+        // Verify, if needed
+        if verify_name {
+            try_join!(
+                UserAliasService::verify(ctx, &user.slug),
+                UserAliasService::verify(ctx, &new_user.slug),
+            )?;
+        }
+
         Ok(())
+    }
+
+    async fn update_name(
+        ctx: &ServiceContext<'_>,
+        new_name: String,
+        user: &UserModel,
+        model: &mut user::ActiveModel,
+    ) -> Result<()> {
+        // Regardless of the number of name change tokens,
+        // the user can always change their name if the slug is
+        // unaltered, or if the slug is a prior name of theirs
+        // (i.e. they have a user alias for it).
+
+        let new_slug = get_user_slug(&new_name);
+        let old_slug = &user.slug;
+
+        if new_slug == user.slug {
+            tide::log::debug!("User slug is the same, rename is free");
+
+            // Set model, but return early, we don't deduct a name change token
+            model.name = Set(new_name);
+            return Ok(());
+        }
+
+        if let Some(alias) = UserAliasService::get_optional(ctx, &new_slug).await? {
+            tide::log::debug!("User slug is a past alias, rename is free");
+
+            // Swap user alias for old slug
+            UserAliasService::swap(ctx, alias.alias_id, old_slug).await?;
+
+            // Set model, but return early, we don't deduct a name change token
+            model.name = Set(new_name);
+            model.slug = Set(new_slug);
+            return Ok(());
+        }
+
+        // All changes beyond this point involve creating a new alias, so
+        // a name change token must be consumed.
+        if user.name_changes_left == 0 {
+            tide::log::error!("User ID {} has no remaining name changes", user.user_id);
+            return Err(Error::InsufficientNameChanges);
+        }
+
+        tide::log::debug!(
+            "Creating user alias for '{}' -> '{}', deducting name change",
+            old_slug,
+            new_slug,
+        );
+
+        // Deduct name change token and add user alias for old slug.
+        //
+        // The "created by" is the user themselves, since
+        // they initiatived the rename.
+        //
+        // We don't verify here because the user row hasn't been
+        // updated yet, so we instead run UserAliasService::verify()
+        // ourselves at the end of user updating.
+        UserAliasService::create_no_verify(
+            ctx,
+            CreateUserAlias {
+                slug: old_slug.clone(),
+                target_user_id: user.user_id,
+                created_by_user_id: user.user_id,
+            },
+        )
+        .await?;
+
+        model.name_changes_left = Set(user.name_changes_left - 1);
+        model.name = Set(new_name);
+        model.slug = Set(new_slug);
+        Ok(())
+    }
+
+    /// Adds an additional rename token, up to the cap.
+    ///
+    /// # Returns
+    /// The current number of rename tokens the user has.
+    pub async fn add_name_change_token(
+        ctx: &ServiceContext<'_>,
+        reference: Reference<'_>,
+    ) -> Result<i16> {
+        let txn = ctx.transaction();
+        let user = Self::get(ctx, reference).await?;
+
+        let name_changes = cmp::min(user.name_changes_left + 1, MAX_NAME_CHANGES);
+        let model = user::ActiveModel {
+            user_id: Set(user.user_id),
+            name_changes_left: Set(name_changes),
+            updated_at: Set(Some(now())),
+            ..Default::default()
+        };
+
+        tide::log::info!(
+            "Adding name change token to user ID {} (was {}, now {}, max {})",
+            user.user_id,
+            user.name_changes_left,
+            name_changes,
+            MAX_NAME_CHANGES,
+        );
+
+        model.update(txn).await?;
+        Ok(name_changes)
     }
 
     pub async fn delete(
@@ -219,43 +388,30 @@ impl UserService {
         reference: Reference<'_>,
     ) -> Result<UserModel> {
         let txn = ctx.transaction();
-        let model = Self::get(ctx, reference).await?;
-        let mut user: users::ActiveModel = model.clone().into();
+        let user = Self::get(ctx, reference).await?;
+        tide::log::info!("Deleting user with ID {}", user.user_id);
+
+        // Delete all user aliases
+        UserAliasService::delete_all(ctx, user.user_id).await?;
 
         // Set deletion flag
-        user.deleted_at = Set(Some(now()));
+        let model = user::ActiveModel {
+            user_id: Set(user.user_id),
+            deleted_at: Set(Some(now())),
+            ..Default::default()
+        };
 
         // Update and return
-        user.update(txn).await?;
-        Ok(model)
+        let user = model.update(txn).await?;
+        Ok(user)
     }
 }
 
 // Helpers
 
-fn get_user_slug(username: &str) -> String {
-    let mut slug = str!(username);
-    replace_in_place(&mut slug, ":", "-");
-    normalize(&mut slug);
-    slug
-}
-
 // TEMP helper, so it's easier to replace when implemented
-fn hash_password(value: Option<String>) -> String {
-    match value {
-        // Securely hash password
-        Some(value) => {
-            // TODO
-            value
-        }
-
-        // If the password is None, then that means this account should have disabled logins.
-        // Similar to /etc/shadow, setting the password hash to "!" means no possible input
-        // can match, effectively disabling the account.
-        None => {
-            tide::log::info!("Creating user with disabled password");
-
-            str!("!")
-        }
-    }
+// TODO replace
+fn hash_password(value: String) -> String {
+    // TODO Securely hash password
+    value
 }

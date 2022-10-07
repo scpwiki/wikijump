@@ -19,17 +19,18 @@
  */
 
 use super::prelude::*;
-use crate::models::users::Model as UserModel;
-use chrono::{DateTime, FixedOffset, NaiveDate};
+use crate::models::user::Model as UserModel;
+use crate::utils::DateTimeWithTimeZone;
+use chrono::NaiveDate;
 use std::collections::HashMap;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateUser {
-    pub username: String,
+    pub name: String,
     pub email: String,
-    pub password: Option<String>, // None means "disable password", i.e. user cannot log in
-    pub language: Option<String>,
+    pub locale: String,
+    pub password: String,
 }
 
 #[derive(Serialize, Debug)]
@@ -42,41 +43,37 @@ pub struct CreateUserOutput {
 #[derive(Deserialize, Debug, Default)]
 #[serde(rename_all = "camelCase", default)]
 pub struct UpdateUser {
-    pub username: ProvidedValue<String>,
+    pub name: ProvidedValue<String>,
     pub email: ProvidedValue<String>,
     pub email_verified: ProvidedValue<bool>,
-    pub password: ProvidedValue<Option<String>>, // None means "disable password", i.e. user cannot log in
-    pub multi_factor_secret: ProvidedValue<Option<String>>,
-    pub multi_factor_recovery_codes: ProvidedValue<Option<String>>,
-    pub remember_token: ProvidedValue<Option<String>>,
-    pub language: ProvidedValue<Option<String>>,
-    pub karma_points: ProvidedValue<i16>,
-    pub karma_level: ProvidedValue<i16>,
+    pub password: ProvidedValue<String>,
+    pub locale: ProvidedValue<String>,
+    pub avatar: ProvidedValue<Option<Vec<u8>>>,
     pub real_name: ProvidedValue<Option<String>>,
-    pub pronouns: ProvidedValue<Option<String>>,
-    pub dob: ProvidedValue<Option<NaiveDate>>,
-    pub bio: ProvidedValue<Option<String>>,
-    pub about_page: ProvidedValue<Option<String>>,
-    pub avatar_path: ProvidedValue<Option<String>>,
+    pub gender: ProvidedValue<Option<String>>,
+    pub birthday: ProvidedValue<Option<NaiveDate>>,
+    pub location: ProvidedValue<Option<String>>,
+    pub biography: ProvidedValue<Option<String>>,
+    pub user_page: ProvidedValue<Option<String>>,
 }
 
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct UserIdentityOutput {
     id: i64,
-    username: String,
+    name: String,
+    slug: String,
     tinyavatar: Option<String>, // TODO
-    karma: u8,
     role: String,
 }
 
 impl From<&UserModel> for UserIdentityOutput {
     fn from(user: &UserModel) -> Self {
         Self {
-            id: user.id,
-            username: user.username.clone(),
-            tinyavatar: None, // TODO
-            karma: user.karma_level as u8,
+            id: user.user_id,
+            name: user.name.clone(),
+            slug: user.slug.clone(),
+            tinyavatar: None,    // TODO
             role: String::new(), // TODO
         }
     }
@@ -88,20 +85,18 @@ pub struct UserInfoOutput {
     #[serde(flatten)]
     identity: UserIdentityOutput,
 
-    about: Option<String>,
+    biography: Option<String>,
     avatar: Option<String>, // TODO
-    signature: Option<String>,
-    since: DateTime<FixedOffset>,
-    last_active: Option<DateTime<FixedOffset>>,
+    since: DateTimeWithTimeZone,
+    last_active: Option<DateTimeWithTimeZone>,
 }
 
 impl From<&UserModel> for UserInfoOutput {
     fn from(user: &UserModel) -> Self {
         Self {
             identity: UserIdentityOutput::from(user),
-            about: user.bio.clone(),
-            avatar: user.avatar_path.clone(),
-            signature: None, // TODO
+            biography: user.biography.clone(),
+            avatar: None, // TODO
             since: user.created_at,
             last_active: user.updated_at,
         }
@@ -114,8 +109,8 @@ pub struct UserProfileOutput {
     #[serde(flatten)]
     info: UserInfoOutput,
 
-    realname: Option<String>,
-    pronouns: Option<String>,
+    real_name: Option<String>,
+    gender: Option<String>,
     birthday: Option<NaiveDate>,
     location: Option<String>,
     links: HashMap<String, String>,
@@ -125,9 +120,9 @@ impl From<&UserModel> for UserProfileOutput {
     fn from(user: &UserModel) -> Self {
         Self {
             info: UserInfoOutput::from(user),
-            realname: user.real_name.clone(),
-            pronouns: user.pronouns.clone(),
-            birthday: user.dob,
+            real_name: user.real_name.clone(),
+            gender: user.gender.clone(),
+            birthday: user.birthday,
             location: None,        // TODO
             links: HashMap::new(), // TODO
         }

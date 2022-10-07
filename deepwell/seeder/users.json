@@ -1,21 +1,37 @@
 [
     {
         "id": 1,
+        "type": "regular",
         "name": "Administrator",
-        "password": "wikijumpadmin1",
+        "slug": "administrator",
         "email": "admin@wikijump",
+        "password": "wikijumpadmin1",
         "locale": "en",
+        "real_name": "Administrator",
+        "gender": null,
+        "birthday": null,
+        "biography": "Root platform administrator for this Wikijump instance",
+        "user_page": null,
         "aliases": [
             "admin",
-            "root"
+            "root",
+            "wheel",
+            "sudo"
         ]
     },
     {
         "id": 2,
+        "type": "system",
         "name": "System",
-        "password": null,
+        "slug": "system",
         "email": "system@wikijump",
+        "password": null,
         "locale": "en",
+        "real_name": "Wikijump",
+        "gender": null,
+        "birthday": "2019-01-18",
+        "biography": "Wikijump system user",
+        "user_page": "https://wikijump.org/",
         "aliases": [
             "auto",
             "automatic",
@@ -25,23 +41,38 @@
     },
     {
         "id": 3,
+        "type": "system",
         "name": "Anonymous",
-        "password": null,
+        "slug": "anonymous",
         "email": "anonymous@wikijump",
+        "password": null,
         "locale": "en",
+        "real_name": "Anonymous User",
+        "gender": null,
+        "birthday": null,
+        "biography": "Wikijump anonymous user",
+        "user_page": null,
         "aliases": [
             "anon",
-            "nobody"
+            "nobody",
+            "null",
+            "undefined"
         ]
     },
     {
         "id": 4,
-        "name": "Example User",
-        "password": null,
+        "type": "system",
+        "name": "User",
+        "slug": "user",
         "email": "user@wikijump",
+        "password": null,
         "locale": "en",
+        "real_name": "Example User",
+        "gender": null,
+        "birthday": null,
+        "biography": "Example user for documentation purposes",
+        "user_page": null,
         "aliases": [
-            "user",
             "example",
             "sample"
         ]

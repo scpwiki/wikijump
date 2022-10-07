@@ -35,7 +35,8 @@ mod prelude {
         RenderService, RequestFetchService, RevisionService, ScoreService,
         ServiceContext, SiteService, TextService, UserService, VoteService,
     };
-    pub use crate::web::{utils::error_response, CuidReference, HttpUnwrap, Reference};
+    pub use crate::utils::error_response;
+    pub use crate::web::{CuidReference, HttpUnwrap, Reference};
     pub use chrono::prelude::*;
     pub use sea_orm::{ConnectionTrait, TransactionTrait};
     pub use std::convert::TryFrom;
@@ -62,4 +63,5 @@ pub mod parent;
 pub mod site;
 pub mod text;
 pub mod user;
+pub mod user_bot;
 pub mod vote;

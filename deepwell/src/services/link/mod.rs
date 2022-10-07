@@ -38,7 +38,6 @@
 mod prelude {
     pub use super::super::prelude::*;
     pub use super::structs::*;
-    pub use crate::web::ConnectionType;
 }
 
 #[macro_use]

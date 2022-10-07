@@ -22,7 +22,7 @@ use wikidot_normalize::normalize;
 
 use super::prelude::*;
 use crate::models::site::{self, Entity as Site, Model as SiteModel};
-use crate::web::validate_locale;
+use crate::utils::validate_locale;
 
 #[derive(Debug)]
 pub struct SiteService;
@@ -131,13 +131,12 @@ impl SiteService {
         Ok(site)
     }
 
+    #[inline]
     pub async fn get(
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
     ) -> Result<SiteModel> {
-        Self::get_optional(ctx, reference)
-            .await?
-            .ok_or(Error::NotFound)
+        find_or_error(Self::get_optional(ctx, reference)).await
     }
 
     /// Checks to see if a site already exists at the slug specified.

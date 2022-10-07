@@ -1,5 +1,5 @@
 /*
- * util.rs
+ * utils/time.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -20,19 +20,13 @@
 
 use chrono::{DateTime, FixedOffset, Utc};
 
-pub fn replace_in_place(string: &mut String, pattern: &str, replacement: &str) {
-    while let Some(index) = string.find(pattern) {
-        let end = index + replacement.len();
-
-        string.replace_range(index..end, replacement);
-    }
-}
+pub type DateTimeWithTimeZone = DateTime<FixedOffset>;
 
 lazy_static! {
     pub static ref UTC: FixedOffset = FixedOffset::east(0);
 }
 
 #[inline]
-pub fn now() -> DateTime<FixedOffset> {
+pub fn now() -> DateTimeWithTimeZone {
     Utc::now().with_timezone(&*UTC)
 }

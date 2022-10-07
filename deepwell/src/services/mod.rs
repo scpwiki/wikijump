@@ -37,13 +37,13 @@
 mod prelude {
     pub use super::context::ServiceContext;
     pub use super::error::*;
-    pub use crate::utils::now;
+    pub use crate::utils::{find_or_error, now};
     pub use crate::web::{CuidReference, ProvidedValue, Reference};
     pub use chrono::Utc;
     pub use sea_orm::{
-        ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, EntityTrait, JoinType,
-        ModelTrait, PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, RelationTrait,
-        Set,
+        ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, DeleteResult,
+        EntityTrait, IntoActiveModel, JoinType, ModelTrait, PaginatorTrait, QueryFilter,
+        QueryOrder, QuerySelect, RelationTrait, Set,
     };
 }
 
@@ -65,6 +65,8 @@ pub mod score;
 pub mod site;
 pub mod text;
 pub mod user;
+pub mod user_alias;
+pub mod user_bot_owner;
 pub mod vote;
 
 use crate::api::ApiRequest;
@@ -87,6 +89,8 @@ pub use self::score::ScoreService;
 pub use self::site::SiteService;
 pub use self::text::TextService;
 pub use self::user::UserService;
+pub use self::user_alias::UserAliasService;
+pub use self::user_bot_owner::UserBotOwnerService;
 pub use self::vote::VoteService;
 
 /// Extension trait to retrieve service objects from an `ApiRequest`.

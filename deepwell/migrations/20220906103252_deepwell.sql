@@ -22,30 +22,66 @@ AS
 -- User
 --
 
--- TODO don't use the laravel users table
-CREATE TABLE users (
-    id BIGSERIAL PRIMARY KEY,
-    username TEXT NOT NULL UNIQUE,
+CREATE TYPE user_type AS ENUM (
+    'regular',
+    'system',
+    'bot'
+);
+
+CREATE TABLE "user" (
+    user_id BIGSERIAL PRIMARY KEY,
+    user_type user_type NOT NULL DEFAULT 'regular',
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+    updated_at TIMESTAMP WITH TIME ZONE,
+    deleted_at TIMESTAMP WITH TIME ZONE,
+    name TEXT NOT NULL UNIQUE,
     slug TEXT NOT NULL UNIQUE,
-    username_changes INT NOT NULL DEFAULT 0,
+    name_changes_left SMALLINT NOT NULL,  -- Default set in runtime configuration.
+    last_renamed_at TIMESTAMP WITH TIME ZONE,
     email TEXT NOT NULL UNIQUE,
     email_verified_at TIMESTAMP WITH TIME ZONE,
     password TEXT NOT NULL,
     multi_factor_secret TEXT,
-    multi_factor_recovery_codes TEXT,
-    remember_token TEXT,
-    language TEXT,
-    karma_points SMALLINT NOT NULL DEFAULT 0,
-    karma_level SMALLINT NOT NULL DEFAULT 0,
-    pronouns TEXT,
-    dob DATE,
+    multi_factor_recovery_codes JSON,
+    locale TEXT NOT NULL,
+    avatar_s3_hash BYTEA,
     real_name TEXT,
-    bio TEXT,
-    about_page TEXT,
-    avatar_path TEXT,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    gender TEXT,
+    birthday DATE,
+    location TEXT,
+    biography TEXT,
+    user_page TEXT,
+
+    -- Both MFA columns should either be set or unset
+    CHECK ((multi_factor_secret IS NULL) = (multi_factor_recovery_codes IS NULL)),
+
+    -- Strings should either be NULL or non-empty (and within limits)
+    CHECK (real_name IS NULL OR (length(real_name) > 0 AND length(real_name) < 300)),
+    CHECK (gender IS NULL OR (length(gender) > 0 AND length(gender) < 100)),
+    CHECK (location IS NULL OR (length(location) > 0 AND length(location) < 100)),
+    CHECK (biography IS NULL OR (length(biography) > 0 AND length(biography) < 4000)),
+    CHECK (user_page IS NULL OR (length(user_page) > 0 AND length(user_page) < 100)),
+
+    CHECK (name_changes_left >= 0),                                 -- Value cannot be negative
+    CHECK (avatar_s3_hash IS NULL OR length(avatar_s3_hash) = 64)   -- SHA-512 hash size (if set)
+);
+
+CREATE TABLE user_alias (
+    alias_id BIGSERIAL PRIMARY KEY,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+    created_by BIGINT NOT NULL REFERENCES "user"(user_id),
+    user_id BIGINT NOT NULL REFERENCES "user"(user_id),
+    slug TEXT NOT NULL UNIQUE
+);
+
+CREATE TABLE user_bot_owner (
+    bot_user_id BIGINT REFERENCES "user"(user_id),
+    human_user_id BIGINT REFERENCES "user"(user_id),
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE,
-    deleted_at TIMESTAMP WITH TIME ZONE
+    description TEXT NOT NULL,
+
+    PRIMARY KEY (bot_user_id, human_user_id)
 );
 
 --
@@ -132,7 +168,7 @@ CREATE TABLE page_revision (
     revision_number INT NOT NULL,
     page_id BIGINT NOT NULL REFERENCES page(page_id),
     site_id BIGINT NOT NULL REFERENCES site(site_id),
-    user_id BIGINT NOT NULL REFERENCES users(id),
+    user_id BIGINT NOT NULL REFERENCES "user"(user_id),
     changes JSON NOT NULL, -- List of changes in this revision
     wikitext_hash BYTEA NOT NULL REFERENCES text(hash),
     compiled_hash BYTEA NOT NULL REFERENCES text(hash),
@@ -197,7 +233,7 @@ CREATE TABLE page_parent (
 
 CREATE TABLE page_attribution (
     page_id BIGINT REFERENCES page(page_id),
-    user_id BIGINT REFERENCES users(id),
+    user_id BIGINT REFERENCES "user"(user_id),
     -- Text enum describing the kind of attribution
     -- Currently synced to Crom: 'author', 'rewrite', 'translator', 'maintainer'
     attribution_type TEXT NOT NULL,
@@ -212,11 +248,12 @@ CREATE TABLE page_lock (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE,
     deleted_at TIMESTAMP WITH TIME ZONE,
+    expires_at TIMESTAMP WITH TIME ZONE,
     -- Text enum describing what kind of lock (e.g. authors only, staff only)
     -- Currently the only value is 'wikidot' (meaning mods+ only)
     lock_type TEXT NOT NULL,
     page_id BIGINT NOT NULL REFERENCES page(page_id),
-    user_id BIGINT NOT NULL REFERENCES users(id),
+    user_id BIGINT NOT NULL REFERENCES "user"(user_id),
     reason TEXT NOT NULL,
 
     UNIQUE (page_id, deleted_at)
@@ -225,6 +262,15 @@ CREATE TABLE page_lock (
 --
 -- Page backlinks tracking
 --
+
+-- Enum types for page backlinks
+CREATE TYPE page_connection_type AS ENUM (
+    'include-messy',
+    'include-elements',
+    'component',
+    'link',
+    'redirect'
+);
 
 CREATE TABLE page_link (
     page_id BIGINT REFERENCES page(page_id),
@@ -239,14 +285,7 @@ CREATE TABLE page_link (
 CREATE TABLE page_connection (
     from_page_id BIGINT REFERENCES page(page_id),
     to_page_id BIGINT REFERENCES page(page_id),
-    connection_type TEXT
-        CHECK (connection_type = ANY(ARRAY[
-            'include-messy',
-            'include-elements',
-            'component',
-            'link',
-            'redirect'
-        ])),
+    connection_type TEXT, -- Cannot use page_connection_type right now because Sea-ORM issues
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE,
     count INT NOT NULL CHECK (count > 0),
@@ -258,14 +297,7 @@ CREATE TABLE page_connection_missing (
     from_page_id BIGINT REFERENCES page(page_id),
     to_site_id BIGINT REFERENCES page(page_id),
     to_page_slug TEXT,
-    connection_type TEXT
-        CHECK (connection_type = ANY(ARRAY[
-            'include-messy',
-            'include-elements',
-            'component',
-            'link',
-            'redirect'
-        ])),
+    connection_type TEXT, -- Ditto
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE,
     count INT NOT NULL CHECK (count > 0),
@@ -282,9 +314,9 @@ CREATE TABLE page_vote (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     deleted_at TIMESTAMP WITH TIME ZONE,
     disabled_at TIMESTAMP WITH TIME ZONE,
-    disabled_by BIGINT REFERENCES users(id),
+    disabled_by BIGINT REFERENCES "user"(user_id),
     page_id BIGINT NOT NULL REFERENCES page(page_id),
-    user_id BIGINT NOT NULL REFERENCES users(id),
+    user_id BIGINT NOT NULL REFERENCES "user"(user_id),
     value SMALLINT NOT NULL,
 
     UNIQUE (page_id, user_id, deleted_at),
@@ -328,7 +360,7 @@ CREATE TABLE file_revision (
     revision_number INTEGER NOT NULL,
     file_id BIGINT NOT NULL REFERENCES file(file_id),
     page_id BIGINT NOT NULL REFERENCES page(page_id),
-    user_id BIGINT NOT NULL REFERENCES users(id),
+    user_id BIGINT NOT NULL REFERENCES "user"(user_id),
     name TEXT NOT NULL,
     s3_hash BYTEA NOT NULL,
     mime_hint TEXT NOT NULL,
@@ -347,11 +379,11 @@ CREATE TABLE file_revision (
     -- Ensure array only contains valid values
     -- Change this to use the 'page_revision_change' type later
     CHECK (json_array_to_text_array(changes) <@ '{
-        \"page\",
-        \"name\",
-        \"blob\",
-        \"mime\",
-        \"licensing\"
+        page,
+        name,
+        blob,
+        mime,
+        licensing
     }'),
 
     -- Ensure first revision reports all changes
@@ -362,11 +394,11 @@ CREATE TABLE file_revision (
     CHECK (
         revision_type != 'create' OR
         json_array_to_text_array(changes) @> '{
-            \"page\",
-            \"name\",
-            \"blob\",
-            \"mime\",
-            \"licensing\"
+            page,
+            name,
+            blob,
+            mime,
+            licensing
         }'
     ),
 

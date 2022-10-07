@@ -22,6 +22,7 @@ use super::prelude::*;
 use crate::info;
 use crate::web::ratelimit::is_ratelimit_exempt;
 use sea_orm::{ConnectionTrait, DatabaseBackend, Statement};
+use wikidot_normalize::normalize;
 
 pub async fn ping(req: ApiRequest) -> ApiResponse {
     tide::log::info!("Ping request");
@@ -57,4 +58,13 @@ pub async fn ratelimit_exempt(req: ApiRequest) -> ApiResponse {
         tide::log::warn!("Requester is not rate-limit exempt");
         Ok(Response::new(StatusCode::Forbidden))
     }
+}
+
+pub async fn normalize_method(req: ApiRequest) -> ApiResponse {
+    let input = req.param("input")?;
+    tide::log::info!("Running normalize as utility web method: {input}");
+
+    let mut value = str!(input);
+    normalize(&mut value);
+    Ok(value.into())
 }

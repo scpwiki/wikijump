@@ -19,7 +19,8 @@
  */
 
 use super::prelude::*;
-use crate::models::users::Model as UserModel;
+use crate::models::sea_orm_active_enums::UserType;
+use crate::models::user::Model as UserModel;
 use crate::services::user::{
     CreateUser, UpdateUser, UserIdentityOutput, UserInfoOutput, UserProfileOutput,
 };
@@ -29,9 +30,12 @@ pub async fn user_create(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    tide::log::info!("Creating new user");
+    tide::log::info!("Creating new regular user");
     let input: CreateUser = req.body_json().await?;
-    let output = UserService::create(&ctx, input).await.to_api()?;
+    let output = UserService::create(&ctx, UserType::Regular, input)
+        .await
+        .to_api()?;
+
     let body = Body::from_json(&output)?;
     txn.commit().await?;
 
@@ -70,7 +74,7 @@ pub async fn user_put(mut req: ApiRequest) -> ApiResponse {
 
     let input: UpdateUser = req.body_json().await?;
     let reference = Reference::try_from(&req)?;
-    tide::log::info!("Editing user {:?}", reference);
+    tide::log::info!("Updating user {:?}", reference);
 
     UserService::update(&ctx, reference, input).await.to_api()?;
 
@@ -89,6 +93,23 @@ pub async fn user_delete(req: ApiRequest) -> ApiResponse {
     let user = UserService::delete(&ctx, reference).await.to_api()?;
     txn.commit().await?;
     build_user_response(&user, detail, StatusCode::Ok)
+}
+
+pub async fn user_add_name_change(req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    let reference = Reference::try_from(&req)?;
+    tide::log::info!("Adding user name change token to {:?}", reference);
+
+    let name_changes = UserService::add_name_change_token(&ctx, reference)
+        .await
+        .to_api()?;
+
+    let body = Body::from_json(&name_changes)?;
+    let response = Response::builder(StatusCode::Ok).body(body).into();
+    txn.commit().await?;
+    Ok(response)
 }
 
 fn build_user_response(

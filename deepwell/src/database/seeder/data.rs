@@ -18,7 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::models::sea_orm_active_enums::UserType;
 use anyhow::Result;
+use chrono::NaiveDate;
 use serde::Deserialize;
 use std::fs::{self, File};
 use std::path::{Path, PathBuf};
@@ -74,9 +76,18 @@ impl SeedData {
 pub struct User {
     pub id: i64,
     pub name: String,
-    pub password: Option<String>, // None means disable password
+    pub slug: String,
     pub email: String,
+
+    #[serde(rename = "type")]
+    pub user_type: UserType,
+    pub password: Option<String>,
     pub locale: String,
+    pub real_name: Option<String>,
+    pub gender: Option<String>,
+    pub birthday: Option<NaiveDate>,
+    pub biography: Option<String>,
+    pub user_page: Option<String>,
     pub aliases: Vec<String>,
 }
 

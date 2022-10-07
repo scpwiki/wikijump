@@ -19,7 +19,6 @@
  */
 
 use super::prelude::*;
-use crate::json_utils::json_to_string_list;
 use crate::models::page::{self, Entity as Page, Model as PageModel};
 use crate::models::page_category::Model as PageCategoryModel;
 use crate::services::revision::{
@@ -27,7 +26,7 @@ use crate::services::revision::{
     CreateRevision, CreateRevisionBody, CreateRevisionOutput, CreateTombstoneRevision,
 };
 use crate::services::{CategoryService, RevisionService, TextService};
-use crate::web::{get_category_name, trim_default};
+use crate::utils::{get_category_name, json_to_string_list, trim_default};
 use wikidot_normalize::normalize;
 
 #[derive(Debug)]
@@ -438,14 +437,13 @@ impl PageService {
             .map(|page| page.is_some())
     }
 
+    #[inline]
     pub async fn get(
         ctx: &ServiceContext<'_>,
         site_id: i64,
         reference: Reference<'_>,
     ) -> Result<PageModel> {
-        Self::get_optional(ctx, site_id, reference)
-            .await?
-            .ok_or(Error::NotFound)
+        find_or_error(Self::get_optional(ctx, site_id, reference)).await
     }
 
     pub async fn get_optional(
@@ -484,11 +482,9 @@ impl PageService {
             .map(|page| page.is_some())
     }
 
+    #[inline]
     pub async fn get_direct(ctx: &ServiceContext<'_>, page_id: i64) -> Result<PageModel> {
-        match Self::get_direct_optional(ctx, page_id).await? {
-            Some(page) => Ok(page),
-            None => Err(Error::NotFound),
-        }
+        find_or_error(Self::get_direct_optional(ctx, page_id)).await
     }
 
     pub async fn get_direct_optional(

@@ -24,7 +24,7 @@
 
 use crate::api::ApiServer;
 use crate::methods::misc::*;
-use crate::web::utils::error_response;
+use crate::utils::error_response;
 use tide::StatusCode;
 
 pub fn build(mut app: ApiServer) -> ApiServer {

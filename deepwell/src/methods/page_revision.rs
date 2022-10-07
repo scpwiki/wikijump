@@ -19,12 +19,12 @@
  */
 
 use super::prelude::*;
-use crate::json_utils::json_to_string_list;
 use crate::models::page_revision::Model as PageRevisionModel;
 use crate::services::revision::{
     PageRevisionModelFiltered, RevisionCountOutput, UpdateRevision,
 };
 use crate::services::{Result, TextService};
+use crate::utils::json_to_string_list;
 use crate::web::{PageDetailsQuery, PageLimitQuery};
 
 pub async fn page_revision_info(req: ApiRequest) -> ApiResponse {

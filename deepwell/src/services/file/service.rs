@@ -406,14 +406,13 @@ impl FileService {
         Ok(file)
     }
 
+    #[inline]
     pub async fn get(
         ctx: &ServiceContext<'_>,
         page_id: i64,
         reference: CuidReference<'_>,
     ) -> Result<FileModel> {
-        Self::get_optional(ctx, page_id, reference)
-            .await?
-            .ok_or(Error::NotFound)
+        find_or_error(Self::get_optional(ctx, page_id, reference)).await
     }
 
     pub async fn exists(
@@ -439,11 +438,9 @@ impl FileService {
         Ok(file)
     }
 
+    #[inline]
     pub async fn get_direct(ctx: &ServiceContext<'_>, file_id: i64) -> Result<FileModel> {
-        match Self::get_direct_optional(ctx, file_id).await? {
-            Some(file) => Ok(file),
-            None => Err(Error::NotFound),
-        }
+        find_or_error(Self::get_direct_optional(ctx, file_id)).await
     }
 
     pub async fn exists_direct(ctx: &ServiceContext<'_>, file_id: i64) -> Result<bool> {

@@ -1,5 +1,5 @@
 /*
- * web/mod.rs
+ * utils/user.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,26 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod connection_type;
-mod fetch_direction;
-mod fetch_limit;
-mod file_details;
-mod page_details;
-mod provided_value;
-mod reference;
-mod unwrap;
-mod user_details;
+use crate::utils::replace_in_place;
+use wikidot_normalize::normalize;
 
-pub mod ratelimit;
-
-pub use self::connection_type::ConnectionType;
-pub use self::fetch_direction::FetchDirection;
-pub use self::fetch_limit::{
-    FetchLimit, FetchLimitQuery, FileLimitQuery, PageLimitQuery,
-};
-pub use self::file_details::FileDetailsQuery;
-pub use self::page_details::PageDetailsQuery;
-pub use self::provided_value::ProvidedValue;
-pub use self::reference::{CuidReference, Reference};
-pub use self::unwrap::HttpUnwrap;
-pub use self::user_details::{UserDetails, UserDetailsQuery};
+pub fn get_user_slug<S: Into<String>>(name: S) -> String {
+    let mut slug = name.into();
+    replace_in_place(&mut slug, ":", "-");
+    normalize(&mut slug);
+    slug
+}

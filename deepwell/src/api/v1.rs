@@ -23,7 +23,7 @@
 //! Because it is not yet stabilized, it is a stub.
 
 use crate::api::ApiServer;
-use crate::web::utils::error_response;
+use crate::utils::error_response;
 use tide::StatusCode;
 
 pub fn build(mut app: ApiServer) -> ApiServer {

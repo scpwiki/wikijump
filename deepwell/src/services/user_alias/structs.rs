@@ -1,5 +1,5 @@
 /*
- * web/locale.rs
+ * services/user_alias/structs.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,12 +18,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::services::{Error, Result};
-use unic_langid::LanguageIdentifier;
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateUserAlias {
+    pub slug: String,
+    pub target_user_id: i64,
+    pub created_by_user_id: i64,
+}
 
-pub fn validate_locale(locale_str: &str) -> Result<LanguageIdentifier> {
-    LanguageIdentifier::from_bytes(locale_str.as_bytes()).map_err(|error| {
-        tide::log::warn!("Invalid locale '{}' passed: {:?}", locale_str, error);
-        Error::BadRequest
-    })
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateUserAliasOutput {
+    pub alias_id: i64,
+    pub slug: String,
 }
