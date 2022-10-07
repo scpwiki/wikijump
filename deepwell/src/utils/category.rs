@@ -162,36 +162,6 @@ fn test_get_category_name() {
 }
 
 #[test]
-fn test_slug_is_valid() {
-    macro_rules! check {
-        ($input:expr, $expected:expr $(,)?) => {
-            assert_eq!(
-                slug_is_valid($input),
-                $expected,
-                "Actual slug validity doesn't match expected",
-            )
-        };
-    }
-
-    check!("", false);
-    check!("apple", true);
-    check!("some-page", true);
-    check!("_template", true);
-    check!("component:wide-modal", true);
-    check!("archived:component:wide-modal", true);
-    check!(":banana", false);
-    check!("banana:", false);
-    check!(":banana:", false);
-    check!("::banana", false);
-    check!("banana::", false);
-    check!("::banana::", false);
-    check!("apple:banana:page", true);
-    check!("apple::banana:page", false);
-    check!("_default:", false);
-    check!("_default:apple", true);
-}
-
-#[test]
 fn test_trim_default() {
     macro_rules! check {
         ($input:expr, $expected:expr $(,)?) => {
