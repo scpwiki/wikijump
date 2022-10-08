@@ -19,12 +19,13 @@
  */
 
 use crate::info;
-use clap::{Arg, Command};
+use clap::builder::{BoolishValueParser, NonEmptyStringValueParser};
+use clap::{value_parser, Arg, ArgAction, Command};
 use dotenv::dotenv;
 use ref_map::*;
 use s3::{creds::Credentials, region::Region};
 use std::env;
-use std::net::SocketAddr;
+use std::net::{IpAddr, SocketAddr};
 use std::num::NonZeroU32;
 use std::path::PathBuf;
 use std::process;
@@ -172,7 +173,7 @@ fn read_env(config: &mut Config) {
     }
 
     if let Ok(value) = env::var("LOGGER_LEVEL") {
-        match get_log_level(&value) {
+        match parse_log_level(&value) {
             Some(level) => config.logger_level = level,
             None => {
                 eprintln!("LOGGER_LEVEL variable does not have a valid logging level");
@@ -312,7 +313,7 @@ fn read_env(config: &mut Config) {
 }
 
 fn parse_args(config: &mut Config) {
-    let matches = Command::new("DEEPWELL")
+    let mut matches = Command::new("DEEPWELL")
         .author(info::PKG_AUTHORS)
         .version(info::VERSION.as_str())
         .long_version(info::FULL_VERSION.as_str())
@@ -322,6 +323,7 @@ fn parse_args(config: &mut Config) {
                 .short('q')
                 .long("quiet")
                 .long("disable-log")
+                .action(ArgAction::SetTrue)
                 .help("Disable logging output."),
         )
         .arg(
@@ -329,25 +331,28 @@ fn parse_args(config: &mut Config) {
                 .short('l')
                 .long("log")
                 .long("log-level")
-                .takes_value(true)
                 .value_name("LEVEL")
+                .value_parser(NonEmptyStringValueParser::new())
+                .action(ArgAction::Set)
                 .help("What logging level to use."),
         )
         .arg(
             Arg::new("host")
-                .short('h')
+                .short('H')
                 .long("host")
                 .long("hostname")
-                .takes_value(true)
                 .value_name("HOST")
+                .value_parser(value_parser!(IpAddr))
+                .action(ArgAction::Set)
                 .help("What host to listen on."),
         )
         .arg(
             Arg::new("port")
                 .short('p')
                 .long("port")
-                .takes_value(true)
                 .value_name("PORT")
+                .value_parser(value_parser!(u16))
+                .action(ArgAction::Set)
                 .help("What port to listen on."),
         )
         .arg(
@@ -355,8 +360,9 @@ fn parse_args(config: &mut Config) {
                 .short('d')
                 .long("db")
                 .long("database")
-                .takes_value(true)
                 .value_name("URI")
+                .value_parser(NonEmptyStringValueParser::new())
+                .action(ArgAction::Set)
                 .help("The URL of the PostgreSQL database to connect to."),
         )
         .arg(
@@ -364,8 +370,9 @@ fn parse_args(config: &mut Config) {
                 .short('M')
                 .long("migrate")
                 .long("run-migrations")
-                .takes_value(true)
                 .value_name("BOOLEAN")
+                .value_parser(BoolishValueParser::new())
+                .action(ArgAction::Set)
                 .help("Whether to run migrations on server startup."),
         )
         .arg(
@@ -373,8 +380,9 @@ fn parse_args(config: &mut Config) {
                 .short('S')
                 .long("seeder")
                 .long("run-seeder")
-                .takes_value(true)
                 .value_name("BOOLEAN")
+                .value_parser(BoolishValueParser::new())
+                .action(ArgAction::Set)
                 .help("Whether to run the seeder on server startup."),
         )
         .arg(
@@ -382,43 +390,47 @@ fn parse_args(config: &mut Config) {
                 .short('B')
                 .long("bucket")
                 .long("s3-bucket")
-                .takes_value(true)
                 .value_name("NAME")
+                .value_parser(NonEmptyStringValueParser::new())
+                .action(ArgAction::Set)
                 .help("The name of the S3 bucket where uploaded file blobs are kept."),
         )
         .arg(
             Arg::new("aws-region")
                 .long("aws-region")
-                .takes_value(true)
                 .value_name("NAME")
+                .value_parser(value_parser!(Region))
+                .action(ArgAction::Set)
                 .help("The name of the standard AWS region to use for AWS calls. Conflicts with --s3-region."),
         )
         .arg(
             Arg::new("s3-region")
                 .long("s3-region")
-                .takes_value(true)
                 .value_name("NAME")
+                .value_parser(NonEmptyStringValueParser::new())
+                .action(ArgAction::Set)
                 .help("The name of the custom region to use, if not AWS. Conflicts with --aws-region."),
         )
         .arg(
             Arg::new("s3-endpoint")
                 .long("s3-endpoint")
-                .takes_value(true)
                 .value_name("URL")
+                .value_parser(NonEmptyStringValueParser::new())
+                .action(ArgAction::Set)
                 .help("The endpoint to contact for S3 calls, if not AWS. Requires --s3-region."),
         )
         .arg(
             Arg::new("localization-path")
                 .short('L')
                 .long("localizations")
-                .takes_value(true)
+                .value_parser(value_parser!(PathBuf))
                 .value_name("PATH")
                 .help("The path to read translation files from."),
         )
         .arg(
             Arg::new("seeder-path")
                 .long("seed")
-                .takes_value(true)
+                .value_parser(value_parser!(PathBuf))
                 .value_name("PATH")
                 .help("The path to read seeder data from."),
         )
@@ -426,26 +438,27 @@ fn parse_args(config: &mut Config) {
             Arg::new("ratelimit-min")
                 .short('r')
                 .long("requests-per-minute")
-                .takes_value(true)
+                .value_parser(value_parser!(NonZeroU32))
                 .value_name("COUNT")
                 .help("How many requests are allowed per IP address per minute."),
         )
         .arg(
             Arg::new("render-timeout")
+                .short('R')
                 .long("render-timeout")
-                .takes_value(true)
+                .value_parser(value_parser!(u32))
                 .value_name("MS")
                 .help("How long in milliseconds to allow render jobs to run before terminating them."),
         )
         .get_matches();
 
     // Parse arguments and modify config
-    if matches.is_present("disable-log") {
+    if matches.remove_one::<bool>("disable-log") == Some(true) {
         config.logger = false;
     }
 
-    if let Some(value) = matches.value_of("log-level") {
-        match get_log_level(value) {
+    if let Some(value) = matches.remove_one::<String>("log-level") {
+        match parse_log_level(&value) {
             Some(level) => config.logger_level = level,
             None => {
                 eprintln!("Invalid logging level: {value}");
@@ -454,68 +467,40 @@ fn parse_args(config: &mut Config) {
         }
     }
 
-    if let Some(value) = matches.value_of("host") {
-        match value.parse() {
-            Ok(host) => config.address.set_ip(host),
-            Err(_) => {
-                eprintln!("Invalid IP address: {value}");
-                process::exit(1);
-            }
-        }
+    if let Some(value) = matches.remove_one::<IpAddr>("host") {
+        config.address.set_ip(value);
     }
 
-    if let Some(value) = matches.value_of("port") {
-        match value.parse() {
-            Ok(port) => config.address.set_port(port),
-            Err(_) => {
-                eprintln!("Invalid port number: {value}");
-                process::exit(1);
-            }
-        }
+    if let Some(value) = matches.remove_one::<u16>("port") {
+        config.address.set_port(value);
     }
 
-    if let Some(value) = matches.value_of("run-migrations") {
-        match value.parse() {
-            Ok(run) => config.run_migrations = run,
-            Err(_) => {
-                eprintln!("Invalid boolean value for migrations: {value}");
-                process::exit(1);
-            }
-        }
+    if let Some(value) = matches.remove_one::<String>("database-url") {
+        config.database_url = value;
     }
 
-    if let Some(value) = matches.value_of("run-seeder") {
-        match value.parse() {
-            Ok(run) => config.run_seeder = run,
-            Err(_) => {
-                eprintln!("Invalid boolean value for seeder: {value}");
-                process::exit(1);
-            }
-        }
+    if let Some(value) = matches.remove_one::<bool>("run-migrations") {
+        config.run_migrations = value;
     }
 
-    if let Some(bucket) = matches.value_of("s3-bucket") {
-        config.s3_bucket = bucket.into();
+    if let Some(value) = matches.remove_one::<bool>("run-seeder") {
+        config.run_seeder = value;
+    }
+
+    if let Some(value) = matches.remove_one::<String>("s3-bucket") {
+        config.s3_bucket = value;
     }
 
     match (
-        matches.value_of("aws-region"),
-        matches.value_of("s3-region"),
-        matches.value_of("s3-endpoint"),
+        matches.remove_one::<Region>("aws-region"),
+        matches.remove_one::<String>("s3-region"),
+        matches.remove_one::<String>("s3-endpoint"),
     ) {
         // Using AWS
-        (Some(value), None, None) => match value.parse() {
-            Ok(region) => config.s3_region = region,
-            Err(_) => {
-                eprintln!("Invalid standard AWS region name: {value}");
-                process::exit(1);
-            }
-        },
+        (Some(region), None, None) => config.s3_region = region,
 
         // Using a custom endpoint
         (None, Some(region), Some(endpoint)) => {
-            let region = str!(region);
-            let endpoint = str!(endpoint);
             config.s3_region = Region::Custom { region, endpoint };
         }
 
@@ -529,32 +514,20 @@ fn parse_args(config: &mut Config) {
         }
     }
 
-    if let Some(localization_path) = matches.value_of_os("localization-path") {
-        config.localization_path = localization_path.into();
+    if let Some(value) = matches.remove_one::<PathBuf>("localization-path") {
+        config.localization_path = value;
     }
 
-    if let Some(seeder_path) = matches.value_of_os("seeder-path") {
-        config.seeder_path = seeder_path.into();
+    if let Some(value) = matches.remove_one::<PathBuf>("seeder-path") {
+        config.seeder_path = value;
     }
 
-    if let Some(value) = matches.value_of("ratelimit-min") {
-        match value.parse() {
-            Ok(value) => config.rate_limit_per_minute = value,
-            Err(_) => {
-                eprintln!("Invalid number of requests per minute: {value}");
-                process::exit(1);
-            }
-        }
+    if let Some(value) = matches.remove_one::<NonZeroU32>("ratelimit-min") {
+        config.rate_limit_per_minute = value;
     }
 
-    if let Some(value) = matches.value_of("render-timeout") {
-        match value.parse() {
-            Ok(ms) => config.render_timeout = Duration::from_millis(ms),
-            Err(_) => {
-                eprintln!("Invalid millisecond timeout for render calls: {value}");
-                process::exit(1);
-            }
-        }
+    if let Some(value) = matches.remove_one::<u32>("render-timeout") {
+        config.render_timeout = Duration::from_millis(u64::from(value));
     }
 }
 
@@ -599,7 +572,7 @@ impl Config {
     }
 }
 
-fn get_log_level(value: &str) -> Option<LevelFilter> {
+fn parse_log_level(value: &str) -> Option<LevelFilter> {
     const LEVELS: [(&str, LevelFilter); 10] = [
         ("off", LevelFilter::Off),
         ("err", LevelFilter::Error),
