@@ -334,7 +334,6 @@ fn parse_args(config: &mut Config) {
                 .value_name("LEVEL")
                 .value_parser(NonEmptyStringValueParser::new())
                 .action(ArgAction::Set)
-                .required(true)
                 .help("What logging level to use."),
         )
         .arg(
