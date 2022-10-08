@@ -339,7 +339,7 @@ fn parse_args(config: &mut Config) {
         )
         .arg(
             Arg::new("host")
-                .short('h')
+                .short('H')
                 .long("host")
                 .long("hostname")
                 .value_name("HOST")
