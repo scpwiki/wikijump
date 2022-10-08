@@ -444,6 +444,7 @@ fn parse_args(config: &mut Config) {
         )
         .arg(
             Arg::new("render-timeout")
+                .short('R')
                 .long("render-timeout")
                 .value_parser(value_parser!(u32))
                 .value_name("MS")
