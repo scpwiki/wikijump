@@ -488,7 +488,7 @@ fn parse_args(config: &mut Config) {
     }
 
     if let Some(value) = matches.remove_one::<String>("s3-bucket") {
-        config.s3_bucket = value.into();
+        config.s3_bucket = value;
     }
 
     match (
