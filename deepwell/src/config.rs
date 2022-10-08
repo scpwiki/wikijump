@@ -491,18 +491,12 @@ fn parse_args(config: &mut Config) {
     }
 
     match (
-        matches.remove_one::<String>("aws-region"),
+        matches.remove_one::<Region>("aws-region"),
         matches.remove_one::<String>("s3-region"),
         matches.remove_one::<String>("s3-endpoint"),
     ) {
         // Using AWS
-        (Some(value), None, None) => match value.parse() {
-            Ok(region) => config.s3_region = region,
-            Err(_) => {
-                eprintln!("Invalid standard AWS region name: {value}");
-                process::exit(1);
-            }
-        },
+        (Some(region), None, None) => config.s3_region = region,
 
         // Using a custom endpoint
         (None, Some(region), Some(endpoint)) => {
