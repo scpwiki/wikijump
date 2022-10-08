@@ -27,7 +27,7 @@ use s3::{creds::Credentials, region::Region};
 use std::env;
 use std::net::{IpAddr, SocketAddr};
 use std::num::NonZeroU32;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::process;
 use std::time::Duration;
 use tide::log::LevelFilter;
@@ -313,7 +313,7 @@ fn read_env(config: &mut Config) {
 }
 
 fn parse_args(config: &mut Config) {
-    let matches = Command::new("DEEPWELL")
+    let mut matches = Command::new("DEEPWELL")
         .author(info::PKG_AUTHORS)
         .version(info::VERSION.as_str())
         .long_version(info::FULL_VERSION.as_str())
@@ -452,12 +452,12 @@ fn parse_args(config: &mut Config) {
         .get_matches();
 
     // Parse arguments and modify config
-    if let Some(&value) = matches.get_one::<bool>("disable-log") {
+    if let Some(value) = matches.remove_one::<bool>("disable-log") {
         config.logger = value;
     }
 
-    if let Some(value) = matches.get_one::<&str>("log-level") {
-        match parse_log_level(value) {
+    if let Some(value) = matches.remove_one::<String>("log-level") {
+        match parse_log_level(&value) {
             Some(level) => config.logger_level = level,
             None => {
                 eprintln!("Invalid logging level: {value}");
@@ -466,30 +466,30 @@ fn parse_args(config: &mut Config) {
         }
     }
 
-    if let Some(&value) = matches.get_one::<IpAddr>("host") {
+    if let Some(value) = matches.remove_one::<IpAddr>("host") {
         config.address.set_ip(value);
     }
 
-    if let Some(&value) = matches.get_one::<u16>("port") {
+    if let Some(value) = matches.remove_one::<u16>("port") {
         config.address.set_port(value);
     }
 
-    if let Some(&value) = matches.get_one::<bool>("run-migrations") {
+    if let Some(value) = matches.remove_one::<bool>("run-migrations") {
         config.run_migrations = value;
     }
 
-    if let Some(&value) = matches.get_one::<bool>("run-seeder") {
+    if let Some(value) = matches.remove_one::<bool>("run-seeder") {
         config.run_seeder = value;
     }
 
-    if let Some(&value) = matches.get_one::<&str>("s3-bucket") {
+    if let Some(value) = matches.remove_one::<String>("s3-bucket") {
         config.s3_bucket = value.into();
     }
 
     match (
-        matches.get_one::<&str>("aws-region"),
-        matches.get_one::<&str>("s3-region"),
-        matches.get_one::<&str>("s3-endpoint"),
+        matches.remove_one::<String>("aws-region"),
+        matches.remove_one::<String>("s3-region"),
+        matches.remove_one::<String>("s3-endpoint"),
     ) {
         // Using AWS
         (Some(value), None, None) => match value.parse() {
@@ -501,9 +501,7 @@ fn parse_args(config: &mut Config) {
         },
 
         // Using a custom endpoint
-        (None, Some(&region), Some(&endpoint)) => {
-            let region = region.into();
-            let endpoint = endpoint.into();
+        (None, Some(region), Some(endpoint)) => {
             config.s3_region = Region::Custom { region, endpoint };
         }
 
@@ -517,19 +515,19 @@ fn parse_args(config: &mut Config) {
         }
     }
 
-    if let Some(&value) = matches.get_one::<&Path>("localization-path") {
-        config.localization_path = value.into();
+    if let Some(value) = matches.remove_one::<PathBuf>("localization-path") {
+        config.localization_path = value;
     }
 
-    if let Some(&value) = matches.get_one::<&Path>("seeder-path") {
-        config.seeder_path = value.into();
+    if let Some(value) = matches.remove_one::<PathBuf>("seeder-path") {
+        config.seeder_path = value;
     }
 
-    if let Some(&value) = matches.get_one::<NonZeroU32>("ratelimit-min") {
+    if let Some(value) = matches.remove_one::<NonZeroU32>("ratelimit-min") {
         config.rate_limit_per_minute = value;
     }
 
-    if let Some(&value) = matches.get_one::<u64>("render-timeout") {
+    if let Some(value) = matches.remove_one::<u32>("render-timeout") {
         config.render_timeout = Duration::from_millis(u64::from(value));
     }
 }
