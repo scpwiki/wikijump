@@ -474,6 +474,10 @@ fn parse_args(config: &mut Config) {
         config.address.set_port(value);
     }
 
+    if let Some(value) = matches.remove_one::<String>("database-url") {
+        config.database_url = value;
+    }
+
     if let Some(value) = matches.remove_one::<bool>("run-migrations") {
         config.run_migrations = value;
     }
