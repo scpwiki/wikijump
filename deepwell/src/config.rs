@@ -452,8 +452,8 @@ fn parse_args(config: &mut Config) {
         .get_matches();
 
     // Parse arguments and modify config
-    if let Some(value) = matches.remove_one::<bool>("disable-log") {
-        config.logger = value;
+    if matches.remove_one::<bool>("disable-log") == Some(true) {
+        config.logger = false;
     }
 
     if let Some(value) = matches.remove_one::<String>("log-level") {
