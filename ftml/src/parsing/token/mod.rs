@@ -291,7 +291,7 @@ impl Token {
 
             // Invalid
             Rule::char | Rule::document | Rule::token => {
-                panic!("Received invalid pest rule: {:?}", rule)
+                panic!("Received invalid pest rule: {rule:?}")
             }
         }
     }

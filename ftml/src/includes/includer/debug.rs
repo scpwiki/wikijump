@@ -88,7 +88,7 @@ impl<'t> Display for MapWrap<'_, 't> {
         write!(f, "{{")?;
 
         for (i, (key, value)) in entries.iter().enumerate() {
-            write!(f, "{:?} => {:?}", key, value)?;
+            write!(f, "{key:?} => {value:?}")?;
 
             if i < entries.len() - 1 {
                 write!(f, ", ")?;

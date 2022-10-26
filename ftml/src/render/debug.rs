@@ -36,6 +36,6 @@ impl Render for DebugRender {
         settings: &WikitextSettings,
     ) -> String {
         info!("Running debug logger on syntax tree");
-        format!("{:#?}\n{:#?}\n{:#?}", settings, page_info, tree)
+        format!("{settings:#?}\n{page_info:#?}\n{tree:#?}")
     }
 }
