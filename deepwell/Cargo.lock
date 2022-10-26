@@ -1204,6 +1204,7 @@ dependencies = [
  "str-macro",
  "strum",
  "strum_macros",
+ "subtle",
  "thiserror",
  "tide",
  "typenum",

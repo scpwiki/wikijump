@@ -47,6 +47,7 @@ sqlx = { version = "0.6", features = ["postgres", "runtime-async-std-rustls"] }
 str-macro = "1"
 strum = "0.24"
 strum_macros = "0.24"
+subtle = "2.4"
 thiserror = "1"
 tide = "0.16"
 typenum = "1"
