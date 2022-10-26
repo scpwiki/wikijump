@@ -50,6 +50,7 @@ mod prelude {
 mod context;
 mod error;
 
+pub mod authentication;
 pub mod blob;
 pub mod category;
 pub mod file;
@@ -75,6 +76,7 @@ pub mod vote;
 use crate::api::ApiRequest;
 use sea_orm::DatabaseConnection;
 
+pub use self::authentication::AuthenticationService;
 pub use self::blob::BlobService;
 pub use self::category::CategoryService;
 pub use self::context::ServiceContext;
