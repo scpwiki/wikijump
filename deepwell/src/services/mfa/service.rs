@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use argon2::{Argon2, PasswordHash, PasswordVerifier};
+use subtle::ConstantTimeEq;
 
 /// The amount of time to give for each TOTP.
 ///
@@ -54,7 +55,8 @@ impl MfaService {
         let skew = todo!();
         let actual_totp = otp::make_totp(&secret, TIME_STEP, skew)?;
 
-        if actual_totp == entered_totp {
+        // Constant-time comparison
+        if actual_totp.ct_eq(&entered_totp).into() {
             Ok(())
         } else {
             Err(Error::InvalidAuthentication)

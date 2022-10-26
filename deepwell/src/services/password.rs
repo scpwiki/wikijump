@@ -57,7 +57,9 @@ impl PasswordService {
     ///
     /// The password hash is expected to be in PHC format.
     ///
-    /// On failure, the method will sleep a bit to avoid brute-forcing.
+    /// # Returns
+    /// Nothing on success, yields an `InvalidAuthentication` error on failure.
+    /// Will sleep a bit on failure.
     pub async fn verify(password: &str, hash: &str) -> Result<()> {
         tide::log::info!("Attempting to verify password");
         let result = Self::verify_internal(password, hash);
