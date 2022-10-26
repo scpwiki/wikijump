@@ -21,7 +21,8 @@
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user::{self, Entity as User, Model as UserModel};
-use crate::services::user_alias::{CreateUserAlias, UserAliasService};
+use crate::services::user_alias::CreateUserAlias;
+use crate::services::{PasswordService, UserAliasService};
 use crate::utils::get_user_slug;
 use std::cmp;
 
@@ -74,7 +75,7 @@ impl UserService {
         let password = match user_type {
             UserType::Regular => {
                 tide::log::info!("Creating regular user '{slug}' with password");
-                hash_password(input.password)
+                PasswordService::new_hash(&input.password)?
             }
             UserType::System => {
                 tide::log::info!("Creating system user '{slug}'");
@@ -232,7 +233,8 @@ impl UserService {
         }
 
         if let ProvidedValue::Set(password) = input.password {
-            model.password = Set(hash_password(password));
+            let password_hash = PasswordService::new_hash(&password)?;
+            model.password = Set(password_hash);
         }
 
         if let ProvidedValue::Set(locale) = input.locale {
@@ -405,13 +407,4 @@ impl UserService {
         let user = model.update(txn).await?;
         Ok(user)
     }
-}
-
-// Helpers
-
-// TEMP helper, so it's easier to replace when implemented
-// TODO replace
-fn hash_password(value: String) -> String {
-    // TODO Securely hash password
-    value
 }
