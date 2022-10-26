@@ -24,7 +24,6 @@ use crate::models::file_revision::{
 };
 use crate::services::{OutdateService, PageService};
 use crate::web::FetchDirection;
-use serde_json::json;
 use std::num::NonZeroI32;
 
 lazy_static! {
@@ -137,7 +136,6 @@ impl FileRevisionService {
         OutdateService::process_page_edit(ctx, site_id, page_id, &page_slug).await?;
 
         // Insert the new revision into the table
-        let changes = string_list_to_json(&changes)?;
         let model = file_revision::ActiveModel {
             revision_type: Set(FileRevisionType::Update),
             revision_number: Set(0),
@@ -151,7 +149,7 @@ impl FileRevisionService {
             licensing: Set(licensing),
             changes: Set(changes),
             comments: Set(comments),
-            hidden: Set(json!([])),
+            hidden: Set(vec![]),
             ..Default::default()
         };
 
@@ -203,7 +201,7 @@ impl FileRevisionService {
             licensing: Set(licensing),
             changes: Set(ALL_CHANGES.clone()),
             comments: Set(comments),
-            hidden: Set(json!([])),
+            hidden: Set(vec![]),
             ..Default::default()
         };
 
@@ -262,9 +260,9 @@ impl FileRevisionService {
             mime_hint: Set(mime_hint),
             size_hint: Set(size_hint),
             licensing: Set(licensing),
-            changes: Set(json!([])),
+            changes: Set(vec![]),
             comments: Set(comments),
-            hidden: Set(json!([])),
+            hidden: Set(vec![]),
             ..Default::default()
         };
 
@@ -337,7 +335,6 @@ impl FileRevisionService {
             .await?;
 
         // Insert the resurrection revision into the table
-        let changes = string_list_to_json(&changes)?;
         let model = file_revision::ActiveModel {
             revision_type: Set(FileRevisionType::Undelete),
             revision_number: Set(revision_number),
@@ -351,7 +348,7 @@ impl FileRevisionService {
             licensing: Set(licensing),
             changes: Set(changes),
             comments: Set(comments),
-            hidden: Set(json!([])),
+            hidden: Set(vec![]),
             ..Default::default()
         };
 
@@ -390,7 +387,6 @@ impl FileRevisionService {
 
         // Update the revision
 
-        let hidden = string_list_to_json(&hidden)?;
         let model = file_revision::ActiveModel {
             revision_id: Set(revision_id),
             hidden: Set(hidden),

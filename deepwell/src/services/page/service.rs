@@ -26,7 +26,7 @@ use crate::services::revision::{
     CreateRevision, CreateRevisionBody, CreateRevisionOutput, CreateTombstoneRevision,
 };
 use crate::services::{CategoryService, RevisionService, TextService};
-use crate::utils::{get_category_name, json_to_string_list, trim_default};
+use crate::utils::{get_category_name, trim_default};
 use wikidot_normalize::normalize;
 
 #[derive(Debug)]
@@ -370,9 +370,6 @@ impl PageService {
         //       This isn't run here, but in RevisionService::create().
         let wikitext = TextService::get(ctx, &target_revision.wikitext_hash).await?;
 
-        // TODO annoying JSON/array workaround
-        let tags = json_to_string_list(target_revision.tags)?;
-
         // Create new revision
         //
         // Copy the body of the target revision
@@ -384,7 +381,7 @@ impl PageService {
                 wikitext: ProvidedValue::Set(wikitext),
                 title: ProvidedValue::Set(target_revision.title),
                 alt_title: ProvidedValue::Set(target_revision.alt_title),
-                tags: ProvidedValue::Set(tags),
+                tags: ProvidedValue::Set(target_revision.tags),
                 slug: ProvidedValue::Unset, // rollbacks should never move a page
             },
         };
