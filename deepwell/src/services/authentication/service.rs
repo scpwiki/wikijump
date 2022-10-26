@@ -1,5 +1,5 @@
 /*
- * services/auth.rs
+ * services/authentication/service.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -31,13 +31,12 @@ impl AuthenticationService {
     pub async fn verify_user(
         ctx: &ServiceContext<'_>,
         user: &UserModel,
-        password: &str,
-        totp: Option<&str>,
+        AuthenticateUser { password, totp }: AuthenticateUser,
     ) -> Result<()> {
         tide::log::info!("Attempting to authenticate user ID {}", user.user_id);
 
         // Verify password
-        PasswordService::verify(password, &user.password).await?;
+        PasswordService::verify(&password, &user.password).await?;
 
         // Verify MFA
         match (totp, user.multi_factor_secret.is_some()) {
@@ -51,7 +50,7 @@ impl AuthenticationService {
                     //
                     // We don't need to validate it for length because
                     // we want consistent time checks on recovery codes anyways.
-                    Err(_) => MfaService::verify_recovery(ctx, user, value).await?,
+                    Err(_) => MfaService::verify_recovery(ctx, user, &value).await?,
                 }
             }
 
