@@ -51,9 +51,8 @@ lazy_static! {
         version
     };
     pub static ref VERSION_WITH_NAME: String = format!("{PKG_NAME} {}", *VERSION);
-
-    pub static ref FULL_VERSION_WITH_NAME: String = format!("{PKG_NAME} {}", *FULL_VERSION);
-
+    pub static ref FULL_VERSION_WITH_NAME: String =
+        format!("{PKG_NAME} {}", *FULL_VERSION);
     pub static ref GIT_COMMIT_HASH_SHORT: Option<&'static str> =
         GIT_COMMIT_HASH.map(|s| &s[..8]);
 }
