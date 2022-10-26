@@ -360,7 +360,7 @@ CREATE TABLE file_revision (
 
     -- Ensure array only contains valid values
     -- Change this to use the 'page_revision_change' type later
-    CHECK (json_array_to_text_array(changes) <@ '{
+    CHECK (changes <@ '{
         page,
         name,
         blob,
@@ -375,7 +375,7 @@ CREATE TABLE file_revision (
     -- strict equivalence, but without regard for ordering.
     CHECK (
         revision_type != 'create' OR
-        json_array_to_text_array(changes) @> '{
+        changes @> '{
             page,
             name,
             blob,
@@ -385,7 +385,7 @@ CREATE TABLE file_revision (
     ),
 
     -- Ensure array is not empty for update revisions
-    CHECK (revision_type != 'update' OR json_array_to_text_array(changes) != '{}'),
+    CHECK (revision_type != 'update' OR changes != '{}'),
 
     -- Ensure page creations are always the first revision
     CHECK (revision_number != 0 OR revision_type = 'create'),
