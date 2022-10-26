@@ -24,6 +24,7 @@ use crate::models::user::{self, Entity as User, Model as UserModel};
 use crate::services::user_alias::CreateUserAlias;
 use crate::services::{PasswordService, UserAliasService};
 use crate::utils::get_user_slug;
+use sea_orm::ActiveValue;
 use std::cmp;
 
 // TODO make these configurable
@@ -389,16 +390,16 @@ impl UserService {
     pub async fn set_mfa_secrets(
         ctx: &ServiceContext<'_>,
         user_id: i64,
-        multi_factor_secret: Option<String>,
-        multi_factor_recovery_codes: Option<Vec<String>>,
+        multi_factor_secret: ActiveValue<Option<String>>,
+        multi_factor_recovery_codes: ActiveValue<Option<Vec<String>>>,
     ) -> Result<()> {
         tide::log::info!("Setting MFA secret fields for user ID {user_id}");
 
         let txn = ctx.transaction();
         let model = user::ActiveModel {
             user_id: Set(user_id),
-            multi_factor_secret: Set(multi_factor_secret),
-            multi_factor_recovery_codes: Set(multi_factor_recovery_codes),
+            multi_factor_secret,
+            multi_factor_recovery_codes,
             ..Default::default()
         };
         model.update(txn).await?;

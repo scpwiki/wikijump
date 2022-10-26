@@ -21,6 +21,7 @@
 use super::prelude::*;
 use crate::models::user::Model as UserModel;
 use crate::services::{PasswordService, UserService};
+use sea_orm::ActiveValue;
 use subtle::ConstantTimeEq;
 
 /// The amount of time to give for each TOTP.
@@ -53,6 +54,7 @@ impl MfaService {
     ) -> Result<MultiFactorSetupOutput> {
         tide::log::info!("Setting up MFA for user ID {}", user.user_id);
 
+        // Ensure MFA is not yet set up
         if user.multi_factor_secret.is_some()
             || user.multi_factor_recovery_codes.is_some()
         {
@@ -60,16 +62,15 @@ impl MfaService {
             return Err(Error::Conflict);
         }
 
-        // Securely generate secrets
+        // Securely generate and store secrets
         let totp_secret = generate_totp_secret();
         let recovery = RecoveryCodes::generate()?;
 
-        // Store values in database
         UserService::set_mfa_secrets(
             ctx,
             user.user_id,
-            Some(totp_secret.clone()),
-            Some(recovery.recovery_codes_hashed),
+            ActiveValue::Set(Some(totp_secret.clone())),
+            ActiveValue::Set(Some(recovery.recovery_codes_hashed)),
         )
         .await?;
 
@@ -80,13 +81,54 @@ impl MfaService {
         })
     }
 
+    /// Regenerates all / refills recovery codes for this user.
+    ///
+    /// All prior recovery codes are invalidated.
+    pub async fn reset_recovery_codes(
+        ctx: &ServiceContext<'_>,
+        user: &UserModel,
+    ) -> Result<MultiFactorResetOutput> {
+        tide::log::info!("Resetting MFA recovery codes for user ID {}", user.user_id);
+
+        // Ensure MFA is set up
+        if user.multi_factor_secret.is_none()
+            || user.multi_factor_recovery_codes.is_none()
+        {
+            tide::log::error!("User does not have MFA set up");
+            return Err(Error::Conflict);
+        }
+
+        // Securely generate and store secrets
+        let recovery = RecoveryCodes::generate()?;
+
+        UserService::set_mfa_secrets(
+            ctx,
+            user.user_id,
+            ActiveValue::NotSet,
+            ActiveValue::Set(Some(recovery.recovery_codes_hashed)),
+        )
+        .await?;
+
+        // Return to user for their storage
+        Ok(MultiFactorResetOutput {
+            recovery_codes: recovery.recovery_codes,
+        })
+    }
+
     /// Disables MFA for a user.
     ///
     /// After this is run, the user does not need MFA to sign in,
     /// and has no recovery codes or TOTP secret.
     pub async fn disable(ctx: &ServiceContext<'_>, user_id: i64) -> Result<()> {
         tide::log::info!("Tearing down MFA for user ID {}", user_id);
-        UserService::set_mfa_secrets(ctx, user_id, None, None).await
+
+        UserService::set_mfa_secrets(
+            ctx,
+            user_id,
+            ActiveValue::Set(None),
+            ActiveValue::Set(None),
+        )
+        .await
     }
 
     /// Verifies if the TOTP passed for this user is valid.

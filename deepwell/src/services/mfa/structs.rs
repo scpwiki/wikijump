@@ -90,7 +90,14 @@ impl RecoveryCodes {
 }
 
 #[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct MultiFactorSetupOutput {
     pub totp_secret: String,
+    pub recovery_codes: Vec<String>,
+}
+
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct MultiFactorResetOutput {
     pub recovery_codes: Vec<String>,
 }
