@@ -61,6 +61,14 @@ impl PasswordService {
     /// Nothing on success, yields an `InvalidAuthentication` error on failure.
     /// Will sleep a bit on failure.
     pub async fn verify(password: &str, hash: &str) -> Result<()> {
+        Self::verify_sleep(password, hash, true).await
+    }
+
+    /// Like `verify()`, but allows specifying whether sleeping should take place.
+    ///
+    /// Should only be used internally, when the sleeping is performed by the caller
+    /// themselves on failure.
+    pub async fn verify_sleep(password: &str, hash: &str, sleep: bool) -> Result<()> {
         tide::log::info!("Attempting to verify password");
         let result = Self::verify_internal(password, hash);
 
@@ -82,7 +90,7 @@ impl PasswordService {
                 }
 
                 // Delay a bit on failure to prevent brute-force attacks.
-                task::sleep(AUTHENTICATION_FAILURE_DELAY).await;
+                Self::failure_sleep().await;
 
                 // Always return the same error for authentication methods,
                 // to not expose internal state to an adversary.
@@ -99,5 +107,10 @@ impl PasswordService {
         let argon2 = Argon2::default();
         argon2.verify_password(password.as_bytes(), &hash)?;
         Ok(())
+    }
+
+    /// Sleeps for a bit after authentication failure.
+    pub async fn failure_sleep() {
+        task::sleep(AUTHENTICATION_FAILURE_DELAY).await;
     }
 }

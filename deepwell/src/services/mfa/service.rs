@@ -84,12 +84,20 @@ impl MfaService {
 
         // Constant-time, check all the recovery codes even when we know we have a match.
         for recovery_code_hash in recovery_code_hashes {
-            if PasswordService::verify(recovery_code, &recovery_code_hash)
+            if PasswordService::verify_sleep(recovery_code, &recovery_code_hash, false)
                 .await
                 .is_ok()
             {
                 result = Ok(());
             }
+        }
+
+        // We sleep ourselves, once at the end.
+        //
+        // Otherwise we have variable-time recovery code checks based on whether
+        // the recovery code was correct or not.
+        if result.is_err() {
+            PasswordService::failure_sleep().await;
         }
 
         result
