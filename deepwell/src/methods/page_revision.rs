@@ -24,7 +24,6 @@ use crate::services::revision::{
     PageRevisionModelFiltered, RevisionCountOutput, UpdateRevision,
 };
 use crate::services::{Result, TextService};
-use crate::utils::json_to_string_list;
 use crate::web::{PageDetailsQuery, PageLimitQuery};
 
 pub async fn page_revision_info(req: ApiRequest) -> ApiResponse {
@@ -199,11 +198,6 @@ async fn filter_and_populate_revision(
         slug,
         tags,
     } = model;
-
-    // Convert string list fields
-    let changes = json_to_string_list(changes)?;
-    let hidden = json_to_string_list(hidden)?;
-    let tags = json_to_string_list(tags)?;
 
     // Strip hidden fields
     let mut comments = Some(comments);

@@ -32,7 +32,7 @@ pub struct CreateFile {
     pub revision_comments: String,
     pub name: String,
     pub user_id: i64,
-    pub licensing: serde_json::Value, // TODO
+    pub licensing: JsonValue, // TODO
 }
 
 pub type CreateFileOutput = CreateFirstFileRevisionOutput;
@@ -86,9 +86,9 @@ pub struct GetFileOutput<'a> {
     pub data: Option<Vec<u8>>,
     pub mime: &'a str,
     pub size: i64,
-    pub licensing: &'a JsonValue, // TODO: replace?
+    pub licensing: &'a JsonValue,
     pub revision_comments: &'a str,
-    pub hidden_fields: &'a JsonValue, // TODO: replace with &[&str]
+    pub hidden_fields: &'a [String],
 }
 
 #[derive(Debug)]

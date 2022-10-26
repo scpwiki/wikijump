@@ -23,10 +23,20 @@ use crate::models::file_revision::{
     self, Entity as FileRevision, Model as FileRevisionModel,
 };
 use crate::services::{OutdateService, PageService};
-use crate::utils::string_list_to_json;
 use crate::web::FetchDirection;
-use serde_json::json;
 use std::num::NonZeroI32;
+
+lazy_static! {
+    /// The changes for the first revision.
+    /// The first revision is always considered to have changed everything.
+    static ref ALL_CHANGES: Vec<String> = vec![
+        str!("page"),
+        str!("name"),
+        str!("blob"),
+        str!("mime"),
+        str!("licensing"),
+    ];
+}
 
 #[derive(Debug)]
 pub struct FileRevisionService;
@@ -71,14 +81,14 @@ impl FileRevisionService {
 
         if let ProvidedValue::Set(new_page_id) = body.page_id {
             if page_id != new_page_id {
-                changes.push("page");
+                changes.push(str!("page"));
                 page_id = new_page_id;
             }
         }
 
         if let ProvidedValue::Set(new_name) = body.name {
             if name != new_name {
-                changes.push("name");
+                changes.push(str!("name"));
                 name = new_name;
             }
         }
@@ -88,7 +98,7 @@ impl FileRevisionService {
                 || size_hint != new_blob.size_hint
                 || mime_hint != new_blob.mime_hint
             {
-                changes.push("blob");
+                changes.push(str!("blob"));
                 s3_hash = new_blob.s3_hash.to_vec();
                 size_hint = new_blob.size_hint;
                 mime_hint = new_blob.mime_hint;
@@ -97,7 +107,7 @@ impl FileRevisionService {
 
         if let ProvidedValue::Set(new_licensing) = body.licensing {
             if licensing != new_licensing {
-                changes.push("licensing");
+                changes.push(str!("licensing"));
                 licensing = new_licensing;
             }
         }
@@ -126,7 +136,6 @@ impl FileRevisionService {
         OutdateService::process_page_edit(ctx, site_id, page_id, &page_slug).await?;
 
         // Insert the new revision into the table
-        let changes = string_list_to_json(&changes)?;
         let model = file_revision::ActiveModel {
             revision_type: Set(FileRevisionType::Update),
             revision_number: Set(0),
@@ -140,7 +149,7 @@ impl FileRevisionService {
             licensing: Set(licensing),
             changes: Set(changes),
             comments: Set(comments),
-            hidden: Set(json!([])),
+            hidden: Set(vec![]),
             ..Default::default()
         };
 
@@ -178,10 +187,6 @@ impl FileRevisionService {
         let page_slug = Self::get_page_slug(ctx, site_id, page_id).await?;
         OutdateService::process_page_displace(ctx, site_id, page_id, &page_slug).await?;
 
-        // Effective constant, number of changes for the first revision.
-        // The first revision is always considered to have changed everything.
-        let all_changes = json!(["page", "name", "blob", "mime", "licensing"]);
-
         // Insert the first revision into the table
         let model = file_revision::ActiveModel {
             revision_type: Set(FileRevisionType::Create),
@@ -194,9 +199,9 @@ impl FileRevisionService {
             mime_hint: Set(mime_hint),
             size_hint: Set(size_hint),
             licensing: Set(licensing),
-            changes: Set(all_changes),
+            changes: Set(ALL_CHANGES.clone()),
             comments: Set(comments),
-            hidden: Set(json!([])),
+            hidden: Set(vec![]),
             ..Default::default()
         };
 
@@ -255,9 +260,9 @@ impl FileRevisionService {
             mime_hint: Set(mime_hint),
             size_hint: Set(size_hint),
             licensing: Set(licensing),
-            changes: Set(json!([])),
+            changes: Set(vec![]),
             comments: Set(comments),
-            hidden: Set(json!([])),
+            hidden: Set(vec![]),
             ..Default::default()
         };
 
@@ -314,11 +319,11 @@ impl FileRevisionService {
             let mut changes = vec![];
 
             if old_page_id != new_page_id {
-                changes.push("page");
+                changes.push(str!("page"));
             }
 
             if old_name != new_name {
-                changes.push("name");
+                changes.push(str!("name"));
             }
 
             changes
@@ -330,7 +335,6 @@ impl FileRevisionService {
             .await?;
 
         // Insert the resurrection revision into the table
-        let changes = string_list_to_json(&changes)?;
         let model = file_revision::ActiveModel {
             revision_type: Set(FileRevisionType::Undelete),
             revision_number: Set(revision_number),
@@ -344,7 +348,7 @@ impl FileRevisionService {
             licensing: Set(licensing),
             changes: Set(changes),
             comments: Set(comments),
-            hidden: Set(json!([])),
+            hidden: Set(vec![]),
             ..Default::default()
         };
 
@@ -383,7 +387,6 @@ impl FileRevisionService {
 
         // Update the revision
 
-        let hidden = string_list_to_json(&hidden)?;
         let model = file_revision::ActiveModel {
             revision_id: Set(revision_id),
             hidden: Set(hidden),

@@ -28,17 +28,25 @@ use crate::services::{
     LinkService, OutdateService, ParentService, RenderService, ScoreService, SiteService,
     TextService,
 };
-use crate::utils::{
-    json_to_string_list, split_category, split_category_name, string_list_equals_json,
-    string_list_to_json,
-};
+use crate::utils::{split_category, split_category_name};
 use crate::web::FetchDirection;
 use ftml::data::PageInfo;
 use ftml::settings::{WikitextMode, WikitextSettings};
 use ref_map::*;
-use serde_json::json;
 use std::borrow::Cow;
 use std::num::NonZeroI32;
+
+lazy_static! {
+    /// The changes for the first revision.
+    /// The first revision is always considered to have changed everything.
+    static ref ALL_CHANGES: Vec<String> = vec![
+        str!("wikitext"),
+        str!("title"),
+        str!("alt_title"),
+        str!("slug"),
+        str!("tags"),
+    ];
+}
 
 macro_rules! cow {
     ($s:expr) => {
@@ -131,30 +139,30 @@ impl RevisionService {
 
         if let ProvidedValue::Set(new_title) = body.title {
             if title != new_title {
-                changes.push("title");
+                changes.push(str!("title"));
                 title = new_title;
             }
         }
 
         if let ProvidedValue::Set(new_alt_title) = body.alt_title {
             if alt_title != new_alt_title {
-                changes.push("alt_title");
+                changes.push(str!("alt_title"));
                 alt_title = new_alt_title;
             }
         }
 
         if let ProvidedValue::Set(new_slug) = body.slug {
             if slug != new_slug {
-                changes.push("slug");
+                changes.push(str!("slug"));
                 old_slug = Some(slug);
                 slug = new_slug;
             }
         }
 
         if let ProvidedValue::Set(new_tags) = body.tags {
-            if !string_list_equals_json(&tags, &new_tags) {
-                changes.push("tags");
-                tags = string_list_to_json(&new_tags)?;
+            if tags != new_tags {
+                changes.push(str!("tags"));
+                tags = new_tags;
             }
         }
 
@@ -168,7 +176,7 @@ impl RevisionService {
                 let new_hash = TextService::create(ctx, new_wikitext.clone()).await?;
 
                 if wikitext_hash != new_hash {
-                    changes.push("wikitext");
+                    changes.push(str!("wikitext"));
                     replace_hash(&mut wikitext_hash, &new_hash);
                 }
 
@@ -195,13 +203,12 @@ impl RevisionService {
         if tasks.render_and_update_links {
             // This is necessary until we are able to replace the
             // 'tags' column with TEXT[] instead of JSON.
-            let temp_tags = json_to_string_list(tags.clone())?;
             let render_input = RenderPageInfo {
                 slug: &slug,
                 title: &title,
                 alt_title: alt_title.ref_map(|s| s.as_str()),
                 rating,
-                tags: &temp_tags,
+                tags: &tags,
             };
 
             // Run renderer and related tasks
@@ -276,7 +283,6 @@ impl RevisionService {
         };
 
         // Insert the new revision into the table
-        let changes = string_list_to_json(&changes)?;
         let model = page_revision::ActiveModel {
             revision_type: Set(revision_type),
             revision_number: Set(revision_number),
@@ -354,10 +360,6 @@ impl RevisionService {
         // Run outdater
         OutdateService::process_page_displace(ctx, site_id, page_id, &slug).await?;
 
-        // Effective constant, number of changes for the first revision.
-        // The first revision is always considered to have changed everything.
-        let all_changes = json!(["wikitext", "title", "alt_title", "slug", "tags"]);
-
         // Insert the first revision into the table
         let model = page_revision::ActiveModel {
             revision_type: Set(PageRevisionType::Create),
@@ -365,17 +367,17 @@ impl RevisionService {
             page_id: Set(page_id),
             site_id: Set(site_id),
             user_id: Set(user_id),
-            changes: Set(all_changes),
+            changes: Set(ALL_CHANGES.clone()),
             wikitext_hash: Set(wikitext_hash.to_vec()),
             compiled_hash: Set(compiled_hash.to_vec()),
             compiled_at: Set(now()),
             compiled_generator: Set(compiled_generator),
             comments: Set(comments),
-            hidden: Set(json!([])),
+            hidden: Set(vec![]),
             title: Set(title),
             alt_title: Set(alt_title),
             slug: Set(slug),
-            tags: Set(json!([])),
+            tags: Set(vec![]),
             ..Default::default()
         };
 
@@ -431,13 +433,13 @@ impl RevisionService {
             page_id: Set(page_id),
             site_id: Set(site_id),
             user_id: Set(user_id),
-            changes: Set(json!([])),
+            changes: Set(vec![]),
             wikitext_hash: Set(wikitext_hash),
             compiled_hash: Set(compiled_hash),
             compiled_at: Set(compiled_at),
             compiled_generator: Set(compiled_generator),
             comments: Set(comments),
-            hidden: Set(json!([])),
+            hidden: Set(vec![]),
             title: Set(title),
             alt_title: Set(alt_title),
             slug: Set(slug),
@@ -496,20 +498,19 @@ impl RevisionService {
         let changes = if old_slug == new_slug {
             vec![]
         } else {
-            vec!["slug"]
+            vec![str!("slug")]
         };
 
         // Calculate rating
         let rating = ScoreService::score(ctx, page_id).await?;
 
         // Re-render page
-        let temp_tags = json_to_string_list(tags.clone())?;
         let render_input = RenderPageInfo {
             slug: &new_slug,
             title: &title,
             alt_title: alt_title.ref_map(|s| s.as_str()),
             rating,
-            tags: &temp_tags,
+            tags: &tags,
         };
 
         let wikitext = TextService::get(ctx, &wikitext_hash).await?;
@@ -528,7 +529,6 @@ impl RevisionService {
         OutdateService::process_page_displace(ctx, site_id, page_id, &new_slug).await?;
 
         // Insert the resurrection revision into the table
-        let changes = string_list_to_json(&changes)?;
         let model = page_revision::ActiveModel {
             revision_type: Set(PageRevisionType::Undelete),
             revision_number: Set(revision_number),
@@ -616,13 +616,12 @@ impl RevisionService {
 
         // This is necessary until we are able to replace the
         // 'tags' column with TEXT[] instead of JSON.
-        let temp_tags = json_to_string_list(revision.tags)?;
         let render_input = RenderPageInfo {
             slug: &revision.slug,
             title: &revision.title,
             alt_title: revision.alt_title.ref_map(|s| s.as_str()),
             rating,
-            tags: &temp_tags,
+            tags: &revision.tags,
         };
 
         // TODO use html_output
@@ -691,7 +690,6 @@ impl RevisionService {
 
         // Update the revision
 
-        let hidden = string_list_to_json(&hidden)?;
         let model = page_revision::ActiveModel {
             revision_id: Set(revision_id),
             hidden: Set(hidden),

@@ -22,7 +22,6 @@
 
 mod category;
 mod error;
-mod json;
 mod locale;
 mod string;
 mod tide;
@@ -31,7 +30,6 @@ mod user;
 
 pub use self::category::*;
 pub use self::error::*;
-pub use self::json::*;
 pub use self::locale::*;
 pub use self::string::*;
 pub use self::tide::*;

@@ -15,7 +15,7 @@ pub struct Model {
     pub page_id: i64,
     pub site_id: i64,
     pub user_id: i64,
-    pub changes: Json,
+    pub changes: Vec<String>,
     pub wikitext_hash: Vec<u8>,
     pub compiled_hash: Vec<u8>,
     pub compiled_at: DateTimeWithTimeZone,
@@ -23,14 +23,14 @@ pub struct Model {
     pub compiled_generator: String,
     #[sea_orm(column_type = "Text")]
     pub comments: String,
-    pub hidden: Json,
+    pub hidden: Vec<String>,
     #[sea_orm(column_type = "Text")]
     pub title: String,
     #[sea_orm(column_type = "Text", nullable)]
     pub alt_title: Option<String>,
     #[sea_orm(column_type = "Text")]
     pub slug: String,
-    pub tags: Json,
+    pub tags: Vec<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
