@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use argon2::{Argon2, PasswordHash, PasswordVerifier};
+use crate::services::PasswordService;
 use subtle::ConstantTimeEq;
 
 /// The amount of time to give for each TOTP.
@@ -51,6 +51,8 @@ impl MfaService {
         user_id: i64,
         entered_totp: u32,
     ) -> Result<()> {
+        tide::log::info!("Verifying recovery code for user ID {user_id}");
+
         let secret: String = todo!(); // TODO fetch from database. if none, return InvalidAuthentication
         let skew = todo!();
         let actual_totp = otp::make_totp(&secret, TIME_STEP, skew)?;
@@ -75,20 +77,21 @@ impl MfaService {
         user_id: i64,
         recovery_code: &str,
     ) -> Result<()> {
-        let argon2 = Argon2::default();
-        let recovery_code_hashes: Vec<String> = todo!(); // TODO fetch from database. if none, return InvalidAuthentication
+        tide::log::info!("Verifying recovery code for user ID {user_id}");
 
+        let recovery_code_hashes: Vec<String> = todo!(); // TODO fetch from database. if none, return InvalidAuthentication
+        let mut result = Err(Error::InvalidAuthentication);
+
+        // Constant-time, check all the recovery codes even when we know we have a match.
         for recovery_code_hash in recovery_code_hashes {
-            let parsed_hash = PasswordHash::new(&recovery_code_hash)?;
-            if argon2
-                .verify_password(recovery_code.as_bytes(), &parsed_hash)
+            if PasswordService::verify(recovery_code, &recovery_code_hash)
+                .await
                 .is_ok()
             {
-                // TODO delete recovery code hash
-                return Ok(());
+                result = Ok(());
             }
         }
 
-        Err(Error::InvalidAuthentication)
+        result
     }
 }
