@@ -28,7 +28,7 @@ pub struct AuthenticationService;
 impl AuthenticationService {
     /// Verifies the passed credentials for the user to determine if they are valid.
     /// If so, the user is cleared to log in.
-    pub async fn verify_user(
+    pub async fn auth_user(
         ctx: &ServiceContext<'_>,
         user: &UserModel,
         AuthenticateUser { password, totp }: AuthenticateUser,
