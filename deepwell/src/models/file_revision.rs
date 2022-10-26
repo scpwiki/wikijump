@@ -22,10 +22,10 @@ pub struct Model {
     pub mime_hint: String,
     pub size_hint: i64,
     pub licensing: Json,
-    pub changes: Json,
+    pub changes: Vec<String>,
     #[sea_orm(column_type = "Text")]
     pub comments: String,
-    pub hidden: Json,
+    pub hidden: Vec<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
