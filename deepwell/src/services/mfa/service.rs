@@ -44,11 +44,37 @@ const TIME_SKEW: i64 = 1;
 pub struct MfaService;
 
 impl MfaService {
-    pub async fn setup(ctx: &ServiceContext<'_>) -> Result<()> {
-        let totp_secret = generate_totp_secret();
-        let recovery_codes = RecoveryCodes::generate();
+    pub async fn setup(
+        ctx: &ServiceContext<'_>,
+        user: &UserModel,
+    ) -> Result<MultiFactorSetupOutput> {
+        tide::log::info!("Setting up MFA for user ID {}", user.user_id);
 
-        todo!()
+        if user.multi_factor_secret.is_some()
+            || user.multi_factor_recovery_codes.is_some()
+        {
+            tide::log::error!("User already has MFA set up");
+            return Err(Error::Conflict);
+        }
+
+        // Securely generate secrets
+        let totp_secret = generate_totp_secret();
+        let recovery = RecoveryCodes::generate()?;
+
+        // Store values in database
+        UserService::set_mfa_secrets(
+            ctx,
+            user.user_id,
+            Some(totp_secret.clone()),
+            Some(recovery.recovery_codes_hashed),
+        )
+        .await?;
+
+        // Return to user for their storage
+        Ok(MultiFactorSetupOutput {
+            totp_secret,
+            recovery_codes: recovery.recovery_codes,
+        })
     }
 
     /// Verifies if the TOTP passed for this user is valid.

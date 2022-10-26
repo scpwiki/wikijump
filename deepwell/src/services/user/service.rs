@@ -385,6 +385,27 @@ impl UserService {
         Ok(name_changes)
     }
 
+    /// Set the MFA secret fields for a user.
+    pub async fn set_mfa_secrets(
+        ctx: &ServiceContext<'_>,
+        user_id: i64,
+        multi_factor_secret: Option<String>,
+        multi_factor_recovery_codes: Option<Vec<String>>,
+    ) -> Result<()> {
+        tide::log::info!("Setting MFA secret fields for user ID {user_id}");
+
+        let txn = ctx.transaction();
+        let model = user::ActiveModel {
+            user_id: Set(user_id),
+            multi_factor_secret: Set(multi_factor_secret),
+            multi_factor_recovery_codes: Set(multi_factor_recovery_codes),
+            ..Default::default()
+        };
+        model.update(txn).await?;
+
+        Ok(())
+    }
+
     /// Removes a recovery code from the list provided for a user.
     pub async fn remove_recovery_code(
         ctx: &ServiceContext<'_>,

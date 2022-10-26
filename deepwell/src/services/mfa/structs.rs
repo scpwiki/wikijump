@@ -88,3 +88,9 @@ impl RecoveryCodes {
         })
     }
 }
+
+#[derive(Serialize, Debug)]
+pub struct MultiFactorSetupOutput {
+    pub totp_secret: String,
+    pub recovery_codes: Vec<String>,
+}
