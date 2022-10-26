@@ -33,7 +33,7 @@ pub fn render_image(
         "Rendering image element (source '{}', link {}, alignment {}, float {})",
         source.name(),
         match link {
-            Some(link) => format!("{:?}", link),
+            Some(link) => format!("{link:?}"),
             None => str!("<none>"),
         },
         match alignment {
