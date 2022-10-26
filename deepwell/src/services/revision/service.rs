@@ -40,6 +40,18 @@ use serde_json::json;
 use std::borrow::Cow;
 use std::num::NonZeroI32;
 
+lazy_static! {
+    /// The changes for the first revision.
+    /// The first revision is always considered to have changed everything.
+    static ref ALL_CHANGES: Vec<String> = vec![
+        str!("wikitext"),
+        str!("title"),
+        str!("alt_title"),
+        str!("slug"),
+        str!("tags"),
+    ];
+}
+
 macro_rules! cow {
     ($s:expr) => {
         Cow::Borrowed($s.as_ref())
@@ -354,10 +366,6 @@ impl RevisionService {
         // Run outdater
         OutdateService::process_page_displace(ctx, site_id, page_id, &slug).await?;
 
-        // Effective constant, number of changes for the first revision.
-        // The first revision is always considered to have changed everything.
-        let all_changes = json!(["wikitext", "title", "alt_title", "slug", "tags"]);
-
         // Insert the first revision into the table
         let model = page_revision::ActiveModel {
             revision_type: Set(PageRevisionType::Create),
@@ -365,7 +373,7 @@ impl RevisionService {
             page_id: Set(page_id),
             site_id: Set(site_id),
             user_id: Set(user_id),
-            changes: Set(all_changes),
+            changes: Set(ALL_CHANGES.clone()),
             wikitext_hash: Set(wikitext_hash.to_vec()),
             compiled_hash: Set(compiled_hash.to_vec()),
             compiled_at: Set(now()),

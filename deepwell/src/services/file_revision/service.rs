@@ -23,10 +23,21 @@ use crate::models::file_revision::{
     self, Entity as FileRevision, Model as FileRevisionModel,
 };
 use crate::services::{OutdateService, PageService};
-use crate::utils::string_list_to_json;
 use crate::web::FetchDirection;
 use serde_json::json;
 use std::num::NonZeroI32;
+
+lazy_static! {
+    /// The changes for the first revision.
+    /// The first revision is always considered to have changed everything.
+    static ref ALL_CHANGES: Vec<String> = vec![
+        str!("page"),
+        str!("name"),
+        str!("blob"),
+        str!("mime"),
+        str!("licensing"),
+    ];
+}
 
 #[derive(Debug)]
 pub struct FileRevisionService;
@@ -178,10 +189,6 @@ impl FileRevisionService {
         let page_slug = Self::get_page_slug(ctx, site_id, page_id).await?;
         OutdateService::process_page_displace(ctx, site_id, page_id, &page_slug).await?;
 
-        // Effective constant, number of changes for the first revision.
-        // The first revision is always considered to have changed everything.
-        let all_changes = json!(["page", "name", "blob", "mime", "licensing"]);
-
         // Insert the first revision into the table
         let model = file_revision::ActiveModel {
             revision_type: Set(FileRevisionType::Create),
@@ -194,7 +201,7 @@ impl FileRevisionService {
             mime_hint: Set(mime_hint),
             size_hint: Set(size_hint),
             licensing: Set(licensing),
-            changes: Set(all_changes),
+            changes: Set(ALL_CHANGES.clone()),
             comments: Set(comments),
             hidden: Set(json!([])),
             ..Default::default()
