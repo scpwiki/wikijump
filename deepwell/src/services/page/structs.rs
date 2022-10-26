@@ -23,7 +23,6 @@ use crate::models::sea_orm_active_enums::PageRevisionType;
 use crate::services::revision::CreateRevisionOutput;
 use crate::utils::DateTimeWithTimeZone;
 use ftml::parsing::ParseError;
-use serde_json::Value as JsonValue;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -67,11 +66,11 @@ pub struct GetPageOutput<'a> {
     pub compiled_at: DateTimeWithTimeZone,
     pub compiled_generator: &'a str,
     pub revision_comments: &'a str,
-    pub hidden_fields: &'a JsonValue, // TODO: replace with &[&str]
+    pub hidden_fields: &'a [String],
     pub title: &'a str,
     pub alt_title: Option<&'a str>,
     pub slug: &'a str,
-    pub tags: &'a JsonValue, // TODO: replace with &[&str]
+    pub tags: &'a [String],
     pub rating: f64,
 }
 

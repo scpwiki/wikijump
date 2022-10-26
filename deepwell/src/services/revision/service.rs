@@ -208,7 +208,7 @@ impl RevisionService {
                 title: &title,
                 alt_title: alt_title.ref_map(|s| s.as_str()),
                 rating,
-                tags,
+                tags: &tags,
             };
 
             // Run renderer and related tasks
@@ -510,7 +510,7 @@ impl RevisionService {
             title: &title,
             alt_title: alt_title.ref_map(|s| s.as_str()),
             rating,
-            tags,
+            tags: &tags,
         };
 
         let wikitext = TextService::get(ctx, &wikitext_hash).await?;
