@@ -97,19 +97,22 @@ impl MfaService {
         let recovery_code_hashes = match &user.multi_factor_recovery_codes {
             Some(codes) => codes,
             None => {
-                tide::log::warn!("User has no MFA recovery codes, but wants to verify recovery");
+                tide::log::warn!(
+                    "User has no MFA recovery codes, but wants to verify recovery",
+                );
+
                 return Err(Error::InvalidAuthentication);
             }
         };
 
         // Constant-time, check all the recovery codes even when we know we have a match.
-        let mut result = Err(Error::InvalidAuthentication);
+        let mut found_hash = None;
         for recovery_code_hash in recovery_code_hashes {
             if PasswordService::verify_sleep(recovery_code, &recovery_code_hash, false)
                 .await
                 .is_ok()
             {
-                result = Ok(());
+                found_hash = Some(recovery_code_hash);
             }
         }
 
@@ -117,10 +120,15 @@ impl MfaService {
         //
         // Otherwise we have variable-time recovery code checks based on whether
         // the recovery code was correct or not.
-        if result.is_err() {
+        if found_hash.is_none() {
             PasswordService::failure_sleep().await;
         }
 
-        result
+        // Based on whether we found a matching recovery code,
+        // either return success (nothing) or the authentication error.
+        match found_hash {
+            Some(_) => Ok(()),
+            None => Err(Error::InvalidAuthentication),
+        }
     }
 }
