@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::models::user::Model as UserModel;
 use crate::services::PasswordService;
 use subtle::ConstantTimeEq;
 
@@ -30,6 +31,14 @@ use subtle::ConstantTimeEq;
 /// It balances between giving the user enough time to enter a code,
 /// but short enough to make bruteforcing values impractical.
 const TIME_STEP: u64 = 30;
+
+/// The allowed leniency value to account for clock skew.
+///
+/// This represents the seconds that a TOTP is offset by in
+/// determining whether the authentication was accepted.
+///
+/// See https://github.com/TimDumol/rust-otp/blob/master/src/lib.rs#L56
+const TIME_SKEW: i64 = 1;
 
 #[derive(Debug)]
 pub struct MfaService;
@@ -48,14 +57,20 @@ impl MfaService {
     /// Nothing on success, yields an `InvalidAuthentication` error on failure.
     pub async fn verify(
         ctx: &ServiceContext<'_>,
-        user_id: i64,
+        user: &UserModel,
         entered_totp: u32,
     ) -> Result<()> {
-        tide::log::info!("Verifying recovery code for user ID {user_id}");
+        tide::log::info!("Verifying TOTP code for user ID {}", user.user_id);
 
-        let secret: String = todo!(); // TODO fetch from database. if none, return InvalidAuthentication
-        let skew = todo!();
-        let actual_totp = otp::make_totp(&secret, TIME_STEP, skew)?;
+        let secret = match &user.multi_factor_secret {
+            Some(secret) => secret,
+            None => {
+                tide::log::warn!("User has no MFA secret, cannot verify TOTP");
+                return Err(Error::InvalidAuthentication);
+            }
+        };
+
+        let actual_totp = otp::make_totp(&secret, TIME_STEP, TIME_SKEW)?;
 
         // Constant-time comparison
         if actual_totp.ct_eq(&entered_totp).into() {
