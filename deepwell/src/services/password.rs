@@ -90,7 +90,9 @@ impl PasswordService {
                 }
 
                 // Delay a bit on failure to prevent brute-force attacks.
-                Self::failure_sleep().await;
+                if sleep {
+                    Self::failure_sleep().await;
+                }
 
                 // Always return the same error for authentication methods,
                 // to not expose internal state to an adversary.
