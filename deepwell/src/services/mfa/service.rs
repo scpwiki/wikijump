@@ -106,29 +106,31 @@ impl MfaService {
         };
 
         // Constant-time, check all the recovery codes even when we know we have a match.
-        let mut found_hash = None;
+        let mut matched = None;
         for recovery_code_hash in recovery_code_hashes {
             if PasswordService::verify_sleep(recovery_code, &recovery_code_hash, false)
                 .await
                 .is_ok()
             {
-                found_hash = Some(recovery_code_hash);
+                matched = Some(recovery_code_hash);
             }
         }
 
-        // We sleep ourselves, once at the end.
-        //
-        // Otherwise we have variable-time recovery code checks based on whether
-        // the recovery code was correct or not.
-        if found_hash.is_none() {
-            PasswordService::failure_sleep().await;
-        }
+        match matched {
+            // Remove the used recovery code from the list.
+            Some(hash) => {
+                todo!();
+                Ok(())
+            }
 
-        // Based on whether we found a matching recovery code,
-        // either return success (nothing) or the authentication error.
-        match found_hash {
-            Some(_) => Ok(()),
-            None => Err(Error::InvalidAuthentication),
+            // We sleep ourselves, once at the end.
+            //
+            // Otherwise we have variable-time recovery code checks based on whether
+            // the recovery code was correct or not.
+            None => {
+                PasswordService::failure_sleep().await;
+                Err(Error::InvalidAuthentication)
+            }
         }
     }
 }
