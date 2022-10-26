@@ -60,9 +60,9 @@ pub mod mfa;
 pub mod outdate;
 pub mod page;
 pub mod parent;
+pub mod password;
 pub mod render;
 pub mod revision;
-// TODO password -- see mfa service for argon2 use, also https://docs.rs/argon2/latest/argon2/
 pub mod score;
 pub mod site;
 pub mod text;
@@ -85,6 +85,7 @@ pub use self::link::LinkService;
 pub use self::outdate::OutdateService;
 pub use self::page::PageService;
 pub use self::parent::ParentService;
+pub use self::password::PasswordService;
 pub use self::render::RenderService;
 pub use self::revision::RevisionService;
 pub use self::score::ScoreService;
