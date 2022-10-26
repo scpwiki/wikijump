@@ -80,9 +80,9 @@ impl MfaService {
         tide::log::info!("Verifying recovery code for user ID {user_id}");
 
         let recovery_code_hashes: Vec<String> = todo!(); // TODO fetch from database. if none, return InvalidAuthentication
-        let mut result = Err(Error::InvalidAuthentication);
 
         // Constant-time, check all the recovery codes even when we know we have a match.
+        let mut result = Err(Error::InvalidAuthentication);
         for recovery_code_hash in recovery_code_hashes {
             if PasswordService::verify_sleep(recovery_code, &recovery_code_hash, false)
                 .await
