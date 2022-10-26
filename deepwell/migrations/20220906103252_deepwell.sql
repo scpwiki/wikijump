@@ -5,20 +5,6 @@
 -- further database migrations will be regular migration files.
 
 --
--- Utilities
---
-
--- Helper function while we have to store TEXT[] as JSON
-CREATE OR REPLACE FUNCTION json_array_to_text_array(_js json)
-    RETURNS TEXT[]
-    LANGUAGE SQL
-    IMMUTABLE
-    PARALLEL
-    SAFE
-AS
-    'SELECT array(SELECT json_array_elements_text(_js))';
-
---
 -- User
 --
 
@@ -42,7 +28,7 @@ CREATE TABLE "user" (
     email_verified_at TIMESTAMP WITH TIME ZONE,
     password TEXT NOT NULL,
     multi_factor_secret TEXT,
-    multi_factor_recovery_codes JSON,
+    multi_factor_recovery_codes TEXT[],
     locale TEXT NOT NULL,
     avatar_s3_hash BYTEA,
     real_name TEXT,
@@ -169,23 +155,21 @@ CREATE TABLE page_revision (
     page_id BIGINT NOT NULL REFERENCES page(page_id),
     site_id BIGINT NOT NULL REFERENCES site(site_id),
     user_id BIGINT NOT NULL REFERENCES "user"(user_id),
-    changes JSON NOT NULL, -- List of changes in this revision
+    changes TEXT[] NOT NULL, -- List of changes in this revision
     wikitext_hash BYTEA NOT NULL REFERENCES text(hash),
     compiled_hash BYTEA NOT NULL REFERENCES text(hash),
     compiled_at TIMESTAMP WITH TIME ZONE NOT NULL,
     compiled_generator TEXT NOT NULL,
     comments TEXT NOT NULL,
-    hidden JSON NOT NULL DEFAULT '[]', -- List of fields to be hidden/suppressed
+    hidden TEXT[] NOT NULL DEFAULT '{}', -- List of fields to be hidden/suppressed
     title TEXT NOT NULL,
     alt_title TEXT,
     slug TEXT NOT NULL,
-    tags JSON NOT NULL DEFAULT '[]', -- Should be sorted and deduplicated before insertion
-
-    -- NOTE: json_array_to_text_array() is needed while we're still on JSON
+    tags TEXT[] NOT NULL DEFAULT '{}', -- Should be sorted and deduplicated before insertion
 
     -- Ensure array only contains valid values
     -- Change this to use the 'page_revision_change' type later
-    CHECK (json_array_to_text_array(changes) <@ '{
+    CHECK (changes <@ '{
         wikitext,
         title,
         alt_title,
@@ -200,7 +184,7 @@ CREATE TABLE page_revision (
     -- strict equivalence, but without regard for ordering.
     CHECK (
         revision_type != 'create' OR
-        json_array_to_text_array(changes) @> '{
+        changes @> '{
             wikitext,
             title,
             alt_title,
@@ -210,7 +194,7 @@ CREATE TABLE page_revision (
     ),
 
     -- Ensure array is not empty for regular revisions
-    CHECK (revision_type != 'regular' OR json_array_to_text_array(changes) != '{}'),
+    CHECK (revision_type != 'regular' OR changes != '{}'),
 
     -- Ensure page creations are always the first revision
     CHECK (revision_number != 0 OR revision_type = 'create'),
@@ -365,16 +349,14 @@ CREATE TABLE file_revision (
     s3_hash BYTEA NOT NULL,
     mime_hint TEXT NOT NULL,
     size_hint BIGINT NOT NULL,
-    licensing JSONB NOT NULL,
-    changes JSON NOT NULL DEFAULT '[]', -- List of changes in this revision
+    licensing JSON NOT NULL,
+    changes TEXT[] NOT NULL DEFAULT '{}', -- List of changes in this revision
     comments TEXT NOT NULL,
-    hidden JSON NOT NULL DEFAULT '[]', -- List of fields to be hidden/suppressed
+    hidden TEXT[] NOT NULL DEFAULT '{}', -- List of fields to be hidden/suppressed
 
     CHECK (length(name) > 0 AND length(name) < 256),  -- Constrain filename length
     CHECK (length(s3_hash) = 64),                     -- SHA-512 hash size
     CHECK (mime_hint != ''),                          -- Should have a MIME hint
-
-    -- NOTE: json_array_to_text_array() is needed while we're still on JSON
 
     -- Ensure array only contains valid values
     -- Change this to use the 'page_revision_change' type later
