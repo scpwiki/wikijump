@@ -197,7 +197,7 @@ impl VoteService {
         start_id: i64,
         deleted: Option<bool>,
         disabled: Option<bool>,
-    ) -> Result<usize> {
+    ) -> Result<u64> {
         let txn = ctx.transaction();
         let condition = Self::build_history_condition(kind, start_id, deleted, disabled);
 

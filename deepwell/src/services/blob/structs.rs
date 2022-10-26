@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use sea_orm::entity::prelude::DateTimeWithTimeZone;
+use crate::utils::DateTimeWithTimeZone;
 
 #[derive(Debug)]
 pub struct CreateBlobOutput {

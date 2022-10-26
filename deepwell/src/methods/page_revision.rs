@@ -222,7 +222,7 @@ async fn filter_and_populate_revision(
             "alt_title" => alt_title = None,
             "slug" => slug = None,
             "tags" => tags = None,
-            _ => panic!("Unknown field name in hidden: {}", field),
+            _ => panic!("Unknown field name in hidden: {field}"),
         }
     }
 
