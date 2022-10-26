@@ -100,6 +100,7 @@ impl Error {
         match self {
             Error::Cuid(inner) => TideError::new(StatusCode::InternalServerError, inner),
             Error::Cryptography(_) => {
+                // The "invalid password" variant should have already been filtered out, see below.
                 TideError::from_str(StatusCode::InternalServerError, "")
             }
             Error::Database(inner) => {
@@ -143,7 +144,10 @@ impl Error {
 impl From<argon2::password_hash::Error> for Error {
     #[inline]
     fn from(error: argon2::password_hash::Error) -> Error {
-        Error::Cryptography(error)
+        match error {
+            argon2::password_hash::Error::Password => Error::InvalidAuthentication,
+            _ => Error::Cryptography(error),
+        }
     }
 }
 
