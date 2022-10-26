@@ -385,6 +385,37 @@ impl UserService {
         Ok(name_changes)
     }
 
+    /// Removes a recovery code from the list provided for a user.
+    pub async fn remove_recovery_code(
+        ctx: &ServiceContext<'_>,
+        user: &UserModel,
+        recovery_code: &str,
+    ) -> Result<()> {
+        let txn = ctx.transaction();
+        tide::log::info!("Removing recovery code from user ID {}", user.user_id);
+
+        // Only update if there are recovery codes set for the user
+        if let Some(current_codes) = &user.multi_factor_recovery_codes {
+            // Clone list, but without the removed code
+            let updated_codes = current_codes
+                .iter()
+                .filter(|code| code.as_str() != recovery_code)
+                .map(String::from)
+                .collect::<Vec<_>>();
+
+            // Update with the new list
+            let model = user::ActiveModel {
+                user_id: Set(user.user_id),
+                multi_factor_recovery_codes: Set(Some(updated_codes)),
+                updated_at: Set(Some(now())),
+                ..Default::default()
+            };
+            model.update(txn).await?;
+        }
+
+        Ok(())
+    }
+
     pub async fn delete(
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,

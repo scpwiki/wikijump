@@ -119,7 +119,7 @@ impl MfaService {
         match matched {
             // Remove the used recovery code from the list.
             Some(hash) => {
-                todo!();
+                UserService::remove_recovery_code(ctx, user, hash).await?;
                 Ok(())
             }
 
