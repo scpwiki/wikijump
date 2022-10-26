@@ -26,7 +26,10 @@ use rand::distributions::{Alphanumeric, DistString};
 use rand::{thread_rng, Rng};
 use std::iter;
 
+/// The number of recovery codes to generate per-use at a time.
 pub const RECOVERY_CODE_COUNT: usize = 12;
+
+/// The length in bytes of each recovery code.
 pub const RECOVERY_CODE_LENGTH: usize = 8;
 
 pub fn generate_totp_secret() -> String {
