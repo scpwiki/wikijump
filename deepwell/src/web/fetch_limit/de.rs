@@ -43,7 +43,7 @@ impl FetchLimitVisitor {
         if value <= 100 {
             Ok(FetchLimit(value as u16))
         } else {
-            Err(E::custom(format!("limit out of range: {}", value)))
+            Err(E::custom(format!("limit out of range: {value}")))
         }
     }
 
@@ -54,7 +54,7 @@ impl FetchLimitVisitor {
         if value >= 0 {
             self.visit_unsigned(value as u128)
         } else {
-            Err(E::custom(format!("limit must be positive: {}", value)))
+            Err(E::custom(format!("limit must be positive: {value}")))
         }
     }
 }

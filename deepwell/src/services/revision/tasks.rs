@@ -62,7 +62,7 @@ impl RevisionTasks {
                     tasks.rerender_outgoing_includes = true;
                     tasks.rerender_templates = true;
                 }
-                _ => panic!("Unknown change string enum value: {}", change),
+                _ => panic!("Unknown change string enum value: {change}"),
             }
         }
 
