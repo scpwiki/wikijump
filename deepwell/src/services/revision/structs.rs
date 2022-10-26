@@ -20,8 +20,8 @@
 
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::PageRevisionType;
-use ftml::parsing::ParseError;
 use crate::utils::DateTimeWithTimeZone;
+use ftml::parsing::ParseError;
 use std::num::NonZeroI32;
 
 #[derive(Deserialize, Debug)]
