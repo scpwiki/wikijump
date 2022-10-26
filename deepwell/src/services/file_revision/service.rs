@@ -81,14 +81,14 @@ impl FileRevisionService {
 
         if let ProvidedValue::Set(new_page_id) = body.page_id {
             if page_id != new_page_id {
-                changes.push("page");
+                changes.push(str!("page"));
                 page_id = new_page_id;
             }
         }
 
         if let ProvidedValue::Set(new_name) = body.name {
             if name != new_name {
-                changes.push("name");
+                changes.push(str!("name"));
                 name = new_name;
             }
         }
@@ -98,7 +98,7 @@ impl FileRevisionService {
                 || size_hint != new_blob.size_hint
                 || mime_hint != new_blob.mime_hint
             {
-                changes.push("blob");
+                changes.push(str!("blob"));
                 s3_hash = new_blob.s3_hash.to_vec();
                 size_hint = new_blob.size_hint;
                 mime_hint = new_blob.mime_hint;
@@ -107,7 +107,7 @@ impl FileRevisionService {
 
         if let ProvidedValue::Set(new_licensing) = body.licensing {
             if licensing != new_licensing {
-                changes.push("licensing");
+                changes.push(str!("licensing"));
                 licensing = new_licensing;
             }
         }
@@ -319,11 +319,11 @@ impl FileRevisionService {
             let mut changes = vec![];
 
             if old_page_id != new_page_id {
-                changes.push("page");
+                changes.push(str!("page"));
             }
 
             if old_name != new_name {
-                changes.push("name");
+                changes.push(str!("name"));
             }
 
             changes

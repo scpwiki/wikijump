@@ -37,11 +37,11 @@ impl RevisionTasks {
     /// This should be thought of as a list of enums, but because we want to avoid
     /// the extra conversion step before this goes to the database, we're using strings.
     /// Eventually we can use the native database enum when SeaORM supports Postgres arrays.
-    pub fn determine(changes: &[&str]) -> Self {
+    pub fn determine(changes: &[String]) -> Self {
         let mut tasks = RevisionTasks::default();
 
         for change in changes {
-            match *change {
+            match change.as_str() {
                 "wikitext" => {
                     tasks.render_and_update_links = true;
                     tasks.rerender_outgoing_includes = true;

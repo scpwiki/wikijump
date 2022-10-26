@@ -139,21 +139,21 @@ impl RevisionService {
 
         if let ProvidedValue::Set(new_title) = body.title {
             if title != new_title {
-                changes.push("title");
+                changes.push(str!("title"));
                 title = new_title;
             }
         }
 
         if let ProvidedValue::Set(new_alt_title) = body.alt_title {
             if alt_title != new_alt_title {
-                changes.push("alt_title");
+                changes.push(str!("alt_title"));
                 alt_title = new_alt_title;
             }
         }
 
         if let ProvidedValue::Set(new_slug) = body.slug {
             if slug != new_slug {
-                changes.push("slug");
+                changes.push(str!("slug"));
                 old_slug = Some(slug);
                 slug = new_slug;
             }
@@ -161,7 +161,7 @@ impl RevisionService {
 
         if let ProvidedValue::Set(new_tags) = body.tags {
             if tags != new_tags {
-                changes.push("tags");
+                changes.push(str!("tags"));
                 tags = new_tags;
             }
         }
@@ -176,7 +176,7 @@ impl RevisionService {
                 let new_hash = TextService::create(ctx, new_wikitext.clone()).await?;
 
                 if wikitext_hash != new_hash {
-                    changes.push("wikitext");
+                    changes.push(str!("wikitext"));
                     replace_hash(&mut wikitext_hash, &new_hash);
                 }
 
@@ -498,7 +498,7 @@ impl RevisionService {
         let changes = if old_slug == new_slug {
             vec![]
         } else {
-            vec!["slug"]
+            vec![str!("slug")]
         };
 
         // Calculate rating
