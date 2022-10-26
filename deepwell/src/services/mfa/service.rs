@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::models::user::Model as UserModel;
-use crate::services::PasswordService;
+use crate::services::{PasswordService, UserService};
 use subtle::ConstantTimeEq;
 
 /// The amount of time to give for each TOTP.
@@ -89,12 +89,18 @@ impl MfaService {
     /// Nothing on success, yields an `InvalidAuthentication` error on failure.
     pub async fn verify_recovery(
         ctx: &ServiceContext<'_>,
-        user_id: i64,
+        user: &UserModel,
         recovery_code: &str,
     ) -> Result<()> {
-        tide::log::info!("Verifying recovery code for user ID {user_id}");
+        tide::log::info!("Verifying recovery code for user ID {}", user.user_id);
 
-        let recovery_code_hashes: Vec<String> = todo!(); // TODO fetch from database. if none, return InvalidAuthentication
+        let recovery_code_hashes = match &user.multi_factor_recovery_codes {
+            Some(codes) => codes,
+            None => {
+                tide::log::warn!("User has no MFA recovery codes, but wants to verify recovery");
+                return Err(Error::InvalidAuthentication);
+            }
+        };
 
         // Constant-time, check all the recovery codes even when we know we have a match.
         let mut result = Err(Error::InvalidAuthentication);
