@@ -82,6 +82,7 @@ pub use self::file::FileService;
 pub use self::file_revision::FileRevisionService;
 pub use self::job::JobService;
 pub use self::link::LinkService;
+pub use self::mfa::MfaService;
 pub use self::outdate::OutdateService;
 pub use self::page::PageService;
 pub use self::parent::ParentService;
