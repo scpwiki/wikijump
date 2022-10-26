@@ -75,7 +75,7 @@ impl RecoveryCodes {
             let mut hashes = Vec::new();
 
             for code in &recovery_codes {
-                let hash = PasswordService::hash(code)?;
+                let hash = PasswordService::new_hash(code)?;
                 hashes.push(hash);
             }
 

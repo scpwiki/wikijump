@@ -27,7 +27,7 @@ use rand::thread_rng;
 pub struct PasswordService;
 
 impl PasswordService {
-    pub fn hash(password: &str) -> Result<String> {
+    pub fn new_hash(password: &str) -> Result<String> {
         let mut rng = thread_rng();
         assert_is_csprng(&rng);
 
