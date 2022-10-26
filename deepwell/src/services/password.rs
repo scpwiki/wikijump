@@ -19,6 +19,8 @@
  */
 
 use super::prelude::*;
+use crate::models::user::Model as UserModel;
+use crate::services::MfaService;
 use crate::utils::assert_is_csprng;
 use argon2::{
     password_hash::SaltString, Argon2, PasswordHash, PasswordHasher, PasswordVerifier,
@@ -114,5 +116,52 @@ impl PasswordService {
     /// Sleeps for a bit after authentication failure.
     pub async fn failure_sleep() {
         task::sleep(AUTHENTICATION_FAILURE_DELAY).await;
+    }
+
+    /// Verifies the passed credentials for the user to determine if they are valid.
+    pub async fn authenticate(
+        ctx: &ServiceContext<'_>,
+        user: &UserModel,
+        password: &str,
+        totp: Option<&str>,
+    ) -> Result<()> {
+        tide::log::info!("Attempting to authenticate user ID {}", user.user_id);
+
+        // Verify password
+        Self::verify(password, &user.password).await?;
+
+        // Verify MFA
+        match (totp, user.multi_factor_secret.is_some()) {
+            // Provided TOTP, validate
+            (Some(value), true) => {
+                match value.parse() {
+                    // If the value is a positive integer, treat it as a TOTP
+                    Ok(totp) => MfaService::verify(ctx, user, totp).await?,
+
+                    // Otherwise treat it as a recovery code string
+                    //
+                    // We don't need to validate it for length because
+                    // we want consistent time checks on recovery codes anyways.
+                    Err(_) => MfaService::verify_recovery(ctx, user, value).await?,
+                }
+            }
+
+            // MFA is required but not provided
+            (Some(_), false) => {
+                tide::log::warn!("User requires MFA but TOTP was not provided");
+                return Err(Error::InvalidAuthentication);
+            }
+
+            // MFA is disabled, don't check
+            (None, false) => (),
+
+            // MFA is disabled but provided anyways
+            (None, true) => {
+                tide::log::warn!("User doesn't require MFA but TOTP was provided");
+                return Err(Error::InvalidAuthentication);
+            }
+        }
+
+        Ok(())
     }
 }
