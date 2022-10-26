@@ -22,8 +22,8 @@ use crate::models::sea_orm_active_enums::FileRevisionType;
 use crate::services::file_revision::{
     CreateFileRevisionOutput, CreateFirstFileRevisionOutput,
 };
+use crate::utils::DateTimeWithTimeZone;
 use crate::web::ProvidedValue;
-use sea_orm::entity::prelude::DateTimeWithTimeZone;
 use serde_json::Value as JsonValue;
 
 #[derive(Deserialize, Debug)]

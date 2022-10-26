@@ -19,7 +19,7 @@
  */
 
 use crate::models::page_category::Model as PageCategoryModel;
-use sea_orm::entity::prelude::DateTimeWithTimeZone;
+use crate::utils::DateTimeWithTimeZone;
 
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]

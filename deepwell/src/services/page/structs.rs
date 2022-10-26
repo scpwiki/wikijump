@@ -21,8 +21,8 @@
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::PageRevisionType;
 use crate::services::revision::CreateRevisionOutput;
+use crate::utils::DateTimeWithTimeZone;
 use ftml::parsing::ParseError;
-use sea_orm::entity::prelude::DateTimeWithTimeZone;
 use serde_json::Value as JsonValue;
 
 #[derive(Deserialize, Debug)]

@@ -21,7 +21,7 @@
 use crate::models::page_connection::Model as PageConnectionModel;
 use crate::models::page_connection_missing::Model as PageConnectionMissingModel;
 use crate::models::page_link::Model as PageLinkModel;
-use sea_orm::entity::prelude::DateTimeWithTimeZone;
+use crate::utils::DateTimeWithTimeZone;
 
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
