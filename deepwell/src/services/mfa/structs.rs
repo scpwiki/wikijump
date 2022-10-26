@@ -19,8 +19,8 @@
  */
 
 use super::prelude::*;
+use crate::services::PasswordService;
 use crate::utils::assert_is_csprng;
-use argon2::{password_hash::SaltString, Argon2, PasswordHasher};
 use data_encoding::BASE32_NOPAD;
 use rand::distributions::{Alphanumeric, DistString};
 use rand::{thread_rng, Rng};
@@ -73,11 +73,9 @@ impl RecoveryCodes {
         // We use argon2, the same as recommended for passwords.
         let recovery_codes_hashed = {
             let mut hashes = Vec::new();
-            let argon2 = Argon2::default();
 
             for code in &recovery_codes {
-                let salt = SaltString::generate(&mut rng);
-                let hash = argon2.hash_password(code.as_bytes(), &salt)?.to_string();
+                let hash = PasswordService::hash(code)?;
                 hashes.push(hash);
             }
 

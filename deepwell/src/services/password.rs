@@ -19,6 +19,24 @@
  */
 
 use super::prelude::*;
+use crate::utils::assert_is_csprng;
+use argon2::{password_hash::SaltString, Argon2, PasswordHasher};
+use rand::thread_rng;
 
 #[derive(Debug)]
 pub struct PasswordService;
+
+impl PasswordService {
+    pub fn hash(password: &str) -> Result<String> {
+        let mut rng = thread_rng();
+        assert_is_csprng(&rng);
+
+        let argon2 = Argon2::default();
+        let salt = SaltString::generate(&mut rng);
+        let hash = argon2
+            .hash_password(password.as_bytes(), &salt)?
+            .to_string();
+
+        Ok(hash)
+    }
+}
