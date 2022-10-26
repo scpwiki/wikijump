@@ -24,9 +24,9 @@
 
 use crate::api::ApiServer;
 use crate::methods::{
-    authentication::*, category::*, file::*, file_revision::*, link::*, locale::*,
-    misc::*, page::*, page_revision::*, parent::*, site::*, text::*, user::*,
-    user_bot::*, vote::*,
+    auth::*, category::*, file::*, file_revision::*, link::*, locale::*, misc::*,
+    page::*, page_revision::*, parent::*, site::*, text::*, user::*, user_bot::*,
+    vote::*,
 };
 use crate::utils::error_response;
 use tide::StatusCode;
