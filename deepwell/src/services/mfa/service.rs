@@ -44,6 +44,9 @@ const TIME_SKEW: i64 = 1;
 pub struct MfaService;
 
 impl MfaService {
+    /// Initializes MFA for a user.
+    ///
+    /// Fails if MFA is already configured.
     pub async fn setup(
         ctx: &ServiceContext<'_>,
         user: &UserModel,
@@ -75,6 +78,15 @@ impl MfaService {
             totp_secret,
             recovery_codes: recovery.recovery_codes,
         })
+    }
+
+    /// Disables MFA for a user.
+    ///
+    /// After this is run, the user does not need MFA to sign in,
+    /// and has no recovery codes or TOTP secret.
+    pub async fn disable(ctx: &ServiceContext<'_>, user_id: i64) -> Result<()> {
+        tide::log::info!("Tearing down MFA for user ID {}", user_id);
+        UserService::set_mfa_secrets(ctx, user_id, None, None).await
     }
 
     /// Verifies if the TOTP passed for this user is valid.
