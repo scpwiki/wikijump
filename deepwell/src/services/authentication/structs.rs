@@ -1,5 +1,5 @@
 /*
- * utils/mod.rs
+ * services/authentication/structs.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,22 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Eclectic module containing various utilities, grouped by type.
-
-mod category;
-mod crypto;
-mod error;
-mod locale;
-mod string;
-mod tide;
-mod time;
-mod user;
-
-pub use self::category::*;
-pub use self::crypto::*;
-pub use self::error::*;
-pub use self::locale::*;
-pub use self::string::*;
-pub use self::tide::*;
-pub use self::time::*;
-pub use self::user::*;
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct AuthenticateUser {
+    pub password: String,
+    pub totp: Option<String>,
+}

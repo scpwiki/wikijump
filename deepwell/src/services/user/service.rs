@@ -21,8 +21,10 @@
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user::{self, Entity as User, Model as UserModel};
-use crate::services::user_alias::{CreateUserAlias, UserAliasService};
+use crate::services::user_alias::CreateUserAlias;
+use crate::services::{PasswordService, UserAliasService};
 use crate::utils::get_user_slug;
+use sea_orm::ActiveValue;
 use std::cmp;
 
 // TODO make these configurable
@@ -74,7 +76,7 @@ impl UserService {
         let password = match user_type {
             UserType::Regular => {
                 tide::log::info!("Creating regular user '{slug}' with password");
-                hash_password(input.password)
+                PasswordService::new_hash(&input.password)?
             }
             UserType::System => {
                 tide::log::info!("Creating system user '{slug}'");
@@ -232,7 +234,8 @@ impl UserService {
         }
 
         if let ProvidedValue::Set(password) = input.password {
-            model.password = Set(hash_password(password));
+            let password_hash = PasswordService::new_hash(&password)?;
+            model.password = Set(password_hash);
         }
 
         if let ProvidedValue::Set(locale) = input.locale {
@@ -383,6 +386,58 @@ impl UserService {
         Ok(name_changes)
     }
 
+    /// Set the MFA secret fields for a user.
+    pub async fn set_mfa_secrets(
+        ctx: &ServiceContext<'_>,
+        user_id: i64,
+        multi_factor_secret: ActiveValue<Option<String>>,
+        multi_factor_recovery_codes: ActiveValue<Option<Vec<String>>>,
+    ) -> Result<()> {
+        tide::log::info!("Setting MFA secret fields for user ID {user_id}");
+
+        let txn = ctx.transaction();
+        let model = user::ActiveModel {
+            user_id: Set(user_id),
+            multi_factor_secret,
+            multi_factor_recovery_codes,
+            ..Default::default()
+        };
+        model.update(txn).await?;
+
+        Ok(())
+    }
+
+    /// Removes a recovery code from the list provided for a user.
+    pub async fn remove_recovery_code(
+        ctx: &ServiceContext<'_>,
+        user: &UserModel,
+        recovery_code: &str,
+    ) -> Result<()> {
+        let txn = ctx.transaction();
+        tide::log::info!("Removing recovery code from user ID {}", user.user_id);
+
+        // Only update if there are recovery codes set for the user
+        if let Some(current_codes) = &user.multi_factor_recovery_codes {
+            // Clone list, but without the removed code
+            let updated_codes = current_codes
+                .iter()
+                .filter(|code| code.as_str() != recovery_code)
+                .map(String::from)
+                .collect::<Vec<_>>();
+
+            // Update with the new list
+            let model = user::ActiveModel {
+                user_id: Set(user.user_id),
+                multi_factor_recovery_codes: Set(Some(updated_codes)),
+                updated_at: Set(Some(now())),
+                ..Default::default()
+            };
+            model.update(txn).await?;
+        }
+
+        Ok(())
+    }
+
     pub async fn delete(
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
@@ -405,13 +460,4 @@ impl UserService {
         let user = model.update(txn).await?;
         Ok(user)
     }
-}
-
-// Helpers
-
-// TEMP helper, so it's easier to replace when implemented
-// TODO replace
-fn hash_password(value: String) -> String {
-    // TODO Securely hash password
-    value
 }

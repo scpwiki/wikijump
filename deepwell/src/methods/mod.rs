@@ -51,6 +51,7 @@ mod prelude {
     }
 }
 
+pub mod auth;
 pub mod category;
 pub mod file;
 pub mod file_revision;

@@ -24,8 +24,9 @@
 
 use crate::api::ApiServer;
 use crate::methods::{
-    category::*, file::*, file_revision::*, link::*, locale::*, misc::*, page::*,
-    page_revision::*, parent::*, site::*, text::*, user::*, user_bot::*, vote::*,
+    auth::*, category::*, file::*, file_revision::*, link::*, locale::*, misc::*,
+    page::*, page_revision::*, parent::*, site::*, text::*, user::*, user_bot::*,
+    vote::*,
 };
 use crate::utils::error_response;
 use tide::StatusCode;
@@ -48,6 +49,14 @@ pub fn build(mut app: ApiServer) -> ApiServer {
         .get(message_post)
         .put(message_post)
         .post(message_post);
+
+    // Authentication
+    app.at("/auth/login/:type/:id_or_slug").post(auth_login);
+    app.at("/auth/logout").delete(auth_logout);
+    app.at("/auth/mfa/setup").post(auth_mfa_setup);
+    app.at("/auth/mfa/disable").post(auth_mfa_disable);
+    app.at("/auth/mfa/resetRecovery")
+        .post(auth_mfa_reset_recovery);
 
     // Site
     app.at("/site").post(site_create);

@@ -40,6 +40,9 @@ pub enum Error {
     #[error("CUID generation error: {0}")]
     Cuid(#[from] CuidError),
 
+    #[error("Cryptography error: {0}")]
+    Cryptography(argon2::password_hash::Error),
+
     #[error("Database error: {0}")]
     Database(DbErr),
 
@@ -48,6 +51,9 @@ pub enum Error {
 
     #[error("Magic library error: {0}")]
     Magic(#[from] FileMagicError),
+
+    #[error("One-time password error: {0}")]
+    Otp(#[from] otp::Error),
 
     #[error("Serialization error: {0}")]
     Serde(#[from] serde_json::Error),
@@ -70,6 +76,9 @@ pub enum Error {
     #[error("The user cannot rename as they do not have enough name change tokens")]
     InsufficientNameChanges,
 
+    #[error("Invalid username, password, or TOTP code")]
+    InvalidAuthentication,
+
     #[error("The request is in some way malformed or incorrect")]
     BadRequest,
 
@@ -90,11 +99,16 @@ impl Error {
     pub fn into_tide_error(self) -> TideError {
         match self {
             Error::Cuid(inner) => TideError::new(StatusCode::InternalServerError, inner),
+            Error::Cryptography(_) => {
+                // The "invalid password" variant should have already been filtered out, see below.
+                TideError::from_str(StatusCode::InternalServerError, "")
+            }
             Error::Database(inner) => {
                 TideError::new(StatusCode::InternalServerError, inner)
             }
             Error::Magic(inner) => TideError::new(StatusCode::InternalServerError, inner),
             Error::Localization(inner) => TideError::new(StatusCode::NotFound, inner),
+            Error::Otp(inner) => TideError::new(StatusCode::InternalServerError, inner),
             Error::Serde(inner) => TideError::new(StatusCode::InternalServerError, inner),
             Error::S3(inner) => TideError::new(StatusCode::InternalServerError, inner),
             Error::Web(inner) => inner,
@@ -106,6 +120,9 @@ impl Error {
             }
             Error::InsufficientNameChanges => {
                 TideError::from_str(StatusCode::PaymentRequired, "")
+            }
+            Error::InvalidAuthentication => {
+                TideError::from_str(StatusCode::Forbidden, "")
             }
             Error::BadRequest => TideError::from_str(StatusCode::BadRequest, ""),
             Error::Exists | Error::Conflict => {
@@ -120,6 +137,19 @@ impl Error {
 }
 
 // Error conversion implementations
+//
+// Required if the value doesn't implement StdError,
+// or we want custom conversions.
+
+impl From<argon2::password_hash::Error> for Error {
+    #[inline]
+    fn from(error: argon2::password_hash::Error) -> Error {
+        match error {
+            argon2::password_hash::Error::Password => Error::InvalidAuthentication,
+            _ => Error::Cryptography(error),
+        }
+    }
+}
 
 impl From<DbErr> for Error {
     fn from(error: DbErr) -> Error {
