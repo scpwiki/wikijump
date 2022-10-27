@@ -37,13 +37,11 @@ pub fn generate_totp_secret() -> String {
     assert_is_csprng(&rng);
 
     // TOTP secret is any sufficiently-long random base32 string
-    let totp_secret = {
+    {
         let mut buffer = [0; 32];
         rng.fill(&mut buffer);
         BASE32_NOPAD.encode(&buffer)
-    };
-
-    totp_secret
+    }
 }
 
 #[derive(Debug)]

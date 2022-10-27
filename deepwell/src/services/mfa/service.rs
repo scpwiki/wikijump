@@ -146,7 +146,7 @@ impl MfaService {
             }
         };
 
-        let actual_totp = otp::make_totp(&secret, TIME_STEP, TIME_SKEW)?;
+        let actual_totp = otp::make_totp(secret, TIME_STEP, TIME_SKEW)?;
 
         // Constant-time comparison
         if actual_totp.ct_eq(&entered_totp).into() {
@@ -184,7 +184,7 @@ impl MfaService {
         // Constant-time, check all the recovery codes even when we know we have a match.
         let mut matched = None;
         for recovery_code_hash in recovery_code_hashes {
-            if PasswordService::verify_sleep(recovery_code, &recovery_code_hash, false)
+            if PasswordService::verify_sleep(recovery_code, recovery_code_hash, false)
                 .await
                 .is_ok()
             {
