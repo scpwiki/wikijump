@@ -136,7 +136,6 @@ impl MfaService {
     /// # Returns
     /// Nothing on success, yields an `InvalidAuthentication` error on failure.
     pub async fn verify(
-        ctx: &ServiceContext<'_>,
         user: &UserModel,
         entered_totp: u32,
     ) -> Result<()> {
