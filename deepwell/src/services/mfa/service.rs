@@ -135,10 +135,7 @@ impl MfaService {
     ///
     /// # Returns
     /// Nothing on success, yields an `InvalidAuthentication` error on failure.
-    pub async fn verify(
-        user: &UserModel,
-        entered_totp: u32,
-    ) -> Result<()> {
+    pub async fn verify(user: &UserModel, entered_totp: u32) -> Result<()> {
         tide::log::info!("Verifying TOTP code for user ID {}", user.user_id);
 
         let secret = match &user.multi_factor_secret {
