@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use crate::services::authentication::{AuthenticateUser, AuthenticationService};
+use crate::services::MfaService;
 
 pub async fn auth_login(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
@@ -45,4 +46,48 @@ pub async fn auth_logout(req: ApiRequest) -> ApiResponse {
     // TODO session closure
     let _ = ctx;
     todo!()
+}
+
+pub async fn auth_mfa_setup(req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    let reference = Reference::try_from(&req)?;
+    let user = UserService::get(&ctx, reference).await.to_api()?;
+    let output = MfaService::setup(&ctx, &user).await.to_api()?;
+
+    let body = Body::from_json(&output)?;
+    let response = Response::builder(StatusCode::Ok).body(body).into();
+    txn.commit().await?;
+    Ok(response)
+}
+
+pub async fn auth_mfa_disable(req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    let user_id = 4; // TODO get from session ID
+    MfaService::disable(&ctx, user_id).await.to_api()?;
+
+    txn.commit().await?;
+    Ok(Response::new(StatusCode::NoContent))
+}
+
+pub async fn auth_mfa_reset_recovery(req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    let user_id = 4; // TODO get from session ID
+    let user = UserService::get(&ctx, Reference::Id(user_id))
+        .await
+        .to_api()?;
+
+    let output = MfaService::reset_recovery_codes(&ctx, &user)
+        .await
+        .to_api()?;
+
+    let body = Body::from_json(&output)?;
+    let response = Response::builder(StatusCode::Ok).body(body).into();
+    txn.commit().await?;
+    Ok(response)
 }

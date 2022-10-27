@@ -53,6 +53,10 @@ pub fn build(mut app: ApiServer) -> ApiServer {
     // Authentication
     app.at("/auth/login/:type/:id_or_slug").post(auth_login);
     app.at("/auth/logout").delete(auth_logout);
+    app.at("/auth/mfa/setup").post(auth_mfa_setup);
+    app.at("/auth/mfa/disable").post(auth_mfa_disable);
+    app.at("/auth/mfa/resetRecovery")
+        .post(auth_mfa_reset_recovery);
 
     // Site
     app.at("/site").post(site_create);
