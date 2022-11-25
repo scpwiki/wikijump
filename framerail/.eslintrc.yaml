@@ -5,7 +5,6 @@ ignorePatterns:
   - "./build/**"
   - "./svelte-kit/**"
   - "./package/**"
-  - "*.cjs"
 
 plugins:
   - "@typescript-eslint"
