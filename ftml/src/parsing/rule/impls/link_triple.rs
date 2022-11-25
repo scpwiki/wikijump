@@ -106,8 +106,8 @@ fn try_consume_link<'r, 't>(
 
 /// Helper to build link with the same URL and label.
 /// e.g. `[[[name]]]`
-fn build_same<'p, 'r, 't>(
-    parser: &'p mut Parser<'r, 't>,
+fn build_same<'r, 't>(
+    parser: &mut Parser<'r, 't>,
     url: &'t str,
     target: Option<AnchorTarget>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
