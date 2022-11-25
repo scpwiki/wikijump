@@ -7,24 +7,24 @@ Framerail is Wikijump's web server and client software, powered by SvelteKit.
 Install node dependencies:
 
 ```bash
-npm install
+pnpm install
 ```
 
 You can run a local instance using development mode:
 
 ```bash
-npm run dev
+pnpm dev
 
 # or start the server and open the app in a new browser tab
-npm run dev -- --open
+pnpm dev -- --open
 ```
 
 To create a production version of your app:
 
 ```bash
-npm run build
+pnpm build
 ```
 
-You can preview the production build with `npm run preview`.
+You can preview the production build with `pnpm preview`.
 
 > To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.

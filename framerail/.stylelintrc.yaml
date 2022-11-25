@@ -1,0 +1,31 @@
+extends:
+  - stylelint-config-recess-order
+
+plugins:
+  - stylelint-scss
+
+ignoreFiles:
+  - "**/node_modules/**"
+  - "./build/**"
+  - "./svelte-kit/**"
+  - "./package/**"
+
+reportNeedlessDisables: true
+reportInvalidScopeDisables: true
+defaultSeverity: warning
+
+rules:
+  color-no-invalid-hex: true
+  function-linear-gradient-no-nonstandard-direction: true
+  length-zero-no-unit: true
+  shorthand-property-no-redundant-values: true
+  property-case: lower
+  comment-no-empty: true
+  scss/selector-no-redundant-nesting-selector: true
+
+overrides:
+  - files: ["**/*.scss"]
+    customSyntax: postcss-scss
+
+  - files: ["**/*.svelte"]
+    customSyntax: postcss-html

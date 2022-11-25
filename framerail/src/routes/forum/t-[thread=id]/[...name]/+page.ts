@@ -1,6 +1,5 @@
-/** @type {import('./$types').PageLoad} */
-export function load({ params }) {
-  return {
-    threadId: parseInt(params.thread),
-  };
+import type { PageLoad } from "./$types"
+
+export const load: PageLoad = ({ params }) => {
+  return { threadId: parseInt(params.thread, 10) }
 }
