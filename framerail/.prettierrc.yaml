@@ -1,0 +1,26 @@
+printWidth: 90
+semi: false
+singleQuote: false
+quoteProps: preserve
+trailingComma: none
+bracketSpacing: true
+arrowParens: always
+endOfLine: auto
+
+plugins:
+  - prettier-plugin-organize-imports
+  - prettier-plugin-jsdoc
+  - prettier-plugin-svelte
+
+pluginSearchDirs:
+  - "."
+
+# plugin-jsdoc
+tsdoc: true
+# Set shorter than 90 so if line wrapping is on comments don't go past it
+jsdocPrintWidth: 75
+
+overrides:
+  - files: "*.svelte"
+    options:
+      parser: svelte
