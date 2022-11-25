@@ -1,6 +1,6 @@
-/** @type {import('./$types').PageLoad} */
+/** @type {import("./$types").PageLoad} */
 export function load({ params }) {
   return {
-    threadId: parseInt(params.thread),
-  };
+    threadId: parseInt(params.thread)
+  }
 }
