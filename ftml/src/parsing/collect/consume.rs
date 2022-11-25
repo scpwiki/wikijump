@@ -26,8 +26,8 @@ use super::prelude::*;
 /// this function implements it here to avoid code duplication.
 ///
 /// This call always sets `step_on_final` to `true`.
-pub fn collect_consume<'p, 'r, 't>(
-    parser: &'p mut Parser<'r, 't>,
+pub fn collect_consume<'r, 't>(
+    parser: &mut Parser<'r, 't>,
     rule: Rule,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],

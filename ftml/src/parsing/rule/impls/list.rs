@@ -38,8 +38,8 @@ pub const RULE_LIST: Rule = Rule {
     try_consume_fn,
 };
 
-fn try_consume_fn<'p, 'r, 't>(
-    parser: &'p mut Parser<'r, 't>,
+fn try_consume_fn<'r, 't>(
+    parser: &mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     // We don't know the list type(s) yet, so just log that we're starting
     info!("Parsing a list");

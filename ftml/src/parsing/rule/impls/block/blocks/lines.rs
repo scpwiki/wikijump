@@ -46,8 +46,8 @@ fn parse_fn<'r, 't>(
     ok!(Element::LineBreaks(count))
 }
 
-fn parse_count<'r, 't>(
-    parser: &Parser<'r, 't>,
+fn parse_count<'t>(
+    parser: &Parser<'_, 't>,
     argument: Option<&'t str>,
 ) -> Result<NonZeroU32, ParseError> {
     let argument = match argument {
