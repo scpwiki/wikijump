@@ -8,9 +8,12 @@ arrowParens: always
 endOfLine: auto
 
 plugins:
-  - ./node_modules/prettier-plugin-organize-imports
-  - ./node_modules/prettier-plugin-jsdoc
-  - ./node_modules/prettier-plugin-svelte
+  - prettier-plugin-organize-imports
+  - prettier-plugin-jsdoc
+  - prettier-plugin-svelte
+
+pluginSearchDirs:
+  - "."
 
 # plugin-jsdoc
 tsdoc: true
@@ -18,6 +21,6 @@ tsdoc: true
 jsdocPrintWidth: 75
 
 overrides:
-  - files: "**/*.svelte"
+  - files: "*.svelte"
     options:
       parser: svelte
