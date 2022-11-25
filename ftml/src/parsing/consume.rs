@@ -35,9 +35,7 @@ use std::mem;
 ///
 /// It will use the fallback if all rules, fail, so the only failure case is if
 /// the end of the input is reached.
-pub fn consume<'p, 'r, 't>(
-    parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Elements<'t>> {
+pub fn consume<'r, 't>(parser: &mut Parser<'r, 't>) -> ParseResult<'r, 't, Elements<'t>> {
     info!(
         "Running consume attempt (token {}, slice {:?})",
         parser.current().token.name(),

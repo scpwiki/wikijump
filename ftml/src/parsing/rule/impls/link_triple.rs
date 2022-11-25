@@ -44,14 +44,14 @@ pub const RULE_LINK_TRIPLE_NEW_TAB: Rule = Rule {
     try_consume_fn: link_new_tab,
 };
 
-fn link<'p, 'r, 't>(parser: &'p mut Parser<'r, 't>) -> ParseResult<'r, 't, Elements<'t>> {
+fn link<'r, 't>(parser: &mut Parser<'r, 't>) -> ParseResult<'r, 't, Elements<'t>> {
     info!("Trying to create a triple-bracket link (regular)");
     check_step(parser, Token::LeftLink)?;
     try_consume_link(parser, RULE_LINK_TRIPLE, None)
 }
 
-fn link_new_tab<'p, 'r, 't>(
-    parser: &'p mut Parser<'r, 't>,
+fn link_new_tab<'r, 't>(
+    parser: &mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     info!("Trying to create a triple-bracket link (new tab)");
     check_step(parser, Token::LeftLinkStar)?;
@@ -59,8 +59,8 @@ fn link_new_tab<'p, 'r, 't>(
 }
 
 /// Build a triple-bracket link with the given target.
-fn try_consume_link<'p, 'r, 't>(
-    parser: &'p mut Parser<'r, 't>,
+fn try_consume_link<'r, 't>(
+    parser: &mut Parser<'r, 't>,
     rule: Rule,
     target: Option<AnchorTarget>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
@@ -106,8 +106,8 @@ fn try_consume_link<'p, 'r, 't>(
 
 /// Helper to build link with the same URL and label.
 /// e.g. `[[[name]]]`
-fn build_same<'p, 'r, 't>(
-    parser: &'p mut Parser<'r, 't>,
+fn build_same<'r, 't>(
+    parser: &mut Parser<'r, 't>,
     url: &'t str,
     target: Option<AnchorTarget>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
@@ -136,8 +136,8 @@ fn build_same<'p, 'r, 't>(
 
 /// Helper to build link with separate URL and label.
 /// e.g. `[[[page|label]]]`, or `[[[page|]]]`
-fn build_separate<'p, 'r, 't>(
-    parser: &'p mut Parser<'r, 't>,
+fn build_separate<'r, 't>(
+    parser: &mut Parser<'r, 't>,
     rule: Rule,
     url: &'t str,
     target: Option<AnchorTarget>,

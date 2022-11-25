@@ -38,8 +38,8 @@ use crate::tree::{AttributeMap, Container, ContainerType, Element};
 /// The kind of container we're building:
 /// Must match the parse rule.
 /// * `container_type`
-pub fn collect_container<'p, 'r, 't>(
-    parser: &'p mut Parser<'r, 't>,
+pub fn collect_container<'r, 't>(
+    parser: &mut Parser<'r, 't>,
     rule: Rule,
     container_type: ContainerType,
     close_conditions: &[ParseCondition],

@@ -66,8 +66,8 @@ fn parse_fn<'r, 't>(
     ok!(Element::Text(string))
 }
 
-fn parse_entity<'r, 't>(
-    parser: &Parser<'r, 't>,
+fn parse_entity<'t>(
+    parser: &Parser<'_, 't>,
     argument: Option<&'t str>,
 ) -> Result<Cow<'t, str>, ParseError> {
     let argument = match argument {

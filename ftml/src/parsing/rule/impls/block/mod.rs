@@ -95,8 +95,8 @@ impl BlockRule {
     #[cold]
     pub fn rule(&self) -> Rule {
         // Stubbed try_consume_fn implementation for the Rule.
-        fn try_consume_fn<'p, 'r, 't>(
-            _: &'p mut Parser<'r, 't>,
+        fn try_consume_fn<'r, 't>(
+            _: &mut Parser<'r, 't>,
         ) -> ParseResult<'r, 't, Elements<'t>> {
             panic!("Pseudo rule for this block should not be executed directly!");
         }

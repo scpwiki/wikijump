@@ -50,9 +50,9 @@ impl Rule {
     }
 
     #[inline]
-    pub fn try_consume<'p, 'r, 't>(
+    pub fn try_consume<'r, 't>(
         self,
-        parser: &'p mut Parser<'r, 't>,
+        parser: &mut Parser<'r, 't>,
     ) -> ParseResult<'r, 't, Elements<'t>> {
         info!("Trying to consume for parse rule {}", self.name);
 

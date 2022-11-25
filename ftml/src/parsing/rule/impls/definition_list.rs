@@ -34,8 +34,8 @@ pub const RULE_DEFINITION_LIST_SKIP_NEWLINE: Rule = Rule {
     try_consume_fn: skip_newline,
 };
 
-fn skip_newline<'p, 'r, 't>(
-    parser: &'p mut Parser<'r, 't>,
+fn skip_newline<'r, 't>(
+    parser: &mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     info!("Seeing if we skip due to an upcoming definition list");
 
@@ -50,8 +50,8 @@ fn skip_newline<'p, 'r, 't>(
     }
 }
 
-fn parse_definition_list<'p, 'r, 't>(
-    parser: &'p mut Parser<'r, 't>,
+fn parse_definition_list<'r, 't>(
+    parser: &mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     info!("Trying to create a definition list");
 
@@ -94,8 +94,8 @@ fn parse_definition_list<'p, 'r, 't>(
     ok!(Element::DefinitionList(items))
 }
 
-fn parse_item<'p, 'r, 't>(
-    parser: &'p mut Parser<'r, 't>,
+fn parse_item<'r, 't>(
+    parser: &mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, (DefinitionListItem<'t>, bool)> {
     debug!("Trying to parse a definition list item pair");
 
