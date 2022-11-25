@@ -136,8 +136,8 @@ fn build_same<'p, 'r, 't>(
 
 /// Helper to build link with separate URL and label.
 /// e.g. `[[[page|label]]]`, or `[[[page|]]]`
-fn build_separate<'p, 'r, 't>(
-    parser: &'p mut Parser<'r, 't>,
+fn build_separate<'r, 't>(
+    parser: &mut Parser<'r, 't>,
     rule: Rule,
     url: &'t str,
     target: Option<AnchorTarget>,

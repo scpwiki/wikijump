@@ -50,8 +50,8 @@ fn skip_newline<'r, 't>(
     }
 }
 
-fn parse_definition_list<'p, 'r, 't>(
-    parser: &'p mut Parser<'r, 't>,
+fn parse_definition_list<'r, 't>(
+    parser: &mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     info!("Trying to create a definition list");
 
