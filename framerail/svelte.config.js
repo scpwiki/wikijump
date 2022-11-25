@@ -9,6 +9,11 @@ const config = {
 
   kit: {
     adapter: adapter()
+  },
+
+  compilerOptions: {
+    enableSourcemap: true,
+    immutable: true
   }
 }
 
