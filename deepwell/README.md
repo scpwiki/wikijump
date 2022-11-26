@@ -97,4 +97,6 @@ $ sqlx migrate add [name_of_migration]
 
 Migration names should be all-lowercase, `snake_case`, and limited to 1-3 words.
 
+Note that, until Wikijump has a production deployment, migrations are being condensed to simplify the database system. Incremental migrations are necessary to avoid wrecking a production environment, but until one exists it does not make sense to go through the extra work of splitting all changes.
+
 You can see `sqlx migrate --help` or [`sqlx-cli`](https://crates.io/crates/sqlx-cli) for more information.
