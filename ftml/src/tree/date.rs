@@ -46,7 +46,10 @@ impl Date {
 
     pub fn timestamp(self) -> i64 {
         match self {
-            Date::Date(date) => date.and_hms(0, 0, 0).timestamp(),
+            Date::Date(date) => date
+                .and_hms_opt(0, 0, 0)
+                .expect("Invalid time values")
+                .timestamp(),
             Date::DateTime(datetime) => datetime.timestamp(),
             Date::DateTimeTz(datetime_tz) => datetime_tz.timestamp(),
         }
@@ -115,7 +118,7 @@ impl From<DateTime<FixedOffset>> for Date {
 
 #[inline]
 fn to_datetime(date: NaiveDate) -> NaiveDateTime {
-    date.and_hms(0, 0, 0)
+    date.and_hms_opt(0, 0, 0).expect("Invalid time values")
 }
 
 #[inline]
@@ -130,7 +133,11 @@ cfg_if! {
         /// We need a consistent date for render tests to not constantly expire.
         #[inline]
         fn now() -> Date {
-            NaiveDate::from_ymd(2010, 01, 01).and_hms(08, 10, 00).into()
+            NaiveDate::from_ymd_opt(2010, 01, 01)
+                .expect("Invalid date values")
+                .and_hms_opt(08, 10, 00)
+                .expect("Invalid time values")
+                .into()
         }
     } else {
         /// Helper function to get the current date and time, UTC.

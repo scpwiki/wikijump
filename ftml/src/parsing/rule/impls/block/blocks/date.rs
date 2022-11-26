@@ -99,8 +99,11 @@ fn parse_date(value: &str) -> Result<Date, DateParseError> {
     // Try UNIX timestamp (e.g. 1398763929)
     if let Ok(timestamp) = value.parse::<i64>() {
         debug!("Was UNIX timestamp '{timestamp}'");
-        let date = NaiveDateTime::from_timestamp(timestamp, 0);
-        return Ok(date.into());
+        let date = NaiveDateTime::from_timestamp_opt(timestamp, 0);
+        return match date {
+            Some(date) => Ok(date.into()),
+            None => Err(DateParseError),
+        };
     }
 
     // Try date strings
@@ -177,7 +180,7 @@ fn parse_timezone(value: &str) -> Result<FixedOffset, DateParseError> {
         let seconds = sign * (hour * 3600 + minute * 60);
 
         debug!("Was offset via +HH:MM (sign {sign}, hour {hour}, minute {minute})");
-        return Ok(FixedOffset::east(seconds));
+        return get_offset(seconds);
     }
 
     // Try number of seconds
@@ -186,7 +189,7 @@ fn parse_timezone(value: &str) -> Result<FixedOffset, DateParseError> {
     // such as "0800".
     if let Ok(seconds) = value.parse::<i32>() {
         debug!("Was offset in seconds ({seconds})");
-        return Ok(FixedOffset::east(seconds));
+        return get_offset(seconds);
     }
 
     // Exhausted all cases, failing
@@ -199,6 +202,11 @@ struct DateParseError;
 #[inline]
 fn now() -> Date {
     Utc::now().naive_utc().into()
+}
+
+#[inline]
+fn get_offset(seconds: i32) -> Result<FixedOffset, DateParseError> {
+    FixedOffset::east_opt(seconds).ok_or(DateParseError)
 }
 
 // Tests
@@ -242,35 +250,59 @@ fn date() {
         }};
     }
 
+    macro_rules! date {
+        ($year:expr, $month:expr, $day:expr $(,)?) => {
+            NaiveDate::from_ymd_opt($year, $month, $day).expect("Invalid Y/M/D")
+        };
+    }
+
+    macro_rules! datetime {
+        ($timestamp:expr $(,)?) => {
+            NaiveDateTime::from_timestamp_opt($timestamp, 0).expect("Invalid timestamp")
+        };
+
+        ($year:expr, $month:expr, $day:expr; $hour:expr, $minute:expr, $second:expr $(,)?) => {
+            date!($year, $month, $day)
+                .and_hms_opt($hour, $minute, $second)
+                .expect("Invalid H:M:S")
+        };
+
+        ($year:expr, $month:expr, $day:expr; $hour:expr, $minute:expr, $second:expr, $micros:expr $(,)?) => {
+            date!($year, $month, $day)
+                .and_hms_micro_opt($hour, $minute, $second, $micros)
+                .expect("Invalid H:M:S.usec")
+        };
+    }
+
+    macro_rules! timezone {
+        ($offset:expr $(,)?) => {
+            FixedOffset::east_opt($offset).expect("Invalid timezone offset")
+        };
+    }
+
     check_ok!(".", now());
     check_ok!("now", now());
     check_ok!("Now", now());
     check_ok!("NOW", now());
-    check_ok!("1600000000", NaiveDateTime::from_timestamp(1600000000, 0),);
-    check_ok!("-1000", NaiveDateTime::from_timestamp(-1000, 0));
-    check_ok!("0", NaiveDateTime::from_timestamp(0, 0));
-    check_ok!("2001-09-11", NaiveDate::from_ymd(2001, 09, 11),);
-    check_ok!(
-        "2001-09-11T08:46:00",
-        NaiveDate::from_ymd(2001, 09, 11).and_hms(8, 46, 0),
-    );
-    check_ok!("2001/09/11", NaiveDate::from_ymd(2001, 09, 11),);
-    check_ok!(
-        "2001/09/11T08:46:00",
-        NaiveDate::from_ymd(2001, 09, 11).and_hms(8, 46, 0),
-    );
+    check_ok!("1600000000", datetime!(1600000000));
+    check_ok!("-1000", datetime!(-1000));
+    check_ok!("0", datetime!(0));
+    check_ok!("2001-09-11", date!(2001, 09, 11));
+    check_ok!("2001-09-11T08:46:00", datetime!(2001, 09, 11; 8, 46, 0));
+    check_ok!("2001/09/11", date!(2001, 09, 11));
+    check_ok!("2001/09/11T08:46:00", datetime!(2001, 09, 11; 8, 46, 0));
     check_ok!(
         "2007-05-12T09:34:51.026490+04:00",
         DateTime::from_utc(
-            NaiveDate::from_ymd(2007, 05, 12).and_hms_micro(5, 34, 51, 26490),
-            FixedOffset::east(4 * 60 * 60),
+            datetime!(2007, 05, 12; 05, 34, 51, 26490),
+            timezone!(4 * 60 * 60),
         ),
     );
     check_ok!(
         "2007-05-12T09:34:51.026490-04:00",
         DateTime::from_utc(
-            NaiveDate::from_ymd(2007, 05, 12).and_hms_micro(13, 34, 51, 26490),
-            FixedOffset::west(4 * 60 * 60),
+            datetime!(2007, 05, 12; 13, 34, 51, 26490),
+            timezone!(4 * 60 * 60),
         ),
     );
 
@@ -291,7 +323,7 @@ fn timezone() {
 
             assert_eq!(
                 actual,
-                FixedOffset::east($offset),
+                FixedOffset::east_opt($offset).expect("Invalid timezone offset"),
                 "Actual timezone value doesn't match expected",
             );
         }};

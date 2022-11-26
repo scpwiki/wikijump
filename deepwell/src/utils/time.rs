@@ -22,11 +22,7 @@ use chrono::{DateTime, FixedOffset, Utc};
 
 pub type DateTimeWithTimeZone = DateTime<FixedOffset>;
 
-lazy_static! {
-    pub static ref UTC: FixedOffset = FixedOffset::east(0);
-}
-
 #[inline]
 pub fn now() -> DateTimeWithTimeZone {
-    Utc::now().with_timezone(&*UTC)
+    Utc::now().into()
 }
