@@ -65,14 +65,14 @@ $ cargo test
 
 Add `-- --nocapture` to the end if you want to see test output.
 
-### Development
+### Linting
 
 ```sh
 $ cargo fmt     # Ensure code is formatted
 $ cargo clippy  # Check code for lints
 ```
 
-#### Database at a glance
+### Database
 
 There are two important directories related to the management of the database (which DEEPWELL can be said to "own"). They are both fairly self-explanatory:
 
