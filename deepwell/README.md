@@ -71,3 +71,18 @@ Add `-- --nocapture` to the end if you want to see test output.
 $ cargo fmt     # Ensure code is formatted
 $ cargo clippy  # Check code for lints
 ```
+
+#### Database
+
+There are two important directories related to the management of the database (which DEEPWELL can be said to "own"). They are both fairly self-explanatory:
+
+* `migrations/` &mdash; A series of SQL files to set up the schema for a new database.
+* `seeder/` &mdash; Data to initially seed a fresh instance with.
+ * This is not part of the migrations system, instead using DEEPWELL services and methods to ensure that all invariants are properly set, rather than them needing to be manually provided as raw rows in migration files.
+ * This also makes modifying the initial state of an instance much easier, since editing the default start page only requires editing a regular text file.
+
+Whether migrations and the seeder run on startup are controlled via configuration. This means they can be set by either:
+* The `RUN_MIGRATIONS` environment variable, or the `--run-migrations` command-line flag.
+* The `RUN_SEEDER` environment variable, or the `--run-seeder` command-line flag.
+
+Both of these are enabled by default for local installations.
