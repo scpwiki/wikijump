@@ -87,6 +87,8 @@ Whether migrations and the seeder run on startup are controlled via configuratio
 
 Both of these are enabled by default for local installations.
 
+Basic database setup (creating the `wikijump` database and user) is done when building the container. See [`/install/files/postgres/init/`](https://github.com/scpwiki/wikijump/tree/develop/install/files/postgres/init).
+
 #### Adding new migrations
 
 Database migrations are applied using [`sqlx` migrations](https://docs.rs/sqlx/latest/sqlx/macro.migrate.html), which uses the simple structure that can be seen in the `migrations/` directory. New migrations can be added using the `sqlx` command-line utility:
