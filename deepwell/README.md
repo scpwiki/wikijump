@@ -72,7 +72,7 @@ $ cargo fmt     # Ensure code is formatted
 $ cargo clippy  # Check code for lints
 ```
 
-#### Database
+#### Database at a glance
 
 There are two important directories related to the management of the database (which DEEPWELL can be said to "own"). They are both fairly self-explanatory:
 
@@ -86,3 +86,15 @@ Whether migrations and the seeder run on startup are controlled via configuratio
 * The `RUN_SEEDER` environment variable, or the `--run-seeder` command-line flag.
 
 Both of these are enabled by default for local installations.
+
+#### Adding new migrations
+
+Database migrations are applied using [`sqlx` migrations](https://docs.rs/sqlx/latest/sqlx/macro.migrate.html), which uses the simple structure that can be seen in the `migrations/` directory. New migrations can be added using the `sqlx` command-line utility:
+
+```sh
+$ sqlx migrate add [name_of_migration]
+```
+
+Migration names should be all-lowercase, `snake_case`, and limited to 1-3 words.
+
+You can see `sqlx migrate --help` or [`sqlx-cli`](https://crates.io/crates/sqlx-cli) for more information.
