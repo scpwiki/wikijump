@@ -99,8 +99,11 @@ fn parse_date(value: &str) -> Result<Date, DateParseError> {
     // Try UNIX timestamp (e.g. 1398763929)
     if let Ok(timestamp) = value.parse::<i64>() {
         debug!("Was UNIX timestamp '{timestamp}'");
-        let date = NaiveDateTime::from_timestamp(timestamp, 0);
-        return Ok(date.into());
+        let date = NaiveDateTime::from_timestamp_opt(timestamp, 0);
+        return match date {
+            Some(date) => Ok(date.into()),
+            None => Err(DateParseError),
+        };
     }
 
     // Try date strings
