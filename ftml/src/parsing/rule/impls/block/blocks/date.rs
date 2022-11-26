@@ -180,7 +180,7 @@ fn parse_timezone(value: &str) -> Result<FixedOffset, DateParseError> {
         let seconds = sign * (hour * 3600 + minute * 60);
 
         debug!("Was offset via +HH:MM (sign {sign}, hour {hour}, minute {minute})");
-        return Ok(FixedOffset::east(seconds));
+        return get_offset(seconds);
     }
 
     // Try number of seconds
@@ -189,7 +189,7 @@ fn parse_timezone(value: &str) -> Result<FixedOffset, DateParseError> {
     // such as "0800".
     if let Ok(seconds) = value.parse::<i32>() {
         debug!("Was offset in seconds ({seconds})");
-        return Ok(FixedOffset::east(seconds));
+        return get_offset(seconds);
     }
 
     // Exhausted all cases, failing
@@ -202,6 +202,11 @@ struct DateParseError;
 #[inline]
 fn now() -> Date {
     Utc::now().naive_utc().into()
+}
+
+#[inline]
+fn get_offset(seconds: i32) -> Result<FixedOffset, DateParseError> {
+    FixedOffset::east_opt(seconds).ok_or(DateParseError)
 }
 
 // Tests
