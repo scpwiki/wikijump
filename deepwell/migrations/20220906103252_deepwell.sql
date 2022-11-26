@@ -393,3 +393,13 @@ CREATE TABLE file_revision (
     -- For logical consistency, and adding an index
     UNIQUE (file_id, page_id, revision_number)
 );
+
+--
+-- Filters
+--
+
+-- System filters, applies globally to the entire instance
+-- TODO
+
+-- Site filters, applies per-site and can be configured by site staff
+-- TODO
