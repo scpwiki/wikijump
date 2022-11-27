@@ -1248,6 +1248,7 @@ dependencies = [
  "otp",
  "rand 0.8.5",
  "ref-map",
+ "regex",
  "rust-s3",
  "sea-orm",
  "sea-query",
