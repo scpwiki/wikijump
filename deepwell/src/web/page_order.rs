@@ -34,6 +34,16 @@ pub struct PageOrder {
     pub direction: Order,
 }
 
+impl Default for PageOrder {
+    #[inline]
+    fn default() -> Self {
+        PageOrder {
+            column: PageOrderColumn::default(),
+            direction: Order::Asc,
+        }
+    }
+}
+
 /// Describes what column that pages should be ordered by.
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
