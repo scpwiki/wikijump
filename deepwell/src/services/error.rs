@@ -67,6 +67,9 @@ pub enum Error {
     #[error("Invalid enum serialization value")]
     InvalidEnumValue,
 
+    #[error("Inconsistency found in checked data")]
+    Inconsistent,
+
     #[error("A request to a remote service returned an error")]
     RemoteOperationFailed,
 
@@ -112,7 +115,7 @@ impl Error {
             Error::Serde(inner) => TideError::new(StatusCode::InternalServerError, inner),
             Error::S3(inner) => TideError::new(StatusCode::InternalServerError, inner),
             Error::Web(inner) => inner,
-            Error::InvalidEnumValue => {
+            Error::InvalidEnumValue | Error::Inconsistent => {
                 TideError::from_str(StatusCode::InternalServerError, "")
             }
             Error::RemoteOperationFailed | Error::RenderTimeout => {
