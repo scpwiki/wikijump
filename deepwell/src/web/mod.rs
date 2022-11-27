@@ -23,6 +23,7 @@ mod fetch_direction;
 mod fetch_limit;
 mod file_details;
 mod page_details;
+mod page_order;
 mod provided_value;
 mod reference;
 mod unwrap;
@@ -37,6 +38,7 @@ pub use self::fetch_limit::{
 };
 pub use self::file_details::FileDetailsQuery;
 pub use self::page_details::PageDetailsQuery;
+pub use self::page_order::PageOrder;
 pub use self::provided_value::ProvidedValue;
 pub use self::reference::{CuidReference, Reference};
 pub use self::unwrap::HttpUnwrap;
