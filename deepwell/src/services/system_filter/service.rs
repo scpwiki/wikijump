@@ -186,6 +186,27 @@ impl SystemFilterService {
         Ok(filters)
     }
 
+    /// Get all system filters of a type, specifically extracting the regular expressions.
+    ///
+    /// This only pulls extant filters, as those are the only ones which are enforced.
+    pub async fn get_regex_set(
+        ctx: &ServiceContext<'_>,
+        filter_type: SystemFilterType,
+    ) -> Result<RegexSet> {
+        tide::log::info!("Compiling regex set for filters of type {filter_type}");
+
+        let filters = Self::get_all(ctx, filter_type, Some(false)).await?;
+        let regular_expressions = filters.into_iter().map(|filter| filter.regex);
+
+        RegexSet::new(regular_expressions).map_err(|error| {
+            tide::log::error!(
+                "Invalid regular expression found in the database: {error}",
+            );
+
+            Error::Inconsistent
+        })
+    }
+
     async fn check_conflicts(
         ctx: &ServiceContext<'_>,
         filter_type: SystemFilterType,
