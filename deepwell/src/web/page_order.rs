@@ -36,11 +36,10 @@ pub enum PageOrderColumn {
     Id,
 
     /// Requests pages in page creation order.
-    /// For most purposes this is the same as `PageOrder::Id`.
+    /// For most purposes this is the same as `PageOrderColumn::Id`.
     Creation,
 
     /// Requests pages in page update order.
-    /// For most purposes this is the same as `PageOrder::Id`.
     Update,
 
     /// Requests pages in slug order.
