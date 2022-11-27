@@ -26,3 +26,10 @@ pub struct CreateSystemFilter {
     regex: String,
     reason: String,
 }
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct UpdateSystemFilter {
+    filter_id: i64,
+    regex: String,
+    reason: String,
+}
