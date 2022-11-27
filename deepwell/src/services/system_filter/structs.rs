@@ -22,14 +22,14 @@ use crate::models::sea_orm_active_enums::SystemFilterType;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct CreateSystemFilter {
-    filter_type: SystemFilterType,
-    regex: String,
-    reason: String,
+    pub filter_type: SystemFilterType,
+    pub regex: String,
+    pub reason: String,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct UpdateSystemFilter {
-    filter_id: i64,
-    regex: String,
-    reason: String,
+    pub filter_id: i64,
+    pub regex: String,
+    pub reason: String,
 }

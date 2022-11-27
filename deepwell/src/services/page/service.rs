@@ -26,8 +26,8 @@ use crate::services::revision::{
     CreateRevision, CreateRevisionBody, CreateRevisionOutput, CreateTombstoneRevision,
 };
 use crate::services::{CategoryService, RevisionService, TextService};
-use crate::web::PageOrder;
 use crate::utils::{get_category_name, trim_default};
+use crate::web::PageOrder;
 use wikidot_normalize::normalize;
 
 #[derive(Debug)]

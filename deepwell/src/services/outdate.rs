@@ -148,11 +148,17 @@ impl OutdateService {
                 Some(category_slug.into())
             };
 
-            let ids = PageService::get_all(ctx, site_id, category_select, Some(false), PageOrder::default())
-                .await?
-                .into_iter()
-                .map(|model| (model.site_id, model.page_id))
-                .collect::<Vec<_>>();
+            let ids = PageService::get_all(
+                ctx,
+                site_id,
+                category_select,
+                Some(false),
+                PageOrder::default(),
+            )
+            .await?
+            .into_iter()
+            .map(|model| (model.site_id, model.page_id))
+            .collect::<Vec<_>>();
 
             Self::outdate(ids);
         }
