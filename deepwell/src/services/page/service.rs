@@ -540,7 +540,7 @@ impl PageService {
                     .add_option(category_condition)
                     .add_option(deleted_condition),
             )
-            .order_by(order.column.into(), order.direction)
+            .order_by(order.column.into_column(), order.direction)
             .all(txn)
             .await?;
 

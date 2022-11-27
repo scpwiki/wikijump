@@ -63,6 +63,13 @@ pub enum PageOrderColumn {
     Slug,
 }
 
+impl PageOrderColumn {
+    #[inline]
+    pub fn into_column(self) -> page::Column {
+        self.into()
+    }
+}
+
 impl Default for PageOrderColumn {
     #[inline]
     fn default() -> Self {
