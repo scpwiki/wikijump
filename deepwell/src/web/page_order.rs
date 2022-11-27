@@ -19,11 +19,18 @@
  */
 
 use crate::models::page;
+use sea_orm::query::Order;
 
-/// Describes what order pages should be retrieved in.
+#[derive(Debug, Clone, PartialEq)]
+pub struct PageOrder {
+    pub column: PageOrderColumn,
+    pub direction: Order,
+}
+
+/// Describes what column that pages should be ordered by.
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
-pub enum PageOrder {
+pub enum PageOrderColumn {
     /// Requests pages in page ID order.
     /// This is the default.
     Id,
@@ -40,21 +47,21 @@ pub enum PageOrder {
     Slug,
 }
 
-impl Default for PageOrder {
+impl Default for PageOrderColumn {
     #[inline]
     fn default() -> Self {
-        PageOrder::Id
+        PageOrderColumn::Id
     }
 }
 
 /// Conversion functions for PageOrder to a column.
-impl From<PageOrder> for page::Column {
-    fn from(order: PageOrder) -> page::Column {
+impl From<PageOrderColumn> for page::Column {
+    fn from(order: PageOrderColumn) -> page::Column {
         match order {
-            PageOrder::Id => page::Column::PageId,
-            PageOrder::Creation => page::Column::CreatedAt,
-            PageOrder::Update => page::Column::UpdatedAt,
-            PageOrder::Slug => page::Column::Slug,
+            PageOrderColumn::Id => page::Column::PageId,
+            PageOrderColumn::Creation => page::Column::CreatedAt,
+            PageOrderColumn::Update => page::Column::UpdatedAt,
+            PageOrderColumn::Slug => page::Column::Slug,
         }
     }
 }
