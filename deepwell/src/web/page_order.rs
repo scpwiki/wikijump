@@ -21,6 +21,13 @@
 use crate::models::page;
 use sea_orm::query::Order;
 
+/// Describes what order pages should be retrieved in.
+///
+/// It is composed of two components:
+/// * `column`    -- The `PageOrderColumn` describing what column to order by.
+/// * `direction` -- Whether the order should be ascending or descending. (See [`Order`])
+///
+/// [`Order`]: https://docs.rs/sea-orm/latest/sea_orm/query/enum.Order.html
 #[derive(Debug, Clone, PartialEq)]
 pub struct PageOrder {
     pub column: PageOrderColumn,
