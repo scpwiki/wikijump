@@ -42,8 +42,10 @@ impl SiteService {
 
         // Normalize slug.
         normalize(&mut slug);
+
         // Check for slug conflicts.
         Self::check_conflicts(ctx, &slug, "create").await?;
+
         // Validate locale.
         validate_locale(&locale)?;
 
