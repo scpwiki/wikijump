@@ -398,26 +398,21 @@ CREATE TABLE file_revision (
 -- Filters
 --
 
--- Types associated with filters
-CREATE TYPE system_filter_type AS ENUM (
-    'site',
-    'user'
-);
-
--- TODO site_filter_type ENUM
-
--- System filters, applies globally to the entire instance
-CREATE TABLE system_filter (
+-- Refers both to system and site filters.
+--
+-- If site_id is NULL, then it is a system (platform-wide) filter. It affects all sites.
+-- If site_id is set, then it is a site filter, affecting only that site.
+CREATE TABLE filter (
     filter_id BIGSERIAL PRIMARY KEY,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT 'now()',
     updated_at TIMESTAMP WITH TIME ZONE,
     deleted_at TIMESTAMP WITH TIME ZONE,
-    filter_type system_filter_type NOT NULL,
+    site_id BIGINT REFERENCES site(site_id),
+    affects_user BOOLEAN NOT NULL DEFAULT false,
+    affects_page BOOLEAN NOT NULL DEFAULT false,
+    affects_forum BOOLEAN NOT NULL DEFAULT false,
     regex TEXT NOT NULL,
     reason TEXT NOT NULL,
 
-    UNIQUE (filter_type, regex, deleted_at)
+    UNIQUE (site_id, regex, deleted_at)
 );
-
--- Site filters, applies per-site and can be configured by site staff
--- TODO
