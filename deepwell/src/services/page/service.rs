@@ -26,6 +26,7 @@ use crate::services::revision::{
     CreateRevision, CreateRevisionBody, CreateRevisionOutput, CreateTombstoneRevision,
 };
 use crate::services::{CategoryService, RevisionService, TextService};
+use crate::web::PageOrder;
 use crate::utils::{get_category_name, trim_default};
 use wikidot_normalize::normalize;
 
@@ -504,12 +505,15 @@ impl PageService {
     /// * If it is `Some(true)`, then it only returns pages which have been deleted.
     /// * If it is `Some(false)`, then it only returns pages which are extant.
     /// * If it is `None`, then it returns all pages regardless of deletion status.
+    ///
+    /// For the `order` argument, see documentation on `PageOrder`.
     // TODO add pagination
     pub async fn get_all(
         ctx: &ServiceContext<'_>,
         site_id: i64,
         category: Option<Reference<'_>>,
         deleted: Option<bool>,
+        order: PageOrder,
     ) -> Result<Vec<PageModel>> {
         let txn = ctx.transaction();
 
@@ -536,6 +540,7 @@ impl PageService {
                     .add_option(category_condition)
                     .add_option(deleted_condition),
             )
+            .order_by(order.column.into(), order.direction)
             .all(txn)
             .await?;
 
