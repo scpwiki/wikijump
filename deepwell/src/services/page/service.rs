@@ -122,8 +122,8 @@ impl PageService {
         Self::run_filter(
             ctx,
             site_id,
-            wikitext.to_option_ref(),
-            title.to_option_ref(),
+            wikitext.to_option(),
+            title.to_option(),
             // Flatten what is essentially Option<Option<_>>
             match alt_title {
                 ProvidedValue::Set(Some(ref alt_title)) => Some(alt_title),

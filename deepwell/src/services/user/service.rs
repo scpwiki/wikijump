@@ -54,7 +54,7 @@ impl UserService {
             input.name,
             slug,
         );
-        regex_replace_in_place(&mut input.name, &*LEADING_TRAILING_WHITESPACE, "");
+        regex_replace_in_place(&mut input.name, &LEADING_TRAILING_WHITESPACE, "");
 
         tide::log::info!("Attempting to create user '{}' ('{}')", input.name, slug);
 

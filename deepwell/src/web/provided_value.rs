@@ -36,12 +36,7 @@ pub enum ProvidedValue<T> {
 
 impl<T> ProvidedValue<T> {
     #[inline]
-    pub fn to_option(self) -> Option<T> {
-        self.into()
-    }
-
-    #[inline]
-    pub fn to_option_ref(&self) -> Option<&T> {
+    pub fn to_option(&self) -> Option<&T> {
         match self {
             ProvidedValue::Set(ref value) => Some(value),
             ProvidedValue::Unset => None,
