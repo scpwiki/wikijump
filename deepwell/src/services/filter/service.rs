@@ -26,6 +26,7 @@ use regex::{Regex, RegexSet};
 pub struct FilterService;
 
 impl FilterService {
+    #[allow(dead_code)] // TEMP
     pub async fn create(
         ctx: &ServiceContext<'_>,
         site_id: Option<i64>,
@@ -65,6 +66,7 @@ impl FilterService {
         Ok(filter)
     }
 
+    #[allow(dead_code)] // TEMP
     pub async fn update(
         ctx: &ServiceContext<'_>,
         UpdateFilter {
@@ -117,6 +119,7 @@ impl FilterService {
         Ok(filter)
     }
 
+    #[allow(dead_code)] // TEMP
     pub async fn delete(ctx: &ServiceContext<'_>, filter_id: i64) -> Result<()> {
         let txn = ctx.transaction();
 
@@ -140,6 +143,7 @@ impl FilterService {
     }
 
     /// Restores a filter, causing it to be undeleted.
+    #[allow(dead_code)] // TEMP
     pub async fn restore(
         ctx: &ServiceContext<'_>,
         filter_id: i64,
