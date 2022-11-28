@@ -20,6 +20,80 @@
 
 use crate::models::filter;
 use crate::web::ProvidedValue;
+use sea_orm::{ColumnTrait, Condition};
+
+/// Denotes what class of filter is being selected.
+///
+/// In the database, a value of `NULL` in the `site_id` column
+/// indicates that this is a platform filter, meaning it applies
+/// for all sites. If it has a value then
+///
+/// Previously this value was stored using `Option<i64>` directly
+/// mirroring how it was stored in the database. However, this had
+/// some issues:
+///
+/// One is that it is semantically unclear, and similar to `ProvidedValue`,
+/// we should make a cheap enum wrapper to provide semantics to what is
+/// essentially just an `Option<i64>`.
+///
+/// It also does not allow a consumer to select both all the global filters
+/// as well as the filters for a site. When checking a page edit, for
+/// instance, you want both this site's filters, as well as those which
+/// apply to all sites.
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum FilterClass {
+    /// This filter applies to all sites on the platform.
+    Platform,
+
+    /// This filter applies only to the site with the given ID.
+    Site(i64),
+
+    /// This filter combines all platform and site filters.
+    ///
+    /// It is an optimization which allows the regular expressions
+    /// to be merged into one `RegexSet` for improved performance.
+    PlatformAndSite(i64),
+}
+
+impl FilterClass {
+    #[inline]
+    pub fn name(self) -> &'static str {
+        match self {
+            FilterClass::Platform => "platform",
+            FilterClass::Site(_) => "site",
+            FilterClass::PlatformAndSite(_) => "platform and site",
+        }
+    }
+
+    pub fn to_condition(self) -> Condition {
+        let mut condition = Condition::any();
+
+        // If we want platform filters
+        if matches!(
+            self,
+            FilterClass::Platform | FilterClass::PlatformAndSite(_),
+        ) {
+            condition = condition.add(filter::Column::SiteId.is_null());
+        }
+
+        // If we want site filters
+        if let FilterClass::Site(site_id) | FilterClass::PlatformAndSite(site_id) = self {
+            condition = condition.add(filter::Column::SiteId.eq(site_id));
+        }
+
+        condition
+    }
+}
+
+impl From<Option<i64>> for FilterClass {
+    #[inline]
+    fn from(site_id: Option<i64>) -> FilterClass {
+        match site_id {
+            None => FilterClass::Platform,
+            Some(site_id) => FilterClass::Site(site_id),
+        }
+    }
+}
 
 /// Denotes what kind of object this filter is checking.
 ///
