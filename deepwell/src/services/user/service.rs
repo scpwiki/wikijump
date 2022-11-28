@@ -21,8 +21,9 @@
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user::{self, Entity as User, Model as UserModel};
+use crate::services::filter::{FilterClass, FilterType};
 use crate::services::user_alias::CreateUserAlias;
-use crate::services::{PasswordService, UserAliasService};
+use crate::services::{FilterService, PasswordService, UserAliasService};
 use crate::utils::{get_user_slug, regex_replace_in_place};
 use regex::Regex;
 use sea_orm::ActiveValue;
@@ -54,6 +55,19 @@ impl UserService {
             slug,
         );
         regex_replace_in_place(&mut input.name, &*LEADING_TRAILING_WHITESPACE, "");
+
+        tide::log::info!("Attempting to create user '{}' ('{}')", input.name, slug);
+
+        // Perform filter validation
+        let filter_matcher =
+            FilterService::get_matcher(ctx, FilterClass::Platform, FilterType::User)
+                .await?;
+
+        tide::log::info!("Checking proposed username against filter...");
+        filter_matcher.verify(ctx, &input.name).await?;
+
+        tide::log::info!("Checking proposed slug against filter...");
+        filter_matcher.verify(ctx, &slug).await?;
 
         // Check for conflicts
         let result = User::find()
