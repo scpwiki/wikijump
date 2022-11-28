@@ -18,6 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use sea_orm::entity::{ActiveValue, IntoActiveValue};
+use sea_orm::Value;
+
 /// Denotes that a field is optional in a struct.
 ///
 /// This is meant to be used when doing `UPDATE` operations,
@@ -41,6 +44,27 @@ impl<T> From<ProvidedValue<T>> for Option<T> {
             ProvidedValue::Set(value) => Some(value),
             ProvidedValue::Unset => None,
         }
+    }
+}
+
+impl<T> From<ProvidedValue<T>> for ActiveValue<Value>
+    where T: Into<Value>
+{
+    #[inline]
+    fn from(value: ProvidedValue<T>) -> ActiveValue<T> {
+        match value {
+            ProvidedValue::Set(value) => ActiveValue::Set(value.into()),
+            ProvidedValue::Unset => ActiveValue::NotSet,
+        }
+    }
+}
+
+impl<T> IntoActiveValue<T> for ProvidedValue<T>
+    where T: Into<Value>
+{
+    #[inline]
+    fn into_active_value(self) -> ActiveValue<Value> {
+        self.into()
     }
 }
 
