@@ -94,6 +94,9 @@ pub enum Error {
     #[error("The requested data was not found")]
     NotFound,
 
+    #[error("The request violates a configured content filter")]
+    FilterViolation,
+
     #[error("Cannot hide the wikitext for the latest page revision")]
     CannotHideLatestRevision,
 }
@@ -132,7 +135,7 @@ impl Error {
                 TideError::from_str(StatusCode::Conflict, "")
             }
             Error::NotFound => TideError::from_str(StatusCode::NotFound, ""),
-            Error::CannotHideLatestRevision => {
+            Error::FilterViolation | Error::CannotHideLatestRevision => {
                 TideError::from_str(StatusCode::BadRequest, "")
             }
         }
