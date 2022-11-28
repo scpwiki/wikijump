@@ -265,6 +265,7 @@ impl FilterService {
         })
     }
 
+    /// Checks if creating / reinstating this filter would cause constraint violations.
     async fn check_conflicts(
         ctx: &ServiceContext<'_>,
         site_id: Option<i64>,
