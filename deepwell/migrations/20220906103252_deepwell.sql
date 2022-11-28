@@ -410,6 +410,7 @@ CREATE TABLE filter (
     site_id BIGINT REFERENCES site(site_id),
     affects_user BOOLEAN NOT NULL DEFAULT false,
     affects_page BOOLEAN NOT NULL DEFAULT false,
+    affects_file BOOLEAN NOT NULL DEFAULT false,
     affects_forum BOOLEAN NOT NULL DEFAULT false,
     regex TEXT NOT NULL,
     reason TEXT NOT NULL,
