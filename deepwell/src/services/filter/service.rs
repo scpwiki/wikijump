@@ -80,16 +80,34 @@ impl FilterService {
 
         tide::log::info!("Updating filter with ID {filter_id}");
 
-        let model = filter::ActiveModel {
+        let mut model = filter::ActiveModel {
             filter_id: Set(filter_id),
-            affects_user: affects_user.into(),
-            affects_page: affects_page.into(),
-            affects_forum: affects_forum.into(),
-            regex: regex.into(),
-            reason: reason.into(),
             updated_at: Set(Some(now())),
             ..Default::default()
         };
+
+        // Set fields
+        if let ProvidedValue::Set(affects) = affects_user {
+            model.affects_user = Set(affects);
+        }
+
+        if let ProvidedValue::Set(affects) = affects_page {
+            model.affects_page = Set(affects);
+        }
+
+        if let ProvidedValue::Set(affects) = affects_forum {
+            model.affects_forum = Set(affects);
+        }
+
+        if let ProvidedValue::Set(regex) = regex {
+            model.regex = Set(regex);
+        }
+
+        if let ProvidedValue::Set(reason) = reason {
+            model.reason = Set(reason);
+        }
+
+        // Perform update
         let filter = model.update(txn).await?;
         Ok(filter)
     }
