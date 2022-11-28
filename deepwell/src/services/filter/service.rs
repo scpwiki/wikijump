@@ -246,9 +246,15 @@ impl FilterService {
         let mut regexes = Vec::new();
         let mut filter_data = Vec::new();
 
-        for filter in filters {
-            regexes.push(filter.regex);
-            filter_data.push((filter.id, filter.reason));
+        for FilterModel {
+            filter_id,
+            regex,
+            reason,
+            ..
+        } in filters
+        {
+            regexes.push(regex);
+            filter_data.push(FilterDescription { filter_id, reason });
         }
 
         let regex_set = RegexSet::new(regexes).map_err(|error| {
@@ -259,10 +265,7 @@ impl FilterService {
             Error::Inconsistent
         })?;
 
-        Ok(FilterMatcher {
-            regex_set,
-            filter_data,
-        })
+        Ok(FilterMatcher::new(regex_set, filter_data))
     }
 
     /// Checks if creating / reinstating this filter would cause constraint violations.

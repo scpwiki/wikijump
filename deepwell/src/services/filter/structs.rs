@@ -20,49 +20,6 @@
 
 use crate::models::filter;
 use crate::web::ProvidedValue;
-use regex::RegexSet;
-
-/// Wrapper structure which determines which filter(s) a string violates.
-///
-/// Internally uses `RegexSet` for performance, and has fragments describing
-/// each filter flagged by the given string.
-#[derive(Debug)]
-pub struct FilterMatcher {
-    regex_set: RegexSet,
-    filter_data: Vec<FilterDescription>,
-}
-
-impl FilterMatcher {
-    /// Verifies that the given string does not trip any filters of this type.
-    ///
-    /// For any filter violations, they are logged and an error is returned.
-    pub async fn verify(&self, ctx: &ServiceContext<'_>, text: &str) -> Result<()> {
-        let matches = self.regex_set.matches(text);
-        if !matches.matched_any() {
-            tide::log::info!("String passed all filters, is clear");
-            return Ok(());
-        }
-
-        for index in matches {
-            let description = self.filter_data[index];
-            tide::log::error!(
-                "String failed filter ID {}: {}",
-                description.filter_id,
-                description.reason,
-            );
-            // TODO audit log, with contextual data (what it's checking)
-        }
-
-        Err(Error::FilterViolation)
-    }
-}
-
-/// Describes one filter which a `FilterMatcher` can verify against.
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
-pub struct FilterDescription {
-    pub filter_id: i64,
-    pub reason: String,
-}
 
 /// Denotes what kind of object this filter is checking.
 ///

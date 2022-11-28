@@ -29,11 +29,14 @@
 
 mod prelude {
     pub use super::super::prelude::*;
+    pub use super::matcher::{FilterDescription, FilterMatcher};
     pub use super::structs::*;
 }
 
+mod matcher;
 mod service;
 mod structs;
 
+pub use self::matcher::{FilterDescription, FilterMatcher};
 pub use self::service::FilterService;
 pub use self::structs::*;
