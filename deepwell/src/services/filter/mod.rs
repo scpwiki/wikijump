@@ -1,5 +1,5 @@
 /*
- * services/system_filter/struct.rs
+ * services/filter/mod.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,18 +18,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::models::sea_orm_active_enums::SystemFilterType;
+//! This service manages configurable filters.
+//!
+//! These encompass both platform filters (applies to all sites)
+//! and site filters (applies only to a particular site).
+//!
+//! For instance, a user platform filter prevents a name from being
+//! registered, where a user site filter would prevent the user from
+//! joining.
 
-#[derive(Deserialize, Debug, Clone)]
-pub struct CreateSystemFilter {
-    pub filter_type: SystemFilterType,
-    pub regex: String,
-    pub reason: String,
+mod prelude {
+    pub use super::super::prelude::*;
+    pub use super::structs::*;
 }
 
-#[derive(Deserialize, Debug, Clone)]
-pub struct UpdateSystemFilter {
-    pub filter_id: i64,
-    pub regex: String,
-    pub reason: String,
-}
+mod service;
+mod structs;
+
+pub use self::service::FilterService;
+pub use self::structs::*;

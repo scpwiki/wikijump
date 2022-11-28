@@ -1,5 +1,5 @@
 /*
- * services/system_filter/service.rs
+ * services/filter/service.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -19,29 +19,29 @@
  */
 
 use super::prelude::*;
-use crate::models::sea_orm_active_enums::SystemFilterType;
-use crate::models::system_filter::{
-    self, Entity as SystemFilter, Model as SystemFilterModel,
-};
+use crate::models::filter::{self, Entity as Filter, Model as FilterModel};
 use regex::{Regex, RegexSet};
 
-#[derive(Debug)]
-pub struct SystemFilterService;
+// TODO
 
-impl SystemFilterService {
+#[derive(Debug)]
+pub struct FilterService;
+
+impl FilterService {
     pub async fn create(
         ctx: &ServiceContext<'_>,
-        CreateSystemFilter {
-            filter_type,
+        CreateFilter {
+            site_id,
+            affects_user,
+            affects_page,
+            affects_forum,
             regex,
             reason,
-        }: CreateSystemFilter,
-    ) -> Result<SystemFilterModel> {
+        }: CreateFilter,
+    ) -> Result<FilterModel> {
         let txn = ctx.transaction();
 
-        tide::log::info!(
-            "Creating system filter with regex '{regex}' because '{reason}'",
-        );
+        tide::log::info!("Creating filter with regex '{regex}' because '{reason}'");
 
         // Ensure the regular expression is valid
         if Regex::new(&regex).is_err() {
@@ -50,10 +50,13 @@ impl SystemFilterService {
         }
 
         // Ensure there aren't conflicts
-        Self::check_conflicts(ctx, filter_type, &regex, "create").await?;
+        Self::check_conflicts(ctx, site_id, &regex, "create").await?;
 
-        let model = system_filter::ActiveModel {
-            filter_type: Set(filter_type),
+        let model = filter::ActiveModel {
+            site_id: Set(site_id),
+            affects_user: Set(affects_user),
+            affects_page: Set(affects_page),
+            affects_forum: Set(affects_forum),
             regex: Set(regex),
             reason: Set(reason),
             ..Default::default()
@@ -64,20 +67,26 @@ impl SystemFilterService {
 
     pub async fn update(
         ctx: &ServiceContext<'_>,
-        UpdateSystemFilter {
+        UpdateFilter {
             filter_id,
+            affects_user,
+            affects_page,
+            affects_forum,
             regex,
             reason,
-        }: UpdateSystemFilter,
-    ) -> Result<SystemFilterModel> {
+        }: UpdateFilter,
+    ) -> Result<FilterModel> {
         let txn = ctx.transaction();
 
-        tide::log::info!("Updating system filter with ID {filter_id}: regex '{regex}', reason '{reason}'");
+        tide::log::info!("Updating filter with ID {filter_id}");
 
-        let model = system_filter::ActiveModel {
+        let model = filter::ActiveModel {
             filter_id: Set(filter_id),
-            regex: Set(regex),
-            reason: Set(reason),
+            affects_user: affects_user.into(),
+            affects_page: affects_page.into(),
+            affects_forum: affects_forum.into(),
+            regex: regex.into(),
+            reason: reason.into(),
             updated_at: Set(Some(now())),
             ..Default::default()
         };
@@ -88,17 +97,17 @@ impl SystemFilterService {
     pub async fn delete(ctx: &ServiceContext<'_>, filter_id: i64) -> Result<()> {
         let txn = ctx.transaction();
 
-        tide::log::info!("Deleting system filter with ID {filter_id}");
+        tide::log::info!("Deleting filter with ID {filter_id}");
 
         // Ensure filter exists
         let filter = Self::get(ctx, filter_id).await?;
         if filter.deleted_at.is_some() {
-            tide::log::error!("Attempting to delete already-deleted system filter");
+            tide::log::error!("Attempting to delete already-deleted filter");
             return Err(Error::BadRequest);
         }
 
         // Delete the filter
-        let model = system_filter::ActiveModel {
+        let model = filter::ActiveModel {
             filter_id: Set(filter_id),
             deleted_at: Set(Some(now())),
             ..Default::default()
@@ -110,22 +119,22 @@ impl SystemFilterService {
     pub async fn undelete(
         ctx: &ServiceContext<'_>,
         filter_id: i64,
-    ) -> Result<SystemFilterModel> {
+    ) -> Result<FilterModel> {
         let txn = ctx.transaction();
 
-        tide::log::info!("Undeleting system filter with ID {filter_id}");
+        tide::log::info!("Undeleting filter with ID {filter_id}");
 
         let filter = Self::get(ctx, filter_id).await?;
         if filter.deleted_at.is_none() {
-            tide::log::error!("Attempting to un-delete extant system filter");
+            tide::log::error!("Attempting to un-delete extant filter");
             return Err(Error::BadRequest);
         }
 
         // Ensure it doesn't conflict with a since-added filter
-        Self::check_conflicts(ctx, filter.filter_type, &filter.regex, "undelete").await?;
+        Self::check_conflicts(ctx, filter.site_id, &filter.regex, "undelete").await?;
 
         // Un-delete the filter
-        let model = system_filter::ActiveModel {
+        let model = filter::ActiveModel {
             filter_id: Set(filter_id),
             deleted_at: Set(None),
             ..Default::default()
@@ -135,25 +144,32 @@ impl SystemFilterService {
     }
 
     #[inline]
-    pub async fn get(
-        ctx: &ServiceContext<'_>,
-        filter_id: i64,
-    ) -> Result<SystemFilterModel> {
+    pub async fn get(ctx: &ServiceContext<'_>, filter_id: i64) -> Result<FilterModel> {
         find_or_error(Self::get_optional(ctx, filter_id)).await
     }
 
     pub async fn get_optional(
         ctx: &ServiceContext<'_>,
         filter_id: i64,
-    ) -> Result<Option<SystemFilterModel>> {
-        tide::log::info!("Getting system filter with ID {filter_id}");
+    ) -> Result<Option<FilterModel>> {
+        tide::log::info!("Getting filter with ID {filter_id}");
 
         let txn = ctx.transaction();
-        let filter = SystemFilter::find_by_id(filter_id).one(txn).await?;
+        let filter = Filter::find_by_id(filter_id).one(txn).await?;
         Ok(filter)
     }
 
-    /// Get all system filters of a type.
+    /// Get all filters of a type.
+    ///
+    /// The `site_id` argument:
+    /// * If it is `Some(_)`, then it fetches all filters for the given site.
+    /// * If it is `None`, then it fetches all system filters.
+    /// Essentially it checks that the `site_id` argument matches this one exactly, either an
+    /// integer value or `NULL`.
+    ///
+    /// The `filter_type` argument:
+    /// * If it is `Some(_)`, it determines what kind of object is being filtered.
+    /// * If it is `None`, then it returns everything.
     ///
     /// The `deleted` argument:
     /// * If it is `Some(true)`, then it only returns filters which have been deleted.
@@ -161,23 +177,28 @@ impl SystemFilterService {
     /// * If it is `None`, then it returns all filters regardless of deletion status.
     pub async fn get_all(
         ctx: &ServiceContext<'_>,
-        filter_type: SystemFilterType,
+        site_id: Option<i64>,
+        filter_type: Option<FilterType>,
         deleted: Option<bool>,
-    ) -> Result<Vec<SystemFilterModel>> {
+    ) -> Result<Vec<FilterModel>> {
         let txn = ctx.transaction();
 
-        tide::log::info!("Getting all system filters of type {filter_type}");
+        tide::log::info!("Getting all {} filters", filter_class_name(site_id));
+
+        let filter_condition =
+            filter_type.map(|filter_type| filter_type.into_column().eq(true));
 
         let deleted_condition = match deleted {
-            Some(true) => Some(system_filter::Column::DeletedAt.is_not_null()),
-            Some(false) => Some(system_filter::Column::DeletedAt.is_null()),
+            Some(true) => Some(filter::Column::DeletedAt.is_not_null()),
+            Some(false) => Some(filter::Column::DeletedAt.is_null()),
             None => None,
         };
 
-        let filters = SystemFilter::find()
+        let filters = Filter::find()
             .filter(
                 Condition::all()
-                    .add(system_filter::Column::FilterType.eq(filter_type))
+                    .add(filter::Column::SiteId.eq(site_id))
+                    .add_option(filter_condition)
                     .add_option(deleted_condition),
             )
             .all(txn)
@@ -186,16 +207,21 @@ impl SystemFilterService {
         Ok(filters)
     }
 
-    /// Get all system filters of a type, specifically extracting the regular expressions.
+    /// Get all filters of a type, specifically extracting the regular expressions.
     ///
     /// This only pulls extant filters, as those are the only ones which are enforced.
+    // TODO
     pub async fn get_regex_set(
         ctx: &ServiceContext<'_>,
-        filter_type: SystemFilterType,
+        site_id: Option<i64>,
+        filter_type: FilterType,
     ) -> Result<RegexSet> {
-        tide::log::info!("Compiling regex set for filters of type {filter_type}");
+        tide::log::info!(
+            "Compiling regex set for {} filters for {filter_type:?}",
+            filter_class_name(site_id),
+        );
 
-        let filters = Self::get_all(ctx, filter_type, Some(false)).await?;
+        let filters = Self::get_all(ctx, site_id, Some(filter_type), Some(false)).await?;
         let regular_expressions = filters.into_iter().map(|filter| filter.regex);
 
         RegexSet::new(regular_expressions).map_err(|error| {
@@ -209,18 +235,18 @@ impl SystemFilterService {
 
     async fn check_conflicts(
         ctx: &ServiceContext<'_>,
-        filter_type: SystemFilterType,
+        site_id: Option<i64>,
         regex: &str,
         action: &str,
     ) -> Result<()> {
         let txn = ctx.transaction();
 
-        let result = SystemFilter::find()
+        let result = Filter::find()
             .filter(
                 Condition::all()
-                    .add(system_filter::Column::FilterType.eq(filter_type))
-                    .add(system_filter::Column::Regex.eq(regex))
-                    .add(system_filter::Column::DeletedAt.is_null()),
+                    .add(filter::Column::SiteId.eq(site_id))
+                    .add(filter::Column::Regex.eq(regex))
+                    .add(filter::Column::DeletedAt.is_null()),
             )
             .one(txn)
             .await?;
@@ -228,9 +254,21 @@ impl SystemFilterService {
         match result {
             None => Ok(()),
             Some(_) => {
-                tide::log::error!("System filter '{regex}' for {filter_type} already exists, cannot {action}");
+                tide::log::error!(
+                    " filter '{regex}' for {site_id:?} already exists, cannot {action}"
+                );
                 Err(Error::Conflict)
             }
         }
+    }
+}
+
+/// Gives the filter class from the `site_id` argument.
+///
+/// Convenience function for logging.
+fn filter_class_name(site_id: Option<i64>) -> &'static str {
+    match site_id {
+        Some(_) => "site",
+        None => "platform",
     }
 }
