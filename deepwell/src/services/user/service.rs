@@ -23,13 +23,18 @@ use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user::{self, Entity as User, Model as UserModel};
 use crate::services::user_alias::CreateUserAlias;
 use crate::services::{PasswordService, UserAliasService};
-use crate::utils::get_user_slug;
+use crate::utils::{get_user_slug, regex_replace_in_place};
+use regex::Regex;
 use sea_orm::ActiveValue;
 use std::cmp;
 
 // TODO make these configurable
 const DEFAULT_NAME_CHANGES: i16 = 3;
 const MAX_NAME_CHANGES: i16 = 3;
+
+lazy_static! {
+    static ref LEADING_TRAILING_WHITESPACE: Regex = Regex::new(r"(^\s+)|(\s+$)").unwrap();
+}
 
 #[derive(Debug)]
 pub struct UserService;
@@ -38,10 +43,17 @@ impl UserService {
     pub async fn create(
         ctx: &ServiceContext<'_>,
         user_type: UserType,
-        input: CreateUser,
+        mut input: CreateUser,
     ) -> Result<CreateUserOutput> {
         let txn = ctx.transaction();
         let slug = get_user_slug(&input.name);
+
+        tide::log::debug!(
+            "Normalizing user data (name '{}', slug '{}')",
+            input.name,
+            slug,
+        );
+        regex_replace_in_place(&mut input.name, &*LEADING_TRAILING_WHITESPACE, "");
 
         // Check for conflicts
         let result = User::find()
