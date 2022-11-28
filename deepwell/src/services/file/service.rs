@@ -133,7 +133,7 @@ impl FileService {
         // when the file was originally created.
         if let ProvidedValue::Set(ref name) = name {
             Self::check_conflicts(ctx, page_id, name, "update").await?;
-            Self::run_filter(ctx, site_id, Some(&name)).await?;
+            Self::run_filter(ctx, site_id, Some(name)).await?;
         }
 
         // Upload to S3, get derived metadata
