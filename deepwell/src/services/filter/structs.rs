@@ -109,16 +109,16 @@ pub enum FilterType {
     /// * For a site filter, prevent joining of a user with this name or slug.
     User,
 
-    /// Filters on a page.
-    ///
+    /// Filters on pages.
     /// Prevents a page edit from going through if it trips this filter.
-    /// Whether it is system or site affects what scope of pages are checked.
     Page,
 
-    /// Filters on a forum.
-    ///
+    /// Filters on files.
+    /// Prevents a file upload or edit from going through if it trips this filter.
+    File,
+
+    /// Filters on forum contents.
     /// Prevents a forum post or edit from going through if it trips this filter.
-    /// Whether it is system or site affects what scope of pages are checked.
     Forum,
 }
 
@@ -135,6 +135,7 @@ impl From<FilterType> for filter::Column {
         match filter_type {
             FilterType::User => filter::Column::AffectsUser,
             FilterType::Page => filter::Column::AffectsPage,
+            FilterType::File => filter::Column::AffectsFile,
             FilterType::Forum => filter::Column::AffectsForum,
         }
     }
@@ -144,6 +145,7 @@ impl From<FilterType> for filter::Column {
 pub struct CreateFilter {
     pub affects_user: bool,
     pub affects_page: bool,
+    pub affects_file: bool,
     pub affects_forum: bool,
     pub regex: String,
     pub reason: String,
@@ -154,6 +156,7 @@ pub struct UpdateFilter {
     pub filter_id: i64,
     pub affects_user: ProvidedValue<bool>,
     pub affects_page: ProvidedValue<bool>,
+    pub affects_file: ProvidedValue<bool>,
     pub affects_forum: ProvidedValue<bool>,
     pub regex: ProvidedValue<String>,
     pub reason: ProvidedValue<String>,

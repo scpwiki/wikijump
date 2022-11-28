@@ -32,6 +32,7 @@ impl FilterService {
         CreateFilter {
             affects_user,
             affects_page,
+            affects_file,
             affects_forum,
             regex,
             reason,
@@ -54,6 +55,7 @@ impl FilterService {
             site_id: Set(site_id),
             affects_user: Set(affects_user),
             affects_page: Set(affects_page),
+            affects_file: Set(affects_file),
             affects_forum: Set(affects_forum),
             regex: Set(regex),
             reason: Set(reason),
@@ -69,6 +71,7 @@ impl FilterService {
             filter_id,
             affects_user,
             affects_page,
+            affects_file,
             affects_forum,
             regex,
             reason,
@@ -91,6 +94,10 @@ impl FilterService {
 
         if let ProvidedValue::Set(affects) = affects_page {
             model.affects_page = Set(affects);
+        }
+
+        if let ProvidedValue::Set(affects) = affects_file {
+            model.affects_file = Set(affects);
         }
 
         if let ProvidedValue::Set(affects) = affects_forum {

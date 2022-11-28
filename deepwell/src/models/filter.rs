@@ -14,6 +14,7 @@ pub struct Model {
     pub site_id: Option<i64>,
     pub affects_user: bool,
     pub affects_page: bool,
+    pub affects_file: bool,
     pub affects_forum: bool,
     #[sea_orm(column_type = "Text")]
     pub regex: String,
