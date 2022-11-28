@@ -402,6 +402,8 @@ CREATE TABLE file_revision (
 --
 -- If site_id is NULL, then it is a system (platform-wide) filter. It affects all sites.
 -- If site_id is set, then it is a site filter, affecting only that site.
+--
+-- If a filter has all the "affects_*" columns false, then it is effectively disabled.
 CREATE TABLE filter (
     filter_id BIGSERIAL PRIMARY KEY,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT 'now()',
