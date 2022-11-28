@@ -65,6 +65,7 @@ impl FilterClass {
         }
     }
 
+    /// Converts this filter class into a condition which can be used for queries.
     pub fn to_condition(self) -> Condition {
         let mut condition = Condition::any();
 

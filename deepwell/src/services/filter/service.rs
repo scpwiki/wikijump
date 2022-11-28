@@ -179,11 +179,7 @@ impl FilterService {
 
     /// Get all filters of a type.
     ///
-    /// The `site_id` argument:
-    /// * If it is `Some(_)`, then it fetches all filters for the given site.
-    /// * If it is `None`, then it fetches all system filters.
-    /// Essentially it checks that the `site_id` argument matches this one exactly, either an
-    /// integer value or `NULL`.
+    /// For the `filter_class` argument, see `FilterClass`.
     ///
     /// The `filter_type` argument:
     /// * If it is `Some(_)`, it determines what kind of object is being filtered.
@@ -195,13 +191,13 @@ impl FilterService {
     /// * If it is `None`, then it returns all filters regardless of deletion status.
     pub async fn get_all(
         ctx: &ServiceContext<'_>,
-        site_id: Option<i64>,
+        filter_class: FilterClass,
         filter_type: Option<FilterType>,
         deleted: Option<bool>,
     ) -> Result<Vec<FilterModel>> {
         let txn = ctx.transaction();
 
-        tide::log::info!("Getting all {} filters", filter_class_name(site_id));
+        tide::log::info!("Getting all {} filters", filter_class.name());
 
         let filter_condition =
             filter_type.map(|filter_type| filter_type.into_column().eq(true));
@@ -215,7 +211,7 @@ impl FilterService {
         let filters = Filter::find()
             .filter(
                 Condition::all()
-                    .add(filter::Column::SiteId.eq(site_id))
+                    .add(filter_class.to_condition())
                     .add_option(filter_condition)
                     .add_option(deleted_condition),
             )
@@ -233,15 +229,16 @@ impl FilterService {
     //      above occurs to that filter class/type
     pub async fn get_matcher(
         ctx: &ServiceContext<'_>,
-        site_id: Option<i64>,
+        filter_class: FilterClass,
         filter_type: FilterType,
     ) -> Result<FilterMatcher> {
         tide::log::info!(
             "Compiling regex set for {} filters for {filter_type:?}",
-            filter_class_name(site_id),
+            filter_class.name(),
         );
 
-        let filters = Self::get_all(ctx, site_id, Some(filter_type), Some(false)).await?;
+        let filters =
+            Self::get_all(ctx, filter_class, Some(filter_type), Some(false)).await?;
 
         let mut regexes = Vec::new();
         let mut filter_data = Vec::new();
@@ -296,15 +293,5 @@ impl FilterService {
                 Err(Error::Conflict)
             }
         }
-    }
-}
-
-/// Gives the filter class from the `site_id` argument.
-///
-/// Convenience function for logging.
-fn filter_class_name(site_id: Option<i64>) -> &'static str {
-    match site_id {
-        Some(_) => "site",
-        None => "platform",
     }
 }
