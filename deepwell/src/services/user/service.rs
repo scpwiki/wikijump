@@ -59,15 +59,7 @@ impl UserService {
         tide::log::info!("Attempting to create user '{}' ('{}')", input.name, slug);
 
         // Perform filter validation
-        let filter_matcher =
-            FilterService::get_matcher(ctx, FilterClass::Platform, FilterType::User)
-                .await?;
-
-        tide::log::info!("Checking proposed username against filter...");
-        filter_matcher.verify(ctx, &input.name).await?;
-
-        tide::log::info!("Checking proposed slug against filter...");
-        filter_matcher.verify(ctx, &slug).await?;
+        Self::run_filter(ctx, &input.name, &slug).await?;
 
         // Check for conflicts
         let result = User::find()
@@ -485,5 +477,24 @@ impl UserService {
         // Update and return
         let user = model.update(txn).await?;
         Ok(user)
+    }
+
+    async fn run_filter(
+        ctx: &ServiceContext<'_>,
+        name: &str,
+        slug: &str,
+    ) -> Result<()> {
+        tide::log::info!("Checking user data against filters...");
+
+        let filter_matcher =
+            FilterService::get_matcher(ctx, FilterClass::Platform, FilterType::User)
+                .await?;
+
+        try_join!(
+            filter_matcher.verify(ctx, name),
+            filter_matcher.verify(ctx, slug),
+        )?;
+
+        Ok(())
     }
 }
