@@ -36,16 +36,6 @@ pub enum PageRevisionType {
 #[derive(
     Debug, Copy, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize,
 )]
-#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "system_filter_type")]
-pub enum SystemFilterType {
-    #[sea_orm(string_value = "site")]
-    Site,
-    #[sea_orm(string_value = "user")]
-    User,
-}
-#[derive(
-    Debug, Copy, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize,
-)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "user_type")]
 pub enum UserType {
     #[sea_orm(string_value = "bot")]

@@ -2,6 +2,7 @@
 
 pub use super::file::Entity as File;
 pub use super::file_revision::Entity as FileRevision;
+pub use super::filter::Entity as Filter;
 pub use super::page::Entity as Page;
 pub use super::page_attribution::Entity as PageAttribution;
 pub use super::page_category::Entity as PageCategory;
@@ -13,7 +14,6 @@ pub use super::page_parent::Entity as PageParent;
 pub use super::page_revision::Entity as PageRevision;
 pub use super::page_vote::Entity as PageVote;
 pub use super::site::Entity as Site;
-pub use super::system_filter::Entity as SystemFilter;
 pub use super::text::Entity as Text;
 pub use super::user::Entity as User;
 pub use super::user_alias::Entity as UserAlias;

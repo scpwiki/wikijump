@@ -7,6 +7,7 @@ pub mod prelude;
 
 pub mod file;
 pub mod file_revision;
+pub mod filter;
 pub mod page;
 pub mod page_attribution;
 pub mod page_category;
@@ -19,7 +20,6 @@ pub mod page_revision;
 pub mod page_vote;
 pub mod sea_orm_active_enums;
 pub mod site;
-pub mod system_filter;
 pub mod text;
 pub mod user;
 pub mod user_alias;
