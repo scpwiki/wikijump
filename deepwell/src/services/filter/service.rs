@@ -22,16 +22,14 @@ use super::prelude::*;
 use crate::models::filter::{self, Entity as Filter, Model as FilterModel};
 use regex::{Regex, RegexSet};
 
-// TODO
-
 #[derive(Debug)]
 pub struct FilterService;
 
 impl FilterService {
     pub async fn create(
         ctx: &ServiceContext<'_>,
+        site_id: Option<i64>,
         CreateFilter {
-            site_id,
             affects_user,
             affects_page,
             affects_forum,

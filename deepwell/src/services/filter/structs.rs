@@ -142,7 +142,6 @@ impl From<FilterType> for filter::Column {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct CreateFilter {
-    pub site_id: Option<i64>,
     pub affects_user: bool,
     pub affects_page: bool,
     pub affects_forum: bool,
