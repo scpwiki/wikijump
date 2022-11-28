@@ -134,7 +134,8 @@ impl FilterService {
         Ok(())
     }
 
-    pub async fn undelete(
+    /// Restores a filter, causing it to be undeleted.
+    pub async fn restore(
         ctx: &ServiceContext<'_>,
         filter_id: i64,
     ) -> Result<FilterModel> {
@@ -149,7 +150,7 @@ impl FilterService {
         }
 
         // Ensure it doesn't conflict with a since-added filter
-        Self::check_conflicts(ctx, filter.site_id, &filter.regex, "undelete").await?;
+        Self::check_conflicts(ctx, filter.site_id, &filter.regex, "restore").await?;
 
         // Un-delete the filter
         let model = filter::ActiveModel {
