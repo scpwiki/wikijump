@@ -228,8 +228,10 @@ impl UserService {
         reference: Reference<'_>,
         input: UpdateUser,
     ) -> Result<()> {
+        // NOTE: Filter validation occurs in update_name(), not here
         let txn = ctx.transaction();
         let user = Self::get(ctx, reference).await?;
+
         let mut verify_name = false;
         let mut model = user::ActiveModel {
             user_id: Set(user.user_id),
@@ -315,6 +317,9 @@ impl UserService {
 
         let new_slug = get_user_slug(&new_name);
         let old_slug = &user.slug;
+
+        // Perform filter validation
+        Self::run_filter(ctx, &new_name, &new_slug).await?;
 
         if new_slug == user.slug {
             tide::log::debug!("User slug is the same, rename is free");
