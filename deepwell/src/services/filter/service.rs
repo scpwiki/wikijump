@@ -228,26 +228,40 @@ impl FilterService {
     /// Get all filters of a type, specifically extracting the regular expressions.
     ///
     /// This only pulls extant filters, as those are the only ones which are enforced.
-    // TODO
-    pub async fn get_regex_set(
+    // TODO cache this somehow
+    //      maybe so that it stores the RegexSet and deletes it if an insert/update/etc
+    //      above occurs to that filter class/type
+    pub async fn get_matcher(
         ctx: &ServiceContext<'_>,
         site_id: Option<i64>,
         filter_type: FilterType,
-    ) -> Result<RegexSet> {
+    ) -> Result<FilterMatcher> {
         tide::log::info!(
             "Compiling regex set for {} filters for {filter_type:?}",
             filter_class_name(site_id),
         );
 
         let filters = Self::get_all(ctx, site_id, Some(filter_type), Some(false)).await?;
-        let regular_expressions = filters.into_iter().map(|filter| filter.regex);
 
-        RegexSet::new(regular_expressions).map_err(|error| {
+        let mut regexes = Vec::new();
+        let mut filter_data = Vec::new();
+
+        for filter in filters {
+            regexes.push(filter.regex);
+            filter_data.push((filter.id, filter.reason));
+        }
+
+        let regex_set = RegexSet::new(regexes).map_err(|error| {
             tide::log::error!(
                 "Invalid regular expression found in the database: {error}",
             );
 
             Error::Inconsistent
+        })?;
+
+        Ok(FilterMatcher {
+            regex_set,
+            filter_data,
         })
     }
 
