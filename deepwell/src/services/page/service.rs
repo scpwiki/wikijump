@@ -21,11 +21,12 @@
 use super::prelude::*;
 use crate::models::page::{self, Entity as Page, Model as PageModel};
 use crate::models::page_category::Model as PageCategoryModel;
+use crate::services::filter::{FilterClass, FilterType};
 use crate::services::revision::{
     CreateFirstRevision, CreateFirstRevisionOutput, CreateResurrectionRevision,
     CreateRevision, CreateRevisionBody, CreateRevisionOutput, CreateTombstoneRevision,
 };
-use crate::services::{CategoryService, RevisionService, TextService};
+use crate::services::{CategoryService, FilterService, RevisionService, TextService};
 use crate::utils::{get_category_name, trim_default};
 use crate::web::PageOrder;
 use wikidot_normalize::normalize;
@@ -48,8 +49,19 @@ impl PageService {
     ) -> Result<CreatePageOutput> {
         let txn = ctx.transaction();
 
+        // Ensure row consistency
         normalize(&mut slug);
         Self::check_conflicts(ctx, site_id, &slug, "create").await?;
+
+        // Perform filter validation
+        Self::run_filter(
+            ctx,
+            site_id,
+            Some(&wikitext),
+            Some(&title),
+            alt_title.as_ref(),
+        )
+        .await?;
 
         // Create category if not already present
         let PageCategoryModel { category_id, .. } =
@@ -105,6 +117,20 @@ impl PageService {
     ) -> Result<Option<EditPageOutput>> {
         let txn = ctx.transaction();
         let PageModel { page_id, .. } = Self::get(ctx, site_id, reference).await?;
+
+        // Perform filter validation
+        Self::run_filter(
+            ctx,
+            site_id,
+            wikitext.to_option_ref(),
+            title.to_option_ref(),
+            // Flatten what is essentially Option<Option<_>>
+            match alt_title {
+                ProvidedValue::Set(Some(ref alt_title)) => Some(alt_title),
+                _ => None,
+            },
+        )
+        .await?;
 
         // Get latest revision
         let last_revision = RevisionService::get_latest(ctx, site_id, page_id).await?;
@@ -582,5 +608,41 @@ impl PageService {
                 Err(Error::Conflict)
             }
         }
+    }
+
+    async fn run_filter<S: AsRef<str>>(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        wikitext: Option<S>,
+        title: Option<S>,
+        alt_title: Option<S>,
+    ) -> Result<()> {
+        tide::log::info!("Checking page data against filters...");
+
+        let filter_matcher = FilterService::get_matcher(
+            ctx,
+            FilterClass::PlatformAndSite(site_id),
+            FilterType::Page,
+        )
+        .await?;
+
+        macro_rules! verify_optional {
+            ($option:expr) => {
+                async {
+                    match $option {
+                        Some(value) => filter_matcher.verify(ctx, value.as_ref()).await,
+                        None => Ok(()),
+                    }
+                }
+            };
+        }
+
+        try_join!(
+            verify_optional!(title),
+            verify_optional!(alt_title),
+            verify_optional!(wikitext),
+        )?;
+
+        Ok(())
     }
 }

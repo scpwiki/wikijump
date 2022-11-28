@@ -484,11 +484,7 @@ impl UserService {
         Ok(user)
     }
 
-    async fn run_filter(
-        ctx: &ServiceContext<'_>,
-        name: &str,
-        slug: &str,
-    ) -> Result<()> {
+    async fn run_filter(ctx: &ServiceContext<'_>, name: &str, slug: &str) -> Result<()> {
         tide::log::info!("Checking user data against filters...");
 
         let filter_matcher =
