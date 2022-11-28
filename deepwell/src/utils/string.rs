@@ -18,10 +18,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use regex::Regex;
+
 pub fn replace_in_place(string: &mut String, pattern: &str, replacement: &str) {
     while let Some(index) = string.find(pattern) {
         let end = index + replacement.len();
 
         string.replace_range(index..end, replacement);
+    }
+}
+
+pub fn regex_replace_in_place(string: &mut String, pattern: &Regex, replacement: &str) {
+    while let Some(mtch) = pattern.find(string) {
+        let range = mtch.start()..mtch.end();
+        string.replace_range(range, replacement);
     }
 }
