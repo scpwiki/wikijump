@@ -37,8 +37,6 @@ use sea_orm::DatabaseConnection;
 use std::sync::Arc;
 
 mod internal;
-mod v0;
-mod v1;
 
 pub type ApiServerState = Arc<ServerState>;
 pub type ApiServer = tide::Server<ApiServerState>;
@@ -98,8 +96,6 @@ pub fn build_server(state: ApiServerState) -> ApiServer {
     app.at("/api").nest({
         let mut api = new!();
         api.at("/vI").nest(internal::build(new!()));
-        api.at("/v0").nest(v0::build(new!()));
-        api.at("/v1").nest(v1::build(new!()));
         api
     });
 
