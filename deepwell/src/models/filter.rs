@@ -13,6 +13,7 @@ pub struct Model {
     pub deleted_at: Option<DateTimeWithTimeZone>,
     pub site_id: Option<i64>,
     pub affects_user: bool,
+    pub affects_email: bool,
     pub affects_page: bool,
     pub affects_file: bool,
     pub affects_forum: bool,

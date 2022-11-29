@@ -411,6 +411,7 @@ CREATE TABLE filter (
     deleted_at TIMESTAMP WITH TIME ZONE,
     site_id BIGINT REFERENCES site(site_id),
     affects_user BOOLEAN NOT NULL DEFAULT false,
+    affects_email BOOLEAN NOT NULL DEFAULT false,
     affects_page BOOLEAN NOT NULL DEFAULT false,
     affects_file BOOLEAN NOT NULL DEFAULT false,
     affects_forum BOOLEAN NOT NULL DEFAULT false,
