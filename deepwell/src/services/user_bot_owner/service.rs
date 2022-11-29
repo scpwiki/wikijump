@@ -73,7 +73,7 @@ impl UserBotOwnerService {
             human_user_id,
             description,
         }: CreateBotOwner,
-    ) -> Result<()> {
+    ) -> Result<UserBotOwnerModel> {
         tide::log::info!(
             "Adding user ID {} as owner for bot ID {}: {}",
             human_user_id,
@@ -85,7 +85,7 @@ impl UserBotOwnerService {
         //       setting updated_at is a bit gnarly.
 
         let txn = ctx.transaction();
-        match Self::get_optional(ctx, bot_user_id, human_user_id).await? {
+        let model = match Self::get_optional(ctx, bot_user_id, human_user_id).await? {
             // Update
             Some(owner) => {
                 tide::log::debug!("Bot owner record exists, updating");
@@ -93,7 +93,7 @@ impl UserBotOwnerService {
                 let mut model = owner.into_active_model();
                 model.description = Set(description);
                 model.updated_at = Set(Some(now()));
-                model.update(txn).await?;
+                model.update(txn).await?
             }
 
             // Insert
@@ -107,11 +107,11 @@ impl UserBotOwnerService {
                     ..Default::default()
                 };
 
-                model.insert(txn).await?;
+                model.insert(txn).await?
             }
-        }
+        };
 
-        Ok(())
+        Ok(model)
     }
 
     /// Idempotently deletes the give user / bot ownership record, if it exists.

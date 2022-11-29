@@ -54,27 +54,6 @@ pub async fn page_revision_info(req: ApiRequest) -> ApiResponse {
     Ok(response)
 }
 
-pub async fn page_revision_head(req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let site_id = req.param("site_id")?.parse()?;
-    let revision_number = req.param("revision_number")?.parse()?;
-    let reference = Reference::try_from(&req)?;
-
-    tide::log::info!(
-        "Checking existence of revision {revision_number} for page {reference:?} in site ID {site_id}",
-    );
-
-    let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
-    let exists = RevisionService::exists(&ctx, site_id, page.page_id, revision_number)
-        .await
-        .to_api()?;
-
-    txn.commit().await?;
-    exists_status(exists)
-}
-
 pub async fn page_revision_get(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);

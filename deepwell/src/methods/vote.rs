@@ -19,62 +19,15 @@
  */
 
 use super::prelude::*;
-use crate::services::vote::{
-    CreateVote, GetVote, GetVoteHistory, VoteAction, VoteReference,
-};
+use crate::services::vote::{CreateVote, GetVote, GetVoteHistory, VoteAction};
 use crate::web::FetchLimitQuery;
 use serde::Serialize;
-
-pub async fn vote_head_direct(req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let vote_id = req.param("vote_id")?.parse()?;
-    let reference = VoteReference::Id(vote_id);
-    tide::log::info!("Checking existence of vote ID {vote_id}");
-
-    let exists = VoteService::exists(&ctx, reference).await.to_api()?;
-    txn.commit().await?;
-    exists_status(exists)
-}
-
-pub async fn vote_get_direct(req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let vote_id = req.param("vote_id")?.parse()?;
-    let reference = VoteReference::Id(vote_id);
-    tide::log::info!("Getting vote ID {vote_id}");
-
-    let vote = VoteService::get(&ctx, reference).await.to_api()?;
-    txn.commit().await?;
-    build_vote_response(&vote, StatusCode::Ok)
-}
-
-pub async fn vote_head(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let input: GetVote = req.body_json().await?;
-    let reference = VoteReference::Pair(input);
-
-    tide::log::info!(
-        "Checking existence of vote cast by {} on page {}",
-        input.user_id,
-        input.page_id,
-    );
-
-    let exists = VoteService::exists(&ctx, reference).await.to_api()?;
-    txn.commit().await?;
-    exists_status(exists)
-}
 
 pub async fn vote_get(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
     let input: GetVote = req.body_json().await?;
-    let reference = VoteReference::Pair(input);
 
     tide::log::info!(
         "Getting vote cast by {} on page {}",
@@ -82,7 +35,7 @@ pub async fn vote_get(mut req: ApiRequest) -> ApiResponse {
         input.page_id,
     );
 
-    let model = VoteService::get(&ctx, reference).await.to_api()?;
+    let model = VoteService::get(&ctx, input).await.to_api()?;
     txn.commit().await?;
     build_vote_response(&model, StatusCode::Ok)
 }
@@ -99,7 +52,7 @@ pub async fn vote_put(mut req: ApiRequest) -> ApiResponse {
         input.page_id,
     );
 
-    let created = VoteService::create(&ctx, input).await.to_api()?;
+    let created = VoteService::add(&ctx, input).await.to_api()?;
     txn.commit().await?;
     match created {
         Some(model) => build_vote_response(&model, StatusCode::Created),
@@ -112,7 +65,6 @@ pub async fn vote_delete(mut req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let input: GetVote = req.body_json().await?;
-    let reference = VoteReference::Pair(input);
 
     tide::log::info!(
         "Removing vote cast by {} on page {}",
@@ -120,7 +72,7 @@ pub async fn vote_delete(mut req: ApiRequest) -> ApiResponse {
         input.page_id,
     );
 
-    let vote = VoteService::remove(&ctx, reference).await.to_api()?;
+    let vote = VoteService::remove(&ctx, input).await.to_api()?;
     txn.commit().await?;
     build_vote_response(&vote, StatusCode::Ok)
 }
@@ -136,8 +88,8 @@ pub async fn vote_action(mut req: ApiRequest) -> ApiResponse {
         acting_user_id,
     } = req.body_json().await?;
 
-    let reference = VoteReference::Pair(GetVote { page_id, user_id });
-    let vote = VoteService::action(&ctx, reference, enable, acting_user_id)
+    let key = GetVote { page_id, user_id };
+    let vote = VoteService::action(&ctx, key, enable, acting_user_id)
         .await
         .to_api()?;
 

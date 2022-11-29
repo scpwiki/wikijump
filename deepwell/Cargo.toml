@@ -29,7 +29,6 @@ filemagic = "0.12"
 fluent = "0.16"
 ftml = { version = "1.18", features = ["mathml"] }
 futures = { version = "0.3", features = ["async-await"], default-features = false }
-governor = "0.5"
 hex = "0.4"
 hostname = "0.3"
 intl-memoizer = "0.5"

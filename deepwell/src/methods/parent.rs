@@ -47,31 +47,6 @@ pub async fn parent_relationships_get(req: ApiRequest) -> ApiResponse {
     build_parent_response(&models, StatusCode::Ok)
 }
 
-pub async fn parent_head(req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let site_id = req.param("site_id")?.parse()?;
-    let parent_reference =
-        Reference::try_from_fields_key(&req, "parent_type", "parent_id_or_slug")?;
-    let child_reference =
-        Reference::try_from_fields_key(&req, "child_type", "child_id_or_slug")?;
-
-    tide::log::info!(
-        "Checking existence of parental relationship {:?} -> {:?} in site ID {}",
-        parent_reference,
-        child_reference,
-        site_id,
-    );
-
-    let exists = ParentService::exists(&ctx, site_id, parent_reference, child_reference)
-        .await
-        .to_api()?;
-
-    txn.commit().await?;
-    exists_status(exists)
-}
-
 pub async fn parent_get(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
@@ -114,11 +89,11 @@ pub async fn parent_put(req: ApiRequest) -> ApiResponse {
         site_id,
     );
 
-    let created = ParentService::create(&ctx, site_id, parent_reference, child_reference)
+    let model = ParentService::create(&ctx, site_id, parent_reference, child_reference)
         .await
         .to_api()?;
 
-    let status = if created {
+    let status = if model.is_some() {
         StatusCode::Created
     } else {
         StatusCode::NoContent

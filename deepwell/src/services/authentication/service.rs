@@ -28,6 +28,8 @@ pub struct AuthenticationService;
 impl AuthenticationService {
     /// Verifies the passed credentials for the user to determine if they are valid.
     /// If so, the user is cleared to log in.
+    // TODO should password and TOTP be separate methods?
+    //      how can they both be sent at once, UI-wise?
     pub async fn auth_user(
         ctx: &ServiceContext<'_>,
         user: &UserModel,

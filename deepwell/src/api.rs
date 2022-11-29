@@ -1,5 +1,5 @@
 /*
- * api/internal.rs
+ * api.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,34 +18,103 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Routes for the internal API.
+//! All routes for the API.
 //!
-//! This version has no commitments to stability and is used only by Wikijump itself.
+//! This API is to be used internally only, and is subject to change in coordination with
+//! Framerail (the API consumer). No guarantees are made as to backwards compatibility.
+//!
+//! This module should only contain definitions for the web server and its routes, and
+//! not any of the implementations themselves. Those should be in the `methods` module.
 
-use crate::api::ApiServer;
+use crate::config::Config;
+use crate::database;
+use crate::locales::Localizations;
 use crate::methods::{
     auth::*, category::*, file::*, file_revision::*, link::*, locale::*, misc::*,
     page::*, page_revision::*, parent::*, site::*, text::*, user::*, user_bot::*,
     vote::*,
 };
+use crate::services::blob::spawn_magic_thread;
+use crate::services::job::JobRunner;
 use crate::utils::error_response;
+use anyhow::Result;
+use s3::bucket::Bucket;
+use sea_orm::DatabaseConnection;
+use std::sync::Arc;
 use tide::StatusCode;
 
-pub fn build(mut app: ApiServer) -> ApiServer {
+pub type ApiServerState = Arc<ServerState>;
+pub type ApiServer = tide::Server<ApiServerState>;
+pub type ApiRequest = tide::Request<ApiServerState>;
+pub type ApiResponse = tide::Result;
+
+#[derive(Debug)]
+pub struct ServerState {
+    pub config: Config,
+    pub database: DatabaseConnection,
+    pub localizations: Localizations,
+    pub s3_bucket: Bucket,
+}
+
+pub async fn build_server_state(config: Config) -> Result<ApiServerState> {
+    // Connect to database
+    tide::log::info!("Connecting to PostgreSQL database");
+    let database = database::connect(&config.database_url).await?;
+
+    // Load localization data
+    tide::log::info!("Loading localization data");
+    let localizations = Localizations::open(&config.localization_path).await?;
+
+    // Create S3 bucket
+    tide::log::info!("Opening S3 bucket");
+
+    let s3_bucket = Bucket::new(
+        &config.s3_bucket,
+        config.s3_region.clone(),
+        config.s3_credentials.clone(),
+    )?;
+
+    // Return server state
+    Ok(Arc::new(ServerState {
+        config,
+        database,
+        localizations,
+        s3_bucket,
+    }))
+}
+
+pub fn build_server(state: ApiServerState) -> ApiServer {
+    macro_rules! new {
+        () => {
+            tide::Server::with_state(Arc::clone(&state))
+        };
+    }
+
+    // Start job executor task
+    JobRunner::spawn(&state);
+
+    // Start MIME evaluator thread
+    spawn_magic_thread();
+
+    // Create server and add routes
+    let mut app = new!();
+    app.at("/api/trusted").nest(build_routes(new!()));
+    app
+}
+
+fn build_routes(mut app: ApiServer) -> ApiServer {
     // Miscellaneous
     app.at("/ping").all(ping);
     app.at("/version").get(version);
     app.at("/version/full").get(full_version);
-    app.at("/ratelimit-exempt").all(ratelimit_exempt);
     app.at("/normalize/:input").all(normalize_method);
     app.at("/teapot")
         .get(|_| async { error_response(StatusCode::ImATeapot, "🫖") });
 
     // Localization
-    app.at("/locale/:locale").head(locale_head).get(locale_get);
+    app.at("/locale/:locale").get(locale_get);
 
     app.at("/message/:locale/:message_key")
-        .head(message_head)
         .get(message_post)
         .put(message_post)
         .post(message_post);
@@ -61,29 +130,18 @@ pub fn build(mut app: ApiServer) -> ApiServer {
     // Site
     app.at("/site").post(site_create);
     app.at("/site/:type/:id_or_slug")
-        .head(site_head)
         .get(site_get)
         .put(site_put);
 
     // Category
     app.at("/category/:site_id").get(category_all_get);
-
-    app.at("/category/direct/:category_id")
-        .head(category_head_direct)
-        .get(category_get_direct);
-
     app.at("/category/:site_id/:type/:id_or_slug")
-        .head(category_head)
         .get(category_get);
 
     // Page
-    app.at("/page/direct/:page_id")
-        .head(page_head_direct)
-        .get(page_get_direct);
-
+    app.at("/page/direct/:page_id").get(page_get_direct);
     app.at("/page/:site_id").post(page_create);
     app.at("/page/:site_id/:type/:id_or_slug")
-        .head(page_head)
         .get(page_get)
         .post(page_edit)
         .delete(page_delete);
@@ -101,7 +159,6 @@ pub fn build(mut app: ApiServer) -> ApiServer {
         .get(page_revision_info);
 
     app.at("/page/:site_id/:type/:id_or_slug/revision/:revision_number")
-        .head(page_revision_head)
         .get(page_revision_get)
         .put(page_revision_put);
 
@@ -131,7 +188,6 @@ pub fn build(mut app: ApiServer) -> ApiServer {
     app.at(
         "/page/:site_id/:parent_type/:parent_id_or_slug/:child_type/:child_id_or_slug",
     )
-    .head(parent_head)
     .get(parent_get)
     .put(parent_put)
     .delete(parent_delete);
@@ -146,14 +202,8 @@ pub fn build(mut app: ApiServer) -> ApiServer {
         .all(page_invalid);
 
     // Files
-    app.at("/file/direct/:file_id")
-        .head(file_head_direct)
-        .get(file_get_direct);
-
     app.at("/file/:site_id/:type/:id_or_slug").post(file_create);
-
     app.at("/file/:site_id/:page_type/:id_or_slug/:file_type/:id_or_name")
-        .head(file_head)
         .get(file_get)
         .post(file_edit)
         .delete(file_delete);
@@ -169,7 +219,6 @@ pub fn build(mut app: ApiServer) -> ApiServer {
         .get(file_revision_info);
 
     app.at("/file/:site_id/:page_type/:id_or_slug/:file_type/:id_or_name/revision/:revision_number")
-        .head(file_revision_head)
         .get(file_revision_get)
         .put(file_revision_put);
 
@@ -177,14 +226,12 @@ pub fn build(mut app: ApiServer) -> ApiServer {
         .get(file_revision_range_get);
 
     // Text
-    // TODO TEMP
     app.at("/text").put(text_put);
-    app.at("/text/:hash").get(text_get).head(text_head);
+    app.at("/text/:hash").get(text_get);
 
     // User
     app.at("/user").post(user_create);
     app.at("/user/:type/:id_or_slug")
-        .head(user_head)
         .get(user_get)
         .put(user_put)
         .delete(user_delete);
@@ -202,14 +249,9 @@ pub fn build(mut app: ApiServer) -> ApiServer {
 
     // Votes
     app.at("/vote")
-        .head(vote_head)
         .get(vote_get)
         .put(vote_put)
         .delete(vote_delete);
-
-    app.at("/vote/direct/:vote_id")
-        .head(vote_head_direct)
-        .get(vote_get_direct);
 
     app.at("/vote/action").put(vote_action);
     app.at("/vote/list").get(vote_list_get);

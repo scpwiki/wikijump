@@ -29,8 +29,6 @@ mod reference;
 mod unwrap;
 mod user_details;
 
-pub mod ratelimit;
-
 pub use self::connection_type::ConnectionType;
 pub use self::fetch_direction::FetchDirection;
 pub use self::fetch_limit::{

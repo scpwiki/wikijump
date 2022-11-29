@@ -23,11 +23,6 @@ use crate::locales::MessageArguments;
 use ref_map::*;
 use unic_langid::LanguageIdentifier;
 
-pub async fn locale_head(req: ApiRequest) -> ApiResponse {
-    locale_get(req).await?;
-    Ok(Response::new(StatusCode::NoContent))
-}
-
 #[derive(Serialize, Debug)]
 struct LocaleOutput<'a> {
     language: &'a str,
@@ -52,23 +47,6 @@ pub async fn locale_get(req: ApiRequest) -> ApiResponse {
 
     let body = Body::from_json(&output)?;
     Ok(body.into())
-}
-
-pub async fn message_head(req: ApiRequest) -> ApiResponse {
-    let locale_str = req.param("locale")?;
-    let message_key = req.param("message_key")?;
-    tide::log::info!(
-        "Checking existence of message key {message_key} in locale {locale_str}",
-    );
-
-    let locale = LanguageIdentifier::from_bytes(locale_str.as_bytes())?;
-
-    let result = req.state().localizations.has_message(&locale, message_key);
-    if result {
-        Ok(Response::new(StatusCode::NoContent))
-    } else {
-        Ok(Response::new(StatusCode::NotFound))
-    }
 }
 
 pub async fn message_post(mut req: ApiRequest) -> ApiResponse {

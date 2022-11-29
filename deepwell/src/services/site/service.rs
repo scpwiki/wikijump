@@ -70,7 +70,7 @@ impl SiteService {
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
         input: UpdateSite,
-    ) -> Result<()> {
+    ) -> Result<SiteModel> {
         let txn = ctx.transaction();
         let model = Self::get(ctx, reference).await?;
         let mut site: site::ActiveModel = model.into();
@@ -96,19 +96,8 @@ impl SiteService {
         site.updated_at = Set(Some(now()));
 
         // Update site.
-        site.update(txn).await?;
-
-        Ok(())
-    }
-
-    #[inline]
-    pub async fn exists(
-        ctx: &ServiceContext<'_>,
-        reference: Reference<'_>,
-    ) -> Result<bool> {
-        Self::get_optional(ctx, reference)
-            .await
-            .map(|user| user.is_some())
+        let model = site.update(txn).await?;
+        Ok(model)
     }
 
     pub async fn get_optional(

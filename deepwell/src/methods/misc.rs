@@ -20,7 +20,6 @@
 
 use super::prelude::*;
 use crate::info;
-use crate::web::ratelimit::is_ratelimit_exempt;
 use sea_orm::{ConnectionTrait, DatabaseBackend, Statement};
 use wikidot_normalize::normalize;
 
@@ -48,16 +47,6 @@ pub async fn version(_: ApiRequest) -> ApiResponse {
 pub async fn full_version(_: ApiRequest) -> ApiResponse {
     tide::log::info!("Getting DEEPWELL version (full)");
     Ok(info::FULL_VERSION_WITH_NAME.as_str().into())
-}
-
-pub async fn ratelimit_exempt(req: ApiRequest) -> ApiResponse {
-    if is_ratelimit_exempt(&req) {
-        tide::log::info!("Requester is rate-limit exempt");
-        Ok(Response::new(StatusCode::NoContent))
-    } else {
-        tide::log::warn!("Requester is not rate-limit exempt");
-        Ok(Response::new(StatusCode::Forbidden))
-    }
 }
 
 pub async fn normalize_method(req: ApiRequest) -> ApiResponse {

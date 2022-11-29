@@ -428,16 +428,6 @@ impl FileService {
         find_or_error(Self::get_optional(ctx, page_id, reference)).await
     }
 
-    pub async fn exists(
-        ctx: &ServiceContext<'_>,
-        page_id: i64,
-        reference: CuidReference<'_>,
-    ) -> Result<bool> {
-        Self::get_optional(ctx, page_id, reference)
-            .await
-            .map(|file| file.is_some())
-    }
-
     pub async fn get_direct_optional(
         ctx: &ServiceContext<'_>,
         file_id: i64,
@@ -454,12 +444,6 @@ impl FileService {
     #[inline]
     pub async fn get_direct(ctx: &ServiceContext<'_>, file_id: i64) -> Result<FileModel> {
         find_or_error(Self::get_direct_optional(ctx, file_id)).await
-    }
-
-    pub async fn exists_direct(ctx: &ServiceContext<'_>, file_id: i64) -> Result<bool> {
-        Self::get_direct_optional(ctx, file_id)
-            .await
-            .map(|file| file.is_some())
     }
 
     /// Hard deletes this file and all duplicates.

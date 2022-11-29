@@ -56,40 +56,6 @@ pub async fn file_revision_info(req: ApiRequest) -> ApiResponse {
     Ok(response)
 }
 
-pub async fn file_revision_head(req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let site_id = req.param("site_id")?.parse()?;
-    let revision_number = req.param("revision_number")?.parse()?;
-    let page_reference = Reference::try_from_fields_key(&req, "page_type", "id_or_slug")?;
-    let file_reference =
-        CuidReference::try_from_fields_key(&req, "file_type", "id_or_name")?;
-
-    tide::log::info!(
-        "Checking existence of file revision {} for file {:?} on page {:?}",
-        revision_number,
-        file_reference,
-        page_reference,
-    );
-
-    let page = PageService::get(&ctx, site_id, page_reference)
-        .await
-        .to_api()?;
-
-    let file = FileService::get(&ctx, page.page_id, file_reference)
-        .await
-        .to_api()?;
-
-    let exists =
-        FileRevisionService::exists(&ctx, file.page_id, file.file_id, revision_number)
-            .await
-            .to_api()?;
-
-    txn.commit().await?;
-    exists_status(exists)
-}
-
 pub async fn file_revision_get(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);

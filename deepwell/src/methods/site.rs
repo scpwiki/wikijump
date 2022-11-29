@@ -41,18 +41,6 @@ pub async fn site_create(mut req: ApiRequest) -> ApiResponse {
     Ok(response)
 }
 
-pub async fn site_head(req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let reference = Reference::try_from(&req)?;
-    tide::log::info!("Checking existence of site {:?}", reference);
-
-    let exists = SiteService::exists(&ctx, reference).await.to_api()?;
-    txn.commit().await?;
-    exists_status(exists)
-}
-
 pub async fn site_get(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);

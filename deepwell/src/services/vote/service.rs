@@ -31,7 +31,7 @@ impl VoteService {
     /// # Returns
     /// Returns `Some` if a new vote was created,
     /// and `None` if the it already exists.
-    pub async fn create(
+    pub async fn add(
         ctx: &ServiceContext<'_>,
         CreateVote {
             page_id,
@@ -48,8 +48,8 @@ impl VoteService {
         );
 
         // Get previous vote, if any
-        let reference = VoteReference::Pair(GetVote { page_id, user_id });
-        if let Some(vote) = Self::get_optional(ctx, reference).await? {
+        let key = GetVote { page_id, user_id };
+        if let Some(vote) = Self::get_optional(ctx, key).await? {
             // If it's the same value, no new vote is needed
             if vote.value == value {
                 return Ok(None);
@@ -74,60 +74,44 @@ impl VoteService {
     }
 
     #[inline]
-    pub async fn exists(
-        ctx: &ServiceContext<'_>,
-        reference: VoteReference,
-    ) -> Result<bool> {
-        Self::get_optional(ctx, reference)
-            .await
-            .map(|vote| vote.is_some())
-    }
-
-    #[inline]
-    pub async fn get(
-        ctx: &ServiceContext<'_>,
-        reference: VoteReference,
-    ) -> Result<PageVoteModel> {
-        find_or_error(Self::get_optional(ctx, reference)).await
+    pub async fn get(ctx: &ServiceContext<'_>, key: GetVote) -> Result<PageVoteModel> {
+        find_or_error(Self::get_optional(ctx, key)).await
     }
 
     /// Gets any current vote for the current page and user.
     pub async fn get_optional(
         ctx: &ServiceContext<'_>,
-        reference: VoteReference,
+        GetVote { page_id, user_id }: GetVote,
     ) -> Result<Option<PageVoteModel>> {
         let txn = ctx.transaction();
-
-        let condition = match reference {
-            VoteReference::Id(vote_id) => Condition::all()
-                .add(page_vote::Column::PageVoteId.eq(vote_id))
-                .add(page_vote::Column::DeletedAt.is_null()),
-            VoteReference::Pair(GetVote { page_id, user_id }) => Condition::all()
-                .add(page_vote::Column::PageId.eq(page_id))
-                .add(page_vote::Column::UserId.eq(user_id))
-                .add(page_vote::Column::DeletedAt.is_null()),
-        };
-
-        let vote = PageVote::find().filter(condition).one(txn).await?;
+        let vote = PageVote::find()
+            .filter(
+                Condition::all()
+                    .add(page_vote::Column::PageId.eq(page_id))
+                    .add(page_vote::Column::UserId.eq(user_id))
+                    .add(page_vote::Column::DeletedAt.is_null()),
+            )
+            .one(txn)
+            .await?;
         Ok(vote)
     }
 
     /// Enables or disables the vote specified.
     pub async fn action(
         ctx: &ServiceContext<'_>,
-        reference: VoteReference,
+        key: GetVote,
         enable: bool,
         acting_user_id: i64,
     ) -> Result<PageVoteModel> {
         tide::log::info!(
             "{} vote on {:?} (being done by {})",
             if enable { "Enabling" } else { "Disabling" },
-            reference,
+            key,
             acting_user_id,
         );
 
         let txn = ctx.transaction();
-        let mut vote = Self::get(ctx, reference).await?.into_active_model();
+        let mut vote = Self::get(ctx, key).await?.into_active_model();
 
         if enable {
             // Clear "disabled" field.
@@ -144,14 +128,11 @@ impl VoteService {
     }
 
     /// Removes the vote specified.
-    pub async fn remove(
-        ctx: &ServiceContext<'_>,
-        reference: VoteReference,
-    ) -> Result<PageVoteModel> {
-        tide::log::info!("Removing vote {reference:?}");
+    pub async fn remove(ctx: &ServiceContext<'_>, key: GetVote) -> Result<PageVoteModel> {
+        tide::log::info!("Removing vote {key:?}");
 
         let txn = ctx.transaction();
-        let mut vote = Self::get(ctx, reference).await?.into_active_model();
+        let mut vote = Self::get(ctx, key).await?.into_active_model();
         vote.deleted_at = Set(Some(now()));
 
         let model = vote.update(txn).await?;
