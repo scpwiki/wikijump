@@ -32,5 +32,6 @@ pub struct CreateBlobOutput {
 #[derive(Debug)]
 pub struct BlobMetadata {
     pub mime: String,
+    pub size: i64,
     pub created_at: DateTimeWithTimeZone,
 }

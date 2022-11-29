@@ -117,6 +117,7 @@ impl BlobService {
             None => Ok(None),
             Some(result) => {
                 // Headers should be passed in
+                let size = result.content_length.ok_or(Error::RemoteOperationFailed)?;
                 let mime = result.content_type.ok_or(Error::RemoteOperationFailed)?;
                 let created_at = {
                     let timestamp =
@@ -126,7 +127,7 @@ impl BlobService {
                         .map_err(|_| Error::RemoteOperationFailed)?
                 };
 
-                Ok(Some(BlobMetadata { mime, created_at }))
+                Ok(Some(BlobMetadata { mime, size, created_at }))
             }
         }
     }
