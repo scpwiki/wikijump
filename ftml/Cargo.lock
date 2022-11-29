@@ -420,6 +420,7 @@ dependencies = [
  "log",
  "maplit",
  "parcel_css",
+ "parcel_selectors",
  "pest",
  "pest_derive",
  "proptest",
@@ -733,9 +734,9 @@ dependencies = [
 
 [[package]]
 name = "parcel_selectors"
-version = "0.24.5"
+version = "0.24.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "95cf8992bec228b932c3848fcd001a3a48ea618f0acf1c86e797479dd0ec4599"
+checksum = "5f25f4bac7855f8a34833b5499ad655768ea6697cbe28facdf78a09dc7f2a2d0"
 dependencies = [
  "bitflags",
  "cssparser",
