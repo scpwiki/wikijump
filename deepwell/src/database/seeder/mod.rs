@@ -118,6 +118,7 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
                     slug: alias,
                     target_user_id: user_id,
                     created_by_user_id: SYSTEM_USER_ID,
+                    bypass_filter: true,
                 },
             )
             .await?;

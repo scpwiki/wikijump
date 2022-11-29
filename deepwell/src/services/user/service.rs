@@ -373,6 +373,7 @@ impl UserService {
                 slug: old_slug.clone(),
                 target_user_id: user.user_id,
                 created_by_user_id: user.user_id,
+                bypass_filter,
             },
         )
         .await?;

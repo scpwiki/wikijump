@@ -21,7 +21,8 @@
 use super::prelude::*;
 use crate::models::user::{self, Entity as User};
 use crate::models::user_alias::{self, Entity as UserAlias, Model as UserAliasModel};
-use crate::services::user::UserService;
+use crate::services::filter::{FilterClass, FilterType};
+use crate::services::{FilterService, UserService};
 use crate::utils::get_user_slug;
 use crate::web::Reference;
 
@@ -54,6 +55,11 @@ impl UserAliasService {
         let slug = get_user_slug(input.slug);
 
         tide::log::info!("Creating user alias with slug '{}'", slug);
+
+        // Perform filter validation
+        if !input.bypass_filter {
+            Self::run_filter(ctx, &slug).await?;
+        }
 
         // Check for conflicts
         //
@@ -190,6 +196,17 @@ impl UserAliasService {
             );
         }
 
+        Ok(())
+    }
+
+    async fn run_filter(ctx: &ServiceContext<'_>, slug: &str) -> Result<()> {
+        tide::log::info!("Checking user alias data against filters...");
+
+        let filter_matcher =
+            FilterService::get_matcher(ctx, FilterClass::Platform, FilterType::User)
+                .await?;
+
+        filter_matcher.verify(ctx, slug).await?;
         Ok(())
     }
 }
