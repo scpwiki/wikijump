@@ -1,0 +1,317 @@
+[
+    {
+        "site": null,
+        "regex": "wikidot",
+        "description": "Reserved name (wikidot)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "wikijump",
+        "description": "Reserved name (wikijump)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^mail$",
+        "description": "Reserved name (mail)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^dev(eloper)?$",
+        "description": "Reserved name (dev / developer)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^blog$",
+        "description": "Reserved name (blog)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^login$",
+        "description": "Reserved name (login)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^logout$",
+        "description": "Reserved name (logout)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^support$",
+        "description": "Reserved name (support)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^help(desk)?$",
+        "description": "Reserved name (help / helpdesk)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^pro(fessional)?$",
+        "description": "Reserved name (pro / professional)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^web$",
+        "description": "Reserved name (web)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^(ssl|tls)$",
+        "description": "Reserved name (ssl / tls)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^pay(ments?)?$",
+        "description": "Reserved name (pay / payment / payments)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^(wd|wj)?(up|down)load$",
+        "description": "Reserved name (upload / download)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^secure$",
+        "description": "Reserved name (secure)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^serv(ices?)?$",
+        "description": "Reserved name (serv / service / services)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^static[0-9]*$",
+        "description": "Reserved name (static with optional numbers)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^api$",
+        "description": "Reserved name (api)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^guru$",
+        "description": "Reserved name (guru)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^admin(ministrator)?",
+        "description": "Reserved name (starts with admin / administrator)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^mod$",
+        "description": "Reserved name (mod)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^moderator",
+        "description": "Reserved name (starts with moderator)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^staff$",
+        "description": "Reserved name (staff)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^module$",
+        "description": "Reserved name (module)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^sys$",
+        "description": "Reserved name (sys)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^system",
+        "description": "Reserved name (starts with system)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^root$",
+        "description": "Reserved name (root)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^anon(ymous)?$",
+        "description": "Reserved name (anon / anonymous)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^guest",
+        "description": "Reserved name (starts with guest)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^template$",
+        "description": "Reserved name (template)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^template-$",
+        "description": "Reserved name (starts with template-)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^example",
+        "description": "Reserved name (starts with example)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^unknown$",
+        "description": "Reserved name (unknown)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^null$",
+        "description": "Reserved name (null)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^undefined$",
+        "description": "Reserved name (undefined)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^(img|image)$",
+        "description": "Reserved name (img / image)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^scripts?$",
+        "description": "Reserved name (script / scripts)",
+        "user": true
+    },
+
+    {
+        "site": null,
+        "regex": "^warning$",
+        "description": "Reserved name (warning)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^error$",
+        "description": "Reserved name (error)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^(ro)?bots?$",
+        "description": "Reserved name (bot / bots / robot / robots)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^(ftp|http|https)$",
+        "description": "Reserved name (ftp / http / https)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^(stage|staging)$",
+        "description": "Reserved name (stage / staging)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^prod(uction)?$",
+        "description": "Reserved name (prod / production)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^official$",
+        "description": "Reserved name (official)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^porn",
+        "description": "Starts with 'porn'",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^spam",
+        "description": "Starts with 'spam'",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^.$",
+        "description": "Single-character usernames and slugs",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^[0-9]*www[0-9]*$",
+        "description": "Looks like 'WWW'",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^[0-9]+(\\.[0-9]+){2,}$",
+        "description": "Looks like IPv4",
+        "user": true,
+        "file": true
+    },
+    {
+        "site": null,
+        "regex": "^:*[0-9a-fA-F]+(:[0-9a-fA-F]*)*$",
+        "description": "Looks like IPv6",
+        "user": true,
+        "file": true
+    },
+    {
+        "site": null,
+        "regex": "^[oO0]5\\-\\w+$",
+        "description": "Looks like an O5 designation (SCP Wiki related)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^SCP\\-\\w+$",
+        "description": "Looks like an SCP designation (SCP Wiki related)",
+        "user": true
+    }
+]
