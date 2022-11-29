@@ -31,7 +31,6 @@ use crate::database;
 use crate::locales::Localizations;
 use crate::services::blob::spawn_magic_thread;
 use crate::services::job::JobRunner;
-use crate::web::ratelimit::GovernorMiddleware;
 use anyhow::Result;
 use s3::bucket::Bucket;
 use sea_orm::DatabaseConnection;
@@ -82,9 +81,6 @@ pub async fn build_server_state(config: Config) -> Result<ApiServerState> {
 }
 
 pub fn build_server(state: ApiServerState) -> ApiServer {
-    // Values needed to build routes
-    let rate_limit = state.config.rate_limit_per_minute;
-
     macro_rules! new {
         () => {
             tide::Server::with_state(Arc::clone(&state))
@@ -99,15 +95,13 @@ pub fn build_server(state: ApiServerState) -> ApiServer {
 
     // Create server and add routes
     let mut app = new!();
-    app.at("/api")
-        .with(GovernorMiddleware::per_minute(rate_limit))
-        .nest({
-            let mut api = new!();
-            api.at("/vI").nest(internal::build(new!()));
-            api.at("/v0").nest(v0::build(new!()));
-            api.at("/v1").nest(v1::build(new!()));
-            api
-        });
+    app.at("/api").nest({
+        let mut api = new!();
+        api.at("/vI").nest(internal::build(new!()));
+        api.at("/v0").nest(v0::build(new!()));
+        api.at("/v1").nest(v1::build(new!()));
+        api
+    });
 
     app
 }
