@@ -26,13 +26,10 @@ use ref_map::*;
 use s3::{creds::Credentials, region::Region};
 use std::env;
 use std::net::{IpAddr, SocketAddr};
-use std::num::NonZeroU32;
 use std::path::PathBuf;
 use std::process;
 use std::time::Duration;
 use tide::log::LevelFilter;
-
-const MIN_SECRET_LENGTH: usize = 64;
 
 #[derive(Debug, Clone)]
 pub struct Config {
@@ -106,18 +103,6 @@ pub struct Config {
     /// Can be set using environment variable `SEEDER_PATH`.
     pub seeder_path: PathBuf,
 
-    /// The number of requests allowed per IP per minute.
-    ///
-    /// Can be set using environment variable `RATE_LIMIT_PER_MINUTE`.
-    pub rate_limit_per_minute: NonZeroU32,
-
-    /// The secret to bypass the rate-limit.
-    /// An empty value means to disable bypassing.
-    /// If a value is specified, the secret must be at least 64 bytes long.
-    ///
-    /// Set using environment variable `RATE_LIMIT_SECRET`.
-    pub rate_limit_secret: String,
-
     /// How long to allow a render job to run before terminating it.
     ///
     /// This is to ensure that a parser bug or malicious input cannot
@@ -151,8 +136,6 @@ impl Default for Config {
             },
             localization_path: PathBuf::from("../locales"),
             seeder_path: PathBuf::from("seeder"),
-            rate_limit_per_minute: NonZeroU32::new(20).unwrap(),
-            rate_limit_secret: String::new(),
             render_timeout: Duration::from_millis(2000),
         }
     }
@@ -276,27 +259,6 @@ fn read_env(config: &mut Config) {
 
     if let Some(value) = env::var_os("SEEDER_PATH") {
         config.seeder_path = PathBuf::from(value);
-    }
-
-    if let Ok(value) = env::var("RATE_LIMIT_PER_MINUTE") {
-        match value.parse() {
-            Ok(rate_limit) => config.rate_limit_per_minute = rate_limit,
-            Err(_) => {
-                eprintln!("RATE_LIMIT_PER_MINUTE variable is not a valid integer");
-                process::exit(1);
-            }
-        }
-    }
-
-    if let Ok(value) = env::var("RATE_LIMIT_SECRET") {
-        if value.len() < MIN_SECRET_LENGTH {
-            eprintln!(
-                "RATE_LIMIT_SECRET value too short (must be at least {MIN_SECRET_LENGTH} bytes long)",
-            );
-            process::exit(1);
-        }
-
-        config.rate_limit_secret = value;
     }
 
     if let Ok(value) = env::var("RENDER_TIMEOUT_MS") {
@@ -435,14 +397,6 @@ fn parse_args(config: &mut Config) {
                 .help("The path to read seeder data from."),
         )
         .arg(
-            Arg::new("ratelimit-min")
-                .short('r')
-                .long("requests-per-minute")
-                .value_parser(value_parser!(NonZeroU32))
-                .value_name("COUNT")
-                .help("How many requests are allowed per IP address per minute."),
-        )
-        .arg(
             Arg::new("render-timeout")
                 .short('R')
                 .long("render-timeout")
@@ -522,10 +476,6 @@ fn parse_args(config: &mut Config) {
         config.seeder_path = value;
     }
 
-    if let Some(value) = matches.remove_one::<NonZeroU32>("ratelimit-min") {
-        config.rate_limit_per_minute = value;
-    }
-
     if let Some(value) = matches.remove_one::<u32>("render-timeout") {
         config.render_timeout = Duration::from_millis(u64::from(value));
     }
@@ -560,14 +510,6 @@ impl Config {
             env::current_dir()
                 .expect("Cannot get current working directory")
                 .display(),
-        );
-        tide::log::info!(
-            "Rate limit (per minute): {} requests",
-            self.rate_limit_per_minute,
-        );
-        tide::log::info!(
-            "Rate limit bypass: {}",
-            bool_str(!self.rate_limit_secret.is_empty()),
         );
     }
 }
