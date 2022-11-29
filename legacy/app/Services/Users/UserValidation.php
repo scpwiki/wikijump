@@ -23,45 +23,6 @@ final class UserValidation
     }
 
     /**
-     * Checks if a username is valid. The username must be unique.
-     *
-     * @param string $name The username to check.
-     * @param User|null $ignore_user A user to ignore for uniqueness checks, if any.
-     */
-    public static function isValidUsername(string $name, ?User $ignore_user = null): bool
-    {
-        // check if username is valid, but that's not the only thing we need to check
-
-        $name_valid = static::validate($name, [
-            'required',
-            'string',
-            'max:255',
-            'min:3',
-            isset($ignore_user)
-                ? Rule::unique('users')->ignore($ignore_user->id)
-                : 'unique:users,username',
-        ]);
-
-        if (!$name_valid) {
-            return false;
-        }
-
-        // now we have to check if the slug version of the username is valid
-
-        $slug = WDStringUtils::toUnixName($name);
-
-        return static::validate($slug, [
-            'required',
-            'string',
-            'max:255',
-            'min:3',
-            isset($ignore_user)
-                ? Rule::unique('users')->ignore($ignore_user->id)
-                : 'unique:users,slug',
-        ]);
-    }
-
-    /**
      * Checks if an email is valid. The email must be unique.
      *
      * @param string $email The email to check.
