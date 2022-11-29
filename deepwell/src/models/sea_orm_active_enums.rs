@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
     Debug, Copy, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize,
 )]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "file_revision_type")]
+#[serde(rename_all = "kebab-case")]
 pub enum FileRevisionType {
     #[sea_orm(string_value = "create")]
     Create,
@@ -21,6 +22,7 @@ pub enum FileRevisionType {
     Debug, Copy, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize,
 )]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "page_revision_type")]
+#[serde(rename_all = "kebab-case")]
 pub enum PageRevisionType {
     #[sea_orm(string_value = "create")]
     Create,
@@ -37,6 +39,7 @@ pub enum PageRevisionType {
     Debug, Copy, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize,
 )]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "user_type")]
+#[serde(rename_all = "kebab-case")]
 pub enum UserType {
     #[sea_orm(string_value = "bot")]
     Bot,
