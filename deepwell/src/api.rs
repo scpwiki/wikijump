@@ -112,10 +112,9 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
         .get(|_| async { error_response(StatusCode::ImATeapot, "🫖") });
 
     // Localization
-    app.at("/locale/:locale").head(locale_head).get(locale_get);
+    app.at("/locale/:locale").get(locale_get);
 
     app.at("/message/:locale/:message_key")
-        .head(message_head)
         .get(message_post)
         .put(message_post)
         .post(message_post);
@@ -131,7 +130,6 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
     // Site
     app.at("/site").post(site_create);
     app.at("/site/:type/:id_or_slug")
-        .head(site_head)
         .get(site_get)
         .put(site_put);
 
@@ -139,21 +137,15 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
     app.at("/category/:site_id").get(category_all_get);
 
     app.at("/category/direct/:category_id")
-        .head(category_head_direct)
         .get(category_get_direct);
 
     app.at("/category/:site_id/:type/:id_or_slug")
-        .head(category_head)
         .get(category_get);
 
     // Page
-    app.at("/page/direct/:page_id")
-        .head(page_head_direct)
-        .get(page_get_direct);
-
+    app.at("/page/direct/:page_id").get(page_get_direct);
     app.at("/page/:site_id").post(page_create);
     app.at("/page/:site_id/:type/:id_or_slug")
-        .head(page_head)
         .get(page_get)
         .post(page_edit)
         .delete(page_delete);
@@ -171,7 +163,6 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
         .get(page_revision_info);
 
     app.at("/page/:site_id/:type/:id_or_slug/revision/:revision_number")
-        .head(page_revision_head)
         .get(page_revision_get)
         .put(page_revision_put);
 
@@ -201,7 +192,6 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
     app.at(
         "/page/:site_id/:parent_type/:parent_id_or_slug/:child_type/:child_id_or_slug",
     )
-    .head(parent_head)
     .get(parent_get)
     .put(parent_put)
     .delete(parent_delete);
@@ -216,14 +206,10 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
         .all(page_invalid);
 
     // Files
-    app.at("/file/direct/:file_id")
-        .head(file_head_direct)
-        .get(file_get_direct);
+    app.at("/file/direct/:file_id").get(file_get_direct);
 
     app.at("/file/:site_id/:type/:id_or_slug").post(file_create);
-
     app.at("/file/:site_id/:page_type/:id_or_slug/:file_type/:id_or_name")
-        .head(file_head)
         .get(file_get)
         .post(file_edit)
         .delete(file_delete);
@@ -239,7 +225,6 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
         .get(file_revision_info);
 
     app.at("/file/:site_id/:page_type/:id_or_slug/:file_type/:id_or_name/revision/:revision_number")
-        .head(file_revision_head)
         .get(file_revision_get)
         .put(file_revision_put);
 
@@ -249,12 +234,11 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
     // Text
     // TODO TEMP
     app.at("/text").put(text_put);
-    app.at("/text/:hash").get(text_get).head(text_head);
+    app.at("/text/:hash").get(text_get);
 
     // User
     app.at("/user").post(user_create);
     app.at("/user/:type/:id_or_slug")
-        .head(user_head)
         .get(user_get)
         .put(user_put)
         .delete(user_delete);
@@ -272,15 +256,11 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
 
     // Votes
     app.at("/vote")
-        .head(vote_head)
         .get(vote_get)
         .put(vote_put)
         .delete(vote_delete);
 
-    app.at("/vote/direct/:vote_id")
-        .head(vote_head_direct)
-        .get(vote_get_direct);
-
+    app.at("/vote/direct/:vote_id").get(vote_get_direct);
     app.at("/vote/action").put(vote_action);
     app.at("/vote/list").get(vote_list_get);
     app.at("/vote/count").get(vote_count_get);

@@ -33,18 +33,6 @@ pub async fn page_invalid(req: ApiRequest) -> ApiResponse {
     Ok(Response::new(StatusCode::BadRequest))
 }
 
-pub async fn page_head_direct(req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let page_id = req.param("page_id")?.parse()?;
-    tide::log::info!("Checking existence of page ID {page_id}");
-
-    let exists = PageService::exists_direct(&ctx, page_id).await.to_api()?;
-    txn.commit().await?;
-    exists_status(exists)
-}
-
 pub async fn page_get_direct(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
@@ -79,22 +67,6 @@ pub async fn page_create(mut req: ApiRequest) -> ApiResponse {
     txn.commit().await?;
 
     Ok(body.into())
-}
-
-pub async fn page_head(req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let site_id = req.param("site_id")?.parse()?;
-    let reference = Reference::try_from(&req)?;
-    tide::log::info!("Checking existence of page {reference:?} in site ID {site_id}");
-
-    let exists = PageService::exists(&ctx, site_id, reference)
-        .await
-        .to_api()?;
-
-    txn.commit().await?;
-    exists_status(exists)
 }
 
 pub async fn page_get(req: ApiRequest) -> ApiResponse {

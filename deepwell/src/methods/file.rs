@@ -25,18 +25,6 @@ use crate::services::file::GetFileOutput;
 use crate::services::Result;
 use crate::web::FileDetailsQuery;
 
-pub async fn file_head_direct(req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let file_id = req.param("file_id")?.parse()?;
-    tide::log::info!("Checking existence of file ID {file_id}");
-
-    let exists = FileService::exists_direct(&ctx, file_id).await.to_api()?;
-    txn.commit().await?;
-    exists_status(exists)
-}
-
 pub async fn file_get_direct(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
@@ -56,27 +44,6 @@ pub async fn file_get_direct(req: ApiRequest) -> ApiResponse {
 
     txn.commit().await?;
     Ok(response)
-}
-
-pub async fn file_head(req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let page_reference = Reference::try_from(&req)?;
-    let site_id = req.param("site_id")?.parse()?;
-    let file_reference = CuidReference::try_from(&req)?;
-    tide::log::info!("Checking existence of file {file_reference:?}");
-
-    let page = PageService::get(&ctx, site_id, page_reference)
-        .await
-        .to_api()?;
-
-    let exists = FileService::exists(&ctx, page.page_id, file_reference)
-        .await
-        .to_api()?;
-
-    txn.commit().await?;
-    exists_status(exists)
 }
 
 pub async fn file_get(req: ApiRequest) -> ApiResponse {

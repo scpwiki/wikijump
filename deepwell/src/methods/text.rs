@@ -49,22 +49,6 @@ pub async fn text_get(req: ApiRequest) -> ApiResponse {
     Ok(body.into())
 }
 
-pub async fn text_head(req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    tide::log::info!("Checking existence of stored text");
-    let hash = read_hash(&req)?;
-    let exists = TextService::exists(&ctx, &hash).await.to_api()?;
-    txn.commit().await?;
-
-    if exists {
-        Ok(Response::new(StatusCode::NoContent))
-    } else {
-        Ok(Response::new(StatusCode::NotFound))
-    }
-}
-
 fn read_hash(req: &ApiRequest) -> Result<Hash, TideError> {
     let hash_hex = req.param("hash")?;
     tide::log::debug!("Text hash: {hash_hex}");

@@ -111,21 +111,6 @@ impl Localizations {
         }
     }
 
-    pub fn has_message(&self, locale: &LanguageIdentifier, key: &str) -> bool {
-        let (path, attribute) = Self::parse_selector(key);
-
-        self.bundles
-            .get(locale)
-            .map(|bundle| match attribute {
-                None => bundle.has_message(key),
-                Some(attribute) => bundle
-                    .get_message(path)
-                    .map(|message| message.get_attribute(attribute).is_some())
-                    .unwrap_or(false),
-            })
-            .unwrap_or(false)
-    }
-
     fn get_message(
         &self,
         locale: &LanguageIdentifier,

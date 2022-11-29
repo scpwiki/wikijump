@@ -25,19 +25,6 @@ use crate::services::vote::{
 use crate::web::FetchLimitQuery;
 use serde::Serialize;
 
-pub async fn vote_head_direct(req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let vote_id = req.param("vote_id")?.parse()?;
-    let reference = VoteReference::Id(vote_id);
-    tide::log::info!("Checking existence of vote ID {vote_id}");
-
-    let exists = VoteService::exists(&ctx, reference).await.to_api()?;
-    txn.commit().await?;
-    exists_status(exists)
-}
-
 pub async fn vote_get_direct(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
@@ -49,24 +36,6 @@ pub async fn vote_get_direct(req: ApiRequest) -> ApiResponse {
     let vote = VoteService::get(&ctx, reference).await.to_api()?;
     txn.commit().await?;
     build_vote_response(&vote, StatusCode::Ok)
-}
-
-pub async fn vote_head(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let input: GetVote = req.body_json().await?;
-    let reference = VoteReference::Pair(input);
-
-    tide::log::info!(
-        "Checking existence of vote cast by {} on page {}",
-        input.user_id,
-        input.page_id,
-    );
-
-    let exists = VoteService::exists(&ctx, reference).await.to_api()?;
-    txn.commit().await?;
-    exists_status(exists)
 }
 
 pub async fn vote_get(mut req: ApiRequest) -> ApiResponse {

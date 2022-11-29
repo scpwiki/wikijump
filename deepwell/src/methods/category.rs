@@ -22,21 +22,6 @@ use super::prelude::*;
 use crate::models::page_category::Model as PageCategoryModel;
 use crate::services::category::CategoryOutput;
 
-pub async fn category_head_direct(req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let category_id = req.param("category_id")?.parse()?;
-    tide::log::info!("Checking existence of category ID {category_id}");
-
-    let exists = CategoryService::exists_direct(&ctx, category_id)
-        .await
-        .to_api()?;
-
-    txn.commit().await?;
-    exists_status(exists)
-}
-
 pub async fn category_get_direct(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
@@ -51,24 +36,6 @@ pub async fn category_get_direct(req: ApiRequest) -> ApiResponse {
     let output: CategoryOutput = category.into();
     let body = Body::from_json(&output)?;
     Ok(body.into())
-}
-
-pub async fn category_head(req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let site_id = req.param("site_id")?.parse()?;
-    let reference = Reference::try_from(&req)?;
-    tide::log::info!(
-        "Checking existence of page category {reference:?} in site ID {site_id}",
-    );
-
-    let exists = CategoryService::exists(&ctx, site_id, reference)
-        .await
-        .to_api()?;
-
-    txn.commit().await?;
-    exists_status(exists)
 }
 
 pub async fn category_get(req: ApiRequest) -> ApiResponse {
