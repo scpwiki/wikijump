@@ -1,5 +1,5 @@
 /*
- * data/mod.rs
+ * data/score.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,18 +18,33 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Module for POD (plain old data) structs.
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, PartialOrd)]
+#[serde(untagged)]
+pub enum ScoreValue {
+    Integer(i64),
+    Float(f64),
+}
 
-mod backlinks;
-mod karma;
-mod page_info;
-mod page_ref;
-mod score;
-mod user_info;
+impl ScoreValue {
+    #[inline]
+    pub fn to_f64(self) -> f64 {
+        match self {
+            ScoreValue::Integer(value) => value as f64,
+            ScoreValue::Float(value) => value,
+        }
+    }
+}
 
-pub use self::backlinks::Backlinks;
-pub use self::karma::KarmaLevel;
-pub use self::page_info::PageInfo;
-pub use self::page_ref::{PageRef, PageRefParseError};
-pub use self::score::ScoreValue;
-pub use self::user_info::UserInfo;
+impl From<i64> for ScoreValue {
+    #[inline]
+    fn from(value: i64) -> ScoreValue {
+        ScoreValue::Integer(value)
+    }
+}
+
+impl From<f64> for ScoreValue {
+    #[inline]
+    fn from(value: f64) -> ScoreValue {
+        ScoreValue::Float(value)
+    }
+}
