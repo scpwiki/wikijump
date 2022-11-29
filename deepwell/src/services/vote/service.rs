@@ -31,7 +31,7 @@ impl VoteService {
     /// # Returns
     /// Returns `Some` if a new vote was created,
     /// and `None` if the it already exists.
-    pub async fn create(
+    pub async fn add(
         ctx: &ServiceContext<'_>,
         CreateVote {
             page_id,

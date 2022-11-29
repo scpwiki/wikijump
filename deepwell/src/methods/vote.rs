@@ -52,7 +52,7 @@ pub async fn vote_put(mut req: ApiRequest) -> ApiResponse {
         input.page_id,
     );
 
-    let created = VoteService::create(&ctx, input).await.to_api()?;
+    let created = VoteService::add(&ctx, input).await.to_api()?;
     txn.commit().await?;
     match created {
         Some(model) => build_vote_response(&model, StatusCode::Created),
