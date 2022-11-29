@@ -24,6 +24,7 @@ use crate::models::page_revision::{
 };
 use crate::models::sea_orm_active_enums::PageRevisionType;
 use crate::services::render::RenderOutput;
+use crate::services::score::ScoreValue;
 use crate::services::{
     LinkService, OutdateService, ParentService, RenderService, ScoreService, SiteService,
     TextService,
@@ -193,8 +194,8 @@ impl RevisionService {
             return Ok(None);
         }
 
-        // Calculate rating
-        let rating = ScoreService::score(ctx, page_id).await?;
+        // Calculate score
+        let score = ScoreService::score(ctx, page_id).await?;
 
         // Run tasks based on changes:
         // See RevisionTasks struct for more information.
@@ -207,7 +208,7 @@ impl RevisionService {
                 slug: &slug,
                 title: &title,
                 alt_title: alt_title.ref_map(|s| s.as_str()),
-                rating,
+                score,
                 tags: &tags,
             };
 
@@ -336,15 +337,15 @@ impl RevisionService {
         // Add wikitext
         let wikitext_hash = TextService::create(ctx, wikitext.clone()).await?;
 
-        // Calculate rating
-        let rating = ScoreService::score(ctx, page_id).await?;
+        // Calculate score
+        let score = ScoreService::score(ctx, page_id).await?;
 
         // Render first revision
         let render_input = RenderPageInfo {
             slug: &slug,
             title: &title,
             alt_title: alt_title.ref_map(|s| s.as_str()),
-            rating,
+            score,
             tags: &[], // Initial revision always has empty tags
         };
 
@@ -501,15 +502,15 @@ impl RevisionService {
             vec![str!("slug")]
         };
 
-        // Calculate rating
-        let rating = ScoreService::score(ctx, page_id).await?;
+        // Calculate score
+        let score = ScoreService::score(ctx, page_id).await?;
 
         // Re-render page
         let render_input = RenderPageInfo {
             slug: &new_slug,
             title: &title,
             alt_title: alt_title.ref_map(|s| s.as_str()),
-            rating,
+            score,
             tags: &tags,
         };
 
@@ -571,7 +572,7 @@ impl RevisionService {
             slug,
             title,
             alt_title,
-            rating,
+            score,
             tags,
         }: RenderPageInfo<'_>,
     ) -> Result<RenderOutput> {
@@ -587,7 +588,7 @@ impl RevisionService {
             site: cow!(&site.slug),
             title: cow!(title),
             alt_title: cow_opt!(alt_title),
-            rating,
+            score,
             tags: tags.iter().map(|s| cow!(s)).collect(),
             language: cow!(&site.locale),
         };
@@ -612,7 +613,7 @@ impl RevisionService {
         let txn = ctx.transaction();
         let revision = Self::get_latest(ctx, site_id, page_id).await?;
         let wikitext = TextService::get(ctx, &revision.wikitext_hash).await?;
-        let rating = ScoreService::score(ctx, page_id).await?;
+        let score = ScoreService::score(ctx, page_id).await?;
 
         // This is necessary until we are able to replace the
         // 'tags' column with TEXT[] instead of JSON.
@@ -620,7 +621,7 @@ impl RevisionService {
             slug: &revision.slug,
             title: &revision.title,
             alt_title: revision.alt_title.ref_map(|s| s.as_str()),
-            rating,
+            score,
             tags: &revision.tags,
         };
 
@@ -831,7 +832,7 @@ struct RenderPageInfo<'a> {
     slug: &'a str,
     title: &'a str,
     alt_title: Option<&'a str>,
-    rating: f64,
+    score: ScoreValue,
     tags: &'a [String],
 }
 

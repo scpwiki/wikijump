@@ -42,14 +42,14 @@ impl Scorer for PercentScorer {
         &self,
         txn: &DatabaseTransaction,
         condition: Condition,
-    ) -> Result<f64> {
+    ) -> Result<ScoreValue> {
         // We need to do a GROUP BY either way here,
         // may as well use the helper method.
         let votes = ScoreService::collect_votes(txn, condition).await?;
 
         let upvotes = votes.get(1) as f64;
         let total = votes.count() as f64;
-
-        Ok(upvotes / total * 100.0)
+        let percent = upvotes / total * 100.0;
+        Ok(ScoreValue::Float(percent))
     }
 }

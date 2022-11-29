@@ -25,7 +25,7 @@ use super::prelude::*;
 pub struct ScoreService;
 
 impl ScoreService {
-    pub async fn score(ctx: &ServiceContext<'_>, page_id: i64) -> Result<f64> {
+    pub async fn score(ctx: &ServiceContext<'_>, page_id: i64) -> Result<ScoreValue> {
         let txn = ctx.transaction();
         let condition = Self::build_condition(page_id);
         let scorer = Self::get_scorer(ctx, page_id).await?;

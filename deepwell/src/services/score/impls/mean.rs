@@ -40,7 +40,7 @@ impl Scorer for MeanScorer {
         &self,
         txn: &DatabaseTransaction,
         condition: Condition,
-    ) -> Result<f64> {
+    ) -> Result<ScoreValue> {
         #[derive(FromQueryResult, Debug)]
         struct MeanRow {
             sum: u64,
@@ -67,10 +67,12 @@ impl Scorer for MeanScorer {
             .await?
             .expect("No results in aggregate query");
 
-        if count == 0 {
-            Ok(0.0)
+        let score = if count == 0 {
+            0.0
         } else {
-            Ok((sum / count) as f64)
-        }
+            (sum / count) as f64
+        };
+
+        Ok(ScoreValue::Float(score))
     }
 }

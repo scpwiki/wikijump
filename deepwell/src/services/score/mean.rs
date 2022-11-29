@@ -29,10 +29,10 @@ impl Scorer for MeanScorer {
         ScoreType::Mean
     }
 
-    fn score(&self, votes: &VoteMap) -> f64 {
+    fn score(&self, votes: &VoteMap) -> ScoreValue {
         let sum = votes.sum() as f64;
         let count = votes.count() as f64;
-
-        sum / count
+        let mean = sum / count;
+        ScoreValue::Float(mean)
     }
 }

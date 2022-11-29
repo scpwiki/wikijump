@@ -21,6 +21,7 @@
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::PageRevisionType;
 use crate::services::revision::CreateRevisionOutput;
+use crate::services::score::ScoreValue;
 use crate::utils::DateTimeWithTimeZone;
 use ftml::parsing::ParseError;
 
@@ -74,7 +75,7 @@ pub struct GetPageOutput<'a> {
     pub alt_title: Option<&'a str>,
     pub slug: &'a str,
     pub tags: &'a [String],
-    pub rating: f64,
+    pub rating: ScoreValue,
 }
 
 #[derive(Deserialize, Debug, Default)]

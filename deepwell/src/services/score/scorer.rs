@@ -45,6 +45,9 @@ pub trait Scorer {
     /// In order to ensure the query is formed correctly, the `Condition` for
     /// querying active votes for a page is passed rather than the page ID.
     /// For reference: `page_id = $1 AND disabled_at IS NULL AND deleted_at IS NULL`.
-    async fn score(&self, txn: &DatabaseTransaction, condition: Condition)
-        -> Result<f64>;
+    async fn score(
+        &self,
+        txn: &DatabaseTransaction,
+        condition: Condition,
+    ) -> Result<ScoreValue>;
 }
