@@ -22,7 +22,7 @@
 
 use rand::CryptoRng;
 
-/// Statically verifies if this random number generator is secure.
+/// Statically verifies that this random number generator is secure.
 ///
 /// The build will fail if the passed generator is not a CSPRNG
 /// (cryptographically-secure psuedorandom number generator).
