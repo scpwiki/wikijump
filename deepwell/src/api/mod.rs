@@ -29,14 +29,19 @@
 use crate::config::Config;
 use crate::database;
 use crate::locales::Localizations;
+use crate::methods::{
+    auth::*, category::*, file::*, file_revision::*, link::*, locale::*, misc::*,
+    page::*, page_revision::*, parent::*, site::*, text::*, user::*, user_bot::*,
+    vote::*,
+};
 use crate::services::blob::spawn_magic_thread;
 use crate::services::job::JobRunner;
+use crate::utils::error_response;
 use anyhow::Result;
 use s3::bucket::Bucket;
 use sea_orm::DatabaseConnection;
 use std::sync::Arc;
-
-mod internal;
+use tide::StatusCode;
 
 pub type ApiServerState = Arc<ServerState>;
 pub type ApiServer = tide::Server<ApiServerState>;
@@ -93,6 +98,192 @@ pub fn build_server(state: ApiServerState) -> ApiServer {
 
     // Create server and add routes
     let mut app = new!();
-    app.at("/api/safe").nest(internal::build(new!()));
+    app.at("/api/safe").nest(build_routes(new!()));
+    app
+}
+
+fn build_routes(mut app: ApiServer) -> ApiServer {
+    // Miscellaneous
+    app.at("/ping").all(ping);
+    app.at("/version").get(version);
+    app.at("/version/full").get(full_version);
+    app.at("/normalize/:input").all(normalize_method);
+    app.at("/teapot")
+        .get(|_| async { error_response(StatusCode::ImATeapot, "🫖") });
+
+    // Localization
+    app.at("/locale/:locale").head(locale_head).get(locale_get);
+
+    app.at("/message/:locale/:message_key")
+        .head(message_head)
+        .get(message_post)
+        .put(message_post)
+        .post(message_post);
+
+    // Authentication
+    app.at("/auth/login/:type/:id_or_slug").post(auth_login);
+    app.at("/auth/logout").delete(auth_logout);
+    app.at("/auth/mfa/setup").post(auth_mfa_setup);
+    app.at("/auth/mfa/disable").post(auth_mfa_disable);
+    app.at("/auth/mfa/resetRecovery")
+        .post(auth_mfa_reset_recovery);
+
+    // Site
+    app.at("/site").post(site_create);
+    app.at("/site/:type/:id_or_slug")
+        .head(site_head)
+        .get(site_get)
+        .put(site_put);
+
+    // Category
+    app.at("/category/:site_id").get(category_all_get);
+
+    app.at("/category/direct/:category_id")
+        .head(category_head_direct)
+        .get(category_get_direct);
+
+    app.at("/category/:site_id/:type/:id_or_slug")
+        .head(category_head)
+        .get(category_get);
+
+    // Page
+    app.at("/page/direct/:page_id")
+        .head(page_head_direct)
+        .get(page_get_direct);
+
+    app.at("/page/:site_id").post(page_create);
+    app.at("/page/:site_id/:type/:id_or_slug")
+        .head(page_head)
+        .get(page_get)
+        .post(page_edit)
+        .delete(page_delete);
+
+    app.at("/page/:site_id/:type/:id_or_slug/move/:new_slug")
+        .post(page_move);
+
+    app.at("/page/:site_id/:page_id/rerender")
+        .post(page_rerender);
+
+    app.at("/page/:site_id/:page_id/restore").post(page_restore);
+
+    // Page revisions
+    app.at("/page/:site_id/:type/:id_or_slug/revision")
+        .get(page_revision_info);
+
+    app.at("/page/:site_id/:type/:id_or_slug/revision/:revision_number")
+        .head(page_revision_head)
+        .get(page_revision_get)
+        .put(page_revision_put);
+
+    app.at("/page/:site_id/:type/:id_or_slug/revision/:revision_number/rollback")
+        .post(page_rollback);
+
+    app.at("/page/:site_id/:type/:id_or_slug/revision/:revision_number/:direction")
+        .get(page_revision_range_get);
+
+    // Page links
+    app.at("/page/:site_id/:type/:id_or_slug/links/from")
+        .get(page_links_from_get);
+
+    app.at("/page/:site_id/:type/:id_or_slug/links/to")
+        .get(page_links_to_get);
+
+    app.at("/page/:site_id/slug/:page_slug/links/to/missing")
+        .get(page_links_to_missing_get);
+
+    app.at("/page/:site_id/:type/:id_or_slug/urls")
+        .get(page_links_external_from);
+
+    app.at("/page/:site_id/urls/:url")
+        .get(page_links_external_to);
+
+    // Page parents
+    app.at(
+        "/page/:site_id/:parent_type/:parent_id_or_slug/:child_type/:child_id_or_slug",
+    )
+    .head(parent_head)
+    .get(parent_get)
+    .put(parent_put)
+    .delete(parent_delete);
+
+    app.at("/page/:site_id/:relationship_type/:type/:id_or_slug")
+        .get(parent_relationships_get);
+
+    // Page (invalid routes)
+    app.at("/page").all(page_invalid);
+    app.at("/page/:type/:id_or_slug").all(page_invalid);
+    app.at("/page/:site_id/id/:page_slug/links/to/missing")
+        .all(page_invalid);
+
+    // Files
+    app.at("/file/direct/:file_id")
+        .head(file_head_direct)
+        .get(file_get_direct);
+
+    app.at("/file/:site_id/:type/:id_or_slug").post(file_create);
+
+    app.at("/file/:site_id/:page_type/:id_or_slug/:file_type/:id_or_name")
+        .head(file_head)
+        .get(file_get)
+        .post(file_edit)
+        .delete(file_delete);
+
+    app.at("/file/:site_id/:page_type/:id_or_slug/move")
+        .post(file_move);
+
+    app.at("/file/:site_id/:page_type/:id_or_slug/restore")
+        .post(file_restore);
+
+    // File revisions
+    app.at("/file/:site_id/:page_type/:id_or_slug/:file_type/:id_or_name/revision")
+        .get(file_revision_info);
+
+    app.at("/file/:site_id/:page_type/:id_or_slug/:file_type/:id_or_name/revision/:revision_number")
+        .head(file_revision_head)
+        .get(file_revision_get)
+        .put(file_revision_put);
+
+    app.at("/file/:site_id/:page_type/:id_or_slug/:file_type/:id_or_name/revision/:revision_number/:direction")
+        .get(file_revision_range_get);
+
+    // Text
+    // TODO TEMP
+    app.at("/text").put(text_put);
+    app.at("/text/:hash").get(text_get).head(text_head);
+
+    // User
+    app.at("/user").post(user_create);
+    app.at("/user/:type/:id_or_slug")
+        .head(user_head)
+        .get(user_get)
+        .put(user_put)
+        .delete(user_delete);
+
+    app.at("/user/:type/:id_or_slug/addNameChange")
+        .post(user_add_name_change);
+
+    // User bot information
+    app.at("/user/bot").post(user_bot_create);
+    app.at("/user/bot/:bot_type/:bot_id_or_slug")
+        .get(user_bot_get);
+    app.at("/user/bot/:bot_type/:bot_id_or_slug/owner/:human_type/:human_id_or_slug")
+        .put(user_bot_owner_put)
+        .delete(user_bot_owner_delete);
+
+    // Votes
+    app.at("/vote")
+        .head(vote_head)
+        .get(vote_get)
+        .put(vote_put)
+        .delete(vote_delete);
+
+    app.at("/vote/direct/:vote_id")
+        .head(vote_head_direct)
+        .get(vote_get_direct);
+
+    app.at("/vote/action").put(vote_action);
+    app.at("/vote/list").get(vote_list_get);
+    app.at("/vote/count").get(vote_count_get);
+
     app
 }
