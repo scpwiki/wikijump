@@ -113,8 +113,8 @@ impl FileRevisionService {
         }
 
         // If nothing has changed, then don't create a new revision
+        // Also don't rerender the page, this isn't an edit.
         if changes.is_empty() {
-            // TODO rerender page
             return Ok(None);
         }
 
