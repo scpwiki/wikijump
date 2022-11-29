@@ -291,15 +291,6 @@ class AccountMembershipAction extends SmartyAction
         } else {
             $unixName = WDStringUtils::toUnixName($unixName);
 
-            if ($runData->id() !== User::ADMIN_USER) {
-                //  handle forbidden names
-                foreach (ForbiddenNames::$sites as $regex) {
-                    if (preg_match($regex, $unixName) > 0) {
-                        $errors['unixname'] = _('This web address is not allowed or reserved.');
-                    }
-                }
-            }
-
             // check if the domain is not taken.
             $c = new Criteria();
             $c->add("unix_name", $unixName);

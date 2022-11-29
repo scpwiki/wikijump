@@ -119,13 +119,6 @@ class AccountProfileAction extends SmartyAction
             throw new ProcessException(_("It seems there are too less alphanumeric characters in your screen name"));
         }
 
-        //handle forbidden names
-        foreach (config('wikijump.forbidden_usernames') as $regex) {
-            if (preg_match($regex, $slug) > 0) {
-                throw new ProcessException(__('Account creation failed: Username is blocked from registration.'));
-            }
-        }
-
         // check if user does not exist
         $u = User::where('slug', $slug)->first();
         if ($u != null) {

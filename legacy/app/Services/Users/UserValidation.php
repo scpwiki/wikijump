@@ -30,14 +30,6 @@ final class UserValidation
      */
     public static function isValidUsername(string $name, ?User $ignore_user = null): bool
     {
-        $forbidden = config('wikijump.forbidden_usernames');
-
-        foreach ($forbidden as $pattern) {
-            if (preg_match($pattern, $name) !== 0) {
-                return false;
-            }
-        }
-
         // check if username is valid, but that's not the only thing we need to check
 
         $name_valid = static::validate($name, [

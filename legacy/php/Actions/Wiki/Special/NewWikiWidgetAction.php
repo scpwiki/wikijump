@@ -39,15 +39,6 @@ class NewWikiWidgetAction extends SmartyAction
 
         $unixName = WDStringUtils::toUnixName($unixName);
 
-        if ($runData->getUser()->id != 1) {
-            //  handle forbidden names
-            foreach (ForbiddenNames::$sites as $regex) {
-                if (preg_match($regex, $unixName) > 0) {
-                    throw new ProcessException(_('This web address is not allowed or reserved.'));
-                }
-            }
-        }
-
         // check if the domain is not taken.
         $c = new Criteria();
         $c->add("unix_name", $unixName);

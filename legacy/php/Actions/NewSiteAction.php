@@ -66,15 +66,6 @@ class NewSiteAction extends SmartyAction
         } else {
             $unixName = WDStringUtils::toUnixName($unixName);
 
-            if ($runData->getUser()->id != 1) {
-                //  handle forbidden names
-                foreach (ForbiddenNames::$sites as $regex) {
-                    if (preg_match($regex, $unixName) > 0) {
-                        $errors['unixname'] = _('This web address is not allowed or reserved.');
-                    }
-                }
-            }
-
             // check if the domain is not taken.
             $c = new Criteria();
             $c->add("slug", $unixName);
