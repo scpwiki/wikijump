@@ -415,7 +415,7 @@ CREATE TABLE filter (
     affects_file BOOLEAN NOT NULL DEFAULT false,
     affects_forum BOOLEAN NOT NULL DEFAULT false,
     regex TEXT NOT NULL,
-    reason TEXT NOT NULL,
+    description TEXT NOT NULL,
 
     UNIQUE (site_id, regex, deleted_at)
 );

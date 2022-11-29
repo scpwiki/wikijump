@@ -36,12 +36,12 @@ impl FilterService {
             affects_file,
             affects_forum,
             regex,
-            reason,
+            description,
         }: CreateFilter,
     ) -> Result<FilterModel> {
         let txn = ctx.transaction();
 
-        tide::log::info!("Creating filter with regex '{regex}' because '{reason}'");
+        tide::log::info!("Creating filter with regex '{regex}' because '{description}'");
 
         // Ensure the regular expression is valid
         if Regex::new(&regex).is_err() {
@@ -59,7 +59,7 @@ impl FilterService {
             affects_file: Set(affects_file),
             affects_forum: Set(affects_forum),
             regex: Set(regex),
-            reason: Set(reason),
+            description: Set(description),
             ..Default::default()
         };
         let filter = model.insert(txn).await?;
@@ -76,7 +76,7 @@ impl FilterService {
             affects_file,
             affects_forum,
             regex,
-            reason,
+            description,
         }: UpdateFilter,
     ) -> Result<FilterModel> {
         let txn = ctx.transaction();
@@ -110,8 +110,8 @@ impl FilterService {
             model.regex = Set(regex);
         }
 
-        if let ProvidedValue::Set(reason) = reason {
-            model.reason = Set(reason);
+        if let ProvidedValue::Set(description) = description {
+            model.description = Set(description);
         }
 
         // Perform update
@@ -256,12 +256,15 @@ impl FilterService {
         for FilterModel {
             filter_id,
             regex,
-            reason,
+            description,
             ..
         } in filters
         {
             regexes.push(regex);
-            filter_data.push(FilterDescription { filter_id, reason });
+            filter_data.push(FilterSummary {
+                filter_id,
+                description,
+            });
         }
 
         let regex_set = RegexSet::new(regexes).map_err(|error| {

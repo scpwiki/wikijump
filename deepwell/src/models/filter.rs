@@ -19,7 +19,7 @@ pub struct Model {
     #[sea_orm(column_type = "Text")]
     pub regex: String,
     #[sea_orm(column_type = "Text")]
-    pub reason: String,
+    pub description: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

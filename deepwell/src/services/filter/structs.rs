@@ -148,7 +148,7 @@ pub struct CreateFilter {
     pub affects_file: bool,
     pub affects_forum: bool,
     pub regex: String,
-    pub reason: String,
+    pub description: String,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -159,5 +159,5 @@ pub struct UpdateFilter {
     pub affects_file: ProvidedValue<bool>,
     pub affects_forum: ProvidedValue<bool>,
     pub regex: ProvidedValue<String>,
-    pub reason: ProvidedValue<String>,
+    pub description: ProvidedValue<String>,
 }

@@ -23,9 +23,9 @@ use regex::RegexSet;
 
 /// Describes one filter which a `FilterMatcher` can verify against.
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
-pub struct FilterDescription {
+pub struct FilterSummary {
     pub filter_id: i64,
-    pub reason: String,
+    pub description: String,
 }
 
 /// Wrapper structure which determines which filter(s) a string violates.
@@ -35,12 +35,12 @@ pub struct FilterDescription {
 #[derive(Debug)]
 pub struct FilterMatcher {
     regex_set: RegexSet,
-    filter_data: Vec<FilterDescription>,
+    filter_data: Vec<FilterSummary>,
 }
 
 impl FilterMatcher {
     #[inline]
-    pub fn new(regex_set: RegexSet, filter_data: Vec<FilterDescription>) -> Self {
+    pub fn new(regex_set: RegexSet, filter_data: Vec<FilterSummary>) -> Self {
         FilterMatcher {
             regex_set,
             filter_data,
@@ -62,7 +62,7 @@ impl FilterMatcher {
             tide::log::error!(
                 "String failed filter ID {}: {}",
                 description.filter_id,
-                description.reason,
+                description.description,
             );
 
             // TODO audit log, with contextual data (what it's checking)
