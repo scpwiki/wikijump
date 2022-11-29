@@ -27,7 +27,7 @@ dotenv = "0.15"
 either = "1"
 filemagic = "0.12"
 fluent = "0.16"
-ftml = { version = "1.18", features = ["mathml"] }
+ftml = { version = "1.19", features = ["mathml"] }
 futures = { version = "0.3", features = ["async-await"], default-features = false }
 hex = "0.4"
 hostname = "0.3"

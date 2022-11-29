@@ -23,6 +23,7 @@ mod prelude {
     pub use super::structs::*;
     pub use super::Scorer;
     pub use crate::models::page_vote::{self, Entity as PageVote};
+    pub use ftml::data::ScoreValue;
     pub use sea_orm::{DatabaseTransaction, FromQueryResult};
     pub use tide::utils::async_trait;
 }
@@ -35,3 +36,4 @@ mod structs;
 pub use self::impls::*;
 pub use self::scorer::Scorer;
 pub use self::service::ScoreService;
+pub use ftml::data::ScoreValue;

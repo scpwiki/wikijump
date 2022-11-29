@@ -39,10 +39,10 @@ impl Scorer for SumScorer {
         &self,
         txn: &DatabaseTransaction,
         condition: Condition,
-    ) -> Result<f64> {
+    ) -> Result<ScoreValue> {
         #[derive(FromQueryResult, Debug)]
         struct SumRow {
-            sum: u64,
+            sum: i64,
         }
 
         // Query for sum of all votes.
@@ -64,6 +64,6 @@ impl Scorer for SumScorer {
             .await?
             .expect("No results in aggregate query");
 
-        Ok(result.sum as f64)
+        Ok(ScoreValue::Integer(result.sum))
     }
 }
