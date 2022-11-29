@@ -18,6 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/// Represents the score on a page.
+///
+/// This is a generic numeric value, either being an integer or a
+/// floating-point number depending on the context.
+///
+/// Which type is used depends on the scoring algorithm used for this page,
+/// something that is configurable.
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, PartialOrd)]
 #[serde(untagged)]
 pub enum ScoreValue {
