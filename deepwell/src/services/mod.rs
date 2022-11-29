@@ -53,6 +53,7 @@ mod error;
 pub mod authentication;
 pub mod blob;
 pub mod category;
+// TODO pub mod email;
 pub mod file;
 pub mod file_revision;
 pub mod filter;
