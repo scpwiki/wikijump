@@ -68,16 +68,6 @@ final class UserValidation
     }
 
     /**
-     * Checks if a real name is valid.
-     *
-     * @param string $real_name The name to check.
-     */
-    public static function isValidRealName(string $real_name): bool
-    {
-        return static::validate($real_name, ['required', 'string', 'max:255']);
-    }
-
-    /**
      * Checks if an avatar image is valid.
      *
      * @param UploadedFile $image The image to check.
