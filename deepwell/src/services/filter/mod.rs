@@ -1,5 +1,5 @@
 /*
- * utils/string.rs
+ * services/filter/mod.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,19 +18,25 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use regex::Regex;
+//! This service manages configurable filters.
+//!
+//! These encompass both platform filters (applies to all sites)
+//! and site filters (applies only to a particular site).
+//!
+//! For instance, a user platform filter prevents a name from being
+//! registered, where a user site filter would prevent the user from
+//! joining.
 
-pub fn replace_in_place(string: &mut String, pattern: &str, replacement: &str) {
-    while let Some(index) = string.find(pattern) {
-        let end = index + replacement.len();
-
-        string.replace_range(index..end, replacement);
-    }
+mod prelude {
+    pub use super::super::prelude::*;
+    pub use super::matcher::{FilterMatcher, FilterSummary};
+    pub use super::structs::*;
 }
 
-pub fn regex_replace_in_place(string: &mut String, pattern: &Regex, replacement: &str) {
-    while let Some(mtch) = pattern.find(string) {
-        let range = mtch.start()..mtch.end();
-        string.replace_range(range, replacement);
-    }
-}
+mod matcher;
+mod service;
+mod structs;
+
+pub use self::matcher::{FilterMatcher, FilterSummary};
+pub use self::service::FilterService;
+pub use self::structs::*;

@@ -177,7 +177,7 @@ pub fn build(mut app: ApiServer) -> ApiServer {
         .get(file_revision_range_get);
 
     // Text
-    // TEMP
+    // TODO TEMP
     app.at("/text").put(text_put);
     app.at("/text/:hash").get(text_get).head(text_head);
 

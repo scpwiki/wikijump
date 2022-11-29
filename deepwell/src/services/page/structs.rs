@@ -33,6 +33,9 @@ pub struct CreatePage {
     pub slug: String,
     pub revision_comments: String,
     pub user_id: i64,
+
+    #[serde(default)]
+    pub bypass_filter: bool,
 }
 
 #[derive(Serialize, Debug)]

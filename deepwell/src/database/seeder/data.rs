@@ -29,6 +29,7 @@ use std::path::{Path, PathBuf};
 pub struct SeedData {
     pub users: Vec<User>,
     pub site_pages: Vec<SitePages>,
+    pub filters: Vec<Filter>,
 }
 
 impl SeedData {
@@ -46,7 +47,15 @@ impl SeedData {
             }
         }
 
-        Ok(SeedData { users, site_pages })
+        // Load filter data
+        let filters: Vec<Filter> = Self::load_json(&mut path, "filters")?;
+
+        // Build and return
+        Ok(SeedData {
+            users,
+            site_pages,
+            filters,
+        })
     }
 
     fn load_json<T>(path: &mut PathBuf, filename: &str) -> Result<T>
@@ -119,4 +128,25 @@ pub struct Page {
 
     #[serde(rename = "wikitext")]
     pub wikitext_filename: PathBuf,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct Filter {
+    pub regex: String,
+    pub description: String,
+
+    #[serde(rename = "site")]
+    pub site_slug: Option<String>,
+
+    #[serde(default)]
+    pub user: bool,
+
+    #[serde(default)]
+    pub page: bool,
+
+    #[serde(default)]
+    pub file: bool,
+
+    #[serde(default)]
+    pub forum: bool,
 }

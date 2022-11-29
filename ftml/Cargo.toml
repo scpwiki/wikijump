@@ -8,7 +8,7 @@ keywords = ["wikidot", "wikijump", "ftml", "parsing", "html"]
 categories = ["parser-implementations"]
 exclude = [".gitignore", ".editorconfig"]
 
-version = "1.18.1"
+version = "1.18.2"
 authors = ["Ammon Smith <ammon.i.smith@gmail.com>"]
 edition = "2021" # this is *not* the same as the current year
 
@@ -33,6 +33,9 @@ lazy_static = "1"
 log = "0.4"
 maplit = "1"
 parcel_css = { version = "1.0.0-alpha.32", optional = true }
+parcel_selectors = "=0.24.7"  # this is *not* a required dependency,
+                              # but we are pinning it since 0.24.8 does
+                              # not build correctly. it is not an ftml issue.
 pest = "2"
 pest_derive = "2"
 rand = { version = "0.8", features = ["small_rng"] }

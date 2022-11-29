@@ -33,6 +33,9 @@ pub struct CreateFile {
     pub name: String,
     pub user_id: i64,
     pub licensing: JsonValue, // TODO
+
+    #[serde(default)]
+    pub bypass_filter: bool,
 }
 
 pub type CreateFileOutput = CreateFirstFileRevisionOutput;
@@ -45,6 +48,9 @@ pub struct UpdateFile {
 
     #[serde(flatten)]
     pub body: UpdateFileBody,
+
+    #[serde(default)]
+    pub bypass_filter: bool,
 }
 
 #[derive(Deserialize, Debug, Default)]

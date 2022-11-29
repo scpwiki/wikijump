@@ -21,15 +21,22 @@
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user::{self, Entity as User, Model as UserModel};
+use crate::services::filter::{FilterClass, FilterType};
 use crate::services::user_alias::CreateUserAlias;
-use crate::services::{PasswordService, UserAliasService};
-use crate::utils::get_user_slug;
+use crate::services::{FilterService, PasswordService, UserAliasService};
+use crate::utils::{get_user_slug, regex_replace_in_place};
+use regex::Regex;
 use sea_orm::ActiveValue;
 use std::cmp;
 
 // TODO make these configurable
 const DEFAULT_NAME_CHANGES: i16 = 3;
 const MAX_NAME_CHANGES: i16 = 3;
+
+lazy_static! {
+    static ref LEADING_TRAILING_CHARS: Regex =
+        Regex::new(r"(^[\-\s]+)|([\-\s+]$)").unwrap();
+}
 
 #[derive(Debug)]
 pub struct UserService;
@@ -38,10 +45,24 @@ impl UserService {
     pub async fn create(
         ctx: &ServiceContext<'_>,
         user_type: UserType,
-        input: CreateUser,
+        mut input: CreateUser,
     ) -> Result<CreateUserOutput> {
         let txn = ctx.transaction();
         let slug = get_user_slug(&input.name);
+
+        tide::log::debug!(
+            "Normalizing user data (name '{}', slug '{}')",
+            input.name,
+            slug,
+        );
+        regex_replace_in_place(&mut input.name, &LEADING_TRAILING_CHARS, "");
+
+        tide::log::info!("Attempting to create user '{}' ('{}')", input.name, slug);
+
+        // Perform filter validation
+        if !input.bypass_filter {
+            Self::run_filter(ctx, &input.name, &slug).await?;
+        }
 
         // Check for conflicts
         let result = User::find()
@@ -210,8 +231,10 @@ impl UserService {
         reference: Reference<'_>,
         input: UpdateUser,
     ) -> Result<()> {
+        // NOTE: Filter validation occurs in update_name(), not here
         let txn = ctx.transaction();
         let user = Self::get(ctx, reference).await?;
+
         let mut verify_name = false;
         let mut model = user::ActiveModel {
             user_id: Set(user.user_id),
@@ -220,7 +243,7 @@ impl UserService {
 
         // Add each field
         if let ProvidedValue::Set(name) = input.name {
-            Self::update_name(ctx, name, &user, &mut model).await?;
+            Self::update_name(ctx, name, &user, &mut model, input.bypass_filter).await?;
             verify_name = true;
         }
 
@@ -289,6 +312,7 @@ impl UserService {
         new_name: String,
         user: &UserModel,
         model: &mut user::ActiveModel,
+        bypass_filter: bool,
     ) -> Result<()> {
         // Regardless of the number of name change tokens,
         // the user can always change their name if the slug is
@@ -297,6 +321,11 @@ impl UserService {
 
         let new_slug = get_user_slug(&new_name);
         let old_slug = &user.slug;
+
+        // Perform filter validation
+        if !bypass_filter {
+            Self::run_filter(ctx, &new_name, &new_slug).await?;
+        }
 
         if new_slug == user.slug {
             tide::log::debug!("User slug is the same, rename is free");
@@ -345,6 +374,7 @@ impl UserService {
                 slug: old_slug.clone(),
                 target_user_id: user.user_id,
                 created_by_user_id: user.user_id,
+                bypass_filter,
             },
         )
         .await?;
@@ -459,5 +489,20 @@ impl UserService {
         // Update and return
         let user = model.update(txn).await?;
         Ok(user)
+    }
+
+    async fn run_filter(ctx: &ServiceContext<'_>, name: &str, slug: &str) -> Result<()> {
+        tide::log::info!("Checking user data against filters...");
+
+        let filter_matcher =
+            FilterService::get_matcher(ctx, FilterClass::Platform, FilterType::User)
+                .await?;
+
+        try_join!(
+            filter_matcher.verify(ctx, name),
+            filter_matcher.verify(ctx, slug),
+        )?;
+
+        Ok(())
     }
 }

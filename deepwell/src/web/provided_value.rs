@@ -34,6 +34,16 @@ pub enum ProvidedValue<T> {
     Unset,
 }
 
+impl<T> ProvidedValue<T> {
+    #[inline]
+    pub fn to_option(&self) -> Option<&T> {
+        match self {
+            ProvidedValue::Set(ref value) => Some(value),
+            ProvidedValue::Unset => None,
+        }
+    }
+}
+
 impl<T> From<ProvidedValue<T>> for Option<T> {
     #[inline]
     fn from(value: ProvidedValue<T>) -> Option<T> {

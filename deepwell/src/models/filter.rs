@@ -4,21 +4,26 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
-#[sea_orm(table_name = "page_category")]
+#[sea_orm(table_name = "filter")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub category_id: i64,
+    pub filter_id: i64,
     pub created_at: DateTimeWithTimeZone,
     pub updated_at: Option<DateTimeWithTimeZone>,
-    pub site_id: i64,
+    pub deleted_at: Option<DateTimeWithTimeZone>,
+    pub site_id: Option<i64>,
+    pub affects_user: bool,
+    pub affects_page: bool,
+    pub affects_file: bool,
+    pub affects_forum: bool,
     #[sea_orm(column_type = "Text")]
-    pub slug: String,
+    pub regex: String,
+    #[sea_orm(column_type = "Text")]
+    pub description: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
-    #[sea_orm(has_many = "super::page::Entity")]
-    Page,
     #[sea_orm(
         belongs_to = "super::site::Entity",
         from = "Column::SiteId",
@@ -27,12 +32,6 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     Site,
-}
-
-impl Related<super::page::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Page.def()
-    }
 }
 
 impl Related<super::site::Entity> for Entity {

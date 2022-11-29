@@ -40,6 +40,7 @@ pub async fn user_bot_create(mut req: ApiRequest) -> ApiResponse {
         purpose,
         owners,
         authorization_token,
+        bypass_filter,
     } = req.body_json().await?;
 
     // TODO verify auth token
@@ -54,6 +55,7 @@ pub async fn user_bot_create(mut req: ApiRequest) -> ApiResponse {
             email,
             locale,
             password: String::new(),
+            bypass_filter,
         },
     )
     .await

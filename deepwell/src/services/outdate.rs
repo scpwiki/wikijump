@@ -21,7 +21,7 @@
 use super::prelude::*;
 use crate::services::{JobService, LinkService, PageService};
 use crate::utils::split_category_name;
-use crate::web::ConnectionType;
+use crate::web::{ConnectionType, PageOrder};
 
 #[derive(Debug)]
 pub struct OutdateService;
@@ -148,11 +148,17 @@ impl OutdateService {
                 Some(category_slug.into())
             };
 
-            let ids = PageService::get_all(ctx, site_id, category_select, Some(false))
-                .await?
-                .into_iter()
-                .map(|model| (model.site_id, model.page_id))
-                .collect::<Vec<_>>();
+            let ids = PageService::get_all(
+                ctx,
+                site_id,
+                category_select,
+                Some(false),
+                PageOrder::default(),
+            )
+            .await?
+            .into_iter()
+            .map(|model| (model.site_id, model.page_id))
+            .collect::<Vec<_>>();
 
             Self::outdate(ids);
         }

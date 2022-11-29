@@ -62,7 +62,7 @@ fn main_loop() -> Result<Void> {
     const MAGIC_FLAGS: MagicFlags = MagicFlags::MIME;
     const MAGIC_PATHS: &[&str] = &[]; // Empty indicates using the default magic database
 
-    tide::log::info!("Loading magic database constant");
+    tide::log::info!("Loading magic database data");
     let magic = Magic::open(MAGIC_FLAGS)?;
     magic.load(MAGIC_PATHS)?;
 

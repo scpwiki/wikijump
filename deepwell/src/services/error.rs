@@ -67,6 +67,9 @@ pub enum Error {
     #[error("Invalid enum serialization value")]
     InvalidEnumValue,
 
+    #[error("Inconsistency found in checked data")]
+    Inconsistent,
+
     #[error("A request to a remote service returned an error")]
     RemoteOperationFailed,
 
@@ -91,6 +94,9 @@ pub enum Error {
     #[error("The requested data was not found")]
     NotFound,
 
+    #[error("The request violates a configured content filter")]
+    FilterViolation,
+
     #[error("Cannot hide the wikitext for the latest page revision")]
     CannotHideLatestRevision,
 }
@@ -112,7 +118,7 @@ impl Error {
             Error::Serde(inner) => TideError::new(StatusCode::InternalServerError, inner),
             Error::S3(inner) => TideError::new(StatusCode::InternalServerError, inner),
             Error::Web(inner) => inner,
-            Error::InvalidEnumValue => {
+            Error::InvalidEnumValue | Error::Inconsistent => {
                 TideError::from_str(StatusCode::InternalServerError, "")
             }
             Error::RemoteOperationFailed | Error::RenderTimeout => {
@@ -129,7 +135,7 @@ impl Error {
                 TideError::from_str(StatusCode::Conflict, "")
             }
             Error::NotFound => TideError::from_str(StatusCode::NotFound, ""),
-            Error::CannotHideLatestRevision => {
+            Error::FilterViolation | Error::CannotHideLatestRevision => {
                 TideError::from_str(StatusCode::BadRequest, "")
             }
         }

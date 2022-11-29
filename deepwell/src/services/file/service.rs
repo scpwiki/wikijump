@@ -25,7 +25,8 @@ use crate::services::file_revision::{
     CreateFileRevision, CreateFileRevisionBody, CreateFirstFileRevision,
     CreateResurrectionFileRevision, CreateTombstoneFileRevision, FileBlob,
 };
-use crate::services::{BlobService, FileRevisionService};
+use crate::services::filter::{FilterClass, FilterType};
+use crate::services::{BlobService, FileRevisionService, FilterService};
 
 #[derive(Debug)]
 pub struct FileService;
@@ -45,6 +46,7 @@ impl FileService {
             name,
             user_id,
             licensing,
+            bypass_filter,
         }: CreateFile,
         data: &[u8],
     ) -> Result<CreateFileOutput> {
@@ -56,7 +58,13 @@ impl FileService {
             data.len(),
         );
 
+        // Ensure row consistency
         Self::check_conflicts(ctx, page_id, &name, "create").await?;
+
+        // Perform filter validation
+        if !bypass_filter {
+            Self::run_filter(ctx, site_id, Some(&name)).await?;
+        }
 
         // Upload to S3, get derived metadata
         let CreateBlobOutput {
@@ -106,6 +114,7 @@ impl FileService {
             revision_comments,
             user_id,
             body,
+            bypass_filter,
         }: UpdateFile,
     ) -> Result<Option<UpdateFileOutput>> {
         let txn = ctx.transaction();
@@ -128,6 +137,10 @@ impl FileService {
         // when the file was originally created.
         if let ProvidedValue::Set(ref name) = name {
             Self::check_conflicts(ctx, page_id, name, "update").await?;
+
+            if !bypass_filter {
+                Self::run_filter(ctx, site_id, Some(name)).await?;
+            }
         }
 
         // Upload to S3, get derived metadata
@@ -504,5 +517,30 @@ impl FileService {
                 Err(Error::Conflict)
             }
         }
+    }
+
+    /// This runs the regular expression-based text filters against a file's name.
+    ///
+    /// It does not check the file's contents, as that is a binary blob.
+    /// Such a hash filter would need to be implemented through a separate system.
+    async fn run_filter(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        name: Option<&str>,
+    ) -> Result<()> {
+        tide::log::info!("Checking file data against filters...");
+
+        let filter_matcher = FilterService::get_matcher(
+            ctx,
+            FilterClass::PlatformAndSite(site_id),
+            FilterType::Forum,
+        )
+        .await?;
+
+        if let Some(name) = name {
+            filter_matcher.verify(ctx, name).await?;
+        }
+
+        Ok(())
     }
 }

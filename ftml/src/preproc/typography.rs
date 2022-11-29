@@ -183,8 +183,8 @@ const TEST_CASES: [(&str, &str); 3] = [
         "John laughed. “You'll never defeat me!”\n“That's where you're wrong…”",
     ),
     (
-        ",,あんたはばかです！''\n``Ehh?''\n,,ほんと！''\n[[footnoteblock]]",
-        "„あんたはばかです！”\n“Ehh?”\n„ほんと！”\n[[footnoteblock]]",
+        ",,あんたは馬鹿です！''\n``Ehh?''\n,,本当！''\n[[footnoteblock]]",
+        "„あんたは馬鹿です！”\n“Ehh?”\n„本当！”\n[[footnoteblock]]",
     ),
     (
         "**ENTITY MAKES DRAMATIC MOTION** . . . ",

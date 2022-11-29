@@ -24,6 +24,9 @@ pub struct CreateUserAlias {
     pub slug: String,
     pub target_user_id: i64,
     pub created_by_user_id: i64,
+
+    #[serde(default)]
+    pub bypass_filter: bool,
 }
 
 #[derive(Serialize, Debug)]
