@@ -26,7 +26,6 @@ use regex::{Regex, RegexSet};
 pub struct FilterService;
 
 impl FilterService {
-    #[allow(dead_code)] // TEMP
     pub async fn create(
         ctx: &ServiceContext<'_>,
         site_id: Option<i64>,

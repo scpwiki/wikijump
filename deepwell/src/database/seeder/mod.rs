@@ -23,6 +23,7 @@ mod data;
 use self::data::{SeedData, SitePages};
 use crate::api::ApiServerState;
 use crate::constants::{ADMIN_USER_ID, SYSTEM_USER_ID};
+use crate::services::filter::{CreateFilter, FilterService};
 use crate::services::page::{CreatePage, PageService};
 use crate::services::site::{CreateSite, CreateSiteOutput, SiteService};
 use crate::services::user::{CreateUser, CreateUserOutput, UpdateUser, UserService};
@@ -58,7 +59,12 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
         state.config.seeder_path.display(),
     );
 
-    let SeedData { users, site_pages } = SeedData::load(&state.config.seeder_path)?;
+    let SeedData {
+        users,
+        site_pages,
+        filters,
+    } = SeedData::load(&state.config.seeder_path)?;
+
     let mut user_aliases = Vec::new();
 
     // Seed user data
@@ -159,6 +165,50 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
             )
             .await?;
         }
+    }
+
+    // Seed filters
+    for filter in filters {
+        // Get site (if any)
+        // Also do logging
+        let site_id = match filter.site_slug {
+            Some(slug) => {
+                let site = SiteService::get(&ctx, Reference::Slug(&slug)).await?;
+
+                tide::log::info!(
+                    "Creating site filter '{}' ('{}') for site '{}' (ID {})",
+                    filter.regex,
+                    filter.description,
+                    slug,
+                    site.site_id,
+                );
+
+                Some(site.site_id)
+            }
+            None => {
+                tide::log::info!(
+                    "Creating platform filter '{}' ('{}')",
+                    filter.regex,
+                    filter.description,
+                );
+
+                None
+            }
+        };
+
+        FilterService::create(
+            &ctx,
+            site_id,
+            CreateFilter {
+                affects_user: filter.user,
+                affects_page: filter.page,
+                affects_file: filter.file,
+                affects_forum: filter.forum,
+                regex: filter.regex,
+                description: filter.description,
+            },
+        )
+        .await?;
     }
 
     // After all seeding, modify ID sequences so that they exhibit Wikidot compatibility.

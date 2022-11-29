@@ -34,7 +34,8 @@ const DEFAULT_NAME_CHANGES: i16 = 3;
 const MAX_NAME_CHANGES: i16 = 3;
 
 lazy_static! {
-    static ref LEADING_TRAILING_CHARS: Regex = Regex::new(r"(^[\-\s]+)|([\-\s+]$)").unwrap();
+    static ref LEADING_TRAILING_CHARS: Regex =
+        Regex::new(r"(^[\-\s]+)|([\-\s+]$)").unwrap();
 }
 
 #[derive(Debug)]
