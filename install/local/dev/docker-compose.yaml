@@ -58,7 +58,7 @@ services:
       - "S3_SECRET_ACCESS_KEY=defaultpassword"
     restart: always
     healthcheck:
-      test: ["CMD", "wikijump-health-check"]
+      test: ["CMD", "curl", "-If", "http://localhost:2747/api/safe/ping"]
       interval: 60s
       timeout: 2s
       retries: 3

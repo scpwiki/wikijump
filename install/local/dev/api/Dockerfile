@@ -14,7 +14,6 @@ RUN apt install libmagic-dev
 
 # Install helpers
 RUN cargo install cargo-watch
-COPY ./install/files/api/health-check.sh /bin/wikijump-health-check
 
 # Copy source
 # Don't build until container execution (see cargo-watch)
