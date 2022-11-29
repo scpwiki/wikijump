@@ -34,7 +34,7 @@ const DEFAULT_NAME_CHANGES: i16 = 3;
 const MAX_NAME_CHANGES: i16 = 3;
 
 lazy_static! {
-    static ref LEADING_TRAILING_WHITESPACE: Regex = Regex::new(r"(^\s+)|(\s+$)").unwrap();
+    static ref LEADING_TRAILING_CHARS: Regex = Regex::new(r"(^[\-\s]+)|([\-\s+]$)").unwrap();
 }
 
 #[derive(Debug)]
@@ -54,7 +54,7 @@ impl UserService {
             input.name,
             slug,
         );
-        regex_replace_in_place(&mut input.name, &LEADING_TRAILING_WHITESPACE, "");
+        regex_replace_in_place(&mut input.name, &LEADING_TRAILING_CHARS, "");
 
         tide::log::info!("Attempting to create user '{}' ('{}')", input.name, slug);
 
