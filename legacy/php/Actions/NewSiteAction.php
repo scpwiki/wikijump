@@ -5,7 +5,6 @@ use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\ODate;
 use Ozone\Framework\SmartyAction;
-use Wikidot\Config\ForbiddenNames;
 use Wikidot\DB\SitePeer;
 use Wikidot\DB\Site;
 use Wikidot\Utils\Duplicator;

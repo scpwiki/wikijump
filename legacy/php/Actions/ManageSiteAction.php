@@ -8,7 +8,6 @@ use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\JSONService;
 use Ozone\Framework\SmartyAction;
-use Wikidot\Config\ForbiddenNames;
 use Wikidot\DB\ThemePeer;
 use Wikidot\DB\Theme;
 use Wikidot\DB\SitePeer;

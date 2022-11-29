@@ -6,7 +6,6 @@ use Ozone\Framework\Database\Database;
 use Ozone\Framework\ODate;
 use Ozone\Framework\RunData;
 use Ozone\Framework\SmartyAction;
-use Wikidot\Config\ForbiddenNames;
 use Wikidot\DB\Admin;
 use Wikidot\DB\MemberInvitationPeer;
 use Wikidot\DB\Site;

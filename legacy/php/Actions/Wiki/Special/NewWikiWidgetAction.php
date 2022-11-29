@@ -3,7 +3,6 @@
 namespace Wikidot\Actions\Wiki\Special;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\SmartyAction;
-use Wikidot\Config\ForbiddenNames;
 use Wikidot\DB\SitePeer;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDStringUtils;
