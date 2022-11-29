@@ -21,10 +21,11 @@
   </a>
 </p>
 
-Wikijump is the [SCP Wiki](http://www.scpwiki.com)'s fork of the unmaintained [Wikidot](https://github.com/gabrys/wikidot).
-It aims to significantly refactor legacy code, remove misfeatures and dead code, and implement new useful features and bugfixes that current users of Wikidot need today.
+Wikijump began as the [SCP Wiki](https://scpwiki.com)'s fork of the unmaintained [Wikidot](https://github.com/gabrys/wikidot).
+It seeks to implement [Project Foundation](https://scpwiki.com/forum/c-3335628/general-information) using lessons learned from Wikidot's legacy PHP code and cutting-edge Wikidot research from other technical projects.
+The goal is to provide a scalable, maintainable platform with features, improvements, and bugfixes that current users of Wikidot need today.
 
-This project is being primarily developed by the English SCP Wiki's [Technical Team](http://05command.wikidot.com/technical-staff-main) as part of [Project Foundation](https://scpwiki.com/forum/c-3335628/general-information), however other contributors are welcome.
+This project is being primarily developed by the English SCP Wiki's [Technical Team](http://05command.wikidot.com/technical-staff-main) as part of Project Foundation, however other contributors are welcome.
 Issues are tracked on our [JIRA](https://scuttle.atlassian.net/browse/WJ).
 
 Questions and comments can be posted in our [General Information forum](https://scpwiki.com/forum/c-3335628/general-information), or in [`#site11` on SkipIRC](https://scpwiki.com/chat-guide).
