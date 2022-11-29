@@ -142,6 +142,9 @@ pub struct Filter {
     pub user: bool,
 
     #[serde(default)]
+    pub email: bool,
+
+    #[serde(default)]
     pub page: bool,
 
     #[serde(default)]
