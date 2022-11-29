@@ -20,10 +20,10 @@
 
 //! All routes for the API.
 //!
-//! No top-level routes should exist, any methods should be available under its respective API
-//! version prefix to avoid future issues with backwards compatibility.
+//! This API is to be used internally only, and is subject to change in coordination with
+//! Framerail (the API consumer). No guarantees are made as to backwards compatibility.
 //!
-//! This module should only contain definitions for the web server such as its routes, and
+//! This module should only contain definitions for the web server and its routes, and
 //! not any of the implementations themselves. Those should be in the `methods` module.
 
 use crate::config::Config;
@@ -93,11 +93,6 @@ pub fn build_server(state: ApiServerState) -> ApiServer {
 
     // Create server and add routes
     let mut app = new!();
-    app.at("/api").nest({
-        let mut api = new!();
-        api.at("/vI").nest(internal::build(new!()));
-        api
-    });
-
+    app.at("/api/safe").nest(internal::build(new!()));
     app
 }
