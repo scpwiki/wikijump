@@ -111,7 +111,7 @@ impl PageInfo {
 
     #[wasm_bindgen(method, getter)]
     pub fn score(&self) -> f64 {
-        self.inner.score
+        self.inner.score.to_f64()
     }
 
     #[wasm_bindgen(method, getter, typescript_type = "ITags")]
