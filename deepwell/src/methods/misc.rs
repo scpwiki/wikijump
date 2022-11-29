@@ -49,17 +49,6 @@ pub async fn full_version(_: ApiRequest) -> ApiResponse {
     Ok(info::FULL_VERSION_WITH_NAME.as_str().into())
 }
 
-pub async fn ratelimit_exempt(req: ApiRequest) -> ApiResponse {
-    // TODO
-    if false {
-        tide::log::info!("Requester is rate-limit exempt");
-        Ok(Response::new(StatusCode::NoContent))
-    } else {
-        tide::log::warn!("Requester is not rate-limit exempt");
-        Ok(Response::new(StatusCode::Forbidden))
-    }
-}
-
 pub async fn normalize_method(req: ApiRequest) -> ApiResponse {
     let input = req.param("input")?;
     tide::log::info!("Running normalize as utility web method: {input}");

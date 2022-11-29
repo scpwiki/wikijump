@@ -36,7 +36,6 @@ pub fn build(mut app: ApiServer) -> ApiServer {
     app.at("/ping").all(ping);
     app.at("/version").get(version);
     app.at("/version/full").get(full_version);
-    app.at("/ratelimit-exempt").all(ratelimit_exempt);
     app.at("/normalize/:input").all(normalize_method);
     app.at("/teapot")
         .get(|_| async { error_response(StatusCode::ImATeapot, "🫖") });
