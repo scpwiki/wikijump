@@ -127,7 +127,11 @@ impl BlobService {
                         .map_err(|_| Error::RemoteOperationFailed)?
                 };
 
-                Ok(Some(BlobMetadata { mime, size, created_at }))
+                Ok(Some(BlobMetadata {
+                    mime,
+                    size,
+                    created_at,
+                }))
             }
         }
     }
