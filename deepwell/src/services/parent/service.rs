@@ -31,14 +31,14 @@ impl ParentService {
     /// Both pages must be extant and on the same site.
     ///
     /// # Returns
-    /// Returns `true` if the relationship was created, and
-    /// `false` if it already existed.
+    /// Returns `Some` with a model if the relationship was created,
+    /// and `None` if it already existed.
     pub async fn create(
         ctx: &ServiceContext<'_>,
         site_id: i64,
         parent_page_ref: Reference<'_>,
         child_page_ref: Reference<'_>,
-    ) -> Result<bool> {
+    ) -> Result<Option<PageParentModel>> {
         let txn = ctx.transaction();
 
         let (parent_page, child_page) = try_join!(
@@ -66,12 +66,12 @@ impl ParentService {
                     ..Default::default()
                 };
 
-                model.insert(txn).await?;
-                Ok(true)
+                let parent = model.insert(txn).await?;
+                Ok(Some(parent))
             }
 
             // Parent relationship already exists
-            Some(_) => Ok(false),
+            Some(_) => Ok(None),
         }
     }
 

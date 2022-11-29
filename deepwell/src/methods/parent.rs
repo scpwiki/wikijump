@@ -89,11 +89,11 @@ pub async fn parent_put(req: ApiRequest) -> ApiResponse {
         site_id,
     );
 
-    let created = ParentService::create(&ctx, site_id, parent_reference, child_reference)
+    let model = ParentService::create(&ctx, site_id, parent_reference, child_reference)
         .await
         .to_api()?;
 
-    let status = if created {
+    let status = if model.is_some() {
         StatusCode::Created
     } else {
         StatusCode::NoContent
