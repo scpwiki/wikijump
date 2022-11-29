@@ -14,8 +14,10 @@
   -->
 </p>
 
-DEEPWELL is an experimental backend system to provide core wiki operations via an API for Wikijump.
-This is intended as an internal API consumed by the web server as part of its logical tasks.
+DEEPWELL is an internal backend system to provide core wiki operations for Wikijump.
+This is intended as an internal API consumed by the web server as part of its logical tasks,
+and as such it is the job of the web server to verify that the calling user has the permissions
+to perform the given task. DEEPWELL will assume all requests are trusted and perform them.
 
 The lint `#![forbid(unsafe_code)]` is set, and therefore this crate has only safe code.
 
