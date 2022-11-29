@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::ScoreValue;
 use std::borrow::Cow;
 
 /// Metadata information on the article being rendered.
@@ -51,8 +52,8 @@ pub struct PageInfo<'a> {
     /// If this is None then the main title is used instead.
     pub alt_title: Option<Cow<'a, str>>,
 
-    /// The current rating the page has.
-    pub rating: f64,
+    /// The score this page currently has.
+    pub score: ScoreValue,
 
     /// The current set of tags this page has.
     pub tags: Vec<Cow<'a, str>>,
@@ -71,7 +72,7 @@ impl PageInfo<'_> {
             site: cow!("sandbox"),
             title: cow!("A page for the age"),
             alt_title: None,
-            rating: 69.0,
+            score: ScoreValue::Float(69.0),
             tags: vec![cow!("tale"), cow!("_cc")],
             language: cow!("default"),
         }

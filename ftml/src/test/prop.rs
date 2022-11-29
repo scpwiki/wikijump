@@ -426,13 +426,13 @@ fn arb_page_info() -> impl Strategy<Value = PageInfo<'static>> {
         cow!(r"[a-z\-]+"),
     )
         .prop_map(
-            |(page, category, site, title, alt_title, rating, tags, language)| PageInfo {
+            |(page, category, site, title, alt_title, score, tags, language)| PageInfo {
                 page,
                 category,
                 site,
                 title,
                 alt_title,
-                rating,
+                score: score.into(),
                 tags,
                 language,
             },

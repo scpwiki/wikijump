@@ -24,7 +24,7 @@
 //! in a dedicated test file.
 
 use super::includer::TestIncluder;
-use crate::data::PageInfo;
+use crate::data::{PageInfo, ScoreValue};
 use crate::parsing::ParseError;
 use crate::render::html::HtmlRender;
 use crate::render::Render;
@@ -206,7 +206,7 @@ impl Test<'_> {
             site: cow!("test"),
             title: cow!(self.name),
             alt_title: None,
-            rating: 0.0,
+            score: ScoreValue::Integer(0),
             tags: vec![cow!("fruit"), cow!("component")],
             language: cow!("default"),
         };

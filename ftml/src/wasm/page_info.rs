@@ -35,7 +35,7 @@ export interface IPageInfo {
     site: string;
     title: string;
     alt_title: string | null;
-    rating: number;
+    score: number;
     tags: string[];
     language: string;
 }
@@ -110,8 +110,8 @@ impl PageInfo {
     }
 
     #[wasm_bindgen(method, getter)]
-    pub fn rating(&self) -> f64 {
-        self.inner.rating
+    pub fn score(&self) -> f64 {
+        self.inner.score.to_f64()
     }
 
     #[wasm_bindgen(method, getter, typescript_type = "ITags")]
