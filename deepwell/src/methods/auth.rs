@@ -39,6 +39,8 @@ pub async fn auth_login(mut req: ApiRequest) -> ApiResponse {
     Ok(Response::new(StatusCode::NoContent))
 }
 
+// TODO session renewal
+
 pub async fn auth_logout(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
