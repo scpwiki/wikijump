@@ -74,6 +74,7 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
                 email: user.email,
                 password: user.password.unwrap_or_default(),
                 locale: user.locale,
+                bypass_filter: true,
             },
         )
         .await?;
@@ -152,6 +153,7 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
                     slug: page.slug,
                     revision_comments: str!(""),
                     user_id: SYSTEM_USER_ID,
+                    bypass_filter: true,
                 },
             )
             .await?;

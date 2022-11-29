@@ -45,6 +45,7 @@ impl PageService {
             mut slug,
             revision_comments: comments,
             user_id,
+            bypass_filter,
         }: CreatePage,
     ) -> Result<CreatePageOutput> {
         let txn = ctx.transaction();
@@ -54,14 +55,16 @@ impl PageService {
         Self::check_conflicts(ctx, site_id, &slug, "create").await?;
 
         // Perform filter validation
-        Self::run_filter(
-            ctx,
-            site_id,
-            Some(&wikitext),
-            Some(&title),
-            alt_title.as_ref(),
-        )
-        .await?;
+        if !bypass_filter {
+            Self::run_filter(
+                ctx,
+                site_id,
+                Some(&wikitext),
+                Some(&title),
+                alt_title.as_ref(),
+            )
+            .await?;
+        }
 
         // Create category if not already present
         let PageCategoryModel { category_id, .. } =

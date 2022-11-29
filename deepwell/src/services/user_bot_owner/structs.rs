@@ -56,6 +56,9 @@ pub struct CreateBotUser {
                                      //
                                      //         B: create a bot user
                                      //         S: create a site
+
+    #[serde(default)]
+    pub bypass_filter: bool,
 }
 
 #[derive(Deserialize, Debug)]

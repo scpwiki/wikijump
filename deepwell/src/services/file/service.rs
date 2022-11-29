@@ -46,6 +46,7 @@ impl FileService {
             name,
             user_id,
             licensing,
+            bypass_filter,
         }: CreateFile,
         data: &[u8],
     ) -> Result<CreateFileOutput> {
@@ -61,7 +62,9 @@ impl FileService {
         Self::check_conflicts(ctx, page_id, &name, "create").await?;
 
         // Perform filter validation
-        Self::run_filter(ctx, site_id, Some(&name)).await?;
+        if !bypass_filter {
+            Self::run_filter(ctx, site_id, Some(&name)).await?;
+        }
 
         // Upload to S3, get derived metadata
         let CreateBlobOutput {
@@ -111,6 +114,7 @@ impl FileService {
             revision_comments,
             user_id,
             body,
+            bypass_filter,
         }: UpdateFile,
     ) -> Result<Option<UpdateFileOutput>> {
         let txn = ctx.transaction();
@@ -133,7 +137,10 @@ impl FileService {
         // when the file was originally created.
         if let ProvidedValue::Set(ref name) = name {
             Self::check_conflicts(ctx, page_id, name, "update").await?;
-            Self::run_filter(ctx, site_id, Some(name)).await?;
+
+            if !bypass_filter {
+                Self::run_filter(ctx, site_id, Some(name)).await?;
+            }
         }
 
         // Upload to S3, get derived metadata

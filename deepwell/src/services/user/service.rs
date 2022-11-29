@@ -59,7 +59,9 @@ impl UserService {
         tide::log::info!("Attempting to create user '{}' ('{}')", input.name, slug);
 
         // Perform filter validation
-        Self::run_filter(ctx, &input.name, &slug).await?;
+        if !input.bypass_filter {
+            Self::run_filter(ctx, &input.name, &slug).await?;
+        }
 
         // Check for conflicts
         let result = User::find()
@@ -240,7 +242,7 @@ impl UserService {
 
         // Add each field
         if let ProvidedValue::Set(name) = input.name {
-            Self::update_name(ctx, name, &user, &mut model).await?;
+            Self::update_name(ctx, name, &user, &mut model, input.bypass_filter).await?;
             verify_name = true;
         }
 
@@ -309,6 +311,7 @@ impl UserService {
         new_name: String,
         user: &UserModel,
         model: &mut user::ActiveModel,
+        bypass_filter: bool,
     ) -> Result<()> {
         // Regardless of the number of name change tokens,
         // the user can always change their name if the slug is
@@ -319,7 +322,9 @@ impl UserService {
         let old_slug = &user.slug;
 
         // Perform filter validation
-        Self::run_filter(ctx, &new_name, &new_slug).await?;
+        if !bypass_filter {
+            Self::run_filter(ctx, &new_name, &new_slug).await?;
+        }
 
         if new_slug == user.slug {
             tide::log::debug!("User slug is the same, rename is free");

@@ -31,6 +31,9 @@ pub struct CreateUser {
     pub email: String,
     pub locale: String,
     pub password: String,
+
+    #[serde(default)]
+    pub bypass_filter: bool,
 }
 
 #[derive(Serialize, Debug)]
@@ -55,6 +58,9 @@ pub struct UpdateUser {
     pub location: ProvidedValue<Option<String>>,
     pub biography: ProvidedValue<Option<String>>,
     pub user_page: ProvidedValue<Option<String>>,
+
+    #[serde(default)]
+    pub bypass_filter: bool,
 }
 
 #[derive(Serialize, Debug)]
