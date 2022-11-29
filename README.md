@@ -26,7 +26,7 @@ It seeks to implement [Project Foundation](https://scpwiki.com/forum/c-3335628/g
 The goal is to provide a scalable, maintainable platform with features, improvements, and bugfixes that current users of Wikidot need today.
 
 This project is being primarily developed by the English SCP Wiki's [Technical Team](http://05command.wikidot.com/technical-staff-main) as part of Project Foundation, however other contributors are welcome.
-Issues are tracked on our [JIRA](https://scuttle.atlassian.net/browse/WJ).
+Issues are tracked on our [Jira](https://scuttle.atlassian.net/browse/WJ).
 
 Questions and comments can be posted in our [General Information forum](https://scpwiki.com/forum/c-3335628/general-information), or in [`#site11` on SkipIRC](https://scpwiki.com/chat-guide).
 
