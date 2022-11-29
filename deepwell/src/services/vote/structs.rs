@@ -35,12 +35,6 @@ pub struct GetVote {
     pub user_id: i64,
 }
 
-#[derive(Debug, Copy, Clone)]
-pub enum VoteReference {
-    Id(i64),
-    Pair(GetVote),
-}
-
 #[derive(Deserialize, Debug, Copy, Clone)]
 #[serde(rename_all = "camelCase", tag = "type", content = "id")]
 pub enum VoteHistoryKind {
