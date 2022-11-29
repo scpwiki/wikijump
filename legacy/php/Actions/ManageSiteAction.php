@@ -8,7 +8,6 @@ use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\JSONService;
 use Ozone\Framework\SmartyAction;
-use Wikidot\Config\ForbiddenNames;
 use Wikidot\DB\ThemePeer;
 use Wikidot\DB\Theme;
 use Wikidot\DB\SitePeer;
@@ -891,15 +890,6 @@ class ManageSiteAction extends SmartyAction
             $errors['unixname'] = _('Only lowercase alphanumeric and "-" (dash) characters allowed in the web address. Double-dash (--) is not allowed.');
         } else {
             $unixName = WDStringUtils::toUnixName($unixName);
-
-            if ($runData->getUser()->id != 1) {
-                //  handle forbidden names
-                foreach (ForbiddenNames::$sites as $regex) {
-                    if (preg_match($regex, $unixName) > 0) {
-                        $errors['unixname'] = _('This web address is not allowed or reserved.');
-                    }
-                }
-            }
 
             // check if the domain is not taken.
             $c = new Criteria();

@@ -16,7 +16,6 @@ use Wikidot\Utils\WDStringUtils;
 use Wikijump\Common\APIError;
 use Wikijump\Models\User;
 use Wikijump\Services\Deepwell\DeepwellService;
-use Wikijump\Services\Users\UserValidation;
 
 /**
  * Controller for handling account related requests.
@@ -60,18 +59,6 @@ class AccountController extends Controller
         $email = $request->input('email');
         $username = $request->input('username');
         $password = $request->input('password');
-
-        if (!UserValidation::isValidEmail($email)) {
-            return apierror(400, APIError::INVALID_EMAIL);
-        }
-
-        if (!UserValidation::isValidUsername($username)) {
-            return apierror(400, APIError::INVALID_USERNAME);
-        }
-
-        if (!UserValidation::isValidPassword($password)) {
-            return apierror(400, APIError::INVALID_PASSWORD);
-        }
 
         // slugify username - the isValidUsername method already checked if
         // the slug is unique so we're safe to do this

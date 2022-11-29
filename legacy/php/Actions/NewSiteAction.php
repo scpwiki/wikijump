@@ -5,7 +5,6 @@ use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\ODate;
 use Ozone\Framework\SmartyAction;
-use Wikidot\Config\ForbiddenNames;
 use Wikidot\DB\SitePeer;
 use Wikidot\DB\Site;
 use Wikidot\Utils\Duplicator;
@@ -65,15 +64,6 @@ class NewSiteAction extends SmartyAction
             $errors['unixname'] = _('Only lowercase alphanumeric and "-" (dash) characters allowed in the web address. Double-dash (--) is not allowed.');
         } else {
             $unixName = WDStringUtils::toUnixName($unixName);
-
-            if ($runData->getUser()->id != 1) {
-                //  handle forbidden names
-                foreach (ForbiddenNames::$sites as $regex) {
-                    if (preg_match($regex, $unixName) > 0) {
-                        $errors['unixname'] = _('This web address is not allowed or reserved.');
-                    }
-                }
-            }
 
             // check if the domain is not taken.
             $c = new Criteria();
