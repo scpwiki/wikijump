@@ -22,22 +22,6 @@ use super::prelude::*;
 use crate::models::page_category::Model as PageCategoryModel;
 use crate::services::category::CategoryOutput;
 
-pub async fn category_get_direct(req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let category_id = req.param("category_id")?.parse()?;
-    tide::log::info!("Getting category ID {category_id}");
-
-    let category = CategoryService::get_direct(&ctx, category_id)
-        .await
-        .to_api()?;
-
-    let output: CategoryOutput = category.into();
-    let body = Body::from_json(&output)?;
-    Ok(body.into())
-}
-
 pub async fn category_get(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);

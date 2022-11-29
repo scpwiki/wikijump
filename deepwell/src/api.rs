@@ -138,10 +138,6 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
 
     // Category
     app.at("/category/:site_id").get(category_all_get);
-
-    app.at("/category/direct/:category_id")
-        .get(category_get_direct);
-
     app.at("/category/:site_id/:type/:id_or_slug")
         .get(category_get);
 
@@ -209,8 +205,6 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
         .all(page_invalid);
 
     // Files
-    app.at("/file/direct/:file_id").get(file_get_direct);
-
     app.at("/file/:site_id/:type/:id_or_slug").post(file_create);
     app.at("/file/:site_id/:page_type/:id_or_slug/:file_type/:id_or_name")
         .get(file_get)
@@ -235,7 +229,6 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
         .get(file_revision_range_get);
 
     // Text
-    // TODO TEMP
     app.at("/text").put(text_put);
     app.at("/text/:hash").get(text_get);
 
@@ -263,7 +256,6 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
         .put(vote_put)
         .delete(vote_delete);
 
-    app.at("/vote/direct/:vote_id").get(vote_get_direct);
     app.at("/vote/action").put(vote_action);
     app.at("/vote/list").get(vote_list_get);
     app.at("/vote/count").get(vote_count_get);

@@ -25,27 +25,6 @@ use crate::services::file::GetFileOutput;
 use crate::services::Result;
 use crate::web::FileDetailsQuery;
 
-pub async fn file_get_direct(req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let details: FileDetailsQuery = req.query()?;
-    let file_id = req.param("file_id")?.parse()?;
-    tide::log::info!("Getting file ID {file_id}");
-
-    let file = FileService::get_direct(&ctx, file_id).await.to_api()?;
-    let revision = FileRevisionService::get_latest(&ctx, file.page_id, file.file_id)
-        .await
-        .to_api()?;
-
-    let response = build_file_response(&ctx, &file, &revision, details, StatusCode::Ok)
-        .await
-        .to_api()?;
-
-    txn.commit().await?;
-    Ok(response)
-}
-
 pub async fn file_get(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);

@@ -108,21 +108,4 @@ impl CategoryService {
 
         Ok(categories)
     }
-
-    #[inline]
-    pub async fn get_direct(
-        ctx: &ServiceContext<'_>,
-        category_id: i64,
-    ) -> Result<PageCategoryModel> {
-        find_or_error(Self::get_direct_optional(ctx, category_id)).await
-    }
-
-    pub async fn get_direct_optional(
-        ctx: &ServiceContext<'_>,
-        category_id: i64,
-    ) -> Result<Option<PageCategoryModel>> {
-        let txn = ctx.transaction();
-        let page = PageCategory::find_by_id(category_id).one(txn).await?;
-        Ok(page)
-    }
 }
