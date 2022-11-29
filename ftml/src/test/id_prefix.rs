@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::data::PageInfo;
+use crate::data::{PageInfo, ScoreValue};
 use crate::settings::{WikitextMode, WikitextSettings, EMPTY_INTERWIKI};
 use crate::tree::{
     AttributeMap, Container, ContainerType, Element, ImageSource, ListItem, ListType,
@@ -45,7 +45,7 @@ fn isolate_user_ids() {
         site: cow!("test"),
         title: cow!("test"),
         alt_title: None,
-        rating: 0.0,
+        score: ScoreValue::Integer(0),
         tags: vec![],
         language: cow!("default"),
     };

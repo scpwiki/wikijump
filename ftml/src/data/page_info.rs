@@ -18,8 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::borrow::Cow;
 use super::ScoreValue;
+use std::borrow::Cow;
 
 /// Metadata information on the article being rendered.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
