@@ -181,6 +181,18 @@
     },
     {
         "site": null,
+        "regex": "^sudo$",
+        "description": "Reserved name (sudo)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^wheel$",
+        "description": "Reserved name (wheel)",
+        "user": true
+    },
+    {
+        "site": null,
         "regex": "^anon(ymous)?$",
         "description": "Reserved name (anon / anonymous)",
         "user": true
