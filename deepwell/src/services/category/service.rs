@@ -80,17 +80,6 @@ impl CategoryService {
         find_or_error(Self::get_optional(ctx, site_id, reference)).await
     }
 
-    #[inline]
-    pub async fn exists(
-        ctx: &ServiceContext<'_>,
-        site_id: i64,
-        reference: Reference<'_>,
-    ) -> Result<bool> {
-        Self::get_optional(ctx, site_id, reference)
-            .await
-            .map(|category| category.is_some())
-    }
-
     pub async fn get_or_create(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -118,16 +107,6 @@ impl CategoryService {
             .await?;
 
         Ok(categories)
-    }
-
-    #[inline]
-    pub async fn exists_direct(
-        ctx: &ServiceContext<'_>,
-        category_id: i64,
-    ) -> Result<bool> {
-        Self::get_direct_optional(ctx, category_id)
-            .await
-            .map(|category| category.is_some())
     }
 
     #[inline]

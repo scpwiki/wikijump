@@ -745,18 +745,6 @@ impl RevisionService {
     }
 
     #[inline]
-    pub async fn exists(
-        ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
-        revision_number: i32,
-    ) -> Result<bool> {
-        Self::get_optional(ctx, site_id, page_id, revision_number)
-            .await
-            .map(|revision| revision.is_some())
-    }
-
-    #[inline]
     pub async fn get(
         ctx: &ServiceContext<'_>,
         site_id: i64,

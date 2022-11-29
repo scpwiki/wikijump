@@ -447,21 +447,6 @@ impl FileRevisionService {
         Ok(revision)
     }
 
-    /// Determines if the given file revision exists.
-    ///
-    /// See `RevisionService::exists()`.
-    #[inline]
-    pub async fn exists(
-        ctx: &ServiceContext<'_>,
-        page_id: i64,
-        file_id: i64,
-        revision_number: i32,
-    ) -> Result<bool> {
-        Self::get_optional(ctx, page_id, file_id, revision_number)
-            .await
-            .map(|revision| revision.is_some())
-    }
-
     /// Gets the given revision for a file, failing if it doesn't exist.
     ///
     /// See `RevisionService::get()`.

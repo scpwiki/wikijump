@@ -101,16 +101,6 @@ impl SiteService {
         Ok(())
     }
 
-    #[inline]
-    pub async fn exists(
-        ctx: &ServiceContext<'_>,
-        reference: Reference<'_>,
-    ) -> Result<bool> {
-        Self::get_optional(ctx, reference)
-            .await
-            .map(|user| user.is_some())
-    }
-
     pub async fn get_optional(
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,

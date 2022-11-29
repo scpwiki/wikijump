@@ -454,17 +454,6 @@ impl PageService {
     }
 
     #[inline]
-    pub async fn exists(
-        ctx: &ServiceContext<'_>,
-        site_id: i64,
-        reference: Reference<'_>,
-    ) -> Result<bool> {
-        Self::get_optional(ctx, site_id, reference)
-            .await
-            .map(|page| page.is_some())
-    }
-
-    #[inline]
     pub async fn get(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -500,13 +489,6 @@ impl PageService {
         };
 
         Ok(page)
-    }
-
-    #[inline]
-    pub async fn exists_direct(ctx: &ServiceContext<'_>, page_id: i64) -> Result<bool> {
-        Self::get_direct_optional(ctx, page_id)
-            .await
-            .map(|page| page.is_some())
     }
 
     #[inline]

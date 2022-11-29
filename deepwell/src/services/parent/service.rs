@@ -123,18 +123,6 @@ impl ParentService {
     }
 
     #[inline]
-    pub async fn exists(
-        ctx: &ServiceContext<'_>,
-        site_id: i64,
-        parent_page_ref: Reference<'_>,
-        child_page_ref: Reference<'_>,
-    ) -> Result<bool> {
-        Self::get_optional(ctx, site_id, parent_page_ref, child_page_ref)
-            .await
-            .map(|model| model.is_some())
-    }
-
-    #[inline]
     pub async fn get(
         ctx: &ServiceContext<'_>,
         site_id: i64,

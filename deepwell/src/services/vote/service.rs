@@ -74,16 +74,6 @@ impl VoteService {
     }
 
     #[inline]
-    pub async fn exists(
-        ctx: &ServiceContext<'_>,
-        reference: VoteReference,
-    ) -> Result<bool> {
-        Self::get_optional(ctx, reference)
-            .await
-            .map(|vote| vote.is_some())
-    }
-
-    #[inline]
     pub async fn get(
         ctx: &ServiceContext<'_>,
         reference: VoteReference,
