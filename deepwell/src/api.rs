@@ -97,6 +97,9 @@ pub fn build_server(state: ApiServerState) -> ApiServer {
     spawn_magic_thread();
 
     // Create server and add routes
+    //
+    // "Safe" means it assumes inputs are validated,
+    // it will perform any actions as directed.
     let mut app = new!();
     app.at("/api/safe").nest(build_routes(new!()));
     app
