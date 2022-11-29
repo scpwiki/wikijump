@@ -1,5 +1,23 @@
 [
     {
+        "site": "www",
+        "regex": "^alice$",
+        "description": "Users named Alice cannot join (example)",
+        "user": true
+    },
+    {
+        "site": "www",
+        "regex": "^bob$",
+        "description": "Users named Bob cannot join (example)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^.*@example\\.com$",
+        "description": "Cannot join using example.com emails (example)",
+        "email": true
+    },
+    {
         "site": null,
         "regex": "wikidot",
         "description": "Reserved name (wikidot)",
@@ -159,6 +177,18 @@
         "site": null,
         "regex": "^root$",
         "description": "Reserved name (root)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^sudo$",
+        "description": "Reserved name (sudo)",
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^wheel$",
+        "description": "Reserved name (wheel)",
         "user": true
     },
     {

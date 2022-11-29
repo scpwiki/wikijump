@@ -31,6 +31,7 @@ impl FilterService {
         site_id: Option<i64>,
         CreateFilter {
             affects_user,
+            affects_email,
             affects_page,
             affects_file,
             affects_forum,
@@ -54,6 +55,7 @@ impl FilterService {
         let model = filter::ActiveModel {
             site_id: Set(site_id),
             affects_user: Set(affects_user),
+            affects_email: Set(affects_email),
             affects_page: Set(affects_page),
             affects_file: Set(affects_file),
             affects_forum: Set(affects_forum),
@@ -71,6 +73,7 @@ impl FilterService {
         UpdateFilter {
             filter_id,
             affects_user,
+            affects_email,
             affects_page,
             affects_file,
             affects_forum,
@@ -91,6 +94,10 @@ impl FilterService {
         // Set fields
         if let ProvidedValue::Set(affects) = affects_user {
             model.affects_user = Set(affects);
+        }
+
+        if let ProvidedValue::Set(affects) = affects_email {
+            model.affects_email = Set(affects);
         }
 
         if let ProvidedValue::Set(affects) = affects_page {

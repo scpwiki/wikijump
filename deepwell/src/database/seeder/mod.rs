@@ -201,6 +201,7 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
             site_id,
             CreateFilter {
                 affects_user: filter.user,
+                affects_email: filter.email,
                 affects_page: filter.page,
                 affects_file: filter.file,
                 affects_forum: filter.forum,

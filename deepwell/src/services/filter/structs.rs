@@ -109,6 +109,12 @@ pub enum FilterType {
     /// * For a site filter, prevent joining of a user with this name or slug.
     User,
 
+    /// Filters on user's email address.
+    ///
+    /// * For a system filter, prevent registration of a user with this email address.
+    /// * For a site filter, prevent joining of a user with this email address.
+    Email,
+
     /// Filters on pages.
     /// Prevents a page edit from going through if it trips this filter.
     Page,
@@ -134,6 +140,7 @@ impl From<FilterType> for filter::Column {
     fn from(filter_type: FilterType) -> filter::Column {
         match filter_type {
             FilterType::User => filter::Column::AffectsUser,
+            FilterType::Email => filter::Column::AffectsEmail,
             FilterType::Page => filter::Column::AffectsPage,
             FilterType::File => filter::Column::AffectsFile,
             FilterType::Forum => filter::Column::AffectsForum,
@@ -144,6 +151,7 @@ impl From<FilterType> for filter::Column {
 #[derive(Deserialize, Debug, Clone)]
 pub struct CreateFilter {
     pub affects_user: bool,
+    pub affects_email: bool,
     pub affects_page: bool,
     pub affects_file: bool,
     pub affects_forum: bool,
@@ -155,6 +163,7 @@ pub struct CreateFilter {
 pub struct UpdateFilter {
     pub filter_id: i64,
     pub affects_user: ProvidedValue<bool>,
+    pub affects_email: ProvidedValue<bool>,
     pub affects_page: ProvidedValue<bool>,
     pub affects_file: ProvidedValue<bool>,
     pub affects_forum: ProvidedValue<bool>,

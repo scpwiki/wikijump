@@ -61,7 +61,10 @@ impl UserService {
 
         // Perform filter validation
         if !input.bypass_filter {
-            Self::run_filter(ctx, &input.name, &slug).await?;
+            try_join!(
+                Self::run_name_filter(ctx, &input.name, &slug),
+                Self::run_email_filter(ctx, &input.email),
+            )?;
         }
 
         // Check for conflicts
@@ -231,7 +234,7 @@ impl UserService {
         reference: Reference<'_>,
         input: UpdateUser,
     ) -> Result<()> {
-        // NOTE: Filter validation occurs in update_name(), not here
+        // NOTE: Name filter validation occurs in update_name(), not here
         let txn = ctx.transaction();
         let user = Self::get(ctx, reference).await?;
 
@@ -248,6 +251,10 @@ impl UserService {
         }
 
         if let ProvidedValue::Set(email) = input.email {
+            if !input.bypass_filter {
+                Self::run_email_filter(ctx, &email).await?;
+            }
+
             model.email = Set(email);
         }
 
@@ -324,7 +331,7 @@ impl UserService {
 
         // Perform filter validation
         if !bypass_filter {
-            Self::run_filter(ctx, &new_name, &new_slug).await?;
+            Self::run_name_filter(ctx, &new_name, &new_slug).await?;
         }
 
         if new_slug == user.slug {
@@ -491,8 +498,12 @@ impl UserService {
         Ok(user)
     }
 
-    async fn run_filter(ctx: &ServiceContext<'_>, name: &str, slug: &str) -> Result<()> {
-        tide::log::info!("Checking user data against filters...");
+    async fn run_name_filter(
+        ctx: &ServiceContext<'_>,
+        name: &str,
+        slug: &str,
+    ) -> Result<()> {
+        tide::log::info!("Checking user name data against filters...");
 
         let filter_matcher =
             FilterService::get_matcher(ctx, FilterClass::Platform, FilterType::User)
@@ -503,6 +514,17 @@ impl UserService {
             filter_matcher.verify(ctx, slug),
         )?;
 
+        Ok(())
+    }
+
+    async fn run_email_filter(ctx: &ServiceContext<'_>, email: &str) -> Result<()> {
+        tide::log::info!("Checking user email data against filters...");
+
+        let filter_matcher =
+            FilterService::get_matcher(ctx, FilterClass::Platform, FilterType::Email)
+                .await?;
+
+        filter_matcher.verify(ctx, email).await?;
         Ok(())
     }
 }
