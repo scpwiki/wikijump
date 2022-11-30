@@ -94,8 +94,7 @@ CREATE TABLE site (
 --
 
 CREATE TABLE session (
-    session_id BIGSERIAL PRIMARY KEY,  -- Internal use only! Not secure!
-    session_token TEXT NOT NULL UNIQUE CHECK (length(session_token) > 48),  -- Use in secure cookies
+    session_token TEXT PRIMARY KEY CHECK (length(session_token) > 48),
     user_id BIGINT NOT NULL REFERENCES "user"(user_id),
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     expires_at TIMESTAMP WITH TIME ZONE NOT NULL CHECK (expires_at > created_at),
