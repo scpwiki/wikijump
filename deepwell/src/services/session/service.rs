@@ -132,6 +132,24 @@ impl SessionService {
         Ok(session)
     }
 
+    /// Gets all active sessions for a user.
+    /// For instance, useful for listing all sessions and their information.
+    pub async fn get_all(ctx: &ServiceContext<'_>, user_id: i64) -> Result<Vec<SessionModel>> {
+        tide::log::info!("Getting all sessions for user ID {user_id}");
+
+        let txn = ctx.transaction();
+        let sessions = Session::find()
+            .filter(
+                Condition::all()
+                    .add(session::Column::UserId.eq(user_id))
+                    .add(session::Column::ExpiresAt.gt(now())),
+            )
+            .all(txn)
+            .await?;
+
+        Ok(sessions)
+    }
+
     /// Renews a session, invalidating the old one and creating a new one.
     ///
     /// # Returns
