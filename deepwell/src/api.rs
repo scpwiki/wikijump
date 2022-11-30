@@ -120,8 +120,9 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
         .post(message_post);
 
     // Authentication
-    app.at("/auth/login/:type/:id_or_slug").post(auth_login);
+    app.at("/auth/login").post(auth_login);
     app.at("/auth/logout").delete(auth_logout);
+    app.at("/auth/mfa").post(auth_mfa_verify);
     app.at("/auth/mfa/setup").post(auth_mfa_setup);
     app.at("/auth/mfa/disable").post(auth_mfa_disable);
     app.at("/auth/mfa/resetRecovery")

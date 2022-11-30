@@ -19,24 +19,56 @@
  */
 
 use super::prelude::*;
-use crate::services::authentication::{AuthenticateUser, AuthenticationService};
-use crate::services::MfaService;
+use crate::services::authentication::{AuthenticateUser, AuthenticationService, MultiFactorAuthenticateUser};
+use crate::services::{Error, MfaService};
 
 pub async fn auth_login(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
-
     let input: AuthenticateUser = req.body_json().await?;
-    let reference = Reference::try_from(&req)?;
-    let user = UserService::get(&ctx, reference).await.to_api()?;
 
-    AuthenticationService::auth_user(&ctx, &user, input)
-        .await
-        .to_api()?;
+    // Don't allow empty passwords.
+    //
+    // They are never valid, and are potentially indicative of the user
+    // entering the password in the name field instead, which we do *not*
+    // want to be logging.
+    if input.password.is_empty() {
+        tide::log::error!("User submitted empty password in auth request");
+        return Err(TideError::from_str(StatusCode::BadRequest, ""));
+    }
+
+    // All authentication issue should return the same error.
+    //
+    // If anything went wrong, only allow a generic backend failure
+    // to avoid leaking internal state.
+    //
+    // The only three possible responses to this method should be:
+    // * success
+    // * invalid authentication
+    // * server error
+    let result = AuthenticationService::auth_password(&ctx, input).await;
+    let output = match result {
+        Ok(output) => output,
+        Err(error) => {
+            let status_code = match error {
+                Error::InvalidAuthentication => StatusCode::Forbidden,
+                _ => {
+                    tide::log::error!("Unexpected error during user authentication: {error}");
+                    StatusCode::InternalServerError
+                }
+            };
+
+            return Err(TideError::from_str(status_code, ""));
+        }
+    };
 
     // TODO session creation
+    //      look at output.needs_mfa
+
+    let body = Body::from_json(&output)?;
+    let response = Response::builder(StatusCode::Ok).body(body).into();
     txn.commit().await?;
-    Ok(Response::new(StatusCode::NoContent))
+    Ok(response)
 }
 
 // TODO session renewal
@@ -48,6 +80,19 @@ pub async fn auth_logout(req: ApiRequest) -> ApiResponse {
     // TODO session closure
     let _ = ctx;
     todo!()
+}
+
+pub async fn auth_mfa_verify(mut req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+    let input: MultiFactorAuthenticateUser = req.body_json().await?;
+
+    AuthenticationService::auth_mfa(&ctx, input).await?;
+
+    // TODO session recreation
+
+    txn.commit().await?;
+    Ok(Response::new(StatusCode::NoContent))
 }
 
 pub async fn auth_mfa_setup(req: ApiRequest) -> ApiResponse {
