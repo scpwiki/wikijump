@@ -115,7 +115,7 @@ impl SessionService {
 
     /// Gets a session model from its token.
     /// Yields an error if the given session token does not exist or is expired.
-    async fn get(ctx: &ServiceContext<'_>, token: &str) -> Result<SessionModel> {
+    pub async fn get(ctx: &ServiceContext<'_>, token: &str) -> Result<SessionModel> {
         tide::log::info!("Looking up session with token {token}");
 
         let txn = ctx.transaction();
