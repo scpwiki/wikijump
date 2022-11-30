@@ -151,7 +151,7 @@ impl SessionService {
 
         // Invalid and recreate
         let (_, session_token) = try_join!(
-            Self::invalidate(ctx, &old_session_token),
+            Self::invalidate(ctx, old_session_token),
             Self::create(ctx, CreateSession { user_id, ip_address, user_agent, restricted: false }),
         )?;
 
@@ -161,11 +161,18 @@ impl SessionService {
     /// Invalidates the given session, causing it to be deleted.
     pub async fn invalidate(
         ctx: &ServiceContext<'_>,
-        session_token: &str,
+        session_token: String,
     ) -> Result<()> {
         tide::log::info!("Invalidating session ID {session_token}");
 
-        todo!()
+        let txn = ctx.transaction();
+        let DeleteResult { rows_affected } = Session::delete_by_id(session_token).exec(txn).await?;
+        if rows_affected != 1 {
+            tide::log::error!("This session was already deleted or does not exist");
+            return Err(Error::NotFound);
+        }
+
+        Ok(())
     }
 
     /// Invalidates all others sessions _except_ the one listed.
