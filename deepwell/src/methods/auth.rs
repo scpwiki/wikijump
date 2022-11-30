@@ -19,7 +19,9 @@
  */
 
 use super::prelude::*;
-use crate::services::authentication::{AuthenticateUser, AuthenticationService, MultiFactorAuthenticateUser};
+use crate::services::authentication::{
+    AuthenticateUser, AuthenticationService, MultiFactorAuthenticateUser,
+};
 use crate::services::{Error, MfaService};
 
 pub async fn auth_login(mut req: ApiRequest) -> ApiResponse {
@@ -53,7 +55,10 @@ pub async fn auth_login(mut req: ApiRequest) -> ApiResponse {
             let status_code = match error {
                 Error::InvalidAuthentication => StatusCode::Forbidden,
                 _ => {
-                    tide::log::error!("Unexpected error during user authentication: {error}");
+                    tide::log::error!(
+                        "Unexpected error during user authentication: {error}",
+                    );
+
                     StatusCode::InternalServerError
                 }
             };

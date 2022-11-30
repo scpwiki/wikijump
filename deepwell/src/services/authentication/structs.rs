@@ -47,7 +47,8 @@ pub struct MultiFactorAuthenticateUser {
 ///
 /// This is *not* a secret, but the value isn't too important
 /// anyways. The password is simply a long randomly-generated value.
-pub const INVALID_PASSWORD_HASH: &str = "$argon2id$v=19$m=4096,t=3,p=1$UjcwSVNZd1hzUWdkc0s2bg$kxdfVniblhviREHGGy81/A";
+pub const INVALID_PASSWORD_HASH: &str =
+    "$argon2id$v=19$m=4096,t=3,p=1$UjcwSVNZd1hzUWdkc0s2bg$kxdfVniblhviREHGGy81/A";
 
 #[derive(Debug, Clone)]
 pub struct UserAuthInfo {

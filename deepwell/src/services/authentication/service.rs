@@ -30,7 +30,10 @@ impl AuthenticationService {
     /// If so, they are cleared to log in (or perform some other sensitive action).
     pub async fn auth_password(
         ctx: &ServiceContext<'_>,
-        AuthenticateUser { name_or_email, password }: AuthenticateUser,
+        AuthenticateUser {
+            name_or_email,
+            password,
+        }: AuthenticateUser,
     ) -> Result<AuthenticateUserOutput> {
         let auth = Self::get_user_auth(ctx, &name_or_email).await?;
         PasswordService::verify(&password, &auth.password_hash).await?;
@@ -40,13 +43,18 @@ impl AuthenticationService {
             return Err(Error::InvalidAuthentication);
         }
 
-        Ok(AuthenticateUserOutput { needs_mfa: auth.multi_factor_secret.is_some() })
+        Ok(AuthenticateUserOutput {
+            needs_mfa: auth.multi_factor_secret.is_some(),
+        })
     }
 
     /// Verifies the TOTP code for a user, after they have logged in.
     pub async fn auth_mfa(
         ctx: &ServiceContext<'_>,
-        MultiFactorAuthenticateUser { session_token, totp_or_code }: MultiFactorAuthenticateUser,
+        MultiFactorAuthenticateUser {
+            session_token,
+            totp_or_code,
+        }: MultiFactorAuthenticateUser,
     ) -> Result<()> {
         // Get associated user model
         // TODO search session_token -> user_id
@@ -86,12 +94,14 @@ impl AuthenticationService {
 
         let txn = ctx.transaction();
         let result = User::find()
-            .filter(Condition::any()
-                .add(user::Column::Name.eq(name_or_email))
-                .add(user::Column::Slug.eq(name_or_email))
-                .add(user::Column::Email.eq(name_or_email))
+            .filter(
+                Condition::any()
+                    .add(user::Column::Name.eq(name_or_email))
+                    .add(user::Column::Slug.eq(name_or_email))
+                    .add(user::Column::Email.eq(name_or_email)),
             )
-            .one(txn).await?;
+            .one(txn)
+            .await?;
 
         match result {
             // Found user, return real auth information
