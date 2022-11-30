@@ -18,6 +18,18 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+//! Manages sessions for authenticated users.
+//!
+//! Once a user has been authenticated (password, MFA, etc)
+//! then a session can be created for them, which will enable
+//! them to interact with the platform.
+//!
+//! The session token is the only means through which a session
+//! is validated. It is a unique, securely randomly generated value
+//! which represents the current session. It has a somewhat short
+//! expiry (30 minutes) which needs to be renewed by the client
+//! periodically.
+
 use super::prelude::*;
 use crate::utils::assert_is_csprng;
 use rand::distributions::{Alphanumeric, DistString};
