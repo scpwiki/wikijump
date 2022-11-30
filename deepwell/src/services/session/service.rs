@@ -45,4 +45,10 @@ impl SessionService {
 
         token
     }
+
+#[test]
+fn new_token() {
+    let token = SessionService::new_token();
+    assert_eq!(token.len(), SESSION_TOKEN_LENGTH + SESSION_TOKEN_PREFIX.len());
+    assert_eq!(token.starts_with(SESSION_TOKEN_PREFIX));
 }
