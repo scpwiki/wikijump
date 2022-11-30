@@ -46,6 +46,24 @@ impl SessionService {
         token
     }
 
+    /// Prunes all expired sessions from the database.
+    ///
+    /// # Returns
+    /// The number of pruned sessions.
+    pub async fn prune(ctx: &ServiceContext<'_>) -> Result<u64> {
+        tide::log::info!("Pruning all expired sessions");
+
+        let txn = ctx.transaction();
+        let DeleteResult { rows_affected } = Session::delete_many()
+            .filter(session::Column::ExpiresAt.lte(now()))
+            .exec(txn)
+            .await?;
+
+        tide::log::debug!("{rows_affected} expired sessions were pruned");
+        Ok(rows_affected)
+    }
+}
+
 #[test]
 fn new_token() {
     let token = SessionService::new_token();
