@@ -132,11 +132,30 @@ impl SessionService {
     /// After this point, the previous session token will be invalid.
     pub async fn renew(
         ctx: &ServiceContext<'_>,
-        RenewSession { old_session_token, ip_address, user_agent }: RenewSession,
+        RenewSession { old_session_token, user_id, ip_address, user_agent }: RenewSession,
     ) -> Result<String> {
         tide::log::info!("Renewing session ID {old_session_token}");
 
-        todo!()
+        // Get existing session to ensure the token matches the passed user ID.
+        let txn = ctx.transaction();
+        let old_session = Self::get(ctx, &old_session_token).await?;
+        if old_session.user_id != user_id {
+            tide::log::error!(
+                "Requested session renewal, user IDs do not match! (current: {}, request: {})",
+                old_session.user_id,
+                user_id,
+            );
+
+            return Err(Error::BadRequest);
+        }
+
+        // Invalid and recreate
+        let (_, session_token) = try_join!(
+            Self::invalidate(ctx, &old_session_token),
+            Self::create(ctx, CreateSession { user_id, ip_address, user_agent, restricted: false }),
+        )?;
+
+        Ok(session_token)
     }
 
     /// Invalidates the given session, causing it to be deleted.

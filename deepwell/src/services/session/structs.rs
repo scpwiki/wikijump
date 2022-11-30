@@ -33,6 +33,7 @@ pub struct CreateSession {
 #[serde(rename_all = "camelCase")]
 pub struct RenewSession {
     pub old_session_token: String,
+    pub user_id: i64,
     pub ip_address: IpAddr,
     pub user_agent: String,
 }
