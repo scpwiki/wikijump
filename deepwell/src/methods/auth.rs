@@ -30,8 +30,8 @@ pub async fn auth_login(mut req: ApiRequest) -> ApiResponse {
     // Don't allow empty passwords.
     //
     // They are never valid, and are potentially indicative of the user
-    // entering the password in the name field instead, which we do *not*
-    // want to be logging.
+    // entering the password in the name field instead, which we do
+    // *not* want to be logging.
     if input.password.is_empty() {
         tide::log::error!("User submitted empty password in auth request");
         return Err(TideError::from_str(StatusCode::BadRequest, ""));
