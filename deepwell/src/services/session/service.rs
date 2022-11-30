@@ -31,7 +31,9 @@
 //! periodically.
 
 use super::prelude::*;
+use crate::models::session::{self, Entity as Session, Model as SessionModel};
 use crate::utils::assert_is_csprng;
+use chrono::Duration;
 use rand::distributions::{Alphanumeric, DistString};
 use rand::thread_rng;
 
@@ -41,10 +43,54 @@ const SESSION_TOKEN_PREFIX: &str = "wj:";
 /// Length of each session token.
 const SESSION_TOKEN_LENGTH: usize = 64;
 
+// Duration of sessions before expiry.
+//
+// For normal sessions (i.e. is authenticated and has access), it is 30 minutes.
+//
+// For restricted sessions (i.e. still authenticating, no access), it is 5 minutes.
+// Or in other words, the user has 5 minutes to finish logging in before they must
+// restart the authentication process.
+lazy_static! {
+    static ref NORMAL_SESSION_EXPIRY: Duration = Duration::minutes(30);
+    static ref RESTRICTED_SESSION_EXPIRY: Duration = Duration::minutes(5);
+}
+
 #[derive(Debug)]
 pub struct SessionService;
 
 impl SessionService {
+    /// Creates a new session with the given parameters.
+    ///
+    /// # Returns
+    /// The generated session token.
+    pub async fn create(
+        ctx: &ServiceContext<'_>,
+        CreateSession { user_id, ip_address, user_agent, restricted }: CreateSession,
+    ) -> Result<String> {
+        tide::log::info!("Creating new session for user ID {user_id} (restricted: {restricted})");
+
+        let txn = ctx.transaction();
+        let token = Self::new_token();
+        let expiry = if restricted {
+            now() + *RESTRICTED_SESSION_EXPIRY
+        } else {
+            now() + *NORMAL_SESSION_EXPIRY
+        };
+
+        let model = session::ActiveModel {
+            session_token: Set(token),
+            user_id: Set(user_id),
+            created_at: Set(now()),
+            expires_at: Set(expiry),
+            ip_address: Set(str!(ip_address)), // TODO inet type?
+            user_agent: Set(user_agent),
+            restricted: Set(restricted),
+        };
+
+        let session = model.insert(txn).await?;
+        Ok(session.session_token)
+    }
+
     /// Securely generates a new session token.
     ///
     /// Example generated token: `wj:T9iF6vfjoYYE20QzrybV2C1V4K0LchHXsNVipX8G1GZ9vSJf0rvQpJ4YC8c8MAQ3`.

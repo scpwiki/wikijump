@@ -18,4 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// TODO
+use std::net::IpAddr;
+
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateSession {
+    pub user_id: i64,
+    pub ip_address: IpAddr,
+    pub user_agent: String,
+    pub restricted: bool,
+}
