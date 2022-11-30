@@ -87,8 +87,9 @@ impl SessionService {
             restricted: Set(restricted),
         };
 
-        let session = model.insert(txn).await?;
-        Ok(session.session_token)
+        let SessionModel { session_token, .. } = model.insert(txn).await?;
+        tide::log::info!("Created new session token: {session_token}");
+        Ok(session_token)
     }
 
     /// Securely generates a new session token.
@@ -103,6 +104,45 @@ impl SessionService {
         token.insert_str(0, SESSION_TOKEN_PREFIX);
 
         token
+    }
+
+    /// Renews a session, invalidating the old one and creating a new one.
+    ///
+    /// # Returns
+    /// The new session token.
+    /// After this point, the previous session token will be invalid.
+    pub async fn renew(
+        ctx: &ServiceContext<'_>,
+        RenewSession { old_session_token, ip_address, user_agent }: RenewSession,
+    ) -> Result<String> {
+        tide::log::info!("Renewing session ID {old_session_token}");
+
+        todo!()
+    }
+
+    /// Invalidates the given session, causing it to be deleted.
+    pub async fn invalidate(
+        ctx: &ServiceContext<'_>,
+        session_token: &str,
+    ) -> Result<()> {
+        tide::log::info!("Invalidating session ID {session_token}");
+
+        todo!()
+    }
+
+    /// Invalidates all others sessions _except_ the one listed.
+    /// This enables a user to "log out all other sessions",
+    /// a useful security feature. See [WJ-364].
+    ///
+    /// [WJ-364]: https://scuttle.atlassian.net/browse/WJ-364
+    pub async fn invalidate_others(
+        ctx: &ServiceContext<'_>,
+        session_token: &str,
+        user_id: i64,
+    ) -> Result<()> {
+        tide::log::info!("Invalidation all session IDs for user ID {user_id} except for {session_token}");
+
+        todo!()
     }
 
     /// Prunes all expired sessions from the database.

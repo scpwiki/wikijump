@@ -28,3 +28,11 @@ pub struct CreateSession {
     pub user_agent: String,
     pub restricted: bool,
 }
+
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct RenewSession {
+    pub old_session_token: String,
+    pub ip_address: IpAddr,
+    pub user_agent: String,
+}
