@@ -53,6 +53,8 @@ pub enum Relation {
     PageLock,
     #[sea_orm(has_many = "super::page_revision::Entity")]
     PageRevision,
+    #[sea_orm(has_many = "super::session::Entity")]
+    Session,
 }
 
 impl Related<super::file_revision::Entity> for Entity {
@@ -76,6 +78,12 @@ impl Related<super::page_lock::Entity> for Entity {
 impl Related<super::page_revision::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::PageRevision.def()
+    }
+}
+
+impl Related<super::session::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Session.def()
     }
 }
 

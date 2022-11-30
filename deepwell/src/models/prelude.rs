@@ -13,6 +13,7 @@ pub use super::page_lock::Entity as PageLock;
 pub use super::page_parent::Entity as PageParent;
 pub use super::page_revision::Entity as PageRevision;
 pub use super::page_vote::Entity as PageVote;
+pub use super::session::Entity as Session;
 pub use super::site::Entity as Site;
 pub use super::text::Entity as Text;
 pub use super::user::Entity as User;

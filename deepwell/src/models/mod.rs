@@ -19,6 +19,7 @@ pub mod page_parent;
 pub mod page_revision;
 pub mod page_vote;
 pub mod sea_orm_active_enums;
+pub mod session;
 pub mod site;
 pub mod text;
 pub mod user;
