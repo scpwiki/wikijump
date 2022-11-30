@@ -59,6 +59,7 @@ impl AuthenticationService {
         // Get associated user model
         // TODO search session_token -> user_id
         //      user.multi_factor_secret
+        let _ = ctx;
         let user: UserModel = todo!();
 
         match totp_or_code.parse() {
