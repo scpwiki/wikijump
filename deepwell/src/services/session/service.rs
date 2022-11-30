@@ -95,6 +95,7 @@ impl SessionService {
     ///
     /// Example generated token: `wj:T9iF6vfjoYYE20QzrybV2C1V4K0LchHXsNVipX8G1GZ9vSJf0rvQpJ4YC8c8MAQ3`.
     fn new_token() -> String {
+        tide::log::debug!("Generating a new session token");
         let mut rng = thread_rng();
         assert_is_csprng(&rng);
 
