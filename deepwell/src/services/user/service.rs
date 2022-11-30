@@ -266,6 +266,7 @@ impl UserService {
         if let ProvidedValue::Set(password) = input.password {
             let password_hash = PasswordService::new_hash(&password)?;
             model.password = Set(password_hash);
+            // TODO invalidate all other sessions
         }
 
         if let ProvidedValue::Set(locale) = input.locale {
