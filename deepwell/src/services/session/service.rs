@@ -65,9 +65,16 @@ impl SessionService {
     /// The generated session token.
     pub async fn create(
         ctx: &ServiceContext<'_>,
-        CreateSession { user_id, ip_address, user_agent, restricted }: CreateSession,
+        CreateSession {
+            user_id,
+            ip_address,
+            user_agent,
+            restricted,
+        }: CreateSession,
     ) -> Result<String> {
-        tide::log::info!("Creating new session for user ID {user_id} (restricted: {restricted})");
+        tide::log::info!(
+            "Creating new session for user ID {user_id} (restricted: {restricted})",
+        );
 
         let txn = ctx.transaction();
         let token = Self::new_token();
@@ -116,7 +123,7 @@ impl SessionService {
             .filter(
                 Condition::all()
                     .add(session::Column::SessionToken.eq(token))
-                    .add(session::Column::ExpiresAt.gt(now()))
+                    .add(session::Column::ExpiresAt.gt(now())),
             )
             .one(txn)
             .await?
@@ -132,7 +139,12 @@ impl SessionService {
     /// After this point, the previous session token will be invalid.
     pub async fn renew(
         ctx: &ServiceContext<'_>,
-        RenewSession { old_session_token, user_id, ip_address, user_agent }: RenewSession,
+        RenewSession {
+            old_session_token,
+            user_id,
+            ip_address,
+            user_agent,
+        }: RenewSession,
     ) -> Result<String> {
         tide::log::info!("Renewing session ID {old_session_token}");
 
@@ -152,7 +164,15 @@ impl SessionService {
         // Invalid and recreate
         let (_, session_token) = try_join!(
             Self::invalidate(ctx, old_session_token),
-            Self::create(ctx, CreateSession { user_id, ip_address, user_agent, restricted: false }),
+            Self::create(
+                ctx,
+                CreateSession {
+                    user_id,
+                    ip_address,
+                    user_agent,
+                    restricted: false,
+                }
+            ),
         )?;
 
         Ok(session_token)
@@ -166,7 +186,8 @@ impl SessionService {
         tide::log::info!("Invalidating session ID {session_token}");
 
         let txn = ctx.transaction();
-        let DeleteResult { rows_affected } = Session::delete_by_id(session_token).exec(txn).await?;
+        let DeleteResult { rows_affected } =
+            Session::delete_by_id(session_token).exec(txn).await?;
         if rows_affected != 1 {
             tide::log::error!("This session was already deleted or does not exist");
             return Err(Error::NotFound);
@@ -179,15 +200,43 @@ impl SessionService {
     /// This enables a user to "log out all other sessions",
     /// a useful security feature. See [WJ-364].
     ///
+    /// # Returns
+    /// The number of invalidated sessions.
+    ///
     /// [WJ-364]: https://scuttle.atlassian.net/browse/WJ-364
     pub async fn invalidate_others(
         ctx: &ServiceContext<'_>,
         session_token: &str,
         user_id: i64,
-    ) -> Result<()> {
+    ) -> Result<u64> {
         tide::log::info!("Invalidation all session IDs for user ID {user_id} except for {session_token}");
 
-        todo!()
+        let txn = ctx.transaction();
+        let session = Self::get(ctx, session_token).await?;
+        if session.user_id != user_id {
+            tide::log::error!(
+                "Requested invalidation of other sessions, user IDs do not match! (current: {}, request: {})",
+                session.user_id,
+                user_id,
+            );
+
+            return Err(Error::BadRequest);
+        }
+
+        // Delete all sessions from user_id, except if it's this session_token
+        let DeleteResult { rows_affected } = Session::delete_many()
+            .filter(
+                Condition::all()
+                    .add(session::Column::SessionToken.ne(session_token))
+                    .add(session::Column::UserId.eq(user_id)),
+            )
+            .exec(txn)
+            .await?;
+
+        tide::log::debug!(
+            "User ID {user_id}: {rows_affected} other sessions were invalidated",
+        );
+        Ok(rows_affected)
     }
 
     /// Prunes all expired sessions from the database.
@@ -211,6 +260,9 @@ impl SessionService {
 #[test]
 fn new_token() {
     let token = SessionService::new_token();
-    assert_eq!(token.len(), SESSION_TOKEN_LENGTH + SESSION_TOKEN_PREFIX.len());
+    assert_eq!(
+        token.len(),
+        SESSION_TOKEN_LENGTH + SESSION_TOKEN_PREFIX.len(),
+    );
     assert_eq!(token.starts_with(SESSION_TOKEN_PREFIX));
 }
