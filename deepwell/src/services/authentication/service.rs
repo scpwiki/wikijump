@@ -19,8 +19,8 @@
  */
 
 use super::prelude::*;
-use crate::models::user::{self, Entity as User, Model as UserModel};
-use crate::services::{MfaService, PasswordService};
+use crate::models::user::{self, Entity as User};
+use crate::services::{MfaService, PasswordService, SessionService, UserService};
 
 #[derive(Debug)]
 pub struct AuthenticationService;
@@ -56,12 +56,11 @@ impl AuthenticationService {
             totp_or_code,
         }: MultiFactorAuthenticateUser,
     ) -> Result<()> {
-        // Get associated user model
-        // TODO search session_token -> user_id
-        //      user.multi_factor_secret
-        let _ = ctx;
-        let user: UserModel = todo!();
+        // Get associated user model from the session
+        let session = SessionService::get(ctx, &session_token).await?;
+        let user = UserService::get(ctx, Reference::Id(session.user_id)).await?;
 
+        // Process input, verifying depending on type
         match totp_or_code.parse() {
             // If the value is a positive integer, treat it as a TOTP
             Ok(totp) => MfaService::verify(&user, totp).await?,
