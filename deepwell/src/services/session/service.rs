@@ -170,7 +170,6 @@ impl SessionService {
         tide::log::info!("Renewing session ID {old_session_token}");
 
         // Get existing session to ensure the token matches the passed user ID.
-        let txn = ctx.transaction();
         let old_session = Self::get(ctx, &old_session_token).await?;
         if old_session.user_id != user_id {
             tide::log::error!(
