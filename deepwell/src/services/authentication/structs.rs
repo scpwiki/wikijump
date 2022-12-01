@@ -67,6 +67,12 @@ pub struct LoginUserMfa {
     pub user_agent: String,
 }
 
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct MultiFactorConfigure {
+    pub session_token: String,
+}
+
 /// Password hash to compute against when a user does not exist.
 ///
 /// It has similar settings to other passwords on Wikijump, but

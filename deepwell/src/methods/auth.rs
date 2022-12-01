@@ -21,7 +21,7 @@
 use super::prelude::*;
 use crate::services::authentication::{
     AuthenticateUserOutput, AuthenticationService, LoginUser, LoginUserMfa,
-    LoginUserOutput, MultiFactorAuthenticateUser,
+    LoginUserOutput, MultiFactorAuthenticateUser, MultiFactorConfigure,
 };
 use crate::services::session::{
     CreateSession, InvalidateOtherSessions, RenewSession, SessionInputOutput,
@@ -231,23 +231,27 @@ pub async fn auth_mfa_setup(req: ApiRequest) -> ApiResponse {
     Ok(response)
 }
 
-pub async fn auth_mfa_disable(req: ApiRequest) -> ApiResponse {
+pub async fn auth_mfa_disable(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let user_id = 4; // TODO get from session ID
-    MfaService::disable(&ctx, user_id).await.to_api()?;
+    let MultiFactorConfigure { session_token } = req.body_json().await?;
+    let user = SessionService::get_user(&ctx, &session_token, false)
+        .await
+        .to_api()?;
+
+    MfaService::disable(&ctx, user.user_id).await.to_api()?;
 
     txn.commit().await?;
     Ok(Response::new(StatusCode::NoContent))
 }
 
-pub async fn auth_mfa_reset_recovery(req: ApiRequest) -> ApiResponse {
+pub async fn auth_mfa_reset_recovery(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let user_id = 4; // TODO get from session ID
-    let user = UserService::get(&ctx, Reference::Id(user_id))
+    let MultiFactorConfigure { session_token } = req.body_json().await?;
+    let user = SessionService::get_user(&ctx, &session_token, false)
         .await
         .to_api()?;
 
