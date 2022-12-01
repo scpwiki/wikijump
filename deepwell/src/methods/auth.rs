@@ -22,7 +22,8 @@ use super::prelude::*;
 use crate::services::authentication::{
     AuthenticateUser, AuthenticationService, MultiFactorAuthenticateUser,
 };
-use crate::services::{Error, MfaService};
+use crate::services::session::ProcessSession;
+use crate::services::{Error, MfaService, SessionService};
 
 pub async fn auth_login(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
@@ -78,13 +79,15 @@ pub async fn auth_login(mut req: ApiRequest) -> ApiResponse {
 
 // TODO session renewal
 
-pub async fn auth_logout(req: ApiRequest) -> ApiResponse {
+pub async fn auth_logout(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
+    let ProcessSession { session_token } = req.body_json().await?;
 
-    //SessionService::invalidate(&ctx,
-    let _ = ctx;
-    todo!()
+    SessionService::invalidate(&ctx, session_token).await?;
+
+    txn.commit().await?;
+    Ok(Response::new(StatusCode::NoContent))
 }
 
 pub async fn auth_mfa_verify(mut req: ApiRequest) -> ApiResponse {

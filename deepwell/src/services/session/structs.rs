@@ -37,3 +37,9 @@ pub struct RenewSession {
     pub ip_address: IpAddr,
     pub user_agent: String,
 }
+
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct ProcessSession {
+    pub session_token: String,
+}
