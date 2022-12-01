@@ -90,7 +90,8 @@ pub fn build_server(state: ApiServerState) -> ApiServer {
         };
     }
 
-    // Start job executor task
+    // Start main job executor task
+    // (and ancillary repeated tasks)
     JobRunner::spawn(&state);
 
     // Start MIME evaluator thread
