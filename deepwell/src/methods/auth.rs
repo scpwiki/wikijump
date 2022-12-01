@@ -24,6 +24,7 @@ use crate::services::authentication::{
 };
 use crate::services::session::{RenewSession, SessionInputOutput, VerifySession};
 use crate::services::{Error, MfaService, SessionService};
+use crate::web::UserIdQuery;
 
 pub async fn auth_login(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
