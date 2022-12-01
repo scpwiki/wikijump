@@ -20,10 +20,12 @@
 
 use super::prelude::*;
 use crate::services::authentication::{
-    AuthenticateUser, AuthenticationService, MultiFactorAuthenticateUser,
+    AuthenticateUserOutput, AuthenticationService, LoginUser, LoginUserOutput,
+    MultiFactorAuthenticateUser,
 };
 use crate::services::session::{
-    InvalidateOtherSessions, RenewSession, SessionInputOutput, VerifySession,
+    CreateSession, InvalidateOtherSessions, RenewSession, SessionInputOutput,
+    VerifySession,
 };
 use crate::services::{Error, MfaService, SessionService};
 use crate::web::UserIdQuery;
@@ -31,14 +33,18 @@ use crate::web::UserIdQuery;
 pub async fn auth_login(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
-    let input: AuthenticateUser = req.body_json().await?;
+    let LoginUser {
+        authenticate,
+        ip_address,
+        user_agent,
+    } = req.body_json().await?;
 
     // Don't allow empty passwords.
     //
     // They are never valid, and are potentially indicative of the user
     // entering the password in the name field instead, which we do
     // *not* want to be logging.
-    if input.password.is_empty() {
+    if authenticate.password.is_empty() {
         tide::log::error!("User submitted empty password in auth request");
         return Err(TideError::from_str(StatusCode::BadRequest, ""));
     }
@@ -52,8 +58,8 @@ pub async fn auth_login(mut req: ApiRequest) -> ApiResponse {
     // * success
     // * invalid authentication
     // * server error
-    let result = AuthenticationService::auth_password(&ctx, input).await;
-    let output = match result {
+    let result = AuthenticationService::auth_password(&ctx, authenticate).await;
+    let AuthenticateUserOutput { needs_mfa, user_id } = match result {
         Ok(output) => output,
         Err(error) => {
             let status_code = match error {
@@ -71,10 +77,27 @@ pub async fn auth_login(mut req: ApiRequest) -> ApiResponse {
         }
     };
 
-    // TODO session creation
-    //      look at output.needs_mfa
+    let login_complete = !needs_mfa;
+    tide::log::info!(
+        "Password authentication for user ID {user_id} succeeded (login complete: {login_complete})",
+    );
 
-    let body = Body::from_json(&output)?;
+    let session_token = SessionService::create(
+        &ctx,
+        CreateSession {
+            user_id,
+            ip_address,
+            user_agent,
+            restricted: !login_complete,
+        },
+    )
+    .await?;
+
+    let body = Body::from_json(&LoginUserOutput {
+        session_token,
+        needs_mfa,
+    })?;
+
     let response = Response::builder(StatusCode::Ok).body(body).into();
     txn.commit().await?;
     Ok(response)

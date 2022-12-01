@@ -45,6 +45,7 @@ impl AuthenticationService {
 
         Ok(AuthenticateUserOutput {
             needs_mfa: auth.multi_factor_secret.is_some(),
+            user_id: auth.user_id,
         })
     }
 

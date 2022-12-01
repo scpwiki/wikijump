@@ -19,6 +19,7 @@
  */
 
 use crate::models::user::Model as UserModel;
+use std::net::IpAddr;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -30,6 +31,24 @@ pub struct AuthenticateUser {
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct AuthenticateUserOutput {
+    pub needs_mfa: bool,
+    pub user_id: i64,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct LoginUser {
+    pub ip_address: IpAddr,
+    pub user_agent: String,
+
+    #[serde(flatten)]
+    pub authenticate: AuthenticateUser,
+}
+
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct LoginUserOutput {
+    pub session_token: String,
     pub needs_mfa: bool,
 }
 
