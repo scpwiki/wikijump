@@ -45,6 +45,8 @@ pub struct VerifySession {
     pub user_id: i64,
 }
 
+pub type InvalidateOtherSessions = VerifySession;
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct SessionInputOutput {

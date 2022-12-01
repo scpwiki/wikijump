@@ -22,7 +22,7 @@ use super::prelude::*;
 use crate::services::authentication::{
     AuthenticateUser, AuthenticationService, MultiFactorAuthenticateUser,
 };
-use crate::services::session::{RenewSession, SessionInputOutput, VerifySession};
+use crate::services::session::{RenewSession, InvalidateOtherSessions, SessionInputOutput, VerifySession};
 use crate::services::{Error, MfaService, SessionService};
 use crate::web::UserIdQuery;
 
@@ -110,6 +110,19 @@ pub async fn auth_session_renew(mut req: ApiRequest) -> ApiResponse {
     let session_token = SessionService::renew(&ctx, input).await.to_api()?;
 
     let body = Body::from_json(&SessionInputOutput { session_token })?;
+    let response = Response::builder(StatusCode::Ok).body(body).into();
+    txn.commit().await?;
+    Ok(response)
+}
+
+pub async fn auth_session_invalidate_others(mut req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+    let InvalidateOtherSessions { session_token, user_id } = req.body_json().await?;
+
+    let invalidated = SessionService::invalidate_others(&ctx, &session_token, user_id).await.to_api()?;
+
+    let body = Body::from_json(&invalidated)?;
     let response = Response::builder(StatusCode::Ok).body(body).into();
     txn.commit().await?;
     Ok(response)
