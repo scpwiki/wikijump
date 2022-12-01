@@ -22,7 +22,9 @@ use super::prelude::*;
 use crate::services::authentication::{
     AuthenticateUser, AuthenticationService, MultiFactorAuthenticateUser,
 };
-use crate::services::session::{RenewSession, InvalidateOtherSessions, SessionInputOutput, VerifySession};
+use crate::services::session::{
+    InvalidateOtherSessions, RenewSession, SessionInputOutput, VerifySession,
+};
 use crate::services::{Error, MfaService, SessionService};
 use crate::web::UserIdQuery;
 
@@ -94,9 +96,14 @@ pub async fn auth_session_get(req: ApiRequest) -> ApiResponse {
 pub async fn auth_session_validate(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
-    let VerifySession { session_token, user_id } = req.body_json().await?;
+    let VerifySession {
+        session_token,
+        user_id,
+    } = req.body_json().await?;
 
-    SessionService::verify(&ctx, &session_token, user_id).await.to_api()?;
+    SessionService::verify(&ctx, &session_token, user_id)
+        .await
+        .to_api()?;
 
     txn.commit().await?;
     Ok(Response::new(StatusCode::NoContent))
@@ -118,9 +125,14 @@ pub async fn auth_session_renew(mut req: ApiRequest) -> ApiResponse {
 pub async fn auth_session_invalidate_others(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
-    let InvalidateOtherSessions { session_token, user_id } = req.body_json().await?;
+    let InvalidateOtherSessions {
+        session_token,
+        user_id,
+    } = req.body_json().await?;
 
-    let invalidated = SessionService::invalidate_others(&ctx, &session_token, user_id).await.to_api()?;
+    let invalidated = SessionService::invalidate_others(&ctx, &session_token, user_id)
+        .await
+        .to_api()?;
 
     let body = Body::from_json(&invalidated)?;
     let response = Response::builder(StatusCode::Ok).body(body).into();
