@@ -52,11 +52,19 @@ pub struct LoginUserOutput {
     pub needs_mfa: bool,
 }
 
+#[derive(Debug)]
+pub struct MultiFactorAuthenticateUser<'a> {
+    pub session_token: &'a str,
+    pub totp_or_code: &'a str,
+}
+
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct MultiFactorAuthenticateUser {
+pub struct LoginUserMfa {
     pub session_token: String,
     pub totp_or_code: String,
+    pub ip_address: IpAddr,
+    pub user_agent: String,
 }
 
 /// Password hash to compute against when a user does not exist.

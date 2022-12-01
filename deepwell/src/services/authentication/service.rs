@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::models::user::{self, Entity as User};
+use crate::models::user::{self, Entity as User, Model as UserModel};
 use crate::services::{MfaService, PasswordService, SessionService, UserService};
 
 #[derive(Debug)]
@@ -50,15 +50,19 @@ impl AuthenticationService {
     }
 
     /// Verifies the TOTP code for a user, after they have logged in.
+    ///
+    /// # Returns
+    /// The user model for the authenticated session.
     pub async fn auth_mfa(
         ctx: &ServiceContext<'_>,
         MultiFactorAuthenticateUser {
             session_token,
             totp_or_code,
-        }: MultiFactorAuthenticateUser,
-    ) -> Result<()> {
+        }: MultiFactorAuthenticateUser<'_>,
+    ) -> Result<UserModel> {
         // Get associated user model from the session
-        let session = SessionService::get(ctx, &session_token).await?;
+        // TODO use JOIN
+        let session = SessionService::get(ctx, session_token).await?;
         let user = UserService::get(ctx, Reference::Id(session.user_id)).await?;
 
         // Process input, verifying depending on type
@@ -70,10 +74,10 @@ impl AuthenticationService {
             //
             // We don't need to validate it for length because
             // we want consistent time checks on recovery codes anyways.
-            Err(_) => MfaService::verify_recovery(ctx, &user, &totp_or_code).await?,
+            Err(_) => MfaService::verify_recovery(ctx, &user, totp_or_code).await?,
         }
 
-        Ok(())
+        Ok(user)
     }
 
     /// Gets user information from the database, or return a dummy.

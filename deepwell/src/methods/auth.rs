@@ -20,8 +20,8 @@
 
 use super::prelude::*;
 use crate::services::authentication::{
-    AuthenticateUserOutput, AuthenticationService, LoginUser, LoginUserOutput,
-    MultiFactorAuthenticateUser,
+    AuthenticateUserOutput, AuthenticationService, LoginUser, LoginUserMfa,
+    LoginUserOutput, MultiFactorAuthenticateUser,
 };
 use crate::services::session::{
     CreateSession, InvalidateOtherSessions, RenewSession, SessionInputOutput,
@@ -177,14 +177,44 @@ pub async fn auth_logout(mut req: ApiRequest) -> ApiResponse {
 pub async fn auth_mfa_verify(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
-    let input: MultiFactorAuthenticateUser = req.body_json().await?;
+    let LoginUserMfa {
+        session_token,
+        totp_or_code,
+        ip_address,
+        user_agent,
+    } = req.body_json().await?;
 
-    AuthenticationService::auth_mfa(&ctx, input).await?;
+    tide::log::info!(
+        "Verifying user's MFA for login (temporary session token {session_token})"
+    );
 
-    // TODO session recreation
+    let user = AuthenticationService::auth_mfa(
+        &ctx,
+        MultiFactorAuthenticateUser {
+            session_token: &session_token,
+            totp_or_code: &totp_or_code,
+        },
+    )
+    .await?;
 
+    let new_session_token = SessionService::renew(
+        &ctx,
+        RenewSession {
+            old_session_token: session_token,
+            user_id: user.user_id,
+            ip_address,
+            user_agent,
+        },
+    )
+    .await?;
+
+    let body = Body::from_json(&SessionInputOutput {
+        session_token: new_session_token,
+    })?;
+
+    let response = Response::builder(StatusCode::Ok).body(body).into();
     txn.commit().await?;
-    Ok(Response::new(StatusCode::NoContent))
+    Ok(response)
 }
 
 pub async fn auth_mfa_setup(req: ApiRequest) -> ApiResponse {
