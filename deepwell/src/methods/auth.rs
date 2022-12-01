@@ -78,7 +78,7 @@ pub async fn auth_login(mut req: ApiRequest) -> ApiResponse {
     Ok(response)
 }
 
-pub async fn auth_session_get(mut req: ApiRequest) -> ApiResponse {
+pub async fn auth_session_get(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
     let UserIdQuery { user_id } = req.query()?;
