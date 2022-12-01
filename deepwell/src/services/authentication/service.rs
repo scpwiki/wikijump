@@ -61,7 +61,10 @@ impl AuthenticationService {
         }: MultiFactorAuthenticateUser<'_>,
     ) -> Result<UserModel> {
         // Get associated user model from the session
-        let user = SessionService::get_user(ctx, session_token).await?;
+        //
+        // Requires the session is restricted, meaning they are
+        // in the middle of logging in still
+        let user = SessionService::get_user(ctx, session_token, true).await?;
 
         // Process input, verifying depending on type
         match totp_or_code.parse() {

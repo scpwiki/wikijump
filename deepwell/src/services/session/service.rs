@@ -144,9 +144,12 @@ impl SessionService {
     ///
     /// Performs a join rather than two separate fetches.
     /// Yields an error if the given session token does not exist or is expired.
+    ///
+    /// The `restricted` status must match the argument passed.
     pub async fn get_user(
         ctx: &ServiceContext<'_>,
         session_token: &str,
+        restricted: bool,
     ) -> Result<UserModel> {
         tide::log::info!("Looking up user from session token {session_token}");
 
@@ -156,7 +159,8 @@ impl SessionService {
             .filter(
                 Condition::all()
                     .add(session::Column::SessionToken.eq(session_token))
-                    .add(session::Column::ExpiresAt.gt(now())),
+                    .add(session::Column::ExpiresAt.gt(now()))
+                    .add(session::Column::Restricted.eq(restricted)),
             )
             .one(txn)
             .await?
