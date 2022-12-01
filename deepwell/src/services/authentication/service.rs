@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::models::user::{self, Entity as User, Model as UserModel};
-use crate::services::{MfaService, PasswordService, SessionService, UserService};
+use crate::services::{MfaService, PasswordService, SessionService};
 
 #[derive(Debug)]
 pub struct AuthenticationService;
@@ -61,9 +61,7 @@ impl AuthenticationService {
         }: MultiFactorAuthenticateUser<'_>,
     ) -> Result<UserModel> {
         // Get associated user model from the session
-        // TODO use JOIN
-        let session = SessionService::get(ctx, session_token).await?;
-        let user = UserService::get(ctx, Reference::Id(session.user_id)).await?;
+        let user = SessionService::get_user(ctx, session_token).await?;
 
         // Process input, verifying depending on type
         match totp_or_code.parse() {

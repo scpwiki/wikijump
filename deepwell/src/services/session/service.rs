@@ -32,6 +32,7 @@
 
 use super::prelude::*;
 use crate::models::session::{self, Entity as Session, Model as SessionModel};
+use crate::models::user::{Entity as User, Model as UserModel};
 use crate::utils::assert_is_csprng;
 use chrono::Duration;
 use rand::distributions::{Alphanumeric, DistString};
@@ -137,6 +138,31 @@ impl SessionService {
             .await?;
 
         Ok(session)
+    }
+
+    /// Gets the associated `UserModel` from an active session.
+    ///
+    /// Performs a join rather than two separate fetches.
+    /// Yields an error if the given session token does not exist or is expired.
+    pub async fn get_user(
+        ctx: &ServiceContext<'_>,
+        session_token: &str,
+    ) -> Result<UserModel> {
+        tide::log::info!("Looking up user from session token {session_token}");
+
+        let txn = ctx.transaction();
+        let user = User::find()
+            .join(JoinType::Join, session::Relation::User.def())
+            .filter(
+                Condition::all()
+                    .add(session::Column::SessionToken.eq(session_token))
+                    .add(session::Column::ExpiresAt.gt(now())),
+            )
+            .one(txn)
+            .await?
+            .ok_or(Error::NotFound)?;
+
+        Ok(user)
     }
 
     /// Verifies that the given session token is valid for this user ID.
