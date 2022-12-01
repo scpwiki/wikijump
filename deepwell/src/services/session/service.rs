@@ -180,8 +180,15 @@ impl SessionService {
 
         let session = Self::get_optional(ctx, session_token).await?;
         match session {
-            Some(session) if session.user_id == user_id => Ok(()),
-            Some(session) => {
+            None => {
+                tide::log::error!("Session not validated (not found or expired)");
+                Err(Error::InvalidAuthentication)
+            }
+            Some(session) if session.restricted => {
+                tide::log::error!("Session is restricted");
+                Err(Error::InvalidAuthentication)
+            }
+            Some(session) if session.user_id != user_id => {
                 tide::log::error!(
                     "Session not validated (incorrect user ID, found {})",
                     session.user_id,
@@ -189,10 +196,7 @@ impl SessionService {
 
                 Err(Error::InvalidAuthentication)
             }
-            None => {
-                tide::log::error!("Session not validated (not found or expired)");
-                Err(Error::InvalidAuthentication)
-            }
+            Some(_session) => Ok(()),
         }
     }
 
