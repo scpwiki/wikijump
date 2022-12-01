@@ -43,19 +43,14 @@ const SESSION_TOKEN_PREFIX: &str = "wj:";
 /// Length of each session token.
 const SESSION_TOKEN_LENGTH: usize = 64;
 
-// Duration of sessions before expiry.
-//
-// For normal sessions (i.e. is authenticated and has access), it is 30 minutes.
-//
-// For restricted sessions (i.e. still authenticating, no access), it is 5 minutes.
-// Or in other words, the user has 5 minutes to finish logging in before they must
-// restart the authentication process.
-//
-// These are not const fn so they are lazy_static.
-lazy_static! {
-    static ref NORMAL_SESSION_EXPIRY: Duration = Duration::minutes(30);
-    static ref RESTRICTED_SESSION_EXPIRY: Duration = Duration::minutes(5);
-}
+/// Number of minutes that normal sessions last before expiring.
+const NORMAL_SESSION_MINUTES: i64 = 30;
+
+/// Number of minutes that restricted sessions last.
+///
+/// This is essentially the time the user has to finish logging in
+/// before they must begin again.
+const RESTRICTED_SESSION_MINUTES: i64 = 5;
 
 #[derive(Debug)]
 pub struct SessionService;
@@ -81,9 +76,9 @@ impl SessionService {
         let txn = ctx.transaction();
         let token = Self::new_token();
         let expiry = if restricted {
-            now() + *RESTRICTED_SESSION_EXPIRY
+            now() + Duration::minutes(RESTRICTED_SESSION_MINUTES)
         } else {
-            now() + *NORMAL_SESSION_EXPIRY
+            now() + Duration::minutes(NORMAL_SESSION_MINUTES)
         };
 
         let model = session::ActiveModel {
