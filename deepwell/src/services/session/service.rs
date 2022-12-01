@@ -134,7 +134,10 @@ impl SessionService {
 
     /// Gets all active sessions for a user.
     /// For instance, useful for listing all sessions and their information.
-    pub async fn get_all(ctx: &ServiceContext<'_>, user_id: i64) -> Result<Vec<SessionModel>> {
+    pub async fn get_all(
+        ctx: &ServiceContext<'_>,
+        user_id: i64,
+    ) -> Result<Vec<SessionModel>> {
         tide::log::info!("Getting all sessions for user ID {user_id}");
 
         let txn = ctx.transaction();
