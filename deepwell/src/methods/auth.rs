@@ -78,6 +78,19 @@ pub async fn auth_login(mut req: ApiRequest) -> ApiResponse {
     Ok(response)
 }
 
+pub async fn auth_session_get(mut req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+    let UserIdQuery { user_id } = req.query()?;
+
+    let sessions = SessionService::get_all(&ctx, user_id).await.to_api()?;
+
+    let body = Body::from_json(&sessions)?;
+    let response = Response::builder(StatusCode::Ok).body(body).into();
+    txn.commit().await?;
+    Ok(response)
+}
+
 pub async fn auth_session_validate(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
