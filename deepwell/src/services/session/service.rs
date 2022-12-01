@@ -50,6 +50,8 @@ const SESSION_TOKEN_LENGTH: usize = 64;
 // For restricted sessions (i.e. still authenticating, no access), it is 5 minutes.
 // Or in other words, the user has 5 minutes to finish logging in before they must
 // restart the authentication process.
+//
+// These are not const fn so they are lazy_static.
 lazy_static! {
     static ref NORMAL_SESSION_EXPIRY: Duration = Duration::minutes(30);
     static ref RESTRICTED_SESSION_EXPIRY: Duration = Duration::minutes(5);
@@ -245,6 +247,7 @@ impl SessionService {
         let txn = ctx.transaction();
         let DeleteResult { rows_affected } =
             Session::delete_by_id(session_token).exec(txn).await?;
+
         if rows_affected != 1 {
             tide::log::error!("This session was already deleted or does not exist");
             return Err(Error::NotFound);
