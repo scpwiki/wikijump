@@ -1221,7 +1221,7 @@ dependencies = [
 
 [[package]]
 name = "deepwell"
-version = "2022.11.28"
+version = "2022.12.1"
 dependencies = [
  "anyhow",
  "argon2",
