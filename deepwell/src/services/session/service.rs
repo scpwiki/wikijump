@@ -139,9 +139,9 @@ impl SessionService {
         Ok(session)
     }
 
-    /// Validates that the given session token is valid for this user ID.
+    /// Verifies that the given session token is valid for this user ID.
     /// Returns `InvalidAuthentication` on failure.
-    pub async fn validate(
+    pub async fn verify(
         ctx: &ServiceContext<'_>,
         session_token: &str,
         user_id: i64,
