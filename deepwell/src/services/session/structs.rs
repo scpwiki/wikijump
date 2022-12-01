@@ -38,8 +38,8 @@ pub struct RenewSession {
     pub user_agent: String,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct ProcessSession {
+pub struct SessionInputOutput {
     pub session_token: String,
 }
