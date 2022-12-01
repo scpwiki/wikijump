@@ -82,7 +82,7 @@ pub async fn auth_logout(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    // TODO session closure
+    //SessionService::invalidate(&ctx,
     let _ = ctx;
     todo!()
 }

@@ -115,21 +115,58 @@ impl SessionService {
 
     /// Gets a session model from its token.
     /// Yields an error if the given session token does not exist or is expired.
-    pub async fn get(ctx: &ServiceContext<'_>, token: &str) -> Result<SessionModel> {
-        tide::log::info!("Looking up session with token {token}");
+    pub async fn get(
+        ctx: &ServiceContext<'_>,
+        session_token: &str,
+    ) -> Result<SessionModel> {
+        tide::log::info!("Looking up session with token {session_token}");
+        Self::get_optional(ctx, session_token)
+            .await?
+            .ok_or(Error::NotFound)
+    }
 
+    async fn get_optional(
+        ctx: &ServiceContext<'_>,
+        session_token: &str,
+    ) -> Result<Option<SessionModel>> {
         let txn = ctx.transaction();
         let session = Session::find()
             .filter(
                 Condition::all()
-                    .add(session::Column::SessionToken.eq(token))
+                    .add(session::Column::SessionToken.eq(session_token))
                     .add(session::Column::ExpiresAt.gt(now())),
             )
             .one(txn)
-            .await?
-            .ok_or(Error::NotFound)?;
+            .await?;
 
         Ok(session)
+    }
+
+    /// Validates that the given session token is valid for this user ID.
+    /// Returns `InvalidAuthentication` on failure.
+    pub async fn validate(
+        ctx: &ServiceContext<'_>,
+        session_token: &str,
+        user_id: i64,
+    ) -> Result<()> {
+        tide::log::info!("Validating session {session_token} for user ID {user_id}");
+
+        let session = Self::get_optional(ctx, session_token).await?;
+        match session {
+            Some(session) if session.user_id == user_id => Ok(()),
+            Some(session) => {
+                tide::log::error!(
+                    "Session not validated (incorrect user ID, found {})",
+                    session.user_id,
+                );
+
+                Err(Error::InvalidAuthentication)
+            }
+            None => {
+                tide::log::error!("Session not validated (not found or expired)");
+                Err(Error::InvalidAuthentication)
+            }
+        }
     }
 
     /// Gets all active sessions for a user.
