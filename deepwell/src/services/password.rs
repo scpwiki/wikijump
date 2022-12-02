@@ -71,7 +71,6 @@ impl PasswordService {
     pub async fn verify_sleep(password: &str, hash: &str, sleep: bool) -> Result<()> {
         tide::log::info!("Attempting to verify password");
         let result = Self::verify_internal(password, hash);
-
         match result {
             Ok(()) => Ok(()),
             Err(error) => {

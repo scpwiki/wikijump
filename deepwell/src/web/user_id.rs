@@ -1,5 +1,5 @@
 /*
- * utils/crypto.rs
+ * web/user_id.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,13 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Utilities related to cryptographic operations and primitives.
-
-use rand::CryptoRng;
-
-/// Statically verifies that this random number generator is secure.
-///
-/// The build will fail if the passed generator is not a CSPRNG
-/// (cryptographically-secure psuedorandom number generator).
-#[inline]
-pub fn assert_is_csprng(_: &dyn CryptoRng) {}
+#[derive(Serialize, Deserialize, Debug, Copy, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct UserIdQuery {
+    pub user_id: i64,
+}

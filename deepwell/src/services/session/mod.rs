@@ -1,5 +1,5 @@
 /*
- * utils/crypto.rs
+ * services/session/mod.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2022 Wikijump Team
@@ -18,13 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Utilities related to cryptographic operations and primitives.
+mod prelude {
+    pub use super::super::prelude::*;
+    pub use super::structs::*;
+}
 
-use rand::CryptoRng;
+mod service;
+mod structs;
 
-/// Statically verifies that this random number generator is secure.
-///
-/// The build will fail if the passed generator is not a CSPRNG
-/// (cryptographically-secure psuedorandom number generator).
-#[inline]
-pub fn assert_is_csprng(_: &dyn CryptoRng) {}
+pub use self::service::SessionService;
+pub use self::structs::*;

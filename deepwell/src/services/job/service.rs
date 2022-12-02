@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::api::ApiServerState;
-use crate::services::RevisionService;
+use crate::services::{RevisionService, SessionService};
 use async_std::task;
 use crossfire::mpsc;
 use sea_orm::TransactionTrait;
@@ -61,6 +61,11 @@ impl JobService {
 
         Self::queue_job(Job::RerenderPageId { site_id, page_id });
     }
+
+    pub fn queue_prune_sessions() {
+        tide::log::debug!("Queueing sessions list for pruning");
+        Self::queue_job(Job::PruneSessions);
+    }
 }
 
 #[derive(Debug)]
@@ -70,9 +75,26 @@ pub struct JobRunner {
 
 impl JobRunner {
     pub fn spawn(state: &ApiServerState) {
+        // Main runner
         let state = Arc::clone(state);
         let runner = JobRunner { state };
         task::spawn(runner.main_loop());
+
+        // Ancillary tasks
+        task::spawn(async {
+            // Prune expired sessions every five minutes
+            //
+            // Because the query already excludes expired sessions,
+            // this task not catching sessions right away is not a
+            // security risk.
+            const DELAY: Duration = Duration::from_secs(5 * 60);
+
+            loop {
+                tide::log::trace!("Running repeat job: prune expired sessions");
+                JobService::queue_prune_sessions();
+                task::sleep(DELAY).await;
+            }
+        });
     }
 
     async fn main_loop(mut self) -> Void {
@@ -106,6 +128,9 @@ impl JobRunner {
         match job {
             Job::RerenderPageId { site_id, page_id } => {
                 RevisionService::rerender(ctx, site_id, page_id).await?;
+            }
+            Job::PruneSessions => {
+                SessionService::prune(ctx).await?;
             }
         }
 

@@ -85,6 +85,7 @@ impl Default for UserDetails {
 }
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct UserDetailsQuery {
     #[serde(default)]
     pub detail: UserDetails,

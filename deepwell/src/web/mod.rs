@@ -28,6 +28,7 @@ mod provided_value;
 mod reference;
 mod unwrap;
 mod user_details;
+mod user_id;
 
 pub use self::connection_type::ConnectionType;
 pub use self::fetch_direction::FetchDirection;
@@ -41,3 +42,4 @@ pub use self::provided_value::ProvidedValue;
 pub use self::reference::{CuidReference, Reference};
 pub use self::unwrap::HttpUnwrap;
 pub use self::user_details::{UserDetails, UserDetailsQuery};
+pub use self::user_id::UserIdQuery;

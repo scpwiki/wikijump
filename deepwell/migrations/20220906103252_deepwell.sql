@@ -90,6 +90,20 @@ CREATE TABLE site (
 );
 
 --
+-- Session
+--
+
+CREATE TABLE session (
+    session_token TEXT PRIMARY KEY CHECK (length(session_token) > 48),
+    user_id BIGINT NOT NULL REFERENCES "user"(user_id),
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL CHECK (expires_at > created_at),
+    ip_address INET NOT NULL,
+    user_agent TEXT NOT NULL,
+    restricted BOOLEAN NOT NULL
+);
+
+--
 -- Page
 --
 

@@ -38,7 +38,7 @@ const TIME_STEP: u64 = 30;
 /// This represents the seconds that a TOTP is offset by in
 /// determining whether the authentication was accepted.
 ///
-/// See https://github.com/TimDumol/rust-otp/blob/master/src/lib.rs#L56
+/// See <https://github.com/TimDumol/rust-otp/blob/master/src/lib.rs#L56>.
 const TIME_SKEW: i64 = 1;
 
 #[derive(Debug)]

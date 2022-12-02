@@ -19,59 +19,103 @@
  */
 
 use super::prelude::*;
-use crate::models::user::Model as UserModel;
-use crate::services::{MfaService, PasswordService};
+use crate::models::user::{self, Entity as User, Model as UserModel};
+use crate::services::{MfaService, PasswordService, SessionService};
 
 #[derive(Debug)]
 pub struct AuthenticationService;
 
 impl AuthenticationService {
-    /// Verifies the passed credentials for the user to determine if they are valid.
-    /// If so, the user is cleared to log in.
-    // TODO should password and TOTP be separate methods?
-    //      how can they both be sent at once, UI-wise?
-    pub async fn auth_user(
+    /// Verifies the passed credentials for a user.
+    /// If so, they are cleared to log in (or perform some other sensitive action).
+    pub async fn auth_password(
         ctx: &ServiceContext<'_>,
-        user: &UserModel,
-        AuthenticateUser { password, totp }: AuthenticateUser,
-    ) -> Result<()> {
-        tide::log::info!("Attempting to authenticate user ID {}", user.user_id);
+        AuthenticateUser {
+            name_or_email,
+            password,
+        }: AuthenticateUser,
+    ) -> Result<AuthenticateUserOutput> {
+        let auth = Self::get_user_auth(ctx, &name_or_email).await?;
+        PasswordService::verify(&password, &auth.password_hash).await?;
 
-        // Verify password
-        PasswordService::verify(&password, &user.password).await?;
-
-        // Verify MFA
-        match (totp, user.multi_factor_secret.is_some()) {
-            // Provided TOTP, validate
-            (Some(value), true) => {
-                match value.parse() {
-                    // If the value is a positive integer, treat it as a TOTP
-                    Ok(totp) => MfaService::verify(user, totp).await?,
-
-                    // Otherwise treat it as a recovery code string
-                    //
-                    // We don't need to validate it for length because
-                    // we want consistent time checks on recovery codes anyways.
-                    Err(_) => MfaService::verify_recovery(ctx, user, &value).await?,
-                }
-            }
-
-            // MFA is required but not provided
-            (Some(_), false) => {
-                tide::log::warn!("User requires MFA but TOTP was not provided");
-                return Err(Error::InvalidAuthentication);
-            }
-
-            // MFA is disabled, don't check
-            (None, false) => (),
-
-            // MFA is disabled but provided anyways
-            (None, true) => {
-                tide::log::warn!("User doesn't require MFA but TOTP was provided");
-                return Err(Error::InvalidAuthentication);
-            }
+        // User not found, return authentication failure
+        if !auth.valid {
+            return Err(Error::InvalidAuthentication);
         }
 
-        Ok(())
+        Ok(AuthenticateUserOutput {
+            needs_mfa: auth.multi_factor_secret.is_some(),
+            user_id: auth.user_id,
+        })
+    }
+
+    /// Verifies the TOTP code for a user, after they have logged in.
+    ///
+    /// # Returns
+    /// The user model for the authenticated session.
+    pub async fn auth_mfa(
+        ctx: &ServiceContext<'_>,
+        MultiFactorAuthenticateUser {
+            session_token,
+            totp_or_code,
+        }: MultiFactorAuthenticateUser<'_>,
+    ) -> Result<UserModel> {
+        // Get associated user model from the session
+        //
+        // Requires the session is restricted, meaning they are
+        // in the middle of logging in still
+        let user = SessionService::get_user(ctx, session_token, true).await?;
+
+        // Process input, verifying depending on type
+        match totp_or_code.parse() {
+            // If the value is a positive integer, treat it as a TOTP
+            Ok(totp) => MfaService::verify(&user, totp).await?,
+
+            // Otherwise treat it as a recovery code string
+            //
+            // We don't need to validate it for length because
+            // we want consistent time checks on recovery codes anyways.
+            Err(_) => MfaService::verify_recovery(ctx, &user, totp_or_code).await?,
+        }
+
+        Ok(user)
+    }
+
+    /// Gets user information from the database, or return a dummy.
+    ///
+    /// To avoid timing attacks, all aspects of authentication (finding the user,
+    /// verifying their password, etc.) should take approximately the same amount
+    /// of time.
+    ///
+    /// As such, if the user requested does not actually exist, we should pull a
+    /// fake dummy user, perform redundant authentication checks against them before
+    /// finally returning failure.
+    ///
+    /// Similarly, the only error that should be returned is a generic authentication error.
+    async fn get_user_auth(
+        ctx: &ServiceContext<'_>,
+        name_or_email: &str,
+    ) -> Result<UserAuthInfo> {
+        tide::log::info!("Looking for user matching name or email '{name_or_email}'");
+
+        let txn = ctx.transaction();
+        let result = User::find()
+            .filter(
+                Condition::any()
+                    .add(user::Column::Name.eq(name_or_email))
+                    .add(user::Column::Slug.eq(name_or_email))
+                    .add(user::Column::Email.eq(name_or_email)),
+            )
+            .one(txn)
+            .await?;
+
+        match result {
+            // Found user, return real auth information
+            Some(user) => Ok(UserAuthInfo::valid(user)),
+
+            // Didn't find user, return fake auth information
+            // Checking should proceed as normal to avoid timing attacks
+            None => Ok(UserAuthInfo::invalid()),
+        }
     }
 }
