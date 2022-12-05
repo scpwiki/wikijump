@@ -734,9 +734,9 @@ dependencies = [
 
 [[package]]
 name = "parcel_selectors"
-version = "0.24.7"
+version = "0.24.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5f25f4bac7855f8a34833b5499ad655768ea6697cbe28facdf78a09dc7f2a2d0"
+checksum = "e008595fbef23c48b368c24e971a70dc32351ec139a67a7e5dd53a14dd90d954"
 dependencies = [
  "bitflags",
  "cssparser",
