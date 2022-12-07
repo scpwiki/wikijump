@@ -20,7 +20,7 @@ async-std = { version = "1", features = ["attributes"] }
 chrono = { version = "0.4", features = ["serde"] }
 clap = "4"
 color-backtrace = "0.5"
-crossfire = "0.1"
+crossfire = "1.0"
 cuid = "1"
 data-encoding = "2"
 dotenv = "0.15"
