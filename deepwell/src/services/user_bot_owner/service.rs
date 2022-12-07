@@ -139,8 +139,7 @@ impl UserBotOwnerService {
 
         debug_assert!(
             rows_affected <= 1,
-            "Rows deleted using ID was more than 1: {}",
-            rows_affected,
+            "Rows deleted using ID was more than 1: {rows_affected}",
         );
 
         Ok(rows_affected == 1)
