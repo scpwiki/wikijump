@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::url::is_url;
 
 pub const BLOCK_IFRAME: BlockRule = BlockRule {
     name: "block-iframe",
@@ -42,6 +43,11 @@ fn parse_fn<'r, 't>(
     assert_block_name(&BLOCK_IFRAME, name);
 
     let (url, arguments) = parser.get_head_name_map(&BLOCK_IFRAME, in_head)?;
+    if !is_url(url) {
+        warn!("Iframe block references non-URL: {url}");
+        return Err(parser.make_err(ParseErrorKind::BlockMalformedArguments));
+    }
+
     let element = Element::Iframe {
         url: cow!(url),
         attributes: arguments.to_attribute_map(parser.settings()),
