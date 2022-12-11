@@ -1,0 +1,89 @@
+{
+    "input": "[[iframe javascript:alert(1)]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "[["
+                        },
+                        {
+                            "element": "text",
+                            "data": "iframe"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "javascript"
+                        },
+                        {
+                            "element": "text",
+                            "data": ":"
+                        },
+                        {
+                            "element": "text",
+                            "data": "alert"
+                        },
+                        {
+                            "element": "text",
+                            "data": "("
+                        },
+                        {
+                            "element": "text",
+                            "data": "1"
+                        },
+                        {
+                            "element": "text",
+                            "data": ")"
+                        },
+                        {
+                            "element": "text",
+                            "data": "]]"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ],
+        "bibliographies": [
+        ]
+    },
+    "errors": [
+        {
+            "token": "input-end",
+            "rule": "block-iframe",
+            "span": [30, 30],
+            "kind": "block-malformed-arguments"
+        },
+        {
+            "token": "left-block",
+            "rule": "fallback",
+            "span": [0, 2],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "right-block",
+            "rule": "fallback",
+            "span": [28, 30],
+            "kind": "no-rules-match"
+        }
+    ]
+}
