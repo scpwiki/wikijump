@@ -61,10 +61,8 @@ fn build_embed<'r, 't>(
 where
     'r: 't,
 {
-    const EMBED_BUILDERS: &[(&str, EmbedBuilderFn)] = &[
-        ("youtube", build_youtube),
-        ("vimeo", build_vimeo),
-    ];
+    const EMBED_BUILDERS: &[(&str, EmbedBuilderFn)] =
+        &[("youtube", build_youtube), ("vimeo", build_vimeo)];
 
     for &(embed_name, builder) in EMBED_BUILDERS {
         if embed_name.eq_ignore_ascii_case(name) {
