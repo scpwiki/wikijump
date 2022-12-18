@@ -64,8 +64,6 @@ where
     const EMBED_BUILDERS: &[(&str, EmbedBuilderFn)] = &[
         ("youtube", build_youtube),
         ("vimeo", build_vimeo),
-        ("github-gist", build_github_gist),
-        ("gitlab-snippet", build_gitlab_snippet),
     ];
 
     for &(embed_name, builder) in EMBED_BUILDERS {
@@ -101,36 +99,8 @@ fn build_vimeo<'p, 't>(
     Ok(Embed::Vimeo { video_id })
 }
 
-fn build_github_gist<'p, 't>(
-    parser: &'p Parser<'_, 't>,
-    arguments: &'p mut Arguments<'t>,
-) -> Result<Embed<'t>, ParseError> {
-    let username = arguments
-        .get("username")
-        .ok_or_else(|| parser.make_err(ParseErrorKind::BlockMissingArguments))?;
-
-    let hash = arguments
-        .get("hash")
-        .ok_or_else(|| parser.make_err(ParseErrorKind::BlockMissingArguments))?;
-
-    Ok(Embed::GithubGist { username, hash })
-}
-
-fn build_gitlab_snippet<'p, 't>(
-    parser: &'p Parser<'_, 't>,
-    arguments: &'p mut Arguments<'t>,
-) -> Result<Embed<'t>, ParseError> {
-    let snippet_id = arguments
-        .get("id")
-        .ok_or_else(|| parser.make_err(ParseErrorKind::BlockMissingArguments))?;
-
-    Ok(Embed::GitlabSnippet { snippet_id })
-}
-
 #[test]
 fn embed_builder_types() {
     let _: EmbedBuilderFn = build_youtube;
     let _: EmbedBuilderFn = build_vimeo;
-    let _: EmbedBuilderFn = build_github_gist;
-    let _: EmbedBuilderFn = build_gitlab_snippet;
 }
