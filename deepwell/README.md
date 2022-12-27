@@ -51,7 +51,7 @@ The routes are defined in `api/`, with their implementations in `methods/`, and 
 
 ### Compilation
 
-This executable targets the latest stable Rust. At time of writing, that is `1.65.0`.
+This executable targets the latest stable Rust. At time of writing, that is `1.66.0`.
 
 ```sh
 $ cargo build --release
