@@ -475,7 +475,7 @@ dependencies = [
  "log",
  "maplit",
  "parcel_css",
- "parcel_selectors",
+ "parcel_selectors 0.25.0",
  "pest",
  "pest_derive",
  "proptest",
@@ -805,7 +805,7 @@ dependencies = [
  "data-encoding",
  "itertools",
  "lazy_static",
- "parcel_selectors",
+ "parcel_selectors 0.24.9",
  "parcel_sourcemap",
  "rayon",
  "serde",
@@ -814,13 +814,29 @@ dependencies = [
 
 [[package]]
 name = "parcel_selectors"
-version = "0.24.7"
+version = "0.24.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5f25f4bac7855f8a34833b5499ad655768ea6697cbe28facdf78a09dc7f2a2d0"
+checksum = "e008595fbef23c48b368c24e971a70dc32351ec139a67a7e5dd53a14dd90d954"
 dependencies = [
  "bitflags",
  "cssparser",
  "derive_more",
+ "fxhash",
+ "log",
+ "phf 0.8.0",
+ "phf_codegen",
+ "precomputed-hash",
+ "smallvec",
+]
+
+[[package]]
+name = "parcel_selectors"
+version = "0.25.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f2c9c34c94f61e0f95e7c0b1fe98556be452ebc15ef131ee01f0204696d95956"
+dependencies = [
+ "bitflags",
+ "cssparser",
  "fxhash",
  "log",
  "phf 0.8.0",
