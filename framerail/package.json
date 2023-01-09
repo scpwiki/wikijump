@@ -33,7 +33,7 @@
     "sass": "^1.56.1",
     "stylelint": "^14.15.0",
     "stylelint-config-recess-order": "^3.0.0",
-    "stylelint-order": "^5.0.0",
+    "stylelint-order": "^6.0.1",
     "stylelint-scss": "^4.3.0",
     "svelte": "^3.44.0",
     "svelte-check": "^3.0.1",
