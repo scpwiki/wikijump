@@ -89,8 +89,9 @@ impl PartialElement<'_> {
 ///
 /// This is a flag to the parser which designates which
 /// partial (if any) the rule is currently looking to accept.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Default, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum AcceptsPartial {
+    #[default]
     None,
     ListItem,
     TableRow,
@@ -109,12 +110,5 @@ impl AcceptsPartial {
                 | (AcceptsPartial::Tab, PartialElement::Tab(_))
                 | (AcceptsPartial::Ruby, PartialElement::RubyText(_))
         )
-    }
-}
-
-impl Default for AcceptsPartial {
-    #[inline]
-    fn default() -> Self {
-        AcceptsPartial::None
     }
 }
