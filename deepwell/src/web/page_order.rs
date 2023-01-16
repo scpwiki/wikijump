@@ -45,11 +45,12 @@ impl Default for PageOrder {
 }
 
 /// Describes what column that pages should be ordered by.
-#[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Default, Copy, Clone, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub enum PageOrderColumn {
     /// Requests pages in page ID order.
     /// This is the default.
+    #[default]
     Id,
 
     /// Requests pages in page creation order.
@@ -67,13 +68,6 @@ impl PageOrderColumn {
     #[inline]
     pub fn into_column(self) -> page::Column {
         self.into()
-    }
-}
-
-impl Default for PageOrderColumn {
-    #[inline]
-    fn default() -> Self {
-        PageOrderColumn::Id
     }
 }
 
