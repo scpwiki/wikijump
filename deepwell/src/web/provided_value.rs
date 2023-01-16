@@ -25,12 +25,13 @@
 /// it to null (`None`).
 ///
 /// The `Unset` variant can only be constructed if the field is absent.
-#[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone, Hash, PartialEq, Eq)]
 #[serde(untagged)]
 pub enum ProvidedValue<T> {
     Set(T),
 
     #[serde(skip)]
+    #[default]
     Unset,
 }
 
@@ -51,13 +52,6 @@ impl<T> From<ProvidedValue<T>> for Option<T> {
             ProvidedValue::Set(value) => Some(value),
             ProvidedValue::Unset => None,
         }
-    }
-}
-
-impl<T> Default for ProvidedValue<T> {
-    #[inline]
-    fn default() -> Self {
-        ProvidedValue::Unset
     }
 }
 

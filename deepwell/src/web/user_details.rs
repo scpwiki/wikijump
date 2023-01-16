@@ -27,6 +27,7 @@ use strum_macros::EnumIter;
     Serialize,
     Deserialize,
     Debug,
+    Default,
     Copy,
     Clone,
     Hash,
@@ -40,6 +41,7 @@ pub enum UserDetails {
     /// Basic level of information needed to describe a user.
     ///
     /// Associated with the struct `UserIdentityOutput`.
+    #[default]
     Identity,
 
     /// Describes a user in an intermediate amount of detail.
@@ -74,13 +76,6 @@ impl FromStr for UserDetails {
             "profile" => Ok(UserDetails::Profile),
             _ => Err(ServiceError::InvalidEnumValue),
         }
-    }
-}
-
-impl Default for UserDetails {
-    #[inline]
-    fn default() -> Self {
-        UserDetails::Identity
     }
 }
 
