@@ -1177,7 +1177,7 @@ dependencies = [
  "regex",
  "rust-s3",
  "sea-orm",
- "sea-query 0.28.1",
+ "sea-query 0.28.3",
  "serde",
  "serde_json",
  "sha2 0.10.6",
@@ -3209,9 +3209,9 @@ dependencies = [
 
 [[package]]
 name = "sea-query"
-version = "0.28.1"
+version = "0.28.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c699ac6a3061a56d65aa877f74896cd9a19edc3d51d3d068328a0eb866b1e88b"
+checksum = "d2fbe015dbdaa7d8829d71c1e14fb6289e928ac256b93dfda543c85cd89d6f03"
 dependencies = [
  "sea-query-derive 0.3.0",
 ]
