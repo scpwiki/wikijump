@@ -18,10 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::error::Result;
 use crate::api::{ApiRequest, ApiServerState};
 use crate::config::Config;
-use cuid::cuid;
 use s3::bucket::Bucket;
 use sea_orm::DatabaseTransaction;
 use std::sync::Arc;
@@ -62,12 +60,5 @@ impl<'txn> ServiceContext<'txn> {
     #[inline]
     pub fn transaction(&self) -> &'txn DatabaseTransaction {
         self.transaction
-    }
-
-    // Helpers
-    #[allow(dead_code)] // TEMP
-    pub fn cuid(&self) -> Result<String> {
-        let cuid = cuid()?;
-        Ok(cuid)
     }
 }
