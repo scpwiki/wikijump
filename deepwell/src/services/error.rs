@@ -19,7 +19,6 @@
  */
 
 use crate::locales::LocalizationTranslateError;
-use cuid::CuidError;
 use filemagic::FileMagicError;
 use s3::error::S3Error;
 use sea_orm::error::DbErr;
@@ -37,9 +36,6 @@ pub type Result<T> = StdResult<T, Error>;
 /// facilitated by `PostTransactionToApiResponse`.
 #[derive(ThisError, Debug)]
 pub enum Error {
-    #[error("CUID generation error: {0}")]
-    Cuid(#[from] CuidError),
-
     #[error("Cryptography error: {0}")]
     Cryptography(argon2::password_hash::Error),
 
@@ -104,7 +100,6 @@ pub enum Error {
 impl Error {
     pub fn into_tide_error(self) -> TideError {
         match self {
-            Error::Cuid(inner) => TideError::new(StatusCode::InternalServerError, inner),
             Error::Cryptography(_) => {
                 // The "invalid password" variant should have already been filtered out, see below.
                 TideError::from_str(StatusCode::InternalServerError, "")
