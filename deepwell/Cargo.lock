@@ -656,7 +656,18 @@ checksum = "5b9c056b9ed43aee5e064b683aa1ec783e19c6acec7559e3ae931b7490472fbe"
 dependencies = [
  "cargo-lock",
  "chrono",
- "git2",
+ "git2 0.15.0",
+]
+
+[[package]]
+name = "built"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "96f9cdd34d6eb553f9ea20e5bf84abb7b13c729f113fc1d8e49dc00ad9fa8738"
+dependencies = [
+ "cargo-lock",
+ "chrono",
+ "git2 0.16.1",
 ]
 
 [[package]]
@@ -1170,7 +1181,7 @@ dependencies = [
  "argon2",
  "arraystring",
  "async-std",
- "built",
+ "built 0.6.0",
  "chrono",
  "clap",
  "color-backtrace",
@@ -1495,7 +1506,7 @@ version = "1.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e1f01d00d2664cdc5da35a30f3e35ae053b702c40095429184b742f7bbf68c9e"
 dependencies = [
- "built",
+ "built 0.5.2",
  "cfg-if 1.0.0",
  "chrono",
  "entities",
@@ -1717,6 +1728,19 @@ name = "git2"
 version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2994bee4a3a6a51eb90c218523be382fd7ea09b16380b9312e9dbe955ff7c7d1"
+dependencies = [
+ "bitflags",
+ "libc",
+ "libgit2-sys",
+ "log",
+ "url",
+]
+
+[[package]]
+name = "git2"
+version = "0.16.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ccf7f68c2995f392c49fffb4f95ae2c873297830eb25c6bc4c114ce8f4562acc"
 dependencies = [
  "bitflags",
  "libc",
