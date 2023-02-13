@@ -53,7 +53,7 @@ void = "1"
 wikidot-normalize = "0.10"
 
 [build-dependencies]
-built = { version = "0.5", features = ["chrono", "git2"] }
+built = { version = "0.6", features = ["chrono", "git2"] }
 
 [dev-dependencies]
 proptest = "1"
