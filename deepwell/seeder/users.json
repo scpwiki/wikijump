@@ -91,7 +91,7 @@
         "gender": null,
         "birthday": null,
         "biography": "Example user for documentation purposes",
-        "user_page": null,
+        "user_page": "https://example.com/",
         "aliases": [
             "example",
             "example-user",
