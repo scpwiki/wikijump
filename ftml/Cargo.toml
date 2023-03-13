@@ -9,7 +9,7 @@ categories = ["parser-implementations"]
 exclude = [".gitignore", ".editorconfig"]
 
 version = "1.21.0"
-authors = ["Ammon Smith <ammon.i.smith@gmail.com>"]
+authors = ["Emmie Maeda <emmie.maeda@gmail.com>"]
 edition = "2021" # this is *not* the same as the current year
 
 [lib]
