@@ -18,40 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::error::error_to_js;
 use super::prelude::*;
 use crate::data::PageInfo as RustPageInfo;
 use ref_map::*;
 use std::sync::Arc;
-
-// Typescript declarations
-
-#[wasm_bindgen(typescript_custom_section)]
-const TS_APPEND_CONTENT: &str = r#"
-
-export interface IPageInfo {
-    page: string;
-    category: string | null;
-    site: string;
-    title: string;
-    alt_title: string | null;
-    score: number;
-    tags: string[];
-    language: string;
-}
-
-"#;
-
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen]
-    pub type IPageInfo;
-
-    #[wasm_bindgen]
-    pub type ITags;
-}
-
-// Wrapper structure
 
 #[wasm_bindgen]
 #[derive(Debug, Clone)]
@@ -74,11 +44,9 @@ impl PageInfo {
     }
 
     #[wasm_bindgen(constructor)]
-    pub fn new(object: IPageInfo) -> Result<PageInfo, JsValue> {
-        let rust_page_info = object.into_serde().map_err(error_to_js)?;
-
+    pub fn new(info: JsValue) -> Result<PageInfo, JsValue> {
         Ok(PageInfo {
-            inner: Arc::new(rust_page_info),
+            inner: Arc::new(js_to_rust!(info)?),
         })
     }
 
@@ -115,7 +83,7 @@ impl PageInfo {
     }
 
     #[wasm_bindgen(getter)]
-    pub fn tags(&self) -> Result<ITags, JsValue> {
+    pub fn tags(&self) -> Result<JsValue, JsValue> {
         rust_to_js!(self.inner.tags)
     }
 

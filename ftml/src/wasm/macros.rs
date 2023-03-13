@@ -18,11 +18,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+macro_rules! js_to_rust {
+    ($js:expr) => {{
+        use crate::wasm::error::error_to_js;
+        serde_wasm_bindgen::from_value($js).map_err(error_to_js)
+    }};
+}
+
 macro_rules! rust_to_js {
     ($object:expr) => {{
         use crate::wasm::error::error_to_js;
-
-        let js = JsValue::from_serde(&$object).map_err(error_to_js)?;
-        Ok(js.unchecked_into())
+        serde_wasm_bindgen::to_value(&$object).map_err(error_to_js)
     }};
 }

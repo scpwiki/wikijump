@@ -25,30 +25,6 @@ use crate::Tokenization as RustTokenization;
 use self_cell::self_cell;
 use std::sync::Arc;
 
-// Typescript declarations
-
-#[wasm_bindgen(typescript_custom_section)]
-const TS_APPEND_CONTENT: &str = r#"
-
-export interface IToken {
-    token: string;
-    slice: string;
-    span: {
-        start: number;
-        end: number;
-    };
-}
-
-"#;
-
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen]
-    pub type ITokenArray;
-}
-
-// Wrapper structures
-
 self_cell!(
     struct TokenizationInner {
         owner: String,
@@ -86,7 +62,7 @@ impl Tokenization {
     }
 
     #[wasm_bindgen]
-    pub fn tokens(&self) -> Result<ITokenArray, JsValue> {
+    pub fn tokens(&self) -> Result<JsValue, JsValue> {
         self.inner
             .with_dependent(|_, inner| rust_to_js!(convert_tokens_utf16(inner)))
     }

@@ -506,6 +506,7 @@ dependencies = [
  "regex",
  "self_cell",
  "serde",
+ "serde-wasm-bindgen",
  "serde_json",
  "serde_repr",
  "str-macro",
@@ -1393,6 +1394,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "71f2b4817415c6d4210bfe1c7bfcf4801b2d904cb4d0e1a8fdb651013c9e86b8"
 dependencies = [
  "serde_derive",
+]
+
+[[package]]
+name = "serde-wasm-bindgen"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f3b143e2833c57ab9ad3ea280d21fd34e285a42837aeb0ee301f4f41890fa00e"
+dependencies = [
+ "js-sys",
+ "serde",
+ "wasm-bindgen",
 ]
 
 [[package]]

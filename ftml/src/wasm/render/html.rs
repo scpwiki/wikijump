@@ -31,45 +31,6 @@ use crate::render::html::{HtmlOutput as RustHtmlOutput, HtmlRender};
 use crate::render::Render;
 use std::sync::Arc;
 
-// Typescript declarations
-
-#[wasm_bindgen(typescript_custom_section)]
-const TS_APPEND_CONTENT: &str = r#"
-
-export interface IHtmlOutput {
-    body: string;
-    style: string;
-    meta: IHtmlMeta[];
-}
-
-export interface IHtmlMeta {
-    tag_type: string;
-    name: string;
-    value: string;
-}
-
-export interface IBacklinks {
-    included_pages: string[];
-    internal_links: string[];
-    external_links: string[];
-}
-
-"#;
-
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen]
-    pub type IStyleArray;
-
-    #[wasm_bindgen]
-    pub type IHtmlMetaArray;
-
-    #[wasm_bindgen]
-    pub type IBacklinks;
-}
-
-// Wrapper structures
-
 #[wasm_bindgen]
 #[derive(Debug, Clone)]
 pub struct HtmlOutput {
@@ -91,12 +52,12 @@ impl HtmlOutput {
     }
 
     #[wasm_bindgen]
-    pub fn html_meta(&self) -> Result<IHtmlMetaArray, JsValue> {
+    pub fn html_meta(&self) -> Result<JsValue, JsValue> {
         rust_to_js!(self.inner.meta)
     }
 
     #[wasm_bindgen]
-    pub fn backlinks(&self) -> Result<IBacklinks, JsValue> {
+    pub fn backlinks(&self) -> Result<JsValue, JsValue> {
         rust_to_js!(self.inner.backlinks)
     }
 }
