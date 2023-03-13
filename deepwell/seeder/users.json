@@ -56,11 +56,31 @@
             "anon",
             "nobody",
             "null",
+            "void",
             "undefined"
         ]
     },
     {
         "id": 4,
+        "type": "system",
+        "name": "Unknown",
+        "slug": "unknown",
+        "email": "unknown@wikijump",
+        "password": null,
+        "locale": "en",
+        "real_name": "Unknown User",
+        "gender": null,
+        "birthday": null,
+        "biography": "Wikijump unknown user",
+        "user_page": null,
+        "aliases": [
+            "unknown-user",
+            "unknown-author",
+            "mystery"
+        ]
+    },
+    {
+        "id": 5,
         "type": "system",
         "name": "User",
         "slug": "user",
@@ -74,7 +94,11 @@
         "user_page": null,
         "aliases": [
             "example",
-            "sample"
+            "example-user",
+            "sample",
+            "sample-user",
+            "demo",
+            "demo-user"
         ]
     }
 ]
