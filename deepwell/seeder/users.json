@@ -10,6 +10,7 @@
         "real_name": "Administrator",
         "gender": null,
         "birthday": null,
+        "location": null,
         "biography": "Root platform administrator for this Wikijump instance",
         "user_page": null,
         "aliases": [
@@ -30,6 +31,7 @@
         "real_name": "Wikijump",
         "gender": null,
         "birthday": "2019-01-18",
+        "location": "Here",
         "biography": "Wikijump system user",
         "user_page": "https://wikijump.org/",
         "aliases": [
@@ -50,6 +52,7 @@
         "real_name": "Anonymous User",
         "gender": null,
         "birthday": null,
+        "location": "Everywhere and nowhere",
         "biography": "Wikijump anonymous user",
         "user_page": null,
         "aliases": [
@@ -71,6 +74,7 @@
         "real_name": "Unknown User",
         "gender": null,
         "birthday": null,
+        "location": "Unknown",
         "biography": "Wikijump unknown user",
         "user_page": null,
         "aliases": [
