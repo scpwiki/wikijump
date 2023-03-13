@@ -11,8 +11,7 @@ pub struct Model {
     pub user_id: i64,
     pub created_at: DateTimeWithTimeZone,
     pub expires_at: DateTimeWithTimeZone,
-    #[sea_orm(column_type = "Custom(\"inet\".to_owned())")]
-    pub ip_address: String,
+    pub ip_address: String, // TODO use inet type
     #[sea_orm(column_type = "Text")]
     pub user_agent: String,
     pub restricted: bool,
