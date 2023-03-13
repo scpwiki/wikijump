@@ -58,10 +58,10 @@ export interface IParseError {
 
 #[wasm_bindgen]
 extern "C" {
-    #[wasm_bindgen(typescript_type = "ISyntaxTree")]
+    #[wasm_bindgen]
     pub type ISyntaxTree;
 
-    #[wasm_bindgen(typescript_type = "IParseError[]")]
+    #[wasm_bindgen]
     pub type IParseErrorArray;
 }
 
@@ -91,7 +91,7 @@ impl ParseOutcome {
         }
     }
 
-    #[wasm_bindgen(typescript_type = "IParseError")]
+    #[wasm_bindgen]
     pub fn errors(&self) -> Result<IParseErrorArray, JsValue> {
         rust_to_js!(self.inner.errors())
     }
@@ -117,7 +117,7 @@ impl SyntaxTree {
         }
     }
 
-    #[wasm_bindgen(typescript_type = "ISyntaxTree")]
+    #[wasm_bindgen]
     pub fn data(&self) -> Result<ISyntaxTree, JsValue> {
         rust_to_js!(*self.inner)
     }

@@ -58,13 +58,13 @@ export interface IBacklinks {
 
 #[wasm_bindgen]
 extern "C" {
-    #[wasm_bindgen(typescript_type = "string[]")]
+    #[wasm_bindgen]
     pub type IStyleArray;
 
-    #[wasm_bindgen(typescript_type = "IHtmlMeta[]")]
+    #[wasm_bindgen]
     pub type IHtmlMetaArray;
 
-    #[wasm_bindgen(typescript_type = "IBacklinks")]
+    #[wasm_bindgen]
     pub type IBacklinks;
 }
 
@@ -90,12 +90,12 @@ impl HtmlOutput {
         self.inner.body.clone()
     }
 
-    #[wasm_bindgen(typescript_type = "IHtmlMetaArray")]
+    #[wasm_bindgen]
     pub fn html_meta(&self) -> Result<IHtmlMetaArray, JsValue> {
         rust_to_js!(self.inner.meta)
     }
 
-    #[wasm_bindgen(typescript_type = "IBacklinks")]
+    #[wasm_bindgen]
     pub fn backlinks(&self) -> Result<IBacklinks, JsValue> {
         rust_to_js!(self.inner.backlinks)
     }

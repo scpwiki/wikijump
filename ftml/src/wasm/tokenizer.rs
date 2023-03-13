@@ -43,7 +43,7 @@ export interface IToken {
 
 #[wasm_bindgen]
 extern "C" {
-    #[wasm_bindgen(typescript_type = "IToken[]")]
+    #[wasm_bindgen]
     pub type ITokenArray;
 }
 
@@ -85,7 +85,7 @@ impl Tokenization {
         self.inner.borrow_owner().clone()
     }
 
-    #[wasm_bindgen(typescript_type = "ITokenArray")]
+    #[wasm_bindgen]
     pub fn tokens(&self) -> Result<ITokenArray, JsValue> {
         self.inner
             .with_dependent(|_, inner| rust_to_js!(convert_tokens_utf16(inner)))

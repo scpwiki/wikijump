@@ -44,10 +44,10 @@ export interface IPageInfo {
 
 #[wasm_bindgen]
 extern "C" {
-    #[wasm_bindgen(typescript_type = "IPageInfo")]
+    #[wasm_bindgen]
     pub type IPageInfo;
 
-    #[wasm_bindgen(typescript_type = "string[]")]
+    #[wasm_bindgen]
     pub type ITags;
 }
 
@@ -73,7 +73,7 @@ impl PageInfo {
         }
     }
 
-    #[wasm_bindgen(constructor, typescript_type = "IPageInfo")]
+    #[wasm_bindgen(constructor)]
     pub fn new(object: IPageInfo) -> Result<PageInfo, JsValue> {
         let rust_page_info = object.into_serde().map_err(error_to_js)?;
 
@@ -84,42 +84,42 @@ impl PageInfo {
 
     // Getters
 
-    #[wasm_bindgen(method, getter)]
+    #[wasm_bindgen(getter)]
     pub fn page(&self) -> String {
         self.inner.page.to_string()
     }
 
-    #[wasm_bindgen(method, getter)]
+    #[wasm_bindgen(getter)]
     pub fn category(&self) -> Option<String> {
         self.inner.category.ref_map(ToString::to_string)
     }
 
-    #[wasm_bindgen(method, getter)]
+    #[wasm_bindgen(getter)]
     pub fn site(&self) -> String {
         self.inner.site.to_string()
     }
 
-    #[wasm_bindgen(method, getter)]
+    #[wasm_bindgen(getter)]
     pub fn title(&self) -> String {
         self.inner.title.to_string()
     }
 
-    #[wasm_bindgen(method, getter)]
+    #[wasm_bindgen(getter)]
     pub fn alt_title(&self) -> Option<String> {
         self.inner.alt_title.ref_map(ToString::to_string)
     }
 
-    #[wasm_bindgen(method, getter)]
+    #[wasm_bindgen(getter)]
     pub fn score(&self) -> f64 {
         self.inner.score.to_f64()
     }
 
-    #[wasm_bindgen(method, getter, typescript_type = "ITags")]
+    #[wasm_bindgen(getter)]
     pub fn tags(&self) -> Result<ITags, JsValue> {
         rust_to_js!(self.inner.tags)
     }
 
-    #[wasm_bindgen(method, getter)]
+    #[wasm_bindgen(getter)]
     pub fn language(&self) -> String {
         self.inner.language.to_string()
     }

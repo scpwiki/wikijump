@@ -48,7 +48,7 @@ export type WikitextMode =
 
 #[wasm_bindgen]
 extern "C" {
-    #[wasm_bindgen(typescript_type = "IWikitextSettings")]
+    #[wasm_bindgen]
     pub type IWikitextSettings;
 }
 
@@ -74,7 +74,7 @@ impl WikitextSettings {
         }
     }
 
-    #[wasm_bindgen(constructor, typescript_type = "IWikitextSettings")]
+    #[wasm_bindgen(constructor)]
     pub fn new(object: IWikitextSettings) -> Result<WikitextSettings, JsValue> {
         let rust_wikitext_settings = object.into_serde().map_err(error_to_js)?;
 
