@@ -93,6 +93,7 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
                 real_name: ProvidedValue::Set(user.real_name),
                 gender: ProvidedValue::Set(user.gender),
                 birthday: ProvidedValue::Set(user.birthday),
+                location: ProvidedValue::Set(user.location),
                 biography: ProvidedValue::Set(user.biography),
                 user_page: ProvidedValue::Set(user.user_page),
                 ..Default::default()
