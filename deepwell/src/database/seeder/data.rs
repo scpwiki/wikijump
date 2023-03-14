@@ -95,6 +95,7 @@ pub struct User {
     pub real_name: Option<String>,
     pub gender: Option<String>,
     pub birthday: Option<NaiveDate>,
+    pub location: Option<String>,
     pub biography: Option<String>,
     pub user_page: Option<String>,
     pub aliases: Vec<String>,
