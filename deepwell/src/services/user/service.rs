@@ -284,6 +284,10 @@ impl UserService {
             model.birthday = Set(birthday);
         }
 
+        if let ProvidedValue::Set(location) = input.location {
+            model.location = Set(location);
+        }
+
         if let ProvidedValue::Set(biography) = input.biography {
             model.biography = Set(biography);
         }
