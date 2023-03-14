@@ -9,7 +9,7 @@ categories = []
 exclude = [".gitignore"]
 
 version = "0.1.0"
-authors = ["Ammon Smith <ammon.i.smith@gmail.com>"]
+authors = ["Emmie Maeda <emmie.maeda@gmail.com>"]
 edition = "2021" # this is *not* the same as the current year
 rust-version = "1.56.0"
 
