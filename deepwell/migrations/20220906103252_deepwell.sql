@@ -20,6 +20,7 @@ CREATE TABLE "user" (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE,
     deleted_at TIMESTAMP WITH TIME ZONE,
+    from_wikidot BOOLEAN NOT NULL DEFAULT false,
     name TEXT NOT NULL UNIQUE,
     slug TEXT NOT NULL UNIQUE,
     name_changes_left SMALLINT NOT NULL,  -- Default set in runtime configuration.
@@ -79,6 +80,7 @@ CREATE TABLE site (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE,
     deleted_at TIMESTAMP WITH TIME ZONE,
+    from_wikidot BOOLEAN NOT NULL DEFAULT false,
     slug TEXT NOT NULL,
     name TEXT NOT NULL,
     tagline TEXT NOT NULL,
@@ -122,6 +124,7 @@ CREATE TABLE page (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE,
     deleted_at TIMESTAMP WITH TIME ZONE,
+    from_wikidot BOOLEAN NOT NULL DEFAULT false,
     site_id BIGINT NOT NULL REFERENCES site(site_id),
     page_category_id BIGINT NOT NULL REFERENCES page_category(category_id),
     slug TEXT NOT NULL,
@@ -169,6 +172,7 @@ CREATE TABLE page_revision (
     page_id BIGINT NOT NULL REFERENCES page(page_id),
     site_id BIGINT NOT NULL REFERENCES site(site_id),
     user_id BIGINT NOT NULL REFERENCES "user"(user_id),
+    from_wikidot BOOLEAN NOT NULL DEFAULT false,
     changes TEXT[] NOT NULL, -- List of changes in this revision
     wikitext_hash BYTEA NOT NULL REFERENCES text(hash),
     compiled_hash BYTEA NOT NULL REFERENCES text(hash),
@@ -247,6 +251,7 @@ CREATE TABLE page_lock (
     updated_at TIMESTAMP WITH TIME ZONE,
     deleted_at TIMESTAMP WITH TIME ZONE,
     expires_at TIMESTAMP WITH TIME ZONE,
+    from_wikidot BOOLEAN NOT NULL DEFAULT false,
     -- Text enum describing what kind of lock (e.g. authors only, staff only)
     -- Currently the only value is 'wikidot' (meaning mods+ only)
     lock_type TEXT NOT NULL,
@@ -313,6 +318,7 @@ CREATE TABLE page_vote (
     deleted_at TIMESTAMP WITH TIME ZONE,
     disabled_at TIMESTAMP WITH TIME ZONE,
     disabled_by BIGINT REFERENCES "user"(user_id),
+    from_wikidot BOOLEAN NOT NULL DEFAULT false,
     page_id BIGINT NOT NULL REFERENCES page(page_id),
     user_id BIGINT NOT NULL REFERENCES "user"(user_id),
     value SMALLINT NOT NULL,
@@ -345,6 +351,7 @@ CREATE TABLE file (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE,
     deleted_at TIMESTAMP WITH TIME ZONE,
+    from_wikidot BOOLEAN NOT NULL DEFAULT false,
     name TEXT NOT NULL,
     page_id BIGINT NOT NULL REFERENCES page(page_id),
 
