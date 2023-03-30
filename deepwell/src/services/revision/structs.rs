@@ -100,7 +100,7 @@ pub struct UpdateRevision {
 /// * The last revision number is always the total count of revisions minus one.
 /// * If there is only one revision, then the first and last revision numbers are the same.
 ///
-/// However it's convenient so that we don't have to do these calculations inline
+/// However it's convenient to avoid having to do these calculations inline
 /// in other places, and also so that API consumers have the relevant information.
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -115,6 +115,7 @@ pub struct PageRevisionModelFiltered {
     pub revision_id: i64,
     pub revision_type: PageRevisionType,
     pub created_at: DateTimeWithTimeZone,
+    pub from_wikidot: bool,
     pub revision_number: i32,
     pub page_id: i64,
     pub site_id: i64,

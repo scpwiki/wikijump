@@ -67,7 +67,7 @@ impl UserService {
             )?;
         }
 
-        // Check for conflicts
+        // Check for name conflicts
         let result = User::find()
             .filter(
                 Condition::all()
@@ -83,8 +83,37 @@ impl UserService {
             .await?;
 
         if result.is_some() {
-            tide::log::error!("User with conflicting name, slug, or email already exists, cannot create");
+            tide::log::error!(
+                "User with conflicting name or slug already exists, cannot create",
+            );
+
             return Err(Error::Conflict);
+        }
+
+        // Check for email conflicts
+        // Bot accounts are allowed to have duplicate emails
+        if user_type == UserType::Regular {
+            let result = User::find()
+                .filter(
+                    Condition::all()
+                        .add(
+                            Condition::any()
+                                .add(user::Column::Name.eq(input.name.as_str()))
+                                .add(user::Column::Email.eq(input.email.as_str()))
+                                .add(user::Column::Slug.eq(slug.as_str())),
+                        )
+                        .add(user::Column::DeletedAt.is_null()),
+                )
+                .one(txn)
+                .await?;
+
+            if result.is_some() {
+                tide::log::error!(
+                    "User with conflicting email already exists, cannot create",
+                );
+
+                return Err(Error::Conflict);
+            }
         }
 
         // Check for alias conflicts
@@ -147,6 +176,16 @@ impl UserService {
         let user_id = User::insert(user).exec(txn).await?.last_insert_id;
         Ok(CreateUserOutput { user_id, slug })
     }
+
+    // TODO import() method, which is for reclaiming Wikidot-imported accounts
+    //
+    //      if the user is already present in the database, then this verifies their ownership and
+    //      updates the user so it now belongs to them (e.g. email, password, etc)
+    //
+    //      if the user is not in the database, either (TBD) error, or ad hoc scrape the data from
+    //      Wikidot and do the ingestion, then the above verification stuff
+    //
+    //      https://scuttle.atlassian.net/browse/WJ-272
 
     #[inline]
     pub async fn exists(

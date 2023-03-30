@@ -57,6 +57,7 @@ pub mod category;
 pub mod file;
 pub mod file_revision;
 pub mod filter;
+pub mod import;
 pub mod job;
 pub mod link;
 pub mod mfa;
