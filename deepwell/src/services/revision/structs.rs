@@ -115,6 +115,7 @@ pub struct PageRevisionModelFiltered {
     pub revision_id: i64,
     pub revision_type: PageRevisionType,
     pub created_at: DateTimeWithTimeZone,
+    pub from_wikidot: bool,
     pub revision_number: i32,
     pub page_id: i64,
     pub site_id: i64,
