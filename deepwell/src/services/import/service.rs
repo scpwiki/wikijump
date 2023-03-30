@@ -26,9 +26,12 @@
 //!
 //! It is for limited use during initial setup only.
 
+// TODO implement and use this service
+#![allow(dead_code)]
+
 use super::prelude::*;
 use crate::models::page::{self, Entity as Page};
-use crate::models::page_category::{self, Model as PageCategoryModel};
+use crate::models::page_category::Model as PageCategoryModel;
 use crate::models::sea_orm_active_enums::UserType;
 use crate::models::site::{self, Entity as Site};
 use crate::models::user::{self, Entity as User};
