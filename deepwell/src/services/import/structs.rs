@@ -56,5 +56,6 @@ pub struct ImportPage {
     pub site_id: i64,
     pub created_at: DateTimeWithTimeZone,
     pub slug: String,
+    pub locked: bool,
     pub discussion_thread_id: Option<i64>,
 }

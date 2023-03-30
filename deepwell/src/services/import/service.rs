@@ -131,6 +131,7 @@ impl ImportService {
             site_id,
             created_at,
             slug,
+            locked,
             discussion_thread_id,
         }: ImportPage,
     ) -> Result<()> {
@@ -155,7 +156,18 @@ impl ImportService {
             ..Default::default()
         };
 
+        // If locked, add that too
+        if locked {
+            // TODO
+        }
+
         Page::insert(page).exec(txn).await?;
         Ok(())
     }
+
+    // TODO page_revision
+    // TODO page_vote
+
+    // TODO file
+    // TODO forum
 }
