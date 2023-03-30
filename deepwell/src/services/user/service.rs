@@ -67,7 +67,7 @@ impl UserService {
             )?;
         }
 
-        // Check for conflicts
+        // Check for name conflicts
         let result = User::find()
             .filter(
                 Condition::all()
@@ -83,8 +83,31 @@ impl UserService {
             .await?;
 
         if result.is_some() {
-            tide::log::error!("User with conflicting name, slug, or email already exists, cannot create");
+            tide::log::error!("User with conflicting name or slug already exists, cannot create");
             return Err(Error::Conflict);
+        }
+
+        // Check for email conflicts
+        // Bot accounts are allowed to have duplicate emails
+        if user_type == UserType::Regular {
+            let result = User::find()
+                .filter(
+                    Condition::all()
+                        .add(
+                            Condition::any()
+                                .add(user::Column::Name.eq(input.name.as_str()))
+                                .add(user::Column::Email.eq(input.email.as_str()))
+                                .add(user::Column::Slug.eq(slug.as_str())),
+                        )
+                        .add(user::Column::DeletedAt.is_null()),
+                )
+                .one(txn)
+                .await?;
+
+            if result.is_some() {
+                tide::log::error!("User with conflict email already exists, cannot create");
+                return Err(Error::Conflict);
+            }
         }
 
         // Check for alias conflicts
