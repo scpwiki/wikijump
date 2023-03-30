@@ -67,3 +67,21 @@ services:
         condition: service_healthy
       files:
         condition: service_healthy
+
+  web:
+    build:
+      context: ../../..
+      dockerfile: install/local/dev/web/Dockerfile
+    ports:
+      - "5173:5173"
+    links:
+      - api
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-If", "http://localhost:5173/"]
+      interval: 60s
+      timeout: 2s
+      retries: 3
+    depends_on:
+      api:
+        condition: service_healthy
