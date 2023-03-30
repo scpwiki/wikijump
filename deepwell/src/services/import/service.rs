@@ -85,6 +85,8 @@ impl ImportService {
             gender: Set(gender),
             birthday: Set(birthday),
             location: Set(location),
+            biography: Set(biography),
+            user_page: Set(user_page),
             ..Default::default()
         };
 
