@@ -28,6 +28,7 @@
 
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::UserType;
+use crate::models::site::{self, Entity as Site};
 use crate::models::user::{self, Entity as User};
 use crate::services::BlobService;
 
@@ -85,6 +86,32 @@ impl ImportService {
         };
 
         User::insert(user).exec(txn).await?;
+        Ok(())
+    }
+
+    pub async fn add_site(
+        ctx: &ServiceContext<'_>,
+        ImportSite {
+            site_id,
+            created_at,
+            name,
+            slug,
+            locale,
+        }: ImportSite,
+    ) -> Result<()> {
+        tide::log::info!("Importing site (name '{}', slug '{}', locale '{}')", name, slug, locale,);
+
+        let txn = ctx.transaction();
+        let site = site::ActiveModel {
+            site_id: Set(site_id),
+            created_at: Set(created_at),
+            name: Set(name),
+            slug: Set(slug),
+            locale: Set(locale),
+            ..Default::default()
+        };
+
+        Site::insert(site).exec(txn).await?;
         Ok(())
     }
 }

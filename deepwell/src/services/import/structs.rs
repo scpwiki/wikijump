@@ -38,3 +38,13 @@ pub struct ImportUser {
     pub biography: Option<String>,
     pub user_page: Option<String>,
 }
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct ImportSite {
+    pub site_id: i64,
+    pub created_at: DateTimeWithTimeZone,
+    pub name: String,
+    pub slug: String,
+    pub locale: String,
+}
