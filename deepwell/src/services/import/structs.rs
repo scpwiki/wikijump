@@ -18,8 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use chrono::NaiveDate;
 use crate::utils::DateTimeWithTimeZone;
+use chrono::NaiveDate;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]

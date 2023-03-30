@@ -99,7 +99,12 @@ impl ImportService {
             locale,
         }: ImportSite,
     ) -> Result<()> {
-        tide::log::info!("Importing site (name '{}', slug '{}', locale '{}')", name, slug, locale,);
+        tide::log::info!(
+            "Importing site (name '{}', slug '{}', locale '{}')",
+            name,
+            slug,
+            locale,
+        );
 
         let txn = ctx.transaction();
         let site = site::ActiveModel {

@@ -83,7 +83,10 @@ impl UserService {
             .await?;
 
         if result.is_some() {
-            tide::log::error!("User with conflicting name or slug already exists, cannot create");
+            tide::log::error!(
+                "User with conflicting name or slug already exists, cannot create",
+            );
+
             return Err(Error::Conflict);
         }
 
@@ -105,7 +108,10 @@ impl UserService {
                 .await?;
 
             if result.is_some() {
-                tide::log::error!("User with conflict email already exists, cannot create");
+                tide::log::error!(
+                    "User with conflicting email already exists, cannot create",
+                );
+
                 return Err(Error::Conflict);
             }
         }
