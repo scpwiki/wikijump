@@ -177,6 +177,16 @@ impl UserService {
         Ok(CreateUserOutput { user_id, slug })
     }
 
+    // TODO import() method, which is for reclaiming Wikidot-imported accounts
+    //
+    //      if the user is already present in the database, then this verifies their ownership and
+    //      updates the user so it now belongs to them (e.g. email, password, etc)
+    //
+    //      if the user is not in the database, either (TBD) error, or ad hoc scrape the data from
+    //      Wikidot and do the ingestion, then the above verification stuff
+    //
+    //      https://scuttle.atlassian.net/browse/WJ-272
+
     #[inline]
     pub async fn exists(
         ctx: &ServiceContext<'_>,
