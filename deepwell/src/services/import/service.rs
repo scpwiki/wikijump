@@ -27,10 +27,13 @@
 //! It is for limited use during initial setup only.
 
 use super::prelude::*;
+use crate::models::page::{self, Entity as Page};
+use crate::models::page_category::{self, Model as PageCategoryModel};
 use crate::models::sea_orm_active_enums::UserType;
 use crate::models::site::{self, Entity as Site};
 use crate::models::user::{self, Entity as User};
-use crate::services::BlobService;
+use crate::services::{BlobService, CategoryService};
+use crate::utils::get_category_name;
 
 #[derive(Debug)]
 pub struct ImportService;
@@ -110,6 +113,7 @@ impl ImportService {
         let site = site::ActiveModel {
             site_id: Set(site_id),
             created_at: Set(created_at),
+            from_wikidot: Set(true),
             name: Set(name),
             slug: Set(slug),
             locale: Set(locale),
@@ -117,6 +121,41 @@ impl ImportService {
         };
 
         Site::insert(site).exec(txn).await?;
+        Ok(())
+    }
+
+    pub async fn add_page(
+        ctx: &ServiceContext<'_>,
+        ImportPage {
+            page_id,
+            site_id,
+            created_at,
+            slug,
+            discussion_thread_id,
+        }: ImportPage,
+    ) -> Result<()> {
+        tide::log::info!("Creating page '{}' in site ID {}", slug, site_id);
+
+        let txn = ctx.transaction();
+
+        // Create category if not already present
+        let PageCategoryModel { category_id, .. } =
+            CategoryService::get_or_create(ctx, site_id, get_category_name(&slug))
+                .await?;
+
+        // Insert page row into table
+        let page = page::ActiveModel {
+            page_id: Set(page_id),
+            site_id: Set(site_id),
+            created_at: Set(created_at),
+            from_wikidot: Set(true),
+            slug: Set(slug),
+            page_category_id: Set(category_id),
+            discussion_thread_id: Set(discussion_thread_id),
+            ..Default::default()
+        };
+
+        Page::insert(page).exec(txn).await?;
         Ok(())
     }
 }

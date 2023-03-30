@@ -48,3 +48,13 @@ pub struct ImportSite {
     pub slug: String,
     pub locale: String,
 }
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct ImportPage {
+    pub page_id: i64,
+    pub site_id: i64,
+    pub created_at: DateTimeWithTimeZone,
+    pub slug: String,
+    pub discussion_thread_id: Option<i64>,
+}
