@@ -45,6 +45,7 @@ services:
     ports:
       - "2747:2747"
     links:
+      - database
       - files
     environment:
       - "DATABASE_URL=postgres://wikijump:wikijump@database/wikijump"
