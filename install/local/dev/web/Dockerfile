@@ -13,4 +13,4 @@ WORKDIR /app
 COPY framerail/package.json framerail/pnpm-lock.yaml ./
 RUN pnpm install
 
-CMD ["pnpm", "dev"]
+CMD ["pnpm", "dev", "--host"]
