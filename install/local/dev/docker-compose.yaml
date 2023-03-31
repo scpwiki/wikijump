@@ -73,12 +73,12 @@ services:
       context: ../../..
       dockerfile: install/local/dev/web/Dockerfile
     ports:
-      - "80:5173"
+      - "3000:3000"
     links:
       - api
     restart: always
     healthcheck:
-      test: ["CMD", "curl", "-If", "http://localhost:5173/"]
+      test: ["CMD", "curl", "-If", "http://localhost:3000/"]
       interval: 60s
       timeout: 2s
       retries: 3

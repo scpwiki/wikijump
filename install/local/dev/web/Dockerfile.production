@@ -15,7 +15,7 @@ WORKDIR /app
 FROM base AS build
 
 COPY framerail/package.json framerail/pnpm-lock.yaml ./
-RUN pnpm install
+RUN pnpm install --prod
 RUN pnpm build
 RUN pnpm prune --prod
 
