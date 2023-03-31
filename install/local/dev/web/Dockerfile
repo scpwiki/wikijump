@@ -10,4 +10,4 @@ WORKDIR /app
 
 RUN pnpm install
 
-CMD ["pnpm", "dev", "--host"]
+CMD ["pnpm", "dev", "--host", "::"]

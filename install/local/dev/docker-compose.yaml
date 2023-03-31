@@ -73,7 +73,7 @@ services:
       context: ../../..
       dockerfile: install/local/dev/web/Dockerfile
     ports:
-      - "5173:80"
+      - "80:5173"
     links:
       - api
     restart: always
