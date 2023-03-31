@@ -9,18 +9,8 @@ RUN npm install -g pnpm
 RUN mkdir /app
 WORKDIR /app
 
-# Run build
-FROM base AS build
-
+# Run development server
 COPY framerail/package.json framerail/pnpm-lock.yaml ./
 RUN pnpm install
-RUN pnpm build
-RUN pnpm prune --prod
 
-# Deploy application
-FROM base AS deploy
-
-COPY --from=build /app/dist ./dist
-COPY --from=build /app/node_modules ./node_modules
-
-CMD ["/usr/bin/node", "dist/main.js"]
+CMD ["pnpm", "dev"]
