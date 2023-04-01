@@ -45,6 +45,7 @@ services:
     ports:
       - "2747:2747"
     links:
+      - database
       - files
     environment:
       - "DATABASE_URL=postgres://wikijump:wikijump@database/wikijump"
@@ -59,7 +60,7 @@ services:
     restart: always
     healthcheck:
       test: ["CMD", "curl", "-If", "http://localhost:2747/api/trusted/ping"]
-      interval: 60s
+      interval: 90s
       timeout: 2s
       retries: 3
     depends_on:
@@ -67,3 +68,34 @@ services:
         condition: service_healthy
       files:
         condition: service_healthy
+
+  web:
+    build:
+      context: ../../..
+      dockerfile: install/local/dev/web/Dockerfile
+    ports:
+      - "3000:3000"
+    links:
+      - api
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-If", "http://localhost:3000/"]
+      interval: 60s
+      timeout: 2s
+      retries: 3
+
+  nginx:
+    build:
+      context: ../../..
+      dockerfile: install/local/dev/nginx/Dockerfile
+    ports:
+      - "80:80"
+      - "443:443"
+    links:
+      - web
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-If", "http://localhost/"]
+      interval: 60s
+      timeout: 2s
+      retries: 3

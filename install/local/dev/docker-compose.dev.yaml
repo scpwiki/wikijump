@@ -20,11 +20,19 @@ services:
       - type: bind
         source: ../../../deepwell/migrations
         target: /src/deepwell/migrations
+        read_only: true
       - type: bind
         source: ../../../deepwell/seeder
         target: /src/deepwell/seeder
+        read_only: true
       # Translation data
       - type: bind
         source: ../../../locales
         target: /opt/locales
         read_only: true
+  web:
+    volumes:
+      # Typescript/Svelte sources
+      - type: bind
+        source: ../../../framerail
+        target: /app
