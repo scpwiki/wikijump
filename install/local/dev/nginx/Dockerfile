@@ -24,8 +24,9 @@ RUN openssl req \
 COPY ./install/files/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY ./install/files/nginx/proxy.conf /etc/nginx/proxy.conf
 COPY ./install/files/nginx/gzip.conf /etc/nginx/gzip.conf
-COPY ./install/files/local/ssl.conf /etc/nginx/ssl.conf
 COPY ./install/files/nginx/ffdhe2048.txt /etc/nginx/ffdhe2048.txt
+COPY ./install/files/local/ssl.conf /etc/nginx/ssl.conf
+COPY ./install/files/local/web.conf /etc/nginx/web.conf
 
 # Verify configuration
 RUN nginx -t
