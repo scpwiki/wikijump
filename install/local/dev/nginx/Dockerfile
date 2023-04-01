@@ -6,12 +6,6 @@ FROM nginx:alpine
 
 RUN apk add --no-cache curl openssl
 
-COPY ./install/files/nginx/nginx.conf /etc/nginx/nginx.conf
-COPY ./install/files/nginx/proxy.conf /etc/nginx/proxy.conf
-COPY ./install/files/nginx/gzip.conf /etc/nginx/gzip.conf
-COPY ./install/files/local/ssl.conf /etc/nginx/ssl.conf
-COPY ./install/files/nginx/ffdhe2048.txt /etc/nginx/ffdhe2048.txt
-
 # Add snake oil cert for local
 RUN openssl req \
     -x509 \
@@ -25,6 +19,13 @@ RUN openssl req \
     -keyout /etc/ssl/private/nginx-selfsigned.key \
     -subj "/CN=localhost" \
     -addext "subjectAltName=DNS:localhost,DNS:*.localhost"
+
+# Copy configuration files
+COPY ./install/files/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY ./install/files/nginx/proxy.conf /etc/nginx/proxy.conf
+COPY ./install/files/nginx/gzip.conf /etc/nginx/gzip.conf
+COPY ./install/files/local/ssl.conf /etc/nginx/ssl.conf
+COPY ./install/files/nginx/ffdhe2048.txt /etc/nginx/ffdhe2048.txt
 
 # Verify configuration
 RUN nginx -t
