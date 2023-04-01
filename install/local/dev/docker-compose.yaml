@@ -86,3 +86,22 @@ services:
     depends_on:
       api:
         condition: service_healthy
+
+  nginx:
+    build:
+      context: ../../..
+      dockerfile: install/local/dev/nginx/Dockerfile
+    ports:
+      - "80:80"
+      - "413:413"
+    links:
+      - web
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-If", "http://localhost/"]
+      interval: 60s
+      timeout: 2s
+      retries: 3
+    depends_on:
+      web:
+        condition: service_healthy
