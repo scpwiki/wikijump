@@ -60,7 +60,7 @@ services:
     restart: always
     healthcheck:
       test: ["CMD", "curl", "-If", "http://localhost:2747/api/trusted/ping"]
-      interval: 60s
+      interval: 90s
       timeout: 2s
       retries: 3
     depends_on:
