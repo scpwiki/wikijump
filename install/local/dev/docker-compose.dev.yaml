@@ -32,7 +32,27 @@ services:
         read_only: true
   web:
     volumes:
-      # Typescript/Svelte sources
+      # Typescript/Svelte files
       - type: bind
-        source: ../../../framerail
-        target: /app
+        source: ../../../framerail/src
+        target: /app/src
+        read_only: true
+      - type: bind
+        source: ../../../framerail/static
+        target: /app/static
+        read_only: true
+      - type: bind
+        source: ../../../framerail/package.json
+        target: /app/package.json
+        read_only: true
+      - type: bind
+        source: ../../../framerail/pnpm-lock.yaml
+        target: /app/pnpm-lock.yaml
+      - type: bind
+        source: ../../../framerail/svelte.config.js
+        target: /app/svelte.config.js
+        read_only: true
+      - type: bind
+        source: ../../../framerail/vite.config.ts
+        target: /app/svelte.config.js
+        read_only: true
