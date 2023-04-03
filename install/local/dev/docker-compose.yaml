@@ -96,6 +96,6 @@ services:
     restart: always
     healthcheck:
       test: ["CMD", "curl", "-If", "http://localhost/"]
-      interval: 60s
-      timeout: 2s
+      interval: 10s
+      timeout: 1s
       retries: 3
