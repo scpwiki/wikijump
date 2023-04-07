@@ -130,6 +130,41 @@ impl SiteService {
         find_or_error(Self::get_optional(ctx, reference)).await
     }
 
+    /// Gets the site ID from a reference, looking up if necessary.
+    ///
+    /// Convenience method since this is much more common than the optional
+    /// case, and we don't want to perform a redundant check for site existence
+    /// later as part of the actual query.
+    ///
+    /// See also `PageService::get_id()` and `UserService::get_id()`.
+    pub async fn get_id(
+        ctx: &ServiceContext<'_>,
+        reference: Reference<'_>,
+    ) -> Result<i64> {
+        match reference {
+            Reference::Id(id) => Ok(id),
+            Reference::Slug(slug) => {
+                let txn = ctx.transaction();
+                let result: Option<(i64,)> = Site::find()
+                    .select_only()
+                    .column(site::Column::SiteId)
+                    .filter(
+                        Condition::all()
+                            .add(site::Column::Slug.eq(slug))
+                            .add(site::Column::DeletedAt.is_null()),
+                    )
+                    .into_tuple()
+                    .one(txn)
+                    .await?;
+
+                match result {
+                    Some(tuple) => Ok(tuple.0),
+                    None => Err(Error::NotFound),
+                }
+            }
+        }
+    }
+
     /// Checks to see if a site already exists at the slug specified.
     ///
     /// If so, this method fails with `Error::Conflict`. Otherwise it returns nothing.
