@@ -29,6 +29,7 @@ pub enum Reference<'a> {
 }
 
 impl<'a> Reference<'a> {
+    #[deprecated]
     pub fn try_from_fields_key(
         req: &'a ApiRequest,
         value_type_key: &str,
@@ -40,6 +41,7 @@ impl<'a> Reference<'a> {
         Reference::try_from_fields(value_type, value)
     }
 
+    #[deprecated]
     pub fn try_from_fields(value_type: &str, value: &'a str) -> Result<Self, Error> {
         match value_type {
             "slug" => {
