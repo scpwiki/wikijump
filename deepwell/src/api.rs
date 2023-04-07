@@ -117,11 +117,7 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
 
     // Localization
     app.at("/locale/:locale").get(locale_get);
-
-    app.at("/message/:locale/:message_key")
-        .get(message_post)
-        .put(message_post)
-        .post(message_post);
+    app.at("/message/:locale/:message_key").get(message_get);
 
     // Authentication
     app.at("/auth/login").post(auth_login);
