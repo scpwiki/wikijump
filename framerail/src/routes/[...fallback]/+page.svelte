@@ -1,1 +1,1 @@
-<h1>Fallback route</h1>
+<h1>General fallback route</h1>

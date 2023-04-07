@@ -1,5 +1,6 @@
-<h1>Loaded main page</h1>
-<p class="spin-yay">This is the page loaded with the start page for the site</p>
+<script lang="ts">
+  export let data;
+</script>
 
 <style global lang="scss">
   @keyframes spin {
@@ -16,3 +17,7 @@
     animation: spin 2s linear infinite;
   }
 </style>
+
+<h1>Loaded main page</h1>
+<p class="spin-yay">This is the page loaded with the start page for the site</p>
+<p>DEEPWELL ping: {JSON.stringify(data.ping)}</p>
