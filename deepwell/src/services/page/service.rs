@@ -491,6 +491,29 @@ impl PageService {
         Ok(page)
     }
 
+    /// Gets the page ID from a reference, looking up if necessary.
+    ///
+    /// Convenience method since this is much more common than the optional
+    /// case, and we don't want to perform a redundant check for site existence
+    /// later as part of the actual query.
+    ///
+    /// See also `SiteService::get_id()` and `UserService::get_id()`.
+    pub async fn get_id(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        reference: Reference<'_>,
+    ) -> Result<i64> {
+        match reference {
+            Reference::Id(page_id) => Ok(page_id),
+            Reference::Slug(_slug) => {
+                // Unlike the other get_id() methods we pass through the
+                // call so that all the slug-handling etc logic is in one place.
+                let PageModel { page_id, .. } = Self::get(ctx, site_id, reference).await?;
+                Ok(page_id)
+            }
+        }
+    }
+
     #[inline]
     pub async fn get_direct(ctx: &ServiceContext<'_>, page_id: i64) -> Result<PageModel> {
         find_or_error(Self::get_direct_optional(ctx, page_id)).await
