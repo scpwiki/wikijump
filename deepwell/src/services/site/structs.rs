@@ -42,10 +42,18 @@ pub struct GetSite {
     pub site: OwnedReference,
 }
 
-#[derive(Deserialize, Debug, Default)]
-#[serde(rename_all = "camelCase", default)]
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct UpdateSite {
     pub site: OwnedReference,
+
+    #[serde(flatten)]
+    pub body: UpdateSiteBody,
+}
+
+#[derive(Deserialize, Debug, Default)]
+#[serde(rename_all = "camelCase", default)]
+pub struct UpdateSiteBody {
     pub name: ProvidedValue<String>,
     pub tagline: ProvidedValue<String>,
     pub description: ProvidedValue<String>,

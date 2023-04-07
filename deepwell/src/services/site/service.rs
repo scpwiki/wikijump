@@ -69,7 +69,7 @@ impl SiteService {
     pub async fn update(
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
-        input: UpdateSite,
+        input: UpdateSiteBody,
     ) -> Result<SiteModel> {
         let txn = ctx.transaction();
         let model = Self::get(ctx, reference).await?;
