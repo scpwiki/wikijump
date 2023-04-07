@@ -29,7 +29,7 @@ pub async fn get_site_id(
 ) -> Result<i64> {
     match reference {
         Reference::Id(id) => Ok(id),
-        Reference::Slug(slug) => {
+        Reference::Slug(_slug) => {
             let site = SiteService::get(ctx, reference).await?;
             Ok(site.site_id)
         }
@@ -42,7 +42,7 @@ pub async fn get_user_id(
 ) -> Result<i64> {
     match reference {
         Reference::Id(id) => Ok(id),
-        Reference::Slug(slug) => {
+        Reference::Slug(_slug) => {
             let user = UserService::get(ctx, reference).await?;
             Ok(user.user_id)
         }
@@ -56,7 +56,7 @@ pub async fn get_page_id(
 ) -> Result<i64> {
     match reference {
         Reference::Id(id) => Ok(id),
-        Reference::Slug(slug) => {
+        Reference::Slug(_slug) => {
             let page = PageService::get(ctx, site_id, reference).await?;
             Ok(page.page_id)
         }
