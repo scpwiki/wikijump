@@ -21,7 +21,7 @@
 use super::prelude::*;
 use crate::{
     models::site::Model as SiteModel,
-    services::site::{CreateSite, UpdateSite},
+    services::site::{CreateSite, GetSite, UpdateSite},
 };
 
 pub async fn site_create(mut req: ApiRequest) -> ApiResponse {
@@ -41,14 +41,14 @@ pub async fn site_create(mut req: ApiRequest) -> ApiResponse {
     Ok(response)
 }
 
-pub async fn site_get(req: ApiRequest) -> ApiResponse {
+pub async fn site_get(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let reference = Reference::try_from(&req)?;
-    tide::log::info!("Getting site {:?}", reference);
+    let GetSite { site } = req.body_json().await?;
+    tide::log::info!("Getting site {:?}", site);
 
-    let site = SiteService::get(&ctx, reference).await.to_api()?;
+    let site = SiteService::get(&ctx, site.borrow()).await.to_api()?;
     build_site_response(&site, StatusCode::Ok)
 }
 

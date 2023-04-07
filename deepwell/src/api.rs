@@ -135,10 +135,8 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
         .post(auth_mfa_reset_recovery);
 
     // Site
-    app.at("/site").post(site_create);
-    app.at("/site/:type/:id_or_slug")
-        .get(site_get)
-        .put(site_put);
+    app.at("/site").get(site_get).put(site_put);
+    app.at("/site/create").post(site_create);
 
     // Category
     app.at("/category/:site_id").get(category_all_get);
