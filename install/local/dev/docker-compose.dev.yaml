@@ -55,5 +55,5 @@ services:
         read_only: true
       - type: bind
         source: ../../../framerail/vite.config.ts
-        target: /app/svelte.config.js
+        target: /app/svelte.config.ts
         read_only: true
