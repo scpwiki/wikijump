@@ -253,6 +253,41 @@ impl UserService {
         find_or_error(Self::get_optional(ctx, reference)).await
     }
 
+    /// Gets the user ID from a reference, looking up if necessary.
+    ///
+    /// Convenience method since this is much more common than the optional
+    /// case, and we don't want to perform a redundant check for site existence
+    /// later as part of the actual query.
+    ///
+    /// See also `PageService::get_id()` and `SiteService::get_id()`.
+    pub async fn get_id(
+        ctx: &ServiceContext<'_>,
+        reference: Reference<'_>,
+    ) -> Result<i64> {
+        match reference {
+            Reference::Id(id) => Ok(id),
+            Reference::Slug(slug) => {
+                let txn = ctx.transaction();
+                let result: Option<(i64,)> = User::find()
+                    .select_only()
+                    .column(user::Column::UserId)
+                    .filter(
+                        Condition::all()
+                            .add(user::Column::Slug.eq(slug))
+                            .add(user::Column::DeletedAt.is_null()),
+                    )
+                    .into_tuple()
+                    .one(txn)
+                    .await?;
+
+                match result {
+                    Some(tuple) => Ok(tuple.0),
+                    None => Err(Error::NotFound),
+                }
+            }
+        }
+    }
+
     /// Gets a user, but fails if the user type doesn't match.
     pub async fn get_with_user_type(
         ctx: &ServiceContext<'_>,
