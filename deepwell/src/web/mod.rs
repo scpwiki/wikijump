@@ -39,7 +39,7 @@ pub use self::file_details::FileDetailsQuery;
 pub use self::page_details::PageDetailsQuery;
 pub use self::page_order::{PageOrder, PageOrderColumn};
 pub use self::provided_value::ProvidedValue;
-pub use self::reference::{CuidReference, Reference};
+pub use self::reference::{CuidReference, OwnedReference, Reference};
 pub use self::unwrap::HttpUnwrap;
 pub use self::user_details::{UserDetails, UserDetailsQuery};
 pub use self::user_id::UserIdQuery;

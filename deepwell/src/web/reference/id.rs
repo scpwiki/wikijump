@@ -81,3 +81,34 @@ impl<'a> TryFrom<&'a ApiRequest> for Reference<'a> {
         Reference::try_from_fields_key(req, "type", "id_or_slug")
     }
 }
+
+#[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq)]
+#[serde(untagged)]
+pub enum OwnedReference {
+    Id(i64),
+    Slug(String),
+}
+
+impl OwnedReference {
+    #[inline]
+    pub fn borrow(&self) -> Reference {
+        match self {
+            OwnedReference::Id(id) => Reference::Id(*id),
+            OwnedReference::Slug(ref slug) => Reference::Slug(slug),
+        }
+    }
+}
+
+impl From<i64> for OwnedReference {
+    #[inline]
+    fn from(id: i64) -> OwnedReference {
+        OwnedReference::Id(id)
+    }
+}
+
+impl From<String> for OwnedReference {
+    #[inline]
+    fn from(slug: String) -> OwnedReference {
+        OwnedReference::Slug(slug)
+    }
+}
