@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const DEEPWELL_HOST = 'localhost';  // is 'api' in local container
+const DEEPWELL_HOST = process.env.DEEPWELL_HOST || 'localhost';
 const DEEPWELL_PORT = 2747;
 
 export async function ping(): string {

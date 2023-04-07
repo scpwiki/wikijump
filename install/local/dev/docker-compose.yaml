@@ -77,6 +77,8 @@ services:
       - "3000:3000"
     links:
       - api
+    environment:
+      - "DEEPWELL_HOST=api"
     restart: always
     healthcheck:
       test: ["CMD", "curl", "-If", "http://localhost:3000/"]
