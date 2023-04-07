@@ -98,6 +98,9 @@ pub fn build_server(state: ApiServerState) -> ApiServer {
     spawn_magic_thread();
 
     // Create server and add routes
+    //
+    // Prefix is present to avoid ambiguity about what this
+    // API is meant to be and the fact that it's not to be publicly-facing.
     let mut app = new!();
     app.at("/api/trusted").nest(build_routes(new!()));
     app
