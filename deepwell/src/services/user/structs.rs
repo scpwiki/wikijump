@@ -21,6 +21,7 @@
 use super::prelude::*;
 use crate::models::user::Model as UserModel;
 use crate::utils::DateTimeWithTimeZone;
+use crate::web::OwnedReference;
 use chrono::NaiveDate;
 use std::collections::HashMap;
 
@@ -41,6 +42,12 @@ pub struct CreateUser {
 pub struct CreateUserOutput {
     pub user_id: i64,
     pub slug: String,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct GetUser {
+    pub user: OwnedReference,
 }
 
 #[derive(Deserialize, Debug, Default)]

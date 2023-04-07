@@ -27,6 +27,7 @@ use crate::services::session::{
     CreateSession, InvalidateOtherSessions, RenewSession, SessionInputOutput,
     VerifySession,
 };
+use crate::services::user::GetUser;
 use crate::services::{Error, MfaService, SessionService};
 use crate::web::UserIdQuery;
 
@@ -217,12 +218,12 @@ pub async fn auth_mfa_verify(mut req: ApiRequest) -> ApiResponse {
     Ok(response)
 }
 
-pub async fn auth_mfa_setup(req: ApiRequest) -> ApiResponse {
+pub async fn auth_mfa_setup(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let reference = Reference::try_from(&req)?;
-    let user = UserService::get(&ctx, reference).await.to_api()?;
+    let GetUser { user: reference } = req.body_json().await?;
+    let user = UserService::get(&ctx, reference.borrow()).await.to_api()?;
     let output = MfaService::setup(&ctx, &user).await.to_api()?;
 
     let body = Body::from_json(&output)?;

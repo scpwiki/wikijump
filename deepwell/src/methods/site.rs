@@ -59,7 +59,9 @@ pub async fn site_put(mut req: ApiRequest) -> ApiResponse {
     let UpdateSite { site, body } = req.body_json().await?;
     tide::log::info!("Updating site {:?}", site);
 
-    SiteService::update(&ctx, site.borrow(), body).await.to_api()?;
+    SiteService::update(&ctx, site.borrow(), body)
+        .await
+        .to_api()?;
 
     txn.commit().await?;
     Ok(Response::new(StatusCode::NoContent))
