@@ -35,7 +35,7 @@ mod prelude {
         RenderService, RequestFetchService, RevisionService, ScoreService,
         ServiceContext, SiteService, TextService, UserService, VoteService,
     };
-    pub use crate::utils::{error_response, get_page_id, get_site_id, get_user_id};
+    pub use crate::utils::error_response;
     pub use crate::web::{CuidReference, HttpUnwrap, Reference};
     pub use chrono::prelude::*;
     pub use sea_orm::{ConnectionTrait, TransactionTrait};
