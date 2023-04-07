@@ -20,6 +20,14 @@
 
 use crate::models::page_category::Model as PageCategoryModel;
 use crate::utils::DateTimeWithTimeZone;
+use crate::web::OwnedReference;
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct GetCategory {
+    pub site: OwnedReference,
+    pub category: OwnedReference,
+}
 
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]

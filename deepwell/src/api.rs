@@ -139,9 +139,8 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
     app.at("/site/create").post(site_create);
 
     // Category
-    app.at("/category/:site_id").get(category_all_get);
-    app.at("/category/:site_id/:type/:id_or_slug")
-        .get(category_get);
+    app.at("/category").get(category_get);
+    app.at("/category/site").get(category_all_get);
 
     // Page
     app.at("/page/direct/:page_id").get(page_get_direct);

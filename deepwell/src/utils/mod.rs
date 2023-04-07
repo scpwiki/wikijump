@@ -23,6 +23,7 @@
 mod category;
 mod crypto;
 mod error;
+mod id;
 mod locale;
 mod string;
 mod tide;
@@ -32,6 +33,7 @@ mod user;
 pub use self::category::*;
 pub use self::crypto::*;
 pub use self::error::*;
+pub use self::id::*;
 pub use self::locale::*;
 pub use self::string::*;
 pub use self::tide::*;
