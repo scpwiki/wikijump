@@ -158,7 +158,7 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
     app.at("/page/revision")
         .get(page_revision_get)
         .put(page_revision_put);
-    app.at("/page/revision/latest").get(page_revision_info);
+    app.at("/page/revision/count").get(page_revision_count);
 
     app.at("/page/revision/rollback").post(page_rollback);
     app.at("/page/revision/range").get(page_revision_range_get);

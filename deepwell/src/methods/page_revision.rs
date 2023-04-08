@@ -23,15 +23,15 @@ use crate::models::page_revision::Model as PageRevisionModel;
 use crate::services::revision::{
     PageRevisionModelFiltered, RevisionCountOutput, UpdateRevision,
 };
+use crate::services::page::GetPage;
 use crate::services::{Result, TextService};
 use crate::web::{PageDetailsQuery, PageLimitQuery};
 
-pub async fn page_revision_info(req: ApiRequest) -> ApiResponse {
+pub async fn page_revision_count(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let site_id = req.param("site_id")?.parse()?;
-    let reference = Reference::try_from(&req)?;
+    let GetPage { site_id, page: reference } = req.body_json().await?;
 
     tide::log::info!(
         "Getting latest revision for page {reference:?} in site ID {site_id}",
