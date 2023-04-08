@@ -38,14 +38,14 @@ pub struct CreateSiteOutput {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct GetSite {
-    pub site: Reference<'static>,
+pub struct GetSite<'a> {
+    pub site: Reference<'a>,
 }
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct UpdateSite {
-    pub site: Reference<'static>,
+pub struct UpdateSite<'a> {
+    pub site: Reference<'a>,
 
     #[serde(flatten)]
     pub body: UpdateSiteBody,

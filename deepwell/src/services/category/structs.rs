@@ -24,9 +24,9 @@ use crate::web::Reference;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct GetCategory {
-    pub site: Reference<'static>,
-    pub category: Reference<'static>,
+pub struct GetCategory<'a> {
+    pub site: Reference<'a>,
+    pub category: Reference<'a>,
 }
 
 #[derive(Serialize, Debug)]
