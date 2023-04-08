@@ -186,12 +186,8 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
         .post(file_edit)
         .delete(file_delete);
     app.at("/file/upload").post(file_create);
-
-    app.at("/file/:site_id/:page_type/:id_or_slug/move")
-        .post(file_move);
-
-    app.at("/file/:site_id/:page_type/:id_or_slug/restore")
-        .post(file_restore);
+    app.at("/file/move").post(file_move);
+    app.at("/file/restore").post(file_restore);
 
     // File revisions
     app.at("/file/:site_id/:page_type/:id_or_slug/:file_type/:id_or_name/revision")
