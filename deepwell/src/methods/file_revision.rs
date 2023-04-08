@@ -29,8 +29,7 @@ pub async fn file_revision_info(req: ApiRequest) -> ApiResponse {
 
     let site_id = req.param("site_id")?.parse()?;
     let page_reference = Reference::try_from_fields_key(&req, "page_type", "id_or_slug")?;
-    let file_reference =
-        CuidReference::try_from_fields_key(&req, "file_type", "id_or_name")?;
+    let file_reference = Reference::try_from_fields_key(&req, "file_type", "id_or_name")?;
 
     tide::log::info!(
         "Getting latest revision for file {page_reference:?} in site ID {site_id}",
@@ -63,8 +62,7 @@ pub async fn file_revision_get(req: ApiRequest) -> ApiResponse {
     let site_id = req.param("site_id")?.parse()?;
     let revision_number = req.param("revision_number")?.parse()?;
     let page_reference = Reference::try_from_fields_key(&req, "page_type", "id_or_slug")?;
-    let file_reference =
-        CuidReference::try_from_fields_key(&req, "file_type", "id_or_name")?;
+    let file_reference = Reference::try_from_fields_key(&req, "file_type", "id_or_name")?;
 
     tide::log::info!(
         "Getting existence of file revision {} for file {:?} on page {:?}",
@@ -100,8 +98,7 @@ pub async fn file_revision_put(mut req: ApiRequest) -> ApiResponse {
     let site_id = req.param("site_id")?.parse()?;
     let revision_number = req.param("revision_id")?.parse()?;
     let page_reference = Reference::try_from_fields_key(&req, "page_type", "id_or_slug")?;
-    let file_reference =
-        CuidReference::try_from_fields_key(&req, "file_type", "id_or_name")?;
+    let file_reference = Reference::try_from_fields_key(&req, "file_type", "id_or_name")?;
 
     tide::log::info!(
         "Editing file revision {} for file {:?} on page {:?}",
@@ -145,8 +142,7 @@ pub async fn file_revision_range_get(req: ApiRequest) -> ApiResponse {
     let revision_number = req.param("revision_number")?.parse()?;
     let direction = req.param("direction")?.parse()?;
     let page_reference = Reference::try_from_fields_key(&req, "page_type", "id_or_slug")?;
-    let file_reference =
-        CuidReference::try_from_fields_key(&req, "file_type", "id_or_name")?;
+    let file_reference = Reference::try_from_fields_key(&req, "file_type", "id_or_name")?;
 
     let page = PageService::get(&ctx, site_id, page_reference)
         .await

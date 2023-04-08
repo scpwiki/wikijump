@@ -269,7 +269,7 @@ impl FileService {
     pub async fn delete(
         ctx: &ServiceContext<'_>,
         page_id: i64,
-        reference: CuidReference<'_>,
+        reference: Reference<'_>,
         input: DeleteFile,
     ) -> Result<DeleteFileOutput> {
         let txn = ctx.transaction();
@@ -397,13 +397,13 @@ impl FileService {
     pub async fn get_optional(
         ctx: &ServiceContext<'_>,
         page_id: i64,
-        reference: CuidReference<'_>,
+        reference: Reference<'_>,
     ) -> Result<Option<FileModel>> {
         let txn = ctx.transaction();
         let file = {
             let condition = match reference {
-                CuidReference::Id(id) => file::Column::FileId.eq(id),
-                CuidReference::Name(name) => file::Column::Name.eq(name),
+                Reference::Id(id) => file::Column::FileId.eq(id),
+                Reference::Slug(name) => file::Column::Name.eq(name),
             };
 
             File::find()
@@ -423,7 +423,7 @@ impl FileService {
     pub async fn get(
         ctx: &ServiceContext<'_>,
         page_id: i64,
-        reference: CuidReference<'_>,
+        reference: Reference<'_>,
     ) -> Result<FileModel> {
         find_or_error(Self::get_optional(ctx, page_id, reference)).await
     }

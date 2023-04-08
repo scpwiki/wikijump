@@ -43,7 +43,7 @@ pub async fn file_get(mut req: ApiRequest) -> ApiResponse {
         .await
         .to_api()?;
 
-    let file = FileService::get(&ctx, page_id, todo!()) // replace file id with cuid
+    let file = FileService::get(&ctx, page_id, file_reference) // replace file id with cuid
         .await
         .to_api()?;
 
