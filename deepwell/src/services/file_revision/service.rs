@@ -366,10 +366,13 @@ impl FileRevisionService {
     /// revisions (wholly or partially) to cover spam and abuse.
     pub async fn update(
         ctx: &ServiceContext<'_>,
-        page_id: i64,
-        file_id: i64,
-        revision_id: i64,
-        UpdateFileRevision { user_id, hidden }: UpdateFileRevision,
+        UpdateFileRevision {
+            page_id,
+            file_id,
+            revision_id,
+            user_id,
+            hidden,
+        }: UpdateFileRevision,
     ) -> Result<()> {
         let txn = ctx.transaction();
 

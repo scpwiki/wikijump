@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::services::file::GetFile;
-use crate::services::file_revision::UpdateFileRevision;
+use crate::services::file_revision::{GetFileRevision, UpdateFileRevision};
 use crate::services::revision::RevisionCountOutput;
 use crate::web::FileLimitQuery;
 
@@ -58,34 +58,25 @@ pub async fn file_revision_count(mut req: ApiRequest) -> ApiResponse {
     Ok(response)
 }
 
-pub async fn file_revision_get(req: ApiRequest) -> ApiResponse {
+pub async fn file_revision_get(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let site_id = req.param("site_id")?.parse()?;
-    let revision_number = req.param("revision_number")?.parse()?;
-    let page_reference = Reference::try_from_fields_key(&req, "page_type", "id_or_slug")?;
-    let file_reference = Reference::try_from_fields_key(&req, "file_type", "id_or_name")?;
+    let input: GetFileRevision = req.body_json().await?;
+
+    let GetFileRevision {
+        page_id,
+        file_id,
+        revision_number,
+    } = req.body_json().await?;
 
     tide::log::info!(
-        "Getting existence of file revision {} for file {:?} on page {:?}",
-        revision_number,
-        file_reference,
-        page_reference,
+        "Getting file revision {revision_number} for file ID {file_id} on page ID {page_id}",
     );
 
-    let page = PageService::get(&ctx, site_id, page_reference)
+    let revision = FileRevisionService::get(&ctx, page_id, file_id, revision_number)
         .await
         .to_api()?;
-
-    let file = FileService::get(&ctx, page.page_id, file_reference)
-        .await
-        .to_api()?;
-
-    let revision =
-        FileRevisionService::get(&ctx, file.page_id, file.file_id, revision_number)
-            .await
-            .to_api()?;
 
     txn.commit().await?;
     let body = Body::from_json(&revision)?;
@@ -98,38 +89,15 @@ pub async fn file_revision_put(mut req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let input: UpdateFileRevision = req.body_json().await?;
-    let site_id = req.param("site_id")?.parse()?;
-    let revision_number = req.param("revision_id")?.parse()?;
-    let page_reference = Reference::try_from_fields_key(&req, "page_type", "id_or_slug")?;
-    let file_reference = Reference::try_from_fields_key(&req, "file_type", "id_or_name")?;
 
     tide::log::info!(
-        "Editing file revision {} for file {:?} on page {:?}",
-        revision_number,
-        file_reference,
-        page_reference,
+        "Editing file revision ID {} for file ID {} on page {}",
+        input.revision_id,
+        input.file_id,
+        input.page_id,
     );
 
-    let page = PageService::get(&ctx, site_id, page_reference)
-        .await
-        .to_api()?;
-    let file = FileService::get(&ctx, page.page_id, file_reference)
-        .await
-        .to_api()?;
-    let revision =
-        FileRevisionService::get(&ctx, page.page_id, file.file_id, revision_number)
-            .await
-            .to_api()?;
-
-    FileRevisionService::update(
-        &ctx,
-        page.page_id,
-        file.file_id,
-        revision.revision_id,
-        input,
-    )
-    .await
-    .to_api()?;
+    FileRevisionService::update(&ctx, input).await.to_api()?;
 
     txn.commit().await?;
     Ok(Response::new(StatusCode::NoContent))
