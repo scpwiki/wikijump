@@ -48,3 +48,18 @@ macro_rules! str_writeln {
         writeln!($dest, $($arg)*).expect("Writing to string failed");
     }};
 }
+
+/// Convenience function for creating a borrowed `Cow` from a string slice.
+macro_rules! cow {
+    ($s:expr) => {{
+        use std::borrow::Cow;
+        Cow::Borrowed($s.as_ref())
+    }};
+}
+
+/// Convenience function like `cow!`, but for `Option<Cow<str>>`.
+macro_rules! cow_opt {
+    ($s:expr) => {
+        $s.ref_map(|s| cow!(s))
+    };
+}

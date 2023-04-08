@@ -49,18 +49,6 @@ lazy_static! {
     ];
 }
 
-macro_rules! cow {
-    ($s:expr) => {
-        Cow::Borrowed($s.as_ref())
-    };
-}
-
-macro_rules! cow_opt {
-    ($s:expr) => {
-        $s.ref_map(|s| cow!(s))
-    };
-}
-
 macro_rules! conditional_future {
     ($conditional:expr, $future:expr $(,)?) => {
         async move {
