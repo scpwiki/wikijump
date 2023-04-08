@@ -21,7 +21,7 @@
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user_bot_owner::Model as UserBotOwnerModel;
-use crate::services::user::{CreateUser, UpdateUser, UserProfileOutput};
+use crate::services::user::{CreateUser, UpdateUserBody, UserProfileOutput};
 use crate::services::user_bot_owner::{
     BotOwner, BotUserOutput, CreateBotOwner, CreateBotOwnerBody, CreateBotUser,
     DeleteBotOwner, UserBotOwnerService,
@@ -49,12 +49,12 @@ pub async fn user_bot_create(mut req: ApiRequest) -> ApiResponse {
     // Create bot user
     let output = UserService::create(
         &ctx,
-        UserType::Bot,
         CreateUser {
+            user_type: UserType::Bot,
             name,
             email,
             locale,
-            password: String::new(),
+            password: String::new(), // TODO
             bypass_filter,
         },
     )
@@ -67,7 +67,7 @@ pub async fn user_bot_create(mut req: ApiRequest) -> ApiResponse {
     UserService::update(
         &ctx,
         Reference::Id(bot_user_id),
-        UpdateUser {
+        UpdateUserBody {
             biography: ProvidedValue::Set(Some(purpose)),
             ..Default::default()
         },

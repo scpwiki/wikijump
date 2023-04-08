@@ -44,26 +44,28 @@ pub struct UserService;
 impl UserService {
     pub async fn create(
         ctx: &ServiceContext<'_>,
-        user_type: UserType,
-        mut input: CreateUser,
+        CreateUser {
+            user_type,
+            mut name,
+            email,
+            locale,
+            password,
+            bypass_filter,
+        }: CreateUser,
     ) -> Result<CreateUserOutput> {
         let txn = ctx.transaction();
-        let slug = get_user_slug(&input.name);
+        let slug = get_user_slug(&name);
 
-        tide::log::debug!(
-            "Normalizing user data (name '{}', slug '{}')",
-            input.name,
-            slug,
-        );
-        regex_replace_in_place(&mut input.name, &LEADING_TRAILING_CHARS, "");
+        tide::log::debug!("Normalizing user data (name '{}', slug '{}')", name, slug,);
+        regex_replace_in_place(&mut name, &LEADING_TRAILING_CHARS, "");
 
-        tide::log::info!("Attempting to create user '{}' ('{}')", input.name, slug);
+        tide::log::info!("Attempting to create user '{}' ('{}')", name, slug);
 
         // Perform filter validation
-        if !input.bypass_filter {
+        if !bypass_filter {
             try_join!(
-                Self::run_name_filter(ctx, &input.name, &slug),
-                Self::run_email_filter(ctx, &input.email),
+                Self::run_name_filter(ctx, &name, &slug),
+                Self::run_email_filter(ctx, &email),
             )?;
         }
 
@@ -73,8 +75,8 @@ impl UserService {
                 Condition::all()
                     .add(
                         Condition::any()
-                            .add(user::Column::Name.eq(input.name.as_str()))
-                            .add(user::Column::Email.eq(input.email.as_str()))
+                            .add(user::Column::Name.eq(name.as_str()))
+                            .add(user::Column::Email.eq(email.as_str()))
                             .add(user::Column::Slug.eq(slug.as_str())),
                     )
                     .add(user::Column::DeletedAt.is_null()),
@@ -98,8 +100,8 @@ impl UserService {
                     Condition::all()
                         .add(
                             Condition::any()
-                                .add(user::Column::Name.eq(input.name.as_str()))
-                                .add(user::Column::Email.eq(input.email.as_str()))
+                                .add(user::Column::Name.eq(name.as_str()))
+                                .add(user::Column::Email.eq(email.as_str()))
                                 .add(user::Column::Slug.eq(slug.as_str())),
                         )
                         .add(user::Column::DeletedAt.is_null()),
@@ -129,12 +131,12 @@ impl UserService {
         let password = match user_type {
             UserType::Regular => {
                 tide::log::info!("Creating regular user '{slug}' with password");
-                PasswordService::new_hash(&input.password)?
+                PasswordService::new_hash(&password)?
             }
             UserType::System => {
                 tide::log::info!("Creating system user '{slug}'");
 
-                if !input.password.is_empty() {
+                if !password.is_empty() {
                     tide::log::warn!("Password was specified for system user");
                     return Err(Error::BadRequest);
                 }
@@ -145,22 +147,22 @@ impl UserService {
             UserType::Bot => {
                 tide::log::info!("Creating bot user '{slug}'");
                 // TODO assign bot token
-                format!("TODO bot token: {}", input.password)
+                format!("TODO bot token: {}", password)
             }
         };
 
         // Insert new model
         let user = user::ActiveModel {
             user_type: Set(user_type),
-            name: Set(input.name),
+            name: Set(name),
             slug: Set(slug.clone()),
             name_changes_left: Set(DEFAULT_NAME_CHANGES),
-            email: Set(input.email),
+            email: Set(email),
             email_verified_at: Set(None),
             password: Set(password),
             multi_factor_secret: Set(None),
             multi_factor_recovery_codes: Set(None),
-            locale: Set(input.locale),
+            locale: Set(locale),
             avatar_s3_hash: Set(None),
             real_name: Set(None),
             gender: Set(None),
@@ -304,7 +306,7 @@ impl UserService {
     pub async fn update(
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
-        input: UpdateUser,
+        input: UpdateUserBody,
     ) -> Result<()> {
         // NOTE: Name filter validation occurs in update_name(), not here
         let txn = ctx.transaction();

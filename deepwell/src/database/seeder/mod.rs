@@ -26,7 +26,7 @@ use crate::constants::{ADMIN_USER_ID, SYSTEM_USER_ID};
 use crate::services::filter::{CreateFilter, FilterService};
 use crate::services::page::{CreatePage, PageService};
 use crate::services::site::{CreateSite, CreateSiteOutput, SiteService};
-use crate::services::user::{CreateUser, CreateUserOutput, UpdateUser, UserService};
+use crate::services::user::{CreateUser, CreateUserOutput, UpdateUserBody, UserService};
 use crate::services::user_alias::{CreateUserAlias, UserAliasService};
 use crate::services::ServiceContext;
 use crate::web::{ProvidedValue, Reference};
@@ -75,8 +75,8 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
         // Create users
         let CreateUserOutput { user_id, slug } = UserService::create(
             &ctx,
-            user.user_type,
             CreateUser {
+                user_type: user.user_type,
                 name: user.name,
                 email: user.email,
                 password: user.password.unwrap_or_default(),
@@ -89,7 +89,7 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
         UserService::update(
             &ctx,
             Reference::Id(user_id),
-            UpdateUser {
+            UpdateUserBody {
                 email_verified: ProvidedValue::Set(true),
                 real_name: ProvidedValue::Set(user.real_name),
                 gender: ProvidedValue::Set(user.gender),

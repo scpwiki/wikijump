@@ -24,7 +24,6 @@ use crate::services::file_revision::{
     GetFileRevision, GetFileRevisionRange, UpdateFileRevision,
 };
 use crate::services::revision::RevisionCountOutput;
-use crate::web::FileLimitQuery;
 
 pub async fn file_revision_count(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;

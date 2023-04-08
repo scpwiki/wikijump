@@ -202,14 +202,12 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
     app.at("/text/:hash").get(text_get);
 
     // User
-    app.at("/user").post(user_create);
-    app.at("/user/:type/:id_or_slug")
+    app.at("/user")
         .get(user_get)
         .put(user_put)
         .delete(user_delete);
-
-    app.at("/user/:type/:id_or_slug/addNameChange")
-        .post(user_add_name_change);
+    app.at("/user/create").post(user_create);
+    app.at("/user/addNameChange").post(user_add_name_change);
 
     // User bot information
     app.at("/user/bot").post(user_bot_create);
