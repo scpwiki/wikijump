@@ -153,8 +153,8 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
 
             PageService::create(
                 &ctx,
-                site_id,
                 CreatePage {
+                    site_id,
                     wikitext: page.wikitext,
                     title: page.title,
                     alt_title: page.alt_title,

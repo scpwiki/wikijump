@@ -37,8 +37,8 @@ pub struct PageService;
 impl PageService {
     pub async fn create(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
         CreatePage {
+            site_id,
             wikitext,
             title,
             alt_title,
@@ -107,19 +107,23 @@ impl PageService {
 
     pub async fn edit(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        reference: Reference<'_>,
         EditPage {
-            wikitext,
-            title,
-            alt_title,
-            tags,
+            site_id,
+            page: reference,
             revision_comments: comments,
             user_id,
+            body:
+                EditPageBody {
+                    wikitext,
+                    title,
+                    alt_title,
+                    tags,
+                },
         }: EditPage,
     ) -> Result<Option<EditPageOutput>> {
         let txn = ctx.transaction();
-        let PageModel { page_id, .. } = Self::get(ctx, site_id, reference).await?;
+        let PageModel { page_id, .. } =
+            Self::get(ctx, site_id, reference.borrow()).await?;
 
         // Perform filter validation
         Self::run_filter(
@@ -178,13 +182,13 @@ impl PageService {
     /// Moves a page from from one slug to another.
     pub async fn r#move(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        reference: Reference<'_>,
         MovePage {
+            site_id,
+            page: reference,
+            mut new_slug,
             revision_comments: comments,
             user_id,
         }: MovePage,
-        mut new_slug: String,
     ) -> Result<MovePageOutput> {
         let txn = ctx.transaction();
 
@@ -192,7 +196,7 @@ impl PageService {
             page_id,
             slug: old_slug,
             ..
-        } = Self::get(ctx, site_id, reference).await?;
+        } = Self::get(ctx, site_id, reference.borrow()).await?;
 
         // Check that a move is actually taking place,
         // and that a page with that slug doesn't already exist.
@@ -263,15 +267,16 @@ impl PageService {
 
     pub async fn delete(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        reference: Reference<'_>,
         DeletePage {
+            site_id,
+            page: reference,
             user_id,
             revision_comments: comments,
         }: DeletePage,
     ) -> Result<DeletePageOutput> {
         let txn = ctx.transaction();
-        let PageModel { page_id, .. } = Self::get(ctx, site_id, reference).await?;
+        let PageModel { page_id, .. } =
+            Self::get(ctx, site_id, reference.borrow()).await?;
 
         // Get latest revision
         let last_revision = RevisionService::get_latest(ctx, site_id, page_id).await?;
@@ -305,9 +310,9 @@ impl PageService {
     /// Restore a deleted page, causing it to be undeleted.
     pub async fn restore(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
         RestorePage {
+            site_id,
+            page_id,
             user_id,
             slug,
             revision_comments: comments,
@@ -379,15 +384,17 @@ impl PageService {
     /// This is equivalent to Wikidot's concept of a "revert".
     pub async fn rollback(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
-        revision_number: i32,
         RollbackPage {
+            site_id,
+            page: reference,
+            revision_number,
             revision_comments: comments,
             user_id,
         }: RollbackPage,
     ) -> Result<Option<EditPageOutput>> {
         let txn = ctx.transaction();
+        let PageModel { page_id, .. } =
+            Self::get(ctx, site_id, reference.borrow()).await?;
 
         // Get target revision and latest revision
         let (target_revision, last_revision) = try_join!(

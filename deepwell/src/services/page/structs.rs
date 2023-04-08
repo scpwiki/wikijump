@@ -29,6 +29,7 @@ use ftml::parsing::ParseError;
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct CreatePage {
+    pub site_id: i64,
     pub wikitext: String,
     pub title: String,
     pub alt_title: Option<String>,
@@ -86,20 +87,33 @@ pub struct GetPageOutput<'a> {
     pub rating: ScoreValue,
 }
 
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct EditPage {
+    pub site_id: i64,
+    pub page: OwnedReference,
+    pub revision_comments: String,
+    pub user_id: i64,
+
+    #[serde(flatten)]
+    pub body: EditPageBody,
+}
+
 #[derive(Deserialize, Debug, Default)]
 #[serde(rename_all = "camelCase", default)]
-pub struct EditPage {
+pub struct EditPageBody {
     pub wikitext: ProvidedValue<String>,
     pub title: ProvidedValue<String>,
     pub alt_title: ProvidedValue<Option<String>>,
     pub tags: ProvidedValue<Vec<String>>,
-    pub revision_comments: String,
-    pub user_id: i64,
 }
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct MovePage {
+    pub site_id: i64,
+    pub page: OwnedReference,
+    pub new_slug: String,
     pub revision_comments: String,
     pub user_id: i64,
     // NOTE: slug field is a parameter, not in the body
@@ -118,6 +132,8 @@ pub struct MovePageOutput {
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct DeletePage {
+    pub site_id: i64,
+    pub page: OwnedReference,
     pub revision_comments: String,
     pub user_id: i64,
 }
@@ -125,6 +141,8 @@ pub struct DeletePage {
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct RestorePage {
+    pub site_id: i64,
+    pub page_id: i64,
     pub revision_comments: String,
     pub user_id: i64,
     pub slug: Option<String>,
@@ -150,6 +168,9 @@ pub struct RestorePageOutput {
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct RollbackPage {
+    pub site_id: i64,
+    pub page: OwnedReference,
+    pub revision_number: i32,
     pub revision_comments: String,
     pub user_id: i64,
 }

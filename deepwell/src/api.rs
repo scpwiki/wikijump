@@ -150,28 +150,18 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
     app.at("/page/create").post(page_create);
     app.at("/page/direct").get(page_get_direct);
 
-    // XXX rest
-    app.at("/page/:site_id/:type/:id_or_slug/move/:new_slug")
-        .post(page_move);
-
-    app.at("/page/:site_id/:page_id/rerender")
-        .post(page_rerender);
-
-    app.at("/page/:site_id/:page_id/restore").post(page_restore);
+    app.at("/page/move").post(page_move);
+    app.at("/page/rerender").put(page_rerender);
+    app.at("/page/restore").post(page_restore);
 
     // Page revisions
-    app.at("/page/:site_id/:type/:id_or_slug/revision")
-        .get(page_revision_info);
-
-    app.at("/page/:site_id/:type/:id_or_slug/revision/:revision_number")
+    app.at("/page/revision")
         .get(page_revision_get)
         .put(page_revision_put);
+    app.at("/page/revision/latest").get(page_revision_info);
 
-    app.at("/page/:site_id/:type/:id_or_slug/revision/:revision_number/rollback")
-        .post(page_rollback);
-
-    app.at("/page/:site_id/:type/:id_or_slug/revision/:revision_number/:direction")
-        .get(page_revision_range_get);
+    app.at("/page/revision/rollback").post(page_rollback);
+    app.at("/page/revision/range").get(page_revision_range_get);
 
     // Page links
     app.at("/page/:site_id/:type/:id_or_slug/links/from")
