@@ -23,6 +23,7 @@ use crate::models::sea_orm_active_enums::PageRevisionType;
 use crate::services::revision::CreateRevisionOutput;
 use crate::services::score::ScoreValue;
 use crate::utils::DateTimeWithTimeZone;
+use crate::web::OwnedReference;
 use ftml::parsing::ParseError;
 
 #[derive(Deserialize, Debug)]
@@ -46,6 +47,13 @@ pub struct CreatePageOutput {
     pub slug: String,
     pub revision_id: i64,
     pub parser_errors: Vec<ParseError>,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct GetPage {
+    pub site_id: i64,
+    pub page: OwnedReference,
 }
 
 #[derive(Serialize, Debug)]

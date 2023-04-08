@@ -22,7 +22,8 @@ use super::prelude::*;
 use crate::models::page::Model as PageModel;
 use crate::models::page_revision::Model as PageRevisionModel;
 use crate::services::page::{
-    CreatePage, DeletePage, EditPage, GetPageOutput, MovePage, RestorePage, RollbackPage,
+    CreatePage, DeletePage, EditPage, GetPage, GetPageOutput, MovePage, RestorePage,
+    RollbackPage,
 };
 use crate::services::{Result, TextService};
 use crate::web::PageDetailsQuery;
@@ -69,16 +70,21 @@ pub async fn page_create(mut req: ApiRequest) -> ApiResponse {
     Ok(body.into())
 }
 
-pub async fn page_get(req: ApiRequest) -> ApiResponse {
+pub async fn page_get(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
     let details: PageDetailsQuery = req.query()?;
-    let site_id = req.param("site_id")?.parse()?;
-    let reference = Reference::try_from(&req)?;
-    tide::log::info!("Getting page {reference:?} in site ID {site_id}");
+    let GetPage {
+        site_id,
+        page: reference,
+    } = req.body_json().await?;
 
-    let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
+    tide::log::info!("Getting page {reference:?} in site ID {site_id}");
+    let page = PageService::get(&ctx, site_id, reference.borrow())
+        .await
+        .to_api()?;
+
     let revision = RevisionService::get_latest(&ctx, site_id, page.page_id)
         .await
         .to_api()?;

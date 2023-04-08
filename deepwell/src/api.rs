@@ -143,13 +143,14 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
     app.at("/category/site").get(category_all_get);
 
     // Page
-    app.at("/page/direct/:page_id").get(page_get_direct);
-    app.at("/page/:site_id").post(page_create);
-    app.at("/page/:site_id/:type/:id_or_slug")
+    app.at("/page")
         .get(page_get)
         .post(page_edit)
         .delete(page_delete);
+    app.at("/page/create").post(page_create);
+    app.at("/page/direct").get(page_get_direct);
 
+    // XXX rest
     app.at("/page/:site_id/:type/:id_or_slug/move/:new_slug")
         .post(page_move);
 
