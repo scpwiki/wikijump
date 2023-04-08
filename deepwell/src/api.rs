@@ -180,12 +180,6 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
     app.at("/page/parent/:relationship_type")
         .get(parent_relationships_get);
 
-    // Page (invalid routes)
-    app.at("/page").all(page_invalid);
-    app.at("/page/:type/:id_or_slug").all(page_invalid);
-    app.at("/page/:site_id/id/:page_slug/links/to/missing")
-        .all(page_invalid);
-
     // Files
     app.at("/file/:site_id/:type/:id_or_slug").post(file_create);
     app.at("/file/:site_id/:page_type/:id_or_slug/:file_type/:id_or_name")

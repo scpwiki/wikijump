@@ -29,11 +29,6 @@ use crate::services::{Result, TextService};
 use crate::web::PageDetailsQuery;
 use ref_map::*;
 
-pub async fn page_invalid(req: ApiRequest) -> ApiResponse {
-    tide::log::warn!("Received invalid /page path: {}", req.url());
-    Ok(Response::new(StatusCode::BadRequest))
-}
-
 pub async fn page_create(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
