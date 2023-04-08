@@ -26,9 +26,9 @@ use crate::web::Reference;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct GetLinksFrom<'a> {
+pub struct GetLinksFrom {
     pub site_id: i64,
-    pub page: Reference<'a>,
+    pub page: Reference<'static>,
 }
 
 #[derive(Serialize, Debug)]
@@ -41,9 +41,9 @@ pub struct GetLinksFromOutput {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct GetLinksTo<'a> {
+pub struct GetLinksTo {
     pub site_id: i64,
-    pub page: Reference<'a>,
+    pub page: Reference<'static>,
 }
 
 #[derive(Serialize, Debug)]
@@ -74,9 +74,9 @@ pub struct GetConnectionsFromOutput {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct GetLinksExternalFrom<'a> {
+pub struct GetLinksExternalFrom {
     pub site_id: i64,
-    pub page: Reference<'a>,
+    pub page: Reference<'static>,
 }
 
 #[derive(Serialize, Debug)]

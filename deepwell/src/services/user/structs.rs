@@ -45,8 +45,8 @@ pub struct CreateUserOutput {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct GetUser<'a> {
-    pub user: Reference<'a>,
+pub struct GetUser {
+    pub user: Reference<'static>,
 }
 
 #[derive(Deserialize, Debug, Default)]

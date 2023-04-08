@@ -51,9 +51,9 @@ pub struct CreatePageOutput {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct GetPage<'a> {
+pub struct GetPage {
     pub site_id: i64,
-    pub page: Reference<'a>,
+    pub page: Reference<'static>,
 }
 
 #[derive(Serialize, Debug)]
@@ -88,9 +88,9 @@ pub struct GetPageOutput<'a> {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct EditPage<'a> {
+pub struct EditPage {
     pub site_id: i64,
-    pub page: Reference<'a>,
+    pub page: Reference<'static>,
     pub revision_comments: String,
     pub user_id: i64,
 
@@ -109,9 +109,9 @@ pub struct EditPageBody {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct MovePage<'a> {
+pub struct MovePage {
     pub site_id: i64,
-    pub page: Reference<'a>,
+    pub page: Reference<'static>,
     pub new_slug: String,
     pub revision_comments: String,
     pub user_id: i64,
@@ -130,9 +130,9 @@ pub struct MovePageOutput {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct DeletePage<'a> {
+pub struct DeletePage {
     pub site_id: i64,
-    pub page: Reference<'a>,
+    pub page: Reference<'static>,
     pub revision_comments: String,
     pub user_id: i64,
 }
@@ -166,9 +166,9 @@ pub struct RestorePageOutput {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct RollbackPage<'a> {
+pub struct RollbackPage {
     pub site_id: i64,
-    pub page: Reference<'a>,
+    pub page: Reference<'static>,
     pub revision_number: i32,
     pub revision_comments: String,
     pub user_id: i64,

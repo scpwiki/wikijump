@@ -119,7 +119,7 @@ impl PageService {
                     alt_title,
                     tags,
                 },
-        }: EditPage<'_>,
+        }: EditPage,
     ) -> Result<Option<EditPageOutput>> {
         let txn = ctx.transaction();
         let PageModel { page_id, .. } = Self::get(ctx, site_id, reference).await?;
@@ -187,7 +187,7 @@ impl PageService {
             mut new_slug,
             revision_comments: comments,
             user_id,
-        }: MovePage<'_>,
+        }: MovePage,
     ) -> Result<MovePageOutput> {
         let txn = ctx.transaction();
 
@@ -271,7 +271,7 @@ impl PageService {
             page: reference,
             user_id,
             revision_comments: comments,
-        }: DeletePage<'_>,
+        }: DeletePage,
     ) -> Result<DeletePageOutput> {
         let txn = ctx.transaction();
         let PageModel { page_id, .. } = Self::get(ctx, site_id, reference).await?;
@@ -388,7 +388,7 @@ impl PageService {
             revision_number,
             revision_comments: comments,
             user_id,
-        }: RollbackPage<'_>,
+        }: RollbackPage,
     ) -> Result<Option<EditPageOutput>> {
         let txn = ctx.transaction();
         let PageModel { page_id, .. } = Self::get(ctx, site_id, reference).await?;
