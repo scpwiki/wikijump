@@ -190,8 +190,7 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
     app.at("/file/restore").post(file_restore);
 
     // File revisions
-    app.at("/file/:site_id/:page_type/:id_or_slug/:file_type/:id_or_name/revision")
-        .get(file_revision_info);
+    app.at("/file/revision/count").get(file_revision_count);
 
     app.at("/file/:site_id/:page_type/:id_or_slug/:file_type/:id_or_name/revision/:revision_number")
         .get(file_revision_get)

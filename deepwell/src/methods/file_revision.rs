@@ -19,17 +19,20 @@
  */
 
 use super::prelude::*;
+use crate::services::file::GetFile;
 use crate::services::file_revision::UpdateFileRevision;
 use crate::services::revision::RevisionCountOutput;
 use crate::web::FileLimitQuery;
 
-pub async fn file_revision_info(req: ApiRequest) -> ApiResponse {
+pub async fn file_revision_count(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let site_id = req.param("site_id")?.parse()?;
-    let page_reference = Reference::try_from_fields_key(&req, "page_type", "id_or_slug")?;
-    let file_reference = Reference::try_from_fields_key(&req, "file_type", "id_or_name")?;
+    let GetFile {
+        site_id,
+        page: page_reference,
+        file: file_reference,
+    } = req.body_json().await?;
 
     tide::log::info!(
         "Getting latest revision for file {page_reference:?} in site ID {site_id}",
