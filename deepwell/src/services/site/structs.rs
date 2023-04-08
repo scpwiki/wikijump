@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::web::{OwnedReference, ProvidedValue};
+use crate::web::{ProvidedValue, Reference};
 
 #[derive(Deserialize, Debug)]
 pub struct CreateSite {
@@ -38,14 +38,14 @@ pub struct CreateSiteOutput {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct GetSite {
-    pub site: OwnedReference,
+pub struct GetSite<'a> {
+    pub site: Reference<'a>,
 }
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct UpdateSite {
-    pub site: OwnedReference,
+pub struct UpdateSite<'a> {
+    pub site: Reference<'a>,
 
     #[serde(flatten)]
     pub body: UpdateSiteBody,

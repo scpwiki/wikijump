@@ -28,10 +28,10 @@ pub async fn category_get(mut req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let GetCategory { site, category } = req.body_json().await?;
-    let site_id = SiteService::get_id(&ctx, site.borrow()).await?;
+    let site_id = SiteService::get_id(&ctx, site).await?;
     tide::log::info!("Getting page category {category:?} in site ID {site_id}");
 
-    let category = CategoryService::get(&ctx, site_id, category.borrow())
+    let category = CategoryService::get(&ctx, site_id, category)
         .await
         .to_api()?;
 
@@ -45,7 +45,7 @@ pub async fn category_all_get(mut req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let GetSite { site } = req.body_json().await?;
-    let site_id = SiteService::get_id(&ctx, site.borrow()).await?;
+    let site_id = SiteService::get_id(&ctx, site).await?;
     tide::log::info!("Getting all page categories in site ID {site_id}");
 
     let categories: Vec<CategoryOutput> = CategoryService::get_all(&ctx, site_id)

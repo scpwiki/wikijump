@@ -34,7 +34,6 @@ use crate::web::FetchDirection;
 use ftml::data::PageInfo;
 use ftml::settings::{WikitextMode, WikitextSettings};
 use ref_map::*;
-use std::borrow::Cow;
 use std::num::NonZeroI32;
 
 lazy_static! {

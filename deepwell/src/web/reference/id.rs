@@ -19,13 +19,15 @@
  */
 
 use crate::api::ApiRequest;
+use std::borrow::Cow;
 use std::convert::TryFrom;
 use tide::{Error, StatusCode};
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq)]
+#[serde(untagged)]
 pub enum Reference<'a> {
     Id(i64),
-    Slug(&'a str),
+    Slug(Cow<'a, str>),
 }
 
 impl<'a> Reference<'a> {
@@ -44,7 +46,7 @@ impl<'a> Reference<'a> {
         match value_type {
             "slug" => {
                 tide::log::debug!("Reference via slug, {value}");
-                Ok(Reference::Slug(value))
+                Ok(Reference::Slug(Cow::Borrowed(value)))
             }
             "id" => {
                 tide::log::debug!("Reference via ID, {value}");
@@ -69,7 +71,7 @@ impl From<i64> for Reference<'static> {
 impl<'a> From<&'a str> for Reference<'a> {
     #[inline]
     fn from(slug: &'a str) -> Reference<'a> {
-        Reference::Slug(slug)
+        Reference::Slug(Cow::Borrowed(slug))
     }
 }
 
@@ -79,36 +81,5 @@ impl<'a> TryFrom<&'a ApiRequest> for Reference<'a> {
     #[inline]
     fn try_from(req: &'a ApiRequest) -> Result<Reference<'a>, Error> {
         Reference::try_from_fields_key(req, "type", "id_or_slug")
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq)]
-#[serde(untagged)]
-pub enum OwnedReference {
-    Id(i64),
-    Slug(String),
-}
-
-impl OwnedReference {
-    #[inline]
-    pub fn borrow(&self) -> Reference {
-        match self {
-            OwnedReference::Id(id) => Reference::Id(*id),
-            OwnedReference::Slug(ref slug) => Reference::Slug(slug),
-        }
-    }
-}
-
-impl From<i64> for OwnedReference {
-    #[inline]
-    fn from(id: i64) -> OwnedReference {
-        OwnedReference::Id(id)
-    }
-}
-
-impl From<String> for OwnedReference {
-    #[inline]
-    fn from(slug: String) -> OwnedReference {
-        OwnedReference::Slug(slug)
     }
 }

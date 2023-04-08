@@ -223,7 +223,7 @@ pub async fn auth_mfa_setup(mut req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let GetUser { user: reference } = req.body_json().await?;
-    let user = UserService::get(&ctx, reference.borrow()).await.to_api()?;
+    let user = UserService::get(&ctx, reference).await.to_api()?;
     let output = MfaService::setup(&ctx, &user).await.to_api()?;
 
     let body = Body::from_json(&output)?;

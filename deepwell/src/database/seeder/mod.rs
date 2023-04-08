@@ -34,6 +34,7 @@ use anyhow::Result;
 use sea_orm::{
     ConnectionTrait, DatabaseBackend, DatabaseTransaction, Statement, TransactionTrait,
 };
+use std::borrow::Cow;
 
 pub async fn seed(state: &ApiServerState) -> Result<()> {
     tide::log::info!("Running seeder...");
@@ -174,7 +175,10 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
         // Also do logging
         let site_id = match filter.site_slug {
             Some(slug) => {
-                let site = SiteService::get(&ctx, Reference::Slug(&slug)).await?;
+                let site = {
+                    let slug: Cow<str> = Cow::Borrowed(&slug);
+                    SiteService::get(&ctx, Reference::Slug(slug)).await?
+                };
 
                 tide::log::info!(
                     "Creating site filter '{}' ('{}') for site '{}' (ID {})",

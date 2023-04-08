@@ -215,7 +215,7 @@ impl UserService {
         if let Reference::Slug(slug) = reference {
             // If present, proceed with SELECT by id.
             // If absent, then this user is missing, return.
-            let alias = match UserAliasService::get_optional(ctx, slug).await? {
+            let alias = match UserAliasService::get_optional(ctx, &slug).await? {
                 Some(alias) => alias,
                 None => return Ok(None),
             };

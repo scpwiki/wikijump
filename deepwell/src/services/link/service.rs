@@ -477,12 +477,17 @@ async fn count_connections(
     connections_missing: &mut HashMap<(i64, String, ConnectionType), i32>,
 ) -> Result<()> {
     let to_site_id = match site_slug {
-        Some(slug) => SiteService::get(ctx, Reference::Slug(slug)).await?.site_id,
         None => site_id,
+        Some(slug) => {
+            let reference = Reference::Slug(cow!(slug));
+            SiteService::get(ctx, reference).await?.site_id
+        }
     };
 
-    let page =
-        PageService::get_optional(ctx, to_site_id, Reference::Slug(page_slug)).await?;
+    let page = {
+        let reference = Reference::Slug(cow!(page_slug));
+        PageService::get_optional(ctx, to_site_id, reference).await?
+    };
 
     match page {
         Some(to_page) => {

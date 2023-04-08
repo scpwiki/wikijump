@@ -119,11 +119,10 @@ impl PageService {
                     alt_title,
                     tags,
                 },
-        }: EditPage,
+        }: EditPage<'_>,
     ) -> Result<Option<EditPageOutput>> {
         let txn = ctx.transaction();
-        let PageModel { page_id, .. } =
-            Self::get(ctx, site_id, reference.borrow()).await?;
+        let PageModel { page_id, .. } = Self::get(ctx, site_id, reference).await?;
 
         // Perform filter validation
         Self::run_filter(
@@ -188,7 +187,7 @@ impl PageService {
             mut new_slug,
             revision_comments: comments,
             user_id,
-        }: MovePage,
+        }: MovePage<'_>,
     ) -> Result<MovePageOutput> {
         let txn = ctx.transaction();
 
@@ -196,7 +195,7 @@ impl PageService {
             page_id,
             slug: old_slug,
             ..
-        } = Self::get(ctx, site_id, reference.borrow()).await?;
+        } = Self::get(ctx, site_id, reference).await?;
 
         // Check that a move is actually taking place,
         // and that a page with that slug doesn't already exist.
@@ -272,11 +271,10 @@ impl PageService {
             page: reference,
             user_id,
             revision_comments: comments,
-        }: DeletePage,
+        }: DeletePage<'_>,
     ) -> Result<DeletePageOutput> {
         let txn = ctx.transaction();
-        let PageModel { page_id, .. } =
-            Self::get(ctx, site_id, reference.borrow()).await?;
+        let PageModel { page_id, .. } = Self::get(ctx, site_id, reference).await?;
 
         // Get latest revision
         let last_revision = RevisionService::get_latest(ctx, site_id, page_id).await?;
@@ -390,11 +388,10 @@ impl PageService {
             revision_number,
             revision_comments: comments,
             user_id,
-        }: RollbackPage,
+        }: RollbackPage<'_>,
     ) -> Result<Option<EditPageOutput>> {
         let txn = ctx.transaction();
-        let PageModel { page_id, .. } =
-            Self::get(ctx, site_id, reference.borrow()).await?;
+        let PageModel { page_id, .. } = Self::get(ctx, site_id, reference).await?;
 
         // Get target revision and latest revision
         let (target_revision, last_revision) = try_join!(
@@ -480,7 +477,7 @@ impl PageService {
                 Reference::Id(id) => page::Column::PageId.eq(id),
                 Reference::Slug(slug) => {
                     // Trim off _default category if present
-                    page::Column::Slug.eq(trim_default(slug))
+                    page::Column::Slug.eq(trim_default(&slug))
                 }
             };
 
@@ -512,11 +509,11 @@ impl PageService {
     ) -> Result<i64> {
         match reference {
             Reference::Id(page_id) => Ok(page_id),
-            Reference::Slug(_slug) => {
+            Reference::Slug(slug) => {
                 // Unlike the other get_id() methods we pass through the
                 // call so that all the slug-handling etc logic is in one place.
                 let PageModel { page_id, .. } =
-                    Self::get(ctx, site_id, reference).await?;
+                    Self::get(ctx, site_id, Reference::Slug(slug)).await?;
 
                 Ok(page_id)
             }

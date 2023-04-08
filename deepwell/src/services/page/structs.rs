@@ -23,7 +23,6 @@ use crate::models::sea_orm_active_enums::PageRevisionType;
 use crate::services::revision::CreateRevisionOutput;
 use crate::services::score::ScoreValue;
 use crate::utils::DateTimeWithTimeZone;
-use crate::web::OwnedReference;
 use ftml::parsing::ParseError;
 
 #[derive(Deserialize, Debug)]
@@ -52,9 +51,9 @@ pub struct CreatePageOutput {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct GetPage {
+pub struct GetPage<'a> {
     pub site_id: i64,
-    pub page: OwnedReference,
+    pub page: Reference<'a>,
 }
 
 #[derive(Serialize, Debug)]
@@ -89,9 +88,9 @@ pub struct GetPageOutput<'a> {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct EditPage {
+pub struct EditPage<'a> {
     pub site_id: i64,
-    pub page: OwnedReference,
+    pub page: Reference<'a>,
     pub revision_comments: String,
     pub user_id: i64,
 
@@ -110,9 +109,9 @@ pub struct EditPageBody {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct MovePage {
+pub struct MovePage<'a> {
     pub site_id: i64,
-    pub page: OwnedReference,
+    pub page: Reference<'a>,
     pub new_slug: String,
     pub revision_comments: String,
     pub user_id: i64,
@@ -131,9 +130,9 @@ pub struct MovePageOutput {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct DeletePage {
+pub struct DeletePage<'a> {
     pub site_id: i64,
-    pub page: OwnedReference,
+    pub page: Reference<'a>,
     pub revision_comments: String,
     pub user_id: i64,
 }
@@ -167,9 +166,9 @@ pub struct RestorePageOutput {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct RollbackPage {
+pub struct RollbackPage<'a> {
     pub site_id: i64,
-    pub page: OwnedReference,
+    pub page: Reference<'a>,
     pub revision_number: i32,
     pub revision_comments: String,
     pub user_id: i64,

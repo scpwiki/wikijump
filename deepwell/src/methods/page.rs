@@ -59,9 +59,7 @@ pub async fn page_get(mut req: ApiRequest) -> ApiResponse {
     } = req.body_json().await?;
 
     tide::log::info!("Getting page {reference:?} in site ID {site_id}");
-    let page = PageService::get(&ctx, site_id, reference.borrow())
-        .await
-        .to_api()?;
+    let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
 
     let revision = RevisionService::get_latest(&ctx, site_id, page.page_id)
         .await
