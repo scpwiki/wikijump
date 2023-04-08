@@ -181,11 +181,11 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
         .get(parent_relationships_get);
 
     // Files
-    app.at("/file/:site_id/:type/:id_or_slug").post(file_create);
-    app.at("/file/:site_id/:page_type/:id_or_slug/:file_type/:id_or_name")
+    app.at("/file")
         .get(file_get)
         .post(file_edit)
         .delete(file_delete);
+    app.at("/file/upload").post(file_create);
 
     app.at("/file/:site_id/:page_type/:id_or_slug/move")
         .post(file_move);
