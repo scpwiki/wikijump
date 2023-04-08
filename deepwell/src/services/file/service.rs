@@ -410,7 +410,8 @@ impl FileService {
                 .filter(
                     Condition::all()
                         .add(condition)
-                        .add(file::Column::PageId.eq(page_id)),
+                        .add(file::Column::PageId.eq(page_id))
+                        .add(file::Column::DeletedAt.is_null()),
                 )
                 .one(txn)
                 .await?
