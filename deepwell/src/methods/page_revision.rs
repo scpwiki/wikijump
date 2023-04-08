@@ -37,8 +37,8 @@ pub async fn page_revision_info(req: ApiRequest) -> ApiResponse {
         "Getting latest revision for page {reference:?} in site ID {site_id}",
     );
 
-    let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
-    let revision_count = RevisionService::count(&ctx, site_id, page.page_id)
+    let page_id = PageService::get_id(&ctx, site_id, reference).await.to_api()?;
+    let revision_count = RevisionService::count(&ctx, site_id, page_id)
         .await
         .to_api()?;
 
