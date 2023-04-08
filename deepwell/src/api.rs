@@ -164,20 +164,12 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
     app.at("/page/revision/range").get(page_revision_range_get);
 
     // Page links
-    app.at("/page/:site_id/:type/:id_or_slug/links/from")
-        .get(page_links_from_get);
-
-    app.at("/page/:site_id/:type/:id_or_slug/links/to")
-        .get(page_links_to_get);
-
-    app.at("/page/:site_id/slug/:page_slug/links/to/missing")
+    app.at("/page/links/from").get(page_links_from_get);
+    app.at("/page/links/to").get(page_links_to_get);
+    app.at("/page/links/to/missing")
         .get(page_links_to_missing_get);
-
-    app.at("/page/:site_id/:type/:id_or_slug/urls")
-        .get(page_links_external_from);
-
-    app.at("/page/:site_id/urls/:url")
-        .get(page_links_external_to);
+    app.at("/page/urls/from").get(page_links_external_from);
+    app.at("/page/urls/to").get(page_links_external_to);
 
     // Page parents
     app.at(
