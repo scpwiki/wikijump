@@ -19,7 +19,16 @@
  */
 
 use crate::services::Error;
+use crate::web::Reference;
 use std::str::FromStr;
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct ParentDescription<'a> {
+    pub site_id: i64,
+    pub parent: Reference<'a>,
+    pub child: Reference<'a>,
+}
 
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum ParentalRelationshipType {

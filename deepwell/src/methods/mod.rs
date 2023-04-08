@@ -31,9 +31,10 @@ mod prelude {
     pub use crate::api::{ApiRequest, ApiResponse};
     pub use crate::services::{
         BlobService, CategoryService, Error as ServiceError, FileRevisionService,
-        FileService, LinkService, PageService, PostTransactionToApiResponse,
-        RenderService, RequestFetchService, RevisionService, ScoreService,
-        ServiceContext, SiteService, TextService, UserService, VoteService,
+        FileService, LinkService, PageService, ParentService,
+        PostTransactionToApiResponse, RenderService, RequestFetchService,
+        RevisionService, ScoreService, ServiceContext, SiteService, TextService,
+        UserService, VoteService,
     };
     pub use crate::utils::error_response;
     pub use crate::web::{CuidReference, HttpUnwrap, Reference};

@@ -172,14 +172,12 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
     app.at("/page/urls/to").get(page_links_external_to);
 
     // Page parents
-    app.at(
-        "/page/:site_id/:parent_type/:parent_id_or_slug/:child_type/:child_id_or_slug",
-    )
-    .get(parent_get)
-    .put(parent_put)
-    .delete(parent_delete);
+    app.at("/page/parent")
+        .get(parent_get)
+        .put(parent_put)
+        .delete(parent_delete);
 
-    app.at("/page/:site_id/:relationship_type/:type/:id_or_slug")
+    app.at("/page/parent/:relationship_type")
         .get(parent_relationships_get);
 
     // Page (invalid routes)
