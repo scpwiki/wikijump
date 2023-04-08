@@ -42,10 +42,10 @@ pub type CreateFileOutput = CreateFirstFileRevisionOutput;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct GetFile {
+pub struct GetFile<'a> {
     pub site_id: i64,
-    pub page: Reference<'static>,
-    pub file: Reference<'static>,
+    pub page: Reference<'a>,
+    pub file: Reference<'a>,
 }
 
 #[derive(Deserialize, Debug)]
