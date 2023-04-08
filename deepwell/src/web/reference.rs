@@ -18,6 +18,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+//! A representation of a way of referenceing an item, either by name or by ID.
+//!
+//! For instance, a page can be referenced via its ID, or in the context of a site,
+//! via its page slug.
+
 use crate::api::ApiRequest;
 use std::borrow::Cow;
 use std::convert::TryFrom;

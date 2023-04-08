@@ -37,7 +37,7 @@ mod prelude {
         UserService, VoteService,
     };
     pub use crate::utils::error_response;
-    pub use crate::web::{CuidReference, HttpUnwrap, Reference};
+    pub use crate::web::{HttpUnwrap, Reference};
     pub use chrono::prelude::*;
     pub use sea_orm::{ConnectionTrait, TransactionTrait};
     pub use std::convert::TryFrom;
