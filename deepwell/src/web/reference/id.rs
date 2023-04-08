@@ -26,7 +26,17 @@ use tide::{Error, StatusCode};
 #[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq)]
 #[serde(untagged)]
 pub enum Reference<'a> {
+    /// The `BIGINT` ID for this object.
     Id(i64),
+
+    /// The string name for the object, usually the slug.
+    ///
+    /// However (such as in the case of files) this is the filename instead.
+    /// Properties such as whether this is a normalized slug or not should not
+    /// be assumed.
+    ///
+    /// This enum is effectively just allowing either a string or an integer
+    /// to be passed in, and should be conceived of as such.
     Slug(Cow<'a, str>),
 }
 
