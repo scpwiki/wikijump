@@ -135,8 +135,6 @@ impl SiteService {
     /// Convenience method since this is much more common than the optional
     /// case, and we don't want to perform a redundant check for site existence
     /// later as part of the actual query.
-    ///
-    /// See also `PageService::get_id()` and `UserService::get_id()`.
     pub async fn get_id(
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,

@@ -429,6 +429,41 @@ impl FileService {
         find_or_error(Self::get_optional(ctx, page_id, reference)).await
     }
 
+    /// Gets the file ID from a reference, looking up if necessary.
+    ///
+    /// Convenience method since this is much more common than the optional
+    /// case, and we don't want to perform a redundant check for site existence
+    /// later as part of the actual query.
+    pub async fn get_id(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
+        reference: Reference<'_>,
+    ) -> Result<i64> {
+        match reference {
+            Reference::Id(id) => Ok(id),
+            Reference::Slug(name) => {
+                let txn = ctx.transaction();
+                let result: Option<(i64,)> = File::find()
+                    .select_only()
+                    .column(file::Column::FileId)
+                    .filter(
+                        Condition::all()
+                            .add(file::Column::PageId.eq(page_id))
+                            .add(file::Column::Name.eq(name))
+                            .add(file::Column::DeletedAt.is_null()),
+                    )
+                    .into_tuple()
+                    .one(txn)
+                    .await?;
+
+                match result {
+                    Some(tuple) => Ok(tuple.0),
+                    None => Err(Error::NotFound),
+                }
+            }
+        }
+    }
+
     pub async fn get_direct_optional(
         ctx: &ServiceContext<'_>,
         file_id: i64,
