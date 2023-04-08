@@ -20,7 +20,9 @@
 
 use super::prelude::*;
 use crate::services::file::GetFile;
-use crate::services::file_revision::{GetFileRevision, UpdateFileRevision};
+use crate::services::file_revision::{
+    GetFileRevision, GetFileRevisionRange, UpdateFileRevision,
+};
 use crate::services::revision::RevisionCountOutput;
 use crate::web::FileLimitQuery;
 
@@ -62,8 +64,6 @@ pub async fn file_revision_get(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let input: GetFileRevision = req.body_json().await?;
-
     let GetFileRevision {
         page_id,
         file_id,
@@ -103,34 +103,12 @@ pub async fn file_revision_put(mut req: ApiRequest) -> ApiResponse {
     Ok(Response::new(StatusCode::NoContent))
 }
 
-pub async fn file_revision_range_get(req: ApiRequest) -> ApiResponse {
+pub async fn file_revision_range_get(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let FileLimitQuery { limit } = req.query()?;
-
-    let site_id = req.param("site_id")?.parse()?;
-    let revision_number = req.param("revision_number")?.parse()?;
-    let direction = req.param("direction")?.parse()?;
-    let page_reference = Reference::try_from_fields_key(&req, "page_type", "id_or_slug")?;
-    let file_reference = Reference::try_from_fields_key(&req, "file_type", "id_or_name")?;
-
-    let page = PageService::get(&ctx, site_id, page_reference)
-        .await
-        .to_api()?;
-    let file = FileService::get(&ctx, page.page_id, file_reference)
-        .await
-        .to_api()?;
-    let revisions = FileRevisionService::get_range(
-        &ctx,
-        page.page_id,
-        file.file_id,
-        revision_number,
-        direction,
-        limit.into(),
-    )
-    .await
-    .to_api()?;
+    let input: GetFileRevisionRange = req.body_json().await?;
+    let revisions = FileRevisionService::get_range(&ctx, input).await.to_api()?;
 
     txn.commit().await?;
     let body = Body::from_json(&revisions)?;

@@ -194,8 +194,7 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
         .get(file_revision_get)
         .put(file_revision_put);
     app.at("/file/revision/count").get(file_revision_count);
-
-    app.at("/file/:site_id/:page_type/:id_or_slug/:file_type/:id_or_name/revision/:revision_number/:direction")
+    app.at("/file/revision/range/:direction")
         .get(file_revision_range_get);
 
     // Text

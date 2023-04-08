@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::web::FetchDirection;
 
 #[derive(Debug)]
 pub struct CreateFileRevision {
@@ -108,4 +109,14 @@ pub struct UpdateFileRevision {
     pub revision_id: i64,
     pub user_id: i64,
     pub hidden: Vec<String>,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct GetFileRevisionRange {
+    pub page_id: i64,
+    pub file_id: i64,
+    pub revision_number: i32,
+    pub revision_direction: FetchDirection,
+    pub revision_limit: u64,
 }

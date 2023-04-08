@@ -500,11 +500,13 @@ impl FileRevisionService {
     /// See `RevisionService::get_range()`.
     pub async fn get_range(
         ctx: &ServiceContext<'_>,
-        page_id: i64,
-        file_id: i64,
-        revision_number: i32,
-        revision_direction: FetchDirection,
-        revision_limit: u64,
+        GetFileRevisionRange {
+            page_id,
+            file_id,
+            revision_number,
+            revision_direction,
+            revision_limit,
+        }: GetFileRevisionRange,
     ) -> Result<Vec<FileRevisionModel>> {
         let revision_condition = {
             use file_revision::Column::RevisionNumber;
