@@ -88,6 +88,14 @@ pub struct CreateFirstRevisionOutput {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
+pub struct GetRevision {
+    pub site_id: i64,
+    pub page_id: i64,
+    pub revision_id: i32,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct UpdateRevision {
     pub user_id: i64,
     pub hidden: Vec<String>,
