@@ -211,6 +211,7 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
         .get(user_get)
         .put(user_put)
         .delete(user_delete);
+    app.at("/user/avatar").put(user_avatar_put);
     app.at("/user/create").post(user_create);
     app.at("/user/addNameChange").post(user_add_name_change);
 

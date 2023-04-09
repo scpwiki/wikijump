@@ -21,10 +21,10 @@
 use super::prelude::*;
 use crate::models::user::Model as UserModel;
 use crate::services::user::{
-    CreateUser, GetUser, UpdateUser, UserIdentityOutput, UserInfoOutput,
+    CreateUser, GetUser, UpdateUser, UpdateUserBody, UserIdentityOutput, UserInfoOutput,
     UserProfileOutput,
 };
-use crate::web::{UserDetails, UserDetailsQuery};
+use crate::web::{ProvidedValue, UserDetails, UserDetailsQuery};
 
 pub async fn user_create(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
@@ -79,6 +79,39 @@ pub async fn user_delete(mut req: ApiRequest) -> ApiResponse {
     tide::log::info!("Deleting user {:?}", reference);
 
     UserService::delete(&ctx, reference).await.to_api()?;
+
+    txn.commit().await?;
+    Ok(Response::new(StatusCode::NoContent))
+}
+
+// Separate route because a JSON-encoded byte list is very inefficient.
+pub async fn user_avatar_put(mut req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    let GetUser { user: reference } = req.query()?;
+    let bytes = req.body_bytes().await?;
+
+    let avatar = if bytes.is_empty() {
+        // An empty body means delete the avatar
+        tide::log::info!("Remove avatar for user {reference:?}");
+        None
+    } else {
+        // Upload file contents from body
+        tide::log::info!("Uploading avatar for user {reference:?}");
+        Some(bytes)
+    };
+
+    UserService::update(
+        &ctx,
+        reference,
+        UpdateUserBody {
+            avatar: ProvidedValue::Set(avatar),
+            ..Default::default()
+        },
+    )
+    .await
+    .to_api()?;
 
     txn.commit().await?;
     Ok(Response::new(StatusCode::NoContent))

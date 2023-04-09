@@ -33,6 +33,8 @@ pub struct CreateUser {
     pub email: String,
     pub locale: String,
     pub password: String,
+
+    #[serde(default)]
     pub bypass_filter: bool,
 }
 

@@ -360,7 +360,9 @@ impl UserService {
             let s3_hash = match avatar {
                 None => None,
                 Some(blob) => {
-                    let CreateBlobOutput { hash, .. } = BlobService::create(ctx, &blob).await?;
+                    let CreateBlobOutput { hash, .. } =
+                        BlobService::create(ctx, &blob).await?;
+
                     Some(hash.to_vec())
                 }
             };
