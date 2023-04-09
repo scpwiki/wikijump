@@ -19,6 +19,8 @@
  */
 
 use super::prelude::*;
+use crate::services::page_revision::PageRevisionCountOutput;
+use crate::web::FetchDirection;
 
 #[derive(Debug)]
 pub struct CreateFileRevision {
@@ -94,7 +96,30 @@ pub struct CreateResurrectionFileRevision {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
+pub struct GetFileRevision {
+    pub page_id: i64,
+    pub file_id: i64,
+    pub revision_number: i32,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct UpdateFileRevision {
+    pub page_id: i64,
+    pub file_id: i64,
+    pub revision_id: i64,
     pub user_id: i64,
     pub hidden: Vec<String>,
 }
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct GetFileRevisionRange {
+    pub page_id: i64,
+    pub file_id: i64,
+    pub revision_number: i32,
+    pub revision_direction: FetchDirection,
+    pub limit: u64,
+}
+
+pub type FileRevisionCountOutput = PageRevisionCountOutput;

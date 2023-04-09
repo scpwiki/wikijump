@@ -22,27 +22,41 @@ use super::prelude::*;
 use crate::models::page::Model as PageModel;
 use crate::models::page_revision::Model as PageRevisionModel;
 use crate::services::page::{
-    CreatePage, DeletePage, EditPage, GetPageOutput, MovePage, RestorePage, RollbackPage,
+    CreatePage, DeletePage, EditPage, GetPage, GetPageOutput, MovePage, RestorePage,
+    RollbackPage,
 };
 use crate::services::{Result, TextService};
-use crate::web::PageDetailsQuery;
+use crate::web::{PageDetailsQuery, Reference};
 use ref_map::*;
 
-pub async fn page_invalid(req: ApiRequest) -> ApiResponse {
-    tide::log::warn!("Received invalid /page path: {}", req.url());
-    Ok(Response::new(StatusCode::BadRequest))
-}
-
-pub async fn page_get_direct(req: ApiRequest) -> ApiResponse {
+pub async fn page_create(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let page_id = req.param("page_id")?.parse()?;
-    tide::log::info!("Getting page ID {page_id}");
+    let input: CreatePage = req.body_json().await?;
+    tide::log::info!("Creating new page in site ID {}", input.site_id);
+
+    let output = PageService::create(&ctx, input).await.to_api()?;
+    let body = Body::from_json(&output)?;
+    txn.commit().await?;
+
+    Ok(body.into())
+}
+
+pub async fn page_get(mut req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
 
     let details: PageDetailsQuery = req.query()?;
-    let page = PageService::get_direct(&ctx, page_id).await.to_api()?;
-    let revision = RevisionService::get_latest(&ctx, page.site_id, page.page_id)
+    let GetPage {
+        site_id,
+        page: reference,
+    } = req.body_json().await?;
+
+    tide::log::info!("Getting page {reference:?} in site ID {site_id}");
+    let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
+
+    let revision = PageRevisionService::get_latest(&ctx, site_id, page.page_id)
         .await
         .to_api()?;
 
@@ -54,32 +68,16 @@ pub async fn page_get_direct(req: ApiRequest) -> ApiResponse {
     Ok(response)
 }
 
-pub async fn page_create(mut req: ApiRequest) -> ApiResponse {
+pub async fn page_get_direct(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let input: CreatePage = req.body_json().await?;
-    let site_id = req.param("site_id")?.parse()?;
-    tide::log::info!("Creating new page in site ID {site_id}");
-
-    let output = PageService::create(&ctx, site_id, input).await.to_api()?;
-    let body = Body::from_json(&output)?;
-    txn.commit().await?;
-
-    Ok(body.into())
-}
-
-pub async fn page_get(req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let page_id = req.param("page_id")?.parse()?;
+    tide::log::info!("Getting page ID {page_id}");
 
     let details: PageDetailsQuery = req.query()?;
-    let site_id = req.param("site_id")?.parse()?;
-    let reference = Reference::try_from(&req)?;
-    tide::log::info!("Getting page {reference:?} in site ID {site_id}");
-
-    let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
-    let revision = RevisionService::get_latest(&ctx, site_id, page.page_id)
+    let page = PageService::get_direct(&ctx, page_id).await.to_api()?;
+    let revision = PageRevisionService::get_latest(&ctx, page.site_id, page.page_id)
         .await
         .to_api()?;
 
@@ -96,13 +94,9 @@ pub async fn page_edit(mut req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let input: EditPage = req.body_json().await?;
-    let site_id = req.param("site_id")?.parse()?;
-    let reference = Reference::try_from(&req)?;
-    tide::log::info!("Editing page {reference:?} in site ID {site_id}");
+    tide::log::info!("Editing page {:?} in site ID {}", input.page, input.site_id);
 
-    let output = PageService::edit(&ctx, site_id, reference, input)
-        .await
-        .to_api()?;
+    let output = PageService::edit(&ctx, input).await.to_api()?;
 
     txn.commit().await?;
     let body = Body::from_json(&output)?;
@@ -114,13 +108,13 @@ pub async fn page_delete(mut req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let input: DeletePage = req.body_json().await?;
-    let site_id = req.param("site_id")?.parse()?;
-    let reference = Reference::try_from(&req)?;
-    tide::log::info!("Deleting page {reference:?} in site ID {site_id}");
+    tide::log::info!(
+        "Deleting page {:?} in site ID {}",
+        input.page,
+        input.site_id,
+    );
 
-    let output = PageService::delete(&ctx, site_id, reference, input)
-        .await
-        .to_api()?;
+    let output = PageService::delete(&ctx, input).await.to_api()?;
 
     txn.commit().await?;
     let body = Body::from_json(&output)?;
@@ -132,20 +126,14 @@ pub async fn page_move(mut req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let input: MovePage = req.body_json().await?;
-    let reference = Reference::try_from(&req)?;
-    let site_id = req.param("site_id")?.parse()?;
-    let new_slug = req.param("new_slug")?;
-
     tide::log::info!(
         "Moving page {:?} in site ID {} to {}",
-        reference,
-        site_id,
-        new_slug,
+        input.page,
+        input.site_id,
+        input.new_slug,
     );
 
-    let output = PageService::r#move(&ctx, site_id, reference, input, str!(new_slug))
-        .await
-        .to_api()?;
+    let output = PageService::r#move(&ctx, input).await.to_api()?;
 
     txn.commit().await?;
     let body = Body::from_json(&output)?;
@@ -160,7 +148,7 @@ pub async fn page_rerender(req: ApiRequest) -> ApiResponse {
     let page_id = req.param("page_id")?.parse()?;
     tide::log::info!("Re-rendering page ID {page_id} in site ID {site_id}");
 
-    RevisionService::rerender(&ctx, site_id, page_id)
+    PageRevisionService::rerender(&ctx, site_id, page_id)
         .await
         .to_api()?;
 
@@ -173,13 +161,13 @@ pub async fn page_restore(mut req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let input: RestorePage = req.body_json().await?;
-    let site_id = req.param("site_id")?.parse()?;
-    let page_id = req.param("page_id")?.parse()?;
-    tide::log::info!("Un-deleting page ID {page_id} in site ID {site_id}");
+    tide::log::info!(
+        "Un-deleting page ID {} in site ID {}",
+        input.page_id,
+        input.site_id,
+    );
 
-    let output = PageService::restore(&ctx, site_id, page_id, input)
-        .await
-        .to_api()?;
+    let output = PageService::restore(&ctx, input).await.to_api()?;
 
     txn.commit().await?;
     let body = Body::from_json(&output)?;
@@ -191,22 +179,14 @@ pub async fn page_rollback(mut req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let input: RollbackPage = req.body_json().await?;
-    let reference = Reference::try_from(&req)?;
-    let site_id = req.param("site_id")?.parse()?;
-    let revision_number = req.param("revision_number")?.parse()?;
     tide::log::info!(
         "Rolling back page {:?} in site ID {} to revision number {}",
-        reference,
-        site_id,
-        revision_number,
+        input.page,
+        input.site_id,
+        input.revision_number,
     );
 
-    let PageModel { page_id, .. } =
-        PageService::get(&ctx, site_id, reference).await.to_api()?;
-
-    let output = PageService::rollback(&ctx, site_id, page_id, revision_number, input)
-        .await
-        .to_api()?;
+    let output = PageService::rollback(&ctx, input).await.to_api()?;
 
     txn.commit().await?;
     let body = Body::from_json(&output)?;
@@ -229,7 +209,8 @@ async fn build_page_response(
     let (wikitext, compiled_html) = try_join!(
         TextService::get_maybe(ctx, details.wikitext, &revision.wikitext_hash),
         TextService::get_maybe(ctx, details.compiled_html, &revision.compiled_hash),
-    )?;
+    )
+    .to_api()?;
 
     // Calculate score
     let rating = ScoreService::score(ctx, page.page_id).await?;

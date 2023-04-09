@@ -19,20 +19,14 @@
  */
 
 use super::prelude::*;
-use crate::{
-    models::site::Model as SiteModel,
-    services::site::{CreateSite, UpdateSite},
-};
+use crate::models::site::Model as SiteModel;
+use crate::services::site::{CreateSite, GetSite, UpdateSite};
 
 pub async fn site_create(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let reference = Reference::try_from(&req)?;
-    tide::log::info!("Creating site {:?}", reference);
-
     let input: CreateSite = req.body_json().await?;
-
     let output = SiteService::create(&ctx, input).await.to_api()?;
     txn.commit().await?;
 
@@ -41,14 +35,14 @@ pub async fn site_create(mut req: ApiRequest) -> ApiResponse {
     Ok(response)
 }
 
-pub async fn site_get(req: ApiRequest) -> ApiResponse {
+pub async fn site_get(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let reference = Reference::try_from(&req)?;
-    tide::log::info!("Getting site {:?}", reference);
+    let GetSite { site } = req.body_json().await?;
+    tide::log::info!("Getting site {:?}", site);
 
-    let site = SiteService::get(&ctx, reference).await.to_api()?;
+    let site = SiteService::get(&ctx, site).await.to_api()?;
     build_site_response(&site, StatusCode::Ok)
 }
 
@@ -56,14 +50,22 @@ pub async fn site_put(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let input: UpdateSite = req.body_json().await?;
-    let reference = Reference::try_from(&req)?;
-    tide::log::info!("Updating site {:?}", reference);
+    let UpdateSite { site, body } = req.body_json().await?;
+    tide::log::info!("Updating site {:?}", site);
 
-    SiteService::update(&ctx, reference, input).await.to_api()?;
+    SiteService::update(&ctx, site, body).await.to_api()?;
 
     txn.commit().await?;
     Ok(Response::new(StatusCode::NoContent))
+}
+
+pub async fn site_get_from_domain(req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    let domain = req.param("domain")?;
+    let _ = (ctx, domain);
+    todo!()
 }
 
 fn build_site_response(site: &SiteModel, status: StatusCode) -> ApiResponse {

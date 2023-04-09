@@ -22,6 +22,14 @@ use crate::models::page_connection::Model as PageConnectionModel;
 use crate::models::page_connection_missing::Model as PageConnectionMissingModel;
 use crate::models::page_link::Model as PageLinkModel;
 use crate::utils::DateTimeWithTimeZone;
+use crate::web::Reference;
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct GetLinksFrom<'a> {
+    pub site_id: i64,
+    pub page: Reference<'a>,
+}
 
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -31,10 +39,24 @@ pub struct GetLinksFromOutput {
     pub external: Vec<PageLinkModel>,
 }
 
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct GetLinksTo<'a> {
+    pub site_id: i64,
+    pub page: Reference<'a>,
+}
+
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct GetLinksToOutput {
     pub connections: Vec<PageConnectionModel>,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct GetLinksToMissing {
+    pub site_id: i64,
+    pub page_slug: String,
 }
 
 #[derive(Serialize, Debug)]
@@ -50,10 +72,24 @@ pub struct GetConnectionsFromOutput {
     pub absent: Vec<PageConnectionMissingModel>,
 }
 
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct GetLinksExternalFrom<'a> {
+    pub site_id: i64,
+    pub page: Reference<'a>,
+}
+
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct GetLinksExternalFromOutput {
     pub links: Vec<PageLinkModel>,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct GetLinksExternalTo {
+    pub site_id: i64,
+    pub url: String,
 }
 
 #[derive(Serialize, Debug)]

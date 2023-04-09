@@ -21,8 +21,8 @@ CREATE TABLE "user" (
     updated_at TIMESTAMP WITH TIME ZONE,
     deleted_at TIMESTAMP WITH TIME ZONE,
     from_wikidot BOOLEAN NOT NULL DEFAULT false,
-    name TEXT NOT NULL UNIQUE,
-    slug TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
+    slug TEXT NOT NULL,
     name_changes_left SMALLINT NOT NULL,  -- Default set in runtime configuration.
     last_renamed_at TIMESTAMP WITH TIME ZONE,
     email TEXT NOT NULL,
@@ -38,6 +38,10 @@ CREATE TABLE "user" (
     location TEXT,
     biography TEXT,
     user_page TEXT,
+
+    -- Name uniqueness constraints
+    UNIQUE (name, deleted_at),
+    UNIQUE (slug, deleted_at),
 
     -- Both MFA columns should either be set or unset
     CHECK ((multi_factor_secret IS NULL) = (multi_factor_recovery_codes IS NULL)),
@@ -100,7 +104,7 @@ CREATE TABLE session (
     user_id BIGINT NOT NULL REFERENCES "user"(user_id),
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     expires_at TIMESTAMP WITH TIME ZONE NOT NULL CHECK (expires_at > created_at),
-    ip_address INET NOT NULL,
+    ip_address TEXT NOT NULL,  -- TODO change to INET
     user_agent TEXT NOT NULL,
     restricted BOOLEAN NOT NULL
 );

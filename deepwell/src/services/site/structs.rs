@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::web::ProvidedValue;
+use crate::web::{ProvidedValue, Reference};
 
 #[derive(Deserialize, Debug)]
 pub struct CreateSite {
@@ -36,9 +36,24 @@ pub struct CreateSiteOutput {
     pub slug: String,
 }
 
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct GetSite<'a> {
+    pub site: Reference<'a>,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateSite<'a> {
+    pub site: Reference<'a>,
+
+    #[serde(flatten)]
+    pub body: UpdateSiteBody,
+}
+
 #[derive(Deserialize, Debug, Default)]
 #[serde(rename_all = "camelCase", default)]
-pub struct UpdateSite {
+pub struct UpdateSiteBody {
     pub name: ProvidedValue<String>,
     pub tagline: ProvidedValue<String>,
     pub description: ProvidedValue<String>,

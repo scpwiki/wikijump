@@ -1,4 +1,5 @@
 /*
+ *
  * services/vote/service.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
@@ -150,11 +151,13 @@ impl VoteService {
     /// * If it is `None`, then it returns all pages regardless of deletion status are selected.
     pub async fn get_history(
         ctx: &ServiceContext<'_>,
-        kind: VoteHistoryKind,
-        start_id: i64,
-        deleted: Option<bool>,
-        disabled: Option<bool>,
-        limit: u64,
+        GetVoteHistory {
+            kind,
+            start_id,
+            deleted,
+            disabled,
+            limit,
+        }: GetVoteHistory,
     ) -> Result<Vec<PageVoteModel>> {
         let txn = ctx.transaction();
         let condition = Self::build_history_condition(kind, start_id, deleted, disabled);
@@ -174,10 +177,12 @@ impl VoteService {
     /// See `get_history()` for more information.
     pub async fn count_history(
         ctx: &ServiceContext<'_>,
-        kind: VoteHistoryKind,
-        start_id: i64,
-        deleted: Option<bool>,
-        disabled: Option<bool>,
+        CountVoteHistory {
+            kind,
+            start_id,
+            deleted,
+            disabled,
+        }: CountVoteHistory,
     ) -> Result<u64> {
         let txn = ctx.transaction();
         let condition = Self::build_history_condition(kind, start_id, deleted, disabled);

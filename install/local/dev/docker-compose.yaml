@@ -54,6 +54,7 @@ services:
       - "RUN_SEEDER=true"
       - "S3_BUCKET=deepwell-files"
       - "S3_REGION_NAME=local"
+      - "S3_PATH_STYLE=true"
       - "S3_CUSTOM_ENDPOINT=http://files:9000"
       - "S3_ACCESS_KEY_ID=minio"
       - "S3_SECRET_ACCESS_KEY=defaultpassword"

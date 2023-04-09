@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::PageRevisionType;
-use crate::services::revision::CreateRevisionOutput;
+use crate::services::page_revision::CreatePageRevisionOutput;
 use crate::services::score::ScoreValue;
 use crate::utils::DateTimeWithTimeZone;
 use ftml::parsing::ParseError;
@@ -28,6 +28,7 @@ use ftml::parsing::ParseError;
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct CreatePage {
+    pub site_id: i64,
     pub wikitext: String,
     pub title: String,
     pub alt_title: Option<String>,
@@ -46,6 +47,13 @@ pub struct CreatePageOutput {
     pub slug: String,
     pub revision_id: i64,
     pub parser_errors: Vec<ParseError>,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct GetPage<'a> {
+    pub site_id: i64,
+    pub page: Reference<'a>,
 }
 
 #[derive(Serialize, Debug)]
@@ -78,20 +86,33 @@ pub struct GetPageOutput<'a> {
     pub rating: ScoreValue,
 }
 
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct EditPage<'a> {
+    pub site_id: i64,
+    pub page: Reference<'a>,
+    pub revision_comments: String,
+    pub user_id: i64,
+
+    #[serde(flatten)]
+    pub body: EditPageBody,
+}
+
 #[derive(Deserialize, Debug, Default)]
 #[serde(rename_all = "camelCase", default)]
-pub struct EditPage {
+pub struct EditPageBody {
     pub wikitext: ProvidedValue<String>,
     pub title: ProvidedValue<String>,
     pub alt_title: ProvidedValue<Option<String>>,
     pub tags: ProvidedValue<Vec<String>>,
-    pub revision_comments: String,
-    pub user_id: i64,
 }
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct MovePage {
+pub struct MovePage<'a> {
+    pub site_id: i64,
+    pub page: Reference<'a>,
+    pub new_slug: String,
     pub revision_comments: String,
     pub user_id: i64,
     // NOTE: slug field is a parameter, not in the body
@@ -109,7 +130,9 @@ pub struct MovePageOutput {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct DeletePage {
+pub struct DeletePage<'a> {
+    pub site_id: i64,
+    pub page: Reference<'a>,
     pub revision_comments: String,
     pub user_id: i64,
 }
@@ -117,6 +140,8 @@ pub struct DeletePage {
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct RestorePage {
+    pub site_id: i64,
+    pub page_id: i64,
     pub revision_comments: String,
     pub user_id: i64,
     pub slug: Option<String>,
@@ -141,24 +166,27 @@ pub struct RestorePageOutput {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct RollbackPage {
+pub struct RollbackPage<'a> {
+    pub site_id: i64,
+    pub page: Reference<'a>,
+    pub revision_number: i32,
     pub revision_comments: String,
     pub user_id: i64,
 }
 
-pub type EditPageOutput = CreateRevisionOutput;
+pub type EditPageOutput = CreatePageRevisionOutput;
 
-impl From<(CreateRevisionOutput, i64)> for DeletePageOutput {
+impl From<(CreatePageRevisionOutput, i64)> for DeletePageOutput {
     #[inline]
     fn from(
         (
-            CreateRevisionOutput {
+            CreatePageRevisionOutput {
                 revision_id,
                 revision_number,
                 parser_errors,
             },
             page_id,
-        ): (CreateRevisionOutput, i64),
+        ): (CreatePageRevisionOutput, i64),
     ) -> DeletePageOutput {
         // There's no reason to rerender on page deletion
         debug_assert!(
@@ -174,17 +202,17 @@ impl From<(CreateRevisionOutput, i64)> for DeletePageOutput {
     }
 }
 
-impl From<(CreateRevisionOutput, String)> for RestorePageOutput {
+impl From<(CreatePageRevisionOutput, String)> for RestorePageOutput {
     #[inline]
     fn from(
         (
-            CreateRevisionOutput {
+            CreatePageRevisionOutput {
                 revision_id,
                 revision_number,
                 parser_errors,
             },
             slug,
-        ): (CreateRevisionOutput, String),
+        ): (CreatePageRevisionOutput, String),
     ) -> RestorePageOutput {
         // We should always rerender on page restoration
         let parser_errors =

@@ -32,7 +32,7 @@
 
 use super::prelude::*;
 use crate::models::session::{self, Entity as Session, Model as SessionModel};
-use crate::models::user::{Entity as User, Model as UserModel};
+use crate::models::user::{self, Entity as User, Model as UserModel};
 use crate::utils::assert_is_csprng;
 use chrono::Duration;
 use rand::distributions::{Alphanumeric, DistString};
@@ -93,7 +93,7 @@ impl SessionService {
         };
 
         let SessionModel { session_token, .. } = model.insert(txn).await?;
-        tide::log::info!("Created new session token: {session_token}");
+        tide::log::info!("Created new session token");
         Ok(session_token)
     }
 
@@ -151,11 +151,11 @@ impl SessionService {
         session_token: &str,
         restricted: bool,
     ) -> Result<UserModel> {
-        tide::log::info!("Looking up user from session token {session_token}");
+        tide::log::info!("Looking up user for session token");
 
         let txn = ctx.transaction();
         let user = User::find()
-            .join(JoinType::Join, session::Relation::User.def())
+            .join(JoinType::Join, user::Relation::Session.def())
             .filter(
                 Condition::all()
                     .add(session::Column::SessionToken.eq(session_token))
@@ -167,37 +167,6 @@ impl SessionService {
             .ok_or(Error::NotFound)?;
 
         Ok(user)
-    }
-
-    /// Verifies that the given session token is valid for this user ID.
-    /// Returns `InvalidAuthentication` on failure.
-    pub async fn verify(
-        ctx: &ServiceContext<'_>,
-        session_token: &str,
-        user_id: i64,
-    ) -> Result<()> {
-        tide::log::info!("Validating session {session_token} for user ID {user_id}");
-
-        let session = Self::get_optional(ctx, session_token).await?;
-        match session {
-            None => {
-                tide::log::error!("Session not validated (not found or expired)");
-                Err(Error::InvalidAuthentication)
-            }
-            Some(session) if session.restricted => {
-                tide::log::error!("Session is restricted");
-                Err(Error::InvalidAuthentication)
-            }
-            Some(session) if session.user_id != user_id => {
-                tide::log::error!(
-                    "Session not validated (incorrect user ID, found {})",
-                    session.user_id,
-                );
-
-                Err(Error::InvalidAuthentication)
-            }
-            Some(_session) => Ok(()),
-        }
     }
 
     /// Gets all active sessions for a user.
@@ -298,7 +267,7 @@ impl SessionService {
         session_token: &str,
         user_id: i64,
     ) -> Result<u64> {
-        tide::log::info!("Invalidation all session IDs for user ID {user_id} except for {session_token}");
+        tide::log::info!("Invalidation all other session IDs for user ID {user_id}");
 
         let txn = ctx.transaction();
         let session = Self::get(ctx, session_token).await?;

@@ -23,7 +23,7 @@ use crate::services::file_revision::{
     CreateFileRevisionOutput, CreateFirstFileRevisionOutput,
 };
 use crate::utils::DateTimeWithTimeZone;
-use crate::web::ProvidedValue;
+use crate::web::{ProvidedValue, Reference};
 use serde_json::Value as JsonValue;
 
 #[derive(Deserialize, Debug)]
@@ -39,6 +39,14 @@ pub struct CreateFile {
 }
 
 pub type CreateFileOutput = CreateFirstFileRevisionOutput;
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct GetFile<'a> {
+    pub site_id: i64,
+    pub page_id: i64,
+    pub file: Reference<'a>,
+}
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]

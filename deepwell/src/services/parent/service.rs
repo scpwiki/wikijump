@@ -35,19 +35,25 @@ impl ParentService {
     /// and `None` if it already existed.
     pub async fn create(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        parent_page_ref: Reference<'_>,
-        child_page_ref: Reference<'_>,
+        ParentDescription {
+            site_id,
+            parent: parent_reference,
+            child: child_reference,
+        }: ParentDescription<'_>,
     ) -> Result<Option<PageParentModel>> {
         let txn = ctx.transaction();
 
         let (parent_page, child_page) = try_join!(
-            PageService::get(ctx, site_id, parent_page_ref),
-            PageService::get(ctx, site_id, child_page_ref),
+            PageService::get(ctx, site_id, parent_reference),
+            PageService::get(ctx, site_id, child_reference),
         )?;
 
         // Check if the two pages are the same
         if parent_page.page_id == child_page.page_id {
+            tide::log::error!(
+                "Cannot parent a page to itself (ID {})",
+                parent_page.page_id,
+            );
             return Err(Error::Conflict);
         }
 
@@ -82,15 +88,17 @@ impl ParentService {
     /// `false` if it was already absent.
     pub async fn remove(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        parent_page_ref: Reference<'_>,
-        child_page_ref: Reference<'_>,
+        ParentDescription {
+            site_id,
+            parent: parent_reference,
+            child: child_reference,
+        }: ParentDescription<'_>,
     ) -> Result<bool> {
         let txn = ctx.transaction();
 
         let (parent_page, child_page) = try_join!(
-            PageService::get(ctx, site_id, parent_page_ref),
-            PageService::get(ctx, site_id, child_page_ref),
+            PageService::get(ctx, site_id, parent_reference),
+            PageService::get(ctx, site_id, child_reference),
         )?;
 
         let rows_deleted =
@@ -104,15 +112,17 @@ impl ParentService {
 
     pub async fn get_optional(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        parent_page_ref: Reference<'_>,
-        child_page_ref: Reference<'_>,
+        ParentDescription {
+            site_id,
+            parent: parent_reference,
+            child: child_reference,
+        }: ParentDescription<'_>,
     ) -> Result<Option<PageParentModel>> {
         let txn = ctx.transaction();
 
         let (parent_page, child_page) = try_join!(
-            PageService::get(ctx, site_id, parent_page_ref),
-            PageService::get(ctx, site_id, child_page_ref),
+            PageService::get(ctx, site_id, parent_reference),
+            PageService::get(ctx, site_id, child_reference),
         )?;
 
         let model = PageParent::find_by_id((parent_page.page_id, child_page.page_id))
@@ -125,17 +135,9 @@ impl ParentService {
     #[inline]
     pub async fn get(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        parent_page_ref: Reference<'_>,
-        child_page_ref: Reference<'_>,
+        description: ParentDescription<'_>,
     ) -> Result<PageParentModel> {
-        find_or_error(Self::get_optional(
-            ctx,
-            site_id,
-            parent_page_ref,
-            child_page_ref,
-        ))
-        .await
+        find_or_error(Self::get_optional(ctx, description)).await
     }
 
     /// Gets all relationships of the given type.

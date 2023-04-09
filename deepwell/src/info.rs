@@ -39,7 +39,7 @@ lazy_static! {
     };
 
     pub static ref FULL_VERSION: String = {
-        let mut version = format!("{}\n\nCompiled:\n", *VERSION_INFO);
+        let mut version = format!("{PKG_NAME} {}\n\nCompiled:\n", *VERSION_INFO);
 
         str_writeln!(&mut version, "* across {NUM_JOBS} threads");
         str_writeln!(&mut version, "* by {RUSTC_VERSION}");
@@ -50,14 +50,6 @@ lazy_static! {
     };
 
     pub static ref VERSION: String = format!("{PKG_NAME} {}", *VERSION_INFO);
-
-    pub static ref VERSION_WITH_NAME: String = {
-        format!("{PKG_NAME} {}", *VERSION)
-    };
-
-    pub static ref FULL_VERSION_WITH_NAME: String = {
-        format!("{PKG_NAME} {}", *FULL_VERSION)
-    };
 
     pub static ref GIT_COMMIT_HASH_SHORT: Option<&'static str> = {
         build::GIT_COMMIT_HASH.map(|s| &s[..8])

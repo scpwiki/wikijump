@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user::Model as UserModel;
 use crate::services::{PasswordService, UserService};
 use sea_orm::ActiveValue;
@@ -54,6 +55,12 @@ impl MfaService {
     ) -> Result<MultiFactorSetupOutput> {
         tide::log::info!("Setting up MFA for user ID {}", user.user_id);
 
+        // Only regular accounts can have MFA
+        if user.user_type != UserType::Regular {
+            tide::log::error!("Only regular users may have MFA");
+            return Err(Error::BadRequest);
+        }
+
         // Ensure MFA is not yet set up
         if user.multi_factor_secret.is_some()
             || user.multi_factor_recovery_codes.is_some()
@@ -63,9 +70,11 @@ impl MfaService {
         }
 
         // Securely generate and store secrets
+        tide::log::debug!("Generating MFA secrets for user ID {}", user.user_id);
         let totp_secret = generate_totp_secret();
         let recovery = RecoveryCodes::generate()?;
 
+        tide::log::debug!("Committing MFA secrets for user ID {}", user.user_id);
         UserService::set_mfa_secrets(
             ctx,
             user.user_id,
@@ -99,8 +108,10 @@ impl MfaService {
         }
 
         // Securely generate and store secrets
+        tide::log::debug!("Generating recovery codes for user ID {}", user.user_id);
         let recovery = RecoveryCodes::generate()?;
 
+        tide::log::debug!("Committing recovery codes for user ID {}", user.user_id);
         UserService::set_mfa_secrets(
             ctx,
             user.user_id,

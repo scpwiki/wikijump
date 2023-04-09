@@ -195,7 +195,7 @@ impl BlobService {
     }
 }
 
-/// Helper method to parse out an S3 error response and print the message (if any)
+/// Helper method to parse out an S3 error response and print the message (if any).
 fn s3_error<T>(response: &ResponseData, action: &str) -> Result<T> {
     let error_message = match str::from_utf8(response.bytes()) {
         Ok(m) if m.is_empty() => "(no content)",

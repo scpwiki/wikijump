@@ -269,7 +269,7 @@ impl FileService {
     pub async fn delete(
         ctx: &ServiceContext<'_>,
         page_id: i64,
-        reference: CuidReference<'_>,
+        reference: Reference<'_>,
         input: DeleteFile,
     ) -> Result<DeleteFileOutput> {
         let txn = ctx.transaction();
@@ -397,20 +397,21 @@ impl FileService {
     pub async fn get_optional(
         ctx: &ServiceContext<'_>,
         page_id: i64,
-        reference: CuidReference<'_>,
+        reference: Reference<'_>,
     ) -> Result<Option<FileModel>> {
         let txn = ctx.transaction();
         let file = {
             let condition = match reference {
-                CuidReference::Id(id) => file::Column::FileId.eq(id),
-                CuidReference::Name(name) => file::Column::Name.eq(name),
+                Reference::Id(id) => file::Column::FileId.eq(id),
+                Reference::Slug(name) => file::Column::Name.eq(name),
             };
 
             File::find()
                 .filter(
                     Condition::all()
                         .add(condition)
-                        .add(file::Column::PageId.eq(page_id)),
+                        .add(file::Column::PageId.eq(page_id))
+                        .add(file::Column::DeletedAt.is_null()),
                 )
                 .one(txn)
                 .await?
@@ -423,9 +424,44 @@ impl FileService {
     pub async fn get(
         ctx: &ServiceContext<'_>,
         page_id: i64,
-        reference: CuidReference<'_>,
+        reference: Reference<'_>,
     ) -> Result<FileModel> {
         find_or_error(Self::get_optional(ctx, page_id, reference)).await
+    }
+
+    /// Gets the file ID from a reference, looking up if necessary.
+    ///
+    /// Convenience method since this is much more common than the optional
+    /// case, and we don't want to perform a redundant check for site existence
+    /// later as part of the actual query.
+    pub async fn get_id(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
+        reference: Reference<'_>,
+    ) -> Result<i64> {
+        match reference {
+            Reference::Id(id) => Ok(id),
+            Reference::Slug(name) => {
+                let txn = ctx.transaction();
+                let result: Option<(i64,)> = File::find()
+                    .select_only()
+                    .column(file::Column::FileId)
+                    .filter(
+                        Condition::all()
+                            .add(file::Column::PageId.eq(page_id))
+                            .add(file::Column::Name.eq(name))
+                            .add(file::Column::DeletedAt.is_null()),
+                    )
+                    .into_tuple()
+                    .one(txn)
+                    .await?;
+
+                match result {
+                    Some(tuple) => Ok(tuple.0),
+                    None => Err(Error::NotFound),
+                }
+            }
+        }
     }
 
     pub async fn get_direct_optional(

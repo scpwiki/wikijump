@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::models::session::Model as SessionModel;
 use std::net::IpAddr;
 
 #[derive(Deserialize, Debug, Clone)]
@@ -38,17 +39,18 @@ pub struct RenewSession {
     pub user_agent: String,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+pub type GetOtherSessions = InvalidateOtherSessions;
+
+#[derive(Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct VerifySession {
-    pub session_token: String,
-    pub user_id: i64,
+pub struct GetOtherSessionsOutput {
+    pub current: SessionModel,
+    pub others: Vec<SessionModel>,
 }
 
-pub type InvalidateOtherSessions = VerifySession;
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct SessionInputOutput {
+pub struct InvalidateOtherSessions {
     pub session_token: String,
+    pub user_id: i64,
 }

@@ -19,17 +19,21 @@
  */
 
 use super::prelude::*;
-use crate::services::{parent::ParentalRelationshipType, ParentService};
+use crate::services::page::GetPage;
+use crate::services::parent::{ParentDescription, ParentalRelationshipType};
 use serde::Serialize;
 
-pub async fn parent_relationships_get(req: ApiRequest) -> ApiResponse {
+pub async fn parent_relationships_get(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let reference = Reference::try_from(&req)?;
-    let site_id = req.param("site_id")?.parse()?;
     let relationship_type: ParentalRelationshipType =
         req.param("relationship_type")?.parse()?;
+
+    let GetPage {
+        site_id,
+        page: reference,
+    } = req.body_json().await?;
 
     tide::log::info!(
         "Getting all {} pages from {:?} in site ID {}",
@@ -47,51 +51,39 @@ pub async fn parent_relationships_get(req: ApiRequest) -> ApiResponse {
     build_parent_response(&models, StatusCode::Ok)
 }
 
-pub async fn parent_get(req: ApiRequest) -> ApiResponse {
+pub async fn parent_get(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let site_id = req.param("site_id")?.parse()?;
-    let parent_reference =
-        Reference::try_from_fields_key(&req, "parent_type", "parent_id_or_slug")?;
-    let child_reference =
-        Reference::try_from_fields_key(&req, "child_type", "child_id_or_slug")?;
+    let input: ParentDescription = req.body_json().await?;
 
     tide::log::info!(
         "Getting parental relationship {:?} -> {:?} in site ID {}",
-        parent_reference,
-        child_reference,
-        site_id,
+        input.parent,
+        input.child,
+        input.site_id,
     );
 
-    let model = ParentService::get(&ctx, site_id, parent_reference, child_reference)
-        .await
-        .to_api()?;
+    let model = ParentService::get(&ctx, input).await.to_api()?;
 
     txn.commit().await?;
     build_parent_response(&model, StatusCode::Ok)
 }
 
-pub async fn parent_put(req: ApiRequest) -> ApiResponse {
+pub async fn parent_put(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let site_id = req.param("site_id")?.parse()?;
-    let parent_reference =
-        Reference::try_from_fields_key(&req, "parent_type", "parent_id_or_slug")?;
-    let child_reference =
-        Reference::try_from_fields_key(&req, "child_type", "child_id_or_slug")?;
+    let input: ParentDescription = req.body_json().await?;
 
     tide::log::info!(
         "Creating parental relationship {:?} -> {:?} in site ID {}",
-        parent_reference,
-        child_reference,
-        site_id,
+        input.parent,
+        input.child,
+        input.site_id,
     );
 
-    let model = ParentService::create(&ctx, site_id, parent_reference, child_reference)
-        .await
-        .to_api()?;
+    let model = ParentService::create(&ctx, input).await.to_api()?;
 
     let status = if model.is_some() {
         StatusCode::Created
@@ -103,29 +95,29 @@ pub async fn parent_put(req: ApiRequest) -> ApiResponse {
     Ok(Response::new(status))
 }
 
-pub async fn parent_delete(req: ApiRequest) -> ApiResponse {
+pub async fn parent_delete(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let site_id = req.param("site_id")?.parse()?;
-    let parent_reference =
-        Reference::try_from_fields_key(&req, "parent_type", "parent_id_or_slug")?;
-    let child_reference =
-        Reference::try_from_fields_key(&req, "child_type", "child_id_or_slug")?;
+    let input: ParentDescription = req.body_json().await?;
 
     tide::log::info!(
         "Deleting parental relationship {:?} -> {:?} in site ID {}",
-        parent_reference,
-        child_reference,
-        site_id,
+        input.parent,
+        input.child,
+        input.site_id,
     );
 
-    ParentService::remove(&ctx, site_id, parent_reference, child_reference)
-        .await
-        .to_api()?;
+    let was_deleted = ParentService::remove(&ctx, input).await.to_api()?;
+
+    let status = if was_deleted {
+        StatusCode::NoContent
+    } else {
+        StatusCode::Gone
+    };
 
     txn.commit().await?;
-    Ok(Response::new(StatusCode::NoContent))
+    Ok(Response::new(status))
 }
 
 fn build_parent_response<T: Serialize>(data: &T, status: StatusCode) -> ApiResponse {

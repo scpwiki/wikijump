@@ -65,7 +65,7 @@ impl UserAliasService {
         //
         // This also checks aliases, though we verify down below that
         // it actually finds conflicts properly.
-        if UserService::exists(ctx, Reference::Slug(&slug)).await? {
+        if UserService::exists(ctx, Reference::Slug(cow!(slug))).await? {
             tide::log::error!(
                 "User with conflicting slug '{slug}' already exists, cannot create",
             );

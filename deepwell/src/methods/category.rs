@@ -20,17 +20,18 @@
 
 use super::prelude::*;
 use crate::models::page_category::Model as PageCategoryModel;
-use crate::services::category::CategoryOutput;
+use crate::services::category::{CategoryOutput, GetCategory};
+use crate::services::site::GetSite;
 
-pub async fn category_get(req: ApiRequest) -> ApiResponse {
+pub async fn category_get(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let site_id = req.param("site_id")?.parse()?;
-    let reference = Reference::try_from(&req)?;
-    tide::log::info!("Getting page category {reference:?} in site ID {site_id}");
+    let GetCategory { site, category } = req.body_json().await?;
+    let site_id = SiteService::get_id(&ctx, site).await?;
+    tide::log::info!("Getting page category {category:?} in site ID {site_id}");
 
-    let category = CategoryService::get(&ctx, site_id, reference)
+    let category = CategoryService::get(&ctx, site_id, category)
         .await
         .to_api()?;
 
@@ -39,11 +40,12 @@ pub async fn category_get(req: ApiRequest) -> ApiResponse {
     Ok(body.into())
 }
 
-pub async fn category_all_get(req: ApiRequest) -> ApiResponse {
+pub async fn category_all_get(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let site_id = req.param("site_id")?.parse()?;
+    let GetSite { site } = req.body_json().await?;
+    let site_id = SiteService::get_id(&ctx, site).await?;
     tide::log::info!("Getting all page categories in site ID {site_id}");
 
     let categories: Vec<CategoryOutput> = CategoryService::get_all(&ctx, site_id)

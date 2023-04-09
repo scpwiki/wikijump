@@ -41,6 +41,7 @@ use anyhow::Result;
 use s3::bucket::Bucket;
 use sea_orm::DatabaseConnection;
 use std::sync::Arc;
+use std::time::Duration;
 use tide::StatusCode;
 
 pub type ApiServerState = Arc<ServerState>;
@@ -68,11 +69,20 @@ pub async fn build_server_state(config: Config) -> Result<ApiServerState> {
     // Create S3 bucket
     tide::log::info!("Opening S3 bucket");
 
-    let s3_bucket = Bucket::new(
-        &config.s3_bucket,
-        config.s3_region.clone(),
-        config.s3_credentials.clone(),
-    )?;
+    let s3_bucket = {
+        let mut bucket = Bucket::new(
+            &config.s3_bucket,
+            config.s3_region.clone(),
+            config.s3_credentials.clone(),
+        )?;
+
+        if config.s3_path_style {
+            bucket = bucket.with_path_style();
+        }
+
+        bucket.request_timeout = Some(Duration::from_millis(500));
+        bucket
+    };
 
     // Return server state
     Ok(Arc::new(ServerState {
@@ -98,6 +108,9 @@ pub fn build_server(state: ApiServerState) -> ApiServer {
     spawn_magic_thread();
 
     // Create server and add routes
+    //
+    // Prefix is present to avoid ambiguity about what this
+    // API is meant to be and the fact that it's not to be publicly-facing.
     let mut app = new!();
     app.at("/api/trusted").nest(build_routes(new!()));
     app
@@ -108,129 +121,95 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
     app.at("/ping").all(ping);
     app.at("/version").get(version);
     app.at("/version/full").get(full_version);
+    app.at("/hostname").get(hostname);
     app.at("/normalize/:input").all(normalize_method);
     app.at("/teapot")
         .get(|_| async { error_response(StatusCode::ImATeapot, "🫖") });
 
     // Localization
     app.at("/locale/:locale").get(locale_get);
-
-    app.at("/message/:locale/:message_key")
-        .get(message_post)
-        .put(message_post)
-        .post(message_post);
+    app.at("/message/:locale/:message_key").get(message_get);
 
     // Authentication
     app.at("/auth/login").post(auth_login);
     app.at("/auth/logout").delete(auth_logout);
-    app.at("/auth/mfa").post(auth_mfa_verify); // really part of the login process,
-                                               // which is why it's up here
+    app.at("/auth/mfa").post(auth_mfa_verify); // Is part of the login process,
+                                               // which is why it's up here.
+
     app.at("/auth/session").get(auth_session_get);
-    app.at("/auth/session/validate").put(auth_session_validate);
-    app.at("/auth/session/renew").put(auth_session_renew);
+    app.at("/auth/session/renew").post(auth_session_renew);
     app.at("/auth/session/others")
+        .get(auth_session_get_others)
         .delete(auth_session_invalidate_others);
-    app.at("/auth/mfa/setup").post(auth_mfa_setup);
-    app.at("/auth/mfa/disable").post(auth_mfa_disable);
+
+    app.at("/auth/mfa/install")
+        .post(auth_mfa_setup)
+        .delete(auth_mfa_disable);
     app.at("/auth/mfa/resetRecovery")
         .post(auth_mfa_reset_recovery);
 
     // Site
-    app.at("/site").post(site_create);
-    app.at("/site/:type/:id_or_slug")
-        .get(site_get)
-        .put(site_put);
+    app.at("/site").get(site_get).put(site_put);
+    app.at("/site/create").post(site_create);
+    app.at("/site/fromDomain/:domain").get(site_get_from_domain);
 
     // Category
-    app.at("/category/:site_id").get(category_all_get);
-    app.at("/category/:site_id/:type/:id_or_slug")
-        .get(category_get);
+    app.at("/category").get(category_get);
+    app.at("/category/site").get(category_all_get);
 
     // Page
-    app.at("/page/direct/:page_id").get(page_get_direct);
-    app.at("/page/:site_id").post(page_create);
-    app.at("/page/:site_id/:type/:id_or_slug")
+    app.at("/page")
         .get(page_get)
         .post(page_edit)
         .delete(page_delete);
+    app.at("/page/create").post(page_create);
+    app.at("/page/direct/:page_id").get(page_get_direct);
 
-    app.at("/page/:site_id/:type/:id_or_slug/move/:new_slug")
-        .post(page_move);
-
-    app.at("/page/:site_id/:page_id/rerender")
-        .post(page_rerender);
-
-    app.at("/page/:site_id/:page_id/restore").post(page_restore);
+    app.at("/page/move").post(page_move);
+    app.at("/page/rerender").put(page_rerender);
+    app.at("/page/restore").post(page_restore);
 
     // Page revisions
-    app.at("/page/:site_id/:type/:id_or_slug/revision")
-        .get(page_revision_info);
-
-    app.at("/page/:site_id/:type/:id_or_slug/revision/:revision_number")
+    app.at("/page/revision")
         .get(page_revision_get)
         .put(page_revision_put);
+    app.at("/page/revision/count").get(page_revision_count);
 
-    app.at("/page/:site_id/:type/:id_or_slug/revision/:revision_number/rollback")
-        .post(page_rollback);
-
-    app.at("/page/:site_id/:type/:id_or_slug/revision/:revision_number/:direction")
-        .get(page_revision_range_get);
+    app.at("/page/revision/rollback").post(page_rollback);
+    app.at("/page/revision/range").get(page_revision_range_get);
 
     // Page links
-    app.at("/page/:site_id/:type/:id_or_slug/links/from")
-        .get(page_links_from_get);
-
-    app.at("/page/:site_id/:type/:id_or_slug/links/to")
-        .get(page_links_to_get);
-
-    app.at("/page/:site_id/slug/:page_slug/links/to/missing")
+    app.at("/page/links/from").get(page_links_from_get);
+    app.at("/page/links/to").get(page_links_to_get);
+    app.at("/page/links/to/missing")
         .get(page_links_to_missing_get);
-
-    app.at("/page/:site_id/:type/:id_or_slug/urls")
-        .get(page_links_external_from);
-
-    app.at("/page/:site_id/urls/:url")
-        .get(page_links_external_to);
+    app.at("/page/urls/from").get(page_links_external_from);
+    app.at("/page/urls/to").get(page_links_external_to);
 
     // Page parents
-    app.at(
-        "/page/:site_id/:parent_type/:parent_id_or_slug/:child_type/:child_id_or_slug",
-    )
-    .get(parent_get)
-    .put(parent_put)
-    .delete(parent_delete);
+    app.at("/page/parent")
+        .get(parent_get)
+        .put(parent_put)
+        .delete(parent_delete);
 
-    app.at("/page/:site_id/:relationship_type/:type/:id_or_slug")
+    app.at("/page/parent/:relationship_type")
         .get(parent_relationships_get);
 
-    // Page (invalid routes)
-    app.at("/page").all(page_invalid);
-    app.at("/page/:type/:id_or_slug").all(page_invalid);
-    app.at("/page/:site_id/id/:page_slug/links/to/missing")
-        .all(page_invalid);
-
     // Files
-    app.at("/file/:site_id/:type/:id_or_slug").post(file_create);
-    app.at("/file/:site_id/:page_type/:id_or_slug/:file_type/:id_or_name")
+    app.at("/file")
         .get(file_get)
         .post(file_edit)
         .delete(file_delete);
-
-    app.at("/file/:site_id/:page_type/:id_or_slug/move")
-        .post(file_move);
-
-    app.at("/file/:site_id/:page_type/:id_or_slug/restore")
-        .post(file_restore);
+    app.at("/file/upload").post(file_create);
+    app.at("/file/move").post(file_move);
+    app.at("/file/restore").post(file_restore);
 
     // File revisions
-    app.at("/file/:site_id/:page_type/:id_or_slug/:file_type/:id_or_name/revision")
-        .get(file_revision_info);
-
-    app.at("/file/:site_id/:page_type/:id_or_slug/:file_type/:id_or_name/revision/:revision_number")
+    app.at("/file/revision")
         .get(file_revision_get)
         .put(file_revision_put);
-
-    app.at("/file/:site_id/:page_type/:id_or_slug/:file_type/:id_or_name/revision/:revision_number/:direction")
+    app.at("/file/revision/count").get(file_revision_count);
+    app.at("/file/revision/range/:direction")
         .get(file_revision_range_get);
 
     // Text
@@ -238,20 +217,18 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
     app.at("/text/:hash").get(text_get);
 
     // User
-    app.at("/user").post(user_create);
-    app.at("/user/:type/:id_or_slug")
+    app.at("/user")
         .get(user_get)
         .put(user_put)
         .delete(user_delete);
-
-    app.at("/user/:type/:id_or_slug/addNameChange")
-        .post(user_add_name_change);
+    app.at("/user/avatar").put(user_avatar_put);
+    app.at("/user/create").post(user_create);
+    app.at("/user/addNameChange").post(user_add_name_change);
 
     // User bot information
-    app.at("/user/bot").post(user_bot_create);
-    app.at("/user/bot/:bot_type/:bot_id_or_slug")
-        .get(user_bot_get);
-    app.at("/user/bot/:bot_type/:bot_id_or_slug/owner/:human_type/:human_id_or_slug")
+    app.at("/user/bot").get(user_bot_get);
+    app.at("/user/bot/create").post(user_bot_create);
+    app.at("/user/bot/owner")
         .put(user_bot_owner_put)
         .delete(user_bot_owner_delete);
 

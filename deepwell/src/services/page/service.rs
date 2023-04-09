@@ -22,11 +22,12 @@ use super::prelude::*;
 use crate::models::page::{self, Entity as Page, Model as PageModel};
 use crate::models::page_category::Model as PageCategoryModel;
 use crate::services::filter::{FilterClass, FilterType};
-use crate::services::revision::{
-    CreateFirstRevision, CreateFirstRevisionOutput, CreateResurrectionRevision,
-    CreateRevision, CreateRevisionBody, CreateRevisionOutput, CreateTombstoneRevision,
+use crate::services::page_revision::{
+    CreateFirstPageRevision, CreateFirstPageRevisionOutput, CreatePageRevision,
+    CreatePageRevisionBody, CreatePageRevisionOutput, CreateResurrectionPageRevision,
+    CreateTombstonePageRevision,
 };
-use crate::services::{CategoryService, FilterService, RevisionService, TextService};
+use crate::services::{CategoryService, FilterService, PageRevisionService, TextService};
 use crate::utils::{get_category_name, trim_default};
 use crate::web::PageOrder;
 use wikidot_normalize::normalize;
@@ -37,8 +38,8 @@ pub struct PageService;
 impl PageService {
     pub async fn create(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
         CreatePage {
+            site_id,
             wikitext,
             title,
             alt_title,
@@ -81,7 +82,7 @@ impl PageService {
         let page = model.insert(txn).await?;
 
         // Commit first revision
-        let revision_input = CreateFirstRevision {
+        let revision_input = CreateFirstPageRevision {
             user_id,
             comments,
             wikitext,
@@ -90,10 +91,10 @@ impl PageService {
             slug: slug.clone(),
         };
 
-        let CreateFirstRevisionOutput {
+        let CreateFirstPageRevisionOutput {
             revision_id,
             parser_errors,
-        } = RevisionService::create_first(ctx, site_id, page.page_id, revision_input)
+        } = PageRevisionService::create_first(ctx, site_id, page.page_id, revision_input)
             .await?;
 
         // Build and return
@@ -107,16 +108,19 @@ impl PageService {
 
     pub async fn edit(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        reference: Reference<'_>,
         EditPage {
-            wikitext,
-            title,
-            alt_title,
-            tags,
+            site_id,
+            page: reference,
             revision_comments: comments,
             user_id,
-        }: EditPage,
+            body:
+                EditPageBody {
+                    wikitext,
+                    title,
+                    alt_title,
+                    tags,
+                },
+        }: EditPage<'_>,
     ) -> Result<Option<EditPageOutput>> {
         let txn = ctx.transaction();
         let PageModel { page_id, .. } = Self::get(ctx, site_id, reference).await?;
@@ -136,17 +140,18 @@ impl PageService {
         .await?;
 
         // Get latest revision
-        let last_revision = RevisionService::get_latest(ctx, site_id, page_id).await?;
+        let last_revision =
+            PageRevisionService::get_latest(ctx, site_id, page_id).await?;
 
         // Create new revision
         //
         // A response of None means no revision was created
         // because none of the data actually changed.
 
-        let revision_input = CreateRevision {
+        let revision_input = CreatePageRevision {
             user_id,
             comments,
-            body: CreateRevisionBody {
+            body: CreatePageRevisionBody {
                 wikitext,
                 title,
                 alt_title,
@@ -155,9 +160,14 @@ impl PageService {
             },
         };
 
-        let revision_output =
-            RevisionService::create(ctx, site_id, page_id, revision_input, last_revision)
-                .await?;
+        let revision_output = PageRevisionService::create(
+            ctx,
+            site_id,
+            page_id,
+            revision_input,
+            last_revision,
+        )
+        .await?;
 
         // Set page updated_at column.
         //
@@ -178,13 +188,13 @@ impl PageService {
     /// Moves a page from from one slug to another.
     pub async fn r#move(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        reference: Reference<'_>,
         MovePage {
+            site_id,
+            page: reference,
+            mut new_slug,
             revision_comments: comments,
             user_id,
-        }: MovePage,
-        mut new_slug: String,
+        }: MovePage<'_>,
     ) -> Result<MovePageOutput> {
         let txn = ctx.transaction();
 
@@ -210,21 +220,27 @@ impl PageService {
                 .await?;
 
         // Get latest revision
-        let last_revision = RevisionService::get_latest(ctx, site_id, page_id).await?;
+        let last_revision =
+            PageRevisionService::get_latest(ctx, site_id, page_id).await?;
 
         // Create revision for move
-        let revision_input = CreateRevision {
+        let revision_input = CreatePageRevision {
             user_id,
             comments,
-            body: CreateRevisionBody {
+            body: CreatePageRevisionBody {
                 slug: ProvidedValue::Set(new_slug.clone()),
                 ..Default::default()
             },
         };
 
-        let revision_output =
-            RevisionService::create(ctx, site_id, page_id, revision_input, last_revision)
-                .await?;
+        let revision_output = PageRevisionService::create(
+            ctx,
+            site_id,
+            page_id,
+            revision_input,
+            last_revision,
+        )
+        .await?;
 
         // Update page after move. This changes:
         // * slug             -- New slug for the page
@@ -243,7 +259,7 @@ impl PageService {
         // Build and return
 
         match revision_output {
-            Some(CreateRevisionOutput {
+            Some(CreatePageRevisionOutput {
                 revision_id,
                 revision_number,
                 parser_errors,
@@ -263,24 +279,25 @@ impl PageService {
 
     pub async fn delete(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        reference: Reference<'_>,
         DeletePage {
+            site_id,
+            page: reference,
             user_id,
             revision_comments: comments,
-        }: DeletePage,
+        }: DeletePage<'_>,
     ) -> Result<DeletePageOutput> {
         let txn = ctx.transaction();
         let PageModel { page_id, .. } = Self::get(ctx, site_id, reference).await?;
 
         // Get latest revision
-        let last_revision = RevisionService::get_latest(ctx, site_id, page_id).await?;
+        let last_revision =
+            PageRevisionService::get_latest(ctx, site_id, page_id).await?;
 
         // Create tombstone revision
         // This also updates backlinks, includes, etc
-        let output = RevisionService::create_tombstone(
+        let output = PageRevisionService::create_tombstone(
             ctx,
-            CreateTombstoneRevision {
+            CreateTombstonePageRevision {
                 site_id,
                 page_id,
                 user_id,
@@ -305,9 +322,9 @@ impl PageService {
     /// Restore a deleted page, causing it to be undeleted.
     pub async fn restore(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
         RestorePage {
+            site_id,
+            page_id,
             user_id,
             slug,
             revision_comments: comments,
@@ -340,13 +357,14 @@ impl PageService {
                 .await?;
 
         // Get latest revision
-        let last_revision = RevisionService::get_latest(ctx, site_id, page_id).await?;
+        let last_revision =
+            PageRevisionService::get_latest(ctx, site_id, page_id).await?;
 
         // Create resurrection revision
         // This also updates backlinks, includes, etc.
-        let output = RevisionService::create_resurrection(
+        let output = PageRevisionService::create_resurrection(
             ctx,
-            CreateResurrectionRevision {
+            CreateResurrectionPageRevision {
                 site_id,
                 page_id,
                 user_id,
@@ -379,35 +397,36 @@ impl PageService {
     /// This is equivalent to Wikidot's concept of a "revert".
     pub async fn rollback(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
-        revision_number: i32,
         RollbackPage {
+            site_id,
+            page: reference,
+            revision_number,
             revision_comments: comments,
             user_id,
-        }: RollbackPage,
+        }: RollbackPage<'_>,
     ) -> Result<Option<EditPageOutput>> {
         let txn = ctx.transaction();
+        let PageModel { page_id, .. } = Self::get(ctx, site_id, reference).await?;
 
         // Get target revision and latest revision
         let (target_revision, last_revision) = try_join!(
-            RevisionService::get(ctx, site_id, page_id, revision_number),
-            RevisionService::get_latest(ctx, site_id, page_id),
+            PageRevisionService::get(ctx, site_id, page_id, revision_number),
+            PageRevisionService::get_latest(ctx, site_id, page_id),
         )?;
 
         // Note: we can't just copy the wikitext_hash because we
         //       need its actual value for rendering.
-        //       This isn't run here, but in RevisionService::create().
+        //       This isn't run here, but in PageRevisionService::create().
         let wikitext = TextService::get(ctx, &target_revision.wikitext_hash).await?;
 
         // Create new revision
         //
         // Copy the body of the target revision
 
-        let revision_input = CreateRevision {
+        let revision_input = CreatePageRevision {
             user_id,
             comments,
-            body: CreateRevisionBody {
+            body: CreatePageRevisionBody {
                 wikitext: ProvidedValue::Set(wikitext),
                 title: ProvidedValue::Set(target_revision.title),
                 alt_title: ProvidedValue::Set(target_revision.alt_title),
@@ -416,9 +435,14 @@ impl PageService {
             },
         };
 
-        let revision_output =
-            RevisionService::create(ctx, site_id, page_id, revision_input, last_revision)
-                .await?;
+        let revision_output = PageRevisionService::create(
+            ctx,
+            site_id,
+            page_id,
+            revision_input,
+            last_revision,
+        )
+        .await?;
 
         // Set page updated_at column.
         let model = page::ActiveModel {
@@ -473,7 +497,7 @@ impl PageService {
                 Reference::Id(id) => page::Column::PageId.eq(id),
                 Reference::Slug(slug) => {
                     // Trim off _default category if present
-                    page::Column::Slug.eq(trim_default(slug))
+                    page::Column::Slug.eq(trim_default(&slug))
                 }
             };
 
@@ -489,6 +513,29 @@ impl PageService {
         };
 
         Ok(page)
+    }
+
+    /// Gets the page ID from a reference, looking up if necessary.
+    ///
+    /// Convenience method since this is much more common than the optional
+    /// case, and we don't want to perform a redundant check for site existence
+    /// later as part of the actual query.
+    pub async fn get_id(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        reference: Reference<'_>,
+    ) -> Result<i64> {
+        match reference {
+            Reference::Id(page_id) => Ok(page_id),
+            Reference::Slug(slug) => {
+                // Unlike the other get_id() methods we pass through the
+                // call so that all the slug-handling etc logic is in one place.
+                let PageModel { page_id, .. } =
+                    Self::get(ctx, site_id, Reference::Slug(slug)).await?;
+
+                Ok(page_id)
+            }
+        }
     }
 
     #[inline]

@@ -20,30 +20,37 @@
 
 use super::prelude::*;
 use crate::models::page_revision::Model as PageRevisionModel;
-use crate::services::revision::{
-    PageRevisionModelFiltered, RevisionCountOutput, UpdateRevision,
+use crate::services::page::GetPage;
+use crate::services::page_revision::{
+    GetPageRevision, GetPageRevisionRange, PageRevisionCountOutput,
+    PageRevisionModelFiltered, UpdatePageRevision,
 };
 use crate::services::{Result, TextService};
-use crate::web::{PageDetailsQuery, PageLimitQuery};
+use crate::web::PageDetailsQuery;
 
-pub async fn page_revision_info(req: ApiRequest) -> ApiResponse {
+pub async fn page_revision_count(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let site_id = req.param("site_id")?.parse()?;
-    let reference = Reference::try_from(&req)?;
+    let GetPage {
+        site_id,
+        page: reference,
+    } = req.body_json().await?;
 
     tide::log::info!(
         "Getting latest revision for page {reference:?} in site ID {site_id}",
     );
 
-    let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
-    let revision_count = RevisionService::count(&ctx, site_id, page.page_id)
+    let page_id = PageService::get_id(&ctx, site_id, reference)
+        .await
+        .to_api()?;
+
+    let revision_count = PageRevisionService::count(&ctx, site_id, page_id)
         .await
         .to_api()?;
 
     txn.commit().await?;
-    let output = RevisionCountOutput {
+    let output = PageRevisionCountOutput {
         revision_count,
         first_revision: 0,
         last_revision: revision_count.get() - 1,
@@ -54,21 +61,22 @@ pub async fn page_revision_info(req: ApiRequest) -> ApiResponse {
     Ok(response)
 }
 
-pub async fn page_revision_get(req: ApiRequest) -> ApiResponse {
+pub async fn page_revision_get(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
     let details: PageDetailsQuery = req.query()?;
-    let site_id = req.param("site_id")?.parse()?;
-    let revision_number = req.param("revision_number")?.parse()?;
-    let reference = Reference::try_from(&req)?;
+    let GetPageRevision {
+        site_id,
+        page_id,
+        revision_number,
+    } = req.body_json().await?;
 
     tide::log::info!(
-        "Getting revision {revision_number} for page {reference:?} in site ID {site_id}",
+        "Getting revision {revision_number} for page ID {page_id} in site ID {site_id}",
     );
 
-    let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
-    let revision = RevisionService::get(&ctx, site_id, page.page_id, revision_number)
+    let revision = PageRevisionService::get(&ctx, site_id, page_id, revision_number)
         .await
         .to_api()?;
 
@@ -85,23 +93,21 @@ pub async fn page_revision_put(mut req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let details: PageDetailsQuery = req.query()?;
-    let input: UpdateRevision = req.body_json().await?;
-    let site_id = req.param("site_id")?.parse()?;
-    let revision_number = req.param("revision_number")?.parse()?;
-    let reference = Reference::try_from(&req)?;
+    let input: UpdatePageRevision = req.body_json().await?;
 
     tide::log::info!(
-        "Editing revision {revision_number} for page {reference:?} in site ID {site_id}",
+        "Editing revision ID {} for page ID {} in site ID {}",
+        input.revision_id,
+        input.page_id,
+        input.site_id,
     );
 
-    let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
-    let revision = RevisionService::get(&ctx, site_id, page.page_id, revision_number)
-        .await
-        .to_api()?;
-
-    RevisionService::update(&ctx, site_id, page.page_id, revision.revision_id, input)
-        .await
-        .to_api()?;
+    let revision_id = input.revision_id;
+    let (_, revision) = try_join!(
+        PageRevisionService::update(&ctx, input),
+        PageRevisionService::get_direct(&ctx, revision_id),
+    )
+    .to_api()?;
 
     let response = build_revision_response(&ctx, revision, details, StatusCode::Ok)
         .await
@@ -111,37 +117,13 @@ pub async fn page_revision_put(mut req: ApiRequest) -> ApiResponse {
     Ok(response)
 }
 
-pub async fn page_revision_range_get(req: ApiRequest) -> ApiResponse {
+pub async fn page_revision_range_get(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let PageLimitQuery {
-        wikitext,
-        compiled_html,
-        limit,
-    } = req.query()?;
-
-    let details = PageDetailsQuery {
-        wikitext,
-        compiled_html,
-    };
-
-    let site_id = req.param("site_id")?.parse()?;
-    let revision_number = req.param("revision_number")?.parse()?;
-    let direction = req.param("direction")?.parse()?;
-    let reference = Reference::try_from(&req)?;
-
-    let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
-    let revisions = RevisionService::get_range(
-        &ctx,
-        site_id,
-        page.page_id,
-        revision_number,
-        direction,
-        limit.into(),
-    )
-    .await
-    .to_api()?;
+    let details: PageDetailsQuery = req.query()?;
+    let input: GetPageRevisionRange = req.body_json().await?;
+    let revisions = PageRevisionService::get_range(&ctx, input).await.to_api()?;
 
     let response = build_revision_list_response(&ctx, revisions, details, StatusCode::Ok)
         .await

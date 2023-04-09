@@ -21,31 +21,31 @@
 use super::prelude::*;
 use crate::models::file::Model as FileModel;
 use crate::models::file_revision::Model as FileRevisionModel;
-use crate::services::file::GetFileOutput;
+use crate::services::file::{GetFile, GetFileOutput};
 use crate::services::Result;
 use crate::web::FileDetailsQuery;
 
-pub async fn file_get(req: ApiRequest) -> ApiResponse {
+pub async fn file_get(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
     let details: FileDetailsQuery = req.query()?;
-    let site_id = req.param("site_id")?.parse()?;
-    let page_reference = Reference::try_from_fields_key(&req, "page_type", "id_or_slug")?;
-    let file_reference =
-        CuidReference::try_from_fields_key(&req, "file_type", "id_or_name")?;
+    let GetFile {
+        site_id,
+        page_id,
+        file: file_reference,
+    } = req.body_json().await?;
 
-    tide::log::info!("Getting file {file_reference:?}");
+    tide::log::info!(
+        "Getting file {file_reference:?} from page ID {page_id} in site ID {site_id}",
+    );
 
-    let page = PageService::get(&ctx, site_id, page_reference)
+    // We cannot use get_id() because we need File for build_file_response().
+    let file = FileService::get(&ctx, page_id, file_reference)
         .await
         .to_api()?;
 
-    let file = FileService::get(&ctx, page.page_id, file_reference)
-        .await
-        .to_api()?;
-
-    let revision = FileRevisionService::get_latest(&ctx, page.page_id, file.file_id)
+    let revision = FileRevisionService::get_latest(&ctx, page_id, file.file_id)
         .await
         .to_api()?;
 

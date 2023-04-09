@@ -1,5 +1,5 @@
 /*
- * web/reference.rs
+ * web/reference/id.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -23,8 +23,35 @@
 //! For instance, a page can be referenced via its ID, or in the context of a site,
 //! via its page slug.
 
-mod cuid;
-mod id;
+use std::borrow::Cow;
 
-pub use self::cuid::CuidReference;
-pub use self::id::Reference;
+#[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq)]
+#[serde(untagged)]
+pub enum Reference<'a> {
+    /// The `BIGINT` ID for this object.
+    Id(i64),
+
+    /// The string name for the object, usually the slug.
+    ///
+    /// However (such as in the case of files) this is the filename instead.
+    /// Properties such as whether this is a normalized slug or not should not
+    /// be assumed.
+    ///
+    /// This enum is effectively just allowing either a string or an integer
+    /// to be passed in, and should be conceived of as such.
+    Slug(Cow<'a, str>),
+}
+
+impl From<i64> for Reference<'static> {
+    #[inline]
+    fn from(id: i64) -> Reference<'static> {
+        Reference::Id(id)
+    }
+}
+
+impl<'a> From<&'a str> for Reference<'a> {
+    #[inline]
+    fn from(slug: &'a str) -> Reference<'a> {
+        Reference::Slug(Cow::Borrowed(slug))
+    }
+}

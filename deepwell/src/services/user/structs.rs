@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user::Model as UserModel;
 use crate::utils::DateTimeWithTimeZone;
 use chrono::NaiveDate;
@@ -27,6 +28,7 @@ use std::collections::HashMap;
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateUser {
+    pub user_type: UserType,
     pub name: String,
     pub email: String,
     pub locale: String,
@@ -43,9 +45,24 @@ pub struct CreateUserOutput {
     pub slug: String,
 }
 
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct GetUser<'a> {
+    pub user: Reference<'a>,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateUser<'a> {
+    pub user: Reference<'a>,
+
+    #[serde(flatten)]
+    pub body: UpdateUserBody,
+}
+
 #[derive(Deserialize, Debug, Default)]
 #[serde(rename_all = "camelCase", default)]
-pub struct UpdateUser {
+pub struct UpdateUserBody {
     pub name: ProvidedValue<String>,
     pub email: ProvidedValue<String>,
     pub email_verified: ProvidedValue<bool>,

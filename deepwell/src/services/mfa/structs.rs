@@ -73,6 +73,7 @@ impl RecoveryCodes {
             let mut hashes = Vec::new();
 
             for code in &recovery_codes {
+                tide::log::debug!("Hashing recovery code");
                 let hash = PasswordService::new_hash(code)?;
                 hashes.push(hash);
             }
@@ -85,6 +86,13 @@ impl RecoveryCodes {
             recovery_codes_hashed,
         })
     }
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct MultiFactorConfigure {
+    pub user_id: i64,
+    pub session_token: String,
 }
 
 #[derive(Serialize, Debug)]

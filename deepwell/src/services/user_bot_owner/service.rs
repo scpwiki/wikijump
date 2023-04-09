@@ -19,9 +19,11 @@
  */
 
 use super::prelude::*;
+use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user_bot_owner::{
     self, Entity as UserBotOwner, Model as UserBotOwnerModel,
 };
+use crate::services::UserService;
 
 #[derive(Debug)]
 pub struct UserBotOwnerService;
@@ -63,21 +65,27 @@ impl UserBotOwnerService {
 
     /// Idempotently adds or updates a user as a bot owner.
     ///
-    /// It is the responsibility of the caller to assure
-    /// that the `bot_user_id` is a bot, and
-    /// that `human_user_id` is a human (i.e. `regular` user).
+    /// It is the responsibility of the caller to assure that
+    /// `bot` is a bot user and `human` is a human user
+    /// (i.e. `regular` user type).
     pub async fn add(
         ctx: &ServiceContext<'_>,
         CreateBotOwner {
-            bot_user_id,
-            human_user_id,
+            bot: bot_reference,
+            human: human_reference,
             description,
-        }: CreateBotOwner,
+        }: CreateBotOwner<'_>,
     ) -> Result<UserBotOwnerModel> {
+        let (bot, human) = try_join!(
+            UserService::get_with_user_type(ctx, bot_reference, UserType::Bot),
+            UserService::get_with_user_type(ctx, human_reference, UserType::Regular),
+        )
+        .to_api()?;
+
         tide::log::info!(
             "Adding user ID {} as owner for bot ID {}: {}",
-            human_user_id,
-            bot_user_id,
+            human.user_id,
+            bot.user_id,
             description,
         );
 
@@ -85,7 +93,7 @@ impl UserBotOwnerService {
         //       setting updated_at is a bit gnarly.
 
         let txn = ctx.transaction();
-        let model = match Self::get_optional(ctx, bot_user_id, human_user_id).await? {
+        let model = match Self::get_optional(ctx, bot.user_id, human.user_id).await? {
             // Update
             Some(owner) => {
                 tide::log::debug!("Bot owner record exists, updating");
@@ -101,8 +109,8 @@ impl UserBotOwnerService {
                 tide::log::debug!("Bot owner record is missing, inserting");
 
                 let model = user_bot_owner::ActiveModel {
-                    bot_user_id: Set(bot_user_id),
-                    human_user_id: Set(human_user_id),
+                    bot_user_id: Set(bot.user_id),
+                    human_user_id: Set(human.user_id),
                     description: Set(description),
                     ..Default::default()
                 };
@@ -121,17 +129,29 @@ impl UserBotOwnerService {
     pub async fn delete(
         ctx: &ServiceContext<'_>,
         DeleteBotOwner {
-            bot_user_id,
-            human_user_id,
-        }: DeleteBotOwner,
+            bot: bot_reference,
+            human: human_reference,
+        }: DeleteBotOwner<'_>,
     ) -> Result<bool> {
+        let txn = ctx.transaction();
+
+        // We don't check user type here because we already checked it prior to insertion.
+        //
+        // This could also lead to an annoying circumstance where a user account is modified,
+        // but because the type no longer matches, you can't edit it.
+
+        let (bot_user_id, human_user_id) = try_join!(
+            UserService::get_id(ctx, bot_reference),
+            UserService::get_id(ctx, human_reference),
+        )
+        .to_api()?;
+
         tide::log::info!(
             "Deleting user ID {} as owner for bot ID {}",
             human_user_id,
             bot_user_id,
         );
 
-        let txn = ctx.transaction();
         let DeleteResult { rows_affected } =
             UserBotOwner::delete_by_id((bot_user_id, human_user_id))
                 .exec(txn)

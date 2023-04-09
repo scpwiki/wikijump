@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::api::ApiServerState;
-use crate::services::{RevisionService, SessionService};
+use crate::services::{PageRevisionService, SessionService};
 use async_std::task;
 use crossfire::mpsc;
 use sea_orm::TransactionTrait;
@@ -127,7 +127,7 @@ impl JobRunner {
 
         match job {
             Job::RerenderPageId { site_id, page_id } => {
-                RevisionService::rerender(ctx, site_id, page_id).await?;
+                PageRevisionService::rerender(ctx, site_id, page_id).await?;
             }
             Job::PruneSessions => {
                 SessionService::prune(ctx).await?;
