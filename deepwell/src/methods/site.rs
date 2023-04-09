@@ -59,6 +59,15 @@ pub async fn site_put(mut req: ApiRequest) -> ApiResponse {
     Ok(Response::new(StatusCode::NoContent))
 }
 
+pub async fn site_get_from_domain(req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    let domain = req.param("domain")?;
+    let _ = (ctx, domain);
+    todo!()
+}
+
 fn build_site_response(site: &SiteModel, status: StatusCode) -> ApiResponse {
     let body = Body::from_json(site)?;
     let response = Response::builder(status).body(body).into();
