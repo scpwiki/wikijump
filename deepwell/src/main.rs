@@ -21,7 +21,7 @@
 #![forbid(unsafe_code)]
 #![deny(missing_debug_implementations)]
 
-//! A web server to expose Wikijump operations via a versioned REST API.
+//! A web server to expose Wikijump operations via an internal trusted REST API.
 
 #[macro_use]
 extern crate futures;
