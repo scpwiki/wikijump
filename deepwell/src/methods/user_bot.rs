@@ -157,40 +157,14 @@ pub async fn user_bot_owner_put(mut req: ApiRequest) -> ApiResponse {
     Ok(Response::new(StatusCode::NoContent))
 }
 
-pub async fn user_bot_owner_delete(req: ApiRequest) -> ApiResponse {
+pub async fn user_bot_owner_delete(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let bot_reference =
-        Reference::try_from_fields_key(&req, "bot_type", "bot_id_or_slug")?;
-    let human_reference =
-        Reference::try_from_fields_key(&req, "human_type", "human_id_or_slug")?;
+    let input: DeleteBotOwner = req.body_json().await?;
+    tide::log::info!("Remove bot owner ({:?} <- {:?})", input.bot, input.human,);
 
-    tide::log::info!(
-        "Remove bot owner ({:?} <- {:?})",
-        bot_reference,
-        human_reference,
-    );
-
-    // We don't check user type here because we already checked it prior to insertion.
-    //
-    // This could also lead to an annoying circumstance where a user account is modified,
-    // but because the type no longer matches, you can't edit it.
-    let (bot, human) = try_join!(
-        UserService::get(&ctx, bot_reference),
-        UserService::get(&ctx, human_reference),
-    )
-    .to_api()?;
-
-    UserBotOwnerService::delete(
-        &ctx,
-        DeleteBotOwner {
-            bot_user_id: bot.user_id,
-            human_user_id: human.user_id,
-        },
-    )
-    .await
-    .to_api()?;
+    UserBotOwnerService::delete(&ctx, input).await.to_api()?;
 
     txn.commit().await?;
     Ok(Response::new(StatusCode::NoContent))

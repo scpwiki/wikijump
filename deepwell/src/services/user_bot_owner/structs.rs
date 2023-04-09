@@ -48,9 +48,9 @@ pub struct CreateBotOwner<'a> {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct DeleteBotOwner {
-    pub bot_user_id: i64,
-    pub human_user_id: i64,
+pub struct DeleteBotOwner<'a> {
+    pub bot: Reference<'a>,
+    pub human: Reference<'a>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

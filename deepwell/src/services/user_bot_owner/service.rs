@@ -130,17 +130,29 @@ impl UserBotOwnerService {
     pub async fn delete(
         ctx: &ServiceContext<'_>,
         DeleteBotOwner {
-            bot_user_id,
-            human_user_id,
-        }: DeleteBotOwner,
+            bot: bot_reference,
+            human: human_reference,
+        }: DeleteBotOwner<'_>,
     ) -> Result<bool> {
+        let txn = ctx.transaction();
+
+        // We don't check user type here because we already checked it prior to insertion.
+        //
+        // This could also lead to an annoying circumstance where a user account is modified,
+        // but because the type no longer matches, you can't edit it.
+
+        let (bot_user_id, human_user_id) = try_join!(
+            UserService::get_id(&ctx, bot_reference),
+            UserService::get_id(&ctx, human_reference),
+        )
+        .to_api()?;
+
         tide::log::info!(
             "Deleting user ID {} as owner for bot ID {}",
             human_user_id,
             bot_user_id,
         );
 
-        let txn = ctx.transaction();
         let DeleteResult { rows_affected } =
             UserBotOwner::delete_by_id((bot_user_id, human_user_id))
                 .exec(txn)
