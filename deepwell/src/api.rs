@@ -153,7 +153,7 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
         .post(page_edit)
         .delete(page_delete);
     app.at("/page/create").post(page_create);
-    app.at("/page/direct").get(page_get_direct);
+    app.at("/page/direct/:page_id").get(page_get_direct);
 
     app.at("/page/move").post(page_move);
     app.at("/page/rerender").put(page_rerender);
