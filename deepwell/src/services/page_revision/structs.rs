@@ -112,7 +112,7 @@ pub struct GetPageRevisionRange {
     pub page_id: i64,
     pub revision_number: i32,
     pub revision_direction: FetchDirection,
-    pub revision_limit: u64,
+    pub limit: u64,
 }
 
 /// Information about the revisions currently associated with a page.

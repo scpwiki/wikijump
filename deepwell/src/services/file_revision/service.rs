@@ -505,7 +505,7 @@ impl FileRevisionService {
             file_id,
             revision_number,
             revision_direction,
-            revision_limit,
+            limit,
         }: GetFileRevisionRange,
     ) -> Result<Vec<FileRevisionModel>> {
         let revision_condition = {
@@ -535,7 +535,7 @@ impl FileRevisionService {
                     .add(revision_condition),
             )
             .order_by_asc(file_revision::Column::RevisionNumber)
-            .limit(revision_limit)
+            .limit(limit)
             .all(txn)
             .await?;
 

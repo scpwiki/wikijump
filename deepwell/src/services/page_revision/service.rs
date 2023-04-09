@@ -797,7 +797,7 @@ impl PageRevisionService {
             page_id,
             revision_number,
             revision_direction,
-            revision_limit,
+            limit,
         }: GetPageRevisionRange,
     ) -> Result<Vec<PageRevisionModel>> {
         let revision_condition = {
@@ -827,7 +827,7 @@ impl PageRevisionService {
                     .add(revision_condition),
             )
             .order_by_asc(page_revision::Column::RevisionNumber)
-            .limit(revision_limit)
+            .limit(limit)
             .all(txn)
             .await?;
 

@@ -119,7 +119,7 @@ pub struct GetFileRevisionRange {
     pub file_id: i64,
     pub revision_number: i32,
     pub revision_direction: FetchDirection,
-    pub revision_limit: u64,
+    pub limit: u64,
 }
 
 pub type FileRevisionCountOutput = PageRevisionCountOutput;
