@@ -125,9 +125,9 @@ pub async fn auth_session_renew(mut req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
     let input: RenewSession = req.body_json().await?;
 
-    let session_token = SessionService::renew(&ctx, input).await.to_api()?;
+    let new_session_token = SessionService::renew(&ctx, input).await.to_api()?;
 
-    let body = Body::from_string(session_token);
+    let body = Body::from_string(new_session_token);
     let response = Response::builder(StatusCode::Ok).body(body).into();
     txn.commit().await?;
     Ok(response)

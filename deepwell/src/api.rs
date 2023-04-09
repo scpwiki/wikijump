@@ -126,7 +126,7 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
                                                // which is why it's up here.
 
     app.at("/auth/session").get(auth_session_get);
-    app.at("/auth/session/renew").put(auth_session_renew);
+    app.at("/auth/session/renew").post(auth_session_renew);
     app.at("/auth/session/others")
         .get(auth_session_get_others)
         .delete(auth_session_invalidate_others);
