@@ -29,6 +29,7 @@ pub async fn parent_relationships_get(mut req: ApiRequest) -> ApiResponse {
 
     let relationship_type: ParentalRelationshipType =
         req.param("relationship_type")?.parse()?;
+
     let GetPage {
         site_id,
         page: reference,
