@@ -77,8 +77,8 @@ impl UserBotOwnerService {
         }: CreateBotOwner<'_>,
     ) -> Result<UserBotOwnerModel> {
         let (bot, human) = try_join!(
-            UserService::get_with_user_type(&ctx, bot_reference, UserType::Bot),
-            UserService::get_with_user_type(&ctx, human_reference, UserType::Regular),
+            UserService::get_with_user_type(ctx, bot_reference, UserType::Bot),
+            UserService::get_with_user_type(ctx, human_reference, UserType::Regular),
         )
         .to_api()?;
 
@@ -141,8 +141,8 @@ impl UserBotOwnerService {
         // but because the type no longer matches, you can't edit it.
 
         let (bot_user_id, human_user_id) = try_join!(
-            UserService::get_id(&ctx, bot_reference),
-            UserService::get_id(&ctx, human_reference),
+            UserService::get_id(ctx, bot_reference),
+            UserService::get_id(ctx, human_reference),
         )
         .to_api()?;
 
