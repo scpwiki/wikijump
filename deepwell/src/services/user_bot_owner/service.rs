@@ -24,7 +24,6 @@ use crate::models::user_bot_owner::{
     self, Entity as UserBotOwner, Model as UserBotOwnerModel,
 };
 use crate::services::UserService;
-use crate::web::Reference;
 
 #[derive(Debug)]
 pub struct UserBotOwnerService;

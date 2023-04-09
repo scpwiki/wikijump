@@ -22,7 +22,6 @@ use super::prelude::*;
 use crate::services::vote::{
     CountVoteHistory, CreateVote, GetVote, GetVoteHistory, VoteAction,
 };
-use crate::web::Reference;
 use serde::Serialize;
 
 pub async fn vote_get(mut req: ApiRequest) -> ApiResponse {

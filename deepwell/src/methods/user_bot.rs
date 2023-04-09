@@ -23,8 +23,8 @@ use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user_bot_owner::Model as UserBotOwnerModel;
 use crate::services::user::{CreateUser, GetUser, UpdateUserBody, UserProfileOutput};
 use crate::services::user_bot_owner::{
-    BotOwner, BotUserOutput, CreateBotOwner, CreateBotOwnerBody, CreateBotUser,
-    DeleteBotOwner, UserBotOwnerService,
+    BotOwner, BotUserOutput, CreateBotOwner, CreateBotUser, DeleteBotOwner,
+    UserBotOwnerService,
 };
 use crate::web::{ProvidedValue, Reference};
 
