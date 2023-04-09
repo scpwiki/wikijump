@@ -54,6 +54,12 @@ pub async fn hostname(_: ApiRequest) -> ApiResponse {
     Ok(info::HOSTNAME.as_str().into())
 }
 
+pub async fn config_dump(req: ApiRequest) -> ApiResponse {
+    tide::log::info!("Dumping DEEPWELL configuration for debugging");
+    let config = req.state().config.dump()?;
+    Ok(config.into())
+}
+
 pub async fn normalize_method(req: ApiRequest) -> ApiResponse {
     let input = req.param("input")?;
     tide::log::info!("Running normalize as utility web method: {input}");

@@ -125,6 +125,7 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
     app.at("/version").get(version);
     app.at("/version/full").get(full_version);
     app.at("/hostname").get(hostname);
+    app.at("/config").get(config_dump);
     app.at("/normalize/:input").all(normalize_method);
     app.at("/teapot")
         .get(|_| async { error_response(StatusCode::ImATeapot, "🫖") });
