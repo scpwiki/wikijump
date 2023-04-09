@@ -26,7 +26,7 @@ use crate::services::page::{
     RollbackPage,
 };
 use crate::services::{Result, TextService};
-use crate::web::PageDetailsQuery;
+use crate::web::{PageDetailsQuery, Reference};
 use ref_map::*;
 
 pub async fn page_create(mut req: ApiRequest) -> ApiResponse {

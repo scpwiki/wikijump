@@ -26,7 +26,7 @@ use crate::services::page_revision::{
     UpdatePageRevision,
 };
 use crate::services::{Result, TextService};
-use crate::web::PageDetailsQuery;
+use crate::web::{PageDetailsQuery, Reference};
 
 pub async fn page_revision_count(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;

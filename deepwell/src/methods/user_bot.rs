@@ -26,7 +26,7 @@ use crate::services::user_bot_owner::{
     BotOwner, BotUserOutput, CreateBotOwner, CreateBotOwnerBody, CreateBotUser,
     DeleteBotOwner, UserBotOwnerService,
 };
-use crate::web::ProvidedValue;
+use crate::web::{ProvidedValue, Reference};
 
 pub async fn user_bot_create(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;

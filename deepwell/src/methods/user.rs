@@ -24,7 +24,7 @@ use crate::services::user::{
     CreateUser, GetUser, UpdateUser, UserIdentityOutput, UserInfoOutput,
     UserProfileOutput,
 };
-use crate::web::{UserDetails, UserDetailsQuery};
+use crate::web::{Reference, UserDetails, UserDetailsQuery};
 
 pub async fn user_create(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;

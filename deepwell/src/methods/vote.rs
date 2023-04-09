@@ -23,6 +23,7 @@ use crate::services::vote::{
     CountVoteHistory, CreateVote, GetVote, GetVoteHistory, VoteAction,
 };
 use serde::Serialize;
+use crate::web::Reference;
 
 pub async fn vote_get(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
