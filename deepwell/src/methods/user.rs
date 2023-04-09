@@ -79,6 +79,7 @@ pub async fn user_delete(mut req: ApiRequest) -> ApiResponse {
     tide::log::info!("Deleting user {:?}", reference);
 
     UserService::delete(&ctx, reference).await.to_api()?;
+
     txn.commit().await?;
     Ok(Response::new(StatusCode::NoContent))
 }
