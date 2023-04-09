@@ -60,7 +60,6 @@ impl RecoveryCodes {
         let recovery_codes = iter::repeat(())
             .take(RECOVERY_CODE_COUNT)
             .map(|_| {
-                tide::log::debug!("Generating recovery code");
                 let mut code = Alphanumeric.sample_string(&mut rng, RECOVERY_CODE_LENGTH);
                 code.insert(RECOVERY_CODE_LENGTH / 2, '-'); // for readability
                 code
@@ -74,6 +73,7 @@ impl RecoveryCodes {
             let mut hashes = Vec::new();
 
             for code in &recovery_codes {
+                tide::log::debug!("Hashing recovery code");
                 let hash = PasswordService::new_hash(code)?;
                 hashes.push(hash);
             }
