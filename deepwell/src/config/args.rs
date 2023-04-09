@@ -107,14 +107,6 @@ pub fn parse_args(config: &mut Config) {
                 .help("The path to read seeder data from."),
         )
         .arg(
-            Arg::new("render-timeout")
-                .short('R')
-                .long("render-timeout")
-                .value_parser(value_parser!(u32))
-                .value_name("MS")
-                .help("How long in milliseconds to allow render jobs to run before terminating them."),
-        )
-        .arg(
             Arg::new("config-file")
                 .value_parser(value_parser!(PathBuf))
                 .action(ArgAction::Set)
@@ -159,10 +151,6 @@ pub fn parse_args(config: &mut Config) {
 
     if let Some(value) = matches.remove_one::<PathBuf>("seeder-path") {
         config.seeder_path = value;
-    }
-
-    if let Some(value) = matches.remove_one::<u32>("render-timeout") {
-        config.render_timeout = Duration::from_millis(u64::from(value));
     }
 }
 
