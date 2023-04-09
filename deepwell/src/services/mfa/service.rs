@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user::Model as UserModel;
 use crate::services::{PasswordService, UserService};
 use sea_orm::ActiveValue;
@@ -53,6 +54,12 @@ impl MfaService {
         user: &UserModel,
     ) -> Result<MultiFactorSetupOutput> {
         tide::log::info!("Setting up MFA for user ID {}", user.user_id);
+
+        // Only regular accounts can have MFA
+        if user.user_type != UserType::Regular {
+            tide::log::error!("Only regular users may have MFA");
+            return Err(Error::BadRequest);
+        }
 
         // Ensure MFA is not yet set up
         if user.multi_factor_secret.is_some()
