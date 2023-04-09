@@ -44,7 +44,7 @@ pub type CreateFileOutput = CreateFirstFileRevisionOutput;
 #[serde(rename_all = "camelCase")]
 pub struct GetFile<'a> {
     pub site_id: i64,
-    pub page: Reference<'a>,
+    pub page_id: i64,
     pub file: Reference<'a>,
 }
 

@@ -32,18 +32,16 @@ pub async fn file_get(mut req: ApiRequest) -> ApiResponse {
     let details: FileDetailsQuery = req.query()?;
     let GetFile {
         site_id,
-        page: page_reference,
+        page_id,
         file: file_reference,
     } = req.body_json().await?;
 
-    tide::log::info!("Getting file {file_reference:?} from page {page_reference:?} in site ID {site_id}",
+    tide::log::info!(
+        "Getting file {file_reference:?} from page ID {page_id} in site ID {site_id}",
     );
 
-    let page_id = PageService::get_id(&ctx, site_id, page_reference)
-        .await
-        .to_api()?;
-
-    let file = FileService::get(&ctx, page_id, file_reference) // replace file id with cuid
+    // We cannot use get_id() because we need File for build_file_response().
+    let file = FileService::get(&ctx, page_id, file_reference)
         .await
         .to_api()?;
 

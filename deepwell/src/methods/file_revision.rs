@@ -30,19 +30,19 @@ pub async fn file_revision_count(mut req: ApiRequest) -> ApiResponse {
 
     let GetFile {
         site_id,
-        page: page_reference,
+        page_id,
         file: file_reference,
     } = req.body_json().await?;
 
     tide::log::info!(
-        "Getting latest revision for file {page_reference:?} in site ID {site_id}",
+        "Getting latest revision for file ID {page_id} in site ID {site_id}",
     );
 
-    let file = FileService::get(&ctx, site_id, file_reference)
+    let file_id = FileService::get_id(&ctx, site_id, file_reference)
         .await
         .to_api()?;
 
-    let revision_count = FileRevisionService::count(&ctx, file.page_id, file.file_id)
+    let revision_count = FileRevisionService::count(&ctx, page_id, file_id)
         .await
         .to_api()?;
 
