@@ -21,6 +21,7 @@
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user::{self, Entity as User, Model as UserModel};
+use crate::services::blob::{BlobService, CreateBlobOutput};
 use crate::services::filter::{FilterClass, FilterType};
 use crate::services::user_alias::CreateUserAlias;
 use crate::services::{FilterService, PasswordService, UserAliasService};
@@ -356,8 +357,15 @@ impl UserService {
         }
 
         if let ProvidedValue::Set(avatar) = input.avatar {
-            // TODO store avatar in S3
-            model.avatar_s3_hash = Set(avatar);
+            let s3_hash = match avatar {
+                None => None,
+                Some(blob) => {
+                    let CreateBlobOutput { hash, .. } = BlobService::create(ctx, &blob).await?;
+                    Some(hash.to_vec())
+                }
+            };
+
+            model.avatar_s3_hash = Set(s3_hash);
         }
 
         // Set update flag
