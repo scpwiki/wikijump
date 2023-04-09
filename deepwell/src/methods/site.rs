@@ -22,18 +22,13 @@ use super::prelude::*;
 use crate::{
     models::site::Model as SiteModel,
     services::site::{CreateSite, GetSite, UpdateSite},
-    web::Reference,
 };
 
 pub async fn site_create(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let reference = Reference::try_from(&req)?;
-    tide::log::info!("Creating site {:?}", reference);
-
     let input: CreateSite = req.body_json().await?;
-
     let output = SiteService::create(&ctx, input).await.to_api()?;
     txn.commit().await?;
 
