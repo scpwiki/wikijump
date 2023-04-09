@@ -214,17 +214,13 @@ impl UserService {
         //       they would be slower than doing queries on
         //       simple indexes directly, which is why we are
         //       doing it this way.
-        if let Reference::Slug(slug) = reference {
-            // If present, proceed with SELECT by id.
-            // If absent, then this user is missing, return.
-            let alias = match UserAliasService::get_optional(ctx, &slug).await? {
-                Some(alias) => alias,
-                None => return Ok(None),
-            };
-
-            // Rewrite reference so in the "real" user search
-            // we locate directly via user ID.
-            reference = Reference::Id(alias.user_id);
+        if let Reference::Slug(ref slug) = reference {
+            if let Some(alias) = UserAliasService::get_optional(ctx, &slug).await? {
+                // If present, this is the actual user. Proceed with SELECT by id.
+                // Rewrite reference so in the "real" user search
+                // we locate directly via user ID.
+                reference = Reference::Id(alias.user_id);
+            }
         }
 
         let user = match reference {
