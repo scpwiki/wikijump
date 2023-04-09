@@ -49,6 +49,11 @@ pub async fn full_version(_: ApiRequest) -> ApiResponse {
     Ok(info::FULL_VERSION.as_str().into())
 }
 
+pub async fn hostname(_: ApiRequest) -> ApiResponse {
+    tide::log::info!("Getting DEEPWELL hostname");
+    Ok(info::HOSTNAME.as_str().into())
+}
+
 pub async fn normalize_method(req: ApiRequest) -> ApiResponse {
     let input = req.param("input")?;
     tide::log::info!("Running normalize as utility web method: {input}");
