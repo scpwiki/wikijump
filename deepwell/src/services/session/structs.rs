@@ -44,9 +44,3 @@ pub struct InvalidateOtherSessions {
     pub session_token: String,
     pub user_id: i64,
 }
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct SessionInputOutput {
-    pub session_token: String,
-}

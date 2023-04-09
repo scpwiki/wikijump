@@ -23,9 +23,7 @@ use crate::services::authentication::{
     AuthenticateUserOutput, AuthenticationService, LoginUser, LoginUserMfa,
     LoginUserOutput, MultiFactorAuthenticateUser, MultiFactorConfigure,
 };
-use crate::services::session::{
-    CreateSession, InvalidateOtherSessions, RenewSession, SessionInputOutput,
-};
+use crate::services::session::{CreateSession, InvalidateOtherSessions, RenewSession};
 use crate::services::user::GetUser;
 use crate::services::{Error, MfaService, SessionService};
 
@@ -139,7 +137,7 @@ pub async fn auth_session_renew(mut req: ApiRequest) -> ApiResponse {
 
     let session_token = SessionService::renew(&ctx, input).await.to_api()?;
 
-    let body = Body::from_json(&SessionInputOutput { session_token })?;
+    let body = Body::from_string(session_token);
     let response = Response::builder(StatusCode::Ok).body(body).into();
     txn.commit().await?;
     Ok(response)
@@ -166,8 +164,8 @@ pub async fn auth_session_invalidate_others(mut req: ApiRequest) -> ApiResponse 
 pub async fn auth_logout(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
-    let SessionInputOutput { session_token } = req.body_json().await?;
 
+    let session_token = req.body_string().await?;
     SessionService::invalidate(&ctx, session_token).await?;
 
     txn.commit().await?;
@@ -208,10 +206,7 @@ pub async fn auth_mfa_verify(mut req: ApiRequest) -> ApiResponse {
     )
     .await?;
 
-    let body = Body::from_json(&SessionInputOutput {
-        session_token: new_session_token,
-    })?;
-
+    let body = Body::from_string(new_session_token);
     let response = Response::builder(StatusCode::Ok).body(body).into();
     txn.commit().await?;
     Ok(response)
