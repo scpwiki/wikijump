@@ -267,23 +267,12 @@ impl UserService {
         match reference {
             Reference::Id(id) => Ok(id),
             Reference::Slug(slug) => {
-                let txn = ctx.transaction();
-                let result: Option<(i64,)> = User::find()
-                    .select_only()
-                    .column(user::Column::UserId)
-                    .filter(
-                        Condition::all()
-                            .add(user::Column::Slug.eq(slug))
-                            .add(user::Column::DeletedAt.is_null()),
-                    )
-                    .into_tuple()
-                    .one(txn)
-                    .await?;
+                // Unlike the other get_id() methods we pass through the
+                // call so that all the alias-handling logic is consistent.
+                let UserModel { user_id, .. } =
+                    Self::get(ctx, Reference::Slug(slug)).await?;
 
-                match result {
-                    Some(tuple) => Ok(tuple.0),
-                    None => Err(Error::NotFound),
-                }
+                Ok(user_id)
             }
         }
     }
