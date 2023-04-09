@@ -32,7 +32,7 @@
 
 use super::prelude::*;
 use crate::models::session::{self, Entity as Session, Model as SessionModel};
-use crate::models::user::{Entity as User, Model as UserModel};
+use crate::models::user::{self, Entity as User, Model as UserModel};
 use crate::utils::assert_is_csprng;
 use chrono::Duration;
 use rand::distributions::{Alphanumeric, DistString};
@@ -155,7 +155,7 @@ impl SessionService {
 
         let txn = ctx.transaction();
         let user = User::find()
-            .join(JoinType::Join, session::Relation::User.def())
+            .join(JoinType::Join, user::Relation::Session.def())
             .filter(
                 Condition::all()
                     .add(session::Column::SessionToken.eq(session_token))
