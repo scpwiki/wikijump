@@ -23,7 +23,10 @@ use crate::services::authentication::{
     AuthenticateUserOutput, AuthenticationService, LoginUser, LoginUserMfa,
     LoginUserOutput, MultiFactorAuthenticateUser, MultiFactorConfigure,
 };
-use crate::services::session::{CreateSession, InvalidateOtherSessions, RenewSession};
+use crate::services::session::{
+    CreateSession, GetOtherSessions, GetOtherSessionsOutput, InvalidateOtherSessions,
+    RenewSession,
+};
 use crate::services::user::GetUser;
 use crate::services::{Error, MfaService, SessionService};
 
@@ -117,19 +120,6 @@ pub async fn auth_session_get(mut req: ApiRequest) -> ApiResponse {
     Ok(response)
 }
 
-pub async fn auth_session_get_all(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let user_id: i64 = req.body_json().await?;
-    let sessions = SessionService::get_all(&ctx, user_id).await.to_api()?;
-
-    let body = Body::from_json(&sessions)?;
-    let response = Response::builder(StatusCode::Ok).body(body).into();
-    txn.commit().await?;
-    Ok(response)
-}
-
 pub async fn auth_session_renew(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
@@ -138,6 +128,42 @@ pub async fn auth_session_renew(mut req: ApiRequest) -> ApiResponse {
     let session_token = SessionService::renew(&ctx, input).await.to_api()?;
 
     let body = Body::from_string(session_token);
+    let response = Response::builder(StatusCode::Ok).body(body).into();
+    txn.commit().await?;
+    Ok(response)
+}
+
+pub async fn auth_session_get_others(mut req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    let GetOtherSessions {
+        user_id,
+        session_token,
+    } = req.body_json().await?;
+
+    // Produce output struct, which extracts the current session and
+    // places it in its own location.
+    let output = {
+        let mut sessions = SessionService::get_all(&ctx, user_id).await.to_api()?;
+        let current = match sessions
+            .iter()
+            .position(|session| session.session_token == session_token)
+        {
+            Some(index) => sessions.remove(index),
+            None => {
+                tide::log::error!("Cannot find own session token in list of all sessions, must be invalid");
+                return Ok(Response::new(StatusCode::NotFound));
+            }
+        };
+
+        GetOtherSessionsOutput {
+            current,
+            others: sessions,
+        }
+    };
+
+    let body = Body::from_json(&output)?;
     let response = Response::builder(StatusCode::Ok).body(body).into();
     txn.commit().await?;
     Ok(response)
