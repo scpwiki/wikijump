@@ -85,6 +85,11 @@ pub struct Config {
     /// or `S3_REGION_NAME` and `S3_CUSTOM_ENDPOINT` if custom.
     pub s3_region: Region,
 
+    /// Whether to use path style for S3.
+    ///
+    /// Can be set using environment variable `S3_PATH_STYLE`.
+    pub s3_path_style: bool,
+
     /// The credentials to use for S3.
     ///
     /// Can be set using environment variable `S3_ACCESS_KEY_ID` and `S3_SECRET_ACCESS_KEY`.
@@ -127,6 +132,7 @@ impl Default for Config {
                 region: String::new(),
                 endpoint: String::new(),
             },
+            s3_path_style: false,
             s3_credentials: Credentials {
                 access_key: None,
                 secret_key: None,
@@ -227,6 +233,16 @@ fn read_env(config: &mut Config) {
 
         if let (Ok(region), Ok(endpoint)) = (region, endpoint) {
             config.s3_region = Region::Custom { region, endpoint };
+        }
+    }
+
+    if let Ok(value) = env::var("S3_PATH_STYLE") {
+        match value.parse() {
+            Ok(path_style) => config.s3_path_style = path_style,
+            Err(_) => {
+                eprintln!("S3_PATH_STYLE variable is not a valid boolean");
+                process::exit(1);
+            }
         }
     }
 
@@ -382,6 +398,14 @@ fn parse_args(config: &mut Config) {
                 .help("The endpoint to contact for S3 calls, if not AWS. Requires --s3-region."),
         )
         .arg(
+            Arg::new("s3-path-style")
+                .long("s3-path-style")
+                .value_name("BOOLEAN")
+                .value_parser(BoolishValueParser::new())
+                .action(ArgAction::Set)
+                .help("Whether to use the path-style setting for the S3 bucket."),
+        )
+        .arg(
             Arg::new("localization-path")
                 .short('L')
                 .long("localizations")
@@ -466,6 +490,10 @@ fn parse_args(config: &mut Config) {
             eprintln!("Conflicting arguments, you must specify either --aws-region OR --s3-region and --s3-endpoint, not both.");
             process::exit(1);
         }
+    }
+
+    if let Some(value) = matches.remove_one::<bool>("s3-path-style") {
+        config.s3_path_style = value;
     }
 
     if let Some(value) = matches.remove_one::<PathBuf>("localization-path") {
