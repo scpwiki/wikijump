@@ -41,12 +41,12 @@ pub async fn ping(req: ApiRequest) -> ApiResponse {
 
 pub async fn version(_: ApiRequest) -> ApiResponse {
     tide::log::info!("Getting DEEPWELL version");
-    Ok(info::VERSION_WITH_NAME.as_str().into())
+    Ok(info::VERSION.as_str().into())
 }
 
 pub async fn full_version(_: ApiRequest) -> ApiResponse {
     tide::log::info!("Getting DEEPWELL version (full)");
-    Ok(info::FULL_VERSION_WITH_NAME.as_str().into())
+    Ok(info::FULL_VERSION.as_str().into())
 }
 
 pub async fn normalize_method(req: ApiRequest) -> ApiResponse {
