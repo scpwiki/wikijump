@@ -643,10 +643,13 @@ impl PageRevisionService {
     /// for instance, if it contains spam, abuse, or harassment.
     pub async fn update(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
-        revision_id: i64,
-        UpdatePageRevision { user_id, hidden }: UpdatePageRevision,
+        UpdatePageRevision {
+            site_id,
+            page_id,
+            revision_id,
+            user_id,
+            hidden,
+        }: UpdatePageRevision,
     ) -> Result<()> {
         let txn = ctx.transaction();
 
@@ -740,6 +743,22 @@ impl PageRevisionService {
         revision_number: i32,
     ) -> Result<PageRevisionModel> {
         find_or_error(Self::get_optional(ctx, site_id, page_id, revision_number)).await
+    }
+
+    pub async fn get_direct(
+        ctx: &ServiceContext<'_>,
+        revision_id: i64,
+    ) -> Result<PageRevisionModel> {
+        find_or_error(Self::get_direct_optional(ctx, revision_id)).await
+    }
+
+    pub async fn get_direct_optional(
+        ctx: &ServiceContext<'_>,
+        revision_id: i64,
+    ) -> Result<Option<PageRevisionModel>> {
+        let txn = ctx.transaction();
+        let revision = PageRevision::find_by_id(revision_id).one(txn).await?;
+        Ok(revision)
     }
 
     pub async fn count(

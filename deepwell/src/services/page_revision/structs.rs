@@ -92,12 +92,15 @@ pub struct CreateFirstPageRevisionOutput {
 pub struct GetPageRevision {
     pub site_id: i64,
     pub page_id: i64,
-    pub revision_id: i32,
+    pub revision_number: i32,
 }
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdatePageRevision {
+    pub site_id: i64,
+    pub page_id: i64,
+    pub revision_id: i64,
     pub user_id: i64,
     pub hidden: Vec<String>,
 }

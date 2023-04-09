@@ -209,7 +209,8 @@ async fn build_page_response(
     let (wikitext, compiled_html) = try_join!(
         TextService::get_maybe(ctx, details.wikitext, &revision.wikitext_hash),
         TextService::get_maybe(ctx, details.compiled_html, &revision.compiled_hash),
-    )?;
+    )
+    .to_api()?;
 
     // Calculate score
     let rating = ScoreService::score(ctx, page.page_id).await?;
