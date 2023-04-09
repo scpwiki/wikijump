@@ -223,7 +223,8 @@ pub async fn auth_mfa_verify(mut req: ApiRequest) -> ApiResponse {
             totp_or_code: &totp_or_code,
         },
     )
-    .await?;
+    .await
+    .to_api()?;
 
     let new_session_token = SessionService::renew(
         &ctx,
@@ -234,7 +235,8 @@ pub async fn auth_mfa_verify(mut req: ApiRequest) -> ApiResponse {
             user_agent,
         },
     )
-    .await?;
+    .await
+    .to_api()?;
 
     let body = Body::from_string(new_session_token);
     let response = Response::builder(StatusCode::Ok).body(body).into();
