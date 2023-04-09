@@ -70,9 +70,11 @@ impl MfaService {
         }
 
         // Securely generate and store secrets
+        tide::log::debug!("Generating MFA secrets for user ID {}", user.user_id);
         let totp_secret = generate_totp_secret();
         let recovery = RecoveryCodes::generate()?;
 
+        tide::log::debug!("Committing MFA secrets for user ID {}", user.user_id);
         UserService::set_mfa_secrets(
             ctx,
             user.user_id,

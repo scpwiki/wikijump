@@ -60,6 +60,7 @@ impl RecoveryCodes {
         let recovery_codes = iter::repeat(())
             .take(RECOVERY_CODE_COUNT)
             .map(|_| {
+                tide::log::debug!("Generating recovery code");
                 let mut code = Alphanumeric.sample_string(&mut rng, RECOVERY_CODE_LENGTH);
                 code.insert(RECOVERY_CODE_LENGTH / 2, '-'); // for readability
                 code

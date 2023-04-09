@@ -204,6 +204,7 @@ pub async fn auth_logout(mut req: ApiRequest) -> ApiResponse {
 pub async fn auth_mfa_verify(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
+
     let LoginUserMfa {
         session_token,
         totp_or_code,
