@@ -169,37 +169,6 @@ impl SessionService {
         Ok(user)
     }
 
-    /// Verifies that the given session token is valid for this user ID.
-    /// Returns `InvalidAuthentication` on failure.
-    pub async fn verify(
-        ctx: &ServiceContext<'_>,
-        session_token: &str,
-        user_id: i64,
-    ) -> Result<()> {
-        tide::log::info!("Validating session {session_token} for user ID {user_id}");
-
-        let session = Self::get_optional(ctx, session_token).await?;
-        match session {
-            None => {
-                tide::log::error!("Session not validated (not found or expired)");
-                Err(Error::InvalidAuthentication)
-            }
-            Some(session) if session.restricted => {
-                tide::log::error!("Session is restricted");
-                Err(Error::InvalidAuthentication)
-            }
-            Some(session) if session.user_id != user_id => {
-                tide::log::error!(
-                    "Session not validated (incorrect user ID, found {})",
-                    session.user_id,
-                );
-
-                Err(Error::InvalidAuthentication)
-            }
-            Some(_session) => Ok(()),
-        }
-    }
-
     /// Gets all active sessions for a user.
     /// For instance, useful for listing all sessions and their information.
     pub async fn get_all(

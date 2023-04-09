@@ -25,11 +25,9 @@ use crate::services::authentication::{
 };
 use crate::services::session::{
     CreateSession, InvalidateOtherSessions, RenewSession, SessionInputOutput,
-    VerifySession,
 };
 use crate::services::user::GetUser;
 use crate::services::{Error, MfaService, SessionService};
-use crate::web::UserIdQuery;
 
 pub async fn auth_login(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
@@ -104,33 +102,34 @@ pub async fn auth_login(mut req: ApiRequest) -> ApiResponse {
     Ok(response)
 }
 
-pub async fn auth_session_get(req: ApiRequest) -> ApiResponse {
+/// Gets the information associated with a particular session token.
+///
+/// This is how framerail determines the user ID this user is acting as,
+/// among other information.
+pub async fn auth_session_get(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
-    let UserIdQuery { user_id } = req.query()?;
 
+    let session_token = req.body_string().await?;
+    let session = SessionService::get(&ctx, &session_token).await.to_api()?;
+
+    let body = Body::from_json(&session)?;
+    let response = Response::builder(StatusCode::Ok).body(body).into();
+    txn.commit().await?;
+    Ok(response)
+}
+
+pub async fn auth_session_get_all(mut req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    let user_id: i64 = req.body_json().await?;
     let sessions = SessionService::get_all(&ctx, user_id).await.to_api()?;
 
     let body = Body::from_json(&sessions)?;
     let response = Response::builder(StatusCode::Ok).body(body).into();
     txn.commit().await?;
     Ok(response)
-}
-
-pub async fn auth_session_validate(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-    let VerifySession {
-        session_token,
-        user_id,
-    } = req.body_json().await?;
-
-    SessionService::verify(&ctx, &session_token, user_id)
-        .await
-        .to_api()?;
-
-    txn.commit().await?;
-    Ok(Response::new(StatusCode::NoContent))
 }
 
 pub async fn auth_session_renew(mut req: ApiRequest) -> ApiResponse {
