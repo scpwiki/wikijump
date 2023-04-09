@@ -192,7 +192,7 @@ pub async fn auth_logout(mut req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let session_token = req.body_string().await?;
-    SessionService::invalidate(&ctx, session_token).await?;
+    SessionService::invalidate(&ctx, session_token).await.to_api()?;
 
     txn.commit().await?;
     Ok(Response::new(StatusCode::NoContent))
