@@ -19,6 +19,8 @@
  */
 
 use anyhow::Result;
+use std::fs::File;
+use std::io::Read;
 use std::net::{IpAddr, SocketAddr};
 use std::path::{Path, PathBuf};
 use std::time::Duration;
@@ -87,7 +89,11 @@ impl Config {
     }
 
     pub fn load(path: &Path) -> Result<Self> {
-        todo!()
+        let mut file = File::open(path)?;
+        let mut contents = String::new();
+        file.read_to_string(&mut contents)?;
+        let config = toml::from_str(&contents)?;
+        Ok(config)
     }
 
     pub fn dump(&self) -> Result<String> {
