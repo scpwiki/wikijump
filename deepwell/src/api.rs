@@ -132,8 +132,7 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
         .get(auth_session_get_others)
         .delete(auth_session_invalidate_others);
 
-    app.at("/auth/mfa/setup").post(auth_mfa_setup);
-    app.at("/auth/mfa/disable").post(auth_mfa_disable);
+    app.at("/auth/mfa/install").post(auth_mfa_setup).delete(auth_mfa_disable);
     app.at("/auth/mfa/resetRecovery")
         .post(auth_mfa_reset_recovery);
 
