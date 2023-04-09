@@ -215,7 +215,7 @@ impl UserService {
         //       simple indexes directly, which is why we are
         //       doing it this way.
         if let Reference::Slug(ref slug) = reference {
-            if let Some(alias) = UserAliasService::get_optional(ctx, &slug).await? {
+            if let Some(alias) = UserAliasService::get_optional(ctx, slug).await? {
                 // If present, this is the actual user. Proceed with SELECT by id.
                 // Rewrite reference so in the "real" user search
                 // we locate directly via user ID.
