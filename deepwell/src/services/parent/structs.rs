@@ -39,8 +39,8 @@ pub enum ParentalRelationshipType {
 impl ParentalRelationshipType {
     pub fn name(self) -> &'static str {
         match self {
-            ParentalRelationshipType::Parent => "parent",
-            ParentalRelationshipType::Child => "child",
+            ParentalRelationshipType::Parent => "parents",
+            ParentalRelationshipType::Child => "children",
         }
     }
 }
@@ -50,8 +50,8 @@ impl FromStr for ParentalRelationshipType {
 
     fn from_str(value: &str) -> Result<ParentalRelationshipType, Error> {
         match value {
-            "parent" => Ok(ParentalRelationshipType::Parent),
-            "child" => Ok(ParentalRelationshipType::Child),
+            "parents" => Ok(ParentalRelationshipType::Parent),
+            "children" => Ok(ParentalRelationshipType::Child),
             _ => Err(Error::InvalidEnumValue),
         }
     }
