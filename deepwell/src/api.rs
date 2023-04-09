@@ -210,10 +210,9 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
     app.at("/user/addNameChange").post(user_add_name_change);
 
     // User bot information
-    app.at("/user/bot").post(user_bot_create);
-    app.at("/user/bot/:bot_type/:bot_id_or_slug")
-        .get(user_bot_get);
-    app.at("/user/bot/:bot_type/:bot_id_or_slug/owner/:human_type/:human_id_or_slug")
+    app.at("/user/bot").get(user_bot_get);
+    app.at("/user/bot/create").post(user_bot_create);
+    app.at("/user/bot/owner")
         .put(user_bot_owner_put)
         .delete(user_bot_owner_delete);
 

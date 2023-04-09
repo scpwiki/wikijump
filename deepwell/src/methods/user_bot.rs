@@ -21,7 +21,7 @@
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user_bot_owner::Model as UserBotOwnerModel;
-use crate::services::user::{CreateUser, UpdateUserBody, UserProfileOutput};
+use crate::services::user::{CreateUser, GetUser, UpdateUserBody, UserProfileOutput};
 use crate::services::user_bot_owner::{
     BotOwner, BotUserOutput, CreateBotOwner, CreateBotOwnerBody, CreateBotUser,
     DeleteBotOwner, UserBotOwnerService,
@@ -32,7 +32,6 @@ pub async fn user_bot_create(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    tide::log::info!("Creating new bot user");
     let CreateBotUser {
         name,
         email,
@@ -42,6 +41,7 @@ pub async fn user_bot_create(mut req: ApiRequest) -> ApiResponse {
         authorization_token,
         bypass_filter,
     } = req.body_json().await?;
+    tide::log::info!("Creating new bot user with name '{}'", name);
 
     // TODO verify auth token
     let _ = authorization_token;
@@ -83,20 +83,12 @@ pub async fn user_bot_create(mut req: ApiRequest) -> ApiResponse {
             description,
         } = owner;
 
-        UserService::get_with_user_type(
-            &ctx,
-            Reference::Id(human_user_id),
-            UserType::Regular,
-        )
-        .await
-        .to_api()?;
-
         tide::log::debug!("Adding human user ID {} as bot owner", human_user_id);
         UserBotOwnerService::add(
             &ctx,
             CreateBotOwner {
-                human_user_id,
-                bot_user_id,
+                human: Reference::Id(human_user_id),
+                bot: Reference::Id(bot_user_id),
                 description,
             },
         )
@@ -112,12 +104,12 @@ pub async fn user_bot_create(mut req: ApiRequest) -> ApiResponse {
     Ok(response)
 }
 
-pub async fn user_bot_get(req: ApiRequest) -> ApiResponse {
+pub async fn user_bot_get(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let reference = Reference::try_from_fields_key(&req, "bot_type", "bot_id_or_slug")?;
-    tide::log::info!("Getting bot user {:?}", reference);
+    let GetUser { user: reference } = req.body_json().await?;
+    tide::log::info!("Getting bot user {reference:?}");
 
     let user = UserService::get(&ctx, reference).await.to_api()?;
     let owners = UserBotOwnerService::get_all(&ctx, user.user_id)
@@ -151,36 +143,17 @@ pub async fn user_bot_owner_put(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let CreateBotOwnerBody { description } = req.body_json().await?;
-
-    let bot_reference =
-        Reference::try_from_fields_key(&req, "bot_type", "bot_id_or_slug")?;
-    let human_reference =
-        Reference::try_from_fields_key(&req, "human_type", "human_id_or_slug")?;
+    let input: CreateBotOwner = req.body_json().await?;
 
     tide::log::info!(
         "Adding or updating bot owner ({:?} <- {:?})",
-        bot_reference,
-        human_reference,
+        input.bot,
+        input.human,
     );
 
-    let (bot, human) = try_join!(
-        UserService::get_with_user_type(&ctx, bot_reference, UserType::Bot),
-        UserService::get_with_user_type(&ctx, human_reference, UserType::Regular),
-    )
-    .to_api()?;
+    UserBotOwnerService::add(&ctx, input).await.to_api()?;
 
-    UserBotOwnerService::add(
-        &ctx,
-        CreateBotOwner {
-            bot_user_id: bot.user_id,
-            human_user_id: human.user_id,
-            description,
-        },
-    )
-    .await
-    .to_api()?;
-
+    txn.commit().await?;
     Ok(Response::new(StatusCode::NoContent))
 }
 
@@ -219,5 +192,6 @@ pub async fn user_bot_owner_delete(req: ApiRequest) -> ApiResponse {
     .await
     .to_api()?;
 
+    txn.commit().await?;
     Ok(Response::new(StatusCode::NoContent))
 }

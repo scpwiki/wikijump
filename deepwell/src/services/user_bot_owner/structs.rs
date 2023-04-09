@@ -19,12 +19,30 @@
  */
 
 use crate::services::user::UserProfileOutput;
+use crate::web::Reference;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct CreateBotOwner {
-    pub bot_user_id: i64,
-    pub human_user_id: i64,
+pub struct CreateBotUser {
+    pub name: String,
+    pub email: String,
+    pub locale: String,
+    pub purpose: String,
+    pub owners: Vec<BotOwner>,
+    pub bypass_filter: bool,
+    pub authorization_token: String, // TODO add authorization token service
+                                     // format: [flag]-[uuid]
+                                     //         for instance B-1F305167-AE64-4486-809A-09D14659AB4A
+                                     //
+                                     //         B: create a bot user
+                                     //         S: create a site
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateBotOwner<'a> {
+    pub bot: Reference<'a>,
+    pub human: Reference<'a>,
     pub description: String,
 }
 
@@ -40,26 +58,6 @@ pub struct DeleteBotOwner {
 pub struct BotOwner {
     pub user_id: i64,
     pub description: String,
-}
-
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct CreateBotUser {
-    pub name: String,
-    pub email: String,
-    pub locale: String,
-    pub purpose: String,
-    pub owners: Vec<BotOwner>,
-
-    #[serde(default)]
-    pub bypass_filter: bool,
-
-    pub authorization_token: String, // TODO add authorization token service
-                                     // format: [flag]-[uuid]
-                                     //         for instance B-1F305167-AE64-4486-809A-09D14659AB4A
-                                     //
-                                     //         B: create a bot user
-                                     //         S: create a site
 }
 
 #[derive(Deserialize, Debug)]
