@@ -21,8 +21,9 @@
 use super::prelude::*;
 use crate::services::authentication::{
     AuthenticateUserOutput, AuthenticationService, LoginUser, LoginUserMfa,
-    LoginUserOutput, MultiFactorAuthenticateUser, MultiFactorConfigure,
+    LoginUserOutput, MultiFactorAuthenticateUser,
 };
+use crate::services::mfa::MultiFactorConfigure;
 use crate::services::session::{
     CreateSession, GetOtherSessions, GetOtherSessionsOutput, InvalidateOtherSessions,
     RenewSession,
@@ -192,7 +193,9 @@ pub async fn auth_logout(mut req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let session_token = req.body_string().await?;
-    SessionService::invalidate(&ctx, session_token).await.to_api()?;
+    SessionService::invalidate(&ctx, session_token)
+        .await
+        .to_api()?;
 
     txn.commit().await?;
     Ok(Response::new(StatusCode::NoContent))
@@ -256,10 +259,22 @@ pub async fn auth_mfa_disable(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let MultiFactorConfigure { session_token } = req.body_json().await?;
+    let MultiFactorConfigure {
+        user_id,
+        session_token,
+    } = req.body_json().await?;
+
     let user = SessionService::get_user(&ctx, &session_token, false)
         .await
         .to_api()?;
+
+    if user.user_id != user_id {
+        tide::log::error!(
+            "Passed user ID ({user_id}) does not match session token ({})",
+            user.user_id,
+        );
+        return Ok(Response::new(StatusCode::Forbidden));
+    }
 
     MfaService::disable(&ctx, user.user_id).await.to_api()?;
 
@@ -271,10 +286,22 @@ pub async fn auth_mfa_reset_recovery(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let MultiFactorConfigure { session_token } = req.body_json().await?;
+    let MultiFactorConfigure {
+        user_id,
+        session_token,
+    } = req.body_json().await?;
+
     let user = SessionService::get_user(&ctx, &session_token, false)
         .await
         .to_api()?;
+
+    if user.user_id != user_id {
+        tide::log::error!(
+            "Passed user ID ({user_id}) does not match session token ({})",
+            user.user_id,
+        );
+        return Ok(Response::new(StatusCode::Forbidden));
+    }
 
     let output = MfaService::reset_recovery_codes(&ctx, &user)
         .await

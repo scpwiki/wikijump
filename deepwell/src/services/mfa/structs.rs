@@ -87,6 +87,13 @@ impl RecoveryCodes {
     }
 }
 
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct MultiFactorConfigure {
+    pub user_id: i64,
+    pub session_token: String,
+}
+
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct MultiFactorSetupOutput {
