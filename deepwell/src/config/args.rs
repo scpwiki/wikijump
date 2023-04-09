@@ -114,6 +114,12 @@ pub fn parse_args(config: &mut Config) {
                 .value_name("MS")
                 .help("How long in milliseconds to allow render jobs to run before terminating them."),
         )
+        .arg(
+            Arg::new("config-file")
+                .value_parser(value_parser!(PathBuf))
+                .action(ArgAction::Set)
+                .help("The configuration file to use for this DEEPWELL instance."),
+        )
         .get_matches();
 
     // Parse arguments and modify config
