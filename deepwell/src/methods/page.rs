@@ -56,7 +56,7 @@ pub async fn page_get(mut req: ApiRequest) -> ApiResponse {
     tide::log::info!("Getting page {reference:?} in site ID {site_id}");
     let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
 
-    let revision = RevisionService::get_latest(&ctx, site_id, page.page_id)
+    let revision = PageRevisionService::get_latest(&ctx, site_id, page.page_id)
         .await
         .to_api()?;
 
@@ -77,7 +77,7 @@ pub async fn page_get_direct(req: ApiRequest) -> ApiResponse {
 
     let details: PageDetailsQuery = req.query()?;
     let page = PageService::get_direct(&ctx, page_id).await.to_api()?;
-    let revision = RevisionService::get_latest(&ctx, page.site_id, page.page_id)
+    let revision = PageRevisionService::get_latest(&ctx, page.site_id, page.page_id)
         .await
         .to_api()?;
 
@@ -148,7 +148,7 @@ pub async fn page_rerender(req: ApiRequest) -> ApiResponse {
     let page_id = req.param("page_id")?.parse()?;
     tide::log::info!("Re-rendering page ID {page_id} in site ID {site_id}");
 
-    RevisionService::rerender(&ctx, site_id, page_id)
+    PageRevisionService::rerender(&ctx, site_id, page_id)
         .await
         .to_api()?;
 

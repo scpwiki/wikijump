@@ -21,8 +21,9 @@
 use super::prelude::*;
 use crate::models::page_revision::Model as PageRevisionModel;
 use crate::services::page::GetPage;
-use crate::services::revision::{
-    GetRevisionRange, PageRevisionModelFiltered, RevisionCountOutput, UpdateRevision,
+use crate::services::page_revision::{
+    GetPageRevisionRange, PageRevisionCountOutput, PageRevisionModelFiltered,
+    UpdatePageRevision,
 };
 use crate::services::{Result, TextService};
 use crate::web::PageDetailsQuery;
@@ -44,12 +45,12 @@ pub async fn page_revision_count(mut req: ApiRequest) -> ApiResponse {
         .await
         .to_api()?;
 
-    let revision_count = RevisionService::count(&ctx, site_id, page_id)
+    let revision_count = PageRevisionService::count(&ctx, site_id, page_id)
         .await
         .to_api()?;
 
     txn.commit().await?;
-    let output = RevisionCountOutput {
+    let output = PageRevisionCountOutput {
         revision_count,
         first_revision: 0,
         last_revision: revision_count.get() - 1,
@@ -74,7 +75,7 @@ pub async fn page_revision_get(req: ApiRequest) -> ApiResponse {
     );
 
     let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
-    let revision = RevisionService::get(&ctx, site_id, page.page_id, revision_number)
+    let revision = PageRevisionService::get(&ctx, site_id, page.page_id, revision_number)
         .await
         .to_api()?;
 
@@ -91,7 +92,7 @@ pub async fn page_revision_put(mut req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let details: PageDetailsQuery = req.query()?;
-    let input: UpdateRevision = req.body_json().await?;
+    let input: UpdatePageRevision = req.body_json().await?;
     let site_id = req.param("site_id")?.parse()?;
     let revision_number = req.param("revision_number")?.parse()?;
     let reference = Reference::try_from(&req)?;
@@ -101,11 +102,11 @@ pub async fn page_revision_put(mut req: ApiRequest) -> ApiResponse {
     );
 
     let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
-    let revision = RevisionService::get(&ctx, site_id, page.page_id, revision_number)
+    let revision = PageRevisionService::get(&ctx, site_id, page.page_id, revision_number)
         .await
         .to_api()?;
 
-    RevisionService::update(&ctx, site_id, page.page_id, revision.revision_id, input)
+    PageRevisionService::update(&ctx, site_id, page.page_id, revision.revision_id, input)
         .await
         .to_api()?;
 
@@ -122,8 +123,8 @@ pub async fn page_revision_range_get(mut req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let details: PageDetailsQuery = req.query()?;
-    let input: GetRevisionRange = req.body_json().await?;
-    let revisions = RevisionService::get_range(&ctx, input).await.to_api()?;
+    let input: GetPageRevisionRange = req.body_json().await?;
+    let revisions = PageRevisionService::get_range(&ctx, input).await.to_api()?;
 
     let response = build_revision_list_response(&ctx, revisions, details, StatusCode::Ok)
         .await

@@ -1,5 +1,5 @@
 /*
- * services/revision/tasks.rs
+ * services/page_revision/tasks.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -20,14 +20,14 @@
 
 /// A representation of the updating tasks to do for a revision.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Default)]
-pub struct RevisionTasks {
+pub struct PageRevisionTasks {
     pub render_and_update_links: bool,
     pub rerender_incoming_links: bool,
     pub rerender_outgoing_includes: bool,
     pub rerender_templates: bool,
 }
 
-impl RevisionTasks {
+impl PageRevisionTasks {
     /// Determine what tasks need to be performed based on the found changes.
     ///
     /// # Panics
@@ -38,7 +38,7 @@ impl RevisionTasks {
     /// the extra conversion step before this goes to the database, we're using strings.
     /// Eventually we can use the native database enum when SeaORM supports Postgres arrays.
     pub fn determine(changes: &[String]) -> Self {
-        let mut tasks = RevisionTasks::default();
+        let mut tasks = PageRevisionTasks::default();
 
         for change in changes {
             match change.as_str() {

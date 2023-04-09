@@ -1,5 +1,5 @@
 /*
- * services/revision/service.rs
+ * services/page_revision/service.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -61,9 +61,9 @@ macro_rules! conditional_future {
 }
 
 #[derive(Debug)]
-pub struct RevisionService;
+pub struct PageRevisionService;
 
-impl RevisionService {
+impl PageRevisionService {
     /// Creates a new revision on an existing page.
     ///
     /// For the given page, look at the changes to make. If there are none,
@@ -93,13 +93,13 @@ impl RevisionService {
         ctx: &ServiceContext<'_>,
         site_id: i64,
         page_id: i64,
-        CreateRevision {
+        CreatePageRevision {
             user_id,
             comments,
             body,
-        }: CreateRevision,
+        }: CreatePageRevision,
         previous: PageRevisionModel,
-    ) -> Result<Option<CreateRevisionOutput>> {
+    ) -> Result<Option<CreatePageRevisionOutput>> {
         let txn = ctx.transaction();
         let revision_number = next_revision_number(&previous, site_id, page_id);
 
@@ -185,8 +185,8 @@ impl RevisionService {
         let score = ScoreService::score(ctx, page_id).await?;
 
         // Run tasks based on changes:
-        // See RevisionTasks struct for more information.
-        let tasks = RevisionTasks::determine(&changes);
+        // See PageRevisionTasks struct for more information.
+        let tasks = PageRevisionTasks::determine(&changes);
 
         if tasks.render_and_update_links {
             // This is necessary until we are able to replace the
@@ -201,7 +201,7 @@ impl RevisionService {
 
             // Run renderer and related tasks
             //
-            // Since outdating depends on scope (see RevisionTasks),
+            // Since outdating depends on scope (see PageRevisionTasks),
             // we don't do that right after here.
             //
             // TODO: use html_output
@@ -292,7 +292,7 @@ impl RevisionService {
         };
 
         let PageRevisionModel { revision_id, .. } = model.insert(txn).await?;
-        Ok(Some(CreateRevisionOutput {
+        Ok(Some(CreatePageRevisionOutput {
             revision_id,
             revision_number,
             parser_errors,
@@ -310,15 +310,15 @@ impl RevisionService {
         ctx: &ServiceContext<'_>,
         site_id: i64,
         page_id: i64,
-        CreateFirstRevision {
+        CreateFirstPageRevision {
             user_id,
             comments,
             wikitext,
             title,
             alt_title,
             slug,
-        }: CreateFirstRevision,
-    ) -> Result<CreateFirstRevisionOutput> {
+        }: CreateFirstPageRevision,
+    ) -> Result<CreateFirstPageRevisionOutput> {
         let txn = ctx.transaction();
 
         // Add wikitext
@@ -370,7 +370,7 @@ impl RevisionService {
         };
 
         let PageRevisionModel { revision_id, .. } = model.insert(txn).await?;
-        Ok(CreateFirstRevisionOutput {
+        Ok(CreateFirstPageRevisionOutput {
             revision_id,
             parser_errors: errors,
         })
@@ -385,14 +385,14 @@ impl RevisionService {
     /// If the given previous revision is for a different page or site, this method will panic.
     pub async fn create_tombstone(
         ctx: &ServiceContext<'_>,
-        CreateTombstoneRevision {
+        CreateTombstonePageRevision {
             site_id,
             page_id,
             user_id,
             comments,
-        }: CreateTombstoneRevision,
+        }: CreateTombstonePageRevision,
         previous: PageRevisionModel,
-    ) -> Result<CreateRevisionOutput> {
+    ) -> Result<CreatePageRevisionOutput> {
         let txn = ctx.transaction();
         let revision_number = next_revision_number(&previous, site_id, page_id);
 
@@ -436,7 +436,7 @@ impl RevisionService {
         };
 
         let PageRevisionModel { revision_id, .. } = model.insert(txn).await?;
-        Ok(CreateRevisionOutput {
+        Ok(CreatePageRevisionOutput {
             revision_id,
             revision_number,
             parser_errors: None,
@@ -460,15 +460,15 @@ impl RevisionService {
     /// If the given previous revision is for a different page or site, this method will panic.
     pub async fn create_resurrection(
         ctx: &ServiceContext<'_>,
-        CreateResurrectionRevision {
+        CreateResurrectionPageRevision {
             site_id,
             page_id,
             user_id,
             comments,
             new_slug,
-        }: CreateResurrectionRevision,
+        }: CreateResurrectionPageRevision,
         previous: PageRevisionModel,
-    ) -> Result<CreateRevisionOutput> {
+    ) -> Result<CreatePageRevisionOutput> {
         let txn = ctx.transaction();
         let revision_number = next_revision_number(&previous, site_id, page_id);
 
@@ -538,7 +538,7 @@ impl RevisionService {
         };
 
         let PageRevisionModel { revision_id, .. } = model.insert(txn).await?;
-        Ok(CreateRevisionOutput {
+        Ok(CreatePageRevisionOutput {
             revision_id,
             revision_number,
             parser_errors: Some(errors),
@@ -646,7 +646,7 @@ impl RevisionService {
         site_id: i64,
         page_id: i64,
         revision_id: i64,
-        UpdateRevision { user_id, hidden }: UpdateRevision,
+        UpdatePageRevision { user_id, hidden }: UpdatePageRevision,
     ) -> Result<()> {
         let txn = ctx.transaction();
 
@@ -773,13 +773,13 @@ impl RevisionService {
 
     pub async fn get_range(
         ctx: &ServiceContext<'_>,
-        GetRevisionRange {
+        GetPageRevisionRange {
             site_id,
             page_id,
             revision_number,
             revision_direction,
             revision_limit,
-        }: GetRevisionRange,
+        }: GetPageRevisionRange,
     ) -> Result<Vec<PageRevisionModel>> {
         let revision_condition = {
             use page_revision::Column::RevisionNumber;

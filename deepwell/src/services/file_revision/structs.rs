@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::services::page_revision::PageRevisionCountOutput;
 use crate::web::FetchDirection;
 
 #[derive(Debug)]
@@ -120,3 +121,5 @@ pub struct GetFileRevisionRange {
     pub revision_direction: FetchDirection,
     pub revision_limit: u64,
 }
+
+pub type FileRevisionCountOutput = PageRevisionCountOutput;

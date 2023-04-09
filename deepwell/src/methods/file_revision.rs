@@ -21,9 +21,8 @@
 use super::prelude::*;
 use crate::services::file::GetFile;
 use crate::services::file_revision::{
-    GetFileRevision, GetFileRevisionRange, UpdateFileRevision,
+    FileRevisionCountOutput, GetFileRevision, GetFileRevisionRange, UpdateFileRevision,
 };
-use crate::services::revision::RevisionCountOutput;
 
 pub async fn file_revision_count(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
@@ -48,7 +47,7 @@ pub async fn file_revision_count(mut req: ApiRequest) -> ApiResponse {
         .to_api()?;
 
     txn.commit().await?;
-    let output = RevisionCountOutput {
+    let output = FileRevisionCountOutput {
         revision_count,
         first_revision: 0,
         last_revision: revision_count.get() - 1,

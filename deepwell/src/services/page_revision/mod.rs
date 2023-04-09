@@ -1,5 +1,5 @@
 /*
- * services/revision/mod.rs
+ * services/page_revision/mod.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -21,12 +21,12 @@
 mod prelude {
     pub use super::super::prelude::*;
     pub use super::structs::*;
-    pub use super::tasks::RevisionTasks;
+    pub use super::tasks::PageRevisionTasks;
 }
 
 mod service;
 mod structs;
 mod tasks;
 
-pub use self::service::RevisionService;
+pub use self::service::PageRevisionService;
 pub use self::structs::*;

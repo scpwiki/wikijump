@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::PageRevisionType;
-use crate::services::revision::CreateRevisionOutput;
+use crate::services::page_revision::CreatePageRevisionOutput;
 use crate::services::score::ScoreValue;
 use crate::utils::DateTimeWithTimeZone;
 use ftml::parsing::ParseError;
@@ -174,19 +174,19 @@ pub struct RollbackPage<'a> {
     pub user_id: i64,
 }
 
-pub type EditPageOutput = CreateRevisionOutput;
+pub type EditPageOutput = CreatePageRevisionOutput;
 
-impl From<(CreateRevisionOutput, i64)> for DeletePageOutput {
+impl From<(CreatePageRevisionOutput, i64)> for DeletePageOutput {
     #[inline]
     fn from(
         (
-            CreateRevisionOutput {
+            CreatePageRevisionOutput {
                 revision_id,
                 revision_number,
                 parser_errors,
             },
             page_id,
-        ): (CreateRevisionOutput, i64),
+        ): (CreatePageRevisionOutput, i64),
     ) -> DeletePageOutput {
         // There's no reason to rerender on page deletion
         debug_assert!(
@@ -202,17 +202,17 @@ impl From<(CreateRevisionOutput, i64)> for DeletePageOutput {
     }
 }
 
-impl From<(CreateRevisionOutput, String)> for RestorePageOutput {
+impl From<(CreatePageRevisionOutput, String)> for RestorePageOutput {
     #[inline]
     fn from(
         (
-            CreateRevisionOutput {
+            CreatePageRevisionOutput {
                 revision_id,
                 revision_number,
                 parser_errors,
             },
             slug,
-        ): (CreateRevisionOutput, String),
+        ): (CreatePageRevisionOutput, String),
     ) -> RestorePageOutput {
         // We should always rerender on page restoration
         let parser_errors =

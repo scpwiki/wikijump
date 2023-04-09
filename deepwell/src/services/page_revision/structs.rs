@@ -1,5 +1,5 @@
 /*
- * services/revision/structs.rs
+ * services/page_revision/structs.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -27,17 +27,17 @@ use std::num::NonZeroI32;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct CreateRevision {
+pub struct CreatePageRevision {
     pub user_id: i64,
     pub comments: String,
 
     #[serde(flatten)]
-    pub body: CreateRevisionBody,
+    pub body: CreatePageRevisionBody,
 }
 
 #[derive(Deserialize, Debug, Default)]
 #[serde(rename_all = "camelCase", default)]
-pub struct CreateRevisionBody {
+pub struct CreatePageRevisionBody {
     pub wikitext: ProvidedValue<String>,
     pub title: ProvidedValue<String>,
     pub alt_title: ProvidedValue<Option<String>>,
@@ -46,7 +46,7 @@ pub struct CreateRevisionBody {
 }
 
 #[derive(Debug)]
-pub struct CreateFirstRevision {
+pub struct CreateFirstPageRevision {
     pub user_id: i64,
     pub comments: String,
     pub wikitext: String,
@@ -56,7 +56,7 @@ pub struct CreateFirstRevision {
 }
 
 #[derive(Debug)]
-pub struct CreateTombstoneRevision {
+pub struct CreateTombstonePageRevision {
     pub site_id: i64,
     pub page_id: i64,
     pub user_id: i64,
@@ -64,7 +64,7 @@ pub struct CreateTombstoneRevision {
 }
 
 #[derive(Debug)]
-pub struct CreateResurrectionRevision {
+pub struct CreateResurrectionPageRevision {
     pub site_id: i64,
     pub page_id: i64,
     pub user_id: i64,
@@ -74,7 +74,7 @@ pub struct CreateResurrectionRevision {
 
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct CreateRevisionOutput {
+pub struct CreatePageRevisionOutput {
     pub revision_id: i64,
     pub revision_number: i32,
     pub parser_errors: Option<Vec<ParseError>>,
@@ -82,14 +82,14 @@ pub struct CreateRevisionOutput {
 
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct CreateFirstRevisionOutput {
+pub struct CreateFirstPageRevisionOutput {
     pub revision_id: i64,
     pub parser_errors: Vec<ParseError>,
 }
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct GetRevision {
+pub struct GetPageRevision {
     pub site_id: i64,
     pub page_id: i64,
     pub revision_id: i32,
@@ -97,14 +97,14 @@ pub struct GetRevision {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct UpdateRevision {
+pub struct UpdatePageRevision {
     pub user_id: i64,
     pub hidden: Vec<String>,
 }
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct GetRevisionRange {
+pub struct GetPageRevisionRange {
     pub site_id: i64,
     pub page_id: i64,
     pub revision_number: i32,
@@ -123,7 +123,7 @@ pub struct GetRevisionRange {
 /// in other places, and also so that API consumers have the relevant information.
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct RevisionCountOutput {
+pub struct PageRevisionCountOutput {
     pub revision_count: NonZeroI32,
     pub first_revision: i32,
     pub last_revision: i32,
