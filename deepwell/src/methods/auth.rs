@@ -270,7 +270,8 @@ pub async fn auth_mfa_disable(mut req: ApiRequest) -> ApiResponse {
 
     if user.user_id != user_id {
         tide::log::error!(
-            "Passed user ID ({user_id}) does not match session token ({})",
+            "Passed user ID ({}) does not match session token ({})",
+            user_id,
             user.user_id,
         );
         return Ok(Response::new(StatusCode::Forbidden));
@@ -297,7 +298,8 @@ pub async fn auth_mfa_reset_recovery(mut req: ApiRequest) -> ApiResponse {
 
     if user.user_id != user_id {
         tide::log::error!(
-            "Passed user ID ({user_id}) does not match session token ({})",
+            "Passed user ID ({}) does not match session token ({})",
+            user_id,
             user.user_id,
         );
         return Ok(Response::new(StatusCode::Forbidden));

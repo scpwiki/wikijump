@@ -93,7 +93,7 @@ impl SessionService {
         };
 
         let SessionModel { session_token, .. } = model.insert(txn).await?;
-        tide::log::info!("Created new session token: {session_token}");
+        tide::log::info!("Created new session token");
         Ok(session_token)
     }
 
@@ -151,7 +151,7 @@ impl SessionService {
         session_token: &str,
         restricted: bool,
     ) -> Result<UserModel> {
-        tide::log::info!("Looking up user from session token {session_token}");
+        tide::log::info!("Looking up user for session token");
 
         let txn = ctx.transaction();
         let user = User::find()
@@ -267,7 +267,7 @@ impl SessionService {
         session_token: &str,
         user_id: i64,
     ) -> Result<u64> {
-        tide::log::info!("Invalidation all session IDs for user ID {user_id} except for {session_token}");
+        tide::log::info!("Invalidation all other session IDs for user ID {user_id}");
 
         let txn = ctx.transaction();
         let session = Self::get(ctx, session_token).await?;
