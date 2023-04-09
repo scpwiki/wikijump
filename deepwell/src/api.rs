@@ -69,12 +69,20 @@ pub async fn build_server_state(config: Config) -> Result<ApiServerState> {
     // Create S3 bucket
     tide::log::info!("Opening S3 bucket");
 
-    let mut s3_bucket = Bucket::new(
-        &config.s3_bucket,
-        config.s3_region.clone(),
-        config.s3_credentials.clone(),
-    )?;
-    s3_bucket.request_timeout = Some(Duration::from_millis(500));
+    let s3_bucket = {
+        let mut bucket = Bucket::new(
+            &config.s3_bucket,
+            config.s3_region.clone(),
+            config.s3_credentials.clone(),
+        )?;
+
+        if config.s3_path_style {
+            bucket = bucket.with_path_style();
+        }
+
+        bucket.request_timeout = Some(Duration::from_millis(500));
+        bucket
+    };
 
     // Return server state
     Ok(Arc::new(ServerState {
