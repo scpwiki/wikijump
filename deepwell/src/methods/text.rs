@@ -20,7 +20,6 @@
 
 use super::prelude::*;
 use crate::hash::Hash;
-use crate::web::Reference;
 
 pub async fn text_put(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
