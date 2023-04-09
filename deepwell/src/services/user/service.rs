@@ -515,6 +515,7 @@ impl UserService {
             user_id: Set(user_id),
             multi_factor_secret,
             multi_factor_recovery_codes,
+            updated_at: Set(Some(now())),
             ..Default::default()
         };
         model.update(txn).await?;
