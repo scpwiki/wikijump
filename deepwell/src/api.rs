@@ -41,6 +41,7 @@ use anyhow::Result;
 use s3::bucket::Bucket;
 use sea_orm::DatabaseConnection;
 use std::sync::Arc;
+use std::time::Duration;
 use tide::StatusCode;
 
 pub type ApiServerState = Arc<ServerState>;
@@ -68,11 +69,12 @@ pub async fn build_server_state(config: Config) -> Result<ApiServerState> {
     // Create S3 bucket
     tide::log::info!("Opening S3 bucket");
 
-    let s3_bucket = Bucket::new(
+    let mut s3_bucket = Bucket::new(
         &config.s3_bucket,
         config.s3_region.clone(),
         config.s3_credentials.clone(),
     )?;
+    s3_bucket.request_timeout = Some(Duration::from_millis(500));
 
     // Return server state
     Ok(Arc::new(ServerState {
