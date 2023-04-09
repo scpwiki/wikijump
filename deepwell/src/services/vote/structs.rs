@@ -47,7 +47,18 @@ pub enum VoteHistoryKind {
 pub struct GetVoteHistory {
     #[serde(flatten)]
     pub kind: VoteHistoryKind,
-    pub start_id: Option<i64>,
+    pub start_id: i64,
+    pub deleted: Option<bool>,
+    pub disabled: Option<bool>,
+    pub limit: u64,
+}
+
+#[derive(Deserialize, Debug, Copy, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct CountVoteHistory {
+    #[serde(flatten)]
+    pub kind: VoteHistoryKind,
+    pub start_id: i64,
     pub deleted: Option<bool>,
     pub disabled: Option<bool>,
 }

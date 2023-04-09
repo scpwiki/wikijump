@@ -773,11 +773,13 @@ impl RevisionService {
 
     pub async fn get_range(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
-        revision_number: i32,
-        revision_direction: FetchDirection,
-        revision_limit: u64,
+        GetRevisionRange {
+            site_id,
+            page_id,
+            revision_number,
+            revision_direction,
+            revision_limit,
+        }: GetRevisionRange,
     ) -> Result<Vec<PageRevisionModel>> {
         let revision_condition = {
             use page_revision::Column::RevisionNumber;

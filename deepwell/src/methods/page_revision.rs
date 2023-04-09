@@ -22,10 +22,10 @@ use super::prelude::*;
 use crate::models::page_revision::Model as PageRevisionModel;
 use crate::services::page::GetPage;
 use crate::services::revision::{
-    PageRevisionModelFiltered, RevisionCountOutput, UpdateRevision,
+    GetRevisionRange, PageRevisionModelFiltered, RevisionCountOutput, UpdateRevision,
 };
 use crate::services::{Result, TextService};
-use crate::web::{PageDetailsQuery, PageLimitQuery};
+use crate::web::PageDetailsQuery;
 
 pub async fn page_revision_count(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
@@ -117,37 +117,13 @@ pub async fn page_revision_put(mut req: ApiRequest) -> ApiResponse {
     Ok(response)
 }
 
-pub async fn page_revision_range_get(req: ApiRequest) -> ApiResponse {
+pub async fn page_revision_range_get(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let PageLimitQuery {
-        wikitext,
-        compiled_html,
-        limit,
-    } = req.query()?;
-
-    let details = PageDetailsQuery {
-        wikitext,
-        compiled_html,
-    };
-
-    let site_id = req.param("site_id")?.parse()?;
-    let revision_number = req.param("revision_number")?.parse()?;
-    let direction = req.param("direction")?.parse()?;
-    let reference = Reference::try_from(&req)?;
-
-    let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
-    let revisions = RevisionService::get_range(
-        &ctx,
-        site_id,
-        page.page_id,
-        revision_number,
-        direction,
-        limit.into(),
-    )
-    .await
-    .to_api()?;
+    let details: PageDetailsQuery = req.query()?;
+    let input: GetRevisionRange = req.body_json().await?;
+    let revisions = RevisionService::get_range(&ctx, input).await.to_api()?;
 
     let response = build_revision_list_response(&ctx, revisions, details, StatusCode::Ok)
         .await

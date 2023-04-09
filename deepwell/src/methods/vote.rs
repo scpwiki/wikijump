@@ -19,8 +19,9 @@
  */
 
 use super::prelude::*;
-use crate::services::vote::{CreateVote, GetVote, GetVoteHistory, VoteAction};
-use crate::web::FetchLimitQuery;
+use crate::services::vote::{
+    CountVoteHistory, CreateVote, GetVote, GetVoteHistory, VoteAction,
+};
 use serde::Serialize;
 
 pub async fn vote_get(mut req: ApiRequest) -> ApiResponse {
@@ -101,23 +102,8 @@ pub async fn vote_list_get(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let FetchLimitQuery { limit } = req.query()?;
-    let GetVoteHistory {
-        kind,
-        start_id,
-        deleted,
-        disabled,
-    } = req.body_json().await?;
-
-    let votes = VoteService::get_history(
-        &ctx,
-        kind,
-        start_id.unwrap_or(0),
-        deleted,
-        disabled,
-        limit.into(),
-    )
-    .await?;
+    let input: GetVoteHistory = req.body_json().await?;
+    let votes = VoteService::get_history(&ctx, input).await.to_api()?;
 
     txn.commit().await?;
     build_vote_response(&votes, StatusCode::Ok)
@@ -127,16 +113,8 @@ pub async fn vote_count_get(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let GetVoteHistory {
-        kind,
-        start_id,
-        deleted,
-        disabled,
-    } = req.body_json().await?;
-
-    let count =
-        VoteService::count_history(&ctx, kind, start_id.unwrap_or(0), deleted, disabled)
-            .await?;
+    let input: CountVoteHistory = req.body_json().await?;
+    let count = VoteService::count_history(&ctx, input).await.to_api()?;
 
     txn.commit().await?;
     build_vote_response(&count, StatusCode::Ok)

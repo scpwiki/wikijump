@@ -21,6 +21,7 @@
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::PageRevisionType;
 use crate::utils::DateTimeWithTimeZone;
+use crate::web::FetchDirection;
 use ftml::parsing::ParseError;
 use std::num::NonZeroI32;
 
@@ -99,6 +100,16 @@ pub struct GetRevision {
 pub struct UpdateRevision {
     pub user_id: i64,
     pub hidden: Vec<String>,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct GetRevisionRange {
+    pub site_id: i64,
+    pub page_id: i64,
+    pub revision_number: i32,
+    pub revision_direction: FetchDirection,
+    pub revision_limit: u64,
 }
 
 /// Information about the revisions currently associated with a page.
