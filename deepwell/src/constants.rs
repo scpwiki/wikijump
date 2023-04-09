@@ -18,10 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// See seeder data for these values
-
 #![allow(dead_code)]
 
+// See seeder data for these values
 pub const ADMIN_USER_ID: i64 = 1;
 pub const SYSTEM_USER_ID: i64 = 2;
 pub const ANONYMOUS_USER_ID: i64 = 2;
