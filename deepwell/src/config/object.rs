@@ -28,8 +28,15 @@ use std::time::Duration;
 use std::{env, process};
 use tide::log::LevelFilter;
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+/// Primary configuration structure.
+///
+/// See `config/file.rs` for an explanation of the
+/// structure that is parsed from disk.
+#[derive(Debug, Clone)]
 pub struct Config {
+    /// The raw TOML data that was read on server load.
+    pub raw_config: String,
+
     /// Whether the logger should be enabled or not.
     /// Also enables colorful backtraces.
     pub logger: bool,
