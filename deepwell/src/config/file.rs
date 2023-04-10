@@ -123,6 +123,7 @@ struct Ftml {
 struct User {
     default_name_changes: u8,
     max_name_changes: u8,
+    refill_name_change_days: u64,
 }
 
 impl ConfigFile {
@@ -184,6 +185,7 @@ impl ConfigFile {
                 User {
                     default_name_changes,
                     max_name_changes,
+                    refill_name_change_days,
                 },
         } = self;
 
@@ -221,6 +223,9 @@ impl ConfigFile {
             render_timeout: Duration::from_millis(render_timeout_ms),
             default_name_changes: i16::from(default_name_changes),
             max_name_changes: i16::from(max_name_changes),
+            refill_name_change: Duration::from_secs(
+                refill_name_change_days * 24 * 60 * 60,
+            ),
         }
     }
 }

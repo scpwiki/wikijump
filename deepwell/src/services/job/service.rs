@@ -95,6 +95,9 @@ impl JobRunner {
                 task::sleep(DELAY).await;
             }
         });
+
+        // TODO job that checks hourly for users who can get a name change token refill
+        //      see config.refill_name_change
     }
 
     async fn main_loop(mut self) -> Void {

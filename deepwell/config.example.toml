@@ -169,10 +169,16 @@ render-timeout-ms = 2000
 [user]
 
 # The number of name changes a user has by default.
-default-name-changes = 3
+default-name-changes = 2
 
 # The maximum number of name changes a user has.
 #
 # Attempting to add additional name change tokens to
 # a user will top out at this amount.
 max-name-changes = 3
+
+# Every this many days, all users get another
+# name change token (up to the cap). Checked hourly.
+#
+# Set to 0 to disable.
+refill-name-change-days = 90
