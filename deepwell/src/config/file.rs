@@ -121,8 +121,8 @@ struct Ftml {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "kebab-case")]
 struct User {
-    default_name_changes: i16,
-    max_name_changes: i16,
+    default_name_changes: u8,
+    max_name_changes: u8,
 }
 
 impl ConfigFile {
