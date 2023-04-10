@@ -1,9 +1,12 @@
 # Artifacts
 target/
 
-# Secrets and local configuration
+# Secrets
 .env
+
+# Local configuration
 config*.toml
+!config.example.toml
 
 # Logging
 *.log
