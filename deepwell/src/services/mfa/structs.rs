@@ -19,18 +19,13 @@
  */
 
 use super::prelude::*;
+use crate::config::Config;
 use crate::services::PasswordService;
 use crate::utils::assert_is_csprng;
 use data_encoding::BASE32_NOPAD;
 use rand::distributions::{Alphanumeric, DistString};
 use rand::{thread_rng, Rng};
 use std::iter;
-
-/// The number of recovery codes to generate per-use at a time.
-pub const RECOVERY_CODE_COUNT: usize = 12;
-
-/// The length in bytes of each recovery code.
-pub const RECOVERY_CODE_LENGTH: usize = 8;
 
 pub fn generate_totp_secret() -> String {
     let mut rng = thread_rng();
@@ -51,17 +46,17 @@ pub struct RecoveryCodes {
 }
 
 impl RecoveryCodes {
-    pub fn generate() -> Result<Self> {
+    pub fn generate(config: &Config) -> Result<Self> {
         let mut rng = thread_rng();
         assert_is_csprng(&rng);
 
         // Recovery codes are any randomly-generated codes which the application
         // accepts as a one-time code to bypass MFA.
         let recovery_codes = iter::repeat(())
-            .take(RECOVERY_CODE_COUNT)
+            .take(config.recovery_code_count)
             .map(|_| {
-                let mut code = Alphanumeric.sample_string(&mut rng, RECOVERY_CODE_LENGTH);
-                code.insert(RECOVERY_CODE_LENGTH / 2, '-'); // for readability
+                let mut code = Alphanumeric.sample_string(&mut rng, config.recovery_code_length);
+                code.insert(config.recovery_code_length / 2, '-'); // for readability
                 code
             })
             .collect::<Vec<String>>();
