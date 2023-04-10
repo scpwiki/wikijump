@@ -134,7 +134,7 @@ impl ConfigFile {
     }
 
     /// Deconstruct the `ConfigFile` and flatten it as a `Config` object.
-    pub fn to_config(self, raw_toml: String) -> Config {
+    pub fn into_config(self, raw_toml: String) -> Config {
         let ConfigFile {
             logger:
                 Logger {

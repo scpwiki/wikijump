@@ -111,7 +111,7 @@ impl Config {
     #[inline]
     pub fn load(path: &Path) -> Result<Self> {
         let (config_file, raw_toml) = ConfigFile::load(path)?;
-        let config = ConfigFile::to_config(config_file, raw_toml);
+        let config = ConfigFile::into_config(config_file, raw_toml);
         Ok(config)
     }
 
