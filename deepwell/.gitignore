@@ -8,5 +8,6 @@ target/
 config*.toml
 !config.example.toml
 
-# Logging
+# Runtime
 *.log
+*.pid
