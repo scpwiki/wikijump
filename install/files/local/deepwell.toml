@@ -1,0 +1,18 @@
+[logger]
+enable = true
+level = "debug"
+
+[server]
+address = "[::]:2747"
+pid-file = "/run/deepwell.pid"
+
+[database]
+run-migrations = true
+run-seeder = true
+seeder-path = "seeder"
+
+[locale]
+path = "/opt/locales"
+
+[ftml]
+render-timeout = "2s"
