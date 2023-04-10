@@ -5,7 +5,7 @@ target/
 .env
 
 # Local configuration
-config*.toml
+/config*.toml
 !config.example.toml
 
 # Runtime
