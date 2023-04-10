@@ -76,7 +76,7 @@ struct Database {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "kebab-case")]
 struct Security {
-    authentication_fail_delay: u64,
+    authentication_fail_delay_ms: u64,
     session: Session,
     mfa: Mfa,
 }
@@ -151,7 +151,7 @@ impl ConfigFile {
                 },
             security:
                 Security {
-                    authentication_fail_delay,
+                    authentication_fail_delay_ms,
                     session:
                         Session {
                             token_prefix,
