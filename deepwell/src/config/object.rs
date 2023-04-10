@@ -105,13 +105,6 @@ impl Config {
         Ok(config)
     }
 
-    pub fn dump(&self) -> Result<String> {
-        tide::log::info!("Dumping current TOML configuration to string");
-
-        let output = toml::to_string_pretty(self)?;
-        Ok(output)
-    }
-
     pub fn log(&self) {
         #[inline]
         fn bool_str(value: bool) -> &'static str {
