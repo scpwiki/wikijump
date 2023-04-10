@@ -38,9 +38,6 @@ use chrono::Duration;
 use rand::distributions::{Alphanumeric, DistString};
 use rand::thread_rng;
 
-/// Length of each session token.
-const SESSION_TOKEN_LENGTH: usize = 64;
-
 /// Number of minutes that normal sessions last before expiring.
 const NORMAL_SESSION_MINUTES: i64 = 30;
 
@@ -102,7 +99,7 @@ impl SessionService {
         let mut rng = thread_rng();
         assert_is_csprng(&rng);
 
-        let mut token = Alphanumeric.sample_string(&mut rng, SESSION_TOKEN_LENGTH);
+        let mut token = Alphanumeric.sample_string(&mut rng, config.session_token_length);
         token.insert_str(0, &config.session_token_prefix);
 
         token
