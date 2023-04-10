@@ -11,8 +11,32 @@ run-migrations = true
 run-seeder = true
 seeder-path = "seeder"
 
+[security]
+authentication-fail-delay-ms = 100
+
+[security.session]
+token-prefix = "wj:"
+token-length = 64
+duration-session-minutes = 30
+duration-login-minutes = 5
+
+[security.mfa]
+recovery-code-count = 4
+recovery-code-length = 8
+time-step = 30
+time-skew = 1
+
+[job]
+delay-ms = 5
+prune-session-secs = 600  # 5 minutes
+
 [locale]
 path = "/opt/locales"
 
 [ftml]
-render-timeout = "2s"
+render-timeout-ms = 2000
+
+[user]
+default-name-changes = 2
+max-name-changes = 3
+refill-name-change-days = 90
