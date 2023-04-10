@@ -110,6 +110,7 @@ pub fn parse_args(config: &mut Config) {
             Arg::new("config-file")
                 .value_parser(value_parser!(PathBuf))
                 .action(ArgAction::Set)
+                .default("config.toml")
                 .help("The configuration file to use for this DEEPWELL instance."),
         )
         .get_matches();
