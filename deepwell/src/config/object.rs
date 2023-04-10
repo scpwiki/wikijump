@@ -35,7 +35,7 @@ use tide::log::LevelFilter;
 #[derive(Debug, Clone)]
 pub struct Config {
     /// The raw TOML data that was read on server load.
-    pub raw_config: String,
+    pub raw_toml: String,
 
     /// Whether the logger should be enabled or not.
     /// Also enables colorful backtraces.

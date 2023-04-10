@@ -56,7 +56,7 @@ pub async fn hostname(_: ApiRequest) -> ApiResponse {
 
 pub async fn config_dump(req: ApiRequest) -> ApiResponse {
     tide::log::info!("Dumping raw DEEPWELL configuration for debugging");
-    todo!()
+    Ok(req.state().config.raw_toml.as_str().into())
 }
 
 pub async fn normalize_method(req: ApiRequest) -> ApiResponse {
