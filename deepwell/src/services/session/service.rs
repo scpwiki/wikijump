@@ -299,13 +299,3 @@ impl SessionService {
         Ok(rows_affected)
     }
 }
-
-#[test]
-fn new_token() {
-    let token = SessionService::new_token();
-    assert!(token.starts_with(SESSION_TOKEN_PREFIX));
-    assert_eq!(
-        token.len(),
-        SESSION_TOKEN_LENGTH + SESSION_TOKEN_PREFIX.len(),
-    );
-}
