@@ -36,7 +36,7 @@ impl AuthenticationService {
         }: AuthenticateUser,
     ) -> Result<AuthenticateUserOutput> {
         let auth = Self::get_user_auth(ctx, &name_or_email).await?;
-        PasswordService::verify(&password, &auth.password_hash).await?;
+        PasswordService::verify(ctx, &password, &auth.password_hash).await?;
 
         // User not found, return authentication failure
         if !auth.valid {

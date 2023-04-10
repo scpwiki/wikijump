@@ -186,9 +186,14 @@ impl MfaService {
         // Constant-time, check all the recovery codes even when we know we have a match.
         let mut matched = None;
         for recovery_code_hash in recovery_code_hashes {
-            if PasswordService::verify_sleep(recovery_code, recovery_code_hash, false)
-                .await
-                .is_ok()
+            if PasswordService::verify_sleep(
+                ctx,
+                recovery_code,
+                recovery_code_hash,
+                false,
+            )
+            .await
+            .is_ok()
             {
                 matched = Some(recovery_code_hash);
             }
@@ -206,7 +211,7 @@ impl MfaService {
             // Otherwise we have variable-time recovery code checks based on whether
             // the recovery code was correct or not.
             None => {
-                PasswordService::failure_sleep().await;
+                PasswordService::failure_sleep(ctx.config()).await;
                 Err(Error::InvalidAuthentication)
             }
         }

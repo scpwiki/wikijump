@@ -25,10 +25,6 @@ use argon2::{
 };
 use async_std::task;
 use rand::thread_rng;
-use std::time::Duration;
-
-/// Time to sleep in between failed authentication requests.
-const AUTHENTICATION_FAILURE_DELAY: Duration = Duration::from_millis(100);
 
 #[derive(Debug)]
 pub struct PasswordService;
@@ -60,15 +56,24 @@ impl PasswordService {
     /// # Returns
     /// Nothing on success, yields an `InvalidAuthentication` error on failure.
     /// Will sleep a bit on failure.
-    pub async fn verify(password: &str, hash: &str) -> Result<()> {
-        Self::verify_sleep(password, hash, true).await
+    pub async fn verify(
+        ctx: &ServiceContext<'_>,
+        password: &str,
+        hash: &str,
+    ) -> Result<()> {
+        Self::verify_sleep(ctx, password, hash, true).await
     }
 
     /// Like `verify()`, but allows specifying whether sleeping should take place.
     ///
     /// Should only be used internally, when the sleeping is performed by the caller
     /// themselves on failure.
-    pub async fn verify_sleep(password: &str, hash: &str, sleep: bool) -> Result<()> {
+    pub async fn verify_sleep(
+        ctx: &ServiceContext<'_>,
+        password: &str,
+        hash: &str,
+        sleep: bool,
+    ) -> Result<()> {
         tide::log::info!("Attempting to verify password");
         let result = Self::verify_internal(password, hash);
         match result {
@@ -90,7 +95,7 @@ impl PasswordService {
 
                 // Delay a bit on failure to prevent brute-force attacks.
                 if sleep {
-                    Self::failure_sleep().await;
+                    Self::failure_sleep(ctx.config()).await;
                 }
 
                 // Always return the same error for authentication methods,
@@ -111,7 +116,7 @@ impl PasswordService {
     }
 
     /// Sleeps for a bit after authentication failure.
-    pub async fn failure_sleep() {
-        task::sleep(AUTHENTICATION_FAILURE_DELAY).await;
+    pub async fn failure_sleep(config: &Config) {
+        task::sleep(config.authentication_fail_delay).await;
     }
 }
