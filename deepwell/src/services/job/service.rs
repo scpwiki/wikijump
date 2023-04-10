@@ -25,7 +25,6 @@ use async_std::task;
 use crossfire::mpsc;
 use sea_orm::TransactionTrait;
 use std::sync::Arc;
-use std::time::Duration;
 use void::Void;
 
 lazy_static! {
@@ -97,10 +96,9 @@ impl JobRunner {
     }
 
     async fn main_loop(mut self) -> Void {
-        const JOB_DELAY: Duration = Duration::from_millis(10);
-
         tide::log::info!("Starting job runner");
 
+        let delay = self.state.config.job_delay;
         loop {
             tide::log::trace!("Waiting for next job on queue...");
             let job = source!()
@@ -116,7 +114,7 @@ impl JobRunner {
             }
 
             tide::log::debug!("Estimated queue backlog: {} items", source!().len());
-            task::sleep(JOB_DELAY).await; // Sleep a bit to avoid overloading the database
+            task::sleep(delay).await; // Sleep a bit to avoid overloading the database
         }
     }
 
