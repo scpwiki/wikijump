@@ -1,0 +1,62 @@
+[logger]
+
+# Whether the logger is overall enabled or not.
+# Passing "-q" completely silences all logging.
+enable = true
+
+# The log level to emit at.
+#
+# Possible values:
+# - "off"
+# - "error"
+# - "warning"
+# - "info"
+# - "debug"
+# - "trace"
+level = "info"
+
+
+[server]
+
+# The IP and port to bind to when the server starts.
+address = "[::]:2747"
+
+# The path to write the pid file
+# If null, then no pid file is written.
+pid-file = "deepwell.pid"
+
+
+[database]
+
+# Whether to run migrations on startup (if needed).
+#
+# If false, then an out-of-date database will yield errors,
+# you must migrate manually.
+run-migrations = true
+
+# Whether to run the seeder on startup (if needed).
+#
+# If false, then an empty database may yield errors,
+# you must seed manually.
+run-seeder = true
+
+# The path containing data files for the seeder.
+# Corresponds to /deepwell/seeder in the repository.
+seeder-path = "seeder"
+
+
+[locale]
+
+# The path containing Fluent translation files.
+# Corresponds to /locales in the repository.
+path = "../locales"
+
+
+[ftml]
+
+# How long to allow a render job to run before terminating it.
+#
+# This is to ensure that a parser bug or malicious input cannot
+# crash or freeze the backend. This value should not be too
+# aggressive, but still not extremely long.
+render-timeout = "2s"

@@ -47,7 +47,7 @@ pub struct Config {
     /// One of:
     /// * `off`
     /// * `error`
-    /// * `warn`
+    /// * `warning`
     /// * `info`
     /// * `debug`
     /// * `trace`
@@ -72,32 +72,10 @@ pub struct Config {
     /// The location where all Fluent translation files are kept.
     pub localization_path: PathBuf,
 
-    /// How long to allow a render job to run before terminating it.
-    ///
-    /// This is to ensure that a parser bug or malicious input cannot
-    /// crash or freeze the backend. This value should not be too
-    /// aggressive, but still not extremely long.
+    /// Maximum run time for a render job.
     pub render_timeout: Duration,
-}
 
-/*
-TODO remove
-impl Default for Config {
-    fn default() -> Self {
-        Config {
-            logger: true,
-            logger_level: LevelFilter::Info,
-            address: "[::]:2747".parse().unwrap(),
-            pid_file: None,
-            run_migrations: true,
-            run_seeder: true,
-            seeder_path: PathBuf::from("seeder"),
-            localization_path: PathBuf::from("../locales"),
-            render_timeout: Duration::from_millis(2000),
-        }
-    }
 }
-*/
 
 impl Config {
     #[inline]
