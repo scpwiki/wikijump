@@ -45,8 +45,8 @@ pub struct ConfigFile {
     server: Server,
     database: Database,
     security: Security,
-    job: Job,
     locale: Locale,
+    job: Job,
     ftml: Ftml,
     user: User,
 }
@@ -167,14 +167,14 @@ impl ConfigFile {
                             time_skew,
                         },
                 },
-            locale: Locale {
-                path: localization_path,
-            },
             job:
                 Job {
                     delay_ms,
                     prune_session_secs,
                 },
+            locale: Locale {
+                path: localization_path,
+            },
             ftml: Ftml { render_timeout_ms },
             user:
                 User {
