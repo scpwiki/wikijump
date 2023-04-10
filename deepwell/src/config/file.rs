@@ -48,6 +48,40 @@ pub struct ConfigFile {
     ftml: Ftml,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "kebab-case")]
+struct Logger {
+    enable: bool,
+    level: LevelFilter,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "kebab-case")]
+struct Server {
+    address: SocketAddr,
+    pid_file: Option<PathBuf>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "kebab-case")]
+struct Database {
+    run_migrations: bool,
+    run_seeder: bool,
+    seeder_path: PathBuf,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "kebab-case")]
+struct Locale {
+    path: PathBuf,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "kebab-case")]
+struct Ftml {
+    render_timeout_ms: u64,
+}
+
 impl ConfigFile {
     pub fn load(path: &Path) -> Result<(Self, String)> {
         let mut file = File::open(path)?;
@@ -91,38 +125,4 @@ impl ConfigFile {
             render_timeout: Duration::from_millis(render_timeout_ms),
         }
     }
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(rename_all = "kebab-case")]
-struct Logger {
-    enable: bool,
-    level: LevelFilter,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(rename_all = "kebab-case")]
-struct Server {
-    address: SocketAddr,
-    pid_file: Option<PathBuf>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(rename_all = "kebab-case")]
-struct Database {
-    run_migrations: bool,
-    run_seeder: bool,
-    seeder_path: PathBuf,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(rename_all = "kebab-case")]
-struct Locale {
-    path: PathBuf,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(rename_all = "kebab-case")]
-struct Ftml {
-    render_timeout_ms: u64,
 }
