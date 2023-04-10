@@ -31,8 +31,8 @@ use tide::log::LevelFilter;
 
 /// Primary configuration structure.
 ///
-/// See `config/file.rs` for an explanation of the
-/// structure that is parsed from disk.
+/// * See `config/file.rs` for the structure as parsed from disk.
+/// * See `config.example.toml` for an explanation of all these fields.
 #[derive(Debug, Clone)]
 pub struct Config {
     /// The raw TOML data that was read on server load.
@@ -43,14 +43,6 @@ pub struct Config {
     pub logger: bool,
 
     /// What log level to use during execution.
-    ///
-    /// One of:
-    /// * `off`
-    /// * `error`
-    /// * `warning`
-    /// * `info`
-    /// * `debug`
-    /// * `trace`
     pub logger_level: LevelFilter,
 
     /// The address the server will be hosted on.
