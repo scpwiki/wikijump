@@ -22,11 +22,9 @@ use super::Config;
 use crate::info;
 use clap::builder::{BoolishValueParser, NonEmptyStringValueParser};
 use clap::{value_parser, Arg, ArgAction, Command};
-use std::net::{IpAddr, SocketAddr};
-use std::path::{Path, PathBuf};
+use std::net::IpAddr;
+use std::path::PathBuf;
 use std::process;
-use std::time::Duration;
-use tide::log::LevelFilter;
 
 pub fn parse_args() -> Config {
     let mut matches = Command::new("DEEPWELL")

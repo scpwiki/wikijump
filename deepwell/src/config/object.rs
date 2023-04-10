@@ -18,15 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::args;
 use super::file::ConfigFile;
 use anyhow::Result;
-use std::fs::File;
-use std::io::Read;
-use std::net::{IpAddr, SocketAddr};
+use std::env;
+use std::net::SocketAddr;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
-use std::{env, process};
 use tide::log::LevelFilter;
 
 /// Primary configuration structure.
