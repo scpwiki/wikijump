@@ -75,24 +75,20 @@ pub struct JobRunner {
 
 impl JobRunner {
     pub fn spawn(state: &ApiServerState) {
+        // Copy configuration fields
+        let session_prune_delay = state.config.job_prune_session_period;
+
         // Main runner
         let state = Arc::clone(state);
         let runner = JobRunner { state };
         task::spawn(runner.main_loop());
 
         // Ancillary tasks
-        task::spawn(async {
-            // Prune expired sessions every five minutes
-            //
-            // Because the query already excludes expired sessions,
-            // this task not catching sessions right away is not a
-            // security risk.
-            const DELAY: Duration = Duration::from_secs(5 * 60);
-
+        task::spawn(async move {
             loop {
                 tide::log::trace!("Running repeat job: prune expired sessions");
                 JobService::queue_prune_sessions();
-                task::sleep(DELAY).await;
+                task::sleep(session_prune_delay).await;
             }
         });
 
