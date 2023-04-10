@@ -20,6 +20,7 @@
 
 use super::Config;
 use anyhow::Result;
+use chrono::Duration as ChronoDuration;
 use std::fs::File;
 use std::io::Read;
 use std::net::SocketAddr;
@@ -135,6 +136,16 @@ impl ConfigFile {
 
     /// Deconstruct the `ConfigFile` and flatten it as a `Config` object.
     pub fn into_config(self, raw_toml: String) -> Config {
+        macro_rules! chrono_duration {
+            // Convert a stdlib duration into a chrono duration
+            ($method:ident, $value:expr $(,)?) => {{
+                let std_duration = Duration::$method($value);
+                let chrono_duration = ChronoDuration::from_std(std_duration)
+                    .expect("Unable to convert from standard to chrono Duratoin");
+                chrono_duration
+            }};
+        }
+
         let ConfigFile {
             logger:
                 Logger {
@@ -210,8 +221,14 @@ impl ConfigFile {
             ),
             session_token_prefix: token_prefix,
             session_token_length: token_length,
-            normal_session_duration: Duration::from_secs(duration_session_minutes * 60),
-            restricted_session_duration: Duration::from_secs(duration_login_minutes * 60),
+            normal_session_duration: chrono_duration!(
+                from_secs,
+                duration_session_minutes * 60,
+            ),
+            restricted_session_duration: chrono_duration!(
+                from_secs,
+                duration_login_minutes * 60,
+            ),
             recovery_code_count,
             recovery_code_length,
             totp_time_step: time_step,

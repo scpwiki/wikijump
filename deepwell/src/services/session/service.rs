@@ -34,18 +34,8 @@ use super::prelude::*;
 use crate::models::session::{self, Entity as Session, Model as SessionModel};
 use crate::models::user::{self, Entity as User, Model as UserModel};
 use crate::utils::assert_is_csprng;
-use chrono::Duration;
 use rand::distributions::{Alphanumeric, DistString};
 use rand::thread_rng;
-
-/// Number of minutes that normal sessions last before expiring.
-const NORMAL_SESSION_MINUTES: i64 = 30;
-
-/// Number of minutes that restricted sessions last.
-///
-/// This is essentially the time the user has to finish logging in
-/// before they must begin again.
-const RESTRICTED_SESSION_MINUTES: i64 = 5;
 
 #[derive(Debug)]
 pub struct SessionService;
@@ -69,11 +59,12 @@ impl SessionService {
         );
 
         let txn = ctx.transaction();
-        let token = Self::new_token(ctx.config());
+        let config = ctx.config();
+        let token = Self::new_token(config);
         let expiry = if restricted {
-            now() + Duration::minutes(RESTRICTED_SESSION_MINUTES)
+            now() + config.restricted_session_duration
         } else {
-            now() + Duration::minutes(NORMAL_SESSION_MINUTES)
+            now() + config.normal_session_duration
         };
 
         let model = session::ActiveModel {

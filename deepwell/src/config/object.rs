@@ -20,6 +20,7 @@
 
 use super::file::ConfigFile;
 use anyhow::Result;
+use chrono::Duration as ChronoDuration;
 use std::env;
 use std::net::SocketAddr;
 use std::path::{Path, PathBuf};
@@ -71,10 +72,10 @@ pub struct Config {
     pub session_token_length: usize,
 
     /// How long normal sessions last before expiry.
-    pub normal_session_duration: Duration,
+    pub normal_session_duration: ChronoDuration,
 
     /// How long restricted sessions last before expiry.
-    pub restricted_session_duration: Duration,
+    pub restricted_session_duration: ChronoDuration,
 
     /// The number of recovery codes to have per user.
     pub recovery_code_count: usize,
