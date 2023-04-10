@@ -64,8 +64,47 @@ pub struct Config {
     /// The location where all Fluent translation files are kept.
     pub localization_path: PathBuf,
 
-    /// Maximum run time for a render job.
+    /// The duration to sleep after failed authentication attempts.
+    pub authentication_fail_delay: Duration,
+
+    /// Fixed prefix for all session tokens.
+    pub session_token_prefix: String,
+
+    /// Length of randomly-generated segment in session tokens.
+    pub session_token_length: usize,
+
+    /// How long normal sessions last before expiry.
+    pub normal_session_duration: Duration,
+
+    /// How long restricted sessions last before expiry.
+    pub restricted_session_duration: Duration,
+
+    /// The number of recovery codes to have per user.
+    pub recovery_code_count: usize,
+
+    /// Length of randomly-generated segment in recovery codes.
+    pub recovery_code_length: usize,
+
+    /// Length in seconds that each TOTP lasts.
+    pub totp_time_step: u64,
+
+    /// How much leniency should be allowed for TOTP.
+    pub totp_time_skew: i64,
+
+    /// How long to sleep in between job loops.
+    pub job_delay: Duration,
+
+    /// How often to run the "prune expired sessions" recurring job.
+    pub job_prune_session_period: Duration,
+
+    /// Maximum run time for a render request.
     pub render_timeout: Duration,
+
+    /// Default name changes per user.
+    pub default_name_changes: i16,
+
+    /// Maximum name changes per user.
+    pub max_name_changes: i16,
 }
 
 impl Config {

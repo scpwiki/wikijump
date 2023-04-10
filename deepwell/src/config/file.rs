@@ -86,8 +86,8 @@ struct Security {
 struct Session {
     token_prefix: String,
     token_length: usize,
-    duration_session_minutes: i64,
-    duration_login_minutes: i64,
+    duration_session_minutes: u64,
+    duration_login_minutes: u64,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -142,7 +142,11 @@ impl ConfigFile {
                     enable: logger,
                     level: logger_level,
                 },
-            server: Server { address, mut pid_file },
+            server:
+                Server {
+                    address,
+                    mut pid_file,
+                },
             database:
                 Database {
                     run_migrations,
@@ -169,7 +173,7 @@ impl ConfigFile {
                 },
             job:
                 Job {
-                    delay_ms,
+                    delay_ms: job_delay_ms,
                     prune_session_secs,
                 },
             locale: Locale {
@@ -201,7 +205,22 @@ impl ConfigFile {
             run_seeder,
             seeder_path,
             localization_path,
+            authentication_fail_delay: Duration::from_millis(
+                authentication_fail_delay_ms,
+            ),
+            session_token_prefix: token_prefix,
+            session_token_length: token_length,
+            normal_session_duration: Duration::from_secs(duration_session_minutes * 60),
+            restricted_session_duration: Duration::from_secs(duration_login_minutes * 60),
+            recovery_code_count,
+            recovery_code_length,
+            totp_time_step: time_step,
+            totp_time_skew: time_skew,
+            job_delay: Duration::from_millis(job_delay_ms),
+            job_prune_session_period: Duration::from_secs(prune_session_secs),
             render_timeout: Duration::from_millis(render_timeout_ms),
+            default_name_changes: i16::from(default_name_changes),
+            max_name_changes: i16::from(max_name_changes),
         }
     }
 }
