@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::serde::parse_log_level;
 use super::Config;
 use crate::info;
 use clap::builder::{BoolishValueParser, NonEmptyStringValueParser};
@@ -92,19 +93,19 @@ pub fn parse_args() -> Config {
                 .help("Whether to run the seeder on server startup."),
         )
         .arg(
+            Arg::new("seeder-path")
+                .long("seed")
+                .value_parser(value_parser!(PathBuf))
+                .value_name("PATH")
+                .help("The path to read seeder data from."),
+        )
+        .arg(
             Arg::new("localization-path")
                 .short('L')
                 .long("localizations")
                 .value_parser(value_parser!(PathBuf))
                 .value_name("PATH")
                 .help("The path to read translation files from."),
-        )
-        .arg(
-            Arg::new("seeder-path")
-                .long("seed")
-                .value_parser(value_parser!(PathBuf))
-                .value_name("PATH")
-                .help("The path to read seeder data from."),
         )
         .arg(
             Arg::new("config-file")
@@ -170,27 +171,4 @@ pub fn parse_args() -> Config {
     }
 
     config
-}
-
-fn parse_log_level(value: &str) -> Option<LevelFilter> {
-    const LEVELS: [(&str, LevelFilter); 10] = [
-        ("off", LevelFilter::Off),
-        ("err", LevelFilter::Error),
-        ("error", LevelFilter::Error),
-        ("warn", LevelFilter::Warn),
-        ("warning", LevelFilter::Warn),
-        ("info", LevelFilter::Info),
-        ("information", LevelFilter::Info),
-        ("debug", LevelFilter::Debug),
-        ("trace", LevelFilter::Trace),
-        ("all", LevelFilter::Trace),
-    ];
-
-    for &(name, level) in &LEVELS {
-        if value.eq_ignore_ascii_case(name) {
-            return Some(level);
-        }
-    }
-
-    None
 }

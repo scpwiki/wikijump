@@ -1,5 +1,5 @@
 /*
- * config/mod.rs
+ * config/serde.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -18,28 +18,30 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod args;
-mod file;
-mod object;
-mod secrets;
-mod serde;
+use tide::log::LevelFilter;
 
-pub use self::object::Config;
-pub use self::secrets::Secrets;
+#[derive(Debug, Copy, Clone)]
+pub struct LogLevel(LevelFilter);
 
-use self::args::parse_args;
+pub fn parse_log_level(value: &str) -> Option<LevelFilter> {
+    const LEVELS: [(&str, LevelFilter); 10] = [
+        ("off", LevelFilter::Off),
+        ("err", LevelFilter::Error),
+        ("error", LevelFilter::Error),
+        ("warn", LevelFilter::Warn),
+        ("warning", LevelFilter::Warn),
+        ("info", LevelFilter::Info),
+        ("information", LevelFilter::Info),
+        ("debug", LevelFilter::Debug),
+        ("trace", LevelFilter::Trace),
+        ("all", LevelFilter::Trace),
+    ];
 
-#[derive(Debug, Clone)]
-pub struct SetupConfig {
-    pub secrets: Secrets,
-    pub config: Config,
-}
-
-impl SetupConfig {
-    pub fn load() -> Self {
-        let secrets = Secrets::load();
-        let config = parse_args();
-
-        SetupConfig { secrets, config }
+    for &(name, level) in &LEVELS {
+        if value.eq_ignore_ascii_case(name) {
+            return Some(level);
+        }
     }
+
+    None
 }

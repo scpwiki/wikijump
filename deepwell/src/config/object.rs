@@ -19,6 +19,7 @@
  */
 
 use super::args;
+use super::file::ConfigFile;
 use anyhow::Result;
 use std::fs::File;
 use std::io::Read;
@@ -55,6 +56,9 @@ pub struct Config {
     /// The address the server will be hosted on.
     pub address: SocketAddr,
 
+    /// The PID file (if any) to write to on boot.
+    pub pid_file: Option<PathBuf>,
+
     /// Whether to run migrations on startup.
     pub run_migrations: bool,
 
@@ -62,11 +66,11 @@ pub struct Config {
     /// This will only attempt to add the rows if the `user` table is empty.
     pub run_seeder: bool,
 
-    /// The location where all Fluent translation files are kept.
-    pub localization_path: PathBuf,
-
     /// The location where all the seeder files are kept.
     pub seeder_path: PathBuf,
+
+    /// The location where all Fluent translation files are kept.
+    pub localization_path: PathBuf,
 
     /// How long to allow a render job to run before terminating it.
     ///
@@ -76,32 +80,30 @@ pub struct Config {
     pub render_timeout: Duration,
 }
 
+/*
+TODO remove
 impl Default for Config {
     fn default() -> Self {
         Config {
             logger: true,
             logger_level: LevelFilter::Info,
             address: "[::]:2747".parse().unwrap(),
+            pid_file: None,
             run_migrations: true,
             run_seeder: true,
-            localization_path: PathBuf::from("../locales"),
             seeder_path: PathBuf::from("seeder"),
+            localization_path: PathBuf::from("../locales"),
             render_timeout: Duration::from_millis(2000),
         }
     }
 }
+*/
 
 impl Config {
     #[inline]
-    pub fn parse_args() -> Self {
-        args::parse_args()
-    }
-
     pub fn load(path: &Path) -> Result<Self> {
-        let mut file = File::open(path)?;
-        let mut contents = String::new();
-        file.read_to_string(&mut contents)?;
-        let config = toml::from_str(&contents)?;
+        let (config_file, raw_toml) = ConfigFile::load(path)?;
+        let config = ConfigFile::to_config(config_file, raw_toml);
         Ok(config)
     }
 
