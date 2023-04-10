@@ -53,6 +53,9 @@ mod web;
 
 use self::config::SetupConfig;
 use anyhow::Result;
+use std::fs::File;
+use std::io::Write;
+use std::process;
 
 #[async_std::main]
 async fn main() -> Result<()> {
@@ -71,6 +74,18 @@ async fn main() -> Result<()> {
         config.log();
 
         color_backtrace::install();
+    }
+
+    // Write PID file, if enabled
+    if let Some(ref path) = config.pid_file {
+        tide::log::info!(
+            "Writing process ID ({}) to {}",
+            process::id(),
+            path.display(),
+        );
+
+        let mut file = File::create(path)?;
+        writeln!(&mut file, "{}", process::id())?;
     }
 
     // Run migrations, if enabled

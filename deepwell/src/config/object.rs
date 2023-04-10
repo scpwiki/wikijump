@@ -74,7 +74,6 @@ pub struct Config {
 
     /// Maximum run time for a render job.
     pub render_timeout: Duration,
-
 }
 
 impl Config {
