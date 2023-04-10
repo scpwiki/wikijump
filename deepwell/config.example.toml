@@ -22,8 +22,8 @@ level = "info"
 address = "[::]:2747"
 
 # The path to write the pid file
-# If null, then no pid file is written.
-pid-file = "deepwell.pid"
+# If excluded or empty, then no pid file is written.
+pid-file = ""
 
 
 [database]
