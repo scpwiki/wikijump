@@ -82,7 +82,7 @@ impl Secrets {
         let s3_region = match env::var("S3_AWS_REGION") {
             // Standard AWS S3 region, parse out into enum.
             Ok(value) => {
-                match get_env!("S3_AWS_REGION").parse() {
+                match value.parse() {
                     Ok(region) => region,
                     Err(error) => {
                         eprintln!("S3_AWS_REGION variable is not a valid AWS region ID: {error}");
