@@ -7,7 +7,6 @@ enable = true
 # The log level to emit at.
 #
 # Possible values:
-# - "off"
 # - "error"
 # - "warning"
 # - "info"
