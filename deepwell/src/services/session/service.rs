@@ -38,9 +38,6 @@ use chrono::Duration;
 use rand::distributions::{Alphanumeric, DistString};
 use rand::thread_rng;
 
-/// Fixed prefix for all session tokens.
-const SESSION_TOKEN_PREFIX: &str = "wj:";
-
 /// Length of each session token.
 const SESSION_TOKEN_LENGTH: usize = 64;
 
@@ -75,7 +72,7 @@ impl SessionService {
         );
 
         let txn = ctx.transaction();
-        let token = Self::new_token();
+        let token = Self::new_token(ctx.config());
         let expiry = if restricted {
             now() + Duration::minutes(RESTRICTED_SESSION_MINUTES)
         } else {
@@ -100,13 +97,13 @@ impl SessionService {
     /// Securely generates a new session token.
     ///
     /// Example generated token: `wj:T9iF6vfjoYYE20QzrybV2C1V4K0LchHXsNVipX8G1GZ9vSJf0rvQpJ4YC8c8MAQ3`.
-    fn new_token() -> String {
+    fn new_token(config: &Config) -> String {
         tide::log::debug!("Generating a new session token");
         let mut rng = thread_rng();
         assert_is_csprng(&rng);
 
         let mut token = Alphanumeric.sample_string(&mut rng, SESSION_TOKEN_LENGTH);
-        token.insert_str(0, SESSION_TOKEN_PREFIX);
+        token.insert_str(0, &config.session_token_prefix);
 
         token
     }
