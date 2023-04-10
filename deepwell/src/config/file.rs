@@ -44,8 +44,11 @@ pub struct ConfigFile {
     logger: Logger,
     server: Server,
     database: Database,
+    security: Security,
+    job: Job,
     locale: Locale,
     ftml: Ftml,
+    user: User,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -72,6 +75,39 @@ struct Database {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "kebab-case")]
+struct Security {
+    authentication_fail_delay: u64,
+    session: Session,
+    mfa: Mfa,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "kebab-case")]
+struct Session {
+    token_prefix: String,
+    token_length: usize,
+    duration_session_minutes: i64,
+    duration_login_minutes: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "kebab-case")]
+struct Mfa {
+    recovery_code_count: usize,
+    recovery_code_length: usize,
+    time_step: u64,
+    time_skew: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "kebab-case")]
+struct Job {
+    delay_ms: u64,
+    prune_session_secs: u64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "kebab-case")]
 struct Locale {
     path: PathBuf,
 }
@@ -80,6 +116,13 @@ struct Locale {
 #[serde(rename_all = "kebab-case")]
 struct Ftml {
     render_timeout_ms: u64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "kebab-case")]
+struct User {
+    default_name_changes: i16,
+    max_name_changes: i16,
 }
 
 impl ConfigFile {
@@ -106,10 +149,38 @@ impl ConfigFile {
                     run_seeder,
                     seeder_path,
                 },
+            security:
+                Security {
+                    authentication_fail_delay,
+                    session:
+                        Session {
+                            token_prefix,
+                            token_length,
+                            duration_session_minutes,
+                            duration_login_minutes,
+                        },
+                    mfa:
+                        Mfa {
+                            recovery_code_count,
+                            recovery_code_length,
+                            time_step,
+                            time_skew,
+                        },
+                },
             locale: Locale {
                 path: localization_path,
             },
+            job:
+                Job {
+                    delay_ms,
+                    prune_session_secs,
+                },
             ftml: Ftml { render_timeout_ms },
+            user:
+                User {
+                    default_name_changes,
+                    max_name_changes,
+                },
         } = self;
 
         Config {
