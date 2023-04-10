@@ -22,7 +22,6 @@ mod args;
 mod file;
 mod object;
 mod secrets;
-mod serde;
 
 pub use self::object::Config;
 pub use self::secrets::Secrets;

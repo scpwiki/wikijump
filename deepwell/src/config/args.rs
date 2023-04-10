@@ -18,7 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::serde::parse_log_level;
 use super::Config;
 use crate::info;
 use clap::builder::{BoolishValueParser, NonEmptyStringValueParser};
@@ -137,10 +136,10 @@ pub fn parse_args() -> Config {
     }
 
     if let Some(value) = matches.remove_one::<String>("log-level") {
-        match parse_log_level(&value) {
-            Some(level) => config.logger_level = level,
-            None => {
-                eprintln!("Invalid logging level: {value}");
+        match value.parse() {
+            Ok(level) => config.logger_level = level,
+            Err(error) => {
+                eprintln!("Invalid logging level: {value} ({error})");
                 process::exit(1);
             }
         }
