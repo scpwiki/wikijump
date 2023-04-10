@@ -19,7 +19,6 @@
  */
 
 use super::prelude::*;
-use crate::config::Config;
 use crate::services::PasswordService;
 use crate::utils::assert_is_csprng;
 use data_encoding::BASE32_NOPAD;
@@ -55,7 +54,9 @@ impl RecoveryCodes {
         let recovery_codes = iter::repeat(())
             .take(config.recovery_code_count)
             .map(|_| {
-                let mut code = Alphanumeric.sample_string(&mut rng, config.recovery_code_length);
+                let mut code =
+                    Alphanumeric.sample_string(&mut rng, config.recovery_code_length);
+
                 code.insert(config.recovery_code_length / 2, '-'); // for readability
                 code
             })

@@ -25,23 +25,6 @@ use crate::services::{PasswordService, UserService};
 use sea_orm::ActiveValue;
 use subtle::ConstantTimeEq;
 
-/// The amount of time to give for each TOTP.
-///
-/// We use 30 seconds because this is standard with helpers
-/// such as Google Authenticator and Authy.
-///
-/// It balances between giving the user enough time to enter a code,
-/// but short enough to make bruteforcing values impractical.
-const TIME_STEP: u64 = 30;
-
-/// The allowed leniency value to account for clock skew.
-///
-/// This represents the seconds that a TOTP is offset by in
-/// determining whether the authentication was accepted.
-///
-/// See <https://github.com/TimDumol/rust-otp/blob/master/src/lib.rs#L56>.
-const TIME_SKEW: i64 = 1;
-
 #[derive(Debug)]
 pub struct MfaService;
 
@@ -146,7 +129,11 @@ impl MfaService {
     ///
     /// # Returns
     /// Nothing on success, yields an `InvalidAuthentication` error on failure.
-    pub async fn verify(user: &UserModel, entered_totp: u32) -> Result<()> {
+    pub async fn verify(
+        ctx: &ServiceContext<'_>,
+        user: &UserModel,
+        entered_totp: u32,
+    ) -> Result<()> {
         tide::log::info!("Verifying TOTP code for user ID {}", user.user_id);
 
         let secret = match &user.multi_factor_secret {
@@ -157,7 +144,11 @@ impl MfaService {
             }
         };
 
-        let actual_totp = otp::make_totp(secret, TIME_STEP, TIME_SKEW)?;
+        let actual_totp = otp::make_totp(
+            secret,
+            ctx.config().totp_time_step,
+            ctx.config().totp_time_skew,
+        )?;
 
         // Constant-time comparison
         if actual_totp.ct_eq(&entered_totp).into() {
