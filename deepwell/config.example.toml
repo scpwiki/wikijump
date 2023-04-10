@@ -54,9 +54,9 @@ path = "../locales"
 
 [ftml]
 
-# How long to allow a render job to run before terminating it.
+# How long (in milliseconds) to allow a render job to run before terminating it.
 #
 # This is to ensure that a parser bug or malicious input cannot
 # crash or freeze the backend. This value should not be too
 # aggressive, but still not extremely long.
-render-timeout = "2s"
+render-timeout-ms = 2000

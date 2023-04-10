@@ -75,7 +75,7 @@ impl ConfigFile {
             locale: Locale {
                 path: localization_path,
             },
-            ftml: Ftml { render_timeout },
+            ftml: Ftml { render_timeout_ms },
         } = self;
 
         Config {
@@ -88,7 +88,7 @@ impl ConfigFile {
             run_seeder,
             seeder_path,
             localization_path,
-            render_timeout,
+            render_timeout: Duration::from_millis(render_timeout_ms),
         }
     }
 }
@@ -124,5 +124,5 @@ struct Locale {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "kebab-case")]
 struct Ftml {
-    render_timeout: Duration,
+    render_timeout_ms: u64,
 }
