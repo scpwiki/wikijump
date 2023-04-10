@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::args;
 use anyhow::Result;
 use std::fs::File;
 use std::io::Read;
@@ -84,8 +85,9 @@ impl Default for Config {
 }
 
 impl Config {
+    #[inline]
     pub fn parse_args() -> Self {
-        todo!()
+        args::parse_args()
     }
 
     pub fn load(path: &Path) -> Result<Self> {

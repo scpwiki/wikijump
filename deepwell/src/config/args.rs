@@ -28,7 +28,7 @@ use std::process;
 use std::time::Duration;
 use tide::log::LevelFilter;
 
-pub fn parse_args(config: &mut Config) {
+pub fn parse_args() -> Config {
     let mut matches = Command::new("DEEPWELL")
         .author(info::PKG_AUTHORS)
         .version(info::VERSION.as_str())
@@ -110,12 +110,27 @@ pub fn parse_args(config: &mut Config) {
             Arg::new("config-file")
                 .value_parser(value_parser!(PathBuf))
                 .action(ArgAction::Set)
-                .default("config.toml")
+                .required(true)
                 .help("The configuration file to use for this DEEPWELL instance."),
         )
         .get_matches();
 
-    // Parse arguments and modify config
+    // Read configuration from path
+
+    let config_path = matches
+        .remove_one::<PathBuf>("config-file")
+        .expect("Required argument not provided");
+
+    let mut config = match Config::load(&config_path) {
+        Ok(config) => config,
+        Err(error) => {
+            eprintln!("Unable to load configuration from file: {error}");
+            process::exit(1);
+        }
+    };
+
+    // Process remaining arguments and modify config
+
     if matches.remove_one::<bool>("disable-log") == Some(true) {
         config.logger = false;
     }
@@ -153,6 +168,8 @@ pub fn parse_args(config: &mut Config) {
     if let Some(value) = matches.remove_one::<PathBuf>("seeder-path") {
         config.seeder_path = value;
     }
+
+    config
 }
 
 fn parse_log_level(value: &str) -> Option<LevelFilter> {
