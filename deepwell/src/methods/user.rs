@@ -19,7 +19,11 @@
  */
 
 use super::prelude::*;
-use crate::services::user::{CreateUser, GetUser, UpdateUser, UpdateUserBody};
+use crate::models::user::Model as UserModel;
+use crate::models::user_alias::Model as UserAliasModel;
+use crate::services::user::{
+    CreateUser, GetUser, GetUserOutput, UpdateUser, UpdateUserBody,
+};
 use crate::web::ProvidedValue;
 
 pub async fn user_create(mut req: ApiRequest) -> ApiResponse {
@@ -45,11 +49,12 @@ pub async fn user_get(mut req: ApiRequest) -> ApiResponse {
     tide::log::info!("Getting user {:?}", reference);
 
     let user = UserService::get(&ctx, reference).await.to_api()?;
+    let aliases = UserAliasService::get_all(&ctx, user.user_id)
+        .await
+        .to_api()?;
 
-    let body = Body::from_json(&user)?;
-    let response = Response::builder(StatusCode::Ok).body(body).into();
     txn.commit().await?;
-    Ok(response)
+    build_user_response(user, aliases, StatusCode::Ok)
 }
 
 pub async fn user_put(mut req: ApiRequest) -> ApiResponse {
@@ -129,5 +134,16 @@ pub async fn user_add_name_change(mut req: ApiRequest) -> ApiResponse {
     let body = Body::from_json(&name_changes)?;
     let response = Response::builder(StatusCode::Ok).body(body).into();
     txn.commit().await?;
+    Ok(response)
+}
+
+fn build_user_response(
+    user: UserModel,
+    aliases: Vec<UserAliasModel>,
+    status: StatusCode,
+) -> ApiResponse {
+    let output = GetUserOutput { user, aliases };
+    let body = Body::from_json(&output)?;
+    let response = Response::builder(status).body(body).into();
     Ok(response)
 }

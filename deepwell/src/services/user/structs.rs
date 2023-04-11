@@ -21,6 +21,7 @@
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user::Model as UserModel;
+use crate::models::user_alias::Model as UserAliasModel;
 use crate::utils::DateTimeWithTimeZone;
 use chrono::NaiveDate;
 use std::collections::HashMap;
@@ -49,6 +50,14 @@ pub struct CreateUserOutput {
 #[serde(rename_all = "camelCase")]
 pub struct GetUser<'a> {
     pub user: Reference<'a>,
+}
+
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct GetUserOutput {
+    #[serde(flatten)]
+    pub user: UserModel,
+    pub aliases: Vec<UserAliasModel>,
 }
 
 #[derive(Deserialize, Debug)]
