@@ -99,7 +99,6 @@ CREATE TABLE site_domain (
     domain TEXT PRIMARY KEY,
     site_id BIGINT NOT NULL REFERENCES site(site_id),
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-    cert_renewed_at TIMESTAMP WITH TIME ZONE,
 
     CHECK (length(domain) > 0)
 );

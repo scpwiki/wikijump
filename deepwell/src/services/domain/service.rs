@@ -115,25 +115,4 @@ impl DomainService {
 
         Ok(models)
     }
-
-    /// Renews the TLS certificate for a domain, if it needs it.
-    ///
-    /// # Returns
-    /// Whether the domain was renewed (`true`) or not (`false`).
-    pub async fn renew_certificate(
-        ctx: &ServiceContext<'_>,
-        domain: &str,
-    ) -> Result<bool> {
-        tide::log::info!("Attempting to renew certificate for {domain}");
-
-        let domain = Self::site_from_domain(ctx, domain).await?;
-        // TODO check if last updated is null or too long ago
-
-        // TODO implement renewal
-        //      https://crates.io/crates/acmev02
-        //
-        //      alternatively, we remove this column and add weekly cron job that invokes a
-        //      command-line thing instead?
-        todo!()
-    }
 }

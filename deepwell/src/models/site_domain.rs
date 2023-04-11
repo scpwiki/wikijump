@@ -10,7 +10,6 @@ pub struct Model {
     pub domain: String,
     pub site_id: i64,
     pub created_at: DateTimeWithTimeZone,
-    pub cert_renewed_at: Option<DateTimeWithTimeZone>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
