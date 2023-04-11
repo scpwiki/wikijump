@@ -18,6 +18,8 @@ pub mod page_vote;
 pub mod sea_orm_active_enums;
 pub mod session;
 pub mod site;
+pub mod site_alias;
+pub mod site_domain;
 pub mod text;
 pub mod user;
 pub mod user_alias;

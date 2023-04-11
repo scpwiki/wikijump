@@ -4,6 +4,7 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 #[sea_orm(table_name = "site")]
 pub struct Model {
     #[sea_orm(primary_key)]
@@ -36,6 +37,8 @@ pub enum Relation {
     PageRevision,
     #[sea_orm(has_many = "super::filter::Entity")]
     Filter,
+    #[sea_orm(has_many = "super::site_domain::Entity")]
+    SiteDomain,
 }
 
 impl Related<super::page_category::Entity> for Entity {
@@ -59,6 +62,12 @@ impl Related<super::page_revision::Entity> for Entity {
 impl Related<super::filter::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Filter.def()
+    }
+}
+
+impl Related<super::site_domain::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::SiteDomain.def()
     }
 }
 

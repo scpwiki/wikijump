@@ -20,7 +20,9 @@
 
 use super::prelude::*;
 use crate::models::site::Model as SiteModel;
-use crate::services::site::{CreateSite, GetSite, UpdateSite};
+use crate::models::site_domain::Model as SiteDomainModel;
+use crate::services::domain::CreateCustomDomain;
+use crate::services::site::{CreateSite, GetSite, GetSiteOutput, UpdateSite};
 
 pub async fn site_create(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
@@ -43,7 +45,12 @@ pub async fn site_get(mut req: ApiRequest) -> ApiResponse {
     tide::log::info!("Getting site {:?}", site);
 
     let site = SiteService::get(&ctx, site).await.to_api()?;
-    build_site_response(&site, StatusCode::Ok)
+    let (aliases, domains) = try_join!(
+        async { Ok(vec![]) }, // TODO create SiteAliasService
+        DomainService::domains_for_site(&ctx, site.site_id),
+    )?;
+
+    build_site_response(site, aliases, domains, StatusCode::Ok)
 }
 
 pub async fn site_put(mut req: ApiRequest) -> ApiResponse {
@@ -59,17 +66,69 @@ pub async fn site_put(mut req: ApiRequest) -> ApiResponse {
     Ok(Response::new(StatusCode::NoContent))
 }
 
+pub async fn site_domain_get(mut req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    let domain = req.body_string().await?;
+    let model = DomainService::site_from_domain(&ctx, &domain)
+        .await
+        .to_api()?;
+
+    let body = Body::from_json(&model)?;
+    txn.commit().await?;
+    Ok(body.into())
+}
+
+pub async fn site_domain_post(mut req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    let input: CreateCustomDomain = req.body_json().await?;
+    DomainService::create(&ctx, input).await.to_api()?;
+
+    txn.commit().await?;
+    Ok(Response::new(StatusCode::NoContent))
+}
+
+pub async fn site_domain_delete(mut req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    let domain = req.body_string().await?;
+    DomainService::delete(&ctx, domain).await.to_api()?;
+
+    txn.commit().await?;
+    Ok(Response::new(StatusCode::NoContent))
+}
+
 pub async fn site_get_from_domain(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
     let domain = req.param("domain")?;
-    let _ = (ctx, domain);
-    todo!()
+    let model = DomainService::site_from_domain(&ctx, domain)
+        .await
+        .to_api()?;
+
+    let body = Body::from_json(&model)?;
+    txn.commit().await?;
+    Ok(body.into())
 }
 
-fn build_site_response(site: &SiteModel, status: StatusCode) -> ApiResponse {
-    let body = Body::from_json(site)?;
+fn build_site_response(
+    site: SiteModel,
+    aliases: Vec<()>, // TODO impl site aliases
+    domains: Vec<SiteDomainModel>,
+    status: StatusCode,
+) -> ApiResponse {
+    let output = GetSiteOutput {
+        site,
+        aliases,
+        domains,
+    };
+
+    let body = Body::from_json(&output)?;
     let response = Response::builder(status).body(body).into();
     Ok(response)
 }

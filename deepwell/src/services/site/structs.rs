@@ -18,6 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::models::site::Model as SiteModel;
+use crate::models::site_domain::Model as SiteDomainModel;
 use crate::web::{ProvidedValue, Reference};
 
 #[derive(Deserialize, Debug)]
@@ -40,6 +42,15 @@ pub struct CreateSiteOutput {
 #[serde(rename_all = "camelCase")]
 pub struct GetSite<'a> {
     pub site: Reference<'a>,
+}
+
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct GetSiteOutput {
+    #[serde(flatten)]
+    pub site: SiteModel,
+    pub aliases: Vec<()>,
+    pub domains: Vec<SiteDomainModel>,
 }
 
 #[derive(Deserialize, Debug)]
