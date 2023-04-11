@@ -37,7 +37,7 @@ otp = { git = "https://github.com/TimDumol/rust-otp" }
 rand = "0.8"
 ref-map = "0.1"
 regex = "1"
-rust-s3 = { version = "0.32", features = ["with-async-std"], default-features = false }
+rust-s3 = { version = "0.33", features = ["with-async-std"], default-features = false }
 sea-orm = { version = "0.11", features = ["sqlx-postgres", "runtime-async-std-rustls", "postgres-array", "macros"] }
 sea-query = "0.28"
 serde = { version = "1", features = ["derive"] }
