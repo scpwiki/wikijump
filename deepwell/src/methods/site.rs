@@ -46,7 +46,7 @@ pub async fn site_get(mut req: ApiRequest) -> ApiResponse {
 
     let site = SiteService::get(&ctx, site).await.to_api()?;
     let (aliases, domains) = try_join!(
-        async { Ok(()) }, // TODO create SiteAliasService
+        async { Ok(vec![]) }, // TODO create SiteAliasService
         DomainService::domains_for_site(&ctx, site.site_id),
     )?;
 
@@ -118,12 +118,15 @@ pub async fn site_get_from_domain(req: ApiRequest) -> ApiResponse {
 
 fn build_site_response(
     site: SiteModel,
-    aliases: (),
+    aliases: Vec<()>, // TODO impl site aliases
     domains: Vec<SiteDomainModel>,
     status: StatusCode,
 ) -> ApiResponse {
-    aliases; // TODO use SiteAliasService
-    let output = GetSiteOutput { site, domains };
+    let output = GetSiteOutput {
+        site,
+        aliases,
+        domains,
+    };
 
     let body = Body::from_json(&output)?;
     let response = Response::builder(status).body(body).into();

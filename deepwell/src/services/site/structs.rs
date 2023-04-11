@@ -49,7 +49,7 @@ pub struct GetSite<'a> {
 pub struct GetSiteOutput {
     #[serde(flatten)]
     pub site: SiteModel,
-    // TODO site aliases here
+    pub aliases: Vec<()>,
     pub domains: Vec<SiteDomainModel>,
 }
 
