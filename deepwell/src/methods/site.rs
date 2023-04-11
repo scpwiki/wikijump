@@ -107,7 +107,9 @@ pub async fn site_get_from_domain(req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let domain = req.param("domain")?;
-    let model = DomainService::site_from_domain(&ctx, &domain).await.to_api()?;
+    let model = DomainService::site_from_domain(&ctx, domain)
+        .await
+        .to_api()?;
 
     let body = Body::from_json(&model)?;
     txn.commit().await?;
@@ -120,7 +122,7 @@ fn build_site_response(
     domains: Vec<SiteDomainModel>,
     status: StatusCode,
 ) -> ApiResponse {
-    let _ = aliases; // TODO use SiteAliasService
+    aliases; // TODO use SiteAliasService
     let output = GetSiteOutput { site, domains };
 
     let body = Body::from_json(&output)?;

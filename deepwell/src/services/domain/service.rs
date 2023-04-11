@@ -42,7 +42,6 @@ impl DomainService {
             domain: Set(domain),
             site_id: Set(site_id),
             created_at: Set(now()),
-            ..Default::default()
         };
         model.insert(txn).await?;
         Ok(())
