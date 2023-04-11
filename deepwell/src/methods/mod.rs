@@ -33,7 +33,8 @@ mod prelude {
         BlobService, CategoryService, DomainService, Error as ServiceError,
         FileRevisionService, FileService, LinkService, PageRevisionService, PageService,
         ParentService, PostTransactionToApiResponse, RenderService, RequestFetchService,
-        ScoreService, ServiceContext, SiteService, TextService, UserService, VoteService,
+        ScoreService, ServiceContext, SiteService, TextService, UserAliasService,
+        UserService, VoteService,
     };
     pub use crate::utils::error_response;
     pub use crate::web::HttpUnwrap;

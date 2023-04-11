@@ -20,11 +20,11 @@
 
 use super::prelude::*;
 use crate::models::user::Model as UserModel;
+use crate::models::user_alias::Model as UserAliasModel;
 use crate::services::user::{
-    CreateUser, GetUser, UpdateUser, UpdateUserBody, UserIdentityOutput, UserInfoOutput,
-    UserProfileOutput,
+    CreateUser, GetUser, GetUserOutput, UpdateUser, UpdateUserBody,
 };
-use crate::web::{ProvidedValue, UserDetails, UserDetailsQuery};
+use crate::web::ProvidedValue;
 
 pub async fn user_create(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
@@ -45,13 +45,16 @@ pub async fn user_get(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let UserDetailsQuery { detail } = req.query()?;
     let GetUser { user: reference } = req.body_json().await?;
-    tide::log::info!("Getting user {:?} (details {})", reference, detail.name());
+    tide::log::info!("Getting user {:?}", reference);
 
     let user = UserService::get(&ctx, reference).await.to_api()?;
+    let aliases = UserAliasService::get_all(&ctx, user.user_id)
+        .await
+        .to_api()?;
+
     txn.commit().await?;
-    build_user_response(&user, detail, StatusCode::Ok)
+    build_user_response(user, aliases, StatusCode::Ok)
 }
 
 pub async fn user_put(mut req: ApiRequest) -> ApiResponse {
@@ -135,16 +138,12 @@ pub async fn user_add_name_change(mut req: ApiRequest) -> ApiResponse {
 }
 
 fn build_user_response(
-    user: &UserModel,
-    user_detail: UserDetails,
+    user: UserModel,
+    aliases: Vec<UserAliasModel>,
     status: StatusCode,
 ) -> ApiResponse {
-    // TODO: allow dumping the entire user model (internal API only)
-    let body = match user_detail {
-        UserDetails::Identity => Body::from_json(&UserIdentityOutput::from(user))?,
-        UserDetails::Info => Body::from_json(&UserInfoOutput::from(user))?,
-        UserDetails::Profile => Body::from_json(&UserProfileOutput::from(user))?,
-    };
+    let output = GetUserOutput { user, aliases };
+    let body = Body::from_json(&output)?;
     let response = Response::builder(status).body(body).into();
     Ok(response)
 }
