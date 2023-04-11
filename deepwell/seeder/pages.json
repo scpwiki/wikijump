@@ -62,6 +62,52 @@
     },
     {
         "site": {
+            "slug": "test",
+            "name": "Test site",
+            "tagline": "The other kind of sandbox",
+            "description": "Platform testing and experiments",
+            "locale": "en"
+        },
+        "pages": [
+            {
+                "slug": "start",
+                "title": "Wikijump Test Site",
+                "wikitext": "test-start"
+            },
+            {
+                "slug": "nav:side",
+                "title": "Sidebar",
+                "wikitext": "sidebar"
+            },
+            {
+                "slug": "nav:top",
+                "title": "Topbar",
+                "wikitext": "topbar"
+            },
+            {
+                "slug": "system:join",
+                "title": "Join this site",
+                "wikitext": "no-join"
+            },
+            {
+                "slug": "system:members",
+                "title": "Site Members",
+                "wikitext": "members"
+            },
+            {
+                "slug": "system:recent-changes",
+                "title": "Recent Changes",
+                "wikitext": "recent-changes"
+            },
+            {
+                "slug": "system:page-tags",
+                "title": "Page Tags",
+                "wikitext": "page-tags"
+            }
+        ]
+    },
+    {
+        "site": {
             "slug": "template-en",
             "name": "Default template site",
             "tagline": "",
