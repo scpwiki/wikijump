@@ -19,7 +19,8 @@
  */
 
 #[derive(Deserialize, Debug)]
-pub struct CustomDomain {
+#[serde(rename_all = "camelCase")]
+pub struct CreateCustomDomain {
     pub domain: String,
     pub site_id: i64,
 }

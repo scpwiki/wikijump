@@ -20,7 +20,8 @@
 
 use super::prelude::*;
 use crate::models::site::Model as SiteModel;
-use crate::services::site::{CreateSite, GetSite, UpdateSite};
+use crate::models::site_domain::Model as SiteDomainModel;
+use crate::services::site::{CreateSite, GetSite, GetSiteOutput, UpdateSite};
 
 pub async fn site_create(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
@@ -43,7 +44,12 @@ pub async fn site_get(mut req: ApiRequest) -> ApiResponse {
     tide::log::info!("Getting site {:?}", site);
 
     let site = SiteService::get(&ctx, site).await.to_api()?;
-    build_site_response(&site, StatusCode::Ok)
+    let (aliases, domains) = try_join!(
+        async { Ok(()) }, // TODO create SiteAliasService
+        DomainService::domains_for_site(&ctx, site.site_id),
+    )?;
+
+    build_site_response(site, aliases, domains, StatusCode::Ok)
 }
 
 pub async fn site_put(mut req: ApiRequest) -> ApiResponse {
@@ -59,6 +65,18 @@ pub async fn site_put(mut req: ApiRequest) -> ApiResponse {
     Ok(Response::new(StatusCode::NoContent))
 }
 
+pub async fn site_domain_post(req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+    todo!()
+}
+
+pub async fn site_domain_delete(req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+    todo!()
+}
+
 pub async fn site_get_from_domain(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
@@ -68,8 +86,16 @@ pub async fn site_get_from_domain(req: ApiRequest) -> ApiResponse {
     todo!()
 }
 
-fn build_site_response(site: &SiteModel, status: StatusCode) -> ApiResponse {
-    let body = Body::from_json(site)?;
+fn build_site_response(
+    site: SiteModel,
+    aliases: (),
+    domains: Vec<SiteDomainModel>,
+    status: StatusCode,
+) -> ApiResponse {
+    let _ = aliases; // TODO use SiteAliasService
+    let output = GetSiteOutput { site, domains };
+
+    let body = Body::from_json(&output)?;
     let response = Response::builder(status).body(body).into();
     Ok(response)
 }

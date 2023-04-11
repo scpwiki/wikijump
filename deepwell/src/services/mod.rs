@@ -85,6 +85,7 @@ pub use self::authentication::AuthenticationService;
 pub use self::blob::BlobService;
 pub use self::category::CategoryService;
 pub use self::context::ServiceContext;
+pub use self::domain::DomainService;
 pub use self::error::*;
 pub use self::file::FileService;
 pub use self::file_revision::FileRevisionService;

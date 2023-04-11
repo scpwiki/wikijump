@@ -155,6 +155,9 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
     // Site
     app.at("/site").get(site_get).put(site_put);
     app.at("/site/create").post(site_create);
+    app.at("/site/domain")
+        .post(site_domain_post)
+        .delete(site_domain_delete);
     app.at("/site/fromDomain/:domain").get(site_get_from_domain);
 
     // Category

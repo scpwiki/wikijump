@@ -27,7 +27,7 @@ pub struct DomainService;
 impl DomainService {
     pub async fn create(
         ctx: &ServiceContext<'_>,
-        CustomDomain { domain, site_id }: CustomDomain,
+        CreateCustomDomain { domain, site_id }: CreateCustomDomain,
     ) -> Result<()> {
         tide::log::info!("Creating custom domain '{domain}' (site ID {site_id})");
 
@@ -50,14 +50,18 @@ impl DomainService {
     /// Delete the given custom domain.
     ///
     /// Yields `Error::NotFound` if it's missing.
-    pub async fn delete(
-        ctx: &ServiceContext<'_>,
-        CustomDomain { domain, site_id }: CustomDomain,
-    ) -> Result<()> {
-        tide::log::info!("Deleting custom domain '{domain}' (site ID {site_id})");
+    pub async fn delete(ctx: &ServiceContext<'_>, domain: String) -> Result<()> {
+        tide::log::info!("Deleting custom domain '{domain}'");
 
         let txn = ctx.transaction();
-        todo!()
+        let DeleteResult { rows_affected, .. } =
+            SiteDomain::delete_by_id(domain).exec(txn).await?;
+
+        if rows_affected == 1 {
+            Ok(())
+        } else {
+            Err(Error::NotFound)
+        }
     }
 
     /// Optional version of `site_from_domain()`.
@@ -96,27 +100,29 @@ impl DomainService {
         find_or_error(Self::site_from_domain_optional(ctx, domain)).await
     }
 
-    /// Optional version of `domain_for_site()`.
-    pub async fn domain_for_site_optional(
+    /// Gets all custom domains for this site.
+    pub async fn domains_for_site(
         ctx: &ServiceContext<'_>,
         site_id: i64,
-    ) -> Result<Option<SiteDomainModel>> {
-        tide::log::info!("Getting domain for site ID {site_id}");
+    ) -> Result<Vec<SiteDomainModel>> {
+        tide::log::info!("Getting domains for site ID {site_id}");
 
         let txn = ctx.transaction();
-        let model = SiteDomain::find()
+        let models = SiteDomain::find()
             .filter(site_domain::Column::SiteId.eq(site_id))
-            .one(txn)
+            .all(txn)
             .await?;
 
-        Ok(model)
+        Ok(models)
     }
 
-    /// Gets the custom site domain configuration for the given site.
-    pub async fn domain_for_site(
+    /// Renews the TLS certificate for a domain, if it needs it.
+    pub async fn renew_certificate(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-    ) -> Result<SiteDomainModel> {
-        find_or_error(Self::domain_for_site_optional(ctx, site_id)).await
+        domain: &str,
+    ) -> Result<bool> {
+        tide::log::info!("Attempting to renew certificate for {domain}");
+        // TODO
+        todo!()
     }
 }
