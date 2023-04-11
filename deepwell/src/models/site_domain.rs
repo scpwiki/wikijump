@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false, column_type = "Text")]
     pub domain: String,
-    pub site_id: Option<i64>,
+    pub site_id: i64,
     pub created_at: DateTimeWithTimeZone,
     pub cert_renewed_at: Option<DateTimeWithTimeZone>,
 }

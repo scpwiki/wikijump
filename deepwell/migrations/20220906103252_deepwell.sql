@@ -97,7 +97,7 @@ CREATE TABLE site (
 
 CREATE TABLE site_domain (
     domain TEXT PRIMARY KEY,
-    site_id BIGINT REFERENCES site(site_id),
+    site_id BIGINT NOT NULL REFERENCES site(site_id),
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     cert_renewed_at TIMESTAMP WITH TIME ZONE,
 
@@ -107,8 +107,8 @@ CREATE TABLE site_domain (
 CREATE TABLE site_alias (
     alias_id BIGSERIAL PRIMARY KEY,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-    created_by BIGINT REFERENCES "user"(user_id),
-    site_id BIGINT REFERENCES site(site_id),
+    created_by BIGINT NOT NULL REFERENCES "user"(user_id),
+    site_id BIGINT NOT NULL REFERENCES site(site_id),
     slug TEXT UNIQUE
 );
 

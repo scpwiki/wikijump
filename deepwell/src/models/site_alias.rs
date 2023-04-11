@@ -9,8 +9,8 @@ pub struct Model {
     #[sea_orm(primary_key)]
     pub alias_id: i64,
     pub created_at: DateTimeWithTimeZone,
-    pub created_by: Option<i64>,
-    pub site_id: Option<i64>,
+    pub created_by: i64,
+    pub site_id: i64,
     #[sea_orm(column_type = "Text", nullable, unique)]
     pub slug: Option<String>,
 }
