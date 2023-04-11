@@ -95,6 +95,23 @@ CREATE TABLE site (
     UNIQUE (slug, deleted_at)
 );
 
+CREATE TABLE site_domain (
+    domain TEXT PRIMARY KEY,
+    site_id BIGINT REFERENCES site(site_id),
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+    cert_renewed_at TIMESTAMP WITH TIME ZONE,
+
+    CHECK (length(domain) > 0)
+);
+
+CREATE TABLE site_alias (
+    alias_id BIGSERIAL PRIMARY KEY,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+    created_by BIGINT REFERENCES "user"(user_id),
+    site_id BIGINT REFERENCES site(site_id),
+    slug TEXT UNIQUE
+);
+
 --
 -- Session
 --
