@@ -19,12 +19,8 @@
  */
 
 use super::prelude::*;
-use crate::models::user::Model as UserModel;
-use crate::services::user::{
-    CreateUser, GetUser, UpdateUser, UpdateUserBody, UserIdentityOutput, UserInfoOutput,
-    UserProfileOutput,
-};
-use crate::web::{ProvidedValue, UserDetails, UserDetailsQuery};
+use crate::services::user::{CreateUser, GetUser, UpdateUser, UpdateUserBody};
+use crate::web::ProvidedValue;
 
 pub async fn user_create(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
@@ -45,13 +41,15 @@ pub async fn user_get(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let UserDetailsQuery { detail } = req.query()?;
     let GetUser { user: reference } = req.body_json().await?;
-    tide::log::info!("Getting user {:?} (details {})", reference, detail.name());
+    tide::log::info!("Getting user {:?}", reference);
 
     let user = UserService::get(&ctx, reference).await.to_api()?;
+
+    let body = Body::from_json(&user)?;
+    let response = Response::builder(StatusCode::Ok).body(body).into();
     txn.commit().await?;
-    build_user_response(&user, detail, StatusCode::Ok)
+    Ok(response)
 }
 
 pub async fn user_put(mut req: ApiRequest) -> ApiResponse {
@@ -131,20 +129,5 @@ pub async fn user_add_name_change(mut req: ApiRequest) -> ApiResponse {
     let body = Body::from_json(&name_changes)?;
     let response = Response::builder(StatusCode::Ok).body(body).into();
     txn.commit().await?;
-    Ok(response)
-}
-
-fn build_user_response(
-    user: &UserModel,
-    user_detail: UserDetails,
-    status: StatusCode,
-) -> ApiResponse {
-    // TODO: allow dumping the entire user model (internal API only)
-    let body = match user_detail {
-        UserDetails::Identity => Body::from_json(&UserIdentityOutput::from(user))?,
-        UserDetails::Info => Body::from_json(&UserInfoOutput::from(user))?,
-        UserDetails::Profile => Body::from_json(&UserProfileOutput::from(user))?,
-    };
-    let response = Response::builder(status).body(body).into();
     Ok(response)
 }

@@ -26,7 +26,6 @@ mod page_order;
 mod provided_value;
 mod reference;
 mod unwrap;
-mod user_details;
 
 pub use self::connection_type::ConnectionType;
 pub use self::fetch_direction::FetchDirection;
@@ -36,4 +35,3 @@ pub use self::page_order::{PageOrder, PageOrderColumn};
 pub use self::provided_value::ProvidedValue;
 pub use self::reference::Reference;
 pub use self::unwrap::HttpUnwrap;
-pub use self::user_details::{UserDetails, UserDetailsQuery};
