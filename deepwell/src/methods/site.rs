@@ -21,6 +21,7 @@
 use super::prelude::*;
 use crate::models::site::Model as SiteModel;
 use crate::models::site_domain::Model as SiteDomainModel;
+use crate::services::domain::CreateCustomDomain;
 use crate::services::site::{CreateSite, GetSite, GetSiteOutput, UpdateSite};
 
 pub async fn site_create(mut req: ApiRequest) -> ApiResponse {
@@ -65,10 +66,29 @@ pub async fn site_put(mut req: ApiRequest) -> ApiResponse {
     Ok(Response::new(StatusCode::NoContent))
 }
 
-pub async fn site_domain_post(req: ApiRequest) -> ApiResponse {
+pub async fn site_domain_get(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
-    todo!()
+
+    let domain = req.body_string().await?;
+    let model = DomainService::site_from_domain(&ctx, &domain)
+        .await
+        .to_api()?;
+
+    let body = Body::from_json(&model)?;
+    txn.commit().await?;
+    Ok(body.into())
+}
+
+pub async fn site_domain_post(mut req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    let input: CreateCustomDomain = req.body_json().await?;
+    DomainService::create(&ctx, input).await.to_api()?;
+
+    txn.commit().await?;
+    Ok(Response::new(StatusCode::NoContent))
 }
 
 pub async fn site_domain_delete(req: ApiRequest) -> ApiResponse {
