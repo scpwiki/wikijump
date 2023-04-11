@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::models::site::{self, Entity as Site, Model as SiteModel};
 use crate::models::site_domain::{self, Entity as SiteDomain, Model as SiteDomainModel};
 
 #[derive(Debug)]
@@ -68,11 +69,13 @@ impl DomainService {
     pub async fn site_from_domain_optional(
         ctx: &ServiceContext<'_>,
         domain: &str,
-    ) -> Result<Option<SiteDomainModel>> {
+    ) -> Result<Option<SiteModel>> {
         tide::log::info!("Getting site for custom domain '{domain}'");
 
+        // Join with the site table so we can get that data, rather than just the ID.
         let txn = ctx.transaction();
-        let model = SiteDomain::find()
+        let model = Site::find()
+            .join(JoinType::Join, site::Relation::SiteDomain.def())
             .filter(site_domain::Column::Domain.eq(domain))
             .one(txn)
             .await?;
@@ -88,7 +91,7 @@ impl DomainService {
     ) -> Result<bool> {
         Self::site_from_domain_optional(ctx, domain)
             .await
-            .map(|domain| domain.is_some())
+            .map(|site| site.is_some())
     }
 
     /// Gets the custom site domain configuration for the given domain.
@@ -96,7 +99,7 @@ impl DomainService {
     pub async fn site_from_domain(
         ctx: &ServiceContext<'_>,
         domain: &str,
-    ) -> Result<SiteDomainModel> {
+    ) -> Result<SiteModel> {
         find_or_error(Self::site_from_domain_optional(ctx, domain)).await
     }
 
