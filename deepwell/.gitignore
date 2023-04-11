@@ -4,5 +4,10 @@ target/
 # Secrets
 .env
 
-# Logging
+# Local configuration
+/config*.toml
+!config.example.toml
+
+# Runtime
 *.log
+*.pid

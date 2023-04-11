@@ -21,7 +21,7 @@
 #![forbid(unsafe_code)]
 #![deny(missing_debug_implementations)]
 
-//! A web server to expose Wikijump operations via an internal trusted REST API.
+//! A web server to expose Wikijump operations via an internal REST API.
 
 #[macro_use]
 extern crate futures;
@@ -51,13 +51,16 @@ mod services;
 mod utils;
 mod web;
 
-use self::config::Config;
+use self::config::SetupConfig;
 use anyhow::Result;
+use std::fs::File;
+use std::io::Write;
+use std::process;
 
 #[async_std::main]
 async fn main() -> Result<()> {
     // Load the configuration so we can set up
-    let config = Config::load();
+    let SetupConfig { secrets, config } = SetupConfig::load();
 
     // Copy fields we need
     let socket_address = config.address;
@@ -73,13 +76,25 @@ async fn main() -> Result<()> {
         color_backtrace::install();
     }
 
+    // Write PID file, if enabled
+    if let Some(ref path) = config.pid_file {
+        tide::log::info!(
+            "Writing process ID ({}) to {}",
+            process::id(),
+            path.display(),
+        );
+
+        let mut file = File::create(path)?;
+        writeln!(&mut file, "{}", process::id())?;
+    }
+
     // Run migrations, if enabled
     if run_migrations {
-        database::migrate(&config.database_url).await?;
+        database::migrate(&secrets.database_url).await?;
     }
 
     // Set up server state
-    let app_state = api::build_server_state(config).await?;
+    let app_state = api::build_server_state(config, secrets).await?;
 
     // Run seeder, if enabled
     if run_seeder {

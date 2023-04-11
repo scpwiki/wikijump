@@ -36,7 +36,7 @@ impl AuthenticationService {
         }: AuthenticateUser,
     ) -> Result<AuthenticateUserOutput> {
         let auth = Self::get_user_auth(ctx, &name_or_email).await?;
-        PasswordService::verify(&password, &auth.password_hash).await?;
+        PasswordService::verify(ctx, &password, &auth.password_hash).await?;
 
         // User not found, return authentication failure
         if !auth.valid {
@@ -69,7 +69,7 @@ impl AuthenticationService {
         // Process input, verifying depending on type
         match totp_or_code.parse() {
             // If the value is a positive integer, treat it as a TOTP
-            Ok(totp) => MfaService::verify(&user, totp).await?,
+            Ok(totp) => MfaService::verify(ctx, &user, totp).await?,
 
             // Otherwise treat it as a recovery code string
             //

@@ -8,7 +8,7 @@ keywords = ["wikijump", "api", "backend", "wiki"]
 categories = ["asynchronous", "database", "web-programming::http-server"]
 exclude = [".gitignore", ".editorconfig"]
 
-version = "2023.4.9"
+version = "2023.4.10"
 authors = ["Emmie Maeda <emmie.maeda@gmail.com>"]
 edition = "2021" # this is *not* the same as the current year
 
@@ -50,6 +50,7 @@ strum_macros = "0.24"
 subtle = "2.4"
 thiserror = "1"
 tide = "0.16"
+toml = { version = "0.7", features = ["parse"] }
 typenum = "1"
 unic-langid = "0.9"
 void = "1"

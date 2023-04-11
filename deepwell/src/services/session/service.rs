@@ -34,24 +34,8 @@ use super::prelude::*;
 use crate::models::session::{self, Entity as Session, Model as SessionModel};
 use crate::models::user::{self, Entity as User, Model as UserModel};
 use crate::utils::assert_is_csprng;
-use chrono::Duration;
 use rand::distributions::{Alphanumeric, DistString};
 use rand::thread_rng;
-
-/// Fixed prefix for all session tokens.
-const SESSION_TOKEN_PREFIX: &str = "wj:";
-
-/// Length of each session token.
-const SESSION_TOKEN_LENGTH: usize = 64;
-
-/// Number of minutes that normal sessions last before expiring.
-const NORMAL_SESSION_MINUTES: i64 = 30;
-
-/// Number of minutes that restricted sessions last.
-///
-/// This is essentially the time the user has to finish logging in
-/// before they must begin again.
-const RESTRICTED_SESSION_MINUTES: i64 = 5;
 
 #[derive(Debug)]
 pub struct SessionService;
@@ -75,11 +59,12 @@ impl SessionService {
         );
 
         let txn = ctx.transaction();
-        let token = Self::new_token();
+        let config = ctx.config();
+        let token = Self::new_token(config);
         let expiry = if restricted {
-            now() + Duration::minutes(RESTRICTED_SESSION_MINUTES)
+            now() + config.restricted_session_duration
         } else {
-            now() + Duration::minutes(NORMAL_SESSION_MINUTES)
+            now() + config.normal_session_duration
         };
 
         let model = session::ActiveModel {
@@ -100,13 +85,13 @@ impl SessionService {
     /// Securely generates a new session token.
     ///
     /// Example generated token: `wj:T9iF6vfjoYYE20QzrybV2C1V4K0LchHXsNVipX8G1GZ9vSJf0rvQpJ4YC8c8MAQ3`.
-    fn new_token() -> String {
+    fn new_token(config: &Config) -> String {
         tide::log::debug!("Generating a new session token");
         let mut rng = thread_rng();
         assert_is_csprng(&rng);
 
-        let mut token = Alphanumeric.sample_string(&mut rng, SESSION_TOKEN_LENGTH);
-        token.insert_str(0, SESSION_TOKEN_PREFIX);
+        let mut token = Alphanumeric.sample_string(&mut rng, config.session_token_length);
+        token.insert_str(0, &config.session_token_prefix);
 
         token
     }
@@ -313,14 +298,4 @@ impl SessionService {
         tide::log::debug!("{rows_affected} expired sessions were pruned");
         Ok(rows_affected)
     }
-}
-
-#[test]
-fn new_token() {
-    let token = SessionService::new_token();
-    assert!(token.starts_with(SESSION_TOKEN_PREFIX));
-    assert_eq!(
-        token.len(),
-        SESSION_TOKEN_LENGTH + SESSION_TOKEN_PREFIX.len(),
-    );
 }

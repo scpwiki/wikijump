@@ -49,9 +49,6 @@ services:
       - files
     environment:
       - "DATABASE_URL=postgres://wikijump:wikijump@database/wikijump"
-      - "LOCALIZATION_PATH=/opt/locales"
-      - "RUN_MIGRATIONS=true"
-      - "RUN_SEEDER=true"
       - "S3_BUCKET=deepwell-files"
       - "S3_REGION_NAME=local"
       - "S3_PATH_STYLE=true"

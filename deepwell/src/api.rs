@@ -26,7 +26,7 @@
 //! This module should only contain definitions for the web server and its routes, and
 //! not any of the implementations themselves. Those should be in the `methods` module.
 
-use crate::config::Config;
+use crate::config::{Config, Secrets};
 use crate::database;
 use crate::locales::Localizations;
 use crate::methods::{
@@ -57,10 +57,13 @@ pub struct ServerState {
     pub s3_bucket: Bucket,
 }
 
-pub async fn build_server_state(config: Config) -> Result<ApiServerState> {
+pub async fn build_server_state(
+    config: Config,
+    secrets: Secrets,
+) -> Result<ApiServerState> {
     // Connect to database
     tide::log::info!("Connecting to PostgreSQL database");
-    let database = database::connect(&config.database_url).await?;
+    let database = database::connect(&secrets.database_url).await?;
 
     // Load localization data
     tide::log::info!("Loading localization data");
@@ -71,12 +74,12 @@ pub async fn build_server_state(config: Config) -> Result<ApiServerState> {
 
     let s3_bucket = {
         let mut bucket = Bucket::new(
-            &config.s3_bucket,
-            config.s3_region.clone(),
-            config.s3_credentials.clone(),
+            &secrets.s3_bucket,
+            secrets.s3_region.clone(),
+            secrets.s3_credentials.clone(),
         )?;
 
-        if config.s3_path_style {
+        if secrets.s3_path_style {
             bucket = bucket.with_path_style();
         }
 
@@ -122,6 +125,7 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
     app.at("/version").get(version);
     app.at("/version/full").get(full_version);
     app.at("/hostname").get(hostname);
+    app.at("/config").get(config_dump);
     app.at("/normalize/:input").all(normalize_method);
     app.at("/teapot")
         .get(|_| async { error_response(StatusCode::ImATeapot, "🫖") });

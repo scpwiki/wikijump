@@ -30,10 +30,6 @@ use regex::Regex;
 use sea_orm::ActiveValue;
 use std::cmp;
 
-// TODO make these configurable
-const DEFAULT_NAME_CHANGES: i16 = 3;
-const MAX_NAME_CHANGES: i16 = 3;
-
 lazy_static! {
     static ref LEADING_TRAILING_CHARS: Regex =
         Regex::new(r"(^[\-\s]+)|([\-\s+]$)").unwrap();
@@ -157,7 +153,7 @@ impl UserService {
             user_type: Set(user_type),
             name: Set(name),
             slug: Set(slug.clone()),
-            name_changes_left: Set(DEFAULT_NAME_CHANGES),
+            name_changes_left: Set(ctx.config().default_name_changes),
             email: Set(email),
             email_verified_at: Set(None),
             password: Set(password),
@@ -476,7 +472,8 @@ impl UserService {
         let txn = ctx.transaction();
         let user = Self::get(ctx, reference).await?;
 
-        let name_changes = cmp::min(user.name_changes_left + 1, MAX_NAME_CHANGES);
+        let max_name_changes = ctx.config().max_name_changes;
+        let name_changes = cmp::min(user.name_changes_left + 1, max_name_changes);
         let model = user::ActiveModel {
             user_id: Set(user.user_id),
             name_changes_left: Set(name_changes),
@@ -489,7 +486,7 @@ impl UserService {
             user.user_id,
             user.name_changes_left,
             name_changes,
-            MAX_NAME_CHANGES,
+            max_name_changes,
         );
 
         model.update(txn).await?;

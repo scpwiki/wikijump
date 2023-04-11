@@ -1,5 +1,5 @@
 /*
- * constants.rs
+ * config/mod.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -18,10 +18,27 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#![allow(dead_code)]
+mod args;
+mod file;
+mod object;
+mod secrets;
 
-// See seeder data for these values
-pub const ADMIN_USER_ID: i64 = 1;
-pub const SYSTEM_USER_ID: i64 = 2;
-pub const ANONYMOUS_USER_ID: i64 = 2;
-pub const SAMPLE_USER_ID: i64 = 2;
+pub use self::object::Config;
+pub use self::secrets::Secrets;
+
+use self::args::parse_args;
+
+#[derive(Debug, Clone)]
+pub struct SetupConfig {
+    pub secrets: Secrets,
+    pub config: Config,
+}
+
+impl SetupConfig {
+    pub fn load() -> Self {
+        let secrets = Secrets::load();
+        let config = parse_args();
+
+        SetupConfig { secrets, config }
+    }
+}

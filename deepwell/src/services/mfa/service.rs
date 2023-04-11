@@ -25,23 +25,6 @@ use crate::services::{PasswordService, UserService};
 use sea_orm::ActiveValue;
 use subtle::ConstantTimeEq;
 
-/// The amount of time to give for each TOTP.
-///
-/// We use 30 seconds because this is standard with helpers
-/// such as Google Authenticator and Authy.
-///
-/// It balances between giving the user enough time to enter a code,
-/// but short enough to make bruteforcing values impractical.
-const TIME_STEP: u64 = 30;
-
-/// The allowed leniency value to account for clock skew.
-///
-/// This represents the seconds that a TOTP is offset by in
-/// determining whether the authentication was accepted.
-///
-/// See <https://github.com/TimDumol/rust-otp/blob/master/src/lib.rs#L56>.
-const TIME_SKEW: i64 = 1;
-
 #[derive(Debug)]
 pub struct MfaService;
 
@@ -72,7 +55,7 @@ impl MfaService {
         // Securely generate and store secrets
         tide::log::debug!("Generating MFA secrets for user ID {}", user.user_id);
         let totp_secret = generate_totp_secret();
-        let recovery = RecoveryCodes::generate()?;
+        let recovery = RecoveryCodes::generate(ctx.config())?;
 
         tide::log::debug!("Committing MFA secrets for user ID {}", user.user_id);
         UserService::set_mfa_secrets(
@@ -109,7 +92,7 @@ impl MfaService {
 
         // Securely generate and store secrets
         tide::log::debug!("Generating recovery codes for user ID {}", user.user_id);
-        let recovery = RecoveryCodes::generate()?;
+        let recovery = RecoveryCodes::generate(ctx.config())?;
 
         tide::log::debug!("Committing recovery codes for user ID {}", user.user_id);
         UserService::set_mfa_secrets(
@@ -146,7 +129,11 @@ impl MfaService {
     ///
     /// # Returns
     /// Nothing on success, yields an `InvalidAuthentication` error on failure.
-    pub async fn verify(user: &UserModel, entered_totp: u32) -> Result<()> {
+    pub async fn verify(
+        ctx: &ServiceContext<'_>,
+        user: &UserModel,
+        entered_totp: u32,
+    ) -> Result<()> {
         tide::log::info!("Verifying TOTP code for user ID {}", user.user_id);
 
         let secret = match &user.multi_factor_secret {
@@ -157,7 +144,11 @@ impl MfaService {
             }
         };
 
-        let actual_totp = otp::make_totp(secret, TIME_STEP, TIME_SKEW)?;
+        let actual_totp = otp::make_totp(
+            secret,
+            ctx.config().totp_time_step,
+            ctx.config().totp_time_skew,
+        )?;
 
         // Constant-time comparison
         if actual_totp.ct_eq(&entered_totp).into() {
@@ -195,9 +186,14 @@ impl MfaService {
         // Constant-time, check all the recovery codes even when we know we have a match.
         let mut matched = None;
         for recovery_code_hash in recovery_code_hashes {
-            if PasswordService::verify_sleep(recovery_code, recovery_code_hash, false)
-                .await
-                .is_ok()
+            if PasswordService::verify_sleep(
+                ctx,
+                recovery_code,
+                recovery_code_hash,
+                false,
+            )
+            .await
+            .is_ok()
             {
                 matched = Some(recovery_code_hash);
             }
@@ -215,7 +211,7 @@ impl MfaService {
             // Otherwise we have variable-time recovery code checks based on whether
             // the recovery code was correct or not.
             None => {
-                PasswordService::failure_sleep().await;
+                PasswordService::failure_sleep(ctx.config()).await;
                 Err(Error::InvalidAuthentication)
             }
         }
