@@ -112,6 +112,18 @@ impl UserAliasService {
             .map(|alias| alias.is_some())
     }
 
+    pub async fn get_all(ctx: &ServiceContext<'_>, user_id: i64) -> Result<Vec<UserAliasModel>> {
+        tide::log::info!("Finding all aliases for user ID {user_id}");
+
+        let txn = ctx.transaction();
+        let aliases = UserAlias::find()
+            .filter(user_alias::Column::UserId.eq(user_id))
+            .all(txn)
+            .await?;
+
+        Ok(aliases)
+    }
+
     /// Used for when a user renames to an old slug.
     ///
     /// This takes the old user alias and renames the slug in-place, without having to do
