@@ -91,10 +91,15 @@ pub async fn site_domain_post(mut req: ApiRequest) -> ApiResponse {
     Ok(Response::new(StatusCode::NoContent))
 }
 
-pub async fn site_domain_delete(req: ApiRequest) -> ApiResponse {
+pub async fn site_domain_delete(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
-    todo!()
+
+    let domain = req.body_string().await?;
+    DomainService::delete(&ctx, domain).await.to_api()?;
+
+    txn.commit().await?;
+    Ok(Response::new(StatusCode::NoContent))
 }
 
 pub async fn site_get_from_domain(req: ApiRequest) -> ApiResponse {
