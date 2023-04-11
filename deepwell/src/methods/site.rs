@@ -107,8 +107,11 @@ pub async fn site_get_from_domain(req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let domain = req.param("domain")?;
-    let _ = (ctx, domain);
-    todo!()
+    let model = DomainService::site_from_domain(&ctx, &domain).await.to_api()?;
+
+    let body = Body::from_json(&model)?;
+    txn.commit().await?;
+    Ok(body.into())
 }
 
 fn build_site_response(
