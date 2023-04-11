@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::models::site_domain::{self, Entity as SiteDomain, Model as SiteDomainModel};
 
 #[derive(Debug)]
 pub struct DomainService;
@@ -31,7 +32,19 @@ impl DomainService {
         tide::log::info!("Creating custom domain '{domain}' (site ID {site_id})");
 
         let txn = ctx.transaction();
-        todo!()
+        if Self::site_from_domain_exists(ctx, &domain).await? {
+            tide::log::error!("Custom domain already exists, cannot create");
+            return Err(Error::Conflict);
+        }
+
+        let model = site_domain::ActiveModel {
+            domain: Set(domain),
+            site_id: Set(site_id),
+            created_at: Set(now()),
+            ..Default::default()
+        };
+        model.insert(txn).await?;
+        Ok(())
     }
 
     /// Delete the given custom domain.
@@ -45,5 +58,65 @@ impl DomainService {
 
         let txn = ctx.transaction();
         todo!()
+    }
+
+    /// Optional version of `site_from_domain()`.
+    pub async fn site_from_domain_optional(
+        ctx: &ServiceContext<'_>,
+        domain: &str,
+    ) -> Result<Option<SiteDomainModel>> {
+        tide::log::info!("Getting site for custom domain '{domain}'");
+
+        let txn = ctx.transaction();
+        let model = SiteDomain::find()
+            .filter(site_domain::Column::Domain.eq(domain))
+            .one(txn)
+            .await?;
+
+        Ok(model)
+    }
+
+    /// Determines if the given custom domain is registered.
+    #[inline]
+    pub async fn site_from_domain_exists(
+        ctx: &ServiceContext<'_>,
+        domain: &str,
+    ) -> Result<bool> {
+        Self::site_from_domain_optional(ctx, domain)
+            .await
+            .map(|domain| domain.is_some())
+    }
+
+    /// Gets the custom site domain configuration for the given domain.
+    #[inline]
+    pub async fn site_from_domain(
+        ctx: &ServiceContext<'_>,
+        domain: &str,
+    ) -> Result<SiteDomainModel> {
+        find_or_error(Self::site_from_domain_optional(ctx, domain)).await
+    }
+
+    /// Optional version of `domain_for_site()`.
+    pub async fn domain_for_site_optional(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+    ) -> Result<Option<SiteDomainModel>> {
+        tide::log::info!("Getting domain for site ID {site_id}");
+
+        let txn = ctx.transaction();
+        let model = SiteDomain::find()
+            .filter(site_domain::Column::SiteId.eq(site_id))
+            .one(txn)
+            .await?;
+
+        Ok(model)
+    }
+
+    /// Gets the custom site domain configuration for the given site.
+    pub async fn domain_for_site(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+    ) -> Result<SiteDomainModel> {
+        find_or_error(Self::domain_for_site_optional(ctx, site_id)).await
     }
 }
