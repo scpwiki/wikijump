@@ -24,4 +24,4 @@ RUN mkdir /src
 COPY ./deepwell /src/deepwell
 WORKDIR /src/deepwell
 
-CMD ["/usr/local/cargo/bin/cargo", "watch", "--why", "-x", "run", "--", "/etc/deepwell.toml"]
+CMD ["/usr/local/cargo/bin/cargo", "watch", "--why", "-x", "run -- /etc/deepwell.toml"]
