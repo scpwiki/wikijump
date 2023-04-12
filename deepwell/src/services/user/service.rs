@@ -223,10 +223,7 @@ impl UserService {
         }
 
         let user = match reference {
-            // Get directly from ID
             Reference::Id(id) => User::find_by_id(id).one(txn).await?,
-
-            // Since a slug can be an alias, check for a redirect
             Reference::Slug(slug) => {
                 User::find()
                     .filter(

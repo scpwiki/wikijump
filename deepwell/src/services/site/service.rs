@@ -177,9 +177,25 @@ impl SiteService {
 
     pub async fn get_optional(
         ctx: &ServiceContext<'_>,
-        reference: Reference<'_>,
+        mut reference: Reference<'_>,
     ) -> Result<Option<SiteModel>> {
         let txn = ctx.transaction();
+
+        // If slug, determine if this is a site alias.
+        //
+        // This uses separate queries rather than a join.
+        // See UserService::get_optional() for more information.
+        if let Reference::Slug(ref slug) = reference {
+            if let Some(alias) =
+                AliasService::get_optional(ctx, AliasType::Site, slug).await?
+            {
+                // If present, this is the actual site. Proceed with SELECT by id.
+                // Rewrite reference so in the "real" site search
+                // we locate directly via site ID.
+                reference = Reference::Id(alias.target_id);
+            }
+        }
+
         let site = match reference {
             Reference::Id(id) => Site::find_by_id(id).one(txn).await?,
             Reference::Slug(slug) => {
