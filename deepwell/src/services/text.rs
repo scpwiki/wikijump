@@ -25,7 +25,7 @@
 //! identified by its hash.
 
 use super::prelude::*;
-use crate::hash::{sha512_hash, Hash, HASH_LENGTH};
+use crate::hash::{k12_hash, TextHash, TEXT_HASH_LENGTH};
 use crate::models::text::{self, Entity as Text};
 
 #[derive(Debug)]
@@ -36,7 +36,7 @@ impl TextService {
         ctx: &ServiceContext<'_>,
         hash: &[u8],
     ) -> Result<Option<String>> {
-        assert_eq!(hash.len(), HASH_LENGTH);
+        assert_eq!(hash.len(), TEXT_HASH_LENGTH);
 
         let txn = ctx.transaction();
         let contents = Text::find()
@@ -80,9 +80,9 @@ impl TextService {
     }
 
     /// Creates a text entry with this data, if it does not already exist.
-    pub async fn create(ctx: &ServiceContext<'_>, contents: String) -> Result<Hash> {
+    pub async fn create(ctx: &ServiceContext<'_>, contents: String) -> Result<TextHash> {
         let txn = ctx.transaction();
-        let hash = sha512_hash(contents.as_bytes());
+        let hash = k12_hash(contents.as_bytes());
 
         if !Self::exists(ctx, &hash).await? {
             let model = text::ActiveModel {

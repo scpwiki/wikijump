@@ -40,7 +40,7 @@ impl BlobService {
 
         let bucket = ctx.s3_bucket();
         let hash = sha512_hash(data);
-        let hex_hash = hash_to_hex(&hash);
+        let hex_hash = blob_hash_to_hex(&hash);
 
         // Convert size to correct integer type
         let size: i64 = data.len().try_into().expect("Buffer size exceeds i64");
@@ -92,7 +92,7 @@ impl BlobService {
         hash: &[u8],
     ) -> Result<Option<Vec<u8>>> {
         let bucket = ctx.s3_bucket();
-        let hex_hash = hash_to_hex(hash);
+        let hex_hash = blob_hash_to_hex(hash);
         let response = bucket.get_object(&hex_hash).await?;
 
         match response.status_code() {
@@ -111,7 +111,7 @@ impl BlobService {
         ctx: &ServiceContext<'_>,
         hash: &[u8],
     ) -> Result<Option<BlobMetadata>> {
-        let hex_hash = hash_to_hex(hash);
+        let hex_hash = blob_hash_to_hex(hash);
 
         match Self::head(ctx, &hex_hash).await? {
             None => Ok(None),
@@ -145,7 +145,7 @@ impl BlobService {
     }
 
     pub async fn exists(ctx: &ServiceContext<'_>, hash: &[u8]) -> Result<bool> {
-        let hex_hash = hash_to_hex(hash);
+        let hex_hash = blob_hash_to_hex(hash);
         let result = Self::head(ctx, &hex_hash).await?;
         Ok(result.is_some())
     }
@@ -185,7 +185,7 @@ impl BlobService {
 
     pub async fn hard_delete(ctx: &ServiceContext<'_>, hash: &[u8]) -> Result<()> {
         let bucket = ctx.s3_bucket();
-        let hex_hash = hash_to_hex(hash);
+        let hex_hash = blob_hash_to_hex(hash);
 
         let response = bucket.delete_object(&hex_hash).await?;
         match response.status_code() {

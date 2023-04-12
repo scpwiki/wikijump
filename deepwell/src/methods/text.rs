@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::hash::Hash;
+use crate::hash::TextHash;
 
 pub async fn text_put(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
@@ -49,11 +49,11 @@ pub async fn text_get(req: ApiRequest) -> ApiResponse {
     Ok(body.into())
 }
 
-fn read_hash(req: &ApiRequest) -> Result<Hash, TideError> {
+fn read_hash(req: &ApiRequest) -> Result<TextHash, TideError> {
     let hash_hex = req.param("hash")?;
     tide::log::debug!("Text hash: {hash_hex}");
 
-    let mut hash = [0; 64];
+    let mut hash = [0; 16];
 
     hex::decode_to_slice(hash_hex, &mut hash)
         .map_err(|error| TideError::new(StatusCode::UnprocessableEntity, error))?;
