@@ -25,7 +25,7 @@ use crate::services::blob::{BlobService, CreateBlobOutput};
 use crate::services::filter::{FilterClass, FilterType};
 use crate::services::user_alias::CreateUserAlias;
 use crate::services::{FilterService, PasswordService, UserAliasService};
-use crate::utils::{get_user_slug, regex_replace_in_place};
+use crate::utils::{get_regular_slug, regex_replace_in_place};
 use regex::Regex;
 use sea_orm::ActiveValue;
 use std::cmp;
@@ -51,7 +51,7 @@ impl UserService {
         }: CreateUser,
     ) -> Result<CreateUserOutput> {
         let txn = ctx.transaction();
-        let slug = get_user_slug(&name);
+        let slug = get_regular_slug(&name);
 
         tide::log::debug!("Normalizing user data (name '{}', slug '{}')", name, slug,);
         regex_replace_in_place(&mut name, &LEADING_TRAILING_CHARS, "");
@@ -395,7 +395,7 @@ impl UserService {
         // unaltered, or if the slug is a prior name of theirs
         // (i.e. they have a user alias for it).
 
-        let new_slug = get_user_slug(&new_name);
+        let new_slug = get_regular_slug(&new_name);
         let old_slug = &user.slug;
 
         // Perform filter validation
