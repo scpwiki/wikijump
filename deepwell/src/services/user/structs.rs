@@ -19,9 +19,9 @@
  */
 
 use super::prelude::*;
+use crate::models::alias::Model as AliasModel;
 use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user::Model as UserModel;
-use crate::models::user_alias::Model as UserAliasModel;
 use crate::utils::DateTimeWithTimeZone;
 use chrono::NaiveDate;
 use std::collections::HashMap;
@@ -57,7 +57,7 @@ pub struct GetUser<'a> {
 pub struct GetUserOutput {
     #[serde(flatten)]
     pub user: UserModel,
-    pub aliases: Vec<UserAliasModel>,
+    pub aliases: Vec<AliasModel>,
 }
 
 #[derive(Deserialize, Debug)]

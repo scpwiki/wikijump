@@ -19,12 +19,12 @@
  */
 
 use super::prelude::*;
-use crate::models::sea_orm_active_enums::UserType;
+use crate::models::sea_orm_active_enums::{AliasType, UserType};
 use crate::models::user::{self, Entity as User, Model as UserModel};
+use crate::services::alias::CreateAlias;
 use crate::services::blob::{BlobService, CreateBlobOutput};
 use crate::services::filter::{FilterClass, FilterType};
-use crate::services::user_alias::CreateUserAlias;
-use crate::services::{FilterService, PasswordService, UserAliasService};
+use crate::services::{AliasService, FilterService, PasswordService};
 use crate::utils::{get_regular_slug, regex_replace_in_place};
 use regex::Regex;
 use sea_orm::ActiveValue;
@@ -116,7 +116,7 @@ impl UserService {
         }
 
         // Check for alias conflicts
-        if UserAliasService::exists(ctx, &slug).await? {
+        if AliasService::exists(ctx, AliasType::User, &slug).await? {
             tide::log::error!(
                 "User alias with conflicting slug already exists, cannot create",
             );
@@ -212,11 +212,13 @@ impl UserService {
         //       simple indexes directly, which is why we are
         //       doing it this way.
         if let Reference::Slug(ref slug) = reference {
-            if let Some(alias) = UserAliasService::get_optional(ctx, slug).await? {
+            if let Some(alias) =
+                AliasService::get_optional(ctx, AliasType::User, slug).await?
+            {
                 // If present, this is the actual user. Proceed with SELECT by id.
                 // Rewrite reference so in the "real" user search
                 // we locate directly via user ID.
-                reference = Reference::Id(alias.user_id);
+                reference = Reference::Id(alias.target_id);
             }
         }
 
@@ -375,8 +377,8 @@ impl UserService {
         // Verify, if needed
         if verify_name {
             try_join!(
-                UserAliasService::verify(ctx, &user.slug),
-                UserAliasService::verify(ctx, &new_user.slug),
+                AliasService::verify(ctx, AliasType::User, &user.slug),
+                AliasService::verify(ctx, AliasType::User, &new_user.slug),
             )?;
         }
 
@@ -411,11 +413,13 @@ impl UserService {
             return Ok(());
         }
 
-        if let Some(alias) = UserAliasService::get_optional(ctx, &new_slug).await? {
+        if let Some(alias) =
+            AliasService::get_optional(ctx, AliasType::User, &new_slug).await?
+        {
             tide::log::debug!("User slug is a past alias, rename is free");
 
             // Swap user alias for old slug
-            UserAliasService::swap(ctx, alias.alias_id, old_slug).await?;
+            AliasService::swap(ctx, alias.alias_id, old_slug).await?;
 
             // Set model, but return early, we don't deduct a name change token
             model.name = Set(new_name);
@@ -442,14 +446,15 @@ impl UserService {
         // they initiatived the rename.
         //
         // We don't verify here because the user row hasn't been
-        // updated yet, so we instead run UserAliasService::verify()
+        // updated yet, so we instead run AliasService::verify()
         // ourselves at the end of user updating.
-        UserAliasService::create_no_verify(
+        AliasService::create_no_verify(
             ctx,
-            CreateUserAlias {
+            CreateAlias {
                 slug: old_slug.clone(),
-                target_user_id: user.user_id,
-                created_by_user_id: user.user_id,
+                alias_type: AliasType::User,
+                target_id: user.user_id,
+                created_by: user.user_id,
                 bypass_filter,
             },
         )
@@ -555,7 +560,7 @@ impl UserService {
         tide::log::info!("Deleting user with ID {}", user.user_id);
 
         // Delete all user aliases
-        UserAliasService::delete_all(ctx, user.user_id).await?;
+        AliasService::delete_all(ctx, AliasType::User, user.user_id).await?;
 
         // Set deletion flag
         let model = user::ActiveModel {
