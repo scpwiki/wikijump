@@ -21,7 +21,10 @@
 use wikidot_normalize::normalize;
 
 use super::prelude::*;
+use crate::models::sea_orm_active_enums::AliasType;
 use crate::models::site::{self, Entity as Site, Model as SiteModel};
+use crate::services::alias::CreateAlias;
+use crate::services::AliasService;
 use crate::utils::validate_locale;
 
 #[derive(Debug)]
@@ -70,9 +73,11 @@ impl SiteService {
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
         input: UpdateSiteBody,
+        user_id: i64,
     ) -> Result<SiteModel> {
         let txn = ctx.transaction();
         let site = Self::get(ctx, reference).await?;
+        let mut verify_slug = false;
         let mut model = site::ActiveModel {
             site_id: Set(site.site_id),
             ..Default::default()
@@ -83,8 +88,9 @@ impl SiteService {
         }
 
         if let ProvidedValue::Set(new_slug) = input.slug {
-            Self::update_slug(ctx, &site, &new_slug).await?;
+            Self::update_slug(ctx, &site, &new_slug, user_id).await?;
             model.slug = Set(new_slug);
+            verify_slug = true;
         }
 
         if let ProvidedValue::Set(tagline) = input.tagline {
@@ -100,12 +106,20 @@ impl SiteService {
             model.locale = Set(locale);
         }
 
-        // Set last time site was updated.
+        // Update site
         model.updated_at = Set(Some(now()));
+        let new_site = model.update(txn).await?;
 
-        // Update site.
-        let site = model.update(txn).await?;
-        Ok(site)
+        // Verify alias invariant (if slug changed)
+        if verify_slug {
+            try_join!(
+                AliasService::verify(ctx, AliasType::Site, &site.slug),
+                AliasService::verify(ctx, AliasType::Site, &new_site.slug),
+            )?;
+        }
+
+        // Return
+        Ok(new_site)
     }
 
     /// Updates the slug for a site, leaving behind an alias.
@@ -113,9 +127,42 @@ impl SiteService {
         ctx: &ServiceContext<'_>,
         site: &SiteModel,
         new_slug: &str,
+        user_id: i64,
     ) -> Result<()> {
         tide::log::info!("Updating slug for site {}, adding alias", site.site_id);
-        todo!()
+
+        let old_slug = &site.slug;
+        match AliasService::get_optional(ctx, AliasType::Site, new_slug).await? {
+            // Swap alias with site's current slug
+            Some(alias) => {
+                tide::log::debug!("Swapping slug between site and alias");
+                AliasService::swap(ctx, alias.alias_id, old_slug).await?;
+            }
+
+            // Create new alias at the old location
+            None => {
+                tide::log::debug!("Creating site alias for {old_slug}");
+
+                // Add site alias for old slug.
+                //
+                // We don't verify here because the site row hasn't been
+                // updated yet, so we instead run AliasService::verify()
+                // ourselves at the end of site updating (see above).
+                AliasService::create_no_verify(
+                    ctx,
+                    CreateAlias {
+                        slug: old_slug.clone(),
+                        alias_type: AliasType::Site,
+                        target_id: site.site_id,
+                        created_by: user_id,
+                        bypass_filter: true, // sites don't have filters
+                    },
+                )
+                .await?;
+            }
+        }
+
+        Ok(())
     }
 
     #[inline]

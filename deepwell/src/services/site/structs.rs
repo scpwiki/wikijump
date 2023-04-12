@@ -57,6 +57,7 @@ pub struct GetSiteOutput {
 #[serde(rename_all = "camelCase")]
 pub struct UpdateSite<'a> {
     pub site: Reference<'a>,
+    pub user_id: i64,
 
     #[serde(flatten)]
     pub body: UpdateSiteBody,
