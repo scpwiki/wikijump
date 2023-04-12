@@ -259,8 +259,7 @@ impl UserService {
         match reference {
             Reference::Id(id) => Ok(id),
             Reference::Slug(slug) => {
-                // Unlike the other get_id() methods we pass through the
-                // call so that all the alias-handling logic is consistent.
+                // For slugs we pass-through the call so that alias handling is done.
                 let UserModel { user_id, .. } =
                     Self::get(ctx, Reference::Slug(slug)).await?;
 

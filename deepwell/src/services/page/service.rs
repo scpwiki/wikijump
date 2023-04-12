@@ -528,8 +528,7 @@ impl PageService {
         match reference {
             Reference::Id(page_id) => Ok(page_id),
             Reference::Slug(slug) => {
-                // Unlike the other get_id() methods we pass through the
-                // call so that all the slug-handling etc logic is in one place.
+                // For slugs we pass-through the call so that slug-handling is done consistently.
                 let PageModel { page_id, .. } =
                     Self::get(ctx, site_id, Reference::Slug(slug)).await?;
 

@@ -233,23 +233,11 @@ impl SiteService {
         match reference {
             Reference::Id(id) => Ok(id),
             Reference::Slug(slug) => {
-                let txn = ctx.transaction();
-                let result: Option<(i64,)> = Site::find()
-                    .select_only()
-                    .column(site::Column::SiteId)
-                    .filter(
-                        Condition::all()
-                            .add(site::Column::Slug.eq(slug))
-                            .add(site::Column::DeletedAt.is_null()),
-                    )
-                    .into_tuple()
-                    .one(txn)
-                    .await?;
+                // For slugs we pass-through the call so that alias handling is done.
+                let SiteModel { site_id, .. } =
+                    Self::get(ctx, Reference::Slug(slug)).await?;
 
-                match result {
-                    Some(tuple) => Ok(tuple.0),
-                    None => Err(Error::NotFound),
-                }
+                Ok(site_id)
             }
         }
     }
