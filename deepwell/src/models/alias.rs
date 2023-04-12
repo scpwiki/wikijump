@@ -2,6 +2,7 @@
 
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
+use super::sea_orm_active_enums::AliasType;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -9,10 +10,10 @@ use serde::{Deserialize, Serialize};
 pub struct Model {
     #[sea_orm(primary_key)]
     pub alias_id: i64,
+    pub alias_type: AliasType,
     pub created_at: DateTimeWithTimeZone,
     pub created_by: i64,
-    pub user_id: i64,
-    #[sea_orm(column_type = "Text", unique)]
+    pub target_id: i64,
     pub slug: String,
 }
 
@@ -25,15 +26,7 @@ pub enum Relation {
         on_update = "NoAction",
         on_delete = "NoAction"
     )]
-    User2,
-    #[sea_orm(
-        belongs_to = "super::user::Entity",
-        from = "Column::UserId",
-        to = "super::user::Column::UserId",
-        on_update = "NoAction",
-        on_delete = "NoAction"
-    )]
-    User1,
+    User,
 }
 
 impl ActiveModelBehavior for ActiveModel {}

@@ -6,6 +6,18 @@ use serde::{Deserialize, Serialize};
 #[derive(
     Debug, Copy, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize,
 )]
+#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "alias_type")]
+#[serde(rename_all = "kebab-case")]
+pub enum AliasType {
+    #[sea_orm(string_value = "site")]
+    Site,
+    #[sea_orm(string_value = "user")]
+    User,
+}
+
+#[derive(
+    Debug, Copy, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize,
+)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "file_revision_type")]
 #[serde(rename_all = "kebab-case")]
 pub enum FileRevisionType {
