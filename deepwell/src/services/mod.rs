@@ -102,6 +102,7 @@ pub use self::render::RenderService;
 pub use self::score::ScoreService;
 pub use self::session::SessionService;
 pub use self::site::SiteService;
+pub use self::site_alias::SiteAliasService;
 pub use self::text::TextService;
 pub use self::user::UserService;
 pub use self::user_alias::UserAliasService;
