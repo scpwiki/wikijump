@@ -1,5 +1,5 @@
 /*
- * hash.rs
+ * hash/text.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -19,45 +19,41 @@
  */
 
 use arraystring::ArrayString;
-use sha2::{Digest, Sha512};
-use typenum::U128;
+use tiny_keccak::{Hasher, KangarooTwelve};
+use typenum::U32;
 
-/// The expected length of a hash digest.
+/// The expected length of a text hash digest.
 ///
-/// This is the output length for SHA-512 in bytes.
-pub const HASH_LENGTH: usize = 64;
+/// This is the standard output length for KangarooTwelve in bytes.
+pub const TEXT_HASH_LENGTH: usize = 16;
 
-/// The array type for a hash digest.
-pub type Hash = [u8; 64];
+/// The array type for a text hash digest;
+pub type TextHash = [u8; 16];
 
-/// The stack string type for a hex representation of a hash.
+/// The stack string type for a hex representation of a text hash.
 ///
 /// Because it is hexadecimal, it must be double the size of the
 /// actual byte buffer it represents.
-pub type HexHash = ArrayString<U128>;
+pub type TextHexHash = ArrayString<U32>;
 
-/// Produces a byte array containing the SHA-512 for the given data.
-pub fn sha512_hash(data: &[u8]) -> Hash {
-    // Perform hash
-    let mut hasher = Sha512::new();
+/// Produces a byte array containing the KangaroTwelve hash for the given data.
+pub fn k12_hash(data: &[u8]) -> TextHash {
+    let mut bytes = [0; 16];
+    let mut hasher = KangarooTwelve::new(data);
     hasher.update(data);
-    let result = hasher.finalize();
-
-    // Copy data into regular Rust array
-    let mut bytes = [0; 64];
-    bytes.copy_from_slice(&result);
+    hasher.finalize(&mut bytes);
     bytes
 }
 
 /// Converts the given SHA-512 hash into a hex array string.
-pub fn hash_to_hex(hash: &[u8]) -> HexHash {
+pub fn text_hash_to_hex(hash: &[u8]) -> TextHexHash {
     debug_assert_eq!(
         hash.len(),
-        HASH_LENGTH,
-        "SHA-512 hash buffer of incorrect length",
+        TEXT_HASH_LENGTH,
+        "KangaroTwelve hash buffer of incorrect length",
     );
 
-    let mut hex_bytes = [0; 128];
+    let mut hex_bytes = [0; 32];
 
     hex::encode_to_slice(hash, &mut hex_bytes)
         .expect("Encoding hash to hex slice failed");
