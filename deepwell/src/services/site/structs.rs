@@ -66,6 +66,7 @@ pub struct UpdateSite<'a> {
 #[serde(rename_all = "camelCase", default)]
 pub struct UpdateSiteBody {
     pub name: ProvidedValue<String>,
+    pub slug: ProvidedValue<String>,
     pub tagline: ProvidedValue<String>,
     pub description: ProvidedValue<String>,
     pub locale: ProvidedValue<String>,

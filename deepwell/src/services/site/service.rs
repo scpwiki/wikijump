@@ -72,32 +72,50 @@ impl SiteService {
         input: UpdateSiteBody,
     ) -> Result<SiteModel> {
         let txn = ctx.transaction();
-        let model = Self::get(ctx, reference).await?;
-        let mut site: site::ActiveModel = model.into();
+        let site = Self::get(ctx, reference).await?;
+        let mut model = site::ActiveModel {
+            site_id: Set(site.site_id),
+            ..Default::default()
+        };
 
         if let ProvidedValue::Set(name) = input.name {
-            site.name = Set(name);
+            model.name = Set(name);
+        }
+
+        if let ProvidedValue::Set(new_slug) = input.slug {
+            Self::update_slug(ctx, &site, &new_slug).await?;
+            model.slug = Set(new_slug);
         }
 
         if let ProvidedValue::Set(tagline) = input.tagline {
-            site.tagline = Set(tagline);
+            model.tagline = Set(tagline);
         }
 
         if let ProvidedValue::Set(description) = input.description {
-            site.description = Set(description);
+            model.description = Set(description);
         }
 
         if let ProvidedValue::Set(locale) = input.locale {
             validate_locale(&locale)?;
-            site.locale = Set(locale);
+            model.locale = Set(locale);
         }
 
         // Set last time site was updated.
-        site.updated_at = Set(Some(now()));
+        model.updated_at = Set(Some(now()));
 
         // Update site.
-        let model = site.update(txn).await?;
-        Ok(model)
+        let site = model.update(txn).await?;
+        Ok(site)
+    }
+
+    /// Updates the slug for a site, leaving behind an alias.
+    async fn update_slug(
+        ctx: &ServiceContext<'_>,
+        site: &SiteModel,
+        new_slug: &str,
+    ) -> Result<()> {
+        tide::log::info!("Updating slug for site {}, adding alias", site.site_id);
+        todo!()
     }
 
     #[inline]
