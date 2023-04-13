@@ -4,5 +4,5 @@
   export let data: PageData
 </script>
 
-<h1>Loaded page</h1>
-<p>This is the page loaded with slug <tt>{data.slug}</tt> (<tt>{data.options}</tt>)</p>
+<h1>UNTRANSLATED:Loaded page</h1>
+<p>UNTRANSLATED:This is the page loaded with slug <tt>{data.slug}</tt> (<tt>{data.options}</tt>)</p>

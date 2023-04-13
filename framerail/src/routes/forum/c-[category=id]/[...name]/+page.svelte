@@ -4,5 +4,5 @@
   export let data: PageData
 </script>
 
-<h1>Loaded forum category</h1>
-<p>This is the forum category with ID {data.categoryId}</p>
+<h1>UNTRANSLATED:Loaded forum category</h1>
+<p>UNTRANSLATED:This is the forum category with ID {data.categoryId}</p>

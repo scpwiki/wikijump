@@ -4,5 +4,5 @@
   export let data: PageData
 </script>
 
-<h1>Loaded forum thread</h1>
-<p>This is the forum thread with ID {data.threadId}</p>
+<h1>UNTRANSLATED:Loaded forum thread</h1>
+<p>UNTRANSLATED:This is the forum thread with ID {data.threadId}</p>
