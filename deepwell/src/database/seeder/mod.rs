@@ -138,7 +138,7 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
     // Seed site data
     for SitePages {
         site,
-        aliases,
+        aliases: site_aliases,
         pages,
     } in site_pages
     {
@@ -156,13 +156,13 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
         )
         .await?;
 
-        for alias in aliases {
-            tide::log::info!("Creating site alias '{}'", alias);
+        for site_alias in site_aliases {
+            tide::log::info!("Creating site alias '{}'", site_alias);
 
             AliasService::create(
                 &ctx,
                 CreateAlias {
-                    slug: alias,
+                    slug: site_alias,
                     alias_type: AliasType::Site,
                     target_id: site_id,
                     created_by: SYSTEM_USER_ID,
