@@ -86,14 +86,13 @@ impl AliasService {
                     return Err(Error::NotFound);
                 }
 
-                if verify {
-                    if SiteService::exists(ctx, Reference::Slug(cow!(slug))).await? {
-                        tide::log::error!(
-                            "Site with conflicting slug '{slug}' already exists, cannot create alias",
-                        );
+                if verify && SiteService::exists(ctx, Reference::Slug(cow!(slug))).await?
+                {
+                    tide::log::error!(
+                        "Site with conflicting slug '{slug}' already exists, cannot create alias",
+                    );
 
-                        return Err(Error::Conflict);
-                    }
+                    return Err(Error::Conflict);
                 }
             }
             AliasType::User => {
@@ -105,14 +104,13 @@ impl AliasService {
                     return Err(Error::NotFound);
                 }
 
-                if verify {
-                    if UserService::exists(ctx, Reference::Slug(cow!(slug))).await? {
-                        tide::log::error!(
-                            "User with conflicting slug '{slug}' already exists, cannot create alias",
-                        );
+                if verify && UserService::exists(ctx, Reference::Slug(cow!(slug))).await?
+                {
+                    tide::log::error!(
+                        "User with conflicting slug '{slug}' already exists, cannot create alias",
+                    );
 
-                        return Err(Error::Conflict);
-                    }
+                    return Err(Error::Conflict);
                 }
             }
         }
