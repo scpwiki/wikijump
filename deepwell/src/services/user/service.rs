@@ -301,7 +301,9 @@ impl UserService {
 
         // Add each field
         if let ProvidedValue::Set(name) = input.name {
-            future_after = Self::update_name(ctx, name, &user, &mut model, input.bypass_filter).await?;
+            future_after =
+                Self::update_name(ctx, name, &user, &mut model, input.bypass_filter)
+                    .await?;
         }
 
         if let ProvidedValue::Set(email) = input.email {
@@ -364,20 +366,13 @@ impl UserService {
             model.avatar_s3_hash = Set(s3_hash);
         }
 
-        // Set update flag
+        // Update user
         model.updated_at = Set(Some(now()));
-
-        // Update and return
-        let new_user = model.update(txn).await?;
+        model.update(txn).await?;
 
         // Run future afterwards
         if let Some(future) = future_after {
             future.await?;
-
-            try_join!(
-                AliasService::verify(ctx, AliasType::User, &user.slug),
-                AliasService::verify(ctx, AliasType::User, &new_user.slug),
-            )?;
         }
 
         Ok(())
@@ -468,7 +463,7 @@ impl UserService {
             // We don't verify here because the user row hasn't been
             // updated yet, so we instead run AliasService::verify()
             // ourselves at the end of user updating.
-            AliasService::create_no_verify(
+            AliasService::create(
                 ctx,
                 CreateAlias {
                     slug: old_slug,

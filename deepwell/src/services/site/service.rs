@@ -113,11 +113,6 @@ impl SiteService {
         // Run future afterwards
         if let Some(future) = future_after {
             future.await?;
-
-            try_join!(
-                AliasService::verify(ctx, AliasType::Site, &site.slug),
-                AliasService::verify(ctx, AliasType::Site, &new_site.slug),
-            )?;
         }
 
         // Return
@@ -161,7 +156,7 @@ impl SiteService {
                     // We don't verify here because the site row hasn't been
                     // updated yet, so we instead run AliasService::verify()
                     // ourselves at the end of site updating (see above).
-                    AliasService::create_no_verify(
+                    AliasService::create(
                         ctx,
                         CreateAlias {
                             slug: old_slug,

@@ -32,25 +32,22 @@ use crate::web::Reference;
 pub struct AliasService;
 
 impl AliasService {
-    /// Creates a new user alias.
+    /// Creates a new site or user alias.
     pub async fn create(
         ctx: &ServiceContext<'_>,
         input: CreateAlias,
     ) -> Result<CreateAliasOutput> {
-        let alias_type = input.alias_type;
-        let output = Self::create_no_verify(ctx, input).await?;
-        Self::verify(ctx, alias_type, &output.slug).await?;
-        Ok(output)
+        Self::create2(ctx, input, true).await
     }
 
-    /// Creates a new site or user alias, but does not perform row checks.
+    /// Creates a new site or user alias, but can be instructed to not perform row checks.
     ///
     /// This method should only be invoked when the corresponding site/user
     /// row has not been updated, if in doubt use `AliasService::create()`.
     ///
     /// The caller is responsible for calling `AliasService::verify()` after
     /// all its database changes have been made.
-    pub(crate) async fn create_no_verify(
+    pub(crate) async fn create2(
         ctx: &ServiceContext<'_>,
         CreateAlias {
             slug,
@@ -59,6 +56,7 @@ impl AliasService {
             created_by,
             bypass_filter,
         }: CreateAlias,
+        verify: bool,
     ) -> Result<CreateAliasOutput> {
         let txn = ctx.transaction();
         let slug = get_regular_slug(slug);
@@ -88,12 +86,14 @@ impl AliasService {
                     return Err(Error::NotFound);
                 }
 
-                if SiteService::exists(ctx, Reference::Slug(cow!(slug))).await? {
-                    tide::log::error!(
-                        "Site with conflicting slug '{slug}' already exists, cannot create alias",
-                    );
+                if verify {
+                    if SiteService::exists(ctx, Reference::Slug(cow!(slug))).await? {
+                        tide::log::error!(
+                            "Site with conflicting slug '{slug}' already exists, cannot create alias",
+                        );
 
-                    return Err(Error::Conflict);
+                        return Err(Error::Conflict);
+                    }
                 }
             }
             AliasType::User => {
@@ -105,12 +105,14 @@ impl AliasService {
                     return Err(Error::NotFound);
                 }
 
-                if UserService::exists(ctx, Reference::Slug(cow!(slug))).await? {
-                    tide::log::error!(
-                        "User with conflicting slug '{slug}' already exists, cannot create alias",
-                    );
+                if verify {
+                    if UserService::exists(ctx, Reference::Slug(cow!(slug))).await? {
+                        tide::log::error!(
+                            "User with conflicting slug '{slug}' already exists, cannot create alias",
+                        );
 
-                    return Err(Error::Conflict);
+                        return Err(Error::Conflict);
+                    }
                 }
             }
         }
@@ -126,6 +128,13 @@ impl AliasService {
         };
 
         let alias_id = Alias::insert(alias).exec(txn).await?.last_insert_id;
+
+        // Perform verification
+        if verify {
+            Self::verify(ctx, alias_type, &slug).await?;
+        }
+
+        // Return
         Ok(CreateAliasOutput { alias_id, slug })
     }
 
