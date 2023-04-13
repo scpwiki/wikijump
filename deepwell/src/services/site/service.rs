@@ -26,7 +26,6 @@ use crate::models::site::{self, Entity as Site, Model as SiteModel};
 use crate::services::alias::CreateAlias;
 use crate::services::AliasService;
 use crate::utils::validate_locale;
-use futures::Future;
 
 #[derive(Debug)]
 pub struct SiteService;
@@ -78,7 +77,6 @@ impl SiteService {
     ) -> Result<SiteModel> {
         let txn = ctx.transaction();
         let site = Self::get(ctx, reference).await?;
-        let mut future_after = None;
         let mut model = site::ActiveModel {
             site_id: Set(site.site_id),
             ..Default::default()
@@ -89,7 +87,7 @@ impl SiteService {
         }
 
         if let ProvidedValue::Set(new_slug) = input.slug {
-            future_after = Self::update_slug(ctx, &site, &new_slug, user_id).await?;
+            Self::update_slug(ctx, &site, &new_slug, user_id).await?;
             model.slug = Set(new_slug);
         }
 
@@ -110,9 +108,12 @@ impl SiteService {
         model.updated_at = Set(Some(now()));
         let new_site = model.update(txn).await?;
 
-        // Run future afterwards
-        if let Some(future) = future_after {
-            future.await?;
+        // Run verification afterwards if the slug changed
+        if site.slug != new_site.slug {
+            try_join!(
+                AliasService::verify(ctx, AliasType::Site, &site.slug),
+                AliasService::verify(ctx, AliasType::Site, &new_site.slug),
+            )?;
         }
 
         // Return
@@ -121,15 +122,15 @@ impl SiteService {
 
     /// Updates the slug for a site, leaving behind an alias.
     ///
-    /// If this returns a future, it must be run after the site update,
-    /// since it depends on the site slug having already been changed
-    /// before creating the new alias.
-    async fn update_slug<'ctx>(
-        ctx: &'ctx ServiceContext<'ctx>,
+    /// No alias row checks are performed because of a dependency order requiring
+    /// the user's slug to have been updated before aliases can be added.
+    /// Instead, alias row verification occurs manually afterwards.
+    async fn update_slug(
+        ctx: &ServiceContext<'_>,
         site: &SiteModel,
         new_slug: &str,
         user_id: i64,
-    ) -> Result<Option<impl Future<Output = Result<()>> + 'ctx>> {
+    ) -> Result<()> {
         tide::log::info!("Updating slug for site {}, adding alias", site.site_id);
 
         let old_slug = &site.slug;
@@ -140,38 +141,33 @@ impl SiteService {
             Some(alias) => {
                 tide::log::debug!("Swapping slug between site and alias");
                 AliasService::swap(ctx, alias.alias_id, old_slug).await?;
-                Ok(None)
             }
 
             // Return future that creates new alias at the old location
             None => {
-                let old_slug = str!(old_slug);
-                let site_id = site.site_id;
+                tide::log::debug!("Creating site alias for {old_slug}");
 
-                Ok(Some(async move {
-                    tide::log::debug!("Creating site alias for {old_slug}");
-
-                    // Add site alias for old slug.
-                    //
-                    // We don't verify here because the site row hasn't been
-                    // updated yet, so we instead run AliasService::verify()
-                    // ourselves at the end of site updating (see above).
-                    AliasService::create(
-                        ctx,
-                        CreateAlias {
-                            slug: old_slug,
-                            alias_type: AliasType::Site,
-                            target_id: site_id,
-                            created_by: user_id,
-                            bypass_filter: true, // sites don't have filters
-                        },
-                    )
-                    .await?;
-
-                    Ok(())
-                }))
+                // Add site alias for old slug.
+                //
+                // We don't verify here because the site row hasn't been
+                // updated yet, so we instead run AliasService::verify()
+                // ourselves at the end of site updating (see above).
+                AliasService::create2(
+                    ctx,
+                    CreateAlias {
+                        slug: str!(old_slug),
+                        alias_type: AliasType::Site,
+                        target_id: site.site_id,
+                        created_by: user_id,
+                        bypass_filter: true, // sites don't have filters
+                    },
+                    false,
+                )
+                .await?;
             }
         }
+
+        Ok(())
     }
 
     #[inline]

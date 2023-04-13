@@ -26,7 +26,6 @@ use crate::services::blob::{BlobService, CreateBlobOutput};
 use crate::services::filter::{FilterClass, FilterType};
 use crate::services::{AliasService, FilterService, PasswordService};
 use crate::utils::{get_regular_slug, regex_replace_in_place};
-use futures::Future;
 use regex::Regex;
 use sea_orm::ActiveValue;
 use std::cmp;
@@ -288,12 +287,11 @@ impl UserService {
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
         input: UpdateUserBody,
-    ) -> Result<()> {
+    ) -> Result<UserModel> {
         // NOTE: Name filter validation occurs in update_name(), not here
         let txn = ctx.transaction();
         let user = Self::get(ctx, reference).await?;
 
-        let mut future_after = None;
         let mut model = user::ActiveModel {
             user_id: Set(user.user_id),
             ..Default::default()
@@ -301,9 +299,7 @@ impl UserService {
 
         // Add each field
         if let ProvidedValue::Set(name) = input.name {
-            future_after =
-                Self::update_name(ctx, name, &user, &mut model, input.bypass_filter)
-                    .await?;
+            Self::update_name(ctx, name, &user, &mut model, input.bypass_filter).await?;
         }
 
         if let ProvidedValue::Set(email) = input.email {
@@ -368,29 +364,34 @@ impl UserService {
 
         // Update user
         model.updated_at = Set(Some(now()));
-        model.update(txn).await?;
+        let new_user = model.update(txn).await?;
 
-        // Run future afterwards
-        if let Some(future) = future_after {
-            future.await?;
+        // Run verification afterwards if the slug changed
+        if user.slug != new_user.slug {
+            try_join!(
+                AliasService::verify(ctx, AliasType::User, &user.slug),
+                AliasService::verify(ctx, AliasType::User, &new_user.slug),
+            )?;
         }
 
-        Ok(())
+        Ok(new_user)
     }
 
     /// Updates the user's name, and performs the relevant accounting for it.
     ///
     /// This calculates if a name change token deduction is needed,
-    /// arranges the user alias changes as needed, and returns an optional future.
-    /// If one is returned it must be run after the update, since it contains
-    /// work which depends on the user model having already been updated.
-    async fn update_name<'ctx>(
-        ctx: &'ctx ServiceContext<'ctx>,
+    /// arranges the user alias changes as needed.
+    ///
+    /// No alias row checks are performed because of a dependency order requiring
+    /// the user's slug to have been updated before aliases can be added.
+    /// Instead, alias row verification occurs manually afterwards.
+    async fn update_name(
+        ctx: &ServiceContext<'_>,
         new_name: String,
         user: &UserModel,
         model: &mut user::ActiveModel,
         bypass_filter: bool,
-    ) -> Result<Option<impl Future<Output = Result<()>> + 'ctx>> {
+    ) -> Result<()> {
         // Regardless of the number of name change tokens,
         // the user can always change their name if the slug is
         // unaltered, or if the slug is a prior name of theirs
@@ -410,7 +411,7 @@ impl UserService {
             // Set model, but return early, we don't deduct a
             // name change token or create a new user alias.
             model.name = Set(new_name);
-            return Ok(None);
+            return Ok(());
         }
 
         if let Some(alias) =
@@ -426,7 +427,7 @@ impl UserService {
             model.slug = Set(new_slug);
 
             // Don't create user alias after
-            return Ok(None);
+            return Ok(());
         }
 
         // All changes beyond this point involve creating a new alias, so
@@ -436,6 +437,15 @@ impl UserService {
             tide::log::error!("User ID {} has no remaining name changes", user.user_id);
             return Err(Error::InsufficientNameChanges);
         }
+
+        // Deduct name change token and add user alias for old slug.
+        //
+        // The "created by" is the user themselves, since
+        // they initiatived the rename.
+        //
+        // We don't verify here because the user row hasn't been
+        // updated yet, so we instead run AliasService::verify()
+        // ourselves at the end of user updating.
 
         tide::log::debug!(
             "Creating user alias for '{}' -> '{}', deducting name change",
@@ -447,36 +457,20 @@ impl UserService {
         model.name = Set(new_name);
         model.slug = Set(new_slug);
 
-        // Make a separate future that will create the user alias.
-        // This will then be run after the user update is finished to resolve
-        // the conflicting slug issue.
+        AliasService::create2(
+            ctx,
+            CreateAlias {
+                slug: str!(old_slug),
+                alias_type: AliasType::User,
+                target_id: user.user_id,
+                created_by: user.user_id,
+                bypass_filter,
+            },
+            false,
+        )
+        .await?;
 
-        let old_slug = str!(old_slug);
-        let user_id = user.user_id;
-
-        Ok(Some(async move {
-            // Deduct name change token and add user alias for old slug.
-            //
-            // The "created by" is the user themselves, since
-            // they initiatived the rename.
-            //
-            // We don't verify here because the user row hasn't been
-            // updated yet, so we instead run AliasService::verify()
-            // ourselves at the end of user updating.
-            AliasService::create(
-                ctx,
-                CreateAlias {
-                    slug: old_slug,
-                    alias_type: AliasType::User,
-                    target_id: user_id,
-                    created_by: user_id,
-                    bypass_filter,
-                },
-            )
-            .await?;
-
-            Ok(())
-        }))
+        Ok(())
     }
 
     /// Adds an additional rename token, up to the cap.
