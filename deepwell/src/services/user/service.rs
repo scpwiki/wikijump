@@ -293,7 +293,7 @@ impl UserService {
         let txn = ctx.transaction();
         let user = Self::get(ctx, reference).await?;
 
-        let mut verify_name = false;
+        let mut future_after = None;
         let mut model = user::ActiveModel {
             user_id: Set(user.user_id),
             ..Default::default()
@@ -301,8 +301,7 @@ impl UserService {
 
         // Add each field
         if let ProvidedValue::Set(name) = input.name {
-            Self::update_name(ctx, name, &user, &mut model, input.bypass_filter).await?;
-            verify_name = true;
+            future_after = Self::update_name(ctx, name, &user, &mut model, input.bypass_filter).await?;
         }
 
         if let ProvidedValue::Set(email) = input.email {
@@ -371,8 +370,10 @@ impl UserService {
         // Update and return
         let new_user = model.update(txn).await?;
 
-        // Verify, if needed
-        if verify_name {
+        // Run future afterwards
+        if let Some(future) = future_after {
+            future.await?;
+
             try_join!(
                 AliasService::verify(ctx, AliasType::User, &user.slug),
                 AliasService::verify(ctx, AliasType::User, &new_user.slug),

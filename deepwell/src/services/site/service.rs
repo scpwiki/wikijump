@@ -78,7 +78,7 @@ impl SiteService {
     ) -> Result<SiteModel> {
         let txn = ctx.transaction();
         let site = Self::get(ctx, reference).await?;
-        let mut verify_slug = false;
+        let mut future_after = None;
         let mut model = site::ActiveModel {
             site_id: Set(site.site_id),
             ..Default::default()
@@ -89,9 +89,8 @@ impl SiteService {
         }
 
         if let ProvidedValue::Set(new_slug) = input.slug {
-            Self::update_slug(ctx, &site, &new_slug, user_id).await?;
+            future_after = Self::update_slug(ctx, &site, &new_slug, user_id).await?;
             model.slug = Set(new_slug);
-            verify_slug = true;
         }
 
         if let ProvidedValue::Set(tagline) = input.tagline {
@@ -111,8 +110,10 @@ impl SiteService {
         model.updated_at = Set(Some(now()));
         let new_site = model.update(txn).await?;
 
-        // Verify alias invariant (if slug changed)
-        if verify_slug {
+        // Run future afterwards
+        if let Some(future) = future_after {
+            future.await?;
+
             try_join!(
                 AliasService::verify(ctx, AliasType::Site, &site.slug),
                 AliasService::verify(ctx, AliasType::Site, &new_site.slug),
