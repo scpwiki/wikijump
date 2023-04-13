@@ -26,6 +26,7 @@ use crate::services::blob::{BlobService, CreateBlobOutput};
 use crate::services::filter::{FilterClass, FilterType};
 use crate::services::{AliasService, FilterService, PasswordService};
 use crate::utils::{get_regular_slug, regex_replace_in_place};
+use futures::Future;
 use regex::Regex;
 use sea_orm::ActiveValue;
 use std::cmp;
@@ -381,13 +382,19 @@ impl UserService {
         Ok(())
     }
 
-    async fn update_name(
-        ctx: &ServiceContext<'_>,
+    /// Updates the user's name, and performs the relevant accounting for it.
+    ///
+    /// This calculates if a name change token deduction is needed,
+    /// arranges the user alias changes as needed, and returns an optional future.
+    /// If one is returned it must be run after the update, since it contains
+    /// work which depends on the user model having already been updated.
+    async fn update_name<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         new_name: String,
         user: &UserModel,
         model: &mut user::ActiveModel,
         bypass_filter: bool,
-    ) -> Result<()> {
+    ) -> Result<Option<impl Future<Output = Result<()>> + 'ctx>> {
         // Regardless of the number of name change tokens,
         // the user can always change their name if the slug is
         // unaltered, or if the slug is a prior name of theirs
@@ -404,9 +411,10 @@ impl UserService {
         if new_slug == user.slug {
             tide::log::debug!("User slug is the same, rename is free");
 
-            // Set model, but return early, we don't deduct a name change token
+            // Set model, but return early, we don't deduct a
+            // name change token or create a new user alias.
             model.name = Set(new_name);
-            return Ok(());
+            return Ok(None);
         }
 
         if let Some(alias) =
@@ -420,11 +428,14 @@ impl UserService {
             // Set model, but return early, we don't deduct a name change token
             model.name = Set(new_name);
             model.slug = Set(new_slug);
-            return Ok(());
+
+            // Don't create user alias after
+            return Ok(None);
         }
 
         // All changes beyond this point involve creating a new alias, so
         // a name change token must be consumed.
+
         if user.name_changes_left == 0 {
             tide::log::error!("User ID {} has no remaining name changes", user.user_id);
             return Err(Error::InsufficientNameChanges);
@@ -436,30 +447,40 @@ impl UserService {
             new_slug,
         );
 
-        // Deduct name change token and add user alias for old slug.
-        //
-        // The "created by" is the user themselves, since
-        // they initiatived the rename.
-        //
-        // We don't verify here because the user row hasn't been
-        // updated yet, so we instead run AliasService::verify()
-        // ourselves at the end of user updating.
-        AliasService::create_no_verify(
-            ctx,
-            CreateAlias {
-                slug: old_slug.clone(),
-                alias_type: AliasType::User,
-                target_id: user.user_id,
-                created_by: user.user_id,
-                bypass_filter,
-            },
-        )
-        .await?;
-
         model.name_changes_left = Set(user.name_changes_left - 1);
         model.name = Set(new_name);
         model.slug = Set(new_slug);
-        Ok(())
+
+        // Make a separate future that will create the user alias.
+        // This will then be run after the user update is finished to resolve
+        // the conflicting slug issue.
+
+        let old_slug = str!(old_slug);
+        let user_id = user.user_id;
+
+        Ok(Some(async move {
+            // Deduct name change token and add user alias for old slug.
+            //
+            // The "created by" is the user themselves, since
+            // they initiatived the rename.
+            //
+            // We don't verify here because the user row hasn't been
+            // updated yet, so we instead run AliasService::verify()
+            // ourselves at the end of user updating.
+            AliasService::create_no_verify(
+                ctx,
+                CreateAlias {
+                    slug: old_slug,
+                    alias_type: AliasType::User,
+                    target_id: user_id,
+                    created_by: user_id,
+                    bypass_filter,
+                },
+            )
+            .await?;
+
+            Ok(())
+        }))
     }
 
     /// Adds an additional rename token, up to the cap.
