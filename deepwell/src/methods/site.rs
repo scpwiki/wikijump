@@ -19,6 +19,8 @@
  */
 
 use super::prelude::*;
+use crate::models::alias::Model as AliasModel;
+use crate::models::sea_orm_active_enums::AliasType;
 use crate::models::site::Model as SiteModel;
 use crate::models::site_domain::Model as SiteDomainModel;
 use crate::services::domain::CreateCustomDomain;
@@ -46,7 +48,7 @@ pub async fn site_get(mut req: ApiRequest) -> ApiResponse {
 
     let site = SiteService::get(&ctx, site).await.to_api()?;
     let (aliases, domains) = try_join!(
-        async { Ok(vec![]) }, // TODO create SiteAliasService
+        AliasService::get_all(&ctx, AliasType::Site, site.site_id),
         DomainService::domains_for_site(&ctx, site.site_id),
     )?;
 
@@ -125,7 +127,7 @@ pub async fn site_get_from_domain(req: ApiRequest) -> ApiResponse {
 
 fn build_site_response(
     site: SiteModel,
-    aliases: Vec<()>, // TODO impl site aliases
+    aliases: Vec<AliasModel>,
     domains: Vec<SiteDomainModel>,
     status: StatusCode,
 ) -> ApiResponse {
