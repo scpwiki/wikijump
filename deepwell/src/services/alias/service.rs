@@ -219,6 +219,7 @@ impl AliasService {
         );
 
         let model = alias::ActiveModel {
+            created_at: Set(now()), // instead of deleting and recreating, we just pretend it was
             alias_id: Set(alias_id),
             slug: Set(str!(new_slug)),
             ..Default::default()
