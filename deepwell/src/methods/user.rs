@@ -42,6 +42,11 @@ pub async fn user_create(mut req: ApiRequest) -> ApiResponse {
     Ok(response)
 }
 
+pub async fn user_import(_req: ApiRequest) -> ApiResponse {
+    // TODO implement importing user from Wikidot
+    todo!()
+}
+
 pub async fn user_get(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
