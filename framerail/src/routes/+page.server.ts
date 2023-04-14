@@ -1,7 +1,8 @@
 import { ping } from '$lib/deepwell.server.ts';
 
 export async function load() {
-  return {
-    ping: await ping(),
-  };
+  // fails if deepwell does
+  await ping()
+
+  return {}
 }
