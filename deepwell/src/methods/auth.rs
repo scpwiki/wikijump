@@ -29,7 +29,7 @@ use crate::services::session::{
     RenewSession,
 };
 use crate::services::user::GetUser;
-use crate::services::{Error, MfaService, SessionService};
+use crate::services::Error;
 
 pub async fn auth_login(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;

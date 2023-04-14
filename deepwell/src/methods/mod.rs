@@ -31,9 +31,10 @@ mod prelude {
     pub use crate::api::{ApiRequest, ApiResponse};
     pub use crate::services::{
         AliasService, BlobService, CategoryService, DomainService, Error as ServiceError,
-        FileRevisionService, FileService, LinkService, PageRevisionService, PageService,
-        ParentService, PostTransactionToApiResponse, RenderService, RequestFetchService,
-        ScoreService, ServiceContext, SiteService, TextService, UserService, VoteService,
+        FileRevisionService, FileService, LinkService, MfaService, PageRevisionService,
+        PageService, ParentService, PostTransactionToApiResponse, RenderService,
+        RequestFetchService, ScoreService, ServiceContext, SessionService, SiteService,
+        TextService, UserService, VoteService,
     };
     pub use crate::utils::error_response;
     pub use crate::web::HttpUnwrap;
@@ -58,3 +59,4 @@ pub mod text;
 pub mod user;
 pub mod user_bot;
 pub mod vote;
+pub mod web;
