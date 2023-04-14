@@ -1,5 +1,5 @@
 /*
- * services/file_revision/mod.rs
+ * hash/mod.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -18,15 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod prelude {
-    pub use super::super::prelude::*;
-    pub use super::structs::*;
-    pub use crate::hash::BlobHash;
-    pub use crate::models::sea_orm_active_enums::FileRevisionType;
-}
+mod blob;
+mod text;
 
-mod service;
-mod structs;
-
-pub use self::service::FileRevisionService;
-pub use self::structs::*;
+pub use self::blob::*;
+pub use self::text::*;

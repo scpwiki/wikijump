@@ -42,7 +42,7 @@ pub struct CreateFileRevisionBody {
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct FileBlob {
-    pub s3_hash: Hash,
+    pub s3_hash: BlobHash,
     pub size_hint: i64,
     pub mime_hint: String,
 }
@@ -61,7 +61,7 @@ pub struct CreateFirstFileRevision {
     pub file_id: i64,
     pub user_id: i64,
     pub name: String,
-    pub s3_hash: Hash,
+    pub s3_hash: BlobHash,
     pub size_hint: i64,
     pub mime_hint: String,
     pub licensing: serde_json::Value,

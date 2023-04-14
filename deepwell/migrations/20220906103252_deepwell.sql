@@ -178,13 +178,17 @@ CREATE TYPE page_revision_change AS ENUM (
     'tags'
 );
 
--- No unique constraint because that creates a separate index,
--- which will impact performance. Instead we add a CHECK constraint.
+-- No unique constraint for 'contents' because that would create
+-- create a separate index, which will impact performance.
+--
+-- If the KangarooTwelve hash algorithm was available in pgcrypto
+-- we'd check directly (hash = digest(contents, 'kangarootwelve')),
+-- but since we can't we'll just verify the hash length.
 CREATE TABLE text (
     hash BYTEA PRIMARY KEY,
     contents TEXT COMPRESSION pglz NOT NULL,
 
-    CHECK (hash = digest(contents, 'sha512'))
+    CHECK (length(hash) = 16)  -- KangarooTwelve hash size, 128 bits
 );
 
 -- Main revision table

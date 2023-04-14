@@ -1,5 +1,5 @@
 /*
- * services/file_revision/mod.rs
+ * hash/text.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -18,15 +18,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod prelude {
-    pub use super::super::prelude::*;
-    pub use super::structs::*;
-    pub use crate::hash::BlobHash;
-    pub use crate::models::sea_orm_active_enums::FileRevisionType;
+use tiny_keccak::{Hasher, KangarooTwelve};
+
+/// The expected length of a text hash digest.
+///
+/// This is the standard output length for KangarooTwelve in bytes.
+pub const TEXT_HASH_LENGTH: usize = 16;
+
+/// The array type for a text hash digest;
+pub type TextHash = [u8; 16];
+
+/// Produces a byte array containing the KangaroTwelve hash for the given data.
+pub fn k12_hash(data: &[u8]) -> TextHash {
+    let mut bytes = [0; 16];
+    let mut hasher = KangarooTwelve::new(data);
+    hasher.update(data);
+    hasher.finalize(&mut bytes);
+    bytes
 }
-
-mod service;
-mod structs;
-
-pub use self::service::FileRevisionService;
-pub use self::structs::*;

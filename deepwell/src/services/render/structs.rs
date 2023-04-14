@@ -19,12 +19,12 @@
  */
 
 use super::prelude::*;
-use crate::hash::Hash;
+use crate::hash::TextHash;
 
 #[derive(Debug)]
 pub struct RenderOutput {
     pub html_output: HtmlOutput,
     pub errors: Vec<ParseError>,
-    pub compiled_hash: Hash,
+    pub compiled_hash: TextHash,
     pub compiled_generator: String,
 }

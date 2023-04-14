@@ -23,7 +23,7 @@ use crate::utils::DateTimeWithTimeZone;
 
 #[derive(Debug)]
 pub struct CreateBlobOutput {
-    pub hash: Hash,
+    pub hash: BlobHash,
     pub mime: String,
     pub size: i64,
     pub created: bool,
