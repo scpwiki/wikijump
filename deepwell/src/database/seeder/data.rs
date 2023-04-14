@@ -104,6 +104,7 @@ pub struct User {
 #[derive(Deserialize, Debug)]
 pub struct SitePages {
     pub site: Site,
+    pub aliases: Vec<String>,
     pub pages: Vec<Page>,
 }
 

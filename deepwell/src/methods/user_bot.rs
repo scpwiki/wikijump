@@ -21,7 +21,7 @@
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user_bot_owner::Model as UserBotOwnerModel;
-use crate::services::user::{CreateUser, GetUser, UpdateUserBody, UserProfileOutput};
+use crate::services::user::{CreateUser, GetUser, UpdateUserBody};
 use crate::services::user_bot_owner::{
     BotOwner, BotUserOutput, CreateBotOwner, CreateBotUser, DeleteBotOwner,
     UserBotOwnerService,
@@ -117,7 +117,7 @@ pub async fn user_bot_get(mut req: ApiRequest) -> ApiResponse {
         .to_api()?;
 
     let output = BotUserOutput {
-        user: UserProfileOutput::from(&user),
+        user,
         owners: owners
             .into_iter()
             .map(

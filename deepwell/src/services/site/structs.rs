@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::models::alias::Model as AliasModel;
 use crate::models::site::Model as SiteModel;
 use crate::models::site_domain::Model as SiteDomainModel;
 use crate::web::{ProvidedValue, Reference};
@@ -49,7 +50,7 @@ pub struct GetSite<'a> {
 pub struct GetSiteOutput {
     #[serde(flatten)]
     pub site: SiteModel,
-    pub aliases: Vec<()>,
+    pub aliases: Vec<AliasModel>,
     pub domains: Vec<SiteDomainModel>,
 }
 
@@ -57,6 +58,7 @@ pub struct GetSiteOutput {
 #[serde(rename_all = "camelCase")]
 pub struct UpdateSite<'a> {
     pub site: Reference<'a>,
+    pub user_id: i64,
 
     #[serde(flatten)]
     pub body: UpdateSiteBody,
@@ -66,6 +68,7 @@ pub struct UpdateSite<'a> {
 #[serde(rename_all = "camelCase", default)]
 pub struct UpdateSiteBody {
     pub name: ProvidedValue<String>,
+    pub slug: ProvidedValue<String>,
     pub tagline: ProvidedValue<String>,
     pub description: ProvidedValue<String>,
     pub locale: ProvidedValue<String>,

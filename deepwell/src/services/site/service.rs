@@ -21,7 +21,10 @@
 use wikidot_normalize::normalize;
 
 use super::prelude::*;
+use crate::models::sea_orm_active_enums::AliasType;
 use crate::models::site::{self, Entity as Site, Model as SiteModel};
+use crate::services::alias::CreateAlias;
+use crate::services::AliasService;
 use crate::utils::validate_locale;
 
 #[derive(Debug)]
@@ -70,41 +73,134 @@ impl SiteService {
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
         input: UpdateSiteBody,
+        user_id: i64,
     ) -> Result<SiteModel> {
         let txn = ctx.transaction();
-        let model = Self::get(ctx, reference).await?;
-        let mut site: site::ActiveModel = model.into();
+        let site = Self::get(ctx, reference).await?;
+        let mut model = site::ActiveModel {
+            site_id: Set(site.site_id),
+            ..Default::default()
+        };
 
         if let ProvidedValue::Set(name) = input.name {
-            site.name = Set(name);
+            model.name = Set(name);
+        }
+
+        if let ProvidedValue::Set(new_slug) = input.slug {
+            Self::update_slug(ctx, &site, &new_slug, user_id).await?;
+            model.slug = Set(new_slug);
         }
 
         if let ProvidedValue::Set(tagline) = input.tagline {
-            site.tagline = Set(tagline);
+            model.tagline = Set(tagline);
         }
 
         if let ProvidedValue::Set(description) = input.description {
-            site.description = Set(description);
+            model.description = Set(description);
         }
 
         if let ProvidedValue::Set(locale) = input.locale {
             validate_locale(&locale)?;
-            site.locale = Set(locale);
+            model.locale = Set(locale);
         }
 
-        // Set last time site was updated.
-        site.updated_at = Set(Some(now()));
+        // Update site
+        model.updated_at = Set(Some(now()));
+        let new_site = model.update(txn).await?;
 
-        // Update site.
-        let model = site.update(txn).await?;
-        Ok(model)
+        // Run verification afterwards if the slug changed
+        if site.slug != new_site.slug {
+            try_join!(
+                AliasService::verify(ctx, AliasType::Site, &site.slug),
+                AliasService::verify(ctx, AliasType::Site, &new_site.slug),
+            )?;
+        }
+
+        // Return
+        Ok(new_site)
+    }
+
+    /// Updates the slug for a site, leaving behind an alias.
+    ///
+    /// No alias row checks are performed because of a dependency order requiring
+    /// the user's slug to have been updated before aliases can be added.
+    /// Instead, alias row verification occurs manually afterwards.
+    async fn update_slug(
+        ctx: &ServiceContext<'_>,
+        site: &SiteModel,
+        new_slug: &str,
+        user_id: i64,
+    ) -> Result<()> {
+        tide::log::info!("Updating slug for site {}, adding alias", site.site_id);
+
+        let old_slug = &site.slug;
+        match AliasService::get_optional(ctx, AliasType::Site, new_slug).await? {
+            // Swap alias with site's current slug
+            //
+            // Don't return a future, nothing to do after
+            Some(alias) => {
+                tide::log::debug!("Swapping slug between site and alias");
+                AliasService::swap(ctx, alias.alias_id, old_slug).await?;
+            }
+
+            // Return future that creates new alias at the old location
+            None => {
+                tide::log::debug!("Creating site alias for {old_slug}");
+
+                // Add site alias for old slug.
+                //
+                // We don't verify here because the site row hasn't been
+                // updated yet, so we instead run AliasService::verify()
+                // ourselves at the end of site updating (see above).
+                AliasService::create2(
+                    ctx,
+                    CreateAlias {
+                        slug: str!(old_slug),
+                        alias_type: AliasType::Site,
+                        target_id: site.site_id,
+                        created_by: user_id,
+                        bypass_filter: true, // sites don't have filters
+                    },
+                    false,
+                )
+                .await?;
+            }
+        }
+
+        Ok(())
+    }
+
+    #[inline]
+    pub async fn exists(
+        ctx: &ServiceContext<'_>,
+        reference: Reference<'_>,
+    ) -> Result<bool> {
+        Self::get_optional(ctx, reference)
+            .await
+            .map(|site| site.is_some())
     }
 
     pub async fn get_optional(
         ctx: &ServiceContext<'_>,
-        reference: Reference<'_>,
+        mut reference: Reference<'_>,
     ) -> Result<Option<SiteModel>> {
         let txn = ctx.transaction();
+
+        // If slug, determine if this is a site alias.
+        //
+        // This uses separate queries rather than a join.
+        // See UserService::get_optional() for more information.
+        if let Reference::Slug(ref slug) = reference {
+            if let Some(alias) =
+                AliasService::get_optional(ctx, AliasType::Site, slug).await?
+            {
+                // If present, this is the actual site. Proceed with SELECT by id.
+                // Rewrite reference so in the "real" site search
+                // we locate directly via site ID.
+                reference = Reference::Id(alias.target_id);
+            }
+        }
+
         let site = match reference {
             Reference::Id(id) => Site::find_by_id(id).one(txn).await?,
             Reference::Slug(slug) => {
@@ -142,23 +238,11 @@ impl SiteService {
         match reference {
             Reference::Id(id) => Ok(id),
             Reference::Slug(slug) => {
-                let txn = ctx.transaction();
-                let result: Option<(i64,)> = Site::find()
-                    .select_only()
-                    .column(site::Column::SiteId)
-                    .filter(
-                        Condition::all()
-                            .add(site::Column::Slug.eq(slug))
-                            .add(site::Column::DeletedAt.is_null()),
-                    )
-                    .into_tuple()
-                    .one(txn)
-                    .await?;
+                // For slugs we pass-through the call so that alias handling is done.
+                let SiteModel { site_id, .. } =
+                    Self::get(ctx, Reference::Slug(slug)).await?;
 
-                match result {
-                    Some(tuple) => Ok(tuple.0),
-                    None => Err(Error::NotFound),
-                }
+                Ok(site_id)
             }
         }
     }

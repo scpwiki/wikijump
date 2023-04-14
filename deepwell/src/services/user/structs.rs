@@ -19,12 +19,10 @@
  */
 
 use super::prelude::*;
+use crate::models::alias::Model as AliasModel;
 use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user::Model as UserModel;
-use crate::models::user_alias::Model as UserAliasModel;
-use crate::utils::DateTimeWithTimeZone;
 use chrono::NaiveDate;
-use std::collections::HashMap;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -57,7 +55,7 @@ pub struct GetUser<'a> {
 pub struct GetUserOutput {
     #[serde(flatten)]
     pub user: UserModel,
-    pub aliases: Vec<UserAliasModel>,
+    pub aliases: Vec<AliasModel>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -87,76 +85,4 @@ pub struct UpdateUserBody {
 
     #[serde(default)]
     pub bypass_filter: bool,
-}
-
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct UserIdentityOutput {
-    id: i64,
-    name: String,
-    slug: String,
-    tinyavatar: Option<String>, // TODO
-    role: String,
-}
-
-impl From<&UserModel> for UserIdentityOutput {
-    fn from(user: &UserModel) -> Self {
-        Self {
-            id: user.user_id,
-            name: user.name.clone(),
-            slug: user.slug.clone(),
-            tinyavatar: None,    // TODO
-            role: String::new(), // TODO
-        }
-    }
-}
-
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct UserInfoOutput {
-    #[serde(flatten)]
-    identity: UserIdentityOutput,
-
-    biography: Option<String>,
-    avatar: Option<String>, // TODO
-    since: DateTimeWithTimeZone,
-    last_active: Option<DateTimeWithTimeZone>,
-}
-
-impl From<&UserModel> for UserInfoOutput {
-    fn from(user: &UserModel) -> Self {
-        Self {
-            identity: UserIdentityOutput::from(user),
-            biography: user.biography.clone(),
-            avatar: None, // TODO
-            since: user.created_at,
-            last_active: user.updated_at,
-        }
-    }
-}
-
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct UserProfileOutput {
-    #[serde(flatten)]
-    info: UserInfoOutput,
-
-    real_name: Option<String>,
-    gender: Option<String>,
-    birthday: Option<NaiveDate>,
-    location: Option<String>,
-    links: HashMap<String, String>,
-}
-
-impl From<&UserModel> for UserProfileOutput {
-    fn from(user: &UserModel) -> Self {
-        Self {
-            info: UserInfoOutput::from(user),
-            real_name: user.real_name.clone(),
-            gender: user.gender.clone(),
-            birthday: user.birthday,
-            location: None,        // TODO
-            links: HashMap::new(), // TODO
-        }
-    }
 }

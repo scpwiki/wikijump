@@ -19,8 +19,9 @@
  */
 
 use super::prelude::*;
+use crate::models::alias::Model as AliasModel;
+use crate::models::sea_orm_active_enums::AliasType;
 use crate::models::user::Model as UserModel;
-use crate::models::user_alias::Model as UserAliasModel;
 use crate::services::user::{
     CreateUser, GetUser, GetUserOutput, UpdateUser, UpdateUserBody,
 };
@@ -41,6 +42,11 @@ pub async fn user_create(mut req: ApiRequest) -> ApiResponse {
     Ok(response)
 }
 
+pub async fn user_import(_req: ApiRequest) -> ApiResponse {
+    // TODO implement importing user from Wikidot
+    todo!()
+}
+
 pub async fn user_get(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
@@ -49,7 +55,7 @@ pub async fn user_get(mut req: ApiRequest) -> ApiResponse {
     tide::log::info!("Getting user {:?}", reference);
 
     let user = UserService::get(&ctx, reference).await.to_api()?;
-    let aliases = UserAliasService::get_all(&ctx, user.user_id)
+    let aliases = AliasService::get_all(&ctx, AliasType::User, user.user_id)
         .await
         .to_api()?;
 
@@ -139,9 +145,11 @@ pub async fn user_add_name_change(mut req: ApiRequest) -> ApiResponse {
 
 fn build_user_response(
     user: UserModel,
-    aliases: Vec<UserAliasModel>,
+    aliases: Vec<AliasModel>,
     status: StatusCode,
 ) -> ApiResponse {
+    // TODO add user profile picture to output
+    //      flag like wikitext/compiledHtml
     let output = GetUserOutput { user, aliases };
     let body = Body::from_json(&output)?;
     let response = Response::builder(status).body(body).into();

@@ -19,13 +19,13 @@
  */
 
 use super::prelude::*;
-use crate::models::sea_orm_active_enums::UserType;
+use crate::models::sea_orm_active_enums::{AliasType, UserType};
 use crate::models::user::{self, Entity as User, Model as UserModel};
+use crate::services::alias::CreateAlias;
 use crate::services::blob::{BlobService, CreateBlobOutput};
 use crate::services::filter::{FilterClass, FilterType};
-use crate::services::user_alias::CreateUserAlias;
-use crate::services::{FilterService, PasswordService, UserAliasService};
-use crate::utils::{get_user_slug, regex_replace_in_place};
+use crate::services::{AliasService, FilterService, PasswordService};
+use crate::utils::{get_regular_slug, regex_replace_in_place};
 use regex::Regex;
 use sea_orm::ActiveValue;
 use std::cmp;
@@ -51,7 +51,7 @@ impl UserService {
         }: CreateUser,
     ) -> Result<CreateUserOutput> {
         let txn = ctx.transaction();
-        let slug = get_user_slug(&name);
+        let slug = get_regular_slug(&name);
 
         tide::log::debug!("Normalizing user data (name '{}', slug '{}')", name, slug,);
         regex_replace_in_place(&mut name, &LEADING_TRAILING_CHARS, "");
@@ -116,7 +116,7 @@ impl UserService {
         }
 
         // Check for alias conflicts
-        if UserAliasService::exists(ctx, &slug).await? {
+        if AliasService::exists(ctx, AliasType::User, &slug).await? {
             tide::log::error!(
                 "User alias with conflicting slug already exists, cannot create",
             );
@@ -212,19 +212,18 @@ impl UserService {
         //       simple indexes directly, which is why we are
         //       doing it this way.
         if let Reference::Slug(ref slug) = reference {
-            if let Some(alias) = UserAliasService::get_optional(ctx, slug).await? {
+            if let Some(alias) =
+                AliasService::get_optional(ctx, AliasType::User, slug).await?
+            {
                 // If present, this is the actual user. Proceed with SELECT by id.
                 // Rewrite reference so in the "real" user search
                 // we locate directly via user ID.
-                reference = Reference::Id(alias.user_id);
+                reference = Reference::Id(alias.target_id);
             }
         }
 
         let user = match reference {
-            // Get directly from ID
             Reference::Id(id) => User::find_by_id(id).one(txn).await?,
-
-            // Since a slug can be an alias, check for a redirect
             Reference::Slug(slug) => {
                 User::find()
                     .filter(
@@ -260,8 +259,7 @@ impl UserService {
         match reference {
             Reference::Id(id) => Ok(id),
             Reference::Slug(slug) => {
-                // Unlike the other get_id() methods we pass through the
-                // call so that all the alias-handling logic is consistent.
+                // For slugs we pass-through the call so that alias handling is done.
                 let UserModel { user_id, .. } =
                     Self::get(ctx, Reference::Slug(slug)).await?;
 
@@ -289,12 +287,11 @@ impl UserService {
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
         input: UpdateUserBody,
-    ) -> Result<()> {
+    ) -> Result<UserModel> {
         // NOTE: Name filter validation occurs in update_name(), not here
         let txn = ctx.transaction();
         let user = Self::get(ctx, reference).await?;
 
-        let mut verify_name = false;
         let mut model = user::ActiveModel {
             user_id: Set(user.user_id),
             ..Default::default()
@@ -303,7 +300,6 @@ impl UserService {
         // Add each field
         if let ProvidedValue::Set(name) = input.name {
             Self::update_name(ctx, name, &user, &mut model, input.bypass_filter).await?;
-            verify_name = true;
         }
 
         if let ProvidedValue::Set(email) = input.email {
@@ -366,23 +362,29 @@ impl UserService {
             model.avatar_s3_hash = Set(s3_hash);
         }
 
-        // Set update flag
+        // Update user
         model.updated_at = Set(Some(now()));
-
-        // Update and return
         let new_user = model.update(txn).await?;
 
-        // Verify, if needed
-        if verify_name {
+        // Run verification afterwards if the slug changed
+        if user.slug != new_user.slug {
             try_join!(
-                UserAliasService::verify(ctx, &user.slug),
-                UserAliasService::verify(ctx, &new_user.slug),
+                AliasService::verify(ctx, AliasType::User, &user.slug),
+                AliasService::verify(ctx, AliasType::User, &new_user.slug),
             )?;
         }
 
-        Ok(())
+        Ok(new_user)
     }
 
+    /// Updates the user's name, and performs the relevant accounting for it.
+    ///
+    /// This calculates if a name change token deduction is needed,
+    /// arranges the user alias changes as needed.
+    ///
+    /// No alias row checks are performed because of a dependency order requiring
+    /// the user's slug to have been updated before aliases can be added.
+    /// Instead, alias row verification occurs manually afterwards.
     async fn update_name(
         ctx: &ServiceContext<'_>,
         new_name: String,
@@ -395,7 +397,7 @@ impl UserService {
         // unaltered, or if the slug is a prior name of theirs
         // (i.e. they have a user alias for it).
 
-        let new_slug = get_user_slug(&new_name);
+        let new_slug = get_regular_slug(&new_name);
         let old_slug = &user.slug;
 
         // Perform filter validation
@@ -406,35 +408,35 @@ impl UserService {
         if new_slug == user.slug {
             tide::log::debug!("User slug is the same, rename is free");
 
-            // Set model, but return early, we don't deduct a name change token
+            // Set model, but return early, we don't deduct a
+            // name change token or create a new user alias.
             model.name = Set(new_name);
             return Ok(());
         }
 
-        if let Some(alias) = UserAliasService::get_optional(ctx, &new_slug).await? {
+        if let Some(alias) =
+            AliasService::get_optional(ctx, AliasType::User, &new_slug).await?
+        {
             tide::log::debug!("User slug is a past alias, rename is free");
 
             // Swap user alias for old slug
-            UserAliasService::swap(ctx, alias.alias_id, old_slug).await?;
+            AliasService::swap(ctx, alias.alias_id, old_slug).await?;
 
             // Set model, but return early, we don't deduct a name change token
             model.name = Set(new_name);
             model.slug = Set(new_slug);
+
+            // Don't create user alias after
             return Ok(());
         }
 
         // All changes beyond this point involve creating a new alias, so
         // a name change token must be consumed.
+
         if user.name_changes_left == 0 {
             tide::log::error!("User ID {} has no remaining name changes", user.user_id);
             return Err(Error::InsufficientNameChanges);
         }
-
-        tide::log::debug!(
-            "Creating user alias for '{}' -> '{}', deducting name change",
-            old_slug,
-            new_slug,
-        );
 
         // Deduct name change token and add user alias for old slug.
         //
@@ -442,22 +444,32 @@ impl UserService {
         // they initiatived the rename.
         //
         // We don't verify here because the user row hasn't been
-        // updated yet, so we instead run UserAliasService::verify()
+        // updated yet, so we instead run AliasService::verify()
         // ourselves at the end of user updating.
-        UserAliasService::create_no_verify(
-            ctx,
-            CreateUserAlias {
-                slug: old_slug.clone(),
-                target_user_id: user.user_id,
-                created_by_user_id: user.user_id,
-                bypass_filter,
-            },
-        )
-        .await?;
+
+        tide::log::debug!(
+            "Creating user alias for '{}' -> '{}', deducting name change",
+            old_slug,
+            new_slug,
+        );
 
         model.name_changes_left = Set(user.name_changes_left - 1);
         model.name = Set(new_name);
         model.slug = Set(new_slug);
+
+        AliasService::create2(
+            ctx,
+            CreateAlias {
+                slug: str!(old_slug),
+                alias_type: AliasType::User,
+                target_id: user.user_id,
+                created_by: user.user_id,
+                bypass_filter,
+            },
+            false,
+        )
+        .await?;
+
         Ok(())
     }
 
@@ -555,7 +567,7 @@ impl UserService {
         tide::log::info!("Deleting user with ID {}", user.user_id);
 
         // Delete all user aliases
-        UserAliasService::delete_all(ctx, user.user_id).await?;
+        AliasService::delete_all(ctx, AliasType::User, user.user_id).await?;
 
         // Set deletion flag
         let model = user::ActiveModel {

@@ -57,14 +57,6 @@ CREATE TABLE "user" (
     CHECK (avatar_s3_hash IS NULL OR length(avatar_s3_hash) = 64)   -- SHA-512 hash size (if set)
 );
 
-CREATE TABLE user_alias (
-    alias_id BIGSERIAL PRIMARY KEY,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-    created_by BIGINT NOT NULL REFERENCES "user"(user_id),
-    user_id BIGINT NOT NULL REFERENCES "user"(user_id),
-    slug TEXT NOT NULL UNIQUE
-);
-
 CREATE TABLE user_bot_owner (
     bot_user_id BIGINT REFERENCES "user"(user_id),
     human_user_id BIGINT REFERENCES "user"(user_id),
@@ -103,12 +95,24 @@ CREATE TABLE site_domain (
     CHECK (length(domain) > 0)
 );
 
-CREATE TABLE site_alias (
+--
+-- Aliases
+--
+
+CREATE TYPE alias_type AS ENUM (
+    'site',
+    'user'
+);
+
+CREATE TABLE alias (
     alias_id BIGSERIAL PRIMARY KEY,
+    alias_type alias_type NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     created_by BIGINT NOT NULL REFERENCES "user"(user_id),
-    site_id BIGINT NOT NULL REFERENCES site(site_id),
-    slug TEXT UNIQUE
+    target_id BIGINT NOT NULL,
+    slug TEXT,
+
+    UNIQUE (alias_type, slug)
 );
 
 --

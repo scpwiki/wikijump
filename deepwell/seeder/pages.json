@@ -7,6 +7,7 @@
             "description": "Wikijump host site",
             "locale": "en"
         },
+        "aliases": [],
         "pages": [
             {
                 "slug": "start",
@@ -68,6 +69,7 @@
             "description": "Platform testing and experiments",
             "locale": "en"
         },
+        "aliases": ["check"],
         "pages": [
             {
                 "slug": "start",
@@ -114,6 +116,7 @@
             "description": "Template site (English)",
             "locale": "en"
         },
+        "aliases": [],
         "pages": [
             {
                 "slug": "start",

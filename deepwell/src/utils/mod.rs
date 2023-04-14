@@ -24,16 +24,16 @@ mod category;
 mod crypto;
 mod error;
 mod locale;
+mod slug;
 mod string;
 mod tide;
 mod time;
-mod user;
 
 pub use self::category::*;
 pub use self::crypto::*;
 pub use self::error::*;
 pub use self::locale::*;
+pub use self::slug::*;
 pub use self::string::*;
 pub use self::tide::*;
 pub use self::time::*;
-pub use self::user::*;

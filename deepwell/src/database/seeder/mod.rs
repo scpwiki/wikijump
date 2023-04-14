@@ -23,11 +23,12 @@ mod data;
 use self::data::{SeedData, SitePages};
 use crate::api::ApiServerState;
 use crate::constants::{ADMIN_USER_ID, SYSTEM_USER_ID};
+use crate::models::sea_orm_active_enums::AliasType;
+use crate::services::alias::{AliasService, CreateAlias};
 use crate::services::filter::{CreateFilter, FilterService};
 use crate::services::page::{CreatePage, PageService};
 use crate::services::site::{CreateSite, CreateSiteOutput, SiteService};
 use crate::services::user::{CreateUser, CreateUserOutput, UpdateUserBody, UserService};
-use crate::services::user_alias::{CreateUserAlias, UserAliasService};
 use crate::services::ServiceContext;
 use crate::web::{ProvidedValue, Reference};
 use anyhow::Result;
@@ -120,12 +121,13 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
         for alias in aliases {
             tide::log::info!("Creating user alias '{alias}'");
 
-            UserAliasService::create(
+            AliasService::create(
                 &ctx,
-                CreateUserAlias {
+                CreateAlias {
                     slug: alias,
-                    target_user_id: user_id,
-                    created_by_user_id: SYSTEM_USER_ID,
+                    alias_type: AliasType::User,
+                    target_id: user_id,
+                    created_by: SYSTEM_USER_ID,
                     bypass_filter: true,
                 },
             )
@@ -134,7 +136,12 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
     }
 
     // Seed site data
-    for SitePages { site, pages } in site_pages {
+    for SitePages {
+        site,
+        aliases: site_aliases,
+        pages,
+    } in site_pages
+    {
         tide::log::info!("Creating seed site '{}' (slug {})", site.name, site.slug);
 
         let CreateSiteOutput { site_id, slug: _ } = SiteService::create(
@@ -148,6 +155,22 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
             },
         )
         .await?;
+
+        for site_alias in site_aliases {
+            tide::log::info!("Creating site alias '{}'", site_alias);
+
+            AliasService::create(
+                &ctx,
+                CreateAlias {
+                    slug: site_alias,
+                    alias_type: AliasType::Site,
+                    target_id: site_id,
+                    created_by: SYSTEM_USER_ID,
+                    bypass_filter: true,
+                },
+            )
+            .await?;
+        }
 
         for page in pages {
             tide::log::info!("Creating page '{}' (slug {})", page.title, page.slug);

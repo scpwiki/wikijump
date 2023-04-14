@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::services::user::UserProfileOutput;
+use crate::models::user::Model as UserModel;
 use crate::web::Reference;
 
 #[derive(Deserialize, Debug)]
@@ -69,7 +69,6 @@ pub struct CreateBotOwnerBody {
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct BotUserOutput {
-    #[serde(flatten)]
-    pub user: UserProfileOutput,
+    pub user: UserModel,
     pub owners: Vec<BotOwner>,
 }

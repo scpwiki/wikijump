@@ -1,5 +1,5 @@
 /*
- * utils/user.rs
+ * utils/slug.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -21,7 +21,10 @@
 use crate::utils::replace_in_place;
 use wikidot_normalize::normalize;
 
-pub fn get_user_slug<S: Into<String>>(name: S) -> String {
+/// Normalize a name to a slug. Does not preseve `:`.
+///
+/// Meant for use in sites and users.
+pub fn get_regular_slug<S: Into<String>>(name: S) -> String {
     let mut slug = name.into();
     replace_in_place(&mut slug, ":", "-");
     normalize(&mut slug);

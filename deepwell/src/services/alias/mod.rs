@@ -1,5 +1,5 @@
 /*
- * services/user_alias/structs.rs
+ * services/alias/mod.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -18,20 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct CreateUserAlias {
-    pub slug: String,
-    pub target_user_id: i64,
-    pub created_by_user_id: i64,
-
-    #[serde(default)]
-    pub bypass_filter: bool,
+mod prelude {
+    pub use super::super::prelude::*;
+    pub use super::structs::*;
 }
 
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct CreateUserAliasOutput {
-    pub alias_id: i64,
-    pub slug: String,
-}
+mod service;
+mod structs;
+
+pub use self::service::AliasService;
+pub use self::structs::*;

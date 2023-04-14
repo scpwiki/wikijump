@@ -51,6 +51,7 @@ mod prelude {
 mod context;
 mod error;
 
+pub mod alias;
 pub mod authentication;
 pub mod blob;
 pub mod category;
@@ -74,13 +75,13 @@ pub mod session;
 pub mod site;
 pub mod text;
 pub mod user;
-pub mod user_alias;
 pub mod user_bot_owner;
 pub mod vote;
 
 use crate::api::ApiRequest;
 use sea_orm::DatabaseConnection;
 
+pub use self::alias::AliasService;
 pub use self::authentication::AuthenticationService;
 pub use self::blob::BlobService;
 pub use self::category::CategoryService;
@@ -104,7 +105,6 @@ pub use self::session::SessionService;
 pub use self::site::SiteService;
 pub use self::text::TextService;
 pub use self::user::UserService;
-pub use self::user_alias::UserAliasService;
 pub use self::user_bot_owner::UserBotOwnerService;
 pub use self::vote::VoteService;
 

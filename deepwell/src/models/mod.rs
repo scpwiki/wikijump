@@ -2,6 +2,7 @@
 
 pub mod prelude;
 
+pub mod alias;
 pub mod file;
 pub mod file_revision;
 pub mod filter;
@@ -22,5 +23,4 @@ pub mod site_alias;
 pub mod site_domain;
 pub mod text;
 pub mod user;
-pub mod user_alias;
 pub mod user_bot_owner;
