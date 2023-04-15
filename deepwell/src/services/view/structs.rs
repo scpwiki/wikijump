@@ -27,9 +27,9 @@ use crate::models::user::Model as UserModel;
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct GetPageView {
-    pub hostname: String,
-    pub route: Option<PageRoute>,
+    pub domain: String,
     pub session_token: String,
+    pub route: Option<PageRoute>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -42,11 +42,19 @@ pub struct PageRoute {
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct GetPageViewOutput {
-    pub site: SiteModel,
+    #[serde(flatten)]
+    pub viewer: Viewer,
     pub page: PageModel,
     pub page_revision: PageRevisionModel,
-    pub session: SessionModel,
-    pub user: UserModel,
     pub wikitext: String,
     pub compiled_html: String,
+}
+
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct Viewer {
+    pub site: SiteModel,
+    pub session: SessionModel,
+    pub user: UserModel,
+    pub user_permissions: (),
 }

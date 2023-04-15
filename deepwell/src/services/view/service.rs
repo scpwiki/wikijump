@@ -26,7 +26,7 @@
 //! gathering all the relevant data and sending it back in one convenient `PageViewOutput`
 //! response.
 //!
-//! The service also contains the core method `get_view_context()`, which converts the
+//! The service also contains the core method `ViewService::get_viewer()`, which converts the
 //! requesting domain and session token into a site and user, respectively.
 
 use super::prelude::*;
@@ -42,18 +42,23 @@ impl ViewService {
     pub async fn page(
         ctx: &ServiceContext<'_>,
         GetPageView {
-            hostname,
+            domain,
             route,
             session_token,
         }: GetPageView,
     ) -> Result<GetPageViewOutput> {
         tide::log::info!(
-            "Getting page view data for host '{}', route '{:?}'",
-            hostname,
+            "Getting page view data for domain '{}', route '{:?}'",
+            domain,
             route,
         );
 
-        let site: SiteModel = todo!(); // TODO HostService, get site
+        let Viewer {
+            site,
+            session,
+            user,
+            user_permissions,
+        } = Self::get_viewer(ctx, &domain, &session_token).await?;
 
         // If None, means the main page for the site.
         let route = match route {
@@ -82,8 +87,6 @@ impl ViewService {
         )
         .to_api()?;
 
-        let session = SessionService::get(&ctx, &session_token).await.to_api()?;
-
         // TODO Check if user-agent and IP match?
 
         let user = UserService::get(&ctx, Reference::Id(session.user_id))
@@ -91,13 +94,41 @@ impl ViewService {
             .to_api()?;
 
         Ok(GetPageViewOutput {
-            site,
+            viewer: Viewer {
+                site,
+                session,
+                user,
+                user_permissions,
+            },
             page,
             page_revision,
             wikitext,
             compiled_html,
+        })
+    }
+
+    pub async fn get_viewer(
+        ctx: &ServiceContext<'_>,
+        domain: &str,
+        session_token: &str,
+    ) -> Result<Viewer> {
+        tide::log::info!("Getting view context from domain '{domain}' and session token");
+
+        let site: SiteModel = todo!();
+        let (site, session) = try_join!(
+            async { Ok(site) },
+            SessionService::get(&ctx, &session_token),
+        )
+        .to_api()?;
+
+        let user = UserService::get(&ctx, Reference::Id(session.user_id)).await?;
+        let user_permissions = (); // TODO add user permissions, get schem for user and site
+
+        Ok(Viewer {
+            site,
             session,
             user,
+            user_permissions: (),
         })
     }
 }
