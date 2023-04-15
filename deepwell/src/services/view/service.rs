@@ -32,7 +32,8 @@
 use super::prelude::*;
 use crate::models::site::Model as SiteModel;
 use crate::services::{
-    PageRevisionService, PageService, SessionService, TextService, UserService,
+    DomainService, PageRevisionService, PageService, SessionService, TextService,
+    UserService,
 };
 
 #[derive(Debug)]
@@ -114,9 +115,8 @@ impl ViewService {
     ) -> Result<Viewer> {
         tide::log::info!("Getting view context from domain '{domain}' and session token");
 
-        let site: SiteModel = todo!();
         let (site, session) = try_join!(
-            async { Ok(site) },
+            DomainService::site_from_domain(&ctx, domain),
             SessionService::get(&ctx, &session_token),
         )
         .to_api()?;
