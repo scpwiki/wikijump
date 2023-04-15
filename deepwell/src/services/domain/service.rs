@@ -132,7 +132,7 @@ impl DomainService {
                 SiteService::get_optional(ctx, Reference::Slug(cow!(subdomain))).await
             }
 
-            // Not canonical, try custom domain
+            // Not canonical, try custom domain.
             None => {
                 tide::log::debug!("Not found, checking if it's a custom domain");
                 Self::site_from_custom_domain_optional(ctx, domain).await
