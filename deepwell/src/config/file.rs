@@ -191,8 +191,8 @@ impl ConfigFile {
                 },
             domain:
                 Domain {
-                    main: main_domain,
-                    files: files_domain,
+                    main: mut main_domain,
+                    files: mut files_domain,
                 },
             job:
                 Job {
@@ -210,6 +210,11 @@ impl ConfigFile {
                     refill_name_change_days,
                 },
         } = self;
+
+        // Prefix domains with '.' so we can do easy subdomain checks
+        // and concatenations.
+        prefix_domain(&mut main_domain);
+        prefix_domain(&mut files_domain);
 
         // Treats empty strings (which aren't valid paths anyways)
         // as null for the purpose of pid_file.
@@ -257,5 +262,11 @@ impl ConfigFile {
                 refill_name_change_days * 24 * 60 * 60,
             ),
         }
+    }
+}
+
+fn prefix_domain(domain: &mut String) {
+    if !domain.starts_with('.') {
+        domain.insert(0, '.');
     }
 }
