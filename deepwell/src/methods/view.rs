@@ -1,5 +1,5 @@
 /*
- * methods/web.rs
+ * methods/view.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -27,7 +27,7 @@ use crate::models::user::Model as UserModel;
 use crate::web::Reference;
 
 /// Returns relevant context for rendering a page from a processed web request.
-pub async fn web_page_get(mut req: ApiRequest) -> ApiResponse {
+pub async fn view_page(mut req: ApiRequest) -> ApiResponse {
     #[derive(Deserialize, Debug)]
     #[serde(rename_all = "camelCase")]
     struct WebPageGet {

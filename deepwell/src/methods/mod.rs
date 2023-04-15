@@ -58,5 +58,5 @@ pub mod site;
 pub mod text;
 pub mod user;
 pub mod user_bot;
+pub mod view;
 pub mod vote;
-pub mod web;

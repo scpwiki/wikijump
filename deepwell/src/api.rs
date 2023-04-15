@@ -32,7 +32,7 @@ use crate::locales::Localizations;
 use crate::methods::{
     auth::*, category::*, file::*, file_revision::*, link::*, locale::*, misc::*,
     page::*, page_revision::*, parent::*, site::*, text::*, user::*, user_bot::*,
-    vote::*, web::*,
+    view::*, vote::*,
 };
 use crate::services::blob::spawn_magic_thread;
 use crate::services::job::JobRunner;
@@ -135,7 +135,7 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
     app.at("/message/:locale/:message_key").get(message_get);
 
     // Routes for web server
-    app.at("/web/page").get(web_page_get);
+    app.at("/view/page").get(view_page);
 
     // Authentication
     app.at("/auth/login").post(auth_login);
