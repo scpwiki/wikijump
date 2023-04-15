@@ -117,8 +117,7 @@ impl ViewService {
         let (site, session) = try_join!(
             DomainService::site_from_domain(&ctx, domain),
             SessionService::get(&ctx, session_token),
-        )
-        .to_api()?;
+        )?;
 
         let user = UserService::get(&ctx, Reference::Id(session.user_id)).await?;
         let user_permissions = (); // TODO add user permissions, get schem for user and site
