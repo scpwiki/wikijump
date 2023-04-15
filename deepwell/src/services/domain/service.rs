@@ -18,6 +18,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+//! Service for managing custom domains.
+//!
+//! This service is concerned only with the maintenance of custom domain settings.
+//!
+//! If you need to get the site from a canonical hostname (e.g. `foo.wikijump.com`),
+//! see `HostService`.
+
+// TODO disallow custom domains that are subdomains of the main domain or files domain
+
 use super::prelude::*;
 use crate::models::site::{self, Entity as Site, Model as SiteModel};
 use crate::models::site_domain::{self, Entity as SiteDomain, Model as SiteDomainModel};
