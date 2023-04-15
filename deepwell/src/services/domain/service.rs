@@ -149,6 +149,23 @@ impl DomainService {
         find_or_error(Self::site_from_domain_optional(ctx, domain)).await
     }
 
+    /// Gets the preferred domain for the given site.
+    pub async fn domain_for_site(
+        ctx: &ServiceContext<'_>,
+        site: &SiteModel,
+    ) -> String {
+        tide::log::debug!(
+            "Getting preferred domain for site '{}' (ID {})",
+            site.slug,
+            site.site_id,
+        );
+
+        match &site.custom_domain {
+            Some(domain) => str!(domain),
+            None => format!("{}{}", site.slug, ctx.config().main_domain),
+        }
+    }
+
     /// Gets all custom domains for a site.
     pub async fn list_custom(
         ctx: &ServiceContext<'_>,
