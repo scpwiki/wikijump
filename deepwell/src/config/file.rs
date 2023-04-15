@@ -45,6 +45,7 @@ pub struct ConfigFile {
     database: Database,
     security: Security,
     locale: Locale,
+    domain: Domain,
     job: Job,
     ftml: Ftml,
     user: User,
@@ -109,6 +110,13 @@ struct Job {
 #[serde(rename_all = "kebab-case")]
 struct Locale {
     path: PathBuf,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "kebab-case")]
+struct Domain {
+    main: String,
+    files: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -181,6 +189,11 @@ impl ConfigFile {
                             time_skew,
                         },
                 },
+            domain:
+                Domain {
+                    main: main_domain,
+                    files: files_domain,
+                },
             job:
                 Job {
                     delay_ms: job_delay_ms,
@@ -212,6 +225,8 @@ impl ConfigFile {
             logger_level,
             address,
             pid_file,
+            main_domain,
+            files_domain,
             run_migrations,
             run_seeder,
             seeder_path,
