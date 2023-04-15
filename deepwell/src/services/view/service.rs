@@ -117,7 +117,7 @@ impl ViewService {
 
         let (site, session) = try_join!(
             DomainService::site_from_domain(&ctx, domain),
-            SessionService::get(&ctx, &session_token),
+            SessionService::get(&ctx, session_token),
         )
         .to_api()?;
 
