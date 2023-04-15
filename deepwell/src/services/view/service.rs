@@ -61,21 +61,20 @@ impl ViewService {
             user_permissions,
         } = Self::get_viewer(ctx, &domain, &session_token).await?;
 
-        // If None, means the main page for the site.
-        let route = match route {
-            Some(route) => route,
-            None => PageRoute {
-                slug: site.default_page.clone(),
-                extra: String::new(),
-            },
+        // If None, means the main page for the site. Pull from site data.
+        let (page_slug, page_extra): (&str, &str) = match route {
+            None => (&site.default_page, ""),
+            Some(PageRoute {
+                ref slug,
+                ref extra,
+            }) => (slug, extra),
         };
 
         let options = todo!(); // parse page options (page_extra)
 
-        let page =
-            PageService::get(&ctx, site.site_id, Reference::Slug(cow!(route.slug)))
-                .await
-                .to_api()?;
+        let page = PageService::get(&ctx, site.site_id, Reference::Slug(cow!(page_slug)))
+            .await
+            .to_api()?;
 
         let page_revision =
             PageRevisionService::get_latest(&ctx, site.site_id, page.page_id)
