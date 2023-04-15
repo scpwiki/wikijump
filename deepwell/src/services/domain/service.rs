@@ -90,6 +90,7 @@ impl DomainService {
         Ok(model)
     }
 
+    #[inline]
     pub async fn site_from_custom_domain(
         ctx: &ServiceContext<'_>,
         domain: &str,
