@@ -75,7 +75,7 @@ pub async fn site_put(mut req: ApiRequest) -> ApiResponse {
     Ok(Response::new(StatusCode::NoContent))
 }
 
-pub async fn site_domain_get(mut req: ApiRequest) -> ApiResponse {
+pub async fn site_custom_domain_get(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
@@ -89,7 +89,7 @@ pub async fn site_domain_get(mut req: ApiRequest) -> ApiResponse {
     Ok(body.into())
 }
 
-pub async fn site_domain_post(mut req: ApiRequest) -> ApiResponse {
+pub async fn site_custom_domain_post(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
@@ -100,7 +100,7 @@ pub async fn site_domain_post(mut req: ApiRequest) -> ApiResponse {
     Ok(Response::new(StatusCode::NoContent))
 }
 
-pub async fn site_domain_delete(mut req: ApiRequest) -> ApiResponse {
+pub async fn site_custom_domain_delete(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
