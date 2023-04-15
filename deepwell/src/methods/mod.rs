@@ -34,7 +34,7 @@ mod prelude {
         FileRevisionService, FileService, LinkService, MfaService, PageRevisionService,
         PageService, ParentService, PostTransactionToApiResponse, RenderService,
         RequestFetchService, ScoreService, ServiceContext, SessionService, SiteService,
-        TextService, UserService, VoteService,
+        TextService, UserService, ViewService, VoteService,
     };
     pub use crate::utils::error_response;
     pub use crate::web::HttpUnwrap;

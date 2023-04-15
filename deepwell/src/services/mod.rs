@@ -76,6 +76,7 @@ pub mod site;
 pub mod text;
 pub mod user;
 pub mod user_bot_owner;
+pub mod view;
 pub mod vote;
 
 use crate::api::ApiRequest;
@@ -106,6 +107,7 @@ pub use self::site::SiteService;
 pub use self::text::TextService;
 pub use self::user::UserService;
 pub use self::user_bot_owner::UserBotOwnerService;
+pub use self::view::ViewService;
 pub use self::vote::VoteService;
 
 /// Extension trait to retrieve service objects from an `ApiRequest`.
