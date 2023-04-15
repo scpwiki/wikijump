@@ -18,4 +18,35 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// TODO
+use crate::models::page::Model as PageModel;
+use crate::models::page_revision::Model as PageRevisionModel;
+use crate::models::session::Model as SessionModel;
+use crate::models::site::Model as SiteModel;
+use crate::models::user::Model as UserModel;
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct GetPageView {
+    pub hostname: String,
+    pub route: Option<PageRoute>,
+    pub session_token: String,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct PageRoute {
+    pub slug: String,
+    pub extra: String,
+}
+
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct GetPageViewOutput {
+    pub site: SiteModel,
+    pub page: PageModel,
+    pub page_revision: PageRevisionModel,
+    pub session: SessionModel,
+    pub user: UserModel,
+    pub wikitext: String,
+    pub compiled_html: String,
+}

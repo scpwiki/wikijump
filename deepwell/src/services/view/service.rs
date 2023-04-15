@@ -30,6 +30,74 @@
 //! requesting domain and session token into a site and user, respectively.
 
 use super::prelude::*;
+use crate::models::site::Model as SiteModel;
+use crate::services::{
+    PageRevisionService, PageService, SessionService, TextService, UserService,
+};
 
 #[derive(Debug)]
 pub struct ViewService;
+
+impl ViewService {
+    pub async fn page(
+        ctx: &ServiceContext<'_>,
+        GetPageView {
+            hostname,
+            route,
+            session_token,
+        }: GetPageView,
+    ) -> Result<GetPageViewOutput> {
+        tide::log::info!(
+            "Getting page view data for host '{}', route '{:?}'",
+            hostname,
+            route,
+        );
+
+        let site: SiteModel = todo!(); // TODO HostService, get site
+
+        // If None, means the main page for the site.
+        let route = match route {
+            Some(route) => route,
+            None => PageRoute {
+                slug: site.default_page.clone(),
+                extra: String::new(),
+            },
+        };
+
+        let options = todo!(); // parse page options (page_extra)
+
+        let page =
+            PageService::get(&ctx, site.site_id, Reference::Slug(cow!(route.slug)))
+                .await
+                .to_api()?;
+
+        let page_revision =
+            PageRevisionService::get_latest(&ctx, site.site_id, page.page_id)
+                .await
+                .to_api()?;
+
+        let (wikitext, compiled_html) = try_join!(
+            TextService::get(&ctx, &page_revision.wikitext_hash),
+            TextService::get(&ctx, &page_revision.compiled_hash),
+        )
+        .to_api()?;
+
+        let session = SessionService::get(&ctx, &session_token).await.to_api()?;
+
+        // TODO Check if user-agent and IP match?
+
+        let user = UserService::get(&ctx, Reference::Id(session.user_id))
+            .await
+            .to_api()?;
+
+        Ok(GetPageViewOutput {
+            site,
+            page,
+            page_revision,
+            wikitext,
+            compiled_html,
+            session,
+            user,
+        })
+    }
+}
