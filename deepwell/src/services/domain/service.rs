@@ -18,31 +18,31 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Service for managing custom domains.
+//! Service for managing domains as used by Wikijump sites.
 //!
-//! This service is concerned only with the maintenance of custom domain settings.
-//!
-//! If you need to get the site from a canonical hostname (e.g. `foo.wikijump.com`),
-//! see `HostService`.
+//! This service has two components, management of canonical domains (e.g. `scp-wiki.wikijump.com`)
+//! and custom domains (e.g. `scpwiki.com`).
 
 // TODO disallow custom domains that are subdomains of the main domain or files domain
 
 use super::prelude::*;
 use crate::models::site::{self, Entity as Site, Model as SiteModel};
 use crate::models::site_domain::{self, Entity as SiteDomain, Model as SiteDomainModel};
+use crate::services::SiteService;
 
 #[derive(Debug)]
 pub struct DomainService;
 
 impl DomainService {
-    pub async fn create(
+    /// Creates a custom domain for a site.
+    pub async fn create_custom(
         ctx: &ServiceContext<'_>,
         CreateCustomDomain { domain, site_id }: CreateCustomDomain,
     ) -> Result<()> {
         tide::log::info!("Creating custom domain '{domain}' (site ID {site_id})");
 
         let txn = ctx.transaction();
-        if Self::site_from_domain_exists(ctx, &domain).await? {
+        if Self::custom_domain_exists(ctx, &domain).await? {
             tide::log::error!("Custom domain already exists, cannot create");
             return Err(Error::Conflict);
         }
@@ -59,7 +59,7 @@ impl DomainService {
     /// Delete the given custom domain.
     ///
     /// Yields `Error::NotFound` if it's missing.
-    pub async fn delete(ctx: &ServiceContext<'_>, domain: String) -> Result<()> {
+    pub async fn delete_custom(ctx: &ServiceContext<'_>, domain: String) -> Result<()> {
         tide::log::info!("Deleting custom domain '{domain}'");
 
         let txn = ctx.transaction();
@@ -73,8 +73,7 @@ impl DomainService {
         }
     }
 
-    /// Optional version of `site_from_domain()`.
-    pub async fn site_from_domain_optional(
+    pub async fn site_from_custom_domain_optional(
         ctx: &ServiceContext<'_>,
         domain: &str,
     ) -> Result<Option<SiteModel>> {
@@ -91,18 +90,56 @@ impl DomainService {
         Ok(model)
     }
 
+    pub async fn site_from_custom_domain(
+        ctx: &ServiceContext<'_>,
+        domain: &str,
+    ) -> Result<SiteModel> {
+        find_or_error(Self::site_from_domain_optional(ctx, domain)).await
+    }
+
     /// Determines if the given custom domain is registered.
     #[inline]
-    pub async fn site_from_domain_exists(
+    pub async fn custom_domain_exists(
         ctx: &ServiceContext<'_>,
         domain: &str,
     ) -> Result<bool> {
-        Self::site_from_domain_optional(ctx, domain)
+        Self::site_from_custom_domain_optional(ctx, domain)
             .await
             .map(|site| site.is_some())
     }
 
-    /// Gets the custom site domain configuration for the given domain.
+    /// Optional version of `site_from_domain()`.
+    pub async fn site_from_domain_optional(
+        ctx: &ServiceContext<'_>,
+        domain: &str,
+    ) -> Result<Option<SiteModel>> {
+        tide::log::info!("Getting site for domain '{domain}'");
+
+        let main_domain = &ctx.config().main_domain;
+        match domain.strip_suffix(main_domain) {
+            // Only 1-deep subdomains of the main domain are allowed.
+            // For instance, foo.wikijump.com or bar.wikijump.com are valid,
+            // but foo.bar.wikijump.com is not.
+            Some(subdomain) if subdomain.contains('.') => {
+                tide::log::error!("Found domain '{domain}' is a sub-subdomain, invalid");
+                Ok(None)
+            }
+
+            // Normal canonical domain, return from site slug fetch.
+            Some(subdomain) => {
+                tide::log::debug!("Found canonical domain with slug '{subdomain}'");
+                SiteService::get_optional(ctx, Reference::Slug(cow!(subdomain))).await
+            }
+
+            // Not canonical, try custom domain
+            None => {
+                tide::log::debug!("Not found, checking if it's a custom domain");
+                Self::site_from_custom_domain_optional(ctx, domain).await
+            }
+        }
+    }
+
+    /// Gets the site corresponding with the given domain.
     #[inline]
     pub async fn site_from_domain(
         ctx: &ServiceContext<'_>,
@@ -111,8 +148,8 @@ impl DomainService {
         find_or_error(Self::site_from_domain_optional(ctx, domain)).await
     }
 
-    /// Gets all custom domains for this site.
-    pub async fn domains_for_site(
+    /// Gets all custom domains for a site.
+    pub async fn list_custom(
         ctx: &ServiceContext<'_>,
         site_id: i64,
     ) -> Result<Vec<SiteDomainModel>> {

@@ -49,7 +49,7 @@ pub async fn site_get(mut req: ApiRequest) -> ApiResponse {
     let site = SiteService::get(&ctx, site).await.to_api()?;
     let (aliases, domains) = try_join!(
         AliasService::get_all(&ctx, AliasType::Site, site.site_id),
-        DomainService::domains_for_site(&ctx, site.site_id),
+        DomainService::list_custom(&ctx, site.site_id),
     )?;
 
     build_site_response(site, aliases, domains, StatusCode::Ok)
@@ -94,7 +94,7 @@ pub async fn site_domain_post(mut req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let input: CreateCustomDomain = req.body_json().await?;
-    DomainService::create(&ctx, input).await.to_api()?;
+    DomainService::create_custom(&ctx, input).await.to_api()?;
 
     txn.commit().await?;
     Ok(Response::new(StatusCode::NoContent))
@@ -105,7 +105,7 @@ pub async fn site_domain_delete(mut req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let domain = req.body_string().await?;
-    DomainService::delete(&ctx, domain).await.to_api()?;
+    DomainService::delete_custom(&ctx, domain).await.to_api()?;
 
     txn.commit().await?;
     Ok(Response::new(StatusCode::NoContent))
