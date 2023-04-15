@@ -25,6 +25,8 @@ pub struct Model {
     pub locale: String,
     #[sea_orm(column_type = "Text")]
     pub default_page: String,
+    #[sea_orm(column_type = "Text")]
+    pub custom_domain: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

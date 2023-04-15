@@ -83,6 +83,7 @@ CREATE TABLE site (
     description TEXT NOT NULL,
     locale TEXT NOT NULL,
     default_page TEXT NOT NULL DEFAULT 'start',
+    custom_domain TEXT REFERENCES site_domain(domain),
 
     UNIQUE (slug, deleted_at)
 );
