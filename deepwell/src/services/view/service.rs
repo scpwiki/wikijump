@@ -71,7 +71,7 @@ impl ViewService {
             }) => (slug, extra),
         };
 
-        let redirect_page = Self::should_redirect_page();
+        let redirect_page = Self::should_redirect_page(page_slug);
         let options = todo!(); // parse page options (page_extra)
 
         let page = PageService::get(&ctx, site.site_id, Reference::Slug(cow!(page_slug)))
@@ -128,14 +128,14 @@ impl ViewService {
     ) -> Result<Viewer> {
         tide::log::info!("Getting viewer data from domain '{domain}' and session token");
 
-        let ((site, site_slug), session) = try_join!(
+        let (site, session) = try_join!(
             DomainService::site_from_domain(&ctx, domain),
             SessionService::get(&ctx, session_token),
         )?;
 
         let user = UserService::get(&ctx, Reference::Id(session.user_id)).await?;
         let user_permissions = (); // TODO add user permissions, get scheme for user and site
-        let redirect_site = Self::should_redirect_site(ctx, &site, domain, site_slug);
+        let redirect_site = Self::should_redirect_site(ctx, &site, domain);
 
         Ok(Viewer {
             site,
@@ -150,7 +150,6 @@ impl ViewService {
         ctx: &ServiceContext<'_>,
         site: &'a SiteModel,
         domain: &str,
-        site_slug: Option<&str>,
     ) -> Option<String> {
         // NOTE: We have to pass an owned string here, since the Cow borrows from
         //       SiteModel, which we are also passing in the final output struct.
@@ -162,7 +161,7 @@ impl ViewService {
         }
     }
 
-    fn should_redirect_page() -> Option<String> {
+    fn should_redirect_page(slug: &str) -> Option<String> {
         todo!()
     }
 }
