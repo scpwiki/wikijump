@@ -114,25 +114,20 @@ impl DomainService {
     pub async fn site_from_domain_optional<'a>(
         ctx: &ServiceContext<'_>,
         domain: &'a str,
-    ) -> Result<(Option<SiteModel>, Option<&'a str>)> {
+    ) -> Result<Option<SiteModel>> {
         tide::log::info!("Getting site for domain '{domain}'");
 
         match Self::parse_canonical(ctx.config(), domain) {
             // Normal canonical domain, return from site slug fetch.
             Some(subdomain) => {
                 tide::log::debug!("Found canonical domain with slug '{subdomain}'");
-                let site =
-                    SiteService::get_optional(ctx, Reference::Slug(cow!(subdomain)))
-                        .await?;
-
-                Ok((site, Some(subdomain)))
+                SiteService::get_optional(ctx, Reference::Slug(cow!(subdomain))).await
             }
 
             // Not canonical, try custom domain.
             None => {
                 tide::log::debug!("Not found, checking if it's a custom domain");
-                let site = Self::site_from_custom_domain_optional(ctx, domain).await?;
-                Ok((site, None))
+                Self::site_from_custom_domain_optional(ctx, domain).await
             }
         }
     }
@@ -147,11 +142,8 @@ impl DomainService {
     pub async fn site_from_domain<'a>(
         ctx: &ServiceContext<'_>,
         domain: &'a str,
-    ) -> Result<(SiteModel, Option<&'a str>)> {
-        match Self::site_from_domain_optional(ctx, domain).await? {
-            (Some(site), site_slug) => Ok((site, site_slug)),
-            (None, _) => Err(Error::NotFound),
-        }
+    ) -> Result<SiteModel> {
+        find_or_error(Self::site_from_domain_optional(ctx, domain)).await
     }
 
     /// If this domain is canonical domain, extract the site slug.
