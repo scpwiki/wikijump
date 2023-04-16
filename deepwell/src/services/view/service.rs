@@ -35,6 +35,7 @@ use crate::services::{
     DomainService, PageRevisionService, PageService, SessionService, TextService,
     UserService,
 };
+use wikidot_normalize::normalize;
 
 #[derive(Debug)]
 pub struct ViewService;
@@ -162,6 +163,19 @@ impl ViewService {
     }
 
     fn should_redirect_page(slug: &str) -> Option<String> {
-        todo!()
+        // Fix typos in the page slug.
+        // See https://scuttle.atlassian.net/browse/WJ-330
+        let mut target = slug.replace(';', ":");
+
+        // Run slug normalization.
+        // This also strips _default and merges multiple categories.
+        normalize(&mut target);
+
+        // Return
+        if slug == target {
+            None
+        } else {
+            Some(target)
+        }
     }
 }
