@@ -158,7 +158,7 @@ impl ViewService {
 
             // Preferred URL is canonical, matches vs doesn't
             None if Some(site.slug.as_ref()) == site_slug => None,
-            None => Some(todo!("build canonical url")),
+            None => Some(DomainService::get_canonical(ctx.config(), &site.slug)),
         }
     }
 

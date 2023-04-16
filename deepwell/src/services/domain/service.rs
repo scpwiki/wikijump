@@ -109,29 +109,6 @@ impl DomainService {
             .map(|site| site.is_some())
     }
 
-    /// If this domain is canonical domain, extract the site slug.
-    pub fn parse_canonical<'a>(config: &Config, domain: &'a str) -> Option<&'a str> {
-        let main_domain = &config.main_domain;
-        match domain.strip_prefix(main_domain) {
-            // Only 1-deep subdomains of the main domain are allowed.
-            // For instance, foo.wikijump.com or bar.wikijump.com are valid,
-            // but foo.bar.wikijump.com is not.
-            Some(subdomain) if subdomain.contains('.') => {
-                tide::log::error!("Found domain '{domain}' is a sub-subdomain, invalid");
-                None
-            }
-
-            Some(subdomain) => Some(subdomain),
-            None => None,
-        }
-    }
-
-    #[inline]
-    pub fn get_canonical(config: &Config, site_slug: &str) -> String {
-        // 'main_domain' already is prefixed with .
-        format!("{}{}", site_slug, config.main_domain)
-    }
-
     /// Optional version of `site_from_domain()`.
     pub async fn site_from_domain_optional<'a>(
         ctx: &ServiceContext<'_>,
@@ -176,8 +153,31 @@ impl DomainService {
         }
     }
 
+    /// If this domain is canonical domain, extract the site slug.
+    pub fn parse_canonical<'a>(config: &Config, domain: &'a str) -> Option<&'a str> {
+        let main_domain = &config.main_domain;
+        match domain.strip_prefix(main_domain) {
+            // Only 1-deep subdomains of the main domain are allowed.
+            // For instance, foo.wikijump.com or bar.wikijump.com are valid,
+            // but foo.bar.wikijump.com is not.
+            Some(subdomain) if subdomain.contains('.') => {
+                tide::log::error!("Found domain '{domain}' is a sub-subdomain, invalid");
+                None
+            }
+
+            Some(subdomain) => Some(subdomain),
+            None => None,
+        }
+    }
+
+    #[inline]
+    pub fn get_canonical(config: &Config, site_slug: &str) -> String {
+        // 'main_domain' already is prefixed with .
+        format!("{}{}", site_slug, config.main_domain)
+    }
+
     /// Gets the preferred domain for the given site.
-    pub async fn domain_for_site(ctx: &ServiceContext<'_>, site: &SiteModel) -> String {
+    pub async fn domain_for_site(config: &Config, site: &SiteModel) -> String {
         tide::log::debug!(
             "Getting preferred domain for site '{}' (ID {})",
             site.slug,
@@ -186,7 +186,7 @@ impl DomainService {
 
         match &site.custom_domain {
             Some(domain) => str!(domain),
-            None => format!("{}{}", site.slug, ctx.config().main_domain),
+            None => Self::get_canonical(config, &site.slug),
         }
     }
 
