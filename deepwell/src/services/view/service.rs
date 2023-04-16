@@ -136,7 +136,7 @@ impl ViewService {
             site,
             session,
             user,
-            user_permissions: (),
+            user_permissions,
         })
     }
 }
