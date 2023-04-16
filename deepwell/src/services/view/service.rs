@@ -134,7 +134,7 @@ impl ViewService {
         )?;
 
         let user = UserService::get(&ctx, Reference::Id(session.user_id)).await?;
-        let user_permissions = (); // TODO add user permissions, get schem for user and site
+        let user_permissions = (); // TODO add user permissions, get scheme for user and site
         let redirect_site = Self::should_redirect_site(ctx, &site, domain, site_slug);
 
         Ok(Viewer {
