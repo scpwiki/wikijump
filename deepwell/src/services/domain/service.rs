@@ -109,6 +109,29 @@ impl DomainService {
             .map(|site| site.is_some())
     }
 
+    /// If this domain is canonical domain, extract the site slug.
+    pub fn parse_canonical<'a>(config: &Config, domain: &'a str) -> Option<&'a str> {
+        let main_domain = &config.main_domain;
+        match domain.strip_prefix(main_domain) {
+            // Only 1-deep subdomains of the main domain are allowed.
+            // For instance, foo.wikijump.com or bar.wikijump.com are valid,
+            // but foo.bar.wikijump.com is not.
+            Some(subdomain) if subdomain.contains('.') => {
+                tide::log::error!("Found domain '{domain}' is a sub-subdomain, invalid");
+                None
+            }
+
+            Some(subdomain) => Some(subdomain),
+            None => None,
+        }
+    }
+
+    #[inline]
+    pub fn get_canonical(config: &Config, site_slug: &str) -> String {
+        // 'main_domain' already is prefixed with .
+        format!("{}{}", site_slug, config.main_domain)
+    }
+
     /// Optional version of `site_from_domain()`.
     pub async fn site_from_domain_optional<'a>(
         ctx: &ServiceContext<'_>,
@@ -116,16 +139,7 @@ impl DomainService {
     ) -> Result<(Option<SiteModel>, Option<&'a str>)> {
         tide::log::info!("Getting site for domain '{domain}'");
 
-        let main_domain = &ctx.config().main_domain;
-        match domain.strip_suffix(main_domain) {
-            // Only 1-deep subdomains of the main domain are allowed.
-            // For instance, foo.wikijump.com or bar.wikijump.com are valid,
-            // but foo.bar.wikijump.com is not.
-            Some(subdomain) if subdomain.contains('.') => {
-                tide::log::error!("Found domain '{domain}' is a sub-subdomain, invalid");
-                Ok((None, Some(subdomain)))
-            }
-
+        match Self::parse_canonical(ctx.config(), domain) {
             // Normal canonical domain, return from site slug fetch.
             Some(subdomain) => {
                 tide::log::debug!("Found canonical domain with slug '{subdomain}'");
