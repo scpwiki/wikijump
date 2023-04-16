@@ -95,7 +95,7 @@ impl DomainService {
         ctx: &ServiceContext<'_>,
         domain: &str,
     ) -> Result<SiteModel> {
-        find_or_error(Self::site_from_domain_optional(ctx, domain)).await
+        find_or_error(Self::site_from_custom_domain_optional(ctx, domain)).await
     }
 
     /// Determines if the given custom domain is registered.
