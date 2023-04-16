@@ -1318,6 +1318,7 @@ dependencies = [
  "unic-langid",
  "void",
  "wikidot-normalize 0.11.0",
+ "wikidot-path",
 ]
 
 [[package]]
@@ -4709,6 +4710,15 @@ dependencies = [
  "regex",
  "trim-in-place",
  "unicode-normalization",
+]
+
+[[package]]
+name = "wikidot-path"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fd1dc096c412bfea741eb6de5b09045d99e72c4d05d99404aa877db8f81cdcaf"
+dependencies = [
+ "wikidot-normalize 0.11.0",
 ]
 
 [[package]]
