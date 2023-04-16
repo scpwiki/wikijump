@@ -71,6 +71,7 @@ impl ViewService {
             }) => (slug, extra),
         };
 
+        let redirect_page = Self::should_redirect_page();
         let options = todo!(); // parse page options (page_extra)
 
         let page = PageService::get(&ctx, site.site_id, Reference::Slug(cow!(page_slug)))
@@ -106,7 +107,7 @@ impl ViewService {
             page_revision,
             wikitext,
             compiled_html,
-            redirect_page: Self::should_redirect_page(),
+            redirect_page,
         })
     }
 
