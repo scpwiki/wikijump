@@ -178,7 +178,7 @@ impl DomainService {
     }
 
     /// Gets the preferred domain for the given site.
-    pub async fn domain_for_site<'a>(config: &Config, site: &'a SiteModel) -> Cow<'a, str> {
+    pub fn domain_for_site<'a>(config: &Config, site: &'a SiteModel) -> Cow<'a, str> {
         tide::log::debug!(
             "Getting preferred domain for site '{}' (ID {})",
             site.slug,

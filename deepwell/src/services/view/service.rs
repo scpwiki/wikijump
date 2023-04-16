@@ -145,20 +145,19 @@ impl ViewService {
         })
     }
 
-    fn should_redirect_site(
+    fn should_redirect_site<'a>(
         ctx: &ServiceContext<'_>,
-        site: &SiteModel,
+        site: &'a SiteModel,
         domain: &str,
         site_slug: Option<&str>,
     ) -> Option<String> {
-        match &site.custom_domain {
-            // Preferred URL is custom domain, matches vs doesn't
-            Some(preferred) if preferred == domain => None,
-            Some(preferred) => Some(str!(preferred)),
-
-            // Preferred URL is canonical, matches vs doesn't
-            None if Some(site.slug.as_ref()) == site_slug => None,
-            None => Some(DomainService::get_canonical(ctx.config(), &site.slug)),
+        // NOTE: We have to pass an owned string here, since the Cow borrows from
+        //       SiteModel, which we are also passing in the final output struct.
+        let preferred_domain = DomainService::domain_for_site(ctx.config(), site);
+        if domain == preferred_domain {
+            None
+        } else {
+            Some(preferred_domain.into_owned())
         }
     }
 
