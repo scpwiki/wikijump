@@ -107,12 +107,22 @@ impl ViewService {
         })
     }
 
+    /// Gets basic data and runs common logic for all web routes.
+    ///
+    /// All views seen by end users require a few translations before
+    /// a request can be serviced:
+    ///
+    /// * Hostname of request → Site ID and data
+    /// * Session token → User ID and their permissions
+    ///
+    /// Then using this information, the caller can perform some common
+    /// operations, such as slug normalization or redirect site aliases.
     pub async fn get_viewer(
         ctx: &ServiceContext<'_>,
         domain: &str,
         session_token: &str,
     ) -> Result<Viewer> {
-        tide::log::info!("Getting view context from domain '{domain}' and session token");
+        tide::log::info!("Getting viewer data from domain '{domain}' and session token");
 
         let (site, session) = try_join!(
             DomainService::site_from_domain(&ctx, domain),
