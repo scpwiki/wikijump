@@ -110,10 +110,10 @@ impl DomainService {
     }
 
     /// Optional version of `site_from_domain()`.
-    pub async fn site_from_domain_optional(
+    pub async fn site_from_domain_optional<'a>(
         ctx: &ServiceContext<'_>,
-        domain: &str,
-    ) -> Result<Option<SiteModel>> {
+        domain: &'a str,
+    ) -> Result<(Option<SiteModel>, Option<&'a str>)> {
         tide::log::info!("Getting site for domain '{domain}'");
 
         let main_domain = &ctx.config().main_domain;
@@ -123,37 +123,47 @@ impl DomainService {
             // but foo.bar.wikijump.com is not.
             Some(subdomain) if subdomain.contains('.') => {
                 tide::log::error!("Found domain '{domain}' is a sub-subdomain, invalid");
-                Ok(None)
+                Ok((None, Some(subdomain)))
             }
 
             // Normal canonical domain, return from site slug fetch.
             Some(subdomain) => {
                 tide::log::debug!("Found canonical domain with slug '{subdomain}'");
-                SiteService::get_optional(ctx, Reference::Slug(cow!(subdomain))).await
+                let site =
+                    SiteService::get_optional(ctx, Reference::Slug(cow!(subdomain)))
+                        .await?;
+
+                Ok((site, Some(subdomain)))
             }
 
             // Not canonical, try custom domain.
             None => {
                 tide::log::debug!("Not found, checking if it's a custom domain");
-                Self::site_from_custom_domain_optional(ctx, domain).await
+                let site = Self::site_from_custom_domain_optional(ctx, domain).await?;
+                Ok((site, None))
             }
         }
     }
 
     /// Gets the site corresponding with the given domain.
+    ///
+    /// # Returns
+    /// A 2-tuple, the first containing the site for this domain,
+    /// the second containing the site slug in this domain
+    /// (or `None` if it was a custom domain).
     #[inline]
-    pub async fn site_from_domain(
+    pub async fn site_from_domain<'a>(
         ctx: &ServiceContext<'_>,
-        domain: &str,
-    ) -> Result<SiteModel> {
-        find_or_error(Self::site_from_domain_optional(ctx, domain)).await
+        domain: &'a str,
+    ) -> Result<(SiteModel, Option<&'a str>)> {
+        match Self::site_from_domain_optional(ctx, domain).await? {
+            (Some(site), site_slug) => Ok((site, site_slug)),
+            (None, _) => Err(Error::NotFound),
+        }
     }
 
     /// Gets the preferred domain for the given site.
-    pub async fn domain_for_site(
-        ctx: &ServiceContext<'_>,
-        site: &SiteModel,
-    ) -> String {
+    pub async fn domain_for_site(ctx: &ServiceContext<'_>, site: &SiteModel) -> String {
         tide::log::debug!(
             "Getting preferred domain for site '{}' (ID {})",
             site.slug,

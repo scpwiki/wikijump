@@ -48,6 +48,7 @@ pub struct GetPageViewOutput {
     pub page_revision: PageRevisionModel,
     pub wikitext: String,
     pub compiled_html: String,
+    pub redirect_page: Option<String>,
 }
 
 #[derive(Serialize, Debug)]
@@ -57,4 +58,5 @@ pub struct Viewer {
     pub session: SessionModel,
     pub user: UserModel,
     pub user_permissions: (),
+    pub redirect_site: Option<String>,
 }

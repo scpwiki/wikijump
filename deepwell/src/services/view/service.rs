@@ -59,6 +59,7 @@ impl ViewService {
             session,
             user,
             user_permissions,
+            redirect_site,
         } = Self::get_viewer(ctx, &domain, &session_token).await?;
 
         // If None, means the main page for the site. Pull from site data.
@@ -99,11 +100,13 @@ impl ViewService {
                 session,
                 user,
                 user_permissions,
+                redirect_site,
             },
             page,
             page_revision,
             wikitext,
             compiled_html,
+            redirect_page: Self::should_redirect_page(),
         })
     }
 
@@ -124,19 +127,42 @@ impl ViewService {
     ) -> Result<Viewer> {
         tide::log::info!("Getting viewer data from domain '{domain}' and session token");
 
-        let (site, session) = try_join!(
+        let ((site, site_slug), session) = try_join!(
             DomainService::site_from_domain(&ctx, domain),
             SessionService::get(&ctx, session_token),
         )?;
 
         let user = UserService::get(&ctx, Reference::Id(session.user_id)).await?;
         let user_permissions = (); // TODO add user permissions, get schem for user and site
+        let redirect_site = Self::should_redirect_site(ctx, &site, domain, site_slug);
 
         Ok(Viewer {
             site,
             session,
             user,
             user_permissions,
+            redirect_site,
         })
+    }
+
+    fn should_redirect_site(
+        ctx: &ServiceContext<'_>,
+        site: &SiteModel,
+        domain: &str,
+        site_slug: Option<&str>,
+    ) -> Option<String> {
+        match &site.custom_domain {
+            // Preferred URL is custom domain, matches vs doesn't
+            Some(preferred) if preferred == domain => None,
+            Some(preferred) => Some(str!(preferred)),
+
+            // Preferred URL is canonical, matches vs doesn't
+            None if Some(site.slug.as_ref()) == site_slug => None,
+            None => Some(todo!("build canonical url")),
+        }
+    }
+
+    fn should_redirect_page() -> Option<String> {
+        todo!()
     }
 }
