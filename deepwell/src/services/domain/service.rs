@@ -29,6 +29,7 @@ use super::prelude::*;
 use crate::models::site::{self, Entity as Site, Model as SiteModel};
 use crate::models::site_domain::{self, Entity as SiteDomain, Model as SiteDomainModel};
 use crate::services::SiteService;
+use std::borrow::Cow;
 
 #[derive(Debug)]
 pub struct DomainService;
@@ -177,7 +178,7 @@ impl DomainService {
     }
 
     /// Gets the preferred domain for the given site.
-    pub async fn domain_for_site(config: &Config, site: &SiteModel) -> String {
+    pub async fn domain_for_site<'a>(config: &Config, site: &'a SiteModel) -> Cow<'a, str> {
         tide::log::debug!(
             "Getting preferred domain for site '{}' (ID {})",
             site.slug,
@@ -185,8 +186,8 @@ impl DomainService {
         );
 
         match &site.custom_domain {
-            Some(domain) => str!(domain),
-            None => Self::get_canonical(config, &site.slug),
+            Some(domain) => cow!(domain),
+            None => Cow::Owned(Self::get_canonical(config, &site.slug)),
         }
     }
 
