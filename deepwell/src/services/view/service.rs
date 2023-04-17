@@ -127,12 +127,11 @@ impl ViewService {
             Some(token) => {
                 let session = SessionService::get(&ctx, token).await?;
                 let user = UserService::get(&ctx, Reference::Id(session.user_id)).await?;
-                let user_permissions = (); // TODO add user permissions, get scheme for user and site
 
                 Some(UserSession {
                     session,
                     user,
-                    user_permissions,
+                    user_permissions: (), // TODO add user permissions, get scheme for user and site
                 })
             }
         };
