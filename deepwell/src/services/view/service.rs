@@ -35,6 +35,7 @@ use crate::services::{
     DomainService, PageRevisionService, PageService, SessionService, TextService,
     UserService,
 };
+use ref_map::*;
 use wikidot_normalize::normalize;
 
 #[derive(Debug)]
@@ -57,11 +58,9 @@ impl ViewService {
 
         let Viewer {
             site,
-            session,
-            user,
-            user_permissions,
             redirect_site,
-        } = Self::get_viewer(ctx, &domain, &session_token).await?;
+            user_session,
+        } = Self::get_viewer(ctx, &domain, session_token.ref_map(|s| s.as_str())).await?;
 
         // If None, means the main page for the site. Pull from site data.
         let (page_slug, page_extra): (&str, &str) = match &route {
@@ -89,17 +88,15 @@ impl ViewService {
         Ok(GetPageViewOutput {
             viewer: Viewer {
                 site,
-                session,
-                user,
-                user_permissions,
                 redirect_site,
+                user_session,
             },
             options,
             page,
             page_revision,
+            redirect_page,
             wikitext,
             compiled_html,
-            redirect_page,
         })
     }
 
@@ -116,25 +113,34 @@ impl ViewService {
     pub async fn get_viewer(
         ctx: &ServiceContext<'_>,
         domain: &str,
-        session_token: &str,
+        session_token: Option<&str>,
     ) -> Result<Viewer> {
         tide::log::info!("Getting viewer data from domain '{domain}' and session token");
 
-        let (site, session) = try_join!(
-            DomainService::site_from_domain(&ctx, domain),
-            SessionService::get(&ctx, session_token),
-        )?;
-
-        let user = UserService::get(&ctx, Reference::Id(session.user_id)).await?;
-        let user_permissions = (); // TODO add user permissions, get scheme for user and site
+        // Get site data
+        let site = DomainService::site_from_domain(&ctx, domain).await?;
         let redirect_site = Self::should_redirect_site(ctx, &site, domain);
+
+        // Get user data from session token (if present)
+        let user_session = match session_token {
+            None => None,
+            Some(token) => {
+                let session = SessionService::get(&ctx, token).await?;
+                let user = UserService::get(&ctx, Reference::Id(session.user_id)).await?;
+                let user_permissions = (); // TODO add user permissions, get scheme for user and site
+
+                Some(UserSession {
+                    session,
+                    user,
+                    user_permissions,
+                })
+            }
+        };
 
         Ok(Viewer {
             site,
-            session,
-            user,
-            user_permissions,
             redirect_site,
+            user_session,
         })
     }
 
