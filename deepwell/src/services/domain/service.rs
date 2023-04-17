@@ -92,6 +92,7 @@ impl DomainService {
     }
 
     #[inline]
+    #[allow(dead_code)] // TODO
     pub async fn site_from_custom_domain(
         ctx: &ServiceContext<'_>,
         domain: &str,
