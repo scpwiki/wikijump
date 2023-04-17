@@ -57,7 +57,7 @@ pub async fn page_revision_count(mut req: ApiRequest) -> ApiResponse {
     Ok(response)
 }
 
-pub async fn page_revision_get(mut req: ApiRequest) -> ApiResponse {
+pub async fn page_revision_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
@@ -109,7 +109,7 @@ pub async fn page_revision_put(mut req: ApiRequest) -> ApiResponse {
     Ok(response)
 }
 
-pub async fn page_revision_range_get(mut req: ApiRequest) -> ApiResponse {
+pub async fn page_revision_range_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 

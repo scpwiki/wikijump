@@ -23,7 +23,7 @@ use crate::services::page::GetPage;
 use crate::services::parent::{ParentDescription, ParentalRelationshipType};
 use serde::Serialize;
 
-pub async fn parent_relationships_get(mut req: ApiRequest) -> ApiResponse {
+pub async fn parent_relationships_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
@@ -50,7 +50,7 @@ pub async fn parent_relationships_get(mut req: ApiRequest) -> ApiResponse {
     build_parent_response(&models, StatusCode::Ok)
 }
 
-pub async fn parent_get(mut req: ApiRequest) -> ApiResponse {
+pub async fn parent_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 

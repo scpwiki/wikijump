@@ -101,7 +101,7 @@ pub async fn user_bot_create(mut req: ApiRequest) -> ApiResponse {
     Ok(response)
 }
 
-pub async fn user_bot_get(mut req: ApiRequest) -> ApiResponse {
+pub async fn user_bot_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 

@@ -23,7 +23,7 @@ use crate::services::link::{
     GetLinksExternalFrom, GetLinksExternalTo, GetLinksFrom, GetLinksTo, GetLinksToMissing,
 };
 
-pub async fn page_links_from_get(mut req: ApiRequest) -> ApiResponse {
+pub async fn page_links_from_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
@@ -42,7 +42,7 @@ pub async fn page_links_from_get(mut req: ApiRequest) -> ApiResponse {
     Ok(body.into())
 }
 
-pub async fn page_links_to_get(mut req: ApiRequest) -> ApiResponse {
+pub async fn page_links_to_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
@@ -61,7 +61,7 @@ pub async fn page_links_to_get(mut req: ApiRequest) -> ApiResponse {
     Ok(body.into())
 }
 
-pub async fn page_links_to_missing_get(mut req: ApiRequest) -> ApiResponse {
+pub async fn page_links_to_missing_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 

@@ -43,7 +43,7 @@ pub async fn page_create(mut req: ApiRequest) -> ApiResponse {
     Ok(body.into())
 }
 
-pub async fn page_get(mut req: ApiRequest) -> ApiResponse {
+pub async fn page_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 

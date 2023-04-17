@@ -49,7 +49,7 @@ pub async fn locale_get(req: ApiRequest) -> ApiResponse {
     Ok(body.into())
 }
 
-pub async fn message_get(mut req: ApiRequest) -> ApiResponse {
+pub async fn message_put(mut req: ApiRequest) -> ApiResponse {
     let input: MessageArguments = req.body_json().await?;
     let locale_str = req.param("locale")?;
     let message_key = req.param("message_key")?;

@@ -39,7 +39,7 @@ pub async fn site_create(mut req: ApiRequest) -> ApiResponse {
     Ok(response)
 }
 
-pub async fn site_get(mut req: ApiRequest) -> ApiResponse {
+pub async fn site_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
@@ -73,7 +73,7 @@ pub async fn site_put(mut req: ApiRequest) -> ApiResponse {
     Ok(Response::new(StatusCode::NoContent))
 }
 
-pub async fn site_custom_domain_get(mut req: ApiRequest) -> ApiResponse {
+pub async fn site_custom_domain_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 

@@ -24,7 +24,7 @@ use crate::services::vote::{
 };
 use serde::Serialize;
 
-pub async fn vote_get(mut req: ApiRequest) -> ApiResponse {
+pub async fn vote_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
@@ -96,7 +96,7 @@ pub async fn vote_action(mut req: ApiRequest) -> ApiResponse {
     build_vote_response(&vote, StatusCode::Ok)
 }
 
-pub async fn vote_list_get(mut req: ApiRequest) -> ApiResponse {
+pub async fn vote_list_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
@@ -107,7 +107,7 @@ pub async fn vote_list_get(mut req: ApiRequest) -> ApiResponse {
     build_vote_response(&votes, StatusCode::Ok)
 }
 
-pub async fn vote_count_get(mut req: ApiRequest) -> ApiResponse {
+pub async fn vote_count_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 

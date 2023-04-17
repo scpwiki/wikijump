@@ -47,7 +47,7 @@ pub async fn user_import(_req: ApiRequest) -> ApiResponse {
     todo!()
 }
 
-pub async fn user_get(mut req: ApiRequest) -> ApiResponse {
+pub async fn user_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 

@@ -108,7 +108,7 @@ pub async fn auth_login(mut req: ApiRequest) -> ApiResponse {
 ///
 /// This is how framerail determines the user ID this user is acting as,
 /// among other information.
-pub async fn auth_session_get(mut req: ApiRequest) -> ApiResponse {
+pub async fn auth_session_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
@@ -134,7 +134,7 @@ pub async fn auth_session_renew(mut req: ApiRequest) -> ApiResponse {
     Ok(response)
 }
 
-pub async fn auth_session_get_others(mut req: ApiRequest) -> ApiResponse {
+pub async fn auth_session_retrieve_others(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
