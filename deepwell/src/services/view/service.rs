@@ -101,20 +101,17 @@ impl ViewService {
         let redirect_page = Self::should_redirect_page(page_slug);
         let options = PageOptions::parse(page_extra, PAGE_OPTIONS_SCHEMA);
 
+        // Get page, revision, and text fields
         let page = PageService::get(&ctx, site.site_id, Reference::Slug(cow!(page_slug)))
-            .await
-            .to_api()?;
+            .await?;
 
         let page_revision =
-            PageRevisionService::get_latest(&ctx, site.site_id, page.page_id)
-                .await
-                .to_api()?;
+            PageRevisionService::get_latest(&ctx, site.site_id, page.page_id).await?;
 
         let (wikitext, compiled_html) = try_join!(
             TextService::get(&ctx, &page_revision.wikitext_hash),
             TextService::get(&ctx, &page_revision.compiled_hash),
-        )
-        .to_api()?;
+        )?;
 
         // TODO Check if user-agent and IP match?
 
