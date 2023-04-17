@@ -118,10 +118,6 @@ impl ViewService {
 
         // TODO Check if user-agent and IP match?
 
-        let user = UserService::get(&ctx, Reference::Id(session.user_id))
-            .await
-            .to_api()?;
-
         Ok(GetPageViewOutput {
             viewer: Viewer {
                 site,
