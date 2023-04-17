@@ -8,8 +8,7 @@ export interface PageRoute {
 
 export async function pageView(domain: string, route: Optional<PageRoute>, sessionToken: Optional<string>, language: string): object {
   const response = await wellfetch('/view/page', {
-    method: 'GET',
-    cache: 'no-cache',
+    method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
     },
