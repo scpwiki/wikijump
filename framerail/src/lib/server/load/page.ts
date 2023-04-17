@@ -9,7 +9,7 @@ import type { Optional } from '$lib/types.ts';
 export async function loadPage(slug: Optional<string>, extra: Optional<string>, request, cookies) {
   const url = new URL(request.url)
   const domain = url.hostname
-  const route = (slug === null && extra === null) ? { slug, extra } : null;
+  const route = (slug || extra) ? { slug, extra } : null;
   const sessionToken = cookies.get('wikijump_token');
   const language = request.headers.get("Accept-Language");
 
