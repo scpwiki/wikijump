@@ -149,7 +149,7 @@ impl DomainService {
     /// If this domain is canonical domain, extract the site slug.
     pub fn parse_canonical<'a>(config: &Config, domain: &'a str) -> Option<&'a str> {
         let main_domain = &config.main_domain;
-        match domain.strip_prefix(main_domain) {
+        match domain.strip_suffix(main_domain) {
             // Only 1-deep subdomains of the main domain are allowed.
             // For instance, foo.wikijump.com or bar.wikijump.com are valid,
             // but foo.bar.wikijump.com is not.
