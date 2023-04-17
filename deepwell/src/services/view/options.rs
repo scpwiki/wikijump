@@ -60,12 +60,14 @@ pub struct PageOptions {
     no_render: bool,
     comments: bool,
     history: bool,
+    offset: Option<i32>,
     data: String,
 }
 
 impl PageOptions {
     pub fn parse(extra: &str) -> Self {
         tide::log::info!("Parsing page options: '{extra}'");
+
         let mut arguments = PageArguments::parse(extra, PAGE_ARGUMENTS_SCHEMA).0;
         let mut options = PageOptions::default();
 
@@ -73,7 +75,52 @@ impl PageOptions {
             options.edit = to_bool(value);
         }
 
-        todo!()
+        if let Some((_, value)) = arguments.remove("title") {
+            options.title = Some(str!(value));
+        }
+
+        if let Some((_, value)) = arguments.remove("parent") {
+            options.parent = Some(str!(value));
+        }
+        if let Some((_, value)) = arguments.remove("parentPage") {
+            options.parent = Some(str!(value));
+        }
+
+        if let Some((_, value)) = arguments.remove("tags") {
+            options.tags = Some(str!(value));
+        }
+
+        if let Some((value, _)) = arguments.remove("noredirect") {
+            options.no_redirect = to_bool(value);
+        }
+
+        if let Some((value, _)) = arguments.remove("norender") {
+            options.no_render = to_bool(value);
+        }
+
+        if let Some((value, _)) = arguments.remove("comments") {
+            options.comments = to_bool(value);
+        }
+        if let Some((value, _)) = arguments.remove("discuss") {
+            options.comments = to_bool(value);
+        }
+
+        if let Some((value, _)) = arguments.remove("history") {
+            options.history = to_bool(value);
+        }
+
+        if let Some((value, orig)) = arguments.remove("offset") {
+            match value {
+                ArgumentValue::Integer(offset) => options.offset = Some(offset),
+                _ => tide::log::error!("Invalid value for offset argument: {orig}"),
+            }
+        }
+
+        if let Some((_, value)) = arguments.remove("data") {
+            options.data = str!(value);
+        }
+
+        options
     }
 }
 
