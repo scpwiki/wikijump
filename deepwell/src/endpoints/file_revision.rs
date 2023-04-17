@@ -1,5 +1,5 @@
 /*
- * methods/file_revision.rs
+ * endpoints/file_revision.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team

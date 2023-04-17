@@ -1,5 +1,5 @@
 /*
- * methods/parent.rs
+ * endpoints/parent.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team

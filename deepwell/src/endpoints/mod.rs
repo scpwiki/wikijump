@@ -1,5 +1,5 @@
 /*
- * methods/mod.rs
+ * endpoints/endpoints.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -18,14 +18,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Definitions of methods invoked by different API routes.
+//! Definitions of endpoints invoked by different API routes.
 //!
-//! This module contains functions defining various routes used by the web server,
-//! so that they can be referred to and reused by name.
+//! The structure of the internal API is specified in `api.rs`, not here.
+//! This module contains implementations of those endpoints only.
 //!
-//! The module should not contain any core business logic of its own, but should
-//! be simple wrappers around the various service methods exposed by structures
-//! in the `services` module.
+//! The module should not contain core business logic of its own, which should
+//! instead live in `services`. Endpoint definitions should ideally be wrappers
+//! around service calls, or possibly perform modest data conversion for HTTP.
 
 mod prelude {
     pub use crate::api::{ApiRequest, ApiResponse};

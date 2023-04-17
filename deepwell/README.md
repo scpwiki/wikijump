@@ -37,7 +37,7 @@ The primary organization of the crate is as follows:
 
 * `api/` &mdash; Web server definition, such as its routes and related structures.
   * Each API is namespaced based on its version. The primary version of interest is the "internal" API, which is consumed by PHP and not meant for outside consumption due to it providing unguarded access.
-* `methods/` &mdash; Implementations for individual routes provision above.
+* `endpoints/` &mdash; Implementations for individual endpoints described above.
 * `services/` &mdash; "Services", or logical encapsulations of different concepts or operations.
   * For instance, the `ParentService` allows retrieving and storing data related to parent-child page relationships. You can think of it as "wrapping" the `page_parent` table.
   * Similarly, the `PageService` encapsulates the `page` table, but also wraps all the other operations contained with the logical concept of the "page", such as creating new revisions using the `RevisionService` as part of the "edit" method.

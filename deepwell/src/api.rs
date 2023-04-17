@@ -29,7 +29,7 @@
 use crate::config::{Config, Secrets};
 use crate::database;
 use crate::locales::Localizations;
-use crate::methods::{
+use crate::endpoints::{
     auth::*, category::*, file::*, file_revision::*, link::*, locale::*, misc::*,
     page::*, page_revision::*, parent::*, site::*, text::*, user::*, user_bot::*,
     view::*, vote::*,
