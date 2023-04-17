@@ -28,7 +28,7 @@ pub async fn text_put(mut req: ApiRequest) -> ApiResponse {
     let contents = req.body_string().await?;
     tide::log::info!("Inserting new stored text (bytes {})", contents.len());
 
-    let hash = TextService::create(&ctx, contents).await.to_api()?;
+    let hash = TextService::create(&ctx, contents).await?;
     let hash_hex = hex::encode(hash);
     let body = Body::from_string(hash_hex);
     txn.commit().await?;
@@ -42,7 +42,7 @@ pub async fn text_get(req: ApiRequest) -> ApiResponse {
 
     tide::log::info!("Getting stored text");
     let hash = read_hash(&req)?;
-    let contents = TextService::get(&ctx, &hash).await.to_api()?;
+    let contents = TextService::get(&ctx, &hash).await?;
     let body = Body::from_string(contents);
     txn.commit().await?;
 

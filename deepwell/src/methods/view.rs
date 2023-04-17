@@ -27,7 +27,7 @@ pub async fn view_page(mut req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let input: GetPageView = req.body_json().await?;
-    let output = ViewService::page(&ctx, input).await.to_api()?;
+    let output = ViewService::page(&ctx, input).await?;
     let body = Body::from_json(&output)?;
     Ok(body.into())
 }

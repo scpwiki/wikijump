@@ -33,7 +33,7 @@ pub async fn user_create(mut req: ApiRequest) -> ApiResponse {
 
     tide::log::info!("Creating new regular user");
     let input: CreateUser = req.body_json().await?;
-    let output = UserService::create(&ctx, input).await.to_api()?;
+    let output = UserService::create(&ctx, input).await?;
 
     let body = Body::from_json(&output)?;
     txn.commit().await?;
@@ -54,10 +54,8 @@ pub async fn user_get(mut req: ApiRequest) -> ApiResponse {
     let GetUser { user: reference } = req.body_json().await?;
     tide::log::info!("Getting user {:?}", reference);
 
-    let user = UserService::get(&ctx, reference).await.to_api()?;
-    let aliases = AliasService::get_all(&ctx, AliasType::User, user.user_id)
-        .await
-        .to_api()?;
+    let user = UserService::get(&ctx, reference).await?;
+    let aliases = AliasService::get_all(&ctx, AliasType::User, user.user_id).await?;
 
     txn.commit().await?;
     build_user_response(user, aliases, StatusCode::Ok)
@@ -74,7 +72,7 @@ pub async fn user_put(mut req: ApiRequest) -> ApiResponse {
 
     tide::log::info!("Updating user {:?}", reference);
 
-    UserService::update(&ctx, reference, body).await.to_api()?;
+    UserService::update(&ctx, reference, body).await?;
 
     txn.commit().await?;
     Ok(Response::new(StatusCode::NoContent))
@@ -87,7 +85,7 @@ pub async fn user_delete(mut req: ApiRequest) -> ApiResponse {
     let GetUser { user: reference } = req.body_json().await?;
     tide::log::info!("Deleting user {:?}", reference);
 
-    UserService::delete(&ctx, reference).await.to_api()?;
+    UserService::delete(&ctx, reference).await?;
 
     txn.commit().await?;
     Ok(Response::new(StatusCode::NoContent))
@@ -119,8 +117,7 @@ pub async fn user_avatar_put(mut req: ApiRequest) -> ApiResponse {
             ..Default::default()
         },
     )
-    .await
-    .to_api()?;
+    .await?;
 
     txn.commit().await?;
     Ok(Response::new(StatusCode::NoContent))
@@ -133,9 +130,7 @@ pub async fn user_add_name_change(mut req: ApiRequest) -> ApiResponse {
     let GetUser { user: reference } = req.body_json().await?;
     tide::log::info!("Adding user name change token to {:?}", reference);
 
-    let name_changes = UserService::add_name_change_token(&ctx, reference)
-        .await
-        .to_api()?;
+    let name_changes = UserService::add_name_change_token(&ctx, reference).await?;
 
     let body = Body::from_json(&name_changes)?;
     let response = Response::builder(StatusCode::Ok).body(body).into();

@@ -58,8 +58,7 @@ pub async fn user_bot_create(mut req: ApiRequest) -> ApiResponse {
             bypass_filter,
         },
     )
-    .await
-    .to_api()?;
+    .await?;
 
     let bot_user_id = output.user_id;
 
@@ -72,8 +71,7 @@ pub async fn user_bot_create(mut req: ApiRequest) -> ApiResponse {
             ..Default::default()
         },
     )
-    .await
-    .to_api()?;
+    .await?;
 
     // Add bot owners
     tide::log::debug!("Adding human owners for bot user ID {}", bot_user_id);
@@ -92,8 +90,7 @@ pub async fn user_bot_create(mut req: ApiRequest) -> ApiResponse {
                 description,
             },
         )
-        .await
-        .to_api()?;
+        .await?;
     }
 
     // Build and return response
@@ -111,10 +108,8 @@ pub async fn user_bot_get(mut req: ApiRequest) -> ApiResponse {
     let GetUser { user: reference } = req.body_json().await?;
     tide::log::info!("Getting bot user {reference:?}");
 
-    let user = UserService::get(&ctx, reference).await.to_api()?;
-    let owners = UserBotOwnerService::get_all(&ctx, user.user_id)
-        .await
-        .to_api()?;
+    let user = UserService::get(&ctx, reference).await?;
+    let owners = UserBotOwnerService::get_all(&ctx, user.user_id).await?;
 
     let output = BotUserOutput {
         user,
@@ -151,7 +146,7 @@ pub async fn user_bot_owner_put(mut req: ApiRequest) -> ApiResponse {
         input.human,
     );
 
-    UserBotOwnerService::add(&ctx, input).await.to_api()?;
+    UserBotOwnerService::add(&ctx, input).await?;
 
     txn.commit().await?;
     Ok(Response::new(StatusCode::NoContent))
@@ -164,7 +159,7 @@ pub async fn user_bot_owner_delete(mut req: ApiRequest) -> ApiResponse {
     let input: DeleteBotOwner = req.body_json().await?;
     tide::log::info!("Remove bot owner ({:?} <- {:?})", input.bot, input.human,);
 
-    UserBotOwnerService::delete(&ctx, input).await.to_api()?;
+    UserBotOwnerService::delete(&ctx, input).await?;
 
     txn.commit().await?;
     Ok(Response::new(StatusCode::NoContent))

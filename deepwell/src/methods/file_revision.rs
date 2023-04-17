@@ -38,13 +38,9 @@ pub async fn file_revision_count(mut req: ApiRequest) -> ApiResponse {
         "Getting latest revision for file ID {page_id} in site ID {site_id}",
     );
 
-    let file_id = FileService::get_id(&ctx, site_id, file_reference)
-        .await
-        .to_api()?;
+    let file_id = FileService::get_id(&ctx, site_id, file_reference).await?;
 
-    let revision_count = FileRevisionService::count(&ctx, page_id, file_id)
-        .await
-        .to_api()?;
+    let revision_count = FileRevisionService::count(&ctx, page_id, file_id).await?;
 
     txn.commit().await?;
     let output = FileRevisionCountOutput {
@@ -72,9 +68,8 @@ pub async fn file_revision_get(mut req: ApiRequest) -> ApiResponse {
         "Getting file revision {revision_number} for file ID {file_id} on page ID {page_id}",
     );
 
-    let revision = FileRevisionService::get(&ctx, page_id, file_id, revision_number)
-        .await
-        .to_api()?;
+    let revision =
+        FileRevisionService::get(&ctx, page_id, file_id, revision_number).await?;
 
     txn.commit().await?;
     let body = Body::from_json(&revision)?;
@@ -95,7 +90,7 @@ pub async fn file_revision_put(mut req: ApiRequest) -> ApiResponse {
         input.page_id,
     );
 
-    FileRevisionService::update(&ctx, input).await.to_api()?;
+    FileRevisionService::update(&ctx, input).await?;
 
     txn.commit().await?;
     Ok(Response::new(StatusCode::NoContent))
@@ -106,7 +101,7 @@ pub async fn file_revision_range_get(mut req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let input: GetFileRevisionRange = req.body_json().await?;
-    let revisions = FileRevisionService::get_range(&ctx, input).await.to_api()?;
+    let revisions = FileRevisionService::get_range(&ctx, input).await?;
 
     txn.commit().await?;
     let body = Body::from_json(&revisions)?;

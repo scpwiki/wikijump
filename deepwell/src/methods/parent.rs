@@ -44,8 +44,7 @@ pub async fn parent_relationships_get(mut req: ApiRequest) -> ApiResponse {
 
     let models =
         ParentService::get_relationships(&ctx, site_id, reference, relationship_type)
-            .await
-            .to_api()?;
+            .await?;
 
     txn.commit().await?;
     build_parent_response(&models, StatusCode::Ok)
@@ -64,7 +63,7 @@ pub async fn parent_get(mut req: ApiRequest) -> ApiResponse {
         input.site_id,
     );
 
-    let model = ParentService::get(&ctx, input).await.to_api()?;
+    let model = ParentService::get(&ctx, input).await?;
 
     txn.commit().await?;
     build_parent_response(&model, StatusCode::Ok)
@@ -83,7 +82,7 @@ pub async fn parent_put(mut req: ApiRequest) -> ApiResponse {
         input.site_id,
     );
 
-    let model = ParentService::create(&ctx, input).await.to_api()?;
+    let model = ParentService::create(&ctx, input).await?;
 
     let status = if model.is_some() {
         StatusCode::Created
@@ -108,7 +107,7 @@ pub async fn parent_delete(mut req: ApiRequest) -> ApiResponse {
         input.site_id,
     );
 
-    let was_deleted = ParentService::remove(&ctx, input).await.to_api()?;
+    let was_deleted = ParentService::remove(&ctx, input).await?;
 
     let status = if was_deleted {
         StatusCode::NoContent

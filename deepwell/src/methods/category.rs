@@ -31,9 +31,7 @@ pub async fn category_get(mut req: ApiRequest) -> ApiResponse {
     let site_id = SiteService::get_id(&ctx, site).await?;
     tide::log::info!("Getting page category {category:?} in site ID {site_id}");
 
-    let category = CategoryService::get(&ctx, site_id, category)
-        .await
-        .to_api()?;
+    let category = CategoryService::get(&ctx, site_id, category).await?;
 
     let output: CategoryOutput = category.into();
     let body = Body::from_json(&output)?;
@@ -49,8 +47,7 @@ pub async fn category_all_get(mut req: ApiRequest) -> ApiResponse {
     tide::log::info!("Getting all page categories in site ID {site_id}");
 
     let categories: Vec<CategoryOutput> = CategoryService::get_all(&ctx, site_id)
-        .await
-        .to_api()?
+        .await?
         .into_iter()
         .map(PageCategoryModel::into)
         .collect();

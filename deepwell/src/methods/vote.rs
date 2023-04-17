@@ -36,7 +36,7 @@ pub async fn vote_get(mut req: ApiRequest) -> ApiResponse {
         input.page_id,
     );
 
-    let model = VoteService::get(&ctx, input).await.to_api()?;
+    let model = VoteService::get(&ctx, input).await?;
     txn.commit().await?;
     build_vote_response(&model, StatusCode::Ok)
 }
@@ -53,7 +53,7 @@ pub async fn vote_put(mut req: ApiRequest) -> ApiResponse {
         input.page_id,
     );
 
-    let created = VoteService::add(&ctx, input).await.to_api()?;
+    let created = VoteService::add(&ctx, input).await?;
     txn.commit().await?;
     match created {
         Some(model) => build_vote_response(&model, StatusCode::Created),
@@ -73,7 +73,7 @@ pub async fn vote_delete(mut req: ApiRequest) -> ApiResponse {
         input.page_id,
     );
 
-    let vote = VoteService::remove(&ctx, input).await.to_api()?;
+    let vote = VoteService::remove(&ctx, input).await?;
     txn.commit().await?;
     build_vote_response(&vote, StatusCode::Ok)
 }
@@ -90,9 +90,7 @@ pub async fn vote_action(mut req: ApiRequest) -> ApiResponse {
     } = req.body_json().await?;
 
     let key = GetVote { page_id, user_id };
-    let vote = VoteService::action(&ctx, key, enable, acting_user_id)
-        .await
-        .to_api()?;
+    let vote = VoteService::action(&ctx, key, enable, acting_user_id).await?;
 
     txn.commit().await?;
     build_vote_response(&vote, StatusCode::Ok)
@@ -103,7 +101,7 @@ pub async fn vote_list_get(mut req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let input: GetVoteHistory = req.body_json().await?;
-    let votes = VoteService::get_history(&ctx, input).await.to_api()?;
+    let votes = VoteService::get_history(&ctx, input).await?;
 
     txn.commit().await?;
     build_vote_response(&votes, StatusCode::Ok)
@@ -114,7 +112,7 @@ pub async fn vote_count_get(mut req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let input: CountVoteHistory = req.body_json().await?;
-    let count = VoteService::count_history(&ctx, input).await.to_api()?;
+    let count = VoteService::count_history(&ctx, input).await?;
 
     txn.commit().await?;
     build_vote_response(&count, StatusCode::Ok)

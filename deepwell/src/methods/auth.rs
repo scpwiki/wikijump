@@ -113,7 +113,7 @@ pub async fn auth_session_get(mut req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let session_token = req.body_string().await?;
-    let session = SessionService::get(&ctx, &session_token).await.to_api()?;
+    let session = SessionService::get(&ctx, &session_token).await?;
 
     let body = Body::from_json(&session)?;
     let response = Response::builder(StatusCode::Ok).body(body).into();
@@ -126,7 +126,7 @@ pub async fn auth_session_renew(mut req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
     let input: RenewSession = req.body_json().await?;
 
-    let new_session_token = SessionService::renew(&ctx, input).await.to_api()?;
+    let new_session_token = SessionService::renew(&ctx, input).await?;
 
     let body = Body::from_string(new_session_token);
     let response = Response::builder(StatusCode::Ok).body(body).into();
@@ -146,7 +146,7 @@ pub async fn auth_session_get_others(mut req: ApiRequest) -> ApiResponse {
     // Produce output struct, which extracts the current session and
     // places it in its own location.
     let output = {
-        let mut sessions = SessionService::get_all(&ctx, user_id).await.to_api()?;
+        let mut sessions = SessionService::get_all(&ctx, user_id).await?;
         let current = match sessions
             .iter()
             .position(|session| session.session_token == session_token)
@@ -178,9 +178,8 @@ pub async fn auth_session_invalidate_others(mut req: ApiRequest) -> ApiResponse 
         user_id,
     } = req.body_json().await?;
 
-    let invalidated = SessionService::invalidate_others(&ctx, &session_token, user_id)
-        .await
-        .to_api()?;
+    let invalidated =
+        SessionService::invalidate_others(&ctx, &session_token, user_id).await?;
 
     let body = Body::from_json(&invalidated)?;
     let response = Response::builder(StatusCode::Ok).body(body).into();
@@ -193,9 +192,7 @@ pub async fn auth_logout(mut req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let session_token = req.body_string().await?;
-    SessionService::invalidate(&ctx, session_token)
-        .await
-        .to_api()?;
+    SessionService::invalidate(&ctx, session_token).await?;
 
     txn.commit().await?;
     Ok(Response::new(StatusCode::NoContent))
@@ -223,8 +220,7 @@ pub async fn auth_mfa_verify(mut req: ApiRequest) -> ApiResponse {
             totp_or_code: &totp_or_code,
         },
     )
-    .await
-    .to_api()?;
+    .await?;
 
     let new_session_token = SessionService::renew(
         &ctx,
@@ -235,8 +231,7 @@ pub async fn auth_mfa_verify(mut req: ApiRequest) -> ApiResponse {
             user_agent,
         },
     )
-    .await
-    .to_api()?;
+    .await?;
 
     let body = Body::from_string(new_session_token);
     let response = Response::builder(StatusCode::Ok).body(body).into();
@@ -249,8 +244,8 @@ pub async fn auth_mfa_setup(mut req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let GetUser { user: reference } = req.body_json().await?;
-    let user = UserService::get(&ctx, reference).await.to_api()?;
-    let output = MfaService::setup(&ctx, &user).await.to_api()?;
+    let user = UserService::get(&ctx, reference).await?;
+    let output = MfaService::setup(&ctx, &user).await?;
 
     let body = Body::from_json(&output)?;
     let response = Response::builder(StatusCode::Ok).body(body).into();
@@ -267,9 +262,7 @@ pub async fn auth_mfa_disable(mut req: ApiRequest) -> ApiResponse {
         session_token,
     } = req.body_json().await?;
 
-    let user = SessionService::get_user(&ctx, &session_token, false)
-        .await
-        .to_api()?;
+    let user = SessionService::get_user(&ctx, &session_token, false).await?;
 
     if user.user_id != user_id {
         tide::log::error!(
@@ -280,7 +273,7 @@ pub async fn auth_mfa_disable(mut req: ApiRequest) -> ApiResponse {
         return Ok(Response::new(StatusCode::Forbidden));
     }
 
-    MfaService::disable(&ctx, user.user_id).await.to_api()?;
+    MfaService::disable(&ctx, user.user_id).await?;
 
     txn.commit().await?;
     Ok(Response::new(StatusCode::NoContent))
@@ -295,9 +288,7 @@ pub async fn auth_mfa_reset_recovery(mut req: ApiRequest) -> ApiResponse {
         session_token,
     } = req.body_json().await?;
 
-    let user = SessionService::get_user(&ctx, &session_token, false)
-        .await
-        .to_api()?;
+    let user = SessionService::get_user(&ctx, &session_token, false).await?;
 
     if user.user_id != user_id {
         tide::log::error!(
@@ -308,9 +299,7 @@ pub async fn auth_mfa_reset_recovery(mut req: ApiRequest) -> ApiResponse {
         return Ok(Response::new(StatusCode::Forbidden));
     }
 
-    let output = MfaService::reset_recovery_codes(&ctx, &user)
-        .await
-        .to_api()?;
+    let output = MfaService::reset_recovery_codes(&ctx, &user).await?;
 
     let body = Body::from_json(&output)?;
     let response = Response::builder(StatusCode::Ok).body(body).into();

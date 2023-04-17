@@ -34,10 +34,8 @@ pub async fn page_links_from_get(mut req: ApiRequest) -> ApiResponse {
 
     tide::log::info!("Getting page links for page {reference:?} in site ID {site_id}");
 
-    let page_id = PageService::get_id(&ctx, site_id, reference)
-        .await
-        .to_api()?;
-    let output = LinkService::get_from(&ctx, page_id).await.to_api()?;
+    let page_id = PageService::get_id(&ctx, site_id, reference).await?;
+    let output = LinkService::get_from(&ctx, page_id).await?;
     let body = Body::from_json(&output)?;
     txn.commit().await?;
 
@@ -55,10 +53,8 @@ pub async fn page_links_to_get(mut req: ApiRequest) -> ApiResponse {
 
     tide::log::info!("Getting page links from page {reference:?} in site ID {site_id}");
 
-    let page_id = PageService::get_id(&ctx, site_id, reference)
-        .await
-        .to_api()?;
-    let output = LinkService::get_to(&ctx, page_id, None).await.to_api()?;
+    let page_id = PageService::get_id(&ctx, site_id, reference).await?;
+    let output = LinkService::get_to(&ctx, page_id, None).await?;
 
     let body = Body::from_json(&output)?;
     txn.commit().await?;
@@ -74,9 +70,7 @@ pub async fn page_links_to_missing_get(mut req: ApiRequest) -> ApiResponse {
         "Getting missing page links from page slug {page_slug} in site ID {site_id}",
     );
 
-    let output = LinkService::get_to_missing(&ctx, site_id, &page_slug, None)
-        .await
-        .to_api()?;
+    let output = LinkService::get_to_missing(&ctx, site_id, &page_slug, None).await?;
 
     let body = Body::from_json(&output)?;
     txn.commit().await?;
@@ -96,13 +90,9 @@ pub async fn page_links_external_from(mut req: ApiRequest) -> ApiResponse {
         "Getting external links from page {reference:?} in site ID {site_id}",
     );
 
-    let page_id = PageService::get_id(&ctx, site_id, reference)
-        .await
-        .to_api()?;
+    let page_id = PageService::get_id(&ctx, site_id, reference).await?;
 
-    let output = LinkService::get_external_from(&ctx, page_id)
-        .await
-        .to_api()?;
+    let output = LinkService::get_external_from(&ctx, page_id).await?;
 
     let body = Body::from_json(&output)?;
     txn.commit().await?;
@@ -116,9 +106,7 @@ pub async fn page_links_external_to(mut req: ApiRequest) -> ApiResponse {
     let GetLinksExternalTo { site_id, url } = req.body_json().await?;
     tide::log::info!("Getting external links to URL {url} in site ID {site_id}");
 
-    let output = LinkService::get_external_to(&ctx, site_id, &url)
-        .await
-        .to_api()?;
+    let output = LinkService::get_external_to(&ctx, site_id, &url).await?;
 
     let body = Body::from_json(&output)?;
     txn.commit().await?;

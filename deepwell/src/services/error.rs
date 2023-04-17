@@ -167,15 +167,3 @@ impl From<TideError> for Error {
         Error::Web(error)
     }
 }
-
-/// Trait to easily convert the result of transactions to `ApiResponse`s.
-pub trait PostTransactionToApiResponse<T> {
-    fn to_api(self) -> StdResult<T, TideError>;
-}
-
-impl<T> PostTransactionToApiResponse<T> for Result<T> {
-    #[inline]
-    fn to_api(self) -> StdResult<T, TideError> {
-        self.map_err(Error::into_tide_error)
-    }
-}
