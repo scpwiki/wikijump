@@ -183,7 +183,7 @@ impl DomainService {
 
     #[inline]
     pub fn get_canonical(config: &Config, site_slug: &str) -> String {
-        // 'main_domain' already is prefixed with .
+        // 'main_domain' is already prefixed with .
         format!("{}{}", site_slug, config.main_domain)
     }
 
