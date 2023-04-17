@@ -71,43 +71,49 @@ impl PageOptions {
         let mut arguments = PageArguments::parse(extra, PAGE_ARGUMENTS_SCHEMA).0;
         let mut options = PageOptions::default();
 
-        if let Some((value, _)) = arguments.remove("edit") {
-            options.edit = to_bool(value);
+        macro_rules! set_bool {
+            ($field:ident, $key:ident $(,)?) => {{
+                if let Some((value, _)) = arguments.remove(stringify!($key)) {
+                    options.$field = to_bool(value);
+                }
+            }};
+            ($field:ident $(,)?) => {
+                set_bool!($field, $field)
+            };
         }
 
-        if let Some((_, value)) = arguments.remove("title") {
-            options.title = Some(str!(value));
+        macro_rules! set_str {
+            ($field:ident, $key:ident $(,)?) => {{
+                if let Some((_, value)) = arguments.remove(stringify!($key)) {
+                    options.$field = str!(value);
+                }
+            }};
+            ($field:ident $(,)?) => {
+                set_str!($field, $field)
+            };
         }
 
-        if let Some((_, value)) = arguments.remove("parent") {
-            options.parent = Some(str!(value));
-        }
-        if let Some((_, value)) = arguments.remove("parentPage") {
-            options.parent = Some(str!(value));
-        }
-
-        if let Some((_, value)) = arguments.remove("tags") {
-            options.tags = Some(str!(value));
-        }
-
-        if let Some((value, _)) = arguments.remove("noredirect") {
-            options.no_redirect = to_bool(value);
+        macro_rules! set_str_opt {
+            ($field:ident, $key:ident $(,)?) => {{
+                if let Some((_, value)) = arguments.remove(stringify!($key)) {
+                    options.$field = Some(str!(value));
+                }
+            }};
+            ($field:ident $(,)?) => {
+                set_str_opt!($field, $field)
+            };
         }
 
-        if let Some((value, _)) = arguments.remove("norender") {
-            options.no_render = to_bool(value);
-        }
-
-        if let Some((value, _)) = arguments.remove("comments") {
-            options.comments = to_bool(value);
-        }
-        if let Some((value, _)) = arguments.remove("discuss") {
-            options.comments = to_bool(value);
-        }
-
-        if let Some((value, _)) = arguments.remove("history") {
-            options.history = to_bool(value);
-        }
+        set_bool!(edit);
+        set_str_opt!(title);
+        set_str_opt!(parent);
+        set_str_opt!(parent, parentPage);
+        set_str_opt!(tags);
+        set_bool!(no_redirect, noredirect);
+        set_bool!(no_render, norender);
+        set_bool!(comments);
+        set_bool!(comments, discuss);
+        set_bool!(history);
 
         if let Some((value, orig)) = arguments.remove("offset") {
             match value {
@@ -116,9 +122,7 @@ impl PageOptions {
             }
         }
 
-        if let Some((_, value)) = arguments.remove("data") {
-            options.data = str!(value);
-        }
+        set_str!(data);
 
         options
     }
