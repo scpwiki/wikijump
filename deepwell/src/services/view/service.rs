@@ -36,6 +36,32 @@ use crate::services::{
     UserService,
 };
 use wikidot_normalize::normalize;
+use wikidot_path::{OptionSchema, PageOptions};
+
+const PAGE_OPTIONS_SCHEMA: OptionSchema = OptionSchema {
+    valid_keys: &[
+        "edit",
+        "title",
+        "parentPage",
+        "parent",
+        "tags",
+        "norender",
+        "noredirect",
+        "comments",
+        "discuss",
+        "history",
+        "offset",
+        "data",
+    ],
+    solo_keys: &[
+        "edit",
+        "norender",
+        "noredirect",
+        "comments",
+        "discuss",
+        "history",
+    ],
+};
 
 #[derive(Debug)]
 pub struct ViewService;
@@ -73,7 +99,7 @@ impl ViewService {
         };
 
         let redirect_page = Self::should_redirect_page(page_slug);
-        let options = todo!(); // parse page options (page_extra)
+        let options = PageOptions::parse(page_extra, PAGE_OPTIONS_SCHEMA);
 
         let page = PageService::get(&ctx, site.site_id, Reference::Slug(cow!(page_slug)))
             .await
