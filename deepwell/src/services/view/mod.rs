@@ -20,9 +20,11 @@
 
 mod prelude {
     pub use super::super::prelude::*;
+    pub use super::options::PageOptions;
     pub use super::structs::*;
 }
 
+mod options;
 mod service;
 mod structs;
 

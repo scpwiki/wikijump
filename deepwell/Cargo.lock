@@ -4714,9 +4714,9 @@ dependencies = [
 
 [[package]]
 name = "wikidot-path"
-version = "0.3.2"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fd1dc096c412bfea741eb6de5b09045d99e72c4d05d99404aa877db8f81cdcaf"
+checksum = "5dd194a3a51e1152aff9ad60ddb5b385e0c07f918429c250f5ad873aff0de65f"
 dependencies = [
  "wikidot-normalize 0.11.0",
 ]

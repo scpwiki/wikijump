@@ -36,32 +36,6 @@ use crate::services::{
     UserService,
 };
 use wikidot_normalize::normalize;
-use wikidot_path::{OptionSchema, PageOptions};
-
-const PAGE_OPTIONS_SCHEMA: OptionSchema = OptionSchema {
-    valid_keys: &[
-        "edit",
-        "title",
-        "parentPage",
-        "parent",
-        "tags",
-        "norender",
-        "noredirect",
-        "comments",
-        "discuss",
-        "history",
-        "offset",
-        "data",
-    ],
-    solo_keys: &[
-        "edit",
-        "norender",
-        "noredirect",
-        "comments",
-        "discuss",
-        "history",
-    ],
-};
 
 #[derive(Debug)]
 pub struct ViewService;
@@ -90,16 +64,13 @@ impl ViewService {
         } = Self::get_viewer(ctx, &domain, &session_token).await?;
 
         // If None, means the main page for the site. Pull from site data.
-        let (page_slug, page_extra): (&str, &str) = match route {
+        let (page_slug, page_extra): (&str, &str) = match &route {
             None => (&site.default_page, ""),
-            Some(PageRoute {
-                ref slug,
-                ref extra,
-            }) => (slug, extra),
+            Some(PageRoute { slug, extra }) => (slug, extra),
         };
 
         let redirect_page = Self::should_redirect_page(page_slug);
-        let options = PageOptions::parse(page_extra, PAGE_OPTIONS_SCHEMA);
+        let options = PageOptions::parse(page_extra);
 
         // Get page, revision, and text fields
         let page = PageService::get(&ctx, site.site_id, Reference::Slug(cow!(page_slug)))
@@ -123,6 +94,7 @@ impl ViewService {
                 user_permissions,
                 redirect_site,
             },
+            options,
             page,
             page_revision,
             wikitext,

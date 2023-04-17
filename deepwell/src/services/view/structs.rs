@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::options::PageOptions;
 use crate::models::page::Model as PageModel;
 use crate::models::page_revision::Model as PageRevisionModel;
 use crate::models::session::Model as SessionModel;
@@ -44,6 +45,8 @@ pub struct PageRoute {
 pub struct GetPageViewOutput {
     #[serde(flatten)]
     pub viewer: Viewer,
+    pub options: PageOptions,
+
     pub page: PageModel,
     pub page_revision: PageRevisionModel,
     pub wikitext: String,
