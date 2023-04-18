@@ -20,7 +20,7 @@ level = "info"
 # The IP and port to bind to when the server starts.
 address = "[::]:2747"
 
-# The path to write the pid file
+# The path to write the pid file.
 # If excluded or empty, then no pid file is written.
 pid-file = ""
 
