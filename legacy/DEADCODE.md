@@ -1,5 +1,7 @@
 # DEADCODE.md
 
+**This file is no longer updated. Everything in `legacy/` is to be removed when reimplemented elsewhere.**
+
 Whenever code that was present in base Wikidot is removed from the repository,
 make a note of it here. Record where it was, what it did, and why it was
 removed. See [WJ-218](https://scuttle.atlassian.net/browse/WJ-218) for more
