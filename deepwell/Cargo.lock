@@ -1312,6 +1312,7 @@ dependencies = [
  "subtle",
  "thiserror",
  "tide",
+ "time 0.3.20",
  "tiny-keccak",
  "toml 0.7.3",
  "typenum",
