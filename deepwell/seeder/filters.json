@@ -320,6 +320,12 @@
     },
     {
         "site": null,
+        "regex": "^xn-{1,}",
+        "descriptoin": "Looks like/is punycode",
+        "user": true
+    },
+    {
+        "site": null,
         "regex": "@",
         "description": "Looks like an email (contains @)",
         "user": true
