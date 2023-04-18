@@ -1,5 +1,5 @@
 /*
- * methods/page.rs
+ * endpoints/page.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -36,14 +36,14 @@ pub async fn page_create(mut req: ApiRequest) -> ApiResponse {
     let input: CreatePage = req.body_json().await?;
     tide::log::info!("Creating new page in site ID {}", input.site_id);
 
-    let output = PageService::create(&ctx, input).await.to_api()?;
+    let output = PageService::create(&ctx, input).await?;
     let body = Body::from_json(&output)?;
     txn.commit().await?;
 
     Ok(body.into())
 }
 
-pub async fn page_get(mut req: ApiRequest) -> ApiResponse {
+pub async fn page_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
@@ -54,15 +54,12 @@ pub async fn page_get(mut req: ApiRequest) -> ApiResponse {
     } = req.body_json().await?;
 
     tide::log::info!("Getting page {reference:?} in site ID {site_id}");
-    let page = PageService::get(&ctx, site_id, reference).await.to_api()?;
+    let page = PageService::get(&ctx, site_id, reference).await?;
 
-    let revision = PageRevisionService::get_latest(&ctx, site_id, page.page_id)
-        .await
-        .to_api()?;
+    let revision = PageRevisionService::get_latest(&ctx, site_id, page.page_id).await?;
 
-    let response = build_page_response(&ctx, &page, &revision, details, StatusCode::Ok)
-        .await
-        .to_api()?;
+    let response =
+        build_page_response(&ctx, &page, &revision, details, StatusCode::Ok).await?;
 
     txn.commit().await?;
     Ok(response)
@@ -76,14 +73,12 @@ pub async fn page_get_direct(req: ApiRequest) -> ApiResponse {
     tide::log::info!("Getting page ID {page_id}");
 
     let details: PageDetailsQuery = req.query()?;
-    let page = PageService::get_direct(&ctx, page_id).await.to_api()?;
-    let revision = PageRevisionService::get_latest(&ctx, page.site_id, page.page_id)
-        .await
-        .to_api()?;
+    let page = PageService::get_direct(&ctx, page_id).await?;
+    let revision =
+        PageRevisionService::get_latest(&ctx, page.site_id, page.page_id).await?;
 
-    let response = build_page_response(&ctx, &page, &revision, details, StatusCode::Ok)
-        .await
-        .to_api()?;
+    let response =
+        build_page_response(&ctx, &page, &revision, details, StatusCode::Ok).await?;
 
     txn.commit().await?;
     Ok(response)
@@ -96,7 +91,7 @@ pub async fn page_edit(mut req: ApiRequest) -> ApiResponse {
     let input: EditPage = req.body_json().await?;
     tide::log::info!("Editing page {:?} in site ID {}", input.page, input.site_id);
 
-    let output = PageService::edit(&ctx, input).await.to_api()?;
+    let output = PageService::edit(&ctx, input).await?;
 
     txn.commit().await?;
     let body = Body::from_json(&output)?;
@@ -114,7 +109,7 @@ pub async fn page_delete(mut req: ApiRequest) -> ApiResponse {
         input.site_id,
     );
 
-    let output = PageService::delete(&ctx, input).await.to_api()?;
+    let output = PageService::delete(&ctx, input).await?;
 
     txn.commit().await?;
     let body = Body::from_json(&output)?;
@@ -133,7 +128,7 @@ pub async fn page_move(mut req: ApiRequest) -> ApiResponse {
         input.new_slug,
     );
 
-    let output = PageService::r#move(&ctx, input).await.to_api()?;
+    let output = PageService::r#move(&ctx, input).await?;
 
     txn.commit().await?;
     let body = Body::from_json(&output)?;
@@ -148,9 +143,7 @@ pub async fn page_rerender(req: ApiRequest) -> ApiResponse {
     let page_id = req.param("page_id")?.parse()?;
     tide::log::info!("Re-rendering page ID {page_id} in site ID {site_id}");
 
-    PageRevisionService::rerender(&ctx, site_id, page_id)
-        .await
-        .to_api()?;
+    PageRevisionService::rerender(&ctx, site_id, page_id).await?;
 
     txn.commit().await?;
     Ok(Response::new(StatusCode::NoContent))
@@ -167,7 +160,7 @@ pub async fn page_restore(mut req: ApiRequest) -> ApiResponse {
         input.site_id,
     );
 
-    let output = PageService::restore(&ctx, input).await.to_api()?;
+    let output = PageService::restore(&ctx, input).await?;
 
     txn.commit().await?;
     let body = Body::from_json(&output)?;
@@ -186,7 +179,7 @@ pub async fn page_rollback(mut req: ApiRequest) -> ApiResponse {
         input.revision_number,
     );
 
-    let output = PageService::rollback(&ctx, input).await.to_api()?;
+    let output = PageService::rollback(&ctx, input).await?;
 
     txn.commit().await?;
     let body = Body::from_json(&output)?;
@@ -209,8 +202,7 @@ async fn build_page_response(
     let (wikitext, compiled_html) = try_join!(
         TextService::get_maybe(ctx, details.wikitext, &revision.wikitext_hash),
         TextService::get_maybe(ctx, details.compiled_html, &revision.compiled_hash),
-    )
-    .to_api()?;
+    )?;
 
     // Calculate score
     let rating = ScoreService::score(ctx, page.page_id).await?;

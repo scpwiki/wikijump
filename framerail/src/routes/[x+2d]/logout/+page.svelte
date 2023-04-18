@@ -1,1 +1,1 @@
-<h1>TODO: logout route</h1>
+<h1>UNTRANSLATED:TODO: logout route</h1>

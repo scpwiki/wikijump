@@ -45,6 +45,7 @@ pub struct ConfigFile {
     database: Database,
     security: Security,
     locale: Locale,
+    domain: Domain,
     job: Job,
     ftml: Ftml,
     user: User,
@@ -109,6 +110,13 @@ struct Job {
 #[serde(rename_all = "kebab-case")]
 struct Locale {
     path: PathBuf,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "kebab-case")]
+struct Domain {
+    main: String,
+    files: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -181,6 +189,11 @@ impl ConfigFile {
                             time_skew,
                         },
                 },
+            domain:
+                Domain {
+                    main: mut main_domain,
+                    files: mut files_domain,
+                },
             job:
                 Job {
                     delay_ms: job_delay_ms,
@@ -198,6 +211,11 @@ impl ConfigFile {
                 },
         } = self;
 
+        // Prefix domains with '.' so we can do easy subdomain checks
+        // and concatenations.
+        prefix_domain(&mut main_domain);
+        prefix_domain(&mut files_domain);
+
         // Treats empty strings (which aren't valid paths anyways)
         // as null for the purpose of pid_file.
         if let Some(ref path) = pid_file {
@@ -212,6 +230,8 @@ impl ConfigFile {
             logger_level,
             address,
             pid_file,
+            main_domain,
+            files_domain,
             run_migrations,
             run_seeder,
             seeder_path,
@@ -242,5 +262,11 @@ impl ConfigFile {
                 refill_name_change_days * 24 * 60 * 60,
             ),
         }
+    }
+}
+
+fn prefix_domain(domain: &mut String) {
+    if !domain.starts_with('.') {
+        domain.insert(0, '.');
     }
 }

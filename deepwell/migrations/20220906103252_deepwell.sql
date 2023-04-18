@@ -83,6 +83,7 @@ CREATE TABLE site (
     description TEXT NOT NULL,
     locale TEXT NOT NULL,
     default_page TEXT NOT NULL DEFAULT 'start',
+    custom_domain TEXT,  -- Dependency cycle, add foreign key constraint after
 
     UNIQUE (slug, deleted_at)
 );
@@ -94,6 +95,10 @@ CREATE TABLE site_domain (
 
     CHECK (length(domain) > 0)
 );
+
+ALTER TABLE site
+    ADD CONSTRAINT site_custom_domain_fk
+    FOREIGN KEY (custom_domain) REFERENCES site_domain(domain);
 
 --
 -- Aliases

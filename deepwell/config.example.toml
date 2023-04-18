@@ -148,6 +148,22 @@ delay-ms = 5
 prune-session-secs = 600  # 5 minutes
 
 
+[domain]
+
+# The main domain for this instance, where it's considered to be
+# hosted from. The canonical domain for sites will be "site.[this-domain]".
+#
+# Example values:
+# - wikijump.com        (production)
+# - wikijump.dev        (development / staging)
+# - wikijump.localhost  (local)
+main = "wikijump.com"
+
+# The domain used by this instance to serve user-uploaded files
+# and other potentially-insecure data.
+files = "wjfiles.com"
+
+
 [locale]
 
 # The path containing Fluent translation files.

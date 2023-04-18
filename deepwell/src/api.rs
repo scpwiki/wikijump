@@ -28,12 +28,12 @@
 
 use crate::config::{Config, Secrets};
 use crate::database;
-use crate::locales::Localizations;
-use crate::methods::{
+use crate::endpoints::{
     auth::*, category::*, file::*, file_revision::*, link::*, locale::*, misc::*,
     page::*, page_revision::*, parent::*, site::*, text::*, user::*, user_bot::*,
-    vote::*,
+    view::*, vote::*,
 };
+use crate::locales::Localizations;
 use crate::services::blob::spawn_magic_thread;
 use crate::services::job::JobRunner;
 use crate::utils::error_response;
@@ -128,11 +128,14 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
     app.at("/config").get(config_dump);
     app.at("/normalize/:input").all(normalize_method);
     app.at("/teapot")
-        .get(|_| async { error_response(StatusCode::ImATeapot, "🫖") });
+        .all(|_| async { error_response(StatusCode::ImATeapot, "🫖") });
 
     // Localization
     app.at("/locale/:locale").get(locale_get);
-    app.at("/message/:locale/:message_key").get(message_get);
+    app.at("/message/:locale/:message_key").put(message_put);
+
+    // Routes for web server
+    app.at("/view/page").put(view_page);
 
     // Authentication
     app.at("/auth/login").post(auth_login);
@@ -140,12 +143,12 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
     app.at("/auth/mfa").post(auth_mfa_verify); // Is part of the login process,
                                                // which is why it's up here.
 
-    app.at("/auth/session").get(auth_session_get);
+    app.at("/auth/session/get").get(auth_session_retrieve);
     app.at("/auth/session/renew").post(auth_session_renew);
     app.at("/auth/session/others")
-        .get(auth_session_get_others)
         .delete(auth_session_invalidate_others);
-
+    app.at("/auth/session/others/get")
+        .put(auth_session_retrieve_others);
     app.at("/auth/mfa/install")
         .post(auth_mfa_setup)
         .delete(auth_mfa_disable);
@@ -153,12 +156,14 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
         .post(auth_mfa_reset_recovery);
 
     // Site
-    app.at("/site").get(site_get).put(site_put);
+    app.at("/site").put(site_put);
+    app.at("/site/get").put(site_retrieve);
     app.at("/site/create").post(site_create);
-    app.at("/site/domain")
-        .get(site_domain_get)
-        .post(site_domain_post)
-        .delete(site_domain_delete);
+    app.at("/site/domain/custom")
+        .post(site_custom_domain_post)
+        .delete(site_custom_domain_delete);
+    app.at("/site/domain/custom/get")
+        .get(site_custom_domain_retrieve);
     app.at("/site/fromDomain/:domain").get(site_get_from_domain);
 
     // Category
@@ -166,90 +171,75 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
     app.at("/category/site").get(category_all_get);
 
     // Page
-    app.at("/page")
-        .get(page_get)
-        .post(page_edit)
-        .delete(page_delete);
+    app.at("/page").post(page_edit).delete(page_delete);
+    app.at("/page/get").put(page_retrieve);
     app.at("/page/create").post(page_create);
     app.at("/page/direct/:page_id").get(page_get_direct);
-
     app.at("/page/move").post(page_move);
     app.at("/page/rerender").put(page_rerender);
     app.at("/page/restore").post(page_restore);
 
     // Page revisions
-    app.at("/page/revision")
-        .get(page_revision_get)
-        .put(page_revision_put);
+    app.at("/page/revision").put(page_revision_put);
+    app.at("/page/revision/get").get(page_revision_retrieve);
     app.at("/page/revision/count").get(page_revision_count);
-
     app.at("/page/revision/rollback").post(page_rollback);
-    app.at("/page/revision/range").get(page_revision_range_get);
+    app.at("/page/revision/range")
+        .put(page_revision_range_retrieve);
 
     // Page links
-    app.at("/page/links/from").get(page_links_from_get);
-    app.at("/page/links/to").get(page_links_to_get);
+    app.at("/page/links/from").put(page_links_from_retrieve);
+    app.at("/page/links/to").put(page_links_to_retrieve);
     app.at("/page/links/to/missing")
-        .get(page_links_to_missing_get);
-    app.at("/page/urls/from").get(page_links_external_from);
-    app.at("/page/urls/to").get(page_links_external_to);
+        .put(page_links_to_missing_retrieve);
+    app.at("/page/urls/from").put(page_links_external_from);
+    app.at("/page/urls/to").put(page_links_external_to);
 
     // Page parents
-    app.at("/page/parent")
-        .get(parent_get)
-        .put(parent_put)
-        .delete(parent_delete);
-
+    app.at("/page/parent").put(parent_put).delete(parent_delete);
+    app.at("/page/parent/get").put(parent_retrieve);
     app.at("/page/parent/:relationship_type")
-        .get(parent_relationships_get);
+        .put(parent_relationships_retrieve);
 
     // Files
-    app.at("/file")
-        .get(file_get)
-        .post(file_edit)
-        .delete(file_delete);
+    app.at("/file").post(file_edit).delete(file_delete);
+    app.at("/file/get").get(file_retrieve);
     app.at("/file/upload").post(file_create);
     app.at("/file/move").post(file_move);
     app.at("/file/restore").post(file_restore);
 
     // File revisions
-    app.at("/file/revision")
-        .get(file_revision_get)
-        .put(file_revision_put);
-    app.at("/file/revision/count").get(file_revision_count);
+    app.at("/file/revision").put(file_revision_put);
+    app.at("/file/revision/get").get(file_revision_retrieve);
+    app.at("/file/revision/count").put(file_revision_count);
     app.at("/file/revision/range/:direction")
-        .get(file_revision_range_get);
+        .put(file_revision_range_retrieve);
 
     // Text
     app.at("/text").put(text_put);
     app.at("/text/:hash").get(text_get);
 
     // User
-    app.at("/user")
-        .get(user_get)
-        .put(user_put)
-        .delete(user_delete);
+    app.at("/user").put(user_put).delete(user_delete);
+    app.at("/user/get").put(user_retrieve);
     app.at("/user/avatar").put(user_avatar_put);
     app.at("/user/create").post(user_create);
     app.at("/user/import").post(user_import);
     app.at("/user/addNameChange").post(user_add_name_change);
 
     // User bot information
-    app.at("/user/bot").get(user_bot_get);
+    app.at("/user/bot/get").put(user_bot_retrieve);
     app.at("/user/bot/create").post(user_bot_create);
     app.at("/user/bot/owner")
         .put(user_bot_owner_put)
         .delete(user_bot_owner_delete);
 
     // Votes
-    app.at("/vote")
-        .get(vote_get)
-        .put(vote_put)
-        .delete(vote_delete);
-
+    app.at("/vote").put(vote_put).delete(vote_delete);
+    app.at("/vote/get").put(vote_retrieve);
     app.at("/vote/action").put(vote_action);
-    app.at("/vote/list").get(vote_list_get);
-    app.at("/vote/count").get(vote_count_get);
+    app.at("/vote/list").put(vote_list_retrieve);
+    app.at("/vote/count").put(vote_count_retrieve);
 
     app
 }

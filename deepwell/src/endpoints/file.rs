@@ -1,5 +1,5 @@
 /*
- * methods/file.rs
+ * endpoints/file.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -25,7 +25,7 @@ use crate::services::file::{GetFile, GetFileOutput};
 use crate::services::Result;
 use crate::web::FileDetailsQuery;
 
-pub async fn file_get(mut req: ApiRequest) -> ApiResponse {
+pub async fn file_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
@@ -41,17 +41,12 @@ pub async fn file_get(mut req: ApiRequest) -> ApiResponse {
     );
 
     // We cannot use get_id() because we need File for build_file_response().
-    let file = FileService::get(&ctx, page_id, file_reference)
-        .await
-        .to_api()?;
+    let file = FileService::get(&ctx, page_id, file_reference).await?;
 
-    let revision = FileRevisionService::get_latest(&ctx, page_id, file.file_id)
-        .await
-        .to_api()?;
+    let revision = FileRevisionService::get_latest(&ctx, page_id, file.file_id).await?;
 
-    let response = build_file_response(&ctx, &file, &revision, details, StatusCode::Ok)
-        .await
-        .to_api()?;
+    let response =
+        build_file_response(&ctx, &file, &revision, details, StatusCode::Ok).await?;
 
     txn.commit().await?;
     Ok(response)

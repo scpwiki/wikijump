@@ -1317,7 +1317,8 @@ dependencies = [
  "typenum",
  "unic-langid",
  "void",
- "wikidot-normalize",
+ "wikidot-normalize 0.11.0",
+ "wikidot-path",
 ]
 
 [[package]]
@@ -1634,7 +1635,7 @@ dependencies = [
  "void",
  "wasm-bindgen",
  "web-sys",
- "wikidot-normalize",
+ "wikidot-normalize 0.10.0",
 ]
 
 [[package]]
@@ -4696,6 +4697,28 @@ dependencies = [
  "regex",
  "trim-in-place",
  "unicode-normalization",
+]
+
+[[package]]
+name = "wikidot-normalize"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2562facf99615dfc0144ba1b40277f50c5742b557450747167bd835488d3f30f"
+dependencies = [
+ "lazy_static",
+ "maplit",
+ "regex",
+ "trim-in-place",
+ "unicode-normalization",
+]
+
+[[package]]
+name = "wikidot-path"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5dd194a3a51e1152aff9ad60ddb5b385e0c07f918429c250f5ad873aff0de65f"
+dependencies = [
+ "wikidot-normalize 0.11.0",
 ]
 
 [[package]]

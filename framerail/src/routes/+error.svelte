@@ -1,3 +1,1 @@
-<h1>This page cannot be found</h1>
-
-Or error
+<h1>UNTRANSLATED:Svelte Error</h1>

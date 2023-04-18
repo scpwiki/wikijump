@@ -79,8 +79,7 @@ impl UserBotOwnerService {
         let (bot, human) = try_join!(
             UserService::get_with_user_type(ctx, bot_reference, UserType::Bot),
             UserService::get_with_user_type(ctx, human_reference, UserType::Regular),
-        )
-        .to_api()?;
+        )?;
 
         tide::log::info!(
             "Adding user ID {} as owner for bot ID {}: {}",
@@ -143,8 +142,7 @@ impl UserBotOwnerService {
         let (bot_user_id, human_user_id) = try_join!(
             UserService::get_id(ctx, bot_reference),
             UserService::get_id(ctx, human_reference),
-        )
-        .to_api()?;
+        )?;
 
         tide::log::info!(
             "Deleting user ID {} as owner for bot ID {}",

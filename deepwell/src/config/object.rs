@@ -49,6 +49,12 @@ pub struct Config {
     /// The PID file (if any) to write to on boot.
     pub pid_file: Option<PathBuf>,
 
+    /// The main domain to serve sites from.
+    pub main_domain: String,
+
+    /// The files domain to serve user-generated content from.
+    pub files_domain: String,
+
     /// Whether to run migrations on startup.
     pub run_migrations: bool,
 

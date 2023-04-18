@@ -26,6 +26,10 @@ recovery-code-length = 8
 time-step = 30
 time-skew = 1
 
+[domain]
+main = "wikijump.localhost"
+files = "wjfiles.localhost"
+
 [job]
 delay-ms = 5
 prune-session-secs = 600  # 5 minutes

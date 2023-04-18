@@ -3,7 +3,7 @@ import type { UserConfig } from "vite"
 
 const config: UserConfig = {
   server: {
-    host: '::',
+    host: "::",
     port: 3000,
     strictPort: true
   },

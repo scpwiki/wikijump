@@ -1,5 +1,5 @@
 /*
- * methods/page_revision.rs
+ * endpoints/page_revision.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -41,13 +41,9 @@ pub async fn page_revision_count(mut req: ApiRequest) -> ApiResponse {
         "Getting latest revision for page {reference:?} in site ID {site_id}",
     );
 
-    let page_id = PageService::get_id(&ctx, site_id, reference)
-        .await
-        .to_api()?;
+    let page_id = PageService::get_id(&ctx, site_id, reference).await?;
 
-    let revision_count = PageRevisionService::count(&ctx, site_id, page_id)
-        .await
-        .to_api()?;
+    let revision_count = PageRevisionService::count(&ctx, site_id, page_id).await?;
 
     txn.commit().await?;
     let output = PageRevisionCountOutput {
@@ -61,7 +57,7 @@ pub async fn page_revision_count(mut req: ApiRequest) -> ApiResponse {
     Ok(response)
 }
 
-pub async fn page_revision_get(mut req: ApiRequest) -> ApiResponse {
+pub async fn page_revision_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
@@ -76,13 +72,11 @@ pub async fn page_revision_get(mut req: ApiRequest) -> ApiResponse {
         "Getting revision {revision_number} for page ID {page_id} in site ID {site_id}",
     );
 
-    let revision = PageRevisionService::get(&ctx, site_id, page_id, revision_number)
-        .await
-        .to_api()?;
+    let revision =
+        PageRevisionService::get(&ctx, site_id, page_id, revision_number).await?;
 
-    let response = build_revision_response(&ctx, revision, details, StatusCode::Ok)
-        .await
-        .to_api()?;
+    let response =
+        build_revision_response(&ctx, revision, details, StatusCode::Ok).await?;
 
     txn.commit().await?;
     Ok(response)
@@ -106,28 +100,25 @@ pub async fn page_revision_put(mut req: ApiRequest) -> ApiResponse {
     let (_, revision) = try_join!(
         PageRevisionService::update(&ctx, input),
         PageRevisionService::get_direct(&ctx, revision_id),
-    )
-    .to_api()?;
+    )?;
 
-    let response = build_revision_response(&ctx, revision, details, StatusCode::Ok)
-        .await
-        .to_api()?;
+    let response =
+        build_revision_response(&ctx, revision, details, StatusCode::Ok).await?;
 
     txn.commit().await?;
     Ok(response)
 }
 
-pub async fn page_revision_range_get(mut req: ApiRequest) -> ApiResponse {
+pub async fn page_revision_range_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
     let details: PageDetailsQuery = req.query()?;
     let input: GetPageRevisionRange = req.body_json().await?;
-    let revisions = PageRevisionService::get_range(&ctx, input).await.to_api()?;
+    let revisions = PageRevisionService::get_range(&ctx, input).await?;
 
-    let response = build_revision_list_response(&ctx, revisions, details, StatusCode::Ok)
-        .await
-        .to_api()?;
+    let response =
+        build_revision_list_response(&ctx, revisions, details, StatusCode::Ok).await?;
 
     txn.commit().await?;
     Ok(response)
@@ -186,8 +177,7 @@ async fn filter_and_populate_revision(
     let (wikitext, compiled_html) = try_join!(
         TextService::get_maybe(ctx, details.wikitext, &wikitext_hash),
         TextService::get_maybe(ctx, details.compiled_html, &compiled_hash),
-    )
-    .to_api()?;
+    )?;
 
     Ok(PageRevisionModelFiltered {
         revision_id,
