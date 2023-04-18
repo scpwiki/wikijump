@@ -3,12 +3,12 @@ This is the template site for this instance, or a newly-created site based on th
 ++ Site Information
 
 * You can configure all security and other settings online, using the [[[admin:manage | Site Manager]]].  When you invite other people to help build this site they don't have access to the Site Manager unless they are also administrators.  Check out the //Permissions// section.
-* Your Wikidot site has two menus, [[[nav:side | the side bar]]] called '{{nav:side}}', and [[[nav:top | the top bar]]] called '{{nav:top}}'. These are Wikijump pages, and you can edit them like any other page.
+* Your Wikijump site has two menus, [[[nav:side | the side bar]]] called '{{nav:side}}', and [[[nav:top | the top bar]]] called '{{nav:top}}'. These are Wikijump pages, and you can edit them like any other page.
 * To edit a page, go to the page and click the **Edit** button at the bottom. You can change everything in the main area of your page.
 * You can upload images and other files to any page, then display them and link to them in the page.
 * Every Wikijump page has a history of edits, and you can undo anything.
 * To start a forum on your site, see the [[[admin:manage | Site Manager]]] >> //Forum//.
-* The license for this Wikidot site has been set to [*https://creativecommons.org/licenses/by-sa/4.0/ Creative Commons Attribution-Share Alike 4.0 License]. If you want to change this, use the Site Manager.
+* The license for this Wikijump site has been set to [*https://creativecommons.org/licenses/by-sa/4.0/ Creative Commons Attribution-Share Alike 4.0 License]. If you want to change this, use the Site Manager.
 
 ++ Wikijump
 
