@@ -3,6 +3,7 @@
 use super::sea_orm_active_enums::UserType;
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
+use time::{Date, OffsetDateTime};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -11,19 +12,19 @@ pub struct Model {
     #[sea_orm(primary_key)]
     pub user_id: i64,
     pub user_type: UserType,
-    pub created_at: DateTimeWithTimeZone,
-    pub updated_at: Option<DateTimeWithTimeZone>,
-    pub deleted_at: Option<DateTimeWithTimeZone>,
+    pub created_at: OffsetDateTime,
+    pub updated_at: Option<OffsetDateTime>,
+    pub deleted_at: Option<OffsetDateTime>,
     pub from_wikidot: bool,
     #[sea_orm(column_type = "Text")]
     pub name: String,
     #[sea_orm(column_type = "Text")]
     pub slug: String,
     pub name_changes_left: i16,
-    pub last_renamed_at: Option<DateTimeWithTimeZone>,
+    pub last_renamed_at: Option<OffsetDateTime>,
     #[sea_orm(column_type = "Text")]
     pub email: String,
-    pub email_verified_at: Option<DateTimeWithTimeZone>,
+    pub email_verified_at: Option<OffsetDateTime>,
     #[sea_orm(column_type = "Text")]
     pub password: String,
     #[sea_orm(column_type = "Text", nullable)]

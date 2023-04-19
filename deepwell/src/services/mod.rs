@@ -38,7 +38,7 @@ mod prelude {
     pub use super::context::ServiceContext;
     pub use super::error::*;
     pub use crate::config::Config;
-    pub use crate::utils::{find_or_error, now, now_t};
+    pub use crate::utils::{find_or_error, now};
     pub use crate::web::{ProvidedValue, Reference};
     pub use chrono::Utc;
     pub use sea_orm::{

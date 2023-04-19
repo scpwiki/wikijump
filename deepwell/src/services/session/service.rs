@@ -117,7 +117,7 @@ impl SessionService {
             .filter(
                 Condition::all()
                     .add(session::Column::SessionToken.eq(session_token))
-                    .add(session::Column::ExpiresAt.gt(now_t())),
+                    .add(session::Column::ExpiresAt.gt(now())),
             )
             .one(txn)
             .await?;
@@ -144,7 +144,7 @@ impl SessionService {
             .filter(
                 Condition::all()
                     .add(session::Column::SessionToken.eq(session_token))
-                    .add(session::Column::ExpiresAt.gt(now_t()))
+                    .add(session::Column::ExpiresAt.gt(now()))
                     .add(session::Column::Restricted.eq(restricted)),
             )
             .one(txn)
@@ -291,7 +291,7 @@ impl SessionService {
 
         let txn = ctx.transaction();
         let DeleteResult { rows_affected } = Session::delete_many()
-            .filter(session::Column::ExpiresAt.lte(now_t()))
+            .filter(session::Column::ExpiresAt.lte(now()))
             .exec(txn)
             .await?;
 

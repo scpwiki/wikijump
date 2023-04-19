@@ -2,6 +2,7 @@
 
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
+use time::OffsetDateTime;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -9,9 +10,9 @@ use serde::{Deserialize, Serialize};
 pub struct Model {
     #[sea_orm(primary_key)]
     pub page_vote_id: i64,
-    pub created_at: DateTimeWithTimeZone,
-    pub deleted_at: Option<DateTimeWithTimeZone>,
-    pub disabled_at: Option<DateTimeWithTimeZone>,
+    pub created_at: OffsetDateTime,
+    pub deleted_at: Option<OffsetDateTime>,
+    pub disabled_at: Option<OffsetDateTime>,
     pub disabled_by: Option<i64>,
     pub from_wikidot: bool,
     pub page_id: i64,

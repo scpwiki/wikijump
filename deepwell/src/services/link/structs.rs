@@ -21,8 +21,8 @@
 use crate::models::page_connection::Model as PageConnectionModel;
 use crate::models::page_connection_missing::Model as PageConnectionMissingModel;
 use crate::models::page_link::Model as PageLinkModel;
-use crate::utils::DateTimeWithTimeZone;
 use crate::web::Reference;
+use time::OffsetDateTime;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -101,8 +101,8 @@ pub struct GetLinksExternalToOutput {
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct ToExternalLink {
-    pub created_at: DateTimeWithTimeZone,
-    pub updated_at: Option<DateTimeWithTimeZone>,
+    pub created_at: OffsetDateTime,
+    pub updated_at: Option<OffsetDateTime>,
     pub page_id: i64,
     pub count: i32,
 }

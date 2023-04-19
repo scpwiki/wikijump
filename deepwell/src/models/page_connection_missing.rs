@@ -2,6 +2,7 @@
 
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
+use time::OffsetDateTime;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -15,8 +16,8 @@ pub struct Model {
     pub to_page_slug: String,
     #[sea_orm(primary_key, auto_increment = false, column_type = "Text")]
     pub connection_type: String,
-    pub created_at: DateTimeWithTimeZone,
-    pub updated_at: Option<DateTimeWithTimeZone>,
+    pub created_at: OffsetDateTime,
+    pub updated_at: Option<OffsetDateTime>,
     pub count: i32,
 }
 

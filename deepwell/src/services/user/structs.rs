@@ -22,7 +22,7 @@ use super::prelude::*;
 use crate::models::alias::Model as AliasModel;
 use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user::Model as UserModel;
-use chrono::NaiveDate;
+use time::Date;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -78,7 +78,7 @@ pub struct UpdateUserBody {
     pub avatar: ProvidedValue<Option<Vec<u8>>>,
     pub real_name: ProvidedValue<Option<String>>,
     pub gender: ProvidedValue<Option<String>>,
-    pub birthday: ProvidedValue<Option<NaiveDate>>,
+    pub birthday: ProvidedValue<Option<Date>>,
     pub location: ProvidedValue<Option<String>>,
     pub biography: ProvidedValue<Option<String>>,
     pub user_page: ProvidedValue<Option<String>>,

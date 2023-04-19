@@ -2,6 +2,7 @@
 
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
+use time::{Date, OffsetDateTime};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -15,7 +16,7 @@ pub struct Model {
     pub attribution_type: String,
     #[sea_orm(primary_key, auto_increment = false)]
     pub attribution_date: Date,
-    pub created_at: DateTimeWithTimeZone,
+    pub created_at: OffsetDateTime,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

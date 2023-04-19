@@ -22,10 +22,11 @@
 #![allow(dead_code)]
 
 use super::prelude::*;
-use chrono::DateTime;
 use s3::request_trait::ResponseData;
 use s3::serde_types::HeadObjectResult;
 use std::str;
+use time::OffsetDateTime;
+use time::format_description::well_known::Rfc2822;
 
 #[derive(Debug)]
 pub struct BlobService;
@@ -123,7 +124,7 @@ impl BlobService {
                     let timestamp =
                         result.last_modified.ok_or(Error::RemoteOperationFailed)?;
 
-                    DateTime::parse_from_str(&timestamp, "%a, %d %b %Y %H:%M:%S %Z")
+                    OffsetDateTime::parse(&timestamp, &Rfc2822)
                         .map_err(|_| Error::RemoteOperationFailed)?
                 };
 
