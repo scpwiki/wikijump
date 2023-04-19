@@ -9,6 +9,8 @@ cd "${0%/*}/.."
 
 # Generate models
 sea-orm-cli generate entity \
-	-u postgres://wikijump:wikijump@localhost/wikijump \
-	-o src/models \
+	--verbose \
+	-database-url postgres://wikijump:wikijump@localhost/wikijump \
+	-output-dir src/models \
+	--date-time-crate time \
 	--with-serde both
