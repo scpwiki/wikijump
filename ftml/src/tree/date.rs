@@ -105,7 +105,7 @@ cfg_if! {
         /// We need a consistent date for render tests to not constantly expire.
         #[inline]
         fn now() -> DateItem {
-            datetime!(2010-01-01 08:10:00).into()
+            time::macros::datetime!(2010-01-01 08:10:00).into()
         }
     } else {
         /// Helper function to get the current date and time, UTC.

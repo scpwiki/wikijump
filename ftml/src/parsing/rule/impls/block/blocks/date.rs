@@ -24,6 +24,9 @@ use regex::Regex;
 use time::format_description::well_known::{Iso8601, Rfc2822, Rfc3339};
 use time::{Date, OffsetDateTime, PrimitiveDateTime, UtcOffset};
 
+#[cfg(test)]
+use time::macros::{date, datetime};
+
 pub const BLOCK_DATE: BlockRule = BlockRule {
     name: "block-date",
     accepts_names: &["date"],
@@ -226,7 +229,7 @@ fn date() {
     //
     // Since this is just a test suite, we don't care about such edge
     // cases, just rerun the tests.
-    fn dates_equal(date1: Date, date2: Date) -> bool {
+    fn dates_equal(date1: DateItem, date2: DateItem) -> bool {
         let timestamp1 = date1.timestamp();
         let timestamp2 = date2.timestamp();
 
@@ -254,34 +257,10 @@ fn date() {
         }};
     }
 
-    macro_rules! date {
-        ($year:expr, $month:expr, $day:expr $(,)?) => {
-            PrimitiveDate::from_ymd_opt($year, $month, $day).expect("Invalid Y/M/D")
-        };
-    }
-
-    macro_rules! datetime {
+    macro_rules! timestamp {
         ($timestamp:expr $(,)?) => {
-            PrimitiveDateTime::from_timestamp_opt($timestamp, 0)
-                .expect("Invalid timestamp")
-        };
-
-        ($year:expr, $month:expr, $day:expr; $hour:expr, $minute:expr, $second:expr $(,)?) => {
-            date!($year, $month, $day)
-                .and_hms_opt($hour, $minute, $second)
-                .expect("Invalid H:M:S")
-        };
-
-        ($year:expr, $month:expr, $day:expr; $hour:expr, $minute:expr, $second:expr, $micros:expr $(,)?) => {
-            date!($year, $month, $day)
-                .and_hms_micro_opt($hour, $minute, $second, $micros)
-                .expect("Invalid H:M:S.usec")
-        };
-    }
-
-    macro_rules! timezone {
-        ($offset:expr $(,)?) => {
-            FixedOffset::east_opt($offset).expect("Invalid timezone offset")
+            OffsetDateTime::from_unix_timestamp($timestamp)
+                .expect("Unable to parse datetime from timestamp")
         };
     }
 
@@ -289,26 +268,20 @@ fn date() {
     check_ok!("now", now());
     check_ok!("Now", now());
     check_ok!("NOW", now());
-    check_ok!("1600000000", datetime!(1600000000));
-    check_ok!("-1000", datetime!(-1000));
-    check_ok!("0", datetime!(0));
-    check_ok!("2001-09-11", date!(2001, 09, 11));
-    check_ok!("2001-09-11T08:46:00", datetime!(2001, 09, 11; 8, 46, 0));
-    check_ok!("2001/09/11", date!(2001, 09, 11));
-    check_ok!("2001/09/11T08:46:00", datetime!(2001, 09, 11; 8, 46, 0));
+    check_ok!("1600000000", timestamp!(1600000000));
+    check_ok!("-1000", timestamp!(-1000));
+    check_ok!("0", timestamp!(0));
+    check_ok!("2001-09-11", date!(2001 - 09 - 11));
+    check_ok!("2001-09-11T08:46:00", datetime!(2001-09-11 08:46:00));
+    check_ok!("2001/09/11", date!(2001 - 09 - 11));
+    check_ok!("2001/09/11T08:46:00", datetime!(2001-09-11 08:46:00));
     check_ok!(
         "2007-05-12T09:34:51.026490+04:00",
-        DateTime::from_utc(
-            datetime!(2007, 05, 12; 05, 34, 51, 26490),
-            timezone!(4 * 60 * 60),
-        ),
+        datetime!(2007-05-12 09:34:51.026490+04:00),
     );
     check_ok!(
         "2007-05-12T09:34:51.026490-04:00",
-        DateTime::from_utc(
-            datetime!(2007, 05, 12; 13, 34, 51, 26490),
-            timezone!(4 * 60 * 60),
-        ),
+        datetime!(2007-05-12 09:34:51.026490-04:00),
     );
 
     check_err!("");
@@ -328,7 +301,7 @@ fn timezone() {
 
             assert_eq!(
                 actual,
-                FixedOffset::east_opt($offset).expect("Invalid timezone offset"),
+                UtcOffset::from_whole_seconds($offset).expect("Invalid timezone offset"),
                 "Actual timezone value doesn't match expected",
             );
         }};
