@@ -1206,7 +1206,6 @@ dependencies = [
  "arraystring",
  "async-std",
  "built 0.6.0",
- "chrono",
  "clap",
  "color-backtrace",
  "crossfire",
@@ -3357,7 +3356,6 @@ version = "0.28.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5dd34be05fdde9ec79231414bdd44ba1aa9c57349190076699e90721cb5eb59b"
 dependencies = [
- "chrono",
  "sea-query-derive",
  "serde_json",
  "time 0.3.20",
@@ -3369,7 +3367,6 @@ version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "03548c63aec07afd4fd190923e0160d2f2fc92def27470b54154cf232da6203b"
 dependencies = [
- "chrono",
  "sea-query",
  "serde_json",
  "sqlx",
@@ -3715,7 +3712,6 @@ dependencies = [
  "bitflags",
  "byteorder",
  "bytes",
- "chrono",
  "crc",
  "crossbeam-queue",
  "dirs",

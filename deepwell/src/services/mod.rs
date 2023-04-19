@@ -40,7 +40,6 @@ mod prelude {
     pub use crate::config::Config;
     pub use crate::utils::{find_or_error, now};
     pub use crate::web::{ProvidedValue, Reference};
-    pub use chrono::Utc;
     pub use sea_orm::{
         ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, DeleteResult,
         EntityTrait, IntoActiveModel, JoinType, ModelTrait, PaginatorTrait, QueryFilter,
