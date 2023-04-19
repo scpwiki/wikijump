@@ -19,9 +19,10 @@
  */
 
 use super::prelude::*;
-use crate::tree::Date;
-use chrono::prelude::*;
+use crate::tree::DateItem;
 use regex::Regex;
+use time::format_description::well_known::{Iso8601, Rfc2822, Rfc3339};
+use time::{Date, OffsetDateTime, PrimitiveDateTime, UtcOffset};
 
 pub const BLOCK_DATE: BlockRule = BlockRule {
     name: "block-date",
@@ -48,6 +49,11 @@ fn parse_fn<'r, 't>(
     let format = arguments.get("format");
     let arg_timezone = arguments.get("tz");
     let hover = arguments.get_bool(parser, "hover")?.unwrap_or(true);
+
+    // For now: we don't support strftime-like formats because the time crate doesn't
+    if format.is_some() {
+        warn!("Time format passed, feature currently not supported!");
+    }
 
     // Parse out timestamp given by user
     let mut date = parse_date(value)
@@ -86,50 +92,48 @@ fn parse_fn<'r, 't>(
 // Parser functions
 
 /// Parse a datetime string and produce its time value, as well as possible timezone info.
-fn parse_date(value: &str) -> Result<Date, DateParseError> {
+fn parse_date(value: &str) -> Result<DateItem, DateParseError> {
     info!("Parsing possible date value '{value}'");
 
     // Special case, current time
     if value.eq_ignore_ascii_case("now") || value == "." {
         debug!("Was now");
-
-        return Ok(now());
+        return Ok(now().into());
     }
 
     // Try UNIX timestamp (e.g. 1398763929)
     if let Ok(timestamp) = value.parse::<i64>() {
         debug!("Was UNIX timestamp '{timestamp}'");
-        let date = NaiveDateTime::from_timestamp_opt(timestamp, 0);
-        return match date {
-            Some(date) => Ok(date.into()),
-            None => Err(DateParseError),
-        };
-    }
+        let date =
+            OffsetDateTime::from_unix_timestamp(timestamp).map_err(|_| DateParseError)?;
 
-    // Try date strings
-    if let Ok(date) = NaiveDate::parse_from_str(value, "%F") {
-        debug!("Was ISO 8601 date string (dashes), result '{date}'");
         return Ok(date.into());
     }
 
-    if let Ok(date) = NaiveDate::parse_from_str(value, "%Y/%m/%d") {
-        debug!("Was ISO 8601 date string (slashes), result '{date}'");
+    // Try date strings
+    if let Ok(date) = Date::parse(value, &Iso8601::PARSING) {
+        debug!("Was ISO 8601 date string, result '{date}'");
         return Ok(date.into());
     }
 
     // Try datetime strings
-    if let Ok(datetime) = NaiveDateTime::parse_from_str(value, "%FT%T") {
-        debug!("Was ISO 8601 datetime string (dashes), result '{datetime}'");
+    if let Ok(datetime) = PrimitiveDateTime::parse(value, &Iso8601::PARSING) {
+        debug!("Was ISO 8601 datetime string (no timezone), result '{datetime}'");
         return Ok(datetime.into());
     }
 
-    if let Ok(datetime) = NaiveDateTime::parse_from_str(value, "%Y/%m/%dT%T") {
-        debug!("Was ISO 8601 datetime string (slashes), result '{datetime}'");
-        return Ok(datetime.into());
+    if let Ok(datetime_tz) = OffsetDateTime::parse(value, &Iso8601::PARSING) {
+        debug!("Was ISO 8601 datetime string, result '{datetime_tz}'");
+        return Ok(datetime_tz.into());
+    }
+
+    if let Ok(datetime_tz) = OffsetDateTime::parse(value, &Rfc2822) {
+        debug!("Was RFC 2822 datetime string, result '{datetime_tz}'");
+        return Ok(datetime_tz.into());
     }
 
     // Try full RFC 3339 (stricter form of ISO 8601)
-    if let Ok(datetime_tz) = DateTime::parse_from_rfc3339(value) {
+    if let Ok(datetime_tz) = OffsetDateTime::parse(value, &Rfc3339) {
         debug!("Was RFC 3339 datetime string, result '{datetime_tz}'");
         return Ok(datetime_tz.into());
     }
@@ -139,7 +143,7 @@ fn parse_date(value: &str) -> Result<Date, DateParseError> {
 }
 
 /// Parse the timezone based on the specifier string.
-fn parse_timezone(value: &str) -> Result<FixedOffset, DateParseError> {
+fn parse_timezone(value: &str) -> Result<UtcOffset, DateParseError> {
     lazy_static! {
         static ref TIMEZONE_REGEX: Regex =
             Regex::new(r"^(\+|-)?([0-9]{1,2}):?([0-9]{2})?$").unwrap();
@@ -200,13 +204,13 @@ fn parse_timezone(value: &str) -> Result<FixedOffset, DateParseError> {
 struct DateParseError;
 
 #[inline]
-fn now() -> Date {
-    Utc::now().naive_utc().into()
+fn now() -> OffsetDateTime {
+    OffsetDateTime::now_utc()
 }
 
 #[inline]
-fn get_offset(seconds: i32) -> Result<FixedOffset, DateParseError> {
-    FixedOffset::east_opt(seconds).ok_or(DateParseError)
+fn get_offset(seconds: i32) -> Result<UtcOffset, DateParseError> {
+    UtcOffset::from_whole_seconds(seconds).map_err(|_| DateParseError)
 }
 
 // Tests
@@ -252,13 +256,14 @@ fn date() {
 
     macro_rules! date {
         ($year:expr, $month:expr, $day:expr $(,)?) => {
-            NaiveDate::from_ymd_opt($year, $month, $day).expect("Invalid Y/M/D")
+            PrimitiveDate::from_ymd_opt($year, $month, $day).expect("Invalid Y/M/D")
         };
     }
 
     macro_rules! datetime {
         ($timestamp:expr $(,)?) => {
-            NaiveDateTime::from_timestamp_opt($timestamp, 0).expect("Invalid timestamp")
+            PrimitiveDateTime::from_timestamp_opt($timestamp, 0)
+                .expect("Invalid timestamp")
         };
 
         ($year:expr, $month:expr, $day:expr; $hour:expr, $minute:expr, $second:expr $(,)?) => {

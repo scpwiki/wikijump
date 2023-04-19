@@ -21,7 +21,7 @@
 use crate::data::PageRef;
 use crate::tree::clone::*;
 use crate::tree::{
-    Alignment, AnchorTarget, AttributeMap, ClearFloat, Container, Date,
+    Alignment, AnchorTarget, AttributeMap, ClearFloat, Container, DateItem,
     DefinitionListItem, Embed, FloatAlignment, ImageSource, LinkLabel, LinkLocation,
     LinkType, ListItem, ListType, Module, PartialElement, Tab, Table, VariableMap,
 };
@@ -213,7 +213,7 @@ pub enum Element<'t> {
 
     /// A date display, showcasing a particular moment in time.
     Date {
-        value: Date,
+        value: DateItem,
         format: Option<Cow<'t, str>>,
         hover: bool,
     },

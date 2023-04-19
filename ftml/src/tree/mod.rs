@@ -48,7 +48,7 @@ pub use self::attribute::AttributeMap;
 pub use self::bibliography::*;
 pub use self::clear_float::*;
 pub use self::container::*;
-pub use self::date::Date;
+pub use self::date::DateItem;
 pub use self::definition_list::*;
 pub use self::element::*;
 pub use self::embed::*;
