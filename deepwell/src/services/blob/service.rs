@@ -25,8 +25,8 @@ use super::prelude::*;
 use s3::request_trait::ResponseData;
 use s3::serde_types::HeadObjectResult;
 use std::str;
-use time::OffsetDateTime;
 use time::format_description::well_known::Rfc2822;
+use time::OffsetDateTime;
 
 #[derive(Debug)]
 pub struct BlobService;
