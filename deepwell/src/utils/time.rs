@@ -19,10 +19,16 @@
  */
 
 use chrono::{DateTime, FixedOffset, Utc};
+use time::OffsetDateTime;
 
 pub type DateTimeWithTimeZone = DateTime<FixedOffset>;
 
 #[inline]
 pub fn now() -> DateTimeWithTimeZone {
     Utc::now().into()
+}
+
+#[inline]
+pub fn now_t() -> OffsetDateTime {
+    OffsetDateTime::now_utc()
 }
