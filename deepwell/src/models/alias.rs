@@ -3,6 +3,7 @@
 use super::sea_orm_active_enums::AliasType;
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
+use time::OffsetDateTime;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -11,7 +12,7 @@ pub struct Model {
     #[sea_orm(primary_key)]
     pub alias_id: i64,
     pub alias_type: AliasType,
-    pub created_at: DateTimeWithTimeZone,
+    pub created_at: OffsetDateTime,
     pub created_by: i64,
     pub target_id: i64,
     pub slug: String,
