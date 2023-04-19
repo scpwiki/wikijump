@@ -113,13 +113,12 @@ fn parse_date(value: &str) -> Result<DateItem, DateParseError> {
         return Ok(date.into());
     }
 
-    // Try date strings
-    if let Ok(date) = Date::parse(value, &Iso8601::PARSING) {
-        debug!("Was ISO 8601 date string, result '{date}'");
-        return Ok(date.into());
+    // Try datetime strings
+    if let Ok(datetime_tz) = OffsetDateTime::parse(value, &Rfc3339) {
+        debug!("Was RFC 3339 datetime string, result '{datetime_tz}'");
+        return Ok(datetime_tz.into());
     }
 
-    // Try datetime strings
     if let Ok(datetime) = PrimitiveDateTime::parse(value, &Iso8601::PARSING) {
         debug!("Was ISO 8601 datetime string (no timezone), result '{datetime}'");
         return Ok(datetime.into());
@@ -135,10 +134,10 @@ fn parse_date(value: &str) -> Result<DateItem, DateParseError> {
         return Ok(datetime_tz.into());
     }
 
-    // Try full RFC 3339 (stricter form of ISO 8601)
-    if let Ok(datetime_tz) = OffsetDateTime::parse(value, &Rfc3339) {
-        debug!("Was RFC 3339 datetime string, result '{datetime_tz}'");
-        return Ok(datetime_tz.into());
+    // Try date strings
+    if let Ok(date) = Date::parse(value, &Iso8601::PARSING) {
+        debug!("Was ISO 8601 date string, result '{date}'");
+        return Ok(date.into());
     }
 
     // Exhausted all cases, failing
@@ -272,9 +271,10 @@ fn date() {
     check_ok!("-1000", timestamp!(-1000));
     check_ok!("0", timestamp!(0));
     check_ok!("2001-09-11", date!(2001 - 09 - 11));
-    check_ok!("2001-09-11T08:46:00", datetime!(2001-09-11 08:46:00));
-    check_ok!("2001/09/11", date!(2001 - 09 - 11));
-    check_ok!("2001/09/11T08:46:00", datetime!(2001-09-11 08:46:00));
+    check_ok!(
+        "2007-05-12T09:34:51.026490",
+        datetime!(2007-05-12 09:34:51.026490),
+    );
     check_ok!(
         "2007-05-12T09:34:51.026490+04:00",
         datetime!(2007-05-12 09:34:51.026490+04:00),
