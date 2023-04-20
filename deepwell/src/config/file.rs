@@ -20,13 +20,14 @@
 
 use super::Config;
 use anyhow::Result;
-use chrono::Duration as ChronoDuration;
+use std::convert::TryFrom;
 use std::fs::File;
 use std::io::Read;
 use std::net::SocketAddr;
 use std::path::{Path, PathBuf};
-use std::time::Duration;
+use std::time::Duration as StdDuration;
 use tide::log::LevelFilter;
+use time::Duration as TimeDuration;
 
 /// Structure representing a configuration file.
 ///
@@ -144,13 +145,14 @@ impl ConfigFile {
 
     /// Deconstruct the `ConfigFile` and flatten it as a `Config` object.
     pub fn into_config(self, raw_toml: String) -> Config {
-        macro_rules! chrono_duration {
-            // Convert a stdlib duration into a chrono duration
+        macro_rules! time_duration {
+            // Convert a stdlib duration into a 'time' crate duration
             ($method:ident, $value:expr $(,)?) => {{
-                let std_duration = Duration::$method($value);
-                let chrono_duration = ChronoDuration::from_std(std_duration)
-                    .expect("Unable to convert from standard to chrono Duratoin");
-                chrono_duration
+                let std_duration = StdDuration::$method($value);
+                let time_duration = TimeDuration::try_from(std_duration)
+                    .expect("Unable to convert from standard to time::Duration");
+
+                time_duration
             }};
         }
 
@@ -236,16 +238,16 @@ impl ConfigFile {
             run_seeder,
             seeder_path,
             localization_path,
-            authentication_fail_delay: Duration::from_millis(
+            authentication_fail_delay: StdDuration::from_millis(
                 authentication_fail_delay_ms,
             ),
             session_token_prefix: token_prefix,
             session_token_length: token_length,
-            normal_session_duration: chrono_duration!(
+            normal_session_duration: time_duration!(
                 from_secs,
                 duration_session_minutes * 60,
             ),
-            restricted_session_duration: chrono_duration!(
+            restricted_session_duration: time_duration!(
                 from_secs,
                 duration_login_minutes * 60,
             ),
@@ -253,12 +255,12 @@ impl ConfigFile {
             recovery_code_length,
             totp_time_step: time_step,
             totp_time_skew: time_skew,
-            job_delay: Duration::from_millis(job_delay_ms),
-            job_prune_session_period: Duration::from_secs(prune_session_secs),
-            render_timeout: Duration::from_millis(render_timeout_ms),
+            job_delay: StdDuration::from_millis(job_delay_ms),
+            job_prune_session_period: StdDuration::from_secs(prune_session_secs),
+            render_timeout: StdDuration::from_millis(render_timeout_ms),
             default_name_changes: i16::from(default_name_changes),
             max_name_changes: i16::from(max_name_changes),
-            refill_name_change: Duration::from_secs(
+            refill_name_change: StdDuration::from_secs(
                 refill_name_change_days * 24 * 60 * 60,
             ),
         }

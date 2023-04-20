@@ -19,14 +19,19 @@
  */
 
 use super::prelude::*;
-use crate::tree::Date;
+use crate::tree::DateItem;
 
 pub fn render_date(
     ctx: &mut HtmlContext,
-    date: Date,
+    date: DateItem,
     date_format: Option<&str>,
     hover: bool,
 ) {
+    // TEMP
+    if date_format.is_some() {
+        warn!("Time format passed, feature currently not supported!");
+    }
+
     // Get attribute values
     let timestamp = str!(date.timestamp());
     let delta = str!(date.time_since());
@@ -37,15 +42,20 @@ pub fn render_date(
     };
 
     // Format datetime
-    let formatted_datetime = str!(date.format(date_format));
+    // TODO handle error
+    let formatted_datetime = match date.format() {
+        Ok(datetime) => datetime,
+        Err(error) => {
+            error!("Error formatting date into string: {error}");
+            str!("<ERROR>")
+        }
+    };
 
     // Build HTML elements
     ctx.html()
         .span()
         .attr(attr!(
             "class" => "wj-date" space hover_class,
-            "data-format" => date_format.unwrap_or_else(|| date.default_format_string()),
-            "data-iso" => &date.to_rfc3339(),
             "data-timestamp" => &timestamp,
             "data-delta" => &delta,
         ))

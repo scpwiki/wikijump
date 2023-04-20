@@ -3,6 +3,7 @@
 use super::sea_orm_active_enums::PageRevisionType;
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
+use time::OffsetDateTime;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -11,7 +12,7 @@ pub struct Model {
     #[sea_orm(primary_key)]
     pub revision_id: i64,
     pub revision_type: PageRevisionType,
-    pub created_at: DateTimeWithTimeZone,
+    pub created_at: OffsetDateTime,
     pub revision_number: i32,
     pub page_id: i64,
     pub site_id: i64,
@@ -20,7 +21,7 @@ pub struct Model {
     pub changes: Vec<String>,
     pub wikitext_hash: Vec<u8>,
     pub compiled_hash: Vec<u8>,
-    pub compiled_at: DateTimeWithTimeZone,
+    pub compiled_at: OffsetDateTime,
     #[sea_orm(column_type = "Text")]
     pub compiled_generator: String,
     #[sea_orm(column_type = "Text")]

@@ -22,8 +22,8 @@ use super::prelude::*;
 use crate::models::sea_orm_active_enums::PageRevisionType;
 use crate::services::page_revision::CreatePageRevisionOutput;
 use crate::services::score::ScoreValue;
-use crate::utils::DateTimeWithTimeZone;
 use ftml::parsing::ParseError;
+use time::OffsetDateTime;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -60,9 +60,9 @@ pub struct GetPage<'a> {
 #[serde(rename_all = "camelCase")]
 pub struct GetPageOutput<'a> {
     pub page_id: i64,
-    pub page_created_at: DateTimeWithTimeZone,
-    pub page_updated_at: Option<DateTimeWithTimeZone>,
-    pub page_deleted_at: Option<DateTimeWithTimeZone>,
+    pub page_created_at: OffsetDateTime,
+    pub page_updated_at: Option<OffsetDateTime>,
+    pub page_deleted_at: Option<OffsetDateTime>,
     pub page_revision_count: i32,
     pub site_id: i64,
     pub page_category_id: i64,
@@ -70,12 +70,12 @@ pub struct GetPageOutput<'a> {
     pub discussion_thread_id: Option<i64>,
     pub revision_id: i64,
     pub revision_type: PageRevisionType,
-    pub revision_created_at: DateTimeWithTimeZone,
+    pub revision_created_at: OffsetDateTime,
     pub revision_number: i32,
     pub revision_user_id: i64,
     pub wikitext: Option<String>,
     pub compiled_html: Option<String>,
-    pub compiled_at: DateTimeWithTimeZone,
+    pub compiled_at: OffsetDateTime,
     pub compiled_generator: &'a str,
     pub revision_comments: &'a str,
     pub hidden_fields: &'a [String],

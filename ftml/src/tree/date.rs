@@ -18,40 +18,34 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use chrono::prelude::*;
-
-// Default format strings, for each variant.
-const DEFAULT_DATE_FORMAT: &str = "%B %d, %Y";
-const DEFAULT_DATETIME_FORMAT: &str = "%B %d, %Y %H:%M:%S";
-const DEFAULT_DATETIME_TZ_FORMAT: &str = "%B %d, %Y %H:%M:%S %Z";
+use std::io;
+use time::format_description::well_known::Rfc2822;
+use time::{Date, OffsetDateTime, PrimitiveDateTime, UtcOffset};
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case", untagged)]
-pub enum Date {
-    Date(NaiveDate),
-    DateTime(NaiveDateTime),
-    DateTimeTz(DateTime<FixedOffset>),
+pub enum DateItem {
+    Date(Date),
+    DateTime(PrimitiveDateTime),
+    DateTimeTz(OffsetDateTime),
 }
 
-impl Date {
-    pub fn add_timezone(self, offset: FixedOffset) -> Option<Self> {
+impl DateItem {
+    pub fn add_timezone(self, offset: UtcOffset) -> Option<Self> {
         let datetime_tz = match self {
-            Date::Date(date) => DateTime::from_utc(to_datetime(date), offset),
-            Date::DateTime(datetime) => DateTime::from_utc(datetime, offset),
-            Date::DateTimeTz(_) => return None,
+            DateItem::Date(date) => date.midnight().assume_offset(offset),
+            DateItem::DateTime(datetime) => datetime.assume_offset(offset),
+            DateItem::DateTimeTz(_) => return None,
         };
 
-        Some(Date::DateTimeTz(datetime_tz))
+        Some(DateItem::DateTimeTz(datetime_tz))
     }
 
     pub fn timestamp(self) -> i64 {
         match self {
-            Date::Date(date) => date
-                .and_hms_opt(0, 0, 0)
-                .expect("Invalid time values")
-                .timestamp(),
-            Date::DateTime(datetime) => datetime.timestamp(),
-            Date::DateTimeTz(datetime_tz) => datetime_tz.timestamp(),
+            DateItem::Date(date) => date.midnight().assume_utc().unix_timestamp(),
+            DateItem::DateTime(datetime) => datetime.assume_utc().unix_timestamp(),
+            DateItem::DateTimeTz(datetime_tz) => datetime_tz.unix_timestamp(),
         }
     }
 
@@ -59,71 +53,49 @@ impl Date {
         self.timestamp() - now().timestamp()
     }
 
-    pub fn to_datetime_tz(self) -> DateTime<FixedOffset> {
+    pub fn to_datetime_tz(self) -> OffsetDateTime {
         match self {
-            Date::Date(date) => to_datetime_tz(to_datetime(date)),
-            Date::DateTime(datetime) => to_datetime_tz(datetime),
-            Date::DateTimeTz(datetime_tz) => datetime_tz,
+            DateItem::Date(date) => date.midnight().assume_utc(),
+            DateItem::DateTime(datetime) => datetime.assume_utc(),
+            DateItem::DateTimeTz(datetime_tz) => datetime_tz,
         }
     }
 
-    pub fn to_rfc3339(self) -> String {
-        self.to_datetime_tz().to_rfc3339()
-    }
-
-    pub fn format<S: AsRef<str>>(self, format_string: Option<S>) -> String {
-        let format_string = match format_string {
-            Some(ref fmt) => fmt.as_ref(),
-            None => self.default_format_string(),
-        };
+    pub fn format(self) -> io::Result<String> {
+        use time::error::Format;
 
         let result = match self {
-            Date::Date(date) => date.format(format_string),
-            Date::DateTime(datetime) => datetime.format(format_string),
-            Date::DateTimeTz(datetime_tz) => datetime_tz.format(format_string),
+            DateItem::Date(date) => date.format(&Rfc2822),
+            DateItem::DateTime(datetime) => datetime.format(&Rfc2822),
+            DateItem::DateTimeTz(datetime_tz) => datetime_tz.format(&Rfc2822),
         };
 
-        str!(result)
-    }
-
-    pub fn default_format_string(self) -> &'static str {
-        match self {
-            Date::Date(_) => DEFAULT_DATE_FORMAT,
-            Date::DateTime(_) => DEFAULT_DATETIME_FORMAT,
-            Date::DateTimeTz(_) => DEFAULT_DATETIME_TZ_FORMAT,
-        }
+        result.map_err(|error| match error {
+            Format::StdIo(io_error) => io_error,
+            _ => io::Error::new(io::ErrorKind::Other, error),
+        })
     }
 }
 
-impl From<NaiveDate> for Date {
+impl From<Date> for DateItem {
     #[inline]
-    fn from(date: NaiveDate) -> Self {
-        Date::Date(date)
+    fn from(date: Date) -> Self {
+        DateItem::Date(date)
     }
 }
 
-impl From<NaiveDateTime> for Date {
+impl From<PrimitiveDateTime> for DateItem {
     #[inline]
-    fn from(datetime: NaiveDateTime) -> Self {
-        Date::DateTime(datetime)
+    fn from(datetime: PrimitiveDateTime) -> Self {
+        DateItem::DateTime(datetime)
     }
 }
 
-impl From<DateTime<FixedOffset>> for Date {
+impl From<OffsetDateTime> for DateItem {
     #[inline]
-    fn from(datetime_tz: DateTime<FixedOffset>) -> Self {
-        Date::DateTimeTz(datetime_tz)
+    fn from(datetime_tz: OffsetDateTime) -> Self {
+        DateItem::DateTimeTz(datetime_tz)
     }
-}
-
-#[inline]
-fn to_datetime(date: NaiveDate) -> NaiveDateTime {
-    date.and_hms_opt(0, 0, 0).expect("Invalid time values")
-}
-
-#[inline]
-fn to_datetime_tz(datetime: NaiveDateTime) -> DateTime<FixedOffset> {
-    Utc.from_utc_datetime(&datetime).into()
 }
 
 cfg_if! {
@@ -132,18 +104,14 @@ cfg_if! {
         ///
         /// We need a consistent date for render tests to not constantly expire.
         #[inline]
-        fn now() -> Date {
-            NaiveDate::from_ymd_opt(2010, 01, 01)
-                .expect("Invalid date values")
-                .and_hms_opt(08, 10, 00)
-                .expect("Invalid time values")
-                .into()
+        fn now() -> DateItem {
+            time::macros::datetime!(2010-01-01 08:10:00).into()
         }
     } else {
         /// Helper function to get the current date and time, UTC.
         #[inline]
-        fn now() -> Date {
-            Utc::now().naive_utc().into()
+        fn now() -> DateItem {
+            OffsetDateTime::now_utc().into()
         }
     }
 }

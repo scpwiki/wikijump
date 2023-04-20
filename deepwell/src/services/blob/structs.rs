@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::utils::DateTimeWithTimeZone;
+use time::OffsetDateTime;
 
 #[derive(Debug)]
 pub struct CreateBlobOutput {
@@ -33,5 +33,5 @@ pub struct CreateBlobOutput {
 pub struct BlobMetadata {
     pub mime: String,
     pub size: i64,
-    pub created_at: DateTimeWithTimeZone,
+    pub created_at: OffsetDateTime,
 }

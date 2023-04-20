@@ -18,11 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use chrono::{DateTime, FixedOffset, Utc};
-
-pub type DateTimeWithTimeZone = DateTime<FixedOffset>;
+use time::OffsetDateTime;
 
 #[inline]
-pub fn now() -> DateTimeWithTimeZone {
-    Utc::now().into()
+pub fn now() -> OffsetDateTime {
+    OffsetDateTime::now_utc()
 }

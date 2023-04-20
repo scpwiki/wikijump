@@ -20,10 +20,10 @@
 
 use crate::models::sea_orm_active_enums::UserType;
 use anyhow::Result;
-use chrono::NaiveDate;
 use serde::Deserialize;
 use std::fs::{self, File};
 use std::path::{Path, PathBuf};
+use time::Date;
 
 #[derive(Debug)]
 pub struct SeedData {
@@ -94,7 +94,7 @@ pub struct User {
     pub locale: String,
     pub real_name: Option<String>,
     pub gender: Option<String>,
-    pub birthday: Option<NaiveDate>,
+    pub birthday: Option<Date>,
     pub location: Option<String>,
     pub biography: Option<String>,
     pub user_page: Option<String>,

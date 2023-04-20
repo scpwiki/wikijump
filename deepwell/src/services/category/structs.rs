@@ -19,8 +19,8 @@
  */
 
 use crate::models::page_category::Model as PageCategoryModel;
-use crate::utils::DateTimeWithTimeZone;
 use crate::web::Reference;
+use time::OffsetDateTime;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -33,8 +33,8 @@ pub struct GetCategory<'a> {
 #[serde(rename_all = "camelCase")]
 pub struct CategoryOutput {
     category_id: i64,
-    created_at: DateTimeWithTimeZone,
-    updated_at: Option<DateTimeWithTimeZone>,
+    created_at: OffsetDateTime,
+    updated_at: Option<OffsetDateTime>,
     site_id: i64,
     slug: String,
 }

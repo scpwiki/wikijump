@@ -22,9 +22,9 @@ use crate::models::sea_orm_active_enums::FileRevisionType;
 use crate::services::file_revision::{
     CreateFileRevisionOutput, CreateFirstFileRevisionOutput,
 };
-use crate::utils::DateTimeWithTimeZone;
 use crate::web::{ProvidedValue, Reference};
 use serde_json::Value as JsonValue;
+use time::OffsetDateTime;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -87,13 +87,13 @@ pub type MoveFileOutput = CreateFileRevisionOutput;
 #[serde(rename_all = "camelCase")]
 pub struct GetFileOutput<'a> {
     pub file_id: i64,
-    pub file_created_at: DateTimeWithTimeZone,
-    pub file_updated_at: Option<DateTimeWithTimeZone>,
-    pub file_deleted_at: Option<DateTimeWithTimeZone>,
+    pub file_created_at: OffsetDateTime,
+    pub file_updated_at: Option<OffsetDateTime>,
+    pub file_deleted_at: Option<OffsetDateTime>,
     pub page_id: i64,
     pub revision_id: i64,
     pub revision_type: FileRevisionType,
-    pub revision_created_at: DateTimeWithTimeZone,
+    pub revision_created_at: OffsetDateTime,
     pub revision_number: i32,
     pub revision_user_id: i64,
     pub name: &'a str,

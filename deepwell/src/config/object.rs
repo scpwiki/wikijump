@@ -20,12 +20,12 @@
 
 use super::file::ConfigFile;
 use anyhow::Result;
-use chrono::Duration as ChronoDuration;
 use std::env;
 use std::net::SocketAddr;
 use std::path::{Path, PathBuf};
-use std::time::Duration;
+use std::time::Duration as StdDuration;
 use tide::log::LevelFilter;
+use time::Duration as TimeDuration;
 
 /// Primary configuration structure.
 ///
@@ -69,7 +69,7 @@ pub struct Config {
     pub localization_path: PathBuf,
 
     /// The duration to sleep after failed authentication attempts.
-    pub authentication_fail_delay: Duration,
+    pub authentication_fail_delay: StdDuration,
 
     /// Fixed prefix for all session tokens.
     pub session_token_prefix: String,
@@ -78,10 +78,10 @@ pub struct Config {
     pub session_token_length: usize,
 
     /// How long normal sessions last before expiry.
-    pub normal_session_duration: ChronoDuration,
+    pub normal_session_duration: TimeDuration,
 
     /// How long restricted sessions last before expiry.
-    pub restricted_session_duration: ChronoDuration,
+    pub restricted_session_duration: TimeDuration,
 
     /// The number of recovery codes to have per user.
     pub recovery_code_count: usize,
@@ -96,13 +96,13 @@ pub struct Config {
     pub totp_time_skew: i64,
 
     /// How long to sleep in between job loops.
-    pub job_delay: Duration,
+    pub job_delay: StdDuration,
 
     /// How often to run the "prune expired sessions" recurring job.
-    pub job_prune_session_period: Duration,
+    pub job_prune_session_period: StdDuration,
 
     /// Maximum run time for a render request.
-    pub render_timeout: Duration,
+    pub render_timeout: StdDuration,
 
     /// Default name changes per user.
     pub default_name_changes: i16,
@@ -111,7 +111,7 @@ pub struct Config {
     pub max_name_changes: i16,
 
     /// How long until a user gets another name change token.
-    pub refill_name_change: Duration,
+    pub refill_name_change: StdDuration,
 }
 
 impl Config {

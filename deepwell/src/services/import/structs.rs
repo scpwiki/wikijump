@@ -18,14 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::utils::DateTimeWithTimeZone;
-use chrono::NaiveDate;
+use time::{Date, OffsetDateTime};
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct ImportUser {
     pub user_id: i64,
-    pub created_at: DateTimeWithTimeZone,
+    pub created_at: OffsetDateTime,
     pub name: String,
     pub slug: String,
     pub email: String,
@@ -33,7 +32,7 @@ pub struct ImportUser {
     pub avatar: Option<Vec<u8>>,
     pub real_name: Option<String>,
     pub gender: Option<String>,
-    pub birthday: Option<NaiveDate>,
+    pub birthday: Option<Date>,
     pub location: Option<String>,
     pub biography: Option<String>,
     pub user_page: Option<String>,
@@ -43,7 +42,7 @@ pub struct ImportUser {
 #[serde(rename_all = "camelCase")]
 pub struct ImportSite {
     pub site_id: i64,
-    pub created_at: DateTimeWithTimeZone,
+    pub created_at: OffsetDateTime,
     pub name: String,
     pub slug: String,
     pub locale: String,
@@ -54,7 +53,7 @@ pub struct ImportSite {
 pub struct ImportPage {
     pub page_id: i64,
     pub site_id: i64,
-    pub created_at: DateTimeWithTimeZone,
+    pub created_at: OffsetDateTime,
     pub slug: String,
     pub locked: bool,
     pub discussion_thread_id: Option<i64>,

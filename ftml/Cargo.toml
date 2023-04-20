@@ -8,7 +8,7 @@ keywords = ["wikidot", "wikijump", "ftml", "parsing", "html"]
 categories = ["parser-implementations"]
 exclude = [".gitignore", ".editorconfig"]
 
-version = "1.21.1"
+version = "1.22.0"
 authors = ["Emmie Maeda <emmie.maeda@gmail.com>"]
 edition = "2021" # this is *not* the same as the current year
 
@@ -48,6 +48,7 @@ serde-wasm-bindgen = "0.5"
 str-macro = "1"
 strum = "0.24"
 strum_macros = "0.24"
+time = { version = "0.3", features = ["formatting", "macros", "parsing", "serde"], default-features = false }
 tinyvec = "1"
 unicase = "2"
 void = "1"

@@ -20,10 +20,10 @@
 
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::PageRevisionType;
-use crate::utils::DateTimeWithTimeZone;
 use crate::web::FetchDirection;
 use ftml::parsing::ParseError;
 use std::num::NonZeroI32;
+use time::OffsetDateTime;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -136,7 +136,7 @@ pub struct PageRevisionCountOutput {
 pub struct PageRevisionModelFiltered {
     pub revision_id: i64,
     pub revision_type: PageRevisionType,
-    pub created_at: DateTimeWithTimeZone,
+    pub created_at: OffsetDateTime,
     pub from_wikidot: bool,
     pub revision_number: i32,
     pub page_id: i64,
@@ -145,7 +145,7 @@ pub struct PageRevisionModelFiltered {
     pub changes: Vec<String>,
     pub wikitext: Option<String>,
     pub compiled_html: Option<String>,
-    pub compiled_at: DateTimeWithTimeZone,
+    pub compiled_at: OffsetDateTime,
     pub compiled_generator: String,
     pub comments: Option<String>,
     pub hidden: Vec<String>,

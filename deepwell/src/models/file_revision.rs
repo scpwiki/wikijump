@@ -3,6 +3,7 @@
 use super::sea_orm_active_enums::FileRevisionType;
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
+use time::OffsetDateTime;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -11,7 +12,7 @@ pub struct Model {
     #[sea_orm(primary_key)]
     pub revision_id: i64,
     pub revision_type: FileRevisionType,
-    pub created_at: DateTimeWithTimeZone,
+    pub created_at: OffsetDateTime,
     pub revision_number: i32,
     pub file_id: i64,
     pub page_id: i64,
