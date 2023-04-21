@@ -8,7 +8,7 @@ keywords = ["wikidot", "wikijump", "ftml", "parsing", "html"]
 categories = ["parser-implementations"]
 exclude = [".gitignore", ".editorconfig"]
 
-version = "1.22.0"
+version = "1.22.1"
 authors = ["Emmie Maeda <emmie.maeda@gmail.com>"]
 edition = "2021" # this is *not* the same as the current year
 
