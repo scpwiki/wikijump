@@ -49,7 +49,7 @@ strum_macros = "0.24"
 subtle = "2.4"
 thiserror = "1"
 tide = "0.16"
-time = { version = "0.3", features = ["parsing", "serde"], default-features = false }
+time = { version = "0.3", features = ["parsing", "serde", "serde-human-readable"], default-features = false }
 tiny-keccak = { version = "2", features = ["k12"] }
 toml = { version = "0.7", features = ["parse"] }
 typenum = "1"
