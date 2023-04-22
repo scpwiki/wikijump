@@ -257,18 +257,14 @@ fn parse_cell<'r, 't>(
     errors: Vec<ParseError>,
     header: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    lazy_static! {
-        static ref ONE: NonZeroU32 = NonZeroU32::new(1).unwrap();
-    }
-
     // Remove leading and trailing whitespace
     strip_whitespace(&mut elements);
 
     // Extract column-span if specified via attributes.
     // If not specified, then the default.
     let column_span = match attributes.remove("colspan") {
-        Some(value) => value.parse().unwrap_or(*ONE),
-        None => *ONE,
+        Some(value) => value.parse().unwrap_or(NonZeroU32::new(1).unwrap()),
+        None => NonZeroU32::new(1).unwrap(),
     };
 
     let element = Element::Partial(PartialElement::TableCell(TableCell {

@@ -21,7 +21,7 @@
 use crate::data::PageRef;
 use crate::includes::{FetchedPage, IncludeRef, Includer};
 use std::borrow::Cow;
-use void::Void;
+use std::convert::Infallible;
 
 const FRUIT_PAGE_SOURCE: &str = "
 * Apple
@@ -50,13 +50,13 @@ const COMPONENT_FRUIT_PAGE_SOURCE: &str = "
 pub struct TestIncluder;
 
 impl<'t> Includer<'t> for TestIncluder {
-    type Error = Void;
+    type Error = Infallible;
 
     #[inline]
     fn include_pages(
         &mut self,
         includes: &[IncludeRef<'t>],
-    ) -> Result<Vec<FetchedPage<'t>>, Void> {
+    ) -> Result<Vec<FetchedPage<'t>>, Infallible> {
         let mut pages = Vec::new();
 
         for include in includes {
@@ -70,7 +70,10 @@ impl<'t> Includer<'t> for TestIncluder {
     }
 
     #[inline]
-    fn no_such_include(&mut self, page_ref: &PageRef<'t>) -> Result<Cow<'t, str>, Void> {
+    fn no_such_include(
+        &mut self,
+        page_ref: &PageRef<'t>,
+    ) -> Result<Cow<'t, str>, Infallible> {
         Ok(Cow::Owned(format!(
             "[[div class=\"wj-error\"]]\nNo such page '{page_ref}'\n[[/div]]",
         )))

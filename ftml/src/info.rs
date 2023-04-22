@@ -29,33 +29,34 @@ pub use self::build::{
     RUSTC_VERSION, TARGET,
 };
 
-lazy_static! {
-    static ref VERSION_INFO: String = {
-        let mut version = format!("v{PKG_VERSION}");
+use once_cell::sync::Lazy;
 
-        if let Some(commit_hash) = *GIT_COMMIT_HASH_SHORT {
-            str_write!(&mut version, " [{commit_hash}]");
-        }
+static VERSION_INFO: Lazy<String> = Lazy::new(|| {
+    let mut version = format!("v{PKG_VERSION}");
 
-        version
-    };
-    pub static ref VERSION: String = format!("{PKG_NAME} {}", *VERSION_INFO);
-    pub static ref FULL_VERSION: String = {
-        let mut version = format!("{}\n\nCompiled:\n", *VERSION_INFO);
+    if let Some(commit_hash) = *GIT_COMMIT_HASH_SHORT {
+        str_write!(&mut version, " [{commit_hash}]");
+    }
 
-        str_writeln!(&mut version, "* across {NUM_JOBS} threads");
-        str_writeln!(&mut version, "* by {RUSTC_VERSION}");
-        str_writeln!(&mut version, "* for {TARGET}");
-        str_writeln!(&mut version, "* on {BUILT_TIME_UTC}");
+    version
+});
+pub static VERSION: Lazy<String> = Lazy::new(|| format!("{PKG_NAME} {}", *VERSION_INFO));
+pub static FULL_VERSION: Lazy<String> = Lazy::new(|| {
+    let mut version = format!("{}\n\nCompiled:\n", *VERSION_INFO);
 
-        version
-    };
-    pub static ref VERSION_WITH_NAME: String = format!("{PKG_NAME} {}", *VERSION);
-    pub static ref FULL_VERSION_WITH_NAME: String =
-        format!("{PKG_NAME} {}", *FULL_VERSION);
-    pub static ref GIT_COMMIT_HASH_SHORT: Option<&'static str> =
-        GIT_COMMIT_HASH.map(|s| &s[..8]);
-}
+    str_writeln!(&mut version, "* across {NUM_JOBS} threads");
+    str_writeln!(&mut version, "* by {RUSTC_VERSION}");
+    str_writeln!(&mut version, "* for {TARGET}");
+    str_writeln!(&mut version, "* on {BUILT_TIME_UTC}");
+
+    version
+});
+pub static VERSION_WITH_NAME: Lazy<String> =
+    Lazy::new(|| format!("{PKG_NAME} {}", *VERSION));
+pub static FULL_VERSION_WITH_NAME: Lazy<String> =
+    Lazy::new(|| format!("{PKG_NAME} {}", *FULL_VERSION));
+pub static GIT_COMMIT_HASH_SHORT: Lazy<Option<&'static str>> =
+    Lazy::new(|| GIT_COMMIT_HASH.map(|s| &s[..8]));
 
 #[test]
 fn info() {

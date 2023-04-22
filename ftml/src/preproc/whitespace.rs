@@ -27,24 +27,23 @@
 //! * Convert null characters to regular spaces
 //! * Compress groups of 3+ newlines into 2 newlines
 
+use once_cell::sync::Lazy;
 use regex::{Regex, RegexBuilder};
 
-lazy_static! {
-    static ref LEADING_NONSTANDARD_WHITESPACE: Regex = {
-        RegexBuilder::new("^[\u{00a0}\u{2007}]+")
-            .multi_line(true)
-            .build()
-            .unwrap()
-    };
-    static ref WHITESPACE_ONLY_LINE: Regex = {
-        RegexBuilder::new(r"^\s+$")
-            .multi_line(true)
-            .build()
-            .unwrap()
-    };
-    static ref LEADING_NEWLINES: Regex = Regex::new(r"^\n+").unwrap();
-    static ref TRAILING_NEWLINES: Regex = Regex::new(r"\n+$").unwrap();
-}
+static LEADING_NONSTANDARD_WHITESPACE: Lazy<Regex> = Lazy::new(|| {
+    RegexBuilder::new("^[\u{00a0}\u{2007}]+")
+        .multi_line(true)
+        .build()
+        .unwrap()
+});
+static WHITESPACE_ONLY_LINE: Lazy<Regex> = Lazy::new(|| {
+    RegexBuilder::new(r"^\s+$")
+        .multi_line(true)
+        .build()
+        .unwrap()
+});
+static LEADING_NEWLINES: Lazy<Regex> = Lazy::new(|| Regex::new(r"^\n+").unwrap());
+static TRAILING_NEWLINES: Lazy<Regex> = Lazy::new(|| Regex::new(r"\n+$").unwrap());
 
 pub fn substitute(text: &mut String) {
     // Replace DOS and Mac newlines

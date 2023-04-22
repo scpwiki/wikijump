@@ -19,24 +19,27 @@
  */
 
 use super::prelude::*;
-use void::Void;
+use std::convert::Infallible;
 
 #[derive(Debug)]
 pub struct NullIncluder;
 
 impl<'t> Includer<'t> for NullIncluder {
-    type Error = Void;
+    type Error = Infallible;
 
     #[inline]
     fn include_pages(
         &mut self,
         _includes: &[IncludeRef<'t>],
-    ) -> Result<Vec<FetchedPage<'t>>, Void> {
+    ) -> Result<Vec<FetchedPage<'t>>, Infallible> {
         Ok(Vec::new())
     }
 
     #[inline]
-    fn no_such_include(&mut self, _page_ref: &PageRef<'t>) -> Result<Cow<'t, str>, Void> {
+    fn no_such_include(
+        &mut self,
+        _page_ref: &PageRef<'t>,
+    ) -> Result<Cow<'t, str>, Infallible> {
         Ok(Cow::Borrowed(""))
     }
 }

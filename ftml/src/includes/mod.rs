@@ -38,20 +38,19 @@ use self::parse::parse_include_block;
 use crate::data::PageRef;
 use crate::settings::WikitextSettings;
 use crate::tree::VariableMap;
+use once_cell::sync::Lazy;
 use regex::{Regex, RegexBuilder};
 
-lazy_static! {
-    static ref INCLUDE_REGEX: Regex = {
-        RegexBuilder::new(r"^\[\[\s*include-messy\s+")
-            .case_insensitive(true)
-            .multi_line(true)
-            .dot_matches_new_line(true)
-            .build()
-            .unwrap()
-    };
-    static ref VARIABLE_REGEX: Regex =
-        Regex::new(r"\{\$(?P<name>[a-zA-Z0-9_\-]+)\}").unwrap();
-}
+static INCLUDE_REGEX: Lazy<Regex> = Lazy::new(|| {
+    RegexBuilder::new(r"^\[\[\s*include-messy\s+")
+        .case_insensitive(true)
+        .multi_line(true)
+        .dot_matches_new_line(true)
+        .build()
+        .unwrap()
+});
+static VARIABLE_REGEX: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"\{\$(?P<name>[a-zA-Z0-9_\-]+)\}").unwrap());
 
 pub fn include<'t, I, E, F>(
     input: &'t str,

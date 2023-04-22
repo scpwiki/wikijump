@@ -32,38 +32,37 @@
 //! it was moved to the parser to prevent typography from converting
 //! the `--` in `[!--` and `--]` into em dashes.
 
+use once_cell::sync::Lazy;
 use regex::Regex;
 
-lazy_static! {
-    // ‘ - LEFT SINGLE QUOTATION MARK
-    // ’ - RIGHT SINGLE QUOTATION MARK
-    static ref SINGLE_QUOTES: Replacer = Replacer::RegexSurround {
-        regex: Regex::new(r"`(.*?)'").unwrap(),
-        begin: "\u{2018}",
-        end: "\u{2019}",
-    };
+// ‘ - LEFT SINGLE QUOTATION MARK
+// ’ - RIGHT SINGLE QUOTATION MARK
+static SINGLE_QUOTES: Lazy<Replacer> = Lazy::new(|| Replacer::RegexSurround {
+    regex: Regex::new(r"`(.*?)'").unwrap(),
+    begin: "\u{2018}",
+    end: "\u{2019}",
+});
 
-    // “ - LEFT DOUBLE QUOTATION MARK
-    // ” - RIGHT DOUBLE QUOTATION MARK
-    static ref DOUBLE_QUOTES: Replacer = Replacer::RegexSurround {
-        regex: Regex::new(r"``(.*?)''").unwrap(),
-        begin: "\u{201c}",
-        end: "\u{201d}",
-    };
+// “ - LEFT DOUBLE QUOTATION MARK
+// ” - RIGHT DOUBLE QUOTATION MARK
+static DOUBLE_QUOTES: Lazy<Replacer> = Lazy::new(|| Replacer::RegexSurround {
+    regex: Regex::new(r"``(.*?)''").unwrap(),
+    begin: "\u{201c}",
+    end: "\u{201d}",
+});
 
-    // „ - DOUBLE LOW-9 QUOTATION MARK
-    static ref LOW_DOUBLE_QUOTES: Replacer = Replacer::RegexSurround {
-        regex: Regex::new(r",,(.*?)''").unwrap(),
-        begin: "\u{201e}",
-        end: "\u{201d}",
-    };
+// „ - DOUBLE LOW-9 QUOTATION MARK
+static LOW_DOUBLE_QUOTES: Lazy<Replacer> = Lazy::new(|| Replacer::RegexSurround {
+    regex: Regex::new(r",,(.*?)''").unwrap(),
+    begin: "\u{201e}",
+    end: "\u{201d}",
+});
 
-    // … - HORIZONTAL ELLIPSIS
-    static ref ELLIPSIS: Replacer = Replacer::RegexReplace {
-        regex: Regex::new(r"(?:\.\.\.|\. \. \.)").unwrap(),
-        replacement: "\u{2026}",
-    };
-}
+// … - HORIZONTAL ELLIPSIS
+static ELLIPSIS: Lazy<Replacer> = Lazy::new(|| Replacer::RegexReplace {
+    regex: Regex::new(r"(?:\.\.\.|\. \. \.)").unwrap(),
+    replacement: "\u{2026}",
+});
 
 /// Helper struct to easily perform string replacements.
 #[derive(Debug)]

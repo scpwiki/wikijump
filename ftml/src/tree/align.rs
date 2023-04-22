@@ -73,10 +73,10 @@ pub struct FloatAlignment {
 
 impl FloatAlignment {
     pub fn parse(name: &str) -> Option<Self> {
-        lazy_static! {
-            static ref IMAGE_ALIGNMENT_REGEX: Regex =
-                Regex::new(r"^[fF]?([<=>])").unwrap();
-        }
+        use once_cell::sync::Lazy;
+
+        static IMAGE_ALIGNMENT_REGEX: Lazy<Regex> =
+            Lazy::new(|| Regex::new(r"^[fF]?([<=>])").unwrap());
 
         IMAGE_ALIGNMENT_REGEX
             .find(name)

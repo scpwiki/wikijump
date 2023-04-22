@@ -19,11 +19,10 @@
  */
 
 use super::prelude::*;
+use once_cell::sync::Lazy;
 use regex::Regex;
 
-lazy_static! {
-    static ref VARIABLE_REGEX: Regex = Regex::new(r"\{\$(.+)\}").unwrap();
-}
+static VARIABLE_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"\{\$(.+)\}").unwrap());
 
 pub const RULE_VARIABLE: Rule = Rule {
     name: "variable",
