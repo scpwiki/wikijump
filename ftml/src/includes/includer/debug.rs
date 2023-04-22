@@ -20,20 +20,20 @@
 
 use super::prelude::*;
 use crate::tree::VariableMap;
+use std::convert::Infallible;
 use std::fmt::{self, Display};
-use void::Void;
 
 #[derive(Debug)]
 pub struct DebugIncluder;
 
 impl<'t> Includer<'t> for DebugIncluder {
-    type Error = Void;
+    type Error = Infallible;
 
     #[inline]
     fn include_pages(
         &mut self,
         includes: &[IncludeRef<'t>],
-    ) -> Result<Vec<FetchedPage<'t>>, Void> {
+    ) -> Result<Vec<FetchedPage<'t>>, Infallible> {
         let mut first = true;
         let mut pages = Vec::new();
 
@@ -66,7 +66,10 @@ impl<'t> Includer<'t> for DebugIncluder {
     }
 
     #[inline]
-    fn no_such_include(&mut self, page_ref: &PageRef<'t>) -> Result<Cow<'t, str>, Void> {
+    fn no_such_include(
+        &mut self,
+        page_ref: &PageRef<'t>,
+    ) -> Result<Cow<'t, str>, Infallible> {
         Ok(Cow::Owned(format!("<MISSING-PAGE {page_ref}>")))
     }
 }

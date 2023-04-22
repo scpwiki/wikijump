@@ -30,12 +30,12 @@ use crate::render::html::HtmlRender;
 use crate::render::Render;
 use crate::settings::{WikitextMode, WikitextSettings};
 use crate::tree::SyntaxTree;
+use once_cell::sync::Lazy;
 use std::borrow::Cow;
 use std::fs::{self, File};
 use std::io::Read;
 use std::path::{Path, PathBuf};
 use std::process;
-use void::ResultVoidExt;
 
 /// Temporary measure to not run certain tests.
 ///
@@ -50,13 +50,11 @@ const SKIP_TESTS: &[&str] = &[];
 /// tests to check if certain functionality is working as expected.
 const ONLY_TESTS: &[&str] = &[];
 
-lazy_static! {
-    static ref TEST_DIRECTORY: PathBuf = {
-        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        path.push("test");
-        path
-    };
-}
+static TEST_DIRECTORY: Lazy<PathBuf> = Lazy::new(|| {
+    let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    path.push("test");
+    path
+});
 
 macro_rules! cow {
     ($text:expr) => {
@@ -215,7 +213,7 @@ impl Test<'_> {
 
         let (mut text, _pages) =
             crate::include(&self.input, &settings, TestIncluder, || unreachable!())
-                .void_unwrap();
+                .unwrap_or_else(|x| match x {});
 
         crate::preprocess(&mut text);
         let tokens = crate::tokenize(&text);
