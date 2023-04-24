@@ -219,13 +219,14 @@ impl ConfigFile {
                 path: localization_path,
             },
             ftml: Ftml { render_timeout_ms },
-            special_pages: SpecialPages {
-                special_prefix: special_page_prefix,
-                template: special_page_template,
-                missing: special_page_missing,
-                private: special_page_private,
-                site: special_page_site,
-            },
+            special_pages:
+                SpecialPages {
+                    special_prefix: special_page_prefix,
+                    template: special_page_template,
+                    missing: special_page_missing,
+                    private: special_page_private,
+                    site: special_page_site,
+                },
             user:
                 User {
                     default_name_changes,
