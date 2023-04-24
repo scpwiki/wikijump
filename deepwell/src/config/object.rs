@@ -107,6 +107,21 @@ pub struct Config {
     /// Maximum run time for a render request.
     pub render_timeout: StdDuration,
 
+    /// Prefix for "special pages". Default: `_`
+    pub special_page_prefix: String,
+
+    /// Page slug for the template page. Default: `_template`
+    pub special_page_template: String,
+
+    /// Page slug for pages that don't exist. Default: `_404`
+    pub special_page_missing: String,
+
+    /// Page slug for pages you don't have permission to see. Default: `_public`
+    pub special_page_private: String,
+
+    /// Page slug for sites which don't exist. Default: `_site` (`www` site only)
+    pub special_page_site: String,
+
     /// Default name changes per user.
     pub default_name_changes: i16,
 

@@ -49,6 +49,7 @@ pub struct ConfigFile {
     domain: Domain,
     job: Job,
     ftml: Ftml,
+    special_pages: SpecialPages,
     user: User,
 }
 
@@ -125,6 +126,16 @@ struct Domain {
 #[serde(rename_all = "kebab-case")]
 struct Ftml {
     render_timeout_ms: u64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "kebab-case")]
+struct SpecialPages {
+    special_prefix: String,
+    template: String,
+    missing: String,
+    private: String,
+    site: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -208,6 +219,13 @@ impl ConfigFile {
                 path: localization_path,
             },
             ftml: Ftml { render_timeout_ms },
+            special_pages: SpecialPages {
+                special_prefix: special_page_prefix,
+                template: special_page_template,
+                missing: special_page_missing,
+                private: special_page_private,
+                site: special_page_site,
+            },
             user:
                 User {
                     default_name_changes,
@@ -263,6 +281,11 @@ impl ConfigFile {
             job_prune_session_period: StdDuration::from_secs(prune_session_secs),
             job_prune_text_period: StdDuration::from_secs(prune_text_secs),
             render_timeout: StdDuration::from_millis(render_timeout_ms),
+            special_page_prefix,
+            special_page_template,
+            special_page_missing,
+            special_page_private,
+            special_page_site,
             default_name_changes: i16::from(default_name_changes),
             max_name_changes: i16::from(max_name_changes),
             refill_name_change: StdDuration::from_secs(
