@@ -134,6 +134,13 @@ impl PageOptions {
 
         set_str!(data);
 
+        // Done processing arguments
+        // Now go through anything remaining and emitting warnings for them
+
+        for (key, (value, raw)) in arguments {
+            tide::log::warn!("Unused argument in page path: {key} -> {value:?} ('{raw}')");
+        }
+
         options
     }
 }
