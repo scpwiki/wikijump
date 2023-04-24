@@ -50,10 +50,20 @@ pub struct Config {
     pub pid_file: Option<PathBuf>,
 
     /// The main domain to serve sites from.
+    ///
+    /// Always starts with a `.`
     pub main_domain: String,
 
+    /// The main domain, but without a leading `.`
+    pub main_domain_no_dot: String,
+
     /// The files domain to serve user-generated content from.
+    ///
+    /// Always starts with a `.`
     pub files_domain: String,
+
+    /// The files domain, but without a leading `.`
+    pub files_domain_no_dot: String,
 
     /// Whether to run migrations on startup.
     pub run_migrations: bool,

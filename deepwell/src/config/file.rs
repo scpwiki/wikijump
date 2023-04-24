@@ -237,8 +237,8 @@ impl ConfigFile {
 
         // Prefix domains with '.' so we can do easy subdomain checks
         // and concatenations.
-        prefix_domain(&mut main_domain);
-        prefix_domain(&mut files_domain);
+        let (main_domain, main_domain_no_dot) = prefix_domain(main_domain);
+        let (files_domain, files_domain_no_dot) = prefix_domain(files_domain);
 
         // Treats empty strings (which aren't valid paths anyways)
         // as null for the purpose of pid_file.
@@ -255,7 +255,9 @@ impl ConfigFile {
             address,
             pid_file,
             main_domain,
+            main_domain_no_dot,
             files_domain,
+            files_domain_no_dot,
             run_migrations,
             run_seeder,
             seeder_path,
@@ -296,8 +298,19 @@ impl ConfigFile {
     }
 }
 
-fn prefix_domain(domain: &mut String) {
-    if !domain.starts_with('.') {
-        domain.insert(0, '.');
+/// Takes a domain, and returns a value with and without a leading `.`
+///
+/// # Returns
+/// Tuple with two items. First has a leading `.`, second does not.
+fn prefix_domain(domain: String) -> (String, String) {
+    if domain.starts_with('.') {
+        let mut no_dot = domain.clone();
+        no_dot.remove(0);
+
+        (domain, no_dot)
+    } else {
+        let dot_domain = format!(".{domain}");
+
+        (dot_domain, domain)
     }
 }
