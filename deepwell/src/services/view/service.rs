@@ -72,16 +72,35 @@ impl ViewService {
         let options = PageOptions::parse(page_extra);
 
         // Get page, revision, and text fields
-        let page =
-            PageService::get(ctx, site.site_id, Reference::Slug(cow!(page_slug))).await?;
+        let (page_and_revision, wikitext, compiled_html) =
+            match PageService::get_optional(
+                ctx,
+                site.site_id,
+                Reference::Slug(cow!(page_slug)),
+            )
+            .await?
+            {
+                Some(page) => {
+                    let page_revision =
+                        PageRevisionService::get_latest(ctx, site.site_id, page.page_id)
+                            .await?;
 
-        let page_revision =
-            PageRevisionService::get_latest(ctx, site.site_id, page.page_id).await?;
+                    let (wikitext, compiled_html) = try_join!(
+                        TextService::get(ctx, &page_revision.wikitext_hash),
+                        TextService::get(ctx, &page_revision.compiled_hash),
+                    )?;
 
-        let (wikitext, compiled_html) = try_join!(
-            TextService::get(ctx, &page_revision.wikitext_hash),
-            TextService::get(ctx, &page_revision.compiled_hash),
-        )?;
+                    (
+                        Some(PageAndRevision {
+                            page,
+                            page_revision,
+                        }),
+                        wikitext,
+                        compiled_html,
+                    )
+                }
+                None => todo!("Fetch special page"),
+            };
 
         // TODO Check if user-agent and IP match?
 
@@ -92,8 +111,7 @@ impl ViewService {
                 user_session,
             },
             options,
-            page,
-            page_revision,
+            page_and_revision,
             redirect_page,
             wikitext,
             compiled_html,
