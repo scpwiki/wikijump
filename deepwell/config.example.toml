@@ -196,6 +196,42 @@ path = "../locales"
 render-timeout-ms = 2000
 
 
+[special-pages]
+
+# List of special pages, by slug.
+# These are used as templates in certain cases.
+
+# Any pages whose slug begin with this prefix are
+# treated as "special".
+#
+# This means that regular users cannot create these pages,
+# and that normal template processing does not apply
+# (to avoid infinite regress and other issues).
+special-prefix = "_"
+
+# This is included in all pages within this category,
+# or for _default, all pages in all categories without
+# a more specific _template page.
+#
+# Fallback is the fixed string "%%content%%"
+template = "_template"
+
+# When a page has not yet been created.
+# Fallback string is localized as "wiki-page-missing"
+missing = "_404"
+
+# When a user lacks permissions to see a page.
+# Fallback string is localized as "wiki-page-private"
+private = "_public"
+
+# When a site by this name does not exist.
+# Only the page with this slug in the 'www' site is used,
+# all others are treated normally.
+#
+# Fallback string is localized as "wiki-page-site"
+site = "_site"
+
+
 [user]
 
 # The number of name changes a user has by default.
