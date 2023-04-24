@@ -314,3 +314,18 @@ fn prefix_domain(domain: String) -> (String, String) {
         (dot_domain, domain)
     }
 }
+
+#[test]
+fn test_prefix_domain() {
+    macro_rules! check {
+        ($input:expr; $output_1:expr, $output_2:expr $(,)?) => {{
+            let (actual_1, actual_2) = prefix_domain(str!($input));
+
+            assert_eq!(actual_1, $output_1, "Actual dot domain doesn't match");
+            assert_eq!(actual_2, $output_2, "Actual no-dot domain doesn't match");
+        }};
+    }
+
+    check!("example.com"; ".example.com", "example.com");
+    check!(".example.com"; ".example.com", "example.com");
+}
