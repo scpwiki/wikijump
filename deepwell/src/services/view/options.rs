@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use unicase::UniCase;
 use wikidot_path::{ArgumentSchema, ArgumentValue, PageArguments};
 
 const PAGE_ARGUMENTS_SCHEMA: ArgumentSchema = ArgumentSchema {
@@ -71,9 +72,15 @@ impl PageOptions {
         let mut arguments = PageArguments::parse(extra, PAGE_ARGUMENTS_SCHEMA).0;
         let mut options = PageOptions::default();
 
+        macro_rules! unicase {
+            ($value:expr) => {
+                &UniCase::unicode($value)
+            };
+        }
+
         macro_rules! set_bool {
             ($field:ident, $key:ident $(,)?) => {{
-                if let Some((value, _)) = arguments.remove(stringify!($key)) {
+                if let Some((value, _)) = arguments.remove(unicase!(stringify!($key))) {
                     options.$field = to_bool(value);
                 }
             }};
@@ -84,7 +91,7 @@ impl PageOptions {
 
         macro_rules! set_str {
             ($field:ident, $key:ident $(,)?) => {{
-                if let Some((_, value)) = arguments.remove(stringify!($key)) {
+                if let Some((_, value)) = arguments.remove(unicase!(stringify!($key))) {
                     options.$field = str!(value);
                 }
             }};
@@ -95,7 +102,7 @@ impl PageOptions {
 
         macro_rules! set_str_opt {
             ($field:ident, $key:ident $(,)?) => {{
-                if let Some((_, value)) = arguments.remove(stringify!($key)) {
+                if let Some((_, value)) = arguments.remove(unicase!(stringify!($key))) {
                     options.$field = Some(str!(value));
                 }
             }};
@@ -115,7 +122,7 @@ impl PageOptions {
         set_bool!(comments, discuss);
         set_bool!(history);
 
-        if let Some((value, orig)) = arguments.remove("offset") {
+        if let Some((value, orig)) = arguments.remove(unicase!("offset")) {
             match value {
                 ArgumentValue::Integer(offset) => options.offset = Some(offset),
                 _ => tide::log::error!("Invalid value for offset argument: {orig}"),

@@ -1232,6 +1232,7 @@ dependencies = [
  "toml 0.7.3",
  "typenum",
  "unic-langid",
+ "unicase",
  "void",
  "wikidot-normalize",
  "wikidot-path",
@@ -4571,10 +4572,11 @@ dependencies = [
 
 [[package]]
 name = "wikidot-path"
-version = "0.4.1"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5dd194a3a51e1152aff9ad60ddb5b385e0c07f918429c250f5ad873aff0de65f"
+checksum = "36dd932044aae5e00d5a060b72395ac6f28c0e6d933ab8ca6b08722164694fd3"
 dependencies = [
+ "unicase",
  "wikidot-normalize",
 ]
 
