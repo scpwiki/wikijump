@@ -56,7 +56,7 @@ typenum = "1"
 unic-langid = "0.9"
 void = "1"
 wikidot-normalize = "0.11"
-wikidot-path = "0.4"
+wikidot-path = "0.5"
 
 # NOTE: "indexmap" was formerly pinned to "=1.6.2" to avoid a cyclic dependency issue.
 #       This seems to no longer be necessary, but the comment is kept here in case it becomes a problem again.
