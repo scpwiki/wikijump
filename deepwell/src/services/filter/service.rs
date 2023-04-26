@@ -121,6 +121,7 @@ impl FilterService {
                     model.regex = Set(model_regex);
                 }
 
+                // If the regex is being changed but is case-sensitive, do not touch it.
                 _ => {}
             }
         };
