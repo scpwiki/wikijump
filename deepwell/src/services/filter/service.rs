@@ -113,7 +113,7 @@ impl FilterService {
                     let mut model_regex = str!(model.get(filter::Column::Regex).as_ref());
 
                     model_regex = str!(model_regex.trim_start_matches("(?i)"));
-                        
+
                     if !case_sensitive {
                         model_regex.insert_str(0, "(?i)");
                     }
