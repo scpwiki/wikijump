@@ -136,6 +136,7 @@ pub struct Page {
 pub struct Filter {
     pub regex: String,
     pub description: String,
+    pub case_sensitive: bool,
 
     #[serde(rename = "site")]
     pub site_slug: Option<String>,
