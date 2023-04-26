@@ -109,7 +109,8 @@ impl FilterService {
 
                 // If the regex is not being changed, add/remove the flag from the database regex.
                 ProvidedValue::Unset => {
-                    let mut model_regex = model.get(filter::Column::Regex).as_ref().to_string();
+                    let mut model_regex =
+                        model.get(filter::Column::Regex).as_ref().to_string();
 
                     if case_sensitive {
                         model_regex = str!(model_regex.trim_start_matches("(?i)"));
@@ -331,7 +332,11 @@ impl FilterService {
                 Condition::all()
                     .add(filter::Column::SiteId.eq(site_id))
                     // Check for both case sensitive and insensitive variants
-                    .add(filter::Column::Regex.eq(regex).or(filter::Column::Regex.eq(format!("(?i){regex}"))))
+                    .add(
+                        filter::Column::Regex
+                            .eq(regex)
+                            .or(filter::Column::Regex.eq(format!("(?i){regex}"))),
+                    )
                     .add(filter::Column::DeletedAt.is_null()),
             )
             .one(txn)

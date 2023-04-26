@@ -155,7 +155,7 @@ pub struct CreateFilter {
     pub affects_page: bool,
     pub affects_file: bool,
     pub affects_forum: bool,
-    pub case_sensitive: bool, 
+    pub case_sensitive: bool,
     pub regex: String,
     pub description: String,
 }
