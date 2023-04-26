@@ -20,6 +20,7 @@
 
 use crate::api::{ApiRequest, ApiServerState};
 use crate::config::Config;
+use crate::locales::Localizations;
 use s3::bucket::Bucket;
 use sea_orm::DatabaseTransaction;
 use std::sync::Arc;
@@ -50,6 +51,11 @@ impl<'txn> ServiceContext<'txn> {
     #[inline]
     pub fn config(&self) -> &Config {
         &self.state.config
+    }
+
+    #[inline]
+    pub fn localization(&self) -> &Localizations {
+        &self.state.localizations
     }
 
     #[inline]
