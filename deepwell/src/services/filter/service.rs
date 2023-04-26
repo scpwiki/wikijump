@@ -35,7 +35,8 @@ impl FilterService {
             affects_page,
             affects_file,
             affects_forum,
-            regex,
+            case_sensitive,
+            mut regex,
             description,
         }: CreateFilter,
     ) -> Result<FilterModel> {
@@ -51,6 +52,12 @@ impl FilterService {
 
         // Ensure there aren't conflicts
         Self::check_conflicts(ctx, site_id, &regex, "create").await?;
+
+        // Add case-insensitivity flag to regex if specified
+        if !case_sensitive {
+            regex = str!(regex.trim_start_matches("(?i)"));
+            regex.insert_str(0, "(?i)");
+        }
 
         let model = filter::ActiveModel {
             site_id: Set(site_id),
@@ -77,7 +84,8 @@ impl FilterService {
             affects_page,
             affects_file,
             affects_forum,
-            regex,
+            case_sensitive,
+            mut regex,
             description,
         }: UpdateFilter,
     ) -> Result<FilterModel> {
@@ -89,6 +97,31 @@ impl FilterService {
             filter_id: Set(filter_id),
             updated_at: Set(Some(now())),
             ..Default::default()
+        };
+
+        // Handle case-sensitivity logic
+        if let ProvidedValue::Set(case_sensitive) = case_sensitive {
+            match regex {
+                // If the regex is being changed, add case-insensitivity flag if case-insensitive.
+                ProvidedValue::Set(ref mut regex) if !case_sensitive => {
+                    regex.insert_str(0, "(?i)")
+                }
+
+                // If the regex is not being changed, add/remove the flag from the database regex.
+                ProvidedValue::Unset => {
+                    let mut model_regex = model.get(filter::Column::Regex).as_ref().to_string();
+
+                    if case_sensitive {
+                        model_regex = str!(model_regex.trim_start_matches("(?i)"));
+                    } else {
+                        model_regex.insert_str(0, "(?i)");
+                    }
+
+                    model.regex = Set(model_regex)
+                }
+
+                _ => {}
+            }
         };
 
         // Set fields
@@ -297,7 +330,8 @@ impl FilterService {
             .filter(
                 Condition::all()
                     .add(filter::Column::SiteId.eq(site_id))
-                    .add(filter::Column::Regex.eq(regex))
+                    // Check for both case sensitive and insensitive variants
+                    .add(filter::Column::Regex.eq(regex).or(filter::Column::Regex.eq(format!("(?i){regex}"))))
                     .add(filter::Column::DeletedAt.is_null()),
             )
             .one(txn)
