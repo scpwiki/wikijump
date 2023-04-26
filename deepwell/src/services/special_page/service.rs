@@ -19,10 +19,15 @@
  */
 
 use super::prelude::*;
-use crate::services::{PageRevisionService, PageService, SiteService, TextService};
+use crate::services::{
+    PageRevisionService, PageService, RenderService, SiteService, TextService,
+};
+use crate::utils::split_category;
 use crate::web::Reference;
 use either::Either;
 use fluent::{FluentArgs, FluentValue};
+use ftml::prelude::*;
+use std::borrow::Cow;
 use unic_langid::LanguageIdentifier;
 
 #[derive(Debug)]
@@ -32,9 +37,9 @@ impl SpecialPageService {
     /// Gets the specified special page, or the fallback if it doesn't exist.
     pub async fn get(
         ctx: &ServiceContext<'_>,
-        locale: &LanguageIdentifier,
         site_id: i64,
         page_type: SpecialPageType,
+        locale: &LanguageIdentifier,
         original_slug: &str,
     ) -> Result<()> {
         tide::log::info!("Getting special page {page_type:?} for site ID {site_id} ('{original_slug}')");
@@ -114,7 +119,22 @@ impl SpecialPageService {
         };
 
         // Render here with relevant page context.
-        // TODO
+        // The "page" here is what would've been there in this case.
+        // TODO allow passing in this itself
+        let settings = WikitextSettings::from_mode(WikitextMode::Page);
+        let (category_slug, page_slug) = split_category(original_slug);
+        let page_info = PageInfo {
+            page: cow!(page_slug),
+            category: cow_opt!(category_slug),
+            site: cow!(&site.slug),
+            title: cow!(page_slug),
+            alt_title: None,
+            score: ScoreValue::Integer(0), // TODO configurable default score value
+            tags: vec![],
+            language: Cow::Owned(locale.to_string()),
+        };
+
+        let output = RenderService::render(ctx, wikitext, &page_info, &settings).await?;
 
         todo!()
     }

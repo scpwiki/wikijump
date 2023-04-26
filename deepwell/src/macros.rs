@@ -28,7 +28,6 @@
 macro_rules! str_write {
     ($dest:expr, $($arg:tt)*) => {{
         use std::fmt::Write;
-
         write!($dest, $($arg)*).expect("Writing to string failed");
     }};
 }
@@ -44,7 +43,6 @@ macro_rules! str_write {
 macro_rules! str_writeln {
     ($dest:expr, $($arg:tt)*) => {{
         use std::fmt::Write;
-
         writeln!($dest, $($arg)*).expect("Writing to string failed");
     }};
 }
@@ -59,7 +57,8 @@ macro_rules! cow {
 
 /// Convenience function like `cow!`, but for `Option<Cow<str>>`.
 macro_rules! cow_opt {
-    ($s:expr) => {
+    ($s:expr) => {{
+        use ref_map::*;
         $s.ref_map(|s| cow!(s))
-    };
+    }};
 }
