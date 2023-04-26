@@ -118,7 +118,7 @@ impl FilterService {
                         model_regex.insert_str(0, "(?i)");
                     }
 
-                    model.regex = Set(model_regex)
+                    model.regex = Set(model_regex);
                 }
 
                 _ => {}
