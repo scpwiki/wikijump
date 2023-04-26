@@ -4,7 +4,7 @@ Backwards compatibility with Wikidot is an important goal of the Wikijump projec
 
 This is important because Wikidot exposes IDs in several places, such as forum URLs, which we need to preserve in some way in order for all those legacy links to remain valid.
 
-The approach used here is to set the starting ID value to be higher than Wikidot in production will ever conceivably reach (at least before Wikijump is deployed). We did this by finding a recent ID value for that kind of object, and increasing that increases its most significant digit by at least one value. For the most populous objects (pages and revisions), the produced value is higher than Wikidot could ever achieve, since they use only 32-bit integers for IDs.
+The approach used here is to set the starting ID value to be higher than Wikidot in production will ever conceivably reach (at least before Wikijump is deployed). We did this by finding a recent ID value for that kind of object, and increasing its most significant digit by at least one value. For the most populous objects (pages and revisions), the produced value is higher than Wikidot could ever achieve, since they use only 32-bit integers for IDs.
 
 ```
 - Page           -- 3000000000 (sample       1331370625)
