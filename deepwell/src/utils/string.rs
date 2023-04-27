@@ -35,3 +35,18 @@ pub fn regex_replace_in_place(string: &mut String, pattern: &Regex, replacement:
         string.replace_range(range, replacement);
     }
 }
+
+/// Removes the given prefix in the buffer, if it exists, in-place.
+pub fn trim_start_matches_in_place(string: &mut String, pattern: &str) {
+    if string.starts_with(pattern) {
+        string.replace_range(..pattern.len(), "");
+    }
+}
+
+/// Removes the given suffix in the buffer, if it exists, in-place.
+#[allow(dead_code)]
+pub fn trim_end_matches_in_place(string: &mut String, pattern: &str) {
+    if string.starts_with(pattern) {
+        string.replace_range(pattern.len().., "");
+    }
+}
