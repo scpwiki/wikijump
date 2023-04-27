@@ -84,9 +84,7 @@ impl SpecialPageService {
             }
         };
 
-        // Fetch page and wikitext, if exists.
-        // If missing, pull default from localization.
-        let wikitext: String = match PageService::get_optional(
+        let wikitext = match PageService::get_optional(
             ctx,
             site.site_id,
             Reference::Slug(cow!(slug)),
@@ -94,6 +92,8 @@ impl SpecialPageService {
         .await?
         {
             Some(page) => {
+                // Fetch special page wikitext, it exists.
+
                 let revision =
                     PageRevisionService::get_latest(ctx, site.site_id, page.page_id)
                         .await?;
@@ -102,6 +102,8 @@ impl SpecialPageService {
                 wikitext
             }
             None => {
+                // Page is absent, use fallback string from localization.
+
                 macro_rules! fluent_str {
                     ($value:expr) => {
                         FluentValue::String(cow!(&$value))
