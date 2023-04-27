@@ -24,6 +24,7 @@ use s3::error::S3Error;
 use sea_orm::error::DbErr;
 use thiserror::Error as ThisError;
 use tide::{Error as TideError, StatusCode};
+use unic_langid::LanguageIdentifierError;
 
 pub use std::error::Error as StdError;
 
@@ -41,6 +42,9 @@ pub enum Error {
 
     #[error("Database error: {0}")]
     Database(DbErr),
+
+    #[error("Invalid locale: {0}")]
+    Locale(#[from] LanguageIdentifierError),
 
     #[error("Localization error: {0}")]
     Localization(#[from] LocalizationTranslateError),
@@ -108,6 +112,7 @@ impl Error {
                 TideError::new(StatusCode::InternalServerError, inner)
             }
             Error::Magic(inner) => TideError::new(StatusCode::InternalServerError, inner),
+            Error::Locale(inner) => TideError::new(StatusCode::BadRequest, inner),
             Error::Localization(inner) => TideError::new(StatusCode::NotFound, inner),
             Error::Otp(inner) => TideError::new(StatusCode::InternalServerError, inner),
             Error::Serde(inner) => TideError::new(StatusCode::InternalServerError, inner),
