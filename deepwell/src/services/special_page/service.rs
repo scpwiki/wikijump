@@ -25,7 +25,6 @@ use crate::services::{
     PageRevisionService, PageService, RenderService, SiteService, TextService,
 };
 use crate::web::Reference;
-use either::Either;
 use fluent::{FluentArgs, FluentValue};
 use ftml::prelude::*;
 use std::borrow::Cow;
