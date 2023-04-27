@@ -20,6 +20,7 @@
 
 use regex::Regex;
 
+/// Replaces all instances of the given fixed string in the buffer, in-place.
 pub fn replace_in_place(string: &mut String, pattern: &str, replacement: &str) {
     while let Some(index) = string.find(pattern) {
         let end = index + replacement.len();
@@ -28,6 +29,7 @@ pub fn replace_in_place(string: &mut String, pattern: &str, replacement: &str) {
     }
 }
 
+/// Replaces all matches for the given regex in the buffer, in-place.
 pub fn regex_replace_in_place(string: &mut String, pattern: &Regex, replacement: &str) {
     while let Some(mtch) = pattern.find(string) {
         let range = mtch.start()..mtch.end();
