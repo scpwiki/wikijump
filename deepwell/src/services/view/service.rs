@@ -93,29 +93,63 @@ impl ViewService {
             language: cow!(locale_str),
         };
 
-        // Get missing page (_404)
-        let GetSpecialPageOutput {
-            page_and_revision,
-            wikitext,
-            render_output:
-                RenderOutput {
-                    html_output:
-                        HtmlOutput {
-                            body: compiled_html,
-                            ..
-                        },
-                    errors,
-                    compiled_hash,
-                    compiled_generator,
-                },
-        } = SpecialPageService::get(
-            ctx,
-            &site,
-            SpecialPageType::Missing,
-            &locale,
-            page_info,
-        )
-        .await?;
+        // Get wikitext and HTML to return for this page.
+        let (page_and_revision, wikitext, compiled_html) =
+            match PageService::get_optional(
+                ctx,
+                site.site_id,
+                Reference::Slug(cow!(page_slug)),
+            )
+            .await?
+            {
+                // This page exists, return its data directly.
+                Some(page) => {
+                    // TODO determine if page needs rerender?
+
+                    let page_revision =
+                        PageRevisionService::get_latest(ctx, site.site_id, page.page_id)
+                            .await?;
+
+                    let (wikitext, compiled_html) = try_join!(
+                        TextService::get(ctx, &page_revision.wikitext_hash),
+                        TextService::get(ctx, &page_revision.compiled_hash),
+                    )?;
+
+                    (
+                        Some(PageAndRevision {
+                            page,
+                            page_revision,
+                        }),
+                        wikitext,
+                        compiled_html,
+                    )
+                }
+                // The page is missing, fetch the "missing page" data (_404).
+                None => {
+                    let GetSpecialPageOutput {
+                        wikitext,
+                        render_output,
+                    } = SpecialPageService::get(
+                        ctx,
+                        &site,
+                        SpecialPageType::Missing,
+                        &locale,
+                        page_info,
+                    )
+                    .await?;
+
+                    let RenderOutput {
+                        html_output:
+                            HtmlOutput {
+                                body: compiled_html,
+                                ..
+                            },
+                        ..
+                    } = render_output;
+
+                    (None, wikitext, compiled_html)
+                }
+            };
 
         // TODO Check if user-agent and IP match?
 
