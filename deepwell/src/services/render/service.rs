@@ -37,7 +37,8 @@ impl RenderService {
         // Isolate the actual render task.
         // This way we can cut it off if it times out.
 
-        let (html_output, errors) = timeout(ctx.config().render_timeout, async {
+        let config = ctx.config();
+        let (html_output, errors) = timeout(config.render_timeout, async {
             // Run ftml to parse and render
             // TODO include
             ftml::preprocess(&mut wikitext);
