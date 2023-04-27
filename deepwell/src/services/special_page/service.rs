@@ -85,7 +85,7 @@ impl SpecialPageService {
 
         // Fetch page and wikitext, if exists.
         // If missing, pull default from localization.
-        let wikitext = match PageService::get_optional(
+        let wikitext: String = match PageService::get_optional(
             ctx,
             site.site_id,
             Reference::Slug(cow!(slug)),
@@ -101,30 +101,23 @@ impl SpecialPageService {
                 wikitext
             }
             None => {
-                let args = {
-                    macro_rules! fluent_str {
-                        ($value:expr) => {
-                            FluentValue::String(Cow::Owned($value))
-                        };
-                    }
-
-                    let page = &page_info.page;
-                    let (category, full_slug) = match &page_info.category {
-                        Some(category) => (str!(category), format!("{category}:{page}")),
-                        None => (str!("_default"), str!(page)),
+                macro_rules! fluent_str {
+                    ($value:expr) => {
+                        FluentValue::String(cow!(&$value))
                     };
+                }
 
-                    let mut args = FluentArgs::new();
-                    args.set("slug", fluent_str!(full_slug));
-                    args.set("page", fluent_str!(str!(page)));
-                    args.set("category", fluent_str!(category));
-                    args.set(
-                        "domain",
-                        FluentValue::String(cow!(&config.main_domain_no_dot)),
-                    );
-
-                    args
+                let page = &page_info.page;
+                let (category, full_slug) = match &page_info.category {
+                    Some(category) => (str!(category), format!("{category}:{page}")),
+                    None => (str!("_default"), str!(page)),
                 };
+
+                let mut args = FluentArgs::new();
+                args.set("slug", FluentValue::String(Cow::Owned(full_slug)));
+                args.set("page", fluent_str!(page));
+                args.set("category", fluent_str!(category));
+                args.set("domain", fluent_str!(config.main_domain_no_dot));
 
                 let wikitext = ctx.localization().translate(locale, key, &args)?;
                 wikitext.into_owned()
