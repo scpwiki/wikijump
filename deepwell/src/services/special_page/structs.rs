@@ -32,6 +32,6 @@ pub enum SpecialPageType {
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct GetSpecialPageOutput {
-    wikitext: String,
-    render_output: RenderOutput,
+    pub wikitext: String,
+    pub render_output: RenderOutput,
 }
