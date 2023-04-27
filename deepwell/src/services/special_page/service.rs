@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::services::render::RenderOutput;
 use crate::services::{
     PageRevisionService, PageService, RenderService, SiteService, TextService,
 };
@@ -40,7 +41,7 @@ impl SpecialPageService {
         sp_page_type: SpecialPageType,
         locale: &LanguageIdentifier,
         page_info: PageInfo<'_>,
-    ) -> Result<()> {
+    ) -> Result<RenderOutput> {
         tide::log::info!("Getting special page {sp_page_type:?} for site ID {site_id}");
 
         // Stores site ID or the site model, to allow partial resolution for SpecialPageType::Site.
@@ -129,7 +130,6 @@ impl SpecialPageService {
         // passed in by the caller.
         let settings = WikitextSettings::from_mode(WikitextMode::Page);
         let output = RenderService::render(ctx, wikitext, &page_info, &settings).await?;
-
-        todo!()
+        Ok(output)
     }
 }
