@@ -19,7 +19,6 @@
  */
 
 use crate::services::render::RenderOutput;
-use crate::services::view::PageAndRevision;
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "kebab-case")]
@@ -33,7 +32,6 @@ pub enum SpecialPageType {
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct GetSpecialPageOutput {
-    page_and_revision: Option<PageAndRevision>,
     wikitext: String,
     render_output: RenderOutput,
 }
