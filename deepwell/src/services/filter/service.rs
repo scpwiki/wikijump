@@ -107,6 +107,9 @@ impl FilterService {
                     regex.insert_str(0, "(?i)")
                 }
 
+                // If the regex is being changed but is case-sensitive, do not touch it.
+                ProvidedValue::Set(_) => {}
+
                 // If the regex is not being changed, remove (and conditionally readd) the
                 // case-insensitivity flag from the database's regex.
                 ProvidedValue::Unset => {
@@ -120,9 +123,6 @@ impl FilterService {
 
                     model.regex = Set(model_regex);
                 }
-
-                // If the regex is being changed but is case-sensitive, do not touch it.
-                _ => {}
             }
         };
 
