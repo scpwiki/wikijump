@@ -20,17 +20,33 @@
 
 use regex::Regex;
 
+/// Replaces all instances of the given fixed string in the buffer, in-place.
 pub fn replace_in_place(string: &mut String, pattern: &str, replacement: &str) {
     while let Some(index) = string.find(pattern) {
         let end = index + replacement.len();
-
         string.replace_range(index..end, replacement);
     }
 }
 
+/// Replaces all matches for the given regex in the buffer, in-place.
 pub fn regex_replace_in_place(string: &mut String, pattern: &Regex, replacement: &str) {
     while let Some(mtch) = pattern.find(string) {
         let range = mtch.start()..mtch.end();
         string.replace_range(range, replacement);
+    }
+}
+
+/// Removes the given prefix in the buffer, if it exists, in-place.
+pub fn trim_start_matches_in_place(string: &mut String, pattern: &str) {
+    if string.starts_with(pattern) {
+        string.drain(..pattern.len());
+    }
+}
+
+/// Removes the given suffix in the buffer, if it exists, in-place.
+#[allow(dead_code)]
+pub fn trim_end_matches_in_place(string: &mut String, pattern: &str) {
+    if string.starts_with(pattern) {
+        string.drain(pattern.len() - 1..);
     }
 }

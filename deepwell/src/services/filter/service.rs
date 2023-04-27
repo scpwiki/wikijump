@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use crate::models::filter::{self, Entity as Filter, Model as FilterModel};
+use crate::utils::trim_start_matches_in_place;
 use regex::{Regex, RegexSet};
 
 #[derive(Debug)]
@@ -114,8 +115,7 @@ impl FilterService {
                 // case-insensitivity flag from the database's regex.
                 ProvidedValue::Unset => {
                     let mut model_regex = str!(model.get(filter::Column::Regex).as_ref());
-
-                    model_regex = str!(model_regex.trim_start_matches("(?i)"));
+                    trim_start_matches_in_place(&mut model_regex, "(?i)");
 
                     if !case_sensitive {
                         model_regex.insert_str(0, "(?i)");
