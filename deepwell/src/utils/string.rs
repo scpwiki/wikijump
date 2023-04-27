@@ -39,7 +39,7 @@ pub fn regex_replace_in_place(string: &mut String, pattern: &Regex, replacement:
 /// Removes the given prefix in the buffer, if it exists, in-place.
 pub fn trim_start_matches_in_place(string: &mut String, pattern: &str) {
     if string.starts_with(pattern) {
-        string.replace_range(..pattern.len(), "");
+        string.drain(..pattern.len());
     }
 }
 
@@ -47,6 +47,6 @@ pub fn trim_start_matches_in_place(string: &mut String, pattern: &str) {
 #[allow(dead_code)]
 pub fn trim_end_matches_in_place(string: &mut String, pattern: &str) {
     if string.starts_with(pattern) {
-        string.replace_range(pattern.len().., "");
+        string.drain(pattern.len()..);
     }
 }
