@@ -85,8 +85,7 @@ impl SpecialPageService {
                     PageRevisionService::get_latest(ctx, site.site_id, page.page_id)
                         .await?;
 
-                let wikitext = TextService::get(ctx, &revision.wikitext_hash).await?;
-                wikitext
+                TextService::get(ctx, &revision.wikitext_hash).await?
             }
             None => {
                 // Page is absent, use fallback string from localization.
