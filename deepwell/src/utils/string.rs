@@ -47,6 +47,6 @@ pub fn trim_start_matches_in_place(string: &mut String, pattern: &str) {
 #[allow(dead_code)]
 pub fn trim_end_matches_in_place(string: &mut String, pattern: &str) {
     if string.starts_with(pattern) {
-        string.drain(pattern.len()..);
+        string.drain(pattern.len() - 1..);
     }
 }
