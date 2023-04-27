@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::models::site::Model as SiteModel;
-use crate::services::render::RenderOutput;
+use crate::services::view::PageAndRevision;
 use crate::services::{
     PageRevisionService, PageService, RenderService, SiteService, TextService,
 };
@@ -41,8 +41,11 @@ impl SpecialPageService {
         sp_page_type: SpecialPageType,
         locale: &LanguageIdentifier,
         page_info: PageInfo<'_>,
-    ) -> Result<RenderOutput> {
-        tide::log::info!("Getting special page {sp_page_type:?} for site ID {}", site.site_id);
+    ) -> Result<GetSpecialPageOutput> {
+        tide::log::info!(
+            "Getting special page {sp_page_type:?} for site ID {}",
+            site.site_id,
+        );
 
         // Extract fields based on special page type.
         //
@@ -69,7 +72,7 @@ impl SpecialPageService {
             }
         };
 
-        let wikitext = match PageService::get_optional(
+        let (page_and_revision, wikitext) = match PageService::get_optional(
             ctx,
             site.site_id,
             Reference::Slug(cow!(slug)),
@@ -79,12 +82,19 @@ impl SpecialPageService {
             Some(page) => {
                 // Fetch special page wikitext, it exists.
 
-                let revision =
+                let page_revision =
                     PageRevisionService::get_latest(ctx, site.site_id, page.page_id)
                         .await?;
 
-                let wikitext = TextService::get(ctx, &revision.wikitext_hash).await?;
-                wikitext
+                let wikitext =
+                    TextService::get(ctx, &page_revision.wikitext_hash).await?;
+
+                let page_and_revision = Some(PageAndRevision {
+                    page,
+                    page_revision,
+                });
+
+                (page_and_revision, wikitext)
             }
             None => {
                 // Page is absent, use fallback string from localization.
@@ -108,7 +118,7 @@ impl SpecialPageService {
                 args.set("domain", fluent_str!(config.main_domain_no_dot));
 
                 let wikitext = ctx.localization().translate(locale, key, &args)?;
-                wikitext.into_owned()
+                (None, wikitext.into_owned())
             }
         };
 
@@ -116,7 +126,13 @@ impl SpecialPageService {
         // The "page" here is what would've been there in this case,
         // passed in by the caller.
         let settings = WikitextSettings::from_mode(WikitextMode::Page);
-        let output = RenderService::render(ctx, wikitext, &page_info, &settings).await?;
-        Ok(output)
+        let render_output =
+            RenderService::render(ctx, wikitext.clone(), &page_info, &settings).await?;
+
+        Ok(GetSpecialPageOutput {
+            page_and_revision,
+            wikitext,
+            render_output,
+        })
     }
 }

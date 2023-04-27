@@ -21,7 +21,8 @@
 use super::prelude::*;
 use crate::hash::TextHash;
 
-#[derive(Debug)]
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct RenderOutput {
     pub html_output: HtmlOutput,
     pub errors: Vec<ParseError>,

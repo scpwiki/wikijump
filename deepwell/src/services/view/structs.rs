@@ -31,6 +31,7 @@ pub struct GetPageView {
     pub domain: String,
     pub session_token: Option<String>,
     pub route: Option<PageRoute>,
+    pub locale: String,
 }
 
 #[derive(Deserialize, Debug)]

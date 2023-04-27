@@ -31,11 +31,17 @@
 
 use super::prelude::*;
 use crate::models::site::Model as SiteModel;
+use crate::services::render::RenderOutput;
+use crate::services::special_page::{GetSpecialPageOutput, SpecialPageType};
 use crate::services::{
-    DomainService, PageRevisionService, PageService, SessionService, TextService,
-    UserService,
+    DomainService, PageRevisionService, PageService, SessionService, SpecialPageService,
+    TextService, UserService,
 };
+use crate::utils::split_category;
+use ftml::prelude::*;
+use ftml::render::html::HtmlOutput;
 use ref_map::*;
+use unic_langid::LanguageIdentifier;
 use wikidot_normalize::normalize;
 
 #[derive(Debug)]
@@ -46,16 +52,19 @@ impl ViewService {
         ctx: &ServiceContext<'_>,
         GetPageView {
             domain,
+            locale: locale_str,
             route,
             session_token,
         }: GetPageView,
     ) -> Result<GetPageViewOutput> {
         tide::log::info!(
-            "Getting page view data for domain '{}', route '{:?}'",
+            "Getting page view data for domain '{}', route '{:?}', locale '{}'",
             domain,
             route,
+            locale_str,
         );
 
+        let locale = LanguageIdentifier::from_bytes(locale_str.as_bytes())?;
         let Viewer {
             site,
             redirect_site,
@@ -72,35 +81,41 @@ impl ViewService {
         let options = PageOptions::parse(page_extra);
 
         // Get page, revision, and text fields
-        let (page_and_revision, wikitext, compiled_html) =
-            match PageService::get_optional(
-                ctx,
-                site.site_id,
-                Reference::Slug(cow!(page_slug)),
-            )
-            .await?
-            {
-                Some(page) => {
-                    let page_revision =
-                        PageRevisionService::get_latest(ctx, site.site_id, page.page_id)
-                            .await?;
+        let (category_slug, page_slug) = split_category(page_slug);
+        let page_info = PageInfo {
+            page: cow!(page_slug),
+            category: cow_opt!(category_slug),
+            site: cow!(&site.slug),
+            title: cow!(page_slug),
+            alt_title: None,
+            score: ScoreValue::Integer(0), // TODO configurable default score value
+            tags: vec![],
+            language: cow!(locale_str),
+        };
 
-                    let (wikitext, compiled_html) = try_join!(
-                        TextService::get(ctx, &page_revision.wikitext_hash),
-                        TextService::get(ctx, &page_revision.compiled_hash),
-                    )?;
-
-                    (
-                        Some(PageAndRevision {
-                            page,
-                            page_revision,
-                        }),
-                        wikitext,
-                        compiled_html,
-                    )
-                }
-                None => todo!("Fetch special page"),
-            };
+        // Get missing page (_404)
+        let GetSpecialPageOutput {
+            page_and_revision,
+            wikitext,
+            render_output:
+                RenderOutput {
+                    html_output:
+                        HtmlOutput {
+                            body: compiled_html,
+                            ..
+                        },
+                    errors,
+                    compiled_hash,
+                    compiled_generator,
+                },
+        } = SpecialPageService::get(
+            ctx,
+            &site,
+            SpecialPageType::Missing,
+            &locale,
+            page_info,
+        )
+        .await?;
 
         // TODO Check if user-agent and IP match?
 
