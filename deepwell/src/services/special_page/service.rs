@@ -22,7 +22,6 @@ use super::prelude::*;
 use crate::services::{
     PageRevisionService, PageService, RenderService, SiteService, TextService,
 };
-use crate::utils::split_category;
 use crate::web::Reference;
 use either::Either;
 use fluent::{FluentArgs, FluentValue};
@@ -38,11 +37,11 @@ impl SpecialPageService {
     pub async fn get(
         ctx: &ServiceContext<'_>,
         site_id: i64,
-        page_type: SpecialPageType,
+        sp_page_type: SpecialPageType,
         locale: &LanguageIdentifier,
-        original_slug: &str,
+        page_info: PageInfo<'_>,
     ) -> Result<()> {
-        tide::log::info!("Getting special page {page_type:?} for site ID {site_id} ('{original_slug}')");
+        tide::log::info!("Getting special page {sp_page_type:?} for site ID {site_id}");
 
         // Stores site ID or the site model, to allow partial resolution for SpecialPageType::Site.
         let mut site = Either::Left(site_id);
@@ -52,7 +51,7 @@ impl SpecialPageService {
         // "key" refers to the translation key to read to get the default fallback.
         // If empty, then pull a constant string (not in the localization files).
         let config = ctx.config();
-        let (slug, key) = match page_type {
+        let (slug, key) = match sp_page_type {
             SpecialPageType::Template => (&config.special_page_template, ""),
             SpecialPageType::Missing => {
                 (&config.special_page_missing, "wiki-page-missing")
@@ -103,8 +102,22 @@ impl SpecialPageService {
             }
             None => {
                 let args = {
+                    macro_rules! fluent_str {
+                        ($value:expr) => {
+                            FluentValue::String(Cow::Owned($value))
+                        };
+                    }
+
+                    let page = &page_info.page;
+                    let (category, full_slug) = match &page_info.category {
+                        Some(category) => (str!(category), format!("{category}:{page}")),
+                        None => (str!("_default"), str!(page)),
+                    };
+
                     let mut args = FluentArgs::new();
-                    args.set("slug", FluentValue::String(cow!(original_slug)));
+                    args.set("slug", fluent_str!(full_slug));
+                    args.set("page", fluent_str!(str!(page)));
+                    args.set("category", fluent_str!(category));
                     args.set(
                         "domain",
                         FluentValue::String(cow!(&config.main_domain_no_dot)),
@@ -119,21 +132,9 @@ impl SpecialPageService {
         };
 
         // Render here with relevant page context.
-        // The "page" here is what would've been there in this case.
-        // TODO allow passing in this itself
+        // The "page" here is what would've been there in this case,
+        // passed in by the caller.
         let settings = WikitextSettings::from_mode(WikitextMode::Page);
-        let (category_slug, page_slug) = split_category(original_slug);
-        let page_info = PageInfo {
-            page: cow!(page_slug),
-            category: cow_opt!(category_slug),
-            site: cow!(&site.slug),
-            title: cow!(page_slug),
-            alt_title: None,
-            score: ScoreValue::Integer(0), // TODO configurable default score value
-            tags: vec![],
-            language: Cow::Owned(locale.to_string()),
-        };
-
         let output = RenderService::render(ctx, wikitext, &page_info, &settings).await?;
 
         todo!()
