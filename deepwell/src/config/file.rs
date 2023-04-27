@@ -206,8 +206,8 @@ impl ConfigFile {
                 },
             domain:
                 Domain {
-                    main: mut main_domain,
-                    files: mut files_domain,
+                    main: main_domain,
+                    files: files_domain,
                 },
             job:
                 Job {
