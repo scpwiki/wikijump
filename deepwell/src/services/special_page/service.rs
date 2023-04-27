@@ -48,7 +48,7 @@ impl SpecialPageService {
         //
         // "key" refers to the translation key to read to get the default fallback.
         // If empty, then pull a constant string (not in the localization files).
-        let mut site_owned;
+        let site_owned;
         let config = ctx.config();
         let (slug, key) = match sp_page_type {
             SpecialPageType::Template => (&config.special_page_template, ""),
