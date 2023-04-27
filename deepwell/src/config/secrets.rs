@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use dotenv::dotenv;
+use dotenvy::dotenv;
 use ref_map::*;
 use s3::{creds::Credentials, region::Region};
 use std::{env, process};
