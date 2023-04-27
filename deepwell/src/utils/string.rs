@@ -24,7 +24,6 @@ use regex::Regex;
 pub fn replace_in_place(string: &mut String, pattern: &str, replacement: &str) {
     while let Some(index) = string.find(pattern) {
         let end = index + replacement.len();
-
         string.replace_range(index..end, replacement);
     }
 }
