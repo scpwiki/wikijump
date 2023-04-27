@@ -233,6 +233,7 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
                 affects_page: filter.page,
                 affects_file: filter.file,
                 affects_forum: filter.forum,
+                case_sensitive: filter.case_sensitive,
                 regex: filter.regex,
                 description: filter.description,
             },

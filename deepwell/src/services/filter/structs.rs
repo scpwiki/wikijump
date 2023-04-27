@@ -155,6 +155,7 @@ pub struct CreateFilter {
     pub affects_page: bool,
     pub affects_file: bool,
     pub affects_forum: bool,
+    pub case_sensitive: bool,
     pub regex: String,
     pub description: String,
 }
@@ -167,6 +168,7 @@ pub struct UpdateFilter {
     pub affects_page: ProvidedValue<bool>,
     pub affects_file: ProvidedValue<bool>,
     pub affects_forum: ProvidedValue<bool>,
+    pub case_sensitive: ProvidedValue<bool>,
     pub regex: ProvidedValue<String>,
     pub description: ProvidedValue<String>,
 }
