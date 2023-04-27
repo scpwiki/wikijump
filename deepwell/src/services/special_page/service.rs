@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::models::site::Model as SiteModel;
 use crate::services::render::RenderOutput;
 use crate::services::{
     PageRevisionService, PageService, RenderService, SiteService, TextService,
@@ -37,20 +38,18 @@ impl SpecialPageService {
     /// Gets the specified special page, or the fallback if it doesn't exist.
     pub async fn get(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
+        mut site: &SiteModel,
         sp_page_type: SpecialPageType,
         locale: &LanguageIdentifier,
         page_info: PageInfo<'_>,
     ) -> Result<RenderOutput> {
-        tide::log::info!("Getting special page {sp_page_type:?} for site ID {site_id}");
-
-        // Stores site ID or the site model, to allow partial resolution for SpecialPageType::Site.
-        let mut site = Either::Left(site_id);
+        tide::log::info!("Getting special page {sp_page_type:?} for site ID {}", site.site_id);
 
         // Extract fields based on special page type.
         //
         // "key" refers to the translation key to read to get the default fallback.
         // If empty, then pull a constant string (not in the localization files).
+        let mut site_owned;
         let config = ctx.config();
         let (slug, key) = match sp_page_type {
             SpecialPageType::Template => (&config.special_page_template, ""),
@@ -63,24 +62,11 @@ impl SpecialPageService {
             SpecialPageType::Site => {
                 // A bit of special logic since this page can only exist in 'www'
                 // So the site_id isn't used
-                debug_assert_eq!(
-                    site_id, 0,
-                    "Site ID for missing site special page is not null",
-                );
 
-                site = Either::Right(
-                    SiteService::get(ctx, Reference::Slug(cow!("www"))).await?,
-                );
+                site_owned = SiteService::get(ctx, Reference::Slug(cow!("www"))).await?;
+                site = &site_owned;
 
                 (&config.special_page_site, "wiki-page-site")
-            }
-        };
-
-        // Convert partial site Either into site
-        let site = match site {
-            Either::Right(site) => site,
-            Either::Left(site_id) => {
-                SiteService::get(ctx, Reference::Id(site_id)).await?
             }
         };
 
