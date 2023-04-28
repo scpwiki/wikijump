@@ -26,7 +26,9 @@
 
 use super::prelude::*;
 use crate::hash::{k12_hash, TextHash, TEXT_HASH_LENGTH};
+use crate::models::page_revision::{self, Entity as PageRevision};
 use crate::models::text::{self, Entity as Text};
+use sea_query::Query;
 
 #[derive(Debug)]
 pub struct TextService;
@@ -100,20 +102,32 @@ impl TextService {
     ///
     /// This is rare, but can happen when text is invalidated,
     /// such as rerendering pages.
-    #[allow(dead_code)]
-    pub async fn prune(_ctx: &ServiceContext<'_>) -> Result<()> {
-        todo!();
+    pub async fn prune(ctx: &ServiceContext<'_>) -> Result<()> {
+        let txn = ctx.transaction();
+        let DeleteResult { rows_affected, .. } = Text::delete_many()
+            .filter(
+                Condition::all()
+                    .add(
+                        text::Column::Hash.not_in_subquery(
+                            Query::select()
+                                .column(page_revision::Column::WikitextHash)
+                                .from(PageRevision)
+                                .to_owned(),
+                        ),
+                    )
+                    .add(
+                        text::Column::Hash.not_in_subquery(
+                            Query::select()
+                                .column(page_revision::Column::CompiledHash)
+                                .from(PageRevision)
+                                .to_owned(),
+                        ),
+                    ), // TODO add forum_post_revision
+            )
+            .exec(txn)
+            .await?;
 
-        // Postgres Query:
-        //
-        // SELECT hash
-        // FROM text
-        // WHERE hash NOT IN (
-        //     SELECT wikitext_hash AS hash
-        //     FROM page_revision
-        //     UNION
-        //     SELECT compiled_hash AS hash
-        //     FROM page_revision
-        // )
+        tide::log::debug!("Pruned {rows_affected} unused text rows");
+        Ok(())
     }
 }
