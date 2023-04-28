@@ -193,8 +193,17 @@ impl ViewService {
         tide::log::info!("Getting viewer data from domain '{domain}' and session token");
 
         // Get site data
-        let site = DomainService::site_from_domain(ctx, domain).await?;
-        let redirect_site = Self::should_redirect_site(ctx, &site, domain);
+        let (site, redirect_site) =
+            match DomainService::site_from_domain_optional(ctx, domain).await? {
+                Some(site) => {
+                    let redirect_site = Self::should_redirect_site(ctx, &site, domain);
+                    (site, redirect_site)
+                }
+                None => {
+                    let output = Self::missing_site_output(ctx, domain).await?;
+                    return Ok(ViewerResult::MissingSite(output));
+                }
+            };
 
         // Get user data from session token (if present)
         let user_session = match session_token {
@@ -217,6 +226,13 @@ impl ViewService {
             redirect_site,
             user_session,
         }))
+    }
+
+    async fn missing_site_output(
+        ctx: &ServiceContext<'_>,
+        domain: &str,
+    ) -> Result<GetPageViewOutput> {
+        todo!()
     }
 
     fn should_redirect_site(
