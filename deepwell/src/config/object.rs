@@ -114,7 +114,7 @@ pub struct Config {
     pub refill_name_change: StdDuration,
 
     /// Minimum length of bytes in a username.
-    pub minimum_name_bytes: i16,
+    pub minimum_name_bytes: usize,
 }
 
 impl Config {
