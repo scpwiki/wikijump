@@ -81,7 +81,7 @@ impl JobRunner {
     pub fn spawn(state: &ApiServerState) {
         // Copy configuration fields
         let session_prune_delay = state.config.job_prune_session_period;
-        let text_prune_delay = todo!(); // state.config.job_prune_text_period;
+        let text_prune_delay = state.config.job_prune_text_period;
 
         // Main runner
         let state = Arc::clone(state);

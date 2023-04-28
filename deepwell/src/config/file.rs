@@ -105,6 +105,7 @@ struct Mfa {
 struct Job {
     delay_ms: u64,
     prune_session_secs: u64,
+    prune_text_secs: u64,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -200,6 +201,7 @@ impl ConfigFile {
                 Job {
                     delay_ms: job_delay_ms,
                     prune_session_secs,
+                    prune_text_secs,
                 },
             locale: Locale {
                 path: localization_path,
@@ -257,6 +259,7 @@ impl ConfigFile {
             totp_time_skew: time_skew,
             job_delay: StdDuration::from_millis(job_delay_ms),
             job_prune_session_period: StdDuration::from_secs(prune_session_secs),
+            job_prune_text_period: StdDuration::from_secs(prune_text_secs),
             render_timeout: StdDuration::from_millis(render_timeout_ms),
             default_name_changes: i16::from(default_name_changes),
             max_name_changes: i16::from(max_name_changes),
