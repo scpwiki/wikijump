@@ -65,11 +65,19 @@ impl ViewService {
         );
 
         let locale = LanguageIdentifier::from_bytes(locale_str.as_bytes())?;
+
+        // Attempt to get a viewer helper structure, but if the site doesn't exist
+        // then return right away with the "no such site" response.
         let Viewer {
             site,
             redirect_site,
             user_session,
-        } = Self::get_viewer(ctx, &domain, session_token.ref_map(|s| s.as_str())).await?;
+        } = match Self::get_viewer(ctx, &domain, session_token.ref_map(|s| s.as_str()))
+            .await?
+        {
+            ViewerResult::FoundSite(viewer) => viewer,
+            ViewerResult::MissingSite(output) => return Ok(output),
+        };
 
         // If None, means the main page for the site. Pull from site data.
         let (page_slug, page_extra): (&str, &str) = match &route {
@@ -181,7 +189,7 @@ impl ViewService {
         ctx: &ServiceContext<'_>,
         domain: &str,
         session_token: Option<&str>,
-    ) -> Result<Viewer> {
+    ) -> Result<ViewerResult> {
         tide::log::info!("Getting viewer data from domain '{domain}' and session token");
 
         // Get site data
@@ -204,11 +212,11 @@ impl ViewService {
             }
         };
 
-        Ok(Viewer {
+        Ok(ViewerResult::FoundSite(Viewer {
             site,
             redirect_site,
             user_session,
-        })
+        }))
     }
 
     fn should_redirect_site(

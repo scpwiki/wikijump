@@ -54,6 +54,12 @@ pub struct GetPageViewOutput {
     pub compiled_html: String,
 }
 
+#[derive(Debug)]
+pub enum ViewerResult {
+    FoundSite(Viewer),
+    MissingSite(GetPageViewOutput),
+}
+
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Viewer {
