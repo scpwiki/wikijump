@@ -59,13 +59,13 @@ impl UserService {
         tide::log::info!("Attempting to create user '{}' ('{}')", name, slug);
 
         // Check if username contains the minimum amount of required bytes.
-        if name.bytes().len() < ctx.config().minimum_name_bytes {
+        if name.len() < ctx.config().minimum_name_bytes {
             tide::log::error!(
                 "User's name is not long enough ({} < {})",
-                slug.bytes().len(),
+                slug.len(),
                 ctx.config().minimum_name_bytes,
             );
-            
+
             return Err(Error::BadRequest);
         }
 
@@ -451,10 +451,10 @@ impl UserService {
 
         // Check if the new name has the minimum required amount of bytes.
 
-        if new_name.bytes().len() < ctx.config().minimum_name_bytes {
+        if new_name.len() < ctx.config().minimum_name_bytes {
             tide::log::error!(
                 "User's name is not long enough ({} < {})",
-                new_name.bytes().len(),
+                new_name.len(),
                 ctx.config().minimum_name_bytes,
             );
 

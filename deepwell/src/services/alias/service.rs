@@ -78,7 +78,7 @@ impl AliasService {
         // it actually finds conflicts properly.
         //
         // If the alias is for a user, also ensures that it is at least
-        // the minimum name length.
+        // the minimum name length in bytes.
         match alias_type {
             AliasType::Site => {
                 if !SiteService::exists(ctx, Reference::Id(target_id)).await? {
@@ -116,13 +116,13 @@ impl AliasService {
                     return Err(Error::Conflict);
                 }
 
-                if slug.bytes().len() < ctx.config().minimum_name_bytes {
+                if slug.len() < ctx.config().minimum_name_bytes {
                     tide::log::error!(
                         "User's name is not long enough ({} < {})",
-                        slug.bytes().len(),
+                        slug.len(),
                         ctx.config().minimum_name_bytes,
                     );
-                    
+
                     return Err(Error::BadRequest);
                 }
             }
