@@ -94,7 +94,7 @@ impl ViewService {
         };
 
         // Get wikitext and HTML to return for this page.
-        let (page_and_revision, wikitext, compiled_html) =
+        let (page, page_revision, wikitext, compiled_html) =
             match PageService::get_optional(
                 ctx,
                 site.site_id,
@@ -115,14 +115,7 @@ impl ViewService {
                         TextService::get(ctx, &page_revision.compiled_hash),
                     )?;
 
-                    (
-                        Some(PageAndRevision {
-                            page,
-                            page_revision,
-                        }),
-                        wikitext,
-                        compiled_html,
-                    )
+                    (Some(page), Some(page_revision), wikitext, compiled_html)
                 }
                 // The page is missing, fetch the "missing page" data (_404).
                 None => {
@@ -147,9 +140,15 @@ impl ViewService {
                         ..
                     } = render_output;
 
-                    (None, wikitext, compiled_html)
+                    (None, None, wikitext, compiled_html)
                 }
             };
+
+        debug_assert_eq!(
+            page.is_some(),
+            page_revision.is_some(),
+            "Both page and page revision should be set or null",
+        );
 
         // TODO Check if user-agent and IP match?
 
@@ -160,7 +159,8 @@ impl ViewService {
                 user_session,
             },
             options,
-            page_and_revision,
+            page,
+            page_revision,
             redirect_page,
             wikitext,
             compiled_html,

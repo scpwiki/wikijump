@@ -47,19 +47,11 @@ pub struct GetPageViewOutput {
     #[serde(flatten)]
     pub viewer: Viewer,
     pub options: PageOptions,
-
-    #[serde(flatten)]
-    pub page_and_revision: Option<PageAndRevision>,
+    pub page: Option<PageModel>,
+    pub page_revision: Option<PageRevisionModel>,
     pub redirect_page: Option<String>,
     pub wikitext: String,
     pub compiled_html: String,
-}
-
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct PageAndRevision {
-    pub page: PageModel,
-    pub page_revision: PageRevisionModel,
 }
 
 #[derive(Serialize, Debug)]
