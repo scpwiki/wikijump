@@ -10,7 +10,7 @@ export async function pageView(
   domain: string,
   locale: string,
   route: Optional<PageRoute>,
-  sessionToken: Optional<string>,
+  sessionToken: Optional<string>
 ): object {
   const response = await wellfetch("/view/page", {
     method: "PUT",

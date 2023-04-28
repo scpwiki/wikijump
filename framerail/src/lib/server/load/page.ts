@@ -17,8 +17,15 @@ export async function loadPage(
   const sessionToken = cookies.get("wikijump_token")
   const language = request.headers.get("Accept-Language")
 
+  // TODO set up svelte i18n, see WJ-1175
+  //
+  // TODO also set up deepwell fluent so that fallback
+  //      languages are used, i.e. if I do en-GB it falls back to
+  //      en generic
+  const locale = "en"
+
   // Request data from backend
-  const view = await pageView(domain, route, sessionToken, language)
+  const view = await pageView(domain, locale, route, sessionToken)
 
   // Process response, performing redirects etc
   doRedirect(view, domain, slug, extra)
