@@ -103,26 +103,27 @@ impl TextService {
     /// This is rare, but can happen when text is invalidated,
     /// such as rerendering pages.
     pub async fn prune(ctx: &ServiceContext<'_>) -> Result<()> {
+        macro_rules! not_in_column {
+            ($table:expr, $column:expr $(,)?) => {
+                text::Column::Hash.not_in_subquery(
+                    Query::select().column($column).from($table).to_owned(),
+                )
+            };
+        }
+
         let txn = ctx.transaction();
         let DeleteResult { rows_affected, .. } = Text::delete_many()
             .filter(
                 Condition::all()
-                    .add(
-                        text::Column::Hash.not_in_subquery(
-                            Query::select()
-                                .column(page_revision::Column::WikitextHash)
-                                .from(PageRevision)
-                                .to_owned(),
-                        ),
-                    )
-                    .add(
-                        text::Column::Hash.not_in_subquery(
-                            Query::select()
-                                .column(page_revision::Column::CompiledHash)
-                                .from(PageRevision)
-                                .to_owned(),
-                        ),
-                    ), // TODO add forum_post_revision
+                    .add(not_in_column!(
+                        PageRevision,
+                        page_revision::Column::WikitextHash,
+                    ))
+                    .add(not_in_column!(
+                        PageRevision,
+                        page_revision::Column::CompiledHash,
+                    )),
+                // TODO add forum_post_revision
             )
             .exec(txn)
             .await?;
