@@ -77,7 +77,7 @@ impl AliasService {
         // This also checks aliases, though we also verify down below that
         // it actually finds conflicts properly.
         //
-        // If the alias is for a user, also ensures that it is over
+        // If the alias is for a user, also ensures that it is at least
         // the minimum name length.
         match alias_type {
             AliasType::Site => {
