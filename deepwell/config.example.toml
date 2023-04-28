@@ -147,6 +147,21 @@ delay-ms = 5
 # It is merely for clearing the database of already-expired tokens.
 prune-session-secs = 600  # 5 minutes
 
+# The period, in seconds, to prune all unused text rows.
+#
+# The text table deduplicates identical text objects, and
+# their hashes are instead what is referenced from page revisions
+# etc.
+#
+# While revisions are only appended to and not deleted, it is
+# however possible for text rows to become orphaned and unused.
+# For instance, this can occur when previewing or rerendering pages.
+#
+# This job runs periodically to delete unused text rows from the database
+# to avoid clutter. However because this does not occur regularly, and
+# the cleanup query is slow, the job should be run infrequently.
+prune-text-secs = 86400  # 1 day
+
 
 [domain]
 

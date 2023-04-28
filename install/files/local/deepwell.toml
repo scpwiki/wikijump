@@ -33,6 +33,7 @@ files = "wjfiles.localhost"
 [job]
 delay-ms = 5
 prune-session-secs = 600  # 5 minutes
+prune-text-secs = 86400  # 1 day
 
 [locale]
 path = "/opt/locales"
