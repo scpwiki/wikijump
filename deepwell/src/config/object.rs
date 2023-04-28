@@ -101,6 +101,9 @@ pub struct Config {
     /// How often to run the "prune expired sessions" recurring job.
     pub job_prune_session_period: StdDuration,
 
+    /// How often to run the "prune unused text" recurring job.
+    pub job_prune_text_period: StdDuration,
+
     /// Maximum run time for a render request.
     pub render_timeout: StdDuration,
 

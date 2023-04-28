@@ -26,7 +26,9 @@
 
 use super::prelude::*;
 use crate::hash::{k12_hash, TextHash, TEXT_HASH_LENGTH};
+use crate::models::page_revision::{self, Entity as PageRevision};
 use crate::models::text::{self, Entity as Text};
+use sea_query::Query;
 
 #[derive(Debug)]
 pub struct TextService;
@@ -100,20 +102,36 @@ impl TextService {
     ///
     /// This is rare, but can happen when text is invalidated,
     /// such as rerendering pages.
-    #[allow(dead_code)]
-    pub async fn prune(_ctx: &ServiceContext<'_>) -> Result<()> {
-        todo!();
+    pub async fn prune(ctx: &ServiceContext<'_>) -> Result<()> {
+        macro_rules! not_in_column {
+            ($table:expr, $column:expr $(,)?) => {
+                text::Column::Hash.not_in_subquery(
+                    Query::select().column($column).from($table).to_owned(),
+                )
+            };
+        }
 
-        // Postgres Query:
-        //
-        // SELECT hash
-        // FROM text
-        // WHERE hash NOT IN (
-        //     SELECT wikitext_hash AS hash
-        //     FROM page_revision
-        //     UNION
-        //     SELECT compiled_hash AS hash
-        //     FROM page_revision
-        // )
+        // All foreign keys of text.hash should have conditions here.
+        // These foreign key constraints prevent us from deleting anything
+        // actually used.
+        let txn = ctx.transaction();
+        let DeleteResult { rows_affected, .. } = Text::delete_many()
+            .filter(
+                Condition::all()
+                    .add(not_in_column!(
+                        PageRevision,
+                        page_revision::Column::WikitextHash,
+                    ))
+                    .add(not_in_column!(
+                        PageRevision,
+                        page_revision::Column::CompiledHash,
+                    )),
+                // TODO add forum_post_revision
+            )
+            .exec(txn)
+            .await?;
+
+        tide::log::debug!("Pruned {rows_affected} unused text rows");
+        Ok(())
     }
 }
