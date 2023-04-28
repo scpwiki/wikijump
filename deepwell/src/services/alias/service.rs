@@ -117,7 +117,12 @@ impl AliasService {
                 }
 
                 if slug.bytes().len() < ctx.config().minimum_name_bytes {
-                    tide::log::error!("User's name does not contain enough bytes.");
+                    tide::log::error!(
+                        "User's name is not long enough ({} < {})",
+                        slug.bytes().len(),
+                        ctx.config().minimum_name_bytes,
+                    );
+                    
                     return Err(Error::BadRequest);
                 }
             }
