@@ -76,6 +76,9 @@ impl AliasService {
         // Then we check that the new slug doesn't already exist.
         // This also checks aliases, though we also verify down below that
         // it actually finds conflicts properly.
+        //
+        // If the alias is for a user, also ensures that it is over
+        // the minimum name length.
         match alias_type {
             AliasType::Site => {
                 if !SiteService::exists(ctx, Reference::Id(target_id)).await? {
@@ -111,6 +114,11 @@ impl AliasService {
                     );
 
                     return Err(Error::Conflict);
+                }
+
+                if slug.bytes().len() < ctx.config().minimum_name_bytes {
+                    tide::log::error!("User's name does not contain enough bytes.");
+                    return Err(Error::BadRequest);
                 }
             }
         }
