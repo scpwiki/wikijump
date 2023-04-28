@@ -197,3 +197,6 @@ max-name-changes = 3
 #
 # Set to 0 to disable.
 refill-name-change-days = 90
+
+# The minimum length for a user's name in bytes.
+min-byte-length = 3

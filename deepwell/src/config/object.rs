@@ -112,6 +112,9 @@ pub struct Config {
 
     /// How long until a user gets another name change token.
     pub refill_name_change: StdDuration,
+
+    /// Minimum length of bytes in a username.
+    pub minimum_name_bytes: i16,
 }
 
 impl Config {
