@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::api::ApiServerState;
-use crate::services::{PageRevisionService, SessionService};
+use crate::services::{PageRevisionService, SessionService, TextService};
 use async_std::task;
 use crossfire::mpsc;
 use sea_orm::TransactionTrait;
@@ -128,6 +128,9 @@ impl JobRunner {
             }
             Job::PruneSessions => {
                 SessionService::prune(ctx).await?;
+            }
+            Job::PruneText => {
+                TextService::prune(ctx).await?;
             }
         }
 
