@@ -58,6 +58,17 @@ impl UserService {
 
         tide::log::info!("Attempting to create user '{}' ('{}')", name, slug);
 
+        // Check if username contains the minimum amount of required bytes.
+        if name.len() < ctx.config().minimum_name_bytes {
+            tide::log::error!(
+                "User's name is not long enough ({} < {})",
+                slug.len(),
+                ctx.config().minimum_name_bytes,
+            );
+
+            return Err(Error::BadRequest);
+        }
+
         // Perform filter validation
         if !bypass_filter {
             try_join!(
@@ -431,11 +442,23 @@ impl UserService {
         }
 
         // All changes beyond this point involve creating a new alias, so
-        // a name change token must be consumed.
+        // a name change token must be consumed. Check if there are any remaining tokens.
 
         if user.name_changes_left == 0 {
             tide::log::error!("User ID {} has no remaining name changes", user.user_id);
             return Err(Error::InsufficientNameChanges);
+        }
+
+        // Check if the new name has the minimum required amount of bytes.
+
+        if new_name.len() < ctx.config().minimum_name_bytes {
+            tide::log::error!(
+                "User's name is not long enough ({} < {})",
+                new_name.len(),
+                ctx.config().minimum_name_bytes,
+            );
+
+            return Err(Error::BadRequest);
         }
 
         // Deduct name change token and add user alias for old slug.
