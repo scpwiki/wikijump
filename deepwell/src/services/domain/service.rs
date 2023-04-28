@@ -115,20 +115,35 @@ impl DomainService {
     pub async fn site_from_domain_optional<'a>(
         ctx: &ServiceContext<'_>,
         domain: &'a str,
-    ) -> Result<Option<SiteModel>> {
+    ) -> Result<SiteDomainResult<'a>> {
         tide::log::info!("Getting site for domain '{domain}'");
 
         match Self::parse_canonical(ctx.config(), domain) {
             // Normal canonical domain, return from site slug fetch.
             Some(subdomain) => {
                 tide::log::debug!("Found canonical domain with slug '{subdomain}'");
-                SiteService::get_optional(ctx, Reference::Slug(cow!(subdomain))).await
+
+                let result =
+                    SiteService::get_optional(ctx, Reference::Slug(cow!(subdomain)))
+                        .await;
+
+                match result {
+                    Ok(Some(site)) => Ok(SiteDomainResult::Found(site)),
+                    Ok(None) => Ok(SiteDomainResult::Slug(subdomain)),
+                    Err(error) => Err(error),
+                }
             }
 
             // Not canonical, try custom domain.
             None => {
                 tide::log::debug!("Not found, checking if it's a custom domain");
-                Self::site_from_custom_domain_optional(ctx, domain).await
+
+                let result = Self::site_from_custom_domain_optional(ctx, domain).await;
+                match result {
+                    Ok(Some(site)) => Ok(SiteDomainResult::Found(site)),
+                    Ok(None) => Ok(SiteDomainResult::CustomDomain(domain)),
+                    Err(error) => Err(error),
+                }
             }
         }
     }
@@ -144,7 +159,11 @@ impl DomainService {
         ctx: &ServiceContext<'_>,
         domain: &'a str,
     ) -> Result<SiteModel> {
-        find_or_error(Self::site_from_domain_optional(ctx, domain)).await
+        let result = Self::site_from_domain_optional(ctx, domain).await?;
+        match result {
+            SiteDomainResult::Found(site) => Ok(site),
+            _ => Err(Error::NotFound),
+        }
     }
 
     /// If this domain is canonical domain, extract the site slug.

@@ -31,6 +31,7 @@
 
 use super::prelude::*;
 use crate::models::site::Model as SiteModel;
+use crate::services::domain::SiteDomainResult;
 use crate::services::render::RenderOutput;
 use crate::services::special_page::{GetSpecialPageOutput, SpecialPageType};
 use crate::services::{
@@ -195,11 +196,12 @@ impl ViewService {
         // Get site data
         let (site, redirect_site) =
             match DomainService::site_from_domain_optional(ctx, domain).await? {
-                Some(site) => {
+                SiteDomainResult::Found(site) => {
                     let redirect_site = Self::should_redirect_site(ctx, &site, domain);
                     (site, redirect_site)
                 }
-                None => {
+                SiteDomainResult::Slug(_) | SiteDomainResult::CustomDomain(_) => {
+                    // TODO
                     let output = Self::missing_site_output(ctx, domain).await?;
                     return Ok(ViewerResult::MissingSite(output));
                 }

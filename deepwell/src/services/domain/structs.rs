@@ -18,6 +18,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::models::site::Model as SiteModel;
+
+#[derive(Debug)]
+pub enum SiteDomainResult<'a> {
+    Found(SiteModel),
+    Slug(&'a str),
+    CustomDomain(&'a str),
+}
+
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateCustomDomain {
