@@ -65,6 +65,11 @@ impl JobService {
         tide::log::debug!("Queueing sessions list for pruning");
         Self::queue_job(Job::PruneSessions);
     }
+
+    pub fn queue_prune_text() {
+        tide::log::debug!("Queueing unused text for pruning");
+        Self::queue_job(Job::PruneText);
+    }
 }
 
 #[derive(Debug)]
@@ -76,6 +81,7 @@ impl JobRunner {
     pub fn spawn(state: &ApiServerState) {
         // Copy configuration fields
         let session_prune_delay = state.config.job_prune_session_period;
+        let text_prune_delay = todo!(); // state.config.job_prune_text_period;
 
         // Main runner
         let state = Arc::clone(state);
@@ -88,6 +94,14 @@ impl JobRunner {
                 tide::log::trace!("Running repeat job: prune expired sessions");
                 JobService::queue_prune_sessions();
                 task::sleep(session_prune_delay).await;
+            }
+        });
+
+        task::spawn(async move {
+            loop {
+                tide::log::trace!("Running repeat job: prune unused text rows");
+                JobService::queue_prune_text();
+                task::sleep(text_prune_delay).await;
             }
         });
 
