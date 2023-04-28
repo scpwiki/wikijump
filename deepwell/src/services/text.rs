@@ -111,6 +111,9 @@ impl TextService {
             };
         }
 
+        // All foreign keys of text.hash should have conditions here.
+        // These foreign key constraints prevent us from deleting anything
+        // actually used.
         let txn = ctx.transaction();
         let DeleteResult { rows_affected, .. } = Text::delete_many()
             .filter(
