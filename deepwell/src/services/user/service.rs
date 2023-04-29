@@ -48,6 +48,7 @@ impl UserService {
             locale,
             password,
             bypass_filter,
+            bypass_email_verification,
         }: CreateUser,
     ) -> Result<CreateUserOutput> {
         let txn = ctx.transaction();
@@ -164,6 +165,11 @@ impl UserService {
                 format!("TODO bot token: {}", password)
             }
         };
+
+        // Perform email verification
+        if !bypass_email_verification {
+            
+        }
 
         // Insert new model
         let user = user::ActiveModel {

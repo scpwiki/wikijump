@@ -30,6 +30,7 @@ pub struct CreateBotUser {
     pub purpose: String,
     pub owners: Vec<BotOwner>,
     pub bypass_filter: bool,
+    pub bypass_email_verification: bool,
     pub authorization_token: String, // TODO add authorization token service
                                      // format: [flag]-[uuid]
                                      //         for instance B-1F305167-AE64-4486-809A-09D14659AB4A
