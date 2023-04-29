@@ -83,7 +83,9 @@ impl ViewService {
         .await?
         {
             ViewerResult::FoundSite(viewer) => viewer,
-            ViewerResult::MissingSite(output) => return todo!(),
+            ViewerResult::MissingSite(html) => {
+                return Ok(GetPageViewOutput::SiteMissing { html });
+            }
         };
 
         // If None, means the main page for the site. Pull from site data.
