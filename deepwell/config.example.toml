@@ -224,13 +224,6 @@ missing = "_404"
 # Fallback string is localized as "wiki-page-private"
 private = "_public"
 
-# When a site by this name does not exist.
-# Only the page with this slug in the 'www' site is used,
-# all others are treated normally.
-#
-# Fallback string is localized as "wiki-page-site"
-site = "_site"
-
 
 [user]
 

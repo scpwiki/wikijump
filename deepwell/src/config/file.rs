@@ -135,7 +135,6 @@ struct SpecialPages {
     template: String,
     missing: String,
     private: String,
-    site: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -225,7 +224,6 @@ impl ConfigFile {
                     template: special_page_template,
                     missing: special_page_missing,
                     private: special_page_private,
-                    site: special_page_site,
                 },
             user:
                 User {
@@ -288,7 +286,6 @@ impl ConfigFile {
             special_page_template,
             special_page_missing,
             special_page_private,
-            special_page_site,
             default_name_changes: i16::from(default_name_changes),
             max_name_changes: i16::from(max_name_changes),
             refill_name_change: StdDuration::from_secs(

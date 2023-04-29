@@ -129,9 +129,6 @@ pub struct Config {
     /// Page slug for pages you don't have permission to see. Default: `_public`
     pub special_page_private: String,
 
-    /// Page slug for sites which don't exist. Default: `_site` (`www` site only)
-    pub special_page_site: String,
-
     /// Default name changes per user.
     pub default_name_changes: i16,
 

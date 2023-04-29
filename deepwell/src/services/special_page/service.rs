@@ -20,9 +20,7 @@
 
 use super::prelude::*;
 use crate::models::site::Model as SiteModel;
-use crate::services::{
-    PageRevisionService, PageService, RenderService, TextService,
-};
+use crate::services::{PageRevisionService, PageService, RenderService, TextService};
 use crate::web::Reference;
 use fluent::{FluentArgs, FluentValue};
 use ftml::prelude::*;

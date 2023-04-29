@@ -46,7 +46,6 @@ special-prefix = "_"
 template = "_template"
 missing = "_404"
 private = "_public"
-site = "_site"
 
 [user]
 default-name-changes = 2
