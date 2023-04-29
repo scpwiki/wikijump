@@ -141,7 +141,7 @@ struct SpecialPages {
 #[serde(rename_all = "kebab-case")]
 struct User {
     default_name_changes: u8,
-    max_name_changes: u8,
+    maximum_name_changes: u8,
     refill_name_change_days: u64,
     minimum_name_bytes: usize,
 }
@@ -228,7 +228,7 @@ impl ConfigFile {
             user:
                 User {
                     default_name_changes,
-                    max_name_changes,
+                    maximum_name_changes,
                     refill_name_change_days,
                     minimum_name_bytes,
                 },
@@ -287,7 +287,7 @@ impl ConfigFile {
             special_page_missing,
             special_page_private,
             default_name_changes: i16::from(default_name_changes),
-            max_name_changes: i16::from(max_name_changes),
+            maximum_name_changes: i16::from(maximum_name_changes),
             refill_name_change: StdDuration::from_secs(
                 refill_name_change_days * 24 * 60 * 60,
             ),

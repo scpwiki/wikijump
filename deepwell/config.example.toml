@@ -234,7 +234,7 @@ default-name-changes = 2
 #
 # Attempting to add additional name change tokens to
 # a user will top out at this amount.
-max-name-changes = 3
+maximum-name-changes = 3
 
 # The minimum length for a user's name in bytes.
 # A user who attempts to register must have a slug which is at least this long.
@@ -246,7 +246,7 @@ max-name-changes = 3
 # usually take up two or three bytes themselves, making it a non-issue for those languages.
 #
 # See WJ-1122.
-min-byte-length = 3
+minimum-name-bytes = 3
 
 # Every this many days, all users get another
 # name change token (up to the cap). Checked hourly.

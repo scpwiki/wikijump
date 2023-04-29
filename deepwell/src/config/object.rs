@@ -133,7 +133,7 @@ pub struct Config {
     pub default_name_changes: i16,
 
     /// Maximum name changes per user.
-    pub max_name_changes: i16,
+    pub maximum_name_changes: i16,
 
     /// How long until a user gets another name change token.
     pub refill_name_change: StdDuration,

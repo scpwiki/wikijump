@@ -49,6 +49,6 @@ private = "_public"
 
 [user]
 default-name-changes = 2
-max-name-changes = 3
-min-byte-length = 3
+maximum-name-changes = 3
+minimum-name-bytes = 3
 refill-name-change-days = 90
