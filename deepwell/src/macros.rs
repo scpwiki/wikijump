@@ -62,3 +62,10 @@ macro_rules! cow_opt {
         $s.ref_map(|s| cow!(s))
     }};
 }
+
+/// Convenience function for making borrowed string `FluentValue`s.
+macro_rules! fluent_str {
+    ($value:expr) => {
+        FluentValue::String(cow!(&$value))
+    };
+}

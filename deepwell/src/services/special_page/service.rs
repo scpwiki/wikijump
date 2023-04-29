@@ -78,12 +78,6 @@ impl SpecialPageService {
             None => {
                 // Page is absent, use fallback string from localization.
 
-                macro_rules! fluent_str {
-                    ($value:expr) => {
-                        FluentValue::String(cow!(&$value))
-                    };
-                }
-
                 let page = &page_info.page;
                 let (category, full_slug) = match &page_info.category {
                     Some(category) => (str!(category), format!("{category}:{page}")),
