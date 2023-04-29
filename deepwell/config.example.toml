@@ -236,12 +236,6 @@ default-name-changes = 2
 # a user will top out at this amount.
 max-name-changes = 3
 
-# Every this many days, all users get another
-# name change token (up to the cap). Checked hourly.
-#
-# Set to 0 to disable.
-refill-name-change-days = 90
-
 # The minimum length for a user's name in bytes.
 # A user who attempts to register must have a slug which is at least this long.
 #
@@ -249,7 +243,13 @@ refill-name-change-days = 90
 # such as single Latin letters (e.g. "N"). However, we check *bytes* specifically to
 # avoid Anglo-centricism, as many full names in other languages fit within two letters
 # (consider CJK for instance). Single characters outside of the main ASCII block
-# usually take up two or three bytes themselves, making it a non-issue for those languages. 
+# usually take up two or three bytes themselves, making it a non-issue for those languages.
 #
 # See WJ-1122.
 min-byte-length = 3
+
+# Every this many days, all users get another
+# name change token (up to the cap). Checked hourly.
+#
+# Set to 0 to disable.
+refill-name-change-days = 90
