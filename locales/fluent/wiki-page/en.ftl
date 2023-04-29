@@ -20,6 +20,14 @@ wiki-page-private = + Private content
 
     This area of the website is private and you don't have access to it. If you believe you need access to this area please contact the web site administrators.
 
-wiki-page-site = + No { -service-name } site exists with this address.
+wiki-page-site-slug = <h1>No { -service-name } site exists with this address.</h1>
+    <p>
+      <a href="https://{ $slug }.{ $domain }/">{ $slug }.{ $domain }</a> does not exist.
+      Return to <a href="https://{ $domain }/">{ -service-name }</a>.
+    </p>
 
-    "@@{ $slug }.{ $domain }@@" does not exist. You can visit the main { -service-name } site here: { $domain }
+wiki-page-site-custom = <h1>No { -service-name } site exists with this address.</h1>
+    <p>
+      No site has the custom domain <a href="https://{ $custom_domain }/">{ $custom_domain }</a>.
+      Return to <a href="https://{ $domain }/">{ -service-name }</a>.
+    </p>

@@ -39,6 +39,7 @@ use crate::services::{
     TextService, UserService,
 };
 use crate::utils::split_category;
+use fluent::{FluentArgs, FluentValue};
 use ftml::prelude::*;
 use ftml::render::html::HtmlOutput;
 use ref_map::*;
@@ -73,8 +74,13 @@ impl ViewService {
             site,
             redirect_site,
             user_session,
-        } = match Self::get_viewer(ctx, &domain, session_token.ref_map(|s| s.as_str()))
-            .await?
+        } = match Self::get_viewer(
+            ctx,
+            &locale,
+            &domain,
+            session_token.ref_map(|s| s.as_str()),
+        )
+        .await?
         {
             ViewerResult::FoundSite(viewer) => viewer,
             ViewerResult::MissingSite(output) => return todo!(),
@@ -195,6 +201,7 @@ impl ViewService {
     /// operations, such as slug normalization or redirect site aliases.
     pub async fn get_viewer(
         ctx: &ServiceContext<'_>,
+        locale: &LanguageIdentifier,
         domain: &str,
         session_token: Option<&str>,
     ) -> Result<ViewerResult> {
@@ -207,9 +214,16 @@ impl ViewService {
                     let redirect_site = Self::should_redirect_site(ctx, &site, domain);
                     (site, redirect_site)
                 }
-                SiteDomainResult::Slug(_) | SiteDomainResult::CustomDomain(_) => {
-                    // TODO
-                    let output = Self::missing_site_output(ctx, domain).await?;
+                SiteDomainResult::Slug(slug) => {
+                    let html = Self::missing_site_output(ctx, locale, domain, Some(slug))
+                        .await?;
+
+                    return todo!();
+                }
+                SiteDomainResult::CustomDomain(domain) => {
+                    let html =
+                        Self::missing_site_output(ctx, locale, domain, None).await?;
+
                     return todo!();
                 }
             };
@@ -237,11 +251,43 @@ impl ViewService {
         }))
     }
 
+    /// Produce output for cases where a site does not exist.
     async fn missing_site_output(
         ctx: &ServiceContext<'_>,
+        locale: &LanguageIdentifier,
         domain: &str,
-    ) -> Result<GetPageViewOutput> {
-        todo!()
+        site_slug: Option<&str>,
+    ) -> Result<String> {
+        let config = ctx.config();
+        match site_slug {
+            // No site with slug error
+            Some(site_slug) => {
+                let mut args = FluentArgs::new();
+                args.set("slug", fluent_str!(site_slug));
+                args.set("domain", fluent_str!(config.main_domain_no_dot));
+
+                let html =
+                    ctx.localization()
+                        .translate(locale, "wiki-page-site-slug", &args)?;
+
+                Ok(html.to_string())
+            }
+
+            // Custom domain missing error
+            None => {
+                let mut args = FluentArgs::new();
+                args.set("custom_domain", fluent_str!(domain));
+                args.set("domain", fluent_str!(config.main_domain_no_dot));
+
+                let html = ctx.localization().translate(
+                    locale,
+                    "wiki-page-site-custom",
+                    &args,
+                )?;
+
+                Ok(html.to_string())
+            }
+        }
     }
 
     fn should_redirect_site(

@@ -64,20 +64,15 @@ pub enum GetPageViewOutput {
         compiled_html: String,
     },
 
-    SiteMissing(MissingSiteOutput),
-}
-
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct MissingSiteOutput {
-    wikitext: String,
-    compiled_html: String,
+    SiteMissing {
+        html: String,
+    },
 }
 
 #[derive(Debug)]
 pub enum ViewerResult {
     FoundSite(Viewer),
-    MissingSite(MissingSiteOutput),
+    MissingSite(String),
 }
 
 #[derive(Serialize, Debug)]
