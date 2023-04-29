@@ -18,3 +18,32 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::prelude::*;
+use serde::Deserialize;
+
+/// A deserialized response from the MailCheck API.
+#[derive(Deserialize, Debug)]
+pub struct MailCheckResponse {
+    status: u16,
+    email: String,
+    domain: String,
+    mx: bool,
+    disposable: bool,
+    alias: bool,
+    did_you_mean: String,
+}
+
+#[derive(Debug)]
+pub struct EmailValidationOutput {
+    valid: bool,
+    classification: EmailClassification,
+    did_you_mean: Option<String>,
+}
+
+#[derive(Debug)]
+pub enum EmailClassification {
+    Normal,
+    Disposable,
+    Alias,
+    Invalid
+}

@@ -18,11 +18,24 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
- use super::prelude::*;
+use super::prelude::*;
 
  #[derive(Debug)]
 pub struct EmailService;
 
 impl EmailService {
+    // Validates an email through the MailCheck API. 
+    pub async fn validate(
+        ctx: ServiceContext<'_>,
+        email: String,
+    ) -> Result</*EmailValidationOutput*/ ()> {
+        // Sends a GET request to the MailCheck API and deserializes the response.
+        let mailcheck_response = surf::get(format!("https://api.mailcheck.ai/email/{email}"))
+            .send()
+            .await?
+            .body_json::<MailCheckResponse>()
+            .await?;
 
+        Ok(())
+    }
 }
