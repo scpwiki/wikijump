@@ -42,22 +42,42 @@ pub struct PageRoute {
 }
 
 #[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase", tag = "type", content = "data")]
+pub enum GetPageViewOutput {
+    PageFound {
+        #[serde(flatten)]
+        viewer: Viewer,
+        options: PageOptions,
+        page: PageModel,
+        page_revision: PageRevisionModel,
+        redirect_page: Option<String>,
+        wikitext: String,
+        compiled_html: String,
+    },
+
+    PageMissing {
+        #[serde(flatten)]
+        viewer: Viewer,
+        options: PageOptions,
+        redirect_page: Option<String>,
+        wikitext: String,
+        compiled_html: String,
+    },
+
+    SiteMissing(MissingSiteOutput),
+}
+
+#[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct GetPageViewOutput {
-    #[serde(flatten)]
-    pub viewer: Viewer,
-    pub options: PageOptions,
-    pub page: Option<PageModel>,
-    pub page_revision: Option<PageRevisionModel>,
-    pub redirect_page: Option<String>,
-    pub wikitext: String,
-    pub compiled_html: String,
+pub struct MissingSiteOutput {
+    wikitext: String,
+    compiled_html: String,
 }
 
 #[derive(Debug)]
 pub enum ViewerResult {
     FoundSite(Viewer),
-    MissingSite(GetPageViewOutput),
+    MissingSite(MissingSiteOutput),
 }
 
 #[derive(Serialize, Debug)]

@@ -77,7 +77,7 @@ impl ViewService {
             .await?
         {
             ViewerResult::FoundSite(viewer) => viewer,
-            ViewerResult::MissingSite(output) => return Ok(output),
+            ViewerResult::MissingSite(output) => return todo!(),
         };
 
         // If None, means the main page for the site. Pull from site data.
@@ -103,7 +103,7 @@ impl ViewService {
         };
 
         // Get wikitext and HTML to return for this page.
-        let (page, page_revision, wikitext, compiled_html) =
+        let (page_and_revision, wikitext, compiled_html) =
             match PageService::get_optional(
                 ctx,
                 site.site_id,
@@ -124,7 +124,7 @@ impl ViewService {
                         TextService::get(ctx, &page_revision.compiled_hash),
                     )?;
 
-                    (Some(page), Some(page_revision), wikitext, compiled_html)
+                    (Some((page, page_revision)), wikitext, compiled_html)
                 }
                 // The page is missing, fetch the "missing page" data (_404).
                 None => {
@@ -149,31 +149,38 @@ impl ViewService {
                         ..
                     } = render_output;
 
-                    (None, None, wikitext, compiled_html)
+                    (None, wikitext, compiled_html)
                 }
             };
 
-        debug_assert_eq!(
-            page.is_some(),
-            page_revision.is_some(),
-            "Both page and page revision should be set or null",
-        );
-
         // TODO Check if user-agent and IP match?
 
-        Ok(GetPageViewOutput {
-            viewer: Viewer {
-                site,
-                redirect_site,
-                user_session,
+        let viewer = Viewer {
+            site,
+            redirect_site,
+            user_session,
+        };
+
+        let output = match page_and_revision {
+            Some((page, page_revision)) => GetPageViewOutput::PageFound {
+                viewer,
+                options,
+                page,
+                page_revision,
+                redirect_page,
+                wikitext,
+                compiled_html,
             },
-            options,
-            page,
-            page_revision,
-            redirect_page,
-            wikitext,
-            compiled_html,
-        })
+            None => GetPageViewOutput::PageMissing {
+                viewer,
+                options,
+                redirect_page,
+                wikitext,
+                compiled_html,
+            },
+        };
+
+        Ok(output)
     }
 
     /// Gets basic data and runs common logic for all web routes.
@@ -203,7 +210,7 @@ impl ViewService {
                 SiteDomainResult::Slug(_) | SiteDomainResult::CustomDomain(_) => {
                     // TODO
                     let output = Self::missing_site_output(ctx, domain).await?;
-                    return Ok(ViewerResult::MissingSite(output));
+                    return todo!();
                 }
             };
 
