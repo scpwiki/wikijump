@@ -21,7 +21,7 @@
 use super::prelude::*;
 use crate::models::site::Model as SiteModel;
 use crate::services::{
-    PageRevisionService, PageService, RenderService, SiteService, TextService,
+    PageRevisionService, PageService, RenderService, TextService,
 };
 use crate::web::Reference;
 use fluent::{FluentArgs, FluentValue};
@@ -36,7 +36,7 @@ impl SpecialPageService {
     /// Gets the specified special page, or the fallback if it doesn't exist.
     pub async fn get(
         ctx: &ServiceContext<'_>,
-        mut site: &SiteModel,
+        site: &SiteModel,
         sp_page_type: SpecialPageType,
         locale: &LanguageIdentifier,
         page_info: PageInfo<'_>,
@@ -50,7 +50,6 @@ impl SpecialPageService {
         //
         // "key" refers to the translation key to read to get the default fallback.
         // If empty, then pull a constant string (not in the localization files).
-        let site_owned;
         let config = ctx.config();
         let (slug, key) = match sp_page_type {
             SpecialPageType::Template => (&config.special_page_template, ""),
@@ -59,15 +58,6 @@ impl SpecialPageService {
             }
             SpecialPageType::Private => {
                 (&config.special_page_private, "wiki-page-private")
-            }
-            SpecialPageType::Site => {
-                // A bit of special logic since this page can only exist in 'www'
-                // So the site_id isn't used
-
-                site_owned = SiteService::get(ctx, Reference::Slug(cow!("www"))).await?;
-                site = &site_owned;
-
-                (&config.special_page_site, "wiki-page-site")
             }
         };
 
