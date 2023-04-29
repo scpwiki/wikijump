@@ -218,13 +218,13 @@ impl ViewService {
                     let html = Self::missing_site_output(ctx, locale, domain, Some(slug))
                         .await?;
 
-                    return todo!();
+                    return Ok(ViewerResult::MissingSite(html));
                 }
                 SiteDomainResult::CustomDomain(domain) => {
                     let html =
                         Self::missing_site_output(ctx, locale, domain, None).await?;
 
-                    return todo!();
+                    return Ok(ViewerResult::MissingSite(html));
                 }
             };
 
