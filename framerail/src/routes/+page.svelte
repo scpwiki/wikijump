@@ -2,6 +2,13 @@
   export let data
 </script>
 
+{#switch data.view}
+  {:case "page"}
+    UNTRANSLATED:Page view
+  {:case "siteMissing"}
+    {@html data.html}
+{/switch}
+
 <h1>UNTRANSLATED:Loaded main page</h1>
 <p class="spin-yay">
   UNTRANSLATED:This is the page loaded with the start page for the site
