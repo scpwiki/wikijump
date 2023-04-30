@@ -25,9 +25,23 @@ export async function loadPage(
   const locale = "en"
 
   // Request data from backend
-  const view = await pageView(domain, locale, route, sessionToken)
+  const response = await pageView(domain, locale, route, sessionToken)
 
   // Process response, performing redirects etc
+  let view
+  switch (response.type) {
+    case 'pageFound':
+      view = response.data
+      break
+    case 'pageMissing':
+      view = response.data
+      view.page = null
+      view.pageRevision = null
+      break
+    case 'siteMissing':
+      return { missingSite: response.data } // TODO how should we pass this info
+  }
+
   doRedirect(view, domain, slug, extra)
 
   // Return to page for rendering
