@@ -28,40 +28,44 @@ export async function loadPage(
   const response = await pageView(domain, locale, route, sessionToken)
 
   // Process response, performing redirects etc
-  let view
+  let viewData
   switch (response.type) {
     case 'pageFound':
-      view = response.data
+      viewData = response.data
+      viewData.view = 'page'
       break
     case 'pageMissing':
-      view = response.data
-      view.page = null
-      view.pageRevision = null
+      viewData = response.data
+      viewData.view = 'page'
+      viewData.page = null
+      viewData.pageRevision = null
       break
     case 'siteMissing':
-      return { missingSite: response.data } // TODO how should we pass this info
+      viewData = response.data
+      viewData.view = 'siteMissing'
+      return viewData
   }
 
-  doRedirect(view, domain, slug, extra)
+  doRedirect(viewData, domain, slug, extra)
 
   // Return to page for rendering
   // TODO make page view into a component
-  return view
+  return viewData
 }
 
 function doRedirect(
-  view,
+  viewData,
   originalDomain: string,
   originalSlug: Optional<string>,
   extra: Optional<string>
 ): void {
-  if (!view.redirectSite && !view.redirectPage) {
+  if (!viewData.redirectSite && !viewData.redirectPage) {
     // Nothing to do
     return
   }
 
-  const domain: string = view.redirectSite || originalDomain
-  const slug: Optional<string> = view.redirectPage || originalSlug
+  const domain: string = viewData.redirectSite || originalDomain
+  const slug: Optional<string> = viewData.redirectPage || originalSlug
   const route: string = buildRoute(slug, extra)
   throw redirect(308, `https://${domain}/${route}`)
 }
