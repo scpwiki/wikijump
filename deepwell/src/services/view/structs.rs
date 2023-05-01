@@ -64,6 +64,14 @@ pub enum GetPageViewOutput {
         compiled_html: String,
     },
 
+    PagePermissions {
+        #[serde(flatten)]
+        viewer: Viewer,
+        options: PageOptions,
+        redirect_page: Option<String>,
+        html: String,
+    },
+
     SiteMissing {
         html: String,
     },
