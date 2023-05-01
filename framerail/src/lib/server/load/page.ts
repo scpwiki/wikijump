@@ -28,25 +28,19 @@ export async function loadPage(
   const response = await pageView(domain, locale, route, sessionToken)
 
   // Process response, performing redirects etc
-  let viewData
+  const viewData = response.data
+  viewData.view = response.type
+
   switch (response.type) {
-    case 'pageFound':
-      viewData = response.data
-      viewData.view = 'page'
+    case "pageFound":
       break
-    case 'pageMissing':
-      viewData = response.data
-      viewData.view = 'page'
+    case "pageMissing":
       viewData.page = null
       viewData.pageRevision = null
       break
-    case 'pagePermissions':
-      viewData = response.data
-      viewData.view = 'pagePermissions'
+    case "pagePermissions":
       break
-    case 'siteMissing':
-      viewData = response.data
-      viewData.view = 'siteMissing'
+    case "siteMissing":
       return viewData
   }
 
