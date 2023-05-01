@@ -141,7 +141,11 @@ impl ViewService {
                         }
                     };
 
+                    // Determine whether to return the actual page contents,
+                    // or the "private page" data (_public).
                     if Self::can_access_page(ctx, user_permissions).await? {
+                        tide::log::debug!("User has page access, return text data");
+
                         let (wikitext, compiled_html) = try_join!(
                             TextService::get(ctx, &page_revision.wikitext_hash),
                             TextService::get(ctx, &page_revision.compiled_hash),
@@ -153,7 +157,29 @@ impl ViewService {
                             "User doesn't have page access, returning permission page",
                         );
 
-                        todo!()
+                        let GetSpecialPageOutput {
+                            wikitext,
+                            render_output,
+                        } = SpecialPageService::get(
+                            ctx,
+                            &site,
+                            SpecialPageType::Private,
+                            &locale,
+                            page_info,
+                        )
+                        .await?;
+
+                        let RenderOutput {
+                            html_output:
+                                HtmlOutput {
+                                    body: compiled_html,
+                                    ..
+                                },
+                            ..
+                        } = render_output;
+
+                        // TODO return as PagePermissions
+                        (None, wikitext, compiled_html)
                     }
                 }
                 // The page is missing, fetch the "missing page" data (_404).
