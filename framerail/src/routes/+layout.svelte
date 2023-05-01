@@ -1,5 +1,3 @@
-<nav>
-  UNTRANSLATED:Basic site layout here
-</nav>
+<nav>UNTRANSLATED:Basic site layout here</nav>
 
-<slot></slot>
+<slot />

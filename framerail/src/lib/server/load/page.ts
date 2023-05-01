@@ -1,6 +1,6 @@
 import { pageView } from "$lib/server/deepwell/views.ts"
 import type { Optional } from "$lib/types.ts"
-import { error, redirect } from "@sveltejs/kit"
+import { redirect } from "@sveltejs/kit"
 
 // TODO form single deepwell request that does all the relevant prep stuff here
 
