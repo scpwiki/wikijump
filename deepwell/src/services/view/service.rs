@@ -367,7 +367,7 @@ impl ViewService {
         }
     }
 
-    async fn can_access_page(ctx: &ServiceContext<'_>, permissions: ()) -> Result<bool> {
+    async fn can_access_page(_ctx: &ServiceContext<'_>, permissions: ()) -> Result<bool> {
         tide::log::info!("Checking page access: {permissions:?}");
         tide::log::debug!("TODO: stub");
         // TODO perform permission checks
