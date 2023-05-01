@@ -48,6 +48,7 @@ pub struct PageRoute {
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase", tag = "type", content = "data")]
 pub enum GetPageViewOutput {
+    #[serde(rename_all = "camelCase")]
     PageFound {
         #[serde(flatten)]
         viewer: Viewer,
@@ -59,6 +60,7 @@ pub enum GetPageViewOutput {
         compiled_html: String,
     },
 
+    #[serde(rename_all = "camelCase")]
     PageMissing {
         #[serde(flatten)]
         viewer: Viewer,
@@ -68,6 +70,7 @@ pub enum GetPageViewOutput {
         compiled_html: String,
     },
 
+    #[serde(rename_all = "camelCase")]
     PagePermissions {
         #[serde(flatten)]
         viewer: Viewer,
@@ -76,6 +79,7 @@ pub enum GetPageViewOutput {
         compiled_html: String,
     },
 
+    #[serde(rename_all = "camelCase")]
     SiteMissing {
         html: String,
     },
