@@ -34,7 +34,7 @@
     "stylelint": "^15.1.0",
     "stylelint-config-recess-order": "^4.0.0",
     "stylelint-order": "^6.0.1",
-    "stylelint-scss": "^4.3.0",
+    "stylelint-scss": "^5.0.0",
     "svelte": "^3.44.0",
     "svelte-check": "^3.0.1",
     "svelte-preprocess": "^5.0.0",
