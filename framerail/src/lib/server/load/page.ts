@@ -31,27 +31,35 @@ export async function loadPage(
   const viewData = response.data
   viewData.view = response.type
 
+  let checkRedirect = true
+  let status = null
+
   switch (response.type) {
     case "pageFound":
       break
     case "pageMissing":
       viewData.page = null
       viewData.pageRevision = null
+      status = 404
       break
     case "pagePermissions":
+      status = 403
       break
     case "siteMissing":
-      return viewData
+      checkRedirect = false
+      status = 404
   }
 
-  doRedirect(viewData, domain, slug, extra)
+  if (checkRedirect) {
+    runRedirect(viewData, domain, slug, extra)
+  }
 
   // Return to page for rendering
   // TODO make page view into a component
   return viewData
 }
 
-function doRedirect(
+function runRedirect(
   viewData,
   originalDomain: string,
   originalSlug: Optional<string>,
