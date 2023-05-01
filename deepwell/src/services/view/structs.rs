@@ -69,7 +69,7 @@ pub enum GetPageViewOutput {
         viewer: Viewer,
         options: PageOptions,
         redirect_page: Option<String>,
-        html: String,
+        compiled_html: String,
     },
 
     SiteMissing {

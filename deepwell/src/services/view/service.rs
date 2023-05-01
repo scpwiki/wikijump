@@ -30,6 +30,8 @@
 //! requesting domain and session token into a site and user, respectively.
 
 use super::prelude::*;
+use crate::models::page::Model as PageModel;
+use crate::models::page_revision::Model as PageRevisionModel;
 use crate::models::site::Model as SiteModel;
 use crate::services::domain::SiteDomainResult;
 use crate::services::render::RenderOutput;
@@ -110,87 +112,77 @@ impl ViewService {
             language: cow!(locale_str),
         };
 
+        // Helper structure to designate which variant of GetPageViewOutput to return.
+        #[derive(Debug)]
+        enum PageStatus {
+            Found {
+                page: PageModel,
+                page_revision: PageRevisionModel,
+            },
+            Missing,
+            Private,
+        }
+
         // Get wikitext and HTML to return for this page.
-        let (page_and_revision, wikitext, compiled_html) =
-            match PageService::get_optional(
-                ctx,
-                site.site_id,
-                Reference::Slug(cow!(page_slug)),
-            )
-            .await?
-            {
-                // This page exists, return its data directly.
-                Some(page) => {
-                    // TODO determine if page needs rerender?
+        let (status, wikitext, compiled_html) = match PageService::get_optional(
+            ctx,
+            site.site_id,
+            Reference::Slug(cow!(page_slug)),
+        )
+        .await?
+        {
+            // This page exists, return its data directly.
+            Some(page) => {
+                // TODO determine if page needs rerender?
 
-                    // Get associated revision
-                    let page_revision =
-                        PageRevisionService::get_latest(ctx, site.site_id, page.page_id)
-                            .await?;
-
-                    // Check user access to page
-                    let user_permissions = match user_session {
-                        Some(ref session) => session.user_permissions,
-                        None => {
-                            tide::log::debug!(
-                                "No user for session, getting guest permission scheme",
-                            );
-
-                            // TODO get permissions from service
-                            ()
-                        }
-                    };
-
-                    // Determine whether to return the actual page contents,
-                    // or the "private page" data (_public).
-                    if Self::can_access_page(ctx, user_permissions).await? {
-                        tide::log::debug!("User has page access, return text data");
-
-                        let (wikitext, compiled_html) = try_join!(
-                            TextService::get(ctx, &page_revision.wikitext_hash),
-                            TextService::get(ctx, &page_revision.compiled_hash),
-                        )?;
-
-                        (Some((page, page_revision)), wikitext, compiled_html)
-                    } else {
-                        tide::log::warn!(
-                            "User doesn't have page access, returning permission page",
-                        );
-
-                        let GetSpecialPageOutput {
-                            wikitext,
-                            render_output,
-                        } = SpecialPageService::get(
-                            ctx,
-                            &site,
-                            SpecialPageType::Private,
-                            &locale,
-                            page_info,
-                        )
+                // Get associated revision
+                let page_revision =
+                    PageRevisionService::get_latest(ctx, site.site_id, page.page_id)
                         .await?;
 
-                        let RenderOutput {
-                            html_output:
-                                HtmlOutput {
-                                    body: compiled_html,
-                                    ..
-                                },
-                            ..
-                        } = render_output;
+                // Check user access to page
+                let user_permissions = match user_session {
+                    Some(ref session) => session.user_permissions,
+                    None => {
+                        tide::log::debug!(
+                            "No user for session, getting guest permission scheme",
+                        );
 
-                        // TODO return as PagePermissions
-                        (None, wikitext, compiled_html)
+                        // TODO get permissions from service
+                        ()
                     }
-                }
-                // The page is missing, fetch the "missing page" data (_404).
-                None => {
+                };
+
+                // Determine whether to return the actual page contents,
+                // or the "private page" data (_public).
+                if Self::can_access_page(ctx, user_permissions).await? {
+                    tide::log::debug!("User has page access, return text data");
+
+                    let (wikitext, compiled_html) = try_join!(
+                        TextService::get(ctx, &page_revision.wikitext_hash),
+                        TextService::get(ctx, &page_revision.compiled_hash),
+                    )?;
+
+                    (
+                        PageStatus::Found {
+                            page,
+                            page_revision,
+                        },
+                        wikitext,
+                        compiled_html,
+                    )
+                } else {
+                    tide::log::warn!(
+                        "User doesn't have page access, returning permission page",
+                    );
+
                     let GetSpecialPageOutput {
                         wikitext,
                         render_output,
                     } = SpecialPageService::get(
                         ctx,
                         &site,
-                        SpecialPageType::Missing,
+                        SpecialPageType::Private,
                         &locale,
                         page_info,
                     )
@@ -205,9 +197,35 @@ impl ViewService {
                         ..
                     } = render_output;
 
-                    (None, wikitext, compiled_html)
+                    (PageStatus::Private, wikitext, compiled_html)
                 }
-            };
+            }
+            // The page is missing, fetch the "missing page" data (_404).
+            None => {
+                let GetSpecialPageOutput {
+                    wikitext,
+                    render_output,
+                } = SpecialPageService::get(
+                    ctx,
+                    &site,
+                    SpecialPageType::Missing,
+                    &locale,
+                    page_info,
+                )
+                .await?;
+
+                let RenderOutput {
+                    html_output:
+                        HtmlOutput {
+                            body: compiled_html,
+                            ..
+                        },
+                    ..
+                } = render_output;
+
+                (PageStatus::Missing, wikitext, compiled_html)
+            }
+        };
 
         // TODO Check if user-agent and IP match?
 
@@ -217,8 +235,11 @@ impl ViewService {
             user_session,
         };
 
-        let output = match page_and_revision {
-            Some((page, page_revision)) => GetPageViewOutput::PageFound {
+        let output = match status {
+            PageStatus::Found {
+                page,
+                page_revision,
+            } => GetPageViewOutput::PageFound {
                 viewer,
                 options,
                 page,
@@ -227,11 +248,17 @@ impl ViewService {
                 wikitext,
                 compiled_html,
             },
-            None => GetPageViewOutput::PageMissing {
+            PageStatus::Missing => GetPageViewOutput::PageMissing {
                 viewer,
                 options,
                 redirect_page,
                 wikitext,
+                compiled_html,
+            },
+            PageStatus::Private => GetPageViewOutput::PagePermissions {
+                viewer,
+                options,
+                redirect_page,
                 compiled_html,
             },
         };
