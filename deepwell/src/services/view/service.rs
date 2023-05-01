@@ -30,12 +30,22 @@
 //! requesting domain and session token into a site and user, respectively.
 
 use super::prelude::*;
+use crate::models::page::Model as PageModel;
+use crate::models::page_revision::Model as PageRevisionModel;
 use crate::models::site::Model as SiteModel;
+use crate::services::domain::SiteDomainResult;
+use crate::services::render::RenderOutput;
+use crate::services::special_page::{GetSpecialPageOutput, SpecialPageType};
 use crate::services::{
-    DomainService, PageRevisionService, PageService, SessionService, TextService,
-    UserService,
+    DomainService, PageRevisionService, PageService, SessionService, SpecialPageService,
+    TextService, UserService,
 };
+use crate::utils::split_category;
+use fluent::{FluentArgs, FluentValue};
+use ftml::prelude::*;
+use ftml::render::html::HtmlOutput;
 use ref_map::*;
+use unic_langid::LanguageIdentifier;
 use wikidot_normalize::normalize;
 
 #[derive(Debug)]
@@ -46,21 +56,39 @@ impl ViewService {
         ctx: &ServiceContext<'_>,
         GetPageView {
             domain,
+            locale: locale_str,
             route,
             session_token,
         }: GetPageView,
     ) -> Result<GetPageViewOutput> {
         tide::log::info!(
-            "Getting page view data for domain '{}', route '{:?}'",
+            "Getting page view data for domain '{}', route '{:?}', locale '{}'",
             domain,
             route,
+            locale_str,
         );
 
+        let locale = LanguageIdentifier::from_bytes(locale_str.as_bytes())?;
+
+        // Attempt to get a viewer helper structure, but if the site doesn't exist
+        // then return right away with the "no such site" response.
         let Viewer {
             site,
             redirect_site,
             user_session,
-        } = Self::get_viewer(ctx, &domain, session_token.ref_map(|s| s.as_str())).await?;
+        } = match Self::get_viewer(
+            ctx,
+            &locale,
+            &domain,
+            session_token.ref_map(|s| s.as_str()),
+        )
+        .await?
+        {
+            ViewerResult::FoundSite(viewer) => viewer,
+            ViewerResult::MissingSite(html) => {
+                return Ok(GetPageViewOutput::SiteMissing { html });
+            }
+        };
 
         // If None, means the main page for the site. Pull from site data.
         let (page_slug, page_extra): (&str, &str) = match &route {
@@ -72,32 +100,170 @@ impl ViewService {
         let options = PageOptions::parse(page_extra);
 
         // Get page, revision, and text fields
-        let page =
-            PageService::get(ctx, site.site_id, Reference::Slug(cow!(page_slug))).await?;
+        let (category_slug, page_slug) = split_category(page_slug);
+        let page_info = PageInfo {
+            page: cow!(page_slug),
+            category: cow_opt!(category_slug),
+            site: cow!(&site.slug),
+            title: cow!(page_slug),
+            alt_title: None,
+            score: ScoreValue::Integer(0), // TODO configurable default score value
+            tags: vec![],
+            language: cow!(locale_str),
+        };
 
-        let page_revision =
-            PageRevisionService::get_latest(ctx, site.site_id, page.page_id).await?;
+        // Helper structure to designate which variant of GetPageViewOutput to return.
+        #[derive(Debug)]
+        enum PageStatus {
+            Found {
+                page: PageModel,
+                page_revision: PageRevisionModel,
+            },
+            Missing,
+            Private,
+        }
 
-        let (wikitext, compiled_html) = try_join!(
-            TextService::get(ctx, &page_revision.wikitext_hash),
-            TextService::get(ctx, &page_revision.compiled_hash),
-        )?;
+        // Get wikitext and HTML to return for this page.
+        let (status, wikitext, compiled_html) = match PageService::get_optional(
+            ctx,
+            site.site_id,
+            Reference::Slug(cow!(page_slug)),
+        )
+        .await?
+        {
+            // This page exists, return its data directly.
+            Some(page) => {
+                // TODO determine if page needs rerender?
+
+                // Get associated revision
+                let page_revision =
+                    PageRevisionService::get_latest(ctx, site.site_id, page.page_id)
+                        .await?;
+
+                // Check user access to page
+                let user_permissions = match user_session {
+                    Some(ref session) => session.user_permissions,
+                    None => {
+                        tide::log::debug!(
+                            "No user for session, getting guest permission scheme",
+                        );
+
+                        // TODO get permissions from service
+                        UserPermissions
+                    }
+                };
+
+                // Determine whether to return the actual page contents,
+                // or the "private page" data (_public).
+                if Self::can_access_page(ctx, user_permissions).await? {
+                    tide::log::debug!("User has page access, return text data");
+
+                    let (wikitext, compiled_html) = try_join!(
+                        TextService::get(ctx, &page_revision.wikitext_hash),
+                        TextService::get(ctx, &page_revision.compiled_hash),
+                    )?;
+
+                    (
+                        PageStatus::Found {
+                            page,
+                            page_revision,
+                        },
+                        wikitext,
+                        compiled_html,
+                    )
+                } else {
+                    tide::log::warn!(
+                        "User doesn't have page access, returning permission page",
+                    );
+
+                    let GetSpecialPageOutput {
+                        wikitext,
+                        render_output,
+                    } = SpecialPageService::get(
+                        ctx,
+                        &site,
+                        SpecialPageType::Private,
+                        &locale,
+                        page_info,
+                    )
+                    .await?;
+
+                    let RenderOutput {
+                        html_output:
+                            HtmlOutput {
+                                body: compiled_html,
+                                ..
+                            },
+                        ..
+                    } = render_output;
+
+                    (PageStatus::Private, wikitext, compiled_html)
+                }
+            }
+            // The page is missing, fetch the "missing page" data (_404).
+            None => {
+                let GetSpecialPageOutput {
+                    wikitext,
+                    render_output,
+                } = SpecialPageService::get(
+                    ctx,
+                    &site,
+                    SpecialPageType::Missing,
+                    &locale,
+                    page_info,
+                )
+                .await?;
+
+                let RenderOutput {
+                    html_output:
+                        HtmlOutput {
+                            body: compiled_html,
+                            ..
+                        },
+                    ..
+                } = render_output;
+
+                (PageStatus::Missing, wikitext, compiled_html)
+            }
+        };
 
         // TODO Check if user-agent and IP match?
 
-        Ok(GetPageViewOutput {
-            viewer: Viewer {
-                site,
-                redirect_site,
-                user_session,
+        let viewer = Viewer {
+            site,
+            redirect_site,
+            user_session,
+        };
+
+        let output = match status {
+            PageStatus::Found {
+                page,
+                page_revision,
+            } => GetPageViewOutput::PageFound {
+                viewer,
+                options,
+                page,
+                page_revision,
+                redirect_page,
+                wikitext,
+                compiled_html,
             },
-            options,
-            page,
-            page_revision,
-            redirect_page,
-            wikitext,
-            compiled_html,
-        })
+            PageStatus::Missing => GetPageViewOutput::PageMissing {
+                viewer,
+                options,
+                redirect_page,
+                wikitext,
+                compiled_html,
+            },
+            PageStatus::Private => GetPageViewOutput::PagePermissions {
+                viewer,
+                options,
+                redirect_page,
+                compiled_html,
+            },
+        };
+
+        Ok(output)
     }
 
     /// Gets basic data and runs common logic for all web routes.
@@ -112,14 +278,32 @@ impl ViewService {
     /// operations, such as slug normalization or redirect site aliases.
     pub async fn get_viewer(
         ctx: &ServiceContext<'_>,
+        locale: &LanguageIdentifier,
         domain: &str,
         session_token: Option<&str>,
-    ) -> Result<Viewer> {
+    ) -> Result<ViewerResult> {
         tide::log::info!("Getting viewer data from domain '{domain}' and session token");
 
         // Get site data
-        let site = DomainService::site_from_domain(ctx, domain).await?;
-        let redirect_site = Self::should_redirect_site(ctx, &site, domain);
+        let (site, redirect_site) =
+            match DomainService::site_from_domain_optional(ctx, domain).await? {
+                SiteDomainResult::Found(site) => {
+                    let redirect_site = Self::should_redirect_site(ctx, &site, domain);
+                    (site, redirect_site)
+                }
+                SiteDomainResult::Slug(slug) => {
+                    let html = Self::missing_site_output(ctx, locale, domain, Some(slug))
+                        .await?;
+
+                    return Ok(ViewerResult::MissingSite(html));
+                }
+                SiteDomainResult::CustomDomain(domain) => {
+                    let html =
+                        Self::missing_site_output(ctx, locale, domain, None).await?;
+
+                    return Ok(ViewerResult::MissingSite(html));
+                }
+            };
 
         // Get user data from session token (if present)
         let user_session = match session_token {
@@ -132,16 +316,65 @@ impl ViewService {
                 Some(UserSession {
                     session,
                     user,
-                    user_permissions: (), // TODO add user permissions, get scheme for user and site
+                    user_permissions: UserPermissions, // TODO add user permissions, get scheme for user and site
                 })
             }
         };
 
-        Ok(Viewer {
+        Ok(ViewerResult::FoundSite(Viewer {
             site,
             redirect_site,
             user_session,
-        })
+        }))
+    }
+
+    /// Produce output for cases where a site does not exist.
+    async fn missing_site_output(
+        ctx: &ServiceContext<'_>,
+        locale: &LanguageIdentifier,
+        domain: &str,
+        site_slug: Option<&str>,
+    ) -> Result<String> {
+        let config = ctx.config();
+        match site_slug {
+            // No site with slug error
+            Some(site_slug) => {
+                let mut args = FluentArgs::new();
+                args.set("slug", fluent_str!(site_slug));
+                args.set("domain", fluent_str!(config.main_domain_no_dot));
+
+                let html =
+                    ctx.localization()
+                        .translate(locale, "wiki-page-site-slug", &args)?;
+
+                Ok(html.to_string())
+            }
+
+            // Custom domain missing error
+            None => {
+                let mut args = FluentArgs::new();
+                args.set("custom_domain", fluent_str!(domain));
+                args.set("domain", fluent_str!(config.main_domain_no_dot));
+
+                let html = ctx.localization().translate(
+                    locale,
+                    "wiki-page-site-custom",
+                    &args,
+                )?;
+
+                Ok(html.to_string())
+            }
+        }
+    }
+
+    async fn can_access_page(
+        _ctx: &ServiceContext<'_>,
+        permissions: UserPermissions,
+    ) -> Result<bool> {
+        tide::log::info!("Checking page access: {permissions:?}");
+        tide::log::debug!("TODO: stub");
+        // TODO perform permission checks
+        Ok(true)
     }
 
     fn should_redirect_site(

@@ -41,7 +41,14 @@ path = "/opt/locales"
 [ftml]
 render-timeout-ms = 2000
 
+[special-pages]
+special-prefix = "_"
+template = "_template"
+missing = "_404"
+private = "_public"
+
 [user]
 default-name-changes = 2
-max-name-changes = 3
+maximum-name-changes = 3
+minimum-name-bytes = 3
 refill-name-change-days = 90

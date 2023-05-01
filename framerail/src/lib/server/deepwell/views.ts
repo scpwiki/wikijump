@@ -8,9 +8,9 @@ export interface PageRoute {
 
 export async function pageView(
   domain: string,
+  locale: string,
   route: Optional<PageRoute>,
-  sessionToken: Optional<string>,
-  language: string
+  sessionToken: Optional<string>
 ): object {
   const response = await wellfetch("/view/page", {
     method: "PUT",
@@ -19,6 +19,7 @@ export async function pageView(
     },
     body: JSON.stringify({
       domain,
+      locale,
       sessionToken,
       route
     })

@@ -9,3 +9,25 @@ wiki-page-last-edit = last-edited: { $date } ({ $days ->
   [1] yesterday
   *[other] { $days } days ago
 })
+
+### Special Page fallback strings
+
+wiki-page-missing = The page //{ $slug }// you want to access does not exist.
+
+    { " *" } [/{ $slug }/edit create this page].
+
+wiki-page-private = + Private content
+
+    This area of the website is private and you don't have access to it. If you believe you need access to this area please contact the web site administrators.
+
+wiki-page-site-slug = <h1>No { -service-name } site exists with this address.</h1>
+    <p>
+      <a href="https://{ $slug }.{ $domain }/">{ $slug }.{ $domain }</a> does not exist.
+      Return to <a href="https://{ $domain }/">{ -service-name }</a>.
+    </p>
+
+wiki-page-site-custom = <h1>No { -service-name } site exists with this address.</h1>
+    <p>
+      No site has the custom domain <a href="https://{ $custom_domain }/">{ $custom_domain }</a>.
+      Return to <a href="https://{ $domain }/">{ -service-name }</a>.
+    </p>

@@ -25,6 +25,10 @@ services:
         source: ../../../deepwell/seeder
         target: /src/deepwell/seeder
         read_only: true
+      # Configuration data
+      - type: bind
+        source: ../../../install/files/local/deepwell.toml
+        target: /etc/deepwell.toml
       # Translation data
       - type: bind
         source: ../../../locales

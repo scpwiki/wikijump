@@ -6,6 +6,8 @@
 <p class="spin-yay">UNTRANSLATED:This is some other page on the site</p>
 <p>UNTRANSLATED:Response <textarea class="debug">{JSON.stringify(data)}</textarea></p>
 
+{@html data.compiledHtml}
+
 <style global lang="scss">
   @keyframes spin {
     from {

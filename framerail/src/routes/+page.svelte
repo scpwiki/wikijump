@@ -8,6 +8,19 @@
 </p>
 <p>UNTRANSLATED:Response <textarea class="debug">{JSON.stringify(data)}</textarea></p>
 
+{@html data.compiledHtml}
+
+{#if data.view === "pageMissing"}
+  UNTRANSLATED:TODO fix error page
+  {@html page.error.compiledHtml}
+{:else if data.view === "pagePermissions"}
+  UNTRANSLATED:TODO fix error page
+  {@html page.error.compiledHtml}
+{:else if data.view === "siteMissing"}
+  UNTRANSLATED:TODO fix error page
+  {@html page.error.html}
+{/if}
+
 <style global lang="scss">
   @keyframes spin {
     from {

@@ -1,5 +1,5 @@
 /*
- * services/render/structs.rs
+ * services/special_page/mod.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -18,14 +18,18 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
-use crate::hash::TextHash;
+//! The "special pages" service.
+//!
+//! This encompasses per-site configurable templates such as `_404`,
+//! which display custom "this page does not exist" content.
 
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct RenderOutput {
-    pub html_output: HtmlOutput,
-    pub errors: Vec<ParseError>,
-    pub compiled_hash: TextHash,
-    pub compiled_generator: String,
+mod prelude {
+    pub use super::super::prelude::*;
+    pub use super::structs::*;
 }
+
+mod service;
+mod structs;
+
+pub use self::service::SpecialPageService;
+pub use self::structs::*;

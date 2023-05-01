@@ -1,5 +1,5 @@
 /*
- * services/render/structs.rs
+ * services/special_page/structs.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -18,14 +18,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
-use crate::hash::TextHash;
+use crate::services::render::RenderOutput;
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "kebab-case")]
+pub enum SpecialPageType {
+    Template,
+    Missing,
+    Private,
+}
 
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct RenderOutput {
-    pub html_output: HtmlOutput,
-    pub errors: Vec<ParseError>,
-    pub compiled_hash: TextHash,
-    pub compiled_generator: String,
+pub struct GetSpecialPageOutput {
+    pub wikitext: String,
+    pub render_output: RenderOutput,
 }

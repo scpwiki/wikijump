@@ -374,7 +374,7 @@
     {
         "site": null,
         "regex": "^xn-{1,}",
-        "descriptoin": "Looks like/is punycode",
+        "description": "Looks like/is punycode",
         "case_sensitive": false,
         "user": true
     },

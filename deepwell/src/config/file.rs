@@ -49,6 +49,7 @@ pub struct ConfigFile {
     domain: Domain,
     job: Job,
     ftml: Ftml,
+    special_pages: SpecialPages,
     user: User,
 }
 
@@ -129,9 +130,18 @@ struct Ftml {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "kebab-case")]
+struct SpecialPages {
+    special_prefix: String,
+    template: String,
+    missing: String,
+    private: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "kebab-case")]
 struct User {
     default_name_changes: u8,
-    max_name_changes: u8,
+    maximum_name_changes: u8,
     refill_name_change_days: u64,
     minimum_name_bytes: usize,
 }
@@ -195,8 +205,8 @@ impl ConfigFile {
                 },
             domain:
                 Domain {
-                    main: mut main_domain,
-                    files: mut files_domain,
+                    main: main_domain,
+                    files: files_domain,
                 },
             job:
                 Job {
@@ -208,10 +218,17 @@ impl ConfigFile {
                 path: localization_path,
             },
             ftml: Ftml { render_timeout_ms },
+            special_pages:
+                SpecialPages {
+                    special_prefix: special_page_prefix,
+                    template: special_page_template,
+                    missing: special_page_missing,
+                    private: special_page_private,
+                },
             user:
                 User {
                     default_name_changes,
-                    max_name_changes,
+                    maximum_name_changes,
                     refill_name_change_days,
                     minimum_name_bytes,
                 },
@@ -219,8 +236,8 @@ impl ConfigFile {
 
         // Prefix domains with '.' so we can do easy subdomain checks
         // and concatenations.
-        prefix_domain(&mut main_domain);
-        prefix_domain(&mut files_domain);
+        let (main_domain, main_domain_no_dot) = prefix_domain(main_domain);
+        let (files_domain, files_domain_no_dot) = prefix_domain(files_domain);
 
         // Treats empty strings (which aren't valid paths anyways)
         // as null for the purpose of pid_file.
@@ -237,7 +254,9 @@ impl ConfigFile {
             address,
             pid_file,
             main_domain,
+            main_domain_no_dot,
             files_domain,
+            files_domain_no_dot,
             run_migrations,
             run_seeder,
             seeder_path,
@@ -263,8 +282,12 @@ impl ConfigFile {
             job_prune_session_period: StdDuration::from_secs(prune_session_secs),
             job_prune_text_period: StdDuration::from_secs(prune_text_secs),
             render_timeout: StdDuration::from_millis(render_timeout_ms),
+            special_page_prefix,
+            special_page_template,
+            special_page_missing,
+            special_page_private,
             default_name_changes: i16::from(default_name_changes),
-            max_name_changes: i16::from(max_name_changes),
+            maximum_name_changes: i16::from(maximum_name_changes),
             refill_name_change: StdDuration::from_secs(
                 refill_name_change_days * 24 * 60 * 60,
             ),
@@ -273,8 +296,34 @@ impl ConfigFile {
     }
 }
 
-fn prefix_domain(domain: &mut String) {
-    if !domain.starts_with('.') {
-        domain.insert(0, '.');
+/// Takes a domain, and returns a value with and without a leading `.`
+///
+/// # Returns
+/// Tuple with two items. First has a leading `.`, second does not.
+fn prefix_domain(domain: String) -> (String, String) {
+    if domain.starts_with('.') {
+        let mut no_dot = domain.clone();
+        no_dot.remove(0);
+
+        (domain, no_dot)
+    } else {
+        let dot_domain = format!(".{domain}");
+
+        (dot_domain, domain)
     }
+}
+
+#[test]
+fn test_prefix_domain() {
+    macro_rules! check {
+        ($input:expr; $output_1:expr, $output_2:expr $(,)?) => {{
+            let (actual_1, actual_2) = prefix_domain(str!($input));
+
+            assert_eq!(actual_1, $output_1, "Actual dot domain doesn't match");
+            assert_eq!(actual_2, $output_2, "Actual no-dot domain doesn't match");
+        }};
+    }
+
+    check!("example.com"; ".example.com", "example.com");
+    check!(".example.com"; ".example.com", "example.com");
 }

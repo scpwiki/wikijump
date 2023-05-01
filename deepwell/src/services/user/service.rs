@@ -507,7 +507,7 @@ impl UserService {
         let txn = ctx.transaction();
         let user = Self::get(ctx, reference).await?;
 
-        let max_name_changes = ctx.config().max_name_changes;
+        let max_name_changes = ctx.config().maximum_name_changes;
         let name_changes = cmp::min(user.name_changes_left + 1, max_name_changes);
         let model = user::ActiveModel {
             user_id: Set(user.user_id),

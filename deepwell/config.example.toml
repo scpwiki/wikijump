@@ -196,6 +196,35 @@ path = "../locales"
 render-timeout-ms = 2000
 
 
+[special-pages]
+
+# List of special pages, by slug.
+# These are used as templates in certain cases.
+
+# Any pages whose slug begin with this prefix are
+# treated as "special".
+#
+# This means that regular users cannot create these pages,
+# and that normal template processing does not apply
+# (to avoid infinite regress and other issues).
+special-prefix = "_"
+
+# This is included in all pages within this category,
+# or for _default, all pages in all categories without
+# a more specific _template page.
+#
+# Fallback is the fixed string "%%content%%"
+template = "_template"
+
+# When a page has not yet been created.
+# Fallback string is localized as "wiki-page-missing"
+missing = "_404"
+
+# When a user lacks permissions to see a page.
+# Fallback string is localized as "wiki-page-private"
+private = "_public"
+
+
 [user]
 
 # The number of name changes a user has by default.
@@ -205,13 +234,7 @@ default-name-changes = 2
 #
 # Attempting to add additional name change tokens to
 # a user will top out at this amount.
-max-name-changes = 3
-
-# Every this many days, all users get another
-# name change token (up to the cap). Checked hourly.
-#
-# Set to 0 to disable.
-refill-name-change-days = 90
+maximum-name-changes = 3
 
 # The minimum length for a user's name in bytes.
 # A user who attempts to register must have a slug which is at least this long.
@@ -220,7 +243,13 @@ refill-name-change-days = 90
 # such as single Latin letters (e.g. "N"). However, we check *bytes* specifically to
 # avoid Anglo-centricism, as many full names in other languages fit within two letters
 # (consider CJK for instance). Single characters outside of the main ASCII block
-# usually take up two or three bytes themselves, making it a non-issue for those languages. 
+# usually take up two or three bytes themselves, making it a non-issue for those languages.
 #
 # See WJ-1122.
-min-byte-length = 3
+minimum-name-bytes = 3
+
+# Every this many days, all users get another
+# name change token (up to the cap). Checked hourly.
+#
+# Set to 0 to disable.
+refill-name-change-days = 90

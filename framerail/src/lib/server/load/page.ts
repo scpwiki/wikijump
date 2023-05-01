@@ -17,30 +17,67 @@ export async function loadPage(
   const sessionToken = cookies.get("wikijump_token")
   const language = request.headers.get("Accept-Language")
 
+  // TODO set up svelte i18n, see WJ-1175
+  //
+  // TODO also set up deepwell fluent so that fallback
+  //      languages are used, i.e. if I do en-GB it falls back to
+  //      en generic
+  const locale = "en"
+
   // Request data from backend
-  const view = await pageView(domain, route, sessionToken, language)
+  const response = await pageView(domain, locale, route, sessionToken)
 
   // Process response, performing redirects etc
-  doRedirect(view, domain, slug, extra)
+  const viewData = response.data
+  viewData.view = response.type
+
+  let checkRedirect = true
+  let errorStatus = null
+
+  switch (response.type) {
+    case "pageFound":
+      break
+    case "pageMissing":
+      viewData.page = null
+      viewData.pageRevision = null
+      errorStatus = 404
+      break
+    case "pagePermissions":
+      errorStatus = 403
+      break
+    case "siteMissing":
+      checkRedirect = false
+      errorStatus = 404
+  }
+
+  if (errorStatus !== null) {
+    // TODO fix +error.svelte?
+    // throw error(errorStatus, viewData)
+  }
+
+  // TODO remove checkRedirect when errorStatus is fixed
+  if (checkRedirect) {
+    runRedirect(viewData, domain, slug, extra)
+  }
 
   // Return to page for rendering
   // TODO make page view into a component
-  return view
+  return viewData
 }
 
-function doRedirect(
-  view,
+function runRedirect(
+  viewData,
   originalDomain: string,
   originalSlug: Optional<string>,
   extra: Optional<string>
 ): void {
-  if (!view.redirectSite && !view.redirectPage) {
+  if (!viewData.redirectSite && !viewData.redirectPage) {
     // Nothing to do
     return
   }
 
-  const domain: string = view.redirectSite || originalDomain
-  const slug: Optional<string> = view.redirectPage || originalSlug
+  const domain: string = viewData.redirectSite || originalDomain
+  const slug: Optional<string> = viewData.redirectPage || originalSlug
   const route: string = buildRoute(slug, extra)
   throw redirect(308, `https://${domain}/${route}`)
 }

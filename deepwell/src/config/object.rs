@@ -50,10 +50,20 @@ pub struct Config {
     pub pid_file: Option<PathBuf>,
 
     /// The main domain to serve sites from.
+    ///
+    /// Always starts with a `.`
     pub main_domain: String,
 
+    /// The main domain, but without a leading `.`
+    pub main_domain_no_dot: String,
+
     /// The files domain to serve user-generated content from.
+    ///
+    /// Always starts with a `.`
     pub files_domain: String,
+
+    /// The files domain, but without a leading `.`
+    pub files_domain_no_dot: String,
 
     /// Whether to run migrations on startup.
     pub run_migrations: bool,
@@ -107,11 +117,23 @@ pub struct Config {
     /// Maximum run time for a render request.
     pub render_timeout: StdDuration,
 
+    /// Prefix for "special pages". Default: `_`
+    pub special_page_prefix: String,
+
+    /// Page slug for the template page. Default: `_template`
+    pub special_page_template: String,
+
+    /// Page slug for pages that don't exist. Default: `_404`
+    pub special_page_missing: String,
+
+    /// Page slug for pages you don't have permission to see. Default: `_public`
+    pub special_page_private: String,
+
     /// Default name changes per user.
     pub default_name_changes: i16,
 
     /// Maximum name changes per user.
-    pub max_name_changes: i16,
+    pub maximum_name_changes: i16,
 
     /// How long until a user gets another name change token.
     pub refill_name_change: StdDuration,

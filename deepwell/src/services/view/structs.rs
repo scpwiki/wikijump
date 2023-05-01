@@ -25,12 +25,17 @@ use crate::models::session::Model as SessionModel;
 use crate::models::site::Model as SiteModel;
 use crate::models::user::Model as UserModel;
 
+// TODO replace with actual user permissions type
+#[derive(Serialize, Deserialize, Debug, Copy, Clone)]
+pub struct UserPermissions;
+
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct GetPageView {
     pub domain: String,
     pub session_token: Option<String>,
     pub route: Option<PageRoute>,
+    pub locale: String,
 }
 
 #[derive(Deserialize, Debug)]
@@ -41,17 +46,47 @@ pub struct PageRoute {
 }
 
 #[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct GetPageViewOutput {
-    #[serde(flatten)]
-    pub viewer: Viewer,
-    pub options: PageOptions,
+#[serde(rename_all = "camelCase", tag = "type", content = "data")]
+pub enum GetPageViewOutput {
+    #[serde(rename_all = "camelCase")]
+    PageFound {
+        #[serde(flatten)]
+        viewer: Viewer,
+        options: PageOptions,
+        page: PageModel,
+        page_revision: PageRevisionModel,
+        redirect_page: Option<String>,
+        wikitext: String,
+        compiled_html: String,
+    },
 
-    pub page: PageModel,
-    pub page_revision: PageRevisionModel,
-    pub redirect_page: Option<String>,
-    pub wikitext: String,
-    pub compiled_html: String,
+    #[serde(rename_all = "camelCase")]
+    PageMissing {
+        #[serde(flatten)]
+        viewer: Viewer,
+        options: PageOptions,
+        redirect_page: Option<String>,
+        wikitext: String,
+        compiled_html: String,
+    },
+
+    #[serde(rename_all = "camelCase")]
+    PagePermissions {
+        #[serde(flatten)]
+        viewer: Viewer,
+        options: PageOptions,
+        redirect_page: Option<String>,
+        compiled_html: String,
+    },
+
+    #[serde(rename_all = "camelCase")]
+    SiteMissing { html: String },
+}
+
+#[derive(Debug)]
+pub enum ViewerResult {
+    FoundSite(Viewer),
+    MissingSite(String),
 }
 
 #[derive(Serialize, Debug)]
@@ -67,5 +102,5 @@ pub struct Viewer {
 pub struct UserSession {
     pub session: SessionModel,
     pub user: UserModel,
-    pub user_permissions: (),
+    pub user_permissions: UserPermissions,
 }
