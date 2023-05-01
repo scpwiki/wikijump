@@ -5,6 +5,8 @@
 {#switch data.view}
   {:case "page"}
     UNTRANSLATED:Page view
+  {:case "pagePermissions"}
+    UNTRANSLATED:Page no access error
   {:case "siteMissing"}
     {@html data.html}
 {/switch}

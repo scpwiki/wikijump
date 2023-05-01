@@ -40,6 +40,10 @@ export async function loadPage(
       viewData.page = null
       viewData.pageRevision = null
       break
+    case 'pagePermissions':
+      viewData = response.data
+      viewData.view = 'pagePermissions'
+      break
     case 'siteMissing':
       viewData = response.data
       viewData.view = 'siteMissing'
