@@ -80,9 +80,7 @@ pub enum GetPageViewOutput {
     },
 
     #[serde(rename_all = "camelCase")]
-    SiteMissing {
-        html: String,
-    },
+    SiteMissing { html: String },
 }
 
 #[derive(Debug)]

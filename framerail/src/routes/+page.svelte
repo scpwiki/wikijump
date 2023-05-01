@@ -10,13 +10,13 @@
 
 {@html data.compiledHtml}
 
-{#if data.view == "pageMissing"}
+{#if data.view === "pageMissing"}
   UNTRANSLATED:TODO fix error page
   {@html page.error.compiledHtml}
-{:else if data.view == "pagePermissions"}
+{:else if data.view === "pagePermissions"}
   UNTRANSLATED:TODO fix error page
   {@html page.error.compiledHtml}
-{:else if data.view == "siteMissing"}
+{:else if data.view === "siteMissing"}
   UNTRANSLATED:TODO fix error page
   {@html page.error.html}
 {/if}
