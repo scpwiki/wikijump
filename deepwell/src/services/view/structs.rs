@@ -25,6 +25,10 @@ use crate::models::session::Model as SessionModel;
 use crate::models::site::Model as SiteModel;
 use crate::models::user::Model as UserModel;
 
+// TODO replace with actual user permissions type
+#[derive(Serialize, Deserialize, Debug, Copy, Clone)]
+pub struct UserPermissions;
+
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct GetPageView {
@@ -96,5 +100,5 @@ pub struct Viewer {
 pub struct UserSession {
     pub session: SessionModel,
     pub user: UserModel,
-    pub user_permissions: (),
+    pub user_permissions: UserPermissions,
 }

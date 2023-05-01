@@ -149,7 +149,7 @@ impl ViewService {
                         );
 
                         // TODO get permissions from service
-                        ()
+                        UserPermissions
                     }
                 };
 
@@ -316,7 +316,7 @@ impl ViewService {
                 Some(UserSession {
                     session,
                     user,
-                    user_permissions: (), // TODO add user permissions, get scheme for user and site
+                    user_permissions: UserPermissions, // TODO add user permissions, get scheme for user and site
                 })
             }
         };
@@ -367,7 +367,10 @@ impl ViewService {
         }
     }
 
-    async fn can_access_page(_ctx: &ServiceContext<'_>, permissions: ()) -> Result<bool> {
+    async fn can_access_page(
+        _ctx: &ServiceContext<'_>,
+        permissions: UserPermissions,
+    ) -> Result<bool> {
         tide::log::info!("Checking page access: {permissions:?}");
         tide::log::debug!("TODO: stub");
         // TODO perform permission checks
