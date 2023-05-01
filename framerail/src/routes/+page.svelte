@@ -2,29 +2,24 @@
   export let data
 </script>
 
-<!--
-Use svelte-switch-case package with {#switch data.view}
-as soon as we can figure out prettier support for it.
--->
-{#if data.view == "pageFound"}
-  UNTRANSLATED:Page view
-  {@html data.compiledHtml}
-{:else if data.view == "pageMissing"}
-  UNTRANSLATED:Page not found
-  {@html data.compiledHtml}
-{:else if data.view == "pagePermissions"}
-  UNTRANSLATED:Lacks permissions for page
-  {@html data.compiledHtml}
-{:else if data.view == "siteMissing"}
-  UNTRANSLATED:No such site
-  {@html data.html}
-{/if}
-
 <h1>UNTRANSLATED:Loaded main page</h1>
 <p class="spin-yay">
   UNTRANSLATED:This is the page loaded with the start page for the site
 </p>
 <p>UNTRANSLATED:Response <textarea class="debug">{JSON.stringify(data)}</textarea></p>
+
+{@html data.compiledHtml}
+
+{#if data.view == "pageMissing"}
+  UNTRANSLATED:TODO fix error page
+  {@html page.error.compiledHtml}
+{:else if data.view == "pagePermissions"}
+  UNTRANSLATED:TODO fix error page
+  {@html page.error.compiledHtml}
+{:else if data.view == "siteMissing"}
+  UNTRANSLATED:TODO fix error page
+  {@html page.error.html}
+{/if}
 
 <style global lang="scss">
   @keyframes spin {

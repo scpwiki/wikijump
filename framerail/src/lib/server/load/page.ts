@@ -1,6 +1,6 @@
 import { pageView } from "$lib/server/deepwell/views.ts"
 import type { Optional } from "$lib/types.ts"
-import { redirect } from "@sveltejs/kit"
+import { error, redirect } from "@sveltejs/kit"
 
 // TODO form single deepwell request that does all the relevant prep stuff here
 
@@ -32,7 +32,7 @@ export async function loadPage(
   viewData.view = response.type
 
   let checkRedirect = true
-  let status = null
+  let errorStatus = null
 
   switch (response.type) {
     case "pageFound":
@@ -40,16 +40,22 @@ export async function loadPage(
     case "pageMissing":
       viewData.page = null
       viewData.pageRevision = null
-      status = 404
+      errorStatus = 404
       break
     case "pagePermissions":
-      status = 403
+      errorStatus = 403
       break
     case "siteMissing":
       checkRedirect = false
-      status = 404
+      errorStatus = 404
   }
 
+  if (errorStatus !== null) {
+    // TODO fix +error.svelte?
+    // throw error(errorStatus, viewData)
+  }
+
+  // TODO remove checkRedirect when errorStatus is fixed
   if (checkRedirect) {
     runRedirect(viewData, domain, slug, extra)
   }
