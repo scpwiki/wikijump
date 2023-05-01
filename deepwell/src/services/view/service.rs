@@ -123,16 +123,38 @@ impl ViewService {
                 Some(page) => {
                     // TODO determine if page needs rerender?
 
+                    // Get associated revision
                     let page_revision =
                         PageRevisionService::get_latest(ctx, site.site_id, page.page_id)
                             .await?;
 
-                    let (wikitext, compiled_html) = try_join!(
-                        TextService::get(ctx, &page_revision.wikitext_hash),
-                        TextService::get(ctx, &page_revision.compiled_hash),
-                    )?;
+                    // Check user access to page
+                    let user_permissions = match user_session {
+                        Some(ref session) => session.user_permissions,
+                        None => {
+                            tide::log::debug!(
+                                "No user for session, getting guest permission scheme",
+                            );
 
-                    (Some((page, page_revision)), wikitext, compiled_html)
+                            // TODO get permissions from service
+                            ()
+                        }
+                    };
+
+                    if Self::can_access_page(ctx, user_permissions).await? {
+                        let (wikitext, compiled_html) = try_join!(
+                            TextService::get(ctx, &page_revision.wikitext_hash),
+                            TextService::get(ctx, &page_revision.compiled_hash),
+                        )?;
+
+                        (Some((page, page_revision)), wikitext, compiled_html)
+                    } else {
+                        tide::log::warn!(
+                            "User doesn't have page access, returning permission page",
+                        );
+
+                        todo!()
+                    }
                 }
                 // The page is missing, fetch the "missing page" data (_404).
                 None => {
@@ -290,6 +312,13 @@ impl ViewService {
                 Ok(html.to_string())
             }
         }
+    }
+
+    async fn can_access_page(ctx: &ServiceContext<'_>, permissions: ()) -> Result<bool> {
+        tide::log::info!("Checking page access: {permissions:?}");
+        tide::log::debug!("TODO: stub");
+        // TODO perform permission checks
+        Ok(true)
     }
 
     fn should_redirect_site(
