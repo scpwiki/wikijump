@@ -28,7 +28,7 @@ pub use self::object::Config;
 pub use self::secrets::Secrets;
 
 use self::args::parse_args;
-use self::special_action::SpecialAction;
+use self::special_action::run_special_action;
 
 #[derive(Debug, Clone)]
 pub struct SetupConfig {
@@ -38,8 +38,7 @@ pub struct SetupConfig {
 
 impl SetupConfig {
     pub fn load() -> Self {
-        SpecialAction::run(); // if set, run the action then quit
-
+        run_special_action();
         let secrets = Secrets::load();
         let config = parse_args();
 

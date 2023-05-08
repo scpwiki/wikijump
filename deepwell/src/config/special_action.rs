@@ -18,9 +18,54 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#[derive(Debug)]
-pub enum SpecialAction {}
+//! Perform a "special action" instead of normal server execution.
+//!
+//! This is useful in contexts such as CI, where we want DEEPWELL to
+//! not run as a daemon, but instead perform a special action or check,
+//! as if motivated by a script.
 
-impl SpecialAction {
-    pub fn run() {}
+use super::Config;
+use std::path::PathBuf;
+use std::{env, process};
+
+pub fn run_special_action() {
+    // Get action name, if specified.
+    // Otherwise return and perform normal execution.
+    let action_name = match env::var("DEEPWELL_SPECIAL_ACTION") {
+        Ok(value) => value,
+        Err(_) => return,
+    };
+
+    // Run appropriate special action.
+    let return_code = match action_name.as_str() {
+        "config" | "validate-config" => validate_config(),
+        _ => {
+            eprintln!("Unknown special action: {action_name}");
+            process::exit(1);
+        }
+    };
+
+    // Exit, don't perform normal server execution.
+    process::exit(return_code);
+}
+
+fn validate_config() -> i32 {
+    println!("Running special action: Validate configuration");
+
+    let mut return_code = 0;
+    for value in env::args_os().skip(1) {
+        let path = PathBuf::from(value);
+        print!("Checking {}... ", path.display());
+
+        match Config::load(&path) {
+            Ok(_) => println!("success"),
+            Err(error) => {
+                println!("error");
+                eprintln!("{error}");
+                return_code += 1;
+            }
+        }
+    }
+
+    return_code
 }
