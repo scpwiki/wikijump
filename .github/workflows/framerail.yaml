@@ -24,6 +24,9 @@ jobs:
           version: latest
           run_install: true
 
+      - name: Setup Playwright
+        run: npx playwright install
+
       - name: Build
         run: pnpm build
 
