@@ -36,8 +36,8 @@ pub struct SetupConfig {
 
 impl SetupConfig {
     pub fn load() -> Self {
-        let secrets = Secrets::load();
         let config = parse_args();
+        let secrets = Secrets::load();
 
         SetupConfig { secrets, config }
     }
