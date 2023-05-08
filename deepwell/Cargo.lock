@@ -486,7 +486,7 @@ dependencies = [
  "serde",
  "serde-xml-rs",
  "thiserror",
- "time 0.3.20",
+ "time 0.3.21",
  "url",
 ]
 
@@ -1227,7 +1227,7 @@ dependencies = [
  "subtle",
  "thiserror",
  "tide",
- "time 0.3.20",
+ "time 0.3.21",
  "tiny-keccak",
  "toml 0.7.3",
  "typenum",
@@ -1541,7 +1541,7 @@ dependencies = [
  "str-macro",
  "strum",
  "strum_macros",
- "time 0.3.20",
+ "time 0.3.21",
  "tinyvec",
  "unicase",
  "void",
@@ -3151,7 +3151,7 @@ dependencies = [
  "sha2 0.10.6",
  "surf",
  "thiserror",
- "time 0.3.20",
+ "time 0.3.21",
  "url",
 ]
 
@@ -3309,7 +3309,7 @@ dependencies = [
  "serde_json",
  "sqlx",
  "thiserror",
- "time 0.3.20",
+ "time 0.3.21",
  "tracing",
  "url",
  "uuid",
@@ -3336,7 +3336,7 @@ checksum = "5dd34be05fdde9ec79231414bdd44ba1aa9c57349190076699e90721cb5eb59b"
 dependencies = [
  "sea-query-derive",
  "serde_json",
- "time 0.3.20",
+ "time 0.3.21",
 ]
 
 [[package]]
@@ -3348,7 +3348,7 @@ dependencies = [
  "sea-query",
  "serde_json",
  "sqlx",
- "time 0.3.20",
+ "time 0.3.21",
 ]
 
 [[package]]
@@ -3736,7 +3736,7 @@ dependencies = [
  "sqlx-rt",
  "stringprep",
  "thiserror",
- "time 0.3.20",
+ "time 0.3.21",
  "url",
  "webpki-roots 0.22.6",
  "whoami",
@@ -4041,21 +4041,21 @@ dependencies = [
 
 [[package]]
 name = "time"
-version = "0.3.20"
+version = "0.3.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cd0cbfecb4d19b5ea75bb31ad904eb5b9fa13f21079c3b92017ebdf4999a5890"
+checksum = "8f3403384eaacbca9923fa06940178ac13e4edb725486d70e8e15881d0c836cc"
 dependencies = [
  "itoa",
  "serde",
  "time-core",
- "time-macros 0.2.8",
+ "time-macros 0.2.9",
 ]
 
 [[package]]
 name = "time-core"
-version = "0.1.0"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2e153e1f1acaef8acc537e68b44906d2db6436e2b35ac2c6b42640fff91f00fd"
+checksum = "7300fbefb4dadc1af235a9cef3737cea692a9d97e1b9cbcd4ebdae6f8868e6fb"
 
 [[package]]
 name = "time-macros"
@@ -4069,9 +4069,9 @@ dependencies = [
 
 [[package]]
 name = "time-macros"
-version = "0.2.8"
+version = "0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fd80a657e71da814b8e5d60d3374fc6d35045062245d80224748ae522dd76f36"
+checksum = "372950940a5f07bf38dbe211d7283c9e6d7327df53794992d293e534c733d09b"
 dependencies = [
  "time-core",
 ]
