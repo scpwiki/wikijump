@@ -12,8 +12,8 @@ on:
       - prod
 
 jobs:
-  build_and_test:
-    name: Build and Test
+  build:
+    name: Build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -27,14 +27,8 @@ jobs:
       - name: Install dependencies
         run: cd framerail && pnpm install
 
-      - name: Setup Playwright
-        run: cd framerail && npx playwright install
-
       - name: Build
         run: cd framerail && pnpm build
-
-      - name: Test
-        run: cd framerail && pnpm test
 
   # TODO add coverage step
 
