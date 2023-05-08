@@ -105,6 +105,13 @@ pub fn parse_args() -> Config {
                 .help("The path to read translation files from."),
         )
         .arg(
+            Arg::new("special-action")
+                .short('x')
+                .long("special")
+                .action(ArgAction::Set)
+                .help("Run this special action instead of starting the daemon."),
+        )
+        .arg(
             Arg::new("config-file")
                 .value_parser(value_parser!(PathBuf))
                 .action(ArgAction::Set)
