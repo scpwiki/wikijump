@@ -12,13 +12,13 @@
 
 {#if data.view === "pageMissing"}
   UNTRANSLATED:TODO fix error page
-  {@html page.error.compiledHtml}
+  {@html data.compiledHtml}
 {:else if data.view === "pagePermissions"}
   UNTRANSLATED:TODO fix error page
-  {@html page.error.compiledHtml}
+  {@html data.compiledHtml}
 {:else if data.view === "siteMissing"}
   UNTRANSLATED:TODO fix error page
-  {@html page.error.html}
+  {@html data.html}
 {/if}
 
 <style global lang="scss">

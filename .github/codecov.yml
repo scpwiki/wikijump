@@ -16,11 +16,11 @@ comment:
   show_carryforward_flags: true
 
 flags:
-  # PHP backend and frontend
-  web:
+  # web frontend and server
+  framerail:
     carryforward: true
     paths:
-      - web/
+      - framerail/
 
   # ftml parser and renderer
   ftml:

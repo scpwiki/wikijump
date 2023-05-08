@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test"
 
-test("index page has expected h1", async ({ page }) => {
+test("Main page h1 has string", async ({ page }) => {
   // TODO
   await page.goto("/")
-  expect(await page.textContent("h1")).toBe("Welcome to SvelteKit")
+  expect(await page.textContent("h1")).toBe("UNTRANSLATED:Loaded main page")
 })
