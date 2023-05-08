@@ -25,16 +25,16 @@ jobs:
           version: latest
 
       - name: Install dependencies
-        run: pnpm install
+        run: cd framerail && pnpm install
 
       - name: Setup Playwright
-        run: npx playwright install
+        run: cd framerail && npx playwright install
 
       - name: Build
-        run: pnpm build
+        run: cd framerail && pnpm build
 
       - name: Test
-        run: pnpm test
+        run: cd framerail && pnpm test
 
   # TODO add coverage step
 
@@ -51,7 +51,7 @@ jobs:
           version: latest
 
       - name: Install dependencies
-        run: pnpm install
+        run: cd framerail && pnpm install
 
       - name: Lint
-        run: pnpm lint
+        run: cd framerail && pnpm lint
