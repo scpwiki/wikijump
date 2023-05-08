@@ -174,5 +174,21 @@ pub fn parse_args() -> Config {
         config.seeder_path = value;
     }
 
+    // Process special action, if any
+    if let Some(value) = matches.remove_one::<String>("special-action") {
+        match value.as_str() {
+            "config" => {
+                println!("Special action: Validate configuration only");
+
+                // The validation was performed earlier, so we simply exit at this stage
+                process::exit(0);
+            }
+            _ => {
+                eprintln!("Invalid special action: {value}");
+                process::exit(1);
+            }
+        }
+    }
+
     config
 }
