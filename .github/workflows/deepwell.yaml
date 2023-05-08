@@ -7,7 +7,7 @@ on:
       - 'deepwell/Cargo.lock'
       - 'deepwell/src/**'
       - '.github/workflows/deepwell.yaml'
-      - '.gihub/codecov.yml'
+      - '.github/codecov.yml'
       - 'deepwell/config.example.toml'
       - 'install/files/local/deepwell.toml'
       # TODO: add install/files/dev/deepwell.toml
