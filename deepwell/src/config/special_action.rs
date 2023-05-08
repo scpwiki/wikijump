@@ -1,5 +1,5 @@
 /*
- * config/mod.rs
+ * config/special_action.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -18,31 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod args;
-mod file;
-mod object;
-mod secrets;
-mod special_action;
+#[derive(Debug)]
+pub enum SpecialAction {}
 
-pub use self::object::Config;
-pub use self::secrets::Secrets;
-
-use self::args::parse_args;
-use self::special_action::SpecialAction;
-
-#[derive(Debug, Clone)]
-pub struct SetupConfig {
-    pub secrets: Secrets,
-    pub config: Config,
-}
-
-impl SetupConfig {
-    pub fn load() -> Self {
-        SpecialAction::run(); // if set, run the action then quit
-
-        let secrets = Secrets::load();
-        let config = parse_args();
-
-        SetupConfig { secrets, config }
-    }
+impl SpecialAction {
+    pub fn run() {}
 }

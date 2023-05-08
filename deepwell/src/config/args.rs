@@ -105,13 +105,6 @@ pub fn parse_args() -> Config {
                 .help("The path to read translation files from."),
         )
         .arg(
-            Arg::new("special-action")
-                .short('x')
-                .long("special")
-                .action(ArgAction::Set)
-                .help("Run this special action instead of starting the daemon."),
-        )
-        .arg(
             Arg::new("config-file")
                 .value_parser(value_parser!(PathBuf))
                 .action(ArgAction::Set)
@@ -172,22 +165,6 @@ pub fn parse_args() -> Config {
 
     if let Some(value) = matches.remove_one::<PathBuf>("seeder-path") {
         config.seeder_path = value;
-    }
-
-    // Process special action, if any
-    if let Some(value) = matches.remove_one::<String>("special-action") {
-        match value.as_str() {
-            "config" => {
-                println!("Special action: Validate configuration only");
-
-                // The validation was performed earlier, so we simply exit at this stage
-                process::exit(0);
-            }
-            _ => {
-                eprintln!("Invalid special action: {value}");
-                process::exit(1);
-            }
-        }
     }
 
     config
