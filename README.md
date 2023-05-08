@@ -12,12 +12,17 @@
 
   <a href="https://github.com/scpwiki/wikijump/actions?query=workflow%3A%22%5Bftml%5D+Rust%22">
     <img src="https://github.com/scpwiki/wikijump/workflows/%5Bftml%5D%20Rust/badge.svg"
-         alt="Build status">
+         alt="ftml build status">
   </a>
 
   <a href="https://github.com/scpwiki/wikijump/actions?query=workflow%3A%22%5Bdeepwell%5D+Rust%22">
     <img src="https://github.com/scpwiki/wikijump/workflows/%5Bdeepwell%5D%20Rust/badge.svg"
-         alt="Build status">
+         alt="DEEPWELL build status">
+  </a>
+
+  <a href="https://github.com/scpwiki/wikijump/actions?query=workflow%3A%22%5Bframerail%5D+Typescript%22">
+    <img src="https://github.com/scpwiki/wikijump/workflows/%5Bframerail%5D%20Typescript/badge.svg"
+         alt="Framerail build status">
   </a>
 </p>
 
