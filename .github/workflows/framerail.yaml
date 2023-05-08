@@ -12,28 +12,8 @@ on:
       - prod
 
 jobs:
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2.2.4
-        with:
-          version: latest
-
-      - name: Install dependencies
-        run: cd framerail && pnpm install
-
-      - name: Build
-        run: cd framerail && pnpm build
-
-  # TODO add coverage step
-
-  lint:
-    name: Lint
+  build_and_lint:
+    name: Build and Lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -49,3 +29,8 @@ jobs:
 
       - name: Lint
         run: cd framerail && pnpm lint
+
+      - name: Build
+        run: cd framerail && pnpm build
+
+  # TODO add coverage step
