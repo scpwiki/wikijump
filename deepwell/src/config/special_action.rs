@@ -67,5 +67,6 @@ fn validate_config() -> i32 {
         }
     }
 
+    println!("All passed files checked, exiting");
     return_code
 }
