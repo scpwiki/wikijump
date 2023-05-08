@@ -7,7 +7,12 @@ on:
       - 'deepwell/Cargo.lock'
       - 'deepwell/src/**'
       - '.github/workflows/deepwell.yaml'
-      - '.gihub/codecov.yml'
+      - '.github/codecov.yml'
+      - 'deepwell/config.example.toml'
+      - 'install/files/local/deepwell.toml'
+      # TODO: add install/files/dev/deepwell.toml
+      #       and install/files/prod/deepwell.toml
+      #       both here and below
   push:
     branches:
       - develop
@@ -42,6 +47,11 @@ jobs:
 
       - name: Build
         run: cd deepwell && cargo build
+
+      - name: Check Configuration
+        run: cd deepwell && cargo run -- config.example.toml ../install/files/local/deepwell.toml
+        env:
+          DEEPWELL_SPECIAL_ACTION: validate-config
 
       - name: Test
         run: cd deepwell && cargo test --all-features -- --nocapture --test-threads 1
