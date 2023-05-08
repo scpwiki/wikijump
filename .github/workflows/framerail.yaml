@@ -1,0 +1,48 @@
+name: '[framerail] Typescript'
+
+on:
+  pull_request:
+    paths:
+      - 'framerail/**'
+      - '.github/workflows/framerail.yaml'
+      - '.github/codecov.yml'
+  push:
+    branches:
+      - develop
+      - prod
+
+jobs:
+  build_and_test:
+    name: Lint
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2.2.4
+        with:
+          version: latest
+          run_install: true
+
+      - name: Build
+        run: pnpm build
+
+      - name: Test
+        run: pnpm test
+
+  # TODO add coverage step
+
+  lint:
+    name: Lint
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2.2.4
+        with:
+          version: latest
+          run_install: true
+
+      - name: Lint
+        run: pnpm lint
