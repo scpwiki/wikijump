@@ -615,6 +615,11 @@ impl PageService {
     ) -> Result<()> {
         let txn = ctx.transaction();
 
+        if slug.is_empty() {
+            tide::log::error!("Cannot create page with empty slug");
+            return Err(Error::BadRequest);
+        }
+
         let result = Page::find()
             .filter(
                 Condition::all()
