@@ -69,6 +69,12 @@ impl UserService {
             return Err(Error::BadRequest);
         }
 
+        // Empty slug check
+        if slug.is_empty() {
+            tide::log::error!("Cannot create user with empty slug");
+            return Err(Error::BadRequest);
+        }
+
         // Perform filter validation
         if !bypass_filter {
             try_join!(
@@ -410,6 +416,12 @@ impl UserService {
 
         let new_slug = get_regular_slug(&new_name);
         let old_slug = &user.slug;
+
+        // Empty slug check
+        if new_slug.is_empty() {
+            tide::log::error!("Cannot create user with empty slug");
+            return Err(Error::BadRequest);
+        }
 
         // Perform filter validation
         if !bypass_filter {
