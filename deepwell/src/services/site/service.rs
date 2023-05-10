@@ -257,6 +257,11 @@ impl SiteService {
     ) -> Result<()> {
         let txn = ctx.transaction();
 
+        if slug.is_empty() {
+            tide::log::error!("Cannot create site with empty slug");
+            return Err(Error::BadRequest);
+        }
+
         let result = Site::find()
             .filter(
                 Condition::all()
