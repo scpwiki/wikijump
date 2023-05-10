@@ -58,6 +58,12 @@ impl UserService {
 
         tide::log::info!("Attempting to create user '{}' ('{}')", name, slug);
 
+        // Empty slug check
+        if slug.is_empty() {
+            tide::log::error!("Cannot create user with empty slug");
+            return Err(Error::BadRequest);
+        }
+
         // Check if username contains the minimum amount of required bytes.
         if name.len() < ctx.config().minimum_name_bytes {
             tide::log::error!(
@@ -66,12 +72,6 @@ impl UserService {
                 ctx.config().minimum_name_bytes,
             );
 
-            return Err(Error::BadRequest);
-        }
-
-        // Empty slug check
-        if slug.is_empty() {
-            tide::log::error!("Cannot create user with empty slug");
             return Err(Error::BadRequest);
         }
 
