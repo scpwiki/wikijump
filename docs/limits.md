@@ -18,7 +18,7 @@ To understand the limits for Wikidot-imported items, see [Compatibility IDs](com
 | Revisions (new)                  | 9223372033854775807       | Any new page revisions created on Wikijump. |
 | Revisions (compatibility)        | 3000000000                | Any page revisions imported from Wikidot. Realistically this value is 2147483647, which is the maximum ID for pages on Wikidot. |
 | Revisions (per page)             | 2147483647                |         |
-| Categories (total)               | 9223372036854775807       |         |
-| Categories (per site)            | None                      | There is no limit specifically on the number of categories per site. The total number of categories is limited, see above. |
+| Page Categories (total)          | 9223372036854775807       |         |
+| Page Categories (per site)       | None                      | There is no limit specifically on the number of categories per site. The total number of categories is limited, see above. |
 
 Some items are not included here because they are still owned by Ozone or are unimplemented.
