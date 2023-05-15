@@ -6,6 +6,9 @@ To understand the limits for Wikidot-imported items, see [Compatibility IDs](com
 
 | Item                      | Upper limit               | Comment |
 |---------------------------|---------------------------|---------|
+| Users (total)             | 9223372036854775807       |         |
+| Users (new)               | 9223372036844775807       | Any new user accounts registered on Wikijump. |
+| Users (compatibility)     | 10000000                  | Any user accounts imported from Wikidot. |
 | Sites                     | 9223372036854775807       |         |
 | Pages (total)             | 9223372036854775807       |         |
 | Pages (new)               | 9223372033854775807       | Any new pages created on Wikijump. |
@@ -17,8 +20,5 @@ To understand the limits for Wikidot-imported items, see [Compatibility IDs](com
 | Revisions (per page)      | 2147483647                |         |
 | Categories (total)        | 9223372036854775807       |         |
 | Categories (per site)     | None                      | There is no limit specifically on the number of categories per site. The total number of categories is limited, see above. |
-| Users (total)             | 9223372036854775807       |         |
-| Users (new)               | 9223372036844775807       | Any new user accounts registered on Wikijump. |
-| Users (compatibility)     | 10000000                  | Any user accounts imported from Wikidot. |
 
 Some items are not included here because they are still owned by Ozone or are unimplemented.
