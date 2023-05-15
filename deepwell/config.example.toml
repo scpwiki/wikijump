@@ -224,6 +224,13 @@ missing = "_404"
 # Fallback string is localized as "wiki-page-private"
 private = "_public"
 
+# When a user is banned from the site.
+# This is only shown if the site disallows banned users from
+# being able to see pages.
+#
+# Fallback string is localized as "wiki-page-banned"
+banned = "_ban"
+
 
 [user]
 

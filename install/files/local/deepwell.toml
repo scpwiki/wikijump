@@ -46,6 +46,7 @@ special-prefix = "_"
 template = "_template"
 missing = "_404"
 private = "_public"
+banned = "_ban"
 
 [user]
 default-name-changes = 2
