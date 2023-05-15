@@ -67,7 +67,9 @@ impl SpecialPageService {
             SpecialPageType::Private => {
                 (vec![cow!(config.special_page_private)], "wiki-page-private")
             }
-            SpecialPageType::Banned => (vec![cow!(config.special_page_banned)], "wiki-page-banned"),
+            SpecialPageType::Banned => {
+                (vec![cow!(config.special_page_banned)], "wiki-page-banned")
+            }
         };
 
         // Look through each option to get the special page wikitext.
