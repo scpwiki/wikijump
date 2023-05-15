@@ -20,6 +20,10 @@ wiki-page-private = + Private content
 
     This area of the website is private and you don't have access to it. If you believe you need access to this area please contact the web site administrators.
 
+wiki-page-banned = + You have been banned
+
+    You are currently banned from this site, and the site settings do not allow banned users to view pages.
+
 wiki-page-site-slug = <h1>No { -service-name } site exists with this address.</h1>
     <p>
       <a href="https://{ $slug }.{ $domain }/">{ $slug }.{ $domain }</a> does not exist.
