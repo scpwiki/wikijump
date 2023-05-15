@@ -26,6 +26,7 @@ pub enum SpecialPageType {
     Template,
     Missing,
     Private,
+    Banned,
 }
 
 #[derive(Serialize, Debug)]
