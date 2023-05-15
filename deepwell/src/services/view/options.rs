@@ -27,6 +27,7 @@ const PAGE_ARGUMENTS_SCHEMA: ArgumentSchema = ArgumentSchema {
         "title",
         "parentPage",
         "parent",
+        "name",
         "tags",
         "noredirect",
         "norender",
