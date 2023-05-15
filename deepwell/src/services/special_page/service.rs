@@ -52,6 +52,9 @@ impl SpecialPageService {
         let config = ctx.config();
         let (slug, key) = match sp_page_type {
             SpecialPageType::Template => (cow!(config.special_page_template), ""),
+            SpecialPageType::Private => {
+                (cow!(config.special_page_private), "wiki-page-private")
+            }
             SpecialPageType::Missing => {
                 let slug = match split_category(&config.special_page_missing) {
                     // Has category explicitly, only use this exact slug.
@@ -65,9 +68,6 @@ impl SpecialPageService {
                 };
 
                 (slug, "wiki-page-missing")
-            }
-            SpecialPageType::Private => {
-                (cow!(config.special_page_private), "wiki-page-private")
             }
         };
 
