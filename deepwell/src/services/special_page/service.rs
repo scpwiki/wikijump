@@ -21,8 +21,8 @@
 use super::prelude::*;
 use crate::models::site::Model as SiteModel;
 use crate::services::{PageRevisionService, PageService, RenderService, TextService};
-use crate::web::Reference;
 use crate::utils::split_category;
+use crate::web::Reference;
 use fluent::{FluentArgs, FluentValue};
 use ftml::prelude::*;
 use std::borrow::Cow;
@@ -64,48 +64,45 @@ impl SpecialPageService {
                     (None, slug) => match page_info.category {
                         Some(ref category) => Cow::Owned(format!("{category}:{slug}")),
                         None => cow!(slug),
-                    }
+                    },
                 };
 
                 (slug, "wiki-page-missing")
             }
         };
 
-        let wikitext = match PageService::get_optional(
-            ctx,
-            site.site_id,
-            Reference::Slug(slug),
-        )
-        .await?
-        {
-            Some(page) => {
-                // Fetch special page wikitext, it exists.
+        let wikitext =
+            match PageService::get_optional(ctx, site.site_id, Reference::Slug(slug))
+                .await?
+            {
+                Some(page) => {
+                    // Fetch special page wikitext, it exists.
 
-                let revision =
-                    PageRevisionService::get_latest(ctx, site.site_id, page.page_id)
-                        .await?;
+                    let revision =
+                        PageRevisionService::get_latest(ctx, site.site_id, page.page_id)
+                            .await?;
 
-                TextService::get(ctx, &revision.wikitext_hash).await?
-            }
-            None => {
-                // Page is absent, use fallback string from localization.
+                    TextService::get(ctx, &revision.wikitext_hash).await?
+                }
+                None => {
+                    // Page is absent, use fallback string from localization.
 
-                let page = &page_info.page;
-                let (category, full_slug) = match &page_info.category {
-                    Some(category) => (str!(category), format!("{category}:{page}")),
-                    None => (str!("_default"), str!(page)),
-                };
+                    let page = &page_info.page;
+                    let (category, full_slug) = match &page_info.category {
+                        Some(category) => (str!(category), format!("{category}:{page}")),
+                        None => (str!("_default"), str!(page)),
+                    };
 
-                let mut args = FluentArgs::new();
-                args.set("slug", FluentValue::String(Cow::Owned(full_slug)));
-                args.set("page", fluent_str!(page));
-                args.set("category", fluent_str!(category));
-                args.set("domain", fluent_str!(config.main_domain_no_dot));
+                    let mut args = FluentArgs::new();
+                    args.set("slug", FluentValue::String(Cow::Owned(full_slug)));
+                    args.set("page", fluent_str!(page));
+                    args.set("category", fluent_str!(category));
+                    args.set("domain", fluent_str!(config.main_domain_no_dot));
 
-                let wikitext = ctx.localization().translate(locale, key, &args)?;
-                wikitext.into_owned()
-            }
-        };
+                    let wikitext = ctx.localization().translate(locale, key, &args)?;
+                    wikitext.into_owned()
+                }
+            };
 
         // Render here with relevant page context.
         // The "page" here is what would've been there in this case,
