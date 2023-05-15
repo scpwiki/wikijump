@@ -50,19 +50,19 @@ impl SpecialPageService {
         // If empty, then pull a constant string (not in the localization files).
         let config = ctx.config();
         let (slug, key) = match sp_page_type {
-            SpecialPageType::Template => (&config.special_page_template, ""),
+            SpecialPageType::Template => (cow!(config.special_page_template), ""),
             SpecialPageType::Missing => {
-                (&config.special_page_missing, "wiki-page-missing")
+                (cow!(config.special_page_missing), "wiki-page-missing")
             }
             SpecialPageType::Private => {
-                (&config.special_page_private, "wiki-page-private")
+                (cow!(config.special_page_private), "wiki-page-private")
             }
         };
 
         let wikitext = match PageService::get_optional(
             ctx,
             site.site_id,
-            Reference::Slug(cow!(slug)),
+            Reference::Slug(slug),
         )
         .await?
         {
