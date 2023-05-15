@@ -129,6 +129,9 @@ pub struct Config {
     /// Page slug for pages you don't have permission to see. Default: `_public`
     pub special_page_private: String,
 
+    /// Page slug for when the user is banned, and the site disallows banned viewing. Default: `_ban`
+    pub special_page_banned: String,
+
     /// Default name changes per user.
     pub default_name_changes: i16,
 
