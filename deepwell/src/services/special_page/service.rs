@@ -55,29 +55,14 @@ impl SpecialPageService {
         let config = ctx.config();
         let (slugs, translate_key) = match sp_page_type {
             SpecialPageType::Template => (vec![cow!(config.special_page_template)], ""),
-            SpecialPageType::Private => {
-                (vec![cow!(config.special_page_private)], "wiki-page-private")
-            }
             SpecialPageType::Missing => {
-                let slugs = match split_category(&config.special_page_missing) {
-                    // Has category explicitly, only use this exact slug.
-                    (Some(_), slug) => vec![cow!(slug)],
-
-                    // If not in _default, add category-specific template
-                    // to check first, if it exists.
-                    (None, slug) => {
-                        let mut slugs = Vec::with_capacity(2);
-                        slugs.push(cow!(slug));
-
-                        if let Some(ref category) = page_info.category {
-                            slugs.insert(0, Cow::Owned(format!("{category}:{slug}")));
-                        }
-
-                        slugs
-                    }
-                };
+                let slugs =
+                    Self::slugs_with_category(&config.special_page_missing, &page_info);
 
                 (slugs, "wiki-page-missing")
+            }
+            SpecialPageType::Private => {
+                (vec![cow!(config.special_page_private)], "wiki-page-private")
             }
         };
 
@@ -103,6 +88,29 @@ impl SpecialPageService {
             wikitext,
             render_output,
         })
+    }
+
+    fn slugs_with_category<'a>(
+        base_slug: &'a str,
+        page_info: &PageInfo<'a>,
+    ) -> Vec<Cow<'a, str>> {
+        match split_category(base_slug) {
+            // Has category explicitly, only use this exact slug.
+            (Some(_), slug) => vec![cow!(slug)],
+
+            // See if we can add a specific category.
+            (None, slug) => {
+                let mut slugs = Vec::with_capacity(2);
+                slugs.push(cow!(slug));
+
+                // If not in _default, add category-specific template to check first.
+                if let Some(ref category) = page_info.category {
+                    slugs.insert(0, Cow::Owned(format!("{category}:{slug}")));
+                }
+
+                slugs
+            }
+        }
     }
 
     async fn get_wikitext(
