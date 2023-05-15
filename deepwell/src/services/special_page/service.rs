@@ -57,9 +57,7 @@ impl SpecialPageService {
             SpecialPageType::Private => {
                 (&config.special_page_private, "wiki-page-private")
             }
-            SpecialPageType::Banned => {
-                (&config.special_page_banned, "wiki-page-banned")
-            }
+            SpecialPageType::Banned => (&config.special_page_banned, "wiki-page-banned"),
         };
 
         let wikitext = match PageService::get_optional(
