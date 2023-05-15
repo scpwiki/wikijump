@@ -29,6 +29,13 @@ use crate::models::user::Model as UserModel;
 #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
 pub struct UserPermissions;
 
+impl UserPermissions {
+    pub fn is_banned(self) -> bool {
+        // TODO value from struct
+        false
+    }
+}
+
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct GetPageView {
@@ -77,6 +84,7 @@ pub enum GetPageViewOutput {
         options: PageOptions,
         redirect_page: Option<String>,
         compiled_html: String,
+        banned: bool,
     },
 
     #[serde(rename_all = "camelCase")]

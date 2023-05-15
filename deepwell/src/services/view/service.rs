@@ -121,6 +121,7 @@ impl ViewService {
             },
             Missing,
             Private,
+            Banned,
         }
 
         // Get wikitext and HTML to return for this page.
@@ -155,6 +156,9 @@ impl ViewService {
 
                 // Determine whether to return the actual page contents,
                 // or the "private page" data (_public).
+                //
+                // This returns false if the user is banned *and* the site
+                // disallows banned viewing.
                 if Self::can_access_page(ctx, user_permissions).await? {
                     tide::log::debug!("User has page access, return text data");
 
@@ -176,15 +180,17 @@ impl ViewService {
                         "User doesn't have page access, returning permission page",
                     );
 
+                    let (page_status, page_type) = if user_permissions.is_banned() {
+                        (PageStatus::Banned, SpecialPageType::Banned)
+                    } else {
+                        (PageStatus::Private, SpecialPageType::Private)
+                    };
+
                     let GetSpecialPageOutput {
                         wikitext,
                         render_output,
                     } = SpecialPageService::get(
-                        ctx,
-                        &site,
-                        SpecialPageType::Private,
-                        &locale,
-                        page_info,
+                        ctx, &site, page_type, &locale, page_info,
                     )
                     .await?;
 
@@ -197,7 +203,7 @@ impl ViewService {
                         ..
                     } = render_output;
 
-                    (PageStatus::Private, wikitext, compiled_html)
+                    (page_status, wikitext, compiled_html)
                 }
             }
             // The page is missing, fetch the "missing page" data (_404).
@@ -260,6 +266,14 @@ impl ViewService {
                 options,
                 redirect_page,
                 compiled_html,
+                banned: false,
+            },
+            PageStatus::Banned => GetPageViewOutput::PagePermissions {
+                viewer,
+                options,
+                redirect_page,
+                compiled_html,
+                banned: true,
             },
         };
 

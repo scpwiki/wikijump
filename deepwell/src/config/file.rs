@@ -135,6 +135,7 @@ struct SpecialPages {
     template: String,
     missing: String,
     private: String,
+    banned: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -224,6 +225,7 @@ impl ConfigFile {
                     template: special_page_template,
                     missing: special_page_missing,
                     private: special_page_private,
+                    banned: special_page_banned,
                 },
             user:
                 User {
@@ -286,6 +288,7 @@ impl ConfigFile {
             special_page_template,
             special_page_missing,
             special_page_private,
+            special_page_banned,
             default_name_changes: i16::from(default_name_changes),
             maximum_name_changes: i16::from(maximum_name_changes),
             refill_name_change: StdDuration::from_secs(
