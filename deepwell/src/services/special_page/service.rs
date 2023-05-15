@@ -66,10 +66,13 @@ impl SpecialPageService {
                     // If not in _default, add category-specific template
                     // to check first, if it exists.
                     (None, slug) => {
-                        let mut slugs = vec![cow!(slug)];
+                        let mut slugs = Vec::with_capacity(2);
+                        slugs.push(cow!(slug));
+
                         if let Some(ref category) = page_info.category {
                             slugs.insert(0, Cow::Owned(format!("{category}:{slug}")));
                         }
+
                         slugs
                     }
                 };
