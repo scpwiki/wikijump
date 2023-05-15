@@ -53,7 +53,7 @@ impl SpecialPageService {
         // Produces a list of slugs to use as a page template, the first one that
         // exists is the one that's used.
         let config = ctx.config();
-        let (slugs, key) = match sp_page_type {
+        let (slugs, translate_key) = match sp_page_type {
             SpecialPageType::Template => (vec![cow!(config.special_page_template)], ""),
             SpecialPageType::Private => {
                 (vec![cow!(config.special_page_private)], "wiki-page-private")
@@ -80,46 +80,17 @@ impl SpecialPageService {
                 (slugs, "wiki-page-missing")
             }
         };
-        debug_assert!(
-            !slugs.is_empty(),
-            "No slugs to check for special page existence",
-        );
 
-        let mut wikitext = None;
-        for slug in slugs {
-            if let Some(page) =
-                PageService::get_optional(ctx, site.site_id, Reference::Slug(slug))
-                    .await?
-            {
-                // Fetch special page wikitext, it exists.
-                let revision =
-                    PageRevisionService::get_latest(ctx, site.site_id, page.page_id)
-                        .await?;
-
-                wikitext = Some(TextService::get(ctx, &revision.wikitext_hash).await?);
-            }
-        }
-
-        let wikitext = match wikitext {
-            Some(wikitext) => wikitext,
-            None => {
-                // Page is absent, use fallback string from localization.
-                let page = &page_info.page;
-                let (category, full_slug) = match &page_info.category {
-                    Some(category) => (str!(category), format!("{category}:{page}")),
-                    None => (str!("_default"), str!(page)),
-                };
-
-                let mut args = FluentArgs::new();
-                args.set("slug", FluentValue::String(Cow::Owned(full_slug)));
-                args.set("page", fluent_str!(page));
-                args.set("category", fluent_str!(category));
-                args.set("domain", fluent_str!(config.main_domain_no_dot));
-
-                let wikitext = ctx.localization().translate(locale, key, &args)?;
-                wikitext.into_owned()
-            }
-        };
+        // Look through each option to get the special page wikitext.
+        let wikitext = Self::get_wikitext(
+            ctx,
+            &slugs,
+            translate_key,
+            site.site_id,
+            locale,
+            &page_info,
+        )
+        .await?;
 
         // Render here with relevant page context.
         // The "page" here is what would've been there in this case,
@@ -132,5 +103,50 @@ impl SpecialPageService {
             wikitext,
             render_output,
         })
+    }
+
+    async fn get_wikitext(
+        ctx: &ServiceContext<'_>,
+        slugs: &[Cow<'_, str>],
+        translate_key: &str,
+        site_id: i64,
+        locale: &LanguageIdentifier,
+        page_info: &PageInfo<'_>,
+    ) -> Result<String> {
+        tide::log::debug!("Getting wikitext for special page, {} slugs", slugs.len());
+        debug_assert!(
+            !slugs.is_empty(),
+            "No slugs to check for special page existence",
+        );
+
+        // Try all the pages listed.
+        for slug in slugs {
+            if let Some(page) =
+                PageService::get_optional(ctx, site_id, Reference::Slug(cow!(slug)))
+                    .await?
+            {
+                // Fetch special page wikitext, it exists.
+                let revision =
+                    PageRevisionService::get_latest(ctx, site_id, page.page_id).await?;
+
+                return TextService::get(ctx, &revision.wikitext_hash).await;
+            }
+        }
+
+        // Use fallback string from localization
+        let page = &page_info.page;
+        let (category, full_slug) = match &page_info.category {
+            Some(category) => (str!(category), format!("{category}:{page}")),
+            None => (str!("_default"), str!(page)),
+        };
+
+        let mut args = FluentArgs::new();
+        args.set("slug", FluentValue::String(Cow::Owned(full_slug)));
+        args.set("page", fluent_str!(page));
+        args.set("category", fluent_str!(category));
+        args.set("domain", fluent_str!(ctx.config().main_domain_no_dot));
+
+        let wikitext = ctx.localization().translate(locale, translate_key, &args)?;
+        Ok(wikitext.into_owned())
     }
 }
