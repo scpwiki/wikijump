@@ -22,6 +22,7 @@ use super::prelude::*;
 use crate::models::site::Model as SiteModel;
 use crate::services::{PageRevisionService, PageService, RenderService, TextService};
 use crate::web::Reference;
+use crate::utils::split_category;
 use fluent::{FluentArgs, FluentValue};
 use ftml::prelude::*;
 use std::borrow::Cow;
@@ -52,7 +53,18 @@ impl SpecialPageService {
         let (slug, key) = match sp_page_type {
             SpecialPageType::Template => (cow!(config.special_page_template), ""),
             SpecialPageType::Missing => {
-                (cow!(config.special_page_missing), "wiki-page-missing")
+                let slug = match split_category(&config.special_page_missing) {
+                    // Has category explicitly, only use this exact slug.
+                    (Some(_), slug) => cow!(slug),
+
+                    // Draw from the same category.
+                    (None, slug) => match page_info.category {
+                        Some(ref category) => Cow::Owned(format!("{category}:{slug}")),
+                        None => cow!(slug),
+                    }
+                };
+
+                (slug, "wiki-page-missing")
             }
             SpecialPageType::Private => {
                 (cow!(config.special_page_private), "wiki-page-private")
