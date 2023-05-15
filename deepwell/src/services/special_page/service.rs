@@ -59,20 +59,22 @@ impl SpecialPageService {
                 (vec![cow!(config.special_page_private)], "wiki-page-private")
             }
             SpecialPageType::Missing => {
-                let slug = match split_category(&config.special_page_missing) {
+                let slugs = match split_category(&config.special_page_missing) {
                     // Has category explicitly, only use this exact slug.
                     (Some(_), slug) => vec![cow!(slug)],
 
-                    // Draw from the same category.
-                    (None, slug) => match page_info.category {
-                        Some(ref category) => {
-                            vec![Cow::Owned(format!("{category}:{slug}")), cow!(slug)]
+                    // If not in _default, add category-specific template
+                    // to check first, if it exists.
+                    (None, slug) => {
+                        let mut slugs = vec![cow!(slug)];
+                        if let Some(ref category) = page_info.category {
+                            slugs.insert(0, Cow::Owned(format!("{category}:{slug}")));
                         }
-                        None => vec![cow!(slug)],
-                    },
+                        slugs
+                    }
                 };
 
-                (slug, "wiki-page-missing")
+                (slugs, "wiki-page-missing")
             }
         };
         debug_assert!(
