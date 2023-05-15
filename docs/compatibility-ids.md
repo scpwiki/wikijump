@@ -15,6 +15,8 @@ The approach used here is to set the starting ID value to be higher than Wikidot
 - User           --   10000000 (sample          7840760)
 ```
 
+(Note that forum groups are not included, as their IDs are not exposed by Wikidot.)
+
 And as a point of comparison, these are the maximum values for 32-bit and 64-bit signed integers:
 
 ```

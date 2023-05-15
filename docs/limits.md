@@ -20,5 +20,15 @@ To understand the limits for Wikidot-imported items, see [Compatibility IDs](com
 | Revisions (per page)             | 2147483647                |         |
 | Page Categories (total)          | 9223372036854775807       |         |
 | Page Categories (per site)       | None                      | There is no limit specifically on the number of categories per site. The total number of categories is limited, see above. |
+| Forum Groups                     | 9223372036854775807       | Value not exposed in Wikidot, assigned incrementally. |
+| Forum Categories (total)         | 9223372036854775807       |         |
+| Forum Categories (new)           | 9223372036845775807       |         |
+| Forum Categories (compatibility) | 9000000                   |         |
+| Forum Threads (total)            | 9223372036854775807       |         |
+| Forum Threads (new)              | 9223372036824775807       |         |
+| Forum Threads (compatbility)     | 30000000                  |         |
+| Forum Posts (total)              | 9223372036854775807       |         |
+| Forum Posts (new)                | 9223372036847775807       |         |
+| Forum Posts (compatibility)      | 7000000                   |         |
 
 Some items are not included here because they are still owned by Ozone or are unimplemented.
