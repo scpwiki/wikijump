@@ -25,6 +25,7 @@ use crate::utils::split_category;
 use crate::web::Reference;
 use fluent::{FluentArgs, FluentValue};
 use ftml::prelude::*;
+use ref_map::*;
 use std::borrow::Cow;
 use unic_langid::LanguageIdentifier;
 
@@ -56,8 +57,10 @@ impl SpecialPageService {
         let (slugs, translate_key) = match sp_page_type {
             SpecialPageType::Template => (vec![cow!(config.special_page_template)], ""),
             SpecialPageType::Missing => {
-                let slugs =
-                    Self::slugs_with_category(&config.special_page_missing, &page_info);
+                let slugs = Self::slugs_with_category(
+                    &config.special_page_missing,
+                    page_info.category.ref_map(|s| s.as_ref()),
+                );
 
                 (slugs, "wiki-page-missing")
             }
@@ -92,7 +95,7 @@ impl SpecialPageService {
 
     fn slugs_with_category<'a>(
         base_slug: &'a str,
-        page_info: &PageInfo<'a>,
+        page_category: Option<&'a str>,
     ) -> Vec<Cow<'a, str>> {
         match split_category(base_slug) {
             // Has category explicitly, only use this exact slug.
@@ -104,7 +107,7 @@ impl SpecialPageService {
                 slugs.push(cow!(slug));
 
                 // If not in _default, add category-specific template to check first.
-                if let Some(ref category) = page_info.category {
+                if let Some(ref category) = page_category {
                     slugs.insert(0, Cow::Owned(format!("{category}:{slug}")));
                 }
 
