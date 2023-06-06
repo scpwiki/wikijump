@@ -99,6 +99,9 @@ pub enum Error {
 
     #[error("Cannot hide the wikitext for the latest page revision")]
     CannotHideLatestRevision,
+
+    #[error("The rate limit for an external API has been reached")]
+    RateLimited,
 }
 
 impl Error {
@@ -138,6 +141,7 @@ impl Error {
             Error::FilterViolation | Error::CannotHideLatestRevision => {
                 TideError::from_str(StatusCode::BadRequest, "")
             }
+            Error::RateLimited => TideError::from_str(StatusCode::ServiceUnavailable, ""),
         }
     }
 }

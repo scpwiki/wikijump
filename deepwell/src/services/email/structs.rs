@@ -24,20 +24,31 @@ use serde::Deserialize;
 /// A deserialized response from the MailCheck API.
 #[derive(Deserialize, Debug)]
 pub struct MailCheckResponse {
-    status: u16,
-    email: String,
-    domain: String,
-    mx: bool,
-    disposable: bool,
-    alias: bool,
-    did_you_mean: String,
+    pub status: u16,
+    pub email: String,
+    pub domain: String,
+    pub mx: bool,
+    pub disposable: bool,
+    pub alias: bool,
+    pub did_you_mean: Option<String>,
+    pub error: Option<String>,
 }
 
 #[derive(Debug)]
 pub struct EmailValidationOutput {
-    valid: bool,
-    classification: EmailClassification,
-    did_you_mean: Option<String>,
+    pub valid: bool,
+    pub classification: EmailClassification,
+    pub did_you_mean: Option<String>,
+}
+
+impl Default for EmailValidationOutput {
+    fn default() -> Self {
+        EmailValidationOutput {
+            valid: true,
+            classification: EmailClassification::Normal,
+            did_you_mean: None,
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -45,5 +56,5 @@ pub enum EmailClassification {
     Normal,
     Disposable,
     Alias,
-    Invalid
+    Invalid,
 }

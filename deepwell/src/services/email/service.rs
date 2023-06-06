@@ -20,22 +20,79 @@
 
 use super::prelude::*;
 
- #[derive(Debug)]
+#[derive(Debug)]
 pub struct EmailService;
 
 impl EmailService {
-    // Validates an email through the MailCheck API. 
+    /// Validates an email through the MailCheck API.
     pub async fn validate(
-        ctx: ServiceContext<'_>,
+        _ctx: ServiceContext<'_>,
         email: String,
-    ) -> Result</*EmailValidationOutput*/ ()> {
+    ) -> Result<EmailValidationOutput> {
         // Sends a GET request to the MailCheck API and deserializes the response.
-        let mailcheck_response = surf::get(format!("https://api.mailcheck.ai/email/{email}"))
+        let mailcheck = surf::get(format!("https://api.mailcheck.ai/email/{email}"))
             .send()
             .await?
             .body_json::<MailCheckResponse>()
             .await?;
 
-        Ok(())
+        // Create the output with default parameters.
+        let mut output = EmailValidationOutput::default();
+
+        // Check request status.
+        match mailcheck.status {
+            // Valid request.
+            200 => {}
+
+            // Invalid request.
+            400 => {
+                tide::log::error!(
+                    "MailCheck API returned status 400: {:?}",
+                    mailcheck.error
+                );
+                return Err(Error::BadRequest);
+            }
+
+            // Exceeded rate limit.
+            429 => {
+                tide::log::error!(
+                    "MailCheck API returned status 429: {:?}",
+                    mailcheck.error
+                );
+                return Err(Error::RateLimited);
+            }
+
+            // Other statuses.
+            _ => {
+                tide::log::warn!(
+                    "MailCheck API returned status {}: {:?}",
+                    mailcheck.status,
+                    mailcheck.error
+                );
+            }
+        }
+
+        // Check if the email is an alias.
+        if mailcheck.alias {
+            output.classification = EmailClassification::Alias;
+        }
+
+        // Check if the email is a disposable.
+        if mailcheck.disposable {
+            output.valid = false;
+            output.classification = EmailClassification::Disposable;
+        }
+
+        // Check if the domain has any MX records.
+        if !mailcheck.mx {
+            output.valid = false;
+            output.classification = EmailClassification::Invalid;
+        }
+
+        if mailcheck.did_you_mean.is_some() {
+            output.did_you_mean = mailcheck.did_you_mean;
+        }
+
+        Ok(output)
     }
 }
