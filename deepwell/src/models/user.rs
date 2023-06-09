@@ -24,6 +24,7 @@ pub struct Model {
     pub last_renamed_at: Option<OffsetDateTime>,
     #[sea_orm(column_type = "Text")]
     pub email: String,
+    pub email_is_alias: Option<bool>,
     pub email_verified_at: Option<OffsetDateTime>,
     #[sea_orm(column_type = "Text")]
     pub password: String,

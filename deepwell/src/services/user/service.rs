@@ -23,6 +23,7 @@ use crate::models::sea_orm_active_enums::{AliasType, UserType};
 use crate::models::user::{self, Entity as User, Model as UserModel};
 use crate::services::alias::CreateAlias;
 use crate::services::blob::{BlobService, CreateBlobOutput};
+use crate::services::email::{EmailClassification, EmailService};
 use crate::services::filter::{FilterClass, FilterType};
 use crate::services::{AliasService, FilterService, PasswordService};
 use crate::utils::{get_regular_slug, regex_replace_in_place};
@@ -166,10 +167,47 @@ impl UserService {
             }
         };
 
-        // Perform email verification
-        if !bypass_email_verification {
-            
-        }
+        // Perform email verification.
+        //
+        // If the email is either disposable or invalid, propogate the error upwards and
+        // stop the account creation. If the email passes validation, mark if it's an alias
+        // or not.
+        //
+        // The assigned variable is also used to check whether email validation occurred, as it
+        // will always be `Some` if validation occurred and `None` otherwise.
+        let email_is_alias = if !bypass_email_verification {
+            let email_validation_output = EmailService::validate(&email).await?;
+
+            match email_validation_output.classification {
+                EmailClassification::Normal => {
+                    tide::log::info!("User {slug}'s email was verified successfully");
+                    Some(false)
+                }
+
+                EmailClassification::Alias => {
+                    tide::log::info!(
+                        "User {slug}'s email was verified successfully (as an alias)"
+                    );
+                    Some(true)
+                }
+
+                EmailClassification::Disposable => {
+                    tide::log::error!(
+                        "User {slug}'s email is disposable and did not pass verification"
+                    );
+                    return Err(Error::DisallowedEmail);
+                }
+
+                EmailClassification::Invalid => {
+                    tide::log::error!(
+                        "User {slug}'s email is invalid and did not pass verification"
+                    );
+                    return Err(Error::InvalidEmail);
+                }
+            }
+        } else {
+            None
+        };
 
         // Insert new model
         let user = user::ActiveModel {
@@ -178,7 +216,8 @@ impl UserService {
             slug: Set(slug.clone()),
             name_changes_left: Set(ctx.config().default_name_changes),
             email: Set(email),
-            email_verified_at: Set(None),
+            email_is_alias: Set(email_is_alias),
+            email_verified_at: Set(email_is_alias.map(|_| now())),
             password: Set(password),
             multi_factor_secret: Set(None),
             multi_factor_recovery_codes: Set(None),
