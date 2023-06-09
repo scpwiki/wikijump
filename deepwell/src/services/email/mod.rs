@@ -18,10 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
- mod prelude {
+mod prelude {
     pub use super::super::prelude::*;
     pub use super::structs::*;
 }
 
-mod structs;
 mod service;
+mod structs;
+
+pub use service::EmailService;
+pub use structs::*;

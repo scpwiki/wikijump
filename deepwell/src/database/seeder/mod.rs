@@ -83,7 +83,7 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
                 password: user.password.unwrap_or_default(),
                 locale: user.locale,
                 bypass_filter: true,
-                bypass_email_verification: true
+                bypass_email_verification: true,
             },
         )
         .await?;
