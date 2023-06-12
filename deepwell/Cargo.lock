@@ -503,7 +503,7 @@ dependencies = [
  "serde",
  "serde-xml-rs",
  "thiserror",
- "time 0.3.21",
+ "time 0.3.22",
  "url",
 ]
 
@@ -1192,7 +1192,7 @@ dependencies = [
  "subtle",
  "thiserror",
  "tide",
- "time 0.3.21",
+ "time 0.3.22",
  "tiny-keccak",
  "toml 0.7.4",
  "typenum",
@@ -1506,7 +1506,7 @@ dependencies = [
  "str-macro",
  "strum",
  "strum_macros",
- "time 0.3.21",
+ "time 0.3.22",
  "tinyvec",
  "unicase",
  "void",
@@ -3122,7 +3122,7 @@ dependencies = [
  "sha2 0.10.6",
  "surf",
  "thiserror",
- "time 0.3.21",
+ "time 0.3.22",
  "url",
 ]
 
@@ -3274,7 +3274,7 @@ dependencies = [
  "serde_json",
  "sqlx",
  "thiserror",
- "time 0.3.21",
+ "time 0.3.22",
  "tracing",
  "url",
  "uuid",
@@ -3301,7 +3301,7 @@ checksum = "bbab99b8cd878ab7786157b7eb8df96333a6807cc6e45e8888c85b51534b401a"
 dependencies = [
  "sea-query-derive",
  "serde_json",
- "time 0.3.21",
+ "time 0.3.22",
 ]
 
 [[package]]
@@ -3313,7 +3313,7 @@ dependencies = [
  "sea-query",
  "serde_json",
  "sqlx",
- "time 0.3.21",
+ "time 0.3.22",
 ]
 
 [[package]]
@@ -3701,7 +3701,7 @@ dependencies = [
  "sqlx-rt",
  "stringprep",
  "thiserror",
- "time 0.3.21",
+ "time 0.3.22",
  "url",
  "webpki-roots 0.22.6",
  "whoami",
@@ -4071,9 +4071,9 @@ dependencies = [
 
 [[package]]
 name = "time"
-version = "0.3.21"
+version = "0.3.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8f3403384eaacbca9923fa06940178ac13e4edb725486d70e8e15881d0c836cc"
+checksum = "ea9e1b3cf1243ae005d9e74085d4d542f3125458f3a81af210d901dcd7411efd"
 dependencies = [
  "itoa",
  "serde",
