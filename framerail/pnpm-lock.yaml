@@ -35,8 +35,8 @@ devDependencies:
     specifier: ^1.5.0
     version: 1.5.0
   postcss-scss:
-    specifier: ^4.0.5
-    version: 4.0.5(postcss@8.4.19)
+    specifier: ^4.0.6
+    version: 4.0.6(postcss@8.4.19)
   prettier:
     specifier: ^2.6.2
     version: 2.8.0
@@ -2197,11 +2197,11 @@ packages:
       postcss: 8.4.21
     dev: true
 
-  /postcss-scss@4.0.5(postcss@8.4.19):
-    resolution: {integrity: sha512-F7xpB6TrXyqUh3GKdyB4Gkp3QL3DDW1+uI+gxx/oJnUt/qXI4trj5OGlp9rOKdoABGULuqtqeG+3HEVQk4DjmA==}
+  /postcss-scss@4.0.6(postcss@8.4.19):
+    resolution: {integrity: sha512-rLDPhJY4z/i4nVFZ27j9GqLxj1pwxE80eAzUNRMXtcpipFYIeowerzBgG3yJhMtObGEXidtIgbUpQ3eLDsf5OQ==}
     engines: {node: '>=12.0'}
     peerDependencies:
-      postcss: ^8.3.3
+      postcss: ^8.4.19
     dependencies:
       postcss: 8.4.19
     dev: true
