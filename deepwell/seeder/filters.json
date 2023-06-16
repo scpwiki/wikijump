@@ -99,6 +99,13 @@
     },
     {
         "site": null,
+        "regex": "^cdn$",
+        "description": "Reserved name (cdn)",
+        "case_sensitive": false,
+        "user": true
+    },
+    {
+        "site": null,
         "regex": "^(ssl|tls)$",
         "description": "Reserved name (ssl / tls)",
         "case_sensitive": false,
