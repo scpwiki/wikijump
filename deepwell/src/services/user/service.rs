@@ -369,7 +369,19 @@ impl UserService {
                 Self::run_email_filter(ctx, &email).await?;
             }
 
+            // Validate email
+            let email_validation_output = EmailService::validate(&email).await?;
+
+            let is_alias = match email_validation_output.classification {
+                EmailClassification::Normal => false,
+                EmailClassification::Alias => true,
+                EmailClassification::Disposable => return Err(Error::DisallowedEmail),
+                EmailClassification::Invalid => return Err(Error::InvalidEmail),
+            };
+
             model.email = Set(email);
+            model.email_is_alias = Set(Some(is_alias));
+            model.email_verified_at = Set(Some(now()))
         }
 
         if let ProvidedValue::Set(email_verified) = input.email_verified {
