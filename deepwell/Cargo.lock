@@ -1188,7 +1188,7 @@ dependencies = [
  "sqlx",
  "str-macro",
  "strum",
- "strum_macros",
+ "strum_macros 0.25.0",
  "subtle",
  "thiserror",
  "tide",
@@ -1505,7 +1505,7 @@ dependencies = [
  "serde_repr",
  "str-macro",
  "strum",
- "strum_macros",
+ "strum_macros 0.24.3",
  "time 0.3.22",
  "tinyvec",
  "unicase",
@@ -3840,6 +3840,19 @@ dependencies = [
  "quote",
  "rustversion",
  "syn 1.0.109",
+]
+
+[[package]]
+name = "strum_macros"
+version = "0.25.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fe9f3bd7d2e45dcc5e265fbb88d6513e4747d8ef9444cf01a533119bce28a157"
+dependencies = [
+ "heck 0.4.1",
+ "proc-macro2",
+ "quote",
+ "rustversion",
+ "syn 2.0.18",
 ]
 
 [[package]]
