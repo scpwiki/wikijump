@@ -26,6 +26,7 @@ CREATE TABLE "user" (
     name_changes_left SMALLINT NOT NULL,  -- Default set in runtime configuration.
     last_renamed_at TIMESTAMP WITH TIME ZONE,
     email TEXT NOT NULL,
+    email_is_alias BOOLEAN,
     email_verified_at TIMESTAMP WITH TIME ZONE,
     password TEXT NOT NULL,
     multi_factor_secret TEXT,
