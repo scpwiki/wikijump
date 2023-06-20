@@ -45,7 +45,7 @@ impl EmailService {
             400 => {
                 tide::log::error!(
                     "MailCheck API returned status 400: {:?}",
-                    mailcheck.error
+                    mailcheck.error,
                 );
                 return Err(Error::BadRequest);
             }
@@ -54,7 +54,7 @@ impl EmailService {
             429 => {
                 tide::log::error!(
                     "MailCheck API returned status 429: {:?}",
-                    mailcheck.error
+                    mailcheck.error,
                 );
                 return Err(Error::RateLimited);
             }
@@ -64,7 +64,7 @@ impl EmailService {
                 tide::log::warn!(
                     "MailCheck API returned status {}: {:?}",
                     mailcheck.status,
-                    mailcheck.error
+                    mailcheck.error,
                 );
             }
         }

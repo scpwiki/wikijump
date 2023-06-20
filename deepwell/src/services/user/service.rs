@@ -186,26 +186,27 @@ impl UserService {
 
                 EmailClassification::Alias => {
                     tide::log::info!(
-                        "User {slug}'s email was verified successfully (as an alias)"
+                        "User {slug}'s email was verified successfully (as an alias)",
                     );
                     Some(true)
                 }
 
                 EmailClassification::Disposable => {
                     tide::log::error!(
-                        "User {slug}'s email is disposable and did not pass verification"
+                        "User {slug}'s email is disposable and did not pass verification",
                     );
                     return Err(Error::DisallowedEmail);
                 }
 
                 EmailClassification::Invalid => {
                     tide::log::error!(
-                        "User {slug}'s email is invalid and did not pass verification"
+                        "User {slug}'s email is invalid and did not pass verification",
                     );
                     return Err(Error::InvalidEmail);
                 }
             }
         } else {
+            // Skipping email verification
             None
         };
 
