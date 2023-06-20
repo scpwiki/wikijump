@@ -52,10 +52,7 @@ impl EmailService {
 
             // Exceeded rate limit.
             429 => {
-                tide::log::error!(
-                    "MailCheck API hit ratelimit: {:?}",
-                    mailcheck.error,
-                );
+                tide::log::error!("MailCheck API hit ratelimit: {:?}", mailcheck.error,);
                 return Err(Error::RateLimited);
             }
 
@@ -86,9 +83,8 @@ impl EmailService {
             output.classification = EmailClassification::Invalid;
         }
 
-        if mailcheck.did_you_mean.is_some() {
-            output.did_you_mean = mailcheck.did_you_mean;
-        }
+        // Set "did you mean" field to mailcheck response.
+        output.did_you_mean = mailcheck.did_you_mean;
 
         Ok(output)
     }
