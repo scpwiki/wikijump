@@ -18,8 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::services::email::EmailService;
 use super::prelude::*;
+use crate::services::email::EmailService;
 
 pub async fn validate_email(mut req: ApiRequest) -> ApiResponse {
     tide::log::info!("Validating user email");
