@@ -25,7 +25,7 @@ pub struct EmailService;
 
 impl EmailService {
     /// Validates an email through the MailCheck API.
-    pub async fn validate(email: &String) -> Result<EmailValidationOutput> {
+    pub async fn validate(email: &str) -> Result<EmailValidationOutput> {
         // Sends a GET request to the MailCheck API and deserializes the response.
         let mailcheck = surf::get(format!("https://api.mailcheck.ai/email/{email}"))
             .send()

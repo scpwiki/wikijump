@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 /// A deserialized response from the MailCheck API.
 #[derive(Deserialize, Debug)]
@@ -33,7 +33,8 @@ pub struct MailCheckResponse {
     pub error: Option<String>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct EmailValidationOutput {
     pub valid: bool,
     pub classification: EmailClassification,
@@ -50,7 +51,8 @@ impl Default for EmailValidationOutput {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub enum EmailClassification {
     Normal,
     Disposable,

@@ -45,6 +45,7 @@ mod prelude {
 
 pub mod auth;
 pub mod category;
+pub mod email;
 pub mod file;
 pub mod file_revision;
 pub mod link;
