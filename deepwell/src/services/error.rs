@@ -82,6 +82,12 @@ pub enum Error {
     #[error("Invalid username, password, or TOTP code")]
     InvalidAuthentication,
 
+    #[error("The user's email is disallowed")]
+    DisallowedEmail,
+
+    #[error("The user's email is invalid")]
+    InvalidEmail,
+
     #[error("The request is in some way malformed or incorrect")]
     BadRequest,
 
@@ -99,6 +105,9 @@ pub enum Error {
 
     #[error("Cannot hide the wikitext for the latest page revision")]
     CannotHideLatestRevision,
+
+    #[error("The rate limit for an external API has been reached")]
+    RateLimited,
 }
 
 impl Error {
@@ -130,6 +139,8 @@ impl Error {
             Error::InvalidAuthentication => {
                 TideError::from_str(StatusCode::Forbidden, "")
             }
+            Error::DisallowedEmail => TideError::from_str(StatusCode::BadRequest, ""),
+            Error::InvalidEmail => TideError::from_str(StatusCode::BadRequest, ""),
             Error::BadRequest => TideError::from_str(StatusCode::BadRequest, ""),
             Error::Exists | Error::Conflict => {
                 TideError::from_str(StatusCode::Conflict, "")
@@ -138,6 +149,7 @@ impl Error {
             Error::FilterViolation | Error::CannotHideLatestRevision => {
                 TideError::from_str(StatusCode::BadRequest, "")
             }
+            Error::RateLimited => TideError::from_str(StatusCode::ServiceUnavailable, ""),
         }
     }
 }

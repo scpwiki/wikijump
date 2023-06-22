@@ -40,6 +40,7 @@ pub async fn user_bot_create(mut req: ApiRequest) -> ApiResponse {
         owners,
         authorization_token,
         bypass_filter,
+        bypass_email_verification,
     } = req.body_json().await?;
     tide::log::info!("Creating new bot user with name '{}'", name);
 
@@ -56,6 +57,7 @@ pub async fn user_bot_create(mut req: ApiRequest) -> ApiResponse {
             locale,
             password: String::new(), // TODO
             bypass_filter,
+            bypass_email_verification,
         },
     )
     .await?;
