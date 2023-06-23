@@ -54,7 +54,7 @@ $ pnpm install
 You can now finally build the Docker images. First, start Docker:
 
 <table>
-<thead><tr><th>Systemd Distros</th><th>WSL2</th></tr></thead>
+<thead><tr><th>systemd Distros</th><th>WSL2</th></tr></thead>
 <tbody valign="top">
 <td><p><pre>$ sudo systemctl --user start docker-desktop</pre></p></td>
 <td><p><pre>$ sudo service docker start</pre></p></td>
