@@ -51,7 +51,7 @@ $ pnpm install
 
 ## Building
 
-You can now finally build the Docker images. First, start docker:
+You can now finally build the Docker images. First, start Docker:
 
 <table>
 <thead><tr><th>Systemd Distros</th><th>WSL2</th></tr></thead>
