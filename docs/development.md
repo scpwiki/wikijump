@@ -49,10 +49,10 @@ $ pnpm install
 
 ## Building
 
-You can now finally build the Docker images. First, start docker:
+You can now finally build the Docker images. First, start Docker:
 
 <table>
-<thead><tr><th>Systemd Distros</th><th>WSL2</th></tr></thead>
+<thead><tr><th>systemd Distros</th><th>WSL2</th></tr></thead>
 <tbody valign="top">
 <td><p><pre>$ sudo systemctl --user start docker-desktop</pre></p></td>
 <td><p><pre>$ sudo service docker start</pre></p></td>
@@ -69,7 +69,7 @@ _This might take some time_. Thankfully, Docker's build step is _heavily_ cached
 
 > ### For Windows:
 >
-> You may encounter various errors involving file permissions if using Windows-based tools alongside WSL2. It is recommend that you fix these issues by either granting the correct file permissions to any that Windows may have modified, or by redownloading the repository from github. 
+> You may encounter various errors involving file permissions if using Windows-based tools alongside WSL2. It is recommend that you fix these issues by either granting the correct file permissions to any that Windows may have modified, or by re-cloning the repository purely within WSL2.
 
 Once everything has started, you can connect to `http://www.wikijump.localhost/`. Changes you make to the codebase should automatically be applied to the containers, as your machine's filesystem has been "bound" to the containers' filesystem. This is one-way, so a container can't modify your filesystem. Adding new dependencies, however, will require a rebuild.
 
