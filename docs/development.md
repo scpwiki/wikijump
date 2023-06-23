@@ -19,8 +19,6 @@ The recommended way to install Wikijump is via Docker. Docker is a way of contai
 You will need [Docker](https://www.docker.com/) installed and running:
 
 <pre>$ sudo apt install docker.io</pre>
-Then start the Docker daemon via dockerd:</p>
-<pre>$ sudo dockerd</pre></p>
 
 ## Setup: Utilities and Programs
 
@@ -37,7 +35,7 @@ Node, NPM, and PNPM are well-behaved on Windows and Linux, and the difference in
 
 There are a couple of configuration files that need to be initialized prior to running your instance of Wikijump. These will be the `config.toml` and `.env` files, both located in the `deepwell` subdirectory. Both of these files can be copied from their `.example` counterparts without changing them, though it is worth looking through them briefly to understand what can be configurated for your instance.
 
-There is also a Docker configuration file that configures the various containers that host Wikijump in the local environment. You can find this file in `install/local/dev/`, named `docker-compose.yaml`.
+There is also a Docker configuration file that configures the various containers that host Wikijump in the local environment. You can find this file in `install/local/dev/`, named `docker-compose.yaml`, alongside `docker-compose.dev.yaml` (which provides various helpful tools for developing locally).
 
 Notice that in `docker-compose.yaml`, there are configuration options for the domains to use. For development purposes, these are set to `wikijump.localhost`. This is the domain you will be connecting to, e.g. `http://www.wikijump.localhost`. The TLD `.localhost` is just like the usual `localhost` domain. Currently, the domain uses `HTTPS`, which can result in a certificate error as it is self signed — this can just be ignored.
 
@@ -101,7 +99,7 @@ If you want to enter a container to make temporary changes, you can do so by ent
 $ docker exec -it [container id] sh
 ```
 
-...where `[container id]` is the ID of the corresponding container from `docker ps`.
+...where `[container id]` is the ID of the corresponding container from `docker ps`. (`sh` can be replaced with a different command.)
 
 One reason you may need to enter the container is to manually adjust the Wikijump config. For example, if you use a port other than 80 for your Docker container, you will need to edit `site.custom_domain` to add the port number (e.g. "`www.wikijump.localhost:8080`"). Alternatively, use curl to set the domain directly (e.g. "`-H 'www.wikijump.localhost'`")
 
