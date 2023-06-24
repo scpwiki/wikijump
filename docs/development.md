@@ -45,7 +45,7 @@ Node, NPM, and PNPM are well-behaved on Windows and Linux, and the difference in
 
 ## Setup: Configuration
 
-There are a couple of configuration files that need to be initialized prior to running your instance of Wikijump. These will be the `config.toml` and `.env` files, both located in the `deepwell` subdirectory. Both of these files can be copied from their `.example` counterparts without changing them, though it is worth looking through them briefly to understand what can be configurated for your instance.
+There are a couple of configuration files that need to be initialized prior to running your instance of Wikijump. These will be the `config.toml` and `.env` files, both located in the `deepwell` subdirectory. For a typical local deploy, both of these files can be copied from their `.example` counterparts without changing them, though it is worth looking through them briefly to understand what can be configurated for your instance.
 
 There is also a Docker configuration file that configures the various containers that host Wikijump in the local environment. You can find this file in `install/local/dev/`, named `docker-compose.yaml`, alongside `docker-compose.dev.yaml` (which provides various helpful tools for developing locally).
 
