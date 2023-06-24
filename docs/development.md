@@ -20,6 +20,18 @@ You will need [Docker](https://www.docker.com/) installed and running:
 
 <pre>$ sudo apt install docker.io</pre>
 
+This example is for Ubuntu. Installation may be different depending on your Linux distro. See [here](https://docs.docker.com/desktop/install/linux-install/) for more information.
+
+After installing Docker, you can run it with the following commands:
+
+<table>
+<thead><tr><th>systemd Distros</th><th>WSL2</th></tr></thead>
+<tbody valign="top">
+<td><p><pre>$ sudo systemctl enable --now docker.service</pre></p></td>
+<td><p><pre>$ sudo service docker start</pre></p></td>
+</tbody>
+</table>
+
 ## Setup: Utilities and Programs
 
 You will need some utilities and programs to get started. You will to install the following:
@@ -49,17 +61,7 @@ $ pnpm install
 
 ## Building
 
-You can now finally build the Docker images. First, start Docker:
-
-<table>
-<thead><tr><th>systemd Distros</th><th>WSL2</th></tr></thead>
-<tbody valign="top">
-<td><p><pre>$ sudo systemctl --user start docker-desktop</pre></p></td>
-<td><p><pre>$ sudo service docker start</pre></p></td>
-</tbody>
-</table>
-
-Then, navigate to `install/local/dev` and run the following:
+You can now finally build the Docker images. Navigate to `install/local/dev` and run the following:
 
 ```sh
 $ docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml up
