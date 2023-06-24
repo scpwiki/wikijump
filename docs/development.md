@@ -92,6 +92,7 @@ $ docker images        # List images
 $ docker rmi [ID]      # Remove the image with this ID
 ```
 
+You can also use `docker system prune`, which deletes *everything* unused, though this should be used sparingly.
 
 ## Entering the container
 
