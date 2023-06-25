@@ -66,7 +66,7 @@ impl SiteMemberService {
                 model.date_left = Set(Some(now()));
                 model.update(txn).await?
             },
-            
+
             // If no membership is found, return BadRequest error.
             None => {
                 tide::log::error!(
@@ -90,7 +90,7 @@ impl SiteMemberService {
         SiteMembership { site_id, user_id }: SiteMembership
     ) -> Result<Option<SiteMemberModel>> {
         let txn = ctx.transaction();
-        let vote = SiteMember::find()
+        let model = SiteMember::find()
             .filter(
                 Condition::all()
                     .add(site_member::Column::SiteId.eq(site_id))
@@ -99,6 +99,23 @@ impl SiteMemberService {
             )
             .one(txn)
             .await?;
-        Ok(vote)
+        Ok(model)
+    }
+
+    /// Get all users of a site.
+    pub async fn get_site_members(ctx: &ServiceContext<'_>, site_id: i64) -> Result<Vec<SiteMemberModel>> {
+        let tnx = ctx.transaction();
+
+        let models = SiteMember::find()
+        .filter(
+            Condition::all()
+                .add(site_member::Column::SiteId.eq(site_id))
+                .add(site_member::Column::DateLeft.is_null())
+        )
+        .order_by_asc(site_member::Column::MembershipId)
+        .all(tnx)
+        .await?;
+
+        Ok(models)
     }
 }
