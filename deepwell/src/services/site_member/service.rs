@@ -80,7 +80,7 @@ impl SiteMemberService {
             // If no membership is found, return BadRequest error.
             None => {
                 tide::log::error!(
-                    "Could not remove user ID {user_id} from site ID {site_id} as they are not a member."
+                    "Could not remove user ID {user_id} from site ID {site_id} as they are not a member.",
                 );
                 return Err(Error::BadRequest);
             }
