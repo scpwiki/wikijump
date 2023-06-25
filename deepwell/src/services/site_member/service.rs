@@ -54,7 +54,6 @@ impl SiteMemberService {
         };
 
         let membership = model.insert(txn).await?;
-
         Ok(Some(membership))
     }
 
