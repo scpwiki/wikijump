@@ -22,14 +22,7 @@ use super::prelude::*;
 
 #[derive(Deserialize, Debug, Copy, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct CreateMembership {
-    pub site_id: i64,
-    pub user_id: i64,
-}
-
-#[derive(Deserialize, Debug, Copy, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct GetMembership {
+pub struct SiteMembership {
     pub site_id: i64,
     pub user_id: i64,
 }
