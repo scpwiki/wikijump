@@ -152,7 +152,7 @@ impl SiteMemberService {
             .order_by_asc(site_member::Column::MembershipId)
             .all(txn)
             .await?;
-            
+
         Ok(models)
     }
 }
