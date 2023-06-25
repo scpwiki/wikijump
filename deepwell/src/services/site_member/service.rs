@@ -64,7 +64,7 @@ impl SiteMemberService {
     ) -> Result<SiteMemberModel> {
         let txn = ctx.transaction();
         tide::log::info!(
-            "Removing the membership of user ID {user_id} from site ID {site_id}"
+            "Removing the membership of user ID {user_id} from site ID {site_id}",
         );
 
         let model = match Self::get_optional(ctx, SiteMembership { site_id, user_id })
