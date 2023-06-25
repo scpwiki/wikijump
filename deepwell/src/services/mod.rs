@@ -72,6 +72,7 @@ pub mod render;
 pub mod score;
 pub mod session;
 pub mod site;
+pub mod site_member;
 pub mod special_page;
 pub mod text;
 pub mod user;
