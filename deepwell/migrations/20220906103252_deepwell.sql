@@ -102,6 +102,20 @@ ALTER TABLE site
     FOREIGN KEY (custom_domain) REFERENCES site_domain(domain);
 
 --
+-- Site Membership
+--
+
+CREATE TABLE site_member (
+    membership_id BIGSERIAL PRIMARY KEY,
+    user_id BIGSERIAL NOT NULL REFERENCES "user"(user_id),
+    site_id BIGSERIAL NOT NULL REFERENCES site(site_id),
+    date_joined TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+    date_left TIMESTAMP WITH TIME ZONE,
+
+    UNIQUE (user_id, site_id, date_left)
+);
+
+--
 -- Aliases
 --
 
