@@ -62,7 +62,7 @@ impl SiteMemberService {
     pub async fn remove(
         ctx: &ServiceContext<'_>,
         SiteMembership { site_id, user_id }: SiteMembership,
-    ) -> Result<Option<SiteMemberModel>> {
+    ) -> Result<SiteMemberModel> {
         let txn = ctx.transaction();
         tide::log::info!(
             "Removing the membership of user ID {user_id} from site ID {site_id}"
@@ -87,7 +87,7 @@ impl SiteMemberService {
             }
         };
 
-        Ok(Some(model))
+        Ok(model)
     }
 
     #[inline]
@@ -136,88 +136,23 @@ impl SiteMemberService {
         Ok(models)
     }
 
-    /// Get membership history.
-    ///
-    /// The `start_id` argument gives the start ID to search from, exclusive.
-    /// If `0`, then it means "everything".
-    ///
-    /// Both `user_id` and `site_id` are presented as separate arguments to allow for
-    /// neither to be provided as input (returning all membership history in general), one
-    /// or the other to be provided, or both (which tracks a user's membership on a specific site).
-    ///
-    /// The `current_members` argument:
-    /// * If it is `Some(true)`, then it only returns current memberships.
-    /// * If it is `Some(false)`, then it doesn't return any current memberships.
-    /// * If it is `None`, then it returns all memberships, regardless of currency.
-    pub async fn get_history(
+    /// Get all sites a user is a member of, ordered by oldest to newest.
+    pub async fn get_user_sites(
         ctx: &ServiceContext<'_>,
-        SiteMembershipHistory {
-            user_id,
-            site_id,
-            current_members,
-            start_id,
-            limit,
-        }: SiteMembershipHistory,
+        user_id: i64,
     ) -> Result<Vec<SiteMemberModel>> {
         let txn = ctx.transaction();
-        let condition =
-            Self::build_history_condition(user_id, site_id, current_members, start_id);
 
-        let model = SiteMember::find()
-            .filter(condition)
+        let models = SiteMember::find()
+            .filter(
+                Condition::all()
+                    .add(site_member::Column::UserId.eq(user_id))
+                    .add(site_member::Column::DateLeft.is_null()),
+            )
             .order_by_asc(site_member::Column::MembershipId)
-            .limit(limit)
             .all(txn)
             .await?;
-
-        Ok(model)
-    }
-
-    /// Counts the number of memberships according to the same specifications of `get_history()`.
-    /// See the method for more information.
-    pub async fn get_history_count(
-        ctx: &ServiceContext<'_>,
-        SiteMembershipHistory {
-            user_id,
-            site_id,
-            current_members,
-            start_id,
-            limit,
-        }: SiteMembershipHistory,
-    ) -> Result<u64> {
-        let txn = ctx.transaction();
-        let condition =
-            Self::build_history_condition(user_id, site_id, current_members, start_id);
-
-        let count = SiteMember::find()
-            .filter(condition)
-            .order_by_asc(site_member::Column::MembershipId)
-            .limit(limit)
-            .count(txn)
-            .await?;
-
-        Ok(count)
-    }
-
-    fn build_history_condition(
-        user_id: Option<i64>,
-        site_id: Option<i64>,
-        current_members: Option<bool>,
-        start_id: i64,
-    ) -> Condition {
-        let user_condition = user_id.map(|id| site_member::Column::UserId.eq(id));
-        let site_condition = site_id.map(|id| site_member::Column::SiteId.eq(id));
-
-        let members_condition = match current_members {
-            Some(true) => Some(site_member::Column::DateLeft.is_null()),
-            Some(false) => Some(site_member::Column::DateLeft.is_not_null()),
-            None => None,
-        };
-
-        Condition::all()
-            .add(site_member::Column::MembershipId.gt(start_id))
-            .add_option(user_condition)
-            .add_option(site_condition)
-            .add_option(members_condition)
+            
+        Ok(models)
     }
 }

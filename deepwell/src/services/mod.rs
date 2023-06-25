@@ -105,6 +105,7 @@ pub use self::render::RenderService;
 pub use self::score::ScoreService;
 pub use self::session::SessionService;
 pub use self::site::SiteService;
+pub use self::site_member::SiteMemberService;
 pub use self::special_page::SpecialPageService;
 pub use self::text::TextService;
 pub use self::user::UserService;

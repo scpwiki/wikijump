@@ -30,7 +30,7 @@ use crate::config::{Config, Secrets};
 use crate::database;
 use crate::endpoints::{
     auth::*, category::*, email::*, file::*, file_revision::*, link::*, locale::*,
-    misc::*, page::*, page_revision::*, parent::*, site::*, text::*, user::*,
+    misc::*, page::*, page_revision::*, parent::*, site::*, site_member::*, text::*, user::*,
     user_bot::*, view::*, vote::*,
 };
 use crate::locales::Localizations;
@@ -165,6 +165,14 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
     app.at("/site/domain/custom/get")
         .get(site_custom_domain_retrieve);
     app.at("/site/fromDomain/:domain").get(site_get_from_domain);
+
+    // Site Membership
+    app.at("/site/members").get(membership_site_retrieve);
+    app.at("/site/members/get").get(membership_retrieve);
+    app.at("/site/members/add").put(membership_put);
+    app.at("/site/members/remove").delete(membership_delete);
+    app.at("/user/sites").get(membership_user_retrieve); // More appropriate to put here,
+                                                            // as part of membership endpoints.
 
     // Category
     app.at("/category").get(category_get);
