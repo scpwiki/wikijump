@@ -109,10 +109,10 @@ CREATE TABLE site_member (
     membership_id BIGSERIAL PRIMARY KEY,
     user_id BIGSERIAL NOT NULL REFERENCES "user"(user_id),
     site_id BIGSERIAL NOT NULL REFERENCES site(site_id),
-    date_joined TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-    date_left TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+    deleted_at TIMESTAMP WITH TIME ZONE,
 
-    UNIQUE (user_id, site_id, date_left)
+    UNIQUE (user_id, site_id, deleted_at)
 );
 
 --

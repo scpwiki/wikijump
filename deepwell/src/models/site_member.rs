@@ -10,8 +10,8 @@ pub struct Model {
     pub membership_id: i64,
     pub user_id: i64,
     pub site_id: i64,
-    pub date_joined: TimeDateTimeWithTimeZone,
-    pub date_left: Option<TimeDateTimeWithTimeZone>,
+    pub created_at: TimeDateTimeWithTimeZone,
+    pub deleted_at: Option<TimeDateTimeWithTimeZone>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

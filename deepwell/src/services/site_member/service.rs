@@ -49,7 +49,7 @@ impl SiteMemberService {
         let model = site_member::ActiveModel {
             user_id: Set(user_id),
             site_id: Set(site_id),
-            date_left: Set(None),
+            deleted_at: Set(None),
             ..Default::default()
         };
 
@@ -74,7 +74,7 @@ impl SiteMemberService {
             // If membership is found, remove it by setting the leave date.
             Some(member_model) => {
                 let mut model = member_model.into_active_model();
-                model.date_left = Set(Some(now()));
+                model.deleted_at = Set(Some(now()));
                 model.update(txn).await?
             }
 
@@ -109,7 +109,7 @@ impl SiteMemberService {
                 Condition::all()
                     .add(site_member::Column::SiteId.eq(site_id))
                     .add(site_member::Column::UserId.eq(user_id))
-                    .add(site_member::Column::DateLeft.is_null()),
+                    .add(site_member::Column::DeletedAt.is_null()),
             )
             .one(txn)
             .await?;
@@ -127,7 +127,7 @@ impl SiteMemberService {
             .filter(
                 Condition::all()
                     .add(site_member::Column::SiteId.eq(site_id))
-                    .add(site_member::Column::DateLeft.is_null()),
+                    .add(site_member::Column::DeletedAt.is_null()),
             )
             .order_by_asc(site_member::Column::MembershipId)
             .all(txn)
@@ -147,7 +147,7 @@ impl SiteMemberService {
             .filter(
                 Condition::all()
                     .add(site_member::Column::UserId.eq(user_id))
-                    .add(site_member::Column::DateLeft.is_null()),
+                    .add(site_member::Column::DeletedAt.is_null()),
             )
             .order_by_asc(site_member::Column::MembershipId)
             .all(txn)
