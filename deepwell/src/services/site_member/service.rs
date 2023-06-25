@@ -32,7 +32,7 @@ impl SiteMemberService {
     ) -> Result<Option<SiteMemberModel>> {
         let txn = ctx.transaction();
         tide::log::info!(
-            "Adding membership of user with ID {user_id} to site ID {site_id}"
+            "Adding membership of user with ID {user_id} to site ID {site_id}",
         );
 
         // If the user is already a member of the target site, discontinue.
