@@ -1230,7 +1230,7 @@ dependencies = [
  "sha2 0.10.7",
  "sqlx",
  "str-macro",
- "strum",
+ "strum 0.25.0",
  "strum_macros 0.25.0",
  "subtle",
  "surf",
@@ -1568,7 +1568,7 @@ dependencies = [
  "serde_json",
  "serde_repr",
  "str-macro",
- "strum",
+ "strum 0.24.1",
  "strum_macros 0.24.3",
  "time 0.3.22",
  "tinyvec",
@@ -3974,6 +3974,12 @@ name = "strum"
 version = "0.24.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "063e6045c0e62079840579a7e47a355ae92f60eb74daaf156fb1e84ba164e63f"
+
+[[package]]
+name = "strum"
+version = "0.25.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "290d54ea6f91c969195bdbcd7442c8c2a2ba87da8bf60a7ee86a235d4bc1e125"
 
 [[package]]
 name = "strum_macros"
