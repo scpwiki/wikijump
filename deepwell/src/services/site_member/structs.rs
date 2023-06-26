@@ -24,13 +24,3 @@ pub struct SiteMembership {
     pub site_id: i64,
     pub user_id: i64,
 }
-
-#[derive(Deserialize, Debug, Copy, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct SiteMembershipHistory {
-    pub user_id: Option<i64>,
-    pub site_id: Option<i64>,
-    pub current_members: Option<bool>,
-    pub start_id: i64,
-    pub limit: u64,
-}
