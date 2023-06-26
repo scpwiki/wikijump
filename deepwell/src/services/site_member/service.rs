@@ -36,10 +36,7 @@ impl SiteMemberService {
         );
 
         // If the user is already a member of the target site, discontinue.
-        if Self::get_optional(ctx, SiteMembership { site_id, user_id })
-            .await?
-            .is_some()
-        {
+        if Self::exists(ctx, SiteMembership { site_id, user_id }).await? {
             return Ok(None);
         }
 
@@ -87,6 +84,13 @@ impl SiteMemberService {
         };
 
         Ok(model)
+    }
+
+    #[inline]
+    pub async fn exists(ctx: &ServiceContext<'_>, key: SiteMembership) -> Result<bool> {
+        Self::get_optional(ctx, key)
+            .await
+            .map(|member| member.is_some())
     }
 
     #[inline]
