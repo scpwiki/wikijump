@@ -32,7 +32,7 @@ impl SiteMemberService {
     ) -> Result<Option<SiteMemberModel>> {
         let txn = ctx.transaction();
         tide::log::info!(
-            "Adding membership of user with ID {user_id} to site ID {site_id}"
+            "Adding membership of user with ID {user_id} to site ID {site_id}",
         );
 
         // If the user is already a member of the target site, discontinue.
@@ -50,7 +50,6 @@ impl SiteMemberService {
         };
 
         let membership = model.insert(txn).await?;
-
         Ok(Some(membership))
     }
 
@@ -61,13 +60,13 @@ impl SiteMemberService {
     ) -> Result<SiteMemberModel> {
         let txn = ctx.transaction();
         tide::log::info!(
-            "Removing the membership of user ID {user_id} from site ID {site_id}"
+            "Removing the membership of user ID {user_id} from site ID {site_id}",
         );
 
         // If no membership is found, return BadRequest error.
         if !Self::exists(ctx, SiteMembership { site_id, user_id }).await? {
             tide::log::error!(
-                "Could not remove user ID {user_id} from site ID {site_id} as they are not a member."
+                "Could not remove user ID {user_id} from site ID {site_id} as they are not a member.",
             );
             return Err(Error::BadRequest);
         }
