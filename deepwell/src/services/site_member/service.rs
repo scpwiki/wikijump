@@ -49,7 +49,6 @@ impl SiteMemberService {
         let model = site_member::ActiveModel {
             user_id: Set(user_id),
             site_id: Set(site_id),
-            deleted_at: Set(None),
             ..Default::default()
         };
 
