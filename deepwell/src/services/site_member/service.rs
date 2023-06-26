@@ -64,26 +64,24 @@ impl SiteMemberService {
             "Removing the membership of user ID {user_id} from site ID {site_id}"
         );
 
-        let model = match Self::get_optional(ctx, SiteMembership { site_id, user_id })
+        // If no membership is found, return BadRequest error.
+        if !Self::exists(ctx, SiteMembership { site_id, user_id }).await? {
+            tide::log::error!(
+                "Could not remove user ID {user_id} from site ID {site_id} as they are not a member."
+            );
+            return Err(Error::BadRequest);
+        }
+
+        // If membership is found, remove it by setting the `deleted_at` field.
+        let mut model = Self::get(ctx, SiteMembership { site_id, user_id })
             .await?
-        {
-            // If membership is found, remove it by setting the leave date.
-            Some(member_model) => {
-                let mut model = member_model.into_active_model();
-                model.deleted_at = Set(Some(now()));
-                model.update(txn).await?
-            }
+            .into_active_model();
 
-            // If no membership is found, return BadRequest error.
-            None => {
-                tide::log::error!(
-                    "Could not remove user ID {user_id} from site ID {site_id} as they are not a member."
-                );
-                return Err(Error::BadRequest);
-            }
-        };
+        model.deleted_at = Set(Some(now()));
 
-        Ok(model)
+        let result = model.update(txn).await?;
+
+        Ok(result)
     }
 
     #[inline]
