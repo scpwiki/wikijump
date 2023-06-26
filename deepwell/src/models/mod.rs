@@ -21,6 +21,7 @@ pub mod session;
 pub mod site;
 pub mod site_alias;
 pub mod site_domain;
+pub mod site_member;
 pub mod text;
 pub mod user;
 pub mod user_bot_owner;
