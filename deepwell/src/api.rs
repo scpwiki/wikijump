@@ -167,12 +167,14 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
     app.at("/site/fromDomain/:domain").get(site_get_from_domain);
 
     // Site Membership
-    app.at("/site/members").get(membership_site_retrieve);
-    app.at("/site/members/get").get(membership_retrieve);
-    app.at("/site/members/add").put(membership_put);
-    app.at("/site/members/remove").delete(membership_delete);
-    app.at("/user/sites").get(membership_user_retrieve); // More appropriate to put here,
-                                                         // as part of membership endpoints.
+    app.at("/site/member")
+        .get(membership_retrieve)
+        .put(membership_put)
+        .delete(membership_delete);
+    app.at("/site/member/list/get")
+        .put(membership_site_retrieve);
+    app.at("/user/sites/get").put(membership_user_retrieve); // More appropriate to put here,
+                                                             // as part of membership endpoints.
 
     // Category
     app.at("/category").get(category_get);
