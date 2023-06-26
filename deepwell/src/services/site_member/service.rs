@@ -158,4 +158,26 @@ impl SiteMemberService {
 
         Ok(models)
     }
+
+    /// Gets a user's membership history. Optionally filter by site through `site_id`.
+    #[allow(dead_code)]
+    pub async fn get_membership_history(
+        ctx: &ServiceContext<'_>,
+        user_id: i64,
+        site_id: Option<i64>,
+    ) -> Result<Vec<SiteMemberModel>> {
+        let txn = ctx.transaction();
+
+        let models = SiteMember::find()
+            .filter(
+                Condition::all()
+                    .add(site_member::Column::UserId.eq(user_id))
+                    .add_option(site_id.map(|id| site_member::Column::SiteId.eq(id))),
+            )
+            .order_by_asc(site_member::Column::MembershipId)
+            .all(txn)
+            .await?;
+
+        Ok(models)
+    }
 }
