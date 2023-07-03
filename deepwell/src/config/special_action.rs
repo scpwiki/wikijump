@@ -31,7 +31,9 @@ use std::{env, process};
 pub fn run_special_action() {
     // Get action name, if specified.
     // Otherwise return and perform normal execution.
-    let Ok(action_name) = env::var("DEEPWELL_SPECIAL_ACTION") else { return };
+    let Ok(action_name) = env::var("DEEPWELL_SPECIAL_ACTION") else {
+        return;
+    };
 
     // Run appropriate special action.
     let return_code = match action_name.as_str() {
