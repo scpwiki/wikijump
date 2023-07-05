@@ -170,6 +170,7 @@ CREATE TABLE page (
     deleted_at TIMESTAMP WITH TIME ZONE,
     from_wikidot BOOLEAN NOT NULL DEFAULT false,
     site_id BIGINT NOT NULL REFERENCES site(site_id),
+    latest_revision_id BIGINT, -- nullable to avoid an initial page_revision dependency cycle
     page_category_id BIGINT NOT NULL REFERENCES page_category(category_id),
     slug TEXT NOT NULL,
     discussion_thread_id BIGINT, -- TODO: add REFERENCES to forum threads
@@ -268,6 +269,10 @@ CREATE TABLE page_revision (
     -- For logical consistency, and adding an index
     UNIQUE (page_id, site_id, revision_number)
 );
+
+-- Add foreign key constraint for latest_revision_id
+ALTER TABLE page ADD CONSTRAINT page_revision_revision_id_fk
+    FOREIGN KEY (latest_revision_id) REFERENCES page_revision(revision_id);
 
 --
 -- Page metadata
