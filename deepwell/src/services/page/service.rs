@@ -30,6 +30,7 @@ use crate::services::page_revision::{
 use crate::services::{CategoryService, FilterService, PageRevisionService, TextService};
 use crate::utils::{get_category_name, trim_default};
 use crate::web::PageOrder;
+use sea_orm::ActiveValue;
 use wikidot_normalize::normalize;
 
 #[derive(Debug)]
@@ -79,7 +80,7 @@ impl PageService {
             slug: Set(slug.clone()),
             ..Default::default()
         };
-        let page = model.insert(txn).await?;
+        let PageModel { page_id, .. } = model.insert(txn).await?;
 
         // Commit first revision
         let revision_input = CreateFirstPageRevision {
@@ -94,12 +95,20 @@ impl PageService {
         let CreateFirstPageRevisionOutput {
             revision_id,
             parser_errors,
-        } = PageRevisionService::create_first(ctx, site_id, page.page_id, revision_input)
+        } = PageRevisionService::create_first(ctx, site_id, page_id, revision_input)
             .await?;
+
+        // Update latest revision
+        let model = page::ActiveModel {
+            page_id: Set(page_id),
+            latest_revision_id: Set(Some(revision_id)),
+            ..Default::default()
+        };
+        model.update(txn).await?;
 
         // Build and return
         Ok(CreatePageOutput {
-            page_id: page.page_id,
+            page_id,
             slug,
             revision_id,
             parser_errors,
@@ -169,12 +178,18 @@ impl PageService {
         )
         .await?;
 
-        // Set page updated_at column.
+        let latest_revision_id = match revision_output {
+            Some(ref output) => ActiveValue::Set(Some(output.revision_id)),
+            None => ActiveValue::NotSet,
+        };
+
+        // Set page updated_at and latest_revision_id columns.
         //
         // Previously this was conditional on whether a revision was actually created.
         // But since this rerenders regardless, we need to update the page row.
         let model = page::ActiveModel {
             page_id: Set(page_id),
+            latest_revision_id,
             updated_at: Set(Some(now())),
             ..Default::default()
         };
@@ -242,14 +257,21 @@ impl PageService {
         )
         .await?;
 
+        let latest_revision_id = match revision_output {
+            Some(ref output) => ActiveValue::Set(Some(output.revision_id)),
+            None => ActiveValue::NotSet,
+        };
+
         // Update page after move. This changes:
-        // * slug             -- New slug for the page
-        // * page_category_id -- In case the category also changed
-        // * updated_at       -- This is updated every time a page is changed
+        // * slug               -- New slug for the page
+        // * page_category_id   -- In case the category also changed
+        // * latest_revision_id -- In case a new revision was created
+        // * updated_at         -- This is updated every time a page is changed
         let model = page::ActiveModel {
             page_id: Set(page_id),
             slug: Set(new_slug.clone()),
             page_category_id: Set(category_id),
+            latest_revision_id,
             updated_at: Set(Some(now())),
             ..Default::default()
         };
@@ -310,6 +332,7 @@ impl PageService {
         // Set deletion flag
         let model = page::ActiveModel {
             page_id: Set(page_id),
+            latest_revision_id: Set(Some(output.revision_id)),
             deleted_at: Set(Some(now())),
             ..Default::default()
         };
@@ -379,6 +402,7 @@ impl PageService {
         let model = page::ActiveModel {
             page_id: Set(page_id),
             page_category_id: Set(category.category_id),
+            latest_revision_id: Set(Some(output.revision_id)),
             deleted_at: Set(None),
             ..Default::default()
         };
