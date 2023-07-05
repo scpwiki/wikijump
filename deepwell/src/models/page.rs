@@ -15,6 +15,7 @@ pub struct Model {
     pub deleted_at: Option<OffsetDateTime>,
     pub from_wikidot: bool,
     pub site_id: i64,
+    pub latest_revision_id: Option<i64>,
     pub page_category_id: i64,
     #[sea_orm(column_type = "Text")]
     pub slug: String,
@@ -32,6 +33,14 @@ pub enum Relation {
     )]
     PageCategory,
     #[sea_orm(
+        belongs_to = "super::page_revision::Entity",
+        from = "Column::LatestRevisionId",
+        to = "super::page_revision::Column::RevisionId",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    PageRevision,
+    #[sea_orm(
         belongs_to = "super::site::Entity",
         from = "Column::SiteId",
         to = "super::site::Column::SiteId",
@@ -39,8 +48,6 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     Site,
-    #[sea_orm(has_many = "super::page_revision::Entity")]
-    PageRevision,
     #[sea_orm(has_many = "super::page_attribution::Entity")]
     PageAttribution,
     #[sea_orm(has_many = "super::page_lock::Entity")]
