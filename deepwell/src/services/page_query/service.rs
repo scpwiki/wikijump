@@ -318,9 +318,92 @@ impl PageQueryService {
         // TODO
 
         // Build the final query
+        // Add on at the query-level (ORDER BY, LIMIT)
         let mut query = Page::find().filter(condition);
 
+        {
+            use sea_orm::query::Order;
+            use sea_query::{func::Func, SimpleExpr};
+
+            let OrderBySelector {
+                property,
+                ascending,
+            } = order.unwrap_or_default();
+            tide::log::debug!(
+                "Ordering ListPages using {:?} (ascending: {})",
+                property,
+                ascending,
+            );
+
+            let order = if ascending { Order::Asc } else { Order::Desc };
+
+            // TODO: implement missing properties. these require subqueries or joins or something
+            query = match property {
+                OrderProperty::PageSlug => {
+                    // idk how to do this, we need to strip off the category part somehow
+                    tide::log::error!(
+                        "Ordering by page slug (no category), not yet implemented",
+                    );
+                    todo!() // TODO
+                }
+                OrderProperty::FullSlug => {
+                    tide::log::debug!("Ordering by page slug (with category");
+                    query.order_by(page::Column::Slug, order)
+                }
+                OrderProperty::Title => {
+                    tide::log::error!("Ordering by title, not yet implemented");
+                    todo!() // TODO, join with latest revision
+                }
+                OrderProperty::AltTitle => {
+                    tide::log::error!("Ordering by alt title, not yet implemented");
+                    todo!() // TODO, join with latest revision
+                }
+                OrderProperty::CreatedBy => {
+                    tide::log::error!("Ordering by author, not yet implemented");
+                    todo!() // TODO
+                }
+                OrderProperty::CreatedAt => {
+                    tide::log::debug!("Ordering by page creation timestamp");
+                    query.order_by(page::Column::CreatedAt, order)
+                }
+                OrderProperty::UpdatedAt => {
+                    tide::log::debug!("Ordering by page last update timestamp");
+                    query.order_by(page::Column::UpdatedAt, order)
+                }
+                OrderProperty::Size => {
+                    tide::log::error!("Ordering by page size, not yet implemented");
+                    todo!() // TODO
+                }
+                OrderProperty::Score => {
+                    tide::log::error!("Ordering by score, not yet implemented");
+                    todo!() // TODO
+                }
+                OrderProperty::Votes => {
+                    tide::log::error!("Ordering by vote count, not yet implemented");
+                    todo!() // TODO
+                }
+                OrderProperty::Revisions => {
+                    tide::log::error!("Ordering by revision count, not yet implemented");
+                    todo!() // TODO, join with latest revision
+                }
+                OrderProperty::Comments => {
+                    tide::log::error!("Ordering by comment count, not yet implemented");
+                    todo!() // TODO
+                }
+                OrderProperty::Random => {
+                    tide::log::debug!("Ordering by random value");
+                    let expr = SimpleExpr::FunctionCall(Func::random());
+                    query.order_by(expr, order)
+                }
+                OrderProperty::DataFormFieldName => {
+                    tide::log::error!("Ordering by data form field, not yet implemented");
+                    todo!() // TODO
+                }
+            };
+        }
+
         if let Some(limit) = pagination.limit {
+            tide::log::debug!("Limiting ListPages to a maximum of {limit} pages total");
             query = query.limit(limit);
         }
 
