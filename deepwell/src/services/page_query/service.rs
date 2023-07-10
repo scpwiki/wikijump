@@ -99,21 +99,19 @@ impl PageQueryService {
             };
         }
 
-        condition = match included_categories {
+        let page_category_condition = match included_categories {
             // If all categories are selected (using an asterisk or by only specifying excluded categories),
             // then filter only by site_id and exclude the specified excluded categories.
-            IncludedCategories::All => condition.add(
-                page::Column::PageCategoryId.in_subquery(
-                    Query::select()
-                        .column(page_category::Column::CategoryId)
-                        .from(PageCategory)
-                        .and_where(page_category::Column::SiteId.eq(queried_site_id))
-                        .and_where(
-                            page_category::Column::Slug
-                                .is_not_in(cat_slugs!(excluded_categories)),
-                        )
-                        .to_owned(),
-                ),
+            IncludedCategories::All => page::Column::PageCategoryId.in_subquery(
+                Query::select()
+                    .column(page_category::Column::CategoryId)
+                    .from(PageCategory)
+                    .and_where(page_category::Column::SiteId.eq(queried_site_id))
+                    .and_where(
+                        page_category::Column::Slug
+                            .is_not_in(cat_slugs!(excluded_categories)),
+                    )
+                    .to_owned(),
             ),
 
             // If a specific list of categories is provided, filter by site_id, inclusion in the
@@ -123,8 +121,8 @@ impl PageQueryService {
             //       Although by definition this is the same as not including the category in the
             //       included categories to begin with, it is still accounted for to preserve
             //       backwards-compatibility with poorly-constructed ListPages modules.
-            IncludedCategories::List(included_categories) => condition.add(
-                page::Column::PageCategoryId.in_subquery(
+            IncludedCategories::List(included_categories) => page::Column::PageCategoryId
+                .in_subquery(
                     Query::select()
                         .column(page_category::Column::CategoryId)
                         .from(PageCategory)
@@ -139,8 +137,8 @@ impl PageQueryService {
                         )
                         .to_owned(),
                 ),
-            ),
         };
+        condition = condition.add(page_category_condition);
 
         // Page Parents
         //
@@ -151,34 +149,28 @@ impl PageQueryService {
             };
         }
 
-        condition = match page_parent {
+        let page_parent_condition = match page_parent {
             // Pages with no parents.
             // This means that there should be no rows in page_parent where they are the child page.
-            PageParentSelector::NoParent => condition.add(
-                page::Column::PageId.not_in_subquery(
-                    Query::select()
-                        .column(page_parent::Column::ChildPageId)
-                        .from(PageParent)
-                        .to_owned(),
-                ),
+            PageParentSelector::NoParent => page::Column::PageId.not_in_subquery(
+                Query::select()
+                    .column(page_parent::Column::ChildPageId)
+                    .from(PageParent)
+                    .to_owned(),
             ),
 
             // Pages with at least one parent in common with the current page.
-            PageParentSelector::SameParents(parents) => condition.add(
-                page::Column::PageId.in_subquery(
-                    Query::select()
-                        .column(page_parent::Column::ChildPageId)
-                        .from(PageParent)
-                        .and_where(
-                            page_parent::Column::ParentPageId.is_in(id_iter!(parents)),
-                        )
-                        .to_owned(),
-                ),
+            PageParentSelector::SameParents(parents) => page::Column::PageId.in_subquery(
+                Query::select()
+                    .column(page_parent::Column::ChildPageId)
+                    .from(PageParent)
+                    .and_where(page_parent::Column::ParentPageId.is_in(id_iter!(parents)))
+                    .to_owned(),
             ),
 
             // Pages with no parents in common with the current page.
-            PageParentSelector::DifferentParents(parents) => condition.add(
-                page::Column::PageId.in_subquery(
+            PageParentSelector::DifferentParents(parents) => page::Column::PageId
+                .in_subquery(
                     Query::select()
                         .column(page_parent::Column::ChildPageId)
                         .from(PageParent)
@@ -188,17 +180,14 @@ impl PageQueryService {
                         )
                         .to_owned(),
                 ),
-            ),
 
             // Pages which are children of the current page.
-            PageParentSelector::ChildOf => condition.add(
-                page::Column::PageId.in_subquery(
-                    Query::select()
-                        .column(page_parent::Column::ChildPageId)
-                        .from(PageParent)
-                        .and_where(page_parent::Column::ParentPageId.eq(current_page_id))
-                        .to_owned(),
-                ),
+            PageParentSelector::ChildOf => page::Column::PageId.in_subquery(
+                Query::select()
+                    .column(page_parent::Column::ChildPageId)
+                    .from(PageParent)
+                    .and_where(page_parent::Column::ParentPageId.eq(current_page_id))
+                    .to_owned(),
             ),
 
             // Pages with any of the specified parents.
@@ -210,19 +199,16 @@ impl PageQueryService {
                     .into_iter()
                     .map(|page| page.page_id);
 
-                condition.add(
-                    page::Column::PageId.in_subquery(
-                        Query::select()
-                            .column(page_parent::Column::ChildPageId)
-                            .from(PageParent)
-                            .and_where(
-                                page_parent::Column::ParentPageId.is_in(parent_ids),
-                            )
-                            .to_owned(),
-                    ),
+                page::Column::PageId.in_subquery(
+                    Query::select()
+                        .column(page_parent::Column::ChildPageId)
+                        .from(PageParent)
+                        .and_where(page_parent::Column::ParentPageId.is_in(parent_ids))
+                        .to_owned(),
                 )
             }
         };
+        condition = condition.add(page_parent_condition);
 
         // TODO implement query construction
         todo!()
