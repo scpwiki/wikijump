@@ -148,14 +148,14 @@ impl ParentService {
         relationship_type: ParentalRelationshipType,
     ) -> Result<Vec<PageParentModel>> {
         let txn = ctx.transaction();
-        let page = PageService::get(ctx, site_id, reference).await?;
+        let page_id = PageService::get_id(ctx, site_id, reference).await?;
         let column = match relationship_type {
             ParentalRelationshipType::Parent => page_parent::Column::ParentPageId,
             ParentalRelationshipType::Child => page_parent::Column::ChildPageId,
         };
 
         let models = PageParent::find()
-            .filter(column.eq(page.page_id))
+            .filter(column.eq(page_id))
             .all(txn)
             .await?;
 
