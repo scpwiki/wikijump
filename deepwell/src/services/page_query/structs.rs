@@ -253,20 +253,20 @@ pub struct PageQuery<'a> {
     pub categories: CategoriesSelector<'a>,
     pub tags: TagCondition<'a>,
     pub page_parent: PageParentSelector<'a>,
-    pub contains_outgoing_links: Vec<Reference<'a>>,
+    pub contains_outgoing_links: &'a [Reference<'a>],
     pub creation_date: DateSelector,
     pub update_date: DateSelector,
-    pub author: Vec<Cow<'a, str>>,
-    pub score: Vec<ScoreSelector>, // 5-star rating selector
-    pub votes: Vec<ScoreSelector>, // upvote/downvote rating selector
+    pub author: &'a [Cow<'a, str>],
+    pub score: &'a [ScoreSelector], // 5-star rating selector
+    pub votes: &'a [ScoreSelector], // upvote/downvote rating selector
     pub offset: u32,
     pub range: RangeSelector,
     pub name: Option<Cow<'a, str>>,
     pub slug: Option<Cow<'a, str>>,
-    pub data_form_fields: Vec<DataFormSelector<'a>>,
+    pub data_form_fields: &'a [DataFormSelector<'a>],
     pub order: OrderBySelector,
     pub pagination: PaginationSelector,
-    pub variables: Vec<PageQueryVariables<'a>>,
+    pub variables: &'a [PageQueryVariables<'a>],
 }
 
 #[derive(Serialize, Debug, PartialEq, Clone)]

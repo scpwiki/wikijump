@@ -21,6 +21,7 @@
 use super::prelude::*;
 use crate::models::page::{self, Entity as Page};
 use crate::models::page_category::{self, Entity as PageCategory};
+use crate::models::page_connection::{self, Entity as PageConnection};
 use crate::models::page_parent::{self, Entity as PageParent};
 use crate::services::PageService;
 use sea_query::Query;
@@ -151,7 +152,8 @@ impl PageQueryService {
 
         let page_parent_condition = match page_parent {
             // Pages with no parents.
-            // This means that there should be no rows in page_parent where they are the child page.
+            // This means that there should be no rows in `page_parent`
+            // where they are the child page.
             PageParentSelector::NoParent => page::Column::PageId.not_in_subquery(
                 Query::select()
                     .column(page_parent::Column::ChildPageId)
@@ -214,6 +216,31 @@ impl PageQueryService {
         if let Some(slug) = slug {
             condition = condition.add(page::Column::Slug.eq(slug.as_ref()));
         }
+
+        // Contains-link
+        //
+        // Selects pages that have an outgoing link (`from_page_id`)
+        // to a specified page (`to_page_id`).
+        condition = condition.add(
+            page::Column::PageId.in_subquery(
+                Query::select()
+                    .column(page_connection::Column::FromPageId)
+                    .from(PageConnection)
+                    .and_where({
+                        let incoming_ids = PageService::get_pages(
+                            ctx,
+                            queried_site_id,
+                            contains_outgoing_links,
+                        )
+                        .await?
+                        .into_iter()
+                        .map(|page| page.page_id);
+
+                        page_connection::Column::ToPageId.is_in(incoming_ids)
+                    })
+                    .to_owned(),
+            ),
+        );
 
         // TODO implement query construction
         todo!()
