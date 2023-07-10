@@ -156,6 +156,22 @@ impl PageQueryService {
         // Page Parents
         //
         // Adds constraints based on the presence of parent pages.
+
+        // Convenience macro to pull a list of page IDs which are parents
+        // of the current page.
+        //
+        // In the places where this is used, this could be implemented
+        // as a subquery, meaning:
+        //
+        // SELECT child_page_id FROM page_parent
+        // WHERE parent_page_id IN (
+        //     SELECT parent_page_id FROM page_parent
+        //     WHERE child_page_id = $0
+        // )
+        //
+        // However looking at the query plan, this would be implemented
+        // as a self-JOIN, and involve a full sequential scan. So querying
+        // the list of parents ahead of time is faster.
         macro_rules! get_parents {
             () => {
                 ParentService::get_parents(
