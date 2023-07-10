@@ -168,7 +168,8 @@ impl ParentService {
         site_id: i64,
         reference: Reference<'_>,
     ) -> Result<Vec<PageParentModel>> {
-        Self::get_relationships(ctx, site_id, reference, ParentalRelationshipType::Child).await
+        Self::get_relationships(ctx, site_id, reference, ParentalRelationshipType::Child)
+            .await
     }
 
     /// Gets all parents of the given page.
@@ -177,7 +178,8 @@ impl ParentService {
         site_id: i64,
         reference: Reference<'_>,
     ) -> Result<Vec<PageParentModel>> {
-        Self::get_relationships(ctx, site_id, reference, ParentalRelationshipType::Parent).await
+        Self::get_relationships(ctx, site_id, reference, ParentalRelationshipType::Parent)
+            .await
     }
 
     /// Removes all parent relationships involving this page.

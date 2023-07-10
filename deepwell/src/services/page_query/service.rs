@@ -23,7 +23,7 @@ use crate::models::page::{self, Entity as Page};
 use crate::models::page_category::{self, Entity as PageCategory};
 use crate::models::page_connection::{self, Entity as PageConnection};
 use crate::models::page_parent::{self, Entity as PageParent};
-use crate::services::PageService;
+use crate::services::{PageService, ParentService};
 use sea_query::Query;
 use void::Void;
 
@@ -156,9 +156,16 @@ impl PageQueryService {
         // Page Parents
         //
         // Adds constraints based on the presence of parent pages.
-        macro_rules! id_iter {
-            ($slice:expr) => {
-                $slice.into_iter().map(|i| *i)
+        macro_rules! get_parents {
+            () => {
+                ParentService::get_parents(
+                    ctx,
+                    current_site_id,
+                    Reference::Id(current_page_id),
+                )
+                .await?
+                .into_iter()
+                .map(|parent| parent.parent_page_id)
             };
         }
 
@@ -179,7 +186,7 @@ impl PageQueryService {
 
             // Pages which are siblings of the current page,
             // i.e., they share parents in common with the current page.
-            PageParentSelector::SameParents(parents) => {
+            PageParentSelector::SameParents => {
                 tide::log::debug!("Selecting pages are siblings under the given parents");
 
                 page::Column::PageId.in_subquery(
@@ -187,7 +194,7 @@ impl PageQueryService {
                         .column(page_parent::Column::ChildPageId)
                         .from(PageParent)
                         .and_where(
-                            page_parent::Column::ParentPageId.is_in(id_iter!(parents)),
+                            page_parent::Column::ParentPageId.is_in(get_parents!()),
                         )
                         .to_owned(),
                 )
@@ -195,18 +202,26 @@ impl PageQueryService {
 
             // Pages which are not siblings of the current page,
             // i.e., they do not share any parents with the current page.
-            PageParentSelector::DifferentParents(parents) => {
+            PageParentSelector::DifferentParents => {
                 tide::log::debug!(
                     "Selecting pages which are not siblings under the given parents",
                 );
+
+                let parents = ParentService::get_parents(
+                    ctx,
+                    current_site_id,
+                    Reference::Id(current_page_id),
+                )
+                .await?
+                .into_iter()
+                .map(|parent| parent.parent_page_id);
 
                 page::Column::PageId.in_subquery(
                     Query::select()
                         .column(page_parent::Column::ChildPageId)
                         .from(PageParent)
                         .and_where(
-                            page_parent::Column::ParentPageId
-                                .is_not_in(id_iter!(parents)),
+                            page_parent::Column::ParentPageId.is_not_in(get_parents!()),
                         )
                         .to_owned(),
                 )
