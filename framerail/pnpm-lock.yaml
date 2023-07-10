@@ -75,8 +75,8 @@ devDependencies:
     specifier: ^3.4.4
     version: 3.4.4(postcss@8.4.24)(sass@1.56.1)(svelte@3.59.2)
   svelte-preprocess:
-    specifier: ^5.0.0
-    version: 5.0.3(postcss@8.4.24)(sass@1.56.1)(svelte@3.59.2)(typescript@5.0.3)
+    specifier: ^5.0.4
+    version: 5.0.4(postcss@8.4.24)(sass@1.56.1)(svelte@3.59.2)(typescript@5.0.3)
   tslib:
     specifier: ^2.6.0
     version: 2.6.0
@@ -2701,7 +2701,7 @@ packages:
       picocolors: 1.0.0
       sade: 1.8.1
       svelte: 3.59.2
-      svelte-preprocess: 5.0.3(postcss@8.4.24)(sass@1.56.1)(svelte@3.59.2)(typescript@5.0.3)
+      svelte-preprocess: 5.0.4(postcss@8.4.24)(sass@1.56.1)(svelte@3.59.2)(typescript@5.0.3)
       typescript: 5.0.3
     transitivePeerDependencies:
       - '@babel/core'
@@ -2741,8 +2741,8 @@ packages:
       svelte: 3.59.2
     dev: true
 
-  /svelte-preprocess@5.0.3(postcss@8.4.24)(sass@1.56.1)(svelte@3.59.2)(typescript@5.0.3):
-    resolution: {integrity: sha512-GrHF1rusdJVbOZOwgPWtpqmaexkydznKzy5qIC2FabgpFyKN57bjMUUUqPRfbBXK5igiEWn1uO/DXsa2vJ5VHA==}
+  /svelte-preprocess@5.0.4(postcss@8.4.24)(sass@1.56.1)(svelte@3.59.2)(typescript@5.0.3):
+    resolution: {integrity: sha512-ABia2QegosxOGsVlsSBJvoWeXy1wUKSfF7SWJdTjLAbx/Y3SrVevvvbFNQqrSJw89+lNSsM58SipmZJ5SRi5iw==}
     engines: {node: '>= 14.10.0'}
     requiresBuild: true
     peerDependencies:
@@ -2755,7 +2755,7 @@ packages:
       sass: ^1.26.8
       stylus: ^0.55.0
       sugarss: ^2.0.0 || ^3.0.0 || ^4.0.0
-      svelte: ^3.23.0
+      svelte: ^3.23.0 || ^4.0.0-next.0 || ^4.0.0
       typescript: '>=3.9.5 || ^4.0.0 || ^5.0.0'
     peerDependenciesMeta:
       '@babel/core':
