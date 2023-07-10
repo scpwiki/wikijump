@@ -177,9 +177,10 @@ impl PageQueryService {
                 )
             }
 
-            // Pages which have at least one of the given as a parent page.
+            // Pages which are siblings of the current page,
+            // i.e., they share parents in common with the current page.
             PageParentSelector::SameParents(parents) => {
-                tide::log::debug!("Selecting pages with one of the given parents");
+                tide::log::debug!("Selecting pages are siblings under the given parents");
 
                 page::Column::PageId.in_subquery(
                     Query::select()
@@ -192,9 +193,12 @@ impl PageQueryService {
                 )
             }
 
-            // Pages which have none of the given as parent pages.
+            // Pages which are not siblings of the current page,
+            // i.e., they do not share any parents with the current page.
             PageParentSelector::DifferentParents(parents) => {
-                tide::log::debug!("Selecting pages with none of the given parents");
+                tide::log::debug!(
+                    "Selecting pages which are not siblings under the given parents",
+                );
 
                 page::Column::PageId.in_subquery(
                     Query::select()
