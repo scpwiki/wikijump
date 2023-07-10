@@ -42,7 +42,12 @@ impl PageQueryService {
                     included_categories,
                     excluded_categories,
                 },
-            tags,
+            tags:
+                TagCondition {
+                    any_present: any_tags,
+                    all_present: all_tags,
+                    none_present: no_tags,
+                },
             page_parent,
             contains_outgoing_links,
             creation_date,
@@ -241,6 +246,9 @@ impl PageQueryService {
                     .to_owned(),
             ),
         );
+
+        // Tag filtering
+        // TODO
 
         // TODO implement query construction
         todo!()
