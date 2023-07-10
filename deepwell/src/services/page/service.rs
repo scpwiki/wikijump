@@ -575,6 +575,49 @@ impl PageService {
         Ok(page)
     }
 
+    /// Gets all pages which match the given page references.
+    ///
+    /// The result list is not in the same order as the input, it
+    /// is up to the caller to order it if they wish.
+    pub async fn get_pages(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        references: &[Reference<'_>],
+    ) -> Result<Vec<PageModel>> {
+        tide::log::info!(
+            "Getting {} pages from references in site ID {}",
+            references.len(),
+            site_id,
+        );
+
+        let mut filter_ids = Vec::new();
+        let mut filter_slugs = Vec::new();
+
+        for reference in references {
+            match reference {
+                Reference::Id(id) => filter_ids.push(*id),
+                Reference::Slug(slug) => filter_slugs.push(slug.as_ref()),
+            }
+        }
+
+        let txn = ctx.transaction();
+        let models = Page::find()
+            .filter(
+                Condition::all()
+                    .add(page::Column::SiteId.eq(site_id))
+                    .add(page::Column::DeletedAt.is_null())
+                    .add(
+                        Condition::any()
+                            .add(page::Column::PageId.is_in(filter_ids))
+                            .add(page::Column::Slug.is_in(filter_slugs)),
+                    ),
+            )
+            .all(txn)
+            .await?;
+
+        Ok(models)
+    }
+
     /// Get all pages in a site, with potential conditions.
     ///
     /// The `category` argument:
