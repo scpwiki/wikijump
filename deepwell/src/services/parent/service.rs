@@ -162,6 +162,24 @@ impl ParentService {
         Ok(models)
     }
 
+    /// Gets all children of the given page.
+    pub async fn get_children(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        reference: Reference<'_>,
+    ) -> Result<Vec<PageParentModel>> {
+        Self::get_relationships(ctx, site_id, reference, ParentalRelationshipType::Child).await
+    }
+
+    /// Gets all parents of the given page.
+    pub async fn get_parents(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        reference: Reference<'_>,
+    ) -> Result<Vec<PageParentModel>> {
+        Self::get_relationships(ctx, site_id, reference, ParentalRelationshipType::Parent).await
+    }
+
     /// Removes all parent relationships involving this page.
     ///
     /// Whether this page is a parent or a child, this method
