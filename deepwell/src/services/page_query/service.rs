@@ -71,6 +71,7 @@ impl PageQueryService {
         tide::log::debug!("Selecting pages from site ID: {queried_site_id}");
 
         // Page Type
+        // TODO track https://github.com/SeaQL/sea-orm/issues/1746
         let hidden_condition = page::Column::Slug.starts_with("_");
         match page_type {
             PageTypeSelector::Hidden => {
@@ -138,8 +139,6 @@ impl PageQueryService {
                 ),
             ),
         };
-
-        // TODO track https://github.com/SeaQL/sea-orm/issues/1746
 
         // TODO implement query construction
         todo!()
