@@ -168,6 +168,15 @@ pub struct OrderBySelector {
     pub ascending: bool,
 }
 
+impl Default for OrderBySelector {
+    fn default() -> Self {
+        OrderBySelector {
+            property: OrderProperty::CreatedAt,
+            ascending: false,
+        }
+    }
+}
+
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct PaginationSelector {
     pub limit: Option<u64>,
@@ -265,7 +274,7 @@ pub struct PageQuery<'a> {
     pub name: Option<Cow<'a, str>>,
     pub slug: Option<Cow<'a, str>>,
     pub data_form_fields: &'a [DataFormSelector<'a>],
-    pub order: OrderBySelector,
+    pub order: Option<OrderBySelector>,
     pub pagination: PaginationSelector,
     pub variables: &'a [PageQueryVariables<'a>],
 }
