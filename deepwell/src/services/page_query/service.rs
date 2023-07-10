@@ -31,7 +31,7 @@ use void::Void;
 pub struct PageQueryService;
 
 impl PageQueryService {
-    pub async fn build_query(
+    pub async fn execute(
         ctx: &ServiceContext<'_>,
         PageQuery {
             current_page_id,
