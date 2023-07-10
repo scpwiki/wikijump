@@ -170,9 +170,19 @@ pub struct OrderBySelector {
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct PaginationSelector {
-    pub limit: u64,
+    pub limit: Option<u64>,
     pub per_page: u8,
     pub reversed: bool,
+}
+
+impl Default for PaginationSelector {
+    fn default() -> PaginationSelector {
+        PaginationSelector {
+            limit: None,
+            per_page: 20,
+            reversed: false,
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
