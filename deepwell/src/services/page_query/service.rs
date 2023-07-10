@@ -19,7 +19,9 @@
  */
 
 use super::prelude::*;
-use crate::models::page::{self, Model as PageModel};
+use crate::models::page::{self, Entity as Page};
+use crate::models::page_category::{self, Entity as PageCategory};
+use sea_query::Query;
 use void::Void;
 
 #[derive(Debug)]
@@ -32,7 +34,11 @@ impl PageQueryService {
             current_page_id,
             queried_site_id,
             page_type,
-            categories,
+            categories:
+                CategoriesSelector {
+                    included_categories,
+                    excluded_categories,
+                },
             tags,
             page_parent,
             contains_outgoing_links,
@@ -80,11 +86,52 @@ impl PageQueryService {
             PageTypeSelector::All => {
                 // If we're getting everything, then do nothing.
                 tide::log::debug!("Selecting all page slugs, normal or hidden");
-            },
+            }
         }
 
-        // Category
-        // TODO
+        // Categories (included and excluded)
+        condition =
+            match included_categories {
+                // If all categories are selected (using an asterisk or by only specifying excluded categories),
+                // then filter only by site_id and exclude the specified excluded categories.
+                IncludedCategories::All => condition.add(
+                    page::Column::PageCategoryId.in_subquery(
+                        Query::select()
+                            .column(page_category::Column::CategoryId)
+                            .from(PageCategory)
+                            .and_where(page_category::Column::SiteId.eq(queried_site_id))
+                            .and_where(page_category::Column::Slug.is_not_in(
+                                excluded_categories.iter().map(|c| c.as_ref()),
+                            ))
+                            .to_owned(),
+                    ),
+                ),
+
+                // If a specific list of categories is provided, filter by site_id, inclusion in the
+                // specified included categories, and exclude the specified excluded categories.
+                //
+                // NOTE: Exclusion can only have an effect in this query if it is *also* included.
+                //       Although by definition this is the same as not including the category in the
+                //       included categories to begin with, it is still accounted for to preserve
+                //       backwards-compatibility with poorly-constructed ListPages modules.
+                IncludedCategories::List(included_categories) => condition.add(
+                    page::Column::PageCategoryId.in_subquery(
+                        Query::select()
+                            .column(page_category::Column::CategoryId)
+                            .from(PageCategory)
+                            .and_where(page_category::Column::SiteId.eq(queried_site_id))
+                            .and_where(
+                                page_category::Column::Slug.is_in(
+                                    included_categories.iter().map(|c| c.as_ref()),
+                                ),
+                            )
+                            .and_where(page_category::Column::Slug.is_not_in(
+                                excluded_categories.iter().map(|c| c.as_ref()),
+                            ))
+                            .to_owned(),
+                    ),
+                ),
+            };
 
         // TODO track https://github.com/SeaQL/sea-orm/issues/1746
 
