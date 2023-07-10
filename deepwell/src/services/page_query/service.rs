@@ -210,6 +210,11 @@ impl PageQueryService {
         };
         condition = condition.add(page_parent_condition);
 
+        // Slug
+        if let Some(slug) = slug {
+            condition = condition.add(page::Column::Slug.eq(slug.as_ref()));
+        }
+
         // TODO implement query construction
         todo!()
     }

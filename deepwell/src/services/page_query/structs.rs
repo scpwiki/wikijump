@@ -251,8 +251,8 @@ pub struct PageQuery<'a> {
     pub votes: Vec<ScoreSelector>, // upvote/downvote rating selector
     pub offset: u32,
     pub range: RangeSelector,
-    pub name: Cow<'a, str>,
-    pub slug: Cow<'a, str>,
+    pub name: Option<Cow<'a, str>>,
+    pub slug: Option<Cow<'a, str>>,
     pub data_form_fields: Vec<DataFormSelector<'a>>,
     pub order: OrderBySelector,
     pub pagination: PaginationSelector,
