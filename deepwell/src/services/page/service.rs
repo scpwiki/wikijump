@@ -536,6 +536,21 @@ impl PageService {
                 .await?
         };
 
+        // Even in production, we want to assert that this invariant holds.
+        //
+        // We cannot set the column itself to NOT NULL because of cyclic update
+        // requirements. However when using PageService, at no point should a method
+        // quit with this value being null.
+        if let Some(ref page) = page {
+            assert!(
+                page.latest_revision_id.is_some(),
+                "Page ID {} (slug '{}', site ID {}) has a NULL latest_revision_id column!",
+                page.page_id,
+                page.slug,
+                page.site_id,
+            );
+        }
+
         Ok(page)
     }
 
