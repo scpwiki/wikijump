@@ -247,8 +247,8 @@ pub struct PageQuery<'a> {
     pub creation_date: DateSelector,
     pub update_date: DateSelector,
     pub author: Vec<Cow<'a, str>>,
-    pub rating: Vec<ScoreSelector>, // 5-star rating selector
-    pub votes: Vec<ScoreSelector>,  // upvote/downvote rating selector
+    pub score: Vec<ScoreSelector>, // 5-star rating selector
+    pub votes: Vec<ScoreSelector>, // upvote/downvote rating selector
     pub offset: u32,
     pub range: RangeSelector,
     pub name: Cow<'a, str>,
