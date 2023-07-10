@@ -108,17 +108,21 @@ impl PageQueryService {
         let page_category_condition = match included_categories {
             // If all categories are selected (using an asterisk or by only specifying excluded categories),
             // then filter only by site_id and exclude the specified excluded categories.
-            IncludedCategories::All => page::Column::PageCategoryId.in_subquery(
-                Query::select()
-                    .column(page_category::Column::CategoryId)
-                    .from(PageCategory)
-                    .and_where(page_category::Column::SiteId.eq(queried_site_id))
-                    .and_where(
-                        page_category::Column::Slug
-                            .is_not_in(cat_slugs!(excluded_categories)),
-                    )
-                    .to_owned(),
-            ),
+            IncludedCategories::All => {
+                tide::log::debug!("Selecting all categories with exclusions");
+
+                page::Column::PageCategoryId.in_subquery(
+                    Query::select()
+                        .column(page_category::Column::CategoryId)
+                        .from(PageCategory)
+                        .and_where(page_category::Column::SiteId.eq(queried_site_id))
+                        .and_where(
+                            page_category::Column::Slug
+                                .is_not_in(cat_slugs!(excluded_categories)),
+                        )
+                        .to_owned(),
+                )
+            }
 
             // If a specific list of categories is provided, filter by site_id, inclusion in the
             // specified included categories, and exclude the specified excluded categories.
@@ -127,8 +131,10 @@ impl PageQueryService {
             //       Although by definition this is the same as not including the category in the
             //       included categories to begin with, it is still accounted for to preserve
             //       backwards-compatibility with poorly-constructed ListPages modules.
-            IncludedCategories::List(included_categories) => page::Column::PageCategoryId
-                .in_subquery(
+            IncludedCategories::List(included_categories) => {
+                tide::log::debug!("Selecting included categories only");
+
+                page::Column::PageCategoryId.in_subquery(
                     Query::select()
                         .column(page_category::Column::CategoryId)
                         .from(PageCategory)
@@ -142,7 +148,8 @@ impl PageQueryService {
                                 .is_not_in(cat_slugs!(excluded_categories)),
                         )
                         .to_owned(),
-                ),
+                )
+            }
         };
         condition = condition.add(page_category_condition);
 
@@ -159,25 +166,37 @@ impl PageQueryService {
             // Pages with no parents.
             // This means that there should be no rows in `page_parent`
             // where they are the child page.
-            PageParentSelector::NoParent => page::Column::PageId.not_in_subquery(
-                Query::select()
-                    .column(page_parent::Column::ChildPageId)
-                    .from(PageParent)
-                    .to_owned(),
-            ),
+            PageParentSelector::NoParent => {
+                tide::log::debug!("Selecting pages with no parents");
 
-            // Pages with at least one parent in common with the current page.
-            PageParentSelector::SameParents(parents) => page::Column::PageId.in_subquery(
-                Query::select()
-                    .column(page_parent::Column::ChildPageId)
-                    .from(PageParent)
-                    .and_where(page_parent::Column::ParentPageId.is_in(id_iter!(parents)))
-                    .to_owned(),
-            ),
+                page::Column::PageId.not_in_subquery(
+                    Query::select()
+                        .column(page_parent::Column::ChildPageId)
+                        .from(PageParent)
+                        .to_owned(),
+                )
+            }
 
-            // Pages with no parents in common with the current page.
-            PageParentSelector::DifferentParents(parents) => page::Column::PageId
-                .in_subquery(
+            // Pages which have at least one of the given as a parent page.
+            PageParentSelector::SameParents(parents) => {
+                tide::log::debug!("Selecting pages with one of the given parents");
+
+                page::Column::PageId.in_subquery(
+                    Query::select()
+                        .column(page_parent::Column::ChildPageId)
+                        .from(PageParent)
+                        .and_where(
+                            page_parent::Column::ParentPageId.is_in(id_iter!(parents)),
+                        )
+                        .to_owned(),
+                )
+            }
+
+            // Pages which have none of the given as parent pages.
+            PageParentSelector::DifferentParents(parents) => {
+                tide::log::debug!("Selecting pages with none of the given parents");
+
+                page::Column::PageId.in_subquery(
                     Query::select()
                         .column(page_parent::Column::ChildPageId)
                         .from(PageParent)
@@ -186,21 +205,32 @@ impl PageQueryService {
                                 .is_not_in(id_iter!(parents)),
                         )
                         .to_owned(),
-                ),
+                )
+            }
 
             // Pages which are children of the current page.
-            PageParentSelector::ChildOf => page::Column::PageId.in_subquery(
-                Query::select()
-                    .column(page_parent::Column::ChildPageId)
-                    .from(PageParent)
-                    .and_where(page_parent::Column::ParentPageId.eq(current_page_id))
-                    .to_owned(),
-            ),
+            PageParentSelector::ChildOf => {
+                tide::log::debug!(
+                    "Selecting pages which are children of the current page",
+                );
+
+                page::Column::PageId.in_subquery(
+                    Query::select()
+                        .column(page_parent::Column::ChildPageId)
+                        .from(PageParent)
+                        .and_where(page_parent::Column::ParentPageId.eq(current_page_id))
+                        .to_owned(),
+                )
+            }
 
             // Pages with any of the specified parents.
             // TODO: Possibly allow either *any* or *all* of specified parents
             //       rather than only any, in the future.
             PageParentSelector::HasParents(parents) => {
+                tide::log::debug!(
+                    "Selecting on pages which have one of the given as parents",
+                );
+
                 let parent_ids = PageService::get_pages(ctx, queried_site_id, parents)
                     .await?
                     .into_iter()
@@ -219,7 +249,9 @@ impl PageQueryService {
 
         // Slug
         if let Some(slug) = slug {
-            condition = condition.add(page::Column::Slug.eq(slug.as_ref()));
+            let slug = slug.as_ref();
+            tide::log::debug!("Filtering based on slug {slug}");
+            condition = condition.add(page::Column::Slug.eq(slug));
         }
 
         // Contains-link
@@ -248,6 +280,9 @@ impl PageQueryService {
         );
 
         // Tag filtering
+        // TODO
+
+        // Execute the query!
         // TODO
 
         // TODO implement query construction
