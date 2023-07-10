@@ -146,7 +146,7 @@ pub struct DataFormSelector<'a> {
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum OrderProperties {
+pub enum OrderProperty {
     Name,
     Slug,
     Title,
@@ -164,7 +164,7 @@ pub enum OrderProperties {
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct OrderBySelector {
-    pub property: OrderProperties,
+    pub property: OrderProperty,
     pub ascending: bool,
 }
 
