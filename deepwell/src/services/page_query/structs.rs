@@ -74,7 +74,7 @@ pub enum PageParentSelector<'a> {
     SameParents(&'a [i64]),
 
     /// Pages which do *not* share any parent page(s) with the page making the query.
-    DifferentParents(&'a [u64]),
+    DifferentParents(&'a [i64]),
 
     /// Pages which are children of the page making the query.
     ChildOf,

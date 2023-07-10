@@ -21,6 +21,8 @@
 use super::prelude::*;
 use crate::models::page::{self, Entity as Page};
 use crate::models::page_category::{self, Entity as PageCategory};
+use crate::models::page_parent::{self, Entity as PageParent};
+use crate::services::PageService;
 use sea_query::Query;
 use void::Void;
 
@@ -138,6 +140,88 @@ impl PageQueryService {
                         .to_owned(),
                 ),
             ),
+        };
+
+        // Page Parents
+        //
+        // Adds constraints based on the presence of parent pages.
+        macro_rules! id_iter {
+            ($slice:expr) => {
+                $slice.into_iter().map(|i| *i)
+            };
+        }
+
+        condition = match page_parent {
+            // Pages with no parents.
+            // This means that there should be no rows in page_parent where they are the child page.
+            PageParentSelector::NoParent => condition.add(
+                page::Column::PageId.not_in_subquery(
+                    Query::select()
+                        .column(page_parent::Column::ChildPageId)
+                        .from(PageParent)
+                        .to_owned(),
+                ),
+            ),
+
+            // Pages with at least one parent in common with the current page.
+            PageParentSelector::SameParents(parents) => condition.add(
+                page::Column::PageId.in_subquery(
+                    Query::select()
+                        .column(page_parent::Column::ChildPageId)
+                        .from(PageParent)
+                        .and_where(
+                            page_parent::Column::ParentPageId.is_in(id_iter!(parents)),
+                        )
+                        .to_owned(),
+                ),
+            ),
+
+            // Pages with no parents in common with the current page.
+            PageParentSelector::DifferentParents(parents) => condition.add(
+                page::Column::PageId.in_subquery(
+                    Query::select()
+                        .column(page_parent::Column::ChildPageId)
+                        .from(PageParent)
+                        .and_where(
+                            page_parent::Column::ParentPageId
+                                .is_not_in(id_iter!(parents)),
+                        )
+                        .to_owned(),
+                ),
+            ),
+
+            // Pages which are children of the current page.
+            PageParentSelector::ChildOf => condition.add(
+                page::Column::PageId.in_subquery(
+                    Query::select()
+                        .column(page_parent::Column::ChildPageId)
+                        .from(PageParent)
+                        .and_where(page_parent::Column::ParentPageId.eq(current_page_id))
+                        .to_owned(),
+                ),
+            ),
+
+            // Pages with any of the specified parents.
+            // TODO: Possibly allow either *any* or *all* of specified parents
+            //       rather than only any, in the future.
+            PageParentSelector::HasParents(parents) => {
+                let parent_ids = PageService::get_pages(ctx, queried_site_id, parents)
+                    .await?
+                    .into_iter()
+                    .map(|page| page.page_id);
+
+                condition.add(
+                    page::Column::PageId.in_subquery(
+                        Query::select()
+                            .column(page_parent::Column::ChildPageId)
+                            .from(PageParent)
+                            .and_where(
+                                page_parent::Column::ParentPageId.is_in(parent_ids),
+                            )
+                            .to_owned(),
+                    ),
+                )
+            }
         };
 
         // TODO implement query construction
