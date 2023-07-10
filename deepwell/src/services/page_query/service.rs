@@ -317,8 +317,15 @@ impl PageQueryService {
         // Tag filtering
         // TODO
 
-        // Execute the query!
-        // TODO
+        // Build the final query
+        let mut query = Page::find().filter(condition);
+
+        if let Some(limit) = pagination.limit {
+            query = query.limit(limit);
+        }
+
+        // Execute it!
+        let result = query.all(txn).await?;
 
         // TODO implement query construction
         todo!()
