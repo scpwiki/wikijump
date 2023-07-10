@@ -315,7 +315,7 @@ impl PageQueryService {
         );
 
         // Tag filtering
-        // TODO
+        // TODO requires joining with most recent revision
 
         // Build the final query
         // Add on at the query-level (ORDER BY, LIMIT)
