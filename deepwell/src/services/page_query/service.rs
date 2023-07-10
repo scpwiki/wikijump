@@ -35,6 +35,7 @@ impl PageQueryService {
         ctx: &ServiceContext<'_>,
         PageQuery {
             current_page_id,
+            current_site_id,
             queried_site_id,
             page_type,
             categories:
@@ -73,8 +74,7 @@ impl PageQueryService {
         // Site ID
         //
         // The site to query from. If not specified, then this is the current site.
-        // This value should already be filled in before calling this method (i.e. this
-        // field is *not* Option).
+        let queried_site_id = queried_site_id.unwrap_or(current_site_id);
         condition = condition.add(page::Column::SiteId.eq(queried_site_id));
         tide::log::debug!("Selecting pages from site ID: {queried_site_id}");
 
