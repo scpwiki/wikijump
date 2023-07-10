@@ -147,8 +147,8 @@ pub struct DataFormSelector<'a> {
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum OrderProperty {
-    Name,
-    Slug,
+    PageSlug,
+    FullSlug,
     Title,
     CreatedBy,
     CreatedAt,
@@ -211,9 +211,9 @@ pub enum PageQueryVariables<'a> {
     CommentedBySlug,
     CommentedById,
     CommentedByLinked,
-    Name,
+    PageSlug,
     Category,
-    Slug,
+    FullSlug,
     Title,
     TitleLinked,
     ParentNamed,
