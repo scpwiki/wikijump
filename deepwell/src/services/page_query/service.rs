@@ -324,6 +324,18 @@ impl PageQueryService {
             query = query.limit(limit);
         }
 
+        // TODO pagination
+        //      the "reverse" field means that, for each page, it is reversed.
+        //
+        //      this does not affect the overall ORDER BY
+        //      for instance, imagine we are selecting from the positive integers
+        //      if the pagination limit is 5 and the order is ascending, but reverse = true,
+        //      then this means we get pages like:
+        //
+        //      1. [ 4,  3,  2,  1,  0]
+        //      2. [ 9,  8,  7,  6,  5]
+        //      3. [14, 13, 12, 11, 10]
+
         // Execute it!
         let result = query.all(txn).await?;
 
