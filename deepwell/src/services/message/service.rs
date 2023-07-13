@@ -24,4 +24,44 @@ use cuid2::cuid;
 #[derive(Debug)]
 pub struct MessageService;
 
-impl MessageService {}
+impl MessageService {
+    pub async fn send(
+        ctx: &ServiceContext<'_>,
+        SendMessage {
+            sender_id,
+            recipients:
+                MessageRecipients {
+                    regular: recipients,
+                    carbon_copy,
+                    blind_carbon_copy,
+                },
+            wikitext,
+            reply_to,
+        }: SendMessage,
+    ) -> Result<()> {
+        tide::log::info!("Preparing to send direct message from {sender_id}");
+
+        // TODO validate input, fail if any are not ok
+        // - not too man recipients
+        // - wikitext isn't too long
+        // - not blocked by anyone in the recipient list
+
+        todo!()
+    }
+
+    pub async fn get_message_optional(
+        ctx: &ServiceContext<'_>,
+        record_id: &str,
+    ) -> Result<Option<()>> {
+        // XXX
+        todo!()
+    }
+
+    pub async fn get_record_optional(
+        ctx: &ServiceContext<'_>,
+        record_id: &str,
+    ) -> Result<Option<()>> {
+        // XXX
+        todo!()
+    }
+}

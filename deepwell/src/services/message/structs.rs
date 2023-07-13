@@ -18,4 +18,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// TODO
+use super::prelude::*;
+
+#[derive(Debug)]
+pub struct SendMessage {
+    pub sender_id: i64,
+    pub recipients: MessageRecipients,
+    pub wikitext: String,
+    pub reply_to: Option<String>,
+}
+
+#[derive(Debug)]
+pub struct MessageRecipients {
+    pub regular: Vec<i64>,
+    pub carbon_copy: Vec<i64>,
+    pub blind_carbon_copy: Vec<i64>,
+}
