@@ -141,6 +141,7 @@ impl ParentService {
     }
 
     /// Gets all relationships of the given type.
+    #[allow(dead_code)] // TODO
     pub async fn get_relationships(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -148,18 +149,40 @@ impl ParentService {
         relationship_type: ParentalRelationshipType,
     ) -> Result<Vec<PageParentModel>> {
         let txn = ctx.transaction();
-        let page = PageService::get(ctx, site_id, reference).await?;
+        let page_id = PageService::get_id(ctx, site_id, reference).await?;
         let column = match relationship_type {
             ParentalRelationshipType::Parent => page_parent::Column::ParentPageId,
             ParentalRelationshipType::Child => page_parent::Column::ChildPageId,
         };
 
         let models = PageParent::find()
-            .filter(column.eq(page.page_id))
+            .filter(column.eq(page_id))
             .all(txn)
             .await?;
 
         Ok(models)
+    }
+
+    /// Gets all children of the given page.
+    #[allow(dead_code)] // TODO
+    pub async fn get_children(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        reference: Reference<'_>,
+    ) -> Result<Vec<PageParentModel>> {
+        Self::get_relationships(ctx, site_id, reference, ParentalRelationshipType::Child)
+            .await
+    }
+
+    /// Gets all parents of the given page.
+    #[allow(dead_code)] // TODO
+    pub async fn get_parents(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        reference: Reference<'_>,
+    ) -> Result<Vec<PageParentModel>> {
+        Self::get_relationships(ctx, site_id, reference, ParentalRelationshipType::Parent)
+            .await
     }
 
     /// Removes all parent relationships involving this page.
