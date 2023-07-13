@@ -141,6 +141,7 @@ impl ParentService {
     }
 
     /// Gets all relationships of the given type.
+    #[allow(dead_code)] // TODO
     pub async fn get_relationships(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -163,6 +164,7 @@ impl ParentService {
     }
 
     /// Gets all children of the given page.
+    #[allow(dead_code)] // TODO
     pub async fn get_children(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -173,6 +175,7 @@ impl ParentService {
     }
 
     /// Gets all parents of the given page.
+    #[allow(dead_code)] // TODO
     pub async fn get_parents(
         ctx: &ServiceContext<'_>,
         site_id: i64,
