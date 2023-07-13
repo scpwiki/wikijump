@@ -14,6 +14,21 @@ pub enum AliasType {
     #[sea_orm(string_value = "user")]
     User,
 }
+
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Copy, Serialize, Deserialize,
+)]
+#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "file_revision_type")]
+#[serde(rename_all = "kebab-case")]
+pub enum MessageRecipientType {
+    #[sea_orm(string_value = "regular")]
+    Regular,
+    #[sea_orm(string_value = "cc")]
+    CarbonCopy,
+    #[sea_orm(string_value = "bcc")]
+    BlindCarbonCopy,
+}
+
 #[derive(
     Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Copy, Serialize, Deserialize,
 )]
@@ -29,6 +44,7 @@ pub enum FileRevisionType {
     #[sea_orm(string_value = "update")]
     Update,
 }
+
 #[derive(
     Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Copy, Serialize, Deserialize,
 )]
@@ -65,6 +81,7 @@ pub enum PageRevisionType {
     #[sea_orm(string_value = "undelete")]
     Undelete,
 }
+
 #[derive(
     Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Copy, Serialize, Deserialize,
 )]
