@@ -493,6 +493,84 @@ CREATE TABLE file_revision (
 );
 
 --
+-- Direct Messages
+--
+
+CREATE TYPE message_recipient_type AS ENUM (
+    'regular',
+    'cc',
+    'bcc'
+);
+
+-- A "record" is the underlying message data, with its contents, attachments,
+-- and associated metadata such as sender and recipient(s).
+CREATE TABLE message_record (
+    external_id TEXT PRIMARY KEY,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+    retracted_at TIMESTAMP WITH TIME ZONE,
+    sender_id BIGINT NOT NULL REFERENCES "user"(user_id),
+
+    -- Text contents
+    wikitext_hash BYTEA NOT NULL REFERENCES text(hash),
+    compiled_hash BYTEA NOT NULL REFERENCES text(hash),
+    compiled_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    compiled_generator TEXT NOT NULL,
+
+    -- Flags
+    reply_to TEXT REFERENCES message_record(external_id),
+    forwarded_from TEXT REFERENCES message_record(external_id),
+
+    CHECK (length(external_id) = 24)  -- default length for a cuid2
+);
+
+-- A "message" is a particular copy of a record.
+-- If Alice sends Bob a message and CC's Charlie, then
+-- there is one message_record and three message rows
+-- (one for each recipient, including the sender's "Sent" folder).
+CREATE TABLE message (
+    internal_id BIGSERIAL PRIMARY KEY,
+    record_id TEXT NOT NULL REFERENCES message_record(external_id),  -- The record this corresponds to
+    user_id BIGINT REFERENCES "user"(user_id),  -- The user who owns the copy of this record
+
+    -- Folders and flags
+    flag_read BOOLEAN NOT NULL DEFAULT false,  -- A user-toggleable flag for the "unread" status
+    flag_seen BOOLEAN NOT NULL DEFAULT false,  -- A user-invisible flag set to true the first time
+                                               -- a message is opened. Cannot be set back to false.
+                                               -- Used to determine retractions.
+    flag_inbox BOOLEAN NOT NULL,
+    flag_sent BOOLEAN NOT NULL,
+    flag_note BOOLEAN NOT NULL,  -- Messages sent to oneself, these override the typical logic,
+                                 -- and do not result in a separate "sent" message.
+    flag_trash BOOLEAN NOT NULL DEFAULT false,
+    flag_star BOOLEAN NOT NULL DEFAULT false,
+
+    -- User-customizable tagging
+    tags TEXT[] NOT NULL,
+
+    UNIQUE (record_id, user_id)
+);
+
+CREATE TABLE message_recipient (
+    record_id TEXT NOT NULL REFERENCES message_record(external_id),
+    recipient_id BIGINT NOT NULL REFERENCES "user"(user_id),
+    recipient_type message_recipient_type NOT NULL,
+
+    PRIMARY KEY (record_id, recipient_id, recipient_type)
+);
+
+-- If a message has been reported, then a row for it is created here.
+-- Messages can be reported per-site or globally (at the platform level).
+CREATE TABLE message_report (
+    message_id BIGINT NOT NULL REFERENCES message(internal_id),
+    reported_to_site_id BIGINT REFERENCES site(site_id),
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+    updated_at TIMESTAMP WITH TIME ZONE,
+    reason TEXT NOT NULL,
+
+    PRIMARY KEY (message_id, reported_to_site_id)
+);
+
+--
 -- Filters
 --
 
