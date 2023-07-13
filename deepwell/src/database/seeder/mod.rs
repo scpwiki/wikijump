@@ -268,6 +268,7 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
      */
 
     txn.commit().await?;
+    tide::log::info!("Finished running seeder.");
     Ok(())
 }
 
