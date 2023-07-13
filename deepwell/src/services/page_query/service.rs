@@ -18,13 +18,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#![allow(dead_code, unused_variables)] // TEMP
+
 use super::prelude::*;
 use crate::models::page::{self, Entity as Page};
 use crate::models::page_category::{self, Entity as PageCategory};
 use crate::models::page_connection::{self, Entity as PageConnection};
 use crate::models::page_parent::{self, Entity as PageParent};
-use crate::models::page_revision::{self, Entity as PageRevision};
-use crate::models::text::{self, Entity as Text};
+use crate::models::{page_revision, text};
 use crate::services::{PageService, ParentService};
 use sea_query::{Expr, Query};
 use void::Void;
