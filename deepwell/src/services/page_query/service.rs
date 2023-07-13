@@ -23,8 +23,10 @@ use crate::models::page::{self, Entity as Page};
 use crate::models::page_category::{self, Entity as PageCategory};
 use crate::models::page_connection::{self, Entity as PageConnection};
 use crate::models::page_parent::{self, Entity as PageParent};
+use crate::models::page_revision::{self, Entity as PageRevision};
+use crate::models::text::{self, Entity as Text};
 use crate::services::{PageService, ParentService};
-use sea_query::Query;
+use sea_query::{Expr, Query};
 use void::Void;
 
 #[derive(Debug)]
@@ -318,9 +320,22 @@ impl PageQueryService {
         // TODO requires joining with most recent revision
 
         // Build the final query
-        // Add on at the query-level (ORDER BY, LIMIT)
         let mut query = Page::find().filter(condition);
 
+        // Add necessary joins
+        macro_rules! join_revision {
+            () => {
+                query = query.join(JoinType::Join, page::Relation::PageRevision.def());
+            };
+        }
+        macro_rules! join_text {
+            () => {
+                query = query.join(JoinType::Join, page_revision::Relation::Text1.def());
+            };
+        }
+        // TODO other joins
+
+        // Add on at the query-level (ORDER BY, LIMIT)
         {
             use sea_orm::query::Order;
             use sea_query::{func::Func, SimpleExpr};
@@ -329,6 +344,7 @@ impl PageQueryService {
                 property,
                 ascending,
             } = order.unwrap_or_default();
+
             tide::log::debug!(
                 "Ordering ListPages using {:?} (ascending: {})",
                 property,
@@ -338,9 +354,10 @@ impl PageQueryService {
             let order = if ascending { Order::Asc } else { Order::Desc };
 
             // TODO: implement missing properties. these require subqueries or joins or something
-            query = match property {
+            match property {
                 OrderProperty::PageSlug => {
                     // idk how to do this, we need to strip off the category part somehow
+                    // PgExpr::matches?
                     tide::log::error!(
                         "Ordering by page slug (no category), not yet implemented",
                     );
@@ -348,15 +365,17 @@ impl PageQueryService {
                 }
                 OrderProperty::FullSlug => {
                     tide::log::debug!("Ordering by page slug (with category");
-                    query.order_by(page::Column::Slug, order)
+                    query = query.order_by(page::Column::Slug, order);
                 }
                 OrderProperty::Title => {
                     tide::log::error!("Ordering by title, not yet implemented");
-                    todo!() // TODO, join with latest revision
+                    join_revision!();
+                    query = query.order_by(page_revision::Column::Title, order);
                 }
                 OrderProperty::AltTitle => {
                     tide::log::error!("Ordering by alt title, not yet implemented");
-                    todo!() // TODO, join with latest revision
+                    join_revision!();
+                    query = query.order_by(page_revision::Column::AltTitle, order);
                 }
                 OrderProperty::CreatedBy => {
                     tide::log::error!("Ordering by author, not yet implemented");
@@ -364,15 +383,19 @@ impl PageQueryService {
                 }
                 OrderProperty::CreatedAt => {
                     tide::log::debug!("Ordering by page creation timestamp");
-                    query.order_by(page::Column::CreatedAt, order)
+                    query = query.order_by(page::Column::CreatedAt, order);
                 }
                 OrderProperty::UpdatedAt => {
                     tide::log::debug!("Ordering by page last update timestamp");
-                    query.order_by(page::Column::UpdatedAt, order)
+                    query = query.order_by(page::Column::UpdatedAt, order);
                 }
                 OrderProperty::Size => {
                     tide::log::error!("Ordering by page size, not yet implemented");
-                    todo!() // TODO
+                    join_revision!();
+                    join_text!();
+                    let col = Expr::col(text::Column::Contents);
+                    let expr = SimpleExpr::FunctionCall(Func::char_length(col));
+                    query = query.order_by(expr, order);
                 }
                 OrderProperty::Score => {
                     tide::log::error!("Ordering by score, not yet implemented");
@@ -384,7 +407,7 @@ impl PageQueryService {
                 }
                 OrderProperty::Revisions => {
                     tide::log::error!("Ordering by revision count, not yet implemented");
-                    todo!() // TODO, join with latest revision
+                    todo!() // TODO
                 }
                 OrderProperty::Comments => {
                     tide::log::error!("Ordering by comment count, not yet implemented");
@@ -393,7 +416,7 @@ impl PageQueryService {
                 OrderProperty::Random => {
                     tide::log::debug!("Ordering by random value");
                     let expr = SimpleExpr::FunctionCall(Func::random());
-                    query.order_by(expr, order)
+                    query = query.order_by(expr, order);
                 }
                 OrderProperty::DataFormFieldName => {
                     tide::log::error!("Ordering by data form field, not yet implemented");
