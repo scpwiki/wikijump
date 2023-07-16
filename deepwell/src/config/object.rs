@@ -154,6 +154,9 @@ pub struct Config {
     /// Minimum length of bytes in a username.
     pub minimum_name_bytes: usize,
 
+    /// Maximum size of the subject line allowed in a direct message.
+    pub maximum_message_subject_bytes: usize,
+
     /// Maximum size of the wikitext body allowed in a direct message.
     pub maximum_message_body_bytes: usize,
 

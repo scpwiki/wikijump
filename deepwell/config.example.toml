@@ -263,6 +263,9 @@ refill-name-change-days = 90
 
 [message]
 
+# The maximum size of a message's subject line, in bytes.
+maximum-subject-bytes = 128
+
 # The maximum size of a message wikitext, in bytes.
 maximum-body-bytes = 200000
 

@@ -161,6 +161,7 @@ struct User {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "kebab-case")]
 struct Message {
+    maximum_subject_bytes: usize,
     maximum_body_bytes: usize,
     maximum_recipients: usize,
 }
@@ -267,6 +268,7 @@ impl ConfigFile {
                 },
             message:
                 Message {
+                    maximum_subject_bytes: maximum_message_subject_bytes,
                     maximum_body_bytes: maximum_message_body_bytes,
                     maximum_recipients: maximum_message_recipients,
                 },
@@ -333,6 +335,7 @@ impl ConfigFile {
                 refill_name_change_days * 24 * 60 * 60,
             ),
             minimum_name_bytes,
+            maximum_message_subject_bytes,
             maximum_message_body_bytes,
             maximum_message_recipients,
         }
