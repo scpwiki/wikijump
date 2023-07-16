@@ -511,6 +511,7 @@ CREATE TABLE message_record (
     sender_id BIGINT NOT NULL REFERENCES "user"(user_id),
 
     -- Text contents
+    subject TEXT NOT NULL,
     wikitext_hash BYTEA NOT NULL REFERENCES text(hash),
     compiled_hash BYTEA NOT NULL REFERENCES text(hash),
     compiled_at TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -530,17 +531,16 @@ CREATE TABLE message_record (
 CREATE TABLE message (
     internal_id BIGSERIAL PRIMARY KEY,
     record_id TEXT NOT NULL REFERENCES message_record(external_id),  -- The record this corresponds to
-    user_id BIGINT REFERENCES "user"(user_id),  -- The user who owns the copy of this record
+    user_id BIGINT NOT NULL REFERENCES "user"(user_id),  -- The user who owns the copy of this record
 
     -- Folders and flags
-    flag_read BOOLEAN NOT NULL DEFAULT false,  -- A user-toggleable flag for the "unread" status
+    flag_read BOOLEAN NOT NULL DEFAULT false,  -- A user-toggleable flag for the "unread" status.
     flag_seen BOOLEAN NOT NULL DEFAULT false,  -- A user-invisible flag set to true the first time
                                                -- a message is opened. Cannot be set back to false.
                                                -- Used to determine retractions.
     flag_inbox BOOLEAN NOT NULL,
-    flag_sent BOOLEAN NOT NULL,
-    flag_note BOOLEAN NOT NULL,  -- Messages sent to oneself, these override the typical logic,
-                                 -- and do not result in a separate "sent" message.
+    flag_outbox BOOLEAN NOT NULL,
+    flag_self BOOLEAN NOT NULL,  -- Messages sent to oneself, as a kind of "notes to self" section.
     flag_trash BOOLEAN NOT NULL DEFAULT false,
     flag_star BOOLEAN NOT NULL DEFAULT false,
 
@@ -556,6 +556,27 @@ CREATE TABLE message_recipient (
     recipient_type message_recipient_type NOT NULL,
 
     PRIMARY KEY (record_id, recipient_id, recipient_type)
+);
+
+CREATE TABLE message_draft (
+    external_id TEXT PRIMARY KEY,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+    updated_at TIMESTAMP WITH TIME ZONE,
+    user_id BIGINT NOT NULL REFERENCES "user"(user_id),
+    recipients JSON NOT NULL,
+
+    -- Text contents
+    subject TEXT NOT NULL,
+    wikitext_hash BYTEA NOT NULL REFERENCES text(hash),
+    compiled_hash BYTEA NOT NULL REFERENCES text(hash),
+    compiled_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    compiled_generator TEXT NOT NULL,
+
+    -- Flags
+    reply_to TEXT REFERENCES message_record(external_id),
+    forwarded_from TEXT REFERENCES message_record(external_id),
+
+    CHECK (length(external_id) = 24)  -- default length for a cuid2
 );
 
 -- If a message has been reported, then a row for it is created here.
