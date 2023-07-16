@@ -260,3 +260,12 @@ minimum-name-bytes = 3
 #
 # Set to 0 to disable.
 refill-name-change-days = 90
+
+[message]
+
+# The maximum size of a message wikitext, in bytes.
+maximum-body-bytes = 200000
+
+# The maximum number of recipients allowed in one message.
+# This refers to the sum of direct recipients, CC, and BCC targets.
+maximum-recipients = 6
