@@ -61,16 +61,17 @@ impl SessionService {
         let txn = ctx.transaction();
         let config = ctx.config();
         let token = Self::new_token(config);
+        let now = now();
         let expiry = if restricted {
-            now() + config.restricted_session_duration
+            now + config.restricted_session_duration
         } else {
-            now() + config.normal_session_duration
+            now + config.normal_session_duration
         };
 
         let model = session::ActiveModel {
             session_token: Set(token),
             user_id: Set(user_id),
-            created_at: Set(now()),
+            created_at: Set(now),
             expires_at: Set(expiry),
             ip_address: Set(str!(ip_address)), // TODO inet type?
             user_agent: Set(user_agent),

@@ -331,7 +331,7 @@ CREATE TYPE page_connection_type AS ENUM (
 CREATE TABLE page_link (
     page_id BIGINT REFERENCES page(page_id),
     url TEXT,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE,
     count INT NOT NULL CHECK (count > 0),
 
@@ -342,7 +342,7 @@ CREATE TABLE page_connection (
     from_page_id BIGINT REFERENCES page(page_id),
     to_page_id BIGINT REFERENCES page(page_id),
     connection_type TEXT, -- Cannot use page_connection_type right now because Sea-ORM issues
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE,
     count INT NOT NULL CHECK (count > 0),
 
@@ -354,7 +354,7 @@ CREATE TABLE page_connection_missing (
     to_site_id BIGINT REFERENCES page(page_id),
     to_page_slug TEXT,
     connection_type TEXT, -- Ditto
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE,
     count INT NOT NULL CHECK (count > 0),
 
@@ -480,7 +480,7 @@ CREATE TABLE file_revision (
 -- If a filter has all the "affects_*" columns false, then it is effectively disabled.
 CREATE TABLE filter (
     filter_id BIGSERIAL PRIMARY KEY,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT 'now()',
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE,
     deleted_at TIMESTAMP WITH TIME ZONE,
     site_id BIGINT REFERENCES site(site_id),

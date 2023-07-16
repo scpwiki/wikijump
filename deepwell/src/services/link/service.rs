@@ -27,6 +27,7 @@ use crate::services::{PageService, SiteService};
 use crate::web::ConnectionType;
 use ftml::data::{Backlinks, PageRef};
 use std::collections::HashMap;
+use sea_orm::NotSet;
 
 /// Forms an optional `Condition` from a list of connection types.
 ///
@@ -326,8 +327,8 @@ async fn update_connections(
                 from_page_id: Set(from_page_id),
                 to_page_id: Set(to_page_id),
                 connection_type: Set(str!(connection_type.name())),
-                created_at: Set(now()),
-                updated_at: Set(None),
+                created_at: NotSet,
+                updated_at: NotSet,
                 count: Set(*count),
             },
         )
@@ -392,8 +393,8 @@ async fn update_connections_missing(
                     to_site_id: Set(to_site_id),
                     to_page_slug: Set(str!(to_page_slug)),
                     connection_type: Set(str!(connection_type.name())),
-                    created_at: Set(now()),
-                    updated_at: Set(None),
+                    created_at: NotSet,
+                    updated_at: NotSet,
                     count: Set(*count),
                 }
             },
@@ -452,8 +453,8 @@ async fn update_external_links(
         .map(|(ref url, count)| page_link::ActiveModel {
             page_id: Set(from_page_id),
             url: Set(str!(url)),
-            created_at: Set(now()),
-            updated_at: Set(None),
+            created_at: NotSet,
+            updated_at: NotSet,
             count: Set(*count),
         })
         .collect::<Vec<_>>();
