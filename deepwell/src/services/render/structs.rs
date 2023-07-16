@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use crate::hash::TextHash;
+use time::OffsetDateTime;
 
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -27,5 +28,6 @@ pub struct RenderOutput {
     pub html_output: HtmlOutput,
     pub errors: Vec<ParseError>,
     pub compiled_hash: TextHash,
+    pub compiled_at: OffsetDateTime,
     pub compiled_generator: String,
 }

@@ -344,6 +344,7 @@ impl PageRevisionService {
             html_output: _,
             errors,
             compiled_hash,
+            compiled_at,
             compiled_generator,
         } = Self::render_and_update_links(ctx, site_id, page_id, wikitext, render_input)
             .await?;
@@ -361,7 +362,7 @@ impl PageRevisionService {
             changes: Set(ALL_CHANGES.clone()),
             wikitext_hash: Set(wikitext_hash.to_vec()),
             compiled_hash: Set(compiled_hash.to_vec()),
-            compiled_at: Set(now()),
+            compiled_at: Set(compiled_at),
             compiled_generator: Set(compiled_generator),
             comments: Set(comments),
             hidden: Set(vec![]),
@@ -510,6 +511,7 @@ impl PageRevisionService {
             html_output: _,
             errors,
             compiled_hash: new_compiled_hash,
+            compiled_at,
             compiled_generator,
         } = Self::render_and_update_links(ctx, site_id, page_id, wikitext, render_input)
             .await?;
@@ -529,7 +531,7 @@ impl PageRevisionService {
             changes: Set(changes),
             wikitext_hash: Set(wikitext_hash),
             compiled_hash: Set(compiled_hash),
-            compiled_at: Set(now()),
+            compiled_at: Set(compiled_at),
             compiled_generator: Set(compiled_generator),
             comments: Set(comments),
             hidden: Set(hidden),

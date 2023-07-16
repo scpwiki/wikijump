@@ -61,6 +61,7 @@ impl RenderService {
             html_output,
             errors,
             compiled_hash,
+            compiled_at: now(),
             compiled_generator,
         })
     }
