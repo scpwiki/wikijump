@@ -58,7 +58,7 @@ services:
     restart: always
     healthcheck:
       test: ["CMD", "curl", "-If", "http://localhost:2747/api/trusted/ping"]
-      interval: 90s
+      interval: 120s
       timeout: 2s
       retries: 3
     depends_on:
@@ -80,7 +80,7 @@ services:
     restart: always
     healthcheck:
       test: ["CMD", "curl", "-If", "http://localhost:3000/"]
-      interval: 60s
+      interval: 120s
       timeout: 2s
       retries: 3
 
@@ -96,6 +96,6 @@ services:
     restart: always
     healthcheck:
       test: ["CMD", "curl", "-If", "http://localhost/"]
-      interval: 10s
+      interval: 120s
       timeout: 1s
       retries: 3
