@@ -55,3 +55,13 @@ pub struct DraftRecipients {
     #[serde(rename = "bcc")]
     pub blind_carbon_copy: Vec<i64>,
 }
+
+impl DraftRecipients {
+    pub fn iter(&self) -> impl Iterator<Item = i64> + '_ {
+        let i1 = self.recipients.iter().copied();
+        let i2 = self.carbon_copy.iter().copied();
+        let i3 = self.blind_carbon_copy.iter().copied();
+
+        i1.chain(i2).chain(i3)
+    }
+}

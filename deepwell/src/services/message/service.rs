@@ -45,12 +45,47 @@ impl MessageService {
     pub async fn send(ctx: &ServiceContext<'_>, draft_id: &str) -> Result<()> {
         tide::log::info!("Sending draft ID {draft_id} as message");
 
+        // Gather resources
+        let config = ctx.config();
         let draft = Self::get_draft(ctx, draft_id).await?;
+        let wikitext = TextService::get(ctx, &draft.wikitext_hash).await?;
+        let recipients: DraftRecipients = serde_json::from_value(draft.recipients)?;
 
-        // TODO validate input, fail if any are not ok
-        // - not too many recipients
-        // - wikitext isn't too long
-        // - not blocked by anyone in the recipient list
+        // Message validation checks
+        if draft.subject.is_empty() {
+            tide::log::error!("Subject line cannot be empty");
+            return Err(Error::BadRequest);
+        }
+
+        if draft.subject.len() > config.maximum_message_subject_bytes {
+            tide::log::error!(
+                "Subject line is too long (is {}, max {})",
+                draft.subject.len(),
+                config.maximum_message_subject_bytes,
+            );
+            return Err(Error::BadRequest);
+        }
+
+        if wikitext.is_empty() {
+            tide::log::error!("Wikitext body cannot be empty");
+            return Err(Error::BadRequest);
+        }
+
+        if wikitext.len() > config.maximum_message_body_bytes {
+            tide::log::error!(
+                "Wikitext body is too long (is {}, max {})",
+                wikitext.len(),
+                config.maximum_message_body_bytes,
+            );
+            return Err(Error::BadRequest);
+        }
+
+        for recipient_user_id in recipients.iter() {
+            // TODO check user_id / recipient_user_id
+        }
+
+        // Prepare message for sending
+        // TODO
 
         todo!()
     }
