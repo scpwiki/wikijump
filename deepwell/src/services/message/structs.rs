@@ -20,17 +20,38 @@
 
 use super::prelude::*;
 
-#[derive(Debug)]
-pub struct SendMessage {
-    pub sender_id: i64,
-    pub recipients: MessageRecipients,
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateMessageDraft {
+    pub user_id: i64,
+    pub recipients: Vec<i64>,
+    pub carbon_copy: Vec<i64>,
+    pub blind_carbon_copy: Vec<i64>,
+    pub subject: String,
     pub wikitext: String,
     pub reply_to: Option<String>,
+    pub forwarded_from: Option<String>,
 }
 
-#[derive(Debug)]
-pub struct MessageRecipients {
-    pub regular: Vec<i64>,
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateMessageDraft {
+    pub message_draft_id: String,
+    pub recipients: Vec<i64>,
     pub carbon_copy: Vec<i64>,
+    pub blind_carbon_copy: Vec<i64>,
+    pub subject: String,
+    pub wikitext: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct DraftRecipients {
+    #[serde(rename = "r")]
+    pub recipients: Vec<i64>,
+
+    #[serde(rename = "cc")]
+    pub carbon_copy: Vec<i64>,
+
+    #[serde(rename = "bcc")]
     pub blind_carbon_copy: Vec<i64>,
 }
