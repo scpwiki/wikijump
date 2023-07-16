@@ -136,10 +136,7 @@ impl MessageService {
         wikitext: String,
         user_locale: &str,
     ) -> Result<RenderOutput> {
-        tide::log::info!(
-            "Rendering message wikitext ({} bytes)",
-            wikitext.len(),
-        );
+        tide::log::info!("Rendering message wikitext ({} bytes)", wikitext.len());
 
         let settings = WikitextSettings::from_mode(WikitextMode::DirectMessage);
         let page_info = PageInfo {

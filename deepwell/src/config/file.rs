@@ -51,6 +51,7 @@ pub struct ConfigFile {
     ftml: Ftml,
     special_pages: SpecialPages,
     user: User,
+    message: Message,
 }
 
 /// Structure containing extra fields not found in `ConfigFile`.
@@ -157,6 +158,13 @@ struct User {
     minimum_name_bytes: usize,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "kebab-case")]
+struct Message {
+    maximum_body_bytes: usize,
+    maximum_recipients: usize,
+}
+
 impl ConfigFile {
     pub fn load(path: PathBuf) -> Result<(Self, ExtraConfig)> {
         // Read TOML
@@ -257,6 +265,11 @@ impl ConfigFile {
                     refill_name_change_days,
                     minimum_name_bytes,
                 },
+            message:
+                Message {
+                    maximum_body_bytes: maximum_message_body_bytes,
+                    maximum_recipients: maximum_message_recipients,
+                },
         } = self;
 
         // Prefix domains with '.' so we can do easy subdomain checks
@@ -320,6 +333,8 @@ impl ConfigFile {
                 refill_name_change_days * 24 * 60 * 60,
             ),
             minimum_name_bytes,
+            maximum_message_body_bytes,
+            maximum_message_recipients,
         }
     }
 }
