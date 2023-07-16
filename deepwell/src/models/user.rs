@@ -55,6 +55,8 @@ pub enum Relation {
     FileRevision,
     #[sea_orm(has_many = "super::message::Entity")]
     Message,
+    #[sea_orm(has_many = "super::message_draft::Entity")]
+    MessageDraft,
     #[sea_orm(has_many = "super::message_recipient::Entity")]
     MessageRecipient,
     #[sea_orm(has_many = "super::message_record::Entity")]
@@ -84,6 +86,12 @@ impl Related<super::file_revision::Entity> for Entity {
 impl Related<super::message::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Message.def()
+    }
+}
+
+impl Related<super::message_draft::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::MessageDraft.def()
     }
 }
 

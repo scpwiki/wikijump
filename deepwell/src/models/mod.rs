@@ -8,6 +8,7 @@ pub mod file_revision;
 pub mod filter;
 pub mod interaction;
 pub mod message;
+pub mod message_draft;
 pub mod message_recipient;
 pub mod message_record;
 pub mod message_report;

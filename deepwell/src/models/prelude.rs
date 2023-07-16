@@ -6,6 +6,7 @@ pub use super::file_revision::Entity as FileRevision;
 pub use super::filter::Entity as Filter;
 pub use super::interaction::Entity as Interaction;
 pub use super::message::Entity as Message;
+pub use super::message_draft::Entity as MessageDraft;
 pub use super::message_recipient::Entity as MessageRecipient;
 pub use super::message_record::Entity as MessageRecord;
 pub use super::message_report::Entity as MessageReport;
