@@ -109,7 +109,7 @@ impl MessageService {
             compiled_hash,
             compiled_at,
             compiled_generator,
-        } = Self::render_draft(ctx, wikitext, &user.locale).await?;
+        } = Self::render(ctx, wikitext, &user.locale).await?;
 
         // Insert draft into database
         let txn = ctx.transaction();
@@ -131,13 +131,13 @@ impl MessageService {
         Ok(draft)
     }
 
-    async fn render_draft(
+    async fn render(
         ctx: &ServiceContext<'_>,
         wikitext: String,
         user_locale: &str,
     ) -> Result<RenderOutput> {
         tide::log::info!(
-            "Rendering message draft wikitext ({} bytes)",
+            "Rendering message wikitext ({} bytes)",
             wikitext.len(),
         );
 
