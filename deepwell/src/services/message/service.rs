@@ -42,7 +42,7 @@ impl MessageService {
         tide::log::info!("Preparing to send direct message from {sender_id}");
 
         // TODO validate input, fail if any are not ok
-        // - not too man recipients
+        // - not too many recipients
         // - wikitext isn't too long
         // - not blocked by anyone in the recipient list
 
