@@ -33,7 +33,7 @@ use crate::models::message_report::{
     self, Entity as MessageReport, Model as MessageReportModel,
 };
 use crate::services::render::{RenderOutput, RenderService};
-use crate::services::TextService;
+use crate::services::{TextService, UserService};
 use cuid2::cuid;
 use ftml::data::{PageInfo, ScoreValue};
 use ftml::settings::{WikitextMode, WikitextSettings};
@@ -94,7 +94,7 @@ impl MessageService {
         // Populate fields
         let draft_id = cuid();
 
-        let user_locale = todo!(); // TODO get user's locale
+        let user = UserService::get(ctx, Reference::Id(user_id)).await?;
         let recipients = serde_json::to_value(&DraftRecipients {
             recipients,
             carbon_copy,
@@ -109,7 +109,7 @@ impl MessageService {
             compiled_hash,
             compiled_at,
             compiled_generator,
-        } = Self::render_draft(ctx, wikitext, user_locale).await?;
+        } = Self::render_draft(ctx, wikitext, &user.locale).await?;
 
         // Insert draft into database
         let txn = ctx.transaction();
