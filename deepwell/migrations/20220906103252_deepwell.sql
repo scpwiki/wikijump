@@ -142,7 +142,7 @@ CREATE TABLE alias (
 -- See also https://github.com/scpwiki/wikijump/blob/legacy-php/web/database/migrations/2021_07_30_231009_create_interactions_table.php
 -- and https://github.com/scpwiki/wikijump/blob/legacy-php/web/app/Models/Interaction.php
 
-CREATE TYPE interaction_object AS ENUM (
+CREATE TYPE interaction_object_type AS ENUM (
     'site',
     'user',
     'page',
@@ -156,10 +156,10 @@ CREATE TYPE interaction_type AS ENUM (
 );
 
 CREATE TABLE interaction (
-    source_type interaction_object NOT NULL,
+    source_type interaction_object_type NOT NULL,
     source_id BIGINT NOT NULL,
     interaction_type interaction_type NOT NULL,
-    target_type interaction_object NOT NULL,
+    target_type interaction_object_type NOT NULL,
     target_id BIGINT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
 

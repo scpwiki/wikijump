@@ -4,6 +4,7 @@ pub use super::alias::Entity as Alias;
 pub use super::file::Entity as File;
 pub use super::file_revision::Entity as FileRevision;
 pub use super::filter::Entity as Filter;
+pub use super::interaction::Entity as Interaction;
 pub use super::page::Entity as Page;
 pub use super::page_attribution::Entity as PageAttribution;
 pub use super::page_category::Entity as PageCategory;

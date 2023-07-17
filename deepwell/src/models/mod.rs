@@ -6,6 +6,7 @@ pub mod alias;
 pub mod file;
 pub mod file_revision;
 pub mod filter;
+pub mod interaction;
 pub mod page;
 pub mod page_attribution;
 pub mod page_category;

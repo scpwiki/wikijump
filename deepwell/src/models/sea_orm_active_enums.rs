@@ -32,8 +32,36 @@ pub enum FileRevisionType {
 #[derive(
     Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Copy, Serialize, Deserialize,
 )]
+#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "interaction_object")]
 #[serde(rename_all = "kebab-case")]
+pub enum InteractionObjectType {
+    #[sea_orm(string_value = "file")]
+    File,
+    #[sea_orm(string_value = "page")]
+    Page,
+    #[sea_orm(string_value = "site")]
+    Site,
+    #[sea_orm(string_value = "user")]
+    User,
+}
+#[derive(
+    Debug, Copy, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize,
+)]
+#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "interaction_type")]
+#[serde(rename_all = "kebab-case")]
+pub enum InteractionType {
+    #[sea_orm(string_value = "block")]
+    Block,
+    #[sea_orm(string_value = "star")]
+    Star,
+    #[sea_orm(string_value = "watch")]
+    Watch,
+}
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Copy, Serialize, Deserialize,
+)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "page_revision_type")]
+#[serde(rename_all = "kebab-case")]
 pub enum PageRevisionType {
     #[sea_orm(string_value = "create")]
     Create,
