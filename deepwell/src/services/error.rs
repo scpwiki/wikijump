@@ -114,6 +114,12 @@ pub enum Error {
     #[error("Cannot hide the wikitext for the latest page revision")]
     CannotHideLatestRevision,
 
+    #[error("Cannot perform this action because you are blocked by the user")]
+    UserBlockedUser,
+
+    #[error("Cannot perform this action because you are blocked by the site")]
+    SiteBlockedUser,
+
     #[error("The rate limit for an external API has been reached")]
     RateLimited,
 }
@@ -160,6 +166,9 @@ impl Error {
             Error::NotFound => TideError::from_str(StatusCode::NotFound, ""),
             Error::FilterViolation | Error::CannotHideLatestRevision => {
                 TideError::from_str(StatusCode::BadRequest, "")
+            }
+            Error::UserBlockedUser | Error::SiteBlockedUser => {
+                TideError::from_str(StatusCode::Forbidden, "")
             }
             Error::RateLimited => TideError::from_str(StatusCode::ServiceUnavailable, ""),
         }
