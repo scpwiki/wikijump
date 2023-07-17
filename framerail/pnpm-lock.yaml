@@ -72,8 +72,8 @@ devDependencies:
     specifier: ^3.59.2
     version: 3.59.2
   svelte-check:
-    specifier: ^3.4.5
-    version: 3.4.5(postcss@8.4.24)(sass@1.56.1)(svelte@3.59.2)
+    specifier: ^3.4.6
+    version: 3.4.6(postcss@8.4.24)(sass@1.56.1)(svelte@3.59.2)
   svelte-preprocess:
     specifier: ^5.0.4
     version: 5.0.4(postcss@8.4.24)(sass@1.56.1)(svelte@3.59.2)(typescript@5.0.3)
@@ -2634,8 +2634,8 @@ packages:
       supports-color: 7.2.0
     dev: true
 
-  /svelte-check@3.4.5(postcss@8.4.24)(sass@1.56.1)(svelte@3.59.2):
-    resolution: {integrity: sha512-FsD/CUVdEI0F9sfylh1Fe15kDjvvbyBxzDpACPsdq0EASgaZukBXaMXofpxlgmWsgVET3OynMQlbtUQoWCz9Rw==}
+  /svelte-check@3.4.6(postcss@8.4.24)(sass@1.56.1)(svelte@3.59.2):
+    resolution: {integrity: sha512-OBlY8866Zh1zHQTkBMPS6psPi7o2umTUyj6JWm4SacnIHXpWFm658pG32m3dKvKFL49V4ntAkfFHKo4ztH07og==}
     hasBin: true
     peerDependencies:
       svelte: ^3.55.0 || ^4.0.0-next.0 || ^4.0.0
