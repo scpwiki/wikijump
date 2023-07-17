@@ -18,6 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#[macro_use]
+mod macros;
+
 use super::prelude::*;
 use crate::models::interaction::{
     self, Entity as Interaction, Model as InteractionModel,
