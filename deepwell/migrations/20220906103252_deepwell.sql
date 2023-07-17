@@ -150,9 +150,10 @@ CREATE TYPE interaction_object_type AS ENUM (
 );
 
 CREATE TYPE interaction_type AS ENUM (
-    'watch',
+    'member',
     'block',
-    'star'
+    'watch',
+    'star',
 );
 
 CREATE TABLE interaction (
