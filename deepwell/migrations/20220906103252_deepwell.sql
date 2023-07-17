@@ -156,14 +156,14 @@ CREATE TYPE interaction_type AS ENUM (
 );
 
 CREATE TABLE interaction (
-    setter_type interaction_object NOT NULL,
-    setter_id BIGINT NOT NULL,
+    source_type interaction_object NOT NULL,
+    source_id BIGINT NOT NULL,
     interaction_type interaction_type NOT NULL,
     target_type interaction_object NOT NULL,
     target_id BIGINT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
 
-    PRIMARY KEY (setter_type, setter_id, interaction_type, target_type, target_id)
+    PRIMARY KEY (source_type, source_id, interaction_type, target_type, target_id)
 );
 
 --
