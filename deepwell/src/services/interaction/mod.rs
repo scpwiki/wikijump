@@ -26,9 +26,10 @@
 //! a number of relations using the interaction system.
 //!
 //! * `user` / `block` / `user` &mdash; User blocks
-//! * `user` / `watch` / `user` &mdash; Following a user
 //! * `user` / `watch` / `page` &mdash; Watching a page
+//! * `user` / `watch` / `user` &mdash; Following a user
 //! * `user` / `star` / `page` &mdash; Starring a page
+//! * `user` / `star` / `user` &mdash; Adding user as a contact
 
 mod prelude {
     pub use super::super::prelude::*;
