@@ -535,9 +535,6 @@ CREATE TABLE message (
 
     -- Folders and flags
     flag_read BOOLEAN NOT NULL DEFAULT false,  -- A user-toggleable flag for the "unread" status.
-    flag_seen BOOLEAN NOT NULL DEFAULT false,  -- A user-invisible flag set to true the first time
-                                               -- a message is opened. Cannot be set back to false.
-                                               -- Used to determine retractions.
     flag_inbox BOOLEAN NOT NULL,
     flag_outbox BOOLEAN NOT NULL,
     flag_self BOOLEAN NOT NULL,  -- Messages sent to oneself, as a kind of "notes to self" section.
