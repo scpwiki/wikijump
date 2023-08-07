@@ -520,7 +520,7 @@ dependencies = [
  "serde",
  "serde-xml-rs",
  "thiserror",
- "time 0.3.23",
+ "time 0.3.25",
  "url",
 ]
 
@@ -1261,7 +1261,7 @@ dependencies = [
  "surf",
  "thiserror",
  "tide",
- "time 0.3.23",
+ "time 0.3.25",
  "tiny-keccak",
  "toml",
  "typenum",
@@ -1281,6 +1281,15 @@ dependencies = [
  "const-oid",
  "pem-rfc7468",
  "zeroize",
+]
+
+[[package]]
+name = "deranged"
+version = "0.3.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7684a49fb1af197853ef7b2ee694bc1f5b4179556f1e5710e1760c5db6f5e929"
+dependencies = [
+ "serde",
 ]
 
 [[package]]
@@ -1639,7 +1648,7 @@ dependencies = [
  "str-macro",
  "strum 0.24.1",
  "strum_macros 0.24.3",
- "time 0.3.23",
+ "time 0.3.25",
  "tinyvec",
  "unicase",
  "void",
@@ -3439,7 +3448,7 @@ dependencies = [
  "sha2 0.10.7",
  "surf",
  "thiserror",
- "time 0.3.23",
+ "time 0.3.25",
  "url",
 ]
 
@@ -3634,7 +3643,7 @@ dependencies = [
  "serde_json",
  "sqlx 0.6.3",
  "thiserror",
- "time 0.3.23",
+ "time 0.3.25",
  "tracing",
  "url",
  "uuid",
@@ -3661,7 +3670,7 @@ checksum = "bbab99b8cd878ab7786157b7eb8df96333a6807cc6e45e8888c85b51534b401a"
 dependencies = [
  "sea-query-derive",
  "serde_json",
- "time 0.3.23",
+ "time 0.3.25",
 ]
 
 [[package]]
@@ -3673,7 +3682,7 @@ dependencies = [
  "sea-query",
  "serde_json",
  "sqlx 0.6.3",
- "time 0.3.23",
+ "time 0.3.25",
 ]
 
 [[package]]
@@ -4122,7 +4131,7 @@ dependencies = [
  "sqlx-rt",
  "stringprep",
  "thiserror",
- "time 0.3.23",
+ "time 0.3.25",
  "url",
  "webpki-roots 0.22.6",
  "whoami",
@@ -4694,14 +4703,15 @@ dependencies = [
 
 [[package]]
 name = "time"
-version = "0.3.23"
+version = "0.3.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "59e399c068f43a5d116fedaf73b203fa4f9c519f17e2b34f63221d3792f81446"
+checksum = "b0fdd63d58b18d663fbdf70e049f00a22c8e42be082203be7f26589213cd75ea"
 dependencies = [
+ "deranged",
  "itoa",
  "serde",
  "time-core",
- "time-macros 0.2.10",
+ "time-macros 0.2.11",
 ]
 
 [[package]]
@@ -4722,9 +4732,9 @@ dependencies = [
 
 [[package]]
 name = "time-macros"
-version = "0.2.10"
+version = "0.2.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "96ba15a897f3c86766b757e5ac7221554c6750054d74d5b28844fce5fb36a6c4"
+checksum = "eb71511c991639bb078fd5bf97757e03914361c48100d52878b8e52b46fb92cd"
 dependencies = [
  "time-core",
 ]
