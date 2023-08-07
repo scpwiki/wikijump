@@ -18,7 +18,7 @@ arraystring = "0.3"
 argon2 = "0.5"
 async-std = { version = "1", features = ["attributes"] }
 clap = "4"
-color-backtrace = "0.5"
+color-backtrace = "0.6"
 crossfire = "1.0"
 cuid2 = "0.1"
 data-encoding = "2"
