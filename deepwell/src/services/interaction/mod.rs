@@ -31,9 +31,6 @@
 //! * `user` / `watch` / `user` &mdash; User is following another user
 //! * `user` / `block` / `user` &mdash; User has blocked another user
 
-// TODO: add metadata JSON
-// TODO: add deleted_at
-
 mod prelude {
     pub use super::super::prelude::*;
     pub use super::structs::*;

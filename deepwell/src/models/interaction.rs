@@ -19,7 +19,9 @@ pub struct Model {
     pub target_type: InteractionObjectType,
     #[sea_orm(primary_key, auto_increment = false)]
     pub target_id: i64,
+    pub metadata: Json,
     pub created_at: TimeDateTimeWithTimeZone,
+    pub deleted_at: Option<TimeDateTimeWithTimeZone>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

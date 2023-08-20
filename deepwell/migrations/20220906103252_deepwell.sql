@@ -162,7 +162,9 @@ CREATE TABLE interaction (
     interaction_type interaction_type NOT NULL,
     target_type interaction_object_type NOT NULL,
     target_id BIGINT NOT NULL,
+    metadata JSON NOT NULL DEFAULT '{}',
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+    deleted_at TIMESTAMP WITH TIME ZONE,
 
     PRIMARY KEY (source_type, source_id, interaction_type, target_type, target_id)
 );
