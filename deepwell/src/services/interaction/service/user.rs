@@ -18,19 +18,126 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::InteractionService;
 use super::super::prelude::*;
+use super::InteractionService;
 
 impl InteractionService {
-    #[inline]
-    pub async fn block_user(ctx: &ServiceContext<'_>, source_user: i64, target_user: i64) -> Result<()> {
-        tide::log::info!("Blocking user ID {target_user} on behalf of user ID {source_user}");
-        Self::add(ctx, InteractionType::Block, source_user, target_user).await
+    // User blocks
+
+    pub async fn block_user(
+        ctx: &ServiceContext<'_>,
+        source_user: i64,
+        target_user: i64,
+    ) -> Result<()> {
+        tide::log::info!(
+            "Blocking user ID {target_user} on behalf of user ID {source_user}",
+        );
+
+        // TODO: unfollow user, remove from contacts, etc. both ways
+
+        Self::add(
+            ctx,
+            InteractionType::Block,
+            user!(source_user),
+            user!(target_user),
+        )
+        .await
     }
 
-    #[inline]
-    pub async fn unblock_user(ctx: &ServiceContext<'_>, source_user: i64, target_user: i64) -> Result<()> {
-        tide::log::info!("Unblocking user ID {target_user} on behalf of user ID {source_user}");
-        Self::remove(ctx, InteractionType::Block, source_user, target_user).await
+    pub async fn unblock_user(
+        ctx: &ServiceContext<'_>,
+        source_user: i64,
+        target_user: i64,
+    ) -> Result<()> {
+        tide::log::info!(
+            "Unblocking user ID {target_user} on behalf of user ID {source_user}",
+        );
+
+        Self::remove(
+            ctx,
+            InteractionType::Block,
+            user!(source_user),
+            user!(target_user),
+        )
+        .await
+    }
+
+    pub async fn user_blocked(
+        ctx: &ServiceContext<'_>,
+        source_user: i64,
+        target_user: i64,
+    ) -> Result<bool> {
+        tide::log::info!(
+            "Checking if user ID {target_user} is blocked by user ID {source_user}",
+        );
+
+        Self::exists(
+            ctx,
+            InteractionType::Block,
+            user!(source_user),
+            user!(target_user),
+        )
+        .await
+    }
+
+    // User follow
+
+    pub async fn follow_user(
+        ctx: &ServiceContext<'_>,
+        source_user: i64,
+        target_user: i64,
+    ) -> Result<()> {
+        tide::log::info!(
+            "Following user ID {target_user} on behalf of user ID {source_user}",
+        );
+
+        if Self::user_blocked(ctx, source_user, target_user).await? {
+            tide::log::error!("Cannot add follow, user is blocked");
+            return Err(Error::UserBlockedUser);
+        }
+
+        Self::add(
+            ctx,
+            InteractionType::Watch,
+            user!(source_user),
+            user!(target_user),
+        )
+        .await
+    }
+
+    pub async fn unfollow_user(
+        ctx: &ServiceContext<'_>,
+        source_user: i64,
+        target_user: i64,
+    ) -> Result<()> {
+        tide::log::info!(
+            "Unfollowing user ID {target_user} on behalf of user ID {source_user}",
+        );
+
+        Self::remove(
+            ctx,
+            InteractionType::Watch,
+            user!(source_user),
+            user!(target_user),
+        )
+        .await
+    }
+
+    pub async fn user_followed(
+        ctx: &ServiceContext<'_>,
+        source_user: i64,
+        target_user: i64,
+    ) -> Result<bool> {
+        tide::log::info!(
+            "Checking if user ID {target_user} is followed by user ID {source_user}",
+        );
+
+        Self::exists(
+            ctx,
+            InteractionType::Watch,
+            user!(source_user),
+            user!(target_user),
+        )
+        .await
     }
 }

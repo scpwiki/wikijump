@@ -20,6 +20,8 @@
 
 #[macro_use]
 mod macros;
+mod site;
+mod user;
 
 use super::prelude::*;
 use crate::models::interaction::{

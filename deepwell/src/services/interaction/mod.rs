@@ -22,14 +22,17 @@
 //!
 //! An "interaction" is a pair of two IDs and the interaction type. This is a flexible
 //! system first designed by bluesoul to describe a large number of relations between objects.
-//! For instance, instead of creating a separate table for user blocks, we can instead define
-//! a number of relations using the interaction system.
+//! For instance, instead of creating a separate table for user blocks or site membership,
+//! we can instead define a number of relations using the interaction system.
 //!
-//! * `user` / `block` / `user` &mdash; User blocks
-//! * `user` / `watch` / `page` &mdash; Watching a page
-//! * `user` / `watch` / `user` &mdash; Following a user
-//! * `user` / `star` / `page` &mdash; Starring a page
-//! * `user` / `star` / `user` &mdash; Adding user as a contact
+//! * `user` / `member` / `site` &mdash; User is a site member
+//! * `site` / `block` / `user` &mdash; User is banned by site
+//! * `user` / `watch` / `page` &mdash; User is watching a page
+//! * `user` / `watch` / `user` &mdash; User is following another user
+//! * `user` / `block` / `user` &mdash; User has blocked another user
+
+// TODO: add metadata JSON
+// TODO: add deleted_at
 
 mod prelude {
     pub use super::super::prelude::*;
