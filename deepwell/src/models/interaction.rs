@@ -9,22 +9,35 @@ use serde::{Deserialize, Serialize};
 #[serde(rename_all = "camelCase")]
 #[sea_orm(table_name = "interaction")]
 pub struct Model {
-    #[sea_orm(primary_key, auto_increment = false)]
+    #[sea_orm(primary_key)]
+    pub interaction_id: i64,
     pub source_type: InteractionObjectType,
-    #[sea_orm(primary_key, auto_increment = false)]
     pub source_id: i64,
-    #[sea_orm(primary_key, auto_increment = false)]
     pub interaction_type: InteractionType,
-    #[sea_orm(primary_key, auto_increment = false)]
     pub target_type: InteractionObjectType,
-    #[sea_orm(primary_key, auto_increment = false)]
     pub target_id: i64,
     pub metadata: Json,
+    pub created_by: i64,
     pub created_at: TimeDateTimeWithTimeZone,
     pub deleted_at: Option<TimeDateTimeWithTimeZone>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {}
+pub enum Relation {
+    #[sea_orm(
+        belongs_to = "super::user::Entity",
+        from = "Column::CreatedBy",
+        to = "super::user::Column::UserId",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    User,
+}
+
+impl Related<super::user::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::User.def()
+    }
+}
 
 impl ActiveModelBehavior for ActiveModel {}
