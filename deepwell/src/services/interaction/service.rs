@@ -58,13 +58,13 @@ impl InteractionService {
     pub async fn add<M: Serialize>(
         ctx: &ServiceContext<'_>,
         interaction_type: InteractionType,
-        source: InteractionObject,
-        target: InteractionObject,
+        dest: InteractionObject,
+        from: InteractionObject,
         created_by: i64,
         metadata: &M,
     ) -> Result<InteractionModel> {
         tide::log::debug!(
-            "Adding interaction for {source:?} / {interaction_type:?} / {target:?}",
+            "Adding interaction for {dest:?} ← {interaction_type:?} ← {from:?}",
         );
 
         // Delete previous interaction, if present
@@ -72,8 +72,8 @@ impl InteractionService {
             ctx,
             InteractionReference::Relationship {
                 interaction_type,
-                source,
-                target,
+                dest,
+                from,
             },
         )
         .await?
@@ -87,17 +87,19 @@ impl InteractionService {
         }
 
         // Insert new interaction
-        let (source_type, source_id) = source.into();
-        let (target_type, target_id) = target.into();
+        let (dest_type, dest_id) = dest.into();
+        let (from_type, from_id) = from.into();
+        interaction_type.types().check(dest_type, from_type);
+
         let metadata = serde_json::to_value(metadata)?;
         let model = interaction::ActiveModel {
-            source_type: Set(source_type),
-            source_id: Set(source_id),
-            interaction_type: Set(interaction_type),
-            target_type: Set(target_type),
-            target_id: Set(target_id),
-            created_by: Set(created_by),
+            interaction_type: Set(str!(interaction_type.value())),
+            dest_type: Set(dest_type),
+            dest_id: Set(dest_id),
+            from_type: Set(from_type),
+            from_id: Set(from_id),
             metadata: Set(metadata),
+            created_by: Set(created_by),
             ..Default::default()
         };
 
@@ -117,8 +119,8 @@ impl InteractionService {
         let interaction_id = Self::get_id(ctx, reference).await?;
         let model = interaction::ActiveModel {
             interaction_id: Set(interaction_id),
-            deleted_by: Set(Some(deleted_by)),
             deleted_at: Set(Some(now())),
+            deleted_by: Set(Some(deleted_by)),
             ..Default::default()
         };
 
@@ -201,21 +203,19 @@ impl InteractionService {
 
     pub async fn block_user(
         ctx: &ServiceContext<'_>,
-        source_user: i64,
-        target_user: i64,
+        dest_user: i64,
+        from_user: i64,
         created_by: i64,
     ) -> Result<()> {
-        tide::log::info!(
-            "Blocking user ID {target_user} on behalf of user ID {source_user}",
-        );
+        tide::log::info!("Blocking user ID {dest_user} on behalf of user ID {from_user}");
 
         // TODO: unfollow user, remove from contacts, etc. both ways
 
         Self::add(
             ctx,
-            InteractionType::Block,
-            user!(source_user),
-            user!(target_user),
+            InteractionType::UserBlock,
+            user!(dest_user),
+            user!(from_user),
             created_by,
             &(),
         )
@@ -226,20 +226,20 @@ impl InteractionService {
 
     pub async fn unblock_user(
         ctx: &ServiceContext<'_>,
-        source_user: i64,
-        target_user: i64,
+        dest_user: i64,
+        from_user: i64,
         deleted_by: i64,
     ) -> Result<()> {
         tide::log::info!(
-            "Unblocking user ID {target_user} on behalf of user ID {source_user}",
+            "Unblocking user ID {dest_user} on behalf of user ID {from_user}",
         );
 
         Self::remove(
             ctx,
             InteractionReference::Relationship {
-                interaction_type: InteractionType::Block,
-                source: user!(source_user),
-                target: user!(target_user),
+                interaction_type: InteractionType::UserBlock,
+                dest: user!(dest_user),
+                from: user!(from_user),
             },
             deleted_by,
         )
@@ -248,91 +248,19 @@ impl InteractionService {
 
     pub async fn user_blocked(
         ctx: &ServiceContext<'_>,
-        source_user: i64,
-        target_user: i64,
+        dest_user: i64,
+        from_user: i64,
     ) -> Result<bool> {
         tide::log::info!(
-            "Checking if user ID {target_user} is blocked by user ID {source_user}",
+            "Checking if user ID {dest_user} is blocked by user ID {from_user}",
         );
 
         Self::exists(
             ctx,
             InteractionReference::Relationship {
-                interaction_type: InteractionType::Block,
-                source: user!(source_user),
-                target: user!(target_user),
-            },
-        )
-        .await
-    }
-
-    // User follow
-
-    pub async fn follow_user(
-        ctx: &ServiceContext<'_>,
-        source_user: i64,
-        target_user: i64,
-        created_by: i64,
-    ) -> Result<()> {
-        tide::log::info!(
-            "Following user ID {target_user} on behalf of user ID {source_user}",
-        );
-
-        if Self::user_blocked(ctx, source_user, target_user).await? {
-            tide::log::error!("Cannot add follow, user is blocked");
-            return Err(Error::UserBlockedUser);
-        }
-
-        Self::add(
-            ctx,
-            InteractionType::Watch,
-            user!(source_user),
-            user!(target_user),
-            created_by,
-            &(),
-        )
-        .await?;
-
-        Ok(())
-    }
-
-    pub async fn unfollow_user(
-        ctx: &ServiceContext<'_>,
-        source_user: i64,
-        target_user: i64,
-        deleted_by: i64,
-    ) -> Result<()> {
-        tide::log::info!(
-            "Unfollowing user ID {target_user} on behalf of user ID {source_user}",
-        );
-
-        Self::remove(
-            ctx,
-            InteractionReference::Relationship {
-                interaction_type: InteractionType::Watch,
-                source: user!(source_user),
-                target: user!(target_user),
-            },
-            deleted_by,
-        )
-        .await
-    }
-
-    pub async fn user_followed(
-        ctx: &ServiceContext<'_>,
-        source_user: i64,
-        target_user: i64,
-    ) -> Result<bool> {
-        tide::log::info!(
-            "Checking if user ID {target_user} is followed by user ID {source_user}",
-        );
-
-        Self::exists(
-            ctx,
-            InteractionReference::Relationship {
-                interaction_type: InteractionType::Watch,
-                source: user!(source_user),
-                target: user!(target_user),
+                interaction_type: InteractionType::UserBlock,
+                dest: user!(dest_user),
+                from: user!(from_user),
             },
         )
         .await

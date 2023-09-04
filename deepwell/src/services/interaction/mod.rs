@@ -34,9 +34,7 @@
 mod prelude {
     pub use super::super::prelude::*;
     pub use super::structs::*;
-    pub use crate::models::sea_orm_active_enums::{
-        InteractionObjectType, InteractionType,
-    };
+    pub use crate::models::sea_orm_active_enums::InteractionObjectType;
 }
 
 mod service;

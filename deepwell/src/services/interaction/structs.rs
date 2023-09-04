@@ -21,7 +21,7 @@
 use crate::models::interaction::{
     self, Entity as Interaction, Model as InteractionModel,
 };
-use crate::models::sea_orm_active_enums::{InteractionObjectType, InteractionType};
+use crate::models::sea_orm_active_enums::InteractionObjectType;
 use sea_orm::{ColumnTrait, Condition};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -43,13 +43,20 @@ impl From<InteractionObject> for (InteractionObjectType, i64) {
     }
 }
 
+impl From<InteractionObject> for InteractionObjectType {
+    fn from(object: InteractionObject) -> InteractionObjectType {
+        let (otype, _): (InteractionObjectType, i64) = object.into();
+        otype
+    }
+}
+
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum InteractionReference {
     Id(i64),
     Relationship {
         interaction_type: InteractionType,
-        source: InteractionObject,
-        target: InteractionObject,
+        dest: InteractionObject,
+        from: InteractionObject,
     },
 }
 
@@ -57,30 +64,103 @@ impl InteractionReference {
     pub fn condition(self) -> Condition {
         match self {
             InteractionReference::Id(id) => {
-                // Needs wrapping Condition due to type ALL or ANY both work
+                // Needs wrapping Condition due to type; ALL or ANY both work
                 Condition::all().add(interaction::Column::InteractionId.eq(id))
             }
             InteractionReference::Relationship {
                 interaction_type,
-                source,
-                target,
-            } => interaction_condition(interaction_type, source, target),
+                dest,
+                from,
+            } => interaction_condition(interaction_type, dest, from),
         }
     }
 }
 
 pub fn interaction_condition(
     interaction_type: InteractionType,
-    source: InteractionObject,
-    target: InteractionObject,
+    dest: InteractionObject,
+    from: InteractionObject,
 ) -> Condition {
-    let (source_type, source_id) = source.into();
-    let (target_type, target_id) = target.into();
+    let (dest_type, dest_id) = dest.into();
+    let (from_type, from_id) = from.into();
 
     Condition::all()
-        .add(interaction::Column::InteractionType.eq(interaction_type))
-        .add(interaction::Column::SourceType.eq(source_type))
-        .add(interaction::Column::SourceId.eq(source_id))
-        .add(interaction::Column::TargetType.eq(target_type))
-        .add(interaction::Column::TargetId.eq(target_id))
+        .add(interaction::Column::InteractionType.eq(interaction_type.value()))
+        .add(interaction::Column::DestType.eq(dest_type))
+        .add(interaction::Column::DestId.eq(dest_id))
+        .add(interaction::Column::FromType.eq(from_type))
+        .add(interaction::Column::FromId.eq(from_id))
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub struct InteractionObjectTypes {
+    pub dest: InteractionObjectType,
+    pub from: InteractionObjectType,
+}
+
+impl InteractionObjectTypes {
+    /// Asserts that the given object types match for interaction type.
+    pub fn check<O1, O2>(self, dest: O1, from: O2)
+    where
+        O1: Into<InteractionObjectType>,
+        O2: Into<InteractionObjectType>,
+    {
+        let dest = dest.into();
+        let from = from.into();
+
+        assert_eq!(
+            (self.dest, self.from),
+            (dest, from),
+            "Object types inappropriate for this interaction: expected {:?}, actual {:?}",
+            (self.dest, self.from),
+            (dest, from),
+        );
+    }
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum InteractionType {
+    SiteBan,
+    SiteMember,
+    PageWatch,
+    UserContact,
+    UserFollow,
+    UserBlock,
+}
+
+impl InteractionType {
+    /// Get the constant string value used to represent this interaction in the database.
+    ///
+    /// It need not be unique among all interactions, but it must be unique for each triplet
+    /// of `(dest_type, from_type, interaction_value)`.
+    pub fn value(self) -> &'static str {
+        match self {
+            InteractionType::SiteBan => "ban",
+            InteractionType::SiteMember => "member",
+            InteractionType::PageWatch => "watch",
+            InteractionType::UserContact => "contact",
+            InteractionType::UserFollow => "follow",
+            InteractionType::UserBlock => "block",
+        }
+    }
+
+    pub fn types(self) -> InteractionObjectTypes {
+        macro_rules! t {
+            ($dest:ident, $from:ident $(,)?) => {
+                InteractionObjectTypes {
+                    dest: InteractionObjectType::$dest,
+                    from: InteractionObjectType::$from,
+                }
+            };
+        }
+
+        match self {
+            InteractionType::SiteBan => t!(Site, User),
+            InteractionType::SiteMember => t!(Site, User),
+            InteractionType::PageWatch => t!(Page, User),
+            InteractionType::UserContact => t!(User, User),
+            InteractionType::UserFollow => t!(User, User),
+            InteractionType::UserBlock => t!(User, User),
+        }
+    }
 }

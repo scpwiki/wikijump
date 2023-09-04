@@ -32,8 +32,12 @@ pub enum FileRevisionType {
 #[derive(
     Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Copy, Serialize, Deserialize,
 )]
-#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "interaction_object")]
 #[serde(rename_all = "kebab-case")]
+#[sea_orm(
+    rs_type = "String",
+    db_type = "Enum",
+    enum_name = "interaction_object_type"
+)]
 pub enum InteractionObjectType {
     #[sea_orm(string_value = "file")]
     File,
@@ -45,7 +49,7 @@ pub enum InteractionObjectType {
     User,
 }
 #[derive(
-    Debug, Copy, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize,
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Copy, Serialize, Deserialize,
 )]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "interaction_type")]
 #[serde(rename_all = "kebab-case")]
