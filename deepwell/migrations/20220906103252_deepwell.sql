@@ -166,6 +166,7 @@ CREATE TABLE interaction (
     metadata JSON NOT NULL DEFAULT '{}',
     created_by BIGINT NOT NULL REFERENCES "user"(user_id),
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+    deleted_by BIGINT REFERENCES "user"(user_id),
     deleted_at TIMESTAMP WITH TIME ZONE,
 
     UNIQUE (source_type, source_id, interaction_type, target_type, target_id, deleted_at)

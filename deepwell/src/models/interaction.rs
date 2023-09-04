@@ -19,6 +19,7 @@ pub struct Model {
     pub metadata: Json,
     pub created_by: i64,
     pub created_at: TimeDateTimeWithTimeZone,
+    pub deleted_by: Option<i64>,
     pub deleted_at: Option<TimeDateTimeWithTimeZone>,
 }
 

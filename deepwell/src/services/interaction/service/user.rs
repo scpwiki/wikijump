@@ -28,6 +28,7 @@ impl InteractionService {
         ctx: &ServiceContext<'_>,
         source_user: i64,
         target_user: i64,
+        created_by: i64,
     ) -> Result<()> {
         tide::log::info!(
             "Blocking user ID {target_user} on behalf of user ID {source_user}",
@@ -40,14 +41,19 @@ impl InteractionService {
             InteractionType::Block,
             user!(source_user),
             user!(target_user),
+            created_by,
+            &(),
         )
-        .await
+        .await?;
+
+        Ok(())
     }
 
     pub async fn unblock_user(
         ctx: &ServiceContext<'_>,
         source_user: i64,
         target_user: i64,
+        deleted_by: i64,
     ) -> Result<()> {
         tide::log::info!(
             "Unblocking user ID {target_user} on behalf of user ID {source_user}",
@@ -55,9 +61,12 @@ impl InteractionService {
 
         Self::remove(
             ctx,
-            InteractionType::Block,
-            user!(source_user),
-            user!(target_user),
+            InteractionReference::Relationship {
+                interaction_type: InteractionType::Block,
+                source: user!(source_user),
+                target: user!(target_user),
+            },
+            deleted_by,
         )
         .await
     }
@@ -73,9 +82,11 @@ impl InteractionService {
 
         Self::exists(
             ctx,
-            InteractionType::Block,
-            user!(source_user),
-            user!(target_user),
+            InteractionReference::Relationship {
+                interaction_type: InteractionType::Block,
+                source: user!(source_user),
+                target: user!(target_user),
+            },
         )
         .await
     }
@@ -86,6 +97,7 @@ impl InteractionService {
         ctx: &ServiceContext<'_>,
         source_user: i64,
         target_user: i64,
+        created_by: i64,
     ) -> Result<()> {
         tide::log::info!(
             "Following user ID {target_user} on behalf of user ID {source_user}",
@@ -101,14 +113,19 @@ impl InteractionService {
             InteractionType::Watch,
             user!(source_user),
             user!(target_user),
+            created_by,
+            &(),
         )
-        .await
+        .await?;
+
+        Ok(())
     }
 
     pub async fn unfollow_user(
         ctx: &ServiceContext<'_>,
         source_user: i64,
         target_user: i64,
+        deleted_by: i64,
     ) -> Result<()> {
         tide::log::info!(
             "Unfollowing user ID {target_user} on behalf of user ID {source_user}",
@@ -116,9 +133,12 @@ impl InteractionService {
 
         Self::remove(
             ctx,
-            InteractionType::Watch,
-            user!(source_user),
-            user!(target_user),
+            InteractionReference::Relationship {
+                interaction_type: InteractionType::Watch,
+                source: user!(source_user),
+                target: user!(target_user),
+            },
+            deleted_by,
         )
         .await
     }
@@ -134,9 +154,11 @@ impl InteractionService {
 
         Self::exists(
             ctx,
-            InteractionType::Watch,
-            user!(source_user),
-            user!(target_user),
+            InteractionReference::Relationship {
+                interaction_type: InteractionType::Watch,
+                source: user!(source_user),
+                target: user!(target_user),
+            },
         )
         .await
     }

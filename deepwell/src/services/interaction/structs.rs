@@ -18,9 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::models::sea_orm_active_enums::InteractionObjectType;
+use crate::models::interaction::{
+    self, Entity as Interaction, Model as InteractionModel,
+};
+use crate::models::sea_orm_active_enums::{InteractionObjectType, InteractionType};
+use sea_orm::{ColumnTrait, Condition};
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum InteractionObject {
     Site(i64),
     User(i64),
@@ -37,4 +41,46 @@ impl From<InteractionObject> for (InteractionObjectType, i64) {
             InteractionObject::File(id) => (InteractionObjectType::File, id),
         }
     }
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum InteractionReference {
+    Id(i64),
+    Relationship {
+        interaction_type: InteractionType,
+        source: InteractionObject,
+        target: InteractionObject,
+    },
+}
+
+impl InteractionReference {
+    pub fn condition(self) -> Condition {
+        match self {
+            InteractionReference::Id(id) => {
+                // Needs wrapping Condition due to type ALL or ANY both work
+                Condition::all().add(interaction::Column::InteractionId.eq(id))
+            }
+            InteractionReference::Relationship {
+                interaction_type,
+                source,
+                target,
+            } => interaction_condition(interaction_type, source, target),
+        }
+    }
+}
+
+pub fn interaction_condition(
+    interaction_type: InteractionType,
+    source: InteractionObject,
+    target: InteractionObject,
+) -> Condition {
+    let (source_type, source_id) = source.into();
+    let (target_type, target_id) = target.into();
+
+    Condition::all()
+        .add(interaction::Column::InteractionType.eq(interaction_type))
+        .add(interaction::Column::SourceType.eq(source_type))
+        .add(interaction::Column::SourceId.eq(source_id))
+        .add(interaction::Column::TargetType.eq(target_type))
+        .add(interaction::Column::TargetId.eq(target_id))
 }
