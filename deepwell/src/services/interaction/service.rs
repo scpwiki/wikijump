@@ -1,5 +1,5 @@
 /*
- * services/interaction/service/mod.rs
+ * services/interaction/service.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -18,10 +18,32 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#[macro_use]
-mod macros;
-mod site;
-mod user;
+// Macros
+
+macro_rules! site {
+    ($id:expr $(,)?) => {
+        InteractionObject::Site($id)
+    };
+}
+
+macro_rules! user {
+    ($id:expr $(,)?) => {
+        InteractionObject::User($id)
+    };
+}
+
+macro_rules! page {
+    ($id:expr $(,)?) => {
+        InteractionObject::Page($id)
+    };
+}
+
+// Adding an "i" (for "interaction") because file!() itself conflicts with logging.
+macro_rules! ifile {
+    ($id:expr $(,)?) => {
+        InteractionObject::File($id)
+    };
+}
 
 use super::prelude::*;
 use crate::models::interaction::{
@@ -173,5 +195,146 @@ impl InteractionService {
             .await?;
 
         Ok(interactions)
+    }
+
+    // User blocks
+
+    pub async fn block_user(
+        ctx: &ServiceContext<'_>,
+        source_user: i64,
+        target_user: i64,
+        created_by: i64,
+    ) -> Result<()> {
+        tide::log::info!(
+            "Blocking user ID {target_user} on behalf of user ID {source_user}",
+        );
+
+        // TODO: unfollow user, remove from contacts, etc. both ways
+
+        Self::add(
+            ctx,
+            InteractionType::Block,
+            user!(source_user),
+            user!(target_user),
+            created_by,
+            &(),
+        )
+        .await?;
+
+        Ok(())
+    }
+
+    pub async fn unblock_user(
+        ctx: &ServiceContext<'_>,
+        source_user: i64,
+        target_user: i64,
+        deleted_by: i64,
+    ) -> Result<()> {
+        tide::log::info!(
+            "Unblocking user ID {target_user} on behalf of user ID {source_user}",
+        );
+
+        Self::remove(
+            ctx,
+            InteractionReference::Relationship {
+                interaction_type: InteractionType::Block,
+                source: user!(source_user),
+                target: user!(target_user),
+            },
+            deleted_by,
+        )
+        .await
+    }
+
+    pub async fn user_blocked(
+        ctx: &ServiceContext<'_>,
+        source_user: i64,
+        target_user: i64,
+    ) -> Result<bool> {
+        tide::log::info!(
+            "Checking if user ID {target_user} is blocked by user ID {source_user}",
+        );
+
+        Self::exists(
+            ctx,
+            InteractionReference::Relationship {
+                interaction_type: InteractionType::Block,
+                source: user!(source_user),
+                target: user!(target_user),
+            },
+        )
+        .await
+    }
+
+    // User follow
+
+    pub async fn follow_user(
+        ctx: &ServiceContext<'_>,
+        source_user: i64,
+        target_user: i64,
+        created_by: i64,
+    ) -> Result<()> {
+        tide::log::info!(
+            "Following user ID {target_user} on behalf of user ID {source_user}",
+        );
+
+        if Self::user_blocked(ctx, source_user, target_user).await? {
+            tide::log::error!("Cannot add follow, user is blocked");
+            return Err(Error::UserBlockedUser);
+        }
+
+        Self::add(
+            ctx,
+            InteractionType::Watch,
+            user!(source_user),
+            user!(target_user),
+            created_by,
+            &(),
+        )
+        .await?;
+
+        Ok(())
+    }
+
+    pub async fn unfollow_user(
+        ctx: &ServiceContext<'_>,
+        source_user: i64,
+        target_user: i64,
+        deleted_by: i64,
+    ) -> Result<()> {
+        tide::log::info!(
+            "Unfollowing user ID {target_user} on behalf of user ID {source_user}",
+        );
+
+        Self::remove(
+            ctx,
+            InteractionReference::Relationship {
+                interaction_type: InteractionType::Watch,
+                source: user!(source_user),
+                target: user!(target_user),
+            },
+            deleted_by,
+        )
+        .await
+    }
+
+    pub async fn user_followed(
+        ctx: &ServiceContext<'_>,
+        source_user: i64,
+        target_user: i64,
+    ) -> Result<bool> {
+        tide::log::info!(
+            "Checking if user ID {target_user} is followed by user ID {source_user}",
+        );
+
+        Self::exists(
+            ctx,
+            InteractionReference::Relationship {
+                interaction_type: InteractionType::Watch,
+                source: user!(source_user),
+                target: user!(target_user),
+            },
+        )
+        .await
     }
 }
