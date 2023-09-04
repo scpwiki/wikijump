@@ -149,27 +149,21 @@ CREATE TYPE interaction_object_type AS ENUM (
     'file'
 );
 
-CREATE TYPE interaction_type AS ENUM (
-    'member',
-    'block',
-    'watch',
-    'star',
-);
-
 CREATE TABLE interaction (
     interaction_id BIGSERIAL PRIMARY KEY,
-    source_type interaction_object_type NOT NULL,
-    source_id BIGINT NOT NULL,
-    interaction_type interaction_type NOT NULL,
-    target_type interaction_object_type NOT NULL,
-    target_id BIGINT NOT NULL,
+    interaction_type TEXT NOT NULL,  -- check enum value in runtime
+    dest_type interaction_object_type NOT NULL,
+    dest_id BIGINT NOT NULL,
+    from_type interaction_object_type NOT NULL,
+    from_id BIGINT NOT NULL,
     metadata JSON NOT NULL DEFAULT '{}',
     created_by BIGINT NOT NULL REFERENCES "user"(user_id),
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     deleted_by BIGINT REFERENCES "user"(user_id),
     deleted_at TIMESTAMP WITH TIME ZONE,
 
-    UNIQUE (source_type, source_id, interaction_type, target_type, target_id, deleted_at)
+    UNIQUE (interaction_type, dest_type, dest_id, from_type, from_id, deleted_at),
+    CHECK ((deleted_by IS NULL) = (deleted_at IS NULL))  -- ensure deleted field consistency
 );
 
 --
