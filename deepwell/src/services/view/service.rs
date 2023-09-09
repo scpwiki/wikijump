@@ -100,12 +100,12 @@ impl ViewService {
         let options = PageOptions::parse(page_extra);
 
         // Get page, revision, and text fields
-        let (category_slug, page_slug) = split_category(page_slug);
+        let (category_slug, page_clean_slug) = split_category(page_slug);
         let page_info = PageInfo {
-            page: cow!(page_slug),
+            page: cow!(page_clean_slug),
             category: cow_opt!(category_slug),
             site: cow!(&site.slug),
-            title: cow!(page_slug),
+            title: cow!(page_clean_slug),
             alt_title: None,
             score: ScoreValue::Integer(0), // TODO configurable default score value
             tags: vec![],
