@@ -10,17 +10,6 @@
 
 {@html data.compiledHtml}
 
-{#if data.view === "pageMissing"}
-  UNTRANSLATED:TODO fix error page
-  {@html data.compiledHtml}
-{:else if data.view === "pagePermissions"}
-  UNTRANSLATED:TODO fix error page
-  {@html data.compiledHtml}
-{:else if data.view === "siteMissing"}
-  UNTRANSLATED:TODO fix error page
-  {@html data.html}
-{/if}
-
 <style global lang="scss">
   @keyframes spin {
     from {
