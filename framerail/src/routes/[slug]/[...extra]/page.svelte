@@ -1,6 +1,17 @@
 <script lang="ts">
   export let data
-  import { goto } from "$app/navigation"
+  import { goto, invalidateAll } from "$app/navigation"
+
+  async function handleDelete() {
+    let fdata = new FormData()
+    fdata.set("site-id", data.site.siteId)
+    fdata.set("page-id", data.page.pageId)
+    await fetch(`/${data.page.slug}`, {
+      method: "DELETE",
+      body: fdata,
+    })
+    invalidateAll()
+  }
 
   function navigateEdit() {
     goto(`/${data.page.slug}/edit`, {
@@ -98,6 +109,11 @@
   </form>
 {:else}
   <div class="editor-actions">
+    <button
+      class="editor-button button-delete clickable"
+      on:click={handleDelete} >
+      UT:Delete
+    </button>
     <button
       class="editor-button button-edit clickable"
       on:click={navigateEdit} >

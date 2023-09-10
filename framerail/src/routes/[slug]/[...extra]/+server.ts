@@ -1,4 +1,5 @@
-import { pageEdit } from "$lib/server/deepwell/edit.ts"
+import { pageEdit } from "$lib/server/page/edit"
+import { pageDelete } from "$lib/server/page/delete"
 
 export async function POST(event) {
   let data = await event.request.formData()
@@ -17,5 +18,18 @@ export async function POST(event) {
 
   let res = await pageEdit(siteId, pageId, slug, comments, wikitext, title, altTitle, tags)
 
+  return new Response(JSON.stringify(res));
+}
+
+export async function DELETE(event) {
+  let data = await event.request.formData()
+  let slug = event.params.slug
+
+  let pageIdVal = data.get("page-id")?.toString()
+  let pageId = pageIdVal ? parseInt(pageIdVal) : null
+  let siteId = parseInt(data.get("site-id")?.toString() ?? "1")
+  let comments = data.get("comments")?.toString() ?? ""
+
+  let res = await pageDelete(siteId, pageId, slug, comments)
   return new Response(JSON.stringify(res));
 }
