@@ -3,21 +3,28 @@ import type { Optional } from "$lib/types.ts"
 
 export async function pageEdit(
   siteId: number,
-  page: number,
+  pageId: Optional<number>,
+  slug: string,
   revisionComments: Optional<string>,
   wikitext: string,
   title: string,
   altTitle: string,
   tags: string[],
 ): object {
-  const response = await wellfetch("/page", {
+  let endpoint = "/page"
+  if (!pageId) {
+    // Assume page creation
+    endpoint += "/create"
+  }
+  const response = await wellfetch(endpoint, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
       siteId,
-      page,
+      page: pageId ?? slug,
+      slug,
       userId: 1, // TODO: identify user session and pass the user to the API request
       revisionComments,
       wikitext,
