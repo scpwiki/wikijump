@@ -5,7 +5,7 @@ export async function pageDelete(
   siteId: number,
   pageId: Optional<number>,
   slug: string,
-  revisionComments: Optional<string>,
+  revisionComments: Optional<string>
 ): object {
   const response = await wellfetch("/page", {
     method: "DELETE",
@@ -16,7 +16,7 @@ export async function pageDelete(
       siteId,
       page: pageId ?? slug,
       userId: 1, // TODO: identify user session and pass the user to the API request
-      revisionComments,
+      revisionComments
     })
   })
 

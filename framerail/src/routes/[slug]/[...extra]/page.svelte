@@ -8,20 +8,20 @@
     fdata.set("page-id", data.page.pageId)
     await fetch(`/${data.page.slug}`, {
       method: "DELETE",
-      body: fdata,
+      body: fdata
     })
     invalidateAll()
   }
 
   function navigateEdit() {
     goto(`/${data.page.slug}/edit`, {
-      noScroll: true,
+      noScroll: true
     })
   }
 
   function cancelEdit() {
     goto(`/${data.page.slug}`, {
-      noScroll: true,
+      noScroll: true
     })
   }
 
@@ -32,10 +32,10 @@
     fdata.set("page-id", data.page.pageId)
     await fetch(`/${data.page.slug}`, {
       method: "POST",
-      body: fdata,
+      body: fdata
     })
     goto(`/${data.page.slug}`, {
-      noScroll: true,
+      noScroll: true
     })
   }
 </script>
@@ -44,7 +44,9 @@
 <p class="spin-yay">
   UNTRANSLATED:This is a generic page renderer loaded as a component.
 </p>
-<p>UNTRANSLATED:Response <textarea class="debug">{JSON.stringify(data, null, 2)}</textarea></p>
+<p>
+  UNTRANSLATED:Response <textarea class="debug">{JSON.stringify(data, null, 2)}</textarea>
+</p>
 
 <h2>{data.pageRevision.title}</h2>
 
@@ -59,50 +61,48 @@
   <hr />
   <ul class="page-tags">
     {#each data.pageRevision.tags as tag}
-    <li class="tag">{tag}</li>
+      <li class="tag">{tag}</li>
     {/each}
   </ul>
 </div>
 
 {#if data.options?.edit}
-  <form
-    id="editor"
-    class="editor"
-    method="POST"
-    on:submit|preventDefault={saveEdit} >
+  <form id="editor" class="editor" method="POST" on:submit|preventDefault={saveEdit}>
     <input
-      type="text"
-      class="editor-title"
       name="title"
+      class="editor-title"
       placeholder="title"
+      type="text"
       value={data.pageRevision.title}
-      />
+    />
     <input
-      type="text"
-      class="editor-alt-title"
       name="alt-title"
+      class="editor-alt-title"
       placeholder="alternative title"
-      value={data.pageRevision.altTitle}
-      />
-    <textarea class="editor-wikitext" name="wikitext">{data.wikitext}</textarea>
-    <input
       type="text"
-      class="editor-tags"
+      value={data.pageRevision.altTitle}
+    />
+    <textarea name="wikitext" class="editor-wikitext">{data.wikitext}</textarea>
+    <input
       name="tags"
+      class="editor-tags"
       placeholder="tags"
+      type="text"
       value={data.pageRevision.tags.join(" ")}
-      />
+    />
     <div class="editor-actions">
       <button
-        type="button"
         class="editor-button button-cancel clickable"
-        on:click|stopPropagation={cancelEdit} >
+        type="button"
+        on:click|stopPropagation={cancelEdit}
+      >
         UT:Cancel
       </button>
       <button
-        type="submit"
         class="editor-button button-save clickable"
-        on:click|stopPropagation >
+        type="submit"
+        on:click|stopPropagation
+      >
         UT:Save
       </button>
     </div>
@@ -111,12 +111,16 @@
   <div class="editor-actions">
     <button
       class="editor-button button-delete clickable"
-      on:click={handleDelete} >
+      type="button"
+      on:click={handleDelete}
+    >
       UT:Delete
     </button>
     <button
       class="editor-button button-edit clickable"
-      on:click={navigateEdit} >
+      type="button"
+      on:click={navigateEdit}
+    >
       UT:Edit
     </button>
   </div>

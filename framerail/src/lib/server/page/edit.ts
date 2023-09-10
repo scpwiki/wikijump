@@ -9,7 +9,7 @@ export async function pageEdit(
   wikitext: string,
   title: string,
   altTitle: string,
-  tags: string[],
+  tags: string[]
 ): object {
   let endpoint = "/page"
   if (!pageId) {
@@ -30,7 +30,7 @@ export async function pageEdit(
       wikitext,
       title,
       altTitle,
-      tags,
+      tags
     })
   })
 

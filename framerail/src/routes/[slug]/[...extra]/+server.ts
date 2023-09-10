@@ -1,5 +1,5 @@
-import { pageEdit } from "$lib/server/page/edit"
 import { pageDelete } from "$lib/server/page/delete"
+import { pageEdit } from "$lib/server/page/edit"
 
 export async function POST(event) {
   let data = await event.request.formData()
@@ -14,11 +14,20 @@ export async function POST(event) {
   let altTitle = data.get("alt-title")?.toString()
   let tagsStr = data.get("tags")?.toString().trim()
   let tags: string[] = []
-  if (tagsStr?.length) tags = tagsStr.split(" ").filter(tag=>tag.length)
+  if (tagsStr?.length) tags = tagsStr.split(" ").filter((tag) => tag.length)
 
-  let res = await pageEdit(siteId, pageId, slug, comments, wikitext, title, altTitle, tags)
+  let res = await pageEdit(
+    siteId,
+    pageId,
+    slug,
+    comments,
+    wikitext,
+    title,
+    altTitle,
+    tags
+  )
 
-  return new Response(JSON.stringify(res));
+  return new Response(JSON.stringify(res))
 }
 
 export async function DELETE(event) {
@@ -31,5 +40,5 @@ export async function DELETE(event) {
   let comments = data.get("comments")?.toString() ?? ""
 
   let res = await pageDelete(siteId, pageId, slug, comments)
-  return new Response(JSON.stringify(res));
+  return new Response(JSON.stringify(res))
 }

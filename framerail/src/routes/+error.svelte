@@ -4,7 +4,7 @@
 
   function cancelEdit() {
     goto(`/${$page.params.slug}`, {
-      noScroll: true,
+      noScroll: true
     })
   }
 
@@ -15,10 +15,10 @@
     fdata.set("slug", $page.params.slug)
     await fetch(`/${$page.params.slug}`, {
       method: "POST",
-      body: fdata,
+      body: fdata
     })
     goto(`/${$page.params.slug}`, {
-      noScroll: true,
+      noScroll: true
     })
   }
 </script>
@@ -35,41 +35,29 @@ as soon as we can figure out prettier support for it.
   UNTRANSLATED:Page not found
 
   {#if $page.error.options?.edit}
-    <form
-      id="editor"
-      class="editor"
-      method="POST"
-      on:submit|preventDefault={saveEdit} >
+    <form id="editor" class="editor" method="POST" on:submit|preventDefault={saveEdit}>
+      <input name="title" class="editor-title" placeholder="title" type="text" />
       <input
-        type="text"
-        class="editor-title"
-        name="title"
-        placeholder="title"
-        />
-      <input
-        type="text"
-        class="editor-alt-title"
         name="alt-title"
+        class="editor-alt-title"
         placeholder="alternative title"
-        />
-      <textarea class="editor-wikitext" name="wikitext"></textarea>
-      <input
         type="text"
-        class="editor-tags"
-        name="tags"
-        placeholder="tags"
-        />
+      />
+      <textarea name="wikitext" class="editor-wikitext" />
+      <input name="tags" class="editor-tags" placeholder="tags" type="text" />
       <div class="editor-actions">
         <button
-          type="button"
           class="editor-button button-cancel clickable"
-          on:click|stopPropagation={cancelEdit} >
+          type="button"
+          on:click|stopPropagation={cancelEdit}
+        >
           UT:Cancel
         </button>
         <button
-          type="submit"
           class="editor-button button-save clickable"
-          on:click|stopPropagation >
+          type="submit"
+          on:click|stopPropagation
+        >
           UT:Save
         </button>
       </div>
@@ -77,7 +65,6 @@ as soon as we can figure out prettier support for it.
   {:else}
     {@html $page.error.compiledHtml}
   {/if}
-
 {:else if $page.error.view === "pagePermissions"}
   UNTRANSLATED:Lacks permissions for page
   {@html $page.error.compiledHtml}
@@ -94,42 +81,25 @@ as soon as we can figure out prettier support for it.
     height: 60vh;
   }
 
-.page-content,
-.page-tags-container {
-  padding: 0 0 2em;
-}
+  .editor {
+    width: 80vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+    align-items: stretch;
+    gap: 15px;
+  }
 
-.page-tags {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 10px;
-  padding: 0;
-  margin: 0;
-  list-style: none;
-}
+  .editor-wikitext {
+    height: 60vh;
+  }
 
-.editor {
-  width: 80vw;
-  display: flex;
-  flex-direction: column;
-  justify-content: stretch;
-  align-items: stretch;
-  gap: 15px;
-}
-
-.editor-wikitext {
-  height: 60vh;
-}
-
-.editor-actions {
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-  align-items: stretch;
-  gap: 10px;
-}
+  .editor-actions {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: stretch;
+    gap: 10px;
+  }
 </style>

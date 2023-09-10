@@ -16,6 +16,8 @@
   </div>
 </div>
 
+<!-- Ignoring the styling as being a theme it will inevitably style other elements in the entire layout -->
+<!-- prettier-ignore -->
 <style global lang="scss">
   body {
     margin: 0;
@@ -38,7 +40,8 @@
     min-height: 100vh;
     background-color: #fff;
 
-    textarea, input[type="text"] {
+    textarea,
+    input[type="text"] {
       border-radius: 0.5em;
       padding: 0.5em 1em;
     }
@@ -97,7 +100,8 @@
       background-color: #fff;
       color: #111;
 
-      textarea, input[type="text"] {
+      textarea,
+      input[type="text"] {
         background-color: #fff;
         color: #111;
         border: 1px solid #0006;
@@ -127,7 +131,8 @@
       background-color: #222;
       color: #b6c2cf;
 
-      textarea, input[type="text"] {
+      textarea,
+      input[type="text"] {
         background-color: #222;
         color: #b6c2cf;
         border: 1px solid #b6c2cf;
@@ -143,12 +148,12 @@
       }
     }
 
-  .editor-actions {
-    .editor-button {
-      background-color: #222;
-      color: #b6c2cf;
-      border: 1px solid #b6c2cf;
+    .editor-actions {
+      .editor-button {
+        background-color: #222;
+        color: #b6c2cf;
+        border: 1px solid #b6c2cf;
+      }
     }
-  }
   }
 </style>

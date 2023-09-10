@@ -3,4 +3,4 @@
   import Page from "./page.svelte"
 </script>
 
-<Page data={data} />
+<Page {data} />
