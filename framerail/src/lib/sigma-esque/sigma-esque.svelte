@@ -95,6 +95,13 @@
     }
   }
 
+  .page-move-actions {
+    .page-move-button {
+      border-radius: 0.5em;
+      padding: 0.5em 1em;
+    }
+  }
+
   @media (prefers-color-scheme: light) {
     .sigma-esque-container {
       background-color: #fff;
@@ -119,6 +126,14 @@
 
     .editor-actions {
       .editor-button {
+        background-color: #fff;
+        color: #111;
+        border: 1px solid #0006;
+      }
+    }
+
+    .page-move-actions {
+      .page-move-button {
         background-color: #fff;
         color: #111;
         border: 1px solid #0006;
@@ -150,6 +165,14 @@
 
     .editor-actions {
       .editor-button {
+        background-color: #222;
+        color: #b6c2cf;
+        border: 1px solid #b6c2cf;
+      }
+    }
+
+    .page-move-actions {
+      .page-move-button {
         background-color: #222;
         color: #b6c2cf;
         border: 1px solid #b6c2cf;

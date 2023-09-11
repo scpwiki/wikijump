@@ -1,6 +1,8 @@
 <script lang="ts">
   export let data
   import { goto, invalidateAll } from "$app/navigation"
+  let showMoveAction = false
+  let moveInputNewSlugElem: HTMLInputElement
 
   async function handleDelete() {
     let fdata = new FormData()
@@ -14,13 +16,19 @@
   }
 
   function navigateEdit() {
-    goto(`/${data.page.slug}/edit`, {
+    let options: string[] = []
+    if (data.options.noRender) options.push("norender")
+    options = options.map((opt) => `/${opt}`)
+    goto(`/${data.page.slug}${options.join("")}/edit`, {
       noScroll: true
     })
   }
 
   function cancelEdit() {
-    goto(`/${data.page.slug}`, {
+    let options: string[] = []
+    if (data.options.noRender) options.push("norender")
+    options = options.map((opt) => `/${opt}`)
+    goto(`/${data.page.slug}${options.join("")}`, {
       noScroll: true
     })
   }
@@ -35,6 +43,27 @@
       body: fdata
     })
     goto(`/${data.page.slug}`, {
+      noScroll: true
+    })
+  }
+
+  async function handleMove() {
+    let form = document.getElementById("page-move")
+    let fdata = new FormData(form)
+    let newSlug = fdata.get("new-slug")
+    if (!newSlug) {
+      moveInputNewSlugElem.style.outline = "1px solid red"
+      return
+    } else {
+      moveInputNewSlugElem.style.outline = ""
+    }
+    fdata.set("site-id", data.site.siteId)
+    fdata.set("page-id", data.page.pageId)
+    await fetch(`/${data.page.slug}`, {
+      method: "PUT",
+      body: fdata
+    })
+    goto(`/${newSlug}`, {
       noScroll: true
     })
   }
@@ -53,7 +82,11 @@
 <hr />
 
 <div class="page-content">
-  {@html data.compiledHtml}
+  {#if data.options?.noRender}
+    UNTRANSLATED: Content not shown.
+  {:else}
+    {@html data.compiledHtml}
+  {/if}
 </div>
 
 <div class="page-tags-container">
@@ -110,6 +143,15 @@
 {:else}
   <div class="editor-actions">
     <button
+      class="editor-button button-move clickable"
+      type="button"
+      on:click={() => {
+        $: showMoveAction = true
+      }}
+    >
+      UT:Move
+    </button>
+    <button
       class="editor-button button-delete clickable"
       type="button"
       on:click={handleDelete}
@@ -124,6 +166,41 @@
       UT:Edit
     </button>
   </div>
+{/if}
+
+{#if showMoveAction}
+  <form
+    id="page-move"
+    class="page-move"
+    method="PUT"
+    on:submit|preventDefault={handleMove}
+  >
+    <input
+      bind:this={moveInputNewSlugElem}
+      name="new-slug"
+      class="page-move-new-slug"
+      placeholder="new slug"
+      type="text"
+    />
+    <div class="page-move-actions">
+      <button
+        class="page-move-button button-cancel clickable"
+        type="button"
+        on:click|stopPropagation={() => {
+          $: showMoveAction = false
+        }}
+      >
+        UT:Cancel
+      </button>
+      <button
+        class="page-move-button button-move clickable"
+        type="submit"
+        on:click|stopPropagation
+      >
+        UT:Move
+      </button>
+    </div>
+  </form>
 {/if}
 
 <style global lang="scss">
@@ -147,7 +224,9 @@
   }
 
   .page-content,
-  .page-tags-container {
+  .page-tags-container,
+  .editor-actions,
+  .page-move {
     padding: 0 0 2em;
   }
 
@@ -163,7 +242,8 @@
     list-style: none;
   }
 
-  .editor {
+  .editor,
+  .page-move {
     width: 80vw;
     display: flex;
     flex-direction: column;
@@ -176,7 +256,8 @@
     height: 60vh;
   }
 
-  .editor-actions {
+  .editor-actions,
+  .page-move-actions {
     width: 100%;
     display: flex;
     flex-direction: row;
