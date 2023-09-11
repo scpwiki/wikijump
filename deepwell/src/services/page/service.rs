@@ -104,7 +104,8 @@ impl PageService {
             latest_revision_id: Set(Some(revision_id)),
             ..Default::default()
         };
-        model.update(txn).await?;
+        let page = model.update(txn).await?;
+        check_latest_revision(&page);
 
         // Build and return
         Ok(CreatePageOutput {
@@ -193,8 +194,8 @@ impl PageService {
             updated_at: Set(Some(now())),
             ..Default::default()
         };
-
-        model.update(txn).await?;
+        let page = model.update(txn).await?;
+        check_latest_revision(&page);
 
         // Build and return
         Ok(revision_output)
@@ -275,8 +276,8 @@ impl PageService {
             updated_at: Set(Some(now())),
             ..Default::default()
         };
-
-        model.update(txn).await?;
+        let page = model.update(txn).await?;
+        check_latest_revision(&page);
 
         // Build and return
 
@@ -336,9 +337,9 @@ impl PageService {
             deleted_at: Set(Some(now())),
             ..Default::default()
         };
+        let page = model.update(txn).await?;
+        check_latest_revision(&page);
 
-        // Update and return
-        model.update(txn).await?;
         Ok((output, page_id).into())
     }
 
@@ -406,9 +407,9 @@ impl PageService {
             deleted_at: Set(None),
             ..Default::default()
         };
+        let page = model.update(txn).await?;
+        check_latest_revision(&page);
 
-        // Update and return
-        model.update(txn).await?;
         Ok((output, slug).into())
     }
 
@@ -535,21 +536,6 @@ impl PageService {
                 .one(txn)
                 .await?
         };
-
-        // Even in production, we want to assert that this invariant holds.
-        //
-        // We cannot set the column itself to NOT NULL because of cyclic update
-        // requirements. However when using PageService, at no point should a method
-        // quit with this value being null.
-        if let Some(ref page) = page {
-            assert!(
-                page.latest_revision_id.is_some(),
-                "Page ID {} (slug '{}', site ID {}) has a NULL latest_revision_id column!",
-                page.page_id,
-                page.slug,
-                page.site_id,
-            );
-        }
 
         Ok(page)
     }
@@ -763,4 +749,20 @@ impl PageService {
 
         Ok(())
     }
+}
+
+fn check_latest_revision(page: &PageModel) {
+    // Even in production, we want to assert that this invariant holds.
+    //
+    // We cannot set the column itself to NOT NULL because of cyclic update
+    // requirements. However when using PageService, at no point should a method
+    // quit with this value being null.
+
+    assert!(
+        page.latest_revision_id.is_some(),
+        "Page ID {} (slug '{}', site ID {}) has a NULL latest_revision_id column!",
+        page.page_id,
+        page.slug,
+        page.site_id,
+    );
 }

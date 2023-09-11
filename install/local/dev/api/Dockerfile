@@ -10,7 +10,7 @@ FROM rust:latest AS rust
 
 # Install system dependencies
 RUN apt update
-RUN apt install libmagic-dev
+RUN apt install -y libmagic-dev
 
 # Install helpers
 RUN cargo install cargo-watch
