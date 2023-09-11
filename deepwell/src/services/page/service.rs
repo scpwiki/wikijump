@@ -104,8 +104,8 @@ impl PageService {
             latest_revision_id: Set(Some(revision_id)),
             ..Default::default()
         };
-        let user = model.update(txn).await?;
-        check_latest_revision(&user);
+        let page = model.update(txn).await?;
+        check_latest_revision(&page);
 
         // Build and return
         Ok(CreatePageOutput {
@@ -194,8 +194,8 @@ impl PageService {
             updated_at: Set(Some(now())),
             ..Default::default()
         };
-        let user = model.update(txn).await?;
-        check_latest_revision(&user);
+        let page = model.update(txn).await?;
+        check_latest_revision(&page);
 
         // Build and return
         Ok(revision_output)
@@ -276,8 +276,8 @@ impl PageService {
             updated_at: Set(Some(now())),
             ..Default::default()
         };
-        let user = model.update(txn).await?;
-        check_latest_revision(&user);
+        let page = model.update(txn).await?;
+        check_latest_revision(&page);
 
         // Build and return
 
@@ -337,8 +337,8 @@ impl PageService {
             deleted_at: Set(Some(now())),
             ..Default::default()
         };
-        let user = model.update(txn).await?;
-        check_latest_revision(&user);
+        let page = model.update(txn).await?;
+        check_latest_revision(&page);
 
         Ok((output, page_id).into())
     }
@@ -407,8 +407,8 @@ impl PageService {
             deleted_at: Set(None),
             ..Default::default()
         };
-        let user = model.update(txn).await?;
-        check_latest_revision(&user);
+        let page = model.update(txn).await?;
+        check_latest_revision(&page);
 
         Ok((output, slug).into())
     }
