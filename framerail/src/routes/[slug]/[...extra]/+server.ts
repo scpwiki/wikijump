@@ -2,6 +2,9 @@ import { pageDelete } from "$lib/server/page/delete"
 import { pageEdit } from "$lib/server/page/edit"
 import { pageMove } from "$lib/server/page/move"
 
+/**
+ * Edit or create page.
+ */
 export async function POST(event) {
   let data = await event.request.formData()
   let slug = event.params.slug
@@ -31,6 +34,9 @@ export async function POST(event) {
   return new Response(JSON.stringify(res))
 }
 
+/**
+ * Delete page.
+ */
 export async function DELETE(event) {
   let data = await event.request.formData()
   let slug = event.params.slug
@@ -44,6 +50,9 @@ export async function DELETE(event) {
   return new Response(JSON.stringify(res))
 }
 
+/**
+ * Move page to new slug.
+ */
 export async function PUT(event) {
   let data = await event.request.formData()
   let slug = event.params.slug
