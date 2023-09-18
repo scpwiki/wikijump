@@ -52,7 +52,7 @@ thiserror = "1"
 tide = "0.16"
 time = { version = "0.3", features = ["parsing", "serde", "serde-human-readable"], default-features = false }
 tiny-keccak = { version = "2", features = ["k12"] }
-toml = { version = "0.7", features = ["parse"] }
+toml = { version = "0.8", features = ["parse"] }
 typenum = "1"
 unic-langid = "0.9"
 unicase = "2"
