@@ -49,7 +49,6 @@ as soon as we can figure out prettier support for it.
         name="comments"
         class="editor-comments"
         placeholder="comments"
-        type="text"
       />
       <div class="editor-actions">
         <button

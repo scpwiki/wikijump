@@ -127,7 +127,6 @@
       name="comments"
       class="editor-comments"
       placeholder="comments"
-      type="text"
     />
     <div class="editor-actions">
       <button
@@ -192,7 +191,6 @@
       name="comments"
       class="page-move-comments"
       placeholder="comments"
-      type="text"
     />
     <div class="page-move-actions">
       <button
