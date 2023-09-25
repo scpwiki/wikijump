@@ -30,7 +30,7 @@
     "prettier-plugin-jsdoc": "^0.4.2",
     "prettier-plugin-organize-imports": "^3.2.3",
     "prettier-plugin-svelte": "^2.10.1",
-    "sass": "^1.67.0",
+    "sass": "^1.68.0",
     "stylelint": "^15.10.3",
     "stylelint-config-recess-order": "^4.3.0",
     "stylelint-order": "^6.0.1",
