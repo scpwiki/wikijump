@@ -13,7 +13,7 @@
     let fdata = new FormData(form)
     fdata.set("site-id", $page.error.site.siteId)
     fdata.set("slug", $page.params.slug)
-    await fetch(`/${$page.params.slug}`, {
+    await fetch(`/${$page.params.slug}/edit`, {
       method: "POST",
       body: fdata
     })

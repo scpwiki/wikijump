@@ -1,8 +1,10 @@
 <script lang="ts">
   export let data
   import { goto, invalidateAll } from "$app/navigation"
-  let showMoveAction = false
+  $: showMoveAction = false
+  $: showHistory = false
   let moveInputNewSlugElem: HTMLInputElement
+  let revisionList = [];
 
   async function handleDelete() {
     let fdata = new FormData()
@@ -38,7 +40,7 @@
     let fdata = new FormData(form)
     fdata.set("site-id", data.site.siteId)
     fdata.set("page-id", data.page.pageId)
-    await fetch(`/${data.page.slug}`, {
+    await fetch(`/${data.page.slug}/edit`, {
       method: "POST",
       body: fdata
     })
@@ -67,6 +69,17 @@
       noScroll: true
     })
     $: showMoveAction = false
+  }
+
+  async function handleHistory() {
+    let fdata = new FormData()
+    fdata.set("site-id", data.site.siteId)
+    fdata.set("page-id", data.page.pageId)
+    revisionList = await fetch(`/${data.page.slug}/history`, {
+      method: "POST",
+      body: fdata
+    }).then(res=>res.json())
+    $: showHistory = true
   }
 </script>
 
@@ -172,6 +185,15 @@
       UT:Edit
     </button>
   </div>
+  <div class="action-row other-actions">
+    <button
+      class="action-button button-history clickable"
+      type="button"
+      on:click={handleHistory}
+    >
+      UT:History
+    </button>
+  </div>
 {/if}
 
 {#if showMoveAction}
@@ -212,6 +234,41 @@
       </button>
     </div>
   </form>
+{/if}
+
+{#if showHistory}
+  <div class="revision-list">
+    <div class="revision-header">
+      <div class="revision-attribute revision-number">
+        Revision #
+      </div>
+      <div class="revision-attribute created-at">
+        Created
+      </div>
+      <div class="revision-attribute user">
+        User
+      </div>
+      <div class="revision-attribute comments">
+        Comments
+      </div>
+    </div>
+    {#each revisionList.reverse() as revision}
+      <div class="revision-row" data-id={revision.revision_id}>
+        <div class="revision-attribute revision-number">
+          {revision.revision_number}
+        </div>
+        <div class="revision-attribute created-at">
+          {revision.created_at}
+        </div>
+        <div class="revision-attribute user">
+          {revision.user_id}
+        </div>
+        <div class="revision-attribute comments">
+          {revision.comments}
+        </div>
+      </div>
+    {/each}
+  </div>
 {/if}
 
 <style global lang="scss">
@@ -274,5 +331,19 @@
     justify-content: flex-end;
     align-items: stretch;
     gap: 10px;
+  }
+
+  .revision-list {
+    display: table;
+    width: 100%;
+
+    .revision-header,
+    .revision-row {
+      display: table-row;
+
+      .revision-attribute {
+        display: table-cell;
+      }
+    }
   }
 </style>
