@@ -242,16 +242,16 @@
   <div class="revision-list">
     <div class="revision-header">
       <div class="revision-attribute revision-number">
-        Revision #
+        UT: Revision #
       </div>
       <div class="revision-attribute created-at">
-        Created
+        UT: Creation
       </div>
       <div class="revision-attribute user">
-        User
+        UT: User
       </div>
       <div class="revision-attribute comments">
-        Comments
+        UT: Comments
       </div>
     </div>
     {#each revisionList.reverse() as revision}
