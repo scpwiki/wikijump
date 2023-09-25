@@ -81,6 +81,8 @@
     }).then(res=>res.json())
     $: showHistory = true
   }
+
+  if (data?.options.history) handleHistory()
 </script>
 
 <h1>UNTRANSLATED:Loaded page</h1>
