@@ -1,9 +1,14 @@
 <script lang="ts">
   import SigmaEsque from "$lib/sigma-esque/sigma-esque.svelte"
+  import wjBanner from "$lib/assets/wikijump-banner-solid.min.svg?raw"
 </script>
 
 <SigmaEsque>
-  <svelte:fragment slot="header">UNTRANSLATED: W i k i j u m p .</svelte:fragment>
+  <svelte:fragment slot="header">
+    <div class="header-wjbanner">
+      {@html wjBanner}
+    </div>
+  </svelte:fragment>
 
   <svelte:fragment slot="top-bar">UNTRANSLATED: Top bar</svelte:fragment>
 
@@ -30,6 +35,16 @@
 </SigmaEsque>
 
 <style global lang="scss">
+  .header-wjbanner {
+    height: 80%;
+    color: #fff;
+
+    svg {
+      height: 100%;
+      width: auto;
+    }
+  }
+
   .footer-items {
     padding: 0;
     display: flex;
