@@ -123,6 +123,12 @@
       type="text"
       value={data.pageRevision.tags.join(" ")}
     />
+    <textarea
+      name="comments"
+      class="editor-comments"
+      placeholder="comments"
+      type="text"
+    />
     <div class="editor-actions">
       <button
         class="editor-button button-cancel clickable"
@@ -180,6 +186,12 @@
       name="new-slug"
       class="page-move-new-slug"
       placeholder="new slug"
+      type="text"
+    />
+    <textarea
+      name="comments"
+      class="page-move-comments"
+      placeholder="comments"
       type="text"
     />
     <div class="page-move-actions">
