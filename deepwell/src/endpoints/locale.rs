@@ -64,7 +64,10 @@ pub async fn translate_put(mut req: ApiRequest) -> ApiResponse {
     let mut output: TranslateOutput = HashMap::new();
 
     for (message_key, arguments_raw) in input {
-        tide::log::debug!("Formatting message key {message_key}");
+        tide::log::info!(
+            "Formatting message key {message_key} ({} arguments)",
+            arguments_raw.len(),
+        );
 
         let arguments = arguments_raw.into_fluent_args();
         match localizations.translate(&locale, &message_key, &arguments) {
