@@ -38,6 +38,11 @@ impl<'a> MessageArguments<'a> {
 
         args
     }
+
+    #[inline]
+    pub fn len(&self) -> usize {
+        self.inner.len()
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

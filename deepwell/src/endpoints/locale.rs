@@ -21,6 +21,7 @@
 use super::prelude::*;
 use crate::locales::MessageArguments;
 use ref_map::*;
+use std::collections::HashMap;
 use unic_langid::LanguageIdentifier;
 
 #[derive(Serialize, Debug)]
@@ -30,6 +31,9 @@ struct LocaleOutput<'a> {
     region: Option<&'a str>,
     variants: Vec<String>,
 }
+
+type TranslateInput<'a> = HashMap<String, MessageArguments<'a>>;
+type TranslateOutput = HashMap<String, String>;
 
 pub async fn locale_get(req: ApiRequest) -> ApiResponse {
     let locale_str = req.param("locale")?;
@@ -47,22 +51,32 @@ pub async fn locale_get(req: ApiRequest) -> ApiResponse {
     Ok(body.into())
 }
 
-pub async fn message_put(mut req: ApiRequest) -> ApiResponse {
-    let input: MessageArguments = req.body_json().await?;
+pub async fn translate_put(mut req: ApiRequest) -> ApiResponse {
+    let input: TranslateInput = req.body_json().await?;
     let locale_str = req.param("locale")?;
-    let message_key = req.param("message_key")?;
-    tide::log::info!("Formatting message key {message_key} in locale {locale_str}");
+    let localizations = &req.state().localizations;
+    tide::log::info!(
+        "Translating {} message keys in locale {locale_str}",
+        input.len(),
+    );
 
     let locale = LanguageIdentifier::from_bytes(locale_str.as_bytes())?;
-    let arguments = input.into_fluent_args();
+    let mut output: TranslateOutput = HashMap::new();
 
-    let result = req
-        .state()
-        .localizations
-        .translate(&locale, message_key, &arguments);
+    for (message_key, arguments_raw) in input {
+        tide::log::info!(
+            "Formatting message key {message_key} ({} arguments)",
+            arguments_raw.len(),
+        );
 
-    match result {
-        Ok(message) => Ok(message.as_ref().into()),
-        Err(error) => Err(ServiceError::from(error).into_tide_error()),
+        let arguments = arguments_raw.into_fluent_args();
+        match localizations.translate(&locale, &message_key, &arguments) {
+            Ok(translation) => output.insert(message_key, translation.to_string()),
+            Err(error) => return Err(ServiceError::from(error).into_tide_error()),
+        };
     }
+
+    let body = Body::from_json(&output)?;
+    let response = Response::builder(StatusCode::Ok).body(body).into();
+    Ok(response)
 }
