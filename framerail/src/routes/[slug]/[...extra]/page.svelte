@@ -66,6 +66,7 @@
     goto(`/${newSlug}`, {
       noScroll: true
     })
+    $: showMoveAction = false
   }
 </script>
 
@@ -128,16 +129,16 @@
       class="editor-comments"
       placeholder="comments"
     />
-    <div class="editor-actions">
+    <div class="action-row editor-actions">
       <button
-        class="editor-button button-cancel clickable"
+        class="action-button editor-button button-cancel clickable"
         type="button"
         on:click|stopPropagation={cancelEdit}
       >
         UT:Cancel
       </button>
       <button
-        class="editor-button button-save clickable"
+        class="action-button editor-button button-save clickable"
         type="submit"
         on:click|stopPropagation
       >
@@ -146,9 +147,9 @@
     </div>
   </form>
 {:else}
-  <div class="editor-actions">
+  <div class="action-row editor-actions">
     <button
-      class="editor-button button-move clickable"
+      class="action-button editor-button button-move clickable"
       type="button"
       on:click={() => {
         $: showMoveAction = true
@@ -157,14 +158,14 @@
       UT:Move
     </button>
     <button
-      class="editor-button button-delete clickable"
+      class="action-button editor-button button-delete clickable"
       type="button"
       on:click={handleDelete}
     >
       UT:Delete
     </button>
     <button
-      class="editor-button button-edit clickable"
+      class="action-button editor-button button-edit clickable"
       type="button"
       on:click={navigateEdit}
     >
@@ -192,9 +193,9 @@
       class="page-move-comments"
       placeholder="comments"
     />
-    <div class="page-move-actions">
+    <div class="action-row page-move-actions">
       <button
-        class="page-move-button button-cancel clickable"
+        class="action-button page-move-button button-cancel clickable"
         type="button"
         on:click|stopPropagation={() => {
           $: showMoveAction = false
@@ -203,7 +204,7 @@
         UT:Cancel
       </button>
       <button
-        class="page-move-button button-move clickable"
+        class="action-button page-move-button button-move clickable"
         type="submit"
         on:click|stopPropagation
       >
@@ -266,8 +267,7 @@
     height: 60vh;
   }
 
-  .editor-actions,
-  .page-move-actions {
+  .action-row {
     width: 100%;
     display: flex;
     flex-direction: row;

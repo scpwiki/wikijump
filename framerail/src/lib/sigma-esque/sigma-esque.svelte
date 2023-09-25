@@ -88,15 +88,8 @@
     align-items: center;
   }
 
-  .editor-actions {
-    .editor-button {
-      border-radius: 0.5em;
-      padding: 0.5em 1em;
-    }
-  }
-
-  .page-move-actions {
-    .page-move-button {
+  .action-row {
+    .action-button {
       border-radius: 0.5em;
       padding: 0.5em 1em;
     }
@@ -124,16 +117,8 @@
       }
     }
 
-    .editor-actions {
-      .editor-button {
-        background-color: #fff;
-        color: #111;
-        border: 1px solid #0006;
-      }
-    }
-
-    .page-move-actions {
-      .page-move-button {
+    .action-row {
+      .action-button {
         background-color: #fff;
         color: #111;
         border: 1px solid #0006;
@@ -163,16 +148,8 @@
       }
     }
 
-    .editor-actions {
-      .editor-button {
-        background-color: #222;
-        color: #b6c2cf;
-        border: 1px solid #b6c2cf;
-      }
-    }
-
-    .page-move-actions {
-      .page-move-button {
+    .action-row {
+      .action-button {
         background-color: #222;
         color: #b6c2cf;
         border: 1px solid #b6c2cf;

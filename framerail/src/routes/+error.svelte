@@ -50,16 +50,16 @@ as soon as we can figure out prettier support for it.
         class="editor-comments"
         placeholder="comments"
       />
-      <div class="editor-actions">
+      <div class="action-row editor-actions">
         <button
-          class="editor-button button-cancel clickable"
+          class="action-button editor-button button-cancel clickable"
           type="button"
           on:click|stopPropagation={cancelEdit}
         >
           UT:Cancel
         </button>
         <button
-          class="editor-button button-save clickable"
+          class="action-button editor-button button-save clickable"
           type="submit"
           on:click|stopPropagation
         >
