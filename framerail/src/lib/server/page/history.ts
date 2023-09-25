@@ -4,7 +4,8 @@ import type { Optional } from "$lib/types.ts"
 export async function pageHistory(
   siteId: number,
   pageId: Optional<number>,
-  slug: string
+  revisionNumber: Optional<Number>,
+  limit: Optional<Number>
 ): Promise<object> {
   const response = await wellfetch("/page/revision/range", {
     method: "PUT",
@@ -14,9 +15,9 @@ export async function pageHistory(
     body: JSON.stringify({
       siteId,
       pageId: pageId,
-      revisionNumber: -1,
+      revisionNumber: revisionNumber ?? -1,
       revisionDirection: "before",
-      limit: 200
+      limit: limit ?? 20
     })
   })
 

@@ -37,7 +37,11 @@ export async function POST(event) {
     )
   } else if (extra.includes("history")) {
     /** Retrieve page revision list. */
-    res = await page.pageHistory(siteId, pageId, slug)
+    let revisionNumberStr = data.get("revisionNumber")?.toString()
+    let revisionNumber = revisionNumberStr ? parseInt(revisionNumberStr) : null
+    let limitStr = data.get("limit")?.toString()
+    let limit = limitStr ? parseInt(limitStr) : null
+    res = await page.pageHistory(siteId, pageId, revisionNumber, limit)
   }
 
   return new Response(JSON.stringify(res))
