@@ -6,7 +6,7 @@ export async function pageDelete(
   pageId: Optional<number>,
   slug: string,
   revisionComments: Optional<string>
-): object {
+): Promise<object> {
   const response = await wellfetch("/page", {
     method: "DELETE",
     headers: {

@@ -7,9 +7,8 @@ export async function pageMove(
   slug: string,
   newSlug: string,
   revisionComments: Optional<string>
-): object {
-  let endpoint = "/page/move"
-  const response = await wellfetch(endpoint, {
+): Promise<object> {
+  const response = await wellfetch("/page/move", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"

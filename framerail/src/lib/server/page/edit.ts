@@ -10,7 +10,7 @@ export async function pageEdit(
   title: string,
   altTitle: string,
   tags: string[]
-): object {
+): Promise<object> {
   let endpoint = "/page"
   if (!pageId) {
     // Assume page creation
