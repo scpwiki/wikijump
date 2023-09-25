@@ -1,6 +1,8 @@
 <script lang="ts">
   export let data
   import { goto, invalidateAll } from "$app/navigation"
+  import { onMount } from "svelte"
+
   $: showMoveAction = false
   $: showHistory = false
   let moveInputNewSlugElem: HTMLInputElement
@@ -82,7 +84,9 @@
     $: showHistory = true
   }
 
-  if (data?.options.history) handleHistory()
+  onMount(()=>{
+    if (data?.options.history) handleHistory()
+  })
 </script>
 
 <h1>UNTRANSLATED:Loaded page</h1>
