@@ -45,11 +45,7 @@ as soon as we can figure out prettier support for it.
       />
       <textarea name="wikitext" class="editor-wikitext" />
       <input name="tags" class="editor-tags" placeholder="tags" type="text" />
-      <textarea
-        name="comments"
-        class="editor-comments"
-        placeholder="comments"
-      />
+      <textarea name="comments" class="editor-comments" placeholder="comments" />
       <div class="action-row editor-actions">
         <button
           class="action-button editor-button button-cancel clickable"

@@ -3,10 +3,10 @@
   import { goto, invalidateAll } from "$app/navigation"
   import { onMount } from "svelte"
 
-  $: showMoveAction = false
-  $: showHistory = false
+  let showMoveAction = false
+  let showHistory = false
   let moveInputNewSlugElem: HTMLInputElement
-  let revisionList = [];
+  let revisionList = []
 
   async function handleDelete() {
     let fdata = new FormData()
@@ -70,7 +70,7 @@
     goto(`/${newSlug}`, {
       noScroll: true
     })
-    $: showMoveAction = false
+    showMoveAction = false
   }
 
   async function handleHistory() {
@@ -80,11 +80,11 @@
     revisionList = await fetch(`/${data.page.slug}/history`, {
       method: "POST",
       body: fdata
-    }).then(res=>res.json())
-    $: showHistory = true
+    }).then((res) => res.json())
+    showHistory = true
   }
 
-  onMount(()=>{
+  onMount(() => {
     if (data?.options.history) handleHistory()
   })
 </script>
@@ -143,11 +143,7 @@
       type="text"
       value={data.pageRevision.tags.join(" ")}
     />
-    <textarea
-      name="comments"
-      class="editor-comments"
-      placeholder="comments"
-    />
+    <textarea name="comments" class="editor-comments" placeholder="comments" />
     <div class="action-row editor-actions">
       <button
         class="action-button editor-button button-cancel clickable"
@@ -216,11 +212,7 @@
       placeholder="new slug"
       type="text"
     />
-    <textarea
-      name="comments"
-      class="page-move-comments"
-      placeholder="comments"
-    />
+    <textarea name="comments" class="page-move-comments" placeholder="comments" />
     <div class="action-row page-move-actions">
       <button
         class="action-button page-move-button button-cancel clickable"
@@ -245,18 +237,10 @@
 {#if showHistory}
   <div class="revision-list">
     <div class="revision-header">
-      <div class="revision-attribute revision-number">
-        UT: Revision #
-      </div>
-      <div class="revision-attribute created-at">
-        UT: Creation
-      </div>
-      <div class="revision-attribute user">
-        UT: User
-      </div>
-      <div class="revision-attribute comments">
-        UT: Comments
-      </div>
+      <div class="revision-attribute revision-number">UT: Revision #</div>
+      <div class="revision-attribute created-at">UT: Creation</div>
+      <div class="revision-attribute user">UT: User</div>
+      <div class="revision-attribute comments">UT: Comments</div>
     </div>
     {#each revisionList.reverse() as revision}
       <div class="revision-row" data-id={revision.revision_id}>

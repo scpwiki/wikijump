@@ -4,18 +4,19 @@ export async function POST(event) {
   let data = await event.request.formData()
   let slug = event.params.slug
 
-  let extra = event.params.extra?.toLowerCase().split("/").filter((flag) => flag.length)
+  let extra = event.params.extra
+    ?.toLowerCase()
+    .split("/")
+    .filter((flag) => flag.length)
 
   let pageIdVal = data.get("page-id")?.toString()
   let pageId = pageIdVal ? parseInt(pageIdVal) : null
   let siteId = parseInt(data.get("site-id")?.toString() ?? "1")
 
-  let res: object = {};
+  let res: object = {}
 
   if (extra.includes("edit")) {
-    /**
-     * Edit or create page.
-     */
+    /** Edit or create page. */
     let comments = data.get("comments")?.toString() ?? ""
     let wikitext = data.get("wikitext")?.toString()
     let title = data.get("title")?.toString()
@@ -34,24 +35,15 @@ export async function POST(event) {
       altTitle,
       tags
     )
-
   } else if (extra.includes("history")) {
-    /**
-     * Retrieve page revision list.
-     */
-    res = await page.pageHistory(
-      siteId,
-      pageId,
-      slug
-    )
+    /** Retrieve page revision list. */
+    res = await page.pageHistory(siteId, pageId, slug)
   }
 
   return new Response(JSON.stringify(res))
 }
 
-/**
- * Delete page.
- */
+/** Delete page. */
 export async function DELETE(event) {
   let data = await event.request.formData()
   let slug = event.params.slug
@@ -65,9 +57,7 @@ export async function DELETE(event) {
   return new Response(JSON.stringify(res))
 }
 
-/**
- * Move page to new slug.
- */
+/** Move page to new slug. */
 export async function PUT(event) {
   let data = await event.request.formData()
   let slug = event.params.slug
