@@ -41,7 +41,14 @@ export async function POST(event) {
     let revisionNumber = revisionNumberStr ? parseInt(revisionNumberStr) : null
     let limitStr = data.get("limit")?.toString()
     let limit = limitStr ? parseInt(limitStr) : null
+
     res = await page.pageHistory(siteId, pageId, revisionNumber, limit)
+  } else if (extra.includes("move")) {
+    /** Move page to new slug. */
+    let comments = data.get("comments")?.toString() ?? ""
+    let newSlug = data.get("new-slug")?.toString()
+
+    res = await page.pageMove(siteId, pageId, slug, newSlug, comments)
   }
 
   return new Response(JSON.stringify(res))
@@ -58,21 +65,5 @@ export async function DELETE(event) {
   let comments = data.get("comments")?.toString() ?? ""
 
   let res = await page.pageDelete(siteId, pageId, slug, comments)
-  return new Response(JSON.stringify(res))
-}
-
-/** Move page to new slug. */
-export async function PUT(event) {
-  let data = await event.request.formData()
-  let slug = event.params.slug
-
-  let pageIdVal = data.get("page-id")?.toString()
-  let pageId = pageIdVal ? parseInt(pageIdVal) : null
-  let siteId = parseInt(data.get("site-id")?.toString() ?? "1")
-  let comments = data.get("comments")?.toString() ?? ""
-  let newSlug = data.get("new-slug")?.toString()
-
-  let res = await page.pageMove(siteId, pageId, slug, newSlug, comments)
-
   return new Response(JSON.stringify(res))
 }

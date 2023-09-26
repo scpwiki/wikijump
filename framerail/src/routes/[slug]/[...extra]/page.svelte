@@ -63,8 +63,8 @@
     }
     fdata.set("site-id", data.site.siteId)
     fdata.set("page-id", data.page.pageId)
-    await fetch(`/${data.page.slug}`, {
-      method: "PUT",
+    await fetch(`/${data.page.slug}/move`, {
+      method: "POST",
       body: fdata
     })
     goto(`/${newSlug}`, {
