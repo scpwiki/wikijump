@@ -34,29 +34,31 @@
   </svelte:fragment>
 </SigmaEsque>
 
+<!-- Ignoring the "unused" svg as we know we imported and embedded a raw svg -->
+<!-- svelte-ignore css-unused-selector -->
 <style global lang="scss">
   .header-wjbanner {
     height: 80%;
     color: #fff;
 
     svg {
-      height: 100%;
       width: auto;
+      height: 100%;
     }
   }
 
   .footer-items {
-    padding: 0;
     display: flex;
     flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
     gap: 10px;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0;
     list-style: none;
 
     .footer-item a {
-      text-decoration: none;
       color: #fff;
+      text-decoration: none;
     }
   }
 </style>

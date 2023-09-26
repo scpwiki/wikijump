@@ -292,9 +292,9 @@
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    justify-content: flex-start;
-    align-items: center;
     gap: 10px;
+    align-items: center;
+    justify-content: flex-start;
     padding: 0;
     margin: 0;
     list-style: none;
@@ -302,12 +302,12 @@
 
   .editor,
   .page-move {
-    width: 80vw;
     display: flex;
     flex-direction: column;
-    justify-content: stretch;
-    align-items: stretch;
     gap: 15px;
+    align-items: stretch;
+    justify-content: stretch;
+    width: 80vw;
   }
 
   .editor-wikitext {
@@ -315,12 +315,12 @@
   }
 
   .action-row {
-    width: 100%;
     display: flex;
     flex-direction: row;
-    justify-content: flex-end;
-    align-items: stretch;
     gap: 10px;
+    align-items: stretch;
+    justify-content: flex-end;
+    width: 100%;
   }
 
   .revision-list {

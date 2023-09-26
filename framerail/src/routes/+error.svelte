@@ -83,12 +83,12 @@ as soon as we can figure out prettier support for it.
   }
 
   .editor {
-    width: 80vw;
     display: flex;
     flex-direction: column;
-    justify-content: stretch;
-    align-items: stretch;
     gap: 15px;
+    align-items: stretch;
+    justify-content: stretch;
+    width: 80vw;
   }
 
   .editor-wikitext {
@@ -96,11 +96,11 @@ as soon as we can figure out prettier support for it.
   }
 
   .editor-actions {
-    width: 100%;
     display: flex;
     flex-direction: row;
-    justify-content: flex-end;
-    align-items: stretch;
     gap: 10px;
+    align-items: stretch;
+    justify-content: flex-end;
+    width: 100%;
   }
 </style>

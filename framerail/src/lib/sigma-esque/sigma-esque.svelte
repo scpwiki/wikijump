@@ -17,7 +17,7 @@
 </div>
 
 <!-- Ignoring the styling as being a theme it will inevitably style other elements in the entire layout -->
-<!-- prettier-ignore -->
+<!-- svelte-ignore css-unused-selector -->
 <style global lang="scss">
   body {
     margin: 0;
@@ -35,75 +35,75 @@
   .sigma-esque-container {
     display: flex;
     flex-direction: column;
-    justify-content: stretch;
     align-items: stretch;
+    justify-content: stretch;
     min-height: 100vh;
     background-color: #fff;
 
     textarea,
     input[type="text"] {
-      border-radius: 0.5em;
       padding: 0.5em 1em;
+      border-radius: 0.5em;
     }
   }
 
   .header {
     box-sizing: border-box;
-    height: 10em;
     width: 100%;
-    background: linear-gradient(180deg, #0068b5 0%, #19a9ff 100%);
-    color: #fff;
+    height: 10em;
     padding: 1em 2em;
+    color: #fff;
+    background: linear-gradient(180deg, #0068b5 0%, #19a9ff 100%);
   }
 
   .top-bar {
     box-sizing: border-box;
-    height: 3em;
-    width: 100%;
-    background-color: #2b2b32;
-    color: #fff;
-    padding: 0 2em;
     display: flex;
     flex-direction: row;
-    justify-content: flex-start;
     align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    height: 3em;
+    padding: 0 2em;
+    color: #fff;
+    background-color: #2b2b32;
   }
 
   .page-content-container {
     flex: 1;
-    margin: 2em auto;
     width: 80vw;
+    margin: 2em auto;
   }
 
   .footer {
     box-sizing: border-box;
-    height: 3em;
-    width: 100%;
-    background-color: #2b2b32;
-    color: #fff;
-    padding: 0 2em;
     display: flex;
     flex-direction: row;
-    justify-content: flex-start;
     align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    height: 3em;
+    padding: 0 2em;
+    color: #fff;
+    background-color: #2b2b32;
   }
 
   .action-row {
     .action-button {
-      border-radius: 0.5em;
       padding: 0.5em 1em;
+      border-radius: 0.5em;
     }
   }
 
   @media (prefers-color-scheme: light) {
     .sigma-esque-container {
-      background-color: #fff;
       color: #111;
+      background-color: #fff;
 
       textarea,
       input[type="text"] {
-        background-color: #fff;
         color: #111;
+        background-color: #fff;
         border: 1px solid #0006;
       }
     }
@@ -119,8 +119,8 @@
 
     .action-row {
       .action-button {
-        background-color: #fff;
         color: #111;
+        background-color: #fff;
         border: 1px solid #0006;
       }
     }
@@ -128,13 +128,13 @@
 
   @media (prefers-color-scheme: dark) {
     .sigma-esque-container {
-      background-color: #222;
       color: #b6c2cf;
+      background-color: #222;
 
       textarea,
       input[type="text"] {
-        background-color: #222;
         color: #b6c2cf;
+        background-color: #222;
         border: 1px solid #b6c2cf;
       }
     }
@@ -150,8 +150,8 @@
 
     .action-row {
       .action-button {
-        background-color: #222;
         color: #b6c2cf;
+        background-color: #222;
         border: 1px solid #b6c2cf;
       }
     }
