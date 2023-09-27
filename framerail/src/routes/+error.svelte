@@ -2,13 +2,13 @@
   import { page } from "$app/stores"
   import { goto } from "$app/navigation"
 
-  function cancelEdit() {
+  function cancelCreate() {
     goto(`/${$page.params.slug}`, {
       noScroll: true
     })
   }
 
-  async function saveEdit() {
+  async function saveCreate() {
     let form = document.getElementById("editor")
     let fdata = new FormData(form)
     fdata.set("site-id", $page.error.site.siteId)
@@ -35,7 +35,7 @@ as soon as we can figure out prettier support for it.
   UNTRANSLATED:Page not found
 
   {#if $page.error.options?.edit}
-    <form id="editor" class="editor" method="POST" on:submit|preventDefault={saveEdit}>
+    <form id="editor" class="editor" method="POST" on:submit|preventDefault={saveCreate}>
       <input name="title" class="editor-title" placeholder="title" type="text" />
       <input
         name="alt-title"
@@ -50,7 +50,7 @@ as soon as we can figure out prettier support for it.
         <button
           class="action-button editor-button button-cancel clickable"
           type="button"
-          on:click|stopPropagation={cancelEdit}
+          on:click|stopPropagation={cancelCreate}
         >
           UT:Cancel
         </button>

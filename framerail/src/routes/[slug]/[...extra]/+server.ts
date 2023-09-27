@@ -11,7 +11,8 @@ export async function POST(event) {
 
   let pageIdVal = data.get("page-id")?.toString()
   let pageId = pageIdVal ? parseInt(pageIdVal) : null
-  let siteId = parseInt(data.get("site-id")?.toString() ?? "1")
+  let siteIdVal = data.get("site-id")?.toString()
+  let siteId = siteIdVal ? parseInt(siteIdVal) : null
 
   let res: object = {}
 

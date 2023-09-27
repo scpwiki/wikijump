@@ -14,10 +14,10 @@ export async function pageHistory(
     },
     body: JSON.stringify({
       siteId,
-      pageId: pageId,
-      revisionNumber: revisionNumber ?? -1,
+      pageId,
+      revisionNumber,
       revisionDirection: "before",
-      limit: limit ?? 20
+      limit
     })
   })
 

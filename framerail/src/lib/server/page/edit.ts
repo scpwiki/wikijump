@@ -11,11 +11,7 @@ export async function pageEdit(
   altTitle: string,
   tags: string[]
 ): Promise<object> {
-  let endpoint = "/page"
-  if (!pageId) {
-    // Assume page creation
-    endpoint += "/create"
-  }
+  let endpoint = pageId ? "/page" : "/page/create"
   const response = await wellfetch(endpoint, {
     method: "POST",
     headers: {

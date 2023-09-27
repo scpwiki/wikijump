@@ -1,6 +1,4 @@
-import { pageDelete } from "$lib/server/page/delete"
-import { pageEdit } from "$lib/server/page/edit"
-import { pageHistory } from "$lib/server/page/history"
-import { pageMove } from "$lib/server/page/move"
-
-export { pageDelete, pageEdit, pageHistory, pageMove }
+export { pageDelete } from "$lib/server/page/delete"
+export { pageEdit } from "$lib/server/page/edit"
+export { pageHistory } from "$lib/server/page/history"
+export { pageMove } from "$lib/server/page/move"
