@@ -56,7 +56,7 @@
     let fdata = new FormData(form)
     let newSlug = fdata.get("new-slug")
     if (!newSlug) {
-      moveInputNewSlugElem.style.outline = "1px solid red"
+      moveInputNewSlugElem.style.outline = "1px solid red" // TODO add proper CSS class for input box error
       return
     } else {
       moveInputNewSlugElem.style.outline = ""
@@ -104,6 +104,7 @@
 <div class="page-content">
   {#if data.options?.noRender}
     UNTRANSLATED: Content not shown.
+    <!-- TODO Put page source here -->
   {:else}
     {@html data.compiledHtml}
   {/if}
@@ -124,14 +125,14 @@
     <input
       name="title"
       class="editor-title"
-      placeholder="title"
+      placeholder="UT:title"
       type="text"
       value={data.pageRevision.title}
     />
     <input
       name="alt-title"
       class="editor-alt-title"
-      placeholder="alternative title"
+      placeholder="UT:alternative title"
       type="text"
       value={data.pageRevision.altTitle}
     />
