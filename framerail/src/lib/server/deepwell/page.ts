@@ -1,5 +1,6 @@
 import { client } from "$lib/server/deepwell/index.ts"
 import type { Optional } from "$lib/types.ts"
+import defaults from "$lib/defaults.ts"
 
 export async function pageDelete(
   siteId: number,
@@ -46,9 +47,9 @@ export async function pageHistory(
   return client.request("page_revision_range", {
     site_id: siteId,
     page_id: pageId,
-    revision_number: revisionNumber,
+    revision_number: revisionNumber ?? defaults.page.history.revisionNumber,
     revision_direction: "before",
-    limit
+    limit: limit ?? defaults.page.history.limit
   })
 }
 
