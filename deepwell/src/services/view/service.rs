@@ -91,21 +91,21 @@ impl ViewService {
         };
 
         // If None, means the main page for the site. Pull from site data.
-        let (page_slug, page_extra): (&str, &str) = match &route {
+        let (page_full_slug, page_extra): (&str, &str) = match &route {
             None => (&site.default_page, ""),
             Some(PageRoute { slug, extra }) => (slug, extra),
         };
 
-        let redirect_page = Self::should_redirect_page(page_slug);
+        let redirect_page = Self::should_redirect_page(page_full_slug);
         let options = PageOptions::parse(page_extra);
 
         // Get page, revision, and text fields
-        let (category_slug, page_slug) = split_category(page_slug);
+        let (category_slug, page_only_slug) = split_category(page_full_slug);
         let page_info = PageInfo {
-            page: cow!(page_slug),
+            page: cow!(page_only_slug),
             category: cow_opt!(category_slug),
             site: cow!(&site.slug),
-            title: cow!(page_slug),
+            title: cow!(page_only_slug),
             alt_title: None,
             score: ScoreValue::Integer(0), // TODO configurable default score value
             tags: vec![],
@@ -128,7 +128,7 @@ impl ViewService {
         let (status, wikitext, compiled_html) = match PageService::get_optional(
             ctx,
             site.site_id,
-            Reference::Slug(cow!(page_slug)),
+            Reference::Slug(cow!(page_full_slug)),
         )
         .await?
         {
