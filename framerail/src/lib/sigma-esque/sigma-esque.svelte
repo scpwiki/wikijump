@@ -44,6 +44,10 @@
     input[type="text"] {
       padding: 0.5em 1em;
       border-radius: 0.5em;
+
+      &.error {
+        outline: 1px solid red;
+      }
     }
   }
 

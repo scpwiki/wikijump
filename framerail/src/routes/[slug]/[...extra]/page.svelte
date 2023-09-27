@@ -56,10 +56,10 @@
     let fdata = new FormData(form)
     let newSlug = fdata.get("new-slug")
     if (!newSlug) {
-      moveInputNewSlugElem.style.outline = "1px solid red" // TODO add proper CSS class for input box error
+      moveInputNewSlugElem.classList.add("error")
       return
     } else {
-      moveInputNewSlugElem.style.outline = ""
+      moveInputNewSlugElem.classList.remove("error")
     }
     fdata.set("site-id", data.site.siteId)
     fdata.set("page-id", data.page.pageId)
