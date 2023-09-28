@@ -58,6 +58,12 @@ This executable targets the latest stable Rust. At time of writing, that is `1.7
 $ cargo build --release
 ```
 
+There are two features supported by DEEPWELL, along with what they add:
+
+* `local` &mdash; Intended for local development, where frequent compilation is likely.
+ * Tracks the locale directory and configuration file, reloading them if they are modified.
+* `deploy` &mdash; Intended for "deployed" environments, i.e. `dev` and `prod`.
+
 ### Testing
 
 Tests have not yet been implemented, but when they are, run:
