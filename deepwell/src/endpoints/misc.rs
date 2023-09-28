@@ -62,6 +62,13 @@ pub async fn config_dump(req: ApiRequest) -> ApiResponse {
     Ok(body.into())
 }
 
+pub async fn config_path(req: ApiRequest) -> ApiResponse {
+    tide::log::info!("Dumping DEEPWELL configuration path for debugging");
+    let toml_path = &req.state().config.raw_toml_path;
+    let body = Body::from_string(toml_path.display().to_string());
+    Ok(body.into())
+}
+
 pub async fn normalize_method(req: ApiRequest) -> ApiResponse {
     let input = req.param("input")?;
     tide::log::info!("Running normalize as utility web method: {input}");
