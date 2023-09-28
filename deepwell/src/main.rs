@@ -39,6 +39,9 @@ extern crate str_macro;
 #[macro_use]
 mod macros;
 
+#[cfg(feature = "notify")]
+mod restart;
+
 mod api;
 mod config;
 mod constants;
@@ -52,6 +55,9 @@ mod services;
 mod utils;
 mod web;
 
+#[cfg(feature = "notify")]
+use self::restart::setup_autorestart;
+
 use self::config::SetupConfig;
 use anyhow::Result;
 use std::fs::File;
@@ -62,6 +68,10 @@ use std::process;
 async fn main() -> Result<()> {
     // Load the configuration so we can set up
     let SetupConfig { secrets, config } = SetupConfig::load();
+
+    // Set up restart-on-config change (if feature enabled)
+    #[cfg(feature = "notify")]
+    setup_autorestart(&config)?;
 
     // Copy fields we need
     let socket_address = config.address;
