@@ -94,7 +94,8 @@
   UNTRANSLATED:This is a generic page renderer loaded as a component.
 </p>
 <p>
-  UNTRANSLATED:Response <textarea class="debug">{JSON.stringify($page, null, 2)}</textarea>
+  UNTRANSLATED:Response <textarea class="debug">{JSON.stringify($page, null, 2)}</textarea
+  >
 </p>
 
 <h2>{$page.data.page_revision.title}</h2>
@@ -148,7 +149,11 @@
       type="text"
       value={$page.data.page_revision.tags.join(" ")}
     />
-    <textarea name="comments" class="editor-comments" placeholder={$page.data.internationalization?.["wiki-page-revision-comments"]} />
+    <textarea
+      name="comments"
+      class="editor-comments"
+      placeholder={$page.data.internationalization?.["wiki-page-revision-comments"]}
+    />
     <div class="action-row editor-actions">
       <button
         class="action-button editor-button button-cancel clickable"
@@ -162,7 +167,7 @@
         type="submit"
         on:click|stopPropagation
       >
-      {$page.data.internationalization?.save}
+        {$page.data.internationalization?.save}
       </button>
     </div>
   </form>
@@ -175,21 +180,21 @@
         $: showMoveAction = true
       }}
     >
-    {$page.data.internationalization?.move}
+      {$page.data.internationalization?.move}
     </button>
     <button
       class="action-button editor-button button-delete clickable"
       type="button"
       on:click={handleDelete}
     >
-    {$page.data.internationalization?.delete}
+      {$page.data.internationalization?.delete}
     </button>
     <button
       class="action-button editor-button button-edit clickable"
       type="button"
       on:click={navigateEdit}
     >
-    {$page.data.internationalization?.edit}
+      {$page.data.internationalization?.edit}
     </button>
   </div>
   <div class="action-row other-actions">
@@ -198,7 +203,7 @@
       type="button"
       on:click={handleHistory}
     >
-    {$page.data.internationalization?.history}
+      {$page.data.internationalization?.history}
     </button>
   </div>
 {/if}
@@ -217,7 +222,11 @@
       placeholder={$page.data.internationalization?.["wiki-page-move-new-slug"]}
       type="text"
     />
-    <textarea name="comments" class="page-move-comments" placeholder={$page.data.internationalization?.["wiki-page-revision-comments"]} />
+    <textarea
+      name="comments"
+      class="page-move-comments"
+      placeholder={$page.data.internationalization?.["wiki-page-revision-comments"]}
+    />
     <div class="action-row page-move-actions">
       <button
         class="action-button page-move-button button-cancel clickable"

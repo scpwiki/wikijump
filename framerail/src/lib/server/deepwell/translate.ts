@@ -1,4 +1,4 @@
-import { wellfetch } from "$lib/server/deepwell/index.ts"
+import { client } from "$lib/server/deepwell/index.ts"
 
 export interface PageRoute {
   slug: string
@@ -7,19 +7,10 @@ export interface PageRoute {
 
 export async function translate(
   locale: string,
-  keys: Record<string, Record<string, string|number>>|{}
+  keys: Record<string, Record<string, string | number>> | {}
 ): Promise<object> {
-  const response = await wellfetch(`/message/${locale}/translate`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(keys)
+  return client.request("translate", {
+    locale,
+    messages: keys
   })
-
-  if (!response.ok) {
-    throw new Error("Unable to get translated strings from server")
-  }
-
-  return response.json()
 }

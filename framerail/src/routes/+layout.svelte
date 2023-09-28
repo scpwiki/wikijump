@@ -21,20 +21,33 @@
     <div class="footer-inner">
       <ul class="footer-items">
         <li class="footer-item">
-          <a href="/">{$page.data.internationalization?.terms ?? $page.error.internationalization?.terms}</a>
+          <a href="/"
+            >{$page.data.internationalization?.terms ??
+              $page.error.internationalization?.terms}</a
+          >
         </li>
         <li class="footer-item">
-          <a href="/">{$page.data.internationalization?.privacy ?? $page.error.internationalization?.privacy}</a>
+          <a href="/"
+            >{$page.data.internationalization?.privacy ??
+              $page.error.internationalization?.privacy}</a
+          >
         </li>
         <li class="footer-item">
-          <a href="/">{$page.data.internationalization?.docs ?? $page.error.internationalization?.docs}</a>
+          <a href="/"
+            >{$page.data.internationalization?.docs ??
+              $page.error.internationalization?.docs}</a
+          >
         </li>
         <li class="footer-item">
-          <a href="/">{$page.data.internationalization?.security ?? $page.error.internationalization?.security}</a>
+          <a href="/"
+            >{$page.data.internationalization?.security ??
+              $page.error.internationalization?.security}</a
+          >
         </li>
       </ul>
       <div class="footer-powered-by">
-        {$page.data.internationalization?.["footer-powered-by"] ?? $page.error.internationalization?.["footer-powered-by"]}
+        {$page.data.internationalization?.["footer-powered-by"] ??
+          $page.error.internationalization?.["footer-powered-by"]}
       </div>
     </div>
   </svelte:fragment>
