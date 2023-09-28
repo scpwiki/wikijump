@@ -1,5 +1,5 @@
 <script lang="ts">
-  export let data
+  import { page } from "$app/stores"
   import { goto, invalidateAll } from "$app/navigation"
   import { onMount } from "svelte"
 
@@ -10,9 +10,9 @@
 
   async function handleDelete() {
     let fdata = new FormData()
-    fdata.set("site-id", data.site.siteId)
-    fdata.set("page-id", data.page.pageId)
-    await fetch(`/${data.page.slug}`, {
+    fdata.set("site-id", $page.data.site.siteId)
+    fdata.set("page-id", $page.data.page.pageId)
+    await fetch(`/${$page.data.page.slug}`, {
       method: "DELETE",
       body: fdata
     })
@@ -21,18 +21,18 @@
 
   function navigateEdit() {
     let options: string[] = []
-    if (data.options.noRender) options.push("norender")
+    if ($page.data.options.noRender) options.push("norender")
     options = options.map((opt) => `/${opt}`)
-    goto(`/${data.page.slug}${options.join("")}/edit`, {
+    goto(`/${$page.data.page.slug}${options.join("")}/edit`, {
       noScroll: true
     })
   }
 
   function cancelEdit() {
     let options: string[] = []
-    if (data.options.noRender) options.push("norender")
+    if ($page.data.options.noRender) options.push("norender")
     options = options.map((opt) => `/${opt}`)
-    goto(`/${data.page.slug}${options.join("")}`, {
+    goto(`/${$page.data.page.slug}${options.join("")}`, {
       noScroll: true
     })
   }
@@ -40,13 +40,13 @@
   async function saveEdit() {
     let form = document.getElementById("editor")
     let fdata = new FormData(form)
-    fdata.set("site-id", data.site.siteId)
-    fdata.set("page-id", data.page.pageId)
-    await fetch(`/${data.page.slug}/edit`, {
+    fdata.set("site-id", $page.data.site.siteId)
+    fdata.set("page-id", $page.data.page.pageId)
+    await fetch(`/${$page.data.page.slug}/edit`, {
       method: "POST",
       body: fdata
     })
-    goto(`/${data.page.slug}`, {
+    goto(`/${$page.data.page.slug}`, {
       noScroll: true
     })
   }
@@ -61,9 +61,9 @@
     } else {
       moveInputNewSlugElem.classList.remove("error")
     }
-    fdata.set("site-id", data.site.siteId)
-    fdata.set("page-id", data.page.pageId)
-    await fetch(`/${data.page.slug}/move`, {
+    fdata.set("site-id", $page.data.site.siteId)
+    fdata.set("page-id", $page.data.page.pageId)
+    await fetch(`/${$page.data.page.slug}/move`, {
       method: "POST",
       body: fdata
     })
@@ -75,9 +75,9 @@
 
   async function handleHistory() {
     let fdata = new FormData()
-    fdata.set("site-id", data.site.siteId)
-    fdata.set("page-id", data.page.pageId)
-    revisionList = await fetch(`/${data.page.slug}/history`, {
+    fdata.set("site-id", $page.data.site.siteId)
+    fdata.set("page-id", $page.data.page.pageId)
+    revisionList = await fetch(`/${$page.data.page.slug}/history`, {
       method: "POST",
       body: fdata
     }).then((res) => res.json())
@@ -85,7 +85,7 @@
   }
 
   onMount(() => {
-    if (data?.options.history) handleHistory()
+    if ($page.data?.options.history) handleHistory()
   })
 </script>
 
@@ -94,19 +94,19 @@
   UNTRANSLATED:This is a generic page renderer loaded as a component.
 </p>
 <p>
-  UNTRANSLATED:Response <textarea class="debug">{JSON.stringify(data, null, 2)}</textarea>
+  UNTRANSLATED:Response <textarea class="debug">{JSON.stringify($page, null, 2)}</textarea>
 </p>
 
-<h2>{data.page_revision.title}</h2>
+<h2>{$page.data.page_revision.title}</h2>
 
 <hr />
 
 <div class="page-content">
-  {#if data.options?.noRender}
+  {#if $page.data.options?.noRender}
     UNTRANSLATED: Content not shown.
     <!-- TODO Put page source here -->
   {:else}
-    {@html data.compiledHtml}
+    {@html $page.data.compiledHtml}
   {/if}
 </div>
 
@@ -114,35 +114,39 @@
   Tags
   <hr />
   <ul class="page-tags">
-    {#each data.page_revision.tags as tag}
+    {#each $page.data.page_revision.tags as tag}
       <li class="tag">{tag}</li>
     {/each}
   </ul>
 </div>
 
-{#if data.options?.edit}
+<div class="page-revision-container">
+  {$page.data.internationalization["wiki-page-revision"]}
+</div>
+
+{#if $page.data.options?.edit}
   <form id="editor" class="editor" method="POST" on:submit|preventDefault={saveEdit}>
     <input
       name="title"
       class="editor-title"
       placeholder="UT:title"
       type="text"
-      value={data.page_revision.title}
+      value={$page.data.page_revision.title}
     />
     <input
       name="alt-title"
       class="editor-alt-title"
       placeholder="UT:alternative title"
       type="text"
-      value={data.page_revision.altTitle}
+      value={$page.data.page_revision.altTitle}
     />
-    <textarea name="wikitext" class="editor-wikitext">{data.wikitext}</textarea>
+    <textarea name="wikitext" class="editor-wikitext">{$page.data.wikitext}</textarea>
     <input
       name="tags"
       class="editor-tags"
       placeholder="tags"
       type="text"
-      value={data.page_revision.tags.join(" ")}
+      value={$page.data.page_revision.tags.join(" ")}
     />
     <textarea name="comments" class="editor-comments" placeholder="comments" />
     <div class="action-row editor-actions">
