@@ -157,7 +157,7 @@ impl ConfigFile {
     }
 
     /// Deconstruct the `ConfigFile` and flatten it as a `Config` object.
-    pub fn into_config(self, raw_toml: String) -> Config {
+    pub fn into_config(self, raw_toml: String, raw_toml_path: PathBuf) -> Config {
         macro_rules! time_duration {
             // Convert a stdlib duration into a 'time' crate duration
             ($method:ident, $value:expr $(,)?) => {{
@@ -251,6 +251,7 @@ impl ConfigFile {
 
         Config {
             raw_toml,
+            raw_toml_path,
             logger,
             logger_level,
             address,

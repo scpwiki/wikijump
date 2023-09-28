@@ -119,7 +119,7 @@ pub fn parse_args() -> Config {
         .remove_one::<PathBuf>("config-file")
         .expect("Required argument not provided");
 
-    let mut config = match Config::load(&config_path) {
+    let mut config = match Config::load(config_path) {
         Ok(config) => config,
         Err(error) => {
             eprintln!("Unable to load configuration from file: {error}");

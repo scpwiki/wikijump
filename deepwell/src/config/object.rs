@@ -22,7 +22,7 @@ use super::file::ConfigFile;
 use anyhow::Result;
 use std::env;
 use std::net::SocketAddr;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::time::Duration as StdDuration;
 use tide::log::LevelFilter;
 use time::Duration as TimeDuration;
@@ -35,6 +35,9 @@ use time::Duration as TimeDuration;
 pub struct Config {
     /// The raw TOML data that was read on server load.
     pub raw_toml: String,
+
+    /// The path where the above raw TOML data was read from.
+    pub raw_toml_path: PathBuf,
 
     /// Whether the logger should be enabled or not.
     /// Also enables colorful backtraces.
@@ -147,9 +150,9 @@ pub struct Config {
 
 impl Config {
     #[inline]
-    pub fn load(path: &Path) -> Result<Self> {
-        let (config_file, raw_toml) = ConfigFile::load(path)?;
-        let config = ConfigFile::into_config(config_file, raw_toml);
+    pub fn load(path: PathBuf) -> Result<Self> {
+        let (config_file, raw_toml) = ConfigFile::load(&path)?;
+        let config = ConfigFile::into_config(config_file, raw_toml, path);
         Ok(config)
     }
 
