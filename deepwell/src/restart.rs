@@ -29,12 +29,50 @@
 //! would be much more intrusive.
 //!
 //! This feature is intended for _local development only_, please do not use in production!
+//! Note the [security implications of `current_exe()`](https://doc.rust-lang.org/std/env/fn.current_exe.html#security).
 //!
 //! This feature assumes you are running on a UNIX-like system.
+//! If on Linux, then inotify will be used.
 
+use crate::api::ApiServerState;
 use crate::config::Config;
-use notify_debouncer_mini::{new_debouncer, notify::*, DebounceEventResult};
+use notify_debouncer_mini::{new_debouncer, notify::*, DebounceEventResult, Debouncer};
+use std::env;
+use std::os::unix::process::CommandExt;
+use std::process::Command;
+use std::sync::Arc;
+use std::time::Duration;
+use void::Void;
 
-pub fn setup_autorestart(config: &Config) -> Result<()> {
+const DEBOUNCE_DURATION: Duration = Duration::from_secs(1);
+
+pub fn setup_autorestart(state: &ApiServerState) -> Result<Debouncer<impl Watcher>> {
+    let state = Arc::clone(state);
+    let mut debouncer = new_debouncer(
+        DEBOUNCE_DURATION,
+        |result: DebounceEventResult| match result {
+            Err(error) => {
+                tide::log::error!("Unable to receive filesystem events: {error}");
+            }
+            Ok(events) => {
+                tide::log::debug!("Received {} filesystem events", events.len());
+                todo!()
+            }
+        },
+    )?;
+
+    // Add autowatch to configuration file.
+    let watcher = debouncer.watcher();
+    watcher.watch(&state.config.raw_toml_path, RecursiveMode::NonRecursive)?;
+
+    // Add autowatch to localization directory.
+    // Recursive because it is nested.
+    watcher.watch(&state.config.localization_path, RecursiveMode::Recursive)?;
+
+    Ok(debouncer)
+}
+
+fn restart_self() -> Void {
+    // TODO
     todo!()
 }

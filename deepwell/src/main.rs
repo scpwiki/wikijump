@@ -69,10 +69,6 @@ async fn main() -> Result<()> {
     // Load the configuration so we can set up
     let SetupConfig { secrets, config } = SetupConfig::load();
 
-    // Set up restart-on-config change (if feature enabled)
-    #[cfg(feature = "notify")]
-    setup_autorestart(&config)?;
-
     // Copy fields we need
     let socket_address = config.address;
     let run_migrations = config.run_migrations;
@@ -106,6 +102,10 @@ async fn main() -> Result<()> {
 
     // Set up server state
     let app_state = api::build_server_state(config, secrets).await?;
+
+    // Set up restart-on-config change (if feature enabled)
+    #[cfg(feature = "notify")]
+    setup_autorestart(&app_state)?;
 
     // Run seeder, if enabled
     if run_seeder {
