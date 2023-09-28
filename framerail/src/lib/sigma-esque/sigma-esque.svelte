@@ -86,7 +86,7 @@
     align-items: center;
     justify-content: flex-start;
     width: 100%;
-    height: 3em;
+    min-height: 3em;
     padding: 0 2em;
     color: #fff;
     background-color: #2b2b32;

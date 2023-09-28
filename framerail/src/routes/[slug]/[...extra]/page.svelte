@@ -289,6 +289,7 @@
   .page-content,
   .page-tags-container,
   .editor-actions,
+  .other-actions,
   .page-move {
     padding: 0 0 2em;
   }
