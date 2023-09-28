@@ -12,6 +12,11 @@ version = "2023.5.14"
 authors = ["Emmie Maeda <emmie.maeda@gmail.com>"]
 edition = "2021" # this is *not* the same as the current year
 
+[features]
+local = ["notify"]
+deploy = []
+notify = ["notify-debouncer-mini"]
+
 [dependencies]
 anyhow = "1"
 arraystring = "0.3"
@@ -32,6 +37,7 @@ hex = "0.4"
 hostname = "0.3"
 intl-memoizer = "0.5"
 lazy_static = "1"
+notify-debouncer-mini = { version = "0.4", optional = true }
 otp = { git = "https://github.com/TimDumol/rust-otp" }
 rand = "0.8"
 ref-map = "0.1"
