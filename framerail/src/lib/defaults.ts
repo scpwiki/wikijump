@@ -1,4 +1,5 @@
 const defaults = {
+  fallbackLocale: "en",
   page: {
     history: {
       revisionNumber: -1,

@@ -34,12 +34,18 @@ devDependencies:
   '@playwright/test':
     specifier: ^1.39.0
     version: 1.39.0
+  '@types/accept-language-parser':
+    specifier: ^1.5.4
+    version: 1.5.5
   '@typescript-eslint/eslint-plugin':
     specifier: ^5.62.0
     version: 5.62.0(@typescript-eslint/parser@5.62.0)(eslint@8.52.0)(typescript@5.2.2)
   '@typescript-eslint/parser':
     specifier: ^5.62.0
     version: 5.62.0(eslint@8.52.0)(typescript@5.2.2)
+  accept-language-parser:
+    specifier: ^1.5.0
+    version: 1.5.0
   eslint:
     specifier: ^8.52.0
     version: 8.52.0
@@ -528,6 +534,10 @@ packages:
       - supports-color
     dev: false
 
+  /@types/accept-language-parser@1.5.5:
+    resolution: {integrity: sha512-RwkOGXmBTUbJRvJhdOGkttRpX9RZFrdCiJ2RGCCaNA6UDM7sE/ZMlEter7zvtxm1VL+Zxkyr5fJXAesb0a7b1g==}
+    dev: true
+
   /@types/cookie@0.5.1:
     resolution: {integrity: sha512-COUnqfB2+ckwXXSFInsFdOAWQzCCx+a5hq2ruyj+Vjund94RJQd4LG2u9hnvJrTgunKAaax7ancBYlDrNYxA0g==}
     dev: false
@@ -704,6 +714,10 @@ packages:
 
   /@ungap/structured-clone@1.2.0:
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
+    dev: true
+
+  /accept-language-parser@1.5.0:
+    resolution: {integrity: sha512-QhyTbMLYo0BBGg1aWbeMG4ekWtds/31BrEU+DONOg/7ax23vxpL03Pb7/zBmha2v7vdD3AyzZVWBVGEZxKOXWw==}
     dev: true
 
   /acorn-jsx@5.3.2(acorn@8.10.0):

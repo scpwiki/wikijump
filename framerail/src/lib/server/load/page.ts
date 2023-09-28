@@ -1,7 +1,9 @@
+import defaults from "$lib/defaults"
 import { translate } from "$lib/server/deepwell/translate"
 import { pageView } from "$lib/server/deepwell/views.ts"
 import type { Optional } from "$lib/types.ts"
 import { error, redirect } from "@sveltejs/kit"
+import { parse } from "accept-language-parser"
 
 // TODO form single deepwell request that does all the relevant prep stuff here
 
@@ -17,16 +19,19 @@ export async function loadPage(
   const route = slug || extra ? { slug, extra } : null
   const sessionToken = cookies.get("wikijump_token")
   const language = request.headers.get("Accept-Language")
+  let locales = parse(language).map((lang) =>
+    lang.region ? `${lang.code}-${lang.region}` : lang.code
+  )
 
   // TODO set up svelte i18n, see WJ-1175
   //
   // TODO also set up deepwell fluent so that fallback
   //      languages are used, i.e. if I do en-GB it falls back to
   //      en generic
-  const locale = "en"
+  if (!locales.includes(defaults.fallbackLocale)) locales.push(defaults.fallbackLocale)
 
   // Request data from backend
-  const response = await pageView(domain, locale, route, sessionToken)
+  const response = await pageView(domain, locales[0], route, sessionToken)
 
   // Process response, performing redirects etc
   const viewData = response.data
@@ -87,7 +92,7 @@ export async function loadPage(
     })
   }
 
-  const translated = await translate(locale, translateKeys)
+  const translated = await translate(defaults.fallbackLocale, translateKeys)
 
   viewData.internationalization = translated
 

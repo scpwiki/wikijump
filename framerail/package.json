@@ -15,8 +15,10 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.39.0",
+    "@types/accept-language-parser": "^1.5.4",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
+    "accept-language-parser": "^1.5.0",
     "eslint": "^8.52.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-svelte": "^2.34.0",
