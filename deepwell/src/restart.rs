@@ -107,6 +107,11 @@ fn event_is_applicable(
 fn restart_self() -> Void {
     tide::log::info!("Restarting server");
 
-    // TODO
-    todo!()
+    let executable = env::current_exe().expect("Unable to get current executable");
+    let arguments = env::args_os().collect::<Vec<_>>();
+
+    let mut command = Command::new(executable);
+    command.args(arguments);
+    let error = command.exec();
+    panic!("Unable to exec(): {error}");
 }
