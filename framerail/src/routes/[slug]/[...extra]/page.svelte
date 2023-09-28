@@ -103,7 +103,7 @@
 
 <div class="page-content">
   {#if $page.data.options?.noRender}
-    UNTRANSLATED: Content not shown.
+    {$page.data.internationalization["wiki-page-no-render"]}
     <!-- TODO Put page source here -->
   {:else}
     {@html $page.data.compiledHtml}
@@ -111,7 +111,7 @@
 </div>
 
 <div class="page-tags-container">
-  Tags
+  {$page.data.internationalization?.tags}
   <hr />
   <ul class="page-tags">
     {#each $page.data.page_revision.tags as tag}
@@ -129,14 +129,14 @@
     <input
       name="title"
       class="editor-title"
-      placeholder="UT:title"
+      placeholder={$page.data.internationalization?.title}
       type="text"
       value={$page.data.page_revision.title}
     />
     <input
       name="alt-title"
       class="editor-alt-title"
-      placeholder="UT:alternative title"
+      placeholder={$page.data.internationalization?.["alt-title"]}
       type="text"
       value={$page.data.page_revision.altTitle}
     />
@@ -144,25 +144,25 @@
     <input
       name="tags"
       class="editor-tags"
-      placeholder="tags"
+      placeholder={$page.data.internationalization?.tags}
       type="text"
       value={$page.data.page_revision.tags.join(" ")}
     />
-    <textarea name="comments" class="editor-comments" placeholder="comments" />
+    <textarea name="comments" class="editor-comments" placeholder={$page.data.internationalization?.["wiki-page-revision-comments"]} />
     <div class="action-row editor-actions">
       <button
         class="action-button editor-button button-cancel clickable"
         type="button"
         on:click|stopPropagation={cancelEdit}
       >
-        UT:Cancel
+        {$page.data.internationalization?.cancel}
       </button>
       <button
         class="action-button editor-button button-save clickable"
         type="submit"
         on:click|stopPropagation
       >
-        UT:Save
+      {$page.data.internationalization?.save}
       </button>
     </div>
   </form>
@@ -175,21 +175,21 @@
         $: showMoveAction = true
       }}
     >
-      UT:Move
+    {$page.data.internationalization?.move}
     </button>
     <button
       class="action-button editor-button button-delete clickable"
       type="button"
       on:click={handleDelete}
     >
-      UT:Delete
+    {$page.data.internationalization?.delete}
     </button>
     <button
       class="action-button editor-button button-edit clickable"
       type="button"
       on:click={navigateEdit}
     >
-      UT:Edit
+    {$page.data.internationalization?.edit}
     </button>
   </div>
   <div class="action-row other-actions">
@@ -198,7 +198,7 @@
       type="button"
       on:click={handleHistory}
     >
-      UT:History
+    {$page.data.internationalization?.history}
     </button>
   </div>
 {/if}
@@ -214,10 +214,10 @@
       bind:this={moveInputNewSlugElem}
       name="new-slug"
       class="page-move-new-slug"
-      placeholder="new slug"
+      placeholder={$page.data.internationalization?.["wiki-page-move-new-slug"]}
       type="text"
     />
-    <textarea name="comments" class="page-move-comments" placeholder="comments" />
+    <textarea name="comments" class="page-move-comments" placeholder={$page.data.internationalization?.["wiki-page-revision-comments"]} />
     <div class="action-row page-move-actions">
       <button
         class="action-button page-move-button button-cancel clickable"
@@ -226,14 +226,14 @@
           $: showMoveAction = false
         }}
       >
-        UT:Cancel
+        {$page.data.internationalization?.cancel}
       </button>
       <button
         class="action-button page-move-button button-move clickable"
         type="submit"
         on:click|stopPropagation
       >
-        UT:Move
+        {$page.data.internationalization?.move}
       </button>
     </div>
   </form>
@@ -242,10 +242,18 @@
 {#if showHistory}
   <div class="revision-list">
     <div class="revision-header">
-      <div class="revision-attribute revision-number">UT: Revision #</div>
-      <div class="revision-attribute created-at">UT: Creation</div>
-      <div class="revision-attribute user">UT: User</div>
-      <div class="revision-attribute comments">UT: Comments</div>
+      <div class="revision-attribute revision-number">
+        {$page.data.internationalization?.["wiki-page-revision-number"]}
+      </div>
+      <div class="revision-attribute created-at">
+        {$page.data.internationalization?.["wiki-page-revision-created-at"]}
+      </div>
+      <div class="revision-attribute user">
+        {$page.data.internationalization?.["wiki-page-revision-user"]}
+      </div>
+      <div class="revision-attribute comments">
+        {$page.data.internationalization?.["wiki-page-revision-comments"]}
+      </div>
     </div>
     {#each revisionList.reverse() as revision}
       <div class="revision-row" data-id={revision.revision_id}>
@@ -288,6 +296,7 @@
 
   .page-content,
   .page-tags-container,
+  .page-revision-container,
   .editor-actions,
   .other-actions,
   .page-move {
@@ -304,6 +313,10 @@
     padding: 0;
     margin: 0;
     list-style: none;
+  }
+
+  .page-revision-container {
+    text-align: right;
   }
 
   .editor,

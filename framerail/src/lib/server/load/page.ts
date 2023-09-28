@@ -1,4 +1,5 @@
 import { pageView } from "$lib/server/deepwell/views.ts"
+import { translate } from "$lib/server/deepwell/translate"
 import type { Optional } from "$lib/types.ts"
 import { error, redirect } from "@sveltejs/kit"
 
@@ -50,6 +51,46 @@ export async function loadPage(
       errorStatus = 404
   }
 
+  let translateKeys: Record<string, Record<string, string|number>|{}> = {
+    // Footer
+    "footer-powered-by": {},
+    "terms": {},
+    "privacy": {},
+    "docs": {},
+    "security": {},
+  }
+
+  if (errorStatus === null) {
+    translateKeys = Object.assign(translateKeys, {
+      // Page actions
+      "edit": {},
+      "save": {},
+      "cancel": {},
+      "delete": {},
+      "history": {},
+      "move": {},
+
+      // Page edit
+      "tags": {},
+      "title": {},
+      "alt-title": {},
+
+      "wiki-page-revision": {
+        revision: viewData.pageRevision.revisionNumber
+      },
+      "wiki-page-revision-number": {},
+      "wiki-page-revision-created-at": {},
+      "wiki-page-revision-user": {},
+      "wiki-page-revision-comments": {},
+      "wiki-page-move-new-slug": {},
+      "wiki-page-no-render": {}
+    })
+  }
+
+  const translated = await translate(locale, translateKeys)
+
+  viewData.internationalization = translated
+
   if (errorStatus !== null) {
     throw error(errorStatus, viewData)
   }
@@ -60,7 +101,6 @@ export async function loadPage(
   }
 
   // Return to page for rendering
-  // TODO make page view into a component
   return viewData
 }
 

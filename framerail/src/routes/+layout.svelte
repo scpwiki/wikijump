@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { page } from "$app/stores"
   import SigmaEsque from "$lib/sigma-esque/sigma-esque.svelte"
   import wjBanner from "$lib/assets/wikijump-banner-solid.min.svg?raw"
 </script>
@@ -17,20 +18,25 @@
   </svelte:fragment>
 
   <svelte:fragment slot="footer">
-    <ul class="footer-items">
-      <li class="footer-item">
-        <a href="/">UT:Terms</a>
-      </li>
-      <li class="footer-item">
-        <a href="/">UT:Privacy</a>
-      </li>
-      <li class="footer-item">
-        <a href="/">UT:Docs</a>
-      </li>
-      <li class="footer-item">
-        <a href="/">UT:Security</a>
-      </li>
-    </ul>
+    <div class="footer-inner">
+      <ul class="footer-items">
+        <li class="footer-item">
+          <a href="/">{$page.data.internationalization?.terms ?? $page.error.internationalization?.terms}</a>
+        </li>
+        <li class="footer-item">
+          <a href="/">{$page.data.internationalization?.privacy ?? $page.error.internationalization?.privacy}</a>
+        </li>
+        <li class="footer-item">
+          <a href="/">{$page.data.internationalization?.docs ?? $page.error.internationalization?.docs}</a>
+        </li>
+        <li class="footer-item">
+          <a href="/">{$page.data.internationalization?.security ?? $page.error.internationalization?.security}</a>
+        </li>
+      </ul>
+      <div class="footer-powered-by">
+        {$page.data.internationalization?.["footer-powered-by"] ?? $page.error.internationalization?.["footer-powered-by"]}
+      </div>
+    </div>
   </svelte:fragment>
 </SigmaEsque>
 
@@ -47,7 +53,17 @@
     }
   }
 
+  .footer-inner {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+    justify-content: stretch;
+  }
+
   .footer-items {
+    flex: 1;
     display: flex;
     flex-direction: row;
     gap: 10px;

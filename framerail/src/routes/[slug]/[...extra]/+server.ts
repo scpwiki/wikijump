@@ -40,7 +40,7 @@ export async function POST(event) {
     )
   } else if (extra.includes("history")) {
     /** Retrieve page revision list. */
-    let revisionNumberStr = data.get("revisionNumber")?.toString()
+    let revisionNumberStr = data.get("revision-number")?.toString()
     let revisionNumber = revisionNumberStr ? parseInt(revisionNumberStr) : null
     let limitStr = data.get("limit")?.toString()
     let limit = limitStr ? parseInt(limitStr) : null
