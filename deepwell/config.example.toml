@@ -63,7 +63,7 @@ authentication-fail-delay-ms = 100
 [security.session]
 
 # All session tokens are prefixed with this string.
-# It makes a session token immediately reecognizable
+# It makes a session token immediately recognizable
 # as it is otherwise a long random string.
 token-prefix = "wj:"
 
@@ -246,7 +246,7 @@ maximum-name-changes = 3
 # The minimum length for a user's name in bytes.
 # A user who attempts to register must have a slug which is at least this long.
 #
-#  The intent is to prevent the proliferation of very short, unidentifiable usernames
+# The intent is to prevent the proliferation of very short, unidentifiable usernames
 # such as single Latin letters (e.g. "N"). However, we check *bytes* specifically to
 # avoid Anglo-centricism, as many full names in other languages fit within two letters
 # (consider CJK for instance). Single characters outside of the main ASCII block
