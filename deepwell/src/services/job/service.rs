@@ -23,14 +23,13 @@ use crate::api::ApiServerState;
 use crate::services::{PageRevisionService, SessionService, TextService};
 use async_std::task;
 use crossfire::mpsc;
+use once_cell::sync::Lazy;
 use sea_orm::TransactionTrait;
 use std::convert::Infallible;
 use std::sync::Arc;
 
-lazy_static! {
-    static ref QUEUE: (mpsc::TxUnbounded<Job>, mpsc::RxUnbounded<Job>) =
-        mpsc::unbounded_future();
-}
+static QUEUE: Lazy<(mpsc::TxUnbounded<Job>, mpsc::RxUnbounded<Job>)> =
+    Lazy::new(mpsc::unbounded_future);
 
 macro_rules! sink {
     () => {

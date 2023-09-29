@@ -27,14 +27,13 @@ use crate::services::email::{EmailClassification, EmailService};
 use crate::services::filter::{FilterClass, FilterType};
 use crate::services::{AliasService, FilterService, PasswordService};
 use crate::utils::{get_regular_slug, regex_replace_in_place};
+use once_cell::sync::Lazy;
 use regex::Regex;
 use sea_orm::ActiveValue;
 use std::cmp;
 
-lazy_static! {
-    static ref LEADING_TRAILING_CHARS: Regex =
-        Regex::new(r"(^[\-\s]+)|([\-\s+]$)").unwrap();
-}
+static LEADING_TRAILING_CHARS: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"(^[\-\s]+)|([\-\s+]$)").unwrap());
 
 #[derive(Debug)]
 pub struct UserService;

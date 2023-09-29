@@ -19,8 +19,8 @@ watch = ["notify"]
 
 [dependencies]
 anyhow = "1"
-arraystring = "0.3"
 argon2 = "0.5"
+arraystring = "0.3"
 async-std = { version = "1", features = ["attributes"] }
 cfg-if = "1"
 clap = "4"
@@ -37,8 +37,8 @@ futures = { version = "0.3", features = ["async-await"], default-features = fals
 hex = "0.4"
 hostname = "0.3"
 intl-memoizer = "0.5"
-lazy_static = "1"
 notify = { version = "6", optional = true }
+once_cell = "1"
 otp = { git = "https://github.com/TimDumol/rust-otp" }
 rand = "0.8"
 ref-map = "0.1"
