@@ -54,13 +54,13 @@ str-macro = "1"
 strum = "0.25"
 strum_macros = "0.25"
 subtle = "2.4"
-surf = "2.3.2"
 thiserror = "1"
 tide = "0.16"
 time = { version = "0.3", features = ["parsing", "serde", "serde-human-readable"], default-features = false }
 tiny-keccak = { version = "2", features = ["k12"] }
 toml = { version = "0.8", features = ["parse"] }
 typenum = "1"
+ureq = { version = "2.7.1", features = ["charset", "json", "tls"] }
 unic-langid = "0.9"
 unicase = "2"
 wikidot-normalize = "0.12"

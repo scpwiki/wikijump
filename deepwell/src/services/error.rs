@@ -22,6 +22,7 @@ use crate::locales::LocalizationTranslateError;
 use filemagic::FileMagicError;
 use s3::error::S3Error;
 use sea_orm::error::DbErr;
+use std::io;
 use thiserror::Error as ThisError;
 use tide::{Error as TideError, StatusCode};
 use unic_langid::LanguageIdentifierError;
@@ -33,8 +34,8 @@ pub type Result<T> = StdResult<T, Error>;
 
 /// Wrapper error for possible failure modes from service methods.
 ///
-/// This has a method to convert to a correct HTTP status,
-/// facilitated by `PostTransactionToApiResponse`.
+/// This has a method to convert to the corresponding HTTP status,
+/// via `into_tide_error()`.
 #[derive(ThisError, Debug)]
 pub enum Error {
     #[error("Cryptography error: {0}")]
@@ -58,11 +59,18 @@ pub enum Error {
     #[error("Serialization error: {0}")]
     Serde(#[from] serde_json::Error),
 
+    #[error("I/O error: {0}")]
+    Io(#[from] io::Error),
+
     #[error("S3 error: {0}")]
     S3(#[from] S3Error),
 
     #[error("Web server error: HTTP {}", .0.status() as u16)]
     Web(TideError),
+
+    // See also RemoteOperationFailed.
+    #[error("Web request error: {0}")]
+    WebRequest(Box<ureq::Error>),
 
     #[error("Invalid enum serialization value")]
     InvalidEnumValue,
@@ -125,8 +133,12 @@ impl Error {
             Error::Localization(inner) => TideError::new(StatusCode::NotFound, inner),
             Error::Otp(inner) => TideError::new(StatusCode::InternalServerError, inner),
             Error::Serde(inner) => TideError::new(StatusCode::InternalServerError, inner),
+            Error::Io(inner) => TideError::new(StatusCode::InternalServerError, inner),
             Error::S3(inner) => TideError::new(StatusCode::InternalServerError, inner),
             Error::Web(inner) => inner,
+            Error::WebRequest(inner) => {
+                TideError::new(StatusCode::InternalServerError, inner)
+            }
             Error::InvalidEnumValue | Error::Inconsistent => {
                 TideError::from_str(StatusCode::InternalServerError, "")
             }
@@ -175,6 +187,13 @@ impl From<DbErr> for Error {
             DbErr::RecordNotFound(_) => Error::NotFound,
             _ => Error::Database(error),
         }
+    }
+}
+
+impl From<ureq::Error> for Error {
+    #[inline]
+    fn from(error: ureq::Error) -> Error {
+        Error::WebRequest(Box::new(error))
     }
 }
 
