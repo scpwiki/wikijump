@@ -26,4 +26,4 @@ RUN mkdir /src
 COPY ./deepwell /src/deepwell
 WORKDIR /src/deepwell
 
-CMD ["/usr/local/cargo/bin/cargo", "watch", "--why", "-x", "run --features local -- --watch-files /etc/deepwell.toml"]
+CMD ["/usr/local/cargo/bin/cargo", "watch", "-w", "/src/deepwell", "-w", "/opt/locales", "-w", "/etc/deepwell.toml", "--why", "-x", "run --features local -- /etc/deepwell.toml"]
