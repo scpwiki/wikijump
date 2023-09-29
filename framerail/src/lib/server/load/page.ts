@@ -1,5 +1,5 @@
 import defaults from "$lib/defaults"
-import { translate } from "$lib/server/deepwell/translate"
+import { translateWithFallback } from "$lib/server/deepwell/translate"
 import { pageView } from "$lib/server/deepwell/views.ts"
 import type { Optional } from "$lib/types.ts"
 import { error, redirect } from "@sveltejs/kit"
@@ -23,15 +23,20 @@ export async function loadPage(
     lang.region ? `${lang.code}-${lang.region}` : lang.code
   )
 
-  // TODO set up svelte i18n, see WJ-1175
-  //
   // TODO also set up deepwell fluent so that fallback
   //      languages are used, i.e. if I do en-GB it falls back to
   //      en generic
-  if (!locales.includes(defaults.fallbackLocale)) locales.push(defaults.fallbackLocale)
 
   // Request data from backend
-  const response = await pageView(domain, locales[0], route, sessionToken)
+  const response = await pageView(domain, defaults.fallbackLocale, route, sessionToken)
+
+  // TODO insert user preference at the beginning of the list
+
+  if (response.data?.site?.locale && !locales.includes(response.data.site.locale)) {
+    locales.push(response.data.site.locale)
+  }
+
+  if (!locales.includes(defaults.fallbackLocale)) locales.push(defaults.fallbackLocale)
 
   // Process response, performing redirects etc
   const viewData = response.data
@@ -92,7 +97,7 @@ export async function loadPage(
     })
   }
 
-  const translated = await translate(defaults.fallbackLocale, translateKeys)
+  const translated = await translateWithFallback(locales, translateKeys)
 
   viewData.internationalization = translated
 

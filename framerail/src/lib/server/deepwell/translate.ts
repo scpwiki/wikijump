@@ -14,3 +14,13 @@ export async function translate(
     messages: keys
   })
 }
+
+export async function translateWithFallback(
+  locales: string[],
+  keys: Record<string, Record<string, string | number>> | {}
+): Promise<object> {
+  return client.request("translate_fallback", {
+    locales,
+    messages: keys
+  })
+}
