@@ -20,9 +20,9 @@
 
 use crate::locales::LocalizationTranslateError;
 use filemagic::FileMagicError;
-use reqwest::Error as ReqwestError;
 use s3::error::S3Error;
 use sea_orm::error::DbErr;
+use std::io;
 use thiserror::Error as ThisError;
 use tide::{Error as TideError, StatusCode};
 use unic_langid::LanguageIdentifierError;
@@ -59,6 +59,9 @@ pub enum Error {
     #[error("Serialization error: {0}")]
     Serde(#[from] serde_json::Error),
 
+    #[error("I/O error: {0}")]
+    Io(#[from] io::Error),
+
     #[error("S3 error: {0}")]
     S3(#[from] S3Error),
 
@@ -67,7 +70,7 @@ pub enum Error {
 
     // See also RemoteOperationFailed.
     #[error("Web request error: {0}")]
-    WebRequest(#[from] ReqwestError),
+    WebRequest(#[from] ureq::Error),
 
     #[error("Invalid enum serialization value")]
     InvalidEnumValue,
@@ -130,6 +133,7 @@ impl Error {
             Error::Localization(inner) => TideError::new(StatusCode::NotFound, inner),
             Error::Otp(inner) => TideError::new(StatusCode::InternalServerError, inner),
             Error::Serde(inner) => TideError::new(StatusCode::InternalServerError, inner),
+            Error::Io(inner) => TideError::new(StatusCode::InternalServerError, inner),
             Error::S3(inner) => TideError::new(StatusCode::InternalServerError, inner),
             Error::Web(inner) => inner,
             Error::WebRequest(inner) => {

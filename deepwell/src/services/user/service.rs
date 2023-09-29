@@ -175,8 +175,7 @@ impl UserService {
         // The assigned variable is also used to check whether email validation occurred, as it
         // will always be `Some` if validation occurred and `None` otherwise.
         let email_is_alias = if !bypass_email_verification {
-            let email_validation_output = EmailService::validate(&email).await?;
-
+            let email_validation_output = EmailService::validate(&email)?;
             match email_validation_output.classification {
                 EmailClassification::Normal => {
                     tide::log::info!("User {slug}'s email was verified successfully");
@@ -370,8 +369,7 @@ impl UserService {
             }
 
             // Validate email
-            let email_validation_output = EmailService::validate(&email).await?;
-
+            let email_validation_output = EmailService::validate(&email)?;
             let is_alias = match email_validation_output.classification {
                 EmailClassification::Normal => false,
                 EmailClassification::Alias => true,

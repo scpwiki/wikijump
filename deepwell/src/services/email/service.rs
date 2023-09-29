@@ -25,12 +25,12 @@ pub struct EmailService;
 
 impl EmailService {
     /// Validates an email through the MailCheck API.
-    pub async fn validate(email: &str) -> Result<EmailValidationOutput> {
-        // Sends a GET request to the MailCheck API and deserializes the response.
-        let mailcheck = reqwest::get(format!("https://api.mailcheck.ai/email/{email}"))
-            .await?
-            .json::<MailCheckResponse>()
-            .await?;
+    pub fn validate(email: &str) -> Result<EmailValidationOutput> {
+        let url = format!("https://api.mailcheck.ai/email/{email}");
+        tide::log::debug!("Requesting mailcheck status: {url}");
+
+        // Send a GET request to the MailCheck API and deserialize the response.
+        let mailcheck = ureq::get(&url).call()?.into_json::<MailCheckResponse>()?;
 
         // Create the output with default parameters.
         let mut output = EmailValidationOutput::default();
