@@ -17,7 +17,7 @@ WORKDIR /src/deepwell
 RUN cargo vendor
 
 # Build deepwell server
-RUN cargo build --release --features deploy
+RUN cargo build --release
 
 #
 # Final image
