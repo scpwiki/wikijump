@@ -37,7 +37,7 @@
 use crate::config::Config;
 use anyhow::Result;
 use notify::{
-    Config as WatcherConfig, Event, EventKind, PollWatcher, RecursiveMode,
+    Config as WatcherConfig, Event, EventKind, RecommendedWatcher, RecursiveMode,
     Result as WatcherResult, Watcher,
 };
 use std::os::unix::process::CommandExt;
@@ -55,14 +55,14 @@ struct WatchedPaths {
     localization_path: PathBuf,
 }
 
-pub fn setup_autorestart(config: &Config) -> Result<PollWatcher> {
+pub fn setup_autorestart(config: &Config) -> Result<RecommendedWatcher> {
     tide::log::info!("Starting watcher for auto-restart on file change");
     let watched_paths = WatchedPaths {
         config_path: fs::canonicalize(&config.raw_toml_path)?,
         localization_path: fs::canonicalize(&config.localization_path)?,
     };
 
-    let mut watcher = PollWatcher::new(
+    let mut watcher = RecommendedWatcher::new(
         move |result: WatcherResult<Event>| match result {
             Err(error) => {
                 tide::log::error!("Unable to receive filesystem events: {error}");
