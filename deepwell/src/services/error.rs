@@ -33,8 +33,8 @@ pub type Result<T> = StdResult<T, Error>;
 
 /// Wrapper error for possible failure modes from service methods.
 ///
-/// This has a method to convert to a correct HTTP status,
-/// facilitated by `PostTransactionToApiResponse`.
+/// This has a method to convert to the corresponding HTTP status,
+/// via `into_tide_error()`.
 #[derive(ThisError, Debug)]
 pub enum Error {
     #[error("Cryptography error: {0}")]
