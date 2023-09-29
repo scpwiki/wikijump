@@ -40,7 +40,7 @@ extern crate str_macro;
 mod macros;
 
 #[cfg(feature = "notify")]
-mod restart;
+mod watch;
 
 mod api;
 mod config;
@@ -56,7 +56,7 @@ mod utils;
 mod web;
 
 #[cfg(feature = "notify")]
-use self::restart::setup_autorestart;
+use self::watch::setup_autorestart;
 
 use self::config::SetupConfig;
 use anyhow::Result;
