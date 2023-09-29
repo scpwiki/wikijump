@@ -97,7 +97,9 @@ async fn main() -> Result<()> {
     }
 
     // Set up restart-on-config change (if feature enabled)
+    #[cfg(feature = "watch")]
     let _watcher;
+
     if config.watch_files {
         cfg_if! {
             if #[cfg(feature = "watch")] {
