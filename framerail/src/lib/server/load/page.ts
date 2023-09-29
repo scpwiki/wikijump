@@ -93,7 +93,8 @@ export async function loadPage(
       "wiki-page-revision-user": {},
       "wiki-page-revision-comments": {},
       "wiki-page-move-new-slug": {},
-      "wiki-page-no-render": {}
+      "wiki-page-no-render": {},
+      "wiki-page-view-source": {}
     })
   }
 

@@ -5,8 +5,9 @@
 
   let showMoveAction = false
   let showHistory = false
+  let showSource = false
   let moveInputNewSlugElem: HTMLInputElement
-  let revisionList = []
+  let revisionList: Record<string, any> = []
 
   async function handleDelete() {
     let fdata = new FormData()
@@ -199,6 +200,13 @@
   </div>
   <div class="action-row other-actions">
     <button
+      class="action-button button-source clickable"
+      type="button"
+      on:click={() => (showSource = true)}
+    >
+      {$page.data.internationalization?.["wiki-page-view-source"]}
+    </button>
+    <button
       class="action-button button-history clickable"
       type="button"
       on:click={handleHistory}
@@ -206,6 +214,10 @@
       {$page.data.internationalization?.history}
     </button>
   </div>
+{/if}
+
+{#if showSource}
+  <textarea class="page-source" readonly={true}>{$page.data.wikitext}</textarea>
 {/if}
 
 {#if showMoveAction}
@@ -339,6 +351,11 @@
   }
 
   .editor-wikitext {
+    height: 60vh;
+  }
+
+  .page-source {
+    width: 80vw;
     height: 60vh;
   }
 
