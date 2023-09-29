@@ -45,8 +45,11 @@ jobs:
       - name: System Dependencies
         run: sudo apt update && sudo apt install libmagic-dev
 
-      - name: Build
-        run: cd deepwell && cargo build
+      - name: Build (local)
+        run: cd deepwell && cargo build --features local
+
+      - name: Build (deploy)
+        run: cd deepwell && cargo build --features deploy
 
       - name: Check Configuration
         run: cd deepwell && cargo run -- config.example.toml ../install/files/local/deepwell.toml

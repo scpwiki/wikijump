@@ -39,6 +39,9 @@ extern crate str_macro;
 #[macro_use]
 mod macros;
 
+#[cfg(feature = "watch")]
+mod watch;
+
 mod api;
 mod config;
 mod constants;
@@ -52,8 +55,12 @@ mod services;
 mod utils;
 mod web;
 
+#[cfg(feature = "notify")]
+use self::watch::setup_autorestart;
+
 use self::config::SetupConfig;
 use anyhow::Result;
+use cfg_if::cfg_if;
 use std::fs::File;
 use std::io::Write;
 use std::process;
@@ -87,6 +94,21 @@ async fn main() -> Result<()> {
 
         let mut file = File::create(path)?;
         writeln!(&mut file, "{}", process::id())?;
+    }
+
+    // Set up restart-on-config change (if feature enabled)
+    #[cfg(feature = "watch")]
+    let _watcher;
+
+    if config.watch_files {
+        cfg_if! {
+            if #[cfg(feature = "watch")] {
+                _watcher = setup_autorestart(&config)?;
+            } else {
+                tide::log::error!("The --watch-files option requires the 'watch' feature");
+                process::exit(1);
+            }
+        }
     }
 
     // Run migrations, if enabled

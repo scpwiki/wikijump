@@ -56,7 +56,7 @@ fn validate_config() -> i32 {
         let path = PathBuf::from(value);
         print!("Checking {}... ", path.display());
 
-        match Config::load(&path) {
+        match Config::load(path) {
             Ok(_) => println!("success"),
             Err(error) => {
                 println!("error");

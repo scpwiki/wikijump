@@ -22,7 +22,7 @@ use super::file::ConfigFile;
 use anyhow::Result;
 use std::env;
 use std::net::SocketAddr;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::time::Duration as StdDuration;
 use tide::log::LevelFilter;
 use time::Duration as TimeDuration;
@@ -35,6 +35,9 @@ use time::Duration as TimeDuration;
 pub struct Config {
     /// The raw TOML data that was read on server load.
     pub raw_toml: String,
+
+    /// The path where the above raw TOML data was read from.
+    pub raw_toml_path: PathBuf,
 
     /// Whether the logger should be enabled or not.
     /// Also enables colorful backtraces.
@@ -64,6 +67,13 @@ pub struct Config {
 
     /// The files domain, but without a leading `.`
     pub files_domain_no_dot: String,
+
+    /// Whether to auto-restart on configuration file change.
+    ///
+    /// Currently watches:
+    /// * Localization directory
+    /// * Configuration file
+    pub watch_files: bool,
 
     /// Whether to run migrations on startup.
     pub run_migrations: bool,
@@ -147,9 +157,9 @@ pub struct Config {
 
 impl Config {
     #[inline]
-    pub fn load(path: &Path) -> Result<Self> {
-        let (config_file, raw_toml) = ConfigFile::load(path)?;
-        let config = ConfigFile::into_config(config_file, raw_toml);
+    pub fn load(path: PathBuf) -> Result<Self> {
+        let (config_file, extra) = ConfigFile::load(path)?;
+        let config = ConfigFile::into_config(config_file, extra);
         Ok(config)
     }
 
@@ -165,6 +175,10 @@ impl Config {
 
         tide::log::info!("Configuration details:");
         tide::log::info!("Serving on {}", self.address);
+        tide::log::info!(
+            "Auto-restart on config change: {}",
+            bool_str(self.watch_files),
+        );
         tide::log::info!("Migrations: {}", bool_str(self.run_migrations));
         tide::log::info!("Seeder: {}", bool_str(self.run_seeder));
         tide::log::info!("Localization path: {}", self.localization_path.display());
@@ -176,4 +190,15 @@ impl Config {
                 .display(),
         );
     }
+}
+
+/// Structure containing extra fields not found in `ConfigFile`.
+///
+/// These are values which end up in `Config` but are not in the
+/// configuration file itself, for instance meta-information or
+/// command-line argument-only options.
+#[derive(Debug, Clone)]
+pub struct ExtraConfig {
+    pub raw_toml: String,
+    pub raw_toml_path: PathBuf,
 }

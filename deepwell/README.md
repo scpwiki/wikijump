@@ -36,7 +36,7 @@ $ scripts/generate-models.sh
 The primary organization of the crate is as follows:
 
 * `api/` &mdash; Web server definition, such as its routes and related structures.
-  * Each API is namespaced based on its version. The primary version of interest is the "internal" API, which is consumed by PHP and not meant for outside consumption due to it providing unguarded access.
+  * Exposes the internal API for use by Framerail.
 * `endpoints/` &mdash; Implementations for individual endpoints described above.
 * `services/` &mdash; "Services", or logical encapsulations of different concepts or operations.
   * For instance, the `ParentService` allows retrieving and storing data related to parent-child page relationships. You can think of it as "wrapping" the `page_parent` table.
@@ -54,9 +54,35 @@ The routes are defined in `api/`, with their implementations in `methods/`, and 
 
 This executable targets the latest stable Rust. At time of writing, that is `1.72.0`.
 
+There are two features supported by DEEPWELL, along with what they add:
+
+* `local` &mdash; Intended for local development, where frequent compilation is likely.
+ * Tracks the locale directory and configuration file, reloading them if they are modified.
+* `deploy` &mdash; Intended for "deployed" environments, i.e. `dev` and `prod`.
+
+Thus for a _release build_ (being deployed somewhere) you would want to run:
+
 ```sh
-$ cargo build --release
+$ cargo build --release --features deploy
 ```
+
+And for a _local build_ you would want:
+
+```sh
+$ cargo build --features local
+```
+
+### Execution
+
+```sh
+$ cargo build --features <deploy|local> -- [-q] [-p <port>] <config-file>
+```
+
+There are a number of arguments beyond the ones shown. Run with `--help` for all relevant information.
+
+This runs a local instance of DEEPWELL with the given configuration file. When debugging (i.e. on `--features local` only), you can also pass in `-w` or `--watch-files` to have the process to restart automatically when the configuration file or any localization files change.
+
+This does not seem to work with Docker, so you should instead manually stop the `api` container and run it locally with the flag. That will properly watch changes and restart itself.
 
 ### Testing
 

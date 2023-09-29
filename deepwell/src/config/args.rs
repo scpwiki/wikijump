@@ -70,6 +70,13 @@ pub fn parse_args() -> Config {
                 .help("What port to listen on."),
         )
         .arg(
+            Arg::new("watch-config")
+                .short('w')
+                .long("watch")
+                .action(ArgAction::SetTrue)
+                .help("Whether to auto-restart when configuration or localization files change."),
+        )
+        .arg(
             Arg::new("run-migrations")
                 .short('M')
                 .long("migrate")
@@ -119,7 +126,7 @@ pub fn parse_args() -> Config {
         .remove_one::<PathBuf>("config-file")
         .expect("Required argument not provided");
 
-    let mut config = match Config::load(&config_path) {
+    let mut config = match Config::load(config_path) {
         Ok(config) => config,
         Err(error) => {
             eprintln!("Unable to load configuration from file: {error}");
@@ -149,6 +156,10 @@ pub fn parse_args() -> Config {
 
     if let Some(value) = matches.remove_one::<u16>("port") {
         config.address.set_port(value);
+    }
+
+    if matches.remove_one::<bool>("watch-config") == Some(true) {
+        config.watch_files = true;
     }
 
     if let Some(value) = matches.remove_one::<bool>("run-migrations") {
