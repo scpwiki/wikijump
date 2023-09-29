@@ -77,6 +77,8 @@ fn main_loop() -> Result<Infallible> {
 }
 
 /// Starts the thread containing the `Magic` instance.
+///
+/// If the thread is already started, then this does nothing.
 pub fn spawn_magic_thread() {
     static START: Once = Once::new();
 
