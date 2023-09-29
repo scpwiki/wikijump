@@ -46,6 +46,9 @@ use std::process::Command;
 use std::time::Duration;
 use std::{env, fs};
 
+#[cfg(not(debug))]
+compile_error!("The 'watch' feature should not be used in production!");
+
 const POLL_INTERVAL: Duration = Duration::from_secs(1);
 
 #[derive(Debug)]
