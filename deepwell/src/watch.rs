@@ -37,7 +37,9 @@
 use crate::config::Config;
 use anyhow::Result;
 use notify_debouncer_mini::{
-    new_debouncer, notify::*, DebounceEventResult, DebouncedEvent, Debouncer,
+    new_debouncer,
+    notify::{RecursiveMode, Watcher},
+    DebounceEventResult, DebouncedEvent, Debouncer,
 };
 use std::os::unix::process::CommandExt;
 use std::path::{Path, PathBuf};
