@@ -49,6 +49,7 @@ use void::Void;
 const DEBOUNCE_DURATION: Duration = Duration::from_secs(1);
 
 pub fn setup_autorestart(state: &ApiServerState) -> Result<Debouncer<impl Watcher>> {
+    tide::log::info!("Starting watcher for auto-restart on file change");
     let raw_toml_path = &state.config.raw_toml_path;
     let localization_path = &state.config.localization_path;
     let state = Arc::clone(&state);
@@ -75,10 +76,12 @@ pub fn setup_autorestart(state: &ApiServerState) -> Result<Debouncer<impl Watche
 
     // Add autowatch to configuration file.
     let watcher = debouncer.watcher();
+    tide::log::debug!("Adding regular watch to {}", raw_toml_path.display());
     watcher.watch(raw_toml_path, RecursiveMode::NonRecursive)?;
 
     // Add autowatch to localization directory.
     // Recursive because it is nested.
+    tide::log::debug!("Adding recursive watch to {}", localization_path.display());
     watcher.watch(localization_path, RecursiveMode::Recursive)?;
 
     // Return. Once out of scope, the watcher stops working.
