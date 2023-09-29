@@ -82,6 +82,8 @@ There are a number of arguments beyond the ones shown. Run with `--help` for all
 
 This runs a local instance of DEEPWELL with the given configuration file. When debugging (i.e. on `--features local` only), you can also pass in `-w` or `--watch-files` to have the process to restart automatically when the configuration file or any localization files change.
 
+This does not seem to work with Docker, so you should instead manually stop the `api` container and run it locally with the flag. That will properly watch changes and restart itself.
+
 ### Testing
 
 Tests have not yet been implemented, but when they are, run:

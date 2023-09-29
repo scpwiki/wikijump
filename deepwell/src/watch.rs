@@ -32,7 +32,6 @@
 //! Note the [security implications of `current_exe()`](https://doc.rust-lang.org/std/env/fn.current_exe.html#security).
 //!
 //! This feature assumes you are running on a UNIX-like system.
-//! Linux's inotify is _not_ used because of its incompatibility with Docker mounts.
 
 use crate::config::Config;
 use anyhow::Result;
