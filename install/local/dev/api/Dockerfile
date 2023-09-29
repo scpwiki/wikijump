@@ -18,6 +18,8 @@ RUN cargo install cargo-watch
 # Install development configuration file
 COPY install/files/local/deepwell.toml /etc/deepwell.toml
 
+# /opt/locales is provided via docker-compose.dev.yaml
+
 # Copy source
 # Don't build until container execution (see cargo-watch)
 RUN mkdir /src
