@@ -39,12 +39,12 @@ use notify::{
     Config as WatcherConfig, Event, EventKind, RecommendedWatcher, RecursiveMode,
     Result as WatcherResult, Watcher,
 };
+use std::convert::Infallible;
 use std::os::unix::process::CommandExt;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::Duration;
 use std::{env, fs};
-use void::Void;
 
 const POLL_INTERVAL: Duration = Duration::from_secs(1);
 
@@ -140,7 +140,7 @@ fn path_is_applicable(watched_paths: &WatchedPaths, path: &Path) -> bool {
     false
 }
 
-fn restart_self() -> Void {
+fn restart_self() -> Infallible {
     tide::log::info!("Restarting server");
 
     let executable = env::current_exe().expect("Unable to get current executable");
