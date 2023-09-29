@@ -65,7 +65,7 @@ wikidot-path = "0.5"
 #            https://github.com/tkaitchuck/aHash/issues/95
 
 [build-dependencies]
-built = { version = "0.6", features = ["git2"] }
+built = { version = "0.7", features = ["git2"] }
 
 # Performance options
 
