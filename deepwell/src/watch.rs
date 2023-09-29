@@ -130,11 +130,8 @@ fn event_is_applicable(
 fn restart_self() -> Void {
     tide::log::info!("Restarting server");
 
-    let (executable, arguments) = {
-        let mut arguments = env::args_os().collect::<Vec<_>>();
-        let executable = arguments.remove(0);
-        (executable, arguments)
-    };
+    let executable = env::current_exe().expect("Unable to get current executable");
+    let arguments = env::args_os().skip(1).collect::<Vec<_>>();
 
     tide::log::info!(
         "Replacing process with exec: {} {:?}",
