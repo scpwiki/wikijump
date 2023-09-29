@@ -28,7 +28,7 @@ use crate::models::page_parent::{self, Entity as PageParent};
 use crate::models::{page_revision, text};
 use crate::services::{PageService, ParentService};
 use sea_query::{Expr, Query};
-use void::Void;
+use std::convert::Infallible;
 
 #[derive(Debug)]
 pub struct PageQueryService;
@@ -68,7 +68,7 @@ impl PageQueryService {
             pagination,
             variables,
         }: PageQuery<'_>,
-    ) -> Result<Void> {
+    ) -> Result<Infallible> {
         tide::log::info!("Building ListPages query from specification");
 
         let txn = ctx.transaction();

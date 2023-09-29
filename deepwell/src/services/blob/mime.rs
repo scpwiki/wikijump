@@ -30,9 +30,9 @@
 use super::prelude::*;
 use crossfire::mpsc;
 use filemagic::{FileMagicError, Flags as MagicFlags, Magic};
+use std::convert::Infallible;
 use std::sync::Once;
 use std::{process, thread};
-use void::{ResultVoidErrExt, Void};
 
 type ResponsePayload = StdResult<String, FileMagicError>;
 type ResponseSender = mpsc::TxBlocking<ResponsePayload, mpsc::SharedSenderBRecvF>;
@@ -58,7 +58,7 @@ macro_rules! source {
     };
 }
 
-fn main_loop() -> Result<Void> {
+fn main_loop() -> Result<Infallible> {
     const MAGIC_FLAGS: MagicFlags = MagicFlags::MIME;
     const MAGIC_PATHS: &[&str] = &[]; // Empty indicates using the default magic database
 
@@ -81,11 +81,20 @@ fn main_loop() -> Result<Void> {
 pub fn spawn_magic_thread() {
     static START: Once = Once::new();
 
+    macro_rules! unwrap_err {
+        ($result:expr) => {
+            match $result {
+                Ok(_) => unreachable!(),
+                Err(error) => error,
+            }
+        };
+    }
+
     START.call_once(|| {
         thread::spawn(|| {
             // Since this is an infinite loop, no success case can return.
             // Only the initialization can fail, individual requests just pass back the result.
-            let error = main_loop().void_unwrap_err();
+            let error = unwrap_err!(main_loop());
             tide::log::error!("Failed to spawn magic thread: {error}");
             process::exit(1);
         });
