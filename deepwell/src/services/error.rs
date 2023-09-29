@@ -70,7 +70,7 @@ pub enum Error {
 
     // See also RemoteOperationFailed.
     #[error("Web request error: {0}")]
-    WebRequest(#[from] ureq::Error),
+    WebRequest(Box<ureq::Error>),
 
     #[error("Invalid enum serialization value")]
     InvalidEnumValue,
@@ -187,6 +187,13 @@ impl From<DbErr> for Error {
             DbErr::RecordNotFound(_) => Error::NotFound,
             _ => Error::Database(error),
         }
+    }
+}
+
+impl From<ureq::Error> for Error {
+    #[inline]
+    fn from(error: ureq::Error) -> Error {
+        Error::WebRequest(Box::new(error))
     }
 }
 
