@@ -21,7 +21,7 @@
 //! Evaluates MIME types using libmagic.
 //!
 //! Because it is a binding to a C library, it cannot be shared among threads.
-//! So we cannot use `lazy_static` and we can't have it in a coroutine.
+//! So we cannot use `once_cell::Lazy` and we can't have it in a coroutine.
 //! We don't load the `Magic` instance locally because it's an expensive operation
 //! and it would be inefficient to load it for each invocation.
 //!
@@ -30,6 +30,7 @@
 use super::prelude::*;
 use crossfire::mpsc;
 use filemagic::{FileMagicError, Flags as MagicFlags, Magic};
+use once_cell::sync::Lazy;
 use std::convert::Infallible;
 use std::sync::Once;
 use std::{process, thread};
@@ -41,10 +42,8 @@ type RequestPayload = (Vec<u8>, ResponseSender);
 type RequestSender = mpsc::TxFuture<RequestPayload, mpsc::SharedSenderFRecvB>;
 type RequestReceiver = mpsc::RxBlocking<RequestPayload, mpsc::SharedSenderFRecvB>;
 
-lazy_static! {
-    static ref QUEUE: (RequestSender, RequestReceiver) =
-        mpsc::bounded_tx_future_rx_blocking(64);
-}
+static QUEUE: Lazy<(RequestSender, RequestReceiver)> =
+    Lazy::new(|| mpsc::bounded_tx_future_rx_blocking(64));
 
 macro_rules! sink {
     () => {
@@ -78,6 +77,8 @@ fn main_loop() -> Result<Infallible> {
 }
 
 /// Starts the thread containing the `Magic` instance.
+///
+/// If the thread is already started, then this does nothing.
 pub fn spawn_magic_thread() {
     static START: Once = Once::new();
 

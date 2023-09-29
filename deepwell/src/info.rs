@@ -22,51 +22,50 @@ mod build {
     include!(concat!(env!("OUT_DIR"), "/built.rs"));
 }
 
+use once_cell::sync::Lazy;
+
 pub use self::build::{
     BUILT_TIME_UTC, GIT_COMMIT_HASH, NUM_JOBS, PKG_AUTHORS, PKG_DESCRIPTION, PKG_LICENSE,
     PKG_NAME, PKG_REPOSITORY, PKG_VERSION, RUSTC_VERSION, TARGET,
 };
 
-lazy_static! {
-    static ref VERSION_INFO: String = {
-        let mut version = format!("v{PKG_VERSION}");
+pub static VERSION_INFO: Lazy<String> = Lazy::new(|| {
+    let mut version = format!("v{PKG_VERSION}");
 
-        if let Some(commit_hash) = *GIT_COMMIT_HASH_SHORT {
-            str_write!(&mut version, " [{commit_hash}]");
-        }
+    if let Some(commit_hash) = *GIT_COMMIT_HASH_SHORT {
+        str_write!(&mut version, " [{commit_hash}]");
+    }
 
-        version
-    };
+    version
+});
 
-    pub static ref FULL_VERSION: String = {
-        let mut version = format!("{PKG_NAME} {}\n\nCompiled:\n", *VERSION_INFO);
+pub static FULL_VERSION: Lazy<String> = Lazy::new(|| {
+    let mut version = format!("{PKG_NAME} {}\n\nCompiled:\n", *VERSION_INFO);
 
-        str_writeln!(&mut version, "* across {NUM_JOBS} threads");
-        str_writeln!(&mut version, "* by {RUSTC_VERSION}");
-        str_writeln!(&mut version, "* for {TARGET}");
-        str_writeln!(&mut version, "* on {BUILT_TIME_UTC}");
+    str_writeln!(&mut version, "* across {NUM_JOBS} threads");
+    str_writeln!(&mut version, "* by {RUSTC_VERSION}");
+    str_writeln!(&mut version, "* for {TARGET}");
+    str_writeln!(&mut version, "* on {BUILT_TIME_UTC}");
 
-        version
-    };
+    version
+});
 
-    pub static ref VERSION: String = format!("{PKG_NAME} {}", *VERSION_INFO);
+pub static VERSION: Lazy<String> = Lazy::new(|| format!("{PKG_NAME} {}", *VERSION_INFO));
 
-    pub static ref GIT_COMMIT_HASH_SHORT: Option<&'static str> = {
-        build::GIT_COMMIT_HASH.map(|s| &s[..8])
-    };
+pub static GIT_COMMIT_HASH_SHORT: Lazy<Option<&'static str>> =
+    Lazy::new(|| build::GIT_COMMIT_HASH.map(|s| &s[..8]));
 
-    pub static ref HOSTNAME: String = {
-        // According to the gethostname(3p) man page,
-        // there don't seem to be any errors possible.
-        //
-        // However it is possible that converting from
-        // OsStr can fail.
-        hostname::get()
-            .expect("Unable to get hostname")
-            .into_string()
-            .expect("Unable to convert to UTF-8 string")
-    };
-}
+pub static HOSTNAME: Lazy<String> = Lazy::new(|| {
+    // According to the gethostname(3p) man page,
+    // there don't seem to be any errors possible.
+    //
+    // However it is possible that converting from
+    // OsStr can fail.
+    hostname::get()
+        .expect("Unable to get hostname")
+        .into_string()
+        .expect("Unable to convert to UTF-8 string")
+});
 
 #[test]
 fn info() {

@@ -24,19 +24,22 @@ use crate::models::file_revision::{
 };
 use crate::services::{OutdateService, PageService};
 use crate::web::FetchDirection;
+use once_cell::sync::Lazy;
 use std::num::NonZeroI32;
 
-lazy_static! {
-    /// The changes for the first revision.
-    /// The first revision is always considered to have changed everything.
-    static ref ALL_CHANGES: Vec<String> = vec![
+/// The changes for the first revision.
+/// The first revision is always considered to have changed everything.
+///
+/// See `services/page_revision/service.rs`.
+static ALL_CHANGES: Lazy<Vec<String>> = Lazy::new(|| {
+    vec![
         str!("page"),
         str!("name"),
         str!("blob"),
         str!("mime"),
         str!("licensing"),
-    ];
-}
+    ]
+});
 
 #[derive(Debug)]
 pub struct FileRevisionService;
