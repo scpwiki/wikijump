@@ -20,6 +20,7 @@
 
 use crate::locales::LocalizationTranslateError;
 use filemagic::FileMagicError;
+use reqwest::Error as ReqwestError;
 use s3::error::S3Error;
 use sea_orm::error::DbErr;
 use thiserror::Error as ThisError;
@@ -63,6 +64,10 @@ pub enum Error {
 
     #[error("Web server error: HTTP {}", .0.status() as u16)]
     Web(TideError),
+
+    // See also RemoteOperationFailed.
+    #[error("Web request error: {0}")]
+    WebRequest(#[from] ReqwestError),
 
     #[error("Invalid enum serialization value")]
     InvalidEnumValue,
@@ -127,6 +132,9 @@ impl Error {
             Error::Serde(inner) => TideError::new(StatusCode::InternalServerError, inner),
             Error::S3(inner) => TideError::new(StatusCode::InternalServerError, inner),
             Error::Web(inner) => inner,
+            Error::WebRequest(inner) => {
+                TideError::new(StatusCode::InternalServerError, inner)
+            }
             Error::InvalidEnumValue | Error::Inconsistent => {
                 TideError::from_str(StatusCode::InternalServerError, "")
             }
