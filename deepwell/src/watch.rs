@@ -40,7 +40,7 @@ use notify_debouncer_mini::{
     new_debouncer, notify::*, DebounceEventResult, DebouncedEvent, Debouncer,
 };
 use std::os::unix::process::CommandExt;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::Duration;
 use std::{env, fs};
@@ -130,11 +130,21 @@ fn event_is_applicable(
 fn restart_self() -> Void {
     tide::log::info!("Restarting server");
 
-    let executable = env::current_exe().expect("Unable to get current executable");
-    let arguments = env::args_os().collect::<Vec<_>>();
+    let (executable, arguments) = {
+        let mut arguments = env::args_os().collect::<Vec<_>>();
+        let executable = arguments.remove(0);
+        (executable, arguments)
+    };
+
+    tide::log::info!(
+        "Replacing process with exec: {} {:?}",
+        Path::new(&executable).display(),
+        arguments,
+    );
 
     let mut command = Command::new(executable);
     command.args(arguments);
+
     let error = command.exec();
     panic!("Unable to exec(): {error}");
 }
