@@ -106,10 +106,11 @@ async fn main() -> Result<()> {
     let app_state = api::build_server_state(config, secrets).await?;
 
     // Set up restart-on-config change (if feature enabled)
+    let watcher;
     if watch_files {
         cfg_if! {
             if #[cfg(feature = "notify")] {
-                setup_autorestart(&app_state)?;
+                watcher = setup_autorestart(&app_state)?;
             } else {
                 tide::log::error!("The --watch-files option requires the 'notify' feature");
                 process::exit(1);
