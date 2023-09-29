@@ -27,6 +27,6 @@ pub async fn validate_email(mut req: ApiRequest) -> ApiResponse {
     let output = EmailService::validate(&email)?;
 
     let body = Body::from_json(&output)?;
-    let response = Response::builder(StatusCode::Created).body(body).into();
+    let response = Response::builder(StatusCode::Ok).body(body).into();
     Ok(response)
 }
