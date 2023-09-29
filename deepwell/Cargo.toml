@@ -56,7 +56,6 @@ toml = { version = "0.8", features = ["parse"] }
 typenum = "1"
 unic-langid = "0.9"
 unicase = "2"
-void = "1"
 wikidot-normalize = "0.11"
 wikidot-path = "0.5"
 

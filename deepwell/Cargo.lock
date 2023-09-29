@@ -1263,7 +1263,6 @@ dependencies = [
  "typenum",
  "unic-langid",
  "unicase",
- "void",
  "wikidot-normalize",
  "wikidot-path",
 ]

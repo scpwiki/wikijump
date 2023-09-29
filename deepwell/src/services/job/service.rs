@@ -24,8 +24,8 @@ use crate::services::{PageRevisionService, SessionService, TextService};
 use async_std::task;
 use crossfire::mpsc;
 use sea_orm::TransactionTrait;
+use std::convert::Infallible;
 use std::sync::Arc;
-use void::Void;
 
 lazy_static! {
     static ref QUEUE: (mpsc::TxUnbounded<Job>, mpsc::RxUnbounded<Job>) =
@@ -109,7 +109,7 @@ impl JobRunner {
         //      see config.refill_name_change
     }
 
-    async fn main_loop(mut self) -> Void {
+    async fn main_loop(mut self) -> Infallible {
         tide::log::info!("Starting job runner");
 
         let delay = self.state.config.job_delay;
