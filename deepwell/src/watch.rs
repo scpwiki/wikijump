@@ -32,14 +32,13 @@
 //! Note the [security implications of `current_exe()`](https://doc.rust-lang.org/std/env/fn.current_exe.html#security).
 //!
 //! This feature assumes you are running on a UNIX-like system.
-//! If on Linux, then inotify will be used.
+//! Linux's inotify is _not_ used because of its incompatibility with Docker mounts.
 
 use crate::config::Config;
 use anyhow::Result;
-use notify_debouncer_mini::{
-    new_debouncer,
-    notify::{RecursiveMode, Watcher},
-    DebounceEventResult, DebouncedEvent, Debouncer,
+use notify::{
+    Config as WatcherConfig, Event, EventKind, PollWatcher, RecursiveMode,
+    Result as WatcherResult, Watcher,
 };
 use std::os::unix::process::CommandExt;
 use std::path::{Path, PathBuf};
@@ -48,7 +47,7 @@ use std::time::Duration;
 use std::{env, fs};
 use void::Void;
 
-const DEBOUNCE_DURATION: Duration = Duration::from_secs(1);
+const POLL_INTERVAL: Duration = Duration::from_secs(1);
 
 #[derive(Debug)]
 struct WatchedPaths {
@@ -56,35 +55,33 @@ struct WatchedPaths {
     localization_path: PathBuf,
 }
 
-pub fn setup_autorestart(config: &Config) -> Result<Debouncer<impl Watcher>> {
+pub fn setup_autorestart(config: &Config) -> Result<PollWatcher> {
     tide::log::info!("Starting watcher for auto-restart on file change");
     let watched_paths = WatchedPaths {
         config_path: fs::canonicalize(&config.raw_toml_path)?,
         localization_path: fs::canonicalize(&config.localization_path)?,
     };
 
-    let mut debouncer = new_debouncer(
-        DEBOUNCE_DURATION,
-        move |result: DebounceEventResult| match result {
+    let mut watcher = PollWatcher::new(
+        move |result: WatcherResult<Event>| match result {
             Err(error) => {
                 tide::log::error!("Unable to receive filesystem events: {error}");
             }
-            Ok(events) => {
-                tide::log::debug!("Received {} filesystem events", events.len());
+            Ok(event) => {
+                tide::log::debug!(
+                    "Received filesystem event ({} paths)",
+                    event.paths.len(),
+                );
 
-                let should_restart = events
-                    .iter()
-                    .any(|event| event_is_applicable(&watched_paths, event));
-
-                if should_restart {
+                if event_is_applicable(&watched_paths, event) {
                     restart_self();
                 }
             }
         },
+        WatcherConfig::default().with_poll_interval(POLL_INTERVAL),
     )?;
 
     // Add autowatch to configuration file.
-    let watcher = debouncer.watcher();
     tide::log::debug!("Adding regular watch to {}", config.raw_toml_path.display());
     watcher.watch(&config.raw_toml_path, RecursiveMode::NonRecursive)?;
 
@@ -96,14 +93,29 @@ pub fn setup_autorestart(config: &Config) -> Result<Debouncer<impl Watcher>> {
     );
     watcher.watch(&config.localization_path, RecursiveMode::Recursive)?;
 
-    // Return. Once out of scope, the watcher stops working.
-    Ok(debouncer)
+    // Return. Once out of scope, the watcher stops working, so we must preserve it.
+    Ok(watcher)
 }
 
-fn event_is_applicable(
-    watched_paths: &WatchedPaths,
-    DebouncedEvent { path, .. }: &DebouncedEvent,
-) -> bool {
+fn event_is_applicable(watched_paths: &WatchedPaths, event: Event) -> bool {
+    if matches!(
+        event.kind,
+        EventKind::Access(_) | EventKind::Any | EventKind::Other,
+    ) {
+        tide::log::debug!("Ignoring access or unknown event");
+        return false;
+    }
+
+    for path in event.paths {
+        if path_is_applicable(watched_paths, &path) {
+            return true;
+        }
+    }
+
+    false
+}
+
+fn path_is_applicable(watched_paths: &WatchedPaths, path: &Path) -> bool {
     tide::log::debug!("Checking filesystem event for {}", path.display());
 
     let path = match fs::canonicalize(path) {

@@ -39,7 +39,7 @@ extern crate str_macro;
 #[macro_use]
 mod macros;
 
-#[cfg(feature = "notify")]
+#[cfg(feature = "watch")]
 mod watch;
 
 mod api;
@@ -100,10 +100,10 @@ async fn main() -> Result<()> {
     let _watcher;
     if config.watch_files {
         cfg_if! {
-            if #[cfg(feature = "notify")] {
+            if #[cfg(feature = "watch")] {
                 _watcher = setup_autorestart(&config)?;
             } else {
-                tide::log::error!("The --watch-files option requires the 'notify' feature");
+                tide::log::error!("The --watch-files option requires the 'watch' feature");
                 process::exit(1);
             }
         }
