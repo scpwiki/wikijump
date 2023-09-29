@@ -72,7 +72,6 @@ async fn main() -> Result<()> {
 
     // Copy fields we need
     let socket_address = config.address;
-    let watch_files = config.watch_files;
     let run_migrations = config.run_migrations;
     let run_seeder = config.run_seeder;
 
@@ -97,6 +96,19 @@ async fn main() -> Result<()> {
         writeln!(&mut file, "{}", process::id())?;
     }
 
+    // Set up restart-on-config change (if feature enabled)
+    let _watcher;
+    if config.watch_files {
+        cfg_if! {
+            if #[cfg(feature = "notify")] {
+                _watcher = setup_autorestart(&config)?;
+            } else {
+                tide::log::error!("The --watch-files option requires the 'notify' feature");
+                process::exit(1);
+            }
+        }
+    }
+
     // Run migrations, if enabled
     if run_migrations {
         database::migrate(&secrets.database_url).await?;
@@ -104,19 +116,6 @@ async fn main() -> Result<()> {
 
     // Set up server state
     let app_state = api::build_server_state(config, secrets).await?;
-
-    // Set up restart-on-config change (if feature enabled)
-    let watcher;
-    if watch_files {
-        cfg_if! {
-            if #[cfg(feature = "notify")] {
-                watcher = setup_autorestart(&app_state)?;
-            } else {
-                tide::log::error!("The --watch-files option requires the 'notify' feature");
-                process::exit(1);
-            }
-        }
-    }
 
     // Run seeder, if enabled
     if run_seeder {

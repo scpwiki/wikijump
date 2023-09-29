@@ -34,25 +34,32 @@
 //! This feature assumes you are running on a UNIX-like system.
 //! If on Linux, then inotify will be used.
 
-use crate::api::ApiServerState;
 use crate::config::Config;
+use anyhow::Result;
 use notify_debouncer_mini::{
     new_debouncer, notify::*, DebounceEventResult, DebouncedEvent, Debouncer,
 };
-use std::env;
 use std::os::unix::process::CommandExt;
+use std::path::PathBuf;
 use std::process::Command;
-use std::sync::Arc;
 use std::time::Duration;
+use std::{env, fs};
 use void::Void;
 
 const DEBOUNCE_DURATION: Duration = Duration::from_secs(1);
 
-pub fn setup_autorestart(state: &ApiServerState) -> Result<Debouncer<impl Watcher>> {
+#[derive(Debug)]
+struct WatchedPaths {
+    config_path: PathBuf,
+    localization_path: PathBuf,
+}
+
+pub fn setup_autorestart(config: &Config) -> Result<Debouncer<impl Watcher>> {
     tide::log::info!("Starting watcher for auto-restart on file change");
-    let raw_toml_path = &state.config.raw_toml_path;
-    let localization_path = &state.config.localization_path;
-    let state = Arc::clone(&state);
+    let watched_paths = WatchedPaths {
+        config_path: fs::canonicalize(&config.raw_toml_path)?,
+        localization_path: fs::canonicalize(&config.localization_path)?,
+    };
 
     let mut debouncer = new_debouncer(
         DEBOUNCE_DURATION,
@@ -65,7 +72,7 @@ pub fn setup_autorestart(state: &ApiServerState) -> Result<Debouncer<impl Watche
 
                 let should_restart = events
                     .iter()
-                    .any(|event| event_is_applicable(&state.config, event));
+                    .any(|event| event_is_applicable(&watched_paths, event));
 
                 if should_restart {
                     restart_self();
@@ -76,30 +83,43 @@ pub fn setup_autorestart(state: &ApiServerState) -> Result<Debouncer<impl Watche
 
     // Add autowatch to configuration file.
     let watcher = debouncer.watcher();
-    tide::log::debug!("Adding regular watch to {}", raw_toml_path.display());
-    watcher.watch(raw_toml_path, RecursiveMode::NonRecursive)?;
+    tide::log::debug!("Adding regular watch to {}", config.raw_toml_path.display());
+    watcher.watch(&config.raw_toml_path, RecursiveMode::NonRecursive)?;
 
     // Add autowatch to localization directory.
     // Recursive because it is nested.
-    tide::log::debug!("Adding recursive watch to {}", localization_path.display());
-    watcher.watch(localization_path, RecursiveMode::Recursive)?;
+    tide::log::debug!(
+        "Adding recursive watch to {}",
+        config.localization_path.display(),
+    );
+    watcher.watch(&config.localization_path, RecursiveMode::Recursive)?;
 
     // Return. Once out of scope, the watcher stops working.
     Ok(debouncer)
 }
 
 fn event_is_applicable(
-    config: &Config,
+    watched_paths: &WatchedPaths,
     DebouncedEvent { path, .. }: &DebouncedEvent,
 ) -> bool {
     tide::log::debug!("Checking filesystem event for {}", path.display());
 
-    if path.starts_with(&config.raw_toml_path) {
+    let path = match fs::canonicalize(path) {
+        Ok(path) => path,
+        Err(error) => {
+            tide::log::error!(
+                "Error finding canonical path for event processing: {error}",
+            );
+            return false;
+        }
+    };
+
+    if path.starts_with(&watched_paths.config_path) {
         tide::log::info!("DEEPWELL configuration path modified: {}", path.display());
         return true;
     }
 
-    if path.starts_with(&config.localization_path) {
+    if path.starts_with(&watched_paths.localization_path) {
         tide::log::info!("Localization subpath modified: {}", path.display());
         return true;
     }
