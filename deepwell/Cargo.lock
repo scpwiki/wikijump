@@ -1247,7 +1247,7 @@ dependencies = [
  "regex",
  "rust-s3",
  "sea-orm",
- "sea-query",
+ "sea-query 0.30.2",
  "serde",
  "serde_json",
  "sha2 0.10.8",
@@ -2168,6 +2168,17 @@ name = "infer"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "64e9829a50b42bb782c1df523f78d332fe371b10c661e78b7a3c34b0198e9fac"
+
+[[package]]
+name = "inherent"
+version = "1.0.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ce243b1bfa62ffc028f1cc3b6034ec63d649f3031bc8a4fbbb004e1ac17d1f68"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.37",
+]
 
 [[package]]
 name = "inotify"
@@ -3704,7 +3715,7 @@ dependencies = [
  "log",
  "ouroboros",
  "sea-orm-macros",
- "sea-query",
+ "sea-query 0.28.5",
  "sea-query-binder",
  "sea-strum",
  "serde",
@@ -3736,9 +3747,19 @@ version = "0.28.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bbab99b8cd878ab7786157b7eb8df96333a6807cc6e45e8888c85b51534b401a"
 dependencies = [
- "sea-query-derive",
+ "sea-query-derive 0.3.0",
  "serde_json",
  "time 0.3.29",
+]
+
+[[package]]
+name = "sea-query"
+version = "0.30.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fb3e6bba153bb198646c8762c48414942a38db27d142e44735a133cabddcc820"
+dependencies = [
+ "inherent",
+ "sea-query-derive 0.4.0",
 ]
 
 [[package]]
@@ -3747,7 +3768,7 @@ version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4cea85029985b40dfbf18318d85fe985c04db7c1b4e5e8e0a0a0cdff5f1e30f9"
 dependencies = [
- "sea-query",
+ "sea-query 0.28.5",
  "serde_json",
  "sqlx 0.6.3",
  "time 0.3.29",
@@ -3758,6 +3779,19 @@ name = "sea-query-derive"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "63f62030c60f3a691f5fe251713b4e220b306e50a71e1d6f9cce1f24bb781978"
+dependencies = [
+ "heck 0.4.1",
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+ "thiserror",
+]
+
+[[package]]
+name = "sea-query-derive"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bd78f2e0ee8e537e9195d1049b752e0433e2cac125426bccb7b5c3e508096117"
 dependencies = [
  "heck 0.4.1",
  "proc-macro2",
