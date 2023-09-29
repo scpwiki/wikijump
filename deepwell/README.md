@@ -72,6 +72,16 @@ And for a _local build_ you would want:
 $ cargo build --features local
 ```
 
+### Execution
+
+```sh
+$ cargo build --features <deploy|local> -- [-q] [-p <port>] <config-file>
+```
+
+There are a number of arguments beyond the ones shown. Run with `--help` for all relevant information.
+
+This runs a local instance of DEEPWELL with the given configuration file. When debugging (i.e. on `--features local` only), you can also pass in `-w` or `--watch-config` to have the process to restart automatically when the configuration file or any localization files change.
+
 ### Testing
 
 Tests have not yet been implemented, but when they are, run:
