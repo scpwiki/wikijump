@@ -24,7 +24,7 @@ use std::convert::TryFrom;
 use std::fs::File;
 use std::io::Read;
 use std::net::SocketAddr;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::time::Duration as StdDuration;
 use tide::log::LevelFilter;
 use time::Duration as TimeDuration;
@@ -51,6 +51,16 @@ pub struct ConfigFile {
     ftml: Ftml,
     special_pages: SpecialPages,
     user: User,
+}
+
+/// Structure containing extra fields not found in `ConfigFile`.
+///
+/// This is meta-information not contained within the configuration
+/// file itself, but are stored in the final `Config` structure.
+#[derive(Debug, Clone)]
+pub struct ExtraConfig {
+    pub raw_toml: String,
+    pub raw_toml_path: PathBuf,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -148,16 +158,24 @@ struct User {
 }
 
 impl ConfigFile {
-    pub fn load(path: &Path) -> Result<(Self, String)> {
-        let mut file = File::open(path)?;
+    pub fn load(path: PathBuf) -> Result<(Self, ExtraConfig)> {
+        // Read TOML
+        let mut file = File::open(&path)?;
         let mut contents = String::new();
         file.read_to_string(&mut contents)?;
+
+        // Parse and build objects
         let config = toml::from_str(&contents)?;
-        Ok((config, contents))
+        let extra = ExtraConfig {
+            raw_toml: contents,
+            raw_toml_path: path,
+        };
+
+        Ok((config, extra))
     }
 
     /// Deconstruct the `ConfigFile` and flatten it as a `Config` object.
-    pub fn into_config(self, raw_toml: String, raw_toml_path: PathBuf) -> Config {
+    pub fn into_config(self, extra: ExtraConfig) -> Config {
         macro_rules! time_duration {
             // Convert a stdlib duration into a 'time' crate duration
             ($method:ident, $value:expr $(,)?) => {{
@@ -168,6 +186,11 @@ impl ConfigFile {
                 time_duration
             }};
         }
+
+        let ExtraConfig {
+            raw_toml,
+            raw_toml_path,
+        } = extra;
 
         let ConfigFile {
             logger:
@@ -260,6 +283,7 @@ impl ConfigFile {
             main_domain_no_dot,
             files_domain,
             files_domain_no_dot,
+            watch_files: false, // Not set in config file. Always false by default.
             run_migrations,
             run_seeder,
             seeder_path,

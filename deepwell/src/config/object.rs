@@ -68,6 +68,13 @@ pub struct Config {
     /// The files domain, but without a leading `.`
     pub files_domain_no_dot: String,
 
+    /// Whether to auto-restart on configuration file change.
+    ///
+    /// Currently watches:
+    /// * Localization directory
+    /// * Configuration file
+    pub watch_files: bool,
+
     /// Whether to run migrations on startup.
     pub run_migrations: bool,
 
@@ -151,8 +158,8 @@ pub struct Config {
 impl Config {
     #[inline]
     pub fn load(path: PathBuf) -> Result<Self> {
-        let (config_file, raw_toml) = ConfigFile::load(&path)?;
-        let config = ConfigFile::into_config(config_file, raw_toml, path);
+        let (config_file, extra) = ConfigFile::load(path)?;
+        let config = ConfigFile::into_config(config_file, extra);
         Ok(config)
     }
 
@@ -168,6 +175,10 @@ impl Config {
 
         tide::log::info!("Configuration details:");
         tide::log::info!("Serving on {}", self.address);
+        tide::log::info!(
+            "Auto-restart on config change: {}",
+            bool_str(self.watch_files),
+        );
         tide::log::info!("Migrations: {}", bool_str(self.run_migrations));
         tide::log::info!("Seeder: {}", bool_str(self.run_seeder));
         tide::log::info!("Localization path: {}", self.localization_path.display());
@@ -179,4 +190,15 @@ impl Config {
                 .display(),
         );
     }
+}
+
+/// Structure containing extra fields not found in `ConfigFile`.
+///
+/// These are values which end up in `Config` but are not in the
+/// configuration file itself, for instance meta-information or
+/// command-line argument-only options.
+#[derive(Debug, Clone)]
+pub struct ExtraConfig {
+    pub raw_toml: String,
+    pub raw_toml_path: PathBuf,
 }

@@ -70,6 +70,15 @@ pub fn parse_args() -> Config {
                 .help("What port to listen on."),
         )
         .arg(
+            Arg::new("watch-config")
+                .short('w')
+                .long("watch")
+                .value_name("BOOLEAN")
+                .value_parser(BoolishValueParser::new())
+                .action(ArgAction::Set)
+                .help("Whether to auto-restart when configuration or localization files change."),
+        )
+        .arg(
             Arg::new("run-migrations")
                 .short('M')
                 .long("migrate")
@@ -149,6 +158,10 @@ pub fn parse_args() -> Config {
 
     if let Some(value) = matches.remove_one::<u16>("port") {
         config.address.set_port(value);
+    }
+
+    if let Some(value) = matches.remove_one::<bool>("watch-config") {
+        config.watch_files = value;
     }
 
     if let Some(value) = matches.remove_one::<bool>("run-migrations") {
