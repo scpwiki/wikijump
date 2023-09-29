@@ -73,9 +73,7 @@ pub fn parse_args() -> Config {
             Arg::new("watch-config")
                 .short('w')
                 .long("watch")
-                .value_name("BOOLEAN")
-                .value_parser(BoolishValueParser::new())
-                .action(ArgAction::Set)
+                .action(ArgAction::SetTrue)
                 .help("Whether to auto-restart when configuration or localization files change."),
         )
         .arg(
@@ -160,8 +158,8 @@ pub fn parse_args() -> Config {
         config.address.set_port(value);
     }
 
-    if let Some(value) = matches.remove_one::<bool>("watch-config") {
-        config.watch_files = value;
+    if matches.remove_one::<bool>("watch-config") == Some(true) {
+        config.watch_files = true;
     }
 
     if let Some(value) = matches.remove_one::<bool>("run-migrations") {
