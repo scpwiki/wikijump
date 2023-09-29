@@ -1224,6 +1224,7 @@ dependencies = [
  "arraystring",
  "async-std",
  "built",
+ "cfg-if 1.0.0",
  "clap",
  "color-backtrace",
  "crossfire",

@@ -60,6 +60,7 @@ use self::restart::setup_autorestart;
 
 use self::config::SetupConfig;
 use anyhow::Result;
+use cfg_if::cfg_if;
 use std::fs::File;
 use std::io::Write;
 use std::process;
@@ -71,6 +72,7 @@ async fn main() -> Result<()> {
 
     // Copy fields we need
     let socket_address = config.address;
+    let watch_files = config.watch_files;
     let run_migrations = config.run_migrations;
     let run_seeder = config.run_seeder;
 
@@ -104,8 +106,16 @@ async fn main() -> Result<()> {
     let app_state = api::build_server_state(config, secrets).await?;
 
     // Set up restart-on-config change (if feature enabled)
-    #[cfg(feature = "notify")]
-    setup_autorestart(&app_state)?;
+    if watch_files {
+        cfg_if! {
+            if #[cfg(feature = "notify")] {
+                setup_autorestart(&app_state)?;
+            } else {
+                tide::log::error!("The --watch-files option requires the 'notify' feature");
+                process::exit(1);
+            }
+        }
+    }
 
     // Run seeder, if enabled
     if run_seeder {
