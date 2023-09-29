@@ -37,7 +37,7 @@ pub struct TranslateInput {
     messages: HashMap<String, MessageArguments<'static>>,
 }
 
-type TranslateOutput = HashMap<String, String>;
+type TranslateOutput = HashMap<String, Option<String>>;
 
 #[derive(Deserialize, Debug, Clone)]
 struct TranlsateWithLocaleFallbackInput<'a> {
@@ -99,7 +99,7 @@ pub async fn translate_strings(
             ctx.localization()
                 .translate(&locales, &message_key, &arguments)?;
 
-        output.insert(message_key, translation.to_string());
+        output.insert(message_key, Some(translation.to_string()));
     }
 
     Ok(output)
@@ -134,7 +134,7 @@ pub async fn translate_strings_fallback(
         
                 let arguments = arguments_raw.clone().into_fluent_args();
                 match ctx.localization().translate(&locale, &message_key, &arguments) {
-                    Ok(translation) => output.insert(message_key.to_string(), translation.to_string()),
+                    Ok(translation) => output.insert(message_key.to_string(), Some(translation.to_string())),
                     Err(error) => match error {
                         ServiceError::LocaleMissing => continue 'localeLoop,
                         _ => None,
@@ -146,7 +146,7 @@ pub async fn translate_strings_fallback(
 
     for (message_key, _) in &messages {
         if !output.contains_key(message_key) {
-            output.insert(message_key.to_string(), String::new());
+            output.insert(message_key.to_string(), None);
         }
     }
 
