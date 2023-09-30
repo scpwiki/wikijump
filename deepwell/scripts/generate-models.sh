@@ -13,5 +13,6 @@ sea-orm-cli generate entity \
 	--date-time-crate time \
 	--with-copy-enums \
 	--with-serde both \
+	--model-extra-attributes 'serde(rename_all = "camelCase")' \
 	--database-url postgres://wikijump:wikijump@localhost/wikijump \
 	--output-dir src/models
