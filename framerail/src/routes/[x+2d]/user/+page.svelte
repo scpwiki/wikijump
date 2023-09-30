@@ -1,1 +1,5 @@
-<h1>UNTRANSLATED:TODO: user profile</h1>
+<script lang="ts">
+  import Page from "./[slug]/page.svelte"
+</script>
+
+<Page />

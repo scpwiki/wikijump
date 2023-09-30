@@ -4,3 +4,5 @@ user-profile-info =
   .birthday = 生日：
   .location = 定位：
   .since = 网站加入时间：
+
+user-not-exist = 此用户并不存在。

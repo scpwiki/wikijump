@@ -33,6 +33,7 @@ use super::prelude::*;
 use crate::models::page::Model as PageModel;
 use crate::models::page_revision::Model as PageRevisionModel;
 use crate::models::site::Model as SiteModel;
+use crate::models::user::Model as UserModel;
 use crate::services::domain::SiteDomainResult;
 use crate::services::render::RenderOutput;
 use crate::services::special_page::{GetSpecialPageOutput, SpecialPageType};
@@ -286,6 +287,89 @@ impl ViewService {
         };
 
         Ok(output)
+    }
+
+    pub async fn user(
+        ctx: &ServiceContext<'_>,
+        GetUserView {
+            domain,
+            locale: locale_str,
+            user: user_ref,
+            session_token,
+        }: GetUserView<'_>,
+    ) -> Result<GetUserViewOutput> {
+        info!(
+            "Getting user view data for domain '{}', user '{:?}', locale '{}'",
+            domain,
+            user_ref,
+            locale_str,
+        );
+
+        let locale = LanguageIdentifier::from_bytes(locale_str.as_bytes())?;
+
+        // Attempt to get a viewer helper structure, but if the site doesn't exist
+        // then return right away with the "no such site" response.
+        let Viewer {
+            site,
+            redirect_site,
+            user_session,
+        } = match Self::get_viewer(
+            ctx,
+            &locale,
+            &domain,
+            session_token.ref_map(|s| s.as_str()),
+        )
+        .await?
+        {
+            ViewerResult::FoundSite(viewer) => viewer,
+            ViewerResult::MissingSite(html) => {
+                return Ok(GetUserViewOutput::SiteMissing { html });
+            }
+        };
+
+        // TODO Check if user-agent and IP match?
+
+        let viewer = Viewer {
+            site,
+            redirect_site,
+            user_session,
+        };
+
+        // Helper structure to designate which variant of GetUserViewOutput to return.
+        #[derive(Debug)]
+        enum UserStatus {
+            Found {
+                user: UserModel,
+            },
+            Missing,
+        }
+
+        // Get data to return for this user.
+        let status = match user_ref {
+            Some(user_ref) => match UserService::get_optional(
+                ctx,
+                user_ref,
+            )
+            .await?
+            {
+                // This user exists, return its data directly.
+                Some(user) => UserStatus::Found{ user },
+                // The user is missing, fetch the "missing user" data.
+                None => UserStatus::Missing,
+            },
+            None => match &viewer.user_session {
+                Some(user_session) => UserStatus::Found { user: user_session.user.clone() },
+                None => UserStatus::Missing,
+            }
+        };
+
+        let output = match status {
+            UserStatus::Found { user } => GetUserViewOutput::UserFound { viewer, user },
+            UserStatus::Missing => GetUserViewOutput::UserMissing { viewer },
+        };
+
+        Ok(output)
+
     }
 
     /// Gets basic data and runs common logic for all web routes.

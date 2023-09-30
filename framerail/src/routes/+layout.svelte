@@ -22,32 +22,32 @@
       <ul class="footer-items">
         <li class="footer-item">
           <a href="/"
-            >{$page.data.internationalization?.terms ??
-              $page.error.internationalization?.terms}</a
+            >{$page.data?.internationalization?.terms ??
+              $page.error?.internationalization?.terms}</a
           >
         </li>
         <li class="footer-item">
           <a href="/"
-            >{$page.data.internationalization?.privacy ??
-              $page.error.internationalization?.privacy}</a
+            >{$page.data?.internationalization?.privacy ??
+              $page.error?.internationalization?.privacy}</a
           >
         </li>
         <li class="footer-item">
           <a href="/"
-            >{$page.data.internationalization?.docs ??
-              $page.error.internationalization?.docs}</a
+            >{$page.data?.internationalization?.docs ??
+              $page.error?.internationalization?.docs}</a
           >
         </li>
         <li class="footer-item">
           <a href="/"
-            >{$page.data.internationalization?.security ??
-              $page.error.internationalization?.security}</a
+            >{$page.data?.internationalization?.security ??
+              $page.error?.internationalization?.security}</a
           >
         </li>
       </ul>
       <div class="footer-powered-by">
-        {$page.data.internationalization?.["footer-powered-by"] ??
-          $page.error.internationalization?.["footer-powered-by"]}
+        {$page.data?.internationalization?.["footer-powered-by"] ??
+          $page.error?.internationalization?.["footer-powered-by"]}
       </div>
     </div>
   </svelte:fragment>
@@ -67,17 +67,17 @@
   }
 
   .footer-inner {
-    width: 100%;
     display: flex;
     flex-direction: row;
     gap: 10px;
     align-items: center;
     justify-content: stretch;
+    width: 100%;
   }
 
   .footer-items {
-    flex: 1;
     display: flex;
+    flex: 1;
     flex-direction: row;
     gap: 10px;
     align-items: center;

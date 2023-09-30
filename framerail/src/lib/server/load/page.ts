@@ -50,7 +50,7 @@ export async function loadPage(
       break
     case "pageMissing":
       viewData.page = null
-      viewData.pageRevision = null
+      viewData.page_revision = null
       errorStatus = 404
       break
     case "pagePermissions":
@@ -62,12 +62,7 @@ export async function loadPage(
   }
 
   let translateKeys: Record<string, Record<string, string | number> | {}> = {
-    // Footer
-    "footer-powered-by": {},
-    "terms": {},
-    "privacy": {},
-    "docs": {},
-    "security": {}
+    ...defaults.translateKeys
   }
 
   if (errorStatus === null) {
@@ -85,13 +80,16 @@ export async function loadPage(
       "title": {},
       "alt-title": {},
 
+      // Page history
       "wiki-page-revision": {
-        revision: viewData.pageRevision.revisionNumber
+        revision: viewData.page_revision.revision_number
       },
       "wiki-page-revision-number": {},
       "wiki-page-revision-created-at": {},
       "wiki-page-revision-user": {},
       "wiki-page-revision-comments": {},
+
+      // Misc
       "wiki-page-move-new-slug": {},
       "wiki-page-no-render": {},
       "wiki-page-view-source": {}

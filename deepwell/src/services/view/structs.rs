@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::prelude::*;
 use super::options::PageOptions;
 use crate::models::page::Model as PageModel;
 use crate::models::page_revision::Model as PageRevisionModel;
@@ -84,6 +85,33 @@ pub enum GetPageViewOutput {
 
     SiteMissing {
         html: String,
+    },
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct GetUserView<'a> {
+    pub domain: String,
+    pub session_token: Option<String>,
+    pub user: Option<Reference<'a>>,
+    pub locale: String,
+}
+
+#[derive(Serialize, Debug, Clone)]
+#[serde(rename_all = "snake_case", tag = "type", content = "data")]
+pub enum GetUserViewOutput {
+    UserFound {
+        #[serde(flatten)]
+        viewer: Viewer,
+        user: UserModel,
+    },
+
+    UserMissing {
+        #[serde(flatten)]
+        viewer: Viewer,
+    },
+
+    SiteMissing {
+        html: String
     },
 }
 

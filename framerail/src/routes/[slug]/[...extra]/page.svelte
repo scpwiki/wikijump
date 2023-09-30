@@ -11,8 +11,8 @@
 
   async function handleDelete() {
     let fdata = new FormData()
-    fdata.set("site-id", $page.data.site.siteId)
-    fdata.set("page-id", $page.data.page.pageId)
+    fdata.set("site-id", $page.data.site.site_id)
+    fdata.set("page-id", $page.data.page.page_id)
     await fetch(`/${$page.data.page.slug}`, {
       method: "DELETE",
       body: fdata
@@ -41,8 +41,8 @@
   async function saveEdit() {
     let form = document.getElementById("editor")
     let fdata = new FormData(form)
-    fdata.set("site-id", $page.data.site.siteId)
-    fdata.set("page-id", $page.data.page.pageId)
+    fdata.set("site-id", $page.data.site.site_id)
+    fdata.set("page-id", $page.data.page.page_id)
     await fetch(`/${$page.data.page.slug}/edit`, {
       method: "POST",
       body: fdata
@@ -62,8 +62,8 @@
     } else {
       moveInputNewSlugElem.classList.remove("error")
     }
-    fdata.set("site-id", $page.data.site.siteId)
-    fdata.set("page-id", $page.data.page.pageId)
+    fdata.set("site-id", $page.data.site.site_id)
+    fdata.set("page-id", $page.data.page.page_id)
     await fetch(`/${$page.data.page.slug}/move`, {
       method: "POST",
       body: fdata
@@ -76,8 +76,8 @@
 
   async function handleHistory() {
     let fdata = new FormData()
-    fdata.set("site-id", $page.data.site.siteId)
-    fdata.set("page-id", $page.data.page.pageId)
+    fdata.set("site-id", $page.data.site.site_id)
+    fdata.set("page-id", $page.data.page.page_id)
     revisionList = await fetch(`/${$page.data.page.slug}/history`, {
       method: "POST",
       body: fdata
@@ -104,11 +104,11 @@
 <hr />
 
 <div class="page-content">
-  {#if $page.data.options?.noRender}
+  {#if $page.data.options?.no_render}
     {$page.data.internationalization["wiki-page-no-render"]}
     <!-- TODO Put page source here -->
   {:else}
-    {@html $page.data.compiledHtml}
+    {@html $page.data.compiled_html}
   {/if}
 </div>
 
@@ -140,7 +140,7 @@
       class="editor-alt-title"
       placeholder={$page.data.internationalization?.["alt-title"]}
       type="text"
-      value={$page.data.page_revision.altTitle}
+      value={$page.data.page_revision.alt_title}
     />
     <textarea name="wikitext" class="editor-wikitext">{$page.data.wikitext}</textarea>
     <input
