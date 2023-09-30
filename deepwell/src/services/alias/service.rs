@@ -61,7 +61,7 @@ impl AliasService {
         let txn = ctx.transaction();
         let slug = get_regular_slug(slug);
 
-        tide::log::info!("Creating {alias_type} alias with slug '{slug}'");
+        tide::log::info!("Creating {alias_type:?} alias with slug '{slug}'");
 
         // Perform filter validation
         if !bypass_filter {
@@ -194,7 +194,7 @@ impl AliasService {
         alias_type: AliasType,
         target_id: i64,
     ) -> Result<Vec<AliasModel>> {
-        tide::log::info!("Finding all {alias_type} aliases for ID {target_id}");
+        tide::log::info!("Finding all {alias_type:?} aliases for ID {target_id}");
 
         let txn = ctx.transaction();
         let aliases = Alias::find()
@@ -253,7 +253,7 @@ impl AliasService {
     ) -> Result<u64> {
         let txn = ctx.transaction();
 
-        tide::log::info!("Deleting all {alias_type} aliases for target ID {target_id}");
+        tide::log::info!("Deleting all {alias_type:?} aliases for target ID {target_id}");
 
         let DeleteResult { rows_affected } = Alias::delete_many()
             .filter(
@@ -265,7 +265,7 @@ impl AliasService {
             .await?;
 
         tide::log::debug!(
-            "{rows_affected} {alias_type} aliases for target ID {target_id} were deleted",
+            "{rows_affected} {alias_type:?} aliases for target ID {target_id} were deleted",
         );
 
         Ok(rows_affected)

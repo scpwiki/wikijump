@@ -130,7 +130,7 @@ CREATE TABLE alias (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     created_by BIGINT NOT NULL REFERENCES "user"(user_id),
     target_id BIGINT NOT NULL,
-    slug TEXT,
+    slug TEXT NOT NULL,
 
     UNIQUE (alias_type, slug)
 );
