@@ -54,22 +54,11 @@ The routes are defined in `api/`, with their implementations in `methods/`, and 
 
 This executable targets the latest stable Rust. At time of writing, that is `1.72.0`.
 
-There are two features supported by DEEPWELL, along with what they add:
-
-* `local` &mdash; Intended for local development, where frequent compilation is likely.
- * Tracks the locale directory and configuration file, reloading them if they are modified.
-* `deploy` &mdash; Intended for "deployed" environments, i.e. `dev` and `prod`.
-
-Thus for a _release build_ (being deployed somewhere) you would want to run:
+At present the crate has one feature:
+* `notify` &mdash; Enables a feature to track the locale directory and configuration file, reloading the server if they are modified. This should be used in local builds only, not in production.
 
 ```sh
-$ cargo build --release --features deploy
-```
-
-And for a _local build_ you would want:
-
-```sh
-$ cargo build --features local
+$ cargo build [--features ...] [--release]
 ```
 
 ### Execution
