@@ -18,32 +18,136 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use paste::paste;
+
 // Macros
 
-macro_rules! site {
-    ($id:expr $(,)?) => {
-        InteractionObject::Site($id)
+type BeforeHookFn = fn(&ServiceContext<'_>, i64, i64, i64);
+
+macro_rules! impl_methods {
+    (
+        $name:ident,
+        $interaction_type:ident,
+        $dest_type:ident,
+        $from_type:ident,
+        $data_type:ty,
+        $before_add:ident,
+        $before_remove:ident $(,)?
+    ) => {
+        paste! {
+            pub async fn [<get_ $name>](
+                ctx: &ServiceContext<'_>,
+                dest: i64,
+                from: i64,
+            ) -> Result<bool> {
+                Self::exists(
+                    ctx,
+                    InteractionReference::Relationship {
+                        interaction_type: InteractionType::$interaction_type,
+                        dest: InteractionObject::$dest_type(dest),
+                        from: InteractionObject::$from_type(from),
+                    },
+                )
+                .await
+            }
+
+            pub async fn [<add_ $name>](
+                ctx: &ServiceContext<'_>,
+                dest: i64,
+                from: i64,
+                created_by: i64,
+                metadata: &$data_type,
+            ) -> Result<InteractionModel> {
+                Self::$before_add(ctx, dest, from, created_by).await?;
+
+                Self::add(
+                    ctx,
+                    InteractionType::$interaction_type,
+                    InteractionObject::$dest_type(dest),
+                    InteractionObject::$from_type(from),
+                    created_by,
+                    metadata,
+                )
+                .await
+            }
+
+            pub async fn [<remove_ $name>](
+                ctx: &ServiceContext<'_>,
+                dest: i64,
+                from: i64,
+                deleted_by: i64,
+            ) -> Result<()> {
+                Self::$before_remove(ctx, dest, from, deleted_by).await?;
+
+                Self::remove(
+                    ctx,
+                    InteractionReference::Relationship {
+                        interaction_type: InteractionType::$interaction_type,
+                        dest: InteractionObject::$dest_type(dest),
+                        from: InteractionObject::$from_type(dest),
+                    },
+                    deleted_by,
+                ).await
+            }
+        }
+    };
+
+    (
+        $name:ident,
+        $interaction_type:ident,
+        $dest_type:ident,
+        $from_type:ident,
+        $data_type:ty,
+        $before_add:block $(,)?
+    ) => {
+        impl_methods!(
+            $name,
+            $interaction_type,
+            $dest_type,
+            $from_type,
+            $data_type,
+            $before_add,
+            null_hook,
+        );
+    };
+
+    (
+        $name:ident,
+        $interaction_type:ident,
+        $dest_type:ident,
+        $from_type:ident,
+        $data_type:ty $(,)?
+    ) => {
+        impl_methods!(
+            $name,
+            $interaction_type,
+            $dest_type,
+            $from_type,
+            $data_type,
+            null_hook,
+            null_hook,
+        );
+    };
+
+    (
+        $name:ident,
+        $interaction_type:ident,
+        $dest_type:ident,
+        $from_type:ident $(,)?
+    ) => {
+        impl_methods!(
+            $name,
+            $interaction_type,
+            $dest_type,
+            $from_type,
+            (),
+            null_hook,
+            null_hook,
+        );
     };
 }
 
-macro_rules! user {
-    ($id:expr $(,)?) => {
-        InteractionObject::User($id)
-    };
-}
-
-macro_rules! page {
-    ($id:expr $(,)?) => {
-        InteractionObject::Page($id)
-    };
-}
-
-// Adding an "i" (for "interaction") because file!() itself conflicts with logging.
-macro_rules! ifile {
-    ($id:expr $(,)?) => {
-        InteractionObject::File($id)
-    };
-}
+// Service
 
 use super::prelude::*;
 use crate::models::interaction::{
@@ -199,70 +303,154 @@ impl InteractionService {
         Ok(interactions)
     }
 
-    // User blocks
+    // Methods
 
-    pub async fn block_user(
+    impl_methods!(
+        site_ban,
+        SiteBan,
+        Site,
+        User,
+        SiteBanData,
+        pre_add_site_ban,
+        null_hook,
+    );
+
+    async fn pre_add_site_ban(
         ctx: &ServiceContext<'_>,
-        dest_user: i64,
-        from_user: i64,
+        dest: i64,
+        from: i64,
         created_by: i64,
     ) -> Result<()> {
-        tide::log::info!("Blocking user ID {dest_user} on behalf of user ID {from_user}");
-
-        // TODO: unfollow user, remove from contacts, etc. both ways
-
-        Self::add(
-            ctx,
-            InteractionType::UserBlock,
-            user!(dest_user),
-            user!(from_user),
-            created_by,
-            &(),
-        )
-        .await?;
+        Self::remove_site_member(ctx, dest, from, created_by).await?;
+        // TODO: remove roles?
 
         Ok(())
     }
 
-    pub async fn unblock_user(
-        ctx: &ServiceContext<'_>,
-        dest_user: i64,
-        from_user: i64,
-        deleted_by: i64,
-    ) -> Result<()> {
-        tide::log::info!(
-            "Unblocking user ID {dest_user} on behalf of user ID {from_user}",
-        );
+    impl_methods!(
+        site_member,
+        SiteMember,
+        Site,
+        User,
+        SiteMemberData,
+        pre_add_site_member,
+        null_hook,
+    );
 
-        Self::remove(
-            ctx,
-            InteractionReference::Relationship {
-                interaction_type: InteractionType::UserBlock,
-                dest: user!(dest_user),
-                from: user!(from_user),
-            },
-            deleted_by,
-        )
-        .await
+    async fn pre_add_site_member(
+        ctx: &ServiceContext<'_>,
+        dest: i64,
+        from: i64,
+        created_by: i64,
+    ) -> Result<()> {
+        // Cannot join if banned
+        Self::check_site_ban(ctx, dest, from, "join").await?;
+        Ok(())
     }
 
-    pub async fn user_blocked(
-        ctx: &ServiceContext<'_>,
-        dest_user: i64,
-        from_user: i64,
-    ) -> Result<bool> {
-        tide::log::info!(
-            "Checking if user ID {dest_user} is blocked by user ID {from_user}",
-        );
+    impl_methods!(page_watch, PageWatch, Page, User);
 
-        Self::exists(
-            ctx,
-            InteractionReference::Relationship {
-                interaction_type: InteractionType::UserBlock,
-                dest: user!(dest_user),
-                from: user!(from_user),
-            },
-        )
-        .await
+    impl_methods!(
+        user_follow,
+        UserFollow,
+        User,
+        User,
+        (),
+        pre_add_user_follow,
+        null_hook,
+    );
+
+    async fn pre_add_user_follow(
+        ctx: &ServiceContext<'_>,
+        dest: i64,
+        from: i64,
+        created_by: i64,
+    ) -> Result<()> {
+        // Cannot follow if blocked
+        Self::check_user_block(ctx, dest, from, "follow").await?;
+        Ok(())
+    }
+
+    impl_methods!(
+        user_contact,
+        UserContact,
+        User,
+        User,
+        (),
+        pre_add_user_contact,
+        null_hook,
+    );
+
+    async fn pre_add_user_contact(
+        ctx: &ServiceContext<'_>,
+        dest: i64,
+        from: i64,
+        created_by: i64,
+    ) -> Result<()> {
+        // Cannot follow if blocked
+        Self::check_user_block(ctx, dest, from, "contact").await?;
+        Ok(())
+    }
+
+    impl_methods!(
+        user_block,
+        UserBlock,
+        User,
+        User,
+        (),
+        pre_add_user_block,
+        null_hook,
+    );
+
+    async fn pre_add_user_block(
+        ctx: &ServiceContext<'_>,
+        dest: i64,
+        from: i64,
+        created_by: i64,
+    ) -> Result<()> {
+        // Unfollow, remove contacts, etc., both ways
+
+        Self::remove_user_follow(ctx, dest, from, created_by).await?;
+        Self::remove_user_follow(ctx, from, dest, created_by).await?;
+
+        Self::remove_user_contact(ctx, dest, from, created_by).await?;
+        Self::remove_user_contact(ctx, from, dest, created_by).await?;
+
+        Ok(())
+    }
+
+    #[inline]
+    async fn null_hook(_: &ServiceContext<'_>, _: i64, _: i64, _: i64) -> Result<()> {
+        Ok(())
+    }
+
+    async fn check_site_ban(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        user_id: i64,
+        action: &str,
+    ) -> Result<()> {
+        if Self::get_site_ban(ctx, site_id, user_id).await? {
+            tide::log::error!("User ID {user_id} cannot {action} site ID {site_id} because they are banned");
+            return Err(Error::SiteBlockedUser);
+        }
+
+        Ok(())
+    }
+
+    async fn check_user_block(
+        ctx: &ServiceContext<'_>,
+        user_id_1: i64,
+        user_id_2: i64,
+        action: &str,
+    ) -> Result<()> {
+        if Self::get_user_block(ctx, user_id_1, user_id_2).await?
+            || Self::get_user_block(ctx, user_id_2, user_id_1).await?
+        {
+            tide::log::error!("User ID {user_id_1} cannot {action} user ID {user_id_2} because there is a block");
+            return Err(Error::UserBlockedUser);
+        }
+
+        Ok(())
     }
 }

@@ -23,6 +23,7 @@ use crate::models::interaction::{
 };
 use crate::models::sea_orm_active_enums::InteractionObjectType;
 use sea_orm::{ColumnTrait, Condition};
+use time::Date;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum InteractionObject {
