@@ -123,8 +123,8 @@ pub enum InteractionType {
     SiteBan,
     SiteMember,
     PageWatch,
-    UserContact,
     UserFollow,
+    UserContact,
     UserBlock,
 }
 
@@ -138,8 +138,8 @@ impl InteractionType {
             InteractionType::SiteBan => "ban",
             InteractionType::SiteMember => "member",
             InteractionType::PageWatch => "watch",
-            InteractionType::UserContact => "contact",
             InteractionType::UserFollow => "follow",
+            InteractionType::UserContact => "contact",
             InteractionType::UserBlock => "block",
         }
     }
@@ -158,9 +158,34 @@ impl InteractionType {
             InteractionType::SiteBan => t!(Site, User),
             InteractionType::SiteMember => t!(Site, User),
             InteractionType::PageWatch => t!(Page, User),
-            InteractionType::UserContact => t!(User, User),
             InteractionType::UserFollow => t!(User, User),
+            InteractionType::UserContact => t!(User, User),
             InteractionType::UserBlock => t!(User, User),
         }
     }
+}
+
+// Per-interaction data structures
+//
+// If you change these remember you need to account for backwards compatibility!
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+pub struct SiteBanData {
+    pub banned_until: Option<Date>,
+    pub reason: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+pub struct SiteMemberData {
+    pub accepted: SiteMemberAccepted,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+#[serde(rename_all = "snake_case", tag = "cause", content = "user_id")]
+pub enum SiteMemberAccepted {
+    CreatedSite,
+    SelfJoined,
+    Password,
+    Accepted(i64),
+    Invitation(i64),
 }
