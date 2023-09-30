@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 #[derive(
     Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Copy, Serialize, Deserialize,
 )]
+#[serde(rename_all = "kebab-case")]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "alias_type")]
 pub enum AliasType {
     #[sea_orm(string_value = "site")]
@@ -16,6 +17,7 @@ pub enum AliasType {
 #[derive(
     Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Copy, Serialize, Deserialize,
 )]
+#[serde(rename_all = "kebab-case")]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "file_revision_type")]
 pub enum FileRevisionType {
     #[sea_orm(string_value = "create")]
@@ -30,6 +32,7 @@ pub enum FileRevisionType {
 #[derive(
     Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Copy, Serialize, Deserialize,
 )]
+#[serde(rename_all = "kebab-case")]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "page_revision_type")]
 pub enum PageRevisionType {
     #[sea_orm(string_value = "create")]
@@ -46,6 +49,7 @@ pub enum PageRevisionType {
 #[derive(
     Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Copy, Serialize, Deserialize,
 )]
+#[serde(rename_all = "kebab-case")]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "user_type")]
 pub enum UserType {
     #[sea_orm(string_value = "bot")]
