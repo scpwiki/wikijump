@@ -22,8 +22,6 @@ use paste::paste;
 
 // Macros
 
-type BeforeHookFn = fn(&ServiceContext<'_>, i64, i64, i64);
-
 macro_rules! impl_methods {
     (
         $name:ident,
