@@ -29,8 +29,7 @@ macro_rules! impl_methods {
         $dest_type:ident,
         $from_type:ident,
         $data_type:ty,
-        $before_add:ident,
-        $before_remove:ident $(,)?
+        $before_add:ident $(,)?
     ) => {
         paste! {
             pub async fn [<get_ $name>](
@@ -75,8 +74,6 @@ macro_rules! impl_methods {
                 from: i64,
                 deleted_by: i64,
             ) -> Result<()> {
-                Self::$before_remove(ctx, dest, from, deleted_by).await?;
-
                 Self::remove(
                     ctx,
                     InteractionReference::Relationship {
@@ -96,7 +93,7 @@ macro_rules! impl_methods {
         $dest_type:ident,
         $from_type:ident,
         $data_type:ty,
-        $before_add:block $(,)?
+        $before_add:ident $(,)?
     ) => {
         impl_methods!(
             $name,
@@ -105,7 +102,6 @@ macro_rules! impl_methods {
             $from_type,
             $data_type,
             $before_add,
-            null_hook,
         );
     };
 
@@ -123,7 +119,6 @@ macro_rules! impl_methods {
             $from_type,
             $data_type,
             null_hook,
-            null_hook,
         );
     };
 
@@ -139,7 +134,6 @@ macro_rules! impl_methods {
             $dest_type,
             $from_type,
             (),
-            null_hook,
             null_hook,
         );
     };
@@ -303,15 +297,7 @@ impl InteractionService {
 
     // Methods
 
-    impl_methods!(
-        site_ban,
-        SiteBan,
-        Site,
-        User,
-        SiteBanData,
-        pre_add_site_ban,
-        null_hook,
-    );
+    impl_methods!(site_ban, SiteBan, Site, User, SiteBanData, pre_add_site_ban);
 
     async fn pre_add_site_ban(
         ctx: &ServiceContext<'_>,
@@ -332,7 +318,6 @@ impl InteractionService {
         User,
         SiteMemberData,
         pre_add_site_member,
-        null_hook,
     );
 
     async fn pre_add_site_member(
@@ -346,16 +331,7 @@ impl InteractionService {
     }
 
     impl_methods!(page_watch, PageWatch, Page, User);
-
-    impl_methods!(
-        user_follow,
-        UserFollow,
-        User,
-        User,
-        (),
-        pre_add_user_follow,
-        null_hook,
-    );
+    impl_methods!(user_follow, UserFollow, User, User, (), pre_add_user_follow);
 
     async fn pre_add_user_follow(
         ctx: &ServiceContext<'_>,
@@ -374,7 +350,6 @@ impl InteractionService {
         User,
         (),
         pre_add_user_contact,
-        null_hook,
     );
 
     async fn pre_add_user_contact(
@@ -387,15 +362,7 @@ impl InteractionService {
         Self::check_user_block(ctx, dest, from, "contact").await
     }
 
-    impl_methods!(
-        user_block,
-        UserBlock,
-        User,
-        User,
-        (),
-        pre_add_user_block,
-        null_hook,
-    );
+    impl_methods!(user_block, UserBlock, User, User, (), pre_add_user_block);
 
     async fn pre_add_user_block(
         ctx: &ServiceContext<'_>,
