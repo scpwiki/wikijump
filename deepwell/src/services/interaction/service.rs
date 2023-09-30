@@ -344,8 +344,7 @@ impl InteractionService {
         created_by: i64,
     ) -> Result<()> {
         // Cannot join if banned
-        Self::check_site_ban(ctx, dest, from, "join").await?;
-        Ok(())
+        Self::check_site_ban(ctx, dest, from, "join").await
     }
 
     impl_methods!(page_watch, PageWatch, Page, User);
@@ -367,8 +366,7 @@ impl InteractionService {
         created_by: i64,
     ) -> Result<()> {
         // Cannot follow if blocked
-        Self::check_user_block(ctx, dest, from, "follow").await?;
-        Ok(())
+        Self::check_user_block(ctx, dest, from, "follow").await
     }
 
     impl_methods!(
@@ -388,8 +386,7 @@ impl InteractionService {
         created_by: i64,
     ) -> Result<()> {
         // Cannot follow if blocked
-        Self::check_user_block(ctx, dest, from, "contact").await?;
-        Ok(())
+        Self::check_user_block(ctx, dest, from, "contact").await
     }
 
     impl_methods!(
