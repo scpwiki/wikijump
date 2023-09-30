@@ -48,13 +48,15 @@ macro_rules! impl_methods {
                 .await
             }
 
-            pub async fn [<add_ $name>](
+            pub async fn [<add_ $name>]<M>(
                 ctx: &ServiceContext<'_>,
                 dest: i64,
                 from: i64,
                 created_by: i64,
-                metadata: &$data_type,
-            ) -> Result<InteractionModel> {
+                metadata: M,
+            ) -> Result<InteractionModel>
+                where M: AsRef<$data_type>,
+            {
                 Self::$before_add(ctx, dest, from, created_by).await?;
 
                 Self::add(
@@ -63,7 +65,7 @@ macro_rules! impl_methods {
                     InteractionObject::$dest_type(dest),
                     InteractionObject::$from_type(from),
                     created_by,
-                    metadata,
+                    metadata.as_ref(),
                 )
                 .await
             }
