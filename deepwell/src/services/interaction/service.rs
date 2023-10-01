@@ -280,16 +280,16 @@ impl InteractionService {
     pub async fn get_history(
         ctx: &ServiceContext<'_>,
         interaction_type: InteractionType,
-        source: InteractionObject,
-        target: InteractionObject,
+        dest: InteractionObject,
+        from: InteractionObject,
     ) -> Result<Vec<InteractionModel>> {
-        tide::log::debug!(
-            "Getting history of interactions for {source:?} / {interaction_type:?} / {target:?}",
+        tide::log::info!(
+            "Getting history of interactions for {dest:?} / {interaction_type:?} / {from:?}",
         );
 
         let txn = ctx.transaction();
         let interactions = Interaction::find()
-            .filter(interaction_condition(interaction_type, source, target))
+            .filter(interaction_condition(interaction_type, dest, from))
             .order_by_asc(interaction::Column::CreatedAt)
             .all(txn)
             .await?;
