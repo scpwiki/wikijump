@@ -120,6 +120,12 @@ impl InteractionObjectTypes {
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum InteractionDirection {
+    Dest,
+    From,
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum InteractionType {
     SiteBan,
     SiteMember,

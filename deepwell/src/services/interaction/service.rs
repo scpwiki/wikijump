@@ -297,6 +297,44 @@ impl InteractionService {
         Ok(interactions)
     }
 
+    // TODO paginate
+    pub async fn get_entries(
+        ctx: &ServiceContext<'_>,
+        interaction_type: InteractionType,
+        object: InteractionObject,
+        direction: InteractionDirection,
+    ) -> Result<Vec<InteractionModel>> {
+        tide::log::info!(
+            "Getting {direction:?} interactions for {object:?} / {interaction_type:?}",
+        );
+
+        let (object_type, object_id) = object.into();
+        let (object_type_column, object_id_column) = match direction {
+            InteractionDirection::Dest => {
+                (interaction::Column::DestType, interaction::Column::DestId)
+            }
+            InteractionDirection::From => {
+                (interaction::Column::FromType, interaction::Column::FromId)
+            }
+        };
+
+        let txn = ctx.transaction();
+        let interactions = Interaction::find()
+            .filter(
+                Condition::all()
+                    .add(
+                        interaction::Column::InteractionType.eq(interaction_type.value()),
+                    )
+                    .add(object_type_column.eq(object_type))
+                    .add(object_id_column.eq(object_id)),
+            )
+            .order_by_asc(interaction::Column::CreatedAt)
+            .all(txn)
+            .await?;
+
+        Ok(interactions)
+    }
+
     // Methods
 
     impl_methods!(site_ban, SiteBan, Site, User, SiteBanData, pre_add_site_ban);
