@@ -144,7 +144,7 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
     app.at("/auth/mfa").post(auth_mfa_verify); // Is part of the login process,
                                                // which is why it's up here.
 
-    app.at("/auth/session/get").get(auth_session_retrieve);
+    app.at("/auth/session/get").put(auth_session_retrieve);
     app.at("/auth/session/renew").post(auth_session_renew);
     app.at("/auth/session/others")
         .delete(auth_session_invalidate_others);
@@ -164,14 +164,14 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
         .post(site_custom_domain_post)
         .delete(site_custom_domain_delete);
     app.at("/site/domain/custom/get")
-        .get(site_custom_domain_retrieve);
+        .put(site_custom_domain_retrieve);
     app.at("/site/fromDomain/:domain").get(site_get_from_domain);
 
     // Site Membership
     app.at("/site/member")
-        .get(membership_retrieve)
         .put(membership_put)
         .delete(membership_delete);
+    app.at("/site/member/get").put(membership_retrieve);
     app.at("/site/member/list/get")
         .put(membership_site_retrieve);
     app.at("/user/sites/get").put(membership_user_retrieve); // More appropriate to put here,
@@ -192,7 +192,7 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
 
     // Page revisions
     app.at("/page/revision").put(page_revision_put);
-    app.at("/page/revision/get").get(page_revision_retrieve);
+    app.at("/page/revision/get").put(page_revision_retrieve);
     app.at("/page/revision/count").get(page_revision_count);
     app.at("/page/revision/rollback").post(page_rollback);
     app.at("/page/revision/range")
@@ -214,14 +214,14 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
 
     // Files
     app.at("/file").post(file_edit).delete(file_delete);
-    app.at("/file/get").get(file_retrieve);
+    app.at("/file/get").put(file_retrieve);
     app.at("/file/upload").post(file_create);
     app.at("/file/move").post(file_move);
     app.at("/file/restore").post(file_restore);
 
     // File revisions
     app.at("/file/revision").put(file_revision_put);
-    app.at("/file/revision/get").get(file_revision_retrieve);
+    app.at("/file/revision/get").put(file_revision_retrieve);
     app.at("/file/revision/count").put(file_revision_count);
     app.at("/file/revision/range/:direction")
         .put(file_revision_range_retrieve);
