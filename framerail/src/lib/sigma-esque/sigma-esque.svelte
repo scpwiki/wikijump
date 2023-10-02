@@ -41,7 +41,8 @@
     background-color: #fff;
 
     textarea,
-    input[type="text"] {
+    input[type="text"],
+    input[type="password"] {
       padding: 0.5em 1em;
       border-radius: 0.5em;
 
@@ -136,7 +137,8 @@
       background-color: #222;
 
       textarea,
-      input[type="text"] {
+      input[type="text"],
+      input[type="password"] {
         color: #b6c2cf;
         background-color: #222;
         border: 1px solid #b6c2cf;
