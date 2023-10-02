@@ -129,6 +129,7 @@ pub enum InteractionDirection {
 pub enum InteractionType {
     SiteBan,
     SiteMember,
+    PageStar,
     PageWatch,
     UserFollow,
     UserContact,
@@ -144,6 +145,7 @@ impl InteractionType {
         match self {
             InteractionType::SiteBan => "ban",
             InteractionType::SiteMember => "member",
+            InteractionType::PageStar => "star",
             InteractionType::PageWatch => "watch",
             InteractionType::UserFollow => "follow",
             InteractionType::UserContact => "contact",
@@ -164,6 +166,7 @@ impl InteractionType {
         match self {
             InteractionType::SiteBan => t!(Site, User),
             InteractionType::SiteMember => t!(Site, User),
+            InteractionType::PageStar => t!(Page, User),
             InteractionType::PageWatch => t!(Page, User),
             InteractionType::UserFollow => t!(User, User),
             InteractionType::UserContact => t!(User, User),
