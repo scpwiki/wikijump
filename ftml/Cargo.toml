@@ -50,7 +50,7 @@ strum_macros = "0.25"
 time = { version = "0.3", features = ["formatting", "macros", "parsing", "serde", "serde-human-readable"], default-features = false }
 tinyvec = "1"
 unicase = "2"
-wikidot-normalize = "0.11"
+wikidot-normalize = "0.12"
 
 [build-dependencies]
 built = { version = "0.7", features = ["chrono", "git2"] }
