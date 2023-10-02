@@ -58,7 +58,7 @@ time = { version = "0.3", features = ["parsing", "serde", "serde-human-readable"
 tiny-keccak = { version = "2", features = ["k12"] }
 toml = { version = "0.8", features = ["parse"] }
 typenum = "1"
-ureq = { version = "2.7.1", features = ["charset", "json", "tls"] }
+ureq = { version = "2.8.0", features = ["charset", "json", "tls"] }
 unic-langid = "0.9"
 unicase = "2"
 wikidot-normalize = "0.12"
