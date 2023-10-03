@@ -1,4 +1,4 @@
-import { wellfetch } from "$lib/server/deepwell/index.ts"
+import { client } from "$lib/server/deepwell/index.ts"
 
 export async function authLogin(
   nameOrEmail: string,
@@ -6,22 +6,10 @@ export async function authLogin(
   ipAddress: string,
   userAgent: string
 ): Promise<object> {
-  const response = await wellfetch("/auth/login", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      nameOrEmail,
-      password,
-      ipAddress,
-      userAgent
-    })
+  return client.request("login", {
+    name_or_email: nameOrEmail,
+    password,
+    ip_address: ipAddress,
+    user_agent: userAgent
   })
-
-  if (!response.ok) {
-    throw new Error("Unable to login")
-  }
-
-  return response.json()
 }

@@ -1,10 +1,17 @@
 import * as page from "$lib/server/deepwell/page"
+import { authGetSession } from "$lib/server/auth/getSession"
 
 // Handling of server events from client
 
 export async function POST(event) {
   let data = await event.request.formData()
   let slug = event.params.slug
+
+  let userSession = event.cookies.get("wikijump_token")
+  let ipAddr = event.getClientAddress()
+  let userAgent = event.cookies.get("User-Agent")
+
+  let session = await authGetSession(userSession)
 
   let extra = event.params.extra
     ?.toLowerCase()
@@ -31,6 +38,7 @@ export async function POST(event) {
     res = await page.pageEdit(
       siteId,
       pageId,
+      session.userId,
       slug,
       comments,
       wikitext,
@@ -51,7 +59,7 @@ export async function POST(event) {
     let comments = data.get("comments")?.toString() ?? ""
     let newSlug = data.get("new-slug")?.toString()
 
-    res = await page.pageMove(siteId, pageId, slug, newSlug, comments)
+    res = await page.pageMove(siteId, pageId, session.userId, slug, newSlug, comments)
   }
 
   return new Response(JSON.stringify(res))
@@ -62,11 +70,18 @@ export async function DELETE(event) {
   let data = await event.request.formData()
   let slug = event.params.slug
 
+  let userSession = event.cookies.get("wikijump_token")
+  let ipAddr = event.getClientAddress()
+  let userAgent = event.cookies.get("User-Agent")
+
+  let session = await authGetSession(userSession)
+
   let pageIdVal = data.get("page-id")?.toString()
   let pageId = pageIdVal ? parseInt(pageIdVal) : null
-  let siteId = parseInt(data.get("site-id")?.toString() ?? "1")
+  let siteIdVal = data.get("site-id")?.toString()
+  let siteId = siteIdVal ? parseInt(siteIdVal) : null
   let comments = data.get("comments")?.toString() ?? ""
 
-  let res = await page.pageDelete(siteId, pageId, slug, comments)
+  let res = await page.pageDelete(siteId, pageId, session.userId, slug, comments)
   return new Response(JSON.stringify(res))
 }
