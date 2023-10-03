@@ -9,43 +9,43 @@
 <div class="user-info" data-id={$page.data.user.userId}>
   {#if $page.data.user.name}
     <h2 class="user-attribute name">
-      {$page.data.user.realName}
+      {$page.data.user.name}
     </h2>
   {/if}
 
   {#if $page.data.user.realName}
     <div class="user-attribute real-name">
-      UT: Real name: {$page.data.user.realName}
+      {$page.data.internationalization?.["user-profile-info.name"]} {$page.data.user.realName}
     </div>
   {/if}
 
   {#if $page.data.user.gender}
     <div class="user-attribute gender">
-      UT: Gender: {$page.data.user.gender}
+      {$page.data.internationalization?.["user-profile-info.gender"]} {$page.data.user.gender}
     </div>
   {/if}
 
   {#if $page.data.user.birthday}
     <div class="user-attribute birthday">
-      UT: Birthday: {$page.data.user.birthday}
+      {$page.data.internationalization?.["user-profile-info.birthday"]} {$page.data.user.birthday}
     </div>
   {/if}
 
   {#if $page.data.user.location}
     <div class="user-attribute location">
-      UT: Location: {$page.data.user.location}
+      {$page.data.internationalization?.["user-profile-info.location"]} {$page.data.user.location}
     </div>
   {/if}
 
   {#if $page.data.user.userPage}
     <div class="user-attribute user-page">
-      UT: User page: {$page.data.user.userPage}
+      {$page.data.internationalization?.["user-profile-info.user-page"]} {$page.data.user.userPage}
     </div>
   {/if}
 
   {#if $page.data.user.biography}
     <div class="user-attribute biography">
-      UT: Biography: {$page.data.user.biography}
+      {$page.data.internationalization?.["user-profile-info.biography"]} {$page.data.user.biography}
     </div>
   {/if}
 </div>

@@ -49,6 +49,15 @@ export async function loadUser(
     translateKeys = Object.assign(translateKeys, {
       "user-not-exist": {}
     })
+  } else {
+    translateKeys = Object.assign(translateKeys, {
+      "user-profile-info.name": {},
+      "user-profile-info.gender": {},
+      "user-profile-info.birthday": {},
+      "user-profile-info.location": {},
+      "user-profile-info.biography": {},
+      "user-profile-info.user-page": {}
+    })
   }
 
   const translated = await translateWithFallback(locales, translateKeys)
