@@ -19,6 +19,8 @@ pub struct Model {
     pub metadata: Json,
     pub created_by: i64,
     pub created_at: TimeDateTimeWithTimeZone,
+    pub overwritten_by: Option<i64>,
+    pub overwritten_at: Option<TimeDateTimeWithTimeZone>,
     pub deleted_by: Option<i64>,
     pub deleted_at: Option<TimeDateTimeWithTimeZone>,
 }
@@ -32,10 +34,18 @@ pub enum Relation {
         on_update = "NoAction",
         on_delete = "NoAction"
     )]
-    User2,
+    User3,
     #[sea_orm(
         belongs_to = "super::user::Entity",
         from = "Column::DeletedBy",
+        to = "super::user::Column::UserId",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    User2,
+    #[sea_orm(
+        belongs_to = "super::user::Entity",
+        from = "Column::OverwrittenBy",
         to = "super::user::Column::UserId",
         on_update = "NoAction",
         on_delete = "NoAction"

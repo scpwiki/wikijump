@@ -172,10 +172,6 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
         .put(membership_put)
         .delete(membership_delete);
     app.at("/site/member/get").put(membership_retrieve);
-    app.at("/site/member/list/get")
-        .put(membership_site_retrieve);
-    app.at("/user/sites/get").put(membership_user_retrieve); // More appropriate to put here,
-                                                             // as part of membership endpoints.
 
     // Category
     app.at("/category").get(category_get);

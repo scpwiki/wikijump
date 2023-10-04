@@ -145,13 +145,18 @@ CREATE TABLE interaction (
     metadata JSON NOT NULL DEFAULT '{}',
     created_by BIGINT NOT NULL REFERENCES "user"(user_id),
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-    edited_by BIGINT NOT NULL REFERENCES "user"(user_id),
-    edited_at TIMESTAMP WITH TIME ZONE,
+    overwritten_by BIGINT REFERENCES "user"(user_id),
+    overwritten_at TIMESTAMP WITH TIME ZONE,
     deleted_by BIGINT REFERENCES "user"(user_id),
     deleted_at TIMESTAMP WITH TIME ZONE,
 
-    UNIQUE (interaction_type, dest_type, dest_id, from_type, from_id, deleted_at),
-    CHECK ((deleted_by IS NULL) = (deleted_at IS NULL))  -- ensure deleted field consistency
+    UNIQUE (interaction_type, dest_type, dest_id, from_type, from_id, overwritten_at, deleted_at),
+    CHECK ((overwritten_by IS NULL) = (overwritten_at IS NULL)),  -- ensure overwritten field consistency
+    CHECK ((deleted_by IS NULL) = (deleted_at IS NULL)),          -- ensure deleted field consistency
+    CHECK (
+        ((overwritten_by IS NULL) AND (deleted_at IS NULL)) OR    -- entries are active
+        ((overwritten_by IS NULL) != (deleted_at IS NULL))        -- or they are overwritten XOR deleted
+    )
 );
 
 --

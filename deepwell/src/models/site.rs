@@ -47,8 +47,6 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     SiteDomain,
-    #[sea_orm(has_many = "super::site_member::Entity")]
-    SiteMember,
 }
 
 impl Related<super::filter::Entity> for Entity {

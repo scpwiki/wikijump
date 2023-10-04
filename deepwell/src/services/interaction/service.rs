@@ -48,15 +48,13 @@ macro_rules! impl_methods {
                 .await
             }
 
-            pub async fn [<add_ $name>]<M>(
+            pub async fn [<add_ $name>](
                 ctx: &ServiceContext<'_>,
                 dest: i64,
                 from: i64,
                 created_by: i64,
-                metadata: M,
-            ) -> Result<InteractionModel>
-                where M: AsRef<$data_type>,
-            {
+                metadata: &$data_type,
+            ) -> Result<InteractionModel> {
                 Self::$before_add(ctx, dest, from, created_by).await?;
 
                 Self::add(
@@ -65,7 +63,7 @@ macro_rules! impl_methods {
                     InteractionObject::$dest_type(dest),
                     InteractionObject::$from_type(from),
                     created_by,
-                    metadata.as_ref(),
+                    metadata,
                 )
                 .await
             }
@@ -165,7 +163,8 @@ impl InteractionService {
             "Adding interaction for {dest:?} ← {interaction_type:?} ← {from:?}",
         );
 
-        // Delete previous interaction, if present
+        // Get previous interaction, if present
+        let txn = ctx.transaction();
         if let Some(interaction) = Self::get_optional(
             ctx,
             InteractionReference::Relationship {
@@ -176,12 +175,15 @@ impl InteractionService {
         )
         .await?
         {
-            Self::remove(
-                ctx,
-                InteractionReference::Id(interaction.interaction_id),
-                created_by,
-            )
-            .await?;
+            tide::log::debug!("Interaction already exists, marking old item overwritten");
+            let model = interaction::ActiveModel {
+                interaction_id: Set(interaction.interaction_id),
+                overwritten_at: Set(Some(now())),
+                overwritten_by: Set(Some(created_by)),
+                ..Default::default()
+            };
+
+            model.update(txn).await?;
         }
 
         // Insert new interaction
@@ -201,7 +203,6 @@ impl InteractionService {
             ..Default::default()
         };
 
-        let txn = ctx.transaction();
         let interaction = model.insert(txn).await?;
         Ok(interaction)
     }
@@ -255,6 +256,7 @@ impl InteractionService {
             InteractionReference::Relationship { .. } => {
                 let InteractionModel { interaction_id, .. } =
                     Self::get(ctx, reference).await?;
+
                 Ok(interaction_id)
             }
         }
@@ -412,11 +414,12 @@ impl InteractionService {
     ) -> Result<()> {
         // Unfollow, remove contacts, etc., both ways
 
-        Self::remove_user_follow(ctx, dest, from, created_by).await?;
-        Self::remove_user_follow(ctx, from, dest, created_by).await?;
-
-        Self::remove_user_contact(ctx, dest, from, created_by).await?;
-        Self::remove_user_contact(ctx, from, dest, created_by).await?;
+        try_join!(
+            Self::remove_user_follow(ctx, dest, from, created_by),
+            Self::remove_user_follow(ctx, from, dest, created_by),
+            Self::remove_user_contact(ctx, dest, from, created_by),
+            Self::remove_user_contact(ctx, from, dest, created_by),
+        )?;
 
         Ok(())
     }

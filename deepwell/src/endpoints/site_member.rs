@@ -19,69 +19,91 @@
  */
 
 use super::prelude::*;
-use crate::services::site_member::SiteMembership;
-use serde::Serialize;
+use crate::services::interaction::{
+    InteractionObject, InteractionReference, InteractionType, SiteMemberAccepted,
+    SiteMemberData,
+};
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct SiteMembership {
+    pub site_id: i64,
+    pub user_id: i64,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateSiteMembership {
+    pub site_id: i64,
+    pub site_user_id: i64,
+    pub acting_user_id: i64,
+    pub accepted: SiteMemberAccepted,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct DeleteSiteMembership {
+    pub site_id: i64,
+    pub site_user_id: i64,
+    pub acting_user_id: i64,
+}
 
 pub async fn membership_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let input: SiteMembership = req.body_json().await?;
-    let output = SiteMemberService::get(&ctx, input).await?;
+    let SiteMembership { site_id, user_id } = req.body_json().await?;
+    let output = InteractionService::get_site_member(&ctx, site_id, user_id).await?;
     txn.commit().await?;
 
-    build_membership_response(&output, StatusCode::Ok)
+    build_json_response(&output, StatusCode::Ok)
 }
 
 pub async fn membership_put(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let input: SiteMembership = req.body_json().await?;
-    let created = SiteMemberService::add(&ctx, input).await?;
-    txn.commit().await?;
+    let CreateSiteMembership {
+        site_id,
+        site_user_id,
+        acting_user_id,
+        accepted,
+    } = req.body_json().await?;
 
-    match created {
-        Some(model) => build_membership_response(&model, StatusCode::Created),
-        None => Ok(Response::new(StatusCode::NoContent)),
-    }
+    let output = InteractionService::add_site_member(
+        &ctx,
+        site_id,
+        site_user_id,
+        acting_user_id,
+        &SiteMemberData { accepted },
+    )
+    .await?;
+
+    txn.commit().await?;
+    build_json_response(&output, StatusCode::Created)
 }
 
 pub async fn membership_delete(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let input: SiteMembership = req.body_json().await?;
-    let output = SiteMemberService::remove(&ctx, input).await?;
+    let DeleteSiteMembership {
+        site_id,
+        site_user_id,
+        acting_user_id,
+    } = req.body_json().await?;
+
+    let output = InteractionService::remove(
+        &ctx,
+        InteractionReference::Relationship {
+            interaction_type: InteractionType::SiteMember,
+            dest: InteractionObject::Site(site_id),
+            from: InteractionObject::User(site_user_id),
+        },
+        acting_user_id,
+    )
+    .await?;
+
     txn.commit().await?;
-
-    build_membership_response(&output, StatusCode::Ok)
-}
-
-pub async fn membership_site_retrieve(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let input: i64 = req.body_json().await?;
-    let output = SiteMemberService::get_site_members(&ctx, input).await?;
-    txn.commit().await?;
-
-    build_membership_response(&output, StatusCode::Ok)
-}
-
-pub async fn membership_user_retrieve(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let input: i64 = req.body_json().await?;
-    let output = SiteMemberService::get_user_sites(&ctx, input).await?;
-    txn.commit().await?;
-
-    build_membership_response(&output, StatusCode::Ok)
-}
-
-fn build_membership_response<T: Serialize>(data: &T, status: StatusCode) -> ApiResponse {
-    let body = Body::from_json(data)?;
-    let response = Response::builder(status).body(body).into();
-    Ok(response)
+    build_json_response(&output, StatusCode::Ok)
 }
