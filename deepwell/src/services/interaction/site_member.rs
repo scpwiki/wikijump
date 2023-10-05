@@ -35,21 +35,32 @@ pub struct SiteMemberData {
     pub accepted: SiteMemberAccepted,
 }
 
-impl_interaction!(SiteMember, site_member, Site, site_id, User, user_id, false, SiteMemberData);
+impl_interaction!(
+    SiteMember,
+    site_member,
+    Site,
+    site_id,
+    User,
+    user_id,
+    SiteMemberData,
+    NO_CREATE_IMPL,
+);
 
 impl InteractionService {
-    pub async fn add_site_member(
+    pub async fn create_site_member(
         ctx: &ServiceContext<'_>,
-        AddSiteMember {
+        CreateSiteMember {
             site_id,
             user_id,
             metadata,
             created_by,
-        }: AddSiteMember,
+        }: CreateSiteMember,
     ) -> Result<()> {
         // Cannot join if banned
-        Self::check_site_ban(ctx, dest, from, "join").await?;
+        Self::check_site_ban(ctx, GetSiteBan { site_id, user_id }, "join").await?;
 
-        add_operation!(SiteMember, site_id, user_id, created_by, metadata)
+        create_operation!(
+            ctx, SiteMember, Site, site_id, User, user_id, created_by, &metadata,
+        )
     }
 }

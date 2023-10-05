@@ -18,104 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// Helper macro for generating types. Do not use directly.
-macro_rules! __generate_add_type {
-    // Doesn't have data
-    (
-        $interaction_type:ident,
-        $dest_name:ident,
-        $from_name:ident,
-        () $(,)?
-    ) => {
-        paste! {
-            #[derive(Deserialize, Debug, Copy, Clone)]
-            pub struct [<Create $interaction_type>] {
-                pub $dest_name: i64,
-                pub $from_name: i64,
-            }
-        }
-    };
-
-    // Has data
-    (
-        $interaction_type:ident,
-        $dest_name:ident,
-        $from_name:ident,
-        $data_type:ty $(,)?
-    ) => {
-        paste! {
-            #[derive(Deserialize, Debug, Clone)]
-            pub struct [<Create $interaction_type>] {
-                pub $dest_name: i64,
-                pub $from_name: i64,
-                pub metadata: $data_type,
-            }
-        }
-    };
-}
-
-/// Helper macro for generating the add method. Do not use directly.
-macro_rules! __generate_add_method {
-    // Don't implement
-    (
-        $interaction_type:ident,
-        $add_method_name:ident,
-        $dest_name:ident,
-        $from_name:ident,
-        $data_type:ty,
-        false $(,)?
-    ) => {};
-
-    // Implement method, doesn't have data
-    (
-        $interaction_type:ident,
-        $add_method_name:ident,
-        $dest_name:ident,
-        $from_name:ident,
-        (),
-        true $(,)?
-    ) => {
-        paste! {
-            pub async fn $add_method_name(
-                ctx: &ServiceContext<'_>,
-                [<Add $interaction_type>] {
-                    $dest_name,
-                    $from_name,
-                    created_by,
-                }: [<Add $interaction_type>],
-            ) -> Result<()> {
-                add_operation!($interaction_type, $dest_name, $from_name, created_by)
-            }
-        }
-    };
-
-    // Implement method, has data
-    (
-        $interaction_type:ident,
-        $add_method_name:ident,
-        $dest_name:ident,
-        $from_name:ident,
-        $data_type:ty,
-        true $(,)?
-    ) => {
-        paste! {
-            pub async fn $add_name(
-                ctx: &ServiceContext<'_>,
-                [<Add $interaction_type>] {
-                    $dest_name,
-                    $from_name,
-                    created_by,
-                    metadata,
-                }: [<Add $interaction_type>],
-            ) -> Result<()> {
-                add_operation!($interaction_type, $dest_name, $from_name, created_by, metadata)
-            }
-        }
-    };
-}
-
 /// Implements the types and all non-add methods for an interaction.
 macro_rules! impl_interaction {
+    // Don't add create() method impl
     (
         $interaction_type:ident,
         $name:ident,
@@ -123,8 +28,8 @@ macro_rules! impl_interaction {
         $dest_name:ident,
         $from_type:ident,
         $from_name:ident,
-        $impl_add_method:expr,
-        $data_type:ty $(,)?
+        $data_type:ty,
+        NO_CREATE_IMPL $(,)?
     ) => {
         paste! {
             // Methods
@@ -149,11 +54,11 @@ macro_rules! impl_interaction {
 
                 pub async fn [<remove_ $name>](
                     ctx: &ServiceContext<'_>,
-                    [<Delete $interaction_type>] {
+                    [<Remove $interaction_type>] {
                         $dest_name,
                         $from_name,
-                        deleted_by,
-                    }: [<Delete $interaction_type>],
+                        removed_by,
+                    }: [<Remove $interaction_type>],
                 ) -> Result<()> {
                     Self::remove(
                         ctx,
@@ -162,7 +67,7 @@ macro_rules! impl_interaction {
                             dest: InteractionObject::$dest_type($dest_name),
                             from: InteractionObject::$from_type($from_name),
                         },
-                        deleted_by,
+                        removed_by,
                     ).await
                 }
 
@@ -197,30 +102,42 @@ macro_rules! impl_interaction {
                     )
                     .await
                 }
-
-                // Separate macro so we can conditionally implement the add method
-                __generate_add_method!([<add_ $name>], $dest_name, $from_name, $data_type, $impl_add_method);
             }
 
             // Data types
+
+            // TODO: Unfortunately, currently, despite my best efforts, we are not able to
+            //       differentiate in the macro between () and other types, thus allowing us
+            //       to exclude the metadata field if it's nothing.
+            //
+            //       Properly fixing this will likely require a proc-macro. Which is annoying.
+            #[derive(Deserialize, Debug, Clone)]
+            #[serde(rename_all = "camelCase")]
+            pub struct [<Create $interaction_type>] {
+                pub $dest_name: i64,
+                pub $from_name: i64,
+                pub metadata: $data_type,
+                pub created_by: i64,
+            }
+
             #[derive(Deserialize, Debug, Copy, Clone)]
-            pub struct [<Get $name>] {
+            #[serde(rename_all = "camelCase")]
+            pub struct [<Get $interaction_type>] {
                 pub $dest_name: i64,
                 pub $from_name: i64,
             }
 
             #[derive(Deserialize, Debug, Copy, Clone)]
-            pub struct [<Delete $name>] {
+            #[serde(rename_all = "camelCase")]
+            pub struct [<Remove $interaction_type>] {
                 pub $dest_name: i64,
                 pub $from_name: i64,
-                pub deleted_by: i64,
+                pub removed_by: i64,
             }
-
-            // Separate macro so we can differentiate based on $data_type
-            __generate_add_type!($name, $dest_name, $from_name, $data_type);
         }
     };
 
+    // Add create() method impl
     (
         $interaction_type:ident,
         $name:ident,
@@ -228,7 +145,7 @@ macro_rules! impl_interaction {
         $dest_name:ident,
         $from_type:ident,
         $from_name:ident,
-        $impl_add_method:expr $(,)?
+        $data_type:ty $(,)?
     ) => {
         impl_interaction!(
             $interaction_type,
@@ -237,39 +154,78 @@ macro_rules! impl_interaction {
             $dest_name,
             $from_type,
             $from_name,
-            $impl_add_method,
-            (),
+            $data_type,
+            NO_CREATE_IMPL,
         );
+
+        paste! {
+            impl InteractionService {
+                pub async fn [<create_ $name>](
+                    ctx: &ServiceContext<'_>,
+                    [<Create $interaction_type>] {
+                        $dest_name,
+                        $from_name,
+                        created_by,
+                        metadata,
+                    }: [<Create $interaction_type>],
+                ) -> Result<()> {
+                    create_operation!(
+                        ctx,
+                        $interaction_type,
+                        $dest_type,
+                        $dest_name,
+                        $from_type,
+                        $from_name,
+                        created_by,
+                        &metadata,
+                    )
+                }
+            }
+        }
     };
 }
 
-macro_rules! add_operation {
+macro_rules! create_operation {
     (
+        $ctx:expr,
         $interaction_type:ident,
         $dest_type:ident,
+        $dest_name:ident,
         $from_type:ident,
+        $from_name:ident,
         $created_by:expr,
         $metadata:expr $(,)?
     ) => {{
-        Self::add(
-            ctx,
+        Self::create(
+            $ctx,
             InteractionType::$interaction_type,
-            InteractionObject::$dest_type(dest),
-            InteractionObject::$from_type(from),
+            InteractionObject::$dest_type($dest_name),
+            InteractionObject::$from_type($from_name),
             $created_by,
             $metadata,
         )
-        .await?
-
+        .await?;
         Ok(())
     }};
 
     (
+        $ctx:expr,
         $interaction_type:ident,
         $dest_type:ident,
+        $dest_name:ident,
         $from_type:ident,
+        $from_name:ident,
         $created_by:expr $(,)?
     ) => {
-        add_operation!($interaction_type, $dest_type, $from_type, $created_by, ())
+        create_operation!(
+            $ctx,
+            $interaction_type,
+            $dest_type,
+            $dest_name,
+            $from_type,
+            $from_name,
+            $created_by,
+            &(),
+        )
     };
 }

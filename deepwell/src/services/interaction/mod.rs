@@ -31,10 +31,10 @@
 
 mod prelude {
     pub use super::super::prelude::*;
-    pub use super::structs::*;
-    pub use super::site_member::*;
-    pub use paste::paste;
+    pub use super::*;
+    pub use crate::models::interaction::Model as InteractionModel;
     pub use crate::models::sea_orm_active_enums::InteractionObjectType;
+    pub use paste::paste;
 }
 
 #[macro_use]
@@ -49,7 +49,14 @@ mod user_block;
 mod user_contact;
 mod user_follow;
 
+pub use self::page_star::*;
+pub use self::page_watch::*;
+pub use self::site_ban::*;
+pub use self::site_member::*;
 pub use self::structs::*;
+pub use self::user_block::*;
+pub use self::user_contact::*;
+pub use self::user_follow::*;
 
 use super::prelude::*;
 use crate::models::interaction::{
@@ -66,7 +73,7 @@ use serde::Serialize;
 pub struct InteractionService;
 
 impl InteractionService {
-    pub async fn add<M: Serialize>(
+    pub async fn create<M: Serialize>(
         ctx: &ServiceContext<'_>,
         interaction_type: InteractionType,
         dest: InteractionObject,
@@ -75,7 +82,7 @@ impl InteractionService {
         metadata: &M,
     ) -> Result<InteractionModel> {
         tide::log::debug!(
-            "Adding interaction for {dest:?} ← {interaction_type:?} ← {from:?}",
+            "Create interaction for {dest:?} ← {interaction_type:?} ← {from:?}",
         );
 
         // Get previous interaction, if present

@@ -19,6 +19,8 @@
  */
 
 use super::prelude::*;
+use super::site_member::RemoveSiteMember;
+use time::Date;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct SiteBanData {
@@ -26,31 +28,57 @@ pub struct SiteBanData {
     pub reason: String,
 }
 
-impl_interaction!(SiteBan, site_ban, Site, site_id, User, user_id, false, SiteBanData);
+impl_interaction!(
+    SiteBan,
+    site_ban,
+    Site,
+    site_id,
+    User,
+    user_id,
+    SiteBanData,
+    NO_CREATE_IMPL,
+);
 
 impl InteractionService {
-    pub async fn add_site_ban(
+    pub async fn create_site_ban(
         ctx: &ServiceContext<'_>,
-        AddSiteBan {
+        CreateSiteBan {
             site_id,
             user_id,
             created_by,
-        }: AddSiteBan,
+            metadata,
+        }: CreateSiteBan,
     ) -> Result<()> {
-        Self::remove_site_member(ctx, dest, from, created_by).await?;
+        Self::remove_site_member(
+            ctx,
+            RemoveSiteMember {
+                site_id,
+                user_id,
+                removed_by: created_by,
+            },
+        )
+        .await?;
         // TODO: remove site roles
 
-        add_operation!(SiteBan, site_id, user_id, created_by)
+        create_operation!(
+            ctx, SiteBan, Site, site_id, User, user_id, created_by, &metadata,
+        )
     }
 
     /// Helper method for rejecting an interaction if the user is banned.
-    async fn check_site_ban(
+    pub async fn check_site_ban(
         ctx: &ServiceContext<'_>,
         body: GetSiteBan,
         action: &str,
     ) -> Result<()> {
         if Self::get_site_ban(ctx, body).await? {
-            tide::log::error!("User ID {user_id} cannot {action} site ID {site_id} because they are banned");
+            tide::log::error!(
+                "User ID {} cannot {} site ID {} because they are banned",
+                body.user_id,
+                action,
+                body.site_id,
+            );
+
             return Err(Error::SiteBlockedUser);
         }
 

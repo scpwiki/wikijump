@@ -20,8 +20,8 @@
 
 use super::prelude::*;
 use crate::services::interaction::{
-    InteractionObject, InteractionReference, InteractionType, SiteMemberAccepted,
-    SiteMemberData, CreateSiteMember,
+    CreateSiteMember, GetSiteMember, InteractionObject, InteractionReference,
+    InteractionType, RemoveSiteMember, SiteMemberAccepted, SiteMemberData,
 };
 
 pub async fn membership_retrieve(mut req: ApiRequest) -> ApiResponse {
@@ -40,7 +40,7 @@ pub async fn membership_put(mut req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let input: CreateSiteMember = req.body_json().await?;
-    let output = InteractionService::add_site_member(&ctx, input).await?;
+    let output = InteractionService::create_site_member(&ctx, input).await?;
 
     txn.commit().await?;
     build_json_response(&output, StatusCode::Created)
@@ -50,7 +50,7 @@ pub async fn membership_delete(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let input: DeleteSiteMember = req.body_json().await?;
+    let input: RemoveSiteMember = req.body_json().await?;
     let output = InteractionService::remove_site_member(&ctx, input).await?;
 
     txn.commit().await?;

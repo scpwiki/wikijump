@@ -25,39 +25,72 @@ pub struct UserBlockData {
     pub reason: String,
 }
 
-impl_interaction!(UserBlock, user_block, User, blocked_user, User, blocking_user, false, UserBlockData);
+impl_interaction!(
+    UserBlock,
+    user_block,
+    User,
+    blocked_user,
+    User,
+    blocking_user,
+    UserBlockData,
+    NO_CREATE_IMPL,
+);
 
 impl InteractionService {
-    pub async fn add_user_block(
+    pub async fn create_user_block(
         ctx: &ServiceContext<'_>,
-        AddUserBlock {
+        CreateUserBlock {
             blocked_user,
             blocking_user,
             created_by,
-        }: AddUserBlock,
+            metadata,
+        }: CreateUserBlock,
     ) -> Result<()> {
         // Never reject a block, even if already blocked the other way.
 
         // Unfollow, remove contacts, etc., both ways
         try_join!(
-            Self::remove_user_follow(ctx, dest, from, created_by),
-            Self::remove_user_follow(ctx, from, dest, created_by),
+            Self::remove_user_follow(
+                ctx,
+                RemoveUserFollow {
+                    followed_user: blocked_user,
+                    following_user: blocking_user,
+                    removed_by: created_by,
+                },
+            ),
+            Self::remove_user_follow(
+                ctx,
+                RemoveUserFollow {
+                    followed_user: blocking_user,
+                    following_user: blocked_user,
+                    removed_by: created_by,
+                },
+            ),
             // TODO add user_contact
             // TODO add user_contact_request
         )?;
 
-        add_operation!(UserBlock, blocked_user, blocking_user, created_by)
+        create_operation!(
+            ctx,
+            UserBlock,
+            User,
+            blocked_user,
+            User,
+            blocking_user,
+            created_by,
+            &metadata,
+        )
     }
 
     /// Helper method for rejecting an interaction if either user in a pair has blocked the other.
-    async fn check_user_block(
+    pub async fn check_user_block(
         ctx: &ServiceContext<'_>,
         user_id_1: i64,
         user_id_2: i64,
         action: &str,
     ) -> Result<()> {
         macro_rules! obj {
-            ($first:expr, $second:expr) => {
+            ($first:expr, $second:expr $(,)?) => {
                 GetUserBlock {
                     blocked_user: $first,
                     blocking_user: $second,

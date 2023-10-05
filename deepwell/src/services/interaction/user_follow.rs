@@ -20,19 +20,38 @@
 
 use super::prelude::*;
 
-impl_interaction!(UserFollow, user_follow, User, followed_user, User, following_user, false);
+impl_interaction!(
+    UserFollow,
+    user_follow,
+    User,
+    followed_user,
+    User,
+    following_user,
+    (),
+    NO_CREATE_IMPL,
+);
 
 impl InteractionService {
-    pub async fn add_user_follow(
+    pub async fn create_user_follow(
         ctx: &ServiceContext<'_>,
-        dest: i64,
-        from: i64,
-        created_by: i64,
+        CreateUserFollow {
+            followed_user,
+            following_user,
+            created_by,
+            metadata: (),
+        }: CreateUserFollow,
     ) -> Result<()> {
         // Cannot follow if blocked
-        Self::check_user_block(ctx, dest, from, "follow").await?;
+        Self::check_user_block(ctx, followed_user, following_user, "follow").await?;
 
-        add_operation!(UserFollow, followed_user, following_user, created_by, metadata)?;
-        Ok(())
+        create_operation!(
+            ctx,
+            UserFollow,
+            User,
+            followed_user,
+            User,
+            following_user,
+            created_by,
+        )
     }
 }
