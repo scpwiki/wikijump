@@ -61,3 +61,8 @@ services:
         source: ../../../framerail/vite.config.ts
         target: /app/vite.config.ts
         read_only: true
+      # Assets
+      - type: bind
+        source: ../../../assets
+        target: /app/src/assets
+        read_only: true

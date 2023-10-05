@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page } from "$app/stores"
   import SigmaEsque from "$lib/sigma-esque/sigma-esque.svelte"
-  import wjBanner from "$lib/assets/wikijump-banner-solid.min.svg?raw"
+  import wjBanner from "$assets/logo-outline.min.svg?raw"
 </script>
 
 <SigmaEsque>
