@@ -4,5 +4,8 @@ user-profile-info =
   .birthday = Birthday:
   .location = Location:
   .since = Member since:
+  .biography = Biography:
+  .gender = Gender:
+  .user-page = User page:
 
 user-not-exist = This user does not exist.

@@ -66,6 +66,7 @@ tags = Tags
 terms = Terms
 title = Title
 upload = Upload
+view = View
 
 search = Search
   .placeholder = Search...
