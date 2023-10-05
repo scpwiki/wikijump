@@ -100,6 +100,11 @@
     }
   }
 
+  button.view-revision {
+    padding: 0.5em 1em;
+    border-radius: 0.5em;
+  }
+
   @media (prefers-color-scheme: light) {
     .sigma-esque-container {
       color: #111;
@@ -128,6 +133,12 @@
         background-color: #fff;
         border: 1px solid #0006;
       }
+    }
+   
+    button.view-revision {
+      color: #111;
+      background-color: #fff;
+      border: 1px solid #0006;
     }
   }
 
@@ -160,6 +171,12 @@
         background-color: #222;
         border: 1px solid #b6c2cf;
       }
+    }
+
+    button.view-revision {
+      color: #b6c2cf;
+      background-color: #222;
+      border: 1px solid #b6c2cf;
     }
   }
 </style>

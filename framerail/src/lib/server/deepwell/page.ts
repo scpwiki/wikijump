@@ -71,3 +71,16 @@ export async function pageMove(
     revision_comments: revisionComments
   })
 }
+
+export async function pageRevision(
+  siteId: number,
+  pageId: Optional<number>,
+  revisionNumber: Optional<Number>
+): Promise<object> {
+  return client.request("page_revision_get", {
+    site_id: siteId,
+    page_id: pageId,
+    revision_number: revisionNumber ?? defaults.page.history.revisionNumber,
+    compiled_html: true
+  })
+}

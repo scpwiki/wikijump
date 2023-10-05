@@ -38,7 +38,7 @@ export async function POST(event) {
     res = await page.pageEdit(
       siteId,
       pageId,
-      session.userId,
+      session.user_id,
       slug,
       comments,
       wikitext,
@@ -59,7 +59,12 @@ export async function POST(event) {
     let comments = data.get("comments")?.toString() ?? ""
     let newSlug = data.get("new-slug")?.toString()
 
-    res = await page.pageMove(siteId, pageId, session.userId, slug, newSlug, comments)
+    res = await page.pageMove(siteId, pageId, session.user_id, slug, newSlug, comments)
+  } else if (extra.includes("revision")) {
+    let revisionNumberStr = data.get("revision-number")?.toString()
+    let revisionNumber = revisionNumberStr ? parseInt(revisionNumberStr) : null
+
+    res = await page.pageRevision(siteId, pageId, revisionNumber)
   }
 
   return new Response(JSON.stringify(res))
@@ -82,6 +87,6 @@ export async function DELETE(event) {
   let siteId = siteIdVal ? parseInt(siteIdVal) : null
   let comments = data.get("comments")?.toString() ?? ""
 
-  let res = await page.pageDelete(siteId, pageId, session.userId, slug, comments)
+  let res = await page.pageDelete(siteId, pageId, session.user_id, slug, comments)
   return new Response(JSON.stringify(res))
 }

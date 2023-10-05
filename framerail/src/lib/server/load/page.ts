@@ -74,6 +74,7 @@ export async function loadPage(
       "delete": {},
       "history": {},
       "move": {},
+      "view": {},
 
       // Page edit
       "tags": {},

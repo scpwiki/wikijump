@@ -6,8 +6,10 @@
   let showMoveAction = false
   let showHistory = false
   let showSource = false
+  let showRevision = false
   let moveInputNewSlugElem: HTMLInputElement
   let revisionList: Record<string, any> = []
+  let revision: Record<string, any> = {}
 
   async function handleDelete() {
     let fdata = new FormData()
@@ -85,6 +87,18 @@
     showHistory = true
   }
 
+  async function viewRevision(revisionNumber: number) {
+    let fdata = new FormData()
+    fdata.set("site-id", $page.data.site.site_id)
+    fdata.set("page-id", $page.data.page.page_id)
+    fdata.set("revision-number", revisionNumber)
+    revision = await fetch(`/${$page.data.page.slug}/revision`, {
+      method: "POST",
+      body: fdata
+    }).then((res) => res.json())
+    showRevision = true
+  }
+
   onMount(() => {
     if ($page.data?.options.history) handleHistory()
   })
@@ -99,14 +113,20 @@
   >
 </p>
 
-<h2>{$page.data.page_revision.title}</h2>
+{#if showRevision}
+  <h2>{revision.title}</h2>
+{:else}
+  <h2>{$page.data.page_revision.title}</h2>
+{/if}
 
 <hr />
 
 <div class="page-content">
   {#if $page.data.options?.no_render}
     {$page.data.internationalization["wiki-page-no-render"]}
-    <!-- TODO Put page source here -->
+    <textarea class="page-source" readonly={true}>{$page.data.wikitext}</textarea>
+  {:else if showRevision}
+    {@html revision.compiled_html}
   {:else}
     {@html $page.data.compiled_html}
   {/if}
@@ -116,9 +136,15 @@
   {$page.data.internationalization?.tags}
   <hr />
   <ul class="page-tags">
-    {#each $page.data.page_revision.tags as tag}
-      <li class="tag">{tag}</li>
-    {/each}
+    {#if showRevision}
+      {#each revision.tags as tag}
+        <li class="tag">{tag}</li>
+      {/each}
+    {:else}
+      {#each $page.data.page_revision.tags as tag}
+        <li class="tag">{tag}</li>
+      {/each}
+    {/if}
   </ul>
 </div>
 
@@ -263,6 +289,7 @@
 {#if showHistory}
   <div class="revision-list">
     <div class="revision-header">
+      <div class="revision-attribute view-revision" />
       <div class="revision-attribute revision-number">
         {$page.data.internationalization?.["wiki-page-revision-number"]}
       </div>
@@ -278,6 +305,15 @@
     </div>
     {#each revisionList.reverse() as revision}
       <div class="revision-row" data-id={revision.revision_id}>
+        <button
+          class="revision-attribute view-revision clickable"
+          type="button"
+          on:click|stopPropagation={() => {
+            viewRevision(revision.revision_number)
+          }}
+        >
+          {$page.data.internationalization?.view}
+        </button>
         <div class="revision-attribute revision-number">
           {revision.revision_number}
         </div>
