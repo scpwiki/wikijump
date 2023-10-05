@@ -20,4 +20,4 @@
 
 use super::prelude::*;
 
-impl_interaction!(PageStar, page_star, Page, page_id, User, user_id, ());
+impl_interaction!(PageStar, Page, page_id, User, user_id, ());

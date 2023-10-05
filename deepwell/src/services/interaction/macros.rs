@@ -23,7 +23,6 @@ macro_rules! impl_interaction {
     // Don't add create() method impl
     (
         $interaction_type:ident,
-        $name:ident,
         $dest_type:ident,
         $dest_name:ident,
         $from_type:ident,
@@ -34,7 +33,7 @@ macro_rules! impl_interaction {
         paste! {
             // Methods
             impl InteractionService {
-                pub async fn [<get_ $name>](
+                pub async fn [<get_ $interaction_type:snake>](
                     ctx: &ServiceContext<'_>,
                     [<Get $interaction_type>] {
                         $dest_name,
@@ -52,7 +51,7 @@ macro_rules! impl_interaction {
                     .await
                 }
 
-                pub async fn [<remove_ $name>](
+                pub async fn [<remove_ $interaction_type:snake>](
                     ctx: &ServiceContext<'_>,
                     [<Remove $interaction_type>] {
                         $dest_name,
@@ -72,7 +71,7 @@ macro_rules! impl_interaction {
                 }
 
                 // TODO paginate
-                pub async fn [<get_ $name _history>](
+                pub async fn [<get_ $interaction_type:snake _history>](
                     ctx: &ServiceContext<'_>,
                     [<Get $interaction_type>] {
                         $dest_name,
@@ -89,7 +88,7 @@ macro_rules! impl_interaction {
                 }
 
                 // TODO paginate
-                pub async fn [<get_ $name _entries>](
+                pub async fn [<get_ $interaction_type:snake _entries>](
                     ctx: &ServiceContext<'_>,
                     object: InteractionObject,
                     direction: InteractionDirection,
@@ -140,7 +139,6 @@ macro_rules! impl_interaction {
     // Add create() method impl
     (
         $interaction_type:ident,
-        $name:ident,
         $dest_type:ident,
         $dest_name:ident,
         $from_type:ident,
@@ -149,7 +147,6 @@ macro_rules! impl_interaction {
     ) => {
         impl_interaction!(
             $interaction_type,
-            $name,
             $dest_type,
             $dest_name,
             $from_type,
@@ -160,7 +157,7 @@ macro_rules! impl_interaction {
 
         paste! {
             impl InteractionService {
-                pub async fn [<create_ $name>](
+                pub async fn [<create_ $interaction_type:snake>](
                     ctx: &ServiceContext<'_>,
                     [<Create $interaction_type>] {
                         $dest_name,

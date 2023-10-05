@@ -30,7 +30,6 @@ pub struct SiteBanData {
 
 impl_interaction!(
     SiteBan,
-    site_ban,
     Site,
     site_id,
     User,

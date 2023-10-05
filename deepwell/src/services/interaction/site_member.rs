@@ -37,7 +37,6 @@ pub struct SiteMemberData {
 
 impl_interaction!(
     SiteMember,
-    site_member,
     Site,
     site_id,
     User,

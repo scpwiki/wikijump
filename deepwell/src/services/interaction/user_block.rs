@@ -27,7 +27,6 @@ pub struct UserBlockData {
 
 impl_interaction!(
     UserBlock,
-    user_block,
     User,
     blocked_user,
     User,

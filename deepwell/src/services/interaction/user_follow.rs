@@ -22,7 +22,6 @@ use super::prelude::*;
 
 impl_interaction!(
     UserFollow,
-    user_follow,
     User,
     followed_user,
     User,
