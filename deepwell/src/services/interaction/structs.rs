@@ -18,9 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::models::interaction::{
-    self, Entity as Interaction, Model as InteractionModel,
-};
 use crate::models::sea_orm_active_enums::InteractionObjectType;
 use sea_orm::{ColumnTrait, Condition};
 

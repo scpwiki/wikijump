@@ -20,8 +20,7 @@
 
 use super::prelude::*;
 use crate::services::interaction::{
-    CreateSiteMember, GetSiteMember, InteractionObject, InteractionReference,
-    InteractionType, RemoveSiteMember, SiteMemberAccepted, SiteMemberData,
+    CreateSiteMember, GetSiteMember, RemoveSiteMember, SiteMemberAccepted, SiteMemberData,
 };
 
 pub async fn membership_retrieve(mut req: ApiRequest) -> ApiResponse {
