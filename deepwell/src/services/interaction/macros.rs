@@ -185,6 +185,7 @@ macro_rules! impl_interaction {
     };
 }
 
+/// Macro which runs the actual `create()` call for the interaction.
 macro_rules! create_operation {
     (
         $ctx:expr,
