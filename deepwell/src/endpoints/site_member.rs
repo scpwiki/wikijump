@@ -19,69 +19,37 @@
  */
 
 use super::prelude::*;
-use crate::services::site_member::SiteMembership;
-use serde::Serialize;
+use crate::services::interaction::{CreateSiteMember, GetSiteMember, RemoveSiteMember};
 
 pub async fn membership_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let input: SiteMembership = req.body_json().await?;
-    let output = SiteMemberService::get(&ctx, input).await?;
-    txn.commit().await?;
+    let input: GetSiteMember = req.body_json().await?;
+    let output = InteractionService::get_site_member(&ctx, input).await?;
 
-    build_membership_response(&output, StatusCode::Ok)
+    txn.commit().await?;
+    build_json_response(&output, StatusCode::Ok)
 }
 
 pub async fn membership_put(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let input: SiteMembership = req.body_json().await?;
-    let created = SiteMemberService::add(&ctx, input).await?;
-    txn.commit().await?;
+    let input: CreateSiteMember = req.body_json().await?;
+    InteractionService::create_site_member(&ctx, input).await?;
 
-    match created {
-        Some(model) => build_membership_response(&model, StatusCode::Created),
-        None => Ok(Response::new(StatusCode::NoContent)),
-    }
+    txn.commit().await?;
+    Ok(Response::new(StatusCode::Created))
 }
 
 pub async fn membership_delete(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let input: SiteMembership = req.body_json().await?;
-    let output = SiteMemberService::remove(&ctx, input).await?;
+    let input: RemoveSiteMember = req.body_json().await?;
+    let output = InteractionService::remove_site_member(&ctx, input).await?;
+
     txn.commit().await?;
-
-    build_membership_response(&output, StatusCode::Ok)
-}
-
-pub async fn membership_site_retrieve(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let input: i64 = req.body_json().await?;
-    let output = SiteMemberService::get_site_members(&ctx, input).await?;
-    txn.commit().await?;
-
-    build_membership_response(&output, StatusCode::Ok)
-}
-
-pub async fn membership_user_retrieve(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let input: i64 = req.body_json().await?;
-    let output = SiteMemberService::get_user_sites(&ctx, input).await?;
-    txn.commit().await?;
-
-    build_membership_response(&output, StatusCode::Ok)
-}
-
-fn build_membership_response<T: Serialize>(data: &T, status: StatusCode) -> ApiResponse {
-    let body = Body::from_json(data)?;
-    let response = Response::builder(status).body(body).into();
-    Ok(response)
+    build_json_response(&output, StatusCode::Ok)
 }

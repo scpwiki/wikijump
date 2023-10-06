@@ -102,20 +102,6 @@ ALTER TABLE site
     FOREIGN KEY (custom_domain) REFERENCES site_domain(domain);
 
 --
--- Site Membership
---
-
-CREATE TABLE site_member (
-    membership_id BIGSERIAL PRIMARY KEY,
-    user_id BIGINT NOT NULL REFERENCES "user"(user_id),
-    site_id BIGINT NOT NULL REFERENCES site(site_id),
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-    deleted_at TIMESTAMP WITH TIME ZONE,
-
-    UNIQUE (user_id, site_id, deleted_at)
-);
-
---
 -- Aliases
 --
 
@@ -133,6 +119,44 @@ CREATE TABLE alias (
     slug TEXT NOT NULL,
 
     UNIQUE (alias_type, slug)
+);
+
+--
+-- Interactions
+--
+
+-- See also https://github.com/scpwiki/wikijump/blob/legacy-php/web/database/migrations/2021_07_30_231009_create_interactions_table.php
+-- and https://github.com/scpwiki/wikijump/blob/legacy-php/web/app/Models/Interaction.php
+
+CREATE TYPE interaction_object_type AS ENUM (
+    'site',
+    'user',
+    'page',
+    'file'
+);
+
+CREATE TABLE interaction (
+    interaction_id BIGSERIAL PRIMARY KEY,
+    interaction_type TEXT NOT NULL,  -- check enum value in runtime
+    dest_type interaction_object_type NOT NULL,
+    dest_id BIGINT NOT NULL,
+    from_type interaction_object_type NOT NULL,
+    from_id BIGINT NOT NULL,
+    metadata JSON NOT NULL DEFAULT '{}',
+    created_by BIGINT NOT NULL REFERENCES "user"(user_id),
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+    overwritten_by BIGINT REFERENCES "user"(user_id),
+    overwritten_at TIMESTAMP WITH TIME ZONE,
+    deleted_by BIGINT REFERENCES "user"(user_id),
+    deleted_at TIMESTAMP WITH TIME ZONE,
+
+    UNIQUE (interaction_type, dest_type, dest_id, from_type, from_id, overwritten_at, deleted_at),
+    CHECK ((overwritten_by IS NULL) = (overwritten_at IS NULL)),  -- ensure overwritten field consistency
+    CHECK ((deleted_by IS NULL) = (deleted_at IS NULL)),          -- ensure deleted field consistency
+    CHECK (
+        ((overwritten_by IS NULL) AND (deleted_at IS NULL)) OR    -- entries are active
+        ((overwritten_by IS NULL) != (deleted_at IS NULL))        -- or they are overwritten XOR deleted
+    )
 );
 
 --
@@ -331,7 +355,7 @@ CREATE TYPE page_connection_type AS ENUM (
 CREATE TABLE page_link (
     page_id BIGINT REFERENCES page(page_id),
     url TEXT,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE,
     count INT NOT NULL CHECK (count > 0),
 
@@ -342,7 +366,7 @@ CREATE TABLE page_connection (
     from_page_id BIGINT REFERENCES page(page_id),
     to_page_id BIGINT REFERENCES page(page_id),
     connection_type TEXT, -- Cannot use page_connection_type right now because Sea-ORM issues
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE,
     count INT NOT NULL CHECK (count > 0),
 
@@ -354,7 +378,7 @@ CREATE TABLE page_connection_missing (
     to_site_id BIGINT REFERENCES page(page_id),
     to_page_slug TEXT,
     connection_type TEXT, -- Ditto
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE,
     count INT NOT NULL CHECK (count > 0),
 
@@ -480,7 +504,7 @@ CREATE TABLE file_revision (
 -- If a filter has all the "affects_*" columns false, then it is effectively disabled.
 CREATE TABLE filter (
     filter_id BIGSERIAL PRIMARY KEY,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT 'now()',
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE,
     deleted_at TIMESTAMP WITH TIME ZONE,
     site_id BIGINT REFERENCES site(site_id),

@@ -1,5 +1,5 @@
 /*
- * services/render/structs.rs
+ * services/interaction/user_follow.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -19,15 +19,39 @@
  */
 
 use super::prelude::*;
-use crate::hash::TextHash;
-use time::OffsetDateTime;
 
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct RenderOutput {
-    pub html_output: HtmlOutput,
-    pub errors: Vec<ParseError>,
-    pub compiled_hash: TextHash,
-    pub compiled_at: OffsetDateTime,
-    pub compiled_generator: String,
+impl_interaction!(
+    UserFollow,
+    User,
+    followed_user,
+    User,
+    following_user,
+    (),
+    NO_CREATE_IMPL,
+);
+
+impl InteractionService {
+    #[allow(dead_code)] // TEMP
+    pub async fn create_user_follow(
+        ctx: &ServiceContext<'_>,
+        CreateUserFollow {
+            followed_user,
+            following_user,
+            created_by,
+            metadata: (),
+        }: CreateUserFollow,
+    ) -> Result<()> {
+        // Cannot follow if blocked
+        Self::check_user_block(ctx, followed_user, following_user, "follow").await?;
+
+        create_operation!(
+            ctx,
+            UserFollow,
+            User,
+            followed_user,
+            User,
+            following_user,
+            created_by,
+        )
+    }
 }

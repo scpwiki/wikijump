@@ -1,5 +1,5 @@
 /*
- * services/site_member/mod.rs
+ * services/interaction/page_watch.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -18,13 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod prelude {
-    pub use super::super::prelude::*;
-    pub use super::structs::*;
-}
+use super::prelude::*;
 
-mod service;
-mod structs;
-
-pub use self::service::SiteMemberService;
-pub use self::structs::*;
+impl_interaction!(PageWatch, Page, page_id, User, user_id, ());

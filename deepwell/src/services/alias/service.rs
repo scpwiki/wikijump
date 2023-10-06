@@ -131,7 +131,6 @@ impl AliasService {
         // Insert new model
         let alias = alias::ActiveModel {
             alias_type: Set(alias_type),
-            created_at: Set(now()),
             created_by: Set(created_by),
             target_id: Set(target_id),
             slug: Set(slug.clone()),

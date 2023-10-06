@@ -61,8 +61,6 @@ pub enum Relation {
     PageRevision,
     #[sea_orm(has_many = "super::session::Entity")]
     Session,
-    #[sea_orm(has_many = "super::site_member::Entity")]
-    SiteMember,
 }
 
 impl Related<super::alias::Entity> for Entity {
@@ -98,12 +96,6 @@ impl Related<super::page_revision::Entity> for Entity {
 impl Related<super::session::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Session.def()
-    }
-}
-
-impl Related<super::site_member::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::SiteMember.def()
     }
 }
 

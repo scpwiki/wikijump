@@ -1,5 +1,5 @@
 /*
- * services/site_member/structs.rs
+ * services/interaction/user_contact.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -18,9 +18,4 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#[derive(Deserialize, Debug, Copy, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct SiteMembership {
-    pub site_id: i64,
-    pub user_id: i64,
-}
+// TODO implement contacts and contact requests
