@@ -79,10 +79,4 @@ impl Related<super::site_domain::Entity> for Entity {
     }
 }
 
-impl Related<super::site_member::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::SiteMember.def()
-    }
-}
-
 impl ActiveModelBehavior for ActiveModel {}

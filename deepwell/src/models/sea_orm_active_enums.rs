@@ -51,21 +51,6 @@ pub enum InteractionObjectType {
 #[derive(
     Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Copy, Serialize, Deserialize,
 )]
-#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "interaction_type")]
-#[serde(rename_all = "kebab-case")]
-pub enum InteractionType {
-    #[sea_orm(string_value = "member")]
-    Member,
-    #[sea_orm(string_value = "block")]
-    Block,
-    #[sea_orm(string_value = "watch")]
-    Watch,
-    #[sea_orm(string_value = "star")]
-    Star,
-}
-#[derive(
-    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Copy, Serialize, Deserialize,
-)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "page_revision_type")]
 #[serde(rename_all = "kebab-case")]
 pub enum PageRevisionType {
