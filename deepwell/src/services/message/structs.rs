@@ -64,4 +64,8 @@ impl DraftRecipients {
 
         i1.chain(i2).chain(i3)
     }
+
+    pub fn len(&self) -> usize {
+        self.recipients.len() + self.carbon_copy.len() + self.blind_carbon_copy.len()
+    }
 }

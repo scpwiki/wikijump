@@ -80,11 +80,10 @@ impl MessageService {
             return Err(Error::BadRequest);
         }
 
-        let recipient_count = recipients.iter().count();
-        if recipient_count > config.maximum_message_recipients {
+        if recipients.len() > config.maximum_message_recipients {
             tide::log::error!(
                 "Too many message recipients (is {}, max {})",
-                recipient_count,
+                recipients.len(),
                 config.maximum_message_recipients,
             );
             return Err(Error::BadRequest);
