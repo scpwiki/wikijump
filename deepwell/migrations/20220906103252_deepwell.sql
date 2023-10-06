@@ -545,7 +545,8 @@ CREATE TABLE message (
     -- User-customizable tagging
     tags TEXT[] NOT NULL,
 
-    UNIQUE (record_id, user_id)
+    UNIQUE (record_id, user_id),
+    CHECK NOT (flag_self AND flag_inbox)  -- If something is sent to oneself, it cannot be in the inbox
 );
 
 CREATE TABLE message_recipient (
