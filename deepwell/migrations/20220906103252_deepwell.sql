@@ -546,7 +546,7 @@ CREATE TABLE message (
     tags TEXT[] NOT NULL,
 
     UNIQUE (record_id, user_id),
-    CHECK NOT (flag_self AND flag_inbox)  -- If something is sent to oneself, it cannot be in the inbox
+    CHECK (NOT (flag_self AND flag_inbox))  -- If something is sent to oneself, it cannot be in the inbox
 );
 
 CREATE TABLE message_recipient (
