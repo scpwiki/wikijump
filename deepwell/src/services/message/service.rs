@@ -32,11 +32,13 @@ use crate::models::message_record::{
 use crate::models::message_report::{
     self, Entity as MessageReport, Model as MessageReportModel,
 };
+use crate::models::sea_orm_active_enums::MessageRecipientType;
 use crate::services::render::{RenderOutput, RenderService};
 use crate::services::{InteractionService, TextService, UserService};
 use cuid2::cuid;
 use ftml::data::{PageInfo, ScoreValue};
 use ftml::settings::{WikitextMode, WikitextSettings};
+use sea_orm::DatabaseTransaction;
 
 #[derive(Debug)]
 pub struct MessageService;
@@ -99,10 +101,108 @@ impl MessageService {
             .await?;
         }
 
-        // Prepare message for sending
-        // TODO
+        // The message sending process:
+        // * Insert message_draft row to message_record
+        // * Delete message_draft row
+        // * Insert message_recipient rows
+        // * Insert inbox message rows for each recipient
+        // * Insert outbox message row for sender
+        // * Except, if this is a message to self
+        let txn = ctx.transaction();
 
-        todo!()
+        // Create message record
+        let record_id = draft.external_id.clone();
+        let sender_id = draft.user_id;
+        let model = message_record::ActiveModel {
+            external_id: Set(draft.external_id),
+            drafted_at: Set(draft.created_at),
+            sender_id: Set(sender_id),
+            subject: Set(draft.subject),
+            wikitext_hash: Set(draft.wikitext_hash),
+            compiled_hash: Set(draft.compiled_hash),
+            compiled_at: Set(draft.compiled_at),
+            compiled_generator: Set(draft.compiled_generator),
+            reply_to: Set(draft.reply_to),
+            forwarded_from: Set(draft.forwarded_from),
+            ..Default::default()
+        };
+        model.insert(txn).await?;
+
+        // Delete message draft
+        MessageDraft::delete_by_id(record_id.clone())
+            .exec(txn)
+            .await?;
+
+        // Add recipients
+        try_join!(
+            Self::add_recipients(
+                txn,
+                &record_id,
+                &recipients.regular,
+                MessageRecipientType::Regular,
+            ),
+            Self::add_recipients(
+                txn,
+                &record_id,
+                &recipients.carbon_copy,
+                MessageRecipientType::Cc,
+            ),
+            Self::add_recipients(
+                txn,
+                &record_id,
+                &recipients.blind_carbon_copy,
+                MessageRecipientType::Bcc,
+            ),
+        );
+
+        // Add message records
+        let mut has_self = false;
+        for user_id in recipients.iter() {
+            let is_self = sender_id == user_id;
+            let model = message::ActiveModel {
+                record_id: Set(record_id.clone()),
+                user_id: Set(user_id),
+                flag_inbox: Set(!is_self),
+                flag_outbox: Set(false),
+                flag_self: Set(is_self),
+                ..Default::default()
+            };
+            model.insert(txn).await?;
+            has_self &= is_self;
+        }
+
+        // Only add to outbox if not a self-message
+        if !has_self {
+            let model = message::ActiveModel {
+                record_id: Set(record_id),
+                user_id: Set(sender_id),
+                flag_inbox: Set(false),
+                flag_outbox: Set(true),
+                flag_self: Set(false),
+                ..Default::default()
+            };
+            model.insert(txn).await?;
+        }
+
+        Ok(())
+    }
+
+    async fn add_recipients(
+        txn: &DatabaseTransaction,
+        record_id: &str,
+        user_ids: &[i64],
+        recipient_type: MessageRecipientType,
+    ) -> Result<()> {
+        for user_id in user_ids.iter().copied() {
+            let model = message_recipient::ActiveModel {
+                record_id: Set(str!(record_id)),
+                recipient_type: Set(recipient_type),
+                recipient_id: Set(user_id),
+            };
+            model.insert(txn).await?;
+        }
+
+        Ok(())
     }
 
     pub async fn create_draft(
@@ -180,6 +280,8 @@ impl MessageService {
         let draft = model.insert(txn).await?;
         Ok(draft)
     }
+
+    // TODO: method to edit draft
 
     async fn render(
         ctx: &ServiceContext<'_>,
