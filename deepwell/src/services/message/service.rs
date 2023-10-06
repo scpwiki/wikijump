@@ -153,7 +153,7 @@ impl MessageService {
                 &recipients.blind_carbon_copy,
                 MessageRecipientType::Bcc,
             ),
-        );
+        )?;
 
         // Add message records
         let mut has_self = false;
