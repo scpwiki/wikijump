@@ -33,7 +33,7 @@ use crate::models::message_report::{
     self, Entity as MessageReport, Model as MessageReportModel,
 };
 use crate::services::render::{RenderOutput, RenderService};
-use crate::services::{TextService, UserService};
+use crate::services::{InteractionService, TextService, UserService};
 use cuid2::cuid;
 use ftml::data::{PageInfo, ScoreValue};
 use ftml::settings::{WikitextMode, WikitextSettings};
@@ -81,7 +81,12 @@ impl MessageService {
         }
 
         for recipient_user_id in recipients.iter() {
-            // TODO check user_id / recipient_user_id
+            InteractionService::check_user_block(
+                ctx,
+                draft.user_id,
+                recipient_user_id,
+                "send a direct message to",
+            ).await?;
         }
 
         // Prepare message for sending
