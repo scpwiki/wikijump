@@ -37,10 +37,10 @@ pub async fn membership_put(mut req: ApiRequest) -> ApiResponse {
     let ctx = ServiceContext::new(&req, &txn);
 
     let input: CreateSiteMember = req.body_json().await?;
-    let output = InteractionService::create_site_member(&ctx, input).await?;
+    InteractionService::create_site_member(&ctx, input).await?;
 
     txn.commit().await?;
-    build_json_response(&output, StatusCode::Created)
+    Ok(Response::new(StatusCode::Created))
 }
 
 pub async fn membership_delete(mut req: ApiRequest) -> ApiResponse {
