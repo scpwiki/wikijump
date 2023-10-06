@@ -80,13 +80,24 @@ impl MessageService {
             return Err(Error::BadRequest);
         }
 
+        let recipient_count = recipients.iter().count();
+        if recipient_count > config.maximum_message_recipients {
+            tide::log::error!(
+                "Too many message recipients (is {}, max {})",
+                recipient_count,
+                config.maximum_message_recipients,
+            );
+            return Err(Error::BadRequest);
+        }
+
         for recipient_user_id in recipients.iter() {
             InteractionService::check_user_block(
                 ctx,
                 draft.user_id,
                 recipient_user_id,
                 "send a direct message to",
-            ).await?;
+            )
+            .await?;
         }
 
         // Prepare message for sending
