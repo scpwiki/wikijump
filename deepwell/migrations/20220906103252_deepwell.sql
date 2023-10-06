@@ -507,6 +507,7 @@ CREATE TYPE message_recipient_type AS ENUM (
 CREATE TABLE message_record (
     external_id TEXT PRIMARY KEY,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+    drafted_at TIMESTAMP WITH TIME ZONE NOT NULL,
     retracted_at TIMESTAMP WITH TIME ZONE,
     sender_id BIGINT NOT NULL REFERENCES "user"(user_id),
 

@@ -10,6 +10,7 @@ pub struct Model {
     #[sea_orm(primary_key, auto_increment = false, column_type = "Text")]
     pub external_id: String,
     pub created_at: TimeDateTimeWithTimeZone,
+    pub drafted_at: TimeDateTimeWithTimeZone,
     pub retracted_at: Option<TimeDateTimeWithTimeZone>,
     pub sender_id: i64,
     #[sea_orm(column_type = "Text")]
