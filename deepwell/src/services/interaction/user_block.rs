@@ -36,6 +36,7 @@ impl_interaction!(
 );
 
 impl InteractionService {
+    #[allow(dead_code)] // TEMP
     pub async fn create_user_block(
         ctx: &ServiceContext<'_>,
         CreateUserBlock {

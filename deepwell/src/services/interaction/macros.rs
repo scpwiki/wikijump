@@ -33,6 +33,7 @@ macro_rules! impl_interaction {
         paste! {
             // Methods
             impl InteractionService {
+                #[allow(dead_code)] // TEMP
                 pub async fn [<get_ $interaction_type:snake>](
                     ctx: &ServiceContext<'_>,
                     [<Get $interaction_type>] {
@@ -51,6 +52,7 @@ macro_rules! impl_interaction {
                     .await
                 }
 
+                #[allow(dead_code)] // TEMP
                 pub async fn [<remove_ $interaction_type:snake>](
                     ctx: &ServiceContext<'_>,
                     [<Remove $interaction_type>] {
@@ -71,6 +73,7 @@ macro_rules! impl_interaction {
                 }
 
                 // TODO paginate
+                #[allow(dead_code)] // TEMP
                 pub async fn [<get_ $interaction_type:snake _history>](
                     ctx: &ServiceContext<'_>,
                     [<Get $interaction_type>] {
@@ -88,6 +91,7 @@ macro_rules! impl_interaction {
                 }
 
                 // TODO paginate
+                #[allow(dead_code)] // TEMP
                 pub async fn [<get_ $interaction_type:snake _entries>](
                     ctx: &ServiceContext<'_>,
                     object: InteractionObject,
@@ -157,6 +161,7 @@ macro_rules! impl_interaction {
 
         paste! {
             impl InteractionService {
+                #[allow(dead_code)] // TEMP
                 pub async fn [<create_ $interaction_type:snake>](
                     ctx: &ServiceContext<'_>,
                     [<Create $interaction_type>] {

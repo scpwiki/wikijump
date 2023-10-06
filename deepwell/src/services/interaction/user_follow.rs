@@ -31,6 +31,7 @@ impl_interaction!(
 );
 
 impl InteractionService {
+    #[allow(dead_code)] // TEMP
     pub async fn create_user_follow(
         ctx: &ServiceContext<'_>,
         CreateUserFollow {

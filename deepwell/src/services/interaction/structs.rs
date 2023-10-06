@@ -49,6 +49,7 @@ impl From<InteractionObject> for InteractionObjectType {
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[allow(dead_code)] // TEMP
 pub enum InteractionReference {
     Id(i64),
     Relationship {
@@ -117,6 +118,7 @@ impl InteractionObjectTypes {
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[allow(dead_code)] // TEMP
 pub enum InteractionDirection {
     Dest,
     From,
@@ -129,7 +131,9 @@ pub enum InteractionType {
     PageStar,
     PageWatch,
     UserFollow,
+    #[allow(dead_code)] // TEMP
     UserContact,
+    #[allow(dead_code)] // TEMP
     UserContactRequest,
     UserBlock,
 }
