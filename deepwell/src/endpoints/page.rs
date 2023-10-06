@@ -37,10 +37,7 @@ pub async fn page_create(mut req: ApiRequest) -> ApiResponse {
     tide::log::info!("Creating new page in site ID {}", input.site_id);
 
     let output = PageService::create(&ctx, input).await?;
-    let body = Body::from_json(&output)?;
-    txn.commit().await?;
-
-    Ok(body.into())
+    build_json_response(&output, StatusCode::Ok)
 }
 
 pub async fn page_retrieve(mut req: ApiRequest) -> ApiResponse {

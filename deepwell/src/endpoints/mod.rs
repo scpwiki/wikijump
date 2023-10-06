@@ -61,6 +61,7 @@ pub mod file;
 pub mod file_revision;
 pub mod link;
 pub mod locale;
+pub mod message;
 pub mod misc;
 pub mod page;
 pub mod page_revision;

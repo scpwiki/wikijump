@@ -30,8 +30,8 @@ use crate::config::{Config, Secrets};
 use crate::database;
 use crate::endpoints::{
     auth::*, category::*, email::*, file::*, file_revision::*, link::*, locale::*,
-    misc::*, page::*, page_revision::*, parent::*, site::*, site_member::*, text::*,
-    user::*, user_bot::*, view::*, vote::*,
+    message::*, misc::*, page::*, page_revision::*, parent::*, site::*, site_member::*,
+    text::*, user::*, user_bot::*, view::*, vote::*,
 };
 use crate::locales::Localizations;
 use crate::services::blob::spawn_magic_thread;
@@ -240,6 +240,9 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
     app.at("/user/bot/owner")
         .put(user_bot_owner_put)
         .delete(user_bot_owner_delete);
+
+    // Message
+    app.at("/message/draft").post(message_draft_create);
 
     // Email
     app.at("/email/validate").put(validate_email);
