@@ -192,16 +192,26 @@ impl MessageService {
         ctx: &ServiceContext<'_>,
         record_id: &str,
     ) -> Result<Option<MessageModel>> {
-        // XXX
-        todo!()
+        let txn = ctx.transaction();
+        let message = Message::find()
+            .filter(message::Column::RecordId.eq(record_id))
+            .one(txn)
+            .await?;
+
+        Ok(message)
     }
 
     pub async fn get_record_optional(
         ctx: &ServiceContext<'_>,
         record_id: &str,
     ) -> Result<Option<MessageRecordModel>> {
-        // XXX
-        todo!()
+        let txn = ctx.transaction();
+        let record = MessageRecord::find()
+            .filter(message_record::Column::ExternalId.eq(record_id))
+            .one(txn)
+            .await?;
+
+        Ok(record)
     }
 
     pub async fn record_exists(
@@ -217,8 +227,13 @@ impl MessageService {
         ctx: &ServiceContext<'_>,
         draft_id: &str,
     ) -> Result<Option<MessageDraftModel>> {
-        // XXX
-        todo!()
+        let txn = ctx.transaction();
+        let draft = MessageDraft::find()
+            .filter(message_draft::Column::ExternalId.eq(draft_id))
+            .one(txn)
+            .await?;
+
+        Ok(draft)
     }
 
     pub async fn get_draft(
