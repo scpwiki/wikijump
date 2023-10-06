@@ -19,9 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::services::interaction::{
-    CreateSiteMember, GetSiteMember, RemoveSiteMember, SiteMemberAccepted, SiteMemberData,
-};
+use crate::services::interaction::{CreateSiteMember, GetSiteMember, RemoveSiteMember};
 
 pub async fn membership_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
