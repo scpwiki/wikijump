@@ -133,7 +133,7 @@ impl InteractionService {
         ctx: &ServiceContext<'_>,
         reference: InteractionReference,
         deleted_by: i64,
-    ) -> Result<()> {
+    ) -> Result<InteractionModel> {
         tide::log::debug!("Removing interaction for {reference:?}");
 
         let txn = ctx.transaction();
@@ -145,8 +145,8 @@ impl InteractionService {
             ..Default::default()
         };
 
-        model.update(txn).await?;
-        Ok(())
+        let output = model.update(txn).await?;
+        Ok(output)
     }
 
     pub async fn get_optional(

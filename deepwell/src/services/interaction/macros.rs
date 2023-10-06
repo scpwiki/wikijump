@@ -60,7 +60,7 @@ macro_rules! impl_interaction {
                         $from_name,
                         removed_by,
                     }: [<Remove $interaction_type>],
-                ) -> Result<()> {
+                ) -> Result<InteractionModel> {
                     Self::remove(
                         ctx,
                         InteractionReference::Relationship {
