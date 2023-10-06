@@ -26,8 +26,8 @@ use crate::models::page_link::{self, Entity as PageLink, Model as PageLinkModel}
 use crate::services::{PageService, SiteService};
 use crate::web::ConnectionType;
 use ftml::data::{Backlinks, PageRef};
-use std::collections::HashMap;
 use sea_orm::NotSet;
+use std::collections::HashMap;
 
 /// Forms an optional `Condition` from a list of connection types.
 ///
