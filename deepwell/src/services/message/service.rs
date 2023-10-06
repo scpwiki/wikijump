@@ -106,8 +106,8 @@ impl MessageService {
         // * Delete message_draft row
         // * Insert message_recipient rows
         // * Insert inbox message rows for each recipient
-        // * Insert outbox message row for sender
         // * Except, if this is a message to self
+        // * Insert outbox message row for sender
         let txn = ctx.transaction();
 
         // Create message record
@@ -158,31 +158,44 @@ impl MessageService {
         // Add message records
         let mut has_self = false;
         for user_id in recipients.iter() {
-            let is_self = sender_id == user_id;
+            // Special handling for self-messages
+            if sender_id == user_id {
+                has_self = true;
+                continue;
+            }
+
             let model = message::ActiveModel {
                 record_id: Set(record_id.clone()),
                 user_id: Set(user_id),
-                flag_inbox: Set(!is_self),
+                flag_inbox: Set(true),
                 flag_outbox: Set(false),
-                flag_self: Set(is_self),
-                ..Default::default()
-            };
-            model.insert(txn).await?;
-            has_self &= is_self;
-        }
-
-        // Only add to outbox if not a self-message
-        if !has_self {
-            let model = message::ActiveModel {
-                record_id: Set(record_id),
-                user_id: Set(sender_id),
-                flag_inbox: Set(false),
-                flag_outbox: Set(true),
                 flag_self: Set(false),
                 ..Default::default()
             };
             model.insert(txn).await?;
         }
+
+        // Add outbox message.
+        let (flag_outbox, flag_self) = if has_self {
+            // For self-messages, we have two kinds of behavior.
+            // If it was sent *only* to oneself, then there is not outbox message.
+            // If it was sent to others in addition to oneself, then there *is* an outbox message.
+            (recipients.len() > 1, true)
+        } else {
+            // For regular messages, then just mark the outbox.
+            (true, false)
+        };
+
+        // If self-message, then mark that.
+        let model = message::ActiveModel {
+            record_id: Set(record_id),
+            user_id: Set(sender_id),
+            flag_inbox: Set(false),
+            flag_outbox: Set(true),
+            flag_self: Set(false),
+            ..Default::default()
+        };
+        model.insert(txn).await?;
 
         Ok(())
     }
