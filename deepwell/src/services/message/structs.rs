@@ -47,7 +47,7 @@ pub struct UpdateMessageDraft {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DraftRecipients {
     #[serde(rename = "r")]
-    pub recipients: Vec<i64>,
+    pub regular: Vec<i64>,
 
     #[serde(rename = "cc")]
     pub carbon_copy: Vec<i64>,
@@ -58,7 +58,7 @@ pub struct DraftRecipients {
 
 impl DraftRecipients {
     pub fn iter(&self) -> impl Iterator<Item = i64> + '_ {
-        let i1 = self.recipients.iter().copied();
+        let i1 = self.regular.iter().copied();
         let i2 = self.carbon_copy.iter().copied();
         let i3 = self.blind_carbon_copy.iter().copied();
 
@@ -66,6 +66,6 @@ impl DraftRecipients {
     }
 
     pub fn len(&self) -> usize {
-        self.recipients.len() + self.carbon_copy.len() + self.blind_carbon_copy.len()
+        self.regular.len() + self.carbon_copy.len() + self.blind_carbon_copy.len()
     }
 }

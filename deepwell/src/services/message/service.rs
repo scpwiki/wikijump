@@ -146,7 +146,7 @@ impl MessageService {
 
         let user = UserService::get(ctx, Reference::Id(user_id)).await?;
         let recipients = serde_json::to_value(&DraftRecipients {
-            recipients,
+            regular: recipients,
             carbon_copy,
             blind_carbon_copy,
         })?;
