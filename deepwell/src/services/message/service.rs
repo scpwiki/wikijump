@@ -341,7 +341,7 @@ impl MessageService {
             let model = message::ActiveModel {
                 record_id: Set(record_id.clone()),
                 user_id: Set(user_id),
-                flag_inbox: Set(true),
+                flag_inbox: Set(true), // uninvolved recipient just received message, inbox and nothing else
                 flag_outbox: Set(false),
                 flag_self: Set(false),
                 ..Default::default()
@@ -367,9 +367,9 @@ impl MessageService {
         let model = message::ActiveModel {
             record_id: Set(record_id),
             user_id: Set(sender_id),
-            flag_inbox: Set(false),
-            flag_outbox: Set(flag_outbox),
-            flag_self: Set(flag_self),
+            flag_inbox: Set(false), // messages from you are never in inbox
+            flag_outbox: Set(flag_outbox), // message you sent to others
+            flag_self: Set(flag_self), // message you sent to yourself
             ..Default::default()
         };
         model.insert(txn).await?;
