@@ -436,15 +436,6 @@ impl MessageService {
         Ok(record)
     }
 
-    pub async fn record_exists(
-        ctx: &ServiceContext<'_>,
-        record_id: &str,
-    ) -> Result<bool> {
-        Self::get_record_optional(ctx, record_id)
-            .await
-            .map(|record| record.is_some())
-    }
-
     pub async fn get_draft_optional(
         ctx: &ServiceContext<'_>,
         draft_id: &str,
