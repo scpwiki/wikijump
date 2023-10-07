@@ -543,7 +543,7 @@ CREATE TABLE message (
     flag_star BOOLEAN NOT NULL DEFAULT false,
 
     -- User-customizable tagging
-    tags TEXT[] NOT NULL,
+    tags TEXT[] NOT NULL DEFAULT '{}',
 
     UNIQUE (record_id, user_id),
     CHECK (NOT (flag_self AND flag_inbox))  -- If something is sent to oneself, it cannot be in the inbox
