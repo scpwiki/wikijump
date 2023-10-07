@@ -201,7 +201,7 @@ impl MessageService {
         Ok(())
     }
 
-    // Message send methods
+    // Message methods
 
     pub async fn send(
         ctx: &ServiceContext<'_>,
@@ -377,19 +377,54 @@ impl MessageService {
         Ok(record_model)
     }
 
+    pub async fn mark_read(
+        ctx: &ServiceContext<'_>,
+        record_id: &str,
+        user_id: i64,
+        value: bool,
+    ) -> Result<()> {
+        tide::log::info!(
+            "Setting message read status for {record_id} / {user_id}: {value}",
+        );
+
+        let txn = ctx.transaction();
+        let message = Self::get_message(ctx, record_id, user_id).await?;
+        let model = message::ActiveModel {
+            internal_id: Set(message.internal_id),
+            flag_read: Set(value),
+            ..Default::default()
+        };
+        model.update(txn).await?;
+
+        Ok(())
+    }
+
     // Getters
 
     pub async fn get_message_optional(
         ctx: &ServiceContext<'_>,
         record_id: &str,
+        user_id: i64,
     ) -> Result<Option<MessageModel>> {
         let txn = ctx.transaction();
         let message = Message::find()
-            .filter(message::Column::RecordId.eq(record_id))
+            .filter(
+                Condition::all()
+                    .add(message::Column::RecordId.eq(record_id))
+                    .add(message::Column::UserId.eq(user_id)),
+            )
             .one(txn)
             .await?;
 
         Ok(message)
+    }
+
+    pub async fn get_message(
+        ctx: &ServiceContext<'_>,
+        record_id: &str,
+        user_id: i64,
+    ) -> Result<MessageModel> {
+        find_or_error(Self::get_message_optional(ctx, record_id, user_id)).await
     }
 
     pub async fn get_record_optional(
@@ -452,7 +487,10 @@ impl MessageService {
                 continue;
             }
 
-            tide::log::debug!("Adding message recipient {recipient_type:?} with ID {user_id}");
+            tide::log::debug!(
+                "Adding message recipient {recipient_type:?} with ID {user_id}",
+            );
+
             let model = message_recipient::ActiveModel {
                 record_id: Set(str!(record_id)),
                 recipient_type: Set(recipient_type),
