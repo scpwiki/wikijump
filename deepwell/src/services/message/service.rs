@@ -234,6 +234,11 @@ impl MessageService {
             return Err(Error::BadRequest);
         }
 
+        if recipients.is_empty() {
+            tide::log::error!("Must have at least one message recipient");
+            return Err(Error::BadRequest);
+        }
+
         if wikitext.len() > config.maximum_message_body_bytes {
             tide::log::error!(
                 "Wikitext body is too long (is {}, max {})",

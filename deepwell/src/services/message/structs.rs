@@ -72,4 +72,10 @@ impl DraftRecipients {
     pub fn len(&self) -> usize {
         self.regular.len() + self.carbon_copy.len() + self.blind_carbon_copy.len()
     }
+
+    pub fn is_empty(&self) -> bool {
+        self.regular.is_empty()
+            && self.carbon_copy.is_empty()
+            && self.blind_carbon_copy.is_empty()
+    }
 }
