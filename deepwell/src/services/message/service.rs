@@ -344,9 +344,11 @@ impl MessageService {
             // For self-messages, we have two kinds of behavior.
             // If it was sent *only* to oneself, then there is not outbox message.
             // If it was sent to others in addition to oneself, then there *is* an outbox message.
+            tide::log::debug!("Self message, checking recipients list");
             (recipients.len() > 1, true)
         } else {
             // For regular messages, then just mark the outbox.
+            tide::log::debug!("Regular message, marking outbox only");
             (true, false)
         };
 
