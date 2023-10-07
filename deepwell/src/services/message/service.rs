@@ -518,7 +518,7 @@ impl MessageService {
         };
 
         // Check that the user has access to the message.
-        // Meaning, they are the sender or one of the recipient.
+        // That is, the user is the sender or one of the recipients.
         if record.sender_id != user_id
             && Self::any_recipient_exists(ctx, record_id, user_id).await?
         {
