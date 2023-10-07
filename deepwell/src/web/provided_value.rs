@@ -45,6 +45,19 @@ impl<T> ProvidedValue<T> {
     }
 }
 
+impl<T> ProvidedValue<T>
+where
+    T: Into<sea_orm::Value>,
+{
+    #[inline]
+    pub fn into_active_value(self) -> sea_orm::ActiveValue<T> {
+        match self {
+            ProvidedValue::Set(value) => sea_orm::ActiveValue::Set(value),
+            ProvidedValue::Unset => sea_orm::ActiveValue::NotSet,
+        }
+    }
+}
+
 impl<T> From<ProvidedValue<T>> for Option<T> {
     #[inline]
     fn from(value: ProvidedValue<T>) -> Option<T> {
