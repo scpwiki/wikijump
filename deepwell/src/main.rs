@@ -62,7 +62,7 @@ use std::fs::File;
 use std::io::Write;
 use std::process;
 
-#[async_std::main]
+#[tokio::main]
 async fn main() -> Result<()> {
     // Load the configuration so we can set up
     let SetupConfig { secrets, config } = SetupConfig::load();
