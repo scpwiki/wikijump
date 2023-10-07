@@ -205,7 +205,7 @@ impl MessageService {
 
     // Message send methods
 
-    pub async fn send(ctx: &ServiceContext<'_>, draft_id: &str) -> Result<()> {
+    pub async fn send(ctx: &ServiceContext<'_>, draft_id: &str) -> Result<MessageRecordModel> {
         tide::log::info!("Sending draft ID {draft_id} as message");
 
         // Gather resources
@@ -287,7 +287,7 @@ impl MessageService {
             forwarded_from: Set(draft.forwarded_from),
             ..Default::default()
         };
-        model.insert(txn).await?;
+        let record_model = model.insert(txn).await?;
 
         // Delete message draft
         Self::delete_draft(ctx, record_id.clone()).await?;
@@ -356,7 +356,7 @@ impl MessageService {
         };
         model.insert(txn).await?;
 
-        Ok(())
+        Ok(record_model)
     }
 
     // Getters
