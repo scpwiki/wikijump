@@ -97,7 +97,6 @@ impl MessageService {
     pub async fn update_draft(
         ctx: &ServiceContext<'_>,
         UpdateMessageDraft {
-            user_id,
             message_draft_id: draft_id,
             recipients,
             carbon_copy,
@@ -106,25 +105,18 @@ impl MessageService {
             wikitext,
         }: UpdateMessageDraft,
     ) -> Result<MessageDraftModel> {
-        tide::log::info!("Updating message draft {draft_id} for user ID {user_id}");
+        tide::log::info!("Updating message draft {draft_id}");
 
-        let draft = Self::get_draft(ctx, &draft_id).await?;
-        if draft.user_id != user_id {
-            tide::log::error!(
-                "Message draft user ID does not match ({} != {})",
-                draft.user_id,
-                user_id,
-            );
+        // Get current draft
+        let current_draft = Self::get_draft(ctx, &draft_id).await?;
 
-            return Err(Error::BadRequest);
-        }
-
+        // Update it
         let txn = ctx.transaction();
         let draft = Self::draft_process(
             ctx,
             DraftProcess {
                 is_update: true,
-                user_id,
+                user_id: current_draft.user_id,
                 draft_id,
                 recipients,
                 carbon_copy,

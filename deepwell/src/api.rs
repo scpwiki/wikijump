@@ -242,7 +242,10 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
         .delete(user_bot_owner_delete);
 
     // Message
-    app.at("/message/draft").post(message_draft_create);
+    app.at("/message/draft")
+        .post(message_draft_create)
+        .put(message_draft_update);
+    app.at("/message").post(message_draft_send);
 
     // Email
     app.at("/email/validate").put(validate_email);

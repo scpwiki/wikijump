@@ -34,13 +34,18 @@ pub struct CreateMessageDraft {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateMessageDraft {
-    pub user_id: i64,
     pub message_draft_id: String,
     pub recipients: Vec<i64>,
     pub carbon_copy: Vec<i64>,
     pub blind_carbon_copy: Vec<i64>,
     pub subject: String,
     pub wikitext: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct SendMessageDraft {
+    pub message_draft_id: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

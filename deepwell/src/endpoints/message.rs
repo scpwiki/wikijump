@@ -19,7 +19,9 @@
  */
 
 use super::prelude::*;
-use crate::services::message::CreateMessageDraft;
+use crate::services::message::{
+    CreateMessageDraft, SendMessageDraft, UpdateMessageDraft,
+};
 
 pub async fn message_draft_create(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
@@ -29,6 +31,33 @@ pub async fn message_draft_create(mut req: ApiRequest) -> ApiResponse {
     tide::log::info!("Creating new message draft for user ID {}", input.user_id);
 
     let output = MessageService::create_draft(&ctx, input).await?;
+    txn.commit().await?;
+    build_json_response(&output, StatusCode::Ok)
+}
+
+pub async fn message_draft_update(mut req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    let input: UpdateMessageDraft = req.body_json().await?;
+    tide::log::info!(
+        "Updating message draft for draft ID {}",
+        input.message_draft_id
+    );
+
+    let output = MessageService::update_draft(&ctx, input).await?;
+    txn.commit().await?;
+    build_json_response(&output, StatusCode::Ok)
+}
+
+pub async fn message_draft_send(mut req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    let SendMessageDraft { message_draft_id } = req.body_json().await?;
+    tide::log::info!("Sending message draft with ID {message_draft_id}");
+
+    let output = MessageService::send(&ctx, &message_draft_id).await?;
     txn.commit().await?;
     build_json_response(&output, StatusCode::Ok)
 }
