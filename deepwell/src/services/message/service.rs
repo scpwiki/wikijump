@@ -44,6 +44,8 @@ use sea_orm::DatabaseTransaction;
 pub struct MessageService;
 
 impl MessageService {
+    // Message draft methods
+
     pub async fn create_draft(
         ctx: &ServiceContext<'_>,
         CreateMessageDraft {
@@ -68,15 +70,111 @@ impl MessageService {
             Self::check_message_access(ctx, record_id, user_id, "forward").await?;
         }
 
-        // Populate fields
-        let draft_id = cuid();
+        // Insert draft into database
+        let txn = ctx.transaction();
+        let draft = Self::draft_process(
+            ctx,
+            DraftProcess {
+                is_update: false,
+                user_id,
+                draft_id: cuid(),
+                recipients,
+                carbon_copy,
+                blind_carbon_copy,
+                subject,
+                wikitext,
+                reply_to: ProvidedValue::Set(reply_to),
+                forwarded_from: ProvidedValue::Set(forwarded_from),
+            },
+        )
+        .await?
+        .insert(txn)
+        .await?;
 
-        let user = UserService::get(ctx, Reference::Id(user_id)).await?;
-        let recipients = serde_json::to_value(&DraftRecipients {
+        Ok(draft)
+    }
+
+    pub async fn update_draft(
+        ctx: &ServiceContext<'_>,
+        UpdateMessageDraft {
+            user_id,
+            message_draft_id: draft_id,
+            recipients,
+            carbon_copy,
+            blind_carbon_copy,
+            subject,
+            wikitext,
+        }: UpdateMessageDraft,
+    ) -> Result<MessageDraftModel> {
+        tide::log::info!("Updating message draft {draft_id} for user ID {user_id}");
+
+        let draft = Self::get_draft(ctx, &draft_id).await?;
+        if draft.user_id != user_id {
+            tide::log::error!(
+                "Message draft user ID does not match ({} != {})",
+                draft.user_id,
+                user_id,
+            );
+
+            return Err(Error::BadRequest);
+        }
+
+        let txn = ctx.transaction();
+        let draft = Self::draft_process(
+            ctx,
+            DraftProcess {
+                is_update: true,
+                user_id,
+                draft_id,
+                recipients,
+                carbon_copy,
+                blind_carbon_copy,
+                subject,
+                wikitext,
+                reply_to: ProvidedValue::Unset,
+                forwarded_from: ProvidedValue::Unset,
+            },
+        )
+        .await?
+        .update(txn)
+        .await?;
+
+        Ok(draft)
+    }
+
+    /// Helper method to perform functionality common to creating and updating drafts.
+    async fn draft_process(
+        ctx: &ServiceContext<'_>,
+        DraftProcess {
+            is_update,
+            user_id,
+            draft_id,
+            recipients,
+            carbon_copy,
+            blind_carbon_copy,
+            subject,
+            wikitext,
+            reply_to,
+            forwarded_from,
+        }: DraftProcess,
+    ) -> Result<message_draft::ActiveModel> {
+        // Check constraints
+        let recipients = DraftRecipients {
             regular: recipients,
             carbon_copy,
             blind_carbon_copy,
-        })?;
+        };
+
+        for recipient_id in recipients.iter() {
+            if !UserService::exists(ctx, Reference::Id(recipient_id)).await? {
+                tide::log::error!("Recipient user ID {recipient_id} does not exist");
+                return Err(Error::NotFound);
+            }
+        }
+
+        // Populate fields
+        let user = UserService::get(ctx, Reference::Id(user_id)).await?;
+        let recipients = serde_json::to_value(&recipients)?;
 
         let wikitext_hash = TextService::create(ctx, wikitext.clone()).await?;
         let RenderOutput {
@@ -88,9 +186,8 @@ impl MessageService {
             compiled_generator,
         } = Self::render(ctx, wikitext, &user.locale).await?;
 
-        // Insert draft into database
-        let txn = ctx.transaction();
-        let model = message_draft::ActiveModel {
+        Ok(message_draft::ActiveModel {
+            updated_at: Set(if is_update { Some(now()) } else { None }),
             external_id: Set(draft_id),
             user_id: Set(user_id),
             recipients: Set(recipients),
@@ -99,16 +196,13 @@ impl MessageService {
             compiled_hash: Set(compiled_hash.to_vec()),
             compiled_at: Set(compiled_at),
             compiled_generator: Set(compiled_generator),
-            reply_to: Set(reply_to),
-            forwarded_from: Set(forwarded_from),
+            reply_to: reply_to.into_active_value(),
+            forwarded_from: forwarded_from.into_active_value(),
             ..Default::default()
-        };
-
-        let draft = model.insert(txn).await?;
-        Ok(draft)
+        })
     }
 
-    // TODO: method to edit draft
+    // Message send methods
 
     pub async fn send(ctx: &ServiceContext<'_>, draft_id: &str) -> Result<()> {
         tide::log::info!("Sending draft ID {draft_id} as message");
@@ -325,6 +419,7 @@ impl MessageService {
 
     // Helper methods
 
+    /// Helper method to insert a group of `message_recipient` rows.
     async fn add_recipients(
         txn: &DatabaseTransaction,
         record_id: &str,
@@ -343,6 +438,15 @@ impl MessageService {
         Ok(())
     }
 
+    /// Helper method to determine if a message can be "seen" by a user.
+    ///
+    /// This prevents you from replying to or forwarding a message you cannot
+    /// actually otherwise see if you only have its record ID.
+    ///
+    /// This method checks if a given message record was either sent by the user
+    /// in question, or if they are a recipient (in any category).
+    ///
+    /// It also checks that the message record actually exists.
     async fn check_message_access(
         ctx: &ServiceContext<'_>,
         record_id: &str,
@@ -376,6 +480,7 @@ impl MessageService {
         Ok(())
     }
 
+    /// Helper method which checks if a user is a recipient of a message record.
     async fn any_recipient_exists(
         ctx: &ServiceContext<'_>,
         record_id: &str,
@@ -398,6 +503,7 @@ impl MessageService {
         Ok(model.is_some())
     }
 
+    /// Helper method to render message contents.
     async fn render(
         ctx: &ServiceContext<'_>,
         wikitext: String,
@@ -419,4 +525,19 @@ impl MessageService {
 
         RenderService::render(ctx, wikitext, &page_info, &settings).await
     }
+}
+
+/// Helper structure used by `draft_process()`.
+#[derive(Debug)]
+struct DraftProcess {
+    is_update: bool,
+    user_id: i64,
+    draft_id: String,
+    recipients: Vec<i64>,
+    carbon_copy: Vec<i64>,
+    blind_carbon_copy: Vec<i64>,
+    subject: String,
+    wikitext: String,
+    reply_to: ProvidedValue<Option<String>>,
+    forwarded_from: ProvidedValue<Option<String>>,
 }
