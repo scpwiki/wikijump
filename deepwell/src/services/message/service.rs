@@ -197,7 +197,6 @@ impl MessageService {
     pub async fn delete_draft(ctx: &ServiceContext<'_>, draft_id: String) -> Result<()> {
         let txn = ctx.transaction();
         MessageDraft::delete_by_id(draft_id).exec(txn).await?;
-
         Ok(())
     }
 
