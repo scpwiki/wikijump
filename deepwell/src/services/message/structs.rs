@@ -103,14 +103,18 @@ fn recipients() {
         vec![10, 20, 30, 20, 80, 70],
         "Recipient iterator does not match expected",
     );
-    assert_eq!(recipients.len(), 6, "Recipient length does not match expected");
+    assert_eq!(
+        recipients.len(),
+        6,
+        "Recipient length does not match expected",
+    );
     assert!(!recipients.is_empty(), "Recipient is_empty reports true");
     assert!(!recipients.only_has(10), "Recipient only_has reports true");
 }
 
 #[test]
 fn recipients_empty() {
-    let recipients= DraftRecipients {
+    let recipients = DraftRecipients {
         regular: vec![],
         carbon_copy: vec![],
         blind_carbon_copy: vec![],
@@ -121,7 +125,11 @@ fn recipients_empty() {
         Vec::<i64>::new(),
         "Recipient iterator does not match expected",
     );
-    assert_eq!(recipients.len(), 0, "Recipient length does not match expected");
+    assert_eq!(
+        recipients.len(),
+        0,
+        "Recipient length does not match expected",
+    );
     assert!(recipients.is_empty(), "Recipient is_empty reports false");
 }
 
@@ -138,7 +146,11 @@ fn recipients_only() {
         vec![1, 1],
         "Recipient iterator does not match expected",
     );
-    assert_eq!(recipients.len(), 2, "Recipient length does not match expected");
+    assert_eq!(
+        recipients.len(),
+        2,
+        "Recipient length does not match expected",
+    );
     assert!(!recipients.is_empty(), "Recipient is_empty reports true");
     assert!(recipients.only_has(1), "Recipient only_has reports false");
 }
