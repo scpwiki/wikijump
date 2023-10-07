@@ -133,7 +133,7 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
 
     // Localization
     app.at("/locale/:locale").get(locale_get);
-    app.at("/message/:locale/translate").put(translate_put);
+    app.at("/translate/:locale").put(translate_put);
 
     // Routes for web server
     app.at("/view/page").put(view_page);
