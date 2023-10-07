@@ -24,7 +24,7 @@ use crate::services::email::EmailService;
 pub async fn validate_email(mut req: ApiRequest) -> ApiResponse {
     tide::log::info!("Validating user email");
     let email = req.body_string().await?;
-    let output = EmailService::validate(&email)?;
+    let output = EmailService::validate(&email).await?;
 
     let body = Body::from_json(&output)?;
     let response = Response::builder(StatusCode::Ok).body(body).into();
