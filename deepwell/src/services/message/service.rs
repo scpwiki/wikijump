@@ -194,7 +194,14 @@ impl MessageService {
         })
     }
 
-    // TODO add message draft delete
+    pub async fn delete_draft(ctx: &ServiceContext<'_>, draft_id: String) -> Result<()> {
+        let txn = ctx.transaction();
+        MessageDraft::delete_by_id(draft_id)
+            .exec(txn)
+            .await?;
+
+        Ok(())
+    }
 
     // Message send methods
 
@@ -283,9 +290,7 @@ impl MessageService {
         model.insert(txn).await?;
 
         // Delete message draft
-        MessageDraft::delete_by_id(record_id.clone())
-            .exec(txn)
-            .await?;
+        Self::delete_draft(ctx, record_id.clone()).await?;
 
         // Add recipients
         try_join!(
