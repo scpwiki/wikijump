@@ -194,6 +194,8 @@ impl MessageService {
         })
     }
 
+    // TODO add message draft delete
+
     // Message send methods
 
     pub async fn send(ctx: &ServiceContext<'_>, draft_id: &str) -> Result<()> {
