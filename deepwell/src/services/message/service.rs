@@ -196,16 +196,17 @@ impl MessageService {
 
     pub async fn delete_draft(ctx: &ServiceContext<'_>, draft_id: String) -> Result<()> {
         let txn = ctx.transaction();
-        MessageDraft::delete_by_id(draft_id)
-            .exec(txn)
-            .await?;
+        MessageDraft::delete_by_id(draft_id).exec(txn).await?;
 
         Ok(())
     }
 
     // Message send methods
 
-    pub async fn send(ctx: &ServiceContext<'_>, draft_id: &str) -> Result<MessageRecordModel> {
+    pub async fn send(
+        ctx: &ServiceContext<'_>,
+        draft_id: &str,
+    ) -> Result<MessageRecordModel> {
         tide::log::info!("Sending draft ID {draft_id} as message");
 
         // Gather resources
