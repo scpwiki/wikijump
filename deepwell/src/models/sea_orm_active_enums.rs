@@ -51,6 +51,23 @@ pub enum InteractionObjectType {
 #[derive(
     Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Copy, Serialize, Deserialize,
 )]
+#[serde(rename_all = "kebab-case")]
+#[sea_orm(
+    rs_type = "String",
+    db_type = "Enum",
+    enum_name = "message_recipient_type"
+)]
+pub enum MessageRecipientType {
+    #[sea_orm(string_value = "bcc")]
+    Bcc,
+    #[sea_orm(string_value = "cc")]
+    Cc,
+    #[sea_orm(string_value = "regular")]
+    Regular,
+}
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Copy, Serialize, Deserialize,
+)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "page_revision_type")]
 #[serde(rename_all = "kebab-case")]
 pub enum PageRevisionType {

@@ -33,6 +33,8 @@ pub struct Model {
 pub enum Relation {
     #[sea_orm(has_many = "super::filter::Entity")]
     Filter,
+    #[sea_orm(has_many = "super::message_report::Entity")]
+    MessageReport,
     #[sea_orm(has_many = "super::page::Entity")]
     Page,
     #[sea_orm(has_many = "super::page_category::Entity")]
@@ -52,6 +54,12 @@ pub enum Relation {
 impl Related<super::filter::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Filter.def()
+    }
+}
+
+impl Related<super::message_report::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::MessageReport.def()
     }
 }
 
@@ -76,6 +84,15 @@ impl Related<super::page_revision::Entity> for Entity {
 impl Related<super::site_domain::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::SiteDomain.def()
+    }
+}
+
+impl Related<super::message::Entity> for Entity {
+    fn to() -> RelationDef {
+        super::message_report::Relation::Message.def()
+    }
+    fn via() -> Option<RelationDef> {
+        Some(super::message_report::Relation::Site.def().rev())
     }
 }
 

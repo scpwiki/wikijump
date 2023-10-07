@@ -53,3 +53,8 @@ default-name-changes = 2
 maximum-name-changes = 3
 minimum-name-bytes = 3
 refill-name-change-days = 90
+
+[message]
+maximum-subject-bytes = 128
+maximum-body-bytes = 200000
+maximum-recipients = 6
