@@ -29,5 +29,6 @@ pub async fn message_draft_create(mut req: ApiRequest) -> ApiResponse {
     tide::log::info!("Creating new message draft for user ID {}", input.user_id);
 
     let output = MessageService::create_draft(&ctx, input).await?;
+    txn.commit().await?;
     build_json_response(&output, StatusCode::Ok)
 }

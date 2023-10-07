@@ -235,23 +235,11 @@ impl MessageService {
 
         // Check foreign keys
         if let Some(record_id) = &reply_to {
-            if !Self::record_exists(ctx, record_id).await? {
-                tide::log::error!(
-                    "Message record being replied to does not exist: {record_id}",
-                );
-
-                return Err(Error::BadRequest);
-            }
+            Self::check_message_access(ctx, record_id, user_id, "reply").await?;
         }
 
         if let Some(record_id) = &forwarded_from {
-            if !Self::record_exists(ctx, record_id).await? {
-                tide::log::error!(
-                    "Message record being forwarded from does not exist: {record_id}",
-                );
-
-                return Err(Error::BadRequest);
-            }
+            Self::check_message_access(ctx, record_id, user_id, "forward").await?;
         }
 
         // Populate fields
@@ -295,6 +283,61 @@ impl MessageService {
     }
 
     // TODO: method to edit draft
+
+    async fn check_message_access(
+        ctx: &ServiceContext<'_>,
+        record_id: &str,
+        user_id: i64,
+        purpose: &'static str,
+    ) -> Result<()> {
+        // Ensure the message record exists
+        let record = match Self::get_record_optional(ctx, record_id).await? {
+            Some(record) => record,
+            None => {
+                tide::log::error!(
+                    "The {purpose} message record does not exist: {record_id}",
+                );
+
+                return Err(Error::BadRequest);
+            }
+        };
+
+        // Check that the user has access to the message.
+        // Meaning, they are the sender or one of the recipient.
+        if record.sender_id != user_id
+            && Self::any_recipient_exists(ctx, record_id, user_id).await?
+        {
+            tide::log::error!(
+                "User ID {user_id} is not a sender or recipient of the {purpose}",
+            );
+
+            return Err(Error::BadRequest);
+        }
+
+        Ok(())
+    }
+
+    async fn any_recipient_exists(
+        ctx: &ServiceContext<'_>,
+        record_id: &str,
+        user_id: i64,
+    ) -> Result<bool> {
+        tide::log::info!(
+            "Checking if user ID {user_id} is a recipient of record ID {record_id}",
+        );
+
+        let txn = ctx.transaction();
+        let model = MessageRecipient::find()
+            .filter(
+                Condition::all()
+                    .add(message_recipient::Column::RecordId.eq(record_id))
+                    .add(message_recipient::Column::RecipientId.eq(user_id)),
+            )
+            .one(txn)
+            .await?;
+
+        Ok(model.is_some())
+    }
 
     async fn render(
         ctx: &ServiceContext<'_>,
