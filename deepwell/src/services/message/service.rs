@@ -190,9 +190,9 @@ impl MessageService {
         let model = message::ActiveModel {
             record_id: Set(record_id),
             user_id: Set(sender_id),
-            flag_inbox: Set(false),
+            flag_inbox: Set(flag_outbox),
             flag_outbox: Set(true),
-            flag_self: Set(false),
+            flag_self: Set(flag_self),
             ..Default::default()
         };
         model.insert(txn).await?;
