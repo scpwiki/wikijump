@@ -322,8 +322,17 @@ impl MessageService {
 
         // Add message records
         let mut has_self = false;
+        let mut added_user_ids = Vec::new();
         for user_id in recipients.iter() {
-            // Special handling for self-messages
+            // Ensure user isn't added twice
+            //
+            // NOTE: Because recipient lists are generally short, well under 100,
+            //       there are no practical issues with using Vec over HashSet.
+            if added_user_ids.contains(&user_id) {
+                continue;
+            }
+
+            // Special handling for self-messages, skip here
             if sender_id == user_id {
                 has_self = true;
                 continue;
@@ -338,6 +347,7 @@ impl MessageService {
                 ..Default::default()
             };
             model.insert(txn).await?;
+            added_user_ids.push(user_id);
         }
 
         // Add outbox message.
