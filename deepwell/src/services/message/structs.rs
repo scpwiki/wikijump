@@ -89,3 +89,56 @@ impl DraftRecipients {
         self.iter().filter(|id| *id != user_id).count() == 0
     }
 }
+
+#[test]
+fn recipients() {
+    let recipients = DraftRecipients {
+        regular: vec![10, 20, 30],
+        carbon_copy: vec![20, 80],
+        blind_carbon_copy: vec![70],
+    };
+
+    assert_eq!(
+        recipients.iter().collect::<Vec<_>>(),
+        vec![10, 20, 30, 20, 80, 70],
+        "Recipient iterator does not match expected",
+    );
+    assert_eq!(recipients.len(), 6, "Recipient length does not match expected");
+    assert!(!recipients.is_empty(), "Recipient is_empty reports true");
+    assert!(!recipients.only_has(10), "Recipient only_has reports true");
+}
+
+#[test]
+fn recipients_empty() {
+    let recipients= DraftRecipients {
+        regular: vec![],
+        carbon_copy: vec![],
+        blind_carbon_copy: vec![],
+    };
+
+    assert_eq!(
+        recipients.iter().collect::<Vec<_>>(),
+        Vec::<i64>::new(),
+        "Recipient iterator does not match expected",
+    );
+    assert_eq!(recipients.len(), 0, "Recipient length does not match expected");
+    assert!(recipients.is_empty(), "Recipient is_empty reports false");
+}
+
+#[test]
+fn recipients_only() {
+    let recipients = DraftRecipients {
+        regular: vec![],
+        carbon_copy: vec![1],
+        blind_carbon_copy: vec![1],
+    };
+
+    assert_eq!(
+        recipients.iter().collect::<Vec<_>>(),
+        vec![1, 1],
+        "Recipient iterator does not match expected",
+    );
+    assert_eq!(recipients.len(), 2, "Recipient length does not match expected");
+    assert!(!recipients.is_empty(), "Recipient is_empty reports true");
+    assert!(recipients.only_has(1), "Recipient only_has reports false");
+}
