@@ -23,14 +23,9 @@ use crate::models::message::{self, Entity as Message, Model as MessageModel};
 use crate::models::message_draft::{
     self, Entity as MessageDraft, Model as MessageDraftModel,
 };
-use crate::models::message_recipient::{
-    self, Entity as MessageRecipient, Model as MessageRecipientModel,
-};
+use crate::models::message_recipient::{self, Entity as MessageRecipient};
 use crate::models::message_record::{
     self, Entity as MessageRecord, Model as MessageRecordModel,
-};
-use crate::models::message_report::{
-    self, Entity as MessageReport, Model as MessageReportModel,
 };
 use crate::models::sea_orm_active_enums::MessageRecipientType;
 use crate::services::render::{RenderOutput, RenderService};
