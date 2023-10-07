@@ -48,6 +48,8 @@ pub struct SendMessageDraft {
     pub message_draft_id: String,
 }
 
+pub type DeleteMessageDraft = SendMessageDraft;
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DraftRecipients {
     #[serde(rename = "r")]

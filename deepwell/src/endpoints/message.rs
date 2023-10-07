@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::services::message::{
-    CreateMessageDraft, SendMessageDraft, UpdateMessageDraft,
+    CreateMessageDraft, DeleteMessageDraft, SendMessageDraft, UpdateMessageDraft,
 };
 
 pub async fn message_draft_create(mut req: ApiRequest) -> ApiResponse {
@@ -60,4 +60,16 @@ pub async fn message_draft_send(mut req: ApiRequest) -> ApiResponse {
     let output = MessageService::send(&ctx, &message_draft_id).await?;
     txn.commit().await?;
     build_json_response(&output, StatusCode::Ok)
+}
+
+pub async fn message_draft_delete(mut req: ApiRequest) -> ApiResponse {
+    let txn = req.database().begin().await?;
+    let ctx = ServiceContext::new(&req, &txn);
+
+    let DeleteMessageDraft { message_draft_id } = req.body_json().await?;
+    tide::log::info!("Deleting message draft with ID {message_draft_id}");
+
+    MessageService::delete_draft(&ctx, message_draft_id).await?;
+    txn.commit().await?;
+    Ok(Response::new(StatusCode::Ok))
 }

@@ -244,7 +244,8 @@ fn build_routes(mut app: ApiServer) -> ApiServer {
     // Message
     app.at("/message/draft")
         .post(message_draft_create)
-        .put(message_draft_update);
+        .put(message_draft_update)
+        .delete(message_draft_delete);
     app.at("/message").post(message_draft_send);
 
     // Email
