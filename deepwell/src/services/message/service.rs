@@ -44,6 +44,72 @@ use sea_orm::DatabaseTransaction;
 pub struct MessageService;
 
 impl MessageService {
+    pub async fn create_draft(
+        ctx: &ServiceContext<'_>,
+        CreateMessageDraft {
+            user_id,
+            recipients,
+            carbon_copy,
+            blind_carbon_copy,
+            subject,
+            wikitext,
+            reply_to,
+            forwarded_from,
+        }: CreateMessageDraft,
+    ) -> Result<MessageDraftModel> {
+        tide::log::info!("Creating message draft for user ID {user_id}");
+
+        // Check foreign keys
+        if let Some(record_id) = &reply_to {
+            Self::check_message_access(ctx, record_id, user_id, "reply").await?;
+        }
+
+        if let Some(record_id) = &forwarded_from {
+            Self::check_message_access(ctx, record_id, user_id, "forward").await?;
+        }
+
+        // Populate fields
+        let draft_id = cuid();
+
+        let user = UserService::get(ctx, Reference::Id(user_id)).await?;
+        let recipients = serde_json::to_value(&DraftRecipients {
+            regular: recipients,
+            carbon_copy,
+            blind_carbon_copy,
+        })?;
+
+        let wikitext_hash = TextService::create(ctx, wikitext.clone()).await?;
+        let RenderOutput {
+            // TODO: use html_output
+            html_output: _,
+            errors,
+            compiled_hash,
+            compiled_at,
+            compiled_generator,
+        } = Self::render(ctx, wikitext, &user.locale).await?;
+
+        // Insert draft into database
+        let txn = ctx.transaction();
+        let model = message_draft::ActiveModel {
+            external_id: Set(draft_id),
+            user_id: Set(user_id),
+            recipients: Set(recipients),
+            subject: Set(subject),
+            wikitext_hash: Set(wikitext_hash.to_vec()),
+            compiled_hash: Set(compiled_hash.to_vec()),
+            compiled_at: Set(compiled_at),
+            compiled_generator: Set(compiled_generator),
+            reply_to: Set(reply_to),
+            forwarded_from: Set(forwarded_from),
+            ..Default::default()
+        };
+
+        let draft = model.insert(txn).await?;
+        Ok(draft)
+    }
+
+    // TODO: method to edit draft
+
     pub async fn send(ctx: &ServiceContext<'_>, draft_id: &str) -> Result<()> {
         tide::log::info!("Sending draft ID {draft_id} as message");
 
@@ -200,6 +266,65 @@ impl MessageService {
         Ok(())
     }
 
+    // Getters
+
+    pub async fn get_message_optional(
+        ctx: &ServiceContext<'_>,
+        record_id: &str,
+    ) -> Result<Option<MessageModel>> {
+        let txn = ctx.transaction();
+        let message = Message::find()
+            .filter(message::Column::RecordId.eq(record_id))
+            .one(txn)
+            .await?;
+
+        Ok(message)
+    }
+
+    pub async fn get_record_optional(
+        ctx: &ServiceContext<'_>,
+        record_id: &str,
+    ) -> Result<Option<MessageRecordModel>> {
+        let txn = ctx.transaction();
+        let record = MessageRecord::find()
+            .filter(message_record::Column::ExternalId.eq(record_id))
+            .one(txn)
+            .await?;
+
+        Ok(record)
+    }
+
+    pub async fn record_exists(
+        ctx: &ServiceContext<'_>,
+        record_id: &str,
+    ) -> Result<bool> {
+        Self::get_record_optional(ctx, record_id)
+            .await
+            .map(|record| record.is_some())
+    }
+
+    pub async fn get_draft_optional(
+        ctx: &ServiceContext<'_>,
+        draft_id: &str,
+    ) -> Result<Option<MessageDraftModel>> {
+        let txn = ctx.transaction();
+        let draft = MessageDraft::find()
+            .filter(message_draft::Column::ExternalId.eq(draft_id))
+            .one(txn)
+            .await?;
+
+        Ok(draft)
+    }
+
+    pub async fn get_draft(
+        ctx: &ServiceContext<'_>,
+        draft_id: &str,
+    ) -> Result<MessageDraftModel> {
+        find_or_error(Self::get_draft_optional(ctx, draft_id)).await
+    }
+
+    // Helper methods
+
     async fn add_recipients(
         txn: &DatabaseTransaction,
         record_id: &str,
@@ -217,72 +342,6 @@ impl MessageService {
 
         Ok(())
     }
-
-    pub async fn create_draft(
-        ctx: &ServiceContext<'_>,
-        CreateMessageDraft {
-            user_id,
-            recipients,
-            carbon_copy,
-            blind_carbon_copy,
-            subject,
-            wikitext,
-            reply_to,
-            forwarded_from,
-        }: CreateMessageDraft,
-    ) -> Result<MessageDraftModel> {
-        tide::log::info!("Creating message draft for user ID {user_id}");
-
-        // Check foreign keys
-        if let Some(record_id) = &reply_to {
-            Self::check_message_access(ctx, record_id, user_id, "reply").await?;
-        }
-
-        if let Some(record_id) = &forwarded_from {
-            Self::check_message_access(ctx, record_id, user_id, "forward").await?;
-        }
-
-        // Populate fields
-        let draft_id = cuid();
-
-        let user = UserService::get(ctx, Reference::Id(user_id)).await?;
-        let recipients = serde_json::to_value(&DraftRecipients {
-            regular: recipients,
-            carbon_copy,
-            blind_carbon_copy,
-        })?;
-
-        let wikitext_hash = TextService::create(ctx, wikitext.clone()).await?;
-        let RenderOutput {
-            // TODO: use html_output
-            html_output: _,
-            errors,
-            compiled_hash,
-            compiled_at,
-            compiled_generator,
-        } = Self::render(ctx, wikitext, &user.locale).await?;
-
-        // Insert draft into database
-        let txn = ctx.transaction();
-        let model = message_draft::ActiveModel {
-            external_id: Set(draft_id),
-            user_id: Set(user_id),
-            recipients: Set(recipients),
-            subject: Set(subject),
-            wikitext_hash: Set(wikitext_hash.to_vec()),
-            compiled_hash: Set(compiled_hash.to_vec()),
-            compiled_at: Set(compiled_at),
-            compiled_generator: Set(compiled_generator),
-            reply_to: Set(reply_to),
-            forwarded_from: Set(forwarded_from),
-            ..Default::default()
-        };
-
-        let draft = model.insert(txn).await?;
-        Ok(draft)
-    }
-
-    // TODO: method to edit draft
 
     async fn check_message_access(
         ctx: &ServiceContext<'_>,
@@ -359,60 +418,5 @@ impl MessageService {
         };
 
         RenderService::render(ctx, wikitext, &page_info, &settings).await
-    }
-
-    pub async fn get_message_optional(
-        ctx: &ServiceContext<'_>,
-        record_id: &str,
-    ) -> Result<Option<MessageModel>> {
-        let txn = ctx.transaction();
-        let message = Message::find()
-            .filter(message::Column::RecordId.eq(record_id))
-            .one(txn)
-            .await?;
-
-        Ok(message)
-    }
-
-    pub async fn get_record_optional(
-        ctx: &ServiceContext<'_>,
-        record_id: &str,
-    ) -> Result<Option<MessageRecordModel>> {
-        let txn = ctx.transaction();
-        let record = MessageRecord::find()
-            .filter(message_record::Column::ExternalId.eq(record_id))
-            .one(txn)
-            .await?;
-
-        Ok(record)
-    }
-
-    pub async fn record_exists(
-        ctx: &ServiceContext<'_>,
-        record_id: &str,
-    ) -> Result<bool> {
-        Self::get_record_optional(ctx, record_id)
-            .await
-            .map(|record| record.is_some())
-    }
-
-    pub async fn get_draft_optional(
-        ctx: &ServiceContext<'_>,
-        draft_id: &str,
-    ) -> Result<Option<MessageDraftModel>> {
-        let txn = ctx.transaction();
-        let draft = MessageDraft::find()
-            .filter(message_draft::Column::ExternalId.eq(draft_id))
-            .one(txn)
-            .await?;
-
-        Ok(draft)
-    }
-
-    pub async fn get_draft(
-        ctx: &ServiceContext<'_>,
-        draft_id: &str,
-    ) -> Result<MessageDraftModel> {
-        find_or_error(Self::get_draft_optional(ctx, draft_id)).await
     }
 }
