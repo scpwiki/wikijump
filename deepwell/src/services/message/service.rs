@@ -443,13 +443,23 @@ impl MessageService {
         user_ids: &[i64],
         recipient_type: MessageRecipientType,
     ) -> Result<()> {
+        let mut added_user_ids = Vec::new();
         for user_id in user_ids.iter().copied() {
+            // NOTE: Because recipient lists are generally short, well under 100,
+            //       there are no practical issues with using Vec over HashSet.
+            if added_user_ids.contains(&user_id) {
+                tide::log::debug!("Skipping message recipient (already added)");
+                continue;
+            }
+
+            tide::log::debug!("Adding message recipient {recipient_type:?} with ID {user_id}");
             let model = message_recipient::ActiveModel {
                 record_id: Set(str!(record_id)),
                 recipient_type: Set(recipient_type),
                 recipient_id: Set(user_id),
             };
             model.insert(txn).await?;
+            added_user_ids.push(user_id);
         }
 
         Ok(())
