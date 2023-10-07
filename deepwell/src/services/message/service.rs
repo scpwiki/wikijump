@@ -167,7 +167,8 @@ impl MessageService {
         let RenderOutput {
             // TODO: use html_output
             html_output: _,
-            errors,
+            // TODO: use ftml errors
+            errors: _,
             compiled_hash,
             compiled_at,
             compiled_generator,
@@ -371,6 +372,7 @@ impl MessageService {
         Ok(record_model)
     }
 
+    #[allow(dead_code)] // TEMP
     pub async fn mark_read(
         ctx: &ServiceContext<'_>,
         record_id: &str,
