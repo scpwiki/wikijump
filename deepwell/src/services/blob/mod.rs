@@ -26,7 +26,6 @@
 
 mod prelude {
     pub use super::super::prelude::*;
-    pub use super::mime_type;
     pub use super::structs::*;
     pub use crate::hash::{blob_hash_to_hex, sha512_hash, BlobHash};
 }
@@ -35,6 +34,6 @@ mod mime;
 mod service;
 mod structs;
 
-pub use self::mime::{mime_type, spawn_magic_thread};
+pub use self::mime::MimeAnalyzer;
 pub use self::service::BlobService;
 pub use self::structs::*;

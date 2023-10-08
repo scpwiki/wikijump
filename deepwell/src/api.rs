@@ -34,8 +34,8 @@ use crate::endpoints::{
     text::*, user::*, user_bot::*, view::*, vote::*,
 };
 use crate::locales::Localizations;
-use crate::services::blob::spawn_magic_thread;
-use crate::services::job::JobRunner;
+use crate::services::blob::MimeAnalyzer;
+use crate::services::job::JobQueue;
 use crate::utils::error_response;
 use anyhow::Result;
 use s3::bucket::Bucket;
@@ -54,6 +54,8 @@ pub struct ServerState {
     pub config: Config,
     pub database: DatabaseConnection,
     pub localizations: Localizations,
+    pub mime_analyzer: MimeAnalyzer,
+    pub job_queue: JobQueue,
     pub s3_bucket: Bucket,
 }
 
@@ -68,6 +70,12 @@ pub async fn build_server_state(
     // Load localization data
     tide::log::info!("Loading localization data");
     let localizations = Localizations::open(&config.localization_path).await?;
+
+    // Set up job queue
+    let (job_queue, job_state_sender) = JobQueue::spawn(&config);
+
+    // Load magic data and start MIME thread
+    let mime_analyzer = MimeAnalyzer::spawn();
 
     // Create S3 bucket
     tide::log::info!("Opening S3 bucket");
@@ -87,13 +95,23 @@ pub async fn build_server_state(
         bucket
     };
 
-    // Return server state
-    Ok(Arc::new(ServerState {
+    // Build server state
+    let state = Arc::new(ServerState {
         config,
         database,
         localizations,
+        mime_analyzer,
+        job_queue,
         s3_bucket,
-    }))
+    });
+
+    // Start the job queue (requires ApiServerState)
+    job_state_sender
+        .send(Arc::clone(&state))
+        .expect("Unable to send ApiServerState");
+
+    // Return server state
+    Ok(state)
 }
 
 pub fn build_server(state: ApiServerState) -> ApiServer {
@@ -102,13 +120,6 @@ pub fn build_server(state: ApiServerState) -> ApiServer {
             tide::Server::with_state(Arc::clone(&state))
         };
     }
-
-    // Start main job executor task
-    // (and ancillary repeated tasks)
-    JobRunner::spawn(&state);
-
-    // Start MIME evaluator thread
-    spawn_magic_thread();
 
     // Create server and add routes
     //

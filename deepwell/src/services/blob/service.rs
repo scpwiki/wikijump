@@ -67,7 +67,7 @@ impl BlobService {
                 tide::log::debug!("Blob with hash {hex_hash} to be created");
 
                 // Determine MIME type for the new file
-                let mime = mime_type(data.to_vec()).await?;
+                let mime = ctx.mime().get_mime_type(data.to_vec()).await?;
 
                 // Put into S3
                 let response = bucket

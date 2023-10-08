@@ -21,6 +21,8 @@
 use crate::api::{ApiRequest, ApiServerState};
 use crate::config::Config;
 use crate::locales::Localizations;
+use crate::services::blob::MimeAnalyzer;
+use crate::services::job::JobQueue;
 use s3::bucket::Bucket;
 use sea_orm::DatabaseTransaction;
 use std::sync::Arc;
@@ -56,6 +58,16 @@ impl<'txn> ServiceContext<'txn> {
     #[inline]
     pub fn localization(&self) -> &Localizations {
         &self.state.localizations
+    }
+
+    #[inline]
+    pub fn mime(&self) -> &MimeAnalyzer {
+        &self.state.mime_analyzer
+    }
+
+    #[inline]
+    pub fn job_queue(&self) -> &JobQueue {
+        &self.state.job_queue
     }
 
     #[inline]
