@@ -58,6 +58,7 @@ impl InteractionService {
             },
         )
         .await?;
+        // TODO: remove site member applications
         // TODO: remove site roles
 
         create_operation!(
