@@ -68,7 +68,6 @@ async fn main() -> Result<()> {
     let SetupConfig { secrets, config } = SetupConfig::load();
 
     // Copy fields we need
-    let socket_address = config.address;
     let run_migrations = config.run_migrations;
     let run_seeder = config.run_seeder;
 
@@ -123,8 +122,7 @@ async fn main() -> Result<()> {
 
     // Build and run server
     tide::log::info!("Building server and listening...");
-    let app = api::build_server(app_state);
-    app.listen(socket_address).await?;
-
+    let server = api::build_server(app_state).await?;
+    server.stopped().await;
     Ok(())
 }

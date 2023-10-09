@@ -38,6 +38,7 @@ use crate::services::blob::MimeAnalyzer;
 use crate::services::job::JobQueue;
 use crate::utils::error_response;
 use anyhow::Result;
+use jsonrpsee::server::{RpcModule, Server, ServerHandle};
 use s3::bucket::Bucket;
 use sea_orm::DatabaseConnection;
 use std::sync::Arc;
@@ -114,7 +115,151 @@ pub async fn build_server_state(
     Ok(state)
 }
 
-pub fn build_server(state: ApiServerState) -> ApiServer {
+pub async fn build_server(app_state: ApiServerState) -> Result<ServerHandle> {
+    let socket_address = app_state.config.address;
+    let server = Server::builder().build(socket_address).await?;
+    let module = build_module(app_state).await?;
+    let handle = server.start(module);
+    Ok(handle)
+}
+
+async fn build_module(app_state: ApiServerState) -> Result<RpcModule<ApiServerState>> {
+    let mut module = RpcModule::new(app_state);
+
+    // Miscellaneous
+    module.register_method("ping", |_params, _context| todo!())?;
+    module.register_method("version", |_params, _context| todo!())?;
+    module.register_method("version_full", |_params, _context| todo!())?;
+    module.register_method("hostname", |_params, _context| todo!())?;
+    module.register_method("config", |_params, _context| todo!())?;
+    module.register_method("config_path", |_params, _context| todo!())?;
+    module.register_method("normalize", |_params, _context| todo!())?;
+
+    // Localization
+    module.register_method("locale", |_params, _context| todo!())?;
+    module.register_method("translate", |_params, _context| todo!())?;
+
+    // Web server
+    module.register_method("page_view", |_params, _context| todo!())?;
+
+    // Authentication
+    module.register_method("login", |_params, _context| todo!())?;
+    module.register_method("logout", |_params, _context| todo!())?;
+    module.register_method("session_get", |_params, _context| todo!())?;
+    module.register_method("session_get_others", |_params, _context| todo!())?;
+    module.register_method("session_renew", |_params, _context| todo!())?;
+    module.register_method("mfa_verify", |_params, _context| todo!())?;
+    module.register_method("mfa_setup", |_params, _context| todo!())?;
+    module.register_method("mfa_disable", |_params, _context| todo!())?;
+    module.register_method("mfa_reset_recovery", |_params, _context| todo!())?;
+
+    // Site
+    module.register_method("site_create", |_params, _context| todo!())?;
+    module.register_method("site_get", |_params, _context| todo!())?;
+    module.register_method("site_update", |_params, _context| todo!())?;
+    module.register_method("site_from_domain", |_params, _context| todo!())?;
+
+    // Site custom domain
+    module.register_method("custom_domain_create", |_params, _context| todo!())?;
+    module.register_method("custom_domain_get", |_params, _context| todo!())?;
+    module.register_method("custom_domain_delete", |_params, _context| todo!())?;
+
+    // Site membership
+    module.register_method("member_create", |_params, _context| todo!())?;
+    module.register_method("member_get", |_params, _context| todo!())?;
+    module.register_method("member_delete", |_params, _context| todo!())?;
+
+    // Category
+    module.register_method("category_get", |_params, _context| todo!())?;
+    module.register_method("category_get_all", |_params, _context| todo!())?;
+
+    // Page
+    module.register_method("page_create", |_params, _context| todo!())?;
+    module.register_method("page_get", |_params, _context| todo!())?;
+    module.register_method("page_get_direct", |_params, _context| todo!())?;
+    module.register_method("page_edit", |_params, _context| todo!())?;
+    module.register_method("page_delete", |_params, _context| todo!())?;
+    module.register_method("page_move", |_params, _context| todo!())?;
+    module.register_method("page_rerender", |_params, _context| todo!())?;
+    module.register_method("page_restore", |_params, _context| todo!())?;
+
+    // Page revisions
+    module.register_method("page_revision_create", |_params, _context| todo!())?;
+    module.register_method("page_revision_get", |_params, _context| todo!())?;
+    module.register_method("page_revision_count", |_params, _context| todo!())?;
+    module.register_method("page_revision_rollback", |_params, _context| todo!())?;
+    module.register_method("page_revision_range", |_params, _context| todo!())?;
+
+    // Page links
+    module.register_method("page_get_links_from", |_params, _context| todo!())?;
+    module.register_method("page_get_links_to", |_params, _context| todo!())?;
+    module.register_method("page_get_links_to_missing", |_params, _context| todo!())?;
+    module.register_method("page_get_urls_from", |_params, _context| todo!())?;
+    module.register_method("page_get_urls_to", |_params, _context| todo!())?;
+
+    // Page parents
+    module.register_method("parent_create", |_params, _context| todo!())?;
+    module.register_method("parent_get", |_params, _context| todo!())?;
+    module.register_method("parent_delete", |_params, _context| todo!())?;
+    module.register_method("parent_relationship", |_params, _context| todo!())?;
+
+    // Files
+    module.register_method("file_create", |_params, _context| todo!())?;
+    module.register_method("file_get", |_params, _context| todo!())?;
+    module.register_method("file_edit", |_params, _context| todo!())?;
+    module.register_method("file_delete", |_params, _context| todo!())?;
+    module.register_method("file_move", |_params, _context| todo!())?;
+    module.register_method("file_restore", |_params, _context| todo!())?;
+
+    // File revisions
+    module.register_method("file_revision_create", |_params, _context| todo!())?;
+    module.register_method("file_revision_get", |_params, _context| todo!())?;
+    module.register_method("file_revision_count", |_params, _context| todo!())?;
+    module.register_method("file_revision_range", |_params, _context| todo!())?;
+
+    // Text
+    module.register_method("text_create", |_params, _context| todo!())?;
+    module.register_method("text_get", |_params, _context| todo!())?;
+
+    // User
+    module.register_method("user_create", |_params, _context| todo!())?;
+    module.register_method("user_get", |_params, _context| todo!())?;
+    module.register_method("user_edit", |_params, _context| todo!())?;
+    module.register_method("user_delete", |_params, _context| todo!())?;
+    module.register_method("user_import", |_params, _context| todo!())?;
+    module.register_method("user_add_name_change", |_params, _context| todo!())?;
+    module.register_method("user_avatar_set", |_params, _context| todo!())?;
+
+    // Bot user
+    module.register_method("bot_user_create", |_params, _context| todo!())?;
+    module.register_method("bot_user_get", |_params, _context| todo!())?;
+    module.register_method("bot_user_owner_set", |_params, _context| todo!())?;
+    module.register_method("bot_user_owner_delete", |_params, _context| todo!())?;
+
+    // Direct messages
+    module.register_method("message_draft_create", |_params, _context| todo!())?;
+    module.register_method("message_draft_edit", |_params, _context| todo!())?;
+    module.register_method("message_draft_delete", |_params, _context| todo!())?;
+    module.register_method("message_draft_send", |_params, _context| todo!())?;
+
+    // Email
+    module.register_method("email_validate", |_params, _context| todo!())?;
+
+    // Votes
+    module.register_method("vote_set", |_params, _context| todo!())?;
+    module.register_method("vote_get", |_params, _context| todo!())?;
+    module.register_method("vote_delete", |_params, _context| todo!())?;
+    module.register_method("vote_action", |_params, _context| todo!())?;
+    module.register_method("vote_list", |_params, _context| todo!())?;
+    module.register_method("vote_count", |_params, _context| todo!())?;
+
+    // Return
+    Ok(module)
+}
+
+/* *** */
+
+pub fn tide_build_server(state: ApiServerState) -> ApiServer {
     macro_rules! new {
         () => {
             tide::Server::with_state(Arc::clone(&state))
@@ -126,11 +271,11 @@ pub fn build_server(state: ApiServerState) -> ApiServer {
     // Prefix is present to avoid ambiguity about what this
     // API is meant to be and the fact that it's not to be publicly-facing.
     let mut app = new!();
-    app.at("/api/trusted").nest(build_routes(new!()));
+    app.at("/api/trusted").nest(tide_build_routes(new!()));
     app
 }
 
-fn build_routes(mut app: ApiServer) -> ApiServer {
+fn tide_build_routes(mut app: ApiServer) -> ApiServer {
     // Miscellaneous
     app.at("/ping").all(ping);
     app.at("/version").get(version);
