@@ -35,6 +35,7 @@ futures = { version = "0.3", features = ["async-await"], default-features = fals
 hex = "0.4"
 hostname = "0.3"
 intl-memoizer = "0.5"
+jsonrpsee = { version = "0.20", features = ["macros", "server"] }
 log = "0.4"
 notify = { version = "6", optional = true }
 once_cell = "1"
@@ -55,7 +56,6 @@ str-macro = "1"
 strum = "0.25"
 strum_macros = "0.25"
 subtle = "2.4"
-tarpc = { version = "0.33", features = ["serde-transport", "serde-transport-json", "tcp", "tokio1"] }
 thiserror = "1"
 tide = "0.16"
 time = { version = "0.3", features = ["parsing", "serde", "serde-human-readable"], default-features = false }
