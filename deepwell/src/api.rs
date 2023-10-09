@@ -39,6 +39,7 @@ use crate::services::job::JobQueue;
 use crate::utils::error_response;
 use anyhow::Result;
 use jsonrpsee::server::{RpcModule, Server, ServerHandle};
+use jsonrpsee::{types::params::Params, IntoResponse};
 use s3::bucket::Bucket;
 use sea_orm::DatabaseConnection;
 use std::sync::Arc;
@@ -125,192 +126,148 @@ pub async fn build_server(app_state: ServerState) -> Result<ServerHandle> {
 async fn build_module(app_state: ServerState) -> Result<RpcModule<ServerState>> {
     let mut module = RpcModule::new(app_state);
 
+    macro_rules! register {
+        ($name:expr, $method:ident $(,)?) => {{
+            module.register_async_method($name, |params, state| async {
+                $method(state, params).await
+            })?;
+        }};
+    }
+
+    async fn not_implemented(
+        state: Arc<ServerState>,
+        params: Params<'static>,
+    ) -> impl IntoResponse + 'static {
+        tide::log::error!("Method not implemented yet!");
+        todo!()
+    }
+
     // Miscellaneous
-    module.register_async_method("ping", |_params, _state| async { todo!() })?;
-    module.register_async_method("version", |_params, _state| async { todo!() })?;
-    module.register_async_method("version_full", |_params, _state| async { todo!() })?;
-    module.register_async_method("hostname", |_params, _state| async { todo!() })?;
-    module.register_async_method("config", |_params, _state| async { todo!() })?;
-    module.register_async_method("config_path", |_params, _state| async { todo!() })?;
-    module.register_async_method("normalize", |_params, _state| async { todo!() })?;
+    register!("ping", not_implemented);
+    register!("version", not_implemented);
+    register!("version_full", not_implemented);
+    register!("hostname", not_implemented);
+    register!("config", not_implemented);
+    register!("config_path", not_implemented);
+    register!("normalize", not_implemented);
 
     // Localization
-    module.register_async_method("locale", |_params, _state| async { todo!() })?;
-    module.register_async_method("translate", |_params, _state| async { todo!() })?;
+    register!("locale", not_implemented);
+    register!("translate", not_implemented);
 
     // Web server
-    module.register_async_method("page_view", |_params, _state| async { todo!() })?;
+    register!("page_view", not_implemented);
 
     // Authentication
-    module.register_async_method("login", |_params, _state| async { todo!() })?;
-    module.register_async_method("logout", |_params, _state| async { todo!() })?;
-    module.register_async_method("session_get", |_params, _state| async { todo!() })?;
-    module.register_async_method("session_get_others", |_params, _state| async {
-        todo!()
-    })?;
-    module.register_async_method("session_renew", |_params, _state| async { todo!() })?;
-    module.register_async_method("mfa_verify", |_params, _state| async { todo!() })?;
-    module.register_async_method("mfa_setup", |_params, _state| async { todo!() })?;
-    module.register_async_method("mfa_disable", |_params, _state| async { todo!() })?;
-    module.register_async_method("mfa_reset_recovery", |_params, _state| async {
-        todo!()
-    })?;
+    register!("login", not_implemented);
+    register!("logout", not_implemented);
+    register!("session_get", not_implemented);
+    register!("session_get_others", not_implemented);
+    register!("session_renew", not_implemented);
+    register!("mfa_verify", not_implemented);
+    register!("mfa_setup", not_implemented);
+    register!("mfa_disable", not_implemented);
+    register!("mfa_reset_recovery", not_implemented);
 
     // Site
-    module.register_async_method("site_create", |_params, _state| async { todo!() })?;
-    module.register_async_method("site_get", |_params, _state| async { todo!() })?;
-    module.register_async_method("site_update", |_params, _state| async { todo!() })?;
-    module
-        .register_async_method("site_from_domain", |_params, _state| async { todo!() })?;
+    register!("site_create", not_implemented);
+    register!("site_get", not_implemented);
+    register!("site_update", not_implemented);
+    register!("site_from_domain", not_implemented);
 
     // Site custom domain
-    module.register_async_method("custom_domain_create", |_params, _state| async {
-        todo!()
-    })?;
-    module.register_async_method("custom_domain_get", |_params, _state| async {
-        todo!()
-    })?;
-    module.register_async_method("custom_domain_delete", |_params, _state| async {
-        todo!()
-    })?;
+    register!("custom_domain_create", not_implemented);
+    register!("custom_domain_get", not_implemented);
+    register!("custom_domain_delete", not_implemented);
 
     // Site membership
-    module.register_async_method("member_create", |_params, _state| async { todo!() })?;
-    module.register_async_method("member_get", |_params, _state| async { todo!() })?;
-    module.register_async_method("member_delete", |_params, _state| async { todo!() })?;
+    register!("member_create", not_implemented);
+    register!("member_get", not_implemented);
+    register!("member_delete", not_implemented);
 
     // Category
-    module.register_async_method("category_get", |_params, _state| async { todo!() })?;
-    module
-        .register_async_method("category_get_all", |_params, _state| async { todo!() })?;
+    register!("category_get", not_implemented);
+    register!("category_get_all", not_implemented);
 
     // Page
-    module.register_async_method("page_create", |_params, _state| async { todo!() })?;
-    module.register_async_method("page_get", |_params, _state| async { todo!() })?;
-    module
-        .register_async_method("page_get_direct", |_params, _state| async { todo!() })?;
-    module.register_async_method("page_edit", |_params, _state| async { todo!() })?;
-    module.register_async_method("page_delete", |_params, _state| async { todo!() })?;
-    module.register_async_method("page_move", |_params, _state| async { todo!() })?;
-    module.register_async_method("page_rerender", |_params, _state| async { todo!() })?;
-    module.register_async_method("page_restore", |_params, _state| async { todo!() })?;
+    register!("page_create", not_implemented);
+    register!("page_get", not_implemented);
+    register!("page_get_direct", not_implemented);
+    register!("page_edit", not_implemented);
+    register!("page_delete", not_implemented);
+    register!("page_move", not_implemented);
+    register!("page_rerender", not_implemented);
+    register!("page_restore", not_implemented);
 
     // Page revisions
-    module.register_async_method("page_revision_create", |_params, _state| async {
-        todo!()
-    })?;
-    module.register_async_method("page_revision_get", |_params, _state| async {
-        todo!()
-    })?;
-    module.register_async_method("page_revision_count", |_params, _state| async {
-        todo!()
-    })?;
-    module.register_async_method("page_revision_rollback", |_params, _state| async {
-        todo!()
-    })?;
-    module.register_async_method("page_revision_range", |_params, _state| async {
-        todo!()
-    })?;
+    register!("page_revision_create", not_implemented);
+    register!("page_revision_get", not_implemented);
+    register!("page_revision_count", not_implemented);
+    register!("page_revision_rollback", not_implemented);
+    register!("page_revision_range", not_implemented);
 
     // Page links
-    module.register_async_method("page_get_links_from", |_params, _state| async {
-        todo!()
-    })?;
-    module.register_async_method("page_get_links_to", |_params, _state| async {
-        todo!()
-    })?;
-    module
-        .register_async_method("page_get_links_to_missing", |_params, _state| async {
-            todo!()
-        })?;
-    module.register_async_method("page_get_urls_from", |_params, _state| async {
-        todo!()
-    })?;
-    module
-        .register_async_method("page_get_urls_to", |_params, _state| async { todo!() })?;
+    register!("page_get_links_from", not_implemented);
+    register!("page_get_links_to", not_implemented);
+    register!("page_get_links_to_missing", not_implemented);
+    register!("page_get_urls_from", not_implemented);
+    register!("page_get_urls_to", not_implemented);
 
     // Page parents
-    module.register_async_method("parent_create", |_params, _state| async { todo!() })?;
-    module.register_async_method("parent_get", |_params, _state| async { todo!() })?;
-    module.register_async_method("parent_delete", |_params, _state| async { todo!() })?;
-    module.register_async_method("parent_relationship", |_params, _state| async {
-        todo!()
-    })?;
+    register!("parent_create", not_implemented);
+    register!("parent_get", not_implemented);
+    register!("parent_delete", not_implemented);
+    register!("parent_relationship", not_implemented);
 
     // Files
-    module.register_async_method("file_create", |_params, _state| async { todo!() })?;
-    module.register_async_method("file_get", |_params, _state| async { todo!() })?;
-    module.register_async_method("file_edit", |_params, _state| async { todo!() })?;
-    module.register_async_method("file_delete", |_params, _state| async { todo!() })?;
-    module.register_async_method("file_move", |_params, _state| async { todo!() })?;
-    module.register_async_method("file_restore", |_params, _state| async { todo!() })?;
+    register!("file_create", not_implemented);
+    register!("file_get", not_implemented);
+    register!("file_edit", not_implemented);
+    register!("file_delete", not_implemented);
+    register!("file_move", not_implemented);
+    register!("file_restore", not_implemented);
 
     // File revisions
-    module.register_async_method("file_revision_create", |_params, _state| async {
-        todo!()
-    })?;
-    module.register_async_method("file_revision_get", |_params, _state| async {
-        todo!()
-    })?;
-    module.register_async_method("file_revision_count", |_params, _state| async {
-        todo!()
-    })?;
-    module.register_async_method("file_revision_range", |_params, _state| async {
-        todo!()
-    })?;
+    register!("file_revision_create", not_implemented);
+    register!("file_revision_get", not_implemented);
+    register!("file_revision_count", not_implemented);
+    register!("file_revision_range", not_implemented);
 
     // Text
-    module.register_async_method("text_create", |_params, _state| async { todo!() })?;
-    module.register_async_method("text_get", |_params, _state| async { todo!() })?;
+    register!("text_create", not_implemented);
+    register!("text_get", not_implemented);
 
     // User
-    module.register_async_method("user_create", |_params, _state| async { todo!() })?;
-    module.register_async_method("user_get", |_params, _state| async { todo!() })?;
-    module.register_async_method("user_edit", |_params, _state| async { todo!() })?;
-    module.register_async_method("user_delete", |_params, _state| async { todo!() })?;
-    module.register_async_method("user_import", |_params, _state| async { todo!() })?;
-    module.register_async_method("user_add_name_change", |_params, _state| async {
-        todo!()
-    })?;
-    module
-        .register_async_method("user_avatar_set", |_params, _state| async { todo!() })?;
+    register!("user_create", not_implemented);
+    register!("user_get", not_implemented);
+    register!("user_edit", not_implemented);
+    register!("user_delete", not_implemented);
+    register!("user_import", not_implemented);
+    register!("user_add_name_change", not_implemented);
+    register!("user_avatar_set", not_implemented);
 
     // Bot user
-    module
-        .register_async_method("bot_user_create", |_params, _state| async { todo!() })?;
-    module.register_async_method("bot_user_get", |_params, _state| async { todo!() })?;
-    module.register_async_method("bot_user_owner_set", |_params, _state| async {
-        todo!()
-    })?;
-    module.register_async_method("bot_user_owner_delete", |_params, _state| async {
-        todo!()
-    })?;
+    register!("bot_user_create", not_implemented);
+    register!("bot_user_get", not_implemented);
+    register!("bot_user_owner_set", not_implemented);
+    register!("bot_user_owner_delete", not_implemented);
 
     // Direct messages
-    module.register_async_method("message_draft_create", |_params, _state| async {
-        todo!()
-    })?;
-    module.register_async_method("message_draft_edit", |_params, _state| async {
-        todo!()
-    })?;
-    module.register_async_method("message_draft_delete", |_params, _state| async {
-        todo!()
-    })?;
-    module.register_async_method("message_draft_send", |_params, _state| async {
-        todo!()
-    })?;
+    register!("message_draft_create", not_implemented);
+    register!("message_draft_edit", not_implemented);
+    register!("message_draft_delete", not_implemented);
+    register!("message_draft_send", not_implemented);
 
     // Email
-    module
-        .register_async_method("email_validate", |_params, _state| async { todo!() })?;
+    register!("email_validate", not_implemented);
 
     // Votes
-    module.register_async_method("vote_set", |_params, _state| async { todo!() })?;
-    module.register_async_method("vote_get", |_params, _state| async { todo!() })?;
-    module.register_async_method("vote_delete", |_params, _state| async { todo!() })?;
-    module.register_async_method("vote_action", |_params, _state| async { todo!() })?;
-    module.register_async_method("vote_list", |_params, _state| async { todo!() })?;
-    module.register_async_method("vote_count", |_params, _state| async { todo!() })?;
+    register!("vote_set", not_implemented);
+    register!("vote_get", not_implemented);
+    register!("vote_delete", not_implemented);
+    register!("vote_action", not_implemented);
+    register!("vote_list", not_implemented);
+    register!("vote_count", not_implemented);
 
     // Return
     Ok(module)
