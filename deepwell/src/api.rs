@@ -152,8 +152,8 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
 
     // Miscellaneous
     register!("ping", ping);
-    register!("version", not_implemented);
-    register!("version_full", not_implemented);
+    register!("version", version);
+    register!("version_full", full_version);
     register!("hostname", not_implemented);
     register!("config", not_implemented);
     register!("config_path", not_implemented);
@@ -301,8 +301,6 @@ pub fn tide_build_server(state: ServerState) -> tide::Server<ServerState> {
 
 fn tide_build_routes(mut app: tide::Server<ServerState>) -> tide::Server<ServerState> {
     // Miscellaneous
-    app.at("/version").get(version);
-    app.at("/version/full").get(full_version);
     app.at("/hostname").get(hostname);
     app.at("/config").get(config_dump);
     app.at("/config/path").get(config_path);

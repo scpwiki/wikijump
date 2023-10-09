@@ -39,14 +39,20 @@ pub async fn ping(state: ServerState, params: Params<'static>) -> Result<&'stati
     Ok("Pong!")
 }
 
-pub async fn version(_: ApiRequest) -> ApiResponse {
+pub async fn version(
+    state: ServerState,
+    params: Params<'static>,
+) -> Result<&'static str> {
     tide::log::info!("Getting DEEPWELL version");
-    Ok(info::VERSION.as_str().into())
+    Ok(info::VERSION.as_str())
 }
 
-pub async fn full_version(_: ApiRequest) -> ApiResponse {
+pub async fn full_version(
+    state: ServerState,
+    params: Params<'static>,
+) -> Result<&'static str> {
     tide::log::info!("Getting DEEPWELL version (full)");
-    Ok(info::FULL_VERSION.as_str().into())
+    Ok(info::FULL_VERSION.as_str())
 }
 
 pub async fn hostname(_: ApiRequest) -> ApiResponse {
