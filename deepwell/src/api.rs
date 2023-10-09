@@ -128,14 +128,19 @@ async fn build_module(app_state: ServerState) -> Result<RpcModule<ServerState>> 
 
     macro_rules! register {
         ($name:expr, $method:ident $(,)?) => {{
-            module.register_async_method($name, |params, state| async {
+            module.register_async_method($name, |params, state| async move {
+                // NOTE: We have our own Arc because we need to share it in some places
+                //       before setting up, but RpcModule insists on adding its own.
+                //       So we need to "unwrap it" before each method invocation.
+                //       Oh well.
+                let state = Arc::clone(&*state);
                 $method(state, params).await
             })?;
         }};
     }
 
     async fn not_implemented(
-        state: Arc<ServerState>,
+        state: ServerState,
         params: Params<'static>,
     ) -> impl IntoResponse + 'static {
         tide::log::error!("Method not implemented yet!");
