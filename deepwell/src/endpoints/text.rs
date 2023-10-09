@@ -49,7 +49,7 @@ pub async fn text_get(req: ApiRequest) -> ApiResponse {
     Ok(body.into())
 }
 
-fn read_hash(req: &ApiRequest) -> Result<TextHash, TideError> {
+fn read_hash(req: &ApiRequest) -> StdResult<TextHash, TideError> {
     let hash_hex = req.param("hash")?;
     tide::log::debug!("Text hash: {hash_hex}");
 

@@ -23,11 +23,11 @@ use crate::info;
 use sea_orm::{ConnectionTrait, DatabaseBackend, Statement};
 use wikidot_normalize::normalize;
 
-pub async fn ping(req: ApiRequest) -> ApiResponse {
+pub async fn ping(state: ServerState, params: Params<'static>) -> Result<&'static str> {
     tide::log::info!("Ping request");
 
     // Ensure the database is connected
-    req.state()
+    state
         .database
         .execute(Statement::from_string(
             DatabaseBackend::Postgres,
@@ -36,7 +36,7 @@ pub async fn ping(req: ApiRequest) -> ApiResponse {
         .await?;
 
     // Seems good, respond to user
-    Ok("Pong!".into())
+    Ok("Pong!")
 }
 
 pub async fn version(_: ApiRequest) -> ApiResponse {

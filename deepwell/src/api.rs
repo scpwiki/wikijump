@@ -36,10 +36,10 @@ use crate::endpoints::{
 use crate::locales::Localizations;
 use crate::services::blob::MimeAnalyzer;
 use crate::services::job::JobQueue;
+use crate::services::Result as ServiceResult;
 use crate::utils::error_response;
-use anyhow::Result;
 use jsonrpsee::server::{RpcModule, Server, ServerHandle};
-use jsonrpsee::{types::params::Params, IntoResponse};
+use jsonrpsee::types::{error::ErrorObjectOwned, params::Params};
 use s3::bucket::Bucket;
 use sea_orm::DatabaseConnection;
 use std::sync::Arc;
@@ -63,7 +63,10 @@ pub struct ServerStateInner {
     pub s3_bucket: Bucket,
 }
 
-pub async fn build_server_state(config: Config, secrets: Secrets) -> Result<ServerState> {
+pub async fn build_server_state(
+    config: Config,
+    secrets: Secrets,
+) -> anyhow::Result<ServerState> {
     // Connect to database
     tide::log::info!("Connecting to PostgreSQL database");
     let database = database::connect(&secrets.database_url).await?;
@@ -115,7 +118,7 @@ pub async fn build_server_state(config: Config, secrets: Secrets) -> Result<Serv
     Ok(state)
 }
 
-pub async fn build_server(app_state: ServerState) -> Result<ServerHandle> {
+pub async fn build_server(app_state: ServerState) -> anyhow::Result<ServerHandle> {
     let socket_address = app_state.config.address;
     let server = Server::builder().build(socket_address).await?;
     let module = build_module(app_state).await?;
@@ -123,7 +126,7 @@ pub async fn build_server(app_state: ServerState) -> Result<ServerHandle> {
     Ok(handle)
 }
 
-async fn build_module(app_state: ServerState) -> Result<RpcModule<ServerState>> {
+async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<ServerState>> {
     let mut module = RpcModule::new(app_state);
 
     macro_rules! register {
@@ -134,7 +137,7 @@ async fn build_module(app_state: ServerState) -> Result<RpcModule<ServerState>> 
                 //       So we need to "unwrap it" before each method invocation.
                 //       Oh well.
                 let state = Arc::clone(&*state);
-                $method(state, params).await
+                $method(state, params).await.map_err(ErrorObjectOwned::from)
             })?;
         }};
     }
@@ -142,13 +145,13 @@ async fn build_module(app_state: ServerState) -> Result<RpcModule<ServerState>> 
     async fn not_implemented(
         state: ServerState,
         params: Params<'static>,
-    ) -> impl IntoResponse + 'static {
+    ) -> ServiceResult<()> {
         tide::log::error!("Method not implemented yet!");
         todo!()
     }
 
     // Miscellaneous
-    register!("ping", not_implemented);
+    register!("ping", ping);
     register!("version", not_implemented);
     register!("version_full", not_implemented);
     register!("hostname", not_implemented);
@@ -298,7 +301,6 @@ pub fn tide_build_server(state: ServerState) -> tide::Server<ServerState> {
 
 fn tide_build_routes(mut app: tide::Server<ServerState>) -> tide::Server<ServerState> {
     // Miscellaneous
-    app.at("/ping").all(ping);
     app.at("/version").get(version);
     app.at("/version/full").get(full_version);
     app.at("/hostname").get(hostname);

@@ -20,6 +20,7 @@
 
 use crate::locales::LocalizationTranslateError;
 use filemagic::FileMagicError;
+use jsonrpsee::types::error::ErrorObjectOwned;
 use reqwest::Error as ReqwestError;
 use s3::error::S3Error;
 use sea_orm::error::DbErr;
@@ -199,5 +200,16 @@ impl From<TideError> for Error {
     #[inline]
     fn from(error: TideError) -> Error {
         Error::Web(error)
+    }
+}
+
+// End-conversion for methods
+//
+// This is used to convert our
+
+impl From<Error> for ErrorObjectOwned {
+    fn from(error: Error) -> ErrorObjectOwned {
+        // XXX
+        todo!()
     }
 }
