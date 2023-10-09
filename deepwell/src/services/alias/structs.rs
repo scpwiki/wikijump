@@ -21,7 +21,6 @@
 use crate::models::sea_orm_active_enums::AliasType;
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct CreateAlias {
     pub slug: String,
     pub alias_type: AliasType,
@@ -33,7 +32,6 @@ pub struct CreateAlias {
 }
 
 #[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct CreateAliasOutput {
     pub alias_id: i64,
     pub slug: String,

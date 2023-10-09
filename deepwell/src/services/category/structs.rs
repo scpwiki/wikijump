@@ -23,14 +23,12 @@ use crate::web::Reference;
 use time::OffsetDateTime;
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct GetCategory<'a> {
     pub site: Reference<'a>,
     pub category: Reference<'a>,
 }
 
 #[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct CategoryOutput {
     category_id: i64,
     created_at: OffsetDateTime,

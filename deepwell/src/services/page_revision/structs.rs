@@ -26,7 +26,6 @@ use std::num::NonZeroI32;
 use time::OffsetDateTime;
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct CreatePageRevision {
     pub user_id: i64,
     pub comments: String,
@@ -36,7 +35,7 @@ pub struct CreatePageRevision {
 }
 
 #[derive(Deserialize, Debug, Default)]
-#[serde(rename_all = "camelCase", default)]
+#[serde(default)]
 pub struct CreatePageRevisionBody {
     pub wikitext: ProvidedValue<String>,
     pub title: ProvidedValue<String>,
@@ -73,7 +72,6 @@ pub struct CreateResurrectionPageRevision {
 }
 
 #[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct CreatePageRevisionOutput {
     pub revision_id: i64,
     pub revision_number: i32,
@@ -81,14 +79,12 @@ pub struct CreatePageRevisionOutput {
 }
 
 #[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct CreateFirstPageRevisionOutput {
     pub revision_id: i64,
     pub parser_errors: Vec<ParseError>,
 }
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct GetPageRevision {
     pub site_id: i64,
     pub page_id: i64,
@@ -96,7 +92,6 @@ pub struct GetPageRevision {
 }
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct UpdatePageRevision {
     pub site_id: i64,
     pub page_id: i64,
@@ -106,7 +101,6 @@ pub struct UpdatePageRevision {
 }
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct GetPageRevisionRange {
     pub site_id: i64,
     pub page_id: i64,
@@ -125,7 +119,6 @@ pub struct GetPageRevisionRange {
 /// However it's convenient to avoid having to do these calculations inline
 /// in other places, and also so that API consumers have the relevant information.
 #[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct PageRevisionCountOutput {
     pub revision_count: NonZeroI32,
     pub first_revision: i32,

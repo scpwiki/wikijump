@@ -33,20 +33,17 @@ pub struct CreateSite {
 }
 
 #[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct CreateSiteOutput {
     pub site_id: i64,
     pub slug: String,
 }
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct GetSite<'a> {
     pub site: Reference<'a>,
 }
 
 #[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct GetSiteOutput {
     #[serde(flatten)]
     pub site: SiteModel,
@@ -55,7 +52,6 @@ pub struct GetSiteOutput {
 }
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct UpdateSite<'a> {
     pub site: Reference<'a>,
     pub user_id: i64,
@@ -65,7 +61,7 @@ pub struct UpdateSite<'a> {
 }
 
 #[derive(Deserialize, Debug, Default)]
-#[serde(rename_all = "camelCase", default)]
+#[serde(default)]
 pub struct UpdateSiteBody {
     pub name: ProvidedValue<String>,
     pub slug: ProvidedValue<String>,

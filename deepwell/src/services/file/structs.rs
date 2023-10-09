@@ -27,7 +27,6 @@ use serde_json::Value as JsonValue;
 use time::OffsetDateTime;
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct CreateFile {
     pub revision_comments: String,
     pub name: String,
@@ -41,7 +40,6 @@ pub struct CreateFile {
 pub type CreateFileOutput = CreateFirstFileRevisionOutput;
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct GetFile<'a> {
     pub site_id: i64,
     pub page_id: i64,
@@ -49,7 +47,6 @@ pub struct GetFile<'a> {
 }
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct UpdateFile {
     pub revision_comments: String,
     pub user_id: i64,
@@ -62,7 +59,7 @@ pub struct UpdateFile {
 }
 
 #[derive(Deserialize, Debug, Default)]
-#[serde(rename_all = "camelCase", default)]
+#[serde(default)]
 pub struct UpdateFileBody {
     pub name: ProvidedValue<String>,
     pub data: ProvidedValue<Vec<u8>>,
@@ -72,7 +69,6 @@ pub struct UpdateFileBody {
 pub type UpdateFileOutput = CreateFileRevisionOutput;
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct MoveFile {
     pub revision_comments: String,
     pub user_id: i64,
@@ -84,7 +80,6 @@ pub struct MoveFile {
 pub type MoveFileOutput = CreateFileRevisionOutput;
 
 #[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct GetFileOutput<'a> {
     pub file_id: i64,
     pub file_created_at: OffsetDateTime,
@@ -122,7 +117,6 @@ pub struct RestoreFile {
 }
 
 #[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct DeleteFileOutput {
     pub file_id: i64,
     pub file_revision_id: i64,
@@ -130,7 +124,6 @@ pub struct DeleteFileOutput {
 }
 
 #[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct RestoreFileOutput {
     pub page_id: i64,
     pub file_id: i64,

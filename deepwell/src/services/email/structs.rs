@@ -34,7 +34,6 @@ pub struct MailCheckResponse {
 }
 
 #[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
 pub struct EmailValidationOutput {
     pub valid: bool,
     pub classification: EmailClassification,
@@ -52,7 +51,6 @@ impl Default for EmailValidationOutput {
 }
 
 #[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
 pub enum EmailClassification {
     Normal,
     Disposable,

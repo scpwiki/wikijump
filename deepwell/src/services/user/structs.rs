@@ -25,7 +25,6 @@ use crate::models::user::Model as UserModel;
 use time::Date;
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct CreateUser {
     pub user_type: UserType,
     pub name: String,
@@ -40,20 +39,17 @@ pub struct CreateUser {
 }
 
 #[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct CreateUserOutput {
     pub user_id: i64,
     pub slug: String,
 }
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct GetUser<'a> {
     pub user: Reference<'a>,
 }
 
 #[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct GetUserOutput {
     #[serde(flatten)]
     pub user: UserModel,
@@ -61,7 +57,6 @@ pub struct GetUserOutput {
 }
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct UpdateUser<'a> {
     pub user: Reference<'a>,
 
@@ -70,7 +65,7 @@ pub struct UpdateUser<'a> {
 }
 
 #[derive(Deserialize, Debug, Default)]
-#[serde(rename_all = "camelCase", default)]
+#[serde(default)]
 pub struct UpdateUserBody {
     pub name: ProvidedValue<String>,
     pub email: ProvidedValue<String>,

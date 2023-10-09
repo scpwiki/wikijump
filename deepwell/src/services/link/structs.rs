@@ -25,14 +25,12 @@ use crate::web::Reference;
 use time::OffsetDateTime;
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct GetLinksFrom<'a> {
     pub site_id: i64,
     pub page: Reference<'a>,
 }
 
 #[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct GetLinksFromOutput {
     pub present: Vec<PageConnectionModel>,
     pub absent: Vec<PageConnectionMissingModel>,
@@ -40,66 +38,56 @@ pub struct GetLinksFromOutput {
 }
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct GetLinksTo<'a> {
     pub site_id: i64,
     pub page: Reference<'a>,
 }
 
 #[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct GetLinksToOutput {
     pub connections: Vec<PageConnectionModel>,
 }
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct GetLinksToMissing {
     pub site_id: i64,
     pub page_slug: String,
 }
 
 #[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct GetLinksToMissingOutput {
     pub connections: Vec<PageConnectionMissingModel>,
 }
 
 #[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct GetConnectionsFromOutput {
     pub present: Vec<PageConnectionModel>,
     pub absent: Vec<PageConnectionMissingModel>,
 }
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct GetLinksExternalFrom<'a> {
     pub site_id: i64,
     pub page: Reference<'a>,
 }
 
 #[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct GetLinksExternalFromOutput {
     pub links: Vec<PageLinkModel>,
 }
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct GetLinksExternalTo {
     pub site_id: i64,
     pub url: String,
 }
 
 #[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct GetLinksExternalToOutput {
     pub links: Vec<ToExternalLink>,
 }
 
 #[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct ToExternalLink {
     pub created_at: OffsetDateTime,
     pub updated_at: Option<OffsetDateTime>,

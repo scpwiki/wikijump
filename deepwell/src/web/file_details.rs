@@ -19,7 +19,7 @@
  */
 
 #[derive(Serialize, Deserialize, Debug, Default, Copy, Clone, PartialEq, Eq)]
-#[serde(default, rename_all = "camelCase")]
+#[serde(default)]
 pub struct FileDetailsQuery {
     /// Include the contents of the file.
     pub data: bool,

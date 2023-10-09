@@ -23,7 +23,6 @@ use crate::web::Reference;
 use std::str::FromStr;
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct ParentDescription<'a> {
     pub site_id: i64,
     pub parent: Reference<'a>,

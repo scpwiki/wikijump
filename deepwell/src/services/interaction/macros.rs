@@ -115,7 +115,6 @@ macro_rules! impl_interaction {
             //
             //       Properly fixing this will likely require a proc-macro. Which is annoying.
             #[derive(Deserialize, Debug, Clone)]
-            #[serde(rename_all = "camelCase")]
             pub struct [<Create $interaction_type>] {
                 pub $dest_name: i64,
                 pub $from_name: i64,
@@ -124,14 +123,12 @@ macro_rules! impl_interaction {
             }
 
             #[derive(Deserialize, Debug, Copy, Clone)]
-            #[serde(rename_all = "camelCase")]
             pub struct [<Get $interaction_type>] {
                 pub $dest_name: i64,
                 pub $from_name: i64,
             }
 
             #[derive(Deserialize, Debug, Copy, Clone)]
-            #[serde(rename_all = "camelCase")]
             pub struct [<Remove $interaction_type>] {
                 pub $dest_name: i64,
                 pub $from_name: i64,

@@ -19,7 +19,6 @@
  */
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
 pub struct CreateMessageDraft {
     pub user_id: i64,
     pub recipients: Vec<i64>,
@@ -32,7 +31,6 @@ pub struct CreateMessageDraft {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
 pub struct UpdateMessageDraft {
     pub message_draft_id: String,
     pub recipients: Vec<i64>,
@@ -43,7 +41,6 @@ pub struct UpdateMessageDraft {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
 pub struct SendMessageDraft {
     pub message_draft_id: String,
 }

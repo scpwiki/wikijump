@@ -37,7 +37,6 @@ impl UserPermissions {
 }
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct GetPageView {
     pub domain: String,
     pub session_token: Option<String>,
@@ -46,16 +45,14 @@ pub struct GetPageView {
 }
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct PageRoute {
     pub slug: String,
     pub extra: String,
 }
 
 #[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase", tag = "type", content = "data")]
+#[serde(tag = "type", content = "data")]
 pub enum GetPageViewOutput {
-    #[serde(rename_all = "camelCase")]
     PageFound {
         #[serde(flatten)]
         viewer: Viewer,
@@ -67,7 +64,6 @@ pub enum GetPageViewOutput {
         compiled_html: String,
     },
 
-    #[serde(rename_all = "camelCase")]
     PageMissing {
         #[serde(flatten)]
         viewer: Viewer,
@@ -77,7 +73,6 @@ pub enum GetPageViewOutput {
         compiled_html: String,
     },
 
-    #[serde(rename_all = "camelCase")]
     PagePermissions {
         #[serde(flatten)]
         viewer: Viewer,
@@ -87,8 +82,9 @@ pub enum GetPageViewOutput {
         banned: bool,
     },
 
-    #[serde(rename_all = "camelCase")]
-    SiteMissing { html: String },
+    SiteMissing {
+        html: String,
+    },
 }
 
 #[derive(Debug)]
@@ -98,7 +94,6 @@ pub enum ViewerResult {
 }
 
 #[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct Viewer {
     pub site: SiteModel,
     pub redirect_site: Option<String>,
@@ -106,7 +101,6 @@ pub struct Viewer {
 }
 
 #[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct UserSession {
     pub session: SessionModel,
     pub user: UserModel,

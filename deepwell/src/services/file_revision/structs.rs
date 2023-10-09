@@ -48,7 +48,7 @@ pub struct FileBlob {
 }
 
 #[derive(Serialize, Debug, Default)]
-#[serde(rename_all = "camelCase", default)]
+#[serde(default)]
 pub struct CreateFileRevisionOutput {
     pub file_revision_id: i64,
     pub file_revision_number: i32,
@@ -95,7 +95,6 @@ pub struct CreateResurrectionFileRevision {
 }
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct GetFileRevision {
     pub page_id: i64,
     pub file_id: i64,
@@ -103,7 +102,6 @@ pub struct GetFileRevision {
 }
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct UpdateFileRevision {
     pub page_id: i64,
     pub file_id: i64,
@@ -113,7 +111,6 @@ pub struct UpdateFileRevision {
 }
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct GetFileRevisionRange {
     pub page_id: i64,
     pub file_id: i64,

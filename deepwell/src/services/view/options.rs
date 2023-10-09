@@ -53,7 +53,6 @@ const PAGE_ARGUMENTS_SCHEMA: ArgumentSchema = ArgumentSchema {
 /// `RawPageOptions` (from `wikidot_path`) contains the direct key / value
 /// pairs, this struct parses them into logical flags to be processed.
 #[derive(Serialize, Deserialize, Debug, Default)]
-#[serde(rename_all = "camelCase")]
 pub struct PageOptions {
     edit: bool,
     title: Option<String>,

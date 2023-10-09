@@ -26,7 +26,6 @@ use ftml::parsing::ParseError;
 use time::OffsetDateTime;
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct CreatePage {
     pub site_id: i64,
     pub wikitext: String,
@@ -41,7 +40,6 @@ pub struct CreatePage {
 }
 
 #[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct CreatePageOutput {
     pub page_id: i64,
     pub slug: String,
@@ -50,14 +48,12 @@ pub struct CreatePageOutput {
 }
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct GetPage<'a> {
     pub site_id: i64,
     pub page: Reference<'a>,
 }
 
 #[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct GetPageOutput<'a> {
     pub page_id: i64,
     pub page_created_at: OffsetDateTime,
@@ -87,7 +83,6 @@ pub struct GetPageOutput<'a> {
 }
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct EditPage<'a> {
     pub site_id: i64,
     pub page: Reference<'a>,
@@ -99,7 +94,7 @@ pub struct EditPage<'a> {
 }
 
 #[derive(Deserialize, Debug, Default)]
-#[serde(rename_all = "camelCase", default)]
+#[serde(default)]
 pub struct EditPageBody {
     pub wikitext: ProvidedValue<String>,
     pub title: ProvidedValue<String>,
@@ -108,7 +103,6 @@ pub struct EditPageBody {
 }
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct MovePage<'a> {
     pub site_id: i64,
     pub page: Reference<'a>,
@@ -119,7 +113,6 @@ pub struct MovePage<'a> {
 }
 
 #[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct MovePageOutput {
     pub old_slug: String,
     pub new_slug: String,
@@ -129,7 +122,6 @@ pub struct MovePageOutput {
 }
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct DeletePage<'a> {
     pub site_id: i64,
     pub page: Reference<'a>,
@@ -138,7 +130,6 @@ pub struct DeletePage<'a> {
 }
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct RestorePage {
     pub site_id: i64,
     pub page_id: i64,
@@ -148,7 +139,6 @@ pub struct RestorePage {
 }
 
 #[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct DeletePageOutput {
     page_id: i64,
     revision_id: i64,
@@ -156,7 +146,6 @@ pub struct DeletePageOutput {
 }
 
 #[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct RestorePageOutput {
     slug: String,
     revision_id: i64,
@@ -165,7 +154,6 @@ pub struct RestorePageOutput {
 }
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct RollbackPage<'a> {
     pub site_id: i64,
     pub page: Reference<'a>,
