@@ -126,131 +126,191 @@ async fn build_module(app_state: ServerState) -> Result<RpcModule<ServerState>> 
     let mut module = RpcModule::new(app_state);
 
     // Miscellaneous
-    module.register_method("ping", |_params, _state| todo!())?;
-    module.register_method("version", |_params, _state| todo!())?;
-    module.register_method("version_full", |_params, _state| todo!())?;
-    module.register_method("hostname", |_params, _state| todo!())?;
-    module.register_method("config", |_params, _state| todo!())?;
-    module.register_method("config_path", |_params, _state| todo!())?;
-    module.register_method("normalize", |_params, _state| todo!())?;
+    module.register_async_method("ping", |_params, _state| async { todo!() })?;
+    module.register_async_method("version", |_params, _state| async { todo!() })?;
+    module.register_async_method("version_full", |_params, _state| async { todo!() })?;
+    module.register_async_method("hostname", |_params, _state| async { todo!() })?;
+    module.register_async_method("config", |_params, _state| async { todo!() })?;
+    module.register_async_method("config_path", |_params, _state| async { todo!() })?;
+    module.register_async_method("normalize", |_params, _state| async { todo!() })?;
 
     // Localization
-    module.register_method("locale", |_params, _state| todo!())?;
-    module.register_method("translate", |_params, _state| todo!())?;
+    module.register_async_method("locale", |_params, _state| async { todo!() })?;
+    module.register_async_method("translate", |_params, _state| async { todo!() })?;
 
     // Web server
-    module.register_method("page_view", |_params, _state| todo!())?;
+    module.register_async_method("page_view", |_params, _state| async { todo!() })?;
 
     // Authentication
-    module.register_method("login", |_params, _state| todo!())?;
-    module.register_method("logout", |_params, _state| todo!())?;
-    module.register_method("session_get", |_params, _state| todo!())?;
-    module.register_method("session_get_others", |_params, _state| todo!())?;
-    module.register_method("session_renew", |_params, _state| todo!())?;
-    module.register_method("mfa_verify", |_params, _state| todo!())?;
-    module.register_method("mfa_setup", |_params, _state| todo!())?;
-    module.register_method("mfa_disable", |_params, _state| todo!())?;
-    module.register_method("mfa_reset_recovery", |_params, _state| todo!())?;
+    module.register_async_method("login", |_params, _state| async { todo!() })?;
+    module.register_async_method("logout", |_params, _state| async { todo!() })?;
+    module.register_async_method("session_get", |_params, _state| async { todo!() })?;
+    module.register_async_method("session_get_others", |_params, _state| async {
+        todo!()
+    })?;
+    module.register_async_method("session_renew", |_params, _state| async { todo!() })?;
+    module.register_async_method("mfa_verify", |_params, _state| async { todo!() })?;
+    module.register_async_method("mfa_setup", |_params, _state| async { todo!() })?;
+    module.register_async_method("mfa_disable", |_params, _state| async { todo!() })?;
+    module.register_async_method("mfa_reset_recovery", |_params, _state| async {
+        todo!()
+    })?;
 
     // Site
-    module.register_method("site_create", |_params, _state| todo!())?;
-    module.register_method("site_get", |_params, _state| todo!())?;
-    module.register_method("site_update", |_params, _state| todo!())?;
-    module.register_method("site_from_domain", |_params, _state| todo!())?;
+    module.register_async_method("site_create", |_params, _state| async { todo!() })?;
+    module.register_async_method("site_get", |_params, _state| async { todo!() })?;
+    module.register_async_method("site_update", |_params, _state| async { todo!() })?;
+    module
+        .register_async_method("site_from_domain", |_params, _state| async { todo!() })?;
 
     // Site custom domain
-    module.register_method("custom_domain_create", |_params, _state| todo!())?;
-    module.register_method("custom_domain_get", |_params, _state| todo!())?;
-    module.register_method("custom_domain_delete", |_params, _state| todo!())?;
+    module.register_async_method("custom_domain_create", |_params, _state| async {
+        todo!()
+    })?;
+    module.register_async_method("custom_domain_get", |_params, _state| async {
+        todo!()
+    })?;
+    module.register_async_method("custom_domain_delete", |_params, _state| async {
+        todo!()
+    })?;
 
     // Site membership
-    module.register_method("member_create", |_params, _state| todo!())?;
-    module.register_method("member_get", |_params, _state| todo!())?;
-    module.register_method("member_delete", |_params, _state| todo!())?;
+    module.register_async_method("member_create", |_params, _state| async { todo!() })?;
+    module.register_async_method("member_get", |_params, _state| async { todo!() })?;
+    module.register_async_method("member_delete", |_params, _state| async { todo!() })?;
 
     // Category
-    module.register_method("category_get", |_params, _state| todo!())?;
-    module.register_method("category_get_all", |_params, _state| todo!())?;
+    module.register_async_method("category_get", |_params, _state| async { todo!() })?;
+    module
+        .register_async_method("category_get_all", |_params, _state| async { todo!() })?;
 
     // Page
-    module.register_method("page_create", |_params, _state| todo!())?;
-    module.register_method("page_get", |_params, _state| todo!())?;
-    module.register_method("page_get_direct", |_params, _state| todo!())?;
-    module.register_method("page_edit", |_params, _state| todo!())?;
-    module.register_method("page_delete", |_params, _state| todo!())?;
-    module.register_method("page_move", |_params, _state| todo!())?;
-    module.register_method("page_rerender", |_params, _state| todo!())?;
-    module.register_method("page_restore", |_params, _state| todo!())?;
+    module.register_async_method("page_create", |_params, _state| async { todo!() })?;
+    module.register_async_method("page_get", |_params, _state| async { todo!() })?;
+    module
+        .register_async_method("page_get_direct", |_params, _state| async { todo!() })?;
+    module.register_async_method("page_edit", |_params, _state| async { todo!() })?;
+    module.register_async_method("page_delete", |_params, _state| async { todo!() })?;
+    module.register_async_method("page_move", |_params, _state| async { todo!() })?;
+    module.register_async_method("page_rerender", |_params, _state| async { todo!() })?;
+    module.register_async_method("page_restore", |_params, _state| async { todo!() })?;
 
     // Page revisions
-    module.register_method("page_revision_create", |_params, _state| todo!())?;
-    module.register_method("page_revision_get", |_params, _state| todo!())?;
-    module.register_method("page_revision_count", |_params, _state| todo!())?;
-    module.register_method("page_revision_rollback", |_params, _state| todo!())?;
-    module.register_method("page_revision_range", |_params, _state| todo!())?;
+    module.register_async_method("page_revision_create", |_params, _state| async {
+        todo!()
+    })?;
+    module.register_async_method("page_revision_get", |_params, _state| async {
+        todo!()
+    })?;
+    module.register_async_method("page_revision_count", |_params, _state| async {
+        todo!()
+    })?;
+    module.register_async_method("page_revision_rollback", |_params, _state| async {
+        todo!()
+    })?;
+    module.register_async_method("page_revision_range", |_params, _state| async {
+        todo!()
+    })?;
 
     // Page links
-    module.register_method("page_get_links_from", |_params, _state| todo!())?;
-    module.register_method("page_get_links_to", |_params, _state| todo!())?;
-    module.register_method("page_get_links_to_missing", |_params, _state| todo!())?;
-    module.register_method("page_get_urls_from", |_params, _state| todo!())?;
-    module.register_method("page_get_urls_to", |_params, _state| todo!())?;
+    module.register_async_method("page_get_links_from", |_params, _state| async {
+        todo!()
+    })?;
+    module.register_async_method("page_get_links_to", |_params, _state| async {
+        todo!()
+    })?;
+    module
+        .register_async_method("page_get_links_to_missing", |_params, _state| async {
+            todo!()
+        })?;
+    module.register_async_method("page_get_urls_from", |_params, _state| async {
+        todo!()
+    })?;
+    module
+        .register_async_method("page_get_urls_to", |_params, _state| async { todo!() })?;
 
     // Page parents
-    module.register_method("parent_create", |_params, _state| todo!())?;
-    module.register_method("parent_get", |_params, _state| todo!())?;
-    module.register_method("parent_delete", |_params, _state| todo!())?;
-    module.register_method("parent_relationship", |_params, _state| todo!())?;
+    module.register_async_method("parent_create", |_params, _state| async { todo!() })?;
+    module.register_async_method("parent_get", |_params, _state| async { todo!() })?;
+    module.register_async_method("parent_delete", |_params, _state| async { todo!() })?;
+    module.register_async_method("parent_relationship", |_params, _state| async {
+        todo!()
+    })?;
 
     // Files
-    module.register_method("file_create", |_params, _state| todo!())?;
-    module.register_method("file_get", |_params, _state| todo!())?;
-    module.register_method("file_edit", |_params, _state| todo!())?;
-    module.register_method("file_delete", |_params, _state| todo!())?;
-    module.register_method("file_move", |_params, _state| todo!())?;
-    module.register_method("file_restore", |_params, _state| todo!())?;
+    module.register_async_method("file_create", |_params, _state| async { todo!() })?;
+    module.register_async_method("file_get", |_params, _state| async { todo!() })?;
+    module.register_async_method("file_edit", |_params, _state| async { todo!() })?;
+    module.register_async_method("file_delete", |_params, _state| async { todo!() })?;
+    module.register_async_method("file_move", |_params, _state| async { todo!() })?;
+    module.register_async_method("file_restore", |_params, _state| async { todo!() })?;
 
     // File revisions
-    module.register_method("file_revision_create", |_params, _state| todo!())?;
-    module.register_method("file_revision_get", |_params, _state| todo!())?;
-    module.register_method("file_revision_count", |_params, _state| todo!())?;
-    module.register_method("file_revision_range", |_params, _state| todo!())?;
+    module.register_async_method("file_revision_create", |_params, _state| async {
+        todo!()
+    })?;
+    module.register_async_method("file_revision_get", |_params, _state| async {
+        todo!()
+    })?;
+    module.register_async_method("file_revision_count", |_params, _state| async {
+        todo!()
+    })?;
+    module.register_async_method("file_revision_range", |_params, _state| async {
+        todo!()
+    })?;
 
     // Text
-    module.register_method("text_create", |_params, _state| todo!())?;
-    module.register_method("text_get", |_params, _state| todo!())?;
+    module.register_async_method("text_create", |_params, _state| async { todo!() })?;
+    module.register_async_method("text_get", |_params, _state| async { todo!() })?;
 
     // User
-    module.register_method("user_create", |_params, _state| todo!())?;
-    module.register_method("user_get", |_params, _state| todo!())?;
-    module.register_method("user_edit", |_params, _state| todo!())?;
-    module.register_method("user_delete", |_params, _state| todo!())?;
-    module.register_method("user_import", |_params, _state| todo!())?;
-    module.register_method("user_add_name_change", |_params, _state| todo!())?;
-    module.register_method("user_avatar_set", |_params, _state| todo!())?;
+    module.register_async_method("user_create", |_params, _state| async { todo!() })?;
+    module.register_async_method("user_get", |_params, _state| async { todo!() })?;
+    module.register_async_method("user_edit", |_params, _state| async { todo!() })?;
+    module.register_async_method("user_delete", |_params, _state| async { todo!() })?;
+    module.register_async_method("user_import", |_params, _state| async { todo!() })?;
+    module.register_async_method("user_add_name_change", |_params, _state| async {
+        todo!()
+    })?;
+    module
+        .register_async_method("user_avatar_set", |_params, _state| async { todo!() })?;
 
     // Bot user
-    module.register_method("bot_user_create", |_params, _state| todo!())?;
-    module.register_method("bot_user_get", |_params, _state| todo!())?;
-    module.register_method("bot_user_owner_set", |_params, _state| todo!())?;
-    module.register_method("bot_user_owner_delete", |_params, _state| todo!())?;
+    module
+        .register_async_method("bot_user_create", |_params, _state| async { todo!() })?;
+    module.register_async_method("bot_user_get", |_params, _state| async { todo!() })?;
+    module.register_async_method("bot_user_owner_set", |_params, _state| async {
+        todo!()
+    })?;
+    module.register_async_method("bot_user_owner_delete", |_params, _state| async {
+        todo!()
+    })?;
 
     // Direct messages
-    module.register_method("message_draft_create", |_params, _state| todo!())?;
-    module.register_method("message_draft_edit", |_params, _state| todo!())?;
-    module.register_method("message_draft_delete", |_params, _state| todo!())?;
-    module.register_method("message_draft_send", |_params, _state| todo!())?;
+    module.register_async_method("message_draft_create", |_params, _state| async {
+        todo!()
+    })?;
+    module.register_async_method("message_draft_edit", |_params, _state| async {
+        todo!()
+    })?;
+    module.register_async_method("message_draft_delete", |_params, _state| async {
+        todo!()
+    })?;
+    module.register_async_method("message_draft_send", |_params, _state| async {
+        todo!()
+    })?;
 
     // Email
-    module.register_method("email_validate", |_params, _state| todo!())?;
+    module
+        .register_async_method("email_validate", |_params, _state| async { todo!() })?;
 
     // Votes
-    module.register_method("vote_set", |_params, _state| todo!())?;
-    module.register_method("vote_get", |_params, _state| todo!())?;
-    module.register_method("vote_delete", |_params, _state| todo!())?;
-    module.register_method("vote_action", |_params, _state| todo!())?;
-    module.register_method("vote_list", |_params, _state| todo!())?;
-    module.register_method("vote_count", |_params, _state| todo!())?;
+    module.register_async_method("vote_set", |_params, _state| async { todo!() })?;
+    module.register_async_method("vote_get", |_params, _state| async { todo!() })?;
+    module.register_async_method("vote_delete", |_params, _state| async { todo!() })?;
+    module.register_async_method("vote_action", |_params, _state| async { todo!() })?;
+    module.register_async_method("vote_list", |_params, _state| async { todo!() })?;
+    module.register_async_method("vote_count", |_params, _state| async { todo!() })?;
 
     // Return
     Ok(module)
