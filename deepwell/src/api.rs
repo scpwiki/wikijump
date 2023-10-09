@@ -45,13 +45,15 @@ use std::sync::Arc;
 use std::time::Duration;
 use tide::StatusCode;
 
-pub type ApiServerState = Arc<ServerState>;
-pub type ApiServer = tide::Server<ApiServerState>;
-pub type ApiRequest = tide::Request<ApiServerState>;
+#[deprecated]
+pub type ApiRequest = tide::Request<ServerState>;
+#[deprecated]
 pub type ApiResponse = tide::Result;
 
+pub type ServerState = Arc<ServerStateInner>;
+
 #[derive(Debug)]
-pub struct ServerState {
+pub struct ServerStateInner {
     pub config: Config,
     pub database: DatabaseConnection,
     pub localizations: Localizations,
@@ -60,10 +62,7 @@ pub struct ServerState {
     pub s3_bucket: Bucket,
 }
 
-pub async fn build_server_state(
-    config: Config,
-    secrets: Secrets,
-) -> Result<ApiServerState> {
+pub async fn build_server_state(config: Config, secrets: Secrets) -> Result<ServerState> {
     // Connect to database
     tide::log::info!("Connecting to PostgreSQL database");
     let database = database::connect(&secrets.database_url).await?;
@@ -97,7 +96,7 @@ pub async fn build_server_state(
     };
 
     // Build server state
-    let state = Arc::new(ServerState {
+    let state = Arc::new(ServerStateInner {
         config,
         database,
         localizations,
@@ -106,16 +105,16 @@ pub async fn build_server_state(
         s3_bucket,
     });
 
-    // Start the job queue (requires ApiServerState)
+    // Start the job queue (requires ServerState)
     job_state_sender
         .send(Arc::clone(&state))
-        .expect("Unable to send ApiServerState");
+        .expect("Unable to send ServerState");
 
     // Return server state
     Ok(state)
 }
 
-pub async fn build_server(app_state: ApiServerState) -> Result<ServerHandle> {
+pub async fn build_server(app_state: ServerState) -> Result<ServerHandle> {
     let socket_address = app_state.config.address;
     let server = Server::builder().build(socket_address).await?;
     let module = build_module(app_state).await?;
@@ -123,7 +122,7 @@ pub async fn build_server(app_state: ApiServerState) -> Result<ServerHandle> {
     Ok(handle)
 }
 
-async fn build_module(app_state: ApiServerState) -> Result<RpcModule<ApiServerState>> {
+async fn build_module(app_state: ServerState) -> Result<RpcModule<ServerState>> {
     let mut module = RpcModule::new(app_state);
 
     // Miscellaneous
@@ -259,7 +258,7 @@ async fn build_module(app_state: ApiServerState) -> Result<RpcModule<ApiServerSt
 
 /* *** */
 
-pub fn tide_build_server(state: ApiServerState) -> ApiServer {
+pub fn tide_build_server(state: ServerState) -> tide::Server<ServerState> {
     macro_rules! new {
         () => {
             tide::Server::with_state(Arc::clone(&state))
@@ -275,7 +274,7 @@ pub fn tide_build_server(state: ApiServerState) -> ApiServer {
     app
 }
 
-fn tide_build_routes(mut app: ApiServer) -> ApiServer {
+fn tide_build_routes(mut app: tide::Server<ServerState>) -> tide::Server<ServerState> {
     // Miscellaneous
     app.at("/ping").all(ping);
     app.at("/version").get(version);

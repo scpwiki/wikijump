@@ -21,7 +21,7 @@
 mod data;
 
 use self::data::{SeedData, SitePages};
-use crate::api::ApiServerState;
+use crate::api::ServerState;
 use crate::constants::{ADMIN_USER_ID, SYSTEM_USER_ID};
 use crate::models::sea_orm_active_enums::AliasType;
 use crate::services::alias::{AliasService, CreateAlias};
@@ -37,7 +37,7 @@ use sea_orm::{
 };
 use std::borrow::Cow;
 
-pub async fn seed(state: &ApiServerState) -> Result<()> {
+pub async fn seed(state: &ServerState) -> Result<()> {
     tide::log::info!("Running seeder...");
 
     // Set up context

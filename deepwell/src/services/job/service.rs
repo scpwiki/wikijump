@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::api::ApiServerState;
+use crate::api::ServerState;
 use crate::services::{PageRevisionService, SessionService, TextService};
 use sea_orm::TransactionTrait;
 use tokio::sync::{mpsc, oneshot};
@@ -28,8 +28,8 @@ use tokio::{task, time};
 type RequestSender = mpsc::UnboundedSender<Job>;
 type RequestReceiver = mpsc::UnboundedReceiver<Job>;
 
-type StateSender = oneshot::Sender<ApiServerState>;
-type StateReceiver = oneshot::Receiver<ApiServerState>;
+type StateSender = oneshot::Sender<ServerState>;
+type StateReceiver = oneshot::Receiver<ServerState>;
 
 #[derive(Debug)]
 pub struct JobService;
@@ -124,7 +124,7 @@ impl JobQueue {
         }
     }
 
-    async fn process_job(state: &ApiServerState, job: Job) -> Result<()> {
+    async fn process_job(state: &ServerState, job: Job) -> Result<()> {
         let txn = state.database.begin().await?;
         let ctx = &ServiceContext::from_raw(state, &txn);
 

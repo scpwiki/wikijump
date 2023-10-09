@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::api::{ApiRequest, ApiServerState};
+use crate::api::{ApiRequest, ServerState};
 use crate::config::Config;
 use crate::locales::Localizations;
 use crate::services::blob::MimeAnalyzer;
@@ -29,7 +29,7 @@ use std::sync::Arc;
 
 #[derive(Debug)]
 pub struct ServiceContext<'txn> {
-    state: ApiServerState,
+    state: ServerState,
     transaction: &'txn DatabaseTransaction,
 }
 
@@ -39,10 +39,7 @@ impl<'txn> ServiceContext<'txn> {
         Self::from_raw(req.state(), transaction)
     }
 
-    pub fn from_raw(
-        state: &ApiServerState,
-        transaction: &'txn DatabaseTransaction,
-    ) -> Self {
+    pub fn from_raw(state: &ServerState, transaction: &'txn DatabaseTransaction) -> Self {
         ServiceContext {
             state: Arc::clone(state),
             transaction,
