@@ -81,6 +81,7 @@ export async function pageRevision(
     site_id: siteId,
     page_id: pageId,
     revision_number: revisionNumber ?? defaults.page.history.revisionNumber,
-    compiled_html: true
+    compiled_html: true,
+    wikitext: true,
   })
 }

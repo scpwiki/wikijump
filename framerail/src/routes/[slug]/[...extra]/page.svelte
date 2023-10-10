@@ -7,6 +7,7 @@
   let showHistory = false
   let showSource = false
   let showRevision = false
+  let showRevisionSource = false
   let moveInputNewSlugElem: HTMLInputElement
   let revisionList: Record<string, any> = []
   let revision: Record<string, any> = {}
@@ -87,7 +88,7 @@
     showHistory = true
   }
 
-  async function viewRevision(revisionNumber: number) {
+  async function getRevision(revisionNumber: number) {
     let fdata = new FormData()
     fdata.set("site-id", $page.data.site.site_id)
     fdata.set("page-id", $page.data.page.page_id)
@@ -96,7 +97,6 @@
       method: "POST",
       body: fdata
     }).then((res) => res.json())
-    showRevision = true
   }
 
   onMount(() => {
@@ -289,7 +289,7 @@
 {#if showHistory}
   <div class="revision-list">
     <div class="revision-header">
-      <div class="revision-attribute view-revision" />
+      <div class="revision-attribute action" />
       <div class="revision-attribute revision-number">
         {$page.data.internationalization?.["wiki-page-revision-number"]}
       </div>
@@ -303,32 +303,51 @@
         {$page.data.internationalization?.["wiki-page-revision-comments"]}
       </div>
     </div>
-    {#each revisionList.reverse() as revision}
-      <div class="revision-row" data-id={revision.revision_id}>
-        <button
-          class="revision-attribute view-revision clickable"
-          type="button"
-          on:click|stopPropagation={() => {
-            viewRevision(revision.revision_number)
-          }}
-        >
-          {$page.data.internationalization?.view}
-        </button>
+    {#each revisionList.reverse() as revisionItem}
+      <div class="revision-row" data-id={revisionItem.revision_id}>
+        <div class="revision-attribute action">
+          <button
+            class="action-button view-revision clickable"
+            type="button"
+            on:click|stopPropagation={() => {
+              getRevision(revisionItem.revision_number).then(() => {
+                showRevision = true
+              })
+            }}
+          >
+            {$page.data.internationalization?.view}
+          </button>
+          <button
+            class="action-button view-revision-source clickable"
+            type="button"
+            on:click|stopPropagation={() => {
+              getRevision(revisionItem.revision_number).then(() => {
+                showRevisionSource = true
+              })
+            }}
+          >
+            {$page.data.internationalization?.["wiki-page-view-source"]}
+          </button>
+        </div>
         <div class="revision-attribute revision-number">
-          {revision.revision_number}
+          {revisionItem.revision_number}
         </div>
         <div class="revision-attribute created-at">
-          {revision.created_at}
+          {revisionItem.created_at}
         </div>
         <div class="revision-attribute user">
-          {revision.user_id}
+          {revisionItem.user_id}
         </div>
         <div class="revision-attribute comments">
-          {revision.comments}
+          {revisionItem.comments}
         </div>
       </div>
     {/each}
   </div>
+
+  {#if showRevisionSource}
+    <textarea class="revision-source" readonly={true}>{revision.wikitext}</textarea>
+  {/if}
 {/if}
 
 <style global lang="scss">
@@ -390,7 +409,8 @@
     height: 60vh;
   }
 
-  .page-source {
+  .page-source,
+  .revision-source {
     width: 80vw;
     height: 60vh;
   }
