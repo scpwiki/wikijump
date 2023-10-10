@@ -1,7 +1,7 @@
 import { sveltekit } from "@sveltejs/kit/vite"
-import type { UserConfig } from "vite"
-import { resolve } from "path"
 import { statSync } from "fs"
+import { resolve } from "path"
+import type { UserConfig } from "vite"
 
 function resolveAssets() {
   try {

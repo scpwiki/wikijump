@@ -10,7 +10,7 @@
     let res = await fetch(`/-/login`, {
       method: "POST",
       body: fdata
-    }).then(res=>res.json())
+    }).then((res) => res.json())
 
     if (res.sessionToken) {
       isLoggedIn = true
@@ -22,12 +22,7 @@
 {#if isLoggedIn}
   {$page.data.internationalization?.["login.toast"]}
 {:else}
-  <form
-    id="login"
-    class="login-form"
-    method="POST"
-    on:submit|preventDefault={tryLogin}
-  >
+  <form id="login" class="login-form" method="POST" on:submit|preventDefault={tryLogin}>
     <input
       name="name-or-email"
       class="auth-name-or-email"
@@ -63,8 +58,8 @@
   .login-form {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
     gap: 1em;
+    align-items: center;
+    justify-content: center;
   }
 </style>

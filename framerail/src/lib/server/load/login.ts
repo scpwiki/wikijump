@@ -2,10 +2,7 @@ import defaults from "$lib/defaults"
 import { translateWithFallback } from "$lib/server/deepwell/translate"
 import { parse } from "accept-language-parser"
 
-export async function loadLoginPage(
-  request,
-  cookies
-) {
+export async function loadLoginPage(request, cookies) {
   // Set up parameters
   const url = new URL(request.url)
   const domain = url.hostname

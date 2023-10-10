@@ -6,8 +6,8 @@
 
   async function tryLogout() {
     let res = await fetch(`/-/logout`, {
-      method: "DELETE",
-    }).then(res=>res.ok)
+      method: "DELETE"
+    }).then((res) => res.ok)
 
     if (res) {
       isLoggedIn = false
@@ -18,7 +18,11 @@
 
 {#if isLoggedIn}
   <div class="action-row auth-actions">
-    <button type="button" class="action-button auth-button button-logout clickable" on:click={tryLogout}>
+    <button
+      class="action-button auth-button button-logout clickable"
+      type="button"
+      on:click={tryLogout}
+    >
       {$page.data.internationalization?.logout}
     </button>
   </div>

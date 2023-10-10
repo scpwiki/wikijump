@@ -1,5 +1,5 @@
-import * as page from "$lib/server/deepwell/page"
 import { authGetSession } from "$lib/server/auth/getSession"
+import * as page from "$lib/server/deepwell/page"
 
 // Handling of server events from client
 

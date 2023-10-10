@@ -4,11 +4,7 @@ import { userView } from "$lib/server/deepwell/user.ts"
 import { error, redirect } from "@sveltejs/kit"
 import { parse } from "accept-language-parser"
 
-export async function loadUser(
-  username?: string,
-  request,
-  cookies
-) {
+export async function loadUser(username?: string, request, cookies) {
   const url = new URL(request.url)
   const domain = url.hostname
   const sessionToken = cookies.get("wikijump_token")
@@ -40,7 +36,7 @@ export async function loadUser(
     case "siteMissing":
       errorStatus = 404
   }
-  
+
   if (errorStatus === null && username && viewData.user.slug !== username) {
     throw redirect(308, `/-/user/${viewData.user.slug}`)
   }
