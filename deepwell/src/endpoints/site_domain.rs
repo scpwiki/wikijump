@@ -34,36 +34,38 @@ pub async fn site_get_from_domain(
     Ok(site)
 }
 
-pub async fn site_custom_domain_retrieve(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let domain = req.body_string().await?;
-    let model = DomainService::site_from_domain(&ctx, &domain).await?;
-
-    let body = Body::from_json(&model)?;
-    txn.commit().await?;
-    Ok(body.into())
-}
-
-pub async fn site_custom_domain_post(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let input: CreateCustomDomain = req.body_json().await?;
+pub async fn site_custom_domain_create(
+    state: ServerState,
+    params: Params<'static>,
+) -> Result<()> {
+    let txn = state.database.begin().await?;
+    let ctx = ServiceContext::from_raw(&state, &txn);
+    let input: CreateCustomDomain = params.parse()?;
     DomainService::create_custom(&ctx, input).await?;
-
     txn.commit().await?;
-    Ok(Response::new(StatusCode::NoContent))
+    Ok(())
 }
 
-pub async fn site_custom_domain_delete(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let domain = req.body_string().await?;
-    DomainService::delete_custom(&ctx, domain).await?;
-
+pub async fn site_custom_domain_get(
+    state: ServerState,
+    params: Params<'static>,
+) -> Result<SiteModel> {
+    let txn = state.database.begin().await?;
+    let ctx = ServiceContext::from_raw(&state, &txn);
+    let domain: String = params.one()?;
+    let site = DomainService::site_from_domain(&ctx, &domain).await?;
     txn.commit().await?;
-    Ok(Response::new(StatusCode::NoContent))
+    Ok(site)
+}
+
+pub async fn site_custom_domain_delete(
+    state: ServerState,
+    params: Params<'static>,
+) -> Result<()> {
+    let txn = state.database.begin().await?;
+    let ctx = ServiceContext::from_raw(&state, &txn);
+    let domain: String = params.one()?;
+    DomainService::delete_custom(&ctx, domain).await?;
+    txn.commit().await?;
+    Ok(())
 }
