@@ -173,7 +173,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("mfa_verify", auth_mfa_verify);
     register!("mfa_setup", auth_mfa_setup);
     register!("mfa_disable", auth_mfa_disable);
-    register!("mfa_reset_recovery", not_implemented);
+    register!("mfa_reset_recovery", auth_mfa_reset_recovery);
 
     // Site
     register!("site_create", not_implemented);
@@ -305,8 +305,6 @@ fn tide_build_routes(mut app: tide::Server<ServerState>) -> tide::Server<ServerS
         .delete(auth_session_invalidate_others);
     app.at("/auth/session/others/get")
         .put(auth_session_retrieve_others);
-    app.at("/auth/mfa/resetRecovery")
-        .post(auth_mfa_reset_recovery);
 
     // Site
     app.at("/site").put(site_put);

@@ -23,7 +23,9 @@ use crate::services::authentication::{
     AuthenticateUserOutput, AuthenticationService, LoginUser, LoginUserMfa,
     LoginUserOutput, MultiFactorAuthenticateUser,
 };
-use crate::services::mfa::{MultiFactorConfigure, MultiFactorSetupOutput};
+use crate::services::mfa::{
+    MultiFactorConfigure, MultiFactorResetOutput, MultiFactorSetupOutput,
+};
 use crate::services::session::{
     CreateSession, GetOtherSessions, GetOtherSessionsOutput, InvalidateOtherSessions,
     RenewSession,
@@ -274,30 +276,33 @@ pub async fn auth_mfa_disable(state: ServerState, params: Params<'static>) -> Re
     Ok(())
 }
 
-pub async fn auth_mfa_reset_recovery(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+pub async fn auth_mfa_reset_recovery(
+    state: ServerState,
+    params: Params<'static>,
+) -> Result<MultiFactorResetOutput> {
+    let txn = state.database.begin().await?;
+    let ctx = ServiceContext::from_raw(&state, &txn);
 
     let MultiFactorConfigure {
         user_id,
         session_token,
-    } = req.body_json().await?;
+    } = params.parse()?;
 
     let user = SessionService::get_user(&ctx, &session_token, false).await?;
-
     if user.user_id != user_id {
         tide::log::error!(
             "Passed user ID ({}) does not match session token ({})",
             user_id,
             user.user_id,
         );
-        return Ok(Response::new(StatusCode::Forbidden));
+
+        return Err(Error::SessionUserId {
+            active_user_id: user_id,
+            session_user_id: user.user_id,
+        });
     }
 
     let output = MfaService::reset_recovery_codes(&ctx, &user).await?;
-
-    let body = Body::from_json(&output)?;
-    let response = Response::builder(StatusCode::Ok).body(body).into();
     txn.commit().await?;
-    Ok(response)
+    Ok(output)
 }
