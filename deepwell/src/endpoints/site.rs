@@ -40,20 +40,26 @@ pub async fn site_create(
     Ok(output)
 }
 
-pub async fn site_retrieve(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+pub async fn site_get(
+    state: ServerState,
+    params: Params<'static>,
+) -> Result<GetSiteOutput> {
+    let txn = state.database.begin().await?;
+    let ctx = ServiceContext::from_raw(&state, &txn);
+    let GetSite { site } = params.parse()?;
 
-    let GetSite { site } = req.body_json().await?;
     tide::log::info!("Getting site {:?}", site);
-
     let site = SiteService::get(&ctx, site).await?;
     let (aliases, domains) = try_join!(
         AliasService::get_all(&ctx, AliasType::Site, site.site_id),
         DomainService::list_custom(&ctx, site.site_id),
     )?;
 
-    build_site_response(site, aliases, domains, StatusCode::Ok)
+    Ok(GetSiteOutput {
+        site,
+        aliases,
+        domains,
+    })
 }
 
 pub async fn site_put(mut req: ApiRequest) -> ApiResponse {
