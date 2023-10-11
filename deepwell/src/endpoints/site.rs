@@ -62,22 +62,19 @@ pub async fn site_get(
     })
 }
 
-pub async fn site_put(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
+pub async fn site_update(state: ServerState, params: Params<'static>) -> Result<()> {
+    let txn = state.database.begin().await?;
+    let ctx = ServiceContext::from_raw(&state, &txn);
     let UpdateSite {
         site,
         body,
         user_id,
-    } = req.body_json().await?;
+    } = params.parse()?;
 
     tide::log::info!("Updating site {:?}", site);
-
     SiteService::update(&ctx, site, body, user_id).await?;
-
     txn.commit().await?;
-    Ok(Response::new(StatusCode::NoContent))
+    Ok(())
 }
 
 pub async fn site_custom_domain_retrieve(mut req: ApiRequest) -> ApiResponse {
