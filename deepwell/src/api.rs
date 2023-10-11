@@ -37,14 +37,12 @@ use crate::locales::Localizations;
 use crate::services::blob::MimeAnalyzer;
 use crate::services::job::JobQueue;
 use crate::services::Result as ServiceResult;
-use crate::utils::error_response;
 use jsonrpsee::server::{RpcModule, Server, ServerHandle};
 use jsonrpsee::types::{error::ErrorObjectOwned, params::Params};
 use s3::bucket::Bucket;
 use sea_orm::DatabaseConnection;
 use std::sync::Arc;
 use std::time::Duration;
-use tide::StatusCode;
 
 #[deprecated]
 pub type ApiRequest = tide::Request<ServerState>;

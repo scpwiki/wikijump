@@ -37,7 +37,6 @@ mod prelude {
         ScoreService, ServiceContext, SessionService, SiteService, StdResult,
         TextService, UserService, ViewService, VoteService,
     };
-    pub use crate::utils::error_response;
     pub use crate::web::HttpUnwrap;
     pub use jsonrpsee::types::params::Params;
     pub use sea_orm::{ConnectionTrait, TransactionTrait};
