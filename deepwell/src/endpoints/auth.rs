@@ -128,17 +128,13 @@ pub async fn auth_session_get(
     Ok(session)
 }
 
-pub async fn auth_session_renew(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-    let input: RenewSession = req.body_json().await?;
-
+pub async fn auth_session_renew(state: ServerState, params: Params<'static>) -> Result<String> {
+    let txn = state.database.begin().await?;
+    let ctx = ServiceContext::from_raw(&state, &txn);
+    let input: RenewSession = params.parse()?;
     let new_session_token = SessionService::renew(&ctx, input).await?;
-
-    let body = Body::from_string(new_session_token);
-    let response = Response::builder(StatusCode::Ok).body(body).into();
     txn.commit().await?;
-    Ok(response)
+    Ok(new_session_token)
 }
 
 pub async fn auth_session_retrieve_others(mut req: ApiRequest) -> ApiResponse {

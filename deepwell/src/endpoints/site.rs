@@ -24,19 +24,15 @@ use crate::models::sea_orm_active_enums::AliasType;
 use crate::models::site::Model as SiteModel;
 use crate::models::site_domain::Model as SiteDomainModel;
 use crate::services::domain::CreateCustomDomain;
-use crate::services::site::{CreateSite, GetSite, GetSiteOutput, UpdateSite};
+use crate::services::site::{CreateSite, GetSite, GetSiteOutput, UpdateSite, CreateSiteOutput};
 
-pub async fn site_create(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let input: CreateSite = req.body_json().await?;
+pub async fn site_create(state: ServerState, params: Params<'static>) -> Result<CreateSiteOutput> {
+    let txn = state.database.begin().await?;
+    let ctx = ServiceContext::from_raw(&state, &txn);
+    let input: CreateSite = params.parse()?;
     let output = SiteService::create(&ctx, input).await?;
     txn.commit().await?;
-
-    let body = Body::from_json(&output)?;
-    let response = Response::builder(StatusCode::Created).body(body).into();
-    Ok(response)
+    Ok(output)
 }
 
 pub async fn site_retrieve(mut req: ApiRequest) -> ApiResponse {

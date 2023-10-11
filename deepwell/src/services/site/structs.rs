@@ -23,7 +23,7 @@ use crate::models::site::Model as SiteModel;
 use crate::models::site_domain::Model as SiteDomainModel;
 use crate::web::{ProvidedValue, Reference};
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct CreateSite {
     pub slug: String,
     pub name: String,
@@ -32,18 +32,18 @@ pub struct CreateSite {
     pub locale: String,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub struct CreateSiteOutput {
     pub site_id: i64,
     pub slug: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct GetSite<'a> {
     pub site: Reference<'a>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub struct GetSiteOutput {
     #[serde(flatten)]
     pub site: SiteModel,
@@ -51,7 +51,7 @@ pub struct GetSiteOutput {
     pub domains: Vec<SiteDomainModel>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct UpdateSite<'a> {
     pub site: Reference<'a>,
     pub user_id: i64,
@@ -60,7 +60,7 @@ pub struct UpdateSite<'a> {
     pub body: UpdateSiteBody,
 }
 
-#[derive(Deserialize, Debug, Default)]
+#[derive(Deserialize, Debug, Clone, Default)]
 #[serde(default)]
 pub struct UpdateSiteBody {
     pub name: ProvidedValue<String>,
