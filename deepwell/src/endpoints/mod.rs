@@ -1,5 +1,5 @@
 /*
- * endpoints/endpoints.rs
+ * endpoints/mod.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -68,6 +68,7 @@ pub mod page;
 pub mod page_revision;
 pub mod parent;
 pub mod site;
+pub mod site_domain;
 pub mod site_member;
 pub mod text;
 pub mod user;

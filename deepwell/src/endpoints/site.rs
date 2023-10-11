@@ -23,7 +23,6 @@ use crate::models::alias::Model as AliasModel;
 use crate::models::sea_orm_active_enums::AliasType;
 use crate::models::site::Model as SiteModel;
 use crate::models::site_domain::Model as SiteDomainModel;
-use crate::services::domain::CreateCustomDomain;
 use crate::services::site::{
     CreateSite, CreateSiteOutput, GetSite, GetSiteOutput, UpdateSite,
 };
@@ -75,52 +74,6 @@ pub async fn site_update(state: ServerState, params: Params<'static>) -> Result<
     SiteService::update(&ctx, site, body, user_id).await?;
     txn.commit().await?;
     Ok(())
-}
-
-pub async fn site_custom_domain_retrieve(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let domain = req.body_string().await?;
-    let model = DomainService::site_from_domain(&ctx, &domain).await?;
-
-    let body = Body::from_json(&model)?;
-    txn.commit().await?;
-    Ok(body.into())
-}
-
-pub async fn site_custom_domain_post(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let input: CreateCustomDomain = req.body_json().await?;
-    DomainService::create_custom(&ctx, input).await?;
-
-    txn.commit().await?;
-    Ok(Response::new(StatusCode::NoContent))
-}
-
-pub async fn site_custom_domain_delete(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let domain = req.body_string().await?;
-    DomainService::delete_custom(&ctx, domain).await?;
-
-    txn.commit().await?;
-    Ok(Response::new(StatusCode::NoContent))
-}
-
-pub async fn site_get_from_domain(req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let domain = req.param("domain")?;
-    let model = DomainService::site_from_domain(&ctx, domain).await?;
-
-    let body = Body::from_json(&model)?;
-    txn.commit().await?;
-    Ok(body.into())
 }
 
 fn build_site_response(

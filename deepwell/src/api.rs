@@ -30,8 +30,8 @@ use crate::config::{Config, Secrets};
 use crate::database;
 use crate::endpoints::{
     auth::*, category::*, email::*, file::*, file_revision::*, link::*, locale::*,
-    message::*, misc::*, page::*, page_revision::*, parent::*, site::*, site_member::*,
-    text::*, user::*, user_bot::*, view::*, vote::*,
+    message::*, misc::*, page::*, page_revision::*, parent::*, site::*, site_domain::*,
+    site_member::*, text::*, user::*, user_bot::*, view::*, vote::*,
 };
 use crate::locales::Localizations;
 use crate::services::blob::MimeAnalyzer;
