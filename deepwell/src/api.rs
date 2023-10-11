@@ -154,9 +154,9 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("ping", ping);
     register!("version", version);
     register!("version_full", full_version);
-    register!("hostname", not_implemented);
-    register!("config", not_implemented);
-    register!("config_path", not_implemented);
+    register!("hostname", hostname);
+    register!("config", config_dump);
+    register!("config_path", config_path);
     register!("normalize", not_implemented);
 
     // Localization
@@ -301,9 +301,6 @@ pub fn tide_build_server(state: ServerState) -> tide::Server<ServerState> {
 
 fn tide_build_routes(mut app: tide::Server<ServerState>) -> tide::Server<ServerState> {
     // Miscellaneous
-    app.at("/hostname").get(hostname);
-    app.at("/config").get(config_dump);
-    app.at("/config/path").get(config_path);
     app.at("/normalize/:input").all(normalize_method);
     app.at("/teapot")
         .all(|_| async { error_response(StatusCode::ImATeapot, "🫖") });

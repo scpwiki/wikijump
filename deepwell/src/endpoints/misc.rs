@@ -21,6 +21,7 @@
 use super::prelude::*;
 use crate::info;
 use sea_orm::{ConnectionTrait, DatabaseBackend, Statement};
+use std::path::PathBuf;
 use wikidot_normalize::normalize;
 
 pub async fn ping(state: ServerState, params: Params<'static>) -> Result<&'static str> {
@@ -55,24 +56,22 @@ pub async fn full_version(
     Ok(info::FULL_VERSION.as_str())
 }
 
-pub async fn hostname(_: ApiRequest) -> ApiResponse {
+pub async fn hostname(
+    state: ServerState,
+    params: Params<'static>,
+) -> Result<&'static str> {
     tide::log::info!("Getting DEEPWELL hostname");
-    Ok(info::HOSTNAME.as_str().into())
+    Ok(info::HOSTNAME.as_str())
 }
 
-pub async fn config_dump(req: ApiRequest) -> ApiResponse {
+pub async fn config_dump(state: ServerState, params: Params<'static>) -> Result<String> {
     tide::log::info!("Dumping raw DEEPWELL configuration for debugging");
-    let toml_config = &req.state().config.raw_toml;
-    let mut body = Body::from_string(str!(toml_config));
-    body.set_mime("text/toml;charset=utf-8");
-    Ok(body.into())
+    Ok(state.config.raw_toml.to_string())
 }
 
-pub async fn config_path(req: ApiRequest) -> ApiResponse {
+pub async fn config_path(state: ServerState, params: Params<'static>) -> Result<PathBuf> {
     tide::log::info!("Dumping DEEPWELL configuration path for debugging");
-    let toml_path = &req.state().config.raw_toml_path;
-    let body = Body::from_string(toml_path.display().to_string());
-    Ok(body.into())
+    Ok(state.config.raw_toml_path.to_path_buf())
 }
 
 pub async fn normalize_method(req: ApiRequest) -> ApiResponse {
