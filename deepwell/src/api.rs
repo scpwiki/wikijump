@@ -170,7 +170,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("session_get", not_implemented);
     register!("session_get_others", not_implemented);
     register!("session_renew", not_implemented);
-    register!("mfa_verify", not_implemented);
+    register!("mfa_verify", auth_mfa_verify);
     register!("mfa_setup", not_implemented);
     register!("mfa_disable", not_implemented);
     register!("mfa_reset_recovery", not_implemented);
@@ -299,9 +299,6 @@ pub fn tide_build_server(state: ServerState) -> tide::Server<ServerState> {
 
 fn tide_build_routes(mut app: tide::Server<ServerState>) -> tide::Server<ServerState> {
     // Authentication
-    app.at("/auth/mfa").post(auth_mfa_verify); // Is part of the login process,
-                                               // which is why it's up here.
-
     app.at("/auth/session/get").put(auth_session_retrieve);
     app.at("/auth/session/renew").post(auth_session_renew);
     app.at("/auth/session/others")

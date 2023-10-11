@@ -192,19 +192,22 @@ pub async fn auth_session_invalidate_others(mut req: ApiRequest) -> ApiResponse 
     Ok(response)
 }
 
-pub async fn auth_mfa_verify(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+pub async fn auth_mfa_verify(
+    state: ServerState,
+    params: Params<'static>,
+) -> Result<String> {
+    let txn = state.database.begin().await?;
+    let ctx = ServiceContext::from_raw(&state, &txn);
 
     let LoginUserMfa {
         session_token,
         totp_or_code,
         ip_address,
         user_agent,
-    } = req.body_json().await?;
+    } = params.parse()?;
 
     tide::log::info!(
-        "Verifying user's MFA for login (temporary session token {session_token})"
+        "Verifying user's MFA for login (temporary session token {session_token})",
     );
 
     let user = AuthenticationService::auth_mfa(
@@ -227,10 +230,7 @@ pub async fn auth_mfa_verify(mut req: ApiRequest) -> ApiResponse {
     )
     .await?;
 
-    let body = Body::from_string(new_session_token);
-    let response = Response::builder(StatusCode::Ok).body(body).into();
-    txn.commit().await?;
-    Ok(response)
+    Ok(new_session_token)
 }
 
 pub async fn auth_mfa_setup(mut req: ApiRequest) -> ApiResponse {
