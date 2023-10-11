@@ -31,7 +31,12 @@ pub struct LocaleOutput {
     variants: Vec<String>,
 }
 
-type TranslateInput<'a> = HashMap<String, MessageArguments<'a>>;
+#[derive(Deserialize, Debug, Clone)]
+pub struct TranslateInput<'a> {
+    locale: &'a str,
+    messages: HashMap<String, MessageArguments<'a>>,
+}
+
 type TranslateOutput = HashMap<String, String>;
 
 pub async fn locale_info(
@@ -49,32 +54,39 @@ pub async fn locale_info(
     })
 }
 
-pub async fn translate_put(mut req: ApiRequest) -> ApiResponse {
-    let input: TranslateInput = req.body_json().await?;
-    let locale_str = req.param("locale")?;
-    let localizations = &req.state().localizations;
+pub async fn translate_strings(
+    state: ServerState,
+    params: Params<'static>,
+) -> Result<TranslateOutput> {
+    let TranslateInput {
+        locale: locale_str,
+        messages,
+    } = params.parse()?;
+
     tide::log::info!(
         "Translating {} message keys in locale {locale_str}",
-        input.len(),
+        messages.len(),
     );
 
     let locale = LanguageIdentifier::from_bytes(locale_str.as_bytes())?;
     let mut output: TranslateOutput = HashMap::new();
 
-    for (message_key, arguments_raw) in input {
+    for (message_key, arguments_raw) in messages {
         tide::log::info!(
             "Formatting message key {message_key} ({} arguments)",
             arguments_raw.len(),
         );
 
         let arguments = arguments_raw.into_fluent_args();
-        match localizations.translate(&locale, &message_key, &arguments) {
+
+        match state
+            .localizations
+            .translate(&locale, &message_key, &arguments)
+        {
             Ok(translation) => output.insert(message_key, translation.to_string()),
-            Err(error) => return Err(ServiceError::from(error).into_tide_error()),
+            Err(error) => return Err(ServiceError::from(error)),
         };
     }
 
-    let body = Body::from_json(&output)?;
-    let response = Response::builder(StatusCode::Ok).body(body).into();
-    Ok(response)
+    Ok(output)
 }
