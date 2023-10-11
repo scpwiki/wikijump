@@ -128,7 +128,10 @@ pub async fn auth_session_get(
     Ok(session)
 }
 
-pub async fn auth_session_renew(state: ServerState, params: Params<'static>) -> Result<String> {
+pub async fn auth_session_renew(
+    state: ServerState,
+    params: Params<'static>,
+) -> Result<String> {
     let txn = state.database.begin().await?;
     let ctx = ServiceContext::from_raw(&state, &txn);
     let input: RenewSession = params.parse()?;
@@ -137,14 +140,17 @@ pub async fn auth_session_renew(state: ServerState, params: Params<'static>) -> 
     Ok(new_session_token)
 }
 
-pub async fn auth_session_retrieve_others(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+pub async fn auth_session_get_others(
+    state: ServerState,
+    params: Params<'static>,
+) -> Result<GetOtherSessionsOutput> {
+    let txn = state.database.begin().await?;
+    let ctx = ServiceContext::from_raw(&state, &txn);
 
     let GetOtherSessions {
         user_id,
         session_token,
-    } = req.body_json().await?;
+    } = params.parse()?;
 
     // Produce output struct, which extracts the current session and
     // places it in its own location.
@@ -157,7 +163,7 @@ pub async fn auth_session_retrieve_others(mut req: ApiRequest) -> ApiResponse {
             Some(index) => sessions.remove(index),
             None => {
                 tide::log::error!("Cannot find own session token in list of all sessions, must be invalid");
-                return Ok(Response::new(StatusCode::NotFound));
+                return Err(Error::NotFound);
             }
         };
 
@@ -167,10 +173,8 @@ pub async fn auth_session_retrieve_others(mut req: ApiRequest) -> ApiResponse {
         }
     };
 
-    let body = Body::from_json(&output)?;
-    let response = Response::builder(StatusCode::Ok).body(body).into();
     txn.commit().await?;
-    Ok(response)
+    Ok(output)
 }
 
 pub async fn auth_session_invalidate_others(mut req: ApiRequest) -> ApiResponse {

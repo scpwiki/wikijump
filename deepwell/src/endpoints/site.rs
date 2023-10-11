@@ -24,9 +24,14 @@ use crate::models::sea_orm_active_enums::AliasType;
 use crate::models::site::Model as SiteModel;
 use crate::models::site_domain::Model as SiteDomainModel;
 use crate::services::domain::CreateCustomDomain;
-use crate::services::site::{CreateSite, GetSite, GetSiteOutput, UpdateSite, CreateSiteOutput};
+use crate::services::site::{
+    CreateSite, CreateSiteOutput, GetSite, GetSiteOutput, UpdateSite,
+};
 
-pub async fn site_create(state: ServerState, params: Params<'static>) -> Result<CreateSiteOutput> {
+pub async fn site_create(
+    state: ServerState,
+    params: Params<'static>,
+) -> Result<CreateSiteOutput> {
     let txn = state.database.begin().await?;
     let ctx = ServiceContext::from_raw(&state, &txn);
     let input: CreateSite = params.parse()?;
