@@ -20,35 +20,33 @@
 
 use super::prelude::*;
 use crate::locales::MessageArguments;
-use ref_map::*;
 use std::collections::HashMap;
 use unic_langid::LanguageIdentifier;
 
-#[derive(Serialize, Debug)]
-struct LocaleOutput<'a> {
-    language: &'a str,
-    script: Option<&'a str>,
-    region: Option<&'a str>,
+#[derive(Serialize, Debug, Clone)]
+pub struct LocaleOutput {
+    language: String,
+    script: Option<String>,
+    region: Option<String>,
     variants: Vec<String>,
 }
 
 type TranslateInput<'a> = HashMap<String, MessageArguments<'a>>;
 type TranslateOutput = HashMap<String, String>;
 
-pub async fn locale_get(req: ApiRequest) -> ApiResponse {
-    let locale_str = req.param("locale")?;
+pub async fn locale_info(
+    state: ServerState,
+    params: Params<'static>,
+) -> Result<LocaleOutput> {
+    let locale_str: String = params.one()?;
     tide::log::info!("Getting locale information for {locale_str}");
-
     let locale = LanguageIdentifier::from_bytes(locale_str.as_bytes())?;
-    let output = LocaleOutput {
-        language: locale.language.as_str(),
-        script: locale.script.ref_map(|s| s.as_str()),
-        region: locale.region.ref_map(|s| s.as_str()),
-        variants: locale.variants().map(|v| v.as_str().into()).collect(),
-    };
-
-    let body = Body::from_json(&output)?;
-    Ok(body.into())
+    Ok(LocaleOutput {
+        language: str!(locale.language),
+        script: locale.script.map(|s| str!(s)),
+        region: locale.region.map(|s| str!(s)),
+        variants: locale.variants().map(|v| str!(v)).collect(),
+    })
 }
 
 pub async fn translate_put(mut req: ApiRequest) -> ApiResponse {

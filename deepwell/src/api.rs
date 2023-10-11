@@ -158,7 +158,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("normalize", normalize_method);
 
     // Localization
-    register!("locale", not_implemented);
+    register!("locale", locale_info);
     register!("translate", not_implemented);
 
     // Web server
@@ -299,7 +299,6 @@ pub fn tide_build_server(state: ServerState) -> tide::Server<ServerState> {
 
 fn tide_build_routes(mut app: tide::Server<ServerState>) -> tide::Server<ServerState> {
     // Localization
-    app.at("/locale/:locale").get(locale_get);
     app.at("/translate/:locale").put(translate_put);
 
     // Routes for web server
