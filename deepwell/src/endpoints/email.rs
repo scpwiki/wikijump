@@ -19,14 +19,14 @@
  */
 
 use super::prelude::*;
-use crate::services::email::EmailService;
+use crate::services::email::{EmailService, EmailValidationOutput};
 
-pub async fn validate_email(mut req: ApiRequest) -> ApiResponse {
-    tide::log::info!("Validating user email");
-    let email = req.body_string().await?;
+pub async fn validate_email(
+    state: ServerState,
+    params: Params<'static>,
+) -> Result<EmailValidationOutput> {
+    let email: String = params.one()?;
+    tide::log::info!("Validating user email: {email}");
     let output = EmailService::validate(&email).await?;
-
-    let body = Body::from_json(&output)?;
-    let response = Response::builder(StatusCode::Ok).body(body).into();
-    Ok(response)
+    Ok(output)
 }

@@ -265,7 +265,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("message_draft_send", not_implemented);
 
     // Email
-    register!("email_validate", not_implemented);
+    register!("email_validate", validate_email);
 
     // Votes
     register!("vote_set", not_implemented);
@@ -407,9 +407,6 @@ fn tide_build_routes(mut app: tide::Server<ServerState>) -> tide::Server<ServerS
         .put(message_draft_update)
         .delete(message_draft_delete);
     app.at("/message").post(message_draft_send);
-
-    // Email
-    app.at("/email/validate").put(validate_email);
 
     // Votes
     app.at("/vote").put(vote_put).delete(vote_delete);
