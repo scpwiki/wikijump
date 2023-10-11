@@ -44,9 +44,9 @@ use sea_orm::DatabaseConnection;
 use std::sync::Arc;
 use std::time::Duration;
 
-#[deprecated]
+// #[deprecated] XXX
 pub type ApiRequest = tide::Request<ServerState>;
-#[deprecated]
+// #[deprecated] XXX
 pub type ApiResponse = tide::Result;
 
 pub type ServerState = Arc<ServerStateInner>;

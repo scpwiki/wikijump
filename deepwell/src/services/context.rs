@@ -34,7 +34,7 @@ pub struct ServiceContext<'txn> {
 }
 
 impl<'txn> ServiceContext<'txn> {
-    #[deprecated]
+    // #[deprecated] XXX
     pub fn new(req: &ApiRequest, transaction: &'txn DatabaseTransaction) -> Self {
         Self::from_raw(req.state(), transaction)
     }
