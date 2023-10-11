@@ -100,6 +100,15 @@ pub async fn auth_login(
     })
 }
 
+pub async fn auth_logout(state: ServerState, params: Params<'static>) -> Result<()> {
+    let txn = state.database.begin().await?;
+    let ctx = ServiceContext::from_raw(&state, &txn);
+    let session_token: String = params.one()?;
+    SessionService::invalidate(&ctx, session_token).await?;
+    txn.commit().await?;
+    Ok(())
+}
+
 /// Gets the information associated with a particular session token.
 ///
 /// This is how framerail determines the user ID this user is acting as,
@@ -181,17 +190,6 @@ pub async fn auth_session_invalidate_others(mut req: ApiRequest) -> ApiResponse 
     let response = Response::builder(StatusCode::Ok).body(body).into();
     txn.commit().await?;
     Ok(response)
-}
-
-pub async fn auth_logout(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let session_token = req.body_string().await?;
-    SessionService::invalidate(&ctx, session_token).await?;
-
-    txn.commit().await?;
-    Ok(Response::new(StatusCode::NoContent))
 }
 
 pub async fn auth_mfa_verify(mut req: ApiRequest) -> ApiResponse {

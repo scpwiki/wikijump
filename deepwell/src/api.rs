@@ -166,7 +166,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
 
     // Authentication
     register!("login", auth_login);
-    register!("logout", not_implemented);
+    register!("logout", auth_logout);
     register!("session_get", not_implemented);
     register!("session_get_others", not_implemented);
     register!("session_renew", not_implemented);
@@ -299,7 +299,6 @@ pub fn tide_build_server(state: ServerState) -> tide::Server<ServerState> {
 
 fn tide_build_routes(mut app: tide::Server<ServerState>) -> tide::Server<ServerState> {
     // Authentication
-    app.at("/auth/logout").delete(auth_logout);
     app.at("/auth/mfa").post(auth_mfa_verify); // Is part of the login process,
                                                // which is why it's up here.
 
