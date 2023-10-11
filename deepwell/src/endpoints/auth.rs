@@ -177,21 +177,22 @@ pub async fn auth_session_get_others(
     Ok(output)
 }
 
-pub async fn auth_session_invalidate_others(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+pub async fn auth_session_invalidate_others(
+    state: ServerState,
+    params: Params<'static>,
+) -> Result<u64> {
+    let txn = state.database.begin().await?;
+    let ctx = ServiceContext::from_raw(&state, &txn);
     let InvalidateOtherSessions {
         session_token,
         user_id,
-    } = req.body_json().await?;
+    } = params.parse()?;
 
-    let invalidated =
+    let invalidated_count =
         SessionService::invalidate_others(&ctx, &session_token, user_id).await?;
 
-    let body = Body::from_json(&invalidated)?;
-    let response = Response::builder(StatusCode::Ok).body(body).into();
     txn.commit().await?;
-    Ok(response)
+    Ok(invalidated_count)
 }
 
 pub async fn auth_mfa_verify(
