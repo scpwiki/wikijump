@@ -177,7 +177,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("mfa_reset_recovery", auth_mfa_reset_recovery);
 
     // Site
-    register!("site_create", not_implemented);
+    register!("site_create", site_create);
     register!("site_get", not_implemented);
     register!("site_update", not_implemented);
     register!("site_from_domain", not_implemented);
