@@ -39,6 +39,10 @@ pub type Result<T> = StdResult<T, Error>;
 /// via `into_tide_error()`.
 #[derive(ThisError, Debug)]
 pub enum Error {
+    // Error passed straight to ErrorObjectOwned without conversion
+    #[error("{0}")]
+    Raw(#[from] ErrorObjectOwned),
+
     #[error("Cryptography error: {0}")]
     Cryptography(argon2::password_hash::Error),
 
@@ -125,6 +129,7 @@ pub enum Error {
 impl Error {
     pub fn into_tide_error(self) -> TideError {
         match self {
+            Error::Raw(_) => unreachable!(),
             Error::Cryptography(_) => {
                 // The "invalid password" variant should have already been filtered out, see below.
                 TideError::from_str(StatusCode::InternalServerError, "")

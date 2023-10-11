@@ -74,11 +74,12 @@ pub async fn config_path(state: ServerState, params: Params<'static>) -> Result<
     Ok(state.config.raw_toml_path.to_path_buf())
 }
 
-pub async fn normalize_method(req: ApiRequest) -> ApiResponse {
-    let input = req.param("input")?;
-    tide::log::info!("Running normalize as utility web method: {input}");
-
-    let mut value = str!(input);
+pub async fn normalize_method(
+    state: ServerState,
+    params: Params<'static>,
+) -> Result<String> {
+    let mut value: String = params.one()?;
+    tide::log::info!("Running normalize on string: {value:?}");
     normalize(&mut value);
     Ok(value.into())
 }
