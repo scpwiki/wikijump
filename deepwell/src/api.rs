@@ -167,7 +167,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     // Authentication
     register!("login", auth_login);
     register!("logout", auth_logout);
-    register!("session_get", not_implemented);
+    register!("session_get", auth_session_get);
     register!("session_get_others", not_implemented);
     register!("session_renew", not_implemented);
     register!("mfa_verify", auth_mfa_verify);
@@ -299,7 +299,6 @@ pub fn tide_build_server(state: ServerState) -> tide::Server<ServerState> {
 
 fn tide_build_routes(mut app: tide::Server<ServerState>) -> tide::Server<ServerState> {
     // Authentication
-    app.at("/auth/session/get").put(auth_session_retrieve);
     app.at("/auth/session/renew").post(auth_session_renew);
     app.at("/auth/session/others")
         .delete(auth_session_invalidate_others);

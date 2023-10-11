@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::models::session::Model as SessionModel;
 use crate::services::authentication::{
     AuthenticateUserOutput, AuthenticationService, LoginUser, LoginUserMfa,
     LoginUserOutput, MultiFactorAuthenticateUser,
@@ -115,17 +116,16 @@ pub async fn auth_logout(state: ServerState, params: Params<'static>) -> Result<
 ///
 /// This is how framerail determines the user ID this user is acting as,
 /// among other information.
-pub async fn auth_session_retrieve(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let session_token = req.body_string().await?;
+pub async fn auth_session_get(
+    state: ServerState,
+    params: Params<'static>,
+) -> Result<SessionModel> {
+    let txn = state.database.begin().await?;
+    let ctx = ServiceContext::from_raw(&state, &txn);
+    let session_token: String = params.one()?;
     let session = SessionService::get(&ctx, &session_token).await?;
-
-    let body = Body::from_json(&session)?;
-    let response = Response::builder(StatusCode::Ok).body(body).into();
     txn.commit().await?;
-    Ok(response)
+    Ok(session)
 }
 
 pub async fn auth_session_renew(mut req: ApiRequest) -> ApiResponse {
