@@ -92,6 +92,12 @@ pub enum Error {
     #[error("Invalid username, password, or TOTP code")]
     InvalidAuthentication,
 
+    #[error("User ID {session_user_id} associated with session does not match active user ID {active_user_id}")]
+    SessionUserId {
+        active_user_id: i64,
+        session_user_id: i64,
+    },
+
     #[error("A password is required")]
     EmptyPassword,
 

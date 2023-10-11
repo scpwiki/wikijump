@@ -246,30 +246,32 @@ pub async fn auth_mfa_setup(
     Ok(output)
 }
 
-pub async fn auth_mfa_disable(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+pub async fn auth_mfa_disable(state: ServerState, params: Params<'static>) -> Result<()> {
+    let txn = state.database.begin().await?;
+    let ctx = ServiceContext::from_raw(&state, &txn);
 
     let MultiFactorConfigure {
         user_id,
         session_token,
-    } = req.body_json().await?;
+    } = params.parse()?;
 
     let user = SessionService::get_user(&ctx, &session_token, false).await?;
-
     if user.user_id != user_id {
         tide::log::error!(
             "Passed user ID ({}) does not match session token ({})",
             user_id,
             user.user_id,
         );
-        return Ok(Response::new(StatusCode::Forbidden));
+
+        return Err(Error::SessionUserId {
+            active_user_id: user_id,
+            session_user_id: user.user_id,
+        });
     }
 
     MfaService::disable(&ctx, user.user_id).await?;
-
     txn.commit().await?;
-    Ok(Response::new(StatusCode::NoContent))
+    Ok(())
 }
 
 pub async fn auth_mfa_reset_recovery(mut req: ApiRequest) -> ApiResponse {
