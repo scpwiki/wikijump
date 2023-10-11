@@ -19,15 +19,16 @@
  */
 
 use super::prelude::*;
-use crate::services::view::GetPageView;
+use crate::services::view::{GetPageView, GetPageViewOutput};
 
 /// Returns relevant context for rendering a page from a processed web request.
-pub async fn view_page(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let input: GetPageView = req.body_json().await?;
+pub async fn page_view(
+    state: ServerState,
+    params: Params<'static>,
+) -> Result<GetPageViewOutput> {
+    let txn = state.database.begin().await?;
+    let ctx = ServiceContext::from_raw(&state, &txn);
+    let input: GetPageView = params.parse()?;
     let output = ViewService::page(&ctx, input).await?;
-    let body = Body::from_json(&output)?;
-    Ok(body.into())
+    Ok(output)
 }

@@ -162,7 +162,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("translate", translate_strings);
 
     // Web server
-    register!("page_view", not_implemented);
+    register!("page_view", page_view);
 
     // Authentication
     register!("login", not_implemented);
@@ -298,9 +298,6 @@ pub fn tide_build_server(state: ServerState) -> tide::Server<ServerState> {
 }
 
 fn tide_build_routes(mut app: tide::Server<ServerState>) -> tide::Server<ServerState> {
-    // Routes for web server
-    app.at("/view/page").put(view_page);
-
     // Authentication
     app.at("/auth/login").post(auth_login);
     app.at("/auth/logout").delete(auth_logout);

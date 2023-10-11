@@ -36,7 +36,7 @@ impl UserPermissions {
     }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct GetPageView {
     pub domain: String,
     pub session_token: Option<String>,
@@ -44,13 +44,13 @@ pub struct GetPageView {
     pub locale: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct PageRoute {
     pub slug: String,
     pub extra: String,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 #[serde(tag = "type", content = "data")]
 pub enum GetPageViewOutput {
     PageFound {
@@ -87,20 +87,20 @@ pub enum GetPageViewOutput {
     },
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ViewerResult {
     FoundSite(Viewer),
     MissingSite(String),
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub struct Viewer {
     pub site: SiteModel,
     pub redirect_site: Option<String>,
     pub user_session: Option<UserSession>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub struct UserSession {
     pub session: SessionModel,
     pub user: UserModel,
