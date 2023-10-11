@@ -30,5 +30,6 @@ pub async fn page_view(
     let ctx = ServiceContext::from_raw(&state, &txn);
     let input: GetPageView = params.parse()?;
     let output = ViewService::page(&ctx, input).await?;
+    txn.commit().await?;
     Ok(output)
 }

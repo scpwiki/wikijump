@@ -92,6 +92,9 @@ pub enum Error {
     #[error("Invalid username, password, or TOTP code")]
     InvalidAuthentication,
 
+    #[error("A password is required")]
+    EmptyPassword,
+
     #[error("The user's email is disallowed")]
     DisallowedEmail,
 
@@ -100,6 +103,9 @@ pub enum Error {
 
     #[error("The request is in some way malformed or incorrect")]
     BadRequest,
+
+    #[error("The server ran into an unspecified or unknown error")]
+    InternalServerError,
 
     #[error("The request conflicts with data already present")]
     Conflict,
@@ -129,7 +135,6 @@ pub enum Error {
 impl Error {
     pub fn into_tide_error(self) -> TideError {
         match self {
-            Error::Raw(_) => unreachable!(),
             Error::Cryptography(_) => {
                 // The "invalid password" variant should have already been filtered out, see below.
                 TideError::from_str(StatusCode::InternalServerError, "")
@@ -173,6 +178,7 @@ impl Error {
                 TideError::from_str(StatusCode::Forbidden, "")
             }
             Error::RateLimited => TideError::from_str(StatusCode::ServiceUnavailable, ""),
+            _ => unreachable!(), // new cases for migrations
         }
     }
 }

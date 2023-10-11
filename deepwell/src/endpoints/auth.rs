@@ -31,14 +31,18 @@ use crate::services::session::{
 use crate::services::user::GetUser;
 use crate::services::Error;
 
-pub async fn auth_login(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+pub async fn auth_login(
+    state: ServerState,
+    params: Params<'static>,
+) -> Result<LoginUserOutput> {
+    let txn = state.database.begin().await?;
+    let ctx = ServiceContext::from_raw(&state, &txn);
+
     let LoginUser {
         authenticate,
         ip_address,
         user_agent,
-    } = req.body_json().await?;
+    } = params.parse()?;
 
     // Don't allow empty passwords.
     //
@@ -47,13 +51,14 @@ pub async fn auth_login(mut req: ApiRequest) -> ApiResponse {
     // *not* want to be logging.
     if authenticate.password.is_empty() {
         tide::log::error!("User submitted empty password in auth request");
-        return Err(TideError::from_str(StatusCode::BadRequest, ""));
+        return Err(Error::EmptyPassword);
     }
 
     // All authentication issue should return the same error.
     //
     // If anything went wrong, only allow a generic backend failure
-    // to avoid leaking internal state.
+    // to avoid leaking internal state. However since we are an internal
+    // API
     //
     // The only three possible responses to this method should be:
     // * success
@@ -62,19 +67,13 @@ pub async fn auth_login(mut req: ApiRequest) -> ApiResponse {
     let result = AuthenticationService::auth_password(&ctx, authenticate).await;
     let AuthenticateUserOutput { needs_mfa, user_id } = match result {
         Ok(output) => output,
-        Err(error) => {
-            let status_code = match error {
-                Error::InvalidAuthentication => StatusCode::Forbidden,
-                _ => {
-                    tide::log::error!(
-                        "Unexpected error during user authentication: {error}",
-                    );
+        Err(mut error) => {
+            if matches!(error, Error::InvalidAuthentication) {
+                tide::log::error!("Unexpected error during user authentication: {error}");
+                error = Error::InternalServerError;
+            }
 
-                    StatusCode::InternalServerError
-                }
-            };
-
-            return Err(TideError::from_str(status_code, ""));
+            return Err(error);
         }
     };
 
@@ -94,14 +93,11 @@ pub async fn auth_login(mut req: ApiRequest) -> ApiResponse {
     )
     .await?;
 
-    let body = Body::from_json(&LoginUserOutput {
+    txn.commit().await?;
+    Ok(LoginUserOutput {
         session_token,
         needs_mfa,
-    })?;
-
-    let response = Response::builder(StatusCode::Ok).body(body).into();
-    txn.commit().await?;
-    Ok(response)
+    })
 }
 
 /// Gets the information associated with a particular session token.
