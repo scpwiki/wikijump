@@ -19,18 +19,19 @@
  */
 
 use super::prelude::*;
+use crate::models::site::Model as SiteModel;
 use crate::services::domain::CreateCustomDomain;
 
-pub async fn site_get_from_domain(req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let domain = req.param("domain")?;
-    let model = DomainService::site_from_domain(&ctx, domain).await?;
-
-    let body = Body::from_json(&model)?;
+pub async fn site_get_from_domain(
+    state: ServerState,
+    params: Params<'static>,
+) -> Result<SiteModel> {
+    let txn = state.database.begin().await?;
+    let ctx = ServiceContext::from_raw(&state, &txn);
+    let domain: String = params.one()?;
+    let site = DomainService::site_from_domain(&ctx, &domain).await?;
     txn.commit().await?;
-    Ok(body.into())
+    Ok(site)
 }
 
 pub async fn site_custom_domain_retrieve(mut req: ApiRequest) -> ApiResponse {

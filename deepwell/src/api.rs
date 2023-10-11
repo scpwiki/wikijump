@@ -180,7 +180,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("site_create", site_create);
     register!("site_get", site_get);
     register!("site_update", site_update);
-    register!("site_from_domain", not_implemented);
+    register!("site_from_domain", site_get_from_domain);
 
     // Site custom domain
     register!("custom_domain_create", not_implemented);
@@ -305,7 +305,6 @@ fn tide_build_routes(mut app: tide::Server<ServerState>) -> tide::Server<ServerS
         .delete(site_custom_domain_delete);
     app.at("/site/domain/custom/get")
         .put(site_custom_domain_retrieve);
-    app.at("/site/fromDomain/:domain").get(site_get_from_domain);
 
     // Site Membership
     app.at("/site/member")
