@@ -23,7 +23,7 @@ use crate::services::authentication::{
     AuthenticateUserOutput, AuthenticationService, LoginUser, LoginUserMfa,
     LoginUserOutput, MultiFactorAuthenticateUser,
 };
-use crate::services::mfa::MultiFactorConfigure;
+use crate::services::mfa::{MultiFactorConfigure, MultiFactorSetupOutput};
 use crate::services::session::{
     CreateSession, GetOtherSessions, GetOtherSessionsOutput, InvalidateOtherSessions,
     RenewSession,
@@ -233,18 +233,17 @@ pub async fn auth_mfa_verify(
     Ok(new_session_token)
 }
 
-pub async fn auth_mfa_setup(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let GetUser { user: reference } = req.body_json().await?;
+pub async fn auth_mfa_setup(
+    state: ServerState,
+    params: Params<'static>,
+) -> Result<MultiFactorSetupOutput> {
+    let txn = state.database.begin().await?;
+    let ctx = ServiceContext::from_raw(&state, &txn);
+    let GetUser { user: reference } = params.parse()?;
     let user = UserService::get(&ctx, reference).await?;
     let output = MfaService::setup(&ctx, &user).await?;
-
-    let body = Body::from_json(&output)?;
-    let response = Response::builder(StatusCode::Ok).body(body).into();
     txn.commit().await?;
-    Ok(response)
+    Ok(output)
 }
 
 pub async fn auth_mfa_disable(mut req: ApiRequest) -> ApiResponse {

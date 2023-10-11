@@ -38,7 +38,7 @@ pub fn generate_totp_secret() -> String {
     }
 }
 
-#[derive(Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub struct RecoveryCodes {
     pub recovery_codes: Vec<String>,
     pub recovery_codes_hashed: Vec<String>,
@@ -84,19 +84,19 @@ impl RecoveryCodes {
     }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct MultiFactorConfigure {
     pub user_id: i64,
     pub session_token: String,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub struct MultiFactorSetupOutput {
     pub totp_secret: String,
     pub recovery_codes: Vec<String>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub struct MultiFactorResetOutput {
     pub recovery_codes: Vec<String>,
 }
