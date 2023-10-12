@@ -19,37 +19,38 @@
  */
 
 use super::prelude::*;
+use crate::models::interaction::Model as InteractionModel;
 use crate::services::interaction::{CreateSiteMember, GetSiteMember, RemoveSiteMember};
 
-pub async fn membership_retrieve(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let input: GetSiteMember = req.body_json().await?;
+pub async fn membership_get(
+    state: ServerState,
+    params: Params<'static>,
+) -> Result<InteractionModel> {
+    let txn = state.database.begin().await?;
+    let ctx = ServiceContext::from_raw(&state, &txn);
+    let input: GetSiteMember = params.parse()?;
     let output = InteractionService::get_site_member(&ctx, input).await?;
-
     txn.commit().await?;
-    build_json_response(&output, StatusCode::Ok)
+    Ok(output)
 }
 
-pub async fn membership_put(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let input: CreateSiteMember = req.body_json().await?;
+pub async fn membership_set(state: ServerState, params: Params<'static>) -> Result<()> {
+    let txn = state.database.begin().await?;
+    let ctx = ServiceContext::from_raw(&state, &txn);
+    let input: CreateSiteMember = params.parse()?;
     InteractionService::create_site_member(&ctx, input).await?;
-
     txn.commit().await?;
-    Ok(Response::new(StatusCode::Created))
+    Ok(())
 }
 
-pub async fn membership_delete(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let input: RemoveSiteMember = req.body_json().await?;
+pub async fn membership_delete(
+    state: ServerState,
+    params: Params<'static>,
+) -> Result<InteractionModel> {
+    let txn = state.database.begin().await?;
+    let ctx = ServiceContext::from_raw(&state, &txn);
+    let input: RemoveSiteMember = params.parse()?;
     let output = InteractionService::remove_site_member(&ctx, input).await?;
-
     txn.commit().await?;
-    build_json_response(&output, StatusCode::Ok)
+    Ok(output)
 }

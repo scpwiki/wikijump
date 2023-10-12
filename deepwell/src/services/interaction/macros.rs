@@ -40,6 +40,25 @@ macro_rules! impl_interaction {
                         $dest_name,
                         $from_name,
                     }: [<Get $interaction_type>],
+                ) -> Result<InteractionModel> {
+                    Self::get(
+                        ctx,
+                        InteractionReference::Relationship {
+                            interaction_type: InteractionType::$interaction_type,
+                            dest: InteractionObject::$dest_type($dest_name),
+                            from: InteractionObject::$from_type($from_name),
+                        },
+                    )
+                    .await
+                }
+
+                #[allow(dead_code)] // TEMP
+                pub async fn [<$interaction_type:snake _exists>](
+                    ctx: &ServiceContext<'_>,
+                    [<Get $interaction_type>] {
+                        $dest_name,
+                        $from_name,
+                    }: [<Get $interaction_type>],
                 ) -> Result<bool> {
                     Self::exists(
                         ctx,

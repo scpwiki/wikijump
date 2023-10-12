@@ -72,7 +72,7 @@ impl InteractionService {
         body: GetSiteBan,
         action: &str,
     ) -> Result<()> {
-        if Self::get_site_ban(ctx, body).await? {
+        if Self::site_ban_exists(ctx, body).await? {
             tide::log::error!(
                 "User ID {} cannot {} site ID {} because they are banned",
                 body.user_id,
