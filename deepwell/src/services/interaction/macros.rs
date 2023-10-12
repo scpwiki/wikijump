@@ -184,6 +184,7 @@ macro_rules! impl_interaction {
     };
 }
 
+// TODO: change to create-or-edit kind of thing?
 /// Macro which runs the actual `create()` call for the interaction.
 macro_rules! create_operation {
     (
