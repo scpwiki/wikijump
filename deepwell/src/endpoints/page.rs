@@ -22,63 +22,62 @@ use super::prelude::*;
 use crate::models::page::Model as PageModel;
 use crate::models::page_revision::Model as PageRevisionModel;
 use crate::services::page::{
-    CreatePage, DeletePage, EditPage, GetPage, GetPageOutput, MovePage, RestorePage,
-    RollbackPage,
+    CreatePage, CreatePageOutput, DeletePage, EditPage, GetPage, GetPageDirect,
+    GetPageOutput, MovePage, RestorePage, RollbackPage,
 };
 use crate::services::{Result, TextService};
-use crate::web::{PageDetailsQuery, Reference};
-use ref_map::*;
+use crate::web::{PageDetails, Reference};
 
-pub async fn page_create(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let input: CreatePage = req.body_json().await?;
+pub async fn page_create(
+    state: ServerState,
+    params: Params<'static>,
+) -> Result<CreatePageOutput> {
+    let txn = state.database.begin().await?;
+    let ctx = ServiceContext::from_raw(&state, &txn);
+    let input: CreatePage = params.parse()?;
     tide::log::info!("Creating new page in site ID {}", input.site_id);
-
     let output = PageService::create(&ctx, input).await?;
-    build_json_response(&output, StatusCode::Ok)
+    Ok(output)
 }
 
-pub async fn page_retrieve(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+pub async fn page_get(
+    state: ServerState,
+    params: Params<'static>,
+) -> Result<GetPageOutput> {
+    let txn = state.database.begin().await?;
+    let ctx = ServiceContext::from_raw(&state, &txn);
 
-    let details: PageDetailsQuery = req.query()?;
     let GetPage {
         site_id,
         page: reference,
-    } = req.body_json().await?;
+        details,
+    } = params.parse()?;
 
     tide::log::info!("Getting page {reference:?} in site ID {site_id}");
     let page = PageService::get(&ctx, site_id, reference).await?;
-
     let revision = PageRevisionService::get_latest(&ctx, site_id, page.page_id).await?;
-
-    let response =
-        build_page_response(&ctx, &page, &revision, details, StatusCode::Ok).await?;
-
-    txn.commit().await?;
-    Ok(response)
+    let output = build_page_output(&ctx, page, revision, details).await?;
+    Ok(output)
 }
 
-pub async fn page_get_direct(req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+pub async fn page_get_direct(
+    state: ServerState,
+    params: Params<'static>,
+) -> Result<GetPageOutput> {
+    let txn = state.database.begin().await?;
+    let ctx = ServiceContext::from_raw(&state, &txn);
 
-    let page_id = req.param("page_id")?.parse()?;
-    tide::log::info!("Getting page ID {page_id}");
+    let GetPageDirect {
+        site_id,
+        page_id,
+        details,
+    } = params.parse()?;
 
-    let details: PageDetailsQuery = req.query()?;
-    let page = PageService::get_direct(&ctx, page_id).await?;
-    let revision =
-        PageRevisionService::get_latest(&ctx, page.site_id, page.page_id).await?;
-
-    let response =
-        build_page_response(&ctx, &page, &revision, details, StatusCode::Ok).await?;
-
-    txn.commit().await?;
-    Ok(response)
+    tide::log::info!("Getting page ID {page_id} in site ID {site_id}");
+    let page = PageService::get_direct(&ctx, site_id, page_id).await?;
+    let revision = PageRevisionService::get_latest(&ctx, site_id, page_id).await?;
+    let output = build_page_output(&ctx, page, revision, details).await?;
+    Ok(output)
 }
 
 pub async fn page_edit(mut req: ApiRequest) -> ApiResponse {
@@ -183,13 +182,12 @@ pub async fn page_rollback(mut req: ApiRequest) -> ApiResponse {
     Ok(body.into())
 }
 
-async fn build_page_response(
+async fn build_page_output(
     ctx: &ServiceContext<'_>,
-    page: &PageModel,
-    revision: &PageRevisionModel,
-    details: PageDetailsQuery,
-    status: StatusCode,
-) -> Result<Response> {
+    page: PageModel,
+    revision: PageRevisionModel,
+    details: PageDetails,
+) -> Result<GetPageOutput> {
     // Get category slug from ID
     let category =
         CategoryService::get(ctx, page.site_id, Reference::from(page.page_category_id))
@@ -205,7 +203,7 @@ async fn build_page_response(
     let rating = ScoreService::score(ctx, page.page_id).await?;
 
     // Build result struct
-    let output = GetPageOutput {
+    Ok(GetPageOutput {
         page_id: page.page_id,
         page_created_at: page.created_at,
         page_updated_at: page.updated_at,
@@ -213,7 +211,7 @@ async fn build_page_response(
         page_revision_count: revision.revision_number + 1,
         site_id: page.site_id,
         page_category_id: category.category_id,
-        page_category_slug: &category.slug,
+        page_category_slug: category.slug,
         discussion_thread_id: page.discussion_thread_id,
         revision_id: revision.revision_id,
         revision_type: revision.revision_type,
@@ -223,17 +221,13 @@ async fn build_page_response(
         wikitext,
         compiled_html,
         compiled_at: revision.compiled_at,
-        compiled_generator: &revision.compiled_generator,
-        revision_comments: &revision.comments,
-        hidden_fields: &revision.hidden,
-        title: &revision.title,
-        alt_title: revision.alt_title.ref_map(|s| s.as_str()),
-        slug: &revision.slug,
-        tags: &revision.tags,
+        compiled_generator: revision.compiled_generator,
+        revision_comments: revision.comments,
+        hidden_fields: revision.hidden,
+        title: revision.title,
+        alt_title: revision.alt_title,
+        slug: revision.slug,
+        tags: revision.tags,
         rating,
-    };
-
-    let body = Body::from_json(&output)?;
-    let response = Response::builder(status).body(body).into();
-    Ok(response)
+    })
 }

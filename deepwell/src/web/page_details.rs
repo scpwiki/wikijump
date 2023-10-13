@@ -20,7 +20,7 @@
 
 #[derive(Serialize, Deserialize, Debug, Default, Copy, Clone, PartialEq, Eq)]
 #[serde(default)]
-pub struct PageDetailsQuery {
+pub struct PageDetails {
     /// Include the wikitext in the page output.
     pub wikitext: bool,
 

@@ -24,7 +24,7 @@ use sea_orm::{ConnectionTrait, DatabaseBackend, Statement};
 use std::path::PathBuf;
 use wikidot_normalize::normalize;
 
-pub async fn ping(state: ServerState, params: Params<'static>) -> Result<&'static str> {
+pub async fn ping(state: ServerState, _params: Params<'static>) -> Result<&'static str> {
     tide::log::info!("Ping request");
 
     // Ensure the database is connected
@@ -41,41 +41,44 @@ pub async fn ping(state: ServerState, params: Params<'static>) -> Result<&'stati
 }
 
 pub async fn version(
-    state: ServerState,
-    params: Params<'static>,
+    _state: ServerState,
+    _params: Params<'static>,
 ) -> Result<&'static str> {
     tide::log::info!("Getting DEEPWELL version");
     Ok(info::VERSION.as_str())
 }
 
 pub async fn full_version(
-    state: ServerState,
-    params: Params<'static>,
+    _state: ServerState,
+    _params: Params<'static>,
 ) -> Result<&'static str> {
     tide::log::info!("Getting DEEPWELL version (full)");
     Ok(info::FULL_VERSION.as_str())
 }
 
 pub async fn hostname(
-    state: ServerState,
-    params: Params<'static>,
+    _state: ServerState,
+    _params: Params<'static>,
 ) -> Result<&'static str> {
     tide::log::info!("Getting DEEPWELL hostname");
     Ok(info::HOSTNAME.as_str())
 }
 
-pub async fn config_dump(state: ServerState, params: Params<'static>) -> Result<String> {
+pub async fn config_dump(state: ServerState, _params: Params<'static>) -> Result<String> {
     tide::log::info!("Dumping raw DEEPWELL configuration for debugging");
     Ok(state.config.raw_toml.to_string())
 }
 
-pub async fn config_path(state: ServerState, params: Params<'static>) -> Result<PathBuf> {
+pub async fn config_path(
+    state: ServerState,
+    _params: Params<'static>,
+) -> Result<PathBuf> {
     tide::log::info!("Dumping DEEPWELL configuration path for debugging");
     Ok(state.config.raw_toml_path.to_path_buf())
 }
 
 pub async fn normalize_method(
-    state: ServerState,
+    _state: ServerState,
     params: Params<'static>,
 ) -> Result<String> {
     let mut value: String = params.one()?;

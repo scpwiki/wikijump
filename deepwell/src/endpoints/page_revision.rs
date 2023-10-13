@@ -26,7 +26,7 @@ use crate::services::page_revision::{
     PageRevisionModelFiltered, UpdatePageRevision,
 };
 use crate::services::{Result, TextService};
-use crate::web::PageDetailsQuery;
+use crate::web::PageDetails;
 
 pub async fn page_revision_count(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
@@ -35,6 +35,7 @@ pub async fn page_revision_count(mut req: ApiRequest) -> ApiResponse {
     let GetPage {
         site_id,
         page: reference,
+        details: _,
     } = req.body_json().await?;
 
     tide::log::info!(
@@ -61,7 +62,7 @@ pub async fn page_revision_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let details: PageDetailsQuery = req.query()?;
+    let details: PageDetails = req.query()?;
     let GetPageRevision {
         site_id,
         page_id,
@@ -86,7 +87,7 @@ pub async fn page_revision_put(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let details: PageDetailsQuery = req.query()?;
+    let details: PageDetails = req.query()?;
     let input: UpdatePageRevision = req.body_json().await?;
 
     tide::log::info!(
@@ -113,7 +114,7 @@ pub async fn page_revision_range_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::new(&req, &txn);
 
-    let details: PageDetailsQuery = req.query()?;
+    let details: PageDetails = req.query()?;
     let input: GetPageRevisionRange = req.body_json().await?;
     let revisions = PageRevisionService::get_range(&ctx, input).await?;
 
@@ -128,7 +129,7 @@ pub async fn page_revision_range_retrieve(mut req: ApiRequest) -> ApiResponse {
 async fn filter_and_populate_revision(
     ctx: &ServiceContext<'_>,
     model: PageRevisionModel,
-    mut details: PageDetailsQuery,
+    mut details: PageDetails,
 ) -> Result<PageRevisionModelFiltered> {
     let PageRevisionModel {
         revision_id,
@@ -205,7 +206,7 @@ async fn filter_and_populate_revision(
 async fn build_revision_response(
     ctx: &ServiceContext<'_>,
     revision: PageRevisionModel,
-    details: PageDetailsQuery,
+    details: PageDetails,
     status: StatusCode,
 ) -> Result<Response> {
     let filtered_revision = filter_and_populate_revision(ctx, revision, details).await?;
@@ -217,7 +218,7 @@ async fn build_revision_response(
 async fn build_revision_list_response(
     ctx: &ServiceContext<'_>,
     revisions: Vec<PageRevisionModel>,
-    details: PageDetailsQuery,
+    details: PageDetails,
     status: StatusCode,
 ) -> Result<Response> {
     let filtered_revisions = {

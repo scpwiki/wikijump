@@ -33,6 +33,7 @@ pub async fn parent_relationships_retrieve(mut req: ApiRequest) -> ApiResponse {
     let GetPage {
         site_id,
         page: reference,
+        details: _,
     } = req.body_json().await?;
 
     tide::log::info!(

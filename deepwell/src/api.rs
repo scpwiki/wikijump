@@ -197,9 +197,9 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("category_get_all", category_get_all);
 
     // Page
-    register!("page_create", not_implemented);
-    register!("page_get", not_implemented);
-    register!("page_get_direct", not_implemented);
+    register!("page_create", page_create);
+    register!("page_get", page_get);
+    register!("page_get_direct", page_get_direct);
     register!("page_edit", not_implemented);
     register!("page_delete", not_implemented);
     register!("page_move", not_implemented);
@@ -301,9 +301,6 @@ pub fn tide_build_server(state: ServerState) -> tide::Server<ServerState> {
 fn tide_build_routes(mut app: tide::Server<ServerState>) -> tide::Server<ServerState> {
     // Page
     app.at("/page").post(page_edit).delete(page_delete);
-    app.at("/page/get").put(page_retrieve);
-    app.at("/page/create").post(page_create);
-    app.at("/page/direct/:page_id").get(page_get_direct);
     app.at("/page/move").post(page_move);
     app.at("/page/rerender").put(page_rerender);
     app.at("/page/restore").post(page_restore);
