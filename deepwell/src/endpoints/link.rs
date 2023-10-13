@@ -25,7 +25,7 @@ use crate::services::link::{
 
 pub async fn page_links_from_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let GetLinksFrom {
         site_id,
@@ -44,7 +44,7 @@ pub async fn page_links_from_retrieve(mut req: ApiRequest) -> ApiResponse {
 
 pub async fn page_links_to_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let GetLinksTo {
         site_id,
@@ -63,7 +63,7 @@ pub async fn page_links_to_retrieve(mut req: ApiRequest) -> ApiResponse {
 
 pub async fn page_links_to_missing_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let GetLinksToMissing { site_id, page_slug } = req.body_json().await?;
     tide::log::info!(
@@ -79,7 +79,7 @@ pub async fn page_links_to_missing_retrieve(mut req: ApiRequest) -> ApiResponse 
 
 pub async fn page_links_external_from(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let GetLinksExternalFrom {
         site_id,
@@ -101,7 +101,7 @@ pub async fn page_links_external_from(mut req: ApiRequest) -> ApiResponse {
 
 pub async fn page_links_external_to(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let GetLinksExternalTo { site_id, url } = req.body_json().await?;
     tide::log::info!("Getting external links to URL {url} in site ID {site_id}");

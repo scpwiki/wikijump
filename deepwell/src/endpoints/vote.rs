@@ -26,7 +26,7 @@ use serde::Serialize;
 
 pub async fn vote_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let input: GetVote = req.body_json().await?;
 
@@ -43,7 +43,7 @@ pub async fn vote_retrieve(mut req: ApiRequest) -> ApiResponse {
 
 pub async fn vote_put(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let input: CreateVote = req.body_json().await?;
 
@@ -63,7 +63,7 @@ pub async fn vote_put(mut req: ApiRequest) -> ApiResponse {
 
 pub async fn vote_delete(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let input: GetVote = req.body_json().await?;
 
@@ -80,7 +80,7 @@ pub async fn vote_delete(mut req: ApiRequest) -> ApiResponse {
 
 pub async fn vote_action(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let VoteAction {
         page_id,
@@ -98,7 +98,7 @@ pub async fn vote_action(mut req: ApiRequest) -> ApiResponse {
 
 pub async fn vote_list_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let input: GetVoteHistory = req.body_json().await?;
     let votes = VoteService::get_history(&ctx, input).await?;
@@ -109,7 +109,7 @@ pub async fn vote_list_retrieve(mut req: ApiRequest) -> ApiResponse {
 
 pub async fn vote_count_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let input: CountVoteHistory = req.body_json().await?;
     let count = VoteService::count_history(&ctx, input).await?;

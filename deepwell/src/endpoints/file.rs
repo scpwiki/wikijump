@@ -27,7 +27,7 @@ use crate::web::FileDetailsQuery;
 
 pub async fn file_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let details: FileDetailsQuery = req.query()?;
     let GetFile {

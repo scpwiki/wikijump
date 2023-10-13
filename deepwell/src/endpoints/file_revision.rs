@@ -26,7 +26,7 @@ use crate::services::file_revision::{
 
 pub async fn file_revision_count(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let GetFile {
         site_id,
@@ -56,7 +56,7 @@ pub async fn file_revision_count(mut req: ApiRequest) -> ApiResponse {
 
 pub async fn file_revision_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let GetFileRevision {
         page_id,
@@ -79,7 +79,7 @@ pub async fn file_revision_retrieve(mut req: ApiRequest) -> ApiResponse {
 
 pub async fn file_revision_put(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let input: UpdateFileRevision = req.body_json().await?;
 
@@ -98,7 +98,7 @@ pub async fn file_revision_put(mut req: ApiRequest) -> ApiResponse {
 
 pub async fn file_revision_range_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let input: GetFileRevisionRange = req.body_json().await?;
     let revisions = FileRevisionService::get_range(&ctx, input).await?;

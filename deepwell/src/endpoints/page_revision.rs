@@ -30,7 +30,7 @@ use crate::web::PageDetails;
 
 pub async fn page_revision_count(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let GetPage {
         site_id,
@@ -60,7 +60,7 @@ pub async fn page_revision_count(mut req: ApiRequest) -> ApiResponse {
 
 pub async fn page_revision_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let details: PageDetails = req.query()?;
     let GetPageRevision {
@@ -85,7 +85,7 @@ pub async fn page_revision_retrieve(mut req: ApiRequest) -> ApiResponse {
 
 pub async fn page_revision_put(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let details: PageDetails = req.query()?;
     let input: UpdatePageRevision = req.body_json().await?;
@@ -112,7 +112,7 @@ pub async fn page_revision_put(mut req: ApiRequest) -> ApiResponse {
 
 pub async fn page_revision_range_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let details: PageDetails = req.query()?;
     let input: GetPageRevisionRange = req.body_json().await?;

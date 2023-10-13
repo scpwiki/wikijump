@@ -29,7 +29,7 @@ use crate::web::ProvidedValue;
 
 pub async fn user_create(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     tide::log::info!("Creating new regular user");
     let input: CreateUser = req.body_json().await?;
@@ -49,7 +49,7 @@ pub async fn user_import(_req: ApiRequest) -> ApiResponse {
 
 pub async fn user_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let GetUser { user: reference } = req.body_json().await?;
     tide::log::info!("Getting user {:?}", reference);
@@ -63,7 +63,7 @@ pub async fn user_retrieve(mut req: ApiRequest) -> ApiResponse {
 
 pub async fn user_put(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let UpdateUser {
         user: reference,
@@ -80,7 +80,7 @@ pub async fn user_put(mut req: ApiRequest) -> ApiResponse {
 
 pub async fn user_delete(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let GetUser { user: reference } = req.body_json().await?;
     tide::log::info!("Deleting user {:?}", reference);
@@ -94,7 +94,7 @@ pub async fn user_delete(mut req: ApiRequest) -> ApiResponse {
 // Separate route because a JSON-encoded byte list is very inefficient.
 pub async fn user_avatar_put(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let GetUser { user: reference } = req.query()?;
     let bytes = req.body_bytes().await?;
@@ -125,7 +125,7 @@ pub async fn user_avatar_put(mut req: ApiRequest) -> ApiResponse {
 
 pub async fn user_add_name_change(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let GetUser { user: reference } = req.body_json().await?;
     tide::log::info!("Adding user name change token to {:?}", reference);

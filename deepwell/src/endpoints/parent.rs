@@ -25,7 +25,7 @@ use serde::Serialize;
 
 pub async fn parent_relationships_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let relationship_type: ParentalRelationshipType =
         req.param("relationship_type")?.parse()?;
@@ -53,7 +53,7 @@ pub async fn parent_relationships_retrieve(mut req: ApiRequest) -> ApiResponse {
 
 pub async fn parent_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let input: ParentDescription = req.body_json().await?;
 
@@ -72,7 +72,7 @@ pub async fn parent_retrieve(mut req: ApiRequest) -> ApiResponse {
 
 pub async fn parent_put(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let input: ParentDescription = req.body_json().await?;
 
@@ -97,7 +97,7 @@ pub async fn parent_put(mut req: ApiRequest) -> ApiResponse {
 
 pub async fn parent_delete(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let input: ParentDescription = req.body_json().await?;
 

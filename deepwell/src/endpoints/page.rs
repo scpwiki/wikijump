@@ -98,7 +98,7 @@ pub async fn page_edit(
 
 pub async fn page_delete(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let input: DeletePage = req.body_json().await?;
     tide::log::info!(
@@ -116,7 +116,7 @@ pub async fn page_delete(mut req: ApiRequest) -> ApiResponse {
 
 pub async fn page_move(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let input: MovePage = req.body_json().await?;
     tide::log::info!(
@@ -135,7 +135,7 @@ pub async fn page_move(mut req: ApiRequest) -> ApiResponse {
 
 pub async fn page_rerender(req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let site_id = req.param("site_id")?.parse()?;
     let page_id = req.param("page_id")?.parse()?;
@@ -149,7 +149,7 @@ pub async fn page_rerender(req: ApiRequest) -> ApiResponse {
 
 pub async fn page_restore(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let input: RestorePage = req.body_json().await?;
     tide::log::info!(
@@ -167,7 +167,7 @@ pub async fn page_restore(mut req: ApiRequest) -> ApiResponse {
 
 pub async fn page_rollback(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let input: RollbackPage = req.body_json().await?;
     tide::log::info!(

@@ -30,7 +30,7 @@ use crate::web::{ProvidedValue, Reference};
 
 pub async fn user_bot_create(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let CreateBotUser {
         name,
@@ -105,7 +105,7 @@ pub async fn user_bot_create(mut req: ApiRequest) -> ApiResponse {
 
 pub async fn user_bot_retrieve(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let GetUser { user: reference } = req.body_json().await?;
     tide::log::info!("Getting bot user {reference:?}");
@@ -138,7 +138,7 @@ pub async fn user_bot_retrieve(mut req: ApiRequest) -> ApiResponse {
 
 pub async fn user_bot_owner_put(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let input: CreateBotOwner = req.body_json().await?;
 
@@ -156,7 +156,7 @@ pub async fn user_bot_owner_put(mut req: ApiRequest) -> ApiResponse {
 
 pub async fn user_bot_owner_delete(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let input: DeleteBotOwner = req.body_json().await?;
     tide::log::info!("Remove bot owner ({:?} <- {:?})", input.bot, input.human,);

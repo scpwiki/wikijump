@@ -25,7 +25,7 @@ use crate::services::message::{
 
 pub async fn message_draft_create(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let input: CreateMessageDraft = req.body_json().await?;
     tide::log::info!("Creating new message draft for user ID {}", input.user_id);
@@ -37,12 +37,12 @@ pub async fn message_draft_create(mut req: ApiRequest) -> ApiResponse {
 
 pub async fn message_draft_update(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let input: UpdateMessageDraft = req.body_json().await?;
     tide::log::info!(
         "Updating message draft for draft ID {}",
-        input.message_draft_id
+        input.message_draft_id,
     );
 
     let output = MessageService::update_draft(&ctx, input).await?;
@@ -52,7 +52,7 @@ pub async fn message_draft_update(mut req: ApiRequest) -> ApiResponse {
 
 pub async fn message_draft_send(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let SendMessageDraft { message_draft_id } = req.body_json().await?;
     tide::log::info!("Sending message draft with ID {message_draft_id}");
@@ -64,7 +64,7 @@ pub async fn message_draft_send(mut req: ApiRequest) -> ApiResponse {
 
 pub async fn message_draft_delete(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+    let ctx = ServiceContext::from_req(&req, &txn);
 
     let DeleteMessageDraft { message_draft_id } = req.body_json().await?;
     tide::log::info!("Deleting message draft with ID {message_draft_id}");
