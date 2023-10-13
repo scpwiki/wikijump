@@ -32,14 +32,14 @@ pub async fn text_create(
     Ok(hash_hex)
 }
 
-pub async fn text_get(state: ServerState, params: Params<'static>) -> Result<String> {
-    let txn = state.database.begin().await?;
-    let ctx = ServiceContext::new(&state, &txn);
+pub async fn text_get(
+    ctx: ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<String> {
     tide::log::info!("Getting stored text");
     let hash_hex: String = params.one()?;
     let hash = read_hash(&hash_hex)?;
     let contents = TextService::get(&ctx, &hash).await?;
-    txn.commit().await?;
     Ok(contents)
 }
 

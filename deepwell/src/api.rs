@@ -158,14 +158,18 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
                 //
                 // At this level, we take the database-or-RPC error and make it just RPC.
                 let db_state = Arc::clone(&state);
-                db_state.database.transaction(move |txn| {
-                    Box::pin(async move {
-                        // Run the endpoint's implementation, and convert the
-                        // error from service to RPC.
-                        let ctx = ServiceContext::new(&state, &txn);
-                        $method(ctx, params).await.map_err(ErrorObjectOwned::from)
+                db_state
+                    .database
+                    .transaction(move |txn| {
+                        Box::pin(async move {
+                            // Run the endpoint's implementation, and convert the
+                            // error from service to RPC.
+                            let ctx = ServiceContext::new(&state, &txn);
+                            $method(ctx, params).await.map_err(ErrorObjectOwned::from)
+                        })
                     })
-                }).await.map_err(into_rpc_error)
+                    .await
+                    .map_err(into_rpc_error)
             })?;
         }};
     }
@@ -272,7 +276,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
 
     // Text
     register2!("text_create", text_create);
-    register!("text_get", text_get);
+    register2!("text_get", text_get);
 
     // User
     register2!("user_create", not_implemented);
