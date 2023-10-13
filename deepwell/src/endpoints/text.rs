@@ -39,8 +39,7 @@ pub async fn text_get(
     tide::log::info!("Getting stored text");
     let hash_hex: String = params.one()?;
     let hash = read_hash(&hash_hex)?;
-    let contents = TextService::get(&ctx, &hash).await?;
-    Ok(contents)
+    TextService::get(&ctx, &hash).await
 }
 
 fn read_hash(hash_hex: &str) -> StdResult<TextHash, TideError> {
