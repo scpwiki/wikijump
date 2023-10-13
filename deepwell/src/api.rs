@@ -196,7 +196,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register2!("translate", translate_strings);
 
     // Web server
-    register!("page_view", page_view);
+    register2!("page_view", page_view);
 
     // Authentication
     register!("login", auth_login);
