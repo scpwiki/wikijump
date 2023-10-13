@@ -22,8 +22,8 @@ use super::prelude::*;
 use crate::models::page::Model as PageModel;
 use crate::models::page_revision::Model as PageRevisionModel;
 use crate::services::page::{
-    CreatePage, CreatePageOutput, DeletePage, EditPage, GetPage, GetPageDirect,
-    GetPageOutput, MovePage, RestorePage, RollbackPage,
+    CreatePage, CreatePageOutput, DeletePage, EditPage, EditPageOutput, GetPage,
+    GetPageDirect, GetPageOutput, MovePage, RestorePage, RollbackPage,
 };
 use crate::services::{Result, TextService};
 use crate::web::{PageDetails, Reference};
@@ -80,18 +80,17 @@ pub async fn page_get_direct(
     Ok(output)
 }
 
-pub async fn page_edit(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let input: EditPage = req.body_json().await?;
+pub async fn page_edit(
+    state: ServerState,
+    params: Params<'static>,
+) -> Result<Option<EditPageOutput>> {
+    let txn = state.database.begin().await?;
+    let ctx = ServiceContext::from_raw(&state, &txn);
+    let input: EditPage = params.parse()?;
     tide::log::info!("Editing page {:?} in site ID {}", input.page, input.site_id);
-
     let output = PageService::edit(&ctx, input).await?;
-
     txn.commit().await?;
-    let body = Body::from_json(&output)?;
-    Ok(body.into())
+    Ok(output)
 }
 
 pub async fn page_delete(mut req: ApiRequest) -> ApiResponse {
