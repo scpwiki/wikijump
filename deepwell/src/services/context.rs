@@ -38,6 +38,10 @@ impl<'txn> ServiceContext<'txn> {
         Self::new(req.state(), transaction)
     }
 
+    // NOTE: It is the responsibility of the caller to manage commit / rollback
+    //       for transactions.
+    //
+    //       For our endpoints, this is managed in the wrapper macro in api.rs
     pub fn new(state: &ServerState, transaction: &'txn DatabaseTransaction) -> Self {
         ServiceContext {
             state: Arc::clone(state),
