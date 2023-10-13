@@ -28,7 +28,7 @@ pub async fn category_get(
     params: Params<'static>,
 ) -> Result<CategoryOutput> {
     let txn = state.database.begin().await?;
-    let ctx = ServiceContext::from_raw(&state, &txn);
+    let ctx = ServiceContext::new(&state, &txn);
     let GetCategory { site, category } = params.parse()?;
     let site_id = SiteService::get_id(&ctx, site).await?;
     tide::log::info!("Getting page category {category:?} in site ID {site_id}");
@@ -42,7 +42,7 @@ pub async fn category_get_all(
     params: Params<'static>,
 ) -> Result<Vec<CategoryOutput>> {
     let txn = state.database.begin().await?;
-    let ctx = ServiceContext::from_raw(&state, &txn);
+    let ctx = ServiceContext::new(&state, &txn);
     let GetSite { site } = params.parse()?;
     let site_id = SiteService::get_id(&ctx, site).await?;
     tide::log::info!("Getting all page categories in site ID {site_id}");

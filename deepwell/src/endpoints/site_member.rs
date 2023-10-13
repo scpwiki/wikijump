@@ -27,7 +27,7 @@ pub async fn membership_get(
     params: Params<'static>,
 ) -> Result<InteractionModel> {
     let txn = state.database.begin().await?;
-    let ctx = ServiceContext::from_raw(&state, &txn);
+    let ctx = ServiceContext::new(&state, &txn);
     let input: GetSiteMember = params.parse()?;
     let output = InteractionService::get_site_member(&ctx, input).await?;
     txn.commit().await?;
@@ -36,7 +36,7 @@ pub async fn membership_get(
 
 pub async fn membership_set(state: ServerState, params: Params<'static>) -> Result<()> {
     let txn = state.database.begin().await?;
-    let ctx = ServiceContext::from_raw(&state, &txn);
+    let ctx = ServiceContext::new(&state, &txn);
     let input: CreateSiteMember = params.parse()?;
     InteractionService::create_site_member(&ctx, input).await?;
     txn.commit().await?;
@@ -48,7 +48,7 @@ pub async fn membership_delete(
     params: Params<'static>,
 ) -> Result<InteractionModel> {
     let txn = state.database.begin().await?;
-    let ctx = ServiceContext::from_raw(&state, &txn);
+    let ctx = ServiceContext::new(&state, &txn);
     let input: RemoveSiteMember = params.parse()?;
     let output = InteractionService::remove_site_member(&ctx, input).await?;
     txn.commit().await?;

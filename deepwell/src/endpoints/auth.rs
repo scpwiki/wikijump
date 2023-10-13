@@ -39,7 +39,7 @@ pub async fn auth_login(
     params: Params<'static>,
 ) -> Result<LoginUserOutput> {
     let txn = state.database.begin().await?;
-    let ctx = ServiceContext::from_raw(&state, &txn);
+    let ctx = ServiceContext::new(&state, &txn);
 
     let LoginUser {
         authenticate,
@@ -105,7 +105,7 @@ pub async fn auth_login(
 
 pub async fn auth_logout(state: ServerState, params: Params<'static>) -> Result<()> {
     let txn = state.database.begin().await?;
-    let ctx = ServiceContext::from_raw(&state, &txn);
+    let ctx = ServiceContext::new(&state, &txn);
     let session_token: String = params.one()?;
     SessionService::invalidate(&ctx, session_token).await?;
     txn.commit().await?;
@@ -121,7 +121,7 @@ pub async fn auth_session_get(
     params: Params<'static>,
 ) -> Result<SessionModel> {
     let txn = state.database.begin().await?;
-    let ctx = ServiceContext::from_raw(&state, &txn);
+    let ctx = ServiceContext::new(&state, &txn);
     let session_token: String = params.one()?;
     let session = SessionService::get(&ctx, &session_token).await?;
     txn.commit().await?;
@@ -133,7 +133,7 @@ pub async fn auth_session_renew(
     params: Params<'static>,
 ) -> Result<String> {
     let txn = state.database.begin().await?;
-    let ctx = ServiceContext::from_raw(&state, &txn);
+    let ctx = ServiceContext::new(&state, &txn);
     let input: RenewSession = params.parse()?;
     let new_session_token = SessionService::renew(&ctx, input).await?;
     txn.commit().await?;
@@ -145,7 +145,7 @@ pub async fn auth_session_get_others(
     params: Params<'static>,
 ) -> Result<GetOtherSessionsOutput> {
     let txn = state.database.begin().await?;
-    let ctx = ServiceContext::from_raw(&state, &txn);
+    let ctx = ServiceContext::new(&state, &txn);
 
     let GetOtherSessions {
         user_id,
@@ -182,7 +182,7 @@ pub async fn auth_session_invalidate_others(
     params: Params<'static>,
 ) -> Result<u64> {
     let txn = state.database.begin().await?;
-    let ctx = ServiceContext::from_raw(&state, &txn);
+    let ctx = ServiceContext::new(&state, &txn);
     let InvalidateOtherSessions {
         session_token,
         user_id,
@@ -200,7 +200,7 @@ pub async fn auth_mfa_verify(
     params: Params<'static>,
 ) -> Result<String> {
     let txn = state.database.begin().await?;
-    let ctx = ServiceContext::from_raw(&state, &txn);
+    let ctx = ServiceContext::new(&state, &txn);
 
     let LoginUserMfa {
         session_token,
@@ -241,7 +241,7 @@ pub async fn auth_mfa_setup(
     params: Params<'static>,
 ) -> Result<MultiFactorSetupOutput> {
     let txn = state.database.begin().await?;
-    let ctx = ServiceContext::from_raw(&state, &txn);
+    let ctx = ServiceContext::new(&state, &txn);
     let GetUser { user: reference } = params.parse()?;
     let user = UserService::get(&ctx, reference).await?;
     let output = MfaService::setup(&ctx, &user).await?;
@@ -251,7 +251,7 @@ pub async fn auth_mfa_setup(
 
 pub async fn auth_mfa_disable(state: ServerState, params: Params<'static>) -> Result<()> {
     let txn = state.database.begin().await?;
-    let ctx = ServiceContext::from_raw(&state, &txn);
+    let ctx = ServiceContext::new(&state, &txn);
 
     let MultiFactorConfigure {
         user_id,
@@ -282,7 +282,7 @@ pub async fn auth_mfa_reset_recovery(
     params: Params<'static>,
 ) -> Result<MultiFactorResetOutput> {
     let txn = state.database.begin().await?;
-    let ctx = ServiceContext::from_raw(&state, &txn);
+    let ctx = ServiceContext::new(&state, &txn);
 
     let MultiFactorConfigure {
         user_id,

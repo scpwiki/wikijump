@@ -23,7 +23,7 @@ use crate::hash::TextHash;
 
 pub async fn text_create(state: ServerState, params: Params<'static>) -> Result<String> {
     let txn = state.database.begin().await?;
-    let ctx = ServiceContext::from_raw(&state, &txn);
+    let ctx = ServiceContext::new(&state, &txn);
     let contents: String = params.one()?;
     tide::log::info!("Inserting new stored text (bytes {})", contents.len());
     let hash = TextService::create(&ctx, contents).await?;
@@ -34,7 +34,7 @@ pub async fn text_create(state: ServerState, params: Params<'static>) -> Result<
 
 pub async fn text_get(state: ServerState, params: Params<'static>) -> Result<String> {
     let txn = state.database.begin().await?;
-    let ctx = ServiceContext::from_raw(&state, &txn);
+    let ctx = ServiceContext::new(&state, &txn);
     tide::log::info!("Getting stored text");
     let hash_hex: String = params.one()?;
     let hash = read_hash(&hash_hex)?;

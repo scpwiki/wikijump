@@ -33,7 +33,7 @@ pub async fn page_create(
     params: Params<'static>,
 ) -> Result<CreatePageOutput> {
     let txn = state.database.begin().await?;
-    let ctx = ServiceContext::from_raw(&state, &txn);
+    let ctx = ServiceContext::new(&state, &txn);
     let input: CreatePage = params.parse()?;
     tide::log::info!("Creating new page in site ID {}", input.site_id);
     let output = PageService::create(&ctx, input).await?;
@@ -46,7 +46,7 @@ pub async fn page_get(
     params: Params<'static>,
 ) -> Result<GetPageOutput> {
     let txn = state.database.begin().await?;
-    let ctx = ServiceContext::from_raw(&state, &txn);
+    let ctx = ServiceContext::new(&state, &txn);
 
     let GetPage {
         site_id,
@@ -67,7 +67,7 @@ pub async fn page_get_direct(
     params: Params<'static>,
 ) -> Result<GetPageOutput> {
     let txn = state.database.begin().await?;
-    let ctx = ServiceContext::from_raw(&state, &txn);
+    let ctx = ServiceContext::new(&state, &txn);
 
     let GetPageDirect {
         site_id,
@@ -88,7 +88,7 @@ pub async fn page_edit(
     params: Params<'static>,
 ) -> Result<Option<EditPageOutput>> {
     let txn = state.database.begin().await?;
-    let ctx = ServiceContext::from_raw(&state, &txn);
+    let ctx = ServiceContext::new(&state, &txn);
     let input: EditPage = params.parse()?;
     tide::log::info!("Editing page {:?} in site ID {}", input.page, input.site_id);
     let output = PageService::edit(&ctx, input).await?;

@@ -35,11 +35,10 @@ pub struct ServiceContext<'txn> {
 
 impl<'txn> ServiceContext<'txn> {
     pub fn from_req(req: &ApiRequest, transaction: &'txn DatabaseTransaction) -> Self {
-        Self::from_raw(req.state(), transaction)
+        Self::new(req.state(), transaction)
     }
 
-    // TODO rename to new()
-    pub fn from_raw(state: &ServerState, transaction: &'txn DatabaseTransaction) -> Self {
+    pub fn new(state: &ServerState, transaction: &'txn DatabaseTransaction) -> Self {
         ServiceContext {
             state: Arc::clone(state),
             transaction,

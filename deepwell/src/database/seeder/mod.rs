@@ -42,7 +42,7 @@ pub async fn seed(state: &ServerState) -> Result<()> {
 
     // Set up context
     let txn = state.database.begin().await?;
-    let ctx = ServiceContext::from_raw(state, &txn);
+    let ctx = ServiceContext::new(state, &txn);
 
     // Ensure seeding has not already been done
     if UserService::exists(&ctx, Reference::from(ADMIN_USER_ID)).await? {

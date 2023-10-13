@@ -27,7 +27,7 @@ pub async fn site_get_from_domain(
     params: Params<'static>,
 ) -> Result<SiteModel> {
     let txn = state.database.begin().await?;
-    let ctx = ServiceContext::from_raw(&state, &txn);
+    let ctx = ServiceContext::new(&state, &txn);
     let domain: String = params.one()?;
     let site = DomainService::site_from_domain(&ctx, &domain).await?;
     txn.commit().await?;
@@ -39,7 +39,7 @@ pub async fn site_custom_domain_create(
     params: Params<'static>,
 ) -> Result<()> {
     let txn = state.database.begin().await?;
-    let ctx = ServiceContext::from_raw(&state, &txn);
+    let ctx = ServiceContext::new(&state, &txn);
     let input: CreateCustomDomain = params.parse()?;
     DomainService::create_custom(&ctx, input).await?;
     txn.commit().await?;
@@ -51,7 +51,7 @@ pub async fn site_custom_domain_get(
     params: Params<'static>,
 ) -> Result<SiteModel> {
     let txn = state.database.begin().await?;
-    let ctx = ServiceContext::from_raw(&state, &txn);
+    let ctx = ServiceContext::new(&state, &txn);
     let domain: String = params.one()?;
     let site = DomainService::site_from_domain(&ctx, &domain).await?;
     txn.commit().await?;
@@ -63,7 +63,7 @@ pub async fn site_custom_domain_delete(
     params: Params<'static>,
 ) -> Result<()> {
     let txn = state.database.begin().await?;
-    let ctx = ServiceContext::from_raw(&state, &txn);
+    let ctx = ServiceContext::new(&state, &txn);
     let domain: String = params.one()?;
     DomainService::delete_custom(&ctx, domain).await?;
     txn.commit().await?;

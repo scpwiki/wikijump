@@ -27,7 +27,7 @@ pub async fn page_view(
     params: Params<'static>,
 ) -> Result<GetPageViewOutput> {
     let txn = state.database.begin().await?;
-    let ctx = ServiceContext::from_raw(&state, &txn);
+    let ctx = ServiceContext::new(&state, &txn);
     let input: GetPageView = params.parse()?;
     let output = ViewService::page(&ctx, input).await?;
     txn.commit().await?;

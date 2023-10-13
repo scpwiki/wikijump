@@ -126,7 +126,7 @@ impl JobQueue {
 
     async fn process_job(state: &ServerState, job: Job) -> Result<()> {
         let txn = state.database.begin().await?;
-        let ctx = &ServiceContext::from_raw(state, &txn);
+        let ctx = &ServiceContext::new(state, &txn);
 
         match job {
             Job::RerenderPageId { site_id, page_id } => {

@@ -32,7 +32,7 @@ pub async fn site_create(
     params: Params<'static>,
 ) -> Result<CreateSiteOutput> {
     let txn = state.database.begin().await?;
-    let ctx = ServiceContext::from_raw(&state, &txn);
+    let ctx = ServiceContext::new(&state, &txn);
     let input: CreateSite = params.parse()?;
     let output = SiteService::create(&ctx, input).await?;
     txn.commit().await?;
@@ -44,7 +44,7 @@ pub async fn site_get(
     params: Params<'static>,
 ) -> Result<GetSiteOutput> {
     let txn = state.database.begin().await?;
-    let ctx = ServiceContext::from_raw(&state, &txn);
+    let ctx = ServiceContext::new(&state, &txn);
     let GetSite { site } = params.parse()?;
 
     tide::log::info!("Getting site {:?}", site);
@@ -63,7 +63,7 @@ pub async fn site_get(
 
 pub async fn site_update(state: ServerState, params: Params<'static>) -> Result<()> {
     let txn = state.database.begin().await?;
-    let ctx = ServiceContext::from_raw(&state, &txn);
+    let ctx = ServiceContext::new(&state, &txn);
     let UpdateSite {
         site,
         body,
