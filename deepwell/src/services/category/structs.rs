@@ -22,13 +22,13 @@ use crate::models::page_category::Model as PageCategoryModel;
 use crate::web::Reference;
 use time::OffsetDateTime;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct GetCategory<'a> {
     pub site: Reference<'a>,
     pub category: Reference<'a>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub struct CategoryOutput {
     category_id: i64,
     created_at: OffsetDateTime,

@@ -193,8 +193,8 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("member_delete", membership_delete);
 
     // Category
-    register!("category_get", not_implemented);
-    register!("category_get_all", not_implemented);
+    register!("category_get", category_get);
+    register!("category_get_all", category_get_all);
 
     // Page
     register!("page_create", not_implemented);
@@ -299,10 +299,6 @@ pub fn tide_build_server(state: ServerState) -> tide::Server<ServerState> {
 }
 
 fn tide_build_routes(mut app: tide::Server<ServerState>) -> tide::Server<ServerState> {
-    // Category
-    app.at("/category").get(category_get);
-    app.at("/category/site").get(category_all_get);
-
     // Page
     app.at("/page").post(page_edit).delete(page_delete);
     app.at("/page/get").put(page_retrieve);

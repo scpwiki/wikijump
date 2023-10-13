@@ -23,26 +23,27 @@ use crate::models::page_category::Model as PageCategoryModel;
 use crate::services::category::{CategoryOutput, GetCategory};
 use crate::services::site::GetSite;
 
-pub async fn category_get(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let GetCategory { site, category } = req.body_json().await?;
+pub async fn category_get(
+    state: ServerState,
+    params: Params<'static>,
+) -> Result<CategoryOutput> {
+    let txn = state.database.begin().await?;
+    let ctx = ServiceContext::from_raw(&state, &txn);
+    let GetCategory { site, category } = params.parse()?;
     let site_id = SiteService::get_id(&ctx, site).await?;
     tide::log::info!("Getting page category {category:?} in site ID {site_id}");
-
     let category = CategoryService::get(&ctx, site_id, category).await?;
-
     let output: CategoryOutput = category.into();
-    let body = Body::from_json(&output)?;
-    Ok(body.into())
+    Ok(output)
 }
 
-pub async fn category_all_get(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let GetSite { site } = req.body_json().await?;
+pub async fn category_get_all(
+    state: ServerState,
+    params: Params<'static>,
+) -> Result<Vec<CategoryOutput>> {
+    let txn = state.database.begin().await?;
+    let ctx = ServiceContext::from_raw(&state, &txn);
+    let GetSite { site } = params.parse()?;
     let site_id = SiteService::get_id(&ctx, site).await?;
     tide::log::info!("Getting all page categories in site ID {site_id}");
 
@@ -52,6 +53,5 @@ pub async fn category_all_get(mut req: ApiRequest) -> ApiResponse {
         .map(PageCategoryModel::into)
         .collect();
 
-    let body = Body::from_json(&categories)?;
-    Ok(body.into())
+    Ok(categories)
 }
