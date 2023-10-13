@@ -37,6 +37,7 @@ pub async fn page_create(
     let input: CreatePage = params.parse()?;
     tide::log::info!("Creating new page in site ID {}", input.site_id);
     let output = PageService::create(&ctx, input).await?;
+    txn.commit().await?;
     Ok(output)
 }
 
@@ -57,6 +58,7 @@ pub async fn page_get(
     let page = PageService::get(&ctx, site_id, reference).await?;
     let revision = PageRevisionService::get_latest(&ctx, site_id, page.page_id).await?;
     let output = build_page_output(&ctx, page, revision, details).await?;
+    txn.commit().await?;
     Ok(output)
 }
 
@@ -77,6 +79,7 @@ pub async fn page_get_direct(
     let page = PageService::get_direct(&ctx, site_id, page_id).await?;
     let revision = PageRevisionService::get_latest(&ctx, site_id, page_id).await?;
     let output = build_page_output(&ctx, page, revision, details).await?;
+    txn.commit().await?;
     Ok(output)
 }
 
