@@ -21,40 +21,32 @@
 use super::prelude::*;
 use crate::hash::TextHash;
 
-pub async fn text_put(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let contents = req.body_string().await?;
+pub async fn text_create(state: ServerState, params: Params<'static>) -> Result<String> {
+    let txn = state.database.begin().await?;
+    let ctx = ServiceContext::from_raw(&state, &txn);
+    let contents: String = params.one()?;
     tide::log::info!("Inserting new stored text (bytes {})", contents.len());
-
     let hash = TextService::create(&ctx, contents).await?;
     let hash_hex = hex::encode(hash);
-    let body = Body::from_string(hash_hex);
     txn.commit().await?;
-
-    Ok(body.into())
+    Ok(hash_hex)
 }
 
-pub async fn text_get(req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
+pub async fn text_get(state: ServerState, params: Params<'static>) -> Result<String> {
+    let txn = state.database.begin().await?;
+    let ctx = ServiceContext::from_raw(&state, &txn);
     tide::log::info!("Getting stored text");
-    let hash = read_hash(&req)?;
+    let hash_hex: String = params.one()?;
+    let hash = read_hash(&hash_hex)?;
     let contents = TextService::get(&ctx, &hash).await?;
-    let body = Body::from_string(contents);
     txn.commit().await?;
-
-    Ok(body.into())
+    Ok(contents)
 }
 
-fn read_hash(req: &ApiRequest) -> StdResult<TextHash, TideError> {
-    let hash_hex = req.param("hash")?;
+fn read_hash(hash_hex: &str) -> StdResult<TextHash, TideError> {
     tide::log::debug!("Text hash: {hash_hex}");
 
     let mut hash = [0; 16];
-
     hex::decode_to_slice(hash_hex, &mut hash)
         .map_err(|error| TideError::new(StatusCode::UnprocessableEntity, error))?;
 

@@ -241,8 +241,8 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("file_revision_range", not_implemented);
 
     // Text
-    register!("text_create", not_implemented);
-    register!("text_get", not_implemented);
+    register!("text_create", text_create);
+    register!("text_get", text_get);
 
     // User
     register!("user_create", not_implemented);
@@ -343,10 +343,6 @@ fn tide_build_routes(mut app: tide::Server<ServerState>) -> tide::Server<ServerS
     app.at("/file/revision/count").put(file_revision_count);
     app.at("/file/revision/range/:direction")
         .put(file_revision_range_retrieve);
-
-    // Text
-    app.at("/text").put(text_put);
-    app.at("/text/:hash").get(text_get);
 
     // User
     app.at("/user").put(user_put).delete(user_delete);
