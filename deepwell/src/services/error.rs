@@ -23,7 +23,7 @@ use filemagic::FileMagicError;
 use jsonrpsee::types::error::ErrorObjectOwned;
 use reqwest::Error as ReqwestError;
 use s3::error::S3Error;
-use sea_orm::error::DbErr;
+use sea_orm::{error::DbErr, TransactionError};
 use thiserror::Error as ThisError;
 use tide::{Error as TideError, StatusCode};
 use unic_langid::LanguageIdentifierError;
@@ -209,6 +209,15 @@ impl From<DbErr> for Error {
         match error {
             DbErr::RecordNotFound(_) => Error::NotFound,
             _ => Error::Database(error),
+        }
+    }
+}
+
+impl From<TransactionError<Error>> for Error {
+    fn from(error: TransactionError<Error>) -> Error {
+        match error {
+            TransactionError::Connection(error) => error.into(),
+            TransactionError::Transaction(error) => error,
         }
     }
 }
