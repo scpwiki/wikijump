@@ -36,11 +36,11 @@ use crate::endpoints::{
 use crate::locales::Localizations;
 use crate::services::blob::MimeAnalyzer;
 use crate::services::job::JobQueue;
-use crate::services::Result as ServiceResult;
+use crate::services::{into_rpc_error, Result as ServiceResult, ServiceContext};
 use jsonrpsee::server::{RpcModule, Server, ServerHandle};
 use jsonrpsee::types::{error::ErrorObjectOwned, params::Params};
 use s3::bucket::Bucket;
-use sea_orm::DatabaseConnection;
+use sea_orm::{DatabaseConnection, TransactionTrait};
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -136,6 +136,36 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
                 //       Oh well.
                 let state = Arc::clone(&*state);
                 $method(state, params).await.map_err(ErrorObjectOwned::from)
+            })?;
+        }};
+    }
+
+    macro_rules! register2 {
+        ($name:expr, $method:ident $(,)?) => {{
+            // Register async method.
+            //
+            // Contains a wrapper around each to set up state, convert error types,
+            // and produce a transaction used in ServiceContext, passed in.
+            module.register_async_method($name, |params, state| async move {
+                // NOTE: We have our own Arc because we need to share it in some places
+                //       before setting up, but RpcModule insists on adding its own.
+                //       So we need to "unwrap it" before each method invocation.
+                //       Oh well.
+                let state = Arc::clone(&*state);
+
+                // Wrap each call in a transaction, which commits or rolls back
+                // automatically based on whether the Result is Ok or Err.
+                //
+                // At this level, we take the database-or-RPC error and make it just RPC.
+                let db_state = Arc::clone(&state);
+                db_state.database.transaction(move |txn| {
+                    Box::pin(async move {
+                        // Run the endpoint's implementation, and convert the
+                        // error from service to RPC.
+                        let ctx = ServiceContext::new(&state, &txn);
+                        $method(ctx, params).await.map_err(ErrorObjectOwned::from)
+                    })
+                }).await.map_err(into_rpc_error)
             })?;
         }};
     }
@@ -241,7 +271,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("file_revision_range", not_implemented);
 
     // Text
-    register!("text_create", text_create);
+    register2!("text_create", text_create);
     register!("text_get", text_get);
 
     // User

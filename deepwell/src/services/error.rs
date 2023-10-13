@@ -213,15 +213,6 @@ impl From<DbErr> for Error {
     }
 }
 
-impl From<TransactionError<Error>> for Error {
-    fn from(error: TransactionError<Error>) -> Error {
-        match error {
-            TransactionError::Connection(error) => error.into(),
-            TransactionError::Transaction(error) => error,
-        }
-    }
-}
-
 impl From<TideError> for Error {
     #[inline]
     fn from(error: TideError) -> Error {
@@ -237,5 +228,14 @@ impl From<Error> for ErrorObjectOwned {
     fn from(error: Error) -> ErrorObjectOwned {
         // XXX
         todo!()
+    }
+}
+
+// Helper function for unwrapping two layers of third party crate error wrapper types.
+
+pub fn into_rpc_error(error: TransactionError<ErrorObjectOwned>) -> ErrorObjectOwned {
+    match error {
+        TransactionError::Connection(error) => Error::Database(error).into(),
+        TransactionError::Transaction(error) => error,
     }
 }

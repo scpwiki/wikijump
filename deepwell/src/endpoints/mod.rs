@@ -39,7 +39,7 @@ mod prelude {
     };
     pub use crate::web::HttpUnwrap;
     pub use jsonrpsee::types::params::Params;
-    pub use sea_orm::{ConnectionTrait, TransactionTrait};
+    pub use sea_orm::TransactionTrait; // XXX
     pub use std::convert::TryFrom;
     pub use tide::{Body, Error as TideError, Request, Response, StatusCode};
 

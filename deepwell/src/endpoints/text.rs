@@ -20,24 +20,16 @@
 
 use super::prelude::*;
 use crate::hash::TextHash;
-use std::sync::Arc;
 
-pub async fn text_create(state: ServerState, params: Params<'static>) -> Result<String> {
-    let state2 = Arc::clone(&state);
-    state2
-        .database
-        .transaction(move |txn| {
-            Box::pin(async move {
-                let ctx = ServiceContext::new(&state, &txn);
-                let contents: String = params.one()?;
-                tide::log::info!("Inserting new stored text (bytes {})", contents.len());
-                let hash = TextService::create(&ctx, contents).await?;
-                let hash_hex = hex::encode(hash);
-                Ok(hash_hex)
-            })
-        })
-        .await
-        .map_err(From::from)
+pub async fn text_create(
+    ctx: ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<String> {
+    let contents: String = params.one()?;
+    tide::log::info!("Inserting new stored text (bytes {})", contents.len());
+    let hash = TextService::create(&ctx, contents).await?;
+    let hash_hex = hex::encode(hash);
+    Ok(hash_hex)
 }
 
 pub async fn text_get(state: ServerState, params: Params<'static>) -> Result<String> {
