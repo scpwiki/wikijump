@@ -171,7 +171,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     }
 
     async fn not_implemented(
-        _state: ServerState,
+        _ctx: ServiceContext<'_>,
         _params: Params<'static>,
     ) -> ServiceResult<()> {
         tide::log::error!("Method not implemented yet!");
@@ -231,80 +231,80 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("page_get", page_get);
     register!("page_get_direct", page_get_direct);
     register!("page_edit", page_edit);
-    register!("page_delete", not_implemented);
-    register!("page_move", not_implemented);
-    register!("page_rerender", not_implemented);
-    register!("page_restore", not_implemented);
+    register2!("page_delete", not_implemented);
+    register2!("page_move", not_implemented);
+    register2!("page_rerender", not_implemented);
+    register2!("page_restore", not_implemented);
 
     // Page revisions
-    register!("page_revision_create", not_implemented);
-    register!("page_revision_get", not_implemented);
-    register!("page_revision_count", not_implemented);
-    register!("page_revision_rollback", not_implemented);
-    register!("page_revision_range", not_implemented);
+    register2!("page_revision_create", not_implemented);
+    register2!("page_revision_get", not_implemented);
+    register2!("page_revision_count", not_implemented);
+    register2!("page_revision_rollback", not_implemented);
+    register2!("page_revision_range", not_implemented);
 
     // Page links
-    register!("page_get_links_from", not_implemented);
-    register!("page_get_links_to", not_implemented);
-    register!("page_get_links_to_missing", not_implemented);
-    register!("page_get_urls_from", not_implemented);
-    register!("page_get_urls_to", not_implemented);
+    register2!("page_get_links_from", not_implemented);
+    register2!("page_get_links_to", not_implemented);
+    register2!("page_get_links_to_missing", not_implemented);
+    register2!("page_get_urls_from", not_implemented);
+    register2!("page_get_urls_to", not_implemented);
 
     // Page parents
-    register!("parent_create", not_implemented);
-    register!("parent_get", not_implemented);
-    register!("parent_delete", not_implemented);
-    register!("parent_relationship", not_implemented);
+    register2!("parent_create", not_implemented);
+    register2!("parent_get", not_implemented);
+    register2!("parent_delete", not_implemented);
+    register2!("parent_relationship", not_implemented);
 
     // Files
-    register!("file_create", not_implemented);
-    register!("file_get", not_implemented);
-    register!("file_edit", not_implemented);
-    register!("file_delete", not_implemented);
-    register!("file_move", not_implemented);
-    register!("file_restore", not_implemented);
+    register2!("file_create", not_implemented);
+    register2!("file_get", not_implemented);
+    register2!("file_edit", not_implemented);
+    register2!("file_delete", not_implemented);
+    register2!("file_move", not_implemented);
+    register2!("file_restore", not_implemented);
 
     // File revisions
-    register!("file_revision_create", not_implemented);
-    register!("file_revision_get", not_implemented);
-    register!("file_revision_count", not_implemented);
-    register!("file_revision_range", not_implemented);
+    register2!("file_revision_create", not_implemented);
+    register2!("file_revision_get", not_implemented);
+    register2!("file_revision_count", not_implemented);
+    register2!("file_revision_range", not_implemented);
 
     // Text
     register2!("text_create", text_create);
     register!("text_get", text_get);
 
     // User
-    register!("user_create", not_implemented);
-    register!("user_get", not_implemented);
-    register!("user_edit", not_implemented);
-    register!("user_delete", not_implemented);
-    register!("user_import", not_implemented);
-    register!("user_add_name_change", not_implemented);
-    register!("user_avatar_set", not_implemented);
+    register2!("user_create", not_implemented);
+    register2!("user_get", not_implemented);
+    register2!("user_edit", not_implemented);
+    register2!("user_delete", not_implemented);
+    register2!("user_import", not_implemented);
+    register2!("user_add_name_change", not_implemented);
+    register2!("user_avatar_set", not_implemented);
 
     // Bot user
-    register!("bot_user_create", not_implemented);
-    register!("bot_user_get", not_implemented);
-    register!("bot_user_owner_set", not_implemented);
-    register!("bot_user_owner_delete", not_implemented);
+    register2!("bot_user_create", not_implemented);
+    register2!("bot_user_get", not_implemented);
+    register2!("bot_user_owner_set", not_implemented);
+    register2!("bot_user_owner_delete", not_implemented);
 
     // Direct messages
-    register!("message_draft_create", not_implemented);
-    register!("message_draft_edit", not_implemented);
-    register!("message_draft_delete", not_implemented);
-    register!("message_draft_send", not_implemented);
+    register2!("message_draft_create", not_implemented);
+    register2!("message_draft_edit", not_implemented);
+    register2!("message_draft_delete", not_implemented);
+    register2!("message_draft_send", not_implemented);
 
     // Email
     register!("email_validate", validate_email);
 
     // Votes
-    register!("vote_set", not_implemented);
-    register!("vote_get", not_implemented);
-    register!("vote_delete", not_implemented);
-    register!("vote_action", not_implemented);
-    register!("vote_list", not_implemented);
-    register!("vote_count", not_implemented);
+    register2!("vote_set", not_implemented);
+    register2!("vote_get", not_implemented);
+    register2!("vote_delete", not_implemented);
+    register2!("vote_action", not_implemented);
+    register2!("vote_list", not_implemented);
+    register2!("vote_count", not_implemented);
 
     // Return
     Ok(module)
