@@ -183,13 +183,13 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     }
 
     // Miscellaneous
-    register!("ping", ping);
-    register!("version", version);
-    register!("version_full", full_version);
-    register!("hostname", hostname);
-    register!("config", config_dump);
-    register!("config_path", config_path);
-    register!("normalize", normalize_method);
+    register2!("ping", ping);
+    register2!("version", version);
+    register2!("version_full", full_version);
+    register2!("hostname", hostname);
+    register2!("config", config_dump);
+    register2!("config_path", config_path);
+    register2!("normalize", normalize_method);
 
     // Localization
     register!("locale", locale_info);
