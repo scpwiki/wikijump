@@ -192,8 +192,8 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register2!("normalize", normalize_method);
 
     // Localization
-    register!("locale", locale_info);
-    register!("translate", translate_strings);
+    register2!("locale", locale_info);
+    register2!("translate", translate_strings);
 
     // Web server
     register!("page_view", page_view);
