@@ -141,8 +141,8 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     }
 
     async fn not_implemented(
-        state: ServerState,
-        params: Params<'static>,
+        _state: ServerState,
+        _params: Params<'static>,
     ) -> ServiceResult<()> {
         tide::log::error!("Method not implemented yet!");
         todo!()

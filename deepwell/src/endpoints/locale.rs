@@ -40,7 +40,7 @@ pub struct TranslateInput<'a> {
 type TranslateOutput = HashMap<String, String>;
 
 pub async fn locale_info(
-    state: ServerState,
+    _state: ServerState,
     params: Params<'static>,
 ) -> Result<LocaleOutput> {
     let locale_str: String = params.one()?;
