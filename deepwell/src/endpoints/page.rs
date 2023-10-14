@@ -22,8 +22,8 @@ use super::prelude::*;
 use crate::models::page::Model as PageModel;
 use crate::models::page_revision::Model as PageRevisionModel;
 use crate::services::page::{
-    CreatePage, CreatePageOutput, DeletePage, EditPage, EditPageOutput, GetPage,
-    GetPageDirect, GetPageOutput, MovePage, RestorePage, RollbackPage,
+    CreatePage, CreatePageOutput, DeletePage, DeletePageOutput, EditPage, EditPageOutput,
+    GetPage, GetPageDirect, GetPageOutput, MovePage, RestorePage, RollbackPage,
 };
 use crate::services::{Result, TextService};
 use crate::web::{PageDetails, Reference};
@@ -78,22 +78,17 @@ pub async fn page_edit(
     PageService::edit(ctx, input).await
 }
 
-pub async fn page_delete(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::from_req(&req, &txn);
-
-    let input: DeletePage = req.body_json().await?;
+pub async fn page_delete(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<DeletePageOutput> {
+    let input: DeletePage = params.parse()?;
     tide::log::info!(
         "Deleting page {:?} in site ID {}",
         input.page,
         input.site_id,
     );
-
-    let output = PageService::delete(&ctx, input).await?;
-
-    txn.commit().await?;
-    let body = Body::from_json(&output)?;
-    Ok(body.into())
+    PageService::delete(&ctx, input).await
 }
 
 pub async fn page_move(mut req: ApiRequest) -> ApiResponse {
