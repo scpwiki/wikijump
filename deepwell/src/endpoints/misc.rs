@@ -25,7 +25,7 @@ use std::path::PathBuf;
 use wikidot_normalize::normalize;
 
 pub async fn ping(
-    ctx: ServiceContext<'_>,
+    ctx: &ServiceContext<'_>,
     _params: Params<'static>,
 ) -> Result<&'static str> {
     tide::log::info!("Ping request");
@@ -43,7 +43,7 @@ pub async fn ping(
 }
 
 pub async fn version(
-    _ctx: ServiceContext<'_>,
+    _ctx: &ServiceContext<'_>,
     _params: Params<'static>,
 ) -> Result<&'static str> {
     tide::log::info!("Getting DEEPWELL version");
@@ -51,7 +51,7 @@ pub async fn version(
 }
 
 pub async fn full_version(
-    _ctx: ServiceContext<'_>,
+    _ctx: &ServiceContext<'_>,
     _params: Params<'static>,
 ) -> Result<&'static str> {
     tide::log::info!("Getting DEEPWELL version (full)");
@@ -59,7 +59,7 @@ pub async fn full_version(
 }
 
 pub async fn hostname(
-    _ctx: ServiceContext<'_>,
+    _ctx: &ServiceContext<'_>,
     _params: Params<'static>,
 ) -> Result<&'static str> {
     tide::log::info!("Getting DEEPWELL hostname");
@@ -67,7 +67,7 @@ pub async fn hostname(
 }
 
 pub async fn config_dump(
-    ctx: ServiceContext<'_>,
+    ctx: &ServiceContext<'_>,
     _params: Params<'static>,
 ) -> Result<String> {
     tide::log::info!("Dumping raw DEEPWELL configuration for debugging");
@@ -75,7 +75,7 @@ pub async fn config_dump(
 }
 
 pub async fn config_path(
-    ctx: ServiceContext<'_>,
+    ctx: &ServiceContext<'_>,
     _params: Params<'static>,
 ) -> Result<PathBuf> {
     tide::log::info!("Dumping DEEPWELL configuration path for debugging");
@@ -83,7 +83,7 @@ pub async fn config_path(
 }
 
 pub async fn normalize_method(
-    _ctx: ServiceContext<'_>,
+    _ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<String> {
     let mut value: String = params.one()?;

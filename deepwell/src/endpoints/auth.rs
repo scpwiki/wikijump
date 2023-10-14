@@ -35,7 +35,7 @@ use crate::services::user::GetUser;
 use crate::services::Error;
 
 pub async fn auth_login(
-    ctx: ServiceContext<'_>,
+    ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<LoginUserOutput> {
     let LoginUser {
@@ -64,7 +64,7 @@ pub async fn auth_login(
     // * success
     // * invalid authentication
     // * server error
-    let result = AuthenticationService::auth_password(&ctx, authenticate).await;
+    let result = AuthenticationService::auth_password(ctx, authenticate).await;
     let AuthenticateUserOutput { needs_mfa, user_id } = match result {
         Ok(output) => output,
         Err(mut error) => {
@@ -83,7 +83,7 @@ pub async fn auth_login(
     );
 
     let session_token = SessionService::create(
-        &ctx,
+        ctx,
         CreateSession {
             user_id,
             ip_address,
@@ -99,9 +99,12 @@ pub async fn auth_login(
     })
 }
 
-pub async fn auth_logout(ctx: ServiceContext<'_>, params: Params<'static>) -> Result<()> {
+pub async fn auth_logout(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<()> {
     let session_token: String = params.one()?;
-    SessionService::invalidate(&ctx, session_token).await
+    SessionService::invalidate(ctx, session_token).await
 }
 
 /// Gets the information associated with a particular session token.
@@ -109,23 +112,23 @@ pub async fn auth_logout(ctx: ServiceContext<'_>, params: Params<'static>) -> Re
 /// This is how framerail determines the user ID this user is acting as,
 /// among other information.
 pub async fn auth_session_get(
-    ctx: ServiceContext<'_>,
+    ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<SessionModel> {
     let session_token: String = params.one()?;
-    SessionService::get(&ctx, &session_token).await
+    SessionService::get(ctx, &session_token).await
 }
 
 pub async fn auth_session_renew(
-    ctx: ServiceContext<'_>,
+    ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<String> {
     let input: RenewSession = params.parse()?;
-    SessionService::renew(&ctx, input).await
+    SessionService::renew(ctx, input).await
 }
 
 pub async fn auth_session_get_others(
-    ctx: ServiceContext<'_>,
+    ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<GetOtherSessionsOutput> {
     let GetOtherSessions {
@@ -135,7 +138,7 @@ pub async fn auth_session_get_others(
 
     // Produce output struct, which extracts the current session and
     // places it in its own location.
-    let mut sessions = SessionService::get_all(&ctx, user_id).await?;
+    let mut sessions = SessionService::get_all(ctx, user_id).await?;
     let current = match sessions
         .iter()
         .position(|session| session.session_token == session_token)
@@ -156,7 +159,7 @@ pub async fn auth_session_get_others(
 }
 
 pub async fn auth_session_invalidate_others(
-    ctx: ServiceContext<'_>,
+    ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<u64> {
     let InvalidateOtherSessions {
@@ -164,11 +167,11 @@ pub async fn auth_session_invalidate_others(
         user_id,
     } = params.parse()?;
 
-    SessionService::invalidate_others(&ctx, &session_token, user_id).await
+    SessionService::invalidate_others(ctx, &session_token, user_id).await
 }
 
 pub async fn auth_mfa_verify(
-    ctx: ServiceContext<'_>,
+    ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<String> {
     let LoginUserMfa {
@@ -183,7 +186,7 @@ pub async fn auth_mfa_verify(
     );
 
     let user = AuthenticationService::auth_mfa(
-        &ctx,
+        ctx,
         MultiFactorAuthenticateUser {
             session_token: &session_token,
             totp_or_code: &totp_or_code,
@@ -192,7 +195,7 @@ pub async fn auth_mfa_verify(
     .await?;
 
     SessionService::renew(
-        &ctx,
+        ctx,
         RenewSession {
             old_session_token: session_token,
             user_id: user.user_id,
@@ -204,16 +207,16 @@ pub async fn auth_mfa_verify(
 }
 
 pub async fn auth_mfa_setup(
-    ctx: ServiceContext<'_>,
+    ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<MultiFactorSetupOutput> {
     let GetUser { user: reference } = params.parse()?;
-    let user = UserService::get(&ctx, reference).await?;
-    MfaService::setup(&ctx, &user).await
+    let user = UserService::get(ctx, reference).await?;
+    MfaService::setup(ctx, &user).await
 }
 
 pub async fn auth_mfa_disable(
-    ctx: ServiceContext<'_>,
+    ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<()> {
     let MultiFactorConfigure {
@@ -221,7 +224,7 @@ pub async fn auth_mfa_disable(
         session_token,
     } = params.parse()?;
 
-    let user = SessionService::get_user(&ctx, &session_token, false).await?;
+    let user = SessionService::get_user(ctx, &session_token, false).await?;
     if user.user_id != user_id {
         tide::log::error!(
             "Passed user ID ({}) does not match session token ({})",
@@ -239,7 +242,7 @@ pub async fn auth_mfa_disable(
 }
 
 pub async fn auth_mfa_reset_recovery(
-    ctx: ServiceContext<'_>,
+    ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<MultiFactorResetOutput> {
     let MultiFactorConfigure {
@@ -247,7 +250,7 @@ pub async fn auth_mfa_reset_recovery(
         session_token,
     } = params.parse()?;
 
-    let user = SessionService::get_user(&ctx, &session_token, false).await?;
+    let user = SessionService::get_user(ctx, &session_token, false).await?;
     if user.user_id != user_id {
         tide::log::error!(
             "Passed user ID ({}) does not match session token ({})",
@@ -261,5 +264,5 @@ pub async fn auth_mfa_reset_recovery(
         });
     }
 
-    MfaService::reset_recovery_codes(&ctx, &user).await
+    MfaService::reset_recovery_codes(ctx, &user).await
 }

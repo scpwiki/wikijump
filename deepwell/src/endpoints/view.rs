@@ -23,9 +23,9 @@ use crate::services::view::{GetPageView, GetPageViewOutput};
 
 /// Returns relevant context for rendering a page from a processed web request.
 pub async fn page_view(
-    ctx: ServiceContext<'_>,
+    ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<GetPageViewOutput> {
     let input: GetPageView = params.parse()?;
-    ViewService::page(&ctx, input).await
+    ViewService::page(ctx, input).await
 }

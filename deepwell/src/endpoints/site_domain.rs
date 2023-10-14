@@ -23,33 +23,33 @@ use crate::models::site::Model as SiteModel;
 use crate::services::domain::CreateCustomDomain;
 
 pub async fn site_get_from_domain(
-    ctx: ServiceContext<'_>,
+    ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<SiteModel> {
     let domain: String = params.one()?;
-    DomainService::site_from_domain(&ctx, &domain).await
+    DomainService::site_from_domain(ctx, &domain).await
 }
 
 pub async fn site_custom_domain_create(
-    ctx: ServiceContext<'_>,
+    ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<()> {
     let input: CreateCustomDomain = params.parse()?;
-    DomainService::create_custom(&ctx, input).await
+    DomainService::create_custom(ctx, input).await
 }
 
 pub async fn site_custom_domain_get(
-    ctx: ServiceContext<'_>,
+    ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<SiteModel> {
     let domain: String = params.one()?;
-    DomainService::site_from_domain(&ctx, &domain).await
+    DomainService::site_from_domain(ctx, &domain).await
 }
 
 pub async fn site_custom_domain_delete(
-    ctx: ServiceContext<'_>,
+    ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<()> {
     let domain: String = params.one()?;
-    DomainService::delete_custom(&ctx, domain).await
+    DomainService::delete_custom(ctx, domain).await
 }

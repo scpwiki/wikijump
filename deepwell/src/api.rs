@@ -152,7 +152,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
                             // Run the endpoint's implementation, and convert the
                             // error from service to RPC.
                             let ctx = ServiceContext::new(&state, &txn);
-                            $method(ctx, params).await.map_err(ErrorObjectOwned::from)
+                            $method(&ctx, params).await.map_err(ErrorObjectOwned::from)
                         })
                     })
                     .await
@@ -162,7 +162,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     }
 
     async fn not_implemented(
-        _ctx: ServiceContext<'_>,
+        _ctx: &ServiceContext<'_>,
         _params: Params<'static>,
     ) -> ServiceResult<()> {
         tide::log::error!("Method not implemented yet!");

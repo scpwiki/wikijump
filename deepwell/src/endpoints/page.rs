@@ -29,16 +29,16 @@ use crate::services::{Result, TextService};
 use crate::web::{PageDetails, Reference};
 
 pub async fn page_create(
-    ctx: ServiceContext<'_>,
+    ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<CreatePageOutput> {
     let input: CreatePage = params.parse()?;
     tide::log::info!("Creating new page in site ID {}", input.site_id);
-    PageService::create(&ctx, input).await
+    PageService::create(ctx, input).await
 }
 
 pub async fn page_get(
-    ctx: ServiceContext<'_>,
+    ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<GetPageOutput> {
     let GetPage {
@@ -48,13 +48,13 @@ pub async fn page_get(
     } = params.parse()?;
 
     tide::log::info!("Getting page {reference:?} in site ID {site_id}");
-    let page = PageService::get(&ctx, site_id, reference).await?;
+    let page = PageService::get(ctx, site_id, reference).await?;
     let revision = PageRevisionService::get_latest(&ctx, site_id, page.page_id).await?;
-    build_page_output(&ctx, page, revision, details).await
+    build_page_output(ctx, page, revision, details).await
 }
 
 pub async fn page_get_direct(
-    ctx: ServiceContext<'_>,
+    ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<GetPageOutput> {
     let GetPageDirect {
@@ -64,18 +64,18 @@ pub async fn page_get_direct(
     } = params.parse()?;
 
     tide::log::info!("Getting page ID {page_id} in site ID {site_id}");
-    let page = PageService::get_direct(&ctx, site_id, page_id).await?;
-    let revision = PageRevisionService::get_latest(&ctx, site_id, page_id).await?;
-    build_page_output(&ctx, page, revision, details).await
+    let page = PageService::get_direct(ctx, site_id, page_id).await?;
+    let revision = PageRevisionService::get_latest(ctx, site_id, page_id).await?;
+    build_page_output(ctx, page, revision, details).await
 }
 
 pub async fn page_edit(
-    ctx: ServiceContext<'_>,
+    ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<Option<EditPageOutput>> {
     let input: EditPage = params.parse()?;
     tide::log::info!("Editing page {:?} in site ID {}", input.page, input.site_id);
-    PageService::edit(&ctx, input).await
+    PageService::edit(ctx, input).await
 }
 
 pub async fn page_delete(mut req: ApiRequest) -> ApiResponse {

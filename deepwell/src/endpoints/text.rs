@@ -22,24 +22,24 @@ use super::prelude::*;
 use crate::hash::TextHash;
 
 pub async fn text_create(
-    ctx: ServiceContext<'_>,
+    ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<String> {
     let contents: String = params.one()?;
     tide::log::info!("Inserting new stored text (bytes {})", contents.len());
-    let hash = TextService::create(&ctx, contents).await?;
+    let hash = TextService::create(ctx, contents).await?;
     let hash_hex = hex::encode(hash);
     Ok(hash_hex)
 }
 
 pub async fn text_get(
-    ctx: ServiceContext<'_>,
+    ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<String> {
     tide::log::info!("Getting stored text");
     let hash_hex: String = params.one()?;
     let hash = read_hash(&hash_hex)?;
-    TextService::get(&ctx, &hash).await
+    TextService::get(ctx, &hash).await
 }
 
 fn read_hash(hash_hex: &str) -> StdResult<TextHash, TideError> {

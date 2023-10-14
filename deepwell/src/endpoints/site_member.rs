@@ -23,25 +23,25 @@ use crate::models::interaction::Model as InteractionModel;
 use crate::services::interaction::{CreateSiteMember, GetSiteMember, RemoveSiteMember};
 
 pub async fn membership_get(
-    ctx: ServiceContext<'_>,
+    ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<InteractionModel> {
     let input: GetSiteMember = params.parse()?;
-    InteractionService::get_site_member(&ctx, input).await
+    InteractionService::get_site_member(ctx, input).await
 }
 
 pub async fn membership_set(
-    ctx: ServiceContext<'_>,
+    ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<()> {
     let input: CreateSiteMember = params.parse()?;
-    InteractionService::create_site_member(&ctx, input).await
+    InteractionService::create_site_member(ctx, input).await
 }
 
 pub async fn membership_delete(
-    ctx: ServiceContext<'_>,
+    ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<InteractionModel> {
     let input: RemoveSiteMember = params.parse()?;
-    InteractionService::remove_site_member(&ctx, input).await
+    InteractionService::remove_site_member(ctx, input).await
 }
