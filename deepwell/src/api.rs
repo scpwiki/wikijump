@@ -127,7 +127,7 @@ pub async fn build_server(app_state: ServerState) -> anyhow::Result<ServerHandle
 async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<ServerState>> {
     let mut module = RpcModule::new(app_state);
 
-    macro_rules! register2 {
+    macro_rules! register {
         ($name:expr, $method:ident $(,)?) => {{
             // Register async method.
             //
@@ -170,132 +170,132 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     }
 
     // Miscellaneous
-    register2!("ping", ping);
-    register2!("version", version);
-    register2!("version_full", full_version);
-    register2!("hostname", hostname);
-    register2!("config", config_dump);
-    register2!("config_path", config_path);
-    register2!("normalize", normalize_method);
+    register!("ping", ping);
+    register!("version", version);
+    register!("version_full", full_version);
+    register!("hostname", hostname);
+    register!("config", config_dump);
+    register!("config_path", config_path);
+    register!("normalize", normalize_method);
 
     // Localization
-    register2!("locale", locale_info);
-    register2!("translate", translate_strings);
+    register!("locale", locale_info);
+    register!("translate", translate_strings);
 
     // Web server
-    register2!("page_view", page_view);
+    register!("page_view", page_view);
 
     // Authentication
-    register2!("login", auth_login);
-    register2!("logout", auth_logout);
-    register2!("session_get", auth_session_get);
-    register2!("session_get_others", auth_session_get_others);
-    register2!("session_invalidate_others", auth_session_invalidate_others);
-    register2!("session_renew", auth_session_renew);
-    register2!("mfa_verify", auth_mfa_verify);
-    register2!("mfa_setup", auth_mfa_setup);
-    register2!("mfa_disable", auth_mfa_disable);
-    register2!("mfa_reset_recovery", auth_mfa_reset_recovery);
+    register!("login", auth_login);
+    register!("logout", auth_logout);
+    register!("session_get", auth_session_get);
+    register!("session_get_others", auth_session_get_others);
+    register!("session_invalidate_others", auth_session_invalidate_others);
+    register!("session_renew", auth_session_renew);
+    register!("mfa_verify", auth_mfa_verify);
+    register!("mfa_setup", auth_mfa_setup);
+    register!("mfa_disable", auth_mfa_disable);
+    register!("mfa_reset_recovery", auth_mfa_reset_recovery);
 
     // Site
-    register2!("site_create", site_create);
-    register2!("site_get", site_get);
-    register2!("site_update", site_update);
-    register2!("site_from_domain", site_get_from_domain);
+    register!("site_create", site_create);
+    register!("site_get", site_get);
+    register!("site_update", site_update);
+    register!("site_from_domain", site_get_from_domain);
 
     // Site custom domain
-    register2!("custom_domain_create", site_custom_domain_create);
-    register2!("custom_domain_get", site_custom_domain_get);
-    register2!("custom_domain_delete", site_custom_domain_delete);
+    register!("custom_domain_create", site_custom_domain_create);
+    register!("custom_domain_get", site_custom_domain_get);
+    register!("custom_domain_delete", site_custom_domain_delete);
 
     // Site membership
-    register2!("member_set", membership_set);
-    register2!("member_get", membership_get);
-    register2!("member_delete", membership_delete);
+    register!("member_set", membership_set);
+    register!("member_get", membership_get);
+    register!("member_delete", membership_delete);
 
     // Category
-    register2!("category_get", category_get);
-    register2!("category_get_all", category_get_all);
+    register!("category_get", category_get);
+    register!("category_get_all", category_get_all);
 
     // Page
-    register2!("page_create", page_create);
-    register2!("page_get", page_get);
-    register2!("page_get_direct", page_get_direct);
-    register2!("page_edit", page_edit);
-    register2!("page_delete", not_implemented);
-    register2!("page_move", not_implemented);
-    register2!("page_rerender", not_implemented);
-    register2!("page_restore", not_implemented);
+    register!("page_create", page_create);
+    register!("page_get", page_get);
+    register!("page_get_direct", page_get_direct);
+    register!("page_edit", page_edit);
+    register!("page_delete", not_implemented);
+    register!("page_move", not_implemented);
+    register!("page_rerender", not_implemented);
+    register!("page_restore", not_implemented);
 
     // Page revisions
-    register2!("page_revision_create", not_implemented);
-    register2!("page_revision_get", not_implemented);
-    register2!("page_revision_count", not_implemented);
-    register2!("page_revision_rollback", not_implemented);
-    register2!("page_revision_range", not_implemented);
+    register!("page_revision_create", not_implemented);
+    register!("page_revision_get", not_implemented);
+    register!("page_revision_count", not_implemented);
+    register!("page_revision_rollback", not_implemented);
+    register!("page_revision_range", not_implemented);
 
     // Page links
-    register2!("page_get_links_from", not_implemented);
-    register2!("page_get_links_to", not_implemented);
-    register2!("page_get_links_to_missing", not_implemented);
-    register2!("page_get_urls_from", not_implemented);
-    register2!("page_get_urls_to", not_implemented);
+    register!("page_get_links_from", not_implemented);
+    register!("page_get_links_to", not_implemented);
+    register!("page_get_links_to_missing", not_implemented);
+    register!("page_get_urls_from", not_implemented);
+    register!("page_get_urls_to", not_implemented);
 
     // Page parents
-    register2!("parent_create", not_implemented);
-    register2!("parent_get", not_implemented);
-    register2!("parent_delete", not_implemented);
-    register2!("parent_relationship", not_implemented);
+    register!("parent_create", not_implemented);
+    register!("parent_get", not_implemented);
+    register!("parent_delete", not_implemented);
+    register!("parent_relationship", not_implemented);
 
     // Files
-    register2!("file_create", not_implemented);
-    register2!("file_get", not_implemented);
-    register2!("file_edit", not_implemented);
-    register2!("file_delete", not_implemented);
-    register2!("file_move", not_implemented);
-    register2!("file_restore", not_implemented);
+    register!("file_create", not_implemented);
+    register!("file_get", not_implemented);
+    register!("file_edit", not_implemented);
+    register!("file_delete", not_implemented);
+    register!("file_move", not_implemented);
+    register!("file_restore", not_implemented);
 
     // File revisions
-    register2!("file_revision_create", not_implemented);
-    register2!("file_revision_get", not_implemented);
-    register2!("file_revision_count", not_implemented);
-    register2!("file_revision_range", not_implemented);
+    register!("file_revision_create", not_implemented);
+    register!("file_revision_get", not_implemented);
+    register!("file_revision_count", not_implemented);
+    register!("file_revision_range", not_implemented);
 
     // Text
-    register2!("text_create", text_create);
-    register2!("text_get", text_get);
+    register!("text_create", text_create);
+    register!("text_get", text_get);
 
     // User
-    register2!("user_create", not_implemented);
-    register2!("user_get", not_implemented);
-    register2!("user_edit", not_implemented);
-    register2!("user_delete", not_implemented);
-    register2!("user_import", not_implemented);
-    register2!("user_add_name_change", not_implemented);
-    register2!("user_avatar_set", not_implemented);
+    register!("user_create", not_implemented);
+    register!("user_get", not_implemented);
+    register!("user_edit", not_implemented);
+    register!("user_delete", not_implemented);
+    register!("user_import", not_implemented);
+    register!("user_add_name_change", not_implemented);
+    register!("user_avatar_set", not_implemented);
 
     // Bot user
-    register2!("bot_user_create", not_implemented);
-    register2!("bot_user_get", not_implemented);
-    register2!("bot_user_owner_set", not_implemented);
-    register2!("bot_user_owner_delete", not_implemented);
+    register!("bot_user_create", not_implemented);
+    register!("bot_user_get", not_implemented);
+    register!("bot_user_owner_set", not_implemented);
+    register!("bot_user_owner_delete", not_implemented);
 
     // Direct messages
-    register2!("message_draft_create", not_implemented);
-    register2!("message_draft_edit", not_implemented);
-    register2!("message_draft_delete", not_implemented);
-    register2!("message_draft_send", not_implemented);
+    register!("message_draft_create", not_implemented);
+    register!("message_draft_edit", not_implemented);
+    register!("message_draft_delete", not_implemented);
+    register!("message_draft_send", not_implemented);
 
     // Email
-    register2!("email_validate", validate_email);
+    register!("email_validate", validate_email);
 
     // Votes
-    register2!("vote_set", not_implemented);
-    register2!("vote_get", not_implemented);
-    register2!("vote_delete", not_implemented);
-    register2!("vote_action", not_implemented);
-    register2!("vote_list", not_implemented);
-    register2!("vote_count", not_implemented);
+    register!("vote_set", not_implemented);
+    register!("vote_get", not_implemented);
+    register!("vote_delete", not_implemented);
+    register!("vote_action", not_implemented);
+    register!("vote_list", not_implemented);
+    register!("vote_count", not_implemented);
 
     // Return
     Ok(module)
