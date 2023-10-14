@@ -107,18 +107,17 @@ pub async fn page_move(
     PageService::r#move(&ctx, input).await
 }
 
-pub async fn page_rerender(req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::from_req(&req, &txn);
-
-    let site_id = req.param("site_id")?.parse()?;
-    let page_id = req.param("page_id")?.parse()?;
+pub async fn page_rerender(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<()> {
+    let GetPageDirect {
+        site_id,
+        page_id,
+        details: _,
+    } = params.parse()?;
     tide::log::info!("Re-rendering page ID {page_id} in site ID {site_id}");
-
-    PageRevisionService::rerender(&ctx, site_id, page_id).await?;
-
-    txn.commit().await?;
-    Ok(Response::new(StatusCode::NoContent))
+    PageRevisionService::rerender(&ctx, site_id, page_id).await
 }
 
 pub async fn page_restore(mut req: ApiRequest) -> ApiResponse {
