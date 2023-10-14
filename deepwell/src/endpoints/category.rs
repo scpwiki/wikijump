@@ -24,25 +24,21 @@ use crate::services::category::{CategoryOutput, GetCategory};
 use crate::services::site::GetSite;
 
 pub async fn category_get(
-    state: ServerState,
+    ctx: ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<CategoryOutput> {
-    let txn = state.database.begin().await?;
-    let ctx = ServiceContext::new(&state, &txn);
     let GetCategory { site, category } = params.parse()?;
     let site_id = SiteService::get_id(&ctx, site).await?;
     tide::log::info!("Getting page category {category:?} in site ID {site_id}");
-    let category = CategoryService::get(&ctx, site_id, category).await?;
-    let output: CategoryOutput = category.into();
+    let output: CategoryOutput =
+        CategoryService::get(&ctx, site_id, category).await?.into();
     Ok(output)
 }
 
 pub async fn category_get_all(
-    state: ServerState,
+    ctx: ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<Vec<CategoryOutput>> {
-    let txn = state.database.begin().await?;
-    let ctx = ServiceContext::new(&state, &txn);
     let GetSite { site } = params.parse()?;
     let site_id = SiteService::get_id(&ctx, site).await?;
     tide::log::info!("Getting all page categories in site ID {site_id}");

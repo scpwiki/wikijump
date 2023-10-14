@@ -227,8 +227,8 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register2!("member_delete", membership_delete);
 
     // Category
-    register!("category_get", category_get);
-    register!("category_get_all", category_get_all);
+    register2!("category_get", category_get);
+    register2!("category_get_all", category_get_all);
 
     // Page
     register2!("page_create", page_create);
