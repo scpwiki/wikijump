@@ -23,34 +23,25 @@ use crate::models::interaction::Model as InteractionModel;
 use crate::services::interaction::{CreateSiteMember, GetSiteMember, RemoveSiteMember};
 
 pub async fn membership_get(
-    state: ServerState,
+    ctx: ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<InteractionModel> {
-    let txn = state.database.begin().await?;
-    let ctx = ServiceContext::new(&state, &txn);
     let input: GetSiteMember = params.parse()?;
-    let output = InteractionService::get_site_member(&ctx, input).await?;
-    txn.commit().await?;
-    Ok(output)
+    InteractionService::get_site_member(&ctx, input).await
 }
 
-pub async fn membership_set(state: ServerState, params: Params<'static>) -> Result<()> {
-    let txn = state.database.begin().await?;
-    let ctx = ServiceContext::new(&state, &txn);
+pub async fn membership_set(
+    ctx: ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<()> {
     let input: CreateSiteMember = params.parse()?;
-    InteractionService::create_site_member(&ctx, input).await?;
-    txn.commit().await?;
-    Ok(())
+    InteractionService::create_site_member(&ctx, input).await
 }
 
 pub async fn membership_delete(
-    state: ServerState,
+    ctx: ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<InteractionModel> {
-    let txn = state.database.begin().await?;
-    let ctx = ServiceContext::new(&state, &txn);
     let input: RemoveSiteMember = params.parse()?;
-    let output = InteractionService::remove_site_member(&ctx, input).await?;
-    txn.commit().await?;
-    Ok(output)
+    InteractionService::remove_site_member(&ctx, input).await
 }

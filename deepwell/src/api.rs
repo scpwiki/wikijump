@@ -222,9 +222,9 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register2!("custom_domain_delete", site_custom_domain_delete);
 
     // Site membership
-    register!("member_set", membership_set);
-    register!("member_get", membership_get);
-    register!("member_delete", membership_delete);
+    register2!("member_set", membership_set);
+    register2!("member_get", membership_get);
+    register2!("member_delete", membership_delete);
 
     // Category
     register!("category_get", category_get);
