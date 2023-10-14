@@ -127,19 +127,6 @@ pub async fn build_server(app_state: ServerState) -> anyhow::Result<ServerHandle
 async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<ServerState>> {
     let mut module = RpcModule::new(app_state);
 
-    macro_rules! register {
-        ($name:expr, $method:ident $(,)?) => {{
-            module.register_async_method($name, |params, state| async move {
-                // NOTE: We have our own Arc because we need to share it in some places
-                //       before setting up, but RpcModule insists on adding its own.
-                //       So we need to "unwrap it" before each method invocation.
-                //       Oh well.
-                let state = Arc::clone(&*state);
-                $method(state, params).await.map_err(ErrorObjectOwned::from)
-            })?;
-        }};
-    }
-
     macro_rules! register2 {
         ($name:expr, $method:ident $(,)?) => {{
             // Register async method.
