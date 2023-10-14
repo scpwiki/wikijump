@@ -300,7 +300,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register2!("message_draft_send", not_implemented);
 
     // Email
-    register!("email_validate", validate_email);
+    register2!("email_validate", validate_email);
 
     // Votes
     register2!("vote_set", not_implemented);

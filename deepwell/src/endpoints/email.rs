@@ -22,7 +22,7 @@ use super::prelude::*;
 use crate::services::email::{EmailService, EmailValidationOutput};
 
 pub async fn validate_email(
-    _state: ServerState,
+    _ctx: ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<EmailValidationOutput> {
     let email: String = params.one()?;
