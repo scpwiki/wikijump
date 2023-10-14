@@ -29,25 +29,18 @@ use crate::services::{Result, TextService};
 use crate::web::{PageDetails, Reference};
 
 pub async fn page_create(
-    state: ServerState,
+    ctx: ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<CreatePageOutput> {
-    let txn = state.database.begin().await?;
-    let ctx = ServiceContext::new(&state, &txn);
     let input: CreatePage = params.parse()?;
     tide::log::info!("Creating new page in site ID {}", input.site_id);
-    let output = PageService::create(&ctx, input).await?;
-    txn.commit().await?;
-    Ok(output)
+    PageService::create(&ctx, input).await
 }
 
 pub async fn page_get(
-    state: ServerState,
+    ctx: ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<GetPageOutput> {
-    let txn = state.database.begin().await?;
-    let ctx = ServiceContext::new(&state, &txn);
-
     let GetPage {
         site_id,
         page: reference,
@@ -57,18 +50,13 @@ pub async fn page_get(
     tide::log::info!("Getting page {reference:?} in site ID {site_id}");
     let page = PageService::get(&ctx, site_id, reference).await?;
     let revision = PageRevisionService::get_latest(&ctx, site_id, page.page_id).await?;
-    let output = build_page_output(&ctx, page, revision, details).await?;
-    txn.commit().await?;
-    Ok(output)
+    build_page_output(&ctx, page, revision, details).await
 }
 
 pub async fn page_get_direct(
-    state: ServerState,
+    ctx: ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<GetPageOutput> {
-    let txn = state.database.begin().await?;
-    let ctx = ServiceContext::new(&state, &txn);
-
     let GetPageDirect {
         site_id,
         page_id,
@@ -78,22 +66,16 @@ pub async fn page_get_direct(
     tide::log::info!("Getting page ID {page_id} in site ID {site_id}");
     let page = PageService::get_direct(&ctx, site_id, page_id).await?;
     let revision = PageRevisionService::get_latest(&ctx, site_id, page_id).await?;
-    let output = build_page_output(&ctx, page, revision, details).await?;
-    txn.commit().await?;
-    Ok(output)
+    build_page_output(&ctx, page, revision, details).await
 }
 
 pub async fn page_edit(
-    state: ServerState,
+    ctx: ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<Option<EditPageOutput>> {
-    let txn = state.database.begin().await?;
-    let ctx = ServiceContext::new(&state, &txn);
     let input: EditPage = params.parse()?;
     tide::log::info!("Editing page {:?} in site ID {}", input.page, input.site_id);
-    let output = PageService::edit(&ctx, input).await?;
-    txn.commit().await?;
-    Ok(output)
+    PageService::edit(&ctx, input).await
 }
 
 pub async fn page_delete(mut req: ApiRequest) -> ApiResponse {

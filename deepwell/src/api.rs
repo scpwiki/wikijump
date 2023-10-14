@@ -231,10 +231,10 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("category_get_all", category_get_all);
 
     // Page
-    register!("page_create", page_create);
-    register!("page_get", page_get);
-    register!("page_get_direct", page_get_direct);
-    register!("page_edit", page_edit);
+    register2!("page_create", page_create);
+    register2!("page_get", page_get);
+    register2!("page_get_direct", page_get_direct);
+    register2!("page_edit", page_edit);
     register2!("page_delete", not_implemented);
     register2!("page_move", not_implemented);
     register2!("page_rerender", not_implemented);
