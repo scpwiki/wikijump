@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::services::page::GetPage;
+use crate::services::page::GetPageReferenceDetails;
 use crate::services::parent::{ParentDescription, ParentalRelationshipType};
 use serde::Serialize;
 
@@ -30,7 +30,7 @@ pub async fn parent_relationships_retrieve(mut req: ApiRequest) -> ApiResponse {
     let relationship_type: ParentalRelationshipType =
         req.param("relationship_type")?.parse()?;
 
-    let GetPage {
+    let GetPageReferenceDetails {
         site_id,
         page: reference,
         details: _,

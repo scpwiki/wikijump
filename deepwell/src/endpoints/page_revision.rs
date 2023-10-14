@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::models::page_revision::Model as PageRevisionModel;
-use crate::services::page::GetPage;
+use crate::services::page::GetPageReferenceDetails;
 use crate::services::page_revision::{
     GetPageRevision, GetPageRevisionRange, PageRevisionCountOutput,
     PageRevisionModelFiltered, UpdatePageRevision,
@@ -32,7 +32,7 @@ pub async fn page_revision_count(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::from_req(&req, &txn);
 
-    let GetPage {
+    let GetPageReferenceDetails {
         site_id,
         page: reference,
         details: _,

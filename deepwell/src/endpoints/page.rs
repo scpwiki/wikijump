@@ -23,8 +23,8 @@ use crate::models::page::Model as PageModel;
 use crate::models::page_revision::Model as PageRevisionModel;
 use crate::services::page::{
     CreatePage, CreatePageOutput, DeletePage, DeletePageOutput, EditPage, EditPageOutput,
-    GetPage, GetPageDirect, GetPageOutput, MovePage, MovePageOutput, RestorePage,
-    RestorePageOutput, RollbackPage,
+    GetPageDirect, GetPageDirectDetails, GetPageOutput, GetPageReferenceDetails,
+    MovePage, MovePageOutput, RestorePage, RestorePageOutput, RollbackPage,
 };
 use crate::services::{Result, TextService};
 use crate::web::{PageDetails, Reference};
@@ -42,7 +42,7 @@ pub async fn page_get(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<GetPageOutput> {
-    let GetPage {
+    let GetPageReferenceDetails {
         site_id,
         page: reference,
         details,
@@ -58,7 +58,7 @@ pub async fn page_get_direct(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<GetPageOutput> {
-    let GetPageDirect {
+    let GetPageDirectDetails {
         site_id,
         page_id,
         details,
@@ -103,7 +103,6 @@ pub async fn page_move(
         input.site_id,
         input.new_slug,
     );
-
     PageService::r#move(&ctx, input).await
 }
 
@@ -111,11 +110,7 @@ pub async fn page_rerender(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<()> {
-    let GetPageDirect {
-        site_id,
-        page_id,
-        details: _,
-    } = params.parse()?;
+    let GetPageDirect { site_id, page_id } = params.parse()?;
     tide::log::info!("Re-rendering page ID {page_id} in site ID {site_id}");
     PageRevisionService::rerender(&ctx, site_id, page_id).await
 }
