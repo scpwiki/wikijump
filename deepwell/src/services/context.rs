@@ -27,7 +27,7 @@ use s3::bucket::Bucket;
 use sea_orm::DatabaseTransaction;
 use std::sync::Arc;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ServiceContext<'txn> {
     state: ServerState,
     transaction: &'txn DatabaseTransaction,
