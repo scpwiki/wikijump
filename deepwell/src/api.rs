@@ -199,16 +199,16 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register2!("page_view", page_view);
 
     // Authentication
-    register!("login", auth_login);
-    register!("logout", auth_logout);
-    register!("session_get", auth_session_get);
-    register!("session_get_others", auth_session_get_others);
-    register!("session_invalidate_others", auth_session_invalidate_others);
-    register!("session_renew", auth_session_renew);
-    register!("mfa_verify", auth_mfa_verify);
-    register!("mfa_setup", auth_mfa_setup);
-    register!("mfa_disable", auth_mfa_disable);
-    register!("mfa_reset_recovery", auth_mfa_reset_recovery);
+    register2!("login", auth_login);
+    register2!("logout", auth_logout);
+    register2!("session_get", auth_session_get);
+    register2!("session_get_others", auth_session_get_others);
+    register2!("session_invalidate_others", auth_session_invalidate_others);
+    register2!("session_renew", auth_session_renew);
+    register2!("mfa_verify", auth_mfa_verify);
+    register2!("mfa_setup", auth_mfa_setup);
+    register2!("mfa_disable", auth_mfa_disable);
+    register2!("mfa_reset_recovery", auth_mfa_reset_recovery);
 
     // Site
     register!("site_create", site_create);

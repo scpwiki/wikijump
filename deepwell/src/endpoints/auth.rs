@@ -35,12 +35,9 @@ use crate::services::user::GetUser;
 use crate::services::Error;
 
 pub async fn auth_login(
-    state: ServerState,
+    ctx: ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<LoginUserOutput> {
-    let txn = state.database.begin().await?;
-    let ctx = ServiceContext::new(&state, &txn);
-
     let LoginUser {
         authenticate,
         ip_address,
@@ -96,20 +93,15 @@ pub async fn auth_login(
     )
     .await?;
 
-    txn.commit().await?;
     Ok(LoginUserOutput {
         session_token,
         needs_mfa,
     })
 }
 
-pub async fn auth_logout(state: ServerState, params: Params<'static>) -> Result<()> {
-    let txn = state.database.begin().await?;
-    let ctx = ServiceContext::new(&state, &txn);
+pub async fn auth_logout(ctx: ServiceContext<'_>, params: Params<'static>) -> Result<()> {
     let session_token: String = params.one()?;
-    SessionService::invalidate(&ctx, session_token).await?;
-    txn.commit().await?;
-    Ok(())
+    SessionService::invalidate(&ctx, session_token).await
 }
 
 /// Gets the information associated with a particular session token.
@@ -117,36 +109,25 @@ pub async fn auth_logout(state: ServerState, params: Params<'static>) -> Result<
 /// This is how framerail determines the user ID this user is acting as,
 /// among other information.
 pub async fn auth_session_get(
-    state: ServerState,
+    ctx: ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<SessionModel> {
-    let txn = state.database.begin().await?;
-    let ctx = ServiceContext::new(&state, &txn);
     let session_token: String = params.one()?;
-    let session = SessionService::get(&ctx, &session_token).await?;
-    txn.commit().await?;
-    Ok(session)
+    SessionService::get(&ctx, &session_token).await
 }
 
 pub async fn auth_session_renew(
-    state: ServerState,
+    ctx: ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<String> {
-    let txn = state.database.begin().await?;
-    let ctx = ServiceContext::new(&state, &txn);
     let input: RenewSession = params.parse()?;
-    let new_session_token = SessionService::renew(&ctx, input).await?;
-    txn.commit().await?;
-    Ok(new_session_token)
+    SessionService::renew(&ctx, input).await
 }
 
 pub async fn auth_session_get_others(
-    state: ServerState,
+    ctx: ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<GetOtherSessionsOutput> {
-    let txn = state.database.begin().await?;
-    let ctx = ServiceContext::new(&state, &txn);
-
     let GetOtherSessions {
         user_id,
         session_token,
@@ -154,54 +135,42 @@ pub async fn auth_session_get_others(
 
     // Produce output struct, which extracts the current session and
     // places it in its own location.
-    let output = {
-        let mut sessions = SessionService::get_all(&ctx, user_id).await?;
-        let current = match sessions
-            .iter()
-            .position(|session| session.session_token == session_token)
-        {
-            Some(index) => sessions.remove(index),
-            None => {
-                tide::log::error!("Cannot find own session token in list of all sessions, must be invalid");
-                return Err(Error::NotFound);
-            }
-        };
-
-        GetOtherSessionsOutput {
-            current,
-            others: sessions,
+    let mut sessions = SessionService::get_all(&ctx, user_id).await?;
+    let current = match sessions
+        .iter()
+        .position(|session| session.session_token == session_token)
+    {
+        Some(index) => sessions.remove(index),
+        None => {
+            tide::log::error!(
+                "Cannot find own session token in list of all sessions, must be invalid",
+            );
+            return Err(Error::NotFound);
         }
     };
 
-    txn.commit().await?;
-    Ok(output)
+    Ok(GetOtherSessionsOutput {
+        current,
+        others: sessions,
+    })
 }
 
 pub async fn auth_session_invalidate_others(
-    state: ServerState,
+    ctx: ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<u64> {
-    let txn = state.database.begin().await?;
-    let ctx = ServiceContext::new(&state, &txn);
     let InvalidateOtherSessions {
         session_token,
         user_id,
     } = params.parse()?;
 
-    let invalidated_count =
-        SessionService::invalidate_others(&ctx, &session_token, user_id).await?;
-
-    txn.commit().await?;
-    Ok(invalidated_count)
+    SessionService::invalidate_others(&ctx, &session_token, user_id).await
 }
 
 pub async fn auth_mfa_verify(
-    state: ServerState,
+    ctx: ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<String> {
-    let txn = state.database.begin().await?;
-    let ctx = ServiceContext::new(&state, &txn);
-
     let LoginUserMfa {
         session_token,
         totp_or_code,
@@ -222,7 +191,7 @@ pub async fn auth_mfa_verify(
     )
     .await?;
 
-    let new_session_token = SessionService::renew(
+    SessionService::renew(
         &ctx,
         RenewSession {
             old_session_token: session_token,
@@ -231,28 +200,22 @@ pub async fn auth_mfa_verify(
             user_agent,
         },
     )
-    .await?;
-
-    Ok(new_session_token)
+    .await
 }
 
 pub async fn auth_mfa_setup(
-    state: ServerState,
+    ctx: ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<MultiFactorSetupOutput> {
-    let txn = state.database.begin().await?;
-    let ctx = ServiceContext::new(&state, &txn);
     let GetUser { user: reference } = params.parse()?;
     let user = UserService::get(&ctx, reference).await?;
-    let output = MfaService::setup(&ctx, &user).await?;
-    txn.commit().await?;
-    Ok(output)
+    MfaService::setup(&ctx, &user).await
 }
 
-pub async fn auth_mfa_disable(state: ServerState, params: Params<'static>) -> Result<()> {
-    let txn = state.database.begin().await?;
-    let ctx = ServiceContext::new(&state, &txn);
-
+pub async fn auth_mfa_disable(
+    ctx: ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<()> {
     let MultiFactorConfigure {
         user_id,
         session_token,
@@ -272,18 +235,13 @@ pub async fn auth_mfa_disable(state: ServerState, params: Params<'static>) -> Re
         });
     }
 
-    MfaService::disable(&ctx, user.user_id).await?;
-    txn.commit().await?;
-    Ok(())
+    MfaService::disable(&ctx, user.user_id).await
 }
 
 pub async fn auth_mfa_reset_recovery(
-    state: ServerState,
+    ctx: ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<MultiFactorResetOutput> {
-    let txn = state.database.begin().await?;
-    let ctx = ServiceContext::new(&state, &txn);
-
     let MultiFactorConfigure {
         user_id,
         session_token,
@@ -303,7 +261,5 @@ pub async fn auth_mfa_reset_recovery(
         });
     }
 
-    let output = MfaService::reset_recovery_codes(&ctx, &user).await?;
-    txn.commit().await?;
-    Ok(output)
+    MfaService::reset_recovery_codes(&ctx, &user).await
 }
