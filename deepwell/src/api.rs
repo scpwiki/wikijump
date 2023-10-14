@@ -211,15 +211,15 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register2!("mfa_reset_recovery", auth_mfa_reset_recovery);
 
     // Site
-    register!("site_create", site_create);
-    register!("site_get", site_get);
-    register!("site_update", site_update);
-    register!("site_from_domain", site_get_from_domain);
+    register2!("site_create", site_create);
+    register2!("site_get", site_get);
+    register2!("site_update", site_update);
+    register2!("site_from_domain", site_get_from_domain);
 
     // Site custom domain
-    register!("custom_domain_create", site_custom_domain_create);
-    register!("custom_domain_get", site_custom_domain_get);
-    register!("custom_domain_delete", site_custom_domain_delete);
+    register2!("custom_domain_create", site_custom_domain_create);
+    register2!("custom_domain_get", site_custom_domain_get);
+    register2!("custom_domain_delete", site_custom_domain_delete);
 
     // Site membership
     register!("member_set", membership_set);

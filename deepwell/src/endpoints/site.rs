@@ -28,23 +28,17 @@ use crate::services::site::{
 };
 
 pub async fn site_create(
-    state: ServerState,
+    ctx: ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<CreateSiteOutput> {
-    let txn = state.database.begin().await?;
-    let ctx = ServiceContext::new(&state, &txn);
     let input: CreateSite = params.parse()?;
-    let output = SiteService::create(&ctx, input).await?;
-    txn.commit().await?;
-    Ok(output)
+    SiteService::create(&ctx, input).await
 }
 
 pub async fn site_get(
-    state: ServerState,
+    ctx: ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<GetSiteOutput> {
-    let txn = state.database.begin().await?;
-    let ctx = ServiceContext::new(&state, &txn);
     let GetSite { site } = params.parse()?;
 
     tide::log::info!("Getting site {:?}", site);
@@ -61,9 +55,10 @@ pub async fn site_get(
     })
 }
 
-pub async fn site_update(state: ServerState, params: Params<'static>) -> Result<()> {
-    let txn = state.database.begin().await?;
-    let ctx = ServiceContext::new(&state, &txn);
+pub async fn site_update(
+    ctx: ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<SiteModel> {
     let UpdateSite {
         site,
         body,
@@ -71,24 +66,5 @@ pub async fn site_update(state: ServerState, params: Params<'static>) -> Result<
     } = params.parse()?;
 
     tide::log::info!("Updating site {:?}", site);
-    SiteService::update(&ctx, site, body, user_id).await?;
-    txn.commit().await?;
-    Ok(())
-}
-
-fn build_site_response(
-    site: SiteModel,
-    aliases: Vec<AliasModel>,
-    domains: Vec<SiteDomainModel>,
-    status: StatusCode,
-) -> ApiResponse {
-    let output = GetSiteOutput {
-        site,
-        aliases,
-        domains,
-    };
-
-    let body = Body::from_json(&output)?;
-    let response = Response::builder(status).body(body).into();
-    Ok(response)
+    SiteService::update(&ctx, site, body, user_id).await
 }

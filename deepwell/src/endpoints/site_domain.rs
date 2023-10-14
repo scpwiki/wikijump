@@ -23,49 +23,33 @@ use crate::models::site::Model as SiteModel;
 use crate::services::domain::CreateCustomDomain;
 
 pub async fn site_get_from_domain(
-    state: ServerState,
+    ctx: ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<SiteModel> {
-    let txn = state.database.begin().await?;
-    let ctx = ServiceContext::new(&state, &txn);
     let domain: String = params.one()?;
-    let site = DomainService::site_from_domain(&ctx, &domain).await?;
-    txn.commit().await?;
-    Ok(site)
+    DomainService::site_from_domain(&ctx, &domain).await
 }
 
 pub async fn site_custom_domain_create(
-    state: ServerState,
+    ctx: ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<()> {
-    let txn = state.database.begin().await?;
-    let ctx = ServiceContext::new(&state, &txn);
     let input: CreateCustomDomain = params.parse()?;
-    DomainService::create_custom(&ctx, input).await?;
-    txn.commit().await?;
-    Ok(())
+    DomainService::create_custom(&ctx, input).await
 }
 
 pub async fn site_custom_domain_get(
-    state: ServerState,
+    ctx: ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<SiteModel> {
-    let txn = state.database.begin().await?;
-    let ctx = ServiceContext::new(&state, &txn);
     let domain: String = params.one()?;
-    let site = DomainService::site_from_domain(&ctx, &domain).await?;
-    txn.commit().await?;
-    Ok(site)
+    DomainService::site_from_domain(&ctx, &domain).await
 }
 
 pub async fn site_custom_domain_delete(
-    state: ServerState,
+    ctx: ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<()> {
-    let txn = state.database.begin().await?;
-    let ctx = ServiceContext::new(&state, &txn);
     let domain: String = params.one()?;
-    DomainService::delete_custom(&ctx, domain).await?;
-    txn.commit().await?;
-    Ok(())
+    DomainService::delete_custom(&ctx, domain).await
 }
