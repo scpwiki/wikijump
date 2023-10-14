@@ -24,7 +24,7 @@ use crate::models::page_revision::Model as PageRevisionModel;
 use crate::services::page::{
     CreatePage, CreatePageOutput, DeletePage, DeletePageOutput, EditPage, EditPageOutput,
     GetPage, GetPageDirect, GetPageOutput, MovePage, MovePageOutput, RestorePage,
-    RollbackPage,
+    RestorePageOutput, RollbackPage,
 };
 use crate::services::{Result, TextService};
 use crate::web::{PageDetails, Reference};
@@ -120,22 +120,17 @@ pub async fn page_rerender(
     PageRevisionService::rerender(&ctx, site_id, page_id).await
 }
 
-pub async fn page_restore(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::from_req(&req, &txn);
-
-    let input: RestorePage = req.body_json().await?;
+pub async fn page_restore(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<RestorePageOutput> {
+    let input: RestorePage = params.parse()?;
     tide::log::info!(
         "Un-deleting page ID {} in site ID {}",
         input.page_id,
         input.site_id,
     );
-
-    let output = PageService::restore(&ctx, input).await?;
-
-    txn.commit().await?;
-    let body = Body::from_json(&output)?;
-    Ok(body.into())
+    PageService::restore(&ctx, input).await
 }
 
 pub async fn page_rollback(mut req: ApiRequest) -> ApiResponse {

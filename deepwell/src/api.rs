@@ -225,7 +225,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("page_delete", page_delete);
     register!("page_move", page_move);
     register!("page_rerender", page_rerender);
-    register!("page_restore", not_implemented);
+    register!("page_restore", page_restore);
 
     // Page revisions
     register!("page_revision_create", not_implemented);
@@ -320,9 +320,6 @@ pub fn tide_build_server(state: ServerState) -> tide::Server<ServerState> {
 }
 
 fn tide_build_routes(mut app: tide::Server<ServerState>) -> tide::Server<ServerState> {
-    // Page
-    app.at("/page/restore").post(page_restore);
-
     // Page revisions
     app.at("/page/revision").put(page_revision_put);
     app.at("/page/revision/get").put(page_revision_retrieve);
