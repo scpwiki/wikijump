@@ -23,7 +23,8 @@ use crate::models::page::Model as PageModel;
 use crate::models::page_revision::Model as PageRevisionModel;
 use crate::services::page::{
     CreatePage, CreatePageOutput, DeletePage, DeletePageOutput, EditPage, EditPageOutput,
-    GetPage, GetPageDirect, GetPageOutput, MovePage, RestorePage, RollbackPage,
+    GetPage, GetPageDirect, GetPageOutput, MovePage, MovePageOutput, RestorePage,
+    RollbackPage,
 };
 use crate::services::{Result, TextService};
 use crate::web::{PageDetails, Reference};
@@ -91,11 +92,11 @@ pub async fn page_delete(
     PageService::delete(&ctx, input).await
 }
 
-pub async fn page_move(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::from_req(&req, &txn);
-
-    let input: MovePage = req.body_json().await?;
+pub async fn page_move(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<MovePageOutput> {
+    let input: MovePage = params.parse()?;
     tide::log::info!(
         "Moving page {:?} in site ID {} to {}",
         input.page,
@@ -103,11 +104,7 @@ pub async fn page_move(mut req: ApiRequest) -> ApiResponse {
         input.new_slug,
     );
 
-    let output = PageService::r#move(&ctx, input).await?;
-
-    txn.commit().await?;
-    let body = Body::from_json(&output)?;
-    Ok(body.into())
+    PageService::r#move(&ctx, input).await
 }
 
 pub async fn page_rerender(req: ApiRequest) -> ApiResponse {
