@@ -21,7 +21,9 @@
 use super::prelude::*;
 use crate::models::file::Model as FileModel;
 use crate::models::file_revision::Model as FileRevisionModel;
-use crate::services::file::{GetFileDetails, GetFileOutput};
+use crate::services::file::{
+    GetFileDetails, GetFileOutput, UploadFile, UploadFileOutput,
+};
 use crate::services::Result;
 use crate::web::FileDetails;
 
@@ -51,10 +53,20 @@ pub async fn file_get(
 }
 
 pub async fn file_upload(
-    _ctx: &ServiceContext<'_>,
-    _params: Params<'static>,
-) -> Result<()> {
-    todo!()
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<UploadFileOutput> {
+    let input: UploadFile = params.parse()?;
+
+    tide::log::info!(
+        "Uploading file '{}' ({} bytes) to page ID {} in site ID {}",
+        input.name,
+        input.data.len(),
+        input.page_id,
+        input.site_id,
+    );
+
+    FileService::upload(ctx, input).await
 }
 
 pub async fn file_edit(
