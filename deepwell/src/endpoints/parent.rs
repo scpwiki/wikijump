@@ -20,7 +20,6 @@
 
 use super::prelude::*;
 use crate::models::page_parent::Model as PageParentModel;
-use crate::services::page::GetPageReference;
 use crate::services::parent::{GetParentRelationships, ParentDescription};
 use serde::Serialize;
 
@@ -44,11 +43,11 @@ pub async fn parent_relationships_get(
     ParentService::get_relationships(&ctx, site_id, reference, relationship_type).await
 }
 
-pub async fn parent_retrieve(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::from_req(&req, &txn);
-
-    let input: ParentDescription = req.body_json().await?;
+pub async fn parent_get(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<PageParentModel> {
+    let input: ParentDescription = params.parse()?;
 
     tide::log::info!(
         "Getting parental relationship {:?} -> {:?} in site ID {}",
@@ -57,10 +56,7 @@ pub async fn parent_retrieve(mut req: ApiRequest) -> ApiResponse {
         input.site_id,
     );
 
-    let model = ParentService::get(&ctx, input).await?;
-
-    txn.commit().await?;
-    build_parent_response(&model, StatusCode::Ok)
+    ParentService::get(&ctx, input).await
 }
 
 pub async fn parent_put(mut req: ApiRequest) -> ApiResponse {

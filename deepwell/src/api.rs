@@ -338,7 +338,6 @@ fn tide_build_routes(mut app: tide::Server<ServerState>) -> tide::Server<ServerS
 
     // Page parents
     app.at("/page/parent").put(parent_put).delete(parent_delete);
-    app.at("/page/parent/get").put(parent_retrieve);
 
     // Files
     app.at("/file").post(file_edit).delete(file_delete);
