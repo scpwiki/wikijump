@@ -40,7 +40,14 @@ impl TextService {
         ctx: &ServiceContext<'_>,
         hash: &[u8],
     ) -> Result<Option<String>> {
-        assert_eq!(hash.len(), TEXT_HASH_LENGTH);
+        if hash.len() != TEXT_HASH_LENGTH {
+            tide::log::error!(
+                "Text hash length does not match, should be {}, is {}",
+                TEXT_HASH_LENGTH,
+                hash.len(),
+            );
+            return Err(Error::BadRequest);
+        }
 
         let txn = ctx.transaction();
         let contents = Text::find()
