@@ -248,12 +248,12 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("parent_relationships_get", parent_relationships_get);
 
     // Files
-    register!("file_create", not_implemented);
+    register!("file_upload", file_upload);
     register!("file_get", not_implemented);
-    register!("file_edit", not_implemented);
-    register!("file_delete", not_implemented);
-    register!("file_move", not_implemented);
-    register!("file_restore", not_implemented);
+    register!("file_edit", file_edit);
+    register!("file_delete", file_delete);
+    register!("file_move", file_move);
+    register!("file_restore", file_restore);
 
     // File revisions
     register!("file_revision_create", not_implemented);
@@ -321,11 +321,7 @@ pub fn tide_build_server(state: ServerState) -> tide::Server<ServerState> {
 
 fn tide_build_routes(mut app: tide::Server<ServerState>) -> tide::Server<ServerState> {
     // Files
-    app.at("/file").post(file_edit).delete(file_delete);
     app.at("/file/get").put(file_retrieve);
-    app.at("/file/upload").post(file_create);
-    app.at("/file/move").post(file_move);
-    app.at("/file/restore").post(file_restore);
 
     // File revisions
     app.at("/file/revision").put(file_revision_put);

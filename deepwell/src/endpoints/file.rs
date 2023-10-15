@@ -53,23 +53,38 @@ pub async fn file_retrieve(mut req: ApiRequest) -> ApiResponse {
     Ok(response)
 }
 
-pub async fn file_create(_req: ApiRequest) -> ApiResponse {
+pub async fn file_upload(
+    _ctx: &ServiceContext<'_>,
+    _params: Params<'static>,
+) -> Result<()> {
     todo!()
 }
 
-pub async fn file_edit(_req: ApiRequest) -> ApiResponse {
+pub async fn file_edit(
+    _ctx: &ServiceContext<'_>,
+    _params: Params<'static>,
+) -> Result<()> {
     todo!()
 }
 
-pub async fn file_delete(_req: ApiRequest) -> ApiResponse {
+pub async fn file_delete(
+    _ctx: &ServiceContext<'_>,
+    _params: Params<'static>,
+) -> Result<()> {
     todo!()
 }
 
-pub async fn file_move(_req: ApiRequest) -> ApiResponse {
+pub async fn file_move(
+    _ctx: &ServiceContext<'_>,
+    _params: Params<'static>,
+) -> Result<()> {
     todo!()
 }
 
-pub async fn file_restore(_req: ApiRequest) -> ApiResponse {
+pub async fn file_restore(
+    _ctx: &ServiceContext<'_>,
+    _params: Params<'static>,
+) -> Result<()> {
     todo!()
 }
 
