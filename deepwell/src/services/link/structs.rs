@@ -24,70 +24,70 @@ use crate::models::page_link::Model as PageLinkModel;
 use crate::web::Reference;
 use time::OffsetDateTime;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct GetLinksFrom<'a> {
     pub site_id: i64,
     pub page: Reference<'a>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub struct GetLinksFromOutput {
     pub present: Vec<PageConnectionModel>,
     pub absent: Vec<PageConnectionMissingModel>,
     pub external: Vec<PageLinkModel>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct GetLinksTo<'a> {
     pub site_id: i64,
     pub page: Reference<'a>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub struct GetLinksToOutput {
     pub connections: Vec<PageConnectionModel>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct GetLinksToMissing {
     pub site_id: i64,
     pub page_slug: String,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub struct GetLinksToMissingOutput {
     pub connections: Vec<PageConnectionMissingModel>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub struct GetConnectionsFromOutput {
     pub present: Vec<PageConnectionModel>,
     pub absent: Vec<PageConnectionMissingModel>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct GetLinksExternalFrom<'a> {
     pub site_id: i64,
     pub page: Reference<'a>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub struct GetLinksExternalFromOutput {
     pub links: Vec<PageLinkModel>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct GetLinksExternalTo {
     pub site_id: i64,
     pub url: String,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub struct GetLinksExternalToOutput {
     pub links: Vec<ToExternalLink>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub struct ToExternalLink {
     pub created_at: OffsetDateTime,
     pub updated_at: Option<OffsetDateTime>,

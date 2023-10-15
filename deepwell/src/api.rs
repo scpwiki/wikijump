@@ -235,11 +235,11 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("page_revision_range", not_implemented);
 
     // Page links
-    register!("page_get_links_from", not_implemented);
-    register!("page_get_links_to", not_implemented);
-    register!("page_get_links_to_missing", not_implemented);
-    register!("page_get_urls_from", not_implemented);
-    register!("page_get_urls_to", not_implemented);
+    register!("page_get_links_from", page_links_from_get);
+    register!("page_get_links_to", page_links_to_get);
+    register!("page_get_links_to_missing", page_links_to_missing_get);
+    register!("page_get_urls_from", page_links_external_from);
+    register!("page_get_urls_to", page_links_external_to);
 
     // Page parents
     register!("parent_set", parent_set);
@@ -320,14 +320,6 @@ pub fn tide_build_server(state: ServerState) -> tide::Server<ServerState> {
 }
 
 fn tide_build_routes(mut app: tide::Server<ServerState>) -> tide::Server<ServerState> {
-    // Page links
-    app.at("/page/links/from").put(page_links_from_retrieve);
-    app.at("/page/links/to").put(page_links_to_retrieve);
-    app.at("/page/links/to/missing")
-        .put(page_links_to_missing_retrieve);
-    app.at("/page/urls/from").put(page_links_external_from);
-    app.at("/page/urls/to").put(page_links_external_to);
-
     // Files
     app.at("/file").post(file_edit).delete(file_delete);
     app.at("/file/get").put(file_retrieve);
