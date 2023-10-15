@@ -290,12 +290,12 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("email_validate", validate_email);
 
     // Votes
-    register!("vote_set", not_implemented);
-    register!("vote_get", not_implemented);
-    register!("vote_delete", not_implemented);
-    register!("vote_action", not_implemented);
-    register!("vote_list", not_implemented);
-    register!("vote_count", not_implemented);
+    register!("vote_set", vote_set);
+    register!("vote_get", vote_get);
+    register!("vote_remove", vote_remove);
+    register!("vote_action", vote_action);
+    register!("vote_list", vote_list_get);
+    register!("vote_list_count", vote_list_count);
 
     // Return
     Ok(module)
@@ -371,13 +371,6 @@ fn tide_build_routes(mut app: tide::Server<ServerState>) -> tide::Server<ServerS
         .put(message_draft_update)
         .delete(message_draft_delete);
     app.at("/message").post(message_draft_send);
-
-    // Votes
-    app.at("/vote").put(vote_put).delete(vote_delete);
-    app.at("/vote/get").put(vote_retrieve);
-    app.at("/vote/action").put(vote_action);
-    app.at("/vote/list").put(vote_list_retrieve);
-    app.at("/vote/count").put(vote_count_retrieve);
 
     app
 }
