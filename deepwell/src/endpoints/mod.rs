@@ -57,6 +57,7 @@ mod prelude {
 
 pub mod auth;
 pub mod category;
+pub mod domain;
 pub mod email;
 pub mod file;
 pub mod file_revision;
@@ -68,7 +69,6 @@ pub mod page;
 pub mod page_revision;
 pub mod parent;
 pub mod site;
-pub mod site_domain;
 pub mod site_member;
 pub mod text;
 pub mod user;
