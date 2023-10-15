@@ -36,19 +36,18 @@ impl FileService {
     ///
     /// In the background, this stores the blob via content addressing,
     /// meaning that duplicates are not uploaded twice.
-    #[allow(dead_code)] // TEMP
     pub async fn create(
         ctx: &ServiceContext<'_>,
-        page_id: i64,
-        site_id: i64,
         CreateFile {
-            revision_comments,
+            site_id,
+            page_id,
             name,
+            revision_comments,
             user_id,
+            data,
             licensing,
             bypass_filter,
         }: CreateFile,
-        data: &[u8],
     ) -> Result<CreateFileOutput> {
         let txn = ctx.transaction();
 
@@ -72,7 +71,7 @@ impl FileService {
             mime,
             size,
             created: _,
-        } = BlobService::create(ctx, data).await?;
+        } = BlobService::create(ctx, &data).await?;
 
         // Add new file
         let model = file::ActiveModel {

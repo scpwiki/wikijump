@@ -28,9 +28,12 @@ use time::OffsetDateTime;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct CreateFile {
-    pub revision_comments: String,
+    pub site_id: i64,
+    pub page_id: i64,
     pub name: String,
+    pub revision_comments: String,
     pub user_id: i64,
+    pub data: Vec<u8>,
     pub licensing: JsonValue, // TODO
 
     #[serde(default)]
