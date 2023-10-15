@@ -71,7 +71,7 @@ pub struct GetFileOutput {
     pub revision_number: i32,
     pub revision_user_id: i64,
     pub name: String,
-    pub data: Option<Vec<u8>>,
+    pub data: Option<Bytes<'static>>,
     pub mime: String,
     pub size: i64,
     pub licensing: JsonValue,
@@ -80,12 +80,15 @@ pub struct GetFileOutput {
 }
 
 #[derive(Deserialize, Debug, Clone)]
-pub struct UpdateFile {
-    pub revision_comments: String,
+pub struct EditFile {
+    pub site_id: i64,
+    pub page_id: i64,
+    pub file_id: i64,
     pub user_id: i64,
+    pub revision_comments: String,
 
     #[serde(flatten)]
-    pub body: UpdateFileBody,
+    pub body: EditFileBody,
 
     #[serde(default)]
     pub bypass_filter: bool,
@@ -93,13 +96,13 @@ pub struct UpdateFile {
 
 #[derive(Deserialize, Debug, Default, Clone)]
 #[serde(default)]
-pub struct UpdateFileBody {
+pub struct EditFileBody {
     pub name: ProvidedValue<String>,
-    pub data: ProvidedValue<Vec<u8>>,
+    pub data: ProvidedValue<Bytes<'static>>,
     pub licensing: ProvidedValue<serde_json::Value>,
 }
 
-pub type UpdateFileOutput = CreateFileRevisionOutput;
+pub type EditFileOutput = CreateFileRevisionOutput;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct MoveFile {

@@ -102,29 +102,26 @@ impl FileService {
         Ok(revision_output)
     }
 
-    /// Updates a file, including the ability to upload a new version.
-    #[allow(dead_code)] // TEMP
-    pub async fn update(
+    /// Edits a file, including the ability to upload a new version.
+    pub async fn edit(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
-        file_id: i64,
-        UpdateFile {
-            revision_comments,
+        EditFile {
+            site_id,
+            page_id,
+            file_id,
             user_id,
-            body,
+            revision_comments,
             bypass_filter,
-        }: UpdateFile,
-    ) -> Result<Option<UpdateFileOutput>> {
+            body,
+        }: EditFile,
+    ) -> Result<Option<EditFileOutput>> {
+        tide::log::info!("Editing file with ID {}", file_id);
+
         let txn = ctx.transaction();
         let last_revision =
             FileRevisionService::get_latest(ctx, page_id, file_id).await?;
 
-        tide::log::info!("Updating file with ID {}", file_id);
-
-        // Process inputs
-
-        let UpdateFileBody {
+        let EditFileBody {
             name,
             data,
             licensing,
