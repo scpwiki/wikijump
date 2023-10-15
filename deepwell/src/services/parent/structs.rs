@@ -22,16 +22,19 @@ use crate::services::Error;
 use crate::web::Reference;
 use std::str::FromStr;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct ParentDescription<'a> {
     pub site_id: i64,
     pub parent: Reference<'a>,
     pub child: Reference<'a>,
 }
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum ParentalRelationshipType {
+    #[serde(rename = "parents")]
     Parent,
+
+    #[serde(rename = "children")]
     Child,
 }
 
@@ -54,4 +57,11 @@ impl FromStr for ParentalRelationshipType {
             _ => Err(Error::InvalidEnumValue),
         }
     }
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct GetParentRelationships<'a> {
+    pub site_id: i64,
+    pub page: Reference<'a>,
+    pub relationship_type: ParentalRelationshipType,
 }

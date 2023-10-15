@@ -141,7 +141,6 @@ impl ParentService {
     }
 
     /// Gets all relationships of the given type.
-    #[allow(dead_code)] // TODO
     pub async fn get_relationships(
         ctx: &ServiceContext<'_>,
         site_id: i64,

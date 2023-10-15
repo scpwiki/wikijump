@@ -245,7 +245,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("parent_create", not_implemented);
     register!("parent_get", not_implemented);
     register!("parent_delete", not_implemented);
-    register!("parent_relationship", not_implemented);
+    register!("parent_relationships_get", parent_relationships_get);
 
     // Files
     register!("file_create", not_implemented);
@@ -339,8 +339,6 @@ fn tide_build_routes(mut app: tide::Server<ServerState>) -> tide::Server<ServerS
     // Page parents
     app.at("/page/parent").put(parent_put).delete(parent_delete);
     app.at("/page/parent/get").put(parent_retrieve);
-    app.at("/page/parent/:relationship_type")
-        .put(parent_relationships_retrieve);
 
     // Files
     app.at("/file").post(file_edit).delete(file_delete);

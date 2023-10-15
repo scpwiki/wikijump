@@ -19,10 +19,8 @@
  */
 
 use super::prelude::*;
-use crate::models::alias::Model as AliasModel;
 use crate::models::sea_orm_active_enums::AliasType;
 use crate::models::site::Model as SiteModel;
-use crate::models::site_domain::Model as SiteDomainModel;
 use crate::services::site::{
     CreateSite, CreateSiteOutput, GetSite, GetSiteOutput, UpdateSite,
 };

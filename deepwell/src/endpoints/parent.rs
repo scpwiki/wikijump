@@ -19,22 +19,20 @@
  */
 
 use super::prelude::*;
-use crate::services::page::GetPageReferenceDetails;
-use crate::services::parent::{ParentDescription, ParentalRelationshipType};
+use crate::models::page_parent::Model as PageParentModel;
+use crate::services::page::GetPageReference;
+use crate::services::parent::{GetParentRelationships, ParentDescription};
 use serde::Serialize;
 
-pub async fn parent_relationships_retrieve(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::from_req(&req, &txn);
-
-    let relationship_type: ParentalRelationshipType =
-        req.param("relationship_type")?.parse()?;
-
-    let GetPageReferenceDetails {
+pub async fn parent_relationships_get(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<Vec<PageParentModel>> {
+    let GetParentRelationships {
         site_id,
         page: reference,
-        details: _,
-    } = req.body_json().await?;
+        relationship_type,
+    } = params.parse()?;
 
     tide::log::info!(
         "Getting all {} pages from {:?} in site ID {}",
@@ -43,12 +41,7 @@ pub async fn parent_relationships_retrieve(mut req: ApiRequest) -> ApiResponse {
         site_id,
     );
 
-    let models =
-        ParentService::get_relationships(&ctx, site_id, reference, relationship_type)
-            .await?;
-
-    txn.commit().await?;
-    build_parent_response(&models, StatusCode::Ok)
+    ParentService::get_relationships(&ctx, site_id, reference, relationship_type).await
 }
 
 pub async fn parent_retrieve(mut req: ApiRequest) -> ApiResponse {
