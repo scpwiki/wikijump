@@ -281,10 +281,10 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("bot_user_owner_delete", not_implemented);
 
     // Direct messages
-    register!("message_draft_create", not_implemented);
-    register!("message_draft_edit", not_implemented);
-    register!("message_draft_delete", not_implemented);
-    register!("message_draft_send", not_implemented);
+    register!("message_draft_create", message_draft_create);
+    register!("message_draft_edit", message_draft_edit);
+    register!("message_draft_delete", message_draft_delete);
+    register!("message_draft_send", message_draft_send);
 
     // Email
     register!("email_validate", validate_email);
@@ -364,13 +364,6 @@ fn tide_build_routes(mut app: tide::Server<ServerState>) -> tide::Server<ServerS
     app.at("/user/bot/owner")
         .put(user_bot_owner_put)
         .delete(user_bot_owner_delete);
-
-    // Message
-    app.at("/message/draft")
-        .post(message_draft_create)
-        .put(message_draft_update)
-        .delete(message_draft_delete);
-    app.at("/message").post(message_draft_send);
 
     app
 }
