@@ -19,7 +19,6 @@
  */
 
 use super::prelude::*;
-use crate::hash::TextHash;
 use crate::web::Bytes;
 
 pub async fn text_create(
@@ -39,14 +38,4 @@ pub async fn text_get(
     tide::log::info!("Getting stored text");
     let hash: Bytes = params.one()?;
     TextService::get(ctx, hash.as_ref()).await
-}
-
-fn read_hash(hash_hex: &str) -> StdResult<TextHash, TideError> {
-    tide::log::debug!("Text hash: {hash_hex}");
-
-    let mut hash = [0; 16];
-    hex::decode_to_slice(hash_hex, &mut hash)
-        .map_err(|error| TideError::new(StatusCode::UnprocessableEntity, error))?;
-
-    Ok(hash)
 }
