@@ -25,6 +25,7 @@
 //! hexadecimal string which is more compact, readable as binary, and takes up
 //! a fixed amount of string space relative to blob size.
 
+use crate::hash::{BlobHash, TextHash};
 use hex::serde::{deserialize, serialize};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::borrow::Cow;
@@ -60,6 +61,20 @@ impl From<Vec<u8>> for Bytes<'static> {
         Bytes {
             inner: Cow::Owned(bytes),
         }
+    }
+}
+
+impl From<BlobHash> for Bytes<'static> {
+    #[inline]
+    fn from(hash: BlobHash) -> Bytes<'static> {
+        Bytes::from(hash.to_vec())
+    }
+}
+
+impl From<TextHash> for Bytes<'static> {
+    #[inline]
+    fn from(hash: TextHash) -> Bytes<'static> {
+        Bytes::from(hash.to_vec())
     }
 }
 

@@ -20,16 +20,16 @@
 
 use super::prelude::*;
 use crate::hash::TextHash;
+use crate::web::Bytes;
 
 pub async fn text_create(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
-) -> Result<String> {
+) -> Result<Bytes<'static>> {
     let contents: String = params.one()?;
     tide::log::info!("Inserting new stored text (bytes {})", contents.len());
     let hash = TextService::create(ctx, contents).await?;
-    let hash_hex = hex::encode(hash);
-    Ok(hash_hex)
+    Ok(Bytes::from(hash))
 }
 
 pub async fn text_get(
@@ -37,9 +37,8 @@ pub async fn text_get(
     params: Params<'static>,
 ) -> Result<String> {
     tide::log::info!("Getting stored text");
-    let hash_hex: String = params.one()?;
-    let hash = read_hash(&hash_hex)?;
-    TextService::get(ctx, &hash).await
+    let hash: Bytes = params.one()?;
+    TextService::get(ctx, hash.as_ref()).await
 }
 
 fn read_hash(hash_hex: &str) -> StdResult<TextHash, TideError> {
