@@ -229,7 +229,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
 
     // Page revisions
     register!("page_revision_create", not_implemented);
-    register!("page_revision_get", not_implemented);
+    register!("page_revision_get", page_revision_get);
     register!("page_revision_count", not_implemented);
     register!("page_revision_rollback", not_implemented);
     register!("page_revision_range", not_implemented);
@@ -320,14 +320,6 @@ pub fn tide_build_server(state: ServerState) -> tide::Server<ServerState> {
 }
 
 fn tide_build_routes(mut app: tide::Server<ServerState>) -> tide::Server<ServerState> {
-    // Page revisions
-    app.at("/page/revision").put(page_revision_put);
-    app.at("/page/revision/get").put(page_revision_retrieve);
-    app.at("/page/revision/count").get(page_revision_count);
-    app.at("/page/revision/rollback").post(page_rollback);
-    app.at("/page/revision/range")
-        .put(page_revision_range_retrieve);
-
     // Page links
     app.at("/page/links/from").put(page_links_from_retrieve);
     app.at("/page/links/to").put(page_links_to_retrieve);

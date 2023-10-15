@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::PageRevisionType;
-use crate::web::FetchDirection;
+use crate::web::{FetchDirection, PageDetails};
 use ftml::parsing::ParseError;
 use std::num::NonZeroI32;
 use time::OffsetDateTime;
@@ -92,6 +92,15 @@ pub struct GetPageRevision {
 }
 
 #[derive(Deserialize, Debug, Clone)]
+pub struct GetPageRevisionDetails {
+    #[serde(flatten)]
+    pub input: GetPageRevision,
+
+    #[serde(default)]
+    pub details: PageDetails,
+}
+
+#[derive(Deserialize, Debug, Clone)]
 pub struct UpdatePageRevision {
     pub site_id: i64,
     pub page_id: i64,
@@ -101,12 +110,30 @@ pub struct UpdatePageRevision {
 }
 
 #[derive(Deserialize, Debug, Clone)]
+pub struct UpdatePageRevisionDetails {
+    #[serde(flatten)]
+    pub input: UpdatePageRevision,
+
+    #[serde(default)]
+    pub details: PageDetails,
+}
+
+#[derive(Deserialize, Debug, Clone)]
 pub struct GetPageRevisionRange {
     pub site_id: i64,
     pub page_id: i64,
     pub revision_number: i32,
     pub revision_direction: FetchDirection,
     pub limit: u64,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct GetPageRevisionRangeDetails {
+    #[serde(flatten)]
+    pub input: GetPageRevisionRange,
+
+    #[serde(default)]
+    pub details: PageDetails,
 }
 
 /// Information about the revisions currently associated with a page.

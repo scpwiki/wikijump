@@ -22,74 +22,71 @@ use super::prelude::*;
 use crate::models::page_revision::Model as PageRevisionModel;
 use crate::services::page::GetPageReferenceDetails;
 use crate::services::page_revision::{
-    GetPageRevision, GetPageRevisionRange, PageRevisionCountOutput,
-    PageRevisionModelFiltered, UpdatePageRevision,
+    GetPageRevision, GetPageRevisionDetails, GetPageRevisionRangeDetails,
+    PageRevisionCountOutput, PageRevisionModelFiltered, UpdatePageRevisionDetails,
 };
 use crate::services::{Result, TextService};
 use crate::web::PageDetails;
 
-pub async fn page_revision_count(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::from_req(&req, &txn);
-
+pub async fn page_revision_count(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<PageRevisionCountOutput> {
     let GetPageReferenceDetails {
         site_id,
         page: reference,
         details: _,
-    } = req.body_json().await?;
+    } = params.parse()?;
 
     tide::log::info!(
         "Getting latest revision for page {reference:?} in site ID {site_id}",
     );
 
     let page_id = PageService::get_id(&ctx, site_id, reference).await?;
-
     let revision_count = PageRevisionService::count(&ctx, site_id, page_id).await?;
-
-    txn.commit().await?;
-    let output = PageRevisionCountOutput {
+    Ok(PageRevisionCountOutput {
         revision_count,
         first_revision: 0,
         last_revision: revision_count.get() - 1,
-    };
-
-    let body = Body::from_json(&output)?;
-    let response = Response::builder(StatusCode::Ok).body(body).into();
-    Ok(response)
+    })
 }
 
-pub async fn page_revision_retrieve(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::from_req(&req, &txn);
-
-    let details: PageDetails = req.query()?;
-    let GetPageRevision {
-        site_id,
-        page_id,
-        revision_number,
-    } = req.body_json().await?;
+pub async fn page_revision_get(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<Option<PageRevisionModelFiltered>> {
+    let GetPageRevisionDetails {
+        input:
+            GetPageRevision {
+                site_id,
+                page_id,
+                revision_number,
+            },
+        details,
+    } = params.parse()?;
 
     tide::log::info!(
         "Getting revision {revision_number} for page ID {page_id} in site ID {site_id}",
     );
 
-    // TODO use get_optional
     let revision =
-        PageRevisionService::get(&ctx, site_id, page_id, revision_number).await?;
+        PageRevisionService::get_optional(&ctx, site_id, page_id, revision_number)
+            .await?;
 
-    let response =
-        build_revision_response(&ctx, revision, details, StatusCode::Ok).await?;
-
-    txn.commit().await?;
-    Ok(response)
+    match revision {
+        None => Ok(None),
+        Some(revision) => {
+            let revision = filter_and_populate_revision(&ctx, revision, details).await?;
+            Ok(Some(revision))
+        }
+    }
 }
 
-pub async fn page_revision_put(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::from_req(&req, &txn);
-
-    let details: PageDetails = req.query()?;
-    let input: UpdatePageRevision = req.body_json().await?;
+pub async fn page_revision_put(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<PageRevisionModelFiltered> {
+    let UpdatePageRevisionDetails { input, details } = params.parse()?;
 
     tide::log::info!(
         "Editing revision ID {} for page ID {} in site ID {}",
@@ -104,29 +101,20 @@ pub async fn page_revision_put(mut req: ApiRequest) -> ApiResponse {
         PageRevisionService::get_direct(&ctx, revision_id),
     )?;
 
-    let response =
-        build_revision_response(&ctx, revision, details, StatusCode::Ok).await?;
-
-    txn.commit().await?;
-    Ok(response)
+    filter_and_populate_revision(ctx, revision, details).await
 }
 
-pub async fn page_revision_range_retrieve(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::from_req(&req, &txn);
-
-    let details: PageDetails = req.query()?;
-    let input: GetPageRevisionRange = req.body_json().await?;
+pub async fn page_revision_range_retrieve(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<Vec<PageRevisionModelFiltered>> {
+    let GetPageRevisionRangeDetails { input, details } = params.parse()?;
     let revisions = PageRevisionService::get_range(&ctx, input).await?;
-
-    let response =
-        build_revision_list_response(&ctx, revisions, details, StatusCode::Ok).await?;
-
-    txn.commit().await?;
-    Ok(response)
+    filter_and_populate_revisions(&ctx, revisions, details).await
 }
 
 // Helper functions
+
 async fn filter_and_populate_revision(
     ctx: &ServiceContext<'_>,
     model: PageRevisionModel,
@@ -204,36 +192,17 @@ async fn filter_and_populate_revision(
     })
 }
 
-async fn build_revision_response(
-    ctx: &ServiceContext<'_>,
-    revision: PageRevisionModel,
-    details: PageDetails,
-    status: StatusCode,
-) -> Result<Response> {
-    let filtered_revision = filter_and_populate_revision(ctx, revision, details).await?;
-    let body = Body::from_json(&filtered_revision)?;
-    let response = Response::builder(status).body(body).into();
-    Ok(response)
-}
-
-async fn build_revision_list_response(
+async fn filter_and_populate_revisions(
     ctx: &ServiceContext<'_>,
     revisions: Vec<PageRevisionModel>,
     details: PageDetails,
-    status: StatusCode,
-) -> Result<Response> {
-    let filtered_revisions = {
-        let mut f_revisions = Vec::new();
+) -> Result<Vec<PageRevisionModelFiltered>> {
+    let mut f_revisions = Vec::new();
 
-        for revision in revisions {
-            let f_revision = filter_and_populate_revision(ctx, revision, details).await?;
-            f_revisions.push(f_revision);
-        }
+    for revision in revisions {
+        let f_revision = filter_and_populate_revision(ctx, revision, details).await?;
+        f_revisions.push(f_revision)
+    }
 
-        f_revisions
-    };
-
-    let body = Body::from_json(&filtered_revisions)?;
-    let response = Response::builder(status).body(body).into();
-    Ok(response)
+    Ok(f_revisions)
 }
