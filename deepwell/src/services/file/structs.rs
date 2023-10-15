@@ -22,7 +22,7 @@ use crate::models::sea_orm_active_enums::FileRevisionType;
 use crate::services::file_revision::{
     CreateFileRevisionOutput, CreateFirstFileRevisionOutput,
 };
-use crate::web::{FileDetails, ProvidedValue, Reference};
+use crate::web::{Bytes, FileDetails, ProvidedValue, Reference};
 use serde_json::Value as JsonValue;
 use time::OffsetDateTime;
 
@@ -33,7 +33,7 @@ pub struct CreateFile {
     pub name: String,
     pub revision_comments: String,
     pub user_id: i64,
-    pub data: Vec<u8>,
+    pub data: Bytes<'static>,
     pub licensing: JsonValue, // TODO
 
     #[serde(default)]

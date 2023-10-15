@@ -35,6 +35,13 @@ pub struct Bytes<'a> {
     inner: Cow<'a, [u8]>,
 }
 
+impl<'a> Bytes<'a> {
+    #[inline]
+    pub fn len(&self) -> usize {
+        self.inner.as_ref().len()
+    }
+}
+
 // Borrowing
 
 impl AsRef<[u8]> for Bytes<'_> {

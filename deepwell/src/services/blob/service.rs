@@ -33,10 +33,11 @@ pub struct BlobService;
 
 impl BlobService {
     /// Creates a blob with this data, if it does not already exist.
-    pub async fn create(
+    pub async fn create<B: AsRef<[u8]>>(
         ctx: &ServiceContext<'_>,
-        data: &[u8],
+        data: B,
     ) -> Result<CreateBlobOutput> {
+        let data = data.as_ref();
         tide::log::info!("Creating blob (length {})", data.len());
 
         let bucket = ctx.s3_bucket();
