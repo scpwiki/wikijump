@@ -242,9 +242,9 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("page_get_urls_to", not_implemented);
 
     // Page parents
-    register!("parent_create", not_implemented);
-    register!("parent_get", not_implemented);
-    register!("parent_delete", not_implemented);
+    register!("parent_set", parent_set);
+    register!("parent_get", parent_get);
+    register!("parent_remove", parent_remove);
     register!("parent_relationships_get", parent_relationships_get);
 
     // Files
@@ -335,9 +335,6 @@ fn tide_build_routes(mut app: tide::Server<ServerState>) -> tide::Server<ServerS
         .put(page_links_to_missing_retrieve);
     app.at("/page/urls/from").put(page_links_external_from);
     app.at("/page/urls/to").put(page_links_external_to);
-
-    // Page parents
-    app.at("/page/parent").put(parent_put).delete(parent_delete);
 
     // Files
     app.at("/file").post(file_edit).delete(file_delete);

@@ -18,6 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// TODO replace ParentService with a new interaction type
+
 use super::prelude::*;
 use crate::models::page_parent::{self, Entity as PageParent, Model as PageParentModel};
 use crate::services::PageService;
@@ -84,7 +86,7 @@ impl ParentService {
     /// Removes the parental relationship with the two given pages.
     ///
     /// # Returns
-    /// Returns `true` if the relationship was deleted, and
+    /// The struct contains `true` if the relationship was deleted, and
     /// `false` if it was already absent.
     pub async fn remove(
         ctx: &ServiceContext<'_>,
@@ -93,7 +95,7 @@ impl ParentService {
             parent: parent_reference,
             child: child_reference,
         }: ParentDescription<'_>,
-    ) -> Result<bool> {
+    ) -> Result<RemoveParentOutput> {
         let txn = ctx.transaction();
 
         let (parent_page, child_page) = try_join!(
@@ -107,7 +109,8 @@ impl ParentService {
                 .await?
                 .rows_affected;
 
-        Ok(rows_deleted == 1)
+        let was_deleted = rows_deleted == 1;
+        Ok(RemoveParentOutput { was_deleted })
     }
 
     pub async fn get_optional(

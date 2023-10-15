@@ -65,3 +65,8 @@ pub struct GetParentRelationships<'a> {
     pub page: Reference<'a>,
     pub relationship_type: ParentalRelationshipType,
 }
+
+#[derive(Serialize, Debug, Copy, Clone)]
+pub struct RemoveParentOutput {
+    pub was_deleted: bool,
+}
