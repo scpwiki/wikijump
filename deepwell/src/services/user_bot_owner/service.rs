@@ -18,6 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// TODO replace bot owners with a user / user interaction
+//      add checks like we have here, one is human one is bot, etc
+
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user_bot_owner::{
