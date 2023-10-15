@@ -111,6 +111,24 @@ impl DomainService {
             .map(|site| site.is_some())
     }
 
+    /// Gets the site corresponding with the given domain.
+    ///
+    /// # Returns
+    /// A 2-tuple, the first containing the site for this domain,
+    /// the second containing the site slug in this domain
+    /// (or `None` if it was a custom domain).
+    #[inline]
+    pub async fn site_from_domain<'a>(
+        ctx: &ServiceContext<'_>,
+        domain: &'a str,
+    ) -> Result<SiteModel> {
+        let result = Self::site_from_domain_optional(ctx, domain).await?;
+        match result {
+            SiteDomainResult::Found(site) => Ok(site),
+            _ => Err(Error::NotFound),
+        }
+    }
+
     /// Optional version of `site_from_domain()`.
     pub async fn site_from_domain_optional<'a>(
         ctx: &ServiceContext<'_>,
@@ -145,24 +163,6 @@ impl DomainService {
                     Err(error) => Err(error),
                 }
             }
-        }
-    }
-
-    /// Gets the site corresponding with the given domain.
-    ///
-    /// # Returns
-    /// A 2-tuple, the first containing the site for this domain,
-    /// the second containing the site slug in this domain
-    /// (or `None` if it was a custom domain).
-    #[inline]
-    pub async fn site_from_domain<'a>(
-        ctx: &ServiceContext<'_>,
-        domain: &'a str,
-    ) -> Result<SiteModel> {
-        let result = Self::site_from_domain_optional(ctx, domain).await?;
-        match result {
-            SiteDomainResult::Found(site) => Ok(site),
-            _ => Err(Error::NotFound),
         }
     }
 
