@@ -36,9 +36,9 @@ impl FileService {
     ///
     /// In the background, this stores the blob via content addressing,
     /// meaning that duplicates are not uploaded twice.
-    pub async fn create(
+    pub async fn upload(
         ctx: &ServiceContext<'_>,
-        CreateFile {
+        UploadFile {
             site_id,
             page_id,
             name,
@@ -47,8 +47,8 @@ impl FileService {
             data,
             licensing,
             bypass_filter,
-        }: CreateFile,
-    ) -> Result<CreateFileOutput> {
+        }: UploadFile,
+    ) -> Result<UploadFileOutput> {
         let txn = ctx.transaction();
 
         tide::log::info!(
