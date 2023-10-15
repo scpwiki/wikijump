@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod bytes;
 mod connection_type;
 mod fetch_direction;
 mod file_details;
@@ -27,6 +28,7 @@ mod provided_value;
 mod reference;
 mod unwrap;
 
+pub use self::bytes::Bytes;
 pub use self::connection_type::ConnectionType;
 pub use self::fetch_direction::FetchDirection;
 pub use self::file_details::FileDetails;
