@@ -29,7 +29,7 @@ mod unwrap;
 
 pub use self::connection_type::ConnectionType;
 pub use self::fetch_direction::FetchDirection;
-pub use self::file_details::FileDetailsQuery;
+pub use self::file_details::FileDetails;
 pub use self::page_details::PageDetails;
 pub use self::page_order::{PageOrder, PageOrderColumn};
 pub use self::provided_value::ProvidedValue;

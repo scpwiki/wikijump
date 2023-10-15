@@ -14,6 +14,7 @@ pub struct Model {
     pub revision_number: i32,
     pub file_id: i64,
     pub page_id: i64,
+    pub site_id: i64,
     pub user_id: i64,
     #[sea_orm(column_type = "Text")]
     pub name: String,
@@ -47,6 +48,14 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     Page,
+    #[sea_orm(
+        belongs_to = "super::site::Entity",
+        from = "Column::SiteId",
+        to = "super::site::Column::SiteId",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    Site,
     #[sea_orm(
         belongs_to = "super::user::Entity",
         from = "Column::UserId",

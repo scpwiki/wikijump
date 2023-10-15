@@ -431,6 +431,7 @@ CREATE TABLE file (
     from_wikidot BOOLEAN NOT NULL DEFAULT false,
     name TEXT NOT NULL,
     page_id BIGINT NOT NULL REFERENCES page(page_id),
+    site_id BIGINT NOT NULL REFERENCES site(site_id),
 
     UNIQUE (page_id, name, deleted_at)
 );
@@ -442,6 +443,7 @@ CREATE TABLE file_revision (
     revision_number INTEGER NOT NULL,
     file_id BIGINT NOT NULL REFERENCES file(file_id),
     page_id BIGINT NOT NULL REFERENCES page(page_id),
+    site_id BIGINT NOT NULL REFERENCES site(site_id),
     user_id BIGINT NOT NULL REFERENCES "user"(user_id),
     name TEXT NOT NULL,
     s3_hash BYTEA NOT NULL,

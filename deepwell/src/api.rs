@@ -249,7 +249,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
 
     // Files
     register!("file_upload", file_upload);
-    register!("file_get", not_implemented);
+    register!("file_get", file_get);
     register!("file_edit", file_edit);
     register!("file_delete", file_delete);
     register!("file_move", file_move);
@@ -320,9 +320,6 @@ pub fn tide_build_server(state: ServerState) -> tide::Server<ServerState> {
 }
 
 fn tide_build_routes(mut app: tide::Server<ServerState>) -> tide::Server<ServerState> {
-    // Files
-    app.at("/file/get").put(file_retrieve);
-
     // File revisions
     app.at("/file/revision").put(file_revision_put);
     app.at("/file/revision/get").put(file_revision_retrieve);

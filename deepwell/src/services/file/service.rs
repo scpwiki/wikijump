@@ -268,6 +268,7 @@ impl FileService {
     #[allow(dead_code)] // TEMP
     pub async fn delete(
         ctx: &ServiceContext<'_>,
+        site_id: i64,
         page_id: i64,
         reference: Reference<'_>,
         input: DeleteFile,
@@ -281,7 +282,15 @@ impl FileService {
         } = input;
 
         // Ensure file exists
-        let FileModel { file_id, .. } = Self::get(ctx, page_id, reference).await?;
+        let FileModel { file_id, .. } = Self::get(
+            ctx,
+            GetFile {
+                site_id,
+                page_id,
+                file: reference,
+            },
+        )
+        .await?;
 
         let last_revision =
             FileRevisionService::get_latest(ctx, page_id, file_id).await?;
@@ -396,8 +405,11 @@ impl FileService {
 
     pub async fn get_optional(
         ctx: &ServiceContext<'_>,
-        page_id: i64,
-        reference: Reference<'_>,
+        GetFile {
+            site_id,
+            page_id,
+            file: reference,
+        }: GetFile<'_>,
     ) -> Result<Option<FileModel>> {
         let txn = ctx.transaction();
         let file = {
@@ -410,6 +422,7 @@ impl FileService {
                 .filter(
                     Condition::all()
                         .add(condition)
+                        .add(file::Column::SiteId.eq(site_id))
                         .add(file::Column::PageId.eq(page_id))
                         .add(file::Column::DeletedAt.is_null()),
                 )
@@ -421,12 +434,8 @@ impl FileService {
     }
 
     #[inline]
-    pub async fn get(
-        ctx: &ServiceContext<'_>,
-        page_id: i64,
-        reference: Reference<'_>,
-    ) -> Result<FileModel> {
-        find_or_error(Self::get_optional(ctx, page_id, reference)).await
+    pub async fn get(ctx: &ServiceContext<'_>, input: GetFile<'_>) -> Result<FileModel> {
+        find_or_error(Self::get_optional(ctx, input)).await
     }
 
     /// Gets the file ID from a reference, looking up if necessary.

@@ -15,6 +15,7 @@ pub struct Model {
     #[sea_orm(column_type = "Text")]
     pub name: String,
     pub page_id: i64,
+    pub site_id: i64,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -29,6 +30,14 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     Page,
+    #[sea_orm(
+        belongs_to = "super::site::Entity",
+        from = "Column::SiteId",
+        to = "super::site::Column::SiteId",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    Site,
 }
 
 impl Related<super::file_revision::Entity> for Entity {

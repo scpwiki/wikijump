@@ -22,11 +22,11 @@ use crate::models::sea_orm_active_enums::FileRevisionType;
 use crate::services::file_revision::{
     CreateFileRevisionOutput, CreateFirstFileRevisionOutput,
 };
-use crate::web::{ProvidedValue, Reference};
+use crate::web::{FileDetails, ProvidedValue, Reference};
 use serde_json::Value as JsonValue;
 use time::OffsetDateTime;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct CreateFile {
     pub revision_comments: String,
     pub name: String,
@@ -39,14 +39,44 @@ pub struct CreateFile {
 
 pub type CreateFileOutput = CreateFirstFileRevisionOutput;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct GetFile<'a> {
     pub site_id: i64,
     pub page_id: i64,
     pub file: Reference<'a>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
+pub struct GetFileDetails<'a> {
+    #[serde(flatten)]
+    pub input: GetFile<'a>,
+
+    #[serde(default)]
+    pub details: FileDetails,
+}
+
+#[derive(Serialize, Debug, Clone)]
+pub struct GetFileOutput {
+    pub file_id: i64,
+    pub file_created_at: OffsetDateTime,
+    pub file_updated_at: Option<OffsetDateTime>,
+    pub file_deleted_at: Option<OffsetDateTime>,
+    pub page_id: i64,
+    pub revision_id: i64,
+    pub revision_type: FileRevisionType,
+    pub revision_created_at: OffsetDateTime,
+    pub revision_number: i32,
+    pub revision_user_id: i64,
+    pub name: String,
+    pub data: Option<Vec<u8>>,
+    pub mime: String,
+    pub size: i64,
+    pub licensing: JsonValue,
+    pub revision_comments: String,
+    pub hidden_fields: Vec<String>,
+}
+
+#[derive(Deserialize, Debug, Clone)]
 pub struct UpdateFile {
     pub revision_comments: String,
     pub user_id: i64,
@@ -58,7 +88,7 @@ pub struct UpdateFile {
     pub bypass_filter: bool,
 }
 
-#[derive(Deserialize, Debug, Default)]
+#[derive(Deserialize, Debug, Default, Clone)]
 #[serde(default)]
 pub struct UpdateFileBody {
     pub name: ProvidedValue<String>,
@@ -68,7 +98,7 @@ pub struct UpdateFileBody {
 
 pub type UpdateFileOutput = CreateFileRevisionOutput;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct MoveFile {
     pub revision_comments: String,
     pub user_id: i64,
@@ -79,35 +109,14 @@ pub struct MoveFile {
 
 pub type MoveFileOutput = CreateFileRevisionOutput;
 
-#[derive(Serialize, Debug)]
-pub struct GetFileOutput<'a> {
-    pub file_id: i64,
-    pub file_created_at: OffsetDateTime,
-    pub file_updated_at: Option<OffsetDateTime>,
-    pub file_deleted_at: Option<OffsetDateTime>,
-    pub page_id: i64,
-    pub revision_id: i64,
-    pub revision_type: FileRevisionType,
-    pub revision_created_at: OffsetDateTime,
-    pub revision_number: i32,
-    pub revision_user_id: i64,
-    pub name: &'a str,
-    pub data: Option<Vec<u8>>,
-    pub mime: &'a str,
-    pub size: i64,
-    pub licensing: &'a JsonValue,
-    pub revision_comments: &'a str,
-    pub hidden_fields: &'a [String],
-}
-
-#[derive(Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct DeleteFile {
     pub revision_comments: String,
     pub site_id: i64,
     pub user_id: i64,
 }
 
-#[derive(Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct RestoreFile {
     pub revision_comments: String,
     pub new_page_id: Option<i64>,
@@ -116,14 +125,14 @@ pub struct RestoreFile {
     pub user_id: i64,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub struct DeleteFileOutput {
     pub file_id: i64,
     pub file_revision_id: i64,
     pub file_revision_number: i32,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub struct RestoreFileOutput {
     pub page_id: i64,
     pub file_id: i64,
