@@ -241,18 +241,18 @@ impl AliasService {
         Ok(())
     }
 
-    /// Deletes all aliases for this target.
+    /// Removes all aliases for this target.
     ///
     /// # Returns
     /// The number of deleted aliases.
-    pub async fn delete_all(
+    pub async fn remove_all(
         ctx: &ServiceContext<'_>,
         alias_type: AliasType,
         target_id: i64,
     ) -> Result<u64> {
         let txn = ctx.transaction();
 
-        tide::log::info!("Deleting all {alias_type:?} aliases for target ID {target_id}");
+        tide::log::info!("Removing all {alias_type:?} aliases for target ID {target_id}");
 
         let DeleteResult { rows_affected } = Alias::delete_many()
             .filter(
@@ -264,7 +264,7 @@ impl AliasService {
             .await?;
 
         tide::log::debug!(
-            "{rows_affected} {alias_type:?} aliases for target ID {target_id} were deleted",
+            "{rows_affected} {alias_type:?} aliases for target ID {target_id} were removed",
         );
 
         Ok(rows_affected)

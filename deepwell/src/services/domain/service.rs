@@ -60,7 +60,7 @@ impl DomainService {
     /// Delete the given custom domain.
     ///
     /// Yields `Error::NotFound` if it's missing.
-    pub async fn delete_custom(ctx: &ServiceContext<'_>, domain: String) -> Result<()> {
+    pub async fn remove_custom(ctx: &ServiceContext<'_>, domain: String) -> Result<()> {
         tide::log::info!("Deleting custom domain '{domain}'");
 
         let txn = ctx.transaction();

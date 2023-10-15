@@ -121,16 +121,16 @@ impl UserBotOwnerService {
         Ok(model)
     }
 
-    /// Idempotently deletes the give user / bot ownership record, if it exists.
+    /// Idempotently removes the give user / bot ownership record, if it exists.
     ///
     /// Returns `true` if the deletion was carried out (i.e. it used to exist),
     /// and `false` if not.
-    pub async fn delete(
+    pub async fn remove(
         ctx: &ServiceContext<'_>,
-        DeleteBotOwner {
+        RemoveBotOwner {
             bot: bot_reference,
             human: human_reference,
-        }: DeleteBotOwner<'_>,
+        }: RemoveBotOwner<'_>,
     ) -> Result<bool> {
         let txn = ctx.transaction();
 

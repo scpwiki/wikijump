@@ -46,7 +46,7 @@ pub struct CreateBotOwner<'a> {
 }
 
 #[derive(Deserialize, Debug)]
-pub struct DeleteBotOwner<'a> {
+pub struct RemoveBotOwner<'a> {
     pub bot: Reference<'a>,
     pub human: Reference<'a>,
 }

@@ -23,7 +23,7 @@ use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user_bot_owner::Model as UserBotOwnerModel;
 use crate::services::user::{CreateUser, GetUser, UpdateUserBody};
 use crate::services::user_bot_owner::{
-    BotOwner, BotUserOutput, CreateBotOwner, CreateBotUser, DeleteBotOwner,
+    BotOwner, BotUserOutput, CreateBotOwner, CreateBotUser, RemoveBotOwner,
     UserBotOwnerService,
 };
 use crate::web::{ProvidedValue, Reference};
@@ -155,14 +155,15 @@ pub async fn user_bot_owner_put(mut req: ApiRequest) -> ApiResponse {
     Ok(Response::new(StatusCode::NoContent))
 }
 
+// TODO "remove"
 pub async fn user_bot_owner_delete(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::from_req(&req, &txn);
 
-    let input: DeleteBotOwner = req.body_json().await?;
+    let input: RemoveBotOwner = req.body_json().await?;
     tide::log::info!("Remove bot owner ({:?} <- {:?})", input.bot, input.human,);
 
-    UserBotOwnerService::delete(&ctx, input).await?;
+    UserBotOwnerService::remove(&ctx, input).await?;
 
     txn.commit().await?;
     Ok(Response::new(StatusCode::NoContent))

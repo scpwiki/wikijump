@@ -658,8 +658,8 @@ impl UserService {
         let user = Self::get(ctx, reference).await?;
         tide::log::info!("Deleting user with ID {}", user.user_id);
 
-        // Delete all user aliases
-        AliasService::delete_all(ctx, AliasType::User, user.user_id).await?;
+        // Remove all user aliases
+        AliasService::remove_all(ctx, AliasType::User, user.user_id).await?;
 
         // Set deletion flag
         let model = user::ActiveModel {

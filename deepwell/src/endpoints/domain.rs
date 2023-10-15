@@ -46,10 +46,11 @@ pub async fn site_custom_domain_get(
     DomainService::site_from_domain_optional(ctx, &domain).await
 }
 
+// TODO rename
 pub async fn site_custom_domain_delete(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<()> {
     let domain: String = params.one()?;
-    DomainService::delete_custom(ctx, domain).await
+    DomainService::remove_custom(ctx, domain).await
 }

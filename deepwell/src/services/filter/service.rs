@@ -162,14 +162,13 @@ impl FilterService {
 
     #[allow(dead_code)] // TEMP
     pub async fn delete(ctx: &ServiceContext<'_>, filter_id: i64) -> Result<()> {
-        let txn = ctx.transaction();
-
         tide::log::info!("Deleting filter with ID {filter_id}");
+        let txn = ctx.transaction();
 
         // Ensure filter exists
         let filter = Self::get(ctx, filter_id).await?;
         if filter.deleted_at.is_some() {
-            tide::log::error!("Attempting to delete already-deleted filter");
+            tide::log::error!("Attempting to remove already-deleted filter");
             return Err(Error::BadRequest);
         }
 
