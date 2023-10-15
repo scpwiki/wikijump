@@ -24,7 +24,7 @@ use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user::Model as UserModel;
 use time::Date;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct CreateUser {
     pub user_type: UserType,
     pub name: String,
@@ -38,25 +38,25 @@ pub struct CreateUser {
     pub bypass_email_verification: bool,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub struct CreateUserOutput {
     pub user_id: i64,
     pub slug: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct GetUser<'a> {
     pub user: Reference<'a>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub struct GetUserOutput {
     #[serde(flatten)]
     pub user: UserModel,
     pub aliases: Vec<AliasModel>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct UpdateUser<'a> {
     pub user: Reference<'a>,
 
@@ -64,7 +64,7 @@ pub struct UpdateUser<'a> {
     pub body: UpdateUserBody,
 }
 
-#[derive(Deserialize, Debug, Default)]
+#[derive(Deserialize, Debug, Default, Clone)]
 #[serde(default)]
 pub struct UpdateUserBody {
     pub name: ProvidedValue<String>,

@@ -275,10 +275,10 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("user_avatar_set", not_implemented);
 
     // Bot user
-    register!("bot_user_create", not_implemented);
-    register!("bot_user_get", not_implemented);
-    register!("bot_user_owner_set", not_implemented);
-    register!("bot_user_owner_delete", not_implemented);
+    register!("bot_user_create", bot_user_create);
+    register!("bot_user_get", bot_user_get);
+    register!("bot_user_owner_set", bot_user_owner_set);
+    register!("bot_user_owner_remove", bot_user_owner_remove);
 
     // Direct messages
     register!("message_draft_create", message_draft_create);
@@ -357,13 +357,6 @@ fn tide_build_routes(mut app: tide::Server<ServerState>) -> tide::Server<ServerS
     app.at("/user/create").post(user_create);
     app.at("/user/import").post(user_import);
     app.at("/user/addNameChange").post(user_add_name_change);
-
-    // User bot information
-    app.at("/user/bot/get").put(user_bot_retrieve);
-    app.at("/user/bot/create").post(user_bot_create);
-    app.at("/user/bot/owner")
-        .put(user_bot_owner_put)
-        .delete(user_bot_owner_delete);
 
     app
 }

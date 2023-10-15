@@ -21,17 +21,17 @@
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user_bot_owner::Model as UserBotOwnerModel;
-use crate::services::user::{CreateUser, GetUser, UpdateUserBody};
+use crate::services::user::{CreateUser, CreateUserOutput, GetUser, UpdateUserBody};
 use crate::services::user_bot_owner::{
     BotOwner, BotUserOutput, CreateBotOwner, CreateBotUser, RemoveBotOwner,
-    UserBotOwnerService,
+    RemoveBotOwnerOutput, UserBotOwnerService,
 };
 use crate::web::{ProvidedValue, Reference};
 
-pub async fn user_bot_create(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::from_req(&req, &txn);
-
+pub async fn bot_user_create(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<CreateUserOutput> {
     let CreateBotUser {
         name,
         email,
@@ -41,7 +41,8 @@ pub async fn user_bot_create(mut req: ApiRequest) -> ApiResponse {
         authorization_token,
         bypass_filter,
         bypass_email_verification,
-    } = req.body_json().await?;
+    } = params.parse()?;
+
     tide::log::info!("Creating new bot user with name '{}'", name);
 
     // TODO verify auth token
@@ -55,7 +56,7 @@ pub async fn user_bot_create(mut req: ApiRequest) -> ApiResponse {
             name,
             email,
             locale,
-            password: String::new(), // TODO
+            password: String::new(), // TODO configure user-bot password
             bypass_filter,
             bypass_email_verification,
         },
@@ -95,53 +96,44 @@ pub async fn user_bot_create(mut req: ApiRequest) -> ApiResponse {
         .await?;
     }
 
-    // Build and return response
-    let body = Body::from_json(&output)?;
-    txn.commit().await?;
-
-    let response = Response::builder(StatusCode::Created).body(body).into();
-    Ok(response)
+    // Return
+    Ok(output)
 }
 
-pub async fn user_bot_retrieve(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::from_req(&req, &txn);
-
-    let GetUser { user: reference } = req.body_json().await?;
+pub async fn bot_user_get(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<Option<BotUserOutput>> {
+    let GetUser { user: reference } = params.parse()?;
     tide::log::info!("Getting bot user {reference:?}");
+    match UserService::get_optional(&ctx, reference).await? {
+        None => Ok(None),
+        Some(user) => {
+            let owners = UserBotOwnerService::get_all(&ctx, user.user_id).await?;
+            let owners = owners
+                .into_iter()
+                .map(
+                    |UserBotOwnerModel {
+                         human_user_id: user_id,
+                         description,
+                         ..
+                     }| BotOwner {
+                        user_id,
+                        description,
+                    },
+                )
+                .collect();
 
-    // TODO optional
-    let user = UserService::get(&ctx, reference).await?;
-    let owners = UserBotOwnerService::get_all(&ctx, user.user_id).await?;
-
-    let output = BotUserOutput {
-        user,
-        owners: owners
-            .into_iter()
-            .map(
-                |UserBotOwnerModel {
-                     human_user_id: user_id,
-                     description,
-                     ..
-                 }| BotOwner {
-                    user_id,
-                    description,
-                },
-            )
-            .collect(),
-    };
-
-    let body = Body::from_json(&output)?;
-    txn.commit().await?;
-
-    Ok(body.into())
+            Ok(Some(BotUserOutput { user, owners }))
+        }
+    }
 }
 
-pub async fn user_bot_owner_put(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::from_req(&req, &txn);
-
-    let input: CreateBotOwner = req.body_json().await?;
+pub async fn bot_user_owner_set(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<UserBotOwnerModel> {
+    let input: CreateBotOwner = params.parse()?;
 
     tide::log::info!(
         "Adding or updating bot owner ({:?} <- {:?})",
@@ -149,22 +141,14 @@ pub async fn user_bot_owner_put(mut req: ApiRequest) -> ApiResponse {
         input.human,
     );
 
-    UserBotOwnerService::add(&ctx, input).await?;
-
-    txn.commit().await?;
-    Ok(Response::new(StatusCode::NoContent))
+    UserBotOwnerService::add(&ctx, input).await
 }
 
-// TODO "remove"
-pub async fn user_bot_owner_delete(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::from_req(&req, &txn);
-
-    let input: RemoveBotOwner = req.body_json().await?;
+pub async fn bot_user_owner_remove(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<RemoveBotOwnerOutput> {
+    let input: RemoveBotOwner = params.parse()?;
     tide::log::info!("Remove bot owner ({:?} <- {:?})", input.bot, input.human,);
-
-    UserBotOwnerService::remove(&ctx, input).await?;
-
-    txn.commit().await?;
-    Ok(Response::new(StatusCode::NoContent))
+    UserBotOwnerService::remove(&ctx, input).await
 }

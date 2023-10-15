@@ -123,7 +123,8 @@ impl UserBotOwnerService {
 
     /// Idempotently removes the give user / bot ownership record, if it exists.
     ///
-    /// Returns `true` if the deletion was carried out (i.e. it used to exist),
+    /// # Returns
+    /// The struct contains `true` if the deletion was carried out (i.e. it used to exist),
     /// and `false` if not.
     pub async fn remove(
         ctx: &ServiceContext<'_>,
@@ -131,7 +132,7 @@ impl UserBotOwnerService {
             bot: bot_reference,
             human: human_reference,
         }: RemoveBotOwner<'_>,
-    ) -> Result<bool> {
+    ) -> Result<RemoveBotOwnerOutput> {
         let txn = ctx.transaction();
 
         // We don't check user type here because we already checked it prior to insertion.
@@ -160,6 +161,7 @@ impl UserBotOwnerService {
             "Rows deleted using ID was more than 1: {rows_affected}",
         );
 
-        Ok(rows_affected == 1)
+        let was_deleted = rows_affected == 1;
+        Ok(RemoveBotOwnerOutput { was_deleted })
     }
 }

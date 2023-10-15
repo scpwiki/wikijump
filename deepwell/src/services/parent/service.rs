@@ -103,13 +103,17 @@ impl ParentService {
             PageService::get(ctx, site_id, child_reference),
         )?;
 
-        let rows_deleted =
+        let DeleteResult { rows_affected } =
             PageParent::delete_by_id((parent_page.page_id, child_page.page_id))
                 .exec(txn)
-                .await?
-                .rows_affected;
+                .await?;
 
-        let was_deleted = rows_deleted == 1;
+        debug_assert!(
+            rows_affected <= 1,
+            "Rows deleted using ID was more than 1: {rows_affected}",
+        );
+
+        let was_deleted = rows_affected == 1;
         Ok(RemoveParentOutput { was_deleted })
     }
 
