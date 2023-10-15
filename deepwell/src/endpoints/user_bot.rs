@@ -110,6 +110,7 @@ pub async fn user_bot_retrieve(mut req: ApiRequest) -> ApiResponse {
     let GetUser { user: reference } = req.body_json().await?;
     tide::log::info!("Getting bot user {reference:?}");
 
+    // TODO optional
     let user = UserService::get(&ctx, reference).await?;
     let owners = UserBotOwnerService::get_all(&ctx, user.user_id).await?;
 

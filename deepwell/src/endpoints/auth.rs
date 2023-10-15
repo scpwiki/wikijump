@@ -114,9 +114,9 @@ pub async fn auth_logout(
 pub async fn auth_session_get(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
-) -> Result<SessionModel> {
+) -> Result<Option<SessionModel>> {
     let session_token: String = params.one()?;
-    SessionService::get(ctx, &session_token).await
+    SessionService::get_optional(ctx, &session_token).await
 }
 
 pub async fn auth_session_renew(

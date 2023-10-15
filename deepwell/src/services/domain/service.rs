@@ -112,25 +112,33 @@ impl DomainService {
     }
 
     /// Gets the site corresponding with the given domain.
-    ///
-    /// # Returns
-    /// A 2-tuple, the first containing the site for this domain,
-    /// the second containing the site slug in this domain
-    /// (or `None` if it was a custom domain).
     #[inline]
     pub async fn site_from_domain<'a>(
         ctx: &ServiceContext<'_>,
         domain: &'a str,
     ) -> Result<SiteModel> {
-        let result = Self::site_from_domain_optional(ctx, domain).await?;
-        match result {
-            SiteDomainResult::Found(site) => Ok(site),
-            _ => Err(Error::NotFound),
-        }
+        find_or_error(Self::site_from_domain_optional(ctx, domain)).await
     }
 
     /// Optional version of `site_from_domain()`.
     pub async fn site_from_domain_optional<'a>(
+        ctx: &ServiceContext<'_>,
+        domain: &'a str,
+    ) -> Result<Option<SiteModel>> {
+        let result = Self::parse_site_from_domain(ctx, domain).await?;
+        match result {
+            SiteDomainResult::Found(site) => Ok(Some(site)),
+            _ => Ok(None),
+        }
+    }
+
+    /// Gets the site corresponding with the given domain.
+    ///
+    /// Returns one of three variants:
+    /// * `Found` &mdash; Site retrieved from the domain.
+    /// * `Slug` &mdash; Site does not exist. If it did, domain would be a canonical domain.
+    /// * `CustomDomain` &mdash; Site does not exist. If it did, domain would be a custom domain.
+    pub async fn parse_site_from_domain<'a>(
         ctx: &ServiceContext<'_>,
         domain: &'a str,
     ) -> Result<SiteDomainResult<'a>> {

@@ -46,7 +46,7 @@ pub async fn parent_relationships_get(
 pub async fn parent_get(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
-) -> Result<PageParentModel> {
+) -> Result<Option<PageParentModel>> {
     let input: ParentDescription = params.parse()?;
 
     tide::log::info!(
@@ -56,7 +56,7 @@ pub async fn parent_get(
         input.site_id,
     );
 
-    ParentService::get(&ctx, input).await
+    ParentService::get_optional(&ctx, input).await
 }
 
 pub async fn parent_put(mut req: ApiRequest) -> ApiResponse {

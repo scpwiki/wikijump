@@ -54,6 +54,7 @@ pub async fn user_retrieve(mut req: ApiRequest) -> ApiResponse {
     let GetUser { user: reference } = req.body_json().await?;
     tide::log::info!("Getting user {:?}", reference);
 
+    // TODO use optional
     let user = UserService::get(&ctx, reference).await?;
     let aliases = AliasService::get_all(&ctx, AliasType::User, user.user_id).await?;
 

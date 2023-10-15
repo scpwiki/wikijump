@@ -25,9 +25,9 @@ use crate::services::domain::CreateCustomDomain;
 pub async fn site_get_from_domain(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
-) -> Result<SiteModel> {
+) -> Result<Option<SiteModel>> {
     let domain: String = params.one()?;
-    DomainService::site_from_domain(ctx, &domain).await
+    DomainService::site_from_domain_optional(ctx, &domain).await
 }
 
 pub async fn site_custom_domain_create(
@@ -41,9 +41,9 @@ pub async fn site_custom_domain_create(
 pub async fn site_custom_domain_get(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
-) -> Result<SiteModel> {
+) -> Result<Option<SiteModel>> {
     let domain: String = params.one()?;
-    DomainService::site_from_domain(ctx, &domain).await
+    DomainService::site_from_domain_optional(ctx, &domain).await
 }
 
 pub async fn site_custom_domain_delete(

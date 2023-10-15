@@ -41,6 +41,7 @@ pub async fn file_retrieve(mut req: ApiRequest) -> ApiResponse {
     );
 
     // We cannot use get_id() because we need File for build_file_response().
+    // TODO use optional
     let file = FileService::get(&ctx, page_id, file_reference).await?;
 
     let revision = FileRevisionService::get_latest(&ctx, page_id, file.file_id).await?;

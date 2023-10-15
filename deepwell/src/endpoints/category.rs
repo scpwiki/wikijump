@@ -20,34 +20,25 @@
 
 use super::prelude::*;
 use crate::models::page_category::Model as PageCategoryModel;
-use crate::services::category::{CategoryOutput, GetCategory};
+use crate::services::category::GetCategory;
 use crate::services::site::GetSite;
 
 pub async fn category_get(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
-) -> Result<CategoryOutput> {
+) -> Result<Option<PageCategoryModel>> {
     let GetCategory { site, category } = params.parse()?;
     let site_id = SiteService::get_id(ctx, site).await?;
     tide::log::info!("Getting page category {category:?} in site ID {site_id}");
-    let output: CategoryOutput =
-        CategoryService::get(ctx, site_id, category).await?.into();
-    Ok(output)
+    CategoryService::get_optional(ctx, site_id, category).await
 }
 
 pub async fn category_get_all(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
-) -> Result<Vec<CategoryOutput>> {
+) -> Result<Vec<PageCategoryModel>> {
     let GetSite { site } = params.parse()?;
     let site_id = SiteService::get_id(ctx, site).await?;
     tide::log::info!("Getting all page categories in site ID {site_id}");
-
-    let categories: Vec<CategoryOutput> = CategoryService::get_all(ctx, site_id)
-        .await?
-        .into_iter()
-        .map(PageCategoryModel::into)
-        .collect();
-
-    Ok(categories)
+    CategoryService::get_all(ctx, site_id).await
 }

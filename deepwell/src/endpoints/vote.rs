@@ -36,6 +36,7 @@ pub async fn vote_retrieve(mut req: ApiRequest) -> ApiResponse {
         input.page_id,
     );
 
+    // TODO use optional
     let model = VoteService::get(&ctx, input).await?;
     txn.commit().await?;
     build_vote_response(&model, StatusCode::Ok)

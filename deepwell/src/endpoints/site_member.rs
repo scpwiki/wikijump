@@ -25,9 +25,9 @@ use crate::services::interaction::{CreateSiteMember, GetSiteMember, RemoveSiteMe
 pub async fn membership_get(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
-) -> Result<InteractionModel> {
+) -> Result<Option<InteractionModel>> {
     let input: GetSiteMember = params.parse()?;
-    InteractionService::get_site_member(ctx, input).await
+    InteractionService::get_optional_site_member(ctx, input).await
 }
 
 pub async fn membership_set(

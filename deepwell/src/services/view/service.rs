@@ -300,7 +300,7 @@ impl ViewService {
 
         // Get site data
         let (site, redirect_site) =
-            match DomainService::site_from_domain_optional(ctx, domain).await? {
+            match DomainService::parse_site_from_domain(ctx, domain).await? {
                 SiteDomainResult::Found(site) => {
                     let redirect_site = Self::should_redirect_site(ctx, &site, domain);
                     (site, redirect_site)

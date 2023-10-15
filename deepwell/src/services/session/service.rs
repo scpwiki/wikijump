@@ -109,7 +109,7 @@ impl SessionService {
             .ok_or(Error::NotFound)
     }
 
-    async fn get_optional(
+    pub async fn get_optional(
         ctx: &ServiceContext<'_>,
         session_token: &str,
     ) -> Result<Option<SessionModel>> {

@@ -73,6 +73,7 @@ pub async fn page_revision_retrieve(mut req: ApiRequest) -> ApiResponse {
         "Getting revision {revision_number} for page ID {page_id} in site ID {site_id}",
     );
 
+    // TODO use get_optional
     let revision =
         PageRevisionService::get(&ctx, site_id, page_id, revision_number).await?;
 

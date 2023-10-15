@@ -36,21 +36,24 @@ pub async fn site_create(
 pub async fn site_get(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
-) -> Result<GetSiteOutput> {
+) -> Result<Option<GetSiteOutput>> {
     let GetSite { site } = params.parse()?;
-
     tide::log::info!("Getting site {:?}", site);
-    let site = SiteService::get(&ctx, site).await?;
-    let (aliases, domains) = try_join!(
-        AliasService::get_all(&ctx, AliasType::Site, site.site_id),
-        DomainService::list_custom(&ctx, site.site_id),
-    )?;
+    match SiteService::get_optional(&ctx, site).await? {
+        None => Ok(None),
+        Some(site) => {
+            let (aliases, domains) = try_join!(
+                AliasService::get_all(&ctx, AliasType::Site, site.site_id),
+                DomainService::list_custom(&ctx, site.site_id),
+            )?;
 
-    Ok(GetSiteOutput {
-        site,
-        aliases,
-        domains,
-    })
+            Ok(Some(GetSiteOutput {
+                site,
+                aliases,
+                domains,
+            }))
+        }
+    }
 }
 
 pub async fn site_update(

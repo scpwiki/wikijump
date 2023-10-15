@@ -20,7 +20,6 @@
 
 use super::prelude::*;
 use crate::models::page::Model as PageModel;
-use crate::models::page_revision::Model as PageRevisionModel;
 use crate::services::page::{
     CreatePage, CreatePageOutput, DeletePage, DeletePageOutput, EditPage, EditPageOutput,
     GetPageDirect, GetPageDirectDetails, GetPageOutput, GetPageReferenceDetails,
@@ -41,7 +40,7 @@ pub async fn page_create(
 pub async fn page_get(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
-) -> Result<GetPageOutput> {
+) -> Result<Option<GetPageOutput>> {
     let GetPageReferenceDetails {
         site_id,
         page: reference,
@@ -49,15 +48,16 @@ pub async fn page_get(
     } = params.parse()?;
 
     tide::log::info!("Getting page {reference:?} in site ID {site_id}");
-    let page = PageService::get(ctx, site_id, reference).await?;
-    let revision = PageRevisionService::get_latest(&ctx, site_id, page.page_id).await?;
-    build_page_output(ctx, page, revision, details).await
+    match PageService::get_optional(ctx, site_id, reference).await? {
+        Some(page) => build_page_output(ctx, page, details).await,
+        None => Ok(None),
+    }
 }
 
 pub async fn page_get_direct(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
-) -> Result<GetPageOutput> {
+) -> Result<Option<GetPageOutput>> {
     let GetPageDirectDetails {
         site_id,
         page_id,
@@ -65,9 +65,10 @@ pub async fn page_get_direct(
     } = params.parse()?;
 
     tide::log::info!("Getting page ID {page_id} in site ID {site_id}");
-    let page = PageService::get_direct(ctx, site_id, page_id).await?;
-    let revision = PageRevisionService::get_latest(ctx, site_id, page_id).await?;
-    build_page_output(ctx, page, revision, details).await
+    match PageService::get_direct_optional(ctx, site_id, page_id).await? {
+        Some(page) => build_page_output(ctx, page, details).await,
+        None => Ok(None),
+    }
 }
 
 pub async fn page_edit(
@@ -150,9 +151,12 @@ pub async fn page_rollback(mut req: ApiRequest) -> ApiResponse {
 async fn build_page_output(
     ctx: &ServiceContext<'_>,
     page: PageModel,
-    revision: PageRevisionModel,
     details: PageDetails,
-) -> Result<GetPageOutput> {
+) -> Result<Option<GetPageOutput>> {
+    // Get page revision
+    let revision =
+        PageRevisionService::get_latest(&ctx, page.site_id, page.page_id).await?;
+
     // Get category slug from ID
     let category =
         CategoryService::get(ctx, page.site_id, Reference::from(page.page_category_id))
@@ -168,7 +172,7 @@ async fn build_page_output(
     let rating = ScoreService::score(ctx, page.page_id).await?;
 
     // Build result struct
-    Ok(GetPageOutput {
+    Ok(Some(GetPageOutput {
         page_id: page.page_id,
         page_created_at: page.created_at,
         page_updated_at: page.updated_at,
@@ -194,5 +198,5 @@ async fn build_page_output(
         slug: revision.slug,
         tags: revision.tags,
         rating,
-    })
+    }))
 }
