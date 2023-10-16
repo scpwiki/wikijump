@@ -302,25 +302,3 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     // Return
     Ok(module)
 }
-
-/* *** */
-
-pub fn tide_build_server(state: ServerState) -> tide::Server<ServerState> {
-    macro_rules! new {
-        () => {
-            tide::Server::with_state(Arc::clone(&state))
-        };
-    }
-
-    // Create server and add routes
-    //
-    // Prefix is present to avoid ambiguity about what this
-    // API is meant to be and the fact that it's not to be publicly-facing.
-    let mut app = new!();
-    app.at("/api/trusted").nest(tide_build_routes(new!()));
-    app
-}
-
-fn tide_build_routes(mut app: tide::Server<ServerState>) -> tide::Server<ServerState> {
-    app
-}
