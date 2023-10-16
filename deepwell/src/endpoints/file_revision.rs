@@ -49,27 +49,21 @@ pub async fn file_revision_count(
     })
 }
 
-pub async fn file_revision_retrieve(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::from_req(&req, &txn);
-
+pub async fn file_revision_get(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<Option<FileRevisionModel>> {
     let GetFileRevision {
         page_id,
         file_id,
         revision_number,
-    } = req.body_json().await?;
+    } = params.parse()?;
 
     tide::log::info!(
         "Getting file revision {revision_number} for file ID {file_id} on page ID {page_id}",
     );
 
-    let revision =
-        FileRevisionService::get(&ctx, page_id, file_id, revision_number).await?;
-
-    txn.commit().await?;
-    let body = Body::from_json(&revision)?;
-    let response = Response::builder(StatusCode::Ok).body(body).into();
-    Ok(response)
+    FileRevisionService::get_optional(&ctx, page_id, file_id, revision_number).await
 }
 
 pub async fn file_revision_put(mut req: ApiRequest) -> ApiResponse {
