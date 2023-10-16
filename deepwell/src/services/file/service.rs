@@ -320,23 +320,19 @@ impl FileService {
     /// Restores a deleted file.
     ///
     /// This undeletes a file, moving it from the deleted sphere to the specified location.
-    #[allow(dead_code)] // TEMP
     pub async fn restore(
         ctx: &ServiceContext<'_>,
-        page_id: i64,
-        file_id: i64,
-        input: RestoreFile,
-    ) -> Result<RestoreFileOutput> {
-        let txn = ctx.transaction();
-
-        let RestoreFile {
-            revision_comments,
+        RestoreFile {
             new_page_id,
             new_name,
             site_id,
+            page_id,
+            file_id,
             user_id,
-        } = input;
-
+            revision_comments,
+        }: RestoreFile,
+    ) -> Result<RestoreFileOutput> {
+        let txn = ctx.transaction();
         let file = Self::get_direct(ctx, file_id).await?;
         let new_page_id = new_page_id.unwrap_or(page_id);
         let new_name = new_name.unwrap_or(file.name);

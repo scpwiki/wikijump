@@ -130,6 +130,8 @@ pub struct RestoreFile {
     pub new_page_id: Option<i64>,
     pub new_name: Option<String>,
     pub site_id: i64,
+    pub page_id: i64,
+    pub file_id: i64,
     pub user_id: i64,
 }
 

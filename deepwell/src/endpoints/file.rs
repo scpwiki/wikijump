@@ -23,7 +23,7 @@ use crate::models::file::Model as FileModel;
 use crate::models::file_revision::Model as FileRevisionModel;
 use crate::services::file::{
     DeleteFile, DeleteFileOutput, EditFile, EditFileOutput, GetFileDetails,
-    GetFileOutput, UploadFile, UploadFileOutput,
+    GetFileOutput, RestoreFile, RestoreFileOutput, UploadFile, UploadFileOutput,
 };
 use crate::services::Result;
 use crate::web::{Bytes, FileDetails};
@@ -102,14 +102,23 @@ pub async fn file_delete(
     FileService::delete(ctx, input).await
 }
 
-pub async fn file_move(
-    _ctx: &ServiceContext<'_>,
-    _params: Params<'static>,
-) -> Result<()> {
-    todo!()
+pub async fn file_restore(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<RestoreFileOutput> {
+    let input: RestoreFile = params.parse()?;
+
+    tide::log::info!(
+        "Restoring deleted file ID {} in page ID {} in site ID {}",
+        input.file_id,
+        input.page_id,
+        input.site_id,
+    );
+
+    FileService::restore(ctx, input).await
 }
 
-pub async fn file_restore(
+pub async fn file_move(
     _ctx: &ServiceContext<'_>,
     _params: Params<'static>,
 ) -> Result<()> {
