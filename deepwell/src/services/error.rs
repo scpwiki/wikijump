@@ -157,7 +157,7 @@ impl From<DbErr> for Error {
 
 // End-conversion for methods
 //
-// This is used to convert our
+// This is used to convert our ServiceError type into the RPC error type.
 
 impl From<Error> for ErrorObjectOwned {
     fn from(error: Error) -> ErrorObjectOwned {
