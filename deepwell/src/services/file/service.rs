@@ -192,7 +192,6 @@ impl FileService {
     }
 
     /// Moves a file from from one page to another.
-    #[allow(dead_code)] // TEMP
     pub async fn r#move(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -490,7 +489,6 @@ impl FileService {
     ///
     /// This method should only be used very rarely to clear content such
     /// as severe copyright violations, abuse content, or comply with court orders.
-    #[allow(dead_code)] // TEMP
     pub async fn hard_delete_all(_ctx: &ServiceContext<'_>, _file_id: i64) -> Result<()> {
         // TODO find hash. update all files with the same hash
         // TODO add to audit log
