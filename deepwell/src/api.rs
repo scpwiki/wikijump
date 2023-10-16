@@ -259,7 +259,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     // File revisions
     register!("file_revision_create", not_implemented);
     register!("file_revision_get", not_implemented);
-    register!("file_revision_count", not_implemented);
+    register!("file_revision_count", file_revision_count);
     register!("file_revision_range", not_implemented);
 
     // Text
@@ -324,7 +324,6 @@ fn tide_build_routes(mut app: tide::Server<ServerState>) -> tide::Server<ServerS
     // File revisions
     app.at("/file/revision").put(file_revision_put);
     app.at("/file/revision/get").put(file_revision_retrieve);
-    app.at("/file/revision/count").put(file_revision_count);
     app.at("/file/revision/range/:direction")
         .put(file_revision_range_retrieve);
 

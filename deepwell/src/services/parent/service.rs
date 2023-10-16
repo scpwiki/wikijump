@@ -140,6 +140,7 @@ impl ParentService {
     }
 
     #[inline]
+    #[allow(dead_code)] // TODO
     pub async fn get(
         ctx: &ServiceContext<'_>,
         description: ParentDescription<'_>,
@@ -170,7 +171,6 @@ impl ParentService {
     }
 
     /// Gets all children of the given page.
-    #[allow(dead_code)] // TODO
     pub async fn get_children(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -181,7 +181,6 @@ impl ParentService {
     }
 
     /// Gets all parents of the given page.
-    #[allow(dead_code)] // TODO
     pub async fn get_parents(
         ctx: &ServiceContext<'_>,
         site_id: i64,

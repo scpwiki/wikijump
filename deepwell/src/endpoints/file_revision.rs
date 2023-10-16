@@ -24,34 +24,28 @@ use crate::services::file_revision::{
     FileRevisionCountOutput, GetFileRevision, GetFileRevisionRange, UpdateFileRevision,
 };
 
-pub async fn file_revision_count(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::from_req(&req, &txn);
-
+pub async fn file_revision_count(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<FileRevisionCountOutput> {
     let GetFile {
         site_id,
         page_id,
         file: file_reference,
-    } = req.body_json().await?;
+    } = params.parse()?;
 
     tide::log::info!(
         "Getting latest revision for file ID {page_id} in site ID {site_id}",
     );
 
     let file_id = FileService::get_id(&ctx, site_id, file_reference).await?;
-
     let revision_count = FileRevisionService::count(&ctx, page_id, file_id).await?;
 
-    txn.commit().await?;
-    let output = FileRevisionCountOutput {
+    Ok(FileRevisionCountOutput {
         revision_count,
         first_revision: 0,
         last_revision: revision_count.get() - 1,
-    };
-
-    let body = Body::from_json(&output)?;
-    let response = Response::builder(StatusCode::Ok).body(body).into();
-    Ok(response)
+    })
 }
 
 pub async fn file_revision_retrieve(mut req: ApiRequest) -> ApiResponse {
