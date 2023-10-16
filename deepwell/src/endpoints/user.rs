@@ -75,17 +75,14 @@ pub async fn user_edit(
     UserService::update(&ctx, reference, body).await
 }
 
-pub async fn user_delete(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::from_req(&req, &txn);
-
-    let GetUser { user: reference } = req.body_json().await?;
+pub async fn user_delete(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<UserModel> {
+    let GetUser { user: reference } = params.parse()?;
     tide::log::info!("Deleting user {:?}", reference);
 
-    UserService::delete(&ctx, reference).await?;
-
-    txn.commit().await?;
-    Ok(Response::new(StatusCode::NoContent))
+    UserService::delete(&ctx, reference).await
 }
 
 pub async fn user_add_name_change(mut req: ApiRequest) -> ApiResponse {
