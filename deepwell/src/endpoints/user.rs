@@ -47,19 +47,22 @@ pub async fn user_import(_req: ApiRequest) -> ApiResponse {
     todo!()
 }
 
-pub async fn user_retrieve(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::from_req(&req, &txn);
-
-    let GetUser { user: reference } = req.body_json().await?;
+pub async fn user_get(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<Option<GetUserOutput>> {
+    let GetUser { user: reference } = params.parse()?;
     tide::log::info!("Getting user {:?}", reference);
 
-    // TODO use optional
-    let user = UserService::get(&ctx, reference).await?;
-    let aliases = AliasService::get_all(&ctx, AliasType::User, user.user_id).await?;
+    match UserService::get_optional(&ctx, reference).await? {
+        None => Ok(None),
+        Some(user) => {
+            let aliases =
+                AliasService::get_all(&ctx, AliasType::User, user.user_id).await?;
 
-    txn.commit().await?;
-    build_user_response(user, aliases, StatusCode::Ok)
+            Ok(Some(GetUserOutput { user, aliases }))
+        }
+    }
 }
 
 pub async fn user_put(mut req: ApiRequest) -> ApiResponse {
@@ -136,18 +139,5 @@ pub async fn user_add_name_change(mut req: ApiRequest) -> ApiResponse {
     let body = Body::from_json(&name_changes)?;
     let response = Response::builder(StatusCode::Ok).body(body).into();
     txn.commit().await?;
-    Ok(response)
-}
-
-fn build_user_response(
-    user: UserModel,
-    aliases: Vec<AliasModel>,
-    status: StatusCode,
-) -> ApiResponse {
-    // TODO add user profile picture to output
-    //      flag like wikitext/compiledHtml
-    let output = GetUserOutput { user, aliases };
-    let body = Body::from_json(&output)?;
-    let response = Response::builder(status).body(body).into();
     Ok(response)
 }
