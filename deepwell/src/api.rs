@@ -44,11 +44,6 @@ use sea_orm::{DatabaseConnection, TransactionTrait};
 use std::sync::Arc;
 use std::time::Duration;
 
-// #[deprecated] XXX
-pub type ApiRequest = tide::Request<ServerState>;
-// #[deprecated] XXX
-pub type ApiResponse = tide::Result;
-
 pub type ServerState = Arc<ServerStateInner>;
 
 #[derive(Debug)]
@@ -227,7 +222,6 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("page_rollback", page_rollback);
     register!("page_rerender", page_rerender);
     register!("page_restore", page_restore);
-
 
     // Page revisions
     register!("page_revision_create", not_implemented);

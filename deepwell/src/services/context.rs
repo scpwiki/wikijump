@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::api::{ApiRequest, ServerState};
+use crate::api::ServerState;
 use crate::config::Config;
 use crate::locales::Localizations;
 use crate::services::blob::MimeAnalyzer;
@@ -34,10 +34,6 @@ pub struct ServiceContext<'txn> {
 }
 
 impl<'txn> ServiceContext<'txn> {
-    pub fn from_req(req: &ApiRequest, transaction: &'txn DatabaseTransaction) -> Self {
-        Self::new(req.state(), transaction)
-    }
-
     // NOTE: It is the responsibility of the caller to manage commit / rollback
     //       for transactions.
     //

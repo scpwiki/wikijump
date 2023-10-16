@@ -83,7 +83,6 @@ pub mod user_bot_owner;
 pub mod view;
 pub mod vote;
 
-use crate::api::ApiRequest;
 use sea_orm::DatabaseConnection;
 
 pub use self::alias::AliasService;
@@ -118,15 +117,3 @@ pub use self::user::UserService;
 pub use self::user_bot_owner::UserBotOwnerService;
 pub use self::view::ViewService;
 pub use self::vote::VoteService;
-
-/// Extension trait to retrieve service objects from an `ApiRequest`.
-pub trait RequestFetchService {
-    fn database(&self) -> &DatabaseConnection;
-}
-
-impl RequestFetchService for ApiRequest {
-    #[inline]
-    fn database(&self) -> &DatabaseConnection {
-        &self.state().database
-    }
-}

@@ -28,31 +28,20 @@
 //! around service calls, or possibly perform modest data conversion for HTTP.
 
 mod prelude {
-    pub use crate::api::{ApiRequest, ApiResponse, ServerState};
+    pub use crate::api::ServerState;
     pub use crate::services::{
         AliasService, BlobService, CategoryService, DomainService, Error as ServiceError,
         FileRevisionService, FileService, InteractionService, LinkService,
         MessageReportService, MessageService, MfaService, PageRevisionService,
-        PageService, ParentService, RenderService, RequestFetchService, Result,
-        ScoreService, ServiceContext, SessionService, SiteService, StdResult,
-        TextService, UserService, ViewService, VoteService,
+        PageService, ParentService, RenderService, Result, ScoreService, ServiceContext,
+        SessionService, SiteService, StdResult, TextService, UserService, ViewService,
+        VoteService,
     };
     pub use crate::web::HttpUnwrap;
     pub use jsonrpsee::types::params::Params;
     pub use sea_orm::TransactionTrait; // XXX
     pub use std::convert::TryFrom;
     pub use tide::{Body, Error as TideError, Request, Response, StatusCode};
-
-    use serde::Serialize;
-
-    pub fn build_json_response<T: Serialize>(
-        data: &T,
-        status: StatusCode,
-    ) -> ApiResponse {
-        let body = Body::from_json(data)?;
-        let response = Response::builder(status).body(body).into();
-        Ok(response)
-    }
 }
 
 pub mod auth;
