@@ -257,8 +257,8 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("file_hard_delete", file_hard_delete);
 
     // File revisions
-    register!("file_revision_create", not_implemented);
     register!("file_revision_get", file_revision_get);
+    register!("file_revision_edit", file_revision_edit);
     register!("file_revision_count", file_revision_count);
     register!("file_revision_range", file_revision_range);
 
@@ -321,9 +321,6 @@ pub fn tide_build_server(state: ServerState) -> tide::Server<ServerState> {
 }
 
 fn tide_build_routes(mut app: tide::Server<ServerState>) -> tide::Server<ServerState> {
-    // File revisions
-    app.at("/file/revision").put(file_revision_put);
-
     // User
     app.at("/user").put(user_put).delete(user_delete);
     app.at("/user/get").put(user_retrieve);

@@ -376,15 +376,15 @@ impl FileRevisionService {
             user_id,
             hidden,
         }: UpdateFileRevision,
-    ) -> Result<()> {
-        let txn = ctx.transaction();
-
+    ) -> Result<FileRevisionModel> {
         // The latest file revision cannot be hidden, because
         // the file, its name, contents, etc are exposed.
         // It should be reverted first, and then it can be hidden.
 
+        let txn = ctx.transaction();
         let latest = Self::get_latest(ctx, page_id, file_id).await?;
         if revision_id == latest.revision_id {
+            tide::log::warn!("Attempting to edit latest revision, denying request");
             return Err(Error::CannotHideLatestRevision);
         }
 
@@ -400,8 +400,8 @@ impl FileRevisionService {
         };
 
         // Update and return
-        model.update(txn).await?;
-        Ok(())
+        let revision = model.update(txn).await?;
+        Ok(revision)
     }
 
     /// Get the latest revision for this file.

@@ -66,11 +66,19 @@ pub async fn file_revision_get(
     FileRevisionService::get_optional(&ctx, page_id, file_id, revision_number).await
 }
 
-pub async fn file_revision_put(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::from_req(&req, &txn);
+pub async fn file_revision_range(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<Vec<FileRevisionModel>> {
+    let input: GetFileRevisionRange = params.parse()?;
+    FileRevisionService::get_range(&ctx, input).await
+}
 
-    let input: UpdateFileRevision = req.body_json().await?;
+pub async fn file_revision_edit(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<FileRevisionModel> {
+    let input: UpdateFileRevision = params.parse()?;
 
     tide::log::info!(
         "Editing file revision ID {} for file ID {} on page {}",
@@ -79,16 +87,5 @@ pub async fn file_revision_put(mut req: ApiRequest) -> ApiResponse {
         input.page_id,
     );
 
-    FileRevisionService::update(&ctx, input).await?;
-
-    txn.commit().await?;
-    Ok(Response::new(StatusCode::NoContent))
-}
-
-pub async fn file_revision_range(
-    ctx: &ServiceContext<'_>,
-    params: Params<'static>,
-) -> Result<Vec<FileRevisionModel>> {
-    let input: GetFileRevisionRange = params.parse()?;
-    FileRevisionService::get_range(&ctx, input).await
+    FileRevisionService::update(&ctx, input).await
 }
