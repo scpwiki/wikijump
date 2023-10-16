@@ -36,7 +36,7 @@ pub async fn vote_get(
         input.page_id,
     );
 
-    VoteService::get_optional(&ctx, input).await
+    VoteService::get_optional(ctx, input).await
 }
 
 pub async fn vote_set(
@@ -51,7 +51,7 @@ pub async fn vote_set(
         input.page_id,
     );
 
-    VoteService::add(&ctx, input).await
+    VoteService::add(ctx, input).await
 }
 
 pub async fn vote_remove(
@@ -66,7 +66,7 @@ pub async fn vote_remove(
         input.page_id,
     );
 
-    VoteService::remove(&ctx, input).await
+    VoteService::remove(ctx, input).await
 }
 
 pub async fn vote_action(
@@ -81,7 +81,7 @@ pub async fn vote_action(
     } = params.parse()?;
 
     let key = GetVote { page_id, user_id };
-    VoteService::action(&ctx, key, enable, acting_user_id).await
+    VoteService::action(ctx, key, enable, acting_user_id).await
 }
 
 pub async fn vote_list_get(
@@ -89,7 +89,7 @@ pub async fn vote_list_get(
     params: Params<'static>,
 ) -> Result<Vec<PageVoteModel>> {
     let input: GetVoteHistory = params.parse()?;
-    VoteService::get_history(&ctx, input).await
+    VoteService::get_history(ctx, input).await
 }
 
 pub async fn vote_list_count(
@@ -97,5 +97,5 @@ pub async fn vote_list_count(
     params: Params<'static>,
 ) -> Result<u64> {
     let input: CountVoteHistory = params.parse()?;
-    VoteService::count_history(&ctx, input).await
+    VoteService::count_history(ctx, input).await
 }

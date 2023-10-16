@@ -41,7 +41,7 @@ pub async fn parent_relationships_get(
         site_id,
     );
 
-    ParentService::get_relationships(&ctx, site_id, reference, relationship_type).await
+    ParentService::get_relationships(ctx, site_id, reference, relationship_type).await
 }
 
 pub async fn parent_get(
@@ -57,7 +57,7 @@ pub async fn parent_get(
         input.site_id,
     );
 
-    ParentService::get_optional(&ctx, input).await
+    ParentService::get_optional(ctx, input).await
 }
 
 pub async fn parent_set(
@@ -73,7 +73,7 @@ pub async fn parent_set(
         input.site_id,
     );
 
-    ParentService::create(&ctx, input).await
+    ParentService::create(ctx, input).await
 }
 
 pub async fn parent_remove(
@@ -89,5 +89,5 @@ pub async fn parent_remove(
         input.site_id,
     );
 
-    ParentService::remove(&ctx, input).await
+    ParentService::remove(ctx, input).await
 }

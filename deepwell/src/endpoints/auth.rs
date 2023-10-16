@@ -238,7 +238,7 @@ pub async fn auth_mfa_disable(
         });
     }
 
-    MfaService::disable(&ctx, user.user_id).await
+    MfaService::disable(ctx, user.user_id).await
 }
 
 pub async fn auth_mfa_reset_recovery(

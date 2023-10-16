@@ -43,12 +43,12 @@ pub async fn file_get(
     );
 
     // We cannot use get_id() because we need File for build_file_response().
-    match FileService::get_optional(&ctx, input).await? {
+    match FileService::get_optional(ctx, input).await? {
         None => Ok(None),
         Some(file) => {
             let revision =
-                FileRevisionService::get_latest(&ctx, file.page_id, file.file_id).await?;
-            let output = build_file_response(&ctx, file, revision, details).await?;
+                FileRevisionService::get_latest(ctx, file.page_id, file.file_id).await?;
+            let output = build_file_response(ctx, file, revision, details).await?;
             Ok(Some(output))
         }
     }

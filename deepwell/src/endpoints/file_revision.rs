@@ -39,8 +39,8 @@ pub async fn file_revision_count(
         "Getting latest revision for file ID {page_id} in site ID {site_id}",
     );
 
-    let file_id = FileService::get_id(&ctx, site_id, file_reference).await?;
-    let revision_count = FileRevisionService::count(&ctx, page_id, file_id).await?;
+    let file_id = FileService::get_id(ctx, site_id, file_reference).await?;
+    let revision_count = FileRevisionService::count(ctx, page_id, file_id).await?;
 
     Ok(FileRevisionCountOutput {
         revision_count,
@@ -63,7 +63,7 @@ pub async fn file_revision_get(
         "Getting file revision {revision_number} for file ID {file_id} on page ID {page_id}",
     );
 
-    FileRevisionService::get_optional(&ctx, page_id, file_id, revision_number).await
+    FileRevisionService::get_optional(ctx, page_id, file_id, revision_number).await
 }
 
 pub async fn file_revision_range(
@@ -71,7 +71,7 @@ pub async fn file_revision_range(
     params: Params<'static>,
 ) -> Result<Vec<FileRevisionModel>> {
     let input: GetFileRevisionRange = params.parse()?;
-    FileRevisionService::get_range(&ctx, input).await
+    FileRevisionService::get_range(ctx, input).await
 }
 
 pub async fn file_revision_edit(
@@ -87,5 +87,5 @@ pub async fn file_revision_edit(
         input.page_id,
     );
 
-    FileRevisionService::update(&ctx, input).await
+    FileRevisionService::update(ctx, input).await
 }

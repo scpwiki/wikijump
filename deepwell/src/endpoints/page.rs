@@ -90,7 +90,7 @@ pub async fn page_delete(
         input.page,
         input.site_id,
     );
-    PageService::delete(&ctx, input).await
+    PageService::delete(ctx, input).await
 }
 
 pub async fn page_move(
@@ -104,7 +104,7 @@ pub async fn page_move(
         input.site_id,
         input.new_slug,
     );
-    PageService::r#move(&ctx, input).await
+    PageService::r#move(ctx, input).await
 }
 
 pub async fn page_rerender(
@@ -113,7 +113,7 @@ pub async fn page_rerender(
 ) -> Result<()> {
     let GetPageDirect { site_id, page_id } = params.parse()?;
     tide::log::info!("Re-rendering page ID {page_id} in site ID {site_id}");
-    PageRevisionService::rerender(&ctx, site_id, page_id).await
+    PageRevisionService::rerender(ctx, site_id, page_id).await
 }
 
 pub async fn page_restore(
@@ -126,7 +126,7 @@ pub async fn page_restore(
         input.page_id,
         input.site_id,
     );
-    PageService::restore(&ctx, input).await
+    PageService::restore(ctx, input).await
 }
 
 pub async fn page_rollback(
@@ -142,7 +142,7 @@ pub async fn page_rollback(
         input.revision_number,
     );
 
-    PageService::rollback(&ctx, input).await
+    PageService::rollback(ctx, input).await
 }
 
 async fn build_page_output(
@@ -152,7 +152,7 @@ async fn build_page_output(
 ) -> Result<Option<GetPageOutput>> {
     // Get page revision
     let revision =
-        PageRevisionService::get_latest(&ctx, page.site_id, page.page_id).await?;
+        PageRevisionService::get_latest(ctx, page.site_id, page.page_id).await?;
 
     // Get category slug from ID
     let category =

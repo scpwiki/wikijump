@@ -31,7 +31,7 @@ pub async fn message_draft_create(
 ) -> Result<MessageDraftModel> {
     let input: CreateMessageDraft = params.parse()?;
     tide::log::info!("Creating new message draft for user ID {}", input.user_id);
-    MessageService::create_draft(&ctx, input).await
+    MessageService::create_draft(ctx, input).await
 }
 
 pub async fn message_draft_edit(
@@ -43,7 +43,7 @@ pub async fn message_draft_edit(
         "Updating message draft for draft ID {}",
         input.message_draft_id,
     );
-    MessageService::update_draft(&ctx, input).await
+    MessageService::update_draft(ctx, input).await
 }
 
 pub async fn message_draft_delete(
@@ -52,7 +52,7 @@ pub async fn message_draft_delete(
 ) -> Result<()> {
     let DeleteMessageDraft { message_draft_id } = params.parse()?;
     tide::log::info!("Deleting message draft with ID {message_draft_id}");
-    MessageService::delete_draft(&ctx, message_draft_id).await
+    MessageService::delete_draft(ctx, message_draft_id).await
 }
 
 pub async fn message_draft_send(
@@ -61,5 +61,5 @@ pub async fn message_draft_send(
 ) -> Result<MessageRecordModel> {
     let SendMessageDraft { message_draft_id } = params.parse()?;
     tide::log::info!("Sending message draft with ID {message_draft_id}");
-    MessageService::send(&ctx, &message_draft_id).await
+    MessageService::send(ctx, &message_draft_id).await
 }

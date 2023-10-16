@@ -42,8 +42,8 @@ pub async fn page_revision_count(
         "Getting latest revision for page {reference:?} in site ID {site_id}",
     );
 
-    let page_id = PageService::get_id(&ctx, site_id, reference).await?;
-    let revision_count = PageRevisionService::count(&ctx, site_id, page_id).await?;
+    let page_id = PageService::get_id(ctx, site_id, reference).await?;
+    let revision_count = PageRevisionService::count(ctx, site_id, page_id).await?;
     Ok(PageRevisionCountOutput {
         revision_count,
         first_revision: 0,
@@ -70,13 +70,13 @@ pub async fn page_revision_get(
     );
 
     let revision =
-        PageRevisionService::get_optional(&ctx, site_id, page_id, revision_number)
+        PageRevisionService::get_optional(ctx, site_id, page_id, revision_number)
             .await?;
 
     match revision {
         None => Ok(None),
         Some(revision) => {
-            let revision = filter_and_populate_revision(&ctx, revision, details).await?;
+            let revision = filter_and_populate_revision(ctx, revision, details).await?;
             Ok(Some(revision))
         }
     }
@@ -97,8 +97,8 @@ pub async fn page_revision_edit(
 
     let revision_id = input.revision_id;
     let (_, revision) = try_join!(
-        PageRevisionService::update(&ctx, input),
-        PageRevisionService::get_direct(&ctx, revision_id),
+        PageRevisionService::update(ctx, input),
+        PageRevisionService::get_direct(ctx, revision_id),
     )?;
 
     filter_and_populate_revision(ctx, revision, details).await
@@ -109,8 +109,8 @@ pub async fn page_revision_range(
     params: Params<'static>,
 ) -> Result<Vec<PageRevisionModelFiltered>> {
     let GetPageRevisionRangeDetails { input, details } = params.parse()?;
-    let revisions = PageRevisionService::get_range(&ctx, input).await?;
-    filter_and_populate_revisions(&ctx, revisions, details).await
+    let revisions = PageRevisionService::get_range(ctx, input).await?;
+    filter_and_populate_revisions(ctx, revisions, details).await
 }
 
 // Helper functions

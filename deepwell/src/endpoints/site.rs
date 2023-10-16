@@ -30,7 +30,7 @@ pub async fn site_create(
     params: Params<'static>,
 ) -> Result<CreateSiteOutput> {
     let input: CreateSite = params.parse()?;
-    SiteService::create(&ctx, input).await
+    SiteService::create(ctx, input).await
 }
 
 pub async fn site_get(
@@ -39,12 +39,12 @@ pub async fn site_get(
 ) -> Result<Option<GetSiteOutput>> {
     let GetSite { site } = params.parse()?;
     tide::log::info!("Getting site {:?}", site);
-    match SiteService::get_optional(&ctx, site).await? {
+    match SiteService::get_optional(ctx, site).await? {
         None => Ok(None),
         Some(site) => {
             let (aliases, domains) = try_join!(
-                AliasService::get_all(&ctx, AliasType::Site, site.site_id),
-                DomainService::list_custom(&ctx, site.site_id),
+                AliasService::get_all(ctx, AliasType::Site, site.site_id),
+                DomainService::list_custom(ctx, site.site_id),
             )?;
 
             Ok(Some(GetSiteOutput {
@@ -67,5 +67,5 @@ pub async fn site_update(
     } = params.parse()?;
 
     tide::log::info!("Updating site {:?}", site);
-    SiteService::update(&ctx, site, body, user_id).await
+    SiteService::update(ctx, site, body, user_id).await
 }

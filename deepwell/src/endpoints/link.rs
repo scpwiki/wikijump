@@ -35,8 +35,8 @@ pub async fn page_links_from_get(
     } = params.parse()?;
 
     tide::log::info!("Getting page links for page {reference:?} in site ID {site_id}");
-    let page_id = PageService::get_id(&ctx, site_id, reference).await?;
-    LinkService::get_from(&ctx, page_id).await
+    let page_id = PageService::get_id(ctx, site_id, reference).await?;
+    LinkService::get_from(ctx, page_id).await
 }
 
 pub async fn page_links_to_get(
@@ -49,8 +49,8 @@ pub async fn page_links_to_get(
     } = params.parse()?;
 
     tide::log::info!("Getting page links from page {reference:?} in site ID {site_id}");
-    let page_id = PageService::get_id(&ctx, site_id, reference).await?;
-    LinkService::get_to(&ctx, page_id, None).await
+    let page_id = PageService::get_id(ctx, site_id, reference).await?;
+    LinkService::get_to(ctx, page_id, None).await
 }
 
 pub async fn page_links_to_missing_get(
@@ -62,7 +62,7 @@ pub async fn page_links_to_missing_get(
         "Getting missing page links from page slug {page_slug} in site ID {site_id}",
     );
 
-    LinkService::get_to_missing(&ctx, site_id, &page_slug, None).await
+    LinkService::get_to_missing(ctx, site_id, &page_slug, None).await
 }
 
 pub async fn page_links_external_from(
@@ -78,8 +78,8 @@ pub async fn page_links_external_from(
         "Getting external links from page {reference:?} in site ID {site_id}",
     );
 
-    let page_id = PageService::get_id(&ctx, site_id, reference).await?;
-    LinkService::get_external_from(&ctx, page_id).await
+    let page_id = PageService::get_id(ctx, site_id, reference).await?;
+    LinkService::get_external_from(ctx, page_id).await
 }
 
 pub async fn page_links_external_to(
@@ -88,5 +88,5 @@ pub async fn page_links_external_to(
 ) -> Result<GetLinksExternalToOutput> {
     let GetLinksExternalTo { site_id, url } = params.parse()?;
     tide::log::info!("Getting external links to URL {url} in site ID {site_id}");
-    LinkService::get_external_to(&ctx, site_id, &url).await
+    LinkService::get_external_to(ctx, site_id, &url).await
 }

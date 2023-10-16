@@ -50,7 +50,7 @@ pub async fn bot_user_create(
 
     // Create bot user
     let output = UserService::create(
-        &ctx,
+        ctx,
         CreateUser {
             user_type: UserType::Bot,
             name,
@@ -67,7 +67,7 @@ pub async fn bot_user_create(
 
     // Set description
     UserService::update(
-        &ctx,
+        ctx,
         Reference::Id(bot_user_id),
         UpdateUserBody {
             biography: ProvidedValue::Set(Some(purpose)),
@@ -86,7 +86,7 @@ pub async fn bot_user_create(
 
         tide::log::debug!("Adding human user ID {} as bot owner", human_user_id);
         UserBotOwnerService::add(
-            &ctx,
+            ctx,
             CreateBotOwner {
                 human: Reference::Id(human_user_id),
                 bot: Reference::Id(bot_user_id),
@@ -106,10 +106,10 @@ pub async fn bot_user_get(
 ) -> Result<Option<BotUserOutput>> {
     let GetUser { user: reference } = params.parse()?;
     tide::log::info!("Getting bot user {reference:?}");
-    match UserService::get_optional(&ctx, reference).await? {
+    match UserService::get_optional(ctx, reference).await? {
         None => Ok(None),
         Some(user) => {
-            let owners = UserBotOwnerService::get_all(&ctx, user.user_id).await?;
+            let owners = UserBotOwnerService::get_all(ctx, user.user_id).await?;
             let owners = owners
                 .into_iter()
                 .map(
@@ -141,7 +141,7 @@ pub async fn bot_user_owner_set(
         input.human,
     );
 
-    UserBotOwnerService::add(&ctx, input).await
+    UserBotOwnerService::add(ctx, input).await
 }
 
 pub async fn bot_user_owner_remove(
@@ -150,5 +150,5 @@ pub async fn bot_user_owner_remove(
 ) -> Result<RemoveBotOwnerOutput> {
     let input: RemoveBotOwner = params.parse()?;
     tide::log::info!("Remove bot owner ({:?} <- {:?})", input.bot, input.human,);
-    UserBotOwnerService::remove(&ctx, input).await
+    UserBotOwnerService::remove(ctx, input).await
 }
