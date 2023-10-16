@@ -136,6 +136,19 @@ pub async fn file_move(
     FileService::r#move(ctx, input).await
 }
 
+pub async fn file_hard_delete(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<()> {
+    let file_id: i64 = params.one()?;
+
+    tide::log::info!(
+        "Hard deleting file ID {file_id} and all duplicates, including underlying data",
+    );
+
+    FileService::hard_delete_all(ctx, file_id).await
+}
+
 async fn build_file_response(
     ctx: &ServiceContext<'_>,
     file: FileModel,
