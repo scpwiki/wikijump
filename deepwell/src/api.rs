@@ -36,9 +36,9 @@ use crate::endpoints::{
 use crate::locales::Localizations;
 use crate::services::blob::MimeAnalyzer;
 use crate::services::job::JobQueue;
-use crate::services::{into_rpc_error, Result as ServiceResult, ServiceContext};
+use crate::services::{into_rpc_error, ServiceContext};
 use jsonrpsee::server::{RpcModule, Server, ServerHandle};
-use jsonrpsee::types::{error::ErrorObjectOwned, params::Params};
+use jsonrpsee::types::error::ErrorObjectOwned;
 use s3::bucket::Bucket;
 use sea_orm::{DatabaseConnection, TransactionTrait};
 use std::sync::Arc;
@@ -156,14 +156,6 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
         }};
     }
 
-    async fn not_implemented(
-        _ctx: &ServiceContext<'_>,
-        _params: Params<'static>,
-    ) -> ServiceResult<()> {
-        tide::log::error!("Method not implemented yet!");
-        todo!()
-    }
-
     // Miscellaneous
     register!("ping", ping);
     register!("version", version);
@@ -269,7 +261,6 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("user_delete", user_delete);
     register!("user_import", user_import);
     register!("user_add_name_change", user_add_name_change);
-    register!("user_avatar_set", not_implemented);
 
     // Bot user
     register!("bot_user_create", bot_user_create);
