@@ -457,6 +457,7 @@ impl FileRevisionService {
     ///
     /// See `RevisionService::get()`.
     #[inline]
+    #[allow(dead_code)]
     pub async fn get(
         ctx: &ServiceContext<'_>,
         page_id: i64,
