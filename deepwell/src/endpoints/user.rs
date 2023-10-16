@@ -19,13 +19,11 @@
  */
 
 use super::prelude::*;
-use crate::models::alias::Model as AliasModel;
 use crate::models::sea_orm_active_enums::AliasType;
 use crate::models::user::Model as UserModel;
 use crate::services::user::{
-    CreateUser, CreateUserOutput, GetUser, GetUserOutput, UpdateUser, UpdateUserBody,
+    CreateUser, CreateUserOutput, GetUser, GetUserOutput, UpdateUser,
 };
-use crate::web::ProvidedValue;
 
 pub async fn user_create(
     ctx: &ServiceContext<'_>,

@@ -83,8 +83,6 @@ pub mod user_bot_owner;
 pub mod view;
 pub mod vote;
 
-use sea_orm::DatabaseConnection;
-
 pub use self::alias::AliasService;
 pub use self::authentication::AuthenticationService;
 pub use self::blob::BlobService;
