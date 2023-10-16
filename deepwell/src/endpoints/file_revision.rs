@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::models::file_revision::Model as FileRevisionModel;
 use crate::services::file::GetFile;
 use crate::services::file_revision::{
     FileRevisionCountOutput, GetFileRevision, GetFileRevisionRange, UpdateFileRevision,
@@ -90,15 +91,10 @@ pub async fn file_revision_put(mut req: ApiRequest) -> ApiResponse {
     Ok(Response::new(StatusCode::NoContent))
 }
 
-pub async fn file_revision_range_retrieve(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::from_req(&req, &txn);
-
-    let input: GetFileRevisionRange = req.body_json().await?;
-    let revisions = FileRevisionService::get_range(&ctx, input).await?;
-
-    txn.commit().await?;
-    let body = Body::from_json(&revisions)?;
-    let response = Response::builder(StatusCode::Ok).body(body).into();
-    Ok(response)
+pub async fn file_revision_range(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<Vec<FileRevisionModel>> {
+    let input: GetFileRevisionRange = params.parse()?;
+    FileRevisionService::get_range(&ctx, input).await
 }
