@@ -224,11 +224,10 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("page_restore", page_restore);
 
     // Page revisions
-    register!("page_revision_create", not_implemented);
+    register!("page_revision_create", page_revision_edit);
     register!("page_revision_get", page_revision_get);
-    register!("page_revision_count", not_implemented);
-    register!("page_revision_rollback", not_implemented);
-    register!("page_revision_range", not_implemented);
+    register!("page_revision_count", page_revision_count);
+    register!("page_revision_range", page_revision_range);
 
     // Page links
     register!("page_get_links_from", page_links_from_get);

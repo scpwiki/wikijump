@@ -82,7 +82,7 @@ pub async fn page_revision_get(
     }
 }
 
-pub async fn page_revision_put(
+pub async fn page_revision_edit(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<PageRevisionModelFiltered> {
@@ -104,7 +104,7 @@ pub async fn page_revision_put(
     filter_and_populate_revision(ctx, revision, details).await
 }
 
-pub async fn page_revision_range_retrieve(
+pub async fn page_revision_range(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<Vec<PageRevisionModelFiltered>> {
