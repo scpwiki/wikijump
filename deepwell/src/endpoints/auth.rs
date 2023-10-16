@@ -68,7 +68,7 @@ pub async fn auth_login(
     let AuthenticateUserOutput { needs_mfa, user_id } = match result {
         Ok(output) => output,
         Err(mut error) => {
-            if matches!(error, Error::InvalidAuthentication) {
+            if !matches!(error, Error::InvalidAuthentication) {
                 tide::log::error!("Unexpected error during user authentication: {error}");
                 error = Error::InternalServerError;
             }
