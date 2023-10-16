@@ -194,20 +194,17 @@ impl FileService {
     /// Moves a file from from one page to another.
     pub async fn r#move(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        file_id: i64,
-        input: MoveFile,
-    ) -> Result<Option<MoveFileOutput>> {
-        let txn = ctx.transaction();
-
-        let MoveFile {
-            revision_comments,
-            user_id,
+        MoveFile {
             name,
+            site_id,
             current_page_id,
             destination_page_id,
-        } = input;
-
+            file_id,
+            user_id,
+            revision_comments,
+        }: MoveFile,
+    ) -> Result<Option<MoveFileOutput>> {
+        let txn = ctx.transaction();
         let last_revision =
             FileRevisionService::get_latest(ctx, current_page_id, file_id).await?;
 
@@ -215,7 +212,7 @@ impl FileService {
         let name = name.unwrap_or_else(|| last_revision.name.clone());
 
         tide::log::info!(
-            "Moving file with ID {} from page ID {} to {} ",
+            "Moving file with ID {} from page ID {} to {}",
             file_id,
             current_page_id,
             destination_page_id,

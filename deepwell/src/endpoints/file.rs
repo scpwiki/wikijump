@@ -23,7 +23,8 @@ use crate::models::file::Model as FileModel;
 use crate::models::file_revision::Model as FileRevisionModel;
 use crate::services::file::{
     DeleteFile, DeleteFileOutput, EditFile, EditFileOutput, GetFileDetails,
-    GetFileOutput, RestoreFile, RestoreFileOutput, UploadFile, UploadFileOutput,
+    GetFileOutput, MoveFile, MoveFileOutput, RestoreFile, RestoreFileOutput, UploadFile,
+    UploadFileOutput,
 };
 use crate::services::Result;
 use crate::web::{Bytes, FileDetails};
@@ -119,10 +120,20 @@ pub async fn file_restore(
 }
 
 pub async fn file_move(
-    _ctx: &ServiceContext<'_>,
-    _params: Params<'static>,
-) -> Result<()> {
-    todo!()
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<Option<MoveFileOutput>> {
+    let input: MoveFile = params.parse()?;
+
+    tide::log::info!(
+        "Moving file ID {} from page ID {} to page ID {} in site ID {}",
+        input.file_id,
+        input.current_page_id,
+        input.destination_page_id,
+        input.site_id,
+    );
+
+    FileService::r#move(ctx, input).await
 }
 
 async fn build_file_response(

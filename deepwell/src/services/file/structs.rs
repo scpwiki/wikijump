@@ -107,6 +107,8 @@ pub type EditFileOutput = CreateFileRevisionOutput;
 #[derive(Deserialize, Debug, Clone)]
 pub struct MoveFile {
     pub revision_comments: String,
+    pub site_id: i64,
+    pub file_id: i64,
     pub user_id: i64,
     pub name: Option<String>,
     pub current_page_id: i64,
