@@ -18,7 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::locales::LocalizationTranslateError;
 use filemagic::FileMagicError;
 use jsonrpsee::types::error::ErrorObjectOwned;
 use reqwest::Error as ReqwestError;
@@ -46,10 +45,19 @@ pub enum Error {
     Database(DbErr),
 
     #[error("Invalid locale: {0}")]
-    Locale(#[from] LanguageIdentifierError),
+    LocaleInvalid(#[from] LanguageIdentifierError),
 
-    #[error("Localization error: {0}")]
-    Localization(#[from] LocalizationTranslateError),
+    #[error("No messages are available for this locale")]
+    LocaleMissing,
+
+    #[error("Message key not found for this locale")]
+    LocaleMessageMissing,
+
+    #[error("Message key was found, but has no value")]
+    LocaleMessageValueMissing,
+
+    #[error("Message key was found, but does not have this attribute")]
+    LocaleMessageAttributeMissing,
 
     #[error("Magic library error: {0}")]
     Magic(#[from] FileMagicError),

@@ -46,19 +46,3 @@ pub fn fluent_load_err<T: Debug>(item: T) -> LocalizationLoadError {
     tide::log::error!("Fluent error: {:#?}", item);
     LocalizationLoadError::Fluent
 }
-
-#[derive(ThisError, Debug)]
-#[allow(clippy::enum_variant_names)]
-pub enum LocalizationTranslateError {
-    #[error("No messages are available for this locale")]
-    NoLocale,
-
-    #[error("Message key not found for this locale")]
-    NoMessage,
-
-    #[error("Message key was found, but has no value")]
-    NoMessageValue,
-
-    #[error("Message key was found, but does not have this attribute")]
-    NoMessageAttribute,
-}

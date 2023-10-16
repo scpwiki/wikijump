@@ -18,12 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::error::{fluent_load_err, LocalizationLoadError, LocalizationTranslateError};
+use super::error::{fluent_load_err, LocalizationLoadError};
 use async_std::fs;
 use async_std::path::{Path, PathBuf};
 use async_std::prelude::*;
 use fluent::{bundle, FluentArgs, FluentMessage, FluentResource};
 use intl_memoizer::concurrent::IntlLangMemoizer;
+use crate::services::Error as ServiceError;
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::fmt::{self, Debug};
@@ -115,12 +116,12 @@ impl Localizations {
         &self,
         locale: &LanguageIdentifier,
         key: &str,
-    ) -> Result<(&FluentBundle, FluentMessage), LocalizationTranslateError> {
+    ) -> Result<(&FluentBundle, FluentMessage), ServiceError> {
         match self.bundles.get(locale) {
-            None => Err(LocalizationTranslateError::NoLocale),
+            None => Err(ServiceError::LocaleMissing),
             Some(bundle) => match bundle.get_message(key) {
                 Some(message) => Ok((bundle, message)),
-                None => Err(LocalizationTranslateError::NoMessage),
+                None => Err(ServiceError::LocaleMessageMissing),
             },
         }
     }
@@ -130,7 +131,7 @@ impl Localizations {
         locale: &LanguageIdentifier,
         key: &str,
         args: &'a FluentArgs<'a>,
-    ) -> Result<Cow<'a, str>, LocalizationTranslateError> {
+    ) -> Result<Cow<'a, str>, ServiceError> {
         // Get appropriate message and bundle
         let (path, attribute) = Self::parse_selector(key);
         let (bundle, message) = self.get_message(locale, path)?;
@@ -146,11 +147,11 @@ impl Localizations {
         let pattern = match attribute {
             Some(attribute) => match message.get_attribute(attribute) {
                 Some(attrib) => attrib.value(),
-                None => return Err(LocalizationTranslateError::NoMessageAttribute),
+                None => return Err(ServiceError::LocaleMessageAttributeMissing),
             },
             None => match message.value() {
                 Some(pattern) => pattern,
-                None => return Err(LocalizationTranslateError::NoMessageValue),
+                None => return Err(ServiceError::LocaleMessageValueMissing),
             },
         };
 
