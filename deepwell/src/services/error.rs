@@ -71,7 +71,7 @@ pub enum Error {
     #[error("S3 error: {0}")]
     S3(#[from] S3Error),
 
-    #[error("Email verification error: {0}")]
+    #[error("Email verification error: {}", .0.as_ref().unwrap_or(&str!("<unspecified>")))]
     EmailVerification(Option<String>),
 
     // See also RemoteOperationFailed.
@@ -93,6 +93,9 @@ pub enum Error {
     #[error("Invalid username, password, or TOTP code")]
     InvalidAuthentication,
 
+    #[error("Backend error while trying to authenticate")]
+    AuthenticationBackend(Box<Error>),
+
     #[error("User ID {session_user_id} associated with session does not match active user ID {active_user_id}")]
     SessionUserId {
         active_user_id: i64,
@@ -110,9 +113,6 @@ pub enum Error {
 
     #[error("The request is in some way malformed or incorrect")]
     BadRequest,
-
-    #[error("The server ran into an unspecified or unknown error")]
-    InternalServerError,
 
     #[error("The request conflicts with data already present")]
     Conflict,
@@ -140,6 +140,79 @@ pub enum Error {
 
     #[error("The rate limit for an external API has been reached")]
     RateLimited,
+}
+
+impl Error {
+    /// Returns the code associated with this error.
+    ///
+    /// The JSON-RPC spec has each unique error case return its own integer error code.
+    /// Some very negative codes are reserved for RPC internals, so we will only output
+    /// positive values.
+    ///
+    /// Sort of similar to HTTP status codes, we are also dividing them into groups based
+    /// generally on the kind of error it is.
+    ///
+    /// When an error case is removed, then its number should not be reused, just use the next
+    /// available value in line.
+    pub fn code(&self) -> i32 {
+        match self {
+            // 1000 - Miscellaneous, general errors
+            //        Avoid putting stuff here, prefer other categories instead
+            Error::Raw(_) => 1000,
+
+            // 2000 - Server errors, expected
+            Error::NotFound => 2000,
+            Error::Exists => 2001,
+            Error::Conflict => 2002,
+
+            // 3000 - Server errors, unexpected
+            Error::RemoteOperationFailed => 3000,
+            Error::RateLimited => 3001,
+            Error::WebRequest(_) => 3002,
+            Error::AuthenticationBackend(_) => 3003,
+
+            // 3100 -- Remote services
+            Error::RenderTimeout => 3100,
+            Error::S3(_) => 3101,
+            Error::EmailVerification(_) => 3102,
+
+            // 3200 -- Backend issues
+            Error::Serde(_) => 3200,
+            Error::Database(_) => 3201,
+            Error::Cryptography(_) => 3202,
+            Error::FilterRegexInvalid(_) => 3203,
+            Error::Magic(_) => 3204,
+            Error::Otp(_) => 3205,
+
+            // 4000 - Client, request errors
+            Error::BadRequest => 4000,
+            Error::InvalidEnumValue => 4001,
+            Error::FilterViolation => 4002,
+            Error::InsufficientNameChanges => 4003,
+            Error::CannotHideLatestRevision => 4004,
+
+            // 4100 -- Localization
+            Error::LocaleInvalid(_) => 4100,
+            Error::LocaleMissing => 4101,
+            Error::LocaleMessageMissing => 4102,
+            Error::LocaleMessageValueMissing => 4103,
+            Error::LocaleMessageAttributeMissing => 4104,
+
+            // 4200 -- Login errors
+            Error::EmptyPassword => 4200,
+            Error::InvalidEmail => 4201,
+            Error::DisallowedEmail => 4202,
+
+            // 4300 -- Relationship conflicts
+            Error::SiteBlockedUser => 4300,
+            Error::UserBlockedUser => 4301,
+
+            // 5000 - Authentication, permission, or role errors
+            Error::InvalidAuthentication => 5000,
+            Error::SessionUserId { .. } => 5001,
+            // TODO: permission errors (e.g. locked page, cannot apply bans)
+        }
+    }
 }
 
 // Error conversion implementations
@@ -175,8 +248,10 @@ impl From<DbErr> for Error {
 
 impl From<Error> for ErrorObjectOwned {
     fn from(error: Error) -> ErrorObjectOwned {
-        // XXX
-        todo!()
+        let error_code = error.code();
+        let message = str!(error);
+        let data = todo!(); // XXX use error
+        ErrorObjectOwned::owned(error_code, message, Some(data))
     }
 }
 

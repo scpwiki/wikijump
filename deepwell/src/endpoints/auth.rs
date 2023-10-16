@@ -70,7 +70,7 @@ pub async fn auth_login(
         Err(mut error) => {
             if !matches!(error, Error::InvalidAuthentication) {
                 tide::log::error!("Unexpected error during user authentication: {error}");
-                error = Error::InternalServerError;
+                error = Error::AuthenticationBackend(Box::new(error));
             }
 
             return Err(error);

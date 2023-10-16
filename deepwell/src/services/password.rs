@@ -88,7 +88,9 @@ impl PasswordService {
 
                     // Some kind of server error
                     _ => {
-                        tide::log::error!("Unexpected error while verifying password: {error}");
+                        tide::log::error!(
+                            "Unexpected error while verifying password: {error}",
+                        );
                     }
                 }
 

@@ -70,8 +70,7 @@ pub async fn page_revision_get(
     );
 
     let revision =
-        PageRevisionService::get_optional(ctx, site_id, page_id, revision_number)
-            .await?;
+        PageRevisionService::get_optional(ctx, site_id, page_id, revision_number).await?;
 
     match revision {
         None => Ok(None),

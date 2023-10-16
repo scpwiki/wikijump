@@ -19,12 +19,12 @@
  */
 
 use super::error::{fluent_load_err, LocalizationLoadError};
+use crate::services::Error as ServiceError;
 use async_std::fs;
 use async_std::path::{Path, PathBuf};
 use async_std::prelude::*;
 use fluent::{bundle, FluentArgs, FluentMessage, FluentResource};
 use intl_memoizer::concurrent::IntlLangMemoizer;
-use crate::services::Error as ServiceError;
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::fmt::{self, Debug};
