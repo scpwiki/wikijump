@@ -324,7 +324,6 @@ pub fn tide_build_server(state: ServerState) -> tide::Server<ServerState> {
 fn tide_build_routes(mut app: tide::Server<ServerState>) -> tide::Server<ServerState> {
     // User
     app.at("/user").delete(user_delete);
-    app.at("/user/avatar").put(user_avatar_put);
     app.at("/user/addNameChange").post(user_add_name_change);
 
     app

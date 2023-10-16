@@ -88,38 +88,6 @@ pub async fn user_delete(mut req: ApiRequest) -> ApiResponse {
     Ok(Response::new(StatusCode::NoContent))
 }
 
-// Separate route because a JSON-encoded byte list is very inefficient.
-pub async fn user_avatar_put(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::from_req(&req, &txn);
-
-    let GetUser { user: reference } = req.query()?;
-    let bytes = req.body_bytes().await?;
-
-    let avatar = if bytes.is_empty() {
-        // An empty body means delete the avatar
-        tide::log::info!("Remove avatar for user {reference:?}");
-        None
-    } else {
-        // Upload file contents from body
-        tide::log::info!("Uploading avatar for user {reference:?}");
-        Some(bytes)
-    };
-
-    UserService::update(
-        &ctx,
-        reference,
-        UpdateUserBody {
-            avatar: ProvidedValue::Set(avatar),
-            ..Default::default()
-        },
-    )
-    .await?;
-
-    txn.commit().await?;
-    Ok(Response::new(StatusCode::NoContent))
-}
-
 pub async fn user_add_name_change(mut req: ApiRequest) -> ApiResponse {
     let txn = req.database().begin().await?;
     let ctx = ServiceContext::from_req(&req, &txn);

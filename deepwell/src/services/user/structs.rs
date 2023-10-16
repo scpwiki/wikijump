@@ -22,6 +22,7 @@ use super::prelude::*;
 use crate::models::alias::Model as AliasModel;
 use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user::Model as UserModel;
+use crate::web::Bytes;
 use time::Date;
 
 #[derive(Deserialize, Debug, Clone)]
@@ -72,7 +73,7 @@ pub struct UpdateUserBody {
     pub email_verified: ProvidedValue<bool>,
     pub password: ProvidedValue<String>,
     pub locale: ProvidedValue<String>,
-    pub avatar: ProvidedValue<Option<Vec<u8>>>,
+    pub avatar: ProvidedValue<Option<Bytes<'static>>>,
     pub real_name: ProvidedValue<Option<String>>,
     pub gender: ProvidedValue<Option<String>>,
     pub birthday: ProvidedValue<Option<Date>>,
