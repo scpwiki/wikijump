@@ -129,4 +129,4 @@ jobs:
         run: cd deepwell && cargo fmt --all -- --check
 
       - name: Clippy
-        run: cd deepwell && cargo clippy
+        run: cd deepwell && cargo clippy --no-deps
