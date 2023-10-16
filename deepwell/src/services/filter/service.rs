@@ -308,11 +308,8 @@ impl FilterService {
         }
 
         let regex_set = RegexSet::new(regexes).map_err(|error| {
-            tide::log::error!(
-                "Invalid regular expression found in the database: {error}",
-            );
-
-            Error::Inconsistent
+            tide::log::error!("Invalid regular expression found in the database: {error}");
+            Error::FilterRegexInvalid(error)
         })?;
 
         Ok(FilterMatcher::new(regex_set, filter_data))

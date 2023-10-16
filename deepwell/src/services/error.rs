@@ -81,9 +81,6 @@ pub enum Error {
     #[error("Invalid enum serialization value")]
     InvalidEnumValue,
 
-    #[error("Inconsistency found in checked data")]
-    Inconsistent,
-
     #[error("A request to a remote service returned an error")]
     RemoteOperationFailed,
 
@@ -128,6 +125,9 @@ pub enum Error {
 
     #[error("The request violates a configured content filter")]
     FilterViolation,
+
+    #[error("The regular expression found in the database is invalid")]
+    FilterRegexInvalid(regex::Error),
 
     #[error("Cannot hide the wikitext for the latest page revision")]
     CannotHideLatestRevision,
