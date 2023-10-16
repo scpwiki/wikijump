@@ -224,8 +224,10 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("page_edit", page_edit);
     register!("page_delete", page_delete);
     register!("page_move", page_move);
+    register!("page_rollback", page_rollback);
     register!("page_rerender", page_rerender);
     register!("page_restore", page_restore);
+
 
     // Page revisions
     register!("page_revision_create", not_implemented);

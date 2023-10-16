@@ -129,11 +129,12 @@ pub async fn page_restore(
     PageService::restore(&ctx, input).await
 }
 
-pub async fn page_rollback(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::from_req(&req, &txn);
+pub async fn page_rollback(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<Option<EditPageOutput>> {
+    let input: RollbackPage = params.parse()?;
 
-    let input: RollbackPage = req.body_json().await?;
     tide::log::info!(
         "Rolling back page {:?} in site ID {} to revision number {}",
         input.page,
@@ -141,11 +142,7 @@ pub async fn page_rollback(mut req: ApiRequest) -> ApiResponse {
         input.revision_number,
     );
 
-    let output = PageService::rollback(&ctx, input).await?;
-
-    txn.commit().await?;
-    let body = Body::from_json(&output)?;
-    Ok(body.into())
+    PageService::rollback(&ctx, input).await
 }
 
 async fn build_page_output(
