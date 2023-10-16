@@ -44,7 +44,6 @@ pub enum LocalizationLoadError {
 /// generic `LocalizationLoadError::Fluent` error variant.
 pub fn fluent_load_err<T: Debug>(item: T) -> LocalizationLoadError {
     tide::log::error!("Fluent error: {:#?}", item);
-
     LocalizationLoadError::Fluent
 }
 
