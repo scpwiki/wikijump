@@ -36,7 +36,10 @@ pub async fn user_create(
     UserService::create(&ctx, input).await
 }
 
-pub async fn user_import(_req: ApiRequest) -> ApiResponse {
+pub async fn user_import(
+    _ctx: &ServiceContext<'_>,
+    _params: Params<'static>,
+) -> Result<CreateUserOutput> {
     // TODO implement importing user from Wikidot
     todo!()
 }

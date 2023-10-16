@@ -268,10 +268,11 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
 
     // User
     register!("user_create", user_create);
+    register!("user_import", user_import);
     register!("user_get", user_get);
     register!("user_edit", not_implemented);
     register!("user_delete", not_implemented);
-    register!("user_import", not_implemented);
+    register!("user_import", user_import);
     register!("user_add_name_change", not_implemented);
     register!("user_avatar_set", not_implemented);
 
@@ -324,7 +325,6 @@ fn tide_build_routes(mut app: tide::Server<ServerState>) -> tide::Server<ServerS
     // User
     app.at("/user").put(user_put).delete(user_delete);
     app.at("/user/avatar").put(user_avatar_put);
-    app.at("/user/import").post(user_import);
     app.at("/user/addNameChange").post(user_add_name_change);
 
     app
