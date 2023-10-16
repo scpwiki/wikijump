@@ -143,14 +143,14 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
                 // Wrap each call in a transaction, which commits or rolls back
                 // automatically based on whether the Result is Ok or Err.
                 //
-                // At this level, we take the database-or-RPC error and make it just RPC.
+                // At this level, we take the database-or-RPC error and make it just an RPC error.
                 let db_state = Arc::clone(&state);
                 db_state
                     .database
                     .transaction(move |txn| {
                         Box::pin(async move {
-                            // Run the endpoint's implementation, and convert the
-                            // error from service to RPC.
+                            // Run the endpoint's implementation, and convert from
+                            // ServiceError to an RPC error.
                             let ctx = ServiceContext::new(&state, &txn);
                             $method(&ctx, params).await.map_err(ErrorObjectOwned::from)
                         })
