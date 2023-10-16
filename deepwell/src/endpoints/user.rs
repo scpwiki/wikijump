@@ -81,21 +81,14 @@ pub async fn user_delete(
 ) -> Result<UserModel> {
     let GetUser { user: reference } = params.parse()?;
     tide::log::info!("Deleting user {:?}", reference);
-
     UserService::delete(&ctx, reference).await
 }
 
-pub async fn user_add_name_change(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::from_req(&req, &txn);
-
-    let GetUser { user: reference } = req.body_json().await?;
+pub async fn user_add_name_change(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<i16> {
+    let GetUser { user: reference } = params.parse()?;
     tide::log::info!("Adding user name change token to {:?}", reference);
-
-    let name_changes = UserService::add_name_change_token(&ctx, reference).await?;
-
-    let body = Body::from_json(&name_changes)?;
-    let response = Response::builder(StatusCode::Ok).body(body).into();
-    txn.commit().await?;
-    Ok(response)
+    UserService::add_name_change_token(&ctx, reference).await
 }
