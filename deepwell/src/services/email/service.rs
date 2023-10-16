@@ -46,12 +46,12 @@ impl EmailService {
                     "MailCheck API request failed with bad response: {:?}",
                     mailcheck.error,
                 );
-                return Err(Error::BadRequest);
+                return Err(Error::EmailVerification(mailcheck.error));
             }
 
             // Exceeded rate limit.
             429 => {
-                tide::log::error!("MailCheck API hit ratelimit: {:?}", mailcheck.error,);
+                tide::log::error!("MailCheck API hit ratelimit: {:?}", mailcheck.error);
                 return Err(Error::RateLimited);
             }
 

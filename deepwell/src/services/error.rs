@@ -71,6 +71,9 @@ pub enum Error {
     #[error("S3 error: {0}")]
     S3(#[from] S3Error),
 
+    #[error("Email verification error: {0}")]
+    EmailVerification(Option<String>),
+
     // See also RemoteOperationFailed.
     #[error("Web request error: {0}")]
     WebRequest(#[from] ReqwestError),
