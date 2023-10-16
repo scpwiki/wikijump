@@ -22,7 +22,8 @@ use super::prelude::*;
 use crate::models::file::Model as FileModel;
 use crate::models::file_revision::Model as FileRevisionModel;
 use crate::services::file::{
-    EditFile, EditFileOutput, GetFileDetails, GetFileOutput, UploadFile, UploadFileOutput,
+    DeleteFile, DeleteFileOutput, EditFile, EditFileOutput, GetFileDetails,
+    GetFileOutput, UploadFile, UploadFileOutput,
 };
 use crate::services::Result;
 use crate::web::{Bytes, FileDetails};
@@ -86,10 +87,19 @@ pub async fn file_edit(
 }
 
 pub async fn file_delete(
-    _ctx: &ServiceContext<'_>,
-    _params: Params<'static>,
-) -> Result<()> {
-    todo!()
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<DeleteFileOutput> {
+    let input: DeleteFile = params.parse()?;
+
+    tide::log::info!(
+        "Deleting file {:?} in page ID {} in site ID {}",
+        input.file,
+        input.page_id,
+        input.site_id,
+    );
+
+    FileService::delete(ctx, input).await
 }
 
 pub async fn file_move(

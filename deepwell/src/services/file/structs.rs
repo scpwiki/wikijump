@@ -116,9 +116,11 @@ pub struct MoveFile {
 pub type MoveFileOutput = CreateFileRevisionOutput;
 
 #[derive(Deserialize, Debug, Clone)]
-pub struct DeleteFile {
+pub struct DeleteFile<'a> {
     pub revision_comments: String,
     pub site_id: i64,
+    pub page_id: i64,
+    pub file: Reference<'a>,
     pub user_id: i64,
 }
 

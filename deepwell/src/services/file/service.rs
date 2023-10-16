@@ -261,21 +261,17 @@ impl FileService {
     /// Like other deletions throughout Wikijump, this is a soft deletion.
     /// It marks the files as deleted but retains the contents, permitting it
     /// to be easily reverted.
-    #[allow(dead_code)] // TEMP
     pub async fn delete(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
-        reference: Reference<'_>,
-        input: DeleteFile,
-    ) -> Result<DeleteFileOutput> {
-        let txn = ctx.transaction();
-
-        let DeleteFile {
+        DeleteFile {
             revision_comments,
             site_id,
+            page_id,
+            file: reference,
             user_id,
-        } = input;
+        }: DeleteFile<'_>,
+    ) -> Result<DeleteFileOutput> {
+        let txn = ctx.transaction();
 
         // Ensure file exists
         let FileModel { file_id, .. } = Self::get(
