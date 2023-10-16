@@ -25,7 +25,6 @@ use reqwest::Error as ReqwestError;
 use s3::error::S3Error;
 use sea_orm::{error::DbErr, TransactionError};
 use thiserror::Error as ThisError;
-use tide::{Error as TideError, StatusCode};
 use unic_langid::LanguageIdentifierError;
 
 pub use std::error::Error as StdError;
@@ -34,9 +33,6 @@ pub type StdResult<T, E> = std::result::Result<T, E>;
 pub type Result<T> = StdResult<T, Error>;
 
 /// Wrapper error for possible failure modes from service methods.
-///
-/// This has a method to convert to the corresponding HTTP status,
-/// via `into_tide_error()`.
 #[derive(ThisError, Debug)]
 pub enum Error {
     // Error passed straight to ErrorObjectOwned without conversion
@@ -66,9 +62,6 @@ pub enum Error {
 
     #[error("S3 error: {0}")]
     S3(#[from] S3Error),
-
-    #[error("Web server error: HTTP {}", .0.status() as u16)]
-    Web(TideError),
 
     // See also RemoteOperationFailed.
     #[error("Web request error: {0}")]
@@ -138,57 +131,6 @@ pub enum Error {
     RateLimited,
 }
 
-impl Error {
-    pub fn into_tide_error(self) -> TideError {
-        match self {
-            Error::Cryptography(_) => {
-                // The "invalid password" variant should have already been filtered out, see below.
-                TideError::from_str(StatusCode::InternalServerError, "")
-            }
-            Error::Database(inner) => {
-                TideError::new(StatusCode::InternalServerError, inner)
-            }
-            Error::Magic(inner) => TideError::new(StatusCode::InternalServerError, inner),
-            Error::Locale(inner) => TideError::new(StatusCode::BadRequest, inner),
-            Error::Localization(inner) => TideError::new(StatusCode::NotFound, inner),
-            Error::Otp(inner) => TideError::new(StatusCode::InternalServerError, inner),
-            Error::Serde(inner) => TideError::new(StatusCode::InternalServerError, inner),
-            Error::S3(inner) => TideError::new(StatusCode::InternalServerError, inner),
-            Error::Web(inner) => inner,
-            Error::WebRequest(inner) => {
-                TideError::new(StatusCode::InternalServerError, inner)
-            }
-            Error::InvalidEnumValue | Error::Inconsistent => {
-                TideError::from_str(StatusCode::InternalServerError, "")
-            }
-            Error::RemoteOperationFailed | Error::RenderTimeout => {
-                TideError::from_str(StatusCode::InternalServerError, "")
-            }
-            Error::InsufficientNameChanges => {
-                TideError::from_str(StatusCode::PaymentRequired, "")
-            }
-            Error::InvalidAuthentication => {
-                TideError::from_str(StatusCode::Forbidden, "")
-            }
-            Error::DisallowedEmail => TideError::from_str(StatusCode::BadRequest, ""),
-            Error::InvalidEmail => TideError::from_str(StatusCode::BadRequest, ""),
-            Error::BadRequest => TideError::from_str(StatusCode::BadRequest, ""),
-            Error::Exists | Error::Conflict => {
-                TideError::from_str(StatusCode::Conflict, "")
-            }
-            Error::NotFound => TideError::from_str(StatusCode::NotFound, ""),
-            Error::FilterViolation | Error::CannotHideLatestRevision => {
-                TideError::from_str(StatusCode::BadRequest, "")
-            }
-            Error::UserBlockedUser | Error::SiteBlockedUser => {
-                TideError::from_str(StatusCode::Forbidden, "")
-            }
-            Error::RateLimited => TideError::from_str(StatusCode::ServiceUnavailable, ""),
-            _ => unreachable!(), // new cases for migrations
-        }
-    }
-}
-
 // Error conversion implementations
 //
 // Required if the value doesn't implement StdError,
@@ -210,13 +152,6 @@ impl From<DbErr> for Error {
             DbErr::RecordNotFound(_) => Error::NotFound,
             _ => Error::Database(error),
         }
-    }
-}
-
-impl From<TideError> for Error {
-    #[inline]
-    fn from(error: TideError) -> Error {
-        Error::Web(error)
     }
 }
 
