@@ -23,23 +23,17 @@ use crate::models::alias::Model as AliasModel;
 use crate::models::sea_orm_active_enums::AliasType;
 use crate::models::user::Model as UserModel;
 use crate::services::user::{
-    CreateUser, GetUser, GetUserOutput, UpdateUser, UpdateUserBody,
+    CreateUser, CreateUserOutput, GetUser, GetUserOutput, UpdateUser, UpdateUserBody,
 };
 use crate::web::ProvidedValue;
 
-pub async fn user_create(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::from_req(&req, &txn);
-
+pub async fn user_create(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<CreateUserOutput> {
     tide::log::info!("Creating new regular user");
-    let input: CreateUser = req.body_json().await?;
-    let output = UserService::create(&ctx, input).await?;
-
-    let body = Body::from_json(&output)?;
-    txn.commit().await?;
-
-    let response = Response::builder(StatusCode::Created).body(body).into();
-    Ok(response)
+    let input: CreateUser = params.parse()?;
+    UserService::create(&ctx, input).await
 }
 
 pub async fn user_import(_req: ApiRequest) -> ApiResponse {
