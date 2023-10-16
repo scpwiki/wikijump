@@ -85,7 +85,7 @@ impl BlobService {
                 tide::log::debug!("Blob with hash {hex_hash} already exists");
 
                 // Content-Type header should be passed in
-                let mime = result.content_type.ok_or(Error::RemoteOperationFailed)?;
+                let mime = result.content_type.ok_or(Error::S3Response)?;
 
                 Ok(CreateBlobOutput {
                     hash,
@@ -168,14 +168,13 @@ impl BlobService {
             None => Ok(None),
             Some(result) => {
                 // Headers should be passed in
-                let size = result.content_length.ok_or(Error::RemoteOperationFailed)?;
-                let mime = result.content_type.ok_or(Error::RemoteOperationFailed)?;
+                let size = result.content_length.ok_or(Error::S3Response)?;
+                let mime = result.content_type.ok_or(Error::S3Response)?;
                 let created_at = {
-                    let timestamp =
-                        result.last_modified.ok_or(Error::RemoteOperationFailed)?;
+                    let timestamp = result.last_modified.ok_or(Error::S3Response)?;
 
                     OffsetDateTime::parse(&timestamp, &Rfc2822)
-                        .map_err(|_| Error::RemoteOperationFailed)?
+                        .map_err(|_| Error::S3Response)?
                 };
 
                 Ok(Some(BlobMetadata {
@@ -279,5 +278,5 @@ fn s3_error<T>(response: &ResponseData, action: &str) -> Result<T> {
     );
 
     // TODO replace with S3 backend-specific error
-    Err(Error::RemoteOperationFailed)
+    Err(Error::S3Response)
 }

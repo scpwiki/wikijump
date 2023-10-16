@@ -68,21 +68,20 @@ pub enum Error {
     #[error("Serialization error: {0}")]
     Serde(#[from] serde_json::Error),
 
-    #[error("S3 error: {0}")]
-    S3(#[from] S3Error),
+    #[error("S3 service returned error: {0}")]
+    S3Service(#[from] S3Error),
+
+    #[error("S3 service failed to respond properly")]
+    S3Response,
 
     #[error("Email verification error: {}", .0.as_ref().unwrap_or(&str!("<unspecified>")))]
     EmailVerification(Option<String>),
 
-    // See also RemoteOperationFailed.
     #[error("Web request error: {0}")]
     WebRequest(#[from] ReqwestError),
 
     #[error("Invalid enum serialization value")]
     InvalidEnumValue,
-
-    #[error("A request to a remote service returned an error")]
-    RemoteOperationFailed,
 
     #[error("Attempting to perform a wikitext parse and render has timed out")]
     RenderTimeout,
@@ -166,15 +165,15 @@ impl Error {
             Error::Conflict => 2002,
 
             // 3000 - Server errors, unexpected
-            Error::RemoteOperationFailed => 3000,
-            Error::RateLimited => 3001,
-            Error::WebRequest(_) => 3002,
-            Error::AuthenticationBackend(_) => 3003,
+            Error::RateLimited => 3000,
+            Error::WebRequest(_) => 3001,
+            Error::AuthenticationBackend(_) => 3002,
 
             // 3100 -- Remote services
             Error::RenderTimeout => 3100,
-            Error::S3(_) => 3101,
-            Error::EmailVerification(_) => 3102,
+            Error::EmailVerification(_) => 3101,
+            Error::S3Service(_) => 3102,
+            Error::S3Response => 3103,
 
             // 3200 -- Backend issues
             Error::Serde(_) => 3200,
