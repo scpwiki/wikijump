@@ -28,6 +28,26 @@ use std::str;
 use time::format_description::well_known::Rfc2822;
 use time::OffsetDateTime;
 
+/// Hash for empty blobs.
+///
+/// Even though it is not the SHA-512 hash, for simplicity we treat the hash
+/// value with all zeroes to be the blob address for the empty blob.
+/// This empty file is not actually stored in S3 but instead is a "virtual file",
+/// considered to have always been present in `BlobService`.
+pub const EMPTY_BLOB_HASH: BlobHash = [
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+];
+
+/// MIME type for empty blobs.
+pub const EMPTY_BLOB_MIME: &str = "inode/x-empty; charset=binary";
+
+/// Created UNIX timestamp for empty blobs.
+///
+/// Timestamp is 2019/01/18 at midnight, the date of the first Wikijump commit.
+pub const EMPTY_BLOB_TIMESTAMP: i64 = 1547769600;
+
 #[derive(Debug)]
 pub struct BlobService;
 
@@ -40,6 +60,18 @@ impl BlobService {
         let data = data.as_ref();
         tide::log::info!("Creating blob (length {})", data.len());
 
+        // Special handling for empty blobs
+        if data.is_empty() {
+            tide::log::debug!("File being created is empty, special case");
+            return Ok(CreateBlobOutput {
+                hash: EMPTY_BLOB_HASH,
+                mime: str!(EMPTY_BLOB_MIME),
+                size: 0,
+                created: false,
+            });
+        }
+
+        // Upload blob
         let bucket = ctx.s3_bucket();
         let hash = sha512_hash(data);
         let hex_hash = blob_hash_to_hex(&hash);
@@ -93,6 +125,13 @@ impl BlobService {
         ctx: &ServiceContext<'_>,
         hash: &[u8],
     ) -> Result<Option<Vec<u8>>> {
+        // Special handling for empty blobs
+        if hash == EMPTY_BLOB_HASH {
+            tide::log::debug!("Returning the empty blob");
+            return Ok(Some(Vec::new()));
+        }
+
+        // Retrieve blob from S3
         let bucket = ctx.s3_bucket();
         let hex_hash = blob_hash_to_hex(hash);
         let response = bucket.get_object(&hex_hash).await?;
@@ -113,8 +152,18 @@ impl BlobService {
         ctx: &ServiceContext<'_>,
         hash: &[u8],
     ) -> Result<Option<BlobMetadata>> {
-        let hex_hash = blob_hash_to_hex(hash);
+        // Special handling for empty blobs
+        if hash == EMPTY_BLOB_HASH {
+            return Ok(Some(BlobMetadata {
+                mime: str!(EMPTY_BLOB_MIME),
+                size: 0,
+                created_at: OffsetDateTime::from_unix_timestamp(EMPTY_BLOB_TIMESTAMP)
+                    .unwrap(),
+            }));
+        }
 
+        // Retrieve metadata from S3
+        let hex_hash = blob_hash_to_hex(hash);
         match Self::head(ctx, &hex_hash).await? {
             None => Ok(None),
             Some(result) => {
@@ -147,6 +196,13 @@ impl BlobService {
     }
 
     pub async fn exists(ctx: &ServiceContext<'_>, hash: &[u8]) -> Result<bool> {
+        // Special handling for the empty blob
+        if hash == EMPTY_BLOB_HASH {
+            tide::log::debug!("Checking existence of the empty blob");
+            return Ok(true);
+        }
+
+        // Fetch existence from S3
         let hex_hash = blob_hash_to_hex(hash);
         let result = Self::head(ctx, &hex_hash).await?;
         Ok(result.is_some())
@@ -186,6 +242,16 @@ impl BlobService {
     }
 
     pub async fn hard_delete(ctx: &ServiceContext<'_>, hash: &[u8]) -> Result<()> {
+        // Special handling for empty blobs
+        //
+        // Being virtual, having always existed, they cannot be deleted.
+        // So this is a no-op.
+        if hash == EMPTY_BLOB_HASH {
+            tide::log::debug!("Ignoring attempt to hard delete the empty blob");
+            return Ok(());
+        }
+
+        // Delete from S3
         let bucket = ctx.s3_bucket();
         let hex_hash = blob_hash_to_hex(hash);
 
@@ -212,5 +278,6 @@ fn s3_error<T>(response: &ResponseData, action: &str) -> Result<T> {
         error_message,
     );
 
+    // TODO replace with S3 backend-specific error
     Err(Error::RemoteOperationFailed)
 }

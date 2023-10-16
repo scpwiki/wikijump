@@ -488,6 +488,7 @@ impl FileService {
     /// as severe copyright violations, abuse content, or comply with court orders.
     pub async fn hard_delete_all(_ctx: &ServiceContext<'_>, _file_id: i64) -> Result<()> {
         // TODO find hash. update all files with the same hash
+        // TODO if hash == 00000 then error
         // TODO add to audit log
         // TODO hard delete BlobService
 
