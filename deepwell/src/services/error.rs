@@ -140,7 +140,10 @@ impl From<argon2::password_hash::Error> for Error {
     #[inline]
     fn from(error: argon2::password_hash::Error) -> Error {
         match error {
+            // Password is invalid, expected error
             argon2::password_hash::Error::Password => Error::InvalidAuthentication,
+
+            // Problem with the password hashing process
             _ => Error::Cryptography(error),
         }
     }

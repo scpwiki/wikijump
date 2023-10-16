@@ -81,15 +81,14 @@ impl PasswordService {
             Err(error) => {
                 match error {
                     // Simply the wrong password
+                    // This is converted in services/error.rs
                     Error::InvalidAuthentication => {
                         tide::log::warn!("Invalid password entered, verification failed");
                     }
 
                     // Some kind of server error
                     _ => {
-                        tide::log::error!(
-                            "Unexpected error while verifying password: {error}",
-                        );
+                        tide::log::error!("Unexpected error while verifying password: {error}");
                     }
                 }
 
