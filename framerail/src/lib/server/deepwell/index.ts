@@ -1,6 +1,6 @@
 // TODO refactor into proper TS service
 
-import * as jsonrpc from "json-rpc-client"
+import jsonrpc from "json-rpc-client"
 
 const DEEPWELL_HOST = process.env.DEEPWELL_HOST || "localhost"
 const DEEPWELL_PORT = 2747
