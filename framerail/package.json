@@ -43,5 +43,7 @@
     "vite": "^4.4.11"
   },
   "type": "module",
-  "dependencies": {}
+  "dependencies": {
+    "json-rpc-client": "^0.2.2"
+  }
 }
