@@ -49,7 +49,7 @@ impl MfaService {
             || user.multi_factor_recovery_codes.is_some()
         {
             tide::log::error!("User already has MFA set up");
-            return Err(Error::Conflict);
+            return Err(Error::UserMfaExists);
         }
 
         // Securely generate and store secrets
@@ -87,7 +87,7 @@ impl MfaService {
             || user.multi_factor_recovery_codes.is_none()
         {
             tide::log::error!("User does not have MFA set up");
-            return Err(Error::Conflict);
+            return Err(Error::UserMfaExists);
         }
 
         // Securely generate and store secrets

@@ -249,7 +249,7 @@ impl SiteService {
 
     /// Checks to see if a site already exists at the slug specified.
     ///
-    /// If so, this method fails with `Error::Conflict`. Otherwise it returns nothing.
+    /// If so, this method fails with `Error::SiteExists`. Otherwise it returns nothing.
     async fn check_conflicts(
         ctx: &ServiceContext<'_>,
         slug: &str,
@@ -280,7 +280,7 @@ impl SiteService {
                     action,
                 );
 
-                Err(Error::Conflict)
+                Err(Error::SiteExists)
             }
         }
     }

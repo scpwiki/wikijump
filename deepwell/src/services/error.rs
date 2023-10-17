@@ -113,9 +113,6 @@ pub enum Error {
     #[error("The request is in some way malformed or incorrect")]
     BadRequest,
 
-    #[error("The request conflicts with data already present")]
-    Conflict,
-
     #[error("The requested data exists, when it was expected to be missing")]
     Exists,
 
@@ -130,6 +127,30 @@ pub enum Error {
 
     #[error("Cannot hide the wikitext for the latest page revision")]
     CannotHideLatestRevision,
+
+    #[error("Cannot create, user already exists")]
+    UserExists,
+
+    #[error("Cannot set up user MFA, already set up")]
+    UserMfaExists,
+
+    #[error("Cannot create, site already exists")]
+    SiteExists,
+
+    #[error("Cannot create, page already exists")]
+    PageExists,
+
+    #[error("Cannot create, page parent already exists")]
+    PageParentExists,
+
+    #[error("Cannot create, file already exists")]
+    FileExists,
+
+    #[error("Cannot create, filter already exists")]
+    FilterExists,
+
+    #[error("Cannot create, custom domain already exists")]
+    CustomDomainExists,
 
     #[error("Cannot perform this action because you are blocked by the user")]
     UserBlockedUser,
@@ -162,7 +183,6 @@ impl Error {
             // 2000 - Server errors, expected
             Error::NotFound => 2000,
             Error::Exists => 2001,
-            Error::Conflict => 2002,
 
             // 3000 - Server errors, unexpected
             Error::RateLimited => 3000,
@@ -202,9 +222,19 @@ impl Error {
             Error::InvalidEmail => 4201,
             Error::DisallowedEmail => 4202,
 
-            // 4300 -- Relationship conflicts
-            Error::SiteBlockedUser => 4300,
-            Error::UserBlockedUser => 4301,
+            // 4300 -- Database conflicts
+            Error::UserExists => 4300,
+            Error::UserMfaExists => 4301,
+            Error::SiteExists => 4302,
+            Error::PageExists => 4303,
+            Error::PageParentExists => 4304,
+            Error::FileExists => 4305,
+            Error::FilterExists => 4306,
+            Error::CustomDomainExists => 4307,
+
+            // 4400 -- Relationship conflicts
+            Error::SiteBlockedUser => 4400,
+            Error::UserBlockedUser => 4401,
 
             // 5000 - Authentication, permission, or role errors
             Error::InvalidAuthentication => 5000,

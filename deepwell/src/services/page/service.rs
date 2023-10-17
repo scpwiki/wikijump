@@ -686,7 +686,7 @@ impl PageService {
 
     /// Checks to see if a page already exists at the slug specified.
     ///
-    /// If so, this method fails with `Error::Conflict`. Otherwise it returns nothing.
+    /// If so, this method fails with `Error::PageExists`. Otherwise it returns nothing.
     async fn check_conflicts(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -721,7 +721,7 @@ impl PageService {
                     action,
                 );
 
-                Err(Error::Conflict)
+                Err(Error::PageExists)
             }
         }
     }

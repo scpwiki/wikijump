@@ -56,7 +56,7 @@ impl ParentService {
                 "Cannot parent a page to itself (ID {})",
                 parent_page.page_id,
             );
-            return Err(Error::Conflict);
+            return Err(Error::PageParentExists);
         }
 
         // Check if this relationship already exists

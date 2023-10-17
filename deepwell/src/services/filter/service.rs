@@ -347,7 +347,7 @@ impl FilterService {
                 tide::log::error!(
                     " filter '{regex}' for {site_id:?} already exists, cannot {action}"
                 );
-                Err(Error::Conflict)
+                Err(Error::FilterExists)
             }
         }
     }

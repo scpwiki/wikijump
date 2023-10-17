@@ -45,7 +45,7 @@ impl DomainService {
         let txn = ctx.transaction();
         if Self::custom_domain_exists(ctx, &domain).await? {
             tide::log::error!("Custom domain already exists, cannot create");
-            return Err(Error::Conflict);
+            return Err(Error::CustomDomainExists);
         }
 
         let model = site_domain::ActiveModel {

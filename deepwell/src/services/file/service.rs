@@ -497,7 +497,7 @@ impl FileService {
 
     /// Checks to see if a file already exists at the name specified.
     ///
-    /// If so, this method fails with `Error::Conflict`. Otherwise it returns nothing.
+    /// If so, this method fails with `Error::FileExists`. Otherwise it returns nothing.
     async fn check_conflicts(
         ctx: &ServiceContext<'_>,
         page_id: i64,
@@ -527,7 +527,7 @@ impl FileService {
                     action,
                 );
 
-                Err(Error::Conflict)
+                Err(Error::FileExists)
             }
         }
     }

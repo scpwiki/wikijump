@@ -104,7 +104,7 @@ impl UserService {
                 "User with conflicting name or slug already exists, cannot create",
             );
 
-            return Err(Error::Conflict);
+            return Err(Error::UserExists);
         }
 
         // Check for email conflicts
@@ -129,7 +129,7 @@ impl UserService {
                     "User with conflicting email already exists, cannot create",
                 );
 
-                return Err(Error::Conflict);
+                return Err(Error::UserExists);
             }
         }
 
@@ -139,7 +139,7 @@ impl UserService {
                 "User alias with conflicting slug already exists, cannot create",
             );
 
-            return Err(Error::Conflict);
+            return Err(Error::UserExists);
         }
 
         // Set up password field depending on type

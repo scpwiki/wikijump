@@ -95,7 +95,7 @@ impl AliasService {
                         "Site with conflicting slug '{slug}' already exists, cannot create alias",
                     );
 
-                    return Err(Error::Conflict);
+                    return Err(Error::SiteExists);
                 }
             }
             AliasType::User => {
@@ -113,7 +113,7 @@ impl AliasService {
                         "User with conflicting slug '{slug}' already exists, cannot create alias",
                     );
 
-                    return Err(Error::Conflict);
+                    return Err(Error::UserExists);
                 }
 
                 if slug.len() < ctx.config().minimum_name_bytes {
