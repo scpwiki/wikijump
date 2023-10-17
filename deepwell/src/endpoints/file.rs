@@ -46,8 +46,14 @@ pub async fn file_get(
     match FileService::get_optional(ctx, input).await? {
         None => Ok(None),
         Some(file) => {
-            let revision =
-                FileRevisionService::get_latest(ctx, file.site_id, file.page_id, file.file_id).await?;
+            let revision = FileRevisionService::get_latest(
+                ctx,
+                file.site_id,
+                file.page_id,
+                file.file_id,
+            )
+            .await?;
+
             let output = build_file_response(ctx, file, revision, details).await?;
             Ok(Some(output))
         }

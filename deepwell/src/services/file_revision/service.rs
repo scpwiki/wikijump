@@ -447,10 +447,12 @@ impl FileRevisionService {
     /// See `RevisionService::get_optional()`.
     pub async fn get_optional(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
-        file_id: i64,
-        revision_number: i32,
+        GetFileRevision {
+            site_id,
+            page_id,
+            file_id,
+            revision_number,
+        }: GetFileRevision,
     ) -> Result<Option<FileRevisionModel>> {
         let txn = ctx.transaction();
         let revision = FileRevision::find()
@@ -474,15 +476,9 @@ impl FileRevisionService {
     #[allow(dead_code)]
     pub async fn get(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
-        file_id: i64,
-        revision_number: i32,
+        input: GetFileRevision,
     ) -> Result<FileRevisionModel> {
-        find_or_error!(
-            Self::get_optional(ctx, site_id, page_id, file_id, revision_number),
-            FileRevision,
-        )
+        find_or_error!(Self::get_optional(ctx, input), FileRevision)
     }
 
     /// Counts the number of revisions for a file.

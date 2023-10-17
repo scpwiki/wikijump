@@ -206,7 +206,8 @@ impl FileService {
     ) -> Result<Option<MoveFileOutput>> {
         let txn = ctx.transaction();
         let last_revision =
-            FileRevisionService::get_latest(ctx, site_id, current_page_id, file_id).await?;
+            FileRevisionService::get_latest(ctx, site_id, current_page_id, file_id)
+                .await?;
 
         // Get destination filename
         let name = name.unwrap_or_else(|| last_revision.name.clone());

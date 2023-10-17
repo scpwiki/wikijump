@@ -53,18 +53,16 @@ pub async fn file_revision_get(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<Option<FileRevisionModel>> {
-    let GetFileRevision {
-        site_id,
-        page_id,
-        file_id,
-        revision_number,
-    } = params.parse()?;
+    let input: GetFileRevision = params.parse()?;
 
     tide::log::info!(
-        "Getting file revision {revision_number} for file ID {file_id} on page ID {page_id}",
+        "Getting file revision {} for file ID {} on page ID {}",
+        input.revision_number,
+        input.file_id,
+        input.page_id,
     );
 
-    FileRevisionService::get_optional(ctx, site_id, page_id, file_id, revision_number).await
+    FileRevisionService::get_optional(ctx, input).await
 }
 
 pub async fn file_revision_range(
