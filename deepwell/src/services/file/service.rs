@@ -76,6 +76,7 @@ impl FileService {
         // Add new file
         let model = file::ActiveModel {
             name: Set(name.clone()),
+            site_id: Set(site_id),
             page_id: Set(page_id),
             ..Default::default()
         };
