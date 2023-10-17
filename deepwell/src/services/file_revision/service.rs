@@ -149,6 +149,7 @@ impl FileRevisionService {
             revision_number: Set(0),
             file_id: Set(file_id),
             page_id: Set(page_id),
+            site_id: Set(site_id),
             user_id: Set(user_id),
             name: Set(name),
             s3_hash: Set(s3_hash.to_vec()),
@@ -201,6 +202,7 @@ impl FileRevisionService {
             revision_number: Set(0),
             file_id: Set(file_id),
             page_id: Set(page_id),
+            site_id: Set(site_id),
             user_id: Set(user_id),
             name: Set(name),
             s3_hash: Set(s3_hash.to_vec()),
@@ -262,6 +264,7 @@ impl FileRevisionService {
             revision_number: Set(revision_number),
             file_id: Set(file_id),
             page_id: Set(page_id),
+            site_id: Set(site_id),
             user_id: Set(user_id),
             name: Set(name),
             s3_hash: Set(s3_hash),
@@ -348,6 +351,7 @@ impl FileRevisionService {
             revision_number: Set(revision_number),
             file_id: Set(file_id),
             page_id: Set(new_page_id),
+            site_id: Set(site_id),
             user_id: Set(user_id),
             name: Set(new_name),
             s3_hash: Set(s3_hash),
@@ -375,6 +379,7 @@ impl FileRevisionService {
     pub async fn update(
         ctx: &ServiceContext<'_>,
         UpdateFileRevision {
+            site_id,
             page_id,
             file_id,
             revision_id,
@@ -387,7 +392,7 @@ impl FileRevisionService {
         // It should be reverted first, and then it can be hidden.
 
         let txn = ctx.transaction();
-        let latest = Self::get_latest(ctx, page_id, file_id).await?;
+        let latest = Self::get_latest(ctx, site_id, page_id, file_id).await?;
         if revision_id == latest.revision_id {
             tide::log::warn!("Attempting to edit latest revision, denying request");
             return Err(Error::CannotHideLatestRevision);
@@ -414,6 +419,7 @@ impl FileRevisionService {
     /// See `RevisionService::get_latest()`.
     pub async fn get_latest(
         ctx: &ServiceContext<'_>,
+        site_id: i64,
         page_id: i64,
         file_id: i64,
     ) -> Result<FileRevisionModel> {
@@ -424,6 +430,7 @@ impl FileRevisionService {
         let revision = FileRevision::find()
             .filter(
                 Condition::all()
+                    .add(file_revision::Column::SiteId.eq(site_id))
                     .add(file_revision::Column::PageId.eq(page_id))
                     .add(file_revision::Column::FileId.eq(file_id)),
             )
@@ -440,6 +447,7 @@ impl FileRevisionService {
     /// See `RevisionService::get_optional()`.
     pub async fn get_optional(
         ctx: &ServiceContext<'_>,
+        site_id: i64,
         page_id: i64,
         file_id: i64,
         revision_number: i32,
@@ -448,6 +456,7 @@ impl FileRevisionService {
         let revision = FileRevision::find()
             .filter(
                 Condition::all()
+                    .add(file_revision::Column::SiteId.eq(site_id))
                     .add(file_revision::Column::PageId.eq(page_id))
                     .add(file_revision::Column::FileId.eq(file_id))
                     .add(file_revision::Column::RevisionNumber.eq(revision_number)),
@@ -465,12 +474,13 @@ impl FileRevisionService {
     #[allow(dead_code)]
     pub async fn get(
         ctx: &ServiceContext<'_>,
+        site_id: i64,
         page_id: i64,
         file_id: i64,
         revision_number: i32,
     ) -> Result<FileRevisionModel> {
         find_or_error!(
-            Self::get_optional(ctx, page_id, file_id, revision_number),
+            Self::get_optional(ctx, site_id, page_id, file_id, revision_number),
             FileRevision,
         )
     }

@@ -119,7 +119,7 @@ impl FileService {
 
         let txn = ctx.transaction();
         let last_revision =
-            FileRevisionService::get_latest(ctx, page_id, file_id).await?;
+            FileRevisionService::get_latest(ctx, site_id, page_id, file_id).await?;
 
         let EditFileBody {
             name,
@@ -206,7 +206,7 @@ impl FileService {
     ) -> Result<Option<MoveFileOutput>> {
         let txn = ctx.transaction();
         let last_revision =
-            FileRevisionService::get_latest(ctx, current_page_id, file_id).await?;
+            FileRevisionService::get_latest(ctx, site_id, current_page_id, file_id).await?;
 
         // Get destination filename
         let name = name.unwrap_or_else(|| last_revision.name.clone());
@@ -281,7 +281,7 @@ impl FileService {
         .await?;
 
         let last_revision =
-            FileRevisionService::get_latest(ctx, page_id, file_id).await?;
+            FileRevisionService::get_latest(ctx, site_id, page_id, file_id).await?;
 
         // Create tombstone revision
         // This outdates the page, etc
@@ -351,7 +351,7 @@ impl FileService {
         Self::check_conflicts(ctx, page_id, &new_name, "restore").await?;
 
         let last_revision =
-            FileRevisionService::get_latest(ctx, page_id, file_id).await?;
+            FileRevisionService::get_latest(ctx, site_id, page_id, file_id).await?;
 
         // Create resurrection revision
         // This outdates the page, etc

@@ -54,6 +54,7 @@ pub async fn file_revision_get(
     params: Params<'static>,
 ) -> Result<Option<FileRevisionModel>> {
     let GetFileRevision {
+        site_id,
         page_id,
         file_id,
         revision_number,
@@ -63,7 +64,7 @@ pub async fn file_revision_get(
         "Getting file revision {revision_number} for file ID {file_id} on page ID {page_id}",
     );
 
-    FileRevisionService::get_optional(ctx, page_id, file_id, revision_number).await
+    FileRevisionService::get_optional(ctx, site_id, page_id, file_id, revision_number).await
 }
 
 pub async fn file_revision_range(

@@ -96,6 +96,7 @@ pub struct CreateResurrectionFileRevision {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct GetFileRevision {
+    pub site_id: i64,
     pub page_id: i64,
     pub file_id: i64,
     pub revision_number: i32,
@@ -103,6 +104,7 @@ pub struct GetFileRevision {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct UpdateFileRevision {
+    pub site_id: i64,
     pub page_id: i64,
     pub file_id: i64,
     pub revision_id: i64,
