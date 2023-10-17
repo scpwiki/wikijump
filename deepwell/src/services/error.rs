@@ -381,6 +381,49 @@ impl Error {
             // TODO: permission errors (e.g. locked page, cannot apply bans)
         }
     }
+
+    /// Emit partial structured error data.
+    ///
+    /// Meant to be better than nothing and simply `Debug` but also not
+    /// as much boilerplate as manually implementing `Serialize` on everything.
+    /// This unwraps common cases and makes things generally clearer.
+    fn data(&self) -> serde_json::Value {
+        use serde_json::json;
+
+        match self {
+            // Message already has all the data
+            Error::Raw(_) => json!(null),
+
+            // Unwrap self-error
+            Error::AuthenticationBackend(error) => error.data(),
+
+            // Emit as structure
+            Error::SessionUserId {
+                active_user_id,
+                session_user_id,
+            } => json!({
+                "active_user_id": active_user_id,
+                "session_user_id": session_user_id,
+            }),
+
+            // Emit as-is
+            Error::EmailVerification(value) => json!(value),
+
+            // Emit as a Debug string
+            Error::Cryptography(value) => json!(format!("{value:?}")),
+            Error::Database(value) => json!(format!("{value:?}")),
+            Error::LocaleInvalid(value) => json!(format!("{value:?}")),
+            Error::Magic(value) => json!(format!("{value:?}")),
+            Error::Otp(value) => json!(format!("{value:?}")),
+            Error::Serde(value) => json!(format!("{value:?}")),
+            Error::S3Service(value) => json!(format!("{value:?}")),
+            Error::WebRequest(value) => json!(format!("{value:?}")),
+            Error::FilterRegexInvalid(value) => json!(format!("{value:?}")),
+
+            // Other cases are null enums or the values are ignored
+            _ => json!(null),
+        }
+    }
 }
 
 // Error conversion implementations
@@ -418,7 +461,7 @@ impl From<Error> for ErrorObjectOwned {
     fn from(error: Error) -> ErrorObjectOwned {
         let error_code = error.code();
         let message = str!(error);
-        let data = format!("{error:?}"); // instead of implementing an extensive Serde, we use the Debug impl
+        let data = error.data();
         ErrorObjectOwned::owned(error_code, message, Some(data))
     }
 }
