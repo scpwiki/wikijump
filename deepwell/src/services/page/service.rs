@@ -224,7 +224,7 @@ impl PageService {
         // and that a page with that slug doesn't already exist.
         normalize(&mut new_slug);
         if old_slug == new_slug {
-            tide::log::error!("Source and destination slugs are the same: {}", old_slug);
+            error!("Source and destination slugs are the same: {}", old_slug);
             return Err(Error::PageSlugExists);
         }
 
@@ -294,7 +294,7 @@ impl PageService {
                 parser_errors,
             }),
             None => {
-                tide::log::error!("Page move did not create new revision");
+                error!("Page move did not create new revision");
                 Err(Error::BadRequest)
             }
         }
@@ -364,12 +364,12 @@ impl PageService {
         // - Slug doesn't already exist
 
         if page.site_id != site_id {
-            tide::log::warn!("Page's site ID and passed site ID do not match");
+            warn!("Page's site ID and passed site ID do not match");
             return Err(Error::PageNotFound);
         }
 
         if page.deleted_at.is_none() {
-            tide::log::warn!("Page requested to be restored is not currently deleted");
+            warn!("Page requested to be restored is not currently deleted");
             return Err(Error::PageNotDeleted);
         }
 
@@ -597,7 +597,7 @@ impl PageService {
         site_id: i64,
         references: &[Reference<'_>],
     ) -> Result<Vec<PageModel>> {
-        tide::log::info!(
+        info!(
             "Getting {} pages from references in site ID {}",
             references.len(),
             site_id,
@@ -696,7 +696,7 @@ impl PageService {
         let txn = ctx.transaction();
 
         if slug.is_empty() {
-            tide::log::error!("Cannot create page with empty slug");
+            error!("Cannot create page with empty slug");
             return Err(Error::PageSlugEmpty);
         }
 
@@ -713,12 +713,9 @@ impl PageService {
         match result {
             None => Ok(()),
             Some(page) => {
-                tide::log::error!(
+                error!(
                     "Page {} with slug '{}' already exists on site ID {}, cannot {}",
-                    page.page_id,
-                    slug,
-                    site_id,
-                    action,
+                    page.page_id, slug, site_id, action,
                 );
 
                 Err(Error::PageExists)
@@ -733,7 +730,7 @@ impl PageService {
         title: Option<S>,
         alt_title: Option<S>,
     ) -> Result<()> {
-        tide::log::info!("Checking page data against filters...");
+        info!("Checking page data against filters...");
 
         let filter_matcher = FilterService::get_matcher(
             ctx,

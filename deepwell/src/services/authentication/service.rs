@@ -96,7 +96,7 @@ impl AuthenticationService {
         ctx: &ServiceContext<'_>,
         name_or_email: &str,
     ) -> Result<UserAuthInfo> {
-        tide::log::info!("Looking for user matching name or email '{name_or_email}'");
+        info!("Looking for user matching name or email '{name_or_email}'");
 
         let txn = ctx.transaction();
         let result = User::find()

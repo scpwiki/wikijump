@@ -81,9 +81,7 @@ impl InteractionService {
         created_by: i64,
         metadata: &M,
     ) -> Result<InteractionModel> {
-        tide::log::debug!(
-            "Create interaction for {dest:?} ← {interaction_type:?} ← {from:?}",
-        );
+        debug!("Create interaction for {dest:?} ← {interaction_type:?} ← {from:?}",);
 
         // Get previous interaction, if present
         let txn = ctx.transaction();
@@ -97,7 +95,7 @@ impl InteractionService {
         )
         .await?
         {
-            tide::log::debug!("Interaction already exists, marking old item overwritten");
+            debug!("Interaction already exists, marking old item overwritten");
             let model = interaction::ActiveModel {
                 interaction_id: Set(interaction.interaction_id),
                 overwritten_at: Set(Some(now())),
@@ -134,7 +132,7 @@ impl InteractionService {
         reference: InteractionReference,
         deleted_by: i64,
     ) -> Result<InteractionModel> {
-        tide::log::debug!("Removing interaction for {reference:?}");
+        debug!("Removing interaction for {reference:?}");
 
         let txn = ctx.transaction();
         let interaction_id = Self::get_id(ctx, reference).await?;
@@ -153,7 +151,7 @@ impl InteractionService {
         ctx: &ServiceContext<'_>,
         reference: InteractionReference,
     ) -> Result<Option<InteractionModel>> {
-        tide::log::debug!("Getting interaction for {reference:?}");
+        debug!("Getting interaction for {reference:?}");
 
         let txn = ctx.transaction();
         let interaction = Interaction::find()
@@ -207,7 +205,7 @@ impl InteractionService {
         dest: InteractionObject,
         from: InteractionObject,
     ) -> Result<Vec<InteractionModel>> {
-        tide::log::info!(
+        info!(
             "Getting history of interactions for {dest:?} / {interaction_type:?} / {from:?}",
         );
 
@@ -228,9 +226,7 @@ impl InteractionService {
         object: InteractionObject,
         direction: InteractionDirection,
     ) -> Result<Vec<InteractionModel>> {
-        tide::log::info!(
-            "Getting {direction:?} interactions for {object:?} / {interaction_type:?}",
-        );
+        info!("Getting {direction:?} interactions for {object:?} / {interaction_type:?}",);
 
         let (object_type, object_id) = object.into();
         let (object_type_column, object_id_column) = match direction {

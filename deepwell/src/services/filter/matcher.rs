@@ -53,16 +53,15 @@ impl FilterMatcher {
     pub async fn verify(&self, ctx: &ServiceContext<'_>, text: &str) -> Result<()> {
         let matches = self.regex_set.matches(text);
         if !matches.matched_any() {
-            tide::log::info!("String passed all filters, is clear");
+            info!("String passed all filters, is clear");
             return Ok(());
         }
 
         for index in matches {
             let description = &self.filter_data[index];
-            tide::log::error!(
+            error!(
                 "String failed filter ID {}: {}",
-                description.filter_id,
-                description.description,
+                description.filter_id, description.description,
             );
 
             // TODO audit log, with contextual data (what it's checking)

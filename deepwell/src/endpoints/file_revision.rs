@@ -35,9 +35,7 @@ pub async fn file_revision_count(
         file: file_reference,
     } = params.parse()?;
 
-    tide::log::info!(
-        "Getting latest revision for file ID {page_id} in site ID {site_id}",
-    );
+    info!("Getting latest revision for file ID {page_id} in site ID {site_id}",);
 
     let file_id = FileService::get_id(ctx, site_id, file_reference).await?;
     let revision_count = FileRevisionService::count(ctx, page_id, file_id).await?;
@@ -55,11 +53,9 @@ pub async fn file_revision_get(
 ) -> Result<Option<FileRevisionModel>> {
     let input: GetFileRevision = params.parse()?;
 
-    tide::log::info!(
+    info!(
         "Getting file revision {} for file ID {} on page ID {}",
-        input.revision_number,
-        input.file_id,
-        input.page_id,
+        input.revision_number, input.file_id, input.page_id,
     );
 
     FileRevisionService::get_optional(ctx, input).await
@@ -79,11 +75,9 @@ pub async fn file_revision_edit(
 ) -> Result<FileRevisionModel> {
     let input: UpdateFileRevision = params.parse()?;
 
-    tide::log::info!(
+    info!(
         "Editing file revision ID {} for file ID {} on page {}",
-        input.revision_id,
-        input.file_id,
-        input.page_id,
+        input.revision_id, input.file_id, input.page_id,
     );
 
     FileRevisionService::update(ctx, input).await

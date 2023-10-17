@@ -20,13 +20,13 @@
 
 use super::Config;
 use anyhow::Result;
+use femme::LevelFilter;
 use std::convert::TryFrom;
 use std::fs::File;
 use std::io::Read;
 use std::net::SocketAddr;
 use std::path::PathBuf;
 use std::time::Duration as StdDuration;
-use tide::log::LevelFilter;
 use time::Duration as TimeDuration;
 
 /// Structure representing a configuration file.

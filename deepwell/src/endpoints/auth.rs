@@ -50,7 +50,7 @@ pub async fn auth_login(
     // entering the password in the name field instead, which we do
     // *not* want to be logging.
     if authenticate.password.is_empty() {
-        tide::log::error!("User submitted empty password in auth request");
+        error!("User submitted empty password in auth request");
         return Err(Error::EmptyPassword);
     }
 
@@ -69,7 +69,7 @@ pub async fn auth_login(
         Ok(output) => output,
         Err(mut error) => {
             if !matches!(error, Error::InvalidAuthentication) {
-                tide::log::error!("Unexpected error during user authentication: {error}");
+                error!("Unexpected error during user authentication: {error}");
                 error = Error::AuthenticationBackend(Box::new(error));
             }
 
@@ -78,7 +78,7 @@ pub async fn auth_login(
     };
 
     let login_complete = !needs_mfa;
-    tide::log::info!(
+    info!(
         "Password authentication for user ID {user_id} succeeded (login complete: {login_complete})",
     );
 
@@ -145,7 +145,7 @@ pub async fn auth_session_get_others(
     {
         Some(index) => sessions.remove(index),
         None => {
-            tide::log::error!(
+            error!(
                 "Cannot find own session token in list of all sessions, must be invalid",
             );
             return Err(Error::InvalidSessionToken);
@@ -181,9 +181,7 @@ pub async fn auth_mfa_verify(
         user_agent,
     } = params.parse()?;
 
-    tide::log::info!(
-        "Verifying user's MFA for login (temporary session token {session_token})",
-    );
+    info!("Verifying user's MFA for login (temporary session token {session_token})",);
 
     let user = AuthenticationService::auth_mfa(
         ctx,
@@ -226,10 +224,9 @@ pub async fn auth_mfa_disable(
 
     let user = SessionService::get_user(ctx, &session_token, false).await?;
     if user.user_id != user_id {
-        tide::log::error!(
+        error!(
             "Passed user ID ({}) does not match session token ({})",
-            user_id,
-            user.user_id,
+            user_id, user.user_id,
         );
 
         return Err(Error::SessionUserId {
@@ -252,10 +249,9 @@ pub async fn auth_mfa_reset_recovery(
 
     let user = SessionService::get_user(ctx, &session_token, false).await?;
     if user.user_id != user_id {
-        tide::log::error!(
+        error!(
             "Passed user ID ({}) does not match session token ({})",
-            user_id,
-            user.user_id,
+            user_id, user.user_id,
         );
 
         return Err(Error::SessionUserId {

@@ -55,7 +55,7 @@ struct WatchedPaths {
 }
 
 pub fn setup_autorestart(config: &Config) -> Result<RecommendedWatcher> {
-    tide::log::info!("Starting watcher for auto-restart on file change");
+    info!("Starting watcher for auto-restart on file change");
     let watched_paths = WatchedPaths {
         config_path: fs::canonicalize(&config.raw_toml_path)?,
         localization_path: fs::canonicalize(&config.localization_path)?,
@@ -64,13 +64,10 @@ pub fn setup_autorestart(config: &Config) -> Result<RecommendedWatcher> {
     let mut watcher = RecommendedWatcher::new(
         move |result: WatcherResult<Event>| match result {
             Err(error) => {
-                tide::log::error!("Unable to receive filesystem events: {error}");
+                error!("Unable to receive filesystem events: {error}");
             }
             Ok(event) => {
-                tide::log::debug!(
-                    "Received filesystem event ({} paths)",
-                    event.paths.len(),
-                );
+                debug!("Received filesystem event ({} paths)", event.paths.len(),);
 
                 if event_is_applicable(&watched_paths, event) {
                     restart_self();
@@ -81,12 +78,12 @@ pub fn setup_autorestart(config: &Config) -> Result<RecommendedWatcher> {
     )?;
 
     // Add autowatch to configuration file.
-    tide::log::debug!("Adding regular watch to {}", config.raw_toml_path.display());
+    debug!("Adding regular watch to {}", config.raw_toml_path.display());
     watcher.watch(&config.raw_toml_path, RecursiveMode::NonRecursive)?;
 
     // Add autowatch to localization directory.
     // Recursive because it is nested.
-    tide::log::debug!(
+    debug!(
         "Adding recursive watch to {}",
         config.localization_path.display(),
     );
@@ -101,7 +98,7 @@ fn event_is_applicable(watched_paths: &WatchedPaths, event: Event) -> bool {
         event.kind,
         EventKind::Access(_) | EventKind::Any | EventKind::Other,
     ) {
-        tide::log::debug!("Ignoring access or unknown event");
+        debug!("Ignoring access or unknown event");
         return false;
     }
 
@@ -115,25 +112,23 @@ fn event_is_applicable(watched_paths: &WatchedPaths, event: Event) -> bool {
 }
 
 fn path_is_applicable(watched_paths: &WatchedPaths, path: &Path) -> bool {
-    tide::log::debug!("Checking filesystem event for {}", path.display());
+    debug!("Checking filesystem event for {}", path.display());
 
     let path = match fs::canonicalize(path) {
         Ok(path) => path,
         Err(error) => {
-            tide::log::error!(
-                "Error finding canonical path for event processing: {error}",
-            );
+            error!("Error finding canonical path for event processing: {error}",);
             return false;
         }
     };
 
     if path.starts_with(&watched_paths.config_path) {
-        tide::log::info!("DEEPWELL configuration path modified: {}", path.display());
+        info!("DEEPWELL configuration path modified: {}", path.display());
         return true;
     }
 
     if path.starts_with(&watched_paths.localization_path) {
-        tide::log::info!("Localization subpath modified: {}", path.display());
+        info!("Localization subpath modified: {}", path.display());
         return true;
     }
 
@@ -141,12 +136,12 @@ fn path_is_applicable(watched_paths: &WatchedPaths, path: &Path) -> bool {
 }
 
 fn restart_self() -> Infallible {
-    tide::log::info!("Restarting server");
+    info!("Restarting server");
 
     let executable = env::current_exe().expect("Unable to get current executable");
     let arguments = env::args_os().skip(1).collect::<Vec<_>>();
 
-    tide::log::info!(
+    info!(
         "Replacing process with exec: {} {:?}",
         Path::new(&executable).display(),
         arguments,

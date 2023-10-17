@@ -69,7 +69,7 @@ impl RecoveryCodes {
             let mut hashes = Vec::new();
 
             for code in &recovery_codes {
-                tide::log::debug!("Hashing recovery code");
+                debug!("Hashing recovery code");
                 let hash = PasswordService::new_hash(code)?;
                 hashes.push(hash);
             }

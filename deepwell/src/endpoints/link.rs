@@ -34,7 +34,7 @@ pub async fn page_links_from_get(
         page: reference,
     } = params.parse()?;
 
-    tide::log::info!("Getting page links for page {reference:?} in site ID {site_id}");
+    info!("Getting page links for page {reference:?} in site ID {site_id}");
     let page_id = PageService::get_id(ctx, site_id, reference).await?;
     LinkService::get_from(ctx, page_id).await
 }
@@ -48,7 +48,7 @@ pub async fn page_links_to_get(
         page: reference,
     } = params.parse()?;
 
-    tide::log::info!("Getting page links from page {reference:?} in site ID {site_id}");
+    info!("Getting page links from page {reference:?} in site ID {site_id}");
     let page_id = PageService::get_id(ctx, site_id, reference).await?;
     LinkService::get_to(ctx, page_id, None).await
 }
@@ -58,9 +58,7 @@ pub async fn page_links_to_missing_get(
     params: Params<'static>,
 ) -> Result<GetLinksToMissingOutput> {
     let GetLinksToMissing { site_id, page_slug } = params.parse()?;
-    tide::log::info!(
-        "Getting missing page links from page slug {page_slug} in site ID {site_id}",
-    );
+    info!("Getting missing page links from page slug {page_slug} in site ID {site_id}",);
 
     LinkService::get_to_missing(ctx, site_id, &page_slug, None).await
 }
@@ -74,9 +72,7 @@ pub async fn page_links_external_from(
         page: reference,
     } = params.parse()?;
 
-    tide::log::info!(
-        "Getting external links from page {reference:?} in site ID {site_id}",
-    );
+    info!("Getting external links from page {reference:?} in site ID {site_id}",);
 
     let page_id = PageService::get_id(ctx, site_id, reference).await?;
     LinkService::get_external_from(ctx, page_id).await
@@ -87,6 +83,6 @@ pub async fn page_links_external_to(
     params: Params<'static>,
 ) -> Result<GetLinksExternalToOutput> {
     let GetLinksExternalTo { site_id, url } = params.parse()?;
-    tide::log::info!("Getting external links to URL {url} in site ID {site_id}");
+    info!("Getting external links to URL {url} in site ID {site_id}");
     LinkService::get_external_to(ctx, site_id, &url).await
 }

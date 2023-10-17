@@ -35,11 +35,9 @@ pub async fn file_get(
 ) -> Result<Option<GetFileOutput>> {
     let GetFileDetails { input, details } = params.parse()?;
 
-    tide::log::info!(
+    info!(
         "Getting file {:?} from page ID {} in site ID {}",
-        input.file,
-        input.page_id,
-        input.site_id,
+        input.file, input.page_id, input.site_id,
     );
 
     // We cannot use get_id() because we need File for build_file_response().
@@ -66,7 +64,7 @@ pub async fn file_upload(
 ) -> Result<UploadFileOutput> {
     let input: UploadFile = params.parse()?;
 
-    tide::log::info!(
+    info!(
         "Uploading file '{}' ({} bytes) to page ID {} in site ID {}",
         input.name,
         input.data.len(),
@@ -83,11 +81,9 @@ pub async fn file_edit(
 ) -> Result<Option<EditFileOutput>> {
     let input: EditFile = params.parse()?;
 
-    tide::log::info!(
+    info!(
         "Editing file ID {} in page ID {} in site ID {}",
-        input.file_id,
-        input.page_id,
-        input.site_id,
+        input.file_id, input.page_id, input.site_id,
     );
 
     FileService::edit(ctx, input).await
@@ -99,11 +95,9 @@ pub async fn file_delete(
 ) -> Result<DeleteFileOutput> {
     let input: DeleteFile = params.parse()?;
 
-    tide::log::info!(
+    info!(
         "Deleting file {:?} in page ID {} in site ID {}",
-        input.file,
-        input.page_id,
-        input.site_id,
+        input.file, input.page_id, input.site_id,
     );
 
     FileService::delete(ctx, input).await
@@ -115,11 +109,9 @@ pub async fn file_restore(
 ) -> Result<RestoreFileOutput> {
     let input: RestoreFile = params.parse()?;
 
-    tide::log::info!(
+    info!(
         "Restoring deleted file ID {} in page ID {} in site ID {}",
-        input.file_id,
-        input.page_id,
-        input.site_id,
+        input.file_id, input.page_id, input.site_id,
     );
 
     FileService::restore(ctx, input).await
@@ -131,12 +123,9 @@ pub async fn file_move(
 ) -> Result<Option<MoveFileOutput>> {
     let input: MoveFile = params.parse()?;
 
-    tide::log::info!(
+    info!(
         "Moving file ID {} from page ID {} to page ID {} in site ID {}",
-        input.file_id,
-        input.current_page_id,
-        input.destination_page_id,
-        input.site_id,
+        input.file_id, input.current_page_id, input.destination_page_id, input.site_id,
     );
 
     FileService::r#move(ctx, input).await
@@ -148,7 +137,7 @@ pub async fn file_hard_delete(
 ) -> Result<()> {
     let file_id: i64 = params.one()?;
 
-    tide::log::info!(
+    info!(
         "Hard deleting file ID {file_id} and all duplicates, including underlying data",
     );
 

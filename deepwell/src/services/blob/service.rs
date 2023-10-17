@@ -58,11 +58,11 @@ impl BlobService {
         data: B,
     ) -> Result<CreateBlobOutput> {
         let data = data.as_ref();
-        tide::log::info!("Creating blob (length {})", data.len());
+        info!("Creating blob (length {})", data.len());
 
         // Special handling for empty blobs
         if data.is_empty() {
-            tide::log::debug!("File being created is empty, special case");
+            debug!("File being created is empty, special case");
             return Ok(CreateBlobOutput {
                 hash: EMPTY_BLOB_HASH,
                 mime: str!(EMPTY_BLOB_MIME),
@@ -82,7 +82,7 @@ impl BlobService {
         match Self::head(ctx, &hex_hash).await? {
             // Blob exists, copy metadata and return that
             Some(result) => {
-                tide::log::debug!("Blob with hash {hex_hash} already exists");
+                debug!("Blob with hash {hex_hash} already exists");
 
                 // Content-Type header should be passed in
                 let mime = result.content_type.ok_or(Error::S3Response)?;
@@ -97,7 +97,7 @@ impl BlobService {
 
             // Blob doesn't exist, insert it
             None => {
-                tide::log::debug!("Blob with hash {hex_hash} to be created");
+                debug!("Blob with hash {hex_hash} to be created");
 
                 // Determine MIME type for the new file
                 let mime = ctx.mime().get_mime_type(data.to_vec()).await?;
@@ -127,7 +127,7 @@ impl BlobService {
     ) -> Result<Option<Vec<u8>>> {
         // Special handling for empty blobs
         if hash == EMPTY_BLOB_HASH {
-            tide::log::debug!("Returning the empty blob");
+            debug!("Returning the empty blob");
             return Ok(Some(Vec::new()));
         }
 
@@ -197,7 +197,7 @@ impl BlobService {
     pub async fn exists(ctx: &ServiceContext<'_>, hash: &[u8]) -> Result<bool> {
         // Special handling for the empty blob
         if hash == EMPTY_BLOB_HASH {
-            tide::log::debug!("Checking existence of the empty blob");
+            debug!("Checking existence of the empty blob");
             return Ok(true);
         }
 
@@ -246,7 +246,7 @@ impl BlobService {
         // Being virtual, having always existed, they cannot be deleted.
         // So this is a no-op.
         if hash == EMPTY_BLOB_HASH {
-            tide::log::debug!("Ignoring attempt to hard delete the empty blob");
+            debug!("Ignoring attempt to hard delete the empty blob");
             return Ok(());
         }
 
@@ -270,7 +270,7 @@ fn s3_error<T>(response: &ResponseData, action: &str) -> Result<T> {
         Err(_) => "(invalid UTF-8)",
     };
 
-    tide::log::error!(
+    error!(
         "Error while {} (HTTP {}): {}",
         action,
         response.status_code(),

@@ -20,11 +20,11 @@
 
 use super::file::ConfigFile;
 use anyhow::Result;
+use femme::LevelFilter;
 use std::env;
 use std::net::SocketAddr;
 use std::path::PathBuf;
 use std::time::Duration as StdDuration;
-use tide::log::LevelFilter;
 use time::Duration as TimeDuration;
 
 /// Primary configuration structure.
@@ -182,17 +182,17 @@ impl Config {
             }
         }
 
-        tide::log::info!("Configuration details:");
-        tide::log::info!("Serving on {}", self.address);
-        tide::log::info!(
+        info!("Configuration details:");
+        info!("Serving on {}", self.address);
+        info!(
             "Auto-restart on config change: {}",
             bool_str(self.watch_files),
         );
-        tide::log::info!("Migrations: {}", bool_str(self.run_migrations));
-        tide::log::info!("Seeder: {}", bool_str(self.run_seeder));
-        tide::log::info!("Localization path: {}", self.localization_path.display());
-        tide::log::info!("Seeder path: {}", self.seeder_path.display());
-        tide::log::info!(
+        info!("Migrations: {}", bool_str(self.run_migrations));
+        info!("Seeder: {}", bool_str(self.run_seeder));
+        info!("Localization path: {}", self.localization_path.display());
+        info!("Seeder path: {}", self.seeder_path.display());
+        info!(
             "Current working directory: {}",
             env::current_dir()
                 .expect("Cannot get current working directory")

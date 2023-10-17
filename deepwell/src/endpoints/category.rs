@@ -29,7 +29,7 @@ pub async fn category_get(
 ) -> Result<Option<PageCategoryModel>> {
     let GetCategory { site, category } = params.parse()?;
     let site_id = SiteService::get_id(ctx, site).await?;
-    tide::log::info!("Getting page category {category:?} in site ID {site_id}");
+    info!("Getting page category {category:?} in site ID {site_id}");
     CategoryService::get_optional(ctx, site_id, category).await
 }
 
@@ -39,6 +39,6 @@ pub async fn category_get_all(
 ) -> Result<Vec<PageCategoryModel>> {
     let GetSite { site } = params.parse()?;
     let site_id = SiteService::get_id(ctx, site).await?;
-    tide::log::info!("Getting all page categories in site ID {site_id}");
+    info!("Getting all page categories in site ID {site_id}");
     CategoryService::get_all(ctx, site_id).await
 }

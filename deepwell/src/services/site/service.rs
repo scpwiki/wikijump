@@ -131,7 +131,7 @@ impl SiteService {
         new_slug: &str,
         user_id: i64,
     ) -> Result<()> {
-        tide::log::info!("Updating slug for site {}, adding alias", site.site_id);
+        info!("Updating slug for site {}, adding alias", site.site_id);
 
         let old_slug = &site.slug;
         match AliasService::get_optional(ctx, AliasType::Site, new_slug).await? {
@@ -139,13 +139,13 @@ impl SiteService {
             //
             // Don't return a future, nothing to do after
             Some(alias) => {
-                tide::log::debug!("Swapping slug between site and alias");
+                debug!("Swapping slug between site and alias");
                 AliasService::swap(ctx, alias.alias_id, old_slug).await?;
             }
 
             // Return future that creates new alias at the old location
             None => {
-                tide::log::debug!("Creating site alias for {old_slug}");
+                debug!("Creating site alias for {old_slug}");
 
                 // Add site alias for old slug.
                 //
@@ -258,7 +258,7 @@ impl SiteService {
         let txn = ctx.transaction();
 
         if slug.is_empty() {
-            tide::log::error!("Cannot create site with empty slug");
+            error!("Cannot create site with empty slug");
             return Err(Error::SiteSlugEmpty);
         }
 
@@ -274,10 +274,9 @@ impl SiteService {
         match result {
             None => Ok(()),
             Some(_) => {
-                tide::log::error!(
+                error!(
                     "Site with slug '{}' already exists, cannot {}",
-                    slug,
-                    action,
+                    slug, action,
                 );
 
                 Err(Error::SiteExists)

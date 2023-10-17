@@ -33,7 +33,7 @@ pub async fn page_create(
     params: Params<'static>,
 ) -> Result<CreatePageOutput> {
     let input: CreatePage = params.parse()?;
-    tide::log::info!("Creating new page in site ID {}", input.site_id);
+    info!("Creating new page in site ID {}", input.site_id);
     PageService::create(ctx, input).await
 }
 
@@ -47,7 +47,7 @@ pub async fn page_get(
         details,
     } = params.parse()?;
 
-    tide::log::info!("Getting page {reference:?} in site ID {site_id}");
+    info!("Getting page {reference:?} in site ID {site_id}");
     match PageService::get_optional(ctx, site_id, reference).await? {
         Some(page) => build_page_output(ctx, page, details).await,
         None => Ok(None),
@@ -64,7 +64,7 @@ pub async fn page_get_direct(
         details,
     } = params.parse()?;
 
-    tide::log::info!("Getting page ID {page_id} in site ID {site_id}");
+    info!("Getting page ID {page_id} in site ID {site_id}");
     match PageService::get_direct_optional(ctx, site_id, page_id).await? {
         Some(page) => build_page_output(ctx, page, details).await,
         None => Ok(None),
@@ -76,7 +76,7 @@ pub async fn page_edit(
     params: Params<'static>,
 ) -> Result<Option<EditPageOutput>> {
     let input: EditPage = params.parse()?;
-    tide::log::info!("Editing page {:?} in site ID {}", input.page, input.site_id);
+    info!("Editing page {:?} in site ID {}", input.page, input.site_id);
     PageService::edit(ctx, input).await
 }
 
@@ -85,10 +85,9 @@ pub async fn page_delete(
     params: Params<'static>,
 ) -> Result<DeletePageOutput> {
     let input: DeletePage = params.parse()?;
-    tide::log::info!(
+    info!(
         "Deleting page {:?} in site ID {}",
-        input.page,
-        input.site_id,
+        input.page, input.site_id,
     );
     PageService::delete(ctx, input).await
 }
@@ -98,11 +97,9 @@ pub async fn page_move(
     params: Params<'static>,
 ) -> Result<MovePageOutput> {
     let input: MovePage = params.parse()?;
-    tide::log::info!(
+    info!(
         "Moving page {:?} in site ID {} to {}",
-        input.page,
-        input.site_id,
-        input.new_slug,
+        input.page, input.site_id, input.new_slug,
     );
     PageService::r#move(ctx, input).await
 }
@@ -112,7 +109,7 @@ pub async fn page_rerender(
     params: Params<'static>,
 ) -> Result<()> {
     let GetPageDirect { site_id, page_id } = params.parse()?;
-    tide::log::info!("Re-rendering page ID {page_id} in site ID {site_id}");
+    info!("Re-rendering page ID {page_id} in site ID {site_id}");
     PageRevisionService::rerender(ctx, site_id, page_id).await
 }
 
@@ -121,10 +118,9 @@ pub async fn page_restore(
     params: Params<'static>,
 ) -> Result<RestorePageOutput> {
     let input: RestorePage = params.parse()?;
-    tide::log::info!(
+    info!(
         "Un-deleting page ID {} in site ID {}",
-        input.page_id,
-        input.site_id,
+        input.page_id, input.site_id,
     );
     PageService::restore(ctx, input).await
 }
@@ -135,11 +131,9 @@ pub async fn page_rollback(
 ) -> Result<Option<EditPageOutput>> {
     let input: RollbackPage = params.parse()?;
 
-    tide::log::info!(
+    info!(
         "Rolling back page {:?} in site ID {} to revision number {}",
-        input.page,
-        input.site_id,
-        input.revision_number,
+        input.page, input.site_id, input.revision_number,
     );
 
     PageService::rollback(ctx, input).await

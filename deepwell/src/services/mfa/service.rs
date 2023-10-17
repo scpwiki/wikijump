@@ -36,11 +36,11 @@ impl MfaService {
         ctx: &ServiceContext<'_>,
         user: &UserModel,
     ) -> Result<MultiFactorSetupOutput> {
-        tide::log::info!("Setting up MFA for user ID {}", user.user_id);
+        info!("Setting up MFA for user ID {}", user.user_id);
 
         // Only regular accounts can have MFA
         if user.user_type != UserType::Regular {
-            tide::log::error!("Only regular users may have MFA");
+            error!("Only regular users may have MFA");
             return Err(Error::BadRequest);
         }
 
@@ -48,16 +48,16 @@ impl MfaService {
         if user.multi_factor_secret.is_some()
             || user.multi_factor_recovery_codes.is_some()
         {
-            tide::log::error!("User already has MFA set up");
+            error!("User already has MFA set up");
             return Err(Error::UserMfaExists);
         }
 
         // Securely generate and store secrets
-        tide::log::debug!("Generating MFA secrets for user ID {}", user.user_id);
+        debug!("Generating MFA secrets for user ID {}", user.user_id);
         let totp_secret = generate_totp_secret();
         let recovery = RecoveryCodes::generate(ctx.config())?;
 
-        tide::log::debug!("Committing MFA secrets for user ID {}", user.user_id);
+        debug!("Committing MFA secrets for user ID {}", user.user_id);
         UserService::set_mfa_secrets(
             ctx,
             user.user_id,
@@ -80,21 +80,21 @@ impl MfaService {
         ctx: &ServiceContext<'_>,
         user: &UserModel,
     ) -> Result<MultiFactorResetOutput> {
-        tide::log::info!("Resetting MFA recovery codes for user ID {}", user.user_id);
+        info!("Resetting MFA recovery codes for user ID {}", user.user_id);
 
         // Ensure MFA is set up
         if user.multi_factor_secret.is_none()
             || user.multi_factor_recovery_codes.is_none()
         {
-            tide::log::error!("User does not have MFA set up");
+            error!("User does not have MFA set up");
             return Err(Error::UserMfaExists);
         }
 
         // Securely generate and store secrets
-        tide::log::debug!("Generating recovery codes for user ID {}", user.user_id);
+        debug!("Generating recovery codes for user ID {}", user.user_id);
         let recovery = RecoveryCodes::generate(ctx.config())?;
 
-        tide::log::debug!("Committing recovery codes for user ID {}", user.user_id);
+        debug!("Committing recovery codes for user ID {}", user.user_id);
         UserService::set_mfa_secrets(
             ctx,
             user.user_id,
@@ -114,7 +114,7 @@ impl MfaService {
     /// After this is run, the user does not need MFA to sign in,
     /// and has no recovery codes or TOTP secret.
     pub async fn disable(ctx: &ServiceContext<'_>, user_id: i64) -> Result<()> {
-        tide::log::info!("Tearing down MFA for user ID {}", user_id);
+        info!("Tearing down MFA for user ID {}", user_id);
 
         UserService::set_mfa_secrets(
             ctx,
@@ -134,12 +134,12 @@ impl MfaService {
         user: &UserModel,
         entered_totp: u32,
     ) -> Result<()> {
-        tide::log::info!("Verifying TOTP code for user ID {}", user.user_id);
+        info!("Verifying TOTP code for user ID {}", user.user_id);
 
         let secret = match &user.multi_factor_secret {
             Some(secret) => secret,
             None => {
-                tide::log::warn!("User has no MFA secret, cannot verify TOTP");
+                warn!("User has no MFA secret, cannot verify TOTP");
                 return Err(Error::InvalidAuthentication);
             }
         };
@@ -170,14 +170,12 @@ impl MfaService {
         user: &UserModel,
         recovery_code: &str,
     ) -> Result<()> {
-        tide::log::info!("Verifying recovery code for user ID {}", user.user_id);
+        info!("Verifying recovery code for user ID {}", user.user_id);
 
         let recovery_code_hashes = match &user.multi_factor_recovery_codes {
             Some(codes) => codes,
             None => {
-                tide::log::warn!(
-                    "User has no MFA recovery codes, but wants to verify recovery",
-                );
+                warn!("User has no MFA recovery codes, but wants to verify recovery",);
 
                 return Err(Error::InvalidAuthentication);
             }

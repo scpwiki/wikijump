@@ -38,9 +38,7 @@ pub async fn page_revision_count(
         details: _,
     } = params.parse()?;
 
-    tide::log::info!(
-        "Getting latest revision for page {reference:?} in site ID {site_id}",
-    );
+    info!("Getting latest revision for page {reference:?} in site ID {site_id}",);
 
     let page_id = PageService::get_id(ctx, site_id, reference).await?;
     let revision_count = PageRevisionService::count(ctx, site_id, page_id).await?;
@@ -65,7 +63,7 @@ pub async fn page_revision_get(
         details,
     } = params.parse()?;
 
-    tide::log::info!(
+    info!(
         "Getting revision {revision_number} for page ID {page_id} in site ID {site_id}",
     );
 
@@ -87,11 +85,9 @@ pub async fn page_revision_edit(
 ) -> Result<PageRevisionModelFiltered> {
     let UpdatePageRevisionDetails { input, details } = params.parse()?;
 
-    tide::log::info!(
+    info!(
         "Editing revision ID {} for page ID {} in site ID {}",
-        input.revision_id,
-        input.page_id,
-        input.site_id,
+        input.revision_id, input.page_id, input.site_id,
     );
 
     let revision_id = input.revision_id;

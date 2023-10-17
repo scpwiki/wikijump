@@ -41,7 +41,7 @@ impl TextService {
         hash: &[u8],
     ) -> Result<Option<String>> {
         if hash.len() != TEXT_HASH_LENGTH {
-            tide::log::error!(
+            error!(
                 "Text hash length does not match, should be {}, is {}",
                 TEXT_HASH_LENGTH,
                 hash.len(),
@@ -156,7 +156,7 @@ impl TextService {
             .exec(txn)
             .await?;
 
-        tide::log::debug!("Pruned {rows_affected} unused text rows");
+        debug!("Pruned {rows_affected} unused text rows");
         Ok(())
     }
 }

@@ -123,17 +123,17 @@ impl FileRevisionService {
 
         // Validate inputs
         if name.is_empty() {
-            tide::log::error!("File name is empty");
+            error!("File name is empty");
             return Err(Error::FileNameEmpty);
         }
 
         if name.len() >= 256 {
-            tide::log::error!("File name of invalid length: {}", name.len());
+            error!("File name of invalid length: {}", name.len());
             return Err(Error::FileNameTooLong);
         }
 
         if mime_hint.is_empty() {
-            tide::log::error!("MIME type hint is empty");
+            error!("MIME type hint is empty");
             return Err(Error::FileMimeEmpty);
         }
 
@@ -394,7 +394,7 @@ impl FileRevisionService {
         let txn = ctx.transaction();
         let latest = Self::get_latest(ctx, site_id, page_id, file_id).await?;
         if revision_id == latest.revision_id {
-            tide::log::warn!("Attempting to edit latest revision, denying request");
+            warn!("Attempting to edit latest revision, denying request");
             return Err(Error::CannotHideLatestRevision);
         }
 

@@ -144,7 +144,7 @@ impl LinkService {
         if let Some(page) =
             PageService::get_optional(ctx, site_id, Reference::from(page_slug)).await?
         {
-            tide::log::warn!(
+            warn!(
                 "Requesting missing page connections for page that exists (site id {}, page id {})",
                 site_id,
                 page.page_id,

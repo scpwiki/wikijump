@@ -40,7 +40,7 @@ impl Localizations {
     pub async fn open<P: Into<PathBuf>>(
         directory: P,
     ) -> Result<Self, LocalizationLoadError> {
-        tide::log::debug!("Reading Fluent localization directory...");
+        debug!("Reading Fluent localization directory...");
 
         let directory = {
             let mut path = directory.into();
@@ -64,7 +64,7 @@ impl Localizations {
         bundles: &mut HashMap<LanguageIdentifier, FluentBundle>,
         directory: &Path,
     ) -> Result<(), LocalizationLoadError> {
-        tide::log::debug!("Reading component at {}", directory.display());
+        debug!("Reading component at {}", directory.display());
         let mut entries = fs::read_dir(directory).await?;
 
         while let Some(result) = entries.next().await {
@@ -78,7 +78,7 @@ impl Localizations {
                 .to_str()
                 .expect("Path is not valid UTF-8");
 
-            tide::log::debug!("Loading locale {locale_name}");
+            debug!("Loading locale {locale_name}");
             let locale: LanguageIdentifier = locale_name.parse()?;
 
             // Read and parse localization strings
@@ -136,7 +136,7 @@ impl Localizations {
         let (path, attribute) = Self::parse_selector(key);
         let (bundle, message) = self.get_message(locale, path)?;
 
-        tide::log::info!(
+        info!(
             "Translating for locale {}, message path {}, attribute {}",
             locale,
             path,
@@ -161,16 +161,14 @@ impl Localizations {
 
         // Log any errors
         if !errors.is_empty() {
-            tide::log::warn!(
-                "Errors formatting message for locale {locale}, message key {key}",
-            );
+            warn!("Errors formatting message for locale {locale}, message key {key}",);
 
             for (key, value) in args.iter() {
-                tide::log::warn!("Passed formatting argument: {key} -> {value:?}");
+                warn!("Passed formatting argument: {key} -> {value:?}");
             }
 
             for error in errors {
-                tide::log::warn!("Message formatting error: {error}");
+                warn!("Message formatting error: {error}");
             }
         }
 

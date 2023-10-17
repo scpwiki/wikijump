@@ -58,7 +58,7 @@ impl MimeAnalyzer {
     /// This object is cheaply cloneable and should be reused instead of
     /// making new instances and starting new threads.
     pub fn spawn() -> Self {
-        tide::log::info!("Starting MIME analyzer worker");
+        info!("Starting MIME analyzer worker");
         let (sink, source) = mpsc::channel(64);
 
         thread::spawn(|| {
@@ -74,7 +74,7 @@ impl MimeAnalyzer {
         const MAGIC_FLAGS: MagicFlags = MagicFlags::MIME;
         const MAGIC_PATHS: &[&str] = &[]; // Empty indicates using the default magic database
 
-        tide::log::info!("Loading magic database data");
+        info!("Loading magic database data");
         let magic = Magic::open(MAGIC_FLAGS)?;
         magic.load(MAGIC_PATHS)?;
         Ok(magic)
@@ -86,12 +86,12 @@ impl MimeAnalyzer {
     /// requests via a mpsc channel.
     fn main_loop(magic: Magic, mut source: RequestReceiver) {
         while let Some((bytes, sender)) = source.blocking_recv() {
-            tide::log::debug!("Received MIME request ({} bytes)", bytes.len());
+            debug!("Received MIME request ({} bytes)", bytes.len());
             let result = magic.buffer(&bytes);
             sender.send(result).expect("Response channel is closed");
         }
 
-        tide::log::warn!("MIME magic channel closed");
+        warn!("MIME magic channel closed");
     }
 
     /// Requests that libmagic analyze the buffer to determine its MIME type.
@@ -100,7 +100,7 @@ impl MimeAnalyzer {
     /// and then waiting for the response, we need to send both the input
     /// and a oneshot channel to get the response.
     pub async fn get_mime_type(&self, buffer: Vec<u8>) -> Result<String> {
-        tide::log::info!("Sending MIME request ({} bytes)", buffer.len());
+        info!("Sending MIME request ({} bytes)", buffer.len());
 
         // Channel for getting the result
         let (resp_send, resp_recv): (ResponseSender, ResponseReceiver) =

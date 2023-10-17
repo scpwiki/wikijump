@@ -26,7 +26,7 @@ pub async fn validate_email(
     params: Params<'static>,
 ) -> Result<EmailValidationOutput> {
     let email: String = params.one()?;
-    tide::log::info!("Validating user email: {email}");
+    info!("Validating user email: {email}");
     let output = EmailService::validate(&email).await?;
     Ok(output)
 }

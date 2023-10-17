@@ -36,9 +36,7 @@ pub struct JobService;
 
 impl JobService {
     pub fn queue_rerender_page(queue: &JobQueue, site_id: i64, page_id: i64) {
-        tide::log::debug!(
-            "Queueing page ID {page_id} in site ID {site_id} for rerendering",
-        );
+        debug!("Queueing page ID {page_id} in site ID {site_id} for rerendering",);
         queue
             .sink
             .send(Job::RerenderPageId { site_id, page_id })
@@ -46,7 +44,7 @@ impl JobService {
     }
 
     pub fn queue_prune_sessions(queue: &JobQueue) {
-        tide::log::debug!("Queueing sessions list for pruning");
+        debug!("Queueing sessions list for pruning");
         queue
             .sink
             .send(Job::PruneSessions)
@@ -54,7 +52,7 @@ impl JobService {
     }
 
     pub fn queue_prune_text(queue: &JobQueue) {
-        tide::log::debug!("Queueing unused text for pruning");
+        debug!("Queueing unused text for pruning");
         queue
             .sink
             .send(Job::PruneText)
@@ -86,7 +84,7 @@ impl JobQueue {
         // Ancillary tasks
         task::spawn(async move {
             loop {
-                tide::log::trace!("Running repeat job: prune expired sessions");
+                trace!("Running repeat job: prune expired sessions");
                 JobService::queue_prune_sessions(&job_queue_1);
                 time::sleep(session_prune_delay).await;
             }
@@ -94,7 +92,7 @@ impl JobQueue {
 
         task::spawn(async move {
             loop {
-                tide::log::trace!("Running repeat job: prune unused text rows");
+                trace!("Running repeat job: prune unused text rows");
                 JobService::queue_prune_text(&job_queue_2);
                 time::sleep(text_prune_delay).await;
             }
@@ -107,19 +105,19 @@ impl JobQueue {
     }
 
     async fn main_loop(state_getter: StateReceiver, mut source: RequestReceiver) {
-        tide::log::info!("Waiting for server state (to start job runner)");
+        info!("Waiting for server state (to start job runner)");
         let state = state_getter.await.expect("Unable to get server state");
         let delay = state.config.job_delay;
 
-        tide::log::info!("Starting job runner");
+        info!("Starting job runner");
         while let Some(job) = source.recv().await {
-            tide::log::debug!("Received job from queue: {job:?}");
+            debug!("Received job from queue: {job:?}");
             match Self::process_job(&state, job).await {
-                Ok(()) => tide::log::debug!("Finished processing job"),
-                Err(error) => tide::log::warn!("Error processing job: {error}"),
+                Ok(()) => debug!("Finished processing job"),
+                Err(error) => warn!("Error processing job: {error}"),
             }
 
-            tide::log::trace!("Sleeping a bit to avoid overloading the database");
+            trace!("Sleeping a bit to avoid overloading the database");
             time::sleep(delay).await;
         }
     }

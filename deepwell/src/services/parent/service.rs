@@ -52,7 +52,7 @@ impl ParentService {
 
         // Check if the two pages are the same
         if parent_page.page_id == child_page.page_id {
-            tide::log::error!(
+            error!(
                 "Cannot parent a page to itself (ID {})",
                 parent_page.page_id,
             );

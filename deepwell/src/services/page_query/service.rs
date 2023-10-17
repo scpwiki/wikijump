@@ -69,7 +69,7 @@ impl PageQueryService {
             variables,
         }: PageQuery<'_>,
     ) -> Result<Infallible> {
-        tide::log::info!("Building ListPages query from specification");
+        info!("Building ListPages query from specification");
 
         let txn = ctx.transaction();
         let mut condition = Condition::all();
@@ -79,7 +79,7 @@ impl PageQueryService {
         // The site to query from. If not specified, then this is the current site.
         let queried_site_id = queried_site_id.unwrap_or(current_site_id);
         condition = condition.add(page::Column::SiteId.eq(queried_site_id));
-        tide::log::debug!("Selecting pages from site ID: {queried_site_id}");
+        debug!("Selecting pages from site ID: {queried_site_id}");
 
         // Page Type
         // TODO track https://github.com/SeaQL/sea-orm/issues/1746
@@ -87,17 +87,17 @@ impl PageQueryService {
         match page_type {
             PageTypeSelector::Hidden => {
                 // Hidden pages are any which have slugs that start with '_'.
-                tide::log::debug!("Selecting page slugs starting with '_'");
+                debug!("Selecting page slugs starting with '_'");
                 condition = condition.add(hidden_condition);
             }
             PageTypeSelector::Normal => {
                 // Normal pages are anything not in the above category.
-                tide::log::debug!("Selecting page slugs not starting with '_'");
+                debug!("Selecting page slugs not starting with '_'");
                 condition = condition.add(hidden_condition.not());
             }
             PageTypeSelector::All => {
                 // If we're getting everything, then do nothing.
-                tide::log::debug!("Selecting all page slugs, normal or hidden");
+                debug!("Selecting all page slugs, normal or hidden");
             }
         }
 
@@ -112,7 +112,7 @@ impl PageQueryService {
             // If all categories are selected (using an asterisk or by only specifying excluded categories),
             // then filter only by site_id and exclude the specified excluded categories.
             IncludedCategories::All => {
-                tide::log::debug!("Selecting all categories with exclusions");
+                debug!("Selecting all categories with exclusions");
 
                 page::Column::PageCategoryId.in_subquery(
                     Query::select()
@@ -135,7 +135,7 @@ impl PageQueryService {
             //       included categories to begin with, it is still accounted for to preserve
             //       backwards-compatibility with poorly-constructed ListPages modules.
             IncludedCategories::List(included_categories) => {
-                tide::log::debug!("Selecting included categories only");
+                debug!("Selecting included categories only");
 
                 page::Column::PageCategoryId.in_subquery(
                     Query::select()
@@ -193,7 +193,7 @@ impl PageQueryService {
             // This means that there should be no rows in `page_parent`
             // where they are the child page.
             PageParentSelector::NoParent => {
-                tide::log::debug!("Selecting pages with no parents");
+                debug!("Selecting pages with no parents");
 
                 page::Column::PageId.not_in_subquery(
                     Query::select()
@@ -206,7 +206,7 @@ impl PageQueryService {
             // Pages which are siblings of the current page,
             // i.e., they share parents in common with the current page.
             PageParentSelector::SameParents => {
-                tide::log::debug!("Selecting pages are siblings under the given parents");
+                debug!("Selecting pages are siblings under the given parents");
 
                 page::Column::PageId.in_subquery(
                     Query::select()
@@ -222,9 +222,7 @@ impl PageQueryService {
             // Pages which are not siblings of the current page,
             // i.e., they do not share any parents with the current page.
             PageParentSelector::DifferentParents => {
-                tide::log::debug!(
-                    "Selecting pages which are not siblings under the given parents",
-                );
+                debug!("Selecting pages which are not siblings under the given parents",);
 
                 let parents = ParentService::get_parents(
                     ctx,
@@ -248,9 +246,7 @@ impl PageQueryService {
 
             // Pages which are children of the current page.
             PageParentSelector::ChildOf => {
-                tide::log::debug!(
-                    "Selecting pages which are children of the current page",
-                );
+                debug!("Selecting pages which are children of the current page",);
 
                 page::Column::PageId.in_subquery(
                     Query::select()
@@ -265,9 +261,7 @@ impl PageQueryService {
             // TODO: Possibly allow either *any* or *all* of specified parents
             //       rather than only any, in the future.
             PageParentSelector::HasParents(parents) => {
-                tide::log::debug!(
-                    "Selecting on pages which have one of the given as parents",
-                );
+                debug!("Selecting on pages which have one of the given as parents",);
 
                 let parent_ids = PageService::get_pages(ctx, queried_site_id, parents)
                     .await?
@@ -288,7 +282,7 @@ impl PageQueryService {
         // Slug
         if let Some(slug) = slug {
             let slug = slug.as_ref();
-            tide::log::debug!("Filtering based on slug {slug}");
+            debug!("Filtering based on slug {slug}");
             condition = condition.add(page::Column::Slug.eq(slug));
         }
 
@@ -346,10 +340,9 @@ impl PageQueryService {
                 ascending,
             } = order.unwrap_or_default();
 
-            tide::log::debug!(
+            debug!(
                 "Ordering ListPages using {:?} (ascending: {})",
-                property,
-                ascending,
+                property, ascending,
             );
 
             let order = if ascending { Order::Asc } else { Order::Desc };
@@ -359,39 +352,37 @@ impl PageQueryService {
                 OrderProperty::PageSlug => {
                     // idk how to do this, we need to strip off the category part somehow
                     // PgExpr::matches?
-                    tide::log::error!(
-                        "Ordering by page slug (no category), not yet implemented",
-                    );
+                    error!("Ordering by page slug (no category), not yet implemented",);
                     todo!() // TODO
                 }
                 OrderProperty::FullSlug => {
-                    tide::log::debug!("Ordering by page slug (with category");
+                    debug!("Ordering by page slug (with category");
                     query = query.order_by(page::Column::Slug, order);
                 }
                 OrderProperty::Title => {
-                    tide::log::error!("Ordering by title, not yet implemented");
+                    error!("Ordering by title, not yet implemented");
                     join_revision!();
                     query = query.order_by(page_revision::Column::Title, order);
                 }
                 OrderProperty::AltTitle => {
-                    tide::log::error!("Ordering by alt title, not yet implemented");
+                    error!("Ordering by alt title, not yet implemented");
                     join_revision!();
                     query = query.order_by(page_revision::Column::AltTitle, order);
                 }
                 OrderProperty::CreatedBy => {
-                    tide::log::error!("Ordering by author, not yet implemented");
+                    error!("Ordering by author, not yet implemented");
                     todo!() // TODO
                 }
                 OrderProperty::CreatedAt => {
-                    tide::log::debug!("Ordering by page creation timestamp");
+                    debug!("Ordering by page creation timestamp");
                     query = query.order_by(page::Column::CreatedAt, order);
                 }
                 OrderProperty::UpdatedAt => {
-                    tide::log::debug!("Ordering by page last update timestamp");
+                    debug!("Ordering by page last update timestamp");
                     query = query.order_by(page::Column::UpdatedAt, order);
                 }
                 OrderProperty::Size => {
-                    tide::log::error!("Ordering by page size, not yet implemented");
+                    error!("Ordering by page size, not yet implemented");
                     join_revision!();
                     join_text!();
                     let col = Expr::col(text::Column::Contents);
@@ -399,35 +390,35 @@ impl PageQueryService {
                     query = query.order_by(expr, order);
                 }
                 OrderProperty::Score => {
-                    tide::log::error!("Ordering by score, not yet implemented");
+                    error!("Ordering by score, not yet implemented");
                     todo!() // TODO
                 }
                 OrderProperty::Votes => {
-                    tide::log::error!("Ordering by vote count, not yet implemented");
+                    error!("Ordering by vote count, not yet implemented");
                     todo!() // TODO
                 }
                 OrderProperty::Revisions => {
-                    tide::log::error!("Ordering by revision count, not yet implemented");
+                    error!("Ordering by revision count, not yet implemented");
                     todo!() // TODO
                 }
                 OrderProperty::Comments => {
-                    tide::log::error!("Ordering by comment count, not yet implemented");
+                    error!("Ordering by comment count, not yet implemented");
                     todo!() // TODO
                 }
                 OrderProperty::Random => {
-                    tide::log::debug!("Ordering by random value");
+                    debug!("Ordering by random value");
                     let expr = SimpleExpr::FunctionCall(Func::random());
                     query = query.order_by(expr, order);
                 }
                 OrderProperty::DataFormFieldName => {
-                    tide::log::error!("Ordering by data form field, not yet implemented");
+                    error!("Ordering by data form field, not yet implemented");
                     todo!() // TODO
                 }
             };
         }
 
         if let Some(limit) = pagination.limit {
-            tide::log::debug!("Limiting ListPages to a maximum of {limit} pages total");
+            debug!("Limiting ListPages to a maximum of {limit} pages total");
             query = query.limit(limit);
         }
 

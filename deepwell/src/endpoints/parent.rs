@@ -34,7 +34,7 @@ pub async fn parent_relationships_get(
         relationship_type,
     } = params.parse()?;
 
-    tide::log::info!(
+    info!(
         "Getting all {} pages from {:?} in site ID {}",
         relationship_type.name(),
         reference,
@@ -50,11 +50,9 @@ pub async fn parent_get(
 ) -> Result<Option<PageParentModel>> {
     let input: ParentDescription = params.parse()?;
 
-    tide::log::info!(
+    info!(
         "Getting parental relationship {:?} -> {:?} in site ID {}",
-        input.parent,
-        input.child,
-        input.site_id,
+        input.parent, input.child, input.site_id,
     );
 
     ParentService::get_optional(ctx, input).await
@@ -66,11 +64,9 @@ pub async fn parent_set(
 ) -> Result<Option<PageParentModel>> {
     let input: ParentDescription = params.parse()?;
 
-    tide::log::info!(
+    info!(
         "Creating parental relationship {:?} -> {:?} in site ID {}",
-        input.parent,
-        input.child,
-        input.site_id,
+        input.parent, input.child, input.site_id,
     );
 
     ParentService::create(ctx, input).await
@@ -82,11 +78,9 @@ pub async fn parent_remove(
 ) -> Result<RemoveParentOutput> {
     let input: ParentDescription = params.parse()?;
 
-    tide::log::info!(
+    info!(
         "Removing parental relationship {:?} -> {:?} in site ID {}",
-        input.parent,
-        input.child,
-        input.site_id,
+        input.parent, input.child, input.site_id,
     );
 
     ParentService::remove(ctx, input).await

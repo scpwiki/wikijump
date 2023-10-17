@@ -42,7 +42,7 @@ impl EmailService {
 
             // Invalid request.
             400 => {
-                tide::log::error!(
+                error!(
                     "MailCheck API request failed with bad response: {:?}",
                     mailcheck.error,
                 );
@@ -51,16 +51,15 @@ impl EmailService {
 
             // Exceeded rate limit.
             429 => {
-                tide::log::error!("MailCheck API hit ratelimit: {:?}", mailcheck.error);
+                error!("MailCheck API hit ratelimit: {:?}", mailcheck.error);
                 return Err(Error::RateLimited);
             }
 
             // Other statuses.
             _ => {
-                tide::log::warn!(
+                warn!(
                     "MailCheck API returned status {}: {:?}",
-                    mailcheck.status,
-                    mailcheck.error,
+                    mailcheck.status, mailcheck.error,
                 );
             }
         }

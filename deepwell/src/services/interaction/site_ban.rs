@@ -73,11 +73,9 @@ impl InteractionService {
         action: &str,
     ) -> Result<()> {
         if Self::site_ban_exists(ctx, body).await? {
-            tide::log::error!(
+            error!(
                 "User ID {} cannot {} site ID {} because they are banned",
-                body.user_id,
-                action,
-                body.site_id,
+                body.user_id, action, body.site_id,
             );
 
             return Err(Error::SiteBlockedUser);

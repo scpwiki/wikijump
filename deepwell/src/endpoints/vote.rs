@@ -30,10 +30,9 @@ pub async fn vote_get(
 ) -> Result<Option<PageVoteModel>> {
     let input: GetVote = params.parse()?;
 
-    tide::log::info!(
+    info!(
         "Getting vote cast by {} on page {}",
-        input.user_id,
-        input.page_id,
+        input.user_id, input.page_id,
     );
 
     VoteService::get_optional(ctx, input).await
@@ -45,10 +44,9 @@ pub async fn vote_set(
 ) -> Result<Option<PageVoteModel>> {
     let input: CreateVote = params.parse()?;
 
-    tide::log::info!(
+    info!(
         "Casting vote cast by {} on page {}",
-        input.user_id,
-        input.page_id,
+        input.user_id, input.page_id,
     );
 
     VoteService::add(ctx, input).await
@@ -60,10 +58,9 @@ pub async fn vote_remove(
 ) -> Result<PageVoteModel> {
     let input: GetVote = params.parse()?;
 
-    tide::log::info!(
+    info!(
         "Removing vote cast by {} on page {}",
-        input.user_id,
-        input.page_id,
+        input.user_id, input.page_id,
     );
 
     VoteService::remove(ctx, input).await

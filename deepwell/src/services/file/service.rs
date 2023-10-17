@@ -51,7 +51,7 @@ impl FileService {
     ) -> Result<UploadFileOutput> {
         let txn = ctx.transaction();
 
-        tide::log::info!(
+        info!(
             "Creating file with name '{}', content length {}",
             name,
             data.len(),
@@ -116,7 +116,7 @@ impl FileService {
             body,
         }: EditFile,
     ) -> Result<Option<EditFileOutput>> {
-        tide::log::info!("Editing file with ID {}", file_id);
+        info!("Editing file with ID {}", file_id);
 
         let txn = ctx.transaction();
         let last_revision =
@@ -213,11 +213,9 @@ impl FileService {
         // Get destination filename
         let name = name.unwrap_or_else(|| last_revision.name.clone());
 
-        tide::log::info!(
+        info!(
             "Moving file with ID {} from page ID {} to {}",
-            file_id,
-            current_page_id,
-            destination_page_id,
+            file_id, current_page_id, destination_page_id,
         );
 
         // Ensure there isn't a file with this name on the destination page
@@ -341,12 +339,12 @@ impl FileService {
         // - Name doesn't already exist
 
         if file.page_id != page_id {
-            tide::log::warn!("File's page ID and passed page ID do not match");
+            warn!("File's page ID and passed page ID do not match");
             return Err(Error::FileNotFound);
         }
 
         if file.deleted_at.is_none() {
-            tide::log::warn!("File requested to be restored is not currently deleted");
+            warn!("File requested to be restored is not currently deleted");
             return Err(Error::FileNotDeleted);
         }
 
@@ -521,12 +519,9 @@ impl FileService {
         match result {
             None => Ok(()),
             Some(file) => {
-                tide::log::error!(
+                error!(
                     "File {} with name {} already exists on page ID {}, cannot {}",
-                    file.file_id,
-                    name,
-                    page_id,
-                    action,
+                    file.file_id, name, page_id, action,
                 );
 
                 Err(Error::FileExists)
@@ -543,7 +538,7 @@ impl FileService {
         site_id: i64,
         name: Option<&str>,
     ) -> Result<()> {
-        tide::log::info!("Checking file data against filters...");
+        info!("Checking file data against filters...");
 
         let filter_matcher = FilterService::get_matcher(
             ctx,

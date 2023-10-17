@@ -40,11 +40,11 @@ impl DomainService {
         ctx: &ServiceContext<'_>,
         CreateCustomDomain { domain, site_id }: CreateCustomDomain,
     ) -> Result<()> {
-        tide::log::info!("Creating custom domain '{domain}' (site ID {site_id})");
+        info!("Creating custom domain '{domain}' (site ID {site_id})");
 
         let txn = ctx.transaction();
         if Self::custom_domain_exists(ctx, &domain).await? {
-            tide::log::error!("Custom domain already exists, cannot create");
+            error!("Custom domain already exists, cannot create");
             return Err(Error::CustomDomainExists);
         }
 
@@ -61,7 +61,7 @@ impl DomainService {
     ///
     /// Yields `Error::CustomDomainNotFound` if it's missing.
     pub async fn remove_custom(ctx: &ServiceContext<'_>, domain: String) -> Result<()> {
-        tide::log::info!("Deleting custom domain '{domain}'");
+        info!("Deleting custom domain '{domain}'");
 
         let txn = ctx.transaction();
         let DeleteResult { rows_affected, .. } =
@@ -78,7 +78,7 @@ impl DomainService {
         ctx: &ServiceContext<'_>,
         domain: &str,
     ) -> Result<Option<SiteModel>> {
-        tide::log::info!("Getting site for custom domain '{domain}'");
+        info!("Getting site for custom domain '{domain}'");
 
         // Join with the site table so we can get that data, rather than just the ID.
         let txn = ctx.transaction();
@@ -145,12 +145,12 @@ impl DomainService {
         ctx: &ServiceContext<'_>,
         domain: &'a str,
     ) -> Result<SiteDomainResult<'a>> {
-        tide::log::info!("Getting site for domain '{domain}'");
+        info!("Getting site for domain '{domain}'");
 
         match Self::parse_canonical(ctx.config(), domain) {
             // Normal canonical domain, return from site slug fetch.
             Some(subdomain) => {
-                tide::log::debug!("Found canonical domain with slug '{subdomain}'");
+                debug!("Found canonical domain with slug '{subdomain}'");
 
                 let result =
                     SiteService::get_optional(ctx, Reference::Slug(cow!(subdomain)))
@@ -165,7 +165,7 @@ impl DomainService {
 
             // Not canonical, try custom domain.
             None => {
-                tide::log::debug!("Not found, checking if it's a custom domain");
+                debug!("Not found, checking if it's a custom domain");
 
                 let result = Self::site_from_custom_domain_optional(ctx, domain).await;
                 match result {
@@ -203,7 +203,7 @@ impl DomainService {
             // For instance, foo.wikijump.com or bar.wikijump.com are valid,
             // but foo.bar.wikijump.com is not.
             Some(subdomain) if subdomain.contains('.') => {
-                tide::log::error!("Found domain '{domain}' is a sub-subdomain, invalid");
+                error!("Found domain '{domain}' is a sub-subdomain, invalid");
                 None
             }
 
@@ -220,10 +220,9 @@ impl DomainService {
 
     /// Gets the preferred domain for the given site.
     pub fn domain_for_site<'a>(config: &Config, site: &'a SiteModel) -> Cow<'a, str> {
-        tide::log::debug!(
+        debug!(
             "Getting preferred domain for site '{}' (ID {})",
-            site.slug,
-            site.site_id,
+            site.slug, site.site_id,
         );
 
         match &site.custom_domain {
@@ -250,7 +249,7 @@ impl DomainService {
         ctx: &ServiceContext<'_>,
         site_id: i64,
     ) -> Result<Vec<SiteDomainModel>> {
-        tide::log::info!("Getting domains for site ID {site_id}");
+        info!("Getting domains for site ID {site_id}");
 
         let txn = ctx.transaction();
         let models = SiteDomain::find()

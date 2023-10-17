@@ -36,7 +36,7 @@ impl UserBotOwnerService {
         ctx: &ServiceContext<'_>,
         bot_user_id: i64,
     ) -> Result<Vec<UserBotOwnerModel>> {
-        tide::log::info!("Looking up owners for bot ID {bot_user_id}");
+        info!("Looking up owners for bot ID {bot_user_id}");
 
         let txn = ctx.transaction();
         let owners = UserBotOwner::find()
@@ -52,10 +52,9 @@ impl UserBotOwnerService {
         bot_user_id: i64,
         human_user_id: i64,
     ) -> Result<Option<UserBotOwnerModel>> {
-        tide::log::debug!(
+        debug!(
             "Retrieving user_bot_owner record for human ID {} and bot ID {}",
-            human_user_id,
-            bot_user_id,
+            human_user_id, bot_user_id,
         );
 
         let txn = ctx.transaction();
@@ -84,11 +83,9 @@ impl UserBotOwnerService {
             UserService::get_with_user_type(ctx, human_reference, UserType::Regular),
         )?;
 
-        tide::log::info!(
+        info!(
             "Adding user ID {} as owner for bot ID {}: {}",
-            human.user_id,
-            bot.user_id,
-            description,
+            human.user_id, bot.user_id, description,
         );
 
         // NOTE: Not using upsert (INSERT .. ON CONFLICT) because
@@ -98,7 +95,7 @@ impl UserBotOwnerService {
         let model = match Self::get_optional(ctx, bot.user_id, human.user_id).await? {
             // Update
             Some(owner) => {
-                tide::log::debug!("Bot owner record exists, updating");
+                debug!("Bot owner record exists, updating");
 
                 let mut model = owner.into_active_model();
                 model.description = Set(description);
@@ -108,7 +105,7 @@ impl UserBotOwnerService {
 
             // Insert
             None => {
-                tide::log::debug!("Bot owner record is missing, inserting");
+                debug!("Bot owner record is missing, inserting");
 
                 let model = user_bot_owner::ActiveModel {
                     bot_user_id: Set(bot.user_id),
@@ -148,10 +145,9 @@ impl UserBotOwnerService {
             UserService::get_id(ctx, human_reference),
         )?;
 
-        tide::log::info!(
+        info!(
             "Deleting user ID {} as owner for bot ID {}",
-            human_user_id,
-            bot_user_id,
+            human_user_id, bot_user_id,
         );
 
         let DeleteResult { rows_affected } =

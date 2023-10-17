@@ -61,11 +61,11 @@ pub async fn build_server_state(
     secrets: Secrets,
 ) -> anyhow::Result<ServerState> {
     // Connect to database
-    tide::log::info!("Connecting to PostgreSQL database");
+    info!("Connecting to PostgreSQL database");
     let database = database::connect(&secrets.database_url).await?;
 
     // Load localization data
-    tide::log::info!("Loading localization data");
+    info!("Loading localization data");
     let localizations = Localizations::open(&config.localization_path).await?;
 
     // Set up job queue
@@ -75,7 +75,7 @@ pub async fn build_server_state(
     let mime_analyzer = MimeAnalyzer::spawn();
 
     // Create S3 bucket
-    tide::log::info!("Opening S3 bucket");
+    info!("Opening S3 bucket");
 
     let s3_bucket = {
         let mut bucket = Bucket::new(

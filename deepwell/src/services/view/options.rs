@@ -69,7 +69,7 @@ pub struct PageOptions {
 
 impl PageOptions {
     pub fn parse(extra: &str) -> Self {
-        tide::log::info!("Parsing page options: '{extra}'");
+        info!("Parsing page options: '{extra}'");
 
         let mut arguments = PageArguments::parse(extra, PAGE_ARGUMENTS_SCHEMA).0;
         let mut options = PageOptions::default();
@@ -128,7 +128,7 @@ impl PageOptions {
         if let Some((value, orig)) = arguments.remove(unicase!("offset")) {
             match value {
                 ArgumentValue::Integer(offset) => options.offset = Some(offset),
-                _ => tide::log::error!("Invalid value for offset argument: {orig}"),
+                _ => error!("Invalid value for offset argument: {orig}"),
             }
         }
 
@@ -138,9 +138,7 @@ impl PageOptions {
         // Now go through anything remaining and emitting warnings for them
 
         for (key, (value, raw)) in arguments {
-            tide::log::warn!(
-                "Unused argument in page path: {key} -> {value:?} ('{raw}')",
-            );
+            warn!("Unused argument in page path: {key} -> {value:?} ('{raw}')",);
         }
 
         options
@@ -148,7 +146,7 @@ impl PageOptions {
 }
 
 fn to_bool(value: ArgumentValue) -> bool {
-    tide::log::debug!("Converting argument value to plain boolean: {value:?}");
+    debug!("Converting argument value to plain boolean: {value:?}");
 
     match value {
         // Simply unwrap bool

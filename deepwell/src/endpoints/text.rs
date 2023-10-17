@@ -26,7 +26,7 @@ pub async fn text_create(
     params: Params<'static>,
 ) -> Result<Bytes<'static>> {
     let contents: String = params.one()?;
-    tide::log::info!("Inserting new stored text (bytes {})", contents.len());
+    info!("Inserting new stored text (bytes {})", contents.len());
     let hash = TextService::create(ctx, contents).await?;
     Ok(Bytes::from(hash))
 }
@@ -35,7 +35,7 @@ pub async fn text_get(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<String> {
-    tide::log::info!("Getting stored text");
+    info!("Getting stored text");
     let hash: Bytes = params.one()?;
     TextService::get(ctx, hash.as_ref()).await
 }

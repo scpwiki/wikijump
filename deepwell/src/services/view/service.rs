@@ -61,11 +61,9 @@ impl ViewService {
             session_token,
         }: GetPageView,
     ) -> Result<GetPageViewOutput> {
-        tide::log::info!(
+        info!(
             "Getting page view data for domain '{}', route '{:?}', locale '{}'",
-            domain,
-            route,
-            locale_str,
+            domain, route, locale_str,
         );
 
         let locale = LanguageIdentifier::from_bytes(locale_str.as_bytes())?;
@@ -145,9 +143,7 @@ impl ViewService {
                 let user_permissions = match user_session {
                     Some(ref session) => session.user_permissions,
                     None => {
-                        tide::log::debug!(
-                            "No user for session, getting guest permission scheme",
-                        );
+                        debug!("No user for session, getting guest permission scheme",);
 
                         // TODO get permissions from service
                         UserPermissions
@@ -160,7 +156,7 @@ impl ViewService {
                 // This returns false if the user is banned *and* the site
                 // disallows banned viewing.
                 if Self::can_access_page(ctx, user_permissions).await? {
-                    tide::log::debug!("User has page access, return text data");
+                    debug!("User has page access, return text data");
 
                     let (wikitext, compiled_html) = try_join!(
                         TextService::get(ctx, &page_revision.wikitext_hash),
@@ -176,9 +172,7 @@ impl ViewService {
                         compiled_html,
                     )
                 } else {
-                    tide::log::warn!(
-                        "User doesn't have page access, returning permission page",
-                    );
+                    warn!("User doesn't have page access, returning permission page",);
 
                     let (page_status, page_type) = if user_permissions.is_banned() {
                         (PageStatus::Banned, SpecialPageType::Banned)
@@ -296,7 +290,7 @@ impl ViewService {
         domain: &str,
         session_token: Option<&str>,
     ) -> Result<ViewerResult> {
-        tide::log::info!("Getting viewer data from domain '{domain}' and session token");
+        info!("Getting viewer data from domain '{domain}' and session token");
 
         // Get site data
         let (site, redirect_site) =
@@ -385,8 +379,8 @@ impl ViewService {
         _ctx: &ServiceContext<'_>,
         permissions: UserPermissions,
     ) -> Result<bool> {
-        tide::log::info!("Checking page access: {permissions:?}");
-        tide::log::debug!("TODO: stub");
+        info!("Checking page access: {permissions:?}");
+        debug!("TODO: stub");
         // TODO perform permission checks
         Ok(true)
     }

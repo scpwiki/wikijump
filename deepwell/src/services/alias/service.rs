@@ -61,7 +61,7 @@ impl AliasService {
         let txn = ctx.transaction();
         let slug = get_regular_slug(slug);
 
-        tide::log::info!("Creating {alias_type:?} alias with slug '{slug}'");
+        info!("Creating {alias_type:?} alias with slug '{slug}'");
 
         // Perform filter validation
         if !bypass_filter {
@@ -82,7 +82,7 @@ impl AliasService {
         match alias_type {
             AliasType::Site => {
                 if !SiteService::exists(ctx, Reference::Id(target_id)).await? {
-                    tide::log::error!(
+                    error!(
                         "No target site with ID {target_id} exists, cannot create alias",
                     );
 
@@ -91,7 +91,7 @@ impl AliasService {
 
                 if verify && SiteService::exists(ctx, Reference::Slug(cow!(slug))).await?
                 {
-                    tide::log::error!(
+                    error!(
                         "Site with conflicting slug '{slug}' already exists, cannot create alias",
                     );
 
@@ -100,7 +100,7 @@ impl AliasService {
             }
             AliasType::User => {
                 if !UserService::exists(ctx, Reference::Id(target_id)).await? {
-                    tide::log::error!(
+                    error!(
                         "No target user with ID {target_id} exists, cannot create alias",
                     );
 
@@ -109,7 +109,7 @@ impl AliasService {
 
                 if verify && UserService::exists(ctx, Reference::Slug(cow!(slug))).await?
                 {
-                    tide::log::error!(
+                    error!(
                         "User with conflicting slug '{slug}' already exists, cannot create alias",
                     );
 
@@ -117,7 +117,7 @@ impl AliasService {
                 }
 
                 if slug.len() < ctx.config().minimum_name_bytes {
-                    tide::log::error!(
+                    error!(
                         "User's name is not long enough ({} < {})",
                         slug.len(),
                         ctx.config().minimum_name_bytes,
@@ -193,7 +193,7 @@ impl AliasService {
         alias_type: AliasType,
         target_id: i64,
     ) -> Result<Vec<AliasModel>> {
-        tide::log::info!("Finding all {alias_type:?} aliases for ID {target_id}");
+        info!("Finding all {alias_type:?} aliases for ID {target_id}");
 
         let txn = ctx.transaction();
         let aliases = Alias::find()
@@ -224,10 +224,9 @@ impl AliasService {
     ) -> Result<()> {
         let txn = ctx.transaction();
 
-        tide::log::info!(
+        info!(
             "Swapping user alias ID {} to use slug '{}'",
-            alias_id,
-            new_slug,
+            alias_id, new_slug,
         );
 
         let model = alias::ActiveModel {
@@ -252,7 +251,7 @@ impl AliasService {
     ) -> Result<u64> {
         let txn = ctx.transaction();
 
-        tide::log::info!("Removing all {alias_type:?} aliases for target ID {target_id}");
+        info!("Removing all {alias_type:?} aliases for target ID {target_id}");
 
         let DeleteResult { rows_affected } = Alias::delete_many()
             .filter(
@@ -263,7 +262,7 @@ impl AliasService {
             .exec(txn)
             .await?;
 
-        tide::log::debug!(
+        debug!(
             "{rows_affected} {alias_type:?} aliases for target ID {target_id} were removed",
         );
 
@@ -279,9 +278,7 @@ impl AliasService {
         alias_type: AliasType,
         slug: &str,
     ) -> Result<()> {
-        tide::log::info!(
-            "Verifying target and alias table consistency for slug '{slug}'",
-        );
+        info!("Verifying target and alias table consistency for slug '{slug}'",);
 
         let txn = ctx.transaction();
         let alias_fut = Alias::find()
@@ -310,7 +307,7 @@ impl AliasService {
                 )?;
 
                 if let (Some(site), Some(alias)) = (site_result, alias_result) {
-                    tide::log::error!(
+                    error!(
                         "Consistency error! Both site and alias tables have the slug '{}'",
                         slug,
                     );
@@ -333,7 +330,7 @@ impl AliasService {
                 )?;
 
                 if let (Some(user), Some(alias)) = (user_result, alias_result) {
-                    tide::log::error!(
+                    error!(
                         "Consistency error! Both user and alias tables have the slug '{}'",
                         slug,
                     );
@@ -353,13 +350,13 @@ impl AliasService {
         alias_type: AliasType,
         slug: &str,
     ) -> Result<()> {
-        tide::log::info!("Checking user alias data against filters...");
+        info!("Checking user alias data against filters...");
 
         let filter_type = match alias_type {
             AliasType::User => FilterType::User,
             AliasType::Site => {
                 // No filter with this type, skip verification
-                tide::log::debug!("No need to run filter verification for site alias");
+                debug!("No need to run filter verification for site alias");
                 return Ok(());
             }
         };

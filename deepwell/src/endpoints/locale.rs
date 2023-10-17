@@ -44,7 +44,7 @@ pub async fn locale_info(
     params: Params<'static>,
 ) -> Result<LocaleOutput> {
     let locale_str: String = params.one()?;
-    tide::log::info!("Getting locale information for {locale_str}");
+    info!("Getting locale information for {locale_str}");
     let locale = LanguageIdentifier::from_bytes(locale_str.as_bytes())?;
     Ok(LocaleOutput {
         language: str!(locale.language),
@@ -63,7 +63,7 @@ pub async fn translate_strings(
         messages,
     } = params.parse()?;
 
-    tide::log::info!(
+    info!(
         "Translating {} message keys in locale {locale_str}",
         messages.len(),
     );
@@ -72,7 +72,7 @@ pub async fn translate_strings(
     let mut output: TranslateOutput = HashMap::new();
 
     for (message_key, arguments_raw) in messages {
-        tide::log::info!(
+        info!(
             "Formatting message key {message_key} ({} arguments)",
             arguments_raw.len(),
         );

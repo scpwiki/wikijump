@@ -25,6 +25,9 @@
 //! A server to expose Wikijump operations via an internal JSON RPC API.
 
 #[macro_use]
+extern crate log;
+
+#[macro_use]
 extern crate futures;
 
 #[macro_use]
@@ -73,8 +76,8 @@ async fn main() -> Result<()> {
 
     // Configure the logger
     if config.logger {
-        tide::log::with_level(config.logger_level);
-        tide::log::info!("Loaded server configuration:");
+        femme::with_level(config.logger_level);
+        info!("Loaded server configuration:");
         config.log();
 
         color_backtrace::install();
@@ -82,7 +85,7 @@ async fn main() -> Result<()> {
 
     // Write PID file, if enabled
     if let Some(ref path) = config.pid_file {
-        tide::log::info!(
+        info!(
             "Writing process ID ({}) to {}",
             process::id(),
             path.display(),
@@ -101,7 +104,7 @@ async fn main() -> Result<()> {
             if #[cfg(feature = "watch")] {
                 _watcher = setup_autorestart(&config)?;
             } else {
-                tide::log::error!("The --watch-files option requires the 'watch' feature");
+                error!("The --watch-files option requires the 'watch' feature");
                 process::exit(1);
             }
         }
@@ -121,7 +124,7 @@ async fn main() -> Result<()> {
     }
 
     // Build and run server
-    tide::log::info!("Building server and listening...");
+    info!("Building server and listening...");
     let server = api::build_server(app_state).await?;
     server.stopped().await;
     Ok(())

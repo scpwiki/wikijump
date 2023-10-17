@@ -43,7 +43,7 @@ pub async fn bot_user_create(
         bypass_email_verification,
     } = params.parse()?;
 
-    tide::log::info!("Creating new bot user with name '{}'", name);
+    info!("Creating new bot user with name '{}'", name);
 
     // TODO verify auth token
     let _ = authorization_token;
@@ -77,14 +77,14 @@ pub async fn bot_user_create(
     .await?;
 
     // Add bot owners
-    tide::log::debug!("Adding human owners for bot user ID {}", bot_user_id);
+    debug!("Adding human owners for bot user ID {}", bot_user_id);
     for owner in owners {
         let BotOwner {
             user_id: human_user_id,
             description,
         } = owner;
 
-        tide::log::debug!("Adding human user ID {} as bot owner", human_user_id);
+        debug!("Adding human user ID {} as bot owner", human_user_id);
         UserBotOwnerService::add(
             ctx,
             CreateBotOwner {
@@ -105,7 +105,7 @@ pub async fn bot_user_get(
     params: Params<'static>,
 ) -> Result<Option<BotUserOutput>> {
     let GetUser { user: reference } = params.parse()?;
-    tide::log::info!("Getting bot user {reference:?}");
+    info!("Getting bot user {reference:?}");
     match UserService::get_optional(ctx, reference).await? {
         None => Ok(None),
         Some(user) => {
@@ -135,10 +135,9 @@ pub async fn bot_user_owner_set(
 ) -> Result<UserBotOwnerModel> {
     let input: CreateBotOwner = params.parse()?;
 
-    tide::log::info!(
+    info!(
         "Adding or updating bot owner ({:?} <- {:?})",
-        input.bot,
-        input.human,
+        input.bot, input.human,
     );
 
     UserBotOwnerService::add(ctx, input).await
@@ -149,6 +148,6 @@ pub async fn bot_user_owner_remove(
     params: Params<'static>,
 ) -> Result<RemoveBotOwnerOutput> {
     let input: RemoveBotOwner = params.parse()?;
-    tide::log::info!("Remove bot owner ({:?} <- {:?})", input.bot, input.human,);
+    info!("Remove bot owner ({:?} <- {:?})", input.bot, input.human,);
     UserBotOwnerService::remove(ctx, input).await
 }
