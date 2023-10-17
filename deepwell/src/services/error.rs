@@ -419,7 +419,7 @@ impl From<Error> for ErrorObjectOwned {
     fn from(error: Error) -> ErrorObjectOwned {
         let error_code = error.code();
         let message = str!(error);
-        let data = todo!(); // XXX use error
+        let data = format!("{error:?}"); // instead of implementing an extensive Serde, we use the Debug impl
         ErrorObjectOwned::owned(error_code, message, Some(data))
     }
 }
