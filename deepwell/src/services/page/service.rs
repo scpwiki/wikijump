@@ -225,7 +225,7 @@ impl PageService {
         normalize(&mut new_slug);
         if old_slug == new_slug {
             tide::log::error!("Source and destination slugs are the same: {}", old_slug);
-            return Err(Error::BadRequest);
+            return Err(Error::PageSlugExists);
         }
 
         Self::check_conflicts(ctx, site_id, &new_slug, "move").await?;
@@ -370,7 +370,7 @@ impl PageService {
 
         if page.deleted_at.is_none() {
             tide::log::warn!("Page requested to be restored is not currently deleted");
-            return Err(Error::BadRequest);
+            return Err(Error::PageNotDeleted);
         }
 
         Self::check_conflicts(ctx, site_id, &slug, "restore").await?;
@@ -697,7 +697,7 @@ impl PageService {
 
         if slug.is_empty() {
             tide::log::error!("Cannot create page with empty slug");
-            return Err(Error::BadRequest);
+            return Err(Error::PageSlugEmpty);
         }
 
         let result = Page::find()

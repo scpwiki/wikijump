@@ -123,7 +123,7 @@ impl AliasService {
                         ctx.config().minimum_name_bytes,
                     );
 
-                    return Err(Error::BadRequest);
+                    return Err(Error::UserNameTooShort);
                 }
             }
         }

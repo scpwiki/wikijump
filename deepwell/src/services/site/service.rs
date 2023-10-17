@@ -259,7 +259,7 @@ impl SiteService {
 
         if slug.is_empty() {
             tide::log::error!("Cannot create site with empty slug");
-            return Err(Error::BadRequest);
+            return Err(Error::SiteSlugEmpty);
         }
 
         let result = Site::find()

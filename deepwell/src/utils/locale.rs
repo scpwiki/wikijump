@@ -24,6 +24,6 @@ use unic_langid::LanguageIdentifier;
 pub fn validate_locale(locale_str: &str) -> Result<LanguageIdentifier> {
     LanguageIdentifier::from_bytes(locale_str.as_bytes()).map_err(|error| {
         tide::log::warn!("Invalid locale '{}' passed: {:?}", locale_str, error);
-        Error::BadRequest
+        Error::LocaleInvalid(error)
     })
 }

@@ -122,14 +122,19 @@ impl FileRevisionService {
         }
 
         // Validate inputs
-        if name.is_empty() || name.len() >= 256 {
+        if name.is_empty() {
+            tide::log::error!("File name is empty");
+            return Err(Error::FileNameEmpty);
+        }
+
+        if name.len() >= 256 {
             tide::log::error!("File name of invalid length: {}", name.len());
-            return Err(Error::BadRequest);
+            return Err(Error::FileNameTooLong);
         }
 
         if mime_hint.is_empty() {
             tide::log::error!("MIME type hint is empty");
-            return Err(Error::BadRequest);
+            return Err(Error::FileMimeEmpty);
         }
 
         // TODO validate licensing field

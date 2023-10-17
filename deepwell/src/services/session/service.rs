@@ -201,7 +201,10 @@ impl SessionService {
                 user_id,
             );
 
-            return Err(Error::BadRequest);
+            return Err(Error::SessionUserId {
+                active_user_id: user_id,
+                session_user_id: old_session.user_id,
+            });
         }
 
         // Invalid and recreate
@@ -264,7 +267,10 @@ impl SessionService {
                 user_id,
             );
 
-            return Err(Error::BadRequest);
+            return Err(Error::SessionUserId {
+                active_user_id: user_id,
+                session_user_id: session.user_id,
+            });
         }
 
         // Delete all sessions from user_id, except if it's this session_token

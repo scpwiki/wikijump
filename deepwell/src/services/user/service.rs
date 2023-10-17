@@ -62,7 +62,7 @@ impl UserService {
         // Empty slug check
         if slug.is_empty() {
             tide::log::error!("Cannot create user with empty slug");
-            return Err(Error::BadRequest);
+            return Err(Error::UserSlugEmpty);
         }
 
         // Check if username contains the minimum amount of required bytes.
@@ -73,7 +73,7 @@ impl UserService {
                 ctx.config().minimum_name_bytes,
             );
 
-            return Err(Error::BadRequest);
+            return Err(Error::UserNameTooShort);
         }
 
         // Perform filter validation
@@ -341,7 +341,7 @@ impl UserService {
         if user.user_type == user_type {
             Ok(user)
         } else {
-            Err(Error::BadRequest)
+            Err(Error::UserNotFound)
         }
     }
 
@@ -477,7 +477,7 @@ impl UserService {
         // Empty slug check
         if new_slug.is_empty() {
             tide::log::error!("Cannot create user with empty slug");
-            return Err(Error::BadRequest);
+            return Err(Error::UserSlugEmpty);
         }
 
         // Perform filter validation
@@ -527,7 +527,7 @@ impl UserService {
                 ctx.config().minimum_name_bytes,
             );
 
-            return Err(Error::BadRequest);
+            return Err(Error::UserNameTooShort);
         }
 
         // Deduct name change token and add user alias for old slug.

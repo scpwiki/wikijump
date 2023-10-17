@@ -345,7 +345,7 @@ impl FileService {
 
         if file.deleted_at.is_none() {
             tide::log::warn!("File requested to be restored is not currently deleted");
-            return Err(Error::BadRequest);
+            return Err(Error::FileNotDeleted);
         }
 
         Self::check_conflicts(ctx, page_id, &new_name, "restore").await?;

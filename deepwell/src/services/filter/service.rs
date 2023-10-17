@@ -46,9 +46,11 @@ impl FilterService {
         tide::log::info!("Creating filter with regex '{regex}' because '{description}'");
 
         // Ensure the regular expression is valid
-        if Regex::new(&regex).is_err() {
-            tide::log::error!("Passed regular expression pattern is invalid: {regex}");
-            return Err(Error::BadRequest);
+        if let Err(error) = Regex::new(&regex) {
+            tide::log::error!(
+                "Passed regular expression '{regex}' pattern is invalid: {error}",
+            );
+            return Err(Error::FilterRegexInvalid(error));
         }
 
         // Ensure there aren't conflicts
@@ -169,7 +171,7 @@ impl FilterService {
         let filter = Self::get(ctx, filter_id).await?;
         if filter.deleted_at.is_some() {
             tide::log::error!("Attempting to remove already-deleted filter");
-            return Err(Error::BadRequest);
+            return Err(Error::FilterNotFound);
         }
 
         // Delete the filter
@@ -195,7 +197,7 @@ impl FilterService {
         let filter = Self::get(ctx, filter_id).await?;
         if filter.deleted_at.is_none() {
             tide::log::error!("Attempting to un-delete extant filter");
-            return Err(Error::BadRequest);
+            return Err(Error::FilterNotDeleted);
         }
 
         // Ensure it doesn't conflict with a since-added filter

@@ -213,7 +213,7 @@ impl MessageService {
         // Message validation checks
         if draft.subject.is_empty() {
             tide::log::error!("Subject line cannot be empty");
-            return Err(Error::BadRequest);
+            return Err(Error::MessageSubjectEmpty);
         }
 
         if draft.subject.len() > config.maximum_message_subject_bytes {
@@ -222,17 +222,12 @@ impl MessageService {
                 draft.subject.len(),
                 config.maximum_message_subject_bytes,
             );
-            return Err(Error::BadRequest);
+            return Err(Error::MessageSubjectTooLong);
         }
 
         if wikitext.is_empty() {
             tide::log::error!("Wikitext body cannot be empty");
-            return Err(Error::BadRequest);
-        }
-
-        if recipients.is_empty() {
-            tide::log::error!("Must have at least one message recipient");
-            return Err(Error::BadRequest);
+            return Err(Error::MessageBodyEmpty);
         }
 
         if wikitext.len() > config.maximum_message_body_bytes {
@@ -241,7 +236,12 @@ impl MessageService {
                 wikitext.len(),
                 config.maximum_message_body_bytes,
             );
-            return Err(Error::BadRequest);
+            return Err(Error::MessageBodyTooLong);
+        }
+
+        if recipients.is_empty() {
+            tide::log::error!("Must have at least one message recipient");
+            return Err(Error::MessageNoRecipients);
         }
 
         if recipients.len() > config.maximum_message_recipients {
@@ -250,7 +250,7 @@ impl MessageService {
                 recipients.len(),
                 config.maximum_message_recipients,
             );
-            return Err(Error::BadRequest);
+            return Err(Error::MessageTooManyRecipients);
         }
 
         for recipient_user_id in recipients.iter() {
@@ -513,7 +513,7 @@ impl MessageService {
                     "The {purpose} message record does not exist: {record_id}",
                 );
 
-                return Err(Error::BadRequest);
+                return Err(Error::MessageNotFound);
             }
         };
 
@@ -526,7 +526,9 @@ impl MessageService {
                 "User ID {user_id} is not a sender or recipient of the {purpose}",
             );
 
-            return Err(Error::BadRequest);
+            // To protect privacy, if the user doesn't have access to a message with a
+            // given ID, we pretend it does not exist for the purposes of returning errors.
+            return Err(Error::MessageNotFound);
         }
 
         Ok(())

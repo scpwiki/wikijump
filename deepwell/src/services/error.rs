@@ -119,11 +119,59 @@ pub enum Error {
     #[error("The request violates a configured content filter")]
     FilterViolation,
 
+    #[error("Cannot hide the wikitext for the latest page revision")]
+    CannotHideLatestRevision,
+
     #[error("The regular expression found in the database is invalid")]
     FilterRegexInvalid(regex::Error),
 
-    #[error("Cannot hide the wikitext for the latest page revision")]
-    CannotHideLatestRevision,
+    #[error("Cannot restore a non-deleted filter")]
+    FilterNotDeleted,
+
+    #[error("File name cannot be empty")]
+    FileNameEmpty,
+
+    #[error("File name too long")]
+    FileNameTooLong,
+
+    #[error("File MIME type cannot be empty")]
+    FileMimeEmpty,
+
+    #[error("Cannot restore a non-deleted file")]
+    FileNotDeleted,
+
+    #[error("Cannot restore a non-deleted page")]
+    PageNotDeleted,
+
+    #[error("Page slug cannot be empty")]
+    PageSlugEmpty,
+
+    #[error("Site slug cannot be empty")]
+    SiteSlugEmpty,
+
+    #[error("User name is too short")]
+    UserNameTooShort,
+
+    #[error("User slug cannot be empty")]
+    UserSlugEmpty,
+
+    #[error("Message subject cannot be empty")]
+    MessageSubjectEmpty,
+
+    #[error("Message subject too long")]
+    MessageSubjectTooLong,
+
+    #[error("Message body cannot be empty")]
+    MessageBodyEmpty,
+
+    #[error("Message body too long")]
+    MessageBodyTooLong,
+
+    #[error("Message cannot have no recipients")]
+    MessageNoRecipients,
+
+    #[error("Message has too many recipients")]
+    MessageTooManyRecipients,
 
     #[error("Unspecified entity not found")]
     GeneralNotFound,
@@ -191,6 +239,9 @@ pub enum Error {
     #[error("Cannot perform, page already exists")]
     PageExists,
 
+    #[error("Cannot perform, page slug already exists")]
+    PageSlugExists,
+
     #[error("Cannot perform, page parent already exists")]
     PageParentExists,
 
@@ -257,10 +308,11 @@ impl Error {
             Error::UserMfaExists => 2101,
             Error::SiteExists => 2102,
             Error::PageExists => 2103,
-            Error::PageParentExists => 2104,
-            Error::FileExists => 2105,
-            Error::FilterExists => 2106,
-            Error::CustomDomainExists => 2107,
+            Error::PageSlugExists => 2104,
+            Error::PageParentExists => 2105,
+            Error::FileExists => 2106,
+            Error::FilterExists => 2107,
+            Error::CustomDomainExists => 2108,
 
             // 3000 - Server errors, unexpected
             Error::RateLimited => 3000,
@@ -277,16 +329,34 @@ impl Error {
             Error::Serde(_) => 3200,
             Error::Database(_) => 3201,
             Error::Cryptography(_) => 3202,
-            Error::FilterRegexInvalid(_) => 3203,
             Error::Magic(_) => 3204,
             Error::Otp(_) => 3205,
 
             // 4000 - Client, request errors
+            //        BadRequest is pretty general, avoid it except for rare weird cases
             Error::BadRequest => 4000,
             Error::InvalidEnumValue => 4001,
             Error::FilterViolation => 4002,
             Error::InsufficientNameChanges => 4003,
             Error::CannotHideLatestRevision => 4004,
+            Error::FilterRegexInvalid(_) => 4005,
+            Error::FilterNotDeleted => 4006,
+            Error::FileNotDeleted => 4007,
+            Error::FileNameEmpty => 4008,
+            Error::FileNameTooLong => 4009,
+            Error::FileMimeEmpty => 4010,
+            Error::FileNotDeleted => 4011,
+            Error::PageNotDeleted => 4012,
+            Error::PageSlugEmpty => 4013,
+            Error::SiteSlugEmpty => 4014,
+            Error::UserNameTooShort => 4015,
+            Error::UserSlugEmpty => 4016,
+            Error::MessageSubjectEmpty => 4017,
+            Error::MessageSubjectTooLong => 4018,
+            Error::MessageBodyEmpty => 4019,
+            Error::MessageBodyTooLong => 4020,
+            Error::MessageNoRecipients => 4021,
+            Error::MessageTooManyRecipients => 4022,
 
             // 4100 -- Localization
             Error::LocaleInvalid(_) => 4100,
