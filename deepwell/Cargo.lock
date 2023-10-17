@@ -1009,7 +1009,7 @@ dependencies = [
 
 [[package]]
 name = "deepwell"
-version = "2023.10.6"
+version = "2023.10.16"
 dependencies = [
  "anyhow",
  "argon2",
