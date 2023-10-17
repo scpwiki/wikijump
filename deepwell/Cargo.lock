@@ -1122,6 +1122,7 @@ dependencies = [
  "argon2",
  "arraystring",
  "async-std",
+ "async-trait",
  "built",
  "cfg-if 1.0.0",
  "clap",
