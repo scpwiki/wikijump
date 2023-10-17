@@ -150,7 +150,7 @@ impl LinkService {
                 page.page_id,
             );
 
-            return Err(Error::Exists);
+            return Err(Error::PageExists);
         }
 
         // Retrieve connections for this slot

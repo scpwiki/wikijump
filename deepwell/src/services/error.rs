@@ -113,9 +113,6 @@ pub enum Error {
     #[error("The request is in some way malformed or incorrect")]
     BadRequest,
 
-    #[error("The requested data exists, when it was expected to be missing")]
-    Exists,
-
     #[error("The requested data was not found")]
     NotFound,
 
@@ -128,28 +125,28 @@ pub enum Error {
     #[error("Cannot hide the wikitext for the latest page revision")]
     CannotHideLatestRevision,
 
-    #[error("Cannot create, user already exists")]
+    #[error("Cannot perform, user already exists")]
     UserExists,
 
     #[error("Cannot set up user MFA, already set up")]
     UserMfaExists,
 
-    #[error("Cannot create, site already exists")]
+    #[error("Cannot perform, site already exists")]
     SiteExists,
 
-    #[error("Cannot create, page already exists")]
+    #[error("Cannot perform, page already exists")]
     PageExists,
 
-    #[error("Cannot create, page parent already exists")]
+    #[error("Cannot perform, page parent already exists")]
     PageParentExists,
 
-    #[error("Cannot create, file already exists")]
+    #[error("Cannot perform, file already exists")]
     FileExists,
 
-    #[error("Cannot create, filter already exists")]
+    #[error("Cannot perform, filter already exists")]
     FilterExists,
 
-    #[error("Cannot create, custom domain already exists")]
+    #[error("Cannot perform, custom domain already exists")]
     CustomDomainExists,
 
     #[error("Cannot perform this action because you are blocked by the user")]
@@ -182,7 +179,6 @@ impl Error {
 
             // 2000 - Server errors, expected
             Error::NotFound => 2000,
-            Error::Exists => 2001,
 
             // 3000 - Server errors, unexpected
             Error::RateLimited => 3000,
