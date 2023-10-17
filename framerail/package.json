@@ -44,6 +44,7 @@
   },
   "type": "module",
   "dependencies": {
-    "json-rpc-client": "^0.2.2"
+    "json-rpc-client": "^0.2.2",
+    "net-keepalive": "^3.0.1"
   }
 }

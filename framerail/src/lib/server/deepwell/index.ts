@@ -4,7 +4,7 @@ import * as jsonrpc from "json-rpc-client"
 
 const DEEPWELL_HOST = process.env.DEEPWELL_HOST || "localhost"
 const DEEPWELL_PORT = 2747
-const DEEPWELL_CLIENT = new jsonrpc({ host: DEEPWELL_HOST, port: DEEPWELL_PORT })
+const DEEPWELL_CLIENT = new jsonrpc({ host: DEEPWELL_HOST, port: DEEPWELL_PORT, keepalive: true })
 DEEPWELL_CLIENT.connect()
 
 export async function ping(): void {
