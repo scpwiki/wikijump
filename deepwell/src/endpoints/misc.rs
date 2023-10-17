@@ -89,5 +89,5 @@ pub async fn normalize_method(
     let mut value: String = params.one()?;
     tide::log::info!("Running normalize on string: {value:?}");
     normalize(&mut value);
-    Ok(value.into())
+    Ok(value)
 }

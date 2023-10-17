@@ -78,14 +78,11 @@ pub async fn translate_strings(
         );
 
         let arguments = arguments_raw.into_fluent_args();
+        let translation =
+            ctx.localization()
+                .translate(&locale, &message_key, &arguments)?;
 
-        match ctx
-            .localization()
-            .translate(&locale, &message_key, &arguments)
-        {
-            Ok(translation) => output.insert(message_key, translation.to_string()),
-            Err(error) => return Err(ServiceError::from(error)),
-        };
+        output.insert(message_key, translation.to_string());
     }
 
     Ok(output)
