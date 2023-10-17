@@ -274,8 +274,9 @@ impl Error {
     /// Sort of similar to HTTP status codes, we are also dividing them into groups based
     /// generally on the kind of error it is.
     ///
-    /// When an error case is removed, then its number should not be reused, just use the next
-    /// available value in line.
+    /// When an error case is removed, then its number should generally not be reused,
+    /// just use the next available value in line. Also be sure to update framerail
+    /// accordingly when error codes are added or removed.
     pub fn code(&self) -> i32 {
         match self {
             // 1000 - Miscellaneous, general errors
