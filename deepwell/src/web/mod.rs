@@ -26,7 +26,6 @@ mod page_details;
 mod page_order;
 mod provided_value;
 mod reference;
-mod unwrap;
 
 pub use self::bytes::Bytes;
 pub use self::connection_type::ConnectionType;
@@ -36,4 +35,3 @@ pub use self::page_details::PageDetails;
 pub use self::page_order::{PageOrder, PageOrderColumn};
 pub use self::provided_value::ProvidedValue;
 pub use self::reference::Reference;
-pub use self::unwrap::HttpUnwrap;

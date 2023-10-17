@@ -37,7 +37,6 @@ mod prelude {
         SessionService, SiteService, StdResult, TextService, UserService, ViewService,
         VoteService,
     };
-    pub use crate::web::HttpUnwrap;
     pub use jsonrpsee::types::params::Params;
     pub use std::convert::TryFrom;
 }
