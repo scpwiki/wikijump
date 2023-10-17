@@ -259,7 +259,6 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("user_get", user_get);
     register!("user_edit", user_edit);
     register!("user_delete", user_delete);
-    register!("user_import", user_import);
     register!("user_add_name_change", user_add_name_change);
 
     // Bot user
