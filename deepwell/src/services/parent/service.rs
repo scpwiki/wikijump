@@ -145,7 +145,7 @@ impl ParentService {
         ctx: &ServiceContext<'_>,
         description: ParentDescription<'_>,
     ) -> Result<PageParentModel> {
-        find_or_error(Self::get_optional(ctx, description)).await
+        find_or_error!(Self::get_optional(ctx, description), PageParent)
     }
 
     /// Gets all relationships of the given type.

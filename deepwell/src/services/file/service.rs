@@ -340,7 +340,7 @@ impl FileService {
 
         if file.page_id != page_id {
             tide::log::warn!("File's page ID and passed page ID do not match");
-            return Err(Error::NotFound);
+            return Err(Error::FileNotFound);
         }
 
         if file.deleted_at.is_none() {
@@ -419,7 +419,7 @@ impl FileService {
 
     #[inline]
     pub async fn get(ctx: &ServiceContext<'_>, input: GetFile<'_>) -> Result<FileModel> {
-        find_or_error(Self::get_optional(ctx, input)).await
+        find_or_error!(Self::get_optional(ctx, input), File)
     }
 
     /// Gets the file ID from a reference, looking up if necessary.
@@ -451,7 +451,7 @@ impl FileService {
 
                 match result {
                     Some(tuple) => Ok(tuple.0),
-                    None => Err(Error::NotFound),
+                    None => Err(Error::FileNotFound),
                 }
             }
         }
@@ -472,7 +472,7 @@ impl FileService {
 
     #[inline]
     pub async fn get_direct(ctx: &ServiceContext<'_>, file_id: i64) -> Result<FileModel> {
-        find_or_error(Self::get_direct_optional(ctx, file_id)).await
+        find_or_error!(Self::get_direct_optional(ctx, file_id), File)
     }
 
     /// Hard deletes this file and all duplicates.

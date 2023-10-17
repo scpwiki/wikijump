@@ -213,7 +213,7 @@ impl FilterService {
 
     #[inline]
     pub async fn get(ctx: &ServiceContext<'_>, filter_id: i64) -> Result<FilterModel> {
-        find_or_error(Self::get_optional(ctx, filter_id)).await
+        find_or_error!(Self::get_optional(ctx, filter_id), Filter)
     }
 
     pub async fn get_optional(

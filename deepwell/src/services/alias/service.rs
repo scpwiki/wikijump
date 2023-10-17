@@ -86,7 +86,7 @@ impl AliasService {
                         "No target site with ID {target_id} exists, cannot create alias",
                     );
 
-                    return Err(Error::NotFound);
+                    return Err(Error::SiteNotFound);
                 }
 
                 if verify && SiteService::exists(ctx, Reference::Slug(cow!(slug))).await?
@@ -104,7 +104,7 @@ impl AliasService {
                         "No target user with ID {target_id} exists, cannot create alias",
                     );
 
-                    return Err(Error::NotFound);
+                    return Err(Error::UserNotFound);
                 }
 
                 if verify && UserService::exists(ctx, Reference::Slug(cow!(slug))).await?
@@ -174,7 +174,7 @@ impl AliasService {
         alias_type: AliasType,
         slug: &str,
     ) -> Result<AliasModel> {
-        find_or_error(Self::get_optional(ctx, alias_type, slug)).await
+        find_or_error!(Self::get_optional(ctx, alias_type, slug), Alias)
     }
 
     #[inline]

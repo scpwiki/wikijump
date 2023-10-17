@@ -223,7 +223,7 @@ impl SiteService {
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
     ) -> Result<SiteModel> {
-        find_or_error(Self::get_optional(ctx, reference)).await
+        find_or_error!(Self::get_optional(ctx, reference), Site)
     }
 
     /// Gets the site ID from a reference, looking up if necessary.

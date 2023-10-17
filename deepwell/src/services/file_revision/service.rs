@@ -425,7 +425,7 @@ impl FileRevisionService {
             .order_by_desc(file_revision::Column::RevisionNumber)
             .one(txn)
             .await?
-            .ok_or(Error::NotFound)?;
+            .ok_or(Error::FileRevisionNotFound)?;
 
         Ok(revision)
     }
@@ -464,7 +464,10 @@ impl FileRevisionService {
         file_id: i64,
         revision_number: i32,
     ) -> Result<FileRevisionModel> {
-        find_or_error(Self::get_optional(ctx, page_id, file_id, revision_number)).await
+        find_or_error!(
+            Self::get_optional(ctx, page_id, file_id, revision_number),
+            FileRevision,
+        )
     }
 
     /// Counts the number of revisions for a file.
@@ -495,7 +498,7 @@ impl FileRevisionService {
         // that means this page does not exist, and we should return an error.
         match NonZeroI32::new(row_count) {
             Some(count) => Ok(count),
-            None => Err(Error::NotFound),
+            None => Err(Error::FileNotFound),
         }
     }
 

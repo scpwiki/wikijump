@@ -59,7 +59,7 @@ impl DomainService {
 
     /// Delete the given custom domain.
     ///
-    /// Yields `Error::NotFound` if it's missing.
+    /// Yields `Error::CustomDomainNotFound` if it's missing.
     pub async fn remove_custom(ctx: &ServiceContext<'_>, domain: String) -> Result<()> {
         tide::log::info!("Deleting custom domain '{domain}'");
 
@@ -70,7 +70,7 @@ impl DomainService {
         if rows_affected == 1 {
             Ok(())
         } else {
-            Err(Error::NotFound)
+            Err(Error::CustomDomainNotFound)
         }
     }
 
@@ -97,7 +97,10 @@ impl DomainService {
         ctx: &ServiceContext<'_>,
         domain: &str,
     ) -> Result<SiteModel> {
-        find_or_error(Self::site_from_custom_domain_optional(ctx, domain)).await
+        find_or_error!(
+            Self::site_from_custom_domain_optional(ctx, domain),
+            CustomDomain,
+        )
     }
 
     /// Determines if the given custom domain is registered.
@@ -117,7 +120,7 @@ impl DomainService {
         ctx: &ServiceContext<'_>,
         domain: &'a str,
     ) -> Result<SiteModel> {
-        find_or_error(Self::site_from_domain_optional(ctx, domain)).await
+        find_or_error!(Self::site_from_domain_optional(ctx, domain), CustomDomain)
     }
 
     /// Optional version of `site_from_domain()`.

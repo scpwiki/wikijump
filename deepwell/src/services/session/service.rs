@@ -106,7 +106,7 @@ impl SessionService {
         tide::log::info!("Looking up session with token {session_token}");
         Self::get_optional(ctx, session_token)
             .await?
-            .ok_or(Error::NotFound)
+            .ok_or(Error::InvalidSessionToken)
     }
 
     pub async fn get_optional(
@@ -150,7 +150,7 @@ impl SessionService {
             )
             .one(txn)
             .await?
-            .ok_or(Error::NotFound)?;
+            .ok_or(Error::UserNotFound)?;
 
         Ok(user)
     }
@@ -234,7 +234,7 @@ impl SessionService {
 
         if rows_affected != 1 {
             tide::log::error!("This session was already deleted or does not exist");
-            return Err(Error::NotFound);
+            return Err(Error::InvalidSessionToken);
         }
 
         Ok(())

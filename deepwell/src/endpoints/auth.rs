@@ -148,7 +148,7 @@ pub async fn auth_session_get_others(
             tide::log::error!(
                 "Cannot find own session token in list of all sessions, must be invalid",
             );
-            return Err(Error::NotFound);
+            return Err(Error::InvalidSessionToken);
         }
     };
 

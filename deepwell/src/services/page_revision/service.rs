@@ -715,7 +715,7 @@ impl PageRevisionService {
             .order_by_desc(page_revision::Column::RevisionNumber)
             .one(txn)
             .await?
-            .ok_or(Error::NotFound)?;
+            .ok_or(Error::PageRevisionNotFound)?;
 
         Ok(revision)
     }
@@ -747,14 +747,17 @@ impl PageRevisionService {
         page_id: i64,
         revision_number: i32,
     ) -> Result<PageRevisionModel> {
-        find_or_error(Self::get_optional(ctx, site_id, page_id, revision_number)).await
+        find_or_error!(
+            Self::get_optional(ctx, site_id, page_id, revision_number),
+            PageRevision,
+        )
     }
 
     pub async fn get_direct(
         ctx: &ServiceContext<'_>,
         revision_id: i64,
     ) -> Result<PageRevisionModel> {
-        find_or_error(Self::get_direct_optional(ctx, revision_id)).await
+        find_or_error!(Self::get_direct_optional(ctx, revision_id), PageRevision)
     }
 
     pub async fn get_direct_optional(
@@ -791,7 +794,7 @@ impl PageRevisionService {
         // that means this page does not exist, and we should return an error.
         match NonZeroI32::new(row_count) {
             Some(count) => Ok(count),
-            None => Err(Error::NotFound),
+            None => Err(Error::PageNotFound),
         }
     }
 

@@ -95,6 +95,9 @@ pub enum Error {
     #[error("Backend error while trying to authenticate")]
     AuthenticationBackend(Box<Error>),
 
+    #[error("Invalid session token, cannot be used for authentication")]
+    InvalidSessionToken,
+
     #[error("User ID {session_user_id} associated with session does not match active user ID {active_user_id}")]
     SessionUserId {
         active_user_id: i64,
@@ -113,9 +116,6 @@ pub enum Error {
     #[error("The request is in some way malformed or incorrect")]
     BadRequest,
 
-    #[error("The requested data was not found")]
-    NotFound,
-
     #[error("The request violates a configured content filter")]
     FilterViolation,
 
@@ -124,6 +124,60 @@ pub enum Error {
 
     #[error("Cannot hide the wikitext for the latest page revision")]
     CannotHideLatestRevision,
+
+    #[error("Unspecified entity not found")]
+    GeneralNotFound,
+
+    #[error("Alias does not exist")]
+    AliasNotFound,
+
+    #[error("Interaction value does not exist")]
+    InteractionNotFound,
+
+    #[error("User does not exist")]
+    UserNotFound,
+
+    #[error("Site does not exist")]
+    SiteNotFound,
+
+    #[error("Page does not exist")]
+    PageNotFound,
+
+    #[error("Page category does not exist")]
+    PageCategoryNotFound,
+
+    #[error("Page parent does not exist")]
+    PageParentNotFound,
+
+    #[error("Page revision does not exist")]
+    PageRevisionNotFound,
+
+    #[error("File does not exist")]
+    FileNotFound,
+
+    #[error("File revision does not exist")]
+    FileRevisionNotFound,
+
+    #[error("Vote does not exist")]
+    VoteNotFound,
+
+    #[error("Filter does not exist")]
+    FilterNotFound,
+
+    #[error("Custom domain does not exist")]
+    CustomDomainNotFound,
+
+    #[error("Message does not exist")]
+    MessageNotFound,
+
+    #[error("Message draft does not exist")]
+    MessageDraftNotFound,
+
+    #[error("Blob item does not exist")]
+    BlobNotFound,
+
+    #[error("Text item does not exist")]
+    TextNotFound,
 
     #[error("Cannot perform, user already exists")]
     UserExists,
@@ -177,8 +231,36 @@ impl Error {
             //        Avoid putting stuff here, prefer other categories instead
             Error::Raw(_) => 1000,
 
-            // 2000 - Server errors, expected
-            Error::NotFound => 2000,
+            // 2000 - Database conflicts
+            //        Missing fields
+            Error::GeneralNotFound => 2000,
+            Error::AliasNotFound => 2001,
+            Error::InteractionNotFound => 2002,
+            Error::UserNotFound => 2003,
+            Error::SiteNotFound => 2004,
+            Error::PageNotFound => 2005,
+            Error::PageCategoryNotFound => 2006,
+            Error::PageParentNotFound => 2007,
+            Error::PageRevisionNotFound => 2008,
+            Error::FileNotFound => 2009,
+            Error::FileRevisionNotFound => 2010,
+            Error::VoteNotFound => 2011,
+            Error::FilterNotFound => 2012,
+            Error::CustomDomainNotFound => 2013,
+            Error::MessageNotFound => 2014,
+            Error::MessageDraftNotFound => 2015,
+            Error::BlobNotFound => 2016,
+            Error::TextNotFound => 2017,
+
+            // 2100 -- Existing fields
+            Error::UserExists => 2100,
+            Error::UserMfaExists => 2101,
+            Error::SiteExists => 2102,
+            Error::PageExists => 2103,
+            Error::PageParentExists => 2104,
+            Error::FileExists => 2105,
+            Error::FilterExists => 2106,
+            Error::CustomDomainExists => 2107,
 
             // 3000 - Server errors, unexpected
             Error::RateLimited => 3000,
@@ -218,23 +300,14 @@ impl Error {
             Error::InvalidEmail => 4201,
             Error::DisallowedEmail => 4202,
 
-            // 4300 -- Database conflicts
-            Error::UserExists => 4300,
-            Error::UserMfaExists => 4301,
-            Error::SiteExists => 4302,
-            Error::PageExists => 4303,
-            Error::PageParentExists => 4304,
-            Error::FileExists => 4305,
-            Error::FilterExists => 4306,
-            Error::CustomDomainExists => 4307,
-
-            // 4400 -- Relationship conflicts
-            Error::SiteBlockedUser => 4400,
-            Error::UserBlockedUser => 4401,
+            // 4300 -- Relationship conflicts
+            Error::SiteBlockedUser => 4300,
+            Error::UserBlockedUser => 4301,
 
             // 5000 - Authentication, permission, or role errors
             Error::InvalidAuthentication => 5000,
-            Error::SessionUserId { .. } => 5001,
+            Error::InvalidSessionToken => 5001,
+            Error::SessionUserId { .. } => 5002,
             // TODO: permission errors (e.g. locked page, cannot apply bans)
         }
     }
@@ -261,7 +334,7 @@ impl From<argon2::password_hash::Error> for Error {
 impl From<DbErr> for Error {
     fn from(error: DbErr) -> Error {
         match error {
-            DbErr::RecordNotFound(_) => Error::NotFound,
+            DbErr::RecordNotFound(_) => Error::GeneralNotFound,
             _ => Error::Database(error),
         }
     }

@@ -155,7 +155,7 @@ impl MessageService {
         for recipient_id in recipients.iter() {
             if !UserService::exists(ctx, Reference::Id(recipient_id)).await? {
                 tide::log::error!("Recipient user ID {recipient_id} does not exist");
-                return Err(Error::NotFound);
+                return Err(Error::UserNotFound);
             }
         }
 
@@ -420,7 +420,7 @@ impl MessageService {
         record_id: &str,
         user_id: i64,
     ) -> Result<MessageModel> {
-        find_or_error(Self::get_message_optional(ctx, record_id, user_id)).await
+        find_or_error!(Self::get_message_optional(ctx, record_id, user_id), Message)
     }
 
     pub async fn get_record_optional(
@@ -453,7 +453,7 @@ impl MessageService {
         ctx: &ServiceContext<'_>,
         draft_id: &str,
     ) -> Result<MessageDraftModel> {
-        find_or_error(Self::get_draft_optional(ctx, draft_id)).await
+        find_or_error!(Self::get_draft_optional(ctx, draft_id), MessageDraft)
     }
 
     // Helper methods

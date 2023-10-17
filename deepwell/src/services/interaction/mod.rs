@@ -188,7 +188,7 @@ impl InteractionService {
         ctx: &ServiceContext<'_>,
         reference: InteractionReference,
     ) -> Result<InteractionModel> {
-        find_or_error(Self::get_optional(ctx, reference)).await
+        find_or_error!(Self::get_optional(ctx, reference), Interaction)
     }
 
     pub async fn exists(

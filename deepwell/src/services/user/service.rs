@@ -306,7 +306,7 @@ impl UserService {
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
     ) -> Result<UserModel> {
-        find_or_error(Self::get_optional(ctx, reference)).await
+        find_or_error!(Self::get_optional(ctx, reference), User)
     }
 
     /// Gets the user ID from a reference, looking up if necessary.

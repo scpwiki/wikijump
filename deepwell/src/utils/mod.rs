@@ -22,7 +22,6 @@
 
 mod category;
 mod crypto;
-mod error;
 mod locale;
 mod slug;
 mod string;
@@ -30,7 +29,6 @@ mod time;
 
 pub use self::category::*;
 pub use self::crypto::*;
-pub use self::error::*;
 pub use self::locale::*;
 pub use self::slug::*;
 pub use self::string::*;

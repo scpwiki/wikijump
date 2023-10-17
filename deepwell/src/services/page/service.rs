@@ -365,7 +365,7 @@ impl PageService {
 
         if page.site_id != site_id {
             tide::log::warn!("Page's site ID and passed site ID do not match");
-            return Err(Error::NotFound);
+            return Err(Error::PageNotFound);
         }
 
         if page.deleted_at.is_none() {
@@ -508,7 +508,7 @@ impl PageService {
         site_id: i64,
         reference: Reference<'_>,
     ) -> Result<PageModel> {
-        find_or_error(Self::get_optional(ctx, site_id, reference)).await
+        find_or_error!(Self::get_optional(ctx, site_id, reference), Page)
     }
 
     pub async fn get_optional(
@@ -568,7 +568,7 @@ impl PageService {
         site_id: i64,
         page_id: i64,
     ) -> Result<PageModel> {
-        find_or_error(Self::get_direct_optional(ctx, site_id, page_id)).await
+        find_or_error!(Self::get_direct_optional(ctx, site_id, page_id), Page)
     }
 
     pub async fn get_direct_optional(

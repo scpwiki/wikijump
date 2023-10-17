@@ -61,7 +61,7 @@ impl TextService {
 
     #[inline]
     pub async fn get(ctx: &ServiceContext<'_>, hash: &[u8]) -> Result<String> {
-        find_or_error(Self::get_optional(ctx, hash)).await
+        find_or_error!(Self::get_optional(ctx, hash), Text)
     }
 
     #[inline]

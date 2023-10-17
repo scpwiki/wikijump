@@ -77,7 +77,7 @@ impl CategoryService {
         site_id: i64,
         reference: Reference<'_>,
     ) -> Result<PageCategoryModel> {
-        find_or_error(Self::get_optional(ctx, site_id, reference)).await
+        find_or_error!(Self::get_optional(ctx, site_id, reference), PageCategory)
     }
 
     pub async fn get_or_create(
