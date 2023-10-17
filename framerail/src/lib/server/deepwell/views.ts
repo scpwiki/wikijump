@@ -12,10 +12,10 @@ export function pageView(
   route: Optional<PageRoute>,
   sessionToken: Optional<string>
 ): object {
-  return wellcall("page_view" {
+  return wellcall("page_view", {
     domain,
     locale,
     session_token: sessionToken,
-    route,
+    route
   })
 }

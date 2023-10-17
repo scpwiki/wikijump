@@ -4,7 +4,11 @@ import * as jsonrpc from "json-rpc-client"
 
 const DEEPWELL_HOST = process.env.DEEPWELL_HOST || "localhost"
 const DEEPWELL_PORT = 2747
-const DEEPWELL_CLIENT = new jsonrpc({ host: DEEPWELL_HOST, port: DEEPWELL_PORT, keepalive: true })
+const DEEPWELL_CLIENT = new jsonrpc({
+  host: DEEPWELL_HOST,
+  port: DEEPWELL_PORT,
+  keepalive: true
+})
 DEEPWELL_CLIENT.connect()
 
 export interface JsonRpcSuccess<T> {
