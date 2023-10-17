@@ -232,7 +232,7 @@ impl Error {
             Error::Raw(_) => 1000,
 
             // 2000 - Database conflicts
-            //        Missing fields
+            //        Missing data
             Error::GeneralNotFound => 2000,
             Error::AliasNotFound => 2001,
             Error::InteractionNotFound => 2002,
@@ -252,7 +252,7 @@ impl Error {
             Error::BlobNotFound => 2016,
             Error::TextNotFound => 2017,
 
-            // 2100 -- Existing fields
+            // 2100 -- Existing data
             Error::UserExists => 2100,
             Error::UserMfaExists => 2101,
             Error::SiteExists => 2102,
