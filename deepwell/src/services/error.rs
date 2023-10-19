@@ -459,6 +459,12 @@ impl From<DbErr> for Error {
 
 impl From<Error> for ErrorObjectOwned {
     fn from(error: Error) -> ErrorObjectOwned {
+        // Return a raw error as-is
+        if let Error::Raw(error) = error {
+            return error;
+        }
+
+        // Build error object
         let error_code = error.code();
         let message = str!(error);
         let data = error.data();
