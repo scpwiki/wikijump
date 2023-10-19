@@ -1,4 +1,4 @@
-import { wellcall } from "$lib/server/deepwell/index.ts"
+import { client } from "$lib/server/deepwell/index.ts"
 import type { Optional } from "$lib/types.ts"
 
 export interface PageRoute {
@@ -12,7 +12,7 @@ export function pageView(
   route: Optional<PageRoute>,
   sessionToken: Optional<string>
 ): object {
-  return wellcall("page_view", {
+  return client.request("page_view", {
     domain,
     locale,
     session_token: sessionToken,

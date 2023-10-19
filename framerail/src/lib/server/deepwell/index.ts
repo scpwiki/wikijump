@@ -1,49 +1,27 @@
 // TODO refactor into proper TS service
 
-import jsonrpc from "json-rpc-client"
+import { JSONRPCClient, JSONRPCRequest } from "json-rpc-2.0"
 
-const DEEPWELL_HOST = process.env.DEEPWELL_HOST || "localhost"
-const DEEPWELL_PORT = 2747
-const DEEPWELL_CLIENT = new jsonrpc({
-  host: DEEPWELL_HOST,
-  port: DEEPWELL_PORT,
-  keepalive: true
-})
-DEEPWELL_CLIENT.connect()
+export const DEEPWELL_HOST = process.env.DEEPWELL_HOST || "localhost"
+export const DEEPWELL_PORT = 2747
+export const DEEPWELL_URL = `http://${DEEPWELL_HOST}:${DEEPWELL_PORT}/jsonrpc`
+export const client = new JSONRPCClient(processRawRequest)
 
-export interface JsonRpcSuccess<T> {
-  jsonrpc: "2.0"
-  result: T
-  id: number
-}
+async function processRawRequest(request: JSONRPCRequest): void {
+  const response = await fetch(DEEPWELL_URL, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(request),
+  })
 
-export interface JsonRpcFailure {
-  jsonrpc: "2.0"
-  error: JsonRpcError
-  id: number
-}
-
-export interface JsonRpcError {
-  code: number
-  message: string
-  data?: any
-}
-
-export type JsonRpcResponse = JsonRpcSuccess | JsonRpcFailure
-
-export async function wellcall<T>(method: string, params?: any, notification?: bool): T {
-  const reply = await DEEPWELL_CLIENT.send(method, params, notification)
-  if (reply.error) {
-    throw new Error(reply.error)
+  if (response.status === 200) {
+    const data = await response.json()
+    client.receive(data)
+  } else if (request.id !== undefined) {
+    throw new Error(response.statusText)
   }
-
-  return reply.response
 }
 
 export async function ping(): void {
-  try {
-    await wellcall.send("ping")
-  } catch {
-    throw new Error("Cannot ping DEEPWELL!")
-  }
+  await client.request("ping")
 }
