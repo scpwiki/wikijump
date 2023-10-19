@@ -158,6 +158,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
 
     // Miscellaneous
     register!("ping", ping);
+    register!("error", yield_error);
     register!("version", version);
     register!("version_full", full_version);
     register!("hostname", hostname);

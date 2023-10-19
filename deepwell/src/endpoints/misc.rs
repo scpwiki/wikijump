@@ -42,6 +42,16 @@ pub async fn ping(
     Ok("Pong!")
 }
 
+/// Method which always returns an error.
+/// For testing.
+pub async fn yield_error(
+    _ctx: &ServiceContext<'_>,
+    _params: Params<'static>,
+) -> Result<()> {
+    info!("Returning DEEPWELL error for testing");
+    Err(ServiceError::BadRequest)
+}
+
 pub async fn version(
     _ctx: &ServiceContext<'_>,
     _params: Params<'static>,
