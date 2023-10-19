@@ -9,9 +9,9 @@ export const client = new JSONRPCClient(processRawRequest)
 
 async function processRawRequest(request: JSONRPCRequest): void {
   const response = await fetch(DEEPWELL_URL, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify(request),
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(request)
   })
 
   if (response.status === 200) {
