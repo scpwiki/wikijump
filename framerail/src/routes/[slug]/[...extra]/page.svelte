@@ -97,7 +97,7 @@
   UNTRANSLATED:Response <textarea class="debug">{JSON.stringify(data, null, 2)}</textarea>
 </p>
 
-<h2>{data.pageRevision.title}</h2>
+<h2>{data.page_revision.title}</h2>
 
 <hr />
 
@@ -114,7 +114,7 @@
   Tags
   <hr />
   <ul class="page-tags">
-    {#each data.pageRevision.tags as tag}
+    {#each data.page_revision.tags as tag}
       <li class="tag">{tag}</li>
     {/each}
   </ul>
@@ -127,14 +127,14 @@
       class="editor-title"
       placeholder="UT:title"
       type="text"
-      value={data.pageRevision.title}
+      value={data.page_revision.title}
     />
     <input
       name="alt-title"
       class="editor-alt-title"
       placeholder="UT:alternative title"
       type="text"
-      value={data.pageRevision.altTitle}
+      value={data.page_revision.altTitle}
     />
     <textarea name="wikitext" class="editor-wikitext">{data.wikitext}</textarea>
     <input
@@ -142,7 +142,7 @@
       class="editor-tags"
       placeholder="tags"
       type="text"
-      value={data.pageRevision.tags.join(" ")}
+      value={data.page_revision.tags.join(" ")}
     />
     <textarea name="comments" class="editor-comments" placeholder="comments" />
     <div class="action-row editor-actions">
