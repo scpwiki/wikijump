@@ -51,7 +51,7 @@ pub struct PageRoute {
 }
 
 #[derive(Serialize, Debug, Clone)]
-#[serde(tag = "type", content = "data")]
+#[serde(rename_all = "snake_case", tag = "type", content = "data")]
 pub enum GetPageViewOutput {
     PageFound {
         #[serde(flatten)]
