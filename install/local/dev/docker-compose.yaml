@@ -38,6 +38,20 @@ services:
       - "9000:9000"
       - "9001:9001"
 
+  cache:
+    build:
+      context: ../../..
+      dockerfile: install/local/dev/redis/Dockerfile
+    restart: always
+    # You can add a volume for /data if you wish
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    ports:
+      - "6379:6379"
+
   api:
     build:
       context: ../../..
@@ -45,6 +59,7 @@ services:
     ports:
       - "2747:2747"
     links:
+      - cache
       - database
       - files
     environment:
@@ -62,6 +77,8 @@ services:
       timeout: 2s
       retries: 3
     depends_on:
+      cache:
+        condition: service_healthy
       database:
         condition: service_healthy
       files:
