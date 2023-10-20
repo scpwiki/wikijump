@@ -1,4 +1,4 @@
-import * as page from "$lib/server/page"
+import * as page from "$lib/server/deepwell/page"
 
 export async function POST(event) {
   let data = await event.request.formData()
