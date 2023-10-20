@@ -12,12 +12,12 @@ ftml                                @emmiegit
 deepwell                            @emmiegit
 
 # Frontend / Web server
-framerail                           @Monkatraz @emmiegit
-web                                 @Monkatraz
+framerail                           @Zokhoi @emmiegit
+web                                 @Zokhoi
 
 # Localization
 .github/workflows/locales.yaml      @emmiegit
 
 # Terraform and docker-compose deployment
-.github/workflows/docker-*.yaml     @danieltharp
-/install/                           @danieltharp
+.github/workflows/docker-*.yaml     @emmiegit
+/install/                           @emmiegit
