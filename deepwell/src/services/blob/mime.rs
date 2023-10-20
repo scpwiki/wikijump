@@ -127,7 +127,7 @@ async fn mime_request() {
     const TAR_GZIP: &[u8] =
         b"\x1f\x8b\x08\x08\xb1\xb7\x8f\x62\x00\x03\x78\x00\x03\x00\x00\x00\x00";
 
-    let mime = MimeAnalyzer::spawn().expect("MIME analyzer job did not start");
+    let mime = MimeAnalyzer::spawn();
 
     macro_rules! check {
         ($bytes:expr, $expected:expr $(,)?) => {{
