@@ -21,7 +21,7 @@ services:
       retries: 6
 
   files:
-    build: files
+    build: minio
     restart: always
     environment:
       - "MINIO_ROOT_USER=minio"
