@@ -18,6 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// TODO replace ParentService with a new interaction type
+
 use super::prelude::*;
 use crate::models::page_parent::{self, Entity as PageParent, Model as PageParentModel};
 use crate::services::PageService;
@@ -50,11 +52,11 @@ impl ParentService {
 
         // Check if the two pages are the same
         if parent_page.page_id == child_page.page_id {
-            tide::log::error!(
+            error!(
                 "Cannot parent a page to itself (ID {})",
                 parent_page.page_id,
             );
-            return Err(Error::Conflict);
+            return Err(Error::PageParentExists);
         }
 
         // Check if this relationship already exists
@@ -84,7 +86,7 @@ impl ParentService {
     /// Removes the parental relationship with the two given pages.
     ///
     /// # Returns
-    /// Returns `true` if the relationship was deleted, and
+    /// The struct contains `true` if the relationship was deleted, and
     /// `false` if it was already absent.
     pub async fn remove(
         ctx: &ServiceContext<'_>,
@@ -93,7 +95,7 @@ impl ParentService {
             parent: parent_reference,
             child: child_reference,
         }: ParentDescription<'_>,
-    ) -> Result<bool> {
+    ) -> Result<RemoveParentOutput> {
         let txn = ctx.transaction();
 
         let (parent_page, child_page) = try_join!(
@@ -101,13 +103,18 @@ impl ParentService {
             PageService::get(ctx, site_id, child_reference),
         )?;
 
-        let rows_deleted =
+        let DeleteResult { rows_affected } =
             PageParent::delete_by_id((parent_page.page_id, child_page.page_id))
                 .exec(txn)
-                .await?
-                .rows_affected;
+                .await?;
 
-        Ok(rows_deleted == 1)
+        debug_assert!(
+            rows_affected <= 1,
+            "Rows deleted using ID was more than 1: {rows_affected}",
+        );
+
+        let was_deleted = rows_affected == 1;
+        Ok(RemoveParentOutput { was_deleted })
     }
 
     pub async fn get_optional(
@@ -133,15 +140,15 @@ impl ParentService {
     }
 
     #[inline]
+    #[allow(dead_code)] // TODO
     pub async fn get(
         ctx: &ServiceContext<'_>,
         description: ParentDescription<'_>,
     ) -> Result<PageParentModel> {
-        find_or_error(Self::get_optional(ctx, description)).await
+        find_or_error!(Self::get_optional(ctx, description), PageParent)
     }
 
     /// Gets all relationships of the given type.
-    #[allow(dead_code)] // TODO
     pub async fn get_relationships(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -164,7 +171,7 @@ impl ParentService {
     }
 
     /// Gets all children of the given page.
-    #[allow(dead_code)] // TODO
+    #[allow(dead_code)] // TEMP
     pub async fn get_children(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -175,7 +182,6 @@ impl ParentService {
     }
 
     /// Gets all parents of the given page.
-    #[allow(dead_code)] // TODO
     pub async fn get_parents(
         ctx: &ServiceContext<'_>,
         site_id: i64,

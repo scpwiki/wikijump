@@ -74,22 +74,21 @@ impl PasswordService {
         hash: &str,
         sleep: bool,
     ) -> Result<()> {
-        tide::log::info!("Attempting to verify password");
+        info!("Attempting to verify password");
         let result = Self::verify_internal(password, hash);
         match result {
             Ok(()) => Ok(()),
             Err(error) => {
                 match error {
                     // Simply the wrong password
+                    // This is converted in services/error.rs
                     Error::InvalidAuthentication => {
-                        tide::log::warn!("Invalid password entered, verification failed");
+                        warn!("Invalid password entered, verification failed");
                     }
 
                     // Some kind of server error
                     _ => {
-                        tide::log::error!(
-                            "Unexpected error while verifying password: {error}",
-                        );
+                        error!("Unexpected error while verifying password: {error}",);
                     }
                 }
 

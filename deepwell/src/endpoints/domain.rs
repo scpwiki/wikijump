@@ -1,5 +1,5 @@
 /*
- * endpoints/text.rs
+ * endpoints/domain.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -19,23 +19,38 @@
  */
 
 use super::prelude::*;
-use crate::web::Bytes;
+use crate::models::site::Model as SiteModel;
+use crate::services::domain::CreateCustomDomain;
 
-pub async fn text_create(
+pub async fn site_get_from_domain(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
-) -> Result<Bytes<'static>> {
-    let contents: String = params.one()?;
-    info!("Inserting new stored text (bytes {})", contents.len());
-    let hash = TextService::create(ctx, contents).await?;
-    Ok(Bytes::from(hash))
+) -> Result<Option<SiteModel>> {
+    let domain: String = params.one()?;
+    DomainService::site_from_domain_optional(ctx, &domain).await
 }
 
-pub async fn text_get(
+pub async fn site_custom_domain_create(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
-) -> Result<String> {
-    info!("Getting stored text");
-    let hash: Bytes = params.one()?;
-    TextService::get(ctx, hash.as_ref()).await
+) -> Result<()> {
+    let input: CreateCustomDomain = params.parse()?;
+    DomainService::create_custom(ctx, input).await
+}
+
+pub async fn site_custom_domain_get(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<Option<SiteModel>> {
+    let domain: String = params.one()?;
+    DomainService::site_from_domain_optional(ctx, &domain).await
+}
+
+// TODO rename
+pub async fn site_custom_domain_delete(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<()> {
+    let domain: String = params.one()?;
+    DomainService::remove_custom(ctx, domain).await
 }

@@ -6,7 +6,6 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
 #[sea_orm(table_name = "page_revision")]
-#[serde(rename_all = "camelCase")]
 pub struct Model {
     #[sea_orm(primary_key)]
     pub revision_id: i64,
@@ -19,8 +18,10 @@ pub struct Model {
     pub from_wikidot: bool,
     pub changes: Vec<String>,
     #[sea_orm(column_type = "Binary(BlobSize::Blob(None))")]
+    #[serde(skip)]
     pub wikitext_hash: Vec<u8>,
     #[sea_orm(column_type = "Binary(BlobSize::Blob(None))")]
+    #[serde(skip)]
     pub compiled_hash: Vec<u8>,
     pub compiled_at: TimeDateTimeWithTimeZone,
     #[sea_orm(column_type = "Text")]

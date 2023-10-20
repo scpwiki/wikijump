@@ -1,5 +1,5 @@
 /*
- * utils/error.rs
+ * services/macros.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -18,12 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::services::{Error, Result};
-use std::future::Future;
-
-pub async fn find_or_error<F, T>(future: F) -> Result<T>
-where
-    F: Future<Output = Result<Option<T>>>,
-{
-    future.await?.ok_or(Error::NotFound)
+macro_rules! find_or_error {
+    ($future:expr, $error:ident $(,)?) => {
+        paste! {
+            $future.await?.ok_or(Error::[<$error NotFound>])
+        }
+    };
 }

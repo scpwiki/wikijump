@@ -54,26 +54,26 @@ impl UserService {
         let txn = ctx.transaction();
         let slug = get_regular_slug(&name);
 
-        tide::log::debug!("Normalizing user data (name '{}', slug '{}')", name, slug,);
+        debug!("Normalizing user data (name '{}', slug '{}')", name, slug,);
         regex_replace_in_place(&mut name, &LEADING_TRAILING_CHARS, "");
 
-        tide::log::info!("Attempting to create user '{}' ('{}')", name, slug);
+        info!("Attempting to create user '{}' ('{}')", name, slug);
 
         // Empty slug check
         if slug.is_empty() {
-            tide::log::error!("Cannot create user with empty slug");
-            return Err(Error::BadRequest);
+            error!("Cannot create user with empty slug");
+            return Err(Error::UserSlugEmpty);
         }
 
         // Check if username contains the minimum amount of required bytes.
         if name.len() < ctx.config().minimum_name_bytes {
-            tide::log::error!(
+            error!(
                 "User's name is not long enough ({} < {})",
                 slug.len(),
                 ctx.config().minimum_name_bytes,
             );
 
-            return Err(Error::BadRequest);
+            return Err(Error::UserNameTooShort);
         }
 
         // Perform filter validation
@@ -100,11 +100,9 @@ impl UserService {
             .await?;
 
         if result.is_some() {
-            tide::log::error!(
-                "User with conflicting name or slug already exists, cannot create",
-            );
+            error!("User with conflicting name or slug already exists, cannot create",);
 
-            return Err(Error::Conflict);
+            return Err(Error::UserExists);
         }
 
         // Check for email conflicts
@@ -125,34 +123,30 @@ impl UserService {
                 .await?;
 
             if result.is_some() {
-                tide::log::error!(
-                    "User with conflicting email already exists, cannot create",
-                );
+                error!("User with conflicting email already exists, cannot create",);
 
-                return Err(Error::Conflict);
+                return Err(Error::UserExists);
             }
         }
 
         // Check for alias conflicts
         if AliasService::exists(ctx, AliasType::User, &slug).await? {
-            tide::log::error!(
-                "User alias with conflicting slug already exists, cannot create",
-            );
+            error!("User alias with conflicting slug already exists, cannot create",);
 
-            return Err(Error::Conflict);
+            return Err(Error::UserExists);
         }
 
         // Set up password field depending on type
         let password = match user_type {
             UserType::Regular => {
-                tide::log::info!("Creating regular user '{slug}' with password");
+                info!("Creating regular user '{slug}' with password");
                 PasswordService::new_hash(&password)?
             }
             UserType::System => {
-                tide::log::info!("Creating system user '{slug}'");
+                info!("Creating system user '{slug}'");
 
                 if !password.is_empty() {
-                    tide::log::warn!("Password was specified for system user");
+                    warn!("Password was specified for system user");
                     return Err(Error::BadRequest);
                 }
 
@@ -160,7 +154,7 @@ impl UserService {
                 str!("!")
             }
             UserType::Bot => {
-                tide::log::info!("Creating bot user '{slug}'");
+                info!("Creating bot user '{slug}'");
                 // TODO assign bot token
                 format!("TODO bot token: {}", password)
             }
@@ -175,29 +169,28 @@ impl UserService {
         // The assigned variable is also used to check whether email validation occurred, as it
         // will always be `Some` if validation occurred and `None` otherwise.
         let email_is_alias = if !bypass_email_verification {
-            let email_validation_output = EmailService::validate(&email)?;
+            let email_validation_output = EmailService::validate(&email).await?;
+
             match email_validation_output.classification {
                 EmailClassification::Normal => {
-                    tide::log::info!("User {slug}'s email was verified successfully");
+                    info!("User {slug}'s email was verified successfully");
                     Some(false)
                 }
 
                 EmailClassification::Alias => {
-                    tide::log::info!(
-                        "User {slug}'s email was verified successfully (as an alias)",
-                    );
+                    info!("User {slug}'s email was verified successfully (as an alias)",);
                     Some(true)
                 }
 
                 EmailClassification::Disposable => {
-                    tide::log::error!(
+                    error!(
                         "User {slug}'s email is disposable and did not pass verification",
                     );
                     return Err(Error::DisallowedEmail);
                 }
 
                 EmailClassification::Invalid => {
-                    tide::log::error!(
+                    error!(
                         "User {slug}'s email is invalid and did not pass verification",
                     );
                     return Err(Error::InvalidEmail);
@@ -305,7 +298,7 @@ impl UserService {
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
     ) -> Result<UserModel> {
-        find_or_error(Self::get_optional(ctx, reference)).await
+        find_or_error!(Self::get_optional(ctx, reference), User)
     }
 
     /// Gets the user ID from a reference, looking up if necessary.
@@ -340,7 +333,7 @@ impl UserService {
         if user.user_type == user_type {
             Ok(user)
         } else {
-            Err(Error::BadRequest)
+            Err(Error::UserNotFound)
         }
     }
 
@@ -369,7 +362,8 @@ impl UserService {
             }
 
             // Validate email
-            let email_validation_output = EmailService::validate(&email)?;
+            let email_validation_output = EmailService::validate(&email).await?;
+
             let is_alias = match email_validation_output.classification {
                 EmailClassification::Normal => false,
                 EmailClassification::Alias => true,
@@ -474,8 +468,8 @@ impl UserService {
 
         // Empty slug check
         if new_slug.is_empty() {
-            tide::log::error!("Cannot create user with empty slug");
-            return Err(Error::BadRequest);
+            error!("Cannot create user with empty slug");
+            return Err(Error::UserSlugEmpty);
         }
 
         // Perform filter validation
@@ -484,7 +478,7 @@ impl UserService {
         }
 
         if new_slug == user.slug {
-            tide::log::debug!("User slug is the same, rename is free");
+            debug!("User slug is the same, rename is free");
 
             // Set model, but return early, we don't deduct a
             // name change token or create a new user alias.
@@ -495,7 +489,7 @@ impl UserService {
         if let Some(alias) =
             AliasService::get_optional(ctx, AliasType::User, &new_slug).await?
         {
-            tide::log::debug!("User slug is a past alias, rename is free");
+            debug!("User slug is a past alias, rename is free");
 
             // Swap user alias for old slug
             AliasService::swap(ctx, alias.alias_id, old_slug).await?;
@@ -512,20 +506,20 @@ impl UserService {
         // a name change token must be consumed. Check if there are any remaining tokens.
 
         if user.name_changes_left == 0 {
-            tide::log::error!("User ID {} has no remaining name changes", user.user_id);
+            error!("User ID {} has no remaining name changes", user.user_id);
             return Err(Error::InsufficientNameChanges);
         }
 
         // Check if the new name has the minimum required amount of bytes.
 
         if new_name.len() < ctx.config().minimum_name_bytes {
-            tide::log::error!(
+            error!(
                 "User's name is not long enough ({} < {})",
                 new_name.len(),
                 ctx.config().minimum_name_bytes,
             );
 
-            return Err(Error::BadRequest);
+            return Err(Error::UserNameTooShort);
         }
 
         // Deduct name change token and add user alias for old slug.
@@ -537,10 +531,9 @@ impl UserService {
         // updated yet, so we instead run AliasService::verify()
         // ourselves at the end of user updating.
 
-        tide::log::debug!(
+        debug!(
             "Creating user alias for '{}' -> '{}', deducting name change",
-            old_slug,
-            new_slug,
+            old_slug, new_slug,
         );
 
         model.name_changes_left = Set(user.name_changes_left - 1);
@@ -583,12 +576,9 @@ impl UserService {
             ..Default::default()
         };
 
-        tide::log::info!(
+        info!(
             "Adding name change token to user ID {} (was {}, now {}, max {})",
-            user.user_id,
-            user.name_changes_left,
-            name_changes,
-            max_name_changes,
+            user.user_id, user.name_changes_left, name_changes, max_name_changes,
         );
 
         model.update(txn).await?;
@@ -602,7 +592,7 @@ impl UserService {
         multi_factor_secret: ActiveValue<Option<String>>,
         multi_factor_recovery_codes: ActiveValue<Option<Vec<String>>>,
     ) -> Result<()> {
-        tide::log::info!("Setting MFA secret fields for user ID {user_id}");
+        info!("Setting MFA secret fields for user ID {user_id}");
 
         let txn = ctx.transaction();
         let model = user::ActiveModel {
@@ -624,7 +614,7 @@ impl UserService {
         recovery_code: &str,
     ) -> Result<()> {
         let txn = ctx.transaction();
-        tide::log::info!("Removing recovery code from user ID {}", user.user_id);
+        info!("Removing recovery code from user ID {}", user.user_id);
 
         // Only update if there are recovery codes set for the user
         if let Some(current_codes) = &user.multi_factor_recovery_codes {
@@ -654,10 +644,10 @@ impl UserService {
     ) -> Result<UserModel> {
         let txn = ctx.transaction();
         let user = Self::get(ctx, reference).await?;
-        tide::log::info!("Deleting user with ID {}", user.user_id);
+        info!("Deleting user with ID {}", user.user_id);
 
-        // Delete all user aliases
-        AliasService::delete_all(ctx, AliasType::User, user.user_id).await?;
+        // Remove all user aliases
+        AliasService::remove_all(ctx, AliasType::User, user.user_id).await?;
 
         // Set deletion flag
         let model = user::ActiveModel {
@@ -676,7 +666,7 @@ impl UserService {
         name: &str,
         slug: &str,
     ) -> Result<()> {
-        tide::log::info!("Checking user name data against filters...");
+        info!("Checking user name data against filters...");
 
         let filter_matcher =
             FilterService::get_matcher(ctx, FilterClass::Platform, FilterType::User)
@@ -691,7 +681,7 @@ impl UserService {
     }
 
     async fn run_email_filter(ctx: &ServiceContext<'_>, email: &str) -> Result<()> {
-        tide::log::info!("Checking user email data against filters...");
+        info!("Checking user email data against filters...");
 
         let filter_matcher =
             FilterService::get_matcher(ctx, FilterClass::Platform, FilterType::Email)

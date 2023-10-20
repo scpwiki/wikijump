@@ -21,7 +21,7 @@
 use serde::{Deserialize, Serialize};
 
 /// A deserialized response from the MailCheck API.
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct MailCheckResponse {
     pub status: u16,
     pub email: String,
@@ -33,8 +33,7 @@ pub struct MailCheckResponse {
     pub error: Option<String>,
 }
 
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Serialize, Debug, Clone)]
 pub struct EmailValidationOutput {
     pub valid: bool,
     pub classification: EmailClassification,
@@ -51,8 +50,8 @@ impl Default for EmailValidationOutput {
     }
 }
 
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Serialize, Debug, Clone)]
+#[serde(rename_all = "kebab-case")]
 pub enum EmailClassification {
     Normal,
     Disposable,

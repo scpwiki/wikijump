@@ -20,13 +20,12 @@
 
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::PageRevisionType;
-use crate::web::FetchDirection;
+use crate::web::{FetchDirection, PageDetails};
 use ftml::parsing::ParseError;
 use std::num::NonZeroI32;
 use time::OffsetDateTime;
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Deserialize, Debug, Clone)]
 pub struct CreatePageRevision {
     pub user_id: i64,
     pub comments: String,
@@ -35,8 +34,8 @@ pub struct CreatePageRevision {
     pub body: CreatePageRevisionBody,
 }
 
-#[derive(Deserialize, Debug, Default)]
-#[serde(rename_all = "camelCase", default)]
+#[derive(Deserialize, Debug, Default, Clone)]
+#[serde(default)]
 pub struct CreatePageRevisionBody {
     pub wikitext: ProvidedValue<String>,
     pub title: ProvidedValue<String>,
@@ -45,7 +44,7 @@ pub struct CreatePageRevisionBody {
     pub tags: ProvidedValue<Vec<String>>,
 }
 
-#[derive(Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct CreateFirstPageRevision {
     pub user_id: i64,
     pub comments: String,
@@ -55,7 +54,7 @@ pub struct CreateFirstPageRevision {
     pub slug: String,
 }
 
-#[derive(Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct CreateTombstonePageRevision {
     pub site_id: i64,
     pub page_id: i64,
@@ -63,7 +62,7 @@ pub struct CreateTombstonePageRevision {
     pub comments: String,
 }
 
-#[derive(Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct CreateResurrectionPageRevision {
     pub site_id: i64,
     pub page_id: i64,
@@ -72,31 +71,36 @@ pub struct CreateResurrectionPageRevision {
     pub new_slug: String,
 }
 
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Serialize, Debug, Clone)]
 pub struct CreatePageRevisionOutput {
     pub revision_id: i64,
     pub revision_number: i32,
     pub parser_errors: Option<Vec<ParseError>>,
 }
 
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Serialize, Debug, Clone)]
 pub struct CreateFirstPageRevisionOutput {
     pub revision_id: i64,
     pub parser_errors: Vec<ParseError>,
 }
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Deserialize, Debug, Clone)]
 pub struct GetPageRevision {
     pub site_id: i64,
     pub page_id: i64,
     pub revision_number: i32,
 }
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Deserialize, Debug, Clone)]
+pub struct GetPageRevisionDetails {
+    #[serde(flatten)]
+    pub input: GetPageRevision,
+
+    #[serde(default)]
+    pub details: PageDetails,
+}
+
+#[derive(Deserialize, Debug, Clone)]
 pub struct UpdatePageRevision {
     pub site_id: i64,
     pub page_id: i64,
@@ -105,14 +109,31 @@ pub struct UpdatePageRevision {
     pub hidden: Vec<String>,
 }
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Deserialize, Debug, Clone)]
+pub struct UpdatePageRevisionDetails {
+    #[serde(flatten)]
+    pub input: UpdatePageRevision,
+
+    #[serde(default)]
+    pub details: PageDetails,
+}
+
+#[derive(Deserialize, Debug, Clone)]
 pub struct GetPageRevisionRange {
     pub site_id: i64,
     pub page_id: i64,
     pub revision_number: i32,
     pub revision_direction: FetchDirection,
     pub limit: u64,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct GetPageRevisionRangeDetails {
+    #[serde(flatten)]
+    pub input: GetPageRevisionRange,
+
+    #[serde(default)]
+    pub details: PageDetails,
 }
 
 /// Information about the revisions currently associated with a page.
@@ -124,15 +145,14 @@ pub struct GetPageRevisionRange {
 ///
 /// However it's convenient to avoid having to do these calculations inline
 /// in other places, and also so that API consumers have the relevant information.
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Serialize, Debug, Clone)]
 pub struct PageRevisionCountOutput {
     pub revision_count: NonZeroI32,
     pub first_revision: i32,
     pub last_revision: i32,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub struct PageRevisionModelFiltered {
     pub revision_id: i64,
     pub revision_type: PageRevisionType,

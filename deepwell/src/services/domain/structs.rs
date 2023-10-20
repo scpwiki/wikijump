@@ -28,7 +28,6 @@ pub enum SiteDomainResult<'a> {
 }
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct CreateCustomDomain {
     pub domain: String,
     pub site_id: i64,

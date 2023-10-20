@@ -35,7 +35,7 @@ use strum_macros::EnumIter;
     PartialEq,
     Eq,
 )]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "kebab-case")]
 pub enum FetchDirection {
     /// Retrieves items prior (earlier) to this one.
     Before,

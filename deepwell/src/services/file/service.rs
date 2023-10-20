@@ -36,23 +36,22 @@ impl FileService {
     ///
     /// In the background, this stores the blob via content addressing,
     /// meaning that duplicates are not uploaded twice.
-    #[allow(dead_code)] // TEMP
-    pub async fn create(
+    pub async fn upload(
         ctx: &ServiceContext<'_>,
-        page_id: i64,
-        site_id: i64,
-        CreateFile {
-            revision_comments,
+        UploadFile {
+            site_id,
+            page_id,
             name,
+            revision_comments,
             user_id,
+            data,
             licensing,
             bypass_filter,
-        }: CreateFile,
-        data: &[u8],
-    ) -> Result<CreateFileOutput> {
+        }: UploadFile,
+    ) -> Result<UploadFileOutput> {
         let txn = ctx.transaction();
 
-        tide::log::info!(
+        info!(
             "Creating file with name '{}', content length {}",
             name,
             data.len(),
@@ -72,11 +71,12 @@ impl FileService {
             mime,
             size,
             created: _,
-        } = BlobService::create(ctx, data).await?;
+        } = BlobService::create(ctx, &data).await?;
 
         // Add new file
         let model = file::ActiveModel {
             name: Set(name.clone()),
+            site_id: Set(site_id),
             page_id: Set(page_id),
             ..Default::default()
         };
@@ -103,29 +103,26 @@ impl FileService {
         Ok(revision_output)
     }
 
-    /// Updates a file, including the ability to upload a new version.
-    #[allow(dead_code)] // TEMP
-    pub async fn update(
+    /// Edits a file, including the ability to upload a new version.
+    pub async fn edit(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
-        file_id: i64,
-        UpdateFile {
-            revision_comments,
+        EditFile {
+            site_id,
+            page_id,
+            file_id,
             user_id,
-            body,
+            revision_comments,
             bypass_filter,
-        }: UpdateFile,
-    ) -> Result<Option<UpdateFileOutput>> {
+            body,
+        }: EditFile,
+    ) -> Result<Option<EditFileOutput>> {
+        info!("Editing file with ID {}", file_id);
+
         let txn = ctx.transaction();
         let last_revision =
-            FileRevisionService::get_latest(ctx, page_id, file_id).await?;
+            FileRevisionService::get_latest(ctx, site_id, page_id, file_id).await?;
 
-        tide::log::info!("Updating file with ID {}", file_id);
-
-        // Process inputs
-
-        let UpdateFileBody {
+        let EditFileBody {
             name,
             data,
             licensing,
@@ -196,34 +193,29 @@ impl FileService {
     }
 
     /// Moves a file from from one page to another.
-    #[allow(dead_code)] // TEMP
     pub async fn r#move(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        file_id: i64,
-        input: MoveFile,
-    ) -> Result<Option<MoveFileOutput>> {
-        let txn = ctx.transaction();
-
-        let MoveFile {
-            revision_comments,
-            user_id,
+        MoveFile {
             name,
+            site_id,
             current_page_id,
             destination_page_id,
-        } = input;
-
+            file_id,
+            user_id,
+            revision_comments,
+        }: MoveFile,
+    ) -> Result<Option<MoveFileOutput>> {
+        let txn = ctx.transaction();
         let last_revision =
-            FileRevisionService::get_latest(ctx, current_page_id, file_id).await?;
+            FileRevisionService::get_latest(ctx, site_id, current_page_id, file_id)
+                .await?;
 
         // Get destination filename
         let name = name.unwrap_or_else(|| last_revision.name.clone());
 
-        tide::log::info!(
-            "Moving file with ID {} from page ID {} to {} ",
-            file_id,
-            current_page_id,
-            destination_page_id,
+        info!(
+            "Moving file with ID {} from page ID {} to {}",
+            file_id, current_page_id, destination_page_id,
         );
 
         // Ensure there isn't a file with this name on the destination page
@@ -265,26 +257,31 @@ impl FileService {
     /// Like other deletions throughout Wikijump, this is a soft deletion.
     /// It marks the files as deleted but retains the contents, permitting it
     /// to be easily reverted.
-    #[allow(dead_code)] // TEMP
     pub async fn delete(
         ctx: &ServiceContext<'_>,
-        page_id: i64,
-        reference: Reference<'_>,
-        input: DeleteFile,
+        DeleteFile {
+            revision_comments,
+            site_id,
+            page_id,
+            file: reference,
+            user_id,
+        }: DeleteFile<'_>,
     ) -> Result<DeleteFileOutput> {
         let txn = ctx.transaction();
 
-        let DeleteFile {
-            revision_comments,
-            site_id,
-            user_id,
-        } = input;
-
         // Ensure file exists
-        let FileModel { file_id, .. } = Self::get(ctx, page_id, reference).await?;
+        let FileModel { file_id, .. } = Self::get(
+            ctx,
+            GetFile {
+                site_id,
+                page_id,
+                file: reference,
+            },
+        )
+        .await?;
 
         let last_revision =
-            FileRevisionService::get_latest(ctx, page_id, file_id).await?;
+            FileRevisionService::get_latest(ctx, site_id, page_id, file_id).await?;
 
         // Create tombstone revision
         // This outdates the page, etc
@@ -319,23 +316,19 @@ impl FileService {
     /// Restores a deleted file.
     ///
     /// This undeletes a file, moving it from the deleted sphere to the specified location.
-    #[allow(dead_code)] // TEMP
     pub async fn restore(
         ctx: &ServiceContext<'_>,
-        page_id: i64,
-        file_id: i64,
-        input: RestoreFile,
-    ) -> Result<RestoreFileOutput> {
-        let txn = ctx.transaction();
-
-        let RestoreFile {
-            revision_comments,
+        RestoreFile {
             new_page_id,
             new_name,
             site_id,
+            page_id,
+            file_id,
             user_id,
-        } = input;
-
+            revision_comments,
+        }: RestoreFile,
+    ) -> Result<RestoreFileOutput> {
+        let txn = ctx.transaction();
         let file = Self::get_direct(ctx, file_id).await?;
         let new_page_id = new_page_id.unwrap_or(page_id);
         let new_name = new_name.unwrap_or(file.name);
@@ -346,19 +339,19 @@ impl FileService {
         // - Name doesn't already exist
 
         if file.page_id != page_id {
-            tide::log::warn!("File's page ID and passed page ID do not match");
-            return Err(Error::NotFound);
+            warn!("File's page ID and passed page ID do not match");
+            return Err(Error::FileNotFound);
         }
 
         if file.deleted_at.is_none() {
-            tide::log::warn!("File requested to be restored is not currently deleted");
-            return Err(Error::BadRequest);
+            warn!("File requested to be restored is not currently deleted");
+            return Err(Error::FileNotDeleted);
         }
 
         Self::check_conflicts(ctx, page_id, &new_name, "restore").await?;
 
         let last_revision =
-            FileRevisionService::get_latest(ctx, page_id, file_id).await?;
+            FileRevisionService::get_latest(ctx, site_id, page_id, file_id).await?;
 
         // Create resurrection revision
         // This outdates the page, etc
@@ -396,8 +389,11 @@ impl FileService {
 
     pub async fn get_optional(
         ctx: &ServiceContext<'_>,
-        page_id: i64,
-        reference: Reference<'_>,
+        GetFile {
+            site_id,
+            page_id,
+            file: reference,
+        }: GetFile<'_>,
     ) -> Result<Option<FileModel>> {
         let txn = ctx.transaction();
         let file = {
@@ -410,6 +406,7 @@ impl FileService {
                 .filter(
                     Condition::all()
                         .add(condition)
+                        .add(file::Column::SiteId.eq(site_id))
                         .add(file::Column::PageId.eq(page_id))
                         .add(file::Column::DeletedAt.is_null()),
                 )
@@ -421,12 +418,8 @@ impl FileService {
     }
 
     #[inline]
-    pub async fn get(
-        ctx: &ServiceContext<'_>,
-        page_id: i64,
-        reference: Reference<'_>,
-    ) -> Result<FileModel> {
-        find_or_error(Self::get_optional(ctx, page_id, reference)).await
+    pub async fn get(ctx: &ServiceContext<'_>, input: GetFile<'_>) -> Result<FileModel> {
+        find_or_error!(Self::get_optional(ctx, input), File)
     }
 
     /// Gets the file ID from a reference, looking up if necessary.
@@ -458,7 +451,7 @@ impl FileService {
 
                 match result {
                     Some(tuple) => Ok(tuple.0),
-                    None => Err(Error::NotFound),
+                    None => Err(Error::FileNotFound),
                 }
             }
         }
@@ -479,7 +472,7 @@ impl FileService {
 
     #[inline]
     pub async fn get_direct(ctx: &ServiceContext<'_>, file_id: i64) -> Result<FileModel> {
-        find_or_error(Self::get_direct_optional(ctx, file_id)).await
+        find_or_error!(Self::get_direct_optional(ctx, file_id), File)
     }
 
     /// Hard deletes this file and all duplicates.
@@ -493,9 +486,9 @@ impl FileService {
     ///
     /// This method should only be used very rarely to clear content such
     /// as severe copyright violations, abuse content, or comply with court orders.
-    #[allow(dead_code)] // TEMP
     pub async fn hard_delete_all(_ctx: &ServiceContext<'_>, _file_id: i64) -> Result<()> {
         // TODO find hash. update all files with the same hash
+        // TODO if hash == 00000 then error
         // TODO add to audit log
         // TODO hard delete BlobService
 
@@ -504,7 +497,7 @@ impl FileService {
 
     /// Checks to see if a file already exists at the name specified.
     ///
-    /// If so, this method fails with `Error::Conflict`. Otherwise it returns nothing.
+    /// If so, this method fails with `Error::FileExists`. Otherwise it returns nothing.
     async fn check_conflicts(
         ctx: &ServiceContext<'_>,
         page_id: i64,
@@ -526,15 +519,12 @@ impl FileService {
         match result {
             None => Ok(()),
             Some(file) => {
-                tide::log::error!(
+                error!(
                     "File {} with name {} already exists on page ID {}, cannot {}",
-                    file.file_id,
-                    name,
-                    page_id,
-                    action,
+                    file.file_id, name, page_id, action,
                 );
 
-                Err(Error::Conflict)
+                Err(Error::FileExists)
             }
         }
     }
@@ -548,7 +538,7 @@ impl FileService {
         site_id: i64,
         name: Option<&str>,
     ) -> Result<()> {
-        tide::log::info!("Checking file data against filters...");
+        info!("Checking file data against filters...");
 
         let filter_matcher = FilterService::get_matcher(
             ctx,

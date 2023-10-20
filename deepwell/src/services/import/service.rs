@@ -60,7 +60,7 @@ impl ImportService {
             user_page,
         }: ImportUser,
     ) -> Result<()> {
-        tide::log::info!("Importing user (name '{}', slug '{}')", name, slug);
+        info!("Importing user (name '{}', slug '{}')", name, slug);
 
         let txn = ctx.transaction();
 
@@ -107,11 +107,9 @@ impl ImportService {
             locale,
         }: ImportSite,
     ) -> Result<()> {
-        tide::log::info!(
+        info!(
             "Importing site (name '{}', slug '{}', locale '{}')",
-            name,
-            slug,
-            locale,
+            name, slug, locale,
         );
 
         let txn = ctx.transaction();
@@ -140,7 +138,7 @@ impl ImportService {
             discussion_thread_id,
         }: ImportPage,
     ) -> Result<()> {
-        tide::log::info!("Creating page '{}' in site ID {}", slug, site_id);
+        info!("Creating page '{}' in site ID {}", slug, site_id);
 
         let txn = ctx.transaction();
 

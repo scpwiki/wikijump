@@ -19,107 +19,80 @@
  */
 
 use super::prelude::*;
+use crate::models::page_vote::Model as PageVoteModel;
 use crate::services::vote::{
     CountVoteHistory, CreateVote, GetVote, GetVoteHistory, VoteAction,
 };
-use serde::Serialize;
 
-pub async fn vote_retrieve(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+pub async fn vote_get(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<Option<PageVoteModel>> {
+    let input: GetVote = params.parse()?;
 
-    let input: GetVote = req.body_json().await?;
-
-    tide::log::info!(
+    info!(
         "Getting vote cast by {} on page {}",
-        input.user_id,
-        input.page_id,
+        input.user_id, input.page_id,
     );
 
-    let model = VoteService::get(&ctx, input).await?;
-    txn.commit().await?;
-    build_vote_response(&model, StatusCode::Ok)
+    VoteService::get_optional(ctx, input).await
 }
 
-pub async fn vote_put(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+pub async fn vote_set(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<Option<PageVoteModel>> {
+    let input: CreateVote = params.parse()?;
 
-    let input: CreateVote = req.body_json().await?;
-
-    tide::log::info!(
+    info!(
         "Casting vote cast by {} on page {}",
-        input.user_id,
-        input.page_id,
+        input.user_id, input.page_id,
     );
 
-    let created = VoteService::add(&ctx, input).await?;
-    txn.commit().await?;
-    match created {
-        Some(model) => build_vote_response(&model, StatusCode::Created),
-        None => Ok(Response::new(StatusCode::NoContent)),
-    }
+    VoteService::add(ctx, input).await
 }
 
-pub async fn vote_delete(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+pub async fn vote_remove(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<PageVoteModel> {
+    let input: GetVote = params.parse()?;
 
-    let input: GetVote = req.body_json().await?;
-
-    tide::log::info!(
+    info!(
         "Removing vote cast by {} on page {}",
-        input.user_id,
-        input.page_id,
+        input.user_id, input.page_id,
     );
 
-    let vote = VoteService::remove(&ctx, input).await?;
-    txn.commit().await?;
-    build_vote_response(&vote, StatusCode::Ok)
+    VoteService::remove(ctx, input).await
 }
 
-pub async fn vote_action(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
+pub async fn vote_action(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<PageVoteModel> {
     let VoteAction {
         page_id,
         user_id,
         enable,
         acting_user_id,
-    } = req.body_json().await?;
+    } = params.parse()?;
 
     let key = GetVote { page_id, user_id };
-    let vote = VoteService::action(&ctx, key, enable, acting_user_id).await?;
-
-    txn.commit().await?;
-    build_vote_response(&vote, StatusCode::Ok)
+    VoteService::action(ctx, key, enable, acting_user_id).await
 }
 
-pub async fn vote_list_retrieve(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let input: GetVoteHistory = req.body_json().await?;
-    let votes = VoteService::get_history(&ctx, input).await?;
-
-    txn.commit().await?;
-    build_vote_response(&votes, StatusCode::Ok)
+pub async fn vote_list_get(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<Vec<PageVoteModel>> {
+    let input: GetVoteHistory = params.parse()?;
+    VoteService::get_history(ctx, input).await
 }
 
-pub async fn vote_count_retrieve(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let input: CountVoteHistory = req.body_json().await?;
-    let count = VoteService::count_history(&ctx, input).await?;
-
-    txn.commit().await?;
-    build_vote_response(&count, StatusCode::Ok)
-}
-
-fn build_vote_response<T: Serialize>(data: &T, status: StatusCode) -> ApiResponse {
-    let body = Body::from_json(data)?;
-    let response = Response::builder(status).body(body).into();
-    Ok(response)
+pub async fn vote_list_count(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<u64> {
+    let input: CountVoteHistory = params.parse()?;
+    VoteService::count_history(ctx, input).await
 }

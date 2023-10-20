@@ -19,119 +19,53 @@
  */
 
 use super::prelude::*;
-use crate::models::alias::Model as AliasModel;
 use crate::models::sea_orm_active_enums::AliasType;
 use crate::models::site::Model as SiteModel;
-use crate::models::site_domain::Model as SiteDomainModel;
-use crate::services::domain::CreateCustomDomain;
-use crate::services::site::{CreateSite, GetSite, GetSiteOutput, UpdateSite};
+use crate::services::site::{
+    CreateSite, CreateSiteOutput, GetSite, GetSiteOutput, UpdateSite,
+};
 
-pub async fn site_create(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let input: CreateSite = req.body_json().await?;
-    let output = SiteService::create(&ctx, input).await?;
-    txn.commit().await?;
-
-    let body = Body::from_json(&output)?;
-    let response = Response::builder(StatusCode::Created).body(body).into();
-    Ok(response)
+pub async fn site_create(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<CreateSiteOutput> {
+    let input: CreateSite = params.parse()?;
+    SiteService::create(ctx, input).await
 }
 
-pub async fn site_retrieve(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+pub async fn site_get(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<Option<GetSiteOutput>> {
+    let GetSite { site } = params.parse()?;
+    info!("Getting site {:?}", site);
+    match SiteService::get_optional(ctx, site).await? {
+        None => Ok(None),
+        Some(site) => {
+            let (aliases, domains) = try_join!(
+                AliasService::get_all(ctx, AliasType::Site, site.site_id),
+                DomainService::list_custom(ctx, site.site_id),
+            )?;
 
-    let GetSite { site } = req.body_json().await?;
-    tide::log::info!("Getting site {:?}", site);
-
-    let site = SiteService::get(&ctx, site).await?;
-    let (aliases, domains) = try_join!(
-        AliasService::get_all(&ctx, AliasType::Site, site.site_id),
-        DomainService::list_custom(&ctx, site.site_id),
-    )?;
-
-    build_site_response(site, aliases, domains, StatusCode::Ok)
+            Ok(Some(GetSiteOutput {
+                site,
+                aliases,
+                domains,
+            }))
+        }
+    }
 }
 
-pub async fn site_put(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
+pub async fn site_update(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<SiteModel> {
     let UpdateSite {
         site,
         body,
         user_id,
-    } = req.body_json().await?;
+    } = params.parse()?;
 
-    tide::log::info!("Updating site {:?}", site);
-
-    SiteService::update(&ctx, site, body, user_id).await?;
-
-    txn.commit().await?;
-    Ok(Response::new(StatusCode::NoContent))
-}
-
-pub async fn site_custom_domain_retrieve(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let domain = req.body_string().await?;
-    let model = DomainService::site_from_domain(&ctx, &domain).await?;
-
-    let body = Body::from_json(&model)?;
-    txn.commit().await?;
-    Ok(body.into())
-}
-
-pub async fn site_custom_domain_post(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let input: CreateCustomDomain = req.body_json().await?;
-    DomainService::create_custom(&ctx, input).await?;
-
-    txn.commit().await?;
-    Ok(Response::new(StatusCode::NoContent))
-}
-
-pub async fn site_custom_domain_delete(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let domain = req.body_string().await?;
-    DomainService::delete_custom(&ctx, domain).await?;
-
-    txn.commit().await?;
-    Ok(Response::new(StatusCode::NoContent))
-}
-
-pub async fn site_get_from_domain(req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let domain = req.param("domain")?;
-    let model = DomainService::site_from_domain(&ctx, domain).await?;
-
-    let body = Body::from_json(&model)?;
-    txn.commit().await?;
-    Ok(body.into())
-}
-
-fn build_site_response(
-    site: SiteModel,
-    aliases: Vec<AliasModel>,
-    domains: Vec<SiteDomainModel>,
-    status: StatusCode,
-) -> ApiResponse {
-    let output = GetSiteOutput {
-        site,
-        aliases,
-        domains,
-    };
-
-    let body = Body::from_json(&output)?;
-    let response = Response::builder(status).body(body).into();
-    Ok(response)
+    info!("Updating site {:?}", site);
+    SiteService::update(ctx, site, body, user_id).await
 }

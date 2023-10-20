@@ -18,44 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::models::page_category::Model as PageCategoryModel;
 use crate::web::Reference;
-use time::OffsetDateTime;
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Deserialize, Debug, Clone)]
 pub struct GetCategory<'a> {
     pub site: Reference<'a>,
     pub category: Reference<'a>,
-}
-
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct CategoryOutput {
-    category_id: i64,
-    created_at: OffsetDateTime,
-    updated_at: Option<OffsetDateTime>,
-    site_id: i64,
-    slug: String,
-}
-
-impl From<PageCategoryModel> for CategoryOutput {
-    #[inline]
-    fn from(model: PageCategoryModel) -> CategoryOutput {
-        let PageCategoryModel {
-            category_id,
-            created_at,
-            updated_at,
-            site_id,
-            slug,
-        } = model;
-
-        CategoryOutput {
-            category_id,
-            created_at,
-            updated_at,
-            site_id,
-            slug,
-        }
-    }
 }

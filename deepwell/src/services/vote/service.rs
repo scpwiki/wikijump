@@ -41,11 +41,9 @@ impl VoteService {
         }: CreateVote,
     ) -> Result<Option<PageVoteModel>> {
         let txn = ctx.transaction();
-        tide::log::info!(
+        info!(
             "Casting new vote by user ID {} on page ID {} (value {})",
-            user_id,
-            page_id,
-            value,
+            user_id, page_id, value,
         );
 
         // Get previous vote, if any
@@ -76,7 +74,7 @@ impl VoteService {
 
     #[inline]
     pub async fn get(ctx: &ServiceContext<'_>, key: GetVote) -> Result<PageVoteModel> {
-        find_or_error(Self::get_optional(ctx, key)).await
+        find_or_error!(Self::get_optional(ctx, key), Vote)
     }
 
     /// Gets any current vote for the current page and user.
@@ -104,7 +102,7 @@ impl VoteService {
         enable: bool,
         acting_user_id: i64,
     ) -> Result<PageVoteModel> {
-        tide::log::info!(
+        info!(
             "{} vote on {:?} (being done by {})",
             if enable { "Enabling" } else { "Disabling" },
             key,
@@ -130,7 +128,7 @@ impl VoteService {
 
     /// Removes the vote specified.
     pub async fn remove(ctx: &ServiceContext<'_>, key: GetVote) -> Result<PageVoteModel> {
-        tide::log::info!("Removing vote {key:?}");
+        info!("Removing vote {key:?}");
 
         let txn = ctx.transaction();
         let mut vote = Self::get(ctx, key).await?.into_active_model();

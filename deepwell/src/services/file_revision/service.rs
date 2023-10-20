@@ -122,14 +122,19 @@ impl FileRevisionService {
         }
 
         // Validate inputs
-        if name.is_empty() || name.len() >= 256 {
-            tide::log::error!("File name of invalid length: {}", name.len());
-            return Err(Error::BadRequest);
+        if name.is_empty() {
+            error!("File name is empty");
+            return Err(Error::FileNameEmpty);
+        }
+
+        if name.len() >= 256 {
+            error!("File name of invalid length: {}", name.len());
+            return Err(Error::FileNameTooLong);
         }
 
         if mime_hint.is_empty() {
-            tide::log::error!("MIME type hint is empty");
-            return Err(Error::BadRequest);
+            error!("MIME type hint is empty");
+            return Err(Error::FileMimeEmpty);
         }
 
         // TODO validate licensing field
@@ -144,6 +149,7 @@ impl FileRevisionService {
             revision_number: Set(0),
             file_id: Set(file_id),
             page_id: Set(page_id),
+            site_id: Set(site_id),
             user_id: Set(user_id),
             name: Set(name),
             s3_hash: Set(s3_hash.to_vec()),
@@ -196,6 +202,7 @@ impl FileRevisionService {
             revision_number: Set(0),
             file_id: Set(file_id),
             page_id: Set(page_id),
+            site_id: Set(site_id),
             user_id: Set(user_id),
             name: Set(name),
             s3_hash: Set(s3_hash.to_vec()),
@@ -257,6 +264,7 @@ impl FileRevisionService {
             revision_number: Set(revision_number),
             file_id: Set(file_id),
             page_id: Set(page_id),
+            site_id: Set(site_id),
             user_id: Set(user_id),
             name: Set(name),
             s3_hash: Set(s3_hash),
@@ -343,6 +351,7 @@ impl FileRevisionService {
             revision_number: Set(revision_number),
             file_id: Set(file_id),
             page_id: Set(new_page_id),
+            site_id: Set(site_id),
             user_id: Set(user_id),
             name: Set(new_name),
             s3_hash: Set(s3_hash),
@@ -370,21 +379,22 @@ impl FileRevisionService {
     pub async fn update(
         ctx: &ServiceContext<'_>,
         UpdateFileRevision {
+            site_id,
             page_id,
             file_id,
             revision_id,
             user_id,
             hidden,
         }: UpdateFileRevision,
-    ) -> Result<()> {
-        let txn = ctx.transaction();
-
+    ) -> Result<FileRevisionModel> {
         // The latest file revision cannot be hidden, because
         // the file, its name, contents, etc are exposed.
         // It should be reverted first, and then it can be hidden.
 
-        let latest = Self::get_latest(ctx, page_id, file_id).await?;
+        let txn = ctx.transaction();
+        let latest = Self::get_latest(ctx, site_id, page_id, file_id).await?;
         if revision_id == latest.revision_id {
+            warn!("Attempting to edit latest revision, denying request");
             return Err(Error::CannotHideLatestRevision);
         }
 
@@ -400,8 +410,8 @@ impl FileRevisionService {
         };
 
         // Update and return
-        model.update(txn).await?;
-        Ok(())
+        let revision = model.update(txn).await?;
+        Ok(revision)
     }
 
     /// Get the latest revision for this file.
@@ -409,6 +419,7 @@ impl FileRevisionService {
     /// See `RevisionService::get_latest()`.
     pub async fn get_latest(
         ctx: &ServiceContext<'_>,
+        site_id: i64,
         page_id: i64,
         file_id: i64,
     ) -> Result<FileRevisionModel> {
@@ -419,13 +430,14 @@ impl FileRevisionService {
         let revision = FileRevision::find()
             .filter(
                 Condition::all()
+                    .add(file_revision::Column::SiteId.eq(site_id))
                     .add(file_revision::Column::PageId.eq(page_id))
                     .add(file_revision::Column::FileId.eq(file_id)),
             )
             .order_by_desc(file_revision::Column::RevisionNumber)
             .one(txn)
             .await?
-            .ok_or(Error::NotFound)?;
+            .ok_or(Error::FileRevisionNotFound)?;
 
         Ok(revision)
     }
@@ -435,14 +447,18 @@ impl FileRevisionService {
     /// See `RevisionService::get_optional()`.
     pub async fn get_optional(
         ctx: &ServiceContext<'_>,
-        page_id: i64,
-        file_id: i64,
-        revision_number: i32,
+        GetFileRevision {
+            site_id,
+            page_id,
+            file_id,
+            revision_number,
+        }: GetFileRevision,
     ) -> Result<Option<FileRevisionModel>> {
         let txn = ctx.transaction();
         let revision = FileRevision::find()
             .filter(
                 Condition::all()
+                    .add(file_revision::Column::SiteId.eq(site_id))
                     .add(file_revision::Column::PageId.eq(page_id))
                     .add(file_revision::Column::FileId.eq(file_id))
                     .add(file_revision::Column::RevisionNumber.eq(revision_number)),
@@ -457,13 +473,12 @@ impl FileRevisionService {
     ///
     /// See `RevisionService::get()`.
     #[inline]
+    #[allow(dead_code)]
     pub async fn get(
         ctx: &ServiceContext<'_>,
-        page_id: i64,
-        file_id: i64,
-        revision_number: i32,
+        input: GetFileRevision,
     ) -> Result<FileRevisionModel> {
-        find_or_error(Self::get_optional(ctx, page_id, file_id, revision_number)).await
+        find_or_error!(Self::get_optional(ctx, input), FileRevision)
     }
 
     /// Counts the number of revisions for a file.
@@ -494,7 +509,7 @@ impl FileRevisionService {
         // that means this page does not exist, and we should return an error.
         match NonZeroI32::new(row_count) {
             Some(count) => Ok(count),
-            None => Err(Error::NotFound),
+            None => Err(Error::FileNotFound),
         }
     }
 

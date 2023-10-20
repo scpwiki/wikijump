@@ -22,9 +22,6 @@
 //!
 //! At present we do not use a separate service which stores jobs durably. This
 //! can mean that if this DEEPWELL node fails, the queued jobs will not be run.
-//!
-//! The following kinds of jobs are available:
-//! * Rerendering a page
 
 mod prelude {
     pub use super::super::prelude::*;
@@ -34,5 +31,5 @@ mod prelude {
 mod service;
 mod structs;
 
-pub use self::service::{JobRunner, JobService};
+pub use self::service::{JobQueue, JobService};
 pub use self::structs::*;

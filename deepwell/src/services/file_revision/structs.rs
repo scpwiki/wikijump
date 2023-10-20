@@ -19,10 +19,11 @@
  */
 
 use super::prelude::*;
+use crate::hash::BlobHash;
 use crate::services::page_revision::PageRevisionCountOutput;
 use crate::web::FetchDirection;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CreateFileRevision {
     pub site_id: i64,
     pub page_id: i64,
@@ -32,7 +33,7 @@ pub struct CreateFileRevision {
     pub body: CreateFileRevisionBody,
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct CreateFileRevisionBody {
     pub page_id: ProvidedValue<i64>, // for changing the page this file is on
     pub name: ProvidedValue<String>,
@@ -40,21 +41,20 @@ pub struct CreateFileRevisionBody {
     pub licensing: ProvidedValue<serde_json::Value>,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FileBlob {
     pub s3_hash: BlobHash,
     pub size_hint: i64,
     pub mime_hint: String,
 }
 
-#[derive(Serialize, Debug, Default)]
-#[serde(rename_all = "camelCase", default)]
+#[derive(Serialize, Debug, Clone, Default)]
 pub struct CreateFileRevisionOutput {
     pub file_revision_id: i64,
     pub file_revision_number: i32,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CreateFirstFileRevision {
     pub site_id: i64,
     pub page_id: i64,
@@ -68,13 +68,13 @@ pub struct CreateFirstFileRevision {
     pub comments: String,
 }
 
-#[derive(Debug, Default)]
+#[derive(Serialize, Debug, Clone, Default)]
 pub struct CreateFirstFileRevisionOutput {
     pub file_id: i64,
     pub file_revision_id: i64,
 }
 
-#[derive(Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct CreateTombstoneFileRevision {
     pub site_id: i64,
     pub page_id: i64,
@@ -83,7 +83,7 @@ pub struct CreateTombstoneFileRevision {
     pub comments: String,
 }
 
-#[derive(Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct CreateResurrectionFileRevision {
     pub site_id: i64,
     pub page_id: i64,
@@ -94,17 +94,17 @@ pub struct CreateResurrectionFileRevision {
     pub comments: String,
 }
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Deserialize, Debug, Clone)]
 pub struct GetFileRevision {
+    pub site_id: i64,
     pub page_id: i64,
     pub file_id: i64,
     pub revision_number: i32,
 }
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Deserialize, Debug, Clone)]
 pub struct UpdateFileRevision {
+    pub site_id: i64,
     pub page_id: i64,
     pub file_id: i64,
     pub revision_id: i64,
@@ -112,8 +112,7 @@ pub struct UpdateFileRevision {
     pub hidden: Vec<String>,
 }
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Deserialize, Debug, Clone)]
 pub struct GetFileRevisionRange {
     pub page_id: i64,
     pub file_id: i64,

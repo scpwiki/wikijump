@@ -19,57 +19,47 @@
  */
 
 use super::prelude::*;
+use crate::models::message_draft::Model as MessageDraftModel;
+use crate::models::message_record::Model as MessageRecordModel;
 use crate::services::message::{
     CreateMessageDraft, DeleteMessageDraft, SendMessageDraft, UpdateMessageDraft,
 };
 
-pub async fn message_draft_create(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let input: CreateMessageDraft = req.body_json().await?;
-    tide::log::info!("Creating new message draft for user ID {}", input.user_id);
-
-    let output = MessageService::create_draft(&ctx, input).await?;
-    txn.commit().await?;
-    build_json_response(&output, StatusCode::Ok)
+pub async fn message_draft_create(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<MessageDraftModel> {
+    let input: CreateMessageDraft = params.parse()?;
+    info!("Creating new message draft for user ID {}", input.user_id);
+    MessageService::create_draft(ctx, input).await
 }
 
-pub async fn message_draft_update(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let input: UpdateMessageDraft = req.body_json().await?;
-    tide::log::info!(
+pub async fn message_draft_edit(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<MessageDraftModel> {
+    let input: UpdateMessageDraft = params.parse()?;
+    info!(
         "Updating message draft for draft ID {}",
-        input.message_draft_id
+        input.message_draft_id,
     );
-
-    let output = MessageService::update_draft(&ctx, input).await?;
-    txn.commit().await?;
-    build_json_response(&output, StatusCode::Ok)
+    MessageService::update_draft(ctx, input).await
 }
 
-pub async fn message_draft_send(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let SendMessageDraft { message_draft_id } = req.body_json().await?;
-    tide::log::info!("Sending message draft with ID {message_draft_id}");
-
-    let output = MessageService::send(&ctx, &message_draft_id).await?;
-    txn.commit().await?;
-    build_json_response(&output, StatusCode::Ok)
+pub async fn message_draft_delete(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<()> {
+    let DeleteMessageDraft { message_draft_id } = params.parse()?;
+    info!("Deleting message draft with ID {message_draft_id}");
+    MessageService::delete_draft(ctx, message_draft_id).await
 }
 
-pub async fn message_draft_delete(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let DeleteMessageDraft { message_draft_id } = req.body_json().await?;
-    tide::log::info!("Deleting message draft with ID {message_draft_id}");
-
-    MessageService::delete_draft(&ctx, message_draft_id).await?;
-    txn.commit().await?;
-    Ok(Response::new(StatusCode::Ok))
+pub async fn message_draft_send(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<MessageRecordModel> {
+    let SendMessageDraft { message_draft_id } = params.parse()?;
+    info!("Sending message draft with ID {message_draft_id}");
+    MessageService::send(ctx, &message_draft_id).await
 }

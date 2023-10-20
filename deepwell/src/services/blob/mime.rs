@@ -28,123 +28,115 @@
 //! Instead we have it in a thread and ferry requests and responses back and forth.
 
 use super::prelude::*;
-use crossfire::mpsc;
 use filemagic::{FileMagicError, Flags as MagicFlags, Magic};
-use once_cell::sync::Lazy;
-use std::convert::Infallible;
-use std::sync::Once;
-use std::{process, thread};
-
-type ResponsePayload = StdResult<String, FileMagicError>;
-type ResponseSender = mpsc::TxBlocking<ResponsePayload, mpsc::SharedSenderBRecvF>;
+use std::thread;
+use tokio::sync::{mpsc, oneshot};
 
 type RequestPayload = (Vec<u8>, ResponseSender);
-type RequestSender = mpsc::TxFuture<RequestPayload, mpsc::SharedSenderFRecvB>;
-type RequestReceiver = mpsc::RxBlocking<RequestPayload, mpsc::SharedSenderFRecvB>;
+type ResponsePayload = StdResult<String, FileMagicError>;
 
-static QUEUE: Lazy<(RequestSender, RequestReceiver)> =
-    Lazy::new(|| mpsc::bounded_tx_future_rx_blocking(64));
+type RequestSender = mpsc::Sender<RequestPayload>;
+type RequestReceiver = mpsc::Receiver<RequestPayload>;
 
-macro_rules! sink {
-    () => {
-        QUEUE.0
-    };
+type ResponseSender = oneshot::Sender<ResponsePayload>;
+type ResponseReceiver = oneshot::Receiver<ResponsePayload>;
+
+#[derive(Debug, Clone)]
+pub struct MimeAnalyzer {
+    sink: RequestSender,
 }
 
-macro_rules! source {
-    () => {
-        QUEUE.1
-    };
-}
+impl MimeAnalyzer {
+    /// Starts the MIME analyzer and returns an instance of this struct.
+    ///
+    /// This launches a new thread to take MIME requests and then returns
+    /// a means of communicating with this thread to the caller so calls can be made.
+    ///
+    /// While technically multiple `MimeAnalyzer` instances could be made, this
+    /// is very wasteful; you should only create and use one.
+    ///
+    /// This object is cheaply cloneable and should be reused instead of
+    /// making new instances and starting new threads.
+    pub fn spawn() -> Self {
+        info!("Starting MIME analyzer worker");
+        let (sink, source) = mpsc::channel(64);
 
-fn main_loop() -> Result<Infallible> {
-    const MAGIC_FLAGS: MagicFlags = MagicFlags::MIME;
-    const MAGIC_PATHS: &[&str] = &[]; // Empty indicates using the default magic database
-
-    tide::log::info!("Loading magic database data");
-    let magic = Magic::open(MAGIC_FLAGS)?;
-    magic.load(MAGIC_PATHS)?;
-
-    loop {
-        tide::log::debug!("Waiting for next MIME request");
-
-        let (bytes, sender) = source!().recv().expect("MIME channel has disconnected");
-        let result = magic.buffer(&bytes);
-        sender
-            .send(result)
-            .expect("MIME response channel has disconnected");
-    }
-}
-
-/// Starts the thread containing the `Magic` instance.
-///
-/// If the thread is already started, then this does nothing.
-pub fn spawn_magic_thread() {
-    static START: Once = Once::new();
-
-    macro_rules! unwrap_err {
-        ($result:expr) => {
-            match $result {
-                Ok(_) => unreachable!(),
-                Err(error) => error,
-            }
-        };
-    }
-
-    START.call_once(|| {
         thread::spawn(|| {
-            // Since this is an infinite loop, no success case can return.
-            // Only the initialization can fail, individual requests just pass back the result.
-            let error = unwrap_err!(main_loop());
-            tide::log::error!("Failed to spawn magic thread: {error}");
-            process::exit(1);
+            let magic = Self::load_magic().expect("Unable to load magic database");
+            Self::main_loop(magic, source);
         });
-    });
+
+        MimeAnalyzer { sink }
+    }
+
+    /// Loads the libmagic database from file, failing if it was invalid or missing.
+    fn load_magic() -> Result<Magic> {
+        const MAGIC_FLAGS: MagicFlags = MagicFlags::MIME;
+        const MAGIC_PATHS: &[&str] = &[]; // Empty indicates using the default magic database
+
+        info!("Loading magic database data");
+        let magic = Magic::open(MAGIC_FLAGS)?;
+        magic.load(MAGIC_PATHS)?;
+        Ok(magic)
+    }
+
+    /// Main loop for the MIME analyzer.
+    ///
+    /// Runs in a dedicated thread due to borrow checker issues, taking in
+    /// requests via a mpsc channel.
+    fn main_loop(magic: Magic, mut source: RequestReceiver) {
+        while let Some((bytes, sender)) = source.blocking_recv() {
+            debug!("Received MIME request ({} bytes)", bytes.len());
+            let result = magic.buffer(&bytes);
+            sender.send(result).expect("Response channel is closed");
+        }
+
+        warn!("MIME magic channel closed");
+    }
+
+    /// Requests that libmagic analyze the buffer to determine its MIME type.
+    ///
+    /// Because all requests involve sending an item over the channel,
+    /// and then waiting for the response, we need to send both the input
+    /// and a oneshot channel to get the response.
+    pub async fn get_mime_type(&self, buffer: Vec<u8>) -> Result<String> {
+        info!("Sending MIME request ({} bytes)", buffer.len());
+
+        // Channel for getting the result
+        let (resp_send, resp_recv): (ResponseSender, ResponseReceiver) =
+            oneshot::channel();
+
+        // Send the request
+        self.sink
+            .send((buffer, resp_send))
+            .await
+            .expect("MIME channel is closed");
+
+        // Wait for the response
+        //
+        // Two layers of result for channel failure and MIME request failure
+        let resp = resp_recv.await.expect("Response channel is closed");
+        let mime = resp?;
+        Ok(mime)
+    }
 }
 
-/// Requests that libmagic analyze the buffer to determine its MIME type.
-///
-/// Because all requests involve sending an item over the channel,
-/// and then waiting for the response, we need to send both the input
-/// and a oneshot channel to get the response.
-pub async fn mime_type(buffer: Vec<u8>) -> Result<String> {
-    // One-shot equivalent channel
-    let (resp_send, resp_recv) = mpsc::bounded_tx_blocking_rx_future(1);
-
-    // Send request
-    sink!()
-        .send((buffer, resp_send))
-        .await
-        .expect("MIME channel has disconnected");
-
-    // Wait for response
-    let result = resp_recv
-        .recv()
-        .await
-        .expect("MIME response channel has disconnected");
-
-    let mime = result?;
-    Ok(mime)
-}
-
-#[test]
-fn mime_request() {
-    use async_std::task;
-
+#[tokio::test]
+async fn mime_request() {
     const PNG: &[u8] = b"\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d\x49\x48\x44\x52\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\x04\x73\x42\x49\x54\x08\x08\x08\x08\x7c\x08\x64\x88\x00\x00\x00\x0b\x49\x44\x41\x54\x08\x99\x63\xf8\x0f\x04\x00\x09\xfb\x03\xfd\xe3\x55\xf2\x9c\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82";
     const TAR_GZIP: &[u8] =
         b"\x1f\x8b\x08\x08\xb1\xb7\x8f\x62\x00\x03\x78\x00\x03\x00\x00\x00\x00";
 
+    let mime = MimeAnalyzer::spawn();
+
     macro_rules! check {
         ($bytes:expr, $expected:expr $(,)?) => {{
-            let future = mime_type($bytes.to_vec());
-            let actual = task::block_on(future).expect("Unable to get MIME type");
+            let future = mime.get_mime_type($bytes.to_vec());
+            let actual = future.await.expect("Unable to get MIME type");
 
             assert_eq!(actual, $expected, "Actual MIME type doesn't match expected");
         }};
     }
-
-    spawn_magic_thread();
 
     check!(b"", "application/x-empty; charset=binary");
     check!(b"Apple banana", "text/plain; charset=us-ascii");

@@ -224,8 +224,8 @@ impl PageService {
         // and that a page with that slug doesn't already exist.
         normalize(&mut new_slug);
         if old_slug == new_slug {
-            tide::log::error!("Source and destination slugs are the same: {}", old_slug);
-            return Err(Error::BadRequest);
+            error!("Source and destination slugs are the same: {}", old_slug);
+            return Err(Error::PageSlugExists);
         }
 
         Self::check_conflicts(ctx, site_id, &new_slug, "move").await?;
@@ -294,7 +294,7 @@ impl PageService {
                 parser_errors,
             }),
             None => {
-                tide::log::error!("Page move did not create new revision");
+                error!("Page move did not create new revision");
                 Err(Error::BadRequest)
             }
         }
@@ -355,7 +355,7 @@ impl PageService {
         }: RestorePage,
     ) -> Result<RestorePageOutput> {
         let txn = ctx.transaction();
-        let page = Self::get_direct(ctx, page_id).await?;
+        let page = Self::get_direct(ctx, site_id, page_id).await?;
         let slug = slug.unwrap_or(page.slug);
 
         // Do page checks:
@@ -364,13 +364,13 @@ impl PageService {
         // - Slug doesn't already exist
 
         if page.site_id != site_id {
-            tide::log::warn!("Page's site ID and passed site ID do not match");
-            return Err(Error::NotFound);
+            warn!("Page's site ID and passed site ID do not match");
+            return Err(Error::PageNotFound);
         }
 
         if page.deleted_at.is_none() {
-            tide::log::warn!("Page requested to be restored is not currently deleted");
-            return Err(Error::BadRequest);
+            warn!("Page requested to be restored is not currently deleted");
+            return Err(Error::PageNotDeleted);
         }
 
         Self::check_conflicts(ctx, site_id, &slug, "restore").await?;
@@ -508,7 +508,7 @@ impl PageService {
         site_id: i64,
         reference: Reference<'_>,
     ) -> Result<PageModel> {
-        find_or_error(Self::get_optional(ctx, site_id, reference)).await
+        find_or_error!(Self::get_optional(ctx, site_id, reference), Page)
     }
 
     pub async fn get_optional(
@@ -563,16 +563,28 @@ impl PageService {
     }
 
     #[inline]
-    pub async fn get_direct(ctx: &ServiceContext<'_>, page_id: i64) -> Result<PageModel> {
-        find_or_error(Self::get_direct_optional(ctx, page_id)).await
+    pub async fn get_direct(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+    ) -> Result<PageModel> {
+        find_or_error!(Self::get_direct_optional(ctx, site_id, page_id), Page)
     }
 
     pub async fn get_direct_optional(
         ctx: &ServiceContext<'_>,
+        site_id: i64,
         page_id: i64,
     ) -> Result<Option<PageModel>> {
         let txn = ctx.transaction();
         let page = Page::find_by_id(page_id).one(txn).await?;
+        if let Some(ref page) = page {
+            // Deny page access if for the wrong site
+            if page.site_id != site_id {
+                return Ok(None);
+            }
+        }
+
         Ok(page)
     }
 
@@ -585,7 +597,7 @@ impl PageService {
         site_id: i64,
         references: &[Reference<'_>],
     ) -> Result<Vec<PageModel>> {
-        tide::log::info!(
+        info!(
             "Getting {} pages from references in site ID {}",
             references.len(),
             site_id,
@@ -674,7 +686,7 @@ impl PageService {
 
     /// Checks to see if a page already exists at the slug specified.
     ///
-    /// If so, this method fails with `Error::Conflict`. Otherwise it returns nothing.
+    /// If so, this method fails with `Error::PageExists`. Otherwise it returns nothing.
     async fn check_conflicts(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -684,8 +696,8 @@ impl PageService {
         let txn = ctx.transaction();
 
         if slug.is_empty() {
-            tide::log::error!("Cannot create page with empty slug");
-            return Err(Error::BadRequest);
+            error!("Cannot create page with empty slug");
+            return Err(Error::PageSlugEmpty);
         }
 
         let result = Page::find()
@@ -701,15 +713,12 @@ impl PageService {
         match result {
             None => Ok(()),
             Some(page) => {
-                tide::log::error!(
+                error!(
                     "Page {} with slug '{}' already exists on site ID {}, cannot {}",
-                    page.page_id,
-                    slug,
-                    site_id,
-                    action,
+                    page.page_id, slug, site_id, action,
                 );
 
-                Err(Error::Conflict)
+                Err(Error::PageExists)
             }
         }
     }
@@ -721,7 +730,7 @@ impl PageService {
         title: Option<S>,
         alt_title: Option<S>,
     ) -> Result<()> {
-        tide::log::info!("Checking page data against filters...");
+        info!("Checking page data against filters...");
 
         let filter_matcher = FilterService::get_matcher(
             ctx,

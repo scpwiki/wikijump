@@ -29,48 +29,53 @@
 use crate::config::{Config, Secrets};
 use crate::database;
 use crate::endpoints::{
-    auth::*, category::*, email::*, file::*, file_revision::*, link::*, locale::*,
-    message::*, misc::*, page::*, page_revision::*, parent::*, site::*, site_member::*,
-    text::*, user::*, user_bot::*, view::*, vote::*,
+    auth::*, category::*, domain::*, email::*, file::*, file_revision::*, link::*,
+    locale::*, message::*, misc::*, page::*, page_revision::*, parent::*, site::*,
+    site_member::*, text::*, user::*, user_bot::*, view::*, vote::*,
 };
 use crate::locales::Localizations;
-use crate::services::blob::spawn_magic_thread;
-use crate::services::job::JobRunner;
-use crate::utils::error_response;
-use anyhow::Result;
+use crate::services::blob::MimeAnalyzer;
+use crate::services::job::JobQueue;
+use crate::services::{into_rpc_error, ServiceContext};
+use jsonrpsee::server::{RpcModule, Server, ServerHandle};
+use jsonrpsee::types::error::ErrorObjectOwned;
 use s3::bucket::Bucket;
-use sea_orm::DatabaseConnection;
+use sea_orm::{DatabaseConnection, TransactionTrait};
 use std::sync::Arc;
 use std::time::Duration;
-use tide::StatusCode;
 
-pub type ApiServerState = Arc<ServerState>;
-pub type ApiServer = tide::Server<ApiServerState>;
-pub type ApiRequest = tide::Request<ApiServerState>;
-pub type ApiResponse = tide::Result;
+pub type ServerState = Arc<ServerStateInner>;
 
 #[derive(Debug)]
-pub struct ServerState {
+pub struct ServerStateInner {
     pub config: Config,
     pub database: DatabaseConnection,
     pub localizations: Localizations,
+    pub mime_analyzer: MimeAnalyzer,
+    pub job_queue: JobQueue,
     pub s3_bucket: Bucket,
 }
 
 pub async fn build_server_state(
     config: Config,
     secrets: Secrets,
-) -> Result<ApiServerState> {
+) -> anyhow::Result<ServerState> {
     // Connect to database
-    tide::log::info!("Connecting to PostgreSQL database");
+    info!("Connecting to PostgreSQL database");
     let database = database::connect(&secrets.database_url).await?;
 
     // Load localization data
-    tide::log::info!("Loading localization data");
+    info!("Loading localization data");
     let localizations = Localizations::open(&config.localization_path).await?;
 
+    // Set up job queue
+    let (job_queue, job_state_sender) = JobQueue::spawn(&config);
+
+    // Load magic data and start MIME thread
+    let mime_analyzer = MimeAnalyzer::spawn();
+
     // Create S3 bucket
-    tide::log::info!("Opening S3 bucket");
+    info!("Opening S3 bucket");
 
     let s3_bucket = {
         let mut bucket = Bucket::new(
@@ -87,176 +92,199 @@ pub async fn build_server_state(
         bucket
     };
 
-    // Return server state
-    Ok(Arc::new(ServerState {
+    // Build server state
+    let state = Arc::new(ServerStateInner {
         config,
         database,
         localizations,
+        mime_analyzer,
+        job_queue,
         s3_bucket,
-    }))
+    });
+
+    // Start the job queue (requires ServerState)
+    job_state_sender
+        .send(Arc::clone(&state))
+        .expect("Unable to send ServerState");
+
+    // Return server state
+    Ok(state)
 }
 
-pub fn build_server(state: ApiServerState) -> ApiServer {
-    macro_rules! new {
-        () => {
-            tide::Server::with_state(Arc::clone(&state))
-        };
+pub async fn build_server(app_state: ServerState) -> anyhow::Result<ServerHandle> {
+    let socket_address = app_state.config.address;
+    let server = Server::builder().build(socket_address).await?;
+    let module = build_module(app_state).await?;
+    let handle = server.start(module);
+    Ok(handle)
+}
+
+async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<ServerState>> {
+    let mut module = RpcModule::new(app_state);
+
+    macro_rules! register {
+        ($name:expr, $method:ident $(,)?) => {{
+            // Register async method.
+            //
+            // Contains a wrapper around each to set up state, convert error types,
+            // and produce a transaction used in ServiceContext, passed in.
+            module.register_async_method($name, |params, state| async move {
+                // NOTE: We have our own Arc because we need to share it in some places
+                //       before setting up, but RpcModule insists on adding its own.
+                //       So we need to "unwrap it" before each method invocation.
+                //       Oh well.
+                let state = Arc::clone(&*state);
+
+                // Wrap each call in a transaction, which commits or rolls back
+                // automatically based on whether the Result is Ok or Err.
+                //
+                // At this level, we take the database-or-RPC error and make it just an RPC error.
+                let db_state = Arc::clone(&state);
+                db_state
+                    .database
+                    .transaction(move |txn| {
+                        Box::pin(async move {
+                            // Run the endpoint's implementation, and convert from
+                            // ServiceError to an RPC error.
+                            let ctx = ServiceContext::new(&state, &txn);
+                            $method(&ctx, params).await.map_err(ErrorObjectOwned::from)
+                        })
+                    })
+                    .await
+                    .map_err(into_rpc_error)
+            })?;
+        }};
     }
 
-    // Start main job executor task
-    // (and ancillary repeated tasks)
-    JobRunner::spawn(&state);
-
-    // Start MIME evaluator thread
-    spawn_magic_thread();
-
-    // Create server and add routes
-    //
-    // Prefix is present to avoid ambiguity about what this
-    // API is meant to be and the fact that it's not to be publicly-facing.
-    let mut app = new!();
-    app.at("/api/trusted").nest(build_routes(new!()));
-    app
-}
-
-fn build_routes(mut app: ApiServer) -> ApiServer {
     // Miscellaneous
-    app.at("/ping").all(ping);
-    app.at("/version").get(version);
-    app.at("/version/full").get(full_version);
-    app.at("/hostname").get(hostname);
-    app.at("/config").get(config_dump);
-    app.at("/config/path").get(config_path);
-    app.at("/normalize/:input").all(normalize_method);
-    app.at("/teapot")
-        .all(|_| async { error_response(StatusCode::ImATeapot, "🫖") });
+    register!("ping", ping);
+    register!("error", yield_error);
+    register!("version", version);
+    register!("version_full", full_version);
+    register!("hostname", hostname);
+    register!("config", config_dump);
+    register!("config_path", config_path);
+    register!("normalize", normalize_method);
 
     // Localization
-    app.at("/locale/:locale").get(locale_get);
-    app.at("/translate/:locale").put(translate_put);
+    register!("locale", locale_info);
+    register!("translate", translate_strings);
 
-    // Routes for web server
-    app.at("/view/page").put(view_page);
+    // Web server
+    register!("page_view", page_view);
 
     // Authentication
-    app.at("/auth/login").post(auth_login);
-    app.at("/auth/logout").delete(auth_logout);
-    app.at("/auth/mfa").post(auth_mfa_verify); // Is part of the login process,
-                                               // which is why it's up here.
-
-    app.at("/auth/session/get").put(auth_session_retrieve);
-    app.at("/auth/session/renew").post(auth_session_renew);
-    app.at("/auth/session/others")
-        .delete(auth_session_invalidate_others);
-    app.at("/auth/session/others/get")
-        .put(auth_session_retrieve_others);
-    app.at("/auth/mfa/install")
-        .post(auth_mfa_setup)
-        .delete(auth_mfa_disable);
-    app.at("/auth/mfa/resetRecovery")
-        .post(auth_mfa_reset_recovery);
+    register!("login", auth_login);
+    register!("logout", auth_logout);
+    register!("session_get", auth_session_get);
+    register!("session_get_others", auth_session_get_others);
+    register!("session_invalidate_others", auth_session_invalidate_others);
+    register!("session_renew", auth_session_renew);
+    register!("mfa_verify", auth_mfa_verify);
+    register!("mfa_setup", auth_mfa_setup);
+    register!("mfa_disable", auth_mfa_disable);
+    register!("mfa_reset_recovery", auth_mfa_reset_recovery);
 
     // Site
-    app.at("/site").put(site_put);
-    app.at("/site/get").put(site_retrieve);
-    app.at("/site/create").post(site_create);
-    app.at("/site/domain/custom")
-        .post(site_custom_domain_post)
-        .delete(site_custom_domain_delete);
-    app.at("/site/domain/custom/get")
-        .put(site_custom_domain_retrieve);
-    app.at("/site/fromDomain/:domain").get(site_get_from_domain);
+    register!("site_create", site_create);
+    register!("site_get", site_get);
+    register!("site_update", site_update);
+    register!("site_from_domain", site_get_from_domain);
 
-    // Site Membership
-    app.at("/site/member")
-        .put(membership_put)
-        .delete(membership_delete);
-    app.at("/site/member/get").put(membership_retrieve);
+    // Site custom domain
+    register!("custom_domain_create", site_custom_domain_create);
+    register!("custom_domain_get", site_custom_domain_get);
+    register!("custom_domain_delete", site_custom_domain_delete);
+
+    // Site membership
+    register!("member_set", membership_set);
+    register!("member_get", membership_get);
+    register!("member_delete", membership_delete);
 
     // Category
-    app.at("/category").get(category_get);
-    app.at("/category/site").get(category_all_get);
+    register!("category_get", category_get);
+    register!("category_get_all", category_get_all);
 
     // Page
-    app.at("/page").post(page_edit).delete(page_delete);
-    app.at("/page/get").put(page_retrieve);
-    app.at("/page/create").post(page_create);
-    app.at("/page/direct/:page_id").get(page_get_direct);
-    app.at("/page/move").post(page_move);
-    app.at("/page/rerender").put(page_rerender);
-    app.at("/page/restore").post(page_restore);
+    register!("page_create", page_create);
+    register!("page_get", page_get);
+    register!("page_get_direct", page_get_direct);
+    register!("page_edit", page_edit);
+    register!("page_delete", page_delete);
+    register!("page_move", page_move);
+    register!("page_rollback", page_rollback);
+    register!("page_rerender", page_rerender);
+    register!("page_restore", page_restore);
 
     // Page revisions
-    app.at("/page/revision").put(page_revision_put);
-    app.at("/page/revision/get").put(page_revision_retrieve);
-    app.at("/page/revision/count").get(page_revision_count);
-    app.at("/page/revision/rollback").post(page_rollback);
-    app.at("/page/revision/range")
-        .put(page_revision_range_retrieve);
+    register!("page_revision_create", page_revision_edit);
+    register!("page_revision_get", page_revision_get);
+    register!("page_revision_count", page_revision_count);
+    register!("page_revision_range", page_revision_range);
 
     // Page links
-    app.at("/page/links/from").put(page_links_from_retrieve);
-    app.at("/page/links/to").put(page_links_to_retrieve);
-    app.at("/page/links/to/missing")
-        .put(page_links_to_missing_retrieve);
-    app.at("/page/urls/from").put(page_links_external_from);
-    app.at("/page/urls/to").put(page_links_external_to);
+    register!("page_get_links_from", page_links_from_get);
+    register!("page_get_links_to", page_links_to_get);
+    register!("page_get_links_to_missing", page_links_to_missing_get);
+    register!("page_get_urls_from", page_links_external_from);
+    register!("page_get_urls_to", page_links_external_to);
 
     // Page parents
-    app.at("/page/parent").put(parent_put).delete(parent_delete);
-    app.at("/page/parent/get").put(parent_retrieve);
-    app.at("/page/parent/:relationship_type")
-        .put(parent_relationships_retrieve);
+    register!("parent_set", parent_set);
+    register!("parent_get", parent_get);
+    register!("parent_remove", parent_remove);
+    register!("parent_relationships_get", parent_relationships_get);
 
     // Files
-    app.at("/file").post(file_edit).delete(file_delete);
-    app.at("/file/get").put(file_retrieve);
-    app.at("/file/upload").post(file_create);
-    app.at("/file/move").post(file_move);
-    app.at("/file/restore").post(file_restore);
+    register!("file_upload", file_upload);
+    register!("file_get", file_get);
+    register!("file_edit", file_edit);
+    register!("file_delete", file_delete);
+    register!("file_move", file_move);
+    register!("file_restore", file_restore);
+    register!("file_hard_delete", file_hard_delete);
 
     // File revisions
-    app.at("/file/revision").put(file_revision_put);
-    app.at("/file/revision/get").put(file_revision_retrieve);
-    app.at("/file/revision/count").put(file_revision_count);
-    app.at("/file/revision/range/:direction")
-        .put(file_revision_range_retrieve);
+    register!("file_revision_get", file_revision_get);
+    register!("file_revision_edit", file_revision_edit);
+    register!("file_revision_count", file_revision_count);
+    register!("file_revision_range", file_revision_range);
 
     // Text
-    app.at("/text").put(text_put);
-    app.at("/text/:hash").get(text_get);
+    register!("text_create", text_create);
+    register!("text_get", text_get);
 
     // User
-    app.at("/user").put(user_put).delete(user_delete);
-    app.at("/user/get").put(user_retrieve);
-    app.at("/user/avatar").put(user_avatar_put);
-    app.at("/user/create").post(user_create);
-    app.at("/user/import").post(user_import);
-    app.at("/user/addNameChange").post(user_add_name_change);
+    register!("user_create", user_create);
+    register!("user_import", user_import);
+    register!("user_get", user_get);
+    register!("user_edit", user_edit);
+    register!("user_delete", user_delete);
+    register!("user_add_name_change", user_add_name_change);
 
-    // User bot information
-    app.at("/user/bot/get").put(user_bot_retrieve);
-    app.at("/user/bot/create").post(user_bot_create);
-    app.at("/user/bot/owner")
-        .put(user_bot_owner_put)
-        .delete(user_bot_owner_delete);
+    // Bot user
+    register!("bot_user_create", bot_user_create);
+    register!("bot_user_get", bot_user_get);
+    register!("bot_user_owner_set", bot_user_owner_set);
+    register!("bot_user_owner_remove", bot_user_owner_remove);
 
-    // Message
-    app.at("/message/draft")
-        .post(message_draft_create)
-        .put(message_draft_update)
-        .delete(message_draft_delete);
-    app.at("/message").post(message_draft_send);
+    // Direct messages
+    register!("message_draft_create", message_draft_create);
+    register!("message_draft_edit", message_draft_edit);
+    register!("message_draft_delete", message_draft_delete);
+    register!("message_draft_send", message_draft_send);
 
     // Email
-    app.at("/email/validate").put(validate_email);
+    register!("email_validate", validate_email);
 
     // Votes
-    app.at("/vote").put(vote_put).delete(vote_delete);
-    app.at("/vote/get").put(vote_retrieve);
-    app.at("/vote/action").put(vote_action);
-    app.at("/vote/list").put(vote_list_retrieve);
-    app.at("/vote/count").put(vote_count_retrieve);
+    register!("vote_set", vote_set);
+    register!("vote_get", vote_get);
+    register!("vote_remove", vote_remove);
+    register!("vote_action", vote_action);
+    register!("vote_list", vote_list_get);
+    register!("vote_list_count", vote_list_count);
 
-    app
+    // Return
+    Ok(module)
 }

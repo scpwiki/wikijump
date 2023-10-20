@@ -20,63 +20,70 @@
 
 use super::prelude::*;
 use crate::locales::MessageArguments;
-use ref_map::*;
 use std::collections::HashMap;
 use unic_langid::LanguageIdentifier;
 
-#[derive(Serialize, Debug)]
-struct LocaleOutput<'a> {
-    language: &'a str,
-    script: Option<&'a str>,
-    region: Option<&'a str>,
+#[derive(Serialize, Debug, Clone)]
+pub struct LocaleOutput {
+    language: String,
+    script: Option<String>,
+    region: Option<String>,
     variants: Vec<String>,
 }
 
-type TranslateInput<'a> = HashMap<String, MessageArguments<'a>>;
-type TranslateOutput = HashMap<String, String>;
-
-pub async fn locale_get(req: ApiRequest) -> ApiResponse {
-    let locale_str = req.param("locale")?;
-    tide::log::info!("Getting locale information for {locale_str}");
-
-    let locale = LanguageIdentifier::from_bytes(locale_str.as_bytes())?;
-    let output = LocaleOutput {
-        language: locale.language.as_str(),
-        script: locale.script.ref_map(|s| s.as_str()),
-        region: locale.region.ref_map(|s| s.as_str()),
-        variants: locale.variants().map(|v| v.as_str().into()).collect(),
-    };
-
-    let body = Body::from_json(&output)?;
-    Ok(body.into())
+#[derive(Deserialize, Debug, Clone)]
+pub struct TranslateInput<'a> {
+    locale: &'a str,
+    messages: HashMap<String, MessageArguments<'a>>,
 }
 
-pub async fn translate_put(mut req: ApiRequest) -> ApiResponse {
-    let input: TranslateInput = req.body_json().await?;
-    let locale_str = req.param("locale")?;
-    let localizations = &req.state().localizations;
-    tide::log::info!(
+type TranslateOutput = HashMap<String, String>;
+
+pub async fn locale_info(
+    _ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<LocaleOutput> {
+    let locale_str: String = params.one()?;
+    info!("Getting locale information for {locale_str}");
+    let locale = LanguageIdentifier::from_bytes(locale_str.as_bytes())?;
+    Ok(LocaleOutput {
+        language: str!(locale.language),
+        script: locale.script.map(|s| str!(s)),
+        region: locale.region.map(|s| str!(s)),
+        variants: locale.variants().map(|v| str!(v)).collect(),
+    })
+}
+
+pub async fn translate_strings(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<TranslateOutput> {
+    let TranslateInput {
+        locale: locale_str,
+        messages,
+    } = params.parse()?;
+
+    info!(
         "Translating {} message keys in locale {locale_str}",
-        input.len(),
+        messages.len(),
     );
 
     let locale = LanguageIdentifier::from_bytes(locale_str.as_bytes())?;
     let mut output: TranslateOutput = HashMap::new();
 
-    for (message_key, arguments_raw) in input {
-        tide::log::info!(
+    for (message_key, arguments_raw) in messages {
+        info!(
             "Formatting message key {message_key} ({} arguments)",
             arguments_raw.len(),
         );
 
         let arguments = arguments_raw.into_fluent_args();
-        match localizations.translate(&locale, &message_key, &arguments) {
-            Ok(translation) => output.insert(message_key, translation.to_string()),
-            Err(error) => return Err(ServiceError::from(error).into_tide_error()),
-        };
+        let translation =
+            ctx.localization()
+                .translate(&locale, &message_key, &arguments)?;
+
+        output.insert(message_key, translation.to_string());
     }
 
-    let body = Body::from_json(&output)?;
-    let response = Response::builder(StatusCode::Ok).body(body).into();
-    Ok(response)
+    Ok(output)
 }

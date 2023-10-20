@@ -18,6 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// TODO replace bot owners with a user / user interaction
+//      add checks like we have here, one is human one is bot, etc
+
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user_bot_owner::{
@@ -33,7 +36,7 @@ impl UserBotOwnerService {
         ctx: &ServiceContext<'_>,
         bot_user_id: i64,
     ) -> Result<Vec<UserBotOwnerModel>> {
-        tide::log::info!("Looking up owners for bot ID {bot_user_id}");
+        info!("Looking up owners for bot ID {bot_user_id}");
 
         let txn = ctx.transaction();
         let owners = UserBotOwner::find()
@@ -49,10 +52,9 @@ impl UserBotOwnerService {
         bot_user_id: i64,
         human_user_id: i64,
     ) -> Result<Option<UserBotOwnerModel>> {
-        tide::log::debug!(
+        debug!(
             "Retrieving user_bot_owner record for human ID {} and bot ID {}",
-            human_user_id,
-            bot_user_id,
+            human_user_id, bot_user_id,
         );
 
         let txn = ctx.transaction();
@@ -81,11 +83,9 @@ impl UserBotOwnerService {
             UserService::get_with_user_type(ctx, human_reference, UserType::Regular),
         )?;
 
-        tide::log::info!(
+        info!(
             "Adding user ID {} as owner for bot ID {}: {}",
-            human.user_id,
-            bot.user_id,
-            description,
+            human.user_id, bot.user_id, description,
         );
 
         // NOTE: Not using upsert (INSERT .. ON CONFLICT) because
@@ -95,7 +95,7 @@ impl UserBotOwnerService {
         let model = match Self::get_optional(ctx, bot.user_id, human.user_id).await? {
             // Update
             Some(owner) => {
-                tide::log::debug!("Bot owner record exists, updating");
+                debug!("Bot owner record exists, updating");
 
                 let mut model = owner.into_active_model();
                 model.description = Set(description);
@@ -105,7 +105,7 @@ impl UserBotOwnerService {
 
             // Insert
             None => {
-                tide::log::debug!("Bot owner record is missing, inserting");
+                debug!("Bot owner record is missing, inserting");
 
                 let model = user_bot_owner::ActiveModel {
                     bot_user_id: Set(bot.user_id),
@@ -121,17 +121,18 @@ impl UserBotOwnerService {
         Ok(model)
     }
 
-    /// Idempotently deletes the give user / bot ownership record, if it exists.
+    /// Idempotently removes the give user / bot ownership record, if it exists.
     ///
-    /// Returns `true` if the deletion was carried out (i.e. it used to exist),
+    /// # Returns
+    /// The struct contains `true` if the deletion was carried out (i.e. it used to exist),
     /// and `false` if not.
-    pub async fn delete(
+    pub async fn remove(
         ctx: &ServiceContext<'_>,
-        DeleteBotOwner {
+        RemoveBotOwner {
             bot: bot_reference,
             human: human_reference,
-        }: DeleteBotOwner<'_>,
-    ) -> Result<bool> {
+        }: RemoveBotOwner<'_>,
+    ) -> Result<RemoveBotOwnerOutput> {
         let txn = ctx.transaction();
 
         // We don't check user type here because we already checked it prior to insertion.
@@ -144,10 +145,9 @@ impl UserBotOwnerService {
             UserService::get_id(ctx, human_reference),
         )?;
 
-        tide::log::info!(
+        info!(
             "Deleting user ID {} as owner for bot ID {}",
-            human_user_id,
-            bot_user_id,
+            human_user_id, bot_user_id,
         );
 
         let DeleteResult { rows_affected } =
@@ -160,6 +160,7 @@ impl UserBotOwnerService {
             "Rows deleted using ID was more than 1: {rows_affected}",
         );
 
-        Ok(rows_affected == 1)
+        let was_deleted = rows_affected == 1;
+        Ok(RemoveBotOwnerOutput { was_deleted })
     }
 }

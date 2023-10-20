@@ -43,12 +43,12 @@ impl FilterService {
     ) -> Result<FilterModel> {
         let txn = ctx.transaction();
 
-        tide::log::info!("Creating filter with regex '{regex}' because '{description}'");
+        info!("Creating filter with regex '{regex}' because '{description}'");
 
         // Ensure the regular expression is valid
-        if Regex::new(&regex).is_err() {
-            tide::log::error!("Passed regular expression pattern is invalid: {regex}");
-            return Err(Error::BadRequest);
+        if let Err(error) = Regex::new(&regex) {
+            error!("Passed regular expression '{regex}' pattern is invalid: {error}",);
+            return Err(Error::FilterRegexInvalid(error));
         }
 
         // Ensure there aren't conflicts
@@ -92,7 +92,7 @@ impl FilterService {
     ) -> Result<FilterModel> {
         let txn = ctx.transaction();
 
-        tide::log::info!("Updating filter with ID {filter_id}");
+        info!("Updating filter with ID {filter_id}");
 
         let mut model = filter::ActiveModel {
             filter_id: Set(filter_id),
@@ -162,15 +162,14 @@ impl FilterService {
 
     #[allow(dead_code)] // TEMP
     pub async fn delete(ctx: &ServiceContext<'_>, filter_id: i64) -> Result<()> {
+        info!("Deleting filter with ID {filter_id}");
         let txn = ctx.transaction();
-
-        tide::log::info!("Deleting filter with ID {filter_id}");
 
         // Ensure filter exists
         let filter = Self::get(ctx, filter_id).await?;
         if filter.deleted_at.is_some() {
-            tide::log::error!("Attempting to delete already-deleted filter");
-            return Err(Error::BadRequest);
+            error!("Attempting to remove already-deleted filter");
+            return Err(Error::FilterNotFound);
         }
 
         // Delete the filter
@@ -191,12 +190,12 @@ impl FilterService {
     ) -> Result<FilterModel> {
         let txn = ctx.transaction();
 
-        tide::log::info!("Undeleting filter with ID {filter_id}");
+        info!("Undeleting filter with ID {filter_id}");
 
         let filter = Self::get(ctx, filter_id).await?;
         if filter.deleted_at.is_none() {
-            tide::log::error!("Attempting to un-delete extant filter");
-            return Err(Error::BadRequest);
+            error!("Attempting to un-delete extant filter");
+            return Err(Error::FilterNotDeleted);
         }
 
         // Ensure it doesn't conflict with a since-added filter
@@ -214,14 +213,14 @@ impl FilterService {
 
     #[inline]
     pub async fn get(ctx: &ServiceContext<'_>, filter_id: i64) -> Result<FilterModel> {
-        find_or_error(Self::get_optional(ctx, filter_id)).await
+        find_or_error!(Self::get_optional(ctx, filter_id), Filter)
     }
 
     pub async fn get_optional(
         ctx: &ServiceContext<'_>,
         filter_id: i64,
     ) -> Result<Option<FilterModel>> {
-        tide::log::info!("Getting filter with ID {filter_id}");
+        info!("Getting filter with ID {filter_id}");
 
         let txn = ctx.transaction();
         let filter = Filter::find_by_id(filter_id).one(txn).await?;
@@ -248,7 +247,7 @@ impl FilterService {
     ) -> Result<Vec<FilterModel>> {
         let txn = ctx.transaction();
 
-        tide::log::info!("Getting all {} filters", filter_class.name());
+        info!("Getting all {} filters", filter_class.name());
 
         let filter_condition =
             filter_type.map(|filter_type| filter_type.into_column().eq(true));
@@ -283,7 +282,7 @@ impl FilterService {
         filter_class: FilterClass,
         filter_type: FilterType,
     ) -> Result<FilterMatcher> {
-        tide::log::info!(
+        info!(
             "Compiling regex set for {} filters for {filter_type:?}",
             filter_class.name(),
         );
@@ -309,11 +308,8 @@ impl FilterService {
         }
 
         let regex_set = RegexSet::new(regexes).map_err(|error| {
-            tide::log::error!(
-                "Invalid regular expression found in the database: {error}",
-            );
-
-            Error::Inconsistent
+            error!("Invalid regular expression found in the database: {error}",);
+            Error::FilterRegexInvalid(error)
         })?;
 
         Ok(FilterMatcher::new(regex_set, filter_data))
@@ -346,10 +342,10 @@ impl FilterService {
         match result {
             None => Ok(()),
             Some(_) => {
-                tide::log::error!(
+                error!(
                     " filter '{regex}' for {site_id:?} already exists, cannot {action}"
                 );
-                Err(Error::Conflict)
+                Err(Error::FilterExists)
             }
         }
     }

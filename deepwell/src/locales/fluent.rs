@@ -18,7 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::error::{fluent_load_err, LocalizationLoadError, LocalizationTranslateError};
+use super::error::{fluent_load_err, LocalizationLoadError};
+use crate::services::Error as ServiceError;
 use async_std::fs;
 use async_std::path::{Path, PathBuf};
 use async_std::prelude::*;
@@ -39,7 +40,7 @@ impl Localizations {
     pub async fn open<P: Into<PathBuf>>(
         directory: P,
     ) -> Result<Self, LocalizationLoadError> {
-        tide::log::debug!("Reading Fluent localization directory...");
+        debug!("Reading Fluent localization directory...");
 
         let directory = {
             let mut path = directory.into();
@@ -63,7 +64,7 @@ impl Localizations {
         bundles: &mut HashMap<LanguageIdentifier, FluentBundle>,
         directory: &Path,
     ) -> Result<(), LocalizationLoadError> {
-        tide::log::debug!("Reading component at {}", directory.display());
+        debug!("Reading component at {}", directory.display());
         let mut entries = fs::read_dir(directory).await?;
 
         while let Some(result) = entries.next().await {
@@ -77,7 +78,7 @@ impl Localizations {
                 .to_str()
                 .expect("Path is not valid UTF-8");
 
-            tide::log::debug!("Loading locale {locale_name}");
+            debug!("Loading locale {locale_name}");
             let locale: LanguageIdentifier = locale_name.parse()?;
 
             // Read and parse localization strings
@@ -115,12 +116,12 @@ impl Localizations {
         &self,
         locale: &LanguageIdentifier,
         key: &str,
-    ) -> Result<(&FluentBundle, FluentMessage), LocalizationTranslateError> {
+    ) -> Result<(&FluentBundle, FluentMessage), ServiceError> {
         match self.bundles.get(locale) {
-            None => Err(LocalizationTranslateError::NoLocale),
+            None => Err(ServiceError::LocaleMissing),
             Some(bundle) => match bundle.get_message(key) {
                 Some(message) => Ok((bundle, message)),
-                None => Err(LocalizationTranslateError::NoMessage),
+                None => Err(ServiceError::LocaleMessageMissing),
             },
         }
     }
@@ -130,12 +131,12 @@ impl Localizations {
         locale: &LanguageIdentifier,
         key: &str,
         args: &'a FluentArgs<'a>,
-    ) -> Result<Cow<'a, str>, LocalizationTranslateError> {
+    ) -> Result<Cow<'a, str>, ServiceError> {
         // Get appropriate message and bundle
         let (path, attribute) = Self::parse_selector(key);
         let (bundle, message) = self.get_message(locale, path)?;
 
-        tide::log::info!(
+        info!(
             "Translating for locale {}, message path {}, attribute {}",
             locale,
             path,
@@ -146,11 +147,11 @@ impl Localizations {
         let pattern = match attribute {
             Some(attribute) => match message.get_attribute(attribute) {
                 Some(attrib) => attrib.value(),
-                None => return Err(LocalizationTranslateError::NoMessageAttribute),
+                None => return Err(ServiceError::LocaleMessageAttributeMissing),
             },
             None => match message.value() {
                 Some(pattern) => pattern,
-                None => return Err(LocalizationTranslateError::NoMessageValue),
+                None => return Err(ServiceError::LocaleMessageValueMissing),
             },
         };
 
@@ -160,16 +161,14 @@ impl Localizations {
 
         // Log any errors
         if !errors.is_empty() {
-            tide::log::warn!(
-                "Errors formatting message for locale {locale}, message key {key}",
-            );
+            warn!("Errors formatting message for locale {locale}, message key {key}",);
 
             for (key, value) in args.iter() {
-                tide::log::warn!("Passed formatting argument: {key} -> {value:?}");
+                warn!("Passed formatting argument: {key} -> {value:?}");
             }
 
             for error in errors {
-                tide::log::warn!("Message formatting error: {error}");
+                warn!("Message formatting error: {error}");
             }
         }
 

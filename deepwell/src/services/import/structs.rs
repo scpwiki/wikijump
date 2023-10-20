@@ -21,7 +21,6 @@
 use time::{Date, OffsetDateTime};
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct ImportUser {
     pub user_id: i64,
     pub created_at: OffsetDateTime,
@@ -39,7 +38,6 @@ pub struct ImportUser {
 }
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct ImportSite {
     pub site_id: i64,
     pub created_at: OffsetDateTime,
@@ -49,7 +47,6 @@ pub struct ImportSite {
 }
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct ImportPage {
     pub page_id: i64,
     pub site_id: i64,

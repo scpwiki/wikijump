@@ -19,8 +19,8 @@
  */
 
 #[derive(Serialize, Deserialize, Debug, Default, Copy, Clone, PartialEq, Eq)]
-#[serde(default, rename_all = "camelCase")]
-pub struct PageDetailsQuery {
+#[serde(default)]
+pub struct PageDetails {
     /// Include the wikitext in the page output.
     pub wikitext: bool,
 

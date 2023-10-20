@@ -21,7 +21,6 @@
 pub type VoteValue = i16;
 
 #[derive(Deserialize, Debug, Copy, Clone)]
-#[serde(rename_all = "camelCase")]
 pub struct CreateVote {
     pub page_id: i64,
     pub user_id: i64,
@@ -29,21 +28,19 @@ pub struct CreateVote {
 }
 
 #[derive(Deserialize, Debug, Copy, Clone)]
-#[serde(rename_all = "camelCase")]
 pub struct GetVote {
     pub page_id: i64,
     pub user_id: i64,
 }
 
 #[derive(Deserialize, Debug, Copy, Clone)]
-#[serde(rename_all = "camelCase", tag = "type", content = "id")]
+#[serde(tag = "type", content = "id")]
 pub enum VoteHistoryKind {
     Page(i64),
     User(i64),
 }
 
 #[derive(Deserialize, Debug, Copy, Clone)]
-#[serde(rename_all = "camelCase")]
 pub struct GetVoteHistory {
     #[serde(flatten)]
     pub kind: VoteHistoryKind,
@@ -54,7 +51,6 @@ pub struct GetVoteHistory {
 }
 
 #[derive(Deserialize, Debug, Copy, Clone)]
-#[serde(rename_all = "camelCase")]
 pub struct CountVoteHistory {
     #[serde(flatten)]
     pub kind: VoteHistoryKind,
@@ -64,7 +60,6 @@ pub struct CountVoteHistory {
 }
 
 #[derive(Deserialize, Debug, Copy, Clone)]
-#[serde(rename_all = "camelCase")]
 pub struct VoteAction {
     pub page_id: i64,
     pub user_id: i64,

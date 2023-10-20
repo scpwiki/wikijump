@@ -19,11 +19,14 @@
  */
 
 use super::prelude::*;
+use crate::models::session::Model as SessionModel;
 use crate::services::authentication::{
     AuthenticateUserOutput, AuthenticationService, LoginUser, LoginUserMfa,
     LoginUserOutput, MultiFactorAuthenticateUser,
 };
-use crate::services::mfa::MultiFactorConfigure;
+use crate::services::mfa::{
+    MultiFactorConfigure, MultiFactorResetOutput, MultiFactorSetupOutput,
+};
 use crate::services::session::{
     CreateSession, GetOtherSessions, GetOtherSessionsOutput, InvalidateOtherSessions,
     RenewSession,
@@ -31,14 +34,15 @@ use crate::services::session::{
 use crate::services::user::GetUser;
 use crate::services::Error;
 
-pub async fn auth_login(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+pub async fn auth_login(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<LoginUserOutput> {
     let LoginUser {
         authenticate,
         ip_address,
         user_agent,
-    } = req.body_json().await?;
+    } = params.parse()?;
 
     // Don't allow empty passwords.
     //
@@ -46,45 +50,40 @@ pub async fn auth_login(mut req: ApiRequest) -> ApiResponse {
     // entering the password in the name field instead, which we do
     // *not* want to be logging.
     if authenticate.password.is_empty() {
-        tide::log::error!("User submitted empty password in auth request");
-        return Err(TideError::from_str(StatusCode::BadRequest, ""));
+        error!("User submitted empty password in auth request");
+        return Err(Error::EmptyPassword);
     }
 
     // All authentication issue should return the same error.
     //
     // If anything went wrong, only allow a generic backend failure
-    // to avoid leaking internal state.
+    // to avoid leaking internal state. However since we are an internal
+    // API
     //
     // The only three possible responses to this method should be:
     // * success
     // * invalid authentication
     // * server error
-    let result = AuthenticationService::auth_password(&ctx, authenticate).await;
+    let result = AuthenticationService::auth_password(ctx, authenticate).await;
     let AuthenticateUserOutput { needs_mfa, user_id } = match result {
         Ok(output) => output,
-        Err(error) => {
-            let status_code = match error {
-                Error::InvalidAuthentication => StatusCode::Forbidden,
-                _ => {
-                    tide::log::error!(
-                        "Unexpected error during user authentication: {error}",
-                    );
+        Err(mut error) => {
+            if !matches!(error, Error::InvalidAuthentication) {
+                error!("Unexpected error during user authentication: {error}");
+                error = Error::AuthenticationBackend(Box::new(error));
+            }
 
-                    StatusCode::InternalServerError
-                }
-            };
-
-            return Err(TideError::from_str(status_code, ""));
+            return Err(error);
         }
     };
 
     let login_complete = !needs_mfa;
-    tide::log::info!(
+    info!(
         "Password authentication for user ID {user_id} succeeded (login complete: {login_complete})",
     );
 
     let session_token = SessionService::create(
-        &ctx,
+        ctx,
         CreateSession {
             user_id,
             ip_address,
@@ -94,127 +93,98 @@ pub async fn auth_login(mut req: ApiRequest) -> ApiResponse {
     )
     .await?;
 
-    let body = Body::from_json(&LoginUserOutput {
+    Ok(LoginUserOutput {
         session_token,
         needs_mfa,
-    })?;
+    })
+}
 
-    let response = Response::builder(StatusCode::Ok).body(body).into();
-    txn.commit().await?;
-    Ok(response)
+pub async fn auth_logout(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<()> {
+    let session_token: String = params.one()?;
+    SessionService::invalidate(ctx, session_token).await
 }
 
 /// Gets the information associated with a particular session token.
 ///
 /// This is how framerail determines the user ID this user is acting as,
 /// among other information.
-pub async fn auth_session_retrieve(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let session_token = req.body_string().await?;
-    let session = SessionService::get(&ctx, &session_token).await?;
-
-    let body = Body::from_json(&session)?;
-    let response = Response::builder(StatusCode::Ok).body(body).into();
-    txn.commit().await?;
-    Ok(response)
+pub async fn auth_session_get(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<Option<SessionModel>> {
+    let session_token: String = params.one()?;
+    SessionService::get_optional(ctx, &session_token).await
 }
 
-pub async fn auth_session_renew(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-    let input: RenewSession = req.body_json().await?;
-
-    let new_session_token = SessionService::renew(&ctx, input).await?;
-
-    let body = Body::from_string(new_session_token);
-    let response = Response::builder(StatusCode::Ok).body(body).into();
-    txn.commit().await?;
-    Ok(response)
+pub async fn auth_session_renew(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<String> {
+    let input: RenewSession = params.parse()?;
+    SessionService::renew(ctx, input).await
 }
 
-pub async fn auth_session_retrieve_others(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
+pub async fn auth_session_get_others(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<GetOtherSessionsOutput> {
     let GetOtherSessions {
         user_id,
         session_token,
-    } = req.body_json().await?;
+    } = params.parse()?;
 
     // Produce output struct, which extracts the current session and
     // places it in its own location.
-    let output = {
-        let mut sessions = SessionService::get_all(&ctx, user_id).await?;
-        let current = match sessions
-            .iter()
-            .position(|session| session.session_token == session_token)
-        {
-            Some(index) => sessions.remove(index),
-            None => {
-                tide::log::error!("Cannot find own session token in list of all sessions, must be invalid");
-                return Ok(Response::new(StatusCode::NotFound));
-            }
-        };
-
-        GetOtherSessionsOutput {
-            current,
-            others: sessions,
+    let mut sessions = SessionService::get_all(ctx, user_id).await?;
+    let current = match sessions
+        .iter()
+        .position(|session| session.session_token == session_token)
+    {
+        Some(index) => sessions.remove(index),
+        None => {
+            error!(
+                "Cannot find own session token in list of all sessions, must be invalid",
+            );
+            return Err(Error::InvalidSessionToken);
         }
     };
 
-    let body = Body::from_json(&output)?;
-    let response = Response::builder(StatusCode::Ok).body(body).into();
-    txn.commit().await?;
-    Ok(response)
+    Ok(GetOtherSessionsOutput {
+        current,
+        others: sessions,
+    })
 }
 
-pub async fn auth_session_invalidate_others(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+pub async fn auth_session_invalidate_others(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<u64> {
     let InvalidateOtherSessions {
         session_token,
         user_id,
-    } = req.body_json().await?;
+    } = params.parse()?;
 
-    let invalidated =
-        SessionService::invalidate_others(&ctx, &session_token, user_id).await?;
-
-    let body = Body::from_json(&invalidated)?;
-    let response = Response::builder(StatusCode::Ok).body(body).into();
-    txn.commit().await?;
-    Ok(response)
+    SessionService::invalidate_others(ctx, &session_token, user_id).await
 }
 
-pub async fn auth_logout(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let session_token = req.body_string().await?;
-    SessionService::invalidate(&ctx, session_token).await?;
-
-    txn.commit().await?;
-    Ok(Response::new(StatusCode::NoContent))
-}
-
-pub async fn auth_mfa_verify(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
+pub async fn auth_mfa_verify(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<String> {
     let LoginUserMfa {
         session_token,
         totp_or_code,
         ip_address,
         user_agent,
-    } = req.body_json().await?;
+    } = params.parse()?;
 
-    tide::log::info!(
-        "Verifying user's MFA for login (temporary session token {session_token})"
-    );
+    info!("Verifying user's MFA for login (temporary session token {session_token})",);
 
     let user = AuthenticationService::auth_mfa(
-        &ctx,
+        ctx,
         MultiFactorAuthenticateUser {
             session_token: &session_token,
             totp_or_code: &totp_or_code,
@@ -222,8 +192,8 @@ pub async fn auth_mfa_verify(mut req: ApiRequest) -> ApiResponse {
     )
     .await?;
 
-    let new_session_token = SessionService::renew(
-        &ctx,
+    SessionService::renew(
+        ctx,
         RenewSession {
             old_session_token: session_token,
             user_id: user.user_id,
@@ -231,78 +201,64 @@ pub async fn auth_mfa_verify(mut req: ApiRequest) -> ApiResponse {
             user_agent,
         },
     )
-    .await?;
-
-    let body = Body::from_string(new_session_token);
-    let response = Response::builder(StatusCode::Ok).body(body).into();
-    txn.commit().await?;
-    Ok(response)
+    .await
 }
 
-pub async fn auth_mfa_setup(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let GetUser { user: reference } = req.body_json().await?;
-    let user = UserService::get(&ctx, reference).await?;
-    let output = MfaService::setup(&ctx, &user).await?;
-
-    let body = Body::from_json(&output)?;
-    let response = Response::builder(StatusCode::Ok).body(body).into();
-    txn.commit().await?;
-    Ok(response)
+pub async fn auth_mfa_setup(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<MultiFactorSetupOutput> {
+    let GetUser { user: reference } = params.parse()?;
+    let user = UserService::get(ctx, reference).await?;
+    MfaService::setup(ctx, &user).await
 }
 
-pub async fn auth_mfa_disable(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
+pub async fn auth_mfa_disable(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<()> {
     let MultiFactorConfigure {
         user_id,
         session_token,
-    } = req.body_json().await?;
+    } = params.parse()?;
 
-    let user = SessionService::get_user(&ctx, &session_token, false).await?;
-
+    let user = SessionService::get_user(ctx, &session_token, false).await?;
     if user.user_id != user_id {
-        tide::log::error!(
+        error!(
             "Passed user ID ({}) does not match session token ({})",
-            user_id,
-            user.user_id,
+            user_id, user.user_id,
         );
-        return Ok(Response::new(StatusCode::Forbidden));
+
+        return Err(Error::SessionUserId {
+            active_user_id: user_id,
+            session_user_id: user.user_id,
+        });
     }
 
-    MfaService::disable(&ctx, user.user_id).await?;
-
-    txn.commit().await?;
-    Ok(Response::new(StatusCode::NoContent))
+    MfaService::disable(ctx, user.user_id).await
 }
 
-pub async fn auth_mfa_reset_recovery(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
+pub async fn auth_mfa_reset_recovery(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<MultiFactorResetOutput> {
     let MultiFactorConfigure {
         user_id,
         session_token,
-    } = req.body_json().await?;
+    } = params.parse()?;
 
-    let user = SessionService::get_user(&ctx, &session_token, false).await?;
-
+    let user = SessionService::get_user(ctx, &session_token, false).await?;
     if user.user_id != user_id {
-        tide::log::error!(
+        error!(
             "Passed user ID ({}) does not match session token ({})",
-            user_id,
-            user.user_id,
+            user_id, user.user_id,
         );
-        return Ok(Response::new(StatusCode::Forbidden));
+
+        return Err(Error::SessionUserId {
+            active_user_id: user_id,
+            session_user_id: user.user_id,
+        });
     }
 
-    let output = MfaService::reset_recovery_codes(&ctx, &user).await?;
-
-    let body = Body::from_json(&output)?;
-    let response = Response::builder(StatusCode::Ok).body(body).into();
-    txn.commit().await?;
-    Ok(response)
+    MfaService::reset_recovery_codes(ctx, &user).await
 }

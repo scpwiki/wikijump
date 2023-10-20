@@ -43,7 +43,7 @@ pub async fn connect<S: Into<String>>(database_uri: S) -> Result<DatabaseConnect
 pub async fn migrate(database_uri: &str) -> Result<()> {
     let pool = Pool::<Postgres>::connect(database_uri).await?;
 
-    tide::log::info!("Running migrations...");
+    info!("Running migrations...");
     sqlx::migrate!("./migrations").run(&pool).await?;
     Ok(())
 }

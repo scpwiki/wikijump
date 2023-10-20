@@ -19,92 +19,66 @@
  */
 
 use super::prelude::*;
+use crate::models::file_revision::Model as FileRevisionModel;
 use crate::services::file::GetFile;
 use crate::services::file_revision::{
     FileRevisionCountOutput, GetFileRevision, GetFileRevisionRange, UpdateFileRevision,
 };
 
-pub async fn file_revision_count(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
+pub async fn file_revision_count(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<FileRevisionCountOutput> {
     let GetFile {
         site_id,
         page_id,
         file: file_reference,
-    } = req.body_json().await?;
+    } = params.parse()?;
 
-    tide::log::info!(
-        "Getting latest revision for file ID {page_id} in site ID {site_id}",
-    );
+    info!("Getting latest revision for file ID {page_id} in site ID {site_id}",);
 
-    let file_id = FileService::get_id(&ctx, site_id, file_reference).await?;
+    let file_id = FileService::get_id(ctx, site_id, file_reference).await?;
+    let revision_count = FileRevisionService::count(ctx, page_id, file_id).await?;
 
-    let revision_count = FileRevisionService::count(&ctx, page_id, file_id).await?;
-
-    txn.commit().await?;
-    let output = FileRevisionCountOutput {
+    Ok(FileRevisionCountOutput {
         revision_count,
         first_revision: 0,
         last_revision: revision_count.get() - 1,
-    };
-
-    let body = Body::from_json(&output)?;
-    let response = Response::builder(StatusCode::Ok).body(body).into();
-    Ok(response)
+    })
 }
 
-pub async fn file_revision_retrieve(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+pub async fn file_revision_get(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<Option<FileRevisionModel>> {
+    let input: GetFileRevision = params.parse()?;
 
-    let GetFileRevision {
-        page_id,
-        file_id,
-        revision_number,
-    } = req.body_json().await?;
-
-    tide::log::info!(
-        "Getting file revision {revision_number} for file ID {file_id} on page ID {page_id}",
+    info!(
+        "Getting file revision {} for file ID {} on page ID {}",
+        input.revision_number, input.file_id, input.page_id,
     );
 
-    let revision =
-        FileRevisionService::get(&ctx, page_id, file_id, revision_number).await?;
-
-    txn.commit().await?;
-    let body = Body::from_json(&revision)?;
-    let response = Response::builder(StatusCode::Ok).body(body).into();
-    Ok(response)
+    FileRevisionService::get_optional(ctx, input).await
 }
 
-pub async fn file_revision_put(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+pub async fn file_revision_range(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<Vec<FileRevisionModel>> {
+    let input: GetFileRevisionRange = params.parse()?;
+    FileRevisionService::get_range(ctx, input).await
+}
 
-    let input: UpdateFileRevision = req.body_json().await?;
+pub async fn file_revision_edit(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<FileRevisionModel> {
+    let input: UpdateFileRevision = params.parse()?;
 
-    tide::log::info!(
+    info!(
         "Editing file revision ID {} for file ID {} on page {}",
-        input.revision_id,
-        input.file_id,
-        input.page_id,
+        input.revision_id, input.file_id, input.page_id,
     );
 
-    FileRevisionService::update(&ctx, input).await?;
-
-    txn.commit().await?;
-    Ok(Response::new(StatusCode::NoContent))
-}
-
-pub async fn file_revision_range_retrieve(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let input: GetFileRevisionRange = req.body_json().await?;
-    let revisions = FileRevisionService::get_range(&ctx, input).await?;
-
-    txn.commit().await?;
-    let body = Body::from_json(&revisions)?;
-    let response = Response::builder(StatusCode::Ok).body(body).into();
-    Ok(response)
+    FileRevisionService::update(ctx, input).await
 }

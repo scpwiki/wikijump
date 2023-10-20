@@ -22,11 +22,11 @@ use super::prelude::*;
 use crate::models::sea_orm_active_enums::PageRevisionType;
 use crate::services::page_revision::CreatePageRevisionOutput;
 use crate::services::score::ScoreValue;
+use crate::web::PageDetails;
 use ftml::parsing::ParseError;
 use time::OffsetDateTime;
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Deserialize, Debug, Clone)]
 pub struct CreatePage {
     pub site_id: i64,
     pub wikitext: String,
@@ -40,8 +40,7 @@ pub struct CreatePage {
     pub bypass_filter: bool,
 }
 
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Serialize, Debug, Clone)]
 pub struct CreatePageOutput {
     pub page_id: i64,
     pub slug: String,
@@ -49,16 +48,38 @@ pub struct CreatePageOutput {
     pub parser_errors: Vec<ParseError>,
 }
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct GetPage<'a> {
+#[derive(Deserialize, Debug, Clone)]
+pub struct GetPageReference<'a> {
     pub site_id: i64,
     pub page: Reference<'a>,
 }
 
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct GetPageOutput<'a> {
+#[derive(Deserialize, Debug, Clone)]
+pub struct GetPageReferenceDetails<'a> {
+    pub site_id: i64,
+    pub page: Reference<'a>,
+
+    #[serde(default)]
+    pub details: PageDetails,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct GetPageDirect {
+    pub site_id: i64,
+    pub page_id: i64,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct GetPageDirectDetails {
+    pub site_id: i64,
+    pub page_id: i64,
+
+    #[serde(default)]
+    pub details: PageDetails,
+}
+
+#[derive(Serialize, Debug, Clone)]
+pub struct GetPageOutput {
     pub page_id: i64,
     pub page_created_at: OffsetDateTime,
     pub page_updated_at: Option<OffsetDateTime>,
@@ -66,7 +87,7 @@ pub struct GetPageOutput<'a> {
     pub page_revision_count: i32,
     pub site_id: i64,
     pub page_category_id: i64,
-    pub page_category_slug: &'a str,
+    pub page_category_slug: String,
     pub discussion_thread_id: Option<i64>,
     pub revision_id: i64,
     pub revision_type: PageRevisionType,
@@ -76,18 +97,17 @@ pub struct GetPageOutput<'a> {
     pub wikitext: Option<String>,
     pub compiled_html: Option<String>,
     pub compiled_at: OffsetDateTime,
-    pub compiled_generator: &'a str,
-    pub revision_comments: &'a str,
-    pub hidden_fields: &'a [String],
-    pub title: &'a str,
-    pub alt_title: Option<&'a str>,
-    pub slug: &'a str,
-    pub tags: &'a [String],
+    pub compiled_generator: String,
+    pub revision_comments: String,
+    pub hidden_fields: Vec<String>,
+    pub title: String,
+    pub alt_title: Option<String>,
+    pub slug: String,
+    pub tags: Vec<String>,
     pub rating: ScoreValue,
 }
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Deserialize, Debug, Clone)]
 pub struct EditPage<'a> {
     pub site_id: i64,
     pub page: Reference<'a>,
@@ -98,8 +118,8 @@ pub struct EditPage<'a> {
     pub body: EditPageBody,
 }
 
-#[derive(Deserialize, Debug, Default)]
-#[serde(rename_all = "camelCase", default)]
+#[derive(Deserialize, Debug, Default, Clone)]
+#[serde(default)]
 pub struct EditPageBody {
     pub wikitext: ProvidedValue<String>,
     pub title: ProvidedValue<String>,
@@ -107,8 +127,7 @@ pub struct EditPageBody {
     pub tags: ProvidedValue<Vec<String>>,
 }
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Deserialize, Debug, Clone)]
 pub struct MovePage<'a> {
     pub site_id: i64,
     pub page: Reference<'a>,
@@ -118,8 +137,7 @@ pub struct MovePage<'a> {
     // NOTE: slug field is a parameter, not in the body
 }
 
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Serialize, Debug, Clone)]
 pub struct MovePageOutput {
     pub old_slug: String,
     pub new_slug: String,
@@ -128,8 +146,7 @@ pub struct MovePageOutput {
     pub parser_errors: Option<Vec<ParseError>>,
 }
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Deserialize, Debug, Clone)]
 pub struct DeletePage<'a> {
     pub site_id: i64,
     pub page: Reference<'a>,
@@ -137,8 +154,14 @@ pub struct DeletePage<'a> {
     pub user_id: i64,
 }
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Serialize, Debug, Clone)]
+pub struct DeletePageOutput {
+    page_id: i64,
+    revision_id: i64,
+    revision_number: i32,
+}
+
+#[derive(Deserialize, Debug, Clone)]
 pub struct RestorePage {
     pub site_id: i64,
     pub page_id: i64,
@@ -147,16 +170,7 @@ pub struct RestorePage {
     pub slug: Option<String>,
 }
 
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct DeletePageOutput {
-    page_id: i64,
-    revision_id: i64,
-    revision_number: i32,
-}
-
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Serialize, Debug, Clone)]
 pub struct RestorePageOutput {
     slug: String,
     revision_id: i64,
@@ -164,8 +178,7 @@ pub struct RestorePageOutput {
     parser_errors: Vec<ParseError>,
 }
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Deserialize, Debug, Clone)]
 pub struct RollbackPage<'a> {
     pub site_id: i64,
     pub page: Reference<'a>,

@@ -54,9 +54,7 @@ impl SessionService {
             restricted,
         }: CreateSession,
     ) -> Result<String> {
-        tide::log::info!(
-            "Creating new session for user ID {user_id} (restricted: {restricted})",
-        );
+        info!("Creating new session for user ID {user_id} (restricted: {restricted})",);
 
         let txn = ctx.transaction();
         let config = ctx.config();
@@ -79,7 +77,7 @@ impl SessionService {
         };
 
         let SessionModel { session_token, .. } = model.insert(txn).await?;
-        tide::log::info!("Created new session token");
+        info!("Created new session token");
         Ok(session_token)
     }
 
@@ -87,7 +85,7 @@ impl SessionService {
     ///
     /// Example generated token: `wj:T9iF6vfjoYYE20QzrybV2C1V4K0LchHXsNVipX8G1GZ9vSJf0rvQpJ4YC8c8MAQ3`.
     fn new_token(config: &Config) -> String {
-        tide::log::debug!("Generating a new session token");
+        debug!("Generating a new session token");
         let mut rng = thread_rng();
         assert_is_csprng(&rng);
 
@@ -103,13 +101,13 @@ impl SessionService {
         ctx: &ServiceContext<'_>,
         session_token: &str,
     ) -> Result<SessionModel> {
-        tide::log::info!("Looking up session with token {session_token}");
+        info!("Looking up session with token {session_token}");
         Self::get_optional(ctx, session_token)
             .await?
-            .ok_or(Error::NotFound)
+            .ok_or(Error::InvalidSessionToken)
     }
 
-    async fn get_optional(
+    pub async fn get_optional(
         ctx: &ServiceContext<'_>,
         session_token: &str,
     ) -> Result<Option<SessionModel>> {
@@ -137,7 +135,7 @@ impl SessionService {
         session_token: &str,
         restricted: bool,
     ) -> Result<UserModel> {
-        tide::log::info!("Looking up user for session token");
+        info!("Looking up user for session token");
 
         let txn = ctx.transaction();
         let user = User::find()
@@ -150,7 +148,7 @@ impl SessionService {
             )
             .one(txn)
             .await?
-            .ok_or(Error::NotFound)?;
+            .ok_or(Error::UserNotFound)?;
 
         Ok(user)
     }
@@ -161,7 +159,7 @@ impl SessionService {
         ctx: &ServiceContext<'_>,
         user_id: i64,
     ) -> Result<Vec<SessionModel>> {
-        tide::log::info!("Getting all sessions for user ID {user_id}");
+        info!("Getting all sessions for user ID {user_id}");
 
         let txn = ctx.transaction();
         let sessions = Session::find()
@@ -190,18 +188,21 @@ impl SessionService {
             user_agent,
         }: RenewSession,
     ) -> Result<String> {
-        tide::log::info!("Renewing session ID {old_session_token}");
+        info!("Renewing session ID {old_session_token}");
 
         // Get existing session to ensure the token matches the passed user ID.
         let old_session = Self::get(ctx, &old_session_token).await?;
         if old_session.user_id != user_id {
-            tide::log::error!(
+            error!(
                 "Requested session renewal, user IDs do not match! (current: {}, request: {})",
                 old_session.user_id,
                 user_id,
             );
 
-            return Err(Error::BadRequest);
+            return Err(Error::SessionUserId {
+                active_user_id: user_id,
+                session_user_id: old_session.user_id,
+            });
         }
 
         // Invalid and recreate
@@ -226,15 +227,15 @@ impl SessionService {
         ctx: &ServiceContext<'_>,
         session_token: String,
     ) -> Result<()> {
-        tide::log::info!("Invalidating session ID {session_token}");
+        info!("Invalidating session ID {session_token}");
 
         let txn = ctx.transaction();
         let DeleteResult { rows_affected } =
             Session::delete_by_id(session_token).exec(txn).await?;
 
         if rows_affected != 1 {
-            tide::log::error!("This session was already deleted or does not exist");
-            return Err(Error::NotFound);
+            error!("This session was already deleted or does not exist");
+            return Err(Error::InvalidSessionToken);
         }
 
         Ok(())
@@ -253,18 +254,21 @@ impl SessionService {
         session_token: &str,
         user_id: i64,
     ) -> Result<u64> {
-        tide::log::info!("Invalidation all other session IDs for user ID {user_id}");
+        info!("Invalidation all other session IDs for user ID {user_id}");
 
         let txn = ctx.transaction();
         let session = Self::get(ctx, session_token).await?;
         if session.user_id != user_id {
-            tide::log::error!(
+            error!(
                 "Requested invalidation of other sessions, user IDs do not match! (current: {}, request: {})",
                 session.user_id,
                 user_id,
             );
 
-            return Err(Error::BadRequest);
+            return Err(Error::SessionUserId {
+                active_user_id: user_id,
+                session_user_id: session.user_id,
+            });
         }
 
         // Delete all sessions from user_id, except if it's this session_token
@@ -277,9 +281,7 @@ impl SessionService {
             .exec(txn)
             .await?;
 
-        tide::log::debug!(
-            "User ID {user_id}: {rows_affected} other sessions were invalidated",
-        );
+        debug!("User ID {user_id}: {rows_affected} other sessions were invalidated",);
         Ok(rows_affected)
     }
 
@@ -288,7 +290,7 @@ impl SessionService {
     /// # Returns
     /// The number of pruned sessions.
     pub async fn prune(ctx: &ServiceContext<'_>) -> Result<u64> {
-        tide::log::info!("Pruning all expired sessions");
+        info!("Pruning all expired sessions");
 
         let txn = ctx.transaction();
         let DeleteResult { rows_affected } = Session::delete_many()
@@ -296,7 +298,7 @@ impl SessionService {
             .exec(txn)
             .await?;
 
-        tide::log::debug!("{rows_affected} expired sessions were pruned");
+        debug!("{rows_affected} expired sessions were pruned");
         Ok(rows_affected)
     }
 }

@@ -54,7 +54,7 @@ impl MessageService {
             forwarded_from,
         }: CreateMessageDraft,
     ) -> Result<MessageDraftModel> {
-        tide::log::info!("Creating message draft for user ID {user_id}");
+        info!("Creating message draft for user ID {user_id}");
 
         // Check foreign keys
         if let Some(record_id) = &reply_to {
@@ -100,7 +100,7 @@ impl MessageService {
             wikitext,
         }: UpdateMessageDraft,
     ) -> Result<MessageDraftModel> {
-        tide::log::info!("Updating message draft {draft_id}");
+        info!("Updating message draft {draft_id}");
 
         // Get current draft
         let current_draft = Self::get_draft(ctx, &draft_id).await?;
@@ -154,8 +154,8 @@ impl MessageService {
 
         for recipient_id in recipients.iter() {
             if !UserService::exists(ctx, Reference::Id(recipient_id)).await? {
-                tide::log::error!("Recipient user ID {recipient_id} does not exist");
-                return Err(Error::NotFound);
+                error!("Recipient user ID {recipient_id} does not exist");
+                return Err(Error::UserNotFound);
             }
         }
 
@@ -202,7 +202,7 @@ impl MessageService {
         ctx: &ServiceContext<'_>,
         draft_id: &str,
     ) -> Result<MessageRecordModel> {
-        tide::log::info!("Sending draft ID {draft_id} as message");
+        info!("Sending draft ID {draft_id} as message");
 
         // Gather resources
         let config = ctx.config();
@@ -212,45 +212,45 @@ impl MessageService {
 
         // Message validation checks
         if draft.subject.is_empty() {
-            tide::log::error!("Subject line cannot be empty");
-            return Err(Error::BadRequest);
+            error!("Subject line cannot be empty");
+            return Err(Error::MessageSubjectEmpty);
         }
 
         if draft.subject.len() > config.maximum_message_subject_bytes {
-            tide::log::error!(
+            error!(
                 "Subject line is too long (is {}, max {})",
                 draft.subject.len(),
                 config.maximum_message_subject_bytes,
             );
-            return Err(Error::BadRequest);
+            return Err(Error::MessageSubjectTooLong);
         }
 
         if wikitext.is_empty() {
-            tide::log::error!("Wikitext body cannot be empty");
-            return Err(Error::BadRequest);
-        }
-
-        if recipients.is_empty() {
-            tide::log::error!("Must have at least one message recipient");
-            return Err(Error::BadRequest);
+            error!("Wikitext body cannot be empty");
+            return Err(Error::MessageBodyEmpty);
         }
 
         if wikitext.len() > config.maximum_message_body_bytes {
-            tide::log::error!(
+            error!(
                 "Wikitext body is too long (is {}, max {})",
                 wikitext.len(),
                 config.maximum_message_body_bytes,
             );
-            return Err(Error::BadRequest);
+            return Err(Error::MessageBodyTooLong);
+        }
+
+        if recipients.is_empty() {
+            error!("Must have at least one message recipient");
+            return Err(Error::MessageNoRecipients);
         }
 
         if recipients.len() > config.maximum_message_recipients {
-            tide::log::error!(
+            error!(
                 "Too many message recipients (is {}, max {})",
                 recipients.len(),
                 config.maximum_message_recipients,
             );
-            return Err(Error::BadRequest);
+            return Err(Error::MessageTooManyRecipients);
         }
 
         for recipient_user_id in recipients.iter() {
@@ -350,11 +350,11 @@ impl MessageService {
             // For self-messages, we have two kinds of behavior.
             // If it was sent *only* to oneself, then there is not outbox message.
             // If it was sent to others in addition to oneself, then there *is* an outbox message.
-            tide::log::debug!("Self message, checking recipients list");
+            debug!("Self message, checking recipients list");
             (recipients.only_has(sender_id), true)
         } else {
             // For regular messages, then just mark the outbox.
-            tide::log::debug!("Regular message, marking outbox only");
+            debug!("Regular message, marking outbox only");
             (true, false)
         };
 
@@ -379,9 +379,7 @@ impl MessageService {
         user_id: i64,
         value: bool,
     ) -> Result<()> {
-        tide::log::info!(
-            "Setting message read status for {record_id} / {user_id}: {value}",
-        );
+        info!("Setting message read status for {record_id} / {user_id}: {value}",);
 
         let txn = ctx.transaction();
         let message = Self::get_message(ctx, record_id, user_id).await?;
@@ -420,7 +418,7 @@ impl MessageService {
         record_id: &str,
         user_id: i64,
     ) -> Result<MessageModel> {
-        find_or_error(Self::get_message_optional(ctx, record_id, user_id)).await
+        find_or_error!(Self::get_message_optional(ctx, record_id, user_id), Message)
     }
 
     pub async fn get_record_optional(
@@ -453,7 +451,7 @@ impl MessageService {
         ctx: &ServiceContext<'_>,
         draft_id: &str,
     ) -> Result<MessageDraftModel> {
-        find_or_error(Self::get_draft_optional(ctx, draft_id)).await
+        find_or_error!(Self::get_draft_optional(ctx, draft_id), MessageDraft)
     }
 
     // Helper methods
@@ -470,13 +468,11 @@ impl MessageService {
             // NOTE: Because recipient lists are generally short, well under 100,
             //       there are no practical issues with using Vec over HashSet.
             if added_user_ids.contains(&user_id) {
-                tide::log::debug!("Skipping message recipient (already added)");
+                debug!("Skipping message recipient (already added)");
                 continue;
             }
 
-            tide::log::debug!(
-                "Adding message recipient {recipient_type:?} with ID {user_id}",
-            );
+            debug!("Adding message recipient {recipient_type:?} with ID {user_id}",);
 
             let model = message_recipient::ActiveModel {
                 record_id: Set(str!(record_id)),
@@ -509,11 +505,9 @@ impl MessageService {
         let record = match Self::get_record_optional(ctx, record_id).await? {
             Some(record) => record,
             None => {
-                tide::log::error!(
-                    "The {purpose} message record does not exist: {record_id}",
-                );
+                error!("The {purpose} message record does not exist: {record_id}",);
 
-                return Err(Error::BadRequest);
+                return Err(Error::MessageNotFound);
             }
         };
 
@@ -522,11 +516,11 @@ impl MessageService {
         if record.sender_id != user_id
             && Self::any_recipient_exists(ctx, record_id, user_id).await?
         {
-            tide::log::error!(
-                "User ID {user_id} is not a sender or recipient of the {purpose}",
-            );
+            error!("User ID {user_id} is not a sender or recipient of the {purpose}",);
 
-            return Err(Error::BadRequest);
+            // To protect privacy, if the user doesn't have access to a message with a
+            // given ID, we pretend it does not exist for the purposes of returning errors.
+            return Err(Error::MessageNotFound);
         }
 
         Ok(())
@@ -538,9 +532,7 @@ impl MessageService {
         record_id: &str,
         user_id: i64,
     ) -> Result<bool> {
-        tide::log::info!(
-            "Checking if user ID {user_id} is a recipient of record ID {record_id}",
-        );
+        info!("Checking if user ID {user_id} is a recipient of record ID {record_id}",);
 
         let txn = ctx.transaction();
         let model = MessageRecipient::find()
@@ -561,7 +553,7 @@ impl MessageService {
         wikitext: String,
         user_locale: &str,
     ) -> Result<RenderOutput> {
-        tide::log::info!("Rendering message wikitext ({} bytes)", wikitext.len());
+        info!("Rendering message wikitext ({} bytes)", wikitext.len());
 
         let settings = WikitextSettings::from_mode(WikitextMode::DirectMessage);
         let page_info = PageInfo {

@@ -25,12 +25,12 @@ pub struct EmailService;
 
 impl EmailService {
     /// Validates an email through the MailCheck API.
-    pub fn validate(email: &str) -> Result<EmailValidationOutput> {
-        let url = format!("https://api.mailcheck.ai/email/{email}");
-        tide::log::debug!("Requesting mailcheck status: {url}");
-
-        // Send a GET request to the MailCheck API and deserialize the response.
-        let mailcheck = ureq::get(&url).call()?.into_json::<MailCheckResponse>()?;
+    pub async fn validate(email: &str) -> Result<EmailValidationOutput> {
+        // Sends a GET request to the MailCheck API and deserializes the response.
+        let mailcheck = reqwest::get(format!("https://api.mailcheck.ai/email/{email}"))
+            .await?
+            .json::<MailCheckResponse>()
+            .await?;
 
         // Create the output with default parameters.
         let mut output = EmailValidationOutput::default();
@@ -42,25 +42,24 @@ impl EmailService {
 
             // Invalid request.
             400 => {
-                tide::log::error!(
+                error!(
                     "MailCheck API request failed with bad response: {:?}",
                     mailcheck.error,
                 );
-                return Err(Error::BadRequest);
+                return Err(Error::EmailVerification(mailcheck.error));
             }
 
             // Exceeded rate limit.
             429 => {
-                tide::log::error!("MailCheck API hit ratelimit: {:?}", mailcheck.error,);
+                error!("MailCheck API hit ratelimit: {:?}", mailcheck.error);
                 return Err(Error::RateLimited);
             }
 
             // Other statuses.
             _ => {
-                tide::log::warn!(
+                warn!(
                     "MailCheck API returned status {}: {:?}",
-                    mailcheck.status,
-                    mailcheck.error,
+                    mailcheck.status, mailcheck.error,
                 );
             }
         }

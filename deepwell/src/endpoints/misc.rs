@@ -21,14 +21,17 @@
 use super::prelude::*;
 use crate::info;
 use sea_orm::{ConnectionTrait, DatabaseBackend, Statement};
+use std::path::PathBuf;
 use wikidot_normalize::normalize;
 
-pub async fn ping(req: ApiRequest) -> ApiResponse {
-    tide::log::info!("Ping request");
+pub async fn ping(
+    ctx: &ServiceContext<'_>,
+    _params: Params<'static>,
+) -> Result<&'static str> {
+    info!("Ping request");
 
     // Ensure the database is connected
-    req.state()
-        .database
+    ctx.transaction()
         .execute(Statement::from_string(
             DatabaseBackend::Postgres,
             str!("SELECT 1"),
@@ -36,44 +39,65 @@ pub async fn ping(req: ApiRequest) -> ApiResponse {
         .await?;
 
     // Seems good, respond to user
-    Ok("Pong!".into())
+    Ok("Pong!")
 }
 
-pub async fn version(_: ApiRequest) -> ApiResponse {
-    tide::log::info!("Getting DEEPWELL version");
-    Ok(info::VERSION.as_str().into())
+/// Method which always returns an error.
+/// For testing.
+pub async fn yield_error(
+    _ctx: &ServiceContext<'_>,
+    _params: Params<'static>,
+) -> Result<()> {
+    info!("Returning DEEPWELL error for testing");
+    Err(ServiceError::BadRequest)
 }
 
-pub async fn full_version(_: ApiRequest) -> ApiResponse {
-    tide::log::info!("Getting DEEPWELL version (full)");
-    Ok(info::FULL_VERSION.as_str().into())
+pub async fn version(
+    _ctx: &ServiceContext<'_>,
+    _params: Params<'static>,
+) -> Result<&'static str> {
+    info!("Getting DEEPWELL version");
+    Ok(info::VERSION.as_str())
 }
 
-pub async fn hostname(_: ApiRequest) -> ApiResponse {
-    tide::log::info!("Getting DEEPWELL hostname");
-    Ok(info::HOSTNAME.as_str().into())
+pub async fn full_version(
+    _ctx: &ServiceContext<'_>,
+    _params: Params<'static>,
+) -> Result<&'static str> {
+    info!("Getting DEEPWELL version (full)");
+    Ok(info::FULL_VERSION.as_str())
 }
 
-pub async fn config_dump(req: ApiRequest) -> ApiResponse {
-    tide::log::info!("Dumping raw DEEPWELL configuration for debugging");
-    let toml_config = &req.state().config.raw_toml;
-    let mut body = Body::from_string(str!(toml_config));
-    body.set_mime("text/toml;charset=utf-8");
-    Ok(body.into())
+pub async fn hostname(
+    _ctx: &ServiceContext<'_>,
+    _params: Params<'static>,
+) -> Result<&'static str> {
+    info!("Getting DEEPWELL hostname");
+    Ok(info::HOSTNAME.as_str())
 }
 
-pub async fn config_path(req: ApiRequest) -> ApiResponse {
-    tide::log::info!("Dumping DEEPWELL configuration path for debugging");
-    let toml_path = &req.state().config.raw_toml_path;
-    let body = Body::from_string(toml_path.display().to_string());
-    Ok(body.into())
+pub async fn config_dump(
+    ctx: &ServiceContext<'_>,
+    _params: Params<'static>,
+) -> Result<String> {
+    info!("Dumping raw DEEPWELL configuration for debugging");
+    Ok(ctx.config().raw_toml.to_string())
 }
 
-pub async fn normalize_method(req: ApiRequest) -> ApiResponse {
-    let input = req.param("input")?;
-    tide::log::info!("Running normalize as utility web method: {input}");
+pub async fn config_path(
+    ctx: &ServiceContext<'_>,
+    _params: Params<'static>,
+) -> Result<PathBuf> {
+    info!("Dumping DEEPWELL configuration path for debugging");
+    Ok(ctx.config().raw_toml_path.to_path_buf())
+}
 
-    let mut value = str!(input);
+pub async fn normalize_method(
+    _ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<String> {
+    let mut value: String = params.one()?;
+    info!("Running normalize on string: {value:?}");
     normalize(&mut value);
-    Ok(value.into())
+    Ok(value)
 }

@@ -40,7 +40,14 @@ impl TextService {
         ctx: &ServiceContext<'_>,
         hash: &[u8],
     ) -> Result<Option<String>> {
-        assert_eq!(hash.len(), TEXT_HASH_LENGTH);
+        if hash.len() != TEXT_HASH_LENGTH {
+            error!(
+                "Text hash length does not match, should be {}, is {}",
+                TEXT_HASH_LENGTH,
+                hash.len(),
+            );
+            return Err(Error::BadRequest);
+        }
 
         let txn = ctx.transaction();
         let contents = Text::find()
@@ -54,7 +61,7 @@ impl TextService {
 
     #[inline]
     pub async fn get(ctx: &ServiceContext<'_>, hash: &[u8]) -> Result<String> {
-        find_or_error(Self::get_optional(ctx, hash)).await
+        find_or_error!(Self::get_optional(ctx, hash), Text)
     }
 
     #[inline]
@@ -149,7 +156,7 @@ impl TextService {
             .exec(txn)
             .await?;
 
-        tide::log::debug!("Pruned {rows_affected} unused text rows");
+        debug!("Pruned {rows_affected} unused text rows");
         Ok(())
     }
 }

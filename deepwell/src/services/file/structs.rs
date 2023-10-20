@@ -22,70 +22,44 @@ use crate::models::sea_orm_active_enums::FileRevisionType;
 use crate::services::file_revision::{
     CreateFileRevisionOutput, CreateFirstFileRevisionOutput,
 };
-use crate::web::{ProvidedValue, Reference};
+use crate::web::{Bytes, FileDetails, ProvidedValue, Reference};
 use serde_json::Value as JsonValue;
 use time::OffsetDateTime;
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct CreateFile {
-    pub revision_comments: String,
+#[derive(Deserialize, Debug, Clone)]
+pub struct UploadFile {
+    pub site_id: i64,
+    pub page_id: i64,
     pub name: String,
+    pub revision_comments: String,
     pub user_id: i64,
+    pub data: Bytes<'static>,
     pub licensing: JsonValue, // TODO
 
     #[serde(default)]
     pub bypass_filter: bool,
 }
 
-pub type CreateFileOutput = CreateFirstFileRevisionOutput;
+pub type UploadFileOutput = CreateFirstFileRevisionOutput;
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Deserialize, Debug, Clone)]
 pub struct GetFile<'a> {
     pub site_id: i64,
     pub page_id: i64,
     pub file: Reference<'a>,
 }
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct UpdateFile {
-    pub revision_comments: String,
-    pub user_id: i64,
-
+#[derive(Deserialize, Debug, Clone)]
+pub struct GetFileDetails<'a> {
     #[serde(flatten)]
-    pub body: UpdateFileBody,
+    pub input: GetFile<'a>,
 
     #[serde(default)]
-    pub bypass_filter: bool,
+    pub details: FileDetails,
 }
 
-#[derive(Deserialize, Debug, Default)]
-#[serde(rename_all = "camelCase", default)]
-pub struct UpdateFileBody {
-    pub name: ProvidedValue<String>,
-    pub data: ProvidedValue<Vec<u8>>,
-    pub licensing: ProvidedValue<serde_json::Value>,
-}
-
-pub type UpdateFileOutput = CreateFileRevisionOutput;
-
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct MoveFile {
-    pub revision_comments: String,
-    pub user_id: i64,
-    pub name: Option<String>,
-    pub current_page_id: i64,
-    pub destination_page_id: i64,
-}
-
-pub type MoveFileOutput = CreateFileRevisionOutput;
-
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct GetFileOutput<'a> {
+#[derive(Serialize, Debug, Clone)]
+pub struct GetFileOutput {
     pub file_id: i64,
     pub file_created_at: OffsetDateTime,
     pub file_updated_at: Option<OffsetDateTime>,
@@ -96,41 +70,81 @@ pub struct GetFileOutput<'a> {
     pub revision_created_at: OffsetDateTime,
     pub revision_number: i32,
     pub revision_user_id: i64,
-    pub name: &'a str,
-    pub data: Option<Vec<u8>>,
-    pub mime: &'a str,
+    pub name: String,
+    pub data: Option<Bytes<'static>>,
+    pub mime: String,
     pub size: i64,
-    pub licensing: &'a JsonValue,
-    pub revision_comments: &'a str,
-    pub hidden_fields: &'a [String],
+    pub licensing: JsonValue,
+    pub revision_comments: String,
+    pub hidden_fields: Vec<String>,
 }
 
-#[derive(Debug)]
-pub struct DeleteFile {
+#[derive(Deserialize, Debug, Clone)]
+pub struct EditFile {
+    pub site_id: i64,
+    pub page_id: i64,
+    pub file_id: i64,
+    pub user_id: i64,
+    pub revision_comments: String,
+
+    #[serde(flatten)]
+    pub body: EditFileBody,
+
+    #[serde(default)]
+    pub bypass_filter: bool,
+}
+
+#[derive(Deserialize, Debug, Default, Clone)]
+#[serde(default)]
+pub struct EditFileBody {
+    pub name: ProvidedValue<String>,
+    pub data: ProvidedValue<Bytes<'static>>,
+    pub licensing: ProvidedValue<serde_json::Value>,
+}
+
+pub type EditFileOutput = CreateFileRevisionOutput;
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct MoveFile {
     pub revision_comments: String,
     pub site_id: i64,
+    pub file_id: i64,
+    pub user_id: i64,
+    pub name: Option<String>,
+    pub current_page_id: i64,
+    pub destination_page_id: i64,
+}
+
+pub type MoveFileOutput = CreateFileRevisionOutput;
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct DeleteFile<'a> {
+    pub revision_comments: String,
+    pub site_id: i64,
+    pub page_id: i64,
+    pub file: Reference<'a>,
     pub user_id: i64,
 }
 
-#[derive(Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct RestoreFile {
     pub revision_comments: String,
     pub new_page_id: Option<i64>,
     pub new_name: Option<String>,
     pub site_id: i64,
+    pub page_id: i64,
+    pub file_id: i64,
     pub user_id: i64,
 }
 
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Serialize, Debug, Clone)]
 pub struct DeleteFileOutput {
     pub file_id: i64,
     pub file_revision_id: i64,
     pub file_revision_number: i32,
 }
 
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Serialize, Debug, Clone)]
 pub struct RestoreFileOutput {
     pub page_id: i64,
     pub file_id: i64,

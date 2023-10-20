@@ -1,6 +1,6 @@
 // Wrapper around fetch() to provide timeouts.
 
-export const DEFAULT_TIMEOUT = 2000
+export const DEFAULT_TIMEOUT = 1500
 
 export function wjfetch(url, options = {}) {
   let timeout = DEFAULT_TIMEOUT

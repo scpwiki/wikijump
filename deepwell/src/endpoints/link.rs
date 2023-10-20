@@ -20,95 +20,69 @@
 
 use super::prelude::*;
 use crate::services::link::{
-    GetLinksExternalFrom, GetLinksExternalTo, GetLinksFrom, GetLinksTo, GetLinksToMissing,
+    GetLinksExternalFrom, GetLinksExternalFromOutput, GetLinksExternalTo,
+    GetLinksExternalToOutput, GetLinksFrom, GetLinksFromOutput, GetLinksTo,
+    GetLinksToMissing, GetLinksToMissingOutput, GetLinksToOutput,
 };
 
-pub async fn page_links_from_retrieve(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
+pub async fn page_links_from_get(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<GetLinksFromOutput> {
     let GetLinksFrom {
         site_id,
         page: reference,
-    } = req.body_json().await?;
+    } = params.parse()?;
 
-    tide::log::info!("Getting page links for page {reference:?} in site ID {site_id}");
-
-    let page_id = PageService::get_id(&ctx, site_id, reference).await?;
-    let output = LinkService::get_from(&ctx, page_id).await?;
-    let body = Body::from_json(&output)?;
-    txn.commit().await?;
-
-    Ok(body.into())
+    info!("Getting page links for page {reference:?} in site ID {site_id}");
+    let page_id = PageService::get_id(ctx, site_id, reference).await?;
+    LinkService::get_from(ctx, page_id).await
 }
 
-pub async fn page_links_to_retrieve(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
+pub async fn page_links_to_get(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<GetLinksToOutput> {
     let GetLinksTo {
         site_id,
         page: reference,
-    } = req.body_json().await?;
+    } = params.parse()?;
 
-    tide::log::info!("Getting page links from page {reference:?} in site ID {site_id}");
-
-    let page_id = PageService::get_id(&ctx, site_id, reference).await?;
-    let output = LinkService::get_to(&ctx, page_id, None).await?;
-
-    let body = Body::from_json(&output)?;
-    txn.commit().await?;
-    Ok(body.into())
+    info!("Getting page links from page {reference:?} in site ID {site_id}");
+    let page_id = PageService::get_id(ctx, site_id, reference).await?;
+    LinkService::get_to(ctx, page_id, None).await
 }
 
-pub async fn page_links_to_missing_retrieve(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+pub async fn page_links_to_missing_get(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<GetLinksToMissingOutput> {
+    let GetLinksToMissing { site_id, page_slug } = params.parse()?;
+    info!("Getting missing page links from page slug {page_slug} in site ID {site_id}",);
 
-    let GetLinksToMissing { site_id, page_slug } = req.body_json().await?;
-    tide::log::info!(
-        "Getting missing page links from page slug {page_slug} in site ID {site_id}",
-    );
-
-    let output = LinkService::get_to_missing(&ctx, site_id, &page_slug, None).await?;
-
-    let body = Body::from_json(&output)?;
-    txn.commit().await?;
-    Ok(body.into())
+    LinkService::get_to_missing(ctx, site_id, &page_slug, None).await
 }
 
-pub async fn page_links_external_from(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
+pub async fn page_links_external_from(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<GetLinksExternalFromOutput> {
     let GetLinksExternalFrom {
         site_id,
         page: reference,
-    } = req.body_json().await?;
+    } = params.parse()?;
 
-    tide::log::info!(
-        "Getting external links from page {reference:?} in site ID {site_id}",
-    );
+    info!("Getting external links from page {reference:?} in site ID {site_id}",);
 
-    let page_id = PageService::get_id(&ctx, site_id, reference).await?;
-
-    let output = LinkService::get_external_from(&ctx, page_id).await?;
-
-    let body = Body::from_json(&output)?;
-    txn.commit().await?;
-    Ok(body.into())
+    let page_id = PageService::get_id(ctx, site_id, reference).await?;
+    LinkService::get_external_from(ctx, page_id).await
 }
 
-pub async fn page_links_external_to(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
-
-    let GetLinksExternalTo { site_id, url } = req.body_json().await?;
-    tide::log::info!("Getting external links to URL {url} in site ID {site_id}");
-
-    let output = LinkService::get_external_to(&ctx, site_id, &url).await?;
-
-    let body = Body::from_json(&output)?;
-    txn.commit().await?;
-    Ok(body.into())
+pub async fn page_links_external_to(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<GetLinksExternalToOutput> {
+    let GetLinksExternalTo { site_id, url } = params.parse()?;
+    info!("Getting external links to URL {url} in site ID {site_id}");
+    LinkService::get_external_to(ctx, site_id, &url).await
 }

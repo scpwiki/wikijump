@@ -38,7 +38,7 @@ pub fn generate_totp_secret() -> String {
     }
 }
 
-#[derive(Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub struct RecoveryCodes {
     pub recovery_codes: Vec<String>,
     pub recovery_codes_hashed: Vec<String>,
@@ -69,7 +69,7 @@ impl RecoveryCodes {
             let mut hashes = Vec::new();
 
             for code in &recovery_codes {
-                tide::log::debug!("Hashing recovery code");
+                debug!("Hashing recovery code");
                 let hash = PasswordService::new_hash(code)?;
                 hashes.push(hash);
             }
@@ -84,22 +84,19 @@ impl RecoveryCodes {
     }
 }
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Deserialize, Debug, Clone)]
 pub struct MultiFactorConfigure {
     pub user_id: i64,
     pub session_token: String,
 }
 
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Serialize, Debug, Clone)]
 pub struct MultiFactorSetupOutput {
     pub totp_secret: String,
     pub recovery_codes: Vec<String>,
 }
 
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Serialize, Debug, Clone)]
 pub struct MultiFactorResetOutput {
     pub recovery_codes: Vec<String>,
 }

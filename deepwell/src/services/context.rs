@@ -18,29 +18,27 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::api::{ApiRequest, ApiServerState};
+use crate::api::ServerState;
 use crate::config::Config;
 use crate::locales::Localizations;
+use crate::services::blob::MimeAnalyzer;
+use crate::services::job::JobQueue;
 use s3::bucket::Bucket;
 use sea_orm::DatabaseTransaction;
 use std::sync::Arc;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ServiceContext<'txn> {
-    state: ApiServerState,
+    state: ServerState,
     transaction: &'txn DatabaseTransaction,
 }
 
 impl<'txn> ServiceContext<'txn> {
-    #[inline]
-    pub fn new(req: &ApiRequest, transaction: &'txn DatabaseTransaction) -> Self {
-        Self::from_raw(req.state(), transaction)
-    }
-
-    pub fn from_raw(
-        state: &ApiServerState,
-        transaction: &'txn DatabaseTransaction,
-    ) -> Self {
+    // NOTE: It is the responsibility of the caller to manage commit / rollback
+    //       for transactions.
+    //
+    //       For our endpoints, this is managed in the wrapper macro in api.rs
+    pub fn new(state: &ServerState, transaction: &'txn DatabaseTransaction) -> Self {
         ServiceContext {
             state: Arc::clone(state),
             transaction,
@@ -56,6 +54,16 @@ impl<'txn> ServiceContext<'txn> {
     #[inline]
     pub fn localization(&self) -> &Localizations {
         &self.state.localizations
+    }
+
+    #[inline]
+    pub fn mime(&self) -> &MimeAnalyzer {
+        &self.state.mime_analyzer
+    }
+
+    #[inline]
+    pub fn job_queue(&self) -> &JobQueue {
+        &self.state.job_queue
     }
 
     #[inline]

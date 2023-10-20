@@ -80,9 +80,9 @@ impl OutdateService {
     ///
     /// Finds the most recent revision for each of the given `(site_id, page_id)`
     /// pairs passed in.
-    pub fn outdate<I: IntoIterator<Item = (i64, i64)>>(ids: I) {
+    pub fn outdate<I: IntoIterator<Item = (i64, i64)>>(ctx: &ServiceContext<'_>, ids: I) {
         for (site_id, page_id) in ids {
-            JobService::queue_rerender_page(site_id, page_id);
+            JobService::queue_rerender_page(ctx.job_queue(), site_id, page_id);
         }
     }
 
@@ -101,7 +101,7 @@ impl OutdateService {
             .filter(|&(_, to_page_id)| to_page_id != page_id)
             .collect::<Vec<_>>();
 
-        Self::outdate(ids);
+        Self::outdate(ctx, ids);
         Ok(())
     }
 
@@ -124,7 +124,7 @@ impl OutdateService {
             .filter(|&(_, to_page_id)| to_page_id != page_id)
             .collect::<Vec<_>>();
 
-        Self::outdate(ids);
+        Self::outdate(ctx, ids);
         Ok(())
     }
 
@@ -160,7 +160,7 @@ impl OutdateService {
             .map(|model| (model.site_id, model.page_id))
             .collect::<Vec<_>>();
 
-            Self::outdate(ids);
+            Self::outdate(ctx, ids);
         }
 
         Ok(())

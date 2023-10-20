@@ -40,6 +40,44 @@ macro_rules! impl_interaction {
                         $dest_name,
                         $from_name,
                     }: [<Get $interaction_type>],
+                ) -> Result<InteractionModel> {
+                    Self::get(
+                        ctx,
+                        InteractionReference::Relationship {
+                            interaction_type: InteractionType::$interaction_type,
+                            dest: InteractionObject::$dest_type($dest_name),
+                            from: InteractionObject::$from_type($from_name),
+                        },
+                    )
+                    .await
+                }
+
+                #[allow(dead_code)] // TEMP
+                pub async fn [<get_optional_ $interaction_type:snake>](
+                    ctx: &ServiceContext<'_>,
+                    [<Get $interaction_type>] {
+                        $dest_name,
+                        $from_name,
+                    }: [<Get $interaction_type>],
+                ) -> Result<Option<InteractionModel>> {
+                    Self::get_optional(
+                        ctx,
+                        InteractionReference::Relationship {
+                            interaction_type: InteractionType::$interaction_type,
+                            dest: InteractionObject::$dest_type($dest_name),
+                            from: InteractionObject::$from_type($from_name),
+                        },
+                    )
+                    .await
+                }
+
+                #[allow(dead_code)] // TEMP
+                pub async fn [<$interaction_type:snake _exists>](
+                    ctx: &ServiceContext<'_>,
+                    [<Get $interaction_type>] {
+                        $dest_name,
+                        $from_name,
+                    }: [<Get $interaction_type>],
                 ) -> Result<bool> {
                     Self::exists(
                         ctx,
@@ -115,7 +153,6 @@ macro_rules! impl_interaction {
             //
             //       Properly fixing this will likely require a proc-macro. Which is annoying.
             #[derive(Deserialize, Debug, Clone)]
-            #[serde(rename_all = "camelCase")]
             pub struct [<Create $interaction_type>] {
                 pub $dest_name: i64,
                 pub $from_name: i64,
@@ -124,14 +161,12 @@ macro_rules! impl_interaction {
             }
 
             #[derive(Deserialize, Debug, Copy, Clone)]
-            #[serde(rename_all = "camelCase")]
             pub struct [<Get $interaction_type>] {
                 pub $dest_name: i64,
                 pub $from_name: i64,
             }
 
             #[derive(Deserialize, Debug, Copy, Clone)]
-            #[serde(rename_all = "camelCase")]
             pub struct [<Remove $interaction_type>] {
                 pub $dest_name: i64,
                 pub $from_name: i64,
@@ -187,6 +222,7 @@ macro_rules! impl_interaction {
     };
 }
 
+// TODO: change to create-or-edit kind of thing?
 /// Macro which runs the actual `create()` call for the interaction.
 macro_rules! create_operation {
     (

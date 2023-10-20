@@ -1,23 +1,23 @@
 // TODO refactor into proper TS service
 
-import { wjfetch } from "$lib/fetch.ts"
+import { JSONRPCClient, JSONRPCRequest } from "json-rpc-2.0"
 
-const DEEPWELL_HOST = process.env.DEEPWELL_HOST || "localhost"
-const DEEPWELL_PORT = 2747
-const DEEPWELL_ROUTE = `http://${DEEPWELL_HOST}:${DEEPWELL_PORT}/api/trusted`
+export const DEEPWELL_HOST = process.env.DEEPWELL_HOST || "localhost"
+export const DEEPWELL_PORT = 2747
+export const DEEPWELL_URL = `http://${DEEPWELL_HOST}:${DEEPWELL_PORT}/jsonrpc`
+export const client = new JSONRPCClient(processRawRequest)
 
-export function wellfetch(path, options = {}) {
-  if (!path.startsWith("/")) {
-    throw new Error(`DEEPWELL path does not start with /: ${path}`)
-  }
+async function processRawRequest(request: JSONRPCRequest): Promise<void> {
+  const response = await fetch(DEEPWELL_URL, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(request)
+  })
 
-  const url = `${DEEPWELL_ROUTE}${path}`
-  return wjfetch(url, options)
+  const data = await response.json()
+  client.receive(data)
 }
 
 export async function ping(): void {
-  const response = await wellfetch("/ping")
-  if (!response.ok) {
-    throw new Error("Cannot ping DEEPWELL!")
-  }
+  await client.request("ping")
 }

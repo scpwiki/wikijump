@@ -58,6 +58,7 @@ impl InteractionService {
             },
         )
         .await?;
+        // TODO: remove site member applications
         // TODO: remove site roles
 
         create_operation!(
@@ -71,12 +72,10 @@ impl InteractionService {
         body: GetSiteBan,
         action: &str,
     ) -> Result<()> {
-        if Self::get_site_ban(ctx, body).await? {
-            tide::log::error!(
+        if Self::site_ban_exists(ctx, body).await? {
+            error!(
                 "User ID {} cannot {} site ID {} because they are banned",
-                body.user_id,
-                action,
-                body.site_id,
+                body.user_id, action, body.site_id,
             );
 
             return Err(Error::SiteBlockedUser);

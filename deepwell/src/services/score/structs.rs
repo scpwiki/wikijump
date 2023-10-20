@@ -23,7 +23,6 @@ use std::collections::BTreeMap;
 pub use crate::services::vote::VoteValue;
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
-#[serde(rename_all = "camelCase")]
 #[non_exhaustive]
 pub enum VoteType {
     UpsDowns,
@@ -31,7 +30,6 @@ pub enum VoteType {
 }
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
-#[serde(rename_all = "camelCase")]
 pub enum ScoreType {
     Null,
     Sum,

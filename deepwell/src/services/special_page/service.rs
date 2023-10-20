@@ -41,7 +41,7 @@ impl SpecialPageService {
         locale: &LanguageIdentifier,
         page_info: PageInfo<'_>,
     ) -> Result<GetSpecialPageOutput> {
-        tide::log::info!(
+        info!(
             "Getting special page {sp_page_type:?} for site ID {}",
             site.site_id,
         );
@@ -127,7 +127,7 @@ impl SpecialPageService {
         locale: &LanguageIdentifier,
         page_info: &PageInfo<'_>,
     ) -> Result<String> {
-        tide::log::debug!("Getting wikitext for special page, {} slugs", slugs.len());
+        debug!("Getting wikitext for special page, {} slugs", slugs.len());
         debug_assert!(
             !slugs.is_empty(),
             "No slugs to check for special page existence",

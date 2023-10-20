@@ -22,10 +22,10 @@ use super::prelude::*;
 use crate::models::alias::Model as AliasModel;
 use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user::Model as UserModel;
+use crate::web::Bytes;
 use time::Date;
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Deserialize, Debug, Clone)]
 pub struct CreateUser {
     pub user_type: UserType,
     pub name: String,
@@ -39,29 +39,25 @@ pub struct CreateUser {
     pub bypass_email_verification: bool,
 }
 
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Serialize, Debug, Clone)]
 pub struct CreateUserOutput {
     pub user_id: i64,
     pub slug: String,
 }
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Deserialize, Debug, Clone)]
 pub struct GetUser<'a> {
     pub user: Reference<'a>,
 }
 
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Serialize, Debug, Clone)]
 pub struct GetUserOutput {
     #[serde(flatten)]
     pub user: UserModel,
     pub aliases: Vec<AliasModel>,
 }
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Deserialize, Debug, Clone)]
 pub struct UpdateUser<'a> {
     pub user: Reference<'a>,
 
@@ -69,15 +65,15 @@ pub struct UpdateUser<'a> {
     pub body: UpdateUserBody,
 }
 
-#[derive(Deserialize, Debug, Default)]
-#[serde(rename_all = "camelCase", default)]
+#[derive(Deserialize, Debug, Default, Clone)]
+#[serde(default)]
 pub struct UpdateUserBody {
     pub name: ProvidedValue<String>,
     pub email: ProvidedValue<String>,
     pub email_verified: ProvidedValue<bool>,
     pub password: ProvidedValue<String>,
     pub locale: ProvidedValue<String>,
-    pub avatar: ProvidedValue<Option<Vec<u8>>>,
+    pub avatar: ProvidedValue<Option<Bytes<'static>>>,
     pub real_name: ProvidedValue<Option<String>>,
     pub gender: ProvidedValue<Option<String>>,
     pub birthday: ProvidedValue<Option<Date>>,

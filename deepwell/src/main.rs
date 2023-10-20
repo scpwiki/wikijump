@@ -22,7 +22,10 @@
 #![deny(missing_debug_implementations)]
 #![allow(clippy::large_enum_variant)]
 
-//! A web server to expose Wikijump operations via an internal REST API.
+//! A server to expose Wikijump operations via an internal JSON RPC API.
+
+#[macro_use]
+extern crate log;
 
 #[macro_use]
 extern crate futures;
@@ -62,20 +65,19 @@ use std::fs::File;
 use std::io::Write;
 use std::process;
 
-#[async_std::main]
+#[tokio::main]
 async fn main() -> Result<()> {
     // Load the configuration so we can set up
     let SetupConfig { secrets, config } = SetupConfig::load();
 
     // Copy fields we need
-    let socket_address = config.address;
     let run_migrations = config.run_migrations;
     let run_seeder = config.run_seeder;
 
     // Configure the logger
     if config.logger {
-        tide::log::with_level(config.logger_level);
-        tide::log::info!("Loaded server configuration:");
+        femme::with_level(config.logger_level);
+        info!("Loaded server configuration:");
         config.log();
 
         color_backtrace::install();
@@ -83,7 +85,7 @@ async fn main() -> Result<()> {
 
     // Write PID file, if enabled
     if let Some(ref path) = config.pid_file {
-        tide::log::info!(
+        info!(
             "Writing process ID ({}) to {}",
             process::id(),
             path.display(),
@@ -102,7 +104,7 @@ async fn main() -> Result<()> {
             if #[cfg(feature = "watch")] {
                 _watcher = setup_autorestart(&config)?;
             } else {
-                tide::log::error!("The --watch-files option requires the 'watch' feature");
+                error!("The --watch-files option requires the 'watch' feature");
                 process::exit(1);
             }
         }
@@ -122,9 +124,8 @@ async fn main() -> Result<()> {
     }
 
     // Build and run server
-    tide::log::info!("Building server and listening...");
-    let app = api::build_server(app_state);
-    app.listen(socket_address).await?;
-
+    info!("Building server and listening...");
+    let server = api::build_server(app_state).await?;
+    server.stopped().await;
     Ok(())
 }

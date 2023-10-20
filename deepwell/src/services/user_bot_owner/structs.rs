@@ -21,8 +21,7 @@
 use crate::models::user::Model as UserModel;
 use crate::web::Reference;
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Deserialize, Debug, Clone)]
 pub struct CreateBotUser {
     pub name: String,
     pub email: String,
@@ -39,36 +38,36 @@ pub struct CreateBotUser {
                                      //         S: create a site
 }
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Deserialize, Debug, Clone)]
 pub struct CreateBotOwner<'a> {
     pub bot: Reference<'a>,
     pub human: Reference<'a>,
     pub description: String,
 }
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct DeleteBotOwner<'a> {
+#[derive(Deserialize, Debug, Clone)]
+pub struct RemoveBotOwner<'a> {
     pub bot: Reference<'a>,
     pub human: Reference<'a>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Serialize, Debug, Clone)]
+pub struct RemoveBotOwnerOutput {
+    pub was_deleted: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct BotOwner {
     pub user_id: i64,
     pub description: String,
 }
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Deserialize, Debug, Clone)]
 pub struct CreateBotOwnerBody {
     pub description: String,
 }
 
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Serialize, Debug, Clone)]
 pub struct BotUserOutput {
     pub user: UserModel,
     pub owners: Vec<BotOwner>,

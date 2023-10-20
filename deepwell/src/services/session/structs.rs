@@ -22,7 +22,6 @@ use crate::models::session::Model as SessionModel;
 use std::net::IpAddr;
 
 #[derive(Deserialize, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
 pub struct CreateSession {
     pub user_id: i64,
     pub ip_address: IpAddr,
@@ -31,7 +30,6 @@ pub struct CreateSession {
 }
 
 #[derive(Deserialize, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
 pub struct RenewSession {
     pub old_session_token: String,
     pub user_id: i64,
@@ -42,14 +40,12 @@ pub struct RenewSession {
 pub type GetOtherSessions = InvalidateOtherSessions;
 
 #[derive(Serialize, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
 pub struct GetOtherSessionsOutput {
     pub current: SessionModel,
     pub others: Vec<SessionModel>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
 pub struct InvalidateOtherSessions {
     pub session_token: String,
     pub user_id: i64,

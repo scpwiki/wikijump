@@ -19,121 +19,112 @@
  */
 
 use super::prelude::*;
-use crate::api::ApiServerState;
+use crate::api::ServerState;
 use crate::services::{PageRevisionService, SessionService, TextService};
-use async_std::task;
-use crossfire::mpsc;
-use once_cell::sync::Lazy;
 use sea_orm::TransactionTrait;
-use std::convert::Infallible;
-use std::sync::Arc;
+use tokio::sync::{mpsc, oneshot};
+use tokio::{task, time};
 
-static QUEUE: Lazy<(mpsc::TxUnbounded<Job>, mpsc::RxUnbounded<Job>)> =
-    Lazy::new(mpsc::unbounded_future);
+type RequestSender = mpsc::UnboundedSender<Job>;
+type RequestReceiver = mpsc::UnboundedReceiver<Job>;
 
-macro_rules! sink {
-    () => {
-        QUEUE.0
-    };
-}
-
-macro_rules! source {
-    () => {
-        QUEUE.1
-    };
-}
+type StateSender = oneshot::Sender<ServerState>;
+type StateReceiver = oneshot::Receiver<ServerState>;
 
 #[derive(Debug)]
 pub struct JobService;
 
 impl JobService {
-    #[inline]
-    fn queue_job(job: Job) {
-        sink!().send(job).expect("Job channel has disconnected");
+    pub fn queue_rerender_page(queue: &JobQueue, site_id: i64, page_id: i64) {
+        debug!("Queueing page ID {page_id} in site ID {site_id} for rerendering",);
+        queue
+            .sink
+            .send(Job::RerenderPageId { site_id, page_id })
+            .expect("Job channel is closed");
     }
 
-    pub fn queue_rerender_page(site_id: i64, page_id: i64) {
-        tide::log::debug!(
-            "Queueing page ID {page_id} in site ID {site_id} for rerendering",
-        );
-
-        Self::queue_job(Job::RerenderPageId { site_id, page_id });
+    pub fn queue_prune_sessions(queue: &JobQueue) {
+        debug!("Queueing sessions list for pruning");
+        queue
+            .sink
+            .send(Job::PruneSessions)
+            .expect("Job channel is closed");
     }
 
-    pub fn queue_prune_sessions() {
-        tide::log::debug!("Queueing sessions list for pruning");
-        Self::queue_job(Job::PruneSessions);
-    }
-
-    pub fn queue_prune_text() {
-        tide::log::debug!("Queueing unused text for pruning");
-        Self::queue_job(Job::PruneText);
+    pub fn queue_prune_text(queue: &JobQueue) {
+        debug!("Queueing unused text for pruning");
+        queue
+            .sink
+            .send(Job::PruneText)
+            .expect("Job channel is closed");
     }
 }
 
-#[derive(Debug)]
-pub struct JobRunner {
-    state: ApiServerState,
+#[derive(Debug, Clone)]
+pub struct JobQueue {
+    sink: RequestSender,
 }
 
-impl JobRunner {
-    pub fn spawn(state: &ApiServerState) {
-        // Copy configuration fields
-        let session_prune_delay = state.config.job_prune_session_period;
-        let text_prune_delay = state.config.job_prune_text_period;
+impl JobQueue {
+    pub fn spawn(config: &Config) -> (Self, StateSender) {
+        // Create channels
+        let (sink, source) = mpsc::unbounded_channel();
+        let (state_sender, state_getter) = oneshot::channel();
+        let job_queue = JobQueue { sink };
+
+        // Copy fields for ancillary tasks
+        let session_prune_delay = config.job_prune_session_period;
+        let text_prune_delay = config.job_prune_text_period;
+        let job_queue_1 = job_queue.clone();
+        let job_queue_2 = job_queue.clone();
 
         // Main runner
-        let state = Arc::clone(state);
-        let runner = JobRunner { state };
-        task::spawn(runner.main_loop());
+        task::spawn(Self::main_loop(state_getter, source));
 
         // Ancillary tasks
         task::spawn(async move {
             loop {
-                tide::log::trace!("Running repeat job: prune expired sessions");
-                JobService::queue_prune_sessions();
-                task::sleep(session_prune_delay).await;
+                trace!("Running repeat job: prune expired sessions");
+                JobService::queue_prune_sessions(&job_queue_1);
+                time::sleep(session_prune_delay).await;
             }
         });
 
         task::spawn(async move {
             loop {
-                tide::log::trace!("Running repeat job: prune unused text rows");
-                JobService::queue_prune_text();
-                task::sleep(text_prune_delay).await;
+                trace!("Running repeat job: prune unused text rows");
+                JobService::queue_prune_text(&job_queue_2);
+                time::sleep(text_prune_delay).await;
             }
         });
 
         // TODO job that checks hourly for users who can get a name change token refill
         //      see config.refill_name_change
+
+        (job_queue, state_sender)
     }
 
-    async fn main_loop(mut self) -> Infallible {
-        tide::log::info!("Starting job runner");
+    async fn main_loop(state_getter: StateReceiver, mut source: RequestReceiver) {
+        info!("Waiting for server state (to start job runner)");
+        let state = state_getter.await.expect("Unable to get server state");
+        let delay = state.config.job_delay;
 
-        let delay = self.state.config.job_delay;
-        loop {
-            tide::log::trace!("Waiting for next job on queue...");
-            let job = source!()
-                .recv()
-                .await
-                .expect("Job channel has disconnected");
-
-            tide::log::debug!("Received new job item: {:?}", job);
-
-            match self.process_job(job).await {
-                Ok(()) => tide::log::debug!("Finished processing job"),
-                Err(error) => tide::log::warn!("Error processing job: {error}"),
+        info!("Starting job runner");
+        while let Some(job) = source.recv().await {
+            debug!("Received job from queue: {job:?}");
+            match Self::process_job(&state, job).await {
+                Ok(()) => debug!("Finished processing job"),
+                Err(error) => warn!("Error processing job: {error}"),
             }
 
-            tide::log::debug!("Estimated queue backlog: {} items", source!().len());
-            task::sleep(delay).await; // Sleep a bit to avoid overloading the database
+            trace!("Sleeping a bit to avoid overloading the database");
+            time::sleep(delay).await;
         }
     }
 
-    async fn process_job(&mut self, job: Job) -> Result<()> {
-        let txn = self.state.database.begin().await?;
-        let ctx = &ServiceContext::from_raw(&self.state, &txn);
+    async fn process_job(state: &ServerState, job: Job) -> Result<()> {
+        let txn = state.database.begin().await?;
+        let ctx = &ServiceContext::new(state, &txn);
 
         match job {
             Job::RerenderPageId { site_id, page_id } => {

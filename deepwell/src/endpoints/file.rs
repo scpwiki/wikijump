@@ -21,69 +21,137 @@
 use super::prelude::*;
 use crate::models::file::Model as FileModel;
 use crate::models::file_revision::Model as FileRevisionModel;
-use crate::services::file::{GetFile, GetFileOutput};
+use crate::services::file::{
+    DeleteFile, DeleteFileOutput, EditFile, EditFileOutput, GetFileDetails,
+    GetFileOutput, MoveFile, MoveFileOutput, RestoreFile, RestoreFileOutput, UploadFile,
+    UploadFileOutput,
+};
 use crate::services::Result;
-use crate::web::FileDetailsQuery;
+use crate::web::{Bytes, FileDetails};
 
-pub async fn file_retrieve(mut req: ApiRequest) -> ApiResponse {
-    let txn = req.database().begin().await?;
-    let ctx = ServiceContext::new(&req, &txn);
+pub async fn file_get(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<Option<GetFileOutput>> {
+    let GetFileDetails { input, details } = params.parse()?;
 
-    let details: FileDetailsQuery = req.query()?;
-    let GetFile {
-        site_id,
-        page_id,
-        file: file_reference,
-    } = req.body_json().await?;
-
-    tide::log::info!(
-        "Getting file {file_reference:?} from page ID {page_id} in site ID {site_id}",
+    info!(
+        "Getting file {:?} from page ID {} in site ID {}",
+        input.file, input.page_id, input.site_id,
     );
 
     // We cannot use get_id() because we need File for build_file_response().
-    let file = FileService::get(&ctx, page_id, file_reference).await?;
+    match FileService::get_optional(ctx, input).await? {
+        None => Ok(None),
+        Some(file) => {
+            let revision = FileRevisionService::get_latest(
+                ctx,
+                file.site_id,
+                file.page_id,
+                file.file_id,
+            )
+            .await?;
 
-    let revision = FileRevisionService::get_latest(&ctx, page_id, file.file_id).await?;
-
-    let response =
-        build_file_response(&ctx, &file, &revision, details, StatusCode::Ok).await?;
-
-    txn.commit().await?;
-    Ok(response)
+            let output = build_file_response(ctx, file, revision, details).await?;
+            Ok(Some(output))
+        }
+    }
 }
 
-pub async fn file_create(_req: ApiRequest) -> ApiResponse {
-    todo!()
+pub async fn file_upload(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<UploadFileOutput> {
+    let input: UploadFile = params.parse()?;
+
+    info!(
+        "Uploading file '{}' ({} bytes) to page ID {} in site ID {}",
+        input.name,
+        input.data.len(),
+        input.page_id,
+        input.site_id,
+    );
+
+    FileService::upload(ctx, input).await
 }
 
-pub async fn file_edit(_req: ApiRequest) -> ApiResponse {
-    todo!()
+pub async fn file_edit(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<Option<EditFileOutput>> {
+    let input: EditFile = params.parse()?;
+
+    info!(
+        "Editing file ID {} in page ID {} in site ID {}",
+        input.file_id, input.page_id, input.site_id,
+    );
+
+    FileService::edit(ctx, input).await
 }
 
-pub async fn file_delete(_req: ApiRequest) -> ApiResponse {
-    todo!()
+pub async fn file_delete(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<DeleteFileOutput> {
+    let input: DeleteFile = params.parse()?;
+
+    info!(
+        "Deleting file {:?} in page ID {} in site ID {}",
+        input.file, input.page_id, input.site_id,
+    );
+
+    FileService::delete(ctx, input).await
 }
 
-pub async fn file_move(_req: ApiRequest) -> ApiResponse {
-    todo!()
+pub async fn file_restore(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<RestoreFileOutput> {
+    let input: RestoreFile = params.parse()?;
+
+    info!(
+        "Restoring deleted file ID {} in page ID {} in site ID {}",
+        input.file_id, input.page_id, input.site_id,
+    );
+
+    FileService::restore(ctx, input).await
 }
 
-pub async fn file_restore(_req: ApiRequest) -> ApiResponse {
-    todo!()
+pub async fn file_move(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<Option<MoveFileOutput>> {
+    let input: MoveFile = params.parse()?;
+
+    info!(
+        "Moving file ID {} from page ID {} to page ID {} in site ID {}",
+        input.file_id, input.current_page_id, input.destination_page_id, input.site_id,
+    );
+
+    FileService::r#move(ctx, input).await
+}
+
+pub async fn file_hard_delete(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<()> {
+    let file_id: i64 = params.one()?;
+
+    info!(
+        "Hard deleting file ID {file_id} and all duplicates, including underlying data",
+    );
+
+    FileService::hard_delete_all(ctx, file_id).await
 }
 
 async fn build_file_response(
     ctx: &ServiceContext<'_>,
-    file: &FileModel,
-    revision: &FileRevisionModel,
-    details: FileDetailsQuery,
-    status: StatusCode,
-) -> Result<Response> {
-    // Get blob data, if requested
+    file: FileModel,
+    revision: FileRevisionModel,
+    details: FileDetails,
+) -> Result<GetFileOutput> {
     let data = BlobService::get_maybe(ctx, details.data, &revision.s3_hash).await?;
-
-    // Build result struct
-    let output = GetFileOutput {
+    Ok(GetFileOutput {
         file_id: file.file_id,
         file_created_at: file.created_at,
         file_updated_at: file.updated_at,
@@ -94,16 +162,12 @@ async fn build_file_response(
         revision_created_at: revision.created_at,
         revision_number: revision.revision_number,
         revision_user_id: revision.user_id,
-        name: &file.name,
-        data,
-        mime: &revision.mime_hint,
+        name: file.name,
+        data: data.map(Bytes::from),
+        mime: revision.mime_hint,
         size: revision.size_hint,
-        licensing: &revision.licensing,
-        revision_comments: &revision.comments,
-        hidden_fields: &revision.hidden,
-    };
-
-    let body = Body::from_json(&output)?;
-    let response = Response::builder(status).body(body).into();
-    Ok(response)
+        licensing: revision.licensing,
+        revision_comments: revision.comments,
+        hidden_fields: revision.hidden,
+    })
 }

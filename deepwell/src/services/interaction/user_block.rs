@@ -98,10 +98,10 @@ impl InteractionService {
             };
         }
 
-        if Self::get_user_block(ctx, obj!(user_id_1, user_id_2)).await?
-            || Self::get_user_block(ctx, obj!(user_id_2, user_id_1)).await?
+        if Self::user_block_exists(ctx, obj!(user_id_1, user_id_2)).await?
+            || Self::user_block_exists(ctx, obj!(user_id_2, user_id_1)).await?
         {
-            tide::log::error!("User ID {user_id_1} cannot {action} user ID {user_id_2} because there is a block");
+            error!("User ID {user_id_1} cannot {action} user ID {user_id_2} because there is a block");
             return Err(Error::UserBlockedUser);
         }
 

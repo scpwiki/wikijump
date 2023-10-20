@@ -21,7 +21,7 @@
 mod data;
 
 use self::data::{SeedData, SitePages};
-use crate::api::ApiServerState;
+use crate::api::ServerState;
 use crate::constants::{ADMIN_USER_ID, SYSTEM_USER_ID};
 use crate::models::sea_orm_active_enums::AliasType;
 use crate::services::alias::{AliasService, CreateAlias};
@@ -37,16 +37,16 @@ use sea_orm::{
 };
 use std::borrow::Cow;
 
-pub async fn seed(state: &ApiServerState) -> Result<()> {
-    tide::log::info!("Running seeder...");
+pub async fn seed(state: &ServerState) -> Result<()> {
+    info!("Running seeder...");
 
     // Set up context
     let txn = state.database.begin().await?;
-    let ctx = ServiceContext::from_raw(state, &txn);
+    let ctx = ServiceContext::new(state, &txn);
 
     // Ensure seeding has not already been done
     if UserService::exists(&ctx, Reference::from(ADMIN_USER_ID)).await? {
-        tide::log::info!("Seeding has already been done");
+        info!("Seeding has already been done");
         return Ok(());
     }
 
@@ -56,7 +56,7 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
     restart_sequence(&txn, "site_site_id_seq").await?;
 
     // Load seed data
-    tide::log::info!(
+    info!(
         "Loading seed data from {}",
         state.config.seeder_path.display(),
     );
@@ -71,7 +71,7 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
 
     // Seed user data
     for user in users {
-        tide::log::info!("Creating seed user '{}' (ID {})", user.name, user.id);
+        info!("Creating seed user '{}' (ID {})", user.name, user.id);
 
         // Create users
         let CreateUserOutput { user_id, slug } = UserService::create(
@@ -110,17 +110,17 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
         // by the "system" user, which may not have been created yet.
         user_aliases.push((user_id, user.aliases));
 
-        tide::log::debug!("User created with slug '{}'", slug);
+        debug!("User created with slug '{}'", slug);
         assert_eq!(user_id, user.id, "Specified user ID doesn't match created");
         assert_eq!(slug, user.slug, "Specified user slug doesn't match created");
     }
 
     // Seed user alias data
     for (user_id, aliases) in user_aliases {
-        tide::log::info!("Creating aliases for user ID {user_id}");
+        info!("Creating aliases for user ID {user_id}");
 
         for alias in aliases {
-            tide::log::info!("Creating user alias '{alias}'");
+            info!("Creating user alias '{alias}'");
 
             AliasService::create(
                 &ctx,
@@ -143,7 +143,7 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
         pages,
     } in site_pages
     {
-        tide::log::info!("Creating seed site '{}' (slug {})", site.name, site.slug);
+        info!("Creating seed site '{}' (slug {})", site.name, site.slug);
 
         let CreateSiteOutput { site_id, slug: _ } = SiteService::create(
             &ctx,
@@ -158,7 +158,7 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
         .await?;
 
         for site_alias in site_aliases {
-            tide::log::info!("Creating site alias '{}'", site_alias);
+            info!("Creating site alias '{}'", site_alias);
 
             AliasService::create(
                 &ctx,
@@ -174,7 +174,7 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
         }
 
         for page in pages {
-            tide::log::info!("Creating page '{}' (slug {})", page.title, page.slug);
+            info!("Creating page '{}' (slug {})", page.title, page.slug);
 
             PageService::create(
                 &ctx,
@@ -204,21 +204,17 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
                     SiteService::get(&ctx, Reference::Slug(slug)).await?
                 };
 
-                tide::log::info!(
+                info!(
                     "Creating site filter '{}' ('{}') for site '{}' (ID {})",
-                    filter.regex,
-                    filter.description,
-                    slug,
-                    site.site_id,
+                    filter.regex, filter.description, slug, site.site_id,
                 );
 
                 Some(site.site_id)
             }
             None => {
-                tide::log::info!(
+                info!(
                     "Creating platform filter '{}' ('{}')",
-                    filter.regex,
-                    filter.description,
+                    filter.regex, filter.description,
                 );
 
                 None
@@ -268,7 +264,7 @@ pub async fn seed(state: &ApiServerState) -> Result<()> {
      */
 
     txn.commit().await?;
-    tide::log::info!("Finished running seeder.");
+    info!("Finished running seeder.");
     Ok(())
 }
 
@@ -276,7 +272,7 @@ async fn restart_sequence(
     txn: &DatabaseTransaction,
     sequence_name: &'static str,
 ) -> Result<()> {
-    tide::log::debug!("Restarting sequence {sequence_name}");
+    debug!("Restarting sequence {sequence_name}");
 
     // SAFETY: We cannot parameterize the sequence name here, so we have to use format!()
     //         However, by requiring that sequence_name be &'static str, we ensure that it
@@ -290,9 +286,7 @@ async fn restart_sequence_with(
     sequence_name: &'static str,
     new_start_value: i64,
 ) -> Result<()> {
-    tide::log::debug!(
-        "Restarting sequence {sequence_name} to start with {new_start_value}",
-    );
+    debug!("Restarting sequence {sequence_name} to start with {new_start_value}",);
     assert!(
         new_start_value > 0,
         "New sequence start value {new_start_value} is not positive",
