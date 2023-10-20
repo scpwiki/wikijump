@@ -8,7 +8,7 @@ export const DEEPWELL_URL = `http://${DEEPWELL_HOST}:${DEEPWELL_PORT}/jsonrpc`
 export const client = new JSONRPCClient(processRawRequest)
 client.timeout(1000 /* 1 second */)
 
-async function processRawRequest(request: JSONRPCRequest): void {
+async function processRawRequest(request: JSONRPCRequest): Promise<void> {
   const response = await fetch(DEEPWELL_URL, {
     method: "POST",
     headers: { "content-type": "application/json" },
