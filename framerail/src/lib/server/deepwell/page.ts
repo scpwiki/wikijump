@@ -8,10 +8,10 @@ export async function pageDelete(
   revisionComments: Optional<string>
 ): Promise<object> {
   return client.request("page_delete", {
-      site_id: siteId,
-      page: pageId ?? slug,
-      user_id: 1, // TODO: identify user session and pass the user to the API request
-      revision_comments: revisionComments
+    site_id: siteId,
+    page: pageId ?? slug,
+    user_id: 1, // TODO: identify user session and pass the user to the API request
+    revision_comments: revisionComments
   })
 }
 
