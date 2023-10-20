@@ -63,7 +63,7 @@ export async function pageMove(
     site_id: siteId,
     page: pageId ?? slug,
     new_slug: newSlug,
-    user_id: userId: 1, // TODO: identify user session and pass the user to the API request
+    user_id: 1, // TODO: identify user session and pass the user to the API request
     revision_comments: revisionComments
   })
 }
