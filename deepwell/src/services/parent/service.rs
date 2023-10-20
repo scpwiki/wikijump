@@ -171,6 +171,7 @@ impl ParentService {
     }
 
     /// Gets all children of the given page.
+    #[allow(dead_code)] // TEMP
     pub async fn get_children(
         ctx: &ServiceContext<'_>,
         site_id: i64,

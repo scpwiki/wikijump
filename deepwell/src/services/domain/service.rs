@@ -116,6 +116,7 @@ impl DomainService {
 
     /// Gets the site corresponding with the given domain.
     #[inline]
+    #[allow(dead_code)] // TEMP
     pub async fn site_from_domain<'a>(
         ctx: &ServiceContext<'_>,
         domain: &'a str,
