@@ -154,6 +154,13 @@ pub struct DeletePage<'a> {
     pub user_id: i64,
 }
 
+#[derive(Serialize, Debug, Clone)]
+pub struct DeletePageOutput {
+    page_id: i64,
+    revision_id: i64,
+    revision_number: i32,
+}
+
 #[derive(Deserialize, Debug, Clone)]
 pub struct RestorePage {
     pub site_id: i64,
@@ -161,13 +168,6 @@ pub struct RestorePage {
     pub revision_comments: String,
     pub user_id: i64,
     pub slug: Option<String>,
-}
-
-#[derive(Serialize, Debug, Clone)]
-pub struct DeletePageOutput {
-    page_id: i64,
-    revision_id: i64,
-    revision_number: i32,
 }
 
 #[derive(Serialize, Debug, Clone)]
