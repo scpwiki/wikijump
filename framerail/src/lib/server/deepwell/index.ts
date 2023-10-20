@@ -15,10 +15,8 @@ async function processRawRequest(request: JSONRPCRequest): void {
     body: JSON.stringify(request)
   })
 
-  if (response.status === 200) {
-    const data = await response.json()
-    client.receive(data)
-  }
+  const data = await response.json()
+  client.receive(data)
 }
 
 export async function ping(): void {
