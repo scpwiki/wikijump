@@ -24,14 +24,7 @@ use sea_orm::{ConnectionTrait, DatabaseBackend, Statement};
 use std::path::PathBuf;
 use wikidot_normalize::normalize;
 
-pub async fn ping(
-    ctx: &ServiceContext<'_>,
-    _params: Params<'static>,
-) -> Result<&'static str> {
-    info!("Ping request");
-
-    // Ensure the database and cache is connected
-
+async fn postgres_check(ctx: &ServiceContext<'_>) -> Result<()> {
     ctx.transaction()
         .execute(Statement::from_string(
             DatabaseBackend::Postgres,
@@ -39,11 +32,24 @@ pub async fn ping(
         ))
         .await?;
 
+    Ok(())
+}
+
+async fn redis_check(ctx: &ServiceContext<'_>) -> Result<()> {
     ctx.redis()
         .send_packed_command(&redis::Cmd::new().arg("PING"))
         .await?;
 
-    // Seems good, respond to user
+    Ok(())
+}
+
+pub async fn ping(
+    ctx: &ServiceContext<'_>,
+    _params: Params<'static>,
+) -> Result<&'static str> {
+    // Ensure the database and cache are connected, and only then return.
+    info!("Ping request");
+    try_join!(postgres_check(ctx), redis_check(ctx))?;
     Ok("Pong!")
 }
 
