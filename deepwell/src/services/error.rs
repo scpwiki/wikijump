@@ -44,6 +44,9 @@ pub enum Error {
     #[error("Database error: {0}")]
     Database(DbErr),
 
+    #[error("Redis error: {0}")]
+    Redis(#[from] redis::RedisError),
+
     #[error("Invalid locale: {0}")]
     LocaleInvalid(#[from] LanguageIdentifierError),
 
@@ -332,6 +335,7 @@ impl Error {
             Error::Cryptography(_) => 3202,
             Error::Magic(_) => 3204,
             Error::Otp(_) => 3205,
+            Error::Redis(_) => 3206,
 
             // 4000 - Client, request errors
             //        BadRequest is pretty general, avoid it except for rare weird cases
