@@ -27,7 +27,6 @@
 //! not any of the implementations themselves. Those should be in the `methods` module.
 
 use crate::config::{Config, Secrets};
-use crate::database;
 use crate::endpoints::{
     auth::*, category::*, domain::*, email::*, file::*, file_revision::*, link::*,
     locale::*, message::*, misc::*, page::*, page_revision::*, parent::*, site::*,
@@ -37,6 +36,7 @@ use crate::locales::Localizations;
 use crate::services::blob::MimeAnalyzer;
 use crate::services::job::JobQueue;
 use crate::services::{into_rpc_error, ServiceContext};
+use crate::{database, redis};
 use jsonrpsee::server::{RpcModule, Server, ServerHandle};
 use jsonrpsee::types::error::ErrorObjectOwned;
 use s3::bucket::Bucket;
@@ -60,9 +60,12 @@ pub async fn build_server_state(
     config: Config,
     secrets: Secrets,
 ) -> anyhow::Result<ServerState> {
-    // Connect to database
+    // Connect to databases
     info!("Connecting to PostgreSQL database");
     let database = database::connect(&secrets.database_url).await?;
+
+    info!("Connecting to Redis");
+    let redis = redis::connect(&secrets.redis_url).await?;
 
     // Load localization data
     info!("Loading localization data");
