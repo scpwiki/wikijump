@@ -39,6 +39,10 @@ pub async fn ping(
         ))
         .await?;
 
+    ctx.redis()
+        .send_packed_command(&redis::Cmd::new().arg("PING"))
+        .await?;
+
     // Seems good, respond to user
     Ok("Pong!")
 }
