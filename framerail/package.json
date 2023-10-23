@@ -17,7 +17,7 @@
     "@playwright/test": "^1.39.0",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
-    "eslint": "^8.51.0",
+    "eslint": "^8.52.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-svelte": "^2.34.0",
     "eslint-plugin-tsdoc": "^0.2.17",
