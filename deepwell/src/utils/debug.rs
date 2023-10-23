@@ -1,5 +1,5 @@
 /*
- * utils/mod.rs
+ * utils/debug.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -18,20 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Eclectic module containing various utilities, grouped by type.
+//! Utilities to help with `Debug` formatting on type definitions.
 
-mod category;
-mod crypto;
-mod debug;
-mod locale;
-mod slug;
-mod string;
-mod time;
-
-pub use self::category::*;
-pub use self::crypto::*;
-pub use self::debug::*;
-pub use self::locale::*;
-pub use self::slug::*;
-pub use self::string::*;
-pub use self::time::*;
+/// Returns the raw pointer to the given item.
+///
+/// Used in `Debug` to emit a pointer address for the given item.
+#[inline]
+pub fn debug_pointer<T>(item: &T) -> *const () {
+    item as *const T as *const ()
+}
