@@ -23,6 +23,8 @@ use crate::config::Config;
 use crate::locales::Localizations;
 use crate::services::blob::MimeAnalyzer;
 use crate::services::job::JobQueue;
+use redis::aio::ConnectionManager;
+use rsmq_async::Rsmq;
 use s3::bucket::Bucket;
 use sea_orm::DatabaseTransaction;
 use std::sync::Arc;
@@ -49,6 +51,14 @@ impl<'txn> ServiceContext<'txn> {
     #[inline]
     pub fn config(&self) -> &Config {
         &self.state.config
+    }
+
+    pub fn redis(&self) -> ConnectionManager {
+        ConnectionManager::clone(&self.state.redis)
+    }
+
+    pub fn rsmq(&self) -> &Rsmq {
+        &self.state.rsmq
     }
 
     #[inline]

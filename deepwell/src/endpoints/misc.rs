@@ -30,7 +30,8 @@ pub async fn ping(
 ) -> Result<&'static str> {
     info!("Ping request");
 
-    // Ensure the database is connected
+    // Ensure the database and cache is connected
+
     ctx.transaction()
         .execute(Statement::from_string(
             DatabaseBackend::Postgres,
