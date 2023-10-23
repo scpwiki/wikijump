@@ -47,6 +47,7 @@ redis = "0.23"
 ref-map = "0.1"
 regex = "1"
 reqwest = { version = "0.11", features = ["json", "rustls-tls"], default-features = false }
+rsmq_async = "6"
 rust-s3 = { version = "0.32", features = ["with-async-std"], default-features = false }
 sea-orm = { version = "0.12", features = ["sqlx-postgres", "runtime-async-std-rustls", "postgres-array", "macros", "with-json", "with-time"], default-features = false }
 sea-query = "0.30"
