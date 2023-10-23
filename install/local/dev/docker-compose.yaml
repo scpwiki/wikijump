@@ -64,6 +64,7 @@ services:
       - files
     environment:
       - "DATABASE_URL=postgres://wikijump:wikijump@database/wikijump"
+      - "REDIS_URL=redis://cache"
       - "S3_BUCKET=deepwell-files"
       - "S3_REGION_NAME=local"
       - "S3_PATH_STYLE=true"
