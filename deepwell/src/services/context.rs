@@ -59,6 +59,7 @@ impl<'txn> ServiceContext<'txn> {
     }
 
     #[inline]
+    #[allow(dead_code)] // TODO https://scuttle.atlassian.net/browse/WJ-1176
     pub fn rsmq(&self) -> MultiplexedRsmq {
         MultiplexedRsmq::clone(&self.state.rsmq)
     }
