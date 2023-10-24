@@ -32,6 +32,7 @@ async fn postgres_check(ctx: &ServiceContext<'_>) -> Result<()> {
         ))
         .await?;
 
+    debug!("Successfully pinged Postgres");
     Ok(())
 }
 
@@ -40,6 +41,7 @@ async fn redis_check(ctx: &ServiceContext<'_>) -> Result<()> {
         .send_packed_command(&redis::Cmd::new().arg("PING"))
         .await?;
 
+    debug!("Successfully pinged Redis");
     Ok(())
 }
 
