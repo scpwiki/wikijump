@@ -1,5 +1,5 @@
 /*
- * utils/mod.rs
+ * cache.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -18,20 +18,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Eclectic module containing various utilities, grouped by type.
+use crate::services::Result;
+use rsmq_async::Rsmq;
 
-mod category;
-mod crypto;
-mod debug;
-mod locale;
-mod slug;
-mod string;
-mod time;
+/// Creates primary `redis::Client` instance.
+///
+/// Used to spawn off other connections to Redis as needed.
+pub async fn connect_redis(redis_uri: &str) -> Result<redis::Client> {
+    let client = redis::Client::open(redis_uri)?;
+    Ok(client)
+}
 
-pub use self::category::*;
-pub use self::crypto::*;
-pub use self::debug::*;
-pub use self::locale::*;
-pub use self::slug::*;
-pub use self::string::*;
-pub use self::time::*;
+/// Creates an RSMQ instance for temporary use.
+///
+/// A connection is fetched from the `Client`, which is then used to create
+/// an owned `Rsmq` available for use by the caller.
+pub async fn connect_rsmq(client: &redis::Client) -> Result<Rsmq> {
+    let connection = client.get_tokio_connection().await?;
+    Ok(Rsmq::new_with_connection(connection, true, None))
+}

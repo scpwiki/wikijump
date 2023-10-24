@@ -21,7 +21,7 @@ services:
       retries: 6
 
   files:
-    build: files
+    build: minio
     restart: always
     environment:
       - "MINIO_ROOT_USER=minio"
@@ -38,6 +38,18 @@ services:
       - "9000:9000"
       - "9001:9001"
 
+  cache:
+    build: redis
+    restart: always
+    # You can add a volume for /data if you wish
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    ports:
+      - "6379:6379"
+
   api:
     build:
       context: ../../..
@@ -45,10 +57,12 @@ services:
     ports:
       - "2747:2747"
     links:
+      - cache
       - database
       - files
     environment:
       - "DATABASE_URL=postgres://wikijump:wikijump@database/wikijump"
+      - "REDIS_URL=redis://cache"
       - "S3_BUCKET=deepwell-files"
       - "S3_REGION_NAME=local"
       - "S3_PATH_STYLE=true"
@@ -62,6 +76,8 @@ services:
       timeout: 2s
       retries: 3
     depends_on:
+      cache:
+        condition: service_healthy
       database:
         condition: service_healthy
       files:

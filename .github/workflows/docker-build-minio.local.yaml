@@ -1,0 +1,20 @@
+name: '[backend] Docker build Minio (local)'
+
+on:
+  pull_request:
+    paths:
+      - 'install/local/dev/minio/*'
+      - '.github/workflows/docker-build-minio.local.yaml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build image
+        run: cd install/local/dev/minio && docker build .
+        env:
+          DOCKER_BUILDKIT: 1
+

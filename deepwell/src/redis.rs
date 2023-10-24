@@ -1,5 +1,5 @@
 /*
- * utils/mod.rs
+ * redis.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -18,20 +18,18 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Eclectic module containing various utilities, grouped by type.
+use anyhow::Result;
+use redis::aio::ConnectionManager;
+use rsmq_async::MultiplexedRsmq;
 
-mod category;
-mod crypto;
-mod debug;
-mod locale;
-mod slug;
-mod string;
-mod time;
+pub async fn connect(redis_uri: &str) -> Result<(ConnectionManager, MultiplexedRsmq)> {
+    // Create regular redis client
+    let client = redis::Client::open(redis_uri)?;
+    let rsmq_connection = client.get_multiplexed_tokio_connection().await?;
+    let redis = ConnectionManager::new(client).await?;
 
-pub use self::category::*;
-pub use self::crypto::*;
-pub use self::debug::*;
-pub use self::locale::*;
-pub use self::slug::*;
-pub use self::string::*;
-pub use self::time::*;
+    // Create RSMQ client
+    let rsmq = MultiplexedRsmq::new_with_connection(rsmq_connection, true, None);
+
+    Ok((redis, rsmq))
+}

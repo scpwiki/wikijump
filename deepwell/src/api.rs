@@ -27,7 +27,6 @@
 //! not any of the implementations themselves. Those should be in the `methods` module.
 
 use crate::config::{Config, Secrets};
-use crate::database;
 use crate::endpoints::{
     auth::*, category::*, domain::*, email::*, file::*, file_revision::*, link::*,
     locale::*, message::*, misc::*, page::*, page_revision::*, parent::*, site::*,
@@ -37,32 +36,56 @@ use crate::locales::Localizations;
 use crate::services::blob::MimeAnalyzer;
 use crate::services::job::JobQueue;
 use crate::services::{into_rpc_error, ServiceContext};
+use crate::utils::debug_pointer;
+use crate::{database, redis as redis_db};
 use jsonrpsee::server::{RpcModule, Server, ServerHandle};
 use jsonrpsee::types::error::ErrorObjectOwned;
+use redis::aio::ConnectionManager;
+use rsmq_async::MultiplexedRsmq;
 use s3::bucket::Bucket;
 use sea_orm::{DatabaseConnection, TransactionTrait};
+use std::fmt::{self, Debug};
 use std::sync::Arc;
 use std::time::Duration;
 
 pub type ServerState = Arc<ServerStateInner>;
 
-#[derive(Debug)]
 pub struct ServerStateInner {
     pub config: Config,
     pub database: DatabaseConnection,
+    pub redis: ConnectionManager,
+    pub rsmq: MultiplexedRsmq,
     pub localizations: Localizations,
     pub mime_analyzer: MimeAnalyzer,
     pub job_queue: JobQueue,
     pub s3_bucket: Bucket,
 }
 
+impl Debug for ServerStateInner {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("ServerStateInner")
+            .field("config", &self.config)
+            .field("database", &self.database)
+            .field("redis", &debug_pointer(&self.redis))
+            .field("rsmq", &self.rsmq)
+            .field("localizations", &self.localizations)
+            .field("mime_analyzer", &self.mime_analyzer)
+            .field("job_queue", &self.job_queue)
+            .field("s3_bucket", &self.s3_bucket)
+            .finish()
+    }
+}
+
 pub async fn build_server_state(
     config: Config,
     secrets: Secrets,
 ) -> anyhow::Result<ServerState> {
-    // Connect to database
+    // Connect to databases
     info!("Connecting to PostgreSQL database");
     let database = database::connect(&secrets.database_url).await?;
+
+    info!("Connecting to Redis");
+    let (redis, rsmq) = redis_db::connect(&secrets.redis_url).await?;
 
     // Load localization data
     info!("Loading localization data");
@@ -96,6 +119,8 @@ pub async fn build_server_state(
     let state = Arc::new(ServerStateInner {
         config,
         database,
+        redis,
+        rsmq,
         localizations,
         mime_analyzer,
         job_queue,

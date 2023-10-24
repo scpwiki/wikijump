@@ -51,6 +51,7 @@ mod hash;
 mod info;
 mod locales;
 mod models;
+mod redis;
 mod services;
 mod utils;
 mod web;

@@ -23,6 +23,8 @@ use crate::config::Config;
 use crate::locales::Localizations;
 use crate::services::blob::MimeAnalyzer;
 use crate::services::job::JobQueue;
+use redis::aio::ConnectionManager;
+use rsmq_async::MultiplexedRsmq;
 use s3::bucket::Bucket;
 use sea_orm::DatabaseTransaction;
 use std::sync::Arc;
@@ -49,6 +51,17 @@ impl<'txn> ServiceContext<'txn> {
     #[inline]
     pub fn config(&self) -> &Config {
         &self.state.config
+    }
+
+    #[inline]
+    pub fn redis(&self) -> ConnectionManager {
+        ConnectionManager::clone(&self.state.redis)
+    }
+
+    #[inline]
+    #[allow(dead_code)] // TODO https://scuttle.atlassian.net/browse/WJ-1176
+    pub fn rsmq(&self) -> MultiplexedRsmq {
+        MultiplexedRsmq::clone(&self.state.rsmq)
     }
 
     #[inline]

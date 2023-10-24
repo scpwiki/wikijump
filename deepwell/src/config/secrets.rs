@@ -30,6 +30,11 @@ pub struct Secrets {
     /// Set using environment variable `DATABASE_URL`.
     pub database_url: String,
 
+    /// The URL of the Redis database to connect to.
+    ///
+    /// Set using environment variable `REDIS_URL`.
+    pub redis_url: String,
+
     /// The name of the S3 bucket that file blobs are kept in.
     /// The bucket must already exist prior to program invocation.
     ///
@@ -77,6 +82,7 @@ impl Secrets {
         }
 
         let database_url = get_env!("DATABASE_URL");
+        let redis_url = get_env!("REDIS_URL");
 
         let s3_bucket = get_env!("S3_BUCKET");
         let s3_region = match env::var("S3_AWS_REGION") {
@@ -139,6 +145,7 @@ impl Secrets {
         // Build and return
         Secrets {
             database_url,
+            redis_url,
             s3_bucket,
             s3_region,
             s3_path_style,

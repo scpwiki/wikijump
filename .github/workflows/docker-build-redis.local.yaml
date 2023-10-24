@@ -1,0 +1,20 @@
+name: '[backend] Docker build Redis (local)'
+
+on:
+  pull_request:
+    paths:
+      - 'install/local/dev/redis/*'
+      - '.github/workflows/docker-build-redis.local.yaml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build image
+        run: cd install/local/dev/redis && docker build .
+        env:
+          DOCKER_BUILDKIT: 1
+
