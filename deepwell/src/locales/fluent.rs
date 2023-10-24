@@ -112,14 +112,15 @@ impl Localizations {
         }
     }
 
+    /// Retrieve the specified Fluent bundle and message.
     fn get_message(
         &self,
         locale: &LanguageIdentifier,
-        key: &str,
+        path: &str,
     ) -> Result<(&FluentBundle, FluentMessage), ServiceError> {
         match self.bundles.get(locale) {
             None => Err(ServiceError::LocaleMissing),
-            Some(bundle) => match bundle.get_message(key) {
+            Some(bundle) => match bundle.get_message(path) {
                 Some(message) => Ok((bundle, message)),
                 None => Err(ServiceError::LocaleMessageMissing),
             },
