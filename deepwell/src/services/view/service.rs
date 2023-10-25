@@ -351,9 +351,12 @@ impl ViewService {
                 args.set("slug", fluent_str!(site_slug));
                 args.set("domain", fluent_str!(config.main_domain_no_dot));
 
-                let html =
-                    ctx.localization()
-                        .translate(locale, "wiki-page-site-slug", &args)?;
+                // TODO pass in locale fallbacks
+                let html = ctx.localization().translate(
+                    [locale],
+                    "wiki-page-site-slug",
+                    &args,
+                )?;
 
                 Ok(html.to_string())
             }
@@ -364,8 +367,9 @@ impl ViewService {
                 args.set("custom_domain", fluent_str!(domain));
                 args.set("domain", fluent_str!(config.main_domain_no_dot));
 
+                // TODO pass in locale fallbacks
                 let html = ctx.localization().translate(
-                    locale,
+                    [locale],
                     "wiki-page-site-custom",
                     &args,
                 )?;

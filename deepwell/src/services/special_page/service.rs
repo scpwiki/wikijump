@@ -160,7 +160,10 @@ impl SpecialPageService {
         args.set("category", fluent_str!(category));
         args.set("domain", fluent_str!(ctx.config().main_domain_no_dot));
 
-        let wikitext = ctx.localization().translate(locale, translate_key, &args)?;
+        // TODO pass in locale fallbacks
+        let wikitext = ctx
+            .localization()
+            .translate([locale], translate_key, &args)?;
         Ok(wikitext.into_owned())
     }
 }

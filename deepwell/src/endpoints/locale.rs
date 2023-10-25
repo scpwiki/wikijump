@@ -32,9 +32,9 @@ pub struct LocaleOutput {
 }
 
 #[derive(Deserialize, Debug, Clone)]
-pub struct TranslateInput<'a> {
-    locale: &'a str,
-    messages: HashMap<String, MessageArguments<'a>>,
+pub struct TranslateInput {
+    locales: Vec<String>,
+    messages: HashMap<String, MessageArguments<'static>>,
 }
 
 type TranslateOutput = HashMap<String, String>;
@@ -58,18 +58,29 @@ pub async fn translate_strings(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<TranslateOutput> {
-    let TranslateInput {
-        locale: locale_str,
-        messages,
-    } = params.parse()?;
+    let TranslateInput { locales, messages } = params.parse()?;
+
+    if locales.is_empty() {
+        error!("No locales specified in translate call");
+        return Err(ServiceError::BadRequest);
+    }
 
     info!(
-        "Translating {} message keys in locale {locale_str}",
+        "Translating {} message keys in locale {} (or {} fallbacks)",
         messages.len(),
+        &locales[0],
+        locales.len() - 1,
     );
 
-    let locale = LanguageIdentifier::from_bytes(locale_str.as_bytes())?;
     let mut output: TranslateOutput = HashMap::new();
+    let locales = {
+        let mut langids = Vec::new();
+        for locale in locales {
+            let langid = LanguageIdentifier::from_bytes(locale.as_bytes())?;
+            langids.push(langid);
+        }
+        langids
+    };
 
     for (message_key, arguments_raw) in messages {
         info!(
@@ -80,7 +91,7 @@ pub async fn translate_strings(
         let arguments = arguments_raw.into_fluent_args();
         let translation =
             ctx.localization()
-                .translate(&locale, &message_key, &arguments)?;
+                .translate(&locales, &message_key, &arguments)?;
 
         output.insert(message_key, translation.to_string());
     }

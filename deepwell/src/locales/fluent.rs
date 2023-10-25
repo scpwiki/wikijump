@@ -24,10 +24,11 @@ use async_std::fs;
 use async_std::path::{Path, PathBuf};
 use async_std::prelude::*;
 use fluent::{bundle, FluentArgs, FluentMessage, FluentResource};
+use fluent_syntax::ast::Pattern;
 use intl_memoizer::concurrent::IntlLangMemoizer;
 use std::borrow::Cow;
 use std::collections::HashMap;
-use std::fmt::{self, Debug};
+use std::fmt::{self, Debug, Display};
 use unic_langid::LanguageIdentifier;
 
 pub type FluentBundle = bundle::FluentBundle<FluentResource, IntlLangMemoizer>;
@@ -113,11 +114,11 @@ impl Localizations {
     }
 
     /// Retrieve the specified Fluent bundle and message.
-    fn get_message(
-        &self,
+    fn get_message<'a>(
+        &'a self,
         locale: &LanguageIdentifier,
         path: &str,
-    ) -> Result<(&FluentBundle, FluentMessage), ServiceError> {
+    ) -> Result<(&'a FluentBundle, FluentMessage), ServiceError> {
         match self.bundles.get(locale) {
             None => Err(ServiceError::LocaleMissing),
             Some(bundle) => match bundle.get_message(path) {
@@ -127,24 +128,19 @@ impl Localizations {
         }
     }
 
-    pub fn translate<'a>(
+    /// Retrieve the specified Fluent pattern from the associated bundle.
+    fn get_pattern<'a>(
         &'a self,
         locale: &LanguageIdentifier,
-        key: &str,
-        args: &'a FluentArgs<'a>,
-    ) -> Result<Cow<'a, str>, ServiceError> {
-        // Get appropriate message and bundle
-        let (path, attribute) = Self::parse_selector(key);
+        path: &str,
+        attribute: Option<&str>,
+    ) -> Result<(&'a FluentBundle, &'a Pattern<&'a str>), ServiceError> {
+        debug!("Checking for translation patterns in locale {locale}");
+
+        // Get appropriate message and bundle, if found
         let (bundle, message) = self.get_message(locale, path)?;
 
-        info!(
-            "Translating for locale {}, message path {}, attribute {}",
-            locale,
-            path,
-            attribute.unwrap_or("<none>"),
-        );
-
-        // Get pattern from message
+        // Get pattern from message, if present
         let pattern = match attribute {
             Some(attribute) => match message.get_attribute(attribute) {
                 Some(attrib) => attrib.value(),
@@ -156,13 +152,75 @@ impl Localizations {
             },
         };
 
+        Ok((bundle, pattern))
+    }
+
+    /// Iterate through a list of locales, and try to find the first existing pattern.
+    fn get_pattern_locales<'a, L, I>(
+        &'a self,
+        locales: I,
+        path: &str,
+        attribute: Option<&str>,
+    ) -> Result<(L, &'a FluentBundle, &'a Pattern<&'a str>), ServiceError>
+    where
+        L: AsRef<LanguageIdentifier> + 'a,
+        I: IntoIterator<Item = L>,
+    {
+        let mut last_error = ServiceError::BadRequest; // NOTE: this can only happen if 'locales' is empty
+
+        for locale_ref in locales {
+            let locale = locale_ref.as_ref();
+            match self.get_pattern(locale, path, attribute) {
+                Err(error) => {
+                    debug!("Pattern not found for locale {locale}: {error})");
+                    last_error = error;
+                }
+                Ok((bundle, pattern)) => {
+                    info!("Found pattern for locale {locale}");
+                    return Ok((locale_ref, bundle, pattern));
+                }
+            }
+        }
+
+        warn!("Could not find any translation patterns: {last_error}");
+        Err(last_error)
+    }
+
+    /// Translates the message, given the message key and formatting arguments.
+    ///
+    /// At least one locale must be specified. If no translation can be found for
+    /// the given locale, then progressively more generic forms are attempted. If
+    /// no translations can be found even for all fallback locales, an error is
+    /// returned.
+    pub fn translate<'a, L, I>(
+        &'a self,
+        locales: I,
+        key: &str,
+        args: &'a FluentArgs<'a>,
+    ) -> Result<Cow<'a, str>, ServiceError>
+    where
+        L: AsRef<LanguageIdentifier> + Display + 'a,
+        I: IntoIterator<Item = L>,
+    {
+        // Parse translation key
+        let (path, attribute) = Self::parse_selector(key);
+        info!(
+            "Checking message path {}, attribute {} for a matching locale",
+            path,
+            attribute.unwrap_or("<none>"),
+        );
+
+        // Find pattern for translating
+        let (locale, bundle, pattern) =
+            self.get_pattern_locales(locales, path, attribute)?;
+
         // Format using pattern
         let mut errors = vec![];
         let output = bundle.format_pattern(pattern, Some(args), &mut errors);
 
         // Log any errors
         if !errors.is_empty() {
-            warn!("Errors formatting message for locale {locale}, message key {key}",);
+            warn!("Errors formatting message for locale {locale}, message key {key}");
 
             for (key, value) in args.iter() {
                 warn!("Passed formatting argument: {key} -> {value:?}");
