@@ -6,17 +6,17 @@
 
 <textarea class="debug">{JSON.stringify($page, null, 2)}</textarea>
 
-<div class="user-info" data-id={$page.data.user.userId}>
+<div class="user-info" data-id={$page.data.user.user_id}>
   {#if $page.data.user.name}
     <h2 class="user-attribute name">
       {$page.data.user.name}
     </h2>
   {/if}
 
-  {#if $page.data.user.realName}
+  {#if $page.data.user.real_name}
     <div class="user-attribute real-name">
       {$page.data.internationalization?.["user-profile-info.name"]}
-      {$page.data.user.realName}
+      {$page.data.user.real_name}
     </div>
   {/if}
 
@@ -41,10 +41,10 @@
     </div>
   {/if}
 
-  {#if $page.data.user.userPage}
+  {#if $page.data.user.user_page}
     <div class="user-attribute user-page">
       {$page.data.internationalization?.["user-profile-info.user-page"]}
-      {$page.data.user.userPage}
+      {$page.data.user.user_page}
     </div>
   {/if}
 
