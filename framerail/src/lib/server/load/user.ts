@@ -27,13 +27,13 @@ export async function loadUser(username?: string, request, cookies) {
   let errorStatus = null
 
   switch (response.type) {
-    case "userFound":
+    case "user_found":
       break
-    case "userMissing":
+    case "user_missing":
       viewData.user = null
       errorStatus = 404
       break
-    case "siteMissing":
+    case "site_missing":
       errorStatus = 404
   }
 

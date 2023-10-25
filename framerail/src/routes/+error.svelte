@@ -11,7 +11,7 @@
   async function saveCreate() {
     let form = document.getElementById("editor")
     let fdata = new FormData(form)
-    fdata.set("site-id", $page.error.site.siteId)
+    fdata.set("site-id", $page.error.site.site_id)
     fdata.set("slug", $page.params.slug)
     await fetch(`/${$page.params.slug}/edit`, {
       method: "POST",
@@ -31,7 +31,7 @@
 Use svelte-switch-case package with {#switch data.view}
 as soon as we can figure out prettier support for it.
 -->
-{#if $page.error.view === "pageMissing"}
+{#if $page.error.view === "page_missing"}
   UNTRANSLATED:Page not found
 
   {#if $page.error.options?.edit}
@@ -52,24 +52,24 @@ as soon as we can figure out prettier support for it.
           type="button"
           on:click|stopPropagation={cancelCreate}
         >
-          UT:Cancel
+          {$page.error.internationalization?.cancel}
         </button>
         <button
           class="action-button editor-button button-save clickable"
           type="submit"
           on:click|stopPropagation
         >
-          UT:Save
+          {$page.error.internationalization?.save}
         </button>
       </div>
     </form>
   {:else}
-    {@html $page.error.compiledHtml}
+    {@html $page.error.compiled_html}
   {/if}
-{:else if $page.error.view === "pagePermissions"}
+{:else if $page.error.view === "page_permissions"}
   UNTRANSLATED:Lacks permissions for page
-  {@html $page.error.compiledHtml}
-{:else if $page.error.view === "siteMissing"}
+  {@html $page.error.compiled_html}
+{:else if $page.error.view === "site_missing"}
   UNTRANSLATED:No such site
   {@html $page.error.html}
 {:else}

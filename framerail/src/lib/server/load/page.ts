@@ -46,17 +46,17 @@ export async function loadPage(
   let errorStatus = null
 
   switch (response.type) {
-    case "pageFound":
+    case "page_found":
       break
-    case "pageMissing":
+    case "page_missing":
       viewData.page = null
       viewData.page_revision = null
       errorStatus = 404
       break
-    case "pagePermissions":
+    case "page_permissions":
       errorStatus = 403
       break
-    case "siteMissing":
+    case "site_missing":
       checkRedirect = false
       errorStatus = 404
   }
@@ -69,8 +69,6 @@ export async function loadPage(
     translateKeys = Object.assign(translateKeys, {
       // Page actions
       "edit": {},
-      "save": {},
-      "cancel": {},
       "delete": {},
       "history": {},
       "move": {},
