@@ -169,9 +169,12 @@ impl Localizations {
     {
         let mut last_error = ServiceError::BadRequest; // NOTE: this can only happen if 'locales' is empty
 
+        // Iterate through each locale to try
         for locale_ref in locales {
+            // Iterate through each fallback locale (e.g. 'fr-BE' -> 'fr-BE', 'fr')
             let locale = locale_ref.as_ref();
             let result = iterate_locale_fallbacks(locale.clone(), |locale| {
+                // Try and get bundle and pattern, if it exists
                 match self.get_pattern(locale, path, attribute) {
                     Err(error) => {
                         debug!("Pattern not found for locale {locale}: {error})");
