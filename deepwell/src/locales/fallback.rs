@@ -34,10 +34,11 @@
 //! * Language and region
 //! * Language only
 //!
-//! For an already-generic locale (say just `ko`) this will emit that same locale
-//! multiple times for each step. This is up to the caller to ignore; in
-//! `iterate_locale_fallbacks()`; the first output to return `Ok(Some(_))` or `Err(_)`
-//! will terminate iteration.
+//! The logic here will skip a locale variant if it's already been outputted.
+//! So for a locale like `ko`, it will only emit one item, `ko`. For something like `en-CA`,
+//! it will emit `en-CA` then `en`.
+//!
+//! If `Some(_)` or `Err(_)` is returned, then iteration will end prematurely.
 
 use unic_langid::LanguageIdentifier;
 
@@ -60,31 +61,46 @@ where
 
     // Storage of temporarily removed fields.
     let variants: Vec<_> = locale.variants().cloned().collect();
-    let region;
 
     // Unmodified locale
+    // Language, script, region, variant
     try_iter!();
 
-    // Remove variant
-    locale.clear_variants();
-    try_iter!();
-
-    // Remove region, keep value
-    region = locale.region.take();
-    try_iter!();
-
-    // Re-add region and variant
-    locale.region = region;
-    locale.set_variants(&variants);
-    try_iter!();
-
-    // Remove variant
-    locale.clear_variants();
-    try_iter!();
+    if !variants.is_empty() {
+        // Remove variant
+        // Language, script, region
+        locale.clear_variants();
+        try_iter!();
+    }
 
     // Remove region
-    locale.region = None;
-    try_iter!();
+    // Language, script
+    let region = locale.region.take();
+    if region.is_some() {
+        try_iter!();
+    }
+
+    if locale.script.take().is_some() {
+        // Re-add region and variant, remove script
+        // Language, region, variant
+        locale.region = region;
+        locale.set_variants(&variants);
+        try_iter!();
+
+        if !variants.is_empty() {
+            // Remove variant
+            // Language, region
+            locale.clear_variants();
+            try_iter!();
+        }
+
+        if locale.region.is_some() {
+            // Remove region
+            // Language only
+            locale.region = None;
+            try_iter!();
+        }
+    }
 
     // No results
     None
