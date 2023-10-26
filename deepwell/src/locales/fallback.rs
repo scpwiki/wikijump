@@ -125,6 +125,21 @@ fn fallbacks() {
         );
     }
 
-    check("en", &["en", "en", "en", "en", "en", "en"]);
-    check("en-US", &["en-US", "en-US", "en", "en-US", "en-US", "en"]);
+    check("en", &["en"]);
+    check("fr-be", &["fr-BE", "fr"]);
+    check("es-Latn", &["es-Latn", "es"]);
+    check("en-Latn-US", &["en-Latn-US", "en-Latn", "en-US", "en"]);
+    check("en-Valencia", &["en-valencia", "en"]);
+    check("en_CA_valencia", &["en-CA-valencia", "en-CA", "en"]);
+    check(
+        "en_Latn-CA_valencia",
+        &[
+            "en-Latn-CA-valencia",
+            "en-Latn-CA",
+            "en-Latn",
+            "en-CA-valencia",
+            "en-CA",
+            "en",
+        ],
+    );
 }
