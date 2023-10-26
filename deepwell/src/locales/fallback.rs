@@ -92,13 +92,26 @@ where
 
 #[test]
 fn fallbacks() {
+    use std::collections::HashSet;
+
     fn check(locale: &str, expected: &[&str]) {
         let locale = locale.parse().expect("Unable to parse locale");
         let mut actual = Vec::new();
+        let mut seen_before = HashSet::new();
 
         iterate_locale_fallbacks(locale, |locale| {
-            actual.push(str!(locale));
-            Ok(None)
+            let locale = str!(locale);
+            let end_here = seen_before.contains(&locale);
+            actual.push(locale.clone());
+            seen_before.insert(locale);
+
+            if end_here {
+                // Once we see something twice, stop iteration.
+                Some(())
+            } else {
+                // Continue iteration
+                None
+            }
         });
 
         assert!(
@@ -109,5 +122,5 @@ fn fallbacks() {
         );
     }
 
-    todo!(); // add check() calls
+    check("en", &["en"]);
 }
