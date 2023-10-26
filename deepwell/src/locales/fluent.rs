@@ -19,6 +19,7 @@
  */
 
 use super::error::{fluent_load_err, LocalizationLoadError};
+use super::fallback::iterate_locale_fallbacks;
 use crate::services::Error as ServiceError;
 use async_std::fs;
 use async_std::path::{Path, PathBuf};
@@ -161,7 +162,7 @@ impl Localizations {
         locales: I,
         path: &str,
         attribute: Option<&str>,
-    ) -> Result<(L, &'a FluentBundle, &'a Pattern<&'a str>), ServiceError>
+    ) -> Result<(LanguageIdentifier, &'a FluentBundle, &'a Pattern<&'a str>), ServiceError>
     where
         L: AsRef<LanguageIdentifier> + 'a,
         I: IntoIterator<Item = L>,
@@ -170,15 +171,22 @@ impl Localizations {
 
         for locale_ref in locales {
             let locale = locale_ref.as_ref();
-            match self.get_pattern(locale, path, attribute) {
-                Err(error) => {
-                    debug!("Pattern not found for locale {locale}: {error})");
-                    last_error = error;
+            let result = iterate_locale_fallbacks(locale.clone(), |locale| {
+                match self.get_pattern(locale, path, attribute) {
+                    Err(error) => {
+                        debug!("Pattern not found for locale {locale}: {error})");
+                        last_error = error;
+                        None
+                    }
+                    Ok((bundle, pattern)) => {
+                        info!("Found pattern for locale {locale}");
+                        Some((bundle, pattern))
+                    }
                 }
-                Ok((bundle, pattern)) => {
-                    info!("Found pattern for locale {locale}");
-                    return Ok((locale_ref, bundle, pattern));
-                }
+            });
+
+            if let Some((locale, (bundle, pattern))) = result {
+                return Ok((locale, bundle, pattern));
             }
         }
 
