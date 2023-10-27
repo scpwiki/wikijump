@@ -242,6 +242,10 @@ impl Localizations {
             }
         }
 
+        // We could return the locale used if we wished, but presently we discard this information.
+        // Change the return type of this method and its users if you need this information.
+        let _ = locale;
+
         // Done
         Ok(output)
     }
