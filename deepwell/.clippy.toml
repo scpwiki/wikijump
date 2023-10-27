@@ -1,0 +1,2 @@
+# Code smells
+disallowed-names = ["foo", "bar", "baz", "todo"]
