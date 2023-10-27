@@ -38,7 +38,7 @@ impl SpecialPageService {
         ctx: &ServiceContext<'_>,
         site: &SiteModel,
         sp_page_type: SpecialPageType,
-        locale: &LanguageIdentifier,
+        locales: &[LanguageIdentifier],
         page_info: PageInfo<'_>,
     ) -> Result<GetSpecialPageOutput> {
         info!(
@@ -80,7 +80,7 @@ impl SpecialPageService {
             &slugs,
             translate_key,
             site.site_id,
-            locale,
+            locales,
             &page_info,
         )
         .await?;
@@ -126,7 +126,7 @@ impl SpecialPageService {
         slugs: &[Cow<'_, str>],
         translate_key: &str,
         site_id: i64,
-        locale: &LanguageIdentifier,
+        locales: &[LanguageIdentifier],
         page_info: &PageInfo<'_>,
     ) -> Result<String> {
         debug!("Getting wikitext for special page, {} slugs", slugs.len());
@@ -162,10 +162,10 @@ impl SpecialPageService {
         args.set("category", fluent_str!(category));
         args.set("domain", fluent_str!(ctx.config().main_domain_no_dot));
 
-        // TODO pass in locale fallbacks
         let wikitext = ctx
             .localization()
-            .translate([locale], translate_key, &args)?;
+            .translate(locales, translate_key, &args)?;
+
         Ok(wikitext.into_owned())
     }
 }

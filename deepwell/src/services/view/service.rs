@@ -45,6 +45,7 @@ use fluent::{FluentArgs, FluentValue};
 use ftml::prelude::*;
 use ftml::render::html::HtmlOutput;
 use ref_map::*;
+use std::borrow::Cow;
 use unic_langid::LanguageIdentifier;
 use wikidot_normalize::normalize;
 
@@ -56,17 +57,18 @@ impl ViewService {
         ctx: &ServiceContext<'_>,
         GetPageView {
             domain,
-            locale: locale_str,
+            locales: locales_str,
             route,
             session_token,
         }: GetPageView,
     ) -> Result<GetPageViewOutput> {
         info!(
-            "Getting page view data for domain '{}', route '{:?}', locale '{}'",
-            domain, route, locale_str,
+            "Getting page view data for domain '{}', route '{:?}', locales '{:?}'",
+            domain, route, locales_str,
         );
 
-        let locale = LanguageIdentifier::from_bytes(locale_str.as_bytes())?;
+        // Parse all locales
+        let locales = parse_locales(&locales_str)?;
 
         // Attempt to get a viewer helper structure, but if the site doesn't exist
         // then return right away with the "no such site" response.
@@ -76,7 +78,7 @@ impl ViewService {
             user_session,
         } = match Self::get_viewer(
             ctx,
-            &locale,
+            &locales,
             &domain,
             session_token.ref_map(|s| s.as_str()),
         )
@@ -107,7 +109,19 @@ impl ViewService {
             alt_title: None,
             score: ScoreValue::Integer(0), // TODO configurable default score value
             tags: vec![],
-            language: cow!(locale_str),
+
+            // TODO Determine what locale should be passed here.
+            //      There are ways we can determine which locale
+            //      was used for a particular message, but there
+            //      are several messages in play here, each of
+            //      which may technically be a slightly different
+            //      locale (in case of fallbacks etc).
+            //
+            //      For now, just use the declared first locale
+            //      passed in by the requester, since that's
+            //      presumably what'd they'd *like* the message
+            //      to be in, if translations are available.
+            language: Cow::Owned(str!(&locales[0])),
         };
 
         // Helper structure to designate which variant of GetPageViewOutput to return.
@@ -184,7 +198,7 @@ impl ViewService {
                         wikitext,
                         render_output,
                     } = SpecialPageService::get(
-                        ctx, &site, page_type, &locale, page_info,
+                        ctx, &site, page_type, &locales, page_info,
                     )
                     .await?;
 
@@ -209,7 +223,7 @@ impl ViewService {
                     ctx,
                     &site,
                     SpecialPageType::Missing,
-                    &locale,
+                    &locales,
                     page_info,
                 )
                 .await?;
@@ -286,7 +300,7 @@ impl ViewService {
     /// operations, such as slug normalization or redirect site aliases.
     pub async fn get_viewer(
         ctx: &ServiceContext<'_>,
-        locale: &LanguageIdentifier,
+        locales: &[LanguageIdentifier],
         domain: &str,
         session_token: Option<&str>,
     ) -> Result<ViewerResult> {
@@ -300,14 +314,15 @@ impl ViewService {
                     (site, redirect_site)
                 }
                 SiteDomainResult::Slug(slug) => {
-                    let html = Self::missing_site_output(ctx, locale, domain, Some(slug))
-                        .await?;
+                    let html =
+                        Self::missing_site_output(ctx, locales, domain, Some(slug))
+                            .await?;
 
                     return Ok(ViewerResult::MissingSite(html));
                 }
                 SiteDomainResult::CustomDomain(domain) => {
                     let html =
-                        Self::missing_site_output(ctx, locale, domain, None).await?;
+                        Self::missing_site_output(ctx, locales, domain, None).await?;
 
                     return Ok(ViewerResult::MissingSite(html));
                 }
@@ -339,7 +354,7 @@ impl ViewService {
     /// Produce output for cases where a site does not exist.
     async fn missing_site_output(
         ctx: &ServiceContext<'_>,
-        locale: &LanguageIdentifier,
+        locales: &[LanguageIdentifier],
         domain: &str,
         site_slug: Option<&str>,
     ) -> Result<String> {
@@ -351,9 +366,8 @@ impl ViewService {
                 args.set("slug", fluent_str!(site_slug));
                 args.set("domain", fluent_str!(config.main_domain_no_dot));
 
-                // TODO pass in locale fallbacks
                 let html = ctx.localization().translate(
-                    [locale],
+                    locales,
                     "wiki-page-site-slug",
                     &args,
                 )?;
@@ -367,9 +381,8 @@ impl ViewService {
                 args.set("custom_domain", fluent_str!(domain));
                 args.set("domain", fluent_str!(config.main_domain_no_dot));
 
-                // TODO pass in locale fallbacks
                 let html = ctx.localization().translate(
-                    [locale],
+                    locales,
                     "wiki-page-site-custom",
                     &args,
                 )?;
@@ -420,4 +433,22 @@ impl ViewService {
             Some(target)
         }
     }
+}
+
+/// Converts an array of strings to a list of locales.
+///
+/// # Errors
+/// If the input array is empty.
+fn parse_locales<S: AsRef<str>>(locales_str: &[S]) -> Result<Vec<LanguageIdentifier>> {
+    if locales_str.is_empty() {
+        warn!("List of locales is empty");
+        return Err(Error::NoLocalesSpecified);
+    }
+
+    let mut locales = Vec::with_capacity(locales_str.len());
+    for locale_str in locales_str {
+        let locale = LanguageIdentifier::from_bytes(locale_str.as_ref().as_bytes())?;
+        locales.push(locale);
+    }
+    Ok(locales)
 }
