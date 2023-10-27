@@ -34,14 +34,29 @@ pub async fn connect(redis_uri: &str) -> Result<(ConnectionManager, MultiplexedR
     // Create RSMQ client
     let mut rsmq = MultiplexedRsmq::new_with_connection(rsmq_connection, true, None);
 
-    // Set up queue
-    rsmq.create_queue(
-        JOB_QUEUE_NAME,
-        JOB_QUEUE_PROCESS_TIME,
-        JOB_QUEUE_DELAY,
-        JOB_QUEUE_MAXIMUM_SIZE,
-    )
-    .await?;
+    // Set up queue if it doesn't already exist
+    if !job_queue_exists(&mut rsmq).await? {
+        info!("Creating Redis job queue '{JOB_QUEUE_NAME}'");
+        info!("* Process time: {JOB_QUEUE_PROCESS_TIME:?} seconds");
+        info!("* Delay time:   {JOB_QUEUE_DELAY:?} seconds");
+        info!("* Maximum body: {JOB_QUEUE_MAXIMUM_SIZE:?} bytes");
+
+        rsmq.create_queue(
+            JOB_QUEUE_NAME,
+            JOB_QUEUE_PROCESS_TIME,
+            JOB_QUEUE_DELAY,
+            JOB_QUEUE_MAXIMUM_SIZE,
+        )
+        .await?;
+    }
 
     Ok((redis, rsmq))
+}
+
+async fn job_queue_exists(rsmq: &mut MultiplexedRsmq) -> Result<bool> {
+    // NOTE: Effectively the same as rsmq.list_queues().await?.contains(JOB_QUEUE_NAME),
+    //       except we don't have to deal with the "&String" type issue.
+    let queues = rsmq.list_queues().await?;
+    let exists = queues.iter().find(|name| &JOB_QUEUE_NAME == name).is_some();
+    Ok(exists)
 }
