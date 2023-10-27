@@ -30,7 +30,6 @@
 //! * `user` / `block` / `user` &mdash; User has blocked another user
 
 mod prelude {
-    #![allow(unused_imports)]
     pub use super::super::prelude::*;
     pub use super::*;
     pub use crate::models::interaction::Model as InteractionModel;

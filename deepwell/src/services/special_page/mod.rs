@@ -24,7 +24,6 @@
 //! which display custom "this page does not exist" content.
 
 mod prelude {
-    #![allow(unused_imports)]
     pub use super::super::prelude::*;
     pub use super::structs::*;
 }
