@@ -62,7 +62,7 @@ pub async fn translate_strings(
 
     if locales.is_empty() {
         error!("No locales specified in translate call");
-        return Err(ServiceError::BadRequest);
+        return Err(ServiceError::NoLocalesSpecified);
     }
 
     info!(
