@@ -18,7 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#[derive(Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "snake_case", tag = "job", content = "data")]
 pub enum Job {
     RerenderPageId { site_id: i64, page_id: i64 },
     PruneSessions,
