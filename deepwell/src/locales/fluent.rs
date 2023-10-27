@@ -19,15 +19,17 @@
  */
 
 use super::error::{fluent_load_err, LocalizationLoadError};
+use super::fallback::iterate_locale_fallbacks;
 use crate::services::Error as ServiceError;
 use async_std::fs;
 use async_std::path::{Path, PathBuf};
 use async_std::prelude::*;
 use fluent::{bundle, FluentArgs, FluentMessage, FluentResource};
+use fluent_syntax::ast::Pattern;
 use intl_memoizer::concurrent::IntlLangMemoizer;
 use std::borrow::Cow;
 use std::collections::HashMap;
-use std::fmt::{self, Debug};
+use std::fmt::{self, Debug, Display};
 use unic_langid::LanguageIdentifier;
 
 pub type FluentBundle = bundle::FluentBundle<FluentResource, IntlLangMemoizer>;
@@ -112,38 +114,34 @@ impl Localizations {
         }
     }
 
-    fn get_message(
-        &self,
+    /// Retrieve the specified Fluent bundle and message.
+    fn get_message<'a>(
+        &'a self,
         locale: &LanguageIdentifier,
-        key: &str,
-    ) -> Result<(&FluentBundle, FluentMessage), ServiceError> {
+        path: &str,
+    ) -> Result<(&'a FluentBundle, FluentMessage), ServiceError> {
         match self.bundles.get(locale) {
             None => Err(ServiceError::LocaleMissing),
-            Some(bundle) => match bundle.get_message(key) {
+            Some(bundle) => match bundle.get_message(path) {
                 Some(message) => Ok((bundle, message)),
                 None => Err(ServiceError::LocaleMessageMissing),
             },
         }
     }
 
-    pub fn translate<'a>(
+    /// Retrieve the specified Fluent pattern from the associated bundle.
+    fn get_pattern<'a>(
         &'a self,
         locale: &LanguageIdentifier,
-        key: &str,
-        args: &'a FluentArgs<'a>,
-    ) -> Result<Cow<'a, str>, ServiceError> {
-        // Get appropriate message and bundle
-        let (path, attribute) = Self::parse_selector(key);
+        path: &str,
+        attribute: Option<&str>,
+    ) -> Result<(&'a FluentBundle, &'a Pattern<&'a str>), ServiceError> {
+        debug!("Checking for translation patterns in locale {locale}");
+
+        // Get appropriate message and bundle, if found
         let (bundle, message) = self.get_message(locale, path)?;
 
-        info!(
-            "Translating for locale {}, message path {}, attribute {}",
-            locale,
-            path,
-            attribute.unwrap_or("<none>"),
-        );
-
-        // Get pattern from message
+        // Get pattern from message, if present
         let pattern = match attribute {
             Some(attribute) => match message.get_attribute(attribute) {
                 Some(attrib) => attrib.value(),
@@ -155,13 +153,85 @@ impl Localizations {
             },
         };
 
+        Ok((bundle, pattern))
+    }
+
+    /// Iterate through a list of locales, and try to find the first existing pattern.
+    fn get_pattern_locales<'a, L, I>(
+        &'a self,
+        locales: I,
+        path: &str,
+        attribute: Option<&str>,
+    ) -> Result<(LanguageIdentifier, &'a FluentBundle, &'a Pattern<&'a str>), ServiceError>
+    where
+        L: AsRef<LanguageIdentifier> + 'a,
+        I: IntoIterator<Item = L>,
+    {
+        let mut last_error = ServiceError::NoLocalesSpecified; // Occurs if locales is empty
+
+        // Iterate through each locale to try
+        for locale_ref in locales {
+            // Iterate through each fallback locale (e.g. ['fr-BE'] -> ['fr-BE', 'fr'])
+            let locale = locale_ref.as_ref();
+            let result = iterate_locale_fallbacks(locale.clone(), |locale| {
+                // Try and get bundle and pattern, if it exists
+                match self.get_pattern(locale, path, attribute) {
+                    Err(error) => {
+                        debug!("Pattern not found for locale {locale}: {error}");
+                        last_error = error;
+                        None
+                    }
+                    Ok((bundle, pattern)) => {
+                        info!("Found pattern for locale {locale}");
+                        Some((bundle, pattern))
+                    }
+                }
+            });
+
+            if let Some((locale, (bundle, pattern))) = result {
+                return Ok((locale, bundle, pattern));
+            }
+        }
+
+        warn!("Could not find any translation patterns: {last_error}");
+        Err(last_error)
+    }
+
+    /// Translates the message, given the message key and formatting arguments.
+    ///
+    /// At least one locale must be specified. If no translation can be found for
+    /// the given locale, then progressively more generic forms are attempted. If
+    /// no translations can be found even for all fallback locales, an error is
+    /// returned.
+    pub fn translate<'a, L, I>(
+        &'a self,
+        locales: I,
+        key: &str,
+        args: &'a FluentArgs<'a>,
+    ) -> Result<Cow<'a, str>, ServiceError>
+    where
+        L: AsRef<LanguageIdentifier> + Display + 'a,
+        I: IntoIterator<Item = L>,
+    {
+        // Parse translation key
+        let (path, attribute) = Self::parse_selector(key);
+        info!(
+            "Checking message path {}, attribute {} for a matching locale",
+            path,
+            attribute.unwrap_or("<none>"),
+        );
+
+        // Find pattern for translating
+        let (locale, bundle, pattern) =
+            self.get_pattern_locales(locales, path, attribute)?;
+
         // Format using pattern
         let mut errors = vec![];
         let output = bundle.format_pattern(pattern, Some(args), &mut errors);
 
         // Log any errors
         if !errors.is_empty() {
-            warn!("Errors formatting message for locale {locale}, message key {key}",);
+            warn!("Errors formatting message for locale {locale}, message key {key}");
 
             for (key, value) in args.iter() {
                 warn!("Passed formatting argument: {key} -> {value:?}");
@@ -171,6 +241,10 @@ impl Localizations {
                 warn!("Message formatting error: {error}");
             }
         }
+
+        // We could return the locale used if we wished, but presently we discard this information.
+        // Change the return type of this method and its users if you need this information.
+        let _ = locale;
 
         // Done
         Ok(output)

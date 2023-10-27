@@ -1060,6 +1060,7 @@ dependencies = [
  "femme",
  "filemagic",
  "fluent",
+ "fluent-syntax",
  "ftml",
  "futures",
  "hex",

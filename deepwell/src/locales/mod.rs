@@ -20,8 +20,10 @@
 
 mod arguments;
 mod error;
+mod fallback;
 mod fluent;
 
 pub use self::arguments::{MessageArguments, MessageValue};
 pub use self::error::*;
+pub use self::fallback::iterate_locale_fallbacks;
 pub use self::fluent::Localizations;

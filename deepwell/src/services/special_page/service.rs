@@ -38,7 +38,7 @@ impl SpecialPageService {
         ctx: &ServiceContext<'_>,
         site: &SiteModel,
         sp_page_type: SpecialPageType,
-        locale: &LanguageIdentifier,
+        locales: &[LanguageIdentifier],
         page_info: PageInfo<'_>,
     ) -> Result<GetSpecialPageOutput> {
         info!(
@@ -55,6 +55,8 @@ impl SpecialPageService {
         // exists is the one that's used.
         let config = ctx.config();
         let (slugs, translate_key) = match sp_page_type {
+            // TODO: Figure out exact template ordering (e.g. _template vs cat:_template)
+            //       See https://scuttle.atlassian.net/browse/WJ-1201
             SpecialPageType::Template => (vec![cow!(config.special_page_template)], ""),
             SpecialPageType::Missing => {
                 let slugs = Self::slugs_with_category(
@@ -78,7 +80,7 @@ impl SpecialPageService {
             &slugs,
             translate_key,
             site.site_id,
-            locale,
+            locales,
             &page_info,
         )
         .await?;
@@ -124,7 +126,7 @@ impl SpecialPageService {
         slugs: &[Cow<'_, str>],
         translate_key: &str,
         site_id: i64,
-        locale: &LanguageIdentifier,
+        locales: &[LanguageIdentifier],
         page_info: &PageInfo<'_>,
     ) -> Result<String> {
         debug!("Getting wikitext for special page, {} slugs", slugs.len());
@@ -160,7 +162,10 @@ impl SpecialPageService {
         args.set("category", fluent_str!(category));
         args.set("domain", fluent_str!(ctx.config().main_domain_no_dot));
 
-        let wikitext = ctx.localization().translate(locale, translate_key, &args)?;
+        let wikitext = ctx
+            .localization()
+            .translate(locales, translate_key, &args)?;
+
         Ok(wikitext.into_owned())
     }
 }
