@@ -171,7 +171,7 @@ impl Localizations {
 
         // Iterate through each locale to try
         for locale_ref in locales {
-            // Iterate through each fallback locale (e.g. 'fr-BE' -> 'fr-BE', 'fr')
+            // Iterate through each fallback locale (e.g. ['fr-BE'] -> ['fr-BE', 'fr'])
             let locale = locale_ref.as_ref();
             let result = iterate_locale_fallbacks(locale.clone(), |locale| {
                 // Try and get bundle and pattern, if it exists
