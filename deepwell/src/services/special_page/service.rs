@@ -55,6 +55,8 @@ impl SpecialPageService {
         // exists is the one that's used.
         let config = ctx.config();
         let (slugs, translate_key) = match sp_page_type {
+            // TODO: Figure out exact template ordering (e.g. _template vs cat:_template)
+            //       See https://scuttle.atlassian.net/browse/WJ-1201
             SpecialPageType::Template => (vec![cow!(config.special_page_template)], ""),
             SpecialPageType::Missing => {
                 let slugs = Self::slugs_with_category(
