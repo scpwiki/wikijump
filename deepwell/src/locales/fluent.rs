@@ -167,7 +167,7 @@ impl Localizations {
         L: AsRef<LanguageIdentifier> + 'a,
         I: IntoIterator<Item = L>,
     {
-        let mut last_error = ServiceError::BadRequest; // NOTE: this can only happen if 'locales' is empty
+        let mut last_error = ServiceError::NoLocalesSpecified; // Occurs if locales is empty
 
         // Iterate through each locale to try
         for locale_ref in locales {

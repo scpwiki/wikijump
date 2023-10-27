@@ -62,6 +62,9 @@ pub enum Error {
     #[error("Message key was found, but does not have this attribute")]
     LocaleMessageAttributeMissing,
 
+    #[error("No locales were specified in the request")]
+    NoLocalesSpecified,
+
     #[error("Magic library error: {0}")]
     Magic(#[from] FileMagicError),
 
@@ -368,6 +371,7 @@ impl Error {
             Error::LocaleMessageMissing => 4102,
             Error::LocaleMessageValueMissing => 4103,
             Error::LocaleMessageAttributeMissing => 4104,
+            Error::NoLocalesSpecified => 4105,
 
             // 4200 -- Login errors
             Error::EmptyPassword => 4200,
