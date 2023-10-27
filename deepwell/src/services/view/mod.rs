@@ -19,6 +19,7 @@
  */
 
 mod prelude {
+    #![allow(unused_imports)]
     pub use super::super::prelude::*;
     pub use super::options::PageOptions;
     pub use super::structs::*;

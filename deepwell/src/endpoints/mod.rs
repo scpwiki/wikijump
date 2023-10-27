@@ -28,6 +28,7 @@
 //! around service calls, or possibly perform modest data conversion for HTTP.
 
 mod prelude {
+    #![allow(unused_imports)]
     pub use crate::api::ServerState;
     pub use crate::services::{
         AliasService, BlobService, CategoryService, DomainService, Error as ServiceError,

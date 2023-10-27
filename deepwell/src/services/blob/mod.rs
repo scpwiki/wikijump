@@ -25,6 +25,7 @@
 //! service instead, for instance the `FileService`.
 
 mod prelude {
+    #![allow(unused_imports)]
     pub use super::super::prelude::*;
     pub use super::structs::*;
     pub use crate::hash::{blob_hash_to_hex, sha512_hash, BlobHash};

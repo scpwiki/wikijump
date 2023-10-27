@@ -36,6 +36,7 @@
 //! clear enough to be acceptable when repeated over a few slightly distinct cases.
 
 mod prelude {
+    #![allow(unused_imports)]
     pub use super::super::prelude::*;
     pub use super::structs::*;
 }

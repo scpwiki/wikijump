@@ -28,6 +28,7 @@
 //! joining.
 
 mod prelude {
+    #![allow(unused_imports)]
     pub use super::super::prelude::*;
     pub use super::matcher::{FilterMatcher, FilterSummary};
     pub use super::structs::*;

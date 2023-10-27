@@ -35,6 +35,7 @@
 //! services or by route implementations found in the `methods` module.
 
 mod prelude {
+    #![allow(unused_imports)]
     pub use super::context::ServiceContext;
     pub use super::error::*;
     pub use crate::config::Config;

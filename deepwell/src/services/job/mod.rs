@@ -24,6 +24,7 @@
 //! can mean that if this DEEPWELL node fails, the queued jobs will not be run.
 
 mod prelude {
+    #![allow(unused_imports)]
     pub use super::super::prelude::*;
     pub use super::structs::*;
 }
