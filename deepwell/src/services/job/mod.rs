@@ -31,5 +31,5 @@ mod prelude {
 mod service;
 mod structs;
 
-pub use self::service::{JobQueue, JobService};
+pub use self::service::*;
 pub use self::structs::*;
