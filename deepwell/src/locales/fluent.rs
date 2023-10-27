@@ -177,7 +177,7 @@ impl Localizations {
                 // Try and get bundle and pattern, if it exists
                 match self.get_pattern(locale, path, attribute) {
                     Err(error) => {
-                        debug!("Pattern not found for locale {locale}: {error})");
+                        debug!("Pattern not found for locale {locale}: {error}");
                         last_error = error;
                         None
                     }
