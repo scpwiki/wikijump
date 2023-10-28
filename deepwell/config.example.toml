@@ -255,8 +255,8 @@ maximum-name-changes = 3
 # See WJ-1122.
 minimum-name-bytes = 3
 
-# Every this many days, all users get another
-# name change token (up to the cap). Checked hourly.
+# Every this many days, all users get another name change token (up to the cap).
+# See the "job" section above to configure how often this is checked.
 #
 # Set to 0 to disable.
 refill-name-change-days = 90
