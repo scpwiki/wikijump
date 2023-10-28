@@ -30,6 +30,7 @@ mod prelude {
 
 mod service;
 mod structs;
+mod worker;
 
 pub use self::service::*;
 pub use self::structs::*;

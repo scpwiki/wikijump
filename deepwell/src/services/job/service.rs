@@ -21,6 +21,7 @@
 use super::prelude::*;
 use crate::api::ServerState;
 use crate::services::{PageRevisionService, SessionService, TextService};
+use rsmq_async::RsmqConnection;
 use sea_orm::TransactionTrait;
 use tokio::sync::{mpsc, oneshot};
 use tokio::{task, time};
@@ -62,6 +63,13 @@ type StateReceiver = oneshot::Receiver<ServerState>;
 pub struct JobService;
 
 impl JobService {
+    pub async fn queue_job(ctx: &ServiceContext<'_>, job: &Job, delay: Option<u64>) -> Result<()> {
+        debug!("Queuing job {job:?} (delay {delay:?})");
+        let payload = serde_json::to_vec(job)?;
+        ctx.rsmq().send_message(JOB_QUEUE_NAME, payload, delay).await?;
+        Ok(())
+    }
+
     pub fn queue_rerender_page(queue: &JobQueue, site_id: i64, page_id: i64) {
         debug!("Queueing page ID {page_id} in site ID {site_id} for rerendering");
         queue
