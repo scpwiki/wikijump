@@ -145,7 +145,7 @@ delay-ms = 5
 # This is *not* needed to actually invalidate sessions, so
 # setting this to a long period is not a security risk.
 # It is merely for clearing the database of already-expired tokens.
-prune-session-secs = 600  # 5 minutes
+prune-session-secs = 3600  # 1 hour
 
 # The period, in seconds, to prune all unused text rows.
 #
