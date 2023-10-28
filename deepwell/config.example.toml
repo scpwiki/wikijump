@@ -131,6 +131,13 @@ time-skew = 1
 
 [job]
 
+# How many job workers are running in one instance of the DEEPWELL server.
+# Each worker runs in parallel, taking items from the job queue and
+# processing them.
+#
+# This value must be at least 1.
+workers = 2
+
 # How long, in milliseconds, to sleep in between jobs.
 #
 # The intent is to avoid overloading the database by allowing a
