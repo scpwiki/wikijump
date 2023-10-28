@@ -47,6 +47,9 @@ pub enum Error {
     #[error("Redis error: {0}")]
     Redis(#[from] redis::RedisError),
 
+    #[error("Redis Simple Message Queue (RSMQ) error: {0}")]
+    Rsmq(#[from] rsmq_async::RsmqError),
+
     #[error("Invalid locale: {0}")]
     LocaleInvalid(#[from] LanguageIdentifierError),
 
@@ -339,6 +342,7 @@ impl Error {
             Error::Magic(_) => 3204,
             Error::Otp(_) => 3205,
             Error::Redis(_) => 3206,
+            Error::Rsmq(_) => 3207,
 
             // 4000 - Client, request errors
             //        BadRequest is pretty general, avoid it except for rare weird cases
