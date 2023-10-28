@@ -77,9 +77,6 @@ impl OutdateService {
     }
 
     /// Queues the given pages for re-rendering.
-    ///
-    /// Finds the most recent revision for each of the given `(site_id, page_id)`
-    /// pairs passed in.
     pub fn outdate<I: IntoIterator<Item = (i64, i64)>>(ctx: &ServiceContext<'_>, ids: I) {
         for (site_id, page_id) in ids {
             JobService::queue_rerender_page(ctx.job_queue(), site_id, page_id);
