@@ -77,10 +77,15 @@ impl OutdateService {
     }
 
     /// Queues the given pages for re-rendering.
-    pub fn outdate<I: IntoIterator<Item = (i64, i64)>>(ctx: &ServiceContext<'_>, ids: I) {
+    pub async fn outdate<I: IntoIterator<Item = (i64, i64)>>(
+        ctx: &ServiceContext<'_>,
+        ids: I,
+    ) -> Result<()> {
         for (site_id, page_id) in ids {
-            JobService::queue_rerender_page(ctx.job_queue(), site_id, page_id);
+            JobService::queue_rerender_page(ctx, site_id, page_id).await?;
         }
+
+        Ok(())
     }
 
     pub async fn outdate_incoming_links(
@@ -98,7 +103,8 @@ impl OutdateService {
             .filter(|&(_, to_page_id)| to_page_id != page_id)
             .collect::<Vec<_>>();
 
-        Self::outdate(ctx, ids);
+        // XXX
+        Self::outdate(ctx, ids).await?;
         Ok(())
     }
 
@@ -121,7 +127,8 @@ impl OutdateService {
             .filter(|&(_, to_page_id)| to_page_id != page_id)
             .collect::<Vec<_>>();
 
-        Self::outdate(ctx, ids);
+        // XXX
+        Self::outdate(ctx, ids).await?;
         Ok(())
     }
 
@@ -157,7 +164,8 @@ impl OutdateService {
             .map(|model| (model.site_id, model.page_id))
             .collect::<Vec<_>>();
 
-            Self::outdate(ctx, ids);
+            // XXX
+            Self::outdate(ctx, ids).await?;
         }
 
         Ok(())

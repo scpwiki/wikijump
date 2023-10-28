@@ -131,13 +131,13 @@ pub struct Config {
     pub job_max_poll_delay: StdDuration,
 
     /// How often to run the "prune expired sessions" recurring job.
-    pub job_prune_session_period: StdDuration,
+    pub job_prune_session_secs: u64,
 
     /// How often to run the "prune unused text" recurring job.
-    pub job_prune_text_period: StdDuration,
+    pub job_prune_text_secs: u64,
 
     /// How often to run the "refill name change tokens" recurring job.
-    pub job_name_change_refill: StdDuration,
+    pub job_name_change_refill_secs: u64,
 
     /// Maximum run time for a render request.
     pub render_timeout: StdDuration,

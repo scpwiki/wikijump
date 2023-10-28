@@ -34,7 +34,7 @@ use crate::endpoints::{
 };
 use crate::locales::Localizations;
 use crate::services::blob::MimeAnalyzer;
-use crate::services::job::JobQueue;
+use crate::services::job::JobWorker;
 use crate::services::{into_rpc_error, ServiceContext};
 use crate::utils::debug_pointer;
 use crate::{database, redis as redis_db};
@@ -57,7 +57,6 @@ pub struct ServerStateInner {
     pub rsmq: MultiplexedRsmq,
     pub localizations: Localizations,
     pub mime_analyzer: MimeAnalyzer,
-    pub job_queue: JobQueue,
     pub s3_bucket: Bucket,
 }
 
@@ -70,7 +69,6 @@ impl Debug for ServerStateInner {
             .field("rsmq", &self.rsmq)
             .field("localizations", &self.localizations)
             .field("mime_analyzer", &self.mime_analyzer)
-            .field("job_queue", &self.job_queue)
             .field("s3_bucket", &self.s3_bucket)
             .finish()
     }
@@ -90,9 +88,6 @@ pub async fn build_server_state(
     // Load localization data
     info!("Loading localization data");
     let localizations = Localizations::open(&config.localization_path).await?;
-
-    // Set up job queue
-    let (job_queue, job_state_sender) = JobQueue::spawn(&config);
 
     // Load magic data and start MIME thread
     let mime_analyzer = MimeAnalyzer::spawn();
@@ -123,14 +118,11 @@ pub async fn build_server_state(
         rsmq,
         localizations,
         mime_analyzer,
-        job_queue,
         s3_bucket,
     });
 
-    // Start the job queue (requires ServerState)
-    job_state_sender
-        .send(Arc::clone(&state))
-        .expect("Unable to send ServerState");
+    // Start workers listening to the job queue (requires ServerState)
+    JobWorker::spawn_all(&state);
 
     // Return server state
     Ok(state)

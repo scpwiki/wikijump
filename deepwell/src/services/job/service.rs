@@ -19,12 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::api::ServerState;
-use crate::services::{PageRevisionService, SessionService, TextService};
 use rsmq_async::RsmqConnection;
-use sea_orm::TransactionTrait;
-use tokio::sync::{mpsc, oneshot};
-use tokio::{task, time};
 
 pub const JOB_QUEUE_NAME: &str = "job";
 
@@ -53,44 +48,30 @@ pub const JOB_QUEUE_DELAY: Option<u32> = None;
 /// just use IDs and references to items in the database.)
 pub const JOB_QUEUE_MAXIMUM_SIZE: Option<i32> = Some(1024);
 
-type RequestSender = mpsc::UnboundedSender<Job>;
-type RequestReceiver = mpsc::UnboundedReceiver<Job>;
-
-type StateSender = oneshot::Sender<ServerState>;
-type StateReceiver = oneshot::Receiver<ServerState>;
-
 #[derive(Debug)]
 pub struct JobService;
 
 impl JobService {
-    pub async fn queue_job(ctx: &ServiceContext<'_>, job: &Job, delay: Option<u64>) -> Result<()> {
-        debug!("Queuing job {job:?} (delay {delay:?})");
+    pub async fn queue_job(
+        ctx: &ServiceContext<'_>,
+        job: &Job,
+        delay: Option<u64>,
+    ) -> Result<()> {
+        info!("Queuing job {job:?} (delay {delay:?})");
         let payload = serde_json::to_vec(job)?;
-        ctx.rsmq().send_message(JOB_QUEUE_NAME, payload, delay).await?;
+        ctx.rsmq()
+            .send_message(JOB_QUEUE_NAME, payload, delay)
+            .await?;
+
         Ok(())
     }
 
-    pub fn queue_rerender_page(queue: &JobQueue, site_id: i64, page_id: i64) {
-        debug!("Queueing page ID {page_id} in site ID {site_id} for rerendering");
-        queue
-            .sink
-            .send(Job::RerenderPageId { site_id, page_id })
-            .expect("Job channel is closed");
-    }
-
-    pub fn queue_prune_sessions(queue: &JobQueue) {
-        debug!("Queueing sessions list for pruning");
-        queue
-            .sink
-            .send(Job::PruneSessions)
-            .expect("Job channel is closed");
-    }
-
-    pub fn queue_prune_text(queue: &JobQueue) {
-        debug!("Queueing unused text for pruning");
-        queue
-            .sink
-            .send(Job::PruneText)
-            .expect("Job channel is closed");
+    pub async fn queue_rerender_page(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+    ) -> Result<()> {
+        debug!("Queuing page rerender for page ID {page_id} and site ID {site_id}");
+        Self::queue_job(ctx, &Job::RerenderPage { site_id, page_id }, None).await
     }
 }
