@@ -24,4 +24,5 @@ pub enum Job {
     RerenderPageId { site_id: i64, page_id: i64 },
     PruneSessions,
     PruneText,
+    NameChangeRefill,
 }

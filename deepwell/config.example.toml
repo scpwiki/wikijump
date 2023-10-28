@@ -184,6 +184,16 @@ prune-session-secs = 3600  # 1 hour
 # the cleanup query is slow, the job should be run infrequently.
 prune-text-secs = 86400  # 1 day
 
+# Users can change their name, but because it creates a permanent redirect there,
+# they are limited in how often they can rename.
+#
+# This describes how often users are checked to see if they can get a new name
+# change token added to their account. It does not affect how often they get
+# new tokens or how many they can have.
+#
+# See the "user" section of those configuration below for more information.
+name-change-refill-secs = 86400  # 1 day
+
 
 [domain]
 
