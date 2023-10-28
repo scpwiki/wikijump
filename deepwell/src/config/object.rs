@@ -23,6 +23,7 @@ use anyhow::Result;
 use femme::LevelFilter;
 use std::env;
 use std::net::SocketAddr;
+use std::num::NonZeroU16;
 use std::path::PathBuf;
 use std::time::Duration as StdDuration;
 use time::Duration as TimeDuration;
@@ -115,14 +116,28 @@ pub struct Config {
     /// How much leniency should be allowed for TOTP.
     pub totp_time_skew: i64,
 
-    /// How long to sleep in between job loops.
-    pub job_delay: StdDuration,
+    /// The number of job workers to run in this process.
+    pub job_workers: NonZeroU16,
+
+    /// How long to sleep after finishing work on a job.
+    pub job_work_delay: StdDuration,
+
+    /// The minimum sleep time after polling an empty job queue.
+    /// This uses exponential value starting at this value.
+    pub job_min_poll_delay: StdDuration,
+
+    /// The maximum sleep time after polling an empty job queue.
+    /// This uses exponential value cappint out at this value.
+    pub job_max_poll_delay: StdDuration,
 
     /// How often to run the "prune expired sessions" recurring job.
     pub job_prune_session_period: StdDuration,
 
     /// How often to run the "prune unused text" recurring job.
     pub job_prune_text_period: StdDuration,
+
+    /// How often to run the "refill name change tokens" recurring job.
+    pub job_name_change_refill: StdDuration,
 
     /// Maximum run time for a render request.
     pub render_timeout: StdDuration,
