@@ -201,7 +201,17 @@ impl JobWorker {
             }
         };
 
-        // XXX process 'next', queue job
+        // Add follow-up job to queue, if required.
+        match next {
+            NextJob::Done => debug!("Job execution finished, no follow-up job to add"),
+            NextJob::Next { job, delay } => {
+                debug!("Job execution finished, follow-up job has been produced");
+                trace!("* Job:   {job:?}");
+                trace!("* Delay: {delay:?}");
+
+                JobService::queue_job(ctx, &job, delay).await?;
+            }
+        }
 
         trace!("Job execution finished, cleaning up");
         self.rsmq.delete_message(JOB_QUEUE_NAME, &data.id).await?;
