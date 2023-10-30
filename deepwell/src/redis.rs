@@ -57,6 +57,6 @@ async fn job_queue_exists(rsmq: &mut MultiplexedRsmq) -> Result<bool> {
     // NOTE: Effectively the same as rsmq.list_queues().await?.contains(JOB_QUEUE_NAME),
     //       except we don't have to deal with the "&String" type issue.
     let queues = rsmq.list_queues().await?;
-    let exists = queues.iter().find(|name| &JOB_QUEUE_NAME == name).is_some();
+    let exists = queues.iter().any(|name| JOB_QUEUE_NAME == name);
     Ok(exists)
 }
