@@ -6,20 +6,10 @@ export interface PageRoute {
 }
 
 export async function translate(
-  locale: string,
-  keys: Record<string, Record<string, string | number>> | {}
-): Promise<object> {
-  return client.request("translate", {
-    locale,
-    messages: keys
-  })
-}
-
-export async function translateWithFallback(
   locales: string[],
   keys: Record<string, Record<string, string | number>> | {}
 ): Promise<object> {
-  return client.request("translate_fallback", {
+  return client.request("translate", {
     locales,
     messages: keys
   })

@@ -39,12 +39,6 @@ pub struct TranslateInput {
 
 type TranslateOutput = HashMap<String, Option<String>>;
 
-#[derive(Deserialize, Debug, Clone)]
-struct TranlsateWithLocaleFallbackInput<'a> {
-    locales: Vec<String>,
-    messages: HashMap<String, MessageArguments<'a>>,
-}
-
 pub async fn locale_info(
     _ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -100,54 +94,6 @@ pub async fn translate_strings(
                 .translate(&locales, &message_key, &arguments)?;
 
         output.insert(message_key, Some(translation.to_string()));
-    }
-
-    Ok(output)
-}
-
-pub async fn translate_strings_fallback(
-    ctx: &ServiceContext<'_>,
-    params: Params<'static>,
-) -> Result<TranslateOutput> {
-    let TranlsateWithLocaleFallbackInput {
-        locales: locales_list,
-        messages,
-    }: TranlsateWithLocaleFallbackInput = params.parse()?;
-
-    info!(
-        "Translating {} message keys in locales {}",
-        messages.len(),
-        locales_list.join(", "),
-    );
-
-    let mut output: TranslateOutput = HashMap::new();
-
-    'localeLoop: for locale in locales_list.iter() {
-        let locale = LanguageIdentifier::from_bytes(locale.as_bytes())?;
-
-        for (message_key, arguments_raw) in &messages {
-            if !output.contains_key(message_key) {
-                info!(
-                    "Trying message key {message_key} ({} arguments) for locale {locale}",
-                    arguments_raw.len(),
-                );
-        
-                let arguments = arguments_raw.clone().into_fluent_args();
-                match ctx.localization().translate(&locale, &message_key, &arguments) {
-                    Ok(translation) => output.insert(message_key.to_string(), Some(translation.to_string())),
-                    Err(error) => match error {
-                        ServiceError::LocaleMissing => continue 'localeLoop,
-                        _ => None,
-                    },
-                };
-            }
-        }
-    }
-
-    for (message_key, _) in &messages {
-        if !output.contains_key(message_key) {
-            output.insert(message_key.to_string(), None);
-        }
     }
 
     Ok(output)

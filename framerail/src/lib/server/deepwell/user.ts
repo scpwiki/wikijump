@@ -4,13 +4,13 @@ import type { Optional } from "$lib/types.ts"
 export async function userView(
   domain: string,
   sessionToken: Optional<string>,
-  locale: string,
+  locales: string[],
   username?: string
 ): Promise<object> {
   return client.request("user_view", {
     domain,
     session_token: sessionToken,
-    locale,
+    locales,
     user: username
   })
 }

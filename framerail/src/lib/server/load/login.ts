@@ -1,5 +1,5 @@
 import defaults from "$lib/defaults"
-import { translateWithFallback } from "$lib/server/deepwell/translate"
+import { translate } from "$lib/server/deepwell/translate"
 import { parse } from "accept-language-parser"
 
 export async function loadLoginPage(request, cookies) {
@@ -34,7 +34,7 @@ export async function loadLoginPage(request, cookies) {
     "create-account": {}
   }
 
-  const translated = await translateWithFallback(locales, translateKeys)
+  const translated = await translate(locales, translateKeys)
 
   viewData.internationalization = translated
 

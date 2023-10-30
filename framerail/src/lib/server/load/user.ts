@@ -1,5 +1,5 @@
 import defaults from "$lib/defaults"
-import { translateWithFallback } from "$lib/server/deepwell/translate"
+import { translate } from "$lib/server/deepwell/translate"
 import { userView } from "$lib/server/deepwell/user.ts"
 import { error, redirect } from "@sveltejs/kit"
 import { parse } from "accept-language-parser"
@@ -15,7 +15,7 @@ export async function loadUser(username?: string, request, cookies) {
 
   if (!locales.includes(defaults.fallbackLocale)) locales.push(defaults.fallbackLocale)
 
-  const response = await userView(domain, sessionToken, defaults.fallbackLocale, username)
+  const response = await userView(domain, sessionToken, locales, username)
 
   let translateKeys: Record<string, Record<string, string | number> | {}> = {
     ...defaults.translateKeys
@@ -56,7 +56,7 @@ export async function loadUser(username?: string, request, cookies) {
     })
   }
 
-  const translated = await translateWithFallback(locales, translateKeys)
+  const translated = await translate(locales, translateKeys)
 
   viewData.internationalization = translated
 

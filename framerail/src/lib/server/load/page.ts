@@ -1,5 +1,5 @@
 import defaults from "$lib/defaults"
-import { translateWithFallback } from "$lib/server/deepwell/translate"
+import { translate } from "$lib/server/deepwell/translate"
 import { pageView } from "$lib/server/deepwell/views.ts"
 import type { Optional } from "$lib/types.ts"
 import { error, redirect } from "@sveltejs/kit"
@@ -23,12 +23,8 @@ export async function loadPage(
     lang.region ? `${lang.code}-${lang.region}` : lang.code
   )
 
-  // TODO also set up deepwell fluent so that fallback
-  //      languages are used, i.e. if I do en-GB it falls back to
-  //      en generic
-
   // Request data from backend
-  const response = await pageView(domain, defaults.fallbackLocale, route, sessionToken)
+  const response = await pageView(domain, locales, route, sessionToken)
 
   // TODO insert user preference at the beginning of the list
 
@@ -95,7 +91,7 @@ export async function loadPage(
     })
   }
 
-  const translated = await translateWithFallback(locales, translateKeys)
+  const translated = await translate(locales, translateKeys)
 
   viewData.internationalization = translated
 

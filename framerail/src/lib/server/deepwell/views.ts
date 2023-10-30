@@ -8,13 +8,13 @@ export interface PageRoute {
 
 export async function pageView(
   domain: string,
-  locale: string,
+  locales: string[],
   route: Optional<PageRoute>,
   sessionToken: Optional<string>
 ): Promise<object> {
   return client.request("page_view", {
     domain,
-    locale,
+    locales,
     session_token: sessionToken,
     route
   })

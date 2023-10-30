@@ -186,7 +186,6 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     // Localization
     register!("locale", locale_info);
     register!("translate", translate_strings);
-    register!("translate_fallback", translate_strings_fallback);
 
     // Web server
     register!("page_view", page_view);

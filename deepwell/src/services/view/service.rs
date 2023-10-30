@@ -293,19 +293,20 @@ impl ViewService {
         ctx: &ServiceContext<'_>,
         GetUserView {
             domain,
-            locale: locale_str,
+            locales: locales_str,
             user: user_ref,
             session_token,
         }: GetUserView<'_>,
     ) -> Result<GetUserViewOutput> {
         info!(
-            "Getting user view data for domain '{}', user '{:?}', locale '{}'",
+            "Getting user view data for domain '{}', user '{:?}', locales '{:?}'",
             domain,
             user_ref,
-            locale_str,
+            locales_str,
         );
 
-        let locale = LanguageIdentifier::from_bytes(locale_str.as_bytes())?;
+        // Parse all locales
+        let locales = parse_locales(&locales_str)?;
 
         // Attempt to get a viewer helper structure, but if the site doesn't exist
         // then return right away with the "no such site" response.
@@ -315,7 +316,7 @@ impl ViewService {
             user_session,
         } = match Self::get_viewer(
             ctx,
-            &locale,
+            &locales,
             &domain,
             session_token.ref_map(|s| s.as_str()),
         )

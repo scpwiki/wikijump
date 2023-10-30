@@ -93,7 +93,7 @@ pub struct GetUserView<'a> {
     pub domain: String,
     pub session_token: Option<String>,
     pub user: Option<Reference<'a>>,
-    pub locale: String,
+    pub locales: Vec<String>,
 }
 
 #[derive(Serialize, Debug, Clone)]
