@@ -109,20 +109,35 @@ impl JobWorker {
     async fn main_loop(mut self) -> Infallible {
         trace!("Beginning main execution of worker ID {}", self.id);
 
+        macro_rules! config {
+            ($field:ident $(,)?) => {
+                self.state.config.$field
+            };
+        }
+
+        let mut empty_queue_delay = config!(job_min_poll_delay);
         loop {
             let result = self.process_job().await;
             let duration = match result {
                 Ok(JobProcessStatus::NoJob) => {
                     trace!("No job for us to process, sleeping a while");
-                    todo!("long delay"); // XXX
+
+                    // Exponential backoff, double wait up to the cap
+                    if empty_queue_delay < config!(job_max_poll_delay) {
+                        empty_queue_delay *= 2;
+                    }
+
+                    empty_queue_delay
                 }
                 Ok(JobProcessStatus::ReceivedJob) => {
                     trace!("Job processing finished, sleeping a bit to avoid overloading the database");
-                    todo!("job delay"); // XXX
+                    empty_queue_delay = config!(job_min_poll_delay);
+                    config!(job_work_delay)
                 }
                 Err(error) => {
                     error!("Error while processing job: {error}");
-                    todo!("job delay"); // XXX
+                    empty_queue_delay = config!(job_min_poll_delay);
+                    config!(job_work_delay)
                 }
             };
 
