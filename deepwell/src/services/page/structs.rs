@@ -70,9 +70,12 @@ pub struct GetPageDirect {
 }
 
 #[derive(Deserialize, Debug, Clone)]
-pub struct GetPageDirectDetails {
+pub struct GetPageAnyDetails {
     pub site_id: i64,
     pub page_id: i64,
+
+    #[serde(default)]
+    pub allow_deleted: bool,
 
     #[serde(default)]
     pub details: PageDetails,

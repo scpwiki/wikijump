@@ -479,7 +479,11 @@ impl FileService {
     }
 
     #[inline]
-    pub async fn get_direct(ctx: &ServiceContext<'_>, file_id: i64, allow_deleted: bool,) -> Result<FileModel> {
+    pub async fn get_direct(
+        ctx: &ServiceContext<'_>,
+        file_id: i64,
+        allow_deleted: bool,
+    ) -> Result<FileModel> {
         find_or_error!(Self::get_direct_optional(ctx, file_id, allow_deleted), File)
     }
 

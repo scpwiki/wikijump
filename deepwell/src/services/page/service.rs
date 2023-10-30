@@ -355,7 +355,7 @@ impl PageService {
         }: RestorePage,
     ) -> Result<RestorePageOutput> {
         let txn = ctx.transaction();
-        let page = Self::get_direct(ctx, site_id, page_id).await?;
+        let page = Self::get_direct(ctx, page_id, true).await?;
         let slug = slug.unwrap_or(page.slug);
 
         // Do page checks:
