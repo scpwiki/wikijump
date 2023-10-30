@@ -252,11 +252,11 @@ impl PageRevisionService {
                 try_join!(
                     conditional_future!(
                         tasks.rerender_incoming_links,
-                        OutdateService::outdate_incoming_links(ctx, site_id, page_id),
+                        OutdateService::outdate_incoming_links(ctx, page_id),
                     ),
                     conditional_future!(
                         tasks.rerender_outgoing_includes,
-                        OutdateService::outdate_outgoing_includes(ctx, site_id, page_id),
+                        OutdateService::outdate_outgoing_includes(ctx, page_id),
                     ),
                     conditional_future!(
                         tasks.rerender_templates,

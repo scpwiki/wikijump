@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::models::page::Model as PageModel;
 use crate::services::{JobService, LinkService, PageService};
 use crate::utils::split_category_name;
 use crate::web::{ConnectionType, PageOrder};
@@ -36,7 +37,7 @@ impl OutdateService {
         let (category_slug, page_slug) = split_category_name(slug);
 
         try_join!(
-            OutdateService::outdate_outgoing_includes(ctx, site_id, page_id),
+            OutdateService::outdate_outgoing_includes(ctx, page_id),
             OutdateService::outdate_templates(ctx, site_id, category_slug, page_slug),
         )?;
 
@@ -52,7 +53,7 @@ impl OutdateService {
     ) -> Result<()> {
         try_join!(
             Self::process_page_edit(ctx, site_id, page_id, slug),
-            Self::outdate_incoming_links(ctx, site_id, page_id),
+            Self::outdate_incoming_links(ctx, page_id),
         )?;
 
         Ok(())
@@ -77,40 +78,33 @@ impl OutdateService {
     }
 
     /// Queues the given pages for re-rendering.
-    pub async fn outdate<I: IntoIterator<Item = (i64, i64)>>(
-        ctx: &ServiceContext<'_>,
-        ids: I,
-    ) -> Result<()> {
-        for (site_id, page_id) in ids {
-            JobService::queue_rerender_page(ctx, site_id, page_id).await?;
-        }
+    pub async fn outdate(ctx: &ServiceContext<'_>, page_id: i64) -> Result<()> {
+        let PageModel { site_id, .. } =
+            PageService::get_direct(ctx, page_id, false).await?;
 
-        Ok(())
+        JobService::queue_rerender_page(ctx, site_id, page_id).await
     }
 
     pub async fn outdate_incoming_links(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
         page_id: i64,
     ) -> Result<()> {
         const CONNECTION_TYPES: &[ConnectionType] = &[ConnectionType::Link];
 
-        let result = LinkService::get_to(ctx, page_id, Some(CONNECTION_TYPES)).await?;
-        let ids = result
+        for id in LinkService::get_to(ctx, page_id, Some(CONNECTION_TYPES))
+            .await?
             .connections
             .iter()
-            .map(|connection| (site_id, connection.from_page_id))
-            .filter(|&(_, to_page_id)| to_page_id != page_id)
-            .collect::<Vec<_>>();
-
-        // XXX
-        Self::outdate(ctx, ids).await?;
+            .map(|connection| connection.from_page_id)
+            .filter(|id| *id != page_id)
+        {
+            Self::outdate(ctx, id).await?;
+        }
         Ok(())
     }
 
     pub async fn outdate_outgoing_includes(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
         page_id: i64,
     ) -> Result<()> {
         const CONNECTION_TYPES: &[ConnectionType] = &[
@@ -119,16 +113,15 @@ impl OutdateService {
             ConnectionType::Component,
         ];
 
-        let result = LinkService::get_to(ctx, page_id, Some(CONNECTION_TYPES)).await?;
-        let ids = result
+        for id in LinkService::get_to(ctx, page_id, Some(CONNECTION_TYPES))
+            .await?
             .connections
             .iter()
-            .map(|connection| (site_id, connection.from_page_id))
-            .filter(|&(_, to_page_id)| to_page_id != page_id)
-            .collect::<Vec<_>>();
-
-        // XXX
-        Self::outdate(ctx, ids).await?;
+            .map(|connection| connection.from_page_id)
+            .filter(|id| *id != page_id)
+        {
+            Self::outdate(ctx, id).await?;
+        }
         Ok(())
     }
 
@@ -152,20 +145,18 @@ impl OutdateService {
                 Some(category_slug.into())
             };
 
-            let ids = PageService::get_all(
+            let pages = PageService::get_all(
                 ctx,
                 site_id,
                 category_select,
                 Some(false),
                 PageOrder::default(),
             )
-            .await?
-            .into_iter()
-            .map(|model| (model.site_id, model.page_id))
-            .collect::<Vec<_>>();
+            .await?;
 
-            // XXX
-            Self::outdate(ctx, ids).await?;
+            for page in pages {
+                Self::outdate(ctx, page.page_id).await?;
+            }
         }
 
         Ok(())
