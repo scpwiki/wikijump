@@ -565,22 +565,23 @@ impl PageService {
     #[inline]
     pub async fn get_direct(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
         page_id: i64,
+        allow_deleted: bool,
     ) -> Result<PageModel> {
-        find_or_error!(Self::get_direct_optional(ctx, site_id, page_id), Page)
+        find_or_error!(Self::get_direct_optional(ctx, page_id, allow_deleted), Page)
     }
 
     pub async fn get_direct_optional(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
         page_id: i64,
+        allow_deleted: bool,
     ) -> Result<Option<PageModel>> {
         let txn = ctx.transaction();
         let page = Page::find_by_id(page_id).one(txn).await?;
         if let Some(ref page) = page {
-            // Deny page access if for the wrong site
-            if page.site_id != site_id {
+            if !allow_deleted && page.deleted_at.is_some() {
+                // If we're not looking for deleted pages, then
+                // return nothing if the page whose ID match is.
                 return Ok(None);
             }
         }
