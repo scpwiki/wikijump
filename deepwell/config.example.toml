@@ -201,6 +201,15 @@ prune-text-secs = 86400  # 1 day
 # See the "user" section of those configuration below for more information.
 name-change-refill-secs = 86400  # 1 day
 
+# Some punishments are temporary, and meant to expire after some time.
+# Currently this is only bans.
+#
+# This job runs periodically to check for any such expired punishments,
+# and if they exist, they are automatically lifted.
+#
+# This field does not affect the duration of such punishments, only the
+# frequency of which they are checked for expiration.
+lift-expired-punishments-secs = 86400  # 1 day
 
 [domain]
 

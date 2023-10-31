@@ -39,6 +39,7 @@ max-delay-poll-secs = 360  # 6 minutes
 prune-session-secs = 600  # 5 minutes
 prune-text-secs = 86400  # 1 day
 name-change-refill-secs = 86400  # 1 day
+lift-expired-punishments-secs = 86400  # 1 day
 
 [locale]
 path = "/opt/locales"
