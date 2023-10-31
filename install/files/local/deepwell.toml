@@ -32,6 +32,7 @@ files = "wjfiles.localhost"
 
 [job]
 workers = 2
+max-attempts = 3
 delay-ms = 5
 min-delay-poll-secs = 10  # 10 seconds
 max-delay-poll-secs = 360  # 6 minutes

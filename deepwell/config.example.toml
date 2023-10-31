@@ -138,6 +138,13 @@ time-skew = 1
 # This value must be at least 1.
 workers = 2
 
+# How many retries to do on a failed job before deleting it regardless of outcome.
+#
+# This way perpetually-failing jobs eventually make their way out of the system.
+# Setting to 0 means jobs are not retried at all, being deleted after the first
+# job execution.
+max-attempts = 3
+
 # How long, in milliseconds, to sleep in between jobs.
 #
 # The intent is to avoid overloading the database by allowing a

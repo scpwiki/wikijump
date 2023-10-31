@@ -117,6 +117,7 @@ struct Mfa {
 #[serde(rename_all = "kebab-case")]
 struct Job {
     workers: NonZeroU16,
+    max_attempts: u16,
     delay_ms: u64,
     min_delay_poll_secs: u64,
     max_delay_poll_secs: u64,
@@ -249,6 +250,7 @@ impl ConfigFile {
             job:
                 Job {
                     workers: job_workers,
+                    max_attempts: job_max_attempts,
                     delay_ms: job_work_delay_ms,
                     min_delay_poll_secs: job_min_poll_delay_secs,
                     max_delay_poll_secs: job_max_poll_delay_secs,
@@ -330,6 +332,7 @@ impl ConfigFile {
             totp_time_step: time_step,
             totp_time_skew: time_skew,
             job_workers,
+            job_max_attempts,
             job_work_delay: StdDuration::from_millis(job_work_delay_ms),
             job_min_poll_delay: StdDuration::from_secs(job_min_poll_delay_secs),
             job_max_poll_delay: StdDuration::from_secs(job_max_poll_delay_secs),

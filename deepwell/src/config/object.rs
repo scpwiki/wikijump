@@ -119,6 +119,9 @@ pub struct Config {
     /// The number of job workers to run in this process.
     pub job_workers: NonZeroU16,
 
+    /// How many times to retry a job before deleting it anyways.
+    pub job_max_attempts: u16,
+
     /// How long to sleep after finishing work on a job.
     pub job_work_delay: StdDuration,
 
