@@ -159,6 +159,12 @@ impl JobWorker {
         debug!("* Received:            {}", data.fr);
         let job = serde_json::from_slice(&data.message)?;
 
+        let no_more_retries = data.rc >= u64::from(self.state.config.job_max_attempts);
+        if no_more_retries {
+            debug!("Last attempt for this message, it will not be retried if it fails");
+            self.rsmq.delete_message(JOB_QUEUE_NAME, &data.id).await?;
+        }
+
         debug!("Received job from queue: {job:?}");
         trace!("Setting up ServiceContext for job processing");
         let txn = self.state.database.begin().await?;
@@ -201,8 +207,13 @@ impl JobWorker {
             }
         };
 
-        trace!("Job execution finished, deleting message");
-        self.rsmq.delete_message(JOB_QUEUE_NAME, &data.id).await?;
+        // Don't delete more than once
+        //
+        // NOTE: We're only at this point if the job succeeded.
+        if !no_more_retries {
+            trace!("Job execution finished, deleting message");
+            self.rsmq.delete_message(JOB_QUEUE_NAME, &data.id).await?;
+        }
 
         // Add follow-up job to queue, if required.
         match next {
