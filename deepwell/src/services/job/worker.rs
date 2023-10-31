@@ -205,6 +205,20 @@ impl JobWorker {
                     delay: Some(self.state.config.job_name_change_refill_secs),
                 }
             }
+            Job::LiftExpiredPunishments => {
+                debug!("Checking if any outstanding punishments have expired");
+                // TODO implement tempban removal
+                //
+                //      We aren't going to be able to create jobs that have a wait time of say,
+                //      2 years, so instead we will just have this job run daily and check
+                //      to see if any bans have expired
+                //
+                //      currently only bans are the temporary, but others can be added here
+                NextJob::Next {
+                    job: Job::LiftExpiredPunishments,
+                    delay: Some(todo!()),
+                }
+            }
         };
 
         // Don't delete more than once

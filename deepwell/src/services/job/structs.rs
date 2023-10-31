@@ -25,4 +25,5 @@ pub enum Job {
     PruneSessions,
     PruneText,
     NameChangeRefill,
+    LiftExpiredPunishments,
 }
