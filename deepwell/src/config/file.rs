@@ -124,6 +124,7 @@ struct Job {
     prune_session_secs: u64,
     prune_text_secs: u64,
     name_change_refill_secs: u64,
+    lift_expired_punishments_secs: u64,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -257,6 +258,7 @@ impl ConfigFile {
                     prune_session_secs: job_prune_session_secs,
                     prune_text_secs: job_prune_text_secs,
                     name_change_refill_secs: job_name_change_refill_secs,
+                    lift_expired_punishments_secs: job_lift_expired_punishments_secs,
                 },
             locale: Locale {
                 path: localization_path,
@@ -299,6 +301,10 @@ impl ConfigFile {
         assert!(
             job_name_change_refill_secs < RSMQ_DELAY_LIMIT,
             "Name change refill job period time too long",
+        );
+        assert!(
+            job_lift_expired_punishments_secs < RSMQ_DELAY_LIMIT,
+            "Expired punishment cleanup job period time too long",
         );
 
         // Prefix domains with '.' so we can do easy subdomain checks
@@ -355,6 +361,7 @@ impl ConfigFile {
             job_prune_session_secs,
             job_prune_text_secs,
             job_name_change_refill_secs,
+            job_lift_expired_punishments_secs,
             render_timeout: StdDuration::from_millis(render_timeout_ms),
             special_page_prefix,
             special_page_template,

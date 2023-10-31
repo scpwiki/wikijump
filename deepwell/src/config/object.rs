@@ -142,6 +142,9 @@ pub struct Config {
     /// How often to run the "refill name change tokens" recurring job.
     pub job_name_change_refill_secs: u64,
 
+    /// How often to run the "lift expired punishments" recurring job.
+    pub job_lift_expired_punishments_secs: u64,
+
     /// Maximum run time for a render request.
     pub render_timeout: StdDuration,
 
