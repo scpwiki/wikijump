@@ -287,9 +287,19 @@ impl ConfigFile {
 
         // Assertions for bad values
         const RSMQ_DELAY_LIMIT: u64 = 9999999;
-        assert!(job_prune_session_secs < RSMQ_DELAY_LIMIT, "Session prune job period time too long");
-        assert!(job_prune_text_secs < RSMQ_DELAY_LIMIT, "Text prune job period time too long");
-        assert!(job_name_change_refill_secs < RSMQ_DELAY_LIMIT, "Name change refill job period time too long");
+
+        assert!(
+            job_prune_session_secs < RSMQ_DELAY_LIMIT,
+            "Session prune job period time too long",
+        );
+        assert!(
+            job_prune_text_secs < RSMQ_DELAY_LIMIT,
+            "Text prune job period time too long",
+        );
+        assert!(
+            job_name_change_refill_secs < RSMQ_DELAY_LIMIT,
+            "Name change refill job period time too long",
+        );
 
         // Prefix domains with '.' so we can do easy subdomain checks
         // and concatenations.
