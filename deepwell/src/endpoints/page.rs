@@ -22,8 +22,8 @@ use super::prelude::*;
 use crate::models::page::Model as PageModel;
 use crate::services::page::{
     CreatePage, CreatePageOutput, DeletePage, DeletePageOutput, EditPage, EditPageOutput,
-    GetPageDirect, GetPageDirectDetails, GetPageOutput, GetPageReferenceDetails,
-    MovePage, MovePageOutput, RestorePage, RestorePageOutput, RollbackPage,
+    GetPageAnyDetails, GetPageDirect, GetPageOutput, GetPageReferenceDetails, MovePage,
+    MovePageOutput, RestorePage, RestorePageOutput, RollbackPage,
 };
 use crate::services::{Result, TextService};
 use crate::web::{PageDetails, Reference};
@@ -58,14 +58,15 @@ pub async fn page_get_direct(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<Option<GetPageOutput>> {
-    let GetPageDirectDetails {
+    let GetPageAnyDetails {
         site_id,
         page_id,
         details,
+        allow_deleted,
     } = params.parse()?;
 
     info!("Getting page ID {page_id} in site ID {site_id}");
-    match PageService::get_direct_optional(ctx, site_id, page_id).await? {
+    match PageService::get_direct_optional(ctx, page_id, allow_deleted).await? {
         Some(page) => build_page_output(ctx, page, details).await,
         None => Ok(None),
     }

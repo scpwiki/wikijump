@@ -25,6 +25,7 @@ use std::convert::TryFrom;
 use std::fs::File;
 use std::io::Read;
 use std::net::SocketAddr;
+use std::num::NonZeroU16;
 use std::path::PathBuf;
 use std::time::Duration as StdDuration;
 use time::Duration as TimeDuration;
@@ -115,9 +116,15 @@ struct Mfa {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "kebab-case")]
 struct Job {
+    workers: NonZeroU16,
+    max_attempts: u16,
     delay_ms: u64,
+    min_delay_poll_secs: u64,
+    max_delay_poll_secs: u64,
     prune_session_secs: u64,
     prune_text_secs: u64,
+    name_change_refill_secs: u64,
+    lift_expired_punishments_secs: u64,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -243,9 +250,15 @@ impl ConfigFile {
                 },
             job:
                 Job {
-                    delay_ms: job_delay_ms,
-                    prune_session_secs,
-                    prune_text_secs,
+                    workers: job_workers,
+                    max_attempts: job_max_attempts,
+                    delay_ms: job_work_delay_ms,
+                    min_delay_poll_secs: job_min_poll_delay_secs,
+                    max_delay_poll_secs: job_max_poll_delay_secs,
+                    prune_session_secs: job_prune_session_secs,
+                    prune_text_secs: job_prune_text_secs,
+                    name_change_refill_secs: job_name_change_refill_secs,
+                    lift_expired_punishments_secs: job_lift_expired_punishments_secs,
                 },
             locale: Locale {
                 path: localization_path,
@@ -273,6 +286,26 @@ impl ConfigFile {
                     maximum_recipients: maximum_message_recipients,
                 },
         } = self;
+
+        // Assertions for bad values
+        const RSMQ_DELAY_LIMIT: u64 = 9999999;
+
+        assert!(
+            job_prune_session_secs < RSMQ_DELAY_LIMIT,
+            "Session prune job period time too long",
+        );
+        assert!(
+            job_prune_text_secs < RSMQ_DELAY_LIMIT,
+            "Text prune job period time too long",
+        );
+        assert!(
+            job_name_change_refill_secs < RSMQ_DELAY_LIMIT,
+            "Name change refill job period time too long",
+        );
+        assert!(
+            job_lift_expired_punishments_secs < RSMQ_DELAY_LIMIT,
+            "Expired punishment cleanup job period time too long",
+        );
 
         // Prefix domains with '.' so we can do easy subdomain checks
         // and concatenations.
@@ -320,9 +353,15 @@ impl ConfigFile {
             recovery_code_length,
             totp_time_step: time_step,
             totp_time_skew: time_skew,
-            job_delay: StdDuration::from_millis(job_delay_ms),
-            job_prune_session_period: StdDuration::from_secs(prune_session_secs),
-            job_prune_text_period: StdDuration::from_secs(prune_text_secs),
+            job_workers,
+            job_max_attempts,
+            job_work_delay: StdDuration::from_millis(job_work_delay_ms),
+            job_min_poll_delay: StdDuration::from_secs(job_min_poll_delay_secs),
+            job_max_poll_delay: StdDuration::from_secs(job_max_poll_delay_secs),
+            job_prune_session_secs,
+            job_prune_text_secs,
+            job_name_change_refill_secs,
+            job_lift_expired_punishments_secs,
             render_timeout: StdDuration::from_millis(render_timeout_ms),
             special_page_prefix,
             special_page_template,

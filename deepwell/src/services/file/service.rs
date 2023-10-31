@@ -329,7 +329,7 @@ impl FileService {
         }: RestoreFile,
     ) -> Result<RestoreFileOutput> {
         let txn = ctx.transaction();
-        let file = Self::get_direct(ctx, file_id).await?;
+        let file = Self::get_direct(ctx, file_id, true).await?;
         let new_page_id = new_page_id.unwrap_or(page_id);
         let new_name = new_name.unwrap_or(file.name);
 
@@ -460,6 +460,7 @@ impl FileService {
     pub async fn get_direct_optional(
         ctx: &ServiceContext<'_>,
         file_id: i64,
+        allow_deleted: bool,
     ) -> Result<Option<FileModel>> {
         let txn = ctx.transaction();
         let file = File::find()
@@ -467,12 +468,23 @@ impl FileService {
             .one(txn)
             .await?;
 
+        if let Some(ref file) = file {
+            if !allow_deleted && file.deleted_at.is_some() {
+                // If we're not looking for deleted files, then skip.
+                return Ok(None);
+            }
+        }
+
         Ok(file)
     }
 
     #[inline]
-    pub async fn get_direct(ctx: &ServiceContext<'_>, file_id: i64) -> Result<FileModel> {
-        find_or_error!(Self::get_direct_optional(ctx, file_id), File)
+    pub async fn get_direct(
+        ctx: &ServiceContext<'_>,
+        file_id: i64,
+        allow_deleted: bool,
+    ) -> Result<FileModel> {
+        find_or_error!(Self::get_direct_optional(ctx, file_id, allow_deleted), File)
     }
 
     /// Hard deletes this file and all duplicates.

@@ -22,7 +22,6 @@ use crate::api::ServerState;
 use crate::config::Config;
 use crate::locales::Localizations;
 use crate::services::blob::MimeAnalyzer;
-use crate::services::job::JobQueue;
 use redis::aio::ConnectionManager;
 use rsmq_async::MultiplexedRsmq;
 use s3::bucket::Bucket;
@@ -59,7 +58,6 @@ impl<'txn> ServiceContext<'txn> {
     }
 
     #[inline]
-    #[allow(dead_code)] // TODO https://scuttle.atlassian.net/browse/WJ-1176
     pub fn rsmq(&self) -> MultiplexedRsmq {
         MultiplexedRsmq::clone(&self.state.rsmq)
     }
@@ -72,11 +70,6 @@ impl<'txn> ServiceContext<'txn> {
     #[inline]
     pub fn mime(&self) -> &MimeAnalyzer {
         &self.state.mime_analyzer
-    }
-
-    #[inline]
-    pub fn job_queue(&self) -> &JobQueue {
-        &self.state.job_queue
     }
 
     #[inline]

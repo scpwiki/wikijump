@@ -18,9 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::services::job::{
+    JOB_QUEUE_DELAY, JOB_QUEUE_MAXIMUM_SIZE, JOB_QUEUE_NAME, JOB_QUEUE_PROCESS_TIME,
+};
 use anyhow::Result;
 use redis::aio::ConnectionManager;
-use rsmq_async::MultiplexedRsmq;
+use rsmq_async::{MultiplexedRsmq, RsmqConnection};
 
 pub async fn connect(redis_uri: &str) -> Result<(ConnectionManager, MultiplexedRsmq)> {
     // Create regular redis client
@@ -29,7 +32,31 @@ pub async fn connect(redis_uri: &str) -> Result<(ConnectionManager, MultiplexedR
     let redis = ConnectionManager::new(client).await?;
 
     // Create RSMQ client
-    let rsmq = MultiplexedRsmq::new_with_connection(rsmq_connection, true, None);
+    let mut rsmq = MultiplexedRsmq::new_with_connection(rsmq_connection, true, None);
+
+    // Set up queue if it doesn't already exist
+    if !job_queue_exists(&mut rsmq).await? {
+        info!("Creating Redis job queue '{JOB_QUEUE_NAME}'");
+        info!("* Process time: {JOB_QUEUE_PROCESS_TIME:?} seconds");
+        info!("* Delay time:   {JOB_QUEUE_DELAY:?} seconds");
+        info!("* Maximum body: {JOB_QUEUE_MAXIMUM_SIZE:?} bytes");
+
+        rsmq.create_queue(
+            JOB_QUEUE_NAME,
+            JOB_QUEUE_PROCESS_TIME,
+            JOB_QUEUE_DELAY,
+            JOB_QUEUE_MAXIMUM_SIZE,
+        )
+        .await?;
+    }
 
     Ok((redis, rsmq))
+}
+
+async fn job_queue_exists(rsmq: &mut MultiplexedRsmq) -> Result<bool> {
+    // NOTE: Effectively the same as rsmq.list_queues().await?.contains(JOB_QUEUE_NAME),
+    //       except we don't have to deal with the "&String" type issue.
+    let queues = rsmq.list_queues().await?;
+    let exists = queues.iter().any(|name| JOB_QUEUE_NAME == name);
+    Ok(exists)
 }

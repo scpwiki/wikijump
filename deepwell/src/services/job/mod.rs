@@ -25,11 +25,17 @@
 
 mod prelude {
     pub use super::super::prelude::*;
+    pub use super::service::{
+        JobService, JOB_QUEUE_DELAY, JOB_QUEUE_MAXIMUM_SIZE, JOB_QUEUE_NAME,
+        JOB_QUEUE_PROCESS_TIME,
+    };
     pub use super::structs::*;
 }
 
 mod service;
 mod structs;
+mod worker;
 
-pub use self::service::{JobQueue, JobService};
+pub use self::service::*;
 pub use self::structs::*;
+pub use self::worker::JobWorker;
