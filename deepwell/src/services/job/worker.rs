@@ -216,7 +216,7 @@ impl JobWorker {
                 //      currently only bans are the temporary, but others can be added here
                 NextJob::Next {
                     job: Job::LiftExpiredPunishments,
-                    delay: Some(todo!()),
+                    delay: Some(self.state.config.job_lift_expired_punishments_secs),
                 }
             }
         };
