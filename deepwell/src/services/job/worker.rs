@@ -201,6 +201,9 @@ impl JobWorker {
             }
         };
 
+        trace!("Job execution finished, deleting message");
+        self.rsmq.delete_message(JOB_QUEUE_NAME, &data.id).await?;
+
         // Add follow-up job to queue, if required.
         match next {
             NextJob::Done => debug!("Job execution finished, no follow-up job to add"),
@@ -213,8 +216,7 @@ impl JobWorker {
             }
         }
 
-        trace!("Job execution finished, cleaning up");
-        self.rsmq.delete_message(JOB_QUEUE_NAME, &data.id).await?;
+        trace!("Committing transaction, returning success");
         txn.commit().await?;
         Ok(JobProcessStatus::ReceivedJob)
     }
