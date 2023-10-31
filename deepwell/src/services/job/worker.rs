@@ -152,7 +152,7 @@ impl JobWorker {
                 Some(data) => data,
             };
 
-        debug!("Received raw data from queue");
+        debug!("Received raw data from queue (worker {})", self.id);
         debug!("* Message ID:          {}", data.id);
         debug!("* Previously received: {}", data.rc);
         debug!("* Created:             {}", data.sent);
