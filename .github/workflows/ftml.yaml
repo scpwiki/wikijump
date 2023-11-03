@@ -156,4 +156,6 @@ jobs:
         run: cd ftml && cargo fmt --all -- --check
 
       - name: Clippy
-        run: cd ftml && cargo clippy --no-deps
+        run: cd ftml && cargo clippy --no-deps -- -A unused_imports
+
+        # See deepwell.yaml for explainer on unused_imports.
