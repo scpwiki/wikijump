@@ -11,7 +11,7 @@ export async function POST(event) {
 
   let res = await authLogin(nameOrEmail, password, ipAddress, userAgent)
 
-  event.cookies.set("wikijump_token", res.sessionToken, {
+  event.cookies.set("wikijump_token", res.session_token, {
     path: "/"
   })
 

@@ -12,7 +12,7 @@
       body: fdata
     }).then((res) => res.json())
 
-    if (res.sessionToken) {
+    if (res.session_token) {
       isLoggedIn = true
       invalidateAll()
     }
