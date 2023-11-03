@@ -25,49 +25,58 @@ export async function POST(event) {
 
   let res: object = {}
 
-  if (extra.includes("edit")) {
-    /** Edit or create page. */
-    let comments = data.get("comments")?.toString() ?? ""
-    let wikitext = data.get("wikitext")?.toString()
-    let title = data.get("title")?.toString()
-    let altTitle = data.get("alt-title")?.toString()
-    let tagsStr = data.get("tags")?.toString().trim()
-    let tags: string[] = []
-    if (tagsStr?.length) tags = tagsStr.split(" ").filter((tag) => tag.length)
+  try {
+    if (extra.includes("edit")) {
+      /** Edit or create page. */
+      let comments = data.get("comments")?.toString() ?? ""
+      let wikitext = data.get("wikitext")?.toString()
+      let title = data.get("title")?.toString()
+      let altTitle = data.get("alt-title")?.toString()
+      let tagsStr = data.get("tags")?.toString().trim()
+      let tags: string[] = []
+      if (tagsStr?.length) tags = tagsStr.split(" ").filter((tag) => tag.length)
 
-    res = await page.pageEdit(
-      siteId,
-      pageId,
-      session.user_id,
-      slug,
-      comments,
-      wikitext,
-      title,
-      altTitle,
-      tags
-    )
-  } else if (extra.includes("history")) {
-    /** Retrieve page revision list. */
-    let revisionNumberStr = data.get("revision-number")?.toString()
-    let revisionNumber = revisionNumberStr ? parseInt(revisionNumberStr) : null
-    let limitStr = data.get("limit")?.toString()
-    let limit = limitStr ? parseInt(limitStr) : null
+      res = await page.pageEdit(
+        siteId,
+        pageId,
+        session?.user_id,
+        slug,
+        comments,
+        wikitext,
+        title,
+        altTitle,
+        tags
+      )
+    } else if (extra.includes("history")) {
+      /** Retrieve page revision list. */
+      let revisionNumberStr = data.get("revision-number")?.toString()
+      let revisionNumber = revisionNumberStr ? parseInt(revisionNumberStr) : null
+      let limitStr = data.get("limit")?.toString()
+      let limit = limitStr ? parseInt(limitStr) : null
 
-    res = await page.pageHistory(siteId, pageId, revisionNumber, limit)
-  } else if (extra.includes("move")) {
-    /** Move page to new slug. */
-    let comments = data.get("comments")?.toString() ?? ""
-    let newSlug = data.get("new-slug")?.toString()
+      res = await page.pageHistory(siteId, pageId, revisionNumber, limit)
+    } else if (extra.includes("move")) {
+      /** Move page to new slug. */
+      let comments = data.get("comments")?.toString() ?? ""
+      let newSlug = data.get("new-slug")?.toString()
 
-    res = await page.pageMove(siteId, pageId, session.user_id, slug, newSlug, comments)
-  } else if (extra.includes("revision")) {
-    let revisionNumberStr = data.get("revision-number")?.toString()
-    let revisionNumber = revisionNumberStr ? parseInt(revisionNumberStr) : null
+      res = await page.pageMove(siteId, pageId, session.user_id, slug, newSlug, comments)
+    } else if (extra.includes("revision")) {
+      let revisionNumberStr = data.get("revision-number")?.toString()
+      let revisionNumber = revisionNumberStr ? parseInt(revisionNumberStr) : null
 
-    res = await page.pageRevision(siteId, pageId, revisionNumber)
+      res = await page.pageRevision(siteId, pageId, revisionNumber)
+    }
+
+    return new Response(JSON.stringify(res))
+
+  } catch (error) {
+    return new Response(JSON.stringify({
+      message: error.message,
+      code: error.code,
+      data: error.data
+    }))
   }
-
-  return new Response(JSON.stringify(res))
 }
 
 /** Delete page. */
@@ -87,6 +96,14 @@ export async function DELETE(event) {
   let siteId = siteIdVal ? parseInt(siteIdVal) : null
   let comments = data.get("comments")?.toString() ?? ""
 
-  let res = await page.pageDelete(siteId, pageId, session.user_id, slug, comments)
-  return new Response(JSON.stringify(res))
+  try {
+    let res = await page.pageDelete(siteId, pageId, session?.user_id, slug, comments)
+    return new Response(JSON.stringify(res))
+  } catch (error) {
+    return new Response(JSON.stringify({
+      message: error.message,
+      code: error.code,
+      data: error.data
+    }))
+  }
 }

@@ -2,7 +2,20 @@
   import { page } from "$app/stores"
   import SigmaEsque from "$lib/sigma-esque/sigma-esque.svelte"
   import wjBanner from "$assets/logo-outline.min.svg?raw"
+  import { useErrorPopup } from "$lib/stores"
+  import ErrorPopup from "$lib/popup/error.svelte"
+  let showErrorPopup = useErrorPopup()
+  function closeErrorPopup() {
+    showErrorPopup.set({
+      state: false,
+      message: null,
+    })
+  }
 </script>
+
+{#if $showErrorPopup.state}
+  <ErrorPopup exitPrompt={closeErrorPopup} />
+{/if}
 
 <SigmaEsque>
   <svelte:fragment slot="header">

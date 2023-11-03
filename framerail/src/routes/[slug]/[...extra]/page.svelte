@@ -2,6 +2,8 @@
   import { page } from "$app/stores"
   import { goto, invalidateAll } from "$app/navigation"
   import { onMount } from "svelte"
+  import { useErrorPopup } from "$lib/stores";
+  let showErrorPopup = useErrorPopup()
 
   let showMoveAction = false
   let showHistory = false
@@ -16,11 +18,16 @@
     let fdata = new FormData()
     fdata.set("site-id", $page.data.site.site_id)
     fdata.set("page-id", $page.data.page.page_id)
-    await fetch(`/${$page.data.page.slug}`, {
+    let res = await fetch(`/${$page.data.page.slug}`, {
       method: "DELETE",
       body: fdata
-    })
-    invalidateAll()
+    }).then((res) => res.json())
+    if (res?.message) {
+      showErrorPopup.set({
+        state: true,
+        message: res.message
+      })
+    } else invalidateAll()
   }
 
   function navigateEdit() {
@@ -46,13 +53,20 @@
     let fdata = new FormData(form)
     fdata.set("site-id", $page.data.site.site_id)
     fdata.set("page-id", $page.data.page.page_id)
-    await fetch(`/${$page.data.page.slug}/edit`, {
+    let res = await fetch(`/${$page.data.page.slug}/edit`, {
       method: "POST",
       body: fdata
-    })
-    goto(`/${$page.data.page.slug}`, {
-      noScroll: true
-    })
+    }).then((res) => res.json())
+    if (res?.message) {
+      showErrorPopup.set({
+        state: true,
+        message: res.message
+      })
+    } else {
+      goto(`/${$page.data.page.slug}`, {
+        noScroll: true
+      })
+    }
   }
 
   async function handleMove() {
@@ -67,25 +81,40 @@
     }
     fdata.set("site-id", $page.data.site.site_id)
     fdata.set("page-id", $page.data.page.page_id)
-    await fetch(`/${$page.data.page.slug}/move`, {
+    let res = await fetch(`/${$page.data.page.slug}/move`, {
       method: "POST",
       body: fdata
-    })
-    goto(`/${newSlug}`, {
-      noScroll: true
-    })
-    showMoveAction = false
+    }).then((res) => res.json())
+    if (res?.message) {
+      showErrorPopup.set({
+        state: true,
+        message: res.message
+      })
+    } else {
+      goto(`/${newSlug}`, {
+        noScroll: true
+      })
+      showMoveAction = false
+    }
   }
 
   async function handleHistory() {
     let fdata = new FormData()
     fdata.set("site-id", $page.data.site.site_id)
     fdata.set("page-id", $page.data.page.page_id)
-    revisionList = await fetch(`/${$page.data.page.slug}/history`, {
+    let res = await fetch(`/${$page.data.page.slug}/history`, {
       method: "POST",
       body: fdata
     }).then((res) => res.json())
-    showHistory = true
+    if (res?.message) {
+      showErrorPopup.set({
+        state: true,
+        message: res.message
+      })
+    } else {
+      revisionList = res
+      showHistory = true
+    }
   }
 
   async function getRevision(revisionNumber: number) {
@@ -93,10 +122,18 @@
     fdata.set("site-id", $page.data.site.site_id)
     fdata.set("page-id", $page.data.page.page_id)
     fdata.set("revision-number", revisionNumber)
-    revision = await fetch(`/${$page.data.page.slug}/revision`, {
+    let res = await fetch(`/${$page.data.page.slug}/revision`, {
       method: "POST",
       body: fdata
     }).then((res) => res.json())
+    if (res?.message) {
+      showErrorPopup.set({
+        state: true,
+        message: res.message
+      })
+    } else {
+      revision = res
+    }
   }
 
   onMount(() => {

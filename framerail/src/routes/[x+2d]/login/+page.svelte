@@ -1,6 +1,8 @@
 <script lang="ts">
   import { page } from "$app/stores"
   import { invalidateAll } from "$app/navigation"
+  import { useErrorPopup } from "$lib/stores";
+  let showErrorPopup = useErrorPopup()
 
   let isLoggedIn = $page.data.isLoggedIn
 
@@ -15,6 +17,11 @@
     if (res.session_token) {
       isLoggedIn = true
       invalidateAll()
+    } else {
+      showErrorPopup.set({
+        state: true,
+        message: res.message
+      })
     }
   }
 </script>

@@ -1,6 +1,8 @@
 <script lang="ts">
   import { page } from "$app/stores"
   import { goto } from "$app/navigation"
+  import { useErrorPopup } from "$lib/stores";
+  let showErrorPopup = useErrorPopup()
 
   function cancelCreate() {
     goto(`/${$page.params.slug}`, {
@@ -13,13 +15,20 @@
     let fdata = new FormData(form)
     fdata.set("site-id", $page.error.site.site_id)
     fdata.set("slug", $page.params.slug)
-    await fetch(`/${$page.params.slug}/edit`, {
+    let res = await fetch(`/${$page.params.slug}/edit`, {
       method: "POST",
       body: fdata
-    })
-    goto(`/${$page.params.slug}`, {
-      noScroll: true
-    })
+    }).then(res=>res.json())
+    if (res?.message) {
+      showErrorPopup.set({
+        state: true,
+        message: res.message
+      })
+    } else {
+      goto(`/${$page.params.slug}`, {
+        noScroll: true
+      })
+    }
   }
 </script>
 
