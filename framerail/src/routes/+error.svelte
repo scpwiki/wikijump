@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page } from "$app/stores"
   import { goto } from "$app/navigation"
-  import { useErrorPopup } from "$lib/stores";
+  import { useErrorPopup } from "$lib/stores"
   let showErrorPopup = useErrorPopup()
 
   function cancelCreate() {
@@ -18,7 +18,7 @@
     let res = await fetch(`/${$page.params.slug}/edit`, {
       method: "POST",
       body: fdata
-    }).then(res=>res.json())
+    }).then((res) => res.json())
     if (res?.message) {
       showErrorPopup.set({
         state: true,

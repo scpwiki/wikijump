@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page } from "$app/stores"
   import { invalidateAll } from "$app/navigation"
-  import { useErrorPopup } from "$lib/stores";
+  import { useErrorPopup } from "$lib/stores"
   let showErrorPopup = useErrorPopup()
 
   let isLoggedIn = $page.data.isLoggedIn

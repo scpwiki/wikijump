@@ -5,7 +5,7 @@ export async function authLogin(
   password: string,
   ipAddress: string,
   userAgent: string
-): Promise<Record<string, any>> {
+): Promise<object> {
   return client.request("login", {
     name_or_email: nameOrEmail,
     password,

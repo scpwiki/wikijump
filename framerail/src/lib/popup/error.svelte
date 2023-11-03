@@ -6,20 +6,18 @@
   function containerExitPrompt(e: Event) {
     if ((e.target as HTMLElement).classList.contains("modal-container")) exitPrompt()
   }
-  const escKeydown = e => {
-    if (e.code.toLowerCase() == "escape") exitPrompt()
+  const escKeydown = (e) => {
+    if (e.code.toLowerCase() === "escape") exitPrompt()
   }
-  onMount(()=>{
+  onMount(() => {
     window.addEventListener("keydown", escKeydown)
   })
-  onDestroy(()=>{
+  onDestroy(() => {
     window.removeEventListener("keydown", escKeydown)
   })
 </script>
 
-<div class="modal-container"
-  on:click={containerExitPrompt}
-  on:keydown={escKeydown} >
+<div class="modal-container" on:click={containerExitPrompt} on:keydown={escKeydown}>
   <div class="modal error-modal">
     <h2>UT: Error</h2>
     <div class="modal-message">

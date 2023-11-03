@@ -69,13 +69,14 @@ export async function POST(event) {
     }
 
     return new Response(JSON.stringify(res))
-
   } catch (error) {
-    return new Response(JSON.stringify({
-      message: error.message,
-      code: error.code,
-      data: error.data
-    }))
+    return new Response(
+      JSON.stringify({
+        message: error.message,
+        code: error.code,
+        data: error.data
+      })
+    )
   }
 }
 
@@ -100,10 +101,12 @@ export async function DELETE(event) {
     let res = await page.pageDelete(siteId, pageId, session?.user_id, slug, comments)
     return new Response(JSON.stringify(res))
   } catch (error) {
-    return new Response(JSON.stringify({
-      message: error.message,
-      code: error.code,
-      data: error.data
-    }))
+    return new Response(
+      JSON.stringify({
+        message: error.message,
+        code: error.code,
+        data: error.data
+      })
+    )
   }
 }

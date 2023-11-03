@@ -2,7 +2,7 @@
   import { page } from "$app/stores"
   import { goto, invalidateAll } from "$app/navigation"
   import { onMount } from "svelte"
-  import { useErrorPopup } from "$lib/stores";
+  import { useErrorPopup } from "$lib/stores"
   let showErrorPopup = useErrorPopup()
 
   let showMoveAction = false
