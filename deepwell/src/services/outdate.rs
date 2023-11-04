@@ -38,13 +38,13 @@ impl OutdateService {
         let (category_slug, page_slug) = split_category_name(slug);
 
         try_join!(
-            OutdateService::outdate_outgoing_includes(ctx, page_id, depth + 1),
+            OutdateService::outdate_outgoing_includes(ctx, page_id, depth),
             OutdateService::outdate_templates(
                 ctx,
                 site_id,
                 category_slug,
                 page_slug,
-                depth + 1,
+                depth,
             ),
         )?;
 
@@ -60,8 +60,8 @@ impl OutdateService {
         depth: u32,
     ) -> Result<()> {
         try_join!(
-            Self::process_page_edit(ctx, site_id, page_id, slug, depth + 1),
-            Self::outdate_incoming_links(ctx, page_id, depth + 1),
+            Self::process_page_edit(ctx, site_id, page_id, slug, depth),
+            Self::outdate_incoming_links(ctx, page_id, depth),
         )?;
 
         Ok(())
@@ -79,8 +79,8 @@ impl OutdateService {
         // deleting at the old page location and
         // creating at the new page location.
         try_join!(
-            Self::process_page_displace(ctx, site_id, page_id, new_slug, depth + 1),
-            Self::process_page_displace(ctx, site_id, page_id, old_slug, depth + 1),
+            Self::process_page_displace(ctx, site_id, page_id, new_slug, depth),
+            Self::process_page_displace(ctx, site_id, page_id, old_slug, depth),
         )?;
 
         Ok(())
@@ -95,7 +95,7 @@ impl OutdateService {
         let PageModel { site_id, .. } =
             PageService::get_direct(ctx, page_id, false).await?;
 
-        JobService::queue_rerender_page(ctx, site_id, page_id, depth).await
+        JobService::queue_rerender_page(ctx, site_id, page_id, depth + 1).await
     }
 
     pub async fn outdate_incoming_links(
@@ -112,7 +112,7 @@ impl OutdateService {
             .map(|connection| connection.from_page_id)
             .filter(|id| *id != page_id)
         {
-            Self::outdate(ctx, id, depth + 1).await?;
+            Self::outdate(ctx, id, depth).await?;
         }
         Ok(())
     }
@@ -135,7 +135,7 @@ impl OutdateService {
             .map(|connection| connection.from_page_id)
             .filter(|id| *id != page_id)
         {
-            Self::outdate(ctx, id, depth + 1).await?;
+            Self::outdate(ctx, id, depth).await?;
         }
         Ok(())
     }
@@ -171,7 +171,7 @@ impl OutdateService {
             .await?;
 
             for page in pages {
-                Self::outdate(ctx, page.page_id, depth + 1).await?;
+                Self::outdate(ctx, page.page_id, depth).await?;
             }
         }
 

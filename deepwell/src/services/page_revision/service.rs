@@ -664,14 +664,8 @@ impl PageRevisionService {
             .await?;
 
         // Update descendents
-        OutdateService::process_page_edit(
-            ctx,
-            site_id,
-            page_id,
-            &revision.slug,
-            depth + 1,
-        )
-        .await?;
+        OutdateService::process_page_edit(ctx, site_id, page_id, &revision.slug, depth)
+            .await?;
 
         let model = page_revision::ActiveModel {
             updated_at: Set(Some(now())),
