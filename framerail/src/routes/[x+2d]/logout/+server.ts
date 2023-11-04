@@ -6,9 +6,11 @@ export async function DELETE(event) {
   try {
     let res = await authLogout(sessionToken)
 
-    event.cookies.set("wikijump_token", "", {
+    event.cookies.delete("wikijump_token", {
       path: "/",
-      maxAge: 0
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
     })
 
     return new Response(JSON.stringify(res))

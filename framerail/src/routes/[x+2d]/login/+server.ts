@@ -14,7 +14,12 @@ export async function POST(event) {
 
     if (res.session_token) {
       event.cookies.set("wikijump_token", res.session_token, {
-        path: "/"
+        path: "/",
+        httpOnly: true,
+        secure: true,
+        sameSite: "lax"
+        // TODO made deepwell return the cookie expiration for setting maxAge
+        // maxAge: someValue
       })
     }
 
