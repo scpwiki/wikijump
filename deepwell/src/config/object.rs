@@ -157,7 +157,10 @@ pub struct Config {
     /// The condition means that the current job depth is equal or greater
     /// than the specified depth value, _and_ that the page revision was
     /// last updated in the duration value specified.
-    pub rerender_skip: Vec<(u32, StdDuration)>,
+    ///
+    /// If the duration value is `None`, then that check is skipped. This
+    /// is specified in the configuration by placing a "0".
+    pub rerender_skip: Vec<(u32, Option<StdDuration>)>,
 
     /// Prefix for "special pages". Default: `_`
     pub special_page_prefix: String,

@@ -382,7 +382,13 @@ impl ConfigFile {
                          job_depth,
                          last_update_ms,
                      }| {
-                        (job_depth, StdDuration::from_millis(last_update_ms))
+                        (
+                            job_depth,
+                            match last_update_ms {
+                                0 => None,
+                                _ => Some(StdDuration::from_millis(last_update_ms)),
+                            },
+                        )
                     },
                 )
                 .collect(),
