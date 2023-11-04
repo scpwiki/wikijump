@@ -160,7 +160,7 @@ pub struct Config {
     ///
     /// If the duration value is `None`, then that check is skipped. This
     /// is specified in the configuration by placing a "0".
-    pub rerender_skip: Vec<(u32, Option<StdDuration>)>,
+    pub rerender_skip: Vec<(u32, Option<TimeDuration>)>,
 
     /// Prefix for "special pages". Default: `_`
     pub special_page_prefix: String,

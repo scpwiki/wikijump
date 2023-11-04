@@ -151,7 +151,7 @@ struct Ftml {
 #[serde(rename_all = "kebab-case")]
 struct RerenderSkip {
     job_depth: u32,
-    last_update_ms: u64,
+    last_update_ms: u32,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -386,7 +386,9 @@ impl ConfigFile {
                             job_depth,
                             match last_update_ms {
                                 0 => None,
-                                _ => Some(StdDuration::from_millis(last_update_ms)),
+                                _ => Some(TimeDuration::milliseconds(i64::from(
+                                    last_update_ms,
+                                ))),
                             },
                         )
                     },
