@@ -244,6 +244,40 @@ path = "../locales"
 render-timeout-ms = 2000
 
 
+# Under what conditions a rerender job should be skipped rather than processed.
+#
+# This exists to cut off some rare cases where a page update job results in further
+# updates, which leads to other updates, etc, in such a way that it is either an
+# infinite loop, or updating excessively many pages.
+#
+# This works like a filter-matching system, where the first matching condition causes
+# the rerendering to be skipped.
+
+[[ftml.rerender-skip]]
+# If a page was rerendered in the last 100 milliseconds, and this isn't a top-level job.
+job-depth = 1
+last-update-ms = 100
+
+[[ftml.rerender-skip]]
+# If a page was rerendered in the last 1.5 seconds, and it's a fairly deep rerender, may
+# be a possible loop.
+job-depth = 10
+last-update-ms = 1500
+
+[[ftml.rerender-skip]]
+# Disallow rerendering depths of more than 50, no matter what.
+# (0 disables the timestamp check)
+job-depth = 50
+last-update-ms = 0
+
+# Alternate, more compact representation of the above:
+# rerender-skip = [
+#     { job-depth = 1, last-update-ms = 100 },
+#     { job-depth = 10, last-update-ms = 1500 },
+#     { job-depth = 50, last-update-ms = 0 },
+# ]
+
+
 [special-pages]
 
 # List of special pages, by slug.
