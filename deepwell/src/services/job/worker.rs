@@ -172,9 +172,15 @@ impl JobWorker {
 
         trace!("Beginning job processing");
         let next = match job {
-            Job::RerenderPage { site_id, page_id } => {
-                debug!("Rerendering page ID {page_id} in site ID {site_id}");
-                PageRevisionService::rerender(ctx, site_id, page_id).await?;
+            Job::RerenderPage {
+                site_id,
+                page_id,
+                depth,
+            } => {
+                debug!(
+                    "Rerendering page ID {page_id} in site ID {site_id} (depth {depth})",
+                );
+                PageRevisionService::rerender(ctx, site_id, page_id, depth).await?;
                 NextJob::Done
             }
             Job::PruneSessions => {

@@ -111,7 +111,7 @@ pub async fn page_rerender(
 ) -> Result<()> {
     let GetPageDirect { site_id, page_id } = params.parse()?;
     info!("Re-rendering page ID {page_id} in site ID {site_id}");
-    PageRevisionService::rerender(ctx, site_id, page_id).await
+    PageRevisionService::rerender(ctx, site_id, page_id, 0).await
 }
 
 pub async fn page_restore(

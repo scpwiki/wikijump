@@ -41,7 +41,7 @@ pub const JOB_QUEUE_DELAY: Option<u32> = None;
 /// The maximum size, in bytes, that a job payload is allowed to be
 ///
 /// Presently, our jobs are mostly unit types, and the biggest variant
-/// is composed of two integers, so this is more than large enough.
+/// is composed of three integers, so this is more than large enough.
 /// If larger jobs become a thing in the future, this may need to be updated.
 ///
 /// (But as a general code principle there shouldn't be huge jobs, they should
@@ -66,12 +66,31 @@ impl JobService {
         Ok(())
     }
 
+    /// Queues a page for being rerendered soon.
+    ///
+    /// # Arguments
+    /// * `site_id` &mdash; The ID of the site the page is on.
+    /// * `page_id` &mdash; The ID of the page.
+    /// * `depth` &mdash; If rerendering a page causes more pages to be rerendered due to
+    ///                   outdating, then this value should be incremented with each layer
+    ///                   of job depth. This way we can avoid infinite loop conditions where
+    ///                   jobs endlessly pile onto the queue, rerendering each other.
     pub async fn queue_rerender_page(
         ctx: &ServiceContext<'_>,
         site_id: i64,
         page_id: i64,
+        depth: u32,
     ) -> Result<()> {
         debug!("Queuing page rerender for page ID {page_id} and site ID {site_id}");
-        Self::queue_job(ctx, &Job::RerenderPage { site_id, page_id }, None).await
+        Self::queue_job(
+            ctx,
+            &Job::RerenderPage {
+                site_id,
+                page_id,
+                depth,
+            },
+            None,
+        )
+        .await
     }
 }

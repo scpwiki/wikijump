@@ -21,7 +21,11 @@
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "snake_case", tag = "job", content = "data")]
 pub enum Job {
-    RerenderPage { site_id: i64, page_id: i64 },
+    RerenderPage {
+        site_id: i64,
+        page_id: i64,
+        depth: u32,
+    },
     PruneSessions,
     PruneText,
     NameChangeRefill,

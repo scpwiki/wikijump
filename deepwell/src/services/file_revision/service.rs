@@ -141,7 +141,7 @@ impl FileRevisionService {
 
         // Run outdater
         let page_slug = Self::get_page_slug(ctx, site_id, page_id).await?;
-        OutdateService::process_page_edit(ctx, site_id, page_id, &page_slug).await?;
+        OutdateService::process_page_edit(ctx, site_id, page_id, &page_slug, 0).await?;
 
         // Insert the new revision into the table
         let model = file_revision::ActiveModel {
@@ -194,7 +194,8 @@ impl FileRevisionService {
 
         // Run outdater
         let page_slug = Self::get_page_slug(ctx, site_id, page_id).await?;
-        OutdateService::process_page_displace(ctx, site_id, page_id, &page_slug).await?;
+        OutdateService::process_page_displace(ctx, site_id, page_id, &page_slug, 0)
+            .await?;
 
         // Insert the first revision into the table
         let model = file_revision::ActiveModel {
@@ -256,7 +257,7 @@ impl FileRevisionService {
 
         // Run outdater
         let page_slug = Self::get_page_slug(ctx, site_id, page_id).await?;
-        OutdateService::process_page_edit(ctx, site_id, page_id, &page_slug).await?;
+        OutdateService::process_page_edit(ctx, site_id, page_id, &page_slug, 0).await?;
 
         // Insert the tombstone revision into the table
         let model = file_revision::ActiveModel {
@@ -342,7 +343,7 @@ impl FileRevisionService {
 
         // Run outdater
         let new_page_slug = Self::get_page_slug(ctx, site_id, new_page_id).await?;
-        OutdateService::process_page_edit(ctx, site_id, new_page_id, &new_page_slug)
+        OutdateService::process_page_edit(ctx, site_id, new_page_id, &new_page_slug, 0)
             .await?;
 
         // Insert the resurrection revision into the table

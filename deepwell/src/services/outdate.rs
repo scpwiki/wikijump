@@ -33,12 +33,19 @@ impl OutdateService {
         site_id: i64,
         page_id: i64,
         slug: &str,
+        depth: u32,
     ) -> Result<()> {
         let (category_slug, page_slug) = split_category_name(slug);
 
         try_join!(
-            OutdateService::outdate_outgoing_includes(ctx, page_id),
-            OutdateService::outdate_templates(ctx, site_id, category_slug, page_slug),
+            OutdateService::outdate_outgoing_includes(ctx, page_id, depth + 1),
+            OutdateService::outdate_templates(
+                ctx,
+                site_id,
+                category_slug,
+                page_slug,
+                depth + 1,
+            ),
         )?;
 
         Ok(())
@@ -50,10 +57,11 @@ impl OutdateService {
         site_id: i64,
         page_id: i64,
         slug: &str,
+        depth: u32,
     ) -> Result<()> {
         try_join!(
-            Self::process_page_edit(ctx, site_id, page_id, slug),
-            Self::outdate_incoming_links(ctx, page_id),
+            Self::process_page_edit(ctx, site_id, page_id, slug, depth + 1),
+            Self::outdate_incoming_links(ctx, page_id, depth + 1),
         )?;
 
         Ok(())
@@ -65,29 +73,35 @@ impl OutdateService {
         page_id: i64,
         old_slug: &str,
         new_slug: &str,
+        depth: u32,
     ) -> Result<()> {
         // In terms of outdating, a move is equivalent to
         // deleting at the old page location and
         // creating at the new page location.
         try_join!(
-            Self::process_page_displace(ctx, site_id, page_id, new_slug),
-            Self::process_page_displace(ctx, site_id, page_id, old_slug),
+            Self::process_page_displace(ctx, site_id, page_id, new_slug, depth + 1),
+            Self::process_page_displace(ctx, site_id, page_id, old_slug, depth + 1),
         )?;
 
         Ok(())
     }
 
     /// Queues the given pages for re-rendering.
-    pub async fn outdate(ctx: &ServiceContext<'_>, page_id: i64) -> Result<()> {
+    pub async fn outdate(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
+        depth: u32,
+    ) -> Result<()> {
         let PageModel { site_id, .. } =
             PageService::get_direct(ctx, page_id, false).await?;
 
-        JobService::queue_rerender_page(ctx, site_id, page_id).await
+        JobService::queue_rerender_page(ctx, site_id, page_id, depth).await
     }
 
     pub async fn outdate_incoming_links(
         ctx: &ServiceContext<'_>,
         page_id: i64,
+        depth: u32,
     ) -> Result<()> {
         const CONNECTION_TYPES: &[ConnectionType] = &[ConnectionType::Link];
 
@@ -98,7 +112,7 @@ impl OutdateService {
             .map(|connection| connection.from_page_id)
             .filter(|id| *id != page_id)
         {
-            Self::outdate(ctx, id).await?;
+            Self::outdate(ctx, id, depth + 1).await?;
         }
         Ok(())
     }
@@ -106,6 +120,7 @@ impl OutdateService {
     pub async fn outdate_outgoing_includes(
         ctx: &ServiceContext<'_>,
         page_id: i64,
+        depth: u32,
     ) -> Result<()> {
         const CONNECTION_TYPES: &[ConnectionType] = &[
             ConnectionType::IncludeMessy,
@@ -120,7 +135,7 @@ impl OutdateService {
             .map(|connection| connection.from_page_id)
             .filter(|id| *id != page_id)
         {
-            Self::outdate(ctx, id).await?;
+            Self::outdate(ctx, id, depth + 1).await?;
         }
         Ok(())
     }
@@ -130,6 +145,7 @@ impl OutdateService {
         site_id: i64,
         category_slug: &str,
         page_slug: &str,
+        depth: u32,
     ) -> Result<()> {
         // If a template page has been updated,
         // we need to recompile everything in that category.
@@ -155,7 +171,7 @@ impl OutdateService {
             .await?;
 
             for page in pages {
-                Self::outdate(ctx, page.page_id).await?;
+                Self::outdate(ctx, page.page_id, depth + 1).await?;
             }
         }
 
