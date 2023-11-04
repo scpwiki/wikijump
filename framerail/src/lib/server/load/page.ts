@@ -1,6 +1,7 @@
 import defaults from "$lib/defaults"
 import { translate } from "$lib/server/deepwell/translate"
 import { pageView } from "$lib/server/deepwell/views.ts"
+import type { TranslateKeys } from "$lib/types"
 import type { Optional } from "$lib/types.ts"
 import { error, redirect } from "@sveltejs/kit"
 import { parse } from "accept-language-parser"
@@ -57,12 +58,14 @@ export async function loadPage(
       errorStatus = 404
   }
 
-  let translateKeys: Record<string, Record<string, string | number> | {}> = {
+  let translateKeys: TranslateKeys = {
     ...defaults.translateKeys
   }
 
   if (errorStatus === null) {
-    translateKeys = Object.assign(translateKeys, {
+    translateKeys = {
+      ...translateKeys,
+
       // Page actions
       "edit": {},
       "delete": {},
@@ -88,7 +91,7 @@ export async function loadPage(
       "wiki-page-move-new-slug": {},
       "wiki-page-no-render": {},
       "wiki-page-view-source": {}
-    })
+    }
   }
 
   const translated = await translate(locales, translateKeys)

@@ -1,6 +1,7 @@
 import defaults from "$lib/defaults"
 import { translate } from "$lib/server/deepwell/translate"
 import { userView } from "$lib/server/deepwell/user.ts"
+import type { TranslateKeys } from "$lib/types"
 import { error, redirect } from "@sveltejs/kit"
 import { parse } from "accept-language-parser"
 
@@ -17,7 +18,7 @@ export async function loadUser(username?: string, request, cookies) {
 
   const response = await userView(domain, sessionToken, locales, username)
 
-  let translateKeys: Record<string, Record<string, string | number> | {}> = {
+  let translateKeys: TranslateKeys = {
     ...defaults.translateKeys
   }
 
@@ -42,18 +43,20 @@ export async function loadUser(username?: string, request, cookies) {
   }
 
   if (errorStatus !== null) {
-    translateKeys = Object.assign(translateKeys, {
+    translateKeys = {
+      ...translateKeys,
       "user-not-exist": {}
-    })
+    }
   } else {
-    translateKeys = Object.assign(translateKeys, {
+    translateKeys = {
+      ...translateKeys,
       "user-profile-info.name": {},
       "user-profile-info.gender": {},
       "user-profile-info.birthday": {},
       "user-profile-info.location": {},
       "user-profile-info.biography": {},
       "user-profile-info.user-page": {}
-    })
+    }
   }
 
   const translated = await translate(locales, translateKeys)

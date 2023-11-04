@@ -1,5 +1,6 @@
 import defaults from "$lib/defaults"
 import { translate } from "$lib/server/deepwell/translate"
+import type { TranslateKeys } from "$lib/types"
 import { parse } from "accept-language-parser"
 
 export async function loadLoginPage(request, cookies) {
@@ -13,12 +14,12 @@ export async function loadLoginPage(request, cookies) {
   )
 
   let viewData: Record<string, any> = {
-    isLoggedIn: !!sessionToken
+    isLoggedIn: Boolean(sessionToken)
   }
 
   if (!locales.includes(defaults.fallbackLocale)) locales.push(defaults.fallbackLocale)
 
-  let translateKeys: Record<string, Record<string, string | number> | {}> = {
+  const translateKeys: TranslateKeys = {
     ...defaults.translateKeys,
 
     // Page actions

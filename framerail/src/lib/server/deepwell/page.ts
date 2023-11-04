@@ -75,7 +75,7 @@ export async function pageMove(
 export async function pageRevision(
   siteId: number,
   pageId: Optional<number>,
-  revisionNumber: Optional<Number>
+  revisionNumber: Optional<number>
 ): Promise<object> {
   return client.request("page_revision_get", {
     site_id: siteId,
