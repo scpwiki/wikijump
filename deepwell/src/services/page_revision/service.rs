@@ -613,8 +613,34 @@ impl PageRevisionService {
     ) -> Result<()> {
         let txn = ctx.transaction();
         let revision = Self::get_latest(ctx, site_id, page_id).await?;
+        info!(
+            "Re-rendering revision: site ID {} page ID {} revision ID {} (depth {})",
+            site_id, page_id, revision.revision_id, depth,
+        );
 
-        // TODO check depth against max, updated_at
+        // Check that this rerender request / job is not blocked by the
+        // specified anti-loop/excessive rerender rules.
+        macro_rules! updated_recently {
+            ($offset:expr) => {
+                match ($offset, revision.updated_at) {
+                    (None, _) => true, // no update offset, skip check
+                    (_, None) => true, // revision has never been updated before, check is irrelevant
+
+                    // check that at least [duration] time since [updated_at] has elapsed
+                    (Some(duration), Some(updated_at)) => {
+                        now() > updated_at + duration
+                    }
+                }
+            };
+        }
+
+        for &(check_depth, update_offset) in &ctx.config().rerender_skip {
+            debug!("Checking rerender-skip rule: depth {check_depth}, updated offset {update_offset:?}");
+            if depth >= check_depth && updated_recently!(update_offset) {
+                warn!("Skipping rerender job, too deep and updated too recently");
+                return Ok(());
+            }
+        }
 
         let wikitext = TextService::get(ctx, &revision.wikitext_hash).await?;
         let score = ScoreService::score(ctx, page_id).await?;
