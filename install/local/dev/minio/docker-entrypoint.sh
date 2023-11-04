@@ -18,7 +18,7 @@ readonly mc_region="${MINIO_REGION_NAME:-us-east-1}"
 # Helper functions
 
 function wait_for_server() {
-	until curl -If "http://localhost:$api_port/minio/health/live"; do
+	until /healthcheck.sh "$api_port"; do
 		sleep 1
 		echo "Waiting..."
 	done
