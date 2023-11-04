@@ -33,7 +33,6 @@ use super::prelude::*;
 use crate::models::page::Model as PageModel;
 use crate::models::page_revision::Model as PageRevisionModel;
 use crate::models::site::Model as SiteModel;
-use crate::models::user::Model as UserModel;
 use crate::services::domain::SiteDomainResult;
 use crate::services::render::RenderOutput;
 use crate::services::special_page::{GetSpecialPageOutput, SpecialPageType};
@@ -300,9 +299,7 @@ impl ViewService {
     ) -> Result<GetUserViewOutput> {
         info!(
             "Getting user view data for domain '{}', user '{:?}', locales '{:?}'",
-            domain,
-            user_ref,
-            locales_str,
+            domain, user_ref, locales_str,
         );
 
         // Parse all locales
@@ -338,16 +335,12 @@ impl ViewService {
 
         // Get data to return for this user.
         let user = match user_ref {
-            Some(user_ref) => UserService::get_optional(
-                ctx,
-                user_ref,
-            )
-            .await?,
+            Some(user_ref) => UserService::get_optional(ctx, user_ref).await?,
             // For users visiting their own user info page
             None => match &viewer.user_session {
                 Some(user_session) => Some(user_session.user.clone()),
                 None => None,
-            }
+            },
         };
 
         let output = match user {
@@ -356,7 +349,6 @@ impl ViewService {
         };
 
         Ok(output)
-
     }
 
     /// Gets basic data and runs common logic for all web routes.

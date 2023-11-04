@@ -18,8 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
 use super::options::PageOptions;
+use super::prelude::*;
 use crate::models::page::Model as PageModel;
 use crate::models::page_revision::Model as PageRevisionModel;
 use crate::models::session::Model as SessionModel;
@@ -111,7 +111,7 @@ pub enum GetUserViewOutput {
     },
 
     SiteMissing {
-        html: String
+        html: String,
     },
 }
 
