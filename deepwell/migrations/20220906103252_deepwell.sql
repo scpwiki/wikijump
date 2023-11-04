@@ -241,6 +241,7 @@ CREATE TABLE page_revision (
     revision_id BIGSERIAL PRIMARY KEY,
     revision_type page_revision_type NOT NULL DEFAULT 'regular',
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+    updated_at TIMESTAMP WITH TIME ZONE,
     revision_number INT NOT NULL,
     page_id BIGINT NOT NULL REFERENCES page(page_id),
     site_id BIGINT NOT NULL REFERENCES site(site_id),

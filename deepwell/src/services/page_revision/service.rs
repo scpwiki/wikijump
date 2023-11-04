@@ -648,6 +648,7 @@ impl PageRevisionService {
         .await?;
 
         let model = page_revision::ActiveModel {
+            updated_at: Set(Some(now())),
             revision_id: Set(revision.revision_id),
             compiled_hash: Set(compiled_hash.to_vec()),
             compiled_generator: Set(compiled_generator),
@@ -706,6 +707,7 @@ impl PageRevisionService {
         // Update the revision
 
         let model = page_revision::ActiveModel {
+            updated_at: Set(Some(now())),
             revision_id: Set(revision_id),
             hidden: Set(hidden),
             ..Default::default()

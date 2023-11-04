@@ -11,6 +11,7 @@ pub struct Model {
     pub revision_id: i64,
     pub revision_type: PageRevisionType,
     pub created_at: TimeDateTimeWithTimeZone,
+    pub updated_at: Option<TimeDateTimeWithTimeZone>,
     pub revision_number: i32,
     pub page_id: i64,
     pub site_id: i64,
