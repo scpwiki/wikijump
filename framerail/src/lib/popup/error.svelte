@@ -1,5 +1,5 @@
 <script lang="ts">
-  export let exitPrompt: Function
+  export let exitPrompt: () => void
   import { onMount, onDestroy } from "svelte"
   import { useErrorPopup } from "$lib/stores"
   let showErrorPopup = useErrorPopup()
