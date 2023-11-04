@@ -358,6 +358,7 @@ impl ViewService {
                 // The user is missing, fetch the "missing user" data.
                 None => UserStatus::Missing,
             },
+            // For users visiting their own user info page
             None => match &viewer.user_session {
                 Some(user_session) => UserStatus::Found { user: user_session.user.clone() },
                 None => UserStatus::Missing,
