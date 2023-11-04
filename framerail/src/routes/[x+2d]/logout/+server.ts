@@ -10,7 +10,7 @@ export async function DELETE(event) {
       path: "/",
       httpOnly: true,
       secure: true,
-      sameSite: "lax",
+      sameSite: "lax"
     })
 
     return new Response(JSON.stringify(res))
