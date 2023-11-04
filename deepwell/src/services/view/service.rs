@@ -336,38 +336,23 @@ impl ViewService {
             user_session,
         };
 
-        // Helper structure to designate which variant of GetUserViewOutput to return.
-        #[derive(Debug)]
-        enum UserStatus {
-            Found {
-                user: UserModel,
-            },
-            Missing,
-        }
-
         // Get data to return for this user.
-        let status = match user_ref {
-            Some(user_ref) => match UserService::get_optional(
+        let user = match user_ref {
+            Some(user_ref) => UserService::get_optional(
                 ctx,
                 user_ref,
             )
-            .await?
-            {
-                // This user exists, return its data directly.
-                Some(user) => UserStatus::Found{ user },
-                // The user is missing, fetch the "missing user" data.
-                None => UserStatus::Missing,
-            },
+            .await?,
             // For users visiting their own user info page
             None => match &viewer.user_session {
-                Some(user_session) => UserStatus::Found { user: user_session.user.clone() },
-                None => UserStatus::Missing,
+                Some(user_session) => Some(user_session.user.clone()),
+                None => None,
             }
         };
 
-        let output = match status {
-            UserStatus::Found { user } => GetUserViewOutput::UserFound { viewer, user },
-            UserStatus::Missing => GetUserViewOutput::UserMissing { viewer },
+        let output = match user {
+            Some(user) => GetUserViewOutput::UserFound { viewer, user },
+            None => GetUserViewOutput::UserMissing { viewer },
         };
 
         Ok(output)
