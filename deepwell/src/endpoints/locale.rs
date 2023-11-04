@@ -37,7 +37,7 @@ pub struct TranslateInput {
     messages: HashMap<String, MessageArguments<'static>>,
 }
 
-type TranslateOutput = HashMap<String, Option<String>>;
+type TranslateOutput = HashMap<String, String>;
 
 pub async fn locale_info(
     _ctx: &ServiceContext<'_>,
@@ -93,7 +93,7 @@ pub async fn translate_strings(
             ctx.localization()
                 .translate(&locales, &message_key, &arguments)?;
 
-        output.insert(message_key, Some(translation.to_string()));
+        output.insert(message_key, translation.to_string());
     }
 
     Ok(output)
