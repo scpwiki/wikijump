@@ -180,7 +180,7 @@ impl PageRevisionService {
 
         // If nothing has changed, then don't create a new revision
         if changes.is_empty() {
-            Self::rerender(ctx, site_id, page_id).await?;
+            Self::rerender(ctx, site_id, page_id, 0).await?;
             return Ok(None);
         }
 
@@ -238,8 +238,10 @@ impl PageRevisionService {
                 // the source and destination slugs, which is why we don't
                 // also run those again.
 
-                OutdateService::process_page_move(ctx, site_id, page_id, old_slug, &slug)
-                    .await?;
+                OutdateService::process_page_move(
+                    ctx, site_id, page_id, old_slug, &slug, 0,
+                )
+                .await?;
 
                 PageRevisionType::Move
             }
@@ -252,11 +254,11 @@ impl PageRevisionService {
                 try_join!(
                     conditional_future!(
                         tasks.rerender_incoming_links,
-                        OutdateService::outdate_incoming_links(ctx, page_id),
+                        OutdateService::outdate_incoming_links(ctx, page_id, 0),
                     ),
                     conditional_future!(
                         tasks.rerender_outgoing_includes,
-                        OutdateService::outdate_outgoing_includes(ctx, page_id),
+                        OutdateService::outdate_outgoing_includes(ctx, page_id, 0),
                     ),
                     conditional_future!(
                         tasks.rerender_templates,
@@ -265,6 +267,7 @@ impl PageRevisionService {
                             site_id,
                             category_slug,
                             page_slug,
+                            0,
                         ),
                     ),
                 )?;
@@ -350,7 +353,7 @@ impl PageRevisionService {
             .await?;
 
         // Run outdater
-        OutdateService::process_page_displace(ctx, site_id, page_id, &slug).await?;
+        OutdateService::process_page_displace(ctx, site_id, page_id, &slug, 0).await?;
 
         // Insert the first revision into the table
         let model = page_revision::ActiveModel {
@@ -413,7 +416,7 @@ impl PageRevisionService {
         } = previous;
 
         // Run outdater
-        OutdateService::process_page_displace(ctx, site_id, page_id, &slug).await?;
+        OutdateService::process_page_displace(ctx, site_id, page_id, &slug, 0).await?;
 
         // Delete parent-child relationships, if any
         ParentService::remove_all(ctx, page_id).await?;
@@ -519,7 +522,8 @@ impl PageRevisionService {
         replace_hash(&mut compiled_hash, &new_compiled_hash);
 
         // Run outdater
-        OutdateService::process_page_displace(ctx, site_id, page_id, &new_slug).await?;
+        OutdateService::process_page_displace(ctx, site_id, page_id, &new_slug, 0)
+            .await?;
 
         // Insert the resurrection revision into the table
         let model = page_revision::ActiveModel {
@@ -597,13 +601,47 @@ impl PageRevisionService {
     /// Re-renders a page.
     ///
     /// This fetches the latest revision for a page, and re-renders it.
+    ///
+    /// The `depth` parameter describes the number of layers of prior rerendering
+    /// automatically leading to other updates. For a manual rerender this value
+    /// should be 0.
     pub async fn rerender(
         ctx: &ServiceContext<'_>,
         site_id: i64,
         page_id: i64,
+        depth: u32,
     ) -> Result<()> {
         let txn = ctx.transaction();
         let revision = Self::get_latest(ctx, site_id, page_id).await?;
+        info!(
+            "Re-rendering revision: site ID {} page ID {} revision ID {} (depth {})",
+            site_id, page_id, revision.revision_id, depth,
+        );
+
+        // Check that this rerender request / job is not blocked by the
+        // specified anti-loop/excessive rerender rules.
+        macro_rules! updated_recently {
+            ($offset:expr) => {
+                match ($offset, revision.updated_at) {
+                    (None, _) => true, // no update offset, skip check
+                    (_, None) => true, // revision has never been updated before, check is irrelevant
+
+                    // check that at least [duration] time since [updated_at] has elapsed
+                    (Some(duration), Some(updated_at)) => {
+                        now() > updated_at + duration
+                    }
+                }
+            };
+        }
+
+        for &(check_depth, update_offset) in &ctx.config().rerender_skip {
+            debug!("Checking rerender-skip rule: depth {check_depth}, updated offset {update_offset:?}");
+            if depth >= check_depth && updated_recently!(update_offset) {
+                warn!("Skipping rerender job, too deep and updated too recently");
+                return Ok(());
+            }
+        }
+
         let wikitext = TextService::get(ctx, &revision.wikitext_hash).await?;
         let score = ScoreService::score(ctx, page_id).await?;
 
@@ -626,9 +664,11 @@ impl PageRevisionService {
             .await?;
 
         // Update descendents
-        OutdateService::process_page_edit(ctx, site_id, page_id, &revision.slug).await?;
+        OutdateService::process_page_edit(ctx, site_id, page_id, &revision.slug, depth)
+            .await?;
 
         let model = page_revision::ActiveModel {
+            updated_at: Set(Some(now())),
             revision_id: Set(revision.revision_id),
             compiled_hash: Set(compiled_hash.to_vec()),
             compiled_generator: Set(compiled_generator),
@@ -687,6 +727,7 @@ impl PageRevisionService {
         // Update the revision
 
         let model = page_revision::ActiveModel {
+            updated_at: Set(Some(now())),
             revision_id: Set(revision_id),
             hidden: Set(hidden),
             ..Default::default()

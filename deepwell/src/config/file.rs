@@ -144,6 +144,14 @@ struct Domain {
 #[serde(rename_all = "kebab-case")]
 struct Ftml {
     render_timeout_ms: u64,
+    rerender_skip: Vec<RerenderSkip>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "kebab-case")]
+struct RerenderSkip {
+    job_depth: u32,
+    last_update_ms: u32,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -263,7 +271,11 @@ impl ConfigFile {
             locale: Locale {
                 path: localization_path,
             },
-            ftml: Ftml { render_timeout_ms },
+            ftml:
+                Ftml {
+                    render_timeout_ms,
+                    rerender_skip,
+                },
             special_pages:
                 SpecialPages {
                     special_prefix: special_page_prefix,
@@ -363,6 +375,25 @@ impl ConfigFile {
             job_name_change_refill_secs,
             job_lift_expired_punishments_secs,
             render_timeout: StdDuration::from_millis(render_timeout_ms),
+            rerender_skip: rerender_skip
+                .iter()
+                .map(
+                    |&RerenderSkip {
+                         job_depth,
+                         last_update_ms,
+                     }| {
+                        (
+                            job_depth,
+                            match last_update_ms {
+                                0 => None,
+                                _ => Some(TimeDuration::milliseconds(i64::from(
+                                    last_update_ms,
+                                ))),
+                            },
+                        )
+                    },
+                )
+                .collect(),
             special_page_prefix,
             special_page_template,
             special_page_missing,

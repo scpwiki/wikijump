@@ -46,6 +46,11 @@ path = "/opt/locales"
 
 [ftml]
 render-timeout-ms = 2000
+rerender-skip = [
+    { job-depth = 1, last-update-ms = 100 },
+    { job-depth = 10, last-update-ms = 1500 },
+    { job-depth = 50, last-update-ms = 0 },
+]
 
 [special-pages]
 special-prefix = "_"
