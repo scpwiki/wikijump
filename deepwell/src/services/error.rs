@@ -164,6 +164,9 @@ pub enum Error {
     #[error("User slug cannot be empty")]
     UserSlugEmpty,
 
+    #[error("User email cannot be empty")]
+    UserEmailEmpty,
+
     #[error("Message subject cannot be empty")]
     MessageSubjectEmpty,
 
@@ -362,6 +365,7 @@ impl Error {
             Error::SiteSlugEmpty => 4013,
             Error::UserNameTooShort => 4014,
             Error::UserSlugEmpty => 4015,
+            Error::UserEmailEmpty => 4022,
             Error::MessageSubjectEmpty => 4016,
             Error::MessageSubjectTooLong => 4017,
             Error::MessageBodyEmpty => 4018,
