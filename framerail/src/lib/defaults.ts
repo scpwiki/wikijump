@@ -7,10 +7,6 @@ const defaults = {
     "privacy": {},
     "docs": {},
     "security": {},
-
-    // Page actions
-    "save": {},
-    "cancel": {}
   },
   page: {
     history: {
