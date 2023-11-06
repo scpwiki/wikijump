@@ -105,8 +105,8 @@ impl UserService {
             return Err(Error::UserExists);
         }
 
-        // Check for email conflicts
-        // Bot accounts are allowed to have duplicate emails
+        // Check for email conflicts, if a regular user
+        // Other kinds of accounts do not need unique emails
         if user_type == UserType::Regular {
             let result = User::find()
                 .filter(
