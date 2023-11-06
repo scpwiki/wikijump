@@ -340,7 +340,7 @@ impl ViewService {
             None => viewer
                 .user_session
                 .as_ref()
-                .and_then(|session| Some(session.user.clone())),
+                .map(|session| session.user.clone()),
         };
 
         let output = match user {
