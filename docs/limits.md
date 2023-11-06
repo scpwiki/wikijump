@@ -1,6 +1,7 @@
 ## Limits
 
 Wikijump is intended to be used for very large sites which contain numerous pages, revisions, and other content. As such, it is appropriate to describe what the absolute limits of its storage ability are.
+This does not describe the performance capabilities of a Wikijump instance, but rather the maximal values the IDs for these objects can take.
 
 To understand the limits for Wikidot-imported items, see [Compatibility IDs](compatibility-ids.md).
 
@@ -31,4 +32,4 @@ To understand the limits for Wikidot-imported items, see [Compatibility IDs](com
 | Forum Posts (new)                | 9223372036847775807       |         |
 | Forum Posts (compatibility)      | 7000000                   |         |
 
-Some items are not included here because they are still owned by Ozone or are unimplemented.
+Also note that, to avoid bugs confusing `0` with `NULL`, all counters for sequential numeric IDs start at least 1, in effect lowering each effective upper limit by 1.
