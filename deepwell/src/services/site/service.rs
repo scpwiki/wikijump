@@ -52,6 +52,7 @@ impl SiteService {
         // Validate locale.
         validate_locale(&locale)?;
 
+        // Insert into database
         let model = site::ActiveModel {
             slug: Set(slug.clone()),
             name: Set(name),
@@ -62,6 +63,10 @@ impl SiteService {
         };
         let site = model.insert(txn).await?;
 
+        // Create site user, and add interaction
+        // TODO
+
+        // Return
         Ok(CreateSiteOutput {
             site_id: site.site_id,
             slug,
