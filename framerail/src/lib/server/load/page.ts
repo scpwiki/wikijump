@@ -63,7 +63,7 @@ export async function loadPage(
 
     // Page actions
     "save": {},
-    "cancel": {},
+    "cancel": {}
   }
 
   if (errorStatus === null) {

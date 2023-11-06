@@ -6,7 +6,7 @@ const defaults = {
     "terms": {},
     "privacy": {},
     "docs": {},
-    "security": {},
+    "security": {}
   },
   page: {
     history: {
