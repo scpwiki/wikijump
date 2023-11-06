@@ -112,7 +112,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: nightly
+          toolchain: stable
           override: true
           components: rustfmt, clippy
 
@@ -129,10 +129,4 @@ jobs:
         run: cd deepwell && cargo fmt --all -- --check
 
       - name: Clippy
-        run: cd deepwell && cargo clippy --no-deps -- -A unused_imports
-
-        # clippy is over aggressive with "unused import" warnings, reporting it for
-        # prelude modules and common export patterns, which is noisy and unhelpful.
-        #
-        # Since regular (i.e. actual) unused imports will fail the normal build, we
-        # can just suppress all unused import warnings in Clippy.
+        run: cd deepwell && cargo clippy --no-deps
