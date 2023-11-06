@@ -59,7 +59,11 @@ export async function loadPage(
   }
 
   let translateKeys: TranslateKeys = {
-    ...defaults.translateKeys
+    ...defaults.translateKeys,
+
+    // Page actions
+    "save": {},
+    "cancel": {},
   }
 
   if (errorStatus === null) {
@@ -67,8 +71,6 @@ export async function loadPage(
       ...translateKeys,
 
       // Page actions
-      "save": {},
-      "cancel": {},
       "edit": {},
       "delete": {},
       "history": {},
@@ -93,14 +95,6 @@ export async function loadPage(
       "wiki-page-move-new-slug": {},
       "wiki-page-no-render": {},
       "wiki-page-view-source": {}
-    }
-  } else {
-    translateKeys = {
-      ...translateKeys,
-
-      // Page actions
-      "save": {},
-      "cancel": {},
     }
   }
 
