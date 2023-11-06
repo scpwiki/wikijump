@@ -142,11 +142,11 @@ impl UserService {
                 info!("Creating regular user '{slug}' with password");
                 PasswordService::new_hash(&password)?
             }
-            UserType::System => {
-                info!("Creating system user '{slug}'");
+            UserType::System | UserType::Site => {
+                info!("Creating site or system user '{slug}'");
 
                 if !password.is_empty() {
-                    warn!("Password was specified for system user");
+                    warn!("Password was specified for site or system user");
                     return Err(Error::BadRequest);
                 }
 
