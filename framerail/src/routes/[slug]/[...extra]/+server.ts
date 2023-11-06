@@ -63,9 +63,17 @@ export async function POST(event) {
       res = await page.pageMove(siteId, pageId, session.user_id, slug, newSlug, comments)
     } else if (extra.includes("revision")) {
       let revisionNumberStr = data.get("revision-number")?.toString()
+      let compiledHtml = data.get("compiled-html")?.toString() === "true"
+      let wikitext = data.get("wikitext")?.toString() === "true"
       let revisionNumber = revisionNumberStr ? parseInt(revisionNumberStr) : null
 
-      res = await page.pageRevision(siteId, pageId, revisionNumber)
+      res = await page.pageRevision(
+        siteId,
+        pageId,
+        revisionNumber,
+        compiledHtml,
+        wikitext
+      )
     }
 
     return new Response(JSON.stringify(res))

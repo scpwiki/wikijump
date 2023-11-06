@@ -11,7 +11,7 @@
   let showRevision = false
   let showRevisionSource = false
   let moveInputNewSlugElem: HTMLInputElement
-  let revisionList: Record<string, any> = []
+  let revisionMap: Map<number, Record<string, any>> = new Map()
   let revision: Record<string, any> = {}
 
   async function handleDelete() {
@@ -112,27 +112,53 @@
         message: res.message
       })
     } else {
-      revisionList = res
+      res.forEach((rev) => {
+        revisionMap.set(rev.revision_number, rev)
+      })
       showHistory = true
     }
   }
 
-  async function getRevision(revisionNumber: number) {
-    let fdata = new FormData()
-    fdata.set("site-id", $page.data.site.site_id)
-    fdata.set("page-id", $page.data.page.page_id)
-    fdata.set("revision-number", revisionNumber)
-    let res = await fetch(`/${$page.data.page.slug}/revision`, {
-      method: "POST",
-      body: fdata
-    }).then((res) => res.json())
-    if (res?.message) {
-      showErrorPopup.set({
-        state: true,
-        message: res.message
-      })
+  async function getRevision(
+    revisionNumber: number,
+    compiledHtml: boolean,
+    wikitext: boolean
+  ) {
+    // Get cached revision if we have it
+    let rev = revisionMap.get(revisionNumber)
+    // Try to see if the cached revision already has the wanted data
+    if (compiledHtml && rev?.compiled_html) {
+      revision = rev
+    } else if (wikitext && rev?.wikitext) {
+      revision = rev
     } else {
-      revision = res
+      // Request from server
+      let fdata = new FormData()
+      fdata.set("site-id", $page.data.site.site_id)
+      fdata.set("page-id", $page.data.page.page_id)
+      fdata.set("revision-number", revisionNumber)
+      fdata.set("compiled-html", compiledHtml)
+      fdata.set("wikitext", wikitext)
+      let res = await fetch(`/${$page.data.page.slug}/revision`, {
+        method: "POST",
+        body: fdata
+      }).then((res) => res.json())
+      if (res?.message) {
+        showErrorPopup.set({
+          state: true,
+          message: res.message
+        })
+      } else if (!rev) {
+        // This is a revision we didn't even cache...?
+        revisionMap.set(res.revision_number, res)
+        revision = res
+      } else if (compiledHtml) {
+        rev.compiled_html = res.compiled_html
+        revision = rev
+      } else if (wikitext) {
+        rev.wikitext = res.wikitext
+        revision = rev
+      }
     }
   }
 
@@ -337,15 +363,17 @@
         {$page.data.internationalization?.["wiki-page-revision-comments"]}
       </div>
     </div>
-    {#each revisionList.reverse() as revisionItem}
+    <!-- Here we sort the list in descending order. -->
+    {#each [...revisionMap].sort((a, b) => b[0] - a[0]) as [_, revisionItem] (revisionItem.revision_number)}
       <div class="revision-row" data-id={revisionItem.revision_id}>
         <div class="revision-attribute action">
           <button
             class="action-button view-revision clickable"
             type="button"
             on:click|stopPropagation={() => {
-              getRevision(revisionItem.revision_number).then(() => {
+              getRevision(revisionItem.revision_number, true, false).then(() => {
                 showRevision = true
+                showRevisionSource = false
               })
             }}
           >
@@ -355,7 +383,8 @@
             class="action-button view-revision-source clickable"
             type="button"
             on:click|stopPropagation={() => {
-              getRevision(revisionItem.revision_number).then(() => {
+              getRevision(revisionItem.revision_number, false, true).then(() => {
+                showRevision = false
                 showRevisionSource = true
               })
             }}

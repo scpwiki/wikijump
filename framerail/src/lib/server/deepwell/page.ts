@@ -75,15 +75,17 @@ export async function pageMove(
 export async function pageRevision(
   siteId: number,
   pageId: Optional<number>,
-  revisionNumber: Optional<number>
+  revisionNumber: Optional<number>,
+  compiledHtml: boolean,
+  wikitext: boolean
 ): Promise<object> {
   return client.request("page_revision_get", {
     site_id: siteId,
     page_id: pageId,
     revision_number: revisionNumber ?? defaults.page.history.revisionNumber,
     details: {
-      compiled_html: true,
-      wikitext: true
+      compiled_html: compiledHtml ?? false,
+      wikitext: wikitext ?? false
     }
   })
 }
