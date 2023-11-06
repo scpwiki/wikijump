@@ -129,7 +129,7 @@ jobs:
         run: cd deepwell && cargo fmt --all -- --check
 
       - name: Clippy
-        run: cd deepwell && cargo clippy --no-deps -- -A unused_imports
+        run: cd deepwell && cargo clippy --no-deps
 
         # clippy is over aggressive with "unused import" warnings, reporting it for
         # prelude modules and common export patterns, which is noisy and unhelpful.
