@@ -100,8 +100,7 @@ impl UserService {
             .await?;
 
         if result.is_some() {
-            error!("User with conflicting name or slug already exists, cannot create",);
-
+            error!("User with conflicting name or slug already exists, cannot create");
             return Err(Error::UserExists);
         }
 
