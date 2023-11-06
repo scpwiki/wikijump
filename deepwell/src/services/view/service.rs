@@ -339,8 +339,8 @@ impl ViewService {
             // For users visiting their own user info page
             None => viewer
                 .user_session
-                .clone()
-                .and_then(|session| Some(session.user)),
+                .as_ref()
+                .and_then(|session| Some(session.user.clone())),
         };
 
         let output = match user {
