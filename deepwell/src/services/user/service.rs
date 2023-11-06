@@ -104,6 +104,14 @@ impl UserService {
             return Err(Error::UserExists);
         }
 
+        // Email must be specified for humans and bots
+        if matches!(UserType::Regular | UserType::Bot, user_type) {
+            if email.is_empty() {
+                error!("Attempting to create user with empty email");
+                return Err(Error::UserEmptyEmail);
+            }
+        }
+
         // Check for email conflicts, if a regular user
         // Other kinds of accounts do not need unique emails
         if user_type == UserType::Regular {
