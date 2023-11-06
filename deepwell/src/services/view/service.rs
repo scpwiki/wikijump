@@ -337,7 +337,10 @@ impl ViewService {
         let user = match user_ref {
             Some(user_ref) => UserService::get_optional(ctx, user_ref).await?,
             // For users visiting their own user info page
-            None => viewer.user_session.clone().and_then(|session| Some(session.user)),
+            None => viewer
+                .user_session
+                .clone()
+                .and_then(|session| Some(session.user)),
         };
 
         let output = match user {
