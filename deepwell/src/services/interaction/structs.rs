@@ -126,6 +126,7 @@ pub enum InteractionDirection {
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum InteractionType {
+    SiteUser,
     SiteBan,
     SiteMember,
     PageStar,
@@ -145,6 +146,7 @@ impl InteractionType {
     /// of `(dest_type, from_type, interaction_value)`.
     pub fn value(self) -> &'static str {
         match self {
+            InteractionType::SiteUser => "site-user",
             InteractionType::SiteBan => "ban",
             InteractionType::SiteMember => "member",
             InteractionType::PageStar => "star",
@@ -167,6 +169,7 @@ impl InteractionType {
         }
 
         match self {
+            InteractionType::SiteUser => t!(Site, User),
             InteractionType::SiteBan => t!(Site, User),
             InteractionType::SiteMember => t!(Site, User),
             InteractionType::PageStar => t!(Page, User),
