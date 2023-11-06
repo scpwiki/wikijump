@@ -175,7 +175,10 @@ impl UserService {
         //
         // The assigned variable is also used to check whether email validation occurred, as it
         // will always be `Some` if validation occurred and `None` otherwise.
-        let email_is_alias = if !bypass_email_verification {
+        //
+        // Also bypass email verification if it's empty (obviously invalid).
+        // We've already checked for empty emails above (e.g. system users can have empty emails).
+        let email_is_alias = if !bypass_email_verification && !email.is_empty() {
             let email_validation_output = EmailService::validate(&email).await?;
 
             match email_validation_output.classification {
