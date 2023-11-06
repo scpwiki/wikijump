@@ -66,5 +66,3 @@ jobs:
 
       - name: Clippy
         run: cd ftml && cargo clippy --no-deps
-
-        # See deepwell.yaml for explainer on unused_imports.

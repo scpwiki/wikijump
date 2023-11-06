@@ -130,9 +130,3 @@ jobs:
 
       - name: Clippy
         run: cd deepwell && cargo clippy --no-deps
-
-        # clippy is over aggressive with "unused import" warnings, reporting it for
-        # prelude modules and common export patterns, which is noisy and unhelpful.
-        #
-        # Since regular (i.e. actual) unused imports will fail the normal build, we
-        # can just suppress all unused import warnings in Clippy.
