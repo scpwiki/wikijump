@@ -115,6 +115,11 @@ impl SiteService {
             ..Default::default()
         };
 
+        // For updating the corresponding site user
+        let user_id =
+            InteractionService::get_site_user_id_for_site(ctx, site.site_id).await?;
+        let mut user_body = UpdateUserBody::default();
+
         if let ProvidedValue::Set(name) = input.name {
             model.name = Set(name);
         }
@@ -129,31 +134,22 @@ impl SiteService {
         }
 
         if let ProvidedValue::Set(description) = input.description {
-            model.description = Set(description);
+            model.description = Set(description.clone());
+            user_body.biography = ProvidedValue::Set(Some(description))
         }
 
         if let ProvidedValue::Set(locale) = input.locale {
             validate_locale(&locale)?;
             model.locale = Set(locale.clone());
-
-            // Update corresponding site user
-            let user_id =
-                InteractionService::get_site_user_id_for_site(ctx, site.site_id).await?;
-
-            UserService::update(
-                ctx,
-                Reference::Id(user_id),
-                UpdateUserBody {
-                    locale: ProvidedValue::Set(locale),
-                    ..Default::default()
-                },
-            )
-            .await?;
+            user_body.locale = ProvidedValue::Set(locale);
         }
 
         // Update site
         model.updated_at = Set(Some(now()));
         let new_site = model.update(txn).await?;
+
+        // Update site user
+        UserService::update(ctx, Reference::Id(user_id), user_body).await?;
 
         // Run verification afterwards if the slug changed
         if site.slug != new_site.slug {
