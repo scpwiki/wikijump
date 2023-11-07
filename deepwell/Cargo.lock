@@ -3447,9 +3447,9 @@ dependencies = [
 
 [[package]]
 name = "rsmq_async"
-version = "6.0.0"
+version = "7.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4b0cbaea882b64cfb32a7f60e48bb038aebb7f24ecddc919d86bd85ce697d108"
+checksum = "b43e36b87051ada4f8b82bad3f00ee7d8b1d38ab44b0e2fa6cd22b7d46ccff77"
 dependencies = [
  "async-trait",
  "bb8",
