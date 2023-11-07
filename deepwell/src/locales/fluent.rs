@@ -249,6 +249,32 @@ impl Localizations {
         // Done
         Ok(output)
     }
+
+    /// A variant of `translate()` which returns `Option`.
+    ///
+    /// This way, if a translation cannot be found, instead of returning
+    /// an error, it instead returns `Ok(None)`.
+    pub fn translate_option<'a, L, I>(
+        &'a self,
+        locales: I,
+        key: &str,
+        args: &'a FluentArgs<'a>,
+    ) -> Result<Option<Cow<'a, str>>, ServiceError>
+    where
+        L: AsRef<LanguageIdentifier> + Display + 'a,
+        I: IntoIterator<Item = L>,
+    {
+        match self.translate(locales, key, args) {
+            Ok(translation) => Ok(Some(translation)),
+            Err(
+                ServiceError::LocaleMissing
+                | ServiceError::LocaleMessageMissing
+                | ServiceError::LocaleMessageValueMissing
+                | ServiceError::LocaleMessageAttributeMissing,
+            ) => Ok(None),
+            Err(error) => Err(error),
+        }
+    }
 }
 
 impl Debug for Localizations {
