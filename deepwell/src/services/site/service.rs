@@ -117,7 +117,7 @@ impl SiteService {
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
         input: UpdateSiteBody,
-        user_id: i64,
+        updating_user_id: i64,
     ) -> Result<SiteModel> {
         let txn = ctx.transaction();
         let site = Self::get(ctx, reference).await?;
@@ -127,16 +127,16 @@ impl SiteService {
         };
 
         // For updating the corresponding site user
-        let user_id =
+        let site_user_id =
             InteractionService::get_site_user_id_for_site(ctx, site.site_id).await?;
-        let mut user_body = UpdateUserBody::default();
+        let mut site_user_body = UpdateUserBody::default();
 
         if let ProvidedValue::Set(name) = input.name {
             model.name = Set(name);
         }
 
         if let ProvidedValue::Set(new_slug) = input.slug {
-            Self::update_slug(ctx, &site, &new_slug, user_id).await?;
+            Self::update_slug(ctx, &site, &new_slug, updating_user_id).await?;
             model.slug = Set(new_slug);
         }
 
@@ -146,13 +146,13 @@ impl SiteService {
 
         if let ProvidedValue::Set(description) = input.description {
             model.description = Set(description.clone());
-            user_body.biography = ProvidedValue::Set(Some(description))
+            site_user_body.biography = ProvidedValue::Set(Some(description))
         }
 
         if let ProvidedValue::Set(locale) = input.locale {
             validate_locale(&locale)?;
             model.locale = Set(locale.clone());
-            user_body.locale = ProvidedValue::Set(locale);
+            site_user_body.locale = ProvidedValue::Set(locale);
         }
 
         // Update site
@@ -160,7 +160,7 @@ impl SiteService {
         let new_site = model.update(txn).await?;
 
         // Update site user
-        UserService::update(ctx, Reference::Id(user_id), user_body).await?;
+        UserService::update(ctx, Reference::Id(site_user_id), site_user_body).await?;
 
         // Run verification afterwards if the slug changed
         if site.slug != new_site.slug {
