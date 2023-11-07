@@ -271,6 +271,10 @@ impl MessageService {
                 //      permabanned bad actors, but also allow normal banned users to message
                 //      to appeal bans etc
                 // TODO get the listed site staff, add them to recipients
+                let _site_id =
+                    InteractionService::get_site_id_for_site_user(ctx, user.user_id)
+                        .await?;
+
                 let _ = &recipients_to_add;
             }
         }

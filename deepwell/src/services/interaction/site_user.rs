@@ -29,7 +29,6 @@
 
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::UserType;
-use crate::models::user::Model as UserModel;
 use crate::services::UserService;
 
 impl_interaction!(SiteUser, Site, site_id, User, user_id, (), NO_CREATE_IMPL,);
@@ -131,13 +130,30 @@ impl InteractionService {
         }
     }
 
-    #[inline]
-    #[allow(dead_code)] // TEMP
-    pub async fn get_site_user_for_site(
+    pub async fn get_site_id_for_site_user(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-    ) -> Result<UserModel> {
-        let user_id = Self::get_site_user_id_for_site(ctx, site_id).await?;
-        UserService::get(ctx, Reference::Id(user_id)).await
+        user_id: i64,
+    ) -> Result<i64> {
+        let txn = ctx.transaction();
+        let model = Interaction::find()
+            .filter(
+                Condition::all()
+                    .add(
+                        interaction::Column::InteractionType
+                            .eq(InteractionType::SiteUser.value()),
+                    )
+                    .add(interaction::Column::FromType.eq(InteractionObjectType::User))
+                    .add(interaction::Column::FromId.eq(user_id))
+                    .add(interaction::Column::OverwrittenAt.is_null())
+                    .add(interaction::Column::DeletedAt.is_null()),
+            )
+            .order_by_asc(interaction::Column::CreatedAt)
+            .one(txn)
+            .await?;
+
+        match model {
+            Some(model) => Ok(model.dest_id),
+            None => Err(Error::InteractionNotFound),
+        }
     }
 }
