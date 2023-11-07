@@ -176,7 +176,7 @@ pub async fn seed(state: &ServerState) -> Result<()> {
         for page in pages {
             info!("Creating page '{}' (slug {})", page.title, page.slug);
 
-            PageService::create(
+            let model = PageService::create(
                 &ctx,
                 CreatePage {
                     site_id,
@@ -190,6 +190,9 @@ pub async fn seed(state: &ServerState) -> Result<()> {
                 },
             )
             .await?;
+
+            // TODO add attribution with site_user as author
+            let _ = model;
         }
     }
 
