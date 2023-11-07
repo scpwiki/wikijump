@@ -137,6 +137,7 @@ impl SiteService {
 
         if let ProvidedValue::Set(new_slug) = input.slug {
             Self::update_slug(ctx, &site, &new_slug, updating_user_id).await?;
+            site_user_body.name = ProvidedValue::Set(format!("site:{new_slug}"));
             model.slug = Set(new_slug);
         }
 

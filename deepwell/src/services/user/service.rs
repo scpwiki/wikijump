@@ -26,7 +26,7 @@ use crate::services::blob::{BlobService, CreateBlobOutput};
 use crate::services::email::{EmailClassification, EmailService};
 use crate::services::filter::{FilterClass, FilterType};
 use crate::services::{AliasService, FilterService, PasswordService};
-use crate::utils::{get_regular_slug, get_slug, regex_replace_in_place};
+use crate::utils::regex_replace_in_place;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use sea_orm::ActiveValue;
@@ -52,17 +52,7 @@ impl UserService {
         }: CreateUser,
     ) -> Result<CreateUserOutput> {
         let txn = ctx.transaction();
-
-        let slug = if user_type == UserType::Site {
-            debug_assert!(
-                name.starts_with("site:"),
-                "Site user slug does not start with 'site:'",
-            );
-
-            get_slug(&name)
-        } else {
-            get_regular_slug(&name)
-        };
+        let slug = get_user_slug(&name, user_type);
 
         debug!("Normalizing user data (name '{}', slug '{}')", name, slug,);
         regex_replace_in_place(&mut name, &LEADING_TRAILING_CHARS, "");
@@ -483,7 +473,7 @@ impl UserService {
         // unaltered, or if the slug is a prior name of theirs
         // (i.e. they have a user alias for it).
 
-        let new_slug = get_regular_slug(&new_name);
+        let new_slug = get_user_slug(&new_name, user.user_type);
         let old_slug = &user.slug;
 
         // Empty slug check
@@ -709,5 +699,20 @@ impl UserService {
 
         filter_matcher.verify(ctx, email).await?;
         Ok(())
+    }
+}
+
+fn get_user_slug(name: &str, user_type: UserType) -> String {
+    use crate::utils::{get_regular_slug, get_slug};
+
+    if user_type == UserType::Site {
+        debug_assert!(
+            name.starts_with("site:"),
+            "Site user slug does not start with 'site:'",
+        );
+
+        get_slug(name)
+    } else {
+        get_regular_slug(name)
     }
 }
