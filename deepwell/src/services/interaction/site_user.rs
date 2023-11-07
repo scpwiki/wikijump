@@ -132,6 +132,7 @@ impl InteractionService {
     }
 
     #[inline]
+    #[allow(dead_code)] // TEMP
     pub async fn get_site_user_for_site(
         ctx: &ServiceContext<'_>,
         site_id: i64,
