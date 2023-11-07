@@ -1,10 +1,10 @@
 import defaults from "$lib/defaults"
+import { parseAcceptLangHeader } from "$lib/locales"
 import { translate } from "$lib/server/deepwell/translate"
 import { pageView } from "$lib/server/deepwell/views.ts"
 import type { TranslateKeys } from "$lib/types"
 import type { Optional } from "$lib/types.ts"
 import { error, redirect } from "@sveltejs/kit"
-import { parse } from "accept-language-parser"
 
 // TODO form single deepwell request that does all the relevant prep stuff here
 
@@ -19,10 +19,7 @@ export async function loadPage(
   const domain = url.hostname
   const route = slug || extra ? { slug, extra } : null
   const sessionToken = cookies.get("wikijump_token")
-  const language = request.headers.get("Accept-Language")
-  let locales = parse(language)
-    .sort((a, b) => a.quality - b.quality)
-    .map((lang) => (lang.region ? `${lang.code}-${lang.region}` : lang.code))
+  let locales = parseAcceptLangHeader(request)
 
   // Request data from backend
   const response = await pageView(domain, locales, route, sessionToken)

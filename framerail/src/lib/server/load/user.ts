@@ -1,18 +1,15 @@
 import defaults from "$lib/defaults"
+import { parseAcceptLangHeader } from "$lib/locales"
 import { translate } from "$lib/server/deepwell/translate"
 import { userView } from "$lib/server/deepwell/user.ts"
 import type { TranslateKeys } from "$lib/types"
 import { error, redirect } from "@sveltejs/kit"
-import { parse } from "accept-language-parser"
 
 export async function loadUser(username?: string, request, cookies) {
   const url = new URL(request.url)
   const domain = url.hostname
   const sessionToken = cookies.get("wikijump_token")
-  const language = request.headers.get("Accept-Language")
-  let locales = parse(language)
-    .sort((a, b) => a.quality - b.quality)
-    .map((lang) => (lang.region ? `${lang.code}-${lang.region}` : lang.code))
+  let locales = parseAcceptLangHeader(request)
 
   if (!locales.includes(defaults.fallbackLocale)) locales.push(defaults.fallbackLocale)
 

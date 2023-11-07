@@ -1,17 +1,14 @@
 import defaults from "$lib/defaults"
+import { parseAcceptLangHeader } from "$lib/locales"
 import { translate } from "$lib/server/deepwell/translate"
 import type { TranslateKeys } from "$lib/types"
-import { parse } from "accept-language-parser"
 
 export async function loadLoginPage(request, cookies) {
   // Set up parameters
   const url = new URL(request.url)
   const domain = url.hostname
   const sessionToken = cookies.get("wikijump_token")
-  const language = request.headers.get("Accept-Language")
-  let locales = parse(language)
-    .sort((a, b) => a.quality - b.quality)
-    .map((lang) => (lang.region ? `${lang.code}-${lang.region}` : lang.code))
+  let locales = parseAcceptLangHeader(request)
 
   let viewData: Record<string, any> = {
     isLoggedIn: Boolean(sessionToken)
