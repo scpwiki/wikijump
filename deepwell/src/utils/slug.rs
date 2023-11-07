@@ -30,3 +30,10 @@ pub fn get_regular_slug<S: Into<String>>(name: S) -> String {
     normalize(&mut slug);
     slug
 }
+
+/// Normalize a name to a slug.
+pub fn get_slug<S: Into<String>>(name: S) -> String {
+    let mut slug = name.into();
+    normalize(&mut slug);
+    slug
+}

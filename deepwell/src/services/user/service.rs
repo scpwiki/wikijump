@@ -26,7 +26,7 @@ use crate::services::blob::{BlobService, CreateBlobOutput};
 use crate::services::email::{EmailClassification, EmailService};
 use crate::services::filter::{FilterClass, FilterType};
 use crate::services::{AliasService, FilterService, PasswordService};
-use crate::utils::{get_regular_slug, regex_replace_in_place};
+use crate::utils::{get_regular_slug, get_slug, regex_replace_in_place};
 use once_cell::sync::Lazy;
 use regex::Regex;
 use sea_orm::ActiveValue;
@@ -52,7 +52,17 @@ impl UserService {
         }: CreateUser,
     ) -> Result<CreateUserOutput> {
         let txn = ctx.transaction();
-        let slug = get_regular_slug(&name);
+
+        let slug = if user_type == UserType::Site {
+            debug_assert!(
+                name.starts_with("site:"),
+                "Site user slug does not start with 'site:'",
+            );
+
+            get_slug(&name)
+        } else {
+            get_regular_slug(&name)
+        };
 
         debug!("Normalizing user data (name '{}', slug '{}')", name, slug,);
         regex_replace_in_place(&mut name, &LEADING_TRAILING_CHARS, "");
@@ -105,10 +115,10 @@ impl UserService {
         }
 
         // Email must be specified for humans and bots
-        if matches!(UserType::Regular | UserType::Bot, user_type) {
+        if matches!(user_type, UserType::Regular | UserType::Bot) {
             if email.is_empty() {
                 error!("Attempting to create user with empty email");
-                return Err(Error::UserEmptyEmail);
+                return Err(Error::UserEmailEmpty);
             }
         }
 

@@ -29,6 +29,7 @@
 
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::UserType;
+use crate::models::user::Model as UserModel;
 use crate::services::UserService;
 
 impl_interaction!(SiteUser, Site, site_id, User, user_id, (), NO_CREATE_IMPL,);
@@ -95,5 +96,40 @@ impl InteractionService {
             created_by,
             &()
         )
+    }
+
+    pub async fn get_site_user_for_site(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+    ) -> Result<UserModel> {
+        info!("Getting site user for site ID {site_id}");
+
+        // We implement our own query since it's 1:1 and we
+        // don't have to worry about multiple results like
+        // for get_entries().
+
+        let txn = ctx.transaction();
+        let model = Interaction::find()
+            .filter(
+                Condition::all()
+                    .add(
+                        interaction::Column::InteractionType
+                            .eq(InteractionType::SiteUser.value()),
+                    )
+                    .add(interaction::Column::DestType.eq(InteractionObjectType::Site))
+                    .add(interaction::Column::DestId.eq(site_id))
+                    .add(interaction::Column::OverwrittenAt.is_null())
+                    .add(interaction::Column::DeletedAt.is_null()),
+            )
+            .order_by_asc(interaction::Column::CreatedAt)
+            .one(txn)
+            .await?;
+
+        let user_id = match model {
+            Some(model) => model.from_id,
+            None => return Err(Error::InteractionNotFound),
+        };
+
+        UserService::get(ctx, Reference::Id(user_id)).await
     }
 }

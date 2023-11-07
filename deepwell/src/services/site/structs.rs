@@ -35,6 +35,7 @@ pub struct CreateSite {
 #[derive(Serialize, Debug, Clone)]
 pub struct CreateSiteOutput {
     pub site_id: i64,
+    pub site_user_id: i64,
     pub slug: String,
 }
 

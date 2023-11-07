@@ -145,7 +145,7 @@ pub async fn seed(state: &ServerState) -> Result<()> {
     {
         info!("Creating seed site '{}' (slug {})", site.name, site.slug);
 
-        let CreateSiteOutput { site_id, slug: _ } = SiteService::create(
+        let CreateSiteOutput { site_id, .. } = SiteService::create(
             &ctx,
             CreateSite {
                 slug: site.slug,

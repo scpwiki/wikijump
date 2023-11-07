@@ -21,10 +21,13 @@
 use wikidot_normalize::normalize;
 
 use super::prelude::*;
-use crate::models::sea_orm_active_enums::AliasType;
+use crate::constants::SYSTEM_USER_ID;
+use crate::models::sea_orm_active_enums::{AliasType, UserType};
 use crate::models::site::{self, Entity as Site, Model as SiteModel};
 use crate::services::alias::CreateAlias;
-use crate::services::AliasService;
+use crate::services::interaction::CreateSiteUser;
+use crate::services::user::CreateUser;
+use crate::services::{AliasService, InteractionService, UserService};
 use crate::utils::validate_locale;
 
 #[derive(Debug)]
@@ -58,17 +61,42 @@ impl SiteService {
             name: Set(name),
             tagline: Set(tagline),
             description: Set(description),
-            locale: Set(locale),
+            locale: Set(locale.clone()),
             ..Default::default()
         };
         let site = model.insert(txn).await?;
 
         // Create site user, and add interaction
-        // TODO
+
+        let user = UserService::create(
+            ctx,
+            CreateUser {
+                user_type: UserType::Site,
+                name: format!("site:{slug}"),
+                email: String::new(),
+                locale,
+                password: String::new(),
+                bypass_filter: false,
+                bypass_email_verification: false,
+            },
+        )
+        .await?;
+
+        InteractionService::create_site_user(
+            ctx,
+            CreateSiteUser {
+                site_id: site.site_id,
+                user_id: user.user_id,
+                metadata: (),
+                created_by: SYSTEM_USER_ID,
+            },
+        )
+        .await?;
 
         // Return
         Ok(CreateSiteOutput {
             site_id: site.site_id,
+            site_user_id: user.user_id,
             slug,
         })
     }
@@ -107,6 +135,8 @@ impl SiteService {
         if let ProvidedValue::Set(locale) = input.locale {
             validate_locale(&locale)?;
             model.locale = Set(locale);
+
+            // TODO update interaction
         }
 
         // Update site
