@@ -19,7 +19,9 @@
  */
 
 use super::prelude::*;
-use crate::services::view::{GetPageView, GetPageViewOutput};
+use crate::services::view::{
+    GetPageView, GetPageViewOutput, GetUserView, GetUserViewOutput,
+};
 
 /// Returns relevant context for rendering a page from a processed web request.
 pub async fn page_view(
@@ -28,4 +30,13 @@ pub async fn page_view(
 ) -> Result<GetPageViewOutput> {
     let input: GetPageView = params.parse()?;
     ViewService::page(ctx, input).await
+}
+
+/// Returns relevant context for rendering a user profile from a processed web request.
+pub async fn user_view(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<GetUserViewOutput> {
+    let input: GetUserView = params.parse()?;
+    ViewService::user(ctx, input).await
 }

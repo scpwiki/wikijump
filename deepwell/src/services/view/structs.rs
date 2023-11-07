@@ -19,6 +19,7 @@
  */
 
 use super::options::PageOptions;
+use super::prelude::*;
 use crate::models::page::Model as PageModel;
 use crate::models::page_revision::Model as PageRevisionModel;
 use crate::models::session::Model as SessionModel;
@@ -80,6 +81,33 @@ pub enum GetPageViewOutput {
         redirect_page: Option<String>,
         compiled_html: String,
         banned: bool,
+    },
+
+    SiteMissing {
+        html: String,
+    },
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct GetUserView<'a> {
+    pub domain: String,
+    pub session_token: Option<String>,
+    pub user: Option<Reference<'a>>,
+    pub locales: Vec<String>,
+}
+
+#[derive(Serialize, Debug, Clone)]
+#[serde(rename_all = "snake_case", tag = "type", content = "data")]
+pub enum GetUserViewOutput {
+    UserFound {
+        #[serde(flatten)]
+        viewer: Viewer,
+        user: UserModel,
+    },
+
+    UserMissing {
+        #[serde(flatten)]
+        viewer: Viewer,
     },
 
     SiteMissing {

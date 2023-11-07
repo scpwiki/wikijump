@@ -1,4 +1,8 @@
+import defaults from "$lib/defaults"
+import { parseAcceptLangHeader } from "$lib/locales"
+import { translate } from "$lib/server/deepwell/translate"
 import { pageView } from "$lib/server/deepwell/views.ts"
+import type { TranslateKeys } from "$lib/types"
 import type { Optional } from "$lib/types.ts"
 import { error, redirect } from "@sveltejs/kit"
 
@@ -15,17 +19,18 @@ export async function loadPage(
   const domain = url.hostname
   const route = slug || extra ? { slug, extra } : null
   const sessionToken = cookies.get("wikijump_token")
-  const language = request.headers.get("Accept-Language")
-
-  // TODO set up svelte i18n, see WJ-1175
-  //
-  // TODO also set up deepwell fluent so that fallback
-  //      languages are used, i.e. if I do en-GB it falls back to
-  //      en generic
-  const locale = "en"
+  let locales = parseAcceptLangHeader(request)
 
   // Request data from backend
-  const response = await pageView(domain, locale, route, sessionToken)
+  const response = await pageView(domain, locales, route, sessionToken)
+
+  // TODO insert user preference at the beginning of the list
+
+  if (response.data?.site?.locale && !locales.includes(response.data.site.locale)) {
+    locales.push(response.data.site.locale)
+  }
+
+  if (!locales.includes(defaults.fallbackLocale)) locales.push(defaults.fallbackLocale)
 
   // Process response, performing redirects etc
   const viewData = response.data
@@ -35,20 +40,64 @@ export async function loadPage(
   let errorStatus = null
 
   switch (response.type) {
-    case "pageFound":
+    case "page_found":
       break
-    case "pageMissing":
+    case "page_missing":
       viewData.page = null
-      viewData.pageRevision = null
+      viewData.page_revision = null
       errorStatus = 404
       break
-    case "pagePermissions":
+    case "page_permissions":
       errorStatus = 403
       break
-    case "siteMissing":
+    case "site_missing":
       checkRedirect = false
       errorStatus = 404
   }
+
+  let translateKeys: TranslateKeys = {
+    ...defaults.translateKeys,
+
+    // Page actions
+    "save": {},
+    "cancel": {}
+  }
+
+  if (errorStatus === null) {
+    translateKeys = {
+      ...translateKeys,
+
+      // Page actions
+      "edit": {},
+      "delete": {},
+      "history": {},
+      "move": {},
+      "view": {},
+
+      // Page edit
+      "tags": {},
+      "title": {},
+      "alt-title": {},
+
+      // Page history
+      "wiki-page-revision": {
+        revision: viewData.page_revision.revision_number
+      },
+      "wiki-page-revision-number": {},
+      "wiki-page-revision-created-at": {},
+      "wiki-page-revision-user": {},
+      "wiki-page-revision-comments": {},
+
+      // Misc
+      "wiki-page-move-new-slug": {},
+      "wiki-page-no-render": {},
+      "wiki-page-view-source": {}
+    }
+  }
+
+  const translated = await translate(locales, translateKeys)
+
+  viewData.internationalization = translated
 
   if (errorStatus !== null) {
     throw error(errorStatus, viewData)
@@ -60,7 +109,6 @@ export async function loadPage(
   }
 
   // Return to page for rendering
-  // TODO make page view into a component
   return viewData
 }
 

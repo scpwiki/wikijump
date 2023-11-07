@@ -1,16 +1,18 @@
+import defaults from "$lib/defaults.ts"
 import { client } from "$lib/server/deepwell/index.ts"
 import type { Optional } from "$lib/types.ts"
 
 export async function pageDelete(
   siteId: number,
   pageId: Optional<number>,
+  userId: number,
   slug: string,
   revisionComments: Optional<string>
 ): Promise<object> {
   return client.request("page_delete", {
     site_id: siteId,
     page: pageId ?? slug,
-    user_id: 1, // TODO: identify user session and pass the user to the API request
+    user_id: userId,
     revision_comments: revisionComments
   })
 }
@@ -18,6 +20,7 @@ export async function pageDelete(
 export async function pageEdit(
   siteId: number,
   pageId: Optional<number>,
+  userId: number,
   slug: string,
   revisionComments: Optional<string>,
   wikitext: string,
@@ -28,7 +31,7 @@ export async function pageEdit(
   return client.request(pageId ? "page_edit" : "page_create", {
     site_id: siteId,
     page: pageId ?? slug,
-    user_id: 1, // TODO: identify user session and pass the user to the API request
+    user_id: userId,
     revision_comments: revisionComments,
     wikitext,
     title,
@@ -46,15 +49,16 @@ export async function pageHistory(
   return client.request("page_revision_range", {
     site_id: siteId,
     page_id: pageId,
-    revision_number: revisionNumber,
+    revision_number: revisionNumber ?? defaults.page.history.revisionNumber,
     revision_direction: "before",
-    limit
+    limit: limit ?? defaults.page.history.limit
   })
 }
 
 export async function pageMove(
   siteId: number,
   pageId: Optional<number>,
+  userId: number,
   slug: string,
   newSlug: string,
   revisionComments: Optional<string>
@@ -63,7 +67,25 @@ export async function pageMove(
     site_id: siteId,
     page: pageId ?? slug,
     new_slug: newSlug,
-    user_id: 1, // TODO: identify user session and pass the user to the API request
+    user_id: userId,
     revision_comments: revisionComments
+  })
+}
+
+export async function pageRevision(
+  siteId: number,
+  pageId: Optional<number>,
+  revisionNumber: Optional<number>,
+  compiledHtml?: boolean,
+  wikitext?: boolean
+): Promise<object> {
+  return client.request("page_revision_get", {
+    site_id: siteId,
+    page_id: pageId,
+    revision_number: revisionNumber ?? defaults.page.history.revisionNumber,
+    details: {
+      compiled_html: compiledHtml ?? false,
+      wikitext: wikitext ?? false
+    }
   })
 }

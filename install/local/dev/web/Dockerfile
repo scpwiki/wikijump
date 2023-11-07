@@ -7,6 +7,7 @@ FROM node:20-alpine
 RUN apk add --no-cache curl
 RUN npm install -g pnpm
 COPY framerail /app
+COPY assets /app/src/assets
 WORKDIR /app
 
 RUN pnpm install

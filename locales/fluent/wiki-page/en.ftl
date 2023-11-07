@@ -10,6 +10,18 @@ wiki-page-last-edit = last-edited: { $date } ({ $days ->
   *[other] { $days } days ago
 })
 
+wiki-page-view-source = View Source
+
+wiki-page-revision-number = Revision #
+
+wiki-page-revision-created-at = Creation
+
+wiki-page-revision-user = User
+
+wiki-page-revision-comments = Comments
+
+wiki-page-move-new-slug = New slug
+
 ### Special Page fallback strings
 
 wiki-page-missing = The page //{ $slug }// you want to access does not exist.
@@ -35,3 +47,5 @@ wiki-page-site-custom = <h1>No { -service-name } site exists with this address.<
       No site has the custom domain <a href="https://{ $custom_domain }/">{ $custom_domain }</a>.
       Return to <a href="https://{ $domain }/">{ -service-name }</a>.
     </p>
+
+wiki-page-no-render = Content not shown.

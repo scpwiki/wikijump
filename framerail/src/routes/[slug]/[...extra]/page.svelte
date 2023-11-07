@@ -1,38 +1,49 @@
 <script lang="ts">
-  export let data
+  import { page } from "$app/stores"
   import { goto, invalidateAll } from "$app/navigation"
   import { onMount } from "svelte"
+  import { useErrorPopup } from "$lib/stores"
+  let showErrorPopup = useErrorPopup()
 
   let showMoveAction = false
   let showHistory = false
+  let showSource = false
+  let showRevision = false
+  let showRevisionSource = false
   let moveInputNewSlugElem: HTMLInputElement
-  let revisionList = []
+  let revisionMap: Map<number, Record<string, any>> = new Map()
+  let revision: Record<string, any> = {}
 
   async function handleDelete() {
     let fdata = new FormData()
-    fdata.set("site-id", data.site.siteId)
-    fdata.set("page-id", data.page.pageId)
-    await fetch(`/${data.page.slug}`, {
+    fdata.set("site-id", $page.data.site.site_id)
+    fdata.set("page-id", $page.data.page.page_id)
+    let res = await fetch(`/${$page.data.page.slug}`, {
       method: "DELETE",
       body: fdata
-    })
-    invalidateAll()
+    }).then((res) => res.json())
+    if (res?.message) {
+      showErrorPopup.set({
+        state: true,
+        message: res.message
+      })
+    } else invalidateAll()
   }
 
   function navigateEdit() {
     let options: string[] = []
-    if (data.options.noRender) options.push("norender")
+    if ($page.data.options.noRender) options.push("norender")
     options = options.map((opt) => `/${opt}`)
-    goto(`/${data.page.slug}${options.join("")}/edit`, {
+    goto(`/${$page.data.page.slug}${options.join("")}/edit`, {
       noScroll: true
     })
   }
 
   function cancelEdit() {
     let options: string[] = []
-    if (data.options.noRender) options.push("norender")
+    if ($page.data.options.noRender) options.push("norender")
     options = options.map((opt) => `/${opt}`)
-    goto(`/${data.page.slug}${options.join("")}`, {
+    goto(`/${$page.data.page.slug}${options.join("")}`, {
       noScroll: true
     })
   }
@@ -40,15 +51,22 @@
   async function saveEdit() {
     let form = document.getElementById("editor")
     let fdata = new FormData(form)
-    fdata.set("site-id", data.site.siteId)
-    fdata.set("page-id", data.page.pageId)
-    await fetch(`/${data.page.slug}/edit`, {
+    fdata.set("site-id", $page.data.site.site_id)
+    fdata.set("page-id", $page.data.page.page_id)
+    let res = await fetch(`/${$page.data.page.slug}/edit`, {
       method: "POST",
       body: fdata
-    })
-    goto(`/${data.page.slug}`, {
-      noScroll: true
-    })
+    }).then((res) => res.json())
+    if (res?.message) {
+      showErrorPopup.set({
+        state: true,
+        message: res.message
+      })
+    } else {
+      goto(`/${$page.data.page.slug}`, {
+        noScroll: true
+      })
+    }
   }
 
   async function handleMove() {
@@ -56,109 +74,187 @@
     let fdata = new FormData(form)
     let newSlug = fdata.get("new-slug")
     if (!newSlug) {
-      moveInputNewSlugElem.style.outline = "1px solid red" // TODO add proper CSS class for input box error
+      moveInputNewSlugElem.classList.add("error")
       return
     } else {
-      moveInputNewSlugElem.style.outline = ""
+      moveInputNewSlugElem.classList.remove("error")
     }
-    fdata.set("site-id", data.site.siteId)
-    fdata.set("page-id", data.page.pageId)
-    await fetch(`/${data.page.slug}/move`, {
+    fdata.set("site-id", $page.data.site.site_id)
+    fdata.set("page-id", $page.data.page.page_id)
+    let res = await fetch(`/${$page.data.page.slug}/move`, {
       method: "POST",
       body: fdata
-    })
-    goto(`/${newSlug}`, {
-      noScroll: true
-    })
-    showMoveAction = false
+    }).then((res) => res.json())
+    if (res?.message) {
+      showErrorPopup.set({
+        state: true,
+        message: res.message
+      })
+    } else {
+      goto(`/${newSlug}`, {
+        noScroll: true
+      })
+      showMoveAction = false
+    }
   }
 
   async function handleHistory() {
     let fdata = new FormData()
-    fdata.set("site-id", data.site.siteId)
-    fdata.set("page-id", data.page.pageId)
-    revisionList = await fetch(`/${data.page.slug}/history`, {
+    fdata.set("site-id", $page.data.site.site_id)
+    fdata.set("page-id", $page.data.page.page_id)
+    let res = await fetch(`/${$page.data.page.slug}/history`, {
       method: "POST",
       body: fdata
     }).then((res) => res.json())
-    showHistory = true
+    if (res?.message) {
+      showErrorPopup.set({
+        state: true,
+        message: res.message
+      })
+    } else {
+      res.forEach((rev) => {
+        revisionMap.set(rev.revision_number, rev)
+      })
+      showHistory = true
+    }
+  }
+
+  async function getRevision(
+    revisionNumber: number,
+    compiledHtml: boolean,
+    wikitext: boolean
+  ) {
+    // Get cached revision if we have it
+    let rev = revisionMap.get(revisionNumber)
+    // Try to see if the cached revision already has the wanted data
+    if (compiledHtml && rev?.compiled_html) {
+      revision = rev
+    } else if (wikitext && rev?.wikitext) {
+      revision = rev
+    } else {
+      // Request from server
+      let fdata = new FormData()
+      fdata.set("site-id", $page.data.site.site_id)
+      fdata.set("page-id", $page.data.page.page_id)
+      fdata.set("revision-number", revisionNumber)
+      fdata.set("compiled-html", compiledHtml)
+      fdata.set("wikitext", wikitext)
+      let res = await fetch(`/${$page.data.page.slug}/revision`, {
+        method: "POST",
+        body: fdata
+      }).then((res) => res.json())
+      if (res?.message) {
+        showErrorPopup.set({
+          state: true,
+          message: res.message
+        })
+      } else if (!rev) {
+        // This is a revision we didn't even cache...?
+        revisionMap.set(res.revision_number, res)
+        revision = res
+      } else if (compiledHtml) {
+        rev.compiled_html = res.compiled_html
+        revision = rev
+      } else if (wikitext) {
+        rev.wikitext = res.wikitext
+        revision = rev
+      }
+    }
   }
 
   onMount(() => {
-    if (data?.options.history) handleHistory()
+    if ($page.data?.options.history) handleHistory()
   })
 </script>
 
 <h1>UNTRANSLATED:Loaded page</h1>
-<p class="spin-yay">
-  UNTRANSLATED:This is a generic page renderer loaded as a component.
-</p>
 <p>
-  UNTRANSLATED:Response <textarea class="debug">{JSON.stringify(data, null, 2)}</textarea>
+  UNTRANSLATED:Response <textarea class="debug">{JSON.stringify($page, null, 2)}</textarea
+  >
 </p>
 
-<h2>{data.page_revision.title}</h2>
+{#if showRevision}
+  <h2>{revision.title}</h2>
+{:else}
+  <h2>{$page.data.page_revision.title}</h2>
+{/if}
 
 <hr />
 
 <div class="page-content">
-  {#if data.options?.noRender}
-    UNTRANSLATED: Content not shown.
-    <!-- TODO Put page source here -->
+  {#if $page.data.options?.no_render}
+    {$page.data.internationalization["wiki-page-no-render"]}
+    <textarea class="page-source" readonly={true}>{$page.data.wikitext}</textarea>
+  {:else if showRevision}
+    {@html revision.compiled_html}
   {:else}
-    {@html data.compiledHtml}
+    {@html $page.data.compiled_html}
   {/if}
 </div>
 
 <div class="page-tags-container">
-  Tags
+  {$page.data.internationalization?.tags}
   <hr />
   <ul class="page-tags">
-    {#each data.page_revision.tags as tag}
-      <li class="tag">{tag}</li>
-    {/each}
+    {#if showRevision}
+      {#each revision.tags as tag}
+        <li class="tag">{tag}</li>
+      {/each}
+    {:else}
+      {#each $page.data.page_revision.tags as tag}
+        <li class="tag">{tag}</li>
+      {/each}
+    {/if}
   </ul>
 </div>
 
-{#if data.options?.edit}
+<div class="page-revision-container">
+  {$page.data.internationalization["wiki-page-revision"]}
+</div>
+
+{#if $page.data.options?.edit}
   <form id="editor" class="editor" method="POST" on:submit|preventDefault={saveEdit}>
     <input
       name="title"
       class="editor-title"
-      placeholder="UT:title"
+      placeholder={$page.data.internationalization?.title}
       type="text"
-      value={data.page_revision.title}
+      value={$page.data.page_revision.title}
     />
     <input
       name="alt-title"
       class="editor-alt-title"
-      placeholder="UT:alternative title"
+      placeholder={$page.data.internationalization?.["alt-title"]}
       type="text"
-      value={data.page_revision.altTitle}
+      value={$page.data.page_revision.alt_title}
     />
-    <textarea name="wikitext" class="editor-wikitext">{data.wikitext}</textarea>
+    <textarea name="wikitext" class="editor-wikitext">{$page.data.wikitext}</textarea>
     <input
       name="tags"
       class="editor-tags"
-      placeholder="tags"
+      placeholder={$page.data.internationalization?.tags}
       type="text"
-      value={data.page_revision.tags.join(" ")}
+      value={$page.data.page_revision.tags.join(" ")}
     />
-    <textarea name="comments" class="editor-comments" placeholder="comments" />
+    <textarea
+      name="comments"
+      class="editor-comments"
+      placeholder={$page.data.internationalization?.["wiki-page-revision-comments"]}
+    />
     <div class="action-row editor-actions">
       <button
         class="action-button editor-button button-cancel clickable"
         type="button"
         on:click|stopPropagation={cancelEdit}
       >
-        UT:Cancel
+        {$page.data.internationalization?.cancel}
       </button>
       <button
         class="action-button editor-button button-save clickable"
         type="submit"
         on:click|stopPropagation
       >
-        UT:Save
+        {$page.data.internationalization?.save}
       </button>
     </div>
   </form>
@@ -171,32 +267,43 @@
         $: showMoveAction = true
       }}
     >
-      UT:Move
+      {$page.data.internationalization?.move}
     </button>
     <button
       class="action-button editor-button button-delete clickable"
       type="button"
       on:click={handleDelete}
     >
-      UT:Delete
+      {$page.data.internationalization?.delete}
     </button>
     <button
       class="action-button editor-button button-edit clickable"
       type="button"
       on:click={navigateEdit}
     >
-      UT:Edit
+      {$page.data.internationalization?.edit}
     </button>
   </div>
   <div class="action-row other-actions">
+    <button
+      class="action-button button-source clickable"
+      type="button"
+      on:click={() => (showSource = true)}
+    >
+      {$page.data.internationalization?.["wiki-page-view-source"]}
+    </button>
     <button
       class="action-button button-history clickable"
       type="button"
       on:click={handleHistory}
     >
-      UT:History
+      {$page.data.internationalization?.history}
     </button>
   </div>
+{/if}
+
+{#if showSource}
+  <textarea class="page-source" readonly={true}>{$page.data.wikitext}</textarea>
 {/if}
 
 {#if showMoveAction}
@@ -210,10 +317,14 @@
       bind:this={moveInputNewSlugElem}
       name="new-slug"
       class="page-move-new-slug"
-      placeholder="new slug"
+      placeholder={$page.data.internationalization?.["wiki-page-move-new-slug"]}
       type="text"
     />
-    <textarea name="comments" class="page-move-comments" placeholder="comments" />
+    <textarea
+      name="comments"
+      class="page-move-comments"
+      placeholder={$page.data.internationalization?.["wiki-page-revision-comments"]}
+    />
     <div class="action-row page-move-actions">
       <button
         class="action-button page-move-button button-cancel clickable"
@@ -222,14 +333,14 @@
           $: showMoveAction = false
         }}
       >
-        UT:Cancel
+        {$page.data.internationalization?.cancel}
       </button>
       <button
         class="action-button page-move-button button-move clickable"
         type="submit"
         on:click|stopPropagation
       >
-        UT:Move
+        {$page.data.internationalization?.move}
       </button>
     </div>
   </form>
@@ -238,45 +349,71 @@
 {#if showHistory}
   <div class="revision-list">
     <div class="revision-header">
-      <div class="revision-attribute revision-number">UT: Revision #</div>
-      <div class="revision-attribute created-at">UT: Creation</div>
-      <div class="revision-attribute user">UT: User</div>
-      <div class="revision-attribute comments">UT: Comments</div>
+      <div class="revision-attribute action" />
+      <div class="revision-attribute revision-number">
+        {$page.data.internationalization?.["wiki-page-revision-number"]}
+      </div>
+      <div class="revision-attribute created-at">
+        {$page.data.internationalization?.["wiki-page-revision-created-at"]}
+      </div>
+      <div class="revision-attribute user">
+        {$page.data.internationalization?.["wiki-page-revision-user"]}
+      </div>
+      <div class="revision-attribute comments">
+        {$page.data.internationalization?.["wiki-page-revision-comments"]}
+      </div>
     </div>
-    {#each revisionList.reverse() as revision}
-      <div class="revision-row" data-id={revision.revision_id}>
+    <!-- Here we sort the list in descending order. -->
+    {#each [...revisionMap].sort((a, b) => b[0] - a[0]) as [_, revisionItem] (revisionItem.revision_number)}
+      <div class="revision-row" data-id={revisionItem.revision_id}>
+        <div class="revision-attribute action">
+          <button
+            class="action-button view-revision clickable"
+            type="button"
+            on:click|stopPropagation={() => {
+              getRevision(revisionItem.revision_number, true, false).then(() => {
+                showRevision = true
+                showRevisionSource = false
+              })
+            }}
+          >
+            {$page.data.internationalization?.view}
+          </button>
+          <button
+            class="action-button view-revision-source clickable"
+            type="button"
+            on:click|stopPropagation={() => {
+              getRevision(revisionItem.revision_number, false, true).then(() => {
+                showRevision = false
+                showRevisionSource = true
+              })
+            }}
+          >
+            {$page.data.internationalization?.["wiki-page-view-source"]}
+          </button>
+        </div>
         <div class="revision-attribute revision-number">
-          {revision.revision_number}
+          {revisionItem.revision_number}
         </div>
         <div class="revision-attribute created-at">
-          {revision.created_at}
+          {revisionItem.created_at}
         </div>
         <div class="revision-attribute user">
-          {revision.user_id}
+          {revisionItem.user_id}
         </div>
         <div class="revision-attribute comments">
-          {revision.comments}
+          {revisionItem.comments}
         </div>
       </div>
     {/each}
   </div>
+
+  {#if showRevisionSource}
+    <textarea class="revision-source" readonly={true}>{revision.wikitext}</textarea>
+  {/if}
 {/if}
 
 <style global lang="scss">
-  @keyframes spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  .spin-yay {
-    display: inline-block;
-    animation: spin 2s linear infinite;
-  }
-
   .debug {
     width: 80vw;
     height: 60vh;
@@ -284,7 +421,9 @@
 
   .page-content,
   .page-tags-container,
+  .page-revision-container,
   .editor-actions,
+  .other-actions,
   .page-move {
     padding: 0 0 2em;
   }
@@ -301,6 +440,10 @@
     list-style: none;
   }
 
+  .page-revision-container {
+    text-align: right;
+  }
+
   .editor,
   .page-move {
     display: flex;
@@ -312,6 +455,12 @@
   }
 
   .editor-wikitext {
+    height: 60vh;
+  }
+
+  .page-source,
+  .revision-source {
+    width: 80vw;
     height: 60vh;
   }
 

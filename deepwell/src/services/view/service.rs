@@ -288,6 +288,69 @@ impl ViewService {
         Ok(output)
     }
 
+    pub async fn user(
+        ctx: &ServiceContext<'_>,
+        GetUserView {
+            domain,
+            locales: locales_str,
+            user: user_ref,
+            session_token,
+        }: GetUserView<'_>,
+    ) -> Result<GetUserViewOutput> {
+        info!(
+            "Getting user view data for domain '{}', user '{:?}', locales '{:?}'",
+            domain, user_ref, locales_str,
+        );
+
+        // Parse all locales
+        let locales = parse_locales(&locales_str)?;
+
+        // Attempt to get a viewer helper structure, but if the site doesn't exist
+        // then return right away with the "no such site" response.
+        let Viewer {
+            site,
+            redirect_site,
+            user_session,
+        } = match Self::get_viewer(
+            ctx,
+            &locales,
+            &domain,
+            session_token.ref_map(|s| s.as_str()),
+        )
+        .await?
+        {
+            ViewerResult::FoundSite(viewer) => viewer,
+            ViewerResult::MissingSite(html) => {
+                return Ok(GetUserViewOutput::SiteMissing { html });
+            }
+        };
+
+        // TODO Check if user-agent and IP match?
+
+        let viewer = Viewer {
+            site,
+            redirect_site,
+            user_session,
+        };
+
+        // Get data to return for this user.
+        let user = match user_ref {
+            Some(user_ref) => UserService::get_optional(ctx, user_ref).await?,
+            // For users visiting their own user info page
+            None => viewer
+                .user_session
+                .as_ref()
+                .map(|session| session.user.clone()),
+        };
+
+        let output = match user {
+            Some(user) => GetUserViewOutput::UserFound { viewer, user },
+            None => GetUserViewOutput::UserMissing { viewer },
+        };
+
+        Ok(output)
+    }
+
     /// Gets basic data and runs common logic for all web routes.
     ///
     /// All views seen by end users require a few translations before
