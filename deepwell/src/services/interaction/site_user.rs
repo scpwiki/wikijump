@@ -103,57 +103,59 @@ impl InteractionService {
     ) -> Result<i64> {
         info!("Getting site user for site ID {site_id}");
 
-        // We implement our own query since it's 1:1 and we
-        // don't have to worry about multiple results like
-        // for get_entries().
+        let model = get_interaction(
+            ctx,
+            Condition::all()
+                .add(interaction::Column::DestType.eq(InteractionObjectType::Site))
+                .add(interaction::Column::DestId.eq(site_id)),
+        )
+        .await?;
 
-        let txn = ctx.transaction();
-        let model = Interaction::find()
-            .filter(
-                Condition::all()
-                    .add(
-                        interaction::Column::InteractionType
-                            .eq(InteractionType::SiteUser.value()),
-                    )
-                    .add(interaction::Column::DestType.eq(InteractionObjectType::Site))
-                    .add(interaction::Column::DestId.eq(site_id))
-                    .add(interaction::Column::OverwrittenAt.is_null())
-                    .add(interaction::Column::DeletedAt.is_null()),
-            )
-            .order_by_asc(interaction::Column::CreatedAt)
-            .one(txn)
-            .await?;
-
-        match model {
-            Some(model) => Ok(model.from_id),
-            None => Err(Error::InteractionNotFound),
-        }
+        Ok(model.from_id)
     }
 
     pub async fn get_site_id_for_site_user(
         ctx: &ServiceContext<'_>,
         user_id: i64,
     ) -> Result<i64> {
-        let txn = ctx.transaction();
-        let model = Interaction::find()
-            .filter(
-                Condition::all()
-                    .add(
-                        interaction::Column::InteractionType
-                            .eq(InteractionType::SiteUser.value()),
-                    )
-                    .add(interaction::Column::FromType.eq(InteractionObjectType::User))
-                    .add(interaction::Column::FromId.eq(user_id))
-                    .add(interaction::Column::OverwrittenAt.is_null())
-                    .add(interaction::Column::DeletedAt.is_null()),
-            )
-            .order_by_asc(interaction::Column::CreatedAt)
-            .one(txn)
-            .await?;
+        let model = get_interaction(
+            ctx,
+            Condition::all()
+                .add(interaction::Column::FromType.eq(InteractionObjectType::User))
+                .add(interaction::Column::FromId.eq(user_id)),
+        )
+        .await?;
 
-        match model {
-            Some(model) => Ok(model.dest_id),
-            None => Err(Error::InteractionNotFound),
-        }
+        Ok(model.dest_id)
+    }
+}
+
+async fn get_interaction(
+    ctx: &ServiceContext<'_>,
+    condition: Condition,
+) -> Result<InteractionModel> {
+    // We implement our own query since it's 1:1 and we
+    // don't have to worry about multiple results like
+    // for get_entries().
+
+    let txn = ctx.transaction();
+    let model = Interaction::find()
+        .filter(
+            Condition::all()
+                .add(
+                    interaction::Column::InteractionType
+                        .eq(InteractionType::SiteUser.value()),
+                )
+                .add(condition)
+                .add(interaction::Column::OverwrittenAt.is_null())
+                .add(interaction::Column::DeletedAt.is_null()),
+        )
+        .order_by_asc(interaction::Column::CreatedAt)
+        .one(txn)
+        .await?;
+
+    match model {
+        Some(model) => Ok(model),
+        None => Err(Error::InteractionNotFound),
     }
 }
