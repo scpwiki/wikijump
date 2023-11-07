@@ -160,6 +160,7 @@ impl InteractionService {
             .filter(
                 Condition::all()
                     .add(reference.condition())
+                    .add(interaction::Column::OverwrittenAt.is_null())
                     .add(interaction::Column::DeletedAt.is_null()),
             )
             .one(txn)
