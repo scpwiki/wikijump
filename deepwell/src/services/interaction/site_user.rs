@@ -98,10 +98,10 @@ impl InteractionService {
         )
     }
 
-    pub async fn get_site_user_for_site(
+    pub async fn get_site_user_id_for_site(
         ctx: &ServiceContext<'_>,
         site_id: i64,
-    ) -> Result<UserModel> {
+    ) -> Result<i64> {
         info!("Getting site user for site ID {site_id}");
 
         // We implement our own query since it's 1:1 and we
@@ -125,11 +125,18 @@ impl InteractionService {
             .one(txn)
             .await?;
 
-        let user_id = match model {
-            Some(model) => model.from_id,
-            None => return Err(Error::InteractionNotFound),
-        };
+        match model {
+            Some(model) => Ok(model.from_id),
+            None => Err(Error::InteractionNotFound),
+        }
+    }
 
+    #[inline]
+    pub async fn get_site_user_for_site(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+    ) -> Result<UserModel> {
+        let user_id = Self::get_site_user_id_for_site(ctx, site_id).await?;
         UserService::get(ctx, Reference::Id(user_id)).await
     }
 }

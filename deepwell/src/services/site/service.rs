@@ -26,7 +26,7 @@ use crate::models::sea_orm_active_enums::{AliasType, UserType};
 use crate::models::site::{self, Entity as Site, Model as SiteModel};
 use crate::services::alias::CreateAlias;
 use crate::services::interaction::CreateSiteUser;
-use crate::services::user::CreateUser;
+use crate::services::user::{CreateUser, UpdateUserBody};
 use crate::services::{AliasService, InteractionService, UserService};
 use crate::utils::validate_locale;
 
@@ -134,9 +134,21 @@ impl SiteService {
 
         if let ProvidedValue::Set(locale) = input.locale {
             validate_locale(&locale)?;
-            model.locale = Set(locale);
+            model.locale = Set(locale.clone());
 
-            // TODO update interaction
+            // Update corresponding site user
+            let user_id =
+                InteractionService::get_site_user_id_for_site(ctx, site.site_id).await?;
+
+            UserService::update(
+                ctx,
+                Reference::Id(user_id),
+                UpdateUserBody {
+                    locale: ProvidedValue::Set(locale),
+                    ..Default::default()
+                },
+            )
+            .await?;
         }
 
         // Update site
