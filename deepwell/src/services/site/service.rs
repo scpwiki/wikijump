@@ -60,7 +60,7 @@ impl SiteService {
             slug: Set(slug.clone()),
             name: Set(name),
             tagline: Set(tagline),
-            description: Set(description),
+            description: Set(description.clone()),
             locale: Set(locale.clone()),
             ..Default::default()
         };
@@ -78,6 +78,17 @@ impl SiteService {
                 password: String::new(),
                 bypass_filter: false,
                 bypass_email_verification: false,
+            },
+        )
+        .await?;
+
+        // Some fields can only be set in update after creation
+        UserService::update(
+            ctx,
+            Reference::Id(user.user_id),
+            UpdateUserBody {
+                biography: ProvidedValue::Set(Some(description)),
+                ..Default::default()
             },
         )
         .await?;
