@@ -202,6 +202,10 @@ impl InteractionService {
     }
 
     // TODO paginate
+    /// Gets the history of this `dest` / `from` interaction.
+    ///
+    /// This includes all all edits of the interaction (`overwritten_at`)
+    /// and deleted / remade versions of the interaction (`deleted_at`).
     pub async fn get_history(
         ctx: &ServiceContext<'_>,
         interaction_type: InteractionType,
@@ -223,6 +227,10 @@ impl InteractionService {
     }
 
     // TODO paginate
+    /// Gets all interactions from the starting object in the given direction.
+    ///
+    /// For instance, this can be used to get all blocked users, or all users who are blocking
+    /// someone depending on the `InteractionDirection`.
     pub async fn get_entries(
         ctx: &ServiceContext<'_>,
         interaction_type: InteractionType,
