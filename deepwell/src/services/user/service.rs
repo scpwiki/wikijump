@@ -130,16 +130,14 @@ impl UserService {
                 .await?;
 
             if result.is_some() {
-                error!("User with conflicting email already exists, cannot create",);
-
+                error!("User with conflicting email already exists, cannot create");
                 return Err(Error::UserExists);
             }
         }
 
         // Check for alias conflicts
         if AliasService::exists(ctx, AliasType::User, &slug).await? {
-            error!("User alias with conflicting slug already exists, cannot create",);
-
+            error!("User alias with conflicting slug already exists, cannot create");
             return Err(Error::UserExists);
         }
 
