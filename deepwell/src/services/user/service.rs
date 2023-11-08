@@ -91,7 +91,6 @@ impl UserService {
                     .add(
                         Condition::any()
                             .add(user::Column::Name.eq(name.as_str()))
-                            .add(user::Column::Email.eq(email.as_str()))
                             .add(user::Column::Slug.eq(slug.as_str())),
                     )
                     .add(user::Column::DeletedAt.is_null()),
@@ -118,12 +117,7 @@ impl UserService {
             let result = User::find()
                 .filter(
                     Condition::all()
-                        .add(
-                            Condition::any()
-                                .add(user::Column::Name.eq(name.as_str()))
-                                .add(user::Column::Email.eq(email.as_str()))
-                                .add(user::Column::Slug.eq(slug.as_str())),
-                        )
+                        .add(user::Column::Email.eq(email.as_str()))
                         .add(user::Column::DeletedAt.is_null()),
                 )
                 .one(txn)
