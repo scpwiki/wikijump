@@ -100,6 +100,7 @@ impl UserService {
 
         if result.is_some() {
             error!("User with conflicting name or slug already exists, cannot create");
+            error!("Checked name '{name}', slug '{slug}', found {result:#?}");
             return Err(Error::UserExists);
         }
 
@@ -125,6 +126,7 @@ impl UserService {
 
             if result.is_some() {
                 error!("User with conflicting email already exists, cannot create");
+                error!("Checked email '{email}' found {result:#?}");
                 return Err(Error::UserExists);
             }
         }
@@ -132,6 +134,7 @@ impl UserService {
         // Check for alias conflicts
         if AliasService::exists(ctx, AliasType::User, &slug).await? {
             error!("User alias with conflicting slug already exists, cannot create");
+            error!("Checked slug '{slug}'");
             return Err(Error::UserExists);
         }
 
