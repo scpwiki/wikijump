@@ -44,6 +44,7 @@ mod page_star;
 mod page_watch;
 mod site_ban;
 mod site_member;
+mod site_user;
 mod structs;
 mod user_block;
 mod user_contact;
@@ -53,6 +54,7 @@ pub use self::page_star::*;
 pub use self::page_watch::*;
 pub use self::site_ban::*;
 pub use self::site_member::*;
+pub use self::site_user::*;
 pub use self::structs::*;
 pub use self::user_block::*;
 pub use self::user_contact::*;
@@ -158,6 +160,7 @@ impl InteractionService {
             .filter(
                 Condition::all()
                     .add(reference.condition())
+                    .add(interaction::Column::OverwrittenAt.is_null())
                     .add(interaction::Column::DeletedAt.is_null()),
             )
             .one(txn)
@@ -199,6 +202,10 @@ impl InteractionService {
     }
 
     // TODO paginate
+    /// Gets the history of this `dest` / `from` interaction.
+    ///
+    /// This includes all all edits of the interaction (`overwritten_at`)
+    /// and deleted / remade versions of the interaction (`deleted_at`).
     pub async fn get_history(
         ctx: &ServiceContext<'_>,
         interaction_type: InteractionType,
@@ -220,6 +227,10 @@ impl InteractionService {
     }
 
     // TODO paginate
+    /// Gets all interactions from the starting object in the given direction.
+    ///
+    /// For instance, this can be used to get all blocked users, or all users who are blocking
+    /// someone depending on the `InteractionDirection`.
     pub async fn get_entries(
         ctx: &ServiceContext<'_>,
         interaction_type: InteractionType,

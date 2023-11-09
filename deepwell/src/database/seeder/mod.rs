@@ -145,7 +145,7 @@ pub async fn seed(state: &ServerState) -> Result<()> {
     {
         info!("Creating seed site '{}' (slug {})", site.name, site.slug);
 
-        let CreateSiteOutput { site_id, slug: _ } = SiteService::create(
+        let CreateSiteOutput { site_id, .. } = SiteService::create(
             &ctx,
             CreateSite {
                 slug: site.slug,
@@ -176,7 +176,7 @@ pub async fn seed(state: &ServerState) -> Result<()> {
         for page in pages {
             info!("Creating page '{}' (slug {})", page.title, page.slug);
 
-            PageService::create(
+            let model = PageService::create(
                 &ctx,
                 CreatePage {
                     site_id,
@@ -190,6 +190,9 @@ pub async fn seed(state: &ServerState) -> Result<()> {
                 },
             )
             .await?;
+
+            // TODO add attribution with site_user as author
+            let _ = model;
         }
     }
 

@@ -26,7 +26,7 @@ use crate::services::blob::{BlobService, CreateBlobOutput};
 use crate::services::email::{EmailClassification, EmailService};
 use crate::services::filter::{FilterClass, FilterType};
 use crate::services::{AliasService, FilterService, PasswordService};
-use crate::utils::{get_regular_slug, regex_replace_in_place};
+use crate::utils::regex_replace_in_place;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use sea_orm::ActiveValue;
@@ -52,7 +52,7 @@ impl UserService {
         }: CreateUser,
     ) -> Result<CreateUserOutput> {
         let txn = ctx.transaction();
-        let slug = get_regular_slug(&name);
+        let slug = get_user_slug(&name, user_type);
 
         debug!("Normalizing user data (name '{}', slug '{}')", name, slug,);
         regex_replace_in_place(&mut name, &LEADING_TRAILING_CHARS, "");
@@ -91,7 +91,6 @@ impl UserService {
                     .add(
                         Condition::any()
                             .add(user::Column::Name.eq(name.as_str()))
-                            .add(user::Column::Email.eq(email.as_str()))
                             .add(user::Column::Slug.eq(slug.as_str())),
                     )
                     .add(user::Column::DeletedAt.is_null()),
@@ -100,39 +99,40 @@ impl UserService {
             .await?;
 
         if result.is_some() {
-            error!("User with conflicting name or slug already exists, cannot create",);
-
+            error!("User with conflicting name or slug already exists, cannot create");
+            error!("Checked name '{name}', slug '{slug}', found {result:#?}");
             return Err(Error::UserExists);
         }
 
-        // Check for email conflicts
-        // Bot accounts are allowed to have duplicate emails
+        // Email must be specified for humans and bots
+        if matches!(user_type, UserType::Regular | UserType::Bot) && email.is_empty() {
+            error!("Attempting to create user with empty email");
+            return Err(Error::UserEmailEmpty);
+        }
+
+        // Check for email conflicts, if a regular user
+        // Other kinds of accounts do not need unique emails
         if user_type == UserType::Regular {
             let result = User::find()
                 .filter(
                     Condition::all()
-                        .add(
-                            Condition::any()
-                                .add(user::Column::Name.eq(name.as_str()))
-                                .add(user::Column::Email.eq(email.as_str()))
-                                .add(user::Column::Slug.eq(slug.as_str())),
-                        )
+                        .add(user::Column::Email.eq(email.as_str()))
                         .add(user::Column::DeletedAt.is_null()),
                 )
                 .one(txn)
                 .await?;
 
             if result.is_some() {
-                error!("User with conflicting email already exists, cannot create",);
-
+                error!("User with conflicting email already exists, cannot create");
+                error!("Checked email '{email}' found {result:#?}");
                 return Err(Error::UserExists);
             }
         }
 
         // Check for alias conflicts
         if AliasService::exists(ctx, AliasType::User, &slug).await? {
-            error!("User alias with conflicting slug already exists, cannot create",);
-
+            error!("User alias with conflicting slug already exists, cannot create");
+            error!("Checked slug '{slug}'");
             return Err(Error::UserExists);
         }
 
@@ -142,11 +142,11 @@ impl UserService {
                 info!("Creating regular user '{slug}' with password");
                 PasswordService::new_hash(&password)?
             }
-            UserType::System => {
-                info!("Creating system user '{slug}'");
+            UserType::System | UserType::Site => {
+                info!("Creating site or system user '{slug}'");
 
                 if !password.is_empty() {
-                    warn!("Password was specified for system user");
+                    warn!("Password was specified for site or system user");
                     return Err(Error::BadRequest);
                 }
 
@@ -168,7 +168,10 @@ impl UserService {
         //
         // The assigned variable is also used to check whether email validation occurred, as it
         // will always be `Some` if validation occurred and `None` otherwise.
-        let email_is_alias = if !bypass_email_verification {
+        //
+        // Also bypass email verification if it's empty (obviously invalid).
+        // We've already checked for empty emails above (e.g. system users can have empty emails).
+        let email_is_alias = if !bypass_email_verification && !email.is_empty() {
             let email_validation_output = EmailService::validate(&email).await?;
 
             match email_validation_output.classification {
@@ -463,7 +466,7 @@ impl UserService {
         // unaltered, or if the slug is a prior name of theirs
         // (i.e. they have a user alias for it).
 
-        let new_slug = get_regular_slug(&new_name);
+        let new_slug = get_user_slug(&new_name, user.user_type);
         let old_slug = &user.slug;
 
         // Empty slug check
@@ -689,5 +692,20 @@ impl UserService {
 
         filter_matcher.verify(ctx, email).await?;
         Ok(())
+    }
+}
+
+fn get_user_slug(name: &str, user_type: UserType) -> String {
+    use crate::utils::{get_regular_slug, get_slug};
+
+    if user_type == UserType::Site {
+        debug_assert!(
+            name.starts_with("site:"),
+            "Site user slug does not start with 'site:'",
+        );
+
+        get_slug(name)
+    } else {
+        get_regular_slug(name)
     }
 }

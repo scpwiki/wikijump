@@ -92,6 +92,8 @@ pub enum UserType {
     Bot,
     #[sea_orm(string_value = "regular")]
     Regular,
+    #[sea_orm(string_value = "site")]
+    Site,
     #[sea_orm(string_value = "system")]
     System,
 }

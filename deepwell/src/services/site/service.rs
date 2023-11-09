@@ -21,10 +21,13 @@
 use wikidot_normalize::normalize;
 
 use super::prelude::*;
-use crate::models::sea_orm_active_enums::AliasType;
+use crate::constants::SYSTEM_USER_ID;
+use crate::models::sea_orm_active_enums::{AliasType, UserType};
 use crate::models::site::{self, Entity as Site, Model as SiteModel};
 use crate::services::alias::CreateAlias;
-use crate::services::AliasService;
+use crate::services::interaction::CreateSiteUser;
+use crate::services::user::{CreateUser, UpdateUserBody};
+use crate::services::{AliasService, InteractionService, UserService};
 use crate::utils::validate_locale;
 
 #[derive(Debug)]
@@ -52,18 +55,59 @@ impl SiteService {
         // Validate locale.
         validate_locale(&locale)?;
 
+        // Insert into database
         let model = site::ActiveModel {
             slug: Set(slug.clone()),
             name: Set(name),
             tagline: Set(tagline),
-            description: Set(description),
-            locale: Set(locale),
+            description: Set(description.clone()),
+            locale: Set(locale.clone()),
             ..Default::default()
         };
         let site = model.insert(txn).await?;
 
+        // Create site user, and add interaction
+
+        let user = UserService::create(
+            ctx,
+            CreateUser {
+                user_type: UserType::Site,
+                name: format!("site:{slug}"),
+                email: String::new(),
+                locale,
+                password: String::new(),
+                bypass_filter: false,
+                bypass_email_verification: false,
+            },
+        )
+        .await?;
+
+        // Some fields can only be set in update after creation
+        UserService::update(
+            ctx,
+            Reference::Id(user.user_id),
+            UpdateUserBody {
+                biography: ProvidedValue::Set(Some(description)),
+                ..Default::default()
+            },
+        )
+        .await?;
+
+        InteractionService::create_site_user(
+            ctx,
+            CreateSiteUser {
+                site_id: site.site_id,
+                user_id: user.user_id,
+                metadata: (),
+                created_by: SYSTEM_USER_ID,
+            },
+        )
+        .await?;
+
+        // Return
         Ok(CreateSiteOutput {
             site_id: site.site_id,
+            site_user_id: user.user_id,
             slug,
         })
     }
@@ -73,7 +117,7 @@ impl SiteService {
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
         input: UpdateSiteBody,
-        user_id: i64,
+        updating_user_id: i64,
     ) -> Result<SiteModel> {
         let txn = ctx.transaction();
         let site = Self::get(ctx, reference).await?;
@@ -82,12 +126,18 @@ impl SiteService {
             ..Default::default()
         };
 
+        // For updating the corresponding site user
+        let site_user_id =
+            InteractionService::get_site_user_id_for_site(ctx, site.site_id).await?;
+        let mut site_user_body = UpdateUserBody::default();
+
         if let ProvidedValue::Set(name) = input.name {
             model.name = Set(name);
         }
 
         if let ProvidedValue::Set(new_slug) = input.slug {
-            Self::update_slug(ctx, &site, &new_slug, user_id).await?;
+            Self::update_slug(ctx, &site, &new_slug, updating_user_id).await?;
+            site_user_body.name = ProvidedValue::Set(format!("site:{new_slug}"));
             model.slug = Set(new_slug);
         }
 
@@ -96,17 +146,22 @@ impl SiteService {
         }
 
         if let ProvidedValue::Set(description) = input.description {
-            model.description = Set(description);
+            model.description = Set(description.clone());
+            site_user_body.biography = ProvidedValue::Set(Some(description))
         }
 
         if let ProvidedValue::Set(locale) = input.locale {
             validate_locale(&locale)?;
-            model.locale = Set(locale);
+            model.locale = Set(locale.clone());
+            site_user_body.locale = ProvidedValue::Set(locale);
         }
 
         // Update site
         model.updated_at = Set(Some(now()));
         let new_site = model.update(txn).await?;
+
+        // Update site user
+        UserService::update(ctx, Reference::Id(site_user_id), site_user_body).await?;
 
         // Run verification afterwards if the slug changed
         if site.slug != new_site.slug {

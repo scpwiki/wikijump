@@ -27,7 +27,7 @@ use crate::models::message_recipient::{self, Entity as MessageRecipient};
 use crate::models::message_record::{
     self, Entity as MessageRecord, Model as MessageRecordModel,
 };
-use crate::models::sea_orm_active_enums::MessageRecipientType;
+use crate::models::sea_orm_active_enums::{MessageRecipientType, UserType};
 use crate::services::render::{RenderOutput, RenderService};
 use crate::services::{InteractionService, TextService, UserService};
 use cuid2::cuid;
@@ -208,7 +208,7 @@ impl MessageService {
         let config = ctx.config();
         let draft = Self::get_draft(ctx, draft_id).await?;
         let wikitext = TextService::get(ctx, &draft.wikitext_hash).await?;
-        let recipients: DraftRecipients = serde_json::from_value(draft.recipients)?;
+        let mut recipients: DraftRecipients = serde_json::from_value(draft.recipients)?;
 
         // Message validation checks
         if draft.subject.is_empty() {
@@ -253,7 +253,9 @@ impl MessageService {
             return Err(Error::MessageTooManyRecipients);
         }
 
+        let mut recipients_to_add = Vec::new();
         for recipient_user_id in recipients.iter() {
+            // Ensure user is not blocked
             InteractionService::check_user_block(
                 ctx,
                 draft.user_id,
@@ -261,7 +263,22 @@ impl MessageService {
                 "send a direct message to",
             )
             .await?;
+
+            // If recipient is a site user, then forward to corresponding site staff.
+            let user = UserService::get(ctx, Reference::Id(recipient_user_id)).await?;
+            if user.user_type == UserType::Site {
+                // TODO what to do if user is banned from site? needs to be possible to block
+                //      permabanned bad actors, but also allow normal banned users to message
+                //      to appeal bans etc
+                // TODO get the listed site staff, add them to recipients
+                let _site_id =
+                    InteractionService::get_site_id_for_site_user(ctx, user.user_id)
+                        .await?;
+
+                let _ = &recipients_to_add;
+            }
         }
+        recipients.carbon_copy.append(&mut recipients_to_add);
 
         // The message sending process:
         // * Insert message_draft row to message_record

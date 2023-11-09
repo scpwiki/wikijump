@@ -11,6 +11,7 @@
 CREATE TYPE user_type AS ENUM (
     'regular',
     'system',
+    'site',
     'bot'
 );
 
@@ -25,7 +26,7 @@ CREATE TABLE "user" (
     slug TEXT NOT NULL,
     name_changes_left SMALLINT NOT NULL,  -- Default set in runtime configuration.
     last_renamed_at TIMESTAMP WITH TIME ZONE,
-    email TEXT NOT NULL,
+    email TEXT NOT NULL,  -- Can be empty, for instance with system accounts.
     email_is_alias BOOLEAN,
     email_verified_at TIMESTAMP WITH TIME ZONE,
     password TEXT NOT NULL,
