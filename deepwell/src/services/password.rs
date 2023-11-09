@@ -23,8 +23,8 @@ use crate::utils::assert_is_csprng;
 use argon2::{
     password_hash::SaltString, Argon2, PasswordHash, PasswordHasher, PasswordVerifier,
 };
-use async_std::task;
 use rand::thread_rng;
+use tokio::time;
 
 #[derive(Debug)]
 pub struct PasswordService;
@@ -116,6 +116,6 @@ impl PasswordService {
 
     /// Sleeps for a bit after authentication failure.
     pub async fn failure_sleep(config: &Config) {
-        task::sleep(config.authentication_fail_delay).await;
+        time::sleep(config.authentication_fail_delay).await;
     }
 }
