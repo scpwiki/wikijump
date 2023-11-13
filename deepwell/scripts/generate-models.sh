@@ -11,7 +11,8 @@ cd "${0%/*}/.."
 sea-orm-cli generate entity \
 	--verbose \
 	--date-time-crate time \
-	--with-copy-enums \
 	--with-serde both \
+	--enum-extra-attributes 'serde(rename_all = "kebab-case")' \
+	--with-copy-enums \
 	--database-url postgres://wikijump:wikijump@localhost/wikijump \
 	--output-dir src/models
