@@ -81,7 +81,7 @@ pub async fn seed(state: &ServerState) -> Result<()> {
                 name: user.name,
                 email: user.email,
                 password: user.password.unwrap_or_default(),
-                locale: user.locale,
+                locales: user.locales,
                 bypass_filter: true,
                 bypass_email_verification: true,
             },

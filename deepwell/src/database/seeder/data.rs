@@ -91,7 +91,7 @@ pub struct User {
     #[serde(rename = "type")]
     pub user_type: UserType,
     pub password: Option<String>,
-    pub locale: String,
+    pub locales: Vec<String>,
     pub real_name: Option<String>,
     pub gender: Option<String>,
     pub birthday: Option<Date>,
