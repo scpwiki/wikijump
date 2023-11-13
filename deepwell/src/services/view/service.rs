@@ -68,7 +68,7 @@ impl ViewService {
         );
 
         // Parse all locales
-        let locales = parse_locales(&locales_str)?;
+        let mut locales = parse_locales(&locales_str)?;
 
         // Attempt to get a viewer helper structure, but if the site doesn't exist
         // then return right away with the "no such site" response.
@@ -78,7 +78,7 @@ impl ViewService {
             user_session,
         } = match Self::get_viewer(
             ctx,
-            &locales,
+            &mut locales,
             &domain,
             session_token.ref_map(|s| s.as_str()),
         )
@@ -303,7 +303,7 @@ impl ViewService {
         );
 
         // Parse all locales
-        let locales = parse_locales(&locales_str)?;
+        let mut locales = parse_locales(&locales_str)?;
 
         // Attempt to get a viewer helper structure, but if the site doesn't exist
         // then return right away with the "no such site" response.
@@ -313,7 +313,7 @@ impl ViewService {
             user_session,
         } = match Self::get_viewer(
             ctx,
-            &locales,
+            &mut locales,
             &domain,
             session_token.ref_map(|s| s.as_str()),
         )
@@ -363,7 +363,7 @@ impl ViewService {
     /// operations, such as slug normalization or redirect site aliases.
     pub async fn get_viewer(
         ctx: &ServiceContext<'_>,
-        locales: &[LanguageIdentifier],
+        locales: &mut Vec<LanguageIdentifier>,
         domain: &str,
         session_token: Option<&str>,
     ) -> Result<ViewerResult> {
@@ -376,6 +376,13 @@ impl ViewService {
             Some(token) => {
                 let session = SessionService::get(ctx, token).await?;
                 let user = UserService::get(ctx, Reference::Id(session.user_id)).await?;
+
+                // If no locales specified, then use whatever the user has set
+                // TODO get locale priority list from settings
+                if locales.is_empty() {
+                    let locale = LanguageIdentifier::from_bytes(user.locale.as_bytes())?;
+                    locales.push(locale);
+                }
 
                 Some(UserSession {
                     session,
@@ -500,14 +507,9 @@ impl ViewService {
 
 /// Converts an array of strings to a list of locales.
 ///
-/// # Errors
-/// If the input array is empty.
+/// Empty locales lists _are_ allowed, since we have not
+/// yet checked the user's locale preferences.
 fn parse_locales<S: AsRef<str>>(locales_str: &[S]) -> Result<Vec<LanguageIdentifier>> {
-    if locales_str.is_empty() {
-        warn!("List of locales is empty");
-        return Err(Error::NoLocalesSpecified);
-    }
-
     let mut locales = Vec::with_capacity(locales_str.len());
     for locale_str in locales_str {
         let locale = LanguageIdentifier::from_bytes(locale_str.as_ref().as_bytes())?;
