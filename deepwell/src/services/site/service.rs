@@ -74,7 +74,7 @@ impl SiteService {
                 user_type: UserType::Site,
                 name: format!("site:{slug}"),
                 email: String::new(),
-                locale,
+                locales: vec![locale],
                 password: String::new(),
                 bypass_filter: false,
                 bypass_email_verification: false,
@@ -153,7 +153,7 @@ impl SiteService {
         if let ProvidedValue::Set(locale) = input.locale {
             validate_locale(&locale)?;
             model.locale = Set(locale.clone());
-            site_user_body.locale = ProvidedValue::Set(locale);
+            site_user_body.locales = ProvidedValue::Set(vec![locale]);
         }
 
         // Update site

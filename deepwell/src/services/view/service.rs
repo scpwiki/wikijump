@@ -368,10 +368,9 @@ impl ViewService {
                 let user = UserService::get(ctx, Reference::Id(session.user_id)).await?;
 
                 // If no locales specified, then use whatever the user has set
-                // TODO get locale priority list from settings
                 if locales.is_empty() {
-                    let locale = LanguageIdentifier::from_bytes(user.locale.as_bytes())?;
-                    locales.push(locale);
+                    let mut user_locales = parse_locales(&user.locales)?;
+                    locales.append(&mut user_locales);
                 }
 
                 Some(UserSession {

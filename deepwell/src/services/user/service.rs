@@ -45,7 +45,7 @@ impl UserService {
             user_type,
             mut name,
             email,
-            locale,
+            locales,
             password,
             bypass_filter,
             bypass_email_verification,
@@ -216,7 +216,7 @@ impl UserService {
             password: Set(password),
             multi_factor_secret: Set(None),
             multi_factor_recovery_codes: Set(None),
-            locale: Set(locale),
+            locales: Set(locales),
             avatar_s3_hash: Set(None),
             real_name: Set(None),
             gender: Set(None),
@@ -389,8 +389,8 @@ impl UserService {
             model.password = Set(password_hash);
         }
 
-        if let ProvidedValue::Set(locale) = input.locale {
-            model.locale = Set(locale);
+        if let ProvidedValue::Set(locales) = input.locales {
+            model.locales = Set(locales);
         }
 
         if let ProvidedValue::Set(real_name) = input.real_name {

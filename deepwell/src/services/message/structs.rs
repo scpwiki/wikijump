@@ -24,6 +24,7 @@ pub struct CreateMessageDraft {
     pub recipients: Vec<i64>,
     pub carbon_copy: Vec<i64>,
     pub blind_carbon_copy: Vec<i64>,
+    pub locale: String,
     pub subject: String,
     pub wikitext: String,
     pub reply_to: Option<String>,
@@ -36,6 +37,7 @@ pub struct UpdateMessageDraft {
     pub recipients: Vec<i64>,
     pub carbon_copy: Vec<i64>,
     pub blind_carbon_copy: Vec<i64>,
+    pub locale: String,
     pub subject: String,
     pub wikitext: String,
 }

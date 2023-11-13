@@ -35,7 +35,7 @@ pub async fn bot_user_create(
     let CreateBotUser {
         name,
         email,
-        locale,
+        locales,
         purpose,
         owners,
         authorization_token,
@@ -55,7 +55,7 @@ pub async fn bot_user_create(
             user_type: UserType::Bot,
             name,
             email,
-            locale,
+            locales,
             password: String::new(), // TODO configure user-bot password
             bypass_filter,
             bypass_email_verification,

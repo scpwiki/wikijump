@@ -82,7 +82,7 @@ impl ImportService {
             name: Set(name),
             slug: Set(slug),
             email: Set(email),
-            locale: Set(locale),
+            locales: Set(vec![locale]),
             avatar_s3_hash: Set(avatar_s3_hash),
             real_name: Set(real_name),
             gender: Set(gender),

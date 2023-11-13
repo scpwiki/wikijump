@@ -30,6 +30,7 @@ use crate::models::message_record::{
 use crate::models::sea_orm_active_enums::{MessageRecipientType, UserType};
 use crate::services::render::{RenderOutput, RenderService};
 use crate::services::{InteractionService, TextService, UserService};
+use crate::utils::validate_locale;
 use cuid2::cuid;
 use ftml::data::{PageInfo, ScoreValue};
 use ftml::settings::{WikitextMode, WikitextSettings};
@@ -48,6 +49,7 @@ impl MessageService {
             recipients,
             carbon_copy,
             blind_carbon_copy,
+            locale,
             subject,
             wikitext,
             reply_to,
@@ -55,6 +57,9 @@ impl MessageService {
         }: CreateMessageDraft,
     ) -> Result<MessageDraftModel> {
         info!("Creating message draft for user ID {user_id}");
+
+        // Check locale
+        validate_locale(&locale)?;
 
         // Check foreign keys
         if let Some(record_id) = &reply_to {
@@ -76,6 +81,7 @@ impl MessageService {
                 recipients,
                 carbon_copy,
                 blind_carbon_copy,
+                locale,
                 subject,
                 wikitext,
                 reply_to: ProvidedValue::Set(reply_to),
@@ -96,16 +102,20 @@ impl MessageService {
             recipients,
             carbon_copy,
             blind_carbon_copy,
+            locale,
             subject,
             wikitext,
         }: UpdateMessageDraft,
     ) -> Result<MessageDraftModel> {
         info!("Updating message draft {draft_id}");
 
+        // Validate parameters
+        validate_locale(&locale)?;
+
         // Get current draft
         let current_draft = Self::get_draft(ctx, &draft_id).await?;
 
-        // Update it
+        // Update the draft
         let txn = ctx.transaction();
         let draft = Self::draft_process(
             ctx,
@@ -116,6 +126,7 @@ impl MessageService {
                 recipients,
                 carbon_copy,
                 blind_carbon_copy,
+                locale,
                 subject,
                 wikitext,
                 reply_to: ProvidedValue::Unset,
@@ -139,6 +150,7 @@ impl MessageService {
             recipients,
             carbon_copy,
             blind_carbon_copy,
+            locale,
             subject,
             wikitext,
             reply_to,
@@ -160,7 +172,6 @@ impl MessageService {
         }
 
         // Populate fields
-        let user = UserService::get(ctx, Reference::Id(user_id)).await?;
         let recipients = serde_json::to_value(&recipients)?;
 
         let wikitext_hash = TextService::create(ctx, wikitext.clone()).await?;
@@ -172,7 +183,7 @@ impl MessageService {
             compiled_hash,
             compiled_at,
             compiled_generator,
-        } = Self::render(ctx, wikitext, &user.locale).await?;
+        } = Self::render(ctx, wikitext, &locale).await?;
 
         Ok(message_draft::ActiveModel {
             updated_at: Set(if is_update { Some(now()) } else { None }),
@@ -568,7 +579,7 @@ impl MessageService {
     async fn render(
         ctx: &ServiceContext<'_>,
         wikitext: String,
-        user_locale: &str,
+        locale: &str,
     ) -> Result<RenderOutput> {
         info!("Rendering message wikitext ({} bytes)", wikitext.len());
 
@@ -581,7 +592,7 @@ impl MessageService {
             alt_title: None,
             score: ScoreValue::Integer(0),
             tags: vec![],
-            language: cow!(user_locale),
+            language: cow!(locale),
         };
 
         RenderService::render(ctx, wikitext, &page_info, &settings).await
@@ -597,6 +608,7 @@ struct DraftProcess {
     recipients: Vec<i64>,
     carbon_copy: Vec<i64>,
     blind_carbon_copy: Vec<i64>,
+    locale: String,
     subject: String,
     wikitext: String,
     reply_to: ProvidedValue<Option<String>>,
