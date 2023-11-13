@@ -84,6 +84,9 @@ impl UserService {
             )?;
         }
 
+        // Validate locales for this type
+        Self::validate_locales(user_type, &locales)?;
+
         // Check for name conflicts
         let result = User::find()
             .filter(
@@ -390,6 +393,7 @@ impl UserService {
         }
 
         if let ProvidedValue::Set(locales) = input.locales {
+            Self::validate_locales(user.user_type, &locales)?;
             model.locales = Set(locales);
         }
 
@@ -692,6 +696,39 @@ impl UserService {
 
         filter_matcher.verify(ctx, email).await?;
         Ok(())
+    }
+
+    fn validate_locales<S: AsRef<str>>(user_type: UserType, locales: &[S]) -> Result<()> {
+        use crate::utils::validate_locale;
+
+        debug!(
+            "Validating locales ({}) for user type {:?}",
+            locales.len(),
+            user_type,
+        );
+
+        // Ensure values are valid
+        for locale in locales {
+            validate_locale(locale.as_ref())?;
+        }
+
+        // Invariants for locale lists
+        let valid = match user_type {
+            // System users should have no locales set
+            UserType::System => locales.is_empty(),
+
+            // Site users should have one locale set
+            UserType::Site => locales.len() == 1,
+
+            // Regular, should have a nonzero number of locales
+            _ => !locales.is_empty(),
+        };
+
+        if valid {
+            Ok(())
+        } else {
+            Err(Error::BadRequest)
+        }
     }
 }
 
