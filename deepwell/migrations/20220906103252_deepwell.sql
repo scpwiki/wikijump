@@ -48,6 +48,9 @@ CREATE TABLE "user" (
     -- Both MFA columns should either be set or unset
     CHECK ((multi_factor_secret IS NULL) = (multi_factor_recovery_codes IS NULL)),
 
+    -- Locale must be unset for system users, but set for everyone else.
+    CHECK ((user_type = 'system' AND locales = '{}') OR (user_type != 'system' AND locales != '{}')),
+
     -- Strings should either be NULL or non-empty (and within limits)
     CHECK (real_name IS NULL OR (length(real_name) > 0 AND length(real_name) < 300)),
     CHECK (gender IS NULL OR (length(gender) > 0 AND length(gender) < 100)),
