@@ -146,7 +146,7 @@ impl RelationType {
     /// of `(dest_type, from_type, relation_value)`.
     pub fn value(self) -> &'static str {
         match self {
-            RelationType::SiteUser => "site-user",
+            RelationType::SiteUser => "site-user",  // for the 'site' user_type
             RelationType::SiteBan => "ban",
             RelationType::SiteMember => "member",
             RelationType::PageStar => "star",

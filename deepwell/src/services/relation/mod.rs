@@ -20,9 +20,10 @@
 
 //! A service to manage "relations", which are relationships between entities.
 //!
-//! A "relation" is a pair of two IDs and the relation type. This is a flexible
-//! system first designed by bluesoul to describe a large number of relations between objects.
-//! For instance, instead of creating a separate table for user blocks or site membership,
+//! A "relation" is a pair of two IDs and the relation type, along with optional
+//! associated JSON metadata.
+//!
+//! Instead of needing to create a separate table for user blocks or site membership,
 //! we can instead define a number of relations using the relation system.
 //!
 //! For example:
