@@ -29,8 +29,7 @@ pub struct Model {
     #[sea_orm(column_type = "Text", nullable)]
     pub multi_factor_secret: Option<String>,
     pub multi_factor_recovery_codes: Option<Vec<String>>,
-    #[sea_orm(column_type = "Text")]
-    pub locale: String,
+    pub locales: Vec<String>,
     #[sea_orm(column_type = "Binary(BlobSize::Blob(None))", nullable)]
     pub avatar_s3_hash: Option<Vec<u8>>,
     #[sea_orm(column_type = "Text", nullable)]

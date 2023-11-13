@@ -32,7 +32,7 @@ CREATE TABLE "user" (
     password TEXT NOT NULL,
     multi_factor_secret TEXT,
     multi_factor_recovery_codes TEXT[],
-    locale TEXT NOT NULL,
+    locales TEXT[] NOT NULL,
     avatar_s3_hash BYTEA,
     real_name TEXT,
     gender TEXT,
