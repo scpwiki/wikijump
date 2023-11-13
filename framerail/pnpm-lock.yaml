@@ -35,8 +35,8 @@ devDependencies:
     specifier: ^1.39.0
     version: 1.39.0
   '@types/accept-language-parser':
-    specifier: ^1.5.4
-    version: 1.5.5
+    specifier: ^1.5.6
+    version: 1.5.6
   '@types/node':
     specifier: ^20.8.2
     version: 20.8.7
@@ -537,8 +537,8 @@ packages:
       - supports-color
     dev: false
 
-  /@types/accept-language-parser@1.5.5:
-    resolution: {integrity: sha512-RwkOGXmBTUbJRvJhdOGkttRpX9RZFrdCiJ2RGCCaNA6UDM7sE/ZMlEter7zvtxm1VL+Zxkyr5fJXAesb0a7b1g==}
+  /@types/accept-language-parser@1.5.6:
+    resolution: {integrity: sha512-lhSQUsAhAtbKjYgaw3f0c4EQKNQHFXhX87+OXUIqDHMkycvHGaqGskSRtnzysIUiqHPqNJ4BqI5SE++drsxx6A==}
     dev: true
 
   /@types/cookie@0.5.1:
