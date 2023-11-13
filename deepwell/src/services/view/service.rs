@@ -369,6 +369,22 @@ impl ViewService {
     ) -> Result<ViewerResult> {
         info!("Getting viewer data from domain '{domain}' and session token");
 
+        // Get user data from session token (if present)
+        let user_session = match session_token {
+            None => None,
+            Some(token) if token.is_empty() => None,
+            Some(token) => {
+                let session = SessionService::get(ctx, token).await?;
+                let user = UserService::get(ctx, Reference::Id(session.user_id)).await?;
+
+                Some(UserSession {
+                    session,
+                    user,
+                    user_permissions: UserPermissions, // TODO add user permissions, get scheme for user and site
+                })
+            }
+        };
+
         // Get site data
         let (site, redirect_site) =
             match DomainService::parse_site_from_domain(ctx, domain).await? {
@@ -390,22 +406,6 @@ impl ViewService {
                     return Ok(ViewerResult::MissingSite(html));
                 }
             };
-
-        // Get user data from session token (if present)
-        let user_session = match session_token {
-            None => None,
-            Some(token) if token.is_empty() => None,
-            Some(token) => {
-                let session = SessionService::get(ctx, token).await?;
-                let user = UserService::get(ctx, Reference::Id(session.user_id)).await?;
-
-                Some(UserSession {
-                    session,
-                    user,
-                    user_permissions: UserPermissions, // TODO add user permissions, get scheme for user and site
-                })
-            }
-        };
 
         Ok(ViewerResult::FoundSite(Viewer {
             site,
