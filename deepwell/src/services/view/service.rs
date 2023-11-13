@@ -46,6 +46,7 @@ use ftml::prelude::*;
 use ftml::render::html::HtmlOutput;
 use ref_map::*;
 use std::borrow::Cow;
+use std::mem;
 use unic_langid::LanguageIdentifier;
 use wikidot_normalize::normalize;
 
@@ -367,10 +368,26 @@ impl ViewService {
                 let session = SessionService::get(ctx, token).await?;
                 let user = UserService::get(ctx, Reference::Id(session.user_id)).await?;
 
-                // If no locales specified, then use whatever the user has set
-                if locales.is_empty() {
+                // Prefer what the user has set over what the browser is requesting
+                {
+                    // Get the list of user locales
+                    //
+                    // Our goal is to insert this list of user locales at the front.
+                    // For instance, if the browser is requesting [X, Y], but the user
+                    // prefers [A, B], we want to end up with [A, B, X, Y].
+                    //
+                    // But the most efficient method to use here is append().
+                    // So we append all the requested locales to the end of the user
+                    // locales we just got, then swap the contents.
+                    //
+                    // The end goal is that 'locales' ends up with the new locales at
+                    // the start before the previous items, and 'user_locales' ends up
+                    // drained since it was inserted into the preserved 'locales' vector.
+
                     let mut user_locales = parse_locales(&user.locales)?;
-                    locales.append(&mut user_locales);
+                    user_locales.append(locales);
+                    mem::swap(locales, &mut user_locales);
+                    debug_assert!(user_locales.is_empty());
                 }
 
                 Some(UserSession {
