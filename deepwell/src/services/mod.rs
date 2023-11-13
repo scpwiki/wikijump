@@ -104,6 +104,7 @@ pub use self::message_report::MessageReportService;
 pub use self::mfa::MfaService;
 pub use self::outdate::OutdateService;
 pub use self::page::PageService;
+// TODO convert page attribution to a type of relation
 pub use self::page_query::PageQueryService;
 pub use self::page_revision::PageRevisionService;
 pub use self::parent::ParentService;
