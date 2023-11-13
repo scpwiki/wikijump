@@ -1,5 +1,5 @@
 /*
- * services/interaction/page_star.rs
+ * services/relation/user_follow.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -20,4 +20,38 @@
 
 use super::prelude::*;
 
-impl_interaction!(PageStar, Page, page_id, User, user_id, ());
+impl_relation!(
+    UserFollow,
+    User,
+    followed_user,
+    User,
+    following_user,
+    (),
+    NO_CREATE_IMPL,
+);
+
+impl RelationService {
+    #[allow(dead_code)] // TEMP
+    pub async fn create_user_follow(
+        ctx: &ServiceContext<'_>,
+        CreateUserFollow {
+            followed_user,
+            following_user,
+            created_by,
+            metadata: (),
+        }: CreateUserFollow,
+    ) -> Result<()> {
+        // Cannot follow if blocked
+        Self::check_user_block(ctx, followed_user, following_user, "follow").await?;
+
+        create_operation!(
+            ctx,
+            UserFollow,
+            User,
+            followed_user,
+            User,
+            following_user,
+            created_by,
+        )
+    }
+}

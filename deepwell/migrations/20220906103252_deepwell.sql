@@ -126,25 +126,25 @@ CREATE TABLE alias (
 );
 
 --
--- Interactions
+-- Relations
 --
 
 -- See also https://github.com/scpwiki/wikijump/blob/legacy-php/web/database/migrations/2021_07_30_231009_create_interactions_table.php
 -- and https://github.com/scpwiki/wikijump/blob/legacy-php/web/app/Models/Interaction.php
 
-CREATE TYPE interaction_object_type AS ENUM (
+CREATE TYPE relation_object_type AS ENUM (
     'site',
     'user',
     'page',
     'file'
 );
 
-CREATE TABLE interaction (
-    interaction_id BIGSERIAL PRIMARY KEY,
-    interaction_type TEXT NOT NULL,  -- check enum value in runtime
-    dest_type interaction_object_type NOT NULL,
+CREATE TABLE relation (
+    relation_id BIGSERIAL PRIMARY KEY,
+    relation_type TEXT NOT NULL,  -- check enum value in runtime
+    dest_type relation_object_type NOT NULL,
     dest_id BIGINT NOT NULL,
-    from_type interaction_object_type NOT NULL,
+    from_type relation_object_type NOT NULL,
     from_id BIGINT NOT NULL,
     metadata JSON NOT NULL DEFAULT '{}',
     created_by BIGINT NOT NULL REFERENCES "user"(user_id),
@@ -154,7 +154,7 @@ CREATE TABLE interaction (
     deleted_by BIGINT REFERENCES "user"(user_id),
     deleted_at TIMESTAMP WITH TIME ZONE,
 
-    UNIQUE (interaction_type, dest_type, dest_id, from_type, from_id, overwritten_at, deleted_at),
+    UNIQUE (relation_type, dest_type, dest_id, from_type, from_id, overwritten_at, deleted_at),
     CHECK ((overwritten_by IS NULL) = (overwritten_at IS NULL)),  -- ensure overwritten field consistency
     CHECK ((deleted_by IS NULL) = (deleted_at IS NULL)),          -- ensure deleted field consistency
     CHECK (

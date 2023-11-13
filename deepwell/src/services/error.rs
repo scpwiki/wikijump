@@ -191,8 +191,8 @@ pub enum Error {
     #[error("Alias does not exist")]
     AliasNotFound,
 
-    #[error("Interaction value does not exist")]
-    InteractionNotFound,
+    #[error("Relation value does not exist")]
+    RelationNotFound,
 
     #[error("User does not exist")]
     UserNotFound,
@@ -299,7 +299,7 @@ impl Error {
             //        Missing data
             Error::GeneralNotFound => 2000,
             Error::AliasNotFound => 2001,
-            Error::InteractionNotFound => 2002,
+            Error::RelationNotFound => 2002,
             Error::UserNotFound => 2003,
             Error::SiteNotFound => 2004,
             Error::PageNotFound => 2005,

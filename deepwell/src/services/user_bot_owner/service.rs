@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// TODO replace bot owners with a user / user interaction
+// TODO replace bot owners with a user / user relation
 //      add checks like we have here, one is human one is bot, etc
 
 use super::prelude::*;

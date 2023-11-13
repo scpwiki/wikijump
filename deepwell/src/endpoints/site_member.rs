@@ -19,15 +19,15 @@
  */
 
 use super::prelude::*;
-use crate::models::interaction::Model as InteractionModel;
-use crate::services::interaction::{CreateSiteMember, GetSiteMember, RemoveSiteMember};
+use crate::models::relation::Model as RelationModel;
+use crate::services::relation::{CreateSiteMember, GetSiteMember, RemoveSiteMember};
 
 pub async fn membership_get(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
-) -> Result<Option<InteractionModel>> {
+) -> Result<Option<RelationModel>> {
     let input: GetSiteMember = params.parse()?;
-    InteractionService::get_optional_site_member(ctx, input).await
+    RelationService::get_optional_site_member(ctx, input).await
 }
 
 pub async fn membership_set(
@@ -35,13 +35,13 @@ pub async fn membership_set(
     params: Params<'static>,
 ) -> Result<()> {
     let input: CreateSiteMember = params.parse()?;
-    InteractionService::create_site_member(ctx, input).await
+    RelationService::create_site_member(ctx, input).await
 }
 
 pub async fn membership_delete(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
-) -> Result<InteractionModel> {
+) -> Result<RelationModel> {
     let input: RemoveSiteMember = params.parse()?;
-    InteractionService::remove_site_member(ctx, input).await
+    RelationService::remove_site_member(ctx, input).await
 }

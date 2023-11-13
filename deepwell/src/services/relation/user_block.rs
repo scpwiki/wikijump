@@ -1,5 +1,5 @@
 /*
- * services/interaction/user_block.rs
+ * services/relation/user_block.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -25,7 +25,7 @@ pub struct UserBlockData {
     pub reason: String,
 }
 
-impl_interaction!(
+impl_relation!(
     UserBlock,
     User,
     blocked_user,
@@ -35,7 +35,7 @@ impl_interaction!(
     NO_CREATE_IMPL,
 );
 
-impl InteractionService {
+impl RelationService {
     #[allow(dead_code)] // TEMP
     pub async fn create_user_block(
         ctx: &ServiceContext<'_>,
@@ -82,7 +82,7 @@ impl InteractionService {
         )
     }
 
-    /// Helper method for rejecting an interaction if either user in a pair has blocked the other.
+    /// Helper method for rejecting an relation if either user in a pair has blocked the other.
     pub async fn check_user_block(
         ctx: &ServiceContext<'_>,
         user_id_1: i64,

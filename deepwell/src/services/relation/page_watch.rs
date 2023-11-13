@@ -1,5 +1,5 @@
 /*
- * services/interaction/page_watch.rs
+ * services/relation/page_watch.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -20,4 +20,4 @@
 
 use super::prelude::*;
 
-impl_interaction!(PageWatch, Page, page_id, User, user_id, ());
+impl_relation!(PageWatch, Page, page_id, User, user_id, ());

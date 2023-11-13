@@ -1,5 +1,5 @@
 /*
- * services/interaction/site_member.rs
+ * services/relation/site_member.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -35,7 +35,7 @@ pub struct SiteMemberData {
     pub accepted: SiteMemberAccepted,
 }
 
-impl_interaction!(
+impl_relation!(
     SiteMember,
     Site,
     site_id,
@@ -45,7 +45,7 @@ impl_interaction!(
     NO_CREATE_IMPL,
 );
 
-impl InteractionService {
+impl RelationService {
     pub async fn create_site_member(
         ctx: &ServiceContext<'_>,
         CreateSiteMember {
