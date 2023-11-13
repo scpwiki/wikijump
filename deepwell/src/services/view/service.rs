@@ -398,6 +398,12 @@ impl ViewService {
             }
         };
 
+        // Ensure at least one locale was requested
+        if locales.is_empty() {
+            error!("No locales specified in user settings or Accept-Language header");
+            return Err(Error::NoLocalesSpecified);
+        }
+
         // Get site data
         let (site, redirect_site) =
             match DomainService::parse_site_from_domain(ctx, domain).await? {
