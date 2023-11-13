@@ -307,11 +307,7 @@ impl ViewService {
 
         // Attempt to get a viewer helper structure, but if the site doesn't exist
         // then return right away with the "no such site" response.
-        let Viewer {
-            site,
-            redirect_site,
-            user_session,
-        } = match Self::get_viewer(
+        let viewer = match Self::get_viewer(
             ctx,
             &mut locales,
             &domain,
@@ -326,12 +322,6 @@ impl ViewService {
         };
 
         // TODO Check if user-agent and IP match?
-
-        let viewer = Viewer {
-            site,
-            redirect_site,
-            user_session,
-        };
 
         // Get data to return for this user.
         let user = match user_ref {
