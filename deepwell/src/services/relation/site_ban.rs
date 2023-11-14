@@ -1,5 +1,5 @@
 /*
- * services/interaction/site_ban.rs
+ * services/relation/site_ban.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -28,7 +28,7 @@ pub struct SiteBanData {
     pub reason: String,
 }
 
-impl_interaction!(
+impl_relation!(
     SiteBan,
     Site,
     site_id,
@@ -38,7 +38,7 @@ impl_interaction!(
     NO_CREATE_IMPL,
 );
 
-impl InteractionService {
+impl RelationService {
     #[allow(dead_code)] // TEMP
     pub async fn create_site_ban(
         ctx: &ServiceContext<'_>,
@@ -66,7 +66,7 @@ impl InteractionService {
         )
     }
 
-    /// Helper method for rejecting an interaction if the user is banned.
+    /// Helper method for rejecting an relation if the user is banned.
     pub async fn check_site_ban(
         ctx: &ServiceContext<'_>,
         body: GetSiteBan,

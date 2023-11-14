@@ -35,10 +35,10 @@ pub enum FileRevisionType {
 #[sea_orm(
     rs_type = "String",
     db_type = "Enum",
-    enum_name = "interaction_object_type"
+    enum_name = "relation_object_type"
 )]
 #[serde(rename_all = "kebab-case")]
-pub enum InteractionObjectType {
+pub enum RelationObjectType {
     #[sea_orm(string_value = "file")]
     File,
     #[sea_orm(string_value = "page")]

@@ -31,9 +31,9 @@ mod prelude {
     pub use crate::api::ServerState;
     pub use crate::services::{
         AliasService, BlobService, CategoryService, DomainService, Error as ServiceError,
-        FileRevisionService, FileService, InteractionService, LinkService,
-        MessageReportService, MessageService, MfaService, PageRevisionService,
-        PageService, ParentService, RenderService, Result, ScoreService, ServiceContext,
+        FileRevisionService, FileService, LinkService, MessageReportService,
+        MessageService, MfaService, PageRevisionService, PageService, ParentService,
+        RelationService, RenderService, Result, ScoreService, ServiceContext,
         SessionService, SiteService, StdResult, TextService, UserService, ViewService,
         VoteService,
     };

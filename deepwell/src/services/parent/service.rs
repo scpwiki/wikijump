@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// TODO replace ParentService with a new interaction type
+// TODO replace ParentService with a new relation type
 
 use super::prelude::*;
 use crate::models::page_parent::{self, Entity as PageParent, Model as PageParentModel};

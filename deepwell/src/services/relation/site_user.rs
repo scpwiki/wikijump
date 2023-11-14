@@ -1,5 +1,5 @@
 /*
- * services/interaction/site_user.rs
+ * services/relation/site_user.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2023 Wikijump Team
@@ -18,22 +18,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Governs the interaction which tracks "site users".
+//! Governs the relation which tracks "site users".
 //!
 //! These are special users (of type `site`) which represent a site as a whole.
 //! They can be messaged to send messages to staff, and can be utilized to send
 //! messages on behalf of a site (for instance, a ban notification).
 //!
-//! This interaction describes which site a site-user corresponds to.
+//! This relation describes which site a site-user corresponds to.
 //! As such, it is an invariant that all users linked here are of the type `site`.
 
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::UserType;
 use crate::services::UserService;
 
-impl_interaction!(SiteUser, Site, site_id, User, user_id, (), NO_CREATE_IMPL,);
+impl_relation!(SiteUser, Site, site_id, User, user_id, (), NO_CREATE_IMPL,);
 
-impl InteractionService {
+impl RelationService {
     pub async fn create_site_user(
         ctx: &ServiceContext<'_>,
         CreateSiteUser {
@@ -47,7 +47,7 @@ impl InteractionService {
         let user = UserService::get(ctx, Reference::Id(user_id)).await?;
         if user.user_type != UserType::Site {
             error!(
-                "Can only create site user interactions if the user is of type 'site', not {:?}",
+                "Can only create site user relations if the user is of type 'site', not {:?}",
                 user.user_type,
             );
             return Err(Error::BadRequest);
@@ -58,29 +58,29 @@ impl InteractionService {
         // This means there should be no results for both
         // this site_id -> anything and this user_id -> anything.
 
-        let sites = InteractionService::get_entries(
+        let sites = RelationService::get_entries(
             ctx,
-            InteractionType::SiteUser,
-            InteractionObject::Site(site_id),
-            InteractionDirection::Dest,
+            RelationType::SiteUser,
+            RelationObject::Site(site_id),
+            RelationDirection::Dest,
         )
         .await?;
 
         if !sites.is_empty() {
-            error!("Found a different interaction with this site, cannot create interaction: {sites:?}");
+            error!("Found a different relation with this site, cannot create relation: {sites:?}");
             return Err(Error::BadRequest);
         }
 
-        let users = InteractionService::get_entries(
+        let users = RelationService::get_entries(
             ctx,
-            InteractionType::SiteUser,
-            InteractionObject::User(user_id),
-            InteractionDirection::From,
+            RelationType::SiteUser,
+            RelationObject::User(user_id),
+            RelationDirection::From,
         )
         .await?;
 
         if !users.is_empty() {
-            error!("Found a different interaction with this user, cannot create interaction: {users:?}");
+            error!("Found a different relation with this user, cannot create relation: {users:?}");
             return Err(Error::BadRequest);
         }
 
@@ -103,11 +103,11 @@ impl InteractionService {
     ) -> Result<i64> {
         info!("Getting site user for site ID {site_id}");
 
-        let model = get_interaction(
+        let model = get_relation(
             ctx,
             Condition::all()
-                .add(interaction::Column::DestType.eq(InteractionObjectType::Site))
-                .add(interaction::Column::DestId.eq(site_id)),
+                .add(relation::Column::DestType.eq(RelationObjectType::Site))
+                .add(relation::Column::DestId.eq(site_id)),
         )
         .await?;
 
@@ -118,11 +118,11 @@ impl InteractionService {
         ctx: &ServiceContext<'_>,
         user_id: i64,
     ) -> Result<i64> {
-        let model = get_interaction(
+        let model = get_relation(
             ctx,
             Condition::all()
-                .add(interaction::Column::FromType.eq(InteractionObjectType::User))
-                .add(interaction::Column::FromId.eq(user_id)),
+                .add(relation::Column::FromType.eq(RelationObjectType::User))
+                .add(relation::Column::FromId.eq(user_id)),
         )
         .await?;
 
@@ -130,32 +130,29 @@ impl InteractionService {
     }
 }
 
-async fn get_interaction(
+async fn get_relation(
     ctx: &ServiceContext<'_>,
     condition: Condition,
-) -> Result<InteractionModel> {
+) -> Result<RelationModel> {
     // We implement our own query since it's 1:1 and we
     // don't have to worry about multiple results like
     // for get_entries().
 
     let txn = ctx.transaction();
-    let model = Interaction::find()
+    let model = Relation::find()
         .filter(
             Condition::all()
-                .add(
-                    interaction::Column::InteractionType
-                        .eq(InteractionType::SiteUser.value()),
-                )
+                .add(relation::Column::RelationType.eq(RelationType::SiteUser.value()))
                 .add(condition)
-                .add(interaction::Column::OverwrittenAt.is_null())
-                .add(interaction::Column::DeletedAt.is_null()),
+                .add(relation::Column::OverwrittenAt.is_null())
+                .add(relation::Column::DeletedAt.is_null()),
         )
-        .order_by_asc(interaction::Column::CreatedAt)
+        .order_by_asc(relation::Column::CreatedAt)
         .one(txn)
         .await?;
 
     match model {
         Some(model) => Ok(model),
-        None => Err(Error::InteractionNotFound),
+        None => Err(Error::RelationNotFound),
     }
 }

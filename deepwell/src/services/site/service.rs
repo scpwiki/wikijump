@@ -25,9 +25,9 @@ use crate::constants::SYSTEM_USER_ID;
 use crate::models::sea_orm_active_enums::{AliasType, UserType};
 use crate::models::site::{self, Entity as Site, Model as SiteModel};
 use crate::services::alias::CreateAlias;
-use crate::services::interaction::CreateSiteUser;
+use crate::services::relation::CreateSiteUser;
 use crate::services::user::{CreateUser, UpdateUserBody};
-use crate::services::{AliasService, InteractionService, UserService};
+use crate::services::{AliasService, RelationService, UserService};
 use crate::utils::validate_locale;
 
 #[derive(Debug)]
@@ -66,7 +66,7 @@ impl SiteService {
         };
         let site = model.insert(txn).await?;
 
-        // Create site user, and add interaction
+        // Create site user, and add relation
 
         let user = UserService::create(
             ctx,
@@ -93,7 +93,7 @@ impl SiteService {
         )
         .await?;
 
-        InteractionService::create_site_user(
+        RelationService::create_site_user(
             ctx,
             CreateSiteUser {
                 site_id: site.site_id,
@@ -128,7 +128,7 @@ impl SiteService {
 
         // For updating the corresponding site user
         let site_user_id =
-            InteractionService::get_site_user_id_for_site(ctx, site.site_id).await?;
+            RelationService::get_site_user_id_for_site(ctx, site.site_id).await?;
         let mut site_user_body = UpdateUserBody::default();
 
         if let ProvidedValue::Set(name) = input.name {

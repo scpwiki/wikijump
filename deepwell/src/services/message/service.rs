@@ -29,7 +29,7 @@ use crate::models::message_record::{
 };
 use crate::models::sea_orm_active_enums::{MessageRecipientType, UserType};
 use crate::services::render::{RenderOutput, RenderService};
-use crate::services::{InteractionService, TextService, UserService};
+use crate::services::{RelationService, TextService, UserService};
 use crate::utils::validate_locale;
 use cuid2::cuid;
 use ftml::data::{PageInfo, ScoreValue};
@@ -267,7 +267,7 @@ impl MessageService {
         let mut recipients_to_add = Vec::new();
         for recipient_user_id in recipients.iter() {
             // Ensure user is not blocked
-            InteractionService::check_user_block(
+            RelationService::check_user_block(
                 ctx,
                 draft.user_id,
                 recipient_user_id,
@@ -283,8 +283,7 @@ impl MessageService {
                 //      to appeal bans etc
                 // TODO get the listed site staff, add them to recipients
                 let _site_id =
-                    InteractionService::get_site_id_for_site_user(ctx, user.user_id)
-                        .await?;
+                    RelationService::get_site_id_for_site_user(ctx, user.user_id).await?;
 
                 let _ = &recipients_to_add;
             }
