@@ -128,6 +128,8 @@ pub enum RelationDirection {
 pub enum RelationType {
     SiteUser,
     SiteBan,
+    #[allow(dead_code)] // TEMP
+    SiteApplication,
     SiteMember,
     PageStar,
     PageWatch,
@@ -148,6 +150,7 @@ impl RelationType {
         match self {
             RelationType::SiteUser => "site-user",  // for the 'site' user_type
             RelationType::SiteBan => "ban",
+            RelationType::SiteApplication => "application",
             RelationType::SiteMember => "member",
             RelationType::PageStar => "star",
             RelationType::PageWatch => "watch",
@@ -171,6 +174,7 @@ impl RelationType {
         match self {
             RelationType::SiteUser => t!(Site, User),
             RelationType::SiteBan => t!(Site, User),
+            RelationType::SiteApplication => t!(Site, User),
             RelationType::SiteMember => t!(Site, User),
             RelationType::PageStar => t!(Page, User),
             RelationType::PageWatch => t!(Page, User),
