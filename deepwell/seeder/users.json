@@ -90,7 +90,7 @@
         "slug": "user",
         "email": "user@wikijump",
         "password": null,
-        "locales": ["en"],
+        "locales": [],
         "real_name": "Example User",
         "gender": null,
         "birthday": null,
