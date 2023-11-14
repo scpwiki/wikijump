@@ -21,10 +21,16 @@ export async function loadPage(
   const sessionToken = cookies.get("wikijump_token")
   let locales = parseAcceptLangHeader(request)
 
-  // Request data from backend
-  const response = await pageView(domain, locales, route, sessionToken)
-
   // TODO insert user preference at the beginning of the list
+
+  // Request data from backend
+  // Includes fallback locale in case there is no Accept-Language header
+  const response = await pageView(
+    domain,
+    [...locales, defaults.fallbackLocale],
+    route,
+    sessionToken
+  )
 
   if (response.data?.site?.locale && !locales.includes(response.data.site.locale)) {
     locales.push(response.data.site.locale)
