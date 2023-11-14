@@ -129,8 +129,7 @@ CREATE TABLE alias (
 -- Relations
 --
 
--- See also https://github.com/scpwiki/wikijump/blob/legacy-php/web/database/migrations/2021_07_30_231009_create_interactions_table.php
--- and https://github.com/scpwiki/wikijump/blob/legacy-php/web/app/Models/Interaction.php
+-- See docs/relation.md for more information
 
 CREATE TYPE relation_object_type AS ENUM (
     'site',
