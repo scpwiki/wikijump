@@ -25,7 +25,12 @@ export async function loadPage(
 
   // Request data from backend
   // Includes fallback locale in case there is no Accept-Language header
-  const response = await pageView(domain, [...locales, defaults.fallbackLocale], route, sessionToken)
+  const response = await pageView(
+    domain,
+    [...locales, defaults.fallbackLocale],
+    route,
+    sessionToken
+  )
 
   if (response.data?.site?.locale && !locales.includes(response.data.site.locale)) {
     locales.push(response.data.site.locale)
