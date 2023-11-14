@@ -25,7 +25,7 @@ use crate::web::Reference;
 pub struct CreateBotUser {
     pub name: String,
     pub email: String,
-    pub locale: String,
+    pub locales: Vec<String>,
     pub purpose: String,
     pub owners: Vec<BotOwner>,
     pub bypass_filter: bool,

@@ -46,6 +46,7 @@ use ftml::prelude::*;
 use ftml::render::html::HtmlOutput;
 use ref_map::*;
 use std::borrow::Cow;
+use std::mem;
 use unic_langid::LanguageIdentifier;
 use wikidot_normalize::normalize;
 
@@ -68,7 +69,7 @@ impl ViewService {
         );
 
         // Parse all locales
-        let locales = parse_locales(&locales_str)?;
+        let mut locales = parse_locales(&locales_str)?;
 
         // Attempt to get a viewer helper structure, but if the site doesn't exist
         // then return right away with the "no such site" response.
@@ -78,7 +79,7 @@ impl ViewService {
             user_session,
         } = match Self::get_viewer(
             ctx,
-            &locales,
+            &mut locales,
             &domain,
             session_token.ref_map(|s| s.as_str()),
         )
@@ -303,17 +304,13 @@ impl ViewService {
         );
 
         // Parse all locales
-        let locales = parse_locales(&locales_str)?;
+        let mut locales = parse_locales(&locales_str)?;
 
         // Attempt to get a viewer helper structure, but if the site doesn't exist
         // then return right away with the "no such site" response.
-        let Viewer {
-            site,
-            redirect_site,
-            user_session,
-        } = match Self::get_viewer(
+        let viewer = match Self::get_viewer(
             ctx,
-            &locales,
+            &mut locales,
             &domain,
             session_token.ref_map(|s| s.as_str()),
         )
@@ -326,12 +323,6 @@ impl ViewService {
         };
 
         // TODO Check if user-agent and IP match?
-
-        let viewer = Viewer {
-            site,
-            redirect_site,
-            user_session,
-        };
 
         // Get data to return for this user.
         let user = match user_ref {
@@ -363,11 +354,55 @@ impl ViewService {
     /// operations, such as slug normalization or redirect site aliases.
     pub async fn get_viewer(
         ctx: &ServiceContext<'_>,
-        locales: &[LanguageIdentifier],
+        locales: &mut Vec<LanguageIdentifier>,
         domain: &str,
         session_token: Option<&str>,
     ) -> Result<ViewerResult> {
         info!("Getting viewer data from domain '{domain}' and session token");
+
+        // Get user data from session token (if present)
+        let user_session = match session_token {
+            None => None,
+            Some(token) if token.is_empty() => None,
+            Some(token) => {
+                let session = SessionService::get(ctx, token).await?;
+                let user = UserService::get(ctx, Reference::Id(session.user_id)).await?;
+
+                // Prefer what the user has set over what the browser is requesting
+                {
+                    // Get the list of user locales
+                    //
+                    // Our goal is to insert this list of user locales at the front.
+                    // For instance, if the browser is requesting [X, Y], but the user
+                    // prefers [A, B], we want to end up with [A, B, X, Y].
+                    //
+                    // But the most efficient method to use here is append().
+                    // So we append all the requested locales to the end of the user
+                    // locales we just got, then swap the contents.
+                    //
+                    // The end goal is that 'locales' ends up with the new locales at
+                    // the start before the previous items, and 'user_locales' ends up
+                    // drained since it was inserted into the preserved 'locales' vector.
+
+                    let mut user_locales = parse_locales(&user.locales)?;
+                    user_locales.append(locales);
+                    mem::swap(locales, &mut user_locales);
+                    debug_assert!(user_locales.is_empty());
+                }
+
+                Some(UserSession {
+                    session,
+                    user,
+                    user_permissions: UserPermissions, // TODO add user permissions, get scheme for user and site
+                })
+            }
+        };
+
+        // Ensure at least one locale was requested
+        if locales.is_empty() {
+            error!("No locales specified in user settings or Accept-Language header");
+            return Err(Error::NoLocalesSpecified);
+        }
 
         // Get site data
         let (site, redirect_site) =
@@ -390,22 +425,6 @@ impl ViewService {
                     return Ok(ViewerResult::MissingSite(html));
                 }
             };
-
-        // Get user data from session token (if present)
-        let user_session = match session_token {
-            None => None,
-            Some(token) if token.is_empty() => None,
-            Some(token) => {
-                let session = SessionService::get(ctx, token).await?;
-                let user = UserService::get(ctx, Reference::Id(session.user_id)).await?;
-
-                Some(UserSession {
-                    session,
-                    user,
-                    user_permissions: UserPermissions, // TODO add user permissions, get scheme for user and site
-                })
-            }
-        };
 
         Ok(ViewerResult::FoundSite(Viewer {
             site,
@@ -500,14 +519,9 @@ impl ViewService {
 
 /// Converts an array of strings to a list of locales.
 ///
-/// # Errors
-/// If the input array is empty.
+/// Empty locales lists _are_ allowed, since we have not
+/// yet checked the user's locale preferences.
 fn parse_locales<S: AsRef<str>>(locales_str: &[S]) -> Result<Vec<LanguageIdentifier>> {
-    if locales_str.is_empty() {
-        warn!("List of locales is empty");
-        return Err(Error::NoLocalesSpecified);
-    }
-
     let mut locales = Vec::with_capacity(locales_str.len());
     for locale_str in locales_str {
         let locale = LanguageIdentifier::from_bytes(locale_str.as_ref().as_bytes())?;

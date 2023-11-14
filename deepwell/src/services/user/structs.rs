@@ -30,7 +30,7 @@ pub struct CreateUser {
     pub user_type: UserType,
     pub name: String,
     pub email: String,
-    pub locale: String,
+    pub locales: Vec<String>,
     pub password: String,
 
     #[serde(default)]
@@ -72,7 +72,7 @@ pub struct UpdateUserBody {
     pub email: ProvidedValue<String>,
     pub email_verified: ProvidedValue<bool>,
     pub password: ProvidedValue<String>,
-    pub locale: ProvidedValue<String>,
+    pub locales: ProvidedValue<Vec<String>>,
     pub avatar: ProvidedValue<Option<Bytes<'static>>>,
     pub real_name: ProvidedValue<Option<String>>,
     pub gender: ProvidedValue<Option<String>>,

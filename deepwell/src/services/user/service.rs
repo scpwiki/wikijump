@@ -45,7 +45,7 @@ impl UserService {
             user_type,
             mut name,
             email,
-            locale,
+            locales,
             password,
             bypass_filter,
             bypass_email_verification,
@@ -83,6 +83,9 @@ impl UserService {
                 Self::run_email_filter(ctx, &email),
             )?;
         }
+
+        // Validate locales for this type
+        Self::validate_locales(user_type, &locales)?;
 
         // Check for name conflicts
         let result = User::find()
@@ -216,7 +219,7 @@ impl UserService {
             password: Set(password),
             multi_factor_secret: Set(None),
             multi_factor_recovery_codes: Set(None),
-            locale: Set(locale),
+            locales: Set(locales),
             avatar_s3_hash: Set(None),
             real_name: Set(None),
             gender: Set(None),
@@ -389,8 +392,9 @@ impl UserService {
             model.password = Set(password_hash);
         }
 
-        if let ProvidedValue::Set(locale) = input.locale {
-            model.locale = Set(locale);
+        if let ProvidedValue::Set(locales) = input.locales {
+            Self::validate_locales(user.user_type, &locales)?;
+            model.locales = Set(locales);
         }
 
         if let ProvidedValue::Set(real_name) = input.real_name {
@@ -692,6 +696,39 @@ impl UserService {
 
         filter_matcher.verify(ctx, email).await?;
         Ok(())
+    }
+
+    fn validate_locales<S: AsRef<str>>(user_type: UserType, locales: &[S]) -> Result<()> {
+        use crate::utils::validate_locale;
+
+        debug!(
+            "Validating locales ({}) for user type {:?}",
+            locales.len(),
+            user_type,
+        );
+
+        // Ensure values are valid
+        for locale in locales {
+            validate_locale(locale.as_ref())?;
+        }
+
+        // Invariants for locale lists
+        let valid = match user_type {
+            // System users should have no locales set
+            UserType::System => locales.is_empty(),
+
+            // Site users should have one locale set
+            UserType::Site => locales.len() == 1,
+
+            // Regular, should have a nonzero number of locales
+            _ => !locales.is_empty(),
+        };
+
+        if valid {
+            Ok(())
+        } else {
+            Err(Error::BadRequest)
+        }
     }
 }
 
