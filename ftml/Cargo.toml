@@ -65,6 +65,12 @@ self_cell = "1.0"
 wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
 web-sys = { version = "0.3", features = ["console"] }
 
+# Warnings and Errors
+
+[lints.rust]
+unsafe_code = "forbid"
+missing_debug_implementations = "deny"
+
 # Performance options
 
 [profile.release]
