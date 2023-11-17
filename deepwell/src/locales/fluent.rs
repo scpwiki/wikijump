@@ -21,15 +21,14 @@
 use super::error::{fluent_load_err, LocalizationLoadError};
 use super::fallback::iterate_locale_fallbacks;
 use crate::services::Error as ServiceError;
-use async_std::fs;
-use async_std::path::{Path, PathBuf};
-use async_std::prelude::*;
 use fluent::{bundle, FluentArgs, FluentMessage, FluentResource};
 use fluent_syntax::ast::Pattern;
 use intl_memoizer::concurrent::IntlLangMemoizer;
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::fmt::{self, Debug, Display};
+use std::path::{Path, PathBuf};
+use tokio::fs;
 use unic_langid::LanguageIdentifier;
 
 pub type FluentBundle = bundle::FluentBundle<FluentResource, IntlLangMemoizer>;
@@ -53,8 +52,7 @@ impl Localizations {
         let mut bundles = HashMap::new();
         let mut entries = fs::read_dir(&directory).await?;
 
-        while let Some(result) = entries.next().await {
-            let entry = result?;
+        while let Some(entry) = entries.next_entry().await? {
             let path = entry.path();
             Self::load_component(&mut bundles, &path).await?;
         }
@@ -69,8 +67,7 @@ impl Localizations {
         debug!("Reading component at {}", directory.display());
         let mut entries = fs::read_dir(directory).await?;
 
-        while let Some(result) = entries.next().await {
-            let entry = result?;
+        while let Some(entry) = entries.next_entry().await? {
             let path = entry.path();
 
             // Get locale from filename

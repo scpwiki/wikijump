@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::services::TextService;
-use async_std::future::timeout;
+use tokio::time::timeout;
 
 #[derive(Debug)]
 pub struct RenderService;
