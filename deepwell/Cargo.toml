@@ -79,6 +79,15 @@ wikidot-path = "0.6"
 [build-dependencies]
 built = { version = "0.7", features = ["git2"] }
 
+# Warnings and Errors
+
+[lints.rust]
+unsafe_code = "forbid"
+missing_debug_implementations = "deny"
+
+[lints.clippy]
+large_enum_variant = "allow"
+
 # Performance options
 
 [profile.release]
