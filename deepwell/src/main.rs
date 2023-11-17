@@ -18,10 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#![forbid(unsafe_code)]
-#![deny(missing_debug_implementations)]
-#![allow(clippy::large_enum_variant)]
-
 //! A server to expose Wikijump operations via an internal JSON RPC API.
 
 #[macro_use]
