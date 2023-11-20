@@ -89,8 +89,8 @@ devDependencies:
     specifier: ^15.11.0
     version: 15.11.0
   stylelint-config-recess-order:
-    specifier: ^4.3.0
-    version: 4.3.0(stylelint@15.11.0)
+    specifier: ^4.4.0
+    version: 4.4.0(stylelint@15.11.0)
   stylelint-order:
     specifier: ^6.0.1
     version: 6.0.3(stylelint@15.11.0)
@@ -2524,8 +2524,8 @@ packages:
     resolution: {integrity: sha512-Dj1Okke1C3uKKwQcetra4jSuk0DqbzbYtXipzFlFMZtowbF1x7BKJwB9AayVMyFARvU8EDrZdcax4At/452cAg==}
     dev: true
 
-  /stylelint-config-recess-order@4.3.0(stylelint@15.11.0):
-    resolution: {integrity: sha512-EWVtxZ8oq4/meTrRNUDrS5TqMz6TX72JjKDwVQq0JJDXE+P/o7UuFw3wWV/0O9yvJfh/da6nJY71ZUn/wSfB4g==}
+  /stylelint-config-recess-order@4.4.0(stylelint@15.11.0):
+    resolution: {integrity: sha512-Q99kvZyIM/aoPEV4dRDkzD3fZLzH0LXi+pawCf1r700uUeF/PHQ5PZXjwFUuGrWhOzd1N+cuVm+OUGsY2fRN5A==}
     peerDependencies:
       stylelint: '>=15'
     dependencies:
