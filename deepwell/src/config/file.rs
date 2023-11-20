@@ -370,10 +370,10 @@ impl ConfigFile {
             job_work_delay: StdDuration::from_millis(job_work_delay_ms),
             job_min_poll_delay: StdDuration::from_secs(job_min_poll_delay_secs),
             job_max_poll_delay: StdDuration::from_secs(job_max_poll_delay_secs),
-            job_prune_session_secs,
-            job_prune_text_secs,
-            job_name_change_refill_secs,
-            job_lift_expired_punishments_secs,
+            job_prune_session: StdDuration::from_secs(job_prune_session_secs),
+            job_prune_text: StdDuration::from_secs(job_prune_text_secs),
+            job_name_change_refill: StdDuration::from_secs(job_name_change_refill_secs),
+            job_lift_expired_punishments: StdDuration::from_secs(job_lift_expired_punishments_secs),
             render_timeout: StdDuration::from_millis(render_timeout_ms),
             rerender_skip: rerender_skip
                 .iter()

@@ -37,8 +37,8 @@ pub async fn connect(redis_uri: &str) -> Result<(ConnectionManager, MultiplexedR
     // Set up queue if it doesn't already exist
     if !job_queue_exists(&mut rsmq).await? {
         info!("Creating Redis job queue '{JOB_QUEUE_NAME}'");
-        info!("* Process time: {JOB_QUEUE_PROCESS_TIME:?} seconds");
-        info!("* Delay time:   {JOB_QUEUE_DELAY:?} seconds");
+        info!("* Process time: {JOB_QUEUE_PROCESS_TIME:?}");
+        info!("* Delay time:   {JOB_QUEUE_DELAY:?}");
         info!("* Maximum body: {JOB_QUEUE_MAXIMUM_SIZE:?} bytes");
 
         rsmq.create_queue(

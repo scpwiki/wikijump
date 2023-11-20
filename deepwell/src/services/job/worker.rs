@@ -27,6 +27,7 @@ use rsmq_async::{MultiplexedRsmq, RsmqConnection, RsmqMessage};
 use sea_orm::TransactionTrait;
 use std::convert::Infallible;
 use std::sync::Arc;
+use std::time::Duration;
 use tokio::time;
 
 /// Tells the main loop of the worker whether the queue had an item or not.
@@ -39,7 +40,7 @@ enum JobProcessStatus {
 /// Used to queue a follow-up job, if needed.
 #[derive(Debug)]
 enum NextJob {
-    Next { job: Job, delay: Option<u64> },
+    Next { job: Job, delay: Option<Duration> },
     Done,
 }
 
@@ -188,7 +189,7 @@ impl JobWorker {
                 SessionService::prune(ctx).await?;
                 NextJob::Next {
                     job: Job::PruneSessions,
-                    delay: Some(self.state.config.job_prune_session_secs),
+                    delay: Some(self.state.config.job_prune_session),
                 }
             }
             Job::PruneText => {
@@ -196,7 +197,7 @@ impl JobWorker {
                 TextService::prune(ctx).await?;
                 NextJob::Next {
                     job: Job::PruneText,
-                    delay: Some(self.state.config.job_prune_text_secs),
+                    delay: Some(self.state.config.job_prune_text),
                 }
             }
             Job::NameChangeRefill => {
@@ -208,7 +209,7 @@ impl JobWorker {
                 //      add user credits to each where they are above that time
                 NextJob::Next {
                     job: Job::NameChangeRefill,
-                    delay: Some(self.state.config.job_name_change_refill_secs),
+                    delay: Some(self.state.config.job_name_change_refill),
                 }
             }
             Job::LiftExpiredPunishments => {
@@ -222,7 +223,7 @@ impl JobWorker {
                 //      currently only bans are the temporary, but others can be added here
                 NextJob::Next {
                     job: Job::LiftExpiredPunishments,
-                    delay: Some(self.state.config.job_lift_expired_punishments_secs),
+                    delay: Some(self.state.config.job_lift_expired_punishments),
                 }
             }
         };

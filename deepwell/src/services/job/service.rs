@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use rsmq_async::RsmqConnection;
+use std::time::Duration;
 
 pub const JOB_QUEUE_NAME: &str = "job";
 
@@ -33,10 +34,10 @@ pub const JOB_QUEUE_NAME: &str = "job";
 /// period a job is allowed to run. If a job takes longer than that, then we assume it failed or
 /// died. This risks a false positive of still-running jobs, but as long as this time is well
 /// above what a job should take to run this risk is minimal.
-pub const JOB_QUEUE_PROCESS_TIME: Option<u32> = Some(30);
+pub const JOB_QUEUE_PROCESS_TIME: Option<Duration> = Some(Duration::from_secs(30));
 
 /// How long to wait before messages are delivered to consumers.
-pub const JOB_QUEUE_DELAY: Option<u32> = None;
+pub const JOB_QUEUE_DELAY: Option<Duration> = None;
 
 /// The maximum size, in bytes, that a job payload is allowed to be
 ///
@@ -55,7 +56,7 @@ impl JobService {
     pub async fn queue_job(
         ctx: &ServiceContext<'_>,
         job: &Job,
-        delay: Option<u64>,
+        delay: Option<Duration>,
     ) -> Result<()> {
         info!("Queuing job {job:?} (delay {delay:?})");
         let payload = serde_json::to_vec(job)?;
