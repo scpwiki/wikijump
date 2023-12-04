@@ -3440,9 +3440,9 @@ dependencies = [
 
 [[package]]
 name = "sea-query"
-version = "0.30.3"
+version = "0.30.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3472e143a83f7f03d306dcc62af88c5afdcd7e35f96ef0001a806fe244b3b15a"
+checksum = "41558fa9bb5f4d73952dac0b9d9c2ce23966493fc9ee0008037b01d709838a68"
 dependencies = [
  "derivative",
  "inherent",
