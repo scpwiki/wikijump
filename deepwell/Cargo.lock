@@ -899,7 +899,6 @@ dependencies = [
  "log",
  "notify",
  "once_cell",
- "otp",
  "paste",
  "rand 0.8.5",
  "redis",
@@ -907,6 +906,7 @@ dependencies = [
  "regex",
  "reqwest",
  "rsmq_async",
+ "rust-otp",
  "rust-s3",
  "sea-orm",
  "sea-query",
@@ -2417,17 +2417,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "otp"
-version = "1.0.0"
-source = "git+https://github.com/TimDumol/rust-otp#dd96dee878012ab7a9969e75b4427607ca4e7f6f"
-dependencies = [
- "ascii",
- "data-encoding",
- "err-derive",
- "ring 0.16.20",
-]
-
-[[package]]
 name = "ouroboros"
 version = "0.17.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3237,6 +3226,18 @@ checksum = "f6d5f2436026b4f6e79dc829837d467cc7e9a55ee40e750d716713540715a2df"
 dependencies = [
  "cfg-if",
  "ordered-multimap",
+]
+
+[[package]]
+name = "rust-otp"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "266f62d389dd986580d8439418a7c2952879fcd7c1ad10ab234e8f537cdc689e"
+dependencies = [
+ "ascii",
+ "data-encoding",
+ "err-derive",
+ "ring 0.16.20",
 ]
 
 [[package]]
