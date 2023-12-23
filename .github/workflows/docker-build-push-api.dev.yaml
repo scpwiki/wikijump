@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - build-to-ecr # TEMP
     paths:
       - 'deepwell/**'
       - 'install/aws/dev/docker/api/**'
