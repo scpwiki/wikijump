@@ -33,7 +33,7 @@ jobs:
         id: build-image
         env:
           DOCKER_BUILDKIT: 1
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REGISTRY: ${{ vars.ECR_REPOSITORY }}
           ECR_REPOSITORY: wikijump/postgres
           IMAGE_TAG: ${{ github.sha }}
         run: |
