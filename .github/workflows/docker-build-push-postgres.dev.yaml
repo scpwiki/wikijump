@@ -5,6 +5,8 @@ on:
     branches:
       - develop
     paths:
+      - 'deepwell/migrations/*'
+      - 'deepwell/seeder/*'
       - 'install/aws/dev/docker/postgres/**'
       - '.github/workflows/docker-build-push-postgres.dev.yaml'
 
