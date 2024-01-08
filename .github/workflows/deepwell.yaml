@@ -63,7 +63,7 @@ jobs:
     name: Coverage
     runs-on: ubuntu-latest
     env:
-      RUSTFLAGS: -D warnings
+      RUSTFLAGS: -A unused -D warnings
 
     steps:
       - name: Checkout
