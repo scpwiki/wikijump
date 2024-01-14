@@ -9,6 +9,7 @@ The approach used here is to set the starting ID value to be higher than Wikidot
 ```
 - Page           -- 3000000000 (sample       1331370625)
 - Revision       -- 3000000000 (sample       1388179085)
+- Page Category  --  100000000 (sample         43202888)
 - Forum Post     --    7000000 (sample          5174477)
 - Forum Thread   --   30000000 (sample         14447612)
 - Forum Category --    9000000 (sample          7412040)
