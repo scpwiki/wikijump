@@ -234,7 +234,7 @@ CREATE TYPE page_revision_change AS ENUM (
 -- but since we can't we'll just verify the hash length.
 CREATE TABLE text (
     hash BYTEA PRIMARY KEY,
-    contents TEXT COMPRESSION pglz NOT NULL,
+    contents TEXT NOT NULL,
 
     CHECK (length(hash) = 16)  -- KangarooTwelve hash size, 128 bits
 );
