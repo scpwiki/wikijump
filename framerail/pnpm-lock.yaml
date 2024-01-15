@@ -18,8 +18,8 @@ dependencies:
     specifier: ^3.59.2
     version: 3.59.2
   svelte-check:
-    specifier: ^3.6.2
-    version: 3.6.2(postcss@8.4.33)(sass@1.69.7)(svelte@3.59.2)
+    specifier: ^3.6.3
+    version: 3.6.3(postcss@8.4.33)(sass@1.69.7)(svelte@3.59.2)
   svelte-preprocess:
     specifier: ^5.1.3
     version: 5.1.3(postcss@8.4.33)(sass@1.69.7)(svelte@3.59.2)(typescript@5.3.3)
@@ -1718,14 +1718,14 @@ packages:
     resolution: {integrity: sha512-8UnnX2PeRAPZuN12svgR9j7M1uWMovg/CEnIwIG0LFkXSJJe4PdfUGiTGl8V9bsBHFUtfVINcSyYxd7q+kx9fA==}
     engines: {node: '>=12'}
     dependencies:
-      '@jridgewell/sourcemap-codec': 1.4.14
+      '@jridgewell/sourcemap-codec': 1.4.15
     dev: false
 
   /magic-string@0.30.0:
     resolution: {integrity: sha512-LA+31JYDJLs82r2ScLrlz1GjSgu66ZV518eyWT+S8VhyQn/JL0u9MeBOvQMGYiPk1DBiSN9DDMOcXvigJZaViQ==}
     engines: {node: '>=12'}
     dependencies:
-      '@jridgewell/sourcemap-codec': 1.4.14
+      '@jridgewell/sourcemap-codec': 1.4.15
     dev: false
 
   /magic-string@0.30.5:
@@ -2459,7 +2459,7 @@ packages:
     resolution: {integrity: sha512-J69LQ22xrQB1cIFJhPfgtLuI6BpWRiWu1Y3vSsIwK/eAScqJxd/+CJlUuHQRdX2C9NGFamq+KqNywGgaThwfHw==}
     hasBin: true
     dependencies:
-      '@jridgewell/sourcemap-codec': 1.4.14
+      '@jridgewell/sourcemap-codec': 1.4.15
       buffer-crc32: 0.2.13
       minimist: 1.2.7
       sander: 0.5.1
@@ -2638,8 +2638,8 @@ packages:
       supports-color: 7.2.0
     dev: true
 
-  /svelte-check@3.6.2(postcss@8.4.33)(sass@1.69.7)(svelte@3.59.2):
-    resolution: {integrity: sha512-E6iFh4aUCGJLRz6QZXH3gcN/VFfkzwtruWSRmlKrLWQTiO6VzLsivR6q02WYLGNAGecV3EocqZuCDrC2uttZ0g==}
+  /svelte-check@3.6.3(postcss@8.4.33)(sass@1.69.7)(svelte@3.59.2):
+    resolution: {integrity: sha512-Q2nGnoysxUnB9KjnjpQLZwdjK62DHyW6nuH/gm2qteFnDk0lCehe/6z8TsIvYeKjC6luKaWxiNGyOcWiLLPSwA==}
     hasBin: true
     peerDependencies:
       svelte: ^3.55.0 || ^4.0.0-next.0 || ^4.0.0 || ^5.0.0-next.0
