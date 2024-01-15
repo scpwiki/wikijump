@@ -20,7 +20,7 @@ jobs:
     name: Library
     runs-on: ubuntu-latest
     env:
-      RUSTFLAGS: -D warnings
+      RUSTFLAGS: -A unused -D warnings
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -56,7 +56,7 @@ jobs:
     name: WebASM
     runs-on: ubuntu-latest
     env:
-      RUSTFLAGS: -D warnings
+      RUSTFLAGS: -A unused -D warnings
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -90,7 +90,7 @@ jobs:
     name: Coverage
     runs-on: ubuntu-latest
     env:
-      RUSTFLAGS: -D warnings
+      RUSTFLAGS: -A unused -D warnings
 
     steps:
       - name: Checkout
@@ -130,7 +130,7 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     env:
-      RUSTFLAGS: -D warnings
+      RUSTFLAGS: -A unused -D warnings
     steps:
       - name: Checkout
         uses: actions/checkout@v2

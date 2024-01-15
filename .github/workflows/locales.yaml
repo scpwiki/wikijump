@@ -39,7 +39,7 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     env:
-      RUSTFLAGS: -D warnings
+      RUSTFLAGS: -A unused -D warnings
     steps:
       - name: Checkout
         uses: actions/checkout@v2
