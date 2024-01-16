@@ -52,7 +52,7 @@ The routes are defined in `api/`, with their implementations in `methods/`, and 
 
 ### Compilation
 
-This executable targets the latest stable Rust. At time of writing, that is `1.74.0`.
+This executable targets the latest stable Rust. At time of writing, that is `1.75.0`.
 
 At present the crate has one feature:
 * `notify` &mdash; Enables a feature to track the locale directory and configuration file, reloading the server if they are modified. This should be used in local builds only, not in production.
