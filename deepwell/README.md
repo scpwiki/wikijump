@@ -25,7 +25,7 @@ Available under the terms of the GNU Affero General Public License. See [LICENSE
 
 ### Development
 
-If you have [`sea-orm-cli`](https://www.sea-ql.org/SeaORM/docs/generate-entity/sea-orm-cli/), and have a local instance of Wikijump running, you can use the following script to autogenerate SeaORM model files:
+If you have [`sea-orm-cli`](https://www.sea-ql.org/SeaORM/docs/generate-entity/sea-orm-cli/) installed, and have a local instance of Wikijump running, you can use the following script to autogenerate SeaORM model files:
 
 ```sh
 $ scripts/generate-models.sh
