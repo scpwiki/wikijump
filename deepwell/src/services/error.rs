@@ -72,7 +72,7 @@ pub enum Error {
     Magic(#[from] FileMagicError),
 
     #[error("One-time password error: {0}")]
-    Otp(#[from] otp::Error),
+    Otp(#[from] rust_otp::Error),
 
     #[error("Serialization error: {0}")]
     Serde(#[from] serde_json::Error),

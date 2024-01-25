@@ -144,7 +144,7 @@ impl MfaService {
             }
         };
 
-        let actual_totp = otp::make_totp(
+        let actual_totp = rust_otp::make_totp(
             secret,
             ctx.config().totp_time_step,
             ctx.config().totp_time_skew,
