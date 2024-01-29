@@ -46,7 +46,7 @@ serde_repr = "0.1"
 serde-wasm-bindgen = "0.6"
 str-macro = "1"
 strum = "0.25"
-strum_macros = "0.25"
+strum_macros = "0.26"
 time = { version = "0.3", features = ["formatting", "macros", "parsing", "serde", "serde-human-readable"], default-features = false }
 tinyvec = "1"
 unicase = "2"
