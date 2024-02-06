@@ -57,7 +57,7 @@ sha2 = "0.10"
 sqlx = { version = "0.7", features = ["macros", "migrate", "postgres", "runtime-tokio-rustls"], default-features = false }
 str-macro = "1"
 strum = "0.25"
-strum_macros = "0.25"
+strum_macros = "0.26"
 subtle = "2.4"
 thiserror = "1"
 time = { version = "0.3", features = ["parsing", "serde", "serde-human-readable"], default-features = false }
