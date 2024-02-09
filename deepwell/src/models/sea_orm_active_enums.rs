@@ -35,25 +35,6 @@ pub enum FileRevisionType {
 #[sea_orm(
     rs_type = "String",
     db_type = "Enum",
-    enum_name = "relation_object_type"
-)]
-#[serde(rename_all = "kebab-case")]
-pub enum RelationObjectType {
-    #[sea_orm(string_value = "file")]
-    File,
-    #[sea_orm(string_value = "page")]
-    Page,
-    #[sea_orm(string_value = "site")]
-    Site,
-    #[sea_orm(string_value = "user")]
-    User,
-}
-#[derive(
-    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Copy, Serialize, Deserialize,
-)]
-#[sea_orm(
-    rs_type = "String",
-    db_type = "Enum",
     enum_name = "message_recipient_type"
 )]
 #[serde(rename_all = "kebab-case")]
@@ -81,6 +62,25 @@ pub enum PageRevisionType {
     Regular,
     #[sea_orm(string_value = "undelete")]
     Undelete,
+}
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Copy, Serialize, Deserialize,
+)]
+#[sea_orm(
+    rs_type = "String",
+    db_type = "Enum",
+    enum_name = "relation_object_type"
+)]
+#[serde(rename_all = "kebab-case")]
+pub enum RelationObjectType {
+    #[sea_orm(string_value = "file")]
+    File,
+    #[sea_orm(string_value = "page")]
+    Page,
+    #[sea_orm(string_value = "site")]
+    Site,
+    #[sea_orm(string_value = "user")]
+    User,
 }
 #[derive(
     Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Copy, Serialize, Deserialize,
