@@ -44,7 +44,7 @@
     "@sveltejs/kit": "next",
     "json-rpc-2.0": "^1.7.0",
     "svelte": "^3.59.2",
-    "svelte-check": "^3.6.3",
+    "svelte-check": "^3.6.4",
     "svelte-preprocess": "^5.1.3",
     "tslib": "^2.6.2",
     "vite": "^4.5.2"
