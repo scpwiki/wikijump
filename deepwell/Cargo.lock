@@ -910,7 +910,7 @@ dependencies = [
  "once_cell",
  "paste",
  "rand 0.8.5",
- "redis",
+ "redis 0.24.0",
  "ref-map",
  "regex",
  "reqwest",
@@ -2996,8 +2996,29 @@ version = "0.23.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4f49cdc0bb3f412bf8e7d1bd90fe1d9eb10bc5c399ba90973c14662a27b3f8ba"
 dependencies = [
- "arc-swap",
  "async-std",
+ "async-trait",
+ "bytes",
+ "combine",
+ "futures-util",
+ "itoa",
+ "percent-encoding",
+ "pin-project-lite",
+ "ryu",
+ "sha1_smol",
+ "socket2 0.4.10",
+ "tokio",
+ "tokio-util",
+ "url",
+]
+
+[[package]]
+name = "redis"
+version = "0.24.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c580d9cbbe1d1b479e8d67cf9daf6a62c957e6846048408b80b43ac3f6af84cd"
+dependencies = [
+ "arc-swap",
  "async-trait",
  "bytes",
  "combine",
@@ -3201,7 +3222,7 @@ dependencies = [
  "lazy_static",
  "radix_fmt",
  "rand 0.8.5",
- "redis",
+ "redis 0.23.3",
  "thiserror",
 ]
 
