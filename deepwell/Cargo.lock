@@ -1912,9 +1912,9 @@ dependencies = [
 
 [[package]]
 name = "jsonrpsee"
-version = "0.22.0"
+version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4a95f7cc23d5fab0cdeeaf6bad8c8f5e7a3aa7f0d211957ea78232b327ab27b0"
+checksum = "16fcc9dd231e72d22993f1643d5f7f0db785737dbe3c3d7ca222916ab4280795"
 dependencies = [
  "jsonrpsee-core",
  "jsonrpsee-proc-macros",
@@ -1926,9 +1926,9 @@ dependencies = [
 
 [[package]]
 name = "jsonrpsee-core"
-version = "0.22.0"
+version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "82030d038658974732103e623ba2e0abec03bbbe175b39c0a2fafbada60c5868"
+checksum = "b974d8f6139efbe8425f32cb33302aba6d5e049556b5bfc067874e7a0da54a2e"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1948,9 +1948,9 @@ dependencies = [
 
 [[package]]
 name = "jsonrpsee-proc-macros"
-version = "0.22.0"
+version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "69fc56131589f82e57805f7338b87023db4aafef813555708b159787e34ad6bc"
+checksum = "68e79a7109506831bf0cbeaad08729cdf0e592300c00f626bccd6d479974221e"
 dependencies = [
  "heck",
  "proc-macro-crate",
@@ -1961,9 +1961,9 @@ dependencies = [
 
 [[package]]
 name = "jsonrpsee-server"
-version = "0.22.0"
+version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d85be77fe5b2a94589e3164fb780017f7aff7d646b49278c0d0346af16975c8e"
+checksum = "344440ccd8492c1ca65f1391c5aa03f91189db38d602d189b9266a1a5c6a4d22"
 dependencies = [
  "futures-util",
  "http",
@@ -1985,9 +1985,9 @@ dependencies = [
 
 [[package]]
 name = "jsonrpsee-types"
-version = "0.22.0"
+version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9a48fdc1202eafc51c63e00406575e59493284ace8b8b61aa16f3a6db5d64f1a"
+checksum = "b13dac43c1a9fc2648b37f306b0a5b0e29b2a6e1c36a33b95c1948da2494e9c5"
 dependencies = [
  "anyhow",
  "beef",
