@@ -113,10 +113,10 @@ impl Replacer {
 
                 while let Some(capture) = regex.captures_at(text, offset) {
                     let range = {
-                        let full_match = capture.get(0).expect("Regular expression lacks a full match");
-                        let mtch = capture
-                            .name("repl")
-                            .or(Some(full_match)).unwrap();
+                        let full_match = capture
+                            .get(0)
+                            .expect("Regular expression lacks a full match");
+                        let mtch = capture.name("repl").or(Some(full_match)).unwrap();
 
                         offset = mtch.start() + repl_len;
 
@@ -148,7 +148,7 @@ impl Replacer {
                             .get(0)
                             .expect("Regular expression lacks a full match");
 
-                        mtch.start()..mtch.end()
+                        mtch.range()
                     };
 
                     buffer.clear();
@@ -192,84 +192,37 @@ const TEST_CASES: [(&str, &str); 21] = [
         ",,あんたは馬鹿です！''\n``Ehh?''\n,,本当！''\n[[footnoteblock]]",
         "„あんたは馬鹿です！”\n“Ehh?”\n„本当！”\n[[footnoteblock]]",
     ),
-
-    // Ellipsis tests
     (
         "**ENTITY MAKES DRAMATIC MOTION** . . . ",
         "**ENTITY MAKES DRAMATIC MOTION** … ",
     ),
-    (
-        "Whales... they are cool",
-        "Whales… they are cool",
-    ),
-    (
-        "Whales ... they are cool",
-        "Whales … they are cool",
-    ),
-    (
-        "...why would you think that?",
-        "…why would you think that?",
-    ),
-    (
-        "how could you...",
-        "how could you…",
-    ),
+    ("Whales... they are cool", "Whales… they are cool"),
+    ("Whales ... they are cool", "Whales … they are cool"),
+    ("...why would you think that?", "…why would you think that?"),
+    ("how could you...", "how could you…"),
     (
         "... why would you think that?",
         "… why would you think that?",
     ),
-    (
-        "how could you ...",
-        "how could you …",
-    ),
-    (
-        "Whales. . . they are cool",
-        "Whales… they are cool",
-    ),
+    ("how could you ...", "how could you …"),
+    ("Whales. . . they are cool", "Whales… they are cool"),
     (
         ". . .why would you think that?",
         "…why would you think that?",
     ),
-    (
-        "how could you. . .",
-        "how could you…",
-    ),
-    (
-        "Whales . . . they are cool",
-        "Whales … they are cool",
-    ),
+    ("how could you. . .", "how could you…"),
+    ("Whales . . . they are cool", "Whales … they are cool"),
     (
         ". . . why would you think that?",
         "… why would you think that?",
     ),
-    (
-        "how could you . . .",
-        "how could you …",
-    ),
-    (
-        ".... ..",
-        ".... ..",
-    ),
-    (
-        ". . .. ....",
-        ". . .. ....",
-    ),
-    (
-        "... . . . . . .",
-        "… … …",
-    ),
-    (
-        "..........",
-        ".........."
-    ),
-    (
-        "... ... ...",
-        "… … …",
-    ),
-    (
-        "... . . . ...",
-        "… … …",
-    ),
+    ("how could you . . .", "how could you …"),
+    (".... ..", ".... .."),
+    (". . .. ....", ". . .. ...."),
+    ("... . . . . . .", "… … …"),
+    ("..........", ".........."),
+    ("... ... ...", "… … …"),
+    ("... . . . ...", "… … …"),
 ];
 
 #[test]
