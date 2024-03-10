@@ -59,16 +59,17 @@ static LOW_DOUBLE_QUOTES: Lazy<Replacer> = Lazy::new(|| Replacer::RegexSurround 
 });
 
 // … - HORIZONTAL ELLIPSIS
-static ELLIPSIS: Lazy<Replacer> = Lazy::new(|| Replacer::RegexReplace {
-    regex: Regex::new(r"(?:\.\.\.|\. \. \.)").unwrap(),
+static HORIZONTAL_ELLIPSIS: Lazy<Replacer> = Lazy::new(|| Replacer::RegexReplace {
+    regex: Regex::new(r"(?:^|[^\.])(?<repl>(\.\.|\. \. )\.)(?:[^\.]|$)").unwrap(),
     replacement: "\u{2026}",
 });
 
 /// Helper struct to easily perform string replacements.
 #[derive(Debug)]
 pub enum Replacer {
-    /// Replaces any text matching the regular expression with the static string.
-    /// The entire match is used, any capture groups are ignored.
+    /// Replaces any text matching the "repl" group,
+    /// (or the entire regular expression if "repl" is happening)
+    /// with the static string.
     RegexReplace {
         regex: Regex,
         replacement: &'static str,
@@ -107,13 +108,19 @@ impl Replacer {
                     replacement,
                 );
 
-                while let Some(capture) = regex.captures(text) {
-                    let range = {
-                        let mtch = capture
-                            .get(0)
-                            .expect("Regular expression lacks a full match");
+                let mut offset = 0;
+                let repl_len = replacement.len();
 
-                        mtch.start()..mtch.end()
+                while let Some(capture) = regex.captures_at(text, offset) {
+                    let range = {
+                        let full_match = capture.get(0).expect("Regular expression lacks a full match");
+                        let mtch = capture
+                            .name("repl")
+                            .or(Some(full_match)).unwrap();
+
+                        offset = mtch.start() + repl_len;
+
+                        mtch.range()
                     };
 
                     text.replace_range(range, replacement);
@@ -172,11 +179,11 @@ pub fn substitute(text: &mut String) {
     replace!(SINGLE_QUOTES);
 
     // Miscellaneous
-    replace!(ELLIPSIS);
+    replace!(HORIZONTAL_ELLIPSIS);
 }
 
 #[cfg(test)]
-const TEST_CASES: [(&str, &str); 3] = [
+const TEST_CASES: [(&str, &str); 21] = [
     (
         "John laughed. ``You'll never defeat me!''\n``That's where you're wrong...''",
         "John laughed. “You'll never defeat me!”\n“That's where you're wrong…”",
@@ -185,9 +192,83 @@ const TEST_CASES: [(&str, &str); 3] = [
         ",,あんたは馬鹿です！''\n``Ehh?''\n,,本当！''\n[[footnoteblock]]",
         "„あんたは馬鹿です！”\n“Ehh?”\n„本当！”\n[[footnoteblock]]",
     ),
+
+    // Ellipsis tests
     (
         "**ENTITY MAKES DRAMATIC MOTION** . . . ",
         "**ENTITY MAKES DRAMATIC MOTION** … ",
+    ),
+    (
+        "Whales... they are cool",
+        "Whales… they are cool",
+    ),
+    (
+        "Whales ... they are cool",
+        "Whales … they are cool",
+    ),
+    (
+        "...why would you think that?",
+        "…why would you think that?",
+    ),
+    (
+        "how could you...",
+        "how could you…",
+    ),
+    (
+        "... why would you think that?",
+        "… why would you think that?",
+    ),
+    (
+        "how could you ...",
+        "how could you …",
+    ),
+    (
+        "Whales. . . they are cool",
+        "Whales… they are cool",
+    ),
+    (
+        ". . .why would you think that?",
+        "…why would you think that?",
+    ),
+    (
+        "how could you. . .",
+        "how could you…",
+    ),
+    (
+        "Whales . . . they are cool",
+        "Whales … they are cool",
+    ),
+    (
+        ". . . why would you think that?",
+        "… why would you think that?",
+    ),
+    (
+        "how could you . . .",
+        "how could you …",
+    ),
+    (
+        ".... ..",
+        ".... ..",
+    ),
+    (
+        ". . .. ....",
+        ". . .. ....",
+    ),
+    (
+        "... . . . . . .",
+        "… … …",
+    ),
+    (
+        "..........",
+        ".........."
+    ),
+    (
+        "... ... ...",
+        "… … …",
+    ),
+    (
+        "... . . . ...",
+        "… … …",
     ),
 ];
 
@@ -196,7 +277,7 @@ fn regexes() {
     let _ = &*SINGLE_QUOTES;
     let _ = &*DOUBLE_QUOTES;
     let _ = &*LOW_DOUBLE_QUOTES;
-    let _ = &*ELLIPSIS;
+    let _ = &*HORIZONTAL_ELLIPSIS;
 }
 
 #[test]
