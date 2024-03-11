@@ -109,7 +109,6 @@ impl Replacer {
                 );
 
                 let mut offset = 0;
-                let repl_len = replacement.len();
 
                 while let Some(capture) = regex.captures_at(text, offset) {
                     let range = {
@@ -197,30 +196,35 @@ const TEST_CASES: [(&str, &str); 21] = [
     ),
     ("Whales... they are cool", "Whales… they are cool"),
     ("Whales ... they are cool", "Whales … they are cool"),
+    ("Whales. . . they are cool", "Whales… they are cool"),
+    ("Whales . . . they are cool", "Whales … they are cool"),
     ("...why would you think that?", "…why would you think that?"),
-    ("how could you...", "how could you…"),
     (
         "... why would you think that?",
         "… why would you think that?",
     ),
-    ("how could you ...", "how could you …"),
-    ("Whales. . . they are cool", "Whales… they are cool"),
     (
         ". . .why would you think that?",
         "…why would you think that?",
     ),
-    ("how could you. . .", "how could you…"),
-    ("Whales . . . they are cool", "Whales … they are cool"),
     (
         ". . . why would you think that?",
         "… why would you think that?",
     ),
+    ("how could you...", "how could you…"),
+    ("how could you ...", "how could you …"),
+    ("how could you. . .", "how could you…"),
     ("how could you . . .", "how could you …"),
-    (".... ..", ".... .."),
+    // Spaced with extra dot after 3rd
     (". . .. ....", ". . .. ...."),
+    // Multiple spaced dots in a row
     ("... . . . . . .", "… … …"),
+    // Too many dots
+    (".... ..", ".... .."),
     ("..........", ".........."),
+    // Groups of three dots
     ("... ... ...", "… … …"),
+    // Groups of three, mixed spaced and continuous
     ("... . . . ...", "… … …"),
 ];
 
