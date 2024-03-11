@@ -119,7 +119,6 @@ impl Replacer {
                         let mtch = capture.name("repl").unwrap_or(full_match);
 
                         offset = mtch.start() + replacement.len();
-
                         mtch.range()
                     };
 
