@@ -59,16 +59,17 @@ static LOW_DOUBLE_QUOTES: Lazy<Replacer> = Lazy::new(|| Replacer::RegexSurround 
 });
 
 // … - HORIZONTAL ELLIPSIS
-static ELLIPSIS: Lazy<Replacer> = Lazy::new(|| Replacer::RegexReplace {
-    regex: Regex::new(r"(?:\.\.\.|\. \. \.)").unwrap(),
+static HORIZONTAL_ELLIPSIS: Lazy<Replacer> = Lazy::new(|| Replacer::RegexReplace {
+    regex: Regex::new(r"(?:^|[^\.])(?<repl>(\.\.|\. \. )\.)(?:[^\.]|$)").unwrap(),
     replacement: "\u{2026}",
 });
 
 /// Helper struct to easily perform string replacements.
 #[derive(Debug)]
 pub enum Replacer {
-    /// Replaces any text matching the regular expression with the static string.
-    /// The entire match is used, any capture groups are ignored.
+    /// Replaces any text matching the "repl" group,
+    /// (or the entire regular expression if "repl" is happening)
+    /// with the static string.
     RegexReplace {
         regex: Regex,
         replacement: &'static str,
@@ -107,13 +108,17 @@ impl Replacer {
                     replacement,
                 );
 
-                while let Some(capture) = regex.captures(text) {
+                let mut offset = 0;
+
+                while let Some(capture) = regex.captures_at(text, offset) {
                     let range = {
-                        let mtch = capture
+                        let full_match = capture
                             .get(0)
                             .expect("Regular expression lacks a full match");
+                        let mtch = capture.name("repl").unwrap_or(full_match);
 
-                        mtch.start()..mtch.end()
+                        offset = mtch.start() + replacement.len();
+                        mtch.range()
                     };
 
                     text.replace_range(range, replacement);
@@ -141,7 +146,7 @@ impl Replacer {
                             .get(0)
                             .expect("Regular expression lacks a full match");
 
-                        mtch.start()..mtch.end()
+                        mtch.range()
                     };
 
                     buffer.clear();
@@ -172,11 +177,11 @@ pub fn substitute(text: &mut String) {
     replace!(SINGLE_QUOTES);
 
     // Miscellaneous
-    replace!(ELLIPSIS);
+    replace!(HORIZONTAL_ELLIPSIS);
 }
 
 #[cfg(test)]
-const TEST_CASES: [(&str, &str); 3] = [
+const TEST_CASES: [(&str, &str); 21] = [
     (
         "John laughed. ``You'll never defeat me!''\n``That's where you're wrong...''",
         "John laughed. “You'll never defeat me!”\n“That's where you're wrong…”",
@@ -189,6 +194,38 @@ const TEST_CASES: [(&str, &str); 3] = [
         "**ENTITY MAKES DRAMATIC MOTION** . . . ",
         "**ENTITY MAKES DRAMATIC MOTION** … ",
     ),
+    ("Whales... they are cool", "Whales… they are cool"),
+    ("Whales ... they are cool", "Whales … they are cool"),
+    ("Whales. . . they are cool", "Whales… they are cool"),
+    ("Whales . . . they are cool", "Whales … they are cool"),
+    ("...why would you think that?", "…why would you think that?"),
+    (
+        "... why would you think that?",
+        "… why would you think that?",
+    ),
+    (
+        ". . .why would you think that?",
+        "…why would you think that?",
+    ),
+    (
+        ". . . why would you think that?",
+        "… why would you think that?",
+    ),
+    ("how could you...", "how could you…"),
+    ("how could you ...", "how could you …"),
+    ("how could you. . .", "how could you…"),
+    ("how could you . . .", "how could you …"),
+    // Spaced with extra dot after 3rd
+    (". . .. ....", ". . .. ...."),
+    // Multiple spaced dots in a row
+    ("... . . . . . .", "… … …"),
+    // Too many dots
+    (".... ..", ".... .."),
+    ("..........", ".........."),
+    // Groups of three dots
+    ("... ... ...", "… … …"),
+    // Groups of three, mixed spaced and continuous
+    ("... . . . ...", "… … …"),
 ];
 
 #[test]
@@ -196,7 +233,7 @@ fn regexes() {
     let _ = &*SINGLE_QUOTES;
     let _ = &*DOUBLE_QUOTES;
     let _ = &*LOW_DOUBLE_QUOTES;
-    let _ = &*ELLIPSIS;
+    let _ = &*HORIZONTAL_ELLIPSIS;
 }
 
 #[test]
