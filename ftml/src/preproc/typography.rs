@@ -118,7 +118,7 @@ impl Replacer {
                             .expect("Regular expression lacks a full match");
                         let mtch = capture.name("repl").unwrap_or(full_match);
 
-                        offset = mtch.start() + repl_len;
+                        offset = mtch.start() + replacement.len();
 
                         mtch.range()
                     };
