@@ -910,7 +910,7 @@ dependencies = [
  "once_cell",
  "paste",
  "rand 0.8.5",
- "redis",
+ "redis 0.25.0",
  "ref-map",
  "regex",
  "reqwest",
@@ -1475,6 +1475,18 @@ name = "futures-task"
 version = "0.3.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "38d84fa142264698cdce1a9f9172cf383a0c82de1bddcf3092901442c4097004"
+
+[[package]]
+name = "futures-time"
+version = "3.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6404853a6824881fe5f7d662d147dc4e84ecd2259ba0378f272a71dab600758a"
+dependencies = [
+ "async-channel 1.9.0",
+ "async-io 1.13.0",
+ "futures-core",
+ "pin-project-lite",
+]
 
 [[package]]
 name = "futures-util"
@@ -2996,12 +3008,34 @@ version = "0.23.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4f49cdc0bb3f412bf8e7d1bd90fe1d9eb10bc5c399ba90973c14662a27b3f8ba"
 dependencies = [
- "arc-swap",
  "async-std",
  "async-trait",
  "bytes",
  "combine",
+ "futures-util",
+ "itoa",
+ "percent-encoding",
+ "pin-project-lite",
+ "ryu",
+ "sha1_smol",
+ "socket2 0.4.10",
+ "tokio",
+ "tokio-util",
+ "url",
+]
+
+[[package]]
+name = "redis"
+version = "0.25.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3268dab7fe8f1d136b3c4367bc230383dc2c357f8e305ee898fa3beacddaf00d"
+dependencies = [
+ "arc-swap",
+ "async-trait",
+ "bytes",
+ "combine",
  "futures",
+ "futures-time",
  "futures-util",
  "itoa",
  "percent-encoding",
@@ -3202,7 +3236,7 @@ dependencies = [
  "lazy_static",
  "radix_fmt",
  "rand 0.8.5",
- "redis",
+ "redis 0.23.3",
  "thiserror",
 ]
 
