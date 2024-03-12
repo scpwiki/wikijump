@@ -1,7 +1,0 @@
-# Artifacts
-Cargo.lock
-target/
-pkg/
-
-# Logging
-ftml.log

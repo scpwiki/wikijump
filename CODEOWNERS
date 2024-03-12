@@ -2,11 +2,6 @@
 # maintenance of, or has experience with various parts of this
 # repository.
 
-# The ftml (Foundation Text Markup Language) service provides
-# parsing and rendering of wikitext.
-.github/workflows/ftml*.yaml        @emmiegit
-ftml                                @emmiegit
-
 # The DEEPWELL replacement API service
 .github/workflows/deepwell.yaml     @emmiegit
 deepwell                            @emmiegit

@@ -925,7 +925,7 @@ dependencies = [
  "sqlx",
  "str-macro",
  "strum 0.26.1",
- "strum_macros 0.26.2",
+ "strum_macros",
  "subtle",
  "thiserror",
  "time",
@@ -935,7 +935,7 @@ dependencies = [
  "typenum",
  "unic-langid",
  "unicase",
- "wikidot-normalize 0.12.0",
+ "wikidot-normalize",
  "wikidot-path",
 ]
 
@@ -1324,9 +1324,9 @@ dependencies = [
 
 [[package]]
 name = "ftml"
-version = "1.22.2"
+version = "1.23.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "66be61386787a47353524bd03d4828d3fe33950b368adf007739363d549b26d6"
+checksum = "6777083ba47f112ec0aafe612a14355de6ad08fdaa88db2ea4435cb8d72d8ed4"
 dependencies = [
  "built",
  "cfg-if",
@@ -1350,14 +1350,14 @@ dependencies = [
  "serde_json",
  "serde_repr",
  "str-macro",
- "strum 0.25.0",
- "strum_macros 0.25.3",
+ "strum 0.26.1",
+ "strum_macros",
  "time",
  "tinyvec",
  "unicase",
  "wasm-bindgen",
  "web-sys",
- "wikidot-normalize 0.11.0",
+ "wikidot-normalize",
 ]
 
 [[package]]
@@ -4013,19 +4013,6 @@ checksum = "723b93e8addf9aa965ebe2d11da6d7540fa2283fcea14b3371ff055f7ba13f5f"
 
 [[package]]
 name = "strum_macros"
-version = "0.25.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "23dc1fa9ac9c169a78ba62f0b841814b7abae11bdd047b9c58f893439e309ea0"
-dependencies = [
- "heck",
- "proc-macro2",
- "quote",
- "rustversion",
- "syn 2.0.48",
-]
-
-[[package]]
-name = "strum_macros"
 version = "0.26.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c6cf59daf282c0a494ba14fd21610a0325f9f90ec9d1231dea26bcb1d696c946"
@@ -4805,19 +4792,6 @@ checksum = "22fc3756b8a9133049b26c7f61ab35416c130e8c09b660f5b3958b446f52cc50"
 
 [[package]]
 name = "wikidot-normalize"
-version = "0.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2562facf99615dfc0144ba1b40277f50c5742b557450747167bd835488d3f30f"
-dependencies = [
- "lazy_static",
- "maplit",
- "regex",
- "trim-in-place",
- "unicode-normalization",
-]
-
-[[package]]
-name = "wikidot-normalize"
 version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "835a5e9b9a5ab3872ec69ec2b2eb33e096c288d5a4627e601012ab86249281f1"
@@ -4836,7 +4810,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f2b7d54c72aec52975c3957051d3ad2aa1bbb941d7b4e69b1f7c6090624ee338"
 dependencies = [
  "unicase",
- "wikidot-normalize 0.12.0",
+ "wikidot-normalize",
 ]
 
 [[package]]
