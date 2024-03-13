@@ -3,7 +3,7 @@ name: '[backend] Docker build API (prod)'
 on:
   pull_request:
     paths:
-      - 'deepwell/*'
+      - 'deepwell/**'
       - 'install/aws/prod/docker/api/Dockerfile'
       - '.github/workflows/docker-build-api.prod.yaml'
 
