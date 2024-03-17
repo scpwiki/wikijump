@@ -62,7 +62,7 @@ jobs:
           key: ${{ runner.os }}-locales-lint-${{ hashFiles('locales/validator/**/Cargo.toml') }}
 
       - name: Rustfmt
-        run: cd ftml && cargo fmt --all -- --check
+        run: cd locales/validator && cargo fmt --all -- --check
 
       - name: Clippy
-        run: cd ftml && cargo clippy --no-deps
+        run: cd locales/validator && cargo clippy --no-deps
