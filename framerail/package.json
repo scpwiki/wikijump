@@ -16,7 +16,7 @@
   "devDependencies": {
     "@playwright/test": "^1.42.1",
     "@types/accept-language-parser": "^1.5.6",
-    "@types/node": "^20.11.30",
+    "@types/node": "^20.12.2",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "accept-language-parser": "^1.5.0",
