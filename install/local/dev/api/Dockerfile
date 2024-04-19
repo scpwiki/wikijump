@@ -15,8 +15,9 @@ RUN apt install -y libmagic-dev
 # Install helpers
 RUN cargo install cargo-watch
 
-# Install development configuration file
+# Install files
 COPY install/files/local/deepwell.toml /etc/deepwell.toml
+COPY install/files/api/health-check.sh /bin/wikijump-health-check
 
 # /opt/locales is provided via docker-compose.dev.yaml
 
