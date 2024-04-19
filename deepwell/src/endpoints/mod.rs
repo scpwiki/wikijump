@@ -27,6 +27,7 @@
 //! instead live in `services`. Endpoint definitions should ideally be wrappers
 //! around service calls, or possibly perform modest data conversion for HTTP.
 
+#[allow(unused_imports)]
 mod prelude {
     pub use crate::api::ServerState;
     pub use crate::services::{

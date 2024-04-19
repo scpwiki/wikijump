@@ -30,6 +30,7 @@
 //! * `site` / `member` / `user` &mdash; User is a site member
 //! * `user` / `block` / `user` &mdash; User has blocked another user
 
+#[allow(unused_imports)]
 mod prelude {
     pub use super::super::prelude::*;
     pub use super::*;

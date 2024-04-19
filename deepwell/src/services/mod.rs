@@ -18,6 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#![allow(unused_imports)]
+
 //! The "services" module, providing low-level logical operations.
 //!
 //! Each service is named for a particular object or concept, and
