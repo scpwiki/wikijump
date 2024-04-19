@@ -24,6 +24,7 @@
 //! Method implementations should instead work with the relevant concept
 //! service instead, for instance the `FileService`.
 
+#[allow(unused_imports)]
 mod prelude {
     pub use super::super::prelude::*;
     pub use super::structs::*;

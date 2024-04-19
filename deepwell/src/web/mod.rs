@@ -18,6 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#![allow(unused_imports)]
+
 mod bytes;
 mod connection_type;
 mod fetch_direction;

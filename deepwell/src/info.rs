@@ -24,6 +24,7 @@ mod build {
 
 use once_cell::sync::Lazy;
 
+#[allow(unused_imports)]
 pub use self::build::{
     BUILT_TIME_UTC, GIT_COMMIT_HASH, NUM_JOBS, PKG_AUTHORS, PKG_DESCRIPTION, PKG_LICENSE,
     PKG_NAME, PKG_REPOSITORY, PKG_VERSION, RUSTC_VERSION, TARGET,

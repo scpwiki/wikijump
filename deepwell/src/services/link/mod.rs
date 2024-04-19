@@ -35,6 +35,7 @@
 //! types, and tables make it hard to modularize. Instead, the logic is hopefully
 //! clear enough to be acceptable when repeated over a few slightly distinct cases.
 
+#[allow(unused_imports)]
 mod prelude {
     pub use super::super::prelude::*;
     pub use super::structs::*;

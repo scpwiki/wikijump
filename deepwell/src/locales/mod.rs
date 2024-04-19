@@ -18,6 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#![allow(unused_imports)]
+
 mod arguments;
 mod error;
 mod fallback;

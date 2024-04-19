@@ -23,6 +23,7 @@
 //! This encompasses per-site configurable templates such as `_404`,
 //! which display custom "this page does not exist" content.
 
+#[allow(unused_imports)]
 mod prelude {
     pub use super::super::prelude::*;
     pub use super::structs::*;
