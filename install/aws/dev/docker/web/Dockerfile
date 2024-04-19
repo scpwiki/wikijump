@@ -2,8 +2,6 @@
 # Framerail build
 #
 
-# TODO: Move to prod directory when relevant.
-
 # Install pnpm
 FROM node:19-alpine AS base
 
