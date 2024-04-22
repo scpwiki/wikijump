@@ -2,15 +2,22 @@
 # Framerail build
 #
 
-# Install pnpm
-FROM node:19-alpine AS base
+FROM node:19-alpine
 
+# Install pnpm
 RUN npm install -g pnpm
+
+# Copy source
 RUN mkdir /app
 WORKDIR /app
+COPY framerail/ ./
 
-# Run build
-FROM base AS build
+# Install app
+RUN \
+    pnpm install --prod && \
+    pnpm build && \
+    pnpm prune --prod && \
+    rm -rf src/ tests/
 
 COPY framerail/package.json framerail/pnpm-lock.yaml ./
 COPY assets ./src/assets
@@ -18,10 +25,9 @@ RUN pnpm install --prod
 RUN pnpm build
 RUN pnpm prune --prod
 
-# Deploy application
-FROM base AS deploy
+# Run command
+USER node:node
+ENV NODE_ENV=production
+EXPOSE 3000
 
-COPY --from=build /app/dist ./dist
-COPY --from=build /app/node_modules ./node_modules
-
-CMD ["/usr/bin/node", "dist/main.js"]
+CMD ["/usr/bin/node", "build"]
