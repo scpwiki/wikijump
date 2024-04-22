@@ -1,0 +1,21 @@
+name: '[backend] Docker build Framerail (local)'
+
+on:
+  pull_request:
+    paths:
+      - 'framerail/**'
+      - 'install/local/dev/web/Dockerfile'
+      - '.github/workflows/docker-build-web.local.yaml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build image
+        run: docker build -f install/local/dev/web/Dockerfile .
+        env:
+          DOCKER_BUILDKIT: 1
+
