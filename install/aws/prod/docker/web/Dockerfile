@@ -7,23 +7,18 @@ FROM node:19-alpine
 # Install pnpm
 RUN npm install -g pnpm
 
-# Copy source
+# Copy sources
 RUN mkdir /app
 WORKDIR /app
 COPY framerail/ ./
+COPY assets ./src/assets
 
 # Install app
 RUN \
-    pnpm install --prod && \
+    pnpm install && \
     pnpm build && \
     pnpm prune --prod && \
     rm -rf src/ tests/
-
-COPY framerail/package.json framerail/pnpm-lock.yaml ./
-COPY assets ./src/assets
-RUN pnpm install --prod
-RUN pnpm build
-RUN pnpm prune --prod
 
 # Run command
 USER node:node
