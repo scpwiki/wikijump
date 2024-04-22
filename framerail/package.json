@@ -1,6 +1,7 @@
 {
   "name": "framerail",
   "version": "2023.5.7",
+  "type": "module",
   "private": true,
   "scripts": {
     "dev": "vite dev",
@@ -15,11 +16,10 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.43.1",
-    "@types/accept-language-parser": "^1.5.6",
-    "@types/node": "^20.12.2",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
-    "accept-language-parser": "^1.5.0",
+    "@types/accept-language-parser": "^1.5.6",
+    "@types/node": "^20.12.2",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-svelte": "^2.35.1",
@@ -38,10 +38,10 @@
     "stylelint-scss": "^6.2.1",
     "typescript": "^5.4.5"
   },
-  "type": "module",
   "dependencies": {
     "@sveltejs/adapter-auto": "next",
     "@sveltejs/kit": "next",
+    "accept-language-parser": "^1.5.0",
     "json-rpc-2.0": "^1.7.0",
     "svelte": "^3.59.2",
     "svelte-check": "^3.6.8",
