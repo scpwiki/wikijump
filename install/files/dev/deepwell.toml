@@ -7,9 +7,9 @@ address = "[::]:2747"
 pid-file = ""
 
 [database]
-run-migrations = false
-run-seeder = false
-seeder-path = "seeder"
+run-migrations = true
+run-seeder = true
+seeder-path = "/opt/seeder"
 
 [security]
 authentication-fail-delay-ms = 100
