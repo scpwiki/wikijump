@@ -7,8 +7,8 @@ address = "[::]:2747"
 pid-file = ""
 
 [database]
-run-migrations = true
-run-seeder = true
+run-migrations = false
+run-seeder = false
 seeder-path = "seeder"
 
 [security]
