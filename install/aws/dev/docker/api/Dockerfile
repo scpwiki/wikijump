@@ -32,7 +32,8 @@ RUN apk update
 RUN apk add --no-cache curl
 COPY --from=rust /src/deepwell/target/release/deepwell /usr/local/bin/deepwell
 COPY ./install/files/api/health-check.sh /bin/wikijump-health-check
+COPY ./install/files/dev/deepwell.toml /etc/deepwell.toml
 COPY ./locales/fluent /opt/locales/fluent
 
 USER daemon
-CMD ["/usr/local/bin/deepwell"]
+CMD ["/usr/local/bin/deepwell", "/etc/deepwell.toml"]
