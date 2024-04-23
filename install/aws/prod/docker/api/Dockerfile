@@ -33,7 +33,6 @@ RUN apk add --no-cache curl
 COPY --from=rust /src/deepwell/target/release/deepwell /usr/local/bin/deepwell
 COPY ./install/files/api/health-check.sh /bin/wikijump-health-check
 COPY ./locales/fluent /opt/locales/fluent
-COPY ./install/files/prod/api_env /.env
 
 USER daemon
 CMD ["/usr/local/bin/deepwell"]
