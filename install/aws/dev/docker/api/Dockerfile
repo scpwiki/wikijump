@@ -2,11 +2,11 @@
 # DEEPWELL build
 #
 
-FROM rust:latest AS rust
+FROM rust:alpine AS rust
 
 # Install system dependencies
-RUN apt update
-RUN apt install libmagic-dev
+RUN apk update
+RUN apk add --no-cache libmagic
 
 # Copy source
 RUN mkdir /src
@@ -24,7 +24,7 @@ RUN cargo build --release
 #
 
 # We want alpine, but need glibc
-FROM frolvlad/alpine-glibc:glibc-2.35
+FROM alpine:latest
 
 ENV LOCALIZATION_PATH="/opt/locales"
 
