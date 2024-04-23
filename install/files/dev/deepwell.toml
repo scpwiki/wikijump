@@ -42,7 +42,7 @@ name-change-refill-secs = 86400  # 1 day
 lift-expired-punishments-secs = 86400  # 1 day
 
 [locale]
-path = "/opt/locales/fluent"
+path = "/opt/locales"
 
 [ftml]
 render-timeout-ms = 2000
