@@ -1,13 +1,13 @@
-name: '[backend] Docker push API'
+name: '[backend] Docker push Framerail'
 
 on:
   push:
     branches:
       - develop
     paths:
-      - 'deepwell/**'
-      - 'install/aws/dev/docker/api/**'
-      - '.github/workflows/docker-build-push-api.dev.yaml'
+      - 'framerail/**'
+      - 'install/aws/dev/docker/web/**'
+      - '.github/workflows/docker-build-push-web.dev.yaml'
 
 jobs:
   build:
@@ -24,7 +24,7 @@ jobs:
           echo '    User linuxuser' >> ~/.ssh/config
           echo '    IdentityFile ~/.ssh/ssh-deploy' >> ~/.ssh/config
           echo '    IdentitiesOnly yes' >> ~/.ssh/config
-          git remote add dokku dokku@wikijump.dev:deepwell
+          git remote add dokku dokku@wikijump.dev:framerail
 
       - name: Deploy to Dokku
         run: git push dokku HEAD:master
