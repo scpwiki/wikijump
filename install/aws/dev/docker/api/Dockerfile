@@ -37,4 +37,5 @@ COPY ./locales/fluent /opt/locales/fluent
 COPY ./deepwell/seeder /opt/seeder
 
 USER daemon
+EXPOSE 2747
 CMD ["/usr/local/bin/deepwell", "/etc/deepwell.toml"]

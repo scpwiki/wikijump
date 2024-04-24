@@ -27,4 +27,5 @@ RUN mkdir /src
 COPY ./deepwell /src/deepwell
 WORKDIR /src/deepwell
 
+EXPOSE 2747
 CMD ["/usr/local/cargo/bin/cargo", "watch", "-w", "/src/deepwell", "-w", "/opt/locales", "-w", "/etc/deepwell.toml", "--why", "-x", "run -- /etc/deepwell.toml"]
