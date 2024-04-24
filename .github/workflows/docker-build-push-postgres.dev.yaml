@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - develop
-      - build-to-ecr # TEMP
     paths:
       - 'deepwell/migrations/*'
       - 'deepwell/seeder/*'
