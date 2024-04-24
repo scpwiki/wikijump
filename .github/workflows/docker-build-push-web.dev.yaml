@@ -19,6 +19,7 @@ jobs:
       - name: Set up deployment environment
         run: |
           echo "$DOKKU_DEPLOY_KEY" > ~/.ssh/ssh-deploy
+          chmod 400 ~/.ssh/ssh-deploy
           echo 'Host wikijump.dev' >> ~/.ssh/config
           echo '    HostName wikijump.dev' >> ~/.ssh/config
           echo '    User linuxuser' >> ~/.ssh/config
