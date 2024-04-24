@@ -4,7 +4,7 @@ level = "debug"
 
 [server]
 address = "[::]:2747"
-pid-file = "/run/deepwell.toml"
+pid-file = ""
 
 [database]
 run-migrations = false
