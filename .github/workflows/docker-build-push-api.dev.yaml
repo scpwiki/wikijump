@@ -1,4 +1,4 @@
-name: '[deploy] Docker push API'
+name: '[deploy] Docker push Deepwell'
 
 on:
   push:
