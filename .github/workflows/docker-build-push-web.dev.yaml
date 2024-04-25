@@ -24,7 +24,9 @@ jobs:
           echo "$DOKKU_DEPLOY_KEY" > ~/.ssh/ssh-deploy
           chmod 400 ~/.ssh/ssh-deploy
           echo 'Host wikijump.dev' >> ~/.ssh/config
-          echo '    HostName wikijump.dev' >> ~/.ssh/config
+          echo '    #HostName wikijump.dev' >> ~/.ssh/config
+          echo '    HostName 149.28.230.104' >> ~/.ssh/config
+          echo '    HostName 2001:19f0:0005:66d0:5400:04ff:fede:ab7c' >> ~/.ssh/config
           echo '    User linuxuser' >> ~/.ssh/config
           echo '    IdentityFile ~/.ssh/ssh-deploy' >> ~/.ssh/config
           echo '    IdentitiesOnly yes' >> ~/.ssh/config
