@@ -1,4 +1,4 @@
-name: '[backend] Docker push API'
+name: '[deploy] Docker push API'
 
 on:
   push:
@@ -18,6 +18,8 @@ jobs:
 
       - name: Set up deployment environment
         run: |
+          mkdir ~/.ssh
+          chmod 700 ~/.ssh
           echo "$DOKKU_DEPLOY_KEY" > ~/.ssh/ssh-deploy
           chmod 400 ~/.ssh/ssh-deploy
           echo 'Host wikijump.dev' >> ~/.ssh/config
