@@ -17,6 +17,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Update git data
+        run: git fetch origin
+
       - name: Deploy to Dokku
         uses: dokku/github-action@master
         with:
