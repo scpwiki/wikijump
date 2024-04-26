@@ -1,4 +1,4 @@
-name: '[backend] Docker push API'
+name: '[deploy] Docker push Deepwell'
 
 on:
   push:
@@ -14,18 +14,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Set up deployment environment
-        run: |
-          echo "$DOKKU_DEPLOY_KEY" > ~/.ssh/ssh-deploy
-          chmod 400 ~/.ssh/ssh-deploy
-          echo 'Host wikijump.dev' >> ~/.ssh/config
-          echo '    HostName wikijump.dev' >> ~/.ssh/config
-          echo '    User linuxuser' >> ~/.ssh/config
-          echo '    IdentityFile ~/.ssh/ssh-deploy' >> ~/.ssh/config
-          echo '    IdentitiesOnly yes' >> ~/.ssh/config
-          git remote add dokku dokku@wikijump.dev:deepwell
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Deploy to Dokku
-        run: git push dokku HEAD:master
+        uses: dokku/github-action@master
+        with:
+          ssh_private_key: ${{ secrets.DOKKU_DEPLOY_KEY }}
+          git_remote_url: 'ssh://dokku@wikijump.dev:22/deepwell'
+          git_push_flags: --force --verbose
