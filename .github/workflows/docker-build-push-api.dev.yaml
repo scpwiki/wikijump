@@ -15,10 +15,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Update git data
-        run: git fetch origin
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Deploy to Dokku
         uses: dokku/github-action@master
