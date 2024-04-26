@@ -20,5 +20,6 @@ jobs:
       - name: Deploy to Dokku
         uses: dokku/github-action@master
         with:
-          git_remote_url: 'ssh://dokku@wikijump.dev:22/framerail'
           ssh_private_key: ${{ secrets.DOKKU_DEPLOY_KEY }}
+          git_remote_url: 'ssh://dokku@wikijump.dev:22/framerail'
+          git_push_flags: --force-with-lease --verbose
