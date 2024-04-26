@@ -17,18 +17,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Set up deployment environment
-        run: |
-          mkdir ~/.ssh
-          chmod 700 ~/.ssh
-          echo "$DOKKU_DEPLOY_KEY" > ~/.ssh/ssh-deploy
-          chmod 400 ~/.ssh/ssh-deploy
-          echo 'Host wikijump.dev' > ~/.ssh/config
-          echo '    #HostName wikijump.dev' >> ~/.ssh/config
-          echo '    HostName 149.28.230.104' >> ~/.ssh/config
-          echo '    HostName 2001:19f0:0005:66d0:5400:04ff:fede:ab7c' >> ~/.ssh/config
-          echo '    IdentityFile ~/.ssh/ssh-deploy' >> ~/.ssh/config
-          git remote add dokku dokku@wikijump.dev:deepwell
-
       - name: Deploy to Dokku
-        run: git push dokku HEAD:master
+        uses: dokku/github-action@master
+        with:
+          git_remote_url: 'ssh://linuxuser@wikijump.dev:22/deepwell'
+          ssh_private_key: ${{ secrets.DOKKU_DEPLOY_KEY }}
