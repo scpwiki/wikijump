@@ -24,4 +24,4 @@ jobs:
         with:
           ssh_private_key: ${{ secrets.DOKKU_DEPLOY_KEY }}
           git_remote_url: 'ssh://dokku@wikijump.dev:22/deepwell'
-          git_push_flags: --force-with-lease --verbose
+          git_push_flags: --force --verbose
