@@ -67,3 +67,4 @@ server {
   }
   include {{ $.DOKKU_ROOT }}/{{ $.APP }}/nginx.conf.d/*.conf;
 }
+{{ end }}
