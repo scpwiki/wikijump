@@ -1,7 +1,6 @@
 # Modification of https://github.com/dokku/dokku/blob/master/plugins/nginx-vhosts/templates/nginx.conf.sigil
 # Intended to proxy web requests to framerail (port 3000) directly without specific Dokku hosts.
 
-{{ range $port_map := .PROXY_PORT_MAP | split " " }}
 {{ $port_map_list := $port_map | split ":" }}
 {{ $scheme := index $port_map_list 0 }}
 {{ $listen_port := index $port_map_list 1 }}
@@ -15,8 +14,8 @@ server {
   access_log  {{ $.NGINX_ACCESS_LOG_PATH }}{{ if and ($.NGINX_ACCESS_LOG_FORMAT) (ne $.NGINX_ACCESS_LOG_PATH "off") }} {{ $.NGINX_ACCESS_LOG_FORMAT }}{{ end }};
   error_log   {{ $.NGINX_ERROR_LOG_PATH }};
   underscores_in_headers {{ $.NGINX_UNDERSCORE_IN_HEADERS }};
+
 {{ if (and (eq $listen_port "80") ($.SSL_INUSE)) }}
-  include {{ $.DOKKU_ROOT }}/{{ $.APP }}/nginx.conf.d/*.conf;
   location / {
     rewrite ^ https://$host:{{ $.PROXY_SSL_PORT }}$request_uri permanent;
   }
