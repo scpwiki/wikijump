@@ -23,7 +23,6 @@ RUN cargo build --release
 # Final image
 #
 
-# We want alpine, but need glibc
 FROM alpine:latest
 
 ENV LOCALIZATION_PATH="/opt/locales"
