@@ -1,0 +1,36 @@
+{
+  "healthchecks": {
+    "web": [
+        {
+            "type":        "startup",
+            "name":        "framerail-init",
+            "description": "Checks if the web server has started",
+            "port":        3000,
+            "attempts":    3
+        },
+        {
+            "type":        "liveness",
+            "name":        "framerail-healthy",
+            "description": "Checks if the web server can start serving requests",
+            "command":     "curl -If http://localhost:3000/",
+            "attempts":    3
+        }
+    ],
+    "api": [
+        {
+            "type":        "startup",
+            "name":        "deepwell-init",
+            "description": "Checks if API server has started",
+            "port":        2747,
+            "attempts":    3
+        },
+        {
+            "type":        "liveness",
+            "name":        "deepwelly-healthy",
+            "description": "Checks if the API server can accept requests",
+            "command":     "/bin/deepwell-health-check",
+            "attempts":    3
+        }
+    ]
+  }
+}

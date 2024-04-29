@@ -58,7 +58,7 @@ RUN apk add --no-cache curl nodejs
 COPY --from=rust /src/deepwell/target/release/deepwell /usr/local/bin/deepwell
 COPY --from=node /app /app/framerail
 
-COPY ./install/files/api/health-check.sh /bin/wikijump-health-check
+COPY ./install/files/api/health-check.sh /bin/deepwell-health-check
 COPY ./install/files/dev/deepwell.toml /etc/deepwell.toml
 COPY ./locales/fluent /opt/locales/fluent
 COPY ./deepwell/seeder /opt/seeder
