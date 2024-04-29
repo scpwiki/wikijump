@@ -20,10 +20,30 @@ RUN cargo vendor
 RUN cargo build --release
 
 #
-# Final image
+# Framerail build
 #
 
-FROM alpine:latest
+FROM node:19-alpine
+
+# Install pnpm
+RUN npm install -g pnpm
+
+# Copy sources
+RUN mkdir /app
+WORKDIR /app
+COPY framerail/ ./
+COPY assets ./src/assets
+
+# Install app
+RUN \
+    pnpm install && \
+    pnpm build && \
+    pnpm prune --prod && \
+    rm -rf src/ tests/
+
+#
+# Final image
+#
 
 ENV LOCALIZATION_PATH="/opt/locales"
 
@@ -34,7 +54,3 @@ COPY ./install/files/api/health-check.sh /bin/wikijump-health-check
 COPY ./install/files/dev/deepwell.toml /etc/deepwell.toml
 COPY ./locales/fluent /opt/locales/fluent
 COPY ./deepwell/seeder /opt/seeder
-
-USER daemon
-EXPOSE 2747
-CMD ["/usr/local/bin/deepwell", "/etc/deepwell.toml"]
