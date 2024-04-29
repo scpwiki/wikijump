@@ -53,7 +53,7 @@ RUN mkdir /app
 WORKDIR /app
 
 RUN apk update
-RUN apk add --no-cache curl nodejs
+RUN apk add --no-cache curl nodejs libmagic-static file
 
 COPY --from=rust /src/deepwell/target/release/deepwell /usr/local/bin/deepwell
 COPY --from=node /app /app/framerail
