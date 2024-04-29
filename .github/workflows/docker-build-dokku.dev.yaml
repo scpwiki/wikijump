@@ -1,11 +1,12 @@
-name: '[backend] Docker build API (dev)'
+name: '[backend] Docker build Dokku (dev)'
 
 on:
   pull_request:
     paths:
       - 'deepwell/**'
-      - 'install/aws/dev/docker/api/Dockerfile'
-      - '.github/workflows/docker-build-api.dev.yaml'
+      - 'framerail/**'
+      - 'install/dev/dokku/Dockerfile'
+      - '.github/workflows/docker-build-dokku.dev.yaml'
 
 jobs:
   build:
@@ -15,6 +16,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Build image
-        run: docker build -f install/aws/dev/docker/api/Dockerfile .
+        run: docker build -f install/dev/dokku/Dockerfile .
         env:
           DOCKER_BUILDKIT: 1
+
