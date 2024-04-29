@@ -23,7 +23,7 @@ RUN cargo build --release
 # Framerail build
 #
 
-FROM node:19-alpine
+FROM node:19-alpine AS node
 
 # Install pnpm
 RUN npm install -g pnpm
@@ -45,12 +45,22 @@ RUN \
 # Final image
 #
 
+FROM alpine:latest
+
 ENV LOCALIZATION_PATH="/opt/locales"
 
+RUN mkdir /app
+WORKDIR /app
+
 RUN apk update
-RUN apk add --no-cache curl
+RUN apk add --no-cache curl nodejs
+
 COPY --from=rust /src/deepwell/target/release/deepwell /usr/local/bin/deepwell
+COPY --from=node /app /app/framerail
+
 COPY ./install/files/api/health-check.sh /bin/wikijump-health-check
 COPY ./install/files/dev/deepwell.toml /etc/deepwell.toml
 COPY ./locales/fluent /opt/locales/fluent
 COPY ./deepwell/seeder /opt/seeder
+
+USER daemon

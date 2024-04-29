@@ -1,2 +1,2 @@
-web: sudo -u node /usr/local/bin/node build/
-api: sudo -u daemon /usr/local/bin/deepwell /etc/deepwell.toml
+web: /usr/local/bin/node /app/framerail/build
+api: /usr/local/bin/deepwell /etc/deepwell.toml
