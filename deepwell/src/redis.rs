@@ -25,8 +25,9 @@ use anyhow::Result;
 use redis::{ConnectionAddr, ConnectionInfo, IntoConnectionInfo, RedisConnectionInfo};
 use rsmq_async::{PoolOptions, PooledRsmq, RsmqConnection, RsmqOptions};
 
-pub async fn connect(redis_uri: &str) -> Result<PooledRsmq> {
+pub async fn connect(redis_uri: &str) -> Result<(redis::Client, PooledRsmq)> {
     // Parse redis connection URI
+    let redis = redis::Client::open(redis_uri)?;
     let mut rsmq = {
         let ConnectionInfo {
             addr,
@@ -82,7 +83,7 @@ pub async fn connect(redis_uri: &str) -> Result<PooledRsmq> {
         .await?;
     }
 
-    Ok(rsmq)
+    Ok((redis, rsmq))
 }
 
 async fn job_queue_exists(rsmq: &mut PooledRsmq) -> Result<bool> {

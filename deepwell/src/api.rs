@@ -52,6 +52,7 @@ pub type ServerState = Arc<ServerStateInner>;
 pub struct ServerStateInner {
     pub config: Config,
     pub database: DatabaseConnection,
+    pub redis: redis::Client,
     pub rsmq: PooledRsmq,
     pub localizations: Localizations,
     pub mime_analyzer: MimeAnalyzer,
@@ -63,6 +64,7 @@ impl Debug for ServerStateInner {
         f.debug_struct("ServerStateInner")
             .field("config", &self.config)
             .field("database", &self.database)
+            .field("redis", &self.redis)
             .field("rsmq", &debug_pointer(&self.rsmq))
             .field("localizations", &self.localizations)
             .field("mime_analyzer", &self.mime_analyzer)
@@ -80,7 +82,7 @@ pub async fn build_server_state(
     let database = database::connect(&secrets.database_url).await?;
 
     info!("Connecting to Redis");
-    let rsmq = redis_db::connect(&secrets.redis_url).await?;
+    let (redis, rsmq) = redis_db::connect(&secrets.redis_url).await?;
 
     // Load localization data
     info!("Loading localization data");
@@ -111,6 +113,7 @@ pub async fn build_server_state(
     let state = Arc::new(ServerStateInner {
         config,
         database,
+        redis,
         rsmq,
         localizations,
         mime_analyzer,
