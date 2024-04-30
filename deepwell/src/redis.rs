@@ -23,16 +23,16 @@ use crate::services::job::{
 };
 use anyhow::Result;
 use redis::aio::ConnectionManager;
-use rsmq_async::{MultiplexedRsmq, RsmqConnection};
+use rsmq_async::{PooledRsmq, RsmqConnection};
 
-pub async fn connect(redis_uri: &str) -> Result<(ConnectionManager, MultiplexedRsmq)> {
+pub async fn connect(redis_uri: &str) -> Result<(ConnectionManager, PooledRsmq)> {
     // Create regular redis client
     let client = redis::Client::open(redis_uri)?;
     let rsmq_connection = client.get_multiplexed_tokio_connection().await?;
     let redis = ConnectionManager::new(client).await?;
 
     // Create RSMQ client
-    let mut rsmq = MultiplexedRsmq::new_with_connection(rsmq_connection, true, None);
+    let mut rsmq = PooledRsmq::new_with_connection(rsmq_connection, true, None);
 
     // Set up queue if it doesn't already exist
     if !job_queue_exists(&mut rsmq).await? {
@@ -53,7 +53,7 @@ pub async fn connect(redis_uri: &str) -> Result<(ConnectionManager, MultiplexedR
     Ok((redis, rsmq))
 }
 
-async fn job_queue_exists(rsmq: &mut MultiplexedRsmq) -> Result<bool> {
+async fn job_queue_exists(rsmq: &mut PooledRsmq) -> Result<bool> {
     // NOTE: Effectively the same as rsmq.list_queues().await?.contains(JOB_QUEUE_NAME),
     //       except we don't have to deal with the "&String" type issue.
     let queues = rsmq.list_queues().await?;
