@@ -23,9 +23,11 @@
 use super::prelude::*;
 use crate::api::ServerState;
 use crate::services::{PageRevisionService, SessionService, TextService};
-use rsmq_async::{MultiplexedRsmq, RsmqConnection, RsmqMessage};
+use crate::utils::debug_pointer;
+use rsmq_async::{PooledRsmq, RsmqConnection, RsmqMessage};
 use sea_orm::TransactionTrait;
 use std::convert::Infallible;
+use std::fmt::{self, Debug};
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::time;
@@ -44,10 +46,10 @@ enum NextJob {
     Done,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct JobWorker {
     state: ServerState,
-    rsmq: MultiplexedRsmq,
+    rsmq: PooledRsmq,
     id: u16,
 }
 
@@ -70,7 +72,7 @@ impl JobWorker {
     fn spawn_one(state: &ServerState, id: u16) {
         info!("Spawning job worker ID {id}");
         let state = Arc::clone(state);
-        let rsmq = MultiplexedRsmq::clone(&state.rsmq);
+        let rsmq = PooledRsmq::clone(&state.rsmq);
         let worker = JobWorker { state, rsmq, id };
         tokio::spawn(worker.main_loop());
     }
@@ -251,5 +253,15 @@ impl JobWorker {
         trace!("Committing transaction, returning success");
         txn.commit().await?;
         Ok(JobProcessStatus::ReceivedJob)
+    }
+}
+
+impl Debug for JobWorker {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("JobWorker")
+            .field("state", &self.state)
+            .field("rsmq", &debug_pointer(&self.rsmq))
+            .field("id", &self.id)
+            .finish()
     }
 }

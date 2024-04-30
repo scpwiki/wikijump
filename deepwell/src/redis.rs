@@ -22,17 +22,50 @@ use crate::services::job::{
     JOB_QUEUE_DELAY, JOB_QUEUE_MAXIMUM_SIZE, JOB_QUEUE_NAME, JOB_QUEUE_PROCESS_TIME,
 };
 use anyhow::Result;
-use redis::aio::ConnectionManager;
-use rsmq_async::{MultiplexedRsmq, RsmqConnection};
+use redis::{ConnectionAddr, ConnectionInfo, IntoConnectionInfo, RedisConnectionInfo};
+use rsmq_async::{PoolOptions, PooledRsmq, RsmqConnection, RsmqOptions};
 
-pub async fn connect(redis_uri: &str) -> Result<(ConnectionManager, MultiplexedRsmq)> {
-    // Create regular redis client
-    let client = redis::Client::open(redis_uri)?;
-    let rsmq_connection = client.get_multiplexed_tokio_connection().await?;
-    let redis = ConnectionManager::new(client).await?;
+pub async fn connect(redis_uri: &str) -> Result<(redis::Client, PooledRsmq)> {
+    // Parse redis connection URI
+    let redis = redis::Client::open(redis_uri)?;
+    let mut rsmq = {
+        let ConnectionInfo {
+            addr,
+            redis:
+                RedisConnectionInfo {
+                    db,
+                    username,
+                    password,
+                },
+        } = redis_uri.into_connection_info()?;
 
-    // Create RSMQ client
-    let mut rsmq = MultiplexedRsmq::new_with_connection(rsmq_connection, true, None);
+        let db = db
+            .try_into()
+            .expect("Database value too large for rsmq-async");
+
+        let (host, port) = match addr {
+            ConnectionAddr::Tcp(host, port) => (host, port),
+            ConnectionAddr::TcpTls { .. } => {
+                panic!("Redis over TLS not supported by rsmq-async")
+            }
+            ConnectionAddr::Unix(_) => {
+                panic!("Unix socket paths not supported by rsmq-async")
+            }
+        };
+
+        let options = RsmqOptions {
+            host,
+            port,
+            db,
+            username,
+            password,
+            realtime: false,  // not used, see crate docs
+            ns: str!("rsmq"), // namespace for RSMQ
+        };
+
+        // Create RSMQ client
+        PooledRsmq::new(options, PoolOptions::default()).await?
+    };
 
     // Set up queue if it doesn't already exist
     if !job_queue_exists(&mut rsmq).await? {
@@ -53,7 +86,7 @@ pub async fn connect(redis_uri: &str) -> Result<(ConnectionManager, MultiplexedR
     Ok((redis, rsmq))
 }
 
-async fn job_queue_exists(rsmq: &mut MultiplexedRsmq) -> Result<bool> {
+async fn job_queue_exists(rsmq: &mut PooledRsmq) -> Result<bool> {
     // NOTE: Effectively the same as rsmq.list_queues().await?.contains(JOB_QUEUE_NAME),
     //       except we don't have to deal with the "&String" type issue.
     let queues = rsmq.list_queues().await?;
