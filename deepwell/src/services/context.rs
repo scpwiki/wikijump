@@ -22,7 +22,8 @@ use crate::api::ServerState;
 use crate::config::Config;
 use crate::locales::Localizations;
 use crate::services::blob::MimeAnalyzer;
-use redis::aio::ConnectionManager;
+use crate::services::error::Result;
+use redis::aio::MultiplexedConnection as RedisMultiplexedConnection;
 use rsmq_async::PooledRsmq;
 use s3::bucket::Bucket;
 use sea_orm::DatabaseTransaction;
@@ -53,8 +54,17 @@ impl<'txn> ServiceContext<'txn> {
     }
 
     #[inline]
-    pub fn redis(&self) -> &redis::Client {
+    pub fn redis_client(&self) -> &redis::Client {
         &self.state.redis
+    }
+
+    pub async fn redis_connect(&self) -> Result<RedisMultiplexedConnection> {
+        let conn = self
+            .redis_client()
+            .get_multiplexed_tokio_connection()
+            .await?;
+
+        Ok(conn)
     }
 
     #[inline]

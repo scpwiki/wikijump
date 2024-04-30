@@ -37,15 +37,14 @@ async fn postgres_check(ctx: &ServiceContext<'_>) -> Result<()> {
 }
 
 async fn redis_check(ctx: &ServiceContext<'_>) -> Result<()> {
-    /*
-    ctx.redis()
+    let mut redis = ctx.redis_connect().await?;
+
+    redis
         .send_packed_command(redis::Cmd::new().arg("PING"))
         .await?;
 
     debug!("Successfully pinged Redis");
     Ok(())
-    */
-    todo!()
 }
 
 pub async fn ping(
