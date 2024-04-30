@@ -22,11 +22,10 @@ use crate::services::job::{
     JOB_QUEUE_DELAY, JOB_QUEUE_MAXIMUM_SIZE, JOB_QUEUE_NAME, JOB_QUEUE_PROCESS_TIME,
 };
 use anyhow::Result;
-use redis::aio::ConnectionManager;
 use redis::{ConnectionAddr, ConnectionInfo, IntoConnectionInfo, RedisConnectionInfo};
 use rsmq_async::{PoolOptions, PooledRsmq, RsmqConnection, RsmqOptions};
 
-pub async fn connect(redis_uri: &str) -> Result<(ConnectionManager, PooledRsmq)> {
+pub async fn connect(redis_uri: &str) -> Result<PooledRsmq> {
     // Parse redis connection URI
     let mut rsmq = {
         let ConnectionInfo {
@@ -83,7 +82,7 @@ pub async fn connect(redis_uri: &str) -> Result<(ConnectionManager, PooledRsmq)>
         .await?;
     }
 
-    Ok((todo!(), rsmq))
+    Ok(rsmq)
 }
 
 async fn job_queue_exists(rsmq: &mut PooledRsmq) -> Result<bool> {

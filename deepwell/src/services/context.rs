@@ -53,11 +53,6 @@ impl<'txn> ServiceContext<'txn> {
     }
 
     #[inline]
-    pub fn redis(&self) -> ConnectionManager {
-        ConnectionManager::clone(&self.state.redis)
-    }
-
-    #[inline]
     pub fn rsmq(&self) -> PooledRsmq {
         PooledRsmq::clone(&self.state.rsmq)
     }

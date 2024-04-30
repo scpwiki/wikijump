@@ -40,7 +40,6 @@ use crate::utils::debug_pointer;
 use crate::{database, redis as redis_db};
 use jsonrpsee::server::{RpcModule, Server, ServerHandle};
 use jsonrpsee::types::error::ErrorObjectOwned;
-use redis::aio::ConnectionManager;
 use rsmq_async::PooledRsmq;
 use s3::bucket::Bucket;
 use sea_orm::{DatabaseConnection, TransactionTrait};
@@ -53,7 +52,6 @@ pub type ServerState = Arc<ServerStateInner>;
 pub struct ServerStateInner {
     pub config: Config,
     pub database: DatabaseConnection,
-    pub redis: ConnectionManager,
     pub rsmq: PooledRsmq,
     pub localizations: Localizations,
     pub mime_analyzer: MimeAnalyzer,
@@ -65,8 +63,7 @@ impl Debug for ServerStateInner {
         f.debug_struct("ServerStateInner")
             .field("config", &self.config)
             .field("database", &self.database)
-            .field("redis", &debug_pointer(&self.redis))
-            .field("rsmq", &self.rsmq)
+            .field("rsmq", &debug_pointer(&self.rsmq))
             .field("localizations", &self.localizations)
             .field("mime_analyzer", &self.mime_analyzer)
             .field("s3_bucket", &self.s3_bucket)
@@ -83,7 +80,7 @@ pub async fn build_server_state(
     let database = database::connect(&secrets.database_url).await?;
 
     info!("Connecting to Redis");
-    let (redis, rsmq) = redis_db::connect(&secrets.redis_url).await?;
+    let rsmq = redis_db::connect(&secrets.redis_url).await?;
 
     // Load localization data
     info!("Loading localization data");
@@ -114,7 +111,6 @@ pub async fn build_server_state(
     let state = Arc::new(ServerStateInner {
         config,
         database,
-        redis,
         rsmq,
         localizations,
         mime_analyzer,
