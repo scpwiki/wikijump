@@ -20,22 +20,47 @@ RUN cargo vendor
 RUN cargo build --release
 
 #
+# Framerail build
+#
+
+FROM node:19-alpine AS node
+
+# Install pnpm
+RUN npm install -g pnpm
+
+# Copy sources
+RUN mkdir /app
+WORKDIR /app
+COPY framerail/ ./
+COPY assets ./src/assets
+
+# Install app
+RUN \
+    pnpm install && \
+    pnpm build && \
+    pnpm prune --prod && \
+    rm -rf src/ tests/
+
+#
 # Final image
 #
 
-# We want alpine, but need glibc
 FROM alpine:latest
 
 ENV LOCALIZATION_PATH="/opt/locales"
 
+RUN mkdir /app
+WORKDIR /app
+
 RUN apk update
-RUN apk add --no-cache curl
+RUN apk add --no-cache curl nodejs libmagic-static file
+
 COPY --from=rust /src/deepwell/target/release/deepwell /usr/local/bin/deepwell
-COPY ./install/files/api/health-check.sh /bin/wikijump-health-check
+COPY --from=node /app /app/framerail
+
+COPY ./install/files/api/health-check.sh /bin/deepwell-health-check
 COPY ./install/files/dev/deepwell.toml /etc/deepwell.toml
 COPY ./locales/fluent /opt/locales/fluent
 COPY ./deepwell/seeder /opt/seeder
 
 USER daemon
-EXPOSE 2747
-CMD ["/usr/local/bin/deepwell", "/etc/deepwell.toml"]

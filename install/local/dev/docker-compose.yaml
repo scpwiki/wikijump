@@ -69,7 +69,7 @@ services:
       - "S3_SECRET_ACCESS_KEY=defaultpassword"
     restart: always
     healthcheck:
-      test: ["CMD", "curl", "-f", "-X", "POST", "--json", '{"jsonrpc":"2.0","method":"ping","id":9000}', "http://localhost:2747/jsonrpc"]
+      test: ["CMD", "/bin/wikijump-health-check"]
       interval: 120s
       timeout: 2s
       retries: 3

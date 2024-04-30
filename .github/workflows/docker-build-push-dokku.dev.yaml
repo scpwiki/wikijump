@@ -1,4 +1,4 @@
-name: '[deploy] Docker push Deepwell'
+name: '[deploy] Docker push Dokku'
 
 on:
   push:
@@ -6,8 +6,9 @@ on:
       - develop
     paths:
       - 'deepwell/**'
-      - 'install/aws/dev/docker/api/**'
-      - '.github/workflows/docker-build-push-api.dev.yaml'
+      - 'framerail/**'
+      - 'install/dev/dokku/Dockerfile'
+      - '.github/workflows/docker-build-push-dokku.dev.yaml'
 
 jobs:
   build:
@@ -22,5 +23,5 @@ jobs:
         uses: dokku/github-action@master
         with:
           ssh_private_key: ${{ secrets.DOKKU_DEPLOY_KEY }}
-          git_remote_url: 'ssh://dokku@wikijump.dev:22/deepwell'
+          git_remote_url: 'ssh://dokku@wikijump.dev:22/wikijump'
           git_push_flags: --force --verbose
