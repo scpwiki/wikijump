@@ -25,6 +25,7 @@ CREATE TABLE "user" (
     name TEXT NOT NULL,
     slug TEXT NOT NULL,
     name_changes_left SMALLINT NOT NULL,  -- Default set in runtime configuration.
+    last_name_change_added_at TIMESTAMP WITH TIME ZONE,
     last_renamed_at TIMESTAMP WITH TIME ZONE,
     email TEXT NOT NULL,  -- Can be empty, for instance with system accounts.
     email_is_alias BOOLEAN,
