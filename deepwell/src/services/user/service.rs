@@ -563,17 +563,41 @@ impl UserService {
         Ok(())
     }
 
+    pub async fn refresh_name_change_tokens(ctx: &ServiceContext<'_>) -> Result<()> {
+        info!("Refreshing name change tokens for all users who need one");
+
+        let needs_token_time = match ctx.config().refill_name_change {
+            Some(refill_name_change) => now() - refill_name_change,
+            None => return Ok(()),
+        };
+
+        let txn = ctx.transaction();
+        let users = User::find()
+            .filter(user::Column::LastNameChangeAddedAt.gte(needs_token_time))
+            .all(txn)
+            .await?;
+
+        debug!(
+            "Found {} users in need of a name refresh token",
+            users.len(),
+        );
+
+        for user in users {
+            Self::add_name_change_token(ctx, &user).await?;
+        }
+
+        Ok(())
+    }
+
     /// Adds an additional rename token, up to the cap.
     ///
     /// # Returns
     /// The current number of rename tokens the user has.
     pub async fn add_name_change_token(
         ctx: &ServiceContext<'_>,
-        reference: Reference<'_>,
+        user: &UserModel,
     ) -> Result<i16> {
         let txn = ctx.transaction();
-        let user = Self::get(ctx, reference).await?;
-
         let max_name_changes = ctx.config().maximum_name_changes;
         let name_changes = cmp::min(user.name_changes_left + 1, max_name_changes);
         let model = user::ActiveModel {

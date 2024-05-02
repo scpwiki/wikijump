@@ -19,6 +19,7 @@ pub struct Model {
     #[sea_orm(column_type = "Text")]
     pub slug: String,
     pub name_changes_left: i16,
+    pub last_name_change_added_at: TimeDateTimeWithTimeZone,
     pub last_renamed_at: Option<TimeDateTimeWithTimeZone>,
     #[sea_orm(column_type = "Text")]
     pub email: String,

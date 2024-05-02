@@ -22,7 +22,7 @@
 
 use super::prelude::*;
 use crate::api::ServerState;
-use crate::services::{PageRevisionService, SessionService, TextService};
+use crate::services::{PageRevisionService, SessionService, TextService, UserService};
 use crate::utils::debug_pointer;
 use rsmq_async::{PooledRsmq, RsmqConnection, RsmqMessage};
 use sea_orm::TransactionTrait;
@@ -204,11 +204,7 @@ impl JobWorker {
             }
             Job::NameChangeRefill => {
                 debug!("Checking users for those who can get a name change token refill");
-                // TODO implement name change refill
-                //
-                //      check users whose time since refill_name_change_days
-                //      refill_name_change_days being zero means disable
-                //      add user credits to each where they are above that time
+                UserService::refresh_name_change_tokens(ctx).await?;
                 NextJob::Next {
                     job: Job::NameChangeRefill,
                     delay: Some(self.state.config.job_name_change_refill),
