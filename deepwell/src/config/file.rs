@@ -406,7 +406,9 @@ impl ConfigFile {
             refill_name_change: if refill_name_change_days == 0 {
                 None
             } else {
-                Some(StdDuration::from_secs(refill_name_change_days * 24 * 60 * 60))
+                Some(StdDuration::from_secs(
+                    refill_name_change_days * 24 * 60 * 60,
+                ))
             },
             minimum_name_bytes,
             maximum_message_subject_bytes,

@@ -563,9 +563,7 @@ impl UserService {
         Ok(())
     }
 
-    pub async fn refresh_name_change_tokens(
-        ctx: &ServiceContext<'_>,
-    ) -> Result<()> {
+    pub async fn refresh_name_change_tokens(ctx: &ServiceContext<'_>) -> Result<()> {
         info!("Refreshing name change tokens for all users who need one");
 
         let needs_token_time = match ctx.config().refill_name_change {
@@ -581,7 +579,11 @@ impl UserService {
             .all(txn)
             .await?;
 
-        debug!("Found {} users in need of a name refresh token", users.len());
+        debug!(
+            "Found {} users in need of a name refresh token",
+            users.len(),
+        );
+
         for user in users {
             Self::add_name_change_token(ctx, &user).await?;
         }
