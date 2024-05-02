@@ -88,5 +88,6 @@ pub async fn user_add_name_change(
 ) -> Result<i16> {
     let GetUser { user: reference } = params.parse()?;
     info!("Adding user name change token to {:?}", reference);
-    UserService::add_name_change_token(ctx, reference).await
+    let user = UserService::get(ctx, reference).await?;
+    UserService::add_name_change_token(ctx, &user).await
 }
