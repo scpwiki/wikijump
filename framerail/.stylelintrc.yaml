@@ -19,7 +19,6 @@ rules:
   function-linear-gradient-no-nonstandard-direction: true
   length-zero-no-unit: true
   shorthand-property-no-redundant-values: true
-  property-case: lower
   comment-no-empty: true
   scss/selector-no-redundant-nesting-selector: true
 
