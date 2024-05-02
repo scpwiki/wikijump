@@ -573,9 +573,7 @@ impl UserService {
 
         let txn = ctx.transaction();
         let users = User::find()
-            .filter(
-                user::Column::LastNameChangeAddedAt.gte(needs_token_time)
-            )
+            .filter(user::Column::LastNameChangeAddedAt.gte(needs_token_time))
             .all(txn)
             .await?;
 
