@@ -567,17 +567,16 @@ impl UserService {
         ctx: &ServiceContext<'_>,
     ) -> Result<()> {
         info!("Refreshing name change tokens for all users who need one");
-        let condition = ctx.config().refill_name_change.map(|refill_name_change| {
-            let needs_token_time = now() - refill_name_change;
-            user::Column::LastNameChangeAddedAt.gte(needs_token_time)
-        });
+
+        let needs_token_time = match ctx.config().refill_name_change {
+            Some(refill_name_change) => now() - refill_name_change,
+            None => return Ok(()),
+        };
 
         let txn = ctx.transaction();
         let users = User::find()
             .filter(
-                Condition::any()
-                    .add(user::Column::LastNameChangeAddedAt.is_null())
-                    .add_option(condition),
+                user::Column::LastNameChangeAddedAt.gte(needs_token_time)
             )
             .all(txn)
             .await?;
