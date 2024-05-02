@@ -569,15 +569,13 @@ impl UserService {
     /// The current number of rename tokens the user has.
     pub async fn add_name_change_token(
         ctx: &ServiceContext<'_>,
-        reference: Reference<'_>,
+        user_id: i64,
     ) -> Result<i16> {
         let txn = ctx.transaction();
-        let user = Self::get(ctx, reference).await?;
-
         let max_name_changes = ctx.config().maximum_name_changes;
         let name_changes = cmp::min(user.name_changes_left + 1, max_name_changes);
         let model = user::ActiveModel {
-            user_id: Set(user.user_id),
+            user_id: Set(user_id),
             name_changes_left: Set(name_changes),
             updated_at: Set(Some(now())),
             ..Default::default()
