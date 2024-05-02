@@ -184,7 +184,8 @@ pub struct Config {
     pub maximum_name_changes: i16,
 
     /// How long until a user gets another name change token.
-    pub refill_name_change: StdDuration,
+    /// `None` means that no name change tokens are refilled.
+    pub refill_name_change: Option<StdDuration>,
 
     /// Minimum length of bytes in a username.
     pub minimum_name_bytes: usize,

@@ -403,9 +403,11 @@ impl ConfigFile {
             special_page_banned,
             default_name_changes: i16::from(default_name_changes),
             maximum_name_changes: i16::from(maximum_name_changes),
-            refill_name_change: StdDuration::from_secs(
-                refill_name_change_days * 24 * 60 * 60,
-            ),
+            refill_name_change: if refill_name_change_days == 0 {
+                None
+            } else {
+                Some(StdDuration::from_secs(refill_name_change_days * 24 * 60 * 60))
+            },
             minimum_name_bytes,
             maximum_message_subject_bytes,
             maximum_message_body_bytes,
