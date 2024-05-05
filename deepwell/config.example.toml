@@ -355,6 +355,22 @@ minimum-name-bytes = 3
 # Set to 0 to disable.
 refill-name-change-days = 90
 
+
+[file]
+
+# The length of paths used for S3 presigned URLs.
+#
+# The value doesn't particularly matter so long as it is sufficiently long
+# to avoid collisions.
+#
+# Just to be safe, the generation mechanism is the same as for session tokens.
+presigned-path-length = 32
+
+# How long a presigned URL lasts before expiry.
+#
+# The value should only be a few minutes, and no longer than 12 hours.
+presigned-expiration-minutes = 5
+
 [message]
 
 # The maximum size of a message's subject line, in bytes.

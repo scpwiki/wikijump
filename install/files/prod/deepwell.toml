@@ -67,6 +67,10 @@ maximum-name-changes = 3
 minimum-name-bytes = 3
 refill-name-change-days = 90
 
+[file]
+presigned-path-length = 32
+presigned-expiration-minutes = 5
+
 [message]
 maximum-subject-bytes = 128
 maximum-body-bytes = 200000
