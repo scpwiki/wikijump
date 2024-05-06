@@ -200,6 +200,12 @@ pub struct Config {
     /// Minimum length of bytes in a username.
     pub minimum_name_bytes: usize,
 
+    /// Length of randomly-generated portion of S3 presigned URLs.
+    pub presigned_path_length: usize,
+
+    /// How long S3 presigned URLs will last before expiry.
+    pub presigned_duration: StdDuration,
+
     /// Maximum size of the subject line allowed in a direct message.
     pub maximum_message_subject_bytes: usize,
 
