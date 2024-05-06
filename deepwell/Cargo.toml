@@ -8,9 +8,9 @@ keywords = ["wikijump", "api", "backend", "wiki"]
 categories = ["asynchronous", "database", "web-programming::http-server"]
 exclude = [".gitignore", ".editorconfig"]
 
-version = "2023.11.13"
-authors = ["Emmie Maeda <emmie.maeda@gmail.com>"]
-edition = "2021" # this is *not* the same as the current year
+version = "2024.5.5"
+authors = ["Emmie Smith <emmie.maeda@gmail.com>"]
+edition = "2021"
 
 [features]
 watch = ["notify"]
