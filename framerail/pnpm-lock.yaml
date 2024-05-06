@@ -86,17 +86,17 @@ devDependencies:
     specifier: ^1.76.0
     version: 1.76.0
   stylelint:
-    specifier: ^16.4.0
-    version: 16.4.0(typescript@5.4.5)
+    specifier: ^16.5.0
+    version: 16.5.0(typescript@5.4.5)
   stylelint-config-recess-order:
     specifier: ^5.0.1
-    version: 5.0.1(stylelint@16.4.0)
+    version: 5.0.1(stylelint@16.5.0)
   stylelint-order:
     specifier: ^6.0.4
-    version: 6.0.4(stylelint@16.4.0)
+    version: 6.0.4(stylelint@16.5.0)
   stylelint-scss:
     specifier: ^6.3.0
-    version: 6.3.0(stylelint@16.4.0)
+    version: 6.3.0(stylelint@16.5.0)
   typescript:
     specifier: ^5.4.5
     version: 5.4.5
@@ -2557,26 +2557,26 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /stylelint-config-recess-order@5.0.1(stylelint@16.4.0):
+  /stylelint-config-recess-order@5.0.1(stylelint@16.5.0):
     resolution: {integrity: sha512-rKbGkoa3h0rINrGln9TFVowvSCLgPJC5O0EuPiqlqWcJMb1lImEtXktcjFCVz+hwtSUiHD3ijJc3vP9muFOgJg==}
     peerDependencies:
       stylelint: '>=16'
     dependencies:
-      stylelint: 16.4.0(typescript@5.4.5)
-      stylelint-order: 6.0.4(stylelint@16.4.0)
+      stylelint: 16.5.0(typescript@5.4.5)
+      stylelint-order: 6.0.4(stylelint@16.5.0)
     dev: true
 
-  /stylelint-order@6.0.4(stylelint@16.4.0):
+  /stylelint-order@6.0.4(stylelint@16.5.0):
     resolution: {integrity: sha512-0UuKo4+s1hgQ/uAxlYU4h0o0HS4NiQDud0NAUNI0aa8FJdmYHA5ZZTFHiV5FpmE3071e9pZx5j0QpVJW5zOCUA==}
     peerDependencies:
       stylelint: ^14.0.0 || ^15.0.0 || ^16.0.1
     dependencies:
       postcss: 8.4.38
       postcss-sorting: 8.0.2(postcss@8.4.38)
-      stylelint: 16.4.0(typescript@5.4.5)
+      stylelint: 16.5.0(typescript@5.4.5)
     dev: true
 
-  /stylelint-scss@6.3.0(stylelint@16.4.0):
+  /stylelint-scss@6.3.0(stylelint@16.5.0):
     resolution: {integrity: sha512-8OSpiuf1xC7f8kllJsBOFAOYp/mR/C1FXMVeOFjtJPw+AFvEmC93FaklHt7MlOqU4poxuQ1TkYMyfI0V+1SxjA==}
     engines: {node: '>=18.12.0'}
     peerDependencies:
@@ -2587,11 +2587,11 @@ packages:
       postcss-resolve-nested-selector: 0.1.1
       postcss-selector-parser: 6.0.16
       postcss-value-parser: 4.2.0
-      stylelint: 16.4.0(typescript@5.4.5)
+      stylelint: 16.5.0(typescript@5.4.5)
     dev: true
 
-  /stylelint@16.4.0(typescript@5.4.5):
-    resolution: {integrity: sha512-uSx7VMuXwLuYcNSIg+0/fFNv0WinsfLAqsVVy7h7p80clKOHiGE8pfY6UjqwylTHiJrRIahTl6a8FPxGezhWoA==}
+  /stylelint@16.5.0(typescript@5.4.5):
+    resolution: {integrity: sha512-IlCBtVrG+qTy3v+tZTk50W8BIomjY/RUuzdrDqdnlCYwVuzXtPbiGfxYqtyYAyOMcb+195zRsuHn6tgfPmFfbw==}
     engines: {node: '>=18.12.0'}
     hasBin: true
     dependencies:
