@@ -415,6 +415,15 @@ CREATE TABLE page_vote (
 -- Files
 --
 
+-- Pending uploads to S3
+--
+-- Stores the presign URL along with the path in the bucket it corresponds to.
+-- After processing, it is moved to be a real blob (if new) or deleted (if duplicate).
+CREATE TABLE blob_upload (
+    s3_path TEXT NOT NULL PRIMARY KEY,
+    presign_url TEXT NOT NULL UNIQUE,
+);
+
 -- Enum types for file_revision
 CREATE TYPE file_revision_type AS ENUM (
     'create',
