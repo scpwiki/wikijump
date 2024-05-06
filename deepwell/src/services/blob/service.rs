@@ -22,6 +22,9 @@
 #![allow(dead_code)]
 
 use super::prelude::*;
+use crate::utils::assert_is_csprng;
+use rand::distributions::{Alphanumeric, DistString};
+use rand::thread_rng;
 use s3::request_trait::ResponseData;
 use s3::serde_types::HeadObjectResult;
 use std::str;
@@ -48,10 +51,43 @@ pub const EMPTY_BLOB_MIME: &str = "inode/x-empty; charset=binary";
 /// Timestamp is 2019/01/18 at midnight, the date of the first Wikijump commit.
 pub const EMPTY_BLOB_TIMESTAMP: i64 = 1547769600;
 
+/// The subdirectory in the S3 bucket where all pending uploads are kept.
+pub const PRESIGN_DIRECTORY: &str = "uploads";
+
 #[derive(Debug)]
 pub struct BlobService;
 
 impl BlobService {
+    /// Creates an S3 presign URL to allow an end user to upload a blob.
+    ///
+    /// # Returns
+    /// The generated presign URL that can be uploaded to.
+    pub async fn upload_url(ctx: &ServiceContext<'_>) -> Result<String> {
+        info!("Creating presign upload URL for blob");
+
+        let config = ctx.config();
+        let path = {
+            let mut path = format!("{PRESIGN_DIRECTORY}/");
+
+            {
+                let mut rng = thread_rng();
+                assert_is_csprng(&rng);
+                Alphanumeric.append_string(
+                    &mut rng,
+                    &mut path,
+                    config.presigned_path_length,
+                );
+            }
+
+            path
+        };
+
+        let bucket = ctx.s3_bucket();
+        let url = bucket.presign_put(&path, config.presigned_expiry_secs, None)?;
+
+        todo!()
+    }
+
     /// Creates a blob with this data, if it does not already exist.
     pub async fn create<B: AsRef<[u8]>>(
         ctx: &ServiceContext<'_>,
