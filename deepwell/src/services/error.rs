@@ -218,6 +218,9 @@ pub enum Error {
     #[error("File revision does not exist")]
     FileRevisionNotFound,
 
+    #[error("File not uploaded")]
+    FileNotUploaded, // occurs when presign URL is not uploaded to
+
     #[error("Vote does not exist")]
     VoteNotFound,
 
@@ -315,6 +318,7 @@ impl Error {
             Error::MessageDraftNotFound => 2015,
             Error::BlobNotFound => 2016,
             Error::TextNotFound => 2017,
+            Error::FileNotUploaded => 2018,
 
             // 2100 -- Existing data
             Error::UserExists => 2100,

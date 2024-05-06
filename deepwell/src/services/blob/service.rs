@@ -62,11 +62,9 @@ impl BlobService {
     ///
     /// # Returns
     /// The generated presign URL that can be uploaded to.
-    pub async fn upload_url(ctx: &ServiceContext<'_>) -> Result<String> {
-        info!("Creating presign upload URL for blob");
-
+    pub async fn create_upload(ctx: &ServiceContext<'_>) -> Result<CreateUploadOutput> {
         let config = ctx.config();
-        let path = {
+        let s3_path = {
             let mut path = format!("{PRESIGN_DIRECTORY}/");
 
             {
@@ -81,69 +79,100 @@ impl BlobService {
 
             path
         };
+        info!("Creating presign upload URL for blob at path {s3_path}");
 
         let bucket = ctx.s3_bucket();
-        let url = bucket.presign_put(&path, config.presigned_expiry_secs, None)?;
+        let presign_url = bucket.presign_put(&s3_path, config.presigned_expiry_secs, None)?;
 
-        todo!()
+        Ok(CreateUploadOutput {
+            s3_path,
+            presign_url,
+        })
     }
 
-    /// Creates a blob with this data, if it does not already exist.
-    pub async fn create<B: AsRef<[u8]>>(
-        ctx: &ServiceContext<'_>,
-        data: B,
-    ) -> Result<CreateBlobOutput> {
-        let data = data.as_ref();
-        info!("Creating blob (length {})", data.len());
+    pub async fn finish_upload(ctx: &ServiceContext<'_>, upload_path: &str) -> Result<FinalizeUploadOutput> {
+        info!("Finishing upload for blob for path {upload_path}");
+        let bucket = ctx.s3_bucket();
+
+        debug!("Download uploaded blob from S3 uploads to get metadata");
+        let response = bucket.get_object(upload_path).await?;
+        let data: Vec<u8> = match response.status_code() {
+            200 => response.into(),
+            _ => {
+                error!("Cannot find blob at presign path {upload_path}");
+                return Err(Error::FileNotUploaded);
+            }
+        };
 
         // Special handling for empty blobs
         if data.is_empty() {
             debug!("File being created is empty, special case");
-            return Ok(CreateBlobOutput {
+            return Ok(FinalizeUploadOutput {
                 hash: EMPTY_BLOB_HASH,
                 mime: str!(EMPTY_BLOB_MIME),
                 size: 0,
             });
         }
 
-        // Upload blob
-        let bucket = ctx.s3_bucket();
-        let hash = sha512_hash(data);
-        let hex_hash = blob_hash_to_hex(&hash);
+        debug!("Updating blob metadata in database and S3");
 
         // Convert size to correct integer type
         let size: i64 = data.len().try_into().expect("Buffer size exceeds i64");
 
-        match Self::head(ctx, &hex_hash).await? {
+        let hash = sha512_hash(&data);
+        let hex_hash = blob_hash_to_hex(&hash);
+
+        // If the blob exists, then just delete the uploaded one.
+        //
+        // If it doesn't, then we need to move it. However, within
+        // S3 we cannot "move" objects, we have to upload and delete the original.
+
+        let result = match Self::head(ctx, &hex_hash).await? {
             // Blob exists, copy metadata and return that
             Some(result) => {
                 debug!("Blob with hash {hex_hash} already exists");
 
-                // Content-Type header should be passed in
+                // Content-Type header should be returned
                 let mime = result.content_type.ok_or(Error::S3Response)?;
 
-                Ok(CreateBlobOutput { hash, mime, size })
+                Ok(FinalizeUploadOutput {
+                    hash,
+                    mime,
+                    size,
+                    created: false,
+                })
             }
 
-            // Blob doesn't exist, insert it
+            // Blob doesn't exist, move the uploaded file
             None => {
                 debug!("Blob with hash {hex_hash} to be created");
 
                 // Determine MIME type for the new file
                 let mime = ctx.mime().get_mime_type(data.to_vec()).await?;
 
-                // Put into S3
+                // Upload S3 object to final destination
                 let response = bucket
-                    .put_object_with_content_type(&hex_hash, data, &mime)
+                    .put_object_with_content_type(&hex_hash, &data, &mime)
                     .await?;
 
                 // We assume all unexpected statuses are errors, even if 1XX or 2XX
                 match response.status_code() {
-                    200 => Ok(CreateBlobOutput { hash, mime, size }),
-                    _ => s3_error(&response, "creating S3 blob"),
+                    200 => Ok(FinalizeUploadOutput {
+                        hash,
+                        mime,
+                        size,
+                        created: true,
+                    }),
+                    _ => s3_error(&response, "creating final S3 blob"),
                 }
             }
-        }
+        };
+
+        // Delete uploaded version, in either case
+        bucket.delete_object(upload_path).await?;
+
+        // Return result based on blob status
+        result
     }
 
     pub async fn get_optional(
@@ -160,7 +189,6 @@ impl BlobService {
         let bucket = ctx.s3_bucket();
         let hex_hash = blob_hash_to_hex(hash);
         let response = bucket.get_object(&hex_hash).await?;
-
         match response.status_code() {
             200 => Ok(Some(response.into())),
             404 => Ok(None),
