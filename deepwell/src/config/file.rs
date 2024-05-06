@@ -187,7 +187,7 @@ struct User {
 #[serde(rename_all = "kebab-case")]
 struct FileSection {
     presigned_path_length: usize,
-    presigned_expiration_minutes: u64,
+    presigned_expiration_minutes: u32,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -439,7 +439,7 @@ impl ConfigFile {
             },
             minimum_name_bytes,
             presigned_path_length,
-            presigned_duration: StdDuration::from_secs(presigned_expiration_minutes * 60),
+            presigned_expiry_secs: presigned_expiration_minutes * 60,
             maximum_message_subject_bytes,
             maximum_message_body_bytes,
             maximum_message_recipients,
