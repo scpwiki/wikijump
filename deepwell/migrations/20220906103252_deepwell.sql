@@ -422,6 +422,7 @@ CREATE TABLE page_vote (
 CREATE TABLE blob_upload (
     s3_path TEXT NOT NULL PRIMARY KEY,
     presign_url TEXT NOT NULL UNIQUE,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()  -- TODO add job to prune dead upload jobs
 );
 
 -- Enum types for file_revision
