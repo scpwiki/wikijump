@@ -236,14 +236,3 @@ impl Config {
         );
     }
 }
-
-/// Structure containing extra fields not found in `ConfigFile`.
-///
-/// These are values which end up in `Config` but are not in the
-/// configuration file itself, for instance meta-information or
-/// command-line argument-only options.
-#[derive(Debug, Clone)]
-pub struct ExtraConfig {
-    pub raw_toml: String,
-    pub raw_toml_path: PathBuf,
-}
