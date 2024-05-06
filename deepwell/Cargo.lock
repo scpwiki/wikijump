@@ -1295,9 +1295,9 @@ dependencies = [
 
 [[package]]
 name = "fluent-syntax"
-version = "0.11.0"
+version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c0abed97648395c902868fee9026de96483933faa54ea3b40d652f7dfe61ca78"
+checksum = "2a530c4694a6a8d528794ee9bbd8ba0122e779629ac908d15ad5a7ae7763a33d"
 dependencies = [
  "thiserror",
 ]
