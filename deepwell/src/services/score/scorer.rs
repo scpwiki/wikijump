@@ -26,9 +26,11 @@ pub trait Scorer {
     ///
     /// There should be a 1-to-1 mapping between `Scorer`
     /// implementations and values for the `ScoreType` enum.
+    #[allow(dead_code)] // TEMP
     fn score_type(&self) -> ScoreType;
 
     /// Whether this scorer accepts vote maps of this type.
+    #[allow(dead_code)] // TEMP
     fn accepts_vote_type(&self, vtype: VoteType) -> bool;
 
     /// Calculates the score associated with the given page ID.

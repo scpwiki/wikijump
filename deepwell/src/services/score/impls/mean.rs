@@ -48,6 +48,7 @@ impl Scorer for MeanScorer {
         }
 
         // Query for sum of all votes.
+        // Same as in sum.rs
         //
         // As raw SQL:
         //
