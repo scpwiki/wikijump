@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::models::file::{self, Entity as File, Model as FileModel};
-use crate::services::blob::CreateBlobOutput;
+use crate::services::blob::{FinalizeBlobUploadOutput, EMPTY_BLOB_HASH, EMPTY_BLOB_MIME};
 use crate::services::file_revision::{
     CreateFileRevision, CreateFileRevisionBody, CreateFirstFileRevision,
     CreateResurrectionFileRevision, CreateTombstoneFileRevision, FileBlob,
@@ -32,11 +32,11 @@ use crate::services::{BlobService, FileRevisionService, FilterService};
 pub struct FileService;
 
 impl FileService {
-    /// Uploads a file and tracks it as a separate file entity.
+    /// Starts a file upload and tracks it as a distinct file entity.
     ///
     /// In the background, this stores the blob via content addressing,
     /// meaning that duplicates are not uploaded twice.
-    pub async fn upload(
+    pub async fn start_upload(
         ctx: &ServiceContext<'_>,
         UploadFile {
             site_id,
@@ -44,18 +44,11 @@ impl FileService {
             name,
             revision_comments,
             user_id,
-            data,
             licensing,
             bypass_filter,
         }: UploadFile,
     ) -> Result<UploadFileOutput> {
-        let txn = ctx.transaction();
-
-        info!(
-            "Creating file with name '{}', content length {}",
-            name,
-            data.len(),
-        );
+        info!("Creating file with name '{}'", name);
 
         // Ensure row consistency
         Self::check_conflicts(ctx, page_id, &name, "create").await?;
@@ -65,20 +58,20 @@ impl FileService {
             Self::run_filter(ctx, site_id, Some(&name)).await?;
         }
 
-        // Upload to S3, get derived metadata
-        let CreateBlobOutput { hash, mime, size } =
-            BlobService::create(ctx, &data).await?;
+        // Add pending file
+        let pending = BlobService::create_upload(ctx).await?;
 
         // Add new file
         let model = file::ActiveModel {
             name: Set(name.clone()),
             site_id: Set(site_id),
             page_id: Set(page_id),
+            pending_file_id: Set(Some(pending.pending_file_id)),
             ..Default::default()
         };
         let file = model.insert(txn).await?;
 
-        // Add new file revision
+        // Add new file revision (with dummy data)
         let revision_output = FileRevisionService::create_first(
             ctx,
             CreateFirstFileRevision {
@@ -87,9 +80,9 @@ impl FileService {
                 file_id: file.file_id,
                 user_id,
                 name,
-                s3_hash: hash,
-                size_hint: size,
-                mime_hint: mime,
+                s3_hash: EMPTY_BLOB_HASH,
+                mime_hint: EMPTY_BLOB_MIME,
+                size_hint: 0,
                 licensing,
                 comments: revision_comments,
             },
@@ -97,6 +90,69 @@ impl FileService {
         .await?;
 
         Ok(revision_output)
+    }
+
+    pub async fn finish_upload(
+        ctx: &ServiceContext<'_>,
+        FinishUploadFile {
+            site_id,
+            page_id,
+            file_id,
+            pending_file_id,
+        }: FinishUploadFile,
+    ) -> Result<FinishUploadFileOutput> {
+        info!(
+            "Finishing file upload with site ID {} page ID {} file ID {} pending ID {}",
+            site_id, page_id, file_id, pending_file_id,
+        );
+
+        // Ensure file exists
+        let txn = ctx.transaction();
+        let row = File::find()
+            .filter(
+                Condition::all()
+                    .add(file::Column::SiteId.eq(site_id))
+                    .add(file::Column::PageId.eq(page_id))
+                    .add(file::Column::FileId.eq(file_id))
+                    .add(file::Column::DeletedAt.is_null())
+                    .add(file::Column::PendingFileId.eq(Some(pending_file_id))),
+            )
+            .one(txn)
+            .await?;
+
+        if row.is_none() {
+            error!("No pending file found");
+            return Err(Error::FileNotFound);
+        }
+
+        // Get first file revision
+        let file_revision = FileRevision::find()
+            .filter(
+                Condition::all()
+                    .add(file_revision::Column::FileId.eq(file_id))
+                    .add(file_revision::Column::RevisionNumber.eq(0))
+                    .add(
+                        file_revision::Column::RevisionType.eq(FileRevisionType::Create),
+                    ),
+            )
+            .one(txn)
+            .await?;
+
+        // Update file revision to add the uploaded data
+        let FinalizeUploadOutput {
+            hash,
+            mime,
+            size,
+            created,
+        } = BlobService::finish_upload(ctx, pending_file_id).await?;
+
+        let mut model = file_revision.into_active_model();
+        model.s3_hash = Set(hash);
+        model.mime_hint = Set(mime);
+        model.size_hint = Set(size);
+        model.update(txn).await?;
+
+        Ok(FinishUploadFileOutput { created })
     }
 
     /// Edits a file, including the ability to upload a new version.
@@ -400,7 +456,8 @@ impl FileService {
                         .add(condition)
                         .add(file::Column::SiteId.eq(site_id))
                         .add(file::Column::PageId.eq(page_id))
-                        .add(file::Column::DeletedAt.is_null()),
+                        .add(file::Column::DeletedAt.is_null())
+                        .add(file::Column::PendingFileId.is_null()),
                 )
                 .one(txn)
                 .await?
@@ -435,7 +492,8 @@ impl FileService {
                         Condition::all()
                             .add(file::Column::PageId.eq(page_id))
                             .add(file::Column::Name.eq(name))
-                            .add(file::Column::DeletedAt.is_null()),
+                            .add(file::Column::DeletedAt.is_null())
+                            .add(file::Column::PendingFileId.is_null()),
                     )
                     .into_tuple()
                     .one(txn)

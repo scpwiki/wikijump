@@ -33,7 +33,6 @@ pub struct UploadFile {
     pub name: String,
     pub revision_comments: String,
     pub user_id: i64,
-    pub data: Bytes<'static>,
     pub licensing: JsonValue, // TODO
 
     #[serde(default)]
@@ -41,6 +40,19 @@ pub struct UploadFile {
 }
 
 pub type UploadFileOutput = CreateFirstFileRevisionOutput;
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct FinishUploadFile {
+    pub site_id: i64,
+    pub page_id: i64,
+    pub file_id: i64,
+    pub pending_file_id: i64,
+}
+
+#[derive(Serialize, Debug, Copy, Clone)]
+pub struct FinishUploadFileOutput {
+    pub created: bool,
+}
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct GetFile<'a> {
@@ -105,7 +117,6 @@ pub struct EditFile {
 #[serde(default)]
 pub struct EditFileBody {
     pub name: ProvidedValue<String>,
-    pub data: ProvidedValue<Bytes<'static>>,
     pub licensing: ProvidedValue<serde_json::Value>,
 }
 

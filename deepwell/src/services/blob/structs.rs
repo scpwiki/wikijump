@@ -22,13 +22,7 @@ use super::prelude::*;
 use time::OffsetDateTime;
 
 #[derive(Debug)]
-pub struct CreateUploadOutput {
-    pub s3_path: String,
-    pub presign_url: String,
-}
-
-#[derive(Debug)]
-pub struct FinalizeUploadOutput {
+pub struct FinalizeBlobUploadOutput {
     pub hash: BlobHash,
     pub mime: String,
     pub size: i64,

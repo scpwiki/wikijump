@@ -22,6 +22,9 @@
 #![allow(dead_code)]
 
 use super::prelude::*;
+use crate::models::file_pending::{
+    self, Entity as FilePending, Model as FilePendingModel,
+};
 use crate::utils::assert_is_csprng;
 use rand::distributions::{Alphanumeric, DistString};
 use rand::thread_rng;
@@ -60,10 +63,16 @@ pub struct BlobService;
 impl BlobService {
     /// Creates an S3 presign URL to allow an end user to upload a blob.
     ///
+    /// Also adds an entry for the pending file upload (`file_pending`),
+    /// so it can be used by the main `file` table.
+    ///
     /// # Returns
     /// The generated presign URL that can be uploaded to.
-    pub async fn create_upload(ctx: &ServiceContext<'_>) -> Result<CreateUploadOutput> {
+    pub async fn create_upload(ctx: &ServiceContext<'_>) -> Result<FilePendingModel> {
         let config = ctx.config();
+        let txn = ctx.transaction();
+
+        // Generate random S3 path
         let s3_path = {
             let mut path = format!("{PRESIGN_DIRECTORY}/");
 
@@ -81,21 +90,42 @@ impl BlobService {
         };
         info!("Creating presign upload URL for blob at path {s3_path}");
 
+        // Create presign URL
         let bucket = ctx.s3_bucket();
-        let presign_url = bucket.presign_put(&s3_path, config.presigned_expiry_secs, None)?;
+        let presign_url =
+            bucket.presign_put(&s3_path, config.presigned_expiry_secs, None)?;
 
-        Ok(CreateUploadOutput {
-            s3_path,
-            presign_url,
-        })
+        // Add pending file entry
+        let model = file_pending::ActiveModel {
+            s3_path: Set(s3_path),
+            presign_url: Set(presign_url),
+            ..Default::default()
+        };
+        let output = model.insert(txn)?;
+        Ok(output)
     }
 
-    pub async fn finish_upload(ctx: &ServiceContext<'_>, upload_path: &str) -> Result<FinalizeUploadOutput> {
-        info!("Finishing upload for blob for path {upload_path}");
+    pub async fn finish_upload(
+        ctx: &ServiceContext<'_>,
+        pending_file_id: i64,
+    ) -> Result<FinalizeBlobUploadOutput> {
+        info!("Finishing upload for blob for pending file ID {pending_file_id}");
         let bucket = ctx.s3_bucket();
+        let txn = ctx.transaction();
+
+        debug!("Getting pending file info");
+        let row = FilePending::find()
+            .filter(file_pending::Column::PendingFileId.eq(pending_file_id))
+            .one(txn)
+            .await?;
+
+        let pending = match row {
+            Some(pending) => pending,
+            None => return Err(Error::GeneralNotFound),
+        };
 
         debug!("Download uploaded blob from S3 uploads to get metadata");
-        let response = bucket.get_object(upload_path).await?;
+        let response = bucket.get_object(&pending.s3_path).await?;
         let data: Vec<u8> = match response.status_code() {
             200 => response.into(),
             _ => {

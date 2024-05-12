@@ -27,6 +27,9 @@
 #[allow(unused_imports)]
 mod prelude {
     pub use super::super::prelude::*;
+    pub use super::service::{
+        EMPTY_BLOB_HASH, EMPTY_BLOB_MIME, EMPTY_BLOB_TIMESTAMP, PRESIGN_DIRECTORY,
+    };
     pub use super::structs::*;
     pub use crate::hash::{blob_hash_to_hex, sha512_hash, BlobHash};
 }
@@ -36,5 +39,8 @@ mod service;
 mod structs;
 
 pub use self::mime::MimeAnalyzer;
-pub use self::service::BlobService;
+pub use self::service::{
+    BlobService, EMPTY_BLOB_HASH, EMPTY_BLOB_MIME, EMPTY_BLOB_TIMESTAMP,
+    PRESIGN_DIRECTORY,
+};
 pub use self::structs::*;
