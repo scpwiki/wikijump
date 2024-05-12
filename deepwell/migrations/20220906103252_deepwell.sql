@@ -440,6 +440,12 @@ CREATE TYPE file_revision_change AS ENUM (
     'licensing'
 );
 
+CREATE TABLE file_pending (
+    pending_file_id BIGSERIAL PRIMARY KEY,
+    s3_path TEXT NOT NULL CHECK length(s3_path) > 1,
+    presign_url TEXT NOT NULL CHECK length(presign_url) > 1
+);
+
 CREATE TABLE file (
     file_id BIGSERIAL PRIMARY KEY,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
@@ -449,6 +455,7 @@ CREATE TABLE file (
     name TEXT NOT NULL,
     page_id BIGINT NOT NULL REFERENCES page(page_id),
     site_id BIGINT NOT NULL REFERENCES site(site_id),
+    pending_file_id BIGINT REFERENCES file_pending(pending_file_id),
 
     UNIQUE (page_id, name, deleted_at)
 );
@@ -524,7 +531,7 @@ CREATE TYPE message_recipient_type AS ENUM (
 -- A "record" is the underlying message data, with its contents, attachments,
 -- and associated metadata such as sender and recipient(s).
 CREATE TABLE message_record (
-    external_id TEXT PRIMARY KEY,
+    external_id TEXT PRIMARY KEY, -- ID comes from message_draft
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     drafted_at TIMESTAMP WITH TIME ZONE NOT NULL,
     retracted_at TIMESTAMP WITH TIME ZONE,
