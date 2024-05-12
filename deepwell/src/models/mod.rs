@@ -3,8 +3,8 @@
 pub mod prelude;
 
 pub mod alias;
+pub mod blob_pending;
 pub mod file;
-pub mod file_pending;
 pub mod file_revision;
 pub mod filter;
 pub mod message;

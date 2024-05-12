@@ -412,18 +412,19 @@ CREATE TABLE page_vote (
 );
 
 --
--- Files
+-- Blobs
 --
 
--- Pending uploads to S3
---
--- Stores the presign URL along with the path in the bucket it corresponds to.
--- After processing, it is moved to be a real blob (if new) or deleted (if duplicate).
-CREATE TABLE blob_upload (
-    s3_path TEXT NOT NULL PRIMARY KEY,
-    presign_url TEXT NOT NULL UNIQUE,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()  -- TODO add job to prune dead upload jobs
+-- Manages blobs that are being uploaded by the user
+CREATE TABLE blob_pending (
+    pending_file_id BIGSERIAL PRIMARY KEY,
+    s3_path TEXT NOT NULL CHECK length(s3_path) > 1,
+    presign_url TEXT NOT NULL CHECK length(presign_url) > 1
 );
+
+--
+-- Files
+--
 
 -- Enum types for file_revision
 CREATE TYPE file_revision_type AS ENUM (
@@ -440,12 +441,6 @@ CREATE TYPE file_revision_change AS ENUM (
     'licensing'
 );
 
-CREATE TABLE file_pending (
-    pending_file_id BIGSERIAL PRIMARY KEY,
-    s3_path TEXT NOT NULL CHECK length(s3_path) > 1,
-    presign_url TEXT NOT NULL CHECK length(presign_url) > 1
-);
-
 CREATE TABLE file (
     file_id BIGSERIAL PRIMARY KEY,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
@@ -455,7 +450,7 @@ CREATE TABLE file (
     name TEXT NOT NULL,
     page_id BIGINT NOT NULL REFERENCES page(page_id),
     site_id BIGINT NOT NULL REFERENCES site(site_id),
-    pending_file_id BIGINT REFERENCES file_pending(pending_file_id),
+    pending_blob_id BIGINT REFERENCES file_pending(pending_file_id),
 
     UNIQUE (page_id, name, deleted_at)
 );

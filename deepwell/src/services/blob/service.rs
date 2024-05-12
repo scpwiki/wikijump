@@ -22,8 +22,8 @@
 #![allow(dead_code)]
 
 use super::prelude::*;
-use crate::models::file_pending::{
-    self, Entity as FilePending, Model as FilePendingModel,
+use crate::models::blob_pending::{
+    self, Entity as BlobPending, Model as BlobPendingModel,
 };
 use crate::utils::assert_is_csprng;
 use rand::distributions::{Alphanumeric, DistString};
@@ -68,7 +68,7 @@ impl BlobService {
     ///
     /// # Returns
     /// The generated presign URL that can be uploaded to.
-    pub async fn create_upload(ctx: &ServiceContext<'_>) -> Result<FilePendingModel> {
+    pub async fn create_upload(ctx: &ServiceContext<'_>) -> Result<BlobPendingModel> {
         let config = ctx.config();
         let txn = ctx.transaction();
 
@@ -109,13 +109,13 @@ impl BlobService {
         ctx: &ServiceContext<'_>,
         pending_file_id: i64,
     ) -> Result<FinalizeBlobUploadOutput> {
-        info!("Finishing upload for blob for pending file ID {pending_file_id}");
+        info!("Finishing upload for blob for pending blob ID {pending_blob_id}");
         let bucket = ctx.s3_bucket();
         let txn = ctx.transaction();
 
-        debug!("Getting pending file info");
-        let row = FilePending::find()
-            .filter(file_pending::Column::PendingFileId.eq(pending_file_id))
+        debug!("Getting pending blob info");
+        let row = BlobPending::find()
+            .filter(file_pending::Column::PendingBlobId.eq(pending_file_id))
             .one(txn)
             .await?;
 
