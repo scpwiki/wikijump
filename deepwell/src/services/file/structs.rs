@@ -46,7 +46,7 @@ pub struct FinishUploadFile {
     pub site_id: i64,
     pub page_id: i64,
     pub file_id: i64,
-    pub pending_file_id: i64,
+    pub pending_blob_id: i64,
 }
 
 #[derive(Serialize, Debug, Copy, Clone)]

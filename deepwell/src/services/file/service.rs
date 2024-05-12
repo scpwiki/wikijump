@@ -20,6 +20,10 @@
 
 use super::prelude::*;
 use crate::models::file::{self, Entity as File, Model as FileModel};
+use crate::models::file_revision::{
+    self, Entity as FileRevision, Model as FileRevisionModel,
+};
+use crate::models::sea_orm_active_enums::FileRevisionType;
 use crate::services::blob::{FinalizeBlobUploadOutput, EMPTY_BLOB_HASH, EMPTY_BLOB_MIME};
 use crate::services::file_revision::{
     CreateFileRevision, CreateFileRevisionBody, CreateFirstFileRevision,
@@ -66,9 +70,11 @@ impl FileService {
             name: Set(name.clone()),
             site_id: Set(site_id),
             page_id: Set(page_id),
-            pending_file_id: Set(Some(pending.pending_file_id)),
+            pending_blob_id: Set(Some(pending.pending_blob_id)),
             ..Default::default()
         };
+
+        let txn = ctx.transaction();
         let file = model.insert(txn).await?;
 
         // Add new file revision (with dummy data)
@@ -81,7 +87,7 @@ impl FileService {
                 user_id,
                 name,
                 s3_hash: EMPTY_BLOB_HASH,
-                mime_hint: EMPTY_BLOB_MIME,
+                mime_hint: str!(EMPTY_BLOB_MIME),
                 size_hint: 0,
                 licensing,
                 comments: revision_comments,
@@ -98,12 +104,12 @@ impl FileService {
             site_id,
             page_id,
             file_id,
-            pending_file_id,
+            pending_blob_id,
         }: FinishUploadFile,
     ) -> Result<FinishUploadFileOutput> {
         info!(
             "Finishing file upload with site ID {} page ID {} file ID {} pending ID {}",
-            site_id, page_id, file_id, pending_file_id,
+            site_id, page_id, file_id, pending_blob_id,
         );
 
         // Ensure file exists
@@ -115,7 +121,7 @@ impl FileService {
                     .add(file::Column::PageId.eq(page_id))
                     .add(file::Column::FileId.eq(file_id))
                     .add(file::Column::DeletedAt.is_null())
-                    .add(file::Column::PendingFileId.eq(Some(pending_file_id))),
+                    .add(file::Column::PendingBlobId.eq(Some(pending_blob_id))),
             )
             .one(txn)
             .await?;
@@ -138,16 +144,31 @@ impl FileService {
             .one(txn)
             .await?;
 
+        let file_revision = match file_revision {
+            Some(file_revision) => file_revision,
+            None => return Err(Error::FileNotFound),
+        };
+
+        // Delete the pending blob row
+        let mut model = file::ActiveModel {
+            file_id: Set(file_id),
+            pending_blob_id: Set(None),
+            ..Default::default()
+        };
+        model.update(txn).await?;
+
+        File::delete_by_id(pending_blob_id).exec(txn).await?;
+
         // Update file revision to add the uploaded data
-        let FinalizeUploadOutput {
+        let FinalizeBlobUploadOutput {
             hash,
             mime,
             size,
             created,
-        } = BlobService::finish_upload(ctx, pending_file_id).await?;
+        } = BlobService::finish_upload(ctx, pending_blob_id).await?;
 
         let mut model = file_revision.into_active_model();
-        model.s3_hash = Set(hash);
+        model.s3_hash = Set(hash.to_vec());
         model.mime_hint = Set(mime);
         model.size_hint = Set(size);
         model.update(txn).await?;
@@ -174,11 +195,7 @@ impl FileService {
         let last_revision =
             FileRevisionService::get_latest(ctx, site_id, page_id, file_id).await?;
 
-        let EditFileBody {
-            name,
-            data,
-            licensing,
-        } = body;
+        let EditFileBody { name, licensing } = body;
 
         // Verify name change
         //
@@ -193,11 +210,17 @@ impl FileService {
         }
 
         // Upload to S3, get derived metadata
+        // FIXME upload new file revision
+        /*
         let blob = match data {
             ProvidedValue::Unset => ProvidedValue::Unset,
             ProvidedValue::Set(bytes) => {
-                let CreateBlobOutput { hash, mime, size } =
-                    BlobService::create(ctx, &bytes).await?;
+                let FinalizeBlobUploadOutput {
+                    hash,
+                    mime,
+                    size,
+                    created: _,
+                } = BlobService::finalize_upload(ctx, &bytes).await?;
 
                 ProvidedValue::Set(FileBlob {
                     s3_hash: hash,
@@ -206,8 +229,8 @@ impl FileService {
                 })
             }
         };
-
-        // Make database changes
+        */
+        let blob = ProvidedValue::Unset;
 
         // Update file metadata
         let model = file::ActiveModel {
@@ -457,7 +480,7 @@ impl FileService {
                         .add(file::Column::SiteId.eq(site_id))
                         .add(file::Column::PageId.eq(page_id))
                         .add(file::Column::DeletedAt.is_null())
-                        .add(file::Column::PendingFileId.is_null()),
+                        .add(file::Column::PendingBlobId.is_null()),
                 )
                 .one(txn)
                 .await?
@@ -493,7 +516,7 @@ impl FileService {
                             .add(file::Column::PageId.eq(page_id))
                             .add(file::Column::Name.eq(name))
                             .add(file::Column::DeletedAt.is_null())
-                            .add(file::Column::PendingFileId.is_null()),
+                            .add(file::Column::PendingBlobId.is_null()),
                     )
                     .into_tuple()
                     .one(txn)

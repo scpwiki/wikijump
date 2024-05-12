@@ -38,7 +38,7 @@ use time::OffsetDateTime;
 ///
 /// Even though it is not the SHA-512 hash, for simplicity we treat the hash
 /// value with all zeroes to be the blob address for the empty blob.
-/// This empty file is not actually stored in S3 but instead is a "virtual file",
+/// This empty blob is not actually stored in S3 but instead is a "virtual blob",
 /// considered to have always been present in `BlobService`.
 pub const EMPTY_BLOB_HASH: BlobHash = [
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -63,8 +63,8 @@ pub struct BlobService;
 impl BlobService {
     /// Creates an S3 presign URL to allow an end user to upload a blob.
     ///
-    /// Also adds an entry for the pending file upload (`file_pending`),
-    /// so it can be used by the main `file` table.
+    /// Also adds an entry for the pending blob upload (`blob_pending`),
+    /// so it can be used by the main `blob` table.
     ///
     /// # Returns
     /// The generated presign URL that can be uploaded to.
@@ -95,19 +95,19 @@ impl BlobService {
         let presign_url =
             bucket.presign_put(&s3_path, config.presigned_expiry_secs, None)?;
 
-        // Add pending file entry
-        let model = file_pending::ActiveModel {
+        // Add pending blob entry
+        let model = blob_pending::ActiveModel {
             s3_path: Set(s3_path),
             presign_url: Set(presign_url),
             ..Default::default()
         };
-        let output = model.insert(txn)?;
+        let output = model.insert(txn).await?;
         Ok(output)
     }
 
     pub async fn finish_upload(
         ctx: &ServiceContext<'_>,
-        pending_file_id: i64,
+        pending_blob_id: i64,
     ) -> Result<FinalizeBlobUploadOutput> {
         info!("Finishing upload for blob for pending blob ID {pending_blob_id}");
         let bucket = ctx.s3_bucket();
@@ -115,21 +115,21 @@ impl BlobService {
 
         debug!("Getting pending blob info");
         let row = BlobPending::find()
-            .filter(file_pending::Column::PendingBlobId.eq(pending_file_id))
+            .filter(blob_pending::Column::PendingBlobId.eq(pending_blob_id))
             .one(txn)
             .await?;
 
-        let pending = match row {
+        let BlobPendingModel { s3_path, .. } = match row {
             Some(pending) => pending,
             None => return Err(Error::GeneralNotFound),
         };
 
         debug!("Download uploaded blob from S3 uploads to get metadata");
-        let response = bucket.get_object(&pending.s3_path).await?;
+        let response = bucket.get_object(&s3_path).await?;
         let data: Vec<u8> = match response.status_code() {
             200 => response.into(),
             _ => {
-                error!("Cannot find blob at presign path {upload_path}");
+                error!("Cannot find blob at presign path {s3_path}");
                 return Err(Error::FileNotUploaded);
             }
         };
@@ -137,7 +137,7 @@ impl BlobService {
         // Special handling for empty blobs
         if data.is_empty() {
             debug!("File being created is empty, special case");
-            return Ok(FinalizeUploadOutput {
+            return Ok(FinalizeBlobUploadOutput {
                 hash: EMPTY_BLOB_HASH,
                 mime: str!(EMPTY_BLOB_MIME),
                 size: 0,
@@ -165,7 +165,7 @@ impl BlobService {
                 // Content-Type header should be returned
                 let mime = result.content_type.ok_or(Error::S3Response)?;
 
-                Ok(FinalizeUploadOutput {
+                Ok(FinalizeBlobUploadOutput {
                     hash,
                     mime,
                     size,
@@ -173,11 +173,11 @@ impl BlobService {
                 })
             }
 
-            // Blob doesn't exist, move the uploaded file
+            // Blob doesn't exist, move it from uploaded
             None => {
                 debug!("Blob with hash {hex_hash} to be created");
 
-                // Determine MIME type for the new file
+                // Determine MIME type for the new blob
                 let mime = ctx.mime().get_mime_type(data.to_vec()).await?;
 
                 // Upload S3 object to final destination
@@ -187,7 +187,7 @@ impl BlobService {
 
                 // We assume all unexpected statuses are errors, even if 1XX or 2XX
                 match response.status_code() {
-                    200 => Ok(FinalizeUploadOutput {
+                    200 => Ok(FinalizeBlobUploadOutput {
                         hash,
                         mime,
                         size,
@@ -199,7 +199,7 @@ impl BlobService {
         };
 
         // Delete uploaded version, in either case
-        bucket.delete_object(upload_path).await?;
+        bucket.delete_object(&s3_path).await?;
 
         // Return result based on blob status
         result

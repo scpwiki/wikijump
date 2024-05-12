@@ -22,7 +22,7 @@ use super::prelude::*;
 use crate::models::sea_orm_active_enums::{AliasType, UserType};
 use crate::models::user::{self, Entity as User, Model as UserModel};
 use crate::services::alias::CreateAlias;
-use crate::services::blob::{BlobService, CreateBlobOutput};
+use crate::services::blob::{BlobService, FinalizeBlobUploadOutput};
 use crate::services::email::{EmailClassification, EmailService};
 use crate::services::filter::{FilterClass, FilterType};
 use crate::services::{AliasService, FilterService, PasswordService};
@@ -425,10 +425,14 @@ impl UserService {
             let s3_hash = match avatar {
                 None => None,
                 Some(blob) => {
+                    // FIXME blob upload
+                    /*
                     let CreateBlobOutput { hash, .. } =
                         BlobService::create(ctx, &blob).await?;
 
                     Some(hash.to_vec())
+                    */
+                    todo!()
                 }
             };
 
