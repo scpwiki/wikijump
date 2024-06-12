@@ -44,6 +44,14 @@ if __name__ == "__main__":
         help="The location to output the SQLite database to",
     )
     argparser.add_argument(
+        "-b",
+        "--bucket",
+        "--s3-bucket",
+        dest="s3_bucket",
+        required=True,
+        help="The S3 bucket to store uploaded files in",
+    )
+    argparser.add_argument(
         "-P",
         "--profile",
         "--aws-profile",
