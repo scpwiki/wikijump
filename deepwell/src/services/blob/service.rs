@@ -134,6 +134,9 @@ impl BlobService {
             }
         };
 
+        debug!("Deleting pending blob");
+        BlobPending::delete_by_id(pending_blob_id).exec(txn).await?;
+
         // Special handling for empty blobs
         if data.is_empty() {
             debug!("File being created is empty, special case");

@@ -36,13 +36,15 @@ use crate::services::{BlobService, FileRevisionService, FilterService};
 pub struct FileService;
 
 impl FileService {
+    /// Creates a new file.
+    ///
     /// Starts a file upload and tracks it as a distinct file entity.
     ///
     /// In the background, this stores the blob via content addressing,
     /// meaning that duplicates are not uploaded twice.
-    pub async fn start_upload(
+    pub async fn start_new_upload(
         ctx: &ServiceContext<'_>,
-        UploadFile {
+        UploadNewFile {
             site_id,
             page_id,
             name,
@@ -50,9 +52,10 @@ impl FileService {
             user_id,
             licensing,
             bypass_filter,
-        }: UploadFile,
+        }: UploadNewFile,
     ) -> Result<UploadFileOutput> {
         info!("Creating file with name '{}'", name);
+        let txn = ctx.transaction();
 
         // Ensure row consistency
         Self::check_conflicts(ctx, page_id, &name, "create").await?;
@@ -74,10 +77,9 @@ impl FileService {
             ..Default::default()
         };
 
-        let txn = ctx.transaction();
         let file = model.insert(txn).await?;
 
-        // Add new file revision (with dummy data)
+        // Add file revision (with dummy file data)
         let revision_output = FileRevisionService::create_first(
             ctx,
             CreateFirstFileRevision {
@@ -98,17 +100,17 @@ impl FileService {
         Ok(revision_output)
     }
 
-    pub async fn finish_upload(
+    pub async fn finish_new_upload(
         ctx: &ServiceContext<'_>,
-        FinishUploadFile {
+        FinishUploadNewFile {
             site_id,
             page_id,
             file_id,
             pending_blob_id,
-        }: FinishUploadFile,
+        }: FinishUploadNewFile,
     ) -> Result<FinishUploadFileOutput> {
         info!(
-            "Finishing file upload with site ID {} page ID {} file ID {} pending ID {}",
+            "Finishing new file upload with site ID {} page ID {} file ID {} pending ID {}",
             site_id, page_id, file_id, pending_blob_id,
         );
 
@@ -157,8 +159,6 @@ impl FileService {
         };
         model.update(txn).await?;
 
-        File::delete_by_id(pending_blob_id).exec(txn).await?;
-
         // Update file revision to add the uploaded data
         let FinalizeBlobUploadOutput {
             hash,
@@ -176,7 +176,82 @@ impl FileService {
         Ok(FinishUploadFileOutput { created })
     }
 
-    /// Edits a file, including the ability to upload a new version.
+    /// Edits a file, uploading a new file version.
+    pub async fn start_edit_upload(
+        ctx: &ServiceContext<'_>,
+        UploadFileEdit {
+            site_id,
+            page_id,
+            file_id,
+            user_id,
+            revision_comments,
+        }: UploadFileEdit,
+    ) -> Result<_UploadFileEditOutput> {
+        info!("Uploading new version to file ID {file_id}");
+
+        let txn = ctx.transaction();
+        let last_revision =
+            FileRevisionService::get_latest(ctx, site_id, page_id, file_id).await?;
+
+        // Add pending file
+        let pending = BlobService::create_upload(ctx).await?;
+
+        // Add file revision (with dummy file data)
+        let revision_output = FileRevisionService::create(
+            ctx,
+            CreateFileRevision {
+                site_id,
+                page_id,
+                file_id,
+                user_id,
+                comments: revision_comments,
+                body: CreateFileRevisionBody {
+                    blob: FileBlob {
+                        s3_hash: EMPTY_BLOB_HASH,
+                        mime_hint: str!(EMPTY_BLOB_MIME),
+                        size_hint: 0,
+                    },
+                    ..Default::default()
+                },
+            },
+            last_revision,
+        )
+        .await?;
+
+        Ok(revision_output)
+    }
+
+    pub async fn finish_edit_upload(
+        ctx: &ServiceContext<'_>,
+        FinishUploadFileEdit {
+            site_id,
+            page_id,
+            file_id,
+            pending_blob_id,
+        }: FinishUploadFileEdit,
+    ) -> Result<_> {
+        info!(
+            "Finishing file edit upload with site ID {} page ID {} file ID {} pending ID {}",
+            site_id, page_id, file_id, pending_blob_id,
+        );
+
+        // Get latest file revision
+        // TODO
+
+        // Update file metadata
+        let model = file::ActiveModel {
+            file_id: Set(file_id),
+            updated_at: Set(Some(now())),
+            ..Default::default()
+        };
+        model.update(txn).await?;
+
+        todo!()
+    }
+
+    /// Edits a file, creating a new revision.
+    ///
+    /// Cannot be used to upload a new file version.
     pub async fn edit(
         ctx: &ServiceContext<'_>,
         EditFile {
@@ -209,29 +284,6 @@ impl FileService {
             }
         }
 
-        // Upload to S3, get derived metadata
-        // FIXME upload new file revision
-        /*
-        let blob = match data {
-            ProvidedValue::Unset => ProvidedValue::Unset,
-            ProvidedValue::Set(bytes) => {
-                let FinalizeBlobUploadOutput {
-                    hash,
-                    mime,
-                    size,
-                    created: _,
-                } = BlobService::finalize_upload(ctx, &bytes).await?;
-
-                ProvidedValue::Set(FileBlob {
-                    s3_hash: hash,
-                    size_hint: size,
-                    mime_hint: mime,
-                })
-            }
-        };
-        */
-        let blob = ProvidedValue::Unset;
-
         // Update file metadata
         let model = file::ActiveModel {
             file_id: Set(file_id),
@@ -251,7 +303,6 @@ impl FileService {
                 comments: revision_comments,
                 body: CreateFileRevisionBody {
                     name,
-                    blob,
                     licensing,
                     ..Default::default()
                 },

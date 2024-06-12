@@ -27,7 +27,7 @@ use serde_json::Value as JsonValue;
 use time::OffsetDateTime;
 
 #[derive(Deserialize, Debug, Clone)]
-pub struct UploadFile {
+pub struct UploadNewFile {
     pub site_id: i64,
     pub page_id: i64,
     pub name: String,
@@ -39,10 +39,11 @@ pub struct UploadFile {
     pub bypass_filter: bool,
 }
 
-pub type UploadFileOutput = CreateFirstFileRevisionOutput;
+// TODO
+pub type UploadNewFileOutput = CreateFirstFileRevisionOutput;
 
 #[derive(Deserialize, Debug, Clone)]
-pub struct FinishUploadFile {
+pub struct FinishUploadNewFile {
     pub site_id: i64,
     pub page_id: i64,
     pub file_id: i64,
@@ -50,8 +51,28 @@ pub struct FinishUploadFile {
 }
 
 #[derive(Serialize, Debug, Copy, Clone)]
-pub struct FinishUploadFileOutput {
+pub struct FinishUploadNewFileOutput {
     pub created: bool,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct UploadFileEdit {
+    pub site_id: i64,
+    pub page_id: i64,
+    pub file_id: i64,
+    pub user_id: i64,
+    pub revision_comments: String,
+}
+
+pub type UploadFileEditOutput = CreateFileRevisionOutput;
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct FinishUploadFileEdit {
+}
+
+#[derive(Serialize, Debug, Clone)]
+pub struct FinishUploadFileEditOutput {
+    // TODO
 }
 
 #[derive(Deserialize, Debug, Clone)]
