@@ -2,6 +2,7 @@ import hashlib
 
 import boto3
 
+
 class Importer:
     __slots__ = (
         "logger",
@@ -13,7 +14,15 @@ class Importer:
         "s3_bucket",
     )
 
-    def __init__(self, *, logger, wikicomma_directory, sqlite_path, aws_profile, s3_bucket):
+    def __init__(
+        self,
+        *,
+        logger,
+        wikicomma_directory,
+        sqlite_path,
+        aws_profile,
+        s3_bucket,
+    ):
         self.logger = logger
         self.wikicomma_directory = wikicomma_directory
         self.sqlite_path = sqlite_path
