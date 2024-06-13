@@ -89,7 +89,7 @@ class SiteImporter:
         mapping = self.json(self.meta_path("page_id_map.json"))
         with self.database.conn as cur:
             for id_str, page_slug in mapping.items():
-                logger.debug("Found page '%s' (%d)", page_slug, id_str)
+                logger.debug("Found page '%s' (%s)", page_slug, id_str)
                 id = int(id_str)
                 self.database.add_page(
                     cur,
