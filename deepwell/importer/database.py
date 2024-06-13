@@ -50,11 +50,12 @@ class Database:
                 INSERT INTO site
                 (
                     site_slug,
+                    site_id,
                     site_descr,
-                    site_url,
+                    site_url
                 )
                 VALUES
-                (?, ?, ?)
+                (?, ?, ?, ?)
                 ON CONFLICT
                 DO UPDATE
                 SET
@@ -63,6 +64,7 @@ class Database:
                 """,
                 (
                     slug,
+                    id,
                     descr,
                     url,
                     descr,
