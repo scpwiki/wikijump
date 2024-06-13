@@ -29,6 +29,8 @@ class SiteImporter:
         site_slug: str,
         site_url: str,
     ) -> None:
+        self.directory = directory
+        self.database = database
         self.site_descr = site_descr
         self.site_slug = site_slug
         self.site_url = site_url
