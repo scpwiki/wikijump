@@ -21,13 +21,6 @@ if __name__ == "__main__":
         help="Don't output to standard out",
     )
     argparser.add_argument(
-        "-D",
-        "--debug",
-        dest="debug",
-        action="store_true",
-        help="Set logging level to debug",
-    )
-    argparser.add_argument(
         "-d",
         "--directory",
         "--wikicomma-directory",
@@ -39,9 +32,15 @@ if __name__ == "__main__":
         "-o",
         "--sqlite",
         "--output-sqlite",
-        dest="sql_path",
+        dest="sqlite_path",
         required=True,
         help="The location to output the SQLite database to",
+    )
+    argparser.add_argument(
+        "-D",
+        "--delete-sqlite",
+        action="store_true",
+        help="Delete the output SQLite before starting operations",
     )
     argparser.add_argument(
         "-b",
@@ -64,16 +63,16 @@ if __name__ == "__main__":
     log_fmtr = logging.Formatter(LOG_FORMAT, datefmt=LOG_DATE_FORMAT)
     log_stdout = logging.StreamHandler(sys.stdout)
     log_stdout.setFormatter(log_fmtr)
-    log_level = logging.DEBUG if args.debug else logging.INFO
 
     logger = logging.getLogger("importer")
-    logger.setLevel(level=log_level)
+    logger.setLevel(level=logging.DEBUG)
     logger.addHandler(log_stdout)
 
     importer = Importer(
-        logger=logger,
         wikicomma_directory=args.wikicomma_directory,
         sqlite_path=args.sqlite_path,
+        delete_sqlite=args.delete_sqlite,
+        s3_bucket=args.s3_bucket,
         aws_profile=args.aws_profile,
     )
     importer.run()

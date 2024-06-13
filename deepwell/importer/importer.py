@@ -1,10 +1,14 @@
 import glob
 import hashlib
+import json
+import logging
 import os
 
 from .database import Database
 
 import boto3
+
+logger = logging.getLogger("importer")
 
 
 class Importer:
@@ -21,15 +25,14 @@ class Importer:
     def __init__(
         self,
         *,
-        logger,
         wikicomma_directory,
         sqlite_path,
+        delete_sqlite,
         aws_profile,
         s3_bucket,
     ) -> None:
-        self.logger = logger
         self.wikicomma_directory = wikicomma_directory
-        self.database = Database(sqlite_path)
+        self.database = Database(sqlite_path, delete=delete_sqlite)
         self.aws_profile = aws_profile
         self.boto_session = boto3.Session(profile_name=aws_profile)
         self.s3_client = self.boto_session.client("s3")
@@ -51,11 +54,11 @@ class Importer:
             s3_path = hashlib.sha256(data).hexdigest()
 
         if not data:
-            self.logger.debug("Skipping upload of empty S3 object")
+            logger.debug("Skipping upload of empty S3 object")
         elif self.s3_object_exists(s3_path):
-            self.logger.debug("S3 object %s already exists", s3_path)
+            logger.debug("S3 object %s already exists", s3_path)
         else:
-            self.logger.info("Uploading S3 object %s (len %d)", s3_path, len(data))
+            logger.info("Uploading S3 object %s (len %d)", s3_path, len(data))
             self.s3_client.upload_file(
                 Bucket=self.s3_bucket,
                 Key=s3_path,
@@ -67,7 +70,7 @@ class Importer:
         return os.path.join(self.wikicomma_directory, subdirectory)
 
     def run(self) -> None:
-        self.logger.info("Starting Wikicomma importer...")
+        logger.info("Starting Wikicomma importer...")
 
         self.database.seed()
         self.process_users()
@@ -76,9 +79,13 @@ class Importer:
     def close(self) -> None:
         self.database.close()
 
-    def process_users(self):
-        self.logger.info("Processing users...")
+    def process_users(self) -> None:
+        logger.info("Processing users...")
 
         directory = self.data_dir("_users")
         for path in glob.iglob(f"{directory}/*.json"):
-            self.logger.debug("+ {path}")
+            logger.debug("Reading %s", path)
+            with open(path) as file:
+                data = json.load(file)
+
+            self.database.add_user_block(data)
