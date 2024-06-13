@@ -64,7 +64,7 @@ if __name__ == "__main__":
     log_stdout = logging.StreamHandler(sys.stdout)
     log_stdout.setFormatter(log_fmtr)
 
-    logger = logging.getLogger("importer")
+    logger = logging.getLogger(__package__)
     logger.setLevel(level=logging.DEBUG)
     logger.addHandler(log_stdout)
 

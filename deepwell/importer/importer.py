@@ -1,14 +1,12 @@
-import glob
 import hashlib
 import json
 import logging
 import os
 
 from .database import Database
+from .s3 import S3
 
-import boto3
-
-logger = logging.getLogger("importer")
+logger = logging.getLogger(__name__)
 
 
 class Importer:
@@ -16,10 +14,7 @@ class Importer:
         "logger",
         "wikicomma_directory",
         "database",
-        "aws_profile",
-        "boto_session",
-        "s3_client",
-        "s3_bucket",
+        "s3",
     )
 
     def __init__(
@@ -33,48 +28,14 @@ class Importer:
     ) -> None:
         self.wikicomma_directory = wikicomma_directory
         self.database = Database(sqlite_path, delete=delete_sqlite)
-        self.aws_profile = aws_profile
-        self.boto_session = boto3.Session(profile_name=aws_profile)
-        self.s3_client = self.boto_session.client("s3")
-        self.s3_bucket = s3_bucket
-
-    def s3_object_exists(self, s3_path: str) -> bool:
-        try:
-            self.s3_client.head_object(
-                Bucket=self.s3_bucket,
-                Key=s3_path,
-            )
-            return True
-        except:
-            return False
-
-    def upload_file(self, file_path: str) -> None:
-        with open(path, "rb") as file:
-            data = file.read()
-            s3_path = hashlib.sha256(data).hexdigest()
-
-        if not data:
-            logger.debug("Skipping upload of empty S3 object")
-        elif self.s3_object_exists(s3_path):
-            logger.debug("S3 object %s already exists", s3_path)
-        else:
-            logger.info("Uploading S3 object %s (len %d)", s3_path, len(data))
-            self.s3_client.upload_file(
-                Bucket=self.s3_bucket,
-                Key=s3_path,
-                Body=data,
-                ContentLength=len(data),
-            )
-
-    def data_dir(self, subdirectory: str) -> str:
-        return os.path.join(self.wikicomma_directory, subdirectory)
+        self.s3 = S3(aws_profile=aws_profile, bucket=s3_bucket)
 
     def run(self) -> None:
         logger.info("Starting Wikicomma importer...")
 
         self.database.seed()
         self.process_users()
-        ...
+        self.process_sites()
 
     def close(self) -> None:
         self.database.close()
@@ -82,15 +43,30 @@ class Importer:
     def process_users(self) -> None:
         logger.info("Processing users...")
 
-        directory = self.data_dir("_users")
-        for path in glob.iglob(f"{directory}/*.json"):
-            logger.debug("Reading %s", path)
-            with open(path) as file:
-                data = json.load(file)
-
-            filename = os.path.basename(path)
+        directory = os.path.join(self.wikicomma_directory, "_users")
+        for filename in os.listdir(directory):
             if filename == "pending.json":
                 logger.debug("Skipping pending user list")
                 continue
 
+            path = os.path.join(directory, filename)
+            logger.debug("Reading %s", path)
+            with open(path) as file:
+                data = json.load(file)
+
             self.database.add_user_block(data, filename)
+
+    def process_sites(self) -> None:
+        logger.info("Processing sites...")
+
+        for site_descr in os.listdir(self.wikicomma_directory):
+            if site_descr == "_users":
+                logger.debug("Skipping user list")
+                continue
+
+            # NOTE: site_descr != site_slug
+            self.process_site(site_descr)
+
+    def process_site(self, site_descr: str) -> None:
+        logger.info("Processing site '%s'...", site_descr)
+        directory = os.path.join(self.wikicomma_directory, site_descr)

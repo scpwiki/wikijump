@@ -4,7 +4,7 @@ import sqlite3
 
 from .utils import from_js_timestamp
 
-logger = logging.getLogger("importer")
+logger = logging.getLogger(__name__)
 
 
 class Database:
