@@ -1,4 +1,6 @@
+import glob
 import hashlib
+import os
 
 from .database import Database
 
@@ -24,7 +26,7 @@ class Importer:
         sqlite_path,
         aws_profile,
         s3_bucket,
-    ):
+    ) -> None:
         self.logger = logger
         self.wikicomma_directory = wikicomma_directory
         self.database = Database(sqlite_path)
@@ -33,7 +35,7 @@ class Importer:
         self.s3_client = self.boto_session.client("s3")
         self.s3_bucket = s3_bucket
 
-    def s3_object_exists(self, s3_path):
+    def s3_object_exists(self, s3_path: str) -> bool:
         try:
             self.s3_client.head_object(
                 Bucket=self.s3_bucket,
@@ -43,7 +45,7 @@ class Importer:
         except:
             return False
 
-    def upload_file(self, file_path):
+    def upload_file(self, file_path: str) -> None:
         with open(path, "rb") as file:
             data = file.read()
             s3_path = hashlib.sha256(data).hexdigest()
@@ -61,8 +63,22 @@ class Importer:
                 ContentLength=len(data),
             )
 
-    def run(self):
+    def data_dir(self, subdirectory: str) -> str:
+        return os.path.join(self.wikicomma_directory, subdirectory)
+
+    def run(self) -> None:
+        self.logger.info("Starting Wikicomma importer...")
+
+        self.database.seed()
+        self.process_users()
         ...
 
-    def close(self):
+    def close(self) -> None:
         self.database.close()
+
+    def process_users(self):
+        self.logger.info("Processing users...")
+
+        directory = self.data_dir("_users")
+        for path in glob.iglob(f"{directory}/*.json"):
+            self.logger.debug("+ {path}")
