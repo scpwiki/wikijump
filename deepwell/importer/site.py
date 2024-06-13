@@ -1,5 +1,6 @@
 import logging
 import re
+from typing import Union
 from urllib.request import urlopen
 
 from .database import Database
@@ -63,6 +64,10 @@ class SiteImporter:
     def meta_path(self, path: str) -> str:
         return os.path.join(self.directory, "meta", path)
 
+    def json(self, path: str) -> Union[list, dict]:
+        with open(path) as file:
+            return json.load(file)
+
     def run(self) -> None:
         self.database.add_site(
             slug=self.site_slug,
@@ -73,7 +78,17 @@ class SiteImporter:
         ...
 
     def process_pages(self) -> None:
+        self.process_page_ids()
         ...
+
+    def process_page_ids(self) -> None:
+        logger.info("Ingesting page ID mappings for site %s", self.site_slug)
+        mapping = self.json(self.meta_path("page_id_map.json"))
+        with self.database.conn as cur:
+            for id_str, page_slug in mapping.items():
+                logger.debug("Found page '%s' (%d)", page_slug, id_str)
+                id = int(id_str)
+                self.database.add_page(cur,
 
     def process_files(self) -> None:
         ...

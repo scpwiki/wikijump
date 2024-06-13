@@ -25,6 +25,9 @@ class Database:
         with open(seed_path) as file:
             self.conn.executescript(file.read())
 
+    def close(self) -> None:
+        self.conn.close()
+
     def add_user_block(self, block: dict, filename: str) -> None:
         logger.info("Found %d users in block '%s'", len(block), filename)
 
@@ -113,5 +116,25 @@ class Database:
             ),
         )
 
-    def close(self) -> None:
-        self.conn.close()
+    def add_page(self, cur, *, page_id: int, site_slug: str, page_slug: str) -> None:
+        logger.info("Inserting page '%s' (%d)", page_slug, page_id)
+
+        cur.execute(
+            """
+            INSERT INTO page
+            (
+                page_id,
+                site_slug,
+                page_slug
+            )
+            VALUES
+            (?, ?, ?)
+            ON CONFLICT
+            DO NOTHING
+            """,
+            (
+                page_id,
+                site_slug,
+                page_slug,
+            ),
+        )

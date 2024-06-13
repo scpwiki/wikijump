@@ -11,14 +11,15 @@ CREATE TABLE site (
 );
 
 CREATE TABLE page (
+    page_id INTEGER PRIMARY KEY,
     site_slug TEXT NOT NULL REFERENCES site(site_slug),
     page_slug TEXT NOT NULL,
 
-    PRIMARY KEY (site_slug, page_slug)
+    UNIQUE (site_slug, page_slug)
 );
 
 CREATE TABLE file (
-
+    file_id INTEGER PRIMARY KEY,
     site_slug TEXT NOT NULL REFERENCES site(site_slug),
     page_slug TEXT NOT NULL,
 
