@@ -93,7 +93,12 @@ class SiteImporter:
             for id_str, page_slug in mapping.items():
                 logger.debug("Found page '%s' (%d)", page_slug, id_str)
                 id = int(id_str)
-                self.database.add_page(cur, site_slug=self.site_slug, page_slug=page_slug, page_id=id)
+                self.database.add_page(
+                    cur,
+                    site_slug=self.site_slug,
+                    page_slug=page_slug,
+                    page_id=id,
+                )
 
     def process_files(self) -> None:
         # TODO
