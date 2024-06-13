@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 class Importer:
     __slots__ = (
         "logger",
+        "wikicomma_config",
         "wikicomma_directory",
         "database",
         "s3",
@@ -20,12 +21,14 @@ class Importer:
     def __init__(
         self,
         *,
+        wikicomma_config,
         wikicomma_directory,
         sqlite_path,
         delete_sqlite,
         aws_profile,
         s3_bucket,
     ) -> None:
+        self.wikicomma_config = wikicomma_config
         self.wikicomma_directory = wikicomma_directory
         self.database = Database(sqlite_path, delete=delete_sqlite)
         self.s3 = S3(aws_profile=aws_profile, bucket=s3_bucket)
@@ -70,3 +73,6 @@ class Importer:
     def process_site(self, site_descr: str) -> None:
         logger.info("Processing site '%s'...", site_descr)
         directory = os.path.join(self.wikicomma_directory, site_descr)
+
+        site_data = self.wikicomma_config.sites[site_descr]
+        self.database.add_site(site_data)

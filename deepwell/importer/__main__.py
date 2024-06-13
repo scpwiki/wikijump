@@ -6,6 +6,7 @@ import os
 import sys
 
 from .importer import Importer
+from .wikicomma_config import parse_config
 
 LOG_FORMAT = "[%(levelname)s] [%(asctime)s] %(message)s"
 LOG_DATE_FORMAT = "%Y/%m/%d %H:%M:%S"
@@ -21,12 +22,19 @@ if __name__ == "__main__":
         help="Don't output to standard out",
     )
     argparser.add_argument(
+        "-c",
+        "--config",
+        dest="wikicomma_config",
+        required=True,
+        help="The configuration JSON that Wikicomma uses",
+    )
+    argparser.add_argument(
         "-d",
         "--directory",
         "--wikicomma-directory",
         dest="wikicomma_directory",
         required=True,
-        help="The directory where WikiComma data resides",
+        help="The directory where Wikicomma data resides",
     )
     argparser.add_argument(
         "-o",
@@ -68,7 +76,10 @@ if __name__ == "__main__":
     logger.setLevel(level=logging.DEBUG)
     logger.addHandler(log_stdout)
 
+    wikicomma_config = parse_config(args.wikicomma_config)
+
     importer = Importer(
+        wikicomma_config=wikicomma_config,
         wikicomma_directory=args.wikicomma_directory,
         sqlite_path=args.sqlite_path,
         delete_sqlite=args.delete_sqlite,

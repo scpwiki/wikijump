@@ -4,7 +4,9 @@ CREATE TABLE blob (
 );
 
 CREATE TABLE site (
-    site_slug TEXT PRIMARY KEY
+    site_slug TEXT PRIMARY KEY,
+    site_descr TEXT NOT NULL,  -- Wikicomma name
+    site_url TEXT NOT NULL
 );
 
 CREATE TABLE page (

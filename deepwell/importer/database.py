@@ -2,6 +2,7 @@ import os
 import logging
 import sqlite3
 
+from .wikicomma_config import SiteData
 from .utils import from_js_timestamp
 
 logger = logging.getLogger(__name__)
@@ -31,6 +32,39 @@ class Database:
             # key is redundant, string of user ID
             for data in block.values():
                 self.add_user(cur, data)
+
+    def add_site(self, data: SiteData) -> None:
+        logger.info(
+            "Inserting site '%s' (%s)",
+            data.descr,
+            data.slug,
+        )
+
+        with self.conn as cur:
+            cur.execute(
+                """
+                INSERT INTO site
+                (
+                    site_slug,
+                    site_descr,
+                    site_url,
+                )
+                VALUES
+                (?, ?, ?)
+                ON CONFLICT
+                DO UPDATE
+                SET
+                    site_descr = ?,
+                    site_url = ?
+                """,
+                (
+                    data.slug,
+                    data.descr,
+                    data.url,
+                    data.descr,
+                    data.url,
+                ),
+            )
 
     def add_user(self, cur, data: dict) -> None:
         logger.info(
