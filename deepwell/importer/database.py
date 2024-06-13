@@ -33,11 +33,12 @@ class Database:
             for data in block.values():
                 self.add_user(cur, data)
 
-    def add_site(self, data: SiteData) -> None:
+    def add_site(self, *, slug: str, descr: str, url: str, id: int) -> None:
         logger.info(
-            "Inserting site '%s' (%s)",
-            data.descr,
-            data.slug,
+            "Inserting site '%s' (%s, %d)",
+            descr,
+            slug,
+            id,
         )
 
         with self.conn as cur:
@@ -58,11 +59,11 @@ class Database:
                     site_url = ?
                 """,
                 (
-                    data.slug,
-                    data.descr,
-                    data.url,
-                    data.descr,
-                    data.url,
+                    slug,
+                    descr,
+                    url,
+                    descr,
+                    url,
                 ),
             )
 

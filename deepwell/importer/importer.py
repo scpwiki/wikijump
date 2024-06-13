@@ -5,6 +5,7 @@ import os
 
 from .database import Database
 from .s3 import S3
+from .site import SiteImporter
 
 logger = logging.getLogger(__name__)
 
@@ -75,4 +76,11 @@ class Importer:
         directory = os.path.join(self.wikicomma_directory, site_descr)
 
         site_data = self.wikicomma_config.sites[site_descr]
-        self.database.add_site(site_data)
+        site_importer = SiteImporter(
+            directory=directory,
+            database=self.database,
+            site_descr=site_data.descr,
+            site_slug=site_data.slug,
+            site_url=site_data.url,
+        )
+        site_importer.run()
