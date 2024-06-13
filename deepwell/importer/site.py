@@ -72,6 +72,9 @@ class SiteImporter:
         )
         ...
 
+    def process_pages(self) -> None:
+        ...
+
     def process_files(self) -> None:
         ...
 
