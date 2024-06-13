@@ -41,7 +41,7 @@ class SiteImporter:
         with urlopen(site_url) as file:
             html = file.read().decode("utf-8")
 
-        match = SITE_ID_REGEX.find(html)
+        match = SITE_ID_REGEX.search(html)
         if match is None:
             logger.error("Unable to find site ID in HTML")
             raise ValueError(site_url)
