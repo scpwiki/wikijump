@@ -88,4 +88,9 @@ class Importer:
             with open(path) as file:
                 data = json.load(file)
 
-            self.database.add_user_block(data)
+            filename = os.path.basename(path)
+            if filename == "pending.json":
+                logger.debug("Skipping pending user list")
+                continue
+
+            self.database.add_user_block(data, filename)

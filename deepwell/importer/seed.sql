@@ -24,13 +24,14 @@ CREATE TABLE file (
 
 CREATE TABLE user (
     user_slug TEXT PRIMARY KEY,
-    user_id INTEGER NOT NULL,
+    user_name TEXT NOT NULL,
+    user_id INTEGER NOT NULL UNIQUE,
     user_since INTEGER NOT NULL,
     account_type TEXT NOT NULL,
     karma INTEGER NOT NULL,
     fetched_at INTEGER NOT NULL,
     real_name TEXT,
-    gender TEXT
+    gender TEXT,
     birthday INTEGER,
     location TEXT,
     website TEXT

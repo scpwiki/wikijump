@@ -24,8 +24,8 @@ class Database:
         with open(seed_path) as file:
             self.conn.executescript(file.read())
 
-    def add_user_block(self, block: dict) -> None:
-        logger.debug("Found %d users in block", len(block))
+    def add_user_block(self, block: dict, filename: str) -> None:
+        logger.info("Found %d users in block '%s'", len(block), filename)
 
         with self.conn as cur:
             # key is redundant, string of user ID
@@ -33,6 +33,13 @@ class Database:
                 self.add_user(cur, data)
 
     def add_user(self, cur, data: dict) -> None:
+        logger.info(
+            "Inserting user '%s' (%s, %d)",
+            data["full_name"],
+            data["username"],
+            data["user_id"],
+        )
+
         cur.execute(
             """
             INSERT INTO user
@@ -52,6 +59,8 @@ class Database:
             )
             VALUES
             (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT
+            DO NOTHING
             """,
             (
                 data["username"],  # slug (e.g. foo-bar)
