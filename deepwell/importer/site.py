@@ -47,6 +47,22 @@ class SiteImporter:
 
         return int(match[1])
 
+    @property
+    def file_dir(self) -> str:
+        return os.path.join(self.directory, "files")
+
+    @property
+    def forum_dir(self) -> str:
+        return os.path.join(self.directory, "forum")
+
+    @property
+    def page_dir(self) -> str:
+        return os.path.join(self.directory, "pages")
+
+    @property
+    def meta_path(self, path: str) -> str:
+        return os.path.join(self.directory, "meta", path)
+
     def run(self) -> None:
         self.database.add_site(
             slug=self.site_slug,
@@ -54,4 +70,10 @@ class SiteImporter:
             url=self.site_url,
             id=self.site_id,
         )
+        ...
+
+    def process_files(self) -> None:
+        ...
+
+    def process_forum(self) -> None:
         ...
