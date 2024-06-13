@@ -8,7 +8,7 @@ import sys
 from .importer import Importer
 from .wikicomma_config import parse_config
 
-LOG_FORMAT = "[%(levelname)s] [%(asctime)s] %(message)s"
+LOG_FORMAT = "[%(levelname)s] %(asctime)s %(name)s: %(message)s"
 LOG_DATE_FORMAT = "%Y/%m/%d %H:%M:%S"
 
 if __name__ == "__main__":
