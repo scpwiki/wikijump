@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import re
+from functools import cache
 from typing import Union
 from urllib.request import urlopen
 
@@ -39,6 +40,7 @@ class SiteImporter:
         self.site_id = self.get_site_id(site_url)
 
     @staticmethod
+    @cache
     def get_site_id(site_url: str) -> int:
         logger.info("Downloading web page %s to scrape site ID", site_url)
 
