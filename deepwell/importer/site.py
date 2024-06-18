@@ -154,7 +154,7 @@ class SiteImporter:
         logger.info("Ingesting page revision metadata for site %s", self.site_slug)
         meta_directory = self.meta_path("pages")
         for path in os.listdir(meta_directory):
-            logger.debug("Processing page metadata %s", path)
+            logger.debug("Processing page metadata '%s'", path)
 
             page_slug, ext = os.path.splitext(path)
             assert ext == ".json", "Extension for page metadata not JSON"
