@@ -120,12 +120,15 @@ class SiteImporter:
         (revision_id,) = result
         return revision_id
 
+    @property
     def file_dir(self) -> str:
         return os.path.join(self.directory, "files")
 
+    @property
     def forum_dir(self) -> str:
         return os.path.join(self.directory, "forum")
 
+    @property
     def page_dir(self) -> str:
         return os.path.join(self.directory, "pages")
 
