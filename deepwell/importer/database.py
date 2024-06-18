@@ -184,6 +184,10 @@ class Database:
                 flags,
                 comments
             )
+            VALUES
+            (?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT
+            DO NOTHING
             """,
             (
                 data["global_revision"],
