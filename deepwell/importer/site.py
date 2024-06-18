@@ -41,6 +41,16 @@ class SiteImporter:
         self.site_id = self.get_site_id(site_url)
         self.page_ids = {}
 
+    @staticmethod
+    def convert_page_slug(page_slug: str) -> str:
+        if page_slug.startswith("_"):
+            # a _default category page that starts with an underscore, e.g. _template
+            return page_slug
+
+        # replace only the first underscore
+        # the second (if present) is a special page, like _404
+        return re.subn("_", ":", page_slug, 1)
+
     @cache
     def get_site_id(self, site_url: str) -> int:
         with self.database.conn as cur:
@@ -70,6 +80,7 @@ class SiteImporter:
         return int(match[1])
 
     def get_page_id(self, page_slug: str) -> int:
+        page_slug = self.convert_page_slug(page_slug)
         page_id = self.page_ids.get(page_slug)
         if page_id is not None:
             return page_id
@@ -148,6 +159,7 @@ class SiteImporter:
             page_slug, ext = os.path.splitext(path)
             assert ext == ".json", "Extension for page metadata not JSON"
 
+            page_slug = self.convert_page_slug(page_slug)
             page_id = self.get_page_id(page_slug)
             path = os.path.join(meta_directory, page_slug)
             metadata = self.json(path)
