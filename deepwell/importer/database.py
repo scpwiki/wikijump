@@ -119,7 +119,7 @@ class Database:
         )
 
     def add_page(self, cur, *, page_id: int, site_slug: str, page_slug: str) -> None:
-        logger.info("Inserting page '%s' (%d)", page_slug, page_id)
+        logger.info("Inserting into site '%s' page '%s' (%d)", site_slug, page_slug, page_id)
 
         cur.execute(
             """
