@@ -216,7 +216,7 @@ class Database:
             ),
         )
 
-    def add_page_revision_wikitext(self, cur, *, revision_id: int, contents: str) -> None:
+    def add_page_revision_wikitext(self, cur, revision_id: int, contents: str) -> None:
         logger.debug("Inserting page revision wikitext for %d", revision_id)
 
         hex_hash = self.add_text(cur, contents)

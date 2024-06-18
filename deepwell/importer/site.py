@@ -3,8 +3,11 @@ import logging
 import os
 import re
 from functools import cache
+from io import BytesIO
 from typing import Tuple, Union
 from urllib.request import urlopen
+
+import py7zr
 
 from .database import Database
 
@@ -102,6 +105,21 @@ class SiteImporter:
 
         raise RuntimeError(f"Cannot find page ID for page '{page_slug}' in site '{self.site_slug}'")
 
+    def get_revision_id(self, cur, page_id: int, revision_number: int) -> int:
+        result = cur.execute(
+            """
+            SELECT revision_id
+            FROM page_revision
+            WHERE page_id = ?
+            AND revision_number = ?
+            """,
+            (page_id, revision_number),
+        )
+        if result is None:
+            raise RuntimeError(f"Cannot find page revision for (page {page_id}, rev {revision_number})")
+        (revision_id,) = result
+        return revision_id
+
     def file_dir(self) -> str:
         return os.path.join(self.directory, "files")
 
@@ -132,6 +150,7 @@ class SiteImporter:
     def process_pages(self) -> None:
         self.process_page_ids()
         self.process_page_metadata()
+        self.process_page_wikitext()
         # TODO
         ...
 
@@ -154,7 +173,7 @@ class SiteImporter:
         logger.info("Ingesting page revision metadata for site %s", self.site_slug)
         meta_directory = self.meta_path("pages")
         for path in os.listdir(meta_directory):
-            logger.debug("Processing page metadata '%s'", path)
+            logger.debug("Processing page metadata from '%s'", path)
 
             page_slug, ext = os.path.splitext(path)
             assert ext == ".json", "Extension for page metadata not JSON"
@@ -173,10 +192,10 @@ class SiteImporter:
                     page_id,
                     metadata,
                 )
-                self.process_page_revisions(cur, page_id, metadata["revisions"])
+                self.process_page_revisions_metadata(cur, page_id, metadata["revisions"])
                 self.process_page_votes(cur, page_id, metadata["votings"])
 
-    def process_page_revisions(self, cur, page_id: int, revisions: list[dict]) -> None:
+    def process_page_revisions_metadata(self, cur, page_id: int, revisions: list[dict]) -> None:
         logger.debug("Ingesting page revision metadata for page ID %d", page_id)
         for revision in revisions:
             self.database.add_page_revision_metadata(cur, page_id, revision)
@@ -186,6 +205,45 @@ class SiteImporter:
         for user_id, bool_value in votes:
             int_value = 1 if bool_value else -1
             self.database.add_page_vote(cur, user_id=user_id, page_id=page_id, value=int_value)
+
+    def process_page_wikitext(self) -> None:
+        logger.info("Ingesting page wikitext for site %s", self.site_slug)
+        for path in os.listdir(self.page_dir):
+            logger.debug("Processing page wikitext from '%s'", path)
+
+            page_slug, ext = os.path.splitext(path)
+            assert ext == ".7z", "Extension for page wikitexts not 7z"
+            path = os.path.join(self.page_dir, path)
+
+            page_slug = self.convert_page_slug(page_slug)
+            page_id = self.get_page_id(page_slug)
+
+            # Extract page sources for each revision
+            with py7zr.SevenZipFile(path, "r") as archive:
+                sources = archive.readall()
+
+            # Convert and begin adding to the database
+            self.process_page_revisions_wikitext(page_id, sources)
+
+    def process_page_revisions_wikitext(self, page_id: int, sources: dict[str, BytesIO]) -> None:
+        logger.debug("Ingesting %d page revision wikitexts", len(sources))
+
+        with self.database.conn as cur:
+            for filename, buf in sources.items():
+                # Get revision number from filename
+                revision_number_str, ext = os.path.splitext(filename)
+                assert ext == ".txt", "Extension for page revision wikitext not txt"
+                revision_number = int(revision_number_str)
+                logger.info("Ingesting page revision %d (%d)", page_id, revision_number)
+
+                # Get revision ID
+                revision_id = self.get_revision_id(cur, page_id, revision_number)
+
+                # Converting from binary, mostly to ensure it's UTF-8
+                contents = buf.read().decode("utf-8")
+
+                # Run ingestion for this revision
+                self.database.add_page_revision_wikitext(cur, revision_id, contents)
 
     def process_files(self) -> None:
         # TODO
