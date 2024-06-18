@@ -158,13 +158,14 @@ class SiteImporter:
 
             page_slug, ext = os.path.splitext(path)
             assert ext == ".json", "Extension for page metadata not JSON"
+            path = os.path.join(meta_directory, path)
 
             page_slug = self.convert_page_slug(page_slug)
             page_id = self.get_page_id(page_slug)
-            path = os.path.join(meta_directory, page_slug)
+
             metadata = self.json(path)
-            assert metadata["page_slug"] == page_slug
             assert metadata["page_id"] == page_id
+            assert metadata["name"] == page_slug
 
             with self.database.conn as cur:
                 self.database.add_page_metadata(
