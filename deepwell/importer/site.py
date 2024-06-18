@@ -39,9 +39,22 @@ class SiteImporter:
         self.site_url = site_url
         self.site_id = self.get_site_id(site_url)
 
-    @staticmethod
     @cache
-    def get_site_id(site_url: str) -> int:
+    def get_site_id(self, site_url: str) -> int:
+        with self.database.conn as cur:
+            result = cur.execute(
+                """
+                SELECT site_id FROM site
+                WHERE site_url = ?
+                """,
+                (site_url,),
+            ).fetchone()
+
+        if result is not None:
+            site_id = result[0]
+            logger.debug("Found site ID for URL %s: %d", site_url, site_id)
+            return site_id
+
         logger.info("Downloading web page %s to scrape site ID", site_url)
 
         with urlopen(site_url) as file:
