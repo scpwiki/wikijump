@@ -185,7 +185,7 @@ class Database:
             ),
         )
 
-    def add_page_revision(self, cur, page_id: int, data: dict) -> None:
+    def add_page_revision_metadata(self, cur, page_id: int, data: dict) -> None:
         logger.info("Inserting page revision %d for page ID %d", data["revision"], page_id)
 
         cur.execute(
@@ -213,6 +213,26 @@ class Database:
                 data["stamp"],
                 data["flags"],
                 data["commentary"],
+            ),
+        )
+
+    def add_page_revision_wikitext(self, cur, *, revision_id: int, contents: str) -> None:
+        logger.debug("Inserting page revision wikitext for %d", revision_id)
+
+        hex_hash = self.add_text(cur, contents)
+        cur.execute(
+            """
+            INSERT INTO page_revision_wikitext
+            (revision_id, wikitext_hash)
+            VALUES (?, ?)
+            ON CONFLICT
+            DO UPDATE
+            SET wikitext_hash = ?
+            """,
+            (
+                revision_id,
+                hex_hash,
+                hex_hash,
             ),
         )
 

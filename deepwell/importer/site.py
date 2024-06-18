@@ -179,7 +179,7 @@ class SiteImporter:
     def process_page_revisions(self, cur, page_id: int, revisions: list[dict]) -> None:
         logger.debug("Ingesting page revision metadata for page ID %d", page_id)
         for revision in revisions:
-            self.database.add_page_revision(cur, page_id, revision)
+            self.database.add_page_revision_metadata(cur, page_id, revision)
 
     def process_page_votes(self, cur, page_id: int, votes: list[Tuple[int, int]]) -> None:
         logger.debug("Ingesting page votes for page ID %d", page_id)

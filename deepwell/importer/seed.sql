@@ -43,6 +43,11 @@ CREATE TABLE page_revision (
     UNIQUE (page_id, revision_number)
 );
 
+CREATE TABLE page_revision_wikitext (
+    revision_id INTEGER PRIMARY KEY REFERENCES page_revision(revision_id),
+    wikitext_hash TEXT NOT NULL REFERENCES text(hex_hash)
+);
+
 CREATE TABLE page_vote (
     page_id INTEGER REFERENCES page(page_id),
     user_id INTEGER REFERENCES user(user_id),
