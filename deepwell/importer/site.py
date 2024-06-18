@@ -49,7 +49,8 @@ class SiteImporter:
 
         # replace only the first underscore
         # the second (if present) is a special page, like _404
-        return re.subn("_", ":", page_slug, 1)
+        converted, _ = re.subn("_", ":", page_slug, 1)
+        return converted
 
     @cache
     def get_site_id(self, site_url: str) -> int:
@@ -80,7 +81,6 @@ class SiteImporter:
         return int(match[1])
 
     def get_page_id(self, page_slug: str) -> int:
-        page_slug = self.convert_page_slug(page_slug)
         page_id = self.page_ids.get(page_slug)
         if page_id is not None:
             return page_id
