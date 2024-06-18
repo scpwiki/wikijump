@@ -27,7 +27,7 @@ CREATE TABLE page_metadata (
 );
 
 CREATE TABLE page_revision (
-    revision_id INTEGER PRIMARY KEY
+    revision_id INTEGER PRIMARY KEY,
     revision_number INTEGER NOT NULL CHECK (revision_number >= 0),
     page_id INTEGER NOT NULL REFERENCES page(page_id),
     user_id INTEGER NOT NULL REFERENCES user(user_id),
