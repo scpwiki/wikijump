@@ -165,7 +165,7 @@ class Database:
                 metadata["sitemap_update"] // 1000,
                 metadata["title"],
                 metadata["is_locked"],
-                json.dumps(metadata["tags"]),
+                json.dumps(metadata.get("tags", [])),
             ),
         )
 
