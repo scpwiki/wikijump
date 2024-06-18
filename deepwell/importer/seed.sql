@@ -3,6 +3,11 @@ CREATE TABLE blob (
     length INTEGER NOT NULL
 );
 
+CREATE TABLE text (
+    hex_hash TEXT PRIMARY KEY,
+    contents TEXT NOT NULL
+);
+
 CREATE TABLE site (
     site_slug TEXT PRIMARY KEY,
     site_descr TEXT NOT NULL,  -- Wikicomma name

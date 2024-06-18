@@ -1,10 +1,10 @@
-import os
 import json
 import logging
+import os
 import sqlite3
 
 from .wikicomma_config import SiteData
-from .utils import from_js_timestamp
+from .utils import kangaroo_twelve, from_js_timestamp
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +36,22 @@ class Database:
             # key is redundant, string of user ID
             for data in block.values():
                 self.add_user(cur, data)
+
+    def add_text(self, cur, contents: str) -> str:
+        logger.debug("Adding text entry (len %d)", len(contents))
+
+        hex_hash = kangaroo_twelve(contents)
+        cur.execute(
+            """
+            INSERT INTO text
+            VALUES (hex_hash, contents)
+            (?, ?)
+            ON CONFLICT
+            DO NOTHING
+            """,
+            (hex_hash, contents),
+        )
+        return hex_hash
 
     def add_site(self, *, slug: str, descr: str, url: str, id: int) -> None:
         logger.info(
