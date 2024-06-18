@@ -18,6 +18,34 @@ CREATE TABLE page (
     UNIQUE (site_slug, page_slug)
 );
 
+CREATE TABLE page_metadata (
+    page_id INTEGER PRIMARY KEY REFERENCES page(page_id),
+    sitemap_updated_at INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    locked INTEGER NOT NULL CHECK (locked IN (0, 1)),  -- boolean
+    tags TEXT NOT NULL  -- JSON
+);
+
+CREATE TABLE page_revision (
+    revision_id INTEGER PRIMARY KEY
+    revision_number INTEGER NOT NULL CHECK (revision_number >= 0),
+    page_id INTEGER NOT NULL REFERENCES page(page_id),
+    user_id INTEGER NOT NULL REFERENCES user(user_id),
+    created_at INTEGER NOT NULL,
+    flags TEXT NOT NULL,
+    comments TEXT NOT NULL,
+
+    UNIQUE (page_id, revision_number)
+);
+
+CREATE TABLE page_vote (
+    page_id INTEGER REFERENCES page(page_id),
+    user_id INTEGER REFERENCES user(user_id),
+    value INTEGER NOT NULL,
+
+    PRIMARY KEY (page_id, user_id)
+);
+
 CREATE TABLE file (
     file_id INTEGER PRIMARY KEY,
     site_slug TEXT NOT NULL REFERENCES site(site_slug),

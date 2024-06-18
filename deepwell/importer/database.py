@@ -1,4 +1,5 @@
 import os
+import json
 import logging
 import sqlite3
 
@@ -138,5 +139,84 @@ class Database:
                 page_id,
                 site_slug,
                 page_slug,
+            ),
+        )
+
+    def add_page_metadata(self, cur, page_id: int, metadata: dict) -> None:
+        logger.info("Inserting page metadata for page ID %d", page_id)
+
+        cur.execute(
+            """
+            INSERT INTO page_metadata
+            (
+                page_id,
+                sitemap_updated_at,
+                title,
+                locked,
+                tags
+            )
+            VALUES
+            (?, ?, ?, ?, ?)
+            ON CONFLICT
+            DO NOTHING
+            """,
+            (
+                metadata["page_id"],
+                metadata["sitemap_update"] // 1000,
+                metadata["title"],
+                metadata["is_locked"],
+                json.dumps(metadata["tags"]),
+            ),
+        )
+
+    def add_page_revision(self, cur, page_id: int, data: dict) -> None:
+        logger.info("Inserting page revision %d for page ID %d", data["revision"], page_id)
+
+        cur.execute(
+            """
+            INSERT INTO page_revision
+            (
+                revision_id,
+                revision_number,
+                page_id,
+                user_id,
+                created_at,
+                flags,
+                comments
+            )
+            """,
+            (
+                data["global_revision"],
+                data["revision"],
+                page_id,
+                data["author"],
+                data["stamp"],
+                data["flags"],
+                data["commentary"],
+            ),
+        )
+
+    def add_page_vote(self, cur, *, page_id: int, user_id: int, vote_value: int) -> None:
+        logger.info("Inserting page vote for page ID %d / user ID %d (value %d)", page_id, user_id, vote_value)
+
+        cur.execute(
+            """
+            INSERT INTO page_vote
+            (
+                page_id,
+                user_id,
+                value
+            )
+            VALUES
+            (?, ?, ?),
+            ON CONFLICT
+            DO UPDATE
+            SET value = ?
+            """,
+            (
+                page_id,
+                user_id,
+                vote_value,
+                vote_value,
             ),
         )

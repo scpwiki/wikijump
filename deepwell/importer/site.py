@@ -3,7 +3,7 @@ import logging
 import os
 import re
 from functools import cache
-from typing import Union
+from typing import Tuple, Union
 from urllib.request import urlopen
 
 from .database import Database
@@ -21,6 +21,7 @@ class SiteImporter:
         "site_slug",
         "site_url",
         "site_id",
+        "page_ids",
     )
 
     def __init__(
@@ -38,6 +39,7 @@ class SiteImporter:
         self.site_slug = site_slug
         self.site_url = site_url
         self.site_id = self.get_site_id(site_url)
+        self.page_ids = {}
 
     @cache
     def get_site_id(self, site_url: str) -> int:
@@ -66,6 +68,28 @@ class SiteImporter:
             raise ValueError(site_url)
 
         return int(match[1])
+
+    def get_page_id(self, page_slug: str) -> int:
+        page_id = self.page_ids.get(page_slug)
+        if page_id is not None:
+            return page_id
+
+        with self.database.conn as cur:
+            result = cur.execute(
+                """
+                SELECT page_id FROM page
+                WHERE page_slug = ?
+                AND site_slug = ?
+                """,
+                (page_slug, self.site_slug),
+            ).fetchone()
+
+        if result is not None:
+            (page_id,) = result
+            self.page_ids[page_slug] = page_id
+            return page_id
+
+        raise RuntimeError(f"Cannot find page ID for page '{page_slug}' in site '{self.site_slug}'")
 
     def file_dir(self) -> str:
         return os.path.join(self.directory, "files")
@@ -96,6 +120,7 @@ class SiteImporter:
 
     def process_pages(self) -> None:
         self.process_page_ids()
+        self.process_page_metadata()
         # TODO
         ...
 
@@ -106,12 +131,48 @@ class SiteImporter:
             for id_str, page_slug in mapping.items():
                 logger.debug("Found page '%s' (%s)", page_slug, id_str)
                 id = int(id_str)
+                self.page_ids[page_slug] = id
                 self.database.add_page(
                     cur,
                     site_slug=self.site_slug,
                     page_slug=page_slug,
                     page_id=id,
                 )
+
+    def process_page_metadata(self) -> None:
+        logger.info("Ingesting page revision metadata for site %s", self.site_slug)
+        meta_directory = self.meta_path("pages")
+        for path in os.listdir(meta_directory):
+            logger.debug("Processing page metadata %s", path)
+
+            page_slug, ext = os.path.splitext(path)
+            assert ext == ".json", "Extension for page metadata not JSON"
+
+            page_id = self.get_page_id(page_slug)
+            path = os.path.join(meta_directory, page_slug)
+            metadata = self.json(path)
+            assert metadata["page_slug"] == page_slug
+            assert metadata["page_id"] == page_id
+
+            with self.database.conn as cur:
+                self.database.add_page_metadata(
+                    cur,
+                    page_id,
+                    metadata,
+                )
+                self.process_page_revisions(cur, page_id, metadata["revisions"])
+                self.process_page_votes(cur, page_id, metadata["votings"])
+
+    def process_page_revisions(self, cur, page_id: int, revisions: list[dict]) -> None:
+        logger.debug("Ingesting page revision metadata for page ID %d", page_id)
+        for revision in revisions:
+            self.database.add_page_revision(cur, page_id, revision)
+
+    def process_page_votes(self, cur, page_id: int, votes: list[Tuple[int, int]]) -> None:
+        logger.debug("Ingesting page votes for page ID %d", page_id)
+        for user_id, bool_value in votes:
+            int_value = 1 if bool_value else -1
+            self.database.add_page_vote(cur, user_id=user_id, page_id=page_id, value=int_value)
 
     def process_files(self) -> None:
         # TODO
