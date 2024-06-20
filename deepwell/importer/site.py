@@ -114,7 +114,7 @@ class SiteImporter:
             AND revision_number = ?
             """,
             (page_id, revision_number),
-        )
+        ).fetchone()
         if result is None:
             raise RuntimeError(f"Cannot find page revision for (page {page_id}, rev {revision_number})")
         (revision_id,) = result
