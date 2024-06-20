@@ -44,7 +44,8 @@ class Database:
         cur.execute(
             """
             INSERT INTO text
-            VALUES (hex_hash, contents)
+            (hex_hash, contents)
+            VALUES
             (?, ?)
             ON CONFLICT
             DO NOTHING
@@ -248,7 +249,7 @@ class Database:
                 value
             )
             VALUES
-            (?, ?, ?),
+            (?, ?, ?)
             ON CONFLICT
             DO UPDATE
             SET value = ?
