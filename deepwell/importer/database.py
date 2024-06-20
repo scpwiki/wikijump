@@ -180,7 +180,7 @@ class Database:
             (
                 metadata["page_id"],
                 metadata["sitemap_update"] // 1000,
-                metadata["title"],
+                metadata.get("title", ""),
                 metadata["is_locked"],
                 json.dumps(metadata.get("tags", [])),
             ),
