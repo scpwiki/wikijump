@@ -22,49 +22,28 @@ use crate::services::job::{
     JOB_QUEUE_DELAY, JOB_QUEUE_MAXIMUM_SIZE, JOB_QUEUE_NAME, JOB_QUEUE_PROCESS_TIME,
 };
 use anyhow::Result;
-use redis::{ConnectionAddr, ConnectionInfo, IntoConnectionInfo, RedisConnectionInfo};
-use rsmq_async::{PoolOptions, PooledRsmq, RsmqConnection, RsmqOptions};
+use bb8::{ErrorSink, Pool};
+use redis::{Client as RedisClient, IntoConnectionInfo, RedisError};
+use rsmq_async::{PooledRsmq, RedisConnectionManager, RsmqConnection};
+
+const REDIS_POOL_SIZE: u32 = 12;
 
 pub async fn connect(redis_uri: &str) -> Result<(redis::Client, PooledRsmq)> {
     // Parse redis connection URI
     let redis = redis::Client::open(redis_uri)?;
     let mut rsmq = {
-        let ConnectionInfo {
-            addr,
-            redis:
-                RedisConnectionInfo {
-                    db,
-                    username,
-                    password,
-                },
-        } = redis_uri.into_connection_info()?;
+        let connection_info = redis_uri.into_connection_info()?;
+        let redis = RedisClient::open(connection_info)?;
+        let redis_conn = RedisConnectionManager::from_client(redis)?;
+        let pool = Pool::builder()
+            .max_size(REDIS_POOL_SIZE)
+            .error_sink(Box::new(RedisPoolErrorSink))
+            .test_on_check_out(true)
+            .build(redis_conn)
+            .await?;
 
-        let db = db
-            .try_into()
-            .expect("Database value too large for rsmq-async");
-
-        let (host, port) = match addr {
-            ConnectionAddr::Tcp(host, port) => (host, port),
-            ConnectionAddr::TcpTls { .. } => {
-                panic!("Redis over TLS not supported by rsmq-async")
-            }
-            ConnectionAddr::Unix(_) => {
-                panic!("Unix socket paths not supported by rsmq-async")
-            }
-        };
-
-        let options = RsmqOptions {
-            host,
-            port,
-            db,
-            username,
-            password,
-            realtime: false,  // not used, see crate docs
-            ns: str!("rsmq"), // namespace for RSMQ
-        };
-
-        // Create RSMQ client
-        PooledRsmq::new(options, PoolOptions::default()).await?
+        // No redis pubsub (realtime=false)
+        PooledRsmq::new_with_pool(pool, false, None)
     };
 
     // Set up queue if it doesn't already exist
@@ -84,6 +63,19 @@ pub async fn connect(redis_uri: &str) -> Result<(redis::Client, PooledRsmq)> {
     }
 
     Ok((redis, rsmq))
+}
+
+#[derive(Debug)]
+struct RedisPoolErrorSink;
+
+impl ErrorSink<RedisError> for RedisPoolErrorSink {
+    fn sink(&self, error: RedisError) {
+        error!("Redis connection pool error: {error}");
+    }
+
+    fn boxed_clone(&self) -> Box<dyn ErrorSink<RedisError>> {
+        Box::new(RedisPoolErrorSink)
+    }
 }
 
 async fn job_queue_exists(rsmq: &mut PooledRsmq) -> Result<bool> {

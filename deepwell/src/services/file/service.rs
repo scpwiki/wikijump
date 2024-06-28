@@ -66,12 +66,8 @@ impl FileService {
         }
 
         // Upload to S3, get derived metadata
-        let CreateBlobOutput {
-            hash,
-            mime,
-            size,
-            created: _,
-        } = BlobService::create(ctx, &data).await?;
+        let CreateBlobOutput { hash, mime, size } =
+            BlobService::create(ctx, &data).await?;
 
         // Add new file
         let model = file::ActiveModel {
@@ -144,12 +140,8 @@ impl FileService {
         let blob = match data {
             ProvidedValue::Unset => ProvidedValue::Unset,
             ProvidedValue::Set(bytes) => {
-                let CreateBlobOutput {
-                    hash,
-                    mime,
-                    size,
-                    created: _,
-                } = BlobService::create(ctx, &bytes).await?;
+                let CreateBlobOutput { hash, mime, size } =
+                    BlobService::create(ctx, &bytes).await?;
 
                 ProvidedValue::Set(FileBlob {
                     s3_hash: hash,

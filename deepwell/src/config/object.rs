@@ -64,9 +64,11 @@ pub struct Config {
     /// The files domain to serve user-generated content from.
     ///
     /// Always starts with a `.`
+    #[allow(dead_code)] // TEMP
     pub files_domain: String,
 
     /// The files domain, but without a leading `.`
+    #[allow(dead_code)] // TEMP
     pub files_domain_no_dot: String,
 
     /// Whether to auto-restart on configuration file change.
@@ -163,6 +165,7 @@ pub struct Config {
     pub rerender_skip: Vec<(u32, Option<TimeDuration>)>,
 
     /// Prefix for "special pages". Default: `_`
+    #[allow(dead_code)] // TEMP
     pub special_page_prefix: String,
 
     /// Page slug for the template page. Default: `_template`
