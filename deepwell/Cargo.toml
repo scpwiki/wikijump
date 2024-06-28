@@ -20,6 +20,7 @@ anyhow = "1"
 argon2 = "0.5"
 arraystring = "0.3"
 async-trait = "0.1"  # remove when trait async fn enhancements land
+bb8 = "0.8"
 cfg-if = "1"
 clap = "4"
 color-backtrace = "0.6"

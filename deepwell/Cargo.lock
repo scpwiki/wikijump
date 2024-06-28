@@ -709,6 +709,7 @@ dependencies = [
  "argon2",
  "arraystring",
  "async-trait",
+ "bb8",
  "built",
  "cfg-if",
  "clap",

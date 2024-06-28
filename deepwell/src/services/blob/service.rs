@@ -86,11 +86,7 @@ impl BlobService {
                 // Content-Type header should be passed in
                 let mime = result.content_type.ok_or(Error::S3Response)?;
 
-                Ok(CreateBlobOutput {
-                    hash,
-                    mime,
-                    size,
-                })
+                Ok(CreateBlobOutput { hash, mime, size })
             }
 
             // Blob doesn't exist, insert it
@@ -107,11 +103,7 @@ impl BlobService {
 
                 // We assume all unexpected statuses are errors, even if 1XX or 2XX
                 match response.status_code() {
-                    200 => Ok(CreateBlobOutput {
-                        hash,
-                        mime,
-                        size,
-                    }),
+                    200 => Ok(CreateBlobOutput { hash, mime, size }),
                     _ => s3_error(&response, "creating S3 blob"),
                 }
             }
