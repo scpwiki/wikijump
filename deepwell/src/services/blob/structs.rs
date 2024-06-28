@@ -26,10 +26,10 @@ pub struct CreateBlobOutput {
     pub hash: BlobHash,
     pub mime: String,
     pub size: i64,
-    pub created: bool,
 }
 
 #[derive(Debug)]
+#[allow(dead_code)] // TEMP
 pub struct BlobMetadata {
     pub mime: String,
     pub size: i64,

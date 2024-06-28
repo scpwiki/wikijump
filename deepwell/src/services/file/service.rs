@@ -70,7 +70,6 @@ impl FileService {
             hash,
             mime,
             size,
-            created: _,
         } = BlobService::create(ctx, &data).await?;
 
         // Add new file
@@ -148,7 +147,6 @@ impl FileService {
                     hash,
                     mime,
                     size,
-                    created: _,
                 } = BlobService::create(ctx, &bytes).await?;
 
                 ProvidedValue::Set(FileBlob {

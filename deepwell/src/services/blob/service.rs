@@ -67,7 +67,6 @@ impl BlobService {
                 hash: EMPTY_BLOB_HASH,
                 mime: str!(EMPTY_BLOB_MIME),
                 size: 0,
-                created: false,
             });
         }
 
@@ -91,7 +90,6 @@ impl BlobService {
                     hash,
                     mime,
                     size,
-                    created: false,
                 })
             }
 
@@ -113,7 +111,6 @@ impl BlobService {
                         hash,
                         mime,
                         size,
-                        created: true,
                     }),
                     _ => s3_error(&response, "creating S3 blob"),
                 }

@@ -62,11 +62,6 @@ pub struct BotOwner {
     pub description: String,
 }
 
-#[derive(Deserialize, Debug, Clone)]
-pub struct CreateBotOwnerBody {
-    pub description: String,
-}
-
 #[derive(Serialize, Debug, Clone)]
 pub struct BotUserOutput {
     pub user: UserModel,
