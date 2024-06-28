@@ -21,7 +21,10 @@
 use serde::{Deserialize, Serialize};
 
 /// A deserialized response from the MailCheck API.
+///
+/// Describes all the fields received from the API, but not all fields are used.
 #[derive(Deserialize, Debug, Clone)]
+#[allow(dead_code)]
 pub struct MailCheckResponse {
     pub status: u16,
     pub email: String,
