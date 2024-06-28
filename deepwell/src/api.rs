@@ -144,7 +144,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
             //
             // Contains a wrapper around each to set up state, convert error types,
             // and produce a transaction used in ServiceContext, passed in.
-            module.register_async_method($name, |params, state| async move {
+            module.register_async_method($name, |params, state, _extensions| async move {
                 // NOTE: We have our own Arc because we need to share it in some places
                 //       before setting up, but RpcModule insists on adding its own.
                 //       So we need to "unwrap it" before each method invocation.
