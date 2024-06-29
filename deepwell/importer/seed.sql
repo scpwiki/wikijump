@@ -59,10 +59,8 @@ CREATE TABLE page_vote (
 
 CREATE TABLE file (
     file_id INTEGER PRIMARY KEY,
-    site_slug TEXT NOT NULL REFERENCES site(site_slug),
-    page_slug TEXT NOT NULL,
-
-    FOREIGN KEY (site_slug, page_slug) REFERENCES page(site_slug, page_slug)
+    page_id INTEGER NOT NULL REFERENCES page(page_id),
+    site_slug TEXT NOT NULL REFERENCES site(site_slug)
 );
 
 CREATE TABLE user (
