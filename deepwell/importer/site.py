@@ -227,9 +227,11 @@ class SiteImporter:
                 self.database.add_page_revision_wikitext(cur, revision_id, contents)
 
     def process_files(self) -> None:
+        logger.info("Ingesting files for site %s", self.site_slug)
         # TODO
         ...
 
     def process_forum(self) -> None:
+        logger.info("Ingesting forum data for site %s", self.site_slug)
         # TODO
         ...
