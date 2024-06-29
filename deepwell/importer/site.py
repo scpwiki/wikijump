@@ -81,11 +81,11 @@ class SiteImporter:
                 WHERE page_metadata.page_descr = ?
                     AND page.site_slug = ?
                 """,
-                (page_slug, self.site_slug),
+                (page_descr, self.site_slug),
             ).fetchone()
 
         if result is None:
-            raise RuntimeError(f"Cannot find page ID for page '{page_slug}' in site '{self.site_slug}'")
+            raise RuntimeError(f"Cannot find page ID for page descr '{page_descr}' in site '{self.site_slug}'")
 
         (page_id,) = result
         return page_id
