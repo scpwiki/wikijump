@@ -42,7 +42,7 @@ class S3:
             logger.debug("S3 object %s already exists", s3_path)
         else:
             logger.info("Uploading S3 object %s (len %d)", s3_path, len(data))
-            self.client.upload_file(
+            self.client.put_object(
                 Bucket=self.bucket,
                 Key=s3_path,
                 Body=data,

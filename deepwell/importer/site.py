@@ -95,7 +95,9 @@ class SiteImporter:
                     """
                     parameters = (page_descr, self.site_slug)
                 case _, _:
-                    raise ValueError("Must pass exactly one parameter into get_page_id()")
+                    raise ValueError(
+                        "Must pass exactly one parameter into get_page_id()",
+                    )
 
             result = cur.execute(query, parameters).fetchone()
 
@@ -250,8 +252,8 @@ class SiteImporter:
             with py7zr.SevenZipFile(path, "r") as archive:
                 sources = archive.readall()
 
+            page_id = self.get_page_id(page_descr=page_descr)
             # Convert and begin adding to the database
-            page_id = self.get_page_id(page_descr)
             self.process_page_revisions_wikitext(page_id, sources)
 
     def process_page_revisions_wikitext(
@@ -282,16 +284,27 @@ class SiteImporter:
         logger.info("Ingesting files for site %s", self.site_slug)
 
         mapping = self.json(self.meta_path("file_map.json"))
-        for file_id, entry in mapping.items():
-            file_id = int(file_id)
-            wikidot_url = entry["url"]
-            page_slug_url, filename = os.path.split(entry["path"])
-            page_slug = percent_quote(page_slug_url)
-            logger.debug("Processing file stored at %s", wikidot_url)
+        with self.database.conn as cur:
+            for file_id, entry in mapping.items():
+                file_id = int(file_id)
+                wikidot_url = entry["url"]
+                logger.debug("Processing file stored at %s", wikidot_url)
 
-            self.
+                page_slug_url, filename = os.path.split(entry["path"])
+                page_slug = percent_unquote(page_slug_url)
+                page_id = self.get_page_id(page_slug=page_slug)
 
-            # TODO
+                path = os.path.join(self.file_dir, page_slug_url, str(file_id))
+                s3_hash = self.s3.upload(path)
+
+                self.database.add_file(
+                    cur,
+                    file_id=file_id,
+                    page_id=page_id,
+                    site_slug=self.site_slug,
+                    filename=filename,
+                    s3_hash=s3_hash,
+                )
 
         # TODO
         ...

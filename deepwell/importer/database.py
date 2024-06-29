@@ -288,7 +288,7 @@ class Database:
                 s3_hash
             )
             VALUES
-            (?, ?, ?, ?)
+            (?, ?, ?, ?, ?)
             ON CONFLICT
             DO UPDATE
             SET filename = ?,
