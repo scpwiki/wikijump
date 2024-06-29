@@ -159,26 +159,29 @@ class Database:
             ),
         )
 
-    def add_page_metadata(self, cur, page_id: int, metadata: dict) -> None:
-        logger.info("Inserting page metadata for page ID %d", page_id)
+    def add_page_metadata(self, cur, page_descr: str, metadata: dict) -> None:
+        page_slug = metadata["name"]
+        logger.info("Inserting page metadata for page '%s'", page_slug)
 
         cur.execute(
             """
             INSERT INTO page_metadata
             (
                 page_id,
+                page_descr,
                 sitemap_updated_at,
                 title,
                 locked,
                 tags
             )
             VALUES
-            (?, ?, ?, ?, ?)
+            (?, ?, ?, ?, ?, ?)
             ON CONFLICT
             DO NOTHING
             """,
             (
                 metadata["page_id"],
+                page_descr,
                 metadata["sitemap_update"] // 1000,
                 metadata.get("title", ""),
                 metadata["is_locked"],

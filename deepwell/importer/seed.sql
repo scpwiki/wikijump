@@ -25,6 +25,7 @@ CREATE TABLE page (
 
 CREATE TABLE page_metadata (
     page_id INTEGER PRIMARY KEY REFERENCES page(page_id),
+    page_descr TEXT NOT NULL,
     sitemap_updated_at INTEGER NOT NULL,
     title TEXT NOT NULL,
     locked INTEGER NOT NULL CHECK (locked IN (0, 1)),  -- boolean
