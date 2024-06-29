@@ -163,23 +163,17 @@ class SiteImporter:
         for path in os.listdir(meta_directory):
             logger.debug("Processing page metadata from '%s'", path)
 
-            page_slug, ext = os.path.splitext(path)
+            # NOTE: Usually page_slug is the same as page_descr, but if
+            #       there are any colons in it, then they don't match.
+            #       So we can use it as a temporary unique identifier
+            #       but *not* as the slug.
+            page_descr, ext = os.path.splitext(path)
             assert ext == ".json", "Extension for page metadata not JSON"
             path = os.path.join(meta_directory, path)
 
-            page_slug = self.convert_page_slug(page_slug)
-            page_id = self.get_page_id(page_slug)
-
             metadata = self.json(path)
-            assert metadata["page_id"] == page_id
-            assert metadata["name"] == page_slug
-
             with self.database.conn as cur:
-                self.database.add_page_metadata(
-                    cur,
-                    page_id,
-                    metadata,
-                )
+                self.database.add_page_metadata(cur, page_descr, metadata)
                 self.process_page_revisions_metadata(cur, page_id, metadata["revisions"])
                 self.process_page_votes(cur, page_id, metadata["votings"])
 
@@ -199,12 +193,11 @@ class SiteImporter:
         for path in os.listdir(self.page_dir):
             logger.debug("Processing page wikitext from '%s'", path)
 
-            page_slug, ext = os.path.splitext(path)
+            # See above note on page_descr
+            page_descr, ext = os.path.splitext(path)
             assert ext == ".7z", "Extension for page wikitexts not 7z"
             path = os.path.join(self.page_dir, path)
-
-            page_slug = self.convert_page_slug(page_slug)
-            page_id = self.get_page_id(page_slug)
+            page_id = self.get_page_id(page_descr)
 
             # Extract page sources for each revision
             with py7zr.SevenZipFile(path, "r") as archive:
