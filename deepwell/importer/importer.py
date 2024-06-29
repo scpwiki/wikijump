@@ -82,6 +82,7 @@ class Importer:
         site_importer = SiteImporter(
             directory=directory,
             database=self.database,
+            s3=self.s3,
             site_descr=site_data.descr,
             site_slug=site_data.slug,
             site_url=site_data.url,

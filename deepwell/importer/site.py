@@ -11,6 +11,7 @@ from urllib.request import urlopen
 import py7zr
 
 from .database import Database
+from .s3 import S3
 
 SITE_ID_REGEX = re.compile(r"WIKIREQUEST\.info\.siteId = (\d+);")
 
@@ -21,6 +22,7 @@ class SiteImporter:
     __slots__ = (
         "directory",
         "database",
+        "s3",
         "site_descr",
         "site_slug",
         "site_url",
@@ -32,12 +34,14 @@ class SiteImporter:
         *,
         directory: str,
         database: Database,
+        s3: S3,
         site_descr: str,
         site_slug: str,
         site_url: str,
     ) -> None:
         self.directory = directory
         self.database = database
+        self.s3 = s3
         self.site_descr = site_descr
         self.site_slug = site_slug
         self.site_url = site_url
@@ -272,6 +276,8 @@ class SiteImporter:
             page_slug_url, filename = os.path.split(entry["path"])
             page_slug = percent_quote(page_slug_url)
             logger.debug("Processing file stored at %s", wikidot_url)
+
+            self.
 
             # TODO
 

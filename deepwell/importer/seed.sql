@@ -57,7 +57,8 @@ CREATE TABLE page_vote (
 CREATE TABLE file (
     file_id INTEGER PRIMARY KEY,
     page_id INTEGER NOT NULL REFERENCES page(page_id),
-    site_slug TEXT NOT NULL REFERENCES site(site_slug)
+    site_slug TEXT NOT NULL REFERENCES site(site_slug),
+    s3_hash TEXT NOT NULL
 );
 
 CREATE TABLE user (
