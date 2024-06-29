@@ -149,7 +149,6 @@ class SiteImporter:
             for id_str, page_slug in mapping.items():
                 logger.debug("Found page '%s' (%s)", page_slug, id_str)
                 id = int(id_str)
-                self.page_ids[page_slug] = id
                 self.database.add_page(
                     cur,
                     site_slug=self.site_slug,
