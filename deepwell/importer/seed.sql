@@ -17,19 +17,16 @@ CREATE TABLE site (
 
 CREATE TABLE page (
     page_id INTEGER PRIMARY KEY,
-    site_slug TEXT NOT NULL REFERENCES site(site_slug),
-    page_slug TEXT NOT NULL,
-
-    UNIQUE (site_slug, page_slug)
-);
-
-CREATE TABLE page_metadata (
-    page_id INTEGER PRIMARY KEY REFERENCES page(page_id),
     page_descr TEXT NOT NULL,
+    page_slug TEXT NOT NULL,
+    site_slug TEXT NOT NULL REFERENCES site(site_slug),
     sitemap_updated_at INTEGER NOT NULL,
     title TEXT NOT NULL,
     locked INTEGER NOT NULL CHECK (locked IN (0, 1)),  -- boolean
-    tags TEXT NOT NULL  -- JSON
+    tags TEXT NOT NULL,  -- JSON
+
+    UNIQUE (site_slug, page_descr),
+    UNIQUE (site_slug, page_slug)
 );
 
 CREATE TABLE page_revision (
