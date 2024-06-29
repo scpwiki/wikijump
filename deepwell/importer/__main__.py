@@ -10,6 +10,7 @@ from .wikicomma_config import parse_config
 
 LOG_FORMAT = "[%(levelname)s] %(asctime)s %(name)s: %(message)s"
 LOG_DATE_FORMAT = "%Y/%m/%d %H:%M:%S"
+LOG_FILENAME = "import.log"
 
 if __name__ == "__main__":
     argparser = argparse.ArgumentParser(description="WikiComma importer")
@@ -20,6 +21,12 @@ if __name__ == "__main__":
         dest="stdout",
         action="store_false",
         help="Don't output to standard out",
+    )
+    argparser.add_argument(
+        "--log",
+        dest="log_file",
+        default=LOG_FILENAME,
+        help="The log file to write to",
     )
     argparser.add_argument(
         "-c",
@@ -69,12 +76,18 @@ if __name__ == "__main__":
     args = argparser.parse_args()
 
     log_fmtr = logging.Formatter(LOG_FORMAT, datefmt=LOG_DATE_FORMAT)
-    log_stdout = logging.StreamHandler(sys.stdout)
-    log_stdout.setFormatter(log_fmtr)
+
+    log_file = logging.FileHandler(filename=LOG_FILENAME, encoding="utf-8", mode=logging.DEBUG)
+    log_file.setFormatter(log_fmtr)
 
     logger = logging.getLogger(__package__)
     logger.setLevel(level=logging.DEBUG)
-    logger.addHandler(log_stdout)
+    logger.addHandler(log_file)
+
+    if not args.quiet:
+        log_stdout = logging.StreamHandler(sys.stdout)
+        log_stdout.setFormatter(log_fmtr)
+        logger.addHandler(log_stdout)
 
     wikicomma_config = parse_config(args.wikicomma_config)
 
