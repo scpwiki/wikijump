@@ -306,9 +306,6 @@ class SiteImporter:
                     s3_hash=s3_hash,
                 )
 
-        # TODO
-        ...
-
     def process_forum(self) -> None:
         logger.info("Ingesting forum data for site %s", self.site_slug)
         # TODO
