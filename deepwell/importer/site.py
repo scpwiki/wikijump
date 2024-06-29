@@ -24,7 +24,6 @@ class SiteImporter:
         "site_slug",
         "site_url",
         "site_id",
-        "page_ids",
     )
 
     def __init__(
@@ -42,18 +41,6 @@ class SiteImporter:
         self.site_slug = site_slug
         self.site_url = site_url
         self.site_id = self.get_site_id(site_url)
-        self.page_ids = {}
-
-    @staticmethod
-    def convert_page_slug(page_slug: str) -> str:
-        if page_slug.startswith("_"):
-            # a _default category page that starts with an underscore, e.g. _template
-            return page_slug
-
-        # replace only the first underscore
-        # the second (if present) is a special page, like _404
-        converted, _ = re.subn("_", ":", page_slug, 1)
-        return converted
 
     @cache
     def get_site_id(self, site_url: str) -> int:
@@ -83,27 +70,25 @@ class SiteImporter:
 
         return int(match[1])
 
-    def get_page_id(self, page_slug: str) -> int:
-        page_id = self.page_ids.get(page_slug)
-        if page_id is not None:
-            return page_id
-
+    def get_page_id(self, page_descr: str) -> int:
         with self.database.conn as cur:
             result = cur.execute(
                 """
-                SELECT page_id FROM page
-                WHERE page_slug = ?
-                AND site_slug = ?
+                SELECT page.page_id
+                FROM page
+                JOIN page_metadata
+                    ON page.page_id = page_metadata.page_id
+                WHERE page_metadata.page_descr = ?
+                    AND page.site_slug = ?
                 """,
                 (page_slug, self.site_slug),
             ).fetchone()
 
-        if result is not None:
-            (page_id,) = result
-            self.page_ids[page_slug] = page_id
-            return page_id
+        if result is None:
+            raise RuntimeError(f"Cannot find page ID for page '{page_slug}' in site '{self.site_slug}'")
 
-        raise RuntimeError(f"Cannot find page ID for page '{page_slug}' in site '{self.site_slug}'")
+        (page_id,) = result
+        return page_id
 
     def get_revision_id(self, cur, page_id: int, revision_number: int) -> int:
         result = cur.execute(
