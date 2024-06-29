@@ -1,3 +1,4 @@
+import hashlib
 import logging
 
 import boto3
@@ -32,7 +33,7 @@ class S3:
     def upload(self, file_path: str) -> str:
         with open(path, "rb") as file:
             data = file.read()
-            s3_path = hashlib.sha256(data).hexdigest()
+            s3_path = hashlib.sha256(data).hexdigest()  # files use SHA256, text uses K12
 
         if not data:
             logger.debug("Skipping upload of empty S3 object")
