@@ -11,6 +11,7 @@ from .wikicomma_config import parse_config
 LOG_FORMAT = "[%(levelname)s] %(asctime)s %(name)s: %(message)s"
 LOG_DATE_FORMAT = "%Y/%m/%d %H:%M:%S"
 LOG_FILENAME = "import.log"
+LOG_FILE_MODE = "a"
 
 if __name__ == "__main__":
     argparser = argparse.ArgumentParser(description="WikiComma importer")
@@ -77,7 +78,7 @@ if __name__ == "__main__":
 
     log_fmtr = logging.Formatter(LOG_FORMAT, datefmt=LOG_DATE_FORMAT)
 
-    log_file = logging.FileHandler(filename=LOG_FILENAME, encoding="utf-8", mode=logging.DEBUG)
+    log_file = logging.FileHandler(filename=LOG_FILENAME, encoding="utf-8", mode=LOG_FILE_MODE)
     log_file.setFormatter(log_fmtr)
 
     logger = logging.getLogger(__package__)
