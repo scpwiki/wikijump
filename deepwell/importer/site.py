@@ -169,11 +169,11 @@ class SiteImporter:
             page_descr, ext = os.path.splitext(path)
             assert ext == ".json", "Extension for page metadata not JSON"
             path = os.path.join(meta_directory, path)
-            page_id = self.get_page_id(page_descr)
 
             metadata = self.json(path)
             with self.database.conn as cur:
                 self.database.add_page_metadata(cur, page_descr, metadata)
+                page_id = self.get_page_id(page_descr)
                 self.process_page_revisions_metadata(cur, page_id, metadata["revisions"])
                 self.process_page_votes(cur, page_id, metadata["votings"])
 
@@ -197,13 +197,13 @@ class SiteImporter:
             page_descr, ext = os.path.splitext(path)
             assert ext == ".7z", "Extension for page wikitexts not 7z"
             path = os.path.join(self.page_dir, path)
-            page_id = self.get_page_id(page_descr)
 
             # Extract page sources for each revision
             with py7zr.SevenZipFile(path, "r") as archive:
                 sources = archive.readall()
 
             # Convert and begin adding to the database
+            page_id = self.get_page_id(page_descr)
             self.process_page_revisions_wikitext(page_id, sources)
 
     def process_page_revisions_wikitext(self, page_id: int, sources: dict[str, BytesIO]) -> None:
