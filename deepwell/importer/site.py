@@ -75,12 +75,10 @@ class SiteImporter:
         with self.database.conn as cur:
             result = cur.execute(
                 """
-                SELECT page_metadata.page_id
+                SELECT page_id
                 FROM page
-                JOIN page_metadata
-                    ON page.page_id = page_metadata.page_id
-                WHERE page_metadata.page_descr = ?
-                    AND page.site_slug = ?
+                WHERE page_descr = ?
+                    AND site_slug = ?
                 """,
                 (page_descr, self.site_slug),
             ).fetchone()
@@ -163,25 +161,10 @@ class SiteImporter:
         ...
 
     def process_pages(self) -> None:
-        self.process_page_ids()
         self.process_page_metadata()
         self.process_page_wikitext()
         # TODO
         ...
-
-    def process_page_ids(self) -> None:
-        logger.info("Ingesting page ID mappings for site %s", self.site_slug)
-        mapping = self.json(self.meta_path("page_id_map.json"))
-        with self.database.conn as cur:
-            for id_str, page_slug in mapping.items():
-                logger.debug("Found page '%s' (%s)", page_slug, id_str)
-                id = int(id_str)
-                self.database.add_page(
-                    cur,
-                    site_slug=self.site_slug,
-                    page_slug=page_slug,
-                    page_id=id,
-                )
 
     def process_page_metadata(self) -> None:
         logger.info("Ingesting page revision metadata for site %s", self.site_slug)
@@ -199,8 +182,13 @@ class SiteImporter:
 
             metadata = self.json(path)
             with self.database.conn as cur:
-                self.database.add_page_metadata(cur, page_descr, metadata)
-                page_id = self.get_page_id(page_descr)
+                self.database.add_page(
+                    cur,
+                    site_slug=self.site_slug,
+                    page_descr=page_descr,
+                    metadata=metadata,
+                )
+                page_id = metadata["page_id"]
                 self.process_page_revisions_metadata(
                     cur,
                     page_id,

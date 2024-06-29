@@ -136,12 +136,11 @@ class Database:
             ),
         )
 
-    def add_page(self, cur, *, page_id: int, site_slug: str, page_slug: str) -> None:
+    def add_page(self, cur, *, site_slug: str, page_descr: str, metadata: dict) -> None:
         logger.info(
-            "Inserting into site '%s' page '%s' (%d)",
+            "Inserting into site '%s' page descr '%s'",
             site_slug,
-            page_slug,
-            page_id,
+            page_descr,
         )
 
         cur.execute(
@@ -149,44 +148,24 @@ class Database:
             INSERT INTO page
             (
                 page_id,
-                site_slug,
-                page_slug
-            )
-            VALUES
-            (?, ?, ?)
-            ON CONFLICT
-            DO NOTHING
-            """,
-            (
-                page_id,
-                site_slug,
-                page_slug,
-            ),
-        )
-
-    def add_page_metadata(self, cur, page_descr: str, metadata: dict) -> None:
-        page_slug = metadata["name"]
-        logger.info("Inserting page metadata for page '%s'", page_slug)
-
-        cur.execute(
-            """
-            INSERT INTO page_metadata
-            (
-                page_id,
                 page_descr,
+                page_slug,
+                site_slug,
                 sitemap_updated_at,
                 title,
                 locked,
                 tags
             )
             VALUES
-            (?, ?, ?, ?, ?, ?)
+            (?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT
             DO NOTHING
             """,
             (
                 metadata["page_id"],
                 page_descr,
+                metadata["name"],
+                site_slug,
                 metadata["sitemap_update"] // 1000,
                 metadata.get("title", ""),
                 metadata["is_locked"],
