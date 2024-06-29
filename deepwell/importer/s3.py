@@ -31,7 +31,7 @@ class S3:
             return False
 
     def upload(self, file_path: str) -> str:
-        with open(path, "rb") as file:
+        with open(file_path, "rb") as file:
             data = file.read()
             # files use SHA256, text uses K12
             s3_path = hashlib.sha256(data).hexdigest()
@@ -43,7 +43,7 @@ class S3:
         else:
             logger.info("Uploading S3 object %s (len %d)", s3_path, len(data))
             self.client.upload_file(
-                Bucket=self.s3_bucket,
+                Bucket=self.bucket,
                 Key=s3_path,
                 Body=data,
                 ContentLength=len(data),
