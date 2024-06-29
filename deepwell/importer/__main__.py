@@ -77,7 +77,6 @@ if __name__ == "__main__":
     args = argparser.parse_args()
 
     log_fmtr = logging.Formatter(LOG_FORMAT, datefmt=LOG_DATE_FORMAT)
-
     log_file = logging.FileHandler(
         filename=LOG_FILENAME,
         encoding="utf-8",
