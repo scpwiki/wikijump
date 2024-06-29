@@ -5,6 +5,7 @@ import re
 from functools import cache
 from io import BytesIO
 from typing import Tuple, Union
+from urllib.parse import quote as percent_quote
 from urllib.request import urlopen
 
 import py7zr
@@ -248,6 +249,17 @@ class SiteImporter:
 
     def process_files(self) -> None:
         logger.info("Ingesting files for site %s", self.site_slug)
+
+        mapping = self.json(self.meta_path("file_map.json"))
+        for file_id, entry in mapping.items():
+            file_id = int(file_id)
+            wikidot_url = entry["url"]
+            page_slug_url, filename = os.path.split(entry["path"])
+            page_slug = percent_quote(page_slug_url)
+            logger.debug("Processing file stored at %s", wikidot_url)
+
+            # TODO
+
         # TODO
         ...
 
