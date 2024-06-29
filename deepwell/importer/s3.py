@@ -29,7 +29,7 @@ class S3:
         except:
             return False
 
-    def upload(self, file_path: str) -> None:
+    def upload(self, file_path: str) -> str:
         with open(path, "rb") as file:
             data = file.read()
             s3_path = hashlib.sha256(data).hexdigest()
@@ -46,3 +46,5 @@ class S3:
                 Body=data,
                 ContentLength=len(data),
             )
+
+        return s3_path
