@@ -74,7 +74,7 @@ class SiteImporter:
         with self.database.conn as cur:
             result = cur.execute(
                 """
-                SELECT page.page_id
+                SELECT page_metadata.page_id
                 FROM page
                 JOIN page_metadata
                     ON page.page_id = page_metadata.page_id
@@ -89,6 +89,26 @@ class SiteImporter:
 
         (page_id,) = result
         return page_id
+
+    def get_page_descr(self, page_id: int) -> str:
+        with self.database.conn as cur:
+            result = cur.execute(
+                """
+                SELECT page_metadata.page_descr
+                FROM page
+                JOIN page_metadata
+                    ON page.page_id = page_metadata.page_id
+                WHERE page_metadata.page_id = ?
+                    AND page.site_slug = ?
+                """,
+                (page_id, self.site_slug),
+            ).fetchone()
+
+        if result is None:
+            raise RuntimeError(f"Cannot find page descr for page ID {page_id} in site '{self.site_slug}'")
+
+        (page_descr,) = result
+        return page_descr
 
     def get_revision_id(self, cur, page_id: int, revision_number: int) -> int:
         result = cur.execute(
