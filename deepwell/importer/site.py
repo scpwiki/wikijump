@@ -157,14 +157,12 @@ class SiteImporter:
             id=self.site_id,
         )
         self.process_pages()
-        # TODO
-        ...
+        self.process_files()
+        self.process_forum()
 
     def process_pages(self) -> None:
         self.process_page_metadata()
         self.process_page_wikitext()
-        # TODO
-        ...
 
     def process_page_metadata(self) -> None:
         logger.info("Ingesting page revision metadata for site %s", self.site_slug)
