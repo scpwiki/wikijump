@@ -5,7 +5,7 @@ import re
 from functools import cache
 from io import BytesIO
 from typing import Tuple, Union
-from urllib.parse import quote as percent_quote
+from urllib.parse import unquote as percent_unquote
 from urllib.request import urlopen
 
 import py7zr
@@ -75,21 +75,33 @@ class SiteImporter:
 
         return int(match[1])
 
-    def get_page_id(self, page_descr: str) -> int:
+    def get_page_id(self, *, page_slug: str = None, page_descr: str = None) -> int:
         with self.database.conn as cur:
-            result = cur.execute(
-                """
-                SELECT page_id
-                FROM page
-                WHERE page_descr = ?
-                    AND site_slug = ?
-                """,
-                (page_descr, self.site_slug),
-            ).fetchone()
+            match bool(page_slug), bool(page_descr):
+                case True, False:
+                    query = """
+                    SELECT page_id
+                    FROM page
+                    WHERE page_slug = ?
+                        AND site_slug = ?
+                    """
+                    parameters = (page_slug, self.site_slug)
+                case False, True:
+                    query = """
+                    SELECT page_id
+                    FROM page
+                    WHERE page_descr = ?
+                        AND site_slug = ?
+                    """
+                    parameters = (page_descr, self.site_slug)
+                case _, _:
+                    raise ValueError("Must pass exactly one parameter into get_page_id()")
+
+            result = cur.execute(query, parameters).fetchone()
 
         if result is None:
             raise RuntimeError(
-                f"Cannot find page ID for page descr '{page_descr}' in site '{self.site_slug}'",
+                f"Cannot find page ID for page_descr={page_descr} / page_slug={page_slug} in site '{self.site_slug}'",
             )
 
         (page_id,) = result
