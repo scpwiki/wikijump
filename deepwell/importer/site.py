@@ -86,7 +86,9 @@ class SiteImporter:
             ).fetchone()
 
         if result is None:
-            raise RuntimeError(f"Cannot find page ID for page descr '{page_descr}' in site '{self.site_slug}'")
+            raise RuntimeError(
+                f"Cannot find page ID for page descr '{page_descr}' in site '{self.site_slug}'",
+            )
 
         (page_id,) = result
         return page_id
@@ -106,7 +108,9 @@ class SiteImporter:
             ).fetchone()
 
         if result is None:
-            raise RuntimeError(f"Cannot find page descr for page ID {page_id} in site '{self.site_slug}'")
+            raise RuntimeError(
+                f"Cannot find page descr for page ID {page_id} in site '{self.site_slug}'",
+            )
 
         (page_descr,) = result
         return page_descr
@@ -122,7 +126,9 @@ class SiteImporter:
             (page_id, revision_number),
         ).fetchone()
         if result is None:
-            raise RuntimeError(f"Cannot find page revision for (page {page_id}, rev {revision_number})")
+            raise RuntimeError(
+                f"Cannot find page revision for (page {page_id}, rev {revision_number})",
+            )
         (revision_id,) = result
         return revision_id
 
@@ -195,19 +201,38 @@ class SiteImporter:
             with self.database.conn as cur:
                 self.database.add_page_metadata(cur, page_descr, metadata)
                 page_id = self.get_page_id(page_descr)
-                self.process_page_revisions_metadata(cur, page_id, metadata["revisions"])
+                self.process_page_revisions_metadata(
+                    cur,
+                    page_id,
+                    metadata["revisions"],
+                )
                 self.process_page_votes(cur, page_id, metadata["votings"])
 
-    def process_page_revisions_metadata(self, cur, page_id: int, revisions: list[dict]) -> None:
+    def process_page_revisions_metadata(
+        self,
+        cur,
+        page_id: int,
+        revisions: list[dict],
+    ) -> None:
         logger.debug("Ingesting page revision metadata for page ID %d", page_id)
         for revision in revisions:
             self.database.add_page_revision_metadata(cur, page_id, revision)
 
-    def process_page_votes(self, cur, page_id: int, votes: list[Tuple[int, int]]) -> None:
+    def process_page_votes(
+        self,
+        cur,
+        page_id: int,
+        votes: list[Tuple[int, int]],
+    ) -> None:
         logger.debug("Ingesting page votes for page ID %d", page_id)
         for user_id, bool_value in votes:
             int_value = 1 if bool_value else -1
-            self.database.add_page_vote(cur, user_id=user_id, page_id=page_id, value=int_value)
+            self.database.add_page_vote(
+                cur,
+                user_id=user_id,
+                page_id=page_id,
+                value=int_value,
+            )
 
     def process_page_wikitext(self) -> None:
         logger.info("Ingesting page wikitext for site %s", self.site_slug)
@@ -227,7 +252,11 @@ class SiteImporter:
             page_id = self.get_page_id(page_descr)
             self.process_page_revisions_wikitext(page_id, sources)
 
-    def process_page_revisions_wikitext(self, page_id: int, sources: dict[str, BytesIO]) -> None:
+    def process_page_revisions_wikitext(
+        self,
+        page_id: int,
+        sources: dict[str, BytesIO],
+    ) -> None:
         logger.debug("Ingesting %d page revision wikitexts", len(sources))
 
         with self.database.conn as cur:

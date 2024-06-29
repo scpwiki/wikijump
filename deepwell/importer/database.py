@@ -137,7 +137,12 @@ class Database:
         )
 
     def add_page(self, cur, *, page_id: int, site_slug: str, page_slug: str) -> None:
-        logger.info("Inserting into site '%s' page '%s' (%d)", site_slug, page_slug, page_id)
+        logger.info(
+            "Inserting into site '%s' page '%s' (%d)",
+            site_slug,
+            page_slug,
+            page_id,
+        )
 
         cur.execute(
             """
@@ -190,7 +195,11 @@ class Database:
         )
 
     def add_page_revision_metadata(self, cur, page_id: int, data: dict) -> None:
-        logger.info("Inserting page revision %d for page ID %d", data["revision"], page_id)
+        logger.info(
+            "Inserting page revision %d for page ID %d",
+            data["revision"],
+            page_id,
+        )
 
         cur.execute(
             """
@@ -240,8 +249,20 @@ class Database:
             ),
         )
 
-    def add_page_vote(self, cur, *, page_id: int, user_id: int, vote_value: int) -> None:
-        logger.info("Inserting page vote for page ID %d / user ID %d (value %d)", page_id, user_id, vote_value)
+    def add_page_vote(
+        self,
+        cur,
+        *,
+        page_id: int,
+        user_id: int,
+        vote_value: int,
+    ) -> None:
+        logger.info(
+            "Inserting page vote for page ID %d / user ID %d (value %d)",
+            page_id,
+            user_id,
+            vote_value,
+        )
 
         cur.execute(
             """

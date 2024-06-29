@@ -78,7 +78,11 @@ if __name__ == "__main__":
 
     log_fmtr = logging.Formatter(LOG_FORMAT, datefmt=LOG_DATE_FORMAT)
 
-    log_file = logging.FileHandler(filename=LOG_FILENAME, encoding="utf-8", mode=LOG_FILE_MODE)
+    log_file = logging.FileHandler(
+        filename=LOG_FILENAME,
+        encoding="utf-8",
+        mode=LOG_FILE_MODE,
+    )
     log_file.setFormatter(log_fmtr)
 
     logger = logging.getLogger(__package__)
