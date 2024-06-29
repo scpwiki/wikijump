@@ -264,3 +264,43 @@ class Database:
                 vote_value,
             ),
         )
+
+    def add_file(
+        self,
+        cur,
+        *,
+        file_id: int,
+        page_id: int,
+        site_slug: str,
+        filename: str,
+        s3_hash: str,
+    ) -> None:
+        logger.info("Inserting file for page ID %d", page_id)
+
+        cur.execute(
+            """
+            INSERT INTO file
+            (
+                file_id,
+                page_id,
+                site_slug,
+                filename,
+                s3_hash
+            )
+            VALUES
+            (?, ?, ?, ?)
+            ON CONFLICT
+            DO UPDATE
+            SET filename = ?,
+                s3_hash = ?
+            """,
+            (
+                file_id,
+                page_id,
+                site_slug,
+                filename,
+                s3_hash,
+                filename,
+                s3_hash,
+            ),
+        )
