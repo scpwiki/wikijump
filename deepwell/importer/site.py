@@ -160,8 +160,8 @@ class SiteImporter:
     def page_dir(self) -> str:
         return os.path.join(self.directory, "pages")
 
-    def meta_path(self, path: str) -> str:
-        return os.path.join(self.directory, "meta", path)
+    def meta_path(self, *paths: str) -> str:
+        return os.path.join(self.directory, "meta", *paths)
 
     def json(self, path: str) -> Union[list, dict]:
         with open(path) as file:
