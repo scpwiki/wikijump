@@ -85,7 +85,7 @@ if __name__ == "__main__":
     logger.setLevel(level=logging.DEBUG)
     logger.addHandler(log_file)
 
-    if not args.quiet:
+    if args.stdout:
         log_stdout = logging.StreamHandler(sys.stdout)
         log_stdout.setFormatter(log_fmtr)
         logger.addHandler(log_stdout)
