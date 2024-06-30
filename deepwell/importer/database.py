@@ -331,7 +331,7 @@ class Database:
                 version
             )
             VALUES
-            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT
             DO NOTHING
             """,

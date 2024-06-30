@@ -308,10 +308,11 @@ class SiteImporter:
 
     def process_forum(self) -> None:
         logger.info("Ingesting forum data for site %s", self.site_slug)
+        self.process_forum_category_metadata()
         self.process_forum_categories()
         # TODO
 
-    def process_forum_categories(self) -> None:
+    def process_forum_category_metadata(self) -> None:
         logger.debug("Processing forum categories")
         directory = self.meta_path("forum", "category")
         with self.database.conn as cur:
@@ -320,8 +321,12 @@ class SiteImporter:
 
                 forum_category_id_str, ext = os.path.splitext(path)
                 forum_category_id = int(forum_category_id_str)
-                assert ext = ".json", "Extension for forum category metadata not JSON"
+                assert ext == ".json", "Extension for forum category metadata not JSON"
                 path = os.path.join(directory, path)
 
                 metadata = self.json(path)
                 self.database.add_forum_category(cur, self.site_slug, metadata)
+
+    def process_forum_categories(self) -> None:
+        # TODO
+        ...

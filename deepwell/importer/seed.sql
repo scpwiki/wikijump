@@ -86,7 +86,7 @@ CREATE TABLE forum_category (
     last_posted_at INTEGER NOT NULL,
     thread_count INTEGER NOT NULL,
     post_count INTEGER NOT NULL,
-    full_scan INTEGER NOT NULL (full_scan IN (0, 1)),  -- boolean
+    full_scan INTEGER NOT NULL CHECK (full_scan IN (0, 1)),  -- boolean
     last_page INTEGER NOT NULL,
     version INTEGER NOT NULL
 );
@@ -100,7 +100,7 @@ CREATE TABLE forum_thread (
     last_user_id INTEGER NOT NULL REFERENCES user(user_id),
     thread_count INTEGER NOT NULL,
     post_count INTEGER NOT NULL,
-    full_scan INTEGER NOT NULL (full_scan IN (0, 1)),  -- boolean
+    full_scan INTEGER NOT NULL CHECK (full_scan IN (0, 1)),  -- boolean
     last_page INTEGER NOT NULL,
     version INTEGER NOT NULL
 );
@@ -112,7 +112,7 @@ CREATE TABLE forum_post (
     created_at INTEGER NOT NULL,
     created_by INTEGER NOT NULL REFERENCES user(user_id),
     edited_at INTEGER NOT NULL,
-    edited_by INTEGER NOT NULL REFERENCES user(user_id),
+    edited_by INTEGER NOT NULL REFERENCES user(user_id)
 );
 
 CREATE TABLE forum_post_revision (
