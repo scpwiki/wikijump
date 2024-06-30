@@ -185,19 +185,19 @@ class SiteImporter:
     def process_page_metadata(self) -> None:
         logger.info("Ingesting page revision metadata for site %s", self.site_slug)
         meta_directory = self.meta_path("pages")
-        for path in os.listdir(meta_directory):
-            logger.debug("Processing page metadata from '%s'", path)
+        with self.database.conn as cur:
+            for path in os.listdir(meta_directory):
+                logger.debug("Processing page metadata from '%s'", path)
 
-            # NOTE: Usually page_slug is the same as page_descr, but if
-            #       there are any colons in it, then they don't match.
-            #       So we can use it as a temporary unique identifier
-            #       but *not* as the slug.
-            page_descr, ext = os.path.splitext(path)
-            assert ext == ".json", "Extension for page metadata not JSON"
-            path = os.path.join(meta_directory, path)
+                # NOTE: Usually page_slug is the same as page_descr, but if
+                #       there are any colons in it, then they don't match.
+                #       So we can use it as a temporary unique identifier
+                #       but *not* as the slug.
+                page_descr, ext = os.path.splitext(path)
+                assert ext == ".json", "Extension for page metadata not JSON"
+                path = os.path.join(meta_directory, path)
 
-            metadata = self.json(path)
-            with self.database.conn as cur:
+                metadata = self.json(path)
                 self.database.add_page(
                     cur,
                     site_slug=self.site_slug,
@@ -308,5 +308,20 @@ class SiteImporter:
 
     def process_forum(self) -> None:
         logger.info("Ingesting forum data for site %s", self.site_slug)
+        self.process_forum_categories()
         # TODO
-        ...
+
+    def process_forum_categories(self) -> None:
+        logger.debug("Processing forum categories")
+        directory = self.meta_path("forum", "category")
+        with self.database.conn as cur:
+            for path in os.listdir(directory):
+                logger.debug("Processing forum category metadata from '%s'", path)
+
+                forum_category_id_str, ext = os.path.splitext(path)
+                forum_category_id = int(forum_category_id_str)
+                assert ext = ".json", "Extension for forum category metadata not JSON"
+                path = os.path.join(directory, path)
+
+                metadata = self.json(path)
+                self.database.add_forum_category(cur, self.site_slug, metadata)

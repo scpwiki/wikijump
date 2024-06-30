@@ -304,3 +304,48 @@ class Database:
                 s3_hash,
             ),
         )
+
+    def add_forum_category(
+        self,
+        cur,
+        site_slug: str,
+        metadata: dict,
+    ) -> None:
+        forum_category_id = metadata["id"]
+        logger.info("Inserting forum category ID %d", forum_category_id)
+
+        cur.execute(
+            """
+            INSERT INTO forum_category
+            (
+                forum_category_id,
+                site_slug,
+                title,
+                description,
+                last_user_id,
+                last_posted_at,
+                thread_count,
+                post_count,
+                full_scan,
+                last_page,
+                version
+            )
+            VALUES
+            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT
+            DO NOTHING
+            """,
+            (
+                forum_category_id,
+                site_slug,
+                metadata["title"],
+                metadata["description"],
+                metadata["lastUser"],
+                metadata["last"],
+                metadata["threads"],
+                metadata["posts"],
+                metadata["full_scan"],
+                metadata["last_page"],
+                metadata["version"],
+            ),
+        )
