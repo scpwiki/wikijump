@@ -93,25 +93,23 @@ CREATE TABLE forum_category (
 CREATE TABLE forum_thread (
     forum_thread_id INTEGER PRIMARY KEY,
     forum_category_id INTEGER NOT NULL REFERENCES forum_category(forum_category_id),
-    site_slug TEXT NOT NULL REFERENCES site(site_slug),
     title TEXT NOT NULL,
     description TEXT NOT NULL,
-    last_user_id INTEGER REFERENCES user(user_id),
-    thread_count INTEGER,
-    post_count INTEGER,
-    full_scan INTEGER NOT NULL CHECK (full_scan IN (0, 1)),  -- boolean
-    last_page INTEGER NOT NULL,
-    version INTEGER NOT NULL
+    created_at INTEGER NOT NULL,
+    created_by INTEGER NOT NULL REFERENCES users(user_id),
+    post_count INTEGER NOT NULL,
+    sticky INTEGER NOT NULL CHECK (sticky IN (0, 1)),  -- boolean
+    locked INTEGER NOT NULL CHECK (locked IN (0, 1)),  -- boolean
+    version INTEGER
 );
 
 CREATE TABLE forum_post (
     forum_post_id INTEGER PRIMARY KEY,
     forum_thread_id INTEGER NOT NULL REFERENCES forum_thread(forum_thread_id),
+    parent_post_id INTEGER REFERENCES forum_post(forum_post_id),
     title TEXT NOT NULL,
     created_at INTEGER NOT NULL,
-    created_by INTEGER NOT NULL REFERENCES user(user_id),
-    edited_at INTEGER NOT NULL,
-    edited_by INTEGER NOT NULL REFERENCES user(user_id)
+    created_by INTEGER NOT NULL REFERENCES user(user_id)
 );
 
 CREATE TABLE forum_post_revision (

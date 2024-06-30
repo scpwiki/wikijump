@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import sqlite3
+from typing import Optional
 
 from .wikicomma_config import SiteData
 from .utils import kangaroo_twelve, from_js_timestamp
@@ -345,5 +346,80 @@ class Database:
                 metadata["full_scan"],
                 metadata["last_page"],
                 metadata["version"],
+            ),
+        )
+
+    def add_forum_thread(self, cur, forum_category_id: int, metadata: dict) -> None:
+        forum_thread_id = metadata["id"]
+        logger.info("Inserting forum thread ID %d", forum_thread_id)
+
+        cur.execute(
+            """
+            INSERT INTO forum_thread
+            (
+                forum_thread_id,
+                forum_category_id,
+                title,
+                description,
+                created_at,
+                created_by,
+                post_count,
+                sticky,
+                locked,
+                version
+            )
+            VALUES
+            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT
+            DO NOTHING
+            """,
+            (
+                forum_thread_id,
+                forum_category_id,
+                metadata["title"],
+                metadata["description"],
+                metadata["started"],
+                metadata["startedUser"],
+                metadata["postsNum"],
+                metadata["sticky"],
+                metadata["isLocked"],
+                metadata.get("version"),
+            ),
+        )
+
+    def add_forum_post(
+        self,
+        cur,
+        *,
+        forum_thread_id: int,
+        parent_post_id: Optional[int],
+        metadata: dict,
+    ) -> None:
+        forum_post_id = metadata["id"]
+        logger.info("Inserting forum post ID %d", forum_post_id)
+
+        cur.execute(
+            """
+            INSERT INTO forum_post
+            (
+                forum_post_id,
+                forum_thread_id,
+                parent_post_id,
+                title,
+                created_at,
+                created_by
+            )
+            VALUES
+            (?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT
+            DO NOTHING
+            """,
+            (
+                forum_post_id,
+                forum_thread_id,
+                parent_post_id,
+                metadata["title"],
+                metadata["stamp"],
+                metadata["poster"],
             ),
         )

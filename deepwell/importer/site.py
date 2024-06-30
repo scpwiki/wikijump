@@ -313,7 +313,7 @@ class SiteImporter:
         # TODO
 
     def process_forum_category_metadata(self) -> None:
-        logger.debug("Processing forum categories")
+        logger.debug("Processing forum categories (metadata)")
         directory = self.meta_path("forum", "category")
 
         if not os.path.isdir(directory):
@@ -333,5 +333,30 @@ class SiteImporter:
                 self.database.add_forum_category(cur, self.site_slug, metadata)
 
     def process_forum_categories(self) -> None:
-        # TODO
-        ...
+        logger.debug("Processing forum categories")
+        directory = self.meta_path("forum")
+
+        if not os.path.isdir(directory):
+            logger.warning("No forum category parent directory")
+            return
+
+        for path in os.listdir(directory):
+            logger.debug("Processing forum category directory '%s'", path)
+
+            if path == "category":
+                # Special metadata directory, see above
+                continue
+
+            forum_category_id = int(path)
+            directory = os.path.join(directory, path)
+
+            with self.database.conn as cur:
+                for path in os.listdir(directory):
+                    logger.debug("Processing forum thread directory '%s'", directory)
+
+                    path = os.path.join(directory, path)
+                    metadata = self.json(path)
+
+                    self.database.add_forum_thread(cur, forum_category_id, metadata)
+
+                    # TODO handle posts, parents, revisions
