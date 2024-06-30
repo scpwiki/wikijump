@@ -109,7 +109,9 @@ CREATE TABLE forum_post (
     parent_post_id INTEGER REFERENCES forum_post(forum_post_id),
     title TEXT NOT NULL,
     created_at INTEGER NOT NULL,
-    created_by INTEGER NOT NULL REFERENCES user(user_id)
+    created_by INTEGER NOT NULL REFERENCES user(user_id),
+    edited_at INTEGER NOT NULL,
+    edited_by INTEGER NOT NULL REFERENCES user(user_id)
 );
 
 CREATE TABLE forum_post_revision (
@@ -118,4 +120,9 @@ CREATE TABLE forum_post_revision (
     title TEXT NOT NULL,
     created_at INTEGER NOT NULL,
     created_by INTEGER NOT NULL REFERENCES user(user_id)
+);
+
+CREATE TABLE forum_post_revision_wikitext (
+    forum_post_revision_id INTEGER PRIMARY KEY REFERENCES forum_post_revision(forum_post_revision_id),
+    wikitext_hash TEXT NOT NULL REFERENCES text(hex_hash)
 );
