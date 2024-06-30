@@ -315,6 +315,11 @@ class SiteImporter:
     def process_forum_category_metadata(self) -> None:
         logger.debug("Processing forum categories")
         directory = self.meta_path("forum", "category")
+
+        if not os.path.isdir(directory):
+            logger.warning("No forum category metadata directory")
+            return
+
         with self.database.conn as cur:
             for path in os.listdir(directory):
                 logger.debug("Processing forum category metadata from '%s'", path)
