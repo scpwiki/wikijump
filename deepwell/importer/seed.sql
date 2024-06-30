@@ -82,9 +82,9 @@ CREATE TABLE forum_category (
     site_slug TEXT NOT NULL REFERENCES site(site_slug),
     title TEXT NOT NULL,
     description TEXT NOT NULL,
-    last_user_id INTEGER NOT NULL REFERENCES user(user_id),
-    thread_count INTEGER NOT NULL,
-    post_count INTEGER NOT NULL,
+    last_user_id INTEGER REFERENCES user(user_id),
+    thread_count INTEGER,
+    post_count INTEGER,
     full_scan INTEGER NOT NULL CHECK (full_scan IN (0, 1)),  -- boolean
     last_page INTEGER NOT NULL,
     version INTEGER NOT NULL
@@ -96,9 +96,9 @@ CREATE TABLE forum_thread (
     site_slug TEXT NOT NULL REFERENCES site(site_slug),
     title TEXT NOT NULL,
     description TEXT NOT NULL,
-    last_user_id INTEGER NOT NULL REFERENCES user(user_id),
-    thread_count INTEGER NOT NULL,
-    post_count INTEGER NOT NULL,
+    last_user_id INTEGER REFERENCES user(user_id),
+    thread_count INTEGER,
+    post_count INTEGER,
     full_scan INTEGER NOT NULL CHECK (full_scan IN (0, 1)),  -- boolean
     last_page INTEGER NOT NULL,
     version INTEGER NOT NULL
