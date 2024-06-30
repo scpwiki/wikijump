@@ -348,13 +348,13 @@ class SiteImporter:
                 continue
 
             forum_category_id = int(path)
-            directory = os.path.join(directory, path)
+            thread_directory = os.path.join(directory, path)
 
             with self.database.conn as cur:
-                for path in os.listdir(directory):
-                    logger.debug("Processing forum thread directory '%s'", directory)
+                for path in os.listdir(thread_directory):
+                    logger.debug("Processing forum thread directory '%s'", thread_directory)
 
-                    path = os.path.join(directory, path)
+                    path = os.path.join(thread_directory, path)
                     metadata = self.json(path)
 
                     self.database.add_forum_thread(cur, forum_category_id, metadata)
