@@ -308,11 +308,10 @@ class SiteImporter:
 
     def process_forum(self) -> None:
         logger.info("Ingesting forum data for site %s", self.site_slug)
-        self.process_forum_category_metadata()
         self.process_forum_categories()
-        # TODO
+        self.process_forum_data()
 
-    def process_forum_category_metadata(self) -> None:
+    def process_forum_categories(self) -> None:
         logger.debug("Processing forum categories (metadata)")
         directory = self.meta_path("forum", "category")
 
@@ -332,7 +331,7 @@ class SiteImporter:
                 metadata = self.json(path)
                 self.database.add_forum_category(cur, self.site_slug, metadata)
 
-    def process_forum_categories(self) -> None:
+    def process_forum_data(self) -> None:
         logger.debug("Processing forum categories")
         directory = self.meta_path("forum")
 
