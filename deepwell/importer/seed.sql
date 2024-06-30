@@ -83,7 +83,6 @@ CREATE TABLE forum_category (
     title TEXT NOT NULL,
     description TEXT NOT NULL,
     last_user_id INTEGER NOT NULL REFERENCES user(user_id),
-    last_posted_at INTEGER NOT NULL,
     thread_count INTEGER NOT NULL,
     post_count INTEGER NOT NULL,
     full_scan INTEGER NOT NULL CHECK (full_scan IN (0, 1)),  -- boolean

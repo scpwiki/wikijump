@@ -323,7 +323,6 @@ class Database:
                 title,
                 description,
                 last_user_id,
-                last_posted_at,
                 thread_count,
                 post_count,
                 full_scan,
@@ -331,7 +330,7 @@ class Database:
                 version
             )
             VALUES
-            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT
             DO NOTHING
             """,
@@ -341,7 +340,6 @@ class Database:
                 metadata["title"],
                 metadata["description"],
                 metadata["lastUser"],
-                metadata["last"],
                 metadata["threads"],
                 metadata["posts"],
                 metadata["full_scan"],
