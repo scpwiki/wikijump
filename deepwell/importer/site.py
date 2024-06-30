@@ -4,7 +4,7 @@ import os
 import re
 from functools import cache
 from io import BytesIO
-from typing import Tuple, Union
+from typing import Optional, Tuple, Union
 from urllib.parse import unquote as percent_unquote
 from urllib.request import urlopen
 
@@ -349,13 +349,24 @@ class SiteImporter:
             forum_category_id = int(path)
             thread_directory = os.path.join(directory, path)
 
-            with self.database.conn as cur:
-                for path in os.listdir(thread_directory):
+            for path in os.listdir(thread_directory):
+                with self.database.conn as cur:
                     logger.debug("Processing forum thread directory '%s'", thread_directory)
 
                     path = os.path.join(thread_directory, path)
-                    metadata = self.json(path)
+                    thread_metadata = self.json(path)
 
-                    self.database.add_forum_thread(cur, forum_category_id, metadata)
+                    self.database.add_forum_thread(cur, forum_category_id, thread_metadata)
 
-                    # TODO handle posts, parents, revisions
+                    for post in thread_metadata["posts"]:
+                        self.process_post(cur, thread_id=thread_metadata["id"], parent_post_id=None, metadata=post)
+
+    def process_post(self, cur, *, thread_id: int, parent_post_id: Optional[int], metadata: dict) -> None:
+        ...
+        post_id = metadata["id"]
+        self.database.add_forum_post(cur, ...)
+        # TODO handle posts, parents, revisions
+        for revision in metadata["revisions"]:
+            ...
+            for child_post in revision["children"]:
+                self.process_post(cur, thread_id=thread_id, parent_post_id=post_id, metadata=child_post)
