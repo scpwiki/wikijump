@@ -175,7 +175,7 @@ class SiteImporter:
             id=self.site_id,
         )
         self.process_pages()
-        self.process_files()
+        # self.process_files() XXX
         self.process_forum()
 
     def process_pages(self) -> None:
@@ -351,22 +351,54 @@ class SiteImporter:
 
             for path in os.listdir(thread_directory):
                 with self.database.conn as cur:
-                    logger.debug("Processing forum thread directory '%s'", thread_directory)
+                    logger.debug(
+                        "Processing forum thread directory '%s'",
+                        thread_directory,
+                    )
 
                     path = os.path.join(thread_directory, path)
                     thread_metadata = self.json(path)
 
-                    self.database.add_forum_thread(cur, forum_category_id, thread_metadata)
+                    self.database.add_forum_thread(
+                        cur,
+                        forum_category_id,
+                        thread_metadata,
+                    )
 
                     for post in thread_metadata["posts"]:
-                        self.process_post(cur, thread_id=thread_metadata["id"], parent_post_id=None, metadata=post)
+                        self.process_post(
+                            cur,
+                            thread_id=thread_metadata["id"],
+                            metadata=post,
+                        )
 
-    def process_post(self, cur, *, thread_id: int, parent_post_id: Optional[int], metadata: dict) -> None:
-        ...
+    def process_post(
+        self,
+        cur,
+        *,
+        thread_id: int,
+        parent_post_id: Optional[int] = None,
+        metadata: dict,
+    ) -> None:
+        logger.info("Processing forum post in %d (parent %s)", thread_id, parent_post_id)
         post_id = metadata["id"]
-        self.database.add_forum_post(cur, ...)
-        # TODO handle posts, parents, revisions
+        self.database.add_forum_post(
+            cur,
+            forum_thread_id=thread_id,
+            parent_post_id=parent_post_id,
+            metadata=metadata,
+        )
+
+        logger.debug("Found %d children in forum post", len(metadata["children"]))
+        for child_post in metadata["children"]:
+            self.process_post(
+                cur,
+                thread_id=thread_id,
+                parent_post_id=post_id,
+                metadata=child_post,
+            )
+
+        logger.debug("Found %d revisions for forum post", len(metadata["revisions"]))
+        metadata["revisions"].sort(key=lambda d: d["id"])
         for revision in metadata["revisions"]:
-            ...
-            for child_post in revision["children"]:
-                self.process_post(cur, thread_id=thread_id, parent_post_id=post_id, metadata=child_post)
+            self.database.add_forum_post_revision(cur, post_id, revision)

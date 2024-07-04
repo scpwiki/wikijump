@@ -427,3 +427,29 @@ class Database:
                 metadata.get("lastEditBy"),
             ),
         )
+
+    def add_forum_post_revision(self, cur, post_id: int, metadata: dict) -> None:
+        revision_id = metadata["id"]
+        logger.info("Inserting forum post ID %d (revision ID %d)", post_id, revision_id)
+
+        cur.execute(
+            """
+            INSERT INTO forum_post_revision
+            (
+                forum_post_revision_id,
+                forum_post_id,
+                title,
+                created_at,
+                created_by
+            )
+            VALUES
+            (?, ?, ?, ?, ?)
+            """,
+            (
+                revision_id,
+                post_id,
+                metadata["title"],
+                metadata["stamp"],
+                metadata["author"],
+            ),
+        )
