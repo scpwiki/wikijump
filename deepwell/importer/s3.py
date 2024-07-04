@@ -12,13 +12,15 @@ class S3:
         "session",
         "client",
         "bucket",
+        "database",
     )
 
-    def __init__(self, *, aws_profile, bucket) -> None:
+    def __init__(self, *, aws_profile, bucket, database) -> None:
         self.aws_profile = aws_profile
         self.session = boto3.Session(profile_name=aws_profile)
         self.client = self.session.client("s3")
         self.bucket = bucket
+        self.database = database
 
     def exists(self, s3_path: str) -> bool:
         try:
@@ -48,5 +50,8 @@ class S3:
                 Body=data,
                 ContentLength=len(data),
             )
+
+            with self.database.conn as cur:
+                self.database.add_blob(cur, s3_path, len(data))
 
         return s3_path

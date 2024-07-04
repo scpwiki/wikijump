@@ -266,6 +266,18 @@ class Database:
             ),
         )
 
+    def add_blob(self, cur, hex_hash: str, length: int) -> None:
+        logger.info("Inserting blob record %s", hex_hash)
+
+        cur.execute(
+            """
+            INSERT INTO blob
+            (hex_hash, length)
+            VALUES (?, ?)
+            """,
+            (hex_hash, length),
+        )
+
     def add_file(
         self,
         cur,

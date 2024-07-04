@@ -74,7 +74,7 @@ CREATE TABLE file (
     page_id INTEGER NOT NULL REFERENCES page(page_id),
     site_slug TEXT NOT NULL REFERENCES site(site_slug),
     filename TEXT NOT NULL,
-    s3_hash TEXT NOT NULL
+    s3_hash TEXT NOT NULL REFERENCES blob(hex_hash)
 );
 
 CREATE TABLE forum_category (

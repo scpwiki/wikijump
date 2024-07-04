@@ -32,7 +32,7 @@ class Importer:
         self.wikicomma_config = wikicomma_config
         self.wikicomma_directory = wikicomma_directory
         self.database = Database(sqlite_path, delete=delete_sqlite)
-        self.s3 = S3(aws_profile=aws_profile, bucket=s3_bucket)
+        self.s3 = S3(aws_profile=aws_profile, bucket=s3_bucket, database=self.database)
 
     def run(self) -> None:
         logger.info("Starting Wikicomma importer...")
