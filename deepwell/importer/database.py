@@ -489,8 +489,16 @@ class Database:
             (forum_post_id, hex_hash, hex_hash),
         )
 
-    def add_forum_post_revision_wikitext(self, cur, forum_post_revision_id: int, contents: str):
-        logger.info("Inserting forum post revision wikitext for ID %d", forum_post_revision_id)
+    def add_forum_post_revision_wikitext(
+        self,
+        cur,
+        forum_post_revision_id: int,
+        contents: str,
+    ):
+        logger.info(
+            "Inserting forum post revision wikitext for ID %d",
+            forum_post_revision_id,
+        )
         hex_hash = self.add_text(cur, contents)
 
         cur.execute(

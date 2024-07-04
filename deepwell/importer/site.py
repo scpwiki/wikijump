@@ -381,7 +381,11 @@ class SiteImporter:
         parent_post_id: Optional[int] = None,
         metadata: dict,
     ) -> None:
-        logger.info("Processing forum post in %d (parent %s)", thread_id, parent_post_id)
+        logger.info(
+            "Processing forum post in %d (parent %s)",
+            thread_id,
+            parent_post_id,
+        )
         post_id = metadata["id"]
         self.database.add_forum_post(
             cur,
@@ -415,7 +419,10 @@ class SiteImporter:
 
         # Each forum category
         for category_id_str in os.listdir(self.forum_dir):
-            logger.debug("Processing forum wikitext for category ID %s", category_id_str)
+            logger.debug(
+                "Processing forum wikitext for category ID %s",
+                category_id_str,
+            )
             category_id = int(category_id_str)
             directory = os.path.join(self.forum_dir, category_id_str)
 
@@ -426,7 +433,10 @@ class SiteImporter:
                 path = os.path.join(directory, path)
 
                 thread_id = int(thread_id_str)
-                logger.debug("Processing forum wikitext for thread ID %s", thread_id_str)
+                logger.debug(
+                    "Processing forum wikitext for thread ID %s",
+                    thread_id_str,
+                )
 
                 # Extract page sources for each post and revision
                 with py7zr.SevenZipFile(path, "r") as archive:
@@ -461,4 +471,8 @@ class SiteImporter:
                 # Per-revision wikitext
                 else:
                     revision_id = int(revision)
-                    self.database.add_forum_post_revision_wikitext(cur, revision_id, contents)
+                    self.database.add_forum_post_revision_wikitext(
+                        cur,
+                        revision_id,
+                        contents,
+                    )
