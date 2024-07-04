@@ -407,10 +407,12 @@ class Database:
                 parent_post_id,
                 title,
                 created_at,
-                created_by
+                created_by,
+                edited_at,
+                edited_by
             )
             VALUES
-            (?, ?, ?, ?, ?, ?, ?)
+            (?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT
             DO NOTHING
             """,
@@ -421,5 +423,7 @@ class Database:
                 metadata["title"],
                 metadata["stamp"],
                 metadata["poster"],
+                metadata.get("lastEdit"),
+                metadata.get("lastEditBy"),
             ),
         )

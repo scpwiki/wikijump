@@ -110,8 +110,8 @@ CREATE TABLE forum_post (
     title TEXT NOT NULL,
     created_at INTEGER NOT NULL,
     created_by INTEGER NOT NULL REFERENCES user(user_id),
-    edited_at INTEGER NOT NULL,
-    edited_by INTEGER NOT NULL REFERENCES user(user_id)
+    edited_at INTEGER,
+    edited_by INTEGER REFERENCES user(user_id)
 );
 
 CREATE TABLE forum_post_revision (
