@@ -115,6 +115,11 @@ CREATE TABLE forum_post (
     edited_by INTEGER REFERENCES user(user_id)
 );
 
+CREATE TABLE forum_post_wikitext (
+    forum_post_id INTEGER PRIMARY KEY REFERENCES forum_post(forum_post_id),
+    wikitext_hash TEXT NOT NULL REFERENCES text(hex_hash)
+);
+
 CREATE TABLE forum_post_revision (
     forum_post_revision_id INTEGER PRIMARY KEY,
     forum_post_id INTEGER NOT NULL REFERENCES forum_post(forum_post_id),

@@ -274,7 +274,7 @@ class SiteImporter:
                 # Get revision ID
                 revision_id = self.get_revision_id(cur, page_id, revision_number)
 
-                # Converting from binary, mostly to ensure it's UTF-8
+                # Convert from binary, mostly to ensure it's UTF-8
                 contents = buf.read().decode("utf-8")
 
                 # Run ingestion for this revision
@@ -310,6 +310,7 @@ class SiteImporter:
         logger.info("Ingesting forum data for site %s", self.site_slug)
         self.process_forum_categories()
         self.process_forum_data()
+        self.process_forum_wikitext()
 
     def process_forum_categories(self) -> None:
         logger.debug("Processing forum categories (metadata)")
@@ -404,3 +405,56 @@ class SiteImporter:
 
             for revision in metadata["revisions"]:
                 self.database.add_forum_post_revision(cur, post_id, revision)
+
+    def process_forum_wikitext(self) -> None:
+        logger.info("Ingesting forum wikitext for site %s", self.site_slug)
+
+        # Each forum category
+        for category_id_str in os.listdir(self.forum_dir):
+            logger.debug("Processing forum wikitext for category ID %s", category_id_str)
+            category_id = int(category_id_str)
+            directory = os.path.join(self.forum_dir, category_id_str)
+
+            # Each forum thread
+            for path in os.listdir(directory):
+                thread_id_str, ext = os.path.splitext(path)
+                assert ext == ".7z", "Extension for forum wikitexts not 7z"
+                path = os.path.join(directory, path)
+
+                thread_id = int(thread_id_str)
+                logger.debug("Processing forum wikitext for thread ID %s", thread_id_str)
+
+                # Extract page sources for each post and revision
+                with py7zr.SevenZipFile(path, "r") as archive:
+                    sources = archive.readall()
+
+                # Convert and begin adding to the database
+                self.process_forum_revisions_wikitext(thread_id, sources)
+
+    def process_forum_revisions_wikitext(
+        self,
+        thread_id: int,
+        sources: dict[str, BytesIO],
+    ) -> None:
+        logger.debug("Ingesting %d forum thread revision wikitexts", len(sources))
+
+        with self.database.conn as cur:
+            for path, buf in sources.items():
+                post_id_str, filename = os.path.split(path)
+                revision, ext = os.path.splitext(filename)
+                assert ext == ".html", "Extension for forum revision HTML not html"
+                post_id = int(post_id_str)
+
+                # Convert from binary, mostly to ensure it's UTF-8
+                contents = buf.read().decode("utf-8")
+
+                # This is kind of a mess because we don't have
+                # forum post revision IDs for the latest revision. :(
+
+                # Per-post wikitext
+                if revision == "latest":
+                    self.database.add_forum_post_revision(cur, post_id, contents)
+                # Per-revision wikitext
+                else:
+                    revision_id = int(revision)
+                    self.database.add_forum_post_revision_wikitext(cur, revision_id, contents)
