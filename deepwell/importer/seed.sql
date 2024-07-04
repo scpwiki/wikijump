@@ -115,6 +115,7 @@ CREATE TABLE forum_post (
     edited_by INTEGER REFERENCES user(user_id)
 );
 
+-- For the latest post revision's wikitext
 CREATE TABLE forum_post_wikitext (
     forum_post_id INTEGER PRIMARY KEY REFERENCES forum_post(forum_post_id),
     wikitext_hash TEXT NOT NULL REFERENCES text(hex_hash)
