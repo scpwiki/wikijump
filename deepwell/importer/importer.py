@@ -65,7 +65,7 @@ class Importer:
 
         for site_descr in os.listdir(self.wikicomma_directory):
             if site_descr == "_users":
-                logger.debug("Skipping user list")
+                logger.debug("Skipping user list, not a site")
                 continue
             elif site_descr.endswith(".torrent"):
                 logger.debug("Skipping torrent file from Wikicomma sync")
