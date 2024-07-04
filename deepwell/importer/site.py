@@ -446,7 +446,7 @@ class SiteImporter:
                 post_id = int(post_id_str)
 
                 # Convert from binary, mostly to ensure it's UTF-8
-                contents = buf.read().decode("utf-8")
+                contents = buf.read().decode("utf-8").strip()
 
                 # This is kind of a mess because we don't have
                 # forum post revision IDs for the latest revision. :(
