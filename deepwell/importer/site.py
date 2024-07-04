@@ -175,7 +175,7 @@ class SiteImporter:
             id=self.site_id,
         )
         self.process_pages()
-        # self.process_files() XXX
+        self.process_files()
         self.process_forum()
 
     def process_pages(self) -> None:
