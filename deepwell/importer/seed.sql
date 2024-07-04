@@ -1,5 +1,6 @@
 CREATE TABLE blob (
     hex_hash TEXT PRIMARY KEY,
+    mime TEXT NOT NULL,
     length INTEGER NOT NULL
 );
 

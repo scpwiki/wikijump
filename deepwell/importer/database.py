@@ -7,6 +7,8 @@ from typing import Optional
 from .wikicomma_config import SiteData
 from .utils import kangaroo_twelve, from_js_timestamp
 
+import magic
+
 logger = logging.getLogger(__name__)
 
 
@@ -266,16 +268,17 @@ class Database:
             ),
         )
 
-    def add_blob(self, cur, hex_hash: str, length: int) -> None:
-        logger.info("Inserting blob record %s", hex_hash)
+    def add_blob(self, cur, data: bytes, hex_hash: str) -> None:
+        mime = magic.from_buffer(data, mime=True)
 
+        logger.info("Inserting blob record, MIME type '%s'", mime)
         cur.execute(
             """
             INSERT INTO blob
-            (hex_hash, length)
-            VALUES (?, ?)
+            (hex_hash, mime, length)
+            VALUES (?, ?, ?)
             """,
-            (hex_hash, length),
+            (hex_hash, mime, len(data)),
         )
 
     def add_file(

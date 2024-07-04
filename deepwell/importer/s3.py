@@ -52,6 +52,6 @@ class S3:
             )
 
             with self.database.conn as cur:
-                self.database.add_blob(cur, s3_path, len(data))
+                self.database.add_blob(cur, data, s3_path)
 
         return s3_path
