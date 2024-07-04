@@ -470,7 +470,7 @@ class Database:
         )
 
     def add_forum_post_wikitext(self, cur, forum_post_id: int, contents: str):
-        logger.info("Inserting forum post wikitext for ID %d", forum_post_id)
+        logger.info("Inserting latest forum post wikitext for ID %d", forum_post_id)
         hex_hash = self.add_text(cur, contents)
 
         cur.execute(

@@ -453,7 +453,7 @@ class SiteImporter:
 
                 # Per-post wikitext
                 if revision == "latest":
-                    self.database.add_forum_post_revision(cur, post_id, contents)
+                    self.database.add_forum_post_wikitext(cur, post_id, contents)
                 # Per-revision wikitext
                 else:
                     revision_id = int(revision)
