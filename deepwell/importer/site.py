@@ -399,6 +399,8 @@ class SiteImporter:
             )
 
         logger.debug("Found %d revisions for forum post", len(metadata["revisions"]))
-        metadata["revisions"].sort(key=lambda d: d["id"])
-        for revision in metadata["revisions"]:
-            self.database.add_forum_post_revision(cur, post_id, revision)
+        if metadata["revisions"]:
+            metadata["revisions"].sort(key=lambda d: d["id"])
+
+            for revision in metadata["revisions"]:
+                self.database.add_forum_post_revision(cur, post_id, revision)
