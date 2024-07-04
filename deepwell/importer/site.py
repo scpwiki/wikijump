@@ -409,6 +409,10 @@ class SiteImporter:
     def process_forum_wikitext(self) -> None:
         logger.info("Ingesting forum wikitext for site %s", self.site_slug)
 
+        if not os.path.isdir(self.forum_dir):
+            logger.warning("No forum directory for site")
+            return
+
         # Each forum category
         for category_id_str in os.listdir(self.forum_dir):
             logger.debug("Processing forum wikitext for category ID %s", category_id_str)
