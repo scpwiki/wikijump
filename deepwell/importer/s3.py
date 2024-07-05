@@ -32,7 +32,7 @@ class S3:
         except:
             return False
 
-    def upload(self, file_path: str) -> str:
+    def upload(self, file_path: str, mime: str) -> str:
         with open(file_path, "rb") as file:
             data = file.read()
             # files use SHA256, text uses K12
@@ -52,6 +52,6 @@ class S3:
             )
 
             with self.database.conn as cur:
-                self.database.add_blob(cur, data, s3_path)
+                self.database.add_blob(cur, hex_hash=s3_path, length=len(data), mime=mime)
 
         return s3_path

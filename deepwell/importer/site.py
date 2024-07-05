@@ -27,6 +27,7 @@ class SiteImporter:
         "site_slug",
         "site_url",
         "site_id",
+        "file_metadata",
     )
 
     def __init__(
@@ -46,6 +47,7 @@ class SiteImporter:
         self.site_slug = site_slug
         self.site_url = site_url
         self.site_id = self.get_site_id(site_url)
+        self.file_metadata = {}
 
     @cache
     def get_site_id(self, site_url: str) -> int:
@@ -204,7 +206,12 @@ class SiteImporter:
                     page_descr=page_descr,
                     metadata=metadata,
                 )
+
                 page_id = metadata["page_id"]
+                for file_metadata in metadata.get("files", ()):
+                    file_id = file_metadata["file_id"]
+                    self.file_metadata[file_id] = file_metadata
+
                 self.process_page_revisions_metadata(
                     cur,
                     page_id,
@@ -285,17 +292,18 @@ class SiteImporter:
 
         mapping = self.json(self.meta_path("file_map.json"))
         with self.database.conn as cur:
-            for file_id, entry in mapping.items():
-                file_id = int(file_id)
+            for file_id_str, entry in mapping.items():
+                file_id = int(file_id_str)
                 wikidot_url = entry["url"]
+                file_metadata = self.file_metadata[file_id]
                 logger.debug("Processing file stored at %s", wikidot_url)
 
                 page_slug_url, filename = os.path.split(entry["path"])
                 page_slug = percent_unquote(page_slug_url)
                 page_id = self.get_page_id(page_slug=page_slug)
 
-                path = os.path.join(self.file_dir, page_slug_url, str(file_id))
-                s3_hash = self.s3.upload(path)
+                path = os.path.join(self.file_dir, page_slug_url, file_id_str)
+                s3_hash = self.s3.upload(path, file_metadata["mime"])
 
                 self.database.add_file(
                     cur,
