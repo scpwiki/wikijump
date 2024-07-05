@@ -144,6 +144,34 @@ class Database:
             page_descr,
         )
 
+        page_id = metadata["page_id"]
+        sitemap_updated_at = metadata["sitemap_update"] // 1000
+
+        # If a page has been moved, it can leave multiple entries.
+        # We want the most recent page if we find such entries.
+        result = cur.execute(
+            """
+            SELECT sitemap_updated_at
+            FROM page
+            WHERE page_id = ?
+            AND site_slug = ?
+            """,
+            (page_id, site_slug),
+        ).fetchone()
+        if result is not None:
+            (last_sitemap_updated_at,) = result
+            if last_sitemap_updated_at > sitemap_updated_at:
+                logger.warning("Found updated version of page ID %d, deleting previous", page_id)
+                cur.execute(
+                    """
+                    DELETE FROM page
+                    WHERE page_id = ?
+                    AND site_slug = ?
+                    """,
+                    (page_id, site_slug),
+                )
+
+        # Insert new page
         cur.execute(
             """
             INSERT INTO page
@@ -159,15 +187,13 @@ class Database:
             )
             VALUES
             (?, ?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT
-            DO NOTHING
             """,
             (
-                metadata["page_id"],
+                page_id,
                 page_descr,
                 metadata["name"],
                 site_slug,
-                metadata["sitemap_update"] // 1000,
+                sitemap_updated_at,
                 metadata.get("title", ""),
                 metadata["is_locked"],
                 json.dumps(metadata.get("tags", [])),
