@@ -8,6 +8,7 @@ from typing import Optional, Tuple, Union
 from urllib.parse import unquote as percent_unquote
 from urllib.request import urlopen
 
+import magic
 import py7zr
 
 from .database import Database
@@ -305,15 +306,21 @@ class SiteImporter:
             for file_id_str, entry in mapping.items():
                 file_id = int(file_id_str)
                 wikidot_url = entry["url"]
-                file_metadata = self.file_metadata[file_id]
-                logger.debug("Processing file stored at %s", wikidot_url)
 
+                logger.debug("Processing file stored at %s", wikidot_url)
                 page_slug_url, filename = os.path.split(entry["path"])
                 page_slug = percent_unquote(page_slug_url)
                 page_id = self.get_page_id(page_slug=page_slug)
-
                 path = os.path.join(self.file_dir, page_slug_url, file_id_str)
-                s3_hash = self.s3.upload(path, file_metadata["mime"])
+
+                try:
+                    file_metadata = self.file_metadata[file_id]
+                    mime = file_metadata["mime"]
+                except KeyError:
+                    # No data, get MIME via libmagic
+                    mime = magic.from_file(path, mime=True)
+
+                s3_hash = self.s3.upload(path, mime)
 
                 self.database.add_file(
                     cur,
