@@ -247,7 +247,7 @@ class Database:
             VALUES
             (?, ?, ?)
             """,
-            (prior_page_descr, site_slug, page_id),
+            (page_descr, site_slug, page_id),
         )
 
     def is_deleted_page(self, *, page_descr: str, site_slug: str) -> bool:
