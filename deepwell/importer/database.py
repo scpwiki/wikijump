@@ -160,7 +160,7 @@ class Database:
         ).fetchone()
         if result is not None:
             (last_sitemap_updated_at,) = result
-            if last_sitemap_updated_at > sitemap_updated_at:
+            if last_sitemap_updated_at < sitemap_updated_at:
                 logger.warning("Found updated version of page ID %d, deleting previous", page_id)
                 cur.execute(
                     """
