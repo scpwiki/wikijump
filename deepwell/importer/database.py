@@ -170,6 +170,9 @@ class Database:
                     """,
                     (page_id, site_slug),
                 )
+            else:
+                logger.warning("Found another version of page ID, looks newer, skipping", page_id)
+                return
 
         # Insert new page
         cur.execute(
