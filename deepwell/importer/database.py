@@ -238,7 +238,7 @@ class Database:
         value: int,
     ) -> None:
         logger.info(
-            "Inserting page vote for page ID %d / user ID %d (value %d)",
+            "Inserting page vote for page ID %d / user ID %d (value %+d)",
             page_id,
             user_id,
             value,
