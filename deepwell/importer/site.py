@@ -187,8 +187,8 @@ class SiteImporter:
     def process_page_metadata(self) -> None:
         logger.info("Ingesting page revision metadata for site %s", self.site_slug)
         meta_directory = self.meta_path("pages")
-        with self.database.conn as cur:
-            for path in os.listdir(meta_directory):
+        for path in os.listdir(meta_directory):
+            with self.database.conn as cur:
                 logger.debug("Processing page metadata from '%s'", path)
 
                 # NOTE: Usually page_slug is the same as page_descr, but if
