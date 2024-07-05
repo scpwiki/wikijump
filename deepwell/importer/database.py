@@ -162,9 +162,11 @@ class Database:
             (prior_page_descr, last_sitemap_updated_at) = result
             if last_sitemap_updated_at < sitemap_updated_at:
                 logger.warning(
-                    "Found updated version of page ID %d, deleting previous '%s'",
+                    "Found updated version of page ID %d, deleting previous '%s' (%d < %d)",
                     page_id,
                     prior_page_descr,
+                    last_sitemap_updated_at,
+                    sitemap_updated_at,
                 )
                 cur.execute(
                     """
@@ -182,8 +184,10 @@ class Database:
                 )
             else:
                 logger.warning(
-                    "Found another version of page ID %d, looks newer, skipping",
+                    "Found another version of page ID %d, looks newer, skipping (%d ≥ %d)",
                     page_id,
+                    last_sitemap_updated_at,
+                    sitemap_updated_at,
                 )
                 self.add_deleted_page(
                     cur,
