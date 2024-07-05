@@ -378,6 +378,21 @@ class Database:
             (hex_hash, mime, length),
         )
 
+    def blob_exists(self, hex_hash: str) -> bool:
+        with self.conn as cur:
+            result = cur.execute(
+                """
+                SELECT *
+                FROM blob
+                WHERE hex_hash = ?
+                """,
+                (hex_hash,)
+            ).fetchone()
+
+        exists = result is not None
+        logger.debug("Checking blob existence: %s (%s)", hex_hash, exists)
+        return exists
+
     def add_file(
         self,
         cur,

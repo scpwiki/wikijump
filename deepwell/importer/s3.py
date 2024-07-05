@@ -22,7 +22,7 @@ class S3:
         self.bucket = bucket
         self.database = database
 
-    def exists(self, s3_path: str) -> bool:
+    def s3_exists(self, s3_path: str) -> bool:
         try:
             self.s3_client.head_object(
                 Bucket=self.s3_bucket,
@@ -31,6 +31,12 @@ class S3:
             return True
         except:
             return False
+
+    def exists(self, hex_hash: str) -> bool:
+        s3_exists = self.s3_exists(hex_hash)
+        blob_exists = self.database.blob_exists(hex_hash)
+        assert s3_exists == blob_exists, "Mismatch between S3 blob and database table"
+        return s3_exists
 
     def upload(self, file_path: str, mime: str) -> str:
         with open(file_path, "rb") as file:
