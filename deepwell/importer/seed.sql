@@ -48,7 +48,7 @@ CREATE TABLE page (
 CREATE TABLE page_deleted (
     page_descr TEXT,
     site_slug TEXT,
-    page_id INTEGER NOT NULL
+    page_id INTEGER NOT NULL,
 
     PRIMARY KEY (site_slug, page_descr)
 );
