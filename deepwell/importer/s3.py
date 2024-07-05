@@ -22,22 +22,6 @@ class S3:
         self.bucket = bucket
         self.database = database
 
-    def s3_exists(self, s3_path: str) -> bool:
-        try:
-            self.s3_client.head_object(
-                Bucket=self.s3_bucket,
-                Key=s3_path,
-            )
-            return True
-        except:
-            return False
-
-    def exists(self, hex_hash: str) -> bool:
-        s3_exists = self.s3_exists(hex_hash)
-        blob_exists = self.database.blob_exists(hex_hash)
-        assert s3_exists == blob_exists, "Mismatch between S3 blob and database table"
-        return s3_exists
-
     def upload(self, file_path: str, mime: str) -> str:
         with open(file_path, "rb") as file:
             data = file.read()
@@ -46,7 +30,7 @@ class S3:
 
         if not data:
             logger.debug("Skipping upload of empty S3 object")
-        elif self.exists(s3_path):
+        elif self.database.blob_exists(s3_path):
             logger.debug("S3 object %s already exists", s3_path)
         else:
             logger.info("Uploading S3 object %s (len %d)", s3_path, len(data))
