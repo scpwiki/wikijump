@@ -33,7 +33,7 @@ class S3:
         elif self.database.blob_exists(s3_path):
             logger.debug("S3 object %s already exists", s3_path)
         else:
-            logger.info("Uploading S3 object %s (len %d)", s3_path, len(data))
+            logger.info("Uploading S3 object %s (len %s)", s3_path, f"{len(data):,}")
             self.client.put_object(
                 Bucket=self.bucket,
                 Key=s3_path,
