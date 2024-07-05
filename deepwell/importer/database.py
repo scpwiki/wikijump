@@ -182,8 +182,14 @@ class Database:
                 )
             else:
                 logger.warning(
-                    "Found another version of page ID, looks newer, skipping",
+                    "Found another version of page ID %d, looks newer, skipping",
                     page_id,
+                )
+                self.add_deleted_page(
+                    cur,
+                    page_descr=prior_page_descr,
+                    site_slug=site_slug,
+                    page_id=page_id,
                 )
                 return
 
