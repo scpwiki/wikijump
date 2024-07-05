@@ -161,7 +161,11 @@ class Database:
         if result is not None:
             (prior_page_descr, last_sitemap_updated_at) = result
             if last_sitemap_updated_at < sitemap_updated_at:
-                logger.warning("Found updated version of page ID %d, deleting previous '%s'", page_id, prior_page_descr)
+                logger.warning(
+                    "Found updated version of page ID %d, deleting previous '%s'",
+                    page_id,
+                    prior_page_descr,
+                )
                 cur.execute(
                     """
                     DELETE FROM page
@@ -170,21 +174,17 @@ class Database:
                     """,
                     (page_id, site_slug),
                 )
-                cur.execute(
-                    """
-                    INSERT INTO page_deleted
-                    (
-                        page_descr,
-                        site_slug,
-                        page_id
-                    )
-                    VALUES
-                    (?, ?, ?)
-                    """,
-                    (prior_page_descr, site_slug, page_id),
+                self.add_deleted_page(
+                    cur,
+                    page_descr=page_descr,
+                    site_slug=site_slug,
+                    page_id=page_id,
                 )
             else:
-                logger.warning("Found another version of page ID, looks newer, skipping", page_id)
+                logger.warning(
+                    "Found another version of page ID, looks newer, skipping",
+                    page_id,
+                )
                 return
 
         # Insert new page
@@ -216,6 +216,34 @@ class Database:
             ),
         )
 
+    def add_deleted_page(
+        self,
+        cur,
+        *,
+        page_descr: str,
+        site_slug: str,
+        page_id: int,
+    ) -> None:
+        logger.debug(
+            "Adding deleted page: %s / %s (%d)",
+            page_descr,
+            site_slug,
+            page_id,
+        )
+        cur.execute(
+            """
+            INSERT INTO page_deleted
+            (
+                page_descr,
+                site_slug,
+                page_id
+            )
+            VALUES
+            (?, ?, ?)
+            """,
+            (prior_page_descr, site_slug, page_id),
+        )
+
     def is_deleted_page(self, *, page_descr: str, site_slug: str) -> bool:
         with self.conn as cur:
             result = cur.execute(
@@ -229,7 +257,12 @@ class Database:
             ).fetchone()
 
         exists = result is not None
-        logger.debug("Checking if page descr %s exists in site %s: %s", page_descr, site_slug, exists)
+        logger.debug(
+            "Checking if page descr %s exists in site %s: %s",
+            page_descr,
+            site_slug,
+            exists,
+        )
         return exists
 
     def add_page_revision_metadata(self, cur, page_id: int, data: dict) -> None:

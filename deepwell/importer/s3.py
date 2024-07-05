@@ -52,6 +52,11 @@ class S3:
             )
 
             with self.database.conn as cur:
-                self.database.add_blob(cur, hex_hash=s3_path, length=len(data), mime=mime)
+                self.database.add_blob(
+                    cur,
+                    hex_hash=s3_path,
+                    length=len(data),
+                    mime=mime,
+                )
 
         return s3_path

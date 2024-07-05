@@ -259,8 +259,14 @@ class SiteImporter:
             with py7zr.SevenZipFile(path, "r") as archive:
                 sources = archive.readall()
 
-            if self.database.is_deleted_page(page_descr=page_descr, site_slug=self.site_slug):
-                logger.warning("Page descr '%s' was previously deleted, skipping", page_descr)
+            if self.database.is_deleted_page(
+                page_descr=page_descr,
+                site_slug=self.site_slug,
+            ):
+                logger.warning(
+                    "Page descr '%s' was previously deleted, skipping",
+                    page_descr,
+                )
                 continue
 
             page_id = self.get_page_id(page_descr=page_descr)
