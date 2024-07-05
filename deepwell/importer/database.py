@@ -176,7 +176,7 @@ class Database:
                 )
                 self.add_deleted_page(
                     cur,
-                    page_descr=page_descr,
+                    page_descr=prior_page_descr,
                     site_slug=site_slug,
                     page_id=page_id,
                 )
@@ -187,7 +187,7 @@ class Database:
                 )
                 self.add_deleted_page(
                     cur,
-                    page_descr=prior_page_descr,
+                    page_descr=page_descr,
                     site_slug=site_slug,
                     page_id=page_id,
                 )
