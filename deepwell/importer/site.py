@@ -314,7 +314,7 @@ class SiteImporter:
                 try:
                     page_id = self.get_page_id(page_slug=page_slug)
                 except RuntimeError:
-                    self.logger.error("Cannot find associated page with slug '%s'", page_slug)
+                    logger.error("Cannot find associated page with slug '%s'", page_slug)
                     continue
 
                 path = os.path.join(self.file_dir, page_slug_url, file_id_str)
