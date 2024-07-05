@@ -217,8 +217,6 @@ class Database:
         )
 
     def is_deleted_page(self, *, page_descr: str, site_slug: str) -> bool:
-        logger.debug("Checking if page descr %s exists in site %s", page_descr, site_slug)
-
         with self.conn as cur:
             result = cur.execute(
                 """
@@ -230,7 +228,9 @@ class Database:
                 (page_descr, site_slug),
             ).fetchone()
 
-        return result is not None
+        exists = result is not None
+        logger.debug("Checking if page descr %s exists in site %s: %s", page_descr, site_slug, exists)
+        return exists
 
     def add_page_revision_metadata(self, cur, page_id: int, data: dict) -> None:
         logger.info(
