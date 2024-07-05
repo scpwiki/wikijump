@@ -313,6 +313,10 @@ class SiteImporter:
                 page_id = self.get_page_id(page_slug=page_slug)
                 path = os.path.join(self.file_dir, page_slug_url, file_id_str)
 
+                if not os.path.isfile(path):
+                    logger.error("File in map but not downloaded: %s (%d)", page_slug_url, file_id_str)
+                    continue
+
                 try:
                     file_metadata = self.file_metadata[file_id]
                     mime = file_metadata["mime"]
