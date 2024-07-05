@@ -45,6 +45,14 @@ CREATE TABLE page (
     UNIQUE (site_slug, page_slug)
 );
 
+CREATE TABLE page_deleted (
+    page_descr TEXT,
+    site_slug TEXT,
+    page_id INTEGER NOT NULL
+
+    PRIMARY KEY (site_slug, page_descr)
+);
+
 CREATE TABLE page_revision (
     revision_id INTEGER PRIMARY KEY,
     revision_number INTEGER NOT NULL CHECK (revision_number >= 0),

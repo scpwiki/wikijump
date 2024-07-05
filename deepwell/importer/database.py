@@ -151,7 +151,7 @@ class Database:
         # We want the most recent page if we find such entries.
         result = cur.execute(
             """
-            SELECT sitemap_updated_at
+            SELECT page_descr, sitemap_updated_at
             FROM page
             WHERE page_id = ?
             AND site_slug = ?
@@ -159,9 +159,9 @@ class Database:
             (page_id, site_slug),
         ).fetchone()
         if result is not None:
-            (last_sitemap_updated_at,) = result
+            (prior_page_descr, last_sitemap_updated_at) = result
             if last_sitemap_updated_at < sitemap_updated_at:
-                logger.warning("Found updated version of page ID %d, deleting previous", page_id)
+                logger.warning("Found updated version of page ID %d, deleting previous '%s'", page_id, prior_page_descr)
                 cur.execute(
                     """
                     DELETE FROM page
@@ -169,6 +169,19 @@ class Database:
                     AND site_slug = ?
                     """,
                     (page_id, site_slug),
+                )
+                cur.execute(
+                    """
+                    INSERT INTO page_deleted
+                    (
+                        page_descr,
+                        site_slug,
+                        page_id
+                    )
+                    VALUES
+                    (?, ?, ?)
+                    """,
+                    (prior_page_descr, site_slug, page_id),
                 )
             else:
                 logger.warning("Found another version of page ID, looks newer, skipping", page_id)
