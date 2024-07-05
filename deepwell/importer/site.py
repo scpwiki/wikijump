@@ -310,7 +310,13 @@ class SiteImporter:
                 logger.debug("Processing file stored at %s", wikidot_url)
                 page_slug_url, filename = os.path.split(entry["path"])
                 page_slug = percent_unquote(page_slug_url)
-                page_id = self.get_page_id(page_slug=page_slug)
+
+                try:
+                    page_id = self.get_page_id(page_slug=page_slug)
+                except RuntimeError:
+                    self.logger.error("Cannot find associated page with slug '%s'", page_slug)
+                    continue
+
                 path = os.path.join(self.file_dir, page_slug_url, file_id_str)
 
                 if not os.path.isfile(path):
