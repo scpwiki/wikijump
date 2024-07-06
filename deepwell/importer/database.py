@@ -221,7 +221,7 @@ class Database:
                 site_slug,
                 sitemap_updated_at,
                 metadata.get("title", ""),
-                metadata["is_locked"],
+                metadata.get("is_locked", False),
                 json.dumps(metadata.get("tags", [])),
             ),
         )
