@@ -320,7 +320,7 @@ class SiteImporter:
                 path = os.path.join(self.file_dir, page_slug_url, file_id_str)
 
                 if not os.path.isfile(path):
-                    logger.error("File in map but not downloaded: %s (%d)", page_slug_url, file_id_str)
+                    logger.error("File in map but not downloaded: %s (%s)", page_slug_url, file_id_str)
                     continue
 
                 try:
