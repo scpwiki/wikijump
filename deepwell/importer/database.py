@@ -509,7 +509,7 @@ class Database:
                 metadata["startedUser"],
                 metadata["postsNum"],
                 metadata["sticky"],
-                metadata["isLocked"],
+                metadata.get("isLocked", False),
                 metadata.get("version"),
             ),
         )
