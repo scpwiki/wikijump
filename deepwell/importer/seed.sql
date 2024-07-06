@@ -105,7 +105,7 @@ CREATE TABLE forum_thread (
     title TEXT NOT NULL,
     description TEXT NOT NULL,
     created_at INTEGER NOT NULL,
-    created_by INTEGER NOT NULL REFERENCES users(user_id),
+    created_by INTEGER REFERENCES users(user_id),  -- NULL means wikidot
     post_count INTEGER NOT NULL,
     sticky INTEGER NOT NULL CHECK (sticky IN (0, 1)),  -- boolean
     locked INTEGER NOT NULL CHECK (locked IN (0, 1)),  -- boolean
