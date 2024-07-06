@@ -386,7 +386,7 @@ class Database:
                 FROM blob
                 WHERE hex_hash = ?
                 """,
-                (hex_hash,)
+                (hex_hash,),
             ).fetchone()
 
         exists = result is not None
