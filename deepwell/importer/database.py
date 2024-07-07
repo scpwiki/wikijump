@@ -571,6 +571,8 @@ class Database:
             )
             VALUES
             (?, ?, ?, ?, ?)
+            ON CONFLICT
+            DO NOTHING
             """,
             (
                 revision_id,
