@@ -9,6 +9,8 @@ from .utils import kangaroo_twelve, from_js_timestamp
 
 logger = logging.getLogger(__name__)
 
+ANONYMOUS_USER_ID = 2
+
 
 class Database:
     __slots__ = ("conn",)
@@ -303,7 +305,7 @@ class Database:
                 data["global_revision"],
                 data["revision"],
                 page_id,
-                data["author"],
+                data["author"] or ANONYMOUS_USER_ID,
                 data["stamp"],
                 data["flags"],
                 data["commentary"],
