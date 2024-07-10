@@ -270,7 +270,12 @@ class SiteImporter:
                 )
                 continue
 
-            page_id = self.get_page_id(page_descr=page_descr)
+            try:
+                page_id = self.get_page_id(page_descr=page_descr)
+            except RuntimeError:
+                logger.error("No page descr '%s' found to insert wikitext", page_descr)
+                return
+
             # Convert and begin adding to the database
             self.process_page_revisions_wikitext(page_id, sources)
 
