@@ -37,7 +37,6 @@ macro_rules! str_write {
 /// This is done because the only failure mode for writing to a `String`
 /// would be insufficient memory, which would cause an abort anyways.
 ///
-///
 /// # See also
 /// * [`str_write!`](macro.str_write.html)
 macro_rules! str_writeln {
