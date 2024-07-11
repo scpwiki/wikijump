@@ -43,6 +43,7 @@ use jsonrpsee::types::error::ErrorObjectOwned;
 use rsmq_async::PooledRsmq;
 use s3::bucket::Bucket;
 use sea_orm::{DatabaseConnection, TransactionTrait};
+use sqlx::{Pool, Postgres};
 use std::fmt::{self, Debug};
 use std::sync::Arc;
 use std::time::Duration;
@@ -52,6 +53,7 @@ pub type ServerState = Arc<ServerStateInner>;
 pub struct ServerStateInner {
     pub config: Config,
     pub database: DatabaseConnection,
+    pub database_sqlx: Pool<Postgres>,
     pub redis: redis::Client,
     pub rsmq: PooledRsmq,
     pub localizations: Localizations,
@@ -79,7 +81,7 @@ pub async fn build_server_state(
 ) -> anyhow::Result<ServerState> {
     // Connect to databases
     info!("Connecting to PostgreSQL database");
-    let database = database::connect(&secrets.database_url).await?;
+    let (database_sqlx, database) = database::connect(&secrets.database_url).await?;
 
     info!("Connecting to Redis");
     let (redis, rsmq) = redis_db::connect(&secrets.redis_url).await?;
@@ -113,6 +115,7 @@ pub async fn build_server_state(
     let state = Arc::new(ServerStateInner {
         config,
         database,
+        database_sqlx,
         redis,
         rsmq,
         localizations,

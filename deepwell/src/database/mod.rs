@@ -27,8 +27,13 @@ use sea_orm::{ConnectOptions, Database, DatabaseConnection};
 use sqlx::{Pool, Postgres};
 use std::time::Duration;
 
-pub async fn connect<S: Into<String>>(database_uri: S) -> Result<DatabaseConnection> {
-    let mut options = ConnectOptions::new(database_uri.into());
+pub async fn connect<S: Into<String>>(
+    database_uri: S,
+) -> Result<(Pool<Postgres>, DatabaseConnection)> {
+    let database_uri = database_uri.into();
+    let sqlx_db = Pool::<Postgres>::connect(&database_uri).await?;
+
+    let mut options = ConnectOptions::new(database_uri);
     options
         .min_connections(4)
         .max_connections(100)
@@ -36,8 +41,8 @@ pub async fn connect<S: Into<String>>(database_uri: S) -> Result<DatabaseConnect
         .idle_timeout(Duration::from_secs(10))
         .sqlx_logging(true);
 
-    let db = Database::connect(options).await?;
-    Ok(db)
+    let sea_orm_db = Database::connect(options).await?;
+    Ok((sqlx_db, sea_orm_db))
 }
 
 pub async fn migrate(database_uri: &str) -> Result<()> {
