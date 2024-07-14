@@ -52,7 +52,7 @@ pub type ServerState = Arc<ServerStateInner>;
 
 pub struct ServerStateInner {
     pub config: Config,
-    pub database: DatabaseConnection,
+    pub database_seaorm: DatabaseConnection,
     pub database_sqlx: Pool<Postgres>,
     pub redis: redis::Client,
     pub rsmq: PooledRsmq,
@@ -65,7 +65,8 @@ impl Debug for ServerStateInner {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("ServerStateInner")
             .field("config", &self.config)
-            .field("database", &self.database)
+            .field("database_seaorm", &self.database_seaorm)
+            .field("database_sqlx", &self.database_sqlx)
             .field("redis", &self.redis)
             .field("rsmq", &debug_pointer(&self.rsmq))
             .field("localizations", &self.localizations)
@@ -81,7 +82,8 @@ pub async fn build_server_state(
 ) -> anyhow::Result<ServerState> {
     // Connect to databases
     info!("Connecting to PostgreSQL database");
-    let (database_sqlx, database) = database::connect(&secrets.database_url).await?;
+    let (database_sqlx, database_seaorm) =
+        database::connect(&secrets.database_url).await?;
 
     info!("Connecting to Redis");
     let (redis, rsmq) = redis_db::connect(&secrets.redis_url).await?;
@@ -114,7 +116,7 @@ pub async fn build_server_state(
     // Build server state
     let state = Arc::new(ServerStateInner {
         config,
-        database,
+        database_seaorm,
         database_sqlx,
         redis,
         rsmq,
@@ -160,7 +162,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
                 // At this level, we take the database-or-RPC error and make it just an RPC error.
                 let db_state = Arc::clone(&state);
                 db_state
-                    .database
+                    .database_seaorm
                     .transaction(move |txn| {
                         Box::pin(async move {
                             // Run the endpoint's implementation, and convert from
