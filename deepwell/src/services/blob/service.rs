@@ -22,8 +22,10 @@
 #![allow(dead_code)]
 
 use super::prelude::*;
-use s3::request_trait::ResponseData;
+use bytes::Bytes;
+use s3::request::request_trait::ResponseData;
 use s3::serde_types::HeadObjectResult;
+use std::collections::HashMap;
 use std::str;
 use time::format_description::well_known::Rfc2822;
 use time::OffsetDateTime;
@@ -225,7 +227,10 @@ impl BlobService {
         match status {
             200 | 204 => Ok(Some(result)),
             404 => Ok(None),
-            _ => s3_error(&ResponseData::new(vec![], status), "heading S3 blob"),
+            _ => {
+                let response_data = ResponseData::new(Bytes::new(), status, HashMap::new());
+                s3_error(&response_data, "heading S3 blob")
+            }
         }
     }
 
