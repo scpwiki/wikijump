@@ -20,18 +20,16 @@
 
 use super::prelude::*;
 use crate::info;
-use sea_orm::{ConnectionTrait, DatabaseBackend, Statement};
 use std::path::PathBuf;
 use wikidot_normalize::normalize;
 
 async fn postgres_check(ctx: &ServiceContext<'_>) -> Result<()> {
-    ctx.transaction()
-        .execute(Statement::from_string(
-            DatabaseBackend::Postgres,
-            str!("SELECT 1"),
-        ))
+    let mut txn = ctx.sqlx().await?;
+    let _ = sqlx::query!(r"SELECT 1 AS x")
+        .fetch_one(&mut *txn)
         .await?;
 
+    txn.commit().await?;
     debug!("Successfully pinged Postgres");
     Ok(())
 }
