@@ -91,4 +91,10 @@ impl<'txn> ServiceContext<'txn> {
     pub fn transaction(&self) -> &'txn DatabaseTransaction {
         self.transaction
     }
+
+    #[inline]
+    pub async fn sqlx(&self) -> Result<sqlx::Transaction<sqlx::Postgres>> {
+        let txn = self.state.database_sqlx.begin().await?;
+        Ok(txn)
+    }
 }
