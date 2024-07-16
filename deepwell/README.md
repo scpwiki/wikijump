@@ -31,13 +31,14 @@ If you have [`sea-orm-cli`](https://www.sea-ql.org/SeaORM/docs/generate-entity/s
 $ scripts/generate-models.sh
 ```
 
-When adding SQLx queries, they need to be cached. After `source .env` (to set `DATABASE_URL`), run the following to update the query list:
+When developing for the first time, or when changing any SQLx queries, you need to update the query cache. This requires a Wikijump database to be running and available at `DATABASE_URL`.
 
 ```sh
+$ source .env
 $ cargo sqlx prepare
 ```
 
-Then commit any new files into the branch.
+If there are any changes, commit them files into the branch.
 
 #### Structure
 
