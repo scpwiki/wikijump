@@ -199,7 +199,7 @@ impl ViewService {
                         wikitext,
                         render_output,
                     } = SpecialPageService::get(
-                        ctx, &site, page_type, &locales, page_info,
+                        ctx, &site, page_type, &locales, layout, page_info,
                     )
                     .await?;
 
@@ -225,6 +225,7 @@ impl ViewService {
                     &site,
                     SpecialPageType::Missing,
                     &locales,
+                    layout,
                     page_info,
                 )
                 .await?;

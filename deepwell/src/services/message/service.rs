@@ -33,6 +33,7 @@ use crate::services::{RelationService, TextService, UserService};
 use crate::utils::validate_locale;
 use cuid2::cuid;
 use ftml::data::{PageInfo, ScoreValue};
+use ftml::layout::Layout;
 use ftml::settings::{WikitextMode, WikitextSettings};
 use sea_orm::DatabaseTransaction;
 
@@ -183,7 +184,7 @@ impl MessageService {
             compiled_hash,
             compiled_at,
             compiled_generator,
-        } = Self::render(ctx, wikitext, &locale).await?;
+        } = Self::render(ctx, wikitext, &locale, layout).await?;
 
         Ok(message_draft::ActiveModel {
             updated_at: Set(if is_update { Some(now()) } else { None }),
@@ -579,10 +580,11 @@ impl MessageService {
         ctx: &ServiceContext<'_>,
         wikitext: String,
         locale: &str,
+        layout: Layout,
     ) -> Result<RenderOutput> {
         info!("Rendering message wikitext ({} bytes)", wikitext.len());
 
-        let settings = WikitextSettings::from_mode(WikitextMode::DirectMessage);
+        let settings = WikitextSettings::from_mode(WikitextMode::DirectMessage, layout);
         let page_info = PageInfo {
             page: cow!(""),
             category: None,

@@ -39,6 +39,7 @@ impl SpecialPageService {
         site: &SiteModel,
         sp_page_type: SpecialPageType,
         locales: &[LanguageIdentifier],
+        layout: Layout,
         page_info: PageInfo<'_>,
     ) -> Result<GetSpecialPageOutput> {
         info!(
@@ -88,7 +89,7 @@ impl SpecialPageService {
         // Render here with relevant page context.
         // The "page" here is what would've been there in this case,
         // passed in by the caller.
-        let settings = WikitextSettings::from_mode(WikitextMode::Page);
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, layout);
         let render_output =
             RenderService::render(ctx, wikitext.clone(), &page_info, &settings).await?;
 
