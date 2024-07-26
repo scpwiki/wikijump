@@ -164,6 +164,15 @@ pub struct Config {
     /// is specified in the configuration by placing a "0".
     pub rerender_skip: Vec<(u32, Option<TimeDuration>)>,
 
+    /// The layout used when rendering direct messages.
+    pub message_layout: Layout,
+
+    /// The layout used by default when rendering a page.
+    ///
+    /// This only comes into effect if the page and site do not
+    /// have a different layout set.
+    pub default_page_layout: Layout,
+
     /// Prefix for "special pages". Default: `_`
     #[allow(dead_code)] // TEMP
     pub special_page_prefix: String,

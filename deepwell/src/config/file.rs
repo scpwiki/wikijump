@@ -21,6 +21,7 @@
 use super::Config;
 use anyhow::Result;
 use femme::LevelFilter;
+use ftml::layout::Layout;
 use std::convert::TryFrom;
 use std::fs::File;
 use std::io::Read;
@@ -145,6 +146,14 @@ struct Domain {
 struct Ftml {
     render_timeout_ms: u64,
     rerender_skip: Vec<RerenderSkip>,
+    layout: FtmlLayout,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "kebab-case")]
+struct FtmlLayout {
+    messages: Layout,
+    default_page: Layout,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -275,6 +284,10 @@ impl ConfigFile {
                 Ftml {
                     render_timeout_ms,
                     rerender_skip,
+                    layout: FtmlLayout {
+                        messages: message_layout,
+                        default_page: default_page_layout,
+                    },
                 },
             special_pages:
                 SpecialPages {
@@ -396,6 +409,8 @@ impl ConfigFile {
                     },
                 )
                 .collect(),
+            message_layout,
+            default_page_layout,
             special_page_prefix,
             special_page_template,
             special_page_missing,
