@@ -200,7 +200,12 @@ impl ViewService {
                         wikitext,
                         render_output,
                     } = SpecialPageService::get(
-                        ctx, &site, page_type, &locales, config.default_page_layout, page_info,
+                        ctx,
+                        &site,
+                        page_type,
+                        &locales,
+                        config.default_page_layout,
+                        page_info,
                     )
                     .await?;
 

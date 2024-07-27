@@ -284,10 +284,11 @@ impl ConfigFile {
                 Ftml {
                     render_timeout_ms,
                     rerender_skip,
-                    layout: FtmlLayout {
-                        messages: message_layout,
-                        default_page: default_page_layout,
-                    },
+                    layout:
+                        FtmlLayout {
+                            messages: message_layout,
+                            default_page: default_page_layout,
+                        },
                 },
             special_pages:
                 SpecialPages {
