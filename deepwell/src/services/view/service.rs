@@ -70,6 +70,7 @@ impl ViewService {
 
         // Parse all locales
         let mut locales = parse_locales(&locales_str)?;
+        let config = ctx.config();
 
         // Attempt to get a viewer helper structure, but if the site doesn't exist
         // then return right away with the "no such site" response.
@@ -199,7 +200,7 @@ impl ViewService {
                         wikitext,
                         render_output,
                     } = SpecialPageService::get(
-                        ctx, &site, page_type, &locales, layout, page_info,
+                        ctx, &site, page_type, &locales, config.default_page_layout, page_info,
                     )
                     .await?;
 
@@ -225,7 +226,7 @@ impl ViewService {
                     &site,
                     SpecialPageType::Missing,
                     &locales,
-                    layout,
+                    config.default_page_layout,
                     page_info,
                 )
                 .await?;
