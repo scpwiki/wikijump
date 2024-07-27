@@ -18,6 +18,8 @@ pub struct Model {
     #[sea_orm(column_type = "Text")]
     pub slug: String,
     pub discussion_thread_id: Option<i64>,
+    #[sea_orm(column_type = "Text")]
+    pub layout: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
