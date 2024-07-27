@@ -185,8 +185,9 @@ impl PageRevisionService {
             return Ok(None);
         }
 
-        // Calculate score
+        // Calculate score and get page layout
         let score = ScoreService::score(ctx, page_id).await?;
+        let (layout, xxx): (Layout, ()) = todo!();
 
         // Run tasks based on changes:
         // See PageRevisionTasks struct for more information.
@@ -329,11 +330,10 @@ impl PageRevisionService {
     ) -> Result<CreateFirstPageRevisionOutput> {
         let txn = ctx.transaction();
 
-        // Add wikitext
+        // Add wikitext, get score, get layout
         let wikitext_hash = TextService::create(ctx, wikitext.clone()).await?;
-
-        // Calculate score
         let score = ScoreService::score(ctx, page_id).await?;
+        let (layout, xxx): (Layout, ()) = todo!();
 
         // Render first revision
         let render_input = RenderPageInfo {
@@ -499,8 +499,9 @@ impl PageRevisionService {
             vec![str!("slug")]
         };
 
-        // Calculate score
+        // Calculate score and get page layout
         let score = ScoreService::score(ctx, page_id).await?;
+        let (layout, xxx): (Layout, ()) = todo!();
 
         // Re-render page
         let render_input = RenderPageInfo {
@@ -649,6 +650,9 @@ impl PageRevisionService {
 
         let wikitext = TextService::get(ctx, &revision.wikitext_hash).await?;
         let score = ScoreService::score(ctx, page_id).await?;
+
+        // Get layout for page
+        let (layout, xxx): (Layout, ()) = todo!();
 
         // This is necessary until we are able to replace the
         // 'tags' column with TEXT[] instead of JSON.
