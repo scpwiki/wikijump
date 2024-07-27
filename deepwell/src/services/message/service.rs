@@ -175,6 +175,7 @@ impl MessageService {
         // Populate fields
         let recipients = serde_json::to_value(&recipients)?;
 
+        let config = ctx.config();
         let wikitext_hash = TextService::create(ctx, wikitext.clone()).await?;
         let RenderOutput {
             // TODO: use html_output
@@ -184,7 +185,7 @@ impl MessageService {
             compiled_hash,
             compiled_at,
             compiled_generator,
-        } = Self::render(ctx, wikitext, &locale, layout).await?;
+        } = Self::render(ctx, wikitext, &locale, config.message_layout).await?;
 
         Ok(message_draft::ActiveModel {
             updated_at: Set(if is_update { Some(now()) } else { None }),
