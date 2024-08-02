@@ -185,9 +185,11 @@ impl PageRevisionService {
             return Ok(None);
         }
 
-        // Calculate score and get page layout
-        let score = ScoreService::score(ctx, page_id).await?;
-        let layout = PageService::get_layout(ctx, site_id, page_id).await?;
+        // Get ancillary page data
+        let (score, layout) = try_join!(
+            ScoreService::score(ctx, page_id),
+            PageService::get_layout(ctx, site_id, page_id),
+        )?;
 
         // Run tasks based on changes:
         // See PageRevisionTasks struct for more information.
@@ -330,10 +332,12 @@ impl PageRevisionService {
     ) -> Result<CreateFirstPageRevisionOutput> {
         let txn = ctx.transaction();
 
-        // Add wikitext, get score, get layout
-        let wikitext_hash = TextService::create(ctx, wikitext.clone()).await?;
-        let score = ScoreService::score(ctx, page_id).await?;
-        let layout = PageService::get_layout(ctx, site_id, page_id).await?;
+        // Get ancillary page data
+        let (wikitext_hash, score, layout) = try_join!(
+            TextService::create(ctx, wikitext.clone()),
+            ScoreService::score(ctx, page_id),
+            PageService::get_layout(ctx, site_id, page_id),
+        )?;
 
         // Render first revision
         let render_input = RenderPageInfo {
@@ -499,9 +503,11 @@ impl PageRevisionService {
             vec![str!("slug")]
         };
 
-        // Calculate score and get page layout
-        let score = ScoreService::score(ctx, page_id).await?;
-        let layout = PageService::get_layout(ctx, site_id, page_id).await?;
+        // Get ancillary page data
+        let (score, layout) = try_join!(
+            ScoreService::score(ctx, page_id),
+            PageService::get_layout(ctx, site_id, page_id),
+        )?;
 
         // Re-render page
         let render_input = RenderPageInfo {
@@ -648,11 +654,12 @@ impl PageRevisionService {
             }
         }
 
-        let wikitext = TextService::get(ctx, &revision.wikitext_hash).await?;
-        let score = ScoreService::score(ctx, page_id).await?;
-
-        // Get layout for page
-        let layout = PageService::get_layout(ctx, site_id, page_id).await?;
+        // Get data for page
+        let (wikitext, score, layout) = try_join!(
+            TextService::get(ctx, &revision.wikitext_hash),
+            ScoreService::score(ctx, page_id),
+            PageService::get_layout(ctx, site_id, page_id),
+        )?;
 
         // This is necessary until we are able to replace the
         // 'tags' column with TEXT[] instead of JSON.
