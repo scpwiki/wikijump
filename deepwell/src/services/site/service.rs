@@ -27,7 +27,7 @@ use crate::models::site::{self, Entity as Site, Model as SiteModel};
 use crate::services::alias::CreateAlias;
 use crate::services::relation::CreateSiteUser;
 use crate::services::user::{CreateUser, UpdateUserBody};
-use crate::services::{AliasService, RelationService, UserService};
+use crate::services::{AliasService, Error, RelationService, UserService};
 use crate::utils::validate_locale;
 use ftml::layout::Layout;
 use ref_map::*;
@@ -303,10 +303,14 @@ impl SiteService {
                 .fetch_one(&mut *txn)
                 .await?;
 
-        match row.layout.ref_map(|s| s.as_str()) {
-            Some("wikijump") => Ok(Layout::Wikijump),
-            Some("wikidot") => Ok(Layout::Wikidot),
-            Some(layout) => panic!("Invalid layout string value: {layout}"),
+        match row.layout {
+            // Parse layout from string in site table
+            Some(layout) => match layout.parse() {
+                Ok(layout) => Ok(layout),
+                Err(_) => Err(Error::InvalidEnumValue),
+            },
+
+            // Fallback to default platform layout
             None => Ok(ctx.config().default_page_layout),
         }
     }
