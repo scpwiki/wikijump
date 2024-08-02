@@ -160,8 +160,11 @@ async fn build_page_output(
         TextService::get_maybe(ctx, details.compiled_html, &revision.compiled_hash),
     )?;
 
-    // Calculate score
-    let rating = ScoreService::score(ctx, page.page_id).await?;
+    // Calculate score and determine layout
+    let (rating, layout) = try_join!(
+        ScoreService::score(ctx, page.page_id),
+        PageService::get_layout(ctx, page.site_id, page.page_id),
+    )?;
 
     // Build result struct
     Ok(Some(GetPageOutput {
@@ -190,5 +193,6 @@ async fn build_page_output(
         slug: revision.slug,
         tags: revision.tags,
         rating,
+        layout,
     }))
 }
