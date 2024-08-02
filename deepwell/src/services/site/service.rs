@@ -284,13 +284,11 @@ impl SiteService {
         find_or_error!(Self::get_optional(ctx, reference), Site)
     }
 
-    /// Get only the default page layout from the site table.
+    /// Get the default page layout for this site.
+    /// If the site has not set a page layout, then the platform default is used.
     ///
     /// Since this is the only field needed most of the time, and
     /// is fairly commonly needed, we have a separate method for it.
-    ///
-    /// If no layout is specified, then the default layout for the platform
-    /// is used instead.
     pub async fn get_layout(ctx: &ServiceContext<'_>, site_id: i64) -> Result<Layout> {
         debug!("Getting page layout for site ID {site_id}");
 
