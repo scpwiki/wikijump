@@ -26,8 +26,8 @@ use crate::models::sea_orm_active_enums::PageRevisionType;
 use crate::services::render::RenderOutput;
 use crate::services::score::ScoreValue;
 use crate::services::{
-    LinkService, OutdateService, ParentService, RenderService, ScoreService, SiteService,
-    TextService,
+    LinkService, OutdateService, PageService, ParentService, RenderService, ScoreService,
+    SiteService, TextService,
 };
 use crate::utils::{split_category, split_category_name};
 use crate::web::FetchDirection;
@@ -187,7 +187,7 @@ impl PageRevisionService {
 
         // Calculate score and get page layout
         let score = ScoreService::score(ctx, page_id).await?;
-        let (layout, xxx): (Layout, ()) = todo!();
+        let layout = PageService::get_layout(ctx, site_id, page_id).await?;
 
         // Run tasks based on changes:
         // See PageRevisionTasks struct for more information.
@@ -333,7 +333,7 @@ impl PageRevisionService {
         // Add wikitext, get score, get layout
         let wikitext_hash = TextService::create(ctx, wikitext.clone()).await?;
         let score = ScoreService::score(ctx, page_id).await?;
-        let (layout, xxx): (Layout, ()) = todo!();
+        let layout = PageService::get_layout(ctx, site_id, page_id).await?;
 
         // Render first revision
         let render_input = RenderPageInfo {
@@ -501,7 +501,7 @@ impl PageRevisionService {
 
         // Calculate score and get page layout
         let score = ScoreService::score(ctx, page_id).await?;
-        let (layout, xxx): (Layout, ()) = todo!();
+        let layout = PageService::get_layout(ctx, site_id, page_id).await?;
 
         // Re-render page
         let render_input = RenderPageInfo {
@@ -652,7 +652,7 @@ impl PageRevisionService {
         let score = ScoreService::score(ctx, page_id).await?;
 
         // Get layout for page
-        let (layout, xxx): (Layout, ()) = todo!();
+        let layout = PageService::get_layout(ctx, site_id, page_id).await?;
 
         // This is necessary until we are able to replace the
         // 'tags' column with TEXT[] instead of JSON.
