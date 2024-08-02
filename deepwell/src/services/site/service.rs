@@ -29,6 +29,9 @@ use crate::services::relation::CreateSiteUser;
 use crate::services::user::{CreateUser, UpdateUserBody};
 use crate::services::{AliasService, RelationService, UserService};
 use crate::utils::validate_locale;
+use ftml::layout::Layout;
+use ref_map::*;
+use std::borrow::Cow;
 
 #[derive(Debug)]
 pub struct SiteService;
@@ -279,6 +282,35 @@ impl SiteService {
         reference: Reference<'_>,
     ) -> Result<SiteModel> {
         find_or_error!(Self::get_optional(ctx, reference), Site)
+    }
+
+    /// Get only the default page layout from the site table.
+    ///
+    /// Since this is the only field needed most of the time, and
+    /// is fairly commonly needed, we have a separate method for it.
+    ///
+    /// If no layout is specified, then the default layout for the platform
+    /// is used instead.
+    pub async fn get_layout(ctx: &ServiceContext<'_>, site_id: i64) -> Result<Layout> {
+        debug!("Getting page layout for site ID {site_id}");
+
+        #[derive(Debug)]
+        struct Row {
+            layout: Option<String>,
+        }
+
+        let mut txn = ctx.sqlx().await?;
+        let row =
+            sqlx::query_as!(Row, r"SELECT layout FROM site WHERE site_id = $1", site_id)
+                .fetch_one(&mut *txn)
+                .await?;
+
+        match row.layout.ref_map(|s| s.as_str()) {
+            Some("wikijump") => Ok(Layout::Wikijump),
+            Some("wikidot") => Ok(Layout::Wikidot),
+            Some(layout) => panic!("Invalid layout string value: {layout}"),
+            None => Ok(ctx.config().default_page_layout),
+        }
     }
 
     /// Gets the site ID from a reference, looking up if necessary.
