@@ -515,7 +515,7 @@ impl PageService {
         debug!("Setting page layout for site ID {site_id} page ID {page_id}");
 
         let mut txn = ctx.sqlx().await?;
-        sqlx::query!(
+        let rows_affected = sqlx::query!(
             r"
             UPDATE page
             SET layout = $1
@@ -527,9 +527,14 @@ impl PageService {
             page_id,
         )
         .execute(&mut *txn)
-        .await?;
+        .await?
+        .rows_affected();
 
-        Ok(())
+        if rows_affected == 1 {
+            Ok(())
+        } else {
+            Err(Error::PageNotFound)
+        }
     }
 
     #[inline]
