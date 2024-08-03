@@ -530,6 +530,8 @@ impl PageService {
         .await?
         .rows_affected();
 
+        txn.commit().await?;
+
         if rows_affected == 1 {
             Ok(())
         } else {
@@ -601,6 +603,8 @@ impl PageService {
         )
         .fetch_one(&mut *txn)
         .await?;
+
+        txn.commit().await?;
 
         match row.layout {
             // Parse layout from string in page table

@@ -303,6 +303,8 @@ impl SiteService {
                 .fetch_one(&mut *txn)
                 .await?;
 
+        txn.commit().await?;
+
         match row.layout {
             // Parse layout from string in site table
             Some(layout) => match layout.parse() {
