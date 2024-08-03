@@ -505,6 +505,33 @@ impl PageService {
         todo!()
     }
 
+    /// Sets the layout override for a page.
+    pub async fn set_layout(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+        layout: Option<Layout>,
+    ) -> Result<()> {
+        debug!("Setting page layout for site ID {site_id} page ID {page_id}");
+
+        let mut txn = ctx.sqlx().await?;
+        sqlx::query!(
+            r"
+            UPDATE page
+            SET layout = $1
+            WHERE site_id = $2
+            AND page_id = $3
+            ",
+            layout.map(Layout::value),
+            site_id,
+            page_id,
+        )
+        .execute(&mut *txn)
+        .await?;
+
+        Ok(())
+    }
+
     #[inline]
     pub async fn get(
         ctx: &ServiceContext<'_>,

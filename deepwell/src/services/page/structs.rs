@@ -186,6 +186,13 @@ pub struct RollbackPage<'a> {
     pub user_id: i64,
 }
 
+#[derive(Deserialize, Debug, Clone)]
+pub struct SetPageLayout {
+    pub site_id: i64,
+    pub page_id: i64,
+    pub layout: Option<Layout>,
+}
+
 pub type EditPageOutput = CreatePageRevisionOutput;
 
 impl From<(CreatePageRevisionOutput, i64)> for DeletePageOutput {
