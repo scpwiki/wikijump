@@ -186,7 +186,7 @@ pub struct RollbackPage<'a> {
     pub user_id: i64,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Deserialize, Debug, Copy, Clone)]
 pub struct SetPageLayout {
     pub site_id: i64,
     pub page_id: i64,
