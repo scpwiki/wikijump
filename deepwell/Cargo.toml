@@ -8,7 +8,7 @@ keywords = ["wikijump", "api", "backend", "wiki"]
 categories = ["asynchronous", "database", "web-programming::http-server"]
 exclude = [".gitignore", ".editorconfig"]
 
-version = "2024.7.15"
+version = "2024.8.2"
 authors = ["Emmie Smith <emmie.maeda@gmail.com>"]
 edition = "2021"
 
@@ -32,7 +32,7 @@ femme = "2"
 filemagic = "0.12"
 fluent = "0.16"
 fluent-syntax = "0"
-ftml = { version = "1.24", features = ["mathml"] }
+ftml = { version = "1.26", features = ["mathml"] }
 futures = { version = "0.3", features = ["async-await"], default-features = false }
 hex = { version = "0.4", features = ["serde"] }
 hostname = "0.4"

@@ -51,6 +51,9 @@ rerender-skip = [
     { job-depth = 10, last-update-ms = 1500 },
     { job-depth = 50, last-update-ms = 0 },
 ]
+[ftml.layout]
+messages = "wikijump"
+default-page = "wikidot"
 
 [special-pages]
 special-prefix = "_"

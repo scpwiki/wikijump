@@ -27,9 +27,12 @@ use crate::services::page_revision::{
     CreatePageRevisionBody, CreatePageRevisionOutput, CreateResurrectionPageRevision,
     CreateTombstonePageRevision,
 };
-use crate::services::{CategoryService, FilterService, PageRevisionService, TextService};
+use crate::services::{
+    CategoryService, FilterService, PageRevisionService, SiteService, TextService,
+};
 use crate::utils::{get_category_name, trim_default};
 use crate::web::PageOrder;
+use ftml::layout::Layout;
 use sea_orm::ActiveValue;
 use wikidot_normalize::normalize;
 
@@ -502,6 +505,40 @@ impl PageService {
         todo!()
     }
 
+    /// Sets the layout override for a page.
+    pub async fn set_layout(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+        layout: Option<Layout>,
+    ) -> Result<()> {
+        debug!("Setting page layout for site ID {site_id} page ID {page_id}");
+
+        let mut txn = ctx.sqlx().await?;
+        let rows_affected = sqlx::query!(
+            r"
+            UPDATE page
+            SET layout = $1
+            WHERE site_id = $2
+            AND page_id = $3
+            ",
+            layout.map(Layout::value),
+            site_id,
+            page_id,
+        )
+        .execute(&mut *txn)
+        .await?
+        .rows_affected();
+
+        txn.commit().await?;
+
+        if rows_affected == 1 {
+            Ok(())
+        } else {
+            Err(Error::PageNotFound)
+        }
+    }
+
     #[inline]
     pub async fn get(
         ctx: &ServiceContext<'_>,
@@ -538,6 +575,47 @@ impl PageService {
         };
 
         Ok(page)
+    }
+
+    /// Get the layout associated with this page.
+    ///
+    /// If this page has a specific layout override,
+    /// then that is returned. Otherwise, the layout
+    /// associated with the site is used.
+    pub async fn get_layout(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+    ) -> Result<Layout> {
+        debug!("Getting page layout for site ID {site_id} page ID {page_id}");
+
+        #[derive(Debug)]
+        struct Row {
+            layout: Option<String>,
+        }
+
+        let mut txn = ctx.sqlx().await?;
+        let row = sqlx::query_as!(
+            Row,
+            r"SELECT layout FROM page WHERE site_id = $1 AND page_id = $2",
+            site_id,
+            page_id,
+        )
+        .fetch_one(&mut *txn)
+        .await?;
+
+        txn.commit().await?;
+
+        match row.layout {
+            // Parse layout from string in page table
+            Some(layout) => match layout.parse() {
+                Ok(layout) => Ok(layout),
+                Err(_) => Err(Error::InvalidEnumValue),
+            },
+
+            // Fallback to site layout
+            None => SiteService::get_layout(ctx, site_id).await,
+        }
     }
 
     /// Gets the page ID from a reference, looking up if necessary.

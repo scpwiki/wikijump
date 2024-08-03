@@ -237,6 +237,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("page_rollback", page_rollback);
     register!("page_rerender", page_rerender);
     register!("page_restore", page_restore);
+    register!("page_set_layout", page_set_layout);
 
     // Page revisions
     register!("page_revision_create", page_revision_edit);

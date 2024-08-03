@@ -26,12 +26,13 @@ use crate::models::sea_orm_active_enums::PageRevisionType;
 use crate::services::render::RenderOutput;
 use crate::services::score::ScoreValue;
 use crate::services::{
-    LinkService, OutdateService, ParentService, RenderService, ScoreService, SiteService,
-    TextService,
+    LinkService, OutdateService, PageService, ParentService, RenderService, ScoreService,
+    SiteService, TextService,
 };
 use crate::utils::{split_category, split_category_name};
 use crate::web::FetchDirection;
 use ftml::data::PageInfo;
+use ftml::layout::Layout;
 use ftml::settings::{WikitextMode, WikitextSettings};
 use once_cell::sync::Lazy;
 use ref_map::*;
@@ -184,8 +185,11 @@ impl PageRevisionService {
             return Ok(None);
         }
 
-        // Calculate score
-        let score = ScoreService::score(ctx, page_id).await?;
+        // Get ancillary page data
+        let (score, layout) = try_join!(
+            ScoreService::score(ctx, page_id),
+            PageService::get_layout(ctx, site_id, page_id),
+        )?;
 
         // Run tasks based on changes:
         // See PageRevisionTasks struct for more information.
@@ -195,6 +199,7 @@ impl PageRevisionService {
             // This is necessary until we are able to replace the
             // 'tags' column with TEXT[] instead of JSON.
             let render_input = RenderPageInfo {
+                layout,
                 slug: &slug,
                 title: &title,
                 alt_title: alt_title.ref_map(|s| s.as_str()),
@@ -327,14 +332,16 @@ impl PageRevisionService {
     ) -> Result<CreateFirstPageRevisionOutput> {
         let txn = ctx.transaction();
 
-        // Add wikitext
-        let wikitext_hash = TextService::create(ctx, wikitext.clone()).await?;
-
-        // Calculate score
-        let score = ScoreService::score(ctx, page_id).await?;
+        // Get ancillary page data
+        let (wikitext_hash, score, layout) = try_join!(
+            TextService::create(ctx, wikitext.clone()),
+            ScoreService::score(ctx, page_id),
+            PageService::get_layout(ctx, site_id, page_id),
+        )?;
 
         // Render first revision
         let render_input = RenderPageInfo {
+            layout,
             slug: &slug,
             title: &title,
             alt_title: alt_title.ref_map(|s| s.as_str()),
@@ -496,11 +503,15 @@ impl PageRevisionService {
             vec![str!("slug")]
         };
 
-        // Calculate score
-        let score = ScoreService::score(ctx, page_id).await?;
+        // Get ancillary page data
+        let (score, layout) = try_join!(
+            ScoreService::score(ctx, page_id),
+            PageService::get_layout(ctx, site_id, page_id),
+        )?;
 
         // Re-render page
         let render_input = RenderPageInfo {
+            layout,
             slug: &new_slug,
             title: &title,
             alt_title: alt_title.ref_map(|s| s.as_str()),
@@ -565,6 +576,7 @@ impl PageRevisionService {
         page_id: i64,
         wikitext: String,
         RenderPageInfo {
+            layout,
             slug,
             title,
             alt_title,
@@ -576,7 +588,7 @@ impl PageRevisionService {
         let site = SiteService::get(ctx, Reference::from(site_id)).await?;
 
         // Set up parse context
-        let settings = WikitextSettings::from_mode(WikitextMode::Page);
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, layout);
         let (category_slug, page_slug) = split_category(slug);
         let page_info = PageInfo {
             page: cow!(page_slug),
@@ -642,12 +654,17 @@ impl PageRevisionService {
             }
         }
 
-        let wikitext = TextService::get(ctx, &revision.wikitext_hash).await?;
-        let score = ScoreService::score(ctx, page_id).await?;
+        // Get data for page
+        let (wikitext, score, layout) = try_join!(
+            TextService::get(ctx, &revision.wikitext_hash),
+            ScoreService::score(ctx, page_id),
+            PageService::get_layout(ctx, site_id, page_id),
+        )?;
 
         // This is necessary until we are able to replace the
         // 'tags' column with TEXT[] instead of JSON.
         let render_input = RenderPageInfo {
+            layout,
             slug: &revision.slug,
             title: &revision.title,
             alt_title: revision.alt_title.ref_map(|s| s.as_str()),
@@ -884,8 +901,9 @@ impl PageRevisionService {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 struct RenderPageInfo<'a> {
+    layout: Layout,
     slug: &'a str,
     title: &'a str,
     alt_title: Option<&'a str>,

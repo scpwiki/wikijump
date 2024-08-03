@@ -277,6 +277,24 @@ last-update-ms = 0
 #     { job-depth = 50, last-update-ms = 0 },
 # ]
 
+[ftml.layout]
+
+# Settings for layout compatibility
+#
+# This is a transitional mechanism to produce compatible DOM outputs to Wikidot,
+# where long term we want things to work with the newer DOM.
+#
+# The value values are:
+# * "wikidot" (legacy Wikidot-compatible DOM)
+# * "wikijump" (new DOM)
+#
+# This setting governs which layouts are used in which contexts.
+
+# Layout used when rendering direct messages to users.
+messages = "wikijump"
+
+# Layout used by default when there is not a layout set for a page or the site.
+default-page = "wikidot"
 
 [special-pages]
 

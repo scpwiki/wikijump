@@ -27,8 +27,11 @@ use crate::models::site::{self, Entity as Site, Model as SiteModel};
 use crate::services::alias::CreateAlias;
 use crate::services::relation::CreateSiteUser;
 use crate::services::user::{CreateUser, UpdateUserBody};
-use crate::services::{AliasService, RelationService, UserService};
+use crate::services::{AliasService, Error, RelationService, UserService};
 use crate::utils::validate_locale;
+use ftml::layout::Layout;
+use ref_map::*;
+use std::borrow::Cow;
 
 #[derive(Debug)]
 pub struct SiteService;
@@ -156,6 +159,10 @@ impl SiteService {
             site_user_body.locales = ProvidedValue::Set(vec![locale]);
         }
 
+        if let ProvidedValue::Set(layout) = input.layout {
+            model.layout = Set(layout.map(|l| str!(l.value())));
+        }
+
         // Update site
         model.updated_at = Set(Some(now()));
         let new_site = model.update(txn).await?;
@@ -279,6 +286,39 @@ impl SiteService {
         reference: Reference<'_>,
     ) -> Result<SiteModel> {
         find_or_error!(Self::get_optional(ctx, reference), Site)
+    }
+
+    /// Get the default page layout for this site.
+    /// If the site has not set a page layout, then the platform default is used.
+    ///
+    /// Since this is the only field needed most of the time, and
+    /// is fairly commonly needed, we have a separate method for it.
+    pub async fn get_layout(ctx: &ServiceContext<'_>, site_id: i64) -> Result<Layout> {
+        debug!("Getting page layout for site ID {site_id}");
+
+        #[derive(Debug)]
+        struct Row {
+            layout: Option<String>,
+        }
+
+        let mut txn = ctx.sqlx().await?;
+        let row =
+            sqlx::query_as!(Row, r"SELECT layout FROM site WHERE site_id = $1", site_id)
+                .fetch_one(&mut *txn)
+                .await?;
+
+        txn.commit().await?;
+
+        match row.layout {
+            // Parse layout from string in site table
+            Some(layout) => match layout.parse() {
+                Ok(layout) => Ok(layout),
+                Err(_) => Err(Error::InvalidEnumValue),
+            },
+
+            // Fallback to default platform layout
+            None => Ok(ctx.config().default_page_layout),
+        }
     }
 
     /// Gets the site ID from a reference, looking up if necessary.

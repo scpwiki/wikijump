@@ -23,7 +23,7 @@ use crate::models::page::Model as PageModel;
 use crate::services::page::{
     CreatePage, CreatePageOutput, DeletePage, DeletePageOutput, EditPage, EditPageOutput,
     GetPageAnyDetails, GetPageDirect, GetPageOutput, GetPageReferenceDetails, MovePage,
-    MovePageOutput, RestorePage, RestorePageOutput, RollbackPage,
+    MovePageOutput, RestorePage, RestorePageOutput, RollbackPage, SetPageLayout,
 };
 use crate::services::{Result, TextService};
 use crate::web::{PageDetails, Reference};
@@ -140,6 +140,29 @@ pub async fn page_rollback(
     PageService::rollback(ctx, input).await
 }
 
+pub async fn page_set_layout(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<()> {
+    let SetPageLayout {
+        site_id,
+        page_id,
+        layout,
+    } = params.parse()?;
+
+    info!(
+        "Setting layout override for page {} in site ID {} to layout {}",
+        page_id,
+        site_id,
+        match layout {
+            Some(layout) => layout.value(),
+            None => "none (default)",
+        },
+    );
+
+    PageService::set_layout(ctx, site_id, page_id, layout).await
+}
+
 async fn build_page_output(
     ctx: &ServiceContext<'_>,
     page: PageModel,
@@ -160,8 +183,11 @@ async fn build_page_output(
         TextService::get_maybe(ctx, details.compiled_html, &revision.compiled_hash),
     )?;
 
-    // Calculate score
-    let rating = ScoreService::score(ctx, page.page_id).await?;
+    // Calculate score and determine layout
+    let (rating, layout) = try_join!(
+        ScoreService::score(ctx, page.page_id),
+        PageService::get_layout(ctx, page.site_id, page.page_id),
+    )?;
 
     // Build result struct
     Ok(Some(GetPageOutput {
@@ -190,5 +216,6 @@ async fn build_page_output(
         slug: revision.slug,
         tags: revision.tags,
         rating,
+        layout,
     }))
 }

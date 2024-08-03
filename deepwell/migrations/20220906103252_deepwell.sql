@@ -88,6 +88,7 @@ CREATE TABLE site (
     tagline TEXT NOT NULL,
     description TEXT NOT NULL,
     locale TEXT NOT NULL,
+    layout TEXT,  -- Default page layout for the site
     default_page TEXT NOT NULL DEFAULT 'start',
     custom_domain TEXT,  -- Dependency cycle, add foreign key constraint after
 
@@ -202,6 +203,7 @@ CREATE TABLE page (
     page_category_id BIGINT NOT NULL REFERENCES page_category(category_id),
     slug TEXT NOT NULL,
     discussion_thread_id BIGINT, -- TODO: add REFERENCES to forum threads
+    layout TEXT, -- page-specific override for DOM layout
 
     UNIQUE (site_id, slug, deleted_at)
 );

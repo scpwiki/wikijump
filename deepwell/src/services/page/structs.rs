@@ -23,6 +23,7 @@ use crate::models::sea_orm_active_enums::PageRevisionType;
 use crate::services::page_revision::CreatePageRevisionOutput;
 use crate::services::score::ScoreValue;
 use crate::web::PageDetails;
+use ftml::layout::Layout;
 use ftml::parsing::ParseError;
 use time::OffsetDateTime;
 
@@ -102,6 +103,7 @@ pub struct GetPageOutput {
     pub slug: String,
     pub tags: Vec<String>,
     pub rating: ScoreValue,
+    pub layout: Layout,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -182,6 +184,13 @@ pub struct RollbackPage<'a> {
     pub revision_number: i32,
     pub revision_comments: String,
     pub user_id: i64,
+}
+
+#[derive(Deserialize, Debug, Copy, Clone)]
+pub struct SetPageLayout {
+    pub site_id: i64,
+    pub page_id: i64,
+    pub layout: Option<Layout>,
 }
 
 pub type EditPageOutput = CreatePageRevisionOutput;
