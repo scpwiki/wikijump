@@ -66,7 +66,7 @@ impl SeedData {
         path.set_extension("json");
         debug!("Loading JSON from {}", path.display());
 
-        let mut file = File::open(&path)?;
+        let mut file = File::open(path)?;
         let data = serde_json::from_reader(&mut file)?;
         Ok(data)
     }
@@ -76,7 +76,7 @@ impl SeedData {
         path.set_extension("ftml");
         debug!("Loading wikitext from {}", path.display());
 
-        let wikitext = fs::read_to_string(&path)?;
+        let wikitext = fs::read_to_string(path)?;
         Ok(wikitext)
     }
 }
