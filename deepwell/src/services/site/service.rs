@@ -159,6 +159,10 @@ impl SiteService {
             site_user_body.locales = ProvidedValue::Set(vec![locale]);
         }
 
+        if let ProvidedValue::Set(layout) = input.layout {
+            model.layout = Set(layout.map(|l| str!(l.value())));
+        }
+
         // Update site
         model.updated_at = Set(Some(now()));
         let new_site = model.update(txn).await?;
