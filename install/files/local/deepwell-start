@@ -6,7 +6,7 @@
 # the sqlx CLI tool to avoid dependency cycles wherein the deepwell
 # build wants the database to be up, but the migrations running is
 # dependent on the build having finished and deepwell running.
-sqlx migrate run
+/usr/local/cargo/bin/sqlx migrate run
 
 # Start watcher
 #
