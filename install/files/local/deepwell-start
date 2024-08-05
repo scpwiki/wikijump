@@ -13,7 +13,7 @@ sqlx migrate run
 # This will recompile and restart the deepwell daemon on any source changes
 # The commandline being run for the daemon is "deepwell /etc/deepwell.toml".
 
-/usr/local/cargo/bin/cargo watch \
+exec /usr/local/cargo/bin/cargo watch \
     --why \
     -w /src/deepwell \
     -w /opt/locales \
