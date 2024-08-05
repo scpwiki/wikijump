@@ -22,6 +22,14 @@ COPY install/files/api/health-check.sh /bin/wikijump-health-check
 
 # /opt/locales is provided via docker-compose.dev.yaml
 
+# Run migrations
+#
+# deepwell is able to do this itself, but we run it separately via
+# the sqlx CLI tool to avoid dependency cycles wherein the deepwell
+# build wants the database to be up, but the migrations running is
+# dependent on the build having finished and deepwell running.
+RUN sqlx migrate run
+
 # Copy source
 # Don't build until container execution (see cargo-watch)
 RUN mkdir /src
