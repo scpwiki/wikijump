@@ -13,7 +13,7 @@
 # This will recompile and restart the deepwell daemon on any source changes
 # The commandline being run for the daemon is "deepwell /etc/deepwell.toml".
 
-exec /usr/bin/env RUST_BACKTRACE=full \
+exec /usr/bin/env RUST_BACKTRACE=1 \
     /usr/local/cargo/bin/cargo watch \
         --why \
         -w /src/deepwell \
