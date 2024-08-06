@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# Run migrations
+#
+# deepwell is able to do this itself, but we run it separately via
+# the sqlx CLI tool to avoid dependency cycles wherein the deepwell
+# build wants the database to be up, but the migrations running is
+# dependent on the build having finished and deepwell running.
+/usr/local/cargo/bin/sqlx migrate run
+
+# Start watcher
+#
+# This will recompile and restart the deepwell daemon on any source changes
+# The commandline being run for the daemon is "deepwell /etc/deepwell.toml".
+
+exec /usr/bin/env RUST_BACKTRACE=1 \
+    /usr/local/cargo/bin/cargo watch \
+        --why \
+        -w /src/deepwell \
+        -w /opt/locales \
+        -w /etc/deepwell.toml \
+        -x 'run -- /etc/deepwell.toml'

@@ -7,7 +7,7 @@ address = "[::]:2747"
 pid-file = "/run/deepwell.pid"
 
 [database]
-run-migrations = true
+run-migrations = false
 run-seeder = true
 seeder-path = "seeder"
 

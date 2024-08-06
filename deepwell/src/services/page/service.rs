@@ -595,14 +595,16 @@ impl PageService {
         }
 
         let mut txn = ctx.sqlx().await?;
-        let row = sqlx::query_as!(
-            Row,
-            r"SELECT layout FROM page WHERE site_id = $1 AND page_id = $2",
-            site_id,
-            page_id,
-        )
-        .fetch_one(&mut *txn)
-        .await?;
+        let row = find_or_error!(
+            sqlx::query_as!(
+                Row,
+                r"SELECT layout FROM page WHERE site_id = $1 AND page_id = $2",
+                site_id,
+                page_id,
+            )
+            .fetch_optional(&mut *txn),
+            Page,
+        )?;
 
         txn.commit().await?;
 
