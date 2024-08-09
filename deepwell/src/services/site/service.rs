@@ -307,7 +307,7 @@ impl SiteService {
             layout: Option<String>,
         }
 
-        let mut txn = ctx.sqlx().await?;
+        let mut txn = ctx.make_sqlx_transaction().await?;
         let row =
             sqlx::query_as!(Row, r"SELECT layout FROM site WHERE site_id = $1", site_id)
                 .fetch_one(&mut *txn)

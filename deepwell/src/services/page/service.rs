@@ -617,7 +617,7 @@ impl PageService {
             layout: Option<String>,
         }
 
-        let mut txn = ctx.sqlx().await?;
+        let mut txn = ctx.make_sqlx_transaction().await?;
         let row = find_or_error!(
             sqlx::query_as!(
                 Row,
