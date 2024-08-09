@@ -24,7 +24,7 @@ use std::path::PathBuf;
 use wikidot_normalize::normalize;
 
 async fn postgres_check(ctx: &ServiceContext<'_>) -> Result<()> {
-    let mut txn = ctx.sqlx().await?;
+    let mut txn = ctx.make_sqlx_transaction().await?;
     let _ = sqlx::query!(r"SELECT 1 AS x").fetch_one(&mut *txn).await?;
     txn.commit().await?;
 

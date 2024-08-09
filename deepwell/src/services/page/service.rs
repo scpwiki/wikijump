@@ -514,7 +514,7 @@ impl PageService {
     ) -> Result<()> {
         debug!("Setting page layout for site ID {site_id} page ID {page_id}");
 
-        let mut txn = ctx.sqlx().await?;
+        let mut txn = ctx.make_sqlx_transaction().await?;
         let rows_affected = sqlx::query!(
             r"
             UPDATE page
@@ -594,7 +594,7 @@ impl PageService {
             layout: Option<String>,
         }
 
-        let mut txn = ctx.sqlx().await?;
+        let mut txn = ctx.make_sqlx_transaction().await?;
         let row = find_or_error!(
             sqlx::query_as!(
                 Row,
