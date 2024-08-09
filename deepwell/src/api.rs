@@ -163,11 +163,11 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
                 let db_state = Arc::clone(&state);
                 db_state
                     .database_seaorm
-                    .transaction(move |txn| {
+                    .transaction(move |seaorm_txn| {
                         Box::pin(async move {
                             // Run the endpoint's implementation, and convert from
                             // ServiceError to an RPC error.
-                            let ctx = ServiceContext::new(&state, &txn);
+                            let ctx = ServiceContext::new(&state, &seaorm_txn, todo!());
                             $method(&ctx, params).await.map_err(ErrorObjectOwned::from)
                         })
                     })
