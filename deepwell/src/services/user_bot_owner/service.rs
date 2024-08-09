@@ -38,7 +38,7 @@ impl UserBotOwnerService {
     ) -> Result<Vec<UserBotOwnerModel>> {
         info!("Looking up owners for bot ID {bot_user_id}");
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let owners = UserBotOwner::find()
             .filter(user_bot_owner::Column::BotUserId.eq(bot_user_id))
             .all(txn)
@@ -57,7 +57,7 @@ impl UserBotOwnerService {
             human_user_id, bot_user_id,
         );
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let owner = UserBotOwner::find_by_id((bot_user_id, human_user_id))
             .one(txn)
             .await?;
@@ -91,7 +91,7 @@ impl UserBotOwnerService {
         // NOTE: Not using upsert (INSERT .. ON CONFLICT) because
         //       setting updated_at is a bit gnarly.
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let model = match Self::get_optional(ctx, bot.user_id, human.user_id).await? {
             // Update
             Some(owner) => {
@@ -133,7 +133,7 @@ impl UserBotOwnerService {
             human: human_reference,
         }: RemoveBotOwner<'_>,
     ) -> Result<RemoveBotOwnerOutput> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         // We don't check user type here because we already checked it prior to insertion.
         //

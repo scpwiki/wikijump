@@ -40,7 +40,7 @@ impl VoteService {
             value,
         }: CreateVote,
     ) -> Result<Option<PageVoteModel>> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         info!(
             "Casting new vote by user ID {} on page ID {} (value {})",
             user_id, page_id, value,
@@ -82,7 +82,7 @@ impl VoteService {
         ctx: &ServiceContext<'_>,
         GetVote { page_id, user_id }: GetVote,
     ) -> Result<Option<PageVoteModel>> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let vote = PageVote::find()
             .filter(
                 Condition::all()
@@ -109,7 +109,7 @@ impl VoteService {
             acting_user_id,
         );
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let mut vote = Self::get(ctx, key).await?.into_active_model();
 
         if enable {
@@ -130,7 +130,7 @@ impl VoteService {
     pub async fn remove(ctx: &ServiceContext<'_>, key: GetVote) -> Result<PageVoteModel> {
         info!("Removing vote {key:?}");
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let mut vote = Self::get(ctx, key).await?.into_active_model();
         vote.deleted_at = Set(Some(now()));
 
@@ -157,7 +157,7 @@ impl VoteService {
             limit,
         }: GetVoteHistory,
     ) -> Result<Vec<PageVoteModel>> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let condition = Self::build_history_condition(kind, start_id, deleted, disabled);
 
         let votes = PageVote::find()
@@ -182,7 +182,7 @@ impl VoteService {
             disabled,
         }: CountVoteHistory,
     ) -> Result<u64> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let condition = Self::build_history_condition(kind, start_id, deleted, disabled);
 
         let vote_count = PageVote::find().filter(condition).count(txn).await?;

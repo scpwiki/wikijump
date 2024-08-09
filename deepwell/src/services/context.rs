@@ -88,7 +88,7 @@ impl<'txn> ServiceContext<'txn> {
     }
 
     #[inline]
-    pub fn transaction(&self) -> &'txn DatabaseTransaction {
+    pub fn seaorm_transaction(&self) -> &'txn DatabaseTransaction {
         self.transaction
     }
 

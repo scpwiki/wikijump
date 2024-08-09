@@ -63,7 +63,7 @@ impl FileRevisionService {
         }: CreateFileRevision,
         previous: FileRevisionModel,
     ) -> Result<Option<CreateFileRevisionOutput>> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let revision_number = next_revision_number(&previous, page_id, file_id);
 
         // Fields to create in the revision
@@ -190,7 +190,7 @@ impl FileRevisionService {
             comments,
         }: CreateFirstFileRevision,
     ) -> Result<CreateFirstFileRevisionOutput> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         // Run outdater
         let page_slug = Self::get_page_slug(ctx, site_id, page_id).await?;
@@ -243,7 +243,7 @@ impl FileRevisionService {
         }: CreateTombstoneFileRevision,
         previous: FileRevisionModel,
     ) -> Result<CreateFileRevisionOutput> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let revision_number = next_revision_number(&previous, page_id, file_id);
 
         let FileRevisionModel {
@@ -315,7 +315,7 @@ impl FileRevisionService {
         }: CreateResurrectionFileRevision,
         previous: FileRevisionModel,
     ) -> Result<CreateFileRevisionOutput> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let revision_number = next_revision_number(&previous, old_page_id, file_id);
 
         let FileRevisionModel {
@@ -392,7 +392,7 @@ impl FileRevisionService {
         // the file, its name, contents, etc are exposed.
         // It should be reverted first, and then it can be hidden.
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let latest = Self::get_latest(ctx, site_id, page_id, file_id).await?;
         if revision_id == latest.revision_id {
             warn!("Attempting to edit latest revision, denying request");
@@ -427,7 +427,7 @@ impl FileRevisionService {
         // NOTE: There is no optional variant of this method,
         //       since all extant files must have at least one revision.
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let revision = FileRevision::find()
             .filter(
                 Condition::all()
@@ -455,7 +455,7 @@ impl FileRevisionService {
             revision_number,
         }: GetFileRevision,
     ) -> Result<Option<FileRevisionModel>> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let revision = FileRevision::find()
             .filter(
                 Condition::all()
@@ -490,7 +490,7 @@ impl FileRevisionService {
         page_id: i64,
         file_id: i64,
     ) -> Result<NonZeroI32> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let row_count = FileRevision::find()
             .filter(
                 Condition::all()
@@ -545,7 +545,7 @@ impl FileRevisionService {
             }
         };
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let revisions = FileRevision::find()
             .filter(
                 Condition::all()

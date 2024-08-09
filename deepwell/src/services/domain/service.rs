@@ -42,7 +42,7 @@ impl DomainService {
     ) -> Result<()> {
         info!("Creating custom domain '{domain}' (site ID {site_id})");
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         if Self::custom_domain_exists(ctx, &domain).await? {
             error!("Custom domain already exists, cannot create");
             return Err(Error::CustomDomainExists);
@@ -63,7 +63,7 @@ impl DomainService {
     pub async fn remove_custom(ctx: &ServiceContext<'_>, domain: String) -> Result<()> {
         info!("Deleting custom domain '{domain}'");
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let DeleteResult { rows_affected, .. } =
             SiteDomain::delete_by_id(domain).exec(txn).await?;
 
@@ -81,7 +81,7 @@ impl DomainService {
         info!("Getting site for custom domain '{domain}'");
 
         // Join with the site table so we can get that data, rather than just the ID.
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let model = Site::find()
             .join(JoinType::Join, site::Relation::SiteDomain.def())
             .filter(site_domain::Column::Domain.eq(domain))
@@ -252,7 +252,7 @@ impl DomainService {
     ) -> Result<Vec<SiteDomainModel>> {
         info!("Getting domains for site ID {site_id}");
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let models = SiteDomain::find()
             .filter(site_domain::Column::SiteId.eq(site_id))
             .all(txn)

@@ -62,7 +62,7 @@ impl ImportService {
     ) -> Result<()> {
         info!("Importing user (name '{}', slug '{}')", name, slug);
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         // Upload avatar to S3
         let avatar_s3_hash = match avatar {
@@ -112,7 +112,7 @@ impl ImportService {
             name, slug, locale,
         );
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let site = site::ActiveModel {
             site_id: Set(site_id),
             created_at: Set(created_at),
@@ -140,7 +140,7 @@ impl ImportService {
     ) -> Result<()> {
         info!("Creating page '{}' in site ID {}", slug, site_id);
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         // Create category if not already present
         let PageCategoryModel { category_id, .. } =

@@ -58,7 +58,7 @@ impl AliasService {
         }: CreateAlias,
         verify: bool,
     ) -> Result<CreateAliasOutput> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let slug = get_regular_slug(slug);
 
         info!("Creating {alias_type:?} alias with slug '{slug}'");
@@ -153,7 +153,7 @@ impl AliasService {
         alias_type: AliasType,
         slug: &str,
     ) -> Result<Option<AliasModel>> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         let alias = Alias::find()
             .filter(
@@ -195,7 +195,7 @@ impl AliasService {
     ) -> Result<Vec<AliasModel>> {
         info!("Finding all {alias_type:?} aliases for ID {target_id}");
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let aliases = Alias::find()
             .filter(
                 Condition::all()
@@ -222,7 +222,7 @@ impl AliasService {
         alias_id: i64,
         new_slug: &str,
     ) -> Result<()> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         info!(
             "Swapping user alias ID {} to use slug '{}'",
@@ -249,7 +249,7 @@ impl AliasService {
         alias_type: AliasType,
         target_id: i64,
     ) -> Result<u64> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         info!("Removing all {alias_type:?} aliases for target ID {target_id}");
 
@@ -280,7 +280,7 @@ impl AliasService {
     ) -> Result<()> {
         info!("Verifying target and alias table consistency for slug '{slug}'",);
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let alias_fut = Alias::find()
             .filter(
                 Condition::all()

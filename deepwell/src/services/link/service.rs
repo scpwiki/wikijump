@@ -54,7 +54,7 @@ impl LinkService {
         ctx: &ServiceContext<'_>,
         page_id: i64,
     ) -> Result<GetLinksFromOutput> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         let (present, absent, external) = try_join!(
             PageConnection::find()
@@ -82,7 +82,7 @@ impl LinkService {
         page_id: i64,
         connection_types: Option<&[ConnectionType]>,
     ) -> Result<GetConnectionsFromOutput> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         let (present, absent) = try_join!(
             PageConnection::find()
@@ -115,7 +115,7 @@ impl LinkService {
         page_id: i64,
         connection_types: Option<&[ConnectionType]>,
     ) -> Result<GetLinksToOutput> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         let connections = PageConnection::find()
             .filter(
@@ -138,7 +138,7 @@ impl LinkService {
         page_slug: &str,
         connection_types: Option<&[ConnectionType]>,
     ) -> Result<GetLinksToMissingOutput> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         // Ensure the page doesn't actually exist
         if let Some(page) =
@@ -174,7 +174,7 @@ impl LinkService {
         ctx: &ServiceContext<'_>,
         page_id: i64,
     ) -> Result<GetLinksExternalFromOutput> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         let links = PageLink::find()
             .filter(page_link::Column::PageId.eq(page_id))
@@ -189,7 +189,7 @@ impl LinkService {
         site_id: i64,
         url: &str,
     ) -> Result<GetLinksExternalToOutput> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         // Perform join so we don't leak data from other sites.
         let links = PageLink::find()
@@ -284,7 +284,7 @@ async fn update_connections(
     from_page_id: i64,
     counts: &mut HashMap<(i64, ConnectionType), i32>,
 ) -> Result<()> {
-    let txn = ctx.transaction();
+    let txn = ctx.seaorm_transaction();
 
     // Get existing connections
     let mut connection_chunks = PageConnection::find()
@@ -346,7 +346,7 @@ async fn update_connections_missing(
     from_page_id: i64,
     counts: &mut HashMap<(i64, String, ConnectionType), i32>,
 ) -> Result<()> {
-    let txn = ctx.transaction();
+    let txn = ctx.seaorm_transaction();
 
     // Get existing connections
     let mut connection_chunks = PageConnectionMissing::find()
@@ -415,7 +415,7 @@ async fn update_external_links(
     from_page_id: i64,
     counts: &mut HashMap<String, i32>,
 ) -> Result<()> {
-    let txn = ctx.transaction();
+    let txn = ctx.seaorm_transaction();
 
     // Get existing links
     let mut link_chunks = PageLink::find()

@@ -98,7 +98,7 @@ impl AuthenticationService {
     ) -> Result<UserAuthInfo> {
         info!("Looking for user matching name or email '{name_or_email}'");
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let result = User::find()
             .filter(
                 Condition::any()

@@ -49,7 +49,7 @@ impl TextService {
             return Err(Error::BadRequest);
         }
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let contents = Text::find()
             .filter(text::Column::Hash.eq(hash))
             .one(txn)
@@ -92,7 +92,7 @@ impl TextService {
 
     /// Creates a text entry with this data, if it does not already exist.
     pub async fn create(ctx: &ServiceContext<'_>, contents: String) -> Result<TextHash> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let hash = k12_hash(contents.as_bytes());
 
         if !Self::exists(ctx, &hash).await? {
@@ -123,7 +123,7 @@ impl TextService {
         // All foreign keys of text.hash should have conditions here.
         // These foreign key constraints prevent us from deleting anything
         // actually used.
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let DeleteResult { rows_affected, .. } = Text::delete_many()
             .filter(
                 Condition::all()

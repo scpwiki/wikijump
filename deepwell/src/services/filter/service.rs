@@ -41,7 +41,7 @@ impl FilterService {
             description,
         }: CreateFilter,
     ) -> Result<FilterModel> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         info!("Creating filter with regex '{regex}' because '{description}'");
 
@@ -90,7 +90,7 @@ impl FilterService {
             description,
         }: UpdateFilter,
     ) -> Result<FilterModel> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         info!("Updating filter with ID {filter_id}");
 
@@ -163,7 +163,7 @@ impl FilterService {
     #[allow(dead_code)] // TEMP
     pub async fn delete(ctx: &ServiceContext<'_>, filter_id: i64) -> Result<()> {
         info!("Deleting filter with ID {filter_id}");
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         // Ensure filter exists
         let filter = Self::get(ctx, filter_id).await?;
@@ -188,7 +188,7 @@ impl FilterService {
         ctx: &ServiceContext<'_>,
         filter_id: i64,
     ) -> Result<FilterModel> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         info!("Undeleting filter with ID {filter_id}");
 
@@ -222,7 +222,7 @@ impl FilterService {
     ) -> Result<Option<FilterModel>> {
         info!("Getting filter with ID {filter_id}");
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let filter = Filter::find_by_id(filter_id).one(txn).await?;
         Ok(filter)
     }
@@ -245,7 +245,7 @@ impl FilterService {
         filter_type: Option<FilterType>,
         deleted: Option<bool>,
     ) -> Result<Vec<FilterModel>> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         info!("Getting all {} filters", filter_class.name());
 
@@ -322,7 +322,7 @@ impl FilterService {
         regex: &str,
         action: &str,
     ) -> Result<()> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         let result = Filter::find()
             .filter(
