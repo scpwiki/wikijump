@@ -26,13 +26,14 @@ use crate::services::error::Result;
 use redis::aio::MultiplexedConnection as RedisMultiplexedConnection;
 use rsmq_async::PooledRsmq;
 use s3::bucket::Bucket;
-use sea_orm::DatabaseTransaction;
+use sqlx::{Database, Postgres};
 use std::sync::Arc;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct ServiceContext<'txn> {
     state: ServerState,
-    transaction: &'txn DatabaseTransaction,
+    seaorm_transaction: &'txn sea_orm::DatabaseTransaction,
+    sqlx_transaction: &'txn mut sqlx::Transaction<'txn, Postgres>,
 }
 
 impl<'txn> ServiceContext<'txn> {
@@ -40,10 +41,15 @@ impl<'txn> ServiceContext<'txn> {
     //       for transactions.
     //
     //       For our endpoints, this is managed in the wrapper macro in api.rs
-    pub fn new(state: &ServerState, transaction: &'txn DatabaseTransaction) -> Self {
+    pub fn new(
+        state: &ServerState,
+        seaorm_transaction: &'txn sea_orm::DatabaseTransaction,
+        sqlx_transaction: &'txn mut sqlx::Transaction<'txn, Postgres>,
+    ) -> Self {
         ServiceContext {
             state: Arc::clone(state),
-            transaction,
+            seaorm_transaction,
+            sqlx_transaction,
         }
     }
 
@@ -88,8 +94,8 @@ impl<'txn> ServiceContext<'txn> {
     }
 
     #[inline]
-    pub fn seaorm_transaction(&self) -> &'txn DatabaseTransaction {
-        self.transaction
+    pub fn seaorm_transaction(&self) -> &'txn sea_orm::DatabaseTransaction {
+        self.seaorm_transaction
     }
 
     #[inline]
