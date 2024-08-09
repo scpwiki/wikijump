@@ -43,7 +43,7 @@ impl ParentService {
             child: child_reference,
         }: ParentDescription<'_>,
     ) -> Result<Option<PageParentModel>> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         let (parent_page, child_page) = try_join!(
             PageService::get(ctx, site_id, parent_reference),
@@ -96,7 +96,7 @@ impl ParentService {
             child: child_reference,
         }: ParentDescription<'_>,
     ) -> Result<RemoveParentOutput> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         let (parent_page, child_page) = try_join!(
             PageService::get(ctx, site_id, parent_reference),
@@ -125,7 +125,7 @@ impl ParentService {
             child: child_reference,
         }: ParentDescription<'_>,
     ) -> Result<Option<PageParentModel>> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         let (parent_page, child_page) = try_join!(
             PageService::get(ctx, site_id, parent_reference),
@@ -155,7 +155,7 @@ impl ParentService {
         reference: Reference<'_>,
         relationship_type: ParentalRelationshipType,
     ) -> Result<Vec<PageParentModel>> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let page_id = PageService::get_id(ctx, site_id, reference).await?;
         let column = match relationship_type {
             ParentalRelationshipType::Parent => page_parent::Column::ParentPageId,
@@ -199,7 +199,7 @@ impl ParentService {
     /// # Returns
     /// Returns the number of relationships deleted.
     pub async fn remove_all(ctx: &ServiceContext<'_>, page_id: i64) -> Result<u64> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         let rows_deleted = PageParent::delete_many()
             .filter(

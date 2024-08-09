@@ -138,7 +138,7 @@ async fn get_relation(
     // don't have to worry about multiple results like
     // for get_entries().
 
-    let txn = ctx.transaction();
+    let txn = ctx.seaorm_transaction();
     let model = Relation::find()
         .filter(
             Condition::all()

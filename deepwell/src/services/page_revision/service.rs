@@ -104,7 +104,7 @@ impl PageRevisionService {
         }: CreatePageRevision,
         previous: PageRevisionModel,
     ) -> Result<Option<CreatePageRevisionOutput>> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let revision_number = next_revision_number(&previous, site_id, page_id);
 
         // Fields to create in the revision
@@ -330,7 +330,7 @@ impl PageRevisionService {
             slug,
         }: CreateFirstPageRevision,
     ) -> Result<CreateFirstPageRevisionOutput> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         // Get ancillary page data
         let (wikitext_hash, score, layout) = try_join!(
@@ -407,7 +407,7 @@ impl PageRevisionService {
         }: CreateTombstonePageRevision,
         previous: PageRevisionModel,
     ) -> Result<CreatePageRevisionOutput> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let revision_number = next_revision_number(&previous, site_id, page_id);
 
         let PageRevisionModel {
@@ -483,7 +483,7 @@ impl PageRevisionService {
         }: CreateResurrectionPageRevision,
         previous: PageRevisionModel,
     ) -> Result<CreatePageRevisionOutput> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let revision_number = next_revision_number(&previous, site_id, page_id);
 
         let PageRevisionModel {
@@ -623,7 +623,7 @@ impl PageRevisionService {
         page_id: i64,
         depth: u32,
     ) -> Result<()> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let revision = Self::get_latest(ctx, site_id, page_id).await?;
         info!(
             "Re-rendering revision: site ID {} page ID {} revision ID {} (depth {})",
@@ -713,7 +713,7 @@ impl PageRevisionService {
             hidden,
         }: UpdatePageRevision,
     ) -> Result<()> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         // Unfortunately, we cannot do .contains() on Vec<String> because
         // it wans to compare with &String, not &str.
@@ -763,7 +763,7 @@ impl PageRevisionService {
         // NOTE: There is no optional variant of this method,
         //       since all extant pages must have at least one revision.
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let revision = PageRevision::find()
             .filter(
                 Condition::all()
@@ -784,7 +784,7 @@ impl PageRevisionService {
         page_id: i64,
         revision_number: i32,
     ) -> Result<Option<PageRevisionModel>> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let revision = PageRevision::find()
             .filter(
                 Condition::all()
@@ -822,7 +822,7 @@ impl PageRevisionService {
         ctx: &ServiceContext<'_>,
         revision_id: i64,
     ) -> Result<Option<PageRevisionModel>> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let revision = PageRevision::find_by_id(revision_id).one(txn).await?;
         Ok(revision)
     }
@@ -832,7 +832,7 @@ impl PageRevisionService {
         site_id: i64,
         page_id: i64,
     ) -> Result<NonZeroI32> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let row_count = PageRevision::find()
             .filter(
                 Condition::all()
@@ -884,7 +884,7 @@ impl PageRevisionService {
             }
         };
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let revisions = PageRevision::find()
             .filter(
                 Condition::all()

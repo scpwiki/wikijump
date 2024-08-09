@@ -47,7 +47,7 @@ impl SiteService {
             locale,
         }: CreateSite,
     ) -> Result<CreateSiteOutput> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         // Normalize slug.
         normalize(&mut slug);
@@ -122,7 +122,7 @@ impl SiteService {
         input: UpdateSiteBody,
         updating_user_id: i64,
     ) -> Result<SiteModel> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let site = Self::get(ctx, reference).await?;
         let mut model = site::ActiveModel {
             site_id: Set(site.site_id),
@@ -246,7 +246,7 @@ impl SiteService {
         ctx: &ServiceContext<'_>,
         mut reference: Reference<'_>,
     ) -> Result<Option<SiteModel>> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         // If slug, determine if this is a site alias.
         //
@@ -350,7 +350,7 @@ impl SiteService {
         slug: &str,
         action: &str,
     ) -> Result<()> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         if slug.is_empty() {
             error!("Cannot create site with empty slug");

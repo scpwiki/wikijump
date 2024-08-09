@@ -51,7 +51,7 @@ impl UserService {
             bypass_email_verification,
         }: CreateUser,
     ) -> Result<CreateUserOutput> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let slug = get_user_slug(&name, user_type);
 
         debug!("Normalizing user data (name '{}', slug '{}')", name, slug,);
@@ -260,7 +260,7 @@ impl UserService {
         ctx: &ServiceContext<'_>,
         mut reference: Reference<'_>,
     ) -> Result<Option<UserModel>> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         // If slug, determine if this is a user alias.
         //
@@ -349,7 +349,7 @@ impl UserService {
         input: UpdateUserBody,
     ) -> Result<UserModel> {
         // NOTE: Name filter validation occurs in update_name(), not here
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let user = Self::get(ctx, reference).await?;
 
         let mut model = user::ActiveModel {
@@ -571,7 +571,7 @@ impl UserService {
             None => return Ok(()),
         };
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let users = User::find()
             .filter(user::Column::LastNameChangeAddedAt.gte(needs_token_time))
             .all(txn)
@@ -597,7 +597,7 @@ impl UserService {
         ctx: &ServiceContext<'_>,
         user: &UserModel,
     ) -> Result<i16> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let max_name_changes = ctx.config().maximum_name_changes;
         let name_changes = cmp::min(user.name_changes_left + 1, max_name_changes);
         let model = user::ActiveModel {
@@ -625,7 +625,7 @@ impl UserService {
     ) -> Result<()> {
         info!("Setting MFA secret fields for user ID {user_id}");
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let model = user::ActiveModel {
             user_id: Set(user_id),
             multi_factor_secret,
@@ -644,7 +644,7 @@ impl UserService {
         user: &UserModel,
         recovery_code: &str,
     ) -> Result<()> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         info!("Removing recovery code from user ID {}", user.user_id);
 
         // Only update if there are recovery codes set for the user
@@ -673,7 +673,7 @@ impl UserService {
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
     ) -> Result<UserModel> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let user = Self::get(ctx, reference).await?;
         info!("Deleting user with ID {}", user.user_id);
 

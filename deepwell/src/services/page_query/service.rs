@@ -71,7 +71,7 @@ impl PageQueryService {
     ) -> Result<Infallible> {
         info!("Building ListPages query from specification");
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let mut condition = Condition::all();
 
         // Site ID

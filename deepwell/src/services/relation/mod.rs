@@ -86,7 +86,7 @@ impl RelationService {
         debug!("Create relation for {dest:?} ← {relation_type:?} ← {from:?}",);
 
         // Get previous relation, if present
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         if let Some(relation) = Self::get_optional(
             ctx,
             RelationReference::Relationship {
@@ -136,7 +136,7 @@ impl RelationService {
     ) -> Result<RelationModel> {
         debug!("Removing relation for {reference:?}");
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let relation_id = Self::get_id(ctx, reference).await?;
         let model = relation::ActiveModel {
             relation_id: Set(relation_id),
@@ -155,7 +155,7 @@ impl RelationService {
     ) -> Result<Option<RelationModel>> {
         debug!("Getting relation for {reference:?}");
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let relation = Relation::find()
             .filter(
                 Condition::all()
@@ -213,7 +213,7 @@ impl RelationService {
     ) -> Result<Vec<RelationModel>> {
         info!("Getting history of relations for {dest:?} / {relation_type:?} / {from:?}");
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let relations = Relation::find()
             .filter(relation_condition(relation_type, dest, from))
             .order_by_asc(relation::Column::CreatedAt)
@@ -246,7 +246,7 @@ impl RelationService {
             }
         };
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let relations = Relation::find()
             .filter(
                 Condition::all()

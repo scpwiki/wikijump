@@ -56,7 +56,7 @@ impl SessionService {
     ) -> Result<String> {
         info!("Creating new session for user ID {user_id} (restricted: {restricted})",);
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let config = ctx.config();
         let token = Self::new_token(config);
         let now = now();
@@ -111,7 +111,7 @@ impl SessionService {
         ctx: &ServiceContext<'_>,
         session_token: &str,
     ) -> Result<Option<SessionModel>> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let session = Session::find()
             .filter(
                 Condition::all()
@@ -137,7 +137,7 @@ impl SessionService {
     ) -> Result<UserModel> {
         info!("Looking up user for session token");
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let user = User::find()
             .join(JoinType::Join, user::Relation::Session.def())
             .filter(
@@ -161,7 +161,7 @@ impl SessionService {
     ) -> Result<Vec<SessionModel>> {
         info!("Getting all sessions for user ID {user_id}");
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let sessions = Session::find()
             .filter(
                 Condition::all()
@@ -229,7 +229,7 @@ impl SessionService {
     ) -> Result<()> {
         info!("Invalidating session ID {session_token}");
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let DeleteResult { rows_affected } =
             Session::delete_by_id(session_token).exec(txn).await?;
 
@@ -256,7 +256,7 @@ impl SessionService {
     ) -> Result<u64> {
         info!("Invalidation all other session IDs for user ID {user_id}");
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let session = Self::get(ctx, session_token).await?;
         if session.user_id != user_id {
             error!(
@@ -292,7 +292,7 @@ impl SessionService {
     pub async fn prune(ctx: &ServiceContext<'_>) -> Result<u64> {
         info!("Pruning all expired sessions");
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let DeleteResult { rows_affected } = Session::delete_many()
             .filter(session::Column::ExpiresAt.lte(now()))
             .exec(txn)

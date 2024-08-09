@@ -53,7 +53,7 @@ impl PageService {
             bypass_filter,
         }: CreatePage,
     ) -> Result<CreatePageOutput> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         // Ensure row consistency
         normalize(&mut slug);
@@ -135,7 +135,7 @@ impl PageService {
                 },
         }: EditPage<'_>,
     ) -> Result<Option<EditPageOutput>> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let PageModel { page_id, .. } = Self::get(ctx, site_id, reference).await?;
 
         // Perform filter validation
@@ -215,7 +215,7 @@ impl PageService {
             user_id,
         }: MovePage<'_>,
     ) -> Result<MovePageOutput> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         let PageModel {
             page_id,
@@ -312,7 +312,7 @@ impl PageService {
             revision_comments: comments,
         }: DeletePage<'_>,
     ) -> Result<DeletePageOutput> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let PageModel { page_id, .. } = Self::get(ctx, site_id, reference).await?;
 
         // Get latest revision
@@ -357,7 +357,7 @@ impl PageService {
             revision_comments: comments,
         }: RestorePage,
     ) -> Result<RestorePageOutput> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let page = Self::get_direct(ctx, page_id, true).await?;
         let slug = slug.unwrap_or(page.slug);
 
@@ -433,7 +433,7 @@ impl PageService {
             user_id,
         }: RollbackPage<'_>,
     ) -> Result<Option<EditPageOutput>> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let PageModel { page_id, .. } = Self::get(ctx, site_id, reference).await?;
 
         // Get target revision and latest revision
@@ -553,7 +553,7 @@ impl PageService {
         site_id: i64,
         reference: Reference<'_>,
     ) -> Result<Option<PageModel>> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let page = {
             let condition = match reference {
                 Reference::Id(id) => page::Column::PageId.eq(id),
@@ -656,7 +656,7 @@ impl PageService {
         page_id: i64,
         allow_deleted: bool,
     ) -> Result<Option<PageModel>> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let page = Page::find_by_id(page_id).one(txn).await?;
         if let Some(ref page) = page {
             if !allow_deleted && page.deleted_at.is_some() {
@@ -694,7 +694,7 @@ impl PageService {
             }
         }
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let models = Page::find()
             .filter(
                 Condition::all()
@@ -733,7 +733,7 @@ impl PageService {
         deleted: Option<bool>,
         order: PageOrder,
     ) -> Result<Vec<PageModel>> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         let category_condition = match category {
             None => None,
@@ -774,7 +774,7 @@ impl PageService {
         slug: &str,
         action: &str,
     ) -> Result<()> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         if slug.is_empty() {
             error!("Cannot create page with empty slug");

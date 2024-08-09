@@ -49,7 +49,7 @@ impl FileService {
             bypass_filter,
         }: UploadFile,
     ) -> Result<UploadFileOutput> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         info!(
             "Creating file with name '{}', content length {}",
@@ -114,7 +114,7 @@ impl FileService {
     ) -> Result<Option<EditFileOutput>> {
         info!("Editing file with ID {}", file_id);
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let last_revision =
             FileRevisionService::get_latest(ctx, site_id, page_id, file_id).await?;
 
@@ -197,7 +197,7 @@ impl FileService {
             revision_comments,
         }: MoveFile,
     ) -> Result<Option<MoveFileOutput>> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let last_revision =
             FileRevisionService::get_latest(ctx, site_id, current_page_id, file_id)
                 .await?;
@@ -259,7 +259,7 @@ impl FileService {
             user_id,
         }: DeleteFile<'_>,
     ) -> Result<DeleteFileOutput> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         // Ensure file exists
         let FileModel { file_id, .. } = Self::get(
@@ -320,7 +320,7 @@ impl FileService {
             revision_comments,
         }: RestoreFile,
     ) -> Result<RestoreFileOutput> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let file = Self::get_direct(ctx, file_id, true).await?;
         let new_page_id = new_page_id.unwrap_or(page_id);
         let new_name = new_name.unwrap_or(file.name);
@@ -387,7 +387,7 @@ impl FileService {
             file: reference,
         }: GetFile<'_>,
     ) -> Result<Option<FileModel>> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let file = {
             let condition = match reference {
                 Reference::Id(id) => file::Column::FileId.eq(id),
@@ -427,7 +427,7 @@ impl FileService {
         match reference {
             Reference::Id(id) => Ok(id),
             Reference::Slug(name) => {
-                let txn = ctx.transaction();
+                let txn = ctx.seaorm_transaction();
                 let result: Option<(i64,)> = File::find()
                     .select_only()
                     .column(file::Column::FileId)
@@ -454,7 +454,7 @@ impl FileService {
         file_id: i64,
         allow_deleted: bool,
     ) -> Result<Option<FileModel>> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let file = File::find()
             .filter(file::Column::FileId.eq(file_id))
             .one(txn)
@@ -508,7 +508,7 @@ impl FileService {
         name: &str,
         action: &str,
     ) -> Result<()> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         let result = File::find()
             .filter(

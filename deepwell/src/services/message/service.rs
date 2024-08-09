@@ -72,7 +72,7 @@ impl MessageService {
         }
 
         // Insert draft into database
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let draft = Self::draft_process(
             ctx,
             DraftProcess {
@@ -117,7 +117,7 @@ impl MessageService {
         let current_draft = Self::get_draft(ctx, &draft_id).await?;
 
         // Update the draft
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let draft = Self::draft_process(
             ctx,
             DraftProcess {
@@ -204,7 +204,7 @@ impl MessageService {
     }
 
     pub async fn delete_draft(ctx: &ServiceContext<'_>, draft_id: String) -> Result<()> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         MessageDraft::delete_by_id(draft_id).exec(txn).await?;
         Ok(())
     }
@@ -299,7 +299,7 @@ impl MessageService {
         // * Insert inbox message rows for each recipient
         // * Except, if this is a message to self
         // * Insert outbox message row for sender
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         // Create message record
         let record_id = draft.external_id.clone();
@@ -410,7 +410,7 @@ impl MessageService {
     ) -> Result<()> {
         info!("Setting message read status for {record_id} / {user_id}: {value}",);
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let message = Self::get_message(ctx, record_id, user_id).await?;
         let model = message::ActiveModel {
             internal_id: Set(message.internal_id),
@@ -429,7 +429,7 @@ impl MessageService {
         record_id: &str,
         user_id: i64,
     ) -> Result<Option<MessageModel>> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let message = Message::find()
             .filter(
                 Condition::all()
@@ -454,7 +454,7 @@ impl MessageService {
         ctx: &ServiceContext<'_>,
         record_id: &str,
     ) -> Result<Option<MessageRecordModel>> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let record = MessageRecord::find()
             .filter(message_record::Column::ExternalId.eq(record_id))
             .one(txn)
@@ -467,7 +467,7 @@ impl MessageService {
         ctx: &ServiceContext<'_>,
         draft_id: &str,
     ) -> Result<Option<MessageDraftModel>> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let draft = MessageDraft::find()
             .filter(message_draft::Column::ExternalId.eq(draft_id))
             .one(txn)
@@ -563,7 +563,7 @@ impl MessageService {
     ) -> Result<bool> {
         info!("Checking if user ID {user_id} is a recipient of record ID {record_id}",);
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let model = MessageRecipient::find()
             .filter(
                 Condition::all()

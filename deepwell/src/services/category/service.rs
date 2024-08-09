@@ -37,7 +37,7 @@ impl CategoryService {
         site_id: i64,
         slug: &str,
     ) -> Result<PageCategoryModel> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let model = page_category::ActiveModel {
             site_id: Set(site_id),
             slug: Set(str!(slug)),
@@ -53,7 +53,7 @@ impl CategoryService {
         site_id: i64,
         reference: Reference<'_>,
     ) -> Result<Option<PageCategoryModel>> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let condition = match reference {
             Reference::Id(id) => page_category::Column::CategoryId.eq(id),
             Reference::Slug(slug) => page_category::Column::Slug.eq(slug),
@@ -98,7 +98,7 @@ impl CategoryService {
         ctx: &ServiceContext<'_>,
         site_id: i64,
     ) -> Result<Vec<PageCategoryModel>> {
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
 
         let categories = PageCategory::find()
             .filter(page_category::Column::SiteId.eq(site_id))
