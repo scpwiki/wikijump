@@ -25,8 +25,8 @@ use crate::services::user::{
     CreateUser, CreateUserOutput, GetUser, GetUserOutput, UpdateUser,
 };
 
-pub async fn user_create(
-    ctx: &ServiceContext<'_>,
+pub async fn user_create<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<CreateUserOutput> {
     info!("Creating new regular user");
@@ -34,16 +34,16 @@ pub async fn user_create(
     UserService::create(ctx, input).await
 }
 
-pub async fn user_import(
-    _ctx: &ServiceContext<'_>,
+pub async fn user_import<'ctx>(
+    _ctx: &'ctx ServiceContext<'ctx>,
     _params: Params<'static>,
 ) -> Result<CreateUserOutput> {
     // TODO implement importing user from Wikidot
     todo!()
 }
 
-pub async fn user_get(
-    ctx: &ServiceContext<'_>,
+pub async fn user_get<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<Option<GetUserOutput>> {
     let GetUser { user: reference } = params.parse()?;
@@ -60,8 +60,8 @@ pub async fn user_get(
     }
 }
 
-pub async fn user_edit(
-    ctx: &ServiceContext<'_>,
+pub async fn user_edit<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<UserModel> {
     let UpdateUser {
@@ -73,8 +73,8 @@ pub async fn user_edit(
     UserService::update(ctx, reference, body).await
 }
 
-pub async fn user_delete(
-    ctx: &ServiceContext<'_>,
+pub async fn user_delete<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<UserModel> {
     let GetUser { user: reference } = params.parse()?;
@@ -82,8 +82,8 @@ pub async fn user_delete(
     UserService::delete(ctx, reference).await
 }
 
-pub async fn user_add_name_change(
-    ctx: &ServiceContext<'_>,
+pub async fn user_add_name_change<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<i16> {
     let GetUser { user: reference } = params.parse()?;

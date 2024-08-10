@@ -29,8 +29,8 @@ use crate::services::file::{
 use crate::services::Result;
 use crate::web::{Bytes, FileDetails};
 
-pub async fn file_get(
-    ctx: &ServiceContext<'_>,
+pub async fn file_get<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<Option<GetFileOutput>> {
     let GetFileDetails { input, details } = params.parse()?;
@@ -58,8 +58,8 @@ pub async fn file_get(
     }
 }
 
-pub async fn file_upload(
-    ctx: &ServiceContext<'_>,
+pub async fn file_upload<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<UploadFileOutput> {
     let input: UploadFile = params.parse()?;
@@ -75,8 +75,8 @@ pub async fn file_upload(
     FileService::upload(ctx, input).await
 }
 
-pub async fn file_edit(
-    ctx: &ServiceContext<'_>,
+pub async fn file_edit<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<Option<EditFileOutput>> {
     let input: EditFile = params.parse()?;
@@ -89,8 +89,8 @@ pub async fn file_edit(
     FileService::edit(ctx, input).await
 }
 
-pub async fn file_delete(
-    ctx: &ServiceContext<'_>,
+pub async fn file_delete<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<DeleteFileOutput> {
     let input: DeleteFile = params.parse()?;
@@ -103,8 +103,8 @@ pub async fn file_delete(
     FileService::delete(ctx, input).await
 }
 
-pub async fn file_restore(
-    ctx: &ServiceContext<'_>,
+pub async fn file_restore<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<RestoreFileOutput> {
     let input: RestoreFile = params.parse()?;
@@ -117,8 +117,8 @@ pub async fn file_restore(
     FileService::restore(ctx, input).await
 }
 
-pub async fn file_move(
-    ctx: &ServiceContext<'_>,
+pub async fn file_move<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<Option<MoveFileOutput>> {
     let input: MoveFile = params.parse()?;
@@ -131,8 +131,8 @@ pub async fn file_move(
     FileService::r#move(ctx, input).await
 }
 
-pub async fn file_hard_delete(
-    ctx: &ServiceContext<'_>,
+pub async fn file_hard_delete<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<()> {
     let file_id: i64 = params.one()?;
@@ -144,8 +144,8 @@ pub async fn file_hard_delete(
     FileService::hard_delete_all(ctx, file_id).await
 }
 
-async fn build_file_response(
-    ctx: &ServiceContext<'_>,
+async fn build_file_response<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     file: FileModel,
     revision: FileRevisionModel,
     details: FileDetails,

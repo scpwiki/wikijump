@@ -28,8 +28,8 @@ use crate::web::{ConnectionType, PageOrder};
 pub struct OutdateService;
 
 impl OutdateService {
-    pub async fn process_page_edit(
-        ctx: &ServiceContext<'_>,
+    pub async fn process_page_edit<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         site_id: i64,
         page_id: i64,
         slug: &str,
@@ -52,8 +52,8 @@ impl OutdateService {
     }
 
     /// Performs outdating tasks for a page being created or deleted here.
-    pub async fn process_page_displace(
-        ctx: &ServiceContext<'_>,
+    pub async fn process_page_displace<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         site_id: i64,
         page_id: i64,
         slug: &str,
@@ -67,8 +67,8 @@ impl OutdateService {
         Ok(())
     }
 
-    pub async fn process_page_move(
-        ctx: &ServiceContext<'_>,
+    pub async fn process_page_move<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         site_id: i64,
         page_id: i64,
         old_slug: &str,
@@ -87,8 +87,8 @@ impl OutdateService {
     }
 
     /// Queues the given pages for re-rendering.
-    pub async fn outdate(
-        ctx: &ServiceContext<'_>,
+    pub async fn outdate<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         page_id: i64,
         depth: u32,
     ) -> Result<()> {
@@ -98,8 +98,8 @@ impl OutdateService {
         JobService::queue_rerender_page(ctx, site_id, page_id, depth + 1).await
     }
 
-    pub async fn outdate_incoming_links(
-        ctx: &ServiceContext<'_>,
+    pub async fn outdate_incoming_links<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         page_id: i64,
         depth: u32,
     ) -> Result<()> {
@@ -117,8 +117,8 @@ impl OutdateService {
         Ok(())
     }
 
-    pub async fn outdate_outgoing_includes(
-        ctx: &ServiceContext<'_>,
+    pub async fn outdate_outgoing_includes<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         page_id: i64,
         depth: u32,
     ) -> Result<()> {
@@ -140,8 +140,8 @@ impl OutdateService {
         Ok(())
     }
 
-    pub async fn outdate_templates(
-        ctx: &ServiceContext<'_>,
+    pub async fn outdate_templates<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         site_id: i64,
         category_slug: &str,
         page_slug: &str,

@@ -34,8 +34,8 @@ use std::convert::Infallible;
 pub struct PageQueryService;
 
 impl PageQueryService {
-    pub async fn execute(
-        ctx: &ServiceContext<'_>,
+    pub async fn execute<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         PageQuery {
             current_page_id,
             current_site_id,

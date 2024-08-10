@@ -34,8 +34,8 @@ macro_rules! impl_relation {
             // Methods
             impl RelationService {
                 #[allow(dead_code)] // TEMP
-                pub async fn [<get_ $relation_type:snake>](
-                    ctx: &ServiceContext<'_>,
+                pub async fn [<get_ $relation_type:snake>]<'ctx>(
+                    ctx: &'ctx ServiceContext<'ctx>,
                     [<Get $relation_type>] {
                         $dest_name,
                         $from_name,
@@ -53,8 +53,8 @@ macro_rules! impl_relation {
                 }
 
                 #[allow(dead_code)] // TEMP
-                pub async fn [<get_optional_ $relation_type:snake>](
-                    ctx: &ServiceContext<'_>,
+                pub async fn [<get_optional_ $relation_type:snake>]<'ctx>(
+                    ctx: &'ctx ServiceContext<'ctx>,
                     [<Get $relation_type>] {
                         $dest_name,
                         $from_name,
@@ -72,8 +72,8 @@ macro_rules! impl_relation {
                 }
 
                 #[allow(dead_code)] // TEMP
-                pub async fn [<$relation_type:snake _exists>](
-                    ctx: &ServiceContext<'_>,
+                pub async fn [<$relation_type:snake _exists>]<'ctx>(
+                    ctx: &'ctx ServiceContext<'ctx>,
                     [<Get $relation_type>] {
                         $dest_name,
                         $from_name,
@@ -91,8 +91,8 @@ macro_rules! impl_relation {
                 }
 
                 #[allow(dead_code)] // TEMP
-                pub async fn [<remove_ $relation_type:snake>](
-                    ctx: &ServiceContext<'_>,
+                pub async fn [<remove_ $relation_type:snake>]<'ctx>(
+                    ctx: &'ctx ServiceContext<'ctx>,
                     [<Remove $relation_type>] {
                         $dest_name,
                         $from_name,
@@ -112,8 +112,8 @@ macro_rules! impl_relation {
 
                 // TODO paginate
                 #[allow(dead_code)] // TEMP
-                pub async fn [<get_ $relation_type:snake _history>](
-                    ctx: &ServiceContext<'_>,
+                pub async fn [<get_ $relation_type:snake _history>]<'ctx>(
+                    ctx: &'ctx ServiceContext<'ctx>,
                     [<Get $relation_type>] {
                         $dest_name,
                         $from_name,
@@ -130,8 +130,8 @@ macro_rules! impl_relation {
 
                 // TODO paginate
                 #[allow(dead_code)] // TEMP
-                pub async fn [<get_ $relation_type:snake _entries>](
-                    ctx: &ServiceContext<'_>,
+                pub async fn [<get_ $relation_type:snake _entries>]<'ctx>(
+                    ctx: &'ctx ServiceContext<'ctx>,
                     object: RelationObject,
                     direction: RelationDirection,
                 ) -> Result<Vec<RelationModel>> {
@@ -197,8 +197,8 @@ macro_rules! impl_relation {
         paste! {
             impl RelationService {
                 #[allow(dead_code)] // TEMP
-                pub async fn [<create_ $relation_type:snake>](
-                    ctx: &ServiceContext<'_>,
+                pub async fn [<create_ $relation_type:snake>]<'ctx>(
+                    ctx: &'ctx ServiceContext<'ctx>,
                     [<Create $relation_type>] {
                         $dest_name,
                         $from_name,

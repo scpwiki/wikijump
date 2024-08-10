@@ -32,8 +32,8 @@ impl MfaService {
     /// Initializes MFA for a user.
     ///
     /// Fails if MFA is already configured.
-    pub async fn setup(
-        ctx: &ServiceContext<'_>,
+    pub async fn setup<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         user: &UserModel,
     ) -> Result<MultiFactorSetupOutput> {
         info!("Setting up MFA for user ID {}", user.user_id);
@@ -76,8 +76,8 @@ impl MfaService {
     /// Regenerates all / refills recovery codes for this user.
     ///
     /// All prior recovery codes are invalidated.
-    pub async fn reset_recovery_codes(
-        ctx: &ServiceContext<'_>,
+    pub async fn reset_recovery_codes<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         user: &UserModel,
     ) -> Result<MultiFactorResetOutput> {
         info!("Resetting MFA recovery codes for user ID {}", user.user_id);
@@ -113,7 +113,10 @@ impl MfaService {
     ///
     /// After this is run, the user does not need MFA to sign in,
     /// and has no recovery codes or TOTP secret.
-    pub async fn disable(ctx: &ServiceContext<'_>, user_id: i64) -> Result<()> {
+    pub async fn disable<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
+        user_id: i64,
+    ) -> Result<()> {
         info!("Tearing down MFA for user ID {}", user_id);
 
         UserService::set_mfa_secrets(
@@ -129,8 +132,8 @@ impl MfaService {
     ///
     /// # Returns
     /// Nothing on success, yields an `InvalidAuthentication` error on failure.
-    pub async fn verify(
-        ctx: &ServiceContext<'_>,
+    pub async fn verify<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         user: &UserModel,
         entered_totp: u32,
     ) -> Result<()> {
@@ -165,8 +168,8 @@ impl MfaService {
     ///
     /// # Returns
     /// Nothing on success, yields an `InvalidAuthentication` error on failure.
-    pub async fn verify_recovery(
-        ctx: &ServiceContext<'_>,
+    pub async fn verify_recovery<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         user: &UserModel,
         recovery_code: &str,
     ) -> Result<()> {

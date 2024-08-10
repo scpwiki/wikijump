@@ -46,8 +46,8 @@ impl_relation!(
 );
 
 impl RelationService {
-    pub async fn create_site_member(
-        ctx: &ServiceContext<'_>,
+    pub async fn create_site_member<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         CreateSiteMember {
             site_id,
             user_id,

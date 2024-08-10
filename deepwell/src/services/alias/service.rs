@@ -33,8 +33,8 @@ pub struct AliasService;
 
 impl AliasService {
     /// Creates a new site or user alias.
-    pub async fn create(
-        ctx: &ServiceContext<'_>,
+    pub async fn create<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         input: CreateAlias,
     ) -> Result<CreateAliasOutput> {
         Self::create2(ctx, input, true).await
@@ -47,8 +47,8 @@ impl AliasService {
     ///
     /// The caller is responsible for calling `AliasService::verify()` after
     /// all its database changes have been made.
-    pub(crate) async fn create2(
-        ctx: &ServiceContext<'_>,
+    pub(crate) async fn create2<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         CreateAlias {
             slug,
             alias_type,
@@ -148,8 +148,8 @@ impl AliasService {
         Ok(CreateAliasOutput { alias_id, slug })
     }
 
-    pub async fn get_optional(
-        ctx: &ServiceContext<'_>,
+    pub async fn get_optional<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         alias_type: AliasType,
         slug: &str,
     ) -> Result<Option<AliasModel>> {
@@ -169,8 +169,8 @@ impl AliasService {
 
     #[inline]
     #[allow(dead_code)] // TEMP
-    pub async fn get(
-        ctx: &ServiceContext<'_>,
+    pub async fn get<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         alias_type: AliasType,
         slug: &str,
     ) -> Result<AliasModel> {
@@ -178,8 +178,8 @@ impl AliasService {
     }
 
     #[inline]
-    pub async fn exists(
-        ctx: &ServiceContext<'_>,
+    pub async fn exists<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         alias_type: AliasType,
         slug: &str,
     ) -> Result<bool> {
@@ -188,8 +188,8 @@ impl AliasService {
             .map(|alias| alias.is_some())
     }
 
-    pub async fn get_all(
-        ctx: &ServiceContext<'_>,
+    pub async fn get_all<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         alias_type: AliasType,
         target_id: i64,
     ) -> Result<Vec<AliasModel>> {
@@ -217,8 +217,8 @@ impl AliasService {
     ///
     /// The database uniqueness constraint enforces that the `slug` doesn't collide with another
     /// alias of the same type.
-    pub async fn swap(
-        ctx: &ServiceContext<'_>,
+    pub async fn swap<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         alias_id: i64,
         new_slug: &str,
     ) -> Result<()> {
@@ -244,8 +244,8 @@ impl AliasService {
     ///
     /// # Returns
     /// The number of deleted aliases.
-    pub async fn remove_all(
-        ctx: &ServiceContext<'_>,
+    pub async fn remove_all<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         alias_type: AliasType,
         target_id: i64,
     ) -> Result<u64> {
@@ -273,8 +273,8 @@ impl AliasService {
     ///
     /// These tables have a uniqueness invariant wherein a slug is only
     /// present in at most one of these two tables, but not both.
-    pub async fn verify(
-        ctx: &ServiceContext<'_>,
+    pub async fn verify<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         alias_type: AliasType,
         slug: &str,
     ) -> Result<()> {
@@ -345,8 +345,8 @@ impl AliasService {
         Ok(())
     }
 
-    async fn run_filter(
-        ctx: &ServiceContext<'_>,
+    async fn run_filter<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         alias_type: AliasType,
         slug: &str,
     ) -> Result<()> {

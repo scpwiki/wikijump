@@ -27,29 +27,28 @@ use redis::aio::MultiplexedConnection as RedisMultiplexedConnection;
 use rsmq_async::PooledRsmq;
 use s3::bucket::Bucket;
 use sqlx::{Database, Postgres};
+use std::cell::{RefCell, RefMut};
 use std::sync::Arc;
 
 #[derive(Debug)]
-pub struct ServiceContext<'txn> {
+pub struct ServiceContext<'conn> {
     state: ServerState,
-    seaorm_transaction: &'txn sea_orm::DatabaseTransaction,
-    sqlx_transaction: &'txn mut sqlx::Transaction<'txn, Postgres>,
+    seaorm_transaction: sea_orm::DatabaseTransaction,
+    sqlx_transaction: RefCell<sqlx::Transaction<'conn, Postgres>>,
 }
 
-impl<'txn> ServiceContext<'txn> {
-    // NOTE: It is the responsibility of the caller to manage commit / rollback
-    //       for transactions.
-    //
-    //       For our endpoints, this is managed in the wrapper macro in api.rs
+impl<'conn> ServiceContext<'conn> {
+    // NOTE: It is the responsibility of the caller to call commit or rollback
+    //       on this object.
     pub fn new(
         state: &ServerState,
-        seaorm_transaction: &'txn sea_orm::DatabaseTransaction,
-        sqlx_transaction: &'txn mut sqlx::Transaction<'txn, Postgres>,
+        seaorm_transaction: sea_orm::DatabaseTransaction,
+        sqlx_transaction: sqlx::Transaction<'conn, Postgres>,
     ) -> Self {
         ServiceContext {
             state: Arc::clone(state),
             seaorm_transaction,
-            sqlx_transaction,
+            sqlx_transaction: RefCell::new(sqlx_transaction),
         }
     }
 
@@ -94,15 +93,24 @@ impl<'txn> ServiceContext<'txn> {
     }
 
     #[inline]
-    pub fn seaorm_transaction(&self) -> &'txn sea_orm::DatabaseTransaction {
-        self.seaorm_transaction
+    pub fn seaorm_transaction(&self) -> &sea_orm::DatabaseTransaction {
+        &self.seaorm_transaction
     }
 
     #[inline]
-    pub async fn make_sqlx_transaction(
-        &self,
-    ) -> Result<sqlx::Transaction<sqlx::Postgres>> {
-        let txn = self.state.database_sqlx.begin().await?;
-        Ok(txn)
+    pub fn sqlx_transaction(&'conn self) -> RefMut<sqlx::Transaction<sqlx::Postgres>> {
+        self.sqlx_transaction.borrow_mut()
+    }
+
+    pub async fn commit(self) -> Result<()> {
+        self.seaorm_transaction.commit().await?;
+        self.sqlx_transaction.into_inner().commit().await?;
+        Ok(())
+    }
+
+    pub async fn rollback(self) -> Result<()> {
+        self.seaorm_transaction.rollback().await?;
+        self.sqlx_transaction.into_inner().rollback().await?;
+        Ok(())
     }
 }

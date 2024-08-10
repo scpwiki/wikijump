@@ -34,8 +34,8 @@ pub struct SpecialPageService;
 
 impl SpecialPageService {
     /// Gets the specified special page, or the fallback if it doesn't exist.
-    pub async fn get(
-        ctx: &ServiceContext<'_>,
+    pub async fn get<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         site: &SiteModel,
         sp_page_type: SpecialPageType,
         locales: &[LanguageIdentifier],
@@ -122,8 +122,8 @@ impl SpecialPageService {
         }
     }
 
-    async fn get_wikitext(
-        ctx: &ServiceContext<'_>,
+    async fn get_wikitext<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         slugs: &[Cow<'_, str>],
         translate_key: &str,
         site_id: i64,

@@ -54,8 +54,8 @@ use wikidot_normalize::normalize;
 pub struct ViewService;
 
 impl ViewService {
-    pub async fn page(
-        ctx: &ServiceContext<'_>,
+    pub async fn page<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         GetPageView {
             domain,
             locales: locales_str,
@@ -296,8 +296,8 @@ impl ViewService {
         Ok(output)
     }
 
-    pub async fn user(
-        ctx: &ServiceContext<'_>,
+    pub async fn user<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         GetUserView {
             domain,
             locales: locales_str,
@@ -359,8 +359,8 @@ impl ViewService {
     ///
     /// Then using this information, the caller can perform some common
     /// operations, such as slug normalization or redirect site aliases.
-    pub async fn get_viewer(
-        ctx: &ServiceContext<'_>,
+    pub async fn get_viewer<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         locales: &mut Vec<LanguageIdentifier>,
         domain: &str,
         session_token: Option<&str>,
@@ -441,8 +441,8 @@ impl ViewService {
     }
 
     /// Produce output for cases where a site does not exist.
-    async fn missing_site_output(
-        ctx: &ServiceContext<'_>,
+    async fn missing_site_output<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         locales: &[LanguageIdentifier],
         domain: &str,
         site_slug: Option<&str>,
@@ -481,8 +481,8 @@ impl ViewService {
         }
     }
 
-    async fn can_access_page(
-        _ctx: &ServiceContext<'_>,
+    async fn can_access_page<'ctx>(
+        _ctx: &'ctx ServiceContext<'ctx>,
         permissions: UserPermissions,
     ) -> Result<bool> {
         info!("Checking page access: {permissions:?}");

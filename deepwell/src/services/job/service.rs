@@ -53,8 +53,8 @@ pub const JOB_QUEUE_MAXIMUM_SIZE: Option<i32> = Some(1024);
 pub struct JobService;
 
 impl JobService {
-    pub async fn queue_job(
-        ctx: &ServiceContext<'_>,
+    pub async fn queue_job<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         job: &Job,
         delay: Option<Duration>,
     ) -> Result<()> {
@@ -76,8 +76,8 @@ impl JobService {
     ///                   outdating, then this value should be incremented with each layer
     ///                   of job depth. This way we can avoid infinite loop conditions where
     ///                   jobs endlessly pile onto the queue, rerendering each other.
-    pub async fn queue_rerender_page(
-        ctx: &ServiceContext<'_>,
+    pub async fn queue_rerender_page<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         site_id: i64,
         page_id: i64,
         depth: u32,

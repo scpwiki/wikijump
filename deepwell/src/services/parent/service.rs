@@ -35,8 +35,8 @@ impl ParentService {
     /// # Returns
     /// Returns `Some` with a model if the relationship was created,
     /// and `None` if it already existed.
-    pub async fn create(
-        ctx: &ServiceContext<'_>,
+    pub async fn create<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         ParentDescription {
             site_id,
             parent: parent_reference,
@@ -88,8 +88,8 @@ impl ParentService {
     /// # Returns
     /// The struct contains `true` if the relationship was deleted, and
     /// `false` if it was already absent.
-    pub async fn remove(
-        ctx: &ServiceContext<'_>,
+    pub async fn remove<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         ParentDescription {
             site_id,
             parent: parent_reference,
@@ -117,8 +117,8 @@ impl ParentService {
         Ok(RemoveParentOutput { was_deleted })
     }
 
-    pub async fn get_optional(
-        ctx: &ServiceContext<'_>,
+    pub async fn get_optional<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         ParentDescription {
             site_id,
             parent: parent_reference,
@@ -141,16 +141,16 @@ impl ParentService {
 
     #[inline]
     #[allow(dead_code)] // TODO
-    pub async fn get(
-        ctx: &ServiceContext<'_>,
+    pub async fn get<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         description: ParentDescription<'_>,
     ) -> Result<PageParentModel> {
         find_or_error!(Self::get_optional(ctx, description), PageParent)
     }
 
     /// Gets all relationships of the given type.
-    pub async fn get_relationships(
-        ctx: &ServiceContext<'_>,
+    pub async fn get_relationships<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         site_id: i64,
         reference: Reference<'_>,
         relationship_type: ParentalRelationshipType,
@@ -172,8 +172,8 @@ impl ParentService {
 
     /// Gets all children of the given page.
     #[allow(dead_code)] // TEMP
-    pub async fn get_children(
-        ctx: &ServiceContext<'_>,
+    pub async fn get_children<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         site_id: i64,
         reference: Reference<'_>,
     ) -> Result<Vec<PageParentModel>> {
@@ -182,8 +182,8 @@ impl ParentService {
     }
 
     /// Gets all parents of the given page.
-    pub async fn get_parents(
-        ctx: &ServiceContext<'_>,
+    pub async fn get_parents<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         site_id: i64,
         reference: Reference<'_>,
     ) -> Result<Vec<PageParentModel>> {
@@ -198,7 +198,10 @@ impl ParentService {
     ///
     /// # Returns
     /// Returns the number of relationships deleted.
-    pub async fn remove_all(ctx: &ServiceContext<'_>, page_id: i64) -> Result<u64> {
+    pub async fn remove_all<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
+        page_id: i64,
+    ) -> Result<u64> {
         let txn = ctx.seaorm_transaction();
 
         let rows_deleted = PageParent::delete_many()

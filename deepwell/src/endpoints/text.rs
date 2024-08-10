@@ -21,8 +21,8 @@
 use super::prelude::*;
 use crate::web::Bytes;
 
-pub async fn text_create(
-    ctx: &ServiceContext<'_>,
+pub async fn text_create<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<Bytes<'static>> {
     let contents: String = params.one()?;
@@ -31,8 +31,8 @@ pub async fn text_create(
     Ok(Bytes::from(hash))
 }
 
-pub async fn text_get(
-    ctx: &ServiceContext<'_>,
+pub async fn text_get<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<String> {
     info!("Getting stored text");

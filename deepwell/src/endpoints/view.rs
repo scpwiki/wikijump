@@ -24,8 +24,8 @@ use crate::services::view::{
 };
 
 /// Returns relevant context for rendering a page from a processed web request.
-pub async fn page_view(
-    ctx: &ServiceContext<'_>,
+pub async fn page_view<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<GetPageViewOutput> {
     let input: GetPageView = params.parse()?;
@@ -33,8 +33,8 @@ pub async fn page_view(
 }
 
 /// Returns relevant context for rendering a user profile from a processed web request.
-pub async fn user_view(
-    ctx: &ServiceContext<'_>,
+pub async fn user_view<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<GetUserViewOutput> {
     let input: GetUserView = params.parse()?;

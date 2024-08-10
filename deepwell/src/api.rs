@@ -35,16 +35,16 @@ use crate::endpoints::{
 use crate::locales::Localizations;
 use crate::services::blob::MimeAnalyzer;
 use crate::services::job::JobWorker;
-use crate::services::{into_rpc_error, ServiceContext};
+use crate::services::{into_rpc_error, Error as ServiceError, ServiceContext};
 use crate::utils::debug_pointer;
 use crate::{database, redis as redis_db};
 use jsonrpsee::server::{RpcModule, Server, ServerHandle};
-use jsonrpsee::types::error::ErrorObjectOwned;
 use rsmq_async::PooledRsmq;
 use s3::bucket::Bucket;
 use sea_orm::{DatabaseConnection, TransactionTrait};
-use sqlx::{Pool, Postgres};
+use sqlx::{Connection, Pool, Postgres};
 use std::fmt::{self, Debug};
+use std::mem;
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -156,23 +156,8 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
                 //       Oh well.
                 let state = Arc::clone(&*state);
 
-                // Wrap each call in a transaction, which commits or rolls back
-                // automatically based on whether the Result is Ok or Err.
-                //
-                // At this level, we take the database-or-RPC error and make it just an RPC error.
-                let db_state = Arc::clone(&state);
-                db_state
-                    .database_seaorm
-                    .transaction(move |seaorm_txn| {
-                        Box::pin(async move {
-                            // Run the endpoint's implementation, and convert from
-                            // ServiceError to an RPC error.
-                            let ctx = ServiceContext::new(&state, &seaorm_txn, todo!());
-                            $method(&ctx, params).await.map_err(ErrorObjectOwned::from)
-                        })
-                    })
-                    .await
-                    .map_err(into_rpc_error)
+                // We take the database-or-RPC error and make it just an RPC error.
+                $method(todo!(), params).await
             })?;
         }};
     }

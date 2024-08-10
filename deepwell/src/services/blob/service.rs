@@ -53,8 +53,8 @@ pub struct BlobService;
 
 impl BlobService {
     /// Creates a blob with this data, if it does not already exist.
-    pub async fn create<B: AsRef<[u8]>>(
-        ctx: &ServiceContext<'_>,
+    pub async fn create<'ctx, B: AsRef<[u8]>>(
+        ctx: &'ctx ServiceContext<'ctx>,
         data: B,
     ) -> Result<CreateBlobOutput> {
         let data = data.as_ref();
@@ -110,8 +110,8 @@ impl BlobService {
         }
     }
 
-    pub async fn get_optional(
-        ctx: &ServiceContext<'_>,
+    pub async fn get_optional<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         hash: &[u8],
     ) -> Result<Option<Vec<u8>>> {
         // Special handling for empty blobs
@@ -133,12 +133,15 @@ impl BlobService {
     }
 
     #[inline]
-    pub async fn get(ctx: &ServiceContext<'_>, hash: &[u8]) -> Result<Vec<u8>> {
+    pub async fn get<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
+        hash: &[u8],
+    ) -> Result<Vec<u8>> {
         find_or_error!(Self::get_optional(ctx, hash), Blob)
     }
 
-    pub async fn get_metadata_optional(
-        ctx: &ServiceContext<'_>,
+    pub async fn get_metadata_optional<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         hash: &[u8],
     ) -> Result<Option<BlobMetadata>> {
         // Special handling for empty blobs
@@ -176,14 +179,17 @@ impl BlobService {
     }
 
     #[inline]
-    pub async fn get_metadata(
-        ctx: &ServiceContext<'_>,
+    pub async fn get_metadata<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         hash: &[u8],
     ) -> Result<BlobMetadata> {
         find_or_error!(Self::get_metadata_optional(ctx, hash), Blob)
     }
 
-    pub async fn exists(ctx: &ServiceContext<'_>, hash: &[u8]) -> Result<bool> {
+    pub async fn exists<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
+        hash: &[u8],
+    ) -> Result<bool> {
         // Special handling for the empty blob
         if hash == EMPTY_BLOB_HASH {
             debug!("Checking existence of the empty blob");
@@ -202,8 +208,8 @@ impl BlobService {
     /// text given by the specified hash only
     /// if the flag `should_fetch` is true.
     /// Otherwise, it does no action, returning `None`.
-    pub async fn get_maybe(
-        ctx: &ServiceContext<'_>,
+    pub async fn get_maybe<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         should_fetch: bool,
         hash: &[u8],
     ) -> Result<Option<Vec<u8>>> {
@@ -215,8 +221,8 @@ impl BlobService {
         }
     }
 
-    async fn head(
-        ctx: &ServiceContext<'_>,
+    async fn head<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         hex_hash: &str,
     ) -> Result<Option<HeadObjectResult>> {
         let bucket = ctx.s3_bucket();
@@ -229,7 +235,10 @@ impl BlobService {
         }
     }
 
-    pub async fn hard_delete(ctx: &ServiceContext<'_>, hash: &[u8]) -> Result<()> {
+    pub async fn hard_delete<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
+        hash: &[u8],
+    ) -> Result<()> {
         // Special handling for empty blobs
         //
         // Being virtual, having always existed, they cannot be deleted.

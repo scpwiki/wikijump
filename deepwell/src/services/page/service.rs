@@ -40,8 +40,8 @@ use wikidot_normalize::normalize;
 pub struct PageService;
 
 impl PageService {
-    pub async fn create(
-        ctx: &ServiceContext<'_>,
+    pub async fn create<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         CreatePage {
             site_id,
             wikitext,
@@ -119,8 +119,8 @@ impl PageService {
         })
     }
 
-    pub async fn edit(
-        ctx: &ServiceContext<'_>,
+    pub async fn edit<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         EditPage {
             site_id,
             page: reference,
@@ -205,8 +205,8 @@ impl PageService {
     }
 
     /// Moves a page from from one slug to another.
-    pub async fn r#move(
-        ctx: &ServiceContext<'_>,
+    pub async fn r#move<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         MovePage {
             site_id,
             page: reference,
@@ -303,8 +303,8 @@ impl PageService {
         }
     }
 
-    pub async fn delete(
-        ctx: &ServiceContext<'_>,
+    pub async fn delete<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         DeletePage {
             site_id,
             page: reference,
@@ -347,8 +347,8 @@ impl PageService {
     }
 
     /// Restore a deleted page, causing it to be undeleted.
-    pub async fn restore(
-        ctx: &ServiceContext<'_>,
+    pub async fn restore<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         RestorePage {
             site_id,
             page_id,
@@ -423,8 +423,8 @@ impl PageService {
     /// revision, regardless of any changes since.
     ///
     /// This is equivalent to Wikidot's concept of a "revert".
-    pub async fn rollback(
-        ctx: &ServiceContext<'_>,
+    pub async fn rollback<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         RollbackPage {
             site_id,
             page: reference,
@@ -506,15 +506,15 @@ impl PageService {
     }
 
     /// Sets the layout override for a page.
-    pub async fn set_layout(
-        ctx: &ServiceContext<'_>,
+    pub async fn set_layout<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         site_id: i64,
         page_id: i64,
         layout: Option<Layout>,
     ) -> Result<()> {
         debug!("Setting page layout for site ID {site_id} page ID {page_id}");
 
-        let mut txn = ctx.make_sqlx_transaction().await?;
+        let mut txn = ctx.sqlx_transaction();
         let rows_affected = sqlx::query!(
             r"
             UPDATE page
@@ -526,11 +526,9 @@ impl PageService {
             site_id,
             page_id,
         )
-        .execute(&mut *txn)
+        .execute(&mut **txn)
         .await?
         .rows_affected();
-
-        txn.commit().await?;
 
         if rows_affected == 1 {
             Ok(())
@@ -582,8 +580,8 @@ impl PageService {
     /// If this page has a specific layout override,
     /// then that is returned. Otherwise, the layout
     /// associated with the site is used.
-    pub async fn get_layout(
-        ctx: &ServiceContext<'_>,
+    pub async fn get_layout<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         site_id: i64,
         page_id: i64,
     ) -> Result<Layout> {
@@ -594,7 +592,7 @@ impl PageService {
             layout: Option<String>,
         }
 
-        let mut txn = ctx.make_sqlx_transaction().await?;
+        let mut txn = ctx.sqlx_transaction();
         let row = find_or_error!(
             sqlx::query_as!(
                 Row,
@@ -602,11 +600,9 @@ impl PageService {
                 site_id,
                 page_id,
             )
-            .fetch_optional(&mut *txn),
+            .fetch_optional(&mut **txn),
             Page,
         )?;
-
-        txn.commit().await?;
 
         match row.layout {
             // Parse layout from string in page table
@@ -726,8 +722,8 @@ impl PageService {
     ///
     /// For the `order` argument, see documentation on `PageOrder`.
     // TODO add pagination
-    pub async fn get_all(
-        ctx: &ServiceContext<'_>,
+    pub async fn get_all<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         site_id: i64,
         category: Option<Reference<'_>>,
         deleted: Option<bool>,
@@ -804,8 +800,8 @@ impl PageService {
         }
     }
 
-    async fn run_filter<S: AsRef<str>>(
-        ctx: &ServiceContext<'_>,
+    async fn run_filter<'ctx, S: AsRef<str>>(
+        ctx: &'ctx ServiceContext<'ctx>,
         site_id: i64,
         wikitext: Option<S>,
         title: Option<S>,

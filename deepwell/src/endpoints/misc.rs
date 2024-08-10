@@ -23,16 +23,14 @@ use crate::info;
 use std::path::PathBuf;
 use wikidot_normalize::normalize;
 
-async fn postgres_check(ctx: &ServiceContext<'_>) -> Result<()> {
-    let mut txn = ctx.make_sqlx_transaction().await?;
-    let _ = sqlx::query!(r"SELECT 1 AS x").fetch_one(&mut *txn).await?;
-    txn.commit().await?;
-
+async fn postgres_check<'ctx>(ctx: &'ctx ServiceContext<'ctx>) -> Result<()> {
+    let mut txn = ctx.sqlx_transaction();
+    let _ = sqlx::query!(r"SELECT 1 AS x").fetch_one(&mut **txn).await?;
     debug!("Successfully pinged Postgres");
     Ok(())
 }
 
-async fn redis_check(ctx: &ServiceContext<'_>) -> Result<()> {
+async fn redis_check<'ctx>(ctx: &'ctx ServiceContext<'ctx>) -> Result<()> {
     let mut redis = ctx.redis_connect().await?;
 
     redis
@@ -43,8 +41,8 @@ async fn redis_check(ctx: &ServiceContext<'_>) -> Result<()> {
     Ok(())
 }
 
-pub async fn ping(
-    ctx: &ServiceContext<'_>,
+pub async fn ping<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     _params: Params<'static>,
 ) -> Result<&'static str> {
     // Ensure the database and cache are connected, and only then return.
@@ -55,56 +53,56 @@ pub async fn ping(
 
 /// Method which always returns an error.
 /// For testing.
-pub async fn yield_error(
-    _ctx: &ServiceContext<'_>,
+pub async fn yield_error<'ctx>(
+    _ctx: &'ctx ServiceContext<'ctx>,
     _params: Params<'static>,
 ) -> Result<()> {
     info!("Returning DEEPWELL error for testing");
     Err(ServiceError::BadRequest)
 }
 
-pub async fn version(
-    _ctx: &ServiceContext<'_>,
+pub async fn version<'ctx>(
+    _ctx: &'ctx ServiceContext<'ctx>,
     _params: Params<'static>,
 ) -> Result<&'static str> {
     info!("Getting DEEPWELL version");
     Ok(info::VERSION.as_str())
 }
 
-pub async fn full_version(
-    _ctx: &ServiceContext<'_>,
+pub async fn full_version<'ctx>(
+    _ctx: &'ctx ServiceContext<'ctx>,
     _params: Params<'static>,
 ) -> Result<&'static str> {
     info!("Getting DEEPWELL version (full)");
     Ok(info::FULL_VERSION.as_str())
 }
 
-pub async fn hostname(
-    _ctx: &ServiceContext<'_>,
+pub async fn hostname<'ctx>(
+    _ctx: &'ctx ServiceContext<'ctx>,
     _params: Params<'static>,
 ) -> Result<&'static str> {
     info!("Getting DEEPWELL hostname");
     Ok(info::HOSTNAME.as_str())
 }
 
-pub async fn config_dump(
-    ctx: &ServiceContext<'_>,
+pub async fn config_dump<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     _params: Params<'static>,
 ) -> Result<String> {
     info!("Dumping raw DEEPWELL configuration for debugging");
     Ok(ctx.config().raw_toml.to_string())
 }
 
-pub async fn config_path(
-    ctx: &ServiceContext<'_>,
+pub async fn config_path<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     _params: Params<'static>,
 ) -> Result<PathBuf> {
     info!("Dumping DEEPWELL configuration path for debugging");
     Ok(ctx.config().raw_toml_path.to_path_buf())
 }
 
-pub async fn normalize_method(
-    _ctx: &ServiceContext<'_>,
+pub async fn normalize_method<'ctx>(
+    _ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<String> {
     let mut value: String = params.one()?;

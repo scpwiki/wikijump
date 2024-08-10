@@ -23,8 +23,8 @@ use crate::models::page_category::Model as PageCategoryModel;
 use crate::services::category::GetCategory;
 use crate::services::site::GetSite;
 
-pub async fn category_get(
-    ctx: &ServiceContext<'_>,
+pub async fn category_get<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<Option<PageCategoryModel>> {
     let GetCategory { site, category } = params.parse()?;
@@ -33,8 +33,8 @@ pub async fn category_get(
     CategoryService::get_optional(ctx, site_id, category).await
 }
 
-pub async fn category_get_all(
-    ctx: &ServiceContext<'_>,
+pub async fn category_get_all<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<Vec<PageCategoryModel>> {
     let GetSite { site } = params.parse()?;

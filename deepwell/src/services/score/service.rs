@@ -25,7 +25,10 @@ use super::prelude::*;
 pub struct ScoreService;
 
 impl ScoreService {
-    pub async fn score(ctx: &ServiceContext<'_>, page_id: i64) -> Result<ScoreValue> {
+    pub async fn score<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
+        page_id: i64,
+    ) -> Result<ScoreValue> {
         let txn = ctx.seaorm_transaction();
         let condition = Self::build_condition(page_id);
         let scorer = Self::get_scorer(ctx, page_id).await?;
@@ -36,8 +39,8 @@ impl ScoreService {
     /// Gets the correct `Scorer` implementation for this page.
     ///
     /// Currently stubbed, will be implemented when relevant settings are added.
-    pub async fn get_scorer(
-        _ctx: &ServiceContext<'_>,
+    pub async fn get_scorer<'ctx>(
+        _ctx: &'ctx ServiceContext<'ctx>,
         _page_id: i64,
     ) -> Result<&'static impl Scorer> {
         // TODO

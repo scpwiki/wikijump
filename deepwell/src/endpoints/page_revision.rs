@@ -28,8 +28,8 @@ use crate::services::page_revision::{
 use crate::services::{Result, TextService};
 use crate::web::PageDetails;
 
-pub async fn page_revision_count(
-    ctx: &ServiceContext<'_>,
+pub async fn page_revision_count<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<PageRevisionCountOutput> {
     let GetPageReferenceDetails {
@@ -49,8 +49,8 @@ pub async fn page_revision_count(
     })
 }
 
-pub async fn page_revision_get(
-    ctx: &ServiceContext<'_>,
+pub async fn page_revision_get<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<Option<PageRevisionModelFiltered>> {
     let GetPageRevisionDetails {
@@ -79,8 +79,8 @@ pub async fn page_revision_get(
     }
 }
 
-pub async fn page_revision_edit(
-    ctx: &ServiceContext<'_>,
+pub async fn page_revision_edit<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<PageRevisionModelFiltered> {
     let UpdatePageRevisionDetails { input, details } = params.parse()?;
@@ -99,8 +99,8 @@ pub async fn page_revision_edit(
     filter_and_populate_revision(ctx, revision, details).await
 }
 
-pub async fn page_revision_range(
-    ctx: &ServiceContext<'_>,
+pub async fn page_revision_range<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<Vec<PageRevisionModelFiltered>> {
     let GetPageRevisionRangeDetails { input, details } = params.parse()?;
@@ -110,8 +110,8 @@ pub async fn page_revision_range(
 
 // Helper functions
 
-async fn filter_and_populate_revision(
-    ctx: &ServiceContext<'_>,
+async fn filter_and_populate_revision<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     model: PageRevisionModel,
     mut details: PageDetails,
 ) -> Result<PageRevisionModelFiltered> {
@@ -189,8 +189,8 @@ async fn filter_and_populate_revision(
     })
 }
 
-async fn filter_and_populate_revisions(
-    ctx: &ServiceContext<'_>,
+async fn filter_and_populate_revisions<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     revisions: Vec<PageRevisionModel>,
     details: PageDetails,
 ) -> Result<Vec<PageRevisionModelFiltered>> {

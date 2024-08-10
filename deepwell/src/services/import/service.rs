@@ -42,8 +42,8 @@ use crate::utils::get_category_name;
 pub struct ImportService;
 
 impl ImportService {
-    pub async fn add_user(
-        ctx: &ServiceContext<'_>,
+    pub async fn add_user<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         ImportUser {
             user_id,
             created_at,
@@ -97,8 +97,8 @@ impl ImportService {
         Ok(())
     }
 
-    pub async fn add_site(
-        ctx: &ServiceContext<'_>,
+    pub async fn add_site<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         ImportSite {
             site_id,
             created_at,
@@ -127,8 +127,8 @@ impl ImportService {
         Ok(())
     }
 
-    pub async fn add_page(
-        ctx: &ServiceContext<'_>,
+    pub async fn add_page<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         ImportPage {
             page_id,
             site_id,

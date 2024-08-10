@@ -25,8 +25,8 @@ use crate::services::file_revision::{
     FileRevisionCountOutput, GetFileRevision, GetFileRevisionRange, UpdateFileRevision,
 };
 
-pub async fn file_revision_count(
-    ctx: &ServiceContext<'_>,
+pub async fn file_revision_count<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<FileRevisionCountOutput> {
     let GetFile {
@@ -47,8 +47,8 @@ pub async fn file_revision_count(
     })
 }
 
-pub async fn file_revision_get(
-    ctx: &ServiceContext<'_>,
+pub async fn file_revision_get<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<Option<FileRevisionModel>> {
     let input: GetFileRevision = params.parse()?;
@@ -61,16 +61,16 @@ pub async fn file_revision_get(
     FileRevisionService::get_optional(ctx, input).await
 }
 
-pub async fn file_revision_range(
-    ctx: &ServiceContext<'_>,
+pub async fn file_revision_range<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<Vec<FileRevisionModel>> {
     let input: GetFileRevisionRange = params.parse()?;
     FileRevisionService::get_range(ctx, input).await
 }
 
-pub async fn file_revision_edit(
-    ctx: &ServiceContext<'_>,
+pub async fn file_revision_edit<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<FileRevisionModel> {
     let input: UpdateFileRevision = params.parse()?;

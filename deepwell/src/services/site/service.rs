@@ -37,8 +37,8 @@ use std::borrow::Cow;
 pub struct SiteService;
 
 impl SiteService {
-    pub async fn create(
-        ctx: &ServiceContext<'_>,
+    pub async fn create<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         CreateSite {
             mut slug,
             name,
@@ -116,8 +116,8 @@ impl SiteService {
     }
 
     /// Update site information.
-    pub async fn update(
-        ctx: &ServiceContext<'_>,
+    pub async fn update<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         reference: Reference<'_>,
         input: UpdateSiteBody,
         updating_user_id: i64,
@@ -187,8 +187,8 @@ impl SiteService {
     /// No alias row checks are performed because of a dependency order requiring
     /// the user's slug to have been updated before aliases can be added.
     /// Instead, alias row verification occurs manually afterwards.
-    async fn update_slug(
-        ctx: &ServiceContext<'_>,
+    async fn update_slug<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         site: &SiteModel,
         new_slug: &str,
         user_id: i64,
@@ -233,8 +233,8 @@ impl SiteService {
     }
 
     #[inline]
-    pub async fn exists(
-        ctx: &ServiceContext<'_>,
+    pub async fn exists<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         reference: Reference<'_>,
     ) -> Result<bool> {
         Self::get_optional(ctx, reference)
@@ -242,8 +242,8 @@ impl SiteService {
             .map(|site| site.is_some())
     }
 
-    pub async fn get_optional(
-        ctx: &ServiceContext<'_>,
+    pub async fn get_optional<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         mut reference: Reference<'_>,
     ) -> Result<Option<SiteModel>> {
         let txn = ctx.seaorm_transaction();
@@ -281,8 +281,8 @@ impl SiteService {
     }
 
     #[inline]
-    pub async fn get(
-        ctx: &ServiceContext<'_>,
+    pub async fn get<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         reference: Reference<'_>,
     ) -> Result<SiteModel> {
         find_or_error!(Self::get_optional(ctx, reference), Site)
@@ -293,7 +293,10 @@ impl SiteService {
     ///
     /// Since this is the only field needed most of the time, and
     /// is fairly commonly needed, we have a separate method for it.
-    pub async fn get_layout(ctx: &ServiceContext<'_>, site_id: i64) -> Result<Layout> {
+    pub async fn get_layout<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
+        site_id: i64,
+    ) -> Result<Layout> {
         debug!("Getting page layout for site ID {site_id}");
 
         #[derive(Debug)]
@@ -301,13 +304,11 @@ impl SiteService {
             layout: Option<String>,
         }
 
-        let mut txn = ctx.make_sqlx_transaction().await?;
+        let mut txn = ctx.sqlx_transaction();
         let row =
             sqlx::query_as!(Row, r"SELECT layout FROM site WHERE site_id = $1", site_id)
-                .fetch_one(&mut *txn)
+                .fetch_one(&mut **txn)
                 .await?;
-
-        txn.commit().await?;
 
         match row.layout {
             // Parse layout from string in site table
@@ -326,8 +327,8 @@ impl SiteService {
     /// Convenience method since this is much more common than the optional
     /// case, and we don't want to perform a redundant check for site existence
     /// later as part of the actual query.
-    pub async fn get_id(
-        ctx: &ServiceContext<'_>,
+    pub async fn get_id<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         reference: Reference<'_>,
     ) -> Result<i64> {
         match reference {
@@ -345,8 +346,8 @@ impl SiteService {
     /// Checks to see if a site already exists at the slug specified.
     ///
     /// If so, this method fails with `Error::SiteExists`. Otherwise it returns nothing.
-    async fn check_conflicts(
-        ctx: &ServiceContext<'_>,
+    async fn check_conflicts<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         slug: &str,
         action: &str,
     ) -> Result<()> {

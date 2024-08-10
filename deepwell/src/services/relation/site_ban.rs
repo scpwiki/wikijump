@@ -40,8 +40,8 @@ impl_relation!(
 
 impl RelationService {
     #[allow(dead_code)] // TEMP
-    pub async fn create_site_ban(
-        ctx: &ServiceContext<'_>,
+    pub async fn create_site_ban<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         CreateSiteBan {
             site_id,
             user_id,
@@ -67,8 +67,8 @@ impl RelationService {
     }
 
     /// Helper method for rejecting an relation if the user is banned.
-    pub async fn check_site_ban(
-        ctx: &ServiceContext<'_>,
+    pub async fn check_site_ban<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         body: GetSiteBan,
         action: &str,
     ) -> Result<()> {

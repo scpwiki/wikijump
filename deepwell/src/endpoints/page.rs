@@ -28,8 +28,8 @@ use crate::services::page::{
 use crate::services::{Result, TextService};
 use crate::web::{PageDetails, Reference};
 
-pub async fn page_create(
-    ctx: &ServiceContext<'_>,
+pub async fn page_create<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<CreatePageOutput> {
     let input: CreatePage = params.parse()?;
@@ -37,8 +37,8 @@ pub async fn page_create(
     PageService::create(ctx, input).await
 }
 
-pub async fn page_get(
-    ctx: &ServiceContext<'_>,
+pub async fn page_get<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<Option<GetPageOutput>> {
     let GetPageReferenceDetails {
@@ -54,8 +54,8 @@ pub async fn page_get(
     }
 }
 
-pub async fn page_get_direct(
-    ctx: &ServiceContext<'_>,
+pub async fn page_get_direct<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<Option<GetPageOutput>> {
     let GetPageAnyDetails {
@@ -72,8 +72,8 @@ pub async fn page_get_direct(
     }
 }
 
-pub async fn page_edit(
-    ctx: &ServiceContext<'_>,
+pub async fn page_edit<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<Option<EditPageOutput>> {
     let input: EditPage = params.parse()?;
@@ -81,8 +81,8 @@ pub async fn page_edit(
     PageService::edit(ctx, input).await
 }
 
-pub async fn page_delete(
-    ctx: &ServiceContext<'_>,
+pub async fn page_delete<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<DeletePageOutput> {
     let input: DeletePage = params.parse()?;
@@ -93,8 +93,8 @@ pub async fn page_delete(
     PageService::delete(ctx, input).await
 }
 
-pub async fn page_move(
-    ctx: &ServiceContext<'_>,
+pub async fn page_move<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<MovePageOutput> {
     let input: MovePage = params.parse()?;
@@ -105,8 +105,8 @@ pub async fn page_move(
     PageService::r#move(ctx, input).await
 }
 
-pub async fn page_rerender(
-    ctx: &ServiceContext<'_>,
+pub async fn page_rerender<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<()> {
     let GetPageDirect { site_id, page_id } = params.parse()?;
@@ -114,8 +114,8 @@ pub async fn page_rerender(
     PageRevisionService::rerender(ctx, site_id, page_id, 0).await
 }
 
-pub async fn page_restore(
-    ctx: &ServiceContext<'_>,
+pub async fn page_restore<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<RestorePageOutput> {
     let input: RestorePage = params.parse()?;
@@ -126,8 +126,8 @@ pub async fn page_restore(
     PageService::restore(ctx, input).await
 }
 
-pub async fn page_rollback(
-    ctx: &ServiceContext<'_>,
+pub async fn page_rollback<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<Option<EditPageOutput>> {
     let input: RollbackPage = params.parse()?;
@@ -140,8 +140,8 @@ pub async fn page_rollback(
     PageService::rollback(ctx, input).await
 }
 
-pub async fn page_set_layout(
-    ctx: &ServiceContext<'_>,
+pub async fn page_set_layout<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<()> {
     let SetPageLayout {
@@ -163,8 +163,8 @@ pub async fn page_set_layout(
     PageService::set_layout(ctx, site_id, page_id, layout).await
 }
 
-async fn build_page_output(
-    ctx: &ServiceContext<'_>,
+async fn build_page_output<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     page: PageModel,
     details: PageDetails,
 ) -> Result<Option<GetPageOutput>> {

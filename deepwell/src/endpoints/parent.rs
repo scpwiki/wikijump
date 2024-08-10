@@ -24,8 +24,8 @@ use crate::services::parent::{
     GetParentRelationships, ParentDescription, RemoveParentOutput,
 };
 
-pub async fn parent_relationships_get(
-    ctx: &ServiceContext<'_>,
+pub async fn parent_relationships_get<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<Vec<PageParentModel>> {
     let GetParentRelationships {
@@ -44,8 +44,8 @@ pub async fn parent_relationships_get(
     ParentService::get_relationships(ctx, site_id, reference, relationship_type).await
 }
 
-pub async fn parent_get(
-    ctx: &ServiceContext<'_>,
+pub async fn parent_get<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<Option<PageParentModel>> {
     let input: ParentDescription = params.parse()?;
@@ -58,8 +58,8 @@ pub async fn parent_get(
     ParentService::get_optional(ctx, input).await
 }
 
-pub async fn parent_set(
-    ctx: &ServiceContext<'_>,
+pub async fn parent_set<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<Option<PageParentModel>> {
     let input: ParentDescription = params.parse()?;
@@ -72,8 +72,8 @@ pub async fn parent_set(
     ParentService::create(ctx, input).await
 }
 
-pub async fn parent_remove(
-    ctx: &ServiceContext<'_>,
+pub async fn parent_remove<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<RemoveParentOutput> {
     let input: ParentDescription = params.parse()?;

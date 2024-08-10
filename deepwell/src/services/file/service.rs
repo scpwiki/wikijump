@@ -36,8 +36,8 @@ impl FileService {
     ///
     /// In the background, this stores the blob via content addressing,
     /// meaning that duplicates are not uploaded twice.
-    pub async fn upload(
-        ctx: &ServiceContext<'_>,
+    pub async fn upload<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         UploadFile {
             site_id,
             page_id,
@@ -100,8 +100,8 @@ impl FileService {
     }
 
     /// Edits a file, including the ability to upload a new version.
-    pub async fn edit(
-        ctx: &ServiceContext<'_>,
+    pub async fn edit<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         EditFile {
             site_id,
             page_id,
@@ -185,8 +185,8 @@ impl FileService {
     }
 
     /// Moves a file from from one page to another.
-    pub async fn r#move(
-        ctx: &ServiceContext<'_>,
+    pub async fn r#move<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         MoveFile {
             name,
             site_id,
@@ -249,8 +249,8 @@ impl FileService {
     /// Like other deletions throughout Wikijump, this is a soft deletion.
     /// It marks the files as deleted but retains the contents, permitting it
     /// to be easily reverted.
-    pub async fn delete(
-        ctx: &ServiceContext<'_>,
+    pub async fn delete<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         DeleteFile {
             revision_comments,
             site_id,
@@ -308,8 +308,8 @@ impl FileService {
     /// Restores a deleted file.
     ///
     /// This undeletes a file, moving it from the deleted sphere to the specified location.
-    pub async fn restore(
-        ctx: &ServiceContext<'_>,
+    pub async fn restore<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         RestoreFile {
             new_page_id,
             new_name,
@@ -379,8 +379,8 @@ impl FileService {
         })
     }
 
-    pub async fn get_optional(
-        ctx: &ServiceContext<'_>,
+    pub async fn get_optional<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         GetFile {
             site_id,
             page_id,
@@ -410,7 +410,10 @@ impl FileService {
     }
 
     #[inline]
-    pub async fn get(ctx: &ServiceContext<'_>, input: GetFile<'_>) -> Result<FileModel> {
+    pub async fn get<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
+        input: GetFile<'_>,
+    ) -> Result<FileModel> {
         find_or_error!(Self::get_optional(ctx, input), File)
     }
 
@@ -419,8 +422,8 @@ impl FileService {
     /// Convenience method since this is much more common than the optional
     /// case, and we don't want to perform a redundant check for site existence
     /// later as part of the actual query.
-    pub async fn get_id(
-        ctx: &ServiceContext<'_>,
+    pub async fn get_id<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         page_id: i64,
         reference: Reference<'_>,
     ) -> Result<i64> {
@@ -449,8 +452,8 @@ impl FileService {
         }
     }
 
-    pub async fn get_direct_optional(
-        ctx: &ServiceContext<'_>,
+    pub async fn get_direct_optional<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         file_id: i64,
         allow_deleted: bool,
     ) -> Result<Option<FileModel>> {
@@ -471,8 +474,8 @@ impl FileService {
     }
 
     #[inline]
-    pub async fn get_direct(
-        ctx: &ServiceContext<'_>,
+    pub async fn get_direct<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         file_id: i64,
         allow_deleted: bool,
     ) -> Result<FileModel> {
@@ -490,7 +493,10 @@ impl FileService {
     ///
     /// This method should only be used very rarely to clear content such
     /// as severe copyright violations, abuse content, or comply with court orders.
-    pub async fn hard_delete_all(_ctx: &ServiceContext<'_>, _file_id: i64) -> Result<()> {
+    pub async fn hard_delete_all<'ctx>(
+        _ctx: &'ctx ServiceContext<'ctx>,
+        _file_id: i64,
+    ) -> Result<()> {
         // TODO find hash. update all files with the same hash
         // TODO if hash == 00000 then error
         // TODO add to audit log
@@ -502,8 +508,8 @@ impl FileService {
     /// Checks to see if a file already exists at the name specified.
     ///
     /// If so, this method fails with `Error::FileExists`. Otherwise it returns nothing.
-    async fn check_conflicts(
-        ctx: &ServiceContext<'_>,
+    async fn check_conflicts<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         page_id: i64,
         name: &str,
         action: &str,
@@ -537,8 +543,8 @@ impl FileService {
     ///
     /// It does not check the file's contents, as that is a binary blob.
     /// Such a hash filter would need to be implemented through a separate system.
-    async fn run_filter(
-        ctx: &ServiceContext<'_>,
+    async fn run_filter<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         site_id: i64,
         name: Option<&str>,
     ) -> Result<()> {

@@ -24,8 +24,8 @@ use crate::services::vote::{
     CountVoteHistory, CreateVote, GetVote, GetVoteHistory, VoteAction,
 };
 
-pub async fn vote_get(
-    ctx: &ServiceContext<'_>,
+pub async fn vote_get<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<Option<PageVoteModel>> {
     let input: GetVote = params.parse()?;
@@ -38,8 +38,8 @@ pub async fn vote_get(
     VoteService::get_optional(ctx, input).await
 }
 
-pub async fn vote_set(
-    ctx: &ServiceContext<'_>,
+pub async fn vote_set<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<Option<PageVoteModel>> {
     let input: CreateVote = params.parse()?;
@@ -52,8 +52,8 @@ pub async fn vote_set(
     VoteService::add(ctx, input).await
 }
 
-pub async fn vote_remove(
-    ctx: &ServiceContext<'_>,
+pub async fn vote_remove<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<PageVoteModel> {
     let input: GetVote = params.parse()?;
@@ -66,8 +66,8 @@ pub async fn vote_remove(
     VoteService::remove(ctx, input).await
 }
 
-pub async fn vote_action(
-    ctx: &ServiceContext<'_>,
+pub async fn vote_action<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<PageVoteModel> {
     let VoteAction {
@@ -81,16 +81,16 @@ pub async fn vote_action(
     VoteService::action(ctx, key, enable, acting_user_id).await
 }
 
-pub async fn vote_list_get(
-    ctx: &ServiceContext<'_>,
+pub async fn vote_list_get<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<Vec<PageVoteModel>> {
     let input: GetVoteHistory = params.parse()?;
     VoteService::get_history(ctx, input).await
 }
 
-pub async fn vote_list_count(
-    ctx: &ServiceContext<'_>,
+pub async fn vote_list_count<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<u64> {
     let input: CountVoteHistory = params.parse()?;

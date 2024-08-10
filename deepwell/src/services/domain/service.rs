@@ -36,8 +36,8 @@ pub struct DomainService;
 
 impl DomainService {
     /// Creates a custom domain for a site.
-    pub async fn create_custom(
-        ctx: &ServiceContext<'_>,
+    pub async fn create_custom<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         CreateCustomDomain { domain, site_id }: CreateCustomDomain,
     ) -> Result<()> {
         info!("Creating custom domain '{domain}' (site ID {site_id})");
@@ -60,7 +60,10 @@ impl DomainService {
     /// Delete the given custom domain.
     ///
     /// Yields `Error::CustomDomainNotFound` if it's missing.
-    pub async fn remove_custom(ctx: &ServiceContext<'_>, domain: String) -> Result<()> {
+    pub async fn remove_custom<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
+        domain: String,
+    ) -> Result<()> {
         info!("Deleting custom domain '{domain}'");
 
         let txn = ctx.seaorm_transaction();
@@ -74,8 +77,8 @@ impl DomainService {
         }
     }
 
-    pub async fn site_from_custom_domain_optional(
-        ctx: &ServiceContext<'_>,
+    pub async fn site_from_custom_domain_optional<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         domain: &str,
     ) -> Result<Option<SiteModel>> {
         info!("Getting site for custom domain '{domain}'");
@@ -93,8 +96,8 @@ impl DomainService {
 
     #[inline]
     #[allow(dead_code)] // TODO
-    pub async fn site_from_custom_domain(
-        ctx: &ServiceContext<'_>,
+    pub async fn site_from_custom_domain<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         domain: &str,
     ) -> Result<SiteModel> {
         find_or_error!(
@@ -105,8 +108,8 @@ impl DomainService {
 
     /// Determines if the given custom domain is registered.
     #[inline]
-    pub async fn custom_domain_exists(
-        ctx: &ServiceContext<'_>,
+    pub async fn custom_domain_exists<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         domain: &str,
     ) -> Result<bool> {
         Self::site_from_custom_domain_optional(ctx, domain)
@@ -117,17 +120,17 @@ impl DomainService {
     /// Gets the site corresponding with the given domain.
     #[inline]
     #[allow(dead_code)] // TEMP
-    pub async fn site_from_domain<'a>(
-        ctx: &ServiceContext<'_>,
-        domain: &'a str,
+    pub async fn site_from_domain<'ctx, 's>(
+        ctx: &'ctx ServiceContext<'ctx>,
+        domain: &'s str,
     ) -> Result<SiteModel> {
         find_or_error!(Self::site_from_domain_optional(ctx, domain), CustomDomain)
     }
 
     /// Optional version of `site_from_domain()`.
-    pub async fn site_from_domain_optional<'a>(
-        ctx: &ServiceContext<'_>,
-        domain: &'a str,
+    pub async fn site_from_domain_optional<'ctx, 's>(
+        ctx: &'ctx ServiceContext<'ctx>,
+        domain: &'s str,
     ) -> Result<Option<SiteModel>> {
         let result = Self::parse_site_from_domain(ctx, domain).await?;
         match result {
@@ -142,10 +145,10 @@ impl DomainService {
     /// * `Found` &mdash; Site retrieved from the domain.
     /// * `Slug` &mdash; Site does not exist. If it did, domain would be a canonical domain.
     /// * `CustomDomain` &mdash; Site does not exist. If it did, domain would be a custom domain.
-    pub async fn parse_site_from_domain<'a>(
-        ctx: &ServiceContext<'_>,
-        domain: &'a str,
-    ) -> Result<SiteDomainResult<'a>> {
+    pub async fn parse_site_from_domain<'ctx, 's>(
+        ctx: &'ctx ServiceContext<'ctx>,
+        domain: &'s str,
+    ) -> Result<SiteDomainResult<'s>> {
         info!("Getting site for domain '{domain}'");
 
         match Self::parse_canonical(ctx.config(), domain) {
@@ -246,8 +249,8 @@ impl DomainService {
     }
 
     /// Gets all custom domains for a site.
-    pub async fn list_custom(
-        ctx: &ServiceContext<'_>,
+    pub async fn list_custom<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         site_id: i64,
     ) -> Result<Vec<SiteDomainModel>> {
         info!("Getting domains for site ID {site_id}");

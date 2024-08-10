@@ -26,8 +26,8 @@ use tokio::time::timeout;
 pub struct RenderService;
 
 impl RenderService {
-    pub async fn render(
-        ctx: &ServiceContext<'_>,
+    pub async fn render<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         mut wikitext: String,
         page_info: &PageInfo<'_>,
         settings: &WikitextSettings,

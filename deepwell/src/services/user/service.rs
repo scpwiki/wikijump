@@ -39,8 +39,8 @@ static LEADING_TRAILING_CHARS: Lazy<Regex> =
 pub struct UserService;
 
 impl UserService {
-    pub async fn create(
-        ctx: &ServiceContext<'_>,
+    pub async fn create<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         CreateUser {
             user_type,
             mut name,
@@ -247,8 +247,8 @@ impl UserService {
     //      https://scuttle.atlassian.net/browse/WJ-272
 
     #[inline]
-    pub async fn exists(
-        ctx: &ServiceContext<'_>,
+    pub async fn exists<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         reference: Reference<'_>,
     ) -> Result<bool> {
         Self::get_optional(ctx, reference)
@@ -256,8 +256,8 @@ impl UserService {
             .map(|user| user.is_some())
     }
 
-    pub async fn get_optional(
-        ctx: &ServiceContext<'_>,
+    pub async fn get_optional<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         mut reference: Reference<'_>,
     ) -> Result<Option<UserModel>> {
         let txn = ctx.seaorm_transaction();
@@ -300,8 +300,8 @@ impl UserService {
     }
 
     #[inline]
-    pub async fn get(
-        ctx: &ServiceContext<'_>,
+    pub async fn get<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         reference: Reference<'_>,
     ) -> Result<UserModel> {
         find_or_error!(Self::get_optional(ctx, reference), User)
@@ -312,8 +312,8 @@ impl UserService {
     /// Convenience method since this is much more common than the optional
     /// case, and we don't want to perform a redundant check for site existence
     /// later as part of the actual query.
-    pub async fn get_id(
-        ctx: &ServiceContext<'_>,
+    pub async fn get_id<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         reference: Reference<'_>,
     ) -> Result<i64> {
         match reference {
@@ -329,8 +329,8 @@ impl UserService {
     }
 
     /// Gets a user, but fails if the user type doesn't match.
-    pub async fn get_with_user_type(
-        ctx: &ServiceContext<'_>,
+    pub async fn get_with_user_type<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         reference: Reference<'_>,
         user_type: UserType,
     ) -> Result<UserModel> {
@@ -343,8 +343,8 @@ impl UserService {
         }
     }
 
-    pub async fn update(
-        ctx: &ServiceContext<'_>,
+    pub async fn update<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         reference: Reference<'_>,
         input: UpdateUserBody,
     ) -> Result<UserModel> {
@@ -458,8 +458,8 @@ impl UserService {
     /// No alias row checks are performed because of a dependency order requiring
     /// the user's slug to have been updated before aliases can be added.
     /// Instead, alias row verification occurs manually afterwards.
-    async fn update_name(
-        ctx: &ServiceContext<'_>,
+    async fn update_name<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         new_name: String,
         user: &UserModel,
         model: &mut user::ActiveModel,
@@ -563,7 +563,9 @@ impl UserService {
         Ok(())
     }
 
-    pub async fn refresh_name_change_tokens(ctx: &ServiceContext<'_>) -> Result<()> {
+    pub async fn refresh_name_change_tokens<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
+    ) -> Result<()> {
         info!("Refreshing name change tokens for all users who need one");
 
         let needs_token_time = match ctx.config().refill_name_change {
@@ -593,8 +595,8 @@ impl UserService {
     ///
     /// # Returns
     /// The current number of rename tokens the user has.
-    pub async fn add_name_change_token(
-        ctx: &ServiceContext<'_>,
+    pub async fn add_name_change_token<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         user: &UserModel,
     ) -> Result<i16> {
         let txn = ctx.seaorm_transaction();
@@ -617,8 +619,8 @@ impl UserService {
     }
 
     /// Set the MFA secret fields for a user.
-    pub async fn set_mfa_secrets(
-        ctx: &ServiceContext<'_>,
+    pub async fn set_mfa_secrets<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         user_id: i64,
         multi_factor_secret: ActiveValue<Option<String>>,
         multi_factor_recovery_codes: ActiveValue<Option<Vec<String>>>,
@@ -639,8 +641,8 @@ impl UserService {
     }
 
     /// Removes a recovery code from the list provided for a user.
-    pub async fn remove_recovery_code(
-        ctx: &ServiceContext<'_>,
+    pub async fn remove_recovery_code<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         user: &UserModel,
         recovery_code: &str,
     ) -> Result<()> {
@@ -669,8 +671,8 @@ impl UserService {
         Ok(())
     }
 
-    pub async fn delete(
-        ctx: &ServiceContext<'_>,
+    pub async fn delete<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         reference: Reference<'_>,
     ) -> Result<UserModel> {
         let txn = ctx.seaorm_transaction();
@@ -692,8 +694,8 @@ impl UserService {
         Ok(user)
     }
 
-    async fn run_name_filter(
-        ctx: &ServiceContext<'_>,
+    async fn run_name_filter<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         name: &str,
         slug: &str,
     ) -> Result<()> {
@@ -711,7 +713,10 @@ impl UserService {
         Ok(())
     }
 
-    async fn run_email_filter(ctx: &ServiceContext<'_>, email: &str) -> Result<()> {
+    async fn run_email_filter<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
+        email: &str,
+    ) -> Result<()> {
         info!("Checking user email data against filters...");
 
         let filter_matcher =

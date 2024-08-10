@@ -32,8 +32,8 @@ impl VoteService {
     /// # Returns
     /// Returns `Some` if a new vote was created,
     /// and `None` if the it already exists.
-    pub async fn add(
-        ctx: &ServiceContext<'_>,
+    pub async fn add<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         CreateVote {
             page_id,
             user_id,
@@ -73,13 +73,16 @@ impl VoteService {
     }
 
     #[inline]
-    pub async fn get(ctx: &ServiceContext<'_>, key: GetVote) -> Result<PageVoteModel> {
+    pub async fn get<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
+        key: GetVote,
+    ) -> Result<PageVoteModel> {
         find_or_error!(Self::get_optional(ctx, key), Vote)
     }
 
     /// Gets any current vote for the current page and user.
-    pub async fn get_optional(
-        ctx: &ServiceContext<'_>,
+    pub async fn get_optional<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         GetVote { page_id, user_id }: GetVote,
     ) -> Result<Option<PageVoteModel>> {
         let txn = ctx.seaorm_transaction();
@@ -96,8 +99,8 @@ impl VoteService {
     }
 
     /// Enables or disables the vote specified.
-    pub async fn action(
-        ctx: &ServiceContext<'_>,
+    pub async fn action<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         key: GetVote,
         enable: bool,
         acting_user_id: i64,
@@ -127,7 +130,10 @@ impl VoteService {
     }
 
     /// Removes the vote specified.
-    pub async fn remove(ctx: &ServiceContext<'_>, key: GetVote) -> Result<PageVoteModel> {
+    pub async fn remove<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
+        key: GetVote,
+    ) -> Result<PageVoteModel> {
         info!("Removing vote {key:?}");
 
         let txn = ctx.seaorm_transaction();
@@ -147,8 +153,8 @@ impl VoteService {
     /// * If it is `Some(true)`, then it only returns pages which have been deleted.
     /// * If it is `Some(false)`, then it only returns pages which are extant.
     /// * If it is `None`, then it returns all pages regardless of deletion status are selected.
-    pub async fn get_history(
-        ctx: &ServiceContext<'_>,
+    pub async fn get_history<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         GetVoteHistory {
             kind,
             start_id,
@@ -173,8 +179,8 @@ impl VoteService {
     /// Counts the number of historical votes for either a page or a user.
     ///
     /// See `get_history()` for more information.
-    pub async fn count_history(
-        ctx: &ServiceContext<'_>,
+    pub async fn count_history<'ctx>(
+        ctx: &'ctx ServiceContext<'ctx>,
         CountVoteHistory {
             kind,
             start_id,

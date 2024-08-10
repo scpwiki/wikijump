@@ -25,8 +25,8 @@ use crate::services::link::{
     GetLinksToMissing, GetLinksToMissingOutput, GetLinksToOutput,
 };
 
-pub async fn page_links_from_get(
-    ctx: &ServiceContext<'_>,
+pub async fn page_links_from_get<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<GetLinksFromOutput> {
     let GetLinksFrom {
@@ -39,8 +39,8 @@ pub async fn page_links_from_get(
     LinkService::get_from(ctx, page_id).await
 }
 
-pub async fn page_links_to_get(
-    ctx: &ServiceContext<'_>,
+pub async fn page_links_to_get<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<GetLinksToOutput> {
     let GetLinksTo {
@@ -53,8 +53,8 @@ pub async fn page_links_to_get(
     LinkService::get_to(ctx, page_id, None).await
 }
 
-pub async fn page_links_to_missing_get(
-    ctx: &ServiceContext<'_>,
+pub async fn page_links_to_missing_get<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<GetLinksToMissingOutput> {
     let GetLinksToMissing { site_id, page_slug } = params.parse()?;
@@ -63,8 +63,8 @@ pub async fn page_links_to_missing_get(
     LinkService::get_to_missing(ctx, site_id, &page_slug, None).await
 }
 
-pub async fn page_links_external_from(
-    ctx: &ServiceContext<'_>,
+pub async fn page_links_external_from<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<GetLinksExternalFromOutput> {
     let GetLinksExternalFrom {
@@ -78,8 +78,8 @@ pub async fn page_links_external_from(
     LinkService::get_external_from(ctx, page_id).await
 }
 
-pub async fn page_links_external_to(
-    ctx: &ServiceContext<'_>,
+pub async fn page_links_external_to<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<GetLinksExternalToOutput> {
     let GetLinksExternalTo { site_id, url } = params.parse()?;

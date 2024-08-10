@@ -25,8 +25,8 @@ use crate::services::message::{
     CreateMessageDraft, DeleteMessageDraft, SendMessageDraft, UpdateMessageDraft,
 };
 
-pub async fn message_draft_create(
-    ctx: &ServiceContext<'_>,
+pub async fn message_draft_create<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<MessageDraftModel> {
     let input: CreateMessageDraft = params.parse()?;
@@ -34,8 +34,8 @@ pub async fn message_draft_create(
     MessageService::create_draft(ctx, input).await
 }
 
-pub async fn message_draft_edit(
-    ctx: &ServiceContext<'_>,
+pub async fn message_draft_edit<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<MessageDraftModel> {
     let input: UpdateMessageDraft = params.parse()?;
@@ -46,8 +46,8 @@ pub async fn message_draft_edit(
     MessageService::update_draft(ctx, input).await
 }
 
-pub async fn message_draft_delete(
-    ctx: &ServiceContext<'_>,
+pub async fn message_draft_delete<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<()> {
     let DeleteMessageDraft { message_draft_id } = params.parse()?;
@@ -55,8 +55,8 @@ pub async fn message_draft_delete(
     MessageService::delete_draft(ctx, message_draft_id).await
 }
 
-pub async fn message_draft_send(
-    ctx: &ServiceContext<'_>,
+pub async fn message_draft_send<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     params: Params<'static>,
 ) -> Result<MessageRecordModel> {
     let SendMessageDraft { message_draft_id } = params.parse()?;
