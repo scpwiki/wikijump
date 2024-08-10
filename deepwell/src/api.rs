@@ -157,7 +157,25 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
                 let state = Arc::clone(&*state);
 
                 // We take the database-or-RPC error and make it just an RPC error.
-                $method(todo!(), params).await
+
+                // SeaORM transaction
+                let seaorm_txn = state.database_seaorm.begin().await?;
+
+                // SQLx transaction
+                let sqlx_txn = state.database_sqlx.begin().await?;
+
+                // Run method
+                let ctx = ServiceContext::new(&state, seaorm_txn, sqlx_txn);
+                let result = $method(&ctx, params).await;
+
+                // Commit or rollback transactions
+                // Putting it into a double closure is too annoying
+                match &result {
+                    Ok(_) => ctx.commit().await?,
+                    Err(_) => ctx.rollback().await?,
+                };
+
+                result
             })?;
         }};
     }
