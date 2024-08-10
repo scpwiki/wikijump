@@ -23,18 +23,18 @@ use crate::config::Config;
 use crate::locales::Localizations;
 use crate::services::blob::MimeAnalyzer;
 use crate::services::error::Result;
+use parking_lot::{Mutex, MutexGuard};
 use redis::aio::MultiplexedConnection as RedisMultiplexedConnection;
 use rsmq_async::PooledRsmq;
 use s3::bucket::Bucket;
 use sqlx::{Database, Postgres};
-use std::cell::{RefCell, RefMut};
 use std::sync::Arc;
 
 #[derive(Debug)]
 pub struct ServiceContext<'conn> {
     state: ServerState,
     seaorm_transaction: sea_orm::DatabaseTransaction,
-    sqlx_transaction: RefCell<sqlx::Transaction<'conn, Postgres>>,
+    sqlx_transaction: Mutex<sqlx::Transaction<'conn, Postgres>>,
 }
 
 impl<'conn> ServiceContext<'conn> {
@@ -48,7 +48,7 @@ impl<'conn> ServiceContext<'conn> {
         ServiceContext {
             state: Arc::clone(state),
             seaorm_transaction,
-            sqlx_transaction: RefCell::new(sqlx_transaction),
+            sqlx_transaction: Mutex::new(sqlx_transaction),
         }
     }
 
@@ -98,8 +98,8 @@ impl<'conn> ServiceContext<'conn> {
     }
 
     #[inline]
-    pub fn sqlx_transaction(&'conn self) -> RefMut<sqlx::Transaction<sqlx::Postgres>> {
-        self.sqlx_transaction.borrow_mut()
+    pub fn sqlx_transaction(&'conn self) -> MutexGuard<'conn, sqlx::Transaction<sqlx::Postgres>> {
+        self.sqlx_transaction.lock()
     }
 
     pub async fn commit(self) -> Result<()> {
