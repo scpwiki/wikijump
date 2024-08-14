@@ -17,7 +17,7 @@ declare namespace App {
       page_updated_at?: string
       page_deleted_at?: string
       page_revision_count: number
-      site_id: mumber | string
+      site_id: number
       page_category_id: number
       page_category_slug: string
       discussion_thread_id?: number
