@@ -14,26 +14,26 @@ declare namespace App {
     page: {
       page_id: string
       page_created_at: string
-      page_updated_at?: string
-      page_deleted_at?: string
+      page_updated_at: string | null
+      page_deleted_at: string | null
       page_revision_count: number
       site_id: number
       page_category_id: number
       page_category_slug: string
-      discussion_thread_id?: number
+      discussion_thread_id: number | null
       revision_id: number
       revision_type: any
       revision_created_at: string
       revision_number: number
       revision_user_id: number
-      wikitext?: string
-      compiled_html?: string
+      wikitext: string | null
+      compiled_html: string | null
       compiled_at: string
       compiled_generator: string
       revision_comments: string
       hidden_fields: string[]
       title: string
-      alt_title?: string
+      alt_title: string | null
       slug: string
       tags: string[]
       rating: any
@@ -43,15 +43,15 @@ declare namespace App {
     /** Page options as booleans. */
     options: {
       edit: boolean
-      title?: string
-      parent?: string
-      tags?: string
+      title: string | null
+      parent: string | null
+      tags: string | null
       no_redirect: boolean
       no_render: boolean
       renderer: boolean
       comments: boolean
       history: boolean
-      offset?: number
+      offset: number | null
       data: string
       /** @deprecated Use `no_render` instead. */
       noRender: boolean
@@ -75,16 +75,16 @@ declare namespace App {
       site_id: number
       user_id: number
       changes: string[]
-      wikitext?: string
-      compiled_html?: string
-      compiled_at?: string
+      wikitext: string | null
+      compiled_html: string | null
+      compiled_at: string | null
       compiled_generator: string
       comments: string
       hidden: string[]
-      title?: string
-      alt_title?: string
-      sliug?: string
-      tags?: string[]
+      title: string | null
+      alt_title: string | null
+      sliug: string | null
+      tags: string[] | null
       [anyPageRevision: any]: unknown
     }
   }
