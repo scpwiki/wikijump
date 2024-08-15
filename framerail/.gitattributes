@@ -1,2 +1,2 @@
-pnpm-lock.yaml linguist-generated=true
+pnpm-lock.yaml binary linguist-vendored linguist-generated
 src/types/index.ts linguist-generated=true
