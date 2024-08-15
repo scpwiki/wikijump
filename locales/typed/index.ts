@@ -38,4 +38,4 @@ const types = JSON.stringify(combined, null, 2)
   .replace(/,/g, ";")
   .replace(/(?=\S*['-])([a-zA-Z0-9'-]+)/g, '"$1"');
 
-fs.writeFileSync(`${output}/index.ts`, `export interface Locales ${types}`);
+fs.writeFileSync(`${output}/index.ts`, `export interface Locales ${types}\n`);

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.ts",
+  "private": true,
   "scripts": {
     "dev":"tsx index.ts ../fluent ../../framerail/src/types"
   },
