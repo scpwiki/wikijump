@@ -3,7 +3,6 @@
 // and what to do when importing types
 
 declare namespace App {
-  type Locales = import("./types").Locales
   // interface Locals {}
   interface PageData {
     /** Data about the site. */
@@ -61,7 +60,7 @@ declare namespace App {
     /** Rendered Wikitext */
     wikitext: string
     /** Internalization as defined in translation keys for the page. */
-    internationalization: Locales
+    internationalization?: Record<string, string | null>
     /** Compiled HTML */
     compiled_html: string
     /** Page revision */
@@ -97,7 +96,7 @@ declare namespace App {
      * Error internationalization as defined in the translation keys for
      * the page. Look at /lib/types.ts for the keys type definitions.
      */
-    internationalization: Locales
+    internationalization?: Record<string, string | null>
     [anyError: any]: unknown
   }
   // interface Platform {}
