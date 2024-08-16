@@ -336,7 +336,7 @@ impl PageRevisionService {
         let (wikitext_hash, score, layout) = try_join!(
             TextService::create(ctx, wikitext.clone()),
             ScoreService::score(ctx, page_id),
-            PageService::get_layout(ctx, site_id, page_id),
+            PageService::get_layout(ctx, site_id, page_id), // XXX
         )?;
 
         // Render first revision
