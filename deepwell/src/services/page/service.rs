@@ -48,6 +48,7 @@ impl PageService {
             title,
             alt_title,
             mut slug,
+            layout,
             revision_comments: comments,
             user_id,
             bypass_filter,
@@ -93,6 +94,7 @@ impl PageService {
             title,
             alt_title,
             slug: slug.clone(),
+            layout,
         };
 
         let CreateFirstPageRevisionOutput {

@@ -22,6 +22,7 @@ use super::prelude::*;
 use crate::models::sea_orm_active_enums::PageRevisionType;
 use crate::web::{FetchDirection, PageDetails};
 use ftml::parsing::ParseError;
+use ftml::layout::Layout;
 use std::num::NonZeroI32;
 use time::OffsetDateTime;
 
@@ -52,6 +53,7 @@ pub struct CreateFirstPageRevision {
     pub title: String,
     pub alt_title: Option<String>,
     pub slug: String,
+    pub layout: Option<Layout>,
 }
 
 #[derive(Deserialize, Debug, Clone)]

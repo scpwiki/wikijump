@@ -34,6 +34,7 @@ pub struct CreatePage {
     pub title: String,
     pub alt_title: Option<String>,
     pub slug: String,
+    pub layout: Option<Layout>,
     pub revision_comments: String,
     pub user_id: i64,
 
