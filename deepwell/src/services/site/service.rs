@@ -44,6 +44,7 @@ impl SiteService {
             name,
             tagline,
             description,
+            layout,
             locale,
         }: CreateSite,
     ) -> Result<CreateSiteOutput> {
@@ -64,6 +65,7 @@ impl SiteService {
             name: Set(name),
             tagline: Set(tagline),
             description: Set(description.clone()),
+            layout: Set(layout.map(|l| str!(l.value()))),
             locale: Set(locale.clone()),
             ..Default::default()
         };
