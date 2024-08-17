@@ -632,13 +632,7 @@ impl PageService {
         txn.commit().await?;
         */
 
-        let page = Self::get(
-            ctx,
-            site_id,
-            Reference::Id(page_id),
-        )
-        .await?;
-
+        let page = Self::get(ctx, site_id, Reference::Id(page_id)).await?;
         match page.layout {
             // Parse layout from string in page table
             Some(layout) => match layout.parse() {
