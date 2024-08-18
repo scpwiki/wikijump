@@ -20,6 +20,7 @@
 
 use crate::models::sea_orm_active_enums::UserType;
 use anyhow::Result;
+use ftml::layout::Layout;
 use serde::Deserialize;
 use std::fs::{self, File};
 use std::path::{Path, PathBuf};
@@ -114,6 +115,7 @@ pub struct Site {
     pub name: String,
     pub tagline: String,
     pub description: String,
+    pub layout: Option<Layout>,
     pub locale: String,
 }
 

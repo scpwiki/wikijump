@@ -328,15 +328,22 @@ impl PageRevisionService {
             title,
             alt_title,
             slug,
+            layout,
         }: CreateFirstPageRevision,
     ) -> Result<CreateFirstPageRevisionOutput> {
         let txn = ctx.transaction();
 
+        // If the page creation doesn't specify a preferred layout,
+        // use the default for the site.
+        let layout = match layout {
+            None => SiteService::get_layout(ctx, site_id).await?,
+            Some(layout) => layout,
+        };
+
         // Get ancillary page data
-        let (wikitext_hash, score, layout) = try_join!(
+        let (wikitext_hash, score) = try_join!(
             TextService::create(ctx, wikitext.clone()),
             ScoreService::score(ctx, page_id),
-            PageService::get_layout(ctx, site_id, page_id),
         )?;
 
         // Render first revision

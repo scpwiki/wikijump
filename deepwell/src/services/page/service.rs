@@ -48,6 +48,7 @@ impl PageService {
             title,
             alt_title,
             mut slug,
+            layout,
             revision_comments: comments,
             user_id,
             bypass_filter,
@@ -93,6 +94,7 @@ impl PageService {
             title,
             alt_title,
             slug: slug.clone(),
+            layout,
         };
 
         let CreateFirstPageRevisionOutput {
@@ -514,6 +516,21 @@ impl PageService {
     ) -> Result<()> {
         debug!("Setting page layout for site ID {site_id} page ID {page_id}");
 
+        let txn = ctx.transaction();
+        let model = page::ActiveModel {
+            page_id: Set(page_id),
+            layout: Set(layout.map(|l| str!(l.value()))),
+            ..Default::default()
+        };
+        model.update(txn).await?;
+        Ok(())
+
+        /*
+            TODO: Temporary workaround for seeding while we move to SQLx
+                  Use SeaORM instead of SQLx for this query
+
+                  See https://scuttle.atlassian.net/browse/WJ-1270
+
         let mut txn = ctx.sqlx().await?;
         let rows_affected = sqlx::query!(
             r"
@@ -537,6 +554,8 @@ impl PageService {
         } else {
             Err(Error::PageNotFound)
         }
+
+        */
     }
 
     #[inline]
@@ -589,6 +608,10 @@ impl PageService {
     ) -> Result<Layout> {
         debug!("Getting page layout for site ID {site_id} page ID {page_id}");
 
+        /*
+            TODO: Temporary workaround, see set_layout()
+                  See https://scuttle.atlassian.net/browse/WJ-1270
+
         #[derive(Debug)]
         struct Row {
             layout: Option<String>,
@@ -607,8 +630,10 @@ impl PageService {
         )?;
 
         txn.commit().await?;
+        */
 
-        match row.layout {
+        let page = Self::get(ctx, site_id, Reference::Id(page_id)).await?;
+        match page.layout {
             // Parse layout from string in page table
             Some(layout) => match layout.parse() {
                 Ok(layout) => Ok(layout),

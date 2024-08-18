@@ -152,6 +152,7 @@ pub async fn seed(state: &ServerState) -> Result<()> {
                 name: site.name,
                 tagline: site.tagline,
                 description: site.description,
+                layout: site.layout,
                 locale: site.locale,
             },
         )
@@ -184,6 +185,7 @@ pub async fn seed(state: &ServerState) -> Result<()> {
                     title: page.title,
                     alt_title: page.alt_title,
                     slug: page.slug,
+                    layout: None,
                     revision_comments: str!(""),
                     user_id: SYSTEM_USER_ID,
                     bypass_filter: true,
