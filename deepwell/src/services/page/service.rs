@@ -516,7 +516,7 @@ impl PageService {
     ) -> Result<()> {
         debug!("Setting page layout for site ID {site_id} page ID {page_id}");
 
-        let txn = ctx.transaction();
+        let txn = ctx.seaorm_transaction();
         let model = page::ActiveModel {
             page_id: Set(page_id),
             layout: Set(layout.map(|l| str!(l.value()))),
