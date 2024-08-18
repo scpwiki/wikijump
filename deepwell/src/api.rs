@@ -45,6 +45,7 @@ use s3::bucket::Bucket;
 use sea_orm::{DatabaseConnection, TransactionTrait};
 use sqlx::{Pool, Postgres};
 use std::fmt::{self, Debug};
+use std::mem;
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -156,23 +157,15 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
                 //       Oh well.
                 let state = Arc::clone(&*state);
 
-                // Wrap each call in a transaction, which commits or rolls back
-                // automatically based on whether the Result is Ok or Err.
-                //
-                // At this level, we take the database-or-RPC error and make it just an RPC error.
-                let db_state = Arc::clone(&state);
-                db_state
-                    .database_seaorm
-                    .transaction(move |seaorm_txn| {
-                        Box::pin(async move {
-                            // Run the endpoint's implementation, and convert from
-                            // ServiceError to an RPC error.
-                            let ctx = ServiceContext::new(&state, &seaorm_txn, todo!());
-                            $method(&ctx, params).await.map_err(ErrorObjectOwned::from)
-                        })
-                    })
-                    .await
-                    .map_err(into_rpc_error)
+                let mut txn = state.database_sqlx.begin().await?;
+                let ctx = ServiceContext::new(&state, txn);
+                let result = $method(&ctx, params).await;
+                match &result {
+                    Ok(_) => ctx.commit().await?,
+                    Err(_) => ctx.rollback().await?,
+                }
+
+                result
             })?;
         }};
     }

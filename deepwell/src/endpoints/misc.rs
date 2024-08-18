@@ -23,11 +23,9 @@ use crate::info;
 use std::path::PathBuf;
 use wikidot_normalize::normalize;
 
-async fn postgres_check(ctx: &ServiceContext<'_>) -> Result<()> {
-    let mut txn = ctx.make_sqlx_transaction().await?;
-    let _ = sqlx::query!(r"SELECT 1 AS x").fetch_one(&mut *txn).await?;
-    txn.commit().await?;
-
+async fn postgres_check<'ctx>(ctx: &'ctx ServiceContext<'ctx>) -> Result<()> {
+    let mut txn = ctx.sqlx_transaction();
+    let _ = sqlx::query!(r"SELECT 1 AS x").fetch_one(&mut **txn).await?;
     debug!("Successfully pinged Postgres");
     Ok(())
 }
@@ -43,8 +41,8 @@ async fn redis_check(ctx: &ServiceContext<'_>) -> Result<()> {
     Ok(())
 }
 
-pub async fn ping(
-    ctx: &ServiceContext<'_>,
+pub async fn ping<'ctx>(
+    ctx: &'ctx ServiceContext<'ctx>,
     _params: Params<'static>,
 ) -> Result<&'static str> {
     // Ensure the database and cache are connected, and only then return.

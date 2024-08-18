@@ -27,13 +27,13 @@ use redis::aio::MultiplexedConnection as RedisMultiplexedConnection;
 use rsmq_async::PooledRsmq;
 use s3::bucket::Bucket;
 use sqlx::{Database, Postgres};
+use std::cell::{RefCell, RefMut};
 use std::sync::Arc;
 
 #[derive(Debug)]
 pub struct ServiceContext<'txn> {
     state: ServerState,
-    seaorm_transaction: &'txn sea_orm::DatabaseTransaction,
-    sqlx_transaction: &'txn mut sqlx::Transaction<'txn, Postgres>,
+    sqlx_transaction: RefCell<sqlx::Transaction<'txn, Postgres>>,
 }
 
 impl<'txn> ServiceContext<'txn> {
@@ -43,13 +43,11 @@ impl<'txn> ServiceContext<'txn> {
     //       For our endpoints, this is managed in the wrapper macro in api.rs
     pub fn new(
         state: &ServerState,
-        seaorm_transaction: &'txn sea_orm::DatabaseTransaction,
-        sqlx_transaction: &'txn mut sqlx::Transaction<'txn, Postgres>,
+        sqlx_transaction: sqlx::Transaction<'txn, Postgres>,
     ) -> Self {
         ServiceContext {
             state: Arc::clone(state),
-            seaorm_transaction,
-            sqlx_transaction,
+            sqlx_transaction: RefCell::new(sqlx_transaction),
         }
     }
 
@@ -94,15 +92,24 @@ impl<'txn> ServiceContext<'txn> {
     }
 
     #[inline]
+    // #[deprecated] XXX
     pub fn seaorm_transaction(&self) -> &'txn sea_orm::DatabaseTransaction {
-        self.seaorm_transaction
+        // Need to remove
+        todo!()
     }
 
     #[inline]
-    pub async fn make_sqlx_transaction(
-        &self,
-    ) -> Result<sqlx::Transaction<sqlx::Postgres>> {
-        let txn = self.state.database_sqlx.begin().await?;
-        Ok(txn)
+    pub fn sqlx_transaction(&self) -> RefMut<'txn, sqlx::Transaction<Postgres>> {
+        self.sqlx_transaction.borrow_mut()
+    }
+
+    pub async fn commit(self) -> Result<()> {
+        self.sqlx_transaction.into_inner().commit().await?;
+        Ok(())
+    }
+
+    pub async fn rollback(self) -> Result<()> {
+        self.sqlx_transaction.into_inner().rollback().await?;
+        Ok(())
     }
 }

@@ -41,8 +41,8 @@ pub async fn seed(state: &ServerState) -> Result<()> {
     info!("Running seeder...");
 
     // Set up context
-    let txn = state.database_seaorm.begin().await?;
-    let ctx = ServiceContext::new(state, &txn, todo!());
+    let txn = state.database_sqlx.begin().await?;
+    let ctx = ServiceContext::new(state, txn);
 
     // Ensure seeding has not already been done
     if UserService::exists(&ctx, Reference::from(ADMIN_USER_ID)).await? {
