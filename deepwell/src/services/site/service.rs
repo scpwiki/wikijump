@@ -298,6 +298,10 @@ impl SiteService {
     pub async fn get_layout(ctx: &ServiceContext<'_>, site_id: i64) -> Result<Layout> {
         debug!("Getting page layout for site ID {site_id}");
 
+        /*
+            TODO: Temporary workaround, see set_layout()
+                  See https://scuttle.atlassian.net/browse/WJ-1270
+
         #[derive(Debug)]
         struct Row {
             layout: Option<String>,
@@ -310,8 +314,10 @@ impl SiteService {
                 .await?;
 
         txn.commit().await?;
+        */
 
-        match row.layout {
+        let site = Self::get(ctx, Reference::Id(site_id)).await?;
+        match site.layout {
             // Parse layout from string in site table
             Some(layout) => match layout.parse() {
                 Ok(layout) => Ok(layout),
