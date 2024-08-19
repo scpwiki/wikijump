@@ -35,7 +35,7 @@ use crate::endpoints::{
 use crate::locales::Localizations;
 use crate::services::blob::MimeAnalyzer;
 use crate::services::job::JobWorker;
-use crate::services::{into_rpc_error, ServiceContext};
+use crate::services::ServiceContext;
 use crate::utils::debug_pointer;
 use crate::{database, redis as redis_db};
 use jsonrpsee::server::{RpcModule, Server, ServerHandle};
@@ -158,13 +158,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
 
                 // Set up context and run method
                 let ctx = ServiceContext::new(&state);
-                let result = $method(&ctx, params).await;
-                match &result {
-                    Ok(_) => ctx.commit().await?,
-                    Err(_) => ctx.rollback().await?,
-                }
-
-                result
+                $method(&ctx, params).await
             })?;
         }};
     }

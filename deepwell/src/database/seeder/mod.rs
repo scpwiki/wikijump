@@ -43,7 +43,7 @@ pub async fn seed(state: &ServerState) -> Result<()> {
 
     // Set up context and open transaction
     let ctx = ServiceContext::new(state);
-    let mut txn = ctx.sqlx_transaction().await?;
+    let mut txn = ctx.make_sqlx_transaction().await?;
 
     // Ensure seeding has not already been done
     if UserService::exists(&ctx, Reference::from(ADMIN_USER_ID)).await? {
@@ -271,7 +271,8 @@ pub async fn seed(state: &ServerState) -> Result<()> {
      */
 
     debug!("Committing seed data transaction...");
-    ctx.commit().await?;
+    txn.commit().await?;
+
     info!("Finished running seeder.");
     Ok(())
 }

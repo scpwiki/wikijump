@@ -18,10 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod transaction;
-
-pub use self::transaction::ServiceTransaction;
-
 use crate::api::ServerState;
 use crate::config::Config;
 use crate::database::SqlxTransaction;
@@ -39,7 +35,6 @@ use std::sync::Arc;
 #[derive(Debug)]
 pub struct ServiceContext {
     state: ServerState,
-    transaction: Arc<ServiceTransaction>,
 }
 
 impl ServiceContext {
@@ -51,7 +46,6 @@ impl ServiceContext {
     pub fn new(state: &ServerState) -> Self {
         ServiceContext {
             state: Arc::clone(state),
-            transaction: Arc::new(ServiceTransaction::new()),
         }
     }
 
@@ -103,17 +97,8 @@ impl ServiceContext {
     }
 
     #[inline]
-    pub fn sqlx_transaction(&self) -> Arc<ServiceTransaction> {
-        Arc::clone(&self.transaction)
-    }
-
-    #[inline]
-    pub async fn commit(&self) -> Result<()> {
-        self.transaction.commit().await
-    }
-
-    #[inline]
-    pub async fn rollback(&self) -> Result<()> {
-        self.transaction.rollback().await
+    pub async fn make_sqlx_transaction(&self) -> Result<SqlxTransaction> {
+        let txn = self.state.database_sqlx.begin().await?;
+        Ok(txn)
     }
 }

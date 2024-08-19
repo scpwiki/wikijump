@@ -171,6 +171,7 @@ impl JobWorker {
         debug!("Received job from queue: {job:?}");
         trace!("Setting up ServiceContext for job processing");
         let ctx = &ServiceContext::new(&self.state);
+        let txn = ctx.make_sqlx_transaction().await?;
 
         trace!("Beginning job processing");
         let next = match job {
@@ -246,7 +247,8 @@ impl JobWorker {
         }
 
         trace!("Committing transaction, returning success");
-        ctx.commit().await?;
+        txn.commit().await?;
+
         Ok(JobProcessStatus::ReceivedJob)
     }
 }

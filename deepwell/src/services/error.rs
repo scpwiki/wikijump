@@ -490,12 +490,3 @@ impl From<Error> for ErrorObjectOwned {
         ErrorObjectOwned::owned(error_code, message, Some(data))
     }
 }
-
-// Helper function for unwrapping two layers of third party crate error wrapper types.
-
-pub fn into_rpc_error(error: TransactionError<ErrorObjectOwned>) -> ErrorObjectOwned {
-    match error {
-        TransactionError::Connection(error) => Error::Database(error).into(),
-        TransactionError::Transaction(error) => error,
-    }
-}
