@@ -35,9 +35,7 @@ use crate::endpoints::{
 use crate::locales::Localizations;
 use crate::services::blob::MimeAnalyzer;
 use crate::services::job::JobWorker;
-use crate::services::{
-    into_rpc_error, Error as ServiceError, Result as ServiceResult, ServiceContext,
-};
+use crate::services::{into_rpc_error, ServiceContext};
 use crate::utils::debug_pointer;
 use crate::{database, redis as redis_db};
 use jsonrpsee::server::{RpcModule, Server, ServerHandle};
@@ -47,7 +45,6 @@ use s3::bucket::Bucket;
 use sea_orm::{DatabaseConnection, TransactionTrait};
 use sqlx::{Pool, Postgres};
 use std::fmt::{self, Debug};
-use std::future::Future;
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -146,30 +143,6 @@ pub async fn build_server(app_state: ServerState) -> anyhow::Result<ServerHandle
 async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<ServerState>> {
     let mut module = RpcModule::new(app_state);
 
-    async fn call_method<'conn, T, F, Fut>(
-        state: ServerState,
-        mut f: F,
-    ) -> ServiceResult<T>
-    where
-        F: FnMut(&ServiceContext<'conn>) -> Fut + 'static,
-        Fut: Future<Output = ServiceResult<T>>,
-    {
-        // Set up context and run method
-        let ctx = ServiceContext::new(&state);
-
-        // Run inner
-        let result = f(&ctx).await;
-
-        // Close off transaction as appropriate
-        match &result {
-            Ok(_) => ctx.commit().await?,
-            Err(_) => ctx.rollback().await?,
-        }
-
-        // Return result
-        result
-    }
-
     macro_rules! register {
         ($name:expr, $method:ident $(,)?) => {{
             // Register async method.
@@ -183,8 +156,15 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
                 //       Oh well.
                 let state = Arc::clone(&*state);
 
-                // Delegate to JSONRPC and convert error
-                call_method(state, move |ctx| $method(ctx, params)).await.map_err(|e| -> ErrorObjectOwned { e.into() })
+                // Set up context and run method
+                let ctx = ServiceContext::new(&state);
+                let result = $method(&ctx, params).await;
+                match &result {
+                    Ok(_) => ctx.commit().await?,
+                    Err(_) => ctx.rollback().await?,
+                }
+
+                result
             })?;
         }};
     }
