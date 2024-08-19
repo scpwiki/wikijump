@@ -157,7 +157,13 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
 
                 // Set up context and run method
                 let ctx = ServiceContext::new(&state).await?;
-                $method(&ctx, params).await
+                let result = $method(&ctx, params).await;
+                match &result {
+                    Ok(_) => ctx.commit().await?,
+                    Err(_) => ctx.rollback().await?,
+                }
+
+                result
             })?;
         }};
     }
