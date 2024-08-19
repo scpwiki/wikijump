@@ -58,7 +58,7 @@ impl TextService {
         let mut txn = mutex.lock().await;
 
         let contents =
-            sqlx::query_as!(Row, r"SELECT contents FROM text WHERE hash = $1", hash,)
+            sqlx::query_as!(Row, r"SELECT contents FROM text WHERE hash = $1", hash)
                 .fetch_optional(&mut **txn)
                 .await?
                 .map(|row| row.contents);
@@ -99,16 +99,19 @@ impl TextService {
 
     /// Creates a text entry with this data, if it does not already exist.
     pub async fn create(ctx: &ServiceContext, contents: String) -> Result<TextHash> {
-        let txn = ctx.seaorm_transaction();
         let hash = k12_hash(contents.as_bytes());
 
         if !Self::exists(ctx, &hash).await? {
-            let model = text::ActiveModel {
-                hash: Set(hash.to_vec()),
-                contents: Set(contents),
-            };
+            let mutex = ctx.sqlx_transaction();
+            let mut txn = mutex.lock().await;
 
-            Text::insert(model).exec(txn).await?;
+            sqlx::query!(
+                r"INSERT INTO text (hash, contents) VALUES ($1, $2)",
+                &hash,
+                contents,
+            )
+            .execute(&mut **txn)
+            .await?;
         }
 
         Ok(hash)
