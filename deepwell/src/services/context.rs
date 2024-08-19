@@ -28,13 +28,14 @@ use redis::aio::MultiplexedConnection as RedisMultiplexedConnection;
 use rsmq_async::PooledRsmq;
 use s3::bucket::Bucket;
 use sqlx::{Database, Postgres};
-use std::cell::{RefCell, RefMut};
 use std::mem;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
 #[derive(Debug)]
 pub struct ServiceContext {
     state: ServerState,
+    made_transaction: AtomicBool,
 }
 
 impl ServiceContext {
@@ -46,6 +47,7 @@ impl ServiceContext {
     pub fn new(state: &ServerState) -> Self {
         ServiceContext {
             state: Arc::clone(state),
+            made_transaction: AtomicBool::new(false),
         }
     }
 
@@ -96,8 +98,29 @@ impl ServiceContext {
         todo!()
     }
 
+    fn check_no_sqlx_transaction(&self) {
+        // Ensure that a SQLx transaction has not been created for this ServiceContext.
+        // If it has, then it is assuredly a programming logic error.
+
+        match self.made_transaction.compare_exchange(
+            false,
+            true,
+            Ordering::Acquire,
+            Ordering::Relaxed,
+        ) {
+            // Wrote successfully, which means this is the first transaction
+            Ok(_) => (),
+
+            // Did not write due to comparison failure, another transaction has been created
+            Err(_) => panic!(
+                "Another transaction has been created in ServiceContext, logic error",
+            ),
+        }
+    }
+
     #[inline]
     pub async fn make_sqlx_transaction(&self) -> Result<SqlxTransaction> {
+        self.check_no_sqlx_transaction();
         let txn = self.state.database_sqlx.begin().await?;
         Ok(txn)
     }
