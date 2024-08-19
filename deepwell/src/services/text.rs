@@ -49,12 +49,19 @@ impl TextService {
             return Err(Error::BadRequest);
         }
 
-        let txn = ctx.seaorm_transaction();
-        let contents = Text::find()
-            .filter(text::Column::Hash.eq(hash))
-            .one(txn)
-            .await?
-            .map(|model| model.contents);
+        #[derive(Debug)]
+        struct Row {
+            contents: String,
+        }
+
+        let mutex = ctx.sqlx_transaction();
+        let mut txn = mutex.lock().await;
+
+        let contents =
+            sqlx::query_as!(Row, r"SELECT contents FROM text WHERE hash = $1", hash,)
+                .fetch_optional(&mut **txn)
+                .await?
+                .map(|row| row.contents);
 
         Ok(contents)
     }
