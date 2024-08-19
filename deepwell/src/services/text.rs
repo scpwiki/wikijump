@@ -122,49 +122,28 @@ impl TextService {
     /// This is rare, but can happen when text is invalidated,
     /// such as rerendering pages.
     pub async fn prune(ctx: &ServiceContext) -> Result<()> {
-        macro_rules! not_in_column {
-            ($table:expr, $column:expr $(,)?) => {
-                text::Column::Hash.not_in_subquery(
-                    Query::select().column($column).from($table).to_owned(),
-                )
-            };
-        }
-
         // All foreign keys of text.hash should have conditions here.
         // These foreign key constraints prevent us from deleting anything
         // actually used.
-        let txn = ctx.seaorm_transaction();
-        let DeleteResult { rows_affected, .. } = Text::delete_many()
-            .filter(
-                Condition::all()
-                    .add(not_in_column!(
-                        PageRevision,
-                        page_revision::Column::WikitextHash,
-                    ))
-                    .add(not_in_column!(
-                        PageRevision,
-                        page_revision::Column::CompiledHash,
-                    ))
-                    .add(not_in_column!(
-                        MessageDraft,
-                        message_draft::Column::WikitextHash,
-                    ))
-                    .add(not_in_column!(
-                        MessageDraft,
-                        message_draft::Column::CompiledHash,
-                    ))
-                    .add(not_in_column!(
-                        MessageRecord,
-                        message_record::Column::WikitextHash,
-                    ))
-                    .add(not_in_column!(
-                        MessageRecord,
-                        message_record::Column::CompiledHash,
-                    )),
-                // TODO add forum_post_revision
-            )
-            .exec(txn)
-            .await?;
+
+        let mutex = ctx.sqlx_transaction();
+        let mut txn = mutex.lock().await;
+
+        let rows_affected = sqlx::query!(
+            r"
+            DELETE FROM text
+            WHERE hash NOT IN (SELECT wikitext_hash FROM page_revision)
+            OR    hash NOT IN (SELECT compiled_hash FROM page_revision)
+            OR    hash NOT IN (SELECT wikitext_hash FROM message_draft)
+            OR    hash NOT IN (SELECT compiled_hash FROM message_draft)
+            OR    hash NOT IN (SELECT wikitext_hash FROM message_record)
+            OR    hash NOT IN (SELECT compiled_hash FROM message_record)
+            "
+        )
+        // TODO add forum_post_revision
+        .execute(&mut **txn)
+        .await?
+        .rows_affected();
 
         debug!("Pruned {rows_affected} unused text rows");
         Ok(())
