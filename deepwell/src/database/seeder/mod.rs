@@ -39,8 +39,7 @@ pub async fn seed(state: &ServerState) -> Result<()> {
     info!("Running seeder...");
 
     // Set up context and open transaction
-    let ctx = ServiceContext::new(state);
-    let mut txn = ctx.make_sqlx_transaction().await?;
+    let ctx = ServiceContext::new(state).await?;
 
     // Ensure seeding has not already been done
     if UserService::exists(&ctx, Reference::from(ADMIN_USER_ID)).await? {
@@ -49,9 +48,13 @@ pub async fn seed(state: &ServerState) -> Result<()> {
     }
 
     // Reset sequences so IDs are consistent
-    restart_sequence(&mut txn, "user_user_id_seq").await?;
-    restart_sequence(&mut txn, "page_page_id_seq").await?;
-    restart_sequence(&mut txn, "site_site_id_seq").await?;
+    {
+        let mutex = ctx.sqlx_transaction();
+        let mut txn = mutex.lock().await;
+        restart_sequence(&mut txn, "user_user_id_seq").await?;
+        restart_sequence(&mut txn, "page_page_id_seq").await?;
+        restart_sequence(&mut txn, "site_site_id_seq").await?;
+    }
 
     // Load seed data
     info!(
@@ -254,21 +257,27 @@ pub async fn seed(state: &ServerState) -> Result<()> {
     //
     // See https://scuttle.atlassian.net/browse/WJ-964
 
-    restart_sequence_with(&mut txn, "user_user_id_seq", 10000000).await?;
-    restart_sequence_with(&mut txn, "site_site_id_seq", 6000000).await?;
-    restart_sequence_with(&mut txn, "page_page_id_seq", 3000000000).await?;
-    restart_sequence_with(&mut txn, "page_revision_revision_id_seq", 3000000000).await?;
-    restart_sequence_with(&mut txn, "page_category_category_id_seq", 100000000).await?;
+    {
+        let mutex = ctx.sqlx_transaction();
+        let mut txn = mutex.lock().await;
+        restart_sequence_with(&mut txn, "user_user_id_seq", 10000000).await?;
+        restart_sequence_with(&mut txn, "site_site_id_seq", 6000000).await?;
+        restart_sequence_with(&mut txn, "page_page_id_seq", 3000000000).await?;
+        restart_sequence_with(&mut txn, "page_revision_revision_id_seq", 3000000000)
+            .await?;
+        restart_sequence_with(&mut txn, "page_category_category_id_seq", 100000000)
+            .await?;
 
-    /*
-     * TODO: tables which don't exist yet:
-     * restart_sequence_with(&txn, < forum category seq >, 9000000).await?;
-     * restart_sequence_with(&txn, < forum thread seq >, 30000000).await?;
-     * restart_sequence_with(&txn, < forum post seq >, 7000000).await?;
-     */
+        /*
+         * TODO: tables which don't exist yet:
+         * restart_sequence_with(&txn, < forum category seq >, 9000000).await?;
+         * restart_sequence_with(&txn, < forum thread seq >, 30000000).await?;
+         * restart_sequence_with(&txn, < forum post seq >, 7000000).await?;
+         */
+    }
 
     debug!("Committing seed data transaction...");
-    txn.commit().await?;
+    ctx.commit().await?;
 
     info!("Finished running seeder.");
     Ok(())

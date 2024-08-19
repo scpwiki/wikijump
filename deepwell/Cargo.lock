@@ -718,7 +718,6 @@ dependencies = [
  "log",
  "notify",
  "once_cell",
- "parking_lot",
  "paste",
  "rand 0.8.5",
  "redis",

@@ -156,7 +156,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
                 let state = Arc::clone(&*state);
 
                 // Set up context and run method
-                let ctx = ServiceContext::new(&state);
+                let ctx = ServiceContext::new(&state).await?;
                 $method(&ctx, params).await
             })?;
         }};

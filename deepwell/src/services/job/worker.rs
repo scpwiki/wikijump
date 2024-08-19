@@ -28,6 +28,7 @@ use rsmq_async::{PooledRsmq, RsmqConnection, RsmqMessage};
 use sea_orm::TransactionTrait;
 use std::convert::Infallible;
 use std::fmt::{self, Debug};
+use std::mem;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::time;
@@ -170,8 +171,7 @@ impl JobWorker {
 
         debug!("Received job from queue: {job:?}");
         trace!("Setting up ServiceContext for job processing");
-        let ctx = &ServiceContext::new(&self.state);
-        let txn = ctx.make_sqlx_transaction().await?;
+        let ctx = ServiceContext::new(&self.state).await?;
 
         trace!("Beginning job processing");
         let next = match job {
@@ -183,12 +183,12 @@ impl JobWorker {
                 debug!(
                     "Rerendering page ID {page_id} in site ID {site_id} (depth {depth})",
                 );
-                PageRevisionService::rerender(ctx, site_id, page_id, depth).await?;
+                PageRevisionService::rerender(&ctx, site_id, page_id, depth).await?;
                 NextJob::Done
             }
             Job::PruneSessions => {
                 debug!("Pruning all expired sesions from database");
-                SessionService::prune(ctx).await?;
+                SessionService::prune(&ctx).await?;
                 NextJob::Next {
                     job: Job::PruneSessions,
                     delay: Some(self.state.config.job_prune_session),
@@ -196,7 +196,7 @@ impl JobWorker {
             }
             Job::PruneText => {
                 debug!("Pruning all unused text items from database");
-                TextService::prune(ctx).await?;
+                TextService::prune(&ctx).await?;
                 NextJob::Next {
                     job: Job::PruneText,
                     delay: Some(self.state.config.job_prune_text),
@@ -204,7 +204,7 @@ impl JobWorker {
             }
             Job::NameChangeRefill => {
                 debug!("Checking users for those who can get a name change token refill");
-                UserService::refresh_name_change_tokens(ctx).await?;
+                UserService::refresh_name_change_tokens(&ctx).await?;
                 NextJob::Next {
                     job: Job::NameChangeRefill,
                     delay: Some(self.state.config.job_name_change_refill),
@@ -242,12 +242,12 @@ impl JobWorker {
                 trace!("* Job:   {job:?}");
                 trace!("* Delay: {delay:?}");
 
-                JobService::queue_job(ctx, &job, delay).await?;
+                JobService::queue_job(&ctx, &job, delay).await?;
             }
         }
 
         trace!("Committing transaction, returning success");
-        txn.commit().await?;
+        ctx.commit().await?;
 
         Ok(JobProcessStatus::ReceivedJob)
     }

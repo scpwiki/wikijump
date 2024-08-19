@@ -29,26 +29,31 @@ use rsmq_async::PooledRsmq;
 use s3::bucket::Bucket;
 use sqlx::{Database, Postgres};
 use std::mem;
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
+use tokio::sync::Mutex;
 
 #[derive(Debug)]
 pub struct ServiceContext {
     state: ServerState,
-    made_transaction: AtomicBool,
+    transaction: Mutex<SqlxTransaction<'static>>,
 }
 
 impl ServiceContext {
+    async fn begin(state: &ServerState) -> Result<SqlxTransaction<'static>> {
+        let txn = state.database_sqlx.begin().await?;
+        Ok(txn)
+    }
+
     // NOTE: It is the responsibility of the caller to run commit / rollback
-    //       for transactions.
+    //       for transactions, using the attached methods.
     //
     //       For our endpoints, this is managed in the wrapper macro in api.rs
-    #[inline]
-    pub fn new(state: &ServerState) -> Self {
-        ServiceContext {
+    pub async fn new(state: &ServerState) -> Result<Self> {
+        let transaction = Self::begin(state).await?;
+        Ok(ServiceContext {
             state: Arc::clone(state),
-            made_transaction: AtomicBool::new(false),
-        }
+            transaction: Mutex::new(transaction),
+        })
     }
 
     // Getters
@@ -98,30 +103,18 @@ impl ServiceContext {
         todo!()
     }
 
-    fn check_no_sqlx_transaction(&self) {
-        // Ensure that a SQLx transaction has not been created for this ServiceContext.
-        // If it has, then it is assuredly a programming logic error.
-
-        match self.made_transaction.compare_exchange(
-            false,
-            true,
-            Ordering::Acquire,
-            Ordering::Relaxed,
-        ) {
-            // Wrote successfully, which means this is the first transaction
-            Ok(_) => (),
-
-            // Did not write due to comparison failure, another transaction has been created
-            Err(_) => panic!(
-                "Another transaction has been created in ServiceContext, logic error",
-            ),
-        }
+    #[inline]
+    pub fn sqlx_transaction(&self) -> &Mutex<SqlxTransaction<'static>> {
+        &self.transaction
     }
 
-    #[inline]
-    pub async fn make_sqlx_transaction(&self) -> Result<SqlxTransaction> {
-        self.check_no_sqlx_transaction();
-        let txn = self.state.database_sqlx.begin().await?;
-        Ok(txn)
+    pub async fn commit(self) -> Result<()> {
+        self.transaction.into_inner().commit().await?;
+        Ok(())
+    }
+
+    pub async fn rollback(self) -> Result<()> {
+        self.transaction.into_inner().rollback().await?;
+        Ok(())
     }
 }
