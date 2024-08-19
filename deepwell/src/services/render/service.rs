@@ -27,7 +27,7 @@ pub struct RenderService;
 
 impl RenderService {
     pub async fn render(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         mut wikitext: String,
         page_info: &PageInfo<'_>,
         settings: &WikitextSettings,

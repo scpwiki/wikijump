@@ -24,7 +24,7 @@ use crate::services::category::GetCategory;
 use crate::services::site::GetSite;
 
 pub async fn category_get(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<Option<PageCategoryModel>> {
     let GetCategory { site, category } = params.parse()?;
@@ -34,7 +34,7 @@ pub async fn category_get(
 }
 
 pub async fn category_get_all(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<Vec<PageCategoryModel>> {
     let GetSite { site } = params.parse()?;

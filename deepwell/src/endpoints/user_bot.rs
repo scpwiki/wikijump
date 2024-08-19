@@ -29,7 +29,7 @@ use crate::services::user_bot_owner::{
 use crate::web::{ProvidedValue, Reference};
 
 pub async fn bot_user_create(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<CreateUserOutput> {
     let CreateBotUser {
@@ -101,7 +101,7 @@ pub async fn bot_user_create(
 }
 
 pub async fn bot_user_get(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<Option<BotUserOutput>> {
     let GetUser { user: reference } = params.parse()?;
@@ -130,7 +130,7 @@ pub async fn bot_user_get(
 }
 
 pub async fn bot_user_owner_set(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<UserBotOwnerModel> {
     let input: CreateBotOwner = params.parse()?;
@@ -144,7 +144,7 @@ pub async fn bot_user_owner_set(
 }
 
 pub async fn bot_user_owner_remove(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<RemoveBotOwnerOutput> {
     let input: RemoveBotOwner = params.parse()?;

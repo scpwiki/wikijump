@@ -37,7 +37,7 @@ pub struct TextService;
 
 impl TextService {
     pub async fn get_optional(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         hash: &[u8],
     ) -> Result<Option<String>> {
         if hash.len() != TEXT_HASH_LENGTH {
@@ -60,12 +60,12 @@ impl TextService {
     }
 
     #[inline]
-    pub async fn get(ctx: &ServiceContext<'_>, hash: &[u8]) -> Result<String> {
+    pub async fn get(ctx: &ServiceContext, hash: &[u8]) -> Result<String> {
         find_or_error!(Self::get_optional(ctx, hash), Text)
     }
 
     #[inline]
-    pub async fn exists(ctx: &ServiceContext<'_>, hash: &[u8]) -> Result<bool> {
+    pub async fn exists(ctx: &ServiceContext, hash: &[u8]) -> Result<bool> {
         Self::get_optional(ctx, hash)
             .await
             .map(|text| text.is_some())
@@ -78,7 +78,7 @@ impl TextService {
     /// if the flag `should_fetch` is true.
     /// Otherwise, it does no action, returning `None`.
     pub async fn get_maybe(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         should_fetch: bool,
         hash: &[u8],
     ) -> Result<Option<String>> {
@@ -91,7 +91,7 @@ impl TextService {
     }
 
     /// Creates a text entry with this data, if it does not already exist.
-    pub async fn create(ctx: &ServiceContext<'_>, contents: String) -> Result<TextHash> {
+    pub async fn create(ctx: &ServiceContext, contents: String) -> Result<TextHash> {
         let txn = ctx.seaorm_transaction();
         let hash = k12_hash(contents.as_bytes());
 
@@ -111,7 +111,7 @@ impl TextService {
     ///
     /// This is rare, but can happen when text is invalidated,
     /// such as rerendering pages.
-    pub async fn prune(ctx: &ServiceContext<'_>) -> Result<()> {
+    pub async fn prune(ctx: &ServiceContext) -> Result<()> {
         macro_rules! not_in_column {
             ($table:expr, $column:expr $(,)?) => {
                 text::Column::Hash.not_in_subquery(

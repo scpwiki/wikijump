@@ -94,7 +94,7 @@ impl PageRevisionService {
     /// # Panics
     /// If the given previous revision is for a different page or site, this method will panic.
     pub async fn create(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: i64,
         page_id: i64,
         CreatePageRevision {
@@ -318,7 +318,7 @@ impl PageRevisionService {
     /// inserts, since it's not possible for it to be an empty revision
     /// (since there's no prior revision for it to be equal to).
     pub async fn create_first(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: i64,
         page_id: i64,
         CreateFirstPageRevision {
@@ -405,7 +405,7 @@ impl PageRevisionService {
     /// # Panics
     /// If the given previous revision is for a different page or site, this method will panic.
     pub async fn create_tombstone(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         CreateTombstonePageRevision {
             site_id,
             page_id,
@@ -480,7 +480,7 @@ impl PageRevisionService {
     /// # Panics
     /// If the given previous revision is for a different page or site, this method will panic.
     pub async fn create_resurrection(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         CreateResurrectionPageRevision {
             site_id,
             page_id,
@@ -578,7 +578,7 @@ impl PageRevisionService {
     /// committing the new wikitext, calling ftml, and updating
     /// backlinks.
     async fn render_and_update_links(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: i64,
         page_id: i64,
         wikitext: String,
@@ -625,7 +625,7 @@ impl PageRevisionService {
     /// automatically leading to other updates. For a manual rerender this value
     /// should be 0.
     pub async fn rerender(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: i64,
         page_id: i64,
         depth: u32,
@@ -711,7 +711,7 @@ impl PageRevisionService {
     /// the `hidden` column, causing some fields of the revision to be hidden,
     /// for instance, if it contains spam, abuse, or harassment.
     pub async fn update(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         UpdatePageRevision {
             site_id,
             page_id,
@@ -763,7 +763,7 @@ impl PageRevisionService {
     }
 
     pub async fn get_latest(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: i64,
         page_id: i64,
     ) -> Result<PageRevisionModel> {
@@ -786,7 +786,7 @@ impl PageRevisionService {
     }
 
     pub async fn get_optional(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: i64,
         page_id: i64,
         revision_number: i32,
@@ -807,7 +807,7 @@ impl PageRevisionService {
 
     #[inline]
     pub async fn get(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: i64,
         page_id: i64,
         revision_number: i32,
@@ -819,14 +819,14 @@ impl PageRevisionService {
     }
 
     pub async fn get_direct(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         revision_id: i64,
     ) -> Result<PageRevisionModel> {
         find_or_error!(Self::get_direct_optional(ctx, revision_id), PageRevision)
     }
 
     pub async fn get_direct_optional(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         revision_id: i64,
     ) -> Result<Option<PageRevisionModel>> {
         let txn = ctx.seaorm_transaction();
@@ -835,7 +835,7 @@ impl PageRevisionService {
     }
 
     pub async fn count(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: i64,
         page_id: i64,
     ) -> Result<NonZeroI32> {
@@ -864,7 +864,7 @@ impl PageRevisionService {
     }
 
     pub async fn get_range(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         GetPageRevisionRange {
             site_id,
             page_id,

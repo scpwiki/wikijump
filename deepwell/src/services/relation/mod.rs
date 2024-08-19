@@ -76,7 +76,7 @@ pub struct RelationService;
 
 impl RelationService {
     pub async fn create<M: Serialize>(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         relation_type: RelationType,
         dest: RelationObject,
         from: RelationObject,
@@ -130,7 +130,7 @@ impl RelationService {
     }
 
     pub async fn remove(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         reference: RelationReference,
         deleted_by: i64,
     ) -> Result<RelationModel> {
@@ -150,7 +150,7 @@ impl RelationService {
     }
 
     pub async fn get_optional(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         reference: RelationReference,
     ) -> Result<Option<RelationModel>> {
         debug!("Getting relation for {reference:?}");
@@ -171,7 +171,7 @@ impl RelationService {
 
     /// Gets the relation ID from a reference, looking up if necessary.
     pub async fn get_id(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         reference: RelationReference,
     ) -> Result<i64> {
         match reference {
@@ -185,14 +185,14 @@ impl RelationService {
     }
 
     pub async fn get(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         reference: RelationReference,
     ) -> Result<RelationModel> {
         find_or_error!(Self::get_optional(ctx, reference), Relation)
     }
 
     pub async fn exists(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         reference: RelationReference,
     ) -> Result<bool> {
         Self::get_optional(ctx, reference)
@@ -206,7 +206,7 @@ impl RelationService {
     /// This includes all all edits of the relation (`overwritten_at`)
     /// and deleted / remade versions of the relation (`deleted_at`).
     pub async fn get_history(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         relation_type: RelationType,
         dest: RelationObject,
         from: RelationObject,
@@ -229,7 +229,7 @@ impl RelationService {
     /// For instance, this can be used to get all blocked users, or all users who are blocking
     /// someone depending on the `RelationDirection`.
     pub async fn get_entries(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         relation_type: RelationType,
         object: RelationObject,
         direction: RelationDirection,

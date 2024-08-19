@@ -25,7 +25,7 @@ use crate::services::parent::{
 };
 
 pub async fn parent_relationships_get(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<Vec<PageParentModel>> {
     let GetParentRelationships {
@@ -45,7 +45,7 @@ pub async fn parent_relationships_get(
 }
 
 pub async fn parent_get(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<Option<PageParentModel>> {
     let input: ParentDescription = params.parse()?;
@@ -59,7 +59,7 @@ pub async fn parent_get(
 }
 
 pub async fn parent_set(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<Option<PageParentModel>> {
     let input: ParentDescription = params.parse()?;
@@ -73,7 +73,7 @@ pub async fn parent_set(
 }
 
 pub async fn parent_remove(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<RemoveParentOutput> {
     let input: ParentDescription = params.parse()?;

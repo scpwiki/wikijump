@@ -33,7 +33,7 @@ pub struct UserBotOwnerService;
 
 impl UserBotOwnerService {
     pub async fn get_all(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         bot_user_id: i64,
     ) -> Result<Vec<UserBotOwnerModel>> {
         info!("Looking up owners for bot ID {bot_user_id}");
@@ -48,7 +48,7 @@ impl UserBotOwnerService {
     }
 
     async fn get_optional(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         bot_user_id: i64,
         human_user_id: i64,
     ) -> Result<Option<UserBotOwnerModel>> {
@@ -71,7 +71,7 @@ impl UserBotOwnerService {
     /// `bot` is a bot user and `human` is a human user
     /// (i.e. `regular` user type).
     pub async fn add(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         CreateBotOwner {
             bot: bot_reference,
             human: human_reference,
@@ -127,7 +127,7 @@ impl UserBotOwnerService {
     /// The struct contains `true` if the deletion was carried out (i.e. it used to exist),
     /// and `false` if not.
     pub async fn remove(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         RemoveBotOwner {
             bot: bot_reference,
             human: human_reference,

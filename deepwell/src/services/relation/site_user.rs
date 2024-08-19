@@ -35,7 +35,7 @@ impl_relation!(SiteUser, Site, site_id, User, user_id, (), NO_CREATE_IMPL,);
 
 impl RelationService {
     pub async fn create_site_user(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         CreateSiteUser {
             site_id,
             user_id,
@@ -98,7 +98,7 @@ impl RelationService {
     }
 
     pub async fn get_site_user_id_for_site(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: i64,
     ) -> Result<i64> {
         info!("Getting site user for site ID {site_id}");
@@ -115,7 +115,7 @@ impl RelationService {
     }
 
     pub async fn get_site_id_for_site_user(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         user_id: i64,
     ) -> Result<i64> {
         let model = get_relation(
@@ -131,7 +131,7 @@ impl RelationService {
 }
 
 async fn get_relation(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     condition: Condition,
 ) -> Result<RelationModel> {
     // We implement our own query since it's 1:1 and we

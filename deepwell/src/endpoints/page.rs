@@ -29,7 +29,7 @@ use crate::services::{Result, TextService};
 use crate::web::{PageDetails, Reference};
 
 pub async fn page_create(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<CreatePageOutput> {
     let input: CreatePage = params.parse()?;
@@ -38,7 +38,7 @@ pub async fn page_create(
 }
 
 pub async fn page_get(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<Option<GetPageOutput>> {
     let GetPageReferenceDetails {
@@ -55,7 +55,7 @@ pub async fn page_get(
 }
 
 pub async fn page_get_direct(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<Option<GetPageOutput>> {
     let GetPageAnyDetails {
@@ -73,7 +73,7 @@ pub async fn page_get_direct(
 }
 
 pub async fn page_edit(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<Option<EditPageOutput>> {
     let input: EditPage = params.parse()?;
@@ -82,7 +82,7 @@ pub async fn page_edit(
 }
 
 pub async fn page_delete(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<DeletePageOutput> {
     let input: DeletePage = params.parse()?;
@@ -94,7 +94,7 @@ pub async fn page_delete(
 }
 
 pub async fn page_move(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<MovePageOutput> {
     let input: MovePage = params.parse()?;
@@ -105,17 +105,14 @@ pub async fn page_move(
     PageService::r#move(ctx, input).await
 }
 
-pub async fn page_rerender(
-    ctx: &ServiceContext<'_>,
-    params: Params<'static>,
-) -> Result<()> {
+pub async fn page_rerender(ctx: &ServiceContext, params: Params<'static>) -> Result<()> {
     let GetPageDirect { site_id, page_id } = params.parse()?;
     info!("Re-rendering page ID {page_id} in site ID {site_id}");
     PageRevisionService::rerender(ctx, site_id, page_id, 0).await
 }
 
 pub async fn page_restore(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<RestorePageOutput> {
     let input: RestorePage = params.parse()?;
@@ -127,7 +124,7 @@ pub async fn page_restore(
 }
 
 pub async fn page_rollback(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<Option<EditPageOutput>> {
     let input: RollbackPage = params.parse()?;
@@ -141,7 +138,7 @@ pub async fn page_rollback(
 }
 
 pub async fn page_set_layout(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<()> {
     let SetPageLayout {
@@ -164,7 +161,7 @@ pub async fn page_set_layout(
 }
 
 async fn build_page_output(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     page: PageModel,
     details: PageDetails,
 ) -> Result<Option<GetPageOutput>> {

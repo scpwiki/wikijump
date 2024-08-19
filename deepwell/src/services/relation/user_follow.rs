@@ -33,7 +33,7 @@ impl_relation!(
 impl RelationService {
     #[allow(dead_code)] // TEMP
     pub async fn create_user_follow(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         CreateUserFollow {
             followed_user,
             following_user,

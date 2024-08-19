@@ -26,7 +26,7 @@ use crate::services::user::{
 };
 
 pub async fn user_create(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<CreateUserOutput> {
     info!("Creating new regular user");
@@ -35,7 +35,7 @@ pub async fn user_create(
 }
 
 pub async fn user_import(
-    _ctx: &ServiceContext<'_>,
+    _ctx: &ServiceContext,
     _params: Params<'static>,
 ) -> Result<CreateUserOutput> {
     // TODO implement importing user from Wikidot
@@ -43,7 +43,7 @@ pub async fn user_import(
 }
 
 pub async fn user_get(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<Option<GetUserOutput>> {
     let GetUser { user: reference } = params.parse()?;
@@ -61,7 +61,7 @@ pub async fn user_get(
 }
 
 pub async fn user_edit(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<UserModel> {
     let UpdateUser {
@@ -74,7 +74,7 @@ pub async fn user_edit(
 }
 
 pub async fn user_delete(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<UserModel> {
     let GetUser { user: reference } = params.parse()?;
@@ -83,7 +83,7 @@ pub async fn user_delete(
 }
 
 pub async fn user_add_name_change(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<i16> {
     let GetUser { user: reference } = params.parse()?;

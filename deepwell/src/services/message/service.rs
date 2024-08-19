@@ -44,7 +44,7 @@ impl MessageService {
     // Message draft methods
 
     pub async fn create_draft(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         CreateMessageDraft {
             user_id,
             recipients,
@@ -97,7 +97,7 @@ impl MessageService {
     }
 
     pub async fn update_draft(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         UpdateMessageDraft {
             message_draft_id: draft_id,
             recipients,
@@ -143,7 +143,7 @@ impl MessageService {
 
     /// Helper method to perform functionality common to creating and updating drafts.
     async fn draft_process(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         DraftProcess {
             is_update,
             user_id,
@@ -203,7 +203,7 @@ impl MessageService {
         })
     }
 
-    pub async fn delete_draft(ctx: &ServiceContext<'_>, draft_id: String) -> Result<()> {
+    pub async fn delete_draft(ctx: &ServiceContext, draft_id: String) -> Result<()> {
         let txn = ctx.seaorm_transaction();
         MessageDraft::delete_by_id(draft_id).exec(txn).await?;
         Ok(())
@@ -212,7 +212,7 @@ impl MessageService {
     // Message methods
 
     pub async fn send(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         draft_id: &str,
     ) -> Result<MessageRecordModel> {
         info!("Sending draft ID {draft_id} as message");
@@ -403,7 +403,7 @@ impl MessageService {
 
     #[allow(dead_code)] // TEMP
     pub async fn mark_read(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         record_id: &str,
         user_id: i64,
         value: bool,
@@ -425,7 +425,7 @@ impl MessageService {
     // Getters
 
     pub async fn get_message_optional(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         record_id: &str,
         user_id: i64,
     ) -> Result<Option<MessageModel>> {
@@ -443,7 +443,7 @@ impl MessageService {
     }
 
     pub async fn get_message(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         record_id: &str,
         user_id: i64,
     ) -> Result<MessageModel> {
@@ -451,7 +451,7 @@ impl MessageService {
     }
 
     pub async fn get_record_optional(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         record_id: &str,
     ) -> Result<Option<MessageRecordModel>> {
         let txn = ctx.seaorm_transaction();
@@ -464,7 +464,7 @@ impl MessageService {
     }
 
     pub async fn get_draft_optional(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         draft_id: &str,
     ) -> Result<Option<MessageDraftModel>> {
         let txn = ctx.seaorm_transaction();
@@ -477,7 +477,7 @@ impl MessageService {
     }
 
     pub async fn get_draft(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         draft_id: &str,
     ) -> Result<MessageDraftModel> {
         find_or_error!(Self::get_draft_optional(ctx, draft_id), MessageDraft)
@@ -525,7 +525,7 @@ impl MessageService {
     ///
     /// It also checks that the message record actually exists.
     async fn check_message_access(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         record_id: &str,
         user_id: i64,
         purpose: &'static str,
@@ -557,7 +557,7 @@ impl MessageService {
 
     /// Helper method which checks if a user is a recipient of a message record.
     async fn any_recipient_exists(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         record_id: &str,
         user_id: i64,
     ) -> Result<bool> {
@@ -578,7 +578,7 @@ impl MessageService {
 
     /// Helper method to render message contents.
     async fn render(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         wikitext: String,
         locale: &str,
         layout: Layout,

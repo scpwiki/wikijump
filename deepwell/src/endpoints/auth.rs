@@ -35,7 +35,7 @@ use crate::services::user::GetUser;
 use crate::services::Error;
 
 pub async fn auth_login(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<LoginUserOutput> {
     let LoginUser {
@@ -99,10 +99,7 @@ pub async fn auth_login(
     })
 }
 
-pub async fn auth_logout(
-    ctx: &ServiceContext<'_>,
-    params: Params<'static>,
-) -> Result<()> {
+pub async fn auth_logout(ctx: &ServiceContext, params: Params<'static>) -> Result<()> {
     let session_token: String = params.one()?;
     SessionService::invalidate(ctx, session_token).await
 }
@@ -112,7 +109,7 @@ pub async fn auth_logout(
 /// This is how framerail determines the user ID this user is acting as,
 /// among other information.
 pub async fn auth_session_get(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<Option<SessionModel>> {
     let session_token: String = params.one()?;
@@ -120,7 +117,7 @@ pub async fn auth_session_get(
 }
 
 pub async fn auth_session_renew(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<String> {
     let input: RenewSession = params.parse()?;
@@ -128,7 +125,7 @@ pub async fn auth_session_renew(
 }
 
 pub async fn auth_session_get_others(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<GetOtherSessionsOutput> {
     let GetOtherSessions {
@@ -159,7 +156,7 @@ pub async fn auth_session_get_others(
 }
 
 pub async fn auth_session_invalidate_others(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<u64> {
     let InvalidateOtherSessions {
@@ -171,7 +168,7 @@ pub async fn auth_session_invalidate_others(
 }
 
 pub async fn auth_mfa_verify(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<String> {
     let LoginUserMfa {
@@ -205,7 +202,7 @@ pub async fn auth_mfa_verify(
 }
 
 pub async fn auth_mfa_setup(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<MultiFactorSetupOutput> {
     let GetUser { user: reference } = params.parse()?;
@@ -214,7 +211,7 @@ pub async fn auth_mfa_setup(
 }
 
 pub async fn auth_mfa_disable(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<()> {
     let MultiFactorConfigure {
@@ -239,7 +236,7 @@ pub async fn auth_mfa_disable(
 }
 
 pub async fn auth_mfa_reset_recovery(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<MultiFactorResetOutput> {
     let MultiFactorConfigure {

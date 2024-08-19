@@ -41,7 +41,7 @@ pub struct PageService;
 
 impl PageService {
     pub async fn create(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         CreatePage {
             site_id,
             wikitext,
@@ -122,7 +122,7 @@ impl PageService {
     }
 
     pub async fn edit(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         EditPage {
             site_id,
             page: reference,
@@ -208,7 +208,7 @@ impl PageService {
 
     /// Moves a page from from one slug to another.
     pub async fn r#move(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         MovePage {
             site_id,
             page: reference,
@@ -306,7 +306,7 @@ impl PageService {
     }
 
     pub async fn delete(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         DeletePage {
             site_id,
             page: reference,
@@ -350,7 +350,7 @@ impl PageService {
 
     /// Restore a deleted page, causing it to be undeleted.
     pub async fn restore(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         RestorePage {
             site_id,
             page_id,
@@ -426,7 +426,7 @@ impl PageService {
     ///
     /// This is equivalent to Wikidot's concept of a "revert".
     pub async fn rollback(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         RollbackPage {
             site_id,
             page: reference,
@@ -499,7 +499,7 @@ impl PageService {
     /// This is equivalent to git's concept of a "revert".
     #[allow(dead_code)]
     pub async fn undo(
-        _ctx: &ServiceContext<'_>,
+        _ctx: &ServiceContext,
         _site_id: i64,
         _page_id: i64,
         _revision_number: i32,
@@ -509,7 +509,7 @@ impl PageService {
 
     /// Sets the layout override for a page.
     pub async fn set_layout(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: i64,
         page_id: i64,
         layout: Option<Layout>,
@@ -560,7 +560,7 @@ impl PageService {
 
     #[inline]
     pub async fn get(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: i64,
         reference: Reference<'_>,
     ) -> Result<PageModel> {
@@ -568,7 +568,7 @@ impl PageService {
     }
 
     pub async fn get_optional(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: i64,
         reference: Reference<'_>,
     ) -> Result<Option<PageModel>> {
@@ -602,7 +602,7 @@ impl PageService {
     /// then that is returned. Otherwise, the layout
     /// associated with the site is used.
     pub async fn get_layout(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: i64,
         page_id: i64,
     ) -> Result<Layout> {
@@ -651,7 +651,7 @@ impl PageService {
     /// case, and we don't want to perform a redundant check for site existence
     /// later as part of the actual query.
     pub async fn get_id(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: i64,
         reference: Reference<'_>,
     ) -> Result<i64> {
@@ -669,7 +669,7 @@ impl PageService {
 
     #[inline]
     pub async fn get_direct(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         page_id: i64,
         allow_deleted: bool,
     ) -> Result<PageModel> {
@@ -677,7 +677,7 @@ impl PageService {
     }
 
     pub async fn get_direct_optional(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         page_id: i64,
         allow_deleted: bool,
     ) -> Result<Option<PageModel>> {
@@ -699,7 +699,7 @@ impl PageService {
     /// The result list is not in the same order as the input, it
     /// is up to the caller to order it if they wish.
     pub async fn get_pages(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: i64,
         references: &[Reference<'_>],
     ) -> Result<Vec<PageModel>> {
@@ -752,7 +752,7 @@ impl PageService {
     /// For the `order` argument, see documentation on `PageOrder`.
     // TODO add pagination
     pub async fn get_all(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: i64,
         category: Option<Reference<'_>>,
         deleted: Option<bool>,
@@ -794,7 +794,7 @@ impl PageService {
     ///
     /// If so, this method fails with `Error::PageExists`. Otherwise it returns nothing.
     async fn check_conflicts(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: i64,
         slug: &str,
         action: &str,
@@ -830,7 +830,7 @@ impl PageService {
     }
 
     async fn run_filter<S: AsRef<str>>(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: i64,
         wikitext: Option<S>,
         title: Option<S>,

@@ -38,7 +38,7 @@ impl_relation!(
 impl RelationService {
     #[allow(dead_code)] // TEMP
     pub async fn create_user_block(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         CreateUserBlock {
             blocked_user,
             blocking_user,
@@ -84,7 +84,7 @@ impl RelationService {
 
     /// Helper method for rejecting an relation if either user in a pair has blocked the other.
     pub async fn check_user_block(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         user_id_1: i64,
         user_id_2: i64,
         action: &str,

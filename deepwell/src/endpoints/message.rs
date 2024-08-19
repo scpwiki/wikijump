@@ -26,7 +26,7 @@ use crate::services::message::{
 };
 
 pub async fn message_draft_create(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<MessageDraftModel> {
     let input: CreateMessageDraft = params.parse()?;
@@ -35,7 +35,7 @@ pub async fn message_draft_create(
 }
 
 pub async fn message_draft_edit(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<MessageDraftModel> {
     let input: UpdateMessageDraft = params.parse()?;
@@ -47,7 +47,7 @@ pub async fn message_draft_edit(
 }
 
 pub async fn message_draft_delete(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<()> {
     let DeleteMessageDraft { message_draft_id } = params.parse()?;
@@ -56,7 +56,7 @@ pub async fn message_draft_delete(
 }
 
 pub async fn message_draft_send(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<MessageRecordModel> {
     let SendMessageDraft { message_draft_id } = params.parse()?;

@@ -22,7 +22,7 @@ use super::prelude::*;
 use crate::web::Bytes;
 
 pub async fn text_create(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<Bytes<'static>> {
     let contents: String = params.one()?;
@@ -31,10 +31,7 @@ pub async fn text_create(
     Ok(Bytes::from(hash))
 }
 
-pub async fn text_get(
-    ctx: &ServiceContext<'_>,
-    params: Params<'static>,
-) -> Result<String> {
+pub async fn text_get(ctx: &ServiceContext, params: Params<'static>) -> Result<String> {
     info!("Getting stored text");
     let hash: Bytes = params.one()?;
     TextService::get(ctx, hash.as_ref()).await

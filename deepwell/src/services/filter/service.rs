@@ -28,7 +28,7 @@ pub struct FilterService;
 
 impl FilterService {
     pub async fn create(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: Option<i64>,
         CreateFilter {
             affects_user,
@@ -77,7 +77,7 @@ impl FilterService {
 
     #[allow(dead_code)] // TEMP
     pub async fn update(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         UpdateFilter {
             filter_id,
             affects_user,
@@ -161,7 +161,7 @@ impl FilterService {
     }
 
     #[allow(dead_code)] // TEMP
-    pub async fn delete(ctx: &ServiceContext<'_>, filter_id: i64) -> Result<()> {
+    pub async fn delete(ctx: &ServiceContext, filter_id: i64) -> Result<()> {
         info!("Deleting filter with ID {filter_id}");
         let txn = ctx.seaorm_transaction();
 
@@ -184,10 +184,7 @@ impl FilterService {
 
     /// Restores a filter, causing it to be undeleted.
     #[allow(dead_code)] // TEMP
-    pub async fn restore(
-        ctx: &ServiceContext<'_>,
-        filter_id: i64,
-    ) -> Result<FilterModel> {
+    pub async fn restore(ctx: &ServiceContext, filter_id: i64) -> Result<FilterModel> {
         let txn = ctx.seaorm_transaction();
 
         info!("Undeleting filter with ID {filter_id}");
@@ -212,12 +209,12 @@ impl FilterService {
     }
 
     #[inline]
-    pub async fn get(ctx: &ServiceContext<'_>, filter_id: i64) -> Result<FilterModel> {
+    pub async fn get(ctx: &ServiceContext, filter_id: i64) -> Result<FilterModel> {
         find_or_error!(Self::get_optional(ctx, filter_id), Filter)
     }
 
     pub async fn get_optional(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         filter_id: i64,
     ) -> Result<Option<FilterModel>> {
         info!("Getting filter with ID {filter_id}");
@@ -240,7 +237,7 @@ impl FilterService {
     /// * If it is `Some(false)`, then it only returns filters which are extant.
     /// * If it is `None`, then it returns all filters regardless of deletion status.
     pub async fn get_all(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         filter_class: FilterClass,
         filter_type: Option<FilterType>,
         deleted: Option<bool>,
@@ -278,7 +275,7 @@ impl FilterService {
     //      maybe so that it stores the RegexSet and deletes it if an insert/update/etc
     //      above occurs to that filter class/type
     pub async fn get_matcher(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         filter_class: FilterClass,
         filter_type: FilterType,
     ) -> Result<FilterMatcher> {
@@ -317,7 +314,7 @@ impl FilterService {
 
     /// Checks if creating / reinstating this filter would cause constraint violations.
     async fn check_conflicts(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: Option<i64>,
         regex: &str,
         action: &str,

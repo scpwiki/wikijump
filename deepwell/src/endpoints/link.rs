@@ -26,7 +26,7 @@ use crate::services::link::{
 };
 
 pub async fn page_links_from_get(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<GetLinksFromOutput> {
     let GetLinksFrom {
@@ -40,7 +40,7 @@ pub async fn page_links_from_get(
 }
 
 pub async fn page_links_to_get(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<GetLinksToOutput> {
     let GetLinksTo {
@@ -54,7 +54,7 @@ pub async fn page_links_to_get(
 }
 
 pub async fn page_links_to_missing_get(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<GetLinksToMissingOutput> {
     let GetLinksToMissing { site_id, page_slug } = params.parse()?;
@@ -64,7 +64,7 @@ pub async fn page_links_to_missing_get(
 }
 
 pub async fn page_links_external_from(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<GetLinksExternalFromOutput> {
     let GetLinksExternalFrom {
@@ -79,7 +79,7 @@ pub async fn page_links_external_from(
 }
 
 pub async fn page_links_external_to(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<GetLinksExternalToOutput> {
     let GetLinksExternalTo { site_id, url } = params.parse()?;

@@ -30,7 +30,7 @@ use crate::services::Result;
 use crate::web::{Bytes, FileDetails};
 
 pub async fn file_get(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<Option<GetFileOutput>> {
     let GetFileDetails { input, details } = params.parse()?;
@@ -59,7 +59,7 @@ pub async fn file_get(
 }
 
 pub async fn file_upload(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<UploadFileOutput> {
     let input: UploadFile = params.parse()?;
@@ -76,7 +76,7 @@ pub async fn file_upload(
 }
 
 pub async fn file_edit(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<Option<EditFileOutput>> {
     let input: EditFile = params.parse()?;
@@ -90,7 +90,7 @@ pub async fn file_edit(
 }
 
 pub async fn file_delete(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<DeleteFileOutput> {
     let input: DeleteFile = params.parse()?;
@@ -104,7 +104,7 @@ pub async fn file_delete(
 }
 
 pub async fn file_restore(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<RestoreFileOutput> {
     let input: RestoreFile = params.parse()?;
@@ -118,7 +118,7 @@ pub async fn file_restore(
 }
 
 pub async fn file_move(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<Option<MoveFileOutput>> {
     let input: MoveFile = params.parse()?;
@@ -132,7 +132,7 @@ pub async fn file_move(
 }
 
 pub async fn file_hard_delete(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<()> {
     let file_id: i64 = params.one()?;
@@ -145,7 +145,7 @@ pub async fn file_hard_delete(
 }
 
 async fn build_file_response(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     file: FileModel,
     revision: FileRevisionModel,
     details: FileDetails,

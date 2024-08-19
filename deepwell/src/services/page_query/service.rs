@@ -35,7 +35,7 @@ pub struct PageQueryService;
 
 impl PageQueryService {
     pub async fn execute(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         PageQuery {
             current_page_id,
             current_site_id,

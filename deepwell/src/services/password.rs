@@ -56,11 +56,7 @@ impl PasswordService {
     /// # Returns
     /// Nothing on success, yields an `InvalidAuthentication` error on failure.
     /// Will sleep a bit on failure.
-    pub async fn verify(
-        ctx: &ServiceContext<'_>,
-        password: &str,
-        hash: &str,
-    ) -> Result<()> {
+    pub async fn verify(ctx: &ServiceContext, password: &str, hash: &str) -> Result<()> {
         Self::verify_sleep(ctx, password, hash, true).await
     }
 
@@ -69,7 +65,7 @@ impl PasswordService {
     /// Should only be used internally, when the sleeping is performed by the caller
     /// themselves on failure.
     pub async fn verify_sleep(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         password: &str,
         hash: &str,
         sleep: bool,

@@ -29,7 +29,7 @@ pub struct OutdateService;
 
 impl OutdateService {
     pub async fn process_page_edit(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: i64,
         page_id: i64,
         slug: &str,
@@ -53,7 +53,7 @@ impl OutdateService {
 
     /// Performs outdating tasks for a page being created or deleted here.
     pub async fn process_page_displace(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: i64,
         page_id: i64,
         slug: &str,
@@ -68,7 +68,7 @@ impl OutdateService {
     }
 
     pub async fn process_page_move(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: i64,
         page_id: i64,
         old_slug: &str,
@@ -87,11 +87,7 @@ impl OutdateService {
     }
 
     /// Queues the given pages for re-rendering.
-    pub async fn outdate(
-        ctx: &ServiceContext<'_>,
-        page_id: i64,
-        depth: u32,
-    ) -> Result<()> {
+    pub async fn outdate(ctx: &ServiceContext, page_id: i64, depth: u32) -> Result<()> {
         let PageModel { site_id, .. } =
             PageService::get_direct(ctx, page_id, false).await?;
 
@@ -99,7 +95,7 @@ impl OutdateService {
     }
 
     pub async fn outdate_incoming_links(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         page_id: i64,
         depth: u32,
     ) -> Result<()> {
@@ -118,7 +114,7 @@ impl OutdateService {
     }
 
     pub async fn outdate_outgoing_includes(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         page_id: i64,
         depth: u32,
     ) -> Result<()> {
@@ -141,7 +137,7 @@ impl OutdateService {
     }
 
     pub async fn outdate_templates(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: i64,
         category_slug: &str,
         page_slug: &str,

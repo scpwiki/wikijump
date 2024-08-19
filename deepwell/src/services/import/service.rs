@@ -43,7 +43,7 @@ pub struct ImportService;
 
 impl ImportService {
     pub async fn add_user(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         ImportUser {
             user_id,
             created_at,
@@ -98,7 +98,7 @@ impl ImportService {
     }
 
     pub async fn add_site(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         ImportSite {
             site_id,
             created_at,
@@ -128,7 +128,7 @@ impl ImportService {
     }
 
     pub async fn add_page(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         ImportPage {
             page_id,
             site_id,

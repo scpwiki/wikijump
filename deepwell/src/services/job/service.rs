@@ -54,7 +54,7 @@ pub struct JobService;
 
 impl JobService {
     pub async fn queue_job(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         job: &Job,
         delay: Option<Duration>,
     ) -> Result<()> {
@@ -77,7 +77,7 @@ impl JobService {
     ///                   of job depth. This way we can avoid infinite loop conditions where
     ///                   jobs endlessly pile onto the queue, rerendering each other.
     pub async fn queue_rerender_page(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: i64,
         page_id: i64,
         depth: u32,

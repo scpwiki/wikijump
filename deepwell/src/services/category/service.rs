@@ -33,7 +33,7 @@ impl CategoryService {
     /// it also does not check for conflicts before
     /// attempting to insert.
     async fn create(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: i64,
         slug: &str,
     ) -> Result<PageCategoryModel> {
@@ -49,7 +49,7 @@ impl CategoryService {
     }
 
     pub async fn get_optional(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: i64,
         reference: Reference<'_>,
     ) -> Result<Option<PageCategoryModel>> {
@@ -73,7 +73,7 @@ impl CategoryService {
 
     #[inline]
     pub async fn get(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: i64,
         reference: Reference<'_>,
     ) -> Result<PageCategoryModel> {
@@ -81,7 +81,7 @@ impl CategoryService {
     }
 
     pub async fn get_or_create(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: i64,
         slug: &str,
     ) -> Result<PageCategoryModel> {
@@ -95,7 +95,7 @@ impl CategoryService {
     }
 
     pub async fn get_all(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: i64,
     ) -> Result<Vec<PageCategoryModel>> {
         let txn = ctx.seaorm_transaction();

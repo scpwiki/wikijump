@@ -29,7 +29,7 @@ use crate::services::{Result, TextService};
 use crate::web::PageDetails;
 
 pub async fn page_revision_count(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<PageRevisionCountOutput> {
     let GetPageReferenceDetails {
@@ -50,7 +50,7 @@ pub async fn page_revision_count(
 }
 
 pub async fn page_revision_get(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<Option<PageRevisionModelFiltered>> {
     let GetPageRevisionDetails {
@@ -80,7 +80,7 @@ pub async fn page_revision_get(
 }
 
 pub async fn page_revision_edit(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<PageRevisionModelFiltered> {
     let UpdatePageRevisionDetails { input, details } = params.parse()?;
@@ -100,7 +100,7 @@ pub async fn page_revision_edit(
 }
 
 pub async fn page_revision_range(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     params: Params<'static>,
 ) -> Result<Vec<PageRevisionModelFiltered>> {
     let GetPageRevisionRangeDetails { input, details } = params.parse()?;
@@ -111,7 +111,7 @@ pub async fn page_revision_range(
 // Helper functions
 
 async fn filter_and_populate_revision(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     model: PageRevisionModel,
     mut details: PageDetails,
 ) -> Result<PageRevisionModelFiltered> {
@@ -190,7 +190,7 @@ async fn filter_and_populate_revision(
 }
 
 async fn filter_and_populate_revisions(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     revisions: Vec<PageRevisionModel>,
     details: PageDetails,
 ) -> Result<Vec<PageRevisionModelFiltered>> {

@@ -40,7 +40,7 @@ pub struct UserService;
 
 impl UserService {
     pub async fn create(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         CreateUser {
             user_type,
             mut name,
@@ -247,17 +247,14 @@ impl UserService {
     //      https://scuttle.atlassian.net/browse/WJ-272
 
     #[inline]
-    pub async fn exists(
-        ctx: &ServiceContext<'_>,
-        reference: Reference<'_>,
-    ) -> Result<bool> {
+    pub async fn exists(ctx: &ServiceContext, reference: Reference<'_>) -> Result<bool> {
         Self::get_optional(ctx, reference)
             .await
             .map(|user| user.is_some())
     }
 
     pub async fn get_optional(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         mut reference: Reference<'_>,
     ) -> Result<Option<UserModel>> {
         let txn = ctx.seaorm_transaction();
@@ -301,7 +298,7 @@ impl UserService {
 
     #[inline]
     pub async fn get(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         reference: Reference<'_>,
     ) -> Result<UserModel> {
         find_or_error!(Self::get_optional(ctx, reference), User)
@@ -312,10 +309,7 @@ impl UserService {
     /// Convenience method since this is much more common than the optional
     /// case, and we don't want to perform a redundant check for site existence
     /// later as part of the actual query.
-    pub async fn get_id(
-        ctx: &ServiceContext<'_>,
-        reference: Reference<'_>,
-    ) -> Result<i64> {
+    pub async fn get_id(ctx: &ServiceContext, reference: Reference<'_>) -> Result<i64> {
         match reference {
             Reference::Id(id) => Ok(id),
             Reference::Slug(slug) => {
@@ -330,7 +324,7 @@ impl UserService {
 
     /// Gets a user, but fails if the user type doesn't match.
     pub async fn get_with_user_type(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         reference: Reference<'_>,
         user_type: UserType,
     ) -> Result<UserModel> {
@@ -344,7 +338,7 @@ impl UserService {
     }
 
     pub async fn update(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         reference: Reference<'_>,
         input: UpdateUserBody,
     ) -> Result<UserModel> {
@@ -459,7 +453,7 @@ impl UserService {
     /// the user's slug to have been updated before aliases can be added.
     /// Instead, alias row verification occurs manually afterwards.
     async fn update_name(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         new_name: String,
         user: &UserModel,
         model: &mut user::ActiveModel,
@@ -563,7 +557,7 @@ impl UserService {
         Ok(())
     }
 
-    pub async fn refresh_name_change_tokens(ctx: &ServiceContext<'_>) -> Result<()> {
+    pub async fn refresh_name_change_tokens(ctx: &ServiceContext) -> Result<()> {
         info!("Refreshing name change tokens for all users who need one");
 
         let needs_token_time = match ctx.config().refill_name_change {
@@ -594,7 +588,7 @@ impl UserService {
     /// # Returns
     /// The current number of rename tokens the user has.
     pub async fn add_name_change_token(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         user: &UserModel,
     ) -> Result<i16> {
         let txn = ctx.seaorm_transaction();
@@ -618,7 +612,7 @@ impl UserService {
 
     /// Set the MFA secret fields for a user.
     pub async fn set_mfa_secrets(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         user_id: i64,
         multi_factor_secret: ActiveValue<Option<String>>,
         multi_factor_recovery_codes: ActiveValue<Option<Vec<String>>>,
@@ -640,7 +634,7 @@ impl UserService {
 
     /// Removes a recovery code from the list provided for a user.
     pub async fn remove_recovery_code(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         user: &UserModel,
         recovery_code: &str,
     ) -> Result<()> {
@@ -670,7 +664,7 @@ impl UserService {
     }
 
     pub async fn delete(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         reference: Reference<'_>,
     ) -> Result<UserModel> {
         let txn = ctx.seaorm_transaction();
@@ -692,11 +686,7 @@ impl UserService {
         Ok(user)
     }
 
-    async fn run_name_filter(
-        ctx: &ServiceContext<'_>,
-        name: &str,
-        slug: &str,
-    ) -> Result<()> {
+    async fn run_name_filter(ctx: &ServiceContext, name: &str, slug: &str) -> Result<()> {
         info!("Checking user name data against filters...");
 
         let filter_matcher =
@@ -711,7 +701,7 @@ impl UserService {
         Ok(())
     }
 
-    async fn run_email_filter(ctx: &ServiceContext<'_>, email: &str) -> Result<()> {
+    async fn run_email_filter(ctx: &ServiceContext, email: &str) -> Result<()> {
         info!("Checking user email data against filters...");
 
         let filter_matcher =

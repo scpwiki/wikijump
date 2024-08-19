@@ -46,7 +46,7 @@ impl SessionService {
     /// # Returns
     /// The generated session token.
     pub async fn create(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         CreateSession {
             user_id,
             ip_address,
@@ -97,10 +97,7 @@ impl SessionService {
 
     /// Gets a session model from its token.
     /// Yields an error if the given session token does not exist or is expired.
-    pub async fn get(
-        ctx: &ServiceContext<'_>,
-        session_token: &str,
-    ) -> Result<SessionModel> {
+    pub async fn get(ctx: &ServiceContext, session_token: &str) -> Result<SessionModel> {
         info!("Looking up session with token {session_token}");
         Self::get_optional(ctx, session_token)
             .await?
@@ -108,7 +105,7 @@ impl SessionService {
     }
 
     pub async fn get_optional(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         session_token: &str,
     ) -> Result<Option<SessionModel>> {
         let txn = ctx.seaorm_transaction();
@@ -131,7 +128,7 @@ impl SessionService {
     ///
     /// The `restricted` status must match the argument passed.
     pub async fn get_user(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         session_token: &str,
         restricted: bool,
     ) -> Result<UserModel> {
@@ -156,7 +153,7 @@ impl SessionService {
     /// Gets all active sessions for a user.
     /// For instance, useful for listing all sessions and their information.
     pub async fn get_all(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         user_id: i64,
     ) -> Result<Vec<SessionModel>> {
         info!("Getting all sessions for user ID {user_id}");
@@ -180,7 +177,7 @@ impl SessionService {
     /// The new session token.
     /// After this point, the previous session token will be invalid.
     pub async fn renew(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         RenewSession {
             old_session_token,
             user_id,
@@ -223,10 +220,7 @@ impl SessionService {
     }
 
     /// Invalidates the given session, causing it to be deleted.
-    pub async fn invalidate(
-        ctx: &ServiceContext<'_>,
-        session_token: String,
-    ) -> Result<()> {
+    pub async fn invalidate(ctx: &ServiceContext, session_token: String) -> Result<()> {
         info!("Invalidating session ID {session_token}");
 
         let txn = ctx.seaorm_transaction();
@@ -250,7 +244,7 @@ impl SessionService {
     ///
     /// [WJ-364]: https://scuttle.atlassian.net/browse/WJ-364
     pub async fn invalidate_others(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         session_token: &str,
         user_id: i64,
     ) -> Result<u64> {
@@ -289,7 +283,7 @@ impl SessionService {
     ///
     /// # Returns
     /// The number of pruned sessions.
-    pub async fn prune(ctx: &ServiceContext<'_>) -> Result<u64> {
+    pub async fn prune(ctx: &ServiceContext) -> Result<u64> {
         info!("Pruning all expired sessions");
 
         let txn = ctx.seaorm_transaction();

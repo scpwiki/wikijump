@@ -52,7 +52,7 @@ impl FileRevisionService {
     /// # Panics
     /// If the given previous revision is for a different file or page, this method will panic.
     pub async fn create(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         CreateFileRevision {
             site_id,
             mut page_id,
@@ -176,7 +176,7 @@ impl FileRevisionService {
     /// # Panics
     /// If the given previous revision is for a different file or page, this method will panic.
     pub async fn create_first(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         CreateFirstFileRevision {
             page_id,
             site_id,
@@ -233,7 +233,7 @@ impl FileRevisionService {
     /// # Panics
     /// If the given previous revision is for a different file or page, this method will panic.
     pub async fn create_tombstone(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         CreateTombstoneFileRevision {
             site_id,
             page_id,
@@ -303,7 +303,7 @@ impl FileRevisionService {
     /// # Panics
     /// If the given previous revision is for a different file or page, this method will panic.
     pub async fn create_resurrection(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         CreateResurrectionFileRevision {
             site_id,
             page_id: old_page_id,
@@ -378,7 +378,7 @@ impl FileRevisionService {
     /// However, the `hidden` column can be updated to "delete"
     /// revisions (wholly or partially) to cover spam and abuse.
     pub async fn update(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         UpdateFileRevision {
             site_id,
             page_id,
@@ -419,7 +419,7 @@ impl FileRevisionService {
     ///
     /// See `RevisionService::get_latest()`.
     pub async fn get_latest(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: i64,
         page_id: i64,
         file_id: i64,
@@ -447,7 +447,7 @@ impl FileRevisionService {
     ///
     /// See `RevisionService::get_optional()`.
     pub async fn get_optional(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         GetFileRevision {
             site_id,
             page_id,
@@ -476,7 +476,7 @@ impl FileRevisionService {
     #[inline]
     #[allow(dead_code)]
     pub async fn get(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         input: GetFileRevision,
     ) -> Result<FileRevisionModel> {
         find_or_error!(Self::get_optional(ctx, input), FileRevision)
@@ -486,7 +486,7 @@ impl FileRevisionService {
     ///
     /// See `RevisionService::count()`.
     pub async fn count(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         page_id: i64,
         file_id: i64,
     ) -> Result<NonZeroI32> {
@@ -518,7 +518,7 @@ impl FileRevisionService {
     ///
     /// See `RevisionService::get_range()`.
     pub async fn get_range(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         GetFileRevisionRange {
             page_id,
             file_id,
@@ -562,7 +562,7 @@ impl FileRevisionService {
     }
 
     async fn get_page_slug(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: i64,
         page_id: i64,
     ) -> Result<String> {

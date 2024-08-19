@@ -55,7 +55,7 @@ pub struct ViewService;
 
 impl ViewService {
     pub async fn page(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         GetPageView {
             domain,
             locales: locales_str,
@@ -297,7 +297,7 @@ impl ViewService {
     }
 
     pub async fn user(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         GetUserView {
             domain,
             locales: locales_str,
@@ -360,7 +360,7 @@ impl ViewService {
     /// Then using this information, the caller can perform some common
     /// operations, such as slug normalization or redirect site aliases.
     pub async fn get_viewer(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         locales: &mut Vec<LanguageIdentifier>,
         domain: &str,
         session_token: Option<&str>,
@@ -442,7 +442,7 @@ impl ViewService {
 
     /// Produce output for cases where a site does not exist.
     async fn missing_site_output(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         locales: &[LanguageIdentifier],
         domain: &str,
         site_slug: Option<&str>,
@@ -482,7 +482,7 @@ impl ViewService {
     }
 
     async fn can_access_page(
-        _ctx: &ServiceContext<'_>,
+        _ctx: &ServiceContext,
         permissions: UserPermissions,
     ) -> Result<bool> {
         info!("Checking page access: {permissions:?}");

@@ -51,7 +51,7 @@ pub struct LinkService;
 
 impl LinkService {
     pub async fn get_from(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         page_id: i64,
     ) -> Result<GetLinksFromOutput> {
         let txn = ctx.seaorm_transaction();
@@ -78,7 +78,7 @@ impl LinkService {
     // TODO
     #[allow(dead_code)]
     pub async fn get_connections_from(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         page_id: i64,
         connection_types: Option<&[ConnectionType]>,
     ) -> Result<GetConnectionsFromOutput> {
@@ -111,7 +111,7 @@ impl LinkService {
     }
 
     pub async fn get_to(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         page_id: i64,
         connection_types: Option<&[ConnectionType]>,
     ) -> Result<GetLinksToOutput> {
@@ -133,7 +133,7 @@ impl LinkService {
     }
 
     pub async fn get_to_missing(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: i64,
         page_slug: &str,
         connection_types: Option<&[ConnectionType]>,
@@ -171,7 +171,7 @@ impl LinkService {
     }
 
     pub async fn get_external_from(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         page_id: i64,
     ) -> Result<GetLinksExternalFromOutput> {
         let txn = ctx.seaorm_transaction();
@@ -185,7 +185,7 @@ impl LinkService {
     }
 
     pub async fn get_external_to(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: i64,
         url: &str,
     ) -> Result<GetLinksExternalToOutput> {
@@ -224,7 +224,7 @@ impl LinkService {
     }
 
     pub async fn update(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         site_id: i64,
         page_id: i64,
         backlinks: &Backlinks<'_>,
@@ -280,7 +280,7 @@ impl LinkService {
 // Update link helpers
 
 async fn update_connections(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     from_page_id: i64,
     counts: &mut HashMap<(i64, ConnectionType), i32>,
 ) -> Result<()> {
@@ -342,7 +342,7 @@ async fn update_connections(
 }
 
 async fn update_connections_missing(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     from_page_id: i64,
     counts: &mut HashMap<(i64, String, ConnectionType), i32>,
 ) -> Result<()> {
@@ -411,7 +411,7 @@ async fn update_connections_missing(
 }
 
 async fn update_external_links(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     from_page_id: i64,
     counts: &mut HashMap<String, i32>,
 ) -> Result<()> {
@@ -467,7 +467,7 @@ async fn update_external_links(
 }
 
 async fn count_connections(
-    ctx: &ServiceContext<'_>,
+    ctx: &ServiceContext,
     site_id: i64,
     PageRef {
         site: site_slug,

@@ -29,7 +29,7 @@ impl AuthenticationService {
     /// Verifies the passed credentials for a user.
     /// If so, they are cleared to log in (or perform some other sensitive action).
     pub async fn auth_password(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         AuthenticateUser {
             name_or_email,
             password,
@@ -54,7 +54,7 @@ impl AuthenticationService {
     /// # Returns
     /// The user model for the authenticated session.
     pub async fn auth_mfa(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         MultiFactorAuthenticateUser {
             session_token,
             totp_or_code,
@@ -93,7 +93,7 @@ impl AuthenticationService {
     ///
     /// Similarly, the only error that should be returned is a generic authentication error.
     async fn get_user_auth(
-        ctx: &ServiceContext<'_>,
+        ctx: &ServiceContext,
         name_or_email: &str,
     ) -> Result<UserAuthInfo> {
         info!("Looking for user matching name or email '{name_or_email}'");
