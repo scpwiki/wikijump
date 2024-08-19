@@ -26,11 +26,6 @@
 
 use super::prelude::*;
 use crate::hash::{k12_hash, TextHash, TEXT_HASH_LENGTH};
-use crate::models::message_draft::{self, Entity as MessageDraft};
-use crate::models::message_record::{self, Entity as MessageRecord};
-use crate::models::page_revision::{self, Entity as PageRevision};
-use crate::models::text::{self, Entity as Text};
-use sea_query::Query;
 
 #[derive(Debug)]
 pub struct TextService;
