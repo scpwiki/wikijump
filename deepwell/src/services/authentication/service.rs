@@ -98,20 +98,42 @@ impl AuthenticationService {
     ) -> Result<UserAuthInfo> {
         info!("Looking for user matching name or email '{name_or_email}'");
 
-        let txn = ctx.seaorm_transaction();
-        let result = User::find()
-            .filter(
-                Condition::any()
-                    .add(user::Column::Name.eq(name_or_email))
-                    .add(user::Column::Slug.eq(name_or_email))
-                    .add(user::Column::Email.eq(name_or_email)),
-            )
-            .one(txn)
-            .await?;
+        #[derive(Debug)]
+        struct Row {
+            user_id: i64,
+            password: String,
+            multi_factor_secret: Option<String>,
+        }
+
+        let mutex = ctx.sqlx_transaction();
+        let mut txn = mutex.lock().await;
+
+        let result = sqlx::query_as!(
+            Row,
+            r#"
+            SELECT user_id, password, multi_factor_secret
+            FROM "user"
+            WHERE name = $1
+            OR    slug = $1
+            OR    email = $1
+            "#,
+            name_or_email
+        )
+        .fetch_optional(&mut **txn)
+        .await?;
 
         match result {
             // Found user, return real auth information
-            Some(user) => Ok(UserAuthInfo::valid(user)),
+            Some(Row {
+                user_id,
+                password,
+                multi_factor_secret,
+            }) => Ok(UserAuthInfo {
+                user_id,
+                password,
+                multi_factor_secret,
+                valid: true,
+            }),
 
             // Didn't find user, return fake auth information
             // Checking should proceed as normal to avoid timing attacks

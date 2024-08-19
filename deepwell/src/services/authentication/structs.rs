@@ -81,15 +81,6 @@ pub struct UserAuthInfo {
 }
 
 impl UserAuthInfo {
-    pub fn valid(user: UserModel) -> Self {
-        UserAuthInfo {
-            user_id: user.user_id,
-            password_hash: user.password,
-            multi_factor_secret: user.multi_factor_secret,
-            valid: true,
-        }
-    }
-
     #[inline]
     pub fn invalid() -> Self {
         UserAuthInfo {
