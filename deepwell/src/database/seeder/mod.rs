@@ -36,7 +36,6 @@ use anyhow::Result;
 use sea_orm::{
     ConnectionTrait, DatabaseBackend, DatabaseTransaction, Statement, TransactionTrait,
 };
-use sqlx::Executor;
 use std::borrow::Cow;
 
 pub async fn seed(state: &ServerState) -> Result<()> {

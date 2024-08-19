@@ -1,5 +1,5 @@
 /*
- * services/context.rs
+ * services/context/mod.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2024 Wikijump Team
@@ -18,13 +18,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod transaction;
+
+pub use self::transaction::ServiceTransaction;
+
 use crate::api::ServerState;
 use crate::config::Config;
 use crate::database::SqlxTransaction;
 use crate::locales::Localizations;
 use crate::services::blob::MimeAnalyzer;
 use crate::services::error::Result;
-use parking_lot::{MappedMutexGuard, Mutex, MutexGuard};
 use redis::aio::MultiplexedConnection as RedisMultiplexedConnection;
 use rsmq_async::PooledRsmq;
 use s3::bucket::Bucket;
@@ -36,7 +39,7 @@ use std::sync::Arc;
 #[derive(Debug)]
 pub struct ServiceContext {
     state: ServerState,
-    sqlx_transaction: Mutex<Option<sqlx::Transaction<'static, Postgres>>>,
+    transaction: Arc<ServiceTransaction>,
 }
 
 impl ServiceContext {
@@ -48,7 +51,7 @@ impl ServiceContext {
     pub fn new(state: &ServerState) -> Self {
         ServiceContext {
             state: Arc::clone(state),
-            sqlx_transaction: Mutex::new(None),
+            transaction: Arc::new(ServiceTransaction::new()),
         }
     }
 
@@ -100,48 +103,17 @@ impl ServiceContext {
     }
 
     #[inline]
-    pub async fn sqlx_transaction(
-        &self,
-    ) -> Result<MappedMutexGuard<SqlxTransaction<'static>>> {
-        let mut guard = self.sqlx_transaction.lock();
-
-        // If a transaction hasn't been created yet, then start it
-        if guard.is_none() {
-            let txn = self.state.database_sqlx.begin().await?;
-            *guard = Some(txn);
-        }
-
-        mem::drop(guard);
-
-        // At this point, the field must be Some(_)
-        Ok(MutexGuard::map(guard, |inner| {
-            inner
-                .as_mut()
-                .expect("No transaction present despite check")
-        }))
+    pub fn sqlx_transaction(&self) -> Arc<ServiceTransaction> {
+        Arc::clone(&self.transaction)
     }
 
-    pub async fn commit(mut self) -> Result<()> {
-        let mut guard = self.sqlx_transaction.lock();
-
-        if let Some(txn) = guard.take() {
-            txn.commit().await?;
-        }
-
-        mem::drop(guard);
-
-        Ok(())
+    #[inline]
+    pub async fn commit(&self) -> Result<()> {
+        self.transaction.commit().await
     }
 
-    pub async fn rollback(mut self) -> Result<()> {
-        let mut guard = self.sqlx_transaction.lock();
-
-        if let Some(txn) = guard.take() {
-            txn.rollback().await?;
-        }
-
-        mem::drop(guard);
-
-        Ok(())
+    #[inline]
+    pub async fn rollback(&self) -> Result<()> {
+        self.transaction.rollback().await
     }
 }
