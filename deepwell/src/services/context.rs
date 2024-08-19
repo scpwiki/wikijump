@@ -34,12 +34,12 @@ use std::mem;
 use std::sync::Arc;
 
 #[derive(Debug)]
-pub struct ServiceContext<'txn> {
+pub struct ServiceContext<'conn> {
     state: ServerState,
-    sqlx_transaction: Mutex<Option<sqlx::Transaction<'txn, Postgres>>>,
+    sqlx_transaction: Mutex<Option<sqlx::Transaction<'conn, Postgres>>>,
 }
 
-impl<'txn> ServiceContext<'txn> {
+impl<'conn> ServiceContext<'conn> {
     // NOTE: It is the responsibility of the caller to run commit / rollback
     //       for transactions.
     //
@@ -94,7 +94,7 @@ impl<'txn> ServiceContext<'txn> {
 
     #[inline]
     // #[deprecated] XXX
-    pub fn seaorm_transaction(&self) -> &'txn sea_orm::DatabaseTransaction {
+    pub fn seaorm_transaction(&self) -> &'conn sea_orm::DatabaseTransaction {
         // Need to remove
         todo!()
     }
@@ -102,16 +102,14 @@ impl<'txn> ServiceContext<'txn> {
     #[inline]
     pub async fn sqlx_transaction(
         &self,
-    ) -> Result<MappedMutexGuard<SqlxTransaction<'txn>>> {
-        let guard = self.sqlx_transaction.lock();
+    ) -> Result<MappedMutexGuard<SqlxTransaction<'conn>>> {
+        let mut guard = self.sqlx_transaction.lock();
 
         // If a transaction hasn't been created yet, then start it
         if guard.is_none() {
             let txn = self.state.database_sqlx.begin().await?;
             *guard = Some(txn);
         }
-
-        mem::drop(guard);
 
         // At this point, the field must be Some(_)
         Ok(MutexGuard::map(guard, |inner| {
