@@ -33,9 +33,6 @@ use crate::services::user::{CreateUser, CreateUserOutput, UpdateUserBody, UserSe
 use crate::services::ServiceContext;
 use crate::web::{ProvidedValue, Reference};
 use anyhow::Result;
-use sea_orm::{
-    ConnectionTrait, DatabaseBackend, DatabaseTransaction, Statement, TransactionTrait,
-};
 use std::borrow::Cow;
 
 pub async fn seed(state: &ServerState) -> Result<()> {
