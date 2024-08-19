@@ -45,7 +45,6 @@ use s3::bucket::Bucket;
 use sea_orm::{DatabaseConnection, TransactionTrait};
 use sqlx::{Pool, Postgres};
 use std::fmt::{self, Debug};
-use std::mem;
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -157,8 +156,8 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
                 //       Oh well.
                 let state = Arc::clone(&*state);
 
-                let mut txn = state.database_sqlx.begin().await?;
-                let ctx = ServiceContext::new(&state, txn);
+                // Set up context and run method
+                let ctx = ServiceContext::new(&state);
                 let result = $method(&ctx, params).await;
                 match &result {
                     Ok(_) => ctx.commit().await?,

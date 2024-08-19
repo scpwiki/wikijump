@@ -22,6 +22,8 @@ mod seeder;
 
 pub use self::seeder::seed;
 
+pub type SqlxTransaction<'txn> = sqlx::Transaction<'txn, Postgres>;
+
 use anyhow::Result;
 use sea_orm::{ConnectOptions, Database, DatabaseConnection};
 use sqlx::{Pool, Postgres};

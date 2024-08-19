@@ -23,6 +23,7 @@ mod data;
 use self::data::{SeedData, SitePages};
 use crate::api::ServerState;
 use crate::constants::{ADMIN_USER_ID, SYSTEM_USER_ID};
+use crate::database::SqlxTransaction;
 use crate::models::sea_orm_active_enums::AliasType;
 use crate::services::alias::{AliasService, CreateAlias};
 use crate::services::filter::{CreateFilter, FilterService};
@@ -35,14 +36,15 @@ use anyhow::Result;
 use sea_orm::{
     ConnectionTrait, DatabaseBackend, DatabaseTransaction, Statement, TransactionTrait,
 };
+use sqlx::Executor;
 use std::borrow::Cow;
 
 pub async fn seed(state: &ServerState) -> Result<()> {
     info!("Running seeder...");
 
-    // Set up context
-    let txn = state.database_sqlx.begin().await?;
-    let ctx = ServiceContext::new(state, txn);
+    // Set up context and open transaction
+    let ctx = ServiceContext::new(state);
+    let mut txn = ctx.sqlx_transaction().await?;
 
     // Ensure seeding has not already been done
     if UserService::exists(&ctx, Reference::from(ADMIN_USER_ID)).await? {
@@ -51,9 +53,9 @@ pub async fn seed(state: &ServerState) -> Result<()> {
     }
 
     // Reset sequences so IDs are consistent
-    restart_sequence(&txn, "user_user_id_seq").await?;
-    restart_sequence(&txn, "page_page_id_seq").await?;
-    restart_sequence(&txn, "site_site_id_seq").await?;
+    restart_sequence(&mut txn, "user_user_id_seq").await?;
+    restart_sequence(&mut txn, "page_page_id_seq").await?;
+    restart_sequence(&mut txn, "site_site_id_seq").await?;
 
     // Load seed data
     info!(
@@ -256,11 +258,11 @@ pub async fn seed(state: &ServerState) -> Result<()> {
     //
     // See https://scuttle.atlassian.net/browse/WJ-964
 
-    restart_sequence_with(&txn, "user_user_id_seq", 10000000).await?;
-    restart_sequence_with(&txn, "site_site_id_seq", 6000000).await?;
-    restart_sequence_with(&txn, "page_page_id_seq", 3000000000).await?;
-    restart_sequence_with(&txn, "page_revision_revision_id_seq", 3000000000).await?;
-    restart_sequence_with(&txn, "page_category_category_id_seq", 100000000).await?;
+    restart_sequence_with(&mut txn, "user_user_id_seq", 10000000).await?;
+    restart_sequence_with(&mut txn, "site_site_id_seq", 6000000).await?;
+    restart_sequence_with(&mut txn, "page_page_id_seq", 3000000000).await?;
+    restart_sequence_with(&mut txn, "page_revision_revision_id_seq", 3000000000).await?;
+    restart_sequence_with(&mut txn, "page_category_category_id_seq", 100000000).await?;
 
     /*
      * TODO: tables which don't exist yet:
@@ -269,13 +271,14 @@ pub async fn seed(state: &ServerState) -> Result<()> {
      * restart_sequence_with(&txn, < forum post seq >, 7000000).await?;
      */
 
-    txn.commit().await?;
+    debug!("Committing seed data transaction...");
+    ctx.commit().await?;
     info!("Finished running seeder.");
     Ok(())
 }
 
 async fn restart_sequence(
-    txn: &DatabaseTransaction,
+    txn: &mut SqlxTransaction<'_>,
     sequence_name: &'static str,
 ) -> Result<()> {
     debug!("Restarting sequence {sequence_name}");
@@ -288,7 +291,7 @@ async fn restart_sequence(
 }
 
 async fn restart_sequence_with(
-    txn: &DatabaseTransaction,
+    txn: &mut SqlxTransaction<'_>,
     sequence_name: &'static str,
     new_start_value: i64,
 ) -> Result<()> {
@@ -310,9 +313,7 @@ async fn restart_sequence_with(
     .await
 }
 
-async fn run_query(txn: &DatabaseTransaction, sql: String) -> Result<()> {
-    txn.execute(Statement::from_string(DatabaseBackend::Postgres, sql))
-        .await?;
-
+async fn run_query(txn: &mut SqlxTransaction<'_>, sql: String) -> Result<()> {
+    sqlx::query(&sql).execute(&mut **txn).await?;
     Ok(())
 }

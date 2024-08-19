@@ -20,34 +20,35 @@
 
 use crate::api::ServerState;
 use crate::config::Config;
+use crate::database::SqlxTransaction;
 use crate::locales::Localizations;
 use crate::services::blob::MimeAnalyzer;
 use crate::services::error::Result;
+use parking_lot::{MappedMutexGuard, Mutex, MutexGuard};
 use redis::aio::MultiplexedConnection as RedisMultiplexedConnection;
 use rsmq_async::PooledRsmq;
 use s3::bucket::Bucket;
 use sqlx::{Database, Postgres};
 use std::cell::{RefCell, RefMut};
+use std::mem;
 use std::sync::Arc;
 
 #[derive(Debug)]
 pub struct ServiceContext<'txn> {
     state: ServerState,
-    sqlx_transaction: RefCell<sqlx::Transaction<'txn, Postgres>>,
+    sqlx_transaction: Mutex<Option<sqlx::Transaction<'txn, Postgres>>>,
 }
 
 impl<'txn> ServiceContext<'txn> {
-    // NOTE: It is the responsibility of the caller to manage commit / rollback
+    // NOTE: It is the responsibility of the caller to run commit / rollback
     //       for transactions.
     //
     //       For our endpoints, this is managed in the wrapper macro in api.rs
-    pub fn new(
-        state: &ServerState,
-        sqlx_transaction: sqlx::Transaction<'txn, Postgres>,
-    ) -> Self {
+    #[inline]
+    pub fn new(state: &ServerState) -> Self {
         ServiceContext {
             state: Arc::clone(state),
-            sqlx_transaction: RefCell::new(sqlx_transaction),
+            sqlx_transaction: Mutex::new(None),
         }
     }
 
@@ -99,17 +100,48 @@ impl<'txn> ServiceContext<'txn> {
     }
 
     #[inline]
-    pub fn sqlx_transaction(&self) -> RefMut<'txn, sqlx::Transaction<Postgres>> {
-        self.sqlx_transaction.borrow_mut()
+    pub async fn sqlx_transaction(
+        &self,
+    ) -> Result<MappedMutexGuard<SqlxTransaction<'txn>>> {
+        let guard = self.sqlx_transaction.lock();
+
+        // If a transaction hasn't been created yet, then start it
+        if guard.is_none() {
+            let txn = self.state.database_sqlx.begin().await?;
+            *guard = Some(txn);
+        }
+
+        mem::drop(guard);
+
+        // At this point, the field must be Some(_)
+        Ok(MutexGuard::map(guard, |inner| {
+            inner
+                .as_mut()
+                .expect("No transaction present despite check")
+        }))
     }
 
-    pub async fn commit(self) -> Result<()> {
-        self.sqlx_transaction.into_inner().commit().await?;
+    pub async fn commit(mut self) -> Result<()> {
+        let mut guard = self.sqlx_transaction.lock();
+
+        if let Some(txn) = guard.take() {
+            txn.commit().await?;
+        }
+
+        mem::drop(guard);
+
         Ok(())
     }
 
-    pub async fn rollback(self) -> Result<()> {
-        self.sqlx_transaction.into_inner().rollback().await?;
+    pub async fn rollback(mut self) -> Result<()> {
+        let mut guard = self.sqlx_transaction.lock();
+
+        if let Some(txn) = guard.take() {
+            txn.rollback().await?;
+        }
+
+        mem::drop(guard);
+
         Ok(())
     }
 }
