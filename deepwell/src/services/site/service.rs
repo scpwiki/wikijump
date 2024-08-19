@@ -295,26 +295,20 @@ impl SiteService {
     pub async fn get_layout(ctx: &ServiceContext, site_id: i64) -> Result<Layout> {
         debug!("Getting page layout for site ID {site_id}");
 
-        /*
-            TODO: Temporary workaround, see set_layout()
-                  See https://scuttle.atlassian.net/browse/WJ-1270
-
         #[derive(Debug)]
         struct Row {
             layout: Option<String>,
         }
 
-        let mut txn = ctx.make_sqlx_transaction().await?;
-        let row =
+        let row = {
+            let mutex = ctx.sqlx_transaction();
+            let mut txn = mutex.lock().await;
             sqlx::query_as!(Row, r"SELECT layout FROM site WHERE site_id = $1", site_id)
-                .fetch_one(&mut *txn)
-                .await?;
+                .fetch_one(&mut **txn)
+                .await?
+        };
 
-        txn.commit().await?;
-        */
-
-        let site = Self::get(ctx, Reference::Id(site_id)).await?;
-        match site.layout {
+        match row.layout {
             // Parse layout from string in site table
             Some(layout) => match layout.parse() {
                 Ok(layout) => Ok(layout),
@@ -322,7 +316,10 @@ impl SiteService {
             },
 
             // Fallback to default platform layout
-            None => Ok(ctx.config().default_page_layout),
+            None => {
+                let config = ctx.config();
+                Ok(config.default_page_layout)
+            }
         }
     }
 

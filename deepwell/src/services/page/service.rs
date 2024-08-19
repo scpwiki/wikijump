@@ -516,22 +516,8 @@ impl PageService {
     ) -> Result<()> {
         debug!("Setting page layout for site ID {site_id} page ID {page_id}");
 
-        let txn = ctx.seaorm_transaction();
-        let model = page::ActiveModel {
-            page_id: Set(page_id),
-            layout: Set(layout.map(|l| str!(l.value()))),
-            ..Default::default()
-        };
-        model.update(txn).await?;
-        Ok(())
-
-        /*
-            TODO: Temporary workaround for seeding while we move to SQLx
-                  Use SeaORM instead of SQLx for this query
-
-                  See https://scuttle.atlassian.net/browse/WJ-1270
-
-        let mut txn = ctx.sqlx().await?;
+        let mutex = ctx.sqlx_transaction();
+        let mut txn = mutex.lock().await;
         let rows_affected = sqlx::query!(
             r"
             UPDATE page
@@ -543,19 +529,15 @@ impl PageService {
             site_id,
             page_id,
         )
-        .execute(&mut *txn)
+        .execute(&mut **txn)
         .await?
         .rows_affected();
-
-        txn.commit().await?;
 
         if rows_affected == 1 {
             Ok(())
         } else {
             Err(Error::PageNotFound)
         }
-
-        */
     }
 
     #[inline]
@@ -608,32 +590,27 @@ impl PageService {
     ) -> Result<Layout> {
         debug!("Getting page layout for site ID {site_id} page ID {page_id}");
 
-        /*
-            TODO: Temporary workaround, see set_layout()
-                  See https://scuttle.atlassian.net/browse/WJ-1270
-
         #[derive(Debug)]
         struct Row {
             layout: Option<String>,
         }
 
-        let mut txn = ctx.make_sqlx_transaction().await?;
-        let row = find_or_error!(
-            sqlx::query_as!(
-                Row,
-                r"SELECT layout FROM page WHERE site_id = $1 AND page_id = $2",
-                site_id,
-                page_id,
-            )
-            .fetch_optional(&mut *txn),
-            Page,
-        )?;
+        let row = {
+            let mutex = ctx.sqlx_transaction();
+            let mut txn = mutex.lock().await;
+            find_or_error!(
+                sqlx::query_as!(
+                    Row,
+                    r"SELECT layout FROM page WHERE site_id = $1 AND page_id = $2",
+                    site_id,
+                    page_id,
+                )
+                .fetch_optional(&mut **txn),
+                Page,
+            )?
+        };
 
-        txn.commit().await?;
-        */
-
-        let page = Self::get(ctx, site_id, Reference::Id(page_id)).await?;
-        match page.layout {
+        match row.layout {
             // Parse layout from string in page table
             Some(layout) => match layout.parse() {
                 Ok(layout) => Ok(layout),
