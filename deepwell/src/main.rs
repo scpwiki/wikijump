@@ -69,9 +69,6 @@ use std::process;
 async fn main() -> Result<()> {
     // Load the configuration so we can set up
     let SetupConfig { secrets, config } = SetupConfig::load();
-
-    // Copy fields we need
-    let run_migrations = config.run_migrations;
     let run_seeder = config.run_seeder;
 
     // Configure the logger
@@ -108,11 +105,6 @@ async fn main() -> Result<()> {
                 process::exit(1);
             }
         }
-    }
-
-    // Run migrations, if enabled
-    if run_migrations {
-        database::migrate(&secrets.database_url).await?;
     }
 
     // Set up server state

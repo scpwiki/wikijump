@@ -77,16 +77,6 @@ pub fn parse_args() -> Config {
                 .help("Whether to auto-restart when configuration or localization files change."),
         )
         .arg(
-            Arg::new("run-migrations")
-                .short('M')
-                .long("migrate")
-                .long("run-migrations")
-                .value_name("BOOLEAN")
-                .value_parser(BoolishValueParser::new())
-                .action(ArgAction::Set)
-                .help("Whether to run migrations on server startup."),
-        )
-        .arg(
             Arg::new("run-seeder")
                 .short('S')
                 .long("seeder")
@@ -160,10 +150,6 @@ pub fn parse_args() -> Config {
 
     if matches.remove_one::<bool>("watch-config") == Some(true) {
         config.watch_files = true;
-    }
-
-    if let Some(value) = matches.remove_one::<bool>("run-migrations") {
-        config.run_migrations = value;
     }
 
     if let Some(value) = matches.remove_one::<bool>("run-seeder") {

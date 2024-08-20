@@ -297,25 +297,6 @@ impl SiteService {
     /// is fairly commonly needed, we have a separate method for it.
     pub async fn get_layout(ctx: &ServiceContext<'_>, site_id: i64) -> Result<Layout> {
         debug!("Getting page layout for site ID {site_id}");
-
-        /*
-            TODO: Temporary workaround, see set_layout()
-                  See https://scuttle.atlassian.net/browse/WJ-1270
-
-        #[derive(Debug)]
-        struct Row {
-            layout: Option<String>,
-        }
-
-        let mut txn = ctx.sqlx().await?;
-        let row =
-            sqlx::query_as!(Row, r"SELECT layout FROM site WHERE site_id = $1", site_id)
-                .fetch_one(&mut *txn)
-                .await?;
-
-        txn.commit().await?;
-        */
-
         let site = Self::get(ctx, Reference::Id(site_id)).await?;
         match site.layout {
             // Parse layout from string in site table

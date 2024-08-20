@@ -522,40 +522,9 @@ impl PageService {
             layout: Set(layout.map(|l| str!(l.value()))),
             ..Default::default()
         };
+
         model.update(txn).await?;
         Ok(())
-
-        /*
-            TODO: Temporary workaround for seeding while we move to SQLx
-                  Use SeaORM instead of SQLx for this query
-
-                  See https://scuttle.atlassian.net/browse/WJ-1270
-
-        let mut txn = ctx.sqlx().await?;
-        let rows_affected = sqlx::query!(
-            r"
-            UPDATE page
-            SET layout = $1
-            WHERE site_id = $2
-            AND page_id = $3
-            ",
-            layout.map(Layout::value),
-            site_id,
-            page_id,
-        )
-        .execute(&mut *txn)
-        .await?
-        .rows_affected();
-
-        txn.commit().await?;
-
-        if rows_affected == 1 {
-            Ok(())
-        } else {
-            Err(Error::PageNotFound)
-        }
-
-        */
     }
 
     #[inline]
@@ -607,31 +576,6 @@ impl PageService {
         page_id: i64,
     ) -> Result<Layout> {
         debug!("Getting page layout for site ID {site_id} page ID {page_id}");
-
-        /*
-            TODO: Temporary workaround, see set_layout()
-                  See https://scuttle.atlassian.net/browse/WJ-1270
-
-        #[derive(Debug)]
-        struct Row {
-            layout: Option<String>,
-        }
-
-        let mut txn = ctx.sqlx().await?;
-        let row = find_or_error!(
-            sqlx::query_as!(
-                Row,
-                r"SELECT layout FROM page WHERE site_id = $1 AND page_id = $2",
-                site_id,
-                page_id,
-            )
-            .fetch_optional(&mut *txn),
-            Page,
-        )?;
-
-        txn.commit().await?;
-        */
-
         let page = Self::get(ctx, site_id, Reference::Id(page_id)).await?;
         match page.layout {
             // Parse layout from string in page table

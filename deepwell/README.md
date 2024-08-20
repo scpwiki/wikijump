@@ -31,15 +31,6 @@ If you have [`sea-orm-cli`](https://www.sea-ql.org/SeaORM/docs/generate-entity/s
 $ scripts/generate-models.sh
 ```
 
-When developing for the first time, or when changing any SQLx queries, you need to update the query cache. This requires a Wikijump database to be running and available at `DATABASE_URL`.
-
-```sh
-$ source .env
-$ cargo sqlx prepare
-```
-
-If there are any changes, commit them files into the branch.
-
 #### Structure
 
 The primary organization of the crate is as follows:
@@ -108,11 +99,13 @@ There are two important directories related to the management of the database (w
  * This is not part of the migrations system, instead using DEEPWELL services and methods to ensure that all invariants are properly set, rather than them needing to be manually provided as raw rows in migration files.
  * This also makes modifying the initial state of an instance much easier, since editing the default start page only requires editing a regular text file.
 
-Whether migrations and the seeder run on startup are controlled via configuration. This means they can be set by either:
-* The `RUN_MIGRATIONS` environment variable, or the `--run-migrations` command-line flag.
-* The `RUN_SEEDER` environment variable, or the `--run-seeder` command-line flag.
+In a development-like environment, you can run the seeder on startup. This is controlled through the field in the configuration, or the `--run-seeder` command-line flag.
 
-Both of these are enabled by default for local installations.
+Migrations are run using sqlx. To apply all current migrations to a fresh database, run:
+
+```sh
+$ sqlx migrate run
+```
 
 Basic database setup (creating the `wikijump` database and user) is done when building the container. See [`/install/files/postgres/init/`](https://github.com/scpwiki/wikijump/tree/develop/install/files/postgres/init).
 

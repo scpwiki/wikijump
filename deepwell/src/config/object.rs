@@ -79,9 +79,6 @@ pub struct Config {
     /// * Configuration file
     pub watch_files: bool,
 
-    /// Whether to run migrations on startup.
-    pub run_migrations: bool,
-
     /// Whether to run the seeder on startup.
     /// This will only attempt to add the rows if the `user` table is empty.
     pub run_seeder: bool,
@@ -237,7 +234,6 @@ impl Config {
             "Auto-restart on config change: {}",
             bool_str(self.watch_files),
         );
-        info!("Migrations: {}", bool_str(self.run_migrations));
         info!("Seeder: {}", bool_str(self.run_seeder));
         info!("Localization path: {}", self.localization_path.display());
         info!("Seeder path: {}", self.seeder_path.display());

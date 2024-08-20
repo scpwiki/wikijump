@@ -8,7 +8,7 @@ keywords = ["wikijump", "api", "backend", "wiki"]
 categories = ["asynchronous", "database", "web-programming::http-server"]
 exclude = [".gitignore", ".editorconfig"]
 
-version = "2024.8.17"
+version = "2024.8.19"
 authors = ["Emmie Smith <emmie.maeda@gmail.com>"]
 edition = "2021"
 
@@ -55,7 +55,6 @@ sea-query = "0.31"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sha2 = "0.10"
-sqlx = { version = "0.7", features = ["macros", "migrate", "postgres", "runtime-tokio-rustls"], default-features = false }
 str-macro = "1"
 strum = "0.26"
 strum_macros = "0.26"
@@ -70,11 +69,6 @@ unic-langid = "0.9"
 unicase = "2"
 wikidot-normalize = "0.12"
 wikidot-path = "0.6"
-
-# NOTE: "indexmap" was formerly pinned to "=1.6.2" to avoid a cyclic dependency issue.
-#       This seems to no longer be necessary, but the comment is kept here in case it becomes a problem again.
-#       See: https://stackoverflow.com/questions/68399961
-#            https://github.com/tkaitchuck/aHash/issues/95
 
 [build-dependencies]
 built = { version = "0.7", features = ["git2"] }

@@ -690,7 +690,7 @@ dependencies = [
 
 [[package]]
 name = "deepwell"
-version = "2024.8.17"
+version = "2024.8.19"
 dependencies = [
  "anyhow",
  "argon2",
@@ -732,7 +732,6 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2",
- "sqlx",
  "str-macro",
  "strum",
  "strum_macros",

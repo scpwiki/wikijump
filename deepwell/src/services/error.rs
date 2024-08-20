@@ -44,9 +44,6 @@ pub enum Error {
     #[error("Database error: {0}")]
     Database(DbErr),
 
-    #[error("Database error: {0}")]
-    Database2(#[from] sqlx::Error),
-
     #[error("Redis error: {0}")]
     Redis(#[from] redis::RedisError),
 
@@ -343,7 +340,7 @@ impl Error {
 
             // 3200 -- Backend issues
             Error::Serde(_) => 3200,
-            Error::Database(_) | Error::Database2(_) => 3201,
+            Error::Database(_) => 3201,
             Error::Cryptography(_) => 3202,
             Error::Magic(_) => 3204,
             Error::Otp(_) => 3205,
