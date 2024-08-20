@@ -88,6 +88,9 @@ impl ScoreService {
         Ok(map)
     }
 
+    // Use this for inserting the general condition
+    // https://stackoverflow.com/questions/74956100/how-to-build-safe-dynamic-query-with-sqlx-in-rust
+
     fn build_condition(page_id: i64) -> Condition {
         Condition::all()
             .add(page_vote::Column::PageId.eq(page_id))
