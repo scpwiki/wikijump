@@ -130,7 +130,7 @@ impl AuthenticationService {
                 multi_factor_secret,
             }) => Ok(UserAuthInfo {
                 user_id,
-                password,
+                password_hash: password,
                 multi_factor_secret,
                 valid: true,
             }),
