@@ -170,7 +170,7 @@ impl JobWorker {
 
         debug!("Received job from queue: {job:?}");
         trace!("Setting up ServiceContext for job processing");
-        let txn = self.state.database_seaorm.begin().await?;
+        let txn = self.state.database.begin().await?;
         let ctx = &ServiceContext::new(&self.state, &txn);
 
         trace!("Beginning job processing");

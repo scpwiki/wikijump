@@ -43,7 +43,6 @@ use jsonrpsee::types::error::ErrorObjectOwned;
 use rsmq_async::PooledRsmq;
 use s3::bucket::Bucket;
 use sea_orm::{DatabaseConnection, TransactionTrait};
-use sqlx::{Pool, Postgres};
 use std::fmt::{self, Debug};
 use std::sync::Arc;
 use std::time::Duration;
@@ -52,8 +51,7 @@ pub type ServerState = Arc<ServerStateInner>;
 
 pub struct ServerStateInner {
     pub config: Config,
-    pub database_seaorm: DatabaseConnection,
-    pub database_sqlx: Pool<Postgres>,
+    pub database: DatabaseConnection,
     pub redis: redis::Client,
     pub rsmq: PooledRsmq,
     pub localizations: Localizations,
@@ -65,8 +63,7 @@ impl Debug for ServerStateInner {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("ServerStateInner")
             .field("config", &self.config)
-            .field("database_seaorm", &self.database_seaorm)
-            .field("database_sqlx", &self.database_sqlx)
+            .field("database", &self.database)
             .field("redis", &self.redis)
             .field("rsmq", &debug_pointer(&self.rsmq))
             .field("localizations", &self.localizations)
@@ -82,8 +79,7 @@ pub async fn build_server_state(
 ) -> anyhow::Result<ServerState> {
     // Connect to databases
     info!("Connecting to PostgreSQL database");
-    let (database_sqlx, database_seaorm) =
-        database::connect(&secrets.database_url).await?;
+    let database = database::connect(&secrets.database_url).await?;
 
     info!("Connecting to Redis");
     let (redis, rsmq) = redis_db::connect(&secrets.redis_url).await?;
@@ -116,8 +112,7 @@ pub async fn build_server_state(
     // Build server state
     let state = Arc::new(ServerStateInner {
         config,
-        database_seaorm,
-        database_sqlx,
+        database,
         redis,
         rsmq,
         localizations,
@@ -162,7 +157,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
                 // At this level, we take the database-or-RPC error and make it just an RPC error.
                 let db_state = Arc::clone(&state);
                 db_state
-                    .database_seaorm
+                    .database
                     .transaction(move |txn| {
                         Box::pin(async move {
                             // Run the endpoint's implementation, and convert from
