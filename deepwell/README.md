@@ -31,15 +31,6 @@ If you have [`sea-orm-cli`](https://www.sea-ql.org/SeaORM/docs/generate-entity/s
 $ scripts/generate-models.sh
 ```
 
-When developing for the first time, or when changing any SQLx queries, you need to update the query cache. This requires a Wikijump database to be running and available at `DATABASE_URL`.
-
-```sh
-$ source .env
-$ cargo sqlx prepare
-```
-
-If there are any changes, commit them files into the branch.
-
 #### Structure
 
 The primary organization of the crate is as follows:
