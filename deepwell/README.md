@@ -100,7 +100,6 @@ There are two important directories related to the management of the database (w
  * This also makes modifying the initial state of an instance much easier, since editing the default start page only requires editing a regular text file.
 
 Whether migrations and the seeder run on startup are controlled via configuration. This means they can be set by either:
-* The `RUN_MIGRATIONS` environment variable, or the `--run-migrations` command-line flag.
 * The `RUN_SEEDER` environment variable, or the `--run-seeder` command-line flag.
 
 Both of these are enabled by default for local installations.

@@ -83,7 +83,6 @@ struct Server {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "kebab-case")]
 struct Database {
-    run_migrations: bool,
     run_seeder: bool,
     seeder_path: PathBuf,
 }
@@ -238,7 +237,6 @@ impl ConfigFile {
                 },
             database:
                 Database {
-                    run_migrations,
                     run_seeder,
                     seeder_path,
                 },
@@ -358,7 +356,6 @@ impl ConfigFile {
             files_domain,
             files_domain_no_dot,
             watch_files: false, // Not set in config file. Always false by default.
-            run_migrations,
             run_seeder,
             seeder_path,
             localization_path,
