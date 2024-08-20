@@ -71,11 +71,6 @@ unicase = "2"
 wikidot-normalize = "0.12"
 wikidot-path = "0.6"
 
-# NOTE: "indexmap" was formerly pinned to "=1.6.2" to avoid a cyclic dependency issue.
-#       This seems to no longer be necessary, but the comment is kept here in case it becomes a problem again.
-#       See: https://stackoverflow.com/questions/68399961
-#            https://github.com/tkaitchuck/aHash/issues/95
-
 [build-dependencies]
 built = { version = "0.7", features = ["git2"] }
 
