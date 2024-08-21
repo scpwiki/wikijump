@@ -1,0 +1,29 @@
+name: wikijump
+
+static_sites: []
+
+services:
+  - name: framerail
+    environment_slug: node-js
+    github:
+      repo: scpwiki/wikijump
+      branch: develop
+      deploy_on_push: true
+    autoscaling:
+      min_instance_count: 1
+      max_instance_count: 4
+    health_check:
+      initial_delay_seconds: 1
+    dockerfile_path: install/aws/prod/docker/web/Dockerfile
+
+workers:
+  - name: deepwell
+    environment_slug: rust
+    github:
+      repo: scpwiki/wikijump
+      branch: develop
+      deploy_on_push: true
+    autoscaling:
+      min_instance_count: 1
+      max_instance_count: 4
+    dockerfile_path: install/aws/prod/docker/api/Dockerfile
