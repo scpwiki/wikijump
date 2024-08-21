@@ -1,0 +1,18 @@
+spec:
+  name: wikijump
+
+  services:
+    - name: framerail
+      git:
+        repo_clone_url: https://github.com/scpwiki/wikijump.git
+        branch: develop
+      source_dir: framerail
+      dockerfile_path: install/aws/prod/docker/web/Dockerfile
+
+  workers:
+    - name: deepwell
+      git:
+        repo_clone_url: https://github.com/scpwiki/wikijump.git
+        branch: develop
+      source_dir: deepwell
+      dockerfile_path: install/aws/prod/docker/api/Dockerfile
