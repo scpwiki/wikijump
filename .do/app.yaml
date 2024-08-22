@@ -29,3 +29,8 @@ workers:
     instance_size_slug: basic-xxs
     health_check:
       initial_delay_seconds: 1
+
+databases:
+  - engine: PG
+    name: database
+    version: '16'
