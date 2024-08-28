@@ -29,6 +29,24 @@ workers:
     instance_size_slug: basic-xxs
     health_check:
       initial_delay_seconds: 1
+    envs:
+      - key: S3_BUCKET
+        value: wikijump-files-dev
+        scope: RUN_TIME
+      - key: S3_REGION_NAME
+        value: nyc3
+        scope: RUN_TIME
+      - key: S3_CUSTOM_ENDPOINT
+        value: https://nyc3.digitaloceanspaces.com
+        scope: RUN_TIME
+      - key: S3_PATH_STYLE
+        value: false
+        scope: RUN_TIME
+      # DATABASE_URL is passed by DO
+      - key: REDIS_URL
+        value: 'redis://${redis.HOSTNAME}'
+        scope: RUN_TIME
+      # S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY are secrets passed by DO
 
 databases:
   - engine: PG
