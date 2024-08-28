@@ -4,7 +4,7 @@ static_sites: []
 
 services:
   - name: framerail
-    dockerfile_path: install/aws/prod/docker/web/Dockerfile
+    dockerfile_path: install/dev/digitalocean/web/Dockerfile
     github:
       repo: scpwiki/wikijump
       branch: develop
@@ -18,7 +18,7 @@ services:
 
 workers:
   - name: deepwell
-    dockerfile_path: install/aws/prod/docker/api/Dockerfile
+    dockerfile_path: install/dev/digitalocean/api/Dockerfile
     github:
       repo: scpwiki/wikijump
       branch: develop
