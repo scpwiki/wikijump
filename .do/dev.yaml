@@ -1,5 +1,9 @@
 name: wikijump
 
+alerts:
+  - rule: DEPLOYMENT_FAILED
+  - rule: DOMAIN_FAILED
+
 static_sites: []
 
 services:
@@ -47,6 +51,19 @@ workers:
         value: 'redis://${redis.HOSTNAME}'
         scope: RUN_TIME
       # S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY are secrets passed by DO
+
+  - name: redis
+    dockerfile_path: install/dev/digitalocean/redis/Dockerfile
+    github:
+      repo: scpwiki/wikijump
+      branch: develop
+      deploy_on_push: true
+    autoscaling:
+      min_instance_count: 1
+      max_instance_count: 1
+    instance_size_slug: basic-xxs
+    health_check:
+      initial_delay_seconds: 1
 
 databases:
   - engine: PG
