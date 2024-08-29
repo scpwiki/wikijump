@@ -31,8 +31,6 @@ workers:
       min_instance_count: 1
       max_instance_count: 4
     instance_size_slug: basic-xxs
-    health_check:
-      initial_delay_seconds: 1
     envs:
       - key: S3_BUCKET
         value: wikijump-files-dev
@@ -62,8 +60,6 @@ workers:
       min_instance_count: 1
       max_instance_count: 1
     instance_size_slug: basic-xxs
-    health_check:
-      initial_delay_seconds: 1
 
 databases:
   - engine: PG
