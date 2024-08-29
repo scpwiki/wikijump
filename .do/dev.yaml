@@ -44,7 +44,7 @@ workers:
         value: https://nyc3.digitaloceanspaces.com
         scope: RUN_TIME
       - key: S3_PATH_STYLE
-        value: false
+        value: 'false'
         scope: RUN_TIME
       # DATABASE_URL is passed by DO
       - key: REDIS_URL
