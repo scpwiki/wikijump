@@ -23,7 +23,7 @@
     "@wikijump/sheaf": "workspace:*",
     "@wikijump/util": "workspace:*",
     "include-media": "^1.4.10",
-    "svelte": "^3.48.0",
+    "svelte": "^4.2.19",
     "tinro": "^0.6.12",
     "tippy.js": "^6.3.7"
   }

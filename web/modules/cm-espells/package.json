@@ -43,6 +43,6 @@
     "dictionary-uk": "^3.1.0",
     "dictionary-vi": "^2.2.0",
     "espells": "^0.4.1",
-    "svelte": "^3.48.0"
+    "svelte": "^4.2.19"
   }
 }
