@@ -47,7 +47,7 @@ redis = { version = "0.25", features = ["aio", "connection-manager", "keep-alive
 ref-map = "0.1"
 regex = "1"
 reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
-rsmq_async = "11"
+rsmq_async = "12"
 rust-s3 = { version = "0.32", features = ["with-tokio"], default-features = false }
 rust-otp = "2"
 sea-orm = { version = "1", features = ["sqlx-postgres", "runtime-tokio-rustls", "postgres-array", "macros", "with-json", "with-time"], default-features = false }
