@@ -13,9 +13,6 @@ services:
       repo: scpwiki/wikijump
       branch: develop
       deploy_on_push: true
-    autoscaling:
-      min_instance_count: 1
-      max_instance_count: 4
     instance_size_slug: basic-xxs
     health_check:
       initial_delay_seconds: 3
@@ -27,9 +24,6 @@ workers:
       repo: scpwiki/wikijump
       branch: develop
       deploy_on_push: true
-    autoscaling:
-      min_instance_count: 1
-      max_instance_count: 4
     instance_size_slug: basic-xxs
     envs:
       - key: S3_BUCKET
@@ -56,9 +50,6 @@ workers:
       repo: scpwiki/wikijump
       branch: develop
       deploy_on_push: true
-    autoscaling:
-      min_instance_count: 1
-      max_instance_count: 1
     instance_size_slug: basic-xxs
 
 databases:
