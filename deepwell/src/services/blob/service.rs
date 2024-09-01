@@ -24,12 +24,14 @@ use crate::models::blob_pending::{
     self, Entity as BlobPending, Model as BlobPendingModel,
 };
 use crate::utils::assert_is_csprng;
+use bytes::Bytes;
 use cuid2::cuid;
 use rand::distributions::{Alphanumeric, DistString};
 use rand::thread_rng;
-use s3::request_trait::ResponseData;
+use s3::request::request_trait::ResponseData;
 use s3::serde_types::HeadObjectResult;
 use sea_orm::TransactionTrait;
+use std::collections::HashMap;
 use std::str;
 use std::sync::Arc;
 use time::format_description::well_known::Rfc2822;
@@ -109,7 +111,7 @@ impl BlobService {
         // Create presign URL
         let bucket = ctx.s3_bucket();
         let presign_url =
-            bucket.presign_put(&s3_path, config.presigned_expiry_secs, None)?;
+            bucket.presign_put(&s3_path, config.presigned_expiry_secs, None, None).await?;
 
         // Get timestamps
         let created_at = now();
@@ -500,7 +502,10 @@ impl BlobService {
         match status {
             200 | 204 => Ok(Some(result)),
             404 => Ok(None),
-            _ => s3_error(&ResponseData::new(vec![], status), "heading S3 blob"),
+            _ => {
+                let response = ResponseData::new(Bytes::new(), status, HashMap::new());
+                s3_error(&response, "heading S3 blob")
+            }
         }
     }
 

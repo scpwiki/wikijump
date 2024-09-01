@@ -56,7 +56,7 @@ pub struct ServerStateInner {
     pub rsmq: PooledRsmq,
     pub localizations: Localizations,
     pub mime_analyzer: MimeAnalyzer,
-    pub s3_bucket: Bucket,
+    pub s3_bucket: Box<Bucket>,
 }
 
 impl Debug for ServerStateInner {

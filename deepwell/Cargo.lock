@@ -764,6 +764,7 @@ dependencies = [
  "async-trait",
  "bb8",
  "built",
+ "bytes",
  "cfg-if",
  "clap",
  "color-backtrace",
