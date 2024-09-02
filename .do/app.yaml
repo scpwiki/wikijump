@@ -23,7 +23,6 @@ services:
         value: '${deepwell.HOSTNAME}'
         scope: RUN_TIME
 
-workers:
   - name: deepwell
     source_dir: .
     dockerfile_path: install/dev/digitalocean/api/Dockerfile
@@ -33,6 +32,7 @@ workers:
       branch: digitalocean
       deploy_on_push: true
     instance_size_slug: basic-xxs
+    internal_ports: [2747]
     envs:
       - key: S3_BUCKET
         value: wikijump-files-dev
@@ -63,6 +63,7 @@ workers:
       branch: digitalocean
       deploy_on_push: true
     instance_size_slug: basic-xxs
+    internal_ports: [6379]
 
 databases:
   - engine: PG
