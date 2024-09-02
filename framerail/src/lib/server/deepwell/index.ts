@@ -21,3 +21,5 @@ async function processRawRequest(request: JSONRPCRequest): Promise<void> {
 export async function ping(): void {
   await client.request("ping")
 }
+
+console.info(`Using DEEPWELL service at ${DEEPWELL_URL}`)
