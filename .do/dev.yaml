@@ -42,7 +42,8 @@ workers:
       - key: S3_PATH_STYLE
         value: 'false'
         scope: RUN_TIME
-      # DATABASE_URL is passed by DO
+      - key: DATABASE_URL
+        value: '${database.DATABASE_URL}'
       - key: REDIS_URL
         value: 'redis://${redis.HOSTNAME}'
         scope: RUN_TIME
