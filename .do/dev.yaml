@@ -50,7 +50,7 @@ workers:
       - key: REDIS_URL
         value: 'redis://${redis.HOSTNAME}'
         scope: RUN_TIME
-      # S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY are secrets passed by DO
+      # S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY are set in the DO app settings (encrypted)
 
   - name: redis
     source_dir: .
