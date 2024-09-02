@@ -12,7 +12,7 @@ services:
     dockerfile_path: install/dev/digitalocean/web/Dockerfile
     github:
       repo: scpwiki/wikijump
-      #branch: develop
+      #branch: develop XXX
       branch: digitalocean
       deploy_on_push: true
     instance_size_slug: basic-xxs
@@ -29,7 +29,7 @@ workers:
     dockerfile_path: install/dev/digitalocean/api/Dockerfile
     github:
       repo: scpwiki/wikijump
-      #branch: develop
+      #branch: develop XXX
       branch: digitalocean
       deploy_on_push: true
     instance_size_slug: basic-xxs
@@ -59,7 +59,7 @@ workers:
     dockerfile_path: install/dev/digitalocean/redis/Dockerfile
     github:
       repo: scpwiki/wikijump
-      #branch: develop
+      #branch: develop XXX
       branch: digitalocean
       deploy_on_push: true
     instance_size_slug: basic-xxs
