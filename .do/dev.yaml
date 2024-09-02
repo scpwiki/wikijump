@@ -20,7 +20,7 @@ services:
       initial_delay_seconds: 3
     envs:
       - key: DEEPWELL_HOST
-        value: '${deepwell.PRIVATE_DOMAIN}'
+        value: '${deepwell.HOSTNAME}'
         scope: RUN_TIME
 
 workers:
