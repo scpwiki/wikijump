@@ -21,6 +21,7 @@ services:
     envs:
       - key: DEEPWELL_HOST
         value: '${deepwell.PRIVATE_DOMAIN}'
+        scope: RUN_TIME
 
 workers:
   - name: deepwell
@@ -47,6 +48,7 @@ workers:
         scope: RUN_TIME
       - key: DATABASE_URL
         value: '${database.DATABASE_URL}'
+        scope: RUN_TIME
       - key: REDIS_URL
         value: 'redis://${redis.HOSTNAME}'
         scope: RUN_TIME
