@@ -18,6 +18,9 @@ services:
     instance_size_slug: basic-xxs
     health_check:
       initial_delay_seconds: 3
+    envs:
+      - key: DEEPWELL_HOST
+        value: '${deepwell.PRIVATE_DOMAIN}'
 
 workers:
   - name: deepwell
