@@ -8,6 +8,9 @@ FROM rust:alpine AS rust
 RUN apk update
 RUN apk add --no-cache build-base libmagic-static file
 
+# Install helpers
+RUN cargo install sqlx-cli
+
 # Copy source
 RUN mkdir /src
 COPY ./deepwell /src/deepwell
@@ -27,13 +30,18 @@ FROM alpine:latest
 
 ENV LOCALIZATION_PATH="/opt/locales"
 
+# Install system dependencies
 RUN apk update
-RUN apk add --no-cache curl
+RUN apk add --no-cache curl postgresql-client
+
+# Install files
+COPY --from=rust /usr/local/cargo/bin/sqlx /usr/local/cargo/bin/sqlx
 COPY --from=rust /src/deepwell/target/release/deepwell /usr/local/bin/deepwell
-COPY ./install/files/api/health-check.sh /bin/wikijump-health-check
-COPY ./install/files/prod/deepwell.toml /etc/deepwell.toml
+COPY install/files/dev/deepwell.toml /etc/deepwell.toml
+COPY install/files/dev/deepwell-start /usr/local/bin/wikijump-deepwell-start
+COPY install/files/api/health-check.sh /usr/local/bin/wikijump-health-check
 COPY ./locales/fluent /opt/locales/fluent
 
 USER daemon
 EXPOSE 2747
-CMD ["/bin/sh", "-c", "sleep 5 && /usr/local/bin/deepwell /etc/deepwell.toml"]
+CMD ["/usr/local/bin/wikijump-deepwell-start"]

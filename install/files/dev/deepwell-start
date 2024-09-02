@@ -1,6 +1,9 @@
 #!/bin/sh
 set -e
 
+# Wait for database to be ready
+pg_isready -d "$DATABASE_URL"
+
 # Run migrations
 cd /opt/database
 /usr/local/cargo/bin/sqlx migrate run
