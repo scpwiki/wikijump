@@ -20,7 +20,10 @@ services:
       initial_delay_seconds: 3
     envs:
       - key: DEEPWELL_HOST
-        value: '${deepwell.HOSTNAME}'
+        value: '${deepwell.PRIVATE_DOMAIN}'
+        scope: RUN_TIME
+      - key: DEEPWELL_PORT
+        value: '${deepwell.PRIVATE_PORT}'
         scope: RUN_TIME
 
   - name: deepwell
@@ -50,7 +53,7 @@ services:
         value: '${database.DATABASE_URL}'
         scope: RUN_TIME
       - key: REDIS_URL
-        value: 'redis://${redis.HOSTNAME}'
+        value: 'redis://${redis.PRIVATE_DOMAIN}:${redis.PRIVATE_PORT}'
         scope: RUN_TIME
       # S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY are set in the DO app settings (encrypted)
 
