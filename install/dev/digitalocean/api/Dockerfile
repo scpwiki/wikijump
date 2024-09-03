@@ -32,7 +32,7 @@ ENV LOCALIZATION_PATH="/opt/locales"
 
 # Install system dependencies
 RUN apk update
-RUN apk add --no-cache curl postgresql-client
+RUN apk add --no-cache curl libmagic-static file postgresql-client
 
 # Install files
 COPY --from=rust /usr/local/cargo/bin/sqlx /usr/local/cargo/bin/sqlx
