@@ -69,3 +69,6 @@ databases:
   - engine: PG
     name: database
     version: '16'
+    production: false
+    db_name: wikijump
+    db_user: wikijump
