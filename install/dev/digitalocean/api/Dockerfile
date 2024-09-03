@@ -9,7 +9,7 @@ RUN apk update
 RUN apk add --no-cache build-base libmagic-static file
 
 # Install helpers
-RUN cargo install sqlx-cli
+RUN cargo install sqlx-cli --no-default-features --features rustls,postgres
 
 # Copy source
 RUN mkdir /src
