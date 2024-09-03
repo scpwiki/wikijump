@@ -37,6 +37,7 @@ RUN apk add --no-cache curl postgresql-client
 # Install files
 COPY --from=rust /usr/local/cargo/bin/sqlx /usr/local/cargo/bin/sqlx
 COPY --from=rust /src/deepwell/target/release/deepwell /usr/local/bin/deepwell
+COPY --from=rust /src/deepwell/migrations /opt/migrations
 COPY install/files/dev/deepwell.toml /etc/deepwell.toml
 COPY install/files/dev/deepwell-start /usr/local/bin/wikijump-deepwell-start
 COPY install/files/api/health-check.sh /usr/local/bin/wikijump-health-check

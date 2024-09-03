@@ -9,4 +9,5 @@ cd /opt/database
 /usr/local/cargo/bin/sqlx migrate run
 
 # Start daemon
+cd /
 /usr/local/bin/deepwell /etc/deepwell.toml
