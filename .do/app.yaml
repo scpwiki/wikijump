@@ -70,10 +70,11 @@ databases:
     name: database
     version: '16'
     production: true
-    cluster_name: wikijump
+    cluster_name: wikijump-dev
     db_name: wikijump
     db_user: wikijump
 
   - engine: REDIS
     name: cache
     production: true
+    cluster_name: wikijump-dev
