@@ -54,17 +54,6 @@ services:
         scope: RUN_TIME
       # S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY are set in the DO app settings (encrypted)
 
-  - name: redis
-    source_dir: .
-    dockerfile_path: install/dev/digitalocean/redis/Dockerfile
-    github:
-      repo: scpwiki/wikijump
-      #branch: develop XXX
-      branch: digitalocean
-      deploy_on_push: true
-    instance_size_slug: basic-xxs
-    internal_ports: [6379]
-
 databases:
   - engine: PG
     name: database
