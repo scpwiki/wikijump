@@ -32,7 +32,7 @@
     "prettier-plugin-organize-imports": "^4.0.0",
     "prettier-plugin-svelte": "^2.10.1",
     "sass": "^1.77.8",
-    "stylelint": "^16.8.2",
+    "stylelint": "^16.9.0",
     "stylelint-config-recess-order": "^5.1.0",
     "stylelint-order": "^6.0.4",
     "stylelint-scss": "^6.5.1",
