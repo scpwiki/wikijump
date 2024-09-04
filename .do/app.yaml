@@ -69,6 +69,10 @@ databases:
   - engine: PG
     name: database
     version: '16'
-    production: false
+    production: true
     db_name: wikijump
     db_user: wikijump
+
+  - engine: REDIS
+    name: cache
+    production: true
