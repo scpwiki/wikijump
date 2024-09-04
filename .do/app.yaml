@@ -70,11 +70,12 @@ databases:
     name: database
     version: '16'
     production: true
-    cluster_name: default-nyc3
+    cluster_name: wikijump-dev-db
     db_name: wikijump
     db_user: wikijump
 
   - engine: REDIS
     name: cache
+    version: '7'
     production: true
-    cluster_name: default-nyc3
+    cluster_name: wikijump-dev-cache
