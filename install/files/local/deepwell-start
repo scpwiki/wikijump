@@ -1,11 +1,6 @@
 #!/bin/sh
 
 # Run migrations
-#
-# deepwell is able to do this itself, but we run it separately via
-# the sqlx CLI tool to avoid dependency cycles wherein the deepwell
-# build wants the database to be up, but the migrations running is
-# dependent on the build having finished and deepwell running.
 /usr/local/cargo/bin/sqlx migrate run
 
 # Start watcher

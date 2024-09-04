@@ -7,7 +7,6 @@ address = "[::]:2747"
 pid-file = ""
 
 [database]
-run-migrations = true
 run-seeder = true
 seeder-path = "/opt/seeder"
 
