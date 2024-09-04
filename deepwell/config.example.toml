@@ -27,12 +27,6 @@ pid-file = ""
 
 [database]
 
-# Whether to run migrations on startup (if needed).
-#
-# If false, then an out-of-date database will yield errors,
-# you must migrate manually.
-run-migrations = true
-
 # Whether to run the seeder on startup (if needed).
 #
 # If false, then an empty database may yield errors,
