@@ -70,6 +70,7 @@ databases:
     name: database
     version: '16'
     production: true
+    cluster_name: wikijump
     db_name: wikijump
     db_user: wikijump
 
