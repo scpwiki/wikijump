@@ -50,7 +50,7 @@ services:
         value: '${database.DATABASE_URL}'
         scope: RUN_TIME
       - key: REDIS_URL
-        value: 'redis://${redis.HOSTNAME}'
+        value: '${cache.REDIS_URL}'
         scope: RUN_TIME
       # S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY are set in the DO app settings (encrypted)
 
