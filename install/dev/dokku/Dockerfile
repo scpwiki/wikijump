@@ -64,6 +64,7 @@ COPY --from=node /app /app/framerail
 
 COPY ./install/files/api/health-check.sh /bin/deepwell-health-check
 COPY ./install/files/dev/deepwell.toml /etc/deepwell.toml
+COPY ./install/files/dev/deepwell-start /usr/local/bin/wikijump-deepwell-start
 COPY ./locales/fluent /opt/locales/fluent
 COPY ./deepwell/seeder /opt/database/seeder
 COPY ./deepwell/migrations /opt/database/migrations
