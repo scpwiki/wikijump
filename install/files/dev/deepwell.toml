@@ -8,7 +8,7 @@ pid-file = ""
 
 [database]
 run-seeder = true
-seeder-path = "/opt/seeder"
+seeder-path = "/opt/database/seeder"
 
 [security]
 authentication-fail-delay-ms = 100

@@ -8,6 +8,9 @@ FROM rust:alpine AS rust
 RUN apk update
 RUN apk add --no-cache build-base libmagic-static file
 
+# Install helpers
+RUN cargo install sqlx-cli
+
 # Copy source
 RUN mkdir /src
 COPY ./deepwell /src/deepwell
@@ -49,18 +52,20 @@ FROM alpine:latest
 
 ENV LOCALIZATION_PATH="/opt/locales"
 
-RUN mkdir /app
+RUN mkdir /app /opt/database
 WORKDIR /app
 
 RUN apk update
 RUN apk add --no-cache curl nodejs libmagic-static file
 
+COPY --from=rust /usr/local/cargo/bin/sqlx /usr/local/cargo/bin/sqlx
 COPY --from=rust /src/deepwell/target/release/deepwell /usr/local/bin/deepwell
 COPY --from=node /app /app/framerail
 
 COPY ./install/files/api/health-check.sh /bin/deepwell-health-check
 COPY ./install/files/dev/deepwell.toml /etc/deepwell.toml
 COPY ./locales/fluent /opt/locales/fluent
-COPY ./deepwell/seeder /opt/seeder
+COPY ./deepwell/seeder /opt/database/seeder
+COPY ./deepwell/migrations /opt/database/migrations
 
 USER daemon
