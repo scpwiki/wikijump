@@ -52,7 +52,14 @@ services:
       - key: REDIS_URL
         value: '${cache.REDIS_URL}'
         scope: RUN_TIME
-      # S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY are set in the DO app settings (encrypted)
+      - key: S3_ACCESS_KEY_ID
+        type: SECRET
+        scope: RUN_TIME
+        value: EV[1:o7KR/O5b7OHyXKDwyazNBHvLtp3RknSX:yimWNoxvDzML1V8dtbG+PN9qUbGfi+8lzYWzl+5ImU2fxojU]
+      - key: S3_SECRET_ACCESS_KEY
+        type: SECRET
+        scope: RUN_TIME
+        value: EV[1:HcyKErP7i3GUkjNt6GzRlrwXwgfEZRR+:r/51sfR9EqTGZOIev0F2fLrN4CqBl0AB/rpVVr1y2tWbEDnhMKBKZFuWoDJRMjOAKXhZfa/Nam29wEo=]
 
 databases:
   - engine: PG
