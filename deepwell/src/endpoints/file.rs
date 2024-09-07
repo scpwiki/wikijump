@@ -21,6 +21,7 @@
 use super::prelude::*;
 use crate::models::file::Model as FileModel;
 use crate::models::file_revision::Model as FileRevisionModel;
+use crate::services::blob::BlobService;
 use crate::services::file::{
     DeleteFile, DeleteFileOutput, EditFile, EditFileOutput, GetFileDetails,
     GetFileOutput, MoveFile, MoveFileOutput, RestoreFile, RestoreFileOutput, UploadFile,
@@ -28,6 +29,18 @@ use crate::services::file::{
 };
 use crate::services::Result;
 use crate::web::{Bytes, FileDetails};
+
+/// Temporary endpoint to get any blob by hash.
+/// Primarily for user avatars, which have no other
+/// way of getting the data at the moment.
+pub async fn blob_get(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<Vec<u8>> {
+    info!("Getting blob for S3 hash");
+    let hash: Bytes = params.parse()?;
+    BlobService::get(ctx, hash.as_ref()).await
+}
 
 pub async fn file_get(
     ctx: &ServiceContext<'_>,
