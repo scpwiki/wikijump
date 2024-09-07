@@ -50,6 +50,10 @@ export async function userEdit(
   }
   if (Array.isArray(params.locales) && params.locales.every((v) => typeof v === "string"))
     data.locales = params.locales
+  if (params.avatar instanceof File && params.avatar.type.startsWith("image/")) {
+    let srcBuf = await params.avatar.arrayBuffer()
+    data.avatar = Buffer.from(srcBuf).toString("hex")
+  }
 
   return client.request("user_edit", {
     user: userId,

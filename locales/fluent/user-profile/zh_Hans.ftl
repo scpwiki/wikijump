@@ -2,6 +2,7 @@ user-profile-info =
   .name = 姓名：
   .real-name = 真实姓名：
   .email = 电邮地址：
+  .avatar = 头像：
   .pronouns = 性别代称：
   .birthday = 生日：
   .location = 定位：

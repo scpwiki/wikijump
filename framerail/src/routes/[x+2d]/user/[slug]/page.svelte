@@ -31,6 +31,19 @@
     </div>
   {/if}
 
+  {#if $page.data.user.avatar}
+    <div class="user-attribute avatar">
+      <span class="user-attribute-label"
+        >{$page.data.internationalization?.["user-profile-info.avatar"]}</span
+      >
+      <img
+        class="user-attribute-value"
+        alt={$page.data.internationalization?.avatar}
+        src={$page.data.user.avatar}
+      />
+    </div>
+  {/if}
+
   {#if $page.data.user.birthday}
     <div class="user-attribute birthday">
       <span class="user-attribute-label"

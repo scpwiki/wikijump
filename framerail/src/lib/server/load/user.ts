@@ -1,5 +1,6 @@
 import defaults from "$lib/defaults"
 import { parseAcceptLangHeader } from "$lib/locales"
+import { getFileByHash } from "$lib/server/deepwell/getFile"
 import { translate } from "$lib/server/deepwell/translate"
 import { userView } from "$lib/server/deepwell/user.ts"
 import type { TranslateKeys } from "$lib/types"
@@ -55,6 +56,15 @@ export async function loadUser(username?: string, request, cookies) {
       delete viewData.user[sensitiveKeys[i]]
     }
 
+    // Get user avatar image
+    if (viewData.user.avatar_s3_hash !== null) {
+      let avatar = await getFileByHash(new Uint8Array(viewData.user.avatar_s3_hash))
+      let dataurl = `data:${avatar.type};base64,${Buffer.from(
+        await avatar.arrayBuffer()
+      ).toString("base64")}`
+      viewData.user.avatar = dataurl
+    }
+
     translateKeys = {
       ...translateKeys,
 
@@ -64,9 +74,11 @@ export async function loadUser(username?: string, request, cookies) {
       "cancel": {},
 
       // User profile attributes
+      "avatar": {},
       "user-profile-info.name": {},
       "user-profile-info.real-name": {},
       "user-profile-info.email": {},
+      "user-profile-info.avatar": {},
       "user-profile-info.gender": {},
       "user-profile-info.birthday": {},
       "user-profile-info.location": {},

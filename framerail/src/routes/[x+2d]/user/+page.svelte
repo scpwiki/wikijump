@@ -5,6 +5,7 @@
   let showErrorPopup = useErrorPopup()
 
   let isEdit = false
+  let avatarFiles: FileList
 
   async function saveEdit() {
     let form = document.getElementById("editor")
@@ -60,6 +61,16 @@
       class="user-attribute email"
       type="text"
       value={$page.data.user.email}
+    />
+    <label for="avatar"
+      >{$page.data.internationalization?.["user-profile-info.avatar"]}</label
+    >
+    <input
+      name="avatar"
+      class="user-attribute avatar"
+      accept="image/png,image/jpeg,image/bmp"
+      type="file"
+      bind:files={avatarFiles}
     />
     <label for="gender"
       >{$page.data.internationalization?.["user-profile-info.gender"]}</label

@@ -65,6 +65,11 @@
         outline: 1px solid var(--error);
       }
     }
+
+    .user-attribute.avatar img {
+      max-width: 200px;
+      max-height: 200px;
+    }
   }
 
   .header {

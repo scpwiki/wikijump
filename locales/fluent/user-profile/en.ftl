@@ -2,6 +2,7 @@ user-profile-info =
   .name = Name:
   .real-name = Real name:
   .email = Email:
+  .avatar = Profile image:
   .pronouns = Pronouns:
   .birthday = Birthday:
   .location = Location:

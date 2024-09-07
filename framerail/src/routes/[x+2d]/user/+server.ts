@@ -17,6 +17,7 @@ export async function POST(event) {
     let biography = data.get("biography")?.toString().trim()
     let userPage = data.get("user-page")?.toString().trim()
     let locales = data.get("locales")?.toString().trim()
+    let avatar = data.get("avatar")?.valueOf()
 
     let body: Record<string, any> = {
       name,
@@ -27,7 +28,8 @@ export async function POST(event) {
       location,
       biography,
       user_page: userPage,
-      locales: locales?.split(" ").filter((v) => v.trim())
+      locales: locales?.split(" ").filter((v) => v.trim()),
+      avatar
     }
 
     let res = await userEdit(session?.user_id, body)
