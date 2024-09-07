@@ -4,6 +4,10 @@ set -e
 # Wait for database to be ready
 pg_isready -d "$DATABASE_URL"
 
+# Wipe database for fresh schema changes
+# LOCAL and DEV only
+psql -d "$DATABASE_URL" -c 'DROP OWNED BY wikijump'
+
 # Run migrations
 cd /opt/database
 /usr/local/cargo/bin/sqlx migrate run
