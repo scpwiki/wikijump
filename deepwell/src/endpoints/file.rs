@@ -23,9 +23,9 @@ use crate::models::file::Model as FileModel;
 use crate::models::file_revision::Model as FileRevisionModel;
 use crate::services::blob::BlobService;
 use crate::services::file::{
-    DeleteFile, DeleteFileOutput, EditFile, EditFileOutput, GetFileDetails,
-    GetFileOutput, MoveFile, MoveFileOutput, RestoreFile, RestoreFileOutput, UploadFile,
-    UploadFileOutput,
+    DeleteFile, DeleteFileOutput, EditFile, EditFileOutput, GetBlobOutput,
+    GetFileDetails, GetFileOutput, MoveFile, MoveFileOutput, RestoreFile,
+    RestoreFileOutput, UploadFile, UploadFileOutput,
 };
 use crate::services::Result;
 use crate::web::{Bytes, FileDetails};
@@ -36,10 +36,18 @@ use crate::web::{Bytes, FileDetails};
 pub async fn blob_get(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
-) -> Result<Vec<u8>> {
+) -> Result<GetBlobOutput> {
     info!("Getting blob for S3 hash");
     let hash: Bytes = params.parse()?;
-    BlobService::get(ctx, hash.as_ref()).await
+    let data = BlobService::get(ctx, hash.as_ref()).await?;
+    let metadata = BlobService::get_metadata(ctx, hash.as_ref()).await?;
+
+    let output = GetBlobOutput {
+        data,
+        mime: metadata.mime,
+        size: metadata.size,
+    };
+    Ok(output)
 }
 
 pub async fn file_get(

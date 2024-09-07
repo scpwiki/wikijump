@@ -67,6 +67,7 @@ terms = Terms
 title = Title
 upload = Upload
 view = View
+vote = Vote
 
 search = Search
   .placeholder = Search...

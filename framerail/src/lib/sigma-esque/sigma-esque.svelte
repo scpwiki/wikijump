@@ -53,6 +53,7 @@
 
     textarea,
     input[type="text"],
+    input[type="date"],
     input[type="password"] {
       padding: 0.5em 1em;
       color: var(--text);
@@ -63,6 +64,11 @@
       &.error {
         outline: 1px solid var(--error);
       }
+    }
+
+    .user-attribute.avatar img {
+      max-width: 200px;
+      max-height: 200px;
     }
   }
 
@@ -122,6 +128,32 @@
       background-color: var(--background);
       border: 1px solid var(--border);
       border-radius: 0.5em;
+
+      &.cast-vote {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+
+        .vote-desc {
+          display: inline-block;
+          padding: 0.5em 1em;
+        }
+        .vote-subbutton {
+          display: inline-block;
+          flex: 1;
+          padding: 0.5em 1em;
+          color: var(--text);
+          background-color: var(--background);
+          border: 0;
+          border-left: 1px solid var(--border);
+          border-radius: 0;
+          &:last-child {
+            border-radius: 0 0.5em 0.5em 0;
+          }
+        }
+      }
     }
   }
 

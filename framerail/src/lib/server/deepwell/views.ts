@@ -1,5 +1,5 @@
-import { client } from "$lib/server/deepwell/index.ts"
-import type { Optional } from "$lib/types.ts"
+import { client } from "$lib/server/deepwell"
+import type { Optional } from "$lib/types"
 
 export interface PageRoute {
   slug: string

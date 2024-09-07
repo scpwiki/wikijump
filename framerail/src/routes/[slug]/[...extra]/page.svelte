@@ -10,9 +10,12 @@
   let showSource = false
   let showRevision = false
   let showRevisionSource = false
+  let showVote = false
+  let showVoteList = false
   let moveInputNewSlugElem: HTMLInputElement
   let revisionMap: Map<number, Record<string, any>> = new Map()
   let revision: Record<string, any> = {}
+  let voteMap: Map<number, Record<string, any>> = new Map()
 
   async function handleDelete() {
     let fdata = new FormData()
@@ -32,7 +35,7 @@
 
   function navigateEdit() {
     let options: string[] = []
-    if ($page.data.options.noRender) options.push("norender")
+    if ($page.data.options.no_render) options.push("norender")
     options = options.map((opt) => `/${opt}`)
     goto(`/${$page.data.page.slug}${options.join("")}/edit`, {
       noScroll: true
@@ -41,7 +44,7 @@
 
   function cancelEdit() {
     let options: string[] = []
-    if ($page.data.options.noRender) options.push("norender")
+    if ($page.data.options.no_render) options.push("norender")
     options = options.map((opt) => `/${opt}`)
     goto(`/${$page.data.page.slug}${options.join("")}`, {
       noScroll: true
@@ -159,6 +162,68 @@
         rev.wikitext = res.wikitext
         revision = rev
       }
+    }
+  }
+
+  async function handleVote() {
+    showVote = true
+  }
+  async function getVoteList() {
+    let fdata = new FormData()
+    fdata.set("site-id", $page.data.site.site_id)
+    fdata.set("page-id", $page.data.page.page_id)
+    fdata.set("action", "get_list")
+    let res = await fetch(`/${$page.data.page.slug}/vote`, {
+      method: "POST",
+      body: fdata
+    }).then((res) => res.json())
+    if (res?.message) {
+      showErrorPopup.set({
+        state: true,
+        message: res.message
+      })
+    } else {
+      voteMap = new Map()
+      res.forEach((vote) => {
+        voteMap.set(vote.user_id, vote)
+      })
+    }
+  }
+  async function castVote(value?: number) {
+    let fdata = new FormData()
+    fdata.set("site-id", $page.data.site.site_id)
+    fdata.set("page-id", $page.data.page.page_id)
+    fdata.set("action", "set")
+    fdata.set("value", value ?? 0)
+    let res = await fetch(`/${$page.data.page.slug}/vote`, {
+      method: "POST",
+      body: fdata
+    }).then((res) => res.json())
+    if (res?.message) {
+      showErrorPopup.set({
+        state: true,
+        message: res.message
+      })
+    } else {
+      console.log(res)
+    }
+  }
+  async function cancelVote() {
+    let fdata = new FormData()
+    fdata.set("site-id", $page.data.site.site_id)
+    fdata.set("page-id", $page.data.page.page_id)
+    fdata.set("action", "remove")
+    let res = await fetch(`/${$page.data.page.slug}/vote`, {
+      method: "POST",
+      body: fdata
+    }).then((res) => res.json())
+    if (res?.message) {
+      showErrorPopup.set({
+        state: true,
+        message: res.message
+      })
+    } else {
+      console.log(res)
     }
   }
 
@@ -299,6 +364,13 @@
     >
       {$page.data.internationalization?.history}
     </button>
+    <button
+      class="action-button button-vote clickable"
+      type="button"
+      on:click={handleVote}
+    >
+      {$page.data.internationalization?.vote}
+    </button>
   </div>
 {/if}
 
@@ -330,7 +402,7 @@
         class="action-button page-move-button button-cancel clickable"
         type="button"
         on:click|stopPropagation={() => {
-          $: showMoveAction = false
+          showMoveAction = false
         }}
       >
         {$page.data.internationalization?.cancel}
@@ -411,6 +483,66 @@
   {#if showRevisionSource}
     <textarea class="revision-source" readonly={true}>{revision.wikitext}</textarea>
   {/if}
+{/if}
+
+{#if showVote}
+  <div class="vote-panel">
+    <div class="action-row vote-action">
+      <button
+        class="action-button view-vote-list clickable"
+        type="button"
+        on:click|stopPropagation={() => {
+          getVoteList().then(() => {
+            showVoteList = true
+          })
+        }}
+      >
+        {$page.data.internationalization?.["wiki-page-vote-list"]}
+      </button>
+      <div class="action-button cast-vote">
+        <span class="vote-desc"
+          >{$page.data.internationalization?.["wiki-page-vote-set"]}</span
+        >
+        <button
+          class="vote-subbutton clickable"
+          type="button"
+          on:click|stopPropagation={() => castVote(1)}
+        >
+          +1
+        </button>
+        <button
+          class="vote-subbutton clickable"
+          type="button"
+          on:click|stopPropagation={() => castVote(0)}
+        >
+          0
+        </button>
+        <button
+          class="vote-subbutton clickable"
+          type="button"
+          on:click|stopPropagation={() => castVote(-1)}
+        >
+          -1
+        </button>
+      </div>
+      <button
+        class="action-button remove-vote clickable"
+        type="button"
+        on:click|stopPropagation={cancelVote}
+      >
+        {$page.data.internationalization?.["wiki-page-vote-remove"]}
+      </button>
+    </div>
+    {#if showVoteList}
+      <ul class="vote-list">
+        {#each [...voteMap].sort((a, b) => b[0] - a[0]) as [_, vote] (vote.page_vote_id)}
+          <li class="vote-item" data-id={vote.page_vote_id} data-user-id={vote.user_id}>
+            UT: User {vote.user_id}: {vote.value}
+          </li>
+        {/each}
+      </ul>
+    {/if}
+  </div>
 {/if}
 
 <style global lang="scss">

@@ -22,6 +22,12 @@ wiki-page-revision-comments = 留言
 
 wiki-page-move-new-slug = 新页面网址
 
+wiki-page-vote-set = 进行评分
+
+wiki-page-vote-remove = 取消评分
+
+wiki-page-vote-list = 查看评分列表
+
 ### 特殊页面
 
 wiki-page-missing = 你访问的页面 //{ $slug }// 并不存在。

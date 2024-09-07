@@ -1,6 +1,6 @@
-import defaults from "$lib/defaults.ts"
-import { client } from "$lib/server/deepwell/index.ts"
-import type { Optional } from "$lib/types.ts"
+import defaults from "$lib/defaults"
+import { client } from "$lib/server/deepwell"
+import type { Optional } from "$lib/types"
 
 export async function pageDelete(
   siteId: number,
@@ -88,4 +88,35 @@ export async function pageRevision(
       wikitext: wikitext ?? false
     }
   })
+}
+
+export async function pageVote(
+  siteId: number,
+  pageId: Optional<number>,
+  userId: number,
+  action: String,
+  value: number
+) {
+  let actionLower = action.toLowerCase()
+  if (actionLower === "set") {
+    return client.request("vote_set", {
+      page_id: pageId,
+      user_id: userId,
+      value
+    })
+  } else if (actionLower === "remove") {
+    return client.request("vote_remove", {
+      page_id: pageId,
+      user_id: userId
+    })
+  } else if (actionLower === "get_list") {
+    return client.request("vote_list", {
+      type: "Page",
+      id: pageId,
+      deleted: false,
+      disabled: false,
+      start_id: 0,
+      limit: 100
+    })
+  }
 }

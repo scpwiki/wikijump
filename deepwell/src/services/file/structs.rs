@@ -79,6 +79,13 @@ pub struct GetFileOutput {
     pub hidden_fields: Vec<String>,
 }
 
+#[derive(Serialize, Debug, Clone)]
+pub struct GetBlobOutput {
+    pub data: Vec<u8>,
+    pub mime: String,
+    pub size: i64,
+}
+
 #[derive(Deserialize, Debug, Clone)]
 pub struct EditFile {
     pub site_id: i64,

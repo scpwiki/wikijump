@@ -1,7 +1,8 @@
 import defaults from "$lib/defaults"
 import { parseAcceptLangHeader } from "$lib/locales"
+import { getFileByHash } from "$lib/server/deepwell/getFile"
 import { translate } from "$lib/server/deepwell/translate"
-import { userView } from "$lib/server/deepwell/user.ts"
+import { userView } from "$lib/server/deepwell/user"
 import type { TranslateKeys } from "$lib/types"
 import { error, redirect } from "@sveltejs/kit"
 
@@ -45,14 +46,45 @@ export async function loadUser(username?: string, request, cookies) {
       "user-not-exist": {}
     }
   } else {
+    // Remove sensitive information
+    let sensitiveKeys = ["password", "multi_factor_secret", "multi_factor_recovery_codes"]
+    if (viewData.user_session?.user?.user_id !== viewData.user.user_id) {
+      // Currently viewing another user's profile
+      sensitiveKeys = [...sensitiveKeys, "email", "email_is_alias", "email_verified_at"]
+    }
+    for (let i = 0; i < sensitiveKeys.length; i++) {
+      delete viewData.user[sensitiveKeys[i]]
+    }
+
+    // Get user avatar image
+    if (viewData.user.avatar_s3_hash !== null) {
+      let avatar = await getFileByHash(new Uint8Array(viewData.user.avatar_s3_hash))
+      let dataurl = `data:${avatar.type};base64,${Buffer.from(
+        await avatar.arrayBuffer()
+      ).toString("base64")}`
+      viewData.user.avatar = dataurl
+    }
+
     translateKeys = {
       ...translateKeys,
+
+      // Edit actions
+      "edit": {},
+      "save": {},
+      "cancel": {},
+
+      // User profile attributes
+      "avatar": {},
       "user-profile-info.name": {},
+      "user-profile-info.real-name": {},
+      "user-profile-info.email": {},
+      "user-profile-info.avatar": {},
       "user-profile-info.gender": {},
       "user-profile-info.birthday": {},
       "user-profile-info.location": {},
       "user-profile-info.biography": {},
-      "user-profile-info.user-page": {}
+      "user-profile-info.user-page": {},
+      "user-profile-info.locales": {}
     }
   }
 

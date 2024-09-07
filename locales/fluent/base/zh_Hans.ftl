@@ -66,6 +66,7 @@ terms = 术语
 title = 标题
 upload = 上传
 view = 检视
+vote = 评分
 
 search = 搜索
   .placeholder = 搜索……

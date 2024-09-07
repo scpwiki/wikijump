@@ -16,7 +16,7 @@
   {#if $page.data.user.real_name}
     <div class="user-attribute real-name">
       <span class="user-attribute-label"
-        >{$page.data.internationalization?.["user-profile-info.name"]}</span
+        >{$page.data.internationalization?.["user-profile-info.real-name"]}</span
       >
       <span class="user-attribute-value">{$page.data.user.real_name}</span>
     </div>
@@ -28,6 +28,19 @@
         >{$page.data.internationalization?.["user-profile-info.gender"]}</span
       >
       <span class="user-attribute-value">{$page.data.user.gender}</span>
+    </div>
+  {/if}
+
+  {#if $page.data.user.avatar}
+    <div class="user-attribute avatar">
+      <span class="user-attribute-label"
+        >{$page.data.internationalization?.["user-profile-info.avatar"]}</span
+      >
+      <img
+        class="user-attribute-value"
+        alt={$page.data.internationalization?.avatar}
+        src={$page.data.user.avatar}
+      />
     </div>
   {/if}
 
@@ -64,6 +77,15 @@
         >{$page.data.internationalization?.["user-profile-info.biography"]}</span
       >
       <span class="user-attribute-value">{$page.data.user.biography}</span>
+    </div>
+  {/if}
+
+  {#if $page.data.user.locales}
+    <div class="user-attribute locales">
+      <span class="user-attribute-label"
+        >{$page.data.internationalization?.["user-profile-info.locales"]}</span
+      >
+      <span class="user-attribute-value">{$page.data.user.locales?.join(", ")}</span>
     </div>
   {/if}
 </div>
