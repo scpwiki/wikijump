@@ -1,4 +1,4 @@
-import { client } from "$lib/server/deepwell/index.ts"
+import { client } from "$lib/server/deepwell"
 
 export async function authLogin(
   nameOrEmail: string,

@@ -1,4 +1,4 @@
-import { client } from "$lib/server/deepwell/index.ts"
+import { client } from "$lib/server/deepwell"
 import type { TranslateKeys, TranslatedKeys } from "$lib/types"
 
 export async function translate(

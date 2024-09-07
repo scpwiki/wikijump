@@ -1,9 +1,8 @@
 import defaults from "$lib/defaults"
 import { parseAcceptLangHeader } from "$lib/locales"
 import { translate } from "$lib/server/deepwell/translate"
-import { pageView } from "$lib/server/deepwell/views.ts"
-import type { TranslateKeys } from "$lib/types"
-import type { Optional } from "$lib/types.ts"
+import { pageView } from "$lib/server/deepwell/views"
+import type { Optional, TranslateKeys } from "$lib/types"
 import { error, redirect } from "@sveltejs/kit"
 
 // TODO form single deepwell request that does all the relevant prep stuff here

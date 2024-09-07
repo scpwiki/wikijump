@@ -1,6 +1,6 @@
-import defaults from "$lib/defaults.ts"
-import { client } from "$lib/server/deepwell/index.ts"
-import type { Optional } from "$lib/types.ts"
+import defaults from "$lib/defaults"
+import { client } from "$lib/server/deepwell"
+import type { Optional } from "$lib/types"
 
 export async function pageDelete(
   siteId: number,
