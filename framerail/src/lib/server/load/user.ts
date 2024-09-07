@@ -45,14 +45,34 @@ export async function loadUser(username?: string, request, cookies) {
       "user-not-exist": {}
     }
   } else {
+    // Remove sensitive information
+    let sensitiveKeys = ["password", "multi_factor_secret", "multi_factor_recovery_codes"]
+    if (viewData.user_session?.user?.user_id !== viewData.user.user_id) {
+      // Currently viewing another user's profile
+      sensitiveKeys = [...sensitiveKeys, "email", "email_is_alias", "email_verified_at"]
+    }
+    for (let i = 0; i < sensitiveKeys.length; i++) {
+      delete viewData.user[sensitiveKeys[i]]
+    }
+
     translateKeys = {
       ...translateKeys,
+
+      // Edit actions
+      "edit": {},
+      "save": {},
+      "cancel": {},
+
+      // User profile attributes
       "user-profile-info.name": {},
+      "user-profile-info.real-name": {},
+      "user-profile-info.email": {},
       "user-profile-info.gender": {},
       "user-profile-info.birthday": {},
       "user-profile-info.location": {},
       "user-profile-info.biography": {},
-      "user-profile-info.user-page": {}
+      "user-profile-info.user-page": {},
+      "user-profile-info.locales": {}
     }
   }
 

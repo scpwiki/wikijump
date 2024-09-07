@@ -53,6 +53,7 @@
 
     textarea,
     input[type="text"],
+    input[type="date"],
     input[type="password"] {
       padding: 0.5em 1em;
       color: var(--text);
@@ -129,7 +130,7 @@
         align-items: center;
         justify-content: center;
         padding: 0;
-        
+
         .vote-desc {
           display: inline-block;
           padding: 0.5em 1em;

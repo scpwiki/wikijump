@@ -16,7 +16,7 @@
   {#if $page.data.user.real_name}
     <div class="user-attribute real-name">
       <span class="user-attribute-label"
-        >{$page.data.internationalization?.["user-profile-info.name"]}</span
+        >{$page.data.internationalization?.["user-profile-info.real-name"]}</span
       >
       <span class="user-attribute-value">{$page.data.user.real_name}</span>
     </div>
@@ -64,6 +64,15 @@
         >{$page.data.internationalization?.["user-profile-info.biography"]}</span
       >
       <span class="user-attribute-value">{$page.data.user.biography}</span>
+    </div>
+  {/if}
+
+  {#if $page.data.user.locales}
+    <div class="user-attribute locales">
+      <span class="user-attribute-label"
+        >{$page.data.internationalization?.["user-profile-info.locales"]}</span
+      >
+      <span class="user-attribute-value">{$page.data.user.locales?.join(", ")}</span>
     </div>
   {/if}
 </div>

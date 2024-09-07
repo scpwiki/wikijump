@@ -1,5 +1,7 @@
 user-profile-info =
   .name = Name:
+  .real-name = Real name:
+  .email = Email:
   .pronouns = Pronouns:
   .birthday = Birthday:
   .location = Location:
@@ -7,5 +9,6 @@ user-profile-info =
   .biography = Biography:
   .gender = Gender:
   .user-page = User page:
+  .locales = Locales:
 
 user-not-exist = This user does not exist.
