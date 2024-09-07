@@ -22,6 +22,12 @@ wiki-page-revision-comments = Comments
 
 wiki-page-move-new-slug = New slug
 
+wiki-page-vote-set = Cast vote
+
+wiki-page-vote-remove = Cancel vote
+
+wiki-page-vote-list = List votes
+
 ### Special Page fallback strings
 
 wiki-page-missing = The page //{ $slug }// you want to access does not exist.

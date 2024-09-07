@@ -79,6 +79,7 @@ export async function loadPage(
       "history": {},
       "move": {},
       "view": {},
+      "vote": {},
 
       // Page edit
       "tags": {},
@@ -93,6 +94,11 @@ export async function loadPage(
       "wiki-page-revision-created-at": {},
       "wiki-page-revision-user": {},
       "wiki-page-revision-comments": {},
+
+      // Page vote
+      "wiki-page-vote-list": {},
+      "wiki-page-vote-set": {},
+      "wiki-page-vote-remove": {},
 
       // Misc
       "wiki-page-move-new-slug": {},

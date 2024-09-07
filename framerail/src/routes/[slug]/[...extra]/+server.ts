@@ -7,11 +7,11 @@ export async function POST(event) {
   let data = await event.request.formData()
   let slug = event.params.slug
 
-  let userSession = event.cookies.get("wikijump_token")
+  let sessionToken = event.cookies.get("wikijump_token")
   let ipAddr = event.getClientAddress()
   let userAgent = event.cookies.get("User-Agent")
 
-  let session = await authGetSession(userSession)
+  let session = await authGetSession(sessionToken)
 
   let extra = event.params.extra
     ?.toLowerCase()
@@ -74,6 +74,12 @@ export async function POST(event) {
         compiledHtml,
         wikitext
       )
+    } else if (extra.includes("vote")) {
+      let action = data.get("action")?.toString()
+      let valueStr = data.get("value")?.toString()
+      let value = valueStr ? parseInt(valueStr) : null
+
+      res = await page.pageVote(siteId, pageId, session?.user_id, action, value)
     }
 
     return new Response(JSON.stringify(res))
@@ -93,11 +99,11 @@ export async function DELETE(event) {
   let data = await event.request.formData()
   let slug = event.params.slug
 
-  let userSession = event.cookies.get("wikijump_token")
+  let sessionToken = event.cookies.get("wikijump_token")
   let ipAddr = event.getClientAddress()
   let userAgent = event.cookies.get("User-Agent")
 
-  let session = await authGetSession(userSession)
+  let session = await authGetSession(sessionToken)
 
   let pageIdVal = data.get("page-id")?.toString()
   let pageId = pageIdVal ? parseInt(pageIdVal) : null
