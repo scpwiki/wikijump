@@ -253,6 +253,9 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("parent_remove", parent_remove);
     register!("parent_relationships_get", parent_relationships_get);
 
+    // Blob data
+    register!("blob_get", blob_get);
+
     // Files
     register!("file_upload", file_upload);
     register!("file_get", file_get);
