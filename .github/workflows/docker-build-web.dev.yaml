@@ -1,11 +1,11 @@
-name: '[backend] Docker build Framerail (local)'
+name: '[backend] Docker build Framerail (dev)'
 
 on:
   pull_request:
     paths:
       - 'framerail/**'
-      - 'install/local/dev/web/Dockerfile'
-      - '.github/workflows/docker-build-web.local.yaml'
+      - 'install/dev/digitalocean/web/Dockerfile'
+      - '.github/workflows/docker-build-web.dev.yaml'
 
 jobs:
   build:
@@ -15,6 +15,6 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Build image
-        run: docker build -f install/local/dev/web/Dockerfile .
+        run: docker build -f install/dev/digitalocean/web/Dockerfile .
         env:
           DOCKER_BUILDKIT: 1

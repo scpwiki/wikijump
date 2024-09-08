@@ -127,6 +127,13 @@
     },
     {
         "site": null,
+        "regex": "^(in|ex)ternal$",
+        "description": "Reserved name (internal / external)",
+        "case_sensitive": false,
+        "user": true
+    },
+    {
+        "site": null,
         "regex": "^secure$",
         "description": "Reserved name (secure)",
         "case_sensitive": false,
@@ -134,8 +141,8 @@
     },
     {
         "site": null,
-        "regex": "^serv(ices?)?$",
-        "description": "Reserved name (serv / service / services)",
+        "regex": "^se?rv(ices?)?$",
+        "description": "Reserved name (srv / serv / service / services)",
         "case_sensitive": false,
         "user": true
     },
@@ -162,8 +169,8 @@
     },
     {
         "site": null,
-        "regex": "^admin(ministrator)?",
-        "description": "Reserved name (starts with admin / administrator)",
+        "regex": "^admin",
+        "description": "Reserved name (starts with admin)",
         "case_sensitive": false,
         "user": true
     },
@@ -290,6 +297,13 @@
         "site": null,
         "regex": "^(img|image)$",
         "description": "Reserved name (img / image)",
+        "case_sensitive": false,
+        "user": true
+    },
+    {
+        "site": null,
+        "regex": "^(css|js|xml)$",
+        "description": "Reserved name (css / js / xml)",
         "case_sensitive": false,
         "user": true
     },

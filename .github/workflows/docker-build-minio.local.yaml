@@ -17,4 +17,3 @@ jobs:
         run: cd install/local/dev/minio && docker build .
         env:
           DOCKER_BUILDKIT: 1
-

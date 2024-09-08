@@ -35,5 +35,6 @@ COPY ./install/files/prod/deepwell.toml /etc/deepwell.toml
 COPY ./locales/fluent /opt/locales/fluent
 
 USER daemon
+ENV PORT=2747
 EXPOSE 2747
 CMD ["/usr/local/bin/deepwell", "/etc/deepwell.toml"]

@@ -1,0 +1,75 @@
+name: wikijump
+
+alerts:
+  - rule: DEPLOYMENT_FAILED
+  - rule: DOMAIN_FAILED
+
+static_sites: []
+
+services:
+  - name: framerail
+    source_dir: .
+    dockerfile_path: install/dev/digitalocean/web/Dockerfile
+    github:
+      repo: scpwiki/wikijump
+      branch: develop
+      deploy_on_push: true
+    instance_size_slug: basic-xxs
+    health_check:
+      initial_delay_seconds: 3
+    envs:
+      - key: DEEPWELL_HOST
+        value: '${deepwell.PRIVATE_DOMAIN}'
+        scope: RUN_TIME
+
+  - name: deepwell
+    source_dir: .
+    dockerfile_path: install/dev/digitalocean/api/Dockerfile
+    github:
+      repo: scpwiki/wikijump
+      branch: develop
+      deploy_on_push: true
+    instance_size_slug: basic-xxs
+    internal_ports: [2747]
+    envs:
+      - key: S3_BUCKET
+        value: wikijump-files-dev
+        scope: RUN_TIME
+      - key: S3_REGION_NAME
+        value: nyc3
+        scope: RUN_TIME
+      - key: S3_CUSTOM_ENDPOINT
+        value: https://nyc3.digitaloceanspaces.com
+        scope: RUN_TIME
+      - key: S3_PATH_STYLE
+        value: 'false'
+        scope: RUN_TIME
+      - key: DATABASE_URL
+        value: '${database.DATABASE_URL}'
+        scope: RUN_TIME
+      - key: REDIS_URL
+        value: '${cache.REDIS_URL}'
+        scope: RUN_TIME
+      - key: S3_ACCESS_KEY_ID
+        type: SECRET
+        scope: RUN_TIME
+        value: EV[1:o7KR/O5b7OHyXKDwyazNBHvLtp3RknSX:yimWNoxvDzML1V8dtbG+PN9qUbGfi+8lzYWzl+5ImU2fxojU]
+      - key: S3_SECRET_ACCESS_KEY
+        type: SECRET
+        scope: RUN_TIME
+        value: EV[1:HcyKErP7i3GUkjNt6GzRlrwXwgfEZRR+:r/51sfR9EqTGZOIev0F2fLrN4CqBl0AB/rpVVr1y2tWbEDnhMKBKZFuWoDJRMjOAKXhZfa/Nam29wEo=]
+
+databases:
+  - engine: PG
+    name: database
+    version: '16'
+    production: true
+    cluster_name: wikijump-dev-db
+    db_name: wikijump
+    db_user: wikijump
+
+  - engine: REDIS
+    name: cache
+    version: '7'
+    production: true
+    cluster_name: wikijump-dev-cache
