@@ -99,6 +99,7 @@ impl SeedData {
 }
 
 #[derive(Deserialize, Debug)]
+#[serde(rename_all = "kebab-case")]
 pub struct User {
     pub id: i64,
     pub name: String,
@@ -119,6 +120,7 @@ pub struct User {
 }
 
 #[derive(Deserialize, Debug)]
+#[serde(rename_all = "kebab-case")]
 pub struct Site {
     pub slug: String,
 
@@ -127,11 +129,15 @@ pub struct Site {
     pub name: String,
     pub tagline: String,
     pub description: String,
+
+    #[serde(default)]
+    pub default_page: Option<String>,
     pub layout: Option<Layout>,
     pub locale: String,
 }
 
 #[derive(Deserialize, Debug)]
+#[serde(rename_all = "kebab-case")]
 pub struct Page {
     pub slug: String,
     pub title: String,
@@ -147,6 +153,7 @@ pub struct Page {
 }
 
 #[derive(Deserialize, Debug)]
+#[serde(rename_all = "kebab-case")]
 pub struct Filter {
     pub regex: String,
     pub description: String,

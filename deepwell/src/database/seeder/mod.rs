@@ -150,6 +150,7 @@ pub async fn seed(state: &ServerState) -> Result<()> {
                 name: site.name,
                 tagline: site.tagline,
                 description: site.description,
+                default_page: site.default_page,
                 layout: site.layout,
                 locale: site.locale,
             },
