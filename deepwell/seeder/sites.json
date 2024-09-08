@@ -10,9 +10,11 @@
     {
         "slug": "test",
         "aliases": ["check"],
+        "domains": ["wikijump-qdpi9.ondigitalocean.app"],
         "name": "Test site",
         "tagline": "The other kind of sandbox",
         "description": "Platform testing and experiments",
+        "default-page": "home",
         "layout": "wikidot",
         "locale": "en"
     },
@@ -21,6 +23,16 @@
         "name": "Default template site",
         "tagline": "",
         "description": "Template site (English)",
+        "layout": null,
+        "locale": "en"
+    },
+    {
+        "slug": "scp-wiki",
+        "name": "SCP Wiki (test)",
+        "domains": ["scpwiki.dev"],
+        "tagline": "Secure, Contain, Protect",
+        "description": "Test site mimicking the SCP Wiki (EN)",
+        "default-page": "main",
         "layout": null,
         "locale": "en"
     }

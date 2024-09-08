@@ -53,9 +53,9 @@
     ],
     "test": [
         {
-            "slug": "start",
+            "slug": "home",
             "title": "Wikijump Test Site",
-            "wikitext": "test-start"
+            "wikitext": "test-home"
         },
         {
             "slug": "nav:side",
@@ -123,6 +123,19 @@
             "slug": "system:page-tags",
             "title": "Page Tags",
             "wikitext": "page-tags"
+        }
+    ],
+    "scp-wiki": [
+        {
+            "slug": "main",
+            "title": "This is not the SCP Wiki",
+            "wikitext": "scp-main"
+        },
+        {
+            "slug": "scp-002",
+            "title": "SCP-002",
+            "alt-title": "The Living Room",
+            "wikitext": "scp-002"
         }
     ]
 }
