@@ -169,8 +169,8 @@
     },
     {
         "site": null,
-        "regex": "^admin(ministrators?)?",
-        "description": "Reserved name (starts with admin / administrator)",
+        "regex": "^admin",
+        "description": "Reserved name (starts with admin)",
         "case_sensitive": false,
         "user": true
     },
