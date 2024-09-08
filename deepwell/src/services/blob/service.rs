@@ -114,8 +114,7 @@ impl BlobService {
         let txn = ctx.transaction();
 
         debug!("Getting pending blob info");
-        let row = BlobPending::find()
-            .filter(blob_pending::Column::PendingBlobId.eq(pending_blob_id))
+        let row = BlobPending::find_by_id(pending_blob_id)
             .one(txn)
             .await?;
 
