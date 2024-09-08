@@ -91,7 +91,7 @@ impl MimeAnalyzer {
             sender.send(result).expect("Response channel is closed");
         }
 
-        panic!("MIME magic channel closed");
+        panic!("MIME magic channel closed (this usually happens when the main application crashes)");
     }
 
     /// Requests that libmagic analyze the buffer to determine its MIME type.
