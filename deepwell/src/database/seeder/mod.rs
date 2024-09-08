@@ -20,7 +20,7 @@
 
 mod data;
 
-use self::data::{SeedData, SitePages};
+use self::data::SeedData;
 use crate::api::ServerState;
 use crate::constants::{ADMIN_USER_ID, SYSTEM_USER_ID};
 use crate::models::sea_orm_active_enums::AliasType;
@@ -36,6 +36,7 @@ use sea_orm::{
     ConnectionTrait, DatabaseBackend, DatabaseTransaction, Statement, TransactionTrait,
 };
 use std::borrow::Cow;
+use std::collections::HashMap;
 
 pub async fn seed(state: &ServerState) -> Result<()> {
     info!("Running seeder...");
@@ -63,7 +64,8 @@ pub async fn seed(state: &ServerState) -> Result<()> {
 
     let SeedData {
         users,
-        site_pages,
+        sites,
+        pages,
         filters,
     } = SeedData::load(&state.config.seeder_path)?;
 
@@ -137,15 +139,11 @@ pub async fn seed(state: &ServerState) -> Result<()> {
     }
 
     // Seed site data
-    for SitePages {
-        site,
-        aliases: site_aliases,
-        pages,
-    } in site_pages
-    {
+    let mut site_ids = HashMap::new();
+    for site in sites {
         info!("Creating seed site '{}' (slug {})", site.name, site.slug);
 
-        let CreateSiteOutput { site_id, .. } = SiteService::create(
+        let CreateSiteOutput { site_id, slug, .. } = SiteService::create(
             &ctx,
             CreateSite {
                 slug: site.slug,
@@ -158,7 +156,9 @@ pub async fn seed(state: &ServerState) -> Result<()> {
         )
         .await?;
 
-        for site_alias in site_aliases {
+        site_ids.insert(slug, site_id);
+
+        for site_alias in site.aliases {
             info!("Creating site alias '{}'", site_alias);
 
             AliasService::create(
@@ -173,6 +173,12 @@ pub async fn seed(state: &ServerState) -> Result<()> {
             )
             .await?;
         }
+    }
+
+    // Seed page data
+    for (site_slug, pages) in pages {
+        info!("Creating pages in site {site_slug}");
+        let site_id = site_ids[&site_slug];
 
         for page in pages {
             info!("Creating page '{}' (slug {})", page.title, page.slug);
