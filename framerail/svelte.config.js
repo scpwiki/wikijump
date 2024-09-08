@@ -8,7 +8,11 @@ const config = {
   preprocess: preprocess(),
 
   kit: {
-    adapter: adapter()
+    adapter: adapter(),
+    csrf: {
+      // Allow flexible hosts on local, since we don't have real DNS
+      checkOrigin: process.env.FRAMERAIL_ENV !== "local"
+    }
   },
 
   compilerOptions: {

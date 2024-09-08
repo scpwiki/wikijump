@@ -23,6 +23,7 @@ RUN \
 # Run command
 USER node:node
 ENV NODE_ENV=production
+ENV FRAMERAIL_ENV=dev
 ENV PORT=3000
 EXPOSE 3000
 
