@@ -44,6 +44,7 @@ impl SiteService {
             name,
             tagline,
             description,
+            default_page,
             layout,
             locale,
         }: CreateSite,
@@ -65,6 +66,10 @@ impl SiteService {
             name: Set(name),
             tagline: Set(tagline),
             description: Set(description.clone()),
+            default_page: match default_page {
+                Some(slug) => sea_orm::Set(slug),
+                None => sea_orm::NotSet,
+            },
             layout: Set(layout.map(|l| str!(l.value()))),
             locale: Set(locale.clone()),
             ..Default::default()

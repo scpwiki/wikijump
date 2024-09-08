@@ -30,6 +30,7 @@ pub struct CreateSite {
     pub name: String,
     pub tagline: String,
     pub description: String,
+    pub default_page: Option<String>,
     pub layout: Option<Layout>,
     pub locale: String,
 }
