@@ -52,7 +52,7 @@ impl SeedData {
         for (site, pages) in &mut site_pages {
             // Verify that the site exists
             assert!(
-                sites.iter().find(|s| &s.slug == site).is_some(),
+                sites.iter().any(|s| &s.slug == site),
                 "No site with slug {}",
                 site,
             );
