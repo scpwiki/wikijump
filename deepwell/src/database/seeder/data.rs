@@ -126,6 +126,9 @@ pub struct Site {
 
     #[serde(default)]
     pub aliases: Vec<String>,
+
+    #[serde(default)]
+    pub domains: Vec<String>,
     pub name: String,
     pub tagline: String,
     pub description: String,
