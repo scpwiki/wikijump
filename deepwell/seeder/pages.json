@@ -136,6 +136,36 @@
             "title": "SCP-002",
             "alt-title": "The Living Room",
             "wikitext": "scp-002"
+        },
+        {
+            "slug": "nav:side",
+            "title": "Sidebar",
+            "wikitext": "sidebar"
+        },
+        {
+            "slug": "nav:top",
+            "title": "Topbar",
+            "wikitext": "topbar"
+        },
+        {
+            "slug": "system:join",
+            "title": "Join this site",
+            "wikitext": "join"
+        },
+        {
+            "slug": "system:members",
+            "title": "Site Members",
+            "wikitext": "members"
+        },
+        {
+            "slug": "system:recent-changes",
+            "title": "Recent Changes",
+            "wikitext": "recent-changes"
+        },
+        {
+            "slug": "system:page-tags",
+            "title": "Page Tags",
+            "wikitext": "page-tags"
         }
     ]
 }
