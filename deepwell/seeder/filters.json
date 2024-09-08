@@ -3,315 +3,315 @@
         "site": "www",
         "regex": "^alice$",
         "description": "Users named Alice cannot join (example)",
-        "case_sensitive": true,
+        "case-sensitive": true,
         "user": true
     },
     {
         "site": "www",
         "regex": "^bob$",
         "description": "Users named Bob cannot join (example)",
-        "case_sensitive": true,
+        "case-sensitive": true,
         "user": true
     },
     {
         "site": null,
         "regex": "^.*@example\\.com$",
         "description": "Cannot join using example.com emails (example)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "email": true
     },
     {
         "site": null,
         "regex": "wikidot",
         "description": "Reserved name (wikidot)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "wikijump",
         "description": "Reserved name (wikijump)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^mail$",
         "description": "Reserved name (mail)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^dev(eloper)?$",
         "description": "Reserved name (dev / developer)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^blog$",
         "description": "Reserved name (blog)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^login$",
         "description": "Reserved name (login)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^logout$",
         "description": "Reserved name (logout)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^support$",
         "description": "Reserved name (support)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^help(desk)?$",
         "description": "Reserved name (help / helpdesk)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^pro(fessional)?$",
         "description": "Reserved name (pro / professional)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^web$",
         "description": "Reserved name (web)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^cdn$",
         "description": "Reserved name (cdn)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^(ssl|tls)$",
         "description": "Reserved name (ssl / tls)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^pay(ments?)?$",
         "description": "Reserved name (pay / payment / payments)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^(wd|wj)?(up|down)load$",
         "description": "Reserved name (upload / download)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^(in|ex)ternal$",
         "description": "Reserved name (internal / external)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^secure$",
         "description": "Reserved name (secure)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^se?rv(ices?)?$",
         "description": "Reserved name (srv / serv / service / services)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^static[0-9]*$",
         "description": "Reserved name (static with optional numbers)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^api$",
         "description": "Reserved name (api)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^guru$",
         "description": "Reserved name (guru)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^admin",
         "description": "Reserved name (starts with admin)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^mod$",
         "description": "Reserved name (mod)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^moderator",
         "description": "Reserved name (starts with moderator)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^staff$",
         "description": "Reserved name (staff)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^module$",
         "description": "Reserved name (module)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^sys$",
         "description": "Reserved name (sys)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^system",
         "description": "Reserved name (starts with system)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^root$",
         "description": "Reserved name (root)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^sudo$",
         "description": "Reserved name (sudo)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^wheel$",
         "description": "Reserved name (wheel)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^anon(ymous)?$",
         "description": "Reserved name (anon / anonymous)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^guest",
         "description": "Reserved name (starts with guest)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^template$",
         "description": "Reserved name (template)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^template-$",
         "description": "Reserved name (starts with template-)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^example",
         "description": "Reserved name (starts with example)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^unknown$",
         "description": "Reserved name (unknown)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^null$",
         "description": "Reserved name (null)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^undefined$",
         "description": "Reserved name (undefined)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^(img|image)$",
         "description": "Reserved name (img / image)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^(css|js|xml)$",
         "description": "Reserved name (css / js / xml)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^scripts?$",
         "description": "Reserved name (script / scripts)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
 
@@ -319,98 +319,98 @@
         "site": null,
         "regex": "^warning$",
         "description": "Reserved name (warning)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^error$",
         "description": "Reserved name (error)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^(ro)?bots?$",
         "description": "Reserved name (bot / bots / robot / robots)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^(ftp|http|https)$",
         "description": "Reserved name (ftp / http / https)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^(stage|staging)$",
         "description": "Reserved name (stage / staging)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^prod(uction)?$",
         "description": "Reserved name (prod / production)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^official$",
         "description": "Reserved name (official)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^porn",
         "description": "Starts with 'porn'",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^spam",
         "description": "Starts with 'spam'",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^.$",
         "description": "Single-character usernames and slugs",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^[0-9]*www[0-9]*$",
         "description": "Looks like 'WWW'",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^xn-{1,}",
         "description": "Looks like/is punycode",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "@",
         "description": "Looks like an email (contains @)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^[0-9]+(\\.[0-9]+){2,}$",
         "description": "Looks like IPv4",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true,
         "file": true
     },
@@ -418,7 +418,7 @@
         "site": null,
         "regex": "^:*[0-9a-f]+(:[0-9a-f]*)*$",
         "description": "Looks like IPv6",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true,
         "file": true
     },
@@ -426,14 +426,14 @@
         "site": null,
         "regex": "^[o0]5\\-\\w+$",
         "description": "Looks like an O5 designation (SCP Wiki related)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     },
     {
         "site": null,
         "regex": "^SCP\\-\\w+$",
         "description": "Looks like an SCP designation (SCP Wiki related)",
-        "case_sensitive": false,
+        "case-sensitive": false,
         "user": true
     }
 ]
