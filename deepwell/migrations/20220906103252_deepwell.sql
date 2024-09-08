@@ -418,6 +418,7 @@ CREATE TABLE page_vote (
 -- Manages blobs that are being uploaded by the user
 CREATE TABLE blob_pending (
     pending_file_id BIGSERIAL PRIMARY KEY,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     s3_path TEXT NOT NULL CHECK length(s3_path) > 1,
     presign_url TEXT NOT NULL CHECK length(presign_url) > 1
 );
