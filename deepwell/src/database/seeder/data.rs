@@ -112,6 +112,9 @@ pub struct SitePages {
 #[derive(Deserialize, Debug)]
 pub struct Site {
     pub slug: String,
+
+    #[serde(default)]
+    pub aliases: Vec<String>,
     pub name: String,
     pub tagline: String,
     pub description: String,

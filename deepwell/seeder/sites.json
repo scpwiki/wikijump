@@ -1,7 +1,6 @@
 [
     {
         "slug": "www",
-        "aliases": [],
         "name": "Wikijump",
         "tagline": "Fighting Ozone Pollution",
         "description": "Wikijump host site",
@@ -19,7 +18,6 @@
     },
     {
         "slug": "template-en",
-        "aliases": [],
         "name": "Default template site",
         "tagline": "",
         "description": "Template site (English)",
