@@ -13,4 +13,5 @@ WORKDIR /app
 RUN pnpm install
 
 EXPOSE 3000
+ENV FRAMERAIL_ENV=local
 CMD ["pnpm", "dev"]
