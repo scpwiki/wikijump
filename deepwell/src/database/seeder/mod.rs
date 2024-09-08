@@ -25,6 +25,7 @@ use crate::api::ServerState;
 use crate::constants::{ADMIN_USER_ID, SYSTEM_USER_ID};
 use crate::models::sea_orm_active_enums::AliasType;
 use crate::services::alias::{AliasService, CreateAlias};
+use crate::services::domain::{CreateCustomDomain, DomainService};
 use crate::services::filter::{CreateFilter, FilterService};
 use crate::services::page::{CreatePage, PageService};
 use crate::services::site::{CreateSite, CreateSiteOutput, SiteService};
@@ -157,10 +158,8 @@ pub async fn seed(state: &ServerState) -> Result<()> {
         )
         .await?;
 
-        site_ids.insert(slug, site_id);
-
         for site_alias in site.aliases {
-            info!("Creating site alias '{}'", site_alias);
+            info!("Creating site alias '{site_alias}'");
 
             AliasService::create(
                 &ctx,
@@ -174,6 +173,15 @@ pub async fn seed(state: &ServerState) -> Result<()> {
             )
             .await?;
         }
+
+        for domain in site.domains {
+            info!("Creating site domain '{domain}'");
+
+            DomainService::create_custom(&ctx, CreateCustomDomain { site_id, domain })
+                .await?;
+        }
+
+        site_ids.insert(slug, site_id);
     }
 
     // Seed page data
