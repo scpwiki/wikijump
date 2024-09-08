@@ -31,6 +31,7 @@ export async function pageEdit(
   return client.request(pageId ? "page_edit" : "page_create", {
     site_id: siteId,
     page: pageId ?? slug,
+    slug,
     user_id: userId,
     revision_comments: revisionComments,
     wikitext,
