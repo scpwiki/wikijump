@@ -1,0 +1,29 @@
+[
+    {
+        "slug": "www",
+        "aliases": [],
+        "name": "Wikijump",
+        "tagline": "Fighting Ozone Pollution",
+        "description": "Wikijump host site",
+        "layout": "wikijump",
+        "locale": "en"
+    },
+    {
+        "slug": "test",
+        "aliases": ["check"],
+        "name": "Test site",
+        "tagline": "The other kind of sandbox",
+        "description": "Platform testing and experiments",
+        "layout": "wikidot",
+        "locale": "en"
+    },
+    {
+        "slug": "template-en",
+        "aliases": [],
+        "name": "Default template site",
+        "tagline": "",
+        "description": "Template site (English)",
+        "layout": null,
+        "locale": "en"
+    }
+]
