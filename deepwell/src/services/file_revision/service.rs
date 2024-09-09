@@ -443,6 +443,31 @@ impl FileRevisionService {
         Ok(revision)
     }
 
+    /// Get the first revision for this file.
+    pub async fn get_first(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+        file_id: i64,
+    ) -> Result<FileRevisionModel> {
+        let model = FileRevision::find()
+            .filter(
+                Condition::all()
+                    .add(file_revision::Column::SiteId.eq(site_id))
+                    .add(file_revision::Column::PageId.eq(page_id))
+                    .add(file_revision::Column::FileId.eq(file_id))
+                    .add(file_revision::Column::RevisionNumber.eq(0))
+                    .add(
+                        file_revision::Column::RevisionType.eq(FileRevisionType::Create),
+                    ),
+            )
+            .one(txn)
+            .await?
+            .ok_or(Error::FileRevisionNotFound)?;
+
+        Ok(model)
+    }
+
     /// Get the latest revision for this file.
     ///
     /// See `RevisionService::get_latest()`.

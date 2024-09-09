@@ -128,22 +128,7 @@ impl FileService {
         }
 
         // Get first file revision
-        let file_revision = FileRevision::find()
-            .filter(
-                Condition::all()
-                    .add(file_revision::Column::FileId.eq(file_id))
-                    .add(file_revision::Column::RevisionNumber.eq(0))
-                    .add(
-                        file_revision::Column::RevisionType.eq(FileRevisionType::Create),
-                    ),
-            )
-            .one(txn)
-            .await?;
-
-        let file_revision = match file_revision {
-            Some(file_revision) => file_revision,
-            None => return Err(Error::FileNotFound),
-        };
+        let file_revision = FileRevisionService::get_first(ctx, site_id, page_id, file_id).await?;
 
         // Delete the pending blob row
         let mut model = file::ActiveModel {
