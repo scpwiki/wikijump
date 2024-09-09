@@ -78,8 +78,7 @@ impl FileService {
         };
 
         let file = model.insert(txn).await?;
-
-        FileRevisionService::create_pending(
+        let file_revision = FileRevisionService::create_pending(
             ctx,
             CreatePendingFileRevision {
                 site_id,
@@ -91,7 +90,13 @@ impl FileService {
                 comments: revision_comments,
             },
         )
-        .await
+        .await?;
+
+        Ok(StartFileUploadOutput {
+            pending_blob_id: pending.pending_blob_id,
+            presign_url: pending.presign_url,
+            file_revision_id: file_revision.file_revision_id,
+        })
     }
 
     pub async fn finish_new_upload(
@@ -108,7 +113,7 @@ impl FileService {
             site_id, page_id, file_id, pending_blob_id,
         );
 
-        // Ensure file exists
+        // Ensure a pending file exists
         let txn = ctx.transaction();
         let row = File::find()
             .filter(

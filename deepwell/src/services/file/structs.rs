@@ -39,8 +39,12 @@ pub struct StartFileUpload {
     pub bypass_filter: bool,
 }
 
-// TODO
-pub type StartFileUploadOutput = CreateFirstFileRevisionOutput;
+#[derive(Serialize, Debug, Clone)]
+pub struct StartFileUploadOutput {
+    pub pending_blob_id: i64,
+    pub presign_url: String,
+    pub file_revision_id: i64,
+}
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct FinishUploadFile {
