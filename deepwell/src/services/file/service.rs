@@ -136,13 +136,15 @@ impl FileService {
         let file_revision =
             FileRevisionService::get_first(ctx, site_id, page_id, file_id).await?;
 
-        // Remove pending_blob connection
-        let mut model = file::ActiveModel {
-            file_id: Set(file_id),
-            pending_blob_id: Set(None),
-            ..Default::default()
-        };
-        model.update(txn).await?;
+        // Clear pending_blob column
+        {
+            let mut model = file::ActiveModel {
+                file_id: Set(file_id),
+                pending_blob_id: Set(None),
+                ..Default::default()
+            };
+            model.update(txn).await?;
+        }
 
         // Update file revision to add the uploaded data
         let FinalizeBlobUploadOutput {
