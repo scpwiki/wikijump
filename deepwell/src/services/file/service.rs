@@ -130,7 +130,7 @@ impl FileService {
         // Get first file revision
         let file_revision = FileRevisionService::get_first(ctx, site_id, page_id, file_id).await?;
 
-        // Delete the pending blob row
+        // Remove pending_blob connection
         let mut model = file::ActiveModel {
             file_id: Set(file_id),
             pending_blob_id: Set(None),
