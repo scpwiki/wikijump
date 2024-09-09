@@ -6,6 +6,16 @@ alerts:
 
 static_sites: []
 
+domains:
+- domain: wikijump.dev
+  zone: wikijump.dev
+  type: PRIMARY
+  wildcard: true
+- domain: scpwiki.dev
+  zone: scpwiki.dev
+  type: ALIAS
+  wildcard: true
+
 services:
   - name: framerail
     source_dir: .
