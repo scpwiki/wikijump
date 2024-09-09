@@ -44,7 +44,7 @@ impl FileService {
     /// meaning that duplicates are not uploaded twice.
     pub async fn start_new_upload(
         ctx: &ServiceContext<'_>,
-        UploadNewFile {
+        StartFileUpload {
             site_id,
             page_id,
             name,
@@ -52,8 +52,8 @@ impl FileService {
             user_id,
             licensing,
             bypass_filter,
-        }: UploadNewFile,
-    ) -> Result<UploadFileOutput> {
+        }: StartFileUpload,
+    ) -> Result<StartFileUploadOutput> {
         info!("Creating file with name '{}'", name);
         let txn = ctx.transaction();
 
@@ -96,12 +96,12 @@ impl FileService {
 
     pub async fn finish_new_upload(
         ctx: &ServiceContext<'_>,
-        FinishUploadNewFile {
+        FinishUploadFile {
             site_id,
             page_id,
             file_id,
             pending_blob_id,
-        }: FinishUploadNewFile,
+        }: FinishUploadFile,
     ) -> Result<FinishUploadFileOutput> {
         info!(
             "Finishing new file upload with site ID {} page ID {} file ID {} pending ID {}",
