@@ -67,8 +67,7 @@ pub struct UploadFileEdit {
 pub type UploadFileEditOutput = CreateFileRevisionOutput;
 
 #[derive(Deserialize, Debug, Clone)]
-pub struct FinishUploadFileEdit {
-}
+pub struct FinishUploadFileEdit {}
 
 #[derive(Serialize, Debug, Clone)]
 pub struct FinishUploadFileEditOutput {

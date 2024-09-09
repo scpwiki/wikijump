@@ -79,25 +79,19 @@ impl FileService {
 
         let file = model.insert(txn).await?;
 
-        // Add file revision (with dummy file data)
-        let revision_output = FileRevisionService::create_first(
+        FileRevisionService::create_pending(
             ctx,
-            CreateFirstFileRevision {
+            CreatePendingFileRevision {
                 site_id,
                 page_id,
                 file_id: file.file_id,
                 user_id,
                 name,
-                s3_hash: EMPTY_BLOB_HASH,
-                mime_hint: str!(EMPTY_BLOB_MIME),
-                size_hint: 0,
                 licensing,
                 comments: revision_comments,
             },
         )
-        .await?;
-
-        Ok(revision_output)
+        .await
     }
 
     pub async fn finish_new_upload(

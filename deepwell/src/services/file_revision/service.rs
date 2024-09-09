@@ -169,12 +169,40 @@ impl FileRevisionService {
         }))
     }
 
-    /// Creates the first revision for a newly-uploaded file.
+    /// Creates a dummy first revision for a file pending upload.
+    pub async fn create_pending(
+        ctx: &ServiceContext<'_>,
+        CreatePendingFileRevision {
+            site_id,
+            page_id,
+            file_id,
+            user_id,
+            name,
+            licensing,
+            comments,
+        }: CreatePendingFileRevision,
+    ) -> Result<CreateFirstFileRevisionOutput> {
+        FileRevisionService::create_first(
+            ctx,
+            CreateFirstFileRevision {
+                site_id,
+                page_id,
+                file_id,
+                user_id,
+                name,
+                s3_hash: EMPTY_BLOB_HASH,
+                mime_hint: str!(EMPTY_BLOB_MIME),
+                size_hint: 0,
+                licensing,
+                comments,
+            },
+        )
+        .await
+    }
+
+    /// Creates the first revision for an already-uploaded file.
     ///
     /// See `RevisionService::create_first()`.
-    ///
-    /// # Panics
-    /// If the given previous revision is for a different file or page, this method will panic.
     pub async fn create_first(
         ctx: &ServiceContext<'_>,
         CreateFirstFileRevision {

@@ -68,6 +68,17 @@ pub struct CreateFirstFileRevision {
     pub comments: String,
 }
 
+#[derive(Debug, Clone)]
+pub struct CreatePendingFileRevision {
+    pub site_id: i64,
+    pub page_id: i64,
+    pub file_id: i64,
+    pub user_id: i64,
+    pub name: String,
+    pub licensing: serde_json::Value,
+    pub comments: String,
+}
+
 #[derive(Serialize, Debug, Clone, Default)]
 pub struct CreateFirstFileRevisionOutput {
     pub file_id: i64,
