@@ -114,10 +114,7 @@ impl BlobService {
         let txn = ctx.transaction();
 
         debug!("Getting pending blob info");
-        let row = BlobPending::find_by_id(pending_blob_id)
-            .one(txn)
-            .await?;
-
+        let row = BlobPending::find_by_id(pending_blob_id).one(txn).await?;
         let BlobPendingModel { s3_path, .. } = match row {
             Some(pending) => pending,
             None => return Err(Error::GeneralNotFound),
