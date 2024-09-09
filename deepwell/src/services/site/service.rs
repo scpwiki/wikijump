@@ -31,6 +31,7 @@ use crate::services::{AliasService, Error, RelationService, UserService};
 use crate::utils::validate_locale;
 use ftml::layout::Layout;
 use ref_map::*;
+use sea_orm::NotSet;
 use std::borrow::Cow;
 
 #[derive(Debug)]
@@ -44,6 +45,7 @@ impl SiteService {
             name,
             tagline,
             description,
+            default_page,
             layout,
             locale,
         }: CreateSite,
@@ -65,6 +67,10 @@ impl SiteService {
             name: Set(name),
             tagline: Set(tagline),
             description: Set(description.clone()),
+            default_page: match default_page {
+                Some(slug) => Set(slug),
+                None => NotSet,
+            },
             layout: Set(layout.map(|l| str!(l.value()))),
             locale: Set(locale.clone()),
             ..Default::default()

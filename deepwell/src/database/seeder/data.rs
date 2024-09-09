@@ -22,6 +22,7 @@ use crate::models::sea_orm_active_enums::UserType;
 use anyhow::Result;
 use ftml::layout::Layout;
 use serde::Deserialize;
+use std::collections::HashMap;
 use std::fs::{self, File};
 use std::path::{Path, PathBuf};
 use time::Date;
@@ -29,7 +30,8 @@ use time::Date;
 #[derive(Debug)]
 pub struct SeedData {
     pub users: Vec<User>,
-    pub site_pages: Vec<SitePages>,
+    pub sites: Vec<Site>,
+    pub pages: HashMap<String, Vec<Page>>,
     pub filters: Vec<Filter>,
 }
 
@@ -40,10 +42,23 @@ impl SeedData {
         // Load user data
         let users: Vec<User> = Self::load_json(&mut path, "users")?;
 
+        // Load site data
+        let sites: Vec<Site> = Self::load_json(&mut path, "sites")?;
+
         // Load page data
-        let mut site_pages: Vec<SitePages> = Self::load_json(&mut path, "pages")?;
-        for site_page in &mut site_pages {
-            for page in &mut site_page.pages {
+        let mut site_pages: HashMap<String, Vec<Page>> =
+            Self::load_json(&mut path, "pages")?;
+
+        for (site, pages) in &mut site_pages {
+            // Verify that the site exists
+            assert!(
+                sites.iter().any(|s| &s.slug == site),
+                "No site with slug {}",
+                site,
+            );
+
+            // Fetch wikitext from file
+            for page in pages {
                 page.wikitext = Self::load_wikitext(&mut path, &page.wikitext_filename)?;
             }
         }
@@ -54,7 +69,8 @@ impl SeedData {
         // Build and return
         Ok(SeedData {
             users,
-            site_pages,
+            sites,
+            pages: site_pages,
             filters,
         })
     }
@@ -83,6 +99,7 @@ impl SeedData {
 }
 
 #[derive(Deserialize, Debug)]
+#[serde(rename_all = "kebab-case")]
 pub struct User {
     pub id: i64,
     pub name: String,
@@ -103,23 +120,27 @@ pub struct User {
 }
 
 #[derive(Deserialize, Debug)]
-pub struct SitePages {
-    pub site: Site,
-    pub aliases: Vec<String>,
-    pub pages: Vec<Page>,
-}
-
-#[derive(Deserialize, Debug)]
+#[serde(rename_all = "kebab-case")]
 pub struct Site {
     pub slug: String,
+
+    #[serde(default)]
+    pub aliases: Vec<String>,
+
+    #[serde(default)]
+    pub domains: Vec<String>,
     pub name: String,
     pub tagline: String,
     pub description: String,
+
+    #[serde(default)]
+    pub default_page: Option<String>,
     pub layout: Option<Layout>,
     pub locale: String,
 }
 
 #[derive(Deserialize, Debug)]
+#[serde(rename_all = "kebab-case")]
 pub struct Page {
     pub slug: String,
     pub title: String,
@@ -135,6 +156,7 @@ pub struct Page {
 }
 
 #[derive(Deserialize, Debug)]
+#[serde(rename_all = "kebab-case")]
 pub struct Filter {
     pub regex: String,
     pub description: String,

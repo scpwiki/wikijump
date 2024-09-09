@@ -382,7 +382,7 @@ CREATE TABLE page_connection (
 
 CREATE TABLE page_connection_missing (
     from_page_id BIGINT REFERENCES page(page_id),
-    to_site_id BIGINT REFERENCES page(page_id),
+    to_site_id BIGINT REFERENCES site(site_id),
     to_page_slug TEXT,
     connection_type TEXT, -- Ditto
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
