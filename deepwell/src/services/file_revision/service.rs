@@ -22,7 +22,8 @@ use super::prelude::*;
 use crate::models::file_revision::{
     self, Entity as FileRevision, Model as FileRevisionModel,
 };
-use crate::services::{OutdateService, PageService};
+use crate::services::blob::{FinalizeBlobUploadOutput, EMPTY_BLOB_HASH, EMPTY_BLOB_MIME};
+use crate::services::{BlobService, OutdateService, PageService};
 use crate::web::FetchDirection;
 use once_cell::sync::Lazy;
 use std::num::NonZeroI32;
@@ -452,7 +453,7 @@ impl FileRevisionService {
             file_id,
             pending_blob_id,
         }: FinishUpload,
-    ) -> Result<FileRevisionModel> {
+    ) -> Result<FinishUploadOutput> {
         let txn = ctx.transaction();
 
         // Move upload to final location, get its metadata
@@ -472,9 +473,16 @@ impl FileRevisionService {
         model.s3_hash = Set(hash.to_vec());
         model.mime_hint = Set(mime);
         model.size_hint = Set(size);
-
         let file_revision = model.update(txn).await?;
-        Ok(file_revision)
+
+        Ok(FinishUploadOutput {
+            file_id,
+            file_revision_id: file_revision.revision_id,
+            s3_hash: Bytes::from(file_revision.s3_hash),
+            mime_hint: file_revision.mime_hint,
+            size_hint: file_revision.size_hint,
+            created,
+        })
     }
 
     /// Get the first revision for this file.
@@ -484,6 +492,7 @@ impl FileRevisionService {
         page_id: i64,
         file_id: i64,
     ) -> Result<FileRevisionModel> {
+        let txn = ctx.transaction();
         let model = FileRevision::find()
             .filter(
                 Condition::all()

@@ -123,12 +123,22 @@ pub struct UpdateFileRevision {
     pub hidden: Vec<String>,
 }
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct FinishUpload {
     pub site_id: i64,
     pub page_id: i64,
     pub file_id: i64,
     pub pending_blob_id: i64,
+}
+
+#[derive(Serialize, Debug, Copy, Clone)]
+pub struct FinishUploadOutput {
+    pub file_id: i64,
+    pub file_revision_id: i64,
+    pub s3_hash: Bytes,
+    pub mime_hint: String,
+    pub size_hint: i64,
+    pub created: bool,
 }
 
 #[derive(Deserialize, Debug, Clone)]

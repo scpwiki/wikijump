@@ -27,7 +27,8 @@ use crate::models::sea_orm_active_enums::FileRevisionType;
 use crate::services::blob::{FinalizeBlobUploadOutput, EMPTY_BLOB_HASH, EMPTY_BLOB_MIME};
 use crate::services::file_revision::{
     CreateFileRevision, CreateFileRevisionBody, CreateFirstFileRevision,
-    CreateResurrectionFileRevision, CreateTombstoneFileRevision, FileBlob,
+    CreatePendingFileRevision, CreateResurrectionFileRevision,
+    CreateTombstoneFileRevision, FileBlob,
 };
 use crate::services::filter::{FilterClass, FilterType};
 use crate::services::{BlobService, FileRevisionService, FilterService};
@@ -146,7 +147,7 @@ impl FileService {
         // This gets the data from BlobService and then deletes the row.
         FileRevisionService::finish_upload(
             ctx,
-            FinishUploadFile {
+            FinishUpload {
                 site_id,
                 page_id,
                 file_id,
@@ -166,7 +167,7 @@ impl FileService {
             user_id,
             revision_comments,
         }: UploadFileEdit,
-    ) -> Result<_UploadFileEditOutput> {
+    ) -> Result<UploadFileEditOutput> {
         info!("Uploading new version to file ID {file_id}");
 
         let txn = ctx.transaction();

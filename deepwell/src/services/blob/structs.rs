@@ -26,6 +26,7 @@ pub struct FinalizeBlobUploadOutput {
     pub hash: BlobHash,
     pub mime: String,
     pub size: i64,
+    pub created: bool,
 }
 
 #[derive(Debug)]
