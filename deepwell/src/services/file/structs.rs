@@ -68,14 +68,6 @@ pub struct UploadFileEdit {
 pub type UploadFileEditOutput = CreateFileRevisionOutput;
 
 #[derive(Deserialize, Debug, Clone)]
-pub struct FinishUploadFileEdit {}
-
-#[derive(Serialize, Debug, Clone)]
-pub struct FinishUploadFileEditOutput {
-    // TODO
-}
-
-#[derive(Deserialize, Debug, Clone)]
 pub struct GetFile<'a> {
     pub site_id: i64,
     pub page_id: i64,
