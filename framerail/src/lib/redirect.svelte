@@ -1,9 +1,10 @@
 <script lang="ts">
   import { goto } from "$app/navigation"
   import { onMount } from "svelte"
+  export let redirectPage = "/"
 
   onMount(() => {
-    goto("/", {
+    goto(redirectPage, {
       replaceState: true
     })
   })
