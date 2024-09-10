@@ -29,7 +29,6 @@ pub struct FinalizeBlobUploadOutput {
 }
 
 #[derive(Debug)]
-#[allow(dead_code)] // TEMP
 pub struct BlobMetadata {
     pub mime: String,
     pub size: i64,
