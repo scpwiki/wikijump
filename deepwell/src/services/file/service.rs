@@ -147,6 +147,7 @@ impl FileService {
         }
 
         // Update file revision to add the uploaded data
+        // This deletes the pending blob row
         let FinalizeBlobUploadOutput {
             hash,
             mime,
@@ -154,11 +155,14 @@ impl FileService {
             created,
         } = BlobService::finish_upload(ctx, pending_blob_id).await?;
 
-        let mut model = file_revision.into_active_model();
-        model.s3_hash = Set(hash.to_vec());
-        model.mime_hint = Set(mime);
-        model.size_hint = Set(size);
-        model.update(txn).await?;
+        // Update first file revision with uploaded data
+        {
+            let mut model = file_revision.into_active_model();
+            model.s3_hash = Set(hash.to_vec());
+            model.mime_hint = Set(mime);
+            model.size_hint = Set(size);
+            model.update(txn).await?;
+        }
 
         Ok(FinishUploadFileOutput { created })
     }
