@@ -443,6 +443,40 @@ impl FileRevisionService {
         Ok(revision)
     }
 
+    /// For a pending file, fill in the uploaded data fields.
+    pub async fn finish_upload(
+        ctx: &ServiceContext<'_>,
+        FinishUpload {
+            site_id,
+            page_id,
+            file_id,
+            pending_blob_id,
+        }: FinishUpload,
+    ) -> Result<FileRevisionModel> {
+        let txn = ctx.transaction();
+
+        // Move upload to final location, get its metadata
+        let FinalizeBlobUploadOutput {
+            hash,
+            mime,
+            size,
+            created,
+        } = BlobService::finish_upload(ctx, pending_blob_id).await?;
+
+        // Get first file revision
+        let file_revision =
+            FileRevisionService::get_first(ctx, site_id, page_id, file_id).await?;
+
+        // Update it with uploaded data
+        let mut model = file_revision.into_active_model();
+        model.s3_hash = Set(hash.to_vec());
+        model.mime_hint = Set(mime);
+        model.size_hint = Set(size);
+
+        let file_revision = model.update(txn).await?;
+        Ok(file_revision)
+    }
+
     /// Get the first revision for this file.
     pub async fn get_first(
         ctx: &ServiceContext<'_>,

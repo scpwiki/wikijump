@@ -132,10 +132,6 @@ impl FileService {
             return Err(Error::FileNotFound);
         }
 
-        // Get first file revision
-        let file_revision =
-            FileRevisionService::get_first(ctx, site_id, page_id, file_id).await?;
-
         // Clear pending_blob column
         {
             let mut model = file::ActiveModel {
@@ -146,25 +142,18 @@ impl FileService {
             model.update(txn).await?;
         }
 
-        // Update file revision to add the uploaded data
-        // This deletes the pending blob row
-        let FinalizeBlobUploadOutput {
-            hash,
-            mime,
-            size,
-            created,
-        } = BlobService::finish_upload(ctx, pending_blob_id).await?;
-
-        // Update first file revision with uploaded data
-        {
-            let mut model = file_revision.into_active_model();
-            model.s3_hash = Set(hash.to_vec());
-            model.mime_hint = Set(mime);
-            model.size_hint = Set(size);
-            model.update(txn).await?;
-        }
-
-        Ok(FinishUploadFileOutput { created })
+        // Finally, update the first file revision with the uploaded data.
+        // This gets the data from BlobService and then deletes the row.
+        FileRevisionService::finish_upload(
+            ctx,
+            FinishUploadFile {
+                site_id,
+                page_id,
+                file_id,
+                pending_blob_id,
+            },
+        )
+        .await
     }
 
     /// Edits a file, uploading a new file version.

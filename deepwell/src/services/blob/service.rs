@@ -109,7 +109,7 @@ impl BlobService {
         ctx: &ServiceContext<'_>,
         pending_blob_id: i64,
     ) -> Result<FinalizeBlobUploadOutput> {
-        info!("Finishing upload for blob for pending blob ID {pending_blob_id}");
+        info!("Finishing upload for blob for pending ID {pending_blob_id}");
         let bucket = ctx.s3_bucket();
         let txn = ctx.transaction();
 
@@ -161,6 +161,9 @@ impl BlobService {
             Some(result) => {
                 debug!("Blob with hash {hex_hash} already exists");
 
+                // TODO: Should we ever update the mime type?
+                //       In case of changing file formats, etc.
+
                 // Content-Type header should be returned
                 let mime = result.content_type.ok_or(Error::S3Response)?;
 
@@ -172,7 +175,7 @@ impl BlobService {
                 })
             }
 
-            // Blob doesn't exist, move it from uploaded
+            // Blob doesn't exist, "move" it
             None => {
                 debug!("Blob with hash {hex_hash} to be created");
 

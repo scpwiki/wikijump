@@ -123,6 +123,14 @@ pub struct UpdateFileRevision {
     pub hidden: Vec<String>,
 }
 
+#[derive(Serialize, Debug, Clone)]
+pub struct FinishUpload {
+    pub site_id: i64,
+    pub page_id: i64,
+    pub file_id: i64,
+    pub pending_blob_id: i64,
+}
+
 #[derive(Deserialize, Debug, Clone)]
 pub struct GetFileRevisionRange {
     pub page_id: i64,
