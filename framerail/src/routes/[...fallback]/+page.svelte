@@ -3,12 +3,10 @@
 <script lang="ts">
   import { page } from "$app/stores"
   import Redirect from "$lib/redirect.svelte"
-  let redirectPage =
-    `/${ 
-    $page.params.fallback
-      .split("/")
-      .filter((v) => v.length)
-      .join("/")}`
+  let redirectPage = `/${$page.params.fallback
+    .split("/")
+    .filter((v) => v.length)
+    .join("/")}`
 </script>
 
 <Redirect {redirectPage} />
