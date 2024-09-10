@@ -20,7 +20,7 @@
 
 use crate::models::sea_orm_active_enums::FileRevisionType;
 use crate::services::file_revision::{
-    CreateFileRevisionOutput, CreateFirstFileRevisionOutput, FinishUploadOutput,
+    CreateFileRevisionOutput, CreateFirstFileRevisionOutput, FinishFileRevisionUploadOutput,
 };
 use crate::web::{Bytes, FileDetails, ProvidedValue, Reference};
 use serde_json::Value as JsonValue;
@@ -54,7 +54,7 @@ pub struct FinishUploadFile {
     pub pending_blob_id: i64,
 }
 
-pub type FinishUploadFileOutput = FinishUploadOutput;
+pub type FinishUploadFileOutput = FinishFileRevisionUploadOutput;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct UploadFileEdit {

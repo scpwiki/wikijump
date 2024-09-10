@@ -147,7 +147,7 @@ impl FileService {
         // This gets the data from BlobService and then deletes the row.
         FileRevisionService::finish_upload(
             ctx,
-            FinishUpload {
+            FinishUploadFile {
                 site_id,
                 page_id,
                 file_id,

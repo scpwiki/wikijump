@@ -447,13 +447,13 @@ impl FileRevisionService {
     /// For a pending file, fill in the uploaded data fields.
     pub async fn finish_upload(
         ctx: &ServiceContext<'_>,
-        FinishUpload {
+        FinishFileRevisionUpload {
             site_id,
             page_id,
             file_id,
             pending_blob_id,
-        }: FinishUpload,
-    ) -> Result<FinishUploadOutput> {
+        }: FinishFileRevisionUpload,
+    ) -> Result<FinishFileRevisionUploadOutput> {
         let txn = ctx.transaction();
 
         // Move upload to final location, get its metadata
@@ -475,7 +475,7 @@ impl FileRevisionService {
         model.size_hint = Set(size);
         let file_revision = model.update(txn).await?;
 
-        Ok(FinishUploadOutput {
+        Ok(FinishFileRevisionUploadOutput {
             file_id,
             file_revision_id: file_revision.revision_id,
             s3_hash: Bytes::from(file_revision.s3_hash),
