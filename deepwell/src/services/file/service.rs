@@ -157,7 +157,8 @@ impl FileService {
         .await
     }
 
-    /// Edits a file, uploading a new file version.
+    /// Edits a file by uploading a new file version.
+    /// TODO needs to be implemented
     pub async fn start_edit_upload(
         ctx: &ServiceContext<'_>,
         UploadFileEdit {
@@ -168,40 +169,10 @@ impl FileService {
             revision_comments,
         }: UploadFileEdit,
     ) -> Result<UploadFileEditOutput> {
-        info!("Uploading new version to file ID {file_id}");
-
-        let txn = ctx.transaction();
-        let last_revision =
-            FileRevisionService::get_latest(ctx, site_id, page_id, file_id).await?;
-
-        // Add pending file
-        let pending = BlobService::create_upload(ctx).await?;
-
-        // Add file revision (with dummy file data)
-        let revision_output = FileRevisionService::create(
-            ctx,
-            CreateFileRevision {
-                site_id,
-                page_id,
-                file_id,
-                user_id,
-                comments: revision_comments,
-                body: CreateFileRevisionBody {
-                    blob: FileBlob {
-                        s3_hash: EMPTY_BLOB_HASH,
-                        mime_hint: str!(EMPTY_BLOB_MIME),
-                        size_hint: 0,
-                    },
-                    ..Default::default()
-                },
-            },
-            last_revision,
-        )
-        .await?;
-
-        Ok(revision_output)
+        todo!()
     }
 
+    // TODO
     pub async fn finish_edit_upload(
         ctx: &ServiceContext<'_>,
         FinishUploadFileEdit {
@@ -210,23 +181,7 @@ impl FileService {
             file_id,
             pending_blob_id,
         }: FinishUploadFileEdit,
-    ) -> Result<_> {
-        info!(
-            "Finishing file edit upload with site ID {} page ID {} file ID {} pending ID {}",
-            site_id, page_id, file_id, pending_blob_id,
-        );
-
-        // Get latest file revision
-        // TODO
-
-        // Update file metadata
-        let model = file::ActiveModel {
-            file_id: Set(file_id),
-            updated_at: Set(Some(now())),
-            ..Default::default()
-        };
-        model.update(txn).await?;
-
+    ) -> Result<()> {
         todo!()
     }
 
