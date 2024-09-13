@@ -32,7 +32,7 @@ femme = "2"
 filemagic = "0.12"
 fluent = "0.16"
 fluent-syntax = "0"
-ftml = { version = "1.26", features = ["mathml"] }
+ftml = { version = "1.27", features = ["mathml"] }
 futures = { version = "0.3", features = ["async-await"], default-features = false }
 hex = { version = "0.4", features = ["serde"] }
 hostname = "0.4"
