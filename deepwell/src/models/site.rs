@@ -44,6 +44,8 @@ pub enum Relation {
     Page,
     #[sea_orm(has_many = "super::page_category::Entity")]
     PageCategory,
+    #[sea_orm(has_many = "super::page_connection_missing::Entity")]
+    PageConnectionMissing,
     #[sea_orm(has_many = "super::page_revision::Entity")]
     PageRevision,
     #[sea_orm(
@@ -89,6 +91,12 @@ impl Related<super::page::Entity> for Entity {
 impl Related<super::page_category::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::PageCategory.def()
+    }
+}
+
+impl Related<super::page_connection_missing::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::PageConnectionMissing.def()
     }
 }
 

@@ -38,6 +38,8 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     PageCategory,
+    #[sea_orm(has_many = "super::page_connection_missing::Entity")]
+    PageConnectionMissing,
     #[sea_orm(has_many = "super::page_link::Entity")]
     PageLink,
     #[sea_orm(has_many = "super::page_lock::Entity")]
@@ -83,6 +85,12 @@ impl Related<super::page_attribution::Entity> for Entity {
 impl Related<super::page_category::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::PageCategory.def()
+    }
+}
+
+impl Related<super::page_connection_missing::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::PageConnectionMissing.def()
     }
 }
 

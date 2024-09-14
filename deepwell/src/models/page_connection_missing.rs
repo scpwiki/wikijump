@@ -28,15 +28,27 @@ pub enum Relation {
         on_update = "NoAction",
         on_delete = "NoAction"
     )]
-    Page2,
+    Page,
     #[sea_orm(
-        belongs_to = "super::page::Entity",
+        belongs_to = "super::site::Entity",
         from = "Column::ToSiteId",
-        to = "super::page::Column::PageId",
+        to = "super::site::Column::SiteId",
         on_update = "NoAction",
         on_delete = "NoAction"
     )]
-    Page1,
+    Site,
+}
+
+impl Related<super::page::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Page.def()
+    }
+}
+
+impl Related<super::site::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Site.def()
+    }
 }
 
 impl ActiveModelBehavior for ActiveModel {}
