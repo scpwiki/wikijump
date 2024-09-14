@@ -78,7 +78,7 @@ impl DomainService {
         ctx: &ServiceContext<'_>,
         domain: &str,
     ) -> Result<Option<SiteModel>> {
-        info!("Getting site for custom domain '{domain}'");
+        info!("Getting site for custom domain {domain:?}");
 
         // Join with the site table so we can get that data, rather than just the ID.
         let txn = ctx.transaction();
