@@ -44,8 +44,12 @@ pub enum Relation {
     Page,
     #[sea_orm(has_many = "super::page_category::Entity")]
     PageCategory,
+    #[sea_orm(has_many = "super::page_connection_missing::Entity")]
+    PageConnectionMissing,
     #[sea_orm(has_many = "super::page_revision::Entity")]
     PageRevision,
+    #[sea_orm(has_many = "super::site_domain::Entity")]
+    SiteDomain,
     #[sea_orm(
         belongs_to = "super::site_domain::Entity",
         from = "Column::CustomDomain",
@@ -53,7 +57,7 @@ pub enum Relation {
         on_update = "NoAction",
         on_delete = "NoAction"
     )]
-    SiteDomain,
+    SiteDomainCustomDomain,
 }
 
 impl Related<super::file::Entity> for Entity {
@@ -89,6 +93,12 @@ impl Related<super::page::Entity> for Entity {
 impl Related<super::page_category::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::PageCategory.def()
+    }
+}
+
+impl Related<super::page_connection_missing::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::PageConnectionMissing.def()
     }
 }
 
