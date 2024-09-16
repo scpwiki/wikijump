@@ -22,7 +22,7 @@
     "@types/node": "^22.5.4",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-svelte": "^2.43.0",
+    "eslint-plugin-svelte": "^2.44.0",
     "eslint-plugin-tsdoc": "^0.3.0",
     "postcss": "^8.4.45",
     "postcss-html": "^1.7.0",
