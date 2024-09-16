@@ -97,8 +97,8 @@ importers:
         specifier: ^6.0.4
         version: 6.0.4(stylelint@16.9.0(typescript@5.5.4))
       stylelint-scss:
-        specifier: ^6.5.1
-        version: 6.5.1(stylelint@16.9.0(typescript@5.5.4))
+        specifier: ^6.6.0
+        version: 6.6.0(stylelint@16.9.0(typescript@5.5.4))
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -1542,8 +1542,8 @@ packages:
     peerDependencies:
       stylelint: ^14.0.0 || ^15.0.0 || ^16.0.1
 
-  stylelint-scss@6.5.1:
-    resolution: {integrity: sha512-ZLqdqihm6uDYkrsOeD6YWb+stZI8Wn92kUNDhE4M+g9g1aCnRv0JlOrttFiAJJwaNzpdQgX3YJb5vDQXVuO9Ww==}
+  stylelint-scss@6.6.0:
+    resolution: {integrity: sha512-aK2Rdt41Jt9Gv/ClMN5BYhP7xR3IEoRMDKpJkIDI9frZQ6KkxeLishusxs2JtEGZdJWXvPoBOhswNxj3gx8L/g==}
     engines: {node: '>=18.12.0'}
     peerDependencies:
       stylelint: ^16.0.2
@@ -3185,7 +3185,7 @@ snapshots:
       postcss-sorting: 8.0.2(postcss@8.4.45)
       stylelint: 16.9.0(typescript@5.5.4)
 
-  stylelint-scss@6.5.1(stylelint@16.9.0(typescript@5.5.4)):
+  stylelint-scss@6.6.0(stylelint@16.9.0(typescript@5.5.4)):
     dependencies:
       css-tree: 2.3.1
       is-plain-object: 5.0.0
