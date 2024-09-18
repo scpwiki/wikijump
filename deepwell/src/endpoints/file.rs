@@ -25,7 +25,7 @@ use crate::services::blob::BlobService;
 use crate::services::file::{
     DeleteFile, DeleteFileOutput, EditFile, EditFileOutput, GetBlobOutput,
     GetFileDetails, GetFileOutput, MoveFile, MoveFileOutput, RestoreFile,
-    RestoreFileOutput,
+    RestoreFileOutput, StartFileUploadOutput,
 };
 use crate::services::Result;
 use crate::web::{Bytes, FileDetails};
@@ -82,7 +82,7 @@ pub async fn file_get(
 pub async fn file_upload(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
-) -> Result<UploadFileOutput> {
+) -> Result<StartFileUploadOutput> {
     // FIXME file upload endpoint
     /*
     let input: UploadFile = params.parse()?;

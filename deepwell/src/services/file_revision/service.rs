@@ -24,7 +24,7 @@ use crate::models::file_revision::{
 };
 use crate::services::blob::{FinalizeBlobUploadOutput, EMPTY_BLOB_HASH, EMPTY_BLOB_MIME};
 use crate::services::{BlobService, OutdateService, PageService};
-use crate::web::FetchDirection;
+use crate::web::{Bytes, FetchDirection};
 use once_cell::sync::Lazy;
 use std::num::NonZeroI32;
 

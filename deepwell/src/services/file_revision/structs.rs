@@ -21,7 +21,7 @@
 use super::prelude::*;
 use crate::hash::BlobHash;
 use crate::services::page_revision::PageRevisionCountOutput;
-use crate::web::FetchDirection;
+use crate::web::{Bytes, FetchDirection};
 
 #[derive(Debug, Clone)]
 pub struct CreateFileRevision {
@@ -131,11 +131,11 @@ pub struct FinishFileRevisionUpload {
     pub pending_blob_id: i64,
 }
 
-#[derive(Serialize, Debug, Copy, Clone)]
+#[derive(Serialize, Debug, Clone)]
 pub struct FinishFileRevisionUploadOutput {
     pub file_id: i64,
     pub file_revision_id: i64,
-    pub s3_hash: Bytes,
+    pub s3_hash: Bytes<'static>,
     pub mime_hint: String,
     pub size_hint: i64,
     pub created: bool,

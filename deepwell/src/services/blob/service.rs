@@ -140,6 +140,7 @@ impl BlobService {
                 hash: EMPTY_BLOB_HASH,
                 mime: str!(EMPTY_BLOB_MIME),
                 size: 0,
+                created: false,
             });
         }
 

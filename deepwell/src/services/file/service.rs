@@ -28,7 +28,7 @@ use crate::services::blob::{FinalizeBlobUploadOutput, EMPTY_BLOB_HASH, EMPTY_BLO
 use crate::services::file_revision::{
     CreateFileRevision, CreateFileRevisionBody, CreateFirstFileRevision,
     CreatePendingFileRevision, CreateResurrectionFileRevision,
-    CreateTombstoneFileRevision, FileBlob,
+    CreateTombstoneFileRevision, FileBlob, FinishFileRevisionUpload,
 };
 use crate::services::filter::{FilterClass, FilterType};
 use crate::services::{BlobService, FileRevisionService, FilterService};
@@ -147,7 +147,7 @@ impl FileService {
         // This gets the data from BlobService and then deletes the row.
         FileRevisionService::finish_upload(
             ctx,
-            FinishUploadFile {
+            FinishFileRevisionUpload {
                 site_id,
                 page_id,
                 file_id,
