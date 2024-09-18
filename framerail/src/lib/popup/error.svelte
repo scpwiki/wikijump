@@ -17,10 +17,17 @@
   })
 </script>
 
-<div class="modal-container" on:click={containerExitPrompt} on:keydown={escKeydown}>
+<div
+  class="modal-container"
+  aria-describedby="modal-message"
+  aria-labelledby="modal-title"
+  role="presentation"
+  on:click={containerExitPrompt}
+  on:keydown={escKeydown}
+>
   <div class="modal error-modal">
-    <h2>UT: Error</h2>
-    <div class="modal-message">
+    <h2 id="modal-title">UT: Error</h2>
+    <div id="modal-message" class="modal-message">
       {$showErrorPopup.message}
     </div>
   </div>
