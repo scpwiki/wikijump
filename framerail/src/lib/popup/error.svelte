@@ -17,13 +17,11 @@
   })
 </script>
 
-<!-- TODO Need to address, cannot have on:click on non-interactive element <div> -->
-<!-- eslint-disable-line jsx-a11y/no-static-element-interactions -->
 <div
   class="modal-container"
   aria-describedby="modal-message"
   aria-labelledby="modal-title"
-  role="dialog"
+  role="presentation"
   on:click={containerExitPrompt}
   on:keydown={escKeydown}
 >
