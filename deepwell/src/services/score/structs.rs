@@ -32,6 +32,7 @@ pub enum VoteType {
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
 pub enum ScoreType {
     Null,
+    Test,
     Sum,
     Mean,
     Median,
