@@ -1,5 +1,5 @@
 /*
- * services/score/impls/mod.rs
+ * services/score/impls/test.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2024 Wikijump Team
@@ -18,16 +18,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude;
+use super::prelude::*;
+use rand::{thread_rng, Rng};
 
-mod mean;
-mod null;
-mod percent;
-mod sum;
-mod test;
+#[derive(Debug)]
+pub struct TestScorer;
 
-pub use self::mean::MeanScorer;
-pub use self::null::NullScorer;
-pub use self::percent::PercentScorer;
-pub use self::sum::SumScorer;
-pub use self::test::TestScorer;
+#[async_trait]
+impl Scorer for TestScorer {
+    #[inline]
+    fn score_type(&self) -> ScoreType {
+        ScoreType::Test
+    }
+
+    #[inline]
+    fn accepts_vote_type(&self, _: VoteType) -> bool {
+        true
+    }
+
+    #[inline]
+    async fn score(&self, _: &DatabaseTransaction, _: Condition) -> Result<ScoreValue> {
+        let mut rng = thread_rng();
+        let value = rng.gen_range(-100..100);
+        Ok(ScoreValue::Integer(value))
+    }
+}
