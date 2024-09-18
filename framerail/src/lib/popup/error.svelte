@@ -19,15 +19,15 @@
 
 <div
   class="modal-container"
+  aria-describedby="modal-message"
+  aria-labelledby="modal-title"
+  role="dialog"
   on:click={containerExitPrompt}
   on:keydown={escKeydown}
-  role="dialog"
-  aria-labelledby="modal-title"
-  aria-describedby="modal-message"
 >
   <div class="modal error-modal">
     <h2 id="modal-title">UT: Error</h2>
-    <div class="modal-message" id="modal-message">
+    <div id="modal-message" class="modal-message">
       {$showErrorPopup.message}
     </div>
   </div>
