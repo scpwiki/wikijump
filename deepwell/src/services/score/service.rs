@@ -41,7 +41,7 @@ impl ScoreService {
         _page_id: i64,
     ) -> Result<&'static impl Scorer> {
         // TODO
-        Ok(&NullScorer)
+        Ok(&TestScorer)
     }
 
     /// Helper method for retrieving a `VoteMap` for a page.
