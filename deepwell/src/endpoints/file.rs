@@ -23,10 +23,10 @@ use crate::models::file::Model as FileModel;
 use crate::models::file_revision::Model as FileRevisionModel;
 use crate::services::blob::BlobService;
 use crate::services::file::{
-    DeleteFile, DeleteFileOutput, EditFile, EditFileOutput, FinishUploadFile,
-    FinishUploadFileOutput, GetBlobOutput, GetFileDetails, GetFileOutput, MoveFile,
-    MoveFileOutput, RestoreFile, RestoreFileOutput, StartFileUpload,
-    StartFileUploadOutput,
+    DeleteFile, DeleteFileOutput, EditFile, EditFileOutput, FinishFileCreation,
+    FinishFileCreationOutput, GetBlobOutput, GetFileDetails, GetFileOutput, MoveFile,
+    MoveFileOutput, RestoreFile, RestoreFileOutput, StartFileCreation,
+    StartFileCreationOutput,
 };
 use crate::services::Result;
 use crate::web::{Bytes, FileDetails};
@@ -83,8 +83,8 @@ pub async fn file_get(
 pub async fn file_upload_start(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
-) -> Result<StartFileUploadOutput> {
-    let input: StartFileUpload = params.parse()?;
+) -> Result<StartFileCreationOutput> {
+    let input: StartFileCreation = params.parse()?;
 
     info!(
         "Starting file upload '{}' to page ID {} in site ID {}",
@@ -97,8 +97,8 @@ pub async fn file_upload_start(
 pub async fn file_upload_finish(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
-) -> Result<FinishUploadFileOutput> {
-    let input: FinishUploadFile = params.parse()?;
+) -> Result<FinishFileCreationOutput> {
+    let input: FinishFileCreation = params.parse()?;
 
     info!(
         "Finishing file upload (pending blob ID {} for file ID {} in page ID {} in site ID {}",

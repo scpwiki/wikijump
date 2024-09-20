@@ -45,7 +45,7 @@ impl FileService {
     /// meaning that duplicates are not uploaded twice.
     pub async fn start_new_upload(
         ctx: &ServiceContext<'_>,
-        StartFileUpload {
+        StartFileCreation {
             site_id,
             page_id,
             name,
@@ -53,8 +53,8 @@ impl FileService {
             user_id,
             licensing,
             bypass_filter,
-        }: StartFileUpload,
-    ) -> Result<StartFileUploadOutput> {
+        }: StartFileCreation,
+    ) -> Result<StartFileCreationOutput> {
         info!("Creating file with name '{}'", name);
         let txn = ctx.transaction();
 
@@ -93,7 +93,7 @@ impl FileService {
         )
         .await?;
 
-        Ok(StartFileUploadOutput {
+        Ok(StartFileCreationOutput {
             pending_blob_id: pending.pending_blob_id,
             presign_url: pending.presign_url,
             file_revision_id: file_revision.file_revision_id,
@@ -102,13 +102,13 @@ impl FileService {
 
     pub async fn finish_new_upload(
         ctx: &ServiceContext<'_>,
-        FinishUploadFile {
+        FinishFileCreation {
             site_id,
             page_id,
             file_id,
             pending_blob_id,
-        }: FinishUploadFile,
-    ) -> Result<FinishUploadFileOutput> {
+        }: FinishFileCreation,
+    ) -> Result<FinishFileCreationOutput> {
         info!(
             "Finishing new file upload with site ID {} page ID {} file ID {} pending ID {}",
             site_id, page_id, file_id, pending_blob_id,
@@ -161,27 +161,12 @@ impl FileService {
     /// TODO needs to be implemented
     pub async fn start_edit_upload(
         ctx: &ServiceContext<'_>,
-        UploadFileEdit {
-            site_id,
-            page_id,
-            file_id,
-            user_id,
-            revision_comments,
-        }: UploadFileEdit,
     ) -> Result<UploadFileEditOutput> {
         todo!()
     }
 
     // TODO
-    pub async fn finish_edit_upload(
-        ctx: &ServiceContext<'_>,
-        FinishUploadFileEdit {
-            site_id,
-            page_id,
-            file_id,
-            pending_blob_id,
-        }: FinishUploadFileEdit,
-    ) -> Result<()> {
+    pub async fn finish_edit_upload(ctx: &ServiceContext<'_>) -> Result<()> {
         todo!()
     }
 
