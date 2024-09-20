@@ -58,17 +58,6 @@ pub struct FinishFileCreation {
 pub type FinishFileCreationOutput = FinishFileRevisionUploadOutput;
 
 #[derive(Deserialize, Debug, Clone)]
-pub struct UploadFileEdit {
-    pub site_id: i64,
-    pub page_id: i64,
-    pub file_id: i64,
-    pub user_id: i64,
-    pub revision_comments: String,
-}
-
-pub type UploadFileEditOutput = CreateFileRevisionOutput;
-
-#[derive(Deserialize, Debug, Clone)]
 pub struct GetFile<'a> {
     pub site_id: i64,
     pub page_id: i64,

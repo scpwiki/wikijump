@@ -161,7 +161,7 @@ impl FileService {
     /// TODO needs to be implemented
     pub async fn start_edit_upload(
         ctx: &ServiceContext<'_>,
-    ) -> Result<UploadFileEditOutput> {
+    ) -> Result<()> {
         todo!()
     }
 
