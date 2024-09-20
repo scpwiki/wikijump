@@ -188,6 +188,7 @@ CREATE TABLE page_category (
     updated_at TIMESTAMP WITH TIME ZONE,
     site_id BIGINT NOT NULL REFERENCES site(site_id),
     slug TEXT NOT NULL,
+    layout TEXT, -- category-specific override for DOM layout
 
     UNIQUE (site_id, slug)
 );
