@@ -262,8 +262,10 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("blob_get", blob_get);
 
     // Files
-    register!("file_upload_start", file_upload_start);
-    register!("file_upload_finish", file_upload_finish);
+    register!("file_create_start", file_create_start);
+    register!("file_create_finish", file_create_finish);
+    register!("file_edit_start", file_edit_start);
+    register!("file_edit_finish", file_edit_finish);
     register!("file_get", file_get);
     register!("file_edit", file_edit);
     register!("file_delete", file_delete);

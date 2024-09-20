@@ -80,7 +80,7 @@ pub async fn file_get(
     }
 }
 
-pub async fn file_upload_start(
+pub async fn file_create_start(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<StartFileCreationOutput> {
@@ -94,7 +94,7 @@ pub async fn file_upload_start(
     FileService::start_new_upload(ctx, input).await
 }
 
-pub async fn file_upload_finish(
+pub async fn file_create_finish(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<FinishFileCreationOutput> {
@@ -109,6 +109,22 @@ pub async fn file_upload_finish(
     );
 
     FileService::finish_new_upload(ctx, input).await
+}
+
+// TODO
+pub async fn file_edit_start(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<()> {
+    todo!()
+}
+
+// TODO
+pub async fn file_edit_finish(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<()> {
+    todo!()
 }
 
 pub async fn file_edit(
