@@ -135,7 +135,7 @@ impl FileService {
 
         // Clear pending_blob column
         {
-            let mut model = file::ActiveModel {
+            let model = file::ActiveModel {
                 file_id: Set(file_id),
                 pending_blob_id: Set(None),
                 ..Default::default()
