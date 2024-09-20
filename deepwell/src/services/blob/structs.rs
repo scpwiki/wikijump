@@ -35,3 +35,11 @@ pub struct BlobMetadata {
     pub size: i64,
     pub created_at: OffsetDateTime,
 }
+
+#[derive(Serialize, Debug, Clone)]
+pub struct GetBlobOutput {
+    pub data: Vec<u8>,
+    pub mime: String,
+    pub size: i64,
+    pub created_at: OffsetDateTime,
+}

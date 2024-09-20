@@ -21,12 +21,11 @@
 use super::prelude::*;
 use crate::models::file::Model as FileModel;
 use crate::models::file_revision::Model as FileRevisionModel;
-use crate::services::blob::BlobService;
+use crate::services::blob::{BlobMetadata, BlobService, GetBlobOutput};
 use crate::services::file::{
     DeleteFile, DeleteFileOutput, EditFile, EditFileOutput, FinishFileCreation,
-    FinishFileCreationOutput, GetBlobOutput, GetFileDetails, GetFileOutput, MoveFile,
-    MoveFileOutput, RestoreFile, RestoreFileOutput, StartFileCreation,
-    StartFileCreationOutput,
+    FinishFileCreationOutput, GetFileDetails, GetFileOutput, MoveFile, MoveFileOutput,
+    RestoreFile, RestoreFileOutput, StartFileCreation, StartFileCreationOutput,
 };
 use crate::services::Result;
 use crate::web::{Bytes, FileDetails};
@@ -41,14 +40,19 @@ pub async fn blob_get(
     info!("Getting blob for S3 hash");
     let hash: Bytes = params.parse()?;
     let data = BlobService::get(ctx, hash.as_ref()).await?;
-    let metadata = BlobService::get_metadata(ctx, hash.as_ref()).await?;
 
-    let output = GetBlobOutput {
+    let BlobMetadata {
+        mime,
+        size,
+        created_at,
+    } = BlobService::get_metadata(ctx, hash.as_ref()).await?;
+
+    Ok(GetBlobOutput {
         data,
-        mime: metadata.mime,
-        size: metadata.size,
-    };
-    Ok(output)
+        mime,
+        size,
+        created_at,
+    })
 }
 
 pub async fn file_get(
@@ -114,16 +118,18 @@ pub async fn file_create_finish(
 // TODO
 pub async fn file_edit_start(
     ctx: &ServiceContext<'_>,
-    params: Params<'static>,
+    _params: Params<'static>,
 ) -> Result<()> {
+    let _ = FileService::start_edit_upload(ctx).await?;
     todo!()
 }
 
 // TODO
 pub async fn file_edit_finish(
     ctx: &ServiceContext<'_>,
-    params: Params<'static>,
+    _params: Params<'static>,
 ) -> Result<()> {
+    let _ = FileService::finish_edit_upload(ctx).await?;
     todo!()
 }
 

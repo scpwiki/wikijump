@@ -432,6 +432,7 @@ impl UserService {
 
                     Some(hash.to_vec())
                     */
+                    let _ = blob;
                     todo!()
                 }
             };

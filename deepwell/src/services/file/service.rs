@@ -159,14 +159,12 @@ impl FileService {
 
     /// Edits a file by uploading a new file version.
     /// TODO needs to be implemented
-    pub async fn start_edit_upload(
-        ctx: &ServiceContext<'_>,
-    ) -> Result<()> {
+    pub async fn start_edit_upload(_ctx: &ServiceContext<'_>) -> Result<i16> {
         todo!()
     }
 
     // TODO
-    pub async fn finish_edit_upload(ctx: &ServiceContext<'_>) -> Result<()> {
+    pub async fn finish_edit_upload(_ctx: &ServiceContext<'_>) -> Result<i16> {
         todo!()
     }
 
