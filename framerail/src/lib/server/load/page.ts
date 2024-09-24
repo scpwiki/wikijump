@@ -1,6 +1,5 @@
 import defaults from "$lib/defaults"
 import { parseAcceptLangHeader } from "$lib/locales"
-import { pageRerender } from "$lib/server/deepwell/page"
 import { translate } from "$lib/server/deepwell/translate"
 import { pageView } from "$lib/server/deepwell/views"
 import type { Optional, TranslateKeys } from "$lib/types"
@@ -79,17 +78,6 @@ export async function loadPage(
   }
 
   if (errorStatus === null) {
-    // Check rerender
-    if (viewData.options.rerender) {
-      await pageRerender(viewData.site.site_id, viewData.page.page_id)
-      viewData.data = await pageView(
-        domain,
-        [...locales, defaults.fallbackLocale],
-        route,
-        sessionToken
-      )
-    }
-
     translateKeys = {
       ...translateKeys,
 
