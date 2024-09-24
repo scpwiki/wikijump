@@ -19,6 +19,8 @@
 <!-- Ignoring the styling as being a theme it will inevitably style other elements in the entire layout -->
 <!-- svelte-ignore css-unused-selector -->
 <style global lang="scss">
+  $tablet-max-width: 767px;
+
   :root {
     /* Fallback colors */
     --text: #111;
@@ -179,6 +181,12 @@
       --border: #b6c2cf;
       --mild-text: #bbb;
       --accent: #44aaff;
+    }
+  }
+
+  @media (max-width: $tablet-max-width) {
+    .header {
+      height: initial;
     }
   }
 </style>

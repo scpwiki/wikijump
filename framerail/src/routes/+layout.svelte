@@ -69,6 +69,8 @@
 <!-- Ignoring the "unused" svg as we know we imported and embedded a raw svg -->
 <!-- svelte-ignore css-unused-selector -->
 <style global lang="scss">
+  $tablet-max-width: 767px;
+
   .header-wjbanner {
     height: 80%;
     color: #fff;
@@ -101,6 +103,17 @@
     .footer-item a {
       color: #fff;
       text-decoration: none;
+    }
+  }
+
+  @media (max-width: $tablet-max-width) {
+    .header-wjbanner {
+      text-align: center;
+
+      svg {
+        height: initial;
+        max-height: 6.5em;
+      }
     }
   }
 </style>
