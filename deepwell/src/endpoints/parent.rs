@@ -126,7 +126,7 @@ pub async fn parent_modify(
         input.child, input.site_id,
     );
 
-    let creation = match input.added {
+    let creation = match input.add {
         Some(parents) => {
             let mut creation = Vec::new();
             for parent in parents {
@@ -148,7 +148,7 @@ pub async fn parent_modify(
         None => None,
     };
 
-    let removal = match input.removed {
+    let removal = match input.remove {
         Some(parents) => {
             let mut removal = Vec::new();
             for parent in parents {

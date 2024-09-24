@@ -33,8 +33,8 @@ pub struct ParentDescription<'a> {
 pub struct ParentModifyDescription<'a> {
     pub site_id: i64,
     pub child: Reference<'a>,
-    pub added: Option<Vec<Reference<'a>>>,
-    pub removed: Option<Vec<Reference<'a>>>,
+    pub add: Option<Vec<Reference<'a>>>,
+    pub remove: Option<Vec<Reference<'a>>>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]

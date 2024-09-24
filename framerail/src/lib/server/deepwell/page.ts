@@ -170,15 +170,15 @@ export async function pageParentModify(
   siteId: number,
   pageId: number,
   userId: number,
-  removed: string[],
-  added: string[]
+  add: string[],
+  remove: string[]
 ): Promise<object> {
   return client.request("parent_modify", {
     site_id: siteId,
     child: pageId,
     user_id: userId,
-    removed,
-    added
+    add,
+    remove
   })
 }
 

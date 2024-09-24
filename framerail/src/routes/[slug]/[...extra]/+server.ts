@@ -115,7 +115,7 @@ export async function POST(event) {
         if (!common.includes(newParent[i])) added.push(newParent[i])
       }
 
-      res = await page.pageParentModify(siteId, pageId, session?.user_id, removed, added)
+      res = await page.pageParentModify(siteId, pageId, session?.user_id, added, removed)
     } else if (extra.includes("parentget")) {
       res = await page.pageParentGet(siteId, pageId, slug)
     } else if (extra.includes("score")) {
