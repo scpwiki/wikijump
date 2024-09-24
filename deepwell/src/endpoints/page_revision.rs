@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::models::page_revision::Model as PageRevisionModel;
-use crate::services::page::GetPageReferenceDetails;
+use crate::services::page::GetPageReference;
 use crate::services::page_revision::{
     GetPageRevision, GetPageRevisionDetails, GetPageRevisionRangeDetails,
     PageRevisionCountOutput, PageRevisionModelFiltered, UpdatePageRevisionDetails,
@@ -32,10 +32,9 @@ pub async fn page_revision_count(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<PageRevisionCountOutput> {
-    let GetPageReferenceDetails {
+    let GetPageReference {
         site_id,
         page: reference,
-        details: _,
     } = params.parse()?;
 
     info!("Getting latest revision for page {reference:?} in site ID {site_id}",);

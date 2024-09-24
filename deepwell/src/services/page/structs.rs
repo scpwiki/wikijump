@@ -51,6 +51,12 @@ pub struct CreatePageOutput {
 }
 
 #[derive(Deserialize, Debug, Clone)]
+pub struct GetPageReference<'a> {
+    pub site_id: i64,
+    pub page: Reference<'a>,
+}
+
+#[derive(Deserialize, Debug, Clone)]
 pub struct GetPageReferenceDetails<'a> {
     pub site_id: i64,
     pub page: Reference<'a>,
