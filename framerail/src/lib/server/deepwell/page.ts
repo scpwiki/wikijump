@@ -139,6 +139,13 @@ export async function pageVote(
   }
 }
 
+export async function pageRerender(siteId: number, pageId: number): Promise<object> {
+  return client.request("page_rerender", {
+    site_id: siteId,
+    page_id: pageId
+  })
+}
+
 export async function pageScore(
   siteId: number,
   pageId: Optional<number>,
