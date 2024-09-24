@@ -76,20 +76,16 @@ pub async fn page_get_direct(
 pub async fn page_get_score(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
-) -> Result<Option<GetPageScoreOutput>> {
+) -> Result<GetPageScoreOutput> {
     let GetPageReference {
         site_id,
         page: reference,
     } = params.parse()?;
 
     info!("Getting score for page {reference:?} in site ID {site_id}");
-    match PageService::get_id(ctx, site_id, reference).await {
-        Ok(page_id) => Ok(Some(GetPageScoreOutput {
-            page_id,
-            rating: ScoreService::score(ctx, page_id).await?,
-        })),
-        Err(_) => Ok(None),
-    }
+    let page_id = PageService::get_id(ctx, site_id, reference).await?;
+    let rating = ScoreService::score(ctx, page_id).await?;
+    Ok(GetPageScoreOutput { page_id, rating })
 }
 
 pub async fn page_edit(
