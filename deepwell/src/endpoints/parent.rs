@@ -26,6 +26,7 @@ use crate::services::parent::{
     UpdateParentsOutput,
 };
 use crate::web::Reference;
+use futures::future::try_join_all;
 
 pub async fn parent_relationships_get(
     ctx: &ServiceContext<'_>,
@@ -128,9 +129,8 @@ pub async fn parent_update(
 
     let creation = match input.add {
         Some(parents) => {
-            let mut creation = Vec::new();
-            for parent in parents {
-                if let Ok(Some(model)) = ParentService::create(
+            let creation = parents.iter().map(|parent| {
+                ParentService::create(
                     ctx,
                     ParentDescription {
                         site_id: input.site_id,
@@ -138,21 +138,23 @@ pub async fn parent_update(
                         child: input.child.clone(),
                     },
                 )
-                .await
-                {
-                    creation.push(model.parent_page_id);
-                };
-            }
-            Some(creation)
+            });
+            Some(
+                try_join_all(creation)
+                    .await?
+                    .iter()
+                    .flatten()
+                    .map(|p| p.parent_page_id)
+                    .collect(),
+            )
         }
         None => None,
     };
 
     let removal = match input.remove {
         Some(parents) => {
-            let mut removal = Vec::new();
-            for parent in parents {
-                if let Ok(res) = ParentService::remove(
+            let removal = parents.iter().map(|parent| {
+                ParentService::remove(
                     ctx,
                     ParentDescription {
                         site_id: input.site_id,
@@ -160,12 +162,14 @@ pub async fn parent_update(
                         child: input.child.clone(),
                     },
                 )
-                .await
-                {
-                    removal.push(res.was_deleted);
-                };
-            }
-            Some(removal)
+            });
+            Some(
+                try_join_all(removal)
+                    .await?
+                    .iter()
+                    .map(|p| p.was_deleted)
+                    .collect(),
+            )
         }
         None => None,
     };
