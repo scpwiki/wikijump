@@ -501,7 +501,7 @@
         class="action-button page-layout-button button-cancel clickable"
         type="button"
         on:click|stopPropagation={() => {
-          showMoveAction = false
+          showLayoutAction = false
         }}
       >
         {$page.data.internationalization?.cancel}
