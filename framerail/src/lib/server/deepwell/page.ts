@@ -1,6 +1,7 @@
 import defaults from "$lib/defaults"
 import { client } from "$lib/server/deepwell"
-import type { Optional } from "$lib/types"
+import type { Nullable, Optional } from "$lib/types"
+import { Layout } from "$lib/types"
 
 export async function pageDelete(
   siteId: number,
@@ -23,10 +24,11 @@ export async function pageEdit(
   userId: number,
   slug: string,
   revisionComments: Optional<string>,
-  wikitext: string,
-  title: string,
-  altTitle: string,
-  tags: string[]
+  wikitext: Optional<string>,
+  title: Optional<string>,
+  altTitle: Optional<string>,
+  tags: string[],
+  layout: Optional<Nullable<Layout>>
 ): Promise<object> {
   return client.request(pageId ? "page_edit" : "page_create", {
     site_id: siteId,
@@ -37,7 +39,11 @@ export async function pageEdit(
     wikitext,
     title,
     alt_title: altTitle,
-    tags
+    tags,
+    layout:
+      layout !== undefined
+        ? Layout[layout?.toUpperCase() as keyof typeof Layout] ?? null
+        : undefined
   })
 }
 
@@ -143,6 +149,20 @@ export async function pageRerender(siteId: number, pageId: number): Promise<obje
   return client.request("page_rerender", {
     site_id: siteId,
     page_id: pageId
+  })
+}
+
+export async function pageLayout(
+  siteId: number,
+  pageId: number,
+  userId: number,
+  layout: Optional<Nullable<Layout>>
+): Promise<object> {
+  return client.request("page_set_layout", {
+    site_id: siteId,
+    page_id: pageId,
+    user_id: userId,
+    layout: Layout[layout?.toUpperCase() as keyof typeof Layout] ?? null
   })
 }
 

@@ -18,11 +18,11 @@ wiki-page-revision-created-at = 创建日期
 
 wiki-page-revision-user = 编辑用户
 
-wiki-page-revision-comments = 留言
+wiki-page-revision-comments = 编辑摘要
 
 wiki-page-revision-rollback = 回滚
 
-wiki-page-move-new-slug = 新页面网址
+### 维基页面评分
 
 wiki-page-vote-set = 进行评分
 
@@ -31,6 +31,16 @@ wiki-page-vote-remove = 取消评分
 wiki-page-vote-list = 查看评分列表
 
 wiki-page-vote-score = 现时评分
+
+### 维基页面编辑
+
+wiki-page-move-new-slug = 新页面网址
+
+wiki-page-layout-default = 预设布局
+
+wiki-page-layout-wikidot = Wikidot（旧）
+
+wiki-page-layout-wikijump = Wikijump
 
 ### 特殊页面
 

@@ -3,9 +3,11 @@
   import { goto, invalidateAll } from "$app/navigation"
   import { onMount } from "svelte"
   import { useErrorPopup } from "$lib/stores"
+  import { Layout } from "$lib/types"
   let showErrorPopup = useErrorPopup()
 
   let showMoveAction = false
+  let showLayoutAction = false
   let showHistory = false
   let showSource = false
   let showRevision = false
@@ -99,6 +101,26 @@
         noScroll: true
       })
       showMoveAction = false
+    }
+  }
+
+  async function handleLayout() {
+    let form = document.getElementById("page-layout")
+    let fdata = new FormData(form)
+    fdata.set("site-id", $page.data.site.site_id)
+    fdata.set("page-id", $page.data.page.page_id)
+    let res = await fetch(`/${$page.data.page.slug}/layout`, {
+      method: "POST",
+      body: fdata
+    }).then((res) => res.json())
+    if (res?.message) {
+      showErrorPopup.set({
+        state: true,
+        message: res.message
+      })
+    } else {
+      showLayoutAction = false
+      invalidateAll()
     }
   }
 
@@ -359,10 +381,19 @@
       class="action-button editor-button button-move clickable"
       type="button"
       on:click={() => {
-        $: showMoveAction = true
+        showMoveAction = true
       }}
     >
       {$page.data.internationalization?.move}
+    </button>
+    <button
+      class="action-button editor-button button-layout clickable"
+      type="button"
+      on:click={() => {
+        showLayoutAction = true
+      }}
+    >
+      {$page.data.internationalization?.layout}
     </button>
     <button
       class="action-button editor-button button-delete clickable"
@@ -412,7 +443,7 @@
   <form
     id="page-move"
     class="page-move"
-    method="PUT"
+    method="POST"
     on:submit|preventDefault={handleMove}
   >
     <input
@@ -443,6 +474,44 @@
         on:click|stopPropagation
       >
         {$page.data.internationalization?.move}
+      </button>
+    </div>
+  </form>
+{/if}
+
+{#if showLayoutAction}
+  <form
+    id="page-layout"
+    class="page-layout"
+    method="POST"
+    on:submit|preventDefault={handleLayout}
+  >
+    <select name="layout" class="page-layout-select">
+      <option value={null}
+        >{$page.data.internationalization?.["wiki-page-layout-default"]}</option
+      >
+      {#each Object.values(Layout) as layoutOption}
+        <option value={layoutOption}
+          >{$page.data.internationalization?.[`wiki-page-layout-${layoutOption}`]}</option
+        >
+      {/each}
+    </select>
+    <div class="action-row page-layout-actions">
+      <button
+        class="action-button page-layout-button button-cancel clickable"
+        type="button"
+        on:click|stopPropagation={() => {
+          showMoveAction = false
+        }}
+      >
+        {$page.data.internationalization?.cancel}
+      </button>
+      <button
+        class="action-button page-layout-button button-save clickable"
+        type="submit"
+        on:click|stopPropagation
+      >
+        {$page.data.internationalization?.save}
       </button>
     </div>
   </form>
@@ -622,7 +691,8 @@
   }
 
   .editor,
-  .page-move {
+  .page-move,
+  .page-layout {
     display: flex;
     flex-direction: column;
     gap: 15px;

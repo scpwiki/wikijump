@@ -35,6 +35,7 @@ export async function POST(event) {
       let tagsStr = data.get("tags")?.toString().trim()
       let tags: string[] = []
       if (tagsStr?.length) tags = tagsStr.split(" ").filter((tag) => tag.length)
+      let layout = data.get("layout")?.toString().trim()
 
       res = await page.pageEdit(
         siteId,
@@ -45,7 +46,8 @@ export async function POST(event) {
         wikitext,
         title,
         altTitle,
-        tags
+        tags,
+        layout
       )
     } else if (extra.includes("history")) {
       /** Retrieve page revision list. */
@@ -93,6 +95,10 @@ export async function POST(event) {
       let value = valueStr ? parseInt(valueStr) : null
 
       res = await page.pageVote(siteId, pageId, session?.user_id, action, value)
+    } else if (extra.includes("layout")) {
+      let layout = data.get("layout")?.toString().trim() ?? null
+
+      res = await page.pageLayout(siteId, pageId, session?.user_id, layout)
     } else if (extra.includes("score")) {
       res = await page.pageScore(siteId, pageId, slug)
     }

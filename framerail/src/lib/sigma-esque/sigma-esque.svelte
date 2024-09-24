@@ -54,7 +54,8 @@
     textarea,
     input[type="text"],
     input[type="date"],
-    input[type="password"] {
+    input[type="password"],
+    select {
       padding: 0.5em 1em;
       color: var(--text);
       background-color: var(--background);

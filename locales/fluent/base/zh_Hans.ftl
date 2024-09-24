@@ -43,6 +43,7 @@ help = 帮助
 history = 历史
 inbox = 收件箱
 invitations = 邀请函
+layout = 布局
 license = 协议
 load = 加载
 main-content = 主要内容
