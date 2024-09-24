@@ -169,10 +169,10 @@ export async function pageLayout(
 export async function pageScore(
   siteId: number,
   pageId: Optional<number>,
-  slug: string,
+  slug: string
 ): Promise<object> {
   return client.request("page_get_score", {
     site_id: siteId,
-    page: pageId ?? slug,
+    page: pageId ?? slug
   })
 }
