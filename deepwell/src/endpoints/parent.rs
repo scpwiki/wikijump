@@ -133,7 +133,7 @@ pub async fn parent_modify(
                 if let Ok(Some(model)) = ParentService::create(
                     ctx,
                     ParentDescription {
-                        site_id: input.site_id.clone(),
+                        site_id: input.site_id,
                         parent: parent.clone(),
                         child: input.child.clone(),
                     },
@@ -155,7 +155,7 @@ pub async fn parent_modify(
                 if let Ok(res) = ParentService::remove(
                     ctx,
                     ParentDescription {
-                        site_id: input.site_id.clone(),
+                        site_id: input.site_id,
                         parent: parent.to_owned(),
                         child: input.child.clone(),
                     },
