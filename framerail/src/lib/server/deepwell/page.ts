@@ -170,8 +170,8 @@ export async function pageParentUpdate(
   siteId: number,
   pageId: number,
   userId: number,
-  add: string[],
-  remove: string[]
+  add: Optional<string[]>,
+  remove: Optional<string[]>
 ): Promise<object> {
   return client.request("parent_update", {
     site_id: siteId,

@@ -100,22 +100,19 @@ export async function POST(event) {
 
       res = await page.pageLayout(siteId, pageId, session?.user_id, layout)
     } else if (extra.includes("parent-set")) {
-      let oldParentStr = data.get("old-parents")?.toString().trim() ?? ""
-      let oldParent = oldParentStr.split(" ")
-      let newParentStr = data.get("new-parents")?.toString().trim() ?? ""
-      let newParent = newParentStr.split(" ")
-      let removed: string[] = []
-      let common: string[] = []
-      let added: string[] = []
-      for (let i = 0; i < oldParent.length; i++) {
-        if (!newParent.includes(oldParent[i])) removed.push(oldParent[i])
-        else common.push(oldParent[i])
-      }
-      for (let i = 0; i < newParent.length; i++) {
-        if (!common.includes(newParent[i])) added.push(newParent[i])
-      }
+      let addParentStr = data.get("add-parents")?.toString().trim() ?? ""
+      let addParents = addParentStr.split(" ").filter((p) => p)
+      let removeParentStr = data.get("remove-parents")?.toString().trim() ?? ""
+      let removeParents = removeParentStr.split(" ").filter((p) => p)
 
-      res = await page.pageParentUpdate(siteId, pageId, session?.user_id, added, removed)
+      if (addParents.length + removeParents.length)
+        res = await page.pageParentUpdate(
+          siteId,
+          pageId,
+          session?.user_id,
+          addParents.length ? addParents : undefined,
+          removeParents.length ? removeParents : undefined
+        )
     } else if (extra.includes("parent-get")) {
       res = await page.pageParentGet(siteId, pageId, slug)
     } else if (extra.includes("score")) {

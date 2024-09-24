@@ -150,7 +150,21 @@
     let fdata = new FormData(form)
     fdata.set("site-id", $page.data.site.site_id)
     fdata.set("page-id", $page.data.page.page_id)
-    fdata.set("old-parents", parents)
+    let newParents = (fdata.get("parents")?.toString() ?? "").split(" ").filter((p) => p)
+    let oldParents = parents.split(" ").filter((p) => p)
+    let added: string[] = []
+    let removed: string[] = []
+    let common: string[] = []
+    for (let i = 0; i < oldParents.length; i++) {
+      if (!newParents.includes(oldParents[i])) removed.push(oldParents[i])
+      else common.push(oldParents[i])
+    }
+    for (let i = 0; i < newParents.length; i++) {
+      if (!common.includes(newParents[i])) added.push(newParents[i])
+    }
+    if (added.length) fdata.set("add-parents", added.join(" "))
+    if (removed.length) fdata.set("remove-parents", removed.join(" "))
+
     let res = await fetch(`/${$page.data.page.slug}/parent-set`, {
       method: "POST",
       body: fdata
@@ -574,7 +588,7 @@
     on:submit|preventDefault={setParents}
   >
     <input
-      name="new-parents"
+      name="parents"
       class="page-parent-new-parents"
       placeholder={$page.data.internationalization?.parents}
       type="text"
