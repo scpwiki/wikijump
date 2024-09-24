@@ -29,6 +29,14 @@ pub struct ParentDescription<'a> {
     pub child: Reference<'a>,
 }
 
+#[derive(Deserialize, Debug, Clone)]
+pub struct ParentModifyDescription<'a> {
+    pub site_id: i64,
+    pub child: Reference<'a>,
+    pub added: Option<Vec<Reference<'a>>>,
+    pub removed: Option<Vec<Reference<'a>>>,
+}
+
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum ParentalRelationshipType {
     #[serde(rename = "parents")]
@@ -69,4 +77,10 @@ pub struct GetParentRelationships<'a> {
 #[derive(Serialize, Debug, Copy, Clone)]
 pub struct RemoveParentOutput {
     pub was_deleted: bool,
+}
+
+#[derive(Serialize, Debug, Clone)]
+pub struct ModifyParentOutput {
+    pub added: Option<Vec<i64>>,
+    pub removed: Option<Vec<bool>>,
 }

@@ -8,6 +8,7 @@
 
   let showMoveAction = false
   let showLayoutAction = false
+  let showParentAction = false
   let showHistory = false
   let showSource = false
   let showRevision = false
@@ -19,6 +20,7 @@
   let revision: Record<string, any> = {}
   let voteMap: Map<number, Record<string, any>> = new Map()
   let voteRating: number
+  let parents = ""
 
   async function handleDelete() {
     let fdata = new FormData()
@@ -120,6 +122,46 @@
       })
     } else {
       showLayoutAction = false
+      invalidateAll()
+    }
+  }
+
+  async function getParents() {
+    let fdata = new FormData()
+    fdata.set("site-id", $page.data.site.site_id)
+    fdata.set("page-id", $page.data.page.page_id)
+    let res = await fetch(`/${$page.data.page.slug}/parentget`, {
+      method: "POST",
+      body: fdata
+    }).then((res) => res.json())
+    if (res?.message) {
+      showErrorPopup.set({
+        state: true,
+        message: res.message
+      })
+    } else {
+      parents = res.join(" ")
+      showParentAction = true
+    }
+  }
+
+  async function setParents() {
+    let form = document.getElementById("page-parent")
+    let fdata = new FormData(form)
+    fdata.set("site-id", $page.data.site.site_id)
+    fdata.set("page-id", $page.data.page.page_id)
+    fdata.set("old-parents", parents)
+    let res = await fetch(`/${$page.data.page.slug}/parentset`, {
+      method: "POST",
+      body: fdata
+    }).then((res) => res.json())
+    if (res?.message) {
+      showErrorPopup.set({
+        state: true,
+        message: res.message
+      })
+    } else {
+      showParentAction = false
       invalidateAll()
     }
   }
@@ -396,6 +438,13 @@
       {$page.data.internationalization?.layout}
     </button>
     <button
+      class="action-button editor-button button-parents clickable"
+      type="button"
+      on:click={getParents}
+    >
+      {$page.data.internationalization?.parents}
+    </button>
+    <button
       class="action-button editor-button button-delete clickable"
       type="button"
       on:click={handleDelete}
@@ -508,6 +557,41 @@
       </button>
       <button
         class="action-button page-layout-button button-save clickable"
+        type="submit"
+        on:click|stopPropagation
+      >
+        {$page.data.internationalization?.save}
+      </button>
+    </div>
+  </form>
+{/if}
+
+{#if showParentAction}
+  <form
+    id="page-parent"
+    class="page-parent"
+    method="POST"
+    on:submit|preventDefault={setParents}
+  >
+    <input
+      name="new-parents"
+      class="page-parent-new-parents"
+      placeholder={$page.data.internationalization?.parents}
+      type="text"
+      value={parents}
+    />
+    <div class="action-row page-parent-actions">
+      <button
+        class="action-button page-parent-button button-cancel clickable"
+        type="button"
+        on:click|stopPropagation={() => {
+          showParentAction = false
+        }}
+      >
+        {$page.data.internationalization?.cancel}
+      </button>
+      <button
+        class="action-button page-parent-button button-save clickable"
         type="submit"
         on:click|stopPropagation
       >
@@ -692,7 +776,8 @@
 
   .editor,
   .page-move,
-  .page-layout {
+  .page-layout,
+  .page-parent {
     display: flex;
     flex-direction: column;
     gap: 15px;

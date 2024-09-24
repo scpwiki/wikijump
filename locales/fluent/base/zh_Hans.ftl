@@ -51,6 +51,7 @@ messages = 信息
 move = 移动
 navigation = 导航
 notifications = 通知
+parents = 父页面
 preview = 预览
 privacy = 隐私
 profile = 个人简介

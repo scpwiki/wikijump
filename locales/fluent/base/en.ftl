@@ -52,6 +52,7 @@ messages = Messages
 move = Move
 navigation = Navigation
 notifications = Notifications
+parents = Parents
 preview = Preview
 privacy = Privacy
 profile = Profile

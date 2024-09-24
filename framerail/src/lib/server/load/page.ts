@@ -89,6 +89,7 @@ export async function loadPage(
       "view": {},
       "vote": {},
       "layout": {},
+      "parents": {},
 
       // Page history
       "wiki-page-revision": {

@@ -99,6 +99,25 @@ export async function POST(event) {
       let layout = data.get("layout")?.toString().trim() ?? null
 
       res = await page.pageLayout(siteId, pageId, session?.user_id, layout)
+    } else if (extra.includes("parentset")) {
+      let oldParentStr = data.get("old-parents")?.toString().trim() ?? ""
+      let oldParent = oldParentStr.split(" ")
+      let newParentStr = data.get("new-parents")?.toString().trim() ?? ""
+      let newParent = newParentStr.split(" ")
+      let removed: string[] = []
+      let common: string[] = []
+      let added: string[] = []
+      for (let i = 0; i < oldParent.length; i++) {
+        if (!newParent.includes(oldParent[i])) removed.push(oldParent[i])
+        else common.push(oldParent[i])
+      }
+      for (let i = 0; i < newParent.length; i++) {
+        if (!common.includes(newParent[i])) added.push(newParent[i])
+      }
+
+      res = await page.pageParentModify(siteId, pageId, session?.user_id, removed, added)
+    } else if (extra.includes("parentget")) {
+      res = await page.pageParentGet(siteId, pageId, slug)
     } else if (extra.includes("score")) {
       res = await page.pageScore(siteId, pageId, slug)
     }

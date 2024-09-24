@@ -166,6 +166,33 @@ export async function pageLayout(
   })
 }
 
+export async function pageParentModify(
+  siteId: number,
+  pageId: number,
+  userId: number,
+  removed: string[],
+  added: string[]
+): Promise<object> {
+  return client.request("parent_modify", {
+    site_id: siteId,
+    child: pageId,
+    user_id: userId,
+    removed,
+    added
+  })
+}
+
+export async function pageParentGet(
+  siteId: number,
+  pageId: Optional<number>,
+  slug: string
+): Promise<object> {
+  return client.request("parent_get_all", {
+    site_id: siteId,
+    page: pageId ?? slug
+  })
+}
+
 export async function pageScore(
   siteId: number,
   pageId: Optional<number>,

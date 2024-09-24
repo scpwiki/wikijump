@@ -20,9 +20,12 @@
 
 use super::prelude::*;
 use crate::models::page_parent::Model as PageParentModel;
+use crate::services::page::GetPageReference;
 use crate::services::parent::{
-    GetParentRelationships, ParentDescription, RemoveParentOutput,
+    GetParentRelationships, ModifyParentOutput, ParentDescription,
+    ParentModifyDescription, RemoveParentOutput,
 };
+use crate::web::Reference;
 
 pub async fn parent_relationships_get(
     ctx: &ServiceContext<'_>,
@@ -84,4 +87,91 @@ pub async fn parent_remove(
     );
 
     ParentService::remove(ctx, input).await
+}
+
+pub async fn parent_get_all(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<Vec<String>> {
+    let GetPageReference { site_id, page } = params.parse()?;
+
+    info!(
+        "Getting parents for child {:?} in site ID {}",
+        page, site_id,
+    );
+
+    let parents: Vec<Reference<'_>> = ParentService::get_parents(ctx, site_id, page)
+        .await?
+        .iter()
+        .map(|p| Reference::from(p.parent_page_id))
+        .collect();
+
+    let pages: Vec<String> = PageService::get_pages(ctx, site_id, parents.as_slice())
+        .await?
+        .iter()
+        .map(|p| p.slug.clone())
+        .collect();
+
+    Ok(pages)
+}
+
+pub async fn parent_modify(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<ModifyParentOutput> {
+    let input: ParentModifyDescription = params.parse()?;
+
+    info!(
+        "Modifying multiple parental relationship for child {:?} in site ID {}",
+        input.child, input.site_id,
+    );
+
+    let creation = match input.added {
+        Some(parents) => {
+            let mut creation = Vec::new();
+            for parent in parents {
+                if let Ok(Some(model)) = ParentService::create(
+                    ctx,
+                    ParentDescription {
+                        site_id: input.site_id.clone(),
+                        parent: parent.clone(),
+                        child: input.child.clone(),
+                    },
+                )
+                .await
+                {
+                    creation.push(model.parent_page_id);
+                };
+            }
+            Some(creation)
+        }
+        None => None,
+    };
+
+    let removal = match input.removed {
+        Some(parents) => {
+            let mut removal = Vec::new();
+            for parent in parents {
+                if let Ok(res) = ParentService::remove(
+                    ctx,
+                    ParentDescription {
+                        site_id: input.site_id.clone(),
+                        parent: parent.to_owned(),
+                        child: input.child.clone(),
+                    },
+                )
+                .await
+                {
+                    removal.push(res.was_deleted);
+                };
+            }
+            Some(removal)
+        }
+        None => None,
+    };
+
+    Ok(ModifyParentOutput {
+        added: creation,
+        removed: removal,
+    })
 }
