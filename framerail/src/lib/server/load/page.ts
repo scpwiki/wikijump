@@ -93,6 +93,7 @@ export async function loadPage(
       "wiki-page-revision-created-at": {},
       "wiki-page-revision-user": {},
       "wiki-page-revision-comments": {},
+      "wiki-page-revision-rollback": {},
 
       // Page vote
       "wiki-page-vote-list": {},

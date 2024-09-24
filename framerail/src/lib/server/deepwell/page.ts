@@ -91,6 +91,23 @@ export async function pageRevision(
   })
 }
 
+export async function pageRollback(
+  siteId: number,
+  pageId: Optional<number>,
+  userId: number,
+  slug: string,
+  revisionNumber: Optional<number>,
+  revisionComments: Optional<string>
+): Promise<object> {
+  return client.request("page_rollback", {
+    site_id: siteId,
+    page: pageId ?? slug,
+    user_id: userId,
+    revision_number: revisionNumber ?? defaults.page.history.revisionNumber,
+    revision_comments: revisionComments
+  })
+}
+
 export async function pageVote(
   siteId: number,
   pageId: Optional<number>,

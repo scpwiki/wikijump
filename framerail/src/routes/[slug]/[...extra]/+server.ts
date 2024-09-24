@@ -74,6 +74,19 @@ export async function POST(event) {
         compiledHtml,
         wikitext
       )
+    } else if (extra.includes("rollback")) {
+      let revisionNumberStr = data.get("revision-number")?.toString()
+      let revisionNumber = revisionNumberStr ? parseInt(revisionNumberStr) : null
+      let comments = data.get("comments")?.toString() ?? ""
+
+      res = await page.pageRollback(
+        siteId,
+        pageId,
+        session?.user_id,
+        slug,
+        revisionNumber,
+        comments
+      )
     } else if (extra.includes("vote")) {
       let action = data.get("action")?.toString()
       let valueStr = data.get("value")?.toString()

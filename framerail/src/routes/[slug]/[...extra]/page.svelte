@@ -166,6 +166,24 @@
     }
   }
 
+  async function rollbackRevision(revisionNumber: number, comments?: string) {
+    let fdata = new FormData()
+    fdata.set("site-id", $page.data.site.site_id)
+    fdata.set("page-id", $page.data.page.page_id)
+    fdata.set("revision-number", revisionNumber)
+    if (comments !== undefined) fdata.set("comments", comments)
+    let res = await fetch(`/${$page.data.page.slug}/rollback`, {
+      method: "POST",
+      body: fdata
+    }).then((res) => res.json())
+    if (res?.message) {
+      showErrorPopup.set({
+        state: true,
+        message: res.message
+      })
+    } else invalidateAll()
+  }
+
   async function handleVote() {
     let fdata = new FormData()
     fdata.set("site-id", $page.data.site.site_id)
@@ -181,7 +199,7 @@
       })
     } else {
       voteRating = res.rating ?? 0
-    showVote = true
+      showVote = true
     }
   }
   async function getVoteList() {
@@ -220,8 +238,6 @@
         state: true,
         message: res.message
       })
-    } else {
-      console.log(res)
     }
   }
   async function cancelVote() {
@@ -238,8 +254,6 @@
         state: true,
         message: res.message
       })
-    } else {
-      console.log(res)
     }
   }
 
@@ -478,6 +492,15 @@
             }}
           >
             {$page.data.internationalization?.["wiki-page-view-source"]}
+          </button>
+          <button
+            class="action-button revision-rollback clickable"
+            type="button"
+            on:click|stopPropagation={() => {
+              rollbackRevision(revisionItem.revision_number)
+            }}
+          >
+            {$page.data.internationalization?.["wiki-page-revision-rollback"]}
           </button>
         </div>
         <div class="revision-attribute revision-number">

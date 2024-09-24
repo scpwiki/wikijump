@@ -20,6 +20,8 @@ wiki-page-revision-user = 编辑用户
 
 wiki-page-revision-comments = 留言
 
+wiki-page-revision-rollback = 回滚
+
 wiki-page-move-new-slug = 新页面网址
 
 wiki-page-vote-set = 进行评分

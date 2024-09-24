@@ -20,6 +20,8 @@ wiki-page-revision-user = User
 
 wiki-page-revision-comments = Comments
 
+wiki-page-revision-rollback = Revert
+
 wiki-page-move-new-slug = New slug
 
 wiki-page-vote-set = Cast vote
