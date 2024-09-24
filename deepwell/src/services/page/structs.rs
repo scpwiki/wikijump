@@ -107,6 +107,12 @@ pub struct GetPageOutput {
     pub layout: Layout,
 }
 
+#[derive(Serialize, Debug, Clone)]
+pub struct GetPageScoreOutput {
+    pub page_id: i64,
+    pub rating: ScoreValue,
+}
+
 #[derive(Deserialize, Debug, Clone)]
 pub struct EditPage<'a> {
     pub site_id: i64,

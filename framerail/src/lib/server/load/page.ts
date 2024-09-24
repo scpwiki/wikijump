@@ -98,6 +98,7 @@ export async function loadPage(
       "wiki-page-vote-list": {},
       "wiki-page-vote-set": {},
       "wiki-page-vote-remove": {},
+      "wiki-page-vote-score": {},
 
       // Misc
       "wiki-page-move-new-slug": {},

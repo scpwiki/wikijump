@@ -97,7 +97,7 @@ export async function pageVote(
   userId: number,
   action: String,
   value: number
-) {
+): Promise<object> {
   let actionLower = action.toLowerCase()
   if (actionLower === "set") {
     return client.request("vote_set", {
@@ -120,4 +120,15 @@ export async function pageVote(
       limit: 100
     })
   }
+}
+
+export async function pageScore(
+  siteId: number,
+  pageId: Optional<number>,
+  slug: string,
+): Promise<object> {
+  return client.request("page_get_score", {
+    site_id: siteId,
+    page: pageId ?? slug,
+  })
 }

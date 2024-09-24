@@ -28,6 +28,8 @@ wiki-page-vote-remove = Cancel vote
 
 wiki-page-vote-list = List votes
 
+wiki-page-vote-score = Rating
+
 ### Special Page fallback strings
 
 wiki-page-missing = The page //{ $slug }// you want to access does not exist.

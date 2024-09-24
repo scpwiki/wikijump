@@ -129,7 +129,8 @@
       border: 1px solid var(--border);
       border-radius: 0.5em;
 
-      &.cast-vote {
+      &.cast-vote,
+      &.vote-rating {
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -140,7 +141,8 @@
           display: inline-block;
           padding: 0.5em 1em;
         }
-        .vote-subbutton {
+        .vote-subbutton,
+        .vote-rating-number {
           display: inline-block;
           flex: 1;
           padding: 0.5em 1em;

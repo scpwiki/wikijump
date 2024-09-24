@@ -80,6 +80,8 @@ export async function POST(event) {
       let value = valueStr ? parseInt(valueStr) : null
 
       res = await page.pageVote(siteId, pageId, session?.user_id, action, value)
+    } else if (extra.includes("score")) {
+      res = await page.pageScore(siteId, pageId, slug)
     }
 
     return new Response(JSON.stringify(res))

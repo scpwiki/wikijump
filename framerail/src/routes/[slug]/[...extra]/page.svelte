@@ -16,6 +16,7 @@
   let revisionMap: Map<number, Record<string, any>> = new Map()
   let revision: Record<string, any> = {}
   let voteMap: Map<number, Record<string, any>> = new Map()
+  let voteRating: number
 
   async function handleDelete() {
     let fdata = new FormData()
@@ -166,7 +167,22 @@
   }
 
   async function handleVote() {
+    let fdata = new FormData()
+    fdata.set("site-id", $page.data.site.site_id)
+    fdata.set("page-id", $page.data.page.page_id)
+    let res = await fetch(`/${$page.data.page.slug}/score`, {
+      method: "POST",
+      body: fdata
+    }).then((res) => res.json())
+    if (res?.message) {
+      showErrorPopup.set({
+        state: true,
+        message: res.message
+      })
+    } else {
+      voteRating = res.rating ?? 0
     showVote = true
+    }
   }
   async function getVoteList() {
     let fdata = new FormData()
@@ -499,6 +515,12 @@
       >
         {$page.data.internationalization?.["wiki-page-vote-list"]}
       </button>
+      <div class="action-button vote-rating">
+        <span class="vote-desc"
+          >{$page.data.internationalization?.["wiki-page-vote-score"]}</span
+        >
+        <span class="vote-rating-number">{voteRating}</span>
+      </div>
       <div class="action-button cast-vote">
         <span class="vote-desc"
           >{$page.data.internationalization?.["wiki-page-vote-set"]}</span
