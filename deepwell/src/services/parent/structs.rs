@@ -30,7 +30,7 @@ pub struct ParentDescription<'a> {
 }
 
 #[derive(Deserialize, Debug, Clone)]
-pub struct ParentModifyDescription<'a> {
+pub struct UpdateParents<'a> {
     pub site_id: i64,
     pub child: Reference<'a>,
     pub add: Option<Vec<Reference<'a>>>,
@@ -80,7 +80,7 @@ pub struct RemoveParentOutput {
 }
 
 #[derive(Serialize, Debug, Clone)]
-pub struct ModifyParentOutput {
+pub struct UpdateParentsOutput {
     pub added: Option<Vec<i64>>,
     pub removed: Option<Vec<bool>>,
 }

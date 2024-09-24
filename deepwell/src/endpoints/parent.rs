@@ -22,8 +22,8 @@ use super::prelude::*;
 use crate::models::page_parent::Model as PageParentModel;
 use crate::services::page::GetPageReference;
 use crate::services::parent::{
-    GetParentRelationships, ModifyParentOutput, ParentDescription,
-    ParentModifyDescription, RemoveParentOutput,
+    GetParentRelationships, ParentDescription, RemoveParentOutput, UpdateParents,
+    UpdateParentsOutput,
 };
 use crate::web::Reference;
 
@@ -108,21 +108,21 @@ pub async fn parent_get_all(
 
     let pages: Vec<String> = PageService::get_pages(ctx, site_id, parents.as_slice())
         .await?
-        .iter()
-        .map(|p| p.slug.clone())
+        .into_iter()
+        .map(|p| p.slug)
         .collect();
 
     Ok(pages)
 }
 
-pub async fn parent_modify(
+pub async fn parent_update(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
-) -> Result<ModifyParentOutput> {
-    let input: ParentModifyDescription = params.parse()?;
+) -> Result<UpdateParentsOutput> {
+    let input: UpdateParents = params.parse()?;
 
     info!(
-        "Modifying multiple parental relationship for child {:?} in site ID {}",
+        "Updating multiple parental relationships for child {:?} in site ID {}",
         input.child, input.site_id,
     );
 
@@ -134,7 +134,7 @@ pub async fn parent_modify(
                     ctx,
                     ParentDescription {
                         site_id: input.site_id,
-                        parent: parent.clone(),
+                        parent: parent.to_owned(),
                         child: input.child.clone(),
                     },
                 )
@@ -170,7 +170,7 @@ pub async fn parent_modify(
         None => None,
     };
 
-    Ok(ModifyParentOutput {
+    Ok(UpdateParentsOutput {
         added: creation,
         removed: removal,
     })

@@ -116,7 +116,7 @@ pub struct GetPageOutput {
 #[derive(Serialize, Debug, Clone)]
 pub struct GetPageScoreOutput {
     pub page_id: i64,
-    pub rating: ScoreValue,
+    pub score: ScoreValue,
 }
 
 #[derive(Deserialize, Debug, Clone)]

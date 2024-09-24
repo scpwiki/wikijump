@@ -84,8 +84,8 @@ pub async fn page_get_score(
 
     info!("Getting score for page {reference:?} in site ID {site_id}");
     let page_id = PageService::get_id(ctx, site_id, reference).await?;
-    let rating = ScoreService::score(ctx, page_id).await?;
-    Ok(GetPageScoreOutput { page_id, rating })
+    let score = ScoreService::score(ctx, page_id).await?;
+    Ok(GetPageScoreOutput { page_id, score })
 }
 
 pub async fn page_edit(

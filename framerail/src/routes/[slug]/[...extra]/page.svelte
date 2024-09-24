@@ -130,7 +130,7 @@
     let fdata = new FormData()
     fdata.set("site-id", $page.data.site.site_id)
     fdata.set("page-id", $page.data.page.page_id)
-    let res = await fetch(`/${$page.data.page.slug}/parentget`, {
+    let res = await fetch(`/${$page.data.page.slug}/parent-get`, {
       method: "POST",
       body: fdata
     }).then((res) => res.json())
@@ -151,7 +151,7 @@
     fdata.set("site-id", $page.data.site.site_id)
     fdata.set("page-id", $page.data.page.page_id)
     fdata.set("old-parents", parents)
-    let res = await fetch(`/${$page.data.page.slug}/parentset`, {
+    let res = await fetch(`/${$page.data.page.slug}/parent-set`, {
       method: "POST",
       body: fdata
     }).then((res) => res.json())
@@ -262,7 +262,7 @@
         message: res.message
       })
     } else {
-      voteRating = res.rating ?? 0
+      voteRating = res.score ?? 0
       showVote = true
     }
   }
