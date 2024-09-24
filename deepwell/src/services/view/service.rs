@@ -172,7 +172,9 @@ impl ViewService {
                 if Self::can_access_page(ctx, user_permissions).await? {
                     debug!("User has page access, return text data");
 
-                    if options.rerender {
+                    if options.rerender
+                        && Self::can_edit_page(ctx, user_permissions).await?
+                    {
                         info!(
                             "Re-rendering revision: site ID {} page ID {} revision ID {} (depth {})",
                             page.site_id, page.page_id, page_revision.revision_id, 0,
@@ -489,6 +491,16 @@ impl ViewService {
     }
 
     async fn can_access_page(
+        _ctx: &ServiceContext<'_>,
+        permissions: UserPermissions,
+    ) -> Result<bool> {
+        info!("Checking page access: {permissions:?}");
+        debug!("TODO: stub");
+        // TODO perform permission checks
+        Ok(true)
+    }
+
+    async fn can_edit_page(
         _ctx: &ServiceContext<'_>,
         permissions: UserPermissions,
     ) -> Result<bool> {
