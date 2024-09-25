@@ -54,17 +54,17 @@ const PAGE_ARGUMENTS_SCHEMA: ArgumentSchema = ArgumentSchema {
 /// pairs, this struct parses them into logical flags to be processed.
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct PageOptions {
-    edit: bool,
-    title: Option<String>,
-    parent: Option<String>,
-    tags: Option<String>,
-    no_redirect: bool,
-    no_render: bool,
-    rerender: bool,
-    comments: bool,
-    history: bool,
-    offset: Option<i32>,
-    data: String,
+    pub edit: bool,
+    pub title: Option<String>,
+    pub parent: Option<String>,
+    pub tags: Option<String>,
+    pub no_redirect: bool,
+    pub no_render: bool,
+    pub rerender: bool,
+    pub comments: bool,
+    pub history: bool,
+    pub offset: Option<i32>,
+    pub data: String,
 }
 
 impl PageOptions {

@@ -148,8 +148,6 @@ impl ViewService {
         {
             // This page exists, return its data directly.
             Some(page) => {
-                // TODO determine if page needs rerender?
-
                 // Get associated revision
                 let page_revision =
                     PageRevisionService::get_latest(ctx, site.site_id, page.page_id)
@@ -173,6 +171,17 @@ impl ViewService {
                 // disallows banned viewing.
                 if Self::can_access_page(ctx, user_permissions).await? {
                     debug!("User has page access, return text data");
+
+                    if options.rerender
+                        && Self::can_edit_page(ctx, user_permissions).await?
+                    {
+                        info!(
+                            "Re-rendering revision: site ID {} page ID {} revision ID {} (depth {})",
+                            page.site_id, page.page_id, page_revision.revision_id, 0,
+                        );
+                        PageRevisionService::rerender(ctx, page.site_id, page.page_id, 0)
+                            .await?;
+                    };
 
                     let (wikitext, compiled_html) = try_join!(
                         TextService::get(ctx, &page_revision.wikitext_hash),
@@ -482,6 +491,16 @@ impl ViewService {
     }
 
     async fn can_access_page(
+        _ctx: &ServiceContext<'_>,
+        permissions: UserPermissions,
+    ) -> Result<bool> {
+        info!("Checking page access: {permissions:?}");
+        debug!("TODO: stub");
+        // TODO perform permission checks
+        Ok(true)
+    }
+
+    async fn can_edit_page(
         _ctx: &ServiceContext<'_>,
         permissions: UserPermissions,
     ) -> Result<bool> {

@@ -19,6 +19,8 @@
 <!-- Ignoring the styling as being a theme it will inevitably style other elements in the entire layout -->
 <!-- svelte-ignore css-unused-selector -->
 <style global lang="scss">
+  $tablet-max-width: 767px;
+
   :root {
     /* Fallback colors */
     --text: #111;
@@ -54,7 +56,8 @@
     textarea,
     input[type="text"],
     input[type="date"],
-    input[type="password"] {
+    input[type="password"],
+    select {
       padding: 0.5em 1em;
       color: var(--text);
       background-color: var(--background);
@@ -129,7 +132,8 @@
       border: 1px solid var(--border);
       border-radius: 0.5em;
 
-      &.cast-vote {
+      &.cast-vote,
+      &.vote-rating {
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -140,7 +144,8 @@
           display: inline-block;
           padding: 0.5em 1em;
         }
-        .vote-subbutton {
+        .vote-subbutton,
+        .vote-rating-number {
           display: inline-block;
           flex: 1;
           padding: 0.5em 1em;
@@ -176,6 +181,12 @@
       --border: #b6c2cf;
       --mild-text: #bbb;
       --accent: #44aaff;
+    }
+  }
+
+  @media (max-width: $tablet-max-width) {
+    .header {
+      height: initial;
     }
   }
 </style>

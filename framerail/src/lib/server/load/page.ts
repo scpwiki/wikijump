@@ -65,7 +65,16 @@ export async function loadPage(
 
     // Page actions
     "save": {},
-    "cancel": {}
+    "cancel": {},
+
+    // Page edit
+    "title": {},
+    "alt-title": {},
+    "tags": {},
+    "wiki-page-revision-comments": {},
+    "wiki-page-layout-default": {},
+    "wiki-page-layout-wikidot": {},
+    "wiki-page-layout-wikijump": {}
   }
 
   if (errorStatus === null) {
@@ -79,11 +88,8 @@ export async function loadPage(
       "move": {},
       "view": {},
       "vote": {},
-
-      // Page edit
-      "tags": {},
-      "title": {},
-      "alt-title": {},
+      "layout": {},
+      "parents": {},
 
       // Page history
       "wiki-page-revision": {
@@ -92,12 +98,13 @@ export async function loadPage(
       "wiki-page-revision-number": {},
       "wiki-page-revision-created-at": {},
       "wiki-page-revision-user": {},
-      "wiki-page-revision-comments": {},
+      "wiki-page-revision-rollback": {},
 
       // Page vote
       "wiki-page-vote-list": {},
       "wiki-page-vote-set": {},
       "wiki-page-vote-remove": {},
+      "wiki-page-vote-score": {},
 
       // Misc
       "wiki-page-move-new-slug": {},

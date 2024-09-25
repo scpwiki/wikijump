@@ -51,6 +51,12 @@ pub struct CreatePageOutput {
 }
 
 #[derive(Deserialize, Debug, Clone)]
+pub struct GetPageReference<'a> {
+    pub site_id: i64,
+    pub page: Reference<'a>,
+}
+
+#[derive(Deserialize, Debug, Clone)]
 pub struct GetPageReferenceDetails<'a> {
     pub site_id: i64,
     pub page: Reference<'a>,
@@ -105,6 +111,12 @@ pub struct GetPageOutput {
     pub tags: Vec<String>,
     pub rating: ScoreValue,
     pub layout: Layout,
+}
+
+#[derive(Serialize, Debug, Clone)]
+pub struct GetPageScoreOutput {
+    pub page_id: i64,
+    pub score: ScoreValue,
 }
 
 #[derive(Deserialize, Debug, Clone)]

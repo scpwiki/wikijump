@@ -22,8 +22,9 @@ use super::prelude::*;
 use crate::models::page::Model as PageModel;
 use crate::services::page::{
     CreatePage, CreatePageOutput, DeletePage, DeletePageOutput, EditPage, EditPageOutput,
-    GetPageAnyDetails, GetPageDirect, GetPageOutput, GetPageReferenceDetails, MovePage,
-    MovePageOutput, RestorePage, RestorePageOutput, RollbackPage, SetPageLayout,
+    GetPageAnyDetails, GetPageDirect, GetPageOutput, GetPageReference,
+    GetPageReferenceDetails, GetPageScoreOutput, MovePage, MovePageOutput, RestorePage,
+    RestorePageOutput, RollbackPage, SetPageLayout,
 };
 use crate::services::{Result, TextService};
 use crate::web::{PageDetails, Reference};
@@ -70,6 +71,21 @@ pub async fn page_get_direct(
         Some(page) => build_page_output(ctx, page, details).await,
         None => Ok(None),
     }
+}
+
+pub async fn page_get_score(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<GetPageScoreOutput> {
+    let GetPageReference {
+        site_id,
+        page: reference,
+    } = params.parse()?;
+
+    info!("Getting score for page {reference:?} in site ID {site_id}");
+    let page_id = PageService::get_id(ctx, site_id, reference).await?;
+    let score = ScoreService::score(ctx, page_id).await?;
+    Ok(GetPageScoreOutput { page_id, score })
 }
 
 pub async fn page_edit(

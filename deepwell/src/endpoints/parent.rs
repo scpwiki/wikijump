@@ -20,9 +20,13 @@
 
 use super::prelude::*;
 use crate::models::page_parent::Model as PageParentModel;
+use crate::services::page::GetPageReference;
 use crate::services::parent::{
-    GetParentRelationships, ParentDescription, RemoveParentOutput,
+    GetParentRelationships, ParentDescription, RemoveParentOutput, UpdateParents,
+    UpdateParentsOutput,
 };
+use crate::web::Reference;
+use futures::future::try_join_all;
 
 pub async fn parent_relationships_get(
     ctx: &ServiceContext<'_>,
@@ -84,4 +88,94 @@ pub async fn parent_remove(
     );
 
     ParentService::remove(ctx, input).await
+}
+
+pub async fn parent_get_all(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<Vec<String>> {
+    let GetPageReference { site_id, page } = params.parse()?;
+
+    info!(
+        "Getting parents for child {:?} in site ID {}",
+        page, site_id,
+    );
+
+    let parents: Vec<Reference<'_>> = ParentService::get_parents(ctx, site_id, page)
+        .await?
+        .iter()
+        .map(|p| Reference::from(p.parent_page_id))
+        .collect();
+
+    let pages: Vec<String> = PageService::get_pages(ctx, site_id, parents.as_slice())
+        .await?
+        .into_iter()
+        .map(|p| p.slug)
+        .collect();
+
+    Ok(pages)
+}
+
+pub async fn parent_update(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<UpdateParentsOutput> {
+    let input: UpdateParents = params.parse()?;
+
+    info!(
+        "Updating multiple parental relationships for child {:?} in site ID {}",
+        input.child, input.site_id,
+    );
+
+    let creation = match input.add {
+        Some(parents) => {
+            let creation = parents.iter().map(|parent| {
+                ParentService::create(
+                    ctx,
+                    ParentDescription {
+                        site_id: input.site_id,
+                        parent: parent.to_owned(),
+                        child: input.child.clone(),
+                    },
+                )
+            });
+            Some(
+                try_join_all(creation)
+                    .await?
+                    .iter()
+                    .flatten()
+                    .map(|p| p.parent_page_id)
+                    .collect(),
+            )
+        }
+        None => None,
+    };
+
+    let removal = match input.remove {
+        Some(parents) => {
+            let removal = parents.iter().map(|parent| {
+                ParentService::remove(
+                    ctx,
+                    ParentDescription {
+                        site_id: input.site_id,
+                        parent: parent.to_owned(),
+                        child: input.child.clone(),
+                    },
+                )
+            });
+            Some(
+                try_join_all(removal)
+                    .await?
+                    .iter()
+                    .map(|p| p.was_deleted)
+                    .collect(),
+            )
+        }
+        None => None,
+    };
+
+    Ok(UpdateParentsOutput {
+        added: creation,
+        removed: removal,
+    })
 }

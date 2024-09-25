@@ -20,13 +20,27 @@ wiki-page-revision-user = User
 
 wiki-page-revision-comments = Comments
 
-wiki-page-move-new-slug = New slug
+wiki-page-revision-rollback = Revert
+
+### Wiki Page Vote
 
 wiki-page-vote-set = Cast vote
 
 wiki-page-vote-remove = Cancel vote
 
 wiki-page-vote-list = List votes
+
+wiki-page-vote-score = Rating
+
+### Wiki Page Edit
+
+wiki-page-move-new-slug = New slug
+
+wiki-page-layout-default = Default layout
+
+wiki-page-layout-wikidot = Wikidot (Legacy)
+
+wiki-page-layout-wikijump = Wikijump
 
 ### Special Page fallback strings
 

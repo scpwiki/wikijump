@@ -158,8 +158,8 @@ impl ParentService {
         let txn = ctx.transaction();
         let page_id = PageService::get_id(ctx, site_id, reference).await?;
         let column = match relationship_type {
-            ParentalRelationshipType::Parent => page_parent::Column::ParentPageId,
-            ParentalRelationshipType::Child => page_parent::Column::ChildPageId,
+            ParentalRelationshipType::Parent => page_parent::Column::ChildPageId,
+            ParentalRelationshipType::Child => page_parent::Column::ParentPageId,
         };
 
         let models = PageParent::find()

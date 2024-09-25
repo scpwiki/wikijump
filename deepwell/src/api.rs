@@ -226,6 +226,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("page_create", page_create);
     register!("page_get", page_get);
     register!("page_get_direct", page_get_direct);
+    register!("page_get_score", page_get_score);
     register!("page_edit", page_edit);
     register!("page_delete", page_delete);
     register!("page_move", page_move);
@@ -252,6 +253,8 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("parent_get", parent_get);
     register!("parent_remove", parent_remove);
     register!("parent_relationships_get", parent_relationships_get);
+    register!("parent_get_all", parent_get_all);
+    register!("parent_update", parent_update);
 
     // Blob data
     register!("blob_get", blob_get);

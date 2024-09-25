@@ -35,6 +35,7 @@ export async function POST(event) {
       let tagsStr = data.get("tags")?.toString().trim()
       let tags: string[] = []
       if (tagsStr?.length) tags = tagsStr.split(" ").filter((tag) => tag.length)
+      let layout = data.get("layout")?.toString().trim()
 
       res = await page.pageEdit(
         siteId,
@@ -45,7 +46,8 @@ export async function POST(event) {
         wikitext,
         title,
         altTitle,
-        tags
+        tags,
+        layout
       )
     } else if (extra.includes("history")) {
       /** Retrieve page revision list. */
@@ -74,12 +76,47 @@ export async function POST(event) {
         compiledHtml,
         wikitext
       )
+    } else if (extra.includes("rollback")) {
+      let revisionNumberStr = data.get("revision-number")?.toString()
+      let revisionNumber = revisionNumberStr ? parseInt(revisionNumberStr) : null
+      let comments = data.get("comments")?.toString() ?? ""
+
+      res = await page.pageRollback(
+        siteId,
+        pageId,
+        session?.user_id,
+        slug,
+        revisionNumber,
+        comments
+      )
     } else if (extra.includes("vote")) {
       let action = data.get("action")?.toString()
       let valueStr = data.get("value")?.toString()
       let value = valueStr ? parseInt(valueStr) : null
 
       res = await page.pageVote(siteId, pageId, session?.user_id, action, value)
+    } else if (extra.includes("layout")) {
+      let layout = data.get("layout")?.toString().trim() ?? null
+
+      res = await page.pageLayout(siteId, pageId, session?.user_id, layout)
+    } else if (extra.includes("parent-set")) {
+      let addParentStr = data.get("add-parents")?.toString().trim() ?? ""
+      let addParents = addParentStr.split(" ").filter((p) => p)
+      let removeParentStr = data.get("remove-parents")?.toString().trim() ?? ""
+      let removeParents = removeParentStr.split(" ").filter((p) => p)
+
+      if (addParents.length + removeParents.length)
+        res = await page.pageParentUpdate(
+          siteId,
+          pageId,
+          session?.user_id,
+          addParents.length ? addParents : undefined,
+          removeParents.length ? removeParents : undefined
+        )
+    } else if (extra.includes("parent-get")) {
+      res = await page.pageParentGet(siteId, pageId, slug)
+    } else if (extra.includes("score")) {
+      res = await page.pageScore(siteId, pageId, slug)
     }
 
     return new Response(JSON.stringify(res))

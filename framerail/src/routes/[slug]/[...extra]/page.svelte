@@ -3,9 +3,12 @@
   import { goto, invalidateAll } from "$app/navigation"
   import { onMount } from "svelte"
   import { useErrorPopup } from "$lib/stores"
+  import { Layout } from "$lib/types"
   let showErrorPopup = useErrorPopup()
 
   let showMoveAction = false
+  let showLayoutAction = false
+  let showParentAction = false
   let showHistory = false
   let showSource = false
   let showRevision = false
@@ -16,6 +19,8 @@
   let revisionMap: Map<number, Record<string, any>> = new Map()
   let revision: Record<string, any> = {}
   let voteMap: Map<number, Record<string, any>> = new Map()
+  let voteRating: number
+  let parents = ""
 
   async function handleDelete() {
     let fdata = new FormData()
@@ -101,6 +106,80 @@
     }
   }
 
+  async function handleLayout() {
+    let form = document.getElementById("page-layout")
+    let fdata = new FormData(form)
+    fdata.set("site-id", $page.data.site.site_id)
+    fdata.set("page-id", $page.data.page.page_id)
+    let res = await fetch(`/${$page.data.page.slug}/layout`, {
+      method: "POST",
+      body: fdata
+    }).then((res) => res.json())
+    if (res?.message) {
+      showErrorPopup.set({
+        state: true,
+        message: res.message
+      })
+    } else {
+      showLayoutAction = false
+      invalidateAll()
+    }
+  }
+
+  async function getParents() {
+    let fdata = new FormData()
+    fdata.set("site-id", $page.data.site.site_id)
+    fdata.set("page-id", $page.data.page.page_id)
+    let res = await fetch(`/${$page.data.page.slug}/parent-get`, {
+      method: "POST",
+      body: fdata
+    }).then((res) => res.json())
+    if (res?.message) {
+      showErrorPopup.set({
+        state: true,
+        message: res.message
+      })
+    } else {
+      parents = res.join(" ")
+      showParentAction = true
+    }
+  }
+
+  async function setParents() {
+    let form = document.getElementById("page-parent")
+    let fdata = new FormData(form)
+    fdata.set("site-id", $page.data.site.site_id)
+    fdata.set("page-id", $page.data.page.page_id)
+    let newParents = (fdata.get("parents")?.toString() ?? "").split(" ").filter((p) => p)
+    let oldParents = parents.split(" ").filter((p) => p)
+    let added: string[] = []
+    let removed: string[] = []
+    let common: string[] = []
+    for (let i = 0; i < oldParents.length; i++) {
+      if (!newParents.includes(oldParents[i])) removed.push(oldParents[i])
+      else common.push(oldParents[i])
+    }
+    for (let i = 0; i < newParents.length; i++) {
+      if (!common.includes(newParents[i])) added.push(newParents[i])
+    }
+    if (added.length) fdata.set("add-parents", added.join(" "))
+    if (removed.length) fdata.set("remove-parents", removed.join(" "))
+
+    let res = await fetch(`/${$page.data.page.slug}/parent-set`, {
+      method: "POST",
+      body: fdata
+    }).then((res) => res.json())
+    if (res?.message) {
+      showErrorPopup.set({
+        state: true,
+        message: res.message
+      })
+    } else {
+      showParentAction = false
+      invalidateAll()
+    }
+  }
+
   async function handleHistory() {
     let fdata = new FormData()
     fdata.set("site-id", $page.data.site.site_id)
@@ -165,8 +244,41 @@
     }
   }
 
+  async function rollbackRevision(revisionNumber: number, comments?: string) {
+    let fdata = new FormData()
+    fdata.set("site-id", $page.data.site.site_id)
+    fdata.set("page-id", $page.data.page.page_id)
+    fdata.set("revision-number", revisionNumber)
+    if (comments !== undefined) fdata.set("comments", comments)
+    let res = await fetch(`/${$page.data.page.slug}/rollback`, {
+      method: "POST",
+      body: fdata
+    }).then((res) => res.json())
+    if (res?.message) {
+      showErrorPopup.set({
+        state: true,
+        message: res.message
+      })
+    } else invalidateAll()
+  }
+
   async function handleVote() {
-    showVote = true
+    let fdata = new FormData()
+    fdata.set("site-id", $page.data.site.site_id)
+    fdata.set("page-id", $page.data.page.page_id)
+    let res = await fetch(`/${$page.data.page.slug}/score`, {
+      method: "POST",
+      body: fdata
+    }).then((res) => res.json())
+    if (res?.message) {
+      showErrorPopup.set({
+        state: true,
+        message: res.message
+      })
+    } else {
+      voteRating = res.score ?? 0
+      showVote = true
+    }
   }
   async function getVoteList() {
     let fdata = new FormData()
@@ -204,8 +316,6 @@
         state: true,
         message: res.message
       })
-    } else {
-      console.log(res)
     }
   }
   async function cancelVote() {
@@ -222,8 +332,6 @@
         state: true,
         message: res.message
       })
-    } else {
-      console.log(res)
     }
   }
 
@@ -329,10 +437,26 @@
       class="action-button editor-button button-move clickable"
       type="button"
       on:click={() => {
-        $: showMoveAction = true
+        showMoveAction = true
       }}
     >
       {$page.data.internationalization?.move}
+    </button>
+    <button
+      class="action-button editor-button button-layout clickable"
+      type="button"
+      on:click={() => {
+        showLayoutAction = true
+      }}
+    >
+      {$page.data.internationalization?.layout}
+    </button>
+    <button
+      class="action-button editor-button button-parents clickable"
+      type="button"
+      on:click={getParents}
+    >
+      {$page.data.internationalization?.parents}
     </button>
     <button
       class="action-button editor-button button-delete clickable"
@@ -382,7 +506,7 @@
   <form
     id="page-move"
     class="page-move"
-    method="PUT"
+    method="POST"
     on:submit|preventDefault={handleMove}
   >
     <input
@@ -413,6 +537,79 @@
         on:click|stopPropagation
       >
         {$page.data.internationalization?.move}
+      </button>
+    </div>
+  </form>
+{/if}
+
+{#if showLayoutAction}
+  <form
+    id="page-layout"
+    class="page-layout"
+    method="POST"
+    on:submit|preventDefault={handleLayout}
+  >
+    <select name="layout" class="page-layout-select">
+      <option value={null}
+        >{$page.data.internationalization?.["wiki-page-layout-default"]}</option
+      >
+      {#each Object.values(Layout) as layoutOption}
+        <option value={layoutOption}
+          >{$page.data.internationalization?.[`wiki-page-layout-${layoutOption}`]}</option
+        >
+      {/each}
+    </select>
+    <div class="action-row page-layout-actions">
+      <button
+        class="action-button page-layout-button button-cancel clickable"
+        type="button"
+        on:click|stopPropagation={() => {
+          showLayoutAction = false
+        }}
+      >
+        {$page.data.internationalization?.cancel}
+      </button>
+      <button
+        class="action-button page-layout-button button-save clickable"
+        type="submit"
+        on:click|stopPropagation
+      >
+        {$page.data.internationalization?.save}
+      </button>
+    </div>
+  </form>
+{/if}
+
+{#if showParentAction}
+  <form
+    id="page-parent"
+    class="page-parent"
+    method="POST"
+    on:submit|preventDefault={setParents}
+  >
+    <input
+      name="parents"
+      class="page-parent-new-parents"
+      placeholder={$page.data.internationalization?.parents}
+      type="text"
+      value={parents}
+    />
+    <div class="action-row page-parent-actions">
+      <button
+        class="action-button page-parent-button button-cancel clickable"
+        type="button"
+        on:click|stopPropagation={() => {
+          showParentAction = false
+        }}
+      >
+        {$page.data.internationalization?.cancel}
+      </button>
+      <button
+        class="action-button page-parent-button button-save clickable"
+        type="submit"
+        on:click|stopPropagation
+      >
+        {$page.data.internationalization?.save}
       </button>
     </div>
   </form>
@@ -463,6 +660,15 @@
           >
             {$page.data.internationalization?.["wiki-page-view-source"]}
           </button>
+          <button
+            class="action-button revision-rollback clickable"
+            type="button"
+            on:click|stopPropagation={() => {
+              rollbackRevision(revisionItem.revision_number)
+            }}
+          >
+            {$page.data.internationalization?.["wiki-page-revision-rollback"]}
+          </button>
         </div>
         <div class="revision-attribute revision-number">
           {revisionItem.revision_number}
@@ -499,6 +705,12 @@
       >
         {$page.data.internationalization?.["wiki-page-vote-list"]}
       </button>
+      <div class="action-button vote-rating">
+        <span class="vote-desc"
+          >{$page.data.internationalization?.["wiki-page-vote-score"]}</span
+        >
+        <span class="vote-rating-number">{voteRating}</span>
+      </div>
       <div class="action-button cast-vote">
         <span class="vote-desc"
           >{$page.data.internationalization?.["wiki-page-vote-set"]}</span
@@ -577,7 +789,9 @@
   }
 
   .editor,
-  .page-move {
+  .page-move,
+  .page-layout,
+  .page-parent {
     display: flex;
     flex-direction: column;
     gap: 15px;

@@ -2,6 +2,7 @@
   import { page } from "$app/stores"
   import { goto } from "$app/navigation"
   import { useErrorPopup } from "$lib/stores"
+  import { Layout } from "$lib/types"
   let showErrorPopup = useErrorPopup()
 
   function cancelCreate() {
@@ -45,16 +46,42 @@ as soon as we can figure out prettier support for it.
 
   {#if $page.error.options?.edit}
     <form id="editor" class="editor" method="POST" on:submit|preventDefault={saveCreate}>
-      <input name="title" class="editor-title" placeholder="title" type="text" />
+      <input
+        name="title"
+        class="editor-title"
+        placeholder={$page.error.internationalization?.title}
+        type="text"
+      />
       <input
         name="alt-title"
         class="editor-alt-title"
-        placeholder="alternative title"
+        placeholder={$page.error.internationalization?.["alt-title"]}
         type="text"
       />
       <textarea name="wikitext" class="editor-wikitext" />
-      <input name="tags" class="editor-tags" placeholder="tags" type="text" />
-      <textarea name="comments" class="editor-comments" placeholder="comments" />
+      <input
+        name="tags"
+        class="editor-tags"
+        placeholder={$page.error.internationalization?.tags}
+        type="text"
+      />
+      <select name="layout" class="editor-layout">
+        <option value={null}
+          >{$page.error.internationalization?.["wiki-page-layout-default"]}</option
+        >
+        {#each Object.values(Layout) as layoutOption}
+          <option value={layoutOption}
+            >{$page.error.internationalization?.[
+              `wiki-page-layout-${layoutOption}`
+            ]}</option
+          >
+        {/each}
+      </select>
+      <textarea
+        name="comments"
+        class="editor-comments"
+        placeholder={$page.error.internationalization?.["wiki-page-revision-comments"]}
+      />
       <div class="action-row editor-actions">
         <button
           class="action-button editor-button button-cancel clickable"
