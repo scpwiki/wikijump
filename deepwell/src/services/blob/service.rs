@@ -26,13 +26,14 @@ use crate::models::blob_pending::{
     self, Entity as BlobPending, Model as BlobPendingModel,
 };
 use crate::utils::assert_is_csprng;
+use cuid2::cuid;
 use rand::distributions::{Alphanumeric, DistString};
 use rand::thread_rng;
 use s3::request_trait::ResponseData;
 use s3::serde_types::HeadObjectResult;
 use std::str;
 use time::format_description::well_known::Rfc2822;
-use time::OffsetDateTime;
+use time::{Duration, OffsetDateTime};
 
 /// Hash for empty blobs.
 ///
@@ -62,17 +63,19 @@ pub struct BlobService;
 
 impl BlobService {
     /// Creates an S3 presign URL to allow an end user to upload a blob.
-    ///
-    /// Also adds an entry for the pending blob upload (`blob_pending`),
-    /// so it can be used by the main `blob` table.
+    /// This is the start to the upload process for any kind of file.
     ///
     /// # Returns
-    /// The generated presign URL that can be uploaded to.
-    pub async fn create_upload(ctx: &ServiceContext<'_>) -> Result<BlobPendingModel> {
+    /// The generated presign URL, which can be uploaded to.
+    pub async fn start_upload(
+        ctx: &ServiceContext<'_>,
+        StartBlobUpload { user_id }: StartBlobUpload,
+    ) -> Result<StartBlobUploadOutput> {
         let config = ctx.config();
         let txn = ctx.transaction();
 
-        // Generate random S3 path
+        // Generate primary key and random S3 path
+        let pending_blob_id = cuid();
         let s3_path = {
             let mut path = format!("{PRESIGN_DIRECTORY}/");
 
@@ -88,7 +91,8 @@ impl BlobService {
 
             path
         };
-        info!("Creating presign upload URL for blob at path {s3_path}");
+
+        info!("Creating presign upload URL for blob at path {s3_path} with primary key {pending_blob_id}");
 
         // Create presign URL
         let bucket = ctx.s3_bucket();
@@ -97,17 +101,37 @@ impl BlobService {
 
         // Add pending blob entry
         let model = blob_pending::ActiveModel {
+            external_id: Set(pending_blob_id),
             s3_path: Set(s3_path),
             presign_url: Set(presign_url),
+            created_by: Set(user_id),
             ..Default::default()
         };
-        let output = model.insert(txn).await?;
-        Ok(output)
+
+        let BlobPendingModel {
+            external_id: pending_blob_id,
+            presign_url,
+            created_at,
+            ..
+        } = model.insert(txn).await?;
+
+        let expires_at = created_at
+            .checked_add(Duration::seconds(i64::from(config.presigned_expiry_secs)))
+            .expect("getting expiration timestamp overflowed");
+
+        debug!("New presign upload URL will last until {expires_at}");
+
+        Ok(StartBlobUploadOutput {
+            pending_blob_id,
+            presign_url,
+            expires_at,
+        })
     }
 
     pub async fn finish_upload(
         ctx: &ServiceContext<'_>,
-        pending_blob_id: i64,
+        user_id: i64,
+        pending_blob_id: &str,
     ) -> Result<FinalizeBlobUploadOutput> {
         info!("Finishing upload for blob for pending ID {pending_blob_id}");
         let bucket = ctx.s3_bucket();
@@ -115,10 +139,19 @@ impl BlobService {
 
         debug!("Getting pending blob info");
         let row = BlobPending::find_by_id(pending_blob_id).one(txn).await?;
-        let BlobPendingModel { s3_path, .. } = match row {
+        let BlobPendingModel {
+            s3_path,
+            created_by,
+            ..
+        } = match row {
             Some(pending) => pending,
             None => return Err(Error::GeneralNotFound),
         };
+
+        if user_id != created_by {
+            error!("User mismatch, user ID {user_id} is attempting to use blob uploaded by {created_by}");
+            return Err(Error::BlobWrongUser);
+        }
 
         debug!("Download uploaded blob from S3 uploads to get metadata");
         let response = bucket.get_object(&s3_path).await?;
@@ -126,6 +159,8 @@ impl BlobService {
             200 => response.into(),
             _ => {
                 error!("Cannot find blob at presign path {s3_path}");
+                BlobPending::delete_by_id(pending_blob_id).exec(txn).await?;
+                info!("Deleted pending blob due to missing presign object in S3");
                 return Err(Error::FileNotUploaded);
             }
         };

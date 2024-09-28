@@ -50,6 +50,8 @@ pub struct Model {
 pub enum Relation {
     #[sea_orm(has_many = "super::alias::Entity")]
     Alias,
+    #[sea_orm(has_many = "super::blob_pending::Entity")]
+    BlobPending,
     #[sea_orm(has_many = "super::file_revision::Entity")]
     FileRevision,
     #[sea_orm(has_many = "super::message::Entity")]
@@ -73,6 +75,12 @@ pub enum Relation {
 impl Related<super::alias::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Alias.def()
+    }
+}
+
+impl Related<super::blob_pending::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::BlobPending.def()
     }
 }
 

@@ -29,7 +29,7 @@ pub struct CreateFileRevision {
     pub page_id: i64,
     pub file_id: i64,
     pub user_id: i64,
-    pub comments: String,
+    pub revision_comments: String,
     pub body: CreateFileRevisionBody,
 }
 
@@ -64,19 +64,9 @@ pub struct CreateFirstFileRevision {
     pub s3_hash: BlobHash,
     pub size_hint: i64,
     pub mime_hint: String,
+    pub new_blob_created: bool,
     pub licensing: serde_json::Value,
-    pub comments: String,
-}
-
-#[derive(Debug, Clone)]
-pub struct CreatePendingFileRevision {
-    pub site_id: i64,
-    pub page_id: i64,
-    pub file_id: i64,
-    pub user_id: i64,
-    pub name: String,
-    pub licensing: serde_json::Value,
-    pub comments: String,
+    pub revision_comments: String,
 }
 
 #[derive(Serialize, Debug, Clone, Default)]

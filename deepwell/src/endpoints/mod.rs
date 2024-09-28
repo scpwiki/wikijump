@@ -43,6 +43,7 @@ mod prelude {
 }
 
 pub mod auth;
+pub mod blob;
 pub mod category;
 pub mod domain;
 pub mod email;

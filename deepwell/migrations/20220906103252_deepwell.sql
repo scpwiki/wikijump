@@ -417,10 +417,12 @@ CREATE TABLE page_vote (
 
 -- Manages blobs that are being uploaded by the user
 CREATE TABLE blob_pending (
-    pending_file_id BIGSERIAL PRIMARY KEY,
+    external_id TEXT PRIMARY KEY,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     s3_path TEXT NOT NULL CHECK (length(s3_path) > 1),
-    presign_url TEXT NOT NULL CHECK (length(presign_url) > 1)
+    presign_url TEXT NOT NULL CHECK (length(presign_url) > 1),
+
+    CHECK (length(external_id) = 24)  -- default length for a cuid2
 );
 
 --
@@ -451,7 +453,6 @@ CREATE TABLE file (
     name TEXT NOT NULL,
     page_id BIGINT NOT NULL REFERENCES page(page_id),
     site_id BIGINT NOT NULL REFERENCES site(site_id),
-    pending_blob_id BIGINT REFERENCES file_pending(pending_file_id),
 
     UNIQUE (page_id, name, deleted_at)
 );

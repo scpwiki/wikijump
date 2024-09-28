@@ -137,6 +137,9 @@ pub enum Error {
     #[error("Cannot restore a non-deleted filter")]
     FilterNotDeleted,
 
+    #[error("Cannot use blob uploaded by different user")]
+    BlobWrongUser,
+
     #[error("File name cannot be empty")]
     FileNameEmpty,
 
@@ -376,6 +379,7 @@ impl Error {
             Error::MessageBodyTooLong => 4019,
             Error::MessageNoRecipients => 4020,
             Error::MessageTooManyRecipients => 4021,
+            Error::BlobWrongUser => 4022,
 
             // 4100 -- Localization
             Error::LocaleInvalid(_) => 4100,

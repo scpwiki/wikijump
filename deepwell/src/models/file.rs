@@ -16,7 +16,6 @@ pub struct Model {
     pub name: String,
     pub page_id: i64,
     pub site_id: i64,
-    pub pending_blob_id: Option<i64>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

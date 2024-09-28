@@ -59,7 +59,7 @@ impl FileRevisionService {
             mut page_id,
             file_id,
             user_id,
-            comments,
+            revision_comments,
             body,
         }: CreateFileRevision,
         previous: FileRevisionModel,
@@ -158,7 +158,7 @@ impl FileRevisionService {
             mime_hint: Set(mime_hint),
             licensing: Set(licensing),
             changes: Set(changes),
-            comments: Set(comments),
+            comments: Set(revision_comments),
             hidden: Set(vec![]),
             ..Default::default()
         };
@@ -168,37 +168,6 @@ impl FileRevisionService {
             file_revision_id: revision_id,
             file_revision_number: revision_number,
         }))
-    }
-
-    /// Creates a dummy first revision for a file pending upload.
-    pub async fn create_pending(
-        ctx: &ServiceContext<'_>,
-        CreatePendingFileRevision {
-            site_id,
-            page_id,
-            file_id,
-            user_id,
-            name,
-            licensing,
-            comments,
-        }: CreatePendingFileRevision,
-    ) -> Result<CreateFirstFileRevisionOutput> {
-        FileRevisionService::create_first(
-            ctx,
-            CreateFirstFileRevision {
-                site_id,
-                page_id,
-                file_id,
-                user_id,
-                name,
-                s3_hash: EMPTY_BLOB_HASH,
-                mime_hint: str!(EMPTY_BLOB_MIME),
-                size_hint: 0,
-                licensing,
-                comments,
-            },
-        )
-        .await
     }
 
     /// Creates the first revision for an already-uploaded file.
@@ -215,8 +184,9 @@ impl FileRevisionService {
             s3_hash,
             size_hint,
             mime_hint,
+            new_blob_created,
             licensing,
-            comments,
+            revision_comments,
         }: CreateFirstFileRevision,
     ) -> Result<CreateFirstFileRevisionOutput> {
         let txn = ctx.transaction();
@@ -240,7 +210,7 @@ impl FileRevisionService {
             size_hint: Set(size_hint),
             licensing: Set(licensing),
             changes: Set(ALL_CHANGES.clone()),
-            comments: Set(comments),
+            comments: Set(revision_comments),
             hidden: Set(vec![]),
             ..Default::default()
         };
@@ -442,47 +412,6 @@ impl FileRevisionService {
         // Update and return
         let revision = model.update(txn).await?;
         Ok(revision)
-    }
-
-    /// For a pending file, fill in the uploaded data fields.
-    pub async fn finish_upload(
-        ctx: &ServiceContext<'_>,
-        FinishFileRevisionUpload {
-            site_id,
-            page_id,
-            file_id,
-            pending_blob_id,
-        }: FinishFileRevisionUpload,
-    ) -> Result<FinishFileRevisionUploadOutput> {
-        let txn = ctx.transaction();
-
-        // Move upload to final location, get its metadata
-        let FinalizeBlobUploadOutput {
-            hash,
-            mime,
-            size,
-            created,
-        } = BlobService::finish_upload(ctx, pending_blob_id).await?;
-
-        // Get first file revision
-        let file_revision =
-            FileRevisionService::get_first(ctx, site_id, page_id, file_id).await?;
-
-        // Update it with uploaded data
-        let mut model = file_revision.into_active_model();
-        model.s3_hash = Set(hash.to_vec());
-        model.mime_hint = Set(mime);
-        model.size_hint = Set(size);
-        let file_revision = model.update(txn).await?;
-
-        Ok(FinishFileRevisionUploadOutput {
-            file_id,
-            file_revision_id: file_revision.revision_id,
-            s3_hash: Bytes::from(file_revision.s3_hash),
-            mime_hint: file_revision.mime_hint,
-            size_hint: file_revision.size_hint,
-            created,
-        })
     }
 
     /// Get the first revision for this file.

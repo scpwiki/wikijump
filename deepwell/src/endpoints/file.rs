@@ -21,39 +21,13 @@
 use super::prelude::*;
 use crate::models::file::Model as FileModel;
 use crate::models::file_revision::Model as FileRevisionModel;
-use crate::services::blob::{BlobMetadata, BlobService, GetBlobOutput};
+use crate::services::blob::BlobService;
 use crate::services::file::{
-    DeleteFile, DeleteFileOutput, EditFile, EditFileOutput, FinishFileCreation,
-    FinishFileCreationOutput, GetFileDetails, GetFileOutput, MoveFile, MoveFileOutput,
-    RestoreFile, RestoreFileOutput, StartFileCreation, StartFileCreationOutput,
+    DeleteFile, DeleteFileOutput, EditFile, EditFileOutput, GetFileDetails,
+    GetFileOutput, MoveFile, MoveFileOutput, RestoreFile, RestoreFileOutput,
 };
 use crate::services::Result;
 use crate::web::{Bytes, FileDetails};
-
-/// Temporary endpoint to get any blob by hash.
-/// Primarily for user avatars, which have no other
-/// way of getting the data at the moment.
-pub async fn blob_get(
-    ctx: &ServiceContext<'_>,
-    params: Params<'static>,
-) -> Result<GetBlobOutput> {
-    info!("Getting blob for S3 hash");
-    let hash: Bytes = params.parse()?;
-    let data = BlobService::get(ctx, hash.as_ref()).await?;
-
-    let BlobMetadata {
-        mime,
-        size,
-        created_at,
-    } = BlobService::get_metadata(ctx, hash.as_ref()).await?;
-
-    Ok(GetBlobOutput {
-        data,
-        mime,
-        size,
-        created_at,
-    })
-}
 
 pub async fn file_get(
     ctx: &ServiceContext<'_>,
@@ -84,52 +58,10 @@ pub async fn file_get(
     }
 }
 
-pub async fn file_create_start(
-    ctx: &ServiceContext<'_>,
-    params: Params<'static>,
-) -> Result<StartFileCreationOutput> {
-    let input: StartFileCreation = params.parse()?;
-
-    info!(
-        "Starting file upload '{}' to page ID {} in site ID {}",
-        input.name, input.page_id, input.site_id,
-    );
-
-    FileService::start_new_upload(ctx, input).await
-}
-
-pub async fn file_create_finish(
-    ctx: &ServiceContext<'_>,
-    params: Params<'static>,
-) -> Result<FinishFileCreationOutput> {
-    let input: FinishFileCreation = params.parse()?;
-
-    info!(
-        "Finishing file upload (pending blob ID {} for file ID {} in page ID {} in site ID {}",
-        input.pending_blob_id,
-        input.file_id,
-        input.page_id,
-        input.site_id,
-    );
-
-    FileService::finish_new_upload(ctx, input).await
-}
-
-// TODO
-pub async fn file_edit_start(
-    ctx: &ServiceContext<'_>,
+pub async fn file_create(
+    _ctx: &ServiceContext<'_>,
     _params: Params<'static>,
 ) -> Result<()> {
-    let _ = FileService::start_edit_upload(ctx).await?;
-    todo!()
-}
-
-// TODO
-pub async fn file_edit_finish(
-    ctx: &ServiceContext<'_>,
-    _params: Params<'static>,
-) -> Result<()> {
-    let _ = FileService::finish_edit_upload(ctx).await?;
     todo!()
 }
 

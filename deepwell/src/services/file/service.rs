@@ -27,8 +27,8 @@ use crate::models::sea_orm_active_enums::FileRevisionType;
 use crate::services::blob::{FinalizeBlobUploadOutput, EMPTY_BLOB_HASH, EMPTY_BLOB_MIME};
 use crate::services::file_revision::{
     CreateFileRevision, CreateFileRevisionBody, CreateFirstFileRevision,
-    CreatePendingFileRevision, CreateResurrectionFileRevision,
-    CreateTombstoneFileRevision, FileBlob, FinishFileRevisionUpload,
+    CreateResurrectionFileRevision, CreateTombstoneFileRevision, FileBlob,
+    FinishFileRevisionUpload,
 };
 use crate::services::filter::{FilterClass, FilterType};
 use crate::services::{BlobService, FileRevisionService, FilterService};
@@ -43,18 +43,19 @@ impl FileService {
     ///
     /// In the background, this stores the blob via content addressing,
     /// meaning that duplicates are not uploaded twice.
-    pub async fn start_new_upload(
+    pub async fn create(
         ctx: &ServiceContext<'_>,
-        StartFileCreation {
+        CreateFile {
             site_id,
             page_id,
             name,
+            pending_blob_id,
             revision_comments,
             user_id,
             licensing,
             bypass_filter,
-        }: StartFileCreation,
-    ) -> Result<StartFileCreationOutput> {
+        }: CreateFile,
+    ) -> Result<CreateFileOutput> {
         info!("Creating file with name '{}'", name);
         let txn = ctx.transaction();
 
@@ -66,111 +67,43 @@ impl FileService {
             Self::run_filter(ctx, site_id, Some(&name)).await?;
         }
 
-        // Add pending file
-        let pending = BlobService::create_upload(ctx).await?;
+        // Finish blob upload
+        let FinalizeBlobUploadOutput {
+            hash: s3_hash,
+            mime: mime_hint,
+            size: size_hint,
+            created: new_blob_created,
+        } = BlobService::finish_upload(ctx, user_id, &pending_blob_id).await?;
 
         // Add new file
         let model = file::ActiveModel {
             name: Set(name.clone()),
             site_id: Set(site_id),
             page_id: Set(page_id),
-            pending_blob_id: Set(Some(pending.pending_blob_id)),
             ..Default::default()
         };
-
         let file = model.insert(txn).await?;
-        let file_revision = FileRevisionService::create_pending(
+
+        FileRevisionService::create_first(
             ctx,
-            CreatePendingFileRevision {
-                site_id,
+            CreateFirstFileRevision {
                 page_id,
+                site_id,
                 file_id: file.file_id,
                 user_id,
                 name,
+                s3_hash,
+                size_hint,
+                mime_hint,
+                new_blob_created,
                 licensing,
-                comments: revision_comments,
-            },
-        )
-        .await?;
-
-        Ok(StartFileCreationOutput {
-            pending_blob_id: pending.pending_blob_id,
-            presign_url: pending.presign_url,
-            file_revision_id: file_revision.file_revision_id,
-        })
-    }
-
-    pub async fn finish_new_upload(
-        ctx: &ServiceContext<'_>,
-        FinishFileCreation {
-            site_id,
-            page_id,
-            file_id,
-            pending_blob_id,
-        }: FinishFileCreation,
-    ) -> Result<FinishFileCreationOutput> {
-        info!(
-            "Finishing new file upload with site ID {} page ID {} file ID {} pending ID {}",
-            site_id, page_id, file_id, pending_blob_id,
-        );
-
-        // Ensure a pending file exists
-        let txn = ctx.transaction();
-        let row = File::find()
-            .filter(
-                Condition::all()
-                    .add(file::Column::SiteId.eq(site_id))
-                    .add(file::Column::PageId.eq(page_id))
-                    .add(file::Column::FileId.eq(file_id))
-                    .add(file::Column::DeletedAt.is_null())
-                    .add(file::Column::PendingBlobId.eq(Some(pending_blob_id))),
-            )
-            .one(txn)
-            .await?;
-
-        if row.is_none() {
-            error!("No pending file found");
-            return Err(Error::FileNotFound);
-        }
-
-        // Clear pending_blob column
-        {
-            let model = file::ActiveModel {
-                file_id: Set(file_id),
-                pending_blob_id: Set(None),
-                ..Default::default()
-            };
-            model.update(txn).await?;
-        }
-
-        // Finally, update the first file revision with the uploaded data.
-        // This gets the data from BlobService and then deletes the row.
-        FileRevisionService::finish_upload(
-            ctx,
-            FinishFileRevisionUpload {
-                site_id,
-                page_id,
-                file_id,
-                pending_blob_id,
+                revision_comments,
             },
         )
         .await
     }
 
-    /// Edits a file by uploading a new file version.
-    /// TODO needs to be implemented
-    pub async fn start_edit_upload(_ctx: &ServiceContext<'_>) -> Result<i16> {
-        todo!()
-    }
-
-    // TODO
-    pub async fn finish_edit_upload(_ctx: &ServiceContext<'_>) -> Result<i16> {
-        todo!()
-    }
-
     /// Edits a file, creating a new revision.
-    ///
-    /// Cannot be used to upload a new file version.
     pub async fn edit(
         ctx: &ServiceContext<'_>,
         EditFile {
@@ -189,7 +122,11 @@ impl FileService {
         let last_revision =
             FileRevisionService::get_latest(ctx, site_id, page_id, file_id).await?;
 
-        let EditFileBody { name, licensing } = body;
+        let EditFileBody {
+            name,
+            licensing,
+            uploaded_blob_id,
+        } = body;
 
         // Verify name change
         //
@@ -219,7 +156,7 @@ impl FileService {
                 page_id,
                 file_id,
                 user_id,
-                comments: revision_comments,
+                revision_comments,
                 body: CreateFileRevisionBody {
                     name,
                     licensing,
@@ -280,7 +217,7 @@ impl FileService {
                 page_id: current_page_id,
                 file_id,
                 user_id,
-                comments: revision_comments,
+                revision_comments,
                 body: CreateFileRevisionBody {
                     page_id: ProvidedValue::Set(destination_page_id),
                     ..Default::default()
@@ -449,8 +386,7 @@ impl FileService {
                         .add(condition)
                         .add(file::Column::SiteId.eq(site_id))
                         .add(file::Column::PageId.eq(page_id))
-                        .add(file::Column::DeletedAt.is_null())
-                        .add(file::Column::PendingBlobId.is_null()),
+                        .add(file::Column::DeletedAt.is_null()),
                 )
                 .one(txn)
                 .await?
@@ -485,8 +421,7 @@ impl FileService {
                         Condition::all()
                             .add(file::Column::PageId.eq(page_id))
                             .add(file::Column::Name.eq(name))
-                            .add(file::Column::DeletedAt.is_null())
-                            .add(file::Column::PendingBlobId.is_null()),
+                            .add(file::Column::DeletedAt.is_null()),
                     )
                     .into_tuple()
                     .one(txn)

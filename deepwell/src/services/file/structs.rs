@@ -21,17 +21,17 @@
 use crate::models::sea_orm_active_enums::FileRevisionType;
 use crate::services::file_revision::{
     CreateFileRevisionOutput, CreateFirstFileRevisionOutput,
-    FinishFileRevisionUploadOutput,
 };
 use crate::web::{Bytes, FileDetails, ProvidedValue, Reference};
 use serde_json::Value as JsonValue;
 use time::OffsetDateTime;
 
 #[derive(Deserialize, Debug, Clone)]
-pub struct StartFileCreation {
+pub struct CreateFile {
     pub site_id: i64,
     pub page_id: i64,
     pub name: String,
+    pub pending_blob_id: String,
     pub revision_comments: String,
     pub user_id: i64,
     pub licensing: JsonValue, // TODO
@@ -40,22 +40,7 @@ pub struct StartFileCreation {
     pub bypass_filter: bool,
 }
 
-#[derive(Serialize, Debug, Clone)]
-pub struct StartFileCreationOutput {
-    pub pending_blob_id: i64,
-    pub presign_url: String,
-    pub file_revision_id: i64,
-}
-
-#[derive(Deserialize, Debug, Clone)]
-pub struct FinishFileCreation {
-    pub site_id: i64,
-    pub page_id: i64,
-    pub file_id: i64,
-    pub pending_blob_id: i64,
-}
-
-pub type FinishFileCreationOutput = FinishFileRevisionUploadOutput;
+pub type CreateFileOutput = CreateFirstFileRevisionOutput;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct GetFile<'a> {
@@ -114,6 +99,7 @@ pub struct EditFile {
 pub struct EditFileBody {
     pub name: ProvidedValue<String>,
     pub licensing: ProvidedValue<serde_json::Value>,
+    pub uploaded_blob_id: ProvidedValue<String>,
 }
 
 pub type EditFileOutput = CreateFileRevisionOutput;

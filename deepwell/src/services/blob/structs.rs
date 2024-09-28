@@ -21,6 +21,20 @@
 use super::prelude::*;
 use time::OffsetDateTime;
 
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "kebab-case")]
+pub struct StartBlobUpload {
+    pub user_id: i64,
+}
+
+#[derive(Serialize, Debug, Clone)]
+#[serde(rename_all = "kebab-case")]
+pub struct StartBlobUploadOutput {
+    pub pending_blob_id: String,
+    pub presign_url: String,
+    pub expires_at: OffsetDateTime,
+}
+
 #[derive(Debug)]
 pub struct FinalizeBlobUploadOutput {
     pub hash: BlobHash,
@@ -37,6 +51,7 @@ pub struct BlobMetadata {
 }
 
 #[derive(Serialize, Debug, Clone)]
+#[serde(rename_all = "kebab-case")]
 pub struct GetBlobOutput {
     pub data: Vec<u8>,
     pub mime: String,
