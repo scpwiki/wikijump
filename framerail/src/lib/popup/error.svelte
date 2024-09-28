@@ -30,6 +30,11 @@
     <div id="modal-message" class="modal-message">
       {$showErrorPopup.message}
     </div>
+    {#if $showErrorPopup.data}
+      <div id="model-message-extra" class="modal-message-extra">
+        {$showErrorPopup.data}
+      </div>
+    {/if}
   </div>
 </div>
 

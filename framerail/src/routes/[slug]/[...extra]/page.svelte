@@ -34,7 +34,8 @@
     if (res?.message) {
       showErrorPopup.set({
         state: true,
-        message: res.message
+        message: res.message,
+        data: res.data
       })
     } else invalidateAll()
   }
@@ -69,7 +70,8 @@
     if (res?.message) {
       showErrorPopup.set({
         state: true,
-        message: res.message
+        message: res.message,
+        data: res.data
       })
     } else {
       goto(`/${$page.data.page.slug}`, {
@@ -97,7 +99,8 @@
     if (res?.message) {
       showErrorPopup.set({
         state: true,
-        message: res.message
+        message: res.message,
+        data: res.data
       })
     } else {
       goto(`/${newSlug}`, {
@@ -119,7 +122,8 @@
     if (res?.message) {
       showErrorPopup.set({
         state: true,
-        message: res.message
+        message: res.message,
+        data: res.data
       })
     } else {
       showLayoutAction = false
@@ -138,7 +142,8 @@
     if (res?.message) {
       showErrorPopup.set({
         state: true,
-        message: res.message
+        message: res.message,
+        data: res.data
       })
     } else {
       parents = res.join(" ")
@@ -173,7 +178,8 @@
     if (res?.message) {
       showErrorPopup.set({
         state: true,
-        message: res.message
+        message: res.message,
+        data: res.data
       })
     } else {
       showParentAction = false
@@ -192,7 +198,8 @@
     if (res?.message) {
       showErrorPopup.set({
         state: true,
-        message: res.message
+        message: res.message,
+        data: res.data
       })
     } else {
       res.forEach((rev) => {
@@ -229,7 +236,8 @@
       if (res?.message) {
         showErrorPopup.set({
           state: true,
-          message: res.message
+          message: res.message,
+          data: res.data
         })
       } else if (!rev) {
         // This is a revision we didn't even cache...?
@@ -258,7 +266,8 @@
     if (res?.message) {
       showErrorPopup.set({
         state: true,
-        message: res.message
+        message: res.message,
+        data: res.data
       })
     } else invalidateAll()
   }
@@ -274,7 +283,8 @@
     if (res?.message) {
       showErrorPopup.set({
         state: true,
-        message: res.message
+        message: res.message,
+        data: res.data
       })
     } else {
       voteRating = res.score ?? 0
@@ -293,7 +303,8 @@
     if (res?.message) {
       showErrorPopup.set({
         state: true,
-        message: res.message
+        message: res.message,
+        data: res.data
       })
     } else {
       voteMap = new Map()
@@ -315,7 +326,8 @@
     if (res?.message) {
       showErrorPopup.set({
         state: true,
-        message: res.message
+        message: res.message,
+        data: res.data
       })
     }
   }
@@ -331,7 +343,8 @@
     if (res?.message) {
       showErrorPopup.set({
         state: true,
-        message: res.message
+        message: res.message,
+        data: res.data
       })
     }
   }

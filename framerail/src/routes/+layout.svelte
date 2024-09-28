@@ -8,7 +8,8 @@
   function closeErrorPopup() {
     showErrorPopup.set({
       state: false,
-      message: null
+      message: null,
+      data: null
     })
   }
 </script>

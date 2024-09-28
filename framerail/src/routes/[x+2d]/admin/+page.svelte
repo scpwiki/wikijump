@@ -23,7 +23,8 @@
     if (res?.message) {
       showErrorPopup.set({
         state: true,
-        message: res.message
+        message: res.message,
+        data: res.data
       })
     } else {
       isEdit = false

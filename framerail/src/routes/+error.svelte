@@ -27,7 +27,8 @@
     if (res?.message) {
       showErrorPopup.set({
         state: true,
-        message: res.message
+        message: res.message,
+        data: res.data
       })
     } else {
       goto(`/${$page.params.slug}`, {
@@ -46,7 +47,8 @@
     if (res?.message) {
       showErrorPopup.set({
         state: true,
-        message: res.message
+        message: res.message,
+        data: res.data
       })
     } else {
       deletedPages = res
@@ -65,7 +67,8 @@
     if (res?.message) {
       showErrorPopup.set({
         state: true,
-        message: res.message
+        message: res.message,
+        data: res.data
       })
     } else {
       showRestoreAction = false
