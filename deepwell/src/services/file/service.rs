@@ -140,6 +140,28 @@ impl FileService {
             }
         }
 
+        // If a new file version was uploaded, then finalize.
+        //
+        // Get the blob struct for conditionally adding to
+        // the CreateFileRevisionBody.
+        let blob = match uploaded_blob_id {
+            ProvidedValue::Unset => ProvidedValue::Unset,
+            ProvidedValue::Set(ref id) => {
+                let FinalizeBlobUploadOutput {
+                    hash: s3_hash,
+                    mime: mime_hint,
+                    size: size_hint,
+                    created: new_blob_created,
+                } = BlobService::finish_upload(ctx, user_id, id).await?;
+
+                ProvidedValue::Set(FileBlob {
+                    s3_hash,
+                    mime_hint,
+                    size_hint,
+                })
+            }
+        };
+
         // Update file metadata
         let model = file::ActiveModel {
             file_id: Set(file_id),
@@ -160,6 +182,7 @@ impl FileService {
                 body: CreateFileRevisionBody {
                     name,
                     licensing,
+                    blob,
                     ..Default::default()
                 },
             },
