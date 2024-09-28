@@ -3,6 +3,7 @@ import { parseAcceptLangHeader } from "$lib/locales"
 import { translate } from "$lib/server/deepwell/translate"
 import { pageView } from "$lib/server/deepwell/views"
 import type { Optional, TranslateKeys } from "$lib/types"
+import { parseDateEpoch } from "$lib/utils"
 import { error, redirect } from "@sveltejs/kit"
 
 // TODO form single deepwell request that does all the relevant prep stuff here
@@ -78,6 +79,10 @@ export async function loadPage(
   }
 
   if (errorStatus === null) {
+    // Calculate difference of days since latest page edit
+    let updatedAt = parseDateEpoch(viewData.page.updated_at)
+    let daysDiff = Math.floor((Date.now() - updatedAt) / 1000 / 86400)
+
     translateKeys = {
       ...translateKeys,
 
@@ -94,6 +99,10 @@ export async function loadPage(
       // Page history
       "wiki-page-revision": {
         revision: viewData.page_revision.revision_number
+      },
+      "wiki-page-last-edit": {
+        date: new Date(updatedAt).toLocaleString(locales),
+        days: daysDiff
       },
       "wiki-page-revision-number": {},
       "wiki-page-revision-created-at": {},

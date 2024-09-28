@@ -382,8 +382,13 @@
   </ul>
 </div>
 
-<div class="page-revision-container">
+<div class="page-meta-info-container">
+  <div class="page-meta-info info-revision">
   {$page.data.internationalization["wiki-page-revision"]}
+  </div>
+  <div class="page-meta-info info-last-edit">
+    {$page.data.internationalization["wiki-page-last-edit"]}
+  </div>
 </div>
 
 {#if $page.data.options?.edit}
@@ -766,7 +771,7 @@
 
   .page-content,
   .page-tags-container,
-  .page-revision-container,
+  .page-meta-info-container,
   .editor-actions,
   .other-actions,
   .page-move {
@@ -785,7 +790,7 @@
     list-style: none;
   }
 
-  .page-revision-container {
+  .page-meta-info-container {
     text-align: right;
   }
 
