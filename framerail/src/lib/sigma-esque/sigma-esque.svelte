@@ -28,7 +28,9 @@
     --border: #0006;
     --mild-text: #f0f0f0;
     --accent: #0066cc;
-    --error: red;
+    --error: #b42d0a;
+    --col-accent-1: #19a9ff;
+    --col-accent-2: #0068b5;
   }
 
   body {
@@ -81,7 +83,7 @@
     height: 10em;
     padding: 1em 2em;
     color: #fff;
-    background: linear-gradient(180deg, #0068b5 0%, #19a9ff 100%);
+    background: linear-gradient(180deg, var(--col-accent-2) 0%, var(--col-accent-1) 100%);
   }
 
   .top-bar {
