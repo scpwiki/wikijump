@@ -555,13 +555,13 @@
     method="POST"
     on:submit|preventDefault={handleLayout}
   >
-    <select name="layout" class="page-layout-select">
+    <select name="layout" class="page-layout-select" value={$page.data.page.layout}>
       <option value={null}
-        >{$page.data.internationalization?.["wiki-page-layout-default"]}</option
+        >{$page.data.internationalization?.["wiki-page-layout.default"]}</option
       >
       {#each Object.values(Layout) as layoutOption}
         <option value={layoutOption}
-          >{$page.data.internationalization?.[`wiki-page-layout-${layoutOption}`]}</option
+          >{$page.data.internationalization?.[`wiki-page-layout.${layoutOption}`]}</option
         >
       {/each}
     </select>

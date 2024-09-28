@@ -67,12 +67,12 @@ as soon as we can figure out prettier support for it.
       />
       <select name="layout" class="editor-layout">
         <option value={null}
-          >{$page.error.internationalization?.["wiki-page-layout-default"]}</option
+          >{$page.error.internationalization?.["wiki-page-layout.default"]}</option
         >
         {#each Object.values(Layout) as layoutOption}
           <option value={layoutOption}
             >{$page.error.internationalization?.[
-              `wiki-page-layout-${layoutOption}`
+              `wiki-page-layout.${layoutOption}`
             ]}</option
           >
         {/each}

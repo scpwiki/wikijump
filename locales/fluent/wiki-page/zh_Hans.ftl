@@ -36,11 +36,10 @@ wiki-page-vote-score = 现时评分
 
 wiki-page-move-new-slug = 新页面网址
 
-wiki-page-layout-default = 预设布局
-
-wiki-page-layout-wikidot = Wikidot（旧）
-
-wiki-page-layout-wikijump = Wikijump
+wiki-page-layout =
+  .default = 预设布局
+  .wikidot = Wikidot（旧）
+  .wikijump = Wikijump
 
 ### 特殊页面
 

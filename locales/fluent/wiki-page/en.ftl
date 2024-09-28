@@ -36,11 +36,10 @@ wiki-page-vote-score = Rating
 
 wiki-page-move-new-slug = New slug
 
-wiki-page-layout-default = Default layout
-
-wiki-page-layout-wikidot = Wikidot (Legacy)
-
-wiki-page-layout-wikijump = Wikijump
+wiki-page-layout =
+  .default = Default layout
+  .wikidot = Wikidot (Legacy)
+  .wikijump = Wikijump
 
 ### Special Page fallback strings
 
