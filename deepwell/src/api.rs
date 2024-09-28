@@ -189,6 +189,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     // Web server
     register!("page_view", page_view);
     register!("user_view", user_view);
+    register!("admin_view", admin_view);
 
     // Authentication
     register!("login", auth_login);

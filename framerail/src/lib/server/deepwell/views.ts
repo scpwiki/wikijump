@@ -19,3 +19,15 @@ export async function pageView(
     route
   })
 }
+
+export async function adminView(
+  domain: string,
+  locales: string[],
+  sessionToken: Optional<string>
+): Promise<object> {
+  return client.request("admin_view", {
+    domain,
+    locales,
+    session_token: sessionToken
+  })
+}

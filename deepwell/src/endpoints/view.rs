@@ -20,7 +20,8 @@
 
 use super::prelude::*;
 use crate::services::view::{
-    GetPageView, GetPageViewOutput, GetUserView, GetUserViewOutput,
+    GetPageView, GetPageViewOutput, GetSiteView, GetSiteViewOutput, GetUserView,
+    GetUserViewOutput,
 };
 
 /// Returns relevant context for rendering a page from a processed web request.
@@ -39,4 +40,13 @@ pub async fn user_view(
 ) -> Result<GetUserViewOutput> {
     let input: GetUserView = params.parse()?;
     ViewService::user(ctx, input).await
+}
+
+/// Returns relevant context for rendering admin panel from a processed web request.
+pub async fn admin_view(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<GetSiteViewOutput> {
+    let input: GetSiteView = params.parse()?;
+    ViewService::admin(ctx, input).await
 }

@@ -115,6 +115,32 @@ pub enum GetUserViewOutput {
     },
 }
 
+#[derive(Deserialize, Debug, Clone)]
+pub struct GetSiteView {
+    pub domain: String,
+    pub session_token: Option<String>,
+    pub locales: Vec<String>,
+}
+
+#[derive(Serialize, Debug, Clone)]
+#[serde(rename_all = "snake_case", tag = "type", content = "data")]
+pub enum GetSiteViewOutput {
+    SiteFound {
+        #[serde(flatten)]
+        viewer: Viewer,
+    },
+
+    SitePermissions {
+        #[serde(flatten)]
+        viewer: Viewer,
+        html: String,
+    },
+
+    SiteMissing {
+        html: String,
+    },
+}
+
 #[derive(Debug, Clone)]
 pub enum ViewerResult {
     FoundSite(Viewer),

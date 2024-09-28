@@ -85,16 +85,7 @@ impl RelationService {
         }
 
         // Checks done, create
-        create_operation!(
-            ctx,
-            SiteMember,
-            Site,
-            site_id,
-            User,
-            user_id,
-            created_by,
-            &()
-        )
+        create_operation!(ctx, SiteUser, Site, site_id, User, user_id, created_by, &())
     }
 
     pub async fn get_site_user_id_for_site(
