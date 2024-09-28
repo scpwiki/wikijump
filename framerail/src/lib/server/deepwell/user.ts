@@ -3,8 +3,8 @@ import type { Optional } from "$lib/types"
 
 export async function userView(
   domain: string,
-  sessionToken: Optional<string>,
   locales: string[],
+  sessionToken: Optional<string>,
   username?: string
 ): Promise<object> {
   return client.request("user_view", {
