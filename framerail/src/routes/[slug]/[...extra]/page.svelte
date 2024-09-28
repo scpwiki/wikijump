@@ -4,6 +4,7 @@
   import { onMount } from "svelte"
   import { useErrorPopup } from "$lib/stores"
   import { Layout } from "$lib/types"
+  import { parseDate } from "$lib/utils"
   let showErrorPopup = useErrorPopup()
 
   let showMoveAction = false
@@ -674,7 +675,7 @@
           {revisionItem.revision_number}
         </div>
         <div class="revision-attribute created-at">
-          {revisionItem.created_at}
+          {parseDate(revisionItem.created_at).toLocaleString()}
         </div>
         <div class="revision-attribute user">
           {revisionItem.user_id}
