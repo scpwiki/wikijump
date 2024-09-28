@@ -62,7 +62,7 @@ export async function POST(event) {
       let comments = data.get("comments")?.toString() ?? ""
       let newSlug = data.get("new-slug")?.toString()
 
-      res = await page.pageMove(siteId, pageId, session.user_id, slug, newSlug, comments)
+      res = await page.pageMove(siteId, pageId, session?.user_id, slug, newSlug, comments)
     } else if (extra.includes("revision")) {
       let revisionNumberStr = data.get("revision-number")?.toString()
       let compiledHtml = data.get("compiled-html")?.toString() === "true"
@@ -115,6 +115,12 @@ export async function POST(event) {
         )
     } else if (extra.includes("parent-get")) {
       res = await page.pageParentGet(siteId, pageId, slug)
+    } else if (extra.includes("deleted-get")) {
+      res = await page.pageDeletedGet(siteId, slug)
+    } else if (extra.includes("restore")) {
+      let comments = data.get("comments")?.toString() ?? ""
+
+      res = await page.pageRestore(siteId, pageId, session?.user_id, comments)
     } else if (extra.includes("score")) {
       res = await page.pageScore(siteId, pageId, slug)
     }

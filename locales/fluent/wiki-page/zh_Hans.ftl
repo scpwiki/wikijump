@@ -22,6 +22,13 @@ wiki-page-revision-comments = 编辑摘要
 
 wiki-page-revision-rollback = 回滚
 
+wiki-page-revision-type = 类型
+  .create = 创建
+  .regular = 编辑
+  .move = 移动
+  .delete = 删除
+  .undelete = 恢复
+
 ### 维基页面评分
 
 wiki-page-vote-set = 进行评分
@@ -40,6 +47,10 @@ wiki-page-layout =
   .default = 预设布局
   .wikidot = Wikidot（旧）
   .wikijump = Wikijump
+
+wiki-page-restore = 选择需恢复的页面
+
+wiki-page-deleted = 于{ $datetime }删除
 
 ### 特殊页面
 

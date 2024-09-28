@@ -56,6 +56,7 @@ preview = 预览
 privacy = 隐私
 profile = 个人简介
 publish = 发布
+restore = 恢复
 reveal-sidebar = 展开侧边栏
 save = 保存
 security = 安全

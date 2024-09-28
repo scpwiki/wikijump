@@ -59,7 +59,8 @@
     input[type="text"],
     input[type="date"],
     input[type="password"],
-    select {
+    select,
+    fieldset {
       padding: 0.5em 1em;
       color: var(--text);
       background-color: var(--background);
@@ -69,6 +70,10 @@
       &.error {
         outline: 1px solid var(--error);
       }
+    }
+
+    input[type="radio"] {
+      accent-color: var(--accent);
     }
 
     .user-attribute.avatar img {

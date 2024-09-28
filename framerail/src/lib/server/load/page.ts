@@ -108,6 +108,12 @@ export async function loadPage(
       "wiki-page-revision-created-at": {},
       "wiki-page-revision-user": {},
       "wiki-page-revision-rollback": {},
+      "wiki-page-revision-type": {},
+      "wiki-page-revision-type.create": {},
+      "wiki-page-revision-type.regular": {},
+      "wiki-page-revision-type.move": {},
+      "wiki-page-revision-type.delete": {},
+      "wiki-page-revision-type.undelete": {},
 
       // Page vote
       "wiki-page-vote-list": {},
@@ -119,6 +125,18 @@ export async function loadPage(
       "wiki-page-move-new-slug": {},
       "wiki-page-no-render": {},
       "wiki-page-view-source": {}
+    }
+  } else {
+    translateKeys = {
+      ...translateKeys,
+
+      // Page actions
+      "restore": {},
+      "wiki-page-restore": {},
+      "wiki-page-deleted": {
+        // To be determined lazily
+        datetime: "{$datetime}"
+      }
     }
   }
 

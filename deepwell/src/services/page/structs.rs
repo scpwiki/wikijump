@@ -66,6 +66,12 @@ pub struct GetPageReferenceDetails<'a> {
 }
 
 #[derive(Deserialize, Debug, Clone)]
+pub struct GetPageSlug {
+    pub site_id: i64,
+    pub slug: String,
+}
+
+#[derive(Deserialize, Debug, Clone)]
 pub struct GetPageDirect {
     pub site_id: i64,
     pub page_id: i64,
@@ -111,6 +117,23 @@ pub struct GetPageOutput {
     pub tags: Vec<String>,
     pub rating: ScoreValue,
     pub layout: Layout,
+}
+
+#[derive(Serialize, Debug, Clone)]
+pub struct GetPageDeletedOutput {
+    pub page_id: i64,
+    pub page_created_at: OffsetDateTime,
+    pub page_updated_at: Option<OffsetDateTime>,
+    pub page_deleted_at: Option<OffsetDateTime>,
+    pub page_revision_count: i32,
+    pub site_id: i64,
+    pub discussion_thread_id: Option<i64>,
+    pub hidden_fields: Vec<String>,
+    pub title: String,
+    pub alt_title: Option<String>,
+    pub slug: String,
+    pub tags: Vec<String>,
+    pub rating: ScoreValue,
 }
 
 #[derive(Serialize, Debug, Clone)]

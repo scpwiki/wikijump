@@ -57,6 +57,7 @@ preview = Preview
 privacy = Privacy
 profile = Profile
 publish = Publish
+restore = Restore
 reveal-sidebar = Reveal Sidebar
 save = Save
 security = Security

@@ -384,7 +384,7 @@
 
 <div class="page-meta-info-container">
   <div class="page-meta-info info-revision">
-  {$page.data.internationalization["wiki-page-revision"]}
+    {$page.data.internationalization["wiki-page-revision"]}
   </div>
   <div class="page-meta-info info-last-edit">
     {$page.data.internationalization["wiki-page-last-edit"]}
@@ -628,6 +628,9 @@
       <div class="revision-attribute revision-number">
         {$page.data.internationalization?.["wiki-page-revision-number"]}
       </div>
+      <div class="revision-attribute revision-type">
+        {$page.data.internationalization?.["wiki-page-revision-type"]}
+      </div>
       <div class="revision-attribute created-at">
         {$page.data.internationalization?.["wiki-page-revision-created-at"]}
       </div>
@@ -642,42 +645,49 @@
     {#each [...revisionMap].sort((a, b) => b[0] - a[0]) as [_, revisionItem] (revisionItem.revision_number)}
       <div class="revision-row" data-id={revisionItem.revision_id}>
         <div class="revision-attribute action">
-          <button
-            class="action-button view-revision clickable"
-            type="button"
-            on:click|stopPropagation={() => {
-              getRevision(revisionItem.revision_number, true, false).then(() => {
-                showRevision = true
-                showRevisionSource = false
-              })
-            }}
-          >
-            {$page.data.internationalization?.view}
-          </button>
-          <button
-            class="action-button view-revision-source clickable"
-            type="button"
-            on:click|stopPropagation={() => {
-              getRevision(revisionItem.revision_number, false, true).then(() => {
-                showRevision = false
-                showRevisionSource = true
-              })
-            }}
-          >
-            {$page.data.internationalization?.["wiki-page-view-source"]}
-          </button>
-          <button
-            class="action-button revision-rollback clickable"
-            type="button"
-            on:click|stopPropagation={() => {
-              rollbackRevision(revisionItem.revision_number)
-            }}
-          >
-            {$page.data.internationalization?.["wiki-page-revision-rollback"]}
-          </button>
+          {#if ["create", "regular"].includes(revisionItem.revision_type)}
+            <button
+              class="action-button view-revision clickable"
+              type="button"
+              on:click|stopPropagation={() => {
+                getRevision(revisionItem.revision_number, true, false).then(() => {
+                  showRevision = true
+                  showRevisionSource = false
+                })
+              }}
+            >
+              {$page.data.internationalization?.view}
+            </button>
+            <button
+              class="action-button view-revision-source clickable"
+              type="button"
+              on:click|stopPropagation={() => {
+                getRevision(revisionItem.revision_number, false, true).then(() => {
+                  showRevision = false
+                  showRevisionSource = true
+                })
+              }}
+            >
+              {$page.data.internationalization?.["wiki-page-view-source"]}
+            </button>
+            <button
+              class="action-button revision-rollback clickable"
+              type="button"
+              on:click|stopPropagation={() => {
+                rollbackRevision(revisionItem.revision_number)
+              }}
+            >
+              {$page.data.internationalization?.["wiki-page-revision-rollback"]}
+            </button>
+          {/if}
         </div>
         <div class="revision-attribute revision-number">
           {revisionItem.revision_number}
+        </div>
+        <div class="revision-attribute revision-type">
+          {$page.data.internationalization?.[
+            `wiki-page-revision-type.${revisionItem.revision_type}`
+          ]}
         </div>
         <div class="revision-attribute created-at">
           {parseDate(revisionItem.created_at).toLocaleString()}

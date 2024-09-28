@@ -193,6 +193,27 @@ export async function pageParentGet(
   })
 }
 
+export async function pageDeletedGet(siteId: number, slug: string): Promise<object> {
+  return client.request("page_get_deleted_slug", {
+    site_id: siteId,
+    slug
+  })
+}
+
+export async function pageRestore(
+  siteId: number,
+  pageId: number,
+  userId: number,
+  revisionComments: Optional<string>
+): Promise<object> {
+  return client.request("page_restore", {
+    site_id: siteId,
+    page_id: pageId,
+    user_id: userId,
+    revision_comments: revisionComments
+  })
+}
+
 export async function pageScore(
   siteId: number,
   pageId: Optional<number>,

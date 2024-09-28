@@ -565,6 +565,28 @@ impl PageService {
         Ok(page)
     }
 
+    /// Gets all deleted pages that match the provided slug.
+    pub async fn get_deleted_slug(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        slug: String,
+    ) -> Result<Vec<PageModel>> {
+        let txn = ctx.transaction();
+        let pages = {
+            Page::find()
+                .filter(
+                    Condition::all()
+                        .add(page::Column::Slug.eq(trim_default(&slug)))
+                        .add(page::Column::SiteId.eq(site_id))
+                        .add(page::Column::DeletedAt.is_not_null()),
+                )
+                .all(txn)
+                .await?
+        };
+
+        Ok(pages)
+    }
+
     /// Get the layout associated with this page.
     ///
     /// If this page has a specific layout override,
@@ -576,13 +598,10 @@ impl PageService {
         page_id: i64,
     ) -> Result<Layout> {
         debug!("Getting page layout for site ID {site_id} page ID {page_id}");
-        let page = Self::get(ctx, site_id, Reference::Id(page_id)).await?;
+        let page = Self::get_direct(ctx, page_id, true).await?;
         match page.layout {
             // Parse layout from string in page table
-            Some(layout) => match layout.parse() {
-                Ok(layout) => Ok(layout),
-                Err(_) => Err(Error::InvalidEnumValue),
-            },
+            Some(layout) => layout.parse().or_else(|_| Err(Error::InvalidEnumValue)),
 
             // Fallback to site layout
             None => SiteService::get_layout(ctx, site_id).await,

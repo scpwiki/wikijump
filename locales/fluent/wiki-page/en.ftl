@@ -22,6 +22,13 @@ wiki-page-revision-comments = Comments
 
 wiki-page-revision-rollback = Revert
 
+wiki-page-revision-type = Type
+  .create = Create
+  .regular = Edit
+  .move = Move
+  .delete = Delete
+  .undelete = Restore
+
 ### Wiki Page Vote
 
 wiki-page-vote-set = Cast vote
@@ -40,6 +47,10 @@ wiki-page-layout =
   .default = Default layout
   .wikidot = Wikidot (Legacy)
   .wikijump = Wikijump
+
+wiki-page-restore = Select page to restore
+
+wiki-page-deleted = Deleted at { $datetime }
 
 ### Special Page fallback strings
 

@@ -226,6 +226,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("page_create", page_create);
     register!("page_get", page_get);
     register!("page_get_direct", page_get_direct);
+    register!("page_get_deleted_slug", page_get_deleted_slug);
     register!("page_get_score", page_get_score);
     register!("page_edit", page_edit);
     register!("page_delete", page_delete);
