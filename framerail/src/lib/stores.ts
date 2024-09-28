@@ -4,5 +4,5 @@ export const useErrorPopup = () =>
   useWritable("errorPopup", {
     state: false,
     message: null,
-    data: null,
+    data: null
   })

@@ -122,6 +122,7 @@ pub struct GetSiteView {
     pub locales: Vec<String>,
 }
 
+#[allow(clippy::enum_variant_names)]
 #[derive(Serialize, Debug, Clone)]
 #[serde(rename_all = "snake_case", tag = "type", content = "data")]
 pub enum GetSiteViewOutput {

@@ -601,7 +601,7 @@ impl PageService {
         let page = Self::get_direct(ctx, page_id, true).await?;
         match page.layout {
             // Parse layout from string in page table
-            Some(layout) => layout.parse().or_else(|_| Err(Error::InvalidEnumValue)),
+            Some(layout) => layout.parse().map_err(|_| Error::InvalidEnumValue),
 
             // Fallback to site layout
             None => SiteService::get_layout(ctx, site_id).await,
