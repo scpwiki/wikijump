@@ -99,11 +99,19 @@ impl BlobService {
         let presign_url =
             bucket.presign_put(&s3_path, config.presigned_expiry_secs, None)?;
 
+        // Get timestamps
+        let created_at = now();
+        let expires_at = created_at
+            .checked_add(Duration::seconds(i64::from(config.presigned_expiry_secs)))
+            .expect("getting expiration timestamp overflowed");
+
         // Add pending blob entry
         let model = blob_pending::ActiveModel {
             external_id: Set(pending_blob_id),
             s3_path: Set(s3_path),
             presign_url: Set(presign_url),
+            created_at: Set(created_at),
+            expires_at: Set(expires_at),
             created_by: Set(user_id),
             ..Default::default()
         };
@@ -111,13 +119,8 @@ impl BlobService {
         let BlobPendingModel {
             external_id: pending_blob_id,
             presign_url,
-            created_at,
             ..
         } = model.insert(txn).await?;
-
-        let expires_at = created_at
-            .checked_add(Duration::seconds(i64::from(config.presigned_expiry_secs)))
-            .expect("getting expiration timestamp overflowed");
 
         debug!("New presign upload URL will last until {expires_at}");
 

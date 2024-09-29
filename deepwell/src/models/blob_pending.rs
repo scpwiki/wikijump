@@ -8,8 +8,9 @@ use serde::{Deserialize, Serialize};
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false, column_type = "Text")]
     pub external_id: String,
-    pub created_at: TimeDateTimeWithTimeZone,
     pub created_by: i64,
+    pub created_at: TimeDateTimeWithTimeZone,
+    pub expires_at: TimeDateTimeWithTimeZone,
     #[sea_orm(column_type = "Text")]
     pub s3_path: String,
     #[sea_orm(column_type = "Text")]
