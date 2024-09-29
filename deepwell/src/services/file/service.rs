@@ -28,7 +28,6 @@ use crate::services::blob::{FinalizeBlobUploadOutput, EMPTY_BLOB_HASH, EMPTY_BLO
 use crate::services::file_revision::{
     CreateFileRevision, CreateFileRevisionBody, CreateFirstFileRevision,
     CreateResurrectionFileRevision, CreateTombstoneFileRevision, FileBlob,
-    FinishFileRevisionUpload,
 };
 use crate::services::filter::{FilterClass, FilterType};
 use crate::services::{BlobService, FileRevisionService, FilterService};

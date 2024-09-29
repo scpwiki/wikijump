@@ -117,24 +117,6 @@ pub struct UpdateFileRevision {
 }
 
 #[derive(Deserialize, Debug, Clone)]
-pub struct FinishFileRevisionUpload {
-    pub site_id: i64,
-    pub page_id: i64,
-    pub file_id: i64,
-    pub pending_blob_id: i64,
-}
-
-#[derive(Serialize, Debug, Clone)]
-pub struct FinishFileRevisionUploadOutput {
-    pub file_id: i64,
-    pub file_revision_id: i64,
-    pub s3_hash: Bytes<'static>,
-    pub mime_hint: String,
-    pub size_hint: i64,
-    pub created: bool,
-}
-
-#[derive(Deserialize, Debug, Clone)]
 pub struct GetFileRevisionRange {
     pub page_id: i64,
     pub file_id: i64,
