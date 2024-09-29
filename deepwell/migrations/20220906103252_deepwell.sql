@@ -419,6 +419,7 @@ CREATE TABLE page_vote (
 CREATE TABLE blob_pending (
     external_id TEXT PRIMARY KEY,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+    created_by BIGINT NOT NULL REFERENCES "user"(user_id),
     s3_path TEXT NOT NULL CHECK (length(s3_path) > 1),
     presign_url TEXT NOT NULL CHECK (length(presign_url) > 1),
 
