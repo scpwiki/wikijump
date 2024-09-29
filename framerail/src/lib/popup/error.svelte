@@ -1,12 +1,13 @@
 <script lang="ts">
   export let exitPrompt: () => void
   import { onMount, onDestroy } from "svelte"
+  import { page } from "$app/stores"
   import { useErrorPopup } from "$lib/stores"
   let showErrorPopup = useErrorPopup()
   function containerExitPrompt(e: Event) {
     if ((e.target as HTMLElement).classList.contains("modal-container")) exitPrompt()
   }
-  const escKeydown = (e) => {
+  const escKeydown = (e: KeyboardEvent) => {
     if (e.code.toLowerCase() === "escape") exitPrompt()
   }
   onMount(() => {
@@ -26,7 +27,9 @@
   on:keydown={escKeydown}
 >
   <div class="modal error-modal">
-    <h2 id="modal-title">UT: Error</h2>
+    <h2 id="modal-title">
+      {($page.data.internationalization ?? $page.error?.internationalization)?.error}
+    </h2>
     <div id="modal-message" class="modal-message">
       {$showErrorPopup.message}
     </div>

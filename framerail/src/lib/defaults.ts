@@ -1,6 +1,9 @@
 const defaults = {
   fallbackLocale: "en",
   translateKeys: {
+    // Error
+    "error": {},
+
     // Footer
     "footer-powered-by": {},
     "terms": {},

@@ -37,6 +37,7 @@ docs = Docs
 download = Download
 edit = Edit
 editor = Editor
+error = Error
 footer = Page Footer
 general = General
 header = Page Header
