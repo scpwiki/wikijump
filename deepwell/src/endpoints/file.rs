@@ -23,7 +23,7 @@ use crate::models::file::Model as FileModel;
 use crate::models::file_revision::Model as FileRevisionModel;
 use crate::services::blob::BlobService;
 use crate::services::file::{
-    DeleteFile, DeleteFileOutput, EditFile, EditFileOutput, GetFileDetails,
+    CreateFile, CreateFileOutput, DeleteFile, DeleteFileOutput, EditFile, EditFileOutput, GetFileDetails,
     GetFileOutput, MoveFile, MoveFileOutput, RestoreFile, RestoreFileOutput,
 };
 use crate::services::Result;
@@ -59,10 +59,17 @@ pub async fn file_get(
 }
 
 pub async fn file_create(
-    _ctx: &ServiceContext<'_>,
-    _params: Params<'static>,
-) -> Result<()> {
-    todo!()
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<CreateFileOutput> {
+    let input: CreateFile = params.parse()?;
+
+    info!(
+        "Creating file on page ID {} in site ID {}",
+        input.page_id, input.site_id,
+    );
+
+    FileService::create(ctx, input).await
 }
 
 pub async fn file_edit(
