@@ -80,7 +80,7 @@ export async function loadPage(
 
   if (errorStatus === null) {
     // Calculate difference of days since latest page edit
-    let updatedAt = parseDateEpoch(viewData.page.updated_at)
+    let updatedAt = parseDateEpoch(viewData.page.updated_at ?? viewData.page.created_at)
     let daysDiff = Math.floor((Date.now() - updatedAt) / 1000 / 86400)
 
     translateKeys = {
