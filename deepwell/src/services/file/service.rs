@@ -72,7 +72,7 @@ impl FileService {
             hash: s3_hash,
             mime: mime_hint,
             size: size_hint,
-            created: new_blob_created,
+            created: blob_created,
         } = BlobService::finish_upload(ctx, user_id, &pending_blob_id).await?;
 
         // Add new file
@@ -95,7 +95,7 @@ impl FileService {
                 s3_hash,
                 size_hint,
                 mime_hint,
-                new_blob_created,
+                blob_created,
                 licensing,
                 revision_comments,
             },
@@ -151,13 +151,14 @@ impl FileService {
                     hash: s3_hash,
                     mime: mime_hint,
                     size: size_hint,
-                    created: new_blob_created,
+                    created: blob_created,
                 } = BlobService::finish_upload(ctx, user_id, id).await?;
 
                 ProvidedValue::Set(FileBlob {
                     s3_hash,
                     mime_hint,
                     size_hint,
+                    blob_created,
                 })
             }
         };

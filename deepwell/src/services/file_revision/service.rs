@@ -69,6 +69,7 @@ impl FileRevisionService {
 
         // Fields to create in the revision
         let mut changes = Vec::new();
+        let mut blob_created = ProvidedValue::Unset;
         let FileRevisionModel {
             mut name,
             mut s3_hash,
@@ -106,6 +107,7 @@ impl FileRevisionService {
                 s3_hash = new_blob.s3_hash.to_vec();
                 size_hint = new_blob.size_hint;
                 mime_hint = new_blob.mime_hint;
+                blob_created = ProvidedValue::Set(new_blob.blob_created);
             }
         }
 
@@ -167,6 +169,7 @@ impl FileRevisionService {
         Ok(Some(CreateFileRevisionOutput {
             file_revision_id: revision_id,
             file_revision_number: revision_number,
+            blob_created,
         }))
     }
 
@@ -184,7 +187,7 @@ impl FileRevisionService {
             s3_hash,
             size_hint,
             mime_hint,
-            new_blob_created,
+            blob_created,
             licensing,
             revision_comments,
         }: CreateFirstFileRevision,
@@ -219,6 +222,7 @@ impl FileRevisionService {
         Ok(CreateFirstFileRevisionOutput {
             file_id,
             file_revision_id: revision_id,
+            blob_created,
         })
     }
 
@@ -281,6 +285,7 @@ impl FileRevisionService {
         Ok(CreateFileRevisionOutput {
             file_revision_id: revision_id,
             file_revision_number: revision_number,
+            blob_created: ProvidedValue::Unset,
         })
     }
 
@@ -368,6 +373,7 @@ impl FileRevisionService {
         Ok(CreateFileRevisionOutput {
             file_revision_id: revision_id,
             file_revision_number: revision_number,
+            blob_created: ProvidedValue::Unset,
         })
     }
 

@@ -46,12 +46,14 @@ pub struct FileBlob {
     pub s3_hash: BlobHash,
     pub size_hint: i64,
     pub mime_hint: String,
+    pub blob_created: bool,
 }
 
 #[derive(Serialize, Debug, Clone, Default)]
 pub struct CreateFileRevisionOutput {
     pub file_revision_id: i64,
     pub file_revision_number: i32,
+    pub blob_created: ProvidedValue<bool>,
 }
 
 #[derive(Debug, Clone)]
@@ -64,7 +66,7 @@ pub struct CreateFirstFileRevision {
     pub s3_hash: BlobHash,
     pub size_hint: i64,
     pub mime_hint: String,
-    pub new_blob_created: bool,
+    pub blob_created: bool,
     pub licensing: serde_json::Value,
     pub revision_comments: String,
 }
@@ -73,6 +75,7 @@ pub struct CreateFirstFileRevision {
 pub struct CreateFirstFileRevisionOutput {
     pub file_id: i64,
     pub file_revision_id: i64,
+    pub blob_created: bool,
 }
 
 #[derive(Deserialize, Debug, Clone)]
