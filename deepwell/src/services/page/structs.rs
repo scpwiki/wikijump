@@ -120,11 +120,11 @@ pub struct GetPageOutput {
 }
 
 #[derive(Serialize, Debug, Clone)]
-pub struct GetPageDeletedOutput {
+pub struct GetDeletedPageOutput {
     pub page_id: i64,
     pub page_created_at: OffsetDateTime,
     pub page_updated_at: Option<OffsetDateTime>,
-    pub page_deleted_at: Option<OffsetDateTime>,
+    pub page_deleted_at: OffsetDateTime,
     pub page_revision_count: i32,
     pub site_id: i64,
     pub discussion_thread_id: Option<i64>,

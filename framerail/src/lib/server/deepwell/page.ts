@@ -194,7 +194,7 @@ export async function pageParentGet(
 }
 
 export async function pageDeletedGet(siteId: number, slug: string): Promise<object> {
-  return client.request("page_get_deleted_slug", {
+  return client.request("page_get_deleted", {
     site_id: siteId,
     slug
   })

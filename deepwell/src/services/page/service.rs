@@ -566,20 +566,21 @@ impl PageService {
     }
 
     /// Gets all deleted pages that match the provided slug.
-    pub async fn get_deleted_slug(
+    pub async fn get_deleted_by_slug(
         ctx: &ServiceContext<'_>,
         site_id: i64,
-        slug: String,
+        slug: &str,
     ) -> Result<Vec<PageModel>> {
         let txn = ctx.transaction();
         let pages = {
             Page::find()
                 .filter(
                     Condition::all()
-                        .add(page::Column::Slug.eq(trim_default(&slug)))
+                        .add(page::Column::Slug.eq(trim_default(slug)))
                         .add(page::Column::SiteId.eq(site_id))
                         .add(page::Column::DeletedAt.is_not_null()),
                 )
+                .order_by_desc(page::Column::CreatedAt)
                 .all(txn)
                 .await?
         };

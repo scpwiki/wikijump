@@ -22,7 +22,7 @@ use super::prelude::*;
 use crate::models::page::Model as PageModel;
 use crate::services::page::{
     CreatePage, CreatePageOutput, DeletePage, DeletePageOutput, EditPage, EditPageOutput,
-    GetPageAnyDetails, GetPageDeletedOutput, GetPageDirect, GetPageOutput,
+    GetDeletedPageOutput, GetPageAnyDetails, GetPageDirect, GetPageOutput,
     GetPageReference, GetPageReferenceDetails, GetPageScoreOutput, GetPageSlug, MovePage,
     MovePageOutput, RestorePage, RestorePageOutput, RollbackPage, SetPageLayout,
 };
@@ -74,14 +74,14 @@ pub async fn page_get_direct(
     }
 }
 
-pub async fn page_get_deleted_slug(
+pub async fn page_get_deleted(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
-) -> Result<Vec<GetPageDeletedOutput>> {
+) -> Result<Vec<GetDeletedPageOutput>> {
     let GetPageSlug { site_id, slug } = params.parse()?;
 
     info!("Getting deleted page {slug} in site ID {site_id}");
-    let get_deleted_page = PageService::get_deleted_slug(ctx, site_id, slug)
+    let get_deleted_page = PageService::get_deleted_by_slug(ctx, site_id, &slug)
         .await?
         .into_iter()
         .map(|page| build_page_deleted_output(ctx, page));
@@ -261,7 +261,7 @@ async fn build_page_output(
 async fn build_page_deleted_output(
     ctx: &ServiceContext<'_>,
     page: PageModel,
-) -> Result<Option<GetPageDeletedOutput>> {
+) -> Result<Option<GetDeletedPageOutput>> {
     // Get page revision
     let revision =
         PageRevisionService::get_latest(ctx, page.site_id, page.page_id).await?;
@@ -270,11 +270,11 @@ async fn build_page_deleted_output(
     let rating = ScoreService::score(ctx, page.page_id).await?;
 
     // Build result struct
-    Ok(Some(GetPageDeletedOutput {
+    Ok(Some(GetDeletedPageOutput {
         page_id: page.page_id,
         page_created_at: page.created_at,
         page_updated_at: page.updated_at,
-        page_deleted_at: page.deleted_at,
+        page_deleted_at: page.deleted_at.expect("Page should be deleted"),
         page_revision_count: revision.revision_number,
         site_id: page.site_id,
         discussion_thread_id: page.discussion_thread_id,
