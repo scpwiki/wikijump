@@ -48,7 +48,7 @@ impl FileService {
             site_id,
             page_id,
             name,
-            pending_blob_id,
+            uploaded_blob_id,
             revision_comments,
             user_id,
             licensing,
@@ -72,7 +72,7 @@ impl FileService {
             mime: mime_hint,
             size: size_hint,
             created: blob_created,
-        } = BlobService::finish_upload(ctx, user_id, &pending_blob_id).await?;
+        } = BlobService::finish_upload(ctx, user_id, &uploaded_blob_id).await?;
 
         // Add new file
         let model = file::ActiveModel {

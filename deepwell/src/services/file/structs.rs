@@ -31,7 +31,7 @@ pub struct CreateFile {
     pub site_id: i64,
     pub page_id: i64,
     pub name: String,
-    pub pending_blob_id: String,
+    pub uploaded_blob_id: String,
     pub revision_comments: String,
     pub user_id: i64,
     pub licensing: JsonValue, // TODO
