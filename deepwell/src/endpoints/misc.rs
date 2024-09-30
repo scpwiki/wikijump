@@ -21,6 +21,7 @@
 use super::prelude::*;
 use crate::info;
 use sea_orm::{ConnectionTrait, DatabaseBackend, Statement};
+use serde_json::Value as JsonValue;
 use std::path::PathBuf;
 use wikidot_normalize::normalize;
 
@@ -55,6 +56,16 @@ pub async fn ping(
     info!("Ping request");
     try_join!(postgres_check(ctx), redis_check(ctx))?;
     Ok("Pong!")
+}
+
+pub async fn echo(
+    _ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<JsonValue> {
+    // Just write out whatever JSON value they put in
+    let data: JsonValue = params.parse()?;
+    info!("Got echo request, sending back to caller");
+    Ok(data)
 }
 
 /// Method which always returns an error.
