@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#![allow(dead_code)]
-
 use super::prelude::*;
 use crate::models::blob_pending::{
     self, Entity as BlobPending, Model as BlobPendingModel,
@@ -345,6 +343,7 @@ impl BlobService {
         find_or_error!(Self::get_metadata_optional(ctx, hash), Blob)
     }
 
+    #[allow(dead_code)] // TEMP
     pub async fn exists(ctx: &ServiceContext<'_>, hash: &[u8]) -> Result<bool> {
         // Special handling for the empty blob
         if hash == EMPTY_BLOB_HASH {
@@ -391,6 +390,7 @@ impl BlobService {
         }
     }
 
+    #[allow(dead_code)] // TEMP
     pub async fn hard_delete(ctx: &ServiceContext<'_>, hash: &[u8]) -> Result<()> {
         // Special handling for empty blobs
         //
