@@ -206,6 +206,9 @@ pub struct Config {
     /// How long S3 presigned URLs will last before expiry.
     pub presigned_expiry_secs: u32,
 
+    /// Maximum size of a user's avatar image.
+    pub maximum_avatar_size: usize,
+
     /// Maximum size of the subject line allowed in a direct message.
     pub maximum_message_subject_bytes: usize,
 

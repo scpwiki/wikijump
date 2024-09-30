@@ -188,6 +188,7 @@ struct User {
 struct FileSection {
     presigned_path_length: usize,
     presigned_expiration_minutes: u32,
+    maximum_avatar_size_kb: usize,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -316,6 +317,7 @@ impl ConfigFile {
                 FileSection {
                     presigned_path_length,
                     presigned_expiration_minutes,
+                    maximum_avatar_size_kb,
                 },
             message:
                 Message {
@@ -440,6 +442,7 @@ impl ConfigFile {
             minimum_name_bytes,
             presigned_path_length,
             presigned_expiry_secs: presigned_expiration_minutes * 60,
+            maximum_avatar_size: maximum_avatar_size_kb * 1024,
             maximum_message_subject_bytes,
             maximum_message_body_bytes,
             maximum_message_recipients,
