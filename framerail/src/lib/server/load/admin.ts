@@ -27,8 +27,9 @@ export async function loadAdminPage(request, cookies) {
   switch (response.type) {
     case "site_found":
       break
-    case "site_permissions":
+    case "admin_permissions":
       errorStatus = 401
+      break
     case "site_missing":
       errorStatus = 404
   }

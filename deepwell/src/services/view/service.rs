@@ -360,12 +360,12 @@ impl ViewService {
 
     pub async fn admin(
         ctx: &ServiceContext<'_>,
-        GetSiteView {
+        GetAdminView {
             domain,
             locales: locales_str,
             session_token,
-        }: GetSiteView,
-    ) -> Result<GetSiteViewOutput> {
+        }: GetAdminView,
+    ) -> Result<GetAdminViewOutput> {
         info!(
             "Getting site view data for domain '{}', locales '{:?}'",
             domain, locales_str,
@@ -387,7 +387,7 @@ impl ViewService {
         {
             ViewerResult::FoundSite(viewer) => viewer,
             ViewerResult::MissingSite(html) => {
-                return Ok(GetSiteViewOutput::SiteMissing { html });
+                return Ok(GetAdminViewOutput::SiteMissing { html });
             }
         };
 
@@ -434,7 +434,7 @@ impl ViewService {
             None => {
                 debug!("No user for session, disallow admin access");
 
-                return Ok(GetSiteViewOutput::SitePermissions {
+                return Ok(GetAdminViewOutput::AdminPermissions {
                     viewer,
                     html: compiled_html,
                 });
@@ -444,11 +444,11 @@ impl ViewService {
         // Determine whether to return the actual admin panel content
         let output = if Self::can_access_admin(ctx, user_permissions).await? {
             debug!("User has admin access, return data");
-            GetSiteViewOutput::SiteFound { viewer }
+            GetAdminViewOutput::SiteFound { viewer }
         } else {
             warn!("User doesn't have admin access, returning permission page");
 
-            GetSiteViewOutput::SitePermissions {
+            GetAdminViewOutput::AdminPermissions {
                 viewer,
                 html: compiled_html,
             }

@@ -10,9 +10,7 @@
 Use svelte-switch-case package with {#switch data.view}
 as soon as we can figure out prettier support for it.
 -->
-{#if $page.error.view === "page_missing"}
-  UNTRANSLATED:Page not found
-{:else if $page.error.view === "site_permissions"}
+{#if $page.error.view === "admin_permissions"}
   UNTRANSLATED:Lacks permissions for page
   {@html $page.error.html}
 {:else if $page.error.view === "site_missing"}

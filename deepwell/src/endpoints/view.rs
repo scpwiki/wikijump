@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::services::view::{
-    GetPageView, GetPageViewOutput, GetSiteView, GetSiteViewOutput, GetUserView,
+    GetAdminView, GetAdminViewOutput, GetPageView, GetPageViewOutput, GetUserView,
     GetUserViewOutput,
 };
 
@@ -46,7 +46,7 @@ pub async fn user_view(
 pub async fn admin_view(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
-) -> Result<GetSiteViewOutput> {
-    let input: GetSiteView = params.parse()?;
+) -> Result<GetAdminViewOutput> {
+    let input: GetAdminView = params.parse()?;
     ViewService::admin(ctx, input).await
 }

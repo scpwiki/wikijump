@@ -116,22 +116,21 @@ pub enum GetUserViewOutput {
 }
 
 #[derive(Deserialize, Debug, Clone)]
-pub struct GetSiteView {
+pub struct GetAdminView {
     pub domain: String,
     pub session_token: Option<String>,
     pub locales: Vec<String>,
 }
 
-#[allow(clippy::enum_variant_names)]
 #[derive(Serialize, Debug, Clone)]
 #[serde(rename_all = "snake_case", tag = "type", content = "data")]
-pub enum GetSiteViewOutput {
+pub enum GetAdminViewOutput {
     SiteFound {
         #[serde(flatten)]
         viewer: Viewer,
     },
 
-    SitePermissions {
+    AdminPermissions {
         #[serde(flatten)]
         viewer: Viewer,
         html: String,
