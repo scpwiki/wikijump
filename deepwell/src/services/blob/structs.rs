@@ -33,6 +33,12 @@ pub struct StartBlobUploadOutput {
     pub expires_at: OffsetDateTime,
 }
 
+#[derive(Deserialize, Debug, Clone)]
+pub struct CancelBlobUpload {
+    pub user_id: i64,
+    pub pending_blob_id: String,
+}
+
 #[derive(Debug)]
 pub struct FinalizeBlobUploadOutput {
     pub hash: BlobHash,

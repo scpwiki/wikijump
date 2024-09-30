@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::services::blob::{
-    BlobMetadata, GetBlobOutput, StartBlobUpload, StartBlobUploadOutput,
+    BlobMetadata, CancelBlobUpload, GetBlobOutput, StartBlobUpload, StartBlobUploadOutput,
 };
 use crate::services::Result;
 use crate::web::Bytes;
@@ -48,6 +48,21 @@ pub async fn blob_get(
         size,
         created_at,
     })
+}
+
+/// Cancel a started upload by removing the pending blob.
+pub async fn blob_cancel(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<()> {
+    info!("Cancelling a pending blob upload");
+
+    let CancelBlobUpload {
+        user_id,
+        pending_blob_id,
+    } = params.parse()?;
+
+    BlobService::cancel_upload(ctx, user_id, &pending_blob_id).await
 }
 
 /// Starts a new upload by creating a pending blob.

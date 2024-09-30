@@ -164,6 +164,7 @@ impl BlobService {
 
         let s3_path = Self::get_pending_blob_path(ctx, user_id, pending_blob_id).await?;
         BlobPending::delete_by_id(pending_blob_id).exec(txn).await?;
+
         bucket.delete_object(&s3_path).await?;
 
         Ok(())

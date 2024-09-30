@@ -261,6 +261,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     // Blob data
     register!("blob_get", blob_get);
     register!("blob_upload", blob_upload);
+    register!("blob_cancel", blob_cancel);
 
     // Files
     register!("file_create", file_create);
