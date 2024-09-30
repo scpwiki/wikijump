@@ -69,16 +69,18 @@ impl<T> From<ProvidedValue<T>> for Option<T> {
 }
 
 #[test]
-fn provided_value_deserialize() {
+fn serde() {
     use serde_json::json;
 
-    #[derive(Deserialize, Debug)]
+    #[derive(Serialize, Deserialize, Debug)]
     struct Object {
         #[serde(default)]
         field: ProvidedValue<Option<String>>,
     }
 
-    macro_rules! check {
+    // Deserialization
+
+    macro_rules! check_deser {
         ($value:expr, $expected:expr $(,)?) => {{
             let object: Object =
                 serde_json::from_value($value).expect("Unable to deserialize JSON");
@@ -90,10 +92,31 @@ fn provided_value_deserialize() {
         }};
     }
 
-    check!(json!({}), ProvidedValue::Unset);
-    check!(json!({ "field": null }), ProvidedValue::Set(None));
-    check!(
-        json!({"field": "value"}),
-        ProvidedValue::Set(Some(str!("value"))),
+    check_deser!(json!({}), ProvidedValue::Unset);
+    check_deser!(json!({ "field": null }), ProvidedValue::Set(None));
+    check_deser!(
+        json!({"field": "apple"}),
+        ProvidedValue::Set(Some(str!("apple"))),
+    );
+
+    // Serialization
+
+    macro_rules! check_ser {
+        ($field:expr, $expected:expr $(,)?) => {{
+            let object = Object { field: $field };
+            let json = serde_json::to_string(&object).expect("Unable to serialize JSON");
+
+            assert_eq!(
+                json, $expected,
+                "Actual generated JSON doesn't match expected",
+            );
+        }};
+    }
+
+    check_ser!(ProvidedValue::Unset, "{}");
+    check_ser!(ProvidedValue::Set(None), r#"{"field":null}"#);
+    check_ser!(
+        ProvidedValue::Set(Some(str!("banana"))),
+        r#"{"field":"banana"}"#,
     );
 }
