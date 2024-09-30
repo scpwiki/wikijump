@@ -159,13 +159,14 @@ impl BlobService {
         pending_blob_id: &str,
     ) -> Result<()> {
         info!("Cancelling upload for blob for pending ID {pending_blob_id}");
-        let bucket = ctx.s3_bucket();
         let txn = ctx.transaction();
-
         let s3_path = Self::get_pending_blob_path(ctx, user_id, pending_blob_id).await?;
         BlobPending::delete_by_id(pending_blob_id).exec(txn).await?;
 
-        bucket.delete_object(&s3_path).await?;
+        if Self::head(ctx, &s3_path).await?.is_some() {
+            let bucket = ctx.s3_bucket();
+            bucket.delete_object(&s3_path).await?;
+        }
 
         Ok(())
     }
@@ -378,7 +379,7 @@ impl BlobService {
 
     async fn head(
         ctx: &ServiceContext<'_>,
-        path: &str
+        path: &str,
     ) -> Result<Option<HeadObjectResult>> {
         let bucket = ctx.s3_bucket();
         let (result, status) = bucket.head_object(path).await?;
