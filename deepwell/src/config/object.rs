@@ -207,7 +207,7 @@ pub struct Config {
     pub presigned_expiry_secs: u32,
 
     /// Maximum size of a user's avatar image.
-    pub maximum_avatar_size: usize,
+    pub maximum_avatar_size: i64,
 
     /// Maximum size of the subject line allowed in a direct message.
     pub maximum_message_subject_bytes: usize,

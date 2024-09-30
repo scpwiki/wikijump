@@ -425,16 +425,18 @@ impl UserService {
             let s3_hash = match uploaded_blob_id {
                 None => None,
                 Some(uploaded_blob_id) => {
-                    let FinalizeBlobUploadOutput {
-                        hash,
-                        size,
-                        ..
-                    } = BlobService::finish_upload(ctx, user.user_id, &uploaded_blob_id).await?;
+                    let config = ctx.config();
+                    let FinalizeBlobUploadOutput { hash, size, .. } =
+                        BlobService::finish_upload(ctx, user.user_id, &uploaded_blob_id)
+                            .await?;
 
-                    if size > 0 {
-                        // TODO add config setting for max avatar size
+                    if size > config.maximum_avatar_size {
+                        error!(
+                            "Uploaded avatar size is too big {} > {}",
+                            size, config.maximum_avatar_size,
+                        );
+                        return Err(todo!());
                     }
-                    todo!();
 
                     Some(hash.to_vec())
                 }

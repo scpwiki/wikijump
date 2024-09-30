@@ -188,7 +188,7 @@ struct User {
 struct FileSection {
     presigned_path_length: usize,
     presigned_expiration_minutes: u32,
-    maximum_avatar_size_kb: usize,
+    maximum_avatar_size_kb: i64,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
