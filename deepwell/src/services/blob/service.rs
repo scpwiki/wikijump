@@ -110,6 +110,7 @@ impl BlobService {
             created_at: Set(created_at),
             expires_at: Set(expires_at),
             created_by: Set(user_id),
+            ..Default::default()
         };
 
         let BlobPendingModel {

@@ -422,10 +422,12 @@ CREATE TABLE blob_pending (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
     s3_path TEXT NOT NULL CHECK (length(s3_path) > 1),
+    s3_hash BYTEA,  -- NULL means not yet moved, NOT NULL means deleted from s3_path
     presign_url TEXT NOT NULL CHECK (length(presign_url) > 1),
 
-    CHECK (expires_at > created_at),  -- expiration time is not in the relative past
-    CHECK (length(external_id) = 24)  -- default length for a cuid2
+    CHECK (expires_at > created_at),                 -- expiration time is not in the relative past
+    CHECK (length(external_id) = 24),                -- default length for a cuid2
+    CHECK (s3_hash IS NULL OR length(s3_hash) = 64)  -- SHA-512 hash size, if present
 );
 
 --

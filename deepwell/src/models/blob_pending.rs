@@ -13,6 +13,8 @@ pub struct Model {
     pub expires_at: TimeDateTimeWithTimeZone,
     #[sea_orm(column_type = "Text")]
     pub s3_path: String,
+    #[sea_orm(column_type = "VarBinary(StringLen::None)")]
+    pub s3_hash: Option<Vec<u8>>,
     #[sea_orm(column_type = "Text")]
     pub presign_url: String,
 }
