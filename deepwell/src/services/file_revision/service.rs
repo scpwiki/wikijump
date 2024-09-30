@@ -28,6 +28,8 @@ use crate::web::{Bytes, FetchDirection};
 use once_cell::sync::Lazy;
 use std::num::NonZeroI32;
 
+pub const MAXIMUM_FILE_NAME_LENGTH: usize = 256;
+
 /// The changes for the first revision.
 /// The first revision is always considered to have changed everything.
 ///
@@ -131,8 +133,12 @@ impl FileRevisionService {
             return Err(Error::FileNameEmpty);
         }
 
-        if name.len() >= 256 {
-            error!("File name of invalid length: {}", name.len());
+        if name.len() >= MAXIMUM_FILE_NAME_LENGTH {
+            error!(
+                "File name of invalid length: {} > {}",
+                name.len(),
+                MAXIMUM_FILE_NAME_LENGTH,
+            );
             return Err(Error::FileNameTooLong);
         }
 
