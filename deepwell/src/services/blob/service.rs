@@ -142,7 +142,7 @@ impl BlobService {
             ..
         } = match row {
             Some(pending) => pending,
-            None => return Err(Error::GeneralNotFound),
+            None => return Err(Error::BlobNotFound),
         };
 
         if user_id != created_by {
