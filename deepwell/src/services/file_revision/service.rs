@@ -121,6 +121,7 @@ impl FileRevisionService {
         // If nothing has changed, then don't create a new revision
         // Also don't rerender the page, this isn't an edit.
         if changes.is_empty() {
+            debug!("No changes in file, performing no action");
             return Ok(None);
         }
 

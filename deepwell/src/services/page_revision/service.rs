@@ -181,6 +181,7 @@ impl PageRevisionService {
 
         // If nothing has changed, then don't create a new revision
         if changes.is_empty() {
+            debug!("No changes in edit, only rerendering the page");
             Self::rerender(ctx, site_id, page_id, 0).await?;
             return Ok(None);
         }
