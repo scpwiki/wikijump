@@ -18,7 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// TEMP, until https://scuttle.atlassian.net/browse/WJ-1032
 #![allow(dead_code)]
 
 use super::prelude::*;
@@ -130,16 +129,12 @@ impl BlobService {
         })
     }
 
-    pub async fn finish_upload(
+    async fn get_pending_blob_path(
         ctx: &ServiceContext<'_>,
         user_id: i64,
         pending_blob_id: &str,
-    ) -> Result<FinalizeBlobUploadOutput> {
-        info!("Finishing upload for blob for pending ID {pending_blob_id}");
-        let bucket = ctx.s3_bucket();
+    ) -> Result<String> {
         let txn = ctx.transaction();
-
-        debug!("Getting pending blob info");
         let row = BlobPending::find_by_id(pending_blob_id).one(txn).await?;
         let BlobPendingModel {
             s3_path,
@@ -154,6 +149,37 @@ impl BlobService {
             error!("User mismatch, user ID {user_id} is attempting to use blob uploaded by {created_by}");
             return Err(Error::BlobWrongUser);
         }
+
+        Ok(s3_path)
+    }
+
+    pub async fn cancel_upload(
+        ctx: &ServiceContext<'_>,
+        user_id: i64,
+        pending_blob_id: &str,
+    ) -> Result<()> {
+        info!("Cancelling upload for blob for pending ID {pending_blob_id}");
+        let bucket = ctx.s3_bucket();
+        let txn = ctx.transaction();
+
+        let s3_path = Self::get_pending_blob_path(ctx, user_id, pending_blob_id).await?;
+        BlobPending::delete_by_id(pending_blob_id).exec(txn).await?;
+        bucket.delete_object(&s3_path).await?;
+
+        Ok(())
+    }
+
+    pub async fn finish_upload(
+        ctx: &ServiceContext<'_>,
+        user_id: i64,
+        pending_blob_id: &str,
+    ) -> Result<FinalizeBlobUploadOutput> {
+        info!("Finishing upload for blob for pending ID {pending_blob_id}");
+        let bucket = ctx.s3_bucket();
+        let txn = ctx.transaction();
+
+        debug!("Getting pending blob info");
+        let s3_path = Self::get_pending_blob_path(ctx, user_id, pending_blob_id).await?;
 
         debug!("Download uploaded blob from S3 uploads to get metadata");
         let response = bucket.get_object(&s3_path).await?;
