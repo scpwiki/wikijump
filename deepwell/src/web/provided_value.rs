@@ -25,6 +25,19 @@
 /// it to null (`None`).
 ///
 /// The `Unset` variant can only be constructed if the field is absent.
+///
+/// ## Notes
+/// When serializing or deserializing a field using this enum, you must
+/// add the following:
+/// ```unchecked
+/// #[serde(default, skip_serializing_if = "ProvidedValue::is_unset")]
+/// ```
+///
+/// (The `skip_serializing_if` attribute is optional if this is a
+/// deserialize-only structure).
+///
+/// Otherwise you will get an error mentioning that this enum is impossible
+/// to serialize.
 #[derive(Serialize, Deserialize, Debug, Default, Clone, Hash, PartialEq, Eq)]
 #[serde(untagged)]
 pub enum ProvidedValue<T> {
@@ -41,6 +54,18 @@ impl<T> ProvidedValue<T> {
             ProvidedValue::Set(ref value) => Some(value),
             ProvidedValue::Unset => None,
         }
+    }
+
+    pub fn is_set(&self) -> bool {
+        match self {
+            ProvidedValue::Set(_) => true,
+            ProvidedValue::Unset => false,
+        }
+    }
+
+    #[inline]
+    pub fn is_unset(&self) -> bool {
+        !self.is_set()
     }
 }
 
@@ -71,7 +96,7 @@ fn serde() {
 
     #[derive(Serialize, Deserialize, Debug)]
     struct Object {
-        #[serde(default)]
+        #[serde(default, skip_serializing_if = "ProvidedValue::is_unset")]
         field: ProvidedValue<Option<String>>,
     }
 

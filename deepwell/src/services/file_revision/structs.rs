@@ -53,6 +53,8 @@ pub struct FileBlob {
 pub struct CreateFileRevisionOutput {
     pub file_revision_id: i64,
     pub file_revision_number: i32,
+
+    #[serde(default, skip_serializing_if = "ProvidedValue::is_unset")]
     pub blob_created: ProvidedValue<bool>,
 }
 
