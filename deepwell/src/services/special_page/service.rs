@@ -73,6 +73,7 @@ impl SpecialPageService {
             SpecialPageType::Banned => {
                 (vec![cow!(config.special_page_banned)], "wiki-page-banned")
             }
+            SpecialPageType::Unauthorized => (vec![], "admin-unauthorized"),
         };
 
         // Look through each option to get the special page wikitext.
@@ -131,10 +132,6 @@ impl SpecialPageService {
         page_info: &PageInfo<'_>,
     ) -> Result<String> {
         debug!("Getting wikitext for special page, {} slugs", slugs.len());
-        debug_assert!(
-            !slugs.is_empty(),
-            "No slugs to check for special page existence",
-        );
 
         // Try all the pages listed.
         for slug in slugs {

@@ -358,6 +358,105 @@ impl ViewService {
         Ok(output)
     }
 
+    pub async fn admin(
+        ctx: &ServiceContext<'_>,
+        GetAdminView {
+            domain,
+            locales: locales_str,
+            session_token,
+        }: GetAdminView,
+    ) -> Result<GetAdminViewOutput> {
+        info!(
+            "Getting site view data for domain '{}', locales '{:?}'",
+            domain, locales_str,
+        );
+
+        // Parse all locales
+        let mut locales = parse_locales(&locales_str)?;
+        let config = ctx.config();
+
+        // Attempt to get a viewer helper structure, but if the site doesn't exist
+        // then return right away with the "no such site" response.
+        let viewer = match Self::get_viewer(
+            ctx,
+            &mut locales,
+            &domain,
+            session_token.ref_map(|s| s.as_str()),
+        )
+        .await?
+        {
+            ViewerResult::FoundSite(viewer) => viewer,
+            ViewerResult::MissingSite(html) => {
+                return Ok(GetAdminViewOutput::SiteMissing { html });
+            }
+        };
+
+        let page_info = PageInfo {
+            page: cow!(""),
+            category: cow_opt!(Some("admin")),
+            title: cow!(""),
+            alt_title: None,
+            site: cow!(viewer.site.slug),
+            score: ScoreValue::Integer(0),
+            tags: vec![],
+            language: if !locales.is_empty() {
+                Cow::Owned(locales[0].to_string())
+            } else {
+                cow!(viewer.site.locale)
+            },
+        };
+
+        let GetSpecialPageOutput {
+            wikitext: _,
+            render_output,
+        } = SpecialPageService::get(
+            ctx,
+            &viewer.site,
+            SpecialPageType::Unauthorized,
+            &locales,
+            config.default_page_layout,
+            page_info,
+        )
+        .await?;
+
+        let RenderOutput {
+            html_output:
+                HtmlOutput {
+                    body: compiled_html,
+                    ..
+                },
+            ..
+        } = render_output;
+
+        // Check user access to site settings
+        let user_permissions = match viewer.user_session {
+            Some(ref session) => session.user_permissions,
+            None => {
+                debug!("No user for session, disallow admin access");
+
+                return Ok(GetAdminViewOutput::AdminPermissions {
+                    viewer,
+                    html: compiled_html,
+                });
+            }
+        };
+
+        // Determine whether to return the actual admin panel content
+        let output = if Self::can_access_admin(ctx, user_permissions).await? {
+            debug!("User has admin access, return data");
+            GetAdminViewOutput::SiteFound { viewer }
+        } else {
+            warn!("User doesn't have admin access, returning permission page");
+
+            GetAdminViewOutput::AdminPermissions {
+                viewer,
+                html: compiled_html,
+            }
+        };
+
+        Ok(output)
+    }
+
     /// Gets basic data and runs common logic for all web routes.
     ///
     /// All views seen by end users require a few translations before
@@ -505,6 +604,16 @@ impl ViewService {
         permissions: UserPermissions,
     ) -> Result<bool> {
         info!("Checking page access: {permissions:?}");
+        debug!("TODO: stub");
+        // TODO perform permission checks
+        Ok(true)
+    }
+
+    async fn can_access_admin(
+        _ctx: &ServiceContext<'_>,
+        permissions: UserPermissions,
+    ) -> Result<bool> {
+        info!("Checking admin access: {permissions:?}");
         debug!("TODO: stub");
         // TODO perform permission checks
         Ok(true)

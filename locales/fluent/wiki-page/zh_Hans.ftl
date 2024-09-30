@@ -4,7 +4,7 @@ wiki-page-category = 分类：{ $category }
 
 wiki-page-revision = 修改版本：{ $revision }
 
-wiki-page-last-edit = 最后一次编辑：{ $date } ({ $days ->
+wiki-page-last-edit = 最后编辑于: { $date } ({ $days ->
   [0] 今日
   [1] 昨日
   *[other] { $days } 日前
@@ -22,6 +22,13 @@ wiki-page-revision-comments = 编辑摘要
 
 wiki-page-revision-rollback = 回滚
 
+wiki-page-revision-type = 类型
+  .create = 创建
+  .regular = 编辑
+  .move = 移动
+  .delete = 删除
+  .undelete = 恢复
+
 ### 维基页面评分
 
 wiki-page-vote-set = 进行评分
@@ -36,11 +43,14 @@ wiki-page-vote-score = 现时评分
 
 wiki-page-move-new-slug = 新页面网址
 
-wiki-page-layout-default = 预设布局
+wiki-page-layout =
+  .default = 预设布局
+  .wikidot = Wikidot（旧）
+  .wikijump = Wikijump
 
-wiki-page-layout-wikidot = Wikidot（旧）
+wiki-page-restore = 选择需恢复的页面
 
-wiki-page-layout-wikijump = Wikijump
+wiki-page-deleted = 于{ $datetime }删除
 
 ### 特殊页面
 

@@ -14,7 +14,7 @@ export async function loadUser(username?: string, request, cookies) {
 
   if (!locales.includes(defaults.fallbackLocale)) locales.push(defaults.fallbackLocale)
 
-  const response = await userView(domain, sessionToken, locales, username)
+  const response = await userView(domain, locales, sessionToken, username)
 
   let translateKeys: TranslateKeys = {
     ...defaults.translateKeys

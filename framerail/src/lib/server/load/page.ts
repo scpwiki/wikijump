@@ -3,6 +3,7 @@ import { parseAcceptLangHeader } from "$lib/locales"
 import { translate } from "$lib/server/deepwell/translate"
 import { pageView } from "$lib/server/deepwell/views"
 import type { Optional, TranslateKeys } from "$lib/types"
+import { parseDateEpoch } from "$lib/utils"
 import { error, redirect } from "@sveltejs/kit"
 
 // TODO form single deepwell request that does all the relevant prep stuff here
@@ -72,12 +73,16 @@ export async function loadPage(
     "alt-title": {},
     "tags": {},
     "wiki-page-revision-comments": {},
-    "wiki-page-layout-default": {},
-    "wiki-page-layout-wikidot": {},
-    "wiki-page-layout-wikijump": {}
+    "wiki-page-layout.default": {},
+    "wiki-page-layout.wikidot": {},
+    "wiki-page-layout.wikijump": {}
   }
 
   if (errorStatus === null) {
+    // Calculate difference of days since latest page edit
+    let updatedAt = parseDateEpoch(viewData.page.updated_at ?? viewData.page.created_at)
+    let daysDiff = Math.floor((Date.now() - updatedAt) / 1000 / 86400)
+
     translateKeys = {
       ...translateKeys,
 
@@ -95,10 +100,20 @@ export async function loadPage(
       "wiki-page-revision": {
         revision: viewData.page_revision.revision_number
       },
+      "wiki-page-last-edit": {
+        date: new Date(updatedAt).toLocaleString(locales),
+        days: daysDiff
+      },
       "wiki-page-revision-number": {},
       "wiki-page-revision-created-at": {},
       "wiki-page-revision-user": {},
       "wiki-page-revision-rollback": {},
+      "wiki-page-revision-type": {},
+      "wiki-page-revision-type.create": {},
+      "wiki-page-revision-type.regular": {},
+      "wiki-page-revision-type.move": {},
+      "wiki-page-revision-type.delete": {},
+      "wiki-page-revision-type.undelete": {},
 
       // Page vote
       "wiki-page-vote-list": {},
@@ -110,6 +125,18 @@ export async function loadPage(
       "wiki-page-move-new-slug": {},
       "wiki-page-no-render": {},
       "wiki-page-view-source": {}
+    }
+  } else {
+    translateKeys = {
+      ...translateKeys,
+
+      // Page actions
+      "restore": {},
+      "wiki-page-restore": {},
+      "wiki-page-deleted": {
+        // To be determined lazily
+        datetime: "{$datetime}"
+      }
     }
   }
 

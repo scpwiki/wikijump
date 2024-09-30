@@ -22,12 +22,13 @@ use super::prelude::*;
 use crate::models::page::Model as PageModel;
 use crate::services::page::{
     CreatePage, CreatePageOutput, DeletePage, DeletePageOutput, EditPage, EditPageOutput,
-    GetPageAnyDetails, GetPageDirect, GetPageOutput, GetPageReference,
-    GetPageReferenceDetails, GetPageScoreOutput, MovePage, MovePageOutput, RestorePage,
-    RestorePageOutput, RollbackPage, SetPageLayout,
+    GetDeletedPageOutput, GetPageAnyDetails, GetPageDirect, GetPageOutput,
+    GetPageReference, GetPageReferenceDetails, GetPageScoreOutput, GetPageSlug, MovePage,
+    MovePageOutput, RestorePage, RestorePageOutput, RollbackPage, SetPageLayout,
 };
 use crate::services::{Result, TextService};
 use crate::web::{PageDetails, Reference};
+use futures::future::try_join_all;
 
 pub async fn page_create(
     ctx: &ServiceContext<'_>,
@@ -71,6 +72,27 @@ pub async fn page_get_direct(
         Some(page) => build_page_output(ctx, page, details).await,
         None => Ok(None),
     }
+}
+
+pub async fn page_get_deleted(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<Vec<GetDeletedPageOutput>> {
+    let GetPageSlug { site_id, slug } = params.parse()?;
+
+    info!("Getting deleted page {slug} in site ID {site_id}");
+    let get_deleted_page = PageService::get_deleted_by_slug(ctx, site_id, &slug)
+        .await?
+        .into_iter()
+        .map(|page| build_page_deleted_output(ctx, page));
+
+    let result = try_join_all(get_deleted_page)
+        .await?
+        .into_iter()
+        .flatten()
+        .collect();
+
+    Ok(result)
 }
 
 pub async fn page_get_score(
@@ -233,5 +255,34 @@ async fn build_page_output(
         tags: revision.tags,
         rating,
         layout,
+    }))
+}
+
+async fn build_page_deleted_output(
+    ctx: &ServiceContext<'_>,
+    page: PageModel,
+) -> Result<Option<GetDeletedPageOutput>> {
+    // Get page revision
+    let revision =
+        PageRevisionService::get_latest(ctx, page.site_id, page.page_id).await?;
+
+    // Calculate score and determine layout
+    let rating = ScoreService::score(ctx, page.page_id).await?;
+
+    // Build result struct
+    Ok(Some(GetDeletedPageOutput {
+        page_id: page.page_id,
+        page_created_at: page.created_at,
+        page_updated_at: page.updated_at,
+        page_deleted_at: page.deleted_at.expect("Page should be deleted"),
+        page_revision_count: revision.revision_number,
+        site_id: page.site_id,
+        discussion_thread_id: page.discussion_thread_id,
+        hidden_fields: revision.hidden,
+        title: revision.title,
+        alt_title: revision.alt_title,
+        slug: revision.slug,
+        tags: revision.tags,
+        rating,
     }))
 }

@@ -4,7 +4,7 @@ wiki-page-category = category: { $category }
 
 wiki-page-revision = revision: { $revision }
 
-wiki-page-last-edit = last-edited: { $date } ({ $days ->
+wiki-page-last-edit = last edited: { $date } ({ $days ->
   [0] today
   [1] yesterday
   *[other] { $days } days ago
@@ -22,6 +22,13 @@ wiki-page-revision-comments = Comments
 
 wiki-page-revision-rollback = Revert
 
+wiki-page-revision-type = Type
+  .create = Create
+  .regular = Edit
+  .move = Move
+  .delete = Delete
+  .undelete = Restore
+
 ### Wiki Page Vote
 
 wiki-page-vote-set = Cast vote
@@ -36,11 +43,14 @@ wiki-page-vote-score = Rating
 
 wiki-page-move-new-slug = New slug
 
-wiki-page-layout-default = Default layout
+wiki-page-layout =
+  .default = Default layout
+  .wikidot = Wikidot (Legacy)
+  .wikijump = Wikijump
 
-wiki-page-layout-wikidot = Wikidot (Legacy)
+wiki-page-restore = Select page to restore
 
-wiki-page-layout-wikijump = Wikijump
+wiki-page-deleted = Deleted at { $datetime }
 
 ### Special Page fallback strings
 

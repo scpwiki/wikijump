@@ -4,6 +4,7 @@
   import { onMount } from "svelte"
   import { useErrorPopup } from "$lib/stores"
   import { Layout } from "$lib/types"
+  import { parseDate } from "$lib/utils"
   let showErrorPopup = useErrorPopup()
 
   let showMoveAction = false
@@ -33,7 +34,8 @@
     if (res?.message) {
       showErrorPopup.set({
         state: true,
-        message: res.message
+        message: res.message,
+        data: res.data
       })
     } else invalidateAll()
   }
@@ -68,7 +70,8 @@
     if (res?.message) {
       showErrorPopup.set({
         state: true,
-        message: res.message
+        message: res.message,
+        data: res.data
       })
     } else {
       goto(`/${$page.data.page.slug}`, {
@@ -96,7 +99,8 @@
     if (res?.message) {
       showErrorPopup.set({
         state: true,
-        message: res.message
+        message: res.message,
+        data: res.data
       })
     } else {
       goto(`/${newSlug}`, {
@@ -118,7 +122,8 @@
     if (res?.message) {
       showErrorPopup.set({
         state: true,
-        message: res.message
+        message: res.message,
+        data: res.data
       })
     } else {
       showLayoutAction = false
@@ -137,7 +142,8 @@
     if (res?.message) {
       showErrorPopup.set({
         state: true,
-        message: res.message
+        message: res.message,
+        data: res.data
       })
     } else {
       parents = res.join(" ")
@@ -172,7 +178,8 @@
     if (res?.message) {
       showErrorPopup.set({
         state: true,
-        message: res.message
+        message: res.message,
+        data: res.data
       })
     } else {
       showParentAction = false
@@ -191,7 +198,8 @@
     if (res?.message) {
       showErrorPopup.set({
         state: true,
-        message: res.message
+        message: res.message,
+        data: res.data
       })
     } else {
       res.forEach((rev) => {
@@ -228,7 +236,8 @@
       if (res?.message) {
         showErrorPopup.set({
           state: true,
-          message: res.message
+          message: res.message,
+          data: res.data
         })
       } else if (!rev) {
         // This is a revision we didn't even cache...?
@@ -257,7 +266,8 @@
     if (res?.message) {
       showErrorPopup.set({
         state: true,
-        message: res.message
+        message: res.message,
+        data: res.data
       })
     } else invalidateAll()
   }
@@ -273,7 +283,8 @@
     if (res?.message) {
       showErrorPopup.set({
         state: true,
-        message: res.message
+        message: res.message,
+        data: res.data
       })
     } else {
       voteRating = res.score ?? 0
@@ -292,7 +303,8 @@
     if (res?.message) {
       showErrorPopup.set({
         state: true,
-        message: res.message
+        message: res.message,
+        data: res.data
       })
     } else {
       voteMap = new Map()
@@ -314,7 +326,8 @@
     if (res?.message) {
       showErrorPopup.set({
         state: true,
-        message: res.message
+        message: res.message,
+        data: res.data
       })
     }
   }
@@ -330,7 +343,8 @@
     if (res?.message) {
       showErrorPopup.set({
         state: true,
-        message: res.message
+        message: res.message,
+        data: res.data
       })
     }
   }
@@ -381,8 +395,13 @@
   </ul>
 </div>
 
-<div class="page-revision-container">
-  {$page.data.internationalization["wiki-page-revision"]}
+<div class="page-meta-info-container">
+  <div class="page-meta-info info-revision">
+    {$page.data.internationalization["wiki-page-revision"]}
+  </div>
+  <div class="page-meta-info info-last-edit">
+    {$page.data.internationalization["wiki-page-last-edit"]}
+  </div>
 </div>
 
 {#if $page.data.options?.edit}
@@ -549,13 +568,13 @@
     method="POST"
     on:submit|preventDefault={handleLayout}
   >
-    <select name="layout" class="page-layout-select">
+    <select name="layout" class="page-layout-select" value={$page.data.page.layout}>
       <option value={null}
-        >{$page.data.internationalization?.["wiki-page-layout-default"]}</option
+        >{$page.data.internationalization?.["wiki-page-layout.default"]}</option
       >
       {#each Object.values(Layout) as layoutOption}
         <option value={layoutOption}
-          >{$page.data.internationalization?.[`wiki-page-layout-${layoutOption}`]}</option
+          >{$page.data.internationalization?.[`wiki-page-layout.${layoutOption}`]}</option
         >
       {/each}
     </select>
@@ -622,6 +641,9 @@
       <div class="revision-attribute revision-number">
         {$page.data.internationalization?.["wiki-page-revision-number"]}
       </div>
+      <div class="revision-attribute revision-type">
+        {$page.data.internationalization?.["wiki-page-revision-type"]}
+      </div>
       <div class="revision-attribute created-at">
         {$page.data.internationalization?.["wiki-page-revision-created-at"]}
       </div>
@@ -636,45 +658,52 @@
     {#each [...revisionMap].sort((a, b) => b[0] - a[0]) as [_, revisionItem] (revisionItem.revision_number)}
       <div class="revision-row" data-id={revisionItem.revision_id}>
         <div class="revision-attribute action">
-          <button
-            class="action-button view-revision clickable"
-            type="button"
-            on:click|stopPropagation={() => {
-              getRevision(revisionItem.revision_number, true, false).then(() => {
-                showRevision = true
-                showRevisionSource = false
-              })
-            }}
-          >
-            {$page.data.internationalization?.view}
-          </button>
-          <button
-            class="action-button view-revision-source clickable"
-            type="button"
-            on:click|stopPropagation={() => {
-              getRevision(revisionItem.revision_number, false, true).then(() => {
-                showRevision = false
-                showRevisionSource = true
-              })
-            }}
-          >
-            {$page.data.internationalization?.["wiki-page-view-source"]}
-          </button>
-          <button
-            class="action-button revision-rollback clickable"
-            type="button"
-            on:click|stopPropagation={() => {
-              rollbackRevision(revisionItem.revision_number)
-            }}
-          >
-            {$page.data.internationalization?.["wiki-page-revision-rollback"]}
-          </button>
+          {#if ["create", "regular"].includes(revisionItem.revision_type)}
+            <button
+              class="action-button view-revision clickable"
+              type="button"
+              on:click|stopPropagation={() => {
+                getRevision(revisionItem.revision_number, true, false).then(() => {
+                  showRevision = true
+                  showRevisionSource = false
+                })
+              }}
+            >
+              {$page.data.internationalization?.view}
+            </button>
+            <button
+              class="action-button view-revision-source clickable"
+              type="button"
+              on:click|stopPropagation={() => {
+                getRevision(revisionItem.revision_number, false, true).then(() => {
+                  showRevision = false
+                  showRevisionSource = true
+                })
+              }}
+            >
+              {$page.data.internationalization?.["wiki-page-view-source"]}
+            </button>
+            <button
+              class="action-button revision-rollback clickable"
+              type="button"
+              on:click|stopPropagation={() => {
+                rollbackRevision(revisionItem.revision_number)
+              }}
+            >
+              {$page.data.internationalization?.["wiki-page-revision-rollback"]}
+            </button>
+          {/if}
         </div>
         <div class="revision-attribute revision-number">
           {revisionItem.revision_number}
         </div>
+        <div class="revision-attribute revision-type">
+          {$page.data.internationalization?.[
+            `wiki-page-revision-type.${revisionItem.revision_type}`
+          ]}
+        </div>
         <div class="revision-attribute created-at">
-          {revisionItem.created_at}
+          {parseDate(revisionItem.created_at).toLocaleString()}
         </div>
         <div class="revision-attribute user">
           {revisionItem.user_id}
@@ -765,7 +794,7 @@
 
   .page-content,
   .page-tags-container,
-  .page-revision-container,
+  .page-meta-info-container,
   .editor-actions,
   .other-actions,
   .page-move {
@@ -784,7 +813,7 @@
     list-style: none;
   }
 
-  .page-revision-container {
+  .page-meta-info-container {
     text-align: right;
   }
 

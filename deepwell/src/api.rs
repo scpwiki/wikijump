@@ -189,6 +189,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     // Web server
     register!("page_view", page_view);
     register!("user_view", user_view);
+    register!("admin_view", admin_view);
 
     // Authentication
     register!("login", auth_login);
@@ -226,6 +227,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("page_create", page_create);
     register!("page_get", page_get);
     register!("page_get_direct", page_get_direct);
+    register!("page_get_deleted", page_get_deleted);
     register!("page_get_score", page_get_score);
     register!("page_edit", page_edit);
     register!("page_delete", page_delete);
