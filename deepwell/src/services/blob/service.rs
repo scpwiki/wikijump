@@ -378,10 +378,10 @@ impl BlobService {
 
     async fn head(
         ctx: &ServiceContext<'_>,
-        hex_hash: &str,
+        path: &str
     ) -> Result<Option<HeadObjectResult>> {
         let bucket = ctx.s3_bucket();
-        let (result, status) = bucket.head_object(hex_hash).await?;
+        let (result, status) = bucket.head_object(path).await?;
 
         match status {
             200 | 204 => Ok(Some(result)),
