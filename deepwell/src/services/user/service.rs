@@ -421,19 +421,22 @@ impl UserService {
             model.user_page = Set(user_page);
         }
 
-        if let ProvidedValue::Set(avatar) = input.avatar {
-            let s3_hash = match avatar {
+        if let ProvidedValue::Set(uploaded_blob_id) = input.avatar_uploaded_blob_id {
+            let s3_hash = match uploaded_blob_id {
                 None => None,
-                Some(blob) => {
-                    // FIXME blob upload
-                    /*
-                    let CreateBlobOutput { hash, .. } =
-                        BlobService::create(ctx, &blob).await?;
+                Some(uploaded_blob_id) => {
+                    let FinalizeBlobUploadOutput {
+                        hash,
+                        size,
+                        ..
+                    } = BlobService::finish_upload(ctx, user.user_id, &uploaded_blob_id).await?;
+
+                    if size > 0 {
+                        // TODO add config setting for max avatar size
+                    }
+                    todo!();
 
                     Some(hash.to_vec())
-                    */
-                    let _ = blob;
-                    todo!()
                 }
             };
 

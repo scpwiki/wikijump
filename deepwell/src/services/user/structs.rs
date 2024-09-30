@@ -73,7 +73,7 @@ pub struct UpdateUserBody {
     pub email_verified: ProvidedValue<bool>,
     pub password: ProvidedValue<String>,
     pub locales: ProvidedValue<Vec<String>>,
-    pub avatar: ProvidedValue<Option<Bytes<'static>>>,
+    pub avatar_uploaded_blob_id: ProvidedValue<Option<String>>,
     pub real_name: ProvidedValue<Option<String>>,
     pub gender: ProvidedValue<Option<String>>,
     pub birthday: ProvidedValue<Option<Date>>,
