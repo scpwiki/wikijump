@@ -36,7 +36,6 @@ pub enum ProvidedValue<T> {
 }
 
 impl<T> ProvidedValue<T> {
-    #[inline]
     pub fn to_option(&self) -> Option<&T> {
         match self {
             ProvidedValue::Set(ref value) => Some(value),
@@ -49,7 +48,6 @@ impl<T> ProvidedValue<T>
 where
     T: Into<sea_orm::Value>,
 {
-    #[inline]
     pub fn into_active_value(self) -> sea_orm::ActiveValue<T> {
         match self {
             ProvidedValue::Set(value) => sea_orm::ActiveValue::Set(value),
@@ -59,7 +57,6 @@ where
 }
 
 impl<T> From<ProvidedValue<T>> for Option<T> {
-    #[inline]
     fn from(value: ProvidedValue<T>) -> Option<T> {
         match value {
             ProvidedValue::Set(value) => Some(value),
