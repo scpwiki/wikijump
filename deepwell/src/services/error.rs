@@ -242,6 +242,9 @@ pub enum Error {
     #[error("Cannot use blob uploaded by different user")]
     BlobWrongUser,
 
+    #[error("Uploaded blob is too big for this operation")]
+    BlobTooBig,
+
     #[error("Text item does not exist")]
     TextNotFound,
 
@@ -380,6 +383,7 @@ impl Error {
             Error::MessageNoRecipients => 4020,
             Error::MessageTooManyRecipients => 4021,
             Error::BlobWrongUser => 4022,
+            Error::BlobTooBig => 4023,
 
             // 4100 -- Localization
             Error::LocaleInvalid(_) => 4100,

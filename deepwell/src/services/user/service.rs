@@ -435,7 +435,7 @@ impl UserService {
                             "Uploaded avatar size is too big {} > {}",
                             size, config.maximum_avatar_size,
                         );
-                        return Err(todo!());
+                        return Err(Error::BlobTooBig);
                     }
 
                     Some(hash.to_vec())
