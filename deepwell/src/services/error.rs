@@ -137,9 +137,6 @@ pub enum Error {
     #[error("Cannot restore a non-deleted filter")]
     FilterNotDeleted,
 
-    #[error("Cannot use blob uploaded by different user")]
-    BlobWrongUser,
-
     #[error("File name cannot be empty")]
     FileNameEmpty,
 
@@ -241,6 +238,9 @@ pub enum Error {
 
     #[error("Blob item does not exist")]
     BlobNotFound,
+
+    #[error("Cannot use blob uploaded by different user")]
+    BlobWrongUser,
 
     #[error("Text item does not exist")]
     TextNotFound,
