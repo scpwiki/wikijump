@@ -218,9 +218,6 @@ pub enum Error {
     #[error("File revision does not exist")]
     FileRevisionNotFound,
 
-    #[error("File not uploaded")]
-    FileNotUploaded, // occurs when presign URL is not uploaded to
-
     #[error("Vote does not exist")]
     VoteNotFound,
 
@@ -238,6 +235,9 @@ pub enum Error {
 
     #[error("Blob item does not exist")]
     BlobNotFound,
+
+    #[error("Blob not uploaded")]
+    BlobNotUploaded,
 
     #[error("Cannot use blob uploaded by different user")]
     BlobWrongUser,
@@ -324,7 +324,6 @@ impl Error {
             Error::MessageDraftNotFound => 2015,
             Error::BlobNotFound => 2016,
             Error::TextNotFound => 2017,
-            Error::FileNotUploaded => 2018,
 
             // 2100 -- Existing data
             Error::UserExists => 2100,
@@ -384,6 +383,7 @@ impl Error {
             Error::MessageTooManyRecipients => 4021,
             Error::BlobWrongUser => 4022,
             Error::BlobTooBig => 4023,
+            Error::BlobNotUploaded => 4024,
 
             // 4100 -- Localization
             Error::LocaleInvalid(_) => 4100,
