@@ -11,6 +11,7 @@ pub struct Model {
     pub created_by: i64,
     pub created_at: TimeDateTimeWithTimeZone,
     pub expires_at: TimeDateTimeWithTimeZone,
+    pub expected_length: i64,
     #[sea_orm(column_type = "Text")]
     pub s3_path: String,
     #[sea_orm(column_type = "VarBinary(StringLen::None)")]
