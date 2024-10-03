@@ -66,8 +66,10 @@ impl BlobService {
     /// The generated presign URL, which can be uploaded to.
     pub async fn start_upload(
         ctx: &ServiceContext<'_>,
-        StartBlobUpload { user_id }: StartBlobUpload,
+        StartBlobUpload { user_id, blob_size }: StartBlobUpload,
     ) -> Result<StartBlobUploadOutput> {
+        info!("Creating upload by {user_id} with promised length {blob_size}");
+
         let config = ctx.config();
         let txn = ctx.transaction();
 
@@ -105,11 +107,12 @@ impl BlobService {
         // Add pending blob entry
         let model = blob_pending::ActiveModel {
             external_id: Set(pending_blob_id),
+            expected_length: Set(blob_size),
             s3_path: Set(s3_path),
             presign_url: Set(presign_url),
+            created_by: Set(user_id),
             created_at: Set(created_at),
             expires_at: Set(expires_at),
-            created_by: Set(user_id),
             ..Default::default()
         };
 
