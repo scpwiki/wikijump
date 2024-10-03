@@ -421,7 +421,7 @@ CREATE TABLE blob_pending (
     created_by BIGINT NOT NULL REFERENCES "user"(user_id),
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    expected_length BIGINT NOT NULL,
+    expected_length BIGINT NOT NULL CHECK (expected_length >= 0),
     s3_path TEXT NOT NULL CHECK (length(s3_path) > 1),
     s3_hash BYTEA,  -- NULL means not yet moved, NOT NULL means deleted from s3_path
     presign_url TEXT NOT NULL CHECK (length(presign_url) > 1),
