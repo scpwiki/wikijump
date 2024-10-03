@@ -209,7 +209,10 @@ impl BlobService {
             }
         };
 
-        // TODO compare actual data length to promised length
+        if expected_length != size {
+            error!("Expected blob length of {expected_length} bytes, instead found {size} uploaded");
+            return Err(Error::BlobSizeMismatch);
+        }
 
         // Special handling for empty blobs
         if data.is_empty() {
@@ -313,11 +316,6 @@ impl BlobService {
             Some(hash_vec) => {
                 let BlobMetadata { mime, size, .. } =
                     Self::get_metadata(ctx, &hash_vec).await?;
-
-                if expected_length != size {
-                    error!("Expected blob length of {expected_length} bytes, instead found {size} uploaded");
-                    return Err(Error::BlobSizeMismatch);
-                }
 
                 let mut hash = [0; 64];
                 hash.copy_from_slice(&hash_vec);
