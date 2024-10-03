@@ -371,6 +371,9 @@ presigned-path-length = 32
 # The value should only be a few minutes, and no longer than 12 hours.
 presigned-expiration-minutes = 5
 
+# The maximum blob size allowed globally, in KiB.
+maximum-blob-size-kb = 1_048_576
+
 # The maximum blob size allowed for user avatars, in KiB.
 maximum-avatar-size-kb = 250
 

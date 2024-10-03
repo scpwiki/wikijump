@@ -70,7 +70,8 @@ refill-name-change-days = 90
 [file]
 presigned-path-length = 32
 presigned-expiration-minutes = 5
-maximum-avatar-size-kb = 100
+maximum-blob-size-kb = 1048576  # 1 GiB
+maximum-avatar-size-kb = 100  # 100 KiB
 
 [message]
 maximum-subject-bytes = 128
