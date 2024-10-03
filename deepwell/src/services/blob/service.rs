@@ -72,8 +72,16 @@ impl BlobService {
         let config = ctx.config();
         let txn = ctx.transaction();
 
-        // Convert expected length integer type
+        // Convert expected length integer type, then check it
         let blob_size = i64::try_from(blob_size).map_err(|_| Error::BlobTooBig)?;
+        if blob_size > config.maximum_blob_size {
+            error!(
+                "Blob proposed to upload is too big ({} > {})",
+                blob_size, config.maximum_blob_size,
+            );
+
+            return Err(Error::BlobTooBig);
+        }
 
         // Generate primary key and random S3 path
         let pending_blob_id = cuid();
