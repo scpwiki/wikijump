@@ -69,9 +69,11 @@ impl BlobService {
         StartBlobUpload { user_id, blob_size }: StartBlobUpload,
     ) -> Result<StartBlobUploadOutput> {
         info!("Creating upload by {user_id} with promised length {blob_size}");
-
         let config = ctx.config();
         let txn = ctx.transaction();
+
+        // Convert expected length integer type
+        let blob_size = i64::try_from(blob_size).map_err(|_| Error::BlobTooBig)?;
 
         // Generate primary key and random S3 path
         let pending_blob_id = cuid();
@@ -142,6 +144,7 @@ impl BlobService {
             s3_path,
             s3_hash,
             created_by,
+            expected_length,
             ..
         } = match row {
             Some(pending) => pending,
@@ -155,6 +158,7 @@ impl BlobService {
 
         Ok(PendingBlob {
             s3_path,
+            expected_length,
             moved_hash: s3_hash,
         })
     }
@@ -297,6 +301,7 @@ impl BlobService {
 
         let PendingBlob {
             s3_path,
+            expected_length,
             moved_hash,
         } = Self::get_pending_blob_path(ctx, user_id, pending_blob_id).await?;
 
@@ -308,6 +313,12 @@ impl BlobService {
             Some(hash_vec) => {
                 let BlobMetadata { mime, size, .. } =
                     Self::get_metadata(ctx, &hash_vec).await?;
+
+                if expected_length != size {
+                    error!("Expected blob length of {expected_length} bytes, instead found {size} uploaded");
+                    return Err(Error::BlobSizeMismatch);
+                }
+
                 let mut hash = [0; 64];
                 hash.copy_from_slice(&hash_vec);
 
@@ -488,5 +499,6 @@ fn s3_error<T>(response: &ResponseData, action: &str) -> Result<T> {
 #[derive(Debug)]
 struct PendingBlob {
     s3_path: String,
+    expected_length: i64,
     moved_hash: Option<Vec<u8>>,
 }

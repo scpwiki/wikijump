@@ -24,7 +24,7 @@ use time::OffsetDateTime;
 #[derive(Deserialize, Debug, Clone)]
 pub struct StartBlobUpload {
     pub user_id: i64,
-    pub blob_size: i64,
+    pub blob_size: u64,
 }
 
 #[derive(Serialize, Debug, Clone)]
