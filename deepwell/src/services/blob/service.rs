@@ -190,6 +190,7 @@ impl BlobService {
         ctx: &ServiceContext<'_>,
         pending_blob_id: &str,
         s3_path: &str,
+        expected_length: usize,
     ) -> Result<FinalizeBlobUploadOutput> {
         let bucket = ctx.s3_bucket();
         let txn = ctx.transaction();
@@ -209,8 +210,13 @@ impl BlobService {
             }
         };
 
-        if expected_length != size {
-            error!("Expected blob length of {expected_length} bytes, instead found {size} uploaded");
+        if expected_length != data.len() {
+            error!(
+                "Expected blob length of {} bytes, instead found {} uploaded. Deleting pending.",
+                expected_length,
+                data.len(),
+            );
+            bucket.delete_object(&s3_path).await?;
             return Err(Error::BlobSizeMismatch);
         }
 
@@ -310,12 +316,21 @@ impl BlobService {
 
         let output = match moved_hash {
             // Need to move from pending to main hash area
-            None => Self::move_uploaded(ctx, pending_blob_id, &s3_path).await?,
+            None => {
+                let expected_length = expected_length
+                    .try_into()
+                    .map_err(|_| Error::BlobSizeMismatch)?;
+
+                Self::move_uploaded(ctx, pending_blob_id, &s3_path, expected_length)
+                    .await?
+            }
 
             // Already moved
             Some(hash_vec) => {
                 let BlobMetadata { mime, size, .. } =
                     Self::get_metadata(ctx, &hash_vec).await?;
+
+                debug_assert_eq!(expected_length, size);
 
                 let mut hash = [0; 64];
                 hash.copy_from_slice(&hash_vec);
