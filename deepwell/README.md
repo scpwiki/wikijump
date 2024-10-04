@@ -114,6 +114,24 @@ $ curl -X POST --json '{"jsonrpc":"2.0","method":"ping","id":0}' http://localhos
 
 If you are unfamiliar with JSONRPC, you can read about it [on its website](https://www.jsonrpc.org/specification). For instance, one quirk is that for methods which take a non-list or object argument, you specify it as a list of one element.
 
+There is also a helper script to assist with making JSONRPC requests, `scripts/request.py`. It requires the popular [`requests`](https://requests.readthedocs.io/) library to be installed.
+
+Example usage:
+
+```sh
+$ scripts/request.py echo '{ "my": ["json","data"] }'
+OK  {'my': ['json', 'data']}
+
+$ scripts/request.py ping
+OK  Pong!
+
+$ scripts/request.py error
+ERR
+{'code': 4000,
+ 'data': None,
+ 'message': 'The request is in some way malformed or incorrect'}
+```
+
 **NOTE:** When you are uploading files to local minio as part of testing file upload flows, **you must leave the URL unmodified**. The host `files` is used as the S3 provider, which is a problem since this is not a valid host on your development machine, which necessitates use of `--connect-to` to tell `curl` to connect to the appropriate location instead:
 
 ```sh
