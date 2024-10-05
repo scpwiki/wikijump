@@ -2,7 +2,7 @@
 # Framerail build
 #
 
-FROM node:19-alpine
+FROM node:20-alpine
 
 # Install pnpm
 RUN npm install -g pnpm
