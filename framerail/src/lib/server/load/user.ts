@@ -37,7 +37,7 @@ export async function loadUser(username?: string, request, cookies) {
   }
 
   if (errorStatus === null && username && viewData.user.slug !== username) {
-    throw redirect(308, `/-/user/${viewData.user.slug}`)
+    redirect(308, `/-/user/${viewData.user.slug}`)
   }
 
   if (errorStatus !== null) {
@@ -93,7 +93,7 @@ export async function loadUser(username?: string, request, cookies) {
   viewData.internationalization = translated
 
   if (errorStatus !== null) {
-    throw error(errorStatus, viewData)
+    error(errorStatus, viewData)
   }
 
   return viewData

@@ -145,7 +145,7 @@ export async function loadPage(
   viewData.internationalization = translated
 
   if (errorStatus !== null) {
-    throw error(errorStatus, viewData)
+    error(errorStatus, viewData)
   }
 
   // TODO remove checkRedirect when errorStatus is fixed
@@ -171,7 +171,7 @@ function runRedirect(
   const domain: string = viewData.redirectSite || originalDomain
   const slug: Optional<string> = viewData.redirectPage || originalSlug
   const route: string = buildRoute(slug, extra)
-  throw redirect(308, `https://${domain}/${route}`)
+  redirect(308, `https://${domain}/${route}`)
 }
 
 function buildRoute(slug: Optional<string>, extra: Optional<string>): string {
