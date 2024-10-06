@@ -28,7 +28,9 @@ use rand::distributions::{Alphanumeric, DistString};
 use rand::thread_rng;
 use s3::request_trait::ResponseData;
 use s3::serde_types::HeadObjectResult;
+use sea_orm::TransactionTrait;
 use std::str;
+use std::sync::Arc;
 use time::format_description::well_known::Rfc2822;
 use time::{Duration, OffsetDateTime};
 
@@ -194,7 +196,36 @@ impl BlobService {
     /// Helper function to do the actual "move" step of blob finalization.
     /// This is where, after uploading to the presign URL, the S3 object is
     /// then moved to its permanent location with a hashed name.
+    ///
+    /// NOTE: Because S3 changes cannot be rolled back on error, we are
+    ///       creating a separate transaction here so that `blob_pending`
+    ///       changes are persistent even if the outer request fails.
     async fn move_uploaded(
+        ctx: &ServiceContext<'_>,
+        pending_blob_id: &str,
+        s3_path: &str,
+        expected_length: usize,
+    ) -> Result<FinalizeBlobUploadOutput> {
+        let state = ctx.state();
+        let db_state = Arc::clone(&state);
+
+        // Produce temporary context in a new transaction
+        let txn = db_state.database.begin().await?;
+        let inner_ctx = ServiceContext::new(&state, &txn);
+        let result = Self::move_uploaded_inner(
+            &inner_ctx,
+            pending_blob_id,
+            s3_path,
+            expected_length,
+        )
+        .await;
+
+        // Commit separate transaction, recording a move (if it occurred)
+        txn.commit().await?;
+        result
+    }
+
+    async fn move_uploaded_inner(
         ctx: &ServiceContext<'_>,
         pending_blob_id: &str,
         s3_path: &str,
