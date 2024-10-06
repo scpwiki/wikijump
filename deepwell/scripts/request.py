@@ -23,7 +23,11 @@ def print_data(data):
     if isinstance(data, str):
         print(data)
     else:
-        print(json.dumps(data, indent=4))
+        # Only print on multiple lines if it's "large"
+        output = json.dumps(data)
+        if len(output) > 16:
+            output = json.dumps(data, indent=4)
+        print(output)
 
 
 def deepwell_request(endpoint, method, data, id=0, color=False):
