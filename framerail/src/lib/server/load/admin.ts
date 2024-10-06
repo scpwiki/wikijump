@@ -66,7 +66,7 @@ export async function loadAdminPage(request, cookies) {
   viewData.internationalization = translated
 
   if (errorStatus !== null) {
-    throw error(errorStatus, viewData)
+    error(errorStatus, viewData)
   }
 
   return viewData
