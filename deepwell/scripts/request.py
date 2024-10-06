@@ -4,7 +4,6 @@ import argparse
 import json
 import os
 import sys
-from pprint import pformat
 
 import requests
 
@@ -24,10 +23,7 @@ def print_data(data):
     if isinstance(data, str):
         print(data)
     else:
-        output = pformat(data)
-        if "\n" in output:
-            print()
-        print(output)
+        print(json.dumps(data, indent=4))
 
 
 def deepwell_request(endpoint, method, data, id=0, color=False):
