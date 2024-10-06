@@ -27,6 +27,7 @@ def print_data(data):
         output = json.dumps(data)
         if len(output) > 16:
             output = json.dumps(data, indent=4)
+            print()
         print(output)
 
 
