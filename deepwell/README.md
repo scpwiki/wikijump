@@ -138,6 +138,12 @@ ERR
 $ curl --connect-to files:9000:localhost:9000 --upload-file <path-to-file> <s3-presign-url>
 ```
 
+Alternatively, you can use the helper script:
+
+```sh
+$ scripts/upload.sh <path-to-file> <s3-presign-url>
+```
+
 ### Database
 
 There are two important directories related to the management of the database (which DEEPWELL can be said to "own"). They are both fairly self-explanatory:
