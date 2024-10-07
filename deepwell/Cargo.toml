@@ -60,7 +60,7 @@ strum = "0.26"
 strum_macros = "0.26"
 subtle = "2.6"
 thiserror = "1"
-time = { version = "0.3", features = ["parsing", "serde", "serde-human-readable"], default-features = false }
+time = { version = "0.3", features = ["parsing", "serde"], default-features = false }
 tiny-keccak = { version = "2", features = ["k12"] }
 toml = { version = "0.8", features = ["parse"] }
 tokio = { version = "1", features = ["full"] }
