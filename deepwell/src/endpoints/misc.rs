@@ -80,12 +80,15 @@ pub async fn yield_error(
     Err(ServiceError::BadRequest)
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct DateTimeWrap(#[serde(with = "time::serde::rfc3339")] OffsetDateTime);
+
 pub async fn yield_now(
     _ctx: &ServiceContext<'_>,
     _params: Params<'static>,
-) -> Result<OffsetDateTime> {
+) -> Result<DateTimeWrap> {
     info!("Returning current time for server");
-    Ok(now())
+    Ok(DateTimeWrap(now()))
 }
 
 pub async fn version(
