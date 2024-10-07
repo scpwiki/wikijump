@@ -20,9 +20,11 @@
 
 use super::prelude::*;
 use crate::info;
+use crate::utils::now;
 use sea_orm::{ConnectionTrait, DatabaseBackend, Statement};
 use serde_json::Value as JsonValue;
 use std::path::PathBuf;
+use time::OffsetDateTime;
 use wikidot_normalize::normalize;
 
 async fn postgres_check(ctx: &ServiceContext<'_>) -> Result<()> {
@@ -76,6 +78,14 @@ pub async fn yield_error(
 ) -> Result<()> {
     info!("Returning DEEPWELL error for testing");
     Err(ServiceError::BadRequest)
+}
+
+pub async fn yield_now(
+    _ctx: &ServiceContext<'_>,
+    _params: Params<'static>,
+) -> Result<OffsetDateTime> {
+    info!("Returning current time for server");
+    Ok(now())
 }
 
 pub async fn version(
