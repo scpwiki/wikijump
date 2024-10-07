@@ -63,7 +63,7 @@ pub async fn server_info(
 ) -> Result<Info> {
     let config = ctx.config();
 
-    info!("Building server information for response");
+    info!("Building server information response");
     Ok(Info {
         package: PackageInfo {
             name: info::PKG_NAME,
