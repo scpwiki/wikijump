@@ -28,18 +28,33 @@ use time::OffsetDateTime;
 
 #[derive(Serialize, Debug, Clone)]
 pub struct Info {
+    package: PackageInfo,
+    compile_info: CompileInfo,
+
+    #[serde(with = "time::serde::rfc3339")]
+    current_time: OffsetDateTime,
+    hostname: &'static str,
+    config_path: PathBuf,
+}
+
+#[derive(Serialize, Debug, Clone)]
+pub struct PackageInfo {
     name: &'static str,
     description: &'static str,
     license: &'static str,
     repository: &'static str,
     version: &'static str,
-    compile_info: &'static str,
-    git_commit: Option<&'static str>,
-    hostname: &'static str,
+}
 
+#[derive(Serialize, Debug, Clone)]
+pub struct CompileInfo {
     #[serde(with = "time::serde::rfc3339")]
-    current_time: OffsetDateTime,
-    config_path: PathBuf,
+    built_at: OffsetDateTime,
+    rustc_version: &'static str,
+    endian: &'static str,
+    target: &'static str,
+    threads: u32,
+    git_commit: Option<&'static str>,
 }
 
 pub async fn server_info(
@@ -50,15 +65,23 @@ pub async fn server_info(
 
     info!("Building server information for response");
     Ok(Info {
-        name: info::PKG_NAME,
-        description: info::PKG_DESCRIPTION,
-        license: info::PKG_LICENSE,
-        repository: info::PKG_REPOSITORY,
-        version: &info::VERSION_INFO,
-        compile_info: &info::COMPILE_INFO,
-        git_commit: info::GIT_COMMIT_HASH,
-        hostname: &info::HOSTNAME,
+        package: PackageInfo {
+            name: info::PKG_NAME,
+            version: &info::VERSION_INFO,
+            description: info::PKG_DESCRIPTION,
+            license: info::PKG_LICENSE,
+            repository: info::PKG_REPOSITORY,
+        },
+        compile_info: CompileInfo {
+            built_at: *info::BUILT_TIME_UTC,
+            rustc_version: info::RUSTC_VERSION,
+            endian: info::CFG_ENDIAN,
+            target: info::TARGET,
+            threads: info::NUM_JOBS,
+            git_commit: info::GIT_COMMIT_HASH,
+        },
         config_path: config.raw_toml_path.clone(),
+        hostname: &info::HOSTNAME,
         current_time: now(),
     })
 }

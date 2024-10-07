@@ -23,12 +23,26 @@ mod build {
 }
 
 use once_cell::sync::Lazy;
+use time::OffsetDateTime;
 
 #[allow(unused_imports)]
 pub use self::build::{
-    BUILT_TIME_UTC, GIT_COMMIT_HASH, NUM_JOBS, PKG_AUTHORS, PKG_DESCRIPTION, PKG_LICENSE,
-    PKG_NAME, PKG_REPOSITORY, PKG_VERSION, RUSTC_VERSION, TARGET,
+    BUILT_TIME_UTC as BUILT_TIME_UTC_STR, CFG_ENDIAN, GIT_COMMIT_HASH, NUM_JOBS,
+    PKG_AUTHORS, PKG_DESCRIPTION, PKG_LICENSE, PKG_NAME, PKG_REPOSITORY, PKG_VERSION,
+    RUSTC_VERSION, TARGET,
 };
+
+pub static BUILT_TIME_UTC: Lazy<OffsetDateTime> = Lazy::new(|| {
+    #[derive(Deserialize, Debug)]
+    struct DateTimeWrapper {
+        #[serde(with = "time::serde::rfc2822")]
+        inner: OffsetDateTime,
+    }
+
+    serde_json::from_str::<DateTimeWrapper>(BUILT_TIME_UTC_STR)
+        .expect("Unable to parse built time string")
+        .inner
+});
 
 pub static VERSION_INFO: Lazy<String> = Lazy::new(|| {
     let mut version = format!("v{PKG_VERSION}");
@@ -42,7 +56,7 @@ pub static VERSION_INFO: Lazy<String> = Lazy::new(|| {
 
 pub static COMPILE_INFO: Lazy<String> = Lazy::new(|| {
     let mut info = str!("Compile info:\n");
-    str_writeln!(&mut info, "* on {BUILT_TIME_UTC}");
+    str_writeln!(&mut info, "* on {BUILT_TIME_UTC_STR}");
     str_writeln!(&mut info, "* by {RUSTC_VERSION}");
     str_writeln!(&mut info, "* for {TARGET}");
     str_writeln!(&mut info, "* across {NUM_JOBS} threads");
