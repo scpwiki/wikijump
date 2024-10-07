@@ -830,6 +830,7 @@ impl PageService {
     }
 }
 
+/// Ensure that the page has a properly-set `latest_revision_id` column.
 fn assert_latest_revision(page: &PageModel) {
     // Even in production, we want to assert that this invariant holds.
     //
