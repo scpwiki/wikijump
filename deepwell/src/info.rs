@@ -50,6 +50,8 @@ pub static COMPILE_INFO: Lazy<String> = Lazy::new(|| {
 
 pub static VERSION: Lazy<String> = Lazy::new(|| format!("{PKG_NAME} {}", *VERSION_INFO));
 
+pub static FULL_VERSION: Lazy<String> = Lazy::new(|| format!("{}\n\n{}", *VERSION, *COMPILE_INFO));
+
 pub static GIT_COMMIT_HASH_SHORT: Lazy<Option<&'static str>> =
     Lazy::new(|| build::GIT_COMMIT_HASH.map(|s| &s[..8]));
 
