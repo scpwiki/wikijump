@@ -110,7 +110,7 @@ impl PageService {
             ..Default::default()
         };
         let page = model.update(txn).await?;
-        check_latest_revision(&page);
+        assert_latest_revision(&page);
 
         // Build and return
         Ok(CreatePageOutput {
@@ -200,7 +200,7 @@ impl PageService {
             ..Default::default()
         };
         let page = model.update(txn).await?;
-        check_latest_revision(&page);
+        assert_latest_revision(&page);
 
         // Build and return
         Ok(revision_output)
@@ -282,7 +282,7 @@ impl PageService {
             ..Default::default()
         };
         let page = model.update(txn).await?;
-        check_latest_revision(&page);
+        assert_latest_revision(&page);
 
         // Build and return
 
@@ -343,7 +343,7 @@ impl PageService {
             ..Default::default()
         };
         let page = model.update(txn).await?;
-        check_latest_revision(&page);
+        assert_latest_revision(&page);
 
         Ok((output, page_id).into())
     }
@@ -413,7 +413,7 @@ impl PageService {
             ..Default::default()
         };
         let page = model.update(txn).await?;
-        check_latest_revision(&page);
+        assert_latest_revision(&page);
 
         Ok((output, slug).into())
     }
@@ -830,7 +830,7 @@ impl PageService {
     }
 }
 
-fn check_latest_revision(page: &PageModel) {
+fn assert_latest_revision(page: &PageModel) {
     // Even in production, we want to assert that this invariant holds.
     //
     // We cannot set the column itself to NOT NULL because of cyclic update
