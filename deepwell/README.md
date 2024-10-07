@@ -90,6 +90,60 @@ $ cargo fmt     # Ensure code is formatted
 $ cargo clippy  # Check code for lints
 ```
 
+### Running requests
+
+When you have a local instance of DEEPWELL running, probably in the developement `docker-compose` instance, you may want to run requests against it. You can easily accomplish this with a tool like `curl`. The basic format is:
+
+```sh
+$ curl -X POST --json '{"jsonrpc":"2.0","method":"<method here>","params":<json data of request>,"id":<request id>}' http://localhost:2747/jsonrpc
+```
+
+Where you pass in the JSONRPC method name and corresponding JSON data. The ID value distinguishes between notices and requests, see the JSONRPC specification for information.
+
+For instance:
+
+```sh
+$ curl -X POST --json '{"jsonrpc":"2.0","method":"echo","params":{"my":["json","data"]},"id":0}' http://localhost:2747/jsonrpc
+
+{"jsonrpc":"2.0","id":0,"result":{"my":["json","data"]}}
+
+$ curl -X POST --json '{"jsonrpc":"2.0","method":"ping","id":0}' http://localhost:2747/jsonrpc
+
+{"jsonrpc":"2.0","id":0,"result":"Pong!"}
+```
+
+If you are unfamiliar with JSONRPC, you can read about it [on its website](https://www.jsonrpc.org/specification). For instance, one quirk is that for methods which take a non-list or object argument, you specify it as a list of one element.
+
+There is also a helper script to assist with making JSONRPC requests, `scripts/request.py`. It requires the popular [`requests`](https://requests.readthedocs.io/) library to be installed.
+
+Example usage:
+
+```sh
+$ scripts/request.py echo '{ "my": ["json","data"] }'
+OK  {'my': ['json', 'data']}
+
+$ scripts/request.py ping
+OK  Pong!
+
+$ scripts/request.py error
+ERR
+{'code': 4000,
+ 'data': None,
+ 'message': 'The request is in some way malformed or incorrect'}
+```
+
+**NOTE:** When you are uploading files to local minio as part of testing file upload flows, **you must leave the URL unmodified**. The host `files` is used as the S3 provider, which is a problem since this is not a valid host on your development machine, which necessitates use of `--connect-to` to tell `curl` to connect to the appropriate location instead:
+
+```sh
+$ curl --connect-to files:9000:localhost:9000 --upload-file <path-to-file> <s3-presign-url>
+```
+
+Alternatively, you can use the helper script:
+
+```sh
+$ scripts/upload.sh <path-to-file> <s3-presign-url>
+```
+
 ### Database
 
 There are two important directories related to the management of the database (which DEEPWELL can be said to "own"). They are both fairly self-explanatory:

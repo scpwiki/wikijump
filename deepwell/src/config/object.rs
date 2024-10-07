@@ -200,6 +200,18 @@ pub struct Config {
     /// Minimum length of bytes in a username.
     pub minimum_name_bytes: usize,
 
+    /// Length of randomly-generated portion of S3 presigned URLs.
+    pub presigned_path_length: usize,
+
+    /// How long S3 presigned URLs will last before expiry.
+    pub presigned_expiry_secs: u32,
+
+    /// Maximum size of a blob globally.
+    pub maximum_blob_size: i64,
+
+    /// Maximum size of a user's avatar image.
+    pub maximum_avatar_size: i64,
+
     /// Maximum size of the subject line allowed in a direct message.
     pub maximum_message_subject_bytes: usize,
 

@@ -20,7 +20,11 @@
 
 use super::prelude::*;
 use crate::models::file::{self, Entity as File, Model as FileModel};
-use crate::services::blob::CreateBlobOutput;
+use crate::models::file_revision::{
+    self, Entity as FileRevision, Model as FileRevisionModel,
+};
+use crate::models::sea_orm_active_enums::FileRevisionType;
+use crate::services::blob::{FinalizeBlobUploadOutput, EMPTY_BLOB_HASH, EMPTY_BLOB_MIME};
 use crate::services::file_revision::{
     CreateFileRevision, CreateFileRevisionBody, CreateFirstFileRevision,
     CreateResurrectionFileRevision, CreateTombstoneFileRevision, FileBlob,
@@ -32,30 +36,27 @@ use crate::services::{BlobService, FileRevisionService, FilterService};
 pub struct FileService;
 
 impl FileService {
-    /// Uploads a file and tracks it as a separate file entity.
+    /// Creates a new file.
+    ///
+    /// Starts a file upload and tracks it as a distinct file entity.
     ///
     /// In the background, this stores the blob via content addressing,
     /// meaning that duplicates are not uploaded twice.
-    pub async fn upload(
+    pub async fn create(
         ctx: &ServiceContext<'_>,
-        UploadFile {
+        CreateFile {
             site_id,
             page_id,
             name,
+            uploaded_blob_id,
             revision_comments,
             user_id,
-            data,
             licensing,
             bypass_filter,
-        }: UploadFile,
-    ) -> Result<UploadFileOutput> {
+        }: CreateFile,
+    ) -> Result<CreateFileOutput> {
+        info!("Creating file with name '{}'", name);
         let txn = ctx.transaction();
-
-        info!(
-            "Creating file with name '{}', content length {}",
-            name,
-            data.len(),
-        );
 
         // Ensure row consistency
         Self::check_conflicts(ctx, page_id, &name, "create").await?;
@@ -65,9 +66,13 @@ impl FileService {
             Self::run_filter(ctx, site_id, Some(&name)).await?;
         }
 
-        // Upload to S3, get derived metadata
-        let CreateBlobOutput { hash, mime, size } =
-            BlobService::create(ctx, &data).await?;
+        // Finish blob upload
+        let FinalizeBlobUploadOutput {
+            hash: s3_hash,
+            mime: mime_hint,
+            size: size_hint,
+            created: blob_created,
+        } = BlobService::finish_upload(ctx, user_id, &uploaded_blob_id).await?;
 
         // Add new file
         let model = file::ActiveModel {
@@ -78,28 +83,26 @@ impl FileService {
         };
         let file = model.insert(txn).await?;
 
-        // Add new file revision
-        let revision_output = FileRevisionService::create_first(
+        FileRevisionService::create_first(
             ctx,
             CreateFirstFileRevision {
-                site_id,
                 page_id,
+                site_id,
                 file_id: file.file_id,
                 user_id,
                 name,
-                s3_hash: hash,
-                size_hint: size,
-                mime_hint: mime,
+                s3_hash,
+                size_hint,
+                mime_hint,
+                blob_created,
                 licensing,
-                comments: revision_comments,
+                revision_comments,
             },
         )
-        .await?;
-
-        Ok(revision_output)
+        .await
     }
 
-    /// Edits a file, including the ability to upload a new version.
+    /// Edits a file, creating a new revision.
     pub async fn edit(
         ctx: &ServiceContext<'_>,
         EditFile {
@@ -120,8 +123,8 @@ impl FileService {
 
         let EditFileBody {
             name,
-            data,
             licensing,
+            uploaded_blob_id,
         } = body;
 
         // Verify name change
@@ -136,22 +139,28 @@ impl FileService {
             }
         }
 
-        // Upload to S3, get derived metadata
-        let blob = match data {
+        // If a new file version was uploaded, then finalize.
+        //
+        // Get the blob struct for conditionally adding to
+        // the CreateFileRevisionBody.
+        let blob = match uploaded_blob_id {
             ProvidedValue::Unset => ProvidedValue::Unset,
-            ProvidedValue::Set(bytes) => {
-                let CreateBlobOutput { hash, mime, size } =
-                    BlobService::create(ctx, &bytes).await?;
+            ProvidedValue::Set(ref id) => {
+                let FinalizeBlobUploadOutput {
+                    hash: s3_hash,
+                    mime: mime_hint,
+                    size: size_hint,
+                    created: blob_created,
+                } = BlobService::finish_upload(ctx, user_id, id).await?;
 
                 ProvidedValue::Set(FileBlob {
-                    s3_hash: hash,
-                    size_hint: size,
-                    mime_hint: mime,
+                    s3_hash,
+                    mime_hint,
+                    size_hint,
+                    blob_created,
                 })
             }
         };
-
-        // Make database changes
 
         // Update file metadata
         let model = file::ActiveModel {
@@ -169,11 +178,11 @@ impl FileService {
                 page_id,
                 file_id,
                 user_id,
-                comments: revision_comments,
+                revision_comments,
                 body: CreateFileRevisionBody {
                     name,
-                    blob,
                     licensing,
+                    blob,
                     ..Default::default()
                 },
             },
@@ -231,7 +240,7 @@ impl FileService {
                 page_id: current_page_id,
                 file_id,
                 user_id,
-                comments: revision_comments,
+                revision_comments,
                 body: CreateFileRevisionBody {
                     page_id: ProvidedValue::Set(destination_page_id),
                     ..Default::default()

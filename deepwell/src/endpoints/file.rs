@@ -23,32 +23,12 @@ use crate::models::file::Model as FileModel;
 use crate::models::file_revision::Model as FileRevisionModel;
 use crate::services::blob::BlobService;
 use crate::services::file::{
-    DeleteFile, DeleteFileOutput, EditFile, EditFileOutput, GetBlobOutput,
+    CreateFile, CreateFileOutput, DeleteFile, DeleteFileOutput, EditFile, EditFileOutput,
     GetFileDetails, GetFileOutput, MoveFile, MoveFileOutput, RestoreFile,
-    RestoreFileOutput, UploadFile, UploadFileOutput,
+    RestoreFileOutput,
 };
 use crate::services::Result;
 use crate::web::{Bytes, FileDetails};
-
-/// Temporary endpoint to get any blob by hash.
-/// Primarily for user avatars, which have no other
-/// way of getting the data at the moment.
-pub async fn blob_get(
-    ctx: &ServiceContext<'_>,
-    params: Params<'static>,
-) -> Result<GetBlobOutput> {
-    info!("Getting blob for S3 hash");
-    let hash: Bytes = params.parse()?;
-    let data = BlobService::get(ctx, hash.as_ref()).await?;
-    let metadata = BlobService::get_metadata(ctx, hash.as_ref()).await?;
-
-    let output = GetBlobOutput {
-        data,
-        mime: metadata.mime,
-        size: metadata.size,
-    };
-    Ok(output)
-}
 
 pub async fn file_get(
     ctx: &ServiceContext<'_>,
@@ -79,21 +59,18 @@ pub async fn file_get(
     }
 }
 
-pub async fn file_upload(
+pub async fn file_create(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
-) -> Result<UploadFileOutput> {
-    let input: UploadFile = params.parse()?;
+) -> Result<CreateFileOutput> {
+    let input: CreateFile = params.parse()?;
 
     info!(
-        "Uploading file '{}' ({} bytes) to page ID {} in site ID {}",
-        input.name,
-        input.data.len(),
-        input.page_id,
-        input.site_id,
+        "Creating file on page ID {} in site ID {}",
+        input.page_id, input.site_id,
     );
 
-    FileService::upload(ctx, input).await
+    FileService::create(ctx, input).await
 }
 
 pub async fn file_edit(

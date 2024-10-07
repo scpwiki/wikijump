@@ -68,8 +68,13 @@ impl ImportService {
         let avatar_s3_hash = match avatar {
             None => None,
             Some(bytes) => {
+                // FIXME import - uploading avatars
+                /*
                 let output = BlobService::create(ctx, &bytes).await?;
                 Some(output.hash.to_vec())
+                */
+                let _ = bytes;
+                todo!()
             }
         };
 

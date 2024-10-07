@@ -21,16 +21,43 @@
 use super::prelude::*;
 use time::OffsetDateTime;
 
-#[derive(Debug)]
-pub struct CreateBlobOutput {
-    pub hash: BlobHash,
-    pub mime: String,
-    pub size: i64,
+#[derive(Deserialize, Debug, Clone)]
+pub struct StartBlobUpload {
+    pub user_id: i64,
+    pub blob_size: u64,
+}
+
+#[derive(Serialize, Debug, Clone)]
+pub struct StartBlobUploadOutput {
+    pub pending_blob_id: String,
+    pub presign_url: String,
+    pub expires_at: OffsetDateTime,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct CancelBlobUpload {
+    pub user_id: i64,
+    pub pending_blob_id: String,
 }
 
 #[derive(Debug)]
-#[allow(dead_code)] // TEMP
+pub struct FinalizeBlobUploadOutput {
+    pub hash: BlobHash,
+    pub mime: String,
+    pub size: i64,
+    pub created: bool,
+}
+
+#[derive(Debug)]
 pub struct BlobMetadata {
+    pub mime: String,
+    pub size: i64,
+    pub created_at: OffsetDateTime,
+}
+
+#[derive(Serialize, Debug, Clone)]
+pub struct GetBlobOutput {
+    pub data: Vec<u8>,
     pub mime: String,
     pub size: i64,
     pub created_at: OffsetDateTime,

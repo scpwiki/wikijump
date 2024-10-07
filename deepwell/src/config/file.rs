@@ -53,6 +53,7 @@ pub struct ConfigFile {
     ftml: Ftml,
     special_pages: SpecialPages,
     user: User,
+    file: FileSection,
     message: Message,
 }
 
@@ -181,6 +182,16 @@ struct User {
     minimum_name_bytes: usize,
 }
 
+// NOTE: Name conflict with std::fs::File
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "kebab-case")]
+struct FileSection {
+    presigned_path_length: usize,
+    presigned_expiration_minutes: u32,
+    maximum_blob_size_kb: i64,
+    maximum_avatar_size_kb: i64,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "kebab-case")]
 struct Message {
@@ -303,6 +314,13 @@ impl ConfigFile {
                     refill_name_change_days,
                     minimum_name_bytes,
                 },
+            file:
+                FileSection {
+                    presigned_path_length,
+                    presigned_expiration_minutes,
+                    maximum_blob_size_kb,
+                    maximum_avatar_size_kb,
+                },
             message:
                 Message {
                     maximum_subject_bytes: maximum_message_subject_bytes,
@@ -424,6 +442,10 @@ impl ConfigFile {
                 ))
             },
             minimum_name_bytes,
+            presigned_path_length,
+            presigned_expiry_secs: presigned_expiration_minutes * 60,
+            maximum_blob_size: maximum_blob_size_kb * 1024,
+            maximum_avatar_size: maximum_avatar_size_kb * 1024,
             maximum_message_subject_bytes,
             maximum_message_body_bytes,
             maximum_message_recipients,

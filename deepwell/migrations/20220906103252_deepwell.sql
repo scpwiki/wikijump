@@ -412,6 +412,26 @@ CREATE TABLE page_vote (
 );
 
 --
+-- Blobs
+--
+
+-- Manages blobs that are being uploaded by the user
+CREATE TABLE blob_pending (
+    external_id TEXT PRIMARY KEY,
+    created_by BIGINT NOT NULL REFERENCES "user"(user_id),
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    expected_length BIGINT NOT NULL CHECK (expected_length >= 0),
+    s3_path TEXT NOT NULL CHECK (length(s3_path) > 1),
+    s3_hash BYTEA,  -- NULL means not yet moved, NOT NULL means deleted from s3_path
+    presign_url TEXT NOT NULL CHECK (length(presign_url) > 1),
+
+    CHECK (expires_at > created_at),                 -- expiration time is not in the relative past
+    CHECK (length(external_id) = 24),                -- default length for a cuid2
+    CHECK (s3_hash IS NULL OR length(s3_hash) = 64)  -- SHA-512 hash size, if present
+);
+
+--
 -- Files
 --
 
@@ -514,7 +534,7 @@ CREATE TYPE message_recipient_type AS ENUM (
 -- A "record" is the underlying message data, with its contents, attachments,
 -- and associated metadata such as sender and recipient(s).
 CREATE TABLE message_record (
-    external_id TEXT PRIMARY KEY,
+    external_id TEXT PRIMARY KEY, -- ID comes from message_draft
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     drafted_at TIMESTAMP WITH TIME ZONE NOT NULL,
     retracted_at TIMESTAMP WITH TIME ZONE,

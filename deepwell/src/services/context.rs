@@ -49,6 +49,11 @@ impl<'txn> ServiceContext<'txn> {
 
     // Getters
     #[inline]
+    pub fn state(&self) -> ServerState {
+        Arc::clone(&self.state)
+    }
+
+    #[inline]
     pub fn config(&self) -> &Config {
         &self.state.config
     }

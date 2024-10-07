@@ -21,7 +21,7 @@
 use super::prelude::*;
 use crate::hash::BlobHash;
 use crate::services::page_revision::PageRevisionCountOutput;
-use crate::web::FetchDirection;
+use crate::web::{Bytes, FetchDirection};
 
 #[derive(Debug, Clone)]
 pub struct CreateFileRevision {
@@ -29,7 +29,7 @@ pub struct CreateFileRevision {
     pub page_id: i64,
     pub file_id: i64,
     pub user_id: i64,
-    pub comments: String,
+    pub revision_comments: String,
     pub body: CreateFileRevisionBody,
 }
 
@@ -46,12 +46,16 @@ pub struct FileBlob {
     pub s3_hash: BlobHash,
     pub size_hint: i64,
     pub mime_hint: String,
+    pub blob_created: bool,
 }
 
 #[derive(Serialize, Debug, Clone, Default)]
 pub struct CreateFileRevisionOutput {
     pub file_revision_id: i64,
     pub file_revision_number: i32,
+
+    #[serde(default, skip_serializing_if = "ProvidedValue::is_unset")]
+    pub blob_created: ProvidedValue<bool>,
 }
 
 #[derive(Debug, Clone)]
@@ -64,14 +68,16 @@ pub struct CreateFirstFileRevision {
     pub s3_hash: BlobHash,
     pub size_hint: i64,
     pub mime_hint: String,
+    pub blob_created: bool,
     pub licensing: serde_json::Value,
-    pub comments: String,
+    pub revision_comments: String,
 }
 
 #[derive(Serialize, Debug, Clone, Default)]
 pub struct CreateFirstFileRevisionOutput {
     pub file_id: i64,
     pub file_revision_id: i64,
+    pub blob_created: bool,
 }
 
 #[derive(Deserialize, Debug, Clone)]

@@ -27,20 +27,20 @@ use serde_json::Value as JsonValue;
 use time::OffsetDateTime;
 
 #[derive(Deserialize, Debug, Clone)]
-pub struct UploadFile {
+pub struct CreateFile {
     pub site_id: i64,
     pub page_id: i64,
     pub name: String,
+    pub uploaded_blob_id: String,
     pub revision_comments: String,
     pub user_id: i64,
-    pub data: Bytes<'static>,
     pub licensing: JsonValue, // TODO
 
     #[serde(default)]
     pub bypass_filter: bool,
 }
 
-pub type UploadFileOutput = CreateFirstFileRevisionOutput;
+pub type CreateFileOutput = CreateFirstFileRevisionOutput;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct GetFile<'a> {
@@ -79,13 +79,6 @@ pub struct GetFileOutput {
     pub hidden_fields: Vec<String>,
 }
 
-#[derive(Serialize, Debug, Clone)]
-pub struct GetBlobOutput {
-    pub data: Vec<u8>,
-    pub mime: String,
-    pub size: i64,
-}
-
 #[derive(Deserialize, Debug, Clone)]
 pub struct EditFile {
     pub site_id: i64,
@@ -105,8 +98,8 @@ pub struct EditFile {
 #[serde(default)]
 pub struct EditFileBody {
     pub name: ProvidedValue<String>,
-    pub data: ProvidedValue<Bytes<'static>>,
     pub licensing: ProvidedValue<serde_json::Value>,
+    pub uploaded_blob_id: ProvidedValue<String>,
 }
 
 pub type EditFileOutput = CreateFileRevisionOutput;

@@ -22,10 +22,13 @@ use super::prelude::*;
 use crate::models::file_revision::{
     self, Entity as FileRevision, Model as FileRevisionModel,
 };
-use crate::services::{OutdateService, PageService};
-use crate::web::FetchDirection;
+use crate::services::blob::{FinalizeBlobUploadOutput, EMPTY_BLOB_HASH, EMPTY_BLOB_MIME};
+use crate::services::{BlobService, OutdateService, PageService};
+use crate::web::{Bytes, FetchDirection};
 use once_cell::sync::Lazy;
 use std::num::NonZeroI32;
+
+pub const MAXIMUM_FILE_NAME_LENGTH: usize = 256;
 
 /// The changes for the first revision.
 /// The first revision is always considered to have changed everything.
@@ -58,7 +61,7 @@ impl FileRevisionService {
             mut page_id,
             file_id,
             user_id,
-            comments,
+            revision_comments,
             body,
         }: CreateFileRevision,
         previous: FileRevisionModel,
@@ -68,6 +71,7 @@ impl FileRevisionService {
 
         // Fields to create in the revision
         let mut changes = Vec::new();
+        let mut blob_created = ProvidedValue::Unset;
         let FileRevisionModel {
             mut name,
             mut s3_hash,
@@ -105,6 +109,7 @@ impl FileRevisionService {
                 s3_hash = new_blob.s3_hash.to_vec();
                 size_hint = new_blob.size_hint;
                 mime_hint = new_blob.mime_hint;
+                blob_created = ProvidedValue::Set(new_blob.blob_created);
             }
         }
 
@@ -118,6 +123,7 @@ impl FileRevisionService {
         // If nothing has changed, then don't create a new revision
         // Also don't rerender the page, this isn't an edit.
         if changes.is_empty() {
+            debug!("No changes in file, performing no action");
             return Ok(None);
         }
 
@@ -127,8 +133,12 @@ impl FileRevisionService {
             return Err(Error::FileNameEmpty);
         }
 
-        if name.len() >= 256 {
-            error!("File name of invalid length: {}", name.len());
+        if name.len() >= MAXIMUM_FILE_NAME_LENGTH {
+            error!(
+                "File name of invalid length: {} > {}",
+                name.len(),
+                MAXIMUM_FILE_NAME_LENGTH,
+            );
             return Err(Error::FileNameTooLong);
         }
 
@@ -146,7 +156,7 @@ impl FileRevisionService {
         // Insert the new revision into the table
         let model = file_revision::ActiveModel {
             revision_type: Set(FileRevisionType::Update),
-            revision_number: Set(0),
+            revision_number: Set(revision_number),
             file_id: Set(file_id),
             page_id: Set(page_id),
             site_id: Set(site_id),
@@ -157,7 +167,7 @@ impl FileRevisionService {
             mime_hint: Set(mime_hint),
             licensing: Set(licensing),
             changes: Set(changes),
-            comments: Set(comments),
+            comments: Set(revision_comments),
             hidden: Set(vec![]),
             ..Default::default()
         };
@@ -166,15 +176,13 @@ impl FileRevisionService {
         Ok(Some(CreateFileRevisionOutput {
             file_revision_id: revision_id,
             file_revision_number: revision_number,
+            blob_created,
         }))
     }
 
-    /// Creates the first revision for a newly-uploaded file.
+    /// Creates the first revision for an already-uploaded file.
     ///
     /// See `RevisionService::create_first()`.
-    ///
-    /// # Panics
-    /// If the given previous revision is for a different file or page, this method will panic.
     pub async fn create_first(
         ctx: &ServiceContext<'_>,
         CreateFirstFileRevision {
@@ -186,8 +194,9 @@ impl FileRevisionService {
             s3_hash,
             size_hint,
             mime_hint,
+            blob_created,
             licensing,
-            comments,
+            revision_comments,
         }: CreateFirstFileRevision,
     ) -> Result<CreateFirstFileRevisionOutput> {
         let txn = ctx.transaction();
@@ -211,7 +220,7 @@ impl FileRevisionService {
             size_hint: Set(size_hint),
             licensing: Set(licensing),
             changes: Set(ALL_CHANGES.clone()),
-            comments: Set(comments),
+            comments: Set(revision_comments),
             hidden: Set(vec![]),
             ..Default::default()
         };
@@ -220,6 +229,7 @@ impl FileRevisionService {
         Ok(CreateFirstFileRevisionOutput {
             file_id,
             file_revision_id: revision_id,
+            blob_created,
         })
     }
 
@@ -282,6 +292,7 @@ impl FileRevisionService {
         Ok(CreateFileRevisionOutput {
             file_revision_id: revision_id,
             file_revision_number: revision_number,
+            blob_created: ProvidedValue::Unset,
         })
     }
 
@@ -369,6 +380,7 @@ impl FileRevisionService {
         Ok(CreateFileRevisionOutput {
             file_revision_id: revision_id,
             file_revision_number: revision_number,
+            blob_created: ProvidedValue::Unset,
         })
     }
 

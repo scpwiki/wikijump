@@ -22,7 +22,7 @@ use super::prelude::*;
 use crate::models::sea_orm_active_enums::{AliasType, UserType};
 use crate::models::user::{self, Entity as User, Model as UserModel};
 use crate::services::alias::CreateAlias;
-use crate::services::blob::{BlobService, CreateBlobOutput};
+use crate::services::blob::{BlobService, FinalizeBlobUploadOutput};
 use crate::services::email::{EmailClassification, EmailService};
 use crate::services::filter::{FilterClass, FilterType};
 use crate::services::{AliasService, FilterService, PasswordService};
@@ -421,12 +421,22 @@ impl UserService {
             model.user_page = Set(user_page);
         }
 
-        if let ProvidedValue::Set(avatar) = input.avatar {
-            let s3_hash = match avatar {
+        if let ProvidedValue::Set(uploaded_blob_id) = input.avatar_uploaded_blob_id {
+            let s3_hash = match uploaded_blob_id {
                 None => None,
-                Some(blob) => {
-                    let CreateBlobOutput { hash, .. } =
-                        BlobService::create(ctx, &blob).await?;
+                Some(uploaded_blob_id) => {
+                    let config = ctx.config();
+                    let FinalizeBlobUploadOutput { hash, size, .. } =
+                        BlobService::finish_upload(ctx, user.user_id, &uploaded_blob_id)
+                            .await?;
+
+                    if size > config.maximum_avatar_size {
+                        error!(
+                            "Uploaded avatar size is too big {} > {}",
+                            size, config.maximum_avatar_size,
+                        );
+                        return Err(Error::BlobTooBig);
+                    }
 
                     Some(hash.to_vec())
                 }

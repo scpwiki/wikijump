@@ -28,9 +28,9 @@
 
 use crate::config::{Config, Secrets};
 use crate::endpoints::{
-    auth::*, category::*, domain::*, email::*, file::*, file_revision::*, link::*,
-    locale::*, message::*, misc::*, page::*, page_revision::*, parent::*, site::*,
-    site_member::*, text::*, user::*, user_bot::*, view::*, vote::*,
+    auth::*, blob::*, category::*, domain::*, email::*, file::*, file_revision::*,
+    link::*, locale::*, message::*, misc::*, page::*, page_revision::*, parent::*,
+    site::*, site_member::*, text::*, user::*, user_bot::*, view::*, vote::*,
 };
 use crate::locales::Localizations;
 use crate::services::blob::MimeAnalyzer;
@@ -174,6 +174,7 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
 
     // Miscellaneous
     register!("ping", ping);
+    register!("echo", echo);
     register!("error", yield_error);
     register!("version", version);
     register!("version_full", full_version);
@@ -260,11 +261,13 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
 
     // Blob data
     register!("blob_get", blob_get);
+    register!("blob_upload", blob_upload);
+    register!("blob_cancel", blob_cancel);
 
     // Files
-    register!("file_upload", file_upload);
-    register!("file_get", file_get);
+    register!("file_create", file_create);
     register!("file_edit", file_edit);
+    register!("file_get", file_get);
     register!("file_delete", file_delete);
     register!("file_move", file_move);
     register!("file_restore", file_restore);

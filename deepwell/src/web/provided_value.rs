@@ -25,6 +25,19 @@
 /// it to null (`None`).
 ///
 /// The `Unset` variant can only be constructed if the field is absent.
+///
+/// ## Notes
+/// When serializing or deserializing a field using this enum, you must
+/// add the following:
+/// ```unchecked
+/// #[serde(default, skip_serializing_if = "ProvidedValue::is_unset")]
+/// ```
+///
+/// (The `skip_serializing_if` attribute is optional if this is a
+/// deserialize-only structure).
+///
+/// Otherwise you will get an error mentioning that this enum is impossible
+/// to serialize.
 #[derive(Serialize, Deserialize, Debug, Default, Clone, Hash, PartialEq, Eq)]
 #[serde(untagged)]
 pub enum ProvidedValue<T> {
@@ -36,12 +49,23 @@ pub enum ProvidedValue<T> {
 }
 
 impl<T> ProvidedValue<T> {
-    #[inline]
     pub fn to_option(&self) -> Option<&T> {
         match self {
             ProvidedValue::Set(ref value) => Some(value),
             ProvidedValue::Unset => None,
         }
+    }
+
+    pub fn is_set(&self) -> bool {
+        match self {
+            ProvidedValue::Set(_) => true,
+            ProvidedValue::Unset => false,
+        }
+    }
+
+    #[inline]
+    pub fn is_unset(&self) -> bool {
+        !self.is_set()
     }
 }
 
@@ -49,7 +73,6 @@ impl<T> ProvidedValue<T>
 where
     T: Into<sea_orm::Value>,
 {
-    #[inline]
     pub fn into_active_value(self) -> sea_orm::ActiveValue<T> {
         match self {
             ProvidedValue::Set(value) => sea_orm::ActiveValue::Set(value),
@@ -59,7 +82,6 @@ where
 }
 
 impl<T> From<ProvidedValue<T>> for Option<T> {
-    #[inline]
     fn from(value: ProvidedValue<T>) -> Option<T> {
         match value {
             ProvidedValue::Set(value) => Some(value),
@@ -69,16 +91,18 @@ impl<T> From<ProvidedValue<T>> for Option<T> {
 }
 
 #[test]
-fn provided_value_deserialize() {
+fn serde() {
     use serde_json::json;
 
-    #[derive(Deserialize, Debug)]
+    #[derive(Serialize, Deserialize, Debug)]
     struct Object {
-        #[serde(default)]
+        #[serde(default, skip_serializing_if = "ProvidedValue::is_unset")]
         field: ProvidedValue<Option<String>>,
     }
 
-    macro_rules! check {
+    // Deserialization
+
+    macro_rules! check_deser {
         ($value:expr, $expected:expr $(,)?) => {{
             let object: Object =
                 serde_json::from_value($value).expect("Unable to deserialize JSON");
@@ -90,10 +114,31 @@ fn provided_value_deserialize() {
         }};
     }
 
-    check!(json!({}), ProvidedValue::Unset);
-    check!(json!({ "field": null }), ProvidedValue::Set(None));
-    check!(
-        json!({"field": "value"}),
-        ProvidedValue::Set(Some(str!("value"))),
+    check_deser!(json!({}), ProvidedValue::Unset);
+    check_deser!(json!({ "field": null }), ProvidedValue::Set(None));
+    check_deser!(
+        json!({"field": "apple"}),
+        ProvidedValue::Set(Some(str!("apple"))),
+    );
+
+    // Serialization
+
+    macro_rules! check_ser {
+        ($field:expr, $expected:expr $(,)?) => {{
+            let object = Object { field: $field };
+            let json = serde_json::to_string(&object).expect("Unable to serialize JSON");
+
+            assert_eq!(
+                json, $expected,
+                "Actual generated JSON doesn't match expected",
+            );
+        }};
+    }
+
+    check_ser!(ProvidedValue::Unset, "{}");
+    check_ser!(ProvidedValue::Set(None), r#"{"field":null}"#);
+    check_ser!(
+        ProvidedValue::Set(Some(str!("banana"))),
+        r#"{"field":"banana"}"#,
     );
 }

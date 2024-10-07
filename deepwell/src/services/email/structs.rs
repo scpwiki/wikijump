@@ -54,7 +54,6 @@ impl Default for EmailValidationOutput {
 }
 
 #[derive(Serialize, Debug, Clone)]
-#[serde(rename_all = "kebab-case")]
 pub enum EmailClassification {
     Normal,
     Disposable,
