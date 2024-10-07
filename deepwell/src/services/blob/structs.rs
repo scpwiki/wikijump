@@ -31,6 +31,8 @@ pub struct StartBlobUpload {
 pub struct StartBlobUploadOutput {
     pub pending_blob_id: String,
     pub presign_url: String,
+
+    #[serde(with = "time::serde::rfc3339")]
     pub expires_at: OffsetDateTime,
 }
 
@@ -60,5 +62,7 @@ pub struct GetBlobOutput {
     pub data: Vec<u8>,
     pub mime: String,
     pub size: i64,
+
+    #[serde(with = "time::serde::rfc3339")]
     pub created_at: OffsetDateTime,
 }

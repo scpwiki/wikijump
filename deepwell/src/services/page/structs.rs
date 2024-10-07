@@ -92,6 +92,8 @@ pub struct GetPageAnyDetails {
 #[derive(Serialize, Debug, Clone)]
 pub struct GetPageOutput {
     pub page_id: i64,
+
+    #[serde(with = "time::serde::rfc3339")]
     pub page_created_at: OffsetDateTime,
     pub page_updated_at: Option<OffsetDateTime>,
     pub page_deleted_at: Option<OffsetDateTime>,
@@ -102,11 +104,15 @@ pub struct GetPageOutput {
     pub discussion_thread_id: Option<i64>,
     pub revision_id: i64,
     pub revision_type: PageRevisionType,
+
+    #[serde(with = "time::serde::rfc3339")]
     pub revision_created_at: OffsetDateTime,
     pub revision_number: i32,
     pub revision_user_id: i64,
     pub wikitext: Option<String>,
     pub compiled_html: Option<String>,
+
+    #[serde(with = "time::serde::rfc3339")]
     pub compiled_at: OffsetDateTime,
     pub compiled_generator: String,
     pub revision_comments: String,
@@ -122,8 +128,12 @@ pub struct GetPageOutput {
 #[derive(Serialize, Debug, Clone)]
 pub struct GetDeletedPageOutput {
     pub page_id: i64,
+
+    #[serde(with = "time::serde::rfc3339")]
     pub page_created_at: OffsetDateTime,
     pub page_updated_at: Option<OffsetDateTime>,
+
+    #[serde(with = "time::serde::rfc3339")]
     pub page_deleted_at: OffsetDateTime,
     pub page_revision_count: i32,
     pub site_id: i64,
