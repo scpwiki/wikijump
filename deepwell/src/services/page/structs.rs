@@ -146,6 +146,7 @@ pub struct GetPageScoreOutput {
 pub struct EditPage<'a> {
     pub site_id: i64,
     pub page: Reference<'a>,
+    pub last_revision_id: i64,
     pub revision_comments: String,
     pub user_id: i64,
 
@@ -166,6 +167,7 @@ pub struct EditPageBody {
 pub struct MovePage<'a> {
     pub site_id: i64,
     pub page: Reference<'a>,
+    pub last_revision_id: i64,
     pub new_slug: String,
     pub revision_comments: String,
     pub user_id: i64,
@@ -185,6 +187,7 @@ pub struct MovePageOutput {
 pub struct DeletePage<'a> {
     pub site_id: i64,
     pub page: Reference<'a>,
+    pub last_revision_id: i64,
     pub revision_comments: String,
     pub user_id: i64,
 }
@@ -217,6 +220,7 @@ pub struct RestorePageOutput {
 pub struct RollbackPage<'a> {
     pub site_id: i64,
     pub page: Reference<'a>,
+    pub last_revision_id: i64,
     pub revision_number: i32,
     pub revision_comments: String,
     pub user_id: i64,

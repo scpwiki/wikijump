@@ -131,6 +131,9 @@ pub enum Error {
     #[error("Cannot hide the wikitext for the latest page revision")]
     CannotHideLatestRevision,
 
+    #[error("Revision ID passed for this operation is not the latest")]
+    NotLatestRevisionId,
+
     #[error("The regular expression found in the database is invalid")]
     FilterRegexInvalid(regex::Error),
 
@@ -388,6 +391,7 @@ impl Error {
             Error::BlobTooBig => 4023,
             Error::BlobNotUploaded => 4024,
             Error::BlobSizeMismatch => 4025,
+            Error::NotLatestRevisionId => 4027,
 
             // 4100 -- Localization
             Error::LocaleInvalid(_) => 4100,

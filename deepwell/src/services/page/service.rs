@@ -21,6 +21,7 @@
 use super::prelude::*;
 use crate::models::page::{self, Entity as Page, Model as PageModel};
 use crate::models::page_category::Model as PageCategoryModel;
+use crate::models::page_revision::Model as PageRevisionModel;
 use crate::services::filter::{FilterClass, FilterType};
 use crate::services::page_revision::{
     CreateFirstPageRevision, CreateFirstPageRevisionOutput, CreatePageRevision,
@@ -110,7 +111,7 @@ impl PageService {
             ..Default::default()
         };
         let page = model.update(txn).await?;
-        check_latest_revision(&page);
+        assert_latest_revision(&page);
 
         // Build and return
         Ok(CreatePageOutput {
@@ -126,6 +127,7 @@ impl PageService {
         EditPage {
             site_id,
             page: reference,
+            last_revision_id,
             revision_comments: comments,
             user_id,
             body:
@@ -138,7 +140,11 @@ impl PageService {
         }: EditPage<'_>,
     ) -> Result<Option<EditPageOutput>> {
         let txn = ctx.transaction();
-        let PageModel { page_id, .. } = Self::get(ctx, site_id, reference).await?;
+        let PageModel {
+            page_id,
+            latest_revision_id,
+            ..
+        } = Self::get(ctx, site_id, reference).await?;
 
         // Perform filter validation
         Self::run_filter(
@@ -154,9 +160,11 @@ impl PageService {
         )
         .await?;
 
-        // Get latest revision
+        // Get and check latest revision
         let last_revision =
             PageRevisionService::get_latest(ctx, site_id, page_id).await?;
+
+        check_last_revision(Some(&last_revision), latest_revision_id, last_revision_id)?;
 
         // Create new revision
         //
@@ -200,7 +208,7 @@ impl PageService {
             ..Default::default()
         };
         let page = model.update(txn).await?;
-        check_latest_revision(&page);
+        assert_latest_revision(&page);
 
         // Build and return
         Ok(revision_output)
@@ -213,17 +221,21 @@ impl PageService {
             site_id,
             page: reference,
             mut new_slug,
+            last_revision_id,
             revision_comments: comments,
             user_id,
         }: MovePage<'_>,
     ) -> Result<MovePageOutput> {
         let txn = ctx.transaction();
-
         let PageModel {
             page_id,
             slug: old_slug,
+            latest_revision_id,
             ..
         } = Self::get(ctx, site_id, reference).await?;
+
+        // Check last revision ID argument
+        check_last_revision(None, latest_revision_id, last_revision_id)?;
 
         // Check that a move is actually taking place,
         // and that a page with that slug doesn't already exist.
@@ -282,7 +294,7 @@ impl PageService {
             ..Default::default()
         };
         let page = model.update(txn).await?;
-        check_latest_revision(&page);
+        assert_latest_revision(&page);
 
         // Build and return
 
@@ -310,16 +322,23 @@ impl PageService {
         DeletePage {
             site_id,
             page: reference,
+            last_revision_id,
             user_id,
             revision_comments: comments,
         }: DeletePage<'_>,
     ) -> Result<DeletePageOutput> {
         let txn = ctx.transaction();
-        let PageModel { page_id, .. } = Self::get(ctx, site_id, reference).await?;
+        let PageModel {
+            page_id,
+            latest_revision_id,
+            ..
+        } = Self::get(ctx, site_id, reference).await?;
 
-        // Get latest revision
+        // Get and check latest revision
         let last_revision =
             PageRevisionService::get_latest(ctx, site_id, page_id).await?;
+
+        check_last_revision(Some(&last_revision), latest_revision_id, last_revision_id)?;
 
         // Create tombstone revision
         // This also updates backlinks, includes, etc
@@ -343,7 +362,7 @@ impl PageService {
             ..Default::default()
         };
         let page = model.update(txn).await?;
-        check_latest_revision(&page);
+        assert_latest_revision(&page);
 
         Ok((output, page_id).into())
     }
@@ -413,7 +432,7 @@ impl PageService {
             ..Default::default()
         };
         let page = model.update(txn).await?;
-        check_latest_revision(&page);
+        assert_latest_revision(&page);
 
         Ok((output, slug).into())
     }
@@ -430,13 +449,18 @@ impl PageService {
         RollbackPage {
             site_id,
             page: reference,
+            last_revision_id,
             revision_number,
             revision_comments: comments,
             user_id,
         }: RollbackPage<'_>,
     ) -> Result<Option<EditPageOutput>> {
         let txn = ctx.transaction();
-        let PageModel { page_id, .. } = Self::get(ctx, site_id, reference).await?;
+        let PageModel {
+            page_id,
+            latest_revision_id,
+            ..
+        } = Self::get(ctx, site_id, reference).await?;
 
         // Get target revision and latest revision
         let (target_revision, last_revision) = try_join!(
@@ -444,7 +468,10 @@ impl PageService {
             PageRevisionService::get_latest(ctx, site_id, page_id),
         )?;
 
-        // Note: we can't just copy the wikitext_hash because we
+        // Check last revision ID
+        check_last_revision(Some(&last_revision), latest_revision_id, last_revision_id)?;
+
+        // NOTE: we can't just copy the wikitext_hash because we
         //       need its actual value for rendering.
         //       This isn't run here, but in PageRevisionService::create().
         let wikitext = TextService::get(ctx, &target_revision.wikitext_hash).await?;
@@ -830,7 +857,46 @@ impl PageService {
     }
 }
 
-fn check_latest_revision(page: &PageModel) {
+/// Verifies that a `last_revision_id` passed into this function is actually the latest.
+///
+/// This is to avoid issues wherein a user edits overs a more recently-updated page
+/// without realizing it, since attempting to make this edit would cause the backend
+/// to produce an error saying that the request had too old of a revision ID and thus
+/// the page would need to be refreshed.
+///
+/// This check is intended for before an operation has run.
+fn check_last_revision(
+    last_revision_model: Option<&PageRevisionModel>,
+    page_latest_revision_id: Option<i64>,
+    arg_last_revision_id: i64,
+) -> Result<()> {
+    // Only check if we have this model fetched anyways
+    if let Some(model) = last_revision_model {
+        assert_eq!(
+            model.revision_id,
+            page_latest_revision_id.expect("Page row has NULL latest_revision_id"),
+            "Page table has an inconsistent last_revision_id column value",
+        );
+    }
+
+    // Perform main check, ensure that the argument matches the latest
+    if page_latest_revision_id != Some(arg_last_revision_id) {
+        error!(
+            "Latest revision ID in page struct is {}, but user argument has ID {}",
+            page_latest_revision_id.unwrap(),
+            arg_last_revision_id,
+        );
+
+        return Err(Error::NotLatestRevisionId);
+    }
+
+    Ok(())
+}
+
+/// Ensure that the page has a properly-set `latest_revision_id` column.
+///
+/// This check is intended for after an operation has run.
+fn assert_latest_revision(page: &PageModel) {
     // Even in production, we want to assert that this invariant holds.
     //
     // We cannot set the column itself to NOT NULL because of cyclic update
