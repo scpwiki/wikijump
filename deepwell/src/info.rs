@@ -40,15 +40,12 @@ pub static VERSION_INFO: Lazy<String> = Lazy::new(|| {
     version
 });
 
-pub static FULL_VERSION: Lazy<String> = Lazy::new(|| {
-    let mut version = format!("{PKG_NAME} {}\n\nCompiled:\n", *VERSION_INFO);
-
-    str_writeln!(&mut version, "* across {NUM_JOBS} threads");
-    str_writeln!(&mut version, "* by {RUSTC_VERSION}");
-    str_writeln!(&mut version, "* for {TARGET}");
-    str_writeln!(&mut version, "* on {BUILT_TIME_UTC}");
-
-    version
+pub static COMPILE_INFO: Lazy<String> = Lazy::new(|| {
+    let mut info = str!("Compile info:\n");
+    str_writeln!(&mut info, "* on {BUILT_TIME_UTC}");
+    str_writeln!(&mut info, "* by {RUSTC_VERSION}");
+    str_writeln!(&mut info, "* for {TARGET}");
+    str_writeln!(&mut info, "* across {NUM_JOBS} threads");
 });
 
 pub static VERSION: Lazy<String> = Lazy::new(|| format!("{PKG_NAME} {}", *VERSION_INFO));

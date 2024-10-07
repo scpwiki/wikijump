@@ -99,14 +99,6 @@ pub async fn version(
     Ok(info::VERSION.as_str())
 }
 
-pub async fn full_version(
-    _ctx: &ServiceContext<'_>,
-    _params: Params<'static>,
-) -> Result<&'static str> {
-    info!("Getting DEEPWELL version (full)");
-    Ok(info::FULL_VERSION.as_str())
-}
-
 pub async fn hostname(
     _ctx: &ServiceContext<'_>,
     _params: Params<'static>,
