@@ -23,6 +23,7 @@ mod build {
 }
 
 use once_cell::sync::Lazy;
+use time::format_description::well_known::Rfc2822;
 use time::OffsetDateTime;
 
 #[allow(unused_imports)]
@@ -33,15 +34,8 @@ pub use self::build::{
 };
 
 pub static BUILT_TIME_UTC: Lazy<OffsetDateTime> = Lazy::new(|| {
-    #[derive(Deserialize, Debug)]
-    struct DateTimeWrapper {
-        #[serde(with = "time::serde::rfc2822")]
-        inner: OffsetDateTime,
-    }
-
-    serde_json::from_str::<DateTimeWrapper>(BUILT_TIME_UTC_STR)
+    OffsetDateTime::parse(BUILT_TIME_UTC_STR, &Rfc2822)
         .expect("Unable to parse built time string")
-        .inner
 });
 
 pub static VERSION_INFO: Lazy<String> = Lazy::new(|| {
