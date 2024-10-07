@@ -220,7 +220,7 @@ impl DomainService {
     }
 
     /// Gets the preferred domain for the given site.
-    pub fn domain_for_site<'a>(config: &Config, site: &'a SiteModel) -> Cow<'a, str> {
+    pub fn domain_for_site<'a>(config: &'a Config, site: &'a SiteModel) -> Cow<'a, str> {
         debug!(
             "Getting preferred domain for site '{}' (ID {})",
             site.slug, site.site_id,
@@ -238,11 +238,8 @@ impl DomainService {
     /// This site is a special exception, instead of visiting `www.wikijump.com`
     /// it should instead redirect to just `wikijump.com`. The use of the `www`
     /// slug is an internal detail.
-    fn www_domain(config: &Config) -> Cow<'static, str> {
-        // This starts with . so we remove it and return
-        let mut main_domain = str!(config.main_domain);
-        debug_assert_eq!(main_domain.remove(0), '.');
-        Cow::Owned(main_domain)
+    fn www_domain(config: &Config) -> Cow<str> {
+        Cow::Borrowed(&config.main_domain_no_dot)
     }
 
     /// Gets all custom domains for a site.
