@@ -444,7 +444,7 @@ impl PageService {
             PageRevisionService::get_latest(ctx, site_id, page_id),
         )?;
 
-        // Note: we can't just copy the wikitext_hash because we
+        // NOTE: we can't just copy the wikitext_hash because we
         //       need its actual value for rendering.
         //       This isn't run here, but in PageRevisionService::create().
         let wikitext = TextService::get(ctx, &target_revision.wikitext_hash).await?;
