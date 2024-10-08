@@ -88,9 +88,9 @@ CREATE TABLE site (
     tagline TEXT NOT NULL,
     description TEXT NOT NULL,
     locale TEXT NOT NULL,
-    layout TEXT,  -- Default page layout for the site
     default_page TEXT NOT NULL DEFAULT 'start',
     custom_domain TEXT,  -- Dependency cycle, add foreign key constraint after
+    layout TEXT,  -- Default page layout for the site
 
     UNIQUE (slug, deleted_at)
 );
@@ -188,6 +188,7 @@ CREATE TABLE page_category (
     updated_at TIMESTAMP WITH TIME ZONE,
     site_id BIGINT NOT NULL REFERENCES site(site_id),
     slug TEXT NOT NULL,
+    layout TEXT, -- category-specific override for DOM layout
 
     UNIQUE (site_id, slug)
 );

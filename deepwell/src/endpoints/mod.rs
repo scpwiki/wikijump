@@ -35,8 +35,8 @@ mod prelude {
         FileRevisionService, FileService, LinkService, MessageReportService,
         MessageService, MfaService, PageRevisionService, PageService, ParentService,
         RelationService, RenderService, Result, ScoreService, ServiceContext,
-        SessionService, SiteService, StdResult, TextService, UserService, ViewService,
-        VoteService,
+        SessionService, SettingsService, SiteService, StdResult, TextService,
+        UserService, ViewService, VoteService,
     };
     pub use jsonrpsee::types::params::Params;
     pub use std::convert::TryFrom;

@@ -27,7 +27,7 @@ use crate::services::render::RenderOutput;
 use crate::services::score::ScoreValue;
 use crate::services::{
     LinkService, OutdateService, PageService, ParentService, RenderService, ScoreService,
-    SiteService, TextService,
+    SettingsService, SiteService, TextService,
 };
 use crate::utils::{split_category, split_category_name};
 use crate::web::FetchDirection;
@@ -189,7 +189,7 @@ impl PageRevisionService {
         // Get ancillary page data
         let (score, layout) = try_join!(
             ScoreService::score(ctx, page_id),
-            PageService::get_layout(ctx, site_id, page_id),
+            SettingsService::get_layout(ctx, site_id, Some(page_id)),
         )?;
 
         // Run tasks based on changes:
@@ -337,7 +337,7 @@ impl PageRevisionService {
         // If the page creation doesn't specify a preferred layout,
         // use the default for the site.
         let layout = match layout {
-            None => SiteService::get_layout(ctx, site_id).await?,
+            None => SettingsService::get_layout(ctx, site_id, None).await?,
             Some(layout) => layout,
         };
 
@@ -514,7 +514,7 @@ impl PageRevisionService {
         // Get ancillary page data
         let (score, layout) = try_join!(
             ScoreService::score(ctx, page_id),
-            PageService::get_layout(ctx, site_id, page_id),
+            SettingsService::get_layout(ctx, site_id, Some(page_id)),
         )?;
 
         // Re-render page
@@ -666,7 +666,7 @@ impl PageRevisionService {
         let (wikitext, score, layout) = try_join!(
             TextService::get(ctx, &revision.wikitext_hash),
             ScoreService::score(ctx, page_id),
-            PageService::get_layout(ctx, site_id, page_id),
+            SettingsService::get_layout(ctx, site_id, Some(page_id)),
         )?;
 
         // This is necessary until we are able to replace the
