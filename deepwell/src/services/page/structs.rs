@@ -95,7 +95,11 @@ pub struct GetPageOutput {
 
     #[serde(with = "time::serde::rfc3339")]
     pub page_created_at: OffsetDateTime,
+
+    #[serde(with = "time::serde::rfc3339::option")]
     pub page_updated_at: Option<OffsetDateTime>,
+
+    #[serde(with = "time::serde::rfc3339::option")]
     pub page_deleted_at: Option<OffsetDateTime>,
     pub page_revision_count: i32,
     pub site_id: i64,

@@ -161,6 +161,8 @@ pub struct PageRevisionModelFiltered {
 
     #[serde(with = "time::serde::rfc3339")]
     pub created_at: OffsetDateTime,
+
+    #[serde(with = "time::serde::rfc3339::option")]
     pub updated_at: Option<OffsetDateTime>,
     pub from_wikidot: bool,
     pub revision_number: i32,

@@ -64,7 +64,11 @@ pub struct GetFileOutput {
 
     #[serde(with = "time::serde::rfc3339")]
     pub file_created_at: OffsetDateTime,
+
+    #[serde(with = "time::serde::rfc3339::option")]
     pub file_updated_at: Option<OffsetDateTime>,
+
+    #[serde(with = "time::serde::rfc3339::option")]
     pub file_deleted_at: Option<OffsetDateTime>,
     pub page_id: i64,
     pub revision_id: i64,
