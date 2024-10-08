@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::services::{PageService, SiteService};
+use crate::services::{CategoryService, PageService, SiteService};
 use ftml::layout::Layout;
 
 #[derive(Debug)]
@@ -44,15 +44,25 @@ impl SettingsService {
         }
 
         if let Some(page_id) = page_id {
-            debug!("Getting page layout for site ID {site_id} page ID {page_id}");
+            debug!("Getting layout for site ID {site_id} page ID {page_id}");
             let page = PageService::get_direct(ctx, page_id, true).await?;
             if let Some(layout) = page.layout {
                 debug!("Found page-level layout override: {layout}");
                 return parse_layout(&layout);
             }
+
+            let category_id = page.page_category_id;
+            debug!("Getting layout for page category ID {category_id}");
+            let category =
+                CategoryService::get(ctx, site_id, Reference::Id(category_id)).await?;
+
+            if let Some(layout) = category.layout {
+                debug!("Found category-level layout override: {layout}");
+                return parse_layout(&layout);
+            }
         }
 
-        debug!("Getting site layout for site ID {site_id}");
+        debug!("Getting layout for site ID {site_id}");
         let site = SiteService::get(ctx, Reference::Id(site_id)).await?;
         if let Some(layout) = site.layout {
             debug!("Found site-level layout override: {layout}");
