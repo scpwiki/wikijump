@@ -85,6 +85,7 @@ pub struct EditFile {
     pub page_id: i64,
     pub file_id: i64,
     pub user_id: i64,
+    pub last_revision_id: i64,
     pub revision_comments: String,
 
     #[serde(flatten)]
@@ -110,6 +111,7 @@ pub struct MoveFile {
     pub site_id: i64,
     pub file_id: i64,
     pub user_id: i64,
+    pub last_revision_id: i64,
     pub name: Option<String>,
     pub current_page_id: i64,
     pub destination_page_id: i64,
@@ -119,6 +121,7 @@ pub type MoveFileOutput = CreateFileRevisionOutput;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct DeleteFile<'a> {
+    pub last_revision_id: i64,
     pub revision_comments: String,
     pub site_id: i64,
     pub page_id: i64,
