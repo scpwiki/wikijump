@@ -119,6 +119,7 @@ pub use self::site::SiteService;
 pub use self::special_page::SpecialPageService;
 pub use self::text::TextService;
 pub use self::user::UserService;
+// TODO convert user-bot to a type of relation
 pub use self::user_bot_owner::UserBotOwnerService;
 pub use self::view::ViewService;
 pub use self::vote::VoteService;
