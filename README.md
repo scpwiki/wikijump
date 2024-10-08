@@ -48,7 +48,6 @@ Wikijump would like to thank the following organizations for graciously permitti
 
 * [Atlassian](https://scuttle.atlassian.net/) ([info](https://www.atlassian.com/software/views/open-source-license-request))
 * [JetBrains](https://www.jetbrains.com/phpstorm/) ([info](https://www.jetbrains.com/community/opensource/#support))
-* [Datadog](https://app.datadoghq.com) ([info](https://www.datadoghq.com/partner/open-source/))
 
 ## License
 
