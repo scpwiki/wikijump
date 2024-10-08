@@ -18,6 +18,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+//! The "settings" service.
+//!
+//! This enables convenient access of the various object-associated settings
+//! found throughout the database schema.
+//!
+//! For instance, a site may have a particular setting, which can be fetched
+//! here, or a setting may be distributed across multiple levels, such as
+//! a page's layout, which by default inherits from the level above it.
+
 #[allow(unused_imports)]
 mod prelude {
     pub use super::super::prelude::*;

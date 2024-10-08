@@ -224,7 +224,7 @@ async fn build_page_output(
     // Calculate score and determine layout
     let (rating, layout) = try_join!(
         ScoreService::score(ctx, page.page_id),
-        PageService::get_layout(ctx, page.site_id, page.page_id),
+        SettingsService::get_layout(ctx, page.site_id, Some(page.page_id)),
     )?;
 
     // Build result struct

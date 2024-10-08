@@ -296,26 +296,6 @@ impl SiteService {
         find_or_error!(Self::get_optional(ctx, reference), Site)
     }
 
-    /// Get the default page layout for this site.
-    /// If the site has not set a page layout, then the platform default is used.
-    ///
-    /// Since this is the only field needed most of the time, and
-    /// is fairly commonly needed, we have a separate method for it.
-    pub async fn get_layout(ctx: &ServiceContext<'_>, site_id: i64) -> Result<Layout> {
-        debug!("Getting page layout for site ID {site_id}");
-        let site = Self::get(ctx, Reference::Id(site_id)).await?;
-        match site.layout {
-            // Parse layout from string in site table
-            Some(layout) => match layout.parse() {
-                Ok(layout) => Ok(layout),
-                Err(_) => Err(Error::InvalidEnumValue),
-            },
-
-            // Fallback to default platform layout
-            None => Ok(ctx.config().default_page_layout),
-        }
-    }
-
     /// Gets the site ID from a reference, looking up if necessary.
     ///
     /// Convenience method since this is much more common than the optional
