@@ -8,8 +8,11 @@ use serde::{Deserialize, Serialize};
 pub struct Model {
     #[sea_orm(primary_key)]
     pub page_vote_id: i64,
+    #[serde(with = "time::serde::rfc3339")]
     pub created_at: TimeDateTimeWithTimeZone,
+    #[serde(with = "time::serde::rfc3339::option")]
     pub deleted_at: Option<TimeDateTimeWithTimeZone>,
+    #[serde(with = "time::serde::rfc3339::option")]
     pub disabled_at: Option<TimeDateTimeWithTimeZone>,
     pub disabled_by: Option<i64>,
     pub from_wikidot: bool,

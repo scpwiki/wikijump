@@ -10,6 +10,7 @@ pub struct Model {
     pub parent_page_id: i64,
     #[sea_orm(primary_key, auto_increment = false)]
     pub child_page_id: i64,
+    #[serde(with = "time::serde::rfc3339")]
     pub created_at: TimeDateTimeWithTimeZone,
 }
 
