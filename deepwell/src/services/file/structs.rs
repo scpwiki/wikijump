@@ -137,6 +137,13 @@ pub struct DeleteFile<'a> {
     pub user_id: i64,
 }
 
+#[derive(Serialize, Debug, Clone)]
+pub struct DeleteFileOutput {
+    pub file_id: i64,
+    pub file_revision_id: i64,
+    pub file_revision_number: i32,
+}
+
 #[derive(Deserialize, Debug, Clone)]
 pub struct RestoreFile {
     pub revision_comments: String,
@@ -146,13 +153,6 @@ pub struct RestoreFile {
     pub page_id: i64,
     pub file_id: i64,
     pub user_id: i64,
-}
-
-#[derive(Serialize, Debug, Clone)]
-pub struct DeleteFileOutput {
-    pub file_id: i64,
-    pub file_revision_id: i64,
-    pub file_revision_number: i32,
 }
 
 #[derive(Serialize, Debug, Clone)]
