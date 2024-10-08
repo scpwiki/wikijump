@@ -163,3 +163,14 @@ pub struct RestoreFileOutput {
     pub file_revision_id: i64,
     pub file_revision_number: i32,
 }
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct RollbackFile {
+    pub site_id: i64,
+    pub page_id: i64,
+    pub file_id: i64,
+    pub last_revision_id: i64,
+    pub revision_number: i32,
+    pub revision_comments: String,
+    pub user_id: i64,
+}
