@@ -110,6 +110,7 @@ impl FileService {
             page_id,
             file_id,
             user_id,
+            last_revision_id,
             revision_comments,
             bypass_filter,
             body,
@@ -120,6 +121,8 @@ impl FileService {
         let txn = ctx.transaction();
         let last_revision =
             FileRevisionService::get_latest(ctx, site_id, page_id, file_id).await?;
+
+        check_last_revision(&last_revision, last_revision_id)?;
 
         let EditFileBody {
             name,
@@ -203,6 +206,7 @@ impl FileService {
             destination_page_id,
             file_id,
             user_id,
+            last_revision_id,
             revision_comments,
         }: MoveFile,
     ) -> Result<Option<MoveFileOutput>> {
@@ -210,6 +214,8 @@ impl FileService {
         let last_revision =
             FileRevisionService::get_latest(ctx, site_id, current_page_id, file_id)
                 .await?;
+
+        check_last_revision(&last_revision, last_revision_id)?;
 
         // Get destination filename
         let name = name.unwrap_or_else(|| last_revision.name.clone());
@@ -261,6 +267,7 @@ impl FileService {
     pub async fn delete(
         ctx: &ServiceContext<'_>,
         DeleteFile {
+            last_revision_id,
             revision_comments,
             site_id,
             page_id,
@@ -283,6 +290,8 @@ impl FileService {
 
         let last_revision =
             FileRevisionService::get_latest(ctx, site_id, page_id, file_id).await?;
+
+        check_last_revision(&last_revision, last_revision_id)?;
 
         // Create tombstone revision
         // This outdates the page, etc
@@ -566,4 +575,23 @@ impl FileService {
 
         Ok(())
     }
+}
+
+/// Verifies that the `last_revision_id` argument is the most recent.
+///
+/// See the helper function with the same name in `services/page/service.rs`.
+fn check_last_revision(
+    last_revision_model: &FileRevisionModel,
+    arg_last_revision_id: i64,
+) -> Result<()> {
+    if last_revision_model.revision_id != arg_last_revision_id {
+        error!(
+            "Latest revision ID in file table is {}, but user argument has ID {}",
+            last_revision_model.revision_id, arg_last_revision_id,
+        );
+
+        return Err(Error::NotLatestRevisionId);
+    }
+
+    Ok(())
 }
