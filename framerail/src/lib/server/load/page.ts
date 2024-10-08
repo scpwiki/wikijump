@@ -3,7 +3,6 @@ import { parseAcceptLangHeader } from "$lib/locales"
 import { translate } from "$lib/server/deepwell/translate"
 import { pageView } from "$lib/server/deepwell/views"
 import type { Optional, TranslateKeys } from "$lib/types"
-import { parseDateEpoch } from "$lib/utils"
 import { error, redirect } from "@sveltejs/kit"
 
 // TODO form single deepwell request that does all the relevant prep stuff here
@@ -80,7 +79,7 @@ export async function loadPage(
 
   if (errorStatus === null) {
     // Calculate difference of days since latest page edit
-    let updatedAt = parseDateEpoch(viewData.page.updated_at ?? viewData.page.created_at)
+    let updatedAt = Date.parse(viewData.page.updated_at ?? viewData.page.created_at)
     let daysDiff = Math.floor((Date.now() - updatedAt) / 1000 / 86400)
 
     translateKeys = {

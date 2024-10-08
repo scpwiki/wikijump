@@ -23,6 +23,8 @@ use time::{Date, OffsetDateTime};
 #[derive(Deserialize, Debug)]
 pub struct ImportUser {
     pub user_id: i64,
+
+    #[serde(with = "time::serde::rfc3339")]
     pub created_at: OffsetDateTime,
     pub name: String,
     pub slug: String,
@@ -40,6 +42,8 @@ pub struct ImportUser {
 #[derive(Deserialize, Debug)]
 pub struct ImportSite {
     pub site_id: i64,
+
+    #[serde(with = "time::serde::rfc3339")]
     pub created_at: OffsetDateTime,
     pub name: String,
     pub slug: String,
@@ -50,6 +54,8 @@ pub struct ImportSite {
 pub struct ImportPage {
     pub page_id: i64,
     pub site_id: i64,
+
+    #[serde(with = "time::serde::rfc3339")]
     pub created_at: OffsetDateTime,
     pub slug: String,
     pub locked: bool,

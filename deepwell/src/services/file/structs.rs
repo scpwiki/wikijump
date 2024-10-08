@@ -61,12 +61,20 @@ pub struct GetFileDetails<'a> {
 #[derive(Serialize, Debug, Clone)]
 pub struct GetFileOutput {
     pub file_id: i64,
+
+    #[serde(with = "time::serde::rfc3339")]
     pub file_created_at: OffsetDateTime,
+
+    #[serde(with = "time::serde::rfc3339::option")]
     pub file_updated_at: Option<OffsetDateTime>,
+
+    #[serde(with = "time::serde::rfc3339::option")]
     pub file_deleted_at: Option<OffsetDateTime>,
     pub page_id: i64,
     pub revision_id: i64,
     pub revision_type: FileRevisionType,
+
+    #[serde(with = "time::serde::rfc3339")]
     pub revision_created_at: OffsetDateTime,
     pub revision_number: i32,
     pub revision_user_id: i64,

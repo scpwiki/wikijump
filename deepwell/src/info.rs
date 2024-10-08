@@ -23,12 +23,20 @@ mod build {
 }
 
 use once_cell::sync::Lazy;
+use time::format_description::well_known::Rfc2822;
+use time::OffsetDateTime;
 
 #[allow(unused_imports)]
 pub use self::build::{
-    BUILT_TIME_UTC, GIT_COMMIT_HASH, NUM_JOBS, PKG_AUTHORS, PKG_DESCRIPTION, PKG_LICENSE,
-    PKG_NAME, PKG_REPOSITORY, PKG_VERSION, RUSTC_VERSION, TARGET,
+    BUILT_TIME_UTC as BUILT_TIME_UTC_STR, CFG_ENDIAN, GIT_COMMIT_HASH, NUM_JOBS,
+    PKG_AUTHORS, PKG_DESCRIPTION, PKG_LICENSE, PKG_NAME, PKG_REPOSITORY, PKG_VERSION,
+    RUSTC_VERSION, TARGET,
 };
+
+pub static BUILT_TIME_UTC: Lazy<OffsetDateTime> = Lazy::new(|| {
+    OffsetDateTime::parse(BUILT_TIME_UTC_STR, &Rfc2822)
+        .expect("Unable to parse built time string")
+});
 
 pub static VERSION_INFO: Lazy<String> = Lazy::new(|| {
     let mut version = format!("v{PKG_VERSION}");
@@ -40,18 +48,19 @@ pub static VERSION_INFO: Lazy<String> = Lazy::new(|| {
     version
 });
 
-pub static FULL_VERSION: Lazy<String> = Lazy::new(|| {
-    let mut version = format!("{PKG_NAME} {}\n\nCompiled:\n", *VERSION_INFO);
-
-    str_writeln!(&mut version, "* across {NUM_JOBS} threads");
-    str_writeln!(&mut version, "* by {RUSTC_VERSION}");
-    str_writeln!(&mut version, "* for {TARGET}");
-    str_writeln!(&mut version, "* on {BUILT_TIME_UTC}");
-
-    version
+pub static COMPILE_INFO: Lazy<String> = Lazy::new(|| {
+    let mut info = str!("Compile info:\n");
+    str_writeln!(&mut info, "* on {BUILT_TIME_UTC_STR}");
+    str_writeln!(&mut info, "* by {RUSTC_VERSION}");
+    str_writeln!(&mut info, "* for {TARGET}");
+    str_writeln!(&mut info, "* across {NUM_JOBS} threads");
+    info
 });
 
 pub static VERSION: Lazy<String> = Lazy::new(|| format!("{PKG_NAME} {}", *VERSION_INFO));
+
+pub static FULL_VERSION: Lazy<String> =
+    Lazy::new(|| format!("{}\n\n{}", *VERSION, *COMPILE_INFO));
 
 pub static GIT_COMMIT_HASH_SHORT: Lazy<Option<&'static str>> =
     Lazy::new(|| build::GIT_COMMIT_HASH.map(|s| &s[..8]));

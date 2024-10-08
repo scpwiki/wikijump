@@ -12,7 +12,9 @@ pub struct Model {
     pub to_page_id: i64,
     #[sea_orm(primary_key, auto_increment = false, column_type = "Text")]
     pub connection_type: String,
+    #[serde(with = "time::serde::rfc3339")]
     pub created_at: TimeDateTimeWithTimeZone,
+    #[serde(with = "time::serde::rfc3339::option")]
     pub updated_at: Option<TimeDateTimeWithTimeZone>,
     pub count: i32,
 }

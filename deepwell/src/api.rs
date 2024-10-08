@@ -29,8 +29,8 @@
 use crate::config::{Config, Secrets};
 use crate::endpoints::{
     auth::*, blob::*, category::*, domain::*, email::*, file::*, file_revision::*,
-    link::*, locale::*, message::*, misc::*, page::*, page_revision::*, parent::*,
-    site::*, site_member::*, text::*, user::*, user_bot::*, view::*, vote::*,
+    info::*, link::*, locale::*, message::*, misc::*, page::*, page_revision::*,
+    parent::*, site::*, site_member::*, text::*, user::*, user_bot::*, view::*, vote::*,
 };
 use crate::locales::Localizations;
 use crate::services::blob::MimeAnalyzer;
@@ -176,12 +176,11 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("ping", ping);
     register!("echo", echo);
     register!("error", yield_error);
-    register!("version", version);
-    register!("version_full", full_version);
-    register!("hostname", hostname);
     register!("config", config_dump);
-    register!("config_path", config_path);
     register!("normalize", normalize_method);
+
+    // Server Information
+    register!("info", server_info);
 
     // Localization
     register!("locale", locale_info);

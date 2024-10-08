@@ -27,6 +27,8 @@ pub struct RenderOutput {
     pub html_output: HtmlOutput,
     pub errors: Vec<ParseError>,
     pub compiled_hash: TextHash,
+
+    #[serde(with = "time::serde::rfc3339")]
     pub compiled_at: OffsetDateTime,
     pub compiled_generator: String,
 }

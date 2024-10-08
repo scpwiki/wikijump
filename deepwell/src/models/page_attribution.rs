@@ -14,6 +14,7 @@ pub struct Model {
     pub attribution_type: String,
     #[sea_orm(primary_key, auto_increment = false)]
     pub attribution_date: TimeDate,
+    #[serde(with = "time::serde::rfc3339")]
     pub created_at: TimeDateTimeWithTimeZone,
 }
 

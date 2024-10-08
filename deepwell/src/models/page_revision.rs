@@ -10,7 +10,9 @@ pub struct Model {
     #[sea_orm(primary_key)]
     pub revision_id: i64,
     pub revision_type: PageRevisionType,
+    #[serde(with = "time::serde::rfc3339")]
     pub created_at: TimeDateTimeWithTimeZone,
+    #[serde(with = "time::serde::rfc3339::option")]
     pub updated_at: Option<TimeDateTimeWithTimeZone>,
     pub revision_number: i32,
     pub page_id: i64,
@@ -22,6 +24,7 @@ pub struct Model {
     pub wikitext_hash: Vec<u8>,
     #[sea_orm(column_type = "VarBinary(StringLen::None)")]
     pub compiled_hash: Vec<u8>,
+    #[serde(with = "time::serde::rfc3339")]
     pub compiled_at: TimeDateTimeWithTimeZone,
     #[sea_orm(column_type = "Text")]
     pub compiled_generator: String,

@@ -19,10 +19,8 @@
  */
 
 use super::prelude::*;
-use crate::info;
 use sea_orm::{ConnectionTrait, DatabaseBackend, Statement};
 use serde_json::Value as JsonValue;
-use std::path::PathBuf;
 use wikidot_normalize::normalize;
 
 async fn postgres_check(ctx: &ServiceContext<'_>) -> Result<()> {
@@ -78,44 +76,12 @@ pub async fn yield_error(
     Err(ServiceError::BadRequest)
 }
 
-pub async fn version(
-    _ctx: &ServiceContext<'_>,
-    _params: Params<'static>,
-) -> Result<&'static str> {
-    info!("Getting DEEPWELL version");
-    Ok(info::VERSION.as_str())
-}
-
-pub async fn full_version(
-    _ctx: &ServiceContext<'_>,
-    _params: Params<'static>,
-) -> Result<&'static str> {
-    info!("Getting DEEPWELL version (full)");
-    Ok(info::FULL_VERSION.as_str())
-}
-
-pub async fn hostname(
-    _ctx: &ServiceContext<'_>,
-    _params: Params<'static>,
-) -> Result<&'static str> {
-    info!("Getting DEEPWELL hostname");
-    Ok(info::HOSTNAME.as_str())
-}
-
 pub async fn config_dump(
     ctx: &ServiceContext<'_>,
     _params: Params<'static>,
 ) -> Result<String> {
     info!("Dumping raw DEEPWELL configuration for debugging");
     Ok(ctx.config().raw_toml.to_string())
-}
-
-pub async fn config_path(
-    ctx: &ServiceContext<'_>,
-    _params: Params<'static>,
-) -> Result<PathBuf> {
-    info!("Dumping DEEPWELL configuration path for debugging");
-    Ok(ctx.config().raw_toml_path.to_path_buf())
 }
 
 pub async fn normalize_method(

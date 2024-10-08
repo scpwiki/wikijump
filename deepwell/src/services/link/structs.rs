@@ -89,7 +89,10 @@ pub struct GetLinksExternalToOutput {
 
 #[derive(Serialize, Debug, Clone)]
 pub struct ToExternalLink {
+    #[serde(with = "time::serde::rfc3339")]
     pub created_at: OffsetDateTime,
+
+    #[serde(with = "time::serde::rfc3339::option")]
     pub updated_at: Option<OffsetDateTime>,
     pub page_id: i64,
     pub count: i32,

@@ -10,7 +10,9 @@ pub struct Model {
     pub bot_user_id: i64,
     #[sea_orm(primary_key, auto_increment = false)]
     pub human_user_id: i64,
+    #[serde(with = "time::serde::rfc3339")]
     pub created_at: TimeDateTimeWithTimeZone,
+    #[serde(with = "time::serde::rfc3339::option")]
     pub updated_at: Option<TimeDateTimeWithTimeZone>,
     #[sea_orm(column_type = "Text")]
     pub description: String,

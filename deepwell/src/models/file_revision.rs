@@ -10,6 +10,7 @@ pub struct Model {
     #[sea_orm(primary_key)]
     pub revision_id: i64,
     pub revision_type: FileRevisionType,
+    #[serde(with = "time::serde::rfc3339")]
     pub created_at: TimeDateTimeWithTimeZone,
     pub revision_number: i32,
     pub file_id: i64,

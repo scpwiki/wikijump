@@ -158,7 +158,11 @@ pub struct PageRevisionCountOutput {
 pub struct PageRevisionModelFiltered {
     pub revision_id: i64,
     pub revision_type: PageRevisionType,
+
+    #[serde(with = "time::serde::rfc3339")]
     pub created_at: OffsetDateTime,
+
+    #[serde(with = "time::serde::rfc3339::option")]
     pub updated_at: Option<OffsetDateTime>,
     pub from_wikidot: bool,
     pub revision_number: i32,
@@ -168,6 +172,8 @@ pub struct PageRevisionModelFiltered {
     pub changes: Vec<String>,
     pub wikitext: Option<String>,
     pub compiled_html: Option<String>,
+
+    #[serde(with = "time::serde::rfc3339")]
     pub compiled_at: OffsetDateTime,
     pub compiled_generator: String,
     pub comments: Option<String>,

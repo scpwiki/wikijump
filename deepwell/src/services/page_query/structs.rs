@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// TODO: add serde, include time fmt conversions
 #![allow(dead_code)] // TEMP
 
 use super::prelude::*;

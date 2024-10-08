@@ -9,7 +9,9 @@ pub struct Model {
     #[sea_orm(primary_key, auto_increment = false, column_type = "Text")]
     pub session_token: String,
     pub user_id: i64,
+    #[serde(with = "time::serde::rfc3339")]
     pub created_at: TimeDateTimeWithTimeZone,
+    #[serde(with = "time::serde::rfc3339")]
     pub expires_at: TimeDateTimeWithTimeZone,
     #[sea_orm(column_type = "Text")]
     pub ip_address: String,

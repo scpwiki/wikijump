@@ -10,6 +10,7 @@ pub struct Model {
     #[sea_orm(primary_key)]
     pub alias_id: i64,
     pub alias_type: AliasType,
+    #[serde(with = "time::serde::rfc3339")]
     pub created_at: TimeDateTimeWithTimeZone,
     pub created_by: i64,
     pub target_id: i64,

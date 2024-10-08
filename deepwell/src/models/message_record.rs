@@ -8,8 +8,11 @@ use serde::{Deserialize, Serialize};
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false, column_type = "Text")]
     pub external_id: String,
+    #[serde(with = "time::serde::rfc3339")]
     pub created_at: TimeDateTimeWithTimeZone,
+    #[serde(with = "time::serde::rfc3339")]
     pub drafted_at: TimeDateTimeWithTimeZone,
+    #[serde(with = "time::serde::rfc3339::option")]
     pub retracted_at: Option<TimeDateTimeWithTimeZone>,
     pub sender_id: i64,
     #[sea_orm(column_type = "Text")]
@@ -18,6 +21,7 @@ pub struct Model {
     pub wikitext_hash: Vec<u8>,
     #[sea_orm(column_type = "VarBinary(StringLen::None)")]
     pub compiled_hash: Vec<u8>,
+    #[serde(with = "time::serde::rfc3339")]
     pub compiled_at: TimeDateTimeWithTimeZone,
     #[sea_orm(column_type = "Text")]
     pub compiled_generator: String,

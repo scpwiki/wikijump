@@ -17,10 +17,13 @@ pub struct Model {
     pub from_id: i64,
     pub metadata: Json,
     pub created_by: i64,
+    #[serde(with = "time::serde::rfc3339")]
     pub created_at: TimeDateTimeWithTimeZone,
     pub overwritten_by: Option<i64>,
+    #[serde(with = "time::serde::rfc3339::option")]
     pub overwritten_at: Option<TimeDateTimeWithTimeZone>,
     pub deleted_by: Option<i64>,
+    #[serde(with = "time::serde::rfc3339::option")]
     pub deleted_at: Option<TimeDateTimeWithTimeZone>,
 }
 

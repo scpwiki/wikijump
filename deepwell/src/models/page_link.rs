@@ -10,7 +10,9 @@ pub struct Model {
     pub page_id: i64,
     #[sea_orm(primary_key, auto_increment = false, column_type = "Text")]
     pub url: String,
+    #[serde(with = "time::serde::rfc3339")]
     pub created_at: TimeDateTimeWithTimeZone,
+    #[serde(with = "time::serde::rfc3339::option")]
     pub updated_at: Option<TimeDateTimeWithTimeZone>,
     pub count: i32,
 }

@@ -10,8 +10,11 @@ pub struct Model {
     #[sea_orm(primary_key)]
     pub user_id: i64,
     pub user_type: UserType,
+    #[serde(with = "time::serde::rfc3339")]
     pub created_at: TimeDateTimeWithTimeZone,
+    #[serde(with = "time::serde::rfc3339::option")]
     pub updated_at: Option<TimeDateTimeWithTimeZone>,
+    #[serde(with = "time::serde::rfc3339::option")]
     pub deleted_at: Option<TimeDateTimeWithTimeZone>,
     pub from_wikidot: bool,
     #[sea_orm(column_type = "Text")]
@@ -19,11 +22,14 @@ pub struct Model {
     #[sea_orm(column_type = "Text")]
     pub slug: String,
     pub name_changes_left: i16,
+    #[serde(with = "time::serde::rfc3339")]
     pub last_name_change_added_at: TimeDateTimeWithTimeZone,
+    #[serde(with = "time::serde::rfc3339::option")]
     pub last_renamed_at: Option<TimeDateTimeWithTimeZone>,
     #[sea_orm(column_type = "Text")]
     pub email: String,
     pub email_is_alias: Option<bool>,
+    #[serde(with = "time::serde::rfc3339::option")]
     pub email_verified_at: Option<TimeDateTimeWithTimeZone>,
     #[sea_orm(column_type = "Text")]
     pub password: String,

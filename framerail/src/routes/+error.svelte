@@ -3,7 +3,6 @@
   import { goto, invalidateAll } from "$app/navigation"
   import { useErrorPopup } from "$lib/stores"
   import { Layout } from "$lib/types"
-  import { parseDate } from "$lib/utils"
   let showErrorPopup = useErrorPopup()
 
   let showRestoreAction = false
@@ -181,7 +180,7 @@ as soon as we can figure out prettier support for it.
                 >{(deletedPage.rating > 0 ? "+" : "") + deletedPage.rating}</span
               >) - {$page.error.internationalization?.["wiki-page-deleted"].replace(
                 "{$datetime}",
-                parseDate(deletedPage.page_deleted_at).toLocaleString()
+                new Date(deletedPage.page_deleted_at).toLocaleString()
               )}
             </label>
             <br />
