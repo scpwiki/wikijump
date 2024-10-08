@@ -88,9 +88,9 @@ CREATE TABLE site (
     tagline TEXT NOT NULL,
     description TEXT NOT NULL,
     locale TEXT NOT NULL,
-    layout TEXT,  -- Default page layout for the site
     default_page TEXT NOT NULL DEFAULT 'start',
     custom_domain TEXT,  -- Dependency cycle, add foreign key constraint after
+    layout TEXT,  -- Default page layout for the site
 
     UNIQUE (slug, deleted_at)
 );

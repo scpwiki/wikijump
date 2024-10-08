@@ -22,12 +22,12 @@ pub struct Model {
     pub description: String,
     #[sea_orm(column_type = "Text")]
     pub locale: String,
-    #[sea_orm(column_type = "Text", nullable)]
-    pub layout: Option<String>,
     #[sea_orm(column_type = "Text")]
     pub default_page: String,
     #[sea_orm(column_type = "Text", nullable)]
     pub custom_domain: Option<String>,
+    #[sea_orm(column_type = "Text", nullable)]
+    pub layout: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
