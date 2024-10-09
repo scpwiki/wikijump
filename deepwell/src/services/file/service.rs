@@ -28,6 +28,7 @@ use crate::services::blob::{FinalizeBlobUploadOutput, EMPTY_BLOB_HASH, EMPTY_BLO
 use crate::services::file_revision::{
     CreateFileRevision, CreateFileRevisionBody, CreateFirstFileRevision,
     CreateResurrectionFileRevision, CreateTombstoneFileRevision, FileBlob,
+    GetFileRevision,
 };
 use crate::services::filter::{FilterClass, FilterType};
 use crate::services::{BlobService, FileRevisionService, FilterService};
@@ -395,6 +396,118 @@ impl FileService {
             file_revision_id: output.file_revision_id,
             file_revision_number: output.file_revision_number,
         })
+    }
+
+    /// Rolls back a file to be the same as it was in a previous revision.
+    /// It changes the file to have the exact state it had in a previous
+    /// revision, regardless of any changes since.
+    pub async fn rollback(
+        ctx: &ServiceContext<'_>,
+        RollbackFile {
+            site_id,
+            page_id,
+            file: reference,
+            last_revision_id,
+            revision_number,
+            revision_comments,
+            user_id,
+            bypass_filter,
+        }: RollbackFile<'_>,
+    ) -> Result<Option<EditFileOutput>> {
+        let txn = ctx.transaction();
+
+        // Ensure file exists
+        let FileModel { file_id, .. } = Self::get(
+            ctx,
+            GetFile {
+                site_id,
+                page_id,
+                file: reference,
+            },
+        )
+        .await?;
+
+        // Get target revision and latest revision
+        let get_revision_input = GetFileRevision {
+            site_id,
+            page_id,
+            file_id,
+            revision_number,
+        };
+
+        let (target_revision, last_revision) = try_join!(
+            FileRevisionService::get(ctx, get_revision_input),
+            FileRevisionService::get_latest(ctx, site_id, page_id, file_id),
+        )?;
+
+        // TODO Handle hidden fields, see https://scuttle.atlassian.net/browse/WJ-1285
+        let _ = target_revision.hidden;
+
+        // Check last revision ID
+        check_last_revision(&last_revision, last_revision_id)?;
+
+        // Extract fields from target revision
+        let FileRevisionModel {
+            name,
+            s3_hash,
+            mime_hint,
+            size_hint,
+            licensing,
+            ..
+        } = target_revision;
+
+        // Check name change
+        if last_revision.name != name {
+            Self::check_conflicts(ctx, page_id, &name, "rollback").await?;
+
+            if !bypass_filter {
+                Self::run_filter(ctx, site_id, Some(&name)).await?;
+            }
+        }
+
+        // Create new revision
+        //
+        // Copy the body of the target revision
+
+        let blob = FileBlob {
+            s3_hash: {
+                let mut hash = [0; 64];
+                hash.copy_from_slice(&s3_hash);
+                hash
+            },
+            mime_hint,
+            size_hint,
+            // in a rollback, by definition the blob was already uploaded
+            blob_created: false,
+        };
+
+        let revision_input = CreateFileRevision {
+            site_id,
+            page_id,
+            file_id,
+            user_id,
+            revision_comments,
+            body: CreateFileRevisionBody {
+                name: ProvidedValue::Set(name),
+                blob: ProvidedValue::Set(blob),
+                licensing: ProvidedValue::Set(licensing),
+                page_id: ProvidedValue::Unset, // rollbacks should never move files
+            },
+        };
+
+        // Add new file revision
+        let revision_output =
+            FileRevisionService::create(ctx, revision_input, last_revision).await?;
+
+        // Update file metadata
+        let model = file::ActiveModel {
+            file_id: Set(file_id),
+            updated_at: Set(Some(now())),
+            ..Default::default()
+        };
+        model.update(txn).await?;
+
+        Ok(revision_output)
     }
 
     pub async fn get_optional(
