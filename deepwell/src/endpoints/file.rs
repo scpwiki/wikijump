@@ -25,7 +25,7 @@ use crate::services::blob::BlobService;
 use crate::services::file::{
     CreateFile, CreateFileOutput, DeleteFile, DeleteFileOutput, EditFile, EditFileOutput,
     GetFileDetails, GetFileOutput, MoveFile, MoveFileOutput, RestoreFile,
-    RestoreFileOutput,
+    RestoreFileOutput, RollbackFile,
 };
 use crate::services::Result;
 use crate::types::{Bytes, FileDetails};
@@ -113,6 +113,20 @@ pub async fn file_restore(
     );
 
     FileService::restore(ctx, input).await
+}
+
+pub async fn file_rollback(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<Option<EditFileOutput>> {
+    let input: RollbackFile = params.parse()?;
+
+    info!(
+        "Rolling back file {:?} in page ID {} in site ID {} to revision number {}",
+        input.file, input.page_id, input.site_id, input.revision_number,
+    );
+
+    FileService::rollback(ctx, input).await
 }
 
 pub async fn file_move(
