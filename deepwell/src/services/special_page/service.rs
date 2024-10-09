@@ -21,8 +21,8 @@
 use super::prelude::*;
 use crate::models::site::Model as SiteModel;
 use crate::services::{PageRevisionService, PageService, RenderService, TextService};
-use crate::utils::split_category;
 use crate::types::Reference;
+use crate::utils::split_category;
 use fluent::{FluentArgs, FluentValue};
 use ftml::prelude::*;
 use ref_map::*;

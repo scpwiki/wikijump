@@ -21,8 +21,8 @@
 use super::prelude::*;
 use crate::models::page::Model as PageModel;
 use crate::services::{JobService, LinkService, PageService};
-use crate::utils::split_category_name;
 use crate::types::{ConnectionType, PageOrder};
+use crate::utils::split_category_name;
 
 #[derive(Debug)]
 pub struct OutdateService;

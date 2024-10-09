@@ -134,7 +134,7 @@ impl FileService {
         //
         // If the name isn't changing, then we already verified this
         // when the file was originally created.
-        if let ProvidedValue::Set(ref name) = name {
+        if let Maybe::Set(ref name) = name {
             Self::check_conflicts(ctx, page_id, name, "update").await?;
 
             if !bypass_filter {
@@ -147,8 +147,8 @@ impl FileService {
         // Get the blob struct for conditionally adding to
         // the CreateFileRevisionBody.
         let blob = match uploaded_blob_id {
-            ProvidedValue::Unset => ProvidedValue::Unset,
-            ProvidedValue::Set(ref id) => {
+            Maybe::Unset => Maybe::Unset,
+            Maybe::Set(ref id) => {
                 let FinalizeBlobUploadOutput {
                     hash: s3_hash,
                     mime: mime_hint,
@@ -156,7 +156,7 @@ impl FileService {
                     created: blob_created,
                 } = BlobService::finish_upload(ctx, user_id, id).await?;
 
-                ProvidedValue::Set(FileBlob {
+                Maybe::Set(FileBlob {
                     s3_hash,
                     mime_hint,
                     size_hint,
@@ -248,7 +248,7 @@ impl FileService {
                 user_id,
                 revision_comments,
                 body: CreateFileRevisionBody {
-                    page_id: ProvidedValue::Set(destination_page_id),
+                    page_id: Maybe::Set(destination_page_id),
                     ..Default::default()
                 },
             },

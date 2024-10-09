@@ -38,11 +38,11 @@ pub struct CreatePageRevision {
 #[derive(Deserialize, Debug, Default, Clone)]
 #[serde(default)]
 pub struct CreatePageRevisionBody {
-    pub wikitext: ProvidedValue<String>,
-    pub title: ProvidedValue<String>,
-    pub alt_title: ProvidedValue<Option<String>>,
-    pub slug: ProvidedValue<String>,
-    pub tags: ProvidedValue<Vec<String>>,
+    pub wikitext: Maybe<String>,
+    pub title: Maybe<String>,
+    pub alt_title: Maybe<Option<String>>,
+    pub slug: Maybe<String>,
+    pub tags: Maybe<Vec<String>>,
 }
 
 #[derive(Deserialize, Debug, Clone)]

@@ -29,8 +29,8 @@ use crate::services::{
     LinkService, OutdateService, PageService, ParentService, RenderService, ScoreService,
     SettingsService, SiteService, TextService,
 };
-use crate::utils::{split_category, split_category_name};
 use crate::types::FetchDirection;
+use crate::utils::{split_category, split_category_name};
 use ftml::data::PageInfo;
 use ftml::layout::Layout;
 use ftml::settings::{WikitextMode, WikitextSettings};
@@ -129,21 +129,21 @@ impl PageRevisionService {
         // We check the values so that the only listed "changes"
         // are those that actually are different.
 
-        if let ProvidedValue::Set(new_title) = body.title {
+        if let Maybe::Set(new_title) = body.title {
             if title != new_title {
                 changes.push(str!("title"));
                 title = new_title;
             }
         }
 
-        if let ProvidedValue::Set(new_alt_title) = body.alt_title {
+        if let Maybe::Set(new_alt_title) = body.alt_title {
             if alt_title != new_alt_title {
                 changes.push(str!("alt_title"));
                 alt_title = new_alt_title;
             }
         }
 
-        if let ProvidedValue::Set(new_slug) = body.slug {
+        if let Maybe::Set(new_slug) = body.slug {
             if slug != new_slug {
                 changes.push(str!("slug"));
                 old_slug = Some(slug);
@@ -151,7 +151,7 @@ impl PageRevisionService {
             }
         }
 
-        if let ProvidedValue::Set(new_tags) = body.tags {
+        if let Maybe::Set(new_tags) = body.tags {
             if tags != new_tags {
                 changes.push(str!("tags"));
                 tags = new_tags;
@@ -164,7 +164,7 @@ impl PageRevisionService {
         // Get wikitext, set wikitext hash
         let wikitext = match body.wikitext {
             // Insert new wikitext and update hash
-            ProvidedValue::Set(new_wikitext) => {
+            Maybe::Set(new_wikitext) => {
                 let new_hash = TextService::create(ctx, new_wikitext.clone()).await?;
 
                 if wikitext_hash != new_hash {
@@ -176,7 +176,7 @@ impl PageRevisionService {
             }
 
             // Use previous revision's wikitext
-            ProvidedValue::Unset => TextService::get(ctx, &wikitext_hash).await?,
+            Maybe::Unset => TextService::get(ctx, &wikitext_hash).await?,
         };
 
         // If nothing has changed, then don't create a new revision

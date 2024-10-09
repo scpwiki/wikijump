@@ -21,7 +21,7 @@
 use crate::models::alias::Model as AliasModel;
 use crate::models::site::Model as SiteModel;
 use crate::models::site_domain::Model as SiteDomainModel;
-use crate::types::{ProvidedValue, Reference};
+use crate::types::{Maybe, Reference};
 use ftml::layout::Layout;
 
 #[derive(Deserialize, Debug, Clone)]
@@ -67,10 +67,10 @@ pub struct UpdateSite<'a> {
 #[derive(Deserialize, Debug, Clone, Default)]
 #[serde(default)]
 pub struct UpdateSiteBody {
-    pub name: ProvidedValue<String>,
-    pub slug: ProvidedValue<String>,
-    pub tagline: ProvidedValue<String>,
-    pub description: ProvidedValue<String>,
-    pub locale: ProvidedValue<String>,
-    pub layout: ProvidedValue<Option<Layout>>,
+    pub name: Maybe<String>,
+    pub slug: Maybe<String>,
+    pub tagline: Maybe<String>,
+    pub description: Maybe<String>,
+    pub locale: Maybe<String>,
+    pub layout: Maybe<Option<Layout>>,
 }

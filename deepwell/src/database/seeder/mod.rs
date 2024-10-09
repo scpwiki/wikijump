@@ -31,7 +31,7 @@ use crate::services::page::{CreatePage, PageService};
 use crate::services::site::{CreateSite, CreateSiteOutput, SiteService};
 use crate::services::user::{CreateUser, CreateUserOutput, UpdateUserBody, UserService};
 use crate::services::ServiceContext;
-use crate::types::{ProvidedValue, Reference};
+use crate::types::{Maybe, Reference};
 use anyhow::Result;
 use sea_orm::{
     ConnectionTrait, DatabaseBackend, DatabaseTransaction, Statement, TransactionTrait,
@@ -95,13 +95,13 @@ pub async fn seed(state: &ServerState) -> Result<()> {
             &ctx,
             Reference::Id(user_id),
             UpdateUserBody {
-                email_verified: ProvidedValue::Set(true),
-                real_name: ProvidedValue::Set(user.real_name),
-                gender: ProvidedValue::Set(user.gender),
-                birthday: ProvidedValue::Set(user.birthday),
-                location: ProvidedValue::Set(user.location),
-                biography: ProvidedValue::Set(user.biography),
-                user_page: ProvidedValue::Set(user.user_page),
+                email_verified: Maybe::Set(true),
+                real_name: Maybe::Set(user.real_name),
+                gender: Maybe::Set(user.gender),
+                birthday: Maybe::Set(user.birthday),
+                location: Maybe::Set(user.location),
+                biography: Maybe::Set(user.biography),
+                user_page: Maybe::Set(user.user_page),
                 ..Default::default()
             },
         )
