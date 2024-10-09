@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::hash::slice_to_blob_hash;
 use crate::models::file::{self, Entity as File, Model as FileModel};
 use crate::models::file_revision::{
     self, Entity as FileRevision, Model as FileRevisionModel,
@@ -470,11 +471,7 @@ impl FileService {
         // Copy the body of the target revision
 
         let blob = FileBlob {
-            s3_hash: {
-                let mut hash = [0; 64];
-                hash.copy_from_slice(&s3_hash);
-                hash
-            },
+            s3_hash: slice_to_blob_hash(&s3_hash),
             mime_hint,
             size_hint,
             // in a rollback, by definition the blob was already uploaded

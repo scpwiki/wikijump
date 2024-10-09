@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::hash::slice_to_blob_hash;
 use crate::models::blob_pending::{
     self, Entity as BlobPending, Model as BlobPendingModel,
 };
@@ -371,11 +372,8 @@ impl BlobService {
 
                 debug_assert_eq!(expected_length, size);
 
-                let mut hash = [0; 64];
-                hash.copy_from_slice(&hash_vec);
-
                 FinalizeBlobUploadOutput {
-                    hash,
+                    hash: slice_to_blob_hash(&hash_vec),
                     mime,
                     size,
                     created: false,

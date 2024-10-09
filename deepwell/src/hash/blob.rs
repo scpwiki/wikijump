@@ -42,11 +42,17 @@ pub fn sha512_hash(data: &[u8]) -> BlobHash {
     let mut hasher = Sha512::new();
     hasher.update(data);
     let result = hasher.finalize();
+    slice_to_blob_hash(&result)
+}
 
-    // Copy data into regular Rust array
-    let mut bytes = [0; 64];
-    bytes.copy_from_slice(&result);
-    bytes
+/// Convert a slice into a hash array.
+///
+/// # Panics
+/// Panics if the input slice is not the appropriate size.
+pub fn slice_to_blob_hash(slice: &[u8]) -> BlobHash {
+    let mut hash = [0; 64];
+    hash.copy_from_slice(slice);
+    hash
 }
 
 /// Converts the given SHA-512 hash into a hex array string.
