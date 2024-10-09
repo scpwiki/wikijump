@@ -468,6 +468,9 @@ impl PageService {
             PageRevisionService::get_latest(ctx, site_id, page_id),
         )?;
 
+        // TODO Handle hidden fields, see https://scuttle.atlassian.net/browse/WJ-1285
+        let _ = target_revision.hidden;
+
         // Check last revision ID
         check_last_revision(Some(&last_revision), latest_revision_id, last_revision_id)?;
 
