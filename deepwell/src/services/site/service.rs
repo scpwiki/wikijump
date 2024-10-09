@@ -98,7 +98,7 @@ impl SiteService {
             ctx,
             Reference::Id(user.user_id),
             UpdateUserBody {
-                biography: ProvidedValue::Set(Some(description)),
+                biography: Maybe::Set(Some(description)),
                 ..Default::default()
             },
         )
@@ -142,32 +142,32 @@ impl SiteService {
             RelationService::get_site_user_id_for_site(ctx, site.site_id).await?;
         let mut site_user_body = UpdateUserBody::default();
 
-        if let ProvidedValue::Set(name) = input.name {
+        if let Maybe::Set(name) = input.name {
             model.name = Set(name);
         }
 
-        if let ProvidedValue::Set(new_slug) = input.slug {
+        if let Maybe::Set(new_slug) = input.slug {
             Self::update_slug(ctx, &site, &new_slug, updating_user_id).await?;
-            site_user_body.name = ProvidedValue::Set(format!("site:{new_slug}"));
+            site_user_body.name = Maybe::Set(format!("site:{new_slug}"));
             model.slug = Set(new_slug);
         }
 
-        if let ProvidedValue::Set(tagline) = input.tagline {
+        if let Maybe::Set(tagline) = input.tagline {
             model.tagline = Set(tagline);
         }
 
-        if let ProvidedValue::Set(description) = input.description {
+        if let Maybe::Set(description) = input.description {
             model.description = Set(description.clone());
-            site_user_body.biography = ProvidedValue::Set(Some(description))
+            site_user_body.biography = Maybe::Set(Some(description))
         }
 
-        if let ProvidedValue::Set(locale) = input.locale {
+        if let Maybe::Set(locale) = input.locale {
             validate_locale(&locale)?;
             model.locale = Set(locale.clone());
-            site_user_body.locales = ProvidedValue::Set(vec![locale]);
+            site_user_body.locales = Maybe::Set(vec![locale]);
         }
 
-        if let ProvidedValue::Set(layout) = input.layout {
+        if let Maybe::Set(layout) = input.layout {
             model.layout = Set(layout.map(|l| str!(l.value())));
         }
 

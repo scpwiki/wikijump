@@ -101,19 +101,19 @@ impl FilterService {
         };
 
         // Handle case-sensitivity logic
-        if let ProvidedValue::Set(case_sensitive) = case_sensitive {
+        if let Maybe::Set(case_sensitive) = case_sensitive {
             match regex {
                 // If the regex is being changed, add case-insensitivity flag if case-insensitive.
-                ProvidedValue::Set(ref mut regex) if !case_sensitive => {
+                Maybe::Set(ref mut regex) if !case_sensitive => {
                     regex.insert_str(0, "(?i)")
                 }
 
                 // If the regex is being changed but is case-sensitive, do not touch it.
-                ProvidedValue::Set(_) => {}
+                Maybe::Set(_) => {}
 
                 // If the regex is not being changed, remove (and conditionally readd) the
                 // case-insensitivity flag from the database's regex.
-                ProvidedValue::Unset => {
+                Maybe::Unset => {
                     let mut model_regex = str!(model.get(filter::Column::Regex).as_ref());
                     trim_start_matches_in_place(&mut model_regex, "(?i)");
 
@@ -127,31 +127,31 @@ impl FilterService {
         };
 
         // Set fields
-        if let ProvidedValue::Set(affects) = affects_user {
+        if let Maybe::Set(affects) = affects_user {
             model.affects_user = Set(affects);
         }
 
-        if let ProvidedValue::Set(affects) = affects_email {
+        if let Maybe::Set(affects) = affects_email {
             model.affects_email = Set(affects);
         }
 
-        if let ProvidedValue::Set(affects) = affects_page {
+        if let Maybe::Set(affects) = affects_page {
             model.affects_page = Set(affects);
         }
 
-        if let ProvidedValue::Set(affects) = affects_file {
+        if let Maybe::Set(affects) = affects_file {
             model.affects_file = Set(affects);
         }
 
-        if let ProvidedValue::Set(affects) = affects_forum {
+        if let Maybe::Set(affects) = affects_forum {
             model.affects_forum = Set(affects);
         }
 
-        if let ProvidedValue::Set(regex) = regex {
+        if let Maybe::Set(regex) = regex {
             model.regex = Set(regex);
         }
 
-        if let ProvidedValue::Set(description) = description {
+        if let Maybe::Set(description) = description {
             model.description = Set(description);
         }
 

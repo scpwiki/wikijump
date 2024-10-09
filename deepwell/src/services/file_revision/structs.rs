@@ -21,7 +21,7 @@
 use super::prelude::*;
 use crate::hash::BlobHash;
 use crate::services::page_revision::PageRevisionCountOutput;
-use crate::web::{Bytes, FetchDirection};
+use crate::types::{Bytes, FetchDirection};
 
 #[derive(Debug, Clone)]
 pub struct CreateFileRevision {
@@ -35,10 +35,10 @@ pub struct CreateFileRevision {
 
 #[derive(Debug, Default, Clone)]
 pub struct CreateFileRevisionBody {
-    pub page_id: ProvidedValue<i64>, // for changing the page this file is on
-    pub name: ProvidedValue<String>,
-    pub blob: ProvidedValue<FileBlob>,
-    pub licensing: ProvidedValue<serde_json::Value>,
+    pub page_id: Maybe<i64>, // for changing the page this file is on
+    pub name: Maybe<String>,
+    pub blob: Maybe<FileBlob>,
+    pub licensing: Maybe<serde_json::Value>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -54,8 +54,8 @@ pub struct CreateFileRevisionOutput {
     pub file_revision_id: i64,
     pub file_revision_number: i32,
 
-    #[serde(default, skip_serializing_if = "ProvidedValue::is_unset")]
-    pub blob_created: ProvidedValue<bool>,
+    #[serde(default, skip_serializing_if = "Maybe::is_unset")]
+    pub blob_created: Maybe<bool>,
 }
 
 #[derive(Debug, Clone)]

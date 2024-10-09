@@ -26,7 +26,7 @@ use crate::services::user_bot_owner::{
     BotOwner, BotUserOutput, CreateBotOwner, CreateBotUser, RemoveBotOwner,
     RemoveBotOwnerOutput, UserBotOwnerService,
 };
-use crate::web::{ProvidedValue, Reference};
+use crate::types::{Maybe, Reference};
 
 pub async fn bot_user_create(
     ctx: &ServiceContext<'_>,
@@ -70,7 +70,7 @@ pub async fn bot_user_create(
         ctx,
         Reference::Id(bot_user_id),
         UpdateUserBody {
-            biography: ProvidedValue::Set(Some(purpose)),
+            biography: Maybe::Set(Some(purpose)),
             ..Default::default()
         },
     )

@@ -24,7 +24,7 @@ use crate::models::file_revision::{
 };
 use crate::services::blob::{FinalizeBlobUploadOutput, EMPTY_BLOB_HASH, EMPTY_BLOB_MIME};
 use crate::services::{BlobService, OutdateService, PageService};
-use crate::web::{Bytes, FetchDirection};
+use crate::types::{Bytes, FetchDirection};
 use once_cell::sync::Lazy;
 use std::num::NonZeroI32;
 
@@ -71,7 +71,7 @@ impl FileRevisionService {
 
         // Fields to create in the revision
         let mut changes = Vec::new();
-        let mut blob_created = ProvidedValue::Unset;
+        let mut blob_created = Maybe::Unset;
         let FileRevisionModel {
             mut name,
             mut s3_hash,
@@ -86,21 +86,21 @@ impl FileRevisionService {
         // We check the values so that the only listed "changes"
         // are those that actually are different.
 
-        if let ProvidedValue::Set(new_page_id) = body.page_id {
+        if let Maybe::Set(new_page_id) = body.page_id {
             if page_id != new_page_id {
                 changes.push(str!("page"));
                 page_id = new_page_id;
             }
         }
 
-        if let ProvidedValue::Set(new_name) = body.name {
+        if let Maybe::Set(new_name) = body.name {
             if name != new_name {
                 changes.push(str!("name"));
                 name = new_name;
             }
         }
 
-        if let ProvidedValue::Set(new_blob) = body.blob {
+        if let Maybe::Set(new_blob) = body.blob {
             if s3_hash != new_blob.s3_hash
                 || size_hint != new_blob.size_hint
                 || mime_hint != new_blob.mime_hint
@@ -109,11 +109,11 @@ impl FileRevisionService {
                 s3_hash = new_blob.s3_hash.to_vec();
                 size_hint = new_blob.size_hint;
                 mime_hint = new_blob.mime_hint;
-                blob_created = ProvidedValue::Set(new_blob.blob_created);
+                blob_created = Maybe::Set(new_blob.blob_created);
             }
         }
 
-        if let ProvidedValue::Set(new_licensing) = body.licensing {
+        if let Maybe::Set(new_licensing) = body.licensing {
             if licensing != new_licensing {
                 changes.push(str!("licensing"));
                 licensing = new_licensing;
@@ -292,7 +292,7 @@ impl FileRevisionService {
         Ok(CreateFileRevisionOutput {
             file_revision_id: revision_id,
             file_revision_number: revision_number,
-            blob_created: ProvidedValue::Unset,
+            blob_created: Maybe::Unset,
         })
     }
 
@@ -380,7 +380,7 @@ impl FileRevisionService {
         Ok(CreateFileRevisionOutput {
             file_revision_id: revision_id,
             file_revision_number: revision_number,
-            blob_created: ProvidedValue::Unset,
+            blob_created: Maybe::Unset,
         })
     }
 

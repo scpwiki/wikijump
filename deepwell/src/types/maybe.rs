@@ -1,5 +1,5 @@
 /*
- * web/provided_value.rs
+ * types/maybe.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2024 Wikijump Team
@@ -30,7 +30,7 @@
 /// When serializing or deserializing a field using this enum, you must
 /// add the following:
 /// ```unchecked
-/// #[serde(default, skip_serializing_if = "ProvidedValue::is_unset")]
+/// #[serde(default, skip_serializing_if = "Maybe::is_unset")]
 /// ```
 ///
 /// (The `skip_serializing_if` attribute is optional if this is a
@@ -40,7 +40,7 @@
 /// to serialize.
 #[derive(Serialize, Deserialize, Debug, Default, Clone, Hash, PartialEq, Eq)]
 #[serde(untagged)]
-pub enum ProvidedValue<T> {
+pub enum Maybe<T> {
     Set(T),
 
     #[serde(skip)]
@@ -48,18 +48,18 @@ pub enum ProvidedValue<T> {
     Unset,
 }
 
-impl<T> ProvidedValue<T> {
+impl<T> Maybe<T> {
     pub fn to_option(&self) -> Option<&T> {
         match self {
-            ProvidedValue::Set(ref value) => Some(value),
-            ProvidedValue::Unset => None,
+            Maybe::Set(ref value) => Some(value),
+            Maybe::Unset => None,
         }
     }
 
     pub fn is_set(&self) -> bool {
         match self {
-            ProvidedValue::Set(_) => true,
-            ProvidedValue::Unset => false,
+            Maybe::Set(_) => true,
+            Maybe::Unset => false,
         }
     }
 
@@ -69,23 +69,23 @@ impl<T> ProvidedValue<T> {
     }
 }
 
-impl<T> ProvidedValue<T>
+impl<T> Maybe<T>
 where
     T: Into<sea_orm::Value>,
 {
     pub fn into_active_value(self) -> sea_orm::ActiveValue<T> {
         match self {
-            ProvidedValue::Set(value) => sea_orm::ActiveValue::Set(value),
-            ProvidedValue::Unset => sea_orm::ActiveValue::NotSet,
+            Maybe::Set(value) => sea_orm::ActiveValue::Set(value),
+            Maybe::Unset => sea_orm::ActiveValue::NotSet,
         }
     }
 }
 
-impl<T> From<ProvidedValue<T>> for Option<T> {
-    fn from(value: ProvidedValue<T>) -> Option<T> {
+impl<T> From<Maybe<T>> for Option<T> {
+    fn from(value: Maybe<T>) -> Option<T> {
         match value {
-            ProvidedValue::Set(value) => Some(value),
-            ProvidedValue::Unset => None,
+            Maybe::Set(value) => Some(value),
+            Maybe::Unset => None,
         }
     }
 }
@@ -96,8 +96,8 @@ fn serde() {
 
     #[derive(Serialize, Deserialize, Debug)]
     struct Object {
-        #[serde(default, skip_serializing_if = "ProvidedValue::is_unset")]
-        field: ProvidedValue<Option<String>>,
+        #[serde(default, skip_serializing_if = "Maybe::is_unset")]
+        field: Maybe<Option<String>>,
     }
 
     // Deserialization
@@ -114,12 +114,9 @@ fn serde() {
         }};
     }
 
-    check_deser!(json!({}), ProvidedValue::Unset);
-    check_deser!(json!({ "field": null }), ProvidedValue::Set(None));
-    check_deser!(
-        json!({"field": "apple"}),
-        ProvidedValue::Set(Some(str!("apple"))),
-    );
+    check_deser!(json!({}), Maybe::Unset);
+    check_deser!(json!({ "field": null }), Maybe::Set(None));
+    check_deser!(json!({"field": "apple"}), Maybe::Set(Some(str!("apple"))));
 
     // Serialization
 
@@ -135,10 +132,7 @@ fn serde() {
         }};
     }
 
-    check_ser!(ProvidedValue::Unset, "{}");
-    check_ser!(ProvidedValue::Set(None), r#"{"field":null}"#);
-    check_ser!(
-        ProvidedValue::Set(Some(str!("banana"))),
-        r#"{"field":"banana"}"#,
-    );
+    check_ser!(Maybe::Unset, "{}");
+    check_ser!(Maybe::Set(None), r#"{"field":null}"#);
+    check_ser!(Maybe::Set(Some(str!("banana"))), r#"{"field":"banana"}"#);
 }

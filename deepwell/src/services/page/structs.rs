@@ -22,7 +22,7 @@ use super::prelude::*;
 use crate::models::sea_orm_active_enums::PageRevisionType;
 use crate::services::page_revision::CreatePageRevisionOutput;
 use crate::services::score::ScoreValue;
-use crate::web::PageDetails;
+use crate::types::PageDetails;
 use ftml::layout::Layout;
 use ftml::parsing::ParseError;
 use time::OffsetDateTime;
@@ -171,10 +171,10 @@ pub struct EditPage<'a> {
 #[derive(Deserialize, Debug, Default, Clone)]
 #[serde(default)]
 pub struct EditPageBody {
-    pub wikitext: ProvidedValue<String>,
-    pub title: ProvidedValue<String>,
-    pub alt_title: ProvidedValue<Option<String>>,
-    pub tags: ProvidedValue<Vec<String>>,
+    pub wikitext: Maybe<String>,
+    pub title: Maybe<String>,
+    pub alt_title: Maybe<Option<String>>,
+    pub tags: Maybe<Vec<String>>,
 }
 
 #[derive(Deserialize, Debug, Clone)]

@@ -31,8 +31,8 @@ use crate::services::page_revision::{
 use crate::services::{
     CategoryService, FilterService, PageRevisionService, SiteService, TextService,
 };
+use crate::types::PageOrder;
 use crate::utils::{get_category_name, trim_default};
-use crate::web::PageOrder;
 use ftml::layout::Layout;
 use sea_orm::ActiveValue;
 use wikidot_normalize::normalize;
@@ -154,7 +154,7 @@ impl PageService {
             title.to_option(),
             // Flatten what is essentially Option<Option<_>>
             match alt_title {
-                ProvidedValue::Set(Some(ref alt_title)) => Some(alt_title),
+                Maybe::Set(Some(ref alt_title)) => Some(alt_title),
                 _ => None,
             },
         )
@@ -261,7 +261,7 @@ impl PageService {
             user_id,
             comments,
             body: CreatePageRevisionBody {
-                slug: ProvidedValue::Set(new_slug.clone()),
+                slug: Maybe::Set(new_slug.clone()),
                 ..Default::default()
             },
         };
@@ -484,11 +484,11 @@ impl PageService {
             user_id,
             comments,
             body: CreatePageRevisionBody {
-                wikitext: ProvidedValue::Set(wikitext),
-                title: ProvidedValue::Set(target_revision.title),
-                alt_title: ProvidedValue::Set(target_revision.alt_title),
-                tags: ProvidedValue::Set(target_revision.tags),
-                slug: ProvidedValue::Unset, // rollbacks should never move a page
+                wikitext: Maybe::Set(wikitext),
+                title: Maybe::Set(target_revision.title),
+                alt_title: Maybe::Set(target_revision.alt_title),
+                tags: Maybe::Set(target_revision.tags),
+                slug: Maybe::Unset, // rollbacks should never move a page
             },
         };
 

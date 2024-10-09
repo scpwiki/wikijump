@@ -28,7 +28,7 @@ use crate::services::file::{
     RestoreFileOutput,
 };
 use crate::services::Result;
-use crate::web::{Bytes, FileDetails};
+use crate::types::{Bytes, FileDetails};
 
 pub async fn file_get(
     ctx: &ServiceContext<'_>,

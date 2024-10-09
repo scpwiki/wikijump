@@ -19,7 +19,7 @@
  */
 
 use crate::models::filter;
-use crate::web::ProvidedValue;
+use crate::types::Maybe;
 use sea_orm::{ColumnTrait, Condition};
 
 /// Denotes what class of filter is being selected.
@@ -32,7 +32,7 @@ use sea_orm::{ColumnTrait, Condition};
 /// mirroring how it was stored in the database. However, this had
 /// some issues:
 ///
-/// One is that it is semantically unclear, and similar to `ProvidedValue`,
+/// One is that it is semantically unclear, and similar to `Maybe`,
 /// we should make a cheap enum wrapper to provide semantics to what is
 /// essentially just an `Option<i64>`.
 ///
@@ -163,12 +163,12 @@ pub struct CreateFilter {
 #[derive(Deserialize, Debug, Clone)]
 pub struct UpdateFilter {
     pub filter_id: i64,
-    pub affects_user: ProvidedValue<bool>,
-    pub affects_email: ProvidedValue<bool>,
-    pub affects_page: ProvidedValue<bool>,
-    pub affects_file: ProvidedValue<bool>,
-    pub affects_forum: ProvidedValue<bool>,
-    pub case_sensitive: ProvidedValue<bool>,
-    pub regex: ProvidedValue<String>,
-    pub description: ProvidedValue<String>,
+    pub affects_user: Maybe<bool>,
+    pub affects_email: Maybe<bool>,
+    pub affects_page: Maybe<bool>,
+    pub affects_file: Maybe<bool>,
+    pub affects_forum: Maybe<bool>,
+    pub case_sensitive: Maybe<bool>,
+    pub regex: Maybe<String>,
+    pub description: Maybe<String>,
 }

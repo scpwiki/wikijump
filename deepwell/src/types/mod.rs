@@ -1,5 +1,5 @@
 /*
- * web/mod.rs
+ * types/mod.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2024 Wikijump Team
@@ -24,16 +24,16 @@ mod bytes;
 mod connection_type;
 mod fetch_direction;
 mod file_details;
+mod maybe;
 mod page_details;
 mod page_order;
-mod provided_value;
 mod reference;
 
 pub use self::bytes::Bytes;
 pub use self::connection_type::ConnectionType;
 pub use self::fetch_direction::FetchDirection;
 pub use self::file_details::FileDetails;
+pub use self::maybe::Maybe;
 pub use self::page_details::PageDetails;
 pub use self::page_order::{PageOrder, PageOrderColumn};
-pub use self::provided_value::ProvidedValue;
 pub use self::reference::Reference;

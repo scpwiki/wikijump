@@ -22,7 +22,7 @@ use super::prelude::*;
 use crate::models::alias::Model as AliasModel;
 use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user::Model as UserModel;
-use crate::web::Bytes;
+use crate::types::Bytes;
 use time::Date;
 
 #[derive(Deserialize, Debug, Clone)]
@@ -68,18 +68,18 @@ pub struct UpdateUser<'a> {
 #[derive(Deserialize, Debug, Default, Clone)]
 #[serde(default)]
 pub struct UpdateUserBody {
-    pub name: ProvidedValue<String>,
-    pub email: ProvidedValue<String>,
-    pub email_verified: ProvidedValue<bool>,
-    pub password: ProvidedValue<String>,
-    pub locales: ProvidedValue<Vec<String>>,
-    pub avatar_uploaded_blob_id: ProvidedValue<Option<String>>,
-    pub real_name: ProvidedValue<Option<String>>,
-    pub gender: ProvidedValue<Option<String>>,
-    pub birthday: ProvidedValue<Option<Date>>,
-    pub location: ProvidedValue<Option<String>>,
-    pub biography: ProvidedValue<Option<String>>,
-    pub user_page: ProvidedValue<Option<String>>,
+    pub name: Maybe<String>,
+    pub email: Maybe<String>,
+    pub email_verified: Maybe<bool>,
+    pub password: Maybe<String>,
+    pub locales: Maybe<Vec<String>>,
+    pub avatar_uploaded_blob_id: Maybe<Option<String>>,
+    pub real_name: Maybe<Option<String>>,
+    pub gender: Maybe<Option<String>>,
+    pub birthday: Maybe<Option<Date>>,
+    pub location: Maybe<Option<String>>,
+    pub biography: Maybe<Option<String>>,
+    pub user_page: Maybe<Option<String>>,
 
     #[serde(default)]
     pub bypass_filter: bool,

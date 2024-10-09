@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::PageRevisionType;
-use crate::web::{FetchDirection, PageDetails};
+use crate::types::{FetchDirection, PageDetails};
 use ftml::layout::Layout;
 use ftml::parsing::ParseError;
 use std::num::NonZeroI32;
@@ -38,11 +38,11 @@ pub struct CreatePageRevision {
 #[derive(Deserialize, Debug, Default, Clone)]
 #[serde(default)]
 pub struct CreatePageRevisionBody {
-    pub wikitext: ProvidedValue<String>,
-    pub title: ProvidedValue<String>,
-    pub alt_title: ProvidedValue<Option<String>>,
-    pub slug: ProvidedValue<String>,
-    pub tags: ProvidedValue<Vec<String>>,
+    pub wikitext: Maybe<String>,
+    pub title: Maybe<String>,
+    pub alt_title: Maybe<Option<String>>,
+    pub slug: Maybe<String>,
+    pub tags: Maybe<Vec<String>>,
 }
 
 #[derive(Deserialize, Debug, Clone)]

@@ -1,5 +1,5 @@
 /*
- * web/fetch_direction.rs
+ * types/connection_type.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2024 Wikijump Team
@@ -22,56 +22,49 @@ use crate::services::Error as ServiceError;
 use std::str::FromStr;
 use strum_macros::EnumIter;
 
-#[derive(
-    EnumIter,
-    Serialize,
-    Deserialize,
-    Debug,
-    Copy,
-    Clone,
-    Hash,
-    PartialOrd,
-    Ord,
-    PartialEq,
-    Eq,
-)]
+#[derive(EnumIter, Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-pub enum FetchDirection {
-    /// Retrieves items prior (earlier) to this one.
-    Before,
-
-    /// Retrieves items after (later than) this one.
-    After,
+pub enum ConnectionType {
+    IncludeMessy,
+    IncludeElements,
+    Component,
+    Link,
+    Redirect,
 }
 
-impl FetchDirection {
-    #[cfg(test)]
+impl ConnectionType {
     pub fn name(self) -> &'static str {
         match self {
-            FetchDirection::Before => "before",
-            FetchDirection::After => "after",
+            ConnectionType::IncludeMessy => "include-messy",
+            ConnectionType::IncludeElements => "include-elements",
+            ConnectionType::Component => "component",
+            ConnectionType::Link => "link",
+            ConnectionType::Redirect => "redirect",
         }
     }
 }
 
-impl FromStr for FetchDirection {
+impl FromStr for ConnectionType {
     type Err = ServiceError;
 
-    fn from_str(value: &str) -> Result<FetchDirection, ServiceError> {
+    fn from_str(value: &str) -> Result<ConnectionType, ServiceError> {
         match value {
-            "before" => Ok(FetchDirection::Before),
-            "after" => Ok(FetchDirection::After),
+            "include-messy" => Ok(ConnectionType::IncludeMessy),
+            "include-elements" => Ok(ConnectionType::IncludeElements),
+            "component" => Ok(ConnectionType::Component),
+            "link" => Ok(ConnectionType::Link),
+            "redirect" => Ok(ConnectionType::Redirect),
             _ => Err(ServiceError::InvalidEnumValue),
         }
     }
 }
 
-/// Ensure `FetchDirection::name()` produces the same output as serde.
+/// Ensure `ConnectionType::name()` produces the same output as serde.
 #[test]
 fn name_serde() {
     use strum::IntoEnumIterator;
 
-    for variant in FetchDirection::iter() {
+    for variant in ConnectionType::iter() {
         let output = serde_json::to_string(&variant).expect("Unable to serialize JSON");
         let serde_name: String =
             serde_json::from_str(&output).expect("Unable to deserialize JSON");
@@ -82,7 +75,7 @@ fn name_serde() {
             "Serde name does not match variant name",
         );
 
-        let converted: FetchDirection =
+        let converted: ConnectionType =
             serde_name.as_str().parse().expect("Could not convert item");
 
         assert_eq!(converted, variant, "Converted item does not match variant");

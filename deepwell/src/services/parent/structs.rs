@@ -19,7 +19,7 @@
  */
 
 use crate::services::Error;
-use crate::web::Reference;
+use crate::types::Reference;
 use std::str::FromStr;
 
 #[derive(Deserialize, Debug, Clone)]

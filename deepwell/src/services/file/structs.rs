@@ -22,7 +22,7 @@ use crate::models::sea_orm_active_enums::FileRevisionType;
 use crate::services::file_revision::{
     CreateFileRevisionOutput, CreateFirstFileRevisionOutput,
 };
-use crate::web::{Bytes, FileDetails, ProvidedValue, Reference};
+use crate::types::{Bytes, FileDetails, Maybe, Reference};
 use serde_json::Value as JsonValue;
 use time::OffsetDateTime;
 
@@ -106,9 +106,9 @@ pub struct EditFile {
 #[derive(Deserialize, Debug, Default, Clone)]
 #[serde(default)]
 pub struct EditFileBody {
-    pub name: ProvidedValue<String>,
-    pub licensing: ProvidedValue<serde_json::Value>,
-    pub uploaded_blob_id: ProvidedValue<String>,
+    pub name: Maybe<String>,
+    pub licensing: Maybe<serde_json::Value>,
+    pub uploaded_blob_id: Maybe<String>,
 }
 
 pub type EditFileOutput = CreateFileRevisionOutput;

@@ -1,5 +1,5 @@
 /*
- * web/bytes.rs
+ * types/bytes.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2024 Wikijump Team

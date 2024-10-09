@@ -25,7 +25,7 @@ use crate::services::parent::{
     GetParentRelationships, ParentDescription, RemoveParentOutput, UpdateParents,
     UpdateParentsOutput,
 };
-use crate::web::Reference;
+use crate::types::Reference;
 use futures::future::try_join_all;
 
 pub async fn parent_relationships_get(

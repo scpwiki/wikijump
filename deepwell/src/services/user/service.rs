@@ -358,11 +358,11 @@ impl UserService {
         };
 
         // Add each field
-        if let ProvidedValue::Set(name) = input.name {
+        if let Maybe::Set(name) = input.name {
             Self::update_name(ctx, name, &user, &mut model, input.bypass_filter).await?;
         }
 
-        if let ProvidedValue::Set(email) = input.email {
+        if let Maybe::Set(email) = input.email {
             if !input.bypass_filter {
                 Self::run_email_filter(ctx, &email).await?;
             }
@@ -382,46 +382,46 @@ impl UserService {
             model.email_verified_at = Set(Some(now()))
         }
 
-        if let ProvidedValue::Set(email_verified) = input.email_verified {
+        if let Maybe::Set(email_verified) = input.email_verified {
             let timestamp = if email_verified { Some(now()) } else { None };
             model.email_verified_at = Set(timestamp);
         }
 
-        if let ProvidedValue::Set(password) = input.password {
+        if let Maybe::Set(password) = input.password {
             let password_hash = PasswordService::new_hash(&password)?;
             model.password = Set(password_hash);
         }
 
-        if let ProvidedValue::Set(locales) = input.locales {
+        if let Maybe::Set(locales) = input.locales {
             Self::validate_locales(user.user_type, &locales)?;
             model.locales = Set(locales);
         }
 
-        if let ProvidedValue::Set(real_name) = input.real_name {
+        if let Maybe::Set(real_name) = input.real_name {
             model.real_name = Set(real_name);
         }
 
-        if let ProvidedValue::Set(gender) = input.gender {
+        if let Maybe::Set(gender) = input.gender {
             model.gender = Set(gender);
         }
 
-        if let ProvidedValue::Set(birthday) = input.birthday {
+        if let Maybe::Set(birthday) = input.birthday {
             model.birthday = Set(birthday);
         }
 
-        if let ProvidedValue::Set(location) = input.location {
+        if let Maybe::Set(location) = input.location {
             model.location = Set(location);
         }
 
-        if let ProvidedValue::Set(biography) = input.biography {
+        if let Maybe::Set(biography) = input.biography {
             model.biography = Set(biography);
         }
 
-        if let ProvidedValue::Set(user_page) = input.user_page {
+        if let Maybe::Set(user_page) = input.user_page {
             model.user_page = Set(user_page);
         }
 
-        if let ProvidedValue::Set(uploaded_blob_id) = input.avatar_uploaded_blob_id {
+        if let Maybe::Set(uploaded_blob_id) = input.avatar_uploaded_blob_id {
             let s3_hash = match uploaded_blob_id {
                 None => None,
                 Some(uploaded_blob_id) => {

@@ -21,7 +21,7 @@
 use crate::models::page_connection::Model as PageConnectionModel;
 use crate::models::page_connection_missing::Model as PageConnectionMissingModel;
 use crate::models::page_link::Model as PageLinkModel;
-use crate::web::Reference;
+use crate::types::Reference;
 use time::OffsetDateTime;
 
 #[derive(Deserialize, Debug, Clone)]

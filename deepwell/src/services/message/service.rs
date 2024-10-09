@@ -85,8 +85,8 @@ impl MessageService {
                 locale,
                 subject,
                 wikitext,
-                reply_to: ProvidedValue::Set(reply_to),
-                forwarded_from: ProvidedValue::Set(forwarded_from),
+                reply_to: Maybe::Set(reply_to),
+                forwarded_from: Maybe::Set(forwarded_from),
             },
         )
         .await?
@@ -130,8 +130,8 @@ impl MessageService {
                 locale,
                 subject,
                 wikitext,
-                reply_to: ProvidedValue::Unset,
-                forwarded_from: ProvidedValue::Unset,
+                reply_to: Maybe::Unset,
+                forwarded_from: Maybe::Unset,
             },
         )
         .await?
@@ -613,6 +613,6 @@ struct DraftProcess {
     locale: String,
     subject: String,
     wikitext: String,
-    reply_to: ProvidedValue<Option<String>>,
-    forwarded_from: ProvidedValue<Option<String>>,
+    reply_to: Maybe<Option<String>>,
+    forwarded_from: Maybe<Option<String>>,
 }

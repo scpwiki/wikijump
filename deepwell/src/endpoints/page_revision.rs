@@ -26,7 +26,7 @@ use crate::services::page_revision::{
     PageRevisionCountOutput, PageRevisionModelFiltered, UpdatePageRevisionDetails,
 };
 use crate::services::{Result, TextService};
-use crate::web::PageDetails;
+use crate::types::PageDetails;
 
 pub async fn page_revision_count(
     ctx: &ServiceContext<'_>,
