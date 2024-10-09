@@ -52,8 +52,8 @@ mod info;
 mod locales;
 mod redis;
 mod services;
+mod types;
 mod utils;
-mod web;
 
 #[cfg(feature = "notify")]
 use self::watch::setup_autorestart;

@@ -19,7 +19,7 @@
  */
 
 use crate::models::filter;
-use crate::web::ProvidedValue;
+use crate::types::ProvidedValue;
 use sea_orm::{ColumnTrait, Condition};
 
 /// Denotes what class of filter is being selected.

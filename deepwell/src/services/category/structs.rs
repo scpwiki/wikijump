@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::web::Reference;
+use crate::types::Reference;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct GetCategory<'a> {

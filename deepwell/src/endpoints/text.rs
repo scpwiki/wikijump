@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::web::Bytes;
+use crate::types::Bytes;
 
 pub async fn text_create(
     ctx: &ServiceContext<'_>,

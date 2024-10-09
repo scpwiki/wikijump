@@ -31,7 +31,7 @@ use crate::services::page::{CreatePage, PageService};
 use crate::services::site::{CreateSite, CreateSiteOutput, SiteService};
 use crate::services::user::{CreateUser, CreateUserOutput, UpdateUserBody, UserService};
 use crate::services::ServiceContext;
-use crate::web::{ProvidedValue, Reference};
+use crate::types::{ProvidedValue, Reference};
 use anyhow::Result;
 use sea_orm::{
     ConnectionTrait, DatabaseBackend, DatabaseTransaction, Statement, TransactionTrait,

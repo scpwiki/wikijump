@@ -32,7 +32,7 @@ use crate::services::{
     CategoryService, FilterService, PageRevisionService, SiteService, TextService,
 };
 use crate::utils::{get_category_name, trim_default};
-use crate::web::PageOrder;
+use crate::types::PageOrder;
 use ftml::layout::Layout;
 use sea_orm::ActiveValue;
 use wikidot_normalize::normalize;

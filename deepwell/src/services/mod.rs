@@ -41,7 +41,7 @@ mod prelude {
     pub use super::error::*;
     pub use crate::config::Config;
     pub use crate::utils::now;
-    pub use crate::web::{ProvidedValue, Reference};
+    pub use crate::types::{ProvidedValue, Reference};
     pub use paste::paste;
     pub use sea_orm::{
         ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, DeleteResult,

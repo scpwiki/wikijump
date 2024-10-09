@@ -22,7 +22,7 @@ use super::prelude::*;
 use crate::models::alias::Model as AliasModel;
 use crate::models::sea_orm_active_enums::UserType;
 use crate::models::user::Model as UserModel;
-use crate::web::Bytes;
+use crate::types::Bytes;
 use time::Date;
 
 #[derive(Deserialize, Debug, Clone)]

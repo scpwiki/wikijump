@@ -19,7 +19,7 @@
  */
 
 use crate::models::user::Model as UserModel;
-use crate::web::Reference;
+use crate::types::Reference;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct CreateBotUser {

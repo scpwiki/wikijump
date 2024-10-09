@@ -26,7 +26,7 @@ use crate::services::user_bot_owner::{
     BotOwner, BotUserOutput, CreateBotOwner, CreateBotUser, RemoveBotOwner,
     RemoveBotOwnerOutput, UserBotOwnerService,
 };
-use crate::web::{ProvidedValue, Reference};
+use crate::types::{ProvidedValue, Reference};
 
 pub async fn bot_user_create(
     ctx: &ServiceContext<'_>,

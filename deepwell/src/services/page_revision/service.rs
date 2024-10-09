@@ -30,7 +30,7 @@ use crate::services::{
     SettingsService, SiteService, TextService,
 };
 use crate::utils::{split_category, split_category_name};
-use crate::web::FetchDirection;
+use crate::types::FetchDirection;
 use ftml::data::PageInfo;
 use ftml::layout::Layout;
 use ftml::settings::{WikitextMode, WikitextSettings};

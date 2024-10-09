@@ -27,7 +27,7 @@ use crate::services::page::{
     MovePageOutput, RestorePage, RestorePageOutput, RollbackPage, SetPageLayout,
 };
 use crate::services::{Result, TextService};
-use crate::web::{PageDetails, Reference};
+use crate::types::{PageDetails, Reference};
 use futures::future::try_join_all;
 
 pub async fn page_create(

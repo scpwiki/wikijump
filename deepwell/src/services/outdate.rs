@@ -22,7 +22,7 @@ use super::prelude::*;
 use crate::models::page::Model as PageModel;
 use crate::services::{JobService, LinkService, PageService};
 use crate::utils::split_category_name;
-use crate::web::{ConnectionType, PageOrder};
+use crate::types::{ConnectionType, PageOrder};
 
 #[derive(Debug)]
 pub struct OutdateService;

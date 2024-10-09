@@ -22,7 +22,7 @@ use super::prelude::*;
 use crate::models::sea_orm_active_enums::PageRevisionType;
 use crate::services::page_revision::CreatePageRevisionOutput;
 use crate::services::score::ScoreValue;
-use crate::web::PageDetails;
+use crate::types::PageDetails;
 use ftml::layout::Layout;
 use ftml::parsing::ParseError;
 use time::OffsetDateTime;

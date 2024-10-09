@@ -22,7 +22,7 @@ use crate::models::sea_orm_active_enums::FileRevisionType;
 use crate::services::file_revision::{
     CreateFileRevisionOutput, CreateFirstFileRevisionOutput,
 };
-use crate::web::{Bytes, FileDetails, ProvidedValue, Reference};
+use crate::types::{Bytes, FileDetails, ProvidedValue, Reference};
 use serde_json::Value as JsonValue;
 use time::OffsetDateTime;
 

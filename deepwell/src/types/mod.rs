@@ -1,5 +1,5 @@
 /*
- * web/page_details.rs
+ * types/mod.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2024 Wikijump Team
@@ -18,13 +18,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#[derive(Serialize, Deserialize, Debug, Default, Copy, Clone, PartialEq, Eq)]
-#[serde(default)]
-pub struct PageDetails {
-    /// Include the wikitext in the page output.
-    pub wikitext: bool,
+#![allow(unused_imports)]
 
-    /// Include the compiled HTML in the page output.
-    #[serde(alias = "compiled")]
-    pub compiled_html: bool,
-}
+mod bytes;
+mod connection_type;
+mod fetch_direction;
+mod file_details;
+mod page_details;
+mod page_order;
+mod provided_value;
+mod reference;
+
+pub use self::bytes::Bytes;
+pub use self::connection_type::ConnectionType;
+pub use self::fetch_direction::FetchDirection;
+pub use self::file_details::FileDetails;
+pub use self::page_details::PageDetails;
+pub use self::page_order::{PageOrder, PageOrderColumn};
+pub use self::provided_value::ProvidedValue;
+pub use self::reference::Reference;

@@ -23,7 +23,7 @@ use crate::services::blob::{
     BlobMetadata, CancelBlobUpload, GetBlobOutput, StartBlobUpload, StartBlobUploadOutput,
 };
 use crate::services::Result;
-use crate::web::Bytes;
+use crate::types::Bytes;
 
 /// Temporary endpoint to get any blob by hash.
 /// Primarily for user avatars, which have no other

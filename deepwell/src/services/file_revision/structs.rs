@@ -21,7 +21,7 @@
 use super::prelude::*;
 use crate::hash::BlobHash;
 use crate::services::page_revision::PageRevisionCountOutput;
-use crate::web::{Bytes, FetchDirection};
+use crate::types::{Bytes, FetchDirection};
 
 #[derive(Debug, Clone)]
 pub struct CreateFileRevision {

@@ -26,7 +26,7 @@ use crate::models::user::{self, Entity as User};
 use crate::services::filter::{FilterClass, FilterType};
 use crate::services::{FilterService, SiteService, UserService};
 use crate::utils::get_regular_slug;
-use crate::web::Reference;
+use crate::types::Reference;
 
 #[derive(Debug)]
 pub struct AliasService;

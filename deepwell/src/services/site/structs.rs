@@ -21,7 +21,7 @@
 use crate::models::alias::Model as AliasModel;
 use crate::models::site::Model as SiteModel;
 use crate::models::site_domain::Model as SiteDomainModel;
-use crate::web::{ProvidedValue, Reference};
+use crate::types::{ProvidedValue, Reference};
 use ftml::layout::Layout;
 
 #[derive(Deserialize, Debug, Clone)]
