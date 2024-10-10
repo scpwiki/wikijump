@@ -33,6 +33,7 @@ use crate::services::file_revision::{
 };
 use crate::services::filter::{FilterClass, FilterType};
 use crate::services::{BlobService, FileRevisionService, FilterService};
+use crate::types::FileOrder;
 use sea_orm::ActiveValue;
 
 #[derive(Debug)]
@@ -552,6 +553,25 @@ impl FileService {
     #[inline]
     pub async fn get(ctx: &ServiceContext<'_>, input: GetFile<'_>) -> Result<FileModel> {
         find_or_error!(Self::get_optional(ctx, input), File)
+    }
+
+    /// Gets all files on a page, with potential conditions.
+    ///
+    /// The `deleted` argument:
+    /// * If it is `Some(true)`, then it only returns pages which have been deleted.
+    /// * If it is `Some(false)`, then it only returns pages which are extant.
+    /// * If it is `None`, then it returns all pages regardless of deletion status.
+    // TODO add pagination
+    pub async fn get_all(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+        deleted: Option<bool>,
+        order: FileOrder,
+    ) -> Result<Vec<FileModel>> {
+        let txn = ctx.transaction();
+
+        todo!()
     }
 
     /// Gets the file ID from a reference, looking up if necessary.
