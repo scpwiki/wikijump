@@ -485,10 +485,10 @@ impl FileService {
             user_id,
             revision_comments,
             body: CreateFileRevisionBody {
-                name: ProvidedValue::Set(name),
-                blob: ProvidedValue::Set(blob),
-                licensing: ProvidedValue::Set(licensing),
-                page_id: ProvidedValue::Unset, // rollbacks should never move files
+                name: Maybe::Set(name),
+                blob: Maybe::Set(blob),
+                licensing: Maybe::Set(licensing),
+                page_id: Maybe::Unset, // rollbacks should never move files
             },
         };
 
