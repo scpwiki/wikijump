@@ -570,8 +570,24 @@ impl FileService {
         order: FileOrder,
     ) -> Result<Vec<FileModel>> {
         let txn = ctx.transaction();
+        let deleted_condition = match deleted {
+            Some(true) => Some(file::Column::DeletedAt.is_not_null()),
+            Some(false) => Some(file::Column::DeletedAt.is_null()),
+            None => None,
+        };
 
-        todo!()
+        let files = File::find()
+            .filter(
+                Condition::all()
+                    .add(file::Column::SiteId.eq(site_id))
+                    .add(file::Column::PageId.eq(page_id))
+                    .add_option(deleted_condition),
+            )
+            .order_by(order.column.into_column(), order.direction)
+            .all(txn)
+            .await?;
+
+        Ok(files)
     }
 
     /// Gets the file ID from a reference, looking up if necessary.
