@@ -656,26 +656,6 @@ impl FileService {
         find_or_error!(Self::get_direct_optional(ctx, file_id, allow_deleted), File)
     }
 
-    /// Hard deletes this file and all duplicates.
-    ///
-    /// This is a very powerful method and needs to be used carefully.
-    /// It should only be accessible to platform staff.
-    ///
-    /// As opposed to normal soft deletions, this method will completely
-    /// remove a file from Wikijump. The file rows will be deleted themselves,
-    /// and will cascade to any places where file IDs are used.
-    ///
-    /// This method should only be used very rarely to clear content such
-    /// as severe copyright violations, abuse content, or comply with court orders.
-    pub async fn hard_delete_all(_ctx: &ServiceContext<'_>, _file_id: i64) -> Result<()> {
-        // TODO find hash. update all files with the same hash
-        // TODO if hash == 00000 then error
-        // TODO add to audit log
-        // TODO hard delete BlobService
-
-        todo!()
-    }
-
     /// Checks to see if a file already exists at the name specified.
     ///
     /// If so, this method fails with `Error::FileExists`. Otherwise it returns nothing.

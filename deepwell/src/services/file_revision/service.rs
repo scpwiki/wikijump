@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::hash::BlobHash;
 use crate::models::file_revision::{
     self, Entity as FileRevision, Model as FileRevisionModel,
 };
@@ -435,6 +436,26 @@ impl FileRevisionService {
         // Update and return
         let revision = model.update(txn).await?;
         Ok(revision)
+    }
+
+    /// Hard deletes the specified blob and all duplicates.
+    ///
+    /// This is a very powerful method and needs to be used carefully.
+    /// It should only be accessible to platform staff.
+    ///
+    /// As opposed to normal soft deletions, this method will completely
+    /// remove a file from Wikijump. The data will be entirely purged
+    /// and the data will be replaced with the blank file.
+    ///
+    /// This method should only be used very rarely to clear content such
+    /// as severe copyright violations, abuse content, or comply with court orders.
+    pub async fn hard_delete_all(ctx: &ServiceContext<'_>, s3_hash: BlobHash) -> Result<()> {
+        // TODO find hash. update all files with the same hash
+        // TODO if hash == 00000 then error
+        // TODO add to audit log
+        // TODO hard delete BlobService
+
+        todo!()
     }
 
     /// Get the latest revision for this file.
