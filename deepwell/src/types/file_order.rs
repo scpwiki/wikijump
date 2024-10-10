@@ -46,6 +46,7 @@ impl Default for FileOrder {
 
 /// Describes what column that files should be ordered by.
 #[derive(Serialize, Deserialize, Debug, Default, Copy, Clone, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
 pub enum FileOrderColumn {
     /// Requests files in file ID order.
     /// This is the default.

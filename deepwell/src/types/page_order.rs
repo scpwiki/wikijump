@@ -46,6 +46,7 @@ impl Default for PageOrder {
 
 /// Describes what column that pages should be ordered by.
 #[derive(Serialize, Deserialize, Debug, Default, Copy, Clone, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
 pub enum PageOrderColumn {
     /// Requests pages in page ID order.
     /// This is the default.
