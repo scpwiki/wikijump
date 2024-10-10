@@ -189,6 +189,7 @@ impl FileService {
                 file_id,
                 user_id,
                 revision_comments,
+                revision_type: FileRevisionType::Regular,
                 body: CreateFileRevisionBody {
                     name,
                     licensing,
@@ -254,6 +255,7 @@ impl FileService {
                 file_id,
                 user_id,
                 revision_comments,
+                revision_type: FileRevisionType::Move,
                 body: CreateFileRevisionBody {
                     page_id: Maybe::Set(destination_page_id),
                     ..Default::default()
@@ -492,6 +494,7 @@ impl FileService {
             file_id,
             user_id,
             revision_comments,
+            revision_type: FileRevisionType::Rollback,
             body: CreateFileRevisionBody {
                 name: Maybe::Set(name),
                 blob: Maybe::Set(blob),

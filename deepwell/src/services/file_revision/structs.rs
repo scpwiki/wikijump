@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use crate::hash::BlobHash;
+use crate::models::sea_orm_active_enums::FileRevisionType;
 use crate::services::page_revision::PageRevisionCountOutput;
 use crate::types::{Bytes, FetchDirection};
 
@@ -30,6 +31,7 @@ pub struct CreateFileRevision {
     pub file_id: i64,
     pub user_id: i64,
     pub revision_comments: String,
+    pub revision_type: FileRevisionType,
     pub body: CreateFileRevisionBody,
 }
 

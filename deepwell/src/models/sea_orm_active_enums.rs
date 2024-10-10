@@ -24,14 +24,14 @@ pub enum FileRevisionType {
     Create,
     #[sea_orm(string_value = "delete")]
     Delete,
+    #[sea_orm(string_value = "move")]
+    Move,
     #[sea_orm(string_value = "regular")]
     Regular,
     #[sea_orm(string_value = "rollback")]
     Rollback,
     #[sea_orm(string_value = "undelete")]
     Undelete,
-    #[sea_orm(string_value = "undo")]
-    Undo,
 }
 #[derive(
     Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Copy, Serialize, Deserialize,

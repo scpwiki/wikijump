@@ -446,12 +446,12 @@ CREATE TYPE file_revision_type AS ENUM (
     -- standard
     'regular',
     'rollback',
-    'undo',
 
     -- special
     'create',
     'delete',
-    'undelete'
+    'undelete',
+    'move'
 );
 
 CREATE TYPE file_revision_change AS ENUM (
@@ -523,7 +523,7 @@ CREATE TABLE file_revision (
     ),
 
     -- Ensure array is not empty for regular revisions
-    CHECK (revision_type NOT IN ('regular', 'rollback', 'undo') OR changes != '{}'),
+    CHECK (revision_type NOT IN ('regular', 'rollback') OR changes != '{}'),
 
     -- Ensure page creations are always the first revision
     CHECK (revision_number != 0 OR revision_type = 'create'),
