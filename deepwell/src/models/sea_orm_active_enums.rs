@@ -20,14 +20,18 @@ pub enum AliasType {
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "file_revision_type")]
 #[serde(rename_all = "kebab-case")]
 pub enum FileRevisionType {
-    #[sea_orm(string_value = "regular")]
-    Regular,
     #[sea_orm(string_value = "create")]
     Create,
     #[sea_orm(string_value = "delete")]
     Delete,
+    #[sea_orm(string_value = "regular")]
+    Regular,
+    #[sea_orm(string_value = "rollback")]
+    Rollback,
     #[sea_orm(string_value = "undelete")]
     Undelete,
+    #[sea_orm(string_value = "undo")]
+    Undo,
 }
 #[derive(
     Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Copy, Serialize, Deserialize,
@@ -60,8 +64,12 @@ pub enum PageRevisionType {
     Move,
     #[sea_orm(string_value = "regular")]
     Regular,
+    #[sea_orm(string_value = "rollback")]
+    Rollback,
     #[sea_orm(string_value = "undelete")]
     Undelete,
+    #[sea_orm(string_value = "undo")]
+    Undo,
 }
 #[derive(
     Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Copy, Serialize, Deserialize,
