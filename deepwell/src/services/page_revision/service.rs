@@ -108,6 +108,18 @@ impl PageRevisionService {
         let txn = ctx.transaction();
         let revision_number = next_revision_number(&previous, site_id, page_id);
 
+        // Replace with debug_assert_matches! when stablized
+        debug_assert!(
+            matches!(
+                revision_type,
+                PageRevisionType::Regular
+                    | PageRevisionType::Move
+                    | PageRevisionType::Rollback
+                    | PageRevisionType::Undo,
+            ),
+            "Invalid revision type for standard revision creation",
+        );
+
         // Fields to create in the revision
         let mut parser_errors = None;
         let mut old_slug = None;
