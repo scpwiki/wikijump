@@ -562,6 +562,7 @@ impl FileService {
     /// * If it is `Some(false)`, then it only returns pages which are extant.
     /// * If it is `None`, then it returns all pages regardless of deletion status.
     // TODO add pagination
+    #[allow(dead_code)] // TEMP
     pub async fn get_all(
         ctx: &ServiceContext<'_>,
         site_id: i64,
