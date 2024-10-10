@@ -33,6 +33,7 @@ use crate::services::file_revision::{
 };
 use crate::services::filter::{FilterClass, FilterType};
 use crate::services::{BlobService, FileRevisionService, FilterService};
+use sea_orm::ActiveValue;
 
 #[derive(Debug)]
 pub struct FileService;
@@ -132,12 +133,15 @@ impl FileService {
             uploaded_blob_id,
         } = body;
 
+        let mut new_name = ActiveValue::NotSet;
+
         // Verify name change
         //
         // If the name isn't changing, then we already verified this
         // when the file was originally created.
         if let Maybe::Set(ref name) = name {
             Self::check_conflicts(ctx, page_id, name, "update").await?;
+            new_name = ActiveValue::Set(name.clone());
 
             if !bypass_filter {
                 Self::run_filter(ctx, site_id, Some(name)).await?;
@@ -170,6 +174,7 @@ impl FileService {
         // Update file metadata
         let model = file::ActiveModel {
             file_id: Set(file_id),
+            name: new_name,
             updated_at: Set(Some(now())),
             ..Default::default()
         };
@@ -457,9 +462,12 @@ impl FileService {
             ..
         } = target_revision;
 
+        let mut new_name = ActiveValue::NotSet;
+
         // Check name change
         if last_revision.name != name {
             Self::check_conflicts(ctx, page_id, &name, "rollback").await?;
+            new_name = ActiveValue::Set(name.clone());
 
             if !bypass_filter {
                 Self::run_filter(ctx, site_id, Some(&name)).await?;
@@ -499,6 +507,7 @@ impl FileService {
         // Update file metadata
         let model = file::ActiveModel {
             file_id: Set(file_id),
+            name: new_name,
             updated_at: Set(Some(now())),
             ..Default::default()
         };
