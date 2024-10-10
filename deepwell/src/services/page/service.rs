@@ -22,6 +22,7 @@ use super::prelude::*;
 use crate::models::page::{self, Entity as Page, Model as PageModel};
 use crate::models::page_category::Model as PageCategoryModel;
 use crate::models::page_revision::Model as PageRevisionModel;
+use crate::models::sea_orm_active_enums::PageRevisionType;
 use crate::services::filter::{FilterClass, FilterType};
 use crate::services::page_revision::{
     CreateFirstPageRevision, CreateFirstPageRevisionOutput, CreatePageRevision,
@@ -174,6 +175,7 @@ impl PageService {
         let revision_input = CreatePageRevision {
             user_id,
             comments,
+            revision_type: PageRevisionType::Regular,
             body: CreatePageRevisionBody {
                 wikitext,
                 title,
@@ -260,6 +262,7 @@ impl PageService {
         let revision_input = CreatePageRevision {
             user_id,
             comments,
+            revision_type: PageRevisionType::Move,
             body: CreatePageRevisionBody {
                 slug: Maybe::Set(new_slug.clone()),
                 ..Default::default()
@@ -468,6 +471,9 @@ impl PageService {
             PageRevisionService::get_latest(ctx, site_id, page_id),
         )?;
 
+        // TODO Handle hidden fields, see https://scuttle.atlassian.net/browse/WJ-1285
+        let _ = target_revision.hidden;
+
         // Check last revision ID
         check_last_revision(Some(&last_revision), latest_revision_id, last_revision_id)?;
 
@@ -482,6 +488,7 @@ impl PageService {
 
         let revision_input = CreatePageRevision {
             user_id,
+            revision_type: PageRevisionType::Rollback,
             comments,
             body: CreatePageRevisionBody {
                 wikitext: Maybe::Set(wikitext),

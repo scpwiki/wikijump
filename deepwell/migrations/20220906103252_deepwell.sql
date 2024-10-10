@@ -215,7 +215,12 @@ CREATE TABLE page (
 
 -- Enum types for page_revision
 CREATE TYPE page_revision_type AS ENUM (
+    -- standard
     'regular',
+    'rollback',
+    'undo',
+
+    -- special
     'create',
     'delete',
     'undelete',
@@ -293,7 +298,7 @@ CREATE TABLE page_revision (
     ),
 
     -- Ensure array is not empty for regular revisions
-    CHECK (revision_type != 'regular' OR changes != '{}'),
+    CHECK (revision_type NOT IN ('regular', 'rollback', 'undo') OR changes != '{}'),
 
     -- Ensure page creations are always the first revision
     CHECK (revision_number != 0 OR revision_type = 'create'),
@@ -438,10 +443,15 @@ CREATE TABLE blob_pending (
 
 -- Enum types for file_revision
 CREATE TYPE file_revision_type AS ENUM (
+    -- standard
+    'regular',
+    'rollback',
+
+    -- special
     'create',
-    'update',
     'delete',
-    'undelete'
+    'undelete',
+    'move'
 );
 
 CREATE TYPE file_revision_change AS ENUM (
@@ -512,8 +522,8 @@ CREATE TABLE file_revision (
         }'
     ),
 
-    -- Ensure array is not empty for update revisions
-    CHECK (revision_type != 'update' OR changes != '{}'),
+    -- Ensure array is not empty for regular revisions
+    CHECK (revision_type NOT IN ('regular', 'rollback') OR changes != '{}'),
 
     -- Ensure page creations are always the first revision
     CHECK (revision_number != 0 OR revision_type = 'create'),

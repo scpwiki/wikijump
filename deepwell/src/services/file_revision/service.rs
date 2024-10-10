@@ -62,12 +62,22 @@ impl FileRevisionService {
             file_id,
             user_id,
             revision_comments,
+            revision_type,
             body,
         }: CreateFileRevision,
         previous: FileRevisionModel,
     ) -> Result<Option<CreateFileRevisionOutput>> {
         let txn = ctx.transaction();
         let revision_number = next_revision_number(&previous, page_id, file_id);
+
+        // Replace with debug_assert_matches! when stablized
+        debug_assert!(
+            matches!(
+                revision_type,
+                FileRevisionType::Regular | FileRevisionType::Rollback,
+            ),
+            "Invalid revision type for standard revision creation",
+        );
 
         // Fields to create in the revision
         let mut changes = Vec::new();
@@ -155,7 +165,7 @@ impl FileRevisionService {
 
         // Insert the new revision into the table
         let model = file_revision::ActiveModel {
-            revision_type: Set(FileRevisionType::Update),
+            revision_type: Set(revision_type),
             revision_number: Set(revision_number),
             file_id: Set(file_id),
             page_id: Set(page_id),

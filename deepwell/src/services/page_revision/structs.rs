@@ -30,6 +30,7 @@ use time::OffsetDateTime;
 pub struct CreatePageRevision {
     pub user_id: i64,
     pub comments: String,
+    pub revision_type: PageRevisionType,
 
     #[serde(flatten)]
     pub body: CreatePageRevisionBody,

@@ -15,6 +15,7 @@ pub struct Model {
     pub site_id: i64,
     #[sea_orm(column_type = "Text")]
     pub slug: String,
+    #[sea_orm(column_type = "Text", nullable)]
     pub layout: Option<String>,
 }
 
