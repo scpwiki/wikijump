@@ -100,6 +100,7 @@ impl PageRevisionService {
         CreatePageRevision {
             user_id,
             comments,
+            revision_type,
             body,
         }: CreatePageRevision,
         previous: PageRevisionModel,
@@ -232,9 +233,9 @@ impl PageRevisionService {
 
         // Perform outdating based on changes made.
         //
-        // Also, determine the revision type.
+        // Also, verify the revision type is correct.
         // If the slug changes it's "move", otherwise "regular".
-        let revision_type = match old_slug {
+        match old_slug {
             Some(ref old_slug) => {
                 // If there's an "old slug" set, then this is a page rename / move.
                 // Thus we should invoke the OutdateService for both the source
@@ -249,7 +250,11 @@ impl PageRevisionService {
                 )
                 .await?;
 
-                PageRevisionType::Move
+                assert_eq!(
+                    revision_type,
+                    PageRevisionType::Move,
+                    "Page slug is changing but revision type is not move",
+                );
             }
             None => {
                 // Run all outdating tasks in parallel.
@@ -278,7 +283,16 @@ impl PageRevisionService {
                     ),
                 )?;
 
-                PageRevisionType::Regular
+                // TODO replace with assert_matches! when it's stable
+                assert!(
+                    matches!(
+                        revision_type,
+                        PageRevisionType::Regular
+                            | PageRevisionType::Rollback
+                            | PageRevisionType::Undo
+                    ),
+                    "Revision type is not standard for non-moves",
+                );
             }
         };
 
