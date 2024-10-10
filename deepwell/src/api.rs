@@ -271,7 +271,6 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("file_move", file_move);
     register!("file_restore", file_restore);
     register!("file_rollback", file_rollback);
-    register!("file_hard_delete", file_hard_delete);
 
     // File revisions
     register!("file_revision_get", file_revision_get);
