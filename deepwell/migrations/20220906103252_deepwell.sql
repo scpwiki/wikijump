@@ -438,8 +438,8 @@ CREATE TABLE blob_pending (
 
 -- Enum types for file_revision
 CREATE TYPE file_revision_type AS ENUM (
+    'regular',
     'create',
-    'update',
     'delete',
     'undelete'
 );
@@ -512,8 +512,8 @@ CREATE TABLE file_revision (
         }'
     ),
 
-    -- Ensure array is not empty for update revisions
-    CHECK (revision_type != 'update' OR changes != '{}'),
+    -- Ensure array is not empty for regular revisions
+    CHECK (revision_type != 'regular' OR changes != '{}'),
 
     -- Ensure page creations are always the first revision
     CHECK (revision_number != 0 OR revision_type = 'create'),

@@ -155,7 +155,7 @@ impl FileRevisionService {
 
         // Insert the new revision into the table
         let model = file_revision::ActiveModel {
-            revision_type: Set(FileRevisionType::Update),
+            revision_type: Set(FileRevisionType::Regular),
             revision_number: Set(revision_number),
             file_id: Set(file_id),
             page_id: Set(page_id),
