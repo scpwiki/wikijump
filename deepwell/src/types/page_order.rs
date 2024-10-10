@@ -59,6 +59,9 @@ pub enum PageOrderColumn {
     /// Requests pages in page update order.
     Update,
 
+    /// Requests pages in page deletion order.
+    Deletion,
+
     /// Requests pages in slug order.
     Slug,
 }
@@ -77,6 +80,7 @@ impl From<PageOrderColumn> for page::Column {
             PageOrderColumn::Id => page::Column::PageId,
             PageOrderColumn::Creation => page::Column::CreatedAt,
             PageOrderColumn::Update => page::Column::UpdatedAt,
+            PageOrderColumn::Deletion => page::Column::DeletedAt,
             PageOrderColumn::Slug => page::Column::Slug,
         }
     }

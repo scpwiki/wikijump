@@ -59,6 +59,9 @@ pub enum FileOrderColumn {
     /// Requests files in file update order.
     Update,
 
+    /// Requests pages in page deletion order.
+    Deletion,
+
     /// Requests files in file name order.
     Name,
 }
@@ -77,6 +80,7 @@ impl From<FileOrderColumn> for file::Column {
             FileOrderColumn::Id => file::Column::FileId,
             FileOrderColumn::Creation => file::Column::CreatedAt,
             FileOrderColumn::Update => file::Column::UpdatedAt,
+            FileOrderColumn::Deletion => file::Column::DeletedAt,
             FileOrderColumn::Name => file::Column::Name,
         }
     }
