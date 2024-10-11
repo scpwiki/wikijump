@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::hash::slice_to_blob_hash;
 use crate::services::blob::{
     BlobMetadata, CancelBlobUpload, GetBlobOutput, StartBlobUpload, StartBlobUploadOutput,
 };
@@ -73,4 +74,19 @@ pub async fn blob_upload(
     info!("Creating new pending blob upload");
     let input: StartBlobUpload = params.parse()?;
     BlobService::start_upload(ctx, input).await
+}
+
+pub async fn blob_blacklist_add(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<()> {
+    #[derive(Deserialize, Debug)]
+    struct AddBlacklist {
+        hash: Bytes<'static>,
+        user_id: i64,
+    }
+
+    let AddBlacklist { hash, user_id } = params.parse()?;
+    let hash = slice_to_blob_hash(hash.as_ref());
+    BlobService::add_blacklist(ctx, hash, user_id).await
 }
