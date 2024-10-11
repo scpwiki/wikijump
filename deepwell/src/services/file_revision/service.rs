@@ -454,6 +454,7 @@ impl FileRevisionService {
     pub async fn hard_delete_all(
         ctx: &ServiceContext<'_>,
         s3_hash: BlobHash,
+        user_id: i64,
     ) -> Result<u64> {
         let txn = ctx.transaction();
 
@@ -463,8 +464,9 @@ impl FileRevisionService {
         }
 
         info!(
-            "Hard deleting all blobs matching hash {}",
+            "Hard deleting all blobs matching hash {} (done by user ID {})",
             blob_hash_to_hex(&s3_hash),
+            user_id,
         );
 
         // TODO add to audit log
