@@ -410,6 +410,16 @@ impl BlobService {
         Ok(())
     }
 
+    pub async fn remove_blacklist(
+        ctx: &ServiceContext<'_>,
+        hash: BlobHash,
+    ) -> Result<()> {
+        info!("Removing hash {} to blacklist", blob_hash_to_hex(&hash));
+        let txn = ctx.transaction();
+        BlobBlacklist::delete_by_id(hash.to_vec()).exec(txn).await?;
+        Ok(())
+    }
+
     pub async fn on_blacklist(ctx: &ServiceContext<'_>, hash: BlobHash) -> Result<bool> {
         info!(
             "Checking if hash {} is on blacklist",
