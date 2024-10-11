@@ -390,10 +390,10 @@ impl BlobService {
 
     pub async fn add_blacklist(
         ctx: &ServiceContext<'_>,
-        hash: &[u8],
+        hash: BlobHash,
         created_by: i64,
     ) -> Result<()> {
-        info!("Adding hash {} to blacklist", blob_hash_to_hex(hash));
+        info!("Adding hash {} to blacklist", blob_hash_to_hex(&hash));
 
         if Self::on_blacklist(ctx, hash).await? {
             debug!("Already blacklisted, skipping");
@@ -410,15 +410,15 @@ impl BlobService {
         Ok(())
     }
 
-    pub async fn on_blacklist(ctx: &ServiceContext<'_>, hash: &[u8]) -> Result<bool> {
+    pub async fn on_blacklist(ctx: &ServiceContext<'_>, hash: BlobHash) -> Result<bool> {
         info!(
             "Checking if hash {} is on blacklist",
-            blob_hash_to_hex(hash),
+            blob_hash_to_hex(&hash),
         );
 
         let txn = ctx.transaction();
         let exists = BlobBlacklist::find()
-            .filter(blob_blacklist::Column::S3Hash.eq(hash))
+            .filter(blob_blacklist::Column::S3Hash.eq(hash.as_slice()))
             .one(txn)
             .await?
             .is_some();
