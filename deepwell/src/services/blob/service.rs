@@ -20,6 +20,9 @@
 
 use super::prelude::*;
 use crate::hash::slice_to_blob_hash;
+use crate::models::blob_blacklist::{
+    self, Entity as BlobBlacklist, Model as BlobBlacklistModel,
+};
 use crate::models::blob_pending::{
     self, Entity as BlobPending, Model as BlobPendingModel,
 };
@@ -383,6 +386,44 @@ impl BlobService {
 
         // Return result based on blob status
         Ok(output)
+    }
+
+    pub async fn add_blacklist(
+        ctx: &ServiceContext<'_>,
+        hash: &[u8],
+        created_by: i64,
+    ) -> Result<()> {
+        info!("Adding hash {} to blacklist", blob_hash_to_hex(hash));
+
+        if Self::on_blacklist(ctx, hash).await? {
+            debug!("Already blacklisted, skipping");
+            return Ok(());
+        }
+
+        let txn = ctx.transaction();
+        let model = blob_blacklist::ActiveModel {
+            s3_hash: Set(hash.to_vec()),
+            created_by: Set(created_by),
+            ..Default::default()
+        };
+        model.insert(txn).await?;
+        Ok(())
+    }
+
+    pub async fn on_blacklist(ctx: &ServiceContext<'_>, hash: &[u8]) -> Result<bool> {
+        info!(
+            "Checking if hash {} is on blacklist",
+            blob_hash_to_hex(hash),
+        );
+
+        let txn = ctx.transaction();
+        let exists = BlobBlacklist::find()
+            .filter(blob_blacklist::Column::S3Hash.eq(hash))
+            .one(txn)
+            .await?
+            .is_some();
+
+        Ok(exists)
     }
 
     pub async fn get_optional(
