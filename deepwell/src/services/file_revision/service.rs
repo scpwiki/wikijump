@@ -514,10 +514,11 @@ impl FileRevisionService {
             revisions_affected += 1;
         }
 
-        // Blacklist the hash, nobody should be uploading new versions
-        BlobService::add_blacklist(ctx, s3_hash, user_id).await?;
-
-        // TODO hard delete BlobService
+        // Delete and blacklist the hash, nobody should be uploading new versions
+        try_join!(
+            BlobService::add_blacklist(ctx, s3_hash, user_id),
+            BlobService::hard_delete(ctx, &s3_hash),
+        )?;
 
         Ok(revisions_affected)
     }

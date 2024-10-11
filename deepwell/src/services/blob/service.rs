@@ -545,7 +545,6 @@ impl BlobService {
         }
     }
 
-    #[allow(dead_code)] // TEMP
     pub async fn hard_delete(ctx: &ServiceContext<'_>, hash: &[u8]) -> Result<()> {
         // Special handling for empty blobs
         //
