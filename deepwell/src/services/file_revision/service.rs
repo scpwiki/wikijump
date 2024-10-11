@@ -19,14 +19,16 @@
  */
 
 use super::prelude::*;
-use crate::hash::BlobHash;
+use crate::hash::{blob_hash_to_hex, BlobHash};
 use crate::models::file_revision::{
     self, Entity as FileRevision, Model as FileRevisionModel,
 };
 use crate::services::blob::{FinalizeBlobUploadOutput, EMPTY_BLOB_HASH, EMPTY_BLOB_MIME};
 use crate::services::{BlobService, OutdateService, PageService};
 use crate::types::{Bytes, FetchDirection};
+use futures::TryStreamExt;
 use once_cell::sync::Lazy;
+use sea_orm::UpdateResult;
 use std::num::NonZeroI32;
 
 pub const MAXIMUM_FILE_NAME_LENGTH: usize = 256;
@@ -449,13 +451,71 @@ impl FileRevisionService {
     ///
     /// This method should only be used very rarely to clear content such
     /// as severe copyright violations, abuse content, or comply with court orders.
-    pub async fn hard_delete_all(ctx: &ServiceContext<'_>, s3_hash: BlobHash) -> Result<()> {
-        // TODO find hash. update all files with the same hash
-        // TODO if hash == 00000 then error
-        // TODO add to audit log
-        // TODO hard delete BlobService
+    pub async fn hard_delete_all(
+        ctx: &ServiceContext<'_>,
+        s3_hash: BlobHash,
+    ) -> Result<u64> {
+        let txn = ctx.transaction();
 
-        todo!()
+        if s3_hash == EMPTY_BLOB_HASH {
+            error!("Cannot hard delete the empty blob");
+            return Err(Error::BadRequest);
+        }
+
+        info!(
+            "Hard deleting all blobs matching hash {}",
+            blob_hash_to_hex(&s3_hash),
+        );
+
+        // TODO add to audit log
+
+        // We can't use SeaORM to do an update_many because we have to modify the 'hidden'
+        // column to hide the data. But, there's a chance that the column is already blocked,
+        // which requires manual adjustment.
+        //
+        // Instead, we use a stream to get rows and then update each one.
+
+        let mut revisions_affected = 0;
+        let mut file_revisions = FileRevision::find()
+            .filter(file_revision::Column::S3Hash.eq(EMPTY_BLOB_HASH.to_vec()))
+            .stream(txn)
+            .await?;
+
+        while let Some(file_revision) = file_revisions.try_next().await? {
+            debug!("Updating file revision {}", file_revision.revision_id);
+
+            // Reuse the buffer from the model
+            let s3_hash = {
+                let mut buffer = file_revision.s3_hash;
+                buffer.copy_from_slice(&EMPTY_BLOB_HASH);
+                buffer
+            };
+
+            // Add 's3_hash' to hidden (deleting the blob data)
+            // Then make sure to maintain normal invariants
+            let hidden = {
+                let mut hidden = file_revision.hidden;
+                let field = str!("s3_hash");
+                if !hidden.contains(&field) {
+                    hidden.push(field);
+                }
+                hidden.sort();
+                hidden
+            };
+
+            let model = file_revision::ActiveModel {
+                s3_hash: Set(s3_hash),
+                hidden: Set(hidden),
+                ..Default::default()
+            };
+            model.update(txn).await?;
+            revisions_affected += 1;
+        }
+
+        // TODO hard delete BlobService
+        // TODO blacklist blob
+
+        Ok(revisions_affected)
     }
 
     /// Get the latest revision for this file.
