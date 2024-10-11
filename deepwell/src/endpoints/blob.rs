@@ -104,3 +104,17 @@ pub async fn blob_blacklist_remove(
     let hash = slice_to_blob_hash(hash.as_ref());
     BlobService::remove_blacklist(ctx, hash).await
 }
+
+pub async fn blob_blacklist_check(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<bool> {
+    #[derive(Deserialize, Debug)]
+    struct HasBlacklist {
+        hash: Bytes<'static>,
+    }
+
+    let HasBlacklist { hash } = params.parse()?;
+    let hash = slice_to_blob_hash(hash.as_ref());
+    BlobService::on_blacklist(ctx, hash).await
+}
