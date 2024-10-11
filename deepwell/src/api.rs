@@ -263,6 +263,11 @@ async fn build_module(app_state: ServerState) -> anyhow::Result<RpcModule<Server
     register!("blob_upload", blob_upload);
     register!("blob_cancel", blob_cancel);
 
+    // Blob blacklist
+    register!("blob_blacklist_add", blob_blacklist_add);
+    register!("blob_blacklist_remove", blob_blacklist_remove);
+    register!("blob_blacklist_check", blob_blacklist_check);
+
     // Files
     register!("file_create", file_create);
     register!("file_edit", file_edit);
