@@ -90,3 +90,17 @@ pub async fn blob_blacklist_add(
     let hash = slice_to_blob_hash(hash.as_ref());
     BlobService::add_blacklist(ctx, hash, user_id).await
 }
+
+pub async fn blob_blacklist_remove(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<()> {
+    #[derive(Deserialize, Debug)]
+    struct RemoveBlacklist {
+        hash: Bytes<'static>,
+    }
+
+    let RemoveBlacklist { hash } = params.parse()?;
+    let hash = slice_to_blob_hash(hash.as_ref());
+    BlobService::remove_blacklist(ctx, hash).await
+}
