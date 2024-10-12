@@ -28,7 +28,7 @@ use crate::services::{BlobService, OutdateService, PageService};
 use crate::types::{Bytes, FetchDirection};
 use futures::TryStreamExt;
 use once_cell::sync::Lazy;
-use sea_orm::UpdateResult;
+use sea_orm::prelude::*;
 use std::num::NonZeroI32;
 
 pub const MAXIMUM_FILE_NAME_LENGTH: usize = 256;
@@ -438,6 +438,34 @@ impl FileRevisionService {
         // Update and return
         let revision = model.update(txn).await?;
         Ok(revision)
+    }
+
+    /// Lists information about a blob which is being considered for hard deletion.
+    /// This method does not mutate any data.
+    pub async fn hard_delete_list(
+        ctx: &ServiceContext<'_>,
+        s3_hash: BlobHash,
+    ) -> Result<HardDeletionStats> {
+        let txn = ctx.transaction();
+        let s3_hash = s3_hash.as_slice();
+
+        // Get total count of affected revisions
+        let count = FileRevision::find()
+            .select_only()
+            .expr(Expr::col(file_revision::Column::RevisionId).count())
+            .filter(file_revision::Column::S3Hash.eq(s3_hash))
+            .one(txn)
+            .await?;
+
+        // Get count of affected files
+        let count = FileRevision::find()
+            .select_only()
+            .expr(Expr::col(file_revision::Column::FileId).count_distinct())
+            .filter(file_revision::Column::S3Hash.eq(s3_hash))
+            .one(txn)
+            .await?;
+
+        todo!()
     }
 
     /// Hard deletes the specified blob and all duplicates.

@@ -120,6 +120,17 @@ pub struct UpdateFileRevision {
     pub hidden: Vec<String>,
 }
 
+#[derive(Serialize, Debug, Clone)]
+pub struct HardDeletionStats {
+    pub total_revisions: u64,
+    pub total_files: u64,
+    pub total_pages: u64,
+    pub total_sites: u64,
+    pub sample_files: Vec<String>,
+    pub sample_pages: Vec<String>,
+    pub sample_sites: Vec<String>,
+}
+
 #[derive(Deserialize, Debug, Clone)]
 pub struct GetFileRevisionRange {
     pub page_id: i64,
