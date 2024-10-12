@@ -23,6 +23,7 @@ use crate::hash::{blob_hash_to_hex, BlobHash};
 use crate::models::file_revision::{
     self, Entity as FileRevision, Model as FileRevisionModel,
 };
+use crate::models::{file, page, site};
 use crate::services::blob::{FinalizeBlobUploadOutput, EMPTY_BLOB_HASH, EMPTY_BLOB_MIME};
 use crate::services::{BlobService, OutdateService, PageService};
 use crate::types::{Bytes, FetchDirection};
@@ -446,11 +447,13 @@ impl FileRevisionService {
         ctx: &ServiceContext<'_>,
         s3_hash: BlobHash,
     ) -> Result<HardDeletionStats> {
+        const SAMPLE_COUNT: u64 = 10;
+
         let txn = ctx.transaction();
         let s3_hash = s3_hash.as_slice();
 
         // Get total count of affected revisions
-        let count = FileRevision::find()
+        let total_revisions = FileRevision::find()
             .select_only()
             .expr(Expr::col(file_revision::Column::RevisionId).count())
             .filter(file_revision::Column::S3Hash.eq(s3_hash))
@@ -458,11 +461,57 @@ impl FileRevisionService {
             .await?;
 
         // Get count of affected files
-        let count = FileRevision::find()
+        let total_files = FileRevision::find()
             .select_only()
             .expr(Expr::col(file_revision::Column::FileId).count_distinct())
             .filter(file_revision::Column::S3Hash.eq(s3_hash))
             .one(txn)
+            .await?;
+
+        // Get count of affected pages
+        let total_pages = FileRevision::find()
+            .select_only()
+            .expr(Expr::col(file_revision::Column::PageId).count_distinct())
+            .filter(file_revision::Column::S3Hash.eq(s3_hash))
+            .one(txn)
+            .await?;
+
+        // Get count of affected sites
+        let total_sites = FileRevision::find()
+            .select_only()
+            .expr(Expr::col(file_revision::Column::SiteId).count_distinct())
+            .filter(file_revision::Column::S3Hash.eq(s3_hash))
+            .one(txn)
+            .await?;
+
+        // Get sample filenames
+        let sample_files = FileRevision::find()
+            .join(JoinType::RightJoin, file_revision::Relation::File.def())
+            .select_only()
+            .expr(Expr::col(file::Column::Name))
+            .filter(file_revision::Column::S3Hash.eq(s3_hash))
+            .limit(SAMPLE_COUNT)
+            .all(txn)
+            .await?;
+
+        // Get sample page slugs
+        let sample_pages = FileRevision::find()
+            .join(JoinType::RightJoin, file_revision::Relation::Page.def())
+            .select_only()
+            .expr(Expr::col(page::Column::Slug))
+            .filter(file_revision::Column::S3Hash.eq(s3_hash))
+            .limit(SAMPLE_COUNT)
+            .all(txn)
+            .await?;
+
+        // Get sample site slugs
+        let sample_sites = FileRevision::find()
+            .join(JoinType::RightJoin, file_revision::Relation::Site.def())
+            .select_only()
+            .expr(Expr::col(site::Column::Slug))
+            .filter(file_revision::Column::S3Hash.eq(s3_hash))
+            .limit(SAMPLE_COUNT)
+            .all(txn)
             .await?;
 
         todo!()
