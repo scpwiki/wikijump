@@ -21,7 +21,8 @@
 use super::prelude::*;
 use crate::hash::slice_to_blob_hash;
 use crate::services::blob::{
-    BlobMetadata, CancelBlobUpload, GetBlobOutput, StartBlobUpload, StartBlobUploadOutput,
+    BlobMetadata, CancelBlobUpload, GetBlobOutput, HardDelete, HardDeleteOutput,
+    HardDeletionStats, StartBlobUpload, StartBlobUploadOutput,
 };
 use crate::services::Result;
 use crate::types::Bytes;
@@ -117,4 +118,21 @@ pub async fn blob_blacklist_check(
     let HasBlacklist { hash } = params.parse()?;
     let hash = slice_to_blob_hash(hash.as_ref());
     BlobService::on_blacklist(ctx, hash).await
+}
+
+pub async fn file_hard_delete_list(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<HardDeletionStats> {
+    let input: Bytes = params.parse()?;
+    let s3_hash = slice_to_blob_hash(input.as_ref());
+    BlobService::hard_delete_list(ctx, s3_hash).await
+}
+
+pub async fn file_hard_delete(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<HardDeleteOutput> {
+    let input: HardDelete = params.parse()?;
+    BlobService::hard_delete_all(ctx, input).await
 }

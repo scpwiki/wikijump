@@ -19,6 +19,8 @@
  */
 
 use super::prelude::*;
+use crate::hash::BlobHash;
+use crate::types::Bytes;
 use time::OffsetDateTime;
 
 #[derive(Deserialize, Debug, Clone)]
@@ -48,6 +50,28 @@ pub struct FinalizeBlobUploadOutput {
     pub mime: String,
     pub size: i64,
     pub created: bool,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct HardDelete {
+    pub s3_hash: Bytes<'static>,
+    pub user_id: i64,
+}
+
+#[derive(Serialize, Debug, Clone)]
+pub struct HardDeleteOutput {
+    pub revisions_affected: u64,
+}
+
+#[derive(Serialize, Debug, Clone)]
+pub struct HardDeletionStats {
+    pub total_revisions: i64,
+    pub total_files: i64,
+    pub total_pages: i64,
+    pub total_sites: i64,
+    pub sample_files: Vec<String>,
+    pub sample_pages: Vec<String>,
+    pub sample_sites: Vec<String>,
 }
 
 #[derive(Debug)]

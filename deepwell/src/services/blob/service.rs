@@ -26,13 +26,21 @@ use crate::models::blob_blacklist::{
 use crate::models::blob_pending::{
     self, Entity as BlobPending, Model as BlobPendingModel,
 };
+use crate::models::file::{self, Entity as File, Model as FileModel};
+use crate::models::file_revision::{
+    self, Entity as FileRevision, Model as FileRevisionModel,
+};
+use crate::models::page::{self, Entity as Page, Model as PageModel};
+use crate::models::site::{self, Entity as Site, Model as SiteModel};
+use crate::models::user::{self, Entity as User, Model as UserModel};
 use crate::utils::assert_is_csprng;
 use cuid2::cuid;
+use futures::TryStreamExt;
 use rand::distributions::{Alphanumeric, DistString};
 use rand::thread_rng;
 use s3::request_trait::ResponseData;
 use s3::serde_types::HeadObjectResult;
-use sea_orm::TransactionTrait;
+use sea_orm::{prelude::*, TransactionTrait};
 use std::str;
 use std::sync::Arc;
 use time::format_description::well_known::Rfc2822;
@@ -65,6 +73,8 @@ pub const PRESIGN_DIRECTORY: &str = "uploads";
 pub struct BlobService;
 
 impl BlobService {
+    // File-related operations
+
     /// Creates an S3 presign URL to allow an end user to upload a blob.
     /// This is the start to the upload process for any kind of file.
     ///
@@ -388,6 +398,192 @@ impl BlobService {
         Ok(output)
     }
 
+    // Hard-deletion operations
+
+    /// Lists information about a blob which is being considered for hard deletion.
+    /// This method does not mutate any data.
+    pub async fn hard_delete_list(
+        ctx: &ServiceContext<'_>,
+        s3_hash: BlobHash,
+    ) -> Result<HardDeletionStats> {
+        const SAMPLE_COUNT: u64 = 10;
+
+        let txn = ctx.transaction();
+        let s3_hash = s3_hash.as_slice();
+
+        // Get total count of affected revisions
+        let (total_revisions,) = FileRevision::find()
+            .select_only()
+            .expr(Expr::col(file_revision::Column::RevisionId).count())
+            .filter(file_revision::Column::S3Hash.eq(s3_hash))
+            .into_tuple()
+            .one(txn)
+            .await?
+            .unwrap_or((0,));
+
+        // Get count of affected files
+        let (total_files,) = FileRevision::find()
+            .select_only()
+            .expr(Expr::col(file_revision::Column::FileId).count_distinct())
+            .filter(file_revision::Column::S3Hash.eq(s3_hash))
+            .into_tuple()
+            .one(txn)
+            .await?
+            .unwrap_or((0,));
+
+        // Get count of affected pages
+        let (total_pages,) = FileRevision::find()
+            .select_only()
+            .expr(Expr::col(file_revision::Column::PageId).count_distinct())
+            .filter(file_revision::Column::S3Hash.eq(s3_hash))
+            .into_tuple()
+            .one(txn)
+            .await?
+            .unwrap_or((0,));
+
+        // Get count of affected sites
+        let (total_sites,) = FileRevision::find()
+            .select_only()
+            .expr(Expr::col(file_revision::Column::SiteId).count_distinct())
+            .filter(file_revision::Column::S3Hash.eq(s3_hash))
+            .into_tuple()
+            .one(txn)
+            .await?
+            .unwrap_or((0,));
+
+        // Get sample filenames
+        let sample_files: Vec<String> = FileRevision::find()
+            .join(JoinType::RightJoin, file_revision::Relation::File.def())
+            .select_only()
+            .expr(Expr::col((file::Entity, file::Column::Name)))
+            .filter(file_revision::Column::S3Hash.eq(s3_hash))
+            .distinct()
+            .limit(SAMPLE_COUNT)
+            .into_tuple()
+            .all(txn)
+            .await?;
+
+        // Get sample page slugs
+        let sample_pages: Vec<String> = FileRevision::find()
+            .join(JoinType::RightJoin, file_revision::Relation::Page.def())
+            .select_only()
+            .expr(Expr::col((page::Entity, page::Column::Slug)))
+            .filter(file_revision::Column::S3Hash.eq(s3_hash))
+            .distinct()
+            .limit(SAMPLE_COUNT)
+            .into_tuple()
+            .all(txn)
+            .await?;
+
+        // Get sample site slugs
+        let sample_sites: Vec<String> = FileRevision::find()
+            .join(JoinType::RightJoin, file_revision::Relation::Site.def())
+            .select_only()
+            .expr(Expr::col((site::Entity, site::Column::Slug)))
+            .filter(file_revision::Column::S3Hash.eq(s3_hash))
+            .distinct()
+            .limit(SAMPLE_COUNT)
+            .into_tuple()
+            .all(txn)
+            .await?;
+
+        Ok(HardDeletionStats {
+            total_revisions,
+            total_files,
+            total_pages,
+            total_sites,
+            sample_files,
+            sample_pages,
+            sample_sites,
+        })
+    }
+
+    /// Hard deletes the specified blob and all duplicates.
+    ///
+    /// This is a very powerful method and needs to be used carefully.
+    /// It should only be accessible to platform staff.
+    ///
+    /// As opposed to normal soft deletions, this method will completely
+    /// remove a file from Wikijump. The data will be entirely purged
+    /// and the data will be replaced with the blank file.
+    ///
+    /// This method should only be used very rarely to clear content such
+    /// as severe copyright violations, abuse content, or comply with court orders.
+    pub async fn hard_delete_all(
+        ctx: &ServiceContext<'_>,
+        HardDelete { s3_hash, user_id }: HardDelete,
+    ) -> Result<HardDeleteOutput> {
+        let txn = ctx.transaction();
+        let s3_hash = slice_to_blob_hash(s3_hash.as_ref());
+
+        if s3_hash == EMPTY_BLOB_HASH {
+            error!("Cannot hard delete the empty blob");
+            return Err(Error::BadRequest);
+        }
+
+        info!(
+            "Hard deleting all blobs matching hash {} (done by user ID {})",
+            blob_hash_to_hex(&s3_hash),
+            user_id,
+        );
+
+        // TODO add to audit log
+
+        // We can't use SeaORM to do an update_many because we have to modify the 'hidden'
+        // column to hide the data. But, there's a chance that the column is already blocked,
+        // which requires manual adjustment.
+        //
+        // Instead, we use a stream to get rows and then update each one.
+
+        let mut revisions_affected = 0;
+        let mut file_revisions = FileRevision::find()
+            .filter(file_revision::Column::S3Hash.eq(EMPTY_BLOB_HASH.to_vec()))
+            .stream(txn)
+            .await?;
+
+        while let Some(file_revision) = file_revisions.try_next().await? {
+            debug!("Updating file revision {}", file_revision.revision_id);
+
+            // Reuse the buffer from the model
+            let s3_hash = {
+                let mut buffer = file_revision.s3_hash;
+                buffer.copy_from_slice(&EMPTY_BLOB_HASH);
+                buffer
+            };
+
+            // Add 's3_hash' to hidden (deleting the blob data)
+            // Then make sure to maintain normal invariants
+            let hidden = {
+                let mut hidden = file_revision.hidden;
+                let field = str!("s3_hash");
+                if !hidden.contains(&field) {
+                    hidden.push(field);
+                }
+                hidden.sort();
+                hidden
+            };
+
+            let model = file_revision::ActiveModel {
+                revision_id: Set(file_revision.revision_id),
+                s3_hash: Set(s3_hash),
+                hidden: Set(hidden),
+                ..Default::default()
+            };
+            model.update(txn).await?;
+            revisions_affected += 1;
+        }
+
+        // Delete and blacklist the hash, nobody should be uploading new versions
+        try_join!(
+            BlobService::add_blacklist(ctx, s3_hash, user_id),
+            BlobService::hard_delete(ctx, &s3_hash),
+        )?;
+
+        Ok(HardDeleteOutput { revisions_affected })
+    }
+
+    // Blacklist operations
+
     pub async fn add_blacklist(
         ctx: &ServiceContext<'_>,
         hash: BlobHash,
@@ -435,6 +631,8 @@ impl BlobService {
 
         Ok(exists)
     }
+
+    // Getters
 
     pub async fn get_optional(
         ctx: &ServiceContext<'_>,

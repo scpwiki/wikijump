@@ -19,14 +19,11 @@
  */
 
 use super::prelude::*;
-use crate::hash::slice_to_blob_hash;
 use crate::models::file_revision::Model as FileRevisionModel;
 use crate::services::file::GetFile;
 use crate::services::file_revision::{
-    FileRevisionCountOutput, GetFileRevision, GetFileRevisionRange, HardDelete,
-    HardDeleteOutput, HardDeletionStats, UpdateFileRevision,
+    FileRevisionCountOutput, GetFileRevision, GetFileRevisionRange, UpdateFileRevision,
 };
-use crate::types::Bytes;
 
 pub async fn file_revision_count(
     ctx: &ServiceContext<'_>,
@@ -84,21 +81,4 @@ pub async fn file_revision_edit(
     );
 
     FileRevisionService::update(ctx, input).await
-}
-
-pub async fn file_hard_delete_list(
-    ctx: &ServiceContext<'_>,
-    params: Params<'static>,
-) -> Result<HardDeletionStats> {
-    let input: Bytes = params.parse()?;
-    let s3_hash = slice_to_blob_hash(input.as_ref());
-    FileRevisionService::hard_delete_list(ctx, s3_hash).await
-}
-
-pub async fn file_hard_delete(
-    ctx: &ServiceContext<'_>,
-    params: Params<'static>,
-) -> Result<HardDeleteOutput> {
-    let input: HardDelete = params.parse()?;
-    FileRevisionService::hard_delete_all(ctx, input).await
 }

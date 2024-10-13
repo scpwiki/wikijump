@@ -19,10 +19,9 @@
  */
 
 use super::prelude::*;
-use crate::hash::BlobHash;
 use crate::models::sea_orm_active_enums::FileRevisionType;
 use crate::services::page_revision::PageRevisionCountOutput;
-use crate::types::{Bytes, FetchDirection};
+use crate::types::FetchDirection;
 
 #[derive(Debug, Clone)]
 pub struct CreateFileRevision {
@@ -118,28 +117,6 @@ pub struct UpdateFileRevision {
     pub revision_id: i64,
     pub user_id: i64,
     pub hidden: Vec<String>,
-}
-
-#[derive(Deserialize, Debug, Clone)]
-pub struct HardDelete {
-    pub s3_hash: Bytes<'static>,
-    pub user_id: i64,
-}
-
-#[derive(Serialize, Debug, Clone)]
-pub struct HardDeleteOutput {
-    pub revisions_affected: u64,
-}
-
-#[derive(Serialize, Debug, Clone)]
-pub struct HardDeletionStats {
-    pub total_revisions: i64,
-    pub total_files: i64,
-    pub total_pages: i64,
-    pub total_sites: i64,
-    pub sample_files: Vec<String>,
-    pub sample_pages: Vec<String>,
-    pub sample_sites: Vec<String>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
