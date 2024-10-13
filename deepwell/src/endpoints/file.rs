@@ -19,7 +19,6 @@
  */
 
 use super::prelude::*;
-use crate::hash::slice_to_blob_hash;
 use crate::models::file::Model as FileModel;
 use crate::models::file_revision::Model as FileRevisionModel;
 use crate::services::file::{
@@ -27,7 +26,6 @@ use crate::services::file::{
     GetFileDetails, GetFileOutput, MoveFile, MoveFileOutput, RestoreFile,
     RestoreFileOutput, RollbackFile,
 };
-use crate::services::file_revision::{HardDelete, HardDeleteOutput, HardDeletionStats};
 use crate::services::Result;
 use crate::services::{BlobService, FileRevisionService};
 use crate::types::{Bytes, FileDetails};
@@ -143,23 +141,6 @@ pub async fn file_rollback(
     );
 
     FileService::rollback(ctx, input).await
-}
-
-pub async fn file_hard_delete_list(
-    ctx: &ServiceContext<'_>,
-    params: Params<'static>,
-) -> Result<HardDeletionStats> {
-    let input: Bytes = params.parse()?;
-    let s3_hash = slice_to_blob_hash(input.as_ref());
-    FileRevisionService::hard_delete_list(ctx, s3_hash).await
-}
-
-pub async fn file_hard_delete(
-    ctx: &ServiceContext<'_>,
-    params: Params<'static>,
-) -> Result<HardDeleteOutput> {
-    let input: HardDelete = params.parse()?;
-    FileRevisionService::hard_delete_all(ctx, input).await
 }
 
 async fn build_file_response(
