@@ -133,10 +133,10 @@ pub struct HardDeleteOutput {
 
 #[derive(Serialize, Debug, Clone)]
 pub struct HardDeletionStats {
-    pub total_revisions: u64,
-    pub total_files: u64,
-    pub total_pages: u64,
-    pub total_sites: u64,
+    pub total_revisions: i64,
+    pub total_files: i64,
+    pub total_pages: i64,
+    pub total_sites: i64,
     pub sample_files: Vec<String>,
     pub sample_pages: Vec<String>,
     pub sample_sites: Vec<String>,
