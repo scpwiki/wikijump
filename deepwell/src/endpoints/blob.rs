@@ -124,8 +124,13 @@ pub async fn file_hard_delete_list(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<HardDeletionStats> {
-    let input: Bytes = params.parse()?;
-    let s3_hash = slice_to_blob_hash(input.as_ref());
+    #[derive(Deserialize, Debug)]
+    struct HardDeleteList {
+        hash: Bytes<'static>,
+    }
+
+    let HardDeleteList { hash } = params.parse()?;
+    let s3_hash = slice_to_blob_hash(hash.as_ref());
     BlobService::hard_delete_list(ctx, s3_hash).await
 }
 
