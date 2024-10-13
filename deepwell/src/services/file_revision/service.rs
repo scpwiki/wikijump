@@ -29,7 +29,7 @@ use crate::services::{BlobService, OutdateService, PageService};
 use crate::types::{Bytes, FetchDirection};
 use futures::TryStreamExt;
 use once_cell::sync::Lazy;
-use sea_orm::prelude::*;
+use sea_orm::{prelude::*, FromQueryResult};
 use std::num::NonZeroI32;
 
 pub const MAXIMUM_FILE_NAME_LENGTH: usize = 256;
@@ -453,68 +453,87 @@ impl FileRevisionService {
         let s3_hash = s3_hash.as_slice();
 
         // Get total count of affected revisions
-        let total_revisions = FileRevision::find()
+        let (total_revisions,) = FileRevision::find()
             .select_only()
             .expr(Expr::col(file_revision::Column::RevisionId).count())
             .filter(file_revision::Column::S3Hash.eq(s3_hash))
+            .into_tuple()
             .one(txn)
-            .await?;
+            .await?
+            .unwrap_or((0,));
 
         // Get count of affected files
-        let total_files = FileRevision::find()
+        let (total_files,) = FileRevision::find()
             .select_only()
             .expr(Expr::col(file_revision::Column::FileId).count_distinct())
             .filter(file_revision::Column::S3Hash.eq(s3_hash))
+            .into_tuple()
             .one(txn)
-            .await?;
+            .await?
+            .unwrap_or((0,));
 
         // Get count of affected pages
-        let total_pages = FileRevision::find()
+        let (total_pages,) = FileRevision::find()
             .select_only()
             .expr(Expr::col(file_revision::Column::PageId).count_distinct())
             .filter(file_revision::Column::S3Hash.eq(s3_hash))
+            .into_tuple()
             .one(txn)
-            .await?;
+            .await?
+            .unwrap_or((0,));
 
         // Get count of affected sites
-        let total_sites = FileRevision::find()
+        let (total_sites,) = FileRevision::find()
             .select_only()
             .expr(Expr::col(file_revision::Column::SiteId).count_distinct())
             .filter(file_revision::Column::S3Hash.eq(s3_hash))
+            .into_tuple()
             .one(txn)
-            .await?;
+            .await?
+            .unwrap_or((0,));
 
         // Get sample filenames
-        let sample_files = FileRevision::find()
+        let sample_files: Vec<String> = FileRevision::find()
             .join(JoinType::RightJoin, file_revision::Relation::File.def())
             .select_only()
             .expr(Expr::col(file::Column::Name))
             .filter(file_revision::Column::S3Hash.eq(s3_hash))
             .limit(SAMPLE_COUNT)
+            .into_tuple()
             .all(txn)
             .await?;
 
         // Get sample page slugs
-        let sample_pages = FileRevision::find()
+        let sample_pages: Vec<String> = FileRevision::find()
             .join(JoinType::RightJoin, file_revision::Relation::Page.def())
             .select_only()
             .expr(Expr::col(page::Column::Slug))
             .filter(file_revision::Column::S3Hash.eq(s3_hash))
             .limit(SAMPLE_COUNT)
+            .into_tuple()
             .all(txn)
             .await?;
 
         // Get sample site slugs
-        let sample_sites = FileRevision::find()
+        let sample_sites: Vec<String> = FileRevision::find()
             .join(JoinType::RightJoin, file_revision::Relation::Site.def())
             .select_only()
             .expr(Expr::col(site::Column::Slug))
             .filter(file_revision::Column::S3Hash.eq(s3_hash))
             .limit(SAMPLE_COUNT)
+            .into_tuple()
             .all(txn)
             .await?;
 
-        todo!()
+        Ok(HardDeletionStats {
+            total_revisions,
+            total_files,
+            total_pages,
+            total_sites,
+            sample_files,
+            sample_pages,
+            sample_sites,
+        })
     }
 
     /// Hard deletes the specified blob and all duplicates.
