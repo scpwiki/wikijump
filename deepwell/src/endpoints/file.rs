@@ -101,6 +101,20 @@ pub async fn file_delete(
     FileService::delete(ctx, input).await
 }
 
+pub async fn file_move(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<Option<MoveFileOutput>> {
+    let input: MoveFile = params.parse()?;
+
+    info!(
+        "Moving file ID {} from page ID {} to page ID {} in site ID {}",
+        input.file_id, input.current_page_id, input.destination_page_id, input.site_id,
+    );
+
+    FileService::r#move(ctx, input).await
+}
+
 pub async fn file_restore(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -127,20 +141,6 @@ pub async fn file_rollback(
     );
 
     FileService::rollback(ctx, input).await
-}
-
-pub async fn file_move(
-    ctx: &ServiceContext<'_>,
-    params: Params<'static>,
-) -> Result<Option<MoveFileOutput>> {
-    let input: MoveFile = params.parse()?;
-
-    info!(
-        "Moving file ID {} from page ID {} to page ID {} in site ID {}",
-        input.file_id, input.current_page_id, input.destination_page_id, input.site_id,
-    );
-
-    FileService::r#move(ctx, input).await
 }
 
 async fn build_file_response(
