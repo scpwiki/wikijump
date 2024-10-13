@@ -19,6 +19,14 @@ def color_settings(value):
             return False
 
 
+def parse_data(value):
+    try:
+        return json.loads(value)
+    except json.decoder.JSONDecodeError:
+        # Just interpret as a string
+        return value
+
+
 def print_data(data):
     if isinstance(data, str):
         print(data)
@@ -98,7 +106,7 @@ if __name__ == "__main__":
         default="auto",
     )
     argparser.add_argument("method")
-    argparser.add_argument("data", nargs="?", type=json.loads, default="{}")
+    argparser.add_argument("data", nargs="?", type=parse_data, default="{}")
     args = argparser.parse_args()
     enable_color = color_settings(args.color)
 
