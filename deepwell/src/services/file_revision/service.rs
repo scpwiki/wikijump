@@ -605,6 +605,7 @@ impl FileRevisionService {
             };
 
             let model = file_revision::ActiveModel {
+                revision_id: Set(file_revision.revision_id),
                 s3_hash: Set(s3_hash),
                 hidden: Set(hidden),
                 ..Default::default()
