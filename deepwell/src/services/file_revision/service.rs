@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::hash::{blob_hash_to_hex, BlobHash};
+use crate::hash::{blob_hash_to_hex, slice_to_blob_hash, BlobHash};
 use crate::models::file_revision::{
     self, Entity as FileRevision, Model as FileRevisionModel,
 };
@@ -549,10 +549,10 @@ impl FileRevisionService {
     /// as severe copyright violations, abuse content, or comply with court orders.
     pub async fn hard_delete_all(
         ctx: &ServiceContext<'_>,
-        s3_hash: BlobHash,
-        user_id: i64,
-    ) -> Result<u64> {
+        HardDelete { s3_hash, user_id }: HardDelete,
+    ) -> Result<HardDeleteOutput> {
         let txn = ctx.transaction();
+        let s3_hash = slice_to_blob_hash(s3_hash.as_ref());
 
         if s3_hash == EMPTY_BLOB_HASH {
             error!("Cannot hard delete the empty blob");
@@ -616,7 +616,7 @@ impl FileRevisionService {
             BlobService::hard_delete(ctx, &s3_hash),
         )?;
 
-        Ok(revisions_affected)
+        Ok(HardDeleteOutput { revisions_affected })
     }
 
     /// Get the latest revision for this file.

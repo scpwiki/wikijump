@@ -120,6 +120,17 @@ pub struct UpdateFileRevision {
     pub hidden: Vec<String>,
 }
 
+#[derive(Deserialize, Debug, Clone)]
+pub struct HardDelete {
+    pub s3_hash: Bytes<'static>,
+    pub user_id: i64,
+}
+
+#[derive(Serialize, Debug, Clone)]
+pub struct HardDeleteOutput {
+    pub revisions_affected: u64,
+}
+
 #[derive(Serialize, Debug, Clone)]
 pub struct HardDeletionStats {
     pub total_revisions: u64,
