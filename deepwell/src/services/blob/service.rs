@@ -110,8 +110,9 @@ impl BlobService {
 
         // Create presign URL
         let bucket = ctx.s3_bucket();
-        let presign_url =
-            bucket.presign_put(&s3_path, config.presigned_expiry_secs, None, None).await?;
+        let presign_url = bucket
+            .presign_put(&s3_path, config.presigned_expiry_secs, None, None)
+            .await?;
 
         // Get timestamps
         let created_at = now();
