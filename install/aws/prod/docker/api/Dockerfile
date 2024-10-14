@@ -6,7 +6,7 @@ FROM rust:alpine AS rust
 
 # Install system dependencies
 RUN apk update
-RUN apk add --no-cache build-base libmagic-static file
+RUN apk add --no-cache build-base libmagic file pkgconf
 
 # Copy source
 RUN mkdir /src
