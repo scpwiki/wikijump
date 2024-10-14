@@ -43,7 +43,7 @@ pub async fn connect(redis_uri: &str) -> Result<(redis::Client, PooledRsmq)> {
             .await?;
 
         // No redis pubsub (realtime=false)
-        PooledRsmq::new_with_pool(pool, false, None)
+        PooledRsmq::new_with_pool(pool, false, None).await?
     };
 
     // Set up queue if it doesn't already exist
