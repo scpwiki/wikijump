@@ -1009,12 +1009,14 @@ dependencies = [
 
 [[package]]
 name = "filemagic"
-version = "0.12.3"
+version = "0.13.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e0ab576ac8d15cf0e281ae7d4b27cccce08486264c843aa19d624f741a7717ed"
+checksum = "0d75f995ee1753ae127a7de5f71005db660616d76ab281ba4a77a2cc0c79055a"
 dependencies = [
- "bitflags 1.3.2",
+ "bitflags 2.6.0",
  "libc",
+ "pkg-config",
+ "vcpkg",
 ]
 
 [[package]]
