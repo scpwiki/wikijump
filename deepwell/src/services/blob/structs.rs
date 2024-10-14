@@ -69,9 +69,11 @@ pub struct HardDeletionStats {
     pub total_files: i64,
     pub total_pages: i64,
     pub total_sites: i64,
+    pub total_users: i64,
     pub sample_files: Vec<String>,
     pub sample_pages: Vec<String>,
     pub sample_sites: Vec<String>,
+    pub sample_users: Vec<String>,
 }
 
 #[derive(Debug)]

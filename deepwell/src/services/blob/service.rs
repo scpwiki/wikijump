@@ -451,6 +451,16 @@ impl BlobService {
             .await?
             .unwrap_or((0,));
 
+        // Get count of affected users
+        let (total_users,) = User::find()
+            .select_only()
+            .expr(Expr::col(user::Column::UserId).count_distinct())
+            .filter(user::Column::AvatarS3Hash.eq(s3_hash))
+            .into_tuple()
+            .one(txn)
+            .await?
+            .unwrap_or((0,));
+
         // Get sample filenames
         let sample_files: Vec<String> = FileRevision::find()
             .join(JoinType::RightJoin, file_revision::Relation::File.def())
@@ -487,14 +497,27 @@ impl BlobService {
             .all(txn)
             .await?;
 
+        // Get sample user slugs
+        let sample_users: Vec<String> = User::find()
+            .select_only()
+            .expr(Expr::col((user::Entity, user::Column::Slug)))
+            .filter(user::Column::AvatarS3Hash.eq(s3_hash))
+            .distinct()
+            .limit(SAMPLE_COUNT)
+            .into_tuple()
+            .all(txn)
+            .await?;
+
         Ok(HardDeletionStats {
             total_revisions,
             total_files,
             total_pages,
             total_sites,
+            total_users,
             sample_files,
             sample_pages,
             sample_sites,
+            sample_users,
         })
     }
 
