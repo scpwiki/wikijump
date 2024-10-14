@@ -29,7 +29,7 @@ data-encoding = "2"
 dotenvy = "0.15"
 either = "1"
 femme = "2"
-filemagic = "0.13"
+filemagic = { version = "0.13", features = ["vendored"] }
 fluent = "0.16"
 fluent-syntax = "0"
 ftml = { version = "1.27", features = ["mathml"] }
