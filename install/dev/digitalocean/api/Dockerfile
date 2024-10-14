@@ -6,7 +6,7 @@ FROM rust:alpine AS rust
 
 # Install system dependencies
 RUN apk update
-RUN apk add --no-cache build-base libmagic-static file
+RUN apk add --no-cache build-base libmagic file pkgconf
 
 # Install helpers
 RUN cargo install sqlx-cli --no-default-features --features rustls,postgres
