@@ -51,7 +51,7 @@ rsmq_async = "11"
 rust-s3 = { version = "0.32", features = ["with-tokio"], default-features = false }
 rust-otp = "2"
 sea-orm = { version = "1", features = ["sqlx-postgres", "runtime-tokio-rustls", "postgres-array", "macros", "with-json", "with-time"], default-features = false }
-sea-query = "0.31"
+sea-query = "0.32"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sha2 = "0.10"
