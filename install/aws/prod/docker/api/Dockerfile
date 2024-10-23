@@ -2,11 +2,11 @@
 # DEEPWELL build
 #
 
-FROM rust:alpine AS rust
+FROM rust:latest AS rust
 
 # Install system dependencies
-RUN apk update
-RUN apk add --no-cache build-base libmagic-static file
+RUN apt update
+RUN apt install -y build-essential libmagic-dev pkg-config
 
 # Copy source
 RUN mkdir /src
@@ -23,12 +23,12 @@ RUN cargo build --release
 # Final image
 #
 
-FROM alpine:latest
+FROM debian:latest
 
 ENV LOCALIZATION_PATH="/opt/locales"
 
-RUN apk update
-RUN apk add --no-cache curl
+RUN apt update
+RUN apt install -y curl libmagic-mgc
 COPY --from=rust /src/deepwell/target/release/deepwell /usr/local/bin/deepwell
 COPY ./install/files/api/health-check.sh /bin/wikijump-health-check
 COPY ./install/files/prod/deepwell.toml /etc/deepwell.toml

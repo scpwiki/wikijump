@@ -2,11 +2,11 @@
 # DEEPWELL build
 #
 
-FROM rust:alpine AS rust
+FROM rust:latest AS rust
 
 # Install system dependencies
-RUN apk update
-RUN apk add --no-cache build-base libmagic-static file
+RUN apt update
+RUN apt install -y build-essential libmagic-dev pkg-config
 
 # Install helpers
 RUN cargo install sqlx-cli --no-default-features --features rustls,postgres
@@ -26,14 +26,14 @@ RUN cargo build --release
 # Final image
 #
 
-FROM alpine:latest
+FROM debian:latest
 
 ENV LOCALIZATION_PATH="/opt/locales"
 
 # Install system dependencies
 RUN mkdir /opt/database
-RUN apk update
-RUN apk add --no-cache curl libmagic-static file postgresql-client
+RUN apt update
+RUN apt install -y curl libmagic-mgc postgresql-client
 
 # Install files
 COPY --from=rust /usr/local/cargo/bin/sqlx /usr/local/cargo/bin/sqlx
