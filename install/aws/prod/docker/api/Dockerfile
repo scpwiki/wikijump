@@ -28,7 +28,7 @@ FROM debian:latest
 ENV LOCALIZATION_PATH="/opt/locales"
 
 RUN apt update
-RUN apt install -y curl libmagic-mgc
+RUN apt install -y curl libmagic1 libmagic-mgc
 COPY --from=rust /src/deepwell/target/release/deepwell /usr/local/bin/deepwell
 COPY ./install/files/api/health-check.sh /bin/wikijump-health-check
 COPY ./install/files/prod/deepwell.toml /etc/deepwell.toml
