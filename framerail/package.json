@@ -18,7 +18,7 @@
     "format": "prettier --plugin-search-dir . --write ."
   },
   "devDependencies": {
-    "@playwright/test": "^1.53.0",
+    "@playwright/test": "^1.53.1",
     "@sveltejs/vite-plugin-svelte": "^3.1.2",
     "@types/accept-language-parser": "^1.5.8",
     "@types/node": "^24.0.3",
