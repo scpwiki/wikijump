@@ -6,7 +6,7 @@
 # full rust container and rebuilds as needed, to ease
 # iteration during development.
 
-FROM rust:latest AS rust
+FROM rust:bullseye AS rust
 
 # Install helpers
 RUN cargo install cargo-watch
