@@ -19,13 +19,13 @@
  */
 
 use crate::services::page_revision::RerenderType;
-use crate::types::{PageId, RerenderDepth};
+use crate::types::{PageIdGroup, RerenderDepth};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "snake_case", tag = "job", content = "data")]
 pub enum Job {
     RerenderPage {
-        id: PageId,
+        id: PageIdGroup,
         depth: RerenderDepth,
         r#type: RerenderType,
     },

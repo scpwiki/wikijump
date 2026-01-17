@@ -30,7 +30,7 @@ use crate::services::{
     LinkService, OutdateService, PageService, ParentService, RenderService, ScoreService,
     SettingsService, SiteService, TextService,
 };
-use crate::types::{FetchDirection, PageId, RerenderDepth};
+use crate::types::{FetchDirection, PageIdGroup, RerenderDepth};
 use crate::utils::{split_category, split_category_name, trim_default};
 use ftml::data::PageInfo;
 use ftml::layout::Layout;
@@ -91,7 +91,7 @@ impl PageRevisionService {
     /// If the given previous revision is for a different page or site, this method will panic.
     pub async fn create(
         ctx: &ServiceContext<'_>,
-        id: PageId,
+        id: PageIdGroup,
         CreatePageRevision {
             user_id,
             comments,
@@ -100,7 +100,7 @@ impl PageRevisionService {
         }: CreatePageRevision,
         previous: PageRevisionModel,
     ) -> Result<Option<CreatePageRevisionOutput>> {
-        let PageId {
+        let PageIdGroup {
             site_id,
             category_id: _,
             page_id,
@@ -366,7 +366,7 @@ impl PageRevisionService {
     /// (since there's no prior revision for it to be equal to).
     pub async fn create_first(
         ctx: &ServiceContext<'_>,
-        id: PageId,
+        id: PageIdGroup,
         CreateFirstPageRevision {
             user_id,
             comments,
@@ -378,7 +378,7 @@ impl PageRevisionService {
         }: CreateFirstPageRevision,
     ) -> Result<CreateFirstPageRevisionOutput> {
         let txn = ctx.transaction();
-        let PageId {
+        let PageIdGroup {
             site_id,
             category_id: _,
             page_id,
@@ -562,7 +562,7 @@ impl PageRevisionService {
         previous: PageRevisionModel,
     ) -> Result<CreatePageRevisionOutput> {
         let txn = ctx.transaction();
-        let PageId {
+        let PageIdGroup {
             site_id,
             category_id,
             page_id,
@@ -616,7 +616,7 @@ impl PageRevisionService {
             compiled_generator,
         } = Self::render_and_update_links(
             ctx,
-            PageId {
+            PageIdGroup {
                 site_id,
                 category_id,
                 page_id,
@@ -678,7 +678,7 @@ impl PageRevisionService {
     /// backlinks.
     async fn render_and_update_links(
         ctx: &ServiceContext<'_>,
-        id: PageId,
+        id: PageIdGroup,
         wikitext: String,
         RenderPageInfo {
             layout,
@@ -690,7 +690,7 @@ impl PageRevisionService {
         }: RenderPageInfo<'_>,
     ) -> Result<RenderPageOutput> {
         // Get site
-        let PageId {
+        let PageIdGroup {
             site_id,
             category_id: _,
             page_id,
@@ -729,12 +729,12 @@ impl PageRevisionService {
     /// should be 0.
     pub async fn rerender(
         ctx: &ServiceContext<'_>,
-        id: PageId,
+        id: PageIdGroup,
         depth: RerenderDepth,
         rerender_type: RerenderType,
     ) -> Result<()> {
         let txn = ctx.transaction();
-        let PageId {
+        let PageIdGroup {
             site_id,
             category_id: _,
             page_id,

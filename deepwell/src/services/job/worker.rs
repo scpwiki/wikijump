@@ -26,7 +26,7 @@ use crate::services::page_revision::RerenderType;
 use crate::services::{
     BlobService, PageRevisionService, SessionService, TextService, UserService,
 };
-use crate::types::PageId;
+use crate::types::PageIdGroup;
 use crate::utils::debug_pointer;
 use rsmq_async::{Rsmq, RsmqConnection, RsmqMessage};
 use sea_orm::TransactionTrait;
@@ -183,7 +183,7 @@ impl JobWorker {
         let next = match job {
             Job::RerenderPage {
                 id:
-                    PageId {
+                    PageIdGroup {
                         site_id,
                         category_id,
                         page_id,
@@ -202,7 +202,7 @@ impl JobWorker {
 
                 PageRevisionService::rerender(
                     ctx,
-                    PageId {
+                    PageIdGroup {
                         site_id,
                         category_id,
                         page_id,

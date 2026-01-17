@@ -23,7 +23,7 @@ use crate::futures::StreamExt;
 use crate::models::page::{self, Entity as Page, Model as PageModel};
 use crate::models::page_category::{self, Entity as PageCategory};
 use crate::services::{JobService, LinkService, PageService, SiteService};
-use crate::types::{ConnectionType, PageId, PageOrder, RerenderDepth};
+use crate::types::{ConnectionType, PageIdGroup, PageOrder, RerenderDepth};
 use crate::utils::split_category_name;
 use ref_map::*;
 use sea_orm::FromQueryResult;
@@ -92,7 +92,7 @@ impl OutdateService {
         depth: RerenderDepth,
     ) -> Result<()> {
         let page = PageService::get_direct(ctx, page_id, false).await?;
-        let id = PageId::from_page_model(&page);
+        let id = PageIdGroup::from_page_model(&page);
         JobService::queue_rerender_page(ctx, id, depth.plus_one()).await
     }
 
@@ -257,7 +257,7 @@ impl OutdateService {
 
             JobService::queue_rerender_nav_page(
                 ctx,
-                PageId {
+                PageIdGroup {
                     site_id,
                     category_id,
                     page_id,
@@ -296,7 +296,7 @@ impl OutdateService {
 
             JobService::queue_rerender_nav_page(
                 ctx,
-                PageId {
+                PageIdGroup {
                     site_id,
                     category_id,
                     page_id,

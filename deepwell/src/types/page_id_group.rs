@@ -1,5 +1,5 @@
 /*
- * types/page_id.rs
+ * types/page_id_group.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2025 Wikijump Team
@@ -25,22 +25,22 @@ use crate::models::page::Model as PageModel;
 /// This is needed to represent not just a particular page, but also
 /// its various levels of silo (site, category, then the page itself).
 #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
-pub struct PageId {
+pub struct PageIdGroup {
     pub site_id: i64,
     pub category_id: i64,
     pub page_id: i64,
 }
 
-impl PageId {
+impl PageIdGroup {
     #[inline]
     pub fn from_page_model(model: &PageModel) -> Self {
         model.into()
     }
 }
 
-impl From<&'_ PageModel> for PageId {
-    fn from(page: &PageModel) -> PageId {
-        PageId {
+impl From<&'_ PageModel> for PageIdGroup {
+    fn from(page: &PageModel) -> PageIdGroup {
+        PageIdGroup {
             site_id: page.site_id,
             category_id: page.page_category_id,
             page_id: page.page_id,

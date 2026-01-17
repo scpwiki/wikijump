@@ -42,7 +42,7 @@ use crate::services::{
     BlueprintPageService, CategoryService, DomainService, PageRevisionService,
     PageService, SessionService, SiteService, TextService, UserService,
 };
-use crate::types::{PageId, RerenderDepth};
+use crate::types::{PageIdGroup, RerenderDepth};
 use crate::utils::{parse_locales, split_category};
 use ftml::prelude::*;
 use ftml::render::html::HtmlOutput;
@@ -192,7 +192,7 @@ impl ViewService {
                         );
                         PageRevisionService::rerender(
                             ctx,
-                            PageId::from_page_model(&page),
+                            PageIdGroup::from_page_model(&page),
                             depth,
                             RerenderType::Full,
                         )

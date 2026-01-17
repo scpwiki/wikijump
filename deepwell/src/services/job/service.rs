@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::services::page_revision::RerenderType;
-use crate::types::{PageId, RerenderDepth};
+use crate::types::{PageIdGroup, RerenderDepth};
 use rsmq_async::{Rsmq, RsmqConnection};
 use std::time::Duration;
 
@@ -85,7 +85,7 @@ impl JobService {
     /// | `depth` | If rerendering a page causes more pages to be rerendered due to outdating, then this value should be incremented with each layer of job depth. This way we can avoid infinite loop conditions where jobs endlessly pile onto the queue, rerendering each other. |
     pub async fn queue_rerender_page(
         ctx: &ServiceContext<'_>,
-        id: PageId,
+        id: PageIdGroup,
         depth: RerenderDepth,
     ) -> Result<()> {
         debug!(
@@ -110,7 +110,7 @@ impl JobService {
     /// Same as `queue_rerender_page()`.
     pub async fn queue_rerender_nav_page(
         ctx: &ServiceContext<'_>,
-        id: PageId,
+        id: PageIdGroup,
         depth: RerenderDepth,
     ) -> Result<()> {
         debug!(

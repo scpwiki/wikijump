@@ -30,7 +30,9 @@ use crate::services::page::{
 };
 use crate::services::page_revision::RerenderType;
 use crate::services::{Result, TextService};
-use crate::types::{Bytes, FileOrder, PageDetails, PageId, Reference, RerenderDepth};
+use crate::types::{
+    Bytes, FileOrder, PageDetails, PageIdGroup, Reference, RerenderDepth,
+};
 use futures::future::try_join_all;
 
 pub async fn page_create(
@@ -181,7 +183,7 @@ pub async fn page_rerender(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<()> {
-    let input: PageId = params.parse()?;
+    let input: PageIdGroup = params.parse()?;
     info!(
         "Re-rendering page ID {} in site ID {}",
         input.page_id, input.site_id,

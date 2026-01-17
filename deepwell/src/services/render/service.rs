@@ -26,7 +26,7 @@ use crate::services::settings::{NavigationPageWikitext, SettingsService};
 use crate::services::text_block::{
     MIME_HTML, TextBlock, TextBlockService, mime_for_language,
 };
-use crate::types::PageId;
+use crate::types::PageIdGroup;
 use ftml::{prelude::*, tree::CodeBlock};
 use tokio::time::timeout;
 
@@ -60,11 +60,11 @@ impl RenderService {
         wikitext: String,
         page_info: &PageInfo<'_>,
         layout: Layout,
-        PageId {
+        PageIdGroup {
             site_id,
             category_id,
             page_id,
-        }: PageId,
+        }: PageIdGroup,
     ) -> Result<RenderPageOutput> {
         let page_settings = WikitextSettings::from_mode(WikitextMode::Page, layout);
         let nav_settings = WikitextSettings::from_mode(WikitextMode::PageNav, layout);

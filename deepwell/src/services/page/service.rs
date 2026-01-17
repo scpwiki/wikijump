@@ -34,7 +34,7 @@ use crate::services::{
     CategoryService, FilterService, PageRevisionService, SiteService, TextBlockService,
     TextService,
 };
-use crate::types::{PageId, PageOrder};
+use crate::types::{PageIdGroup, PageOrder};
 use crate::utils::{get_category_name, trim_default};
 use ftml::layout::Layout;
 use ref_map::*;
@@ -108,7 +108,7 @@ impl PageService {
             parser_errors,
         } = PageRevisionService::create_first(
             ctx,
-            PageId {
+            PageIdGroup {
                 site_id,
                 category_id,
                 page_id,
@@ -174,7 +174,7 @@ impl PageService {
             latest_revision_id,
             ..
         } = Self::get(ctx, site_id, reference).await?;
-        let id = PageId {
+        let id = PageIdGroup {
             site_id,
             category_id,
             page_id,
@@ -277,7 +277,7 @@ impl PageService {
             latest_revision_id,
             ..
         } = Self::get(ctx, site_id, reference).await?;
-        let id = PageId {
+        let id = PageIdGroup {
             site_id,
             category_id,
             page_id,
@@ -463,7 +463,7 @@ impl PageService {
         }: RestorePage,
     ) -> Result<RestorePageOutput> {
         let txn = ctx.transaction();
-        let PageId {
+        let PageIdGroup {
             site_id,
             category_id: _,
             page_id,
@@ -566,7 +566,7 @@ impl PageService {
             latest_revision_id,
             ..
         } = Self::get(ctx, site_id, reference).await?;
-        let id = PageId {
+        let id = PageIdGroup {
             site_id,
             category_id,
             page_id,
