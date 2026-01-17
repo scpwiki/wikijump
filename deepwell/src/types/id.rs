@@ -1,5 +1,5 @@
 /*
- * types/mod.rs
+ * types/id.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2026 Wikijump Team
@@ -18,30 +18,36 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#![allow(unused_imports)]
+macro_rules! define_id_type {
+    ($name:ident) => {
+        #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+        pub struct $name(pub i64);
+    };
+}
 
-mod bytes;
-mod connection_type;
-mod fetch_direction;
-mod file_details;
-mod file_order;
-mod id;
-mod maybe;
-mod page_details;
-mod page_id_group;
-mod page_order;
-mod reference;
-mod rerender_depth;
+// Base
+define_id_type!(UserId);
+define_id_type!(SiteId);
 
-pub use self::bytes::Bytes;
-pub use self::connection_type::ConnectionType;
-pub use self::fetch_direction::FetchDirection;
-pub use self::file_details::FileDetails;
-pub use self::file_order::{FileOrder, FileOrderColumn};
-pub use self::id::*;
-pub use self::maybe::Maybe;
-pub use self::page_details::PageDetails;
-pub use self::page_id_group::PageIdGroup;
-pub use self::page_order::{PageOrder, PageOrderColumn};
-pub use self::reference::Reference;
-pub use self::rerender_depth::RerenderDepth;
+// Pages
+define_id_type!(PageId);
+define_id_type!(PageCategoryId);
+define_id_type!(PageRevisionId);
+define_id_type!(PageLockId);
+define_id_type!(PageVoteId);
+
+// Files
+define_id_type!(FileId);
+define_id_type!(FileRevisionId);
+
+// Forum
+define_id_type!(ForumGroupId);
+define_id_type!(ForumCategoryId);
+define_id_type!(ForumThreadId);
+define_id_type!(ForumPostId);
+define_id_type!(ForumPostRevisionId);
+
+// Miscellaneous
+define_id_type!(FilterId);
+define_id_type!(RelationId);
+define_id_type!(AuditEventId);
