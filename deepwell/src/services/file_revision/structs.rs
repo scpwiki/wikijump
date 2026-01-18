@@ -22,13 +22,14 @@ use super::prelude::*;
 use crate::models::sea_orm_active_enums::FileRevisionType;
 use crate::services::page_revision::PageRevisionCountOutput;
 use crate::types::FetchDirection;
+use crate::types::id::{UserId, PageId, SiteId, FileId};
 
 #[derive(Debug, Clone)]
 pub struct CreateFileRevision {
-    pub site_id: i64,
-    pub page_id: i64,
-    pub file_id: i64,
-    pub user_id: i64,
+    pub site_id: SiteId,
+    pub page_id: PageId,
+    pub file_id: FileId,
+    pub user_id: UserId,
     pub revision_comments: String,
     pub revision_type: FileRevisionType,
     pub body: CreateFileRevisionBody,
@@ -36,7 +37,7 @@ pub struct CreateFileRevision {
 
 #[derive(Debug, Default, Clone)]
 pub struct CreateFileRevisionBody {
-    pub page_id: Maybe<i64>, // for changing the page this file is on
+    pub page_id: Maybe<PageId>, // for changing the page this file is on
     pub name: Maybe<String>,
     pub blob: Maybe<FileBlob>,
 }
@@ -60,10 +61,10 @@ pub struct CreateFileRevisionOutput {
 
 #[derive(Debug, Clone)]
 pub struct CreateFirstFileRevision {
-    pub site_id: i64,
-    pub page_id: i64,
-    pub file_id: i64,
-    pub user_id: i64,
+    pub site_id: SiteId,
+    pub page_id: PageId,
+    pub file_id: FileId,
+    pub user_id: UserId,
     pub name: String,
     pub s3_hash: BlobHash,
     pub size: i64,
@@ -81,46 +82,46 @@ pub struct CreateFirstFileRevisionOutput {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct CreateTombstoneFileRevision {
-    pub site_id: i64,
-    pub page_id: i64,
-    pub file_id: i64,
-    pub user_id: i64,
+    pub site_id: SiteId,
+    pub page_id: PageId,
+    pub file_id: FileId,
+    pub user_id: UserId,
     pub revision_comments: String,
     pub erase_s3_hash: bool,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct CreateResurrectionFileRevision {
-    pub site_id: i64,
-    pub page_id: i64,
-    pub file_id: i64,
-    pub user_id: i64,
-    pub new_page_id: i64,
+    pub site_id: SiteId,
+    pub page_id: PageId,
+    pub file_id: FileId,
+    pub user_id: UserId,
+    pub new_page_id: PageId,
     pub new_name: String,
     pub revision_comments: String,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct GetFileRevision {
-    pub site_id: i64,
-    pub page_id: i64,
-    pub file_id: i64,
+    pub site_id: SiteId,
+    pub page_id: PageId,
+    pub file_id: FileId,
     pub revision_number: i32,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct UpdateFileRevision {
-    pub site_id: i64,
-    pub page_id: i64,
-    pub file_id: i64,
-    pub revision_id: i64,
-    pub user_id: i64,
+    pub site_id: SiteId,
+    pub page_id: PageId,
+    pub file_id: FileId,
+    pub revision_id: PageRevisionId,
+    pub user_id: UserId,
     pub hidden: Vec<String>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct GetFileRevisionRange {
-    pub file_id: i64,
+    pub file_id: FileId,
     pub revision_number: i32,
     pub revision_direction: FetchDirection,
     pub limit: u64,

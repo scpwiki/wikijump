@@ -151,7 +151,7 @@ impl ParentService {
     /// Gets all relationships of the given type.
     pub async fn get_relationships(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
+        site_id: PageId,
         reference: Reference<'_>,
         relationship_type: ParentalRelationshipType,
     ) -> Result<Vec<PageParentModel>> {
@@ -174,7 +174,7 @@ impl ParentService {
     #[allow(dead_code)] // TEMP
     pub async fn get_children(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
+        site_id: SiteId,
         reference: Reference<'_>,
     ) -> Result<Vec<PageParentModel>> {
         Self::get_relationships(ctx, site_id, reference, ParentalRelationshipType::Child)
@@ -184,7 +184,7 @@ impl ParentService {
     /// Gets all parents of the given page.
     pub async fn get_parents(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
+        site_id: SiteId,
         reference: Reference<'_>,
     ) -> Result<Vec<PageParentModel>> {
         Self::get_relationships(ctx, site_id, reference, ParentalRelationshipType::Parent)
@@ -198,7 +198,7 @@ impl ParentService {
     ///
     /// # Returns
     /// Returns the number of relationships deleted.
-    pub async fn remove_all(ctx: &ServiceContext<'_>, page_id: i64) -> Result<u64> {
+    pub async fn remove_all(ctx: &ServiceContext<'_>, page_id: PageId) -> Result<u64> {
         let txn = ctx.transaction();
 
         let rows_deleted = PageParent::delete_many()

@@ -27,6 +27,7 @@ use crate::models::{file, page, site};
 use crate::services::blob::{EMPTY_BLOB_HASH, EMPTY_BLOB_MIME, FinalizeBlobUploadOutput};
 use crate::services::{BlobService, OutdateService, PageService};
 use crate::types::{Bytes, FetchDirection, RerenderDepth};
+use crate::types::id::{PageId, FileId};
 use sea_orm::{FromQueryResult, prelude::*};
 use std::num::NonZeroI32;
 use std::sync::LazyLock;
@@ -512,8 +513,8 @@ impl FileRevisionService {
     /// See `RevisionService::count()`.
     pub async fn count(
         ctx: &ServiceContext<'_>,
-        page_id: i64,
-        file_id: i64,
+        page_id: PageId,
+        file_id: FileId,
     ) -> Result<NonZeroI32> {
         let txn = ctx.transaction();
         let row_count = FileRevision::find()
@@ -586,15 +587,15 @@ impl FileRevisionService {
 
     async fn get_page_slug(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
+        site_id: SiteId,
+        page_id: PageId,
     ) -> Result<String> {
         let page = PageService::get(ctx, site_id, Reference::Id(page_id)).await?;
         Ok(page.slug)
     }
 }
 
-fn next_revision_number(previous: &FileRevisionModel, page_id: i64, file_id: i64) -> i32 {
+fn next_revision_number(previous: &FileRevisionModel, page_id: PageId, file_id: FileId) -> i32 {
     // Check for basic consistency
     assert_eq!(
         previous.file_id, file_id,

@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use crate::license::License;
+use crate::types::id::{PageId, SiteId, UserId, PageCategoryId, PageRevisionId};
 use ftml::layout::Layout;
 use std::borrow::Cow;
 use std::net::IpAddr;
@@ -33,73 +34,73 @@ use time::Date;
 #[derive(Debug, Clone)]
 pub enum AuditEvent<'a> {
     UserCreate {
-        user_id: i64,
+        user_id: UserId,
     },
     UserUpdate {
-        user_id: i64,
+        user_id: UserId,
         previous_fields: UserFields<'a>,
         changed_fields: UserFields<'a>,
     },
     UserUpdateMfa {
-        user_id: i64,
+        user_id: UserId,
         operation: UpdateMfaOperation,
     },
     SiteCreate {
-        site_id: i64,
+        site_id: SiteId,
     },
     SiteUpdate {
-        site_id: i64,
-        user_id: i64,
+        site_id: SiteId,
+        user_id: UserId,
         previous_fields: SiteFields<'a>,
         changed_fields: SiteFields<'a>,
     },
     PageCreate {
-        user_id: i64,
-        site_id: i64,
-        page_id: i64,
-        revision_id: i64,
-        category_id: i64,
+        user_id: UserId,
+        site_id: SiteId,
+        page_id: PageId,
+        revision_id: PageRevisionId,
+        category_id: PageCategoryId,
     },
     PageEdit {
-        user_id: i64,
-        site_id: i64,
-        page_id: i64,
-        revision_id: Option<i64>,
+        user_id: UserId,
+        site_id: SiteId,
+        page_id: PageId,
+        revision_id: Option<PageRevisionId>,
     },
     PageMove {
-        user_id: i64,
-        site_id: i64,
-        page_id: i64,
-        revision_id: i64,
+        user_id: UserId,
+        site_id: SiteId,
+        page_id: PageId,
+        revision_id: PageRevisionId,
         old_slug: &'a str,
         new_slug: &'a str,
     },
     PageDelete {
-        user_id: i64,
-        site_id: i64,
-        page_id: i64,
-        revision_id: i64,
+        user_id: UserId,
+        site_id: SiteId,
+        page_id: PageId,
+        revision_id: PageRevisionId,
         page_slug: &'a str,
     },
     PageUndelete {
-        user_id: i64,
-        site_id: i64,
-        page_id: i64,
-        revision_id: i64,
-        category_id: i64,
+        user_id: UserId,
+        site_id: SiteId,
+        page_id: PageId,
+        revision_id: PageRevisionId,
+        category_id: PageCategoryId,
         page_slug: &'a str,
     },
     PageRollback {
-        user_id: i64,
-        site_id: i64,
-        page_id: i64,
-        revision_id: Option<i64>,
+        user_id: UserId,
+        site_id: SiteId,
+        page_id: PageId,
+        revision_id: Option<PageRevisionId>,
         revision_number: i32,
     },
     PageLayoutUpdate {
-        user_id: i64,
-        site_id: i64,
-        page_id: i64,
+        user_id: UserId,
+        site_id: SiteId,
+        page_id: PageId,
         layout: Option<Layout>,
     },
 }
@@ -323,9 +324,9 @@ impl<'a> AuditEvent<'a> {
 pub struct RawAuditEvent<'a> {
     pub event_type: &'static str,
     pub ip_address: IpAddr,
-    pub user_id: Option<i64>,
-    pub site_id: Option<i64>,
-    pub page_id: Option<i64>,
+    pub user_id: Option<UserId>,
+    pub site_id: Option<SiteId>,
+    pub page_id: Option<PageId>,
     pub extra_id_1: Option<i64>,
     pub extra_id_2: Option<i64>,
     pub extra_string_1: Option<Cow<'a, str>>,

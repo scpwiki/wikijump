@@ -18,19 +18,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::types::id::{PageId, UserId};
+
 pub type VoteValue = i16;
 
 #[derive(Deserialize, Debug, Copy, Clone)]
 pub struct CreateVote {
-    pub page_id: i64,
-    pub user_id: i64,
+    pub page_id: PageId,
+    pub user_id: UserId,
     pub value: VoteValue,
 }
 
 #[derive(Deserialize, Debug, Copy, Clone)]
 pub struct GetVote {
-    pub page_id: i64,
-    pub user_id: i64,
+    pub page_id: PageId,
+    pub user_id: UserId,
 }
 
 #[derive(Deserialize, Debug, Copy, Clone)]
@@ -61,8 +63,8 @@ pub struct CountVoteHistory {
 
 #[derive(Deserialize, Debug, Copy, Clone)]
 pub struct VoteAction {
-    pub page_id: i64,
-    pub user_id: i64,
+    pub page_id: PageId,
+    pub user_id: UserId,
     pub enable: bool,
-    pub acting_user_id: i64,
+    pub acting_user_id: UserId,
 }

@@ -22,11 +22,12 @@ use crate::models::page_connection::Model as PageConnectionModel;
 use crate::models::page_connection_missing::Model as PageConnectionMissingModel;
 use crate::models::page_link::Model as PageLinkModel;
 use crate::types::Reference;
+use crate::types::id::{PageId, SiteId};
 use time::OffsetDateTime;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct GetLinksFrom<'a> {
-    pub site_id: i64,
+    pub site_id: SiteId,
     pub page: Reference<'a>,
 }
 
@@ -39,7 +40,7 @@ pub struct GetLinksFromOutput {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct GetLinksTo<'a> {
-    pub site_id: i64,
+    pub site_id: SiteId,
     pub page: Reference<'a>,
 }
 
@@ -50,7 +51,7 @@ pub struct GetLinksToOutput {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct GetLinksToMissing {
-    pub site_id: i64,
+    pub site_id: SiteId,
     pub page_slug: String,
 }
 
@@ -67,7 +68,7 @@ pub struct GetConnectionsFromOutput {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct GetLinksExternalFrom<'a> {
-    pub site_id: i64,
+    pub site_id: SiteId,
     pub page: Reference<'a>,
 }
 
@@ -78,7 +79,7 @@ pub struct GetLinksExternalFromOutput {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct GetLinksExternalTo {
-    pub site_id: i64,
+    pub site_id: SiteId,
     pub url: String,
 }
 
@@ -94,6 +95,6 @@ pub struct ToExternalLink {
 
     #[serde(with = "time::serde::rfc3339::option")]
     pub updated_at: Option<OffsetDateTime>,
-    pub page_id: i64,
+    pub page_id: PageId,
     pub count: i32,
 }

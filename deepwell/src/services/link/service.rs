@@ -52,7 +52,7 @@ pub struct LinkService;
 impl LinkService {
     pub async fn get_from(
         ctx: &ServiceContext<'_>,
-        page_id: i64,
+        page_id: PageId,
     ) -> Result<GetLinksFromOutput> {
         let txn = ctx.transaction();
 
@@ -79,7 +79,7 @@ impl LinkService {
     #[allow(dead_code)]
     pub async fn get_connections_from(
         ctx: &ServiceContext<'_>,
-        page_id: i64,
+        page_id: PageId,
         connection_types: Option<&[ConnectionType]>,
     ) -> Result<GetConnectionsFromOutput> {
         let txn = ctx.transaction();
@@ -112,7 +112,7 @@ impl LinkService {
 
     pub async fn get_to(
         ctx: &ServiceContext<'_>,
-        page_id: i64,
+        page_id: PageId,
         connection_types: Option<&[ConnectionType]>,
     ) -> Result<GetLinksToOutput> {
         let txn = ctx.transaction();
@@ -134,7 +134,7 @@ impl LinkService {
 
     pub async fn get_to_missing(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
+        site_id: PageId,
         page_slug: &str,
         connection_types: Option<&[ConnectionType]>,
     ) -> Result<GetLinksToMissingOutput> {
@@ -171,7 +171,7 @@ impl LinkService {
 
     pub async fn get_external_from(
         ctx: &ServiceContext<'_>,
-        page_id: i64,
+        page_id: PageId,
     ) -> Result<GetLinksExternalFromOutput> {
         let txn = ctx.transaction();
 
@@ -185,7 +185,7 @@ impl LinkService {
 
     pub async fn get_external_to(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
+        site_id: SiteId,
         url: &str,
     ) -> Result<GetLinksExternalToOutput> {
         let txn = ctx.transaction();
@@ -224,8 +224,8 @@ impl LinkService {
 
     pub async fn update(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
+        site_id: SiteId,
+        page_id: PageId,
         backlinks: &Backlinks<'_>,
     ) -> Result<()> {
         let mut connections = HashMap::new();
@@ -280,7 +280,7 @@ impl LinkService {
 
 async fn update_connections(
     ctx: &ServiceContext<'_>,
-    from_page_id: i64,
+    from_page_id: PageId,
     counts: &mut HashMap<(i64, ConnectionType), i32>,
 ) -> Result<()> {
     let txn = ctx.transaction();

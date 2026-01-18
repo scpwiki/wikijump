@@ -19,6 +19,7 @@
  */
 
 use crate::models::page::Model as PageModel;
+use crate::types::id::{PageId, PageCategoryId, SiteId};
 
 /// A structure storing the three IDs for a page.
 ///
@@ -26,9 +27,9 @@ use crate::models::page::Model as PageModel;
 /// its various levels of silo (site, category, then the page itself).
 #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
 pub struct PageIdGroup {
-    pub site_id: i64,
-    pub category_id: i64,
-    pub page_id: i64,
+    pub site_id: SiteId,
+    pub category_id: PageCategoryId,
+    pub page_id: PageId,
 }
 
 impl PageIdGroup {
@@ -41,9 +42,9 @@ impl PageIdGroup {
 impl From<&'_ PageModel> for PageIdGroup {
     fn from(page: &PageModel) -> PageIdGroup {
         PageIdGroup {
-            site_id: page.site_id,
-            category_id: page.page_category_id,
-            page_id: page.page_id,
+            site_id: SiteId(page.site_id),
+            category_id: PageCategoryId(page.page_category_id),
+            page_id: PageId(page.page_id),
         }
     }
 }

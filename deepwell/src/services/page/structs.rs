@@ -23,6 +23,7 @@ use crate::models::sea_orm_active_enums::PageRevisionType;
 use crate::services::page_revision::CreatePageRevisionOutput;
 use crate::services::score::ScoreValue;
 use crate::types::{PageDetails, PageIdGroup};
+use crate::types::id::{PageId, PageCategoryId, ForumThreadId, SiteId};
 use ftml::layout::Layout;
 use ftml::parsing::ParseError;
 use std::net::IpAddr;
@@ -30,14 +31,14 @@ use time::OffsetDateTime;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct CreatePage {
-    pub site_id: i64,
+    pub site_id: SiteId,
     pub wikitext: String,
     pub title: String,
     pub alt_title: Option<String>,
     pub slug: String,
     pub layout: Option<Layout>,
     pub revision_comments: String,
-    pub user_id: i64,
+    pub user_id: UserId,
 
     #[serde(default)]
     pub bypass_filter: bool,
@@ -47,21 +48,21 @@ pub struct CreatePage {
 
 #[derive(Serialize, Debug, Clone)]
 pub struct CreatePageOutput {
-    pub page_id: i64,
+    pub page_id: PageId,
     pub slug: String,
-    pub revision_id: i64,
+    pub revision_id: PageRevisionId,
     pub parser_errors: Vec<ParseError>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct GetPageReference<'a> {
-    pub site_id: i64,
+    pub site_id: SiteId,
     pub page: Reference<'a>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct GetPageReferenceDetails<'a> {
-    pub site_id: i64,
+    pub site_id: SiteId,
     pub page: Reference<'a>,
 
     #[serde(default)]
@@ -70,14 +71,14 @@ pub struct GetPageReferenceDetails<'a> {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct GetPageSlug {
-    pub site_id: i64,
+    pub site_id: SiteId,
     pub slug: String,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct GetPageAnyDetails {
-    pub site_id: i64,
-    pub page_id: i64,
+    pub site_id: SiteId,
+    pub page_id: PageId,
 
     #[serde(default)]
     pub allow_deleted: bool,
@@ -88,7 +89,7 @@ pub struct GetPageAnyDetails {
 
 #[derive(Serialize, Debug, Clone)]
 pub struct GetPageOutput {
-    pub page_id: i64,
+    pub page_id: PageId,
 
     #[serde(with = "time::serde::rfc3339")]
     pub page_created_at: OffsetDateTime,
@@ -99,17 +100,17 @@ pub struct GetPageOutput {
     #[serde(with = "time::serde::rfc3339::option")]
     pub page_deleted_at: Option<OffsetDateTime>,
     pub page_revision_count: i32,
-    pub site_id: i64,
+    pub site_id: SiteId,
     pub page_category_id: i64,
     pub page_category_slug: String,
     pub discussion_thread_id: Option<i64>,
-    pub revision_id: i64,
+    pub revision_id: PageRevisionId,
     pub revision_type: PageRevisionType,
 
     #[serde(with = "time::serde::rfc3339")]
     pub revision_created_at: OffsetDateTime,
     pub revision_number: i32,
-    pub revision_user_id: i64,
+    pub revision_user_id: UserId,
     pub wikitext: Option<String>,
     pub compiled_body_html: Option<String>,
 
@@ -128,7 +129,7 @@ pub struct GetPageOutput {
 
 #[derive(Serialize, Debug, Clone)]
 pub struct GetDeletedPageOutput {
-    pub page_id: i64,
+    pub page_id: PageId,
 
     #[serde(with = "time::serde::rfc3339")]
     pub page_created_at: OffsetDateTime,
@@ -139,8 +140,8 @@ pub struct GetDeletedPageOutput {
     #[serde(with = "time::serde::rfc3339")]
     pub page_deleted_at: OffsetDateTime,
     pub page_revision_count: i32,
-    pub site_id: i64,
-    pub discussion_thread_id: Option<i64>,
+    pub site_id: SiteId,
+    pub discussion_thread_id: Option<ForumThreadId>,
     pub hidden_fields: Vec<String>,
     pub title: String,
     pub alt_title: Option<String>,
@@ -151,17 +152,17 @@ pub struct GetDeletedPageOutput {
 
 #[derive(Serialize, Debug, Clone)]
 pub struct GetPageScoreOutput {
-    pub page_id: i64,
+    pub page_id: PageId,
     pub score: ScoreValue,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct EditPage<'a> {
-    pub site_id: i64,
+    pub site_id: SiteId,
     pub page: Reference<'a>,
     pub last_revision_id: i64,
     pub revision_comments: String,
-    pub user_id: i64,
+    pub user_id: UserId,
 
     #[serde(flatten)]
     pub body: EditPageBody,
@@ -179,12 +180,12 @@ pub struct EditPageBody {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct MovePage<'a> {
-    pub site_id: i64,
+    pub site_id: SiteId,
     pub page: Reference<'a>,
-    pub last_revision_id: i64,
+    pub last_revision_id: PageRevisionId,
     pub new_slug: String,
     pub revision_comments: String,
-    pub user_id: i64,
+    pub user_id: UserId,
     // NOTE: slug field is a parameter, not in the body
     pub ip_address: IpAddr,
 }
@@ -193,25 +194,25 @@ pub struct MovePage<'a> {
 pub struct MovePageOutput {
     pub old_slug: String,
     pub new_slug: String,
-    pub revision_id: i64,
+    pub revision_id: PageRevisionId,
     pub revision_number: i32,
     pub parser_errors: Option<Vec<ParseError>>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct DeletePage<'a> {
-    pub site_id: i64,
+    pub site_id: SiteId,
     pub page: Reference<'a>,
-    pub last_revision_id: i64,
+    pub last_revision_id: PageRevisionId,
     pub revision_comments: String,
-    pub user_id: i64,
+    pub user_id: UserId,
     pub ip_address: IpAddr,
 }
 
 #[derive(Serialize, Debug, Clone)]
 pub struct DeletePageOutput {
-    page_id: i64,
-    revision_id: i64,
+    page_id: PageId,
+    revision_id: PageRevisionId,
     revision_number: i32,
 }
 
@@ -219,7 +220,7 @@ pub struct DeletePageOutput {
 pub struct RestorePage {
     pub id: PageIdGroup,
     pub revision_comments: String,
-    pub user_id: i64,
+    pub user_id: UserId,
     pub slug: Option<String>,
     pub ip_address: IpAddr,
 }
@@ -227,34 +228,34 @@ pub struct RestorePage {
 #[derive(Serialize, Debug, Clone)]
 pub struct RestorePageOutput {
     slug: String,
-    revision_id: i64,
+    revision_id: PageRevisionId,
     revision_number: i32,
     parser_errors: Vec<ParseError>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct RollbackPage<'a> {
-    pub site_id: i64,
+    pub site_id: SiteId,
     pub page: Reference<'a>,
-    pub last_revision_id: i64,
+    pub last_revision_id: PageRevisionId,
     pub revision_number: i32,
     pub revision_comments: String,
-    pub user_id: i64,
+    pub user_id: UserId,
     pub ip_address: IpAddr,
 }
 
 #[derive(Deserialize, Debug, Copy, Clone)]
 pub struct SetPageLayout {
-    pub site_id: i64,
-    pub page_id: i64,
+    pub site_id: SiteId,
+    pub page_id: PageId,
     pub layout: Option<Layout>,
-    pub user_id: i64,
+    pub user_id: UserId,
     pub ip_address: IpAddr,
 }
 
 pub type EditPageOutput = CreatePageRevisionOutput;
 
-impl From<(CreatePageRevisionOutput, i64)> for DeletePageOutput {
+impl From<(CreatePageRevisionOutput, PageId)> for DeletePageOutput {
     #[inline]
     fn from(
         (
@@ -264,7 +265,7 @@ impl From<(CreatePageRevisionOutput, i64)> for DeletePageOutput {
                 parser_errors,
             },
             page_id,
-        ): (CreatePageRevisionOutput, i64),
+        ): (CreatePageRevisionOutput, PageId),
     ) -> DeletePageOutput {
         // There's no reason to rerender on page deletion
         debug_assert!(

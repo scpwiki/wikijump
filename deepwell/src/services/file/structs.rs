@@ -22,18 +22,18 @@ use crate::models::sea_orm_active_enums::FileRevisionType;
 use crate::services::file_revision::{
     CreateFileRevisionOutput, CreateFirstFileRevisionOutput,
 };
-use crate::types::{Bytes, FileDetails, Maybe, Reference};
+use crate::types::{Bytes, FileDetails, Maybe, Reference, id::*};
 use serde_json::Value as JsonValue;
 use time::OffsetDateTime;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct CreateFile {
-    pub site_id: i64,
-    pub page_id: i64,
+    pub site_id: SiteId,
+    pub page_id: PageId,
     pub name: String,
     pub uploaded_blob_id: String,
     pub revision_comments: String,
-    pub user_id: i64,
+    pub user_id: UserId,
 
     #[serde(default)]
     pub bypass_filter: bool,
@@ -50,8 +50,8 @@ pub type CreateFileOutput = CreateFirstFileRevisionOutput;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct GetFile<'a> {
-    pub site_id: i64,
-    pub page_id: i64,
+    pub site_id: SiteId,
+    pub page_id: PageId,
     pub file: Reference<'a>,
 }
 
@@ -76,14 +76,14 @@ pub struct GetFileOutput {
 
     #[serde(with = "time::serde::rfc3339::option")]
     pub file_deleted_at: Option<OffsetDateTime>,
-    pub page_id: i64,
-    pub revision_id: i64,
+    pub page_id: PageId,
+    pub revision_id: PageRevisionId,
     pub revision_type: FileRevisionType,
 
     #[serde(with = "time::serde::rfc3339")]
     pub revision_created_at: OffsetDateTime,
     pub revision_number: i32,
-    pub revision_user_id: i64,
+    pub revision_user_id: PageRevisionId,
     pub name: String,
     pub data: Option<Bytes<'static>>,
     pub mime: String,
@@ -95,18 +95,18 @@ pub struct GetFileOutput {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct GetPageFiles {
-    pub site_id: i64,
-    pub page_id: i64,
+    pub site_id: SiteId,
+    pub page_id: PageId,
     pub deleted: Maybe<bool>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct EditFile {
-    pub site_id: i64,
-    pub page_id: i64,
-    pub file_id: i64,
-    pub user_id: i64,
-    pub last_revision_id: i64,
+    pub site_id: SiteId,
+    pub page_id: PageId,
+    pub file_id: FileId,
+    pub user_id: UserId,
+    pub last_revision_id: PageRevisionId,
     pub revision_comments: String,
 
     #[serde(flatten)]
@@ -136,12 +136,12 @@ pub type EditFileOutput = CreateFileRevisionOutput;
 #[derive(Deserialize, Debug, Clone)]
 pub struct MoveFile<'a> {
     pub revision_comments: String,
-    pub site_id: i64,
-    pub file_id: i64,
-    pub user_id: i64,
-    pub last_revision_id: i64,
+    pub site_id: SiteId,
+    pub file_id: FileId,
+    pub user_id: UserId,
+    pub last_revision_id: PageRevisionId,
     pub name: Option<String>,
-    pub current_page_id: i64,
+    pub current_page_id: PageId,
     pub destination_page: Reference<'a>,
 }
 
@@ -149,18 +149,18 @@ pub type MoveFileOutput = CreateFileRevisionOutput;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct DeleteFile<'a> {
-    pub last_revision_id: i64,
+    pub last_revision_id: PageRevisionId,
     pub revision_comments: String,
-    pub site_id: i64,
-    pub page_id: i64,
+    pub site_id: SiteId,
+    pub page_id: PageId,
     pub file: Reference<'a>,
-    pub user_id: i64,
+    pub user_id: UserId,
 }
 
 #[derive(Serialize, Debug, Clone)]
 pub struct DeleteFileOutput {
-    pub file_id: i64,
-    pub file_revision_id: i64,
+    pub file_id: FileId,
+    pub file_revision_id: FileRevisionId,
     pub file_revision_number: i32,
 }
 
@@ -169,30 +169,30 @@ pub struct RestoreFile<'a> {
     pub revision_comments: String,
     pub new_page: Option<Reference<'a>>,
     pub new_name: Option<String>,
-    pub site_id: i64,
-    pub page_id: i64,
-    pub file_id: i64,
-    pub user_id: i64,
+    pub site_id: SiteId,
+    pub page_id: PageId,
+    pub file_id: FileId,
+    pub user_id: UserId,
 }
 
 #[derive(Serialize, Debug, Clone)]
 pub struct RestoreFileOutput {
-    pub page_id: i64,
-    pub file_id: i64,
+    pub page_id: PageId,
+    pub file_id: FileId,
     pub name: String,
-    pub file_revision_id: i64,
+    pub file_revision_id: FileRevisionId,
     pub file_revision_number: i32,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct RollbackFile<'a> {
-    pub site_id: i64,
-    pub page_id: i64,
+    pub site_id: SiteId,
+    pub page_id: PageId,
     pub file: Reference<'a>,
-    pub last_revision_id: i64,
+    pub last_revision_id: PageRevisionId,
     pub revision_number: i32,
     pub revision_comments: String,
-    pub user_id: i64,
+    pub user_id: UserId,
 
     #[serde(default)]
     pub bypass_filter: bool,

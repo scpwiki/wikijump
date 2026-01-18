@@ -21,10 +21,11 @@
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::TextBlockType;
 use crate::services::text_block::TextBlockIndex;
+use crate::types::id::PageId;
 
 #[derive(Deserialize, Debug, Clone)]
 struct GetIndexInput {
-    page_id: i64,
+    page_id: PageId,
     block_type: TextBlockType,
     name: String,
 }

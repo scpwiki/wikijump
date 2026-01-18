@@ -569,10 +569,10 @@ impl BlobService {
 
         #[derive(Debug, FromQueryResult)]
         struct LatestFileRevision {
-            site_id: i64,
-            page_id: i64,
-            file_id: i64,
-            revision_id: i64,
+            site_id: SiteId,
+            page_id: PageId,
+            file_id: FileId,
+            revision_id: PageRevisionId,
         }
 
         let query = Statement::from_sql_and_values(

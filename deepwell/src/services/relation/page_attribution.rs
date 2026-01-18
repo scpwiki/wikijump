@@ -21,6 +21,7 @@
 use super::prelude::*;
 use crate::services::PageService;
 use crate::types::Reference;
+use crate::types::id::{PageId, RelationId, UserId};
 use std::collections::BTreeSet;
 use time::{Date, OffsetDateTime};
 
@@ -41,16 +42,16 @@ pub struct PageAttributionMetadata {
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct PageAttribution {
-    pub relation_id: i64,
-    pub page_id: i64,
-    pub user_id: i64,
-    pub created_by: i64,
+    pub relation_id: RelationId,
+    pub page_id: PageId,
+    pub user_id: UserId,
+    pub created_by: UserId,
     #[serde(with = "time::serde::rfc3339")]
     pub created_at: OffsetDateTime,
-    pub overwritten_by: Option<i64>,
+    pub overwritten_by: Option<UserId>,
     #[serde(with = "time::serde::rfc3339::option")]
     pub overwritten_at: Option<OffsetDateTime>,
-    pub deleted_by: Option<i64>,
+    pub deleted_by: Option<UserId>,
     #[serde(with = "time::serde::rfc3339::option")]
     pub deleted_at: Option<OffsetDateTime>,
     pub metadata: PageAttributionMetadata,
@@ -58,36 +59,36 @@ pub struct PageAttribution {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct CreatePageAttribution {
-    pub page_id: i64,
-    pub user_id: i64,
+    pub page_id: PageId,
+    pub user_id: UserId,
     pub metadata: PageAttributionMetadata,
-    pub created_by: i64,
+    pub created_by: UserId,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct PageAttributionEntry {
-    pub user_id: i64,
+    pub user_id: UserId,
     pub metadata: PageAttributionMetadata,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct SetPageAttributions<'a> {
-    pub site_id: i64,
+    pub site_id: SiteId,
     pub page: Reference<'a>,
-    pub updated_by: i64,
+    pub updated_by: UserId,
     pub attributions: Vec<PageAttributionEntry>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct ClearPageAttributions<'a> {
-    pub site_id: i64,
+    pub site_id: SiteId,
     pub page: Reference<'a>,
-    pub removed_by: i64,
+    pub removed_by: UserId,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct GetPageAttributions<'a> {
-    pub site_id: i64,
+    pub site_id: SiteId,
     pub page: Reference<'a>,
 }
 
@@ -146,8 +147,8 @@ impl RelationService {
     #[allow(dead_code)]
     pub async fn page_attribution_exists(
         ctx: &ServiceContext<'_>,
-        page_id: i64,
-        user_id: i64,
+        page_id: PageId,
+        user_id: UserId,
         metadata: &PageAttributionMetadata,
     ) -> Result<bool> {
         let metadata_json = serde_json::to_value(metadata)?;
@@ -256,8 +257,8 @@ impl RelationService {
 
 /// Builds a condition for querying one specific page attribution entry.
 fn page_attribution_condition(
-    page_id: i64,
-    user_id: i64,
+    page_id: PageId,
+    user_id: UserId,
     metadata_json: &serde_json::Value,
 ) -> Condition {
     Condition::all()
@@ -313,8 +314,8 @@ impl TryFrom<RelationModel> for PageAttribution {
 
 async fn find_page_attribution(
     ctx: &ServiceContext<'_>,
-    page_id: i64,
-    user_id: i64,
+    page_id: PageId,
+    user_id: UserId,
     metadata_json: &serde_json::Value,
 ) -> Result<Option<RelationModel>> {
     let txn = ctx.transaction();

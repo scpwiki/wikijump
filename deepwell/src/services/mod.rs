@@ -40,7 +40,7 @@ mod prelude {
     pub use super::context::ServiceContext;
     pub use super::error::*;
     pub use crate::config::Config;
-    pub use crate::types::{Maybe, Reference};
+    pub use crate::types::{Maybe, Reference, id::*};
     pub use crate::utils::now;
     pub use paste::paste;
     pub use sea_orm::{

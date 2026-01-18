@@ -25,7 +25,7 @@ use super::prelude::*;
 pub struct ScoreService;
 
 impl ScoreService {
-    pub async fn score(ctx: &ServiceContext<'_>, page_id: i64) -> Result<ScoreValue> {
+    pub async fn score(ctx: &ServiceContext<'_>, page_id: PageId) -> Result<ScoreValue> {
         let txn = ctx.transaction();
         let condition = Self::build_condition(page_id);
         let scorer = Self::get_scorer(ctx, page_id).await?;
@@ -38,7 +38,7 @@ impl ScoreService {
     /// Currently stubbed, will be implemented when relevant settings are added.
     pub async fn get_scorer(
         _ctx: &ServiceContext<'_>,
-        _page_id: i64,
+        _page_id: PageId,
     ) -> Result<impl Scorer> {
         // TODO
         Ok(TestScorer)
@@ -88,7 +88,7 @@ impl ScoreService {
         Ok(map)
     }
 
-    fn build_condition(page_id: i64) -> Condition {
+    fn build_condition(page_id: PageId) -> Condition {
         Condition::all()
             .add(page_vote::Column::PageId.eq(page_id))
             .add(page_vote::Column::DeletedAt.is_null())

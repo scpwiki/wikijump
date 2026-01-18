@@ -160,7 +160,7 @@ impl ViewService {
             Some(page) => {
                 // Get associated revision
                 let page_revision =
-                    PageRevisionService::get_latest(ctx, site.site_id, page.page_id)
+                    PageRevisionService::get_latest(ctx, SiteId::from(&site), PageId::from(&page))
                         .await?;
 
                 // Check user access to page
@@ -220,7 +220,7 @@ impl ViewService {
                     let attributions = RelationService::get_page_attributions(
                         ctx,
                         GetPageAttributions {
-                            site_id: page.site_id,
+                            site_id: SiteId(page.site_id),
                             page: Reference::Id(page.page_id),
                         },
                     )

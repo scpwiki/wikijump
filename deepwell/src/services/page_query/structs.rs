@@ -260,9 +260,9 @@ pub enum PageQueryVariables<'a> {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct PageQuery<'a> {
-    pub current_page_id: i64,
-    pub current_site_id: i64,
-    pub queried_site_id: Option<i64>,
+    pub current_page_id: PageId,
+    pub current_site_id: SiteId,
+    pub queried_site_id: Option<SiteId>,
     pub page_type: PageTypeSelector,
     pub categories: CategoriesSelector<'a>,
     pub tags: TagCondition<'a>,

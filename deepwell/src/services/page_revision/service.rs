@@ -909,8 +909,8 @@ impl PageRevisionService {
     /// Get the latest revision of this page.
     pub async fn get_latest(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
+        site_id: SiteId,
+        page_id: PageId,
     ) -> Result<PageRevisionModel> {
         // NOTE: There is no optional variant of this method,
         //       since all extant pages must have at least one revision.
@@ -1025,7 +1025,7 @@ impl PageRevisionService {
     #[allow(dead_code)] // TODO
     pub async fn get_compiled_html(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
+        site_id: SiteId,
         reference: Reference<'_>,
     ) -> Result<String> {
         find_or_error!(
@@ -1036,8 +1036,8 @@ impl PageRevisionService {
 
     pub async fn get_optional(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
+        site_id: SiteId,
+        page_id: PageId,
         revision_number: i32,
     ) -> Result<Option<PageRevisionModel>> {
         let txn = ctx.transaction();
@@ -1057,8 +1057,8 @@ impl PageRevisionService {
     #[inline]
     pub async fn get(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
+        site_id: SiteId,
+        page_id: PageId,
         revision_number: i32,
     ) -> Result<PageRevisionModel> {
         find_or_error!(
@@ -1069,14 +1069,14 @@ impl PageRevisionService {
 
     pub async fn get_direct(
         ctx: &ServiceContext<'_>,
-        revision_id: i64,
+        revision_id: PageRevisionId,
     ) -> Result<PageRevisionModel> {
         find_or_error!(Self::get_direct_optional(ctx, revision_id), PageRevision)
     }
 
     pub async fn get_direct_optional(
         ctx: &ServiceContext<'_>,
-        revision_id: i64,
+        revision_id: PageRevisionId,
     ) -> Result<Option<PageRevisionModel>> {
         let txn = ctx.transaction();
         let revision = PageRevision::find_by_id(revision_id).one(txn).await?;
@@ -1085,8 +1085,8 @@ impl PageRevisionService {
 
     pub async fn count(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
+        site_id: SiteId,
+        page_id: PageId,
     ) -> Result<NonZeroI32> {
         let txn = ctx.transaction();
         let row_count = PageRevision::find()
@@ -1204,7 +1204,7 @@ fn replace_hash_opt<B: AsRef<[u8]>>(dest: &mut Option<Vec<u8>>, src: Option<B>) 
     *dest = Some(src.to_vec());
 }
 
-fn next_revision_number(previous: &PageRevisionModel, site_id: i64, page_id: i64) -> i32 {
+fn next_revision_number(previous: &PageRevisionModel, site_id: SiteId, page_id: PageId) -> i32 {
     // Check for basic consistency
     assert_eq!(
         previous.site_id, site_id,

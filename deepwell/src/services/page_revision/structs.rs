@@ -48,7 +48,7 @@ pub struct CreatePageRevisionBody {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct CreateFirstPageRevision {
-    pub user_id: i64,
+    pub user_id: UserId,
     pub comments: String,
     pub wikitext: String,
     pub title: String,
@@ -59,37 +59,37 @@ pub struct CreateFirstPageRevision {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct CreateTombstonePageRevision {
-    pub site_id: i64,
-    pub page_id: i64,
-    pub user_id: i64,
+    pub site_id: SiteId,
+    pub page_id: PageId,
+    pub user_id: UserId,
     pub comments: String,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct CreateResurrectionPageRevision {
     pub id: PageIdGroup,
-    pub user_id: i64,
+    pub user_id: UserId,
     pub comments: String,
     pub new_slug: String,
 }
 
 #[derive(Serialize, Debug, Clone)]
 pub struct CreatePageRevisionOutput {
-    pub revision_id: i64,
+    pub revision_id: PageRevisionId,
     pub revision_number: i32,
     pub parser_errors: Option<Vec<ParseError>>,
 }
 
 #[derive(Serialize, Debug, Clone)]
 pub struct CreateFirstPageRevisionOutput {
-    pub revision_id: i64,
+    pub revision_id: PageRevisionId,
     pub parser_errors: Vec<ParseError>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct GetPageRevision {
-    pub site_id: i64,
-    pub page_id: i64,
+    pub site_id: SiteId,
+    pub page_id: PageId,
     pub revision_number: i32,
 }
 
@@ -104,9 +104,9 @@ pub struct GetPageRevisionDetails {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct UpdatePageRevision {
-    pub site_id: i64,
-    pub page_id: i64,
-    pub revision_id: i64,
+    pub site_id: SiteId,
+    pub page_id: PageId,
+    pub revision_id: PageRevisionId,
     pub user_id: i64,
     pub hidden: Vec<String>,
 }
@@ -122,8 +122,8 @@ pub struct UpdatePageRevisionDetails {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct GetPageRevisionRange {
-    pub site_id: i64,
-    pub page_id: i64,
+    pub site_id: SiteId,
+    pub page_id: PageId,
     pub revision_number: i32,
     pub revision_direction: FetchDirection,
     pub limit: u64,
@@ -166,9 +166,9 @@ pub struct PageRevisionModelFiltered {
     pub updated_at: Option<OffsetDateTime>,
     pub from_wikidot: bool,
     pub revision_number: i32,
-    pub page_id: i64,
-    pub site_id: i64,
-    pub user_id: i64,
+    pub page_id: PageId,
+    pub site_id: SiteId,
+    pub user_id: UserId,
     pub changes: Vec<String>,
     pub wikitext: Option<String>,
     pub compiled_body_html: Option<String>,

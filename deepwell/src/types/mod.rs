@@ -25,7 +25,6 @@ mod connection_type;
 mod fetch_direction;
 mod file_details;
 mod file_order;
-mod id;
 mod maybe;
 mod page_details;
 mod page_id_group;
@@ -33,12 +32,13 @@ mod page_order;
 mod reference;
 mod rerender_depth;
 
+pub mod id;
+
 pub use self::bytes::Bytes;
 pub use self::connection_type::ConnectionType;
 pub use self::fetch_direction::FetchDirection;
 pub use self::file_details::FileDetails;
 pub use self::file_order::{FileOrder, FileOrderColumn};
-pub use self::id::*;
 pub use self::maybe::Maybe;
 pub use self::page_details::PageDetails;
 pub use self::page_id_group::PageIdGroup;

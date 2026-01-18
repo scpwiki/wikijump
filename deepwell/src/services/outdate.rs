@@ -24,6 +24,7 @@ use crate::models::page::{self, Entity as Page, Model as PageModel};
 use crate::models::page_category::{self, Entity as PageCategory};
 use crate::services::{JobService, LinkService, PageService, SiteService};
 use crate::types::{ConnectionType, PageIdGroup, PageOrder, RerenderDepth};
+use crate::types::id::{PageId, SiteId};
 use crate::utils::split_category_name;
 use ref_map::*;
 use sea_orm::FromQueryResult;
@@ -34,8 +35,8 @@ pub struct OutdateService;
 impl OutdateService {
     pub async fn process_page_edit(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
+        site_id: SiteId,
+        page_id: PageId,
         slug: &str,
         depth: RerenderDepth,
     ) -> Result<()> {
@@ -53,8 +54,8 @@ impl OutdateService {
     /// Performs outdating tasks for a page being created or deleted here.
     pub async fn process_page_displace(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
+        site_id: SiteId,
+        page_id: PageId,
         slug: &str,
         depth: RerenderDepth,
     ) -> Result<()> {
@@ -68,8 +69,8 @@ impl OutdateService {
 
     pub async fn process_page_move(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
+        site_id: SiteId,
+        page_id: PageId,
         old_slug: &str,
         new_slug: &str,
         depth: RerenderDepth,
@@ -88,7 +89,7 @@ impl OutdateService {
     /// Queues the given pages for re-rendering.
     pub async fn outdate(
         ctx: &ServiceContext<'_>,
-        page_id: i64,
+        page_id: PageId,
         depth: RerenderDepth,
     ) -> Result<()> {
         let page = PageService::get_direct(ctx, page_id, false).await?;
@@ -98,7 +99,7 @@ impl OutdateService {
 
     pub async fn outdate_incoming_links(
         ctx: &ServiceContext<'_>,
-        page_id: i64,
+        page_id: PageId,
         depth: RerenderDepth,
     ) -> Result<()> {
         const CONNECTION_TYPES: &[ConnectionType] = &[ConnectionType::Link];
@@ -118,7 +119,7 @@ impl OutdateService {
 
     pub async fn outdate_outgoing_includes(
         ctx: &ServiceContext<'_>,
-        page_id: i64,
+        page_id: PageId,
         depth: RerenderDepth,
     ) -> Result<()> {
         const CONNECTION_TYPES: &[ConnectionType] = &[
@@ -230,7 +231,7 @@ impl OutdateService {
         struct Row {
             site_id: i64,
             page_category_id: i64,
-            page_id: i64,
+            page_id: PageId,
         }
 
         let txn = ctx.transaction();

@@ -99,8 +99,8 @@ impl FileService {
         // Add new file
         let model = file::ActiveModel {
             name: Set(name.clone()),
-            site_id: Set(site_id),
-            page_id: Set(page_id),
+            site_id: Set(site_id.0),
+            page_id: Set(page_id.0),
             ..Default::default()
         };
         let file = model.insert(txn).await?;
@@ -634,8 +634,8 @@ impl FileService {
     // TODO add pagination
     pub async fn get_all(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
+        site_id: SiteId,
+        page_id: PageId,
         deleted: Option<bool>,
         order: FileOrder,
     ) -> Result<Vec<FileModel>> {
@@ -667,7 +667,7 @@ impl FileService {
     /// later as part of the actual query.
     pub async fn get_id(
         ctx: &ServiceContext<'_>,
-        page_id: i64,
+        page_id: PageId,
         reference: Reference<'_>,
     ) -> Result<i64> {
         match reference {
@@ -731,7 +731,7 @@ impl FileService {
     /// If so, this method fails with `Error::FileExists`. Otherwise it returns nothing.
     async fn check_conflicts(
         ctx: &ServiceContext<'_>,
-        page_id: i64,
+        page_id: PageId,
         name: &str,
         action: &str,
     ) -> Result<()> {
@@ -766,7 +766,7 @@ impl FileService {
     /// Such a hash filter would need to be implemented through a separate system.
     async fn run_filter(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
+        site_id: SiteId,
         name: Option<&str>,
     ) -> Result<()> {
         info!("Checking file data against filters...");

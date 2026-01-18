@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::types::id::*;
 use time::{Date, OffsetDateTime};
 
 #[derive(Deserialize, Debug)]
@@ -52,8 +53,8 @@ pub struct ImportSite {
 
 #[derive(Deserialize, Debug)]
 pub struct ImportPage {
-    pub page_id: i64,
-    pub site_id: i64,
+    pub page_id: PageId,
+    pub site_id: SiteId,
 
     #[serde(with = "time::serde::rfc3339")]
     pub created_at: OffsetDateTime,

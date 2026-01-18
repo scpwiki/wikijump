@@ -82,7 +82,7 @@ impl TextBlockService {
     /// to be replaced.
     pub async fn add_blocks(
         ctx: &ServiceContext<'_>,
-        page_id: i64,
+        page_id: PageId,
         block_type: TextBlockType,
         blocks: &[TextBlock<'_>],
     ) -> Result<()> {
@@ -219,7 +219,7 @@ impl TextBlockService {
     /// Gets the index and associated S3 name for a block accessed via name/alias.
     pub async fn get_block_index(
         ctx: &ServiceContext<'_>,
-        page_id: i64,
+        page_id: PageId,
         block_type: TextBlockType,
         name: &str,
     ) -> Result<Option<TextBlockIndex>> {
@@ -257,7 +257,7 @@ impl TextBlockService {
     /// Finds how many text blocks of a type exist for a page.
     async fn get_block_count(
         ctx: &ServiceContext<'_>,
-        page_id: i64,
+        page_id: PageId,
         block_type: TextBlockType,
     ) -> Result<i16> {
         let txn = ctx.transaction();
@@ -284,7 +284,7 @@ impl TextBlockService {
     /// This is run when a page is deleted, since the page
     /// becomes inaccessible and storing this redundant information
     /// becomes unnecessary.
-    pub async fn delete_blocks(ctx: &ServiceContext<'_>, page_id: i64) -> Result<()> {
+    pub async fn delete_blocks(ctx: &ServiceContext<'_>, page_id: PageId) -> Result<()> {
         let txn = ctx.transaction();
         let bucket = ctx.s3_tblocks_bucket();
         let mut buffer = String::new();
