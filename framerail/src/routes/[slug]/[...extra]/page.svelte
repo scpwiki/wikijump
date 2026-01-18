@@ -67,9 +67,9 @@
       {$page.data.internationalization["wiki-page-no-render"]}
       <textarea class="page-source" readonly={true}>{$page.data.wikitext}</textarea>
     {:else if showRevision}
-      {@html revision.compiled_html}
+      {@html revision.compiled_body_html}
     {:else}
-      {@html $page.data.compiled_html}
+      {@html $page.data.compiled_body_html}
     {/if}
   </div>
 
@@ -302,9 +302,9 @@
       {$page.data.internationalization["wiki-page-no-render"]}
       <textarea class="page-source" readonly={true}>{$page.data.wikitext}</textarea>
     {:else if showRevision}
-      {@html revision.compiled_html}
+      {@html revision.compiled_body_html}
     {:else}
-      {@html $page.data.compiled_html}
+      {@html $page.data.compiled_body_html}
     {/if}
   </div>
 

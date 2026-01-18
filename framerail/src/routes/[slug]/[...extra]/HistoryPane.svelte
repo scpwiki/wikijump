@@ -20,7 +20,7 @@
     // Get cached revision if we have it
     let rev = revisionMap.get(revisionNumber)
     // Try to see if the cached revision already has the wanted data
-    if (compiledHtml && rev?.compiled_html) {
+    if (compiledHtml && rev?.compiled_body_html) {
       setRevision(rev)
       revision = rev
     } else if (wikitext && rev?.wikitext) {
@@ -49,7 +49,7 @@
         revisionMap.set(res.revision_number, res)
         setRevision(res)
       } else if (compiledHtml) {
-        rev.compiled_html = res.compiled_html
+        rev.compiled_body_html = res.compiled_body_html
         setRevision(rev)
         revision = rev
       } else if (wikitext) {

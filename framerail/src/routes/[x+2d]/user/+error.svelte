@@ -12,7 +12,7 @@ as soon as we can figure out prettier support for it.
 -->
 {#if $page.error.view === "user_missing"}
   {$page.error.internationalization?.["user-not-exist"]}
-  {@html $page.error.compiled_html}
+  {@html $page.error.compiled_body_html}
 {:else if $page.error.view === "site_missing"}
   UNTRANSLATED:No such site
   {@html $page.error.html}

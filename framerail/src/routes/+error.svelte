@@ -172,7 +172,7 @@ as soon as we can figure out prettier support for it.
     </form>
   {:else}
     <div id="page-content">
-      {@html $page.error.compiled_html}
+      {@html $page.error.compiled_body_html}
     </div>
 
     {#if $pageLayout === Layout.WIKIDOT}
@@ -338,7 +338,7 @@ as soon as we can figure out prettier support for it.
   {/if}
 {:else if $page.error.view === "permissions"}
   UNTRANSLATED:Lacks permissions for page
-  {@html $page.error.compiled_html}
+  {@html $page.error.compiled_body_html}
 {:else}
   UNTRANSLATED:Fatal error: Unable to display view
 {/if}

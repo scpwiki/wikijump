@@ -29,7 +29,9 @@ declare namespace App {
       revision_number: number
       revision_user_id: number
       wikitext: string | null
-      compiled_html: string | null
+      compiled_body_html: string | null
+      compiled_top_bar_html: string | null
+      compiled_side_bar_html: string | null
       compiled_at: string
       compiled_generator: string
       revision_comments: string
@@ -65,7 +67,9 @@ declare namespace App {
     /** Internalization as defined in translation keys for the page. */
     internationalization?: Locales
     /** Compiled HTML */
-    compiled_html: string
+    compiled_body_html: string
+    compiled_top_bar_html: string
+    compiled_side_bar_html: string
     /** Page revision */
     page_revision: {
       revision_id: number
@@ -79,7 +83,9 @@ declare namespace App {
       user_id: number
       changes: string[]
       wikitext: string | null
-      compiled_html: string | null
+      compiled_body_html: string | null
+      compiled_top_bar_html: string | null
+      compiled_side_bar_html: string | null
       compiled_at: string | null
       compiled_generator: string
       comments: string
