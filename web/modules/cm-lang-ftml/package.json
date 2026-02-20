@@ -30,7 +30,7 @@
     "@wikijump/prism": "workspace:*",
     "@wikijump/util": "workspace:*",
     "cm-tarnation": "^0.5.0",
-    "svelte": "^4.2.19"
+    "svelte": "^5.53.0"
   },
   "devDependencies": {
     "@lezer/generator": "^0.16.0"
