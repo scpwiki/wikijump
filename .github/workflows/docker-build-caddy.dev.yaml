@@ -24,13 +24,12 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Build image
-        if: github.ref != 'refs/heads/develop'
+        if: false
         run: docker build --tag ${{ env.IMAGE_NAME }}:${{ env.TIER }} -f install/${{ env.TIER }}/${{ env.NAME }}/Dockerfile .
         env:
           DOCKER_BUILDKIT: 1
 
       - name: Configure AWS credentials
-        if: github.ref == 'refs/heads/develop'
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ECR_ACCESS_KEY }}
@@ -38,7 +37,6 @@ jobs:
           aws-region: us-east-1
 
       - name: Build and push image to ECR Public
-        if: github.ref == 'refs/heads/develop'
         uses: pahud/ecr-public-action@8cd826db40befb59b0cd0b60b22a7ba72d06a7f7
         env:
           DOCKER_BUILDKIT: 1
