@@ -40,14 +40,18 @@ function getIcu() {
 function getLocaleCandidates(element: HTMLElement) {
   const inheritedLanguage = element.closest("[lang]")?.getAttribute("lang")
 
-  return [...new Set([
-    element.lang,
-    inheritedLanguage,
-    ...navigator.languages,
-    navigator.language,
-    document.documentElement.lang,
-    "en"
-  ].filter((value): value is string => Boolean(value)))]
+  return [
+    ...new Set(
+      [
+        element.lang,
+        inheritedLanguage,
+        ...navigator.languages,
+        navigator.language,
+        document.documentElement.lang,
+        "en"
+      ].filter((value): value is string => Boolean(value))
+    )
+  ]
 }
 
 function getCachedValue<T>(
@@ -116,29 +120,21 @@ function formatLocalizedWeekday(
     () =>
       locale.icu.DateFormatter.createE(
         locale.locale,
-        abbreviated
-          ? locale.icu.DateTimeLength.Short
-          : locale.icu.DateTimeLength.Long
+        abbreviated ? locale.icu.DateTimeLength.Short : locale.icu.DateTimeLength.Long
       )
   )
 
   return normalizeDisplay(formatter.formatIso(toIcuIsoDate(locale.icu, date)))
 }
 
-function formatLocalizedMonth(
-  date: Date,
-  locale: ResolvedLocale,
-  abbreviated: boolean
-) {
+function formatLocalizedMonth(date: Date, locale: ResolvedLocale, abbreviated: boolean) {
   const formatter = getCachedValue(
     icuFormatterCache,
     `${locale.name}:month:${abbreviated ? "medium" : "long"}`,
     () =>
       locale.icu.DateFormatter.createM(
         locale.locale,
-        abbreviated
-          ? locale.icu.DateTimeLength.Medium
-          : locale.icu.DateTimeLength.Long,
+        abbreviated ? locale.icu.DateTimeLength.Medium : locale.icu.DateTimeLength.Long,
         locale.icu.DateTimeAlignment.Auto
       )
   )
@@ -160,14 +156,17 @@ function formatLocalizedDate(date: Date, locale: ResolvedLocale) {
 }
 
 function formatLocalizedDateTimeFullYear(date: Date, locale: ResolvedLocale) {
-  const formatter = getCachedValue(icuFormatterCache, `${locale.name}:datetime:full-year`, () =>
-    locale.icu.DateTimeFormatter.createYmdt(
-      locale.locale,
-      locale.icu.DateTimeLength.Short,
-      locale.icu.TimePrecision.Second,
-      locale.icu.DateTimeAlignment.Auto,
-      locale.icu.YearStyle.Full
-    )
+  const formatter = getCachedValue(
+    icuFormatterCache,
+    `${locale.name}:datetime:full-year`,
+    () =>
+      locale.icu.DateTimeFormatter.createYmdt(
+        locale.locale,
+        locale.icu.DateTimeLength.Short,
+        locale.icu.TimePrecision.Second,
+        locale.icu.DateTimeAlignment.Auto,
+        locale.icu.YearStyle.Full
+      )
   )
 
   return normalizeDisplay(
@@ -176,26 +175,32 @@ function formatLocalizedDateTimeFullYear(date: Date, locale: ResolvedLocale) {
 }
 
 function formatLocalizedTime(date: Date, locale: ResolvedLocale) {
-  const formatter = getCachedValue(icuFormatterCache, `${locale.name}:time:medium`, () =>
-    new locale.icu.TimeFormatter(
-      locale.locale,
-      locale.icu.DateTimeLength.Medium,
-      locale.icu.TimePrecision.Second,
-      locale.icu.DateTimeAlignment.Auto
-    )
+  const formatter = getCachedValue(
+    icuFormatterCache,
+    `${locale.name}:time:medium`,
+    () =>
+      new locale.icu.TimeFormatter(
+        locale.locale,
+        locale.icu.DateTimeLength.Medium,
+        locale.icu.TimePrecision.Second,
+        locale.icu.DateTimeAlignment.Auto
+      )
   )
 
   return normalizeDisplay(formatter.format(toIcuTime(locale.icu, date)))
 }
 
 function formatLocalizedTimeH12(date: Date, locale: ResolvedLocale) {
-  const formatter = getCachedValue(icuFormatterCache, `${locale.name}:time:h12`, () =>
-    new locale.icu.TimeFormatter(
-      locale.localeH12,
-      locale.icu.DateTimeLength.Medium,
-      locale.icu.TimePrecision.Second,
-      locale.icu.DateTimeAlignment.Auto
-    )
+  const formatter = getCachedValue(
+    icuFormatterCache,
+    `${locale.name}:time:h12`,
+    () =>
+      new locale.icu.TimeFormatter(
+        locale.localeH12,
+        locale.icu.DateTimeLength.Medium,
+        locale.icu.TimePrecision.Second,
+        locale.icu.DateTimeAlignment.Auto
+      )
   )
 
   return normalizeDisplay(formatter.format(toIcuTime(locale.icu, date)))
@@ -206,14 +211,19 @@ function formatLocalizedDayPeriod(
   locale: ResolvedLocale,
   uppercase: boolean
 ) {
-  const formatter = getCachedValue(intlDateTimeFormatterCache, `${locale.name}:day-period`, () =>
-    new Intl.DateTimeFormat(locale.name, {
-      hour: "numeric",
-      hour12: true
-    })
+  const formatter = getCachedValue(
+    intlDateTimeFormatterCache,
+    `${locale.name}:day-period`,
+    () =>
+      new Intl.DateTimeFormat(locale.name, {
+        hour: "numeric",
+        hour12: true
+      })
   )
 
-  const dayPeriod = formatter.formatToParts(date).find((part) => part.type === "dayPeriod")
+  const dayPeriod = formatter
+    .formatToParts(date)
+    .find((part) => part.type === "dayPeriod")
   const value = normalizeDisplay(dayPeriod?.value ?? "")
 
   return uppercase ? value : normalizeDisplay(value.toLocaleLowerCase(locale.name))
@@ -227,7 +237,7 @@ function getDayOfYear(date: Date) {
   return (
     Math.floor(
       (getLocalDateUtcValue(date) - Date.UTC(date.getFullYear(), 0, 1)) /
-      MILLISECONDS_PER_DAY
+        MILLISECONDS_PER_DAY
     ) + 1
   )
 }
@@ -268,7 +278,7 @@ function getIsoWeekInfo(date: Date) {
   const week =
     Math.round(
       (getLocalDateUtcValue(thursday) - getLocalDateUtcValue(firstThursday)) /
-      (7 * MILLISECONDS_PER_DAY)
+        (7 * MILLISECONDS_PER_DAY)
     ) + 1
 
   return {
@@ -327,7 +337,11 @@ function getRelativeTimeValue(date: Date) {
   const absoluteDelta = Math.abs(deltaSeconds)
 
   if (absoluteDelta < SECONDS_PER_MINUTE) {
-    return { value: deltaSeconds, unit: "second" as RelativeTimeUnit, numeric: "always" as const }
+    return {
+      value: deltaSeconds,
+      unit: "second" as RelativeTimeUnit,
+      numeric: "always" as const
+    }
   }
 
   if (absoluteDelta < SECONDS_PER_HOUR) {
@@ -502,16 +516,12 @@ function formatStrftime(date: Date, format: string, locale: ResolvedLocale) {
 
     let modifier: PaddingModifier = "default"
     if (format[index] === "_" || format[index] === "-" || format[index] === "0") {
-      modifier =
-        format[index] === "_" ? "space" : format[index] === "-" ? "none" : "zero"
+      modifier = format[index] === "_" ? "space" : format[index] === "-" ? "none" : "zero"
       index += 1
     }
 
     if (index >= format.length) {
-      throw invalidFormatError(
-        format,
-        "unexpected end of input after padding modifier"
-      )
+      throw invalidFormatError(format, "unexpected end of input after padding modifier")
     }
 
     rendered += formatDirective(date, locale, format[index], modifier, format)
@@ -522,11 +532,7 @@ function formatStrftime(date: Date, format: string, locale: ResolvedLocale) {
   return rendered
 }
 
-function formatDateOrDefault(
-  date: Date,
-  format: string | null,
-  locale: ResolvedLocale
-) {
+function formatDateOrDefault(date: Date, format: string | null, locale: ResolvedLocale) {
   if (!format) {
     return formatLocalizedDateTimeFullYear(date, locale)
   }
@@ -586,7 +592,9 @@ async function formatFtmlDateElement(element: HTMLElement) {
 }
 
 export async function runDateFormatter() {
-  const ftmlDateElements = Array.from(document.querySelectorAll<HTMLElement>(".wj-date[data-timestamp], .odate"))
+  const ftmlDateElements = Array.from(
+    document.querySelectorAll<HTMLElement>(".wj-date[data-timestamp], .odate")
+  )
 
   await Promise.all(
     ftmlDateElements.map(async (element) => {
