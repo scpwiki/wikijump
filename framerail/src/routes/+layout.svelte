@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { afterNavigate } from "$app/navigation"
+  import { resolve } from "$app/paths"
+  import { runDateFormatter } from "$lib/client/dateformatter"
   import SigmaEsque from "$lib/sigma-esque/sigma-esque.svelte"
   import Wikidot from "$lib/sigma-esque/wikidot.svelte"
   import wjBanner from "$assets/logo-outline.min.svg?raw"
@@ -7,9 +10,12 @@
   import { page } from "$app/state"
   import { pageLayoutState, errorPopupState } from "$lib/stores.svelte"
   import { Layout } from "$lib/types"
-  import { resolve } from "$app/paths"
 
   let { children } = $props()
+
+  afterNavigate(() => {
+    void runDateFormatter()
+  })
 
   function closeErrorPopup() {
     errorPopupState.current = {
