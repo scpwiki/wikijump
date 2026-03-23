@@ -13,6 +13,9 @@ try {
 }
 
 const config: UserConfig = {
+  optimizeDeps: {
+    exclude: ["icu"]
+  },
   server: {
     host: "::",
     port: 3393,
