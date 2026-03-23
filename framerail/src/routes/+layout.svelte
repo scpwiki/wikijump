@@ -13,8 +13,22 @@
 
   let { children } = $props()
 
+  function getSiteLocale() {
+    return page.data?.site?.locale ?? page.error?.site?.locale ?? "en"
+  }
+
+  function applySiteLocale() {
+    const locale = getSiteLocale()
+    document.documentElement.lang = locale
+  }
+
   afterNavigate(() => {
+    applySiteLocale()
     void runDateFormatter()
+  })
+
+  $effect(() => {
+    applySiteLocale()
   })
 
   function closeErrorPopup() {
