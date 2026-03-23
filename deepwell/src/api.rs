@@ -305,6 +305,7 @@ async fn build_module(app_state: ServerState) -> Result<RpcModule<ServerState>> 
     register!("mfa_setup", auth_mfa_setup);
     register!("mfa_disable", auth_mfa_disable);
     register!("mfa_reset_recovery", auth_mfa_reset_recovery);
+    register!("authorization_token_issue", auth_token_issue);
 
     // Site
     register!("site_create", site_create);

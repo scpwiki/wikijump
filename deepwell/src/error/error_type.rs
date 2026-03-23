@@ -88,6 +88,7 @@ pub enum ErrorType {
     Filter,
     CustomDomain,
     Alias,
+    AuthorizationToken,
 
     // 2000
     #[allow(dead_code)]
@@ -130,6 +131,7 @@ pub enum ErrorType {
         session_user_id: i64,
     },
     EmptyPassword,
+    InvalidAuthorizationToken,
 
     // 4000
     BadRequest,
@@ -336,6 +338,7 @@ impl ErrorType {
             ErrorType::Filter => 1318,
             ErrorType::CustomDomain => 1319,
             ErrorType::Alias => 1320,
+            ErrorType::AuthorizationToken => 1321,
 
             //
             // 2000 -- Data Consistency
@@ -382,6 +385,7 @@ impl ErrorType {
             ErrorType::Session => 3003,
             ErrorType::SessionUserId { .. } => 3004,
             ErrorType::EmptyPassword => 3005,
+            ErrorType::InvalidAuthorizationToken => 3006,
 
             // 3100 - Permissions
             // TODO
@@ -561,6 +565,9 @@ impl ErrorType {
             ErrorType::Filter => "Failed to act on a filter",
             ErrorType::CustomDomain => "Failed to act on a custom domain",
             ErrorType::Alias => "Failed to act on an object alias",
+            ErrorType::AuthorizationToken => {
+                "Failed to create or verify an authorization token"
+            }
 
             // 2000
             ErrorType::GeneralNotFound => "Unspecified entity does not exist",
@@ -607,6 +614,9 @@ impl ErrorType {
                 "User associated with the session does not match the active user"
             }
             ErrorType::EmptyPassword => "A password was required, but not provided",
+            ErrorType::InvalidAuthorizationToken => {
+                "Provided authorization token was invalid"
+            }
 
             // 4000
             ErrorType::BadRequest => "The request is in some way malformed or incorrect",

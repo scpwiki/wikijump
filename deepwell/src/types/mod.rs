@@ -20,6 +20,7 @@
 
 #![allow(unused_imports)]
 
+mod array;
 mod bytes;
 mod connection_type;
 mod conversion_error;
@@ -33,6 +34,7 @@ mod page_order;
 mod reference;
 mod rerender_depth;
 
+pub use self::array::ArrayLength;
 pub use self::bytes::Bytes;
 pub use self::connection_type::ConnectionType;
 pub use self::conversion_error::{EnumConversionError, parse_layout};

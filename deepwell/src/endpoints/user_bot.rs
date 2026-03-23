@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use crate::models::sea_orm_active_enums::UserType;
+use crate::services::authorization_token::{AuthorizationTokenService, AuthorizedObject};
 use crate::services::relation::{
     CreateSingleUserBotOwner, RelationService, RemoveUserBotOwner, UserBotMetadata,
     UserBotOwner,
@@ -93,14 +94,14 @@ pub async fn bot_user_create(
         )
     };
 
-    // TODO verify auth token
-    // TODO add authorization token service
-    // format: [flag]-[uuid]
-    //         for instance B-1F305167-AE64-4486-809A-09D14659AB4A
-    //
-    //         B: create a bot user
-    //         S: create a site
-    let _ = authorization_token;
+    AuthorizationTokenService::verify(
+        ctx,
+        &authorization_token,
+        AuthorizedObject::BotUser,
+        ip_address,
+    )
+    .await
+    .or_raise(make_error)?;
 
     // Create bot user
     let output = UserService::create(

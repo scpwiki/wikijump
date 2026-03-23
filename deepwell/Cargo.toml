@@ -54,6 +54,7 @@ sea-query = "0.32"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sha2 = "0.10"
+static_assertions = "1.1"
 str-macro = "1"
 strum = "0.28"
 strum_macros = "0.28"
@@ -63,6 +64,7 @@ tiny-keccak = { version = "2", features = ["k12"] }
 toml = { version = "1.0", features = ["parse"] }
 tokio = { version = "1", features = ["full"] }
 typenum = "1"
+uuid = { version = "1", features = ["v4"] }
 unic-langid = "0.9"
 unicase = "2"
 wikidot-normalize = "0.12"

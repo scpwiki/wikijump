@@ -33,6 +33,9 @@ extern crate futures;
 extern crate serde;
 
 #[macro_use]
+extern crate static_assertions;
+
+#[macro_use]
 extern crate str_macro;
 
 #[macro_use]

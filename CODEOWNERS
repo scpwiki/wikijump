@@ -7,12 +7,12 @@
 deepwell                            @emmiegit
 
 # Frontend / Web server
-framerail                           @Zokhoi @emmiegit
-web                                 @Zokhoi
+framerail                           @Zokhoi @hoah2333 @emmiegit
+web                                 @Zokhoi @hoah2333
 
 # Localization
 .github/workflows/locales.yaml      @emmiegit
 
-# Terraform and docker-compose deployment
+# Komodo and docker-compose deployment
 .github/workflows/docker-*.yaml     @emmiegit
 /install/                           @emmiegit

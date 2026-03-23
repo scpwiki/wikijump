@@ -24,6 +24,7 @@ use crate::services::authentication::{
     AuthenticateUserOutput, AuthenticationService, LoginUser, LoginUserMfa,
     LoginUserOutput, MultiFactorAuthenticateUser,
 };
+use crate::services::authorization_token::AuthorizationTokenService;
 use crate::services::mfa::{
     MultiFactorConfigure, MultiFactorResetOutput, MultiFactorSetupOutput,
 };
@@ -293,6 +294,23 @@ pub async fn auth_mfa_reset_recovery(
         .or_raise(make_error)?;
 
     MfaService::reset_recovery_codes(ctx, &user, ip_address)
+        .await
+        .or_raise(make_error)
+}
+
+pub async fn auth_token_issue(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<String> {
+    let input = parse!(params, AuthorizationToken);
+    let make_error = || {
+        Error::new(
+            "failed to issue new authorization token",
+            ErrorType::Request,
+        )
+    };
+
+    AuthorizationTokenService::create(ctx, input)
         .await
         .or_raise(make_error)
 }
