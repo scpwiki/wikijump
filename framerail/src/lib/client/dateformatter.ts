@@ -7,6 +7,8 @@ const MILLISECONDS_PER_DAY = 86_400_000
 
 type IcuModule = typeof import("icu")
 type IcuLocale = ReturnType<IcuModule["Locale"]["fromString"]>
+type IcuIsoDate = InstanceType<IcuModule["IsoDate"]>
+type IcuTime = InstanceType<IcuModule["Time"]>
 
 type ResolvedLocale = {
   icu: IcuModule
@@ -17,6 +19,16 @@ type ResolvedLocale = {
 
 type PaddingModifier = "default" | "space" | "none" | "zero"
 type RelativeTimeUnit = "second" | "minute" | "hour" | "day"
+type IsoWeekInfo = {
+  year: number
+  week: number
+}
+
+type RelativeTimeValue = {
+  value: number
+  unit: RelativeTimeUnit
+  numeric: "always" | "auto"
+}
 
 let icuPromise: Promise<IcuModule> | null = null
 
@@ -25,11 +37,11 @@ const icuFormatterCache = new Map<string, unknown>()
 const intlDateTimeFormatterCache = new Map<string, Intl.DateTimeFormat>()
 const intlRelativeTimeFormatterCache = new Map<string, Intl.RelativeTimeFormat>()
 
-function normalizeDisplay(value: string) {
+function normalizeDisplay(value: string): string {
   return value.replace(/[\u00A0\u202F]/g, " ")
 }
 
-function getIcu() {
+function getIcu(): Promise<IcuModule> {
   if (!icuPromise) {
     icuPromise = import("icu")
   }
@@ -37,7 +49,7 @@ function getIcu() {
   return icuPromise
 }
 
-function getLocaleCandidates(element: HTMLElement) {
+function getLocaleCandidates(element: HTMLElement): string[] {
   const inheritedLanguage = element.closest("[lang]")?.getAttribute("lang")
 
   return [
@@ -58,7 +70,7 @@ function getCachedValue<T>(
   cache: Map<string, T> | Map<string, unknown>,
   key: string,
   create: () => T
-) {
+): T {
   const cachedValue = cache.get(key)
   if (cachedValue !== undefined) return cachedValue as T
 
@@ -67,7 +79,7 @@ function getCachedValue<T>(
   return value
 }
 
-async function resolveLocale(element: HTMLElement) {
+async function resolveLocale(element: HTMLElement): Promise<ResolvedLocale> {
   const icu = await getIcu()
 
   for (const candidate of getLocaleCandidates(element)) {
@@ -96,11 +108,11 @@ async function resolveLocale(element: HTMLElement) {
   throw new Error("No ICU4X locale available")
 }
 
-function toIcuIsoDate(icu: IcuModule, date: Date) {
+function toIcuIsoDate(icu: IcuModule, date: Date): IcuIsoDate {
   return new icu.IsoDate(date.getFullYear(), date.getMonth() + 1, date.getDate())
 }
 
-function toIcuTime(icu: IcuModule, date: Date) {
+function toIcuTime(icu: IcuModule, date: Date): IcuTime {
   return new icu.Time(
     date.getHours(),
     date.getMinutes(),
@@ -113,7 +125,7 @@ function formatLocalizedWeekday(
   date: Date,
   locale: ResolvedLocale,
   abbreviated: boolean
-) {
+): string {
   const formatter = getCachedValue(
     icuFormatterCache,
     `${locale.name}:weekday:${abbreviated ? "short" : "long"}`,
@@ -127,7 +139,11 @@ function formatLocalizedWeekday(
   return normalizeDisplay(formatter.formatIso(toIcuIsoDate(locale.icu, date)))
 }
 
-function formatLocalizedMonth(date: Date, locale: ResolvedLocale, abbreviated: boolean) {
+function formatLocalizedMonth(
+  date: Date,
+  locale: ResolvedLocale,
+  abbreviated: boolean
+): string {
   const formatter = getCachedValue(
     icuFormatterCache,
     `${locale.name}:month:${abbreviated ? "medium" : "long"}`,
@@ -142,7 +158,7 @@ function formatLocalizedMonth(date: Date, locale: ResolvedLocale, abbreviated: b
   return normalizeDisplay(formatter.formatIso(toIcuIsoDate(locale.icu, date)))
 }
 
-function formatLocalizedDate(date: Date, locale: ResolvedLocale) {
+function formatLocalizedDate(date: Date, locale: ResolvedLocale): string {
   const formatter = getCachedValue(icuFormatterCache, `${locale.name}:date:short`, () =>
     locale.icu.DateFormatter.createYmd(
       locale.locale,
@@ -155,7 +171,7 @@ function formatLocalizedDate(date: Date, locale: ResolvedLocale) {
   return normalizeDisplay(formatter.formatIso(toIcuIsoDate(locale.icu, date)))
 }
 
-function formatLocalizedDateTimeFullYear(date: Date, locale: ResolvedLocale) {
+function formatLocalizedDateTimeFullYear(date: Date, locale: ResolvedLocale): string {
   const formatter = getCachedValue(
     icuFormatterCache,
     `${locale.name}:datetime:full-year`,
@@ -174,7 +190,7 @@ function formatLocalizedDateTimeFullYear(date: Date, locale: ResolvedLocale) {
   )
 }
 
-function formatLocalizedTime(date: Date, locale: ResolvedLocale) {
+function formatLocalizedTime(date: Date, locale: ResolvedLocale): string {
   const formatter = getCachedValue(
     icuFormatterCache,
     `${locale.name}:time:medium`,
@@ -190,7 +206,7 @@ function formatLocalizedTime(date: Date, locale: ResolvedLocale) {
   return normalizeDisplay(formatter.format(toIcuTime(locale.icu, date)))
 }
 
-function formatLocalizedTimeH12(date: Date, locale: ResolvedLocale) {
+function formatLocalizedTimeH12(date: Date, locale: ResolvedLocale): string {
   const formatter = getCachedValue(
     icuFormatterCache,
     `${locale.name}:time:h12`,
@@ -210,7 +226,7 @@ function formatLocalizedDayPeriod(
   date: Date,
   locale: ResolvedLocale,
   uppercase: boolean
-) {
+): string {
   const formatter = getCachedValue(
     intlDateTimeFormatterCache,
     `${locale.name}:day-period`,
@@ -229,11 +245,11 @@ function formatLocalizedDayPeriod(
   return uppercase ? value : normalizeDisplay(value.toLocaleLowerCase(locale.name))
 }
 
-function getLocalDateUtcValue(date: Date) {
+function getLocalDateUtcValue(date: Date): number {
   return Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
 }
 
-function getDayOfYear(date: Date) {
+function getDayOfYear(date: Date): number {
   return (
     Math.floor(
       (getLocalDateUtcValue(date) - Date.UTC(date.getFullYear(), 0, 1)) /
@@ -242,12 +258,12 @@ function getDayOfYear(date: Date) {
   )
 }
 
-function getIsoWeekday(date: Date) {
+function getIsoWeekday(date: Date): number {
   const weekday = date.getDay()
   return weekday === 0 ? 7 : weekday
 }
 
-function getWeekNumberSunday(date: Date) {
+function getWeekNumberSunday(date: Date): number {
   const dayIndex = getDayOfYear(date) - 1
   const firstDay = new Date(date.getFullYear(), 0, 1).getDay()
   const firstSundayOffset = (7 - firstDay) % 7
@@ -256,7 +272,7 @@ function getWeekNumberSunday(date: Date) {
   return Math.floor((dayIndex - firstSundayOffset) / 7) + 1
 }
 
-function getWeekNumberMonday(date: Date) {
+function getWeekNumberMonday(date: Date): number {
   const dayIndex = getDayOfYear(date) - 1
   const firstDay = new Date(date.getFullYear(), 0, 1).getDay()
   const firstMondayOffset = (8 - (firstDay === 0 ? 7 : firstDay)) % 7
@@ -265,7 +281,7 @@ function getWeekNumberMonday(date: Date) {
   return Math.floor((dayIndex - firstMondayOffset) / 7) + 1
 }
 
-function getIsoWeekInfo(date: Date) {
+function getIsoWeekInfo(date: Date): IsoWeekInfo {
   const weekday = getIsoWeekday(date)
   const thursday = new Date(date)
   thursday.setDate(date.getDate() + 4 - weekday)
@@ -292,7 +308,7 @@ function applyPadding(
   width: number,
   modifier: PaddingModifier,
   defaultFill: "0" | " "
-) {
+): string {
   const value = String(rawValue)
   const fill =
     modifier === "none"
@@ -307,16 +323,20 @@ function applyPadding(
   return value.padStart(width, fill)
 }
 
-function formatYear(year: number, modifier: PaddingModifier) {
+function formatYear(year: number, modifier: PaddingModifier): string {
   return applyPadding(year, 4, modifier, "0")
 }
 
-function formatHour12(date: Date, modifier: PaddingModifier, defaultFill: "0" | " ") {
+function formatHour12(
+  date: Date,
+  modifier: PaddingModifier,
+  defaultFill: "0" | " "
+): string {
   const hour = date.getHours() % 12 || 12
   return applyPadding(hour, 2, modifier, defaultFill)
 }
 
-function formatTimezoneGmt(date: Date) {
+function formatTimezoneGmt(date: Date): string {
   const totalMinutes = -date.getTimezoneOffset()
   const sign = totalMinutes < 0 ? "-" : "+"
   const absoluteMinutes = Math.abs(totalMinutes)
@@ -330,7 +350,7 @@ function formatTimezoneGmt(date: Date) {
   return `GMT${sign}${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`
 }
 
-function getRelativeTimeValue(date: Date) {
+function getRelativeTimeValue(date: Date): RelativeTimeValue {
   const dateSeconds = Math.trunc(date.getTime() / MILLISECONDS_PER_SECOND)
   const nowSeconds = Math.trunc(Date.now() / MILLISECONDS_PER_SECOND)
   const deltaSeconds = dateSeconds - nowSeconds
@@ -367,7 +387,7 @@ function getRelativeTimeValue(date: Date) {
   }
 }
 
-function formatRelativeTime(date: Date, locale: ResolvedLocale) {
+function formatRelativeTime(date: Date, locale: ResolvedLocale): string {
   const { value, unit, numeric } = getRelativeTimeValue(date)
   const formatter = getCachedValue(
     intlRelativeTimeFormatterCache,
@@ -382,7 +402,7 @@ function formatRelativeTime(date: Date, locale: ResolvedLocale) {
   return normalizeDisplay(formatter.format(value, unit))
 }
 
-function invalidFormatError(format: string, message: string) {
+function invalidFormatError(format: string, message: string): Error {
   return new Error(`invalid strftime format string '${format}': ${message}`)
 }
 
@@ -391,7 +411,7 @@ function formatUnlocalizedDirective(
   directive: string,
   modifier: PaddingModifier,
   format: string
-) {
+): string {
   const year = date.getFullYear()
   const month = date.getMonth() + 1
   const day = date.getDate()
@@ -466,7 +486,7 @@ function formatDirective(
   directive: string,
   modifier: PaddingModifier,
   format: string
-) {
+): string {
   switch (directive) {
     case "%":
       return "%"
@@ -500,7 +520,7 @@ function formatDirective(
   }
 }
 
-function formatStrftime(date: Date, format: string, locale: ResolvedLocale) {
+function formatStrftime(date: Date, format: string, locale: ResolvedLocale): string {
   let rendered = ""
   let literalStart = 0
 
@@ -532,7 +552,11 @@ function formatStrftime(date: Date, format: string, locale: ResolvedLocale) {
   return rendered
 }
 
-function formatDateOrDefault(date: Date, format: string | null, locale: ResolvedLocale) {
+function formatDateOrDefault(
+  date: Date,
+  format: string | null,
+  locale: ResolvedLocale
+): string {
   if (!format) {
     return formatLocalizedDateTimeFullYear(date, locale)
   }
@@ -544,7 +568,7 @@ function formatDateOrDefault(date: Date, format: string | null, locale: Resolved
   }
 }
 
-function parseTimestampSeconds(value: string) {
+function parseTimestampSeconds(value: string): Date | null {
   const timestamp = Number(value)
   if (!Number.isFinite(timestamp)) return null
 
@@ -554,7 +578,7 @@ function parseTimestampSeconds(value: string) {
   return date
 }
 
-function readTimestampSeconds(element: HTMLElement) {
+function readTimestampSeconds(element: HTMLElement): string | null {
   const datasetTimestamp = element.dataset.timestamp
   if (datasetTimestamp) return datasetTimestamp
 
@@ -566,7 +590,7 @@ function readTimestampSeconds(element: HTMLElement) {
   return timestampClass.slice("time_".length)
 }
 
-function readFormatClass(element: HTMLElement) {
+function readFormatClass(element: HTMLElement): string | null {
   const formatClass = Array.from(element.classList).find((className) =>
     className.startsWith("format_")
   )
@@ -580,7 +604,7 @@ function readFormatClass(element: HTMLElement) {
   }
 }
 
-async function formatFtmlDateElement(element: HTMLElement) {
+async function formatFtmlDateElement(element: HTMLElement): Promise<void> {
   const timestamp = readTimestampSeconds(element)
   if (!timestamp) return
 
@@ -589,9 +613,13 @@ async function formatFtmlDateElement(element: HTMLElement) {
 
   const locale = await resolveLocale(element)
   element.textContent = formatDateOrDefault(date, readFormatClass(element), locale)
+
+  if (element.classList.contains("odate")) {
+    element.style.display = "inline"
+  }
 }
 
-export async function runDateFormatter() {
+export async function runDateFormatter(): Promise<void> {
   const ftmlDateElements = Array.from(
     document.querySelectorAll<HTMLElement>(".wj-date[data-timestamp], .odate")
   )
