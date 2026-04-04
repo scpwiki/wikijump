@@ -352,3 +352,63 @@ impl FoundPages {
         self.pages.len()
     }
 }
+
+/// Specifies which display fields the caller wants from the
+/// page query results. Each variant corresponds to a ListPages
+/// output variable like `%%title%%` or `%%created_at%%`.
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
+pub struct SelectedFields(pub Vec<SelectedField>);
+
+/// A single field to select from the query results.
+///
+/// Mirrors `PageQueryVariables` but is serializable and
+/// does not carry lifetime parameters.
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[serde(rename_all = "snake_case")]
+pub enum SelectedField {
+    PageId,
+    SiteId,
+    Title,
+    AltTitle,
+    PageSlug,
+    FullSlug,
+    Category,
+    CreatedAt,
+    CreatedBy,
+    UpdatedAt,
+    UpdatedBy,
+    Tags,
+    HiddenTags,
+    Score,
+    ScoreVotes,
+    Revisions,
+    Comments,
+    Children,
+    Size,
+    PageCategoryId,
+    PageRevisionId,
+}
+
+/// A single page in the selected output, containing only
+/// the fields requested via `SelectedFields`.
+#[derive(Serialize, Debug, Clone, PartialEq)]
+pub struct SelectedPageRow {
+    pub page_id: i64,
+    pub values: serde_json::Map<String, serde_json::Value>,
+}
+
+/// The result of `PageQueryService::select()`.
+///
+/// Contains the pages in order with exactly the fields
+/// described in the `SelectedFields` input.
+#[derive(Serialize, Debug, Clone, PartialEq)]
+pub struct SelectedPages {
+    pub pages: Vec<SelectedPageRow>,
+}
+
+impl SelectedPages {
+    #[inline]
+    pub fn total(&self) -> usize {
+        self.pages.len()
+    }
+}

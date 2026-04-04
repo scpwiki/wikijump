@@ -483,4 +483,169 @@ impl PageQueryService {
 
         Ok(FoundPages { pages: rows })
     }
+
+    /// Takes the output of `find()` and extracts only the fields
+    /// specified in `SelectedFields`, producing a `SelectedPages`
+    /// result with each page's values as a JSON map.
+    pub fn select(found: &FoundPages, fields: &SelectedFields) -> Result<SelectedPages> {
+        info!(
+            "Selecting {} fields from {} pages",
+            fields.0.len(),
+            found.total()
+        );
+
+        let pages = found
+            .pages
+            .iter()
+            .map(|row| {
+                let mut values = serde_json::Map::new();
+
+                for field in &fields.0 {
+                    let (key, value) = match field {
+                        SelectedField::PageId => {
+                            ("page_id", serde_json::Value::from(row.page_id))
+                        }
+                        SelectedField::SiteId => {
+                            ("site_id", serde_json::Value::from(row.site_id))
+                        }
+                        SelectedField::Title => (
+                            "title",
+                            row.title
+                                .as_deref()
+                                .map(serde_json::Value::from)
+                                .unwrap_or(serde_json::Value::Null),
+                        ),
+                        SelectedField::AltTitle => (
+                            "alt_title",
+                            row.alt_title
+                                .as_deref()
+                                .map(serde_json::Value::from)
+                                .unwrap_or(serde_json::Value::Null),
+                        ),
+                        SelectedField::PageSlug | SelectedField::FullSlug => (
+                            "slug",
+                            row.slug
+                                .as_deref()
+                                .map(serde_json::Value::from)
+                                .unwrap_or(serde_json::Value::Null),
+                        ),
+                        SelectedField::Category => {
+                            // Extract category prefix from slug (e.g. "scp" from "scp:scp-173")
+                            let category = row
+                                .slug
+                                .as_deref()
+                                .and_then(|s| s.split(':').next())
+                                .filter(|_| {
+                                    row.slug
+                                        .as_deref()
+                                        .map(|s| s.contains(':'))
+                                        .unwrap_or(false)
+                                })
+                                .unwrap_or("_default");
+                            ("category", serde_json::Value::from(category))
+                        }
+                        SelectedField::CreatedAt => (
+                            "created_at",
+                            row.created_at
+                                .map(|t| {
+                                    serde_json::Value::from(
+                                        t.format(&time::format_description::well_known::Rfc3339)
+                                            .unwrap_or_default(),
+                                    )
+                                })
+                                .unwrap_or(serde_json::Value::Null),
+                        ),
+                        SelectedField::CreatedBy => (
+                            "created_by",
+                            row.created_by
+                                .map(serde_json::Value::from)
+                                .unwrap_or(serde_json::Value::Null),
+                        ),
+                        SelectedField::UpdatedAt => (
+                            "updated_at",
+                            row.updated_at
+                                .map(|t| {
+                                    serde_json::Value::from(
+                                        t.format(&time::format_description::well_known::Rfc3339)
+                                            .unwrap_or_default(),
+                                    )
+                                })
+                                .unwrap_or(serde_json::Value::Null),
+                        ),
+                        SelectedField::UpdatedBy => (
+                            "updated_by",
+                            row.updated_by
+                                .map(serde_json::Value::from)
+                                .unwrap_or(serde_json::Value::Null),
+                        ),
+                        SelectedField::Tags => (
+                            "tags",
+                            row.tags
+                                .as_ref()
+                                .map(|t| serde_json::Value::from(t.clone()))
+                                .unwrap_or(serde_json::Value::Null),
+                        ),
+                        SelectedField::HiddenTags => {
+                            // Hidden tags are those starting with '_'
+                            let hidden = row
+                                .tags
+                                .as_ref()
+                                .map(|tags| {
+                                    tags.iter()
+                                        .filter(|t| t.starts_with('_'))
+                                        .cloned()
+                                        .collect::<Vec<_>>()
+                                })
+                                .map(serde_json::Value::from);
+                            ("hidden_tags", hidden.unwrap_or(serde_json::Value::Null))
+                        }
+                        SelectedField::Score => (
+                            "score",
+                            row.score
+                                .map(serde_json::Value::from)
+                                .unwrap_or(serde_json::Value::Null),
+                        ),
+                        SelectedField::PageCategoryId => (
+                            "page_category_id",
+                            row.page_category_id
+                                .map(serde_json::Value::from)
+                                .unwrap_or(serde_json::Value::Null),
+                        ),
+                        SelectedField::PageRevisionId => (
+                            "page_revision_id",
+                            row.page_revision_id
+                                .map(serde_json::Value::from)
+                                .unwrap_or(serde_json::Value::Null),
+                        ),
+                        // Fields that require additional data not yet
+                        // available in FoundPageRow.
+                        SelectedField::ScoreVotes => {
+                            ("score_votes", serde_json::Value::Null) // TODO
+                        }
+                        SelectedField::Revisions => {
+                            ("revisions", serde_json::Value::Null) // TODO
+                        }
+                        SelectedField::Comments => {
+                            ("comments", serde_json::Value::Null) // TODO
+                        }
+                        SelectedField::Children => {
+                            ("children", serde_json::Value::Null) // TODO
+                        }
+                        SelectedField::Size => {
+                            ("size", serde_json::Value::Null) // TODO
+                        }
+                    };
+
+                    values.insert(key.to_owned(), value);
+                }
+
+                SelectedPageRow {
+                    page_id: row.page_id,
+                    values,
+                }
+            })
+            .collect();
+
+        Ok(SelectedPages { pages })
+    }
 }
