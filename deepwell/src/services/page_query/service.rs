@@ -27,6 +27,7 @@ use crate::models::page_connection::{self, Entity as PageConnection};
 use crate::models::page_parent::{self, Entity as PageParent};
 use crate::models::{page_revision, text};
 use crate::services::{PageService, ParentService};
+use crate::utils::get_category_name;
 use sea_query::{Expr, Query};
 
 #[derive(Debug)]
@@ -486,163 +487,101 @@ impl PageQueryService {
 
     /// Takes the output of `find()` and extracts only the fields
     /// specified in `SelectedFields`, producing a `SelectedPages`
-    /// result with each page's values as a JSON map.
-    pub fn select(found: &FoundPages, fields: &SelectedFields) -> Result<SelectedPages> {
+    /// result with each page's values populated as typed fields.
+    pub fn select(found: FoundPages, fields: SelectedFields) -> Result<SelectedPages> {
         info!(
             "Selecting {} fields from {} pages",
-            fields.0.len(),
-            found.total()
+            fields.len(),
+            found.total(),
         );
 
         let pages = found
             .pages
-            .iter()
-            .map(|row| {
-                let mut values = serde_json::Map::new();
-
-                for field in &fields.0 {
-                    let (key, value) = match field {
-                        SelectedField::PageId => {
-                            ("page_id", serde_json::Value::from(row.page_id))
-                        }
-                        SelectedField::SiteId => {
-                            ("site_id", serde_json::Value::from(row.site_id))
-                        }
-                        SelectedField::Title => (
-                            "title",
-                            row.title
-                                .as_deref()
-                                .map(serde_json::Value::from)
-                                .unwrap_or(serde_json::Value::Null),
-                        ),
-                        SelectedField::AltTitle => (
-                            "alt_title",
-                            row.alt_title
-                                .as_deref()
-                                .map(serde_json::Value::from)
-                                .unwrap_or(serde_json::Value::Null),
-                        ),
-                        SelectedField::PageSlug | SelectedField::FullSlug => (
-                            "slug",
-                            row.slug
-                                .as_deref()
-                                .map(serde_json::Value::from)
-                                .unwrap_or(serde_json::Value::Null),
-                        ),
-                        SelectedField::Category => {
-                            // Extract category prefix from slug (e.g. "scp" from "scp:scp-173")
-                            let category = row
-                                .slug
-                                .as_deref()
-                                .and_then(|s| s.split(':').next())
-                                .filter(|_| {
-                                    row.slug
-                                        .as_deref()
-                                        .map(|s| s.contains(':'))
-                                        .unwrap_or(false)
-                                })
-                                .unwrap_or("_default");
-                            ("category", serde_json::Value::from(category))
-                        }
-                        SelectedField::CreatedAt => (
-                            "created_at",
-                            row.created_at
-                                .map(|t| {
-                                    serde_json::Value::from(
-                                        t.format(&time::format_description::well_known::Rfc3339)
-                                            .unwrap_or_default(),
-                                    )
-                                })
-                                .unwrap_or(serde_json::Value::Null),
-                        ),
-                        SelectedField::CreatedBy => (
-                            "created_by",
-                            row.created_by
-                                .map(serde_json::Value::from)
-                                .unwrap_or(serde_json::Value::Null),
-                        ),
-                        SelectedField::UpdatedAt => (
-                            "updated_at",
-                            row.updated_at
-                                .map(|t| {
-                                    serde_json::Value::from(
-                                        t.format(&time::format_description::well_known::Rfc3339)
-                                            .unwrap_or_default(),
-                                    )
-                                })
-                                .unwrap_or(serde_json::Value::Null),
-                        ),
-                        SelectedField::UpdatedBy => (
-                            "updated_by",
-                            row.updated_by
-                                .map(serde_json::Value::from)
-                                .unwrap_or(serde_json::Value::Null),
-                        ),
-                        SelectedField::Tags => (
-                            "tags",
-                            row.tags
-                                .as_ref()
-                                .map(|t| serde_json::Value::from(t.clone()))
-                                .unwrap_or(serde_json::Value::Null),
-                        ),
-                        SelectedField::HiddenTags => {
-                            // Hidden tags are those starting with '_'
-                            let hidden = row
-                                .tags
-                                .as_ref()
-                                .map(|tags| {
-                                    tags.iter()
-                                        .filter(|t| t.starts_with('_'))
-                                        .cloned()
-                                        .collect::<Vec<_>>()
-                                })
-                                .map(serde_json::Value::from);
-                            ("hidden_tags", hidden.unwrap_or(serde_json::Value::Null))
-                        }
-                        SelectedField::Score => (
-                            "score",
-                            row.score
-                                .map(serde_json::Value::from)
-                                .unwrap_or(serde_json::Value::Null),
-                        ),
-                        SelectedField::PageCategoryId => (
-                            "page_category_id",
-                            row.page_category_id
-                                .map(serde_json::Value::from)
-                                .unwrap_or(serde_json::Value::Null),
-                        ),
-                        SelectedField::PageRevisionId => (
-                            "page_revision_id",
-                            row.page_revision_id
-                                .map(serde_json::Value::from)
-                                .unwrap_or(serde_json::Value::Null),
-                        ),
-                        // Fields that require additional data not yet
-                        // available in FoundPageRow.
-                        SelectedField::ScoreVotes => {
-                            ("score_votes", serde_json::Value::Null) // TODO
-                        }
-                        SelectedField::Revisions => {
-                            ("revisions", serde_json::Value::Null) // TODO
-                        }
-                        SelectedField::Comments => {
-                            ("comments", serde_json::Value::Null) // TODO
-                        }
-                        SelectedField::Children => {
-                            ("children", serde_json::Value::Null) // TODO
-                        }
-                        SelectedField::Size => {
-                            ("size", serde_json::Value::Null) // TODO
-                        }
-                    };
-
-                    values.insert(key.to_owned(), value);
-                }
-
-                SelectedPageRow {
-                    page_id: row.page_id,
-                    values,
-                }
+            .into_iter()
+            .map(|row| SelectedPageRow {
+                page_id: row.page_id,
+                site_id: fields
+                    .contains(SelectedField::SiteId)
+                    .then_some(row.site_id),
+                title: if fields.contains(SelectedField::Title) {
+                    row.title
+                } else {
+                    None
+                },
+                alt_title: if fields.contains(SelectedField::AltTitle) {
+                    row.alt_title
+                } else {
+                    None
+                },
+                slug: if fields.contains(SelectedField::PageSlug)
+                    || fields.contains(SelectedField::FullSlug)
+                {
+                    row.slug.clone()
+                } else {
+                    None
+                },
+                // Extract the category prefix from the slug (e.g. "scp" from "scp:scp-173").
+                category: if fields.contains(SelectedField::Category) {
+                    row.slug.as_deref().map(|s| get_category_name(s).to_owned())
+                } else {
+                    None
+                },
+                created_at: if fields.contains(SelectedField::CreatedAt) {
+                    row.created_at
+                } else {
+                    None
+                },
+                created_by: if fields.contains(SelectedField::CreatedBy) {
+                    row.created_by
+                } else {
+                    None
+                },
+                updated_at: if fields.contains(SelectedField::UpdatedAt) {
+                    row.updated_at
+                } else {
+                    None
+                },
+                updated_by: if fields.contains(SelectedField::UpdatedBy) {
+                    row.updated_by
+                } else {
+                    None
+                },
+                tags: if fields.contains(SelectedField::Tags) {
+                    row.tags.clone()
+                } else {
+                    None
+                },
+                // Hidden tags are those starting with '_'.
+                hidden_tags: if fields.contains(SelectedField::HiddenTags) {
+                    row.tags.as_ref().map(|tags| {
+                        tags.iter()
+                            .filter(|t| t.starts_with('_'))
+                            .cloned()
+                            .collect()
+                    })
+                } else {
+                    None
+                },
+                score: if fields.contains(SelectedField::Score) {
+                    row.score
+                } else {
+                    None
+                },
+                score_votes: None, // TODO: requires vote join
+                revisions: None,   // TODO: requires revision count join
+                comments: None,    // TODO: requires forum post count join
+                children: None,    // TODO: requires page_parent count join
+                size: None,        // TODO: requires text join
+                page_category_id: if fields.contains(SelectedField::PageCategoryId) {
+                    row.page_category_id
+                } else {
+                    None
+                },
+                page_revision_id: if fields.contains(SelectedField::PageRevisionId) {
+                    row.page_revision_id
+                } else {
+                    None
+                },
             })
             .collect();
 
