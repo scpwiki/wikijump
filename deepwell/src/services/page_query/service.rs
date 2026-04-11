@@ -27,6 +27,7 @@ use crate::models::page_connection::{self, Entity as PageConnection};
 use crate::models::page_parent::{self, Entity as PageParent};
 use crate::models::{page_revision, text};
 use crate::services::{PageService, ParentService};
+use crate::utils::{get_category_name, split_category};
 use sea_query::{Expr, Query};
 
 #[derive(Debug)]
@@ -482,5 +483,109 @@ impl PageQueryService {
             .collect();
 
         Ok(FoundPages { pages: rows })
+    }
+
+    /// Takes the output of `find()` and extracts only the fields
+    /// specified in `SelectedFields`, producing a `SelectedPages`
+    /// result with each page's values populated as typed fields.
+    pub fn select(found: FoundPages, fields: SelectedFields) -> Result<SelectedPages> {
+        info!(
+            "Selecting {} fields from {} pages",
+            fields.len(),
+            found.total(),
+        );
+
+        let pages = found
+            .pages
+            .into_iter()
+            .map(|row| SelectedPageRow {
+                page_id: row.page_id,
+                site_id: fields
+                    .contains(SelectedField::SiteId)
+                    .then_some(row.site_id),
+                title: if fields.contains(SelectedField::Title) {
+                    row.title
+                } else {
+                    None
+                },
+                alt_title: if fields.contains(SelectedField::AltTitle) {
+                    row.alt_title
+                } else {
+                    None
+                },
+                full_slug: if fields.contains(SelectedField::FullSlug) {
+                    row.slug.clone()
+                } else {
+                    None
+                },
+                page_slug: if fields.contains(SelectedField::PageSlug) {
+                    row.slug.as_deref().map(|s| split_category(s).1.to_owned())
+                } else {
+                    None
+                },
+                category: if fields.contains(SelectedField::Category) {
+                    row.slug.as_deref().map(|s| get_category_name(s).to_owned())
+                } else {
+                    None
+                },
+                created_at: if fields.contains(SelectedField::CreatedAt) {
+                    row.created_at
+                } else {
+                    None
+                },
+                created_by: if fields.contains(SelectedField::CreatedBy) {
+                    row.created_by
+                } else {
+                    None
+                },
+                updated_at: if fields.contains(SelectedField::UpdatedAt) {
+                    row.updated_at
+                } else {
+                    None
+                },
+                updated_by: if fields.contains(SelectedField::UpdatedBy) {
+                    row.updated_by
+                } else {
+                    None
+                },
+                tags: if fields.contains(SelectedField::Tags) {
+                    row.tags.clone()
+                } else {
+                    None
+                },
+                hidden_tags: if fields.contains(SelectedField::HiddenTags) {
+                    row.tags.as_ref().map(|tags| {
+                        tags.iter()
+                            .filter(|t| t.starts_with('_'))
+                            .cloned()
+                            .collect()
+                    })
+                } else {
+                    None
+                },
+                score: if fields.contains(SelectedField::Score) {
+                    row.score
+                } else {
+                    None
+                },
+                score_votes: None, // TODO: requires vote join
+                revisions: None,   // TODO: requires revision count join
+                comments: None,    // TODO: requires forum post count join
+                children: None,    // TODO: requires page_parent count join
+                size: None,        // TODO: requires text join
+                page_category_id: if fields.contains(SelectedField::PageCategoryId) {
+                    row.page_category_id
+                } else {
+                    None
+                },
+                page_revision_id: if fields.contains(SelectedField::PageRevisionId) {
+                    row.page_revision_id
+                } else {
+                    None
+                },
+            })
+            .collect();
+
+        Ok(SelectedPages { pages })
     }
 }

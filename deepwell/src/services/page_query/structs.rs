@@ -23,6 +23,7 @@
 
 use super::prelude::*;
 use crate::services::score::ScoreValue;
+use enumset::{EnumSet, EnumSetType};
 use sea_orm::prelude::TimeDateTimeWithTimeZone;
 use std::borrow::Cow;
 use time::OffsetDateTime;
@@ -347,6 +348,107 @@ pub struct FoundPages {
 }
 
 impl FoundPages {
+    #[inline]
+    pub fn total(&self) -> usize {
+        self.pages.len()
+    }
+}
+
+/// A single field to select from the query results.
+///
+/// Mirrors `PageQueryVariables` but is serializable and
+/// does not carry lifetime parameters.
+#[derive(EnumSetType, Deserialize, Serialize, Debug)]
+#[serde(rename_all = "snake_case")]
+pub enum SelectedField {
+    PageId,
+    SiteId,
+    Title,
+    AltTitle,
+    PageSlug,
+    FullSlug,
+    Category,
+    CreatedAt,
+    CreatedBy,
+    UpdatedAt,
+    UpdatedBy,
+    Tags,
+    HiddenTags,
+    Score,
+    ScoreVotes,
+    Revisions,
+    Comments,
+    Children,
+    Size,
+    PageCategoryId,
+    PageRevisionId,
+}
+
+/// Specifies which display fields the caller wants from the
+/// page query results. Each variant corresponds to a ListPages
+/// output variable like `%%title%%` or `%%created_at%%`.
+pub type SelectedFields = EnumSet<SelectedField>;
+
+/// A single page in the selected output, containing only
+/// the fields requested via `SelectedFields`.
+#[derive(Serialize, Debug, Clone, PartialEq, Default)]
+pub struct SelectedPageRow {
+    pub page_id: i64,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub site_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub alt_title: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub full_slug: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub page_slug: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub category: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(with = "time::serde::rfc3339::option")]
+    pub created_at: Option<TimeDateTimeWithTimeZone>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub created_by: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(with = "time::serde::rfc3339::option")]
+    pub updated_at: Option<TimeDateTimeWithTimeZone>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub updated_by: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tags: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub hidden_tags: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub score: Option<f32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub score_votes: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub revisions: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub comments: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub children: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub size: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub page_category_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub page_revision_id: Option<i64>,
+}
+
+/// The result of `PageQueryService::select()`.
+///
+/// Contains the pages in order with exactly the fields
+/// described in the `SelectedFields` input.
+#[derive(Serialize, Debug, Clone, PartialEq)]
+pub struct SelectedPages {
+    pub pages: Vec<SelectedPageRow>,
+}
+
+impl SelectedPages {
     #[inline]
     pub fn total(&self) -> usize {
         self.pages.len()

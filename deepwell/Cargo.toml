@@ -27,6 +27,7 @@ color-backtrace = "0.7"
 cuid2 = "0.1"
 data-encoding = "2"
 dotenvy = "0.15"
+enumset = { version = "1", features = ["serde"] }
 exn = "0.3"
 femme = "2"
 filemagic = "0.13"
