@@ -27,7 +27,7 @@ use crate::models::page_connection::{self, Entity as PageConnection};
 use crate::models::page_parent::{self, Entity as PageParent};
 use crate::models::{page_revision, text};
 use crate::services::{PageService, ParentService};
-use crate::utils::get_category_name;
+use crate::utils::{get_category_name, split_category};
 use sea_query::{Expr, Query};
 
 #[derive(Debug)]
@@ -513,14 +513,16 @@ impl PageQueryService {
                 } else {
                     None
                 },
-                slug: if fields.contains(SelectedField::PageSlug)
-                    || fields.contains(SelectedField::FullSlug)
-                {
+                full_slug: if fields.contains(SelectedField::FullSlug) {
                     row.slug.clone()
                 } else {
                     None
                 },
-                // Extract the category prefix from the slug (e.g. "scp" from "scp:scp-173").
+                page_slug: if fields.contains(SelectedField::PageSlug) {
+                    row.slug.as_deref().map(|s| split_category(s).1.to_owned())
+                } else {
+                    None
+                },
                 category: if fields.contains(SelectedField::Category) {
                     row.slug.as_deref().map(|s| get_category_name(s).to_owned())
                 } else {
@@ -551,7 +553,6 @@ impl PageQueryService {
                 } else {
                     None
                 },
-                // Hidden tags are those starting with '_'.
                 hidden_tags: if fields.contains(SelectedField::HiddenTags) {
                     row.tags.as_ref().map(|tags| {
                         tags.iter()

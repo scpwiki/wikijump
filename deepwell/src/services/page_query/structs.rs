@@ -402,7 +402,9 @@ pub struct SelectedPageRow {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub alt_title: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub slug: Option<String>,
+    pub full_slug: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub page_slug: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub category: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
