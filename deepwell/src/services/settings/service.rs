@@ -19,11 +19,13 @@
  */
 
 use super::prelude::*;
-use crate::services::forum::GetForumCategory;
-use crate::services::{
-    CategoryService, ForumService, PageRevisionService, PageService, SiteService,
+use crate::{
+    services::{
+        CategoryService, ForumService, PageRevisionService, PageService, SiteService,
+        forum::GetForumCategory,
+    },
+    types::parse_layout,
 };
-use crate::types::parse_layout;
 use ftml::layout::Layout;
 use std::borrow::Cow;
 

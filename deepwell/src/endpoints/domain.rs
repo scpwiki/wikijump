@@ -19,9 +19,11 @@
  */
 
 use super::prelude::*;
-use crate::models::site_domain::Model as SiteDomainModel;
-use crate::services::domain::{CreateCustomDomain, DomainService};
-use crate::types::Reference;
+use crate::{
+    models::site_domain::Model as SiteDomainModel,
+    services::domain::{CreateCustomDomain, DomainService},
+    types::Reference,
+};
 
 pub async fn site_get_domain(
     ctx: &ServiceContext<'_>,

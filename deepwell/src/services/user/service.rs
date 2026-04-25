@@ -19,23 +19,26 @@
  */
 
 use super::prelude::*;
-use crate::models::known_user::{self, Model as KnownUserModel};
-use crate::models::user::{self, Entity as User, Model as UserModel};
-use crate::services::alias::CreateAlias;
-use crate::services::audit::{AuditEvent, AuditService};
-use crate::services::blob::{BlobService, FinalizeBlobUploadOutput};
-use crate::services::email::{EmailClassification, EmailService, EmailValidationOutput};
-use crate::services::filter::{FilterClass, FilterType};
-use crate::services::{AliasService, FilterService, PasswordService};
-use crate::types::{AliasType, UserType};
-use crate::utils::regex_replace_in_place;
+use crate::{
+    models::{
+        known_user::{self, Model as KnownUserModel},
+        user::{self, Entity as User, Model as UserModel},
+    },
+    services::{
+        AliasService, FilterService, PasswordService,
+        alias::CreateAlias,
+        audit::{AuditEvent, AuditService},
+        blob::{BlobService, FinalizeBlobUploadOutput},
+        email::{EmailClassification, EmailService, EmailValidationOutput},
+        filter::{FilterClass, FilterType},
+    },
+    types::{AliasType, UserType},
+    utils::regex_replace_in_place,
+};
 use regex::Regex;
 use sea_orm::ActiveValue;
 use serde_json::Value as JsonValue;
-use std::borrow::Cow;
-use std::cmp;
-use std::net::IpAddr;
-use std::sync::LazyLock;
+use std::{borrow::Cow, cmp, net::IpAddr, sync::LazyLock};
 
 /// Notes that this user account does not have a password set.
 /// It is not possible for any password hash to match this value,

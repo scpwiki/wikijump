@@ -20,9 +20,7 @@
 
 #[allow(unused_imports)]
 mod prelude {
-    pub use super::super::prelude::*;
-    pub use super::Scorer;
-    pub use super::structs::*;
+    pub use super::{super::prelude::*, Scorer, structs::*};
     pub use crate::models::page_vote::{self, Entity as PageVote};
     pub use ftml::data::ScoreValue;
     pub use sea_orm::{DatabaseTransaction, FromQueryResult};
@@ -34,7 +32,5 @@ mod scorer;
 mod service;
 mod structs;
 
-pub use self::impls::*;
-pub use self::scorer::Scorer;
-pub use self::service::ScoreService;
+pub use self::{impls::*, scorer::Scorer, service::ScoreService};
 pub use ftml::data::ScoreValue;

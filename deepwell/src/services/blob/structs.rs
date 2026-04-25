@@ -19,8 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::hash::BlobHash;
-use crate::types::Bytes;
+use crate::{hash::BlobHash, types::Bytes};
 use time::OffsetDateTime;
 
 #[derive(Deserialize, Debug, Clone)]

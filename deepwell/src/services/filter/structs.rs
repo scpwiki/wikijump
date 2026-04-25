@@ -18,8 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::models::filter;
-use crate::types::Maybe;
+use crate::{models::filter, types::Maybe};
 use sea_orm::{ColumnTrait, Condition};
 
 /// Denotes what class of filter is being selected.

@@ -19,13 +19,17 @@
  */
 
 use super::prelude::*;
-use crate::services::authorization_token::{AuthorizationTokenService, AuthorizedObject};
-use crate::services::relation::{
-    CreateSingleUserBotOwner, RelationService, RemoveUserBotOwner, UserBotMetadata,
-    UserBotOwner,
+use crate::{
+    services::{
+        authorization_token::{AuthorizationTokenService, AuthorizedObject},
+        relation::{
+            CreateSingleUserBotOwner, RelationService, RemoveUserBotOwner,
+            UserBotMetadata, UserBotOwner,
+        },
+        user::{CreateUser, CreateUserOutput, GetUser, UpdateUserBody},
+    },
+    types::{Maybe, Reference, UserType},
 };
-use crate::services::user::{CreateUser, CreateUserOutput, GetUser, UpdateUserBody};
-use crate::types::{Maybe, Reference, UserType};
 use std::net::IpAddr;
 
 // Structs

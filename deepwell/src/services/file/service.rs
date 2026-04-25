@@ -19,21 +19,25 @@
  */
 
 use super::prelude::*;
-use crate::hash::slice_to_blob_hash;
-use crate::models::file::{self, Entity as File, Model as FileModel};
-use crate::models::file_revision::{
-    self, Entity as FileRevision, Model as FileRevisionModel,
+use crate::{
+    hash::slice_to_blob_hash,
+    models::{
+        file::{self, Entity as File, Model as FileModel},
+        file_revision::{self, Entity as FileRevision, Model as FileRevisionModel},
+    },
+    services::{
+        BlobService, FileRevisionService, FilterService, PageService,
+        blob::{EMPTY_BLOB_HASH, EMPTY_BLOB_MIME, FinalizeBlobUploadOutput},
+        file_revision::{
+            CreateFileRevision, CreateFileRevisionBody, CreateFirstFileRevision,
+            CreateResurrectionFileRevision, CreateTombstoneFileRevision, FileBlob,
+            GetFileRevision,
+        },
+        filter::{FilterClass, FilterType},
+    },
+    types::{FileOrder, FileRevisionType},
+    utils::trim_spaces_in_place,
 };
-use crate::services::blob::{EMPTY_BLOB_HASH, EMPTY_BLOB_MIME, FinalizeBlobUploadOutput};
-use crate::services::file_revision::{
-    CreateFileRevision, CreateFileRevisionBody, CreateFirstFileRevision,
-    CreateResurrectionFileRevision, CreateTombstoneFileRevision, FileBlob,
-    GetFileRevision,
-};
-use crate::services::filter::{FilterClass, FilterType};
-use crate::services::{BlobService, FileRevisionService, FilterService, PageService};
-use crate::types::{FileOrder, FileRevisionType};
-use crate::utils::trim_spaces_in_place;
 use sea_orm::ActiveValue;
 
 pub const MAXIMUM_FILE_NAME_LENGTH: usize = 256;

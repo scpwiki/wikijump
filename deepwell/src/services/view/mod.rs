@@ -20,14 +20,11 @@
 
 #[allow(unused_imports)]
 mod prelude {
-    pub use super::super::prelude::*;
-    pub use super::options::PageOptions;
-    pub use super::structs::*;
+    pub use super::{super::prelude::*, options::PageOptions, structs::*};
 }
 
 mod options;
 mod service;
 mod structs;
 
-pub use self::service::ViewService;
-pub use self::structs::*;
+pub use self::{service::ViewService, structs::*};

@@ -18,15 +18,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::borrow::Cow;
-use std::collections::HashMap;
+use std::{borrow::Cow, collections::HashMap};
 
 use super::prelude::*;
-use crate::error::{Error, ErrorType};
-use crate::models::prelude::RolePermission;
-use crate::models::role_permission;
-use crate::services::ServiceContext;
-use crate::types::{Action, Resource};
+use crate::{
+    error::{Error, ErrorType},
+    models::{prelude::RolePermission, role_permission},
+    services::ServiceContext,
+    types::{Action, Resource},
+};
 use ftml::info;
 use redis::AsyncCommands;
 

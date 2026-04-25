@@ -19,31 +19,36 @@
  */
 
 use super::prelude::*;
-use crate::endpoints::user;
-use crate::error::{Error, ErrorType};
-use crate::models::prelude::Page;
-use crate::models::role::{self, Entity as Role, Model as RoleModel};
-use crate::models::role_permission::{
-    self, Entity as RolePermission, Model as RolePermissionModel,
+use crate::{
+    endpoints::user,
+    error::{Error, ErrorType},
+    models::{
+        page,
+        prelude::Page,
+        role::{self, Entity as Role, Model as RoleModel},
+        role_permission::{self, Entity as RolePermission, Model as RolePermissionModel},
+        user_role,
+        user_role::{Entity as UserRole, Model as UserRoleModel},
+    },
+    services::{
+        PageService, RelationService, ServiceContext,
+        audit::{AuditEvent, AuditService},
+        permission::{
+            CheckPermissionContext, PermissionService, resolve_category_reference,
+        },
+        relation::{GetPageAttributions, GetSiteBan, GetSiteMember, SiteMemberAccepted},
+        role::SystemRole,
+    },
+    types::{Action, Permission, Reference, Resource},
+    utils::{now, trim_default},
 };
-use crate::models::user_role::{Entity as UserRole, Model as UserRoleModel};
-use crate::models::{page, user_role};
-use crate::services::audit::{AuditEvent, AuditService};
-use crate::services::permission::{
-    CheckPermissionContext, PermissionService, resolve_category_reference,
-};
-use crate::services::relation::{
-    GetPageAttributions, GetSiteBan, GetSiteMember, SiteMemberAccepted,
-};
-use crate::services::role::SystemRole;
-use crate::services::{PageService, RelationService, ServiceContext};
-use crate::types::{Action, Permission, Reference, Resource};
-use crate::utils::{now, trim_default};
 use sea_orm::prelude::Expr;
-use std::collections::{HashMap, HashSet};
-use std::hash::Hash;
-use std::net::IpAddr;
-use std::str::FromStr;
+use std::{
+    collections::{HashMap, HashSet},
+    hash::Hash,
+    net::IpAddr,
+    str::FromStr,
+};
 
 #[derive(Debug)]
 pub struct RoleService;

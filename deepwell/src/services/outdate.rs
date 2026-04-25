@@ -19,12 +19,16 @@
  */
 
 use super::prelude::*;
-use crate::futures::StreamExt;
-use crate::models::page::{self, Entity as Page, Model as PageModel};
-use crate::models::page_category::{self, Entity as PageCategory};
-use crate::services::{JobService, LinkService, PageService, SiteService};
-use crate::types::{ConnectionType, PageId, PageOrder, RerenderDepth};
-use crate::utils::split_category_name;
+use crate::{
+    futures::StreamExt,
+    models::{
+        page::{self, Entity as Page, Model as PageModel},
+        page_category::{self, Entity as PageCategory},
+    },
+    services::{JobService, LinkService, PageService, SiteService},
+    types::{ConnectionType, PageId, PageOrder, RerenderDepth},
+    utils::split_category_name,
+};
 use ref_map::*;
 use sea_orm::FromQueryResult;
 

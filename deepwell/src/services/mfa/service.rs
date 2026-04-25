@@ -19,10 +19,14 @@
  */
 
 use super::prelude::*;
-use crate::models::user::Model as UserModel;
-use crate::services::audit::{AuditEvent, AuditService, UpdateMfaOperation};
-use crate::services::{PasswordService, UserService};
-use crate::types::UserType;
+use crate::{
+    models::user::Model as UserModel,
+    services::{
+        PasswordService, UserService,
+        audit::{AuditEvent, AuditService, UpdateMfaOperation},
+    },
+    types::UserType,
+};
 use sea_orm::ActiveValue;
 use std::net::IpAddr;
 use subtle::ConstantTimeEq;

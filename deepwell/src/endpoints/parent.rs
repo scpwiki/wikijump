@@ -19,13 +19,17 @@
  */
 
 use super::prelude::*;
-use crate::models::page_parent::Model as PageParentModel;
-use crate::services::page::GetPageReference;
-use crate::services::parent::{
-    GetParentRelationships, ParentDescription, RemoveParentOutput, UpdateParents,
-    UpdateParentsOutput,
+use crate::{
+    models::page_parent::Model as PageParentModel,
+    services::{
+        page::GetPageReference,
+        parent::{
+            GetParentRelationships, ParentDescription, RemoveParentOutput, UpdateParents,
+            UpdateParentsOutput,
+        },
+    },
+    types::Reference,
 };
-use crate::types::Reference;
 use futures::future::try_join_all;
 
 pub async fn parent_relationships_get(

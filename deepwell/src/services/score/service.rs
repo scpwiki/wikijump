@@ -18,8 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::impls::*;
-use super::prelude::*;
+use super::{impls::*, prelude::*};
 
 #[derive(Debug)]
 pub struct ScoreService;

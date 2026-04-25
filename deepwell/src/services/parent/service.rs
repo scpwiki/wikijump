@@ -21,9 +21,13 @@
 // TODO replace ParentService with a new relation type
 
 use super::prelude::*;
-use crate::models::page::Model as PageModel;
-use crate::models::page_parent::{self, Entity as PageParent, Model as PageParentModel};
-use crate::services::PageService;
+use crate::{
+    models::{
+        page::Model as PageModel,
+        page_parent::{self, Entity as PageParent, Model as PageParentModel},
+    },
+    services::PageService,
+};
 
 #[derive(Debug)]
 pub struct ParentService;

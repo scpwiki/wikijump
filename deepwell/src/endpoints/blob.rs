@@ -19,12 +19,14 @@
  */
 
 use super::prelude::*;
-use crate::hash::slice_to_blob_hash;
-use crate::services::blob::{
-    BlobMetadata, CancelBlobUpload, GetBlobOutput, HardDelete, HardDeleteOutput,
-    StartBlobUpload, StartBlobUploadOutput,
+use crate::{
+    hash::slice_to_blob_hash,
+    services::blob::{
+        BlobMetadata, CancelBlobUpload, GetBlobOutput, HardDelete, HardDeleteOutput,
+        StartBlobUpload, StartBlobUploadOutput,
+    },
+    types::Bytes,
 };
-use crate::types::Bytes;
 
 /// Temporary endpoint to get any blob by hash.
 /// Primarily for user avatars, which have no other

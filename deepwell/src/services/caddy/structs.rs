@@ -19,8 +19,7 @@
  */
 
 use sea_orm::FromQueryResult;
-use std::borrow::Cow;
-use std::collections::HashMap;
+use std::{borrow::Cow, collections::HashMap};
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct CaddyfileOptions<'a> {

@@ -20,14 +20,11 @@
 
 #[allow(unused_imports)]
 mod prelude {
-    pub use super::super::prelude::*;
-    pub use super::structs::*;
+    pub use super::{super::prelude::*, structs::*};
 }
 
 mod mime;
 mod service;
 mod structs;
 
-pub use self::mime::*;
-pub use self::service::TextBlockService;
-pub use self::structs::*;
+pub use self::{mime::*, service::TextBlockService, structs::*};

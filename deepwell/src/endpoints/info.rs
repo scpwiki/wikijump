@@ -21,8 +21,7 @@
 //! Endpoints associated with getting DEEPWELL daemon information.
 
 use super::prelude::*;
-use crate::info;
-use crate::utils::now;
+use crate::{info, utils::now};
 use std::path::PathBuf;
 use time::OffsetDateTime;
 

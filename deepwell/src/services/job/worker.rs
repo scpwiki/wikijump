@@ -21,19 +21,23 @@
 //! Module for the worker which consumes `Job`s and performs the relevant task.
 
 use super::prelude::*;
-use crate::api::ServerState;
-use crate::services::page_revision::RerenderType;
-use crate::services::{
-    BlobService, PageRevisionService, SessionService, TextService, UserService,
+use crate::{
+    api::ServerState,
+    services::{
+        BlobService, PageRevisionService, SessionService, TextService, UserService,
+        page_revision::RerenderType,
+    },
+    types::PageId,
+    utils::debug_pointer,
 };
-use crate::types::PageId;
-use crate::utils::debug_pointer;
 use rsmq_async::{Rsmq, RsmqConnection, RsmqMessage};
 use sea_orm::TransactionTrait;
-use std::convert::Infallible;
-use std::fmt::{self, Debug};
-use std::sync::Arc;
-use std::time::Duration;
+use std::{
+    convert::Infallible,
+    fmt::{self, Debug},
+    sync::Arc,
+    time::Duration,
+};
 use tokio::time;
 
 /// Tells the main loop of the worker whether the queue had an item or not.

@@ -19,8 +19,10 @@
  */
 
 use super::prelude::*;
-use crate::models::user::{self, Entity as User, Model as UserModel};
-use crate::services::{MfaService, PasswordService, SessionService};
+use crate::{
+    models::user::{self, Entity as User, Model as UserModel},
+    services::{MfaService, PasswordService, SessionService},
+};
 
 #[derive(Debug)]
 pub struct AuthenticationService;

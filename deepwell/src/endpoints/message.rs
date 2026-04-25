@@ -19,10 +19,14 @@
  */
 
 use super::prelude::*;
-use crate::models::message_draft::Model as MessageDraftModel;
-use crate::models::message_record::Model as MessageRecordModel;
-use crate::services::message::{
-    CreateMessageDraft, DeleteMessageDraft, SendMessageDraft, UpdateMessageDraft,
+use crate::{
+    models::{
+        message_draft::Model as MessageDraftModel,
+        message_record::Model as MessageRecordModel,
+    },
+    services::message::{
+        CreateMessageDraft, DeleteMessageDraft, SendMessageDraft, UpdateMessageDraft,
+    },
 };
 
 pub async fn message_draft_create(

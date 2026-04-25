@@ -19,13 +19,17 @@
  */
 
 use super::prelude::*;
-use crate::models::page;
-use crate::models::page_connection::{self, Entity as PageConnection};
-use crate::models::page_connection_missing::{self, Entity as PageConnectionMissing};
-use crate::models::page_link::{self, Entity as PageLink, Model as PageLinkModel};
-use crate::models::site::Model as SiteModel;
-use crate::services::{PageService, SiteService};
-use crate::types::ConnectionType;
+use crate::{
+    models::{
+        page,
+        page_connection::{self, Entity as PageConnection},
+        page_connection_missing::{self, Entity as PageConnectionMissing},
+        page_link::{self, Entity as PageLink, Model as PageLinkModel},
+        site::Model as SiteModel,
+    },
+    services::{PageService, SiteService},
+    types::ConnectionType,
+};
 use ftml::data::{Backlinks, PageRef};
 use sea_orm::NotSet;
 use std::collections::HashMap;

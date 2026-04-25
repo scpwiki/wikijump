@@ -22,11 +22,9 @@ use super::file::ConfigFile;
 use crate::error::prelude::*;
 use femme::LevelFilter;
 use ftml::layout::Layout;
-use std::env;
-use std::net::SocketAddr;
-use std::num::NonZeroU16;
-use std::path::PathBuf;
-use std::time::Duration as StdDuration;
+use std::{
+    env, net::SocketAddr, num::NonZeroU16, path::PathBuf, time::Duration as StdDuration,
+};
 use time::Duration as TimeDuration;
 
 /// The primary configuration structure for the DEEPWELL server.

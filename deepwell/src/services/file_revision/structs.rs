@@ -19,8 +19,10 @@
  */
 
 use super::prelude::*;
-use crate::services::page_revision::PageRevisionCountOutput;
-use crate::types::{FetchDirection, FileRevisionType};
+use crate::{
+    services::page_revision::PageRevisionCountOutput,
+    types::{FetchDirection, FileRevisionType},
+};
 
 #[derive(Debug, Clone)]
 pub struct CreateFileRevision {

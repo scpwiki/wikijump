@@ -22,8 +22,10 @@
 mod common;
 
 use self::common::TestRunner;
-use deepwell::error::prelude::*;
-use deepwell::hash::{k12_hash, text_hash_to_hex};
+use deepwell::{
+    error::prelude::*,
+    hash::{k12_hash, text_hash_to_hex},
+};
 use serde_json::json;
 
 #[tokio::test]

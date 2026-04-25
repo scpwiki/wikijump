@@ -33,8 +33,10 @@
 //! then a more "basic" error needs to be returned.
 
 use super::prelude::*;
-use crate::services::{DomainService, SiteService};
-use crate::utils::parse_locales;
+use crate::{
+    services::{DomainService, SiteService},
+    utils::parse_locales,
+};
 use fluent::{FluentArgs, FluentValue};
 use serde::Deserialize;
 use unic_langid::LanguageIdentifier;

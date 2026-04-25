@@ -21,17 +21,22 @@
 #![allow(dead_code)] // TEMP
 
 use super::prelude::*;
-use crate::models::forum_post::{self, Entity as ForumPost, Model as ForumPostModel};
-use crate::models::forum_post_revision::{
-    self, Entity as ForumPostRevision, Model as ForumPostRevisionModel,
-};
-use crate::services::SettingsService;
-use crate::services::forum_post_revision::{
-    CreateFirstForumPostRevision, CreateFirstForumPostRevisionOutput,
-    CreateForumPostRevision, CreateForumPostRevisionBody, ForumPostRevisionService,
-};
-use crate::services::forum_thread::{
-    ForumThreadService, GetForumThread, TouchForumThread,
+use crate::{
+    models::{
+        forum_post::{self, Entity as ForumPost, Model as ForumPostModel},
+        forum_post_revision::{
+            self, Entity as ForumPostRevision, Model as ForumPostRevisionModel,
+        },
+    },
+    services::{
+        SettingsService,
+        forum_post_revision::{
+            CreateFirstForumPostRevision, CreateFirstForumPostRevisionOutput,
+            CreateForumPostRevision, CreateForumPostRevisionBody,
+            ForumPostRevisionService,
+        },
+        forum_thread::{ForumThreadService, GetForumThread, TouchForumThread},
+    },
 };
 use std::collections::BTreeMap;
 

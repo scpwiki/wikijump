@@ -32,15 +32,17 @@ mod macros;
 
 #[allow(unused_imports)]
 mod prelude {
-    pub use crate::api::ServerState;
-    pub use crate::error::prelude::*;
-    pub use crate::services::{
-        AliasService, BlobService, CaddyService, CategoryService, DomainService,
-        FileRevisionService, FileService, LinkService, MessageReportService,
-        MessageService, MfaService, PageRevisionService, PageService, ParentService,
-        RelationService, RenderService, ScoreService, ServiceContext, SessionService,
-        SettingsService, SiteService, TextBlockService, TextService, UserService,
-        ViewService, VoteService,
+    pub use crate::{
+        api::ServerState,
+        error::prelude::*,
+        services::{
+            AliasService, BlobService, CaddyService, CategoryService, DomainService,
+            FileRevisionService, FileService, LinkService, MessageReportService,
+            MessageService, MfaService, PageRevisionService, PageService, ParentService,
+            RelationService, RenderService, ScoreService, ServiceContext, SessionService,
+            SettingsService, SiteService, TextBlockService, TextService, UserService,
+            ViewService, VoteService,
+        },
     };
     pub use jsonrpsee::types::params::Params;
     pub use std::convert::TryFrom;

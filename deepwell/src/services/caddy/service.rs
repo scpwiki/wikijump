@@ -24,16 +24,18 @@
 //! powers the server, which is where host → site mapping is performed.
 
 use super::prelude::*;
-use crate::models::alias::Model as AliasModel;
-use crate::models::site::{self, Entity as Site};
-use crate::models::site_domain::{self, Entity as SiteDomain};
-use crate::services::domain::DEFAULT_SITE_SLUG;
-use crate::services::{AliasService, DomainService};
-use crate::types::AliasType;
+use crate::{
+    models::{
+        alias::Model as AliasModel,
+        site::{self, Entity as Site},
+        site_domain::{self, Entity as SiteDomain},
+    },
+    services::{AliasService, DomainService, domain::DEFAULT_SITE_SLUG},
+    types::AliasType,
+};
 use askama::Template;
 use sea_orm::{EntityTrait, QuerySelect};
-use std::borrow::Cow;
-use std::collections::HashMap;
+use std::{borrow::Cow, collections::HashMap};
 
 // Askama template for generating the Caddyfile
 

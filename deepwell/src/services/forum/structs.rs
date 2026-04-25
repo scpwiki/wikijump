@@ -20,9 +20,13 @@
 
 #![allow(dead_code)] // TEMP
 
-use crate::models::forum_category::Model as ForumCategoryModel;
-use crate::models::forum_group::Model as ForumGroupModel;
-use crate::types::Maybe;
+use crate::{
+    models::{
+        forum_category::Model as ForumCategoryModel,
+        forum_group::Model as ForumGroupModel,
+    },
+    types::Maybe,
+};
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct CreateForumGroup {

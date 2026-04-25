@@ -19,25 +19,27 @@
  */
 
 use super::prelude::*;
-use crate::models::page_revision::{
-    self, Entity as PageRevision, Model as PageRevisionModel,
+use crate::{
+    models::{
+        page_revision::{self, Entity as PageRevision, Model as PageRevisionModel},
+        text::{self, Entity as Text, Model as TextModel},
+    },
+    services::{
+        LinkService, OutdateService, PageService, ParentService, RenderService,
+        ScoreService, SettingsService, SiteService, TextService,
+        render::RenderPageOutput, score::ScoreValue,
+    },
+    types::{FetchDirection, PageId, PageRevisionType, RerenderDepth},
+    utils::{split_category, split_category_name, trim_default},
 };
-use crate::models::text::{self, Entity as Text, Model as TextModel};
-use crate::services::render::RenderPageOutput;
-use crate::services::score::ScoreValue;
-use crate::services::{
-    LinkService, OutdateService, PageService, ParentService, RenderService, ScoreService,
-    SettingsService, SiteService, TextService,
+use ftml::{
+    data::PageInfo,
+    layout::Layout,
+    settings::{WikitextMode, WikitextSettings},
 };
-use crate::types::{FetchDirection, PageId, PageRevisionType, RerenderDepth};
-use crate::utils::{split_category, split_category_name, trim_default};
-use ftml::data::PageInfo;
-use ftml::layout::Layout;
-use ftml::settings::{WikitextMode, WikitextSettings};
 use ref_map::*;
 use sea_query::{Order, Query};
-use std::num::NonZeroI32;
-use std::sync::LazyLock;
+use std::{num::NonZeroI32, sync::LazyLock};
 
 /// The changes for the first revision.
 /// The first revision is always considered to have changed everything.

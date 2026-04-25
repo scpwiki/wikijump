@@ -34,13 +34,15 @@ mod relation;
 mod text_block_type;
 mod user_type;
 
-pub use self::alias_type::AliasType;
-pub use self::connection_type::ConnectionType;
-pub use self::file_revision::{FileRevisionChange, FileRevisionType};
-pub use self::license::License;
-pub use self::message_recipient_type::MessageRecipientType;
-pub use self::page_revision::{PageRevisionChange, PageRevisionType};
-pub use self::permission::{Action, Resource};
-pub use self::relation::{RelationObjectType, RelationType};
-pub use self::text_block_type::TextBlockType;
-pub use self::user_type::UserType;
+pub use self::{
+    alias_type::AliasType,
+    connection_type::ConnectionType,
+    file_revision::{FileRevisionChange, FileRevisionType},
+    license::License,
+    message_recipient_type::MessageRecipientType,
+    page_revision::{PageRevisionChange, PageRevisionType},
+    permission::{Action, Resource},
+    relation::{RelationObjectType, RelationType},
+    text_block_type::TextBlockType,
+    user_type::UserType,
+};

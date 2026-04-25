@@ -19,8 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::locales::MessageArguments;
-use crate::utils::strip_fluent_control_chars;
+use crate::{locales::MessageArguments, utils::strip_fluent_control_chars};
 use std::collections::{HashMap, HashSet};
 use unic_langid::LanguageIdentifier;
 

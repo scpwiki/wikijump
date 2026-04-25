@@ -19,13 +19,19 @@
  */
 
 use super::prelude::*;
-use crate::models::alias::{self, Entity as Alias, Model as AliasModel};
-use crate::models::site::{self, Entity as Site};
-use crate::models::user::{self, Entity as User};
-use crate::services::filter::{FilterClass, FilterType};
-use crate::services::{FilterService, SiteService, UserService};
-use crate::types::{AliasType, Reference};
-use crate::utils::get_regular_slug;
+use crate::{
+    models::{
+        alias::{self, Entity as Alias, Model as AliasModel},
+        site::{self, Entity as Site},
+        user::{self, Entity as User},
+    },
+    services::{
+        FilterService, SiteService, UserService,
+        filter::{FilterClass, FilterType},
+    },
+    types::{AliasType, Reference},
+    utils::get_regular_slug,
+};
 
 #[derive(Debug)]
 pub struct AliasService;

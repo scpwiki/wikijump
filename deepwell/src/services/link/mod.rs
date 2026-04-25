@@ -37,12 +37,10 @@
 
 #[allow(unused_imports)]
 mod prelude {
-    pub use super::super::prelude::*;
-    pub use super::structs::*;
+    pub use super::{super::prelude::*, structs::*};
 }
 
 mod service;
 mod structs;
 
-pub use self::service::LinkService;
-pub use self::structs::*;
+pub use self::{service::LinkService, structs::*};

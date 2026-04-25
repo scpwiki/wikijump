@@ -21,12 +21,16 @@
 #![allow(dead_code, unused_variables)] // TEMP
 
 use super::prelude::*;
-use crate::models::page::{self, Entity as Page};
-use crate::models::page_category::{self, Entity as PageCategory};
-use crate::models::page_connection::{self, Entity as PageConnection};
-use crate::models::page_parent::{self, Entity as PageParent};
-use crate::models::{page_revision, text};
-use crate::services::{PageService, ParentService};
+use crate::{
+    models::{
+        page::{self, Entity as Page},
+        page_category::{self, Entity as PageCategory},
+        page_connection::{self, Entity as PageConnection},
+        page_parent::{self, Entity as PageParent},
+        page_revision, text,
+    },
+    services::{PageService, ParentService},
+};
 use sea_query::{Expr, Query};
 
 #[derive(Debug)]

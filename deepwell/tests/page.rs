@@ -22,9 +22,7 @@
 mod common;
 
 use self::common::TestRunner;
-use deepwell::constants::ADMIN_USER_ID;
-use deepwell::error::prelude::*;
-use deepwell::types::PageRevisionType;
+use deepwell::{constants::ADMIN_USER_ID, error::prelude::*, types::PageRevisionType};
 use serde_json::json;
 
 #[tokio::test]

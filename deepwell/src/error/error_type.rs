@@ -18,9 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::hash::BlobHash;
-use crate::services::filter::FilterSummary;
-use crate::services::view::ViewType;
+use crate::{
+    hash::BlobHash,
+    services::{filter::FilterSummary, view::ViewType},
+};
 use fluent::FluentError;
 use fluent_syntax::parser::ParserError as FluentParserError;
 use serde_json::Value as JsonValue;

@@ -20,8 +20,7 @@
 
 use super::prelude::*;
 use crate::types::{FetchDirection, PageDetails, PageId, PageRevisionType};
-use ftml::layout::Layout;
-use ftml::parsing::ParseError;
+use ftml::{layout::Layout, parsing::ParseError};
 use std::num::NonZeroI32;
 use time::OffsetDateTime;
 

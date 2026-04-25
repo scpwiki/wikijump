@@ -18,13 +18,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::error::prelude::*;
-use crate::types::{License, UserType};
+use crate::{
+    error::prelude::*,
+    types::{License, UserType},
+};
 use ftml::layout::Layout;
 use serde::Deserialize;
-use std::collections::HashMap;
-use std::fs;
-use std::path::{Path, PathBuf};
+use std::{
+    collections::HashMap,
+    fs,
+    path::{Path, PathBuf},
+};
 use time::Date;
 
 #[derive(Debug)]

@@ -20,8 +20,7 @@
 
 //! Constant data for licenses usable by Wikijump sites.
 
-use crate::error::prelude::*;
-use crate::locales::Localizations;
+use crate::{error::prelude::*, locales::Localizations};
 use fluent::FluentArgs;
 use unic_langid::LanguageIdentifier;
 

@@ -19,11 +19,11 @@
  */
 
 use super::prelude::*;
-use crate::models::user::Model as UserModel;
-use crate::services::user::{
-    CreateUser, CreateUserOutput, GetUser, GetUserOutput, UpdateUser,
+use crate::{
+    models::user::Model as UserModel,
+    services::user::{CreateUser, CreateUserOutput, GetUser, GetUserOutput, UpdateUser},
+    types::AliasType,
 };
-use crate::types::AliasType;
 
 pub async fn user_create(
     ctx: &ServiceContext<'_>,

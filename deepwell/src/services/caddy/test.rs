@@ -21,19 +21,18 @@
 //! Unit testing for our generated `Caddyfile`s.
 
 use super::prelude::*;
-use crate::config::Config;
-use crate::services::CaddyService;
+use crate::{config::Config, services::CaddyService};
 use maplit::hashmap;
 use pretty_assertions::assert_eq;
-use std::fs::File;
-use std::io::{Read, Write};
+use std::{
+    fs::File,
+    io::{Read, Write},
+};
 
 fn build_config(main_domain: &str, files_domain: &str) -> Config {
     use femme::LevelFilter;
     use ftml::layout::Layout;
-    use std::num::NonZeroU16;
-    use std::path::PathBuf;
-    use std::time::Duration as StdDuration;
+    use std::{num::NonZeroU16, path::PathBuf, time::Duration as StdDuration};
     use time::Duration as TimeDuration;
 
     assert!(!main_domain.starts_with('.'));

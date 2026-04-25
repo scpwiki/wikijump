@@ -19,13 +19,14 @@
  */
 
 use super::prelude::*;
-use crate::models::authorization_token::{
-    self, Entity as AuthorizationToken, Model as AuthorizationTokenModel,
+use crate::{
+    models::authorization_token::{
+        self, Entity as AuthorizationToken, Model as AuthorizationTokenModel,
+    },
+    types::ArrayLength,
 };
-use crate::types::ArrayLength;
 use std::net::IpAddr;
-use uuid::Uuid;
-use uuid::fmt::Hyphenated;
+use uuid::{Uuid, fmt::Hyphenated};
 
 pub const AUTHORIZATION_TOKEN_LENGTH: usize = 38;
 

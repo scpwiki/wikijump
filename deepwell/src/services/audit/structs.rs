@@ -19,12 +19,10 @@
  */
 
 use super::prelude::*;
-use crate::license::License;
-use crate::types::Permission;
+use crate::{license::License, types::Permission};
 use ftml::layout::Layout;
 use sea_orm::prelude::TimeDateTimeWithTimeZone;
-use std::borrow::Cow;
-use std::net::IpAddr;
+use std::{borrow::Cow, net::IpAddr};
 use time::Date;
 
 // Main structs

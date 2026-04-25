@@ -24,11 +24,9 @@ mod object;
 mod runtime_action;
 mod secrets;
 
-pub use self::object::Config;
-pub use self::secrets::Secrets;
+pub use self::{object::Config, secrets::Secrets};
 
-use self::args::parse_args;
-use self::runtime_action::run_runtime_action;
+use self::{args::parse_args, runtime_action::run_runtime_action};
 
 #[derive(Debug, Clone)]
 pub struct SetupConfig {

@@ -19,8 +19,7 @@
  */
 
 use fluent::{FluentArgs, FluentValue};
-use std::borrow::Cow;
-use std::collections::HashMap;
+use std::{borrow::Cow, collections::HashMap};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct MessageArguments<'a> {

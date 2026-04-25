@@ -34,9 +34,7 @@ mod runner;
 
 #[allow(unused_imports)]
 pub use self::error::extract_error;
-pub use self::params::*;
-pub use self::runner::TestRunner;
-
+pub use self::{params::*, runner::TestRunner};
 use std::net::{IpAddr, Ipv4Addr};
 
 #[allow(dead_code)]

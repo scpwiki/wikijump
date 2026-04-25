@@ -18,10 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::error::prelude::*;
-use crate::services::job::{
-    JOB_QUEUE_DELAY, JOB_QUEUE_MAXIMUM_SIZE, JOB_QUEUE_NAME, JOB_QUEUE_PROCESS_TIME, Job,
-    JobService,
+use crate::{
+    error::prelude::*,
+    services::job::{
+        JOB_QUEUE_DELAY, JOB_QUEUE_MAXIMUM_SIZE, JOB_QUEUE_NAME, JOB_QUEUE_PROCESS_TIME,
+        Job, JobService,
+    },
 };
 use redis::aio::MultiplexedConnection;
 use rsmq_async::{Rsmq, RsmqConnection};

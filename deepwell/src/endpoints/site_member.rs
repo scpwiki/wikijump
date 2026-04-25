@@ -19,8 +19,10 @@
  */
 
 use super::prelude::*;
-use crate::models::relation::Model as RelationModel;
-use crate::services::relation::{CreateSiteMember, GetSiteMember, RemoveSiteMember};
+use crate::{
+    models::relation::Model as RelationModel,
+    services::relation::{CreateSiteMember, GetSiteMember, RemoveSiteMember},
+};
 
 pub async fn membership_get(
     ctx: &ServiceContext<'_>,

@@ -20,8 +20,7 @@
 
 #[allow(unused_imports)]
 mod prelude {
-    pub use super::super::prelude::*;
-    pub use super::structs::*;
+    pub use super::{super::prelude::*, structs::*};
 }
 
 mod cache;
@@ -29,9 +28,9 @@ mod resolvers;
 mod service;
 mod structs;
 
-pub use self::cache::PermissionCache;
-pub use self::resolvers::{
-    CategoryResolver, PageCategoryResolver, resolve_category_reference,
+pub use self::{
+    cache::PermissionCache,
+    resolvers::{CategoryResolver, PageCategoryResolver, resolve_category_reference},
+    service::PermissionService,
+    structs::*,
 };
-pub use self::service::PermissionService;
-pub use self::structs::*;

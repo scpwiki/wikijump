@@ -21,39 +21,45 @@
 mod data;
 
 use self::data::SeedData;
-use crate::api::ServerState;
-use crate::constants::{ADMIN_USER_ID, SYSTEM_USER_ID};
-use crate::error::prelude::*;
-use crate::services::ServiceContext;
-use crate::services::alias::{AliasService, CreateAlias};
-use crate::services::domain::{CreateCustomDomain, DomainService};
-use crate::services::file::{
-    CreateFile, CreateFileOutput, DeleteFile, EditFile, EditFileBody, FileService,
+use crate::{
+    api::ServerState,
+    constants::{ADMIN_USER_ID, SYSTEM_USER_ID},
+    error::prelude::*,
+    services::{
+        ServiceContext,
+        alias::{AliasService, CreateAlias},
+        domain::{CreateCustomDomain, DomainService},
+        file::{
+            CreateFile, CreateFileOutput, DeleteFile, EditFile, EditFileBody, FileService,
+        },
+        filter::{CreateFilter, FilterService},
+        page::{CreatePage, PageService},
+        permission::{PermissionCache, PermissionInput, PermissionService},
+        relation::{
+            PageAttributionEntry, PageAttributionKind, PageAttributionMetadata,
+            RelationService, SetPageAttributions,
+        },
+        role::{
+            CreateRoleInput, GrantUserRoleInput, RoleService, UpdateRolePermissionsInput,
+        },
+        site::{CreateSite, CreateSiteOutput, SiteService, UpdateSiteBody},
+        user::{CreateUser, CreateUserOutput, UpdateUserBody, UserService},
+    },
+    types::{Action, AliasType, Maybe, Reference, Resource},
+    utils::now,
 };
-use crate::services::filter::{CreateFilter, FilterService};
-use crate::services::page::{CreatePage, PageService};
-use crate::services::permission::{PermissionCache, PermissionInput, PermissionService};
-use crate::services::relation::{
-    PageAttributionEntry, PageAttributionKind, PageAttributionMetadata, RelationService,
-    SetPageAttributions,
-};
-use crate::services::role::{
-    CreateRoleInput, GrantUserRoleInput, RoleService, UpdateRolePermissionsInput,
-};
-use crate::services::site::{CreateSite, CreateSiteOutput, SiteService, UpdateSiteBody};
-use crate::services::user::{CreateUser, CreateUserOutput, UpdateUserBody, UserService};
-use crate::types::{Action, AliasType, Maybe, Reference, Resource};
-use crate::utils::now;
 use arrayvec::ArrayVec;
 use sea_orm::{
     ConnectionTrait, DatabaseBackend, DatabaseTransaction, Statement, TransactionTrait,
 };
-use std::borrow::Cow;
-use std::collections::HashMap;
-use std::fs;
-use std::io::Read;
-use std::net::{IpAddr, Ipv6Addr};
-use std::path::{Path, PathBuf};
+use std::{
+    borrow::Cow,
+    collections::HashMap,
+    fs,
+    io::Read,
+    net::{IpAddr, Ipv6Addr},
+    path::{Path, PathBuf},
+};
 
 /// The IP address to record for any seeded data.
 pub const SEED_IP_ADDRESS: IpAddr = IpAddr::V6(Ipv6Addr::LOCALHOST);

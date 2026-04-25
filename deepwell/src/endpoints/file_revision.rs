@@ -19,10 +19,15 @@
  */
 
 use super::prelude::*;
-use crate::models::file_revision::Model as FileRevisionModel;
-use crate::services::file::GetFile;
-use crate::services::file_revision::{
-    FileRevisionCountOutput, GetFileRevision, GetFileRevisionRange, UpdateFileRevision,
+use crate::{
+    models::file_revision::Model as FileRevisionModel,
+    services::{
+        file::GetFile,
+        file_revision::{
+            FileRevisionCountOutput, GetFileRevision, GetFileRevisionRange,
+            UpdateFileRevision,
+        },
+    },
 };
 
 pub async fn file_revision_count(

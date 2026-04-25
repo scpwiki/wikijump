@@ -21,16 +21,22 @@
 #![allow(dead_code)] // TEMP
 
 use super::prelude::*;
-use crate::models::forum_post::Model as ForumPostModel;
-use crate::models::forum_post_revision::{
-    self, Entity as ForumPostRevision, Model as ForumPostRevisionModel,
+use crate::{
+    models::{
+        forum_post::Model as ForumPostModel,
+        forum_post_revision::{
+            self, Entity as ForumPostRevision, Model as ForumPostRevisionModel,
+        },
+    },
+    services::{
+        RenderService, SiteService, TextService, render::RenderOutput, score::ScoreValue,
+    },
+    types::FetchDirection,
 };
-use crate::services::render::RenderOutput;
-use crate::services::score::ScoreValue;
-use crate::services::{RenderService, SiteService, TextService};
-use crate::types::FetchDirection;
-use ftml::data::PageInfo;
-use ftml::settings::{WikitextMode, WikitextSettings};
+use ftml::{
+    data::PageInfo,
+    settings::{WikitextMode, WikitextSettings},
+};
 use sea_query::Order;
 use std::borrow::Cow;
 

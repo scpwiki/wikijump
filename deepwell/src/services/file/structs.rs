@@ -18,10 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::services::file_revision::{
-    CreateFileRevisionOutput, CreateFirstFileRevisionOutput,
+use crate::{
+    services::file_revision::{CreateFileRevisionOutput, CreateFirstFileRevisionOutput},
+    types::{Bytes, FileDetails, FileRevisionType, Maybe, Reference},
 };
-use crate::types::{Bytes, FileDetails, FileRevisionType, Maybe, Reference};
 use serde_json::Value as JsonValue;
 use time::OffsetDateTime;
 

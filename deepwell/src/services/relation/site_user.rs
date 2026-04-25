@@ -28,8 +28,10 @@
 //! As such, it is an invariant that all users linked here are of the type `site`.
 
 use super::prelude::*;
-use crate::services::UserService;
-use crate::types::{RelationObjectType, RelationType, UserType};
+use crate::{
+    services::UserService,
+    types::{RelationObjectType, RelationType, UserType},
+};
 
 impl_relation!(SiteUser, Site, site_id, User, user_id, (), NO_CREATE_IMPL);
 

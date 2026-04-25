@@ -19,9 +19,10 @@
  */
 
 use super::prelude::*;
-use crate::models::page_category::Model as PageCategoryModel;
-use crate::services::category::GetCategory;
-use crate::services::site::GetSite;
+use crate::{
+    models::page_category::Model as PageCategoryModel,
+    services::{category::GetCategory, site::GetSite},
+};
 
 pub async fn category_get(
     ctx: &ServiceContext<'_>,

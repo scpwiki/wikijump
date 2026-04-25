@@ -22,13 +22,10 @@ use super::Config;
 use crate::error::prelude::*;
 use femme::LevelFilter;
 use ftml::layout::Layout;
-use std::convert::TryFrom;
-use std::fs::File;
-use std::io::Read;
-use std::net::SocketAddr;
-use std::num::NonZeroU16;
-use std::path::PathBuf;
-use std::time::Duration as StdDuration;
+use std::{
+    convert::TryFrom, fs::File, io::Read, net::SocketAddr, num::NonZeroU16,
+    path::PathBuf, time::Duration as StdDuration,
+};
 use time::Duration as TimeDuration;
 
 /// Structure representing a configuration file.

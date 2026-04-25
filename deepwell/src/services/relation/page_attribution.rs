@@ -19,8 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::services::PageService;
-use crate::types::Reference;
+use crate::{services::PageService, types::Reference};
 use std::collections::BTreeSet;
 use time::{Date, OffsetDateTime};
 

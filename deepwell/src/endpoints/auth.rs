@@ -19,18 +19,20 @@
  */
 
 use super::prelude::*;
-use crate::models::session::Model as SessionModel;
-use crate::services::authentication::{
-    AuthenticateUserOutput, AuthenticationService, LoginUser, LoginUserMfa,
-    LoginUserOutput, MultiFactorAuthenticateUser,
-};
-use crate::services::authorization_token::AuthorizationTokenService;
-use crate::services::mfa::{
-    MultiFactorConfigure, MultiFactorResetOutput, MultiFactorSetupOutput,
-};
-use crate::services::session::{
-    CreateSession, GetOtherSessions, GetOtherSessionsOutput, InvalidateOtherSessions,
-    RenewSession,
+use crate::{
+    models::session::Model as SessionModel,
+    services::{
+        authentication::{
+            AuthenticateUserOutput, AuthenticationService, LoginUser, LoginUserMfa,
+            LoginUserOutput, MultiFactorAuthenticateUser,
+        },
+        authorization_token::AuthorizationTokenService,
+        mfa::{MultiFactorConfigure, MultiFactorResetOutput, MultiFactorSetupOutput},
+        session::{
+            CreateSession, GetOtherSessions, GetOtherSessionsOutput,
+            InvalidateOtherSessions, RenewSession,
+        },
+    },
 };
 
 pub async fn auth_login(

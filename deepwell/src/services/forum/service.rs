@@ -21,13 +21,11 @@
 #![allow(dead_code)] // TEMP
 
 use super::prelude::*;
-use crate::models::forum_category::{
-    self, Entity as ForumCategory, Model as ForumCategoryModel,
+use crate::models::{
+    forum_category::{self, Entity as ForumCategory, Model as ForumCategoryModel},
+    forum_group::{self, Entity as ForumGroup, Model as ForumGroupModel},
+    forum_post, forum_post_revision, forum_thread,
 };
-use crate::models::forum_group::{self, Entity as ForumGroup, Model as ForumGroupModel};
-use crate::models::forum_post;
-use crate::models::forum_post_revision;
-use crate::models::forum_thread;
 use std::collections::BTreeMap;
 
 #[derive(Debug)]

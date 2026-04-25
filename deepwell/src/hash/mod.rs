@@ -21,5 +21,4 @@
 mod blob;
 mod text;
 
-pub use self::blob::*;
-pub use self::text::*;
+pub use self::{blob::*, text::*};

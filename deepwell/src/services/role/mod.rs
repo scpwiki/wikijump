@@ -22,8 +22,7 @@ use strum_macros::{Display, EnumString, IntoStaticStr};
 
 #[allow(unused_imports)]
 mod prelude {
-    pub use super::super::prelude::*;
-    pub use super::structs::*;
+    pub use super::{super::prelude::*, structs::*};
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, EnumString, Display, IntoStaticStr)]
@@ -43,5 +42,4 @@ pub enum SystemRole {
 mod service;
 mod structs;
 
-pub use self::service::RoleService;
-pub use self::structs::*;
+pub use self::{service::RoleService, structs::*};

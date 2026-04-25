@@ -20,11 +20,12 @@
 
 use super::Config;
 use crate::info;
-use clap::builder::{BoolishValueParser, NonEmptyStringValueParser};
-use clap::{Arg, ArgAction, Command, value_parser};
-use std::net::IpAddr;
-use std::path::PathBuf;
-use std::process;
+use clap::{
+    Arg, ArgAction, Command,
+    builder::{BoolishValueParser, NonEmptyStringValueParser},
+    value_parser,
+};
+use std::{net::IpAddr, path::PathBuf, process};
 
 pub fn parse_args() -> Config {
     let mut matches = Command::new("DEEPWELL")

@@ -19,9 +19,9 @@
  */
 
 use super::prelude::*;
-use crate::models::user::Model as UserModel;
-use crate::types::UserType;
-use crate::utils::trim_spaces_in_place;
+use crate::{
+    models::user::Model as UserModel, types::UserType, utils::trim_spaces_in_place,
+};
 use time::OffsetDateTime;
 
 // External structures

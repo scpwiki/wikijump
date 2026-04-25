@@ -19,11 +19,11 @@
  */
 
 use super::prelude::*;
-use crate::services::page_revision::CreatePageRevisionOutput;
-use crate::services::score::ScoreValue;
-use crate::types::{PageDetails, PageId, PageRevisionType};
-use ftml::layout::Layout;
-use ftml::parsing::ParseError;
+use crate::{
+    services::{page_revision::CreatePageRevisionOutput, score::ScoreValue},
+    types::{PageDetails, PageId, PageRevisionType},
+};
+use ftml::{layout::Layout, parsing::ParseError};
 use std::net::IpAddr;
 use time::OffsetDateTime;
 

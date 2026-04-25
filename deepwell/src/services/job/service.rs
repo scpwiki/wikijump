@@ -19,8 +19,10 @@
  */
 
 use super::prelude::*;
-use crate::services::page_revision::RerenderType;
-use crate::types::{PageId, RerenderDepth};
+use crate::{
+    services::page_revision::RerenderType,
+    types::{PageId, RerenderDepth},
+};
 use rsmq_async::{Rsmq, RsmqConnection};
 use std::time::Duration;
 

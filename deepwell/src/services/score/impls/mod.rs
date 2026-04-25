@@ -38,8 +38,7 @@ mod percent;
 mod sum;
 mod test;
 
-pub use self::mean::MeanScorer;
-pub use self::null::NullScorer;
-pub use self::percent::PercentScorer;
-pub use self::sum::SumScorer;
-pub use self::test::TestScorer;
+pub use self::{
+    mean::MeanScorer, null::NullScorer, percent::PercentScorer, sum::SumScorer,
+    test::TestScorer,
+};

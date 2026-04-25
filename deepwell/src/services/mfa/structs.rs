@@ -19,13 +19,13 @@
  */
 
 use super::prelude::*;
-use crate::services::PasswordService;
-use crate::utils::assert_is_csprng;
+use crate::{services::PasswordService, utils::assert_is_csprng};
 use data_encoding::BASE32_NOPAD;
-use rand::Rng;
-use rand::distr::{Alphanumeric, SampleString};
-use std::iter;
-use std::net::IpAddr;
+use rand::{
+    Rng,
+    distr::{Alphanumeric, SampleString},
+};
+use std::{iter, net::IpAddr};
 
 pub fn generate_totp_secret() -> String {
     let mut rng = rand::rng();

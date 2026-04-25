@@ -18,11 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::api::ServerState;
-use crate::config::Config;
-use crate::error::prelude::*;
-use crate::locales::Localizations;
-use crate::services::blob::MimeAnalyzer;
+use crate::{
+    api::ServerState, config::Config, error::prelude::*, locales::Localizations,
+    services::blob::MimeAnalyzer,
+};
 use redis::aio::MultiplexedConnection as RedisMultiplexedConnection;
 use rsmq_async::Rsmq;
 use s3::bucket::Bucket;

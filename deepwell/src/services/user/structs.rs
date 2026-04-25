@@ -19,10 +19,13 @@
  */
 
 use super::prelude::*;
-use crate::models::alias::Model as AliasModel;
-use crate::models::user::Model as UserModel;
-use crate::models::wikidot_user::Model as WikidotUserModel;
-use crate::types::{Bytes, UserType};
+use crate::{
+    models::{
+        alias::Model as AliasModel, user::Model as UserModel,
+        wikidot_user::Model as WikidotUserModel,
+    },
+    types::{Bytes, UserType},
+};
 use std::net::IpAddr;
 use time::Date;
 

@@ -38,11 +38,13 @@
 
 mod prelude {
     pub use super::context::ServiceContext;
-    pub use crate::config::Config;
-    pub use crate::error::prelude::*;
-    pub use crate::types::{Maybe, Reference};
-    pub use crate::utils::{
-        ConvertToI16, ConvertToI32, ConvertToI64, ConvertToU64, ConvertToUsize, now,
+    pub use crate::{
+        config::Config,
+        error::prelude::*,
+        types::{Maybe, Reference},
+        utils::{
+            ConvertToI16, ConvertToI32, ConvertToI64, ConvertToU64, ConvertToUsize, now,
+        },
     };
     pub use paste::paste;
     pub use sea_orm::{
@@ -101,42 +103,20 @@ pub mod user;
 pub mod view;
 pub mod vote;
 
-pub use self::alias::AliasService;
-pub use self::authentication::AuthenticationService;
-pub use self::authorization_token::AuthorizationTokenService;
-pub use self::basic_error::BasicErrorService;
-pub use self::blob::BlobService;
-pub use self::blueprint::BlueprintPageService;
-pub use self::caddy::CaddyService;
-pub use self::category::CategoryService;
-pub use self::context::ServiceContext;
-pub use self::domain::DomainService;
-pub use self::file::FileService;
-pub use self::file_revision::FileRevisionService;
-pub use self::filter::FilterService;
-pub use self::forum::ForumService;
-pub use self::forum_post::ForumPostService;
-pub use self::forum_post_revision::ForumPostRevisionService;
-pub use self::forum_thread::ForumThreadService;
-pub use self::job::JobService;
-pub use self::link::LinkService;
-pub use self::message::MessageService;
-pub use self::message_report::MessageReportService;
-pub use self::mfa::MfaService;
-pub use self::outdate::OutdateService;
-pub use self::page::PageService;
-pub use self::page_query::PageQueryService;
-pub use self::page_revision::PageRevisionService;
-pub use self::parent::ParentService;
-pub use self::password::PasswordService;
-pub use self::relation::RelationService;
-pub use self::render::RenderService;
-pub use self::score::ScoreService;
-pub use self::session::SessionService;
-pub use self::settings::SettingsService;
-pub use self::site::SiteService;
-pub use self::text::TextService;
-pub use self::text_block::TextBlockService;
-pub use self::user::UserService;
-pub use self::view::ViewService;
-pub use self::vote::VoteService;
+pub use self::{
+    alias::AliasService, authentication::AuthenticationService,
+    authorization_token::AuthorizationTokenService, basic_error::BasicErrorService,
+    blob::BlobService, blueprint::BlueprintPageService, caddy::CaddyService,
+    category::CategoryService, context::ServiceContext, domain::DomainService,
+    file::FileService, file_revision::FileRevisionService, filter::FilterService,
+    forum::ForumService, forum_post::ForumPostService,
+    forum_post_revision::ForumPostRevisionService, forum_thread::ForumThreadService,
+    job::JobService, link::LinkService, message::MessageService,
+    message_report::MessageReportService, mfa::MfaService, outdate::OutdateService,
+    page::PageService, page_query::PageQueryService, page_revision::PageRevisionService,
+    parent::ParentService, password::PasswordService, relation::RelationService,
+    render::RenderService, score::ScoreService, session::SessionService,
+    settings::SettingsService, site::SiteService, text::TextService,
+    text_block::TextBlockService, user::UserService, view::ViewService,
+    vote::VoteService,
+};

@@ -21,8 +21,7 @@
 use dotenvy::dotenv;
 use ref_map::*;
 use s3::{creds::Credentials, region::Region};
-use std::env::VarError;
-use std::{env, process};
+use std::{env, env::VarError, process};
 
 #[derive(Debug, Clone)]
 pub struct Secrets {

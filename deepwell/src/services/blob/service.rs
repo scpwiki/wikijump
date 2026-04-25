@@ -19,41 +19,39 @@
  */
 
 use super::prelude::*;
-use crate::constants::SYSTEM_USER_ID;
-use crate::hash::slice_to_blob_hash;
-use crate::models::blob_blacklist::{
-    self, Entity as BlobBlacklist, Model as BlobBlacklistModel,
+use crate::{
+    constants::SYSTEM_USER_ID,
+    hash::slice_to_blob_hash,
+    models::{
+        blob_blacklist::{self, Entity as BlobBlacklist, Model as BlobBlacklistModel},
+        blob_pending::{self, Entity as BlobPending, Model as BlobPendingModel},
+        file::{self, Entity as File, Model as FileModel},
+        file_revision::{self, Entity as FileRevision, Model as FileRevisionModel},
+        page::{self, Entity as Page, Model as PageModel},
+        site::{self, Entity as Site, Model as SiteModel},
+        user::{self, Entity as User, Model as UserModel},
+    },
+    services::file::{DeleteFile, FileService},
+    utils::assert_is_csprng,
 };
-use crate::models::blob_pending::{
-    self, Entity as BlobPending, Model as BlobPendingModel,
-};
-use crate::models::file::{self, Entity as File, Model as FileModel};
-use crate::models::file_revision::{
-    self, Entity as FileRevision, Model as FileRevisionModel,
-};
-use crate::models::page::{self, Entity as Page, Model as PageModel};
-use crate::models::site::{self, Entity as Site, Model as SiteModel};
-use crate::models::user::{self, Entity as User, Model as UserModel};
-use crate::services::file::{DeleteFile, FileService};
-use crate::utils::assert_is_csprng;
 use bytes::Bytes;
 use cuid2::cuid;
 use futures::TryStreamExt;
 use rand::distr::{Alphanumeric, SampleString};
-use s3::request::request_trait::ResponseData;
-use s3::serde_types::HeadObjectResult;
+use s3::{request::request_trait::ResponseData, serde_types::HeadObjectResult};
 use sea_orm::{
     DatabaseBackend, FromQueryResult, Statement, StreamTrait, TransactionTrait,
     UpdateResult, prelude::*,
 };
 use sea_query::value::ArrayType;
-use std::collections::{HashMap, HashSet};
-use std::convert::Infallible;
-use std::hash::Hash;
-use std::str;
-use std::sync::Arc;
-use time::format_description::well_known::Rfc2822;
-use time::{Duration, OffsetDateTime};
+use std::{
+    collections::{HashMap, HashSet},
+    convert::Infallible,
+    hash::Hash,
+    str,
+    sync::Arc,
+};
+use time::{Duration, OffsetDateTime, format_description::well_known::Rfc2822};
 
 /// How many samples to provide when providing hard deletion stats.
 const SAMPLE_COUNT: u16 = 10;

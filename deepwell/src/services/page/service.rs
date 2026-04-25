@@ -19,25 +19,27 @@
  */
 
 use super::prelude::*;
-use crate::models::page::{self, Entity as Page, Model as PageModel};
-use crate::models::page_category::Model as PageCategoryModel;
-use crate::models::page_revision::Model as PageRevisionModel;
-use crate::services::audit::{AuditEvent, AuditService};
-use crate::services::filter::{FilterClass, FilterType};
-use crate::services::page_revision::{
-    CreateFirstPageRevision, CreateFirstPageRevisionOutput, CreatePageRevision,
-    CreatePageRevisionBody, CreatePageRevisionOutput, CreateResurrectionPageRevision,
-    CreateTombstonePageRevision,
+use crate::{
+    models::{
+        page::{self, Entity as Page, Model as PageModel},
+        page_category::Model as PageCategoryModel,
+        page_revision::Model as PageRevisionModel,
+    },
+    services::{
+        CategoryService, FilterService, PageRevisionService, SiteService,
+        TextBlockService, TextService,
+        audit::{AuditEvent, AuditService},
+        filter::{FilterClass, FilterType},
+        page_revision::{
+            CreateFirstPageRevision, CreateFirstPageRevisionOutput, CreatePageRevision,
+            CreatePageRevisionBody, CreatePageRevisionOutput,
+            CreateResurrectionPageRevision, CreateTombstonePageRevision,
+        },
+        permission::{CheckPermissionContext, PermissionInput, PermissionService},
+    },
+    types::{Action, PageId, PageOrder, PageRevisionType, Reference, Resource},
+    utils::{get_category_name, trim_default},
 };
-use crate::services::permission::{
-    CheckPermissionContext, PermissionInput, PermissionService,
-};
-use crate::services::{
-    CategoryService, FilterService, PageRevisionService, SiteService, TextBlockService,
-    TextService,
-};
-use crate::types::{Action, PageId, PageOrder, PageRevisionType, Reference, Resource};
-use crate::utils::{get_category_name, trim_default};
 use ftml::layout::Layout;
 use ref_map::*;
 use sea_orm::ActiveValue;

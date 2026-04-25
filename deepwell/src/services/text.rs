@@ -25,12 +25,16 @@
 //! identified by its hash.
 
 use super::prelude::*;
-use crate::hash::{TEXT_HASH_LENGTH, TextHash, k12_hash};
-use crate::models::forum_post_revision::{self, Entity as ForumPostRevision};
-use crate::models::message_draft::{self, Entity as MessageDraft};
-use crate::models::message_record::{self, Entity as MessageRecord};
-use crate::models::page_revision::{self, Entity as PageRevision};
-use crate::models::text::{self, Entity as Text};
+use crate::{
+    hash::{TEXT_HASH_LENGTH, TextHash, k12_hash},
+    models::{
+        forum_post_revision::{self, Entity as ForumPostRevision},
+        message_draft::{self, Entity as MessageDraft},
+        message_record::{self, Entity as MessageRecord},
+        page_revision::{self, Entity as PageRevision},
+        text::{self, Entity as Text},
+    },
+};
 use sea_query::Query;
 
 #[derive(Debug)]

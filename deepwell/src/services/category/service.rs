@@ -19,9 +19,9 @@
  */
 
 use super::prelude::*;
-use crate::models::page;
-use crate::models::page_category::{
-    self, Entity as PageCategory, Model as PageCategoryModel,
+use crate::models::{
+    page,
+    page_category::{self, Entity as PageCategory, Model as PageCategoryModel},
 };
 use sea_query::{Expr, ExprTrait, Func, Query};
 

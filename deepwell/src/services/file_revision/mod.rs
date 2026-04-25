@@ -20,14 +20,11 @@
 
 #[allow(unused_imports)]
 mod prelude {
-    pub use super::super::prelude::*;
-    pub use super::structs::*;
-    pub use crate::hash::BlobHash;
-    pub use crate::types::FileRevisionType;
+    pub use super::{super::prelude::*, structs::*};
+    pub use crate::{hash::BlobHash, types::FileRevisionType};
 }
 
 mod service;
 mod structs;
 
-pub use self::service::FileRevisionService;
-pub use self::structs::*;
+pub use self::{service::FileRevisionService, structs::*};

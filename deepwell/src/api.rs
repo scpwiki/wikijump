@@ -26,24 +26,28 @@
 //! This module should only contain definitions for the web server and its routes, and
 //! not any of the implementations themselves. Those should be in the `methods` module.
 
-use crate::config::{Config, Secrets};
-use crate::endpoints::all::*;
-use crate::error::prelude::*;
-use crate::locales::Localizations;
-use crate::services::ServiceContext;
-use crate::services::blob::MimeAnalyzer;
-use crate::services::job::JobWorker;
-use crate::utils::debug_pointer;
-use crate::{database, info, redis as redis_db};
+use crate::{
+    config::{Config, Secrets},
+    database,
+    endpoints::all::*,
+    error::prelude::*,
+    info,
+    locales::Localizations,
+    redis as redis_db,
+    services::{ServiceContext, blob::MimeAnalyzer, job::JobWorker},
+    utils::debug_pointer,
+};
 use jsonrpsee::server::{RpcModule, Server, ServerHandle};
 use redis::aio::MultiplexedConnection as RedisMultiplexedConnection;
 use reqwest::Client as ReqwestClient;
 use rsmq_async::Rsmq;
 use s3::bucket::Bucket;
 use sea_orm::{DatabaseConnection, TransactionTrait};
-use std::fmt::{self, Debug};
-use std::sync::Arc;
-use std::time::Duration;
+use std::{
+    fmt::{self, Debug},
+    sync::Arc,
+    time::Duration,
+};
 
 const BUCKET_REQUEST_TIMEOUT: Duration = Duration::from_millis(500);
 
@@ -138,8 +142,10 @@ pub async fn build_server_state(
 
     // Set up reqwest client for the MailCheck API
     let mailcheck_api_client = {
-        use reqwest::header::{AUTHORIZATION, HeaderMap, HeaderValue};
-        use reqwest::redirect::Policy as RedirectPolicy;
+        use reqwest::{
+            header::{AUTHORIZATION, HeaderMap, HeaderValue},
+            redirect::Policy as RedirectPolicy,
+        };
 
         let mut builder = ReqwestClient::builder();
 

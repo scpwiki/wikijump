@@ -23,13 +23,9 @@
 #[cfg(feature = "notify")]
 use crate::watch::setup_autorestart;
 
-use crate::config::SetupConfig;
-use crate::error::prelude::*;
-use crate::{api, database};
+use crate::{api, config::SetupConfig, database, error::prelude::*};
 use cfg_if::cfg_if;
-use std::fs::File;
-use std::io::Write;
-use std::process;
+use std::{fs::File, io::Write, process};
 
 pub async fn start() -> Result<()> {
     // Load the configuration so we can set up

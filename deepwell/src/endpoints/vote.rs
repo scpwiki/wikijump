@@ -19,9 +19,9 @@
  */
 
 use super::prelude::*;
-use crate::models::page_vote::Model as PageVoteModel;
-use crate::services::vote::{
-    CountVoteHistory, CreateVote, GetVote, GetVoteHistory, VoteAction,
+use crate::{
+    models::page_vote::Model as PageVoteModel,
+    services::vote::{CountVoteHistory, CreateVote, GetVote, GetVoteHistory, VoteAction},
 };
 
 pub async fn vote_get(

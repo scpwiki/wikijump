@@ -19,8 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::services::text_block::TextBlockIndex;
-use crate::types::TextBlockType;
+use crate::{services::text_block::TextBlockIndex, types::TextBlockType};
 
 #[derive(Deserialize, Debug, Clone)]
 struct GetIndexInput {

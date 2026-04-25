@@ -18,8 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::error::prelude::*;
-use crate::types::Reference;
+use crate::{error::prelude::*, types::Reference};
 use std::str::FromStr;
 
 #[derive(Deserialize, Debug, Clone)]

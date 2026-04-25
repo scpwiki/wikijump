@@ -18,14 +18,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::options::PageOptions;
-use super::prelude::*;
-use crate::models::page::Model as PageModel;
-use crate::models::page_revision::Model as PageRevisionModel;
-use crate::models::session::Model as SessionModel;
-use crate::models::site::Model as SiteModel;
-use crate::models::user::Model as UserModel;
-use crate::services::relation::PageAttribution;
+use super::{options::PageOptions, prelude::*};
+use crate::{
+    models::{
+        page::Model as PageModel, page_revision::Model as PageRevisionModel,
+        session::Model as SessionModel, site::Model as SiteModel,
+        user::Model as UserModel,
+    },
+    services::relation::PageAttribution,
+};
 
 // NOTE: Any changes to the output structures here, including the variant names,
 //       MUST be reflected in framerail!

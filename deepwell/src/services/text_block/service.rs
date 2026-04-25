@@ -35,10 +35,10 @@
 //! nothing here is needed.
 
 use super::prelude::*;
-use crate::models::text_block::{
-    self, Entity as TextBlockTable, Model as TextBlockModel,
+use crate::{
+    models::text_block::{self, Entity as TextBlockTable, Model as TextBlockModel},
+    types::TextBlockType,
 };
-use crate::types::TextBlockType;
 use sea_orm::ActiveEnum;
 use std::collections::HashSet;
 use strum::IntoEnumIterator;

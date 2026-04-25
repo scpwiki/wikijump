@@ -20,8 +20,10 @@
 
 use super::ErrorType;
 use serde_json::Value as JsonValue;
-use std::error::Error as StdError;
-use std::fmt::{self, Display};
+use std::{
+    error::Error as StdError,
+    fmt::{self, Display},
+};
 
 #[derive(Debug, Clone)]
 pub struct Error {

@@ -18,8 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::models::relation;
-use crate::types::{RelationObjectType, RelationType};
+use crate::{
+    models::relation,
+    types::{RelationObjectType, RelationType},
+};
 use sea_orm::{ColumnTrait, Condition, DeriveValueType, EnumIter};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]

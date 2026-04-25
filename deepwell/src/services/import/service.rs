@@ -30,12 +30,16 @@
 #![allow(dead_code)]
 
 use super::prelude::*;
-use crate::models::page::{self, Entity as Page};
-use crate::models::page_category::Model as PageCategoryModel;
-use crate::models::site::{self, Entity as Site};
-use crate::models::wikidot_user::{self, Entity as WikidotUser};
-use crate::services::{BlobService, CategoryService};
-use crate::utils::get_category_name;
+use crate::{
+    models::{
+        page::{self, Entity as Page},
+        page_category::Model as PageCategoryModel,
+        site::{self, Entity as Site},
+        wikidot_user::{self, Entity as WikidotUser},
+    },
+    services::{BlobService, CategoryService},
+    utils::get_category_name,
+};
 
 #[derive(Debug)]
 pub struct ImportService;

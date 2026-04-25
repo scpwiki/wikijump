@@ -33,8 +33,7 @@
 
 #[allow(unused_imports)]
 mod prelude {
-    pub use super::super::prelude::*;
-    pub use super::*;
+    pub use super::{super::prelude::*, *};
     pub use crate::models::relation::Model as RelationModel;
     pub use paste::paste;
 }
@@ -54,21 +53,17 @@ mod user_bot_owner;
 mod user_contact;
 mod user_follow;
 
-pub use self::page_attribution::*;
-pub use self::page_star::*;
-pub use self::page_watch::*;
-pub use self::site_ban::*;
-pub use self::site_member::*;
-pub use self::site_user::*;
-pub use self::structs::*;
-pub use self::user_block::*;
-pub use self::user_bot_owner::*;
-pub use self::user_contact::*;
-pub use self::user_follow::*;
+pub use self::{
+    page_attribution::*, page_star::*, page_watch::*, site_ban::*, site_member::*,
+    site_user::*, structs::*, user_block::*, user_bot_owner::*, user_contact::*,
+    user_follow::*,
+};
 
 use super::prelude::*;
-use crate::models::relation::{self, Entity as Relation, Model as RelationModel};
-use crate::types::{RelationObjectType, RelationType};
+use crate::{
+    models::relation::{self, Entity as Relation, Model as RelationModel},
+    types::{RelationObjectType, RelationType},
+};
 use serde::Serialize;
 
 // Base service exists here.

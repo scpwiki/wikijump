@@ -31,10 +31,14 @@
 //! periodically.
 
 use super::prelude::*;
-use crate::models::known_user;
-use crate::models::session::{self, Entity as Session, Model as SessionModel};
-use crate::models::user::{self, Entity as User, Model as UserModel};
-use crate::utils::assert_is_csprng;
+use crate::{
+    models::{
+        known_user,
+        session::{self, Entity as Session, Model as SessionModel},
+        user::{self, Entity as User, Model as UserModel},
+    },
+    utils::assert_is_csprng,
+};
 use rand::distr::{Alphanumeric, SampleString};
 
 #[derive(Debug)]

@@ -20,9 +20,11 @@
 
 //! Helper functions and macros for running individual test cases.
 
-use deepwell::api::{ServerState, build_server_state};
-use deepwell::config::{Config, Secrets};
-use deepwell::services::ServiceContext;
+use deepwell::{
+    api::{ServerState, build_server_state},
+    config::{Config, Secrets},
+    services::ServiceContext,
+};
 use sea_orm::{DatabaseTransaction, TransactionTrait};
 use self_cell::self_cell;
 use tokio::task;

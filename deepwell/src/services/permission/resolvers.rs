@@ -18,9 +18,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::error::Result;
-use crate::services::ServiceContext;
-use crate::types::{Reference, Resource};
+use crate::{
+    error::Result,
+    services::ServiceContext,
+    types::{Reference, Resource},
+};
 use std::borrow::Cow;
 
 /// Trait for resolving category references (ID or slug) to category IDs.

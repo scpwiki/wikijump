@@ -23,10 +23,12 @@ use crate::error::prelude::*;
 use fluent::{FluentArgs, FluentMessage, FluentResource, bundle};
 use fluent_syntax::ast::Pattern;
 use intl_memoizer::concurrent::IntlLangMemoizer;
-use std::borrow::Cow;
-use std::collections::HashMap;
-use std::fmt::{self, Debug, Display};
-use std::path::{Path, PathBuf};
+use std::{
+    borrow::Cow,
+    collections::HashMap,
+    fmt::{self, Debug, Display},
+    path::{Path, PathBuf},
+};
 use tokio::fs;
 use unic_langid::LanguageIdentifier;
 

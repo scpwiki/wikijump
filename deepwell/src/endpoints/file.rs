@@ -19,15 +19,18 @@
  */
 
 use super::prelude::*;
-use crate::models::file::Model as FileModel;
-use crate::models::file_revision::Model as FileRevisionModel;
-use crate::services::file::{
-    CreateFile, CreateFileOutput, DeleteFile, DeleteFileOutput, EditFile, EditFileOutput,
-    GetFileDetails, GetFileOutput, MoveFile, MoveFileOutput, RestoreFile,
-    RestoreFileOutput, RollbackFile,
+use crate::{
+    models::{file::Model as FileModel, file_revision::Model as FileRevisionModel},
+    services::{
+        BlobService, FileRevisionService,
+        file::{
+            CreateFile, CreateFileOutput, DeleteFile, DeleteFileOutput, EditFile,
+            EditFileOutput, GetFileDetails, GetFileOutput, MoveFile, MoveFileOutput,
+            RestoreFile, RestoreFileOutput, RollbackFile,
+        },
+    },
+    types::{Bytes, FileDetails},
 };
-use crate::services::{BlobService, FileRevisionService};
-use crate::types::{Bytes, FileDetails};
 
 pub async fn file_get(
     ctx: &ServiceContext<'_>,

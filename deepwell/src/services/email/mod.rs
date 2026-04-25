@@ -20,8 +20,7 @@
 
 #[allow(unused_imports)]
 mod prelude {
-    pub use super::super::prelude::*;
-    pub use super::structs::*;
+    pub use super::{super::prelude::*, structs::*};
 }
 
 mod service;

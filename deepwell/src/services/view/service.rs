@@ -30,31 +30,28 @@
 //! requesting domain and session token into a site and user, respectively.
 
 use super::prelude::*;
-use crate::models::page::Model as PageModel;
-use crate::models::page_revision::Model as PageRevisionModel;
-use crate::models::site::Model as SiteModel;
-use crate::services::blueprint::{BlueprintPageType, GetBlueprintPageOutput};
-use crate::services::page_revision::RerenderType;
-use crate::services::permission::{
-    CheckPermissionContext, PermissionInput, PermissionService,
+use crate::{
+    models::{
+        page::Model as PageModel, page_revision::Model as PageRevisionModel,
+        site::Model as SiteModel,
+    },
+    services::{
+        BlueprintPageService, CategoryService, DomainService, PageRevisionService,
+        PageService, SessionService, SiteService, TextService, UserService,
+        blueprint::{BlueprintPageType, GetBlueprintPageOutput},
+        page_revision::RerenderType,
+        permission::{CheckPermissionContext, PermissionInput, PermissionService},
+        relation::{GetPageAttributions, GetSiteBan, PageAttribution, RelationService},
+        render::RenderOutput,
+        settings::{NavigationPageHtml, SettingsService},
+        view::ViewType,
+    },
+    types::{Action, PageId, RerenderDepth, Resource},
+    utils::{parse_locales, split_category},
 };
-use crate::services::relation::{
-    GetPageAttributions, GetSiteBan, PageAttribution, RelationService,
-};
-use crate::services::render::RenderOutput;
-use crate::services::settings::{NavigationPageHtml, SettingsService};
-use crate::services::view::ViewType;
-use crate::services::{
-    BlueprintPageService, CategoryService, DomainService, PageRevisionService,
-    PageService, SessionService, SiteService, TextService, UserService,
-};
-use crate::types::{Action, PageId, RerenderDepth, Resource};
-use crate::utils::{parse_locales, split_category};
-use ftml::prelude::*;
-use ftml::render::html::HtmlOutput;
+use ftml::{prelude::*, render::html::HtmlOutput};
 use ref_map::*;
-use std::borrow::Cow;
-use std::mem;
+use std::{borrow::Cow, mem};
 use unic_langid::LanguageIdentifier;
 use wikidot_normalize::normalize;
 

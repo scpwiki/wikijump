@@ -21,12 +21,13 @@
 #![allow(dead_code)] // TEMP
 
 use super::prelude::*;
-use crate::models::forum_post;
-use crate::models::forum_post_revision;
-use crate::models::forum_thread::{
-    self, Entity as ForumThread, Model as ForumThreadModel,
+use crate::{
+    models::{
+        forum_post, forum_post_revision,
+        forum_thread::{self, Entity as ForumThread, Model as ForumThreadModel},
+    },
+    services::ForumService,
 };
-use crate::services::ForumService;
 
 #[derive(Debug)]
 pub struct ForumThreadService;

@@ -33,18 +33,19 @@
 //!
 //! This feature assumes you are running on a UNIX-like system.
 
-use crate::config::Config;
-use crate::error::prelude::*;
+use crate::{config::Config, error::prelude::*};
 use notify::{
     Config as WatcherConfig, Event, EventKind, RecommendedWatcher, RecursiveMode,
     Result as WatcherResult, Watcher,
 };
-use std::convert::Infallible;
-use std::os::unix::process::CommandExt;
-use std::path::{Path, PathBuf};
-use std::process::Command;
-use std::time::Duration;
-use std::{env, fs};
+use std::{
+    convert::Infallible,
+    env, fs,
+    os::unix::process::CommandExt,
+    path::{Path, PathBuf},
+    process::Command,
+    time::Duration,
+};
 
 const POLL_INTERVAL: Duration = Duration::from_secs(1);
 

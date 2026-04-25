@@ -20,21 +20,21 @@
 
 #[allow(unused_imports)]
 mod prelude {
-    pub use super::super::prelude::*;
-    pub use super::structs::*;
+    pub use super::{super::prelude::*, structs::*};
     pub use ftml::{
-        self,
         data::PageInfo,
         info::VERSION as FTML_VERSION,
         parsing::ParseError,
-        render::Render,
-        render::html::{HtmlOutput, HtmlRender},
+        render::{
+            Render,
+            html::{HtmlOutput, HtmlRender},
+        },
         settings::WikitextSettings,
+        {self},
     };
 }
 
 mod service;
 mod structs;
 
-pub use self::service::RenderService;
-pub use self::structs::*;
+pub use self::{service::RenderService, structs::*};

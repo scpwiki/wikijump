@@ -21,24 +21,27 @@
 #[macro_use]
 mod common;
 
+use self::common::TestRunner;
+use deepwell::{
+    constants::SYSTEM_USER_ID,
+    license::License,
+    services::{
+        ServiceContext,
+        category::CategoryService,
+        permission::{
+            CheckPermissionContext, PermissionCache, PermissionInput, PermissionService,
+        },
+        role::{
+            CreateRoleInput, GrantUserRoleInput, RoleService, UpdateRolePermissionsInput,
+        },
+        site::{CreateSite, SiteService},
+        user::{CreateUser, UserService},
+    },
+    types::{Action, Reference, Resource, UserType},
+};
+use serde_json::json;
 use std::sync::atomic::{AtomicU64, Ordering};
 use str_macro::str;
-
-use self::common::TestRunner;
-use deepwell::constants::SYSTEM_USER_ID;
-use deepwell::license::License;
-use deepwell::services::ServiceContext;
-use deepwell::services::category::CategoryService;
-use deepwell::services::permission::{
-    CheckPermissionContext, PermissionCache, PermissionInput, PermissionService,
-};
-use deepwell::services::role::{
-    CreateRoleInput, GrantUserRoleInput, RoleService, UpdateRolePermissionsInput,
-};
-use deepwell::services::site::{CreateSite, SiteService};
-use deepwell::services::user::{CreateUser, UserService};
-use deepwell::types::{Action, Reference, Resource, UserType};
-use serde_json::json;
 
 static FIXTURE_COUNTER: AtomicU64 = AtomicU64::new(0);
 const TEST_CATEGORY_NAME: &str = "test-category";

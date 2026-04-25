@@ -19,13 +19,15 @@
  */
 
 use super::prelude::*;
-use crate::hash::TextHash;
-use crate::services::TextService;
-use crate::services::settings::{NavigationPageWikitext, SettingsService};
-use crate::services::text_block::{
-    MIME_HTML, TextBlock, TextBlockService, mime_for_language,
+use crate::{
+    hash::TextHash,
+    services::{
+        TextService,
+        settings::{NavigationPageWikitext, SettingsService},
+        text_block::{MIME_HTML, TextBlock, TextBlockService, mime_for_language},
+    },
+    types::{PageId, TextBlockType},
 };
-use crate::types::{PageId, TextBlockType};
 use ftml::{prelude::*, tree::CodeBlock};
 use tokio::time::timeout;
 

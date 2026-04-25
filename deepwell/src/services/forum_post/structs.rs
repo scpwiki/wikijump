@@ -20,9 +20,13 @@
 
 #![allow(dead_code)] // TEMP
 
-use crate::models::forum_post::Model as ForumPostModel;
-use crate::models::forum_post_revision::Model as ForumPostRevisionModel;
-use crate::types::Maybe;
+use crate::{
+    models::{
+        forum_post::Model as ForumPostModel,
+        forum_post_revision::Model as ForumPostRevisionModel,
+    },
+    types::Maybe,
+};
 use ftml::parsing::ParseError;
 
 #[derive(Deserialize, Debug, Clone)]

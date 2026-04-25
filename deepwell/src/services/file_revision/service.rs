@@ -19,17 +19,21 @@
  */
 
 use super::prelude::*;
-use crate::hash::{BlobHash, blob_hash_to_hex, slice_to_blob_hash};
-use crate::models::file_revision::{
-    self, Entity as FileRevision, Model as FileRevisionModel,
+use crate::{
+    hash::{BlobHash, blob_hash_to_hex, slice_to_blob_hash},
+    models::{
+        file,
+        file_revision::{self, Entity as FileRevision, Model as FileRevisionModel},
+        page, site,
+    },
+    services::{
+        BlobService, OutdateService, PageService,
+        blob::{EMPTY_BLOB_HASH, EMPTY_BLOB_MIME, FinalizeBlobUploadOutput},
+    },
+    types::{Bytes, FetchDirection, RerenderDepth},
 };
-use crate::models::{file, page, site};
-use crate::services::blob::{EMPTY_BLOB_HASH, EMPTY_BLOB_MIME, FinalizeBlobUploadOutput};
-use crate::services::{BlobService, OutdateService, PageService};
-use crate::types::{Bytes, FetchDirection, RerenderDepth};
 use sea_orm::{FromQueryResult, prelude::*};
-use std::num::NonZeroI32;
-use std::sync::LazyLock;
+use std::{num::NonZeroI32, sync::LazyLock};
 
 /// The changes for the first revision.
 /// The first revision is always considered to have changed everything.

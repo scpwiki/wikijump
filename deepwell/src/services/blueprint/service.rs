@@ -19,16 +19,17 @@
  */
 
 use super::prelude::*;
-use crate::models::site::Model as SiteModel;
-use crate::services::{PageRevisionService, PageService, RenderService, TextService};
-use crate::types::Reference;
-use crate::utils::{regex_replace_in_place, split_category, strip_fluent_control_chars};
+use crate::{
+    models::site::Model as SiteModel,
+    services::{PageRevisionService, PageService, RenderService, TextService},
+    types::Reference,
+    utils::{regex_replace_in_place, split_category, strip_fluent_control_chars},
+};
 use fluent::{FluentArgs, FluentValue};
 use ftml::prelude::*;
 use ref_map::*;
 use regex::Regex;
-use std::borrow::Cow;
-use std::sync::LazyLock;
+use std::{borrow::Cow, sync::LazyLock};
 use unic_langid::LanguageIdentifier;
 
 // TODO: check config fields for blueprint pages starts with the page prefix

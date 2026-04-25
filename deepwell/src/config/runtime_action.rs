@@ -26,8 +26,7 @@
 
 use super::{Config, SetupConfig};
 use crate::{api, database};
-use std::path::PathBuf;
-use std::{env, process};
+use std::{env, path::PathBuf, process};
 
 pub async fn run_runtime_action() {
     // Get action name, if specified.

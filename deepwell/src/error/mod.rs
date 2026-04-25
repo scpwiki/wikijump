@@ -28,9 +28,7 @@ mod convert;
 mod error_type;
 mod object;
 
-pub use self::convert::*;
-pub use self::error_type::ErrorType;
-pub use self::object::Error;
+pub use self::{convert::*, error_type::ErrorType, object::Error};
 pub use exn::{Exn, Result as ExnResult};
 pub use std::error::Error as StdError;
 

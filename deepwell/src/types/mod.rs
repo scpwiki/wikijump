@@ -35,17 +35,19 @@ mod permissions;
 mod reference;
 mod rerender_depth;
 
-pub use self::array::ArrayLength;
-pub use self::bytes::Bytes;
-pub use self::conversion_error::{EnumConversionError, parse_layout};
-pub use self::enums::*;
-pub use self::fetch_direction::FetchDirection;
-pub use self::file_details::FileDetails;
-pub use self::file_order::FileOrder;
-pub use self::maybe::Maybe;
-pub use self::page_details::PageDetails;
-pub use self::page_id::PageId;
-pub use self::page_order::PageOrder;
-pub use self::permissions::Permission;
-pub use self::reference::Reference;
-pub use self::rerender_depth::RerenderDepth;
+pub use self::{
+    array::ArrayLength,
+    bytes::Bytes,
+    conversion_error::{EnumConversionError, parse_layout},
+    enums::*,
+    fetch_direction::FetchDirection,
+    file_details::FileDetails,
+    file_order::FileOrder,
+    maybe::Maybe,
+    page_details::PageDetails,
+    page_id::PageId,
+    page_order::PageOrder,
+    permissions::Permission,
+    reference::Reference,
+    rerender_depth::RerenderDepth,
+};

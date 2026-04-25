@@ -19,8 +19,10 @@
  */
 
 use super::prelude::*;
-use crate::models::filter::{self, Entity as Filter, Model as FilterModel};
-use crate::utils::trim_start_matches_in_place;
+use crate::{
+    models::filter::{self, Entity as Filter, Model as FilterModel},
+    utils::trim_start_matches_in_place,
+};
 use regex::{Regex, RegexSet};
 
 #[derive(Debug)]

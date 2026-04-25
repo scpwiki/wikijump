@@ -18,8 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::services::page_revision::RerenderType;
-use crate::types::{PageId, RerenderDepth};
+use crate::{
+    services::page_revision::RerenderType,
+    types::{PageId, RerenderDepth},
+};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "snake_case", tag = "job", content = "data")]

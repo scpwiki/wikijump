@@ -18,23 +18,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 use super::prelude::*;
-use crate::endpoints::site;
-use crate::error::{Error, ErrorType};
-use crate::models::prelude::{Role, RolePermission};
-use crate::models::role_permission::Model as RolePermissionModel;
-use crate::models::{role, role_permission, user_role};
-use crate::services::ServiceContext;
-use crate::services::audit::{AuditEvent, AuditService};
-use crate::services::permission::resolvers::resolve_category_slug;
-use crate::services::permission::{
-    CheckPermissionContext, PermissionCache, PermissionInput, resolve_category_reference,
+use crate::{
+    endpoints::site,
+    error::{Error, ErrorType},
+    models::{
+        prelude::{Role, RolePermission},
+        role, role_permission,
+        role_permission::Model as RolePermissionModel,
+        user_role,
+    },
+    services::{
+        ServiceContext,
+        audit::{AuditEvent, AuditService},
+        permission::{
+            CheckPermissionContext, PermissionCache, PermissionInput,
+            resolve_category_reference, resolvers::resolve_category_slug,
+        },
+        role::{GetUserRolesInput, RoleService, UpdateRolePermissionsInput},
+    },
+    types::{Action, Permission, Reference, Resource},
 };
-use crate::services::role::{GetUserRolesInput, RoleService, UpdateRolePermissionsInput};
-use crate::types::{Action, Permission, Reference, Resource};
 use futures::future::try_join_all;
-use std::borrow::Cow;
-use std::collections::HashSet;
-use std::net::IpAddr;
+use std::{borrow::Cow, collections::HashSet, net::IpAddr};
 
 #[derive(Debug)]
 pub struct PermissionService;

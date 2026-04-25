@@ -18,10 +18,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::models::page_connection::Model as PageConnectionModel;
-use crate::models::page_connection_missing::Model as PageConnectionMissingModel;
-use crate::models::page_link::Model as PageLinkModel;
-use crate::types::Reference;
+use crate::{
+    models::{
+        page_connection::Model as PageConnectionModel,
+        page_connection_missing::Model as PageConnectionMissingModel,
+        page_link::Model as PageLinkModel,
+    },
+    types::Reference,
+};
 use time::OffsetDateTime;
 
 #[derive(Deserialize, Debug, Clone)]

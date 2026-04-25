@@ -24,12 +24,15 @@
 //! and custom domains (e.g. `scpwiki.com`).
 
 use super::prelude::*;
-use crate::models::site::{self, Entity as Site, Model as SiteModel};
-use crate::models::site_domain::{self, Entity as SiteDomain, Model as SiteDomainModel};
-use crate::services::SiteService;
+use crate::{
+    models::{
+        site::{self, Entity as Site, Model as SiteModel},
+        site_domain::{self, Entity as SiteDomain, Model as SiteDomainModel},
+    },
+    services::SiteService,
+};
 use regex::Regex;
-use std::borrow::Cow;
-use std::sync::LazyLock;
+use std::{borrow::Cow, sync::LazyLock};
 
 pub const DEFAULT_SITE_SLUG: &str = "www";
 

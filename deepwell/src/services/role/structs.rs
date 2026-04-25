@@ -17,8 +17,10 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-use crate::services::permission::PermissionInput;
-use crate::types::{Maybe, Permission, Reference};
+use crate::{
+    services::permission::PermissionInput,
+    types::{Maybe, Permission, Reference},
+};
 use std::net::IpAddr;
 use time::OffsetDateTime;
 
