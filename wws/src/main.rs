@@ -47,14 +47,12 @@ mod route;
 mod state;
 mod trace;
 
-use self::config::load_config;
-use self::route::build_router;
-use self::state::build_server_state;
-use self::trace::setup_tracing;
+use self::{
+    config::load_config, route::build_router, state::build_server_state,
+    trace::setup_tracing,
+};
 use anyhow::Result;
-use std::fs::File;
-use std::io::Write;
-use std::process;
+use std::{fs::File, io::Write, process};
 use tokio::net::TcpListener;
 
 #[tokio::main]

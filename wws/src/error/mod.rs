@@ -28,6 +28,4 @@ mod basic;
 mod fallback;
 mod wws;
 
-pub use self::basic::*;
-pub use self::fallback::FallbackError;
-pub use self::wws::*;
+pub use self::{basic::*, fallback::FallbackError, wws::*};

@@ -28,8 +28,7 @@ use crate::{
 };
 use axum::{http::HeaderMap, response::IntoResponse};
 use s3::bucket::Bucket;
-use std::sync::Arc;
-use std::time::Duration;
+use std::{sync::Arc, time::Duration};
 
 const BUCKET_REQUEST_TIMEOUT: Duration = Duration::from_millis(200);
 

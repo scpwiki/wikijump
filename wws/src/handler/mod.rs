@@ -26,13 +26,10 @@ mod robots;
 mod text_block;
 mod well_known;
 
-pub use self::basic_error::*;
-pub use self::file::*;
-pub use self::misc::*;
-pub use self::redirect::*;
-pub use self::robots::*;
-pub use self::text_block::*;
-pub use self::well_known::*;
+pub use self::{
+    basic_error::*, file::*, misc::*, redirect::*, robots::*, text_block::*,
+    well_known::*,
+};
 
 use axum::http::header::{HeaderMap, HeaderName};
 

@@ -22,15 +22,13 @@ mod args;
 mod object;
 mod secrets;
 
-pub use self::object::Config;
-pub use self::secrets::Secrets;
+pub use self::{object::Config, secrets::Secrets};
 
 use self::args::Arguments;
 use dotenvy::dotenv;
 use ref_map::*;
 use s3::{creds::Credentials, region::Region};
-use std::path::PathBuf;
-use std::{env, process};
+use std::{env, path::PathBuf, process};
 
 pub fn load_config() -> (Config, Secrets) {
     dotenv().ok();

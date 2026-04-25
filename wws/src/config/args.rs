@@ -20,9 +20,11 @@
 
 use crate::info;
 use clap::{Arg, ArgAction, Command, value_parser};
-use std::ffi::OsString;
-use std::net::{IpAddr, SocketAddr};
-use std::path::PathBuf;
+use std::{
+    ffi::OsString,
+    net::{IpAddr, SocketAddr},
+    path::PathBuf,
+};
 
 #[derive(Debug, Clone)]
 pub struct Arguments {
