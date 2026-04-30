@@ -39,12 +39,13 @@ macro_rules! parse {
     };
 }
 
-macro_rules! parse_authed {
+#[allow(unused_macros)]
+macro_rules! parse_auth {
     ($ctx:expr, $params:expr, $error_type:ident $(,)?) => {{
         let input = parse!($params, $error_type);
-        let perms = PermissionService::prefetch_permission_context(
+        let perms = SessionService::prefetch_user_session(
             &$ctx,
-            &PrefetchPermissionsInput {
+            &PrefetchSessionInput {
                 session_token: input.session_token.clone(),
                 site_id: input.site_id,
                 page_reference: input.page_reference.clone(),

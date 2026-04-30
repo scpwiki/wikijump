@@ -18,7 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::models::session::Model as SessionModel;
+use crate::types::UserPermissions;
+use crate::{models::session::Model as SessionModel, types::Reference};
 use std::net::IpAddr;
 
 #[derive(Deserialize, Debug, Clone)]
@@ -49,4 +50,18 @@ pub struct GetOtherSessionsOutput {
 pub struct InvalidateOtherSessions {
     pub session_token: String,
     pub user_id: i64,
+}
+
+#[derive(Debug, Clone)]
+pub struct PrefetchSessionInput<'a> {
+    pub session_token: Option<String>,
+    pub site_id: Option<i64>,
+    pub page_reference: Option<Reference<'a>>,
+}
+
+#[derive(Serialize, Debug, Clone)]
+pub struct UserSession {
+    pub session: Option<SessionModel>,
+    pub user_id: Option<i64>,
+    pub user_permissions: UserPermissions,
 }

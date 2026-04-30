@@ -586,23 +586,14 @@ impl PermissionService {
 
     pub async fn prefetch_permission_context(
         ctx: &ServiceContext<'_>,
-        perm_ctx: &PrefetchPermissionsInput<'_>,
+        site_id: Option<i64>,
+        user_id: Option<i64>,
+        page_reference: Option<Reference<'_>>,
     ) -> Result<UserPermissions> {
-        let site_id = perm_ctx.site_id;
-
         // TODO: Add support for platform permissions (cross-site permissions)
         if site_id.is_none() {
-            return Ok(UserPermissions::new());
+            return Ok(UserPermissions::new(None));
         }
-
-        let page_reference = perm_ctx.page_reference.clone();
-        let user_id = match perm_ctx.session_token.as_deref() {
-            Some("") | None => None,
-            Some(token) => {
-                let session = SessionService::get(ctx, token).await?;
-                Some(session.user_id)
-            }
-        };
 
         let make_error = || {
             Error::new(
@@ -665,7 +656,7 @@ impl PermissionService {
             .map(|p| (p.clone(), permissions.contains(&p)))
             .collect();
 
-        Ok(UserPermissions { permission_map })
+        Ok(UserPermissions::new(Some(permission_map)))
     }
 
     pub async fn check_category_scoped(

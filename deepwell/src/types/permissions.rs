@@ -110,15 +110,15 @@ define_permission_types! {
     Site => [View, Edit],
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct UserPermissions {
-    pub permission_map: HashMap<Permission, bool>,
+    permission_map: HashMap<Permission, bool>,
 }
 
 impl UserPermissions {
-    pub fn new() -> Self {
+    pub fn new(permission_map: Option<HashMap<Permission, bool>>) -> Self {
         Self {
-            permission_map: HashMap::new(),
+            permission_map: permission_map.unwrap_or_default(),
         }
     }
 

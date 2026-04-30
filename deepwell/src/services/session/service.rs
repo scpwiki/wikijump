@@ -34,6 +34,7 @@ use super::prelude::*;
 use crate::models::known_user;
 use crate::models::session::{self, Entity as Session, Model as SessionModel};
 use crate::models::user::{self, Entity as User, Model as UserModel};
+use crate::services::permission::PermissionService;
 use crate::utils::assert_is_csprng;
 use rand::distr::{Alphanumeric, SampleString};
 
@@ -258,6 +259,41 @@ impl SessionService {
             .or_raise(make_error)?;
 
         Ok(sessions)
+    }
+
+    pub async fn prefetch_user_session(
+        ctx: &ServiceContext<'_>,
+        session_input: &PrefetchSessionInput<'_>,
+    ) -> Result<UserSession> {
+        let make_error = || {
+            Error::new(
+                format!("Failed to prefetch user session"),
+                ErrorType::Request,
+            )
+        };
+
+        let (user_id, session) = match session_input.session_token.as_deref() {
+            Some("") | None => (None, None),
+            Some(token) => {
+                let session = SessionService::get(ctx, token).await.or_raise(make_error)?;
+                (Some(session.user_id), Some(session))
+            }
+        };
+
+        let user_permissions = PermissionService::prefetch_permission_context(
+            ctx,
+            session_input.site_id,
+            user_id,
+            session_input.page_reference.as_ref().map(|r| r.borrow()),
+        )
+        .await
+        .or_raise(make_error)?;
+
+        Ok(UserSession {
+            session,
+            user_id,
+            user_permissions,
+        })
     }
 
     /// Renews a session, invalidating the old one and creating a new one.

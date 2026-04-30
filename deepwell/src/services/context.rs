@@ -23,7 +23,7 @@ use crate::config::Config;
 use crate::error::prelude::*;
 use crate::locales::Localizations;
 use crate::services::blob::MimeAnalyzer;
-use crate::types::UserPermissions;
+use crate::services::session::UserSession;
 use redis::aio::MultiplexedConnection as RedisMultiplexedConnection;
 use rsmq_async::Rsmq;
 use s3::bucket::Bucket;
@@ -35,7 +35,7 @@ use tokio::sync::OnceCell;
 pub struct ServiceContext<'txn> {
     state: ServerState,
     transaction: &'txn DatabaseTransaction,
-    user_permissions: OnceCell<UserPermissions>,
+    user_session: OnceCell<UserSession>,
 }
 
 impl<'txn> ServiceContext<'txn> {
@@ -47,7 +47,7 @@ impl<'txn> ServiceContext<'txn> {
         ServiceContext {
             state: Arc::clone(state),
             transaction,
-            user_permissions: OnceCell::new(),
+            user_session: OnceCell::new(),
         }
     }
 
@@ -97,12 +97,12 @@ impl<'txn> ServiceContext<'txn> {
         self.transaction
     }
 
-    pub fn set_permissions(&self, perms: UserPermissions) {
-        let _ = self.user_permissions.set(perms);
+    #[inline]
+    pub fn user_session(&self) -> Option<&UserSession> {
+        self.user_session.get()
     }
 
-    #[inline]
-    pub fn user_permissions(&self) -> Option<&UserPermissions> {
-        self.user_permissions.get()
+    pub fn set_user_session(&self, perms: UserSession) {
+        let _ = self.user_session.set(perms);
     }
 }
