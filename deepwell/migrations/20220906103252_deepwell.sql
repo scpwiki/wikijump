@@ -989,6 +989,8 @@ CREATE TABLE role_permission (
     UNIQUE (site_id, role_id, resource_type, resource_category_id, action)
 );
 
+CREATE INDEX idx_site_perms ON role_permission (site_id, resource_type, resource_category_id, action);
+
 -- User role assignments (many-to-many)
 CREATE TABLE user_role (
     user_id BIGINT NOT NULL REFERENCES known_user(user_id),

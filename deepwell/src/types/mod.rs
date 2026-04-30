@@ -46,6 +46,6 @@ pub use self::maybe::Maybe;
 pub use self::page_details::PageDetails;
 pub use self::page_id::PageId;
 pub use self::page_order::PageOrder;
-pub use self::permissions::Permission;
+pub use self::permissions::{Permission, UserPermissions};
 pub use self::reference::Reference;
 pub use self::rerender_depth::RerenderDepth;

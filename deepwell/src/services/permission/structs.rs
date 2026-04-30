@@ -45,3 +45,10 @@ pub struct CheckPermissionContext<'a> {
     pub site_id: i64,
     pub page_reference: Option<Reference<'a>>,
 }
+
+#[derive(Debug, Clone)]
+pub struct PrefetchPermissionsInput<'a> {
+    pub session_token: Option<String>,
+    pub site_id: Option<i64>,
+    pub page_reference: Option<Reference<'a>>,
+}

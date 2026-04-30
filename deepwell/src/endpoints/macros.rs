@@ -39,6 +39,27 @@ macro_rules! parse {
     };
 }
 
+macro_rules! parse_authed {
+    ($ctx:expr, $params:expr, $error_type:ident $(,)?) => {{
+        let input = parse!($params, $error_type);
+        let perms = PermissionService::prefetch_permission_context(
+            &$ctx,
+            &PrefetchPermissionsInput {
+                session_token: input.session_token.clone(),
+                site_id: input.site_id,
+                page_reference: input.page_reference.clone(),
+            },
+        )
+        .await?;
+        $ctx.set_permissions(perms);
+        input
+    }};
+
+    ($ctx:expr, $params:expr $(,)?) => {
+        parse_authed!($ctx, $params, Request)
+    };
+}
+
 macro_rules! parse_one {
     ($params:expr, $error_type:ident $(,)?) => {
         parse!(one; $params, ErrorType::$error_type)

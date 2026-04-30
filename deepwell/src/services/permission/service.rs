@@ -23,7 +23,6 @@ use crate::error::{Error, ErrorType};
 use crate::models::prelude::{Role, RolePermission};
 use crate::models::role_permission::Model as RolePermissionModel;
 use crate::models::{role, role_permission, user_role};
-use crate::services::ServiceContext;
 use crate::services::audit::{AuditEvent, AuditService};
 use crate::services::permission::resolvers::resolve_category_slug;
 use crate::services::permission::{
@@ -32,8 +31,10 @@ use crate::services::permission::{
 use crate::services::role::{
     GetRolePermissionsInput, GetUserRolesInput, RoleService, UpdateRolePermissionsInput,
 };
-use crate::types::{Action, Permission, Reference, Resource};
+use crate::services::{ServiceContext, SessionService};
+use crate::types::{Action, Permission, Reference, Resource, UserPermissions};
 use futures::future::try_join_all;
+use rand::rand_core::le;
 use std::borrow::Cow;
 use std::collections::HashSet;
 use std::hash::Hash;
@@ -581,6 +582,110 @@ impl PermissionService {
         }
 
         Ok(results)
+    }
+
+    pub async fn prefetch_permission_context(
+        ctx: &ServiceContext<'_>,
+        perm_ctx: &PrefetchPermissionsInput<'_>,
+    ) -> Result<UserPermissions> {
+        let site_id = perm_ctx.site_id;
+
+        // TODO: Add support for platform permissions (cross-site permissions)
+        if site_id.is_none() {
+            return Ok(UserPermissions::new());
+        }
+
+        let page_reference = perm_ctx.page_reference.clone();
+        let user_id = match perm_ctx.session_token.as_deref() {
+            Some("") | None => None,
+            Some(token) => {
+                let session = SessionService::get(ctx, token).await?;
+                Some(session.user_id)
+            }
+        };
+
+        let make_error = || {
+            Error::new(
+                format!(
+                    "failed to hydrate permissions for user ID {:?} on site ID {}",
+                    user_id,
+                    site_id.unwrap()
+                ),
+                ErrorType::Permission,
+            )
+        };
+
+        let role_ids: Vec<i64> = RoleService::get_all_roles_for_user_and_site(
+            ctx,
+            GetUserRolesInput {
+                user_id,
+                site_id: site_id.unwrap(),
+                page_reference,
+            },
+        )
+        .await
+        .or_raise(make_error)?
+        .into_iter()
+        .map(|r| r.role_id)
+        .collect();
+
+        let permissions: HashSet<Permission> = RolePermission::find()
+            .filter(role_permission::Column::RoleId.is_in(role_ids))
+            .all(ctx.transaction())
+            .await
+            .or_raise(make_error)?
+            .into_iter()
+            .map(|p| Permission {
+                resource: p.resource_type,
+                resource_category: p.resource_category_id.map(Reference::Id),
+                action: p.action,
+            })
+            .collect();
+
+        let all_site_permissions: Vec<Permission> = RolePermission::find()
+            .filter(role_permission::Column::SiteId.eq(site_id.unwrap()))
+            .distinct_on([
+                role_permission::Column::ResourceType,
+                role_permission::Column::ResourceCategoryId,
+                role_permission::Column::Action,
+            ])
+            .all(ctx.transaction())
+            .await
+            .or_raise(make_error)?
+            .into_iter()
+            .map(|p| Permission {
+                resource: p.resource_type,
+                resource_category: p.resource_category_id.map(Reference::Id),
+                action: p.action,
+            })
+            .collect();
+
+        let permission_map = all_site_permissions
+            .into_iter()
+            .map(|p| (p.clone(), permissions.contains(&p)))
+            .collect();
+
+        Ok(UserPermissions { permission_map })
+    }
+
+    pub async fn check_category_scoped(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        resource: Resource,
+        resource_category_id: i64,
+        action: Action,
+    ) -> Result<bool> {
+        let txn = ctx.transaction();
+        Ok(RolePermission::find()
+            .filter(role_permission::Column::SiteId.eq(site_id))
+            .filter(role_permission::Column::ResourceType.eq(resource))
+            .filter(role_permission::Column::ResourceCategoryId.eq(resource_category_id))
+            .filter(role_permission::Column::Action.eq(action))
+            .exists(txn)
+            .await
+            .or_raise(|| {
+                Error::new("Error querying permissions", ErrorType::Permission)
+            })?)
     }
 
     async fn fetch_permissions(

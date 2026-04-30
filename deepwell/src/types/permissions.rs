@@ -20,6 +20,7 @@
 use crate::types::{Action, Reference, Resource};
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
+use std::collections::HashMap;
 use std::str::FromStr;
 
 #[derive(Debug)]
@@ -107,4 +108,28 @@ define_permission_types! {
     Page => [View, Edit, Create, Delete, Rename],
     Role => [View, Edit, Assign],
     Site => [View, Edit],
+}
+
+#[derive(Debug, Clone)]
+pub struct UserPermissions {
+    pub permission_map: HashMap<Permission, bool>,
+}
+
+impl UserPermissions {
+    pub fn new() -> Self {
+        Self {
+            permission_map: HashMap::new(),
+        }
+    }
+
+    pub fn has(&self, permission: &Permission) -> bool {
+        *self.permission_map.get(permission).unwrap_or_else(|| {
+            let default_fallback = Permission {
+                resource: permission.resource,
+                resource_category: None,
+                action: permission.action,
+            };
+            self.permission_map.get(&default_fallback).unwrap_or(&false)
+        })
+    }
 }

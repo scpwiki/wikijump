@@ -34,6 +34,7 @@ mod macros;
 mod prelude {
     pub use crate::api::ServerState;
     pub use crate::error::prelude::*;
+    pub use crate::services::permission::{PermissionService, PrefetchPermissionsInput};
     pub use crate::services::{
         AliasService, BlobService, CaddyService, CategoryService, DomainService,
         FileRevisionService, FileService, LinkService, MessageReportService,
