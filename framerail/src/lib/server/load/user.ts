@@ -132,7 +132,6 @@ export function sanitizeUserData(
     "created_at",
     "updated_at",
     "deleted_at",
-    "from_wikidot",
     "name",
     "slug",
     "avatar_s3_hash",
