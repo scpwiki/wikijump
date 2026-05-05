@@ -23,15 +23,72 @@ use crate::models::alias::Model as AliasModel;
 use crate::models::user::Model as UserModel;
 use crate::models::wikidot_user::Model as WikidotUserModel;
 use crate::types::{Bytes, UserType};
+use serde::ser::SerializeStruct;
+use serde::{Serialize, Serializer};
 use std::net::IpAddr;
 use time::Date;
 
-#[derive(Serialize, Debug, Clone)]
-#[serde(tag = "user_record_type", rename_all = "snake_case")]
+#[derive(Debug, Clone)]
 pub enum User {
     Wikijump(UserModel),
     Wikidot(WikidotUserModel),
 }
+
+// Custom serialization so we can reuse user_type for 'wikidot'
+impl Serialize for User {
+    fn serialize<S>(&self, serializer: S) -> StdResult<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        use serde::ser::Error;
+        use time::format_description::well_known::Rfc3339;
+
+        macro_rules! serialize_field {
+            ($serializer:expr, $user:expr, $field:ident) => {
+                serialize_field!($serializer, $field => $user.$field)
+            };
+            ($serializer:expr, $field:ident => $value:expr) => {
+                $serializer.serialize_field(stringify!($field), &$value)?
+            };
+        }
+
+        macro_rules! serialize_datetime {
+            ($serializer:expr, $user:expr, $field:ident) => {{
+                let value = $user.$field
+                    .format(&Rfc3339)
+                    .map_err(S::Error::custom)?;
+
+                serialize_field!($serializer, $field => value);
+            }};
+        }
+
+        match self {
+            User::Wikijump(user) => user.serialize(serializer),
+            User::Wikidot(user) => {
+                let mut object = serializer.serialize_struct("WikidotUserModel", 15)?;
+                serialize_field!(object, user, user_id);
+                serialize_field!(object, user_type => "wikidot");
+                serialize_datetime!(object, user, created_at);
+                serialize_datetime!(object, user, fetched_at);
+                serialize_field!(object, user, is_deleted);
+                serialize_field!(object, user, name);
+                serialize_field!(object, user, slug);
+                serialize_field!(object, user, real_name);
+                serialize_field!(object, user, gender);
+                serialize_field!(object, user, birthday);
+                serialize_field!(object, user, location);
+                serialize_field!(object, user, biography);
+                serialize_field!(object, user, website);
+                serialize_field!(object, user, karma);
+                serialize_field!(object, user, is_pro);
+                object.end()
+            }
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct UserStub;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct CreateUser {
@@ -98,4 +155,143 @@ pub struct UpdateUserBody {
 
     #[serde(default)]
     pub bypass_filter: bool,
+}
+
+#[test]
+fn user_serialization() {
+    use time::macros::datetime;
+
+    macro_rules! check {
+        ($struct:expr, $json:expr $(,)?) => {{
+            let object = $struct;
+            let expected_json = $json.trim_start();
+            let actual_json = serde_json::to_string_pretty(&object)
+                .expect("Unable to serialize to JSON");
+            println!("Object:\n{object:#?}\n");
+            println!("Expected JSON:\n{expected_json}\n");
+            println!("Actual JSON:\n{actual_json}");
+
+            assert_eq!(
+                actual_json, expected_json,
+                "Actual generated JSON doesn't match expected"
+            );
+        }};
+    }
+
+    // Wikidot
+
+    check!(
+        User::Wikidot(WikidotUserModel {
+            user_id: 1000,
+            created_at: datetime!(2006-09-13 11:22:29 UTC),
+            fetched_at: datetime!(2026-01-01 20:00:00 UTC),
+            is_deleted: false,
+            name: Some(str!("Some_user")),
+            slug: Some(str!("some-user")),
+            real_name: Some(str!("John Doe")),
+            gender: Some(str!("male")),
+            birthday: None,
+            location: None,
+            biography: Some(str!("Not a real user")),
+            website: Some(str!("https://example.com")),
+            karma: 0,
+            is_pro: false,
+        }),
+        r#"
+{
+  "user_id": 1000,
+  "user_type": "wikidot",
+  "created_at": "2006-09-13T11:22:29Z",
+  "fetched_at": "2026-01-01T20:00:00Z",
+  "is_deleted": false,
+  "name": "Some_user",
+  "slug": "some-user",
+  "real_name": "John Doe",
+  "gender": "male",
+  "birthday": null,
+  "location": null,
+  "biography": "Not a real user",
+  "website": "https://example.com",
+  "karma": 0,
+  "is_pro": false
+}"#,
+    );
+
+    check!(
+        User::Wikidot(WikidotUserModel {
+            user_id: 4598089,
+            created_at: datetime!(2018-09-11 22:47:35 UTC),
+            fetched_at: datetime!(2026-01-01 20:01:00 UTC),
+            is_deleted: false,
+            name: Some(str!("aismallard")),
+            slug: Some(str!("aismallard")),
+            real_name: None,
+            gender: Some(str!("female")),
+            birthday: None,
+            location: None,
+            biography: None,
+            website: Some(str!("https://scpwiki.com/aismallard")),
+            karma: 5,
+            is_pro: false,
+        }),
+        r#"
+{
+  "user_id": 4598089,
+  "user_type": "wikidot",
+  "created_at": "2018-09-11T22:47:35Z",
+  "fetched_at": "2026-01-01T20:01:00Z",
+  "is_deleted": false,
+  "name": "aismallard",
+  "slug": "aismallard",
+  "real_name": null,
+  "gender": "female",
+  "birthday": null,
+  "location": null,
+  "biography": null,
+  "website": "https://scpwiki.com/aismallard",
+  "karma": 5,
+  "is_pro": false
+}"#,
+    );
+
+    check!(
+        User::Wikidot(WikidotUserModel {
+            user_id: 21,
+            created_at: datetime!(2006-08-09 20:04:19 UTC),
+            fetched_at: datetime!(2026-01-01 20:02:00 UTC),
+            is_deleted: true,
+            name: None,
+            slug: None,
+            real_name: None,
+            gender: None,
+            birthday: None,
+            location: None,
+            biography: None,
+            website: None,
+            karma: 2,
+            is_pro: false,
+        }),
+        r#"
+{
+  "user_id": 21,
+  "user_type": "wikidot",
+  "created_at": "2006-08-09T20:04:19Z",
+  "fetched_at": "2026-01-01T20:02:00Z",
+  "is_deleted": true,
+  "name": null,
+  "slug": null,
+  "real_name": null,
+  "gender": null,
+  "birthday": null,
+  "location": null,
+  "biography": null,
+  "website": null,
+  "karma": 2,
+  "is_pro": false
+}"#,
+    );
+
+    // Wikijump
+
+    // TODO
 }
