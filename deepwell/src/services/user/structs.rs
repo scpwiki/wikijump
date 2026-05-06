@@ -159,7 +159,7 @@ pub struct UpdateUserBody {
 
 #[test]
 fn user_serialization() {
-    use time::macros::datetime;
+    use time::macros::{date, datetime};
 
     macro_rules! check {
         ($struct:expr, $json:expr $(,)?) => {{
@@ -293,5 +293,205 @@ fn user_serialization() {
 
     // Wikijump
 
-    // TODO
+    check!(
+        User::Wikijump(UserModel {
+            user_id: -1,
+            user_type: UserType::Regular,
+            created_at: datetime!(2020-01-01 00:00:00 UTC),
+            updated_at: Some(datetime!(2026-01-01 00:00:00 UTC)),
+            deleted_at: None,
+            name: str!("Administrator"),
+            slug: str!("administrator"),
+            name_changes_left: 5,
+            last_name_change_added_at: datetime!(2020-01-01 00:00:00 UTC),
+            last_renamed_at: None,
+            email: str!("admin@wikijump.com"),
+            email_verified_at: None,
+            email_validation_info: None,
+            email_validation_at: None,
+            password: str!("!"),
+            multi_factor_secret: None,
+            multi_factor_recovery_codes: None,
+            locales: vec![str!("en")],
+            avatar_s3_hash: None,
+            real_name: None,
+            gender: None,
+            birthday: Some(date!(1970 - 01 - 01)),
+            location: Some(str!("Earth")),
+            biography: Some(str!("Root platform administrator")),
+            website: None,
+            user_page: Some(str!("https://wikijump.com/-/admin")),
+        }),
+        r#"
+{
+  "user_id": -1,
+  "user_type": "regular",
+  "created_at": "2020-01-01T00:00:00Z",
+  "updated_at": "2026-01-01T00:00:00Z",
+  "deleted_at": null,
+  "name": "Administrator",
+  "slug": "administrator",
+  "name_changes_left": 5,
+  "last_name_change_added_at": "2020-01-01T00:00:00Z",
+  "last_renamed_at": null,
+  "email": "admin@wikijump.com",
+  "email_verified_at": null,
+  "email_validation_info": null,
+  "email_validation_at": null,
+  "password": "!",
+  "multi_factor_secret": null,
+  "multi_factor_recovery_codes": null,
+  "locales": [
+    "en"
+  ],
+  "avatar_s3_hash": null,
+  "real_name": null,
+  "gender": null,
+  "birthday": "1970-01-01",
+  "location": "Earth",
+  "biography": "Root platform administrator",
+  "website": null,
+  "user_page": "https://wikijump.com/-/admin"
+}"#,
+    );
+
+    check!(
+        User::Wikijump(UserModel {
+            user_id: 30000,
+            user_type: UserType::Site,
+            created_at: datetime!(2026-02-03 04:05:06 UTC),
+            updated_at: Some(datetime!(2026-02-03 04:07:55 UTC)),
+            deleted_at: None,
+            name: str!("site:scp-wiki"),
+            slug: str!("site:scp-wiki"),
+            name_changes_left: 0,
+            last_name_change_added_at: datetime!(2026-02-03 04:05:06 UTC),
+            last_renamed_at: None,
+            email: str!(),
+            email_verified_at: None,
+            email_validation_info: None,
+            email_validation_at: None,
+            password: str!(),
+            multi_factor_secret: None,
+            multi_factor_recovery_codes: None,
+            locales: vec![str!("en")],
+            avatar_s3_hash: None,
+            real_name: None,
+            gender: None,
+            birthday: None,
+            location: None,
+            biography: None,
+            website: None,
+            user_page: None,
+        }),
+        r#"
+{
+  "user_id": 30000,
+  "user_type": "site",
+  "created_at": "2026-02-03T04:05:06Z",
+  "updated_at": "2026-02-03T04:07:55Z",
+  "deleted_at": null,
+  "name": "site:scp-wiki",
+  "slug": "site:scp-wiki",
+  "name_changes_left": 0,
+  "last_name_change_added_at": "2026-02-03T04:05:06Z",
+  "last_renamed_at": null,
+  "email": "",
+  "email_verified_at": null,
+  "email_validation_info": null,
+  "email_validation_at": null,
+  "password": "",
+  "multi_factor_secret": null,
+  "multi_factor_recovery_codes": null,
+  "locales": [
+    "en"
+  ],
+  "avatar_s3_hash": null,
+  "real_name": null,
+  "gender": null,
+  "birthday": null,
+  "location": null,
+  "biography": null,
+  "website": null,
+  "user_page": null
+}"#,
+    );
+
+    check!(
+        User::Wikijump(UserModel {
+            user_id: 123456789,
+            user_type: UserType::Bot,
+            created_at: datetime!(2020-01-01 00:00:00 UTC),
+            updated_at: Some(datetime!(2026-01-01 00:00:00 UTC)),
+            deleted_at: Some(datetime!(2026-05-05 05:05:05 UTC)),
+            name: str!("Some bot someone made"),
+            slug: str!("some-bot-someone-made"),
+            name_changes_left: 2,
+            last_name_change_added_at: datetime!(2026-02-01 00:00:00 UTC),
+            last_renamed_at: Some(datetime!(2026-03-03 03:03:03 UTC)),
+            email: str!("bot@example.net"),
+            email_verified_at: Some(datetime!(2026-01-01 03:15:12 UTC)),
+            email_validation_info: None,
+            email_validation_at: None,
+            password: str!("!notarealhash_123456789"),
+            multi_factor_secret: Some(str!("!notarealsecret_111")),
+            multi_factor_recovery_codes: Some(vec![
+                str!("!a"),
+                str!("!b"),
+                str!("!c"),
+                str!("d"),
+            ]),
+            locales: vec![str!("fr"), str!("de")],
+            avatar_s3_hash: Some(vec![0; 4]), // actually 64 long
+            real_name: Some(str!("Bot McMuffin")),
+            gender: Some(str!("sans genre")),
+            birthday: Some(date!(2005 - 05 - 05)),
+            location: Some(str!("France")),
+            biography: None,
+            website: Some(str!("https://somebot.fakesite")),
+            user_page: None,
+        }),
+        r#"
+{
+  "user_id": 123456789,
+  "user_type": "bot",
+  "created_at": "2020-01-01T00:00:00Z",
+  "updated_at": "2026-01-01T00:00:00Z",
+  "deleted_at": "2026-05-05T05:05:05Z",
+  "name": "Some bot someone made",
+  "slug": "some-bot-someone-made",
+  "name_changes_left": 2,
+  "last_name_change_added_at": "2026-02-01T00:00:00Z",
+  "last_renamed_at": "2026-03-03T03:03:03Z",
+  "email": "bot@example.net",
+  "email_verified_at": "2026-01-01T03:15:12Z",
+  "email_validation_info": null,
+  "email_validation_at": null,
+  "password": "!notarealhash_123456789",
+  "multi_factor_secret": "!notarealsecret_111",
+  "multi_factor_recovery_codes": [
+    "!a",
+    "!b",
+    "!c",
+    "d"
+  ],
+  "locales": [
+    "fr",
+    "de"
+  ],
+  "avatar_s3_hash": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "real_name": "Bot McMuffin",
+  "gender": "sans genre",
+  "birthday": "2005-05-05",
+  "location": "France",
+  "biography": null,
+  "website": "https://somebot.fakesite",
+  "user_page": null
+}"#,
+    );
 }
