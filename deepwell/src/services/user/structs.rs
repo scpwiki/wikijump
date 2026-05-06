@@ -167,10 +167,10 @@ fn user_serialization() {
             let expected_json = $json.trim_start();
             let actual_json = serde_json::to_string_pretty(&object)
                 .expect("Unable to serialize to JSON");
+
             println!("Object:\n{object:#?}\n");
             println!("Expected JSON:\n{expected_json}\n");
             println!("Actual JSON:\n{actual_json}");
-
             assert_eq!(
                 actual_json, expected_json,
                 "Actual generated JSON doesn't match expected"
