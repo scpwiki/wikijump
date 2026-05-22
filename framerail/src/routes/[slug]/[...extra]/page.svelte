@@ -4,14 +4,15 @@
   import { pageLayoutState, errorPopupState } from "$lib/stores.svelte"
   import { Layout, PagePane } from "$lib/types"
   import {
+    DeletePane,
     EditorPane,
     FilePane,
     HistoryPane,
     LayoutPane,
+    LockPane,
     MovePane,
     ParentPane,
-    VotePane,
-    DeletePane
+    VotePane
   } from "."
   import { resolve } from "$app/paths"
 
@@ -263,6 +264,19 @@
         </a>
         <!-- svelte-ignore a11y_invalid_attribute -->
         <a
+          id="lock-page-button"
+          class="btn btn-default"
+          href="javascript:;"
+          onclick={() => {
+            showSource = false
+            pagePaneState = PagePane.Lock
+          }}
+          type="button"
+        >
+          {data.internationalization?.["wiki-page-lock"]}
+        </a>
+        <!-- svelte-ignore a11y_invalid_attribute -->
+        <a
           id="rename-move-button"
           class="btn btn-default"
           href="javascript:;"
@@ -317,6 +331,8 @@
         <LayoutPane bind:pagePaneState {...props} />
       {:else if pagePaneState === PagePane.Parent}
         <ParentPane bind:pagePaneState {...props} />
+      {:else if pagePaneState === PagePane.Lock}
+        <LockPane bind:pagePaneState {...props} />
       {:else if pagePaneState === PagePane.Vote}
         <VotePane {...props} />
       {:else if pagePaneState === PagePane.File}
@@ -403,6 +419,13 @@
         {data.internationalization?.parents}
       </button>
       <button
+        class="action-button editor-button button-lock clickable"
+        onclick={() => (pagePaneState = PagePane.Lock)}
+        type="button"
+      >
+        {data.internationalization?.["wiki-page-lock"]}
+      </button>
+      <button
         class="action-button editor-button button-delete clickable"
         onclick={() => (pagePaneState = PagePane.Delete)}
         type="button"
@@ -462,6 +485,8 @@
     <LayoutPane bind:pagePaneState {...props} />
   {:else if pagePaneState === PagePane.Parent}
     <ParentPane bind:pagePaneState {...props} />
+  {:else if pagePaneState === PagePane.Lock}
+    <LockPane bind:pagePaneState {...props} />
   {:else if pagePaneState === PagePane.Vote}
     <VotePane {...props} />
   {:else if pagePaneState === PagePane.File}
