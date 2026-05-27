@@ -60,6 +60,20 @@ impl User {
     }
 }
 
+impl From<WikijumpUserModel> for User {
+    #[inline]
+    fn from(user: WikijumpUserModel) -> User {
+        User::Wikijump(user)
+    }
+}
+
+impl From<WikidotUserModel> for User {
+    #[inline]
+    fn from(user: WikidotUserModel) -> User {
+        User::Wikidot(user)
+    }
+}
+
 // Custom serialization so we can reuse user_type for 'wikidot'
 //
 // For Wikijump users, user_type is 'regular', 'system', etc.
