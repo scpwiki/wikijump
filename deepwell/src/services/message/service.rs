@@ -404,7 +404,8 @@ impl MessageService {
             .or_raise(make_error)?;
 
             // If recipient is a site user, then forward to corresponding site staff.
-            let user = UserService::get(ctx, Reference::Id(recipient_user_id))
+            // It is only possible to send messages to Wikijump users.
+            let user = UserService::get_wikijump(ctx, Reference::Id(recipient_user_id))
                 .await
                 .or_raise(make_error)?;
 
