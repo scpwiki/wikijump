@@ -58,6 +58,22 @@ impl User {
             )),
         }
     }
+
+    #[inline]
+    pub fn is_wikijump(&self) -> bool {
+        match self {
+            User::Wikijump(_) => true,
+            User::Wikidot(_) => false,
+        }
+    }
+
+    #[inline]
+    pub fn is_wikidot(&self) -> bool {
+        match self {
+            User::Wikijump(_) => false,
+            User::Wikidot(_) => true,
+        }
+    }
 }
 
 impl From<WikijumpUserModel> for User {
