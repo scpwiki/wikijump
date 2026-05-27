@@ -411,9 +411,35 @@ impl UserService {
         Ok(wikidot_user.map(User::Wikidot))
     }
 
+    /// Fetches a Wikijump user if exists, otherwise falls back to a Wikidot user record.
     #[inline]
     pub async fn get(ctx: &ServiceContext<'_>, reference: Reference<'_>) -> Result<User> {
         find_or_error!(Self::get_optional(ctx, reference), "user", User)
+    }
+
+    /// Optional version of `get_wikijump()`.
+    #[inline]
+    pub async fn get_wikijump_optional(
+        ctx: &ServiceContext<'_>,
+        reference: Reference<'_>,
+    ) -> Result<Option<WikijumpUserModel>> {
+        match Self::get_optional(ctx, reference).await? {
+            None => Ok(None),
+            Some(user) => {
+                let user = user.unwrap_wikijump()?;
+                Ok(Some(user))
+            }
+        }
+    }
+
+    /// Fetches the Wikijump user associated with the given reference, if any.
+    /// This method ignores any Wikidot user records.
+    #[inline]
+    pub async fn get_wikijump(
+        ctx: &ServiceContext<'_>,
+        reference: Reference<'_>,
+    ) -> Result<WikijumpUserModel> {
+        Self::get(ctx, reference).await?.unwrap_wikijump()
     }
 
     pub async fn update(
