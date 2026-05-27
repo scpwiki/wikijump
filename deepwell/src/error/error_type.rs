@@ -19,6 +19,8 @@
  */
 
 use crate::hash::BlobHash;
+use crate::models::user::Model as WikijumpUserModel;
+use crate::models::wikidot_user::Model as WikidotUserModel;
 use crate::services::filter::FilterSummary;
 use crate::services::view::ViewType;
 use fluent::FluentError;
@@ -187,6 +189,12 @@ pub enum ErrorType {
     InsufficientNameChanges,
     DisallowedEmail,
     InvalidEmail,
+    ExpectedWikijumpUser {
+        was_user: WikidotUserModel,
+    },
+    ExpectedWikidotUser {
+        was_user: WikijumpUserModel,
+    },
 
     // 4200
     SiteSlugEmpty,
@@ -483,6 +491,8 @@ impl ErrorType {
             ErrorType::InsufficientNameChanges => 4104,
             ErrorType::InvalidEmail => 4105,
             ErrorType::DisallowedEmail => 4106,
+            ErrorType::ExpectedWikijumpUser { .. } => 4107,
+            ErrorType::ExpectedWikidotUser { .. } => 4108,
 
             // 4200 - Site
             ErrorType::SiteSlugEmpty => 4200,
@@ -741,6 +751,8 @@ impl ErrorType {
             }
             ErrorType::DisallowedEmail => "The user's email is disallowed",
             ErrorType::InvalidEmail => "The user's email is invalid",
+            ErrorType::ExpectedWikijumpUser { .. } => "Expected to be a real user",
+            ErrorType::ExpectedWikidotUser { .. } => "Expected to be a Wikidot-only user",
 
             // 4200
             ErrorType::SiteSlugEmpty => "Site slug cannot be empty",

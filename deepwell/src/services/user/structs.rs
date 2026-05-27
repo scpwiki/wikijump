@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::models::alias::Model as AliasModel;
-use crate::models::user::Model as UserModel;
+use crate::models::user::Model as WikijumpUserModel;
 use crate::models::wikidot_user::Model as WikidotUserModel;
 use crate::types::{Bytes, UserType};
 use serde::ser::SerializeStruct;
@@ -30,8 +30,34 @@ use time::Date;
 
 #[derive(Debug, Clone)]
 pub enum User {
-    Wikijump(UserModel),
+    Wikijump(WikijumpUserModel),
     Wikidot(WikidotUserModel),
+}
+
+impl User {
+    /// If this is a Wikijump user, then unwrap it and return.
+    /// Otherwise, yield an error.
+    pub fn unwrap_wikijump(self) -> Result<WikijumpUserModel> {
+        match self {
+            User::Wikijump(user) => Ok(user),
+            User::Wikidot(user) => bail!(Error::new(
+                "expected a wikijump user",
+                ErrorType::ExpectedWikijumpUser { was_user: user },
+            )),
+        }
+    }
+
+    /// If this is a Wikidot user, then unwrap it and return.
+    /// Otherwise, yield an error.
+    pub fn unwrap_wikidot(self) -> Result<WikidotUserModel> {
+        match self {
+            User::Wikidot(user) => Ok(user),
+            User::Wikijump(user) => bail!(Error::new(
+                "expected a wikidot user",
+                ErrorType::ExpectedWikidotUser { was_user: user },
+            )),
+        }
+    }
 }
 
 // Custom serialization so we can reuse user_type for 'wikidot'
@@ -131,7 +157,7 @@ pub struct GetUser<'a> {
 #[derive(Serialize, Debug, Clone)]
 pub struct GetUserOutput {
     #[serde(flatten)]
-    pub user: UserModel,
+    pub user: WikijumpUserModel,
     pub aliases: Vec<AliasModel>,
 }
 
@@ -302,7 +328,7 @@ fn user_serialization() {
     // Wikijump
 
     check!(
-        User::Wikijump(UserModel {
+        User::Wikijump(WikijumpUserModel {
             user_id: -1,
             user_type: UserType::Regular,
             created_at: datetime!(2020-01-01 00:00:00 UTC),
@@ -364,7 +390,7 @@ fn user_serialization() {
     );
 
     check!(
-        User::Wikijump(UserModel {
+        User::Wikijump(WikijumpUserModel {
             user_id: 30000,
             user_type: UserType::Site,
             created_at: datetime!(2026-02-03 04:05:06 UTC),
@@ -426,7 +452,7 @@ fn user_serialization() {
     );
 
     check!(
-        User::Wikijump(UserModel {
+        User::Wikijump(WikijumpUserModel {
             user_id: 123456789,
             user_type: UserType::Bot,
             created_at: datetime!(2020-01-01 00:00:00 UTC),
