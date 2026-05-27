@@ -35,6 +35,11 @@ pub enum User {
 }
 
 // Custom serialization so we can reuse user_type for 'wikidot'
+//
+// For Wikijump users, user_type is 'regular', 'system', etc.
+// We are using this field for user_type 'wikidot' to enable
+// consumers of the serialized JSON can distinguish the different
+// sets of fields.
 impl Serialize for User {
     fn serialize<S>(&self, serializer: S) -> StdResult<S::Ok, S::Error>
     where
@@ -63,7 +68,10 @@ impl Serialize for User {
         }
 
         match self {
+            // Wikijump users are the same (it already has a user_type field)
             User::Wikijump(user) => user.serialize(serializer),
+
+            // We add the user_type field to Wikidot users
             User::Wikidot(user) => {
                 let mut object = serializer.serialize_struct("WikidotUserModel", 15)?;
                 serialize_field!(object, user, user_id);
