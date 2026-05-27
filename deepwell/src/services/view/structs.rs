@@ -24,8 +24,9 @@ use crate::models::page::Model as PageModel;
 use crate::models::page_revision::Model as PageRevisionModel;
 use crate::models::session::Model as SessionModel;
 use crate::models::site::Model as SiteModel;
-use crate::models::user::Model as UserModel;
+use crate::models::user::Model as WikijumpUserModel;
 use crate::services::relation::PageAttribution;
+use crate::services::user::User;
 
 // NOTE: Any changes to the output structures here, including the variant names,
 //       MUST be reflected in framerail!
@@ -114,8 +115,7 @@ pub struct GetUserView<'a> {
 #[derive(Serialize, Debug, Clone)]
 #[serde(rename_all = "snake_case", tag = "type", content = "data")]
 pub enum GetUserViewOutput {
-    UserFound { user: UserModel },
-
+    UserFound { user: User },
     UserMissing,
 }
 
@@ -147,7 +147,7 @@ pub struct Viewer {
 #[derive(Serialize, Debug, Clone)]
 pub struct UserSession {
     pub session: SessionModel,
-    pub user: UserModel,
+    pub user: WikijumpUserModel,
 }
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
