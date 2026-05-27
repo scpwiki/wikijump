@@ -187,7 +187,7 @@ pub struct GetUser<'a> {
 #[derive(Serialize, Debug, Clone)]
 pub struct GetUserOutput {
     #[serde(flatten)]
-    pub user: WikijumpUserModel,
+    pub user: User,
     pub aliases: Vec<AliasModel>,
 }
 

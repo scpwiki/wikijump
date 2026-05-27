@@ -938,7 +938,10 @@ impl UserService {
         reference: Reference<'_>,
     ) -> Result<WikijumpUserModel> {
         let txn = ctx.transaction();
-        let user = Self::get(ctx, reference)
+
+        // Wikidot user records aren't deletable in Wikijump,
+        // so this must be a Wikijump user.
+        let user = Self::get_wikijump(ctx, reference)
             .await
             .or_raise(|| Error::new("failed to delete user", ErrorType::User))?;
 

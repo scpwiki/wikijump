@@ -21,7 +21,7 @@
 use super::prelude::*;
 use crate::models::user::Model as UserModel;
 use crate::services::user::{
-    CreateUser, CreateUserOutput, GetUser, GetUserOutput, UpdateUser,
+    CreateUser, CreateUserOutput, GetUser, GetUserOutput, UpdateUser, User,
 };
 use crate::types::AliasType;
 
@@ -58,14 +58,26 @@ pub async fn user_get(
         .or_raise(make_error)?;
 
     match user {
+        // No user match
         None => Ok(None),
-        Some(user) => {
+
+        // Fetch and populate alias data
+        Some(User::Wikijump(user)) => {
             let aliases = AliasService::get_all(ctx, AliasType::User, user.user_id)
                 .await
                 .or_raise(make_error)?;
 
-            Ok(Some(GetUserOutput { user, aliases }))
+            Ok(Some(GetUserOutput {
+                user: User::Wikijump(user),
+                aliases,
+            }))
         }
+
+        // Aliases aren't a thing on Wikidot user records
+        Some(user) => Ok(Some(GetUserOutput {
+            user,
+            aliases: vec![],
+        })),
     }
 }
 
@@ -104,7 +116,9 @@ pub async fn user_add_name_change(
     let make_error = || Error::new("failed to add name change to user", ErrorType::User);
 
     info!("Adding user name change token to {reference:?}");
-    let user = UserService::get(ctx, reference)
+
+    // Wikidot users don't have name change tokens
+    let user = UserService::get_wikijump(ctx, reference)
         .await
         .or_raise(make_error)?;
 
