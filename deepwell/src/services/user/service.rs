@@ -450,8 +450,9 @@ impl UserService {
     ) -> Result<WikijumpUserModel> {
         use crate::services::audit::UserFields;
 
+        // Wikidot user records are fixed, so this must be for a Wikijump user.
         let txn = ctx.transaction();
-        let user = Self::get(ctx, reference)
+        let user = Self::get_wikijump(ctx, reference)
             .await
             .or_raise(|| Error::new("failed to update user", ErrorType::User))?;
 
