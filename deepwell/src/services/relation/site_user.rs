@@ -55,7 +55,7 @@ impl RelationService {
 
         // User to be added must of type 'site'
         // Which must necessarily be a Wikijump user
-        let user = UserService::get_wikijump(ctx, Reference::Id(user_id))
+        let user = UserService::get_real(ctx, Reference::Id(user_id))
             .await
             .or_raise(make_error)?;
 

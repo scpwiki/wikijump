@@ -118,7 +118,7 @@ pub async fn user_add_name_change(
     info!("Adding user name change token to {reference:?}");
 
     // Wikidot users don't have name change tokens
-    let user = UserService::get_wikijump(ctx, reference)
+    let user = UserService::get_real(ctx, reference)
         .await
         .or_raise(make_error)?;
 

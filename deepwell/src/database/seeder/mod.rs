@@ -618,7 +618,7 @@ pub async fn seed(state: &ServerState) -> Result<()> {
             // Make test user admin
             // TODO: remove in prod
             if role_template.name == "admin" {
-                let user = UserService::get_wikijump(&ctx, Reference::from(ADMIN_USER_ID))
+                let user = UserService::get_real(&ctx, Reference::from(ADMIN_USER_ID))
                     .await
                     .or_raise(make_error)?;
 

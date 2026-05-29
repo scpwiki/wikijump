@@ -657,7 +657,7 @@ impl ViewService {
                 let session =
                     SessionService::get(ctx, token).await.or_raise(make_error)?;
 
-                let user = UserService::get_wikijump(ctx, Reference::Id(session.user_id))
+                let user = UserService::get_real(ctx, Reference::Id(session.user_id))
                     .await
                     .or_raise(make_error)?;
 
@@ -730,7 +730,7 @@ impl ViewService {
                 let session =
                     SessionService::get(ctx, token).await.or_raise(make_error)?;
 
-                let user = UserService::get_wikijump(ctx, Reference::Id(session.user_id))
+                let user = UserService::get_real(ctx, Reference::Id(session.user_id))
                     .await
                     .or_raise(make_error)?;
 

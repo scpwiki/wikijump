@@ -324,6 +324,7 @@ impl UserService {
             .map(|user| user.is_some())
     }
 
+    /// Optional version of `get()`.
     pub async fn get_optional(
         ctx: &ServiceContext<'_>,
         mut reference: Reference<'_>,
@@ -411,15 +412,15 @@ impl UserService {
         Ok(wikidot_user.map(User::Wikidot))
     }
 
-    /// Fetches a Wikijump user if exists, otherwise falls back to a Wikidot user record.
+    /// Fetches a Wikijump user, or Wikidot user record as fallback.
     #[inline]
     pub async fn get(ctx: &ServiceContext<'_>, reference: Reference<'_>) -> Result<User> {
         find_or_error!(Self::get_optional(ctx, reference), "user", User)
     }
 
-    /// Optional version of `get_wikijump()`.
+    /// Optional version of `get_real()`.
     #[inline]
-    pub async fn get_wikijump_optional(
+    pub async fn get_real_optional(
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
     ) -> Result<Option<WikijumpUserModel>> {
@@ -432,10 +433,10 @@ impl UserService {
         }
     }
 
-    /// Fetches the Wikijump user associated with the given reference, if any.
+    /// Fetches the real (Wikijump) user associated with the given reference, if any.
     /// This method ignores any Wikidot user records.
     #[inline]
-    pub async fn get_wikijump(
+    pub async fn get_real(
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
     ) -> Result<WikijumpUserModel> {
@@ -452,7 +453,7 @@ impl UserService {
 
         // Wikidot user records are fixed, so this must be for a Wikijump user.
         let txn = ctx.transaction();
-        let user = Self::get_wikijump(ctx, reference)
+        let user = Self::get_real(ctx, reference)
             .await
             .or_raise(|| Error::new("failed to update user", ErrorType::User))?;
 
@@ -941,7 +942,7 @@ impl UserService {
 
         // Wikidot user records aren't deletable in Wikijump,
         // so this must be a Wikijump user.
-        let user = Self::get_wikijump(ctx, reference)
+        let user = Self::get_real(ctx, reference)
             .await
             .or_raise(|| Error::new("failed to delete user", ErrorType::User))?;
 
