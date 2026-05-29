@@ -61,25 +61,30 @@ async fn basic_update() {
     let output = run_endpoint!(runner, user_get, json!({ "user": USER_SLUG }))
         .expect("User does not exist after creation");
 
-    assert_eq!(output.user.user_id, user_id);
-    assert_eq!(output.user.name, USER_NAME);
-    assert_eq!(output.user.slug, USER_SLUG);
-    assert!(output.user.updated_at.is_none());
-    assert!(output.user.deleted_at.is_none());
-    assert_eq!(output.user.name_changes_left, 2); // set in Config::integration_testing()
-    assert!(output.user.last_renamed_at.is_none());
-    assert!(!output.user.password.is_empty());
-    assert_eq!(output.user.email, "jane@private.me");
-    assert!(output.user.email_validation_info.is_some());
-    assert!(output.user.email_validation_at.is_some());
-    assert_eq!(output.user.locales.len(), 1);
-    assert_eq!(&output.user.locales[0], "en_GB");
-    assert!(output.user.real_name.is_none());
-    assert!(output.user.gender.is_none());
-    assert!(output.user.birthday.is_none());
-    assert!(output.user.location.is_none());
-    assert!(output.user.biography.is_none());
-    assert!(output.user.user_page.is_none());
+    let user = output
+        .user
+        .unwrap_wikijump()
+        .expect("Returned user was not of type Wikijump");
+
+    assert_eq!(user.user_id, user_id);
+    assert_eq!(user.name, USER_NAME);
+    assert_eq!(user.slug, USER_SLUG);
+    assert!(user.updated_at.is_none());
+    assert!(user.deleted_at.is_none());
+    assert_eq!(user.name_changes_left, 2); // set in Config::integration_testing()
+    assert!(user.last_renamed_at.is_none());
+    assert!(!user.password.is_empty());
+    assert_eq!(user.email, "jane@private.me");
+    assert!(user.email_validation_info.is_some());
+    assert!(user.email_validation_at.is_some());
+    assert_eq!(user.locales.len(), 1);
+    assert_eq!(&user.locales[0], "en_GB");
+    assert!(user.real_name.is_none());
+    assert!(user.gender.is_none());
+    assert!(user.birthday.is_none());
+    assert!(user.location.is_none());
+    assert!(user.biography.is_none());
+    assert!(user.user_page.is_none());
     assert!(output.aliases.is_empty());
 
     // Update bio fields
@@ -100,11 +105,17 @@ async fn basic_update() {
 
     // Get and check
 
+    let last_user = user;
     let output = run_endpoint!(runner, user_get, json!({ "user": user_id }))
         .expect("User does not exist");
 
+    let user = output
+        .user
+        .unwrap_wikijump()
+        .expect("Returned user not of type Wikijump");
+
     let birthday = Date::from_calendar_date(1986, Month::February, 1).unwrap();
-    assert_eq!(user, output.user); // ensures that the model returned by user_edit is latest
+    assert_eq!(user, last_user); // ensures that the model returned by user_edit is latest
     assert_str_eq!(user.real_name, Some("Jane H. Doe"));
     assert_str_eq!(user.gender, Some("she/they"));
     assert_eq!(user.birthday, Some(birthday));
@@ -124,8 +135,8 @@ async fn basic_update() {
             "ip_address": common::IP_ADDRESS,
         }),
     );
-    assert!(output.user.email_validation_info.is_some());
-    assert!(output.user.email_validation_at.is_some());
+    assert!(user.email_validation_info.is_some());
+    assert!(user.email_validation_at.is_some());
     assert_eq!(user.user_id, user_id);
     assert_eq!(user.email, "jane@wikijump.dev");
     assert!(user.biography.is_none());
