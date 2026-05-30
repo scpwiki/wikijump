@@ -119,6 +119,7 @@ pub use self::forum::ForumService;
 pub use self::forum_post::ForumPostService;
 pub use self::forum_post_revision::ForumPostRevisionService;
 pub use self::forum_thread::ForumThreadService;
+pub use self::import::ImportService;
 pub use self::job::JobService;
 pub use self::link::LinkService;
 pub use self::message::MessageService;
