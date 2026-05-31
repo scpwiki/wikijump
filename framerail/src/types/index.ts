@@ -412,6 +412,7 @@ export interface Locales {
   "wiki-page-lock.history-removed": string
   "wiki-page-lock.history-overridden": string
   "wiki-page-lock.history-none": string
+  "wiki-page-lock.remove": string
   "wiki-page-parent": string
   "wiki-page-missing": string
   "wiki-page-private": string

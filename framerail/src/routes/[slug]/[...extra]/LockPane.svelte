@@ -22,10 +22,9 @@
         })
       },
       onResult: async ({ result }) => {
-        // if (result.type === "success") {
-        //   pagePaneState = PagePane.None
-        // }
-        if (result.type === "failure" && result.data) {
+        if (result.type === "success") {
+          await fetchLockHistory()
+        } else if (result.type === "failure" && result.data) {
           errorPopupState.current = {
             state: true,
             message: result.data.message,
@@ -42,6 +41,28 @@
 
   let lockHistory = $state<PageLockModel[]>([])
 
+  async function removeLock() {
+    const res = await fetch("?/lockRemove", {
+      method: "POST",
+      body: JSON.stringify({})
+    }).then((res) => res.text())
+
+    const result = deserialize<
+      Record<string, never>,
+      { message: string; code: string; data: Record<string, unknown> }
+    >(res)
+
+    if (result.type === "failure" && result.data?.message) {
+      errorPopupState.current = {
+        state: true,
+        message: result.data.message,
+        data: result.data
+      }
+    } else {
+      await fetchLockHistory()
+    }
+  }
+
   /** Helper function to get lock status from data and subsequent lock */
   function getLockStatus(
     lock: PageLockModel,
@@ -54,13 +75,15 @@
         const newerLock = lockHistory[index - 1]
         const deletedAt = new Date(lock.deleted_at).getTime()
         const newerCreatedAt = new Date(newerLock.created_at).getTime()
-        if (Math.abs(newerCreatedAt - deletedAt) < 5000)
+        if (Math.abs(newerCreatedAt - deletedAt) < 5000) {
           return "wiki-page-lock.history-overridden"
+        }
       }
       return "wiki-page-lock.history-removed"
     }
-    if (lock.expires_at && new Date(lock.expires_at) < new Date())
+    if (lock.expires_at && new Date(lock.expires_at) < new Date()) {
       return "wiki-page-lock.history-expired"
+    }
     return "wiki-page-lock.history-active"
   }
 
@@ -206,6 +229,7 @@
       <div class="lock-history-attr">
         {data.internationalization?.["wiki-page-lock.history-reason"]}
       </div>
+      <div class="lock-history-attr"></div>
     </div>
     {#each lockHistory as lock, index (lock.page_lock_id)}
       <div class="lock-history-row">
@@ -225,6 +249,17 @@
           {lock.expires_at ? new Date(lock.expires_at).toLocaleString() : "—"}
         </div>
         <div class="lock-history-attr">{lock.reason || "—"}</div>
+        <div class="lock-history-attr">
+          {#if getLockStatus(lock, index) === "wiki-page-lock.history-active"}
+            <button
+              class="btn-remove-lock clickable"
+              onclick={removeLock}
+              type="button"
+            >
+              {data.internationalization?.["wiki-page-lock.remove"]}
+            </button>
+          {/if}
+        </div>
       </div>
     {/each}
   </div>
@@ -257,7 +292,7 @@
     cursor: pointer;
   }
 
-  .page-lock-field input[type="datetime-local"] {
+  input[type="datetime-local"] {
     padding: 0.5em 1em;
     color: var(--text);
     background-color: var(--background);
@@ -281,6 +316,20 @@
 
     .lock-history-header-row .lock-history-attr {
       font-weight: 600;
+    }
+  }
+
+  .btn-remove-lock {
+    padding: 0.2em 0.6em;
+    color: var(--danger, #c0392b);
+    background: none;
+    border: 1px solid var(--danger, #c0392b);
+    border-radius: 0.25em;
+    cursor: pointer;
+
+    &:hover {
+      color: var(--background);
+      background-color: var(--danger, #c0392b);
     }
   }
 </style>

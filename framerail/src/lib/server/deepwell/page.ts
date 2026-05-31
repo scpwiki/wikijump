@@ -360,6 +360,20 @@ export async function pageLockHistory(
   return client.request("page_lock_get_history", {}, reqContext)
 }
 
+/* ----- Page Lock Remove ----- */
+export async function pageLockRemove(
+  userIpAddr: string,
+  reqContext: RequestContext
+): Promise<void> {
+  return client.request(
+    "page_lock_remove",
+    {
+      ip_address: userIpAddr
+    },
+    reqContext
+  )
+}
+
 /* ----- Page Lock Create ----- */
 export async function pageLockCreate(
   lockType: PageLockType,

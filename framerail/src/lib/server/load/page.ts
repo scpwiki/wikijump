@@ -10,6 +10,7 @@ import {
   pageLayout,
   pageLockCreate,
   pageLockHistory,
+  pageLockRemove,
   pageMove,
   pageParentGet,
   pageParentUpdate,
@@ -220,6 +221,7 @@ export async function loadPage(
       "wiki-page-lock.history-removed": {},
       "wiki-page-lock.history-overridden": {},
       "wiki-page-lock.history-none": {},
+      "wiki-page-lock.remove": {},
       "wiki-page-move": {},
       "wiki-page-move.new-slug": {},
       "wiki-page-no-render": {},
@@ -1176,11 +1178,31 @@ export async function pageLockCreateAction({
 }
 
 const pageLockSchema = object({
-  lockType: vEnum(PageLockType),
+  lockType: optional(vEnum(PageLockType), PageLockType.PermissionOnly),
   reason: string(),
   expiresAt: optional(string()),
-  overrideExisting: optional(boolean(), true)
+  overrideExisting: optional(boolean(), false)
 })
+
+/* ----- Page Lock Remove ----- */
+export async function pageLockRemoveAction({
+  getClientAddress,
+  locals
+}: RequestEvent) {
+  const ipAddress = getClientAddress()
+
+  try {
+    await pageLockRemove(ipAddress, getRequestContext(locals))
+    return {}
+  } catch (e) {
+    const error = e as DeepwellError
+    return fail(500, {
+      message: error.message,
+      code: error.code,
+      data: error.data
+    })
+  }
+}
 
 /* ----- Page Lock History ----- */
 export async function pageLockHistoryAction({ locals }: RequestEvent) {
