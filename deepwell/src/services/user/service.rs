@@ -107,12 +107,11 @@ impl UserService {
                 info!("Attempting to create user '{name}' ('{slug}') with sequence ID");
 
                 // Get user ID from known_user sequence
-                let KnownUserModel { user_id } = known_user::ActiveModel {
-                    user_id: NotSet,
-                }
-                .insert(txn)
-                .await
-                .or_raise(make_error)?;
+                let KnownUserModel { user_id } =
+                    known_user::ActiveModel { user_id: NotSet }
+                        .insert(txn)
+                        .await
+                        .or_raise(make_error)?;
 
                 debug!("Got next user ID {user_id} in sequence from known_user");
                 user_id
@@ -133,6 +132,81 @@ impl UserService {
 
         // Validate locales for this type
         Self::validate_locales(user_type, &locales).or_raise(make_error)?;
+
+        match override_user_id {
+            // If an ID is being specified, adding a new user here is legal
+            // if the Wikidot user behind it (if it exists) has a matching
+            // slug.
+            Some(user_id) => {
+                let result = WikidotUser::find()
+                    .filter(
+                        Condition::all()
+                            .add(wikidot_user::Column::UserId.eq(user_id))
+                            .add(wikidot_user::Column::IsDeleted.eq(false)),
+                    )
+                    .one(txn)
+                    .await
+                    .or_raise(make_error)?;
+
+                // We only care if it exists, if it's missing it's fine.
+                if let Some(found_user) = result {
+                    if let Some(found_user_slug) = found_user.slug {
+                        if found_user_slug != slug {
+                            error!(
+                                "Wikidot user exists with user ID {}, but has an incompatible user slug: {} != {}",
+                                user_id, found_user_slug, slug,
+                            );
+                            bail!(Error::new(
+                                format!(
+                                    "cannot create user, a wikidot user with the same ID exists and has a different slug. ID is {}, Wikidot had slug '{}', request had slug '{}'",
+                                    user_id, found_user_slug, slug,
+                                ),
+                                ErrorType::UserExists,
+                            ));
+                        }
+                    }
+                }
+            }
+
+            // If no override_user_id, we are inserting a new user
+            // Fail if there's an existing Wikidot record (they should be
+            // importing from Wikidot instead)
+            None => {
+                let result = WikidotUser::find()
+                    .filter(
+                        Condition::all()
+                            .add(
+                                Condition::any()
+                                    .add(wikidot_user::Column::Name.eq(name.as_str()))
+                                    .add(wikidot_user::Column::Slug.eq(slug.as_str())),
+                            )
+                            .add(wikidot_user::Column::IsDeleted.eq(false)),
+                    )
+                    .one(txn)
+                    .await
+                    .or_raise(make_error)?;
+
+                // Any existing user is a conflict
+                if let Some(found_user) = result {
+                    error!(
+                        "Wikidot user with conflicting name or slug already exists, cannot create"
+                    );
+                    error!("Checked name '{name}', slug '{slug}', found {found_user:#?}");
+                    bail!(Error::new(
+                        format!(
+                            "cannot create user, a wikidot user with a conflicting name or slug exists. checked name '{}', slug '{}', found user '{}' (ID {})",
+                            name,
+                            slug,
+                            found_user
+                                .slug
+                                .expect("No wikidot slug on non-deleted user"),
+                            found_user.user_id,
+                        ),
+                        ErrorType::UserExists,
+                    ));
+                }
+            }
+        }
 
         // Check for name conflicts
         let result = WikijumpUser::find()
