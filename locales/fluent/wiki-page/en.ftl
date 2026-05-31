@@ -117,7 +117,7 @@ wiki-page-lock = Lock Page
   .history-removed = Removed
   .history-overridden = Overridden
   .history-none = No lock history for this page.
-  .remove = Remove Lock
+  .remove = Remove
 
 ### Wiki page parents
 

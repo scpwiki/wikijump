@@ -251,13 +251,15 @@
         <div class="lock-history-attr">{lock.reason || "—"}</div>
         <div class="lock-history-attr">
           {#if getLockStatus(lock, index) === "wiki-page-lock.history-active"}
-            <button
-              class="btn-remove-lock clickable"
-              onclick={removeLock}
-              type="button"
-            >
-              {data.internationalization?.["wiki-page-lock.remove"]}
-            </button>
+            {#if pageLayoutState.current === Layout.WIKIDOT}
+              <button class="btn-remove-lock-text clickable" onclick={removeLock} type="button">
+                {data.internationalization?.["wiki-page-lock.remove"]}
+              </button>
+            {:else}
+              <button class="btn-remove-lock clickable" onclick={removeLock} type="button">
+                {data.internationalization?.["wiki-page-lock.remove"]}
+              </button>
+            {/if}
           {/if}
         </div>
       </div>
@@ -316,6 +318,20 @@
 
     .lock-history-header-row .lock-history-attr {
       font-weight: 600;
+    }
+  }
+
+  .btn-remove-lock-text {
+    padding: 0;
+    color: var(--danger, #c0392b);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: inherit;
+
+    &:hover {
+      text-decoration: underline;
     }
   }
 
