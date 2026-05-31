@@ -1185,10 +1185,7 @@ const pageLockSchema = object({
 })
 
 /* ----- Page Lock Remove ----- */
-export async function pageLockRemoveAction({
-  getClientAddress,
-  locals
-}: RequestEvent) {
+export async function pageLockRemoveAction({ getClientAddress, locals }: RequestEvent) {
   const ipAddress = getClientAddress()
 
   try {
