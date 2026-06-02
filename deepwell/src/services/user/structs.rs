@@ -181,6 +181,22 @@ pub struct CreateUserOutput {
 }
 
 #[derive(Deserialize, Debug, Clone)]
+pub struct ImportUserFromWikidot {
+    pub user_id: i64,
+    pub user_type: UserType,
+    pub email: String,
+    pub locales: Vec<String>,
+    pub password: String,
+
+    #[serde(default)]
+    pub bypass_filter: bool,
+
+    #[serde(default)]
+    pub bypass_email_verification: bool,
+    pub ip_address: IpAddr,
+}
+
+#[derive(Deserialize, Debug, Clone)]
 pub struct GetUser<'a> {
     pub user: Reference<'a>,
 }

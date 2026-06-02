@@ -388,6 +388,161 @@ impl UserService {
     //
     //      https://scuttle.atlassian.net/browse/WJ-272
 
+    pub async fn import_wikidot(
+        ctx: &ServiceContext<'_>,
+        ImportUserFromWikidot {
+            user_id,
+            user_type,
+            email,
+            locales,
+            password,
+            bypass_filter,
+            bypass_email_verification,
+            ip_address,
+        }: ImportUserFromWikidot,
+    ) -> Result<WikijumpUserModel> {
+        if !matches!(user_type, UserType::Regular | UserType::Bot) {
+            bail!(Error::new(
+                format!("illegal type for wikidot user import: {}", user_type),
+                ErrorType::DatabaseImport,
+            ));
+        }
+
+        let make_error = || {
+            Error::new(
+                format!("failed to import user ID {} from wikidot", user_id),
+                ErrorType::DatabaseImport,
+            )
+        };
+
+        let existing_user = Self::get(ctx, Reference::Id(user_id))
+            .await
+            .or_raise(make_error)?;
+
+        let WikidotUserModel {
+            user_id: _,
+            created_at,
+            fetched_at,
+            is_deleted,
+            name,
+            slug,
+            real_name,
+            gender,
+            birthday,
+            location,
+            biography,
+            website,
+            karma,
+            is_pro,
+        } = match existing_user {
+            User::Wikidot(user) => user,
+            User::Wikijump(user) => {
+                bail!(Error::new(
+                    format!(
+                        "cannot import wikidot user ID {}, wikijump user '{}' (slug '{}') already exists",
+                        user_id, user.name, user.slug,
+                    ),
+                    ErrorType::DatabaseImport
+                ));
+            }
+        };
+
+        let (name, slug) = match (name, slug) {
+            (Some(name), Some(slug)) => (name, slug),
+            _ => {
+                bail!(Error::new(
+                    format!("cannot import wikidot user ID {}, is deleted", user_id),
+                    ErrorType::DatabaseImport,
+                ));
+            }
+        };
+
+        assert!(
+            !is_deleted,
+            "Wikidot user ID {} is marked as deleted after name check",
+            user_id,
+        );
+        info!(
+            "Fetched wikidot user '{}' (ID {}, slug '{}'), created at {}, fetched at {}, karma level {}, {} account",
+            name,
+            user_id,
+            slug,
+            created_at,
+            fetched_at,
+            karma,
+            if is_pro { "pro" } else { "free" },
+        );
+
+        // TODO audit log
+
+        // Run normal method to create the user
+        // So we're reusing common logic like filters, etc
+        Self::create(
+            ctx,
+            CreateUser {
+                user_type,
+                name,
+                email,
+                locales,
+                password,
+                bypass_filter,
+                bypass_email_verification,
+                override_user_id: Some(user_id),
+                ip_address,
+            },
+        )
+        .await
+        .or_raise(make_error)?;
+
+        // Update other fields
+
+        Self::update(
+            ctx,
+            Reference::Id(user_id),
+            ip_address,
+            UpdateUserBody {
+                // set in initial user creation
+                name: Maybe::Unset,
+                email: Maybe::Unset,
+                email_verified: Maybe::Unset,
+                password: Maybe::Unset,
+                locales: Maybe::Unset,
+
+                // bio fields
+                avatar_uploaded_blob_id: todo!(), // TODO add wikidot user avatar
+                real_name: Maybe::Set(real_name),
+                gender: Maybe::Set(gender),
+                birthday: Maybe::Set(birthday),
+                location: Maybe::Set(location),
+                biography: Maybe::Set(biography),
+                website: Maybe::Set(website),
+
+                // not a wikidot field
+                user_page: Maybe::Unset,
+
+                // miscellaneous
+                bypass_filter,
+            },
+        )
+        .await
+        .or_raise(make_error)?;
+
+        // Update account creation time
+        //
+        // This is not something we can fix with Self::update(),
+        // so a direct database query is required.
+
+        let mut model = user::ActiveModel {
+            user_id: ActiveValue::Set(user_id),
+            created_at: ActiveValue::Set(created_at),
+            ..Default::default()
+        };
+
+        let txn = ctx.transaction();
+        let new_user = model.update(txn).await.or_raise(make_error)?;
+        Ok(new_user)
+    }
+
     #[inline]
     pub async fn exists(
         ctx: &ServiceContext<'_>,
