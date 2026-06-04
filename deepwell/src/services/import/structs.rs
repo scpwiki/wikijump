@@ -32,6 +32,7 @@ pub struct ImportUser {
     pub fetched_at: OffsetDateTime,
     #[serde(flatten)]
     pub wikidot_user_type: ImportedUserType,
+    pub avatar_s3_hash: Option<Vec<u8>>,
 
     // Biographical fields
     pub real_name: Option<String>,

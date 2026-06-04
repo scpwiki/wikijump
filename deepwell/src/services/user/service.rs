@@ -426,6 +426,7 @@ impl UserService {
             is_deleted,
             name,
             slug,
+            avatar_s3_hash,
             real_name,
             gender,
             birthday,
@@ -508,8 +509,10 @@ impl UserService {
                 password: Maybe::Unset,
                 locales: Maybe::Unset,
 
+                // set manually, down below
+                avatar_uploaded_blob_id: Maybe::Unset,
+
                 // bio fields
-                avatar_uploaded_blob_id: todo!(), // TODO add wikidot user avatar
                 real_name: Maybe::Set(real_name),
                 gender: Maybe::Set(gender),
                 birthday: Maybe::Set(birthday),
@@ -527,14 +530,17 @@ impl UserService {
         .await
         .or_raise(make_error)?;
 
-        // Update account creation time
+        // Update account creation time and avatar
         //
-        // This is not something we can fix with Self::update(),
-        // so a direct database query is required.
+        // The creation time is not something we can fix
+        // with Self::update(), and the second involves
+        // unnecessary steps since the avatar is already
+        // uploaded.
 
-        let mut model = user::ActiveModel {
-            user_id: ActiveValue::Set(user_id),
-            created_at: ActiveValue::Set(created_at),
+        let model = user::ActiveModel {
+            user_id: Set(user_id),
+            created_at: Set(created_at),
+            avatar_s3_hash: Set(avatar_s3_hash),
             ..Default::default()
         };
 
