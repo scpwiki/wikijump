@@ -149,22 +149,21 @@ impl UserService {
                     .or_raise(make_error)?;
 
                 // We only care if it exists, if it's missing it's fine.
-                if let Some(found_user) = result {
-                    if let Some(found_user_slug) = found_user.slug {
-                        if found_user_slug != slug {
-                            error!(
-                                "Wikidot user exists with user ID {}, but has an incompatible user slug: {} != {}",
-                                user_id, found_user_slug, slug,
-                            );
-                            bail!(Error::new(
-                                format!(
-                                    "cannot create user, a wikidot user with the same ID exists and has a different slug. ID is {}, Wikidot had slug '{}', request had slug '{}'",
-                                    user_id, found_user_slug, slug,
-                                ),
-                                ErrorType::UserExists,
-                            ));
-                        }
-                    }
+                if let Some(found_user) = result
+                    && let Some(found_user_slug) = found_user.slug
+                    && found_user_slug != slug
+                {
+                    error!(
+                        "Wikidot user exists with user ID {}, but has an incompatible user slug: {} != {}",
+                        user_id, found_user_slug, slug,
+                    );
+                    bail!(Error::new(
+                        format!(
+                            "cannot create user, a wikidot user with the same ID exists and has a different slug. ID is {}, Wikidot had slug '{}', request had slug '{}'",
+                            user_id, found_user_slug, slug,
+                        ),
+                        ErrorType::UserExists,
+                    ));
                 }
             }
 
