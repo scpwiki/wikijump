@@ -35,8 +35,9 @@ use crate::models::page::{self, Entity as Page};
 use crate::models::page_category::Model as PageCategoryModel;
 use crate::models::site::{self, Entity as Site};
 use crate::models::wikidot_user::{self, Entity as WikidotUser};
+use crate::services::CategoryService;
+use crate::services::blob::{BlobService, FinalizeBlobUploadOutput};
 use crate::services::page_lock::{CreatePageLockInput, PageLockService};
-use crate::services::{BlobService, CategoryService};
 use crate::types::PageLockType;
 use crate::utils::get_category_name;
 
@@ -51,7 +52,7 @@ impl ImportService {
             created_at,
             fetched_at,
             wikidot_user_type,
-            avatar_s3_hash,
+            avatar_uploaded_blob_id,
             real_name,
             gender,
             birthday,
@@ -79,6 +80,25 @@ impl ImportService {
         let (is_deleted, name, slug) = match wikidot_user_type {
             ImportedUserType::Extant { name, slug } => (false, Some(name), Some(slug)),
             ImportedUserType::Deleted => (true, None, None),
+        };
+
+        let avatar_s3_hash = match avatar_uploaded_blob_id {
+            None => None,
+            Some(uploaded_blob_id) => {
+                let FinalizeBlobUploadOutput { s3_hash, .. } =
+                    BlobService::finish_upload(
+                        ctx,
+                        i64::from(user_id),
+                        &uploaded_blob_id,
+                    )
+                    .await
+                    .or_raise(make_error)?;
+
+                // We don't check the avatar size, just keep whatever it was for Wikidot
+                // which will have a limited size anyways, so it's probably fine.
+
+                Some(s3_hash.to_vec())
+            }
         };
 
         let txn = ctx.transaction();
