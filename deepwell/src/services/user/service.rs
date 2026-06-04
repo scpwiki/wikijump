@@ -94,7 +94,7 @@ impl UserService {
 
                 // Insert user ID into known_user for foreign key
                 known_user::ActiveModel {
-                    user_id: ActiveValue::Set(user_id),
+                    user_id: Set(user_id),
                 }
                 .insert(txn)
                 .await
@@ -108,7 +108,7 @@ impl UserService {
 
                 // Get user ID from known_user sequence
                 let KnownUserModel { user_id } = known_user::ActiveModel {
-                    user_id: ActiveValue::NotSet,
+                    user_id: NotSet,
                 }
                 .insert(txn)
                 .await
