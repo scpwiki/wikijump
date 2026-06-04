@@ -137,6 +137,7 @@ impl Serialize for User {
                 serialize_field!(object, user, is_deleted);
                 serialize_field!(object, user, name);
                 serialize_field!(object, user, slug);
+                serialize_field!(object, user, avatar_s3_hash);
                 serialize_field!(object, user, real_name);
                 serialize_field!(object, user, gender);
                 serialize_field!(object, user, birthday);
@@ -237,7 +238,7 @@ fn user_serialization() {
             println!("Actual JSON:\n{actual_json}");
             assert_eq!(
                 actual_json, expected_json,
-                "Actual generated JSON doesn't match expected"
+                "Actual generated JSON doesn't match expected",
             );
         }};
     }
@@ -307,6 +308,9 @@ fn user_serialization() {
   "is_deleted": false,
   "name": "aismallard",
   "slug": "aismallard",
+  "avatar_s3_hash": [
+    2
+  ],
   "real_name": null,
   "gender": "female",
   "birthday": null,
@@ -344,6 +348,9 @@ fn user_serialization() {
   "is_deleted": true,
   "name": null,
   "slug": null,
+  "avatar_s3_hash": [
+    7
+  ],
   "real_name": null,
   "gender": null,
   "birthday": null,
