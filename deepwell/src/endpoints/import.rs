@@ -19,12 +19,15 @@
  */
 
 use super::prelude::*;
-use crate::services::import::{ImportPage, ImportService, ImportSite, ImportUser};
+use crate::services::import::{
+    ImportPage, ImportPageOutput, ImportService, ImportSite, ImportSiteOutput,
+    ImportUser, ImportUserOutput,
+};
 
 pub async fn import_wikidot_user(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
-) -> Result<()> {
+) -> Result<ImportUserOutput> {
     let input: ImportUser = parse!(params, DatabaseImport);
     info!("Importing Wikidot user ID {}", input.user_id);
     ImportService::add_user(ctx, input).await.or_raise(|| {
@@ -35,7 +38,7 @@ pub async fn import_wikidot_user(
 pub async fn import_wikidot_site(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
-) -> Result<()> {
+) -> Result<ImportSiteOutput> {
     let input: ImportSite = parse!(params, DatabaseImport);
     info!("Importing Wikidot site ID {}", input.site_id);
     ImportService::add_site(ctx, input).await.or_raise(|| {
@@ -46,7 +49,7 @@ pub async fn import_wikidot_site(
 pub async fn import_wikidot_page(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
-) -> Result<()> {
+) -> Result<ImportPageOutput> {
     let input: ImportPage = parse!(params, DatabaseImport);
     info!("Importing Wikidot page ID {}", input.page_id);
     ImportService::add_page(ctx, input).await.or_raise(|| {

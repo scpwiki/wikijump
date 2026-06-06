@@ -52,6 +52,11 @@ pub enum ImportedUserType {
     Deleted,
 }
 
+#[derive(Serialize, Debug, Copy, Clone)]
+pub struct ImportUserOutput {
+    pub user_id: i32,
+}
+
 #[derive(Deserialize, Debug)]
 pub struct ImportSite {
     pub site_id: i64,
@@ -61,6 +66,11 @@ pub struct ImportSite {
     pub name: String,
     pub slug: String,
     pub locale: String,
+}
+
+#[derive(Serialize, Debug, Copy, Clone)]
+pub struct ImportSiteOutput {
+    pub site_id: i64,
 }
 
 #[derive(Deserialize, Debug)]
@@ -74,4 +84,10 @@ pub struct ImportPage {
     pub locked: bool,
     pub discussion_thread_id: Option<i64>,
     pub ip_address: IpAddr,
+}
+
+#[derive(Serialize, Debug, Copy, Clone)]
+pub struct ImportPageOutput {
+    pub site_id: i64,
+    pub page_id: i64,
 }
