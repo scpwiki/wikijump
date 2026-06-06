@@ -62,6 +62,7 @@ impl ImportService {
             website,
             karma,
             is_pro,
+            importing_user_id,
         }: ImportUser,
     ) -> Result<ImportUserOutput> {
         info!(
@@ -88,13 +89,9 @@ impl ImportService {
             None => None,
             Some(uploaded_blob_id) => {
                 let FinalizeBlobUploadOutput { s3_hash, .. } =
-                    BlobService::finish_upload(
-                        ctx,
-                        i64::from(user_id),
-                        &uploaded_blob_id,
-                    )
-                    .await
-                    .or_raise(make_error)?;
+                    BlobService::finish_upload(ctx, importing_user_id, &uploaded_blob_id)
+                        .await
+                        .or_raise(make_error)?;
 
                 // We don't check the avatar size, just keep whatever it was for Wikidot
                 // which will have a limited size anyways, so it's probably fine.

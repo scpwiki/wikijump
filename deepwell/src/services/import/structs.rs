@@ -43,6 +43,10 @@ pub struct ImportUser {
     pub website: Option<String>,
     pub karma: KarmaLevel,
     pub is_pro: bool,
+
+    // Request metadata
+    // Must be the same as the user who uploaded the avatar blob
+    pub importing_user_id: i64,
 }
 
 #[derive(Deserialize, Debug)]
