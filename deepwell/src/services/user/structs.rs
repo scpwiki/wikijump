@@ -181,7 +181,7 @@ pub struct CreateUserOutput {
 }
 
 #[derive(Deserialize, Debug, Clone)]
-pub struct ImportUserFromWikidot {
+pub struct ActivateUserFromWikidot {
     pub user_id: i64,
     pub user_type: UserType,
     pub email: String,

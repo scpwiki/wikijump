@@ -21,7 +21,8 @@
 use super::prelude::*;
 use crate::models::user::Model as UserModel;
 use crate::services::user::{
-    CreateUser, CreateUserOutput, GetUser, GetUserOutput, UpdateUser, User,
+    ActivateUserFromWikidot, CreateUser, CreateUserOutput, GetUser, GetUserOutput,
+    UpdateUser, User,
 };
 use crate::types::AliasType;
 
@@ -37,12 +38,20 @@ pub async fn user_create(
         .or_raise(|| Error::new("failed to create user", ErrorType::User))
 }
 
-pub async fn user_import(
-    _ctx: &ServiceContext<'_>,
-    _params: Params<'static>,
-) -> Result<CreateUserOutput> {
-    // TODO implement importing user from Wikidot
-    todo!()
+pub async fn user_activate_from_wikidot(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<UserModel> {
+    info!("Activating a new user from a Wikidot user record");
+    let input: ActivateUserFromWikidot = parse!(params, User);
+    UserService::activate_from_wikidot(ctx, input)
+        .await
+        .or_raise(|| {
+            Error::new(
+                "failed to create a Wikijump user by activating a Wikidot user reocrd",
+                ErrorType::User,
+            )
+        })
 }
 
 pub async fn user_get(

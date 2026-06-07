@@ -377,19 +377,9 @@ impl UserService {
         Ok(CreateUserOutput { user_id, slug })
     }
 
-    // TODO import() method, which is for reclaiming Wikidot-imported accounts
-    //
-    //      if the user is already present in the database, then this verifies their ownership and
-    //      updates the user so it now belongs to them (e.g. email, password, etc)
-    //
-    //      if the user is not in the database, either (TBD) error, or ad hoc scrape the data from
-    //      Wikidot and do the ingestion, then the above verification stuff
-    //
-    //      https://scuttle.atlassian.net/browse/WJ-272
-
-    pub async fn import_wikidot(
+    pub async fn activate_from_wikidot(
         ctx: &ServiceContext<'_>,
-        ImportUserFromWikidot {
+        ActivateUserFromWikidot {
             user_id,
             user_type,
             email,
@@ -398,7 +388,7 @@ impl UserService {
             bypass_filter,
             bypass_email_verification,
             ip_address,
-        }: ImportUserFromWikidot,
+        }: ActivateUserFromWikidot,
     ) -> Result<WikijumpUserModel> {
         if !matches!(user_type, UserType::Regular | UserType::Bot) {
             bail!(Error::new(
