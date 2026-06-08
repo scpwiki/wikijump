@@ -1018,7 +1018,7 @@ dependencies = [
  "rust-otp",
  "rust-s3",
  "sea-orm",
- "sea-query",
+ "sea-query 1.0.1",
  "self_cell",
  "serde",
  "serde_json",
@@ -3988,7 +3988,7 @@ dependencies = [
  "pgvector",
  "rust_decimal",
  "sea-orm-macros",
- "sea-query",
+ "sea-query 0.32.7",
  "sea-query-binder",
  "serde",
  "serde_json",
@@ -4023,9 +4023,18 @@ checksum = "8a5d1c518eaf5eda38e5773f902b26ab6d5e9e9e2bb2349ca6c64cf96f80448c"
 dependencies = [
  "inherent",
  "ordered-float",
- "sea-query-derive",
  "serde_json",
  "time",
+]
+
+[[package]]
+name = "sea-query"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8d190cfb3bcceb8a8d7d04dee5a0c77f60c7627979cdcb47fdcb8934f009badf"
+dependencies = [
+ "itoa",
+ "sea-query-derive",
 ]
 
 [[package]]
@@ -4034,7 +4043,7 @@ version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b0019f47430f7995af63deda77e238c17323359af241233ec768aba1faea7608"
 dependencies = [
- "sea-query",
+ "sea-query 0.32.7",
  "serde_json",
  "sqlx",
  "time",
@@ -4042,9 +4051,9 @@ dependencies = [
 
 [[package]]
 name = "sea-query-derive"
-version = "0.4.3"
+version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bae0cbad6ab996955664982739354128c58d16e126114fe88c2a493642502aab"
+checksum = "a0b0f466921cdd3cf4b89d5c3ac2173dba89a873ab395b123a645de181ec7537"
 dependencies = [
  "darling",
  "heck 0.4.1",
