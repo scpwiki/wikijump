@@ -856,8 +856,12 @@ impl RenderService {
         }
 
         Some(format!(
-            "https://{}{}{}",
-            current_site.slug, config.files_domain, path,
+            "{}://{}{}{}{}",
+            config.public_url_scheme,
+            current_site.slug,
+            config.files_domain,
+            public_url_port_suffix(config.public_url_port),
+            path,
         ))
     }
 
@@ -1943,6 +1947,10 @@ fn css_dependency_host_is_local(host: &str, config: &Config) -> bool {
     !files_domain_no_dot.is_empty() && host == files_domain_no_dot
 }
 
+fn public_url_port_suffix(port: Option<u16>) -> String {
+    port.map(|port| format!(":{port}")).unwrap_or_default()
+}
+
 #[cfg(test)]
 mod tests {
     use super::{CollectingIncluder, RenderContext, RenderService, include_error};
@@ -2011,6 +2019,8 @@ mod tests {
         let mut config = Config::integration_testing();
         config.files_domain = ".wjfiles.localhost".to_owned();
         config.files_domain_no_dot = "wjfiles.localhost".to_owned();
+        config.public_url_scheme = "http".to_owned();
+        config.public_url_port = Some(18443);
         let html = concat!(
             r#"<p><img src="http://scp-wiki.wikidot.com/local--files/scp-9506/NFSI.png?download=true#frag">"#,
             r#"<a href='https://scp-wiki.wdfiles.com:443/local--files/scp-9506/NAME%20HERE.png'>"#,
@@ -2026,14 +2036,14 @@ mod tests {
         assert_eq!(
             RenderService::localize_wikidot_local_file_urls(html, Some(&site), &config,),
             concat!(
-                r#"<p><img src="https://scp-wiki-en-corpus-scp9506-slice-v2.wjfiles.localhost/local--files/scp-9506/NFSI.png?download=true#frag">"#,
-                r#"<a href='https://scp-wiki-en-corpus-scp9506-slice-v2.wjfiles.localhost/local--files/scp-9506/NAME%20HERE.png'>"#,
+                r#"<p><img src="http://scp-wiki-en-corpus-scp9506-slice-v2.wjfiles.localhost:18443/local--files/scp-9506/NFSI.png?download=true#frag">"#,
+                r#"<a href='http://scp-wiki-en-corpus-scp9506-slice-v2.wjfiles.localhost:18443/local--files/scp-9506/NAME%20HERE.png'>"#,
                 r#"file</a>"#,
-                r#"<img class="image crom-thumbnail" src="https://scp-wiki-en-corpus-scp9506-slice-v2.wjfiles.localhost/local--files/scp-9506/NFSI.png">"#,
-                r#"<style>:root{--logo:url(https://scp-wiki-en-corpus-scp9506-slice-v2.wjfiles.localhost/local--files/scp-9506/NFSI.png)}</style>"#,
-                r#"<style>.quoted{background:url('https://scp-wiki-en-corpus-scp9506-slice-v2.wjfiles.localhost/local--files/scp-9506/BG.png')}</style>"#,
-                r#"<style>@import "https://scp-wiki-en-corpus-scp9506-slice-v2.wjfiles.localhost/local--code/theme%3Abasalt/1";</style>"#,
-                r#"<style>@import url(https://scp-wiki-en-corpus-scp9506-slice-v2.wjfiles.localhost/local--code/component:betterfootnotes/1)</style>"#,
+                r#"<img class="image crom-thumbnail" src="http://scp-wiki-en-corpus-scp9506-slice-v2.wjfiles.localhost:18443/local--files/scp-9506/NFSI.png">"#,
+                r#"<style>:root{--logo:url(http://scp-wiki-en-corpus-scp9506-slice-v2.wjfiles.localhost:18443/local--files/scp-9506/NFSI.png)}</style>"#,
+                r#"<style>.quoted{background:url('http://scp-wiki-en-corpus-scp9506-slice-v2.wjfiles.localhost:18443/local--files/scp-9506/BG.png')}</style>"#,
+                r#"<style>@import "http://scp-wiki-en-corpus-scp9506-slice-v2.wjfiles.localhost:18443/local--code/theme%3Abasalt/1";</style>"#,
+                r#"<style>@import url(http://scp-wiki-en-corpus-scp9506-slice-v2.wjfiles.localhost:18443/local--code/component:betterfootnotes/1)</style>"#,
                 r#"</p>"#,
             ),
         );
@@ -2062,6 +2072,8 @@ mod tests {
         let mut config = Config::integration_testing();
         config.files_domain = ".wjfiles.localhost".to_owned();
         config.files_domain_no_dot = "wjfiles.localhost".to_owned();
+        config.public_url_scheme = "http".to_owned();
+        config.public_url_port = Some(18443);
         let html = concat!(
             r#"<img src="http://scp-wiki.wikidot.com/local--files/scp-9506/NFSI.png">"#,
             r#"<style>@import "https://scp-wiki.wdfiles.com/local--code/theme%3Abasalt/1";</style>"#,
@@ -2070,8 +2082,8 @@ mod tests {
         assert_eq!(
             RenderService::localize_wikidot_local_file_urls(html, Some(&site), &config,),
             concat!(
-                r#"<img src="https://scp-wiki-cn-corpus-scp9506-translation-seed.wjfiles.localhost/local--files/scp-9506/NFSI.png">"#,
-                r#"<style>@import "https://scp-wiki-cn-corpus-scp9506-translation-seed.wjfiles.localhost/local--code/theme%3Abasalt/1";</style>"#,
+                r#"<img src="http://scp-wiki-cn-corpus-scp9506-translation-seed.wjfiles.localhost:18443/local--files/scp-9506/NFSI.png">"#,
+                r#"<style>@import "http://scp-wiki-cn-corpus-scp9506-translation-seed.wjfiles.localhost:18443/local--code/theme%3Abasalt/1";</style>"#,
             ),
         );
     }
@@ -2111,10 +2123,12 @@ mod tests {
         let mut config = Config::integration_testing();
         config.files_domain = ".wjfiles.localhost".to_owned();
         config.files_domain_no_dot = "wjfiles.localhost".to_owned();
+        config.public_url_scheme = "http".to_owned();
+        config.public_url_port = Some(18443);
         let css = concat!(
             "@import url('https://cdn.scpwiki.com/theme/en/basalt/normalize-min.css');\n",
             "@import url('https://fonts.googleapis.com/css2?family=Sofia+Sans:ital,wght@0,100;0,200;1,900&display=swap');\n",
-            "@import url(\"https://scp-wiki-cn-corpus-scp9506-translation-seed.wjfiles.localhost/local--code/theme:basalt/1\");\n",
+            "@import url(\"http://scp-wiki-cn-corpus-scp9506-translation-seed.wjfiles.localhost:18443/local--code/theme:basalt/1\");\n",
             "@font-face { src: url('https://cdn.jsdelivr.net/font.woff2') format('woff2'); }\n",
             ":root { --logo: url('http://scp-wiki.wikidot.com/local--files/scp-9506/NFSI.png'); }\n",
         );
@@ -2131,10 +2145,10 @@ mod tests {
         assert!(!restored.contains("display=swap"));
         assert!(!restored.contains("cdn.jsdelivr.net"));
         assert!(restored.contains(
-            "https://scp-wiki-cn-corpus-scp9506-translation-seed.wjfiles.localhost/local--code/theme:basalt/1"
+            "http://scp-wiki-cn-corpus-scp9506-translation-seed.wjfiles.localhost:18443/local--code/theme:basalt/1"
         ));
         assert!(restored.contains(
-            "https://scp-wiki-cn-corpus-scp9506-translation-seed.wjfiles.localhost/local--files/scp-9506/NFSI.png"
+            "http://scp-wiki-cn-corpus-scp9506-translation-seed.wjfiles.localhost:18443/local--files/scp-9506/NFSI.png"
         ));
         assert!(restored.contains(r#"url("data:,")"#));
     }

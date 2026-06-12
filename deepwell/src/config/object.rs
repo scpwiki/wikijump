@@ -70,6 +70,12 @@ pub struct Config {
     /// The files domain, but without a leading `.`
     pub files_domain_no_dot: String,
 
+    /// Scheme to use when rendering absolute public URLs.
+    pub public_url_scheme: String,
+
+    /// Optional port to use when rendering absolute public URLs.
+    pub public_url_port: Option<u16>,
+
     /// Whether to auto-restart on configuration file change.
     ///
     /// Currently watches:
@@ -291,6 +297,8 @@ impl Config {
             main_domain_no_dot: str!("wikijump.com"),
             files_domain: str!(".wjfiles.com"),
             files_domain_no_dot: str!("wjfiles.com"),
+            public_url_scheme: str!("https"),
+            public_url_port: None,
             watch_files: false,
             run_seeder: false,
             seeder_path: PathBuf::from("seeder"),

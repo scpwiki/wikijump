@@ -142,6 +142,10 @@ struct Locale {
 struct Domain {
     main: String,
     files: String,
+    #[serde(default = "default_public_url_scheme")]
+    public_scheme: String,
+    #[serde(default)]
+    public_port: Option<u16>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -295,6 +299,8 @@ impl ConfigFile {
                 Domain {
                     main: main_domain,
                     files: files_domain,
+                    public_scheme: public_url_scheme,
+                    public_port: public_url_port,
                 },
             job:
                 Job {
@@ -389,6 +395,11 @@ impl ConfigFile {
         // and concatenations.
         let (main_domain, main_domain_no_dot) = prefix_domain(main_domain);
         let (files_domain, files_domain_no_dot) = prefix_domain(files_domain);
+        let public_url_scheme = public_url_scheme.to_ascii_lowercase();
+        assert!(
+            matches!(public_url_scheme.as_str(), "http" | "https"),
+            "Unsupported public URL scheme",
+        );
 
         // Treats empty strings (which aren't valid paths anyways)
         // as null for the purpose of pid_file.
@@ -409,6 +420,8 @@ impl ConfigFile {
             main_domain_no_dot,
             files_domain,
             files_domain_no_dot,
+            public_url_scheme,
+            public_url_port,
             watch_files: false, // Not set in config file. Always false by default.
             run_seeder,
             seeder_path,
@@ -514,6 +527,10 @@ fn prefix_domain(domain: String) -> (String, String) {
     }
 }
 
+fn default_public_url_scheme() -> String {
+    str!("https")
+}
+
 #[test]
 fn test_prefix_domain() {
     macro_rules! check {
@@ -527,4 +544,118 @@ fn test_prefix_domain() {
 
     check!("example.com"; ".example.com", "example.com");
     check!(".example.com"; ".example.com", "example.com");
+}
+
+#[test]
+fn test_public_url_defaults_to_https_without_port() {
+    let domain = Domain {
+        main: str!("wikijump.com"),
+        files: str!("wjfiles.com"),
+        public_scheme: default_public_url_scheme(),
+        public_port: None,
+    };
+
+    assert_eq!(domain.public_scheme, "https");
+    assert_eq!(domain.public_port, None);
+}
+
+#[test]
+fn test_local_public_url_config_uses_http_public_port() {
+    let toml = r#"
+        [logger]
+        enable = true
+        level = "Info"
+
+        [server]
+        address = "127.0.0.1:2747"
+
+        [database]
+        run-seeder = false
+        seeder-path = "seeder"
+
+        [security]
+        authentication-fail-delay-ms = 1000
+
+        [security.session]
+        token-prefix = "wj"
+        token-length = 64
+        duration-session-minutes = 10080
+        duration-login-minutes = 5
+
+        [security.mfa]
+        recovery-code-count = 16
+        recovery-code-length = 8
+        time-step = 30
+        time-skew = 1
+
+        [domain]
+        main = "wikijump.localhost"
+        files = "wjfiles.localhost"
+        public-scheme = "http"
+        public-port = 18443
+
+        [job]
+        workers = 2
+        max-attempts = 3
+        delay-ms = 1000
+        min-delay-poll-secs = 5
+        max-delay-poll-secs = 120
+        prune-session-secs = 1800
+        prune-upload-secs = 1800
+        prune-text-secs = 86400
+        name-change-refill-secs = 86400
+        lift-expired-punishments-secs = 86400
+
+        [locale]
+        path = "../locales"
+
+        [ftml]
+        preprocess-timeout-ms = 5000
+        render-timeout-ms = 5000
+        rerender-skip = []
+
+        [ftml.layout]
+        messages = "wikijump"
+        default-page = "wikidot"
+
+        [blueprint]
+        page-prefix = "_"
+        template = "_template"
+        missing = "_404"
+        private = "_public"
+        banned = "_banned"
+
+        [user]
+        default-name-changes = 1
+        maximum-name-changes = 10
+        refill-name-change-days = 30
+        minimum-name-bytes = 2
+        minimum-name-chars = 1
+
+        [email]
+        mock-mailcheck = true
+        automation-address = "automation@example.test"
+        notification-address = "notifications@example.test"
+        newsletter-address = "newsletter@example.test"
+
+        [file]
+        presigned-path-length = 32
+        presigned-expiration-minutes = 5
+        maximum-blob-size-kb = 1024
+        maximum-avatar-size-kb = 512
+
+        [message]
+        maximum-subject-bytes = 256
+        maximum-body-bytes = 16384
+        maximum-recipients = 20
+    "#;
+
+    let config_file: ConfigFile = toml::from_str(toml).expect("config parses");
+    let config = config_file.into_config(ExtraConfig {
+        raw_toml: toml.to_owned(),
+        raw_toml_path: PathBuf::from("config.toml"),
+    });
+
+    assert_eq!(config.public_url_scheme, "http");
+    assert_eq!(config.public_url_port, Some(18443));
 }
