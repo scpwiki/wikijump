@@ -47,6 +47,9 @@ pub struct InternalCreateRoleInput {
 pub struct GetRoleInput<'a> {
     pub site_id: i64,
     pub role_reference: Reference<'a>,
+
+    #[serde(default)]
+    pub acting_user_id: Option<i64>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -82,6 +85,9 @@ pub struct DeleteRoleInput {
 #[derive(Deserialize, Debug, Clone)]
 pub struct ListSiteRolesInput {
     pub site_id: i64,
+
+    #[serde(default)]
+    pub acting_user_id: Option<i64>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -127,12 +133,19 @@ pub struct GetUserRolesInput<'a> {
     pub site_id: i64,
     pub user_id: Option<i64>,
     pub page_reference: Option<Reference<'a>>,
+
+    #[serde(default)]
+    pub acting_user_id: Option<i64>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct GetRolePermissionsInput<'a> {
     pub site_id: i64,
     pub role_reference: Reference<'a>,
+
+    #[serde(default)]
+    pub acting_user_id: Option<i64>,
+
     #[serde(default)] // Defaults to false to avoid expensive computation
     pub human_readable_categories: bool,
 }

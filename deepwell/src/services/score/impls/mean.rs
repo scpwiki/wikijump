@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::services::ScoreService;
 
 #[derive(Debug)]
 pub struct MeanScorer;
@@ -40,36 +41,17 @@ impl Scorer for MeanScorer {
         txn: &DatabaseTransaction,
         condition: Condition,
     ) -> Result<ScoreValue> {
-        #[derive(FromQueryResult, Debug)]
-        struct MeanRow {
-            sum: u64,
-            count: u64,
+        let votes = ScoreService::collect_votes(txn, condition)
+            .await
+            .or_raise(|| make_error("mean"))?;
+
+        let count = votes.count();
+        if count == 0 {
+            return Ok(ScoreValue::Float(0.0));
         }
 
-        // Query for sum of all votes.
-        // Same as in sum.rs
-        //
-        // As raw SQL:
-        //
-        // SELECT SUM(value), COUNT(value)
-        // FROM page_vote
-        // WHERE page_id = $1
-        // AND deleted_at IS NULL
-        // AND disabled_at IS NULL
-        // GROUP BY value;
-
-        let MeanRow { sum, count } = PageVote::find()
-            .column_as(page_vote::Column::Value.sum(), "sum")
-            .column_as(page_vote::Column::Value.count(), "count")
-            .filter(condition)
-            .into_model::<MeanRow>()
-            .one(txn)
-            .await
-            .or_raise(|| make_error("mean"))?
-            .expect("No results in aggregate query");
-
-        let sum = sum as f64;
         let count = count as f64;
+        let sum = votes.sum() as f64;
         Ok(ScoreValue::Float(sum / count))
     }
 }

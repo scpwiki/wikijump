@@ -34,7 +34,7 @@ pub async fn list_site_roles(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<Vec<RoleModel>> {
-    let ListSiteRolesInput { site_id } = parse!(params, Role);
+    let ListSiteRolesInput { site_id, .. } = parse!(params, Role);
     info!("Listing roles in site ID {site_id}");
 
     RoleService::get_all_roles_for_site(ctx, site_id)

@@ -48,8 +48,13 @@ impl Scorer for PercentScorer {
             .await
             .or_raise(|| make_error("percent"))?;
 
+        let total = votes.count();
+        if total == 0 {
+            return Ok(ScoreValue::Float(0.0));
+        }
+
         let upvotes = votes.get(1) as f64;
-        let total = votes.count() as f64;
+        let total = total as f64;
         let percent = upvotes / total * 100.0;
         Ok(ScoreValue::Float(percent))
     }

@@ -181,6 +181,74 @@ async fn basic_edit() {
 }
 
 #[tokio::test]
+async fn wikidot_site_include_uses_local_dependency_page_for_site_qualified_include() {
+    let runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+
+    run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site.site.site_id,
+            "wikitext": "[[module CSS]]\n@import url(https://scp-wiki.wdfiles.com/local--code/theme%3Abasalt/3)\n[[/module]]\n",
+            "title": "Basalt Theme",
+            "alt_title": null,
+            "slug": "theme:codex-include-fallback",
+            "layout": "wikidot",
+            "revision_comments": "create local theme dependency",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site.site.site_id,
+            "wikitext": "[[include :scp-wiki:theme:codex-include-fallback | hidetitle=a]]\nbody\n",
+            "title": "Include Consumer",
+            "alt_title": null,
+            "slug": "include-consumer",
+            "layout": "wikidot",
+            "revision_comments": "create include consumer",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site.site.site_id,
+            "page": "include-consumer",
+            "details": {
+                "compiled": true
+            },
+        }),
+    )
+    .expect("include consumer should exist");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    assert!(
+        html.contains("theme%3Abasalt/3"),
+        "compiled page should include CSS from the local theme dependency: {html}"
+    );
+    assert!(
+        html.contains("body"),
+        "compiled page should retain the consumer page body"
+    );
+    assert!(
+        html.contains("calc(var(--side-bar-width, 17rem) * -1)"),
+        "compiled Basalt page should include Wikidot shell sidebar compatibility CSS: {html}"
+    );
+}
+
+#[tokio::test]
 async fn basic_move() {
     let mut runner = TestRunner::setup().await;
 

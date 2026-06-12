@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::services::ScoreService;
 
 #[derive(Debug)]
 pub struct SumScorer;
@@ -39,31 +40,10 @@ impl Scorer for SumScorer {
         txn: &DatabaseTransaction,
         condition: Condition,
     ) -> Result<ScoreValue> {
-        #[derive(FromQueryResult, Debug)]
-        struct SumRow {
-            sum: i64,
-        }
-
-        // Query for sum of all votes.
-        //
-        // As raw SQL:
-        //
-        // SELECT SUM(value)
-        // FROM page_vote
-        // WHERE page_id = $1
-        // AND deleted_at IS NULL
-        // AND disabled_at IS NULL
-        // GROUP BY value;
-
-        let result = PageVote::find()
-            .column_as(page_vote::Column::Value.sum(), "sum")
-            .filter(condition)
-            .into_model::<SumRow>()
-            .one(txn)
+        let votes = ScoreService::collect_votes(txn, condition)
             .await
-            .or_raise(|| make_error("sum"))?
-            .expect("No results in aggregate query");
+            .or_raise(|| make_error("sum"))?;
 
-        Ok(ScoreValue::Integer(result.sum))
+        Ok(ScoreValue::Integer(votes.sum()))
     }
 }
