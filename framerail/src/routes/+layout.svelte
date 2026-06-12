@@ -7,6 +7,7 @@
   import { page } from "$app/state"
   import { pageLayoutState, errorPopupState } from "$lib/stores.svelte"
   import { Layout } from "$lib/types"
+  import { resolveShellLayout } from "$lib/wikidot-shell"
   import { resolve } from "$app/paths"
 
   let { children } = $props()
@@ -24,8 +25,7 @@
       // this is a special page, use Wikijump layout
       pageLayoutState.current = Layout.WIKIJUMP
     } else {
-      pageLayoutState.current =
-        page.data?.page?.layout ?? page.data?.site?.layout ?? Layout.WIKIJUMP
+      pageLayoutState.current = resolveShellLayout(page.data ?? page.error)
     }
   }
   $effect(() => {

@@ -27,6 +27,7 @@ export interface SiteModel {
   locale: string
   default_page: string
   top_bar_page: Nullable<string>
+  side_bar_page: Nullable<string>
   preferred_domain: Nullable<string>
   layout: Nullable<Layout>
   license: License
