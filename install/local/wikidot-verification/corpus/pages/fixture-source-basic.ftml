@@ -1,0 +1,17 @@
++ Fixture Source Basic
+
+Fixture source basic marker.
+
+This paragraph checks **bold text**, //italic text//, `inline code`, and a [[[fixture-include-host | local page link]]].
+
+> Quoted compatibility block marker.
+
+Literal escaped source marker: @@<escaped> & source block marker@@.
+
+[[module CSS]]
+.fixture-basic-marker { border-left: 5px solid #2d7d5f; padding-left: 0.75rem; }
+[[/module]]
+
+[[div class="fixture-basic-marker"]]
+Fixture basic CSS marker.
+[[/div]]

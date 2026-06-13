@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="135" viewBox="0 0 240 135" role="img" aria-label="Alert card test image">
+  <rect width="240" height="135" fill="#fff6da"/>
+  <rect x="18" y="18" width="204" height="99" rx="6" fill="#ffffff" stroke="#8a2d2d" stroke-width="4"/>
+  <path d="M120 36 92 89h56z" fill="#d9534f"/>
+  <rect x="116" y="54" width="8" height="21" fill="#ffffff"/>
+  <circle cx="120" cy="82" r="4" fill="#ffffff"/>
+  <text x="34" y="108" font-family="Arial, sans-serif" font-size="14" fill="#5d2020">network asset marker</text>
+</svg>

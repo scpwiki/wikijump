@@ -1,0 +1,11 @@
+[[module CSS]]
+.v3-theme-css-marker { color: rgb(12, 98, 140); border: 2px solid rgb(12, 98, 140); padding: 0.5rem; }
+[[/module]]
+
++ Fixture Theme Navigation CSS
+
+[[div class="v3-theme-css-marker"]]
+Theme CSS Applied Marker.
+[[/div]]
+
+Fixture Nav Target marker.

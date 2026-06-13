@@ -1,0 +1,11 @@
++ Fixture Include Host
+
+Before include marker.
+
+[[include fragment:fixture-alpha]]
+
+[[include component:fixture-card text=Included variable text]]
+
+After include marker.
+
+Include dependency refresh marker.

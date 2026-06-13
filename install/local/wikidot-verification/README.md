@@ -1,0 +1,59 @@
+# Local Wikidot Compatibility Verifier
+
+This directory contains a reusable local verification corpus for the Wikijump stack. It seeds Wikidot-shaped pages into the local `scp-wiki` site, then runs a browser proof matrix against the rendered Framerail pages.
+
+## Prerequisites
+
+Start the local stack from the repository root:
+
+```bash
+cd /home/roku/src/scpwiki/wikijump/install/local
+docker compose up -d --build
+```
+
+The default verifier endpoints are:
+
+```text
+Deepwell JSON-RPC: http://127.0.0.1:2747/jsonrpc
+Rendered site:      http://scp-wiki.wikijump.localhost:18443
+```
+
+## Seed Or Update The Corpus
+
+```bash
+cd /home/roku/src/scpwiki/wikijump
+node install/local/wikidot-verification/scripts/seed-or-import.mjs \
+  --output-dir /home/roku/codex-thread-workspaces/019ebf4b-585e-7b93-bd6d-cdba089c8084/artifacts/wikijump/v3-verifier-run
+```
+
+Useful environment variables:
+
+```text
+WIKIDOT_VERIFY_RPC_URL      JSON-RPC URL, default http://127.0.0.1:2747/jsonrpc
+WIKIDOT_VERIFY_SITE_SLUG    site slug, default scp-wiki
+WIKIDOT_VERIFY_ADMIN_EMAIL  seeded local admin email, default admin@wikijump
+WIKIDOT_VERIFY_ADMIN_PASS   seeded local admin password, default wikijumpadmin1
+```
+
+## Run Browser Proof Matrix
+
+```bash
+cd /home/roku/src/scpwiki/wikijump
+node install/local/wikidot-verification/scripts/browser-proof-matrix.mjs \
+  --base-url http://scp-wiki.wikijump.localhost:18443 \
+  --output-dir /home/roku/codex-thread-workspaces/019ebf4b-585e-7b93-bd6d-cdba089c8084/artifacts/wikijump/v3-browser-proof
+```
+
+The browser proof writes `browser-summary.json`, `fixture-results.tsv`, `screenshots/*.png`, and `network/*.json`. A non-zero exit means at least one required compatibility fixture failed.
+
+## Required Proof Pages
+
+The manifest defines the minimum required compatibility surface:
+
+- `scp-9506` regression page with twenty local image loads.
+- `fixture-source-basic` for basic source parsing and formatting.
+- `fixture-include-host` for include and component substitution.
+- `fixture-listpages-index` for ListPages/module behavior.
+- `fixture-theme-nav-css` for Wikidot shell, navigation, and internal CSS behavior.
+- `fixture-assets-network` for page-file assets and network isolation.
+- `fixture-metadata-tags-edit` for create/edit/save/tag and parent workflow proof.

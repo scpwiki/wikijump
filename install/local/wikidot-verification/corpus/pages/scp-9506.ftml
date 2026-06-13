@@ -1,0 +1,38 @@
+[[module CSS]]
+.nfsi-grid { display: grid; grid-template-columns: repeat(4, minmax(80px, 1fr)); gap: 8px; margin: 1rem 0; }
+.nfsi-grid img { width: 100%; border: 1px solid #777; background: #f8f8f8; }
+.nfsi-alert { border-left: 6px solid #8a2d2d; padding: 0.8rem 1rem; background: #fff6da; }
+[[/module]]
+
++ National Fog Safety Initiative
+
+[[div class="nfsi-alert"]]
+SCP-9506 regression marker: National Fog Safety Initiative local compatibility page.
+[[/div]]
+
+This page intentionally exercises the old Wikidot shell with a dense image set. The proof matrix requires all twenty images below to render from local page files.
+
+[[div class="nfsi-grid"]]
+[[image fog-green.svg]]
+[[image fog-map.svg]]
+[[image alert-card.svg]]
+[[image fog-green.svg]]
+[[image fog-map.svg]]
+[[image alert-card.svg]]
+[[image fog-green.svg]]
+[[image fog-map.svg]]
+[[image alert-card.svg]]
+[[image fog-green.svg]]
+[[image fog-map.svg]]
+[[image alert-card.svg]]
+[[image fog-green.svg]]
+[[image fog-map.svg]]
+[[image alert-card.svg]]
+[[image fog-green.svg]]
+[[image fog-map.svg]]
+[[image alert-card.svg]]
+[[image fog-green.svg]]
+[[image fog-map.svg]]
+[[/div]]
+
+SCP-9506 image grid complete marker.

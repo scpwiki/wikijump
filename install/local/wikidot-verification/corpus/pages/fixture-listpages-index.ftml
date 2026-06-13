@@ -1,0 +1,13 @@
++ Fixture ListPages Index
+
+ListPages start marker.
+
+[[module ListPages tags="+verification-list" limit="10" order="name"]]
+* %%title%% :: %%slug%%
+[[/module]]
+
+ListPages end marker.
+
+ListPages dependency refresh marker.
+
+ListPages query fix refresh marker.

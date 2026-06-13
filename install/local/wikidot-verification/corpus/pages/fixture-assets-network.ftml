@@ -1,0 +1,9 @@
++ Fixture Assets Network
+
+Fixture assets network marker.
+
+[[image fog-green.svg]]
+[[image fog-map.svg]]
+[[image alert-card.svg]]
+
+All three page-file assets above must load without external network dependencies.

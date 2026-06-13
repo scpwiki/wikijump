@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="135" viewBox="0 0 240 135" role="img" aria-label="Fog map test image">
+  <rect width="240" height="135" fill="#edf1f7"/>
+  <path d="M34 101 72 32l48 55 36-36 50 72" fill="none" stroke="#305f8f" stroke-width="8" stroke-linejoin="round"/>
+  <circle cx="72" cy="32" r="7" fill="#b73e3e"/>
+  <circle cx="156" cy="51" r="7" fill="#b73e3e"/>
+  <text x="18" y="123" font-family="Arial, sans-serif" font-size="15" fill="#1b344f">map render proof</text>
+</svg>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="135" viewBox="0 0 240 135" role="img" aria-label="Fog green test image">
+  <rect width="240" height="135" fill="#d9f4e4"/>
+  <path d="M20 75h200M35 92h165M55 58h130" stroke="#2d7d5f" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="188" cy="35" r="18" fill="#f4b24b"/>
+  <text x="18" y="122" font-family="Arial, sans-serif" font-size="16" fill="#1c3f34">local verifier asset</text>
+</svg>

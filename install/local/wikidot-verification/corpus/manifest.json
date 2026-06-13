@@ -1,0 +1,168 @@
+{
+  "siteSlug": "scp-wiki",
+  "admin": {
+    "email": "admin@wikijump",
+    "password": "wikijumpadmin1"
+  },
+  "pages": [
+    {
+      "slug": "fragment:fixture-alpha",
+      "title": "Fragment Fixture Alpha",
+      "source": "pages/fragment-fixture-alpha.ftml",
+      "tags": ["verification", "include-dependency"]
+    },
+    {
+      "slug": "component:fixture-card",
+      "title": "Component Fixture Card",
+      "source": "pages/component-fixture-card.ftml",
+      "tags": ["verification", "include-dependency"]
+    },
+    {
+      "slug": "fixture-parent-root",
+      "title": "Fixture Parent Root",
+      "source": "pages/fixture-parent-root.ftml",
+      "tags": ["verification", "parent-root"]
+    },
+    {
+      "slug": "fixture-listpages-target-a",
+      "title": "Fixture ListPages Target Alpha",
+      "source": "pages/fixture-listpages-target-a.ftml",
+      "tags": ["verification", "verification-list"],
+      "parent": "fixture-parent-root"
+    },
+    {
+      "slug": "fixture-listpages-target-b",
+      "title": "Fixture ListPages Target Beta",
+      "source": "pages/fixture-listpages-target-b.ftml",
+      "tags": ["verification", "verification-list"],
+      "parent": "fixture-parent-root"
+    },
+    {
+      "slug": "fixture-listpages-target-c",
+      "title": "Fixture ListPages Target Gamma",
+      "source": "pages/fixture-listpages-target-c.ftml",
+      "tags": ["verification", "verification-list"],
+      "parent": "fixture-parent-root"
+    },
+    {
+      "slug": "fixture-listpages-excluded",
+      "title": "Fixture ListPages Excluded",
+      "source": "pages/fixture-listpages-excluded.ftml",
+      "tags": ["verification", "verification-excluded"]
+    },
+    {
+      "slug": "nav:side",
+      "title": "Side Navigation",
+      "source": "pages/nav-side.ftml",
+      "tags": ["verification", "navigation"]
+    },
+    {
+      "slug": "nav:top",
+      "title": "Top Navigation",
+      "source": "pages/nav-top.ftml",
+      "tags": ["verification", "navigation"]
+    },
+    {
+      "slug": "scp-9506",
+      "title": "SCP-9506",
+      "source": "pages/scp-9506.ftml",
+      "layout": "wikidot",
+      "tags": ["verification", "scp", "scp-9506"],
+      "files": [
+        { "name": "fog-green.svg", "path": "assets/fog-green.svg" },
+        { "name": "fog-map.svg", "path": "assets/fog-map.svg" },
+        { "name": "alert-card.svg", "path": "assets/alert-card.svg" }
+      ],
+      "proof": {
+        "requiredText": ["National Fog Safety Initiative", "SCP-9506 image grid complete marker"],
+        "minImages": 20,
+        "expectedLoadedImages": 20,
+        "requireLocalNetworkOnly": true
+      }
+    },
+    {
+      "slug": "fixture-source-basic",
+      "title": "Fixture Source Basic",
+      "source": "pages/fixture-source-basic.ftml",
+      "layout": "wikidot",
+      "tags": ["verification", "source-basic"],
+      "proof": {
+        "requiredText": ["Fixture source basic marker", "Quoted compatibility block marker", "Literal escaped source marker", "<escaped> & source block marker", "Fixture basic CSS marker"],
+        "selectorText": [
+          { "selector": ".fixture-basic-marker", "text": "Fixture basic CSS marker" }
+        ],
+        "requireLocalNetworkOnly": true
+      }
+    },
+    {
+      "slug": "fixture-include-host",
+      "title": "Fixture Include Host",
+      "source": "pages/fixture-include-host.ftml",
+      "layout": "wikidot",
+      "tags": ["verification", "include-host"],
+      "proof": {
+        "requiredText": ["Before include marker", "Fragment Alpha Included Marker", "Component Card Included Marker", "Included variable text", "After include marker"],
+        "absentText": ["[[include fragment:fixture-alpha]]"],
+        "requireLocalNetworkOnly": true
+      }
+    },
+    {
+      "slug": "fixture-listpages-index",
+      "title": "Fixture ListPages Index",
+      "source": "pages/fixture-listpages-index.ftml",
+      "layout": "wikidot",
+      "tags": ["verification", "listpages-index"],
+      "proof": {
+        "requiredText": ["ListPages start marker", "fixture-listpages-target-a", "fixture-listpages-target-b", "fixture-listpages-target-c", "ListPages end marker"],
+        "absentText": ["Fixture ListPages Excluded"],
+        "requireLocalNetworkOnly": true
+      }
+    },
+    {
+      "slug": "fixture-theme-nav-css",
+      "title": "Fixture Theme Navigation CSS",
+      "source": "pages/fixture-theme-nav-css.ftml",
+      "layout": "wikidot",
+      "tags": ["verification", "theme-nav-css"],
+      "proof": {
+        "requiredText": ["Theme CSS Applied Marker", "Fixture Nav Target marker", "Homepage"],
+        "requireSelectors": ["#header", "#top-bar", "#side-bar", "#page-content", "#footer", "#license-area"],
+        "cssColor": { "selector": ".v3-theme-css-marker", "property": "color", "expected": "rgb(12, 98, 140)" },
+        "requireLocalNetworkOnly": true
+      }
+    },
+    {
+      "slug": "fixture-assets-network",
+      "title": "Fixture Assets Network",
+      "source": "pages/fixture-assets-network.ftml",
+      "layout": "wikidot",
+      "tags": ["verification", "assets-network"],
+      "files": [
+        { "name": "fog-green.svg", "path": "assets/fog-green.svg" },
+        { "name": "fog-map.svg", "path": "assets/fog-map.svg" },
+        { "name": "alert-card.svg", "path": "assets/alert-card.svg" }
+      ],
+      "proof": {
+        "requiredText": ["Fixture assets network marker", "All three page-file assets above must load"],
+        "minImages": 3,
+        "expectedLoadedImages": 3,
+        "requireLocalNetworkOnly": true
+      }
+    }
+  ],
+  "editProof": {
+    "slug": "fixture-metadata-tags-edit",
+    "title": "Fixture Metadata Tags Edit",
+    "initialSource": "pages/fixture-metadata-tags-edit.initial.ftml",
+    "editedSource": "pages/fixture-metadata-tags-edit.edited.ftml",
+    "layout": "wikidot",
+    "initialTags": ["verification", "metadata-before"],
+    "editedTags": ["verification", "metadata-after", "edited-proof"],
+    "parent": "fixture-parent-root",
+    "proof": {
+      "requiredText": ["Metadata After Edit Marker"],
+      "absentText": ["Metadata Before Edit Marker"],
+      "requireLocalNetworkOnly": true
+    }
+  }
+}

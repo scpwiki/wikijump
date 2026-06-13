@@ -295,28 +295,32 @@ impl PageQueryService {
         // Contains-link
         //
         // Selects pages that have an outgoing link (`from_page_id`)
-        // to a specified page (`to_page_id`).
-        condition = condition.add(
-            page::Column::PageId.in_subquery(
-                Query::select()
-                    .column(page_connection::Column::FromPageId)
-                    .from(PageConnection)
-                    .and_where({
-                        let incoming_ids = PageService::get_pages(
-                            ctx,
-                            queried_site_id,
-                            contains_outgoing_links,
-                        )
-                        .await
-                        .or_raise(make_error)?
-                        .into_iter()
-                        .map(|page| page.page_id);
+        // to a specified page (`to_page_id`). An empty selector means
+        // no link constraint; adding an empty subquery here makes every
+        // ordinary ListPages query return no rows.
+        if !contains_outgoing_links.is_empty() {
+            condition = condition.add(
+                page::Column::PageId.in_subquery(
+                    Query::select()
+                        .column(page_connection::Column::FromPageId)
+                        .from(PageConnection)
+                        .and_where({
+                            let incoming_ids = PageService::get_pages(
+                                ctx,
+                                queried_site_id,
+                                contains_outgoing_links,
+                            )
+                            .await
+                            .or_raise(make_error)?
+                            .into_iter()
+                            .map(|page| page.page_id);
 
-                        page_connection::Column::ToPageId.is_in(incoming_ids)
-                    })
-                    .to_owned(),
-            ),
-        );
+                            page_connection::Column::ToPageId.is_in(incoming_ids)
+                        })
+                        .to_owned(),
+                ),
+            );
+        }
 
         // Tag filtering
         // TODO requires joining with most recent revision
