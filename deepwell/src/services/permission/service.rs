@@ -229,6 +229,7 @@ impl PermissionService {
             site_id,
             role_reference,
             human_readable_categories,
+            ..
         }: GetRolePermissionsInput<'_>,
     ) -> Result<Vec<Permission<'static>>> {
         let role_id = match role_reference {
@@ -276,6 +277,7 @@ impl PermissionService {
             site_id,
             role_reference,
             human_readable_categories,
+            ..
         }: GetRolePermissionsInput<'_>,
     ) -> Result<Vec<DecoratedPermission<'static>>> {
         let txn = ctx.transaction();
@@ -605,6 +607,7 @@ impl PermissionService {
                 user_id,
                 site_id,
                 page_reference,
+                acting_user_id: None,
             },
         )
         .await
