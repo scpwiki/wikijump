@@ -21,7 +21,10 @@
   }
 
   function setLayout() {
-    if (page.route.id?.startsWith("/[x+2d]/")) {
+    if (
+      page.route.id?.startsWith("/[x+2d]/") ||
+      page.route.id?.startsWith("/__local-wikidot-verify")
+    ) {
       // this is a special page, use Wikijump layout
       pageLayoutState.current = Layout.WIKIJUMP
     } else {

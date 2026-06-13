@@ -27,6 +27,7 @@ use crate::models::page_connection::{self, Entity as PageConnection};
 use crate::models::page_parent::{self, Entity as PageParent};
 use crate::models::{page_revision, text};
 use crate::services::{PageService, ParentService};
+use sea_query::extension::postgres::PgBinOper;
 use sea_query::{Expr, Query};
 
 #[derive(Debug)]
@@ -322,24 +323,58 @@ impl PageQueryService {
             );
         }
 
-        // Tag filtering
-        // TODO requires joining with most recent revision
-
         // Build the final query
         let mut query = Page::find().filter(condition);
+        let order = order.unwrap_or_default();
+        let needs_tag_filter =
+            !all_tags.is_empty() || !any_tags.is_empty() || !no_tags.is_empty();
+        let needs_revision_join = needs_tag_filter
+            || matches!(
+                order.property,
+                OrderProperty::Title | OrderProperty::AltTitle | OrderProperty::Size
+            );
+        if needs_revision_join {
+            query = query.join(JoinType::Join, page::Relation::PageRevision.def());
+        }
 
         // Add necessary joins
-        macro_rules! join_revision {
-            () => {
-                query = query.join(JoinType::Join, page::Relation::PageRevision.def());
-            };
-        }
         macro_rules! join_text {
             () => {
                 query = query.join(JoinType::Join, page_revision::Relation::Text1.def());
             };
         }
         // TODO other joins
+
+        // Tag filtering. Tags live on the current page revision, so this joins through
+        // page.latest_revision_id -> page_revision.revision_id before applying array predicates.
+        for tag in all_tags {
+            query = query.filter(
+                Expr::col(page_revision::Column::Tags)
+                    .binary(PgBinOper::Contains, Expr::val(vec![tag.to_string()])),
+            );
+        }
+
+        if !any_tags.is_empty() {
+            query = query.filter(
+                Expr::col(page_revision::Column::Tags).binary(
+                    PgBinOper::Overlap,
+                    Expr::val(
+                        any_tags
+                            .iter()
+                            .map(|tag| tag.to_string())
+                            .collect::<Vec<_>>(),
+                    ),
+                ),
+            );
+        }
+
+        for tag in no_tags {
+            query = query.filter(
+                Expr::col(page_revision::Column::Tags)
+                    .binary(PgBinOper::Contains, Expr::val(vec![tag.to_string()]))
+                    .not(),
+            );
+        }
 
         // Add on at the query-level (ORDER BY, LIMIT)
         {
@@ -350,7 +385,7 @@ impl PageQueryService {
             let OrderBySelector {
                 property,
                 ascending,
-            } = order.unwrap_or_default();
+            } = order;
 
             debug!("Ordering ListPages using {property:?} (ascending: {ascending})");
 
@@ -370,12 +405,10 @@ impl PageQueryService {
                 }
                 OrderProperty::Title => {
                     error!("Ordering by title, not yet implemented");
-                    join_revision!();
                     query = query.order_by(page_revision::Column::Title, order);
                 }
                 OrderProperty::AltTitle => {
                     error!("Ordering by alt title, not yet implemented");
-                    join_revision!();
                     query = query.order_by(page_revision::Column::AltTitle, order);
                 }
                 OrderProperty::CreatedBy => {
@@ -392,7 +425,6 @@ impl PageQueryService {
                 }
                 OrderProperty::Size => {
                     error!("Ordering by page size, not yet implemented");
-                    join_revision!();
                     join_text!();
                     let col = Expr::col(text::Column::Contents);
                     let expr = SimpleExpr::FunctionCall(Func::char_length(col));
