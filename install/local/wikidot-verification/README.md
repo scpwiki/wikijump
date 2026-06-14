@@ -69,11 +69,12 @@ node install/local/wikidot-verification/scripts/corpus-render-batch.mjs \
   --limit 25 \
   --batch-size 25 \
   --rpc-url http://127.0.0.1:12748/jsonrpc \
+  --rpc-timeout-ms 30000 \
   --preload-dependencies \
   --max-dependencies 80
 ```
 
-The batch command writes page-level diagnostics, rendered HTML, `compatibility-results.tsv`, `corpus-batch-ledger.tsv`, and `batch-summary.json`.
+The batch command writes page-level diagnostics, rendered HTML, `compatibility-results.tsv`, `corpus-batch-ledger.tsv`, and `batch-summary.json`. If the JSON-RPC service is unavailable during setup, it still writes skipped rows for the selected manifest slice and exits non-zero.
 
 ## Preview One Source File
 
@@ -84,12 +85,13 @@ node install/local/wikidot-verification/scripts/preview-source.mjs \
   --manifest /home/roku/codex-thread-workspaces/019ebf4b-585e-7b93-bd6d-cdba089c8084/artifacts/wikijump/v5-plan-state/corpus-manifest.tsv \
   --output-dir /home/roku/codex-thread-workspaces/019ebf4b-585e-7b93-bd6d-cdba089c8084/artifacts/wikijump/v5-preview-smoke-11-mr-feather \
   --rpc-url http://127.0.0.1:12748/jsonrpc \
+  --rpc-timeout-ms 30000 \
   --preload-dependencies \
   --dependency-depth 2 \
   --json
 ```
 
-The preview command writes `preview-result.json` and rendered HTML. The JSON contract includes the input source hash, preview slug, HTML path, diagnostics, dependency list, dependency preload results, asset list, Wikijump page reference, and timing.
+The preview command writes `preview-result.json` and rendered HTML. The JSON contract includes the input source hash, preview slug, HTML path, diagnostics, dependency list, dependency preload results, asset list, Wikijump page reference, timing, and the RPC timeout used for the run.
 
 ## Preview A Canary Batch
 

@@ -23,6 +23,7 @@ function parseArgs(argv) {
     batchSize: 250,
     slugPrefix: "",
     maxDependencies: 500,
+    rpcTimeoutMs: 30000,
   };
 
   for (let index = 2; index < argv.length; index += 1) {
@@ -47,6 +48,8 @@ function parseArgs(argv) {
       args.preloadDependencies = true;
     } else if (arg === "--max-dependencies") {
       args.maxDependencies = Number.parseInt(argv[++index], 10);
+    } else if (arg === "--rpc-timeout-ms") {
+      args.rpcTimeoutMs = Number.parseInt(argv[++index], 10);
     } else if (arg === "--help") {
       printHelpAndExit();
     } else {
@@ -61,11 +64,12 @@ function parseArgs(argv) {
     throw new Error("--limit must be a non-negative integer");
   }
   if (!Number.isFinite(args.maxDependencies) || args.maxDependencies < 0) args.maxDependencies = 500;
+  if (!Number.isFinite(args.rpcTimeoutMs) || args.rpcTimeoutMs <= 0) args.rpcTimeoutMs = 30000;
   return args;
 }
 
 function printHelpAndExit() {
-  console.log(`Usage: node install/local/wikidot-verification/scripts/corpus-render-batch.mjs --manifest FILE --output-dir DIR [--offset 0] [--limit N] [--batch-size 250] [--rpc-url URL] [--site scp-wiki] [--slug-prefix PREFIX] [--preload-dependencies] [--max-dependencies 500]`);
+  console.log(`Usage: node install/local/wikidot-verification/scripts/corpus-render-batch.mjs --manifest FILE --output-dir DIR [--offset 0] [--limit N] [--batch-size 250] [--rpc-url URL] [--rpc-timeout-ms 30000] [--site scp-wiki] [--slug-prefix PREFIX] [--preload-dependencies] [--max-dependencies 500]`);
   process.exit(0);
 }
 
@@ -108,9 +112,24 @@ async function readTsv(filePath) {
   });
 }
 
+function describeError(error) {
+  const parts = [String(error?.message || error)];
+  if (error?.name && !parts[0].includes(error.name)) parts.unshift(error.name);
+  if (error?.cause) {
+    const causeParts = [
+      error.cause.name,
+      error.cause.code,
+      error.cause.message,
+    ].filter(Boolean);
+    if (causeParts.length) parts.push(`cause=${causeParts.join(":")}`);
+  }
+  return parts.filter(Boolean).join(" ");
+}
+
 class DeepwellClient {
-  constructor(rpcUrl) {
+  constructor(rpcUrl, timeoutMs) {
     this.rpcUrl = rpcUrl;
+    this.timeoutMs = timeoutMs;
     this.nextId = 1;
   }
 
@@ -120,16 +139,27 @@ class DeepwellClient {
     if (context.siteId) headers["X-Deepwell-Site-Id"] = String(context.siteId);
     if (context.page) headers["X-Deepwell-Page"] = String(context.page);
 
-    const response = await fetch(this.rpcUrl, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        jsonrpc: "2.0",
-        id: this.nextId++,
-        method,
-        params,
-      }),
-    });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
+    let response;
+    try {
+      response = await fetch(this.rpcUrl, {
+        method: "POST",
+        headers,
+        signal: controller.signal,
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: this.nextId++,
+          method,
+          params,
+        }),
+      });
+    } catch (error) {
+      const detail = controller.signal.aborted ? `timed out after ${this.timeoutMs} ms` : describeError(error);
+      throw new Error(`JSON-RPC ${method} fetch failed for ${this.rpcUrl}: ${detail}`);
+    } finally {
+      clearTimeout(timeout);
+    }
 
     const bodyText = await response.text();
     let body;
@@ -464,6 +494,151 @@ function batchLedgerRow(summary) {
   ].map(tsv).join("\t");
 }
 
+async function writeBatchOutputs({ args, batchId, rpcUrl, siteSlug, selected, results, dependencyPreload = [], status, next, exitCode = 0 }) {
+  const counts = {
+    pass: results.filter((result) => result.status === "pass").length,
+    warning: results.filter((result) => result.status === "pass-with-warnings").length,
+    unsupported: results.filter((result) => result.status === "unsupported-known").length,
+    failed: results.filter((result) => result.status.startsWith("failed")).length,
+    skipped: results.filter((result) => result.status.startsWith("skipped")).length,
+  };
+  const summary = {
+    generatedAt: new Date().toISOString(),
+    batchId,
+    rpcUrl,
+    rpcTimeoutMs: args.rpcTimeoutMs,
+    siteSlug,
+    offset: args.offset,
+    limit: selected.length,
+    batchSize: args.batchSize,
+    slugPrefix: args.slugPrefix,
+    dependencyPreload: {
+      enabled: Boolean(args.preloadDependencies),
+      requested: dependencyPreload.length,
+      passed: dependencyPreload.filter((result) => result.status === "pass").length,
+      failed: dependencyPreload.filter((result) => result.status === "failed").length,
+    },
+    manifest: args.manifest,
+    outputDir: args.outputDir,
+    pageCount: selected.length,
+    counts,
+    severityCounts: Object.fromEntries(["S0", "S1", "S2", "S3", "S4"].map((severity) => [
+      severity,
+      results.filter((result) => result.severity === severity).length,
+    ])),
+    categoryCounts: results.reduce((acc, result) => {
+      acc[result.category] = (acc[result.category] || 0) + 1;
+      return acc;
+    }, {}),
+  };
+
+  await writeJson(path.join(args.outputDir, "batch-summary.json"), summary);
+  await fs.writeFile(path.join(args.outputDir, "compatibility-results.tsv"), [
+    "page_id\tslug\tbatch_id\tparse_status\trender_status\timport_status\tbrowser_status\tseverity\tcategory\twarnings\terrors\traw_syntax_leaks\tmissing_includes\tmissing_assets\tduration_ms\tartifact\tnotes",
+    ...results.map(compatibilityRow),
+    "",
+  ].join("\n"));
+
+  const ledger = {
+    batchId,
+    startIndex: args.offset,
+    endIndex: args.offset + selected.length - 1,
+    pageCount: selected.length,
+    command: process.argv.map((part) => part.includes(" ") ? JSON.stringify(part) : part).join(" "),
+    artifactDir: args.outputDir,
+    ...counts,
+    status: status ?? (counts.failed > 0 ? "complete-with-failures" : "complete"),
+    next: next ?? (counts.failed > 0 ? "Review S3/S4 diagnostics and fix highest-impact categories." : "Continue next deterministic batch."),
+  };
+  await fs.writeFile(path.join(args.outputDir, "corpus-batch-ledger.tsv"), [
+    "batch_id\tstart_index\tend_index\tpage_count\tcommand\tartifact_dir\tpass\twarning\tunsupported\tfailed\tskipped\tstatus\tnext",
+    batchLedgerRow(ledger),
+    "",
+  ].join("\n"));
+
+  console.log(JSON.stringify(summary, null, 2));
+  if (exitCode) process.exitCode = exitCode;
+  return summary;
+}
+
+async function writeSetupFailureOutputs({ args, batchId, rpcUrl, siteSlug, selected, error }) {
+  const message = describeError(error);
+  const results = [];
+  for (const [relativeIndex, row] of selected.entries()) {
+    const manifestIndex = args.offset + relativeIndex;
+    const importSlug = `${args.slugPrefix}${row.slug}`;
+    const diagnostic = {
+      pageId: row.page_id,
+      slug: row.slug,
+      importSlug,
+      sourcePath: row.source_path,
+      manifestIndex,
+      parse: {
+        status: "skipped",
+        warnings: [],
+        errors: [],
+      },
+      render: {
+        status: "skipped",
+        htmlPath: "",
+        rawSyntaxLeaks: [],
+      },
+      wikijump: {
+        importStatus: "skipped",
+        url: `/${importSlug}`,
+        httpStatus: null,
+        action: "skipped",
+      },
+      dependencies: {
+        includes: splitPipe(row.dependency_hints).filter((hint) => hint.startsWith("include:")),
+        missingIncludes: [],
+        assets: splitPipe(row.asset_paths),
+        missingAssets: [],
+      },
+      constructs: splitPipe(row.construct_hints),
+      severity: "S4",
+      category: "wikijump-rpc",
+      durationMs: 0,
+      warnings: [],
+      errors: [message],
+    };
+    const diagnosticPath = path.join(args.outputDir, "diagnostics", `${encodeURIComponent(importSlug)}.json`);
+    await writeJson(diagnosticPath, diagnostic);
+    results.push({
+      pageId: row.page_id,
+      slug: row.slug,
+      batchId,
+      parseStatus: "skipped",
+      renderStatus: "skipped",
+      importStatus: "skipped",
+      browserStatus: "not-run",
+      severity: "S4",
+      category: "wikijump-rpc",
+      warnings: [],
+      errors: [message],
+      rawSyntaxLeaks: [],
+      missingIncludes: [],
+      missingAssets: [],
+      durationMs: 0,
+      artifact: diagnosticPath,
+      notes: `manifest_index:${manifestIndex};import_slug:${importSlug};skipped_reason:rpc_setup_failed`,
+      status: "skipped-runtime-unavailable",
+    });
+  }
+
+  return writeBatchOutputs({
+    args,
+    batchId,
+    rpcUrl,
+    siteSlug,
+    selected,
+    results,
+    status: "failed-runtime-unavailable",
+    next: "Restore the local Deepwell JSON-RPC service, then rerun this deterministic batch.",
+    exitCode: 1,
+  });
+}
+
 async function main() {
   const args = parseArgs(process.argv);
   await fs.mkdir(args.outputDir, { recursive: true });
@@ -478,16 +653,23 @@ async function main() {
   const siteSlug = args.siteSlug || process.env.WIKIDOT_VERIFY_SITE_SLUG || "scp-wiki";
   const adminEmail = process.env.WIKIDOT_VERIFY_ADMIN_EMAIL || "admin@wikijump";
   const adminPassword = process.env.WIKIDOT_VERIFY_ADMIN_PASS || "wikijumpadmin1";
-  const client = new DeepwellClient(rpcUrl);
+  const client = new DeepwellClient(rpcUrl, args.rpcTimeoutMs);
+  let site;
+  let login;
 
-  await client.call("ping", {});
-  const site = await client.call("site_get", { site: siteSlug });
-  const login = await client.call("login", {
-    name_or_email: adminEmail,
-    password: adminPassword,
-    ip_address: IP_ADDRESS,
-    user_agent: "wikidot-corpus-render-batch/0.1",
-  });
+  try {
+    await client.call("ping", {});
+    site = await client.call("site_get", { site: siteSlug });
+    login = await client.call("login", {
+      name_or_email: adminEmail,
+      password: adminPassword,
+      ip_address: IP_ADDRESS,
+      user_agent: "wikidot-corpus-render-batch/0.1",
+    });
+  } catch (error) {
+    await writeSetupFailureOutputs({ args, batchId, rpcUrl, siteSlug, selected, error });
+    return;
+  }
 
   let dependencyPreload = [];
   if (args.preloadDependencies) {
@@ -602,67 +784,7 @@ async function main() {
     });
   }
 
-  const counts = {
-    pass: results.filter((result) => result.status === "pass").length,
-    warning: results.filter((result) => result.status === "pass-with-warnings").length,
-    unsupported: results.filter((result) => result.status === "unsupported-known").length,
-    failed: results.filter((result) => result.status.startsWith("failed")).length,
-    skipped: results.filter((result) => result.status.startsWith("skipped")).length,
-  };
-  const summary = {
-    generatedAt: new Date().toISOString(),
-    batchId,
-    rpcUrl,
-    siteSlug,
-    offset: args.offset,
-    limit: selected.length,
-    batchSize: args.batchSize,
-    slugPrefix: args.slugPrefix,
-    dependencyPreload: {
-      enabled: Boolean(args.preloadDependencies),
-      requested: dependencyPreload.length,
-      passed: dependencyPreload.filter((result) => result.status === "pass").length,
-      failed: dependencyPreload.filter((result) => result.status === "failed").length,
-    },
-    manifest: args.manifest,
-    outputDir: args.outputDir,
-    pageCount: selected.length,
-    counts,
-    severityCounts: Object.fromEntries(["S0", "S1", "S2", "S3", "S4"].map((severity) => [
-      severity,
-      results.filter((result) => result.severity === severity).length,
-    ])),
-    categoryCounts: results.reduce((acc, result) => {
-      acc[result.category] = (acc[result.category] || 0) + 1;
-      return acc;
-    }, {}),
-  };
-
-  await writeJson(path.join(args.outputDir, "batch-summary.json"), summary);
-  await fs.writeFile(path.join(args.outputDir, "compatibility-results.tsv"), [
-    "page_id\tslug\tbatch_id\tparse_status\trender_status\timport_status\tbrowser_status\tseverity\tcategory\twarnings\terrors\traw_syntax_leaks\tmissing_includes\tmissing_assets\tduration_ms\tartifact\tnotes",
-    ...results.map(compatibilityRow),
-    "",
-  ].join("\n"));
-
-  const ledger = {
-    batchId,
-    startIndex: args.offset,
-    endIndex: args.offset + selected.length - 1,
-    pageCount: selected.length,
-    command: process.argv.map((part) => part.includes(" ") ? JSON.stringify(part) : part).join(" "),
-    artifactDir: args.outputDir,
-    ...counts,
-    status: counts.failed > 0 ? "complete-with-failures" : "complete",
-    next: counts.failed > 0 ? "Review S3/S4 diagnostics and fix highest-impact categories." : "Continue next deterministic batch.",
-  };
-  await fs.writeFile(path.join(args.outputDir, "corpus-batch-ledger.tsv"), [
-    "batch_id\tstart_index\tend_index\tpage_count\tcommand\tartifact_dir\tpass\twarning\tunsupported\tfailed\tskipped\tstatus\tnext",
-    batchLedgerRow(ledger),
-    "",
-  ].join("\n"));
-
-  console.log(JSON.stringify(summary, null, 2));
+  await writeBatchOutputs({ args, batchId, rpcUrl, siteSlug, selected, results, dependencyPreload });
 }
 
 main().catch((error) => {

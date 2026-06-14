@@ -22,6 +22,7 @@ function parseArgs(argv) {
     slugPrefix: "preview-",
     maxDependencies: 50,
     dependencyDepth: 1,
+    rpcTimeoutMs: 30000,
   };
 
   for (let index = 2; index < argv.length; index += 1) {
@@ -34,6 +35,8 @@ function parseArgs(argv) {
       args.outputDir = path.resolve(argv[++index]);
     } else if (arg === "--rpc-url") {
       args.rpcUrl = argv[++index];
+    } else if (arg === "--rpc-timeout-ms") {
+      args.rpcTimeoutMs = Number.parseInt(argv[++index], 10);
     } else if (arg === "--site") {
       args.siteSlug = argv[++index];
     } else if (arg === "--slug") {
@@ -60,11 +63,12 @@ function parseArgs(argv) {
   if (!args.source) throw new Error("--source is required");
   if (!Number.isFinite(args.maxDependencies) || args.maxDependencies < 0) args.maxDependencies = 50;
   if (!Number.isFinite(args.dependencyDepth) || args.dependencyDepth < 0) args.dependencyDepth = 1;
+  if (!Number.isFinite(args.rpcTimeoutMs) || args.rpcTimeoutMs <= 0) args.rpcTimeoutMs = 30000;
   return args;
 }
 
 function printHelpAndExit() {
-  console.log(`Usage: node install/local/wikidot-verification/scripts/preview-source.mjs --source FILE [--manifest corpus-manifest.tsv] [--output-dir DIR] [--rpc-url URL] [--site scp-wiki] [--slug SLUG] [--title TITLE] [--slug-prefix preview-] [--preload-dependencies] [--max-dependencies 50] [--dependency-depth 1] [--json]`);
+  console.log(`Usage: node install/local/wikidot-verification/scripts/preview-source.mjs --source FILE [--manifest corpus-manifest.tsv] [--output-dir DIR] [--rpc-url URL] [--rpc-timeout-ms 30000] [--site scp-wiki] [--slug SLUG] [--title TITLE] [--slug-prefix preview-] [--preload-dependencies] [--max-dependencies 50] [--dependency-depth 1] [--json]`);
   process.exit(0);
 }
 
@@ -125,9 +129,24 @@ async function readTsv(filePath) {
   });
 }
 
+function describeError(error) {
+  const parts = [String(error?.message || error)];
+  if (error?.name && !parts[0].includes(error.name)) parts.unshift(error.name);
+  if (error?.cause) {
+    const causeParts = [
+      error.cause.name,
+      error.cause.code,
+      error.cause.message,
+    ].filter(Boolean);
+    if (causeParts.length) parts.push(`cause=${causeParts.join(":")}`);
+  }
+  return parts.filter(Boolean).join(" ");
+}
+
 class DeepwellClient {
-  constructor(rpcUrl) {
+  constructor(rpcUrl, timeoutMs) {
     this.rpcUrl = rpcUrl;
+    this.timeoutMs = timeoutMs;
     this.nextId = 1;
   }
 
@@ -137,11 +156,14 @@ class DeepwellClient {
     if (context.siteId) headers["X-Deepwell-Site-Id"] = String(context.siteId);
     if (context.page) headers["X-Deepwell-Page"] = String(context.page);
 
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
     let response;
     try {
       response = await fetch(this.rpcUrl, {
         method: "POST",
         headers,
+        signal: controller.signal,
         body: JSON.stringify({
           jsonrpc: "2.0",
           id: this.nextId++,
@@ -150,8 +172,10 @@ class DeepwellClient {
         }),
       });
     } catch (error) {
-      const cause = error.cause?.message ? ` cause=${error.cause.message}` : "";
-      throw new Error(`JSON-RPC ${method} fetch failed for ${this.rpcUrl}: ${error.message}${cause}`);
+      const detail = controller.signal.aborted ? `timed out after ${this.timeoutMs} ms` : describeError(error);
+      throw new Error(`JSON-RPC ${method} fetch failed for ${this.rpcUrl}: ${detail}`);
+    } finally {
+      clearTimeout(timeout);
     }
 
     const bodyText = await response.text();
@@ -471,7 +495,7 @@ async function main() {
   const siteSlug = args.siteSlug || process.env.WIKIDOT_VERIFY_SITE_SLUG || "scp-wiki";
   const adminEmail = process.env.WIKIDOT_VERIFY_ADMIN_EMAIL || "admin@wikijump";
   const adminPassword = process.env.WIKIDOT_VERIFY_ADMIN_PASS || "wikijumpadmin1";
-  const client = new DeepwellClient(rpcUrl);
+  const client = new DeepwellClient(rpcUrl, args.rpcTimeoutMs);
   const timings = {};
   let imported = null;
   let classification;
@@ -545,6 +569,7 @@ async function main() {
     request: {
       rpcUrl,
       site: siteSlug,
+      rpcTimeoutMs: args.rpcTimeoutMs,
       title,
       previewSlug,
       slugPrefix: args.slugPrefix,
