@@ -20,6 +20,8 @@ function parseArgs(argv) {
   const args = {
     outputDir: path.resolve(process.cwd(), "preview-source-output"),
     slugPrefix: "preview-",
+    maxDependencies: 50,
+    dependencyDepth: 1,
   };
 
   for (let index = 2; index < argv.length; index += 1) {
@@ -40,6 +42,12 @@ function parseArgs(argv) {
       args.title = argv[++index];
     } else if (arg === "--slug-prefix") {
       args.slugPrefix = argv[++index];
+    } else if (arg === "--preload-dependencies") {
+      args.preloadDependencies = true;
+    } else if (arg === "--max-dependencies") {
+      args.maxDependencies = Number.parseInt(argv[++index], 10);
+    } else if (arg === "--dependency-depth") {
+      args.dependencyDepth = Number.parseInt(argv[++index], 10);
     } else if (arg === "--json") {
       args.jsonOnly = true;
     } else if (arg === "--help") {
@@ -50,11 +58,13 @@ function parseArgs(argv) {
   }
 
   if (!args.source) throw new Error("--source is required");
+  if (!Number.isFinite(args.maxDependencies) || args.maxDependencies < 0) args.maxDependencies = 50;
+  if (!Number.isFinite(args.dependencyDepth) || args.dependencyDepth < 0) args.dependencyDepth = 1;
   return args;
 }
 
 function printHelpAndExit() {
-  console.log(`Usage: node install/local/wikidot-verification/scripts/preview-source.mjs --source FILE [--manifest corpus-manifest.tsv] [--output-dir DIR] [--rpc-url URL] [--site scp-wiki] [--slug SLUG] [--title TITLE] [--slug-prefix preview-] [--json]`);
+  console.log(`Usage: node install/local/wikidot-verification/scripts/preview-source.mjs --source FILE [--manifest corpus-manifest.tsv] [--output-dir DIR] [--rpc-url URL] [--site scp-wiki] [--slug SLUG] [--title TITLE] [--slug-prefix preview-] [--preload-dependencies] [--max-dependencies 50] [--dependency-depth 1] [--json]`);
   process.exit(0);
 }
 
@@ -89,6 +99,16 @@ function rowForSource(manifest, sourcePath) {
   if (!manifest.length) return null;
   const normalized = path.resolve(sourcePath);
   return manifest.find((row) => path.resolve(row.source_path) === normalized) ?? null;
+}
+
+function normalizeIncludeSlug(hint) {
+  if (!hint.startsWith("include:")) return "";
+  let value = hint.slice("include:".length).trim();
+  if (!value) return "";
+  value = value.replace(/^\|+/, "");
+  if (value.startsWith(":scp-wiki:")) value = value.slice(":scp-wiki:".length);
+  if (value.startsWith("scp-wiki:")) value = value.slice("scp-wiki:".length);
+  return value.toLowerCase();
 }
 
 async function readTsv(filePath) {
@@ -220,6 +240,69 @@ async function createOrUpdatePreviewPage(client, siteId, sessionToken, preview, 
   const rendered = await maybeGetPage(client, siteId, preview.slug);
   if (!rendered) throw new Error(`Page missing after preview rerender: ${preview.slug}`);
   return { action, parserErrors, page: rendered };
+}
+
+async function preloadDependencies({
+  client,
+  siteId,
+  sessionToken,
+  manifestBySlug,
+  includes,
+  maxDependencies,
+  dependencyDepth,
+}) {
+  const queue = [];
+  const seen = new Set();
+  for (const include of includes) {
+    const slug = normalizeIncludeSlug(include);
+    if (!slug || seen.has(slug)) continue;
+    if (!manifestBySlug.has(slug)) continue;
+    seen.add(slug);
+    queue.push({ slug, depth: 1 });
+    if (queue.length >= maxDependencies) break;
+  }
+
+  const results = [];
+  for (let index = 0; index < queue.length && results.length < maxDependencies; index += 1) {
+    const { slug, depth } = queue[index];
+    const row = manifestBySlug.get(slug);
+    const start = performance.now();
+    try {
+      const source = await fs.readFile(row.source_path, "utf8");
+      const imported = await createOrUpdatePreviewPage(client, siteId, sessionToken, {
+        slug: row.slug,
+        title: row.title || row.slug,
+        tags: normalizeTags(row.tags),
+      }, source);
+      results.push({
+        slug: row.slug,
+        status: "pass",
+        action: imported.action,
+        durationMs: Math.round(performance.now() - start),
+        parserErrorCount: imported.parserErrors.length,
+      });
+      if (depth < dependencyDepth) {
+        for (const include of splitPipe(row.dependency_hints).filter((hint) => hint.startsWith("include:"))) {
+          const nestedSlug = normalizeIncludeSlug(include);
+          if (!nestedSlug || seen.has(nestedSlug)) continue;
+          if (!manifestBySlug.has(nestedSlug)) continue;
+          seen.add(nestedSlug);
+          queue.push({ slug: nestedSlug, depth: depth + 1 });
+          if (queue.length >= maxDependencies) break;
+        }
+      }
+    } catch (error) {
+      results.push({
+        slug: row.slug,
+        status: "failed",
+        action: "failed",
+        durationMs: Math.round(performance.now() - start),
+        error: String(error.message || error),
+      });
+    }
+  }
+
+  return results;
 }
 
 function inferIncludes(source) {
@@ -364,6 +447,7 @@ async function main() {
   const sourceSha256 = sha256Text(source);
   const manifest = args.manifest ? await readTsv(args.manifest) : [];
   const manifestRow = rowForSource(manifest, args.source);
+  const manifestBySlug = new Map(manifest.map((row) => [row.slug.toLowerCase(), row]));
   const sourceSlug = args.slug || manifestRow?.slug || slugify(path.basename(path.dirname(args.source)) || path.basename(args.source));
   const previewSlug = `${args.slugPrefix}${slugify(sourceSlug)}`;
   const title = args.title || manifestRow?.title || sourceSlug;
@@ -378,6 +462,7 @@ async function main() {
   const timings = {};
   let imported = null;
   let classification;
+  let dependencyPreload = [];
 
   try {
     const connectStart = performance.now();
@@ -390,6 +475,20 @@ async function main() {
       user_agent: "wikidot-preview-source/0.1",
     });
     timings.connectMs = Math.round(performance.now() - connectStart);
+
+    if (args.preloadDependencies) {
+      const dependencyStart = performance.now();
+      dependencyPreload = await preloadDependencies({
+        client,
+        siteId: site.site_id,
+        sessionToken: login.session_token,
+        manifestBySlug,
+        includes,
+        maxDependencies: args.maxDependencies,
+        dependencyDepth: args.dependencyDepth,
+      });
+      timings.dependenciesMs = Math.round(performance.now() - dependencyStart);
+    }
 
     const importStart = performance.now();
     imported = await createOrUpdatePreviewPage(client, site.site_id, login.session_token, {
@@ -436,6 +535,9 @@ async function main() {
       title,
       previewSlug,
       slugPrefix: args.slugPrefix,
+      preloadDependencies: Boolean(args.preloadDependencies),
+      maxDependencies: args.maxDependencies,
+      dependencyDepth: args.dependencyDepth,
     },
     html: {
       path: htmlPath,
@@ -453,6 +555,13 @@ async function main() {
     dependencies: {
       includes,
       missingIncludes: classification.missingIncludes,
+      preload: {
+        enabled: Boolean(args.preloadDependencies),
+        requested: dependencyPreload.length,
+        passed: dependencyPreload.filter((result) => result.status === "pass").length,
+        failed: dependencyPreload.filter((result) => result.status === "failed").length,
+        results: dependencyPreload,
+      },
     },
     assets: {
       references: assets,

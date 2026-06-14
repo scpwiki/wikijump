@@ -11,6 +11,9 @@ function parseArgs(argv) {
     offset: 0,
     limit: 100,
     slugPrefix: "preview-batch-",
+    maxDependencies: 50,
+    dependencyDepth: 1,
+    timeoutMs: 120000,
   };
 
   for (let index = 2; index < argv.length; index += 1) {
@@ -31,6 +34,14 @@ function parseArgs(argv) {
       args.siteSlug = argv[++index];
     } else if (arg === "--slug-prefix") {
       args.slugPrefix = argv[++index];
+    } else if (arg === "--preload-dependencies") {
+      args.preloadDependencies = true;
+    } else if (arg === "--max-dependencies") {
+      args.maxDependencies = Number.parseInt(argv[++index], 10);
+    } else if (arg === "--dependency-depth") {
+      args.dependencyDepth = Number.parseInt(argv[++index], 10);
+    } else if (arg === "--timeout-ms") {
+      args.timeoutMs = Number.parseInt(argv[++index], 10);
     } else if (arg === "--help") {
       printHelpAndExit();
     } else {
@@ -42,11 +53,14 @@ function parseArgs(argv) {
   if (!args.manifest) throw new Error("--manifest is required");
   if (!Number.isFinite(args.offset) || args.offset < 0) args.offset = 0;
   if (!Number.isFinite(args.limit) || args.limit < 0) args.limit = 100;
+  if (!Number.isFinite(args.maxDependencies) || args.maxDependencies < 0) args.maxDependencies = 50;
+  if (!Number.isFinite(args.dependencyDepth) || args.dependencyDepth < 0) args.dependencyDepth = 1;
+  if (!Number.isFinite(args.timeoutMs) || args.timeoutMs <= 0) args.timeoutMs = 120000;
   return args;
 }
 
 function printHelpAndExit() {
-  console.log(`Usage: node install/local/wikidot-verification/scripts/preview-batch.mjs --input canary-pages.tsv --manifest corpus-manifest.tsv --output-dir DIR [--offset 0] [--limit 100] [--rpc-url URL] [--site scp-wiki] [--slug-prefix preview-batch-]`);
+  console.log(`Usage: node install/local/wikidot-verification/scripts/preview-batch.mjs --input canary-pages.tsv --manifest corpus-manifest.tsv --output-dir DIR [--offset 0] [--limit 100] [--rpc-url URL] [--site scp-wiki] [--slug-prefix preview-batch-] [--preload-dependencies] [--max-dependencies 50] [--dependency-depth 1] [--timeout-ms 120000]`);
   process.exit(0);
 }
 
@@ -78,14 +92,24 @@ async function readTsv(filePath) {
   });
 }
 
-function runPreview(commandArgs, cwd) {
+function runPreview(commandArgs, cwd, timeoutMs) {
   return new Promise((resolve) => {
     const child = spawn(process.execPath, commandArgs, {
       cwd,
+      detached: true,
       stdio: ["ignore", "pipe", "pipe"],
     });
     let stdout = "";
     let stderr = "";
+    let timedOut = false;
+    const timeout = setTimeout(() => {
+      timedOut = true;
+      try {
+        process.kill(-child.pid, "SIGTERM");
+      } catch {
+        child.kill("SIGTERM");
+      }
+    }, timeoutMs);
     child.stdout.on("data", (chunk) => {
       stdout += chunk.toString();
     });
@@ -93,7 +117,8 @@ function runPreview(commandArgs, cwd) {
       stderr += chunk.toString();
     });
     child.on("close", (code) => {
-      resolve({ code, stdout, stderr });
+      clearTimeout(timeout);
+      resolve({ code, stdout, stderr, timedOut });
     });
   });
 }
@@ -126,6 +151,10 @@ function resultRow(result) {
     result.missingIncludeCount,
     result.missingAssetCount,
     result.rawSyntaxLeakCount,
+    result.dependencyPreloadRequested,
+    result.dependencyPreloadPassed,
+    result.dependencyPreloadFailed,
+    result.timedOut,
     result.notes,
   ].map(tsv).join("\t");
 }
@@ -157,7 +186,14 @@ async function main() {
       "--slug-prefix", args.slugPrefix,
       "--json",
     ];
-    const run = await runPreview(commandArgs, repoRoot);
+    if (args.preloadDependencies) {
+      commandArgs.push(
+        "--preload-dependencies",
+        "--max-dependencies", String(args.maxDependencies),
+        "--dependency-depth", String(args.dependencyDepth),
+      );
+    }
+    const run = await runPreview(commandArgs, repoRoot, args.timeoutMs);
     const resultPath = path.join(pageOutputDir, "preview-result.json");
     let preview = null;
     let notes = "";
@@ -168,6 +204,8 @@ async function main() {
       } catch (error) {
         notes = `preview-result read failed: ${error.message}`;
       }
+    } else if (run.timedOut) {
+      notes = `preview-source timed out after ${args.timeoutMs} ms`;
     } else {
       notes = `preview-source exit ${run.code}: ${run.stderr.slice(0, 500)}`;
     }
@@ -192,6 +230,10 @@ async function main() {
       missingIncludeCount: preview?.dependencies?.missingIncludes?.length ?? 0,
       missingAssetCount: preview?.assets?.missingAssets?.length ?? 0,
       rawSyntaxLeakCount: preview?.diagnostics?.rawSyntaxLeaks?.length ?? 0,
+      dependencyPreloadRequested: preview?.dependencies?.preload?.requested ?? 0,
+      dependencyPreloadPassed: preview?.dependencies?.preload?.passed ?? 0,
+      dependencyPreloadFailed: preview?.dependencies?.preload?.failed ?? 0,
+      timedOut: run.timedOut,
       notes,
     });
   }
@@ -225,6 +267,10 @@ async function main() {
     "missing_include_count",
     "missing_asset_count",
     "raw_syntax_leak_count",
+    "dependency_preload_requested",
+    "dependency_preload_passed",
+    "dependency_preload_failed",
+    "timed_out",
     "notes",
   ].join("\t");
   await fs.writeFile(path.join(args.outputDir, "preview-results.tsv"), `${header}\n${results.map(resultRow).join("\n")}\n`);
@@ -238,6 +284,10 @@ async function main() {
     siteSlug,
     offset: args.offset,
     limit: args.limit,
+    preloadDependencies: Boolean(args.preloadDependencies),
+    maxDependencies: args.maxDependencies,
+    dependencyDepth: args.dependencyDepth,
+    timeoutMs: args.timeoutMs,
     pageCount: results.length,
     statusCounts,
     severityCounts,
@@ -248,6 +298,12 @@ async function main() {
       minMs: timingValues.length ? Math.min(...timingValues) : null,
       maxMs: timingValues.length ? Math.max(...timingValues) : null,
     },
+    dependencyPreload: {
+      requested: results.reduce((sum, result) => sum + result.dependencyPreloadRequested, 0),
+      passed: results.reduce((sum, result) => sum + result.dependencyPreloadPassed, 0),
+      failed: results.reduce((sum, result) => sum + result.dependencyPreloadFailed, 0),
+    },
+    timedOut: results.filter((result) => result.timedOut).length,
   };
   await fs.writeFile(path.join(args.outputDir, "preview-summary.json"), JSON.stringify(summary, null, 2) + "\n");
   console.log(JSON.stringify(summary, null, 2));

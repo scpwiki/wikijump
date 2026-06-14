@@ -84,10 +84,12 @@ node install/local/wikidot-verification/scripts/preview-source.mjs \
   --manifest /home/roku/codex-thread-workspaces/019ebf4b-585e-7b93-bd6d-cdba089c8084/artifacts/wikijump/v5-plan-state/corpus-manifest.tsv \
   --output-dir /home/roku/codex-thread-workspaces/019ebf4b-585e-7b93-bd6d-cdba089c8084/artifacts/wikijump/v5-preview-smoke-11-mr-feather \
   --rpc-url http://127.0.0.1:12748/jsonrpc \
+  --preload-dependencies \
+  --dependency-depth 2 \
   --json
 ```
 
-The preview command writes `preview-result.json` and rendered HTML. The JSON contract includes the input source hash, preview slug, HTML path, diagnostics, dependency list, asset list, Wikijump page reference, and timing.
+The preview command writes `preview-result.json` and rendered HTML. The JSON contract includes the input source hash, preview slug, HTML path, diagnostics, dependency list, dependency preload results, asset list, Wikijump page reference, and timing.
 
 ## Preview A Canary Batch
 
@@ -100,10 +102,13 @@ node install/local/wikidot-verification/scripts/preview-batch.mjs \
   --offset 0 \
   --limit 100 \
   --rpc-url http://127.0.0.1:12748/jsonrpc \
-  --slug-prefix preview-canary-
+  --slug-prefix preview-canary- \
+  --preload-dependencies \
+  --dependency-depth 2 \
+  --timeout-ms 120000
 ```
 
-The preview batch command writes `preview-results.tsv`, `preview-summary.json`, and per-page `preview-result.json` and HTML artifacts under `pages/`. The summary includes severity counts and p50/p95 timing.
+The preview batch command writes `preview-results.tsv`, `preview-summary.json`, and per-page `preview-result.json` and HTML artifacts under `pages/`. The summary includes severity counts, dependency preload totals, timeout count, and p50/p95 timing.
 
 ## Required Proof Pages
 
