@@ -27,7 +27,7 @@ use std::num::NonZeroU16;
 use std::time::Duration;
 
 const JSONRPC_MAX_REQUEST: u32 = 16 * 1024;
-const JSONRPC_TIMEOUT: Duration = Duration::from_secs(2);
+const JSONRPC_TIMEOUT: Duration = Duration::from_secs(5);
 
 /// Macro to create `ObjectParams` instances.
 /// This is the object equivalent to `rpc_params!`, which creates `ArrayParams` instances.
