@@ -4,8 +4,8 @@ import { storeRequestContext } from "$lib/server/load/request-ctx"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import type { Handle } from "@sveltejs/kit"
 
-const LOCAL_FILE_IMAGE_SOURCES = ["http://*.wjfiles.localhost:18443"]
-const LOCAL_FILE_STYLE_SOURCES = ["http://*.wjfiles.localhost:18443"]
+const LOCAL_FILE_IMAGE_SOURCES = ["https://*.wjfiles.localhost"]
+const LOCAL_FILE_STYLE_SOURCES = ["https://*.wjfiles.localhost"]
 const WIKIDOT_STYLE_SOURCES = [
   "https://*.wdfiles.com",
   "https://cdn.scpwiki.com",

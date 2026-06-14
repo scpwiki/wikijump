@@ -15,7 +15,7 @@ The default verifier endpoints are:
 
 ```text
 Deepwell JSON-RPC: http://127.0.0.1:2747/jsonrpc
-Rendered site:      http://scp-wiki.wikijump.localhost:18443
+Rendered site:      https://scpwiki.localhost
 ```
 
 ## Seed Or Update The Corpus
@@ -40,7 +40,7 @@ WIKIDOT_VERIFY_ADMIN_PASS   seeded local admin password, default wikijumpadmin1
 ```bash
 cd /home/roku/src/scpwiki/wikijump
 node install/local/wikidot-verification/scripts/browser-proof-matrix.mjs \
-  --base-url http://scp-wiki.wikijump.localhost:18443 \
+  --base-url https://scpwiki.localhost \
   --output-dir /home/roku/codex-thread-workspaces/019ebf4b-585e-7b93-bd6d-cdba089c8084/artifacts/wikijump/v3-browser-proof
 ```
 
@@ -120,7 +120,7 @@ cd /home/roku/src/scpwiki/wikijump
 node install/local/wikidot-verification/scripts/browser-proof-corpus-pages.mjs \
   --input /home/roku/codex-thread-workspaces/019ebf4b-585e-7b93-bd6d-cdba089c8084/artifacts/wikijump/v5-preview-canary-100/preview-results.tsv \
   --output-dir /home/roku/codex-thread-workspaces/019ebf4b-585e-7b93-bd6d-cdba089c8084/artifacts/wikijump/v5-browser-canary-100 \
-  --base-url http://scp-wiki.wikijump.localhost:18443 \
+  --base-url https://scpwiki.localhost \
   --offset 0 \
   --limit 100 \
   --timeout-ms 45000
@@ -135,7 +135,7 @@ cd /home/roku/src/scpwiki/wikijump
 node install/local/wikidot-verification/scripts/browser-authoring-corpus-workflow.mjs \
   --input /home/roku/codex-thread-workspaces/019ebf4b-585e-7b93-bd6d-cdba089c8084/artifacts/wikijump/v5-plan-state/canary-pages.tsv \
   --output-dir /home/roku/codex-thread-workspaces/019ebf4b-585e-7b93-bd6d-cdba089c8084/artifacts/wikijump/v5-ui-authoring-corpus-10 \
-  --base-url http://scp-wiki.wikijump.localhost:18443 \
+  --base-url https://scpwiki.localhost \
   --offset 0 \
   --limit 10 \
   --timeout-ms 45000

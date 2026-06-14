@@ -38,7 +38,7 @@ function loadPlaywrightChromium() {
 
 function parseArgs(argv) {
   const args = {
-    baseUrl: process.env.WIKIDOT_VERIFY_BASE_URL || "http://scp-wiki.wikijump.localhost:18443",
+    baseUrl: process.env.WIKIDOT_VERIFY_BASE_URL || "https://scpwiki.localhost",
     outputDir: path.resolve(process.cwd(), "corpus-browser-proof"),
     offset: 0,
     limit: 100,
@@ -122,7 +122,10 @@ async function runBrowserProof(browser, row, args, dirs, absoluteIndex) {
   const renderedSlug = slugFromRow(row, args.slugColumn);
   const url = renderedSlug ? `${args.baseUrl}/${renderedSlug}` : "";
   const fileBase = `${String(absoluteIndex).padStart(4, "0")}-${safeName(renderedSlug || row.slug || "missing-slug")}`;
-  const page = await browser.newPage({ viewport: { width: 1366, height: 900 } });
+  const page = await browser.newPage({
+    ignoreHTTPSErrors: true,
+    viewport: { width: 1366, height: 900 },
+  });
   const network = {
     requests: [],
     failedRequests: [],

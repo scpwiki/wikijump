@@ -29,8 +29,7 @@ time-skew = 1
 [domain]
 main = "wikijump.localhost"
 files = "wjfiles.localhost"
-public-scheme = "http"
-public-port = 18443
+public-scheme = "https"
 
 [job]
 workers = 2

@@ -1,6 +1,8 @@
 #!/bin/sh
 set -e
 
+rm -f /tmp/deepwell.json /tmp/Caddyfile
+
 # Send DEEPWELL request
 curl -f http://deepwell:2747/jsonrpc \
 	-X POST \

@@ -38,7 +38,7 @@ function loadPlaywrightChromium() {
 
 function parseArgs(argv) {
   const args = {
-    baseUrl: process.env.WIKIDOT_VERIFY_BASE_URL || "http://scp-wiki.wikijump.localhost:18443",
+    baseUrl: process.env.WIKIDOT_VERIFY_BASE_URL || "https://scpwiki.localhost",
     outputDir: path.resolve(process.cwd(), "corpus-authoring-proof"),
     offset: 0,
     limit: 10,
