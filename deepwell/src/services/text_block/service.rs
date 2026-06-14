@@ -191,6 +191,7 @@ impl TextBlockService {
                 block_type: Set(block_type),
                 page_id: Set(page_id),
                 block_index: Set(index),
+                s3_filename: Set(filename.to_owned()),
                 block_name: Set(name.map(String::from)),
                 text_type: Set(text_type.map(String::from)),
             });
