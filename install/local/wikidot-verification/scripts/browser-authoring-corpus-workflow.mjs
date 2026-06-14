@@ -131,20 +131,45 @@ async function fillSourceForm(page, input) {
   await page.getByTestId("source-input").fill(input.source);
 }
 
-async function clickAndWait(page, testId, timeoutMs) {
-  await Promise.all([
-    page.waitForLoadState("domcontentloaded", { timeout: timeoutMs }).catch(() => {}),
-    page.getByTestId(testId).click({ timeout: timeoutMs }),
-  ]);
+async function clickAndWait(page, testId, timeoutMs, expectedAction = null) {
+  await page.getByTestId(testId).click({ timeout: timeoutMs });
+  if (expectedAction) {
+    await waitForAction(page, expectedAction, timeoutMs);
+  } else {
+    await page.waitForLoadState("domcontentloaded", { timeout: timeoutMs }).catch(() => {});
+  }
+}
+
+async function waitForAction(page, expectedAction, timeoutMs) {
+  await page.waitForFunction(
+    (action) => document.querySelector("[data-testid='lab-status']")?.textContent?.includes(action),
+    expectedAction,
+    { timeout: timeoutMs },
+  );
+}
+
+async function submitTagForm(page, editedTags, timeoutMs) {
+  await page.getByTestId("tag-editor-input").fill(editedTags);
+  await page.getByTestId("tag-form").evaluate((form, value) => {
+    const input = form.querySelector("[data-testid='tag-editor-input']");
+    if (!(input instanceof HTMLInputElement)) throw new Error("tag editor input not found");
+    input.value = value;
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    form.requestSubmit();
+  }, editedTags);
+  await waitForAction(page, "updateTags", timeoutMs);
 }
 
 async function runWorkflow(browser, row, args, dirs, absoluteIndex) {
-  const page = await browser.newPage({ viewport: { width: 1366, height: 900 } });
+  const page = await browser.newPage({
+    ignoreHTTPSErrors: true,
+    viewport: { width: 1366, height: 900 },
+  });
   page.setDefaultTimeout(args.timeoutMs);
   const source = await readSource(row);
   const slug = `${args.slugPrefix}${String(absoluteIndex).padStart(4, "0")}-${slugSegment(row.slug)}`;
   const title = row.title || row.slug || slug;
-  const tags = ["v5-ui-proof", "real-corpus", ...splitPipe(row.tags).filter((tag) => !tag.startsWith("_")).slice(0, 6)].join(" ");
+  const tags = ["v6-ui-proof", "real-corpus", ...splitPipe(row.tags).filter((tag) => !tag.startsWith("_")).slice(0, 6)].join(" ");
   const fileBase = `${String(absoluteIndex).padStart(4, "0")}-${slugSegment(row.slug)}`;
   const labUrl = `${args.baseUrl}/__local-wikidot-verify?slug=${encodeURIComponent(slug)}`;
   const stages = [];
@@ -170,7 +195,7 @@ async function runWorkflow(browser, row, args, dirs, absoluteIndex) {
     });
     record("fill-source", true);
 
-    await clickAndWait(page, "preview-button", args.timeoutMs);
+    await clickAndWait(page, "preview-button", args.timeoutMs, "preview");
     const previewHtml = await page.getByTestId("preview-html").innerText({ timeout: args.timeoutMs }).catch(() => "");
     previewTextBytes = Buffer.byteLength(previewHtml);
     record("preview", previewTextBytes > 0, `bytes:${previewTextBytes}`);
@@ -180,14 +205,13 @@ async function runWorkflow(browser, row, args, dirs, absoluteIndex) {
       title,
       tags,
       parent: "",
-      source: `${source}\n\n[[>]]\n//v5 UI proof edit ${absoluteIndex}//\n[[/<]]\n`,
+      source: `${source}\n\n[[>]]\n//v6 UI proof edit ${absoluteIndex}//\n[[/<]]\n`,
     });
-    await clickAndWait(page, "save-button", args.timeoutMs);
+    await clickAndWait(page, "save-button", args.timeoutMs, "savePage");
     const statusText = await page.getByTestId("lab-status").innerText({ timeout: args.timeoutMs }).catch(() => "");
     record("save", /savePage/.test(statusText), statusText);
 
-    await page.getByTestId("tag-editor-input").fill(`${tags} edited`);
-    await clickAndWait(page, "tag-save-button", args.timeoutMs);
+    await submitTagForm(page, `${tags} edited`, args.timeoutMs);
     const tagText = await page.getByTestId("current-tags").innerText({ timeout: args.timeoutMs }).catch(() => "");
     record("tag-update", /edited/.test(tagText), tagText);
 
@@ -195,6 +219,7 @@ async function runWorkflow(browser, row, args, dirs, absoluteIndex) {
       await page.getByTestId("file-name-input").fill(path.basename(args.assetFile));
       await page.getByTestId("file-input").setInputFiles(args.assetFile);
       await clickAndWait(page, "file-upload-button", args.timeoutMs);
+      await page.getByTestId("file-result").waitFor({ timeout: args.timeoutMs });
       const fileResult = await page.getByTestId("file-result").innerText({ timeout: args.timeoutMs }).catch(() => "");
       uploadedAsset = fileResult.length > 0;
       record("asset-upload", uploadedAsset, fileResult.slice(0, 300));
