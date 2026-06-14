@@ -340,6 +340,21 @@ function findRawSyntaxLeaks(html) {
   return leaks;
 }
 
+function findMissingIncludes(html, includes) {
+  if (!/No such page|no such page|Missing include/i.test(html)) return [];
+
+  const missingSlugs = new Set();
+  const noSuchPagePattern = /No such page:\s*([^<\n]+)/gi;
+  for (const match of html.matchAll(noSuchPagePattern)) {
+    const slug = normalizeIncludeSlug(`include:${match[1].trim()}`);
+    if (slug) missingSlugs.add(slug);
+  }
+
+  if (!missingSlugs.size) return includes;
+  const exact = includes.filter((include) => missingSlugs.has(normalizeIncludeSlug(include)));
+  return exact.length ? exact : [...missingSlugs].map((slug) => `include:${slug}`);
+}
+
 function classifyPreview({ html, parserErrors, includes, assets, importError }) {
   if (importError) {
     return {
@@ -368,9 +383,7 @@ function classifyPreview({ html, parserErrors, includes, assets, importError }) 
   }
 
   const rawSyntaxLeaks = findRawSyntaxLeaks(html);
-  const missingIncludes = /No such page|no such page|Missing include/i.test(html)
-    ? includes
-    : [];
+  const missingIncludes = findMissingIncludes(html, includes);
   const missingAssets = assets.filter((asset) => asset && !html.includes(asset) && !asset.startsWith("http"));
   const warnings = [];
   const errors = [];
