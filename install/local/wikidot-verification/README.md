@@ -89,6 +89,22 @@ node install/local/wikidot-verification/scripts/preview-source.mjs \
 
 The preview command writes `preview-result.json` and rendered HTML. The JSON contract includes the input source hash, preview slug, HTML path, diagnostics, dependency list, asset list, Wikijump page reference, and timing.
 
+## Preview A Canary Batch
+
+```bash
+cd /home/roku/src/scpwiki/wikijump
+node install/local/wikidot-verification/scripts/preview-batch.mjs \
+  --input /home/roku/codex-thread-workspaces/019ebf4b-585e-7b93-bd6d-cdba089c8084/artifacts/wikijump/v5-plan-state/canary-pages.tsv \
+  --manifest /home/roku/codex-thread-workspaces/019ebf4b-585e-7b93-bd6d-cdba089c8084/artifacts/wikijump/v5-plan-state/corpus-manifest.tsv \
+  --output-dir /home/roku/codex-thread-workspaces/019ebf4b-585e-7b93-bd6d-cdba089c8084/artifacts/wikijump/v5-preview-canary-100 \
+  --offset 0 \
+  --limit 100 \
+  --rpc-url http://127.0.0.1:12748/jsonrpc \
+  --slug-prefix preview-canary-
+```
+
+The preview batch command writes `preview-results.tsv`, `preview-summary.json`, and per-page `preview-result.json` and HTML artifacts under `pages/`. The summary includes severity counts and p50/p95 timing.
+
 ## Required Proof Pages
 
 The manifest defines the minimum required compatibility surface:
