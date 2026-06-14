@@ -14,6 +14,7 @@ function parseArgs(argv) {
     maxDependencies: 50,
     dependencyDepth: 1,
     timeoutMs: 120000,
+    rpcTimeoutMs: 30000,
   };
 
   for (let index = 2; index < argv.length; index += 1) {
@@ -30,6 +31,8 @@ function parseArgs(argv) {
       args.limit = Number.parseInt(argv[++index], 10);
     } else if (arg === "--rpc-url") {
       args.rpcUrl = argv[++index];
+    } else if (arg === "--rpc-timeout-ms") {
+      args.rpcTimeoutMs = Number.parseInt(argv[++index], 10);
     } else if (arg === "--site") {
       args.siteSlug = argv[++index];
     } else if (arg === "--slug-prefix") {
@@ -56,11 +59,12 @@ function parseArgs(argv) {
   if (!Number.isFinite(args.maxDependencies) || args.maxDependencies < 0) args.maxDependencies = 50;
   if (!Number.isFinite(args.dependencyDepth) || args.dependencyDepth < 0) args.dependencyDepth = 1;
   if (!Number.isFinite(args.timeoutMs) || args.timeoutMs <= 0) args.timeoutMs = 120000;
+  if (!Number.isFinite(args.rpcTimeoutMs) || args.rpcTimeoutMs <= 0) args.rpcTimeoutMs = 30000;
   return args;
 }
 
 function printHelpAndExit() {
-  console.log(`Usage: node install/local/wikidot-verification/scripts/preview-batch.mjs --input canary-pages.tsv --manifest corpus-manifest.tsv --output-dir DIR [--offset 0] [--limit 100] [--rpc-url URL] [--site scp-wiki] [--slug-prefix preview-batch-] [--preload-dependencies] [--max-dependencies 50] [--dependency-depth 1] [--timeout-ms 120000]`);
+  console.log(`Usage: node install/local/wikidot-verification/scripts/preview-batch.mjs --input canary-pages.tsv --manifest corpus-manifest.tsv --output-dir DIR [--offset 0] [--limit 100] [--rpc-url URL] [--rpc-timeout-ms 30000] [--site scp-wiki] [--slug-prefix preview-batch-] [--preload-dependencies] [--max-dependencies 50] [--dependency-depth 1] [--timeout-ms 120000]`);
   process.exit(0);
 }
 
@@ -182,6 +186,7 @@ async function main() {
       "--manifest", args.manifest,
       "--output-dir", pageOutputDir,
       "--rpc-url", rpcUrl,
+      "--rpc-timeout-ms", String(args.rpcTimeoutMs),
       "--site", siteSlug,
       "--slug-prefix", args.slugPrefix,
       "--json",
@@ -281,6 +286,7 @@ async function main() {
     manifest: args.manifest,
     outputDir: args.outputDir,
     rpcUrl,
+    rpcTimeoutMs: args.rpcTimeoutMs,
     siteSlug,
     offset: args.offset,
     limit: args.limit,

@@ -104,13 +104,14 @@ node install/local/wikidot-verification/scripts/preview-batch.mjs \
   --offset 0 \
   --limit 100 \
   --rpc-url http://127.0.0.1:12748/jsonrpc \
+  --rpc-timeout-ms 30000 \
   --slug-prefix preview-canary- \
   --preload-dependencies \
   --dependency-depth 2 \
   --timeout-ms 120000
 ```
 
-The preview batch command writes `preview-results.tsv`, `preview-summary.json`, and per-page `preview-result.json` and HTML artifacts under `pages/`. The summary includes severity counts, dependency preload totals, timeout count, and p50/p95 timing.
+The preview batch command writes `preview-results.tsv`, `preview-summary.json`, and per-page `preview-result.json` and HTML artifacts under `pages/`. The summary includes severity counts, dependency preload totals, child-process timeout count, RPC timeout, and p50/p95 timing.
 
 ## Required Proof Pages
 
