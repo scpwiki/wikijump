@@ -113,6 +113,21 @@ node install/local/wikidot-verification/scripts/preview-batch.mjs \
 
 The preview batch command writes `preview-results.tsv`, `preview-summary.json`, and per-page `preview-result.json` and HTML artifacts under `pages/`. The summary includes severity counts, dependency preload totals, child-process timeout count, RPC timeout, and p50/p95 timing.
 
+## Browser-Proof Real Corpus Preview Pages
+
+```bash
+cd /home/roku/src/scpwiki/wikijump
+node install/local/wikidot-verification/scripts/browser-proof-corpus-pages.mjs \
+  --input /home/roku/codex-thread-workspaces/019ebf4b-585e-7b93-bd6d-cdba089c8084/artifacts/wikijump/v5-preview-canary-100/preview-results.tsv \
+  --output-dir /home/roku/codex-thread-workspaces/019ebf4b-585e-7b93-bd6d-cdba089c8084/artifacts/wikijump/v5-browser-canary-100 \
+  --base-url http://scp-wiki.wikijump.localhost:18443 \
+  --offset 0 \
+  --limit 100 \
+  --timeout-ms 45000
+```
+
+The browser proof command reads preview or compatibility TSV rows, opens each rendered slug in Chromium, and writes `browser-results.tsv`, `browser-summary.json`, `screenshots/*.png`, and per-page network/detail JSON. A non-zero exit means at least one page failed browser proof.
+
 ## Required Proof Pages
 
 The manifest defines the minimum required compatibility surface:
