@@ -46,6 +46,49 @@ node install/local/wikidot-verification/scripts/browser-proof-matrix.mjs \
 
 The browser proof writes `browser-summary.json`, `fixture-results.tsv`, `screenshots/*.png`, and `network/*.json`. A non-zero exit means at least one required compatibility fixture failed.
 
+## Discover A Real Corpus
+
+```bash
+cd /home/roku/src/scpwiki/wikijump
+node install/local/wikidot-verification/scripts/corpus-discover.mjs \
+  --corpus /home/roku/src/Rokurolize/scp-wiki-translation/corpus/en \
+  --output-dir /home/roku/codex-thread-workspaces/019ebf4b-585e-7b93-bd6d-cdba089c8084/artifacts/wikijump/v5-plan-state \
+  --canary-count 100
+```
+
+The discovery command writes `corpus-file-inventory.tsv`, `corpus-manifest.tsv`, `canary-pages.tsv`, and summary JSON/Markdown. `corpus-manifest.tsv` is the input for batch render and one-file preview commands.
+
+## Batch Render Real Corpus Pages
+
+```bash
+cd /home/roku/src/scpwiki/wikijump
+node install/local/wikidot-verification/scripts/corpus-render-batch.mjs \
+  --manifest /home/roku/codex-thread-workspaces/019ebf4b-585e-7b93-bd6d-cdba089c8084/artifacts/wikijump/v5-plan-state/corpus-manifest.tsv \
+  --output-dir /home/roku/codex-thread-workspaces/019ebf4b-585e-7b93-bd6d-cdba089c8084/artifacts/wikijump/v5-render-batch-0000-0024-deps \
+  --offset 0 \
+  --limit 25 \
+  --batch-size 25 \
+  --rpc-url http://127.0.0.1:12748/jsonrpc \
+  --preload-dependencies \
+  --max-dependencies 80
+```
+
+The batch command writes page-level diagnostics, rendered HTML, `compatibility-results.tsv`, `corpus-batch-ledger.tsv`, and `batch-summary.json`.
+
+## Preview One Source File
+
+```bash
+cd /home/roku/src/scpwiki/wikijump
+node install/local/wikidot-verification/scripts/preview-source.mjs \
+  --source /home/roku/src/Rokurolize/scp-wiki-translation/corpus/en/pages/11-mr-feather/source.wikidot.txt \
+  --manifest /home/roku/codex-thread-workspaces/019ebf4b-585e-7b93-bd6d-cdba089c8084/artifacts/wikijump/v5-plan-state/corpus-manifest.tsv \
+  --output-dir /home/roku/codex-thread-workspaces/019ebf4b-585e-7b93-bd6d-cdba089c8084/artifacts/wikijump/v5-preview-smoke-11-mr-feather \
+  --rpc-url http://127.0.0.1:12748/jsonrpc \
+  --json
+```
+
+The preview command writes `preview-result.json` and rendered HTML. The JSON contract includes the input source hash, preview slug, HTML path, diagnostics, dependency list, asset list, Wikijump page reference, and timing.
+
 ## Required Proof Pages
 
 The manifest defines the minimum required compatibility surface:
