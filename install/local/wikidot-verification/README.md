@@ -128,6 +128,21 @@ node install/local/wikidot-verification/scripts/browser-proof-corpus-pages.mjs \
 
 The browser proof command reads preview or compatibility TSV rows, opens each rendered slug in Chromium, and writes `browser-results.tsv`, `browser-summary.json`, `screenshots/*.png`, and per-page network/detail JSON. A non-zero exit means at least one page failed browser proof.
 
+## Browser-Proof Real Corpus Authoring Workflows
+
+```bash
+cd /home/roku/src/scpwiki/wikijump
+node install/local/wikidot-verification/scripts/browser-authoring-corpus-workflow.mjs \
+  --input /home/roku/codex-thread-workspaces/019ebf4b-585e-7b93-bd6d-cdba089c8084/artifacts/wikijump/v5-plan-state/canary-pages.tsv \
+  --output-dir /home/roku/codex-thread-workspaces/019ebf4b-585e-7b93-bd6d-cdba089c8084/artifacts/wikijump/v5-ui-authoring-corpus-10 \
+  --base-url http://scp-wiki.wikijump.localhost:18443 \
+  --offset 0 \
+  --limit 10 \
+  --timeout-ms 45000
+```
+
+The authoring workflow command drives the local authoring lab for real corpus rows: fill source, preview, save, update tags, optionally upload one local asset with `--asset-file`, open the rendered page, and write `authoring-results.tsv`, `authoring-summary.json`, detail JSON, and screenshots when page capture succeeds. A non-zero exit means at least one workflow failed.
+
 ## Required Proof Pages
 
 The manifest defines the minimum required compatibility surface:
