@@ -1,0 +1,10 @@
+Apple
+[[include-elements page-name]]
+Banana
+[[include-elements :some-site:page-name]]
+Cherry
+[[include-elements component:image-block name="peanut.png" caption="haha funi!"]]
+Mango
+
+FAIL
+[[include-elements ::invalid-page]]

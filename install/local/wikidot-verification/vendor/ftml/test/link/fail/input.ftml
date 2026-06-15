@@ -1,0 +1,33 @@
+++ Single-Bracket
+
+[REDACTED]
+[ not a link ]
+[* not a link ] link-single-fail-new-tab.json"
+
+[page Some page]
+
+[https://example.com/ 
+Label]
+
+[page 
+
+[# Label
+
+**Dangerous**
+[javascript:alert(1) XSS]
+[data:text/html,<script>alert(2)</script> XSS]
+
+++ Triple-Bracket
+
+[[[!:missing|Label]]]
+[[[!banana:Missing provider | Label]]]
+
+[[[|some-page]]]
+[[[*|some-page]]]
+
+[[[some-page |
+Label]]]
+
+[[[some-page
+]]]some-page
+some-page]]]

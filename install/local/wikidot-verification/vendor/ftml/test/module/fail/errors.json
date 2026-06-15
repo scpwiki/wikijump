@@ -1,0 +1,38 @@
+[
+    {
+        "token": "paragraph-break",
+        "rule": "block-module",
+        "span": [35, 37],
+        "kind": "no-such-module"
+    },
+    {
+        "token": "left-block",
+        "rule": "fallback",
+        "span": [0, 2],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [33, 35],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "input-end",
+        "rule": "module-css",
+        "span": [92, 92],
+        "kind": "end-of-input"
+    },
+    {
+        "token": "left-block",
+        "rule": "fallback",
+        "span": [78, 80],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [90, 92],
+        "kind": "no-rules-match"
+    }
+]

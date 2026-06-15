@@ -1,0 +1,32 @@
+[
+    {
+        "token": "clear-float-both",
+        "rule": "page",
+        "span": [112, 116],
+        "kind": "not-start-of-line"
+    },
+    {
+        "token": "clear-float-both",
+        "rule": "fallback",
+        "span": [112, 116],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "input-end",
+        "rule": "block-strikethrough",
+        "span": [138, 138],
+        "kind": "end-of-input"
+    },
+    {
+        "token": "left-block",
+        "rule": "fallback",
+        "span": [118, 120],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [121, 123],
+        "kind": "no-rules-match"
+    }
+]

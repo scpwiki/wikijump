@@ -1,0 +1,115 @@
+{
+    "elements": [
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "text",
+                        "data": "BASIC"
+                    }
+                ]
+            }
+        },
+        {
+            "element": "html",
+            "data": {
+                "contents": "<div class=\"stuff\">\n<span>Thingy</span>\n</div>",
+                "attributes": {}
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "text",
+                        "data": "INLINE"
+                    }
+                ]
+            }
+        },
+        {
+            "element": "html",
+            "data": {
+                "contents": "<article><h1>Thing happens in country</h1><p>Lots of rain.</p></article>",
+                "attributes": {}
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "text",
+                        "data": "EMPTY"
+                    }
+                ]
+            }
+        },
+        {
+            "element": "html",
+            "data": {
+                "contents": "",
+                "attributes": {}
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "text",
+                        "data": "ESCAPE"
+                    }
+                ]
+            }
+        },
+        {
+            "element": "html",
+            "data": {
+                "contents": "This [[span]]tag[[/span]] won't be treated as wikitext",
+                "attributes": {}
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "text",
+                        "data": "ATTRS"
+                    }
+                ]
+            }
+        },
+        {
+            "element": "html",
+            "data": {
+                "contents": "<div>my html here</div>",
+                "attributes": {
+                    "class": "iframe",
+                    "data-block": "html",
+                    "id": "special-thing"
+                }
+            }
+        }
+    ],
+    "html-blocks": [
+        "<div class=\"stuff\">\n<span>Thingy</span>\n</div>",
+        "<article><h1>Thing happens in country</h1><p>Lots of rain.</p></article>",
+        "",
+        "This [[span]]tag[[/span]] won't be treated as wikitext",
+        "<div>my html here</div>"
+    ]
+}

@@ -1,0 +1,11 @@
+NONE
+[[lines 0]]
+
+NEGATIVE
+[[lines -1]]
+
+INVALID
+[[lines apple]]
+
+OVERFLOW
+[[lines 999]]

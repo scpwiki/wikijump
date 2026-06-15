@@ -1,0 +1,9 @@
+[[module pagetree]]
+[[module PageTree]]
+[[module PAGETREE]]
+
+[[module PageTree root="scp-001"]]
+[[module PageTree root="scp-001" showRoot="yes"]]
+[[module PageTree root="scp-001" showRoot="no"]]
+[[module PageTree root="scp-001" showRoot="yes" depth="2"]]
+[[module PageTree depth="3" root="system:join"  Showroot="yes"]]

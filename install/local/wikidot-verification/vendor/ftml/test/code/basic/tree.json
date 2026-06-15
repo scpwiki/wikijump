@@ -1,0 +1,175 @@
+{
+    "elements": [
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "text",
+                        "data": "BASIC"
+                    }
+                ]
+            }
+        },
+        {
+            "element": "code",
+            "data": {
+                "contents": "apple\nbanana",
+                "language": null,
+                "name": null
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "text",
+                        "data": "EMPTY"
+                    }
+                ]
+            }
+        },
+        {
+            "element": "code",
+            "data": {
+                "contents": "",
+                "language": null,
+                "name": null
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "text",
+                        "data": "ESCAPES"
+                    }
+                ]
+            }
+        },
+        {
+            "element": "code",
+            "data": {
+                "contents": "[[div]]\nnot a div test\n[[/div]]\n\n**also not bold**",
+                "language": null,
+                "name": null
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "text",
+                        "data": "LANG"
+                    }
+                ]
+            }
+        },
+        {
+            "element": "code",
+            "data": {
+                "contents": "import antigravity",
+                "language": "python",
+                "name": null
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "text",
+                        "data": "INLINE"
+                    }
+                ]
+            }
+        },
+        {
+            "element": "code",
+            "data": {
+                "contents": "a { display: none; }",
+                "language": "css",
+                "name": null
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "text",
+                        "data": "NAMED"
+                    }
+                ]
+            }
+        },
+        {
+            "element": "code",
+            "data": {
+                "contents": "public static final objective abstract interface class Foo {}",
+                "language": "java",
+                "name": "a"
+            }
+        },
+        {
+            "element": "code",
+            "data": {
+                "contents": "You can refer to this code block via /code/b instead of by its numerical index.",
+                "language": null,
+                "name": "b"
+            }
+        }
+    ],
+    "code-blocks": [
+        {
+            "contents": "apple\nbanana",
+            "language": null,
+            "name": null
+        },
+        {
+            "contents": "",
+            "language": null,
+            "name": null
+        },
+        {
+            "contents": "[[div]]\nnot a div test\n[[/div]]\n\n**also not bold**",
+            "language": null,
+            "name": null
+        },
+        {
+            "contents": "import antigravity",
+            "language": "python",
+            "name": null
+        },
+        {
+            "contents": "a { display: none; }",
+            "language": "css",
+            "name": null
+        },
+        {
+            "contents": "public static final objective abstract interface class Foo {}",
+            "language": "java",
+            "name": "a"
+        },
+        {
+            "contents": "You can refer to this code block via /code/b instead of by its numerical index.",
+            "language": null,
+            "name": "b"
+        }
+    ]
+}

@@ -91,6 +91,11 @@ large_enum_variant = "allow"
 [package.metadata.cargo-machete]
 ignored = ["rust-s3"]  # renamed to s3
 
+# Local verifier only: keep Deepwell on the repository-contained FTML vendor
+# until the required Wikidot compatibility fixes are available upstream.
+[patch.crates-io]
+ftml = { path = "../install/local/wikidot-verification/vendor/ftml" }
+
 # Performance options
 
 [profile.release]

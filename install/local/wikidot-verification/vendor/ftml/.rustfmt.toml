@@ -1,0 +1,7 @@
+# Rust edition
+edition = "2024"
+
+# Formatting options
+max_width = 90
+use_field_init_shorthand = true
+use_try_shorthand = true

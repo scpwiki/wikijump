@@ -1,0 +1,5 @@
+This test verifies that malformed color syntax does not cause duplicate footnotes.
+
+##orange|**ORANGE##-PRIME:** text with footnote[[footnote]]This is a footnote[[/footnote]].
+
+After the malformed color block.

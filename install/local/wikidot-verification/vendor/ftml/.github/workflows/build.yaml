@@ -1,0 +1,145 @@
+name: 'Rust Build'
+
+on:
+  pull_request:
+    paths:
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'conf/*.toml'
+      - 'src/**'
+      - 'test/**'
+      - '.github/workflows/build.yaml'
+      - '.github/codecov.yml'
+  push:
+    branches:
+      - main
+
+jobs:
+  library_build_and_test:
+    name: Library
+    runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: -A unused -D warnings
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Cargo Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-default-${{ hashFiles('**/Cargo.toml') }}
+
+      - name: Build (All Features)
+        run: cargo build --all-features
+
+      - name: Build (No Features)
+        run: cargo build --no-default-features
+
+      - name: Test
+        run: cargo test --all-features -- --nocapture --test-threads 1
+
+      - name: Test (exhaustive)
+        run: cd deepwell && cargo test --all-features -- --nocapture --ignored
+        if: github.ref == 'refs/head/main'
+
+  wasm:
+    name: WebASM
+    runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: -A unused -D warnings --cfg getrandom_backend="wasm_js"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Rust Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: WASM Toolchain
+        uses: jetli/wasm-pack-action@v0.3.0
+        with:
+          version: latest
+
+      - name: Cargo Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-webasm-${{ hashFiles('**/Cargo.toml') }}
+
+      - name: Build (Default)
+        run: wasm-pack build --dev
+
+      - name: Build (No Features)
+        run: wasm-pack build --dev -- --no-default-features
+
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: -A unused -D warnings
+    container:
+      image: xd009642/tarpaulin:develop-nightly
+      options: --security-opt seccomp=unconfined
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Cargo Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-coverage-${{ hashFiles('**/Cargo.toml') }}
+
+      - name: Generate Coverage
+        run: |
+          cargo +nightly tarpaulin --verbose --all-features --workspace --timeout 120 --out xml
+
+      - name: Export Coverage
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: target/coverage/cobertura.xml
+          fail_ci_if_error: true
+          verbose: true
+
+  clippy_lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: -A unused -D warnings
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Cargo Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-lint-${{ hashFiles('**/Cargo.toml') }}
+
+      # Unused dependencies
+      - name: Machete
+        uses: bnjbvr/cargo-machete@main
+
+      # Formatting
+      - name: Rustfmt
+        run: cargo fmt --all -- --check
+
+      # Linter
+      - name: Clippy
+        run: cargo clippy --tests --no-deps

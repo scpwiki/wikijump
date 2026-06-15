@@ -1,0 +1,21 @@
+BASIC [[image filename.png]]
+
+LEFT [[<image filename.png]]
+RIGHT [[>image filename.png]]
+CENTER [[=image filename.png]]
+
+FLOAT LEFT [[f<image landscape.jpg]]
+FLOAT RIGHT [[f>image landscape.jpg]]
+
+EXTERNAL [[image https://example.com/some-image.webp]]
+FILE_1 [[image /my-picture.png]]
+FILE_2 [[image /some-other-page/my-picture.png]]
+FILE_2 [[image  some-other-page/my-picture.png]]
+FILE_3 [[image /scp-wiki/some-other-page/my-picture.png]]
+FILE_3 [[image  scp-wiki/some-other-page/my-picture.png]]
+
+ATTRS [[image foo.gif class="animated" style="border: 1em solid" data-xyz="bar" alt="A foobar made of gold" title="FOO"]]
+
+LINK [[image foo.gif link="#gif-sucks"]]
+LINK [[image foo.gif link="some-page"]]
+LINK [[image foo.gif link="https://example.com/"]]

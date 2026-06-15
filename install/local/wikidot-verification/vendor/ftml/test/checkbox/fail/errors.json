@@ -1,0 +1,14 @@
+[
+    {
+        "token": "identifier",
+        "rule": "block-checkbox",
+        "span": [45, 53],
+        "kind": "block-malformed-arguments"
+    },
+    {
+        "token": "left-block",
+        "rule": "fallback",
+        "span": [27, 29],
+        "kind": "no-rules-match"
+    }
+]

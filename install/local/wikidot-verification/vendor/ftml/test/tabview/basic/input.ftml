@@ -1,0 +1,57 @@
+SINGLE:
+[[tabview]]
+[[tab solo]]
+data here
+[[/tab]]
+[[/tabview]]
+
+NORMAL:
+[[tabview]]
+[[tab Apple]]
+1
+
+2
+
+3
+[[/tab]]
+
+[[tab Banana Smoothie]]
+4
+[[/tab]]
+[[tab Cherry]]
+
+5
+
+
+[[/tab]]
+
+[[TAB empty]]
+[[/taB]]
+
+
+[[/tabview]]
+
+INLINE:
+[[tabview]] [[tab A]] 1 [[/tab]] [[tab B]] 2 [[/tab]] [[/tabview]]
+
+NESTED AND ALIAS:
+[[tabview]]
+[[tab 1]]
+A
+[[tabs]]
+[[tab 2]]
+B
+[[tabview]]
+[[tab 3]]
+C
+[[tabs]]
+[[tab 4]]
+D
+[[/tab]]
+[[/tabview]]
+[[/tab]]
+[[/tabs]]
+[[/tab]]
+[[/tabview]]
+[[/tab]]
+[[/tabs]]

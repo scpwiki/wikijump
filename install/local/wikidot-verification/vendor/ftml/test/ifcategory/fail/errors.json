@@ -1,0 +1,32 @@
+[
+    {
+        "token": "line-break",
+        "rule": "block-ifcategory",
+        "span": [14, 15],
+        "kind": "block-missing-arguments"
+    },
+    {
+        "token": "left-block",
+        "rule": "fallback",
+        "span": [0, 2],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [12, 14],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "left-block-end",
+        "rule": "fallback",
+        "span": [23, 26],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [36, 38],
+        "kind": "no-rules-match"
+    }
+]

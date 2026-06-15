@@ -1,0 +1,37 @@
+{
+    "elements": [
+        {
+            "element": "style",
+            "data": "body { color: blue; }"
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "text",
+                        "data": "Multiple"
+                    },
+                    {
+                        "element": "text",
+                        "data": " "
+                    },
+                    {
+                        "element": "text",
+                        "data": "("
+                    },
+                    {
+                        "element": "text",
+                        "data": "active"
+                    },
+                    {
+                        "element": "text",
+                        "data": ")"
+                    }
+                ]
+            }
+        }
+    ]
+}

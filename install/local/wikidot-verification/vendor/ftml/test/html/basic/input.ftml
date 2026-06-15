@@ -1,0 +1,23 @@
+BASIC
+[[html]]
+<div class="stuff">
+<span>Thingy</span>
+</div>
+[[/html]]
+
+INLINE
+[[html]]<article><h1>Thing happens in country</h1><p>Lots of rain.</p></article>[[/html]]
+
+EMPTY
+[[html]]
+[[/html]]
+
+ESCAPE
+[[html]]
+This [[span]]tag[[/span]] won't be treated as wikitext
+[[/html]]
+
+ATTRS
+[[html class="iframe" id="special-thing" data-block="html"]]
+<div>my html here</div>
+[[/html]]

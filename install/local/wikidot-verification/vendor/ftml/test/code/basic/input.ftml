@@ -1,0 +1,35 @@
+BASIC
+[[code]]
+apple
+banana
+[[/code]]
+
+EMPTY
+[[code]]
+[[/code]]
+
+ESCAPES
+[[code]]
+[[div]]
+not a div test
+[[/div]]
+
+**also not bold**
+[[/code]]
+
+LANG
+[[code type="python"]]
+import antigravity
+[[/code]]
+
+INLINE
+[[code type="css"]]a { display: none; }[[/code]]
+
+NAMED
+[[code name="a" type="java"]]
+public static final objective abstract interface class Foo {}
+[[/code]]
+
+[[code name="b"]]
+You can refer to this code block via /code/b instead of by its numerical index.
+[[/code]]

@@ -1,0 +1,149 @@
+{
+    "elements": [
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "radio-button",
+                        "data": {
+                            "name": "fruit",
+                            "checked": false,
+                            "attributes": {}
+                        }
+                    },
+                    {
+                        "element": "text",
+                        "data": "Apple"
+                    },
+                    {
+                        "element": "line-break"
+                    },
+                    {
+                        "element": "radio-button",
+                        "data": {
+                            "name": "fruit",
+                            "checked": false,
+                            "attributes": {}
+                        }
+                    },
+                    {
+                        "element": "text",
+                        "data": "Banana"
+                    },
+                    {
+                        "element": "line-break"
+                    },
+                    {
+                        "element": "radio-button",
+                        "data": {
+                            "name": "fruit",
+                            "checked": false,
+                            "attributes": {}
+                        }
+                    },
+                    {
+                        "element": "text",
+                        "data": "Cherry"
+                    },
+                    {
+                        "element": "line-break"
+                    },
+                    {
+                        "element": "radio-button",
+                        "data": {
+                            "name": "vegetable",
+                            "checked": false,
+                            "attributes": {}
+                        }
+                    },
+                    {
+                        "element": "text",
+                        "data": "Brussel"
+                    },
+                    {
+                        "element": "text",
+                        "data": " "
+                    },
+                    {
+                        "element": "text",
+                        "data": "sprouts"
+                    },
+                    {
+                        "element": "line-break"
+                    },
+                    {
+                        "element": "radio-button",
+                        "data": {
+                            "name": "vegetable",
+                            "checked": false,
+                            "attributes": {}
+                        }
+                    },
+                    {
+                        "element": "text",
+                        "data": "Celery"
+                    },
+                    {
+                        "element": "line-break"
+                    },
+                    {
+                        "element": "radio-button",
+                        "data": {
+                            "name": "vegetable",
+                            "checked": true,
+                            "attributes": {}
+                        }
+                    },
+                    {
+                        "element": "text",
+                        "data": "Zucchini"
+                    }
+                ]
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "radio-button",
+                        "data": {
+                            "name": "metals",
+                            "checked": false,
+                            "attributes": {
+                                "id": "au"
+                            }
+                        }
+                    },
+                    {
+                        "element": "text",
+                        "data": "Gold"
+                    },
+                    {
+                        "element": "line-break"
+                    },
+                    {
+                        "element": "radio-button",
+                        "data": {
+                            "name": "metals",
+                            "checked": false,
+                            "attributes": {
+                                "class": "quick",
+                                "id": "ag"
+                            }
+                        }
+                    },
+                    {
+                        "element": "text",
+                        "data": "Silver"
+                    }
+                ]
+            }
+        }
+    ]
+}

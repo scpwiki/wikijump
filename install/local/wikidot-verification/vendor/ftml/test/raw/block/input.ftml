@@ -1,0 +1,30 @@
+BASIC
+[[raw]]
+apple
+banana
+[[/raw]]
+
+EMPTY
+[[raw]]
+[[/raw]]
+
+ESCAPES
+[[raw]]
+[[div]]
+not a div test
+[[/div]]
+
+**also not bold**
+[[/raw]]
+
+INLINE
+[[raw]]a { display: none; }[[/raw]]
+
+MULTI
+[[raw]]
+first block
+[[/raw]]
+
+[[raw]]
+second block
+[[/raw]]

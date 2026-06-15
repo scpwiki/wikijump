@@ -1,0 +1,77 @@
+{
+    "elements": [
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "text",
+                        "data": "[["
+                    },
+                    {
+                        "element": "text",
+                        "data": "div"
+                    },
+                    {
+                        "element": "text",
+                        "data": "]]"
+                    },
+                    {
+                        "element": "text",
+                        "data": "[["
+                    },
+                    {
+                        "element": "text",
+                        "data": "div"
+                    },
+                    {
+                        "element": "text",
+                        "data": "]]"
+                    },
+                    {
+                        "element": "text",
+                        "data": "[["
+                    },
+                    {
+                        "element": "text",
+                        "data": "div"
+                    },
+                    {
+                        "element": "text",
+                        "data": "]]"
+                    }
+                ]
+            }
+        },
+        {
+            "element": "code",
+            "data": {
+                "contents": ".alpha { display: none; }",
+                "language": "css",
+                "name": null
+            }
+        },
+        {
+            "element": "code",
+            "data": {
+                "contents": "fn main() {\n    println!(\"beta\");\n}",
+                "language": "rust",
+                "name": "program"
+            }
+        }
+    ],
+    "code-blocks": [
+        {
+            "contents": ".alpha { display: none; }",
+            "language": "css",
+            "name": null
+        },
+        {
+            "contents": "fn main() {\n    println!(\"beta\");\n}",
+            "language": "rust",
+            "name": "program"
+        }
+    ]
+}

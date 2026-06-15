@@ -1,0 +1,29 @@
+[[iftags +fruit -admin component template]]
+Apple
+[[/iftags]]
+
+
+[[IFTAGS component]]
+Banana
+[[/IFTAGS]]
+
+[[iftags +xyz]]
+Hidden
+[[/iftags]]
+
+**CSS tests**
+
+[[iftags fruit]]
+Cherry
+
+[[module css]]
+body { color: red; }
+[[/module]]
+
+[[/iftags]]
+
+[[iftags xyz]]
+[[module css]]
+body { color: purple; }
+[[/module]]
+[[/iftags]]

@@ -1,0 +1,8 @@
+Apple[[footnote]]Alpha[[/footnote]] banana pineapple[[footnote]]Beta[[/footnote]] mango[[footnote]]This footnote has **formatting** and other //details// in it.[[/footnote]]
+
+Blueberry[[footnote]]
+This footnote has multipline lines inside.
+
+It's a large explanation about something. Like the etymology of the word "fruit". Or "vegetable".
+There is some **formatting** in here too.
+[[/footnote]]

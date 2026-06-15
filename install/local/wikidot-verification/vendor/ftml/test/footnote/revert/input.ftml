@@ -1,0 +1,9 @@
+[[div]]
+[[div]]
+[[div]]
+
+[!-- these footnotes should only appear once each, at the end, despite the failed [[div]]s above --]
+
+1[[footnote]]Alpha[[/footnote]]
+
+2[[footnote]]Beta[[/footnote]]

@@ -1,0 +1,1037 @@
+{
+    "elements": [
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "container",
+                        "data": {
+                            "type": "bold",
+                            "attributes": {},
+                            "elements": [
+                                {
+                                    "element": "text",
+                                    "data": "Dual"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "element": "list",
+            "data": {
+                "type": "bullet",
+                "attributes": {},
+                "items": [
+                    {
+                        "item-type": "elements",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "link",
+                                "data": {
+                                    "type": "page",
+                                    "link": {
+                                        "site": null,
+                                        "page": "scp-001",
+                                        "extra": null
+                                    },
+                                    "label": {
+                                        "slug": "SCP-001"
+                                    },
+                                    "target": null
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "item-type": "elements",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "link",
+                                "data": {
+                                    "type": "page",
+                                    "link": {
+                                        "site": null,
+                                        "page": "scp-001",
+                                        "extra": null
+                                    },
+                                    "label": {
+                                        "slug": "SCP-001"
+                                    },
+                                    "target": "new-tab"
+                                }
+                            },
+                            {
+                                "element": "text",
+                                "data": " "
+                            },
+                            {
+                                "element": "text",
+                                "data": "("
+                            },
+                            {
+                                "element": "text",
+                                "data": "new"
+                            },
+                            {
+                                "element": "text",
+                                "data": " "
+                            },
+                            {
+                                "element": "text",
+                                "data": "tab"
+                            },
+                            {
+                                "element": "text",
+                                "data": ")"
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "container",
+                        "data": {
+                            "type": "bold",
+                            "attributes": {},
+                            "elements": [
+                                {
+                                    "element": "text",
+                                    "data": "Dual"
+                                },
+                                {
+                                    "element": "text",
+                                    "data": " "
+                                },
+                                {
+                                    "element": "text",
+                                    "data": "("
+                                },
+                                {
+                                    "element": "text",
+                                    "data": "category"
+                                },
+                                {
+                                    "element": "text",
+                                    "data": ")"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "element": "list",
+            "data": {
+                "type": "bullet",
+                "attributes": {},
+                "items": [
+                    {
+                        "item-type": "elements",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "link",
+                                "data": {
+                                    "type": "page",
+                                    "link": {
+                                        "site": null,
+                                        "page": "system:recent-changes",
+                                        "extra": null
+                                    },
+                                    "label": {
+                                        "slug": "Recent Changes"
+                                    },
+                                    "target": null
+                                }
+                            },
+                            {
+                                "element": "text",
+                                "data": " "
+                            },
+                            {
+                                "element": "text",
+                                "data": "("
+                            },
+                            {
+                                "element": "text",
+                                "data": "only"
+                            },
+                            {
+                                "element": "text",
+                                "data": " "
+                            },
+                            {
+                                "element": "text",
+                                "data": "\""
+                            },
+                            {
+                                "element": "text",
+                                "data": "Recent"
+                            },
+                            {
+                                "element": "text",
+                                "data": " "
+                            },
+                            {
+                                "element": "text",
+                                "data": "Changes"
+                            },
+                            {
+                                "element": "text",
+                                "data": "\""
+                            },
+                            {
+                                "element": "text",
+                                "data": ")"
+                            }
+                        ]
+                    },
+                    {
+                        "item-type": "elements",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "link",
+                                "data": {
+                                    "type": "page",
+                                    "link": {
+                                        "site": null,
+                                        "page": "system:recent-changes",
+                                        "extra": null
+                                    },
+                                    "label": {
+                                        "slug": "Recent Changes"
+                                    },
+                                    "target": null
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "item-type": "elements",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "link",
+                                "data": {
+                                    "type": "page",
+                                    "link": {
+                                        "site": null,
+                                        "page": "system:recent-changes",
+                                        "extra": null
+                                    },
+                                    "label": {
+                                        "slug": "Recent Changes"
+                                    },
+                                    "target": "new-tab"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "container",
+                        "data": {
+                            "type": "bold",
+                            "attributes": {},
+                            "elements": [
+                                {
+                                    "element": "text",
+                                    "data": "Basic"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "element": "list",
+            "data": {
+                "type": "bullet",
+                "attributes": {},
+                "items": [
+                    {
+                        "item-type": "elements",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "link",
+                                "data": {
+                                    "type": "page",
+                                    "link": {
+                                        "site": null,
+                                        "page": "some-page",
+                                        "extra": null
+                                    },
+                                    "label": {
+                                        "text": "My label"
+                                    },
+                                    "target": null
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "item-type": "elements",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "link",
+                                "data": {
+                                    "type": "page",
+                                    "link": {
+                                        "site": null,
+                                        "page": "some-page",
+                                        "extra": null
+                                    },
+                                    "label": {
+                                        "text": "Label"
+                                    },
+                                    "target": "new-tab"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "item-type": "elements",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "link",
+                                "data": {
+                                    "type": "page",
+                                    "link": {
+                                        "site": null,
+                                        "page": "some-page",
+                                        "extra": null
+                                    },
+                                    "label": {
+                                        "text": "My label"
+                                    },
+                                    "target": null
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "item-type": "elements",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "link",
+                                "data": {
+                                    "type": "page",
+                                    "link": {
+                                        "site": null,
+                                        "page": "some-page",
+                                        "extra": null
+                                    },
+                                    "label": {
+                                        "text": "My label"
+                                    },
+                                    "target": "new-tab"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "item-type": "elements",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "link",
+                                "data": {
+                                    "type": "page",
+                                    "link": {
+                                        "site": null,
+                                        "page": "missing",
+                                        "extra": null
+                                    },
+                                    "label": {
+                                        "text": "Wanted page"
+                                    },
+                                    "target": null
+                                }
+                            },
+                            {
+                                "element": "text",
+                                "data": " "
+                            },
+                            {
+                                "element": "text",
+                                "data": "("
+                            },
+                            {
+                                "element": "text",
+                                "data": "orange"
+                            },
+                            {
+                                "element": "text",
+                                "data": ")"
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "container",
+                        "data": {
+                            "type": "bold",
+                            "attributes": {},
+                            "elements": [
+                                {
+                                    "element": "text",
+                                    "data": "Auto"
+                                },
+                                {
+                                    "element": "text",
+                                    "data": " "
+                                },
+                                {
+                                    "element": "text",
+                                    "data": "title"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "element": "list",
+            "data": {
+                "type": "bullet",
+                "attributes": {},
+                "items": [
+                    {
+                        "item-type": "elements",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "link",
+                                "data": {
+                                    "type": "page",
+                                    "link": {
+                                        "site": null,
+                                        "page": "some-page",
+                                        "extra": null
+                                    },
+                                    "label": "page",
+                                    "target": null
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "item-type": "elements",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "link",
+                                "data": {
+                                    "type": "page",
+                                    "link": {
+                                        "site": null,
+                                        "page": "some-page",
+                                        "extra": null
+                                    },
+                                    "label": "page",
+                                    "target": "new-tab"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "container",
+                        "data": {
+                            "type": "bold",
+                            "attributes": {},
+                            "elements": [
+                                {
+                                    "element": "text",
+                                    "data": "Anchors"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "element": "list",
+            "data": {
+                "type": "bullet",
+                "attributes": {},
+                "items": [
+                    {
+                        "item-type": "elements",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "link",
+                                "data": {
+                                    "type": "page",
+                                    "link": {
+                                        "site": null,
+                                        "page": "scp-series",
+                                        "extra": "#001"
+                                    },
+                                    "label": {
+                                        "text": "SCP-001 to SCP-099"
+                                    },
+                                    "target": null
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "item-type": "elements",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "link",
+                                "data": {
+                                    "type": "page",
+                                    "link": {
+                                        "site": null,
+                                        "page": "home",
+                                        "extra": "###"
+                                    },
+                                    "label": {
+                                        "text": "Home"
+                                    },
+                                    "target": null
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "container",
+                        "data": {
+                            "type": "bold",
+                            "attributes": {},
+                            "elements": [
+                                {
+                                    "element": "text",
+                                    "data": "Cross"
+                                },
+                                {
+                                    "element": "text",
+                                    "data": "-"
+                                },
+                                {
+                                    "element": "text",
+                                    "data": "site"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "element": "list",
+            "data": {
+                "type": "bullet",
+                "attributes": {},
+                "items": [
+                    {
+                        "item-type": "elements",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "link",
+                                "data": {
+                                    "type": "page",
+                                    "link": {
+                                        "site": "scp-wiki",
+                                        "page": "component:theme",
+                                        "extra": null
+                                    },
+                                    "label": {
+                                        "text": "Sigma-9 Theme"
+                                    },
+                                    "target": null
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "item-type": "elements",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "link",
+                                "data": {
+                                    "type": "page",
+                                    "link": {
+                                        "site": "scp-wiki",
+                                        "page": "scp-1000",
+                                        "extra": null
+                                    },
+                                    "label": {
+                                        "text": "Children of the Night"
+                                    },
+                                    "target": null
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "item-type": "elements",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "link",
+                                "data": {
+                                    "type": "page",
+                                    "link": {
+                                        "site": "scp-wiki",
+                                        "page": "system:recent-changes",
+                                        "extra": null
+                                    },
+                                    "label": {
+                                        "slug": "Recent Changes"
+                                    },
+                                    "target": null
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "item-type": "elements",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "link",
+                                "data": {
+                                    "type": "page",
+                                    "link": {
+                                        "site": "scp-wiki",
+                                        "page": "scp-series",
+                                        "extra": null
+                                    },
+                                    "label": "page",
+                                    "target": null
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "container",
+                        "data": {
+                            "type": "bold",
+                            "attributes": {},
+                            "elements": [
+                                {
+                                    "element": "text",
+                                    "data": "Subpath"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "element": "list",
+            "data": {
+                "type": "bullet",
+                "attributes": {},
+                "items": [
+                    {
+                        "item-type": "elements",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "link",
+                                "data": {
+                                    "type": "direct",
+                                    "link": "//main/edit",
+                                    "label": {
+                                        "text": "Edit page"
+                                    },
+                                    "target": null
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "item-type": "elements",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "link",
+                                "data": {
+                                    "type": "page",
+                                    "link": {
+                                        "site": null,
+                                        "page": "main",
+                                        "extra": "/#/page"
+                                    },
+                                    "label": {
+                                        "text": "Hash routing"
+                                    },
+                                    "target": null
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "item-type": "elements",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "link",
+                                "data": {
+                                    "type": "page",
+                                    "link": {
+                                        "site": null,
+                                        "page": "example",
+                                        "extra": "/edit"
+                                    },
+                                    "label": {
+                                        "text": "Edit page"
+                                    },
+                                    "target": null
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "item-type": "elements",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "link",
+                                "data": {
+                                    "type": "page",
+                                    "link": {
+                                        "site": null,
+                                        "page": "main",
+                                        "extra": "/##/page#toc1"
+                                    },
+                                    "label": {
+                                        "text": "Hash routing"
+                                    },
+                                    "target": null
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "container",
+                        "data": {
+                            "type": "bold",
+                            "attributes": {},
+                            "elements": [
+                                {
+                                    "element": "text",
+                                    "data": "URL"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "element": "list",
+            "data": {
+                "type": "bullet",
+                "attributes": {},
+                "items": [
+                    {
+                        "item-type": "elements",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "link",
+                                "data": {
+                                    "type": "direct",
+                                    "link": "https://example.com/",
+                                    "label": {
+                                        "text": "Example"
+                                    },
+                                    "target": null
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "item-type": "elements",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "link",
+                                "data": {
+                                    "type": "direct",
+                                    "link": "https://example.com/",
+                                    "label": {
+                                        "text": "Example"
+                                    },
+                                    "target": null
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "container",
+                        "data": {
+                            "type": "bold",
+                            "attributes": {},
+                            "elements": [
+                                {
+                                    "element": "text",
+                                    "data": "Special"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "element": "list",
+            "data": {
+                "type": "bullet",
+                "attributes": {},
+                "items": [
+                    {
+                        "item-type": "elements",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "text",
+                                "data": "["
+                            },
+                            {
+                                "element": "link",
+                                "data": {
+                                    "type": "page",
+                                    "link": {
+                                        "site": null,
+                                        "page": "scp-001-ex",
+                                        "extra": null
+                                    },
+                                    "label": {
+                                        "slug": "SCP-001-EX"
+                                    },
+                                    "target": null
+                                }
+                            },
+                            {
+                                "element": "text",
+                                "data": "]"
+                            },
+                            {
+                                "element": "text",
+                                "data": " "
+                            },
+                            {
+                                "element": "text",
+                                "data": "("
+                            },
+                            {
+                                "element": "text",
+                                "data": "quadruple"
+                            },
+                            {
+                                "element": "text",
+                                "data": " "
+                            },
+                            {
+                                "element": "text",
+                                "data": "brackets"
+                            },
+                            {
+                                "element": "text",
+                                "data": ")"
+                            }
+                        ]
+                    },
+                    {
+                        "item-type": "elements",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "text",
+                                "data": "["
+                            },
+                            {
+                                "element": "link",
+                                "data": {
+                                    "type": "page",
+                                    "link": {
+                                        "site": null,
+                                        "page": "scp-1459-j",
+                                        "extra": null
+                                    },
+                                    "label": {
+                                        "text": "REDACTED"
+                                    },
+                                    "target": null
+                                }
+                            },
+                            {
+                                "element": "text",
+                                "data": "]"
+                            }
+                        ]
+                    },
+                    {
+                        "item-type": "elements",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "link",
+                                "data": {
+                                    "type": "page",
+                                    "link": {
+                                        "site": null,
+                                        "page": "page-slug",
+                                        "extra": null
+                                    },
+                                    "label": {
+                                        "text": "A|B|C"
+                                    },
+                                    "target": null
+                                }
+                            },
+                            {
+                                "element": "text",
+                                "data": " "
+                            },
+                            {
+                                "element": "text",
+                                "data": "("
+                            },
+                            {
+                                "element": "text",
+                                "data": "label"
+                            },
+                            {
+                                "element": "text",
+                                "data": " "
+                            },
+                            {
+                                "element": "text",
+                                "data": "with"
+                            },
+                            {
+                                "element": "text",
+                                "data": " "
+                            },
+                            {
+                                "element": "text",
+                                "data": "pipes"
+                            },
+                            {
+                                "element": "text",
+                                "data": ")"
+                            }
+                        ]
+                    },
+                    {
+                        "item-type": "elements",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "link",
+                                "data": {
+                                    "type": "page",
+                                    "link": {
+                                        "site": null,
+                                        "page": "page-slug",
+                                        "extra": null
+                                    },
+                                    "label": {
+                                        "text": "A | B | C"
+                                    },
+                                    "target": null
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+}

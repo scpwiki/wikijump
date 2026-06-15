@@ -1,0 +1,9 @@
+BASIC [[video filename.mp4]]
+
+LEFT [[video filename.mp4 align="left"]]
+RIGHT [[video filename.mp4 align="right"]]
+CENTER [[video filename.mp4 align="center"]]
+
+EXTERNAL [[video https://example.com/some-video.mp4]]
+
+ATTRS [[video filename.mp4 autoplay="true" class="custom-video"]]

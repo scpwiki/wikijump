@@ -1,0 +1,9 @@
+[[radio fruit]] Apple
+[[radio fruit]] Banana
+[[radio fruit]] Cherry
+[[radio vegetable]] Brussel sprouts
+[[radio vegetable]] Celery
+[[*radio vegetable]] Zucchini
+
+[[radio metals id="au"]] Gold
+[[radio metals id="ag" class="quick"]] Silver

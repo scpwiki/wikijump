@@ -1,0 +1,14 @@
+Inline [[u]]underline[[/u]]
+
+This [[u]]one is [[b]]nested[[/b]][[/u]]
+
+Empty [[u]][[/u]]
+
+[[u]]Paragraph
+
+Underline[[/u]]
+
+[[underline]]Alias test[[/underline]]
+
+
+[[u]]Fail underline

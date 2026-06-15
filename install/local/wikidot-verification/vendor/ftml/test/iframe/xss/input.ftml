@@ -1,0 +1,6 @@
+[[iframe javascript:alert(1)]]
+[[iframe javascript: alert(1)]]
+[[iframe java script:alert(1)]]
+[[iframe java\nscript:alert(1)]]
+[[iframe data:,Foobar]]
+[[iframe data:text/html,%3Cscript%3Ealert%28%27XSS%27%29%3B%3C%2Fscript%3E]]

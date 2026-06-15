@@ -1,0 +1,118 @@
+++ Bullet (depth)
+
+* apple
+* banana
+* cherry
+* mango _
+melon _
+pineapple
+
+----
+
+* one
+ * two
+  * three
+   * four
+
+----
+
+   * four
+  * three
+ * two
+* one
+
+----
+
+* durian
+    * mango
+  * melon
+      * pineapple
+
+++ Bullet (join)
+
+* apple
+
+* banana
+
+
+* cherry
+* mango
+
+++ Numbered (depth)
+
+# apple
+# banana
+# mango _
+melon _
+pineapple
+
+----
+
+# one
+ # two
+  # three
+   # four
+
+----
+
+   # four
+  # three
+ # two
+# one
+
+----
+
+# durian
+# eggplant
+    # mango
+    # guava
+  # melon
+      # pineapple
+
+++ Numbered (join)
+
+# apple
+
+# banana
+
+
+# cherry
+# mango
+
+++ Mixed
+
+[!-- separate --]
+* apple
+* banana
+# celery
+# kale
+* cherry
+
+[!-- mixed / depth --]
+* apple
+ * banana
+ * cherry
+* mango
+ # lettuce
+ # spinach
+ # broccoli
+* pineapple
+ * A
+  # 1
+  # 2
+  # 3
+ * B
+
+++ Empty
+
+* a
+* 
+* b
+*  	 
+* c
+
+[!-- should be the same as --]
+
+* a
+* b
+* c

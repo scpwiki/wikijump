@@ -1,0 +1,28 @@
+[Backlinks]
+body = "none"
+[Backlinks.arguments]
+page = { type = "string" }
+
+[Categories]
+body = "none"
+[Categories.arguments]
+includeHidden = { type = "bool", default = false }
+
+[CSS]
+body = "raw"
+
+[Join]
+body = "none"
+html-attributes = true
+[Join.arguments]
+button = { type = "string", default = "" } # default message depends on language
+
+[PageTree]
+body = "none"
+[PageTree.arguments]
+root = { type = "string" }
+depth = { type = "int", min-value = 1, default = 10000 } # really unlimited, but not sure how to convey that as an int
+showRoot = { type = "bool", default = false }
+
+[Rate]
+body = "none"

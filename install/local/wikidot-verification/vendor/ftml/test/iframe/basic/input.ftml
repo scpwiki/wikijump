@@ -1,0 +1,8 @@
+[[iframe https://example.com/some-page]]
+
+[[iframe http://example.org/http]]
+
+[[iframe https://example.com/ id = "my-example" class="iframe" width = "90%"]]
+
+[!-- WJ-1082 --]
+[[iframe https://example.net/my-page frameborder="0"]]

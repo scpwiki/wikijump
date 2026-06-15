@@ -1,0 +1,7 @@
+# This is a CODEOWNERS file, describing who is responsible for
+# maintenance of, or has experience with various parts of this
+# repository.
+
+.github/workflows/*.yaml    @emmiegit
+src                         @emmiegit
+scripts                     @emmiegit

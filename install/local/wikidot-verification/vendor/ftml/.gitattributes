@@ -1,0 +1,3 @@
+# .sh files need to have UNIX line endings
+# Even on Windows, otherwise this will break Docker builds
+*.sh eol=lf

@@ -1,0 +1,128 @@
+[
+    {
+        "token": "identifier",
+        "rule": "block",
+        "span": [
+            15,
+            24
+        ],
+        "kind": "no-such-block"
+    },
+    {
+        "token": "left-block",
+        "rule": "fallback",
+        "span": [
+            6,
+            8
+        ],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [
+            28,
+            30
+        ],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "paragraph-break",
+        "rule": "block-audio",
+        "span": [
+            98,
+            100
+        ],
+        "kind": "block-malformed-arguments"
+    },
+    {
+        "token": "left-block",
+        "rule": "fallback",
+        "span": [
+            36,
+            38
+        ],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [
+            96,
+            98
+        ],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "identifier",
+        "rule": "block-star",
+        "span": [
+            116,
+            125
+        ],
+        "kind": "no-such-block"
+    },
+    {
+        "token": "left-block-star",
+        "rule": "fallback",
+        "span": [
+            106,
+            109
+        ],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [
+            129,
+            131
+        ],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "paragraph-break",
+        "rule": "block-audio",
+        "span": [
+            148,
+            150
+        ],
+        "kind": "block-missing-name"
+    },
+    {
+        "token": "left-block",
+        "rule": "fallback",
+        "span": [
+            139,
+            141
+        ],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [
+            146,
+            148
+        ],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "input-end",
+        "rule": "block-audio",
+        "span": [
+            180,
+            180
+        ],
+        "kind": "end-of-input"
+    },
+    {
+        "token": "left-block",
+        "rule": "fallback",
+        "span": [
+            159,
+            161
+        ],
+        "kind": "no-rules-match"
+    }
+]

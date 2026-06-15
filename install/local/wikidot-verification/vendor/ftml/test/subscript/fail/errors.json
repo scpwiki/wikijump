@@ -1,0 +1,32 @@
+[
+    {
+        "token": "paragraph-break",
+        "rule": "subscript",
+        "span": [15, 17],
+        "kind": "rule-failed"
+    },
+    {
+        "token": "subscript",
+        "rule": "fallback",
+        "span": [0, 2],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "input-end",
+        "rule": "block-subscript",
+        "span": [46, 46],
+        "kind": "end-of-input"
+    },
+    {
+        "token": "left-block",
+        "rule": "fallback",
+        "span": [17, 19],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [22, 24],
+        "kind": "no-rules-match"
+    }
+]

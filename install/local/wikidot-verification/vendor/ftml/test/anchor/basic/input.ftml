@@ -1,0 +1,35 @@
+EMPTY [[a]][[/a]]
+BASIC [[a href="some-page"]]click[[/a]]
+ATTRS [[a href="https://example.com" style="color: purple" id="awesome"]]my link[[/a]]
+DEPTH [[a href="https://example.com"]]my **awesome** link[[/a]]
+
+**STAR**
+
+EMPTY [[*a]][[/a]]
+BASIC [[*a href="some-page"]]click[[/a]]
+ATTRS [[*a href="https://example.com" class="link"]]my link[[/a]]
+
+**SCORE**
+
+EMPTY [[a_]][[/a]]
+BASIC [[a_ href="some-page"]]
+click
+[[/a]]
+ATTRS [[a_ href="https://example.com" class="link"]]
+my link[[/a]]
+
+**BOTH**
+
+EMPTY [[*a_]][[/a]]
+BASIC [[*a_ href="some-page"]]
+click
+[[/a]]
+ATTRS [[*a_ href="https://example.com" class="link"]]
+my link[[/a]]
+
+**NAMED**
+
+[[# apple]] A
+[[# apple-banana]] B
+[[# pineapple]][[# mango]] [[# strawberry]]C
+[[# symbol$%_foo]] D

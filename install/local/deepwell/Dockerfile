@@ -27,6 +27,7 @@ COPY ./install/local/deepwell/health-check.sh /usr/local/bin/wikijump-health-che
 # Don't build until container execution (see cargo-watch)
 RUN mkdir /src
 COPY ./deepwell /src/deepwell
+COPY ./install/local/wikidot-verification/vendor/ftml /src/install/local/wikidot-verification/vendor/ftml
 WORKDIR /src/deepwell
 
 EXPOSE 2747

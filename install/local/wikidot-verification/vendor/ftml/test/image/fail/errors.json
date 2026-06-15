@@ -1,0 +1,104 @@
+[
+    {
+        "token": "identifier",
+        "rule": "block",
+        "span": [23, 32],
+        "kind": "no-such-block"
+    },
+    {
+        "token": "left-block",
+        "rule": "fallback",
+        "span": [13, 15],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [36, 38],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "identifier",
+        "rule": "block",
+        "span": [64, 73],
+        "kind": "no-such-block"
+    },
+    {
+        "token": "left-block",
+        "rule": "fallback",
+        "span": [53, 55],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [77, 79],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "identifier",
+        "rule": "block",
+        "span": [99, 108],
+        "kind": "no-such-block"
+    },
+    {
+        "token": "left-block",
+        "rule": "fallback",
+        "span": [89, 91],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [112, 114],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "identifier",
+        "rule": "block-star",
+        "span": [132, 141],
+        "kind": "no-such-block"
+    },
+    {
+        "token": "left-block-star",
+        "rule": "fallback",
+        "span": [122, 125],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [145, 147],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "paragraph-break",
+        "rule": "block-image",
+        "span": [164, 166],
+        "kind": "block-missing-name"
+    },
+    {
+        "token": "left-block",
+        "rule": "fallback",
+        "span": [155, 157],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [162, 164],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "input-end",
+        "rule": "block-image",
+        "span": [196, 196],
+        "kind": "end-of-input"
+    },
+    {
+        "token": "left-block",
+        "rule": "fallback",
+        "span": [175, 177],
+        "kind": "no-rules-match"
+    }
+]

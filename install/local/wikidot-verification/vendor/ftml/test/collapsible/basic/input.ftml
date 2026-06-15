@@ -1,0 +1,67 @@
+EMPTY
+[[collapsible]]
+[[/collapsible]]
+
+BASIC
+[[collapsible]]
+Apple
+[[/collapsible]]
+
+INLINE
+[[collapsible]]Banana[[/collapsible]]
+
+MULTILINE / LABELS
+[[collapsible
+
+  show="+ Show the stuff"
+  hide="- Hide the stuff"
+]]
+Mango
+[[/collapsible]]
+
+FOLD
+[[collapsible folded="no"]]
+Blueberry
+[[/collapsible]]
+
+[[collapsible folded="yes"]]
+Melon
+[[/collapsible]]
+
+HIDE LOCATION
+[[ collapsible hideLocation="both" ]]
+Pineapple
+[[/collapsible]]
+
+[[collapsible hideLocation="bottom"]]
+Raspberry
+[[/collapsible]]
+
+[[collapsible hideLocation="top"]]
+Gooseberry
+[[/collapsible]]
+
+[[collapsible hideLocation="neither"]]
+Hidden
+[[/collapsible]]
+
+[[collapsible hideLocation="neither" folded="no"]]
+Always
+[[/collapsible]]
+
+ATTRS
+[[COLLAPSIBLE id="hider" class="my-collapsible" style="color: teal" data-hider="ya"]]foo[[/COLLAPSIBLE]]
+
+NESTED
+[[collapsible show="+ Layer 1" hide="- Layer 1"]]
+Alpha
+[[collapsible show="+ Layer 2" hide="- Layer 2"]]
+Beta
+[[collapsible show="+ Layer 3" hide="- Layer 3"]]
+Gamma
+[[collapsible show="+ Layer 4" hide="- Layer 4"]]
+Delta
+[[/collapsible]]
+[[/collapsible]]
+[[/collapsible]]
+[[/collapsible]]

@@ -1,0 +1,32 @@
+EMPTY [[span]][[/span]]
+BASIC [[span]]apple[[/span]]
+
+NEWLINES
+
+[[span]]banana
+cherry[[/span]]
+
+[[span]]
+mango
+
+pineapple
+[[/span]]
+
+[[span style="color: green" data-produce="vegetable"]]celery[[/span]]
+
+
+EMPTY [[span_]][[/span]]
+BASIC [[span_]]durian[[/span]]
+
+NEWLINES
+
+[[span_]]eggplant
+rafflesia[[/span]]
+
+[[span_]]
+paragraph
+
+in span
+[[/span]]
+
+[[span_ id="this-thing"]]span2[[/span]]

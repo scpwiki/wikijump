@@ -1,0 +1,9 @@
+[[hidden]]Hidden text[[/hidden]]
+
+[[hidden]]
+[[div_]]
+A hidden div!
+[[/div]]
+[[/hidden]]
+
+[[hidden id="no-show" style="line-height: 1em"]]hidden with style[[/hidden]]

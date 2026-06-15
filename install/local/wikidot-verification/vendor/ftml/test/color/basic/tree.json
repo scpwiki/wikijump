@@ -1,0 +1,109 @@
+{
+    "elements": [
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "color",
+                        "data": {
+                            "color": "#c00",
+                            "elements": [
+                                {
+                                    "element": "text",
+                                    "data": "Apple"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "color",
+                        "data": {
+                            "color": "#fff",
+                            "elements": [
+                                {
+                                    "element": "text",
+                                    "data": "Banana"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "color",
+                        "data": {
+                            "color": "#cd3636",
+                            "elements": [
+                                {
+                                    "element": "text",
+                                    "data": "Cherry"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "color",
+                        "data": {
+                            "color": "blue",
+                            "elements": [
+                                {
+                                    "element": "text",
+                                    "data": "Blueberry"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "color",
+                        "data": {
+                            "color": "rgb(241, 194, 50)",
+                            "elements": [
+                                {
+                                    "element": "text",
+                                    "data": "Mango"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

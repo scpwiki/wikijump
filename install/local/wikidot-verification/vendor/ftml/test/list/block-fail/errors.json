@@ -1,0 +1,212 @@
+[
+    {
+        "token": "paragraph-break",
+        "rule": "block-list-unordered",
+        "span": [14, 16],
+        "kind": "list-empty"
+    },
+    {
+        "token": "left-block",
+        "rule": "fallback",
+        "span": [0, 2],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [4, 6],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "left-block-end",
+        "rule": "fallback",
+        "span": [7, 10],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [12, 14],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "paragraph-break",
+        "rule": "block-list-ordered",
+        "span": [30, 32],
+        "kind": "list-empty"
+    },
+    {
+        "token": "left-block",
+        "rule": "fallback",
+        "span": [16, 18],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [20, 22],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "left-block-end",
+        "rule": "fallback",
+        "span": [23, 26],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [28, 30],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "paragraph-break",
+        "rule": "block-list-unordered",
+        "span": [77, 79],
+        "kind": "list-empty"
+    },
+    {
+        "token": "left-block",
+        "rule": "fallback",
+        "span": [63, 65],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [67, 69],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "left-block-end",
+        "rule": "fallback",
+        "span": [70, 73],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [75, 77],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "paragraph-break",
+        "rule": "block-list-ordered",
+        "span": [93, 95],
+        "kind": "list-empty"
+    },
+    {
+        "token": "left-block",
+        "rule": "fallback",
+        "span": [79, 81],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [83, 85],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "left-block-end",
+        "rule": "fallback",
+        "span": [86, 89],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [91, 93],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "paragraph-break",
+        "rule": "block-list-unordered",
+        "span": [144, 146],
+        "kind": "list-contains-non-item"
+    },
+    {
+        "token": "left-block",
+        "rule": "fallback",
+        "span": [126, 128],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [130, 132],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "left-block-end",
+        "rule": "fallback",
+        "span": [137, 140],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [142, 144],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "paragraph-break",
+        "rule": "block-list-ordered",
+        "span": [164, 166],
+        "kind": "list-contains-non-item"
+    },
+    {
+        "token": "left-block",
+        "rule": "fallback",
+        "span": [146, 148],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [150, 152],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "left-block-end",
+        "rule": "fallback",
+        "span": [157, 160],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [162, 164],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "left-block",
+        "rule": "page",
+        "span": [166, 168],
+        "kind": "list-item-outside-list"
+    },
+    {
+        "token": "left-block",
+        "rule": "fallback",
+        "span": [166, 168],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [170, 172],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "left-block-end",
+        "rule": "fallback",
+        "span": [177, 180],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [182, 184],
+        "kind": "no-rules-match"
+    }
+]

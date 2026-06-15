@@ -1,0 +1,98 @@
+EMPTY TABLE
+[[table]]
+[[/table]]
+
+EMPTY ROW
+[[table]]
+[[row]]
+[[/row]]
+[[/table]]
+
+EMPTY CELL
+[[table]]
+[[row]]
+[[cell]]
+[[/cell]]
+[[/row]]
+[[/table]]
+
+BASIC / INLINE
+[[table]] [[row]] [[cell]] Apple [[/cell]] [[/row]] [[/table]]
+
+HEADER
+[[table]]
+[[row]] [[hcell]] A [[/hcell]] [[hcell]] B [[/hcell]] [[/row]]
+[[row]] [[cell]] 1 [[/cell]] [[cell]] 2 [[/cell]] [[/row]]
+[[/table]]
+
+ATTRS
+[[table id="fruit"]]
+[[row style="color: red;" ]]
+[[cell  data-sort="number"]]
+apple
+[[/cell]]
+[[/row]]
+[[/table]]
+
+WIDTH
+[[table]]
+[[row]]
+[[cell colspan="3"]]Three[[/cell]][[cell rowspan="2"]]Two[[/cell]]
+[[/row]]
+[[row]][[cell]]A[[/cell]][[cell]]B[[/cell]][[cell]]C[[/cell]][[/row]]
+[[/table]]
+
+NESTED
+[[table]][[row]][[cell]][[table]][[row]][[cell]].[[/cell]][[/row]][[/table]][[/cell]][[/row]][[/table]]
+
+NESTED DEEP
+
+[[table]]
+[[row]]
+[[cell]]
+
+1
+
+[[table]]
+[[row]]
+[[cell]]
+
+2
+
+[[table]]
+[[row]]
+[[cell]]
+
+3
+
+[[table]]
+[[row]]
+[[cell]]
+
+4
+
+[[table]]
+[[row]]
+[[cell]]
+
+5
+
+[[/cell]]
+[[/row]]
+[[/table]]
+
+[[/cell]]
+[[/row]]
+[[/table]]
+
+[[/cell]]
+[[/row]]
+[[/table]]
+
+[[/cell]]
+[[/row]]
+[[/table]]
+
+[[/cell]]
+[[/row]]
+[[/table]]

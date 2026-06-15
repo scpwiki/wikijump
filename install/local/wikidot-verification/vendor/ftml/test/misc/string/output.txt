@@ -1,0 +1,16 @@
+A "string" here!
+
+An empty string: ""
+
+"This one\x01 has\t escapes \n\b"
+
+"Multiple" "strings" on "a line"
+
+treated as text
+
+I don't remember this "object", nor the "doomsday machine"
+
+
+
+"This is
+not a string"

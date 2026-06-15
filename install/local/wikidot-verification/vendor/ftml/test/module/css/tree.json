@@ -1,0 +1,16 @@
+{
+    "elements": [
+        {
+            "element": "style",
+            "data": ".blue { color: blue; }"
+        },
+        {
+            "element": "style",
+            "data": ".green { color: green; }"
+        },
+        {
+            "element": "style",
+            "data": ".red{color:   red}"
+        }
+    ]
+}

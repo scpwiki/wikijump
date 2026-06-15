@@ -1,0 +1,9 @@
+Apple [[mark]]banana[[/mark]] cherry
+
+[[mark class="multiline" ]]
+Pineapple
+
+mango
+[[/mark]]
+
+[[highlight]]block alias[[/highlight]]

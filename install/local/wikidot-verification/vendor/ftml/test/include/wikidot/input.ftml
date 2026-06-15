@@ -1,0 +1,36 @@
+[[include some-page]]
+[[include fragment:abc]]
+[[include :scp-wiki:theme:black-highlighter-theme]]
+
+[[include component:fruit class=box| apple=1 | banana = 2 |]]
+[[include component:fruit |class =box| apple=1 | banana = 2]]
+[[include component:fruit | class=box | apple=1 | banana = 2 |]]
+[[include component:fruit class = box | apple=1 | banana = 2]]
+
+apple
+[[include component:fruit
+ class=box |
+ apple=1 |
+ banana = 2 |]]
+
+[[include component:fruit |
+ class=box |
+ apple=1 |
+ banana = 2]]
+[[include component:fruit |
+ class=box |
+ apple=1 |
+ banana = 2 |]]
+[[include component:fruit
+ class=box |
+ apple=1 |
+ banana = 2]]
+[[include component:fruit class={$class}|class = box | apple=1 | apple=X |apple=durian | banana = 2]]
+cherry
+
+
+[[include component:fruit   class   =box|   apple =  1 |  banana=2|]]
+
+banana
+
+[[INcluDE COMponeNt:FRUIT]]

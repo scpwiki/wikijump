@@ -1,0 +1,19 @@
+[[ifcategory _default]]
+[[module CSS]]
+body { color: red; }
+[[/module]]
+[[/ifcategory]]
+
+[[ifcategory test]]
+[[module CSS]]
+body { color: blue; }
+[[/module]]
+[[/ifcategory]]
+
+[[ifcategory +test +foo +bar]]
+Multiple (active)
+[[/ifcategory]]
+
+[[ifcategory +_default +component -test]]
+Multiple (inactive)
+[[/ifcategory]]

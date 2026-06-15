@@ -1,0 +1,7 @@
+[[module join]]
+
+[[module Join]]
+
+[[ module JOIN button="Join our site!! ;-)"]]
+
+[[module join id="join-btn" class="join-module" style="display: flex"]]

@@ -1,0 +1,10 @@
+[[module css]]
+.blue { color: blue; }
+[[/module]]
+
+[[module CSS]]
+.green { color: green; }
+[[/module]]
+[[module Css]]
+.red{color:   red}
+[[/module]]

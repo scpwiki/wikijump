@@ -1,0 +1,8 @@
+Empty [[b]][[/b]]
+[[b]]Apple[[/b]]
+[[bold]]Banana[[/bold]]
+[[strong]]Cherry[[/strong]]
+
+[[b]]Nested [[span]]blocks [[bold]][[span]]even[[strong]]more[[/strong]][[/span]][[/bold]][[/span]][[/b]]
+
+[[bold id="strongest" style="color: teal"]]attributes[[/bold]]

@@ -1,0 +1,117 @@
+{
+    "elements": [
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "text",
+                        "data": "BASIC"
+                    },
+                    {
+                        "element": "line-break"
+                    },
+                    {
+                        "element": "raw",
+                        "data": "apple\nbanana"
+                    }
+                ]
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "text",
+                        "data": "EMPTY"
+                    },
+                    {
+                        "element": "line-break"
+                    },
+                    {
+                        "element": "raw",
+                        "data": ""
+                    }
+                ]
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "text",
+                        "data": "ESCAPES"
+                    },
+                    {
+                        "element": "line-break"
+                    },
+                    {
+                        "element": "raw",
+                        "data": "[[div]]\nnot a div test\n[[/div]]\n\n**also not bold**"
+                    }
+                ]
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "text",
+                        "data": "INLINE"
+                    },
+                    {
+                        "element": "line-break"
+                    },
+                    {
+                        "element": "raw",
+                        "data": "a { display: none; }"
+                    }
+                ]
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "text",
+                        "data": "MULTI"
+                    },
+                    {
+                        "element": "line-break"
+                    },
+                    {
+                        "element": "raw",
+                        "data": "first block"
+                    }
+                ]
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "raw",
+                        "data": "second block"
+                    }
+                ]
+            }
+        }
+    ]
+}

@@ -1,0 +1,17 @@
+Some {{monospace}} text
+
+A [[tt]]block alias[[/tt]] here
+
+And [[mono]]another[[/mono]]
+
+And [[monospace]]yet another![[/monospace]]
+
+Empty [[tt]][[/tt]]
+
+[[mono]]Here is one
+
+across
+multiple
+
+lines
+[[/mono]]

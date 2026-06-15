@@ -1,0 +1,21 @@
+{
+    "elements": [
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "date",
+                        "data": {
+                            "value": "2009-12-25 08:18:05.0 +02:00:00",
+                            "format": "[a %a] [A %A] [b %b] [B %B] [c %c] [d %d] [D %D] [e %e] [H %H] [I %I] [m %m] [M %M] [O %O] [p %p] [P %P] [r %r] [R %R] [S %S] [T %T] [x %x] [X %X] [y %y] [Y %Y] [z %z] [Z %Z]",
+                            "hover": false
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

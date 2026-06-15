@@ -1,0 +1,19 @@
+A "string" here!
+
+An empty string: ""
+
+"This one\x01 has\t escapes \n\b"
+
+"Multiple" "strings" on "a line"
+
+treated as text
+
+[!-- WJ-1066 --]
+I don't remember this "[[[scp-055|object]]]", nor the "**doomsday machine**"
+
+[!-- bug with URLs --]
+[[span data-a="https://example.com" data-b="omega"]][[/span]]
+
+[!-- bug with newlines --]
+"This is
+not a string"

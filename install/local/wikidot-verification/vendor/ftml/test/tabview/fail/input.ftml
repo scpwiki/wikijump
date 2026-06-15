@@ -1,0 +1,19 @@
+EMPTY:
+[[tabview]]
+[[/tabview]]
+
+EMPTY INLINE: [[tabs]] [[/tabs]]
+
+NAME:
+[[tabview Foo]]
+[[tab Bar]]
+.
+[[/tab]]
+[[/tabview]]
+
+NO LABEL:
+[[tabview]]
+[[tab]]
+.
+[[/tab]]
+[[/tabview]]

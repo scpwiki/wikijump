@@ -1,0 +1,110 @@
+[
+    {
+        "token": "left-block",
+        "rule": "block-iframe",
+        "span": [31, 33],
+        "kind": "block-malformed-arguments"
+    },
+    {
+        "token": "left-block",
+        "rule": "fallback",
+        "span": [0, 2],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [28, 30],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "other",
+        "rule": "block-iframe",
+        "span": [57, 58],
+        "kind": "block-malformed-arguments"
+    },
+    {
+        "token": "left-block",
+        "rule": "fallback",
+        "span": [31, 33],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [60, 62],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "colon",
+        "rule": "block-iframe",
+        "span": [83, 84],
+        "kind": "block-malformed-arguments"
+    },
+    {
+        "token": "left-block",
+        "rule": "fallback",
+        "span": [63, 65],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [92, 94],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "left-block",
+        "rule": "block-iframe",
+        "span": [128, 130],
+        "kind": "block-malformed-arguments"
+    },
+    {
+        "token": "left-block",
+        "rule": "fallback",
+        "span": [95, 97],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [125, 127],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "left-block",
+        "rule": "block-iframe",
+        "span": [152, 154],
+        "kind": "block-malformed-arguments"
+    },
+    {
+        "token": "left-block",
+        "rule": "fallback",
+        "span": [128, 130],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [149, 151],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "input-end",
+        "rule": "block-iframe",
+        "span": [228, 228],
+        "kind": "block-malformed-arguments"
+    },
+    {
+        "token": "left-block",
+        "rule": "fallback",
+        "span": [152, 154],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [226, 228],
+        "kind": "no-rules-match"
+    }
+]

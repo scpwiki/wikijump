@@ -1,0 +1,87 @@
+[package]
+name = "ftml"
+description = "Foundation Text Markup Language - a library to render Wikidot text as HTML"
+repository = "https://github.com/scpwiki/ftml"
+readme = "README.md"
+license = "AGPL-3.0-or-later"
+keywords = ["wikidot", "wikijump", "ftml", "parsing", "html"]
+categories = ["parser-implementations"]
+exclude = [".gitignore", ".editorconfig"]
+
+version = "1.42.0"
+authors = ["Emmie Smith <emmie.maeda@gmail.com>"]
+edition = "2024"
+
+[lib]
+name = "ftml"
+crate-type = ["cdylib", "lib"]
+
+[features]
+default  = ["html", "mathml"]
+# Adds HTML rendering.
+html     = ["lightningcss"]
+# Adds LaTeX -> MathML support for rendering.
+mathml   = ["html", "latex2mathml"]
+
+[dependencies]
+cfg-if = "1"
+enum-map = "2"
+entities = "1"
+icu_calendar = "2.2"
+icu_decimal = "2.2"
+icu_datetime = { version = "2.2", features = ["compiled_data"] }
+icu_experimental = { version = "0.5", features = ["compiled_data"] }
+icu_locale = "2.2"
+latex2mathml = { version = "0.2", optional = true }
+lightningcss = { version = "1.0.0-alpha.70", optional = true }
+log = "0.4"
+maplit = "1"
+pest = "2"
+pest_derive = "2"
+rand = "0.10"
+ref-map = "0.2"
+regex = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_repr = "0.1"
+serde-wasm-bindgen = "0.6"
+stacker = "0.1"
+str-macro = "1"
+strum = "0.28"
+strum_macros = "0.28"
+time = { version = "0.3", features = ["formatting", "macros", "parsing", "serde", "serde-human-readable"], default-features = false }
+unicase = "2"
+wikidot-normalize = "0.12"
+writeable = "0.6"
+
+[build-dependencies]
+built = { version = "0.8", features = ["chrono", "git2"] }
+
+[dev-dependencies]
+clap = "4"
+proptest = "1"
+termcolor = "1"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+getrandom = { version = "0.4", features = ["wasm_js"] }
+# Ugly annoying bullshit because downstream packages depend on
+# getrandom v3, but for WASM we need this feature flag or only
+# these versions of getrandom won't be able to get OS entropy.
+#
+# I hate this and we should remove this once all child dependencies
+# stop depending on this version. Ugh.
+getrandom3 = { package = "getrandom", version = "0.3", features = ["wasm_js"] }
+self_cell = "1.0"
+wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
+web-sys = { version = "0.3", features = ["console"] }
+
+# Warnings and Errors
+
+[lints.rust]
+unsafe_code = "forbid"
+missing_debug_implementations = "deny"
+
+# Performance options
+
+[profile.release]
+lto = true

@@ -1,0 +1,20 @@
+++ Standard
+
+BASIC @@**@@not bold@@**@@
+EMPTY @@@@
+AT1 @@@@@
+AT2 @@@@@@
+
+ANGLE
+@@@<@@
+@@>@@@
+@@foo @< >@ bar@@
+
+++ Angle Brackets
+
+BASIC @<foo bar>@
+EMPTY @<>@
+AT1   @<@>@
+AT2   @<@@>@
+AT3   @<@@@>@
+AT4   @<@@@@>@

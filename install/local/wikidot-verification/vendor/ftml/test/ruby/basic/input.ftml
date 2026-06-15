@@ -1,0 +1,33 @@
+BASIC
+[[ruby]]語 [[rt]] go [[/rt]][[/ruby]]
+[[ruby]]漢[[rt]]kan[[/rt]]字[[rt]]ji[[/rt]][[/ruby]]
+
+ALIAS
+[[ruby]]語 [[rubytext]]go[[/rubytext]][[/ruby]]
+
+ATTRS
+[[ruby class="apple" id="character"]]語 [[rt class="banana" style="font-size: 125%;"]]go[[/rt]][[/ruby]] ruby-attributes.json"
+
+NESTED
+[[div]] [[span]] [[ruby]]語 [[rt]]go[[/rt]][[/ruby]] [[/span]] [[/div]]
+
+NEWLINES
+[[ruby]]
+漢 [[rt]]
+kan
+[[/rt]]
+字 [[rt]]
+ji
+[[/rt]]
+[[/ruby]]
+
+[[ruby]]
+漢 [[rt]]kan[[/rt]]
+字 [[rt]]ji[[/rt]]
+[[/ruby]]
+
+ALT
+[[ruby2 語|go]]
+[[ruby2  語  | go ]]
+[[ruby2 漢|kan]] [[ruby2 字|ji]]
+[[rb 漢|kan]] [[rb 字|ji]]

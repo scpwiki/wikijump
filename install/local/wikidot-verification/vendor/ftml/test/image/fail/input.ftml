@@ -1,0 +1,10 @@
+FLOAT CENTER [[f=image landscape.jpg]]
+FLOAT JUSTIFY [[f==image landscape.jpg]]
+
+JUSTIFY [[==image landscape.jpg]]
+
+OTHER [[*$image landscape.jpg]]
+
+EMPTY [[image]]
+
+UNCLOSED [[image landscape.jpg

@@ -1,0 +1,167 @@
+{
+    "elements": [
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "text",
+                        "data": "Apple"
+                    }
+                ]
+            }
+        },
+        {
+            "element": "include",
+            "data": {
+                "paragraph-safe": false,
+                "variables": {},
+                "location": {
+                    "site": null,
+                    "page": "page-name"
+                },
+                "elements": [
+                    {
+                        "element": "text",
+                        "data": "<INCLUDED PAGE (ELEMENTS)>"
+                    }
+                ]
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "text",
+                        "data": "Banana"
+                    }
+                ]
+            }
+        },
+        {
+            "element": "include",
+            "data": {
+                "paragraph-safe": false,
+                "variables": {},
+                "location": {
+                    "site": "some-site",
+                    "page": "page-name"
+                },
+                "elements": [
+                    {
+                        "element": "text",
+                        "data": "<INCLUDED PAGE (ELEMENTS)>"
+                    }
+                ]
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "text",
+                        "data": "Cherry"
+                    }
+                ]
+            }
+        },
+        {
+            "element": "include",
+            "data": {
+                "paragraph-safe": false,
+                "variables": {
+                    "name": "peanut.png",
+                    "caption": "haha funi!"
+                },
+                "location": {
+                    "site": null,
+                    "page": "component:image-block"
+                },
+                "elements": [
+                    {
+                        "element": "text",
+                        "data": "<INCLUDED PAGE (ELEMENTS)>"
+                    }
+                ]
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "text",
+                        "data": "Mango"
+                    }
+                ]
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "text",
+                        "data": "FAIL"
+                    },
+                    {
+                        "element": "text",
+                        "data": "[["
+                    },
+                    {
+                        "element": "text",
+                        "data": "include"
+                    },
+                    {
+                        "element": "text",
+                        "data": "-"
+                    },
+                    {
+                        "element": "text",
+                        "data": "elements"
+                    },
+                    {
+                        "element": "text",
+                        "data": " "
+                    },
+                    {
+                        "element": "text",
+                        "data": ":"
+                    },
+                    {
+                        "element": "text",
+                        "data": ":"
+                    },
+                    {
+                        "element": "text",
+                        "data": "invalid"
+                    },
+                    {
+                        "element": "text",
+                        "data": "-"
+                    },
+                    {
+                        "element": "text",
+                        "data": "page"
+                    },
+                    {
+                        "element": "text",
+                        "data": "]]"
+                    }
+                ]
+            }
+        }
+    ]
+}

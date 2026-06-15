@@ -1,0 +1,10 @@
+Inline [!-- comment --]
+Empty [!-- --] [!----]
+
+[!--
+Multiline
+
+comment
+
+spread
+over many lines --]

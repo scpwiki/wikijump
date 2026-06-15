@@ -1,0 +1,15 @@
+[[div]]
+[[div]]
+[[div]]
+
+[!-- these code blocks should only appear once each, at the end, despite the failed [[div]]s above --]
+
+[[code type="CSS"]]
+.alpha { display: none; }
+[[/code]]
+
+[[code type="rust" name="program"]]
+fn main() {
+    println!("beta");
+}
+[[/code]]

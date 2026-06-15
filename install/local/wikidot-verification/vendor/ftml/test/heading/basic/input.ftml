@@ -1,0 +1,25 @@
++ My //header//
+
+++ an H2
++++ H-three
+++++ four
+some text
+
++++++ [[size 20%]]this one has an inline block in it[[/size]]
+++++++ h6??
+
++* no {{TOC}}!
+++* another
+apple
+
++++* foo
+banana
+
+++++* bar
+cherry
++++++* baz
+mango
+
+++++++* abc
+++++++* def
+melon

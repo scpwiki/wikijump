@@ -1,0 +1,89 @@
+++ Regular
+
+[[div]]inline[[/div]]
+
+[[div]]
+newlines
+[[/div]]
+
+[[div]][[/div]]
+
+[[div]]
+[[/div]]
+
+[[div]]
+apple
+banana
+[[/div]]
+
+[[div]]
+cherry
+**durian** [[span]]egg[[/span]]
+[[div id="tasty"]]mango[[/div]]
+melon
+[[/div]]
+
+[[div data-paragraph="1"]]
+A paragraph here of text.
+
+Yet another paragraph underneath it.
+[[/div]]
+
+[[div]]
+1
+[[div]]
+2
+[[div]]
+3
+[[div]]
+4
+[[div]]
+5
+[[div]]
+6
+[[/div]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[/div]]
+
+++ Paragraph Strip
+
+[[div_]][[/div]]
+
+[[div_]]
+[[/div]]
+
+[[div_ class="blockquote"]]
+Apple
+[[/div]]
+
+[[div_]]Banana[[/div]]
+
+[[div_]]
+alpha
+
+beta
+
+gamma
+[[/div]]
+
+[[div_]]
+1
+[[div_]]
+2
+[[div_]]
+3
+[[div_]]
+4
+[[div_]]
+5
+[[div_]]
+6
+[[/div]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[/div]]

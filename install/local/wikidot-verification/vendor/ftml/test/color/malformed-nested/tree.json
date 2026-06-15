@@ -1,0 +1,397 @@
+{
+    "elements": [
+        {
+            "element": "container",
+            "data": {
+                "type": "blockquote",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "container",
+                        "data": {
+                            "type": "paragraph",
+                            "attributes": {},
+                            "elements": [
+                                {
+                                    "element": "text",
+                                    "data": "##"
+                                },
+                                {
+                                    "element": "text",
+                                    "data": "orange"
+                                },
+                                {
+                                    "element": "text",
+                                    "data": "|"
+                                },
+                                {
+                                    "element": "container",
+                                    "data": {
+                                        "type": "bold",
+                                        "attributes": {},
+                                        "elements": [
+                                            {
+                                                "element": "text",
+                                                "data": "ORANGE"
+                                            },
+                                            {
+                                                "element": "text",
+                                                "data": "##"
+                                            },
+                                            {
+                                                "element": "text",
+                                                "data": "-"
+                                            },
+                                            {
+                                                "element": "text",
+                                                "data": "PRIME"
+                                            },
+                                            {
+                                                "element": "text",
+                                                "data": ":"
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "element": "text",
+                                    "data": " "
+                                },
+                                {
+                                    "element": "container",
+                                    "data": {
+                                        "type": "monospace",
+                                        "attributes": {},
+                                        "elements": [
+                                            {
+                                                "element": "container",
+                                                "data": {
+                                                    "type": "bold",
+                                                    "attributes": {},
+                                                    "elements": [
+                                                        {
+                                                            "element": "text",
+                                                            "data": "["
+                                                        },
+                                                        {
+                                                            "element": "text",
+                                                            "data": "Death"
+                                                        },
+                                                        {
+                                                            "element": "text",
+                                                            "data": "."
+                                                        },
+                                                        {
+                                                            "element": "text",
+                                                            "data": " "
+                                                        },
+                                                        {
+                                                            "element": "text",
+                                                            "data": "Noun"
+                                                        },
+                                                        {
+                                                            "element": "text",
+                                                            "data": "."
+                                                        },
+                                                        {
+                                                            "element": "text",
+                                                            "data": " "
+                                                        },
+                                                        {
+                                                            "element": "text",
+                                                            "data": "1"
+                                                        },
+                                                        {
+                                                            "element": "text",
+                                                            "data": "."
+                                                        },
+                                                        {
+                                                            "element": "text",
+                                                            "data": " "
+                                                        },
+                                                        {
+                                                            "element": "text",
+                                                            "data": "The"
+                                                        },
+                                                        {
+                                                            "element": "text",
+                                                            "data": " "
+                                                        },
+                                                        {
+                                                            "element": "text",
+                                                            "data": "cessation"
+                                                        },
+                                                        {
+                                                            "element": "text",
+                                                            "data": " "
+                                                        },
+                                                        {
+                                                            "element": "text",
+                                                            "data": "of"
+                                                        },
+                                                        {
+                                                            "element": "text",
+                                                            "data": " "
+                                                        },
+                                                        {
+                                                            "element": "text",
+                                                            "data": "life"
+                                                        },
+                                                        {
+                                                            "element": "text",
+                                                            "data": "]"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "element": "line-break"
+                                },
+                                {
+                                    "element": "line-break"
+                                },
+                                {
+                                    "element": "container",
+                                    "data": {
+                                        "type": "bold",
+                                        "attributes": {},
+                                        "elements": [
+                                            {
+                                                "element": "text",
+                                                "data": "Stump"
+                                            },
+                                            {
+                                                "element": "text",
+                                                "data": ":"
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "element": "text",
+                                    "data": " "
+                                },
+                                {
+                                    "element": "text",
+                                    "data": "I"
+                                },
+                                {
+                                    "element": "text",
+                                    "data": " "
+                                },
+                                {
+                                    "element": "text",
+                                    "data": "mean"
+                                },
+                                {
+                                    "element": "text",
+                                    "data": ","
+                                },
+                                {
+                                    "element": "text",
+                                    "data": " "
+                                },
+                                {
+                                    "element": "text",
+                                    "data": "we"
+                                },
+                                {
+                                    "element": "text",
+                                    "data": " "
+                                },
+                                {
+                                    "element": "text",
+                                    "data": "do"
+                                },
+                                {
+                                    "element": "text",
+                                    "data": " "
+                                },
+                                {
+                                    "element": "text",
+                                    "data": "die"
+                                },
+                                {
+                                    "element": "footnote"
+                                },
+                                {
+                                    "element": "text",
+                                    "data": "."
+                                },
+                                {
+                                    "element": "text",
+                                    "data": " "
+                                },
+                                {
+                                    "element": "text",
+                                    "data": "Pretty"
+                                },
+                                {
+                                    "element": "text",
+                                    "data": " "
+                                },
+                                {
+                                    "element": "text",
+                                    "data": "often"
+                                },
+                                {
+                                    "element": "text",
+                                    "data": "."
+                                },
+                                {
+                                    "element": "line-break"
+                                },
+                                {
+                                    "element": "line-break"
+                                },
+                                {
+                                    "element": "text",
+                                    "data": "##"
+                                },
+                                {
+                                    "element": "text",
+                                    "data": "orange"
+                                },
+                                {
+                                    "element": "text",
+                                    "data": "|"
+                                },
+                                {
+                                    "element": "container",
+                                    "data": {
+                                        "type": "bold",
+                                        "attributes": {},
+                                        "elements": [
+                                            {
+                                                "element": "text",
+                                                "data": "ORANGE"
+                                            },
+                                            {
+                                                "element": "text",
+                                                "data": "##"
+                                            },
+                                            {
+                                                "element": "text",
+                                                "data": "-"
+                                            },
+                                            {
+                                                "element": "text",
+                                                "data": "PRIME"
+                                            },
+                                            {
+                                                "element": "text",
+                                                "data": ":"
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "element": "text",
+                                    "data": " "
+                                },
+                                {
+                                    "element": "container",
+                                    "data": {
+                                        "type": "monospace",
+                                        "attributes": {},
+                                        "elements": [
+                                            {
+                                                "element": "container",
+                                                "data": {
+                                                    "type": "bold",
+                                                    "attributes": {},
+                                                    "elements": [
+                                                        {
+                                                            "element": "text",
+                                                            "data": "["
+                                                        },
+                                                        {
+                                                            "element": "text",
+                                                            "data": "That"
+                                                        },
+                                                        {
+                                                            "element": "text",
+                                                            "data": " "
+                                                        },
+                                                        {
+                                                            "element": "text",
+                                                            "data": "is"
+                                                        },
+                                                        {
+                                                            "element": "text",
+                                                            "data": "]"
+                                                        },
+                                                        {
+                                                            "element": "text",
+                                                            "data": " "
+                                                        },
+                                                        {
+                                                            "element": "text",
+                                                            "data": "["
+                                                        },
+                                                        {
+                                                            "element": "text",
+                                                            "data": "EXCELLENT"
+                                                        },
+                                                        {
+                                                            "element": "text",
+                                                            "data": "!"
+                                                        },
+                                                        {
+                                                            "element": "text",
+                                                            "data": "]"
+                                                        },
+                                                        {
+                                                            "element": "text",
+                                                            "data": " "
+                                                        },
+                                                        {
+                                                            "element": "text",
+                                                            "data": "["
+                                                        },
+                                                        {
+                                                            "element": "text",
+                                                            "data": "news"
+                                                        },
+                                                        {
+                                                            "element": "text",
+                                                            "data": "]"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    ],
+    "footnotes": [
+        [
+            {
+                "element": "text",
+                "data": "Note"
+            },
+            {
+                "element": "text",
+                "data": " "
+            },
+            {
+                "element": "text",
+                "data": "here"
+            },
+            {
+                "element": "text",
+                "data": " "
+            }
+        ]
+    ],
+    "needs-footnote-block": true
+}

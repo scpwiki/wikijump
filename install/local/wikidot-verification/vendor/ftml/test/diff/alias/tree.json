@@ -1,0 +1,140 @@
+{
+    "elements": [
+        {
+            "element": "list",
+            "data": {
+                "type": "bullet",
+                "attributes": {},
+                "items": [
+                    {
+                        "item-type": "elements",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "text",
+                                "data": "Apple"
+                            }
+                        ]
+                    },
+                    {
+                        "item-type": "elements",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "container",
+                                "data": {
+                                    "type": "insertion",
+                                    "attributes": {},
+                                    "elements": [
+                                        {
+                                            "element": "text",
+                                            "data": "Banana"
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "item-type": "elements",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "text",
+                                "data": "Cherry"
+                            }
+                        ]
+                    },
+                    {
+                        "item-type": "elements",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "container",
+                                "data": {
+                                    "type": "deletion",
+                                    "attributes": {
+                                        "id": "stinky"
+                                    },
+                                    "elements": [
+                                        {
+                                            "element": "text",
+                                            "data": "Durian"
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "item-type": "elements",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "container",
+                                "data": {
+                                    "type": "insertion",
+                                    "attributes": {
+                                        "style": "color: yellow"
+                                    },
+                                    "elements": [
+                                        {
+                                            "element": "text",
+                                            "data": "Star"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "element": "text",
+                                "data": "fruit"
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "container",
+                        "data": {
+                            "type": "insertion",
+                            "attributes": {
+                                "class": "add"
+                            },
+                            "elements": [
+                                {
+                                    "element": "text",
+                                    "data": "ADD"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "element": "line-break"
+                    },
+                    {
+                        "element": "container",
+                        "data": {
+                            "type": "deletion",
+                            "attributes": {
+                                "class": "del"
+                            },
+                            "elements": [
+                                {
+                                    "element": "text",
+                                    "data": "DEL"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

@@ -1,0 +1,31 @@
+++ NORMAL
+
+First paragaph
+
+Second paragraph
+
+++ BLOCK
+
+[[p]]
+Apple
+[[/p]]
+
+[[paragraph]]
+Banana split
+[[/paragraph]]
+
+EMPTY
+[[p]]
+[[/p]]
+
+INLINE
+[[p]]Cherry[[/p]]
+
+ATTRS
+[[p class="fruit" id="mango"]]
+Mango
+
+Blueberry
+
+Gooseberry
+[[/p]]

@@ -1,0 +1,9 @@
+ALIGN [[>audio landscape.jpg]]
+
+SRC [[audio filename.mp3 src="https://example.com/bad-audio.ogg"]]
+
+OTHER [[*$audio landscape.jpg]]
+
+EMPTY [[audio]]
+
+UNCLOSED [[audio landscape.jpg

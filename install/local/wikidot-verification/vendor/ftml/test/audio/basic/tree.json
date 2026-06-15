@@ -1,0 +1,181 @@
+{
+    "elements": [
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "text",
+                        "data": "BASIC"
+                    },
+                    {
+                        "element": "text",
+                        "data": " "
+                    },
+                    {
+                        "element": "audio",
+                        "data": {
+                            "source": {
+                                "type": "file1",
+                                "data": {
+                                    "file": "filename.mp3"
+                                }
+                            },
+                            "alignment": null,
+                            "attributes": {}
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "text",
+                        "data": "LEFT"
+                    },
+                    {
+                        "element": "text",
+                        "data": " "
+                    },
+                    {
+                        "element": "audio",
+                        "data": {
+                            "source": {
+                                "type": "file1",
+                                "data": {
+                                    "file": "filename.mp3"
+                                }
+                            },
+                            "alignment": {
+                                "align": "left",
+                                "float": false
+                            },
+                            "attributes": {}
+                        }
+                    },
+                    {
+                        "element": "line-break"
+                    },
+                    {
+                        "element": "text",
+                        "data": "RIGHT"
+                    },
+                    {
+                        "element": "text",
+                        "data": " "
+                    },
+                    {
+                        "element": "audio",
+                        "data": {
+                            "source": {
+                                "type": "file1",
+                                "data": {
+                                    "file": "filename.mp3"
+                                }
+                            },
+                            "alignment": {
+                                "align": "right",
+                                "float": false
+                            },
+                            "attributes": {}
+                        }
+                    },
+                    {
+                        "element": "line-break"
+                    },
+                    {
+                        "element": "text",
+                        "data": "CENTER"
+                    },
+                    {
+                        "element": "text",
+                        "data": " "
+                    },
+                    {
+                        "element": "audio",
+                        "data": {
+                            "source": {
+                                "type": "file1",
+                                "data": {
+                                    "file": "filename.mp3"
+                                }
+                            },
+                            "alignment": {
+                                "align": "center",
+                                "float": false
+                            },
+                            "attributes": {}
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "text",
+                        "data": "EXTERNAL"
+                    },
+                    {
+                        "element": "text",
+                        "data": " "
+                    },
+                    {
+                        "element": "audio",
+                        "data": {
+                            "source": {
+                                "type": "url",
+                                "data": "https://example.com/some-audio.ogg"
+                            },
+                            "alignment": null,
+                            "attributes": {}
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "text",
+                        "data": "ATTRS"
+                    },
+                    {
+                        "element": "text",
+                        "data": " "
+                    },
+                    {
+                        "element": "audio",
+                        "data": {
+                            "source": {
+                                "type": "file1",
+                                "data": {
+                                    "file": "filename.mp3"
+                                }
+                            },
+                            "alignment": null,
+                            "attributes": {
+                                "class": "custom-audio"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

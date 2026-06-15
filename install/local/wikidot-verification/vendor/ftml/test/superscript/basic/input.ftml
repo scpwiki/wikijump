@@ -1,0 +1,15 @@
+Some ^^superscript^^ text
+
+Then empty superscript: ^^^^
+
+[[sup]]Superscript[[/sup]] block
+
+[[sup]]Superscript
+
+paragraph[[/sup]]
+
+[[sup]]Nested [[b]]superscript[[/b]][[/sup]]
+
+Empty block: [[sup]][[/sup]]
+
+Aliases: [[super]]super[[/super]] and [[superscript]]superscript[[/superscript]]

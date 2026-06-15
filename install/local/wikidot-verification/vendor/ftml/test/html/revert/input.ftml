@@ -1,0 +1,9 @@
+[[div]]
+[[div]]
+[[div]]
+
+[!-- these HTML block should only appear once, at the end, despite the failed [[div]]s above --]
+
+[[html]]
+<span>Apple banana</span>
+[[/html]]

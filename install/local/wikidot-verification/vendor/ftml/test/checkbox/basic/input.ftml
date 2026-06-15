@@ -1,0 +1,5 @@
+[[checkbox]] Apple
+[[CHECKbox]] Banana
+[[*checkbox]] Cherry
+[[*checkbox id="overwhelming" style="color: purple" disabled="yes"]] Durian
+[[checkbox]] Melon [[checkbox]] Pineapple

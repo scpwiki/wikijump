@@ -1,0 +1,59 @@
+{
+    "elements": [
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "text",
+                        "data": "Apple"
+                    },
+                    {
+                        "element": "line-breaks",
+                        "data": 9
+                    },
+                    {
+                        "element": "text",
+                        "data": "Banana"
+                    }
+                ]
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "text",
+                        "data": "Cherry"
+                    },
+                    {
+                        "element": "line-breaks",
+                        "data": 3
+                    }
+                ]
+            }
+        },
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "text",
+                        "data": "Mango"
+                    },
+                    {
+                        "element": "line-breaks",
+                        "data": 2
+                    }
+                ]
+            }
+        }
+    ]
+}

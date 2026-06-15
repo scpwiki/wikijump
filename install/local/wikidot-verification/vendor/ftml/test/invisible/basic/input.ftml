@@ -1,0 +1,13 @@
+[[invisible]]Invisible text[[/invisible]]
+
+
+[[invisible]]
+[[div_]]
+Invisible div
+[[/div_]]
+[[/invisible]]
+
+
+[[Invisible data-xxx="yyy" class="stealth"]]
+Invisible
+[[/inVISIBLE]]

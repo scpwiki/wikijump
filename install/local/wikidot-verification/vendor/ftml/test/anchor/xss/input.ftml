@@ -1,0 +1,15 @@
+[[a href="javascript:alert(1)"]]XSS[[/a]]
+
+[[a href="javascript: alert(1)"]]XSS[[/a]]
+
+[[a href="javascript :alert(1)"]]XSS[[/a]]
+
+[[a href="javascript : alert(1)"]]XSS[[/a]]
+
+[[a href="JAVASCRIPT:alert(1)"]]XSS[[/a]]
+
+[[a href="JAVAscript:alert(1)"]]XSS[[/a]]
+
+[[a href="java\nscript:alert(1)"]]XSS[[/a]]
+
+[[a href="java script:alert(1)"]]XSS[[/a]]

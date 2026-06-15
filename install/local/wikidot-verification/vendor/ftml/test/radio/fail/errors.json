@@ -1,0 +1,38 @@
+[
+    {
+        "token": "identifier",
+        "rule": "block-radio",
+        "span": [10, 18],
+        "kind": "block-missing-name"
+    },
+    {
+        "token": "left-block",
+        "rule": "fallback",
+        "span": [0, 2],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [7, 9],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "identifier",
+        "rule": "block-radio",
+        "span": [30, 37],
+        "kind": "block-missing-name"
+    },
+    {
+        "token": "left-block-star",
+        "rule": "fallback",
+        "span": [19, 22],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-block",
+        "rule": "fallback",
+        "span": [27, 29],
+        "kind": "no-rules-match"
+    }
+]

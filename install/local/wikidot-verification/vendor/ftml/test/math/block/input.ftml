@@ -1,0 +1,28 @@
+[[math]] A = \pi \cdot r^2 [[/math]]
+
+[[math]]
+C = 2\pi r
+[[/math]]
+
+[[math quadratic-formula]]
+x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
+[[/math]]
+
+[[math navier-stokes]]
+\frac{\mathrm{D} \mathbf{u}}{\mathrm{D} t} =
+\frac 1 \rho \nabla \cdot \boldsymbol{\sigma} + \mathbf{f}.
+[[/math]]
+
+Apple[[eref quadratic-formula]]
+
+Banana cherry[[equation quadratic-formula]] Gooseberry
+
+Pineapple[[eref navier-stokes]]Blueberry
+
+**FAIL**
+
+EMPTY
+[[math]]
+[[/math]]
+
+Durian[[eref]]

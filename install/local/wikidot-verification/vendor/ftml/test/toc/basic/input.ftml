@@ -1,0 +1,22 @@
++ Alpha
+
+some content
+
++* Skipped
+this one isn't in the TOC
+
++ Beta
+more stuff
+
+++ Sub-category here
+
+++++ Really deep
+🌊
+
+
+[[toc]]
+
+[[toc class="wow-toc-yay" style="color: blue"]]
+
+[[f<toc id="toc-left"]]
+[[f>toc id="toc-right"]]

@@ -1,0 +1,29 @@
+[
+    {
+        "token": "paragraph-break",
+        "rule": "math",
+        "span": [
+            124,
+            126
+        ],
+        "kind": "rule-failed"
+    },
+    {
+        "token": "left-math",
+        "rule": "fallback",
+        "span": [
+            117,
+            120
+        ],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-math",
+        "rule": "fallback",
+        "span": [
+            131,
+            134
+        ],
+        "kind": "no-rules-match"
+    }
+]

@@ -1,0 +1,27 @@
+++ INLINE
+
+Some --struck through-- text
+
+--Nested **strike**through--
+
+++ EXTRA
+
+Some ~~struck through~~ text
+
+~~Nested **strike**through~~
+
+++ BLOCK
+
+Some [[s]]strikethrough[[/s]]
+
+Empty [[s]][[/s]]
+
+More [[strikethrough]]strikethrough text[[/strikethrough]]
+
+[[s class="mistake" style="color: blue"]]attributes[[/s]]
+
+A [[s]]multiple
+
+paragraph
+
+strikethrough[[/s]] yeah

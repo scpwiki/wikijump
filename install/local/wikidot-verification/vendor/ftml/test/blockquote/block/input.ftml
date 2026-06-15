@@ -1,0 +1,51 @@
+EMPTY
+[[blockquote]]
+[[/blockquote]]
+
+BASIC
+[[blockquote]]
+Content
+here
+[[/blockquote]]
+
+NEWLINES AND PARAGRAPH
+[[blockquote]]
+apple
+banana
+
+cherry
+
+[[/blockquote]]
+
+ATTRS
+[[blockquote class="snippet" id="thingy" data-xxx="yyy"]]
+pineapple
+[[/blockquote]]
+
+NESTED
+[[blockquote]]
+foo
+
+[[blockquote]]
+bar
+
+[[blockquote]]
+baz
+[[/blockquote]]
+
+[[/blockquote]]
+xyz
+[[/blockquote]]
+
+MIXED
+[[blockquote]]
+A
+> B
+> C
+D
+[[/blockquote]]
+
+ALIAS
+[[quote]]
+also a blockquote
+[[/quote]]

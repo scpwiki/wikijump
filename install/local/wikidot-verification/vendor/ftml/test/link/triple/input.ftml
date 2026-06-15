@@ -1,0 +1,45 @@
+**Dual**
+* [[[SCP-001]]]
+* [[[*SCP-001]]] (new tab)
+
+**Dual (category)**
+* [[[system:Recent Changes]]] (only "Recent Changes")
+* [[[system: Recent Changes]]]
+* [[[*system:Recent Changes]]]
+
+**Basic**
+* [[[some-page|My label]]]
+* [[[*some-page|Label]]]
+* [[[ some-page  |  My label  ]]]
+* [[[* some-page  |  My label  ]]]
+* [[[missing | Wanted page]]] (orange)
+
+**Auto title**
+* [[[some-page|]]]
+* [[[*some-page|]]]
+
+**Anchors**
+* [[[scp-series#001|SCP-001 to SCP-099]]]
+* [[[home###|Home]]]
+
+**Cross-site**
+* [[[:scp-wiki:component:theme|Sigma-9 Theme]]]
+* [[[:scp-wiki:scp-1000|Children of the Night]]]
+* [[[:scp-wiki : system : Recent Changes]]]
+* [[[:scp-wiki:scp-series|]]]
+
+**Subpath**
+* [[[//main/edit|Edit page]]]
+* [[[MAIN/#/page|Hash routing]]]
+* [[[example/edit|Edit page]]]
+* [[[MAIN/##/page#toc1|Hash routing]]]
+
+**URL**
+* [[[https://example.com/|Example]]]
+* [[[ https://example.com/ | Example ]]]
+
+**Special**
+* [[[[SCP-001-EX]]]] (quadruple brackets)
+* [[[[scp-1459-j | REDACTED]]]]
+* [[[page-slug|A|B|C]]] (label with pipes)
+* [[[ page-slug | A | B | C ]]]

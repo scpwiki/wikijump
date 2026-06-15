@@ -1,0 +1,14 @@
+[
+    {
+        "token": "paragraph-break",
+        "rule": "strikethrough-tilde",
+        "span": [103, 105],
+        "kind": "rule-failed"
+    },
+    {
+        "token": "double-tilde",
+        "rule": "fallback",
+        "span": [101, 103],
+        "kind": "no-rules-match"
+    }
+]

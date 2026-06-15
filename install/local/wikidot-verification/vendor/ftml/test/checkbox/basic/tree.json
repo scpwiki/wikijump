@@ -1,0 +1,99 @@
+{
+    "elements": [
+        {
+            "element": "container",
+            "data": {
+                "type": "paragraph",
+                "attributes": {},
+                "elements": [
+                    {
+                        "element": "check-box",
+                        "data": {
+                            "checked": false,
+                            "attributes": {}
+                        }
+                    },
+                    {
+                        "element": "text",
+                        "data": "Apple"
+                    },
+                    {
+                        "element": "line-break"
+                    },
+                    {
+                        "element": "check-box",
+                        "data": {
+                            "checked": false,
+                            "attributes": {}
+                        }
+                    },
+                    {
+                        "element": "text",
+                        "data": "Banana"
+                    },
+                    {
+                        "element": "line-break"
+                    },
+                    {
+                        "element": "check-box",
+                        "data": {
+                            "checked": true,
+                            "attributes": {}
+                        }
+                    },
+                    {
+                        "element": "text",
+                        "data": "Cherry"
+                    },
+                    {
+                        "element": "line-break"
+                    },
+                    {
+                        "element": "check-box",
+                        "data": {
+                            "checked": true,
+                            "attributes": {
+                                "disabled": "",
+                                "id": "overwhelming",
+                                "style": "color: purple"
+                            }
+                        }
+                    },
+                    {
+                        "element": "text",
+                        "data": "Durian"
+                    },
+                    {
+                        "element": "line-break"
+                    },
+                    {
+                        "element": "check-box",
+                        "data": {
+                            "checked": false,
+                            "attributes": {}
+                        }
+                    },
+                    {
+                        "element": "text",
+                        "data": "Melon"
+                    },
+                    {
+                        "element": "text",
+                        "data": " "
+                    },
+                    {
+                        "element": "check-box",
+                        "data": {
+                            "checked": false,
+                            "attributes": {}
+                        }
+                    },
+                    {
+                        "element": "text",
+                        "data": "Pineapple"
+                    }
+                ]
+            }
+        }
+    ]
+}

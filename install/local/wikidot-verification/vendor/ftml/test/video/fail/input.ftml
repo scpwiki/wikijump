@@ -1,0 +1,9 @@
+ALIGN [[>video landscape.jpg]]
+
+SRC [[video filename.mp4 src="https://example.com/bad-video.mp4"]]
+
+OTHER [[*$video landscape.jpg]]
+
+EMPTY [[video]]
+
+UNCLOSED [[video landscape.jpg

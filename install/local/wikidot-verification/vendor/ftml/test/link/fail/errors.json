@@ -1,0 +1,140 @@
+[
+    {
+        "token": "identifier",
+        "rule": "link-single-new-tab",
+        "span": [48, 51],
+        "kind": "invalid-url"
+    },
+    {
+        "token": "left-bracket-star",
+        "rule": "fallback",
+        "span": [45, 47],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "paragraph-break",
+        "rule": "link-anchor",
+        "span": [158, 160],
+        "kind": "rule-failed"
+    },
+    {
+        "token": "left-bracket-anchor",
+        "rule": "fallback",
+        "span": [150, 152],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "line-break",
+        "rule": "link-triple",
+        "span": [288, 289],
+        "kind": "rule-failed"
+    },
+    {
+        "token": "left-link",
+        "rule": "fallback",
+        "span": [267, 270],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-link",
+        "rule": "fallback",
+        "span": [285, 288],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "paragraph-break",
+        "rule": "link-triple",
+        "span": [327, 329],
+        "kind": "rule-failed"
+    },
+    {
+        "token": "left-link",
+        "rule": "fallback",
+        "span": [289, 292],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-link",
+        "rule": "fallback",
+        "span": [324, 327],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "identifier",
+        "rule": "link-triple",
+        "span": [333, 337],
+        "kind": "rule-failed"
+    },
+    {
+        "token": "left-link",
+        "rule": "fallback",
+        "span": [329, 332],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-link",
+        "rule": "fallback",
+        "span": [342, 345],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "identifier",
+        "rule": "link-triple-new-tab",
+        "span": [351, 355],
+        "kind": "rule-failed"
+    },
+    {
+        "token": "left-link-star",
+        "rule": "fallback",
+        "span": [346, 350],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-link",
+        "rule": "fallback",
+        "span": [360, 363],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "line-break",
+        "rule": "link-triple",
+        "span": [379, 380],
+        "kind": "rule-failed"
+    },
+    {
+        "token": "left-link",
+        "rule": "fallback",
+        "span": [365, 368],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-link",
+        "rule": "fallback",
+        "span": [385, 388],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "line-break",
+        "rule": "link-triple",
+        "span": [402, 403],
+        "kind": "rule-failed"
+    },
+    {
+        "token": "left-link",
+        "rule": "fallback",
+        "span": [390, 393],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-link",
+        "rule": "fallback",
+        "span": [403, 406],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "right-link",
+        "rule": "fallback",
+        "span": [425, 428],
+        "kind": "no-rules-match"
+    }
+]

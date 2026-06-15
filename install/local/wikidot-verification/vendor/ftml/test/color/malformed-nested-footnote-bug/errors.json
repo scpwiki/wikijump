@@ -1,0 +1,38 @@
+[
+    {
+        "token": "paragraph-break",
+        "rule": "color",
+        "span": [
+            175,
+            177
+        ],
+        "kind": "rule-failed"
+    },
+    {
+        "token": "color",
+        "rule": "fallback",
+        "span": [
+            84,
+            86
+        ],
+        "kind": "no-rules-match"
+    },
+    {
+        "token": "paragraph-break",
+        "rule": "color",
+        "span": [
+            175,
+            177
+        ],
+        "kind": "rule-failed"
+    },
+    {
+        "token": "color",
+        "rule": "fallback",
+        "span": [
+            101,
+            103
+        ],
+        "kind": "no-rules-match"
+    }
+]

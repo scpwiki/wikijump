@@ -1,0 +1,17 @@
++Fail h1
+++Fail h2
++++Fail h3
+++++Fail h4
++++++Fail h5
+++++++Fail h6
++*Fail notoc h1
+++*Fail notoc h2
++++*Fail notoc h3
+++++*Fail notoc h4
++++++*Fail notoc h5
+++++++*Fail notoc h6
+
++++++++ h7
+++++++++ h8
++++++++* h7
+++++++++* h8

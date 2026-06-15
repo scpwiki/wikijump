@@ -1,0 +1,15 @@
+Some ,,subscript,, text
+
+Then empty subscript: ,,,,
+
+[[sub]]Superscript[[/sub]] block
+
+[[sub]]Superscript
+
+paragraph[[/sub]]
+
+[[sub]]Nested [[b]]subscript[[/b]][[/sub]]
+
+Empty block: [[sub]][[/sub]]
+
+Aliases: [[sub]]sub[[/sub]] and [[subscript]]subscript[[/subscript]]
