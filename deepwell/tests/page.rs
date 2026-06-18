@@ -22,8 +22,10 @@
 mod common;
 
 use self::common::TestRunner;
-use deepwell::constants::ADMIN_USER_ID;
+use deepwell::constants::{ADMIN_USER_ID, SYSTEM_USER_ID};
 use deepwell::error::prelude::*;
+use deepwell::models::audit_log::Entity as AuditLog;
+use deepwell::services::page::UndoPage;
 use deepwell::services::page_query::{
     CategoriesSelector, DateSelector, FoundPageFields, IncludedCategories,
     OrderBySelector, OrderProperty, PageParentSelector, PageQuery, PageQueryService,
@@ -31,6 +33,7 @@ use deepwell::services::page_query::{
 };
 use deepwell::services::{PageService, RequestContext};
 use deepwell::types::{PageRevisionType, Reference};
+use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 use serde_json::json;
 use std::borrow::Cow;
 use time::OffsetDateTime;
@@ -893,9 +896,18 @@ async fn page_undo_reverses_selected_revision_and_preserves_later_changes() {
     )
     .expect("body edit should create a revision");
 
-    let undo = PageService::undo(runner.context(), site_id, created.page_id, 1)
-        .await
-        .expect("undo should reverse the title edit");
+    let undo = PageService::undo(
+        runner.context(),
+        UndoPage {
+            site_id,
+            page_id: created.page_id,
+            revision_number: 1,
+            user_id: SYSTEM_USER_ID,
+            ip_address: common::IP_ADDRESS,
+        },
+    )
+    .await
+    .expect("undo should reverse the title edit");
 
     assert!(undo.revision_id > body_edit.revision_id);
     assert_eq!(undo.revision_number, 3);
@@ -915,12 +927,25 @@ async fn page_undo_reverses_selected_revision_and_preserves_later_changes() {
 
     assert_eq!(page.revision_type, PageRevisionType::Undo);
     assert_eq!(page.revision_number, 3);
+    assert_eq!(page.revision_user_id, SYSTEM_USER_ID);
     assert_eq!(page.title, "Title version 0");
     assert_eq!(
         page.wikitext.as_deref(),
         Some("Body version 2"),
         "undo should preserve the later unrelated body edit",
     );
+
+    let audit = AuditLog::find()
+        .filter(deepwell::models::audit_log::Column::EventType.eq("page.undo"))
+        .filter(deepwell::models::audit_log::Column::ExtraId1.eq(undo.revision_id))
+        .one(runner.context().transaction())
+        .await
+        .expect("audit lookup should succeed")
+        .expect("undo should be audited");
+    assert_eq!(audit.user_id, Some(SYSTEM_USER_ID));
+    assert_eq!(audit.site_id, Some(site_id));
+    assert_eq!(audit.page_id, Some(created.page_id));
+    assert_eq!(audit.extra_number, Some(1));
 }
 
 #[tokio::test]

@@ -832,9 +832,13 @@ impl PageService {
     /// This is equivalent to git's concept of a "revert".
     pub async fn undo(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
-        revision_number: i32,
+        UndoPage {
+            site_id,
+            page_id,
+            revision_number,
+            user_id,
+            ip_address,
+        }: UndoPage,
     ) -> Result<EditPageOutput> {
         if revision_number <= 0 {
             bail!(Error::new(
@@ -943,7 +947,7 @@ impl PageService {
                 page_id,
             },
             CreatePageRevision {
-                user_id: target_revision.user_id,
+                user_id,
                 revision_type: PageRevisionType::Undo,
                 comments: format!("Undo revision {revision_number}"),
                 body: CreatePageRevisionBody {
@@ -974,6 +978,20 @@ impl PageService {
         };
 
         model.update(txn).await.or_raise(make_error)?;
+
+        AuditService::log(
+            ctx,
+            ip_address,
+            AuditEvent::PageUndo {
+                site_id,
+                page_id,
+                user_id,
+                revision_id: output.revision_id,
+                revision_number,
+            },
+        )
+        .await
+        .or_raise(make_error)?;
 
         Ok(output)
     }

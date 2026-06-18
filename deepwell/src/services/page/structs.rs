@@ -244,6 +244,15 @@ pub struct RollbackPage<'a> {
 }
 
 #[derive(Deserialize, Debug, Copy, Clone)]
+pub struct UndoPage {
+    pub site_id: i64,
+    pub page_id: i64,
+    pub revision_number: i32,
+    pub user_id: i64,
+    pub ip_address: IpAddr,
+}
+
+#[derive(Deserialize, Debug, Copy, Clone)]
 pub struct SetPageLayout {
     pub site_id: i64,
     pub page_id: i64,
