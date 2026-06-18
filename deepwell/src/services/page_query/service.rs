@@ -461,7 +461,7 @@ impl PageQueryService {
                 OrderProperty::Comments => {
                     debug!("Ordering by forum comment count");
                     let expr = SimpleExpr::Custom(
-                        "COALESCE((SELECT COUNT(*) FROM forum_post fp JOIN forum_thread ft ON fp.forum_thread_id = ft.forum_thread_id WHERE ft.page_id = page.page_id AND fp.deleted_at IS NULL), 0)".into(),
+                        "COALESCE((SELECT COUNT(*) FROM forum_post fp JOIN forum_thread ft ON fp.forum_thread_id = ft.forum_thread_id WHERE ft.page_id = page.page_id AND fp.deleted_at IS NULL AND ft.deleted_at IS NULL), 0)".into(),
                     );
                     query = query.order_by(expr, order);
                 }
