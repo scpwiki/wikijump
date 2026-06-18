@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::models::known_user::{self, Model as KnownUserModel};
+use crate::models::known_user::{self, Entity as KnownUser, Model as KnownUserModel};
 use crate::models::user::{self, Entity as WikijumpUser, Model as WikijumpUserModel};
 use crate::models::wikidot_user::{
     self, Entity as WikidotUser, Model as WikidotUserModel,
@@ -34,6 +34,7 @@ use crate::types::{AliasType, UserType};
 use crate::utils::regex_replace_in_place;
 use regex::Regex;
 use sea_orm::ActiveValue;
+use sea_query::OnConflict;
 use serde_json::Value as JsonValue;
 use std::borrow::Cow;
 use std::cmp;
@@ -1283,17 +1284,22 @@ impl UserService {
         }
     }
 
-    /// Adds a record for the `known_user` table, if it doesn't already exists.
+    /// Adds a record for the `known_user` table, if it doesn't already exist.
     pub(crate) async fn insert_known_user_id(
         ctx: &ServiceContext<'_>,
         user_id: i64,
     ) -> Result<()> {
         let txn = ctx.transaction();
 
-        known_user::ActiveModel {
+        KnownUser::insert(known_user::ActiveModel {
             user_id: Set(user_id),
-        }
-        .insert(txn)
+        })
+        .on_conflict(
+            OnConflict::column(known_user::Column::UserId)
+                .do_nothing()
+                .to_owned(),
+        )
+        .exec(txn)
         .await
         .or_raise(|| {
             Error::new(
