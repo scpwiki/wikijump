@@ -47,6 +47,14 @@ If you would like to volunteer some of your time to Wikijump development, join t
 
 See [development.md](docs/development.md) for information on running a local instance of Wikijump. See the [Wikijump Glossary](docs/glossary.md) for the terminology used by developers and API consumers, and [contributing.md](docs/contributing.md) if you're interested in contributing to the project.
 
+### No AI / LLM Policy
+
+You may not use LLMs to generate code or pull requests. This includes PR descriptions.
+
+You may not use LLMs to generate translations or other localization data.
+
+You may not use LLMs to generate bug reports, feature requests, or other issues.
+
 ## Sponsors
 
 Wikijump would like to thank the following organizations for graciously permitting us to use their services for free:
