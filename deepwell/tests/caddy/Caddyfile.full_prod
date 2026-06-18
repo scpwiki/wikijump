@@ -70,10 +70,13 @@ deploy.wjfiles.test {
 		path /robots.txt
 		path /.well-known
 		path /.well-known/*
+		path /.well-known/*/*
 		path /-/health-check
 	}
-	request_header @proxy X-Wikijump-Target-Server main
-	import reverse_proxy_wws @proxy
+	handle @proxy {
+		request_header X-Wikijump-Target-Server main
+		import reverse_proxy_wws *
+	}
 
 	# Redirect, true route is on the files server
 	@redirect {
