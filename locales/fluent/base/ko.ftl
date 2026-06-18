@@ -22,6 +22,17 @@ navigated-to = { $path }(으)로 이동함
 ## Generic
 
 about = 정보
+about-info = 플랫폼 정보
+  .backend = 백엔드
+  .frontend = 프론트엔드
+  .package-name = 패키지 이름
+  .package-description = 패키지 설명
+  .package-license = 패키지 라이선스
+  .package-repository = 패키지 저장소
+  .package-version = 패키지 버전
+  .rustc-version = Rustc 버전
+  .node-version = Node 버전
+  .pnpm-version = Pnpm 버전
 account = 계정
 applications = 애플리케이션
 avatar = 아바타
@@ -35,12 +46,21 @@ download = 다운로드
 edit = 편집
 editor = 편집기
 footer = 페이지 푸터
+forum = 포럼
+forum-route =
+  .index = 이 로컬 Wikijump 사이트의 포럼 카테고리와 스레드를 탐색합니다.
+  .invalid = 올바르지 않은 포럼 경로입니다.
+forum-category = 포럼 카테고리
+  .loaded = 카테고리 ID: { $categoryId }
+forum-thread = 포럼 스레드
+  .loaded = 스레드 ID: { $threadId }
 general = 일반
 header = 페이지 헤더
 help = 도움말
 inbox = 사서함
 invitations = 초대
 load = 불러오기
+locale = 로캘
 main-content = 주 콘텐츠
 messages = 메시지
 navigation = 탐색
@@ -114,6 +134,7 @@ error-404 =
 
 error-form =
   .missing-fields = 필수 입력란을 모두 채워주세요.
+  .invalid-email = 이메일 형식이 올바르지 않습니다.
   .password-mismatch = 비밀번호가 같지 않습니다.
 
 error-api =

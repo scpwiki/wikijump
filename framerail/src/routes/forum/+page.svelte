@@ -1,3 +1,12 @@
-<h1>UNTRANSLATED:Forum page</h1>
-UNTRANSLATED:Normally this would be handled by the page route, but we are going to not follow
-the silly "everything is a page" mentality even in places where it doesn't make sense.
+<script lang="ts">
+  import type { PageData } from "./$types"
+
+  interface Props {
+    data: PageData
+  }
+
+  let { data }: Props = $props()
+</script>
+
+<h1>{data.internationalization?.forum}</h1>
+<p>{data.internationalization?.["forum-route.index"]}</p>

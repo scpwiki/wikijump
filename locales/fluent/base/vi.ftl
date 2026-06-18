@@ -22,6 +22,17 @@ navigated-to = Đã chuyển hướng tới { $path }
 ## Generic
 
 about = Thông tin
+about-info = Thông tin nền tảng
+  .backend = Backend
+  .frontend = Frontend
+  .package-name = Tên gói
+  .package-description = Mô tả gói
+  .package-license = Giấy phép gói
+  .package-repository = Kho lưu trữ gói
+  .package-version = Phiên bản gói
+  .rustc-version = Phiên bản Rustc
+  .node-version = Phiên bản Node
+  .pnpm-version = Phiên bản Pnpm
 account = Tài khoản
 applications = Ứng dụng
 avatar = Ảnh đại diện
@@ -35,12 +46,21 @@ download = Tải xuống
 edit = Chỉnh sửa
 editor = Trình chỉnh sửa
 footer = Chân Trang
+forum = Diễn đàn
+forum-route =
+  .index = Duyệt danh mục và chủ đề diễn đàn từ trang Wikijump cục bộ này.
+  .invalid = Tuyến diễn đàn không hợp lệ.
+forum-category = Danh mục diễn đàn
+  .loaded = ID danh mục: { $categoryId }
+forum-thread = Chủ đề diễn đàn
+  .loaded = ID chủ đề: { $threadId }
 general = Chung
 header = Đầu Trang
 help = Trợ giúp
 inbox = Hộp thư
 invitations = Lời mời
 load = Tải
+locale = Ngôn ngữ
 main-content = Nội Dung Chính
 messages = Tin nhắn
 navigation = Điều hướng
@@ -114,6 +134,7 @@ error-404 =
 
 error-form =
   .missing-fields = Hãy điền vào các mục bắt buộc.
+  .invalid-email = Định dạng email không hợp lệ.
   .password-mismatch = Mật khẩu không khớp.
 
 error-api =

@@ -22,6 +22,17 @@ navigated-to = Przejdź do { $path }
 ## Generic
 
 about = O witrynie
+about-info = Informacje o platformie
+  .backend = Backend
+  .frontend = Frontend
+  .package-name = Nazwa pakietu
+  .package-description = Opis pakietu
+  .package-license = Licencja pakietu
+  .package-repository = Repozytorium pakietu
+  .package-version = Wersja pakietu
+  .rustc-version = Wersja Rustc
+  .node-version = Wersja Node
+  .pnpm-version = Wersja Pnpm
 account = Konto
 applications = Aplikacje
 avatar = Awatar
@@ -35,12 +46,21 @@ download = Pobierz
 edit = Edytuj
 editor = Edytor
 footer = Stopka strony
+forum = Forum
+forum-route =
+  .index = Przeglądaj kategorie i wątki forum tej lokalnej witryny Wikijump.
+  .invalid = Nieprawidłowa trasa forum.
+forum-category = Kategoria forum
+  .loaded = ID kategorii: { $categoryId }
+forum-thread = Wątek forum
+  .loaded = ID wątku: { $threadId }
 general = Główne
 header = Nagłówek strony
 help = Pomoc
 inbox = Skrzynka odbiorcza
 invitations = Zaproszenia
 load = Ładuj
+locale = Ustawienia regionalne
 main-content = Główna zawartość
 messages = Wiadomość
 navigation = Nawigacja
@@ -117,6 +137,7 @@ error-404 =
 
 error-form =
   .missing-fields = Proszę wypełnij wszystkie wymagane pola.
+  .invalid-email = Format adresu e-mail jest nieprawidłowy.
   .password-mismatch = Hasła się nie zgadzają.
 
 error-api =

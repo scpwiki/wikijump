@@ -15,6 +15,17 @@ export interface Locales {
   "base-title": string
   "navigated-to": string
   about: string
+  "about-info": string
+  "about-info.backend": string
+  "about-info.frontend": string
+  "about-info.package-name": string
+  "about-info.package-description": string
+  "about-info.package-license": string
+  "about-info.package-repository": string
+  "about-info.package-version": string
+  "about-info.rustc-version": string
+  "about-info.node-version": string
+  "about-info.pnpm-version": string
   account: string
   "alt-title": string
   applications: string
@@ -34,6 +45,14 @@ export interface Locales {
   error: string
   files: string
   footer: string
+  forum: string
+  "forum-route": string
+  "forum-route.index": string
+  "forum-route.invalid": string
+  "forum-category": string
+  "forum-category.loaded": string
+  "forum-thread": string
+  "forum-thread.loaded": string
   general: string
   header: string
   help: string
@@ -42,6 +61,7 @@ export interface Locales {
   invitations: string
   layout: string
   load: string
+  locale: string
   "main-content": string
   messages: string
   move: string
@@ -101,6 +121,7 @@ export interface Locales {
   "error-404.user": string
   "error-form": string
   "error-form.missing-fields": string
+  "error-form.invalid-email": string
   "error-form.password-mismatch": string
   "error-api": string
   "error-api.GENERIC": string
