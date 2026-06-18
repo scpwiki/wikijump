@@ -61,6 +61,7 @@ deploy.wjfiles.test {
 	@proxy {
 		path /robots.txt
 		path /.well-known
+		path /.well-known/*
 		path /-/health-check
 	}
 	request_header @proxy X-Wikijump-Target-Server main
