@@ -36,9 +36,9 @@ use crate::models::page::{self, Entity as Page};
 use crate::models::page_category::Model as PageCategoryModel;
 use crate::models::site::{self, Entity as Site};
 use crate::models::wikidot_user::{self, Entity as WikidotUser};
-use crate::services::CategoryService;
 use crate::services::blob::{BlobService, FinalizeBlobUploadOutput};
 use crate::services::page_lock::{CreatePageLockInput, PageLockService};
+use crate::services::{CategoryService, UserService};
 use crate::types::PageLockType;
 use crate::utils::get_category_name;
 
@@ -101,13 +101,9 @@ impl ImportService {
         };
 
         // Add known user ID
-
-        known_user::ActiveModel {
-            user_id: Set(i64::from(user_id)),
-        }
-        .insert(txn)
-        .await
-        .or_raise(make_error)?;
+        UserService::insert_known_user_id(ctx, i64::from(user_id))
+            .await
+            .or_raise(make_error)?;
 
         // Now add the actual Wikidot record itself
 

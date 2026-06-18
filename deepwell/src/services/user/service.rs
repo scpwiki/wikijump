@@ -93,12 +93,9 @@ impl UserService {
                 info!("Attempting to create user '{name}' ('{slug}', ID {user_id})");
 
                 // Insert user ID into known_user for foreign key
-                known_user::ActiveModel {
-                    user_id: Set(user_id),
-                }
-                .insert(txn)
-                .await
-                .or_raise(make_error)?;
+                Self::insert_known_user_id(ctx, user_id)
+                    .await
+                    .or_raise(make_error)?;
 
                 debug!("Inserted foreign key entry into known_user for ID {user_id}");
                 user_id
@@ -1284,6 +1281,28 @@ impl UserService {
                 ErrorType::BadRequest
             ));
         }
+    }
+
+    /// Adds a record for the `known_user` table, if it doesn't already exists.
+    pub(crate) async fn insert_known_user_id(
+        ctx: &ServiceContext<'_>,
+        user_id: i64,
+    ) -> Result<()> {
+        let txn = ctx.transaction();
+
+        known_user::ActiveModel {
+            user_id: Set(user_id),
+        }
+        .insert(txn)
+        .await
+        .or_raise(|| {
+            Error::new(
+                format!("failed to insert user ID {user_id} into known_user"),
+                ErrorType::User,
+            )
+        })?;
+
+        Ok(())
     }
 }
 
