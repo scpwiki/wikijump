@@ -585,6 +585,7 @@ fn test_local_public_url_config_uses_http_public_port() {
         [security.mfa]
         recovery-code-count = 16
         recovery-code-length = 8
+        mfa-digits = 6
         time-step = 30
         time-skew = 1
 
