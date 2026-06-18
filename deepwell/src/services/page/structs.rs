@@ -243,11 +243,13 @@ pub struct RollbackPage<'a> {
     pub ip_address: IpAddr,
 }
 
-#[derive(Deserialize, Debug, Copy, Clone)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct UndoPage {
     pub site_id: i64,
     pub page_id: i64,
+    pub last_revision_id: i64,
     pub revision_number: i32,
+    pub revision_comments: String,
     pub user_id: i64,
     pub ip_address: IpAddr,
 }

@@ -835,7 +835,9 @@ impl PageService {
         UndoPage {
             site_id,
             page_id,
+            last_revision_id,
             revision_number,
+            revision_comments,
             user_id,
             ip_address,
         }: UndoPage,
@@ -873,12 +875,8 @@ impl PageService {
         );
         let (target_revision, previous_revision, latest_revision) = raise_multiple!(target_revision, previous_revision, latest_revision; make_error);
 
-        check_last_revision(
-            Some(&latest_revision),
-            latest_revision_id,
-            latest_revision.revision_id,
-        )
-        .or_raise(make_error)?;
+        check_last_revision(Some(&latest_revision), latest_revision_id, last_revision_id)
+            .or_raise(make_error)?;
 
         if revision_changed(&target_revision, "slug") {
             bail!(Error::new(
@@ -949,7 +947,7 @@ impl PageService {
             CreatePageRevision {
                 user_id,
                 revision_type: PageRevisionType::Undo,
-                comments: format!("Undo revision {revision_number}"),
+                comments: revision_comments,
                 body: CreatePageRevisionBody {
                     wikitext,
                     title,
