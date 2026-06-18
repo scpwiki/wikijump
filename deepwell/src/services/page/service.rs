@@ -830,15 +830,152 @@ impl PageService {
     /// the reversed changes interfere with other changes made since.
     ///
     /// This is equivalent to git's concept of a "revert".
-    #[allow(dead_code)]
     pub async fn undo(
-        _ctx: &ServiceContext<'_>,
-        _site_id: i64,
-        _page_id: i64,
-        _revision_number: i32,
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+        revision_number: i32,
     ) -> Result<EditPageOutput> {
-        // TODO update audit-log.md
-        todo!()
+        if revision_number <= 0 {
+            bail!(Error::new(
+                "cannot undo the initial page revision",
+                ErrorType::Page,
+            ));
+        }
+
+        let txn = ctx.transaction();
+        let make_error = || {
+            Error::new(
+                format!(
+                    "failed to undo revision number {} for page ID {} in site ID {}",
+                    revision_number, page_id, site_id,
+                ),
+                ErrorType::Page,
+            )
+        };
+
+        let PageModel {
+            page_category_id: category_id,
+            latest_revision_id,
+            ..
+        } = Self::get(ctx, site_id, Reference::Id(page_id))
+            .await
+            .or_raise(make_error)?;
+
+        let (target_revision, previous_revision, latest_revision) = join!(
+            PageRevisionService::get(ctx, site_id, page_id, revision_number),
+            PageRevisionService::get(ctx, site_id, page_id, revision_number - 1),
+            PageRevisionService::get_latest(ctx, site_id, page_id),
+        );
+        let (target_revision, previous_revision, latest_revision) = raise_multiple!(target_revision, previous_revision, latest_revision; make_error);
+
+        check_last_revision(
+            Some(&latest_revision),
+            latest_revision_id,
+            latest_revision.revision_id,
+        )
+        .or_raise(make_error)?;
+
+        if revision_changed(&target_revision, "slug") {
+            bail!(Error::new(
+                "cannot undo page move revisions with PageService::undo",
+                ErrorType::Page,
+            ));
+        }
+
+        let title = if revision_changed(&target_revision, "title") {
+            if latest_revision.title != target_revision.title {
+                bail!(Error::new(
+                    "cannot undo title change because the title changed later",
+                    ErrorType::Page,
+                ));
+            }
+            Maybe::Set(previous_revision.title.clone())
+        } else {
+            Maybe::Unset
+        };
+
+        let alt_title = if revision_changed(&target_revision, "alt_title") {
+            if latest_revision.alt_title != target_revision.alt_title {
+                bail!(Error::new(
+                    "cannot undo alternative title change because it changed later",
+                    ErrorType::Page,
+                ));
+            }
+            Maybe::Set(previous_revision.alt_title.clone())
+        } else {
+            Maybe::Unset
+        };
+
+        let tags = if revision_changed(&target_revision, "tags") {
+            if latest_revision.tags != target_revision.tags {
+                bail!(Error::new(
+                    "cannot undo tag change because tags changed later",
+                    ErrorType::Page,
+                ));
+            }
+            Maybe::Set(previous_revision.tags.clone())
+        } else {
+            Maybe::Unset
+        };
+
+        let wikitext = if revision_changed(&target_revision, "wikitext") {
+            if latest_revision.wikitext_hash != target_revision.wikitext_hash {
+                bail!(Error::new(
+                    "cannot undo wikitext change because the page source changed later",
+                    ErrorType::Page,
+                ));
+            }
+            Maybe::Set(
+                TextService::get(ctx, &previous_revision.wikitext_hash)
+                    .await
+                    .or_raise(make_error)?,
+            )
+        } else {
+            Maybe::Unset
+        };
+
+        let revision_output = PageRevisionService::create(
+            ctx,
+            PageId {
+                site_id,
+                category_id,
+                page_id,
+            },
+            CreatePageRevision {
+                user_id: target_revision.user_id,
+                revision_type: PageRevisionType::Undo,
+                comments: format!("Undo revision {revision_number}"),
+                body: CreatePageRevisionBody {
+                    wikitext,
+                    title,
+                    alt_title,
+                    tags,
+                    slug: Maybe::Unset,
+                },
+            },
+            latest_revision,
+        )
+        .await
+        .or_raise(make_error)?;
+
+        let Some(output) = revision_output else {
+            bail!(Error::new(
+                "page undo produced no revision",
+                ErrorType::Page,
+            ));
+        };
+
+        let model = page::ActiveModel {
+            page_id: Set(page_id),
+            updated_at: Set(Some(now())),
+            latest_revision_id: Set(Some(output.revision_id)),
+            ..Default::default()
+        };
+
+        model.update(txn).await.or_raise(make_error)?;
+
+        Ok(output)
     }
 
     /// Sets the layout override for a page.
@@ -1243,14 +1380,23 @@ impl PageService {
 
     pub async fn check_user_permission(
         ctx: &ServiceContext<'_>,
-        _permission_context: &CheckPermissionContext<'_>,
+        permission_context: &CheckPermissionContext<'_>,
         action: Action,
     ) -> Result<bool> {
         let make_error =
             || Error::new("failed to check user permissions for page", ErrorType::Page);
 
-        let page_ref = ctx.request().page_reference().or_raise(make_error)?;
-        let site_id = ctx.request().site_id().or_raise(make_error)?;
+        let page_ref = permission_context
+            .page_reference
+            .clone()
+            .or_else(|| ctx.request().page_reference().ok().cloned())
+            .ok_or_raise(make_error)?;
+        let site_id = match permission_context.site_id {
+            site_id if site_id >= 0 => site_id,
+            -1 => ctx.request().site_id().or_raise(make_error)?,
+            _ => return Err(make_error().into()),
+        };
+        let user_id = ctx.request().user_id.or(permission_context.user_id);
 
         info!(
             "Checking edit permission for page {:?} in site ID {:?}",
@@ -1261,11 +1407,19 @@ impl PageService {
             .await
             .or_raise(make_error)?;
 
-        ctx.user_has_permission(Permission {
-            resource_type: Resource::Page,
-            resource_category: Some(Reference::Id(page_model.page_category_id)),
-            action,
-        })
+        PermissionService::check_user_can(
+            ctx,
+            &CheckPermissionContext {
+                user_id,
+                site_id,
+                page_reference: Some(page_ref),
+            },
+            Permission {
+                resource_type: Resource::Page,
+                resource_category: Some(Reference::Id(page_model.page_category_id)),
+                action,
+            },
+        )
         .await
         .or_raise(make_error)
     }
@@ -1311,6 +1465,10 @@ fn check_last_revision(
     }
 
     Ok(())
+}
+
+fn revision_changed(revision: &PageRevisionModel, field: &str) -> bool {
+    revision.changes.iter().any(|change| change == field)
 }
 
 /// Ensure that the page has a properly-set `latest_revision_id` column.

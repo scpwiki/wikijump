@@ -23,8 +23,66 @@ mod common;
 
 use self::common::TestRunner;
 use deepwell::error::prelude::*;
+use deepwell::models::{known_user, wikidot_user};
+use sea_orm::{ActiveModelTrait, Set};
 use serde_json::json;
-use time::{Date, Month};
+use time::{Date, Month, OffsetDateTime};
+
+#[tokio::test]
+async fn user_import_reclaims_existing_wikidot_user() {
+    let runner = TestRunner::setup().await;
+    let user_id = 700_001_i64;
+
+    known_user::ActiveModel {
+        user_id: Set(user_id),
+    }
+    .insert(runner.context().transaction())
+    .await
+    .expect("known_user fixture should insert");
+
+    wikidot_user::ActiveModel {
+        user_id: Set(i32::try_from(user_id).expect("fixture ID should fit i32")),
+        created_at: Set(OffsetDateTime::UNIX_EPOCH),
+        fetched_at: Set(OffsetDateTime::UNIX_EPOCH + time::Duration::seconds(1)),
+        is_deleted: Set(false),
+        name: Set(Some("Imported User".to_owned())),
+        slug: Set(Some("imported-user".to_owned())),
+        real_name: Set(None),
+        gender: Set(None),
+        birthday: Set(None),
+        location: Set(None),
+        biography: Set(None),
+        website: Set(None),
+        karma: Set(0),
+        is_pro: Set(false),
+    }
+    .insert(runner.context().transaction())
+    .await
+    .expect("wikidot_user fixture should insert");
+
+    let imported = run_endpoint!(
+        runner,
+        user_import,
+        json!({
+            "user_type": "regular",
+            "name": "Imported User",
+            "email": "imported-user@example.invalid",
+            "locales": ["en"],
+            "password": "hunter2",
+            "bypass_email_verification": true,
+            "override_user_id": user_id,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    assert_eq!(imported.user_id, user_id);
+    assert_eq!(imported.slug, "imported-user");
+
+    let output = run_endpoint!(runner, user_get, json!({ "user": "imported-user" }))
+        .expect("imported Wikidot user should be fetchable as a Wikijump user");
+    assert_eq!(output.user.user_id, user_id);
+    assert_eq!(output.user.slug, "imported-user");
+}
 
 #[tokio::test]
 async fn basic_update() {

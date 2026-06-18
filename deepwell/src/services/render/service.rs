@@ -1210,11 +1210,8 @@ impl RenderService {
             any_tags,
             all_tags,
             no_tags,
-            created_by,
             order,
             limit,
-            per_page,
-            range,
         } = arguments;
         let included_categories = if category_all {
             IncludedCategories::All
@@ -1244,26 +1241,26 @@ impl RenderService {
             update_date: DateSelector::FromPresent {
                 start: time::OffsetDateTime::UNIX_EPOCH,
             },
-            author: &created_by,
+            author: &[],
             score: &[],
             votes: &[],
             offset: 0,
-            range,
+            range: RangeSelector::Current,
             name: None,
             slug: None,
             data_form_fields: &[],
             order,
             pagination: PaginationSelector {
                 limit,
-                per_page,
+                per_page: PaginationSelector::default().per_page,
                 reversed: false,
             },
             variables: &[],
             fields: FoundPageFields {
                 title: true,
                 slug: true,
-                created_by: list_pages_body_uses_variable(body, "created_by"),
-                score: list_pages_body_uses_variable(body, "rating"),
+                created_by: false,
+                score: false,
                 ..Default::default()
             },
         };
@@ -1339,11 +1336,8 @@ struct ListPagesArguments {
     any_tags: Vec<Cow<'static, str>>,
     all_tags: Vec<Cow<'static, str>>,
     no_tags: Vec<Cow<'static, str>>,
-    created_by: Vec<Cow<'static, str>>,
     order: Option<OrderBySelector>,
     limit: Option<u64>,
-    per_page: u8,
-    range: RangeSelector,
 }
 
 fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
@@ -1352,17 +1346,14 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
         return None;
     }
 
-    let mut category_all = true;
-    let mut categories = Vec::new();
-    let mut excluded_categories = Vec::new();
-    let mut any_tags = Vec::new();
+    let category_all = true;
+    let categories = Vec::new();
+    let excluded_categories = Vec::new();
+    let any_tags = Vec::new();
     let mut all_tags = Vec::new();
-    let mut no_tags = Vec::new();
-    let mut created_by = Vec::new();
+    let no_tags = Vec::new();
     let mut order = None;
     let mut limit = None;
-    let mut per_page = PaginationSelector::default().per_page;
-    let mut range = RangeSelector::Current;
 
     for captures in LISTPAGES_ARGUMENT_REGEX.captures_iter(head) {
         let key = captures["key"].to_ascii_lowercase();
@@ -1375,81 +1366,36 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
             .trim();
 
         match key.as_str() {
-            "category" => {
-                if value == "*" {
-                    category_all = true;
-                    categories.clear();
-                    excluded_categories.clear();
-                } else {
-                    category_all = true;
-                    categories.clear();
-                    excluded_categories.clear();
-
-                    for category in split_list_pages_values(value) {
-                        if category == "*" {
-                            category_all = true;
-                            categories.clear();
-                        } else if let Some(category) = category.strip_prefix('-') {
-                            excluded_categories.push(Cow::Owned(category.to_owned()));
-                        } else {
-                            category_all = false;
-                            categories.push(Cow::Owned(
-                                category
-                                    .strip_prefix('+')
-                                    .unwrap_or(&category)
-                                    .to_owned(),
-                            ));
-                        }
-                    }
-                }
-            }
             "tags" => {
                 for tag in split_list_pages_values(value) {
-                    if let Some(tag) = tag.strip_prefix('-') {
-                        no_tags.push(Cow::Owned(tag.to_owned()));
-                    } else if let Some(tag) = tag.strip_prefix('+') {
+                    if let Some(tag) = tag.strip_prefix('+') {
                         all_tags.push(Cow::Owned(tag.to_owned()));
                     } else {
-                        any_tags.push(Cow::Owned(tag));
+                        return None;
                     }
                 }
             }
             "tag" => {
                 for tag in split_list_pages_values(value) {
-                    if let Some(tag) = tag.strip_prefix('-') {
-                        no_tags.push(Cow::Owned(tag.to_owned()));
-                    } else {
-                        all_tags.push(Cow::Owned(
-                            tag.strip_prefix('+').unwrap_or(&tag).to_owned(),
-                        ));
+                    if tag.starts_with('-') {
+                        return None;
                     }
+                    let tag = tag.strip_prefix('+').unwrap_or(&tag);
+                    all_tags.push(Cow::Owned(tag.to_owned()));
                 }
-            }
-            "created_by" | "createdby" => {
-                let values = split_list_pages_values(value);
-                if values.is_empty() || !values.iter().all(|value| value == "=") {
-                    return None;
-                }
-
-                created_by.extend(values.into_iter().map(Cow::Owned));
             }
             "limit" => {
                 limit = Some(value.parse().ok()?);
             }
-            "perpage" | "per_page" => {
-                per_page = value.parse().ok()?;
-            }
             "order" => {
                 order = Some(parse_list_pages_order(value)?);
-            }
-            "range" => {
-                range = parse_list_pages_range(value)?;
             }
             // These inputs need additional data or Wikidot semantics that are not
             // implemented by PageQueryService yet. Leaving the module untouched is
             // safer than silently returning a wrong list.
-            "created_at" | "createdat" | "updated_at" | "updatedat" | "rating"
-            | "score" | "votes" | "form" | "parent" | "link_to" | "linkto" => {
+            "category" | "created_by" | "createdby" | "rating" | "score" | "votes"
+            | "form" | "parent" | "link_to" | "linkto" | "perpage" | "per_page"
+            | "range" | "separate" => {
                 return None;
             }
             _ => return None,
@@ -1463,11 +1409,8 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
         any_tags,
         all_tags,
         no_tags,
-        created_by,
         order,
         limit,
-        per_page,
-        range,
     })
 }
 
@@ -1490,8 +1433,10 @@ fn parse_list_pages_order(value: &str) -> Option<OrderBySelector> {
             OrderProperty::FullSlug
         }
         "title" => OrderProperty::Title,
-        "created_at" | "createdat" | "date" | "created" => OrderProperty::CreatedAt,
+        "alt_title" | "alttitle" => OrderProperty::AltTitle,
+        "created_at" | "createdat" | "created" | "date" => OrderProperty::CreatedAt,
         "updated_at" | "updatedat" | "updated" => OrderProperty::UpdatedAt,
+        "size" => OrderProperty::Size,
         "random" => OrderProperty::Random,
         _ => return None,
     };
@@ -1502,24 +1447,13 @@ fn parse_list_pages_order(value: &str) -> Option<OrderBySelector> {
     })
 }
 
-fn parse_list_pages_range(value: &str) -> Option<RangeSelector> {
-    match value.to_ascii_lowercase().as_str() {
-        "." | "current" => Some(RangeSelector::Current),
-        "others" | "other" => Some(RangeSelector::Others),
-        "before" => Some(RangeSelector::Before),
-        "after" => Some(RangeSelector::After),
-        _ => None,
-    }
-}
-
 fn list_pages_body_variables_supported(body: &str) -> bool {
     LISTPAGES_VARIABLE_REGEX
         .captures_iter(body)
         .all(
             |captures| match captures["name"].to_ascii_lowercase().as_str() {
                 "title_linked" | "title" | "name" | "slug" | "page_unix_name"
-                | "fullname" | "full_slug" | "created_by" | "rating" | "index"
-                | "total" => true,
+                | "fullname" | "full_slug" | "index" | "total" => true,
                 _ => false,
             },
         )
@@ -1953,7 +1887,10 @@ fn public_url_port_suffix(port: Option<u16>) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::{CollectingIncluder, RenderContext, RenderService, include_error};
+    use super::{
+        CollectingIncluder, RenderContext, RenderService, include_error,
+        parse_list_pages_arguments,
+    };
     use crate::config::Config;
     use crate::models::site::Model as SiteModel;
     use crate::types::License;
@@ -2008,6 +1945,14 @@ mod tests {
         );
 
         assert_eq!(RenderService::restore_wikidot_email_obfuscation(html), html);
+    }
+
+    #[test]
+    fn rejects_negative_list_pages_tag_argument() {
+        assert!(
+            parse_list_pages_arguments(r#"tag="-excluded" limit="10" order="name""#)
+                .is_none()
+        );
     }
 
     #[test]

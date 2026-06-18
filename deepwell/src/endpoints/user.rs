@@ -20,10 +20,12 @@
 
 use super::prelude::*;
 use crate::models::user::Model as UserModel;
+use crate::models::wikidot_user::Entity as WikidotUser;
 use crate::services::user::{
     CreateUser, CreateUserOutput, GetUser, GetUserOutput, UpdateUser,
 };
 use crate::types::AliasType;
+use sea_orm::EntityTrait;
 
 pub async fn user_create(
     ctx: &ServiceContext<'_>,
@@ -38,11 +40,52 @@ pub async fn user_create(
 }
 
 pub async fn user_import(
-    _ctx: &ServiceContext<'_>,
-    _params: Params<'static>,
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
 ) -> Result<CreateUserOutput> {
-    // TODO implement importing user from Wikidot
-    todo!()
+    let input: CreateUser = parse!(params, User);
+    let Some(user_id) = input.override_user_id else {
+        return Err(Error::new(
+            "Wikidot user import requires override_user_id",
+            ErrorType::BadRequest,
+        )
+        .into());
+    };
+
+    let wikidot_user_id = i32::try_from(user_id).map_err(|_| {
+        Error::new(
+            format!("Wikidot user ID {user_id} is outside the importable range"),
+            ErrorType::BadRequest,
+        )
+    })?;
+
+    let make_error = || {
+        Error::new(
+            format!("failed to import Wikidot user ID {user_id}"),
+            ErrorType::User,
+        )
+    };
+
+    match WikidotUser::find_by_id(wikidot_user_id)
+        .one(ctx.transaction())
+        .await
+        .or_raise(make_error)?
+    {
+        Some(user) if !user.is_deleted => {
+            info!("Importing Wikidot user ID {user_id} into a Wikijump account");
+            UserService::create(ctx, input).await.or_raise(make_error)
+        }
+        Some(_) => Err(Error::new(
+            format!("cannot import deleted Wikidot user ID {user_id}"),
+            ErrorType::User,
+        )
+        .into()),
+        None => Err(Error::new(
+            format!("cannot import missing Wikidot user ID {user_id}"),
+            ErrorType::User,
+        )
+        .into()),
+    }
 }
 
 pub async fn user_get(

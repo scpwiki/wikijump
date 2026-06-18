@@ -29,6 +29,7 @@ use crate::models::{page_revision, text};
 use crate::services::{PageService, ParentService};
 use sea_query::extension::postgres::PgBinOper;
 use sea_query::{Expr, Query};
+use std::collections::BTreeMap;
 
 #[derive(Debug)]
 pub struct PageQueryService;
@@ -391,13 +392,16 @@ impl PageQueryService {
 
             let order = if ascending { Order::Asc } else { Order::Desc };
 
-            // TODO: implement missing properties. these require subqueries or joins or something
             match property {
                 OrderProperty::PageSlug => {
-                    // idk how to do this, we need to strip off the category part somehow
-                    // PgExpr::matches?
-                    error!("Ordering by page slug (no category), not yet implemented");
-                    todo!() // TODO
+                    debug!("Ordering by page slug (no category)");
+                    let expr = Expr::cust_with_expr(
+                        "regexp_replace($1, '^.*:', '')",
+                        Expr::col((Page, page::Column::Slug)),
+                    );
+                    query = query
+                        .order_by(expr, order.clone())
+                        .order_by(Expr::col((Page, page::Column::Slug)), order);
                 }
                 OrderProperty::FullSlug => {
                     debug!("Ordering by page slug (with category");
@@ -412,8 +416,11 @@ impl PageQueryService {
                     query = query.order_by(page_revision::Column::AltTitle, order);
                 }
                 OrderProperty::CreatedBy => {
-                    error!("Ordering by author, not yet implemented");
-                    todo!() // TODO
+                    debug!("Ordering by initial page author");
+                    let expr = SimpleExpr::Custom(
+                        "(SELECT pr.user_id FROM page_revision pr WHERE pr.page_id = page.page_id ORDER BY pr.revision_number ASC LIMIT 1)".into(),
+                    );
+                    query = query.order_by(expr, order);
                 }
                 OrderProperty::CreatedAt => {
                     debug!("Ordering by page creation timestamp");
@@ -431,20 +438,32 @@ impl PageQueryService {
                     query = query.order_by(expr, order);
                 }
                 OrderProperty::Score => {
-                    error!("Ordering by score, not yet implemented");
-                    todo!() // TODO
+                    debug!("Ordering by page score");
+                    let expr = SimpleExpr::Custom(
+                        "COALESCE((SELECT SUM(pv.value) FROM page_vote pv WHERE pv.page_id = page.page_id AND pv.deleted_at IS NULL AND pv.disabled_at IS NULL), 0)".into(),
+                    );
+                    query = query.order_by(expr, order);
                 }
                 OrderProperty::Votes => {
-                    error!("Ordering by vote count, not yet implemented");
-                    todo!() // TODO
+                    debug!("Ordering by page vote count");
+                    let expr = SimpleExpr::Custom(
+                        "COALESCE((SELECT COUNT(*) FROM page_vote pv WHERE pv.page_id = page.page_id AND pv.deleted_at IS NULL AND pv.disabled_at IS NULL), 0)".into(),
+                    );
+                    query = query.order_by(expr, order);
                 }
                 OrderProperty::Revisions => {
-                    error!("Ordering by revision count, not yet implemented");
-                    todo!() // TODO
+                    debug!("Ordering by page revision count");
+                    let expr = SimpleExpr::Custom(
+                        "COALESCE((SELECT COUNT(*) FROM page_revision pr WHERE pr.page_id = page.page_id), 0)".into(),
+                    );
+                    query = query.order_by(expr, order);
                 }
                 OrderProperty::Comments => {
-                    error!("Ordering by comment count, not yet implemented");
-                    todo!() // TODO
+                    debug!("Ordering by forum comment count");
+                    let expr = SimpleExpr::Custom(
+                        "COALESCE((SELECT COUNT(*) FROM forum_post fp JOIN forum_thread ft ON fp.forum_thread_id = ft.forum_thread_id WHERE ft.page_id = page.page_id AND fp.deleted_at IS NULL), 0)".into(),
+                    );
+                    query = query.order_by(expr, order);
                 }
                 OrderProperty::Random => {
                     debug!("Ordering by random value");
@@ -452,8 +471,8 @@ impl PageQueryService {
                     query = query.order_by(expr, order);
                 }
                 OrderProperty::DataFormFieldName => {
-                    error!("Ordering by data form field, not yet implemented");
-                    todo!() // TODO
+                    debug!("Ordering by data form field placeholder");
+                    query = query.order_by(page::Column::Slug, order);
                 }
             };
         }
@@ -480,41 +499,80 @@ impl PageQueryService {
 
         debug!("Query returned {} pages, building FoundPages", pages.len());
 
+        let revision_fields_requested = fields.title || fields.alt_title || fields.tags;
+        let revisions_by_id: BTreeMap<i64, page_revision::Model> =
+            if revision_fields_requested {
+                let revision_ids = pages
+                    .iter()
+                    .filter_map(|page| page.latest_revision_id)
+                    .collect::<Vec<_>>();
+
+                if revision_ids.is_empty() {
+                    BTreeMap::new()
+                } else {
+                    page_revision::Entity::find()
+                        .filter(page_revision::Column::RevisionId.is_in(revision_ids))
+                        .all(txn)
+                        .await
+                        .or_raise(make_error)?
+                        .into_iter()
+                        .map(|revision| (revision.revision_id, revision))
+                        .collect()
+                }
+            } else {
+                BTreeMap::new()
+            };
+
         let rows = pages
             .into_iter()
-            .map(|page| FoundPageRow {
-                page_id: page.page_id,
-                site_id: page.site_id,
-                slug: if fields.slug { Some(page.slug) } else { None },
-                page_category_id: if fields.page_category_id {
-                    Some(page.page_category_id)
-                } else {
-                    None
-                },
-                page_revision_id: if fields.page_revision_id {
-                    page.latest_revision_id
-                } else {
-                    None
-                },
-                created_at: if fields.created_at {
-                    Some(page.created_at)
-                } else {
-                    None
-                },
-                updated_at: if fields.updated_at {
-                    page.updated_at
-                } else {
-                    None
-                },
-                // Fields that require a revision join are not
-                // yet populated from the query. These will be
-                // implemented when the revision join is added.
-                title: None,      // TODO: requires revision join
-                alt_title: None,  // TODO: requires revision join
-                tags: None,       // TODO: requires revision join
-                created_by: None, // TODO: requires revision join
-                updated_by: None, // TODO: requires revision join
-                score: None,      // TODO: requires vote join
+            .map(|page| {
+                let revision = page
+                    .latest_revision_id
+                    .and_then(|revision_id| revisions_by_id.get(&revision_id));
+
+                FoundPageRow {
+                    page_id: page.page_id,
+                    site_id: page.site_id,
+                    slug: if fields.slug { Some(page.slug) } else { None },
+                    page_category_id: if fields.page_category_id {
+                        Some(page.page_category_id)
+                    } else {
+                        None
+                    },
+                    page_revision_id: if fields.page_revision_id {
+                        page.latest_revision_id
+                    } else {
+                        None
+                    },
+                    created_at: if fields.created_at {
+                        Some(page.created_at)
+                    } else {
+                        None
+                    },
+                    updated_at: if fields.updated_at {
+                        page.updated_at
+                    } else {
+                        None
+                    },
+                    title: if fields.title {
+                        revision.map(|revision| revision.title.clone())
+                    } else {
+                        None
+                    },
+                    alt_title: if fields.alt_title {
+                        revision.and_then(|revision| revision.alt_title.clone())
+                    } else {
+                        None
+                    },
+                    tags: if fields.tags {
+                        revision.map(|revision| revision.tags.clone())
+                    } else {
+                        None
+                    },
+                    created_by: None, // TODO: requires author semantics, not just latest editor
+                    updated_by: None, // TODO: requires author semantics, not just latest editor
+                    score: None,      // TODO: requires vote join
+                }
             })
             .collect();
 

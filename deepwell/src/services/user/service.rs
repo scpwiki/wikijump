@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::models::known_user::{self, Model as KnownUserModel};
+use crate::models::known_user::{self, Entity as KnownUser, Model as KnownUserModel};
 use crate::models::user::{self, Entity as User, Model as UserModel};
 use crate::services::alias::CreateAlias;
 use crate::services::audit::{AuditEvent, AuditService};
@@ -89,15 +89,25 @@ impl UserService {
             Some(user_id) => {
                 info!("Attempting to create user '{name}' ('{slug}', ID {user_id})");
 
-                // Insert user ID into known_user for foreign key
-                known_user::ActiveModel {
-                    user_id: ActiveValue::Set(user_id),
-                }
-                .insert(txn)
-                .await
-                .or_raise(make_error)?;
+                if KnownUser::find_by_id(user_id)
+                    .one(txn)
+                    .await
+                    .or_raise(make_error)?
+                    .is_some()
+                {
+                    debug!("Reusing existing known_user entry for ID {user_id}");
+                } else {
+                    // Insert user ID into known_user for foreign key.
+                    known_user::ActiveModel {
+                        user_id: ActiveValue::Set(user_id),
+                    }
+                    .insert(txn)
+                    .await
+                    .or_raise(make_error)?;
 
-                debug!("Inserted foreign key entry into known_user for ID {user_id}");
+                    debug!("Inserted foreign key entry into known_user for ID {user_id}");
+                }
+
                 user_id
             }
             None => {
@@ -300,7 +310,7 @@ impl UserService {
         Ok(CreateUserOutput { user_id, slug })
     }
 
-    // TODO import() method, which is for reclaiming Wikidot-imported accounts
+    // TODO complete ownership verification for reclaiming Wikidot-imported accounts
     //
     //      if the user is already present in the database, then this verifies their ownership and
     //      updates the user so it now belongs to them (e.g. email, password, etc)
