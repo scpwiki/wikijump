@@ -834,13 +834,13 @@ impl PageService {
         ctx: &ServiceContext<'_>,
         UndoPage {
             site_id,
-            page_id,
+            page: reference,
             last_revision_id,
             revision_number,
             revision_comments,
             user_id,
             ip_address,
-        }: UndoPage,
+        }: UndoPage<'_>,
     ) -> Result<EditPageOutput> {
         if revision_number <= 0 {
             bail!(Error::new(
@@ -853,18 +853,19 @@ impl PageService {
         let make_error = || {
             Error::new(
                 format!(
-                    "failed to undo revision number {} for page ID {} in site ID {}",
-                    revision_number, page_id, site_id,
+                    "failed to undo revision number {} in site ID {}",
+                    revision_number, site_id,
                 ),
                 ErrorType::Page,
             )
         };
 
         let PageModel {
+            page_id,
             page_category_id: category_id,
             latest_revision_id,
             ..
-        } = Self::get(ctx, site_id, Reference::Id(page_id))
+        } = Self::get(ctx, site_id, reference)
             .await
             .or_raise(make_error)?;
 

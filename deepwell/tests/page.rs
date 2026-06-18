@@ -900,7 +900,7 @@ async fn page_undo_reverses_selected_revision_and_preserves_later_changes() {
         runner.context(),
         UndoPage {
             site_id,
-            page_id: created.page_id,
+            page: Reference::Id(created.page_id),
             last_revision_id: body_edit.revision_id,
             revision_number: 1,
             revision_comments: "undo the title change".to_owned(),

@@ -131,12 +131,13 @@ deploy{{ files_domain }} {
 
 	# wjfiles-managed routes
 	# These are proxied to wws for it to handle, but shouldn't be redirected
-	@proxy {
-		path /robots.txt
-		path /.well-known
-		path /.well-known/*
-		path /-/health-check
-	}
+		@proxy {
+			path /robots.txt
+			path /.well-known
+			path /.well-known/*
+			path /.well-known/*/*
+			path /-/health-check
+		}
 	request_header @proxy X-Wikijump-Target-Server main
 	import reverse_proxy_wws @proxy
 

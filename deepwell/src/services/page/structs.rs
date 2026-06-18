@@ -244,9 +244,9 @@ pub struct RollbackPage<'a> {
 }
 
 #[derive(Deserialize, Debug, Clone)]
-pub struct UndoPage {
+pub struct UndoPage<'a> {
     pub site_id: i64,
-    pub page_id: i64,
+    pub page: Reference<'a>,
     pub last_revision_id: i64,
     pub revision_number: i32,
     pub revision_comments: String,
