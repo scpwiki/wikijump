@@ -9,6 +9,7 @@ jobs:
   # Wait for image push jobs to complete
   # See https://stackoverflow.com/a/75597437
   caddy:
+    if: ${{ github.repository == 'scpwiki/wikijump' }}
     uses: ./.github/workflows/docker-build-template.yaml
     with:
       image-repository: wikijump/caddy
@@ -20,6 +21,7 @@ jobs:
       aws-secret-key: ${{ secrets.AWS_ECR_SECRET_KEY }}
 
   deepwell:
+    if: ${{ github.repository == 'scpwiki/wikijump' }}
     uses: ./.github/workflows/docker-build-template.yaml
     with:
       image-repository: wikijump/deepwell
@@ -31,6 +33,7 @@ jobs:
       aws-secret-key: ${{ secrets.AWS_ECR_SECRET_KEY }}
 
   framerail:
+    if: ${{ github.repository == 'scpwiki/wikijump' }}
     uses: ./.github/workflows/docker-build-template.yaml
     with:
       image-repository: wikijump/framerail
@@ -42,6 +45,7 @@ jobs:
       aws-secret-key: ${{ secrets.AWS_ECR_SECRET_KEY }}
 
   wws:
+    if: ${{ github.repository == 'scpwiki/wikijump' }}
     uses: ./.github/workflows/docker-build-template.yaml
     with:
       image-repository: wikijump/wws
@@ -57,6 +61,7 @@ jobs:
   # This ensures that all images are built and pushed up before
   # attempting to redeploy the stack.
   notify_komodo:
+    if: ${{ github.repository == 'scpwiki/wikijump' }}
     name: Deploy Komodo (dev)
     runs-on: ubuntu-latest
     needs: [caddy, deepwell, framerail, wws]
