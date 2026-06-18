@@ -24,11 +24,9 @@ mod common;
 use self::common::TestRunner;
 use deepwell::constants::ADMIN_USER_ID;
 use deepwell::error::prelude::*;
-use deepwell::models::wikidot_user::{
-    self, Entity as WikidotUser, Model as WikidotUserModel,
-};
+use deepwell::models::wikidot_user::{Entity as WikidotUser, Model as WikidotUserModel};
 use deepwell::services::import::ImportUserOutput;
-use sea_orm::{ColumnTrait, Condition, EntityTrait, QueryFilter};
+use sea_orm::EntityTrait;
 use serde_json::json;
 use time::macros::{date, datetime};
 use time::{Date, Month};
@@ -313,12 +311,7 @@ async fn wikidot_user() {
     // We need to manually query since it gets shadowed in UserService::get().
 
     let txn = runner.context().transaction();
-    let user: WikidotUserModel = WikidotUser::find()
-        .filter(
-            Condition::all()
-                .add(wikidot_user::Column::UserId.eq(USER_ID))
-                .add(wikidot_user::Column::IsDeleted.eq(false)),
-        )
+    let user: WikidotUserModel = WikidotUser::find_by_id(USER_ID)
         .one(txn)
         .await
         .expect("Unable to fetch wikidot_user row")
