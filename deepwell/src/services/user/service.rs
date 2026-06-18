@@ -103,16 +103,7 @@ impl UserService {
             }
             None => {
                 info!("Attempting to create user '{name}' ('{slug}') with sequence ID");
-
-                // Get user ID from known_user sequence
-                let KnownUserModel { user_id } =
-                    known_user::ActiveModel { user_id: NotSet }
-                        .insert(txn)
-                        .await
-                        .or_raise(make_error)?;
-
-                debug!("Got next user ID {user_id} in sequence from known_user");
-                user_id
+                Self::get_next_user_id(ctx).await.or_raise(make_error)?
             }
         };
 
@@ -1290,25 +1281,44 @@ impl UserService {
         user_id: i64,
     ) -> Result<()> {
         let txn = ctx.transaction();
-
-        KnownUser::insert(known_user::ActiveModel {
+        let model = known_user::ActiveModel {
             user_id: Set(user_id),
-        })
-        .on_conflict(
-            OnConflict::column(known_user::Column::UserId)
-                .do_nothing()
-                .to_owned(),
-        )
-        .exec(txn)
-        .await
-        .or_raise(|| {
-            Error::new(
-                format!("failed to insert user ID {user_id} into known_user"),
-                ErrorType::User,
+        };
+
+        KnownUser::insert(model)
+            .on_conflict(
+                OnConflict::column(known_user::Column::UserId)
+                    .do_nothing()
+                    .to_owned(),
             )
-        })?;
+            .do_nothing()
+            .exec(txn)
+            .await
+            .or_raise(|| {
+                Error::new(
+                    format!("failed to insert user ID {user_id} into known_user"),
+                    ErrorType::User,
+                )
+            })?;
 
         Ok(())
+    }
+
+    /// Gets the next user ID from the `known_user` sequence.
+    async fn get_next_user_id(ctx: &ServiceContext<'_>) -> Result<i64> {
+        let txn = ctx.transaction();
+        let KnownUserModel { user_id } = known_user::ActiveModel { user_id: NotSet }
+            .insert(txn)
+            .await
+            .or_raise(|| {
+                Error::new(
+                    "failed to insert into known_user and get next ID in sequence",
+                    ErrorType::User,
+                )
+            })?;
+
+        debug!("Got next user ID {user_id} in sequence from known_user");
+        Ok(user_id)
     }
 }
 
