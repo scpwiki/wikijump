@@ -22,8 +22,15 @@
 mod common;
 
 use self::common::TestRunner;
+use deepwell::constants::ADMIN_USER_ID;
 use deepwell::error::prelude::*;
+use deepwell::models::wikidot_user::{
+    self, Entity as WikidotUser, Model as WikidotUserModel,
+};
+use deepwell::services::import::ImportUserOutput;
+use sea_orm::{ColumnTrait, Condition, EntityTrait, QueryFilter};
 use serde_json::json;
+use time::macros::{date, datetime};
 use time::{Date, Month};
 
 #[tokio::test]
@@ -167,6 +174,157 @@ async fn basic_update() {
         }),
     );
     assert_ne!(user.password, old_password);
+}
+
+#[tokio::test]
+async fn wikidot_user() {
+    let runner = TestRunner::setup().await;
+
+    const USER_ID: i32 = 12345;
+    const USER_NAME: &str = "Old Guy";
+    const USER_SLUG: &str = "old-guy";
+
+    // Set up Wikidot user record
+
+    let ImportUserOutput { user_id } = run_endpoint!(
+        runner,
+        import_wikidot_user,
+        json!({
+            "user_id": USER_ID,
+            "created_at": "2009-05-01T16:32:20+00:00",
+            "fetched_at": "2026-02-02T10:00:00+00:00",
+            "user_type": "extant",
+            "name": USER_NAME,
+            "slug": USER_SLUG,
+            "avatar_uploaded_blob_id": null,
+            "real_name": "Bob Smith",
+            "gender": "male",
+            "birthday": null,
+            "location": null,
+            "biography": "Just some old guy who made an account on Wikidot",
+            "website": null,
+            "karma": 2,
+            "is_pro": false,
+            "importing_user_id": ADMIN_USER_ID,
+        }),
+    );
+    assert_eq!(user_id, USER_ID, "Outputted user ID does not match input");
+
+    // Check user data (Wikidot)
+
+    fn check_wikidot_user(user: &WikidotUserModel) {
+        assert_eq!(user.user_id, USER_ID);
+        assert_eq!(user.created_at, datetime!(2009-05-01 16:32:20 UTC));
+        assert_eq!(user.fetched_at, datetime!(2026-02-02 10:00:00 UTC));
+        assert_str_eq!(user.name, Some(USER_NAME));
+        assert_str_eq!(user.slug, Some(USER_SLUG));
+        assert!(user.avatar_s3_hash.is_none());
+        assert_str_eq!(user.real_name, Some("Bob Smith"));
+        assert_str_eq!(user.gender, Some("male"));
+        assert!(user.birthday.is_none());
+        assert!(user.location.is_none());
+        assert_str_eq!(
+            user.biography,
+            Some("Just some old guy who made an account on Wikidot"),
+        );
+        assert!(user.website.is_none());
+        assert_eq!(user.karma, 2);
+        assert!(!user.is_pro);
+    }
+
+    let output = run_endpoint!(runner, user_get, json!({ "user": USER_ID }))
+        .expect("No user exists after Wikidot user creation");
+
+    let user = output
+        .user
+        .unwrap_wikidot()
+        .expect("Returned user was not of type Wikidot");
+
+    check_wikidot_user(&user);
+
+    // Activate user (Wikidot -> Wikijump)
+
+    let wikijump_user = run_endpoint!(
+        runner,
+        user_activate_from_wikidot,
+        json!({
+            "user_id": USER_ID,
+            "user_type": "regular",
+            "email": "bob@wikijump",
+            "locales": ["en-AU", "en"],
+            "password": "hunter2",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    // Check user data (Wikijump)
+
+    let output = run_endpoint!(runner, user_get, json!({ "user": USER_SLUG }))
+        .expect("User does not exist");
+
+    let user = output
+        .user
+        .unwrap_wikijump()
+        .expect("Returned user not of type Wikijump");
+
+    assert_eq!(
+        user, wikijump_user,
+        "Wikijump user data doesn't match returned",
+    );
+    assert_eq!(user.created_at, datetime!(2009-05-01 16:32:20 UTC));
+    assert_eq!(user.name, USER_NAME);
+    assert_eq!(user.slug, USER_SLUG);
+    assert_eq!(user.email, "bob@wikijump");
+    assert_eq!(user.locales, ["en-AU", "en"]);
+    assert_str_eq!(user.real_name, Some("Bob Smith"));
+    assert_str_eq!(user.gender, Some("male"));
+    assert!(user.birthday.is_none());
+    assert!(user.location.is_none());
+
+    // Update Wikijump user data
+
+    run_endpoint!(
+        runner,
+        user_edit,
+        json!({
+            "user": USER_ID,
+            "real_name": "Robert A. Smith",
+            "birthday": "1955-03-03",
+            "location": "Australia",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    // Check user data (Wikijump)
+
+    let output = run_endpoint!(runner, user_get, json!({ "user": USER_SLUG }))
+        .expect("User does not exist");
+
+    let user = output
+        .user
+        .unwrap_wikijump()
+        .expect("Returned user not of type Wikijump");
+
+    assert_str_eq!(user.real_name, Some("Robert A. Smith"));
+    assert_str_eq!(user.location, Some("Australia"));
+    assert_eq!(user.birthday, Some(date!(1955 - 03 - 03)));
+
+    // Check Wikidot user data hasn't changed
+    // We need to manually query since it gets shadowed in UserService::get().
+
+    let txn = runner.context().transaction();
+    let user: WikidotUserModel = WikidotUser::find()
+        .filter(
+            Condition::all()
+                .add(wikidot_user::Column::UserId.eq(USER_ID))
+                .add(wikidot_user::Column::IsDeleted.eq(false)),
+        )
+        .one(txn)
+        .await
+        .expect("Unable to fetch wikidot_user row")
+        .expect("No wikidot_user row found");
+
+    check_wikidot_user(&user);
 }
 
 // TODO test renames / rename tokens
