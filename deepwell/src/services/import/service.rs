@@ -260,6 +260,19 @@ impl ImportService {
             .or_raise(make_error)?;
         }
 
+        // Add to audit log
+        AuditService::log(
+            ctx,
+            ip_address,
+            AuditEvent::ImportPage {
+                site_id,
+                page_id,
+                page_slug: &slug,
+            },
+        )
+        .await
+        .or_raise(make_error)?;
+
         Ok(ImportPageOutput { site_id, page_id })
     }
 

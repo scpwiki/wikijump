@@ -186,6 +186,11 @@ pub enum AuditEvent<'a> {
         site_slug: &'a str,
         site_name: &'a str,
     },
+    ImportPage {
+        site_id: i64,
+        page_id: i64,
+        page_slug: &'a str,
+    },
 }
 
 impl<'a> AuditEvent<'a> {
@@ -693,6 +698,22 @@ impl<'a> AuditEvent<'a> {
                 extra_id_2: None,
                 extra_string_1: Some(Cow::Owned(str!(site_slug))),
                 extra_string_2: Some(Cow::Owned(str!(site_name))),
+                extra_number: None,
+            },
+            AuditEvent::ImportPage {
+                site_id,
+                page_id,
+                page_slug,
+            } => RawAuditEvent {
+                event_type: "import.page",
+                ip_address,
+                user_id: None,
+                site_id: Some(site_id),
+                page_id: Some(page_id),
+                extra_id_1: None,
+                extra_id_2: None,
+                extra_string_1: Some(Cow::Owned(str!(page_slug))),
+                extra_string_2: None,
                 extra_number: None,
             },
         };
