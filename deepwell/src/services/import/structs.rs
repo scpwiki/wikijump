@@ -47,6 +47,7 @@ pub struct ImportUser {
     // Request metadata
     // Must be the same as the user who uploaded the avatar blob
     pub importing_user_id: i64,
+    pub ip_address: IpAddr,
 }
 
 #[derive(Deserialize, Debug)]

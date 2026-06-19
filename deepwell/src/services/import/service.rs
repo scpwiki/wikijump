@@ -33,6 +33,7 @@ use crate::models::page::{self, Entity as Page};
 use crate::models::page_category::Model as PageCategoryModel;
 use crate::models::site::{self, Entity as Site};
 use crate::models::wikidot_user::{self, Entity as WikidotUser};
+use crate::services::audit::{AuditEvent, AuditService};
 use crate::services::blob::{BlobService, FinalizeBlobUploadOutput};
 use crate::services::page_lock::{CreatePageLockInput, PageLockService};
 use crate::services::{CategoryService, UserService};
@@ -60,6 +61,7 @@ impl ImportService {
             karma,
             is_pro,
             importing_user_id,
+            ip_address,
         }: ImportUser,
     ) -> Result<ImportUserOutput> {
         info!(
@@ -97,13 +99,25 @@ impl ImportService {
             }
         };
 
+        // Add to audit log
+        AuditService::log(
+            ctx,
+            ip_address,
+            AuditEvent::ImportUser {
+                user_id,
+                user_slug: slug.as_deref(),
+                user_name: name.as_deref(),
+            },
+        )
+        .await
+        .or_raise(make_error)?;
+
         // Add known user ID
         UserService::insert_known_user_id(ctx, i64::from(user_id))
             .await
             .or_raise(make_error)?;
 
         // Now add the actual Wikidot record itself
-
         let model = wikidot_user::ActiveModel {
             user_id: Set(user_id),
             created_at: Set(created_at),

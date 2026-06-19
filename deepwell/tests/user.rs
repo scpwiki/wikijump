@@ -204,6 +204,7 @@ async fn wikidot_user() {
             "karma": 2,
             "is_pro": false,
             "importing_user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
         }),
     );
     assert_eq!(user_id, USER_ID, "Outputted user ID does not match input");

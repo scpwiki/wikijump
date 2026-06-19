@@ -176,6 +176,11 @@ pub enum AuditEvent<'a> {
         token_id: i32,
         object_type: AuthorizedObject,
     },
+    ImportUser {
+        user_id: i32,
+        user_slug: Option<&'a str>,
+        user_name: Option<&'a str>,
+    },
 }
 
 impl<'a> AuditEvent<'a> {
@@ -651,6 +656,22 @@ impl<'a> AuditEvent<'a> {
                 extra_id_2: None,
                 extra_string_1: Some(Cow::Borrowed(object_type.name())),
                 extra_string_2: Some(Cow::Owned(str!(token))),
+                extra_number: None,
+            },
+            AuditEvent::ImportUser {
+                user_id,
+                user_slug,
+                user_name,
+            } => RawAuditEvent {
+                event_type: "import.user",
+                ip_address,
+                user_id: Some(i64::from(user_id)),
+                site_id: None,
+                page_id: None,
+                extra_id_1: None,
+                extra_id_2: None,
+                extra_string_1: user_slug.map(|s| Cow::Owned(str!(s))),
+                extra_string_2: user_name.map(|s| Cow::Owned(str!(s))),
                 extra_number: None,
             },
         };
