@@ -181,6 +181,11 @@ pub enum AuditEvent<'a> {
         user_slug: Option<&'a str>,
         user_name: Option<&'a str>,
     },
+    ImportSite {
+        site_id: i64,
+        site_slug: &'a str,
+        site_name: &'a str,
+    },
 }
 
 impl<'a> AuditEvent<'a> {
@@ -672,6 +677,22 @@ impl<'a> AuditEvent<'a> {
                 extra_id_2: None,
                 extra_string_1: user_slug.map(|s| Cow::Owned(str!(s))),
                 extra_string_2: user_name.map(|s| Cow::Owned(str!(s))),
+                extra_number: None,
+            },
+            AuditEvent::ImportSite {
+                site_id,
+                site_slug,
+                site_name,
+            } => RawAuditEvent {
+                event_type: "import.site",
+                ip_address,
+                user_id: None,
+                site_id: Some(site_id),
+                page_id: None,
+                extra_id_1: None,
+                extra_id_2: None,
+                extra_string_1: Some(Cow::Owned(str!(site_slug))),
+                extra_string_2: Some(Cow::Owned(str!(site_name))),
                 extra_number: None,
             },
         };

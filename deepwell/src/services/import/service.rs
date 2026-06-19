@@ -152,6 +152,7 @@ impl ImportService {
             name,
             slug,
             locale,
+            ip_address,
         }: ImportSite,
     ) -> Result<ImportSiteOutput> {
         info!("Importing site (name '{name}', slug '{slug}', locale '{locale}')");
@@ -166,6 +167,7 @@ impl ImportService {
             )
         };
 
+        // Insert site row
         let txn = ctx.transaction();
         let site = site::ActiveModel {
             site_id: Set(site_id),
@@ -176,8 +178,21 @@ impl ImportService {
             locale: Set(locale),
             ..Default::default()
         };
-
         Site::insert(site).exec(txn).await.or_raise(make_error)?;
+
+        // Add to audit log
+        AuditService::log(
+            ctx,
+            ip_address,
+            AuditEvent::ImportSite {
+                site_id,
+                site_slug: &slug,
+                site_name: &name,
+            },
+        )
+        .await
+        .or_raise(make_error)?;
+
         Ok(ImportSiteOutput { site_id })
     }
 

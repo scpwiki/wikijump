@@ -71,6 +71,7 @@ pub struct ImportSite {
     pub name: String,
     pub slug: String,
     pub locale: String,
+    pub ip_address: IpAddr,
 }
 
 #[derive(Serialize, Debug, Copy, Clone)]
