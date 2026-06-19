@@ -26,9 +26,6 @@
 //!
 //! It is for limited use during initial setup only.
 
-// TODO implement and use this service
-#![allow(dead_code)]
-
 use super::prelude::*;
 use crate::constants::SYSTEM_USER_ID;
 use crate::models::known_user::{self, Model as KnownUserModel};
