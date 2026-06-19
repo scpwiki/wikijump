@@ -8,7 +8,7 @@ keywords = ["wikijump", "api", "backend", "wiki"]
 categories = ["asynchronous", "database", "web-programming::http-server"]
 exclude = [".gitignore", ".editorconfig"]
 
-version = "2026.4.22"
+version = "2026.6.19"
 authors = ["Emmie Smith <emmie.maeda@gmail.com>"]
 edition = "2024"
 
