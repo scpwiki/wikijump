@@ -452,7 +452,9 @@ impl UserService {
             if is_pro { "pro" } else { "free" },
         );
 
-        // TODO audit log
+        AuditService::log(ctx, ip_address, AuditEvent::UserActivateWikidot { user_id })
+            .await
+            .or_raise(make_error)?;
 
         // Run normal method to create the user
         // So we're reusing common logic like filters, etc

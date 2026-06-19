@@ -39,6 +39,9 @@ pub enum AuditEvent<'a> {
     UserCreate {
         user_id: i64,
     },
+    UserActivateWikidot {
+        user_id: i64,
+    },
     UserUpdate {
         user_id: i64,
         previous_fields: UserFields<'a>,
@@ -187,6 +190,18 @@ impl<'a> AuditEvent<'a> {
         let raw_event = match *self {
             AuditEvent::UserCreate { user_id } => RawAuditEvent {
                 event_type: "user.create",
+                ip_address,
+                user_id: Some(user_id),
+                site_id: None,
+                page_id: None,
+                extra_id_1: None,
+                extra_id_2: None,
+                extra_string_1: None,
+                extra_string_2: None,
+                extra_number: None,
+            },
+            AuditEvent::UserActivateWikidot { user_id } => RawAuditEvent {
+                event_type: "user.activate-wikidot",
                 ip_address,
                 user_id: Some(user_id),
                 site_id: None,
