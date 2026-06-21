@@ -1,43 +1,62 @@
 <p align="center">
   <img width="500"
-       src="https://github.com/scpwiki/wikijump/blob/develop/assets/logo.min.svg"
+       src="assets/logo.min.svg"
        alt="Wikijump">
 </p>
 
 <p align="center">
-  <a href="https://codecov.io/gh/scpwiki/wikijump">
-    <img src="https://codecov.io/gh/scpwiki/wikijump/branch/develop/graph/badge.svg?token=RDH6943FHE"
-         alt="Codecov report">
+  <a href="https://codecov.io/gh/Rokurolize/wikijump">
+    <img src="https://codecov.io/gh/Rokurolize/wikijump/branch/develop/graph/badge.svg"
+         alt="Codecov report for Rokurolize/wikijump develop">
   </a>
 
-  <a href="https://github.com/scpwiki/wikijump/actions?query=workflow%3A%22%5Bdeepwell%5D+Rust%22">
-    <img src="https://github.com/scpwiki/wikijump/workflows/%5Bdeepwell%5D%20Rust/badge.svg"
-         alt="DEEPWELL build status">
+  <a href="https://coderabbit.ai">
+    <img src="https://img.shields.io/coderabbit/prs/github/Rokurolize/wikijump.svg?label=CodeRabbit%20Reviews"
+         alt="CodeRabbit Reviews for Rokurolize/wikijump">
   </a>
 
-  <a href="https://github.com/scpwiki/wikijump/actions?query=workflow%3A%22%5Bwws%5D+Rust%22">
-    <img src="https://github.com/scpwiki/wikijump/workflows/%5Bwws%5D%20Rust/badge.svg"
-         alt="WWS build status">
+  <a href="https://deepwiki.com/Rokurolize/wikijump">
+    <img src="https://deepwiki.com/badge.svg?repository=Rokurolize/wikijump"
+         alt="Ask DeepWiki about Rokurolize/wikijump">
   </a>
 
-  <a href="https://github.com/scpwiki/wikijump/actions?query=workflow%3A%22%5Bframerail%5D+Typescript%22">
-    <img src="https://github.com/scpwiki/wikijump/workflows/%5Bframerail%5D%20Typescript/badge.svg"
-         alt="Framerail build status">
+  <a href="https://github.com/Rokurolize/wikijump/actions/workflows/deepwell.yaml?query=branch%3Adevelop">
+    <img src="https://github.com/Rokurolize/wikijump/actions/workflows/deepwell.yaml/badge.svg?branch=develop"
+         alt="Deepwell CI status on develop">
+  </a>
+
+  <a href="https://github.com/Rokurolize/wikijump/actions/workflows/wws.yaml?query=branch%3Adevelop">
+    <img src="https://github.com/Rokurolize/wikijump/actions/workflows/wws.yaml/badge.svg?branch=develop"
+         alt="WWS CI status on develop">
+  </a>
+
+  <a href="https://github.com/Rokurolize/wikijump/actions/workflows/framerail.yaml?query=branch%3Adevelop">
+    <img src="https://github.com/Rokurolize/wikijump/actions/workflows/framerail.yaml/badge.svg?branch=develop"
+         alt="Framerail CI status on develop">
+  </a>
+
+  <a href="https://github.com/Rokurolize/wikijump/actions/workflows/locales.yaml?query=branch%3Adevelop">
+    <img src="https://github.com/Rokurolize/wikijump/actions/workflows/locales.yaml/badge.svg?branch=develop"
+         alt="Localization CI status on develop">
   </a>
 </p>
+
+This repository is Rokurolize's fork of [scpwiki/wikijump](https://github.com/scpwiki/wikijump).
+It is used for fork-local development, validation, and review support; upstream project links below describe the Wikijump project maintained by the SCP Wiki team.
 
 Wikijump began as the [SCP Wiki](https://scpwiki.com)'s fork of the unmaintained [Wikidot](https://github.com/gabrys/wikidot).
 It seeks to implement [Project Foundation](https://scpwiki.com/forum/c-3335628/general-information) using lessons learned from Wikidot's legacy PHP code and cutting-edge Wikidot research from other technical projects.
 The goal is to provide a scalable, maintainable platform with features, improvements, and bugfixes that current users of Wikidot need today.
 
-This project is being primarily developed by the English SCP Wiki's [Technical Team](http://05command.wikidot.com/technical-staff-main) as part of Project Foundation, however other contributors are welcome.
-Issues are tracked on our [Jira](https://scuttle.atlassian.net/browse/WJ).
+The upstream project is being primarily developed by the English SCP Wiki's [Technical Team](http://05command.wikidot.com/technical-staff-main) as part of Project Foundation, however other contributors are welcome.
+Upstream issues are tracked on [Jira](https://scuttle.atlassian.net/browse/WJ).
 
-Questions and comments can be posted in our [General Information forum](https://scpwiki.com/forum/c-3335628/general-information), or in [`#site11` on SkipIRC](https://scpwiki.com/chat-guide).
+Questions and comments for the upstream project can be posted in the [General Information forum](https://scpwiki.com/forum/c-3335628/general-information), or in [`#site11` on SkipIRC](https://scpwiki.com/chat-guide).
 
 ## Contributing
 
-We welcome any suggestions or requests, which can be made in our [Feature Requests forum](https://scpwiki.com/forum/c-3335630/feature-requests).
+Fork-local changes should be validated in this repository before any upstream submission is prepared.
+Upstream suggestions or requests can be made in the [Feature Requests forum](https://scpwiki.com/forum/c-3335630/feature-requests).
 
 If you would like to volunteer some of your time to Wikijump development, join the Discord and chat with us! (Invites can be received in `#site11` or by DMing a current Wikijump team member).
 
