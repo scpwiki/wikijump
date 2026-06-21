@@ -19,6 +19,7 @@
  */
 
 use ftml::data::KarmaLevel;
+use std::net::IpAddr;
 use time::{Date, OffsetDateTime};
 
 #[derive(Deserialize, Debug)]
@@ -71,4 +72,5 @@ pub struct ImportPage {
     pub slug: String,
     pub locked: bool,
     pub discussion_thread_id: Option<i64>,
+    pub ip_address: IpAddr,
 }

@@ -30,11 +30,14 @@
 #![allow(dead_code)]
 
 use super::prelude::*;
+use crate::constants::SYSTEM_USER_ID;
 use crate::models::page::{self, Entity as Page};
 use crate::models::page_category::Model as PageCategoryModel;
 use crate::models::site::{self, Entity as Site};
 use crate::models::wikidot_user::{self, Entity as WikidotUser};
+use crate::services::page_lock::{CreatePageLockInput, PageLockService};
 use crate::services::{BlobService, CategoryService};
+use crate::types::PageLockType;
 use crate::utils::get_category_name;
 
 #[derive(Debug)]
@@ -149,6 +152,7 @@ impl ImportService {
             slug,
             locked,
             discussion_thread_id,
+            ip_address,
         }: ImportPage,
     ) -> Result<()> {
         info!("Creating page '{slug}' in site ID {site_id}");
@@ -182,13 +186,28 @@ impl ImportService {
             discussion_thread_id: Set(discussion_thread_id),
             ..Default::default()
         };
+        Page::insert(page).exec(txn).await.or_raise(make_error)?;
 
         // If locked, add that too
         if locked {
-            // TODO
+            PageLockService::create(
+                ctx,
+                site_id,
+                SYSTEM_USER_ID,
+                Reference::Id(page_id),
+                CreatePageLockInput {
+                    from_wikidot: true,
+                    lock_type: PageLockType::Wikidot,
+                    reason: None,
+                    expires_at: None,
+                    override_existing: false,
+                    ip_address,
+                },
+            )
+            .await
+            .or_raise(make_error)?;
         }
 
-        Page::insert(page).exec(txn).await.or_raise(make_error)?;
         Ok(())
     }
 
