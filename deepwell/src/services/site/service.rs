@@ -254,7 +254,7 @@ impl SiteService {
         }
 
         if let Maybe::Set(new_slug) = input.slug {
-            Self::update_slug(ctx, &site, &new_slug, updating_user_id)
+            Self::update_slug(ctx, &site, &new_slug, updating_user_id, ip_address)
                 .await
                 .or_raise(make_error)?;
 
@@ -379,6 +379,7 @@ impl SiteService {
         site: &SiteModel,
         new_slug: &str,
         user_id: i64,
+        ip_address: IpAddr,
     ) -> Result<()> {
         info!("Updating slug for site {}, adding alias", site.site_id);
         let old_slug = &site.slug;
@@ -424,6 +425,7 @@ impl SiteService {
                         target_id: site.site_id,
                         created_by: user_id,
                         bypass_filter: true, // sites don't have filters
+                        ip_address,
                     },
                     false,
                 )

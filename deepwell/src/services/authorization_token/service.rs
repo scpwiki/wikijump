@@ -22,6 +22,7 @@ use super::prelude::*;
 use crate::models::authorization_token::{
     self, Entity as AuthorizationToken, Model as AuthorizationTokenModel,
 };
+use crate::services::audit::{AuditEvent, AuditService};
 use crate::types::ArrayLength;
 use std::net::IpAddr;
 use uuid::Uuid;
@@ -55,6 +56,18 @@ impl AuthorizationTokenService {
             )
         };
 
+        AuditService::log(
+            ctx,
+            ip_address,
+            AuditEvent::AuthorizationTokenCreate {
+                user_id: creating_user_id,
+                object_type,
+                description: &description,
+            },
+        )
+        .await
+        .or_raise(make_error)?;
+
         let txn = ctx.transaction();
         let model = authorization_token::ActiveModel {
             token_value: Set(token.clone()),
@@ -62,9 +75,6 @@ impl AuthorizationTokenService {
             description: Set(description),
             ..Default::default()
         };
-
-        // TODO audit log
-        let _ = ip_address;
 
         AuthorizationToken::insert(model)
             .exec(txn)
@@ -153,8 +163,17 @@ impl AuthorizationTokenService {
             .await
             .or_raise(make_error)?;
 
-        // TODO audit log
-        let _ = ip_address;
+        AuditService::log(
+            ctx,
+            ip_address,
+            AuditEvent::AuthorizationTokenVerify {
+                object_type,
+                token,
+                token_id,
+            },
+        )
+        .await
+        .or_raise(make_error)?;
 
         Ok(())
     }

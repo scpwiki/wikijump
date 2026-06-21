@@ -19,6 +19,7 @@
  */
 
 use crate::types::AliasType;
+use std::net::IpAddr;
 
 #[derive(Deserialize, Debug)]
 pub struct CreateAlias {
@@ -29,6 +30,7 @@ pub struct CreateAlias {
 
     #[serde(default)]
     pub bypass_filter: bool,
+    pub ip_address: IpAddr,
 }
 
 #[derive(Serialize, Debug)]

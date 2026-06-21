@@ -24,6 +24,7 @@ use crate::models::file::{self, Entity as File, Model as FileModel};
 use crate::models::file_revision::{
     self, Entity as FileRevision, Model as FileRevisionModel,
 };
+use crate::services::audit::{AuditEvent, AuditService, ObjectScope};
 use crate::services::blob::{EMPTY_BLOB_HASH, EMPTY_BLOB_MIME, FinalizeBlobUploadOutput};
 use crate::services::file_revision::{
     CreateFileRevision, CreateFileRevisionBody, CreateFirstFileRevision,
@@ -35,6 +36,7 @@ use crate::services::{BlobService, FileRevisionService, FilterService, PageServi
 use crate::types::{FileOrder, FileRevisionType};
 use crate::utils::trim_spaces_in_place;
 use sea_orm::ActiveValue;
+use std::net::IpAddr;
 
 pub const MAXIMUM_FILE_NAME_LENGTH: usize = 256;
 
@@ -59,6 +61,7 @@ impl FileService {
             revision_comments,
             user_id,
             bypass_filter,
+            ip_address,
         }: CreateFile,
     ) -> Result<CreateFileOutput> {
         info!("Creating file with name '{name}'");
@@ -86,7 +89,7 @@ impl FileService {
 
         // Perform filter validation
         if !bypass_filter {
-            Self::run_filter(ctx, site_id, Some(&name))
+            Self::run_filter(ctx, site_id, None, Some(&name), ip_address)
                 .await
                 .or_raise(make_error)?;
         }
@@ -142,6 +145,8 @@ impl FileService {
         .await
         .or_raise(make_error)?;
 
+        // TODO audit log
+
         Ok(output)
     }
 
@@ -157,6 +162,7 @@ impl FileService {
             revision_comments,
             bypass_filter,
             body,
+            ip_address,
         }: EditFile,
     ) -> Result<Option<EditFileOutput>> {
         info!("Editing file with ID {file_id}");
@@ -201,7 +207,7 @@ impl FileService {
                 .or_raise(make_error)?;
 
             if !bypass_filter {
-                Self::run_filter(ctx, site_id, Some(name))
+                Self::run_filter(ctx, site_id, Some(file_id), Some(name), ip_address)
                     .await
                     .or_raise(make_error)?;
             }
@@ -588,6 +594,7 @@ impl FileService {
             revision_comments,
             user_id,
             bypass_filter,
+            ip_address,
         }: RollbackFile<'_>,
     ) -> Result<Option<EditFileOutput>> {
         let txn = ctx.transaction();
@@ -658,7 +665,7 @@ impl FileService {
                 .or_raise(make_error)?;
 
             if !bypass_filter {
-                Self::run_filter(ctx, site_id, Some(&name))
+                Self::run_filter(ctx, site_id, Some(file_id), Some(&name), ip_address)
                     .await
                     .or_raise(make_error)?;
             }
@@ -963,7 +970,9 @@ impl FileService {
     async fn run_filter(
         ctx: &ServiceContext<'_>,
         site_id: i64,
+        file_id: Option<i64>,
         name: Option<&str>,
+        ip_address: IpAddr,
     ) -> Result<()> {
         info!("Checking file data against filters...");
 
@@ -986,8 +995,13 @@ impl FileService {
             .await
             .or_raise(make_error)?;
 
+            let object = match file_id {
+                Some(id) => ObjectScope::File(id),
+                None => ObjectScope::Other,
+            };
+
             filter_matcher
-                .verify(ctx, "filename", name)
+                .verify(ctx, "filename", name, object, ip_address)
                 .await
                 .or_raise(make_error)?;
         }

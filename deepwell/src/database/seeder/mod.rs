@@ -215,6 +215,7 @@ pub async fn seed(state: &ServerState) -> Result<()> {
                     target_id: user_id,
                     created_by: SYSTEM_USER_ID,
                     bypass_filter: true,
+                    ip_address: SEED_IP_ADDRESS,
                 },
             )
             .await
@@ -255,6 +256,7 @@ pub async fn seed(state: &ServerState) -> Result<()> {
                     target_id: site_id,
                     created_by: SYSTEM_USER_ID,
                     bypass_filter: true,
+                    ip_address: SEED_IP_ADDRESS,
                 },
             )
             .await
@@ -428,6 +430,7 @@ pub async fn seed(state: &ServerState) -> Result<()> {
                             revision_comments: str!(),
                             user_id: SYSTEM_USER_ID,
                             bypass_filter: true,
+                            ip_address: SEED_IP_ADDRESS,
                         },
                     )
                     .await
@@ -456,6 +459,7 @@ pub async fn seed(state: &ServerState) -> Result<()> {
                                     uploaded_blob_id: Maybe::Set(str!()),
                                     direct_upload: Maybe::Set(data),
                                 },
+                                ip_address: SEED_IP_ADDRESS,
                             },
                         )
                         .await

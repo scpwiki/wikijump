@@ -20,6 +20,8 @@
 
 use super::prelude::*;
 use crate::license::License;
+use crate::services::authorization_token::AuthorizedObject;
+use crate::services::filter::FilterSummary;
 use crate::types::{PageLockType, Permission};
 use ftml::layout::Layout;
 use sea_orm::prelude::TimeDateTimeWithTimeZone;
@@ -104,6 +106,12 @@ pub enum AuditEvent<'a> {
         page_id: i64,
         layout: Option<Layout>,
     },
+    FilterViolation {
+        object: ObjectScope,
+        info: &'a FilterSummary,
+        field: &'a str,
+        value: &'a str,
+    },
     RoleCreate {
         site_id: i64,
         role_id: i64,
@@ -154,6 +162,16 @@ pub enum AuditEvent<'a> {
         page_id: i64,
         page_lock_id: i64,
         lock_type: PageLockType,
+    },
+    AuthorizationTokenCreate {
+        user_id: i64,
+        object_type: AuthorizedObject,
+        description: &'a str,
+    },
+    AuthorizationTokenVerify {
+        token: &'a str,
+        token_id: i32,
+        object_type: AuthorizedObject,
     },
 }
 
@@ -378,6 +396,50 @@ impl<'a> AuditEvent<'a> {
                 extra_string_2: None,
                 extra_number: None,
             },
+            AuditEvent::FilterViolation {
+                object,
+                info,
+                field,
+                value,
+            } => {
+                #[derive(Serialize, Debug)]
+                struct Metadata<'a> {
+                    #[serde(flatten)]
+                    info: &'a FilterSummary,
+                    field: &'a str,
+                    value: &'a str,
+                }
+
+                let mut user_id = None;
+                let mut site_id = None;
+                let mut page_id = None;
+                let mut extra_id_1 = None;
+
+                match object {
+                    ObjectScope::User(id) => user_id = Some(id),
+                    ObjectScope::Site(id) => site_id = Some(id),
+                    ObjectScope::Page(id) => page_id = Some(id),
+                    ObjectScope::File(id) => extra_id_1 = Some(id),
+                    ObjectScope::Other => (),
+                }
+
+                let metadata_json =
+                    serde_json::to_string(&Metadata { info, field, value })
+                        .or_raise(make_error)?;
+
+                RawAuditEvent {
+                    event_type: "filter.violation",
+                    ip_address,
+                    user_id,
+                    site_id,
+                    page_id,
+                    extra_id_1,
+                    extra_id_2: None,
+                    extra_string_1: Some(Cow::Owned(metadata_json)),
+                    extra_string_2: None,
+                    extra_number: None,
+                }
+            }
             AuditEvent::RoleCreate {
                 site_id,
                 role_id,
@@ -534,6 +596,48 @@ impl<'a> AuditEvent<'a> {
                 extra_string_2: None,
                 extra_number: None,
             },
+            AuditEvent::AuthorizationTokenCreate {
+                user_id,
+                object_type,
+                description,
+            } => {
+                #[derive(Serialize, Debug)]
+                struct Metadata<'a> {
+                    description: &'a str,
+                }
+
+                let metadata_json = serde_json::to_string(&Metadata { description })
+                    .or_raise(make_error)?;
+
+                RawAuditEvent {
+                    event_type: "authorization_token.create",
+                    ip_address,
+                    user_id: Some(user_id),
+                    site_id: None,
+                    page_id: None,
+                    extra_id_1: None,
+                    extra_id_2: None,
+                    extra_string_1: Some(Cow::Borrowed(object_type.name())),
+                    extra_string_2: Some(Cow::Owned(metadata_json)),
+                    extra_number: None,
+                }
+            }
+            AuditEvent::AuthorizationTokenVerify {
+                token,
+                token_id,
+                object_type,
+            } => RawAuditEvent {
+                event_type: "authorization_token.verify",
+                ip_address,
+                user_id: None,
+                site_id: None,
+                page_id: None,
+                extra_id_1: Some(i64::from(token_id)),
+                extra_id_2: None,
+                extra_string_1: Some(Cow::Borrowed(object_type.name())),
+                extra_string_2: Some(Cow::Owned(str!(token))),
+                extra_number: None,
+            },
         };
 
         Ok(raw_event)
@@ -556,6 +660,15 @@ pub struct RawAuditEvent<'a> {
 }
 
 // Ancillary structures
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum ObjectScope {
+    User(i64),
+    Site(i64),
+    Page(i64),
+    File(i64),
+    Other,
+}
 
 #[derive(Serialize, Debug, Clone, Default)]
 #[serde(default)]

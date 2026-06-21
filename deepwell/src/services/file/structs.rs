@@ -23,6 +23,7 @@ use crate::services::file_revision::{
 };
 use crate::types::{Bytes, FileDetails, FileRevisionType, Maybe, Reference};
 use serde_json::Value as JsonValue;
+use std::net::IpAddr;
 use time::OffsetDateTime;
 
 #[derive(Deserialize, Debug, Clone)]
@@ -36,6 +37,7 @@ pub struct CreateFile {
 
     #[serde(default)]
     pub bypass_filter: bool,
+    pub ip_address: IpAddr,
 
     /// Allows internal users to upload directly.
     /// When this is present, the value of `uploaded_blob_id` is ignored.
@@ -113,6 +115,7 @@ pub struct EditFile {
 
     #[serde(default)]
     pub bypass_filter: bool,
+    pub ip_address: IpAddr,
 }
 
 #[derive(Deserialize, Debug, Default, Clone)]
@@ -195,4 +198,5 @@ pub struct RollbackFile<'a> {
 
     #[serde(default)]
     pub bypass_filter: bool,
+    pub ip_address: IpAddr,
 }

@@ -22,7 +22,7 @@ use super::prelude::*;
 use crate::models::page::{self, Entity as Page, Model as PageModel};
 use crate::models::page_category::Model as PageCategoryModel;
 use crate::models::page_revision::Model as PageRevisionModel;
-use crate::services::audit::{AuditEvent, AuditService};
+use crate::services::audit::{AuditEvent, AuditService, ObjectScope};
 use crate::services::filter::{FilterClass, FilterType};
 use crate::services::page_revision::{
     CreateFirstPageRevision, CreateFirstPageRevisionOutput, CreatePageRevision,
@@ -41,6 +41,7 @@ use crate::utils::{get_category_name, trim_default};
 use ftml::layout::Layout;
 use ref_map::*;
 use sea_orm::ActiveValue;
+use std::net::IpAddr;
 use wikidot_normalize::normalize;
 
 #[derive(Debug)]
@@ -87,9 +88,11 @@ impl PageService {
             Self::run_filter(
                 ctx,
                 site_id,
+                None,
                 Some(&wikitext),
                 Some(&title),
                 alt_title.as_ref(),
+                ip_address,
             )
             .await
             .or_raise(make_error)?;
@@ -219,6 +222,7 @@ impl PageService {
         Self::run_filter(
             ctx,
             site_id,
+            Some(page_id),
             wikitext.to_option(),
             title.to_option(),
             // Flatten what is essentially Option<Option<_>>
@@ -226,6 +230,7 @@ impl PageService {
                 Maybe::Set(Some(ref alt_title)) => Some(alt_title),
                 _ => None,
             },
+            ip_address,
         )
         .await
         .or_raise(make_error)?;
@@ -1201,9 +1206,11 @@ impl PageService {
     async fn run_filter<S: AsRef<str>>(
         ctx: &ServiceContext<'_>,
         site_id: i64,
+        page_id: Option<i64>,
         wikitext: Option<S>,
         title: Option<S>,
         alt_title: Option<S>,
+        ip_address: IpAddr,
     ) -> Result<()> {
         info!("Checking page data against filters...");
 
@@ -1222,10 +1229,19 @@ impl PageService {
                 async {
                     match $field {
                         None => Ok(()),
-                        Some(value) => filter_matcher
-                            .verify(ctx, stringify!($field), value.as_ref())
-                            .await
-                            .or_raise(make_error),
+                        Some(value) => {
+                            let field = stringify!($field);
+                            let value = value.as_ref();
+                            let object = match page_id {
+                                Some(id) => ObjectScope::Page(id),
+                                None => ObjectScope::Other,
+                            };
+
+                            filter_matcher
+                                .verify(ctx, field, value, object, ip_address)
+                                .await
+                                .or_raise(make_error)
+                        }
                     }
                 }
             };

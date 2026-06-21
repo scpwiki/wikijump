@@ -35,6 +35,15 @@ pub enum AuthorizedObject {
 
 impl AuthorizedObject {
     #[inline]
+    pub fn name(self) -> &'static str {
+        match self {
+            AuthorizedObject::Site => "site",
+            AuthorizedObject::User => "user",
+            AuthorizedObject::BotUser => "bot-user",
+        }
+    }
+
+    #[inline]
     pub fn code(self) -> char {
         match self {
             AuthorizedObject::Site => 'S',
