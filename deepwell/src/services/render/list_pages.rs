@@ -24,6 +24,7 @@ use crate::services::page_query::{
     OrderBySelector, OrderProperty, PageParentSelector, PageQuery, PageTypeSelector,
     PaginationSelector, RangeSelector, TagCondition,
 };
+use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::services::{PageQueryService, PageRevisionService};
 use crate::types::{Action, PageId, Permission, Resource};
 use regex::Regex;
@@ -283,18 +284,25 @@ async fn select_fragment(
     let page_category_id = selected
         .page_category_id
         .expect("ListPages query requested selected page category IDs");
-    let has_read_permission = ctx
-        .user_has_permission(Permission {
+    let anonymously_viewable = PermissionService::check_user_can(
+        ctx,
+        &CheckPermissionContext {
+            user_id: None,
+            site_id: selected.site_id,
+            page_reference: Some(Reference::Id(selected.page_id)),
+        },
+        Permission {
             resource_type: Resource::Page,
             resource_category: Some(Reference::Id(page_category_id)),
             action: Action::View,
-        })
-        .await?;
+        },
+    )
+    .await?;
 
-    if !has_read_permission {
+    if !anonymously_viewable {
         warn!(
-            "Skipping ListPages child page ID {} for page ID {} because the current user cannot view category ID {}",
-            selected.page_id, page_id.page_id, page_category_id,
+            "Skipping ListPages child page ID {} for page ID {} because it is not safe to cache for anonymous viewers",
+            selected.page_id, page_id.page_id,
         );
         return Ok(None);
     }

@@ -469,6 +469,21 @@ async fn set_page_created_at(runner: &TestRunner, page_id: i64, created_at: &str
         .expect("failed to set deterministic page creation timestamp");
 }
 
+async fn set_page_deleted_at(runner: &TestRunner, page_id: i64, deleted_at: &str) {
+    let transaction = runner.context().transaction();
+    let statement = Statement::from_string(
+        transaction.get_database_backend(),
+        format!(
+            "UPDATE \"page\" SET deleted_at = TIMESTAMPTZ '{deleted_at}' WHERE page_id = {page_id}",
+        ),
+    );
+
+    transaction
+        .execute(statement)
+        .await
+        .expect("failed to set deterministic page deletion timestamp");
+}
+
 #[tokio::test]
 async fn scp8980_listpages_expands_first_child_in_page_get_compiled_html() {
     const MAIN_SLUG: &str = "scp-8980";
@@ -685,6 +700,55 @@ async fn scp8980_listpages_expands_first_child_in_page_get_compiled_html() {
             "compiled SCP-8980 should not contain {unexpected:?}:\n{html}",
         );
     }
+
+    set_page_deleted_at(&runner, fragment_1.page_id, "2024-10-06T16:02:00Z").await;
+    let rerender_after_delete = run_endpoint!(
+        runner,
+        page_edit,
+        json!({
+            "site_id": site_id,
+            "page": main.page_id,
+            "last_revision_id": main.revision_id,
+            "revision_comments": "rerender after deleting the first ListPages child",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(
+        rerender_after_delete.is_none(),
+        "deletion-only rerender should not create a page revision",
+    );
+
+    let page_after_delete = deepwell::endpoints::all::page_get(
+        runner.context(),
+        common::make_params(json!({
+            "site_id": site_id,
+            "page": MAIN_SLUG,
+            "details": {
+                "compiled": true
+            },
+        })),
+    )
+    .await
+    .expect("SCP-8980 page_get after deleting fragment 1 should succeed")
+    .expect("SCP-8980 page_get after deleting fragment 1 should return page data");
+    let html_after_delete = page_after_delete
+        .compiled_body_html
+        .expect("compiled body should be included after deleting fragment 1");
+
+    assert!(
+        html_after_delete.contains("height:55vh"),
+        "compiled SCP-8980 should skip the deleted first fragment and select fragment 2:\n{html_after_delete}",
+    );
+    assert!(
+        html_after_delete
+            .contains("You are currently reading the accessibility mode of SCP-8980"),
+        "compiled SCP-8980 should include the second fragment accessibility marker after fragment 1 deletion:\n{html_after_delete}",
+    );
+    assert!(
+        !html_after_delete.contains("height:70vh"),
+        "compiled SCP-8980 should not include deleted fragment 1 layout marker:\n{html_after_delete}",
+    );
 }
 
 #[tokio::test]

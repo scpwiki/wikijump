@@ -84,6 +84,9 @@ impl PageQueryService {
         condition = condition.add(page::Column::SiteId.eq(queried_site_id));
         debug!("Selecting pages from site ID: {queried_site_id}");
 
+        condition = condition.add(page::Column::DeletedAt.is_null());
+        debug!("Excluding deleted pages from ListPages query results");
+
         // Page Type
         // TODO track https://github.com/SeaQL/sea-orm/issues/1746
         let hidden_condition = page::Column::Slug.starts_with("_");
