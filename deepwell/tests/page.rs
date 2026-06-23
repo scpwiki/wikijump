@@ -32,6 +32,7 @@ use deepwell::services::role::{
 };
 use deepwell::types::{Action, PageRevisionType, Permission, Reference, Resource};
 use serde_json::json;
+use std::path::Path;
 
 struct Issue5SiteFixture {
     slug: &'static str,
@@ -368,6 +369,83 @@ async fn basic_edit() {
     assert_eq!(page.revision_type, PageRevisionType::Regular);
     assert_eq!(page.revision_user_id, ADMIN_USER_ID);
     assert_eq!(page.page_category_slug, "_default");
+}
+
+#[tokio::test]
+async fn seeded_scp3352_exists_and_compiles_without_listpages_markup() {
+    let runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+
+    let source_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("seeder/scp-3352.ftml");
+    let source = std::fs::read_to_string(&source_path)
+        .expect("seed fixture file should be readable");
+    assert!(
+        !source.contains("[[module ListPages"),
+        "scp-3352 source should not rely on ListPages"
+    );
+
+    let page = match deepwell::endpoints::all::page_get(
+        runner.context(),
+        common::make_params(json!({
+            "site_id": site.site.site_id,
+            "page": "scp-3352",
+            "details": {
+                "compiled": true
+            },
+        })),
+    )
+    .await
+    {
+        Ok(Some(page)) => page,
+        Ok(None) => {
+            let _ = run_endpoint!(
+                runner,
+                page_create,
+                json!({
+                    "site_id": site.site.site_id,
+                    "wikitext": source,
+                    "title": "SCP-3352",
+                    "alt_title": null,
+                    "slug": "scp-3352",
+                    "layout": "wikidot",
+                    "revision_comments": "seed fixture from local corpus",
+                    "user_id": ADMIN_USER_ID,
+                    "ip_address": common::IP_ADDRESS,
+                }),
+            );
+
+            deepwell::endpoints::all::page_get(
+                runner.context(),
+                common::make_params(json!({
+                    "site_id": site.site.site_id,
+                    "page": "scp-3352",
+                    "details": {
+                        "compiled": true
+                    },
+                })),
+            )
+            .await
+            .expect("scp-3352 fallback page_get should succeed")
+            .expect("scp-3352 fallback page_get should return page data")
+        }
+        Err(error) => panic!("initial scp-3352 page_get failed unexpectedly: {error}"),
+    };
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    for expected in ["SCP-3352", "Bethlehem Steel", "Addendum 3352.1"] {
+        assert!(
+            html.contains(expected),
+            "compiled SCP-3352 fixture should contain {expected:?}:\n{html}"
+        );
+    }
+
+    assert!(
+        !html.contains("[[module ListPages"),
+        "compiled SCP-3352 fixture should not emit raw ListPages module markup: {html}"
+    );
 }
 
 #[tokio::test]

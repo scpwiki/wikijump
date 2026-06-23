@@ -1,0 +1,147 @@
+[[module CSS]]
+blockquote {display: flow-root}
+[[/module]]
+
+[[include :scp-wiki:info:start]]
+**SCP-3352:** Bethlehem Steel
+**Author:** [[*user the great hippo]]
+**Images:** [https://commons.wikimedia.org/wiki/File:Anacortes_Refinery_31904.JPG Link] -- all other images are mine (and released as CC 3.0). 
+
+**Music:** [https://youtu.be/2yIELWjG8Tc We All Lift Together] - Keith Power
+----
+[[include :scpsandbox2:hippo]]
+[[include :scp-wiki:info:more]]
+[[include :scp-wiki:info:end]]
+
+----
+[[include :scp-wiki:component:classified-decoration
+|lv=2
+|item=3352
+|oc=Neutralized
+|lang=EN
+]]
+----
+[[include component:image-block name=steel.png|align=center|width=100%|caption=**{{Fig 1.1: }}** Hardwick Petroleum Refinery (circa 1991).]]
+
+**Special Containment Procedures:** The Hardwick Petroleum Refinery has been closed since 1992; the property was purchased by Foundation assets and remains under surveillance. Negotiations with the local city government for its demolition are underway. 
+
+**Description:** SCP-3352 is an anomalous event that occurred on July 2nd, 1992 at the Hardwick Petroleum Refinery (located in the city of Hardwick, Pennsylvania). This event happened in the 476HF alkylation unit -- a unit that converts isobutane and other light alkenes (primarily propylene and butylene) into alkylate (a component of high-octane gasolines).
+
+[[include component:image-block name=steel2.png|caption=**{{Fig 1.2:}}** I-beam inscription.]]
+
+SCP-3352 is associated with a single rigid steel I-beam located in 476HF. This beam supports a pipeline attached to 476HF's reactors via an MOV (motor-operated valve). The line was part of 476HF's emergency shutdown system, providing a means to swiftly shunt hydrofluoric acid (used for alkylation) into a deinventory vessel 2.5km away. An inscription on the I-beam's upper half reads: 
+
+> **{{GOD BLESS U.S. BETHLEHEM "I" BEAM STEEL.}}**
+> 
+>  **{{MSW}}** 
+
+It is otherwise unremarkable. 
+
+**Addendum 3352.1:** 
+
+[[include component:image-block name=steel3.png|caption=**{{Fig 1.3:}}** Hydrogen heat-exchanger array (circa 1991).]]
+
+At approx. 2:00 am on July 2nd, 1992, a fire ignited off the elbow-flange of a heat-exchanger located in 386 (a catalytic reformer unit). The on-duty operator reported this to the shift-supervisor, but -- after several failed attempts to snuff the fire with steam -- was told to take no further action.
+
+At 3:45 am, the flange experienced a catastrophic failure. Burning high-pressure hydrogen melted several adjacent exchangers, producing a chain reaction. The resulting detonation killed the operator on the unit and ejected burning debris as far as 5km.
+
+During a 1993 inquiry, William Parridge (386's lead operator) described the event: 
+
+> I was in a truck delivering samples to the lab when it happened. One moment it's night... and then? Outta no where, it's day again. Next came the boom. Jesus Christ, what a sound. Like somebody just dropped a skyscraper right behind me. 
+> 
+> I knew right then it was the exchangers -- I'd told them to fix those things again and again. I should have shut them down. I should have shut the whole unit down the first time they started lighting off.
+> 
+> By the time I got to the fire... that's when the second explosion hit. 
+
+4 operators from an adjacent unit and the shift supervisor (Bryan Burton) attempted to use the refinery's internal fire-water system to fight the massive blaze. The lone surviving operator (Daniel Ruhl) gave the following testimony: 
+
+> I tell him. I fucking tell him. There's ice on the fucking fire hydrants, you stupid fuck! I scream it in his face. But the fucking... he won't listen. He just keeps saying we need water, need to cool the pipes down, need to keep the fire under control. 
+> 
+> And I keep screaming -- there's ice! On! The! Fucking! Hydrants!
+> 
+> He looks up at me, this short little fuck who probably got this job from Daddy, who don't know the first thing about crude, who probably ain't ever heard the word 'No' in his entire life... he looks up at me, and now there's this look in his eyes. He says, real soft... Either open that line up or get out of my way. 
+> 
+> And then, I look at those kids holding that hose -- I look right back at him, right in his eyes -- I fold my arms over my chest, plant myself down like a tree, and I tell him: No.
+> 
+> That fucker //cold-cocks me!// Just straight-up breaks three of my teeth with a steel spanner. I swear to God, it looked brand new, too -- probably the first time the little shit's used it. I drop like a sack of bricks and he just starts hollering, spitting, screaming -- kicking me. I curl up into a ball and roll away. Next thing I know, he's at the hydrant, he's opening that line, and -- and then -- fuck.
+> 
+> He was a little shit, but those kids didn't deserve that. Nobody deserves that. 
+
+Unbeknownst to refinery personnel, the internal fire-water system had been compromised a week prior. A shift supervisor defied procedure by using a fire-hydrant to flush what he believed to be an out-of-service vessel. This vessel was, in fact, still in service -- and had been backing high-pressure liquid propane into the fire-water system for eight days.
+
+Liquid propane depressurized through the hose, rapidly dropping its temperature and freezing  both the supervisor and 3 of the operators to it. Despite ripping portions of their arms free, all four perished when the propane cloud ignited.
+
+Immediately after this second explosion, operators initiated emergency shut-downs on all units. This included the activation of 476HF's emergency shutdown system. In 1993, Jefferson Reeds, one of the refinery's engineers, explained how the system worked: 
+
+> Ask a chemist to compile a list of their top-ten 'Worst Chemicals to Work With', and hydrofluoric acid... it might not make number 1, but it's making the list. Sulfuric acid is safer, but you need a lot more of it for alkylation. So... HF is the way to go if you want to save a buck.
+> 
+> But I cannot over-emphasize: This is horrible, horrible stuff. 
+> 
+> For starters, it burns through just about anything. That includes glass. When you get some on you, it doesn't just burn your skin. It screws with your nervous system and slips into your bloodstream. There, it can disrupt your body's ability to metabolize calcium -- giving you a heart-attack. It boils at room temperature and, quite literally, eats your bones. 
+> 
+> In short? Get splashed with a quart of this stuff and there's a pretty fair chance you'll be dead in 24 hours.
+> 
+> The low boiling point is what makes it a real problem, though. You think a vat of bone-eating acid is bad? Now imagine it's a burning cloud of bone-eating acid. Imagine that cloud is rolling through the town we're built on top of. If the wind's blowing the right way...? An HF cloud can kill thousands. //Tens// of thousands. It could take out the whole city of Hardwick.
+> 
+> That's why we installed the emergency shutdown system. A fire breaks out, you slam this button, and two dozen fire-monitors douse the unit with several million gallons of water. While the HF is getting cooled down to a liquid-state, it's also getting shunted to a deinventory tank way off-site. When Michelle hit that button, she was making the right call. It's the call I would have made, too.
+> 
+> How could she... how the hell could //any// of us have known the fire-water system was loaded with frigging propane?!
+
+[[include component:image-block name=steel1.png|caption=**{{Fig 1.4:}}** Last frame of security footage from 476HF's pipe alley prior to signal loss.]]
+
+At 4:07 AM, Michelle Dunwick -- 476HF's lead operator -- activated the emergency shutdown system. All 18 fire-monitors opened to the fire-water system, ejecting high-pressure liquid propane directly into 476HF's pipe alley. Once the propane cloud ignited, the MOV for the deinventory system melted shut -- trapping over half a million gallons of rapidly-expanding hydrofluoric acid inside an alkylation unit that was now on fire.
+
+Tanya Sullivan, part of the refinery's ERT (emergency-response team), described the situation:
+
+> We'd just realized the refinery's whole fire-water system was full of propane -- we were switching over to city-water to try and fight the blaze -- when 476 lit up. Then we were told the MOV failed. 476 was burning //and// full of boiling acid. If that acid kept getting hotter... the whole unit would blow.
+> 
+> That's when we knew this place was done for. No way we'd still be running -- not after this. But at that point... it wasn't about saving our jobs. Not anymore. At that point...
+> 
+> Look, you know the risk when you work in a shithole like this. If fire don't get you, the cancer from all the toxins will. But if 476 blew... it wouldn't just take //us//. It'd take everything in a 3-mile radius.
+> 
+> When you build a refinery, you're putting everyone around it in the line of fire. That means something. Something is //owed//. The stakeholders, the owners, the supervisors -- none of them feel the weight of that debt. But someone has to. Someone has to lift that load.
+> 
+> That's why we all grabbed our shit and ran down to 476 as fast as our legs could carry us. Not to save our jobs, not to save the refinery, not even to save our own skin. We did it because this shithole might have been done for, but we'd be damned if we let it take anyone else with it. 
+
+As the ERT fought to cool down the flames, Matthew Watkins (a 476HF operator) ran down 476HF's burning pipe alley to manually operate the MOV's bypass and evacuate the boiling acid:
+
+> The valve was so hot that it melted through my gloves the instant I touched it. When I opened it, I could hear the acid hissing and crackling as it rushed through the deinventory line. But by the time I was peeling what was left of my wet, sticky palms off that hot metal... it was clear that it didn't matter anyway. 
+> 
+> You ever see concrete boil? It doesn't, not really. But if you hit it with enough heat -- hard enough, fast enough -- it turns brown, then gets soft... and all the pockets of water in it, all the other chemicals, they start boiling and bursting free. Like big, wet pools of bubbling tar -- belching out toxic fumes.
+> 
+> The whole pipe alley was like that. The ground, the pillars -- and the deinventory line's support struts. The fire-monitors were torching everything, and those torches were pointed right at all six struts. It was so hot that they had //blasted the concrete off the steel beams//. 
+> 
+> Five of the six beams were already slag. The line was sagging, just waiting for that last beam to give. Once it did, the deinventory line would snap -- and dump half a million gallons of boiling, acidic poison right atop the pipe alley and into the heart of this city.
+> 
+> I just stood there, surrounded by roaring flame, waiting for it to give. Waiting to die. Just trying to make peace with it -- that we'd done all we could, and it still wasn't enough to stop us from killing everyone. So I kept waiting. And waiting. And waiting. And...
+> 
+> ...I swear to God, it was ready to give. It was getting the worst of it. It was supposed to give. It //had// to give. By the end, it was glowing so bright I couldn't even look at it anymore. But...
+> 
+> For three minutes, the last thing -- the //only// thing -- standing between ten thousand souls and all the fires of hell was that thin solitary beam of Bethlehem steel. 
+> 
+> And the beam did not give. Not one goddamn inch.
+
+All five hundred thousand gallons of hydrofluoric acid were safely shunted to the deinventory vessel located off-site. Once the fires were extinguished, the refinery was closed and the disaster investigated. 
+
+Foundation researchers determined that although 476HF's I-beam had been exposed for several minutes to temperatures in excess of 2000 °C (well above steel's melting point), it had sustained no structural damage whatsoever.
+
+[[div class="footer-wikiwalk-nav"]]
+[[=]]
+<< [[[SCP-3351]]] | SCP-3352 | [[[SCP-3353]]] >>
+[[/=]]
+[[/div]]
+
+[[include :scp-wiki:component:license-box]]
+=====
+> **Filename:** steel.png
+> **Name:** File:Anacortes Refinery 31904.JPG
+> **Author:** Walter Siegmund 
+> **License:** CC BY 2.5
+> **Source Link:** [https://commons.wikimedia.org/wiki/File:Anacortes_Refinery_31904.JPG Wikimedia Commons]
+
+> **Filename:** steel1.png, steel2.png, steel3.png
+> **Author:** [[*user The Great Hippo]]
+> **License:** CC BY-SA 3.0
+> **Source Link:** [https://scp-wiki.wikidot.com/scp-3352 SCP Foundation Wiki]
+=====
+[[include :scp-wiki:component:license-box-end]]
