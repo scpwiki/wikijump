@@ -26,6 +26,28 @@
         "locale": "en"
     },
     {
+        "slug": "ai-translation",
+        "name": "AI Translation QA",
+        "domains": ["ai-translation.wikijump.dev", "ai-translation.localhost"],
+        "preferred-domain": "ai-translation.localhost",
+        "tagline": "Editable translation QA",
+        "description": "Editable site for generated and user translation drafts that do not mirror real SCP-JP by default.",
+        "layout": null,
+        "license": "cc-by-sa-3.0",
+        "locale": "ja"
+    },
+    {
+        "slug": "scp-jp",
+        "name": "SCP-JP (Mirror)",
+        "domains": ["scp-jp.wikijump.dev", "scp-jp.localhost"],
+        "preferred-domain": "scp-jp.localhost",
+        "tagline": "SCP-JP mirror placeholder",
+        "description": "Reserved mirror site for pages imported from real SCP-JP only.",
+        "layout": null,
+        "license": "cc-by-sa-3.0",
+        "locale": "ja"
+    },
+    {
         "slug": "template-en",
         "name": "Default template site",
         "tagline": "",

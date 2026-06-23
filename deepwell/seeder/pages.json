@@ -98,6 +98,20 @@
             "wikitext": "page-tags"
         }
     ],
+    "ai-translation": [
+        {
+            "slug": "boundary-check",
+            "title": "Boundary Check: AI Translation QA",
+            "wikitext": "issue5-ai-translation-boundary-check"
+        }
+    ],
+    "scp-jp": [
+        {
+            "slug": "boundary-check",
+            "title": "Boundary Check: SCP-JP Mirror",
+            "wikitext": "issue5-scp-jp-boundary-check"
+        }
+    ],
     "template-en": [
         {
             "slug": "start",

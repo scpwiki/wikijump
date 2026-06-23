@@ -150,3 +150,23 @@ you can enter this command to sync your time up:
 ```
 $ ntpd -d -q -n -p 0.pool.ntp.org
 ```
+
+## Corpus Sites and Domain Boundaries
+
+Wikijump runs multiple seeded sites in local development for different trust and import levels.
+
+- `ai-translation` is the editable local site for AI or user-generated translation work.
+  It is intentionally not a mirror of real SCP-JP and can hold drafts not yet published to Wikidot.
+- `scp-jp` is reserved as the mirror-style site for content that is expected to reflect the real
+  `scp-jp.wikidot.com` corpus.
+
+Publishing rule:
+
+Only content that is confirmed from the real SCP-JP source should be mirrored into `scp-jp`.
+Unpublished translation drafts (for example `SCP-9506` before external publication)
+should be imported into `ai-translation` instead, unless the real source page exists.
+
+Source convention reference:
+
+The local translation corpus is tied to `scp-jp.wikidot.com`; that origin naming
+should not be conflated with the mirror boundary behavior of `scp-jp`.
