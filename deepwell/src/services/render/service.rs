@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::list_pages::expand_list_pages;
 use super::prelude::*;
 use crate::hash::TextHash;
 use crate::services::TextService;
@@ -101,9 +102,19 @@ impl RenderService {
             html_output,
             errors,
             compiled_hash: compiled_body_html_hash,
-        } = Self::render_inner(ctx, wikitext, page_info, &page_settings, Some(page_id))
-            .await
-            .or_raise(make_error)?;
+        } = Self::render_inner(
+            ctx,
+            wikitext,
+            page_info,
+            &page_settings,
+            Some(PageId {
+                site_id,
+                category_id,
+                page_id,
+            }),
+        )
+        .await
+        .or_raise(make_error)?;
 
         let NavigationPageWikitext {
             top_bar_page_wikitext,
@@ -162,12 +173,27 @@ impl RenderService {
         mut wikitext: String,
         page_info: &PageInfo<'_>,
         settings: &WikitextSettings,
-        page_id: Option<i64>,
+        page_id: Option<PageId>,
     ) -> Result<RenderInnerOutput> {
         let config = ctx.config();
 
         let make_error =
             || Error::new("failed to perform render operation", ErrorType::Render);
+
+        if let Some(ref page_id) = page_id {
+            wikitext = timeout(
+                config.render_timeout,
+                expand_list_pages(ctx, wikitext, page_id),
+            )
+            .await
+            .or_raise(|| {
+                Error::new(
+                    "failed to expand ListPages due to timeout",
+                    ErrorType::RenderTimeout,
+                )
+            })?
+            .or_raise(make_error)?;
+        }
 
         // We isolate the actual tasks for rendering,
         // allowing us to time it out if it takes too long.
@@ -213,7 +239,7 @@ impl RenderService {
         // This only applies for published pages, in any other
         // rendering context and we should skip this step.
 
-        if let Some(page_id) = page_id {
+        if let Some(PageId { page_id, .. }) = page_id {
             // It's possible to render a page without doing text blocks
             // (e.g. blueprint pages), but all cases where text blocks
             // are done are pages.

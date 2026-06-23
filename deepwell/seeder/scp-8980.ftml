@@ -1,0 +1,95 @@
+[!--
+
+Listpages Fragments:
+
+https://scp-wiki.wikidot.com/fragment:scp-8980-1
+https://scp-wiki.wikidot.com/fragment:scp-8980-2
+
+--]
+
+[[module css]]
+#top-bar .ios-cache-issue-notification {
+  display: none !important;
+}
+[[/module]]
+
+[[module ListPages parent="." category="fragment" order="created_at" limit="1" offset="@URL|0"]]
+%%content%%
+[[/module]]
+
+@@ @@
+@@ @@
+@@ @@
+@@ @@
+@@ @@
+[[=]]
+[[div class="footer-wikiwalk-nav"]]
+<< [[[SCP-8979]]] | SCP-8980 | [[[SCP-8981]]] >>
+[[/div]]
+[[/=]]
+[[include :scp-wiki:component:license-box]]
+> **Filename:** fractal.webp
+> **Name:** Abox - Sphere 4D 8K HQ OpenCL 20200323 klein
+> **Author:** PantheraLeo1359531
+> **License:** Creative Commons Attribution 4.0 International
+> **Source Link:** [https://web.archive.org/web/20240912150048/https://commons.wikimedia.org/wiki/File:Abox_-_Sphere_4D_8K_HQ_OpenCL_20200323_klein.png Wikimedia Commons]
+> **Additional Notes:** Modified to be tinted green and changed to webp format.
+
+> **Filename:** ecw.png
+> **Name:** CQCcN7e
+> **Author:** [[*user EstrellaYoshte]]
+> **License:** Creative Commons Attribution-ShareAlike 3.0.
+> **Source Link:** [[[desk-of-junior-designer-s-yvonne|SCP Foundation]]]
+> **Additional Notes:** Inverted color.
+
+> **Filename:** femalescientist.png
+> **Name:** Véronique Cortier
+> **Author:** Anonymous
+> **License:** Creative Commons Attribution-Share Alike 4.0
+> **Source Link:** [https://web.archive.org/web/20240912144845/https://commons.wikimedia.org/wiki/File:V%C3%A9ronique_Cortier.jpg Wikimedia Commons]
+> **Additional Notes:** Modified to redact eyes.
+
+[[include :scp-wiki:component:license-box-end]]
+
+[[include :scp-wiki:fragment:scp-anthology-2024-earthworm
+| previous-url = scp-8380
+| previous-title = Aquaphobia
+| next-url = scp-8894
+| next-title = Basophobia
+| hub-url = scp-anthology-2024
+| hub-title = Anthology 2024
+]]
+
+[[module CSS]]
+
+.content-warning {
+    font-size: 100%;
+    font-weight: 900;
+}
+
+.earthworm--anth24 {
+    --anth24-accent: rgb(10, 70, 10) !important;
+}
+
+div.earthworm--anth24 .earthworm__hub::after {
+    background: #000;
+    filter: unset !important;
+}
+
+div.earthworm--anth24 .earthworm__previous:has(a:hover) {
+    background-image: linear-gradient(to right, #24f04d44, transparent);
+}
+
+div.earthworm--anth24 .earthworm__previous:has(a:hover) .earthworm__arrowhead, .earthworm--anth24 .earthworm__next:has(a:hover) .earthworm__arrowhead {
+    background-image: linear-gradient(to left, #24f04d44, #24f04d44);
+}
+
+div.earthworm--anth24 .earthworm__next:has(a:hover) {
+    background-image: linear-gradient(to left, #24f04d44, transparent);
+}
+
+.earthworm--anth24 a {
+    text-decoration: none !important;
+}
+
+[[/module]]

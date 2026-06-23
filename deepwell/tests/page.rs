@@ -24,16 +24,19 @@ mod common;
 use self::common::TestRunner;
 use deepwell::constants::ADMIN_USER_ID;
 use deepwell::error::prelude::*;
-use deepwell::services::RequestContext;
+use deepwell::services::parent::ParentDescription;
 use deepwell::services::permission::PermissionService;
 use deepwell::services::role::{
     GetUserRolesInput, GrantUserRoleInput, InternalCreateRoleInput, RoleService,
     UpdateRolePermissionsInput,
 };
+use deepwell::services::{ParentService, RequestContext};
 use deepwell::types::{Action, PageRevisionType, Permission, Reference, Resource};
+use sea_orm::{ConnectionTrait, Statement};
 use serde_json::json;
 use std::path::Path;
 
+#[allow(dead_code)]
 struct Issue5SiteFixture {
     slug: &'static str,
     name: &'static str,
@@ -70,10 +73,7 @@ const ISSUE5_SCP_JP_FIXTURE: Issue5SiteFixture = Issue5SiteFixture {
     description: "Reserved mirror site for pages imported from real SCP-JP only.",
     locale: "ja",
     preferred_domain: "scp-jp.localhost",
-    custom_domains: &[
-        ("scp-jp.wikijump.dev", false),
-        ("scp-jp.localhost", false),
-    ],
+    custom_domains: &[("scp-jp.wikijump.dev", false), ("scp-jp.localhost", false)],
     boundary_title: "Boundary Check: SCP-JP Mirror",
     boundary_wikitext: "== Issue 5 boundary check ==\nThis fixture ensures mirror pages stay isolated from editable AI translations.",
 };
@@ -113,8 +113,14 @@ async fn ensure_issue5_sites(runner: &mut TestRunner) -> (i64, i64) {
     )
     .expect("scp-jp boundary fixture missing");
 
-    assert_eq!(ai_boundary_output.title, ISSUE5_AI_TRANSLATION_FIXTURE.boundary_title);
-    assert_eq!(scp_boundary_output.title, ISSUE5_SCP_JP_FIXTURE.boundary_title);
+    assert_eq!(
+        ai_boundary_output.title,
+        ISSUE5_AI_TRANSLATION_FIXTURE.boundary_title
+    );
+    assert_eq!(
+        scp_boundary_output.title,
+        ISSUE5_SCP_JP_FIXTURE.boundary_title
+    );
 
     (ai_site_output.site.site_id, scp_site_output.site.site_id)
 }
@@ -448,6 +454,239 @@ async fn seeded_scp3352_exists_and_compiles_without_listpages_markup() {
     );
 }
 
+async fn set_page_created_at(runner: &TestRunner, page_id: i64, created_at: &str) {
+    let transaction = runner.context().transaction();
+    let statement = Statement::from_string(
+        transaction.get_database_backend(),
+        format!(
+            "UPDATE \"page\" SET created_at = TIMESTAMPTZ '{created_at}' WHERE page_id = {page_id}",
+        ),
+    );
+
+    transaction
+        .execute(statement)
+        .await
+        .expect("failed to set deterministic page creation timestamp");
+}
+
+#[tokio::test]
+async fn scp8980_listpages_expands_first_child_in_page_get_compiled_html() {
+    const MAIN_SLUG: &str = "scp-8980";
+    const FRAGMENT_1_SLUG: &str = "fragment:scp-8980-1";
+    const FRAGMENT_2_SLUG: &str = "fragment:scp-8980-2";
+    const FRAGMENT_1_CREATED_AT: &str = "2024-10-06T16:01:41Z";
+    const FRAGMENT_2_CREATED_AT: &str = "2024-10-06T16:01:46Z";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let fixture_path = |name: &str| {
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("seeder")
+            .join(name)
+    };
+
+    let main_source = std::fs::read_to_string(fixture_path("scp-8980.ftml"))
+        .expect("SCP-8980 fixture should be readable");
+    let fragment_1_source =
+        std::fs::read_to_string(fixture_path("fragment-scp-8980-1.ftml"))
+            .expect("SCP-8980 fragment 1 fixture should be readable");
+    let fragment_2_source =
+        std::fs::read_to_string(fixture_path("fragment-scp-8980-2.ftml"))
+            .expect("SCP-8980 fragment 2 fixture should be readable");
+
+    assert!(main_source.contains(
+        r#"[[module ListPages parent="." category="fragment" order="created_at" limit="1" offset="@URL|0"]]
+%%content%%
+[[/module]]"#,
+    ));
+    assert!(fragment_1_source.contains("PROCEED"));
+    assert!(
+        fragment_2_source
+            .contains("You are currently reading the accessibility mode of SCP-8980",)
+    );
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(MAIN_SLUG.into())),
+    });
+    let main = run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": main_source,
+            "title": "SCP-8980",
+            "alt_title": "Ergophobia: Without Regards",
+            "slug": MAIN_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "local SCP-8980 ListPages proof fixture",
+            "user_id": ADMIN_USER_ID,
+            "bypass_filter": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(FRAGMENT_1_SLUG.into())),
+    });
+    let fragment_1 = run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": fragment_1_source,
+            "title": "SCP-8980 (Fragment 1)",
+            "alt_title": null,
+            "slug": FRAGMENT_1_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "local SCP-8980 fragment 1 fixture",
+            "user_id": ADMIN_USER_ID,
+            "bypass_filter": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(FRAGMENT_2_SLUG.into())),
+    });
+    let fragment_2 = run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": fragment_2_source,
+            "title": "SCP-8980 (Fragment 2)",
+            "alt_title": null,
+            "slug": FRAGMENT_2_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "local SCP-8980 fragment 2 fixture",
+            "user_id": ADMIN_USER_ID,
+            "bypass_filter": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    // The corpus metadata is deterministic: fragment 1 precedes fragment 2 by
+    // five seconds, so created_at ascending with offset 0 must select fragment 1.
+    set_page_created_at(&runner, fragment_1.page_id, FRAGMENT_1_CREATED_AT).await;
+    set_page_created_at(&runner, fragment_2.page_id, FRAGMENT_2_CREATED_AT).await;
+
+    let fragment_1_page = run_endpoint!(
+        runner,
+        page_get,
+        json!({"site_id": site_id, "page": fragment_1.page_id}),
+    )
+    .expect("fragment 1 page should exist");
+    let fragment_2_page = run_endpoint!(
+        runner,
+        page_get,
+        json!({"site_id": site_id, "page": fragment_2.page_id}),
+    )
+    .expect("fragment 2 page should exist");
+
+    assert_eq!(fragment_1_page.page_category_slug, "fragment");
+    assert_eq!(fragment_2_page.page_category_slug, "fragment");
+    assert_eq!(
+        fragment_1_page.page_created_at.unix_timestamp(),
+        1_728_230_501
+    );
+    assert_eq!(
+        fragment_2_page.page_created_at.unix_timestamp(),
+        1_728_230_506
+    );
+    assert!(fragment_1_page.page_created_at < fragment_2_page.page_created_at);
+
+    for child_page_id in [fragment_1.page_id, fragment_2.page_id] {
+        let relationship = ParentService::create(
+            runner.context(),
+            ParentDescription {
+                site_id,
+                parent: Reference::Id(main.page_id),
+                child: Reference::Id(child_page_id),
+            },
+        )
+        .await
+        .expect("failed to parent SCP-8980 fragment to the main page");
+        assert!(relationship.is_some());
+    }
+
+    // Parent creation does not itself rewrite the existing compiled revision. An
+    // unchanged edit exercises the existing full-rerender path without a new revision.
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(MAIN_SLUG.into())),
+    });
+    let rerender = run_endpoint!(
+        runner,
+        page_edit,
+        json!({
+            "site_id": site_id,
+            "page": main.page_id,
+            "last_revision_id": main.revision_id,
+            "revision_comments": "rerender after attaching ListPages children",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(
+        rerender.is_none(),
+        "relationship-only rerender should not create a page revision",
+    );
+
+    let page = deepwell::endpoints::all::page_get(
+        runner.context(),
+        common::make_params(json!({
+            "site_id": site_id,
+            "page": MAIN_SLUG,
+            "details": {
+                "compiled": true
+            },
+        })),
+    )
+    .await
+    .expect("SCP-8980 page_get should succeed")
+    .expect("SCP-8980 page_get should return page data");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    for expected in [
+        "ETHICS COMMITTEE",
+        "INTERNAL RECORDKEEPING INTERFACE",
+        "PROCEED",
+        "height:70vh",
+    ] {
+        assert!(
+            html.contains(expected),
+            "compiled SCP-8980 should contain first-fragment marker {expected:?}:\n{html}",
+        );
+    }
+
+    for unexpected in [
+        "[[module ListPages",
+        "%%content%%",
+        "height:55vh",
+        "You are currently reading the accessibility mode of SCP-8980",
+    ] {
+        assert!(
+            !html.contains(unexpected),
+            "compiled SCP-8980 should not contain {unexpected:?}:\n{html}",
+        );
+    }
+}
+
 #[tokio::test]
 async fn basic_move() {
     let mut runner = TestRunner::setup().await;
@@ -603,8 +842,9 @@ async fn issue5_seeded_sites_are_distinct() {
     let mut runner = TestRunner::setup().await;
     let (ai_site_id, scp_site_id) = ensure_issue5_sites(&mut runner).await;
 
-    let ai_site_output = run_endpoint!(runner, site_get, json!({"site": "ai-translation"}))
-        .expect("ai-translation site not found");
+    let ai_site_output =
+        run_endpoint!(runner, site_get, json!({"site": "ai-translation"}))
+            .expect("ai-translation site not found");
     let scp_site_output = run_endpoint!(runner, site_get, json!({"site": "scp-jp"}))
         .expect("scp-jp site not found");
 
@@ -613,8 +853,7 @@ async fn issue5_seeded_sites_are_distinct() {
     assert_eq!(ai_site_output.site.site_id, ai_site_id);
     assert_eq!(scp_site_output.site.site_id, scp_site_id);
     assert_ne!(
-        ai_site_output.site.site_id,
-        scp_site_output.site.site_id,
+        ai_site_output.site.site_id, scp_site_output.site.site_id,
         "Site IDs are identical across boundary sites"
     );
     assert!(
@@ -626,15 +865,24 @@ async fn issue5_seeded_sites_are_distinct() {
         Some("ai-translation.localhost".to_owned())
     );
     assert!(
-        ai_site_output.domains.iter().any(|domain| domain.domain == "ai-translation.wikijump.dev"),
+        ai_site_output
+            .domains
+            .iter()
+            .any(|domain| domain.domain == "ai-translation.wikijump.dev"),
         "ai-translation should include wikijump.dev domain"
     );
     assert!(
-        ai_site_output.domains.iter().any(|domain| domain.domain == "ai-translation.localhost"),
+        ai_site_output
+            .domains
+            .iter()
+            .any(|domain| domain.domain == "ai-translation.localhost"),
         "ai-translation should include localhost domain"
     );
     assert!(
-        ai_site_output.domains.iter().all(|domain| domain.domain != "scp-jp.wikijump.dev"),
+        ai_site_output
+            .domains
+            .iter()
+            .all(|domain| domain.domain != "scp-jp.wikijump.dev"),
         "ai-translation should not share scp-jp domain"
     );
     assert!(
@@ -660,7 +908,10 @@ async fn issue5_seeded_sites_are_distinct() {
         "scp-jp should include localhost domain"
     );
     assert!(
-        scp_site_output.domains.iter().all(|domain| domain.domain != "ai-translation.wikijump.dev"),
+        scp_site_output
+            .domains
+            .iter()
+            .all(|domain| domain.domain != "ai-translation.wikijump.dev"),
         "scp-jp should not share ai-translation domain"
     );
 }
@@ -680,7 +931,8 @@ async fn issue5_seeding_is_idempotent() {
 async fn issue5_ai_translation_is_editable() {
     let mut runner = TestRunner::setup().await;
     let (ai_site_id, _) = ensure_issue5_sites(&mut runner).await;
-    let ai_site_user_id = issue5_site_user_id(&mut runner, ISSUE5_AI_TRANSLATION_FIXTURE.slug).await;
+    let ai_site_user_id =
+        issue5_site_user_id(&mut runner, ISSUE5_AI_TRANSLATION_FIXTURE.slug).await;
 
     const PAGE_SLUG: &str = "issue5-editable-smoke";
 
@@ -836,8 +1088,9 @@ async fn issue5_same_slug_does_not_mix_between_ai_translation_and_scp_jp() {
     let mut runner = TestRunner::setup().await;
     let (ai_site_id, scp_site_id) = ensure_issue5_sites(&mut runner).await;
 
-    let ai_site_output = run_endpoint!(runner, site_get, json!({"site": "ai-translation"}))
-        .expect("Seeded ai-translation not found");
+    let ai_site_output =
+        run_endpoint!(runner, site_get, json!({"site": "ai-translation"}))
+            .expect("Seeded ai-translation not found");
     let scp_site_output = run_endpoint!(runner, site_get, json!({"site": "scp-jp"}))
         .expect("Seeded scp-jp not found");
     assert_eq!(ai_site_output.site.site_id, ai_site_id);
@@ -865,23 +1118,19 @@ async fn issue5_same_slug_does_not_mix_between_ai_translation_and_scp_jp() {
     assert_eq!(ai_boundary_page.slug, "boundary-check");
     assert_eq!(scp_boundary_page.slug, "boundary-check");
     assert_ne!(
-        ai_boundary_page.page_id,
-        scp_boundary_page.page_id,
+        ai_boundary_page.page_id, scp_boundary_page.page_id,
         "Boundary pages should never reuse page IDs across sites"
     );
     assert_ne!(
-        ai_boundary_page.site_id,
-        scp_boundary_page.site_id,
+        ai_boundary_page.site_id, scp_boundary_page.site_id,
         "Boundary pages should be isolated by site id"
     );
     assert_ne!(
-        ai_boundary_page.revision_id,
-        scp_boundary_page.revision_id,
+        ai_boundary_page.revision_id, scp_boundary_page.revision_id,
         "Boundary pages should not share revision IDs"
     );
     assert_ne!(
-        ai_boundary_page.title,
-        scp_boundary_page.title,
+        ai_boundary_page.title, scp_boundary_page.title,
         "Boundary fixtures should remain boundary-specific"
     );
 }

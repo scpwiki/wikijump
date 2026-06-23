@@ -1,0 +1,3618 @@
+[[module ThemePreviewer noUi="true"]]
+
+[!-- Suppress iOS cache warning --]
+[[module css]]
+#side-bar .ios-cache-issue-notification {
+  display: none !important;
+}
+[[/module]]
+
+[[include :scp-wiki:theme:basalt darkmode=a|hidetitle=a]]
+
+[[module CSS]]
+
+@import url('https://scp-wiki.wikidot.com/local--files/scp-8980/departuremono.css');
+
+:root {
+    --logo: url(http://scptestwiki.wikidot.com/local--files/sigma:lol/ecw.png);
+    --header-title: "ETHICS COMMITTEE";
+    --header-subtitle: "INTERNAL RECORDKEEPING INTERFACE";
+    --basalt-primary-color: 0, 15, 0;
+    --basalt-secondary-color: 0, 22, 0;
+    --basalt-tertiary-color: 0, 30, 0;
+    --ec-popup-color: 10, 70, 10;
+    --basalt-bright-element-color: 16, 184, 16;
+    --basalt-dark-element-color: 10, 150, 10;
+    --rfr-primary: #E0F6FD;
+    --rfr-secondary: lightskyblue;
+}
+
+body {
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.8)), url("https://scp-wiki.wikidot.com/local--files/scp-8980/fractal.webp");
+    background-position: center, center;
+    background-size: cover;
+    background-attachment: scroll, fixed;
+}
+
+b, strong {
+    font-weight: 800;
+}
+
+table {
+    box-sizing: border-box;
+}
+
+.content-warning {
+    font-size: 85%;
+    translate: 0px -5px;
+}
+
+#top-bar div[class*="top-bar"] > ul > li > a {
+    font-size: 115%;
+}
+
+.page-title {
+    border-bottom: solid 1px #424248;
+    font-weight: normal;
+    margin: 0 0 0.6em;
+    padding: 0 0 0.25em;
+    font-size: 200%;
+    font-family: var(--title-font);
+}
+
+.page-title p {
+    margin: 0;
+}
+
+#breadcrumbs, .pseudocrumbs {
+    margin: auto;
+    width: fit-content;
+    padding-bottom: 5px;
+    opacity: 0.8;
+}
+
+#page-content .yui-content div {
+    overflow: hidden;
+}
+
+#page-content div:is(.document, .darkdocument) {
+    max-width: 50rem;
+}
+
+div:is(.document, .darkdocument)::before, div:is(.document, .darkdocument)::after {
+    position: relative !important;
+}
+
+div.blockquote {
+    background-color: #0f0f0f;
+}
+
+div.blockquote.light {
+    background-color: #2b2b2b;
+}
+
+.red-text {
+    color: red;
+}
+
+.licensebox .collapsible-block-link {
+    opacity: 0.5;
+    transition-duration: 0.3s;
+}
+
+.licensebox .collapsible-block-link:hover {
+    opacity: 1;
+    transition-duration: 0.3s;
+}
+
+@media (max-width: 430px) {
+    :where(#page-content) table {
+        width: fit-content;
+    }
+}
+
+[[/module]]
+
+[[module CSS]]
+
+.yui-nav li:first-child, .yui-nav li.selected {
+    display: none;
+    border: none;
+}
+
+.yui-navset.yui-navset-top {
+    margin: 0;
+    border: none;
+    box-sizing: border-box;
+}
+
+.yui-navset.yui-navset-top div.yui-content {
+    padding: 0px;
+    border: none;
+    box-sizing: border-box;
+    overflow: auto;
+}
+
+.yui-nav li, .yui-nav li a, body .yui-navset.yui-navset-top > ul.yui-nav li a {
+    border: none !important;
+    border-top: none !important;
+    gap: 0;
+}
+
+.yui-navset div.yui-content {
+    background: transparent;
+    border: none;
+}
+
+.yui-navset.yui-navset-top {
+    display: grid;
+    border: none;
+}
+
+.yui-navset .yui-nav {
+    grid-row-start: 2;
+    border: none;
+}
+
+#page-content {
+    position: relative;
+}
+
+@keyframes fademodal {
+  70% { visibility: hidden; }
+  100% { visibility: visible; }
+}
+
+ul.modal-wrapper > li {
+    list-style: none;
+    position: absolute;
+    top: -0.1rem;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9;
+    transition: opacity 0.3s ease-out;
+    animation: 0.15s fademodal;
+    animation-fill-mode: forwards;
+}
+
+ul.modal-wrapper > li.unfolded {
+    visibility: visible;
+    opacity: 1;
+}
+
+ul.modal-wrapper > li.folded {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    user-select: none;
+}
+
+.unfolded-ec-warning {
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+ul:has(.unfolded) ~ div.yui-navset {
+    filter: blur(4px);
+}
+
+.ec, .ec-popup {
+    width: 100%;
+    box-sizing: border-box;
+    background-color: rgb(var(--basalt-secondary-color));
+    border: 5px solid rgb(var(--ec-popup-color));
+}
+
+.ec {
+    font-family: 'Departure Mono';
+    padding: 10px;
+    background-image: url(https://scp-wiki.wikidot.com/local--files/theme:basalt/ETHICS_LIGHTLOGO.png);
+    background-size: cover;
+    background-position: center, center;
+    background-blend-mode: darken;
+    font-size: 90%;
+}
+
+.ec-popup {
+    height: 55vh;
+    overflow: auto;
+    position: relative;
+}
+
+.ec-title {
+    font-family: 'Departure Mono';
+    font-size: 2rem;
+    padding: 0;
+    margin: auto;
+}
+
+.ec-grid {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    grid-template-rows: min-content;
+    grid-template-columns: repeat(3, minmax(0, 1fr))
+}
+
+.ec-popup-login, .ec-popup-date {
+    font-family: 'Departure Mono';
+    padding-left: 10px;
+    font-size: 125%;
+    opacity: 0.6;
+    transition-duration: 0.3s;
+}
+
+:is(.ec-popup-login, .ec-popup-date):hover {
+    opacity: 1;
+    transition-duration: 0.3s;
+}
+
+.ec-popup-login {
+    grid-column-start: 1;
+    white-space: nowrap;
+}
+
+.ec-popup-login a {
+    pointer-events: none;
+}
+
+.ec-popup-date {
+    text-align: right;
+    padding-right: 10px;
+    grid-column-start: span 2;
+}
+
+.ec-popup-title {
+    width: 100%;
+    font-family: 'Departure Mono';
+    font-size: 275%;
+    text-align: center;
+    box-sizing: border-box;
+    margin: auto;
+    margin-top: 0;
+    padding: 20px;
+    border-top: 8px double rgb(var(--ec-popup-color));
+    border-bottom: 8px double rgb(var(--ec-popup-color));
+    grid-column-start: span 3;
+}
+
+.ec-popup-desc {
+    text-align: center;
+    margin: auto;
+    grid-column-start: span 3;
+    font-family: 'Departure Mono';
+    font-size: 1rem;
+    width: 75%;
+    box-sizing: border-box;
+}
+
+.ec-options {
+    display: grid;
+    width: 65%;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    background: rgb(var(--basalt-secondary-color));
+    margin: auto;
+    aspect-ratio: 12/1 auto;
+}
+
+:is(.ec-theme-button, .ec-colorblind-button, .ec-accessibility-button) {
+    text-align: center;
+    font-family: 'Departure Mono';
+    border: 5px solid rgb(var(--ec-popup-color));
+    border-top: 0px;
+    box-sizing: border-box;
+    position: relative;
+    transition-duration: 0.5s;
+    display: grid;
+}
+
+.ec-button-inner-wrapper {
+    margin: auto;
+}
+
+:is(.ec-theme-button, .ec-colorblind-button, .ec-accessibility-button) a {
+    text-decoration: none !important;
+}
+
+.ec-button-inner-wrapper a::before {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    content: "";
+}
+
+.ec-theme-button {
+    border-right: 2.5px solid rgb(var(--ec-popup-color));
+}
+
+.ec-colorblind-button {
+    border-left: 2.5px solid rgb(var(--ec-popup-color));
+    border-right: 2.5px solid rgb(var(--ec-popup-color));
+}
+
+.ec-accessibility-button {
+    border-left: 2.5px solid rgb(var(--ec-popup-color));
+}
+
+:is(.ec-theme-button , .ec-accessibility-button, .ec-colorblind-button):hover {
+    background-color: rgba(0, 0, 0, 0.5);
+    transition-duration: 0.5s;
+}
+
+.ecinside {
+    font-family: var(--body-font);
+    font-size: var(--page-content-font-size);
+    color: rgb(195, 195, 200);
+}
+
+.colorblind-mode-on, .light-mode-on {
+    display: none;
+}
+
+:is(.ec, .ec-popup-login, .ec-popup-date, .ec-popup-title, .ec-popup-button) > p,
+:is(.ec, .ec-popup-class, .ec-popup-status, .ec-popup-priority) div:not(.ecinside) > p {
+    margin: auto;
+}
+
+:is(.ec-popup-title, .ec-popup-button) > p {
+    line-height: 1.2;
+}
+
+.ec-popup-button {
+    width: 40%;
+    margin: auto;
+    margin-bottom: 20px;
+    padding: 10px;
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0);
+    transition-duration: 0.5s;
+    grid-column-start: span 3;
+    position: relative;
+    border: 8px double rgb(var(--ec-popup-color));
+    box-sizing: border-box;
+    letter-spacing: 2px;
+    cursor: pointer;
+}
+
+.ec-popup-button:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+    transition-duration: 0.5s;
+    letter-spacing: 10px;
+}
+
+.ec-popup-button :is(a, a:hover, a:active, a:focus) {
+    text-decoration: none;
+    pointer-events: none;
+    font-family: 'Departure Mono';
+    font-size: 370%;
+}
+
+.ec-popup-class, .ec-popup-status, .ec-popup-priority {
+    display: flex;
+    flex-direction: column;
+    font-family: 'Departure Mono';
+    text-align: center;
+    border-bottom: 8px double rgb(var(--ec-popup-color));
+}
+
+:is(.ec-popup-class, .ec-popup-status, .ec-popup-priority) div:first-child {
+    font-size: 120%;
+    opacity: 0.7;
+    margin-bottom: -10px;
+}
+
+:is(.ec-popup-class, .ec-popup-status, .ec-popup-priority) div:last-child {
+    font-size: 175%;
+}
+
+.whitepop {
+    color: rgb(195, 195, 200);
+}
+
+.ec-comments .blockquote {
+    border: 3px double rgb(var(--ec-popup-color));
+    background: rgba(var(--basalt-secondary-color), 0.7);
+    width: 100%;
+    margin: auto;
+    margin-bottom: 20px;
+}
+
+.ec-comment {
+    padding-left: 15px;
+    margin-top: -7px;
+}
+
+@media (max-width: 733px) {
+    .ec-popup {
+        height: fit-content;
+    }
+
+    .ec-title {
+        font-size: 7vw;
+    }
+
+    .ec-popup-title {
+        font-size: 7vw;
+    }
+
+    .ec-popup-button:hover {
+        letter-spacing: 5px;
+    }
+
+    .ec-popup-desc {
+        font-family: 'Departure Mono';
+        font-size: 3vw;
+        width: 100%;
+        padding: 5px;
+    }
+
+    .ec-popup-login, .ec-popup-date {
+        opacity: 1;
+        font-size: 3.7vw;
+        grid-column-start: span 3;
+        text-align: center;
+        padding-right: 10px;
+        margin: auto;
+    }
+
+    div.ec-popup-button :is(a, a:hover, a:active, a:focus) {
+        font-size: 4.5vw;
+    }
+
+    :is(.ec-popup-class, .ec-popup-status, .ec-popup-priority) div:last-child {
+        font-size: 4.3vw;
+    }
+
+    .ec-options {
+        width: 100%;
+        font-size: 90%;
+    }
+}
+
+@media (max-width: 450px) {
+    div.scientistimage {
+        width: fit-content;
+        margin: auto;
+        float: unset;
+    }
+
+    .ec-popup-button {
+        width: 50vw;
+        font-size: 1.5vw;
+    }
+}
+
+
+
+
+
+:is(.bi-r, .bi-y, .bi-g, .bi-b) {
+    padding: 0px 2px 0px;
+}
+
+.bi-r {
+    background-color: rgba(255, 0, 0, 0.25);
+}
+
+.bi-y {
+    background-color: rgba(255, 255, 0, 0.25);
+}
+
+.bi-g {
+    background-color: rgba(0, 255, 0, 0.25);
+}
+
+.bi-b {
+    background-color: rgba(0, 150, 255, 0.25);
+}
+
+:is(.bi-r, .bi-y, .bi-g, .bi-b) :is(a, a:hover, a:active, a:focus) {
+    text-decoration: none;
+    color: inherit;
+}
+
+
+.bi-popup {
+    background-color: rgb(var(--basalt-secondary-color));
+    background-image: url(https://scp-wiki.wikidot.com/local--files/theme:basalt/ETHICS_LIGHTLOGO.png);
+    background-size: cover;
+    background-position: center, center;
+    background-blend-mode: darken;
+    border: 5px solid rgb(var(--ec-popup-color));
+    font-family: 'Departure Mono';
+    padding: 10px;
+    font-size: 90%;
+    transition-duration: 0.2s;
+    z-index: 8;
+    max-height: calc(100vh - 12rem);
+    overflow: scroll;
+    font-style: normal;
+}
+
+.annotitle {
+    font-weight: bold;
+    font-size: 135%;
+    text-decoration: underline;
+    display: block;
+    text-align: center;
+    color: #fff;
+}
+
+.bi-popup strong {
+    font-size: 115%;
+    color: #fff;
+    text-decoration: underline;
+}
+
+.bi-popup a {
+    pointer-events: auto;
+}
+
+:is(.bi-r, .bi-y, .bi-g, .bi-b) .scp-image-block {
+    margin: .2rem .2rem .2rem .2rem;
+    border-bottom: 0px;
+}
+
+
+
+
+.scientistimage {
+    padding: 10px;
+    float: right;
+    position: relative;
+    margin: 10px;
+    width: min-content;
+}
+
+.rfr {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) 3px 1fr;
+    grid-template-rows: min-content;
+    font-family: 'Times New Roman'; background: whitesmoke;
+    color: #202020;
+    width: 90%;
+    margin: auto;
+    border: 3px solid var(--rfr-primary);
+}
+
+.rfr > div {
+    position: relative;
+}
+
+.rfr-label {
+    font-size: 80%;
+    display: inline-block;
+    width: 100%;
+    background: var(--rfr-primary);
+    padding-left: 1px;
+}
+
+.committee-reply {
+    background-color: #b5906a;
+    color: black;
+    margin: auto;
+    width: 81%;
+    padding: 7px;
+    border: 3px solid #523500;
+}
+
+.logtime {
+    font-weight: 350;
+    color: grey;
+    font-size: 95%;
+}
+
+.email {
+    background-color: rgba(var(--basalt-secondary-color), 0.9);
+    border: 5px double rgb(var(--ec-popup-color));
+    font-family: 'Departure Mono';
+    padding: 10px;
+    margin: auto;
+    width: 95%;
+    font-size: 95%;
+    box-sizing: border-box;
+}
+
+@media (max-width: 700px) {
+    .scientistimage + .bi-popup {
+        grid-row: 2 !important;
+        grid-column: 1 !important;
+    }
+}
+
+[[/module]]
+
+[[div class="accessibility-mode"]]
+
+[[div style="margin-top: -50px;"]]
+= You are currently reading the accessibility mode of SCP-8980. A majority of the interactive elements of the article have been removed for better legibility to screen readers. The content has otherwise not changed. If you do not require accessibility features, you may want to use the standard layout of the article to improve your experience.
+[[/div]]
+
+@@​@@
+
+[[div class="ec-popup"]]
+[[div class="ec-grid"]]
+[[div class="ec-popup-login"]]
+FMarinos-Site-17@eth-comm.scip.net
+[[/div]]
+[[div class="ec-popup-date"]]
+NOVEMBER 07, 2017 - 03:43 LOCAL
+[[/div]]
+[[div class="ec-popup-title"]]
+ETHICS COMMITTEE CASEFILE
+[[size 50%]]ID #14012015-8980-F[[/size]]
+[[/div]]
+
+[[div class="ec-popup-class"]]
+[[div]]
+CLEARANCE
+[[/div]]
+[[div]]
+3/EC+ ONLY
+[[/div]]
+[[/div]]
+
+[[div class="ec-popup-status"]]
+[[div]]
+STATUS
+[[/div]]
+[[div]]
+[[span style="color: rgb(var(--link-visited-color))"]]ONGOING[[/span]]
+[[/div]]
+[[/div]]
+
+[[div class="ec-popup-priority"]]
+[[div]]
+PRIORITY
+[[/div]]
+[[div]]
+[[span style="color: orange"]]MEDIUM[[/span]]
+[[/div]]
+[[/div]]
+
+[[div class="ec-popup-desc"]]
+The following file is undergoing active Ethics Committee investigation for violation of the SCP Foundation's Code of Conduct. Information contained therein may not accurately reflect reality and this document should not be considered a reliable source.
+[[/div]]
+[[/div]]
+[[/div]]
+
+[[div class="ec-options"]]
+
+[[div class="ec-theme-button light-mode-off colorblind-mode-off"]]
+[[div class="ec-button-inner-wrapper"]]
+[[a href="https://scp-wiki.wikidot.com/scp-8980/offset/1?theme_url=/local--files/scp-8980/modeL.css"]]LIGHT MODE[[/a]]
+[[/div]]
+[[/div]]
+
+[[div class="ec-theme-button light-mode-on colorblind-mode-off"]]
+[[div class="ec-button-inner-wrapper"]]
+[[a href="https://scp-wiki.wikidot.com/scp-8980/offset/1"]]DARK MODE[[/a]]
+[[/div]]
+[[/div]]
+
+[[div class="ec-theme-button light-mode-off colorblind-mode-on"]]
+[[div class="ec-button-inner-wrapper"]]
+[[a href="https://scp-wiki.wikidot.com/scp-8980/offset/1?theme_url=/local--files/scp-8980/modeLC.css"]]LIGHT MODE[[/a]]
+[[/div]]
+[[/div]]
+
+[[div class="ec-theme-button light-mode-on colorblind-mode-on"]]
+[[div class="ec-button-inner-wrapper"]]
+[[a href="https://scp-wiki.wikidot.com/scp-8980/offset/1?theme_url=/local--files/scp-8980/modeC.css"]]DARK MODE[[/a]]
+[[/div]]
+[[/div]]
+
+
+
+[[div class="ec-colorblind-button colorblind-mode-off light-mode-off"]]
+[[div class="ec-button-inner-wrapper"]]
+[[a href="https://scp-wiki.wikidot.com/scp-8980/offset/1?theme_url=/local--files/scp-8980/modeC.css"]]COLORBLIND MODE[[/a]]
+[[/div]]
+[[/div]]
+
+[[div class="ec-colorblind-button colorblind-mode-on light-mode-off"]]
+[[div class="ec-button-inner-wrapper"]]
+[[a href="https://scp-wiki.wikidot.com/scp-8980/offset/1"]]STANDARD COLOR MODE[[/a]]
+[[/div]]
+[[/div]]
+
+[[div class="ec-colorblind-button colorblind-mode-off light-mode-on"]]
+[[div class="ec-button-inner-wrapper"]]
+[[a href="https://scp-wiki.wikidot.com/scp-8980/offset/1?theme_url=/local--files/scp-8980/modeLC.css"]]COLORBLIND MODE[[/a]]
+[[/div]]
+[[/div]]
+
+[[div class="ec-colorblind-button colorblind-mode-on light-mode-on"]]
+[[div class="ec-button-inner-wrapper"]]
+[[a href="https://scp-wiki.wikidot.com/scp-8980/offset/1?theme_url=/local--files/scp-8980/modeL.css"]]STANDARD COLOR MODE[[/a]]
+[[/div]]
+[[/div]]
+
+
+
+[[div class="ec-accessibility-button light-mode-off colorblind-mode-off"]]
+[[div class="ec-button-inner-wrapper"]]
+[[a href="https://scp-wiki.wikidot.com/scp-8980"]]STANDARD LAYOUT[[/a]]
+[[/div]]
+[[/div]]
+
+[[div class="ec-accessibility-button light-mode-on colorblind-mode-off"]]
+[[div class="ec-button-inner-wrapper"]]
+[[a href="https://scp-wiki.wikidot.com/scp-8980?theme_url=/local--files/scp-8980/modeL.css"]]STANDARD LAYOUT[[/a]]
+[[/div]]
+[[/div]]
+
+[[div class="ec-accessibility-button light-mode-off colorblind-mode-on"]]
+[[div class="ec-button-inner-wrapper"]]
+[[a href="https://scp-wiki.wikidot.com/scp-8980?theme_url=/local--files/scp-8980/modeC.css"]]STANDARD LAYOUT[[/a]]
+[[/div]]
+[[/div]]
+
+[[div class="ec-accessibility-button light-mode-on colorblind-mode-on"]]
+[[div class="ec-button-inner-wrapper"]]
+[[a href="https://scp-wiki.wikidot.com/scp-8980?theme_url=/local--files/scp-8980/modeLC.css"]]STANDARD LAYOUT[[/a]]
+[[/div]]
+[[/div]]
+
+[[/div]]
+
+@@​@@
+@@​@@
+@@​@@
+@@​@@
+@@​@@
+
+[[>]]
+[[include :scp-wiki:info:start]]
+= SCP-8980 — **Ergophobia: Without Regards**
+= Written by [[*user Yossipossi]]
+
+Please note that this article contains extremely sensitive material. Viewer discretion is **heavily** advised. The full list of sensitive topics (which necessitates spoiling some topics that will come up) is as follows:
+
+@@  @@• **Explicit and Implicit Misogyny**
+@@  @@• Prolonged Institutional and Psychological Abuse
+@@  @@• Severe Psychological Trauma and Torture
+@@  @@• Institutional and Personal Gaslighting
+@@  @@• Physical, Clinical, and Institutional Violence
+@@  @@• Institutional Neglect and Prolonged Isolation
+@@  @@• Sexual Assault Implications and Analogies
+@@  @@• Forced Drug Injection/Abuse
+@@  @@• Mentions of Sexual Acts and Suicide
+
+Please ensure you are emotionally and physically capable of reading the article before proceeding. There is an in-universe content warning mid-article that marks when more serious themes become increasingly prominent in the story.
+
+This article is a work of fiction, and resemblance of any character to any real-life persons are purely coincidental. This article is, nonetheless, based on several true stories.
+[[include :scp-wiki:info:end]]
+[[include :scp-wiki:component:info-cw]]
+[[/>]]
+
+[[div class="ec"]]
+
+= **[[span class="ec-title"]]ETHICS COMMITTEE MEMORANDUM[[/span]]**
+
+= This document has been annotated by a qualified panel of Ethics Committee Review Specialists (ECRSs) for inaccuracy or misleading information. Flagged content is classified into three categories:
+
+@@​@@
+
+[[div class="bi-r" style="margin: 3px; padding: 5px;"]]
+= RED INFORMATION: information that should not have been included.
+[[/div]]
+
+@@​@@
+
+[[div class="bi-y" style="margin: 3px; padding: 5px;"]]
+= YELLOW INFORMATION: information that is inaccurate or misleading.
+[[/div]]
+
+@@​@@
+
+[[div class="bi-g" style="margin: 3px; padding: 5px;"]]
+= GREEN INFORMATION: information that should have been included, but was missing.
+[[/div]]
+
+@@​@@
+
+= [[span]]Additional contextual information may be [[span class="bi-b"]]highlighted in blue[[/span]].[[/span]]
+
+[[/div]]
+
+[[=]]
+@@​@@
+
+...
+
+@@​@@
+
+{{Loading document...}}
+
+@@​@@
+
+...
+
+@@​@@
+[[/=]]
+
+[[div class="darkdocument"]]
+
+[[=]]
+[[div class="page-title" style="display: block;" id="#page-title"]]
+SCP-8980
+[[/div]]
+[[/=]]
+
+[[div style="display: grid;"]]
+[[div_ class="bi-y scientistimage"]]
+[[include component:image-block name=https://scp-wiki.wikidot.com/local--files/scp-8980/femalescientist.png| caption=SCP-8980 (2009)| width=225px|alt=alt|alt-text=A female scientist. Her eyes are covered by a blackbox. The visible parts of her shirt/coat are unbuttoned, and she wears a small necklace.
+]]
+[[/div]]
+[[div_ class="bi-popup" style="grid-row: 1; grid-column: 2; height: min-content; margin: auto;"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Improper Usage of Redaction** — usage of redactions to cover a photographed anomaly's eyes have not been in standard practice since 1992.
+**Inappropriate Photograph** — when an anomaly is currently or formerly employed by the SCP Foundation, their research profile photograph (RPP) should be used unless otherwise necessary. This policy was introduced in 2005. SCP-8980's RPP was publicly available at the time and should have been used instead.
+**Incorrect Date** — photograph was taken in 1999.
+[[/div]]
+[[/div]]
+
+**Item #:** SCP-8980
+
+[[span]]**Object Class:** [[span class="bi-b"]]Euclid[[/span]][[/span]]
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+As of 2015, SCP-8980's object class has been pending reclassification to Neutralized.
+[[/div]]
+
+[[span class="bi-r"]]**Risk Class:** Warning[[/span]]
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Improper Formatting** — usage of Risk Class in SCP documentation must be accompanied by a Disruption Class as part of the Anomaly Classification System (ACS) standard.
+**Incorrect Classification** — phenomenon typically poses only a mild risk to SCP-8980 itself, warranting a Caution class at most.
+[[/div]]
+
+**Special Containment Procedures:** SCP-8980 is contained within a standard human containment chamber in Site-17, using standardized non-electronic security measures. It is to be fed on a [[span class="bi-y"]]tri-daily[[/span]] basis with a [[span class="bi-y"]]Class-B2 diet[[/span]].
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Vague Vernacular** — "tri-daily" could imply anomaly is fed once every three days. "Thrice daily" should be used instead.
+**Incorrect Diet** — SCP-8980 does not require any dietary needs; containment specifications external to this document suggest SCP-8980 has an allergy to sugar, though SCP-8980's medical records do not indicate as such as of 2003.
+[[/div]]
+
+SCP-8980 is allowed to engage in social activities during designated periods, though extended contact must be overseen by [[span class="bi-b"]]a qualified member of containment staff[[/span]].
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+Assigned containment staff for SCP-8980 consisted of Dr. Christopher Byrnes, Dr. Rachel Steele, and Junior Researcher Morgan McPharrell, all of whom were SCP-8980's co-workers prior to containment. Each is a subject of interest for this review.
+[[/div]]
+
+SCP-8980 is not to come into contact with electronic equipment. Usage of electronic equipment — such as cellphones, televisions, or computers — must be approved by [[span class="bi-b"]]Head Researcher Christopher Byrnes[[/span]]. Communication over electronic messaging systems in SCP-8980's immediate vicinity should be consistently monitored for corruption or degradation, if it occurs.
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Christopher Byrnes** was a Level 4 Containment Specialist employed by the Foundation between 1982 and 2014. He was scoped and hired by the SCP Foundation shortly after achieving his doctoral degree in Computer Science. Throughout his time at the Foundation, Dr. Byrnes was involved in the containment of several notable software- and hardware-related anomalies (including SCP-079, resulting in his eventual promotion to Containment Specialist in 1998. He achieved Level 4 credentials in October of 2010. He chose to retire in 2014, undergoing Class-E amnestic treatment per his own volition.
+ _
+Early on in his career, the Ethics Committee received reports regarding Dr. Byrnes's behavior, which was seen as condescending and aggressive by his colleagues. He was regularly reported by coworkers for this behavior. After a formal meeting with a Site-17 Human Resources representative, Dr. Byrnes agreed to be more mindful and cognizant of his behavior towards other Foundation personnel. The Committee has not received any additional reports regarding his behavior since.
+ _
+Dr. Byrnes is the primary subject of investigation for this annotated review. A vast majority of SCP-8980's documentation (including this file) was drafted and published by him.
+[[/div]]
+
+As a [[span class="bi-r"]]former[[/span]] member of Foundation staff, SCP-8980 is to be returned to its position and former duties upon the cessation of anomalous properties. To this end, SCP-8980 is to undergo yearly routine testing to ensure it is still anomalous.
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Misleading Information** — SCP-8980 was still a member of Foundation staff even while in containment.
+[[/div]]
+
+----
+
+**Description:** SCP-8980 is [[span class="bi-b"]]Lillian Marley[[/span]].
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Lillian Marley** was a Level 3 Containment Specialist, and is currently employed by the SCP Foundation. Marley joined the SCP Foundation in 1999 after discovering an algorithm directly related to an anomalous mathematical inequality, shortly after obtaining her Bachelor's degree in Computer Science.
+ _
+Although Researcher Marley did not pursue a higher degree while employed by the Foundation, she quickly became a prominent member of Junior Staff due to her work ethic, conscientious attitude, and accomplishments. Her thorough objectivity and rigor in research eventually earned her Level 3 credentials in 2004, shortly before she began to manifest anomalous properties in 2005.
+ _
+Researcher Marley is the secondary subject of investigation for this annotated review.
+[[/div]]
+
+SCP-8980 is a [[span class="bi-y"]]28-year-old[[/span]] [[span class="bi-r"]]Caucasian[[/span]] [[span class="bi-g"]]human[[/span]] female born in San Francisco, California, USA.
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Incorrect Age** — SCP-8980 was twenty-eight years old at the time of containment. As per standard protocol, an Artificial Intelligence Construct should have been assigned to update the page on SCP-8980's date of birth (January 12th), or the page should have only contained its date of birth. SCP-8980 is forty at the time of this review.
+ _
+**Improper Nomenclature** — "Caucasian" is an obsolete classification; if ethnicity is necessary to specify (which it is not in this case), specifying the individual's culture of origin is preferable. The word "human" can be used in place of ethnicity.
+[[/div]]
+
+SCP-8980 stands at 160cm in height and possesses dark hair and brown eyes. It has displayed no abnormal Hume, EVE, or Akiva radiation readings since containment.
+
+SCP-8980's anomalous capabilities activate when utilizing electronic software. Whenever SCP-8980 produces, edits, deletes, or otherwise interacts (even indirectly) with digital information, the information is modified in some manner that negatively affects SCP-8980, whether socially, financially, psychologically, etc. Past examples of this include:
+
+* Critical files deleting themselves randomly from devices owned by SCP-8980.
+* Words in files changing into similar, inappropriate words ([[span class="bi-y"]]i.e.[[/span]] "I like you." -> "I lick you.").
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Incorrect Latin Phrase** — //e.g.// should have been used instead, as this sentence clause is providing an example rather than clarifying the prior sentence.
+[[/div]]
+* Electronic communication being sent to incorrect addresses, often resulting in data breaches or confusion.
+* Important programs initiated by SCP-8980 engaging in undefined behavior even if impossible (e.g. throwing segmentation faults despite being memory-safe).
+* Electronic payments intended for SCP-8980 being routed to incorrect recipients or failing to send under automated systems.
+* Electronic devices randomly shutting down in close proximity to SCP-8980, especially when owned by other individuals.
+
+The exact source of SCP-8980's anomaly is unclear and is subject to ongoing research.
+
+----
+
+**Discovery:** SCP-8980 [[span class="bi-y"]]first became anomalous[[/span]] in February of 2005 during a routine team meeting.
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Incorrect Certainty** — whether SCP-8980 was anomalous beforehand is unclear. The phrase "was first discovered" is more appropriate.
+[[/div]]
+
+Researcher Marley attempted to display a graph demonstrating a comparison between two algorithms; however, instead, the projector began to display highly explicit content. This resulted in Human Resources penalizing Researcher Marley by requiring an audit of her personal devices [[span class="bi-y"]]bi-weekly[[/span]] and reducing her pay, despite protests [[span class="bi-g"]]that her device never contained such material and that it was not due to any fault of her own[[/span]].
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Vague Vernacular** — "bi-weekly" could imply SCP-8980 was audited twice weekly. "Once every two weeks" should be used instead.
+
+**Missing Context** — failing to specify the nature of SCP-8980's protests imply that it was protesting the punishment itself rather than the basis of the case.
+[[/div]]
+
+Over the coming weeks, Researcher Lillian began to report significant issues with her devices and assigned SCiPnet account. Provided examples included random deletion of files, modification of interpersonal communication in a way that negatively affected her (which had, in one instance, resulted in an additional penalization), and random shutdowns of nearby electronics owned by her coworkers. Replacement of her devices, recreation of her accounts, and even temporary relocation and isolation of her physical self failed to prevent these anomalies from occurring.
+
+After deliberation, [[span class="bi-y"]]it was determined[[/span]] that the best course of action was to classify Researcher Marley as an anomaly, citing concerns over property damage or potential loss of life.
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Passive Voice** — the use of passive voice obfuscates that this action was taken by Site-17's Containment Oversight Committee, with advisory from Dr. Byrnes's research group (excluding SCP-8980).
+[[/div]]
+
+Marley hesitantly agreed to undergo [[span class="bi-g"]]temporary[[/span]] containment until anomalous properties ceased.
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Missing Context** — SCP-8980 only agreed towards tentative, temporary containment; lacking this context, the phrasing implies consent to permanent containment, which was not granted by SCP-8980.
+[[/div]]
+
+----
+
+**Addendum 1:** Initial Interviews
+
+Following containment, Head Researcher Christopher Byrnes conducted a series of initial interviews to understand the scope and severity of SCP-8980's anomalous properties. These interviews are recorded in full below.
+
+[[div class="blockquote"]]
+**DATE:** March 10th, 2005
+
+**INTERVIEWER:** Head Researcher Christopher Byrnes
+
+**INTERVIEWEE:** SCP-8980
+
+**SUBJECT:** Initial Post-Containment Interview
+
+----
+
+= **[BEGIN LOG]**
+
+----
+
+//Dr. Byrnes and SCP-8980 are both seated in SCP-8980's containment cell, a decently furnished standard humanoid containment unit, with a folding table between them. [[span class="bi-r"]]A number of SCP-8980's personal belongings are present in the room, including several books and an aging stuffed animal.[[/span]] Dr. Byrnes adjusts his chair and straightens his tie before speaking.//
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Unnecessary Personal Information** — self-explanatory.
+[[/div]]
+
+**DR. BYRNES:** I apologize for these ah, unfortunate circumstances Lillian—
+
+**SCP-8980:** (//Interrupting//) You're not following the standard procedure. In formal interviews — especially the ones that go into files — you call me S-C-P Eight-Nine-Eight-Zero. I'd like to keep this professional.
+
+//Dr. Byrnes clears his throat.//
+
+**DR. BYRNES:** Yes, of course. You're entirely right. Ehem — I apologize for these unfortunate circumstances, //SCP-8980//. I understand that being forced to undergo these inane procedures must be quite troublesome for someone such as you.
+
+//SCP-8980 shrugs.//
+
+**SCP-8980:** It's fine. I'm just hoping we'll get this resolved within a week or two. I need to get working on the manifold problem again.
+
+**DR. BYRNES:** We can only hope this'll go by quickly.
+
+//Dr. Byrnes straightens several papers he is holding.//
+
+**DR. BYRNES:** Alright, let's start with the basics: what is your name, age, and occupation?
+
+**SCP-8980:** Researcher Lillian Marley, twenty-eight years old, Level 3 Containment Specialist at Site-17. (//Pause//) I appreciate your formality this time.
+
+//Dr. Byrnes sighs.//
+
+**DR. BYRNES:** Alright, well. Next, please describe the circumstances in which you discovered your anomalous properties.
+
+//Momentary silence elapses.//
+
+**SCP-8980:** ...Is that necessary? You could just put all of the details on the file directly.
+
+//Dr. Byrnes smirks.//
+
+**DR. BYRNES:** What happened to the format?
+
+//SCP-8980 exhales, and shakes its head.//
+
+**SCP-8980:** Fine. I was in the middle of a presentation on my heuristic for [[span class="bi-b"]]calculating Ackermann function values for //m// over 50[[/span]], when the projector suddenly began to display... (//deep breath//) "sexually explicit material" in front of the staff present — none of which was actually on my hard drive, I should add.
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+The definition of SCP-8980's presentation topic is largely irrelevant for the purpose of this investigation.
+[[/div]]
+
+**DR. BYRNES:** I see. Normally that would be classified as an anomalous event, but presumably further incidents occurred.
+
+//SCP-8980 lightly scowls.//
+
+**SCP-8980:** You're my boss, Byrnes. You already know the rest of the story.
+
+**DR. BYRNES:** But for the record, please?
+
+//SCP-8980 sighs.//
+
+**SCP-8980:** Alright. I began to experience repeated instances of malfunctions in software I was nearby, including important files getting deleted, e-mails being sent to the wrong addresses, and my coworkers' computers shutting down randomly. Is that enough for the interview?
+
+**DR. BYRNES:** Yes, that should be sufficient. Thank you.
+
+**SCP-8980:** Of course. (//Pause//) Have you determined its [[span class="bi-b"]]grade[[/span]] yet?
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+"Grade" shorthand for **__Anomaly Coherence Grade__** (ACG), a classification used by SCP Foundation Containment Specialists for determining an anomaly's internal logic. Grades consist of the following:
+
+* **Pseudo-Explained:** Anomaly is fully explainable through parascience.
+* **Internally Consistent:** Anomaly is not scientific, but follows well-established rules.
+* **Pattern-Based:** Anomaly follows some set theme or pattern, although has no set rules.
+* **Inexplicable:** The anomaly follows no consistent rules or patterns, making containment exceedingly difficult.
+
+ACG is not used by containment practitioners unless necessary, and thus is not included in formal documentation.
+[[/div]]
+
+**DR. BYRNES:** Not precisely. We're running some Hume tests at the moment, and if those turn up null we'll try looking at Elan Vital Energy.
+
+//SCP-8980 lightly scoffs.//
+
+**SCP-8980:** Like those tests ever work.
+
+**DR. BYRNES:** Well, I'm nothing if not thorough — isn't that what you always used to tell me?
+
+//SCP-8980 leans back and tilts its head upwards.//
+
+**SCP-8980:** ...I suppose I did. Alright, do whatever tests you need to. Just, try to get them done as quickly as possible, please; I've only spent an hour in here and I'm already antsy.
+
+//Dr. Byrnes smiles sympathetically, then stretches, letting out an audible yawn.//
+
+**DR. BYRNES:** Ah, well, you already know standard protocol forbids us from giving you a PC, but I suppose I could arrange for some light reading to be brought in in the meantime. We'd just scrape it from the lounge or something, so no guarantees it's anything interesting.
+
+//SCP-8980 smiles curtly.//
+
+**SCP-8980:** Thank you. That would at least be appreciated.
+
+**DR. BYRNES:** Of course. Anything else in the procedure before I end this interview?
+
+**SCP-8980:** That should be all.
+
+**DR. BYRNES:** Wonderful. I'll see you again when we finish testing.
+
+//Dr. Byrnes and SCP-8980 shake hands, before Dr. Byrnes terminates the recording.//
+
+----
+
+= **[END LOG]**
+
+----
+
+**AFTERWORD:** //SCP-8980 is cooperative in its containment. I've provided it with basic reading materials for the coming days of testing, mainly light fiction novels and magazines from the employee lounge. SCP-8980 anomalous property testing will proceed using both blood samples and physical examination.// -Dr. Byrnes
+
+[[/div]]
+
+----
+
+**Addendum 2:** Test Results
+
+During the following week, several tests were carried out on SCP-8980 by containment staff. Primary test results are recorded below:
+
+||~ Type ||~ Results ||~ Comments ||
+||= Hume ||= [[span class="red-text"]]Baseline[[/span]] || Rules out possibility of standard reality manipulation. ||
+||= EVE ||= [[span class="red-text"]]Baseline[[/span]] || Rules out possibility of standard thaumaturgical activity. ||
+||= Cuil ||= [[span class="red-text"]]Unabstracted[[/span]] || Rules out possibility of standard reality abstraction. ||
+||= Ectoentropic||= [[span class="red-text"]]Localized[[/span]] || Rules out possibility of standard interdimensionality. ||
+||= [[span class="bi-b"]]I-ACRS[[/span]] ||= ##grey|Insufficient Data## || More experimentation is required to draw concrete conclusions. ||
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+Stands for "Inter-Anomaly Correlative Regression Score". A scale for how closely an anomalous effect is related to existing datapoints on other anomalies.
+[[/div]]
+
+As no tests yielded positive results, SCP-8980's containment team formulated a new plan of action to research the anomaly.
+
+[[div class="blockquote"]]
+
+**DATE:** March 16th, 2005
+
+**INTERVIEWER:** Head Researcher Christopher Byrnes
+
+**INTERVIEWEE:** SCP-8980
+
+**SUBJECT:** Anomalous Testing Results and Future Plan of Action
+
+----
+
+= **[BEGIN LOG]**
+
+----
+
+//Interview is conducted in a standard interviewing chamber. SCP-8980 is seated, though visibly agitated; it repeatedly taps its leg and huffs for an extended period. After a few minutes, Dr. Byrnes enters the room, prompting SCP-8980 to look up at him.//
+
+**SCP-8980:** You're pretty late.
+
+**DR. BYRNES:** I know, sorry. I got caught up in traffic today.
+
+**SCP-8980:** It's 10:13 AM. You got to the site two hours ago. I know your schedule, we've worked together for two years now.
+
+**DR. BYRNES:** The traffic delayed my other work. You know I have a lot of responsibilities, as research head of Section 3.
+
+**SCP-8980:** Sure.
+
+//Silence.//
+
+**SCP-8980:** So?
+
+**DR. BYRNES:** You're impatient today.
+
+**SCP-8980:** (//Agitated//) Look Byrnes, I've been stuck in a cell for the past week getting my blood drawn and being put through the wringer with all of these tests. I'd hope — at the very least — you'd give me the luxury of being on time.
+
+//Dr. Byrnes shakes his head.//
+
+**DR. BYRNES:** Jesus. You can be a real ball-buster sometimes, Lily.
+
+//SCP-8980 massages its temples.//
+
+**SCP-8980:** Just... just spare me this time. What's the outlook?
+
+//Dr. Byrnes places his briefcase on the table and fetches a few documents from the top, before placing the briefcase on the floor once more. He bites his lip in hesitation.//
+
+**DR. BYRNES:** Well, unfortunately, it does seem like all the standard tests came back null, indicating that your anomaly isn't Pseudo-Explainable.
+
+//Silence.//
+
+**SCP-8980:** Okay. I figured as much.
+
+//Dr. Byrnes pulls out and slides another document towards SCP-8980. It picks it up and begins to read, while Dr. Byrnes continues speaking.//
+
+**DR. BYRNES:** We haven't been able to figure out any concrete //rules// yet, but we can at least determine the anomaly isn't Inexplicable.
+
+**SCP-8980:** ...Yeah. I can definitely see some correlations in the data here, but nothing that can allow us to predict any particular...
+
+//Dr. Byrnes waits momentarily, while SCP-8980 squints at the paper.//
+
+**DR. BYRNES:** We've been able to establish one likely through-line for all the past incidents, though.
+
+//SCP-8980 stops reading and looks up, concern on its face.//
+
+**SCP-8980:** ...Which is?
+
+//Dr. Byrnes clears his throat.//
+
+**DR. BYRNES:** Well... it seems like the anomaly is trying to humiliate you.
+
+//Silence.//
+
+**SCP-8980:** //What?//
+
+**DR. BYRNES:** Here, look.
+
+//Dr. Byrnes slides a third document to SCP-8980, who immediately begins to read it fervently.//
+
+**DR. BYRNES:** Every instance of 8980 changing text has been to your social detriment; every document it's deleted has been when you absolutely needed it for work; and every email that's been sent to the wrong address has caused some breach of sensitive information, calling into question your cognitive stability; and every device that shut down was in the middle of a critical operation while you were nearby.
+
+//SCP-8980 looks up at Dr. Byrnes.//
+
+**SCP-8980:** What... I— do you think it's—
+
+**DR. BYRNES:** Are you religious, by any chance?
+
+//SCP-8980 pauses, taken aback, and contemplates the question momentarily. It shakes its head.//
+
+**SCP-8980:** ...No. I was born to Catholic parents, but I haven't been religious since I was fifteen.
+
+**DR. BYRNES:** Then our first suspect is targeted divine punishment from an Akiva-based entity, or an essophysical attachment of some kind. I can get the relevant departments to run some tests on our behalf; thankfully, essophysics is centralized in 17, so they can get back to us quicker.
+
+//SCP-8980 glances down to the paper it is holding.//
+
+**SCP-8980:** ...Thanks. I appreciate it.
+
+//SCP-8980 pauses.//
+
+**SCP-8980:** Looking at the results... I assume you'll also want more data points out of me.
+
+//Dr. Byrnes smiles and folds his hands together.//
+
+**DR. BYRNES:** You've always had a pretty good head on your shoulders, SCP-8980. Yes, we'll want to be absolutely sure there's no underlying pattern by conducting a few experiments with you. If it's any consolation, it'll give you something to do while we figure out this whole situation.
+
+**SCP-8980:** ...That will add at least another two weeks onto my containment. That's ridiculous. I can't do that.
+
+//Dr. Byrnes sighs softly.//
+
+**DR. BYRNES:** I don't think there's much of a choice, sadly. We can't have you inadvertently ruining critical software in the site, especially with some of the nightmares we lock up here. You're just going to have to put up with it for a while. If it helps, we've already reassigned the manifold problem to Morgan, who should be able to handle it. Just consider this a... an extended vacation, alright?
+
+//SCP-8980 sighs loudly.//
+
+**SCP-8980:** Okay. Alright — fine. Whatever. But you better make sure he credits me for the parts I already did.
+
+**DR. BYRNES:** [[span class="bi-b"]]Of course I will.[[/span]]
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+The article in question, //Finding Triangle Areas in Gajos-Riemannian Manifolds (z-curve > 1)//, was published with then-Junior Researcher Morgan McPharrell as the sole author. SCP-8980 was only credited in the acknowledgments alongside other members of his research team.
+ _
+While the incident in question was found to be a violation of the Foundation Citation Policy, no disciplinary action will be taken at this time. It has been noted that a significant amount of time has passed since the incident had occurred; retroactive punishment was deemed too consequential on Dr. McPharrell's career to be worth pursuing.
+[[/div]]
+
+//Silence.//
+
+**DR. BYRNES:** So, should we proceed with the second phase of testing?
+
+**SCP-8980:** ...Not sure there's much of a choice here.
+
+**DR. BYRNES:** Great! I always appreciate it when a meeting goes smoothly. I'll be sure to get your testing set up by tomorrow. Is that all for today?
+
+**SCP-8980:** Yes.
+
+**DR. BYRNES:** Alright, I'll see you bright and early tomorrow — on time, next time!
+
+----
+
+= **[END LOG]**
+
+----
+
+**AFTERWORD:** //I'll be reaching out to various other departments while we get some experimentation set up. We'll need to try approaching the anomaly from unique vectors to get some data points, so I'll try to allocate some funding for this project. Hopefully more data will give us some more correlations.// -Dr. Byrnes
+
+[[/div]]
+
+----
+
+**Addendum 3:** Experimentation Log & Secondary Testing Results
+
+The following is an abridged list of SCP-8980's experimentation logs, conducted over a period of [[span class="bi-y"]]four[[/span]] days.
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Incorrect Information** — experimentation took five days, not four.
+[[/div]]
+
+[[div class="blockquote light"]]
+**ID:** 8980-A-1
+
+**DURATION:** 2 Hours
+
+**EXPERIMENT:** Control case. SCP-8980 was given a standard Dell-brand laptop with Windows 95 installed as its operating system. The laptop was not capable of connecting to SCiPNet or the Internet.
+
+**NOTED EFFECTS:** Very little occurred initially; however, when attempting to play Minesweeper after an hour, [[span class="bi-b"]]SCP-8980 consistently triggered a bomb on the first guess for over 58 games in a row[[/span]], resulting in it angrily closing the device.
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+This is impossible on non-anomalous versions of Windows 95, as the game generates the board around where the button is first pressed.[[/div]]
+
+----
+
+**COMMENTS:** //It is possible that the phenomenon may be placing SCP-8980 into situations which will cause it to react with frustration or anger, embarrassing itself. SCP-8980's [[span class="bi-y"]]hot-headed personality[[/span]] probably exemplifies this; a good avenue for future experimentation.// -Dr. Byrnes.
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Inappropriate Description** — self-explanatory.
+[[/div]]
+
+[[/div]]
+
+[[div class="blockquote light"]]
+**ID:** 8980-A-2
+
+**DURATION:** 3.5 Hours
+
+**EXPERIMENT:** SCP-8980 was provided with a Dell-brand desktop running [[span class="bi-b"]]NETLOG[[/span]] with read-only SCiPNet permissions. SCP-8980 was instructed to solve one hundred geometry math problems on the device. Certain modifications were made to the software to obfuscate and frustrate SCP-8980 in order to test whether the frustration would prevent SCP-8980's anomaly from activating.
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+NETLOG was the standard SCP Foundation Operating System used for most devices. It was deprecated in 2010 and replaced with Framerail.
+[[/div]]
+
+**NOTED EFFECTS:** SCP-8980 initially reported mixed success, though frequently bumped into software obfuscation that frustrated [[span class="bi-y"]]her[[/span]] endeavors.
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Incorrect Identifier** — all anomalies should be referred to solely by their designation, a clinical identifier, or the pronoun "it". This is to prevent personnel from forming inappropriate personal connections with the SCPs they are assigned to.
+[[/div]]
+
+Researchers noted that values in the software had begun to change slightly while SCP-8980 solved them, resulting in consistently incorrect results; these were not part of the programmed obfuscation tactics. Test was aborted after SCP-8980 refused to continue, citing a migraine.
+
+----
+
+**COMMENTS:** //SCP-8980's anomalous properties activated quite insidiously here; it took us nearly twenty minutes before we even noticed the values changing. It seems the anomaly isn't content with allowing situations to play out naturally, and it could be affecting things on a much more minute scale than we thought. We'll have to pay closer attention.// -Dr. Byrnes
+[[/div]]
+
+[[div class="blockquote light"]]
+**ID:** 8980-A-4
+
+**DURATION:** 25 Minutes
+
+**EXPERIMENT:** SCP-8980 was provided with its work computer, modified to be SCiPNet read-only. SCP-8980 was allowed to use the device for up to an hour in private, in order to test whether its effects activated without outside observers.
+
+**NOTED EFFECTS:** SCP-8980 aborted the test 25 minutes into the experiment unexpectedly, showing distress. [[span class="bi-b"]]SCP-8980 did not yield to questioning on the nature of this event, and requested the experiment not be conducted again.[[/span]]
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+While testimony did corroborate the existence of this experiment and the described interview, no video recording could be found in Site-17's DEEPWELL archives.
+[[/div]]
+
+----
+
+**COMMENTS:** //Even though we are not aware of the specifics of what occurred during this experiment, it is still apparent that the anomaly activates in isolation with SCP-8980. The next line of inquiry should be to see whether or not SCP-8980's anomaly activates with other electronic devices besides Personal Computers (PCs).// [[span class="bi-b"]]-Dr. Steele[[/span]]
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Dr. Rachel Steele** was another member of the SCP-8980 containment team. Interviews conducted with Dr. Steele by the Ethics Committee revealed next-to-no involvement from her in SCP-8980's actual containment beyond initial testing.
+ _
+It is the general consensus of the Ethics Committee that this general lack of involvement was gross negligence on part of Dr. Steele concerning the circumstances surrounding SCP-8980's later containment, and as a result is in direct violation of the Foundation Code of Conduct.
+[[/div]]
+
+[[/div]]
+
+[[div class="blockquote light"]]
+**ID:** 8980-A-5
+
+**DURATION:** 7.5 Hours
+
+**EXPERIMENT:** SCP-8980 was brought to a temporary testing chamber with essential commodities and was provided with a 27" LCD television set connected to cable. SCP-8980 was permitted to watch any television channel it wished.
+
+**NOTED EFFECTS:** SCP-8980 watched various educational documentaries throughout the test, interspersed by an attending researcher entering the room to check on the experiment's status. After seven and a half hours — approaching the eight-hour allotted duration of the experiment — the television suddenly switched to playing //The Wiggles Show!// (a children's program) moments before an attending researcher entered the room. The device would not respond to external input until SCP-8980 was removed from the premises.
+
+----
+
+**COMMENTS:** [[span class="bi-y"]]//It seems as though SCP-8980's anomaly has some form of foresight or intelligence behind it — though we haven't been able to figure out who or what it is.//[[/span]] -Dr. Byrnes
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Erroneous Assumption** — there are numerous reasons for why an anomaly may display rationalistic behaviors similar to sapience without being sentient. As a Containment Specialist, Dr. Byrnes should have been aware of this.
+[[/div]]
+
+[[/div]]
+
+Simultaneously, several more tests were run on organic samples of SCP-8980, the following of which are recorded below:
+
+||~ Type ||~ Results ||~ Comments ||
+||= Akiva ||= [[span class="red-text"]]Baseline[[/span]] [[size 80%]](Atheist)[[/size]] || Rules out possibility of divine punishment. ||
+||= Essophysical||= [[span class="red-text"]]Unbound[[/span]] || Rules out possibility of essophysical embodiment. ||
+||= Temporal ||= [[span class="red-text"]]Unaffected[[/span]] || Rules out possibility of temporal manipulation. ||
+||= I-ACRS ||= [[span class="red-text"]]No Matches[[/span]] || Rules out possibility of causation by known anomaly. ||
+||= Antimemetic ||= ##orange|Unlikely## || While it cannot be ruled out, no major indicators of antimemetic activity have been noted. ||
+||= Digital ||= ##orange|Unlikely## || While it similarly cannot be ruled out, both the IT department and AIAD could not locate any malware or similar software that could be causing SCP-8980 on SCiPNet. ||
+
+After compiling existing evidence, a third interview was conducted with SCP-8980, roughly three weeks after initial containment.
+
+[[div class="blockquote"]]
+
+**DATE:** March 29th, 2005
+
+**INTERVIEWER:** Head Researcher Christopher Byrnes
+
+**INTERVIEWEE:** SCP-8980
+
+**SUBJECT:** Explaining Findings
+
+----
+
+= **[BEGIN LOG]**
+
+----
+
+//Interview is conducted in SCP-8980's containment chamber. SCP-8980 is holding its hands in its lap motionless behind a folding table, waiting for Dr. Byrnes to arrive. He opens the door and enters the room [[span class="bi-g"]]at 10:16 AM[[/span]].//
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Missing Context** — as Dr. Byrnes's lateness was a point of contention in the prior log, the fact that SCP-8980 did not comment on it is worth noting.
+[[/div]]
+
+**DR. BYRNES:** Good morning.
+
+**SCP-8980:** ...Morning.
+
+//Dr. Byrnes seats himself across from SCP-8980.//
+
+**DR. BYRNES:** I'm afraid I don't have the best of news.
+
+//SCP-8980 doesn't say anything, though its posture stiffens. Dr. Byrnes slides a document toward SCP-8980, who picks it up and begins scanning through it.//
+
+**DR. BYRNES:** Pretty much every major test has returned a negative or unlikely result. We've reached out to pretty much every department in the Foundation, and we've got nothing. In essence, it seems like you're a unique Pattern-Based anomaly.
+
+//SCP-8980 drops the document [[span class="bi-r"]]in defeat[[/span]]. It begins to take several deep breaths.//
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Inappropriate Descriptor** — self-explanatory.
+[[/div]]
+
+**SCP-8980:** Oh fuck.
+
+**DR. BYRNES:** Language.
+
+//SCP-8980 slams one of its fists onto the table, startling Dr. Byrnes.//
+
+**SCP-8980:** God //damn// it!
+
+**DR. BYRNES:** Calm down.
+
+**SCP-8980:** How in the world am I supposed to be calm about this?
+
+//Dr. Byrnes sighs in annoyance. He pinches the crease in his forehead.//
+
+**DR. BYRNES:** Lillian, you're acting irrational again. This isn't the end of the world or anything—
+
+**SCP-8980:** (//Interrupting//) Like hell it isn't! Do you know what this means?!
+
+**DR. BYRNES:** —You'll... you'll //just// need to continue testing for a few more months so we can learn to... to mitigate your anomalous effects. That's it. That's it.
+
+//SCP-8980 scoffs.//
+
+**SCP-8980:** So what? Am I supposed to just rot away in this chamber all day while I wait for my "coworkers" to finish poking and prodding me with sticks?
+
+**DR. BYRNES:** Look. I'm sure we can arrange some form of... entertainment for you in the interim.
+
+**SCP-8980:** I don't— I don't //want// entertainment. All I want is to work on my projects and actually //do// something for the world, not watch the— the fucking //Wiggles// all day!
+
+//Dr. Byrnes sighs in frustration.//
+
+**DR. BYRNES:** I figured this would be hard to break to you. Alright, //well//... right now, the best thing you can do for us is to remain in containment and help us study you. Once everything's all done and settled down and we've figured out what's wrong with you, we'll let you come back out and you can help us with your projects or studies or algorithms or whatever. Alright?
+
+**SCP-8980:** It's //not// alright. And I never said I wanted to help //you//.
+
+//Dr. Byrnes flinches and grunts.//
+
+**DR. BYRNES:** ...Not like you've been helping //me// all that much anyways.
+
+//SCP-8980 scoffs again, but doesn't immediately reply. Silence elapses for ten seconds. Neither makes eye contact.//
+
+**SCP-8980:** Alright. One month. After that, I revoke my consent to containment.
+
+**DR. BYRNES:** ...You can't "revoke your consent" to containment.
+
+**SCP-8980:** I know my rights, Byrnes.
+
+//Dr. Byrnes laughs. [[span class="bi-g"]]SCP-8980 doesn't.[[/span]]//
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Missing Descriptor** — due to the contrast between Dr. Byrnes's reaction and SCP-8980's, it is noteworthy to include the lack of social reciprocation on SCP-8980's part.
+[[/div]]
+
+**DR. BYRNES:** Okay, okay. Got it. One month. We'll try to have it all sorted out by then.
+
+//SCP-8980 sighs, then leans back in its chair.//
+
+**SCP-8980:** Is that everything then?
+
+**DR. BYRNES:** Yes.
+
+**SCP-8980:** Thank God.
+
+**DR. BYRNES:** Yes, thank God indeed.
+
+//Dr. Byrnes gets up, and reaches out to shake SCP-8980's hand. SCP-8980 at first glances between his face and his hand, before eventually choosing to accept the handshake. Byrnes leaves the chamber.//
+
+----
+
+= **[END LOG]**
+
+----
+
+**AFTERWORD:** //Telling SCP-8980 the bad news on how containment as an anomaly works will certainly be awkward, so if we can find a way to at least mitigate SCP-8980's effects in the next month, that would be preferable. We'll need to borrow a few members of our other division teams to help expedite some of these tests — but what shouldn't we do for one of our own?// -Dr. Byrnes
+
+[[/div]]
+
+----
+
+**Addendum 4:** Secondary Experimentation Log
+
+In order to best reintegrate SCP-8980 into the SCP Foundation's employment structure, various tests were conducted to determine how to best accommodate its anomalous properties in the workplace.
+
+[[div class="blockquote light"]]
+
+**ID:** 8980-B-2
+
+**DURATION:** 2 Hours
+
+**EXPERIMENT:** SCP-8980 was driven to a remote location with no connection to the electrical grid or Internet. SCP-8980 was provided with a fully-charged, brand-new laptop running Windows 95 with no prior interaction with other electronic equipment post-manufacturing.
+
+**NOTED EFFECTS:** SCP-8980 experienced significant difficulty setting the operating system up, including high input latency, incorrect options being selected (such as language), and the device randomly restarting. While SCP-8980 was able to eventually set up the device, it was cited as being uncomfortable and requested to conclude the experiment.
+
+----
+
+**COMMENTS:** //This does seem to confirm that SCP-8980 is the **source** of the anomaly, as opposed to just its subject. Isolation isn't able to fully prevent its effects, though it isolates any corruption to the device itself.// -Dr. Byrnes
+
+[[/div]]
+
+[[div class="blockquote light"]]
+
+**ID:** 8980-B-4
+
+**DURATION:** 45 Minutes
+
+**EXPERIMENT:** SCP-8980 used a Foundation-standard desktop within a [[span class="bi-b"]]Class 2 Faraday Room[[/span]].
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+A room lined with a Faraday cage, which is a device designed to prevent electromagnetic radiation from interfering with internal electronics. The exact definition is not necessary for this review; however, it is unclear why Dr. Byrnes included this experiment in the log, as there was no reason to suspect this would have any effect, and the experiment returned null results.
+[[/div]]
+
+**NOTED EFFECTS:** SCP-8980 experienced anomalous effects in line with prior observations.
+
+----
+
+**COMMENTS:** //This certainly rules out the possibility of electromagnetic interference, [[span class="bi-r"]]or something of the sort[[/span]].// -Dr. Byrnes
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Vague Vernacular** — more specific language, such as "or any similar possible origins of the anomalous effect", should have been used in this context.
+[[/div]]
+
+[[/div]]
+
+[[div class="blockquote light"]]
+
+**ID:** 8980-B-5
+
+**DURATION:** 25 Minutes
+
+**EXPERIMENT:** SCP-8980 was placed in a room with several electronic devices, including mobile cellphones, television sets, and desktops. SCP-8980 was instructed to use one such device for the duration of the experiment for any purpose.
+
+**NOTED EFFECTS:** SCP-8980 selected and used a BlackBerry 7230 cellphone for several minutes. As the device was modified to prevent the user from sending outgoing electronic communication, SCP-8980 began to play the game "Brick Breaker". After several minutes, the device suddenly froze and began to send an outgoing call. The recipient — a man named "Michael Crawford", who had gone to the same college as SCP-8980 — answered the phone. SCP-8980, upon learning the man's identity, attempted to hang up, though the device refused to cooperate. The two engaged in a heated debate regarding a nebulous topic for nearly fifteen minutes, before SCP-8980 smashed the device and halted the experiment.
+
+----
+
+**COMMENTS:** //Filling SCP-8980's surroundings with electronics to "dilute" its anomalous effects doesn't seem to have any effect. The anomaly appears to be laser-targeted to cause as much damage to SCP-8980's psyche as it can, though its limits haven't been clearly identified.//
+
+//The incident regarding Michael Crawford was of particular interest to us, though background checks and subsequent interviews with him haven't yielded any light on SCP-8980's anomaly. His relationship with SCP-8980 appears to have been one-sided, as he knows more about SCP-8980 than SCP-8980 knows about him, though they definitely do know// of //each other. Details are limited on both sides. He doesn't have any connections to any known GoIs and possesses little-to-no sub-Veil knowledge. Just to be sure, though, we amnesticized him with Class-B amnestics.//
+
+//SCP-8980 has shown heavy reluctance to participate in future experimentation. I've assured it we're getting closer to a permanent solution. It will just need a few days to get its emotions in control.// -Dr. Byrnes
+
+[[/div]]
+
+[[div class="blockquote light"]]
+
+**ID:** 8980-B-6
+
+**DURATION:** 10 Hours
+
+**EXPERIMENT:** SCP-8980 was taken to a retrofitted containment chamber and was provided with multiple stacks of Foundation-standard lined paper as well as several writing instruments (such as pencils). SCP-8980 was instructed to write several short programs on the paper in the programming language //C//, and output the finished product into a slot on the wall. The paper would then be interpreted by a remote system, which would then print the requested debugging/output information and return it to SCP-8980.
+
+**NOTED EFFECTS:** No noted effects of SCP-8980's anomaly were observed during this process.
+
+----
+
+**COMMENTS:** //This system seems like a clear and functional way for SCP-8980 to continue its duties to the Foundation. While I'm sure it's a large reduction in quality compared to a machine, I'm sure it's at least a little relieved that it has a future at this organization. I'm sure I speak for all of us in our research team when I say I look forward to having it back with us.// -Dr. Byrnes
+
+[[/div]]
+
+Following several days standardizing SCP-8980's containment arrangement, SCP-8980 began to resume active employment at the SCP Foundation on April 18th, 2005, with special considerations for its anomalous capabilities. SCP-8980's designation was not lifted, however, due to its potential risk to nearby electronic equipment. SCP-8980's containment procedures have been updated.
+
+----
+
+**Addendum 5:** Post-Reemployment Containment Interview
+
+For the first few days following SCP-8980's accommodations being standardized, SCP-8980 showed signs of struggling, however quickly achieved similar efficiency within a week of acclimation, despite the limitations. SCP-8980 showed some signs of improved emotional stability during this period.
+
+After several weeks of concurrent containment and employment, SCP-8980 began to show signs of irritation and lack of cooperation. After three days of poor compliance with Foundation working standards, Dr. Byrnes scheduled an interview with SCP-8980 to identify the source of the issue.
+
+[[div class="blockquote"]]
+
+**DATE:** May 4th, 2005
+
+**INTERVIEWER:** Head Researcher Christopher Byrnes
+
+**INTERVIEWEE:** SCP-8980
+
+**SUBJECT:** Ongoing Issues in Work Ethic
+
+----
+
+= **[BEGIN LOG]**
+
+----
+
+//SCP-8980 sits motionless behind the interviewing table with its hands clasped together. Despite the lack of movement, there is clear [[span class="bi-y"]]irritation[[/span]] present on its face.//
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Incorrect Descriptor** — SCP-8980's expression was more clearly anxious rather than irritated.
+[[/div]]
+
+//At around 10:09 AM, Dr. Byrnes enters the interview chamber. SCP-8980 takes a silent, deep breath, but does not greet him. He sits down and faces it.//
+
+**DR. BYRNES:** Good morning.
+
+**SCP-8980:** Hi.
+
+//Silence.//
+
+**DR. BYRNES:** So... your performance recently has been showing some... "negative trends", is the term for it. The [[span class="bi-b"]]division director[[/span]] is a bit pissy, and I'm sure you understand the pressure to perform put on us. Things seemed to be quite fine for the past few weeks, so I'm curious why your work ethic suddenly took a nosedive.
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+The division director is Phillip Thompson. Irrelevant to this case.
+[[/div]]
+
+**SCP-8980:** I want out, Byrnes.
+
+**DR. BYRNES:** Hm?
+
+**SCP-8980:** I've been stuck in this cell for 16 hours a day, seven days a week, with little-to-no freedom for over a month now. During work hours, I'm entirely alone when not on break. The silence is deafening and I'm exhausted. I want to //leave//.
+
+//Silence. SCP-8980 shifts in its chair.//
+
+**SCP-8980:** We've had a system here for my "continued employment despite anomalous interference", but I want to talk to my... my friends again. And my parents. I know you know I don't get along with them, but I haven't seen or spoken with them in over a month, and I really miss them. You can surely sympathize with me.
+
+//Dr. Byrnes scratches his chin.//
+
+**DR. BYRNES:** Well, it's not like you can't leave your cell. You've got a total of eight hours of socialization in supervised areas. Just because you can't enter sensitive areas anymore doesn't mean you're imprisoned here.
+
+//Dr. Byrnes momentarily pauses.//
+
+**DR. BYRNES:** Besides, it's not like you're the most social person anyway. You barely talked to us outside of work.
+
+//SCP-8980 grunts.//
+
+**SCP-8980:** I'd really rather have human interactions that aren't being supervised. And to repeat myself: //I want to see my parents again//. So I want out of containment, and — ideally — I want to go back to working at a computer, regardless of the consequences.
+
+**DR. BYRNES:** Lilly, you're anomalous, we can't—
+
+**SCP-8980:** (//Interrupting//) Look. I know. I //know//. But there are anomalies employed by the Foundation too, and most of them don't have to put up with so much of this... this...
+
+//SCP-8980 motions around wildly.//
+
+**SCP-8980:** ...with this //bullshit.// I feel like a fucking prisoner here.
+
+**DR. BYRNES:** Your circumstances are unique, //8980//. We can't let you wander around, possibly wreaking havoc on the Foundation's security or normalcy. One malfunction in a random critical component could cost us //lives//. [[span class="bi-b"]]Hell, you should be grateful the Foundation even lets you out of this cell at all.[[/span]] You're a massive liability for us— for the Foundation //as a whole// now.
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+Foundation Humanoid Containment Policy requires at least eight hours of available socialization opportunities per day, excluding hostile or extremely dangerous entities (such as SCP-4051). This comment was, therefore, inappropriate of Dr. Byrnes to make.
+[[/div]]
+
+//SCP-8980 shifts uncomfortably.//
+
+**SCP-8980:** I—
+
+//SCP-8980 hesitates.//
+
+**SCP-8980:** I mean... truth be told, I don't really give a shit. This isn't //normal//. I never agreed to //this//.
+
+**DR. BYRNES:** The Foundation often does things to people that they don't agree with. You, of all people, ought to know that.
+
+//Silence.//
+
+**SCP-8980:** You sure have tact, Byrnes.
+
+**DR. BYRNES:** It's the truth. Frankly, this has been an awfully draining experience. Adding another anomaly to my duties and subtracting an employee from my roster has been packing our team with endless issues, and your newfound non-compliance has been a real (//Pause.//) a real pain in the ass.
+
+**SCP-8980:** Oh yeah, I'm sure //I've// been the pain in //your// ass. Poor thing.
+
+**DR. BYRNES:** You have been, //thank you very much//.
+
+//SCP-8980 scoffs, but doesn't respond. Silence elapses for twelve seconds. SCP-8980 fidgets anxiously.//
+
+**SCP-8980:** I'm going to file an [[span class="bi-b"]]RFR[[/span]], if I have to. I'm not gonna sit here for another month writing code on a piece of fucking paper all day.
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+RFR stands for "Request For Reassessment". A type of form anomalies can file to request a reassessment of their containment procedures.
+[[/div]]
+
+//Dr. Byrnes shrugs.//
+
+**DR. BYRNES:** Go ahead, 8980. I'm not allowed to stop you. But you know I'm right: you're a liability to normalcy, and the directors know that too. They're not going to do much else differently than me, if anything. Though we can always do another round of testing; maybe we'll meet another one of your college exes.
+
+//SCP-8980 grimaces.//
+
+**SCP-8980:** Maybe I can ask them to change who I'm assigned to, so at least my social interaction of the month isn't with a piece of //shit// like you.
+
+//Dr. Byrnes scowls.//
+
+**DR. BYRNES:** I'm just going to assume it's your [[span class="bi-b"]]time of the month[[/span]] and pretend I didn't hear that, so we can keep some level of professionalism between us.
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+"Time of the month" is slang for the Luteal Phase of the menstrual cycle, where many women experience irrational irritability. This form of vernacular is not appropriate in a workplace environment, and should not have been used by Dr. Byrnes.[[/div]]
+
+**SCP-8980:** Sure[[span class="bi-g"]], since we were already in the business of pretending we didn't hear things[[/span]].
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Missing Dialogue** — this segment of the recording was not explicitly transcribed. Due to the potentially sensitive nature of the comment alongside its conspicuous absence from the transcription, it is clear Dr. Byrnes intentionally excluded it for unknown reasons. Purposeful modification of Foundation transcripts is in direct violation of the Foundation Code of Conduct.
+ _
+The context for SCP-8980's comment could not be identified.
+[[/div]]
+
+//Dr. Byrnes grunts. Silence elapses for nearly twenty seconds without either individual moving. After several seconds, SCP-8980 sighs and stands up.//
+
+**SCP-8980:** I think we're done here. You know what I want. If you're going to obstruct me again, I'll just go around you. I'm tired of staring at your ugly mug, and I'd be happy to get my case off your hands.
+
+//Silence.//
+
+**DR. BYRNES:** Okay. File your RFR. I'll see you again at our next interview.
+
+//SCP-8980 opens its mouth to reply, but decides against it. It leaves the interview room accompanied by a guard.//
+
+//Dr. Byrnes spends several minutes in the room in contemplative silence, before muttering an obscenity to himself and turning off the recording.//
+
+----
+
+= **[END LOG]**
+
+----
+
+**AFTERWORD:** N/A
+
+[[/div]]
+
+Four hours following the interview, SCP-8980 requested and submitted a 2093A form (colloquially "RFR", or "Request For Reassessment") to the [[span class="bi-b"]]Site-17 Containment Oversight Committee[[/span]].
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+Composed of several containment specialists and higher-ranking Site-17 staff, including Senior Researcher Allan Weathers, Dr. Noah Gates, and Site Director Thomas Graham.
+[[/div]]
+
+[[span class="bi-r"]]The document has been reproduced below for transparency purposes[[/span]].
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Violation of Privacy** — It is the general consensus of the Ethics Committee Review Team that the 2093A Form filed by SCP-8980 in 2005 did not need to be displayed on its official file in lieu of a summary. The publication of confidential information on public-facing SCP Files is prohibited unless explicitly necessary to provide context; the purpose of its inclusion in the file is presumed to be for ulterior motives. Regardless, in this instance, Dr. Byrnes was in direct violation of the Foundation's Code of Conduct policy.
+[[/div]]
+@@​@@
+[[div class="blockquote"]]
+[[=]]
++ Form 2093A
++++ Request For Reassessment of Special Containment Procedures
+[[/=]]
+
+[[div style="width: 85%; margin: auto;"]]
+= [[size 85%]]The 2093A Form is designed to allow anomalies to request reevaluation of their Special Containment Procedures by a site's Containment Overseer Committee. The 2093A Form was standardized in 1995.[[/size]]
+[[/div]]
+
+----
+
+**Designation(s):**SCP-8980
+
+**Full Legal Name:** Lillian Marley
+
+**Date of Birth:** January 12th, 1977
+
+**Sex:** Female
+
+**Gender:** Female
+
+**Marital Status:** Never Married
+
+**Immediate Family:** Mother
+
+**Are you currently employed by the SCP Foundation?:** Yes
+
+**Current and Former Employment Status:** Ongoing employment, became anomalous during employment.
+
+**Employee ID:** L7701M53-9271
+
+**Full Containment Area Designation:** Humanoid Containment Chamber #β082, Section 6, Northwest Wing, Site-17
+
+**Purpose for Filing:** I am largely dissatisfied with how my ongoing containment has been handled by my current containment staff. As a former non-anomalous member of Foundation staff who has worked closely with containment specialists in the past, I am of the opinion I am being deprived of certain rights and subject to improper containment, including (but not limited to):
+
+* A severe lack of visitation rights from family members.
+* A major failure in privacy rights, especially during socialization.
+* A lack of sufficient entertainment/stimulation.
+* Verbal abuse from Head Researcher Christopher Byrnes.
+* A failure to obtain consent for permanent containment.
+
+Due to these factors, I am requesting direct intervention from the Containment Oversight Committee to reassess my current containment procedures, and whether Dr. Byrnes is most fit to handle my case. I am hoping that these issues can be settled without further issue.
+
+[[div_ style="border-top: 3px dashed white; text-align: center; border-bottom: 3px dashed white"]]
++++ Anomaly does not file below this point.
+[[/div]]
+
+**Preferred Title:** Doctor
+
+**First Legal Name:** Christopher Byrnes
+
+**Sex:** Male
+
+**Gender:** Male
+
+**Marital Status:** Divorced
+
+**Clearance Level:** Level 3 - Containment Specialist, Provisional Site-17/4 Clearance (Issued on 10/26/2004)
+
+**Contextual Comments and Clarifications:** Admittedly, SCP-8980 is an exceedingly difficult anomaly to work on for me. Researcher Marley was a close associate of mine throughout its tenure in our department, and despite our differences we worked quite well as a team. To see it have to suffer through this anomaly has been painful for all of us — it especially — and this situation has brought out quite a lot of negative emotions in all of us.
+
+Nonetheless, it is my professional opinion that we've been doing all we are able for SCP-8980's comfort and productivity. Its anomalous effects — while innocuous at first glance — could have catastrophic consequences should it interfere with a major electronic component at the site. For this reason, we've had to take extra precaution regarding who SCP-8980 interacts with, both for its safety and for ours. This is also why its provisional containment has been extended.
+
+I will admit, I have been less than professional in my past interviews with SCP-8980 thus far. However, I recognize now that this situation has begun to escalate, and based on my past counseling, I would like to try and show this Committee that I am fully capable of fixing my mistakes and maintaining a healthy and productive relationship with SCP-8980 in the future. If necessary, I will begin remedial therapy to address my mistakes and work towards a better future for myself and others.
+
+I hope you consider my words in good health,
+Dr. Christopher Byrnes
+
+[[div_ style="grid-column-start: span 6; border-top: 3px dashed white; text-align: center;"]]
+
++++ END OF DOCUMENT
+[[/div]]
+[[/div]]
+
+After three weeks of deliberation, the Site-17 Containment Oversight Committee replied to the request [[span class="bi-r"]]with the following document[[/span]]:
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Violation of Privacy** — See prior note.
+[[/div]]
+@@​@@
+[[div class="committee-reply"]]
+
+[[=]]
++++ Site-17 Containment Oversight Committee
+
++++++ Response to Form 2093A-8980 (05/27/05)
+[[/=]]
+
+----
+
+[[div style="font-family: 'Times New Roman';"]]
+
+SCP-8980,
+
+Thank you for reaching out to the Committee regarding your ongoing containment. We appreciate your continued efforts to help make the SCP Foundation a more ethical and responsible organization.
+
+Following intense deliberation, we have decided to respond to each of the points you made below independently, in order to ensure we adequately meet your expectations:
+
+[[span style="padding-left: 10px; color: #2f2f2f; border-left: 3px solid #2f2f2f"]]A severe lack of visitation rights from family members.[[/span]]
+
+As per Chapter 2, Section 5 § 8.15.3 of the Ethics Committee Code of Conduct, an anomaly may be denied visitation rights if the transportation of any involved persons could cause "significant and/or highly likely damage to either normalcy or monetary/personnel resources of the SCP Foundation". In conjunction with your anomalous effects, it is the opinion of this Committee that a lack of visitation rights was within the guidelines set out by the Ethics Committee as they so intended.
+
+[[span style="padding-left: 10px; color: #2f2f2f; border-left: 3px solid #2f2f2f"]]A major failure in privacy rights, especially during socialization.[[/span]]
+
+It is largely the opinion of this Committee that Dr. Byrnes is not infringing on your right to privacy. While several accommodations can and will be made for your future containment (such as a provisional guarantee to private one-on-one conversations with other anomalies or coworkers without direct supervision), you still maintain an overall right to privacy with stipulations to accommodate your anomalous properties.
+
+[[span style="padding-left: 10px; color: #2f2f2f; border-left: 3px solid #2f2f2f"]]A lack of sufficient entertainment/stimulation.[[/span]]
+
+Your containment staff will be provided with a $50 USD monthly allocated budget for purchasing recreational material at your request.
+
+[[span style="padding-left: 10px; color: #2f2f2f; border-left: 3px solid #2f2f2f"]]Verbal abuse from Head Researcher Christopher Byrnes.[[/span]]
+
+The Committee has found that several comments made by Head Researcher Christopher Byrnes to you have indeed been inappropriate for a professional environment. We have reprimanded Dr. Byrnes on his comments and have scheduled him for three months of remedial therapy, concurrent with his oversight of your anomaly.
+
+[[span style="padding-left: 10px; color: #2f2f2f; border-left: 3px solid #2f2f2f"]]A failure to obtain consent for permanent containment.[[/span]]
+
+According to the Foundation Employee Handbook, consent is not a requirement for your containment.
+
+----
+
+We hope these points help alleviate your concerns regarding your continued containment here at the SCP Foundation. If you have any further questions or concerns, please reach out to the [[span class="bi-b"]]Site-17 Local Ethics Committee Liaison[[/span]].
+
+++++ Desk of the Containment Oversight Committee
++++++ Session Presided Over by Dr. Noah Gates on May 27th, 2005
+
+[[/div]]
+
+[[div_ class="bi-popup whitepop"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+At the time, the Site-17 Ethics Committee Liaison role was unfilled. The role was eventually filled by Ethics Committee Liaison Flora Marinos in 2011.
+[[/div]]
+
+[[/div]]
+@@​@@
+[[/div]]
+
+@@​@@
+
+[[div class="ec"]]
+
+= **[[span class="ec-title"]]ETHICS COMMITTEE MEMORANDUM[[/span]]**
+@@​@@
+= The remainder of this file represents a **severe and continued violation** of the SCP Foundation's Code of Conduct policy, including gross neglect and explicit abuse of a contained anomaly over a lengthy period of time.
+@@​@@
+= Any and all individuals who are not willing to view such content should not proceed with the remainder of this document. If you have been assigned to this document and are not comfortable viewing such material, please speak with your supervisor for immediate reassignment and amnesticization.
+@@​@@
+= [[size 135%]]Reviewer discretion is heavily advised. [[span class="red-text"]]__Proceed at your own risk.[[/span]]__[[/size]]
+
+[[/div]]
+
+@@​@@
+
+[[div class="darkdocument"]]
+
+**Addendum 6:** Ongoing Containment Plan
+
+On June 8th, 2005, two weeks after being prescribed remedial therapy, Dr. Byrnes conducted a follow-up interview with SCP-8980 to reassess containment efforts and ensure SCP-8980's well-being.
+
+SCP-8980 had continued to display lowered engagement with its continued employment at the Foundation, often missing deadlines, failing to clock into work (despite living in its work environment), and producing more errors. Additionally, while SCP-8980 had been seen engaging in socialization with other anomalies, most of these interactions were superficial and presumably unsatisfying for SCP-8980, possibly indicating depressive symptoms.
+
+[[div class="blockquote"]]
+
+**DATE:** June 8th, 2005
+
+**INTERVIEWER:** Head Researcher Christopher Byrnes
+
+**INTERVIEWEE:** SCP-8980
+
+**SUBJECT:** Ongoing Issues
+
+----
+
+= **[BEGIN LOG]**
+
+----
+
+//SCP-8980 is holding its head up on a plastic folding table in its containment cell. [[span class="bi-r"]]Its bed is unmade, and a trash can in the corner of the room is entirely filled with diet soft drinks of various brands. Several crumpled papers are present under its Foundation-issued desk.[[/span]]//
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Unnecessary Personal Information** — While the state of SCP-8980's room lends authenticity to SCP-8980's mental state being poor, the content of the interview is enough to highlight this, rendering this description unnecessary.
+[[/div]]
+
+//Dr. Byrnes enters the room, prompting SCP-8980 to look up, but not move. Dr. Byrnes places the audio recording device on the desk and turns it on.//
+
+**DR. BYRNES:** Beginning interview log, ID 8980-W12, with SCP-8980 at 10:02 AM. Good morning, 8980.
+
+//SCP-8980 begins laughing hysterically.//
+
+**SCP-8980:** Wow, they must've given you quite the beating, Byrnes! Never thought I'd see you act so professional — you didn't even stutter!
+
+//Dr. Byrnes smiles.//
+
+**DR. BYRNES:** Yes, well, I suppose you could say that I'm a changed man now. I've realized that I've done very little to minimize conflict in our workplace environment. So from now on, I'll be following the SCP Foundation guidelines down to the letter. I hope this should be enough for us to — using the same phrasing I've used before — maintain professionalism between us in the future.
+
+**SCP-8980:** [[span class="bi-b"]]I'll see it when I believe it.[[/span]] I wasn't born yesterday. I know you haven't changed a bit.
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+The phrase is "I'll believe it when I see it." This is, however, transcribed correctly.
+[[/div]]
+
+//Dr. Byrnes smiles again.//
+
+**DR. BYRNES:** Don't worry; you'll see it.
+
+//SCP-8980 lets out an [[span class="bi-y"]]exasperated laugh-sigh[[/span]]. Dr. Byrnes places several documents on the table in front of him.//
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Incorrect Nomenclature** — the correct term for the sound made by SCP-8980 is a "dry laugh".
+[[/div]]
+
+**DR. BYRNES:** As for today's agenda, I want to speak with you about your workplace environment, the possibility of psychological assistance, and future testing protocols.
+
+**SCP-8980:** I don't need a psycholo— (//Pause//) ...Testing?
+
+**DR. BYRNES:** Yes, we want to—
+
+//SCP-8980 slams its fist down on the table and stands up, startling Head Researcher Byrnes.//
+
+**SCP-8980:** //No!// Ab—
+
+//SCP-8980 pauses, then sits down again.//
+
+**SCP-8980:** ...Absolutely not. No. I won't do any more testing.
+
+//Silence.//
+
+**DR. BYRNES:** Allow me to elaborate, if I may.
+
+//Silence.//
+
+**DR. BYRNES:** It's quite clear from your RFR that you're very discontent with your current working arrangements, correct?
+
+[[span class="bi-b"]]//SCP-8980 freezes, but then slowly nods.//[[/span]]
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+It is likely that SCP-8980 was not aware RFRs are shown to Containment Handlers for comment prior to Containment Oversight Committee review, explaining its reaction to Dr. Byrnes's statement.
+[[/div]]
+
+**DR. BYRNES:** Well, with additional testing, we should be able to figure out some more amenable conditions for you to work in. I'm sure you want that, yes?
+
+**SCP-8980:** Fuck you, bastard. I don't have a choice in this.
+
+**DR. BYRNES:** Well, technically you do. According to the Foundation Code of—
+
+**SCP-8980:** (//Interrupting//) Just save it.
+
+**DR. BYRNES:** —According to the Foundation Code of Conduct, you're free to deny testing if it is not being conducted for security concerns, normalcy enforcement, or termination of subject. Since your anomaly is not //unavoidably// dangerous, you don't have to worry about that last reason.
+
+**SCP-8980:** Jesus Christ.
+
+**DR. BYRNES:** Anyway, please be sure to let me know by Monday whether you truly wish to abort testing. I'll be sending you the relevant paperwork to fill out; Code of Conduct doesn't quite allow me to decline testing based on verbal request, and I need to give you three "business" days' notice for you to withdraw consent in writing.
+
+//Dr. Byrnes pauses, then continues.//
+
+**DR. BYRNES:** However, I do wish to inform you that I personally believe testing is very much in your best interest, especially based on what you've told me in the past and your present mental state.
+
+**SCP-8980:** Something that would help my mental state is not having //you// run my testing.
+
+**DR. BYRNES:** Unfortunately, I am required by the Code of Conduct to at least have some oversight role in any experimentation carried out on you. I hope you understand.
+
+**SCP-8980:** If this is your idea of de-escalation, I'd hate to be your therapist.
+
+//Dr. Byrnes lightly smiles.//
+
+**DR. BYRNES:** I apologize for your discomfort then. Though, speaking of therapists, I'd like to also sign you up for Site-17's Parapsychological Counseling Program. I have an acqua—
+
+**SCP-8980:** (//Interrupting//) Let me save you trouble Chris. I don't want a therapist. There's //nothing// wrong with me. I am fine. //I am fine.// Okay?
+
+//Dr. Byrnes smiles.//
+
+**DR. BYRNES:** Okay. Though remember, offer's on the table.
+
+**SCP-8980:** Great to know.
+
+//Silence.//
+
+**SCP-8980:** Is that everything? Can you leave now? //Please?//
+
+**DR. BYRNES:** Yes, that should encompass everything on my agenda. I'll be sure to get the relevant documentation to you by 5:00 PM today. [[span class="bi-b"]]I //highly// recommend that you don't file it, though, if you want my two cents.[[/span]]
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+Dr. Byrnes should not have provided his own opinion on whether SCP-8980 should deny testing or not, as it was not his decision to make.
+[[/div]]
+
+//Dr. Byrnes extends his hand, and SCP-8980 [[span class="bi-g"]]begrudgingly[[/span]] shakes it. Dr. Byrnes leaves the containment chamber.//
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Missing Descriptor** — video footage shows SCP-8980 hesitating for several seconds before shaking Dr. Byrnes's hand. This should have been noted.
+[[/div]]
+
+----
+
+= **[END LOG]**
+
+----
+
+**AFTERWORD:** //SCP-8980's reluctance to therapy and continued testing is most probably due to the depressive symptoms we've been seeing from its accommodated working environment. However, I firmly believe additional testing will help us identify additional ways we can improve SCP-8980's environment, or in lieu of that, help us understand the basis for the anomaly further.//
+
+//I would like to reiterate that our team is working diligently to improve SCP-8980's conditions. While we cannot control SCP-8980's reaction to its containment, we can try our best to ensure it is as comfortable as possible with its new role.//-Dr. Byrnes
+
+[[/div]]
+
+----
+
+**Addendum 7:** Tertiary Experimentation Log
+
+After several days of waiting for SCP-8980 to submit appropriate documentation, it reluctantly agreed to participate in "necessary and purposeful" testing of its anomalous properties in order to "work towards a more productive work environment". The following is an [[span class="bi-b"]]abridged[[/span]] list of the third round of experimentation conducted by SCP-8980's research team under Head Researcher Christopher Byrnes.
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+It is the general consensus of the Ethics Committee Review Team that the quantity of experiments in totality conducted was severely in excess of what was reasonably required, totaling 36 separate experiments over two months despite only the four listed below providing any new information.
+[[/div]]
+
+[[div class="blockquote light"]]
+
+**ID:** 8980-C-3
+
+**DURATION:** 1.5 Minutes
+
+**EXPERIMENT:** SCP-8980 was instructed to warm up a standard Foundation ration using a microwave oven with no electronic interfaces (though it contained internal electronic circuits).
+
+**NOTED EFFECTS:** The microwave's radiation was significantly higher than normal; instead of the standard 2.5 GHz, the microwave was believed to output at the maximum 6.8 GHz for the model, resulting in the ration violently exploding inside.
+
+----
+
+**COMMENTS:** //It appears as though electronic circuitry is susceptible to SCP-8980's effects, despite the lack of electronic interface. The effect extends even to regular equipment too, which justifies the strict oversight of SCP-8980's movement through the site.// -Dr. Byrnes
+
+[[/div]]
+
+[[div class="blockquote light"]]
+
+**ID:** 8980-C-12
+
+**DURATION:** 2 Hours
+
+**EXPERIMENT:** SCP-8980 was instructed to use an experimental speech-to-text transcriber that was located in a separate room to fulfill various prompts, which would then be printed out afterwords using an analog system. SCP-8980 did not have any direct contact with the transcriber, which was electronic in nature.
+
+**NOTED EFFECTS:** The transcriber began to misrepresent various words that SCP-8980 spoke in a manner consistent with its known anomalous properties. It is unclear if this was partially due to the transcriber's general inaccuracy, or influenced by SCP-8980.
+
+----
+
+**COMMENTS:** //Electronic components which SCP-8980 has direct contact with — even if it can't see them — still appear to malfunction. This definitely limits our options even further than they already were. If we are to find some alternative system, we have to be creative.// -Dr. Byrnes
+
+[[/div]]
+
+[[div class="blockquote light"]]
+
+**ID:** 8980-C-31
+
+**DURATION:** 15 Hours
+
+**EXPERIMENT:** An inactive DELL desktop computer running Windows XP was placed in SCP-8980's containment chamber. SCP-8980 was instructed not to use or interact with the device at all.
+
+**NOTED EFFECTS:** Despite not interacting with the desktop, the device repeatedly activated. During activation, the device played the Windows XP startup sound, which repeatedly and audibly startled SCP-8980. SCP-8980 refused to touch or turn off the device after startup, even when requested to by experiment overseers.
+
+After the twenty-third activation at approximately fifteen hours into the experiment, SCP-8980 began sobbing uncontrollably, terminating the test.
+
+----
+
+**COMMENTS:** //This experiment — while disruptive for SCP-8980 — helps us further narrow down why our alternative systems don't quite work. Interaction does not seem to be a prerequisite for the anomaly's activation, only SCP-8980's general proximity.// -Dr. Byrnes
+[[/div]]
+
+[[div class="blockquote light"]]
+
+**ID:** 8980-C-36
+
+**DURATION:** 47 Minutes
+
+**EXPERIMENT:** SCP-8980 was brought to a connected testing chamber. It was instructed to communicate with Junior Researcher Morgan McPharrell, who was present in a separate room. McPharrell was instructed in turn to follow SCP-8980's directions while interacting with a DELL desktop computer, taking caution not to communicate back to SCP-8980 except through written notes passed through a slot on the walls connecting the chambers.
+
+**NOTED EFFECTS:** While the experiment was running, no noted effects occurred. However, roughly 3/4ths of an hour into the experiment, SCP-8980 vomited onto the floor of the chamber, and began sobbing uncontrollably. SCP-8980 and Junior Researcher McPharrell were both extracted and the experiment concluded early.
+
+----
+
+**COMMENTS:** See following Incident log.
+[[/div]]
+
+----
+
+**Incident 1:** Post-Medical Instability
+
+On August 16th, 2005, SCP-8980 vomited profusely during [[span class="bi-r"]]routine[[/span]] testing, resulting in its immediate hospitalization in Site-17's West Wing.
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Incorrect Information** — the testing was not routine.
+[[/div]]
+
+After objective analysis, it was largely determined that SCP-8980 did not suffer from a known paramedical or medical condition, and its issues were likely due to cumulative stress, depressive symptoms, and disorientation from a lack of proper nutrition. [[span class="bi-b"]]SCP-8980 was discharged to its containment unit on August 17th, 2005.[[/span]]
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+Although compliant with the Foundation Medical Code of Conduct, it would have been prudent for medical staff to hold SCP-8980 for several days to properly diagnose any underlying medical or mental disorders.
+[[/div]]
+
+Despite being discharged, SCP-8980 refused continued testing, citing its hospitalization as a [[span class="bi-g"]](valid)[[/span]] reason for suspension of experimentation.
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Missing Context** — it is important to specify that SCP-8980's reason for suspension of testing is entirely valid under the then-present circumstances according to the Foundation Code of Conduct.
+[[/div]]
+
+However, concurrently, it refused to leave its cell and experienced severe lethargy for several days, resulting in very little production or socialization during this time. On August 23rd, 2005, Dr. Byrnes conducted an intervention-interview with SCP-8980 to attempt to address the issues it was facing.
+
+[[div class="blockquote"]]
+
+**DATE:** August 23rd, 2005
+
+**INTERVIEWER:** Head Researcher Christopher Byrnes
+
+**INTERVIEWEE:** SCP-8980
+
+**SUBJECT:** Lethargy and Lack of Motivation
+
+----
+
+= **[BEGIN LOG]**
+
+----
+
+//SCP-8980 is sitting down in its containment chamber with its arms hugging onto its sides. It stares downwards directly ahead unmoving until Dr. Byrnes enters the room, causing it to glare up at him but otherwise remain motionless. Its breathing pace can be seen briefly quickening, before returning to its baseline.//
+
+//Dr. Byrnes sets down the recorder on the folding table and begins the interview.//
+
+**DR. BYRNES:** Beginning interview log, ID 8980-W23, with SCP-8980 at 10:01 AM. Good morning, 8980.
+
+//Silence.//
+
+**DR. BYRNES:** I see. Well, I suppose that //is// the purpose of our interview today, so let me get right onto the agenda.
+
+//Dr. Byrnes pulls out and straightens several papers.//
+
+**DR. BYRNES:** Ehem. So, our first topic for today is the medical incident that occurred during Experiment 8980-C-36, involving Mr. McPharrell. Ah, that's who was behind the wall, by the way. I'm sure you remember him. Helped finish the manifold problem, if you recall?
+
+//Silence. SCP-8980 stares directly at Dr. Byrnes.//
+
+**DR. BYRNES:** Anyways, on subject: we wanted to ask a few routine questions. Is that alright?
+
+**SCP-8980:** No.
+
+**DR. BYRNES:** ...Hm. Well, I suppose I'm not allowed to push you to answer medical questions against your will, according to the Foundation Code of Conduct, so I'll just drop the issue for now. We can circle back to it some other time. Anyways... for the second item on the agenda, let's see—
+
+//SCP-8980 lets out a long, exasperated sigh.//
+
+**SCP-8980:** What...
+
+//Silence. Dr. Byrnes looks up at SCP-8980 expectantly.//
+
+**SCP-8980:** What day is it?
+
+**DR. BYRNES:** It's a Tuesday.
+
+**SCP-8980:** No, Byrnes. I meant... what... what... date is it?
+
+//Dr. Byrnes briefly glances around SCP-8980's containment chamber.//
+
+**DR. BYRNES:** I see. You don't have a calendar in here. [[span class="bi-b"]]I suppose I'll arrange to get you one later.[[/span]]
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+Dr. Byrnes never provided SCP-8980 with a calendar during the entire duration of its containment.
+[[/div]]
+
+//Dr. Byrnes reaches for his mobile phone, but recalls he does not have it on him. He spends a few moments thinking.//
+
+**DR. BYRNES:** Right, your rules don't let me bring my phone in here. I believe it's around... the 22nd of August? I've been pretty busy, so...
+
+**SCP-8980:** //...August?!//
+
+//SCP-8980 begins hyperventilating and abruptly stands up, knocking its chair backward and startling Dr. Byrnes.//
+
+**SCP-8980:** It's been //six months//?! I've been here for— for //six months//?!
+
+**DR. BYRNES:** I'm... afraid so, yes. Unfortunately we haven't made much progress in neutralizing your anomaly—
+
+**SCP-8980:** (//Interrupting loudly//) Oh my god. Oh my god. Oh my god.
+
+**DR. BYRNES:** Please, calm down.
+
+//SCP-8980 clutches its head and backs itself against the wall. It begins muttering to itself, hysterical sobs occasionally ringing out. Dr. Byrnes remains at the table, but keeps a steady gaze on SCP-8980.//
+
+**SCP-8980:** Six months... six months... oh my god... oh my god... when will it end, why, why...
+
+**DR. BYRNES:** Look, I—
+
+//SCP-8980 screams, then sobs loudly, and lowers itself onto the floor. Dr. Byrnes does not move. SCP-8980 continues to sob for several minutes, until it eventually cries silently.//
+
+**DR. BYRNES:** ...You know I'm not trying to hurt you, 8980. The experiments can be a lot, yes, but ultimately we've made some progress, and—
+
+**SCP-8980:** (//Interrupting//) Just... just shut up. //Please.// Please just be //quiet//.
+
+**DR. BYRNES:** I'm just trying to help you, 8980. We all are. While our progress... //has// been slow, at our current rate we're guaranteed to make a breakthrough within a year or two.
+
+//SCP-8980 uncovers its tear-stricken face and stares [[span class="bi-g"]]in horror[[/span]] at Dr. Byrnes, slowly rising to its feet.//
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Missing Discriptor** — it is indisputable that SCP-8980 appeared horrified.
+[[/div]]
+
+**SCP-8980:** No. No, no, no, no, no, no, no. You're not helping me. You're not helping //anyone//. Leave. Please.
+
+//Dr. Byrnes slowly reaches for his glasses and begins to polish them.//
+
+**DR. BYRNES:** You know I'm not going to leave until we cover the full agenda, 8980. And I //am// here to help you, even if you don't understand that yet.
+
+//SCP-8980 approaches the table but doesn't sit down. Dr. Byrnes looks up and stops polishing his glasses.//
+
+**SCP-8980:** I'm not fucking doing this anymore, Christopher. I'm not playing your sick fucking games. I can't do this for another six months, let alone a goddamn //year//. I would rather die than do another god damn fucking useless shit-ass experiment overseen by your egotistical, narcissistic, [[span class="bi-g"]]misogynistic[[/span]] piece of shit smug //FUCKING// face!
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Missing Dialogue** — SCP-8980 saying "misogynistic" was not transcribed by Dr. Byrnes.
+[[/div]]
+
+**DR. BYRNES:** ...8980.
+
+//SCP-8980 balls its fists into its face, before screaming. SCP-8980, without warning, lunges at Dr. Byrnes over the table, knocking them both to the floor. Dr. Byrnes yells in terror.//
+
+**SCP-8980:** //MY FUCKING NAME IS LILLIAN MARLEY, YOU GODDAMN PIECE OF SHIT!//
+
+//SCP-8980's legs push down on Dr. Byrnes's left arm, pinning him to the floor as it leans its weight on his right arm. Dr. Byrnes struggles wildly as SCP-8980 frantically begins searching.//
+
+**DR. BYRNES:** GET OFF OF ME!
+
+//SCP-8980 does not verbally respond as the two struggle. In short order, it spots the key to its containment unit on the floor, and immediately stretches to grab it. In the instant that SCP-8980 shifts its weight, Dr. Byrnes manages to free himself and throws himself sideways, sending SCP-8980 spiraling to the floor before it can grab the keys. SCP-8980 yelps in pain as Dr. Byrnes reflexively kicks it in the chest.//
+
+//As SCP-8980 recovers its bearings, Dr. Byrnes pulls himself up using the knocked-over table, holding his stomach. SCP-8980 attempts to pull itself up, but Dr. Byrnes delivers another kick to its chest [[span class="bi-r"]]in self-defense[[/span]], sending it spiraling into Dr. Byrnes's sideways chair. It screams and begins sobbing uncontrollably as its back hits the floor.//
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Incorrect Information** — Dr. Byrnes's "self-defense" action has been determined to be excessive, even in the circumstances they occurred in, constituting retroactive explicit abuse of an anomaly.
+[[/div]]
+
+//Dr. Byrnes spends several seconds panting and staring at SCP-8980, before picking up the keys to the unit and his (now shattered) glasses and exiting the room, leaving the recording equipment behind. SCP-8980 does not make any effort to acknowledge his exit, nor attempt to follow him out of the containment unit. Instead, it sobs and [[span class="bi-y"]]moans[[/span]] softly on the floor, slowly curling itself into a fetal position.//
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Improper Vernacular** — the word "groans" is more appropriate than the word "moans" in this context.
+[[/div]]
+
+//After several minutes, site security is alerted and responds to the situation. [[span class="bi-b"]]A security officer[[/span]] enters the chamber and immediately moves to place SCP-8980 in handcuffs, restraining it with little resistance.//
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+The individual was later identified as Agent Olivia M. Hall, a 31-year-old female security guard.
+[[/div]]
+
+//[[span class="bi-y"]]He[[/span]] then placed SCP-8980 on its bed, erected the table and chairs, and finally disabled the recording before exiting and resecuring the containment chamber.//
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Incorrect Identifier** — as the guard's gender/sex was not known to Dr. Byrnes, he should have used gender-neutral terminology out of respect for the guard while writing the incident report.
+[[/div]]
+
+----
+
+= **[END LOG]**
+
+[[/div]]
+
+In the aftermath of the incident, it became clear that SCP-8980's psychological state had deteriorated significantly, to the point of engaging in active hostility against Foundation staff. This necessitated Foundation intervention for the safety of both the anomaly and its containment personnel. To this end, several measures were immediately enacted by Dr. Byrnes in compliance with the Foundation Code of Conduct:
+
+* SCP-8980 was classified as a potentially hostile entity, requiring approval from containment staff to interact with the anomaly.
+* SCP-8980's free-roam time was reduced, with further restrictions to its movement at the site to minimize future incidents.
+* SCP-8980 was required to undergo [[span class="bi-b"]]Level 3 intensity security measures for humanoids[[/span]].
+* SCP-8980 was assigned to mandatory in-person parapsychological counseling.
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+Level 3 intensity requires security cameras to be placed directly in the containment cell of the anomaly, additional restrictions on what recreational items the anomaly is allowed to request, and weekly room searches to prevent contraband possession. The maximum security level is five. _
+ _
+It is the opinion of the Ethics Committee Review Team that this was extremely excessive for the circumstance, though not technically in violation of the Foundation's Code of Conduct.
+[[/div]]
+
+After implementing the above procedures, Dr. Byrnes was requested by Site-17 administration to distance himself from handling SCP-8980's case. [[span class="bi-y"]]He complied.[[/span]]
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Incorrect Information** — Dr. Byrnes was highly agitated by his removal and consistently put pressure on Site-17's senior staff to remain Head Researcher over SCP-8980.
+[[/div]]
+
+However, [[span class="bi-y"]]after several weeks of searching for a replacement without result[[/span]], Site Director Thomas Graham signed off on the retainment of Dr. Byrnes as Head Researcher, [[span class="bi-b"]]citing his prior professionalism and expertise in handling SCP-8980's "tantrums".[[/span]]
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Vague Information** — according to Foundation Reassignment Policy, the only possible candidates for the position were other members of SCP-8980's existing research team, of which there must be a minimum of three people total. Of the remaining two, Dr. Steele professed no interest in taking up the position, and Junior Researcher McPharrell was strictly underqualified for the role.
+ _
+**Incorrect Information** — the process occurred over several days, not weeks.
+
+[[/div]]
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+When confronted with evidence regarding Dr. Byrnes's inappropriate prior actions, Site Director Thomas Graham claimed complete ignorance to nearly all of the events detailed prior and below. While this is considered extremely unlikely due to his central role on the Site-17 Containment Oversight Committee, no concrete evidence has yet been found that he intentionally violated the Foundation Code of Conduct in this case.
+[[/div]]
+
+For three days following the incident, SCP-8980 was given medical treatment for the wounds it incurred during the altercation. On August 27th, it was returned to its containment chamber. Its first parapsychological counseling session was scheduled for September 5th, 2005, and would occur every following Monday under [[span class="bi-b"]]Dr. Nadine Crawford, PPsyD[[/span]].
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Nadine Crawford** was a prominent parapsychologist working for Site-17. After obtaining her PsyD in 1979 in Portland, Oregon, USA, she incidentally came into contact with a significant amount of anomalous clients due to her clinic's proximity to the Three Portlands Nexus. Because of this, she was scouted by a Foundation recruitment agency and she accepted the position of parapsychologist shortly thereafter. _
+ _
+Dr. Crawford has generally been described as thoughtful, compassionate, and patient by most of the anomalies put under her care in the past. However, several incidents demonstrating grossly inappropriate behavior throughout her career resulted in the Foundation terminating her employment in 2013. This includes a particularly grievous incident in 2012, involving a romantic relationship with a male anomaly under her care that ultimately resulted in it committing suicide in containment. _
+ _
+Based on evidence obtained by the Ethics Committee Review Team, it is suspected Crawford had close personal ties with Dr. Byrnes. For more information about her relevant cases, please consult Case ID #07082012-9932-T.
+[[/div]]
+
+----
+
+**Addendum 8:** Ongoing Psychological & Physical Health Effects
+
+Beginning near the start of September, SCP-8980 was required to attend parapsychological counseling on a weekly basis under Dr. Nadine Crawford. Initially, these sessions made very little progress, as SCP-8980 had a strong negative reaction towards the therapy process. This continued throughout the month. However, an eventual initial breakthrough was achieved on September 26th, 2005, when SCP-8980 began to speak with Dr. Crawford in a meaningful capacity for the first time.
+
+[[div class="blockquote"]]
+
+= **[BEGIN EXCERPT]**
+
+----
+
+//Extraneous information removed. Prior to this excerpt, Dr. Crawford attempted several times to initiate productive conversation with SCP-8980, which was largely unreciprocated.//
+
+//Dr. Crawford is sitting at her desk in the furnished office, while SCP-8980 is lying on a large velvet chair. Dr. Crawford has been doing miscellaneous paperwork for nearly fifteen minutes in silence, while SCP-8980 struggles to stay awake on the couch. SCP-8980's clothes and hair are both highly disheveled.//
+
+//After the fourth time, SCP-8980 snaps itself to attention, it pushes itself further up the couch, presumably to help it stay awake better.//
+
+**DR. CRAWFORD:** It's comfortable, isn't it?
+
+//SCP-8980 looks over to Dr. Crawford, who has now glanced up to meet SCP-8980's gaze.//
+
+**SCP-8980:** Yeah, it's... nice.
+
+**DR. CRAWFORD:** You know, that chair you're sitting in is anomalous.
+
+//SCP-8980 gives Dr. Crawford an expression of incredulity, prompting her to continue.//
+
+**DR. CRAWFORD:** Its fabric was made by a thaumaturgic clothesmaker, who produced a lot of our higher-quality materials. I actually met him once, you know.
+
+**SCP-8980:** Hm?
+
+**DR. CRAWFORD:** Well, I can't elaborate much because of [[span class="bi-b"]]client confidentiality[[/span]], but we met back when I worked in Portland, Oregon. Lovely guy.
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+Due to the relaxed regulations in client confidentiality for parapsychologists employed by the Foundation, Dr. Crawford would have been wholly allowed to disclose relevant information from her time with the anomaly if she had reason to suspect it would have aided in returning SCP-8980 to working condition.
+[[/div]]
+
+**SCP-8980:** Oh, interesting.
+
+**DR. CRAWFORD:** Funnily, I think his designation is [[span class="bi-b"]]SCP-8580[[/span]]. Isn't that a neat coincidence?
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+The anomaly referenced is the former designation for SCP-8580-ARC, who was molecularly annihilated during a workplace accident in 1993 at Site-43.[[/div]]
+
+//SCP-8980 grunts and folds its arms.//
+
+**SCP-8980:** Wish I could sleep in a chair like this every night.
+
+//Dr. Crawford lifts herself into an upright position.//
+
+**DR. CRAWFORD:** What makes you say that, Lillian?
+
+//Silence elapses for several seconds, as SCP-8980 rubs its arms together.//
+
+**SCP-8980:** I miss my bed. The one in my dorm here. Apparently the mattress didnt fit into the concrete block they call a bedframe, so they just gave me the cheap standard one. I hate it.
+
+**DR. CRAWFORD:** Are you having a harder time sleeping because of it?
+
+//SCP-8980 [[span class="bi-b"]]appears to recoil slightly[[/span]], before shaking its head vigorously.//
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+It is unclear if SCP-8980 recoiling was due to attempting to keep itself awake, or if the comment somehow provoked it.
+[[/div]]
+
+**SCP-8980:** It's fine. I'm over it now.
+
+**DR. CRAWFORD:** Well, if you'd like, I can let you nap for a bit here each session.
+
+//SCP-8980 does not respond, but shortly thereafter falls asleep. Dr. Crawford returns to her paperwork, smiling.//
+
+----
+
+= **[END EXCERPT]**
+
+[[/div]]
+
+After waking up, SCP-8980 continued to deflect conversational attempts until the end of the session. However, over the course of multiple meetings, SCP-8980 began to engage in small talk more with Dr. Crawford, establishing some level of rapport between them. [[span class="bi-r"]]Topics of conversation frequently included SCP-8980's current projects, novels SCP-8980 had read in the past, or other miscellaneous yet irrelevant topics.[[/span]]
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Violation of Privacy** — information regarding SCP-8980's progress in parapsychological counseling should be kept vague unless demonstrating an important breakthrough or highlighting an important interaction.
+[[/div]]
+
+While SCP-8980's mental state did not significantly improve for some time, SCP-8980 began to trust Dr. Crawford as the sessions progressed. This eventually led to Dr. Crawford being able to discuss SCP-8980's past, representing an important milestone in reconstructing SCP-8980's mental state.
+
+[[div class="blockquote"]]
+
+= **[BEGIN EXCERPT]**
+
+----
+
+//Extraneous information removed. SCP-8980 is sitting on a couch in Dr. Crawford's office. Its appearance is still highly disheveled, and it fidgets in place absentmindedly. Dr. Crawford is occupied writing notes at her desk, before SCP-8980 suddenly speaks.//
+
+**SCP-8980:** ...How long have you been working here?
+
+//Dr. Crawford sits up and looks toward SCP-8980 with a smile.//
+
+**DR. CRAWFORD:** Oh, me? Well, I've been working here for about... two and a half decades, by this point? My, how the time flies.
+
+//Dr. Crawford folds her hands on top of each other.//
+
+**DR. CRAWFORD:** And what about you, dear? How long have you been working for the Foundation?
+
+//SCP-8980 lets out a [[span class="bi-y"]]laugh-sigh[[/span]].//
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Incorrect Nomenclature** — as mentioned prior, the correct term for this sound is a "dry laugh".
+[[/div]]
+
+**SCP-8980:** I don't think this was part of my contract!
+
+**DR. CRAWFORD:** Oh dear, I'm sorry. I hope I'm not violating your boundaries.
+
+//SCP-8980 makes an [[span class="bi-b"]]inscrutable sound[[/span]] and sinks into the couch.//
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+This is an accurate description of the sound SCP-8980 made.
+[[/div]]
+
+//There is silence for several seconds.//
+
+**SCP-8980:** It's fine. I, um. I've been working for the Foundation for... six to seven years now. The Foundation hired me after I got my degree.
+
+**DR. CRAWFORD:** Which degree, if I may ask?
+
+//SCP-8980 sits up straight on the couch, making eye contact briefly with Dr. Crawford before looking away.//
+
+**SCP-8980:** Oh, well... It's nothing impressive. I was hired after I got my Bachelor's Degree in computer science.
+
+//Dr. Crawford clasps her hands together and smiles widely.//
+
+**DR. CRAWFORD:** Wow! That's quite the accomplishment, especially for a girl your age!
+
+//SCP-8980 furrows its brows in confusion.//
+
+**SCP-8980:** Uh... thank you, I guess...?
+
+//Dr. Crawford raises her hands slightly.//
+
+**DR. CRAWFORD:** Oh I'm sorry deary, I didn't mean to offend. I just meant that it's quite the achievement to be scouted by the Foundation in your early twenties. I've only known a few people who have that honor, and most of them were men in financing!
+
+//Dr. Crawford chuckles. SCP-8980 appears stoic at first, but then briefly laughs.//
+
+**SCP-8980:** Well... thanks. I appreciate it. [[span class="bi-b"]]My old boss[[/span]] wasn't very impressed himself.
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+It is very likely this is in reference to Dr. Byrnes.
+[[/div]]
+
+**DR. CRAWFORD:** His loss, right?
+
+**SCP-8980:** Oh, yeah, for... for sure.
+
+//Dr. Crawford lightly laughs. SCP-8980 bites its lower lip and looks down again before frowning, a concerned look on its face.//
+
+//Before Dr. Crawford can comment, SCP-8980 walks over to the velvet chair and lays down in it, turning away from Dr. Crawford. She does not comment, but continues watching. SCP-8980 begins quietly crying, and quickly falls asleep.//
+
+----
+
+= **[END EXCERPT]**
+
+[[/div]]
+
+SCP-8980 continued attending sessions throughout all of October and November. In spite of its relationship with Dr. Crawford improving, its mental state appeared to remain stagnant outside of sessions and its productivity was still relatively low, though still within minimum acceptable boundaries for continued employment.
+
+During the months prior, SCP-8980 refused to address Head Researcher Byrnes during routine interviewing unless explicitly required to, resulting in very little progress in treating its anomalous condition. In spite of Dr. Byrnes attempts to minimize hostility following Incident 1, [[span class="bi-y"]]SCP-8980 clearly held him in contempt[[/span]]; nonetheless, it did not engage in any additional hostilities towards any containment staff.
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Inappropriate Description** — SCP-8980's contempt towards Dr. Byrnes should have been described in a more clinical manner.
+[[/div]]
+
+On November 24th, 2005, several days before Thanksgiving, Dr. Crawford made a major breakthrough in SCP-8980's case, leading to a significant improvement in SCP-8980's psychological state, which is detailed below.
+
+[[div class="blockquote"]]
+
+= **[BEGIN EXCERPT]**
+
+----
+
+//Extraneous information removed. SCP-8980 is lying down in the velvet chair with its eyes closed. It is not sleeping, though it is breathing deeply following Dr. Crawford's instruction.//
+
+**DR. CRAWFORD:** Breathe in.
+
+//SCP-8980 takes a deep breath in.//
+
+**DR. CRAWFORD:** And breathe out.
+
+//SCP-8980 exhales.//
+
+**DR. CRAWFORD:** Breathe in.
+
+//SCP-8980 inhales.//
+
+**DR. CRAWFORD:** And breathe out.
+
+//SCP-8980 exhales.//
+
+**DR. CRAWFORD:** Breathe in—
+
+**SCP-8980:** ...Hey, um. Look. I... really appreciate you trying to help me with these breathing exercises, but I just don't think they're doing anything for me.
+
+//Dr. Crawford frowns.//
+
+**DR. CRAWFORD:** Well, we can always come back to them later. They're just there to help you calm down, since you're quite the overthinker, you know.
+
+//SCP-8980 grunts.//
+
+**SCP-8980:** I still don't know how much they actually help...
+
+//Silence follows for several seconds. Dr. Crawford taps her pen against her face repeatedly.//
+
+**DR. CRAWFORD:** Something new seems to be bothering you today.
+
+//SCP-8980 looks up surprised at Dr. Crawford, before lowering its gaze.//
+
+**SCP-8980:** It's nothing.
+
+**DR. CRAWFORD:** Well, if you don't want to talk about it I won't push you, but remember what we talked about last week? It's important for you to be able to communicate your feelings with me if you want me to be able to help you.
+
+//SCP-8980 eyes widen, but quickly refocus. It rubs its arm.//
+
+**SCP-8980:** Well... I'm just... a bit upset about Thanksgiving.
+
+**DR. CRAWFORD:** Ah, I get it. You're spending it alone here while your coworkers get to go home to their families. It's simply awful, isn't it?
+
+//SCP-8980 whips its head up to look at Dr. Crawford again.//
+
+**SCP-8980:** Yeah, it is.
+
+//SCP-8980 pauses.//
+
+**SCP-8980:** ...You're pretty good at this.
+
+//Dr. Crawford laughs.//
+
+**DR. CRAWFORD:** Oh, dearie, it's my job to know these things. I completely understand where you're coming from. I've had countless clients under my care who went through the same things you are now.
+
+**SCP-8980:** ...And did any of them get to go home for Thanksgiving?
+
+//Dr. Crawford pauses.//
+
+**DR. CRAWFORD:** Well... most of them, no...
+
+//SCP-8980 exhales sharply, then turns away from Dr. Crawford.//
+
+**SCP-8980:** What's the fucking point, then?
+
+//Dr. Crawford adjusts her glasses.//
+
+**DR. CRAWFORD:** ...It's not really in my power to be able to let you out of your containment. You certainly know that. My job here, right now, is to help you to...
+
+//Dr. Crawford gestures outwards.//
+
+**DR. CRAWFORD:** ...//overcome// these awful feelings you've been having.
+
+//SCP-8980 doesn't respond. Dr. Crawford clears her throat, then continues.//
+
+**DR. CRAWFORD:** There's no shame in feeling upset or angry at the circumstances you've been put in. Your feelings are completely natural, especially for a young girl. But to let them consume your professional life, to let circumstance control you, well...
+
+//Dr. Crawford shakes her head and clicks her tongue.//
+
+**DR. CRAWFORD:** That's just no good, isn't it?
+
+**SCP-8980:** (//Mumbling//) What the hell do I do then?
+
+//Silence passes momentarily.//
+
+**DR. CRAWFORD:** In my experience, the best thing someone can do when they're in a tough situation is to consider their problems like... a challenge.
+
+//Silence. SCP-8980 turns around.//
+
+**SCP-8980:** ...A challenge?
+
+//Dr. Crawford smiles.//
+
+**DR. CRAWFORD:** Yes, a challenge. I'm sure that's not everyone's solution, but I think every trial you face can be tolerable if you just see it as a challenge. That's how I got my degree, after all.
+
+//SCP-8980 begins to furrow its eyebrows.//
+
+**SCP-8980:** A challenge...
+
+//Dr. Crawford says nothing, but remains smiling at SCP-8980. Suddenly, SCP-8980's eyes widen, and it stares down at the floor.//
+
+**SCP-8980:** Yeah... a... a challenge, right? It's a challenge. I can... yeah... yeah...
+
+//SCP-8980 looks up and smiles at Dr. Crawford.//
+
+**SCP-8980:** Yeah. A challenge.
+
+//Dr. Crawford nods cautiously. SCP-8980 quickly pulls itself to its feet.//
+
+**SCP-8980:** If you don't mind, could we cut today's session short? I have some work I need to catch up on.
+
+**DR. CRAWFORD:** Oh! Um, certainly dear. Are you sure you don't want to continue our conversation about Thanksgiving?
+
+**SCP-8980:** No, I'm okay. Even if I'm stuck here for Thanksgiving... I have a feeling I'll see my family for Christmas.
+
+----
+
+= **[END EXCERPT]**
+
+[[/div]]
+
+Following this exchange, SCP-8980 suddenly saw an extremely high productivity boost, reaching levels similar to its initial containment. Simultaneously, it did not experience any other changes to its depressive symptoms, [[span class="bi-r"]]often going extended periods without engaging in hygienic activities or socializing[[/span]].
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Unnecessary Detail** — this level of detail is unnecessary.
+[[/div]]
+
+[[span class="bi-b"]]On December 9th, 2005, Dr. Byrnes interviewed SCP-8980 to ascertain the source of its newfound productivity.[[/span]]
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+It is unclear why Dr. Byrnes conducted this interview, as at the time, there was no reason to suspect SCP-8980 had any ulterior motives.
+[[/div]]
+
+[[div class="blockquote"]]
+
+**DATE:** December 9th, 2005
+
+**INTERVIEWER:** Head Researcher Christopher Byrnes
+
+**INTERVIEWEE:** SCP-8980
+
+**SUBJECT:** Newfound Motivation
+
+----
+
+= **[BEGIN LOG]**
+
+----
+
+//SCP-8980 is seated in the secure interviewing room, with a single masked guard behind it. It leans on the table, staring ahead, waiting for Dr. Byrnes to arrive. He enters the room at precisely 10:00 AM, and sits down in front of SCP-8980. It glares at him, but does not otherwise react.//
+
+**DR. BYRNES:** Beginning interview log, ID 8980-S12, with SCP-8980 at 10:01 AM. Good morning.
+
+**SCP-8980:** What do you want?
+
+**DR. BYRNES:** I've called a special interview with you today because we've noticed that your productivity has seen a sharp increase in recent days.
+
+//SCP-8980 glances to the side.//
+
+**SCP-8980:** So?
+
+//Dr. Byrnes smiles.//
+
+**DR. BYRNES:** Well, the containment team has just been curious as to why you've had such a sudden change of heart.
+
+**SCP-8980:** Yeah, I'm sure Steele gives a single shit about me.
+
+//Silence. Dr. Byrnes stares at SCP-8980.//
+
+**SCP-8980:** I'm just feeling better, alright? My therapist has been really useful.
+
+//Silence.//
+
+**SCP-8980:** You were right, okay? I admit it. Therapy was helpful. Can I go?
+
+**DR. BYRNES:** Well, despite your sudden productivity, we've noticed your depressive symptoms haven't changed much. It's not so common for someone to get their act together without fixing the root cause.
+
+//SCP-8980 scoffs.//
+
+**SCP-8980:** I plead the fifth.
+
+**DR. BYRNES:** Joking is also quite out of character for you.
+
+//SCP-8980 grits its teeth. The security guard behind it slightly raises their weapon.//
+
+**SCP-8980:** Can't a lady do her fucking job in peace? [[span class="bi-g"]]Why do you have to worm your way into every goddamn thing I do?[[/span]]
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Missing Dialogue** — it is unclear why Dr. Byrnes failed to include this line of dialogue, if intentional.
+[[/div]]
+
+//Silence. After several seconds, Dr. Byrnes sighs and gets up.//
+
+**DR. BYRNES:** Alright, this meeting is concluded. Thank you for your time.
+
+**SCP-8980:** Thanks for //wasting// my time. Asshole.
+
+//Dr. Byrnes ends the recording device and exits the room. SCP-8980 is escorted back to its cell shortly thereafter.//
+
+----
+
+= **[END LOG]**
+
+----
+
+**AFTERWORD:** //SCP-8980's sudden change of behavior has me questioning its motivations. We'll need to keep a closer eye on it in the foreseeable future.// -Dr. Byrnes.
+
+[[/div]]
+
+SCP-8980's parapsychological counseling sessions have been deemed necessary for it to continue due to its persistent depressive symptoms.
+
+----
+
+**Incident 2:** ACE Exploit & Aftermath
+
+For several weeks following its increase in productivity, SCP-8980 did not socialize at all outside of routine interviews and counseling sessions. The anomaly worked overtime for several hours per day as well, including on weekends when it was not assigned work.
+
+This activity was noted as strange by [[span class="bi-b"]]containment personnel[[/span]], though it suddenly ceased on December 22nd, 2005, when SCP-8980's productivity returned to normal.
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+"Containment personnel" refers solely to Dr. Byrnes.
+[[/div]]
+
+Though it experienced slightly fewer depressive symptoms according to Dr. Crawford, its overall behavior was still considered abnormal.
+
+On January 9th, 2006, Dr. Byrnes [[span class="bi-g"]]requested and[[/span]] received permission [[span class="bi-g"]]from the Site-17 Containment Oversight Committee[[/span]] to conduct a full audit of SCP-8980 and its containment area.
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Missing Information** — failing to specify that the action was requested deemphasizes Dr. Byrnes's role in having the investigation performed.
+ _
+**Passive Voice** — the use of passive voice obfuscates the origin of this action, which deflects responsibility to an unspecified party. _
+ _
+It is largely believed by the Ethics Committee Review Team that, by this point in SCP-8980's containment, this use of vague phrasing was largely intentional — even if prior infractions were accidental.
+[[/div]]
+
+[[span class="bi-y"]]SCP-8980 and its room were fully stripped and searched[[/span]], as was the remote code device used by SCP-8980 to conduct its work.
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Vague Vernacular** — this phrasing obfuscates the fact that SCP-8980 was forced to undergo a strip search, including invasive medical scans for potential hazardous materials on-person. This was deemed grossly excessive by the Ethics Committee Review Team and is in egregious violation of the Foundation Code of Conduct.
+[[/div]]
+
+After a careful two-day audit of all its belongings, investigative staff discovered that SCP-8980 had located and exploited an Arbitrary Code Execution (ACE) in its remote work apparatus over the course of several weeks. This granted it full access to its former SCiPNet account, which granted it access to:
+
+* All its previously limited SCiPNet utilities (such as its intra-messaging systems).
+* Its secure extra-Foundational communications system.
+* The {{SCP-8980}} file itself.
+
+Throughout the latter half of December, SCP-8980 had been in direct contact with several members of Foundation staff and several sub-Veil individuals, especially its mother. Although the nature of these conversations did not violate any employee protocols, the fact that SCP-8980 was a contained anomaly made conversing with these individuals without approval expressedly prohibited. All individuals who interacted with SCP-8980 were administered [[span class="bi-b"]]Class C amnestics[[/span]].
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+Class C amnestics are for targeting specific memories or concepts. Class Cs are administered through two injections: a first, initial primer which places a subject in a hypnotic state to orally "prime" the target concepts or memories, and a second catalyst which erases correlated engrams.
+[[/div]]
+
+As SCP-8980 abused its Foundation accomodations to facilitate its rule-breaking behavior, consensus from the Containment Oversight Committee concluded that SCP-8980 must either undergo amnestic therapy or have access to its remote work apparatus permanently revoked. Although SCP-8980 was initially against amnestic therapy, Dr. Crawford convinced SCP-8980 to voluntarily accept the treatment, insisting on its efficacy.
+
+[[/div]]
+
+@@​@@
+
+[[div class="ec"]]
+
+= **[[span class="ec-title"]]ETHICS COMMITTEE MEMORANDUM[[/span]]**
+
+@@​@@
+
+The following is a transcript of the video and audio recording of the amnesticization of SCP-8980. Although it is not present in the original file nor should have been, it is attached here for contextual and review purposes.
+
+[[div class="blockquote ecinside"]]
+
+**DATE:** January 12th, 2006
+
+**SUBJECT OF INVESTIGATION:** Dr. Christopher Byrnes
+
+**AREA OF INVESTIGATION:** Amnesticization of SCP-8980
+
+----
+
+= **[BEGIN TRANSCRIPT]**
+
+----
+
+[[span class="logtime"]]8:42:41 AM |[[/span]] SCP-8980's amnesthesiologist arrives prior to the amnesticization at 8:42 AM LOCAL, alongside Dr. Christopher Byrnes. Dr. Byrnes initially mistakes the amnesthesiologist for a nurse, though she quickly corrects him. The two engage in light conversation on-and-off for approximately twenty minutes while waiting for SCP-8980 to be escorted to the chamber; neither appears to discuss anything of-note.
+
+[[span class="logtime"]]9:08:53 AM |[[/span]] SCP-8980 is escorted into the amnesticization lab by an armed guard. Its appearance is, as previously described, extremely disheveled. Its movements appear sluggish as it walks, likely from lethargy.
+
+[[span class="logtime"]]9:08:58 AM |[[/span]] SCP-8980 spots Dr. Byrnes, who stops talking upon making eye contact with SCP-8980. It immediately freezes.
+
+**SCP-8980:** Oh god.
+
+[[span class="logtime"]]9:09:01 AM |[[/span]] SCP-8980 immediately begins to back away from the lab, but is pushed back by the guard behind it. It stumbles to the ground, prompting a laugh from Dr. Byrnes. The amnesthesiologist does not react.
+
+**SCP-8980:** Not... not this. Not like this.
+
+[[span class="logtime"]]9:09:15 AM |[[/span]] SCP-8980 spends several seconds attempting to crawl away or stand up (neither of which are effective). In short order, it lays on the ground unmoving, before making eye contact with the amnesthesiologist. She looks away and clears her throat.
+
+**AMNESTHESIOLOGIST:** I understand this is a bit of a scary process, but trust me, it'll be over before you even realize it. I've done this countless times; I'm a professional. No accidents in ten years.
+
+[[span class="logtime"]]9:09:23 AM |[[/span]] After several seconds of hesitating, SCP-8980 slowly gets back onto its feet. It points at Dr. Byrnes while staring at the amnesthesiologist.
+
+**SCP-8980:** Why is //he// here?
+
+**AMNESTHESIOLOGIST:** Him? Well—
+
+**DR. BYRNES:** (//Interrupting//) I'm required to oversee your amnesticization as per the Foundation's Code of Conduct. I'm just here to provide the list of "targeted engrams" for the //nu//—ice doctor, here.
+
+**AMNESTHESIOLOGIST:** ...Yes, Doctor. (//To SCP-8980//) The procedure for Class C amnestics involves a primer injection, where we'll specify the target memories to excise through a hypnotic-hypnagogic fugue state, then a second injection, which will actually do the erasing. Since amnestics usually involve confidential information, he needs to be the one to prime you.
+
+**DR. BYRNES:** You need to simplify it for her. She's a computer technician, not a neurologist.
+
+**AMNESTHESIOLOGIST:** With all due respect, Doctor, neither are you. (//To SCP-8980//) I'll be in the room the whole time, okay? The whole session will be recorded, so there's no need for any dramatics.
+
+[[span class="logtime"]]9:10:12 AM |[[/span]] SCP-8980 glances between Dr. Byrnes and the amnesthesiologist repeatedly. It slowly begins to back up.
+
+**SCP-8980:** ...I... I can't do it. I can't do this. I'm not... I'm... don't...
+
+[[span class="logtime"]]9:10:26 AM |[[/span]] SCP-8980 immediately turns and begins running for the door. It is quickly intercepted by the guard who initially brought SCP-8980, causing it to stumble and fall.
+
+[[span class="logtime"]]9:10:31 AM |[[/span]] The guard begins to drag SCP-8980 towards the amnesticization station, which causes SCP-8980 to begin screaming uncontrollably. The amnesthesiologist covers her ears in irritation; Dr. Byrnes does nothing besides watch.
+
+[[span class="logtime"]]9:10:54 AM |[[/span]] The guard secures SCP-8980 to an empty amnestics injection table. SCP-8980 writhes in place, still screaming.
+
+[[span class="logtime"]]9:11:09 AM |[[/span]] After several seconds, the amnesthesiologist walks toward SCP-8980, which prompts it to stop screaming.
+
+**AMNESTHESIOLOGIST:** I promise, it'll be quick, okay? No harm, no foul, alright?
+
+**SCP-8980:** Don't... don't let him... im...
+
+**DR. BYRNES:** (//Interrupting//) Can you begin the procedure? I have an appointment at 9:30.
+
+[[span class="logtime"]]9:11:27 AM |[[/span]] SCP-8980 begins sobbing again.
+
+**SCP-8980:** Leave... leave me alone...
+
+[[span class="logtime"]]9:11:34 AM |[[/span]] The amnesthesiologist begins to sterilize SCP-8980's arm for the injections, causing SCP-8980 to tense its arm in fear. She spends several seconds attempting to relax it, to surprising success. SCP-8980 stops thrashing in apparent defeat, gasping and sobbing without coherency.
+
+[[span class="logtime"]]9:12:00 AM |[[/span]] The amnesthesiologist begins application of local anesthetic.
+
+**AMNESTHESIOLOGIST:** Alright, that should fully kick in in about two to three minutes.
+
+[[span class="logtime"]]9:12:44 AM |[[/span]] SCP-8980 makes eye contact with the amnesthesiologist. Upon seeing its expression, she stops moving and watches back.
+
+**SCP-8980:** Please... please don't do this to me. You don't know who he is. Please help me. Please, let me out.
+
+[[span class="logtime"]]9:12:52 AM |[[/span]] Dr. Byrnes does not react, but watches the pair. The amnesthesiologist glances at Byrnes, but quickly pulls away from SCP-8980.
+
+**AMNESTHESIOLOGIST:** Look, ma'am... I'm just doing my job. I'm not going to get involved in this. Take it up with the Ethics Committee, or something.
+
+**SCP-8980:** They won't listen. Please.
+
+[[span class="logtime"]]9:13:08 AM |[[/span]] SCP-8980 strains against its restraints. The amnesthesiologist glances at Dr. Byrnes again. He crosses his arms and stares at her. She turns back to SCP-8980.
+
+**AMNESTHESIOLOGIST:** I'm not going to risk my career over a stranger. Sorry.
+
+[[span class="logtime"]]9:13:14 AM |[[/span]] SCP-8980 falls back and stares ahead, crying silently. Dr. Byrnes pulls out his mobile device (in violation of his own protocols involving SCP-8980), though quickly puts it away as it appears not to turn on. Several minutes pass in silence, only broken by SCP-8980's sobs and an occasional grunt by the present guard.
+
+[[span class="logtime"]]9:16:05 AM |[[/span]] The amnesthesiologist prepares the primer shot for amnestics administration. Presumably due to SCP-8980's general uncooperation, she opts to include a quick-acting light sedative agent in accordance with amnestics guidelines.
+
+[[span class="logtime"]]9:16:59 AM |[[/span]] After preparing all the materials, she approaches SCP-8980 and sterilizes the injection site once again. SCP-8980 begins hyperventilating and struggling again. Dr. Byrnes watches in silence.
+
+[[span class="logtime"]]9:17:13 AM |[[/span]] The amnesthesiologist begins the injection, and SCP-8980 begins screaming. The amnesthesiologist ignores it.
+
+[[span class="logtime"]]9:17:43 AM |[[/span]] The amnesthesiologist finishes, and pulls the empty injection from SCP-8980. SCP-8980 stops struggling, but is still visibly shaking and crying.
+
+**AMNESTHESIOLOGIST:** There, all done. (//To Dr. Byrnes//) It'll take a few minutes until she's ready for priming. You shouldn't say anything once she's ready until we're done, because it could have some nasty side effects. That means absolute silence; if you say anything besides the primers, we have to let the shot wear off and reschedule. Got it?
+
+**DR. BYRNES:** Understood.
+
+**AMNESTHESIOLOGIST:** Good. I'll let you know when she's ready with a thumbs up.
+
+[[span class="logtime"]]9:18:00 AM |[[/span]] SCP-8980 spends several minutes shivering and sobbing as the shot begins to take effect. Dr. Byrnes watches SCP-8980 in silence, while the amnesthesiologist files relevant paperwork.
+
+[[span class="logtime"]]9:21:51 AM |[[/span]] As the primer begins to spread through SCP-8980, it redoubles its efforts to push against its restraints; however, its left arm is completely paralyzed, and its speech heavily slurs.
+
+[[span class="logtime"]]9:23:24 AM |[[/span]] SCP-8980's mouth begins to twitch uncontrollably while it glances wildly around the room. Its ability to move its other arm and legs quickly fades, as SCP-8980's thrashing and shivering slowly ceases.
+
+[[span class="logtime"]]9:26:55 AM |[[/span]] After several additional minutes of the agent spreading throughout its body, SCP-8980 is rendered nearly immobile, only able to breathe lightly and control its eyes. Its jaw is slack open; saliva begins to drip down the side of its mouth as its eyes unfocus and refocus repeatedly, still glancing wildly around in terror.
+
+[[span class="logtime"]]9:27:34 AM |[[/span]] The amnesthesiologist checks her watch, then glances at SCP-8980. She motions a thumbs up to Dr. Byrnes, though he does not notice at first, as he is watching SCP-8980 intently without expression.
+
+[[span class="logtime"]]9:27:40 AM |[[/span]] Irritated, the amnesthesiologist gets up and walks over to Dr. Byrnes, who jerks up suddenly when he spots her approaching. She stops and gives the thumbs up, which prompts Dr. Byrnes to approach SCP-8980. Its eyes solely focus on him.
+
+[[span class="logtime"]]9:27:53 AM |[[/span]] The amnesthesiologist puts on her Foundation-grade earmuffs to ensure she is not exposed to classified information, as per standard protocol. SCP-8980 appears to notice this, and its mouth begins to twitch repeatedly. The amnesthesiologist watches in silence.
+
+[[span class="logtime"]]9:28:00 AM |[[/span]] Dr. Byrnes pulls out a folded paper (presumably a refresher on administering amnestic primers), and begins to prime SCP-8980 for amnesticization. He smiles.
+
+**DR. BYRNES:** Memory. Performing Arbitrary Code Execution Exploit in containment.
+
+[[span class="logtime"]]9:28:07 AM |[[/span]] SCP-8980's left eye spasms.
+
+**DR. BYRNES:** Concept. Arbitrary Code Execution Exploits.
+
+[[span class="logtime"]]9:28:12 AM |[[/span]] SCP-8980's mouth twitches, and its eyes dart to the amnesthesiologist. The amnesthesiologist watches with disinterest. It repeatedly attempts to vocalize, but it makes no coherent sound besides low grunts and moans.
+
+**DR. BYRNES:** Memory. Contact with your coworkers during containment.
+
+[[span class="logtime"]]9:28:19 AM |[[/span]] SCP-8980 does not have any sudden reactions, though its eyes meet with Dr. Byrnes again. Dr. Byrnes looks down towards the paper he is holding again.
+
+**DR. BYRNES:** Memory. Contact with your mother during containment.
+
+[[span class="logtime"]]9:28:25 AM |[[/span]] SCP-8980's right arm twitches repeatedly, and SCP-8980's eyes dart around the room panickedly.
+
+[[span class="logtime"]]9:28:30 AM |[[/span]] After several seconds, SCP-8980's eyes begin to leak tears, which slowly trail down to mix with the saliva building on its chin.
+
+[[span class="logtime"]]9:28:36 AM |[[/span]] Dr. Byrnes spends several seconds reading the paper he is holding.
+
+**DR. BYRNES:** Concept. Using your remote work apparatus to breach containment.
+
+[[span class="logtime"]]9:28:43 AM |[[/span]] SCP-8980's mouth twitches again momentarily. It begins moaning for a few seconds, futilely attempting to vocalize.
+
+[[span class="logtime"]]9:28:47 AM |[[/span]] After several seconds of silence with no activity, Dr. Byrnes looks up and makes direct eye contact with SCP-8980. He holds its gaze; its eyes widen, and it immediately stops making sound.
+
+[[span class="logtime"]]9:28:49 AM |[[/span]] Dr. Byrnes looks sideways towards the recording device, and then back towards the amnesthesiologist, who largely does not react. He then turns back to the anomaly.
+
+[[span class="logtime"]]9:28:53 AM |[[/span]] Dr. Byrnes leans directly above SCP-8980, close enough that his face is inches away from SCP-8980. Its jaw begins to spasm. Neither of them break eye contact, though SCP-8980's breathing becomes extremely labored.
+
+[[span class="logtime"]]9:28:58 AM |[[/span]] After several further moments of silence, Dr. Byrnes smiles, then speaks.
+
+**DR. BYRNES:** Concept. [DATA CORRUPTED].
+
+[[span class="logtime"]]9:29:03 AM |[[/span]] The video and audio feed severely distort for several seconds. SCP-8980 is violently spasming, and its eyes are entirely unfocused. Its breathing is highly irregular. Dr. Byrnes is no longer leaning.
+
+[[span class="logtime"]]9:29:04 AM |[[/span]] The amnesthesiologist jerks up and instinctively reaches for her earmuffs; however, after looking towards and remembering the recording device, she hesitantly puts her hand down again.
+
+[[span class="logtime"]]9:29:36 AM |[[/span]] SCP-8980 returns to an inert state after several seconds, though its mouth continually twitches and it continually moans loudly. Dr. Byrnes turns towards the amnesthesiologist and gives her a thumbs up, signifying the priming phase is complete.
+
+[[span class="logtime"]]9:29:42 AM |[[/span]] The amnesthesiologist gets up and begins to prepare the second injection, including sterilizing SCP-8980's arm again. SCP-8980 appears to recuperate from the sudden spasm as its eyes refocus, and it begins crying more intensely, making direct eye contact with Dr. Byrnes despite him now looking away.
+
+[[span class="logtime"]]9:30:15 AM |[[/span]] The amnesthesiologist finishes preparing the second shot, and approaches SCP-8980 hesitantly.
+
+[[span class="logtime"]]9:30:20 AM |[[/span]] As she bends down to administer the catalyst shot, the amnesthesiologist locks eyes with SCP-8980, whos gaze now stares directly at her. Its mouth twitches intensely. She looks back to Dr. Byrnes, who nods sternly. She sighs.
+
+[[span class="logtime"]]9:30:34 AM |[[/span]] The amnesthesiologist injects SCP-8980 with the catalyst.
+
+[[span class="logtime"]]9:30:39 AM |[[/span]] SCP-8980's mouth stops twitching.
+
+[[span class="logtime"]]9:31:12 AM |[[/span]] As the amnestic activates, SCP-8980's consciousness slowly fades, causing its eyes to completely unfocus and its head to fall limp. The amnesthesiologist sighs again.
+
+**AMNESTHESIOLOGIST:** Alright, it's done now. She should wake up in a few hours.
+
+**DR. BYRNES:** Thank you, Doctor.
+
+[[span class="logtime"]]9:31:19 AM |[[/span]] Silence. The guard begins to remove SCP-8980's restraints, as Dr. Byrnes and the amnesthesiologist stare at each other.
+
+**AMNESTHESIOLOGIST:** ...If I may ask, what caused her to—
+
+**DR. BYRNES:** (//Interrupting//) That information is strictly classified.
+
+[[span class="logtime"]]9:31:24 AM |[[/span]] Dr. Byrnes glances at his watch.
+
+**DR. BYRNES:** I'm late for my appointment because of how long you took, so I'll be leaving. The guard will handle the anomaly. Have a nice day.
+
+[[span class="logtime"]]9:31:32 AM |[[/span]] Dr. Byrnes exits the room as the guard finishes unbinding SCP-8980.
+
+[[span class="logtime"]]9:32:01 AM |[[/span]] The guard picks up SCP-8980's limp body, throws it over their shoulder, and exits the room. The amnesthesiologist at first does not react, but in short order snaps herself to attention, and begins to pack her things.
+
+[[span class="logtime"]]9:38:29 AM |[[/span]] As the amnesthesiologist finishes, she glances at the recording device. She shudders, scratches a discolored patch on her arm, then exits the room.
+
+----
+
+= **[END TRANSCRIPT]**
+
+[[/div]]
+
+A full dissection of Dr. Byrnes's actions is attached at the end of this review, and as such will not be discussed in-depth here. Nonetheless, it is clear that Dr. Byrnes abused the protections assigned to the Head Researcher position to purposefully amnesticize SCP-8980 of non-essential concepts and memories. The effects of this can be seen in the following log in the SCP-8980 file.
+
+@@​@@
+
+One instance of this (at timestamp 9:28:53) appears to have been corrupted beyond restoration. This effect is believed to have been caused by SCP-8980's anomalous capabilities, though this is the first and only time a recorder has been directly affected by the anomaly.
+
+@@​@@
+
+The amnesthesiologist — whose identity has been purposefully obfuscated by the Review Team due to complete Code of Conduct compliance — was later identified and interviewed. This unfortunately did not yield significant results, as it was revealed that she had been chronically abusing amnestics on herself to erase her own traumatic memories. Nonetheless, she was able to point out that she submitted a complaint to the office of the Site-17 Ethics Committee Liaison a day after the incident, though the report was not received as the position was vacant at the time.
+
+@@​@@
+
+The identity of the guard — although wearing SCRAMBLE equipment in accordance with Foundation guidelines — was requested from Site-17's administration as information may possibly be gleaned from them. Although Site-17 administration complied with the request, subsequent investigation showed that the guard — Geraldo H. Rodriguez, a then-36-year-old male — was killed in a containment breach in 2013. Although the Ethics Committee obtained a warrant to search his belongings from the O5 Council, no evidence relevant to the case has been found.
+
+@@​@@
+
+The corrupted concept erased by Dr. Byrnes could not be rederived by the Ethics Committee Review Team.
+
+[[/div]]
+
+@@​@@
+
+[[div class="darkdocument"]]
+
+[[span class="bi-b"]]**Addendum 9:**[[/span]] Post-Amnesticization Depression
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+The Ethics Committee Review Team is attaching an annotation to remind reviewing personnel that this addendum was presented without the above context.
+[[/div]]
+
+Following SCP-8980's amnesticization, its mental state significantly deteriorated to the point of it not fulfilling any of its quotas, nor responding to any work inquiries. In response, SCP-8980 was required to attend its parapsychological counseling on a [[span class="bi-y"]]bi-weekly[[/span]] basis, though these sessions did little to alleviate its symptoms despite Dr. Crawford's best efforts.
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Vague Vernacular** — "bi-weekly" could imply anomaly is required to attend counseling once every two weeks. "Twice weekly" should be used instead. Of note is that, later in SCP-8980's containment, this vernacular was confirmed to have been misinterpreted by containment personnel.
+[[/div]]
+
+Dr. Crawford made another breakthrough on January 16th, 2006:
+
+[[div class="blockquote"]]
+
+= **[BEGIN EXCERPT]**
+
+----
+
+//Extraneous information removed. Dr. Crawford is sitting at her desk, slowly searching through her client's files. By this point in the session, several prior attempts to start a conversation had previously failed, similar to her initial interactions with the anomaly.//
+
+//SCP-8980 is lying in the velvet chair, unmoving. It stares ahead at the ceiling, and does not acknowledge Dr. Crawford at all. Its breathing is light.//
+
+**DR. CRAWFORD:** Ah, here we go.
+
+//[[span class="bi-b"]]Dr. Crawford spends several minutes reading the recent report on SCP-8980[[/span]], her expression growing grave.//
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+This should have been performed prior to the session.
+[[/div]]
+
+**DR. CRAWFORD:** Oh dear.
+
+//Dr. Crawford looks up towards the anomaly.//
+
+**DR. CRAWFORD:** The amnestics got you down, huh?
+
+//SCP-8980 slightly turns its head towards Dr. Crawford, acknowledging the comment. Dr. Crawford momentarily hums.//
+
+**DR. CRAWFORD:** I remember my first time with amnestics.
+
+//Dr. Crawford waits briefly for SCP-8980 to comment; it does not.//
+
+**DR. CRAWFORD:** Of course I don't remember exactly what I saw, but my, it must've been horrifying. I walked up to that amnestics table and practically injected myself!
+
+//SCP-8980 does not reply, but turns its head away. Dr. Crawford frowns.//
+
+**DR. CRAWFORD:** Well, I can imagine it wasn't so pleasant for you. It //was// voluntary, wasn't it?
+
+//SCP-8980's face briefly appears to contort, but it doesn't otherwise react.//
+
+**DR. CRAWFORD:** Dear, if you keep your emotions locked in all the time, you'll just end up exploding. You need to open up about what's bothering you so. You can trust me, same as you can any other old lady.
+
+//SCP-8980 shivers, and its eyes widen.//
+
+**SCP-8980:** I... they... he...
+
+//SCP-8980 pauses, then shivers again.//
+
+**SCP-8980:** He... he took something from me.
+
+**DR. CRAWFORD:** "He" being Byrnes again?
+
+//SCP-8980's voice appears to catch in its throat, so it nods instead. Dr. Crawford sighs.//
+
+**DR. CRAWFORD:** If you keep blaming your problems on that man, you'll never be able to overcome this... victim mentality you've built up for yourself.
+
+//SCP-8980 does not respond.//
+
+**DR. CRAWFORD:** I've often heard — in my line of work, I mean — that some reality benders torment themselves with their anomalous abilities subconsciously, because they believe they deserve punishment. They find ways to make their own lives miserable.
+
+//SCP-8980's eyes widen.//
+
+**SCP-8980:** I'm not...
+
+**DR. CRAWFORD:** (//Interrupting//) Oh, sorry, yes, I know you're not. They tested you for that, right?
+
+//SCP-8980 nods.//
+
+**DR. CRAWFORD:** I was just bringing it up because, well, sometimes the fault does lie within. And it's a difficult truth to swallow, but rarely does stuff happen that we truly can't help.
+
+//SCP-8980 shivers again.//
+
+**SCP-8980:** I don't know if... if that...
+
+**DR. CRAWFORD:** Well, you were amnesticized because you tried to breach containment, weren't you?
+
+//SCP-8980's eyes unfocus momentarily. It lightly shakes it head in confusion.//
+
+**SCP-8980:** I don... I don't remember...
+
+//Dr. Crawford looks down and reads the briefing again. She audibly sighs, which makes SCP-8980 flinch.//
+
+**DR. CRAWFORD:** I'm sure you could eventually argue for lighter restrictions if you practice more restraint. Knowing when to shut my mouth is how I got to where I am now. Sometimes, you just need to "turn the other cheek", as they say, even if you know you're right. Only then will you finally be able to get ahead.
+
+//SCP-8980 does not respond, though tears begin to stream down its face. Dr. Crawford looks up.//
+
+**DR. CRAWFORD:** Oh, dear, I'm so sorry. I didn't mean to make you cry. I was getting too personal, there.
+
+//SCP-8980 does not respond. Dr. Crawford glances at the clock.//
+
+**DR. CRAWFORD:** I hate to do this to you sweetie, but our time is coming to an end for today. It pains me to break it off at such an emotional moment, but I have other clients that sorely need me too. The Foundation can be a cruel place for all of us.
+
+//SCP-8980 does not respond. Dr. Crawford sighs, then lightly chuckles.//
+
+**DR. CRAWFORD:** I suppose our emotional little brains are just like the Foundation itself, no? No matter how hard of a job we do, there's always work to be done.
+
+//Dr. Crawford gets up to close the session, until she sees SCP-8980's expression, which stops her. SCP-8980's eyes are wide, and its mouth hangs open.//
+
+**SCP-8980:** There... there's always work to be done.
+
+[[/div]]
+
+Following this session, SCP-8980's productivity increased to perfectly match its quota. Its depressive symptoms, however, have only appeared to increase, as it spends no time on entertainment or socialization, opting to stay in bed the remainder of the day. Nonetheless, Dr. Crawford [[span class="bi-y"]]was commended[[/span]] for her contribution towards improving SCP-8980's productivity, despite shortcomings.
+
+[[div_ class="bi-popup"]]
+[[span class="annotitle"]]REVIEWER ANNOTATION[[/span]]
+**Passive Voice** — the phasing "was commended" obscures the origin of the commendment, which was Site-17's Containment Oversight Committee.
+[[/div]]
+
+[[/div]]
+
+@@​@@
+
+[[div class="ec"]]
+
+= **[[span class="ec-title"]]ETHICS COMMITTEE MEMORANDUM[[/span]]**
+
+@@​@@
+
+The following video was obtained from Site-17's Deepwell archive. It is not present in the original file, but is presented without comment in its chronological context.
+
+[[div class="blockquote ecinside"]]
+
+**DATE:** March 10th, 2006
+
+**SUBJECT OF INVESTIGATION:** Dr. Christopher Byrnes
+
+**AREA OF INVESTIGATION:** Undisclosed Meeting With SCP-8980
+
+----
+
+= **[BEGIN TRANSCRIPT]**
+
+----
+
+[[span class="logtime"]]6:28:34 AM |[[/span]] SCP-8980 is sitting on the chair in its containment chamber. It is slumped forward, staring directly at the floor, in the direction of the room's entrance.
+
+[[span class="logtime"]]6:29:23 AM |[[/span]] The door to the chamber opens, and Dr. Byrnes enters the room. SCP-8980 does not react, continuing to stare at the floor.
+
+[[span class="logtime"]]6:29:35 AM |[[/span]] Dr. Byrnes spends several seconds closing the door behind him, then turns around to face SCP-8980. He spends several seconds watching her silently.
+
+**DR. BYRNES:** I'm sorry I'm a few days late. You know how traffic can be.
+
+[[span class="logtime"]]6:29:40 AM |[[/span]] SCP-8980 does not respond.
+
+**DR. BYRNES:** You were the one that requested to meet with me. You should be grateful that I'm even giving you the time of day, especially on your terms. Though you should know, I've got a taser on me, so if you try any shit this time, it //will// hurt.
+
+[[span class="logtime"]]6:29:47 AM |[[/span]] SCP-8980 does not respond. Dr. Byrnes crosses his arms in frustration.
+
+**DR. BYRNES:** If wasting my time is your idea of petty revenge, you and I both know that I can do a lot worse than—
+
+[[span class="logtime"]]6:29:51 AM |[[/span]] SCP-8980 takes a deep, wracked sigh, causing Dr. Byrnes to fall silent.
+
+**SCP-8980:** Y... you...
+
+[[span class="logtime"]]6:29:55 AM |[[/span]] SCP-8980 begins to cry silently.
+
+**SCP-8980:** Y-you...
+
+[[span class="logtime"]]6:29:59 AM |[[/span]] SCP-8980's breathing quickens, and it begins to shiver. Dr. Byrnes reaches for his taser.
+
+[[span class="logtime"]]6:30:03 AM |[[/span]] SCP-8980 looks up to Dr. Byrnes.
+
+**SCP-8980:** You... You win.
+
+[[span class="logtime"]]6:30:05 AM |[[/span]] Dr. Byrnes does not react. SCP-8980 continues to breathe quickly, waiting several seconds, before lowering its gaze.
+
+**SCP-8980:** You win. (//It chokes briefly.//) You win, okay?
+
+[[span class="logtime"]]6:30:11 AM |[[/span]] Dr. Byrnes does not react. SCP-8980's sobs increase in intensity.
+
+**SCP-8980:** I'll do anything you want. Please, just let me go back to how it was.
+
+[[span class="logtime"]]6:30:15 AM |[[/span]] Silence. Dr. Byrnes removes his hand from his taser. SCP-8980 looks up at him, pleadingly.
+
+**SCP-8980:** I'll give you everything I own. All of it. You can have everything in my bank account and in my room. I'll draw out loans for you that I can't pay back. I'll give you my paycheck. Everything.
+
+[[span class="logtime"]]6:30:23 AM |[[/span]] Dr. Byrnes does not react.
+
+**SCP-8980:** I'll— I'll work whatever assignment you g-give me. I'll let you take credit for all of my papers. I'll be your s— (//SCP-8980 gulps.//) your secretary. I'll bring you your morning coffee and make you your sandwiches. //I'll lick your shoes.//
+
+[[span class="logtime"]]6:30:31 AM |[[/span]] Dr. Byrnes does not react. SCP-8980 watches his expression fervently for any emotion.
+
+[[span class="logtime"]]6:30:36 AM |[[/span]] After several seconds, SCP-8980 sobs and lowers its gaze.
+
+**SCP-8980:** (//Whispering//) I'll... I'll even sleep with you. Please.
+
+[[span class="logtime"]]6:30:41 AM |[[/span]] Dr. Byrnes does not react initially, but slowly begins to smile. SCP-8980 looks up hopefully at him, though its expression begins to fall as Dr. Byrnes says nothing in response.
+
+**SCP-8980:** (//Whispering//) Please.
+
+[[span class="logtime"]]6:30:53 AM |[[/span]] Dr. Byrnes begins to laugh. He laughs loudly for several seconds, gripping his stomach and bending over at the waist. SCP-8980 falls off its chair and begins to back away in fear.
+
+[[span class="logtime"]]6:31:18 AM |[[/span]] After nearly thirty seconds of laughing, Dr. Byrnes recomposes himself, wiping a tear from his eye.
+
+**DR. BYRNES:** That's hilarious. Hearing you say those words show just how pathetic you've become. How pathetic you always really were.
+
+[[span class="logtime"]]6:31:24 AM |[[/span]] Dr. Byrnes walks towards SCP-8980. It crawls back, attempting to distance itself from him as he approaches.
+
+[[span class="logtime"]]6:31:31 AM |[[/span]] Its back hits the wall. Dr. Byrnes stands in front of it, and crouches to meet its eye level. SCP-8980 shivers, and attempts to speak, but can't.
+
+**DR. BYRNES:** You really don't get it, do you?
+
+[[span class="logtime"]]6:31:34 AM |[[/span]] Silence.
+
+**DR. BYRNES:** If I wanted to fuck you, I would've done it by now.
+
+[[span class="logtime"]]6:31:38 AM |[[/span]] Silence. Dr. Byrnes smiles.
+
+**DR. BYRNES:** I already have everything I could ever want from you.
+
+[[span class="logtime"]]6:31:43 AM |[[/span]] Dr. Byrnes gets up without further comment. SCP-8980 stares blankly ahead, weeping. It does not react, as Dr. Byrnes walks towards the containment door.
+
+[[span class="logtime"]]6:31:48 AM |[[/span]] Dr. Byrnes stops, then glances back.
+
+**DR. BYRNES:** Happy first year anniversary, Lillian. Here's to many more.
+
+[[span class="logtime"]]6:31:53 AM |[[/span]] Dr. Byrnes smiles smugly to himself, then exits the chamber.
+
+[[span class="logtime"]]8:00:03 AM |[[/span]] After an hour and a half of no activity, the remote work apparatus in SCP-8980's chamber prints its workday schedule. SCP-8980 slowly lifts itself off the floor, and gets ready for work.
+
+[[/div]]
+
+[[/div]]
+
+@@​@@
+@@​@@
+@@​@@
+@@​@@
+@@​@@
+
+[[div class="darkdocument"]]
+
+**Addendum 10:** Neutralization
+
+On December 12th, 2014, Head Researcher Christopher Byrnes chose to retire. As per Foundation succession standards, Dr. Morgan McPharrell assumed the role of Head Researcher for SCP-8980 on December 15th of that year.
+
+On January 5th, 2015, Dr. McPharrell conducted SCP-8980's routine yearly testing, as per its Special Containment Procedures. After several rounds of testing, Dr. McPharrell discovered that SCP-8980 possessed none of its stated anomalous properties. This was confirmed after several additional rounds of testing.
+
+On January 8th, 2015, Dr. McPharrell conducted an interview with SCP-8980. During the duration of the interview, he noted that the entity possessed several alarming features, including extreme apathy, severe technophobia, and a lack of social awareness. After spending several days confirming SCP-8980 was directly and indirectly subject to longterm abuse and negligence, Dr. McPharrell filed a formal Ethics Committee complaint regarding the treatment of SCP-8980 under Dr. Christopher Byrnes. After obtaining a warrant of investigation from the O5 Council, a formal investigation was launched on January 14th, 2015.
+
+As of January 19th, 2015, SCP-8980 began rehabilitation and reintegration into the wider Foundation workplace under direct supervision from Dr. Morgan McPharrell. SCP-8980 is pending reclassification to Neutralized.
+
+[[/div]]
+
+[[=]]
+@@​@@
+
+@@​@@
+
+@@​@@
+
+...
+
+@@​@@
+
+{{End of document.}}
+
+@@​@@
+
+...
+
+@@​@@
+
+...
+
+@@​@@
+
+...
+
+@@​@@
+
+{{Loading attachment...}}
+
+@@​@@
+
+...
+
+@@​@@
+
+@@​@@
+
+@@​@@
+[[/=]]
+
+[[div class="ec-comments"]]
+
+[[div class="blockquote"]]
+
++++ SCP-8980 Investigation Summary [[span style="color: grey; font-size: 80%;"]]| May 5th, 2015[[/span]]
+
+++++++ Results Presented by Ronald Roberts (Leader), Linda M. N. Brown, Flora Marinos, & Amber H. Goldstein
+
+----
+
+The prior document has been fully reviewed and annotated as of May 4th, 2015. It is presented in full for contextual purposes.
+
+Based on both SCP-8980's documentation and external resources found by the Review Team, it is clear that **__Dr. Christopher Byrnes__** engaged in severe, deliberate abuse of an anomaly over an extended period of time. Although extensive, a full list of irrefutable violations consists of the following:
+
+* Misuse of formal position to extort, manipulate, or otherwise negatively affect other members of Foundation Staff. [[span class="logtime"]](Title 1, Chapter 7 § 1)[[/span]]
+* Failure to recuse himself from sensitive matters in which he had clear conflicts of interest. [[span class="logtime"]](Title 1, Chapter 7 § 3)[[/span]]
+* Misuse of official documentation to present false or inaccurate information. [[span class="logtime"]](Title 5, Chapter 3 § 1.1)[[/span]]
+* Intentional obfuscation of details in official documentation. [[span class="logtime"]](Title 5, Chapter 3 § 2)[[/span]]
+* Abuse of an anomaly. [[span class="logtime"]](Title 2, Chapter 2)[[/span]]
+* Sexual harassment of an anomaly. [[span class="logtime"]](Title 2, Chapter 2 § 1.5)[[/span]]
+* Gross negligence of an anomaly. [[span class="logtime"]](Title 2, Chapter 2 § 2.4.1)[[/span]]
+* Extreme testing of a sentient anomaly. [[span class="logtime"]](Title 2, Chapter 2 § 2.6)[[/span]]
+* Deliberate intimidation of an anomaly. [[span class="logtime"]](Title 2, Chapter 2 § 5.3)[[/span]]
+* Public disclosure of private information of an anomaly. [[span class="logtime"]](Title 2, Chapter 2 § 7)[[/span]]
+* Gross misuse of amnestics. [[span class="logtime"]](Title 7, Chapter 1 § 2)[[/span]]
+* Violation of prior Ethics Committee Stop Order. [[span class="logtime"]](Title 9, Chapter 1 § 7)[[/span]]
+
+Although these violations alone are egregious and numerous, they likely do not represent the full breadth of infractions committed by Dr. Byrnes, as several could not be proven, and further violations were likely committed in the containment of other anomalies. Although the Review Team has attempted to identify the full scope and scale of Dr. Byrnes's infractions, this investigation has largely been impeded by Site-17 Administration's non-compliance and the O5 Council's unwillingness to expand its investigative warrant.
+
+Unfortunately, Dr. Byrnes cannot be sentenced. Due to the Ethical Post-Amnesticization Punishment Ruling by the O5 Council in 1995, Dr. Byrnes cannot be punished for actions taken prior to major amnesticization, as he would not be able to remember committing them.
+
+**__Dr. Rachel Steele__** was also found to be in violation of the Foundation Code of Conduct, particularly Chapter 2, Section 2 § 2.4.1 concerning gross negligence of an anomaly. As she was not the head researcher and did not possess prior infringements on her record, The Review Team recommends the standard escalation and dock one week of pay, as well as requiring three months of remedial therapy.
+
+Although **__Dr. Morgan McPharrell__** was found to be in violation of the Foundation Code of Conduct (similar to Dr. Steele), it is the consensus of the Review Team (2/4) that Dr. McPharrell should not receive an infringement on his record.
+
+**__Dr. Nadine Crawford__** has already been removed from Foundation staff. For more information, consult Case ID #07082012-9932-T.
+
+----
+
+As a result, the SCP-8980 Review Team would like to make the following recommendations for future Ethics Committee Proposals to rectify this case:
+
+# Provide monetary compensation to SCP-8980 for the abuse it suffered under Dr. Christopher Byrnes.
+# Provide free parapsychological counseling to SCP-8980 for the remainder of its tenure at the Foundation.
+# Request the Fire Suppression Department to soft-monitor SCP-8980 in order to properly reintegrate it back into the Foundation's workplace environment.
+
+Additionally, some structural changes would be beneficial to propose to the wider Foundation as a whole as Foundation Motions:
+
+# File a Foundation Motion to require Ethics Committee Review of any staff member who wishes to undergo amnestic therapy upon retirement.
+# File a Foundation Motion to expand the ability of the Ethics Committee to promote Liaisons to sites without Site Director approval.
+# Request an investigative warrant from the O5 Council to investigate all of Site-17's administration.
+
+Further inquiries and questions should be forwarded to Review Team Lead Ronald Roberts.
+
+[[/div]]
+
+@@​@@
+
+[[div class="blockquote"]]
+
+**Chairman Odongo Tejani** [[span class="logtime"]]| May 5th, 2015 - 01:02 AM LOCAL[[/span]]
+[[div class="ec-comment"]]
+Thank you for your invaluable efforts in this case, Roberts. You and your team have done us an immense service by presenting such a thorough case to our committee.
+
+All of the suggested Ethics Committee Proposals have passed the initial Ethics Committee review process, and will each be voted upon accordingly. Foundation Motions will be put up for vote at the next annual Inter-Committee Council Session, should they be approved by the Ethics Committee as a whole.
+[[/div]]
+[[/div]]
+
+@@​@@
+
+[[div class="blockquote"]]
+
+**Chairman Odongo Tejani** [[span class="logtime"]]| June 15th, 2015 - 01:00 AM LOCAL[[/span]]
+[[div class="ec-comment"]]
+
+All three Ethics Committee Proposals presented by the Review Team have passed.
+
+* **Proposal 1 (Compensation):** Passed. (61-2-4)
+ * A separate vote (33-22-12) decided in favor of an allotment of $470,000 USD, as opposed to the standard for similar cases. Primary concern raised is the recent budget deficit and low-profile of the case.
+* **Proposal 2 (Counseling):** Passed. (63-1-3)
+ * This is the standard practice; those voting against raised concerns that SCP-8980's experience with Dr. Crawford may result in additional traumatizing experiences for it.
+* **Proposal 3 (Fire Suppression):** Passed. (38-29)
+ * Outcome was largely irrelevant; the Fire Suppression Department was already monitoring SCP-8980's case for several years. All actions taken by the FSD have been reviewed and deemed within specified ethical limits.
+
+Foundation Motions 1 and 3 have been passed; however, Motion 2 has been rejected (33-34), as opposition cites concerns that this policy would disrupt power balance between the O5 Council, the Ethics Committee, and the Site Directors Committee, unnecessarily inflaming tensions across the Foundation.
+
+[[/div]]
+[[/div]]
+
+@@​@@
+
+[[div class="blockquote"]]
+
+**Chairman Odongo Tejani** [[span class="logtime"]]| September 2nd, 2015 - 01:00 AM LOCAL[[/span]]
+[[div class="ec-comment"]]
+
+I am adding an additional comment to this thread to indicate the previously-mentioned Foundation Motions were filed for vote during this year's Foundation Committees Conference. The results of the vote are as follows:
+
+* **Motion 1 (Amnestics Amendment):** Denied. Passed by the O5 Council (10-3), but vetoed by the Site Directors Committee (68-109).
+ * O5 Council majority opinion expressed approval for the amendment, citing no concerns.
+ * Site Directors Committee majority opinion expressed disapproval for the amendment, claiming the motion was an effort by the Ethics Committee to take power from the Site Directors.
+
+* **Motion 2 (Site-17 Investigation Warrant):** Denied by the O5 Council (6-7).
+ * Minority opinion expressed interest in ensuring Site-17 was fully complying with the ethical guidelines of the Foundation.
+ * Majority opinion solely commented the following: "Site-17 is doing its job as intended."
+
+Unfortunately, it seems our hands are tied once again. I will be keeping this case open indefinitely in the event any future progress is made in investigating any of Dr. Byrnes's other activities.
+
+I want to once again extend my gratitude to our incredible review team for their hard work in bringing this case to light. Your efforts are invaluable in keeping the Foundation a safe place, and your work is incredibly appreciated.
+
+[[/div]]
+[[/div]]
+
+@@​@@
+
+[[div class="blockquote"]]
+
+= {{This thread has been automatically soft-locked due to inactivity (2 YEARS). Please consult your superior to have this thread unlocked.}}
+
+[[/div]]
+
+[[/div]]
+
+[[=]]
+@@​@@
+
+@@​@@
+
+@@​@@
+
+...
+
+@@​@@
+
+{{End of document.}}
+
+@@​@@
+
+...
+
+@@​@@
+
+...
+
+@@​@@
+
+{{Scanning for additional local files...}}
+
+@@​@@
+
+...
+
+@@​@@
+
+...
+
+@@​@@
+
+{{Loading one (1) local file...}}
+
+@@​@@
+
+...
+
+@@​@@
+
+@@​@@
+
+@@​@@
+[[/=]]
+
+[[div class="email"]]
+
+**FROM:** MMcPharrell@site17.scip.net
+**TO:** FMarinos-Site-17@eth-comm.scip.net
+**SUBJECT:** Rehabilitation Progress Update (November 3rd, 2017)
+
+[[div style="border: 1px solid rgb(var(--ec-popup-color));"]]
+[[/div]]
+
+Good afternoon Flora,
+
+I wish I could say I've made more progress on Lillian's rehabilitation, but the past month hasn't been too kind on her. At the very least, I have a few new things to report.
+
+First, the new program you recommended for counselling wasn't effective. Two minutes in and she immediately suffered another panic attack, and the second go around was even worse. At the present rate, we're going to run out of new therapists at 17 in about a month. Long-distance is basically infeasible until we can stabilize her technophobia enough to get her on a computer for more than an hour at time.
+
+In terms of work, she's still pretty much incapable of doing anything productive. I can't really blame her for this one; doing a division's worth of labor every week for a third of your life will absolutely burn you out. But I can't get Director Thompson off my case unless her work gets done, so I've bit the bullet and just started doing her work for her. It's absolutely agonizing to have to work overtime every single day, but I can't really do much about it — Director Graham's already denied my transfer request. At least I get overtime pay.
+
+Finally, her condition in general... she's still mostly the same, but I've made a little bit of progress. For one, she's finally stopped compulsively calling me "sir". It was a bit funny at first, but it got weird really quick, so I'm glad we can finally move past that. The random bouts of screaming haven't stopped though, and neither has her tendency to stare at me while I sleep, but they've become less frequent. If there's any hope for progress, it's in that — though if we're only seeing this kind of progress two years in, we've still got a ways to go.
+
+I wouldn't dare tell anyone else this, but... I think I'm really starting to resent her, Flora. I've been de facto co-opted into being her full-time caretaker, and frankly she's being a real pain in my ass. Between doing her work and chores for her //and// dealing with her severe neuroses all day every day, she's completely worn me down to the point that I can't even respect her as a person anymore, much less a coworker. I hate to say it, but I'm honestly this close to just calling it quits and letting her rot. I can't do this. Something's gonna give.
+
+Sending this email is probably the dumbest thing I'll ever do in my career, but I really needed to get this off my chest. I know you said the Committee's hands were tied, but if there's anything you can do, //please// help me out here. I'm not sure how much longer I can handle this psychotic woman.
+
+[[div style="border: 1px solid rgb(var(--ec-popup-color));"]]
+[[/div]]
+
+With Regards,
+Dr. Morgan McPharrell
+
+[[/div]]
+
+[[=]]
+@@​@@
+
+@@​@@
+
+@@​@@
+
+...
+
+@@​@@
+
+{{End of file. File has been archived.}}
+
+@@​@@
+
+{{No further documents found.}}
+
+@@​@@
+
+...
+
+@@​@@
+
+@@​@@
+
+@@​@@
+{{Logging out...}}
+
+@@​@@
+@@​@@
+@@​@@
+@@​@@
+@@​@@
+@@​@@
+
+{{You are now logged out. Have a nice day, [[[SCP-7777|Liaison Marinos]]].}}
+
+[[/=]]
+
+[[/div]]

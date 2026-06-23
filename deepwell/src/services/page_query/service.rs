@@ -117,17 +117,20 @@ impl PageQueryService {
             IncludedCategories::All => {
                 debug!("Selecting all categories with exclusions");
 
-                page::Column::PageCategoryId.in_subquery(
-                    Query::select()
-                        .column(page_category::Column::CategoryId)
-                        .from(PageCategory)
-                        .and_where(page_category::Column::SiteId.eq(queried_site_id))
-                        .and_where(
-                            page_category::Column::Slug
-                                .is_not_in(cat_slugs!(excluded_categories)),
-                        )
-                        .to_owned(),
-                )
+                let mut query = Query::select();
+                query
+                    .column(page_category::Column::CategoryId)
+                    .from(PageCategory)
+                    .and_where(page_category::Column::SiteId.eq(queried_site_id));
+
+                if !excluded_categories.is_empty() {
+                    query.and_where(
+                        page_category::Column::Slug
+                            .is_not_in(cat_slugs!(excluded_categories)),
+                    );
+                }
+
+                page::Column::PageCategoryId.in_subquery(query.to_owned())
             }
 
             // If a specific list of categories is provided, filter by site_id, inclusion in the
@@ -140,21 +143,24 @@ impl PageQueryService {
             IncludedCategories::List(included_categories) => {
                 debug!("Selecting included categories only");
 
-                page::Column::PageCategoryId.in_subquery(
-                    Query::select()
-                        .column(page_category::Column::CategoryId)
-                        .from(PageCategory)
-                        .and_where(page_category::Column::SiteId.eq(queried_site_id))
-                        .and_where(
-                            page_category::Column::Slug
-                                .is_in(cat_slugs!(included_categories)),
-                        )
-                        .and_where(
-                            page_category::Column::Slug
-                                .is_not_in(cat_slugs!(excluded_categories)),
-                        )
-                        .to_owned(),
-                )
+                let mut query = Query::select();
+                query
+                    .column(page_category::Column::CategoryId)
+                    .from(PageCategory)
+                    .and_where(page_category::Column::SiteId.eq(queried_site_id))
+                    .and_where(
+                        page_category::Column::Slug
+                            .is_in(cat_slugs!(included_categories)),
+                    );
+
+                if !excluded_categories.is_empty() {
+                    query.and_where(
+                        page_category::Column::Slug
+                            .is_not_in(cat_slugs!(excluded_categories)),
+                    );
+                }
+
+                page::Column::PageCategoryId.in_subquery(query.to_owned())
             }
         };
         condition = condition.add(page_category_condition);
@@ -296,27 +302,29 @@ impl PageQueryService {
         //
         // Selects pages that have an outgoing link (`from_page_id`)
         // to a specified page (`to_page_id`).
-        condition = condition.add(
-            page::Column::PageId.in_subquery(
-                Query::select()
-                    .column(page_connection::Column::FromPageId)
-                    .from(PageConnection)
-                    .and_where({
-                        let incoming_ids = PageService::get_pages(
-                            ctx,
-                            queried_site_id,
-                            contains_outgoing_links,
-                        )
-                        .await
-                        .or_raise(make_error)?
-                        .into_iter()
-                        .map(|page| page.page_id);
+        if !contains_outgoing_links.is_empty() {
+            condition = condition.add(
+                page::Column::PageId.in_subquery(
+                    Query::select()
+                        .column(page_connection::Column::FromPageId)
+                        .from(PageConnection)
+                        .and_where({
+                            let incoming_ids = PageService::get_pages(
+                                ctx,
+                                queried_site_id,
+                                contains_outgoing_links,
+                            )
+                            .await
+                            .or_raise(make_error)?
+                            .into_iter()
+                            .map(|page| page.page_id);
 
-                        page_connection::Column::ToPageId.is_in(incoming_ids)
-                    })
-                    .to_owned(),
-            ),
-        );
+                            page_connection::Column::ToPageId.is_in(incoming_ids)
+                        })
+                        .to_owned(),
+                ),
+            );
+        }
 
         // Tag filtering
         // TODO requires joining with most recent revision
@@ -425,6 +433,11 @@ impl PageQueryService {
         if let Some(limit) = pagination.limit {
             debug!("Limiting ListPages to a maximum of {limit} pages total");
             query = query.limit(limit);
+        }
+
+        if offset > 0 {
+            debug!("Skipping the first {offset} ListPages results");
+            query = query.offset(u64::from(offset));
         }
 
         // TODO pagination

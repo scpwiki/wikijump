@@ -1,0 +1,11 @@
+gap_id	scope	status	reason	followup_goal
+LP-001	@URL offset runtime parsing	known-gap	The render layer handles only the declared fallback 0 when no URL value is available	Add request/query offset plumbing and validate supplied numeric offsets
+LP-002	Generic ListPages selectors	known-gap	Only parent=".", category="fragment", order="created_at", limit="1", and offset="@URL|0" are accepted	Introduce typed parsing and incremental fixtures for additional selectors
+LP-003	Multiple result rows and generic limits	known-gap	The SCP-8980 proof needs exactly one selected child	Render the body template once per ordered result and define separator behavior
+LP-004	Template variables beyond %%content%%	known-gap	The proof body contains only %%content%%	Implement variables incrementally with render-level fixtures
+LP-005	Nested or recursive ListPages	known-gap	The narrow pre-render pass expands only blocks present in the original parent source	Add bounded recursive expansion with cycle detection
+LP-006	Malformed or unsupported block output	known-gap	Unsupported ListPages blocks are preserved and logged rather than interpreted	Surface structured render diagnostics and define fallback HTML behavior
+LP-007	Automatic parent rerender on relationship changes	known-gap	The test explicitly invokes the existing full-rerender path after parenting fragments	Track ListPages relation dependencies and outdate affected parent revisions automatically
+LP-008	Preview and navigation render contexts	known-gap	Expansion runs only when RenderService has a concrete PageId	Define current-page identity and query permissions for previews and navigation renders
+LP-009	Pagination UI, tags, ranges, authors, and generic query variables	out-of-scope	These semantics are not needed for the SCP-8980 acceptance proof	Split each semantic family into a focused TDD goal
+LP-010	Resource localization and SCP Anthology synchronization	out-of-scope	The workpack explicitly assigns these concerns to other issue lanes	Handle resources and anthology content in their dedicated follow-ups
