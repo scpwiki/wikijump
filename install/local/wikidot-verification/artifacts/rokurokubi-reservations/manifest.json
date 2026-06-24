@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "source_csv_sha256": "36c3eda4055ac51d4f625c626e12f0c50e54dc45565608343b3d303da6e4081b",
+  "source_row_count_excluding_header": 500,
+  "rokurokubi_row_count": 2,
+  "mapped_scp_wiki_count": 2,
+  "unmapped_count": 0,
+  "canonical_mirror_host": "scp-wiki.wikijump.localhost:18443",
+  "source_sheet": "https://docs.google.com/spreadsheets/d/1_J_rte3pfZ8uEbq8r1xqJycU89XkO5Z6yhW-2SkeNak/edit?gid=1325361212#gid=1325361212",
+  "output_csv": "install/local/wikidot-verification/artifacts/rokurokubi-reservations/rokurokubi-reservations-with-wikijump-mirror.csv"
+}
