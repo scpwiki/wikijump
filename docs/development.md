@@ -136,10 +136,10 @@ Once you have a local instance of Wikijump running, you may wish to make `curl` 
 Thus, the "standard" curl request for a web page would look something like the following:
 
 ```
-$ curl -i -k -H 'Host: scpwiki.localhost' -H 'Accept: text/html' https://localhost/scp-002
+$ curl -i -H 'Host: scp-wiki.wikijump.localhost' -H 'Accept: text/html' http://localhost:18443/scp-002
 ```
 
-The `-k` argument addresses point 2, the `Host` header addresses point 1, and the `Accept` header addresses point 3. This request effectively fetches `https://scpwiki.localhost/scp-002` for you. Naturally, you can replace the route after `localhost` with whatever you are requesting (say `/-/file/scp-001/fractal-mka.jpeg`).
+The `Host` header addresses point 1, and the `Accept` header addresses point 3. This request effectively fetches `http://scp-wiki.wikijump.localhost:18443/scp-002` for you when your local proxy is bound to port 18443. Naturally, you can replace the route after `localhost:18443` with whatever you are requesting (say `/-/file/scp-001/fractal-mka.jpeg`). If your local Caddy instance is bound directly to port 80 or 443, use the same canonical host with the matching local port.
 
 ## Clock Drift
 
@@ -155,8 +155,8 @@ $ ntpd -d -q -n -p 0.pool.ntp.org
 
 Wikijump runs multiple seeded sites in local development for different trust and import levels.
 
-- `ai-translation` is the editable local site for AI or user-generated translation work.
-  It is intentionally not a mirror of real SCP-JP and can hold drafts not yet published to Wikidot.
+- `scpaiueouiuiuiui` is the editable local site for manual or generated translation corpus work.
+  It is intentionally not a mirror of real SCP-JP and can hold drafts not yet published to Wikidot. See `docs/local-authoring-boundary.md` for the mirror/editable boundary contract.
 - `scp-jp` is reserved as the mirror-style site for content that is expected to reflect the real
   `scp-jp.wikidot.com` corpus.
 
@@ -164,7 +164,7 @@ Publishing rule:
 
 Only content that is confirmed from the real SCP-JP source should be mirrored into `scp-jp`.
 Unpublished translation drafts (for example `SCP-9506` before external publication)
-should be imported into `ai-translation` instead, unless the real source page exists.
+should be imported into `scpaiueouiuiuiui` instead, unless the real source page exists.
 
 Source convention reference:
 

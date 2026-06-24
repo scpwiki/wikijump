@@ -26,12 +26,10 @@
         "locale": "en"
     },
     {
-        "slug": "ai-translation",
-        "name": "AI Translation QA",
-        "domains": ["ai-translation.wikijump.dev", "ai-translation.localhost"],
-        "preferred-domain": "ai-translation.localhost",
-        "tagline": "Editable translation QA",
-        "description": "Editable site for generated and user translation drafts that do not mirror real SCP-JP by default.",
+        "slug": "scpaiueouiuiuiui",
+        "name": "Local Translation Corpus",
+        "tagline": "Editable local translation corpus",
+        "description": "Editable local site for manual and generated translation drafts that must not mirror real SCP-JP by default.",
         "layout": null,
         "license": "cc-by-sa-3.0",
         "locale": "ja"
@@ -59,8 +57,6 @@
     {
         "slug": "scp-wiki",
         "name": "SCP Wiki (test)",
-        "domains": ["scpwiki.dev", "scpwiki.localhost"],
-        "preferred-domain": "scpwiki.localhost",
         "tagline": "Secure, Contain, Protect",
         "description": "Test site mimicking the SCP Wiki (EN)",
         "default-page": "main",

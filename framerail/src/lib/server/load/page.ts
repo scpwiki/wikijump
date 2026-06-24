@@ -31,6 +31,7 @@ import {
 } from "$lib/server/deepwell/pageFile"
 import { translate } from "$lib/server/deepwell/translate"
 import { pageView } from "$lib/server/deepwell/views"
+import { resolvePageMutationUserId } from "$lib/server/load/local-authoring-actor"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import { type DeepwellError, DeleteOptions, Layout } from "$lib/types"
 import { error, redirect } from "@sveltejs/kit"
@@ -309,10 +310,12 @@ export async function pageDeleteAction({
   }
 
   const { slug } = params
+  const { siteSlug } = loadSiteInfo(request.headers)
   const sessionToken = cookies.get("wikijump_token")
   const ipAddress = getClientAddress()
 
   const session = await authGetSession(sessionToken)
+  const userId = resolvePageMutationUserId(session?.user_id, siteSlug)
 
   try {
     const { siteId, pageId, lastRevisionId, option, comments } = form.data
@@ -321,7 +324,7 @@ export async function pageDeleteAction({
       const res = await pageMove(
         siteId,
         pageId,
-        session?.user_id,
+        userId,
         ipAddress,
         slug,
         lastRevisionId,
@@ -333,7 +336,7 @@ export async function pageDeleteAction({
       const res = await pageDelete(
         siteId,
         pageId,
-        session?.user_id,
+        userId,
         ipAddress,
         slug,
         lastRevisionId,
@@ -394,10 +397,12 @@ export async function pageEditAction({
   }
 
   const { slug } = params
+  const { siteSlug } = loadSiteInfo(request.headers)
   const sessionToken = cookies.get("wikijump_token")
   const ipAddress = getClientAddress()
 
   const session = await authGetSession(sessionToken)
+  const userId = resolvePageMutationUserId(session?.user_id, siteSlug)
 
   try {
     const {
@@ -415,7 +420,7 @@ export async function pageEditAction({
     const res = await pageEdit(
       siteId,
       pageId,
-      session?.user_id,
+      userId,
       ipAddress,
       slug,
       lastRevisionId,
@@ -424,7 +429,8 @@ export async function pageEditAction({
       title,
       altTitle,
       tags,
-      layout
+      layout,
+      { sessionToken, siteId, page: pageId ?? slug }
     )
 
     return { form, res }

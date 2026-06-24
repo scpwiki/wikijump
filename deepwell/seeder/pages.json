@@ -98,11 +98,11 @@
             "wikitext": "page-tags"
         }
     ],
-    "ai-translation": [
+    "scpaiueouiuiuiui": [
         {
             "slug": "boundary-check",
-            "title": "Boundary Check: AI Translation QA",
-            "wikitext": "issue5-ai-translation-boundary-check"
+            "title": "Boundary Check: Local Translation Corpus",
+            "wikitext": "issue50-editable-corpus-boundary"
         }
     ],
     "scp-jp": [

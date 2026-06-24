@@ -49,19 +49,16 @@ struct Issue5SiteFixture {
     boundary_wikitext: &'static str,
 }
 
-const ISSUE5_AI_TRANSLATION_FIXTURE: Issue5SiteFixture = Issue5SiteFixture {
-    slug: "ai-translation",
-    name: "AI Translation QA",
-    tagline: "Editable translation QA",
-    description: "Editable site for generated and user translation drafts that do not mirror real SCP-JP by default.",
+const ISSUE5_EDITABLE_CORPUS_FIXTURE: Issue5SiteFixture = Issue5SiteFixture {
+    slug: "scpaiueouiuiuiui",
+    name: "Local Translation Corpus",
+    tagline: "Editable local translation corpus",
+    description: "Editable local site for manual and generated translation drafts that must not mirror real SCP-JP by default.",
     locale: "ja",
-    preferred_domain: "ai-translation.localhost",
-    custom_domains: &[
-        ("ai-translation.wikijump.dev", false),
-        ("ai-translation.localhost", false),
-    ],
-    boundary_title: "Boundary Check: AI Translation QA",
-    boundary_wikitext: "== Issue 5 boundary check ==\nThis fixture ensures AI translation pages stay isolated from SCP-JP.",
+    preferred_domain: "scpaiueouiuiuiui.wikijump.localhost",
+    custom_domains: &[],
+    boundary_title: "Boundary Check: Local Translation Corpus",
+    boundary_wikitext: "== Issue 5 boundary check ==\nThis fixture ensures editable local translation corpus pages stay isolated from SCP-JP.",
 };
 
 const ISSUE5_EDITOR_ROLE_NAME: &str = "Issue5 Translation Editor";
@@ -75,16 +72,16 @@ const ISSUE5_SCP_JP_FIXTURE: Issue5SiteFixture = Issue5SiteFixture {
     preferred_domain: "scp-jp.localhost",
     custom_domains: &[("scp-jp.wikijump.dev", false), ("scp-jp.localhost", false)],
     boundary_title: "Boundary Check: SCP-JP Mirror",
-    boundary_wikitext: "== Issue 5 boundary check ==\nThis fixture ensures mirror pages stay isolated from editable AI translations.",
+    boundary_wikitext: "== Issue 5 boundary check ==\nThis fixture ensures mirror pages stay isolated from editable local translation corpus drafts.",
 };
 
 async fn ensure_issue5_sites(runner: &mut TestRunner) -> (i64, i64) {
     let ai_site_output = run_endpoint!(
         runner,
         site_get,
-        json!({"site": ISSUE5_AI_TRANSLATION_FIXTURE.slug}),
+        json!({"site": ISSUE5_EDITABLE_CORPUS_FIXTURE.slug}),
     )
-    .expect("Seeded ai-translation site not found");
+    .expect("Seeded scpaiueouiuiuiui site not found");
 
     let scp_site_output = run_endpoint!(
         runner,
@@ -101,7 +98,7 @@ async fn ensure_issue5_sites(runner: &mut TestRunner) -> (i64, i64) {
             "page": "boundary-check",
         }),
     )
-    .expect("ai-translation boundary fixture missing");
+    .expect("scpaiueouiuiuiui boundary fixture missing");
 
     let scp_boundary_output = run_endpoint!(
         runner,
@@ -115,7 +112,7 @@ async fn ensure_issue5_sites(runner: &mut TestRunner) -> (i64, i64) {
 
     assert_eq!(
         ai_boundary_output.title,
-        ISSUE5_AI_TRANSLATION_FIXTURE.boundary_title
+        ISSUE5_EDITABLE_CORPUS_FIXTURE.boundary_title
     );
     assert_eq!(
         scp_boundary_output.title,
@@ -123,17 +120,6 @@ async fn ensure_issue5_sites(runner: &mut TestRunner) -> (i64, i64) {
     );
 
     (ai_site_output.site.site_id, scp_site_output.site.site_id)
-}
-
-async fn issue5_site_user_id(runner: &mut TestRunner, site_slug: &str) -> i64 {
-    let user = run_endpoint!(
-        runner,
-        user_get,
-        json!({ "user": format!("site:{site_slug}") }),
-    )
-    .expect("Could not locate generated site owner user");
-
-    user.user.user_id
 }
 
 async fn ensure_issue5_editor_permission(
@@ -375,6 +361,23 @@ async fn basic_edit() {
     assert_eq!(page.revision_type, PageRevisionType::Regular);
     assert_eq!(page.revision_user_id, ADMIN_USER_ID);
     assert_eq!(page.page_category_slug, "_default");
+}
+
+#[tokio::test]
+async fn issue50_scp_wiki_uses_canonical_wikijump_subdomain() {
+    let runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+
+    assert_eq!(site.site.slug, "scp-wiki");
+    assert_eq!(
+        site.site.preferred_domain, None,
+        "scp-wiki should use scp-wiki.wikijump.localhost as its local canonical host"
+    );
+    assert!(
+        site.domains.is_empty(),
+        "scp-wiki should not keep legacy scpwiki custom domains"
+    );
 }
 
 #[tokio::test]
@@ -904,50 +907,29 @@ async fn basic_move() {
 #[tokio::test]
 async fn issue5_seeded_sites_are_distinct() {
     let mut runner = TestRunner::setup().await;
-    let (ai_site_id, scp_site_id) = ensure_issue5_sites(&mut runner).await;
+    let (editable_site_id, scp_site_id) = ensure_issue5_sites(&mut runner).await;
 
-    let ai_site_output =
-        run_endpoint!(runner, site_get, json!({"site": "ai-translation"}))
-            .expect("ai-translation site not found");
+    let editable_site_output =
+        run_endpoint!(runner, site_get, json!({"site": "scpaiueouiuiuiui"}),)
+            .expect("scpaiueouiuiuiui site not found");
     let scp_site_output = run_endpoint!(runner, site_get, json!({"site": "scp-jp"}))
         .expect("scp-jp site not found");
 
-    assert_eq!(ai_site_output.site.slug, "ai-translation");
+    assert_eq!(editable_site_output.site.slug, "scpaiueouiuiuiui");
     assert_eq!(scp_site_output.site.slug, "scp-jp");
-    assert_eq!(ai_site_output.site.site_id, ai_site_id);
+    assert_eq!(editable_site_output.site.site_id, editable_site_id);
     assert_eq!(scp_site_output.site.site_id, scp_site_id);
     assert_ne!(
-        ai_site_output.site.site_id, scp_site_output.site.site_id,
+        editable_site_output.site.site_id, scp_site_output.site.site_id,
         "Site IDs are identical across boundary sites"
     );
-    assert!(
-        ai_site_output.site.preferred_domain.is_some(),
-        "ai-translation site should have a preferred domain"
-    );
     assert_eq!(
-        ai_site_output.site.preferred_domain,
-        Some("ai-translation.localhost".to_owned())
+        editable_site_output.site.preferred_domain, None,
+        "editable corpus site should use its canonical Wikijump subdomain"
     );
     assert!(
-        ai_site_output
-            .domains
-            .iter()
-            .any(|domain| domain.domain == "ai-translation.wikijump.dev"),
-        "ai-translation should include wikijump.dev domain"
-    );
-    assert!(
-        ai_site_output
-            .domains
-            .iter()
-            .any(|domain| domain.domain == "ai-translation.localhost"),
-        "ai-translation should include localhost domain"
-    );
-    assert!(
-        ai_site_output
-            .domains
-            .iter()
-            .all(|domain| domain.domain != "scp-jp.wikijump.dev"),
-        "ai-translation should not share scp-jp domain"
+        editable_site_output.domains.is_empty(),
+        "editable corpus site should not carry legacy custom domains"
     );
     assert!(
         scp_site_output.site.preferred_domain.is_some(),
@@ -975,8 +957,8 @@ async fn issue5_seeded_sites_are_distinct() {
         scp_site_output
             .domains
             .iter()
-            .all(|domain| domain.domain != "ai-translation.wikijump.dev"),
-        "scp-jp should not share ai-translation domain"
+            .all(|domain| domain.domain != "scpaiueouiuiuiui.wikijump.dev"),
+        "scp-jp should not share editable corpus domains"
     );
 }
 
@@ -992,19 +974,17 @@ async fn issue5_seeding_is_idempotent() {
 }
 
 #[tokio::test]
-async fn issue5_ai_translation_is_editable() {
+async fn issue5_editable_corpus_is_editable() {
     let mut runner = TestRunner::setup().await;
-    let (ai_site_id, _) = ensure_issue5_sites(&mut runner).await;
-    let ai_site_user_id =
-        issue5_site_user_id(&mut runner, ISSUE5_AI_TRANSLATION_FIXTURE.slug).await;
+    let (editable_site_id, _) = ensure_issue5_sites(&mut runner).await;
 
     const PAGE_SLUG: &str = "issue5-editable-smoke";
 
-    let site_id = ai_site_id;
+    let site_id = editable_site_id;
 
     runner.set_request_context(RequestContext {
         session: None,
-        user_id: Some(ai_site_user_id),
+        user_id: Some(ADMIN_USER_ID),
         site_id: Some(site_id),
         page_reference: Some(Reference::Slug(PAGE_SLUG.into())),
     });
@@ -1020,7 +1000,7 @@ async fn issue5_ai_translation_is_editable() {
             "slug": PAGE_SLUG,
             "layout": null,
             "revision_comments": "created draft",
-            "user_id": ai_site_user_id,
+            "user_id": ADMIN_USER_ID,
             "ip_address": common::IP_ADDRESS,
         }),
     );
@@ -1038,7 +1018,7 @@ async fn issue5_ai_translation_is_editable() {
     ensure_issue5_editor_permission(
         &mut runner,
         site_id,
-        ai_site_user_id,
+        ADMIN_USER_ID,
         page.page_category_id,
     )
     .await;
@@ -1065,7 +1045,7 @@ async fn issue5_ai_translation_is_editable() {
             "page": PAGE_SLUG,
             "last_revision_id": page.revision_id,
             "revision_comments": "Edit translation draft",
-            "user_id": ai_site_user_id,
+            "user_id": ADMIN_USER_ID,
             "wikitext": "Edited draft body for local translation work.",
             "ip_address": common::IP_ADDRESS,
         }),
@@ -1088,24 +1068,27 @@ async fn issue5_ai_translation_is_editable() {
 }
 
 #[tokio::test]
-async fn issue5_ai_translation_pages_do_not_leak_to_scp_jp() {
+async fn issue5_editable_corpus_pages_do_not_leak_to_mirror_sites() {
     let mut runner = TestRunner::setup().await;
-    let (ai_site_id, scp_site_id) = ensure_issue5_sites(&mut runner).await;
+    let (editable_site_id, scp_jp_site_id) = ensure_issue5_sites(&mut runner).await;
 
-    const AI_SITE_SLUG: &str = "ai-translation";
+    const EDITABLE_SITE_SLUG: &str = "scpaiueouiuiuiui";
     const PAGE_SLUG: &str = "issue5-local-only-draft-page";
 
-    let ai_output = run_endpoint!(runner, site_get, json!({"site": AI_SITE_SLUG}))
+    let editable_output =
+        run_endpoint!(runner, site_get, json!({"site": EDITABLE_SITE_SLUG}))
+            .expect("Seeded site not found");
+    let scp_jp_output = run_endpoint!(runner, site_get, json!({"site": "scp-jp"}))
         .expect("Seeded site not found");
-    let scp_output = run_endpoint!(runner, site_get, json!({"site": "scp-jp"}))
+    let scp_wiki_output = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
         .expect("Seeded site not found");
-    assert_eq!(ai_output.site.site_id, ai_site_id);
-    assert_eq!(scp_output.site.site_id, scp_site_id);
+    assert_eq!(editable_output.site.site_id, editable_site_id);
+    assert_eq!(scp_jp_output.site.site_id, scp_jp_site_id);
 
     runner.set_request_context(RequestContext {
         session: None,
         user_id: Some(ADMIN_USER_ID),
-        site_id: Some(ai_site_id),
+        site_id: Some(editable_site_id),
         page_reference: Some(Reference::Slug(PAGE_SLUG.into())),
     });
 
@@ -1113,8 +1096,8 @@ async fn issue5_ai_translation_pages_do_not_leak_to_scp_jp() {
         runner,
         page_create,
         json!({
-            "site_id": ai_site_id,
-            "wikitext": "This draft only belongs in ai-translation.",
+            "site_id": editable_site_id,
+            "wikitext": "This draft only belongs in scpaiueouiuiuiui.",
             "title": "Issue 5 local draft",
             "alt_title": null,
             "slug": PAGE_SLUG,
@@ -1125,50 +1108,63 @@ async fn issue5_ai_translation_pages_do_not_leak_to_scp_jp() {
         }),
     );
 
-    let ai_page = run_endpoint!(
+    let editable_page = run_endpoint!(
         runner,
         page_get,
         json!({
-            "site_id": ai_site_id,
+            "site_id": editable_site_id,
             "page": PAGE_SLUG,
         }),
     )
-    .expect("Draft missing from ai-translation");
-    assert_eq!(ai_page.site_id, ai_site_id);
+    .expect("Draft missing from scpaiueouiuiuiui");
+    assert_eq!(editable_page.site_id, editable_site_id);
 
     let scp_page = run_endpoint!(
         runner,
         page_get,
         json!({
-            "site_id": scp_site_id,
+            "site_id": scp_jp_site_id,
             "page": PAGE_SLUG,
         }),
     );
     assert!(scp_page.is_none(), "Draft unexpectedly found in scp-jp");
+
+    let scp_wiki_page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": scp_wiki_output.site.site_id,
+            "page": PAGE_SLUG,
+        }),
+    );
+    assert!(
+        scp_wiki_page.is_none(),
+        "Draft unexpectedly found in scp-wiki"
+    );
 }
 
 #[tokio::test]
-async fn issue5_same_slug_does_not_mix_between_ai_translation_and_scp_jp() {
+async fn issue5_same_slug_does_not_mix_between_editable_corpus_and_scp_jp() {
     let mut runner = TestRunner::setup().await;
-    let (ai_site_id, scp_site_id) = ensure_issue5_sites(&mut runner).await;
+    let (editable_site_id, scp_site_id) = ensure_issue5_sites(&mut runner).await;
 
-    let ai_site_output =
-        run_endpoint!(runner, site_get, json!({"site": "ai-translation"}))
-            .expect("Seeded ai-translation not found");
+    let editable_site_output =
+        run_endpoint!(runner, site_get, json!({"site": "scpaiueouiuiuiui"}),)
+            .expect("Seeded scpaiueouiuiuiui not found");
     let scp_site_output = run_endpoint!(runner, site_get, json!({"site": "scp-jp"}))
         .expect("Seeded scp-jp not found");
-    assert_eq!(ai_site_output.site.site_id, ai_site_id);
+    assert_eq!(editable_site_output.site.site_id, editable_site_id);
     assert_eq!(scp_site_output.site.site_id, scp_site_id);
 
     let ai_boundary_page = run_endpoint!(
         runner,
         page_get,
         json!({
-            "site_id": ai_site_output.site.site_id,
+            "site_id": editable_site_output.site.site_id,
             "page": "boundary-check",
         }),
     )
-    .expect("ai-translation boundary fixture missing");
+    .expect("scpaiueouiuiuiui boundary fixture missing");
     let scp_boundary_page = run_endpoint!(
         runner,
         page_get,

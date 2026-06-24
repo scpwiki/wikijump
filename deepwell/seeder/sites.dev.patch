@@ -7,9 +7,3 @@
 <         ],
 ---
 >         "domains": [],
-40,41c35,36
-<         "domains": ["scpwiki.dev", "scpwiki.localhost"],
-<         "preferred-domain": "scpwiki.localhost",
----
->         "domains": ["scpwiki.dev"],
->         "preferred-domain": "scpwiki.dev",
