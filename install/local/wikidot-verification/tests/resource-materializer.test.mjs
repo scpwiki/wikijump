@@ -33,6 +33,17 @@ function scanManifest(sourceText, fixtureSlug = "materializer-fixture") {
   }).manifest;
 }
 
+function readableStreamFromChunks(...chunks) {
+  return new ReadableStream({
+    start(controller) {
+      for (const chunk of chunks) {
+        controller.enqueue(chunk);
+      }
+      controller.close();
+    },
+  });
+}
+
 test("materializes only manifest entries and hashes the bytes written", async (t) => {
   const outputRoot = await temporaryDirectory(t, "wikijump-materialize-");
   const manifest = scanManifest([
@@ -125,7 +136,7 @@ test("HTTP loader requests exactly the validated manifest URL without redirects"
         ok: true,
         status: 200,
         headers: {get: () => String(expectedBytes.byteLength)},
-        arrayBuffer: async () => expectedBytes,
+        body: readableStreamFromChunks(expectedBytes),
       };
     },
     maxResourceBytes: 1024,
@@ -138,6 +149,30 @@ test("HTTP loader requests exactly the validated manifest URL without redirects"
   assert.equal(calls[0].options.method, "GET");
   assert.equal(calls[0].options.redirect, "error");
   assert.ok(calls[0].options.signal instanceof AbortSignal);
+});
+
+test("HTTP loader rejects non-streaming responses before reading arrayBuffer", async () => {
+  const [entry] = scanManifest(
+    "https://scp-wiki.wikidot.com/local--files/test/non-streaming.bin",
+    "http-non-streaming-fixture",
+  );
+  let arrayBufferCalls = 0;
+  const loadResource = createHttpFixtureResourceLoader({
+    fetchImpl: async () => ({
+      ok: true,
+      status: 200,
+      headers: {get: () => null},
+      arrayBuffer: async () => {
+        arrayBufferCalls += 1;
+        return Buffer.alloc(1024 * 1024);
+      },
+    }),
+    maxResourceBytes: 16,
+    timeoutMs: 1000,
+  });
+
+  await assert.rejects(loadResource(entry), /streaming body/);
+  assert.equal(arrayBufferCalls, 0);
 });
 
 test("rejects a tampered target path before invoking the loader", async (t) => {
@@ -219,13 +254,10 @@ test("HTTP loader aborts a streamed body that exceeds the configured limit", asy
         ok: true,
         status: 200,
         headers: {get: () => null},
-        body: new ReadableStream({
-          start(controller) {
-            controller.enqueue(Uint8Array.from([1, 2, 3]));
-            controller.enqueue(Uint8Array.from([4, 5, 6]));
-            controller.close();
-          },
-        }),
+        body: readableStreamFromChunks(
+          Uint8Array.from([1, 2, 3]),
+          Uint8Array.from([4, 5, 6]),
+        ),
       };
     },
     maxResourceBytes: 4,

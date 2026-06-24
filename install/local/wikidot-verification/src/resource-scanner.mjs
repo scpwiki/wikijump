@@ -104,6 +104,7 @@ export function scanForFixtureLocalResources({
         fixtureSlug,
         site,
         wikidotPath,
+        urlSearch: parsed.search,
       });
     } catch {
       outOfScope.push({...normalizedSource, local_target_path: null});

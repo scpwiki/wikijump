@@ -57,6 +57,28 @@ test("detects bare local--files URL", () => {
   assert.equal(item.kind_guess, "image");
 });
 
+test("uses distinct target paths for query variants", () => {
+  const sourceText = [
+    "https://scp-wiki.wikidot.com/local--files/test/asset.png?v=1",
+    "https://scp-wiki.wikidot.com/local--files/test/asset.png?v=2",
+  ].join("\n");
+
+  const result = scanForFixtureLocalResources({
+    sourceText,
+    fixtureSlug: "query-fixture",
+    sourcePath: "samples/query-variants.txt",
+  });
+
+  assert.equal(result.manifest.length, 2);
+  assert.notEqual(
+    result.manifest[0].local_target_path,
+    result.manifest[1].local_target_path,
+  );
+  assert.ok(
+    result.manifest.every((entry) => entry.local_target_path.includes(".__query-")),
+  );
+});
+
 test("deduplicates duplicate resource references deterministically", () => {
   const sourceText = [
     "https://scp-wiki.wikidot.com/local--files/scp-8980/fractal.webp",

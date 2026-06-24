@@ -76,16 +76,9 @@ async function readResponseBody({
     return Buffer.concat(chunks, totalBytes);
   }
 
-  if (typeof response.arrayBuffer !== "function") {
-    throw new TypeError("fetch response must provide a readable body or arrayBuffer()");
-  }
-  const bytes = Buffer.from(await response.arrayBuffer());
-  if (bytes.byteLength > maxResourceBytes) {
-    throw new Error(
-      `resource body exceeds maxResourceBytes (${maxResourceBytes}): ${originalUrl}`,
-    );
-  }
-  return bytes;
+  throw new TypeError(
+    `fetch response must provide a streaming body to enforce maxResourceBytes: ${originalUrl}`,
+  );
 }
 
 async function ensureSafeDirectoryTree(realRoot, directoryPath) {

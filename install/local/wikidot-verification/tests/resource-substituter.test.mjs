@@ -139,6 +139,6 @@ test("preserves a manifest query and client-side fragment on the local URL", () 
   assert.equal(result.substitutions, 1);
   assert.equal(
     result.text,
-    "background: url('/resources/suffix-fixture/scp-wiki_wikidot_com/local--files/test/icons.svg?version=2#warning')",
+    `background: url('/${entry.local_target_path}?version=2#warning')`,
   );
 });

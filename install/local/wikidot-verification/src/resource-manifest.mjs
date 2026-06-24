@@ -1,3 +1,4 @@
+import {createHash} from "node:crypto";
 import path from "node:path";
 
 const WIKIDOT_DOMAIN_SUFFIX = ".wikidot.com";
@@ -98,6 +99,21 @@ function isWithinPath(rootPath, candidatePath) {
   );
 }
 
+function queryTargetSuffix(urlSearch) {
+  if (urlSearch === "") {
+    return "";
+  }
+  if (typeof urlSearch !== "string" || !urlSearch.startsWith("?")) {
+    throw new Error("urlSearch must be empty or start with '?'");
+  }
+  if (urlSearch.includes("\0")) {
+    throw new Error("urlSearch contains an unsafe character");
+  }
+
+  const digest = createHash("sha256").update(urlSearch).digest("hex").slice(0, 16);
+  return `.__query-${digest}`;
+}
+
 export function isWikidotResourceHost(hostname) {
   return hostname.endsWith(WIKIDOT_DOMAIN_SUFFIX);
 }
@@ -106,13 +122,14 @@ export function buildFixtureResourceTargetPath({
   fixtureSlug,
   site,
   wikidotPath,
+  urlSearch = "",
 }) {
   assertSafeFixtureSlug(fixtureSlug);
   assertHostname(site);
   assertSafeWikidotPath(wikidotPath);
 
   const safeSite = site.replaceAll(".", "_");
-  return `resources/${fixtureSlug}/${safeSite}${wikidotPath}`;
+  return `resources/${fixtureSlug}/${safeSite}${wikidotPath}${queryTargetSuffix(urlSearch)}`;
 }
 
 export function assertFixtureResourceManifestEntry(
@@ -172,6 +189,7 @@ export function assertFixtureResourceManifestEntry(
     fixtureSlug: entry.fixture_slug,
     site: entry.site,
     wikidotPath: entry.wikidot_path,
+    urlSearch: parsed.search,
   });
   if (entry.local_target_path !== expectedTargetPath) {
     throw new Error("local_target_path does not match the deterministic manifest path");
