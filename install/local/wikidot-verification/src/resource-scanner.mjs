@@ -1,6 +1,11 @@
-const LOCAL_FILES_URL_RE = /https?:\/\/[^\s"'()<>[\]{}]+\/local--files\/[^\s"'()<>[\]{}]+/gi;
-
-const WIKIDOT_DOMAIN_SUFFIX = ".wikidot.com";
+import {
+  buildFixtureResourceTargetPath,
+  isWikidotResourceHost,
+} from "./resource-manifest.mjs";
+import {
+  matchFixtureLocalResourceUrls,
+  parseFixtureLocalResourceUrlToken,
+} from "./resource-url.mjs";
 
 const KIND_GUESSES = {
   css: "css",
@@ -36,35 +41,12 @@ const DEFAULT_OPTIONS = {
   sourcePath: "unknown-source",
 };
 
-function isWikidotHost(host) {
-  return host.endsWith(WIKIDOT_DOMAIN_SUFFIX);
-}
-
-function sanitizeOriginalUrl(rawUrl) {
-  return rawUrl
-    .replace(/^[\"'`]+/, "")
-    .replace(/[\"'`;,\)\].:!?]+$/, "");
-}
-
-function canonicalizeUrl(url) {
-  const normalized = sanitizeOriginalUrl(url);
-  const parsed = new URL(normalized);
-  const encodedPath = parsed.pathname;
-  const search = parsed.search || "";
-  return `${parsed.origin}${encodedPath}${search}`;
-}
-
 function kindFromFilename(filename) {
   const extension = (filename.includes(".")
     ? filename.slice(filename.lastIndexOf(".") + 1)
     : ""
   ).toLowerCase();
   return KIND_GUESSES[extension] || "unknown";
-}
-
-function localTargetPath(fixtureSlug, site, wikidotPath) {
-  const safeSite = site.replaceAll(".", "_");
-  return `resources/${fixtureSlug}/${safeSite}${wikidotPath}`;
 }
 
 export function scanForFixtureLocalResources({
@@ -76,22 +58,21 @@ export function scanForFixtureLocalResources({
   const outOfScope = [];
   const seen = new Set();
 
-  const matches = sourceText.matchAll(LOCAL_FILES_URL_RE);
+  const matches = matchFixtureLocalResourceUrls(sourceText);
   for (const match of matches) {
-    const raw = sanitizeOriginalUrl(match[0]);
-    let parsed;
+    let parsedToken;
     try {
-      parsed = new URL(raw);
-    } catch (err) {
+      parsedToken = parseFixtureLocalResourceUrlToken(match[0]);
+    } catch {
       continue;
     }
+    const {canonicalUrl: canonical, parsed} = parsedToken;
 
     if (!parsed.pathname.includes("/local--files/")) {
       continue;
     }
 
     const site = parsed.hostname;
-    const canonical = canonicalizeUrl(raw);
     const wikidotPath = parsed.pathname.includes("/local--files/")
       ? parsed.pathname.slice(parsed.pathname.indexOf("/local--files/"))
       : "";
@@ -104,7 +85,6 @@ export function scanForFixtureLocalResources({
       wikidot_path: wikidotPath,
       filename,
       kind_guess: kindFromFilename(filename),
-      local_target_path: localTargetPath(fixtureSlug, site, wikidotPath),
       sha256: null,
     };
 
@@ -113,12 +93,24 @@ export function scanForFixtureLocalResources({
     }
     seen.add(canonical);
 
-    if (!isWikidotHost(site)) {
-      outOfScope.push(normalizedSource);
+    if (!isWikidotResourceHost(site)) {
+      outOfScope.push({...normalizedSource, local_target_path: null});
       continue;
     }
 
-    manifest.push(normalizedSource);
+    let localTargetPath;
+    try {
+      localTargetPath = buildFixtureResourceTargetPath({
+        fixtureSlug,
+        site,
+        wikidotPath,
+      });
+    } catch {
+      outOfScope.push({...normalizedSource, local_target_path: null});
+      continue;
+    }
+
+    manifest.push({...normalizedSource, local_target_path: localTargetPath});
   }
 
   manifest.sort((a, b) =>

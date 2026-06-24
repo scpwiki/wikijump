@@ -143,3 +143,59 @@ test("deduplicates repeated out-of-scope local--files URLs", () => {
   assert.equal(result.manifest.length, 0);
   assert.equal(result.out_of_scope.length, 1);
 });
+
+test("trims a Wikidot image-option pipe after a local--files URL", () => {
+  const sourceText =
+    "[[image https://scp-wiki.wikidot.com/local--files/scp-8980/femalescientist.png|width=300]]";
+
+  const result = scanForFixtureLocalResources({
+    sourceText,
+    fixtureSlug: "fixture-9",
+    sourcePath: "samples/image-options.txt",
+  });
+
+  assert.equal(result.manifest.length, 1);
+  assert.equal(result.manifest[0].filename, "femalescientist.png");
+  assert.equal(result.manifest[0].kind_guess, "image");
+  assert.equal(
+    result.manifest[0].original_url,
+    "https://scp-wiki.wikidot.com/local--files/scp-8980/femalescientist.png",
+  );
+});
+
+test("keeps wdfiles.com resources out-of-scope for the anthology follow-up", () => {
+  const sourceText =
+    "https://scp-sandbox-3.wdfiles.com/local--files/test544/INTRO.mp3";
+
+  const result = scanForFixtureLocalResources({
+    sourceText,
+    fixtureSlug: "scp-anthology-2024",
+    sourcePath: "corpus/en/pages/scp-anthology-2024/source.wikidot.txt",
+  });
+
+  assert.equal(result.manifest.length, 0);
+  assert.equal(result.out_of_scope.length, 1);
+  assert.equal(result.out_of_scope[0].filename, "INTRO.mp3");
+  assert.equal(result.out_of_scope[0].kind_guess, "audio");
+});
+
+test("unsafe in-scope resource paths do not abort later scan results", () => {
+  const sourceText = [
+    "https://scp-wiki.wikidot.com/local--files/scp-8980/bad%00secret.png",
+    "https://scp-wiki.wikidot.com/local--files/scp-8980/fractal.webp",
+  ].join("\n");
+
+  const result = scanForFixtureLocalResources({
+    sourceText,
+    fixtureSlug: "fixture-10",
+    sourcePath: "samples/unsafe-path.txt",
+  });
+
+  assert.equal(result.manifest.length, 1);
+  assert.equal(result.manifest[0].filename, "fractal.webp");
+  assert.equal(result.out_of_scope.length, 1);
+  assert.equal(result.out_of_scope[0].site, "scp-wiki.wikidot.com");
+  assert.equal(result.out_of_scope[0].filename, "bad%00secret.png");
+  assert.equal(result.out_of_scope[0].wikidot_path, "/local--files/scp-8980/bad%00secret.png");
+  assert.equal(result.out_of_scope[0].local_target_path, null);
+});
