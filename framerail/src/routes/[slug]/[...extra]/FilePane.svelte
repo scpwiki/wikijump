@@ -530,8 +530,7 @@
         name="comments"
         class="file-form-field file-comments"
         placeholder={data.internationalization?.["wiki-page-revision-comments"]}
-        bind:value={$uploadForm.comments}
-      ></textarea>
+        bind:value={$uploadForm.comments}></textarea>
       {#if pageLayoutState.current === Layout.WIKIDOT}
         <div class="buttons">
           <input
@@ -608,8 +607,7 @@
         name="comments"
         class="file-form-field file-comments"
         placeholder={data.internationalization?.["wiki-page-revision-comments"]}
-        bind:value={$editForm.comments}
-      ></textarea>
+        bind:value={$editForm.comments}></textarea>
       {#if pageLayoutState.current === Layout.WIKIDOT}
         <div class="buttons">
           <input
@@ -669,8 +667,7 @@
         name="comments"
         class="file-move-comments"
         placeholder={data.internationalization?.["wiki-page-revision-comments"]}
-        bind:value={$moveForm.comments}
-      ></textarea>
+        bind:value={$moveForm.comments}></textarea>
       {#if pageLayoutState.current === Layout.WIKIDOT}
         <div class="buttons">
           <input
@@ -737,8 +734,7 @@
         name="comments"
         class="file-restore-comments"
         placeholder={data.internationalization?.["wiki-page-revision-comments"]}
-        bind:value={$restoreForm.comments}
-      ></textarea>
+        bind:value={$restoreForm.comments}></textarea>
       {#if pageLayoutState.current === Layout.WIKIDOT}
         <div class="buttons">
           <input
