@@ -31,7 +31,7 @@ serde = { version = "1", features = ["derive"] }
 str-macro = "1"
 thiserror = "2"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
-tower-http = { version = "0.6.11", features = ["add-extension", "compression-br", "compression-deflate", "compression-gzip", "compression-zstd", "normalize-path", "set-header", "trace"] }
+tower-http = { version = "0.7.0", features = ["add-extension", "compression-br", "compression-deflate", "compression-gzip", "compression-zstd", "normalize-path", "set-header", "trace"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 wikidot-normalize = "0.12"
