@@ -1,0 +1,5 @@
+gap_id	scope	status	reason	followup
+RS-001	SCP-8980 non-selected resources	accepted-gap	The proof intentionally materializes one CSS and one image from fragment-scp-8980-1; other SCP-8980 local--files entries remain remote to keep the first closure slice bounded.	Expand the selected manifest after the local serving path is stable.
+RS-002	Audio or binary-like media	accepted-gap	The SCP-8980 fragment fixture used for this proof contains CSS and image resources but no audio link. The binary requirement is represented by an image byte resource in this selected fixture.	Use the SCP Anthology 2024 inventory for audio-heavy follow-up work.
+RS-003	Real network capture in CI	accepted-gap	The repository test uses deterministic fixture bytes so CI does not depend on live Wikidot availability or third-party network state.	Run live capture separately when producing browser-visible parity packets.
+RS-004	Browser DOM/network-panel evidence	remaining-gap	The deterministic Node test proves local HTTP resolution, but does not drive a browser or record a network panel.	Add browser-visible proof in a dedicated #22 follow-up if stricter visual evidence is required.
